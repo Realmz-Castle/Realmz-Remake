@@ -335,7 +335,7 @@ func is_map_tile_walkable_by_char(chara, pos : Vector2)->bool : #battle mode, ch
 #	print("gamestate is_map_tile_walkable_by_char ",  chara.name, " ,pos: ", pos)
 #	print("is_map_tile_walkable_by_char TODO check character itself :")
 #	print("map.mapdata[pos.x][pos.y]", map.mapdata[pos.x][pos.y])
-	
+	print("GameGlobal is_map_tile_walkable_by_char "+chara.name+" pos:"+str(pos))
 	var tileitemlightstack : Array = map.mapdata[pos.x][pos.y]
 	if tileitemlightstack.is_empty() :
 		return false
@@ -412,9 +412,17 @@ func end_battle( wonfledlost : String ) :
 					money_drop[g] += c.money[g]
 				for i in c.inventory :
 					treasureitems.append(i)
+			
+			#this won't show the allies  screen
+			#await UI.ow_hud.show_loot_menu(treasureitems,money_drop,experience)
+			
+			
 			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : treasureitems, "money" : money_drop, "exp" : experience, "prev_state" : "Exploration"})
-			#show_loot_menu(treasureitems,money_drop,20)
-			#await UI.ow_hud.treasureControl.done_looting
+			await UI.ow_hud.treasureControl.done_looting
+			print("done looting")
+			
+			
+			
 			#show_allies_menu()
 			#await UI.ow_hud.alliesCtrl.done_allying
 			##GameState._combat_state = eCombatStates.unchecked

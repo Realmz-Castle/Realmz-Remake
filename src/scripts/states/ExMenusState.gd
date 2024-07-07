@@ -56,6 +56,7 @@ func enter(_msg : Dictionary = {} ) ->void :
 			UI.ow_hud.spellcastMenu.initialize(_msg["selected_character"])
 			UI.ow_hud.spellcastMenu.show()
 		"LootMenu" :
+			cur_menu_name = menu_name
 			await GameGlobal.show_loot_menu(_msg["treasure"],_msg["money"],_msg["exp"])
 			#if not GameGlobal.player_allies.is_empty() :
 			GameGlobal.show_allies_menu()
@@ -84,11 +85,13 @@ func exit() :
 
 
 func _state_process(_delta : float) -> void :
-	#print("cur_menu_name : "+cur_menu_name)
+	#print("cur_menu_name : "+ cur_menu_name)
 	if cur_menu_name== "PC_Pick" :
 		var cursorid : int = min(8, need_to_pick_n - picked_charapanels.size() )
 		#print(cursorid)
 		Input.set_custom_mouse_cursor(UI.cursor_numbers[cursorid])
+	#if cur_menu_name== "LootMenu" :
+		#Input.set_custom_mouse_cursor((UI.cursor_sword))
 
 func _on_chara_panel_selected_for_picking(cp : CharaSmallPanel) :
 
