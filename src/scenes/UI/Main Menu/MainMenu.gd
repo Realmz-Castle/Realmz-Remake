@@ -84,8 +84,8 @@ func _on_load_button_pressed():
 
 func _on_hd_button_pressed():
 	#display/window/stretch/scale
-	var scale : float = ProjectSettings.get_setting_with_override("display/window/stretch/scale")
-	var newscale : float = 1.0 if scale !=1.0 else 2.0
+	var settingscale : float = ProjectSettings.get_setting_with_override("display/window/stretch/scale")
+	var newscale : float = 1.0 if settingscale !=1.0 else 2.0
 	ProjectSettings.set_setting("display/window/stretch/scale", newscale)
 	ProjectSettings.save()
 	get_tree().quit()

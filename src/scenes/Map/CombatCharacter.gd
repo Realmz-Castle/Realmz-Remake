@@ -55,11 +55,11 @@ func _ready():
 #	move(Vector2(3,3))
 
 
-func set_icon(icon : Texture2D, size : Vector2) :
+func set_icon(cbicon : Texture2D, cbsize : Vector2) :
 #	print("set_incon  size ", size)
-	sprite.texture = icon
-	var iconsize : Vector2 = icon.get_size()/32 #in pixels
-	sprite.scale = size/iconsize
+	sprite.texture = cbicon
+	var iconsize : Vector2 = cbicon.get_size()/32 #in pixels
+	sprite.scale = cbsize/iconsize
 
 
 # Game inputs #

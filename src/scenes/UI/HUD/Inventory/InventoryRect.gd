@@ -66,63 +66,63 @@ func _ready():
 
 
 
-func on_viewport_size_changed(screensize) :
+func on_viewport_size_changed(_screensize) :
 	return
-	
-	
-	_set_size(Vector2(screensize.x-320, screensize.y-200))
-#	inventoryBoxRight
-	traderect._set_size(Vector2(floor((screensize.x-320-44-20)/2), screensize.y-210))
-	if tradeselectspritebutton != null :
-		tradeselectsprite.position = tradeselectspritebutton.get_rect().position
-		tradeselectsprite.show()
-	else :
-		tradeselectsprite.hide()
-	
-	var scrollW = floor((screensize.x-320-44-20)/2)
-	
-	inventoryScrollLeft._set_size(Vector2( scrollW , screensize.y-260))
-	
-	inventoryScrollRight._set_size(Vector2( scrollW, screensize.y-260))
-	var rightPanX = 54+floor((screensize.x-320-44-20)/2)
-	inventoryScrollRight._set_position(Vector2(rightPanX,10))
-
-	var buttonY = screensize.y-250
-	
-	var emptyspace = floor((scrollW-63-73-80-66)/3)
-	
-	buttonDone._set_position(Vector2( 10+floor((screensize.x-320-44-20)/2) , buttonY))
-	
-	buttonJoin._set_position(Vector2( 10+floor((screensize.x-320-44-20)/2) , buttonY-50))
-	buttonSplit._set_position(Vector2( 10+floor((screensize.x-320-44-20)/2) , buttonY-75))
-	
-	buttonUse._set_position(Vector2( rightPanX , buttonY))
-	buttonIdentify._set_position(Vector2( rightPanX+63+emptyspace , buttonY))
-	buttonIdenPay._set_position(Vector2( rightPanX+63+73+2*emptyspace , buttonY))
-	buttonDrop._set_position(Vector2 ( screensize.x-320-66-10 , buttonY ))
-	buttonTrade._set_position( Vector2(10, buttonY) )
-
-	buttonShow._set_position( Vector2(0, buttonY-10) )
-#	buttonShop._set_position( Vector2(74, buttonY-10) )
-	tradeicons._set_position( Vector2(74+40, buttonY-10))
-	var columns = max( floor((scrollW-74-40)/16)-1 , 1)
-	tradeicons.set_columns(columns)
-	
-#	infoRect._set_size(Vector2( screensize.x-320 , 200))
-#	infoRect.get_node("InfoLabel")._set_size(Vector2( scrollW , screensize.y-260))
-
-#	shopRect._set_size(Vector2( scrollW+10 , screensize.y-200-10))
-	var ratio = 1.0
-	if screensize.y<600 :
-		var buttonrectheight = max(screensize.y,400)-260
-		ratio = buttonrectheight/340
-		
-	shopButtonsRect.set_scale(Vector2(1.0,ratio))
-	if visible :
-		for i in inventoryBoxLeft.get_children() :
-			i.on_viewport_size_changed(screensize)
-		for i in inventoryBoxRight.get_children() :
-			i.on_viewport_size_changed(screensize)
+	##IDK IF STILL IMPORTANT
+	#
+	#_set_size(Vector2(screensize.x-320, screensize.y-200))
+##	inventoryBoxRight
+	#traderect._set_size(Vector2(floor((screensize.x-320-44-20)/2), screensize.y-210))
+	#if tradeselectspritebutton != null :
+		#tradeselectsprite.position = tradeselectspritebutton.get_rect().position
+		#tradeselectsprite.show()
+	#else :
+		#tradeselectsprite.hide()
+	#
+	#var scrollW = floor((screensize.x-320-44-20)/2)
+	#
+	#inventoryScrollLeft._set_size(Vector2( scrollW , screensize.y-260))
+	#
+	#inventoryScrollRight._set_size(Vector2( scrollW, screensize.y-260))
+	#var rightPanX = 54+floor((screensize.x-320-44-20)/2)
+	#inventoryScrollRight._set_position(Vector2(rightPanX,10))
+#
+	#var buttonY = screensize.y-250
+	#
+	#var emptyspace = floor((scrollW-63-73-80-66)/3)
+	#
+	#buttonDone._set_position(Vector2( 10+floor((screensize.x-320-44-20)/2) , buttonY))
+	#
+	#buttonJoin._set_position(Vector2( 10+floor((screensize.x-320-44-20)/2) , buttonY-50))
+	#buttonSplit._set_position(Vector2( 10+floor((screensize.x-320-44-20)/2) , buttonY-75))
+	#
+	#buttonUse._set_position(Vector2( rightPanX , buttonY))
+	#buttonIdentify._set_position(Vector2( rightPanX+63+emptyspace , buttonY))
+	#buttonIdenPay._set_position(Vector2( rightPanX+63+73+2*emptyspace , buttonY))
+	#buttonDrop._set_position(Vector2 ( screensize.x-320-66-10 , buttonY ))
+	#buttonTrade._set_position( Vector2(10, buttonY) )
+#
+	#buttonShow._set_position( Vector2(0, buttonY-10) )
+##	buttonShop._set_position( Vector2(74, buttonY-10) )
+	#tradeicons._set_position( Vector2(74+40, buttonY-10))
+	#var columns = max( floor((scrollW-74-40)/16)-1 , 1)
+	#tradeicons.set_columns(columns)
+	#
+##	infoRect._set_size(Vector2( screensize.x-320 , 200))
+##	infoRect.get_node("InfoLabel")._set_size(Vector2( scrollW , screensize.y-260))
+#
+##	shopRect._set_size(Vector2( scrollW+10 , screensize.y-200-10))
+	#var ratio = 1.0
+	#if screensize.y<600 :
+		#var buttonrectheight = max(screensize.y,400)-260
+		#ratio = buttonrectheight/340
+		#
+	#shopButtonsRect.set_scale(Vector2(1.0,ratio))
+	#if visible :
+		#for i in inventoryBoxLeft.get_children() :
+			#i.on_viewport_size_changed(screensize)
+		#for i in inventoryBoxRight.get_children() :
+			#i.on_viewport_size_changed(screensize)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):

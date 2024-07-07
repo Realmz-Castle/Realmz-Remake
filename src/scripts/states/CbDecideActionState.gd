@@ -22,7 +22,7 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	check_camera_movement_command()
 
 
@@ -102,7 +102,7 @@ func enter(_msg : Dictionary = {}) -> void:
 
 	#now wait for walk/spell/item_use/
 
-func initialize_battle(_msg :  Dictionary, resources : CampaignResources, map : Map) :
+func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map : Map) :
 	combat_state.cur_battle_round = 0
 	combat_state.cur_battle_data = _msg
 	is_bandaging = false
@@ -230,7 +230,7 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 	if input!=Vector2i.ZERO :
 		
 		var cur_act_crea : Creature = current_active_creabutton.creature
-		var inputv2 : Vector2 = Vector2(input)
+		var _inputv2 : Vector2 = Vector2(input)
 		var attemptedpos = cur_act_crea.position + Vector2(input)
 		#var tilestack : Array = GameGlobal.map.mapdata[cur_act_crea.position.x+inputv2.x][cur_act_crea.position.y+inputv2.y]
 		#var canmoveandtime : Array = StateMachine.on_trying_to_move_to_tile_stack(current_active_creabutton.creature, tilestack, attemptedpos )
@@ -351,12 +351,12 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 		#return [1, selectedSpell, selectedplvl, spell_target_pos, aoe_shape, {},[Vector2i(spell_target_pos)] , true, true]
 		var spell = decision_array[1]
 		var power : int = decision_array[2]
-		var target_pos : Vector2i = decision_array[3]
-		var aoe_shape : Array = decision_array[4]
+		var _target_pos : Vector2i = decision_array[3]
+		var _aoe_shape : Array = decision_array[4]
 		var item : Dictionary = decision_array[5]
-		var main_tpos : Vector2i = decision_array[6]
+		var _main_tpos : Vector2i = decision_array[6]
 		var tg_tiles : Array = decision_array[7]
-		var tg_creas : Array = decision_array[8]
+		var _tg_creas : Array = decision_array[8]
 
 		action_msg = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : tg_tiles, "used_item" : item , "must_add_terrain" : true, "override_aoe" : [] }
 		on_spellcast_confirmed(action_msg)

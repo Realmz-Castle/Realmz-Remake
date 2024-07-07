@@ -9,11 +9,11 @@ extends Label
 signal pressed
 #onready var button = $ChoicesButton
 
-func _set(propname : StringName,text : Variant) :
+func _set(propname : StringName,ntext : Variant) :
 #	var text2 = "I’ve had the same problem with labels’ rect size not working as one would expect. What you can do, at least until someone with more knowledge can shed more light in this, is get the font you are using (if you use the theme’s default font, you can easily just get the default font without much fuzz) and use its GetStringSize() method."
 	match propname :
 		"text" :
-			super.set_text(text)
+			super.set_text(ntext)
 #	var sz = $"Label".get_combined_minimum_size()
 #	_set_size(Vector2(320,sz.y+10))
 

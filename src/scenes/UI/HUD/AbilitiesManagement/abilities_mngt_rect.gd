@@ -65,7 +65,7 @@ func set_displayed_character(pc : PlayerCharacter, show_class_abilities : bool, 
 #		print("boob")
 		known[lvl] = charspells[lvl-1].duplicate(true)
 #	print(" known l54 : ", known)
-	var canlearnfromextras : Array = []
+	var _canlearnfromextras : Array = []
 	for sn in character.get_abilities_pc_can_learn()+extra_avail :
 		var slvl : int = spells_book[sn]["script"].level
 		if slvl <= maxlevel :

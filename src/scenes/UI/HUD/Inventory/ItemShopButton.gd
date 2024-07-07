@@ -116,8 +116,8 @@ func _get_drag_data(_pos):
 
 
 
-func _on_ItemSmallButton_gui_input(event):
-	pass
+#func _on_ItemSmallButton_gui_input(event):
+	#pass
 
 func _on_ItemSmallButton_mouse_entered():
 	if inventoryrect==null :

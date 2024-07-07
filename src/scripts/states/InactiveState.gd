@@ -12,5 +12,5 @@ func enter(_msg : Dictionary = {}) -> void:
 	pass
 
 
-func _state_process(delta : float) -> void :
+func _state_process(_delta : float) -> void :
 	pass

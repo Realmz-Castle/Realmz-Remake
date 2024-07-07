@@ -73,6 +73,7 @@ func set_item(nitem : Dictionary) -> void :
 		statsLabel.text = ''
 	
 	#print("ItemSmallButton nitem[is_identified]>0 "+nitem["name"] + ' identfied? ',nitem["is_identified"]>0 )
+	#print(nitem)
 	if nitem["is_identified"]>0 :
 		namelabel.text = nitem["name"]
 		namelabel.add_theme_color_override("font_color", Color.BLACK)

@@ -28,8 +28,8 @@ func _ready():
 	pass # Replace with function body.
 
 
-func _state_process(delta : float) -> void :
-	pass
+#func _state_process(delta : float) -> void :
+	#pass
 
 
 func get_selected_character_combatbutton() :
@@ -65,7 +65,7 @@ func is_map_tile_walkable_by_char(chara : Creature, pos : Vector2)->bool : #batt
 
 	
 
-func find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, is_failure_ok : bool, max_move_attempts : int, max_los_attempts : int) ->Vector2 :
+func find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, _is_failure_ok : bool, max_move_attempts : int, max_los_attempts : int) ->Vector2 :
 	var move_attempts : int = 0
 	var los_attempts : int = 0
 #	var max_los_attempts : int = player_characters.size()*100
@@ -94,9 +94,9 @@ func find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, is_fail
 func check_los(fromV : Vector2, toV : Vector2) -> bool :
 	var tiles_line_array : Array = GameGlobal.map.targetingLayer.bresenham_line(fromV,toV, 0, 500)
 #		print("Targeting bresentham : ",tiles_line_array)
-	var breakagain : bool = false
+	#var _breakagain : bool = false
 	for ts_pos in tiles_line_array :
-		breakagain = false
+		#_breakagain = false
 		var tilestack : Array = GameGlobal.map.mapdata[ts_pos.x][ts_pos.y]
 		for tiledict in tilestack :
 			if tiledict["wall"]==1 or tiledict["swall"]==1:
@@ -108,11 +108,11 @@ func check_los(fromV : Vector2, toV : Vector2) -> bool :
 func add_pc_or_npc_ally_to_battle_map(crea : Creature, init_pos : Vector2) -> bool:
 	if crea.get_stat("curHP")<=0 or (not crea.joins_combat):
 		return false
-	var move_attempts : int = 0
+	var _move_attempts : int = 0
 	var max_move_attempts = GameGlobal.player_characters.size()+1 #how far from initpos the PC can spawn
-	var los_attempts : int = 0
+	var _los_attempts : int = 0
 	var max_los_attempts : int = GameGlobal.player_characters.size()*100
-	var is_los : bool = true
+	var _is_los : bool = true
 	var pos : Vector2 = find_pos_for_crea_on_battlefield(crea, init_pos, false, max_move_attempts, max_los_attempts)
 	crea.position = pos
 	crea.creature_script_memory.clear()

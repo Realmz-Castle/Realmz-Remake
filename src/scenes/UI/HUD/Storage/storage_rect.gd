@@ -97,7 +97,7 @@ func fill_grids(chara, type : String) :
 			#ibutton.connect("pressed",Callable(self,"_on_dropentry_pressed").bind(i))
 		storageGrid.add_child(newButton)
 
-func create_chara_item_button(chara, item : Dictionary) -> Button :
+func create_chara_item_button(_chara, item : Dictionary) -> Button :
 	var newButton = itemLootButtonTSCN.instantiate()
 	var newtex : Texture2D = item["texture"]
 	newButton.find_child("ItemTextureRect").set_texture( newtex )
@@ -145,7 +145,7 @@ func _on_itembutton_pressed(item : Dictionary, side : int, chara, button : Butto
 			GameGlobal.gamescreenInstance.updateCharPanelDisplay()
 			return
 
-func _on_itembutton_mouse_entered(item : Dictionary, button : Button) :
+func _on_itembutton_mouse_entered(item : Dictionary, _button : Button) :
 #	print("storagerect _on_itembutton_mouse_entered "+item["name"])
 	UI.ow_hud.textRect.set_item_info(item)
 

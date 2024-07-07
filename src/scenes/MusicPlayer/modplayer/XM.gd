@@ -86,7 +86,7 @@ func _read_patterns( stream:StreamPeerBuffer, flags:int, pattern_count:int, chan
 			return []
 		var row_count:int = stream.get_u16( )
 		#warning-ignore:unused_variable
-		var size:int = stream.get_u16( )
+		var _size:int = stream.get_u16( )
 		
 		#warning-ignore:unused_variable
 		for k in range( row_count ):
@@ -141,7 +141,7 @@ func _read_instruments( stream:StreamPeerBuffer, instrument_count:int ) -> Array
 		remain_size -= 4 + 22 + 1 + 2
 		if 0 < sample_count:
 			#warning-ignore:unused_variable
-			var sample_header_size:int = stream.get_u32( )
+			var _sample_header_size:int = stream.get_u32( )
 			sample_numbers = stream.get_partial_data( 96 )[1]
 			inst.volume_envelope = Mod.ModEnvelope.new( )
 			#warning-ignore:unused_variable

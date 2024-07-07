@@ -6,8 +6,8 @@ extends VBoxContainer
 @onready var maxLabel : Label = $SummonerHBox/MaxLabel
 
 var character : PlayerCharacter
-var max : int = 0 : set = _set_max
-var cur : int = 0 : set = _set_cur
+var max_s : int = 0 : set = _set_max
+var cur_s : int = 0 : set = _set_cur
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -19,11 +19,11 @@ func set_character(pc : PlayerCharacter) :
 	sumLabel.text = character.name+"'s summoned creatures :"
 	_set_max( character.get_max_perma_summons() )
 	
-	maxLabel.text = "(Max "+ str(max) +")"
+	maxLabel.text = "(Max "+ str(max_s) +")"
 
 func _set_max(m : int) :
-	max = m
-	maxLabel.text = "("+ str(cur)+'/'+str(max) +")"
+	max_s = m
+	maxLabel.text = "("+ str(cur_s)+'/'+str(max_s) +")"
 func _set_cur(c : int) :
-	cur = c
-	maxLabel.text = "("+ str(cur)+'/'+str(max) +")"
+	cur_s = c
+	maxLabel.text = "("+ str(cur_s)+'/'+str(max_s) +")"

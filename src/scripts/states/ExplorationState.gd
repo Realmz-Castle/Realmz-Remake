@@ -31,7 +31,7 @@ func enter(_msg : Dictionary = {}) -> void:
 		GameGlobal.campaign_start_load_shops_data(GameGlobal.cmp_resources.items_book)
 		if is_start :
 			onstartGD.after_loading_ressources()
-		var map : Map =GameGlobal.map
+		map = GameGlobal.map
 
 		map.load_map( campaign, GameGlobal.currentmap_name )
 		map.explore_tiles_from_tilepos(Vector2(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y))
@@ -56,11 +56,11 @@ func _state_process(_delta: float) -> void:
 		Input.set_custom_mouse_cursor((UI.cursor_sword))
 
 
-func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
+func _on_dir_input_received(input : Vector2i, _is_keyboard : bool) -> void :
 	StateMachine.transition_to("Exploration/ExAnim", {"walk_inputs" : [input]})
 
 
-func on_trying_to_move_to_tile_stack(crea : Creature, stack : Array, position : Vector2) : #exporation mode
+func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position : Vector2) : #exporation mode
 	var canwalk : bool = true
 	var soundplayed : bool = false
 	var stacksize = stack.size()

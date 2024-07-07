@@ -22,7 +22,7 @@ func fill(campaignname : String) :
 	if GameGlobal.honest_mode :
 		my_menu.disable_create_new_save(saves_list.size()>0)
 	for c in saves_list :
-		var i : int = saves_itemlist.add_item(c)
+		var _i : int = saves_itemlist.add_item(c)
 #	if saves_list.size() > 0 :
 #		saves_itemlist.select(0)
 #		my_menu.on_save_selected(saves_list[0])

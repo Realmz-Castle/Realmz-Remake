@@ -24,7 +24,8 @@ signal choice_pressed
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var screensize : Vector2 = get_window().get_size()
-	disablerButton._set_size(screensize)
+	#disablerButton._set_size(screensize)
+	disablerButton.set_deferred("size", screensize)
 	disablerButton._set_position(Vector2(0,-screensize.y+200))
 	choicesContainer.add_theme_constant_override ("separation",0)
 #	choicesContainer.connect("choice_pressed",Callable(self,"_on_ChoicesVBoxContainer_choice_pressed").bind(scripts[i))

@@ -48,7 +48,7 @@ var jewstogems : int = 90
 func _ready():
 	pass # Replace with function body.
 
-func initialize(characters : Array) :
+func initialize(_characters : Array) :
 	set_money_change_enabled(money_changing_available)
 	coinsLabel.text = str(GameGlobal.money_pool[0])
 	gemsLabel.text = str(GameGlobal.money_pool[1])
@@ -60,7 +60,7 @@ func initialize(characters : Array) :
 		vbox.remove_child(child)
 		child.queue_free()
 	var first : bool = true
-	for c in GameGlobal.player_characters :
+	for c in _characters :
 		var charmoneypanel = charmoneypanelTSCN.instantiate()
 		charmoneypanel.setup(self, c)
 		vbox.add_child(charmoneypanel)
@@ -116,7 +116,7 @@ func set_banking_availlable(yes : bool) :
 func _on_DoneButton_pressed():
 	close()
 
-func _on_QtyButton_toggled(button_pressed, qty : int):
+func _on_QtyButton_toggled(_button_pressed, qty : int):
 	quantity = qty
 
 

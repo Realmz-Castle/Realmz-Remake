@@ -19,8 +19,8 @@ func _ready():
 #	move(Vector2(3,3))
 
 
-func set_icon(icon : Texture2D) :
-	sprite.texture = icon
+func set_icon(chara_icon : Texture2D) :
+	sprite.texture = chara_icon
 
 
 # Game inputs #

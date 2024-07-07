@@ -24,6 +24,7 @@ var currentProfileFolderName : String = "Default Profile"
 func _ready():
 	profilesfolderpath = realmzfolderpath + "Profiles/"
 	realmzfolderpath = ProjectSettings.globalize_path("res://")
+	print(" realmzfolderpath : ", realmzfolderpath)
 	realmzfolderpath = realmzfolderpath.trim_suffix(MYFILENAME)
 	profilesfolderpath = realmzfolderpath + "Profiles/"
 	campaignsfolderpath = realmzfolderpath + "Campaigns/"

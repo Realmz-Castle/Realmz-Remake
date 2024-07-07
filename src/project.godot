@@ -14,7 +14,7 @@ config/name="Realmz"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.2")
 config/icon="res://icon.png"
-config/windows_native_icon="res://AppIcon_Windows.ico"
+config/windows_native_icon="res://application_icons/AppIcon_Windows.ico"
 
 [autoload]
 

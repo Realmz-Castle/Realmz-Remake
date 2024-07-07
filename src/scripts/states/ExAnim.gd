@@ -59,7 +59,7 @@ func enter(_msg : Dictionary = {}) -> void:
 		if canmoveandtime[0] :
 		#print("YESS")
 			if GameGlobal.is_sailing_boat :  #check if moving to a dock :
-				var is_shore : bool = false
+				var _is_shore : bool = false
 				var stacksize = tilestack.size()
 				for i  in range(stacksize) :
 					var idef = tilestack[stacksize-i-1] 

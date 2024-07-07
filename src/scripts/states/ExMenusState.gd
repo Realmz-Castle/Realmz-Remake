@@ -16,8 +16,8 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+#func _process(delta):
+	#pass
 
 func enter(_msg : Dictionary = {} ) ->void :
 	print("ExMenusState Enter , msg: ",_msg)
@@ -126,8 +126,8 @@ func use_inventory_item(item : Dictionary, user : Creature) :  #from inventory m
 				if dropped :
 					SfxPlayer.stream = NodeAccess.__Resources().sounds_book["drop item.ogg"]
 					SfxPlayer.play()
-		GameGlobal.refresh_OW_HUD()
-		return
+			GameGlobal.refresh_OW_HUD()
+			return
 		if item.has("_on_field_use_spell" ) :
 			print("ItemSmallBUtton ITEM RIGHT CLICKED HAS A _on_field_use_spell")
 			print("ItemSmallBUtton _on_field_use_spell TBI :(")
@@ -175,7 +175,7 @@ func get_num_of_targs_of_spell_in_field(spell, spellpower, user : Creature) -> i
 
 func on_spell_picked(character, spell, powerlevel) :
 	print("ExMenus state on_spell_picked : ",character.name," ", spell)
-	var spelldata :  Dictionary = character.get_spell_data(spell, powerlevel)
+	var _spelldata :  Dictionary = character.get_spell_data(spell, powerlevel)
 	var how_many_targets : int = get_num_of_targs_of_spell_in_field(spell, powerlevel, character)
 	var targets : Array = []
 	if how_many_targets == -2 :
@@ -228,6 +228,6 @@ func on_spell_picked(character, spell, powerlevel) :
 	UI.ow_hud.textRect.textLabel.parse_bbcode('')
 
 
-func set_selected_chara(c : Creature) :
+func set_selected_chara(_c : Creature) :
 	if UI.ow_hud.inventoryRect.visible :
 		UI.ow_hud.inventoryRect.when_Items_Button_pressed()

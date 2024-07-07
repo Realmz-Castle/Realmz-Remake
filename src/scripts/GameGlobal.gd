@@ -96,7 +96,7 @@ func show_menu(menu : CanvasItem) :
 #func setupDefaultUI():
 	#UI.ow_hud.initialize()
 
-func create_new_profile(newprofilename : String , honest_mode : bool) -> bool :
+func create_new_profile(newprofilename : String , new_honest_mode : bool) -> bool :
 	var profilesfolderpath = Paths.profilesfolderpath
 	
 
@@ -114,10 +114,10 @@ func create_new_profile(newprofilename : String , honest_mode : bool) -> bool :
 		var path = Paths.profilesfolderpath+newprofilename
 		print("new char path : ", path)
 		DirAccess.make_dir_recursive_absolute(path)
-		var settingscfgFile : FileAccess = FileAccess.open( path+'/profile_settings.cfg' , FileAccess.ModeFlags.WRITE)
+		var _settingscfgFile : FileAccess = FileAccess.open( path+'/profile_settings.cfg' , FileAccess.ModeFlags.WRITE)
 		
-		settingscfgFile = null
-		Utils.FileHandler.set_cfg_setting(path+'/profile_settings.cfg', "SET_IN_STONE", "honest_mode", int(honest_mode))
+		_settingscfgFile = null
+		Utils.FileHandler.set_cfg_setting(path+'/profile_settings.cfg', "SET_IN_STONE", "honest_mode", int(new_honest_mode))
 		Utils.FileHandler.set_cfg_setting(path+'/profile_settings.cfg', "VOLUME", "volume_sound", 50)
 		Utils.FileHandler.set_cfg_setting(path+'/profile_settings.cfg', "VOLUME", "volume_music", 50)
 		print("created profile folder for "+newprofilename+" at " +profilesfolderpath + newprofilename)
@@ -399,7 +399,7 @@ func end_battle( wonfledlost : String ) :
 		"won" :
 			#print("GameGlobal end_battle : battle won !")
 			StateMachine.combat_state.cur_battle_data["Scripts"]["win"].win()
-			var textRect = UI.ow_hud.textRect
+			#var textRect = UI.ow_hud.textRect
 			var treasureControl = UI.ow_hud.treasureControl
 ##	var healpottemplate = NodeAccess.__Resources().items_book["Health Potion"]
 			var treasureitems = []
@@ -580,7 +580,7 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 	damage_detail["crit_mult"] = crit_mult
 	return damage_detail
 
-func calculate_spell_damage(attacker : Creature, defender : Creature, spell, spellpower : int, should_check_script : bool = true) -> int :
+func calculate_spell_damage(attacker : Creature, defender : Creature, spell, spellpower : int, _should_check_script : bool = true) -> int :
 	#print("Gameglobal calculate_spell_damage : atker", attacker.name, ", defer", defender.name,", spell:", spell.name)
 	
 	var res : int = spell.resist==0
@@ -650,7 +650,7 @@ func calculate_spell_accuracy(caster : Creature, defender : Creature, spell, spe
 	var evasion_stats_used : Array = []
 	for a in spell_attributes :
 		var evasionstat : float = 0
-		var accuracystat : float = 0
+		#var accuracystat : float = 0
 		if a=='Magical' :
 			evasion_stats_used.append(a)
 			evasionstat = defender.get_stat("EvasionMagic")
@@ -690,14 +690,14 @@ func show_allies_menu() :
 	UI.ow_hud.alliesWindow.show()
 
 # returns true if a levelup occured
-func give_exp_to_pcs(exp : int, pcs : Array) -> bool:
-	print("GameGlobals give_exp_to_pcs ", exp,' to ', pcs.size())
+func give_exp_to_pcs(experience : int, pcs : Array) -> bool:
+	print("GameGlobals give_exp_to_pcs ", experience,' to ', pcs.size())
 	var leveledup : bool = false
 	for pc in pcs :
 		for t in pc.traits :
 			if t.trait_types.has('no_exp') :
 				continue
-		pc.exp_tnl -= exp
+		pc.exp_tnl -= experience
 		while pc.exp_tnl <0 :
 			# HUD level up !
 			leveledup = true

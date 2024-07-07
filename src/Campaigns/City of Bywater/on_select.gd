@@ -5,5 +5,5 @@ const restrictions_description : String = "No Race/Class restrictions, 6 charact
 
 const description : String = "Testing Scenario for the development..."
 
-static func can_character_enter(chara) -> bool :
+static func can_character_enter(_chara) -> bool :
 	return true

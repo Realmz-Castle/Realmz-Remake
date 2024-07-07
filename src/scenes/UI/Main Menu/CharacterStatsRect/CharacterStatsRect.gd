@@ -160,7 +160,7 @@ func display_data( character) :
 #	display_result([hpspfirstline,basesecondline,basethirdline,basefourthline,basefifthline,basesixthline], basetable)
 
 
-func display_stat_table(statnames : Array, character) :
+func display_stat_table(displayed_statnames : Array, character) :
 #	print("display_stat_table\ndisplay_stat_table")
 	
 	delete_meta_nodes()
@@ -190,7 +190,7 @@ func display_stat_table(statnames : Array, character) :
 #	statstable.pop()
 #	return
 	
-	for sn in statnames :
+	for sn in displayed_statnames :
 		var row : Array = ['','','','','','','','','','']
 		if sn != "" :
 			#cbs[sn],rbs[sn],cbs[sn]+rbs[sn]," ",clu[sn],rlu[sn],clu[sn]+rlu[sn]," ",cbs[sn]+rbs[sn] + (clu[sn]+rlu[sn])*character_level]

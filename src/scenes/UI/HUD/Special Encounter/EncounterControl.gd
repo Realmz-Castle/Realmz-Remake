@@ -77,7 +77,8 @@ func on_viewport_size_changed(screensize:Vector2) :
 
 	itempreview.chargesLabel._set_position( Vector2(floor((screensize.x-360)*0.6666) - 85 -10, 4) )
 	itempreview.statsLabel._set_position( Vector2(floor((screensize.x-360)*0.6666) - 205 -10, 20) )
-	itempreview.colorRect._set_size(Vector2(floor((screensize.x-360)*0.6666)-10, 40))
+	#itempreview.colorRect._set_size(Vector2(floor((screensize.x-360)*0.6666)-10, 40))
+	itempreview.set_deferred("size",  Vector2(floor((screensize.x-360)*0.6666)-10, 40)   )
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass

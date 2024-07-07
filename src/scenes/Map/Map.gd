@@ -176,7 +176,15 @@ func _ready():
 	aStar21.crea_size = Vector2(2,1)
 	aStar22.crea_size = Vector2(2,2)
 	var terrainTexAtlas : Image = Image.new()
-	var _err_terrainTexAtlas = terrainTexAtlas.load("res://shared_assets/BattleEffects/BattleEffects.png")
+	#var _err_terrainTexAtlas = terrainTexAtlas.load("res://shared_assets/BattleEffects/BattleEffects.png")
+	
+	#var terrainPngBuffer : PackedByteArray = load("res://shared_assets/BattleEffects/BattleEffects.png")
+	#terrainTexAtlas.load_png_from_buffer(terrainPngBuffer)
+	
+	#var terrainTexture : Texture = load("res://shared_assets/BattleEffects/BattleEffects.png")
+	var terrainPngBuffer : PackedByteArray = FileAccess.get_file_as_bytes("res://shared_assets/BattleEffects/BattleEffects.png")
+	terrainTexAtlas.load_png_from_buffer(terrainPngBuffer)
+	
 	for n in terrains_tex_pos_dict :
 		var new_tex : ImageTexture = ImageTexture.new()
 		var pos : Vector2i = terrains_tex_pos_dict[n]
@@ -186,7 +194,12 @@ func _ready():
 		new_tex = ImageTexture.create_from_image(image) #,0
 		tex_name_tex_dict[n] = new_tex
 	var map_symbols_atlas : Image = Image.new()
-	var err_map_symbols_atlas = map_symbols_atlas.load("res://scenes/Map/map_symbols.png")
+	#
+	#var err_map_symbols_atlas = map_symbols_atlas.load("res://scenes/Map/map_symbols.png")
+	#
+	var map_symbols_PngBuffer : PackedByteArray = FileAccess.get_file_as_bytes("res://scenes/Map/map_symbols.png")
+	map_symbols_atlas.load_png_from_buffer(map_symbols_PngBuffer)
+	
 	var path_image : Image = map_symbols_atlas.get_region(Rect2i( Vector2i.ZERO, Vector2i(32,32)))
 	path_texture = ImageTexture.create_from_image(path_image)
 	var secret_image : Image = map_symbols_atlas.get_region(Rect2i( Vector2i(32,0), Vector2i(32,32)))
@@ -419,7 +432,7 @@ func _on_MapMouseControlButton_mouse_exited():
 	mouseinside = false
 	#print(" map burp exited")
 
-func _process(delta):
+func _process(_delta):
 	pass
 	var newtext : String = "GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(StateMachine.combat_state.cbanimstate.timer)+'\n'
 	#newtext += "owchar : " + str(focuscharacter.position)
