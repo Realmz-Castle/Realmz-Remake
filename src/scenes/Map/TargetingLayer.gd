@@ -100,7 +100,7 @@ func update_targeting()->void:
 		print("TargetIng Layer aoe_type 0 , skip targeting")
 		if spell_aoe_name == "sf" : #self
 			#GameGlobal.execute_spell(caster,spell,power,caster.creature.position, b1, {caster : 0}, {}, true, true)
-			var msg : Dictionary = {"type" : "Spell", "caster" : caster, "Effected Tiles" : [], "Effected Creas" : [caster], "targeted_tiles" : [], "spell": spell, "s_plvl" : power, "used_item" : used_item , "add_terrain" : true}
+			#var msg : Dictionary = {"type" : "Spell", "caster" : caster, "Effected Tiles" : [], "Effected Creas" : [caster], "targeted_tiles" : [], "spell": spell, "s_plvl" : power, "used_item" : used_item , "add_terrain" : true}
 			execute_spell(caster,spell,power,[caster.creature.position], used_item, true, [])
 			return
 		if spell_aoe_name=="af" or spell_aoe_name=="ae" or spell_aoe_name=="eo":
@@ -110,13 +110,13 @@ func update_targeting()->void:
 				targ_factions.append(0)
 			if spell_aoe_name=="ae" or spell_aoe_name=="eo":
 				targ_factions.append(1)
-			var picked_tiles : Array = []
+			var notarg_picked_tiles : Array = []
 			for cb in StateMachine.combat_state.all_battle_creatures_btns :
 				if targ_factions.has(cb.creature.curFaction) :
-					picked_tiles.append(cb.creature.position)
+					notarg_picked_tiles.append(cb.creature.position)
 			print("TargetingLayer  calls execute_spell !")
 			#execute_spell(caster : CombatCreaButton,spell,power : int, trgt_tiles : Array, used_item : Dictionary, must_add_terrain : bool)
-			execute_spell(caster,spell,power,picked_tiles, used_item, true, [])
+			execute_spell(caster,spell,power,notarg_picked_tiles, used_item, true, [])
 			return
 		
 	if StateMachine.state == StateMachine.cb_decide_state :
@@ -146,11 +146,11 @@ func update_targeting()->void:
 	if Input.is_action_just_pressed("LeftClick") :
 		var mousepos : Vector2i = get_world_mousepos()
 		var who = GameGlobal.who_is_at_tile(mousepos)
-		var range : int = GameGlobal.calculate_range_vi( mousepos - Vector2i(caster.creature.position) )
+		var range_mouse : int = GameGlobal.calculate_range_vi( mousepos - Vector2i(caster.creature.position) )
 #		var mousepos : Vector2i = Vector2i(map.get_local_mouse_position() )
 		# targettile_type #0=anywhere 1=creature 2=empty 3=nowall
 		print("Targeting mousepos ",mousepos )
-		if range>max_range or (aoe_los and is_obstructed) or ((targettile_type==2 or targettile_type==3) and is_aoe_empty(mousepos, aoe_shape)==false):
+		if range_mouse>max_range or (aoe_los and is_obstructed) or ((targettile_type==2 or targettile_type==3) and is_aoe_empty(mousepos, aoe_shape)==false):
 			SfxPlayer.stream = NodeAccess.__Resources().sounds_book["target error.wav"]
 			SfxPlayer.play()
 			return
@@ -199,7 +199,7 @@ func update_targeting()->void:
 #			SfxPlayer.stream = NodeAccess.__Resources().sounds_book["target error.wav"]
 #			SfxPlayer.play()
 #			return 0
-		var clickedtile : Vector2i = get_world_mousepos()
+		#var clickedtile : Vector2i = get_world_mousepos()
 		hide()
 		print("TargetingLayer picked_targets : ", picked_targets, " and picked_tiles", picked_tiles)
 		
@@ -224,7 +224,7 @@ func get_world_mousepos()->Vector2i :
 	var chara_g_pos = chara.global_position
 	var chara_l_pos = 32*Vector2(chara.tile_position_x, chara.tile_position_y)
 	return ( -(chara_g_pos - chara_l_pos)   + map.get_local_mouse_position() )/32
-	return ( -(caster.global_position - caster.creature.position*32)   + map.get_local_mouse_position() )/32 #+  (map.get_local_mouse_position() - caster.position )
+	#return ( -(caster.global_position - caster.creature.position*32)   + map.get_local_mouse_position() )/32 #+  (map.get_local_mouse_position() - caster.position )
 
 
 #	var mousepos : Vector2 = map.get_local_mouse_position() + map.focuscharacter.get_pixel_position()
@@ -271,7 +271,7 @@ func _draw() :
 	
 	var tiles_line_array : Array = []
 	if aoe_los or aoe_ray :
-		tiles_line_array = bresenham_line(caster.creature.position, get_world_mousepos(), 0, max_range)
+		tiles_line_array = TargetingLayer.bresenham_line(caster.creature.position, get_world_mousepos(), 0, max_range)
 
 	if aoe_type==1 or aoe_type==3:
 		var tilev : Vector2 = Vector2(32,32)
@@ -341,9 +341,9 @@ func _draw() :
 		
 		
 	
-	var range : int = GameGlobal.calculate_range_vi( get_world_mousepos() - Vector2i(caster.creature.position) )
-	var rangetext : String = str(range)+'/'+str(max_range)
-	var rangecolor = Color.WHITE if range<=max_range else Color.RED
+	var range_mouse : int = GameGlobal.calculate_range_vi( get_world_mousepos() - Vector2i(caster.creature.position) )
+	var rangetext : String = str(range_mouse)+'/'+str(max_range)
+	var rangecolor = Color.WHITE if range_mouse<=max_range else Color.RED
 	var rangetextpos : Vector2 = 32*mousepos - Vector2i(8,0)
 #	draw_string(font: Font, pos: Vector2, text: String, alignment: HorizontalAlignment = 0, width: float = -1, font_size: int = 16, modulate: Color = Color(1, 1, 1, 1), jst_flags: JustificationFlag = 3, direction: Direction = 0, orientation: Orientation = 0) const
 	#draw_string_outline(font: Font, pos: Vector2, text: String, alignment: HorizontalAlignment = 0, width: float = -1, font_size: int = 16, size: int = 1, modulate: Color = Color(1, 1, 1, 1), jst_flags: JustificationFlag = 3, direction: Direction = 0, orientation: Orientation = 0) const
@@ -358,7 +358,7 @@ func get_aoe_from_name(aoename) -> Array :
 			return bdict[aoename]
 	return [aoename]
 
-func start_targ(tspell, tspellpower : int, tcaster : CombatCreaButton, used_item : Dictionary) :
+func start_targ(tspell, tspellpower : int, tcaster : CombatCreaButton, _used_item : Dictionary) :
 	print("TargetingLayer start_targ ", tspell.name)
 	picked_targets.clear()
 	picked_tiles.clear()
@@ -564,7 +564,7 @@ func get_cbs_touching_tiles(effected_tiles : Array) -> Array:
 #old gameglobal execute : (caster : CombatCreaButton,spell,power : int ,clickedtile : Vector2i, aoe_shape : Array, picked_targets : Dictionary, picked_tiles:Dictionary, chain_start : bool, must_add_terrain : bool) :
 #msg frmat : {"type" : "Spell", "caster" : Crea, "Effected Tiles" : [], "Effected creas" : [], "targeted_tiles" : [], "spell":GDScript, "s_plvl" : 1, "used_item" : null , "add_terrain" : true}
 
-func execute_spell(caster : CombatCreaButton,spell,power : int, trgt_tiles : Array, used_item : Dictionary, must_add_terrain : bool, override_aoe : Array) :
+func execute_spell(caster : CombatCreaButton,spell,power : int, trgt_tiles : Array, spell_used_item : Dictionary, must_add_terrain : bool, override_aoe : Array) :
 	#print("TargetingLayer execute_spell : "+spell.name+" trgt_tiles : ", trgt_tiles)
-	var msg : Dictionary = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : trgt_tiles, "used_item" : used_item , "must_add_terrain" : must_add_terrain, "override_aoe" : override_aoe }
+	var msg : Dictionary = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : trgt_tiles, "used_item" : spell_used_item , "must_add_terrain" : must_add_terrain, "override_aoe" : override_aoe }
 	StateMachine.state.on_spellcast_confirmed(msg)

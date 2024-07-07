@@ -25,7 +25,7 @@ func _ready():
 
 func _initialize() :
 	print("\n\n\n MusicSettingsRect READY")
-	var index : int = 0
+	var _index : int = 0
 	var favourites = MusicStreamPlayer.oneofeachtype
 	
 	musicbar.value = (MusicStreamPlayer.volume_db +100) *2
@@ -48,7 +48,7 @@ func _initialize() :
 			nbutton.set_text(m)
 			nbutton.connect("pressed",Callable(self,"_on_typepopup_button_pressed").bind(mt,m,mtypectrl))
 			mtypectrl.vbox.add_child(nbutton)
-		index +=1
+		_index +=1
 #		popup.set_global_position(bposition+Vector2(2,20))
 #		popup.set_size(Vector2(196,popupvsize),true)
 	print("\n\n\n")
@@ -65,14 +65,14 @@ func _on_typepopup_button_pressed(type : String, mname : String, mtypectrl) :
 		Utils.FileHandler.set_cfg_setting(path, "MUSIC", type, mname)
 #		Paths.profilesfolderpath+newprofilename+'/profile_settings.cfg'
 
-func _on_typebutton_pressed(button, music_type : String) :
+func _on_typebutton_pressed(button, _music_type : String) :
 		var popup : PopupPanel = button.popup
 		var bglobalpos : Vector2 = button.get_global_position()
 		
 		var screeny = UI.ow_hud.get_mofified_screensize().y
 		var ysize = screeny-bglobalpos.y-60
 		
-		var dropmenusize : int = button.vbox.get_child_count()
+		var _dropmenusize : int = button.vbox.get_child_count()
 		
 #		var popupvsize :float = min( ysize , dropmenusize*20+20)
 		popup.popup( Rect2( bglobalpos+Vector2(0,20), Vector2(196,ysize) ) )

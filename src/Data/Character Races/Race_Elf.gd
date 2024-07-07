@@ -148,7 +148,7 @@ static func _add_base_stats(character) :
 
 
 
-static func _level_up(character, new_level : int) :
+static func _level_up(character, _new_level : int) :
 	for s in levelup_bonuses :
 		if typeof (levelup_bonuses[s] ) == TYPE_DICTIONARY  :
 			if not character.base_stats.has(s) :
@@ -161,7 +161,7 @@ static func _level_up(character, new_level : int) :
 			character.base_stats[s] += levelup_bonuses[s]
 
 
-static func _character_creation_gifts(character) :
+static func _character_creation_gifts(_character) :
 	return
 
 static func get_selection_cost(_character, _ability, _cost) :

@@ -167,7 +167,7 @@ static func _add_base_stats(_character) :
 
 
 
-static func _level_up(_character, new_level : int) :
+static func _level_up(_character, _new_level : int) :
 	for s in levelup_bonuses :
 		if typeof (levelup_bonuses[s] ) == TYPE_DICTIONARY  :
 			if not _character.base_stats.has(s) :
@@ -204,11 +204,11 @@ static func get_selection_cost(_character, _ability, _cost) :
 static func get_ablty_res_cost_mod(_character,_spell, _plvl : int, _cost ) :
 	return 0
 
-static func get_parrying_trait_name(character) -> String :
+static func get_parrying_trait_name(_character) -> String :
 	return "res://shared_assets/traits/"+'parrying.gd'
 
-static func get_guarding_trait_name(character) -> String :
+static func get_guarding_trait_name(_character) -> String :
 	return "res://shared_assets/traits/"+'guarding.gd'
 
-static func get_preparing_trait_name(character) -> String :
+static func get_preparing_trait_name(_character) -> String :
 	return "res://shared_assets/traits/"+'preparing.gd'

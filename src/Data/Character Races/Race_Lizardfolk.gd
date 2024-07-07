@@ -150,7 +150,7 @@ static func _add_base_stats(character) :
 
 
 
-static func _level_up(character, new_level : int) :
+static func _level_up(character, _new_level : int) :
 	for s in levelup_bonuses :
 		if typeof (levelup_bonuses[s] ) == TYPE_DICTIONARY  :
 			if not character.base_stats.has(s) :

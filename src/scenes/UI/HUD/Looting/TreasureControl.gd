@@ -21,7 +21,7 @@ extends Control
 
 @onready var moneyLabel : Label = $BotRightLootInfo/ItemInfoRect/MoneynLabel
 
-var exp : int = 0
+var exp_gain : int = 0
 var exp_receivers : Array = []
 
 signal done_looting
@@ -49,7 +49,7 @@ func on_viewport_size_changed(screensize : Vector2) :
 
 # take inspiration from textrect script, money is  [gold,gems,jewels]
 func display(items : Array, money : Array, experience : int) :
-	exp = experience
+	exp_gain = experience
 	exp_receivers.clear()
 	for pc : PlayerCharacter in GameGlobal.player_characters :
 		if pc.get_stat("curHP")<=0 :
@@ -59,7 +59,7 @@ func display(items : Array, money : Array, experience : int) :
 				continue
 		exp_receivers.append(pc)
 			
-	explabel.text = " Experience : "+ str(exp) +", split among " + str(exp_receivers.size()) + "characters"
+	explabel.text = " Experience : "+ str(exp_gain) +", split among " + str(exp_receivers.size()) + "characters"
 	for c in range(3) :
 		GameGlobal.money_pool[c] += money[c]
 	update_money_label()
@@ -124,7 +124,7 @@ func _on_itemlootbutton_pressed(item:Dictionary, button : Button) :
 
 func close() :
 	#empty the gridcontainer
-	await GameGlobal.give_exp_to_pcs( floor( float(exp)/float(exp_receivers.size()) ) , exp_receivers )
+	await GameGlobal.give_exp_to_pcs( floor( float(exp_gain)/float(exp_receivers.size()) ) , exp_receivers )
 
 	print("teasure_control got GameGlobal.done_giving_exp")
 	for child in itemsContainer.get_children() :

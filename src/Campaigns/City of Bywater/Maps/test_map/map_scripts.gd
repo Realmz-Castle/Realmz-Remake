@@ -1,7 +1,7 @@
-static func _on_map_load(map) :  #Necessary even if unused, replace body with "pass" if so.
+static func _on_map_load(_map) :  #Necessary even if unused, replace body with "pass" if so.
 	print("mapscript _on_map_load() !!! ")
 	if not GameGlobal.stuff_done.has("recruited_vodada") :
-		map.add_extra_image("Vodada", "CREA_Vodalian",Vector2(13,10))
+		_map.add_extra_image("Vodada", "CREA_Vodalian",Vector2(13,10))
 
 
 static func Vodada() :
@@ -90,7 +90,7 @@ static func Find_Treasure() :
 	var textRect = UI.ow_hud.textRect
 	textRect.set_text("You find some delicious loot !", true)
 	await textRect.interruption_over
-	var treasureControl = UI.ow_hud.treasureControl
+	#var treasureControl = UI.ow_hud.treasureControl
 	var healpottemplate = NodeAccess.__Resources().items_book["Health Potion"]
 	var treasureitems = []
 	for i in range(200) :

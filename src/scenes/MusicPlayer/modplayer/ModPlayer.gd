@@ -533,7 +533,7 @@ func play( from_position:float = 0.0 ):
 	シーク: TODO:未実装
 """
 #warning-ignore:unused_argument
-func seek( to_position:float ):
+func seek( _to_position:float ):
 	self._previous_time = 0.0
 	self._stop_all_notes( )
 

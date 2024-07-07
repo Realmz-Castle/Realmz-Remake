@@ -20,8 +20,8 @@ func load_texture_as_string(imgstring : String, imgdatasize : int) -> Texture:
 
 	var image : Image = Image.new()
 	image.load_png_from_buffer(imgdatadecmprsd)
-	var texture : ImageTexture = ImageTexture.new()
-	texture.create_from_image(image) #,0 # no flags, no fil
+	#var texture : ImageTexture = ImageTexture.new()
+	#texture.create_from_image(image) #,0 # no flags, no fil
 	return ImageTexture.create_from_image(image)
 
 

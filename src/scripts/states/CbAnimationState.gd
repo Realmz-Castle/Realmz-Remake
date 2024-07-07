@@ -108,8 +108,8 @@ func enter(_msg : Dictionary = {}) -> void:
 			"MeleeAttack" :
 				if not (is_instance_valid(cur_action["attacker"]) and is_instance_valid(cur_action["defender"])) :
 					continue
-				var attackercb : CombatCreaButton = cur_action["attacker"]
-				var defendercb : CombatCreaButton = cur_action["defender"]
+				var _attackercb : CombatCreaButton = cur_action["attacker"]
+				var _defendercb : CombatCreaButton = cur_action["defender"]
 
 				var returned_evasion_array : Array = perform_melee_attack(cur_action)
 				var continue_action : bool = returned_evasion_array[0]
@@ -136,7 +136,7 @@ func enter(_msg : Dictionary = {}) -> void:
 				var a_spell = cur_action["spell"]
 				var a_power : int = cur_action["s_plvl"]
 				
-				var a_all_targeted_tiles : Array = cur_action["Targeted Tiles"]
+				var _a_all_targeted_tiles : Array = cur_action["Targeted Tiles"]
 				var a_main_targeted_tile : Vector2i= Vector2i(cur_action["Main Targeted Tile"])
 				var a_effected_tiles : Array = []
 				if cur_action["override_aoe"].is_empty() :
@@ -149,7 +149,7 @@ func enter(_msg : Dictionary = {}) -> void:
 				var a_add_terrain : bool = cur_action["add_terrain"]
 				var a_from_terrain : bool = cur_action["from_terrain"]
 				var a_castercrea : Creature = cur_action["castercrea"] if a_from_terrain else a_caster.creature
-				var who_there : CombatCreaButton = GameGlobal.who_is_at_tile(a_main_targeted_tile)
+				var _who_there : CombatCreaButton = GameGlobal.who_is_at_tile(a_main_targeted_tile)
 				
 				UI.ow_hud.creatureRect.logrect.log_spell_cast(a_castercrea, a_spell ,a_power , '')
 				
@@ -279,7 +279,7 @@ func play_projectile_animation(gfxname : String, castercrea : Creature, targ_tpo
 	await timer_over
 	print("CbAnim play_projectile_animation "+gfxname+" over")
 
-func play_spell_resolution(gfxname : String, castercrea : Creature, effected_tiles : Array, effected_creas: Array) :
+func play_spell_resolution(gfxname : String, _castercrea : Creature, effected_tiles : Array, effected_creas: Array) :
 	print("CbAnim play_spell_resolution "+gfxname+" start", effected_tiles)
 	var gfx_node : Node2D = GameGlobal.map.gfx_node
 	#print(effected_tiles)

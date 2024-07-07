@@ -221,7 +221,7 @@ static func _add_base_stats(_character) :
 
 
 
-static func _level_up(_character, new_level : int) :
+static func _level_up(_character, _new_level : int) :
 	for s in levelup_bonuses :
 		if typeof (levelup_bonuses[s] ) == TYPE_DICTIONARY  :
 			if not _character.base_stats.has(s) :
@@ -233,8 +233,8 @@ static func _level_up(_character, new_level : int) :
 				_character.base_stats[s] = 0
 			_character.base_stats[s] += levelup_bonuses[s]
 	# ADD APR AT LEVEL
-	if [5,10,15,20,25,30,35,40].has(new_level) :
-		_character.base_stats["MaxActions"] + 0.5
+	if [5,10,15,20,25,30,35,40].has(_new_level) :
+		_character.base_stats["MaxActions"] += 0.5
 
 #if  class OR race  scripts allow  (>0),  character ca, learn
 static func can_learn_spell(_character, _spell) -> int :

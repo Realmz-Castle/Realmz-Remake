@@ -30,7 +30,7 @@ func display_character_inventory() :
 		return
 	charportrait.set_texture(character.portrait)
 	charnamelabel.set_text(character.name)
-	itempreview.set_item({"name":'', "type":'',"texture":null,"charges_max":0, "stats_mini":'', "equipped":0})
+	itempreview.set_item({"name":'', "type":'',"texture":null,"charges_max":0, "stats_mini":'', "equipped":0, "is_identified":0, "unidentified_name":''})
 	for child in itemsContainer.get_children() :
 		itemsContainer.remove_child(child)
 		child.queue_free()

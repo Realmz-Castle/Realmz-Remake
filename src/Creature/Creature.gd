@@ -243,7 +243,7 @@ func _on_before_move(dir : Vector2)-> Array :
 		#await GameGlobal.combat_melee_attack(cb, combat_button)
 		
 
-func _on_after_move(dir : Vector2)-> Array :
+func _on_after_move(_dir : Vector2)-> Array :
 	#Terrain effects :
 	var terrain_effects_here : Array = GameGlobal.map.get_terrain_effects_at_pos(position)
 	print("Creature _on_after_move "+name+" MOVE", terrain_effects_here)
@@ -493,8 +493,8 @@ func add_spell_from_source(spellname : String, spellsource : String) :
 	var spellscript  = GDScript.new()
 	spellscript.set_source_code(spellsource)
 	var _err_newscript_reload = spellscript.reload()
-	var level = spellscript.level
-	spells[level-1].append({"name":spellname, "source":spellsource, "script":spellscript})
+	var slevel = spellscript.level
+	spells[slevel-1].append({"name":spellname, "source":spellsource, "script":spellscript})
 
 func add_spell_from_spells_book(spellname : String) :
 	var resources = NodeAccess.__Resources()
@@ -502,10 +502,10 @@ func add_spell_from_spells_book(spellname : String) :
 	add_spell_drom_dict(spelldict)
 
 func add_spell_drom_dict(spell_dict : Dictionary) :
-	var level = spell_dict["script"].level
+	var slevel = spell_dict["script"].level
 	while spells.size() < level :
 		spells.append([])
-	spells[level-1].append(spell_dict)
+	spells[slevel-1].append(spell_dict)
 
 func get_all_spells() -> Array :
 	var returned : Array = []

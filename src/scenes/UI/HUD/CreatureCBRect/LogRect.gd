@@ -118,7 +118,7 @@ func log_spell_damage(castercrea : Creature, defender : CombatCreaButton, spell 
 		#if attrColorDict.has(a) :
 			#spell_color = '#'+attrColorDict[a].to_html()
 	spell_color = get_spell_color_code(spell.attributes)
-	var caster_color := "green" if castercrea.curFaction==0 else ("red" if castercrea.curFaction==1 else "blue")
+	var _caster_color := "green" if castercrea.curFaction==0 else ("red" if castercrea.curFaction==1 else "blue")
 	var defender_color = "green" if defender.creature.curFaction==0 else ("red" if defender.creature.curFaction==1 else "blue")
 	var labeltext = "    [color="+defender_color+"]"+defender.creature.name+"[/color][color=gray] takes "+"[color=white]"+str(damage_detail["total"])+"[/color][color=gray] damage from [/color][color="+spell_color+"]"+spell.name+"[/color] [color=white]("+str(100*accuracy)+"%)[/color]"
 	newlabel.parse_bbcode(labeltext)
@@ -152,7 +152,7 @@ func get_spell_color_code(s_attributes : Array) -> String:
 			return '#'+attrColorDict[a].to_html()
 	return "white"
 
-func log_spell_miss(castercrea : Creature, defender : CombatCreaButton, spell , power : int, accuracy : float) :
+func log_spell_miss(castercrea : Creature, defender : CombatCreaButton, spell , _power : int, accuracy : float) :
 	#print("log_spell_miss")
 	var newlabel : RichTextLabel = RichTextLabel.new()
 	newlabel.custom_minimum_size = Vector2(0,24)
@@ -161,7 +161,7 @@ func log_spell_miss(castercrea : Creature, defender : CombatCreaButton, spell , 
 	newlabel.bbcode_enabled = true
 	var spell_color : String ="white"
 	spell_color = get_spell_color_code(spell.attributes)
-	var caster_color := "green" if castercrea.curFaction==0 else ("red" if castercrea.curFaction==1 else "blue")
+	var _caster_color := "green" if castercrea.curFaction==0 else ("red" if castercrea.curFaction==1 else "blue")
 	var defender_color = "green" if defender.creature.curFaction==0 else ("red" if defender.creature.curFaction==1 else "blue")
 	var labeltext = "    [color="+defender_color+"]"+defender.creature.name+"[/color][color=gray] is not affected by [/color][color="+spell_color+"]"+spell.name+"[/color] [color=white]("+str(100*accuracy)+"%)[/color]"
 	newlabel.parse_bbcode(labeltext)

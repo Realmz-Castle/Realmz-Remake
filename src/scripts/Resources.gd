@@ -311,7 +311,11 @@ func load_bestiary_resources( path : String ) -> void:
 	var n_crea_img_pack : Dictionary = {}
 	n_crea_img_pack = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path + "img_pack.json"))
 	var texture_atlas : Image = Image.new()
-	var _err_textureatlasload = texture_atlas.load(path+"textureAtlas.png")
+	
+	var atlasPngBuffer : PackedByteArray = FileAccess.get_file_as_bytes(path+"textureAtlas.png")
+	texture_atlas.load_png_from_buffer(atlasPngBuffer)
+	
+	#var _err_textureatlasload = texture_atlas.load(path+"textureAtlas.png")
 	
 	#load images to images_book
 	for i in n_crea_img_pack :
@@ -520,7 +524,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 
 		var _err_newscript_reload = custom_spellscript.reload()
 #		print(_err_newscript_reload)
-		var newscript = custom_spellscript.new()
+		#var newscript = custom_spellscript.new()
 		spells_book[custom_spellscript.name] = { "name" : custom_spellscript.name, "source" : custom_spell_source, "script" : custom_spellscript}
 
 	if json_dict.has("weapon_dmg") :
@@ -601,7 +605,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 			print("item traitarray ",traitarray)
 			var traitname = traitarray[0]
 			var traitinit = traitarray[1]
-			var chance = traitarray[2]
+			#var _chance = traitarray[2]
 			var newscript : GDScript = GDScript.new()
 
 			if traitname.ends_with('.gd') :

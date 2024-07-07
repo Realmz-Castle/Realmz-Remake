@@ -135,8 +135,8 @@ func _on_viewport_size_changed() :
 
 func get_mofified_screensize() :
 	var screensize : Vector2 = get_window().get_size()
-	var newscalex = min(1.0, screensize.x/800)
-	var newscaley = min(1.0, screensize.y/400)
+	#var newscalex = min(1.0, screensize.x/800)
+	#var newscaley = min(1.0, screensize.y/400)
 #	set_scale(Vector2(newscalex,newscaley))
 #	print(screensize)
 #	screensize.x = (1/newscalex)*screensize.x
@@ -346,10 +346,8 @@ func _on_InventoryButton_pressed():
 			#enter_battle_mode()
 		
 		return
-	#if GameState.paused :
-		#return
 
-	
+
 
 func set_party_swap_enabled(enabled : bool) :
 	party_swap_enabled = enabled
@@ -589,7 +587,7 @@ func _on_mouse_enter_combat_crea_button(creabutton : CombatCreaButton) :
 func _on_mouse_exit_combat_crea_button() :
 #	print("OWHUD _on_mouse_exit_combat_crea_button selected_character : ",selected_character.name)
 	var map = NodeAccess.__Map()
-	var selected_cb = null
+	#var selected_cb = null
 	for cb in map.creatures_node.get_children() :
 		if cb.creature == selected_character :
 			cb.bgsprite.visible = true

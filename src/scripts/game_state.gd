@@ -91,7 +91,7 @@ func get_dir_input_from_kb()-> Array :
 
 
 
-func get_dir_input_from_mouse(delta, offset : Vector2)->Vector2 :
+func get_dir_input_from_mouse(_delta, offset : Vector2)->Vector2 :
 	var dir = Vector2.ZERO
 	var mousepos : Vector2 = GameGlobal.map.get_local_mouse_position()
 #	var mouseposrelative : Vector2 = mousepos - map.charactersnode.position - map.focuscharacter.get_pixel_position() - Vector2(16,16)
@@ -158,6 +158,9 @@ func send_dir_input(input : Vector2, is_keyboard : bool) :
 	StateMachine.time_since_last_dir_input = 0
 	if ["Exploration","CbDecideAction","Combat/CbTargeting"].has(_state_name) :
 		if is_combat_state() :
+			if not is_instance_valid(cb_decide_state.current_active_creabutton) :
+				print("ERROR in GameStateMachine.send_dir_input, cb_decide_state.current_active_creabutton NOT VALID")
+				return
 			if not cb_decide_state.current_active_creabutton.creature.is_crea_player_controlled() :
 				return
 		state._on_dir_input_received(input,is_keyboard )
