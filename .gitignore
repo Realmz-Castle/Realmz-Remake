@@ -6,9 +6,8 @@
 export.cfg
 export_presets.cfg
 *.import
+[Pp]ublish/
+addons/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
-
-# ignore third-party godot dependencies
-addons/
