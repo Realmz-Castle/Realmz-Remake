@@ -1,0 +1,42 @@
+[gd_scene load_steps=7 format=3 uid="uid://dhxy6qx0hooxw"]
+
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="1_x1210"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="2_gbu6r"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Settings/music_type_setting.gd" id="2_ib2ix"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="3_fxwgf"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="4_y5sbd"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="5_ldc11"]
+
+[node name="MusicTypeSetting" type="Label"]
+custom_minimum_size = Vector2(0, 30)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("1_x1210")
+text = "Type :"
+vertical_alignment = 1
+script = ExtResource("2_ib2ix")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 68.238
+offset_top = -2.0
+offset_right = 264.238
+offset_bottom = 18.0
+theme_override_styles/normal = ExtResource("2_gbu6r")
+theme_override_styles/hover = ExtResource("3_fxwgf")
+theme_override_styles/pressed = ExtResource("4_y5sbd")
+theme_override_styles/disabled = ExtResource("5_ldc11")
+text = "Track Name"
+
+[node name="PopupPanel" type="PopupPanel" parent="Button"]
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Button/PopupPanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 96.0
+offset_bottom = 96.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Button/PopupPanel/ScrollContainer"]
+layout_mode = 2

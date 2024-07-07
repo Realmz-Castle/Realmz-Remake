@@ -1,0 +1,65 @@
+[gd_scene load_steps=3 format=3 uid="uid://colmfl37rp3kg"]
+
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="1_mqcfk"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Allies/summons_v_box.gd" id="1_rws4h"]
+
+[node name="SummonsVBox" type="VBoxContainer" node_paths=PackedStringArray("hbox")]
+offset_left = 63.0
+offset_right = 63.0
+offset_bottom = 140.0
+script = ExtResource("1_rws4h")
+hbox = NodePath("HBoxContainer/ScrollContainer/ScrollHBox")
+
+[node name="SummonerHBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SummonerLabel" type="Label" parent="SummonerHBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_fonts/font = ExtResource("1_mqcfk")
+theme_override_font_sizes/font_size = 24
+text = "Samuel's summoned creatures :"
+vertical_alignment = 1
+
+[node name="MaxLabel" type="Label" parent="SummonerHBox"]
+layout_mode = 2
+text = "(Max 4)"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="statsVBox" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Control" type="Control" parent="HBoxContainer/statsVBox"]
+custom_minimum_size = Vector2(40, 80)
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="HBoxContainer/statsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Name :"
+horizontal_alignment = 2
+
+[node name="HPLabel" type="Label" parent="HBoxContainer/statsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "HP :"
+horizontal_alignment = 2
+
+[node name="SPLabel" type="Label" parent="HBoxContainer/statsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "SP ect :"
+horizontal_alignment = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScrollHBox" type="HBoxContainer" parent="HBoxContainer/ScrollContainer"]
+layout_mode = 2

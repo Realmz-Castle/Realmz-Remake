@@ -1,0 +1,248 @@
+[gd_scene load_steps=11 format=3 uid="uid://7v3a8w4rknyq"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_6h1d8"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/save_load_rect.gd" id="2_0a2vs"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_oftxx"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_4rsef"]
+[ext_resource type="PackedScene" uid="uid://7ikg7txigh" path="res://scenes/UI/HUD/SaveLoad/scenarios_panel.tscn" id="4_kkei5"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_mxqee"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_loitc"]
+[ext_resource type="PackedScene" uid="uid://b3um6hddjf5px" path="res://scenes/UI/HUD/SaveLoad/saves_panel.tscn" id="5_u1g1g"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_kripj"]
+[ext_resource type="PackedScene" uid="uid://c2put8ty4yst6" path="res://scenes/UI/HUD/SaveLoad/pc_micro_ctrl.tscn" id="7_gmjme"]
+
+[node name="SaveLoadRect" type="NinePatchRect" node_paths=PackedStringArray("scenarios_panel", "saves_panel")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -320.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_6h1d8")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_0a2vs")
+scenarios_panel = NodePath("SLVBox/SLHBox/ScenariosPanel")
+saves_panel = NodePath("SLVBox/SLHBox/SavesPanel")
+metadata/_edit_horizontal_guides_ = []
+
+[node name="SLVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="SLLabel" type="Label" parent="SLVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_font_sizes/font_size = 24
+text = "Save and Load"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SLHBox" type="HBoxContainer" parent="SLVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="ScenariosPanel" parent="SLVBox/SLHBox" instance=ExtResource("4_kkei5")]
+layout_mode = 2
+
+[node name="SavesPanel" parent="SLVBox/SLHBox" instance=ExtResource("5_u1g1g")]
+layout_mode = 2
+
+[node name="DetailsPanel" type="Panel" parent="SLVBox/SLHBox"]
+custom_minimum_size = Vector2(270, 64)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("3_4rsef")
+
+[node name="SaveLoadHBox" type="HBoxContainer" parent="SLVBox/SLHBox/DetailsPanel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -130.0
+offset_top = -30.0
+offset_right = 130.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="SaveButton" type="Button" parent="SLVBox/SLHBox/DetailsPanel/SaveLoadHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_styles/normal = ExtResource("3_4rsef")
+theme_override_styles/hover = ExtResource("4_mxqee")
+theme_override_styles/pressed = ExtResource("5_loitc")
+theme_override_styles/disabled = ExtResource("6_kripj")
+text = "Save
+"
+
+[node name="LoadButton" type="Button" parent="SLVBox/SLHBox/DetailsPanel/SaveLoadHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_styles/normal = ExtResource("3_4rsef")
+theme_override_styles/hover = ExtResource("4_mxqee")
+theme_override_styles/pressed = ExtResource("5_loitc")
+theme_override_styles/disabled = ExtResource("6_kripj")
+text = "Load"
+
+[node name="DetailsVBox" type="VBoxContainer" parent="SLVBox/SLHBox/DetailsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -35.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SavesLabel" type="Label" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+text = "Saved Game Details :"
+
+[node name="SaveNameLabel" type="Label" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Save Name"
+
+[node name="PCsMicroPanel" type="PanelContainer" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox"]
+layout_mode = 2
+
+[node name="PCsMicroVBox" type="GridContainer" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox/PCsMicroPanel"]
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 2
+
+[node name="PCMicroCtrl" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox/PCsMicroPanel/PCsMicroVBox" instance=ExtResource("7_gmjme")]
+layout_mode = 2
+
+[node name="PCMicroCtrl2" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox/PCsMicroPanel/PCsMicroVBox" instance=ExtResource("7_gmjme")]
+layout_mode = 2
+
+[node name="PCMicroCtrl3" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox/PCsMicroPanel/PCsMicroVBox" instance=ExtResource("7_gmjme")]
+layout_mode = 2
+
+[node name="PCMicroCtrl4" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox/PCsMicroPanel/PCsMicroVBox" instance=ExtResource("7_gmjme")]
+layout_mode = 2
+
+[node name="PCMicroCtrl5" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox/PCsMicroPanel/PCsMicroVBox" instance=ExtResource("7_gmjme")]
+layout_mode = 2
+
+[node name="PCMicroCtrl6" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox/PCsMicroPanel/PCsMicroVBox" instance=ExtResource("7_gmjme")]
+layout_mode = 2
+
+[node name="SaveDescrLabel" type="Label" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Description :"
+
+[node name="DescrTextEdit" type="TextEdit" parent="SLVBox/SLHBox/DetailsPanel/DetailsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_selected_color = Color(0, 1, 1, 1)
+theme_override_constants/line_spacing = 0
+theme_override_font_sizes/font_size = 12
+text = "If a strainer's holes are smaller than the noodles, then the strainer will let the water though but not the noodles. Conversely, if a strainer's holes are smaller than water, the strainer will let the noodles pass but not the water."
+wrap_mode = 1
+
+[node name="NewSavePanel" type="Panel" parent="SLVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("3_4rsef")
+
+[node name="NewSaveHBox" type="HBoxContainer" parent="SLVBox/NewSavePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="NewSaveLabel" type="Label" parent="SLVBox/NewSavePanel/NewSaveHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+text = " New Save Name : "
+
+[node name="LineEdit" type="LineEdit" parent="SLVBox/NewSavePanel/NewSaveHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CreateButton" type="Button" parent="SLVBox/NewSavePanel/NewSaveHBox"]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_styles/normal = ExtResource("3_4rsef")
+theme_override_styles/hover = ExtResource("4_mxqee")
+theme_override_styles/pressed = ExtResource("5_loitc")
+theme_override_styles/disabled = ExtResource("6_kripj")
+text = "Create"
+
+[node name="RightControl" type="Control" parent="SLVBox/NewSavePanel/NewSaveHBox"]
+custom_minimum_size = Vector2(265, 0)
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="SLVBox/NewSavePanel/NewSaveHBox/RightControl"]
+layout_mode = 2
+offset_left = 211.0
+offset_right = 262.0
+offset_bottom = 54.0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_styles/normal = ExtResource("3_4rsef")
+theme_override_styles/hover = ExtResource("4_mxqee")
+theme_override_styles/pressed = ExtResource("5_loitc")
+theme_override_styles/disabled = ExtResource("6_kripj")
+text = "Close"
+
+[node name="ErrorLabel" type="Label" parent="SLVBox/NewSavePanel/NewSaveHBox/RightControl"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 15.0
+offset_right = 206.0
+offset_bottom = 38.0
+
+[connection signal="pressed" from="SLVBox/NewSavePanel/NewSaveHBox/RightControl/CloseButton" to="." method="_on_close_button_pressed"]

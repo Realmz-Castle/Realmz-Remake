@@ -1,0 +1,224 @@
+05-Creatures
+
+
+Definitions : Creatures are the Godot objects that contain all of a creature's data, including a reference to its graphic object ( a CombatCreaButton) during combat.
+Creatures are defined in the Bestiary folder, which like Items contains two JSON files stuff_book.json and img_pack.json, and a big PNG file textureAtlas.png. img_pack.json only names and defines bits of the PNG for the Resources manager to load into its images_book Dictionary, and stuff_book.json defines the creatures.
+Creatures are only saved to files in one case : NPC Allies saved to allies.json in the saved game folder. They actually don't save their image data ont that file, you'll need to use a campaign script to change it.
+
+CTRL+F :
+
+1-Creature Images
+2-Creature Bestiary Properties
+3-Other Properties in the Creature Class
+4-Creature Scripts
+
+
+
+
+
+1-Creature Images
+
+
+
+Just like for Items, The item icons are defined (name and coordinates in the image "textureAtlas.png") in "img_pack.json", and they are then referred to by name in "stuff_book.json".
+Those images are loaded along the item data.
+images_book[creaturename]["img" = image and images_book[creaturename]["tex"] = texture,
+where image is the raw image data and texture is the Godot Texture object that Godot can apply to sprites etc.
+Allies NPCs actually don't save their image data ont that file, you'll need to use a campaign script to change it.
+Like for items, to convert an image to a String, you can do :
+	var img_ref = json_dict["img_ptr"] 	#the name of the image defined in the json
+	var image : Image = images_book[img_ref]["img"]	#the image data loaded in images_book
+	[...]
+	var imgdata : PackedByteArray = image.save_png_to_buffer()
+	var imgdatasize : int = imgdata.size()
+	var imgdatacompressed:PackedByteArray = imgdata.compress(FileAccess.COMPRESSION_GZIP)
+	# use  imgdatacompressed.decompress(imgdatasize, File.COMPRESSION_GZIP)  to decompress
+	new_item["imgdatasize"] = imgdatasize
+	# use Marshalls.base64_to_raw(new_item["imgdata"]) to recover the compressed imagedata
+To load an image stored as a String, you can just use
+Utils.load_texture_as_string(imgstring : String, imgdatasize : int) -> Texture
+
+Normal Creatures only use one variable for  images : 
+Creatures have two variables for images textureL and textureR for facing left and right.
+But unless you set textureR, it will just be set as the same as textureL.
+Use Creature.func set_textures(lefttext : Texture2D, righttext : Texture2D = null)->void 
+
+
+
+
+
+
+2-Creature Bestiary Properties
+
+
+
+A Creature Bestiary entry will look like this (All fields are necessary) :
+
+"Vodada !" :	//the name of the creature's key in the Resources.crea_book Dictionary
+   {
+      "data" :	//This sub-dictionary contains basic data...
+      {
+         "name" : "Vodada !",	//The name given to the creature object it generates
+         "image" : "CREA_Vodalian",	//The name of the used image, as defined in "img_pack.json"
+         "size" : [1,1],	//first number is the width in tiles, second is the height in tiles.
+	 "tags" : ["Intelligent","Magic User"],	//Displayed in the Bestiary menu and can be used  by scripts
+         "in_bestiary" : 1,	//Whether to display this creature in the Bestiary
+         "summonable" : 0,	//Whether this creature could be  randomly summoned. 1=True  0=False
+	 "exp" : 1000,		//How much Experience  points this creature is worth
+	 "level" : 15,		//The level of the creature, here it is only indicative.
+         "faction" : 1,		//0=Friendly , different factions fight each other.
+	 "is_player_controlled" : 1,	//1=True 0=False, Faction must also be 0 for the creature to be player controlled.
+					//Could be useful for some NPC allies.
+         "description" : "Friendly fire is friendly."  //The Description text displayed in the Bestiary menu	
+      },
+      "stats" :		//Just set the creature's stats here. AAALLLL  the stats.
+			//By default, all damage Multipliers and Crit Multipliers are 1.0
+			//By default, all Accuracy, Damage Reduction, Evasion and Crit Chance is 0.
+      {
+         "maxHP" : 20,
+         "maxSP" : 80,
+         "Dexterity" : 11,		
+         "MaxMovement" : 8,		//Those ARE necessary !
+         "MaxActions": 2,
+	 "AccuracyMelee" : 100,
+	 "ResistancePhysical" : 0,	//Actually not necessary, 
+         "MultiplierHealing" : 1,	//Actually not necessary, 
+      },
+      "ai" :		//Just some data for the AI script to use. You may add others depending on the script  you pick.
+      {
+         "cast_chance" : 1.0,	//this x 100 is the % chance to cast a spell.
+	 "missile_chance" : 0,	//this x 100 is the % chance to fire its ranged weapon.
+	 "flees_at" : 15	//%age of health at which this creature starts feeling
+      },
+      "tools" :
+      {
+	 "inventory" : [["Leather Cap", 1]],	//The items carried by this creature, 0= unequipped 1=equipped.
+						//Name = the name of the key in Resources.items_book
+	 "money" : [0,0,0],			//Gold, Gems, Jewels
+	 "unarmed_melee_attacks" : [
+		{"weapon_dmg" : {"Physical" : [1,4], "Ice" : [1,2]}, "sound" : "slurpy.wav", "melee_atk_anim_icon" : "ATK_SLM", "melee_inflicted_traits" : [  ["regeneration_over_time.gd" , [1.0,-1] ,1.0]  ] },
+		{"weapon_name" : "Dagger"}
+		//If this creature has no melee weapon equipped, it will attack with each of those weapons in sequence.
+		//You can either define a weapon here by making a Item Dictionary (no need for image data),
+		//or just use "weapon_name" to mimic an existing weapon.
+		//These will NOT be dropped when the creature dies.
+	 ],
+	 "spells" : [["Heal Minor Wounds", 3]]	//Only used  in the Bestiary menu and as reference for the AI Script
+      },
+      "scripts" : {"default" : "test_crea_script.gd"}		//The name of the Creature AI Script File in the CreatureScripts folder. Should always have a "default" key.
+   }
+
+
+
+
+
+3-Other Properties in the Creature Class
+
+For advanced scripting, or traits and spells custom effects.
+
+General :
+
+var used_resource : String = "SP"  #Works for "TP (Tech Points) "SP" (Spell Points) "RP" (Rage Points) "FP" (Focus Points)
+					#The used stat to count them will still be cur_SP and max_SP
+var focus_counter : int = 0 	# Counts how many focus the character has lost this turn. Reset to 0 on new turn.
+				#Used for spells' can_cast functions.
+var textureL : Texture2D = null #the image for the creature, facing left
+var textureR : Texture2D = null # the image for the creature facing right
+var baseFaction : int = 1 #0= allies of player. 1=Enemy, 2=Neutral. >2 = Enemies who fight other enemies.
+var money : Array = [0,0,0]  #gold gems jewels dropped on death
+var experience : int = 0  #exp given when crea is killed
+var hands : int = 2
+var free_hands : int = 2
+var can_dual_wield : bool = false #NOT IMPLEMENTED :c
+
+For NPC Allies :
+
+var is_npc_ally : bool = false  #if true, will stay with you after battle.
+var is_summoned : bool = false	#If true, will disappear if its summoner dies. Summoners can keep a limited numbers of summons.
+var summoner : Creature = null	#If is_summoned, Points to its summoner
+var summoner_name : String = ''	# If is_summoned, the name of its summoner.
+var joins_combat : bool = true	#If false, the NPC will not join combat but can still be accesse out of combat.
+
+During Combat :
+
+var combat_button : CombatCreaButton #Points to the creature's CombatCreaButton which displays it during combat.
+var position : Vector2 = Vector2.ZERO # in tiles, coordinates should be positive integers.
+var size : Vector2 = Vector2.ONE #The size of the Creature. if you change it you should also change the CombatCreaButton 
+var curFaction : int = baseFaction # if a creature is attacked by its friends
+		#or Charmed by another faction, they may temporarily switch sides and help another faction.
+var fled_battle : bool = false #Whether the creature has fled  the combat (not dead). To make a creature escape :
+			#creature.combat_button.leave_combat()
+			#GameState._on_combat_creature_ko(creature)
+var is_player_controlled : bool = false # If true, this creature will be  player controlled if curFaction == 0
+var reaction_ready : bool = true  # Whether  this character can still use its Reaction this tirn (attack of opportunity...)
+var terrain_already_crossed_this_turn : Dictionary = {} # The terrains effects like Plane of Frost
+
+
+Stats :
+Should always be obtained  from Creature.get_stat(statname : String) 
+
+
+
+
+4-Creature Scripts
+
+
+
+Probably the most technical thing yet. We should think of more helper functions to make this easier.
+Creature scripts are .gd files  in the CreatureScripts folder.
+if not is_activechara_player_controlled , GameState calls the static function creature.creature_script.decide_action(creature).
+This is the only  required function in the script. This function returns an array.
+Returned vallues effects :
+
+Walking : 0 means the creature decided to walk.
+[0, Vector2.ZERO ]  : Does nothing and ends the creature's turn.
+[0, Vector2.RIGHT ]  : The character attempts to move to the right,
+			or performs a melee_attack if its path is obstructed by an enemy.
+
+Pathfinding :
+var path : Array = GameState.map.find_path(crea.position, target_pos, true, false, false, crea, true)
+if crea.get_apr_left() == 0 or  path.size() < 2 :
+	print("ai decideaction crea.get_apr_left() == 0  or  path.size() < 2")
+	return [0, Vector2.ZERO ]  #end turn, no way to reach the target position.
+else :
+	print("ai decideaction : "+crea.name+" 's path is : "+str(path.size())+' long')
+	return [0,Vector2(path[1])-crea.position ]  #Path[0] would be the crea's current position.
+
+
+Casting a spell : 1 means the creature uses a spell or ability. The resturned array is :
+[1, spell, spell_power, spell_target_pos, aoe_shape, picked_targets, picked_tiles, is_chain_start, add_terrain_effects]
+
+1 : means the creature decided to cast a spell.
+spell : The spell GDScript, usually obtained from 
+	var spell = NodeAccess.__Resources().spells_book[spell_name]["script"]
+	To cast from an item or weapon :
+	var weapon_spell_arr : Array =  crea.current_range_weapon["_on_combat_use_spell"]  # [spell_name, spell_power]
+	var weapon_spell = NodeAccess.__Resources().spells_book[weapon_spell_arr[0]]["script"]
+spell_power : int # the power of the spell, between 1 and 7.
+	var weapon_spell_power = weapon_spell_arr[1]
+spell_target_pos : The position of the target, as a Vector2i. Overriden by picked_tiles if it's not empty.
+aoe_shape = An Array of Vector2i describing the spells's AoE shape, centered at Vector2i.ZERO
+	To get it from the spell script :
+	var aoe_name = spell.get_aoe(weapon_power, crea) #MAY return an array immediately, or a string like "b1"
+	var aoe_shape : Array = GameState.map.targetingLayer.get_aoe_from_name(aoe_name)  #if it was an array, doesnt crash.
+picked_targets : Dictionary : An alternative to picked_tiles. picked_tiles is probably safer.
+picked_tiles : Dictionary : For multi target spells, a Dict of all the positions targeted by the spell.
+	The keys are Vector2i, the values are whatever. usually the number of the target.
+is_chain_start : bool  #whether  this can act as the start of a spell chain, should usually be true.
+add_terrain_effects] : bool #whether  this spell should leave a terrain effect.  Usually true.
+
+
+To test how many creatures would be affected by a spell cast by the Creature crea :
+var affected_creas : Array = GameState.map.targetingLayer.get_spell_affected_creas(weapon_spell, -1,weapon_power,crea.combat_button, target_pos)
+
+
+
+
+
+Creature class variables about the  script :
+
+
+var scripts_dict : Dictionary = {} : The dictionary containing the scripts of the creature as defined in the Bestiary.
+		Should always have a "default" key.
+var creature_script : GDScript = null : the current creature AI script the creature is using, if not is_player_controlled.
+var creature_script_memory : Dictionary = {} : Intended to store key/value pairs for the different AI scripts to share.

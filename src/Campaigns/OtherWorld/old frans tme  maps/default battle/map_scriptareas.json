@@ -1,0 +1,79 @@
+{
+   "First AP" : 
+   {
+      "floor" : 0.0,
+      "leftTopPoint" : 
+      {
+         "x" : 15,
+         "y" : 4
+      },
+      "rightBotPoint" : 
+      {
+         "x" : 16,
+         "y" : 5
+      },
+      "scriptToLoad" : "GlyphScript_One"
+   }
+   ,
+   "Second AP" : 
+   {
+      "floor" : 0.0,
+      "leftTopPoint" : 
+      {
+         "x" : 6,
+         "y" : 15
+      },
+      "rightBotPoint" : 
+      {
+         "x" : 7,
+         "y" : 16
+      },
+      "scriptToLoad" : "GlyphScript_Two"
+   }
+   ,
+   "Third AP" : 
+   {
+      "floor" : 0.0,
+      "leftTopPoint" : 
+      {
+         "x" : 9,
+         "y" : 6
+      },
+      "rightBotPoint" : 
+      {
+         "x" : 9,
+         "y" : 6
+      },
+      "scriptToLoad" : "Allow_Char_Swap"
+   },
+      "Fourth AP" : 
+   {
+      "floor" : 0.0,
+      "leftTopPoint" : 
+      {
+         "x" : 17,
+         "y" : 2
+      },
+      "rightBotPoint" : 
+      {
+         "x" : 17,
+         "y" : 2
+      },
+      "scriptToLoad" : "Find_Treasure"
+   },
+   "Stairs Down" :
+   {
+      "floor" : 0.0,
+      "leftTopPoint" : 
+      {
+         "x" : 2,
+         "y" : 2
+      },
+      "rightBotPoint" : 
+      {
+         "x" : 2,
+         "y" : 2
+      },
+      "scriptToLoad" : "Take_Stairs_D"
+   }
+}

@@ -1,0 +1,37 @@
+[gd_scene load_steps=9 format=3 uid="uid://bg2acuctsqmoq"]
+
+[ext_resource type="Script" path="res://scripts/game_state.gd" id="1_kdebb"]
+[ext_resource type="Script" path="res://scripts/states/InactiveState.gd" id="2_fh2h7"]
+[ext_resource type="Script" path="res://scripts/states/ExplorationState.gd" id="3_t0kdd"]
+[ext_resource type="Script" path="res://scripts/states/ExMenusState.gd" id="5_pmw42"]
+[ext_resource type="Script" path="res://scripts/states/CombatState.gd" id="6_gwffk"]
+[ext_resource type="Script" path="res://scripts/states/CbDecideActionState.gd" id="7_ofipa"]
+[ext_resource type="Script" path="res://scripts/states/CbAnimationState.gd" id="8_k4l8v"]
+[ext_resource type="Script" path="res://scripts/states/WaitForClickState.gd" id="9_ggvd6"]
+
+[node name="StateMachine" type="Node"]
+script = ExtResource("1_kdebb")
+initial_state = NodePath("Inactive")
+exploration_state = NodePath("Exploration")
+combat_state = NodePath("Combat")
+
+[node name="Inactive" type="Node" parent="."]
+script = ExtResource("2_fh2h7")
+
+[node name="Menus" type="Node" parent="."]
+script = ExtResource("5_pmw42")
+
+[node name="Exploration" type="Node" parent="."]
+script = ExtResource("3_t0kdd")
+
+[node name="Combat" type="Node" parent="."]
+script = ExtResource("6_gwffk")
+
+[node name="CbDecideAction" type="Node" parent="Combat"]
+script = ExtResource("7_ofipa")
+
+[node name="CbAnimation" type="Node" parent="Combat"]
+script = ExtResource("8_k4l8v")
+
+[node name="WaitForClick" type="Node" parent="."]
+script = ExtResource("9_ggvd6")

@@ -1,0 +1,56 @@
+[gd_scene load_steps=5 format=3 uid="uid://df0n7iov8urn3"]
+
+[ext_resource type="Script" path="res://scenes/Map/CombatCharacter.gd" id="1_6vrfh"]
+[ext_resource type="Texture2D" uid="uid://bdqm7hng8keon" path="res://scenes/Map/CreaSelection11.png" id="2_c7n50"]
+[ext_resource type="Texture2D" uid="uid://dbys7abqx7smb" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="2_csw5h"]
+[ext_resource type="Texture2D" uid="uid://b4co000kb4k8c" path="res://shared_assets/BattleEffects/BattleEffects.png" id="4_lfo5q"]
+
+[node name="CombatCharacter" type="Button" node_paths=PackedStringArray("atkanimTimer")]
+offset_right = 32.0
+offset_bottom = 32.0
+focus_mode = 0
+button_mask = 2
+flat = true
+script = ExtResource("1_6vrfh")
+atkanimTimer = NodePath("AtkAnimTimer")
+
+[node name="SpriteBG" type="Sprite2D" parent="."]
+texture = ExtResource("2_c7n50")
+centered = false
+hframes = 3
+region_rect = Rect2(0, 0, 64, 64)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_csw5h")
+centered = false
+
+[node name="AttackSprite2D" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(16, 16)
+texture = ExtResource("4_lfo5q")
+hframes = 16
+vframes = 16
+frame = 35
+
+[node name="DamageLabel" type="Label" parent="AttackSprite2D"]
+visible = false
+z_index = 500
+z_as_relative = false
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "99"
+horizontal_alignment = 1
+
+[node name="AtkAnimTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="button_down" from="." to="." method="_on_button_down"]
+[connection signal="button_up" from="." to="." method="_on_button_up"]
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="timeout" from="AtkAnimTimer" to="." method="_on_atk_anim_timer_timeout"]

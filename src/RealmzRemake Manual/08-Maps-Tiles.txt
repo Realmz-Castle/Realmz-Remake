@@ -1,0 +1,28 @@
+08-Map-Tiles
+
+Definitions : Maps folders are located in Campaign foldersin in CampaignName/Maps/MapName.
+The map's folder name must be the same as the map's name.
+This folder contains several files.
+
+map_info.json : contains very basic static map data like map name and default music.
+	The map name must be the same as the folder's.
+And, among others,  the one that contains the tile data, map_things.json.
+
+A default Realmz map is 90x90 tiles.
+
+01-Creating a map in Tiled :
+
+Open your tilesets in other  tabs to access them in your Tile Map. You can mix several tilesets this way.
+RealmzRemake also supports layers.
+
+
+Likely issues :
+
+In Tiled, do not forget to set  all height and width CUSTOM properties to your  map's dimensions.
+In map_things.json, this should appear as :
+"height":90,
+"width":90,
+Also, the tileset sources should be set to just the name of the tileset, not the path.
+         "source":"ForestDay.json"
+To ensure that, when building the map in Tiled you can place your tileset and tilemap files in the same folder.
+

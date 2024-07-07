@@ -1,0 +1,8 @@
+{
+   "name" : "test_battle_map",
+   "map_type" : "Battle",
+   "music_type" : "F-Zero GX Mighty Gazelle.mp3",
+   "outdoor_riding" : false,
+   "darkness_level" : -1,
+   "display_explored_only" : 0
+}

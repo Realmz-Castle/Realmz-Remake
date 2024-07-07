@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://byeahfs6d5i36"]
+
+[node name="ChoicesButtonSeparator" type="HSeparator"]
+offset_right = 40.0
+offset_bottom = 4.0
+theme_override_constants/separation = 20

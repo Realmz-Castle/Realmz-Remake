@@ -1,0 +1,169 @@
+[gd_scene load_steps=14 format=3 uid="uid://dg78xp74hy78q"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
+[ext_resource type="BitMap" uid="uid://bomsiyq78eu6w" path="res://scenes/UI/Party Selection/ButtonSquareBitmask.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://bgbeptqtdjpo" path="res://scenes/UI/Party Selection/ButtonPartyAddPressed.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://dsoat4p6suoqq" path="res://scenes/UI/Party Selection/ButtonPartyDropDisabled.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://cjrivsqv7q34w" path="res://scenes/UI/Party Selection/ButtonPartyAdd.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://dg5qspocwipi6" path="res://scenes/UI/Party Selection/ButtonPartyAddHover.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://c3sxcgpx2uv0l" path="res://scenes/UI/Party Selection/ButtonPartyDrop.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://b7n1mos7am82n" path="res://scenes/UI/Party Selection/ButtonPartyDropHover.png" id="9"]
+[ext_resource type="Texture2D" uid="uid://coyipqtfh2k6i" path="res://scenes/UI/Party Selection/ButtonPartyAddDisabled.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://dps6k4obpassq" path="res://scenes/UI/Party Selection/ButtonPartyDropPressed.png" id="11"]
+[ext_resource type="Texture2D" uid="uid://0avr3chce768" path="res://scenes/UI/Party Selection/ButtonOK.png" id="12"]
+[ext_resource type="Script" path="res://scenes/UI/Party Selection/CharPickRect.gd" id="13"]
+[ext_resource type="Script" path="res://scenes/UI/Party Selection/CharListRect.gd" id="14"]
+
+[node name="CharPickRect" type="NinePatchRect" node_paths=PackedStringArray("pick_party_label")]
+offset_left = 357.0
+offset_top = 56.0
+offset_right = 954.0
+offset_bottom = 531.0
+texture = ExtResource("1")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("13")
+pick_party_label = NodePath("VBoxContainer/Label")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Pick your Party  :"
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EligibleVBox" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EligibleLabel" type="Label" parent="VBoxContainer/HBoxContainer/EligibleVBox"]
+layout_mode = 2
+text = "Eligible Characters :"
+
+[node name="EligibleListRect" type="NinePatchRect" parent="VBoxContainer/HBoxContainer/EligibleVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+texture = ExtResource("1")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("14")
+
+[node name="EligibleScrollContainer" type="ScrollContainer" parent="VBoxContainer/HBoxContainer/EligibleVBox/EligibleListRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+mouse_filter = 2
+
+[node name="EligibleVBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/EligibleVBox/EligibleListRect/EligibleScrollContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ButtonsVBox" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginControl" type="Control" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="AddButton" type="TextureButton" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
+layout_mode = 2
+texture_normal = ExtResource("6")
+texture_pressed = ExtResource("4")
+texture_hover = ExtResource("7")
+texture_disabled = ExtResource("10")
+texture_click_mask = ExtResource("3")
+
+[node name="DropButton" type="TextureButton" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
+layout_mode = 2
+texture_normal = ExtResource("8")
+texture_pressed = ExtResource("11")
+texture_hover = ExtResource("9")
+texture_disabled = ExtResource("5")
+texture_click_mask = ExtResource("3")
+
+[node name="OKButton" type="TextureButton" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
+visible = false
+layout_mode = 2
+texture_normal = ExtResource("12")
+texture_pressed = ExtResource("12")
+texture_hover = ExtResource("12")
+texture_disabled = ExtResource("12")
+texture_click_mask = ExtResource("3")
+
+[node name="SelectedVBox" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TeamLabel" type="Label" parent="VBoxContainer/HBoxContainer/SelectedVBox"]
+layout_mode = 2
+text = "Selected Party :"
+
+[node name="TeamListRect" type="NinePatchRect" parent="VBoxContainer/HBoxContainer/SelectedVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+texture = ExtResource("1")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("14")
+
+[node name="TeamScrollContainer" type="ScrollContainer" parent="VBoxContainer/HBoxContainer/SelectedVBox/TeamListRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+mouse_filter = 2
+
+[node name="TeamVBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/SelectedVBox/TeamListRect/TeamScrollContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="RestrictionsLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -372.0
+offset_top = 20.0
+offset_right = -16.0001
+offset_bottom = 46.0
+grow_horizontal = 0
+horizontal_alignment = 2
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/ButtonsVBox/AddButton" to="." method="_on_AddButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/ButtonsVBox/DropButton" to="." method="_on_DropButton_pressed"]

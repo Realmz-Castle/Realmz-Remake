@@ -1,0 +1,163 @@
+[gd_scene load_steps=10 format=3 uid="uid://37bdl7c76fpb"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ogmno"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Allies/allies_rect.gd" id="2_pi45d"]
+[ext_resource type="PackedScene" uid="uid://2w0rb8651ynm" path="res://scenes/UI/HUD/Allies/crea_v_box.tscn" id="3_4437a"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_g2gb7"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="4_t6gqf"]
+[ext_resource type="PackedScene" uid="uid://colmfl37rp3kg" path="res://scenes/UI/HUD/Allies/summons_v_box.tscn" id="4_twyn4"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="5_xllfx"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="6_oxt08"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="7_i86ev"]
+
+[node name="AlliesRect" type="NinePatchRect" node_paths=PackedStringArray("summonsvbox", "specialshbox", "okbutton", "oklabel")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_ogmno")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_pi45d")
+creavboxTSCN = ExtResource("3_4437a")
+summonsboxTSCN = ExtResource("4_twyn4")
+summonsvbox = NodePath("VBoxContainer/VScrollContainer/ScrollVBox/SummonsVBox")
+specialshbox = NodePath("VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox/ScrollContainer/SpecialScrollHBox")
+okbutton = NodePath("VBoxContainer/BotControl/OKButton")
+oklabel = NodePath("VBoxContainer/BotControl/OKButton/OKLabel")
+metadata/_edit_horizontal_guides_ = []
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_g2gb7")
+theme_override_font_sizes/font_size = 32
+text = "Manage Allies"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScrollVBox" type="VBoxContainer" parent="VBoxContainer/VScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SpecialVbox" type="VBoxContainer" parent="VBoxContainer/VScrollContainer/ScrollVBox"]
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+
+[node name="SpecialLabel" type="Label" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_fonts/font = ExtResource("3_g2gb7")
+theme_override_font_sizes/font_size = 24
+text = "Special Characters :"
+vertical_alignment = 1
+
+[node name="SpecialHBox" type="HBoxContainer" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="statsVBox" type="VBoxContainer" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Control" type="Control" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox/statsVBox"]
+custom_minimum_size = Vector2(40, 80)
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox/statsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Name :"
+horizontal_alignment = 2
+
+[node name="HPLabel" type="Label" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox/statsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "HP :"
+horizontal_alignment = 2
+
+[node name="SPLabel" type="Label" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox/statsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "SP ect :"
+horizontal_alignment = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpecialScrollHBox" type="HBoxContainer" parent="VBoxContainer/VScrollContainer/ScrollVBox/SpecialVbox/SpecialHBox/ScrollContainer"]
+layout_mode = 2
+
+[node name="SummonsVBox" type="VBoxContainer" parent="VBoxContainer/VScrollContainer/ScrollVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BotControl" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="OKButton" type="Button" parent="VBoxContainer/BotControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -17.0
+offset_right = 40.0
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_pressed_color = Color(0.8, 0.784314, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_disabled_color = Color(0.501961, 0.501961, 0.376471, 1)
+theme_override_fonts/font = ExtResource("3_g2gb7")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = ExtResource("4_t6gqf")
+theme_override_styles/hover = ExtResource("5_xllfx")
+theme_override_styles/pressed = ExtResource("6_oxt08")
+theme_override_styles/disabled = ExtResource("7_i86ev")
+text = "OK"
+
+[node name="OKLabel" type="Label" parent="VBoxContainer/BotControl/OKButton"]
+visible = false
+layout_mode = 0
+offset_left = 85.0
+offset_top = 5.0
+offset_right = 341.0
+offset_bottom = 31.0
+theme_override_colors/font_color = Color(1, 0.0196078, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+text = "Samuel cannot keep so many summoned creatures !"
+
+[connection signal="pressed" from="VBoxContainer/BotControl/OKButton" to="." method="_on_ok_button_pressed"]

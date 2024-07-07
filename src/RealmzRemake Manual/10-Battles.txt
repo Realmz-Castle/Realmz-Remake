@@ -1,0 +1,3 @@
+load_battle_resources
+
+"is_relative_coords"

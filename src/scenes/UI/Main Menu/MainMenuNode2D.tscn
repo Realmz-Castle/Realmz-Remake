@@ -1,0 +1,249 @@
+[gd_scene load_steps=11 format=3 uid="uid://c3on0sw1e8ed5"]
+
+[ext_resource type="Texture2D" uid="uid://d23abg1ddq3b1" path="res://scenes/UI/Main Menu/Splash Screen.png" id="1"]
+[ext_resource type="Theme" uid="uid://0pl8f657l17e" path="res://scenes/UI/Main Menu/mainmenu_theme.tres" id="1_4258f"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_dy765"]
+[ext_resource type="Script" path="res://scenes/UI/Main Menu/QuitButton.gd" id="5"]
+[ext_resource type="Script" path="res://scenes/UI/Main Menu/NewProfileVBox.gd" id="5_h45uc"]
+[ext_resource type="PackedScene" uid="uid://ci4cf1yx31p2n" path="res://scenes/UI/Main Menu/new_character_panel.tscn" id="5_r6ck8"]
+[ext_resource type="PackedScene" uid="uid://dnrfjpqs4sges" path="res://scenes/UI/Main Menu/new_campaign_panel.tscn" id="6_1n66i"]
+[ext_resource type="PackedScene" uid="uid://7v3a8w4rknyq" path="res://scenes/UI/HUD/SaveLoad/save_load_rect.tscn" id="8_ppe4q"]
+[ext_resource type="Script" path="res://scenes/UI/Main Menu/MainMenu.gd" id="10_xeetu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6o0si"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.501961, 0.501961, 0.501961, 0.188235)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.501961, 0.501961, 0.501961, 0.313726)
+border_blend = true
+
+[node name="MainMenuControl" type="Control" node_paths=PackedStringArray("newprofileVBox", "honest_mode_label", "profilebutton", "profilespopup")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_4258f")
+script = ExtResource("10_xeetu")
+newprofileVBox = NodePath("NewProfileVBox")
+honest_mode_label = NodePath("ProfileVBox/ProfileHBox/ProfButVBox/HonestLabel")
+profilebutton = NodePath("ProfileVBox/ProfileHBox/ProfButVBox/ProfileButton")
+profilespopup = NodePath("ProfileVBox/ProfileHBox/ProfButVBox/ProfileButton/ProfilePopupMenu")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -305.0
+offset_top = -212.5
+offset_right = 305.0
+offset_bottom = 212.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1")
+stretch_mode = 2
+
+[node name="ProfileVBox" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ProfileHBox" type="HBoxContainer" parent="ProfileVBox"]
+layout_mode = 2
+
+[node name="ProfileLabel" type="Label" parent="ProfileVBox/ProfileHBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Profile :"
+
+[node name="ProfButVBox" type="VBoxContainer" parent="ProfileVBox/ProfileHBox"]
+layout_mode = 2
+
+[node name="ProfileButton" type="Button" parent="ProfileVBox/ProfileHBox/ProfButVBox"]
+custom_minimum_size = Vector2(128, 32)
+layout_mode = 2
+alignment = 0
+
+[node name="ProfilePopupMenu" type="PopupMenu" parent="ProfileVBox/ProfileHBox/ProfButVBox/ProfileButton"]
+
+[node name="HonestLabel" type="Label" parent="ProfileVBox/ProfileHBox/ProfButVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_fonts/font = ExtResource("4_dy765")
+text = "Honest Mode !"
+vertical_alignment = 1
+
+[node name="NewProfileVBox" type="VBoxContainer" parent="." node_paths=PackedStringArray("lineEdit", "honest_checkbox")]
+layout_mode = 2
+offset_left = 384.5
+offset_right = 500.5
+offset_bottom = 32.0
+grow_horizontal = 2
+script = ExtResource("5_h45uc")
+lineEdit = NodePath("NewProfileHBox/LineEdit")
+honest_checkbox = NodePath("HonestHBox/HonestCheckBox")
+
+[node name="NewProfileHBox" type="HBoxContainer" parent="NewProfileVBox"]
+layout_mode = 2
+
+[node name="NewProfileButton" type="Button" parent="NewProfileVBox/NewProfileHBox"]
+layout_mode = 2
+text = "New Profile"
+
+[node name="NewProfileLabel" type="Label" parent="NewProfileVBox/NewProfileHBox"]
+layout_mode = 2
+text = "Enter Profile Name :"
+
+[node name="LineEdit" type="LineEdit" parent="NewProfileVBox/NewProfileHBox"]
+custom_minimum_size = Vector2(128, 32)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_6o0si")
+theme_override_styles/focus = SubResource("StyleBoxFlat_6o0si")
+theme_override_styles/read_only = SubResource("StyleBoxFlat_6o0si")
+caret_blink = true
+caret_blink_interval = 0.5
+
+[node name="HonestHBox" type="HBoxContainer" parent="NewProfileVBox"]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="NewProfileVBox/HonestHBox"]
+custom_minimum_size = Vector2(91, 32)
+layout_mode = 2
+
+[node name="HonestInfoButton" type="Button" parent="NewProfileVBox/HonestHBox/Control"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -16.0
+offset_bottom = 16.0
+grow_horizontal = 0
+grow_vertical = 2
+tooltip_text = "Allows only one save per campaign, and characters may only be used in one campaign at a time.
+However, Item Storage and Banking are profile-wide instead of limitied to a single campaign."
+text = "?"
+
+[node name="HonestLabel" type="Label" parent="NewProfileVBox/HonestHBox"]
+layout_mode = 2
+text = "Honest mode ?"
+
+[node name="HonestCheckBox" type="CheckBox" parent="NewProfileVBox/HonestHBox"]
+modulate = Color(3, 3, 3, 1)
+layout_mode = 2
+
+[node name="HDButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 104.0
+offset_right = 137.0
+offset_bottom = 129.0
+text = "Toggle HD mode !"
+
+[node name="NewCharacterButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 241.0
+offset_top = -67.0
+offset_right = 365.0
+offset_bottom = -36.0
+grow_vertical = 0
+disabled = true
+text = "New Character"
+
+[node name="LoadButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 451.0
+offset_top = -67.0
+offset_right = 575.0
+offset_bottom = -36.0
+grow_vertical = 0
+disabled = true
+text = "Load Game"
+
+[node name="NewCampaignButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 65.0
+offset_top = -70.0
+offset_right = 193.0
+offset_bottom = -39.0
+grow_vertical = 0
+disabled = true
+text = "Start Campaign"
+
+[node name="QuitButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -143.0
+offset_top = -66.0
+offset_right = -57.0
+offset_bottom = -41.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Quit Game"
+script = ExtResource("5")
+
+[node name="NewCharacterPanel" parent="." instance=ExtResource("5_r6ck8")]
+visible = false
+layout_mode = 1
+
+[node name="NewCampaignPanel" parent="." instance=ExtResource("6_1n66i")]
+visible = false
+layout_mode = 1
+
+[node name="LoadWindow" type="Window" parent="."]
+transparent_bg = true
+size = Vector2i(1152, 648)
+visible = false
+transient = true
+exclusive = true
+unresizable = true
+borderless = true
+always_on_top = true
+transparent = true
+popup_window = true
+
+[node name="SaveLoadRect" parent="LoadWindow" instance=ExtResource("8_ppe4q")]
+offset_right = 0.0
+
+[connection signal="pressed" from="ProfileVBox/ProfileHBox/ProfButVBox/ProfileButton" to="." method="_on_profile_button_pressed"]
+[connection signal="id_pressed" from="ProfileVBox/ProfileHBox/ProfButVBox/ProfileButton/ProfilePopupMenu" to="." method="_on_profile_popup_menu_id_pressed"]
+[connection signal="pressed" from="NewProfileVBox/NewProfileHBox/NewProfileButton" to="NewProfileVBox" method="_on_NPButton_pressed"]
+[connection signal="pressed" from="HDButton" to="." method="_on_hd_button_pressed"]
+[connection signal="pressed" from="NewCharacterButton" to="." method="_on_new_character_button_pressed"]
+[connection signal="pressed" from="LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="NewCampaignButton" to="." method="_on_new_campaign_button_pressed"]

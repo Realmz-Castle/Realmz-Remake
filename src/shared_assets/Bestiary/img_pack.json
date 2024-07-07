@@ -1,0 +1,32 @@
+{
+   "CREA_snail" : 
+   {
+      "0_ref_x" : 58,
+      "0_ref_y" : 9,
+      "size" : "64x64"
+   },
+   "CREA_lich" : 
+   {
+      "0_ref_x" : 65,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+   "CREA_alienbeetle_1" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   "CREA_alienbeetle_2" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   "CREA_teddybear" : 
+   {
+      "0_ref_x" : 44,
+      "0_ref_y" : 10,
+      "size" : "32x32"
+   }
+}

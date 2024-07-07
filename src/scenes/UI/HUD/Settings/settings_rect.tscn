@@ -1,0 +1,184 @@
+[gd_scene load_steps=11 format=3 uid="uid://diwmugxendkdn"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_7xtdh"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Settings/SettingsRect.gd" id="2_4wtss"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Settings/MusicSettingsRect.gd" id="3_43w0u"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_g7kde"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="5_axu5w"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="6_7vk7l"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="7_reiei"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="8_imqog"]
+[ext_resource type="Texture2D" uid="uid://byeycaftdmdf2" path="res://shared_assets/UI/buttonDone.png" id="9_1ta0t"]
+
+[sub_resource type="Shortcut" id="46"]
+
+[node name="SettingsRect" type="NinePatchRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 0
+texture = ExtResource("1_7xtdh")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 9
+patch_margin_bottom = 9
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_4wtss")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="MusicSettingsRect" type="NinePatchRect" parent="HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(320, 600)
+layout_mode = 2
+mouse_filter = 0
+texture = ExtResource("1_7xtdh")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 9
+patch_margin_bottom = 9
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("3_43w0u")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MusicSettingsRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="MusicSettingsLabel" type="Label" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_g7kde")
+theme_override_font_sizes/font_size = 36
+text = "Music Settings :"
+horizontal_alignment = 1
+
+[node name="MusScroll" type="ScrollContainer" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MusVBox" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/MusScroll"]
+layout_mode = 2
+
+[node name="TextureRect" type="NinePatchRect" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+texture = ExtResource("1_7xtdh")
+region_rect = Rect2(8, 0, 50, 8)
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="VolumeVbox" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+
+[node name="MusicSettingsLabel" type="Label" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_g7kde")
+theme_override_font_sizes/font_size = 36
+text = "Volume :"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SoundLabel" type="Label" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_g7kde")
+text = "Sound :"
+vertical_alignment = 1
+
+[node name="SoundHScrollBar" type="HScrollBar" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/SoundLabel"]
+layout_mode = 0
+offset_left = 68.0
+offset_top = 5.0
+offset_right = 264.0
+offset_bottom = 19.0
+step = 1.0
+value = 100.0
+rounded = true
+
+[node name="SoundVLabel" type="Label" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/SoundLabel"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 0
+offset_left = 268.0
+offset_right = 298.0
+offset_bottom = 30.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_g7kde")
+text = "100%"
+vertical_alignment = 1
+
+[node name="MusicLabel" type="Label" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_g7kde")
+text = "Music :"
+vertical_alignment = 1
+
+[node name="MusicHScrollBar" type="HScrollBar" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/MusicLabel"]
+layout_mode = 0
+offset_left = 68.0
+offset_top = 5.0
+offset_right = 264.0
+offset_bottom = 19.0
+step = 1.0
+value = 100.0
+rounded = true
+
+[node name="MusicVLabel" type="Label" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/MusicLabel"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 0
+offset_left = 268.0
+offset_right = 298.0
+offset_bottom = 30.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_g7kde")
+text = "100%"
+vertical_alignment = 1
+
+[node name="ButtonDone" type="Button" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -50.0
+offset_top = -50.0
+offset_right = -10.0
+offset_bottom = -10.0
+theme_override_styles/normal = ExtResource("5_axu5w")
+theme_override_styles/hover = ExtResource("6_7vk7l")
+theme_override_styles/pressed = ExtResource("7_reiei")
+theme_override_styles/disabled = ExtResource("8_imqog")
+shortcut = SubResource("46")
+icon = ExtResource("9_1ta0t")
+flat = true
+
+[connection signal="value_changed" from="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/SoundLabel/SoundHScrollBar" to="HBoxContainer/VBoxContainer/MusicSettingsRect" method="_on_sound_h_scroll_bar_value_changed"]
+[connection signal="value_changed" from="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/MusicLabel/MusicHScrollBar" to="HBoxContainer/VBoxContainer/MusicSettingsRect" method="_on_music_h_scroll_bar_value_changed"]
+[connection signal="pressed" from="ButtonDone" to="." method="_on_ButtonDone_pressed"]

@@ -1,0 +1,8 @@
+{
+   "name" : "test_map",
+   "map_type" : "Outdoor",
+   "music_type" : "Forest",
+   "outdoor_riding" : true,
+   "darkness_level" : -1,
+   "display_explored_only" : 0
+}

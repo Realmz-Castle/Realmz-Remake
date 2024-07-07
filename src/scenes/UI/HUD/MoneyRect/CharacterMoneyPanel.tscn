@@ -1,0 +1,163 @@
+[gd_scene load_steps=4 format=3 uid="uid://dp81puofvcd7q"]
+
+[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="2"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/MoneyRect/CharacterMoneyPanel.gd" id="3"]
+
+[node name="CharacterMoneyPanel" type="Control"]
+custom_minimum_size = Vector2(455, 80)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 455.0
+offset_bottom = 80.0
+script = ExtResource("3")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+toggle_mode = true
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("1")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 4.0
+offset_top = 14.0
+offset_right = 153.0
+offset_bottom = 40.0
+grow_vertical = 2
+text = "Character"
+
+[node name="PortraitTextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 26.0
+offset_top = -28.0
+offset_right = 70.0
+offset_bottom = 16.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2")
+
+[node name="GoldLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 96.0
+offset_top = -28.5
+offset_right = 216.0
+offset_bottom = -11.5
+text = "Gold :"
+
+[node name="GemsLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 96.0
+offset_top = -8.5
+offset_right = 216.0
+offset_bottom = 8.5
+text = "Gems :"
+
+[node name="JewelsLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 96.0
+offset_top = 13.5
+offset_right = 216.0
+offset_bottom = 30.5
+text = "Jewels :"
+
+[node name="GoldnLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 222.0
+offset_top = -27.0
+offset_right = 392.0
+offset_bottom = -13.0
+text = "999999"
+
+[node name="WeightnLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -19.0
+offset_right = 2.0
+offset_bottom = -5.0
+text = "20000 / 20000"
+
+[node name="MovenLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -102.0
+offset_top = 3.0
+offset_bottom = 17.0
+text = "20"
+
+[node name="GemsnLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 222.0
+offset_top = -7.0
+offset_right = 392.0
+offset_bottom = 7.0
+text = "999999"
+
+[node name="JewelsnLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 222.0
+offset_top = 16.0
+offset_right = 392.0
+offset_bottom = 30.0
+text = "999999"
+
+[node name="WeightLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -161.0
+offset_top = -20.0
+offset_bottom = -3.0
+text = "Weight :"
+
+[node name="MovementLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -152.0
+offset_top = 2.0
+offset_bottom = 19.0
+text = "Move :"
+
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]

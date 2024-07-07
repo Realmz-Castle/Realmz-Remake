@@ -1,0 +1,108 @@
+[gd_scene load_steps=11 format=3 uid="uid://ux82qv1x7yu5"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_2qxdv"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/LevelUp/level_up_rect.gd" id="2_u0eid"]
+[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_d7fwe"]
+[ext_resource type="FontFile" uid="uid://dijqs5swqcb6v" path="res://Fonts/BlackChancery.ttf" id="4_v8mn5"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="5_5r63f"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="6_nn0ye"]
+[ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="7_x7b0t"]
+[ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="8_wt2l8"]
+[ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="9_sqogu"]
+[ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="10_pahhb"]
+
+[node name="LevelUpRect" type="NinePatchRect"]
+offset_right = 440.0
+offset_bottom = 360.0
+texture = ExtResource("1_2qxdv")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_u0eid")
+metadata/_edit_horizontal_guides_ = []
+
+[node name="Top" type="Control" parent="."]
+layout_mode = 2
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 430.0
+offset_bottom = 90.0
+
+[node name="PortraitRect" type="TextureRect" parent="Top"]
+layout_mode = 2
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 54.0
+offset_bottom = 54.0
+texture = ExtResource("3_d7fwe")
+stretch_mode = 1
+
+[node name="NameLabel" type="Label" parent="Top"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 29.0
+offset_right = 202.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_v8mn5")
+theme_override_font_sizes/font_size = 20
+text = "Name"
+
+[node name="LevelLabel" type="Label" parent="Top"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 54.0
+offset_right = 146.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "Reached level 1 !"
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 2
+offset_left = 10.0
+offset_top = 92.0
+offset_right = 429.0
+offset_bottom = 298.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0, 0, 0, 0.501961)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ColorRect"]
+layout_mode = 0
+offset_right = 419.0
+offset_bottom = 206.0
+
+[node name="StatsVBox" type="VBoxContainer" parent="ColorRect/ScrollContainer"]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -18.5
+offset_top = -51.0
+offset_right = 18.5
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_pressed_color = Color(0.0156863, 0.784314, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.607843, 0.6, 0, 1)
+theme_override_fonts/font = ExtResource("5_5r63f")
+theme_override_styles/normal = ExtResource("6_nn0ye")
+theme_override_styles/hover = ExtResource("7_x7b0t")
+theme_override_styles/pressed = ExtResource("8_wt2l8")
+theme_override_styles/disabled = ExtResource("9_sqogu")
+theme_override_styles/focus = ExtResource("10_pahhb")
+text = "OK"
+
+[connection signal="pressed" from="CloseButton" to="." method="_on_close_button_pressed"]

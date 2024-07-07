@@ -1,0 +1,9 @@
+{
+   "size_x" : 50,
+   "size_y" : 50,
+   "name" : "rug_dungeon_floor",
+   "map_type" : "Dungeon",
+   "music_type" : "Dungeon",
+   "outdoor_riding" : true,
+   "darkness_level" : 0
+}

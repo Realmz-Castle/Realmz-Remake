@@ -1,0 +1,122 @@
+[gd_scene load_steps=15 format=3 uid="uid://ydrlw05iy1k5"]
+
+[ext_resource type="PackedScene" uid="uid://jlb06ro2rvdg" path="res://scenes/Map/OWCharacter.tscn" id="1"]
+[ext_resource type="Script" path="res://scenes/Map/Map.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/Resources.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/CombatSystem.gd" id="5"]
+[ext_resource type="Script" path="res://scenes/Map/TargetingLayer.gd" id="5_h335e"]
+[ext_resource type="Script" path="res://scripts/Main.gd" id="6"]
+[ext_resource type="Shader" path="res://scenes/CRT.gdshader" id="7_5xixa"]
+[ext_resource type="Texture2D" uid="uid://c6vdcyhnn3ejn" path="res://scenes/Capture.PNG" id="7_hcueg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5xg8f"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pmuav"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wqnq8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jefig"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_12uap"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_juq17"]
+shader = ExtResource("7_5xixa")
+shader_parameter/overlay = true
+shader_parameter/scanlines_opacity = 0.391
+shader_parameter/scanlines_width = 0.326
+shader_parameter/scanlines_v_width = 0.104
+shader_parameter/grille_opacity = 0.0
+shader_parameter/resolution = Vector2(576, 480)
+shader_parameter/pixelate = false
+shader_parameter/roll = false
+shader_parameter/roll_speed = 0.0
+shader_parameter/roll_size = 0.0
+shader_parameter/roll_variation = 0.1
+shader_parameter/distort_intensity = 0.0
+shader_parameter/noise_opacity = 0.0
+shader_parameter/noise_speed = 0.0
+shader_parameter/static_noise_intensity = 0.0
+shader_parameter/aberration = 0.00500005
+shader_parameter/brightness = 1.2
+shader_parameter/discolor = false
+shader_parameter/warp_amount = 0.0
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.0
+shader_parameter/vignette_opacity = 0.0
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6")
+
+[node name="Resources" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="Map" type="Control" parent="."]
+visible = false
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2")
+
+[node name="MapMouseControlButton" type="Button" parent="Map"]
+layout_mode = 1
+offset_right = 832.0
+offset_bottom = 447.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_5xg8f")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_pmuav")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_wqnq8")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_jefig")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_12uap")
+
+[node name="ExtraImages" type="Node2D" parent="Map"]
+
+[node name="CombatCreatures" type="Node2D" parent="Map"]
+
+[node name="Characters" type="Node2D" parent="Map"]
+
+[node name="OWPlayer" parent="Map/Characters" instance=ExtResource("1")]
+
+[node name="TargetingLayer" type="Node2D" parent="Map"]
+process_mode = 1
+script = ExtResource("5_h335e")
+
+[node name="DebugLabel" type="Label" parent="Map"]
+layout_mode = 0
+offset_right = 921.0
+offset_bottom = 44.0
+
+[node name="Gfx" type="Node2D" parent="Map"]
+
+[node name="CombatSystem" type="Node" parent="."]
+script = ExtResource("5")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 634.0
+offset_bottom = 457.0
+texture = ExtResource("7_hcueg")
+
+[node name="ShaderOverlay" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_juq17")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="button_down" from="Map/MapMouseControlButton" to="Map" method="_on_MapMouseControlButton_button_down"]
+[connection signal="button_up" from="Map/MapMouseControlButton" to="Map" method="_on_MapMouseControlButton_button_up"]
+[connection signal="mouse_entered" from="Map/MapMouseControlButton" to="Map" method="_on_MapMouseControlButton_mouse_entered"]
+[connection signal="mouse_exited" from="Map/MapMouseControlButton" to="Map" method="_on_MapMouseControlButton_mouse_exited"]

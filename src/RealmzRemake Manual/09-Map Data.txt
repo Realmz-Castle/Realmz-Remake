@@ -1,0 +1,195 @@
+09-Map Data and Scripts :
+
+
+Definitions : Maps need more information  that just the tilesets, this is found in a very simple file named map_info.json.
+Map scripts use two files : map_scriptareas.json defines the name of the scripts and the area where they trigger.
+map_scripts.gd is the actual godot script file with functions named like in map_scriptareas.json.
+
+Note that the map data is not saved along with the saved games, so any change to a map's tiles or data should be kept track of
+in the GameGlobal.suff_done Dictionary, then reapplied on loading the map with the _on_map_load(map) function in map_scripts.gd
+
+
+Ctrl+F :
+1-Map Info
+2-Script Areas
+3-Scripts themselves :
+3.0-_on_map_load(map)
+3.1-Displaying Text
+3.2-Playing Sounds
+3.3-Adding images to the Map
+3.4-Multiple Choices
+3.5-Accessing and modifying characters
+3.6-Map Transitions
+3.7-Entering Battle
+3.8-Giving treasure and Exp
+3.9-Shops and Character Swap spots
+
+
+
+1-Map Infos :
+
+
+This consists of  justa  few properties :
+{
+   "name" : "test_map",		-Should be the same name as the folder
+   "map_type" : "Outdoor",	-Does nothing, but can be interesting for some scripts, for example spells for outdoors only
+   "music_type" : "Forest",	-Defines  the default music for a map
+					If set to a Music category (folder in Data), plays the track chosen in music settings. 
+					If it's the name of a specific track (should be in the Campaign folder), plays it.
+   "outdoor_riding" : true,	-Should be obvious.
+   "darkness_level" : -1,	- -1 means well lit. 0-6 defines how dark the area is. Lower is darker.
+					Darkness is  darkness_level + GameGlobal.light_power
+   "display_explored_only" : 0	- 0 = show every tile,
+				  1= show only tiles the character has seen. Should usually be 0 in battle maps.
+}
+
+The maps are all loaded when the scenario is loaded, like this:
+resources.maps_book[mapname] = [mapdata, mapscriptareas, mapscripts, maptype,mapmusictype, outdoor_riding, darkness_level]
+newmapdata is the tiles object in a big 3D array : for each tile at the x,y position, newmapdata[x][y].append(tile)
+
+
+
+2-Script Areas
+
+
+This defines a big "ScriptRects" : {} dictionary with one entry per  rectangle, each one refers to a script.
+Multiple rectangles can refer to the same script.
+
+   "First AP" : 
+   {
+      "scriptRectangle" : [ [15,4] , [16,5] ],  -the coordinates of the top left corner  and bottom right corner of the rectangle
+      "scriptToLoad" : "GlyphScript_One"	-The name of the function in map_scripts.gd.
+   }
+
+This file also keeps the data for secret spots (big S) and hidden paths (no "search"  roll, those  tiles are made walkable).
+"Paths" : [ [12,1, 0] , [12,2, 0] ],		-   [x coordinate, y coordinate,  0=undiscovered 1=discovered]
+"Secrets" : [ [12,3,0,"Secret_AP", 0.1] ]	-   [x coord, y coord, 01discovered?,function name, chance(1.0=100%) ]
+
+
+
+
+3-Scripts themselves :
+
+
+map_scripts.gd consists of  static functions with no arguments. You can still access the GameGlobal and  GameState objects, as well as MusicStreamPlayer  and SfxPlayer.
+
+You can also access the Map and Resources by doing	var map = NodeAccess.__Map()	and	var resources = NodeAccess.__Resources()
+You can also access the UI
+In this section,  you will be shown how to do common things. More will be added as questions are asked.
+I will also hopefully simplify some of this by adding more convenient functions.
+Be careful of how you use the await keywork.
+
+
+3.0- _on_map_load(map)
+
+
+This static function must always be defined, even if you don't use it. In this case, the body should be just  
+	pass
+This is where you should modify the map according to the player's actions.
+Important things done by the player (quest progress, anything that should only happen once) should be recorded in the GameGlobal.suff_done Dictionary.
+GameGlobal.suff_done["smith_sidequest_progress"] = 1
+If there is a risk of not having a certain key in the dictionary,  you can do this to access it:
+var smith_sq_prog : int = GameGlobal.suff_done["smith_sq"] if GameGlobal.suff_done.has("smith_sq") else 0
+
+Example :
+static func _on_map_load(map) :
+	if not GameGlobal.stuff_done.has("recruited_vodada") :
+		map.add_extra_image("Vodada", "CREA_Vodalian",Vector2(13,10))
+
+
+3.1-Displaying Text :
+
+	var textRect = UI.ow_hud.textRect
+	textRect.set_text("This displays text in the box at the bottom of the screen", false)
+The second argument should be "true" if you want to stop the action until the player has clicked.
+You should do  that if you have several text boxes.
+If you do that you should have this as  the next line :
+	await textRect.interruption_over
+
+
+
+3.2-Playing Sounds :
+
+
+You first need to set the sound the SfxPlayer will play. Then  play() will play that sound effect.
+The parameter must be the same of a sound file in either the sahred_assets or the campaign's Sounds folder.
+
+	SfxPlayer.stream = NodeAccess.__Resources().sounds_book["generation good.wav"]
+	SfxPlayer.play()
+
+3.3-Adding images to the Map :
+
+
+This was already shown in the on_map_load example :
+	map.add_extra_image("Vodada", "CREA_Vodalian",Vector2(13,10))
+-The first argument is the name of the image in the Map's extra_images dictionary.
+-The second argument is the name of the image in resources.images_book. Tiles, Creatures and Item  images are all loaded in this.
+	Tile image keys in image_book are  tileset_name+str(id), for example ForestDay3.
+-The third argument is the coordinates of the top left tile  the image occupies.
+
+To load a custom image to use it like this, it would probably be easier to use a custom Creature image defined in Bestiary/"img_pack.json" (not necessarily used in the Bestiary)
+
+
+3.4-Multiple Choices :
+
+
+var textRect = UI.ow_hud.textRect
+textRect.display_multiple_choices(["He really wants to tag along with you.\nDo you recruit him ?","YESNO"],["TEXT", "YESNO"])
+var answer = await textRect.choice_pressed
+	if answer == "YES" :
+	#etc
+
+The  parameters are 2 arrays of the same length
+1st is an array of text Srings.  If you want a YESNO or a STOP,  you can  type anything as it will be replaced by the buttons.
+2nd is another array of Strings. If you click the nth choice,  it returns the nth String in this array.
+	If it's "TEXT" it will only display text and won't be clickable.
+	if it's "YESNO" it displays a yes/no panel instead. Clicking
+	if it's "STOP" it displays a stop panel button instead. Clicking it returns the answer  "STOP"
+	if it's anything else, it disaplays the text as a clickable button. Clicking it returns what you entered.
+
+
+3.5-Accessing and modifying characters :
+
+
+Player Characters are in GameGlobals.player_characters  in their party order.
+NPC allies and summons are in GameGlobals.player_allies
+During battle , the enemies CombatCreaButtons are in GameGlobals.all_battle_creatures_btns. Their creature data is in  cbutton.creature.
+Read the chapter on Creatures for more information.
+
+
+3.6-Map Transitions :
+
+
+GameGlobal.change_map("mapname",3,3)   #3,3  are the x and y coordinates where you arrive.
+
+
+3.7-Entering Battle :
+
+
+GameGlobal.start_battle("Battle name", is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pcs_joining : Array)
+
+npcs_allowed : whether  NPC allies and Summons are allowed to join. Should be false for arena battles and duels etc.
+pcs_joining :  if set to  [], all  you player characters join  the battle.
+You can pick characters with :
+	var hud = UI.ow_hud
+	hud.request_pc_pick(3)
+	var picked = await hud.pc_picked
+
+
+3.8-Giving treasure and Exp :
+
+
+GameGlobals.show_loot_menu(items:Array, money : Array, experience : int)
+-Items is an array of all  the items the player can chose to pick up
+-money is an array  [gold,gems,jewels]
+-exp is exp
+
+To generate the items array :
+
+var healpottemplate = NodeAccess.__Resources().items_book["Health Potion"]
+var potionitems : Array = [ healpottemplate.duplicate() ]
+GameGlobal.show_loot_menu(potionitems ,[0,0,0],0)
+
+
+3.9-Shops and Character Swap spots
+MAYBE  I SHOULD EXPLAIN SHOPS IN THE  CAMPAIGN DATA CHAPTER

@@ -1,0 +1,139 @@
+[gd_scene load_steps=5 format=3 uid="uid://dw5wam25i6mk0"]
+
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="1"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/ItemShopButton.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://jck0sg62qurf" path="res://shared_assets/Map Symbols/tileDark.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://v610umtcnvr2" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOn.png" id="4"]
+
+[node name="ItemShopButton" type="Button"]
+custom_minimum_size = Vector2(160, 60)
+offset_left = 1.0
+offset_right = 321.0
+offset_bottom = 60.0
+size_flags_horizontal = 3
+mouse_filter = 1
+script = ExtResource("2")
+
+[node name="colorRect" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 0
+offset_right = 320.0
+offset_bottom = 60.0
+mouse_filter = 2
+
+[node name="IconSprite" type="Sprite2D" parent="."]
+position = Vector2(38, 14)
+texture = ExtResource("3")
+centered = false
+
+[node name="SpriteSelected" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-9, 0)
+scale = Vector2(1, 0.8)
+texture = ExtResource("4")
+centered = false
+
+[node name="ItemnameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 74.0
+offset_top = 4.0
+offset_right = 212.0
+offset_bottom = 21.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1")
+text = "Item Name"
+
+[node name="PriceLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 74.0
+offset_top = 38.0
+offset_right = 212.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1")
+text = "Price :"
+
+[node name="PricenLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 122.0
+offset_top = 34.0
+offset_right = 202.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "999999"
+
+[node name="WeightnLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -65.0
+offset_top = -27.0
+offset_right = -10.0
+offset_bottom = -1.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "999999"
+
+[node name="WeightLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -124.0
+offset_top = -22.0
+offset_right = -65.0
+offset_bottom = -5.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1")
+text = "Weight :"
+
+[node name="IteminfoLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 74.0
+offset_top = 20.0
+offset_right = 212.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Item Info"
+
+[node name="ItemstatsLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 105.0
+offset_top = 20.0
+offset_right = 305.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(0, 0, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Stats"
+horizontal_alignment = 2
+
+[node name="ChargesLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 224.0
+offset_top = 4.0
+offset_right = 304.0
+offset_bottom = 21.0
+pivot_offset = Vector2(30, 8.5)
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1")
+text = "X 100 / 100"
+
+[node name="QuantityLabel" type="Label" parent="."]
+layout_mode = 0
+offset_top = 25.0
+offset_right = 33.0
+offset_bottom = 42.0
+pivot_offset = Vector2(30, 8.5)
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1")
+text = "99 X"
+
+[connection signal="gui_input" from="." to="." method="_on_ItemSmallButton_gui_input"]
+[connection signal="mouse_entered" from="." to="." method="_on_ItemSmallButton_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_ItemSmallButton_mouse_exited"]

@@ -1,0 +1,19 @@
+They are numbered according to what other kind of resource each one contains, for example Player Characters contain Class/Race data and Creature data (stats etc) which contain items (equipped or not, in their inventory) and Traits (like passive Regeneration), so PlayerCharacters will be explained after the rest.
+
+
+
+For Creatures :
+-Traits
+Spells
+Items and Equipment
+Creature/Bestiary   and CreatureAIScripts
+Race/Class
+Player Characters ?
+
+For Maps :
+Tilesets
+Darkness, Exploration, Music
+Secrets, Secret Paths, Boats
+Map_Things=mapdata
+Battles
+Map Scripts  +Special Encounters

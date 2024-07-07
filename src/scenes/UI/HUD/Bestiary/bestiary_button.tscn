@@ -1,0 +1,52 @@
+[gd_scene load_steps=9 format=3 uid="uid://cy33c86e0nsoa"]
+
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_ooqtm"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_3pj0r"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="3_dilmj"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4_yyag1"]
+[ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="5_d2abx"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Bestiary/bestiary_button.gd" id="6_pb6lk"]
+[ext_resource type="Texture2D" uid="uid://bpprductj3fl1" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="6_soebm"]
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="7_5bp81"]
+
+[node name="BestiaryButton" type="Button"]
+custom_minimum_size = Vector2(237, 80)
+theme_override_styles/normal = ExtResource("1_ooqtm")
+theme_override_styles/hover = ExtResource("2_3pj0r")
+theme_override_styles/pressed = ExtResource("3_dilmj")
+theme_override_styles/disabled = ExtResource("4_yyag1")
+theme_override_styles/focus = ExtResource("5_d2abx")
+script = ExtResource("6_pb6lk")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 97.0
+offset_top = 7.0
+offset_right = 216.0
+offset_bottom = 33.0
+text = "Creature Name"
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 75.0
+offset_bottom = 75.0
+texture = ExtResource("7_5bp81")
+
+[node name="TextureRect" type="TextureRect" parent="NinePatchRect"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_soebm")

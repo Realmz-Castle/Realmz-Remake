@@ -1,0 +1,665 @@
+[gd_scene load_steps=6 format=3 uid="uid://cjpb8ppwrbrtl"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_3d0g0"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Bestiary/bestiary_rect.gd" id="2_l1a6x"]
+[ext_resource type="PackedScene" uid="uid://cy33c86e0nsoa" path="res://scenes/UI/HUD/Bestiary/bestiary_button.tscn" id="3_o15vd"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_ev21x"]
+[ext_resource type="Texture2D" uid="uid://bpprductj3fl1" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="5_tium4"]
+
+[node name="BestiaryRect" type="NinePatchRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_3d0g0")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_l1a6x")
+button_tscn = ExtResource("3_o15vd")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="ListRect" type="NinePatchRect" parent="HBoxContainer"]
+custom_minimum_size = Vector2(256, 0)
+layout_mode = 2
+texture = ExtResource("1_3d0g0")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/ListRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="SearchControl" type="Control" parent="HBoxContainer/ListRect/VBoxContainer"]
+custom_minimum_size = Vector2(0, 74)
+layout_mode = 2
+
+[node name="SearchLabel" type="Label" parent="HBoxContainer/ListRect/VBoxContainer/SearchControl"]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 9.0
+offset_right = 121.0
+offset_bottom = 35.0
+text = "Search Entry :"
+
+[node name="LineEdit" type="LineEdit" parent="HBoxContainer/ListRect/VBoxContainer/SearchControl"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 33.0
+offset_right = 241.0
+offset_bottom = 64.0
+
+[node name="ListControl" type="Control" parent="HBoxContainer/ListRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/ListRect/VBoxContainer/ListControl"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.04
+anchor_right = 0.996
+anchor_bottom = 0.984
+offset_left = -1.24
+offset_right = 0.0239868
+offset_bottom = 0.18396
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+follow_focus = true
+vertical_scroll_mode = 2
+
+[node name="EntryContainer" type="VBoxContainer" parent="HBoxContainer/ListRect/VBoxContainer/ListControl/ScrollContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="InfoControl" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/InfoControl"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 10.0
+offset_right = -1.0
+offset_bottom = -8.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Control" type="Control" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatsRect" type="NinePatchRect" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 108)
+layout_mode = 2
+texture = ExtResource("1_3d0g0")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 2
+
+[node name="StatsHBox" type="HBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 9.0
+offset_right = -10.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StatsVBox1" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MovementLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Movement :"
+horizontal_alignment = 2
+
+[node name="APRLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Actions/Round :"
+horizontal_alignment = 2
+
+[node name="DamageLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Damage Bonus :"
+horizontal_alignment = 2
+
+[node name="StatsVBox2" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MovementnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "12"
+
+[node name="APRnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "4"
+
+[node name="DamagenLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "2"
+
+[node name="StatsVBox3" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HPLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Max HP :"
+horizontal_alignment = 2
+
+[node name="SPLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Max SP :"
+horizontal_alignment = 2
+
+[node name="HPrLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "HP Regen :"
+horizontal_alignment = 2
+
+[node name="SPrLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "SP Regen :"
+horizontal_alignment = 2
+
+[node name="StatsVBox4" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HPnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="SPnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="HPrnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "1
+"
+
+[node name="SPrnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "1"
+
+[node name="StatsVBox5" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AccMeleeLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox5"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Melee Acc :"
+horizontal_alignment = 2
+
+[node name="AccRangeLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox5"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Range Acc :"
+horizontal_alignment = 2
+
+[node name="AccMagicLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox5"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Magic Acc :"
+horizontal_alignment = 2
+
+[node name="StatsVBox6" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AccMeleenLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox6"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="AccRangenLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox6"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="AccMagicnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox6"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="StatsVBox7" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EvaMeleeLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox7"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Melee Eva :"
+horizontal_alignment = 2
+
+[node name="EvaRangeLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox7"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Melee Eva :"
+horizontal_alignment = 2
+
+[node name="EvaMagicLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox7"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Melee Eva :"
+horizontal_alignment = 2
+
+[node name="StatsVBox8" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EvaMeleenLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox8"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="EvaRangenLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox8"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="EvaMagicnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox8"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+
+[node name="ResistRect" type="NinePatchRect" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 108)
+layout_mode = 2
+texture = ExtResource("1_3d0g0")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 2
+
+[node name="ResistHBox" type="HBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 9.0
+offset_right = -10.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResistVBoxS1" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PhysResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Physical Res :"
+horizontal_alignment = 2
+
+[node name="MagiResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Magical Res :"
+horizontal_alignment = 2
+
+[node name="HealResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Healing Res :"
+horizontal_alignment = 2
+
+[node name="MentalResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Mental Res :"
+horizontal_alignment = 2
+
+[node name="ResistVBoxN1" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+
+[node name="PhysResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "12"
+horizontal_alignment = 2
+
+[node name="MagiResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "4"
+horizontal_alignment = 2
+
+[node name="HealResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "2"
+horizontal_alignment = 2
+
+[node name="MentResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "2"
+horizontal_alignment = 2
+
+[node name="ResistVBoxM1" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PhysMultnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="MagiMultnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="HealMultLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="MentMultLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="ResistVBoxS2" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FireResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Fire Res :"
+horizontal_alignment = 2
+
+[node name="IceResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Ice Res :"
+horizontal_alignment = 2
+
+[node name="ElecResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Elec Res :"
+horizontal_alignment = 2
+
+[node name="ResistVBoxN2" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+
+[node name="FireResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "25"
+horizontal_alignment = 2
+
+[node name="IceResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "25"
+horizontal_alignment = 2
+
+[node name="ElecResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "25"
+horizontal_alignment = 2
+
+[node name="ResistVBoxM2" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FireMultnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="IceMultnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="ElecMultLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="ResistVBoxS3" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PosnResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Poison Res :"
+horizontal_alignment = 2
+
+[node name="DissResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Disease Res :"
+horizontal_alignment = 2
+
+[node name="ChemResLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxS3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Chemical Res :"
+horizontal_alignment = 2
+
+[node name="ResistVBoxN3" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+
+[node name="PosnResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+horizontal_alignment = 2
+
+[node name="DissResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+horizontal_alignment = 2
+
+[node name="ChemResnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+horizontal_alignment = 2
+
+[node name="ResistVBoxM3" type="VBoxContainer" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PoisMultnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="DissMultnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="ChemMultnLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "x1"
+
+[node name="AbilitiesRect" type="Control" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="TagsLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/AbilitiesRect"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Tags :"
+
+[node name="TagsLabel2" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/AbilitiesRect"]
+layout_mode = 0
+offset_left = 51.0
+offset_right = 95.0
+offset_bottom = 26.0
+text = "Magic User, Undead, Demonic, Reptilian, Evil, Intelligent"
+
+[node name="AbilitiesLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/AbilitiesRect"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 31.0
+offset_right = 63.0
+offset_bottom = 57.0
+text = "Abilities :"
+
+[node name="AbilitiesLabel2" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/AbilitiesRect"]
+layout_mode = 0
+offset_left = 79.0
+offset_top = 32.0
+offset_right = 866.0
+offset_bottom = 58.0
+text = "Apocalypse Lv7, Ultima Lv7, Tiltowait Lv7, Supernova Lv7, Firaja Lv7"
+
+[node name="LoreRect" type="NinePatchRect" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+texture = ExtResource("1_3d0g0")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 2
+
+[node name="NameLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 13.0
+offset_right = 209.0
+offset_bottom = 39.0
+theme_override_fonts/font = ExtResource("4_ev21x")
+theme_override_font_sizes/font_size = 20
+text = "Creature Name"
+
+[node name="DescrLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.305
+anchor_right = 1.0
+anchor_bottom = 0.93
+offset_left = 89.0
+offset_top = -0.0400009
+offset_right = -9.0
+offset_bottom = -0.0400085
+theme_override_font_sizes/font_size = 12
+text = "Aliquam convallis sollicitudin purus. Praesent aliquam, enim at fermentum mollis, ligula massa adipiscing nisl, ac euismod nibh nisl eu lectus. Fusce vulputate sem at sapien. Vivamus leo. Aliquam euismod libero eu enim. Nulla nec felis sed leo placerat imperdiet. Aenean suscipit nulla in justo. Suspendisse cursus rutrum augue. Nulla tincidunt tincidunt mi. Curabitur iaculis, lorem vel rhoncus faucibus, felis magna fermentum augue, et ultricies lacus lorem varius purus. Curabitur eu amet."
+autowrap_mode = 3
+
+[node name="NinePatchRect" type="NinePatchRect" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 84.0
+offset_bottom = 84.0
+texture = ExtResource("1_3d0g0")
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect/NinePatchRect"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_tium4")
+
+[node name="LvlLabel" type="Label" parent="HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect/NinePatchRect"]
+layout_mode = 0
+offset_left = -2.0
+offset_top = 71.0
+offset_right = 71.0
+offset_bottom = 103.0
+theme_override_font_sizes/font_size = 12
+text = "Level 500"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="HBoxContainer/InfoControl"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -41.0
+offset_top = -37.0
+offset_right = 9.0
+offset_bottom = -6.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.6, 0.6)
+text = "Close"
+
+[connection signal="text_changed" from="HBoxContainer/ListRect/VBoxContainer/SearchControl/LineEdit" to="." method="_on_line_edit_text_changed"]
+[connection signal="pressed" from="HBoxContainer/InfoControl/CloseButton" to="." method="_on_close_button_pressed"]

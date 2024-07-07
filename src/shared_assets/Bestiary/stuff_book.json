@@ -1,0 +1,152 @@
+{
+   "Giant Snail" :
+   {
+      "data" :
+      {
+         "name" : "Giant Snail",
+         "image" : "CREA_snail",
+         "size" : [2,2],
+	 "tags" : ["Giant","Non-Humanoid"],
+         "in_bestiary" : 1,
+         "summonable" : 1,
+	 "exp" : 100,
+	 "level" : 10,
+         "faction" : 1,
+	 "is_player_controlled" : 0,
+         "description" : "A perfectly normal snail of abnormal proportions. They make good mounts if speed is not an issue."
+      },
+      "stats" :
+      {
+         "maxHP" : 5,
+         "maxSP" : 0,
+         "Dexterity" : 4,
+         "MaxMovement" : 3,
+         "MaxActions": 2,
+	 "AccuracyMelee" : 100,
+	 "ResistancePhysical" : 0,
+         "MultiplierFire" : 2,
+         "MultiplierPhysical" : 1.5,
+	 "MultiplierMagic" : 1
+      },
+      "traits" : [  ["p_reflect_melee.gd", [1, 1]]  ] ,
+      "ai" :
+      {
+         "cast_chance" : 0,
+	 "missile_chance" : 0,
+	 "flees_at" : 80
+	
+      },
+      "tools" :
+      {
+	 "inventory" : [["Dagger",0],["Leather Cap",1], ["Bow",1]],
+	 "money" : [2,0,0],
+	 "unarmed_melee_attacks" : [
+		{"weapon_dmg" : {"Physical" : [1,4], "Ice" : [1,2]}, "sound" : "slurpy.wav", "melee_atk_anim_icon" : "ATK_SLM", "melee_inflicted_traits" : [  ["t_poison.gd" , [1] ,1.0]  ] },
+		{"weapon_name" : "Dagger"}
+	 ],
+	 "spells" : []
+      },
+      "scripts" : {"default" : "test_crea_script.gd"}
+   },
+
+
+   "Lich" :
+   {
+      "data" :
+      {
+         "name" : "Lich",
+         "image" : "CREA_lich",
+         "size" : [1,1],
+	 "tags" : ["Intelligent","Undead","Magic User", "Very Evil"],
+         "in_bestiary" : 1,
+         "summonable" : 1,
+	 "exp" : 1000,
+	 "level" : 15,
+         "faction" : 1,
+	 "is_player_controlled" : 0,
+         "description" : "Those spellcasters who sought immortality through lichdom tended not to do so merely for fear of death,[15] but to buy themselves limitless time to pursue their own ambitious goals. Thus, they discarded any mortal connections in favor of a solitary existence, generally to pursue magical power and knowledge."
+      },
+      "stats" :
+      {
+         "maxHP" : 30,
+         "maxSP" : 66,
+         "Dexterity" : 11,
+         "MaxMovement" : 8,
+         "MaxActions": 2,
+	 "AccuracyMelee" : 100,
+	 "ResistancePhysical" : 12,
+         "MultiplierHealing" : 2,
+         "MultiplierFire" : 2,
+	 "MultiplierMagic" : 1
+      },
+      "ai" :
+      {
+         "cast_chance" : 100,
+	 "missile_chance" : 0,
+	 "flees_at" : 15
+	
+      },
+      "tools" :
+      {
+	 "inventory" : [[ "Helm of Pain", 1]],
+	 "money" : [0,3,1],
+	 "unarmed_melee_attacks" : [],
+	 "spells" : [["Heal Minor Wounds", 3]]
+      },
+      "scripts" : {"default" : "test_crea_script.gd"}
+   }
+
+,
+
+
+   "Alien Beetle" :
+   {
+      "data" :
+      {
+         "name" : "Alien Beetle",
+         "image" : "CREA_alienbeetle_1",
+         "size" : [1,1],
+	 "tags" : [],
+         "in_bestiary" : 1,
+         "summonable" : 1,
+	 "exp" : 1000,
+	 "level" : 15,
+         "faction" : 1,
+	 "is_player_controlled" : 0,
+         "description" : "Comes in a variety of colors."
+      },
+      "stats" :
+      {
+         "maxHP" : 10,
+         "maxSP" : 0,
+         "Dexterity" : 11,
+         "MaxMovement" : 8,
+         "MaxActions": 1,
+	 "AccuracyMelee" : 100,
+	 "ResistancePhysical" : 1,
+         "MultiplierHealing" : 1,
+         "MultiplierFire" : 5,
+	 "MultiplierMagic" : 1
+      },
+      "ai" :
+      {
+         "cast_chance" : 0,
+	 "missile_chance" : 0,
+	 "flees_at" : 0
+	
+      },
+      "tools" :
+      {
+	 "melee_weapon" : "",
+	 "ranged_weapon" : "",
+	 "equipped_armor" : [],
+	 "inventory" : [],
+	 "money" : [0,0,0],
+	 "unarmed_melee_attacks" : [
+		{"weapon_dmg" : {"Physical" : [1,4], "Magical" : [1,2]}, "sound" : "level up.wav", "melee_atk_anim_icon" : "ATK_PRP", },
+	 ],
+	 "spells" : []
+      },
+      "scripts" : {"default" : "test_crea_script.gd"}
+   }
+}

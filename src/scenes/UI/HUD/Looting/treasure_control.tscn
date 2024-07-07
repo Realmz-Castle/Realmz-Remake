@@ -1,0 +1,207 @@
+[gd_scene load_steps=13 format=3 uid="uid://cq2p1ikurai08"]
+
+[ext_resource type="Script" path="res://scenes/UI/HUD/Looting/TreasureControl.gd" id="1_ipum1"]
+[ext_resource type="PackedScene" uid="uid://bbocdc7s2hxuv" path="res://scenes/UI/HUD/Looting/ItemLootButton.tscn" id="2_7u8km"]
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="3_17gs7"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_mxj8x"]
+[ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="4_vl2ad"]
+[ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="5_2gofa"]
+[ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="6_den0p"]
+[ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="7_365ag"]
+[ext_resource type="Texture2D" uid="uid://dt6qfh78mmb10" path="res://scenes/UI/HUD/Button_Money.png" id="8_xknn3"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="9_bp3bw"]
+[ext_resource type="Texture2D" uid="uid://byeycaftdmdf2" path="res://shared_assets/UI/buttonDone.png" id="10_krfry"]
+
+[sub_resource type="Shortcut" id="46"]
+
+[node name="TreasureControl" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_ipum1")
+itemLootButton = ExtResource("2_7u8km")
+
+[node name="itemsRect" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -320.0
+offset_bottom = -24.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="itemsRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+follow_focus = true
+
+[node name="ItemContainer" type="GridContainer" parent="itemsRect/ScrollContainer"]
+layout_mode = 2
+columns = 14
+
+[node name="ExpRect" type="Panel" parent="."]
+layout_mode = 0
+offset_top = 624.0
+offset_right = 832.0
+offset_bottom = 648.0
+theme_override_styles/panel = ExtResource("3_mxj8x")
+
+[node name="ExpLabel" type="Label" parent="ExpRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+text = " Experience : "
+vertical_alignment = 1
+
+[node name="BotRightLootInfo" type="NinePatchRect" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -200.0
+mouse_filter = 0
+texture = ExtResource("3_17gs7")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="ItemInfoRect" type="NinePatchRect" parent="BotRightLootInfo"]
+layout_mode = 0
+offset_right = 320.0
+offset_bottom = 151.0
+texture = ExtResource("3_17gs7")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="ItemTextureRect" type="TextureRect" parent="BotRightLootInfo/ItemInfoRect"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 42.0
+offset_bottom = 42.0
+
+[node name="ItemNameLabel" type="Label" parent="BotRightLootInfo/ItemInfoRect"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 17.0
+offset_right = 305.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+text = "ItemName"
+
+[node name="ItemStatsLabel" type="Label" parent="BotRightLootInfo/ItemInfoRect"]
+layout_mode = 0
+offset_left = 48.7351
+offset_top = 41.2581
+offset_right = 305.735
+offset_bottom = 58.2581
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+text = "ItemStats"
+
+[node name="ItemWeightLabel" type="Label" parent="BotRightLootInfo/ItemInfoRect"]
+layout_mode = 0
+offset_left = 46.5298
+offset_top = 65.5161
+offset_right = 303.53
+offset_bottom = 82.5161
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+text = "ItemWeight"
+
+[node name="MoneyLabel" type="Label" parent="BotRightLootInfo/ItemInfoRect"]
+layout_mode = 0
+offset_left = 181.0
+offset_top = 152.0
+offset_right = 215.0
+offset_bottom = 200.0
+scale = Vector2(0.9, 1)
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 8
+text = "Gold:
+Gms:
+Jwls :"
+
+[node name="MoneynLabel" type="Label" parent="BotRightLootInfo/ItemInfoRect"]
+layout_mode = 0
+offset_left = 214.315
+offset_top = 152.202
+offset_right = 254.315
+offset_bottom = 200.202
+scale = Vector2(0.9, 1)
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 8
+text = "0
+0
+0"
+
+[node name="MoneyButton" type="Button" parent="BotRightLootInfo"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 50.0
+offset_top = 151.0
+offset_right = 100.0
+offset_bottom = 201.0
+scale = Vector2(1, 0.8)
+theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/hover = ExtResource("5_2gofa")
+theme_override_styles/pressed = ExtResource("6_den0p")
+theme_override_styles/disabled = ExtResource("7_365ag")
+icon = ExtResource("8_xknn3")
+
+[node name="PoolButton" type="Button" parent="BotRightLootInfo"]
+layout_mode = 0
+offset_left = 99.0
+offset_top = 151.0
+offset_right = 139.0
+offset_bottom = 191.0
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("9_bp3bw")
+theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/hover = ExtResource("5_2gofa")
+theme_override_styles/pressed = ExtResource("6_den0p")
+theme_override_styles/disabled = ExtResource("7_365ag")
+text = "Pool"
+
+[node name="ShareButton" type="Button" parent="BotRightLootInfo"]
+layout_mode = 0
+offset_left = 139.0
+offset_top = 151.0
+offset_right = 179.0
+offset_bottom = 191.0
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("9_bp3bw")
+theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/hover = ExtResource("5_2gofa")
+theme_override_styles/pressed = ExtResource("6_den0p")
+theme_override_styles/disabled = ExtResource("7_365ag")
+text = "Share"
+
+[node name="ButtonDone" type="Button" parent="BotRightLootInfo"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 146.0
+offset_right = 54.0
+offset_bottom = 194.0
+shortcut = SubResource("46")
+icon = ExtResource("10_krfry")
+flat = true
+
+[connection signal="pressed" from="BotRightLootInfo/MoneyButton" to="." method="_on_money_button_pressed"]
+[connection signal="pressed" from="BotRightLootInfo/PoolButton" to="." method="_on_PoolButton_pressed"]
+[connection signal="pressed" from="BotRightLootInfo/ShareButton" to="." method="_on_ShareButton_pressed"]
+[connection signal="pressed" from="BotRightLootInfo/ButtonDone" to="." method="_on_ButtonDone_pressed"]

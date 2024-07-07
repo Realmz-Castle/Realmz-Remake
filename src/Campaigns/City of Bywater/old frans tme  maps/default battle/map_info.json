@@ -1,0 +1,9 @@
+{
+   "size_x" : 50,
+   "size_y" : 50,
+   "name" : "default battle",
+   "map_type" : "Battle",
+   "music_type" : "Battle",
+   "outdoor_riding" : false,
+   "darkness_level" : -1
+}

@@ -1,0 +1,423 @@
+[gd_scene load_steps=19 format=3 uid="uid://bok34jeuhstd2"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_0s37h"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/CreatureCBRect/creature_rect.gd" id="2_ikhnd"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_ufhxe"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_ggj6v"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_hyxth"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_nrv76"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_jef17"]
+[ext_resource type="Texture2D" uid="uid://c60xx52brghq2" path="res://icon.png" id="7_fecvo"]
+[ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="8_kacdk"]
+[ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="9_o88gy"]
+[ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="10_pp780"]
+[ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="11_6wepc"]
+[ext_resource type="Texture2D" uid="uid://dpk1fon14ik7f" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_icon.png" id="12_v6qo5"]
+[ext_resource type="Texture2D" uid="uid://drwnlqb0flrd" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_range.png" id="13_ya1i5"]
+[ext_resource type="Texture2D" uid="uid://cr3vxwufu5na6" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_ammo.png" id="14_ytpkj"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/CreatureCBRect/LogRect.gd" id="16_6b4ns"]
+
+[sub_resource type="InputEventAction" id="InputEventAction_jonq4"]
+action = &"shortcut_missile"
+
+[sub_resource type="Shortcut" id="Shortcut_7uycb"]
+events = [SubResource("InputEventAction_jonq4")]
+
+[node name="CreatureRect" type="NinePatchRect"]
+custom_minimum_size = Vector2(32, 200)
+offset_right = 832.0
+offset_bottom = 200.0
+size_flags_horizontal = 3
+mouse_filter = 0
+texture = ExtResource("1_0s37h")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_ikhnd")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="CreaInfoRect" type="NinePatchRect" parent="HBoxContainer"]
+custom_minimum_size = Vector2(32, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_0s37h")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="StatusesControl" type="Control" parent="HBoxContainer/CreaInfoRect"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -248.0
+offset_top = 18.0
+offset_right = -16.0
+offset_bottom = 45.0
+grow_horizontal = 0
+
+[node name="StatusLabel" type="Label" parent="HBoxContainer/CreaInfoRect/StatusesControl"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -103.0
+offset_bottom = 26.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Poisoned : 10"
+horizontal_alignment = 2
+
+[node name="StatusTimer" type="Timer" parent="HBoxContainer/CreaInfoRect/StatusesControl"]
+autostart = true
+
+[node name="CreaStats" type="Control" parent="HBoxContainer/CreaInfoRect"]
+anchors_preset = 0
+offset_right = 346.0
+offset_bottom = 127.0
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 21.0
+offset_right = 163.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("2_ufhxe")
+theme_override_font_sizes/font_size = 20
+text = "Samuel Rabreau :"
+
+[node name="CreatureButton" type="Button" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 52.0
+offset_right = 88.0
+offset_bottom = 124.0
+focus_mode = 0
+theme_override_styles/normal = ExtResource("3_ggj6v")
+theme_override_styles/hover = ExtResource("4_hyxth")
+theme_override_styles/pressed = ExtResource("5_nrv76")
+theme_override_styles/disabled = ExtResource("6_jef17")
+icon = ExtResource("7_fecvo")
+icon_alignment = 1
+
+[node name="HPLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 56.0
+offset_right = 137.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
+theme_override_fonts/font = ExtResource("2_ufhxe")
+theme_override_font_sizes/font_size = 20
+text = "HP :"
+
+[node name="HPnLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 145.0
+offset_top = 53.0
+offset_right = 207.0
+offset_bottom = 79.0
+text = "999/999"
+horizontal_alignment = 1
+
+[node name="MPLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 78.0
+offset_right = 139.0
+offset_bottom = 102.0
+theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
+theme_override_fonts/font = ExtResource("2_ufhxe")
+theme_override_font_sizes/font_size = 20
+text = "MP :"
+
+[node name="MPnLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 145.0
+offset_top = 75.0
+offset_right = 207.0
+offset_bottom = 101.0
+text = "999/999"
+horizontal_alignment = 1
+
+[node name="ArmorLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 101.0
+offset_right = 157.0
+offset_bottom = 125.0
+theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
+theme_override_fonts/font = ExtResource("2_ufhxe")
+theme_override_font_sizes/font_size = 20
+text = "Armor :"
+
+[node name="ArmornLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 152.0
+offset_top = 99.0
+offset_right = 196.0
+offset_bottom = 125.0
+text = "999
+"
+horizontal_alignment = 1
+
+[node name="APRLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 211.0
+offset_top = 56.0
+offset_right = 280.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
+theme_override_fonts/font = ExtResource("2_ufhxe")
+theme_override_font_sizes/font_size = 20
+text = "Actions :"
+
+[node name="APRnLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 312.0
+offset_top = 53.0
+offset_right = 374.0
+offset_bottom = 79.0
+text = "1/6
+"
+
+[node name="MoveLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 211.0
+offset_top = 78.0
+offset_right = 310.0
+offset_bottom = 102.0
+theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
+theme_override_fonts/font = ExtResource("2_ufhxe")
+theme_override_font_sizes/font_size = 20
+text = "Movements :"
+
+[node name="MovenLabel" type="Label" parent="HBoxContainer/CreaInfoRect/CreaStats"]
+layout_mode = 0
+offset_left = 312.0
+offset_top = 75.0
+offset_right = 374.0
+offset_bottom = 101.0
+text = "100
+"
+
+[node name="WeaponsBoxContainer" type="HBoxContainer" parent="HBoxContainer/CreaInfoRect"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 134.0
+offset_right = 260.0
+offset_bottom = 194.0
+
+[node name="MeleeControl" type="Control" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer"]
+custom_minimum_size = Vector2(80, 60)
+layout_mode = 2
+
+[node name="MeleeButton" type="Button" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/MeleeControl"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("8_kacdk")
+theme_override_styles/hover = ExtResource("9_o88gy")
+theme_override_styles/pressed = ExtResource("10_pp780")
+theme_override_styles/disabled = ExtResource("11_6wepc")
+icon = ExtResource("12_v6qo5")
+icon_alignment = 1
+
+[node name="MChargesLabel" type="Label" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/MeleeControl/MeleeButton"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -42.5
+offset_top = -4.0
+offset_right = 42.5
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+text = "Charges : 99"
+horizontal_alignment = 1
+
+[node name="RangeControl" type="Control" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer"]
+custom_minimum_size = Vector2(80, 60)
+layout_mode = 2
+
+[node name="RangeButton" type="Button" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/RangeControl"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("8_kacdk")
+theme_override_styles/hover = ExtResource("9_o88gy")
+theme_override_styles/pressed = ExtResource("10_pp780")
+theme_override_styles/disabled = ExtResource("11_6wepc")
+disabled = true
+shortcut = SubResource("Shortcut_7uycb")
+shortcut_in_tooltip = false
+icon = ExtResource("13_ya1i5")
+icon_alignment = 1
+
+[node name="RChargesLabel" type="Label" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/RangeControl/RangeButton"]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -42.5
+offset_top = -4.0
+offset_right = 42.5
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+text = "Charges : 99"
+horizontal_alignment = 1
+
+[node name="AmmoControl" type="Control" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer"]
+custom_minimum_size = Vector2(80, 60)
+layout_mode = 2
+
+[node name="AmmoButton" type="Button" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("8_kacdk")
+theme_override_styles/hover = ExtResource("9_o88gy")
+theme_override_styles/pressed = ExtResource("10_pp780")
+theme_override_styles/disabled = ExtResource("11_6wepc")
+icon = ExtResource("14_ytpkj")
+icon_alignment = 1
+
+[node name="AChargesLabel" type="Label" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl/AmmoButton"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -42.5
+offset_top = -4.0
+offset_right = 42.5
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+text = "Charges : 99"
+horizontal_alignment = 1
+
+[node name="AmmoPanel" type="Panel" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl/AmmoButton"]
+visible = false
+layout_mode = 0
+offset_left = 1.0
+offset_top = -125.0
+offset_right = 209.0
+offset_bottom = 39.0
+
+[node name="AmmoVBox" type="VBoxContainer" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl/AmmoButton/AmmoPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LogRect" type="NinePatchRect" parent="HBoxContainer"]
+custom_minimum_size = Vector2(32, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+texture = ExtResource("1_0s37h")
+draw_center = false
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("16_6b4ns")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="HBoxContainer/LogRect"]
+visible = false
+clip_contents = false
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 398.0
+offset_bottom = 34.0
+bbcode_enabled = true
+text = "\"[color=green]Hero[/color][color=gray] hits [/color][color=red]Monster[/color][color=gray] for [/color]\"1 damage.\""
+
+[node name="ColorRect" type="ColorRect" parent="HBoxContainer/LogRect"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.501961)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/LogRect/ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="LogHBox" type="VBoxContainer" parent="HBoxContainer/LogRect/ColorRect/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = -2
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="timeout" from="HBoxContainer/CreaInfoRect/StatusesControl/StatusTimer" to="." method="_on_status_timer_timeout"]
+[connection signal="pressed" from="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/MeleeControl/MeleeButton" to="." method="_on_melee_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/RangeControl/RangeButton" to="." method="_on_range_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl/AmmoButton" to="." method="_on_ammo_button_pressed"]

@@ -1,0 +1,72 @@
+{
+   "1" : 
+   {
+      "borderColor" : 
+      {
+         "a" : 0.85000002384185791,
+         "b" : 0.0,
+         "g" : 1.0,
+         "r" : 1.0
+      },
+      "borderSize" : 1.0,
+      "floor" : 0.0,
+      "leftTopPoint" : 
+      {
+         "x" : 480.0,
+         "y" : -128.0
+      },
+      "offsetText" : 
+      {
+         "x" : 3.0,
+         "y" : 3.0
+      },
+      "rectColor" : 
+      {
+         "a" : 0.25,
+         "b" : 0.25,
+         "g" : 1.0,
+         "r" : 0.5
+      },
+      "rightBotPoint" : 
+      {
+         "x" : 480.0,
+         "y" : -128.0
+      },
+      "scriptToLoad" : "GlyphScript_One"
+   },
+   "2" : 
+   {
+      "borderColor" : 
+      {
+         "a" : 0.85000002384185791,
+         "b" : 0.0,
+         "g" : 1.0,
+         "r" : 1.0
+      },
+      "borderSize" : 1.0,
+      "floor" : 0.0,
+      "leftTopPoint" : 
+      {
+         "x" : 192.0,
+         "y" : -480.0
+      },
+      "offsetText" : 
+      {
+         "x" : 3.0,
+         "y" : 3.0
+      },
+      "rectColor" : 
+      {
+         "a" : 0.25,
+         "b" : 0.94999998807907104,
+         "g" : 0.0,
+         "r" : 0.0
+      },
+      "rightBotPoint" : 
+      {
+         "x" : 192.0,
+         "y" : -480.0
+      },
+      "scriptToLoad" : "GlyphScript_Two"
+   }
+}

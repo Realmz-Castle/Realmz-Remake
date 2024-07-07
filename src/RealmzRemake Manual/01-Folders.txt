@@ -1,0 +1,131 @@
+01-Folders :
+
+
+You may notice I tend to write Folder/Subfolder instead of  Directory. i just don't like the word "directory".
+There are several Folders inside the RealmzRemake folder :
+
+CTRL+F :
+1-Manual/
+2-Data/
+3-Campaigns/
+4-RealmzRemake/
+5-Profiles/
+
+
+
+1-Manual/ :
+
+
+The Manual folders contains several text files intended to explain people how to create new resources and campaigns for RealmzRemake.
+They are numbered according to what other kind of resource each one contains, for example Player Characters contain Class/Race data and Creature data (stats etc) which contain items (equipped or not, in their inventory) and Traits (like passive Regeneration), so PlayerCharacters will be explained after the rest.
+The consequence may be that you won't have a good global view of HOW THE GAME WORKS if you read it all in order, but you're free to skip ahead if you want to.
+Also, some of the later subjects will likely be LESS technical than the start of this manual.
+
+
+
+
+2-Data/ :
+
+
+The Data/ folders contains assets that are intended to be modified by the user.
+
+Character Icons/ and Character Portraits/ contain png image files (dimensions are 32x32 for Icons and 44x44 for portraits). They are proposed on Character Creation, but are copied to the  character folders in  the Profile Folder 's Characters and Saves subfolders.
+
+Character Classes/ and Character Races contain GDScript .gd files that define a character's equippable items, stats, traits, availlable spells, and more. Each PlayerCharacter has one of each. They are both also copied to a Character's folder on character creation.
+If you want to add new character classes and races just for your campaign, you can't.
+Just provide them separately and let the player move them to the Data folder.
+If you really have to, you could make your classes terrible by checking GameGlobal.currentmap_name
+
+Music/ contains sound files (.ogg, .mp3, .mod and .xm) in its subfolders. Those are availlable during the game, and can be set in the Settings menu.
+
+
+
+3-Campaigns/ :
+
+The Campaigns/ directory contains the folders for each availlable Campaign. To install or create a new campaign, you move/create the new folder here. The campaign folder's name sets the campaign's name in the game engine.
+They contain a lot of subfolders that contain the data and assets for the campaign:
+Battles, Bestiary, CreatureScripts, Items, Maps, Music, Sounds, Special Encounters, Spells, Tilesets, Traits.
+We will only discuss a few of those here, and not in-depth.
+You can find examples in both Campaigns/City of Bywater and RealmzRemake/shared_assets.
+
+IMPORTANT : For a lot of thse folders, the resources inside are  only used to add things that are missing from the RealmzRemake godot project folder's shared_assets/ subfolder. If two folders have the same name, it means they are both loaded into the same database  by the game.
+You should not add something to those folders when you have something suitable in the base game. If you think something important is missing from the base game, please tell the devs.
+
+Battles/ only contains a big JSON file battles.json that defines all the battles in the Campaign :
+In which Map they happen, whether to move the Party or keep the same position, which creatures appear and where, and scripts.
+Those are just text Strings that are converted to GDScript objects on loading.
+"start_source" : " (executed onbattle start) and expecially "turn_source" : " (on new round) can be useful.
+Three others are called upon winning/losing/dying. Those are honestly not so useful as battles send a won/fled/lost signal at the end which other scripts can use to branch on.
+
+Bestiary/ contains a TextureAtlas.png image with custom images for Creatures to use. A lot is already availlable from the RealmzRemake folder.
+imgpack.json is used to "cut out" images from this big atlas, and name them. It's very verbose, that was Francisco Blasco 's choice, I just kept it as is.
+stuff_book.json actually defines standard creatures for easier use in-game. It refers to images with the names given in imgpack.json.
+
+CreatureScripts/ contains GDScript files that define a creature's behaviour during battle.
+
+Items/ works a lot like Bestiary/, with a big TextureAtlas.png image and two imgpack.json and stuff_book.json files.
+
+Sounds/ just contains sound effects in .wav.ogg and .mp3 formats.
+
+Tilesets/ contains one folder per tileset. Again, the tilesets in the RealmzRemake project folder should provide you almost everything you need. The folder's name "tilesetname" determines the tileset's name in the game... or is it the json's entry ? idk.
+Similarly but not quite, there is a tilesetname.json file that cuts up a big image (named in the json, i msure of that), as well as gives each tiles its attributes (wall, shore, water,whether youcan dock, time to cross, sound effects, etc).
+Templates from tile_templates.json make this process much easier when you have different tiles with the same function.
+
+Maps/ contains subfolders, one per game map. Each one has several files inside :
+map_info.json contains a brief description of the map, I'm pretty sure    "size_x" : 50, "size_y" : 50,
+is now completely useless and the ther json's data is used instead.
+   "map_type" : "Outdoor" means the character is displayed riding a horse.
+   "music_type" : "Forest"  determines the type of music played,
+                            as set  in the game's settings for the player's profile.
+   "darkness_level" : -1  means the map is not  dark, highr darkness requires better lamps/spells to light up.
+   "display_explored_only" : 0 means parts of the map that haven't been explored will still be displayed.
+map_things.json is actually a modified TilED file. It defines the map's size and tiles used in "chunks":[{"data":[]]", and which indices correspond to which tileset in "tilesets":[]".
+map_scriptareas.json just defines which part of the map trigger a script in the next file with "scriptToLoad"
+map_scripts.gd is a GDScript file. This script is never instanced so it only consists of static functions.
+
+Music/ is actually loaded along the Data/Music folder. Note that folder names define a "type" of music, which may not be one of the default types you can set in the game's settings. Those tracks can still be played by script or setting a map_info.json's music to its name specifically instead of the music type.
+
+Special Encounters/ contains several GDScripts  that are called by pressing the Special button during gameplay.
+Pressing that button calls the GameGlobal.currentSpecialEncounterName script.  (You will see a lot of that GameGlobal script later, for now thing of it as a thing that manages all the stuff related to the campaign data, player/profile data  and the UI )
+Those scripts are not static and are instanced on starting the game, however they won't save any change to their variables (again, use GameGlobal.stuff_done for that).
+They must have the following functions :
+func _on_item_used(item, character) func _on_ActionButton_pressed() _on_speaking(spoken : String)
+
+Spells/ contains just one big json file  spells_book.json. There has to be one even if it's empty. I'm too lazy tofix that right now.
+Spells are quite complicated so I won't discuss it much here, but you should take a look at Realmz Remake\shared_assets\spells.
+
+REMEMBER :
+Only some of the data used in the scenario is inside the Campaign folder. RealmzRemake contains resources that can be accessed by all scenarios in its shared/ subfolder.
+
+
+
+4-RealmzRemake/ :
+
+
+If you are inclined to, you should take a look at Realmz Remake\scripts .
+There's some unused lftovers from Francisco, and I'm not quite proud  how messy it can be.
+Still you should take a look at GameGlobal, GameState, Resources and MapData.
+scenes\UI\HUD\OWHUDControl.gd can e interesting too.
+
+
+
+
+5-Profiles/ :
+
+
+The Profiles/folder contains one subfolder per profile. Profiles can be created on the game's main screen.
+IMPORTANT : There is a "Honest Mode" that means character files won't be saved in both the Characters and Saves folders. You will be limited to ne save per campaign. It allows for easy cross-campaign sharing with storage and banks.
+
+profile_settings.cfg  just contains some settings data, and also whether the profile has Honest Mode on.
+Yea, it's not supposed to be completely cheat-proof.
+
+Characters/ contain one subfolder per character. Each one contains :
+2 images for the icon and portrait, which can be changed if  you feel like it.
+Copies of their Race and Class GDScripts, so they can be used even if you change your Data folder (replaced/deleted thge original files)  or  if you don't like an update to  a class/race.
+data.json contains data on your character.
+
+The Saves/campaignname/ folders also contain a separate Character folder whch is loaded along the save (again, if you're not in Honest Mode). There are 4 more json files :
+allies.json contains data on your summons and NPC allies : their stats, inventory, traits, and who summonned them.
+map_exploration stores how much of each map you have explored/removed the black squares of, as well as which Secret/Secret Paths you have discovered.
+shops.json stores the inventory of each shop.
+data.json stores everything else. It should be easy enough to read if you are curious. Check GameGlobals and Realmz Remake\scenes\UI\HUD\SaveLoad\save_load_rect.gd to understand better.

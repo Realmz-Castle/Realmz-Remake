@@ -1,0 +1,2810 @@
+{
+   "0_camera_x" : 308.0,
+   "0_camera_y" : -344.0,
+   "0_camera_z" : 3.0,
+   "0_count_things" : 490,
+   "0_name" : "default",
+   "map_units" : 
+   [
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 1,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 2,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 3,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 4,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 5,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 6,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 7,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 8,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 9,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 10,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 11,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 12,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 13,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 14,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 15,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 16,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 17,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 18,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 0,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_cltl" ],
+         "x" : 1,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 2,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 3,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 4,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 5,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 6,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 7,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 8,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 9,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 10,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 11,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 12,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 13,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 14,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 15,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 16,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 17,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_cltr" ],
+         "x" : 18,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 1,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "stairsd" ],
+         "x" : 2,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "puddle", "chest" ],
+         "x" : 4,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "chest" ],
+         "x" : 5,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floorcrack", "bags" ],
+         "x" : 8,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "bags" ],
+         "x" : 9,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "stairsd", "chest" ],
+         "x" : 17,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 2,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "puddle" ],
+         "x" : 4,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floorcrack" ],
+         "x" : 8,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 3,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphtl" ],
+         "x" : 15,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphtr" ],
+         "x" : 16,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 4,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphbl" ],
+         "x" : 15,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphbr" ],
+         "x" : 16,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 5,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "BYWATER_extrafloor" ],
+         "x" : 6,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "BYWATER_FN_charpick" ],
+         "x" : 9,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 6,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 7,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 8,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 9,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 10,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 11,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 12,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 11,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_c2tl" ],
+         "x" : 11,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 12,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 13,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 14,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floorcrack", "wall_su" ],
+         "x" : 15,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 16,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 17,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_clbr" ],
+         "x" : 18,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 12,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 11,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_cltl" ],
+         "x" : 12,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 13,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 14,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floorcrack", "wall_sd_clth" ],
+         "x" : 15,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_sd" ],
+         "x" : 16,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sd" ],
+         "x" : 17,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_cltr" ],
+         "x" : 18,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 13,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 11,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 12,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 14,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphtl" ],
+         "x" : 6,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphtr" ],
+         "x" : 7,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 11,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 12,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 15,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 1,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 2,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphbl" ],
+         "x" : 6,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "glyphbr" ],
+         "x" : 7,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 9,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 10,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 11,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 12,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 13,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "puddle" ],
+         "x" : 15,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "body" ],
+         "x" : 16,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 16,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "tr", "wall_sr" ],
+         "x" : 1,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "water", "tr" ],
+         "x" : 2,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 3,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 4,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 5,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 6,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 7,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 8,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "chest" ],
+         "x" : 9,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "body", "chest" ],
+         "x" : 10,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 11,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sr" ],
+         "x" : 12,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "stairsd", "body" ],
+         "x" : 13,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 14,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 15,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 16,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor" ],
+         "x" : 17,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_sl" ],
+         "x" : 18,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 17,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "tr", "wall_clbl" ],
+         "x" : 1,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "tr", "wall_su" ],
+         "x" : 2,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 3,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 4,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 5,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 6,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 7,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 8,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 9,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 10,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_clbr" ],
+         "x" : 11,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_clbl" ],
+         "x" : 12,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 13,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 14,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 15,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 16,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_su" ],
+         "x" : 17,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "floor", "wall_clbr" ],
+         "x" : 18,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 18,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 0,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 1,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 2,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 3,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 4,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 5,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 6,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 7,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 8,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 9,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 10,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 11,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 12,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 13,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 14,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 15,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 16,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 17,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 18,
+         "y" : 19,
+         "z" : 3
+      },
+      {
+         "has_light" : true,
+         "items" : [ "wall_in" ],
+         "x" : 19,
+         "y" : 19,
+         "z" : 3
+      }
+   ]
+}

@@ -1,0 +1,21 @@
+{
+   "null" : {"time":0,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":[]} ,
+   "wall" : {"time":999,"wall":1,"swall":1,"blkproj":1,"blkview":1,"water":0,"dock":0,"sound":["effort 1.wav","effort 2.wav"]} ,
+   "stairs" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk road.wav"]} ,
+   "door" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":[]} ,
+   "furniture_soft" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk woods.wav"]} ,
+   "furniture_stone" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk rocks.wav"]} ,
+   "furniture_wood" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk road.wav"]} ,
+   "furniture_metal" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk rocks.wav"]} ,
+   "ladder" : {"time":5,"wall":0,"swall":0,"blkproj":1,"blkview":0,"water":0,"dock":0,"sound":["walk road.wav"]} ,
+   "glyph" : {"time":0,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk road.wav"]} ,
+   "carpet" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":1,"sound":["walk carpet.wav"]} ,
+   "pit" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["effort 1.wav","effort 2.wav"]} ,
+   "marble_floor" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk road.wav"]} ,
+   "wood_floor" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk road.wav"]} ,
+   "lava" : {"time":20,"wall":0,"swall":1,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["effort 1.wav","effort 2.wav"]} ,
+   "water" : {"time":15,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":1,"dock":0,"sound":["walk water.wav"]} ,
+   "puddle" : {"time":10,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk mud.wav"]} ,
+   "cracked_floor" : {"time":15,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk rocks.wav"]} ,
+   "stone_floor" : {"time":5,"wall":0,"swall":0,"blkproj":0,"blkview":0,"water":0,"dock":0,"sound":["walk 1.wav","walk 2.wav"]}
+}

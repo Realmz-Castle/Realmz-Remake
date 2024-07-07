@@ -1,0 +1,238 @@
+[gd_scene load_steps=17 format=3 uid="uid://ccbrj0rjl87wg"]
+
+[ext_resource type="Script" path="res://scenes/UI/HUD/Special Encounter/EncounterControl.gd" id="1_lkbnn"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="2_ygg0n"]
+[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="3_1rvju"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="3_ydgsm"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="4_5u5al"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Use Item Menu/UseItemRect.gd" id="4_qisvq"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="5_8b2o1"]
+[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="5_nqj2a"]
+[ext_resource type="Texture2D" uid="uid://bb2an3nlerhav" path="res://scenes/UI/HUD/Special Encounter/ItemsIcon.png" id="6_h1di3"]
+[ext_resource type="PackedScene" uid="uid://bhthrfyy8yll3" path="res://scenes/UI/HUD/Inventory/ItemSmallButton.tscn" id="6_thf3l"]
+[ext_resource type="Texture2D" uid="uid://b40pbcjy5j7qv" path="res://scenes/UI/HUD/Special Encounter/ActionIcon.png" id="7_yf7ge"]
+[ext_resource type="Texture2D" uid="uid://qu56l0oj7lgp" path="res://scenes/UI/HUD/Special Encounter/speak_icon.png" id="8_2anlg"]
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="9_7ke52"]
+[ext_resource type="Texture2D" uid="uid://cdr0pghuu5qnq" path="res://scenes/UI/HUD/Special Encounter/stop_icon.png" id="10_30dcr"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="11_7geeq"]
+
+[sub_resource type="Shortcut" id="6"]
+
+[node name="EncounterControl" type="Control"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -50.0
+offset_right = 50.0
+grow_vertical = 0
+script = ExtResource("1_lkbnn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -58.0
+offset_right = 244.0
+grow_vertical = 0
+
+[node name="InventoryButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+shortcut = SubResource("6")
+shortcut_in_tooltip = false
+icon = ExtResource("6_h1di3")
+
+[node name="UseItemRect" type="NinePatchRect" parent="HBoxContainer/InventoryButton"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 144.0
+offset_top = -270.0
+offset_right = 431.0
+offset_bottom = -38.0
+texture = ExtResource("3_1rvju")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("4_qisvq")
+
+[node name="LeftButton" type="Button" parent="HBoxContainer/InventoryButton/UseItemRect"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 3.0
+offset_right = 29.0
+offset_bottom = 53.0
+
+[node name="CharFaceRect" type="TextureRect" parent="HBoxContainer/InventoryButton/UseItemRect"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 0
+offset_left = 29.2165
+offset_top = 5.56763
+offset_right = 73.2165
+offset_bottom = 49.5676
+texture = ExtResource("5_nqj2a")
+
+[node name="RightButton" type="Button" parent="HBoxContainer/InventoryButton/UseItemRect"]
+layout_mode = 0
+offset_left = 73.2964
+offset_top = 3.0
+offset_right = 98.2964
+offset_bottom = 53.0
+
+[node name="CharNameLabel" type="Label" parent="HBoxContainer/InventoryButton/UseItemRect"]
+layout_mode = 0
+offset_left = 113.363
+offset_top = 20.1298
+offset_right = 177.363
+offset_bottom = 37.1298
+text = "Charname"
+
+[node name="itemsRect" type="ColorRect" parent="HBoxContainer/InventoryButton/UseItemRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 53.0
+offset_right = -5.0
+offset_bottom = -50.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/InventoryButton/UseItemRect/itemsRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+follow_focus = true
+
+[node name="ItemContainer" type="GridContainer" parent="HBoxContainer/InventoryButton/UseItemRect/itemsRect/ScrollContainer"]
+layout_mode = 2
+columns = 14
+
+[node name="ItemPreview" parent="HBoxContainer/InventoryButton/UseItemRect" instance=ExtResource("6_thf3l")]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = -45.0
+offset_right = -5.0
+offset_bottom = -5.0
+
+[node name="CancelButton" type="Button" parent="HBoxContainer/InventoryButton/UseItemRect"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -87.0
+offset_top = -45.0
+offset_right = -3.0
+offset_bottom = -5.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0.8, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 0.2, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.8, 0, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+text = "Cancel"
+
+[node name="ActionButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+shortcut_in_tooltip = false
+icon = ExtResource("7_yf7ge")
+
+[node name="SpeakButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+shortcut_in_tooltip = false
+icon = ExtResource("8_2anlg")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="HBoxContainer/SpeakButton"]
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -63.0
+offset_right = 210.0
+offset_bottom = -50.0
+texture = ExtResource("9_7ke52")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="TextEdit" type="TextEdit" parent="HBoxContainer/SpeakButton/NinePatchRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -60.0
+offset_bottom = -10.0
+
+[node name="SpeakDoneButton" type="Button" parent="HBoxContainer/SpeakButton/NinePatchRect"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -57.0
+offset_top = -25.0
+offset_right = -7.0
+offset_bottom = 25.0
+focus_mode = 0
+shortcut_in_tooltip = false
+text = "Done"
+
+[node name="StopButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+shortcut_in_tooltip = false
+icon = ExtResource("10_30dcr")
+
+[connection signal="pressed" from="HBoxContainer/InventoryButton" to="." method="_on_InventoryButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/InventoryButton/UseItemRect/LeftButton" to="HBoxContainer/InventoryButton/UseItemRect" method="_on_LeftButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/InventoryButton/UseItemRect/RightButton" to="HBoxContainer/InventoryButton/UseItemRect" method="_on_RightButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/InventoryButton/UseItemRect/CancelButton" to="HBoxContainer/InventoryButton/UseItemRect" method="_on_CancelButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/ActionButton" to="." method="_on_ActionButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/SpeakButton" to="." method="_on_SpeakButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/SpeakButton/NinePatchRect/SpeakDoneButton" to="." method="_on_SpeakDoneButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/StopButton" to="." method="_on_StopButton_pressed"]

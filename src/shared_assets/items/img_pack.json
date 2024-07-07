@@ -1,0 +1,69 @@
+{
+   "ITEM_leather_cap" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_iron_cap" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+"ITEM_helm_pain" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+"ITEM_health_potion" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+"ITEM_dagger" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+"ITEM_buckler" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+"ITEM_lantern" :
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   "ITEM_shield_blue_oxen" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_ring_regeneration" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+   "ITEM_bow" : 
+   {
+      "0_ref_x" : 25,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+   "ITEM_quiver" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   }
+   
+}

@@ -1,0 +1,53 @@
+[gd_scene load_steps=3 format=3 uid="uid://b3um6hddjf5px"]
+
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_w5ugb"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/saves_panel.gd" id="2_fnjl8"]
+
+[node name="SavesPanel" type="Panel" node_paths=PackedStringArray("saves_itemlist")]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("1_w5ugb")
+script = ExtResource("2_fnjl8")
+saves_itemlist = NodePath("SavesColorRect/SavesScroll/SavesItemList")
+
+[node name="SavesLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 5.0
+offset_right = -5.0
+offset_bottom = 26.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+text = "Saved Games :"
+
+[node name="SavesColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 32.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.501961)
+
+[node name="SavesScroll" type="ScrollContainer" parent="SavesColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+vertical_scroll_mode = 2
+
+[node name="SavesItemList" type="ItemList" parent="SavesColorRect/SavesScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="item_selected" from="SavesColorRect/SavesScroll/SavesItemList" to="." method="_on_saves_item_list_item_selected"]

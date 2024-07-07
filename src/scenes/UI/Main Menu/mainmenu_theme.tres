@@ -1,0 +1,7 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://0pl8f657l17e"]
+
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="1_0gkb3"]
+
+[resource]
+Button/colors/font_color = Color(1, 0.960784, 0, 1)
+Button/fonts/font = ExtResource("1_0gkb3")

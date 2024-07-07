@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://jlb06ro2rvdg"]
+
+[ext_resource type="Texture2D" uid="uid://dbys7abqx7smb" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="1"]
+[ext_resource type="Script" path="res://scenes/Map/OWCharacter.gd" id="2"]
+
+[node name="OWCharacter" type="Button"]
+offset_right = 32.0
+offset_bottom = 32.0
+flat = true
+script = ExtResource("2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false

@@ -1,0 +1,732 @@
+[gd_scene load_steps=61 format=3 uid="uid://bcm4yk3e2uv7"]
+
+[ext_resource type="PackedScene" uid="uid://y2mh6jttjyop" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButton.tscn" id="1"]
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://cjpb8ppwrbrtl" path="res://scenes/UI/HUD/Bestiary/bestiary_rect.tscn" id="3_j1454"]
+[ext_resource type="Texture2D" uid="uid://ss44lqbhulsx" path="res://scenes/UI/HUD/Button_Items.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://bfdh53tg5brip" path="res://shared_assets/UI/stone_pattern.png" id="6"]
+[ext_resource type="PackedScene" uid="uid://biqyyjm2makqt" path="res://scenes/UI/HUD/AbilitiesManagement/abilities_mngt_rect.tscn" id="9_240h7"]
+[ext_resource type="PackedScene" uid="uid://7v3a8w4rknyq" path="res://scenes/UI/HUD/SaveLoad/save_load_rect.tscn" id="10_fxj6e"]
+[ext_resource type="PackedScene" uid="uid://iiocvdyx6axc" path="res://scenes/UI/HUD/Storage/storage_rect.tscn" id="10_v5rum"]
+[ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="12_c6hp3"]
+[ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="13_dm23x"]
+[ext_resource type="PackedScene" uid="uid://bok34jeuhstd2" path="res://scenes/UI/HUD/CreatureCBRect/creature_rect.tscn" id="13_svkkd"]
+[ext_resource type="Texture2D" uid="uid://ddkb1ppvtr2gy" path="res://scenes/UI/HUD/Spells/TargetImages/DoNotUse.png" id="14_mlt3e"]
+[ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="14_pjtj6"]
+[ext_resource type="Texture2D" uid="uid://ueqocr1cegi8" path="res://shared_assets/UI/BarTextGray.png" id="14_u7mw3"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/TextRect.gd" id="15"]
+[ext_resource type="Texture2D" uid="uid://d2my40a3mkspk" path="res://shared_assets/UI/BartextRed.png" id="15_3lusa"]
+[ext_resource type="Texture2D" uid="uid://cj2npdsnsqein" path="res://scenes/UI/HUD/Inventory/EquippedGray.png" id="15_22ixm"]
+[ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="15_rs5dt"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/BotRightPanel.gd" id="20_oijwo"]
+[ext_resource type="Texture2D" uid="uid://ckpcpybt2rdfd" path="res://scenes/UI/HUD/Button_Bestiary.png" id="22_a5ehs"]
+[ext_resource type="Texture2D" uid="uid://bxkusgjl4q7lk" path="res://scenes/UI/HUD/Button_CharSwap.png" id="23"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/CharSwapRect.gd" id="24"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Multiple Choices/ChoicesVBoxContainer.gd" id="25"]
+[ext_resource type="PackedScene" uid="uid://daoj20idrc3n6" path="res://scenes/UI/HUD/Multiple Choices/ChoicesYesNo.tscn" id="26"]
+[ext_resource type="Texture2D" uid="uid://bc1j7tovn6r53" path="res://scenes/UI/HUD/Button_AbilitesList.png" id="26_silsh"]
+[ext_resource type="PackedScene" uid="uid://byeahfs6d5i36" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButtonSeparator.tscn" id="27"]
+[ext_resource type="Texture2D" uid="uid://bv85uf3xa88li" path="res://scenes/UI/HUD/Button_SaveQ.png" id="27_drj61"]
+[ext_resource type="PackedScene" uid="uid://d3b75oe6r5ua4" path="res://scenes/UI/HUD/Multiple Choices/ChoicesStop.tscn" id="28"]
+[ext_resource type="PackedScene" uid="uid://buub48wqri0s6" path="res://scenes/UI/HUD/Spells/spells_rect.tscn" id="28_20wsm"]
+[ext_resource type="PackedScene" uid="uid://ceolb7qhukb47" path="res://scenes/UI/HUD/Combat_BR_Panel/combat_br_panel.tscn" id="28_s8a54"]
+[ext_resource type="PackedScene" uid="uid://dg78xp74hy78q" path="res://scenes/UI/Party Selection/CharPickRect.tscn" id="29"]
+[ext_resource type="PackedScene" uid="uid://ccbrj0rjl87wg" path="res://scenes/UI/HUD/Special Encounter/encounter_control.tscn" id="29_2kg64"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/OWHUDControl.gd" id="30"]
+[ext_resource type="PackedScene" uid="uid://cq2p1ikurai08" path="res://scenes/UI/HUD/Looting/treasure_control.tscn" id="33_k50bo"]
+[ext_resource type="Texture2D" uid="uid://cwrabk1cwbayt" path="res://scenes/UI/HUD/Button_Settings.png" id="36"]
+[ext_resource type="PackedScene" uid="uid://ckk0txf7ssl6a" path="res://scenes/UI/HUD/MoneyRect/money_rect.tscn" id="38_5dnvn"]
+[ext_resource type="Texture2D" uid="uid://bsv31ioswuobw" path="res://scenes/UI/HUD/Button_Encounter.png" id="39"]
+[ext_resource type="PackedScene" uid="uid://b5341ljf605d7" path="res://scenes/UI/HUD/Inventory/inventory_rect.tscn" id="42_uqsid"]
+[ext_resource type="PackedScene" uid="uid://ux82qv1x7yu5" path="res://scenes/UI/HUD/LevelUp/level_up_rect.tscn" id="47_7a5ck"]
+[ext_resource type="PackedScene" uid="uid://diwmugxendkdn" path="res://scenes/UI/HUD/Settings/settings_rect.tscn" id="47_7r2s1"]
+[ext_resource type="PackedScene" uid="uid://37bdl7c76fpb" path="res://scenes/UI/HUD/Allies/allies_rect.tscn" id="48_mnk6s"]
+[ext_resource type="Texture2D" uid="uid://dkkvumxv2ebeb" path="res://scenes/UI/HUD/Button_Camp.png" id="53"]
+[ext_resource type="Texture2D" uid="uid://c1wtx6v8kc6ld" path="res://scenes/UI/HUD/Button_Rest.png" id="54"]
+[ext_resource type="Texture2D" uid="uid://ccgwnh5lop7ta" path="res://scenes/UI/HUD/Button_Save.png" id="55"]
+[ext_resource type="Texture2D" uid="uid://dt6qfh78mmb10" path="res://scenes/UI/HUD/Button_Money.png" id="56"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="67_o5gys"]
+[ext_resource type="Texture2D" uid="uid://ck0lm5knfrrao" path="res://scenes/UI/HUD/Button_Spells.png" id="81"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kbh82"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3olkx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n8nai"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cco5e"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_swe7o"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_okqna"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uclwc"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_u3nr5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0chsf"]
+
+[sub_resource type="Shortcut" id="6"]
+
+[sub_resource type="Shortcut" id="8"]
+
+[sub_resource type="Shortcut" id="10"]
+
+[sub_resource type="Shortcut" id="12"]
+
+[node name="OWHUDControl" type="Control"]
+texture_filter = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.18921
+offset_top = -0.948158
+offset_right = -1.18921
+offset_bottom = -0.948181
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("30")
+
+[node name="VBoxScreen" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="HBoxTop" type="HBoxContainer" parent="VBoxScreen"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="MapArea" type="Control" parent="VBoxScreen/HBoxTop"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="ChoicesVBoxContainer" type="VBoxContainer" parent="VBoxScreen/HBoxTop/MapArea"]
+visible = false
+layout_mode = 0
+offset_left = 100.0
+offset_top = 48.0
+offset_right = 604.0
+offset_bottom = 448.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("25")
+choices_button_tscn = ExtResource("1")
+separator_tscn = ExtResource("27")
+choices_yesno_tscn = ExtResource("26")
+choices_stop_tscn = ExtResource("28")
+
+[node name="InventoryRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("42_uqsid")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BestiaryRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("3_j1454")]
+visible = false
+layout_mode = 1
+
+[node name="AbilitiesMngtRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("9_240h7")]
+visible = false
+layout_mode = 1
+
+[node name="StorageRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("10_v5rum")]
+visible = false
+layout_mode = 1
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="VBoxCharTime" type="VBoxContainer" parent="VBoxScreen/HBoxTop"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="CharactersRect" type="TextureRect" parent="VBoxScreen/HBoxTop/VBoxCharTime"]
+custom_minimum_size = Vector2(320, 32)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+texture = ExtResource("6")
+stretch_mode = 1
+
+[node name="CharScrollContainer" type="ScrollContainer" parent="VBoxScreen/HBoxTop/VBoxCharTime/CharactersRect"]
+layout_mode = 0
+offset_right = 320.0
+offset_bottom = 360.0
+follow_focus = true
+scroll_deadzone = 60
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxScreen/HBoxTop/VBoxCharTime/CharactersRect/CharScrollContainer"]
+layout_mode = 2
+
+[node name="TimeRect" type="NinePatchRect" parent="VBoxScreen/HBoxTop/VBoxCharTime"]
+custom_minimum_size = Vector2(320, 40)
+layout_mode = 2
+mouse_filter = 0
+texture = ExtResource("2")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="FatigueLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 65.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
+theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_constants/line_spacing = 1
+theme_override_fonts/font = ExtResource("67_o5gys")
+text = "Fatigue :"
+
+[node name="TimeLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 20.0
+offset_right = 47.0
+offset_bottom = 37.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
+theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_constants/line_spacing = 1
+theme_override_fonts/font = ExtResource("67_o5gys")
+text = "Time :"
+
+[node name="TimeCntrLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 52.1892
+offset_top = 15.9482
+offset_right = 172.189
+offset_bottom = 46.9482
+theme_override_font_sizes/font_size = 12
+text = "0d 24h 60m 60s"
+
+[node name="LightLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 175.0
+offset_top = 20.0
+offset_right = 214.0
+offset_bottom = 38.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
+theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_constants/line_spacing = 1
+theme_override_fonts/font = ExtResource("67_o5gys")
+text = "Light :"
+
+[node name="LightCntrLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 218.189
+offset_top = 18.9482
+offset_right = 322.189
+offset_bottom = 38.9482
+theme_override_font_sizes/font_size = 12
+text = "0 s
+"
+
+[node name="LightPCntrLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 294.0
+offset_top = 18.0
+offset_right = 317.0
+offset_bottom = 38.0
+theme_override_font_sizes/font_size = 12
+text = "P:0"
+
+[node name="XLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 193.189
+offset_top = 4.94816
+offset_right = 217.189
+offset_bottom = 22.9482
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
+theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_constants/line_spacing = 1
+theme_override_fonts/font = ExtResource("67_o5gys")
+text = "X :"
+
+[node name="YLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 253.189
+offset_top = 4.94816
+offset_right = 277.189
+offset_bottom = 22.9482
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
+theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_constants/line_spacing = 1
+theme_override_fonts/font = ExtResource("67_o5gys")
+text = "Y :"
+
+[node name="XnumberLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 218.0
+offset_top = 4.0
+offset_right = 255.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="YnumberLabel" type="Label" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 272.0
+offset_top = 4.0
+offset_right = 310.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="FatigueBar" type="TextureProgressBar" parent="VBoxScreen/HBoxTop/VBoxCharTime/TimeRect"]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 9.0
+offset_right = 194.0
+offset_bottom = 17.0
+value = 30.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 4
+stretch_margin_right = 4
+stretch_margin_bottom = 2
+texture_under = ExtResource("14_u7mw3")
+texture_progress = ExtResource("15_3lusa")
+
+[node name="HBoxBot" type="HBoxContainer" parent="VBoxScreen"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TextRect" type="NinePatchRect" parent="VBoxScreen/HBoxBot" node_paths=PackedStringArray("choicesContainer")]
+custom_minimum_size = Vector2(32, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+texture = ExtResource("2")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("15")
+choicesContainer = NodePath("../../HBoxTop/MapArea/ChoicesVBoxContainer")
+
+[node name="ColorRect" type="ColorRect" parent="VBoxScreen/HBoxBot/TextRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.501961)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="VBoxScreen/HBoxBot/TextRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+deselect_on_focus_loss_enabled = false
+
+[node name="AoETextureRect" type="TextureRect" parent="VBoxScreen/HBoxBot/TextRect"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -74.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 74.0
+grow_horizontal = 0
+texture = ExtResource("14_mlt3e")
+
+[node name="AoELabel" type="Label" parent="VBoxScreen/HBoxBot/TextRect/AoETextureRect"]
+layout_mode = 0
+offset_left = -41.8108
+offset_top = 17.9482
+offset_right = -3.81079
+offset_bottom = 43.9482
+text = "AoE :"
+
+[node name="DisablerButton" type="Button" parent="VBoxScreen/HBoxBot/TextRect"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -450.0
+offset_right = 323.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_kbh82")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_3olkx")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_n8nai")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_cco5e")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_swe7o")
+
+[node name="ItemRect" type="TextureRect" parent="VBoxScreen/HBoxBot/TextRect"]
+visible = false
+layout_mode = 1
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 46.0
+offset_bottom = 46.0
+texture = ExtResource("15_22ixm")
+
+[node name="CreatureRect" parent="VBoxScreen/HBoxBot" instance=ExtResource("13_svkkd")]
+visible = false
+layout_mode = 2
+
+[node name="BotRightPanel" type="TextureRect" parent="VBoxScreen/HBoxBot" node_paths=PackedStringArray("spellCastButton")]
+custom_minimum_size = Vector2(320, 200)
+layout_mode = 2
+mouse_filter = 0
+texture = ExtResource("6")
+stretch_mode = 1
+script = ExtResource("20_oijwo")
+spellCastButton = NodePath("SpellButton")
+
+[node name="InventoryButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+layout_mode = 0
+offset_left = 1.18921
+offset_top = 50.9482
+offset_right = 51.1892
+offset_bottom = 100.948
+theme_override_styles/normal = SubResource("StyleBoxEmpty_okqna")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_uclwc")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_u3nr5")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_0chsf")
+shortcut = SubResource("6")
+shortcut_in_tooltip = false
+icon = ExtResource("5")
+flat = true
+
+[node name="CharSwapButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 270.0
+offset_right = 320.0
+offset_bottom = 50.0
+focus_mode = 0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+disabled = true
+shortcut_in_tooltip = false
+icon = ExtResource("23")
+
+[node name="SettingsButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 270.0
+offset_top = 150.0
+offset_right = 320.0
+offset_bottom = 200.0
+focus_mode = 0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+shortcut_in_tooltip = false
+icon = ExtResource("36")
+
+[node name="EncounterButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_top = 150.0
+offset_right = 50.0
+offset_bottom = 200.0
+focus_mode = 0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+shortcut_in_tooltip = false
+icon = ExtResource("39")
+
+[node name="CampButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_right = 50.0
+offset_bottom = 50.0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+shortcut = SubResource("8")
+shortcut_in_tooltip = false
+icon = ExtResource("53")
+
+[node name="SaveButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 270.0
+offset_top = 100.0
+offset_right = 320.0
+offset_bottom = 150.0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+icon = ExtResource("55")
+
+[node name="QSaveButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 270.189
+offset_top = 50.9481
+offset_right = 320.189
+offset_bottom = 100.948
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+icon = ExtResource("27_drj61")
+
+[node name="BestiaryButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 170.0
+offset_top = 50.0
+offset_right = 220.0
+offset_bottom = 100.0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+icon = ExtResource("22_a5ehs")
+
+[node name="AbiListButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 50.0
+offset_top = 100.0
+offset_right = 100.0
+offset_bottom = 150.0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+icon = ExtResource("26_silsh")
+
+[node name="MoneyButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 100.0
+offset_bottom = 100.0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+icon = ExtResource("56")
+
+[node name="RestButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 50.0
+offset_right = 100.0
+offset_bottom = 50.0
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+shortcut = SubResource("10")
+shortcut_in_tooltip = false
+icon = ExtResource("54")
+
+[node name="RestTimer" type="Timer" parent="VBoxScreen/HBoxBot/BotRightPanel/RestButton"]
+wait_time = 0.5
+one_shot = true
+
+[node name="SpellButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+layout_mode = 0
+offset_top = 100.784
+offset_right = 50.0
+offset_bottom = 150.784
+theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+shortcut = SubResource("12")
+icon = ExtResource("81")
+
+[node name="CombatBRPanel" parent="VBoxScreen/HBoxBot" instance=ExtResource("28_s8a54")]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="SpellsRect" parent="." instance=ExtResource("28_20wsm")]
+visible = false
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 1
+
+[node name="EncounterControl" parent="." instance=ExtResource("29_2kg64")]
+visible = false
+layout_mode = 1
+
+[node name="CharSwapRect" type="NinePatchRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 1024.0
+offset_bottom = 600.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 0
+texture = ExtResource("2")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("24")
+
+[node name="CharPickRect" parent="CharSwapRect" instance=ExtResource("29")]
+layout_mode = 0
+offset_left = 37.3118
+offset_top = 38.3151
+offset_right = 634.312
+offset_bottom = 513.315
+
+[node name="OKButton" type="Button" parent="CharSwapRect"]
+layout_mode = 0
+offset_left = 447.201
+offset_top = 522.568
+offset_right = 514.201
+offset_bottom = 552.568
+text = "OK"
+
+[node name="CancelButton" type="Button" parent="CharSwapRect"]
+layout_mode = 0
+offset_left = 351.0
+offset_top = 524.0
+offset_right = 418.0
+offset_bottom = 554.0
+text = "Cancel"
+
+[node name="TreasureControl" parent="." instance=ExtResource("33_k50bo")]
+visible = false
+layout_mode = 1
+
+[node name="MoneyRect" parent="." instance=ExtResource("38_5dnvn")]
+visible = false
+layout_mode = 1
+
+[node name="SettingsRect" parent="." instance=ExtResource("47_7r2s1")]
+visible = false
+layout_mode = 1
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SaveLoadRect" parent="." instance=ExtResource("10_fxj6e")]
+visible = false
+layout_mode = 1
+
+[node name="Canvaslayer" type="CanvasLayer" parent="."]
+
+[node name="LevelUpWindow" type="Window" parent="."]
+transparent_bg = true
+size = Vector2i(792, 448)
+visible = false
+transient = true
+exclusive = true
+unresizable = true
+borderless = true
+always_on_top = true
+transparent = true
+popup_window = true
+
+[node name="LevelUpRect" parent="LevelUpWindow" instance=ExtResource("47_7a5ck")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -226.5
+offset_top = -186.0
+offset_right = 226.5
+offset_bottom = 186.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+
+[node name="AlliesWindow" type="Window" parent="."]
+transparent_bg = true
+size = Vector2i(1152, 648)
+visible = false
+transient = true
+exclusive = true
+unresizable = true
+borderless = true
+always_on_top = true
+transparent = true
+popup_window = true
+
+[node name="AlliesRect" parent="AlliesWindow" instance=ExtResource("48_mnk6s")]
+
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/InventoryButton" to="." method="_on_InventoryButton_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/CharSwapButton" to="." method="_on_CharSwapButton_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/SettingsButton" to="." method="_on_SettingsButton_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/EncounterButton" to="." method="_on_EncounterButton_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/CampButton" to="." method="_on_CampButton_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/QSaveButton" to="." method="_on_q_save_button_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/BestiaryButton" to="." method="_on_bestiary_button_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/AbiListButton" to="." method="_on_abi_list_button_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/MoneyButton" to="." method="_on_MoneyButton_pressed"]
+[connection signal="button_down" from="VBoxScreen/HBoxBot/BotRightPanel/RestButton" to="." method="_on_RestButton_button_down"]
+[connection signal="button_up" from="VBoxScreen/HBoxBot/BotRightPanel/RestButton" to="." method="_on_RestButton_button_up"]
+[connection signal="toggled" from="VBoxScreen/HBoxBot/BotRightPanel/RestButton" to="." method="_on_RestButton_toggled"]
+[connection signal="timeout" from="VBoxScreen/HBoxBot/BotRightPanel/RestButton/RestTimer" to="." method="_on_RestTimer_timeout"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/SpellButton" to="." method="_on_SpellButton_pressed"]
+[connection signal="pressed" from="CharSwapRect/OKButton" to="CharSwapRect" method="_on_OKButton_pressed"]
+[connection signal="pressed" from="CharSwapRect/CancelButton" to="CharSwapRect" method="_on_CancelButton_pressed"]

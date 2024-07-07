@@ -1,0 +1,20 @@
+{
+   "Test_Battle" :
+   {
+      "Map" : "test_map",
+      "Position" : [3,3],
+      "Creatures" : [
+         ["Lich" , [8,8] ],
+	 ["Giant Snail" , [8,11] ],
+	 ["Giant Snail" , [11,8] ]
+      ],
+      "Scripts" : {
+         "start" : "print('Test_Battle start script')",
+	 "turn" : "print('Test_Battle turn script')",
+	 "win" : "print('Test_Battle win script')",
+	 "lose" : "print('Test_Battle lose script')",
+	 "flee" : "print('Test_Battle flee script')"
+      }
+   }
+
+}

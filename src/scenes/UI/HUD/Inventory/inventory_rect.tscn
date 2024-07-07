@@ -1,0 +1,593 @@
+[gd_scene load_steps=43 format=3 uid="uid://b5341ljf605d7"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ci4xc"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/InventoryRect.gd" id="2_vmm2o"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/InventoryContainer.gd" id="3_vljtu"]
+[ext_resource type="Texture2D" uid="uid://cl330bnnyhheb" path="res://shared_assets/UI/buttonShopText.png" id="4_lu8oq"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_n8kmo"]
+[ext_resource type="Texture2D" uid="uid://dmgbo00sha4ov" path="res://scenes/UI/HUD/Inventory/ButtonUse.png" id="5_r22e4"]
+[ext_resource type="Texture2D" uid="uid://dtnac1etf1gt0" path="res://scenes/UI/HUD/Inventory/ButtonIdentify.png" id="6_vgnm8"]
+[ext_resource type="Texture2D" uid="uid://c5m4lassefpnp" path="res://scenes/UI/HUD/Inventory/ButtonIdentifyPay.png" id="7_npc5j"]
+[ext_resource type="Texture2D" uid="uid://8cn1usc0p51s" path="res://scenes/UI/HUD/Inventory/ButtonDrop.png" id="8_46qhf"]
+[ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="9_5uo50"]
+[ext_resource type="Texture2D" uid="uid://byeycaftdmdf2" path="res://shared_assets/UI/buttonDone.png" id="9_8kq1x"]
+[ext_resource type="Texture2D" uid="uid://0mqygvk7fx1n" path="res://scenes/UI/HUD/Inventory/ButtonShow.png" id="10_cfsls"]
+[ext_resource type="Texture2D" uid="uid://cccgn45o1otqw" path="res://scenes/UI/HUD/Inventory/TradeSelect.png" id="11_umd6h"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/ShopRect.gd" id="12_h7a4g"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/ShopInventoryContainerShop.gd" id="13_adyqs"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="14_5juv1"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="15_gerk8"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="16_30rcg"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="17_3h1a5"]
+[ext_resource type="Texture2D" uid="uid://ir2s3cje4v6" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="18_vqq75"]
+[ext_resource type="Texture2D" uid="uid://5wrhtdqct47x" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="19_f3a2p"]
+[ext_resource type="Texture2D" uid="uid://ciudni0bpnnqm" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="20_xluxo"]
+[ext_resource type="Texture2D" uid="uid://djctc8bi61ixv" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="21_a5wiv"]
+[ext_resource type="Texture2D" uid="uid://3hxru375at07" path="res://scenes/UI/HUD/Inventory/ButtonBuyBack.png" id="22_brh2y"]
+[ext_resource type="Texture2D" uid="uid://cnsml3nc7hh8y" path="res://scenes/UI/HUD/Inventory/ButtonJoin.png" id="23_j6psa"]
+[ext_resource type="BitMap" uid="uid://c28ehvdiwq3le" path="res://scenes/UI/HUD/Inventory/ButtonHalfSquareBitmask.png" id="24_ucvhd"]
+[ext_resource type="Texture2D" uid="uid://b0ekbgja0pftq" path="res://scenes/UI/HUD/Inventory/ButtonSplit.png" id="25_xegxq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y06if"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Shortcut" id="48"]
+
+[sub_resource type="Shortcut" id="50"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7nssc"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Shortcut" id="56"]
+
+[sub_resource type="Shortcut" id="58"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tcego"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Shortcut" id="29"]
+
+[sub_resource type="Shortcut" id="36"]
+
+[sub_resource type="Shortcut" id="46"]
+
+[sub_resource type="Shortcut" id="38"]
+
+[sub_resource type="Shortcut" id="40"]
+
+[sub_resource type="Shortcut" id="42"]
+
+[sub_resource type="Shortcut" id="44"]
+
+[sub_resource type="Shortcut" id="60"]
+
+[node name="InventoryRect" type="NinePatchRect" node_paths=PackedStringArray("storage_button")]
+offset_right = 785.0
+offset_bottom = 612.0
+texture = ExtResource("1_ci4xc")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_vmm2o")
+storage_button = NodePath("VBoxContainer/BotHBox/HBoxLeft/ButtonStorage")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="BorderControlTop" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 9)
+layout_mode = 2
+
+[node name="TopHBox" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="BorderControlL" type="Control" parent="VBoxContainer/TopHBox"]
+custom_minimum_size = Vector2(9, 9)
+layout_mode = 2
+
+[node name="LeftPage" type="Control" parent="VBoxContainer/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TradeRect" type="NinePatchRect" parent="VBoxContainer/TopHBox/LeftPage"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ci4xc")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="TradeYourselfLabel" type="Label" parent="VBoxContainer/TopHBox/LeftPage/TradeRect"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -92.5
+offset_top = -8.5
+offset_right = 92.5
+offset_bottom = 8.5
+text = "You can't trade with yourslelf !"
+
+[node name="InvScrollContainerL" type="ScrollContainer" parent="VBoxContainer/TopHBox/LeftPage/TradeRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_right = -9.0
+offset_bottom = -71.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_y06if")
+script = ExtResource("3_vljtu")
+
+[node name="VBoxContainerL" type="VBoxContainer" parent="VBoxContainer/TopHBox/LeftPage/TradeRect/InvScrollContainerL"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ButtonShow" type="Button" parent="VBoxContainer/TopHBox/LeftPage/TradeRect"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -1.0
+offset_right = 84.0
+offset_bottom = 47.0
+grow_vertical = 0
+shortcut = SubResource("48")
+icon = ExtResource("10_cfsls")
+flat = true
+
+[node name="CharTradeSelectGrid" type="GridContainer" parent="VBoxContainer/TopHBox/LeftPage/TradeRect"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -209.0
+offset_top = -49.0
+offset_right = -9.0
+offset_bottom = -9.0
+grow_horizontal = 0
+grow_vertical = 0
+columns = 10
+
+[node name="CharSelectSprite" type="Sprite2D" parent="VBoxContainer/TopHBox/LeftPage/TradeRect/CharTradeSelectGrid"]
+z_index = 4
+texture = ExtResource("11_umd6h")
+centered = false
+
+[node name="ButtonTradeItem" type="Button" parent="VBoxContainer/TopHBox/LeftPage/TradeRect"]
+layout_mode = 0
+offset_left = 71.0797
+offset_top = -65.9103
+offset_right = 153.08
+offset_bottom = -45.9103
+shortcut = SubResource("50")
+text = "Trade Item"
+
+[node name="ShopRect" type="NinePatchRect" parent="VBoxContainer/TopHBox/LeftPage"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ci4xc")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("12_h7a4g")
+
+[node name="InvScrollContainerShop" type="ScrollContainer" parent="VBoxContainer/TopHBox/LeftPage/ShopRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -51.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_7nssc")
+script = ExtResource("13_adyqs")
+
+[node name="VBoxContainerL" type="VBoxContainer" parent="VBoxContainer/TopHBox/LeftPage/ShopRect/InvScrollContainerShop"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MoneyRect" type="NinePatchRect" parent="VBoxContainer/TopHBox/LeftPage/ShopRect"]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -50.0
+offset_right = -10.0
+offset_bottom = -10.0
+texture = ExtResource("1_ci4xc")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="GoldLabel" type="Label" parent="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 6.0
+offset_top = -15.0
+offset_right = 51.0
+offset_bottom = 11.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_n8kmo")
+text = "Gold :"
+
+[node name="GoldnLabel" type="Label" parent="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 50.0
+offset_top = -17.0
+offset_right = 126.0
+offset_bottom = 9.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "999999"
+
+[node name="PoolLabel" type="Label" parent="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 7.0
+offset_top = 1.0
+offset_right = 50.0
+offset_bottom = 27.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_n8kmo")
+text = "Pool :"
+
+[node name="PoolnLabel" type="Label" parent="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 49.0
+offset_top = -1.0
+offset_right = 128.0
+offset_bottom = 25.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "999999"
+
+[node name="PoolButton" type="Button" parent="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -117.0
+offset_top = -19.5
+offset_right = -56.9999
+offset_bottom = 20.5
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_n8kmo")
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("9_5uo50")
+text = "Pool"
+
+[node name="LeaveShopButton" type="Button" parent="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -19.0
+offset_bottom = 21.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_n8kmo")
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("9_5uo50")
+text = "Leave"
+
+[node name="MiddleColumn" type="Control" parent="VBoxContainer/TopHBox"]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ShopButtonsRect" type="NinePatchRect" parent="VBoxContainer/TopHBox/MiddleColumn"]
+visible = false
+clip_contents = true
+custom_minimum_size = Vector2(58, 0)
+layout_mode = 2
+offset_right = 58.0
+offset_bottom = 376.0
+grow_horizontal = 0
+texture = ExtResource("1_ci4xc")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect"]
+layout_mode = 0
+offset_left = -8.0
+offset_right = 50.0
+offset_bottom = 377.0
+theme_override_constants/separation = 0
+
+[node name="WeaponsButton" type="Button" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("14_5juv1")
+icon = ExtResource("18_vqq75")
+
+[node name="BArmorButton" type="Button" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("14_5juv1")
+icon = ExtResource("19_f3a2p")
+
+[node name="LArmorButton" type="Button" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("14_5juv1")
+icon = ExtResource("20_xluxo")
+
+[node name="SuppliesButton" type="Button" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("14_5juv1")
+icon = ExtResource("21_a5wiv")
+
+[node name="BuyBackButton" type="Button" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("14_5juv1")
+icon = ExtResource("22_brh2y")
+
+[node name="VBoxJoinSplit" type="VBoxContainer" parent="VBoxContainer/TopHBox/MiddleColumn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+alignment = 2
+
+[node name="ButtonJoin" type="TextureButton" parent="VBoxContainer/TopHBox/MiddleColumn/VBoxJoinSplit"]
+visible = false
+layout_mode = 2
+shortcut = SubResource("56")
+texture_normal = ExtResource("23_j6psa")
+texture_click_mask = ExtResource("24_ucvhd")
+
+[node name="ButtonSplit" type="TextureButton" parent="VBoxContainer/TopHBox/MiddleColumn/VBoxJoinSplit"]
+visible = false
+layout_mode = 2
+shortcut = SubResource("58")
+texture_normal = ExtResource("25_xegxq")
+texture_click_mask = ExtResource("24_ucvhd")
+
+[node name="RightPage" type="Control" parent="VBoxContainer/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InvScrollContainerR" type="ScrollContainer" parent="VBoxContainer/TopHBox/RightPage"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 7.0
+offset_right = -6.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tcego")
+script = ExtResource("3_vljtu")
+is_hud_selected = true
+
+[node name="VBoxContainerR" type="VBoxContainer" parent="VBoxContainer/TopHBox/RightPage/InvScrollContainerR"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BorderControlR" type="Control" parent="VBoxContainer/TopHBox"]
+custom_minimum_size = Vector2(9, 9)
+layout_mode = 2
+
+[node name="BotHBox" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HBoxLeft" type="HBoxContainer" parent="VBoxContainer/BotHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginControl" type="Control" parent="VBoxContainer/BotHBox/HBoxLeft"]
+custom_minimum_size = Vector2(6, 0)
+layout_mode = 2
+
+[node name="ButtonTrade" type="Button" parent="VBoxContainer/BotHBox/HBoxLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_n8kmo")
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("9_5uo50")
+shortcut = SubResource("29")
+text = "Trade"
+
+[node name="ButtonShop" type="Button" parent="VBoxContainer/BotHBox/HBoxLeft"]
+layout_mode = 2
+shortcut = SubResource("36")
+icon = ExtResource("4_lu8oq")
+flat = true
+
+[node name="ButtonStorage" type="Button" parent="VBoxContainer/BotHBox/HBoxLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_n8kmo")
+theme_override_styles/normal = ExtResource("14_5juv1")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/focus = ExtResource("9_5uo50")
+shortcut = SubResource("29")
+text = "Profile Storage"
+
+[node name="MiddleColumn" type="Control" parent="VBoxContainer/BotHBox"]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 2
+
+[node name="ButtonDone" type="Button" parent="VBoxContainer/BotHBox/MiddleColumn"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -22.5
+offset_top = -45.0
+offset_right = 25.5
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 0
+shortcut = SubResource("46")
+icon = ExtResource("9_8kq1x")
+flat = true
+
+[node name="HBoxRight" type="HBoxContainer" parent="VBoxContainer/BotHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="ButtonUse" type="Button" parent="VBoxContainer/BotHBox/HBoxRight"]
+layout_mode = 2
+shortcut = SubResource("38")
+icon = ExtResource("5_r22e4")
+flat = true
+
+[node name="ButtonIdentify" type="Button" parent="VBoxContainer/BotHBox/HBoxRight"]
+layout_mode = 2
+shortcut = SubResource("40")
+icon = ExtResource("6_vgnm8")
+flat = true
+
+[node name="ButtonidentiPay" type="Button" parent="VBoxContainer/BotHBox/HBoxRight"]
+layout_mode = 2
+shortcut = SubResource("42")
+icon = ExtResource("7_npc5j")
+flat = true
+
+[node name="ButtonDrop" type="Button" parent="VBoxContainer/BotHBox/HBoxRight"]
+layout_mode = 2
+shortcut = SubResource("44")
+icon = ExtResource("8_46qhf")
+flat = true
+
+[node name="MarginControl2" type="Control" parent="VBoxContainer/BotHBox"]
+custom_minimum_size = Vector2(6, 0)
+layout_mode = 2
+
+[node name="BorderControl" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 9)
+layout_mode = 2
+
+[node name="ButtonEquip" type="Button" parent="."]
+layout_mode = 0
+offset_left = 6.46179
+offset_top = -56.8638
+offset_right = 59.4618
+offset_bottom = -36.8638
+shortcut = SubResource("60")
+text = "EQUIP"
+
+[connection signal="pressed" from="VBoxContainer/TopHBox/LeftPage/TradeRect/ButtonShow" to="." method="_on_ButtonShow_pressed"]
+[connection signal="pressed" from="VBoxContainer/TopHBox/LeftPage/TradeRect/ButtonTradeItem" to="." method="_on_ButtonTradeItem_pressed"]
+[connection signal="pressed" from="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect/PoolButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_PoolButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/TopHBox/LeftPage/ShopRect/MoneyRect/LeaveShopButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_LeaveShopButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/WeaponsButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Weapons"]]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/BArmorButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Armor"]]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/LArmorButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Limbs"]]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/SuppliesButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Supplies"]]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/BuyBackButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["BuyBack"]]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/VBoxJoinSplit/ButtonJoin" to="." method="_on_ButtonJoin_pressed"]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/VBoxJoinSplit/ButtonSplit" to="." method="_on_ButtonSplit_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/HBoxLeft/ButtonTrade" to="." method="_on_ButtonTrade_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/HBoxLeft/ButtonShop" to="." method="_on_ButtonShop_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/HBoxLeft/ButtonStorage" to="." method="_on_button_storage_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/MiddleColumn/ButtonDone" to="." method="_on_ButtonDone_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/HBoxRight/ButtonUse" to="." method="_on_ButtonUse_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/HBoxRight/ButtonIdentify" to="." method="_on_ButtonIdentify_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/HBoxRight/ButtonidentiPay" to="." method="_on_ButtonidentiPay_pressed"]
+[connection signal="pressed" from="VBoxContainer/BotHBox/HBoxRight/ButtonDrop" to="." method="_on_ButtonDrop_pressed"]
+[connection signal="pressed" from="ButtonEquip" to="." method="_on_ButtonEquip_pressed"]

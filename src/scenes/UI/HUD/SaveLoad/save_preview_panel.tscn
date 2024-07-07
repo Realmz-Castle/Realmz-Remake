@@ -1,0 +1,134 @@
+[gd_scene load_steps=8 format=3 uid="uid://bxnrqgijyfcwa"]
+
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_mgwxa"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/save_preview_panel.gd" id="2_8732q"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_3av8d"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_l1bhv"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_vihe7"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_qr38m"]
+[ext_resource type="PackedScene" uid="uid://c2put8ty4yst6" path="res://scenes/UI/HUD/SaveLoad/pc_micro_ctrl.tscn" id="7_gt5sp"]
+
+[node name="PreviewPanel" type="Panel" node_paths=PackedStringArray("savename_label", "pc_micro_box", "notesTextEdit", "save_button", "load_button")]
+custom_minimum_size = Vector2(270, 64)
+offset_right = 270.0
+offset_bottom = 309.0
+theme_override_styles/panel = ExtResource("1_mgwxa")
+script = ExtResource("2_8732q")
+PCMicroCtrlTSCN = ExtResource("7_gt5sp")
+savename_label = NodePath("PreviewVBox/SaveNameLabel")
+pc_micro_box = NodePath("PreviewVBox/PCsMicroPanel/PCsMicroContainer")
+notesTextEdit = NodePath("PreviewVBox/DescrTextEdit")
+save_button = NodePath("SaveLoadHBox/SaveButton")
+load_button = NodePath("SaveLoadHBox/LoadButton")
+
+[node name="SaveLoadHBox" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -130.0
+offset_top = -30.0
+offset_right = 130.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="SaveButton" type="Button" parent="SaveLoadHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_fonts/font = ExtResource("3_3av8d")
+theme_override_styles/normal = ExtResource("1_mgwxa")
+theme_override_styles/hover = ExtResource("4_l1bhv")
+theme_override_styles/pressed = ExtResource("5_vihe7")
+theme_override_styles/disabled = ExtResource("6_qr38m")
+text = "Save
+"
+
+[node name="LoadButton" type="Button" parent="SaveLoadHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_3av8d")
+theme_override_styles/normal = ExtResource("1_mgwxa")
+theme_override_styles/hover = ExtResource("4_l1bhv")
+theme_override_styles/pressed = ExtResource("5_vihe7")
+theme_override_styles/disabled = ExtResource("6_qr38m")
+text = "Load"
+
+[node name="PreviewVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -35.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SavesLabel" type="Label" parent="PreviewVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+text = "Saved Game Details :"
+
+[node name="SaveNameLabel" type="Label" parent="PreviewVBox"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Save Name"
+
+[node name="PCsMicroPanel" type="PanelContainer" parent="PreviewVBox"]
+layout_mode = 2
+
+[node name="PCsMicroContainer" type="GridContainer" parent="PreviewVBox/PCsMicroPanel"]
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 2
+
+[node name="PCMicroCtrl" parent="PreviewVBox/PCsMicroPanel/PCsMicroContainer" instance=ExtResource("7_gt5sp")]
+layout_mode = 2
+
+[node name="PCMicroCtrl2" parent="PreviewVBox/PCsMicroPanel/PCsMicroContainer" instance=ExtResource("7_gt5sp")]
+layout_mode = 2
+
+[node name="PCMicroCtrl3" parent="PreviewVBox/PCsMicroPanel/PCsMicroContainer" instance=ExtResource("7_gt5sp")]
+layout_mode = 2
+
+[node name="PCMicroCtrl4" parent="PreviewVBox/PCsMicroPanel/PCsMicroContainer" instance=ExtResource("7_gt5sp")]
+layout_mode = 2
+
+[node name="PCMicroCtrl5" parent="PreviewVBox/PCsMicroPanel/PCsMicroContainer" instance=ExtResource("7_gt5sp")]
+layout_mode = 2
+
+[node name="PCMicroCtrl6" parent="PreviewVBox/PCsMicroPanel/PCsMicroContainer" instance=ExtResource("7_gt5sp")]
+layout_mode = 2
+
+[node name="SaveDescrLabel" type="Label" parent="PreviewVBox"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Description :"
+
+[node name="DescrTextEdit" type="TextEdit" parent="PreviewVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_selected_color = Color(0, 1, 1, 1)
+theme_override_constants/line_spacing = 0
+theme_override_font_sizes/font_size = 12
+text = "If a strainer's holes are smaller than the noodles, then the strainer will let the water though but not the noodles. Conversely, if a strainer's holes are smaller than water, the strainer will let the noodles pass but not the water."
+wrap_mode = 1
+
+[connection signal="pressed" from="SaveLoadHBox/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="SaveLoadHBox/LoadButton" to="." method="_on_load_button_pressed"]

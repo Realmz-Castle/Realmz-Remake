@@ -1,0 +1,211 @@
+04-Items
+
+
+Definition : Same idea as spells, but worse Sorry.
+Items are defined in two JSON files in the "Items" folder.
+"img_pack.json" defines  image names for the items in "stuff_book.json" to refer to.
+It defines coordinates for parts of the big image "textureAtlas.png".
+Items are what creatures can have in their inventory, equipped or not, and are also used for creatures' so-called unarmed attacks. See :
+Creature.inventory
+Creature.ITEM_NO_MELEE_WEAPON  ITEM_NO_RANGE_WEAPON ITEM_NO_AMMO_WEAPON
+Creature.rotating_unarmed_melee_weapons for creatures imported from the bestiary
+(more details in the Creatures chapter)
+
+Items themselves are Dictionaries and do not have their own classes. Custom scripts source codes are added as extra key/value pairs in the dictionary, and compiled into a GDScript object when the item is loaded.
+
+
+CTRL+F :
+1-Item Images
+2-Item properties
+
+
+
+
+
+
+1-Item Images :
+
+
+
+
+
+The item icons are defined (name and coordinates in the image "textureAtlas.png") in "img_pack.json", and they are then referred to by name in "stuff_book.json".
+Those images are loaded along the item data.
+Saving characters also stores the .zipped images if their inventory, which makes all item images cross-scenario if needed.
+
+To see how this works, let's take a look at :
+
+Resources.load_item_resources :
+This starts by loading all the images described in "img_pack.json", and stores them as a  dictionary  {"img" : ..., "tex" : ...}in a dictionary named images_book with the image name as a key. img is the image data, and tex is the texture object generated from that image that Godot can use.
+
+Resources.generate_item_from_json_dict :
+This (among other things) add an "imagedata" String to item dictionaries if they don't already have one (items loaded from  character inventories already do, thse loaded from "stuff_book.json"  don't.
+	var img_ref = json_dict["img_ptr"] 	#the name of the image defined in the json
+	var image : Image = images_book[img_ref]["img"]	#the image data loaded in images_book
+	[...]
+	var imgdata : PackedByteArray = image.save_png_to_buffer()
+	var imgdatasize : int = imgdata.size()
+	var imgdatacompressed:PackedByteArray = imgdata.compress(FileAccess.COMPRESSION_GZIP)
+	# use  imgdatacompressed.decompress(imgdatasize, File.COMPRESSION_GZIP)  to decompress
+	new_item["imgdatasize"] = imgdatasize
+	# use Marshalls.base64_to_raw(new_item["imgdata"]) to recover the compressed imagedata
+
+To load an image stored as a String, you can just use
+Utils.load_texture_as_string(imgstring : String, imgdatasize : int) -> Texture
+
+The same works for Creatures images (PlayerCharacter Images are stored as .png files separate from the character data).
+
+
+
+
+2-Item properties
+
+
+Items are  just Dictionary with key/value pairs.
+A lot of properties are not necessary as  Resources.generate_item_from_json_dict will replace them with default values if they are not specified in the JSON.
+Here is what each key corresponds to :
+
+"img_ptr" : the name of the image of the item, as defined  in "img_pack.json"
+
+The following are generated on loading the item :
+"imgdata" : the data ofthe image, that is saved in character files.
+"imgdatasize" : the size of the uncompressed imgdata, required to uncompress it.
+"texture" : 
+
+
+The following are required :
+"name" : name of the item ("Leather Cap", etc)
+"description" : Text description of the item  ("This is a pipe."), defaults to ''.
+"type" : type of the item ("Soft Helmet", "Consumable", "Potion")... See 3-Item Types
+"sound" : the name of the sound file played when used/equipped ("slurpy.wav"...) or used as weapon.
+"weight" : How much the item weights, an integer preferably  (15 for example)
+"price" : How much Gold the item costs, an integer  (50 for example)
+
+
+Not mandatory :
+"unidentified_name" : The name of the item if it has not been identified. 
+	If set, also sets "is_identified" to 0 (false)
+	If not set, default to the value of "name"  and sets "is_identified" to 1  (true)
+"is_identified" : 0=false 1=true. If true, overwrites the 0 from setting "unidentified_name"
+"is_magical" : 1 if true, 0 if false. Defaults to 0. Identifiable w identify magic pbject?
+"unique" : 1 if true, 0 if false. if the property is not set, it justs defaults to 0.
+"stats_mini" : text displayed in the inventory. Defaults to '' if the property is not set.
+"tradeable" : 1 if this item can be traded and sold, 0 if not. Defaults to 1.
+"_on_drop_source" : source code of the script ran whe you attenpt to drop the item, returns false iff the item can't be dropped. Good for quest items.
+_on_drop(character, item)
+"_on_field_use_source" : source code for when the item is used out of combat.
+	_on_field_use(character, item)
+"_on_combat_use_source" : source code for when the item is used out of combat.
+	_on_combat_use(character, item)
+"custom_spell_source" : Upon loading this item, this source code will also be loaded as a spell in Resources.spells_book. You should usually set "_on_combat_use_spell" to the name of this spell. This is to make sure items with custom spell effects can be carried across scenarios.
+
+TO BE IMPLEMENTED IN ItemSmallButton  _on_field_use_spell   _on_combat_use_spell, combat use spell works for ranged weapons with  creature_rect.gd  in combat. 
+"_on_field_use_spell" : Array with the name of the spell and power, used in/out of combat.
+"_on_combat_use_spell" : [spellname, power], spellname is a String, power is an integer.
+
+
+
+Required If and only If the item has charges :
+"charges" : the amount of uses the item starts with. An integer (example : 5)
+"charges_max" : the maximum  number of charges, an integer (example : 5), required  if charge is set.
+"charges_weight" : The weight added by any charge above 0. Defaults to 0 if the property is not set.
+"splittable" : 1 if true, 0 if false. Whether  the item stacks can be split and joined. Defaluts to 0.
+"delete_on_empty" : 1 if true, 0 if false. Whether the item must be deleted when it reaches à charges. Defaults to 0 if the property is not set.
+
+
+If the item can be equipped :
+"equippable" : 1 if true, 0 if false. defaults to 0 if the property is nt set.
+"slots" : an array of words, see 3- Item types and Slots. Defaults to []  (empty array)
+"hands" : how many hands the item requires, à 1 or 2. Defaults to 0 if property not set.
+"stats" : required. A dictionary of the stat changed by equipping this item. Example : {"EvasionRanged" : 3, "EvasionMelee" : 3}.
+"only_usable_by_classes" : [], If this property is set,
+	can only be use if of the character's Class name or  type (Warrior Classes etc) is listed in the array.
+"not_usable_by_classes" : [],If this property is set,
+	can only be use if the character's Class name or  type (Warrior Classes etc) is listed in the array.
+	Overrides "only_usable_by"
+"only_usable_by_races" : [], If this property is set,
+	can only be use if of the character's Race name or  type (Elven Races etc) is listed in the array.
+"not_usable_by_races" : [],If this property is set,
+	can only be use if the character's Race name or  type (Elven Races etc) is listed in the array.
+	Overrides "only_usable_by"
+"traits" : An array of an array of the traits given when this item is equipped. ["traitname", [init parameters] ]
+Example : [ ["regeneration_over_time.gd" , [1.0,-1] ] ]
+if the trait name "traitname" does not end with .gd, it will look up a source code under  the property name "traitname_source". See  the Shield of  the Blue Oxen example.
+"_on_equipping_source" : source code of the script ran when equipping this item. Not required.
+_on_equipping(character, item)
+"_on_unequipping_source" : same when UNequipping this item, returns false iff the item can't be unequipped. Mostly for Cursed Items. You can use this to change the item's name and properties too ! Forcefully unequipped cursed items won't mask as normal items again.
+use creature.unequip_item(item, true) to forcefully unequip something.
+
+For Melee Weapons :
+"weapon_dmg" : REQUIRED.A Dictionary of how much damage of ach element the weapon adds.
+	Example : "weapon_dmg" : {"Physical" : [1,4], "Fire" : [1,2]},
+"weapon_tag_bonus_dmg" : OPTIONNAL, a Dictionary of Dictionaries, telling what extra (or minus) damage to add against creature with certain tags (eg "Undead", "Intelligent").
+	Example : "weapon_tag_bonus_dmg" : {"Undead" : {"Fire" : [10,20]}},
+		would add 10-20 fire damage against Undead enemies,
+		which may or may not resist/ be weak to Fire
+Example : {"Physical" : [1,4], "Fire" : [1,2]}
+"melee_atk_anim_icon" : Required/ The name of the image drawn on atatcked tarhets. usually "ATK_WPN". See 3- Melee Attack images.
+"melee_inflicted_traits" : NOT REQUIRED, An Array of Arrays that tell which status effects to apply to creatures hit with this weapon, ["trait_name.gd", [array of parameters to init], chance]
+Example : "melee_inflicted_traits" : [  ["t_poison.gd" , [1.0] ,1.0]  ],
+"regeneration_over_time.gd" can be replaced with a trait script source code, it will be treated as such if the text does not end with .gd
+"_calculate_melee_attack_source" : Not Required. Source code of the script ran when this weapon hits a creature. _calculate_melee_attack(attacker, defender, weapon)
+
+
+For Ranged Weapons :
+"ammo_type" : Required, the type of ammo used by this ranged weapon. dfaluts to "cantuse"
+"_on_combat_use_spell" : Required as this is how ranged attacks work. ["spellname", plvl]
+
+
+For Ammo : 
+Not hardcoded, but you can  add some  custom stat names  like "Range" to the stats, which the "_on_combat_use_spell" spell may check on the equipped ammo. 
+Example in a SPell code :
+static func get_range(power : int, casterchar) -> int :
+	if casterchar.current_ammo_weapon != casterchar.ITEM_NO_AMMO_WEAPON :
+		if casterchar.current_ammo_weapon['stats'].has('Range') :
+			return 12 + casterchar.current_ammo_weapon['stats']['Range']
+		else :
+			return 12
+	else :
+		return 0
+
+
+
+
+3-Item Types and Slots:
+
+
+
+Slots : A character may only have one equipped item per slot, some may take several slots.
+"Head", "Accessory", 
+"Melee Weapon", "Shield", "Ranged Weapon", "Ammunition"
+I NEED TO MAKE CHARACTER ABLE T EQUIP 2 RINGS
+
+Types : These are used mostly to determine if a character can use or equip the item.
+
+Weapons :
+"Dagger"
+"Bow"
+"Quiver", "NoAmmo"
+
+Armor :
+"Soft Helmet",  "Light Helmet", "Great Helm"
+"Small Shield", 
+"Ring"
+
+Miscelaneous :
+"Potion", "Consumable"
+
+Melee attack Images :
+The number is the index of the tile in the image BattleEffects/BattleEffects.png
+	"ATK_NUL" : 15,
+	"ATK_WPN" : 35,
+	"ATK_HTH" : 36,
+	"ATK_ARO" : 20,
+	"ATK_FIR" : 37,
+	"ATK_ICE" : 38,
+	"ATK_ELE" : 39,
+	"ATK_PSN" : 40,
+	"ATK_PRP" : 41,
+	"ATK_SLM" : 25,
+	"ATK_SKL" : 163
+Same as the ones used for "explosions" in spell animations.

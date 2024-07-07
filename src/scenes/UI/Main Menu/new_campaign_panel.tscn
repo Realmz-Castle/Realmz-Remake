@@ -1,0 +1,138 @@
+[gd_scene load_steps=5 format=3 uid="uid://dnrfjpqs4sges"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_qh02u"]
+[ext_resource type="Script" path="res://scenes/UI/Main Menu/NewCampaignPanel.gd" id="2_nuwob"]
+[ext_resource type="PackedScene" uid="uid://dg78xp74hy78q" path="res://scenes/UI/Party Selection/CharPickRect.tscn" id="3_0intd"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_6yu0i"]
+
+[node name="NewCampaignPanel" type="NinePatchRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_qh02u")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_nuwob")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainertT" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScenarioListVBox" type="VBoxContainer" parent="VBoxContainer/HBoxContainertT"]
+custom_minimum_size = Vector2(224, 0)
+layout_mode = 2
+
+[node name="CampaignsLabel" type="Label" parent="VBoxContainer/HBoxContainertT/ScenarioListVBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Chose a Campaign :"
+vertical_alignment = 1
+
+[node name="CampaignsItemList" type="ItemList" parent="VBoxContainer/HBoxContainertT/ScenarioListVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScenDescrVBox" type="VBoxContainer" parent="VBoxContainer/HBoxContainertT"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SelectedCampaignLabel" type="Label" parent="VBoxContainer/HBoxContainertT/ScenDescrVBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_6yu0i")
+text = "Selected Campaign :"
+vertical_alignment = 1
+
+[node name="SelectedCampaignNameLabel" type="Label" parent="VBoxContainer/HBoxContainertT/ScenDescrVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_fonts/font = ExtResource("3_6yu0i")
+autowrap_mode = 1
+
+[node name="SelectedCampaignDescrLabel" type="Label" parent="VBoxContainer/HBoxContainertT/ScenDescrVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+
+[node name="PartyControl" type="Control" parent="VBoxContainer/HBoxContainertT"]
+custom_minimum_size = Vector2(544, 0)
+layout_mode = 2
+
+[node name="CharPickRect" parent="VBoxContainer/HBoxContainertT/PartyControl" instance=ExtResource("3_0intd")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainerB" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="CancelControl" type="Control" parent="VBoxContainer/HBoxContainerB"]
+custom_minimum_size = Vector2(128, 64)
+layout_mode = 2
+
+[node name="CancelButton" type="Button" parent="VBoxContainer/HBoxContainerB/CancelControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -15.5
+offset_right = 30.0
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Cancel"
+
+[node name="CenterControl" type="Control" parent="VBoxContainer/HBoxContainerB"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StartControl" type="Control" parent="VBoxContainer/HBoxContainerB"]
+custom_minimum_size = Vector2(128, 64)
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="VBoxContainer/HBoxContainerB/StartControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -27.5
+offset_top = -15.5
+offset_right = 27.5
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+disabled = true
+text = "Start !"
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainerB/CancelControl/CancelButton" to="." method="_on_CancelButton_pressed"]

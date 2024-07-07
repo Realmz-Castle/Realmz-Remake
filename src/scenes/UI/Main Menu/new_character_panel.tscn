@@ -1,0 +1,220 @@
+[gd_scene load_steps=6 format=3 uid="uid://ci4cf1yx31p2n"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_fcejw"]
+[ext_resource type="Script" path="res://scenes/UI/Main Menu/NewCharacterPanel.gd" id="2_nga7k"]
+[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_nona8"]
+[ext_resource type="Texture2D" uid="uid://dbys7abqx7smb" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="4_k8qi4"]
+[ext_resource type="PackedScene" uid="uid://bov2d346tediq" path="res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.tscn" id="5_pga5p"]
+
+[node name="NewCharacterPanel" type="NinePatchRect" node_paths=PackedStringArray("cancelButton", "okButton", "lineEdit", "nameLabel", "portraitContainer", "iconContainer", "portraitScroll", "iconScroll", "toggleButton", "classitemlist", "raceitemlist", "characterstatrect", "levelMenuButton", "portraitRect", "iconRect")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_fcejw")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_nga7k")
+cancelButton = NodePath("BigVBox/BotHBox/CancelButton")
+okButton = NodePath("BigVBox/BotHBox/OKButton")
+lineEdit = NodePath("BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/LineEdit")
+nameLabel = NodePath("BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/NameLabel")
+portraitContainer = NodePath("BigVBox/TopHBox/NewCharVBox/ImgsControl/PortraitScrollContainer/PortraitContainer")
+iconContainer = NodePath("BigVBox/TopHBox/NewCharVBox/ImgsControl/IconScrollContainer/IconContainer")
+portraitScroll = NodePath("BigVBox/TopHBox/NewCharVBox/ImgsControl/PortraitScrollContainer")
+iconScroll = NodePath("BigVBox/TopHBox/NewCharVBox/ImgsControl/IconScrollContainer")
+toggleButton = NodePath("BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/ToggleIcoPortButton")
+classitemlist = NodePath("BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox/ClassItemList")
+raceitemlist = NodePath("BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox/RaceItemList")
+characterstatrect = NodePath("BigVBox/TopHBox/CharacterStatsRect")
+levelMenuButton = NodePath("BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/LineEdit/LevelMenuButton")
+portraitRect = NodePath("BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/PortraitRect")
+iconRect = NodePath("BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/IconRect")
+
+[node name="BigVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -24.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopHBox" type="HBoxContainer" parent="BigVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NewCharVBox" type="VBoxContainer" parent="BigVBox/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameLvlCntrl" type="HBoxContainer" parent="BigVBox/TopHBox/NewCharVBox"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+
+[node name="EnterNameLabel" type="Label" parent="BigVBox/TopHBox/NewCharVBox/NameLvlCntrl"]
+layout_mode = 2
+size_flags_vertical = 0
+text = "Enter Character Name :"
+
+[node name="LevelLabel" type="Label" parent="BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/EnterNameLabel"]
+layout_mode = 2
+offset_left = 132.0
+offset_top = 31.0
+offset_right = 181.0
+offset_bottom = 54.0
+text = "Level :"
+
+[node name="LineEdit" type="LineEdit" parent="BigVBox/TopHBox/NewCharVBox/NameLvlCntrl"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+caret_blink = true
+caret_blink_interval = 0.5
+
+[node name="LevelMenuButton" type="MenuButton" parent="BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/LineEdit"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+offset_top = 31.0
+offset_right = 32.0
+offset_bottom = 62.0
+text = "1"
+
+[node name="NameLabel" type="Label" parent="BigVBox/TopHBox/NewCharVBox/NameLvlCntrl"]
+layout_mode = 2
+size_flags_vertical = 0
+text = "[NO NAME]"
+
+[node name="ImgsControl" type="Control" parent="BigVBox/TopHBox/NewCharVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PortraitScrollContainer" type="ScrollContainer" parent="BigVBox/TopHBox/NewCharVBox/ImgsControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+follow_focus = true
+
+[node name="PortraitContainer" type="GridContainer" parent="BigVBox/TopHBox/NewCharVBox/ImgsControl/PortraitScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 6
+
+[node name="IconScrollContainer" type="ScrollContainer" parent="BigVBox/TopHBox/NewCharVBox/ImgsControl"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+follow_focus = true
+
+[node name="IconContainer" type="GridContainer" parent="BigVBox/TopHBox/NewCharVBox/ImgsControl/IconScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18
+columns = 6
+
+[node name="ChosenImgHBox" type="HBoxContainer" parent="BigVBox/TopHBox/NewCharVBox"]
+layout_mode = 2
+
+[node name="PortraitLabel" type="Label" parent="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox"]
+layout_mode = 2
+text = "Portrait :"
+
+[node name="PortraitRect" type="TextureRect" parent="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox"]
+layout_mode = 2
+texture = ExtResource("3_nona8")
+
+[node name="IconLabel" type="Label" parent="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox"]
+layout_mode = 2
+text = "Icon :"
+
+[node name="IconRect" type="TextureRect" parent="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox"]
+layout_mode = 2
+texture = ExtResource("4_k8qi4")
+
+[node name="ToggleIcoPortButton" type="Button" parent="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox"]
+layout_mode = 2
+text = "Show Icons"
+
+[node name="ClassRaceHBox" type="HBoxContainer" parent="BigVBox/TopHBox/NewCharVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="ClassVBox" type="VBoxContainer" parent="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ClassLabel" type="Label" parent="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox"]
+layout_mode = 2
+text = "Class :"
+
+[node name="ClassItemList" type="ItemList" parent="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RaceVBox" type="VBoxContainer" parent="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RaceLabel" type="Label" parent="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox"]
+layout_mode = 2
+text = "Race :"
+
+[node name="RaceItemList" type="ItemList" parent="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CharacterStatsRect" parent="BigVBox/TopHBox" instance=ExtResource("5_pga5p")]
+layout_mode = 2
+
+[node name="BotHBox" type="Control" parent="BigVBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="OKButton" type="Button" parent="BigVBox/BotHBox"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -72.0
+offset_top = -17.5
+offset_right = -41.0
+offset_bottom = 13.5
+grow_horizontal = 0
+grow_vertical = 2
+disabled = true
+text = "OK"
+
+[node name="CancelButton" type="Button" parent="BigVBox/BotHBox"]
+layout_mode = 2
+offset_left = 35.0
+offset_top = -2.0
+offset_right = 95.0
+offset_bottom = 29.0
+text = "Cancel"
+
+[connection signal="pressed" from="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/ToggleIcoPortButton" to="." method="_on_ToggleIcoPortButton_pressed"]
+[connection signal="item_selected" from="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox/ClassItemList" to="." method="_on_classrace_select" binds= [true]]
+[connection signal="item_selected" from="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox/RaceItemList" to="." method="_on_classrace_select" binds= [false]]

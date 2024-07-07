@@ -1,0 +1,60 @@
+[gd_scene load_steps=5 format=3 uid="uid://b3yxcx338d8a3"]
+
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_dw1ma"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_qmje4"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="3_u4rv7"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/AbilitiesManagement/ability_button.gd" id="4_5f3v5"]
+
+[node name="AbilityButton" type="Button"]
+self_modulate = Color(0.8, 0.8, 0.8, 1)
+custom_minimum_size = Vector2(32, 32)
+offset_right = 336.0
+offset_bottom = 31.0
+focus_mode = 0
+theme_override_styles/normal = ExtResource("1_dw1ma")
+theme_override_styles/hover = ExtResource("2_qmje4")
+theme_override_styles/pressed = ExtResource("2_qmje4")
+theme_override_styles/disabled = ExtResource("3_u4rv7")
+alignment = 0
+script = ExtResource("4_5f3v5")
+
+[node name="LabelsControl" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="LabelsControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 31.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Spell Name"
+vertical_alignment = 1
+
+[node name="PointsLabel" type="Label" parent="LabelsControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "XXX Selection  Points"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ColorRect" type="ColorRect" parent="LabelsControl"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 24.0
+offset_bottom = 24.0

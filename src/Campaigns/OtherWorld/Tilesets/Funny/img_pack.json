@@ -1,0 +1,14 @@
+{
+   "BYWATER_FL_extra" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+      "BYWATER_FN_charpick" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   }
+}

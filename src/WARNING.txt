@@ -1,0 +1,140 @@
+When you rename the folder, also change this line in paths.gd :
+const MYFILENAME = "Realmz Remake/"
+
+
+
+FOR IMAGE STORAGE :
+
+In 3.0, you can create a PoolByteArray the same way you build a Vector2, Color or Rect2:
+var array = PoolByteArray()  Beware though, these use copy-on-write, unlike arrays made with [].
+
+TRAITS :  in item files, if a trait name ends with .gd it shares for a standard Trait in the shared assets filder inside realmz. in chara file, same, and they dont need source.
+
+var specialskills : Array = ["Melee_Crit_Rate","Melee_Crit_Mult","Ranged_Crit_Rate","Ranged_Crit_Mult","Detect_Secret","Acrobatics","Detect_Trap","Disable_Trap","Force_Lock","Pick_Lock","Turn_Undead"]
+
+TODO :
+
+better HD Screen support  (zoom in)
+
+Healing KOd characters to  respawn them near healer
+
+Bandaging bleeding death again
+
+Rewrite Guarding and Parrying traits, check the ow_hud functions if they end turn.
+
+End of Battle transition and message for wonfledlost
+
+- are unarmed weapons saved or got from class.gd ? either is fine
+
+- ok? in MAP  get_right_graph_for_crea and in myAstar2D.gd too, fucked up for bigger creatures
+	
+
+- okmage magic deal damage
+- okdoes banking work ???
+- on creature death ? or in GameGlobal ? e  creatures  dont drop  their  weapon/equipped armor yet
+- ok make Save Game  also save characters in the Profile  folder 
+- ok GameState on_trying_to_move_to_tile_stack  :  now in creature.gd, calculate_timetowalk_combat,  add traits check !
+
+
+	_combat_state = GameGlobal.eCombatStates.combatAnim
+
+
+
+Fix  targeting of Summons not limited by range/creatures there
+
+Combat AI :
+
+GameSave/Load :
+
+Finish  counting  movement/action points used in combat, enforce  it.
+
+LEarn/forget spells menu
+
+
+Settings :
+	GameGlobal.enforce_unique_items
+
+
+ok fix  _on_ShareButton_pressed in MoneyRect
+okGamestate's on_spell_anim_finished()  triggers once per animation, this is too much.
+okSAVE CHARACTER S current_melee_weapons, current_range_weapon, current_ammo_weapon
+okItemSmallBUtton use item to use item spells not just scripts
+
+fix  resources  load_music_resources  ogg vorbis
+
+
+OK  Resource _add_script_to_dict_from_source   pb with static  func
+OK  need to repnace in other  scripts Utils.FileHandler.load_img_texture
+
+fix GameeGlobal load char to profile (dual wield  curretnt mlee weapons ?)
+
+use show_owhudcontrol hide_owhudcontrol  to  show/hide owhudcontrol  (renamed overrides)
+
+
+ok? Saving : should copy all thhe campaign's mapdata  in case it's modified ? or only some maps ?  ADD A CANBEMODIFIED bool variable to maps !
+
+movement / weight decrease : make not linear ? quadratic with dm(w)/dw(0)=0
+
+PROBMEM O JUST USE STUFF DONE FLAGS : savig the game should save copies of the maps too in case they were changed by script. Make sure the resources maps_book is updated along with the current Map node in Main !
+
+?On newcampaign/swapcharaceter : check for characters used in other saves, add a "WARNING"  label to their panel. Have a Setting option to lock them.
+
+?Add a Unique Item field to item dicts in Resources
+
+
+
+cross scenario storage, send Unique Items there if you already have one (option)n 
+
+A menu for Maps and Key Items  (locked to save)
+
+shops : add shops data to campaigns
+shop UI : add a second display mode for smallitembutton i ninventory
+shop ui : make a ItemInfoPanel scene, make it appear on the other side of item
+
+Money menu :  implement Pool and Share
+adda Money button in the Treasure Loot menu
+OK	A way to pick one/several of your characters for some scripts.
+OK	Re ordering your characters
+OK	Swapping characters
+OK	Inventory nd trade keyboard controls
+OK	Inventory Split/Join
+OK	Item looting
+Detect Magic Items in loot and inventory
+OK 	Options/Settings menu
+OK 	Music
+Bestiary menu
+OK	Passive effects/Traits for characters from race/class/equipment
+OK	Simple yes/no  "Go Away" button for multiple choice menus.
+OK	Enforce weight limits
+when loading character,  level them up to !
+Spells Menu / Inventory
+IN PROGRESS	Special Encounters menu
+OK	Darkness and Torches/Shine 
+ (adda  turn off light button)
+OK	Camping button/command
+An easy way to make mobile Action Points or icons
+A global ScriptLibrary for use in item/campaign scripts
+OK	Transitions between maps
+OK Load character's inventory too (in Utils and PlayerCharacter)
+Money and jewels/gems.
+Saving/Loading games !
+OK Allow trait scripts for items to just reference a  default script
+OK REFRESH TRADE INVENTORY PANEL WHEN USING AN ITEM with rightclick  TOO fixed
+OK	Saving : Save traits variables too !
+OK	temp  unequip equipment befor saving so their traits are not saved
+In new game menu/swap, flag characterswho are already in use in another save
+Add setting for  walk speed, weight limit, item limit, unique item limit, weight mov penalty
+
+
+
+Then I should be ready to start working on combat. Someday.
+
+
+I don't know if I will create a menu to select the music you want or if I'll just let you move and rename the files, though.
+Mouse control for map !
+Then I will make a thing that keeps track of the time. It will be used very often for things like HP/MP regeneration, status conditions and calling other scripts.
+Then I will finish character creation (the menu is almost empty for now) and data, then probably save/load game...
+What has slowed me down for the characters part is that I am STILL not sure what stats we will keep/remove/add. The exact stats for each class/race can always be tweaked later.
+Then I will make scripts for the exploration mode (which includes staus conditions) . They are not as complicated as combat scripts. I hope Francisco's advice and comments will be enough to guide me !
+Next will come items and spells...
+The Combat mode will come when I'm done with everything else, including the user interface. I already made a turn based top view combat system before, so I'm not too worried about that part.

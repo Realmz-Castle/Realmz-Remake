@@ -1,0 +1,7 @@
+[gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://dy0h5y6q52egy"]
+
+[ext_resource type="Texture2D" uid="uid://dcucxc33tgqj8" path="res://shared_assets/UI/arrow_button_h.png" id="1_qfggk"]
+
+[resource]
+texture = ExtResource("1_qfggk")
+region_rect = Rect2(25, 0, 25, 50)

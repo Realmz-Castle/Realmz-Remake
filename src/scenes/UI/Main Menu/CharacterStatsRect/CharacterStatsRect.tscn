@@ -1,0 +1,139 @@
+[gd_scene load_steps=4 format=3 uid="uid://bov2d346tediq"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3"]
+[ext_resource type="Script" path="res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.gd" id="4"]
+
+[node name="CharacterStatsRect" type="NinePatchRect" node_paths=PackedStringArray("portraitrect", "namelabel", "raceclasslabel", "levellabel", "statstable", "modstable")]
+custom_minimum_size = Vector2(512, 192)
+offset_right = 512.0
+offset_bottom = 522.0
+texture = ExtResource("1")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("4")
+portraitrect = NodePath("VBox/TopControl/PortraitRect")
+namelabel = NodePath("VBox/TopControl/NameLabel")
+raceclasslabel = NodePath("VBox/TopControl/RaceClassLabel")
+levellabel = NodePath("VBox/TopControl/LevelLabel")
+statstable = NodePath("VBox/StatsControl/StatsTable")
+modstable = NodePath("VBox/ModsTable")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopControl" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 98)
+layout_mode = 2
+
+[node name="PortraitRect" type="TextureRect" parent="VBox/TopControl"]
+layout_mode = 0
+offset_left = 11.0452
+offset_top = 11.0453
+offset_right = 55.0452
+offset_bottom = 55.0453
+texture = ExtResource("3")
+
+[node name="NameLabel" type="Label" parent="VBox/TopControl"]
+layout_mode = 0
+offset_left = 61.3791
+offset_top = 17.8471
+offset_right = 108.379
+offset_bottom = 48.8471
+text = "Name
+"
+
+[node name="RaceClassLabel" type="Label" parent="VBox/TopControl"]
+layout_mode = 0
+offset_left = 60.0188
+offset_top = 38.2527
+offset_right = 141.019
+offset_bottom = 61.2527
+text = "Race Class"
+
+[node name="LevelLabel" type="Label" parent="VBox/TopControl"]
+layout_mode = 0
+offset_left = 328.013
+offset_top = 16.4868
+offset_right = 382.013
+offset_bottom = 39.4868
+text = "Level 1"
+
+[node name="ExpLabel" type="Label" parent="VBox/TopControl"]
+layout_mode = 0
+offset_left = 265.435
+offset_top = 38.2527
+offset_right = 397.435
+offset_bottom = 61.2527
+text = "0 Exp to Level Up"
+
+[node name="StatsControl" type="Control" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatsLabel" type="Label" parent="VBox/StatsControl"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "HP :
+SP :
+
+Strength :
+Intellect :
+Wisdom :
+Dexterity :
+Vitality :
+
+HP Regen :
+SP Regen :
+
+Accuracy :
+Evasion :
+
+Resistances :
+Multipliers :"
+
+[node name="StatsTable" type="RichTextLabel" parent="VBox/StatsControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+
+[node name="ModsLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Stat Modifications by the Player :
+"
+
+[node name="ModsTable" type="RichTextLabel" parent="VBox"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+bbcode_enabled = true
+
+[node name="BaseGrowthLabel" type="Label" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 143.98
+offset_top = 77.1022
+offset_right = 344.98
+offset_bottom = 91.1022
+text = "Base :            Level Up Growth :"

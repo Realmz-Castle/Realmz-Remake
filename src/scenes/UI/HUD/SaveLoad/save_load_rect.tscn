@@ -1,0 +1,152 @@
+[gd_scene load_steps=11 format=3 uid="uid://7v3a8w4rknyq"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_6h1d8"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/save_load_rect.gd" id="2_0a2vs"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_oftxx"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_4rsef"]
+[ext_resource type="PackedScene" uid="uid://7ikg7txigh" path="res://scenes/UI/HUD/SaveLoad/scenarios_panel.tscn" id="4_kkei5"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_mxqee"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_loitc"]
+[ext_resource type="PackedScene" uid="uid://b3um6hddjf5px" path="res://scenes/UI/HUD/SaveLoad/saves_panel.tscn" id="5_u1g1g"]
+[ext_resource type="PackedScene" uid="uid://bxnrqgijyfcwa" path="res://scenes/UI/HUD/SaveLoad/save_preview_panel.tscn" id="6_cd4ve"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_kripj"]
+
+[node name="SaveLoadRect" type="NinePatchRect" node_paths=PackedStringArray("scenarios_panel", "saves_panel", "preview_panel", "new_save_lineedit", "new_save_err_label", "create_save_button", "new_save_panel")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -320.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_6h1d8")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_0a2vs")
+scenarios_panel = NodePath("SLVBox/SLHBox/ScenariosPanel")
+saves_panel = NodePath("SLVBox/SLHBox/SavesPanel")
+preview_panel = NodePath("SLVBox/SLHBox/PreviewPanel")
+new_save_lineedit = NodePath("SLVBox/BotHBox/NewSavePanel/NewSaveHBox/NewSaveLineEdit")
+new_save_err_label = NodePath("SLVBox/BotHBox/NewSavePanel/NewSaveHBox/RightControl/ErrorLabel")
+create_save_button = NodePath("SLVBox/BotHBox/NewSavePanel/NewSaveHBox/CreateButton")
+new_save_panel = NodePath("SLVBox/BotHBox/NewSavePanel")
+metadata/_edit_horizontal_guides_ = []
+
+[node name="SLVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="SLLabel" type="Label" parent="SLVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_font_sizes/font_size = 24
+text = "Save and Load"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SLHBox" type="HBoxContainer" parent="SLVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="ScenariosPanel" parent="SLVBox/SLHBox" instance=ExtResource("4_kkei5")]
+layout_mode = 2
+
+[node name="SavesPanel" parent="SLVBox/SLHBox" instance=ExtResource("5_u1g1g")]
+layout_mode = 2
+
+[node name="PreviewPanel" parent="SLVBox/SLHBox" instance=ExtResource("6_cd4ve")]
+layout_mode = 2
+
+[node name="BotHBox" type="HBoxContainer" parent="SLVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_direction = 3
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="CloseButton" type="Button" parent="SLVBox/BotHBox"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_styles/normal = ExtResource("3_4rsef")
+theme_override_styles/hover = ExtResource("4_mxqee")
+theme_override_styles/pressed = ExtResource("5_loitc")
+theme_override_styles/disabled = ExtResource("6_kripj")
+text = "Close"
+
+[node name="NewSavePanel" type="Panel" parent="SLVBox/BotHBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_direction = 3
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("3_4rsef")
+
+[node name="NewSaveHBox" type="HBoxContainer" parent="SLVBox/BotHBox/NewSavePanel"]
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="NewSaveLabel" type="Label" parent="SLVBox/BotHBox/NewSavePanel/NewSaveHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+text = " New Save Name : "
+
+[node name="NewSaveLineEdit" type="LineEdit" parent="SLVBox/BotHBox/NewSavePanel/NewSaveHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter Save Name Here"
+
+[node name="CreateButton" type="Button" parent="SLVBox/BotHBox/NewSavePanel/NewSaveHBox"]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_fonts/font = ExtResource("2_oftxx")
+theme_override_styles/normal = ExtResource("3_4rsef")
+theme_override_styles/hover = ExtResource("4_mxqee")
+theme_override_styles/pressed = ExtResource("5_loitc")
+theme_override_styles/disabled = ExtResource("6_kripj")
+text = "Create"
+
+[node name="RightControl" type="Control" parent="SLVBox/BotHBox/NewSavePanel/NewSaveHBox"]
+custom_minimum_size = Vector2(265, 0)
+layout_mode = 2
+
+[node name="ErrorLabel" type="Label" parent="SLVBox/BotHBox/NewSavePanel/NewSaveHBox/RightControl"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 15.0
+offset_right = 206.0
+offset_bottom = 38.0
+
+[connection signal="pressed" from="SLVBox/BotHBox/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="text_changed" from="SLVBox/BotHBox/NewSavePanel/NewSaveHBox/NewSaveLineEdit" to="." method="_on_newsavelineedit_text_changed"]
+[connection signal="pressed" from="SLVBox/BotHBox/NewSavePanel/NewSaveHBox/CreateButton" to="." method="_on_create_button_pressed"]

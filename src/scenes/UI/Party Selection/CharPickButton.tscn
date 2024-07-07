@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3 uid="uid://dotw82gnpi75b"]
+
+[ext_resource type="Texture2D" uid="uid://0lw8kmgygsht" path="res://scenes/UI/Party Selection/DefaultPortrait.png" id="4"]
+[ext_resource type="Script" path="res://scenes/UI/Party Selection/CharPickButton.gd" id="6"]
+
+[node name="CharPickButton" type="Button"]
+custom_minimum_size = Vector2(200, 40)
+offset_right = 200.0
+offset_bottom = 40.0
+mouse_filter = 1
+script = ExtResource("6")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+
+[node name="LevelnLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 16.0
+offset_right = 153.0
+offset_bottom = 33.0
+text = "48"
+
+[node name="PortraitSprite" type="Sprite2D" parent="."]
+position = Vector2(22, 4)
+texture = ExtResource("4")
+centered = false
+region_enabled = true
+region_rect = Rect2(6, 6, 32, 32)
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 58.0
+offset_top = 5.0
+offset_right = 194.0
+offset_bottom = 22.0
+text = "Michel"
+
+[node name="RaceClassLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 59.0
+offset_top = 22.0
+offset_right = 195.0
+offset_bottom = 36.0
+text = "Lizardfolk Battlemage"
+
+[node name="BusyLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 41.0
+offset_right = 198.0
+offset_bottom = 64.0

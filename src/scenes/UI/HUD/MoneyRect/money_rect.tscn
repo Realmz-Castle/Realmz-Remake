@@ -1,0 +1,647 @@
+[gd_scene load_steps=20 format=3 uid="uid://ckk0txf7ssl6a"]
+
+[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="1_5h348"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/MoneyRect/MoneyRect.gd" id="2_ywmd7"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_bco2e"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="4_u6a5c"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="5_3f0h3"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="6_exlu1"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="7_w6pn8"]
+[ext_resource type="Texture2D" uid="uid://bc6rk1sjey2m8" path="res://scenes/UI/HUD/MoneyRect/coins.png" id="8_0o4wd"]
+[ext_resource type="StyleBox" uid="uid://do2165v7bw27k" path="res://shared_assets/UI/arrow_left_normal_stylebox.tres" id="9_r3ivk"]
+[ext_resource type="StyleBox" uid="uid://drya3v3f4frv5" path="res://shared_assets/UI/arrow_down_normal_stylebox.tres" id="10_qxcm0"]
+[ext_resource type="StyleBox" uid="uid://dy0h5y6q52egy" path="res://shared_assets/UI/arrow_left_pressed_stylebox.tres" id="10_ugkg6"]
+[ext_resource type="StyleBox" uid="uid://5ike745bi8ue" path="res://shared_assets/UI/arrow_right_normal_stylebox.tres" id="11_4xe7j"]
+[ext_resource type="StyleBox" uid="uid://cjnv6xax8abwn" path="res://shared_assets/UI/arrow_down_pressed_stylebox.tres" id="11_eg6cl"]
+[ext_resource type="Texture2D" uid="uid://c0dhe8lssuptb" path="res://shared_assets/UI/buttonPRESSED.png" id="11_xatrt"]
+[ext_resource type="Texture2D" uid="uid://lmn0vp8ggpct" path="res://scenes/UI/HUD/MoneyRect/gems.png" id="12_b1pq8"]
+[ext_resource type="StyleBox" uid="uid://cxqaelp85815h" path="res://shared_assets/UI/arrow_right_pressed_stylebox.tres" id="12_rbl45"]
+[ext_resource type="Texture2D" uid="uid://dwsqco8bljwl1" path="res://scenes/UI/HUD/MoneyRect/jewelry.png" id="13_fo63a"]
+[ext_resource type="StyleBox" uid="uid://pt7s1vtmfxea" path="res://shared_assets/UI/arrow_up_normal_stylebox.tres" id="14_eelih"]
+[ext_resource type="StyleBox" uid="uid://g8xysx1tlx2p" path="res://shared_assets/UI/arrow_up_pressed_stylebox.tres" id="15_v4b7c"]
+
+[node name="MoneyRect" type="NinePatchRect" node_paths=PackedStringArray("done_button", "changelabel", "vbox", "qtybox", "coinsLabel", "gemsLabel", "jewelsLabel", "gldButDown", "gemButUp", "gemButDown", "jewButUp", "banking_box", "bankcoinsLabel", "bankgemsLabel", "bankjewelsLabel")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -320.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_5h348")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_ywmd7")
+done_button = NodePath("HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl/DoneButton")
+changelabel = NodePath("HBoxContainer/MoneyVbox/MoneyChangingLabel")
+vbox = NodePath("HBoxContainer/ScrollContainer/CharasVBox")
+qtybox = NodePath("HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer")
+coinsLabel = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox/LabelPatchRect/CoinsLabel")
+gemsLabel = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox/LabelPatchRect/GemsLabel")
+jewelsLabel = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox/LabelPatchRect/JewelsLabel")
+gldButDown = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldBotHbox/GldButDown")
+gemButUp = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemTopHbox/GemButUp")
+gemButDown = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemBotHbox/GemButDown")
+jewButUp = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewTopHbox/JewButUp")
+banking_box = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox")
+bankcoinsLabel = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox/LabelPatchRect/BankCnsLabel")
+bankgemsLabel = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox/LabelPatchRect/BankGemLabel")
+bankjewelsLabel = NodePath("HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox/LabelPatchRect/BankJewLabel")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="MoneyVbox" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="MoneyChangingLabel" type="Label" parent="HBoxContainer/MoneyVbox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+text = "Money Changing is not availlable."
+
+[node name="ButtonsBox" type="CenterContainer" parent="HBoxContainer/MoneyVbox"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="ButtonsControl" type="Control" parent="HBoxContainer/MoneyVbox/ButtonsBox"]
+custom_minimum_size = Vector2(120, 74)
+layout_mode = 2
+
+[node name="PoolButton" type="Button" parent="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl"]
+layout_mode = 0
+offset_right = 59.9999
+offset_bottom = 37.0
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+text = "Pool"
+
+[node name="ShareButton" type="Button" parent="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl"]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 120.0
+offset_bottom = 37.0
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+text = "Share"
+
+[node name="DoneButton" type="Button" parent="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl"]
+layout_mode = 0
+offset_top = 37.0
+offset_right = 120.0
+offset_bottom = 73.9998
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+text = "Done"
+
+[node name="QtyHbox" type="CenterContainer" parent="HBoxContainer/MoneyVbox"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="QtyGridContainer" type="GridContainer" parent="HBoxContainer/MoneyVbox/QtyHbox"]
+layout_mode = 2
+columns = 3
+
+[node name="QtyButton1" type="Button" parent="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer"]
+custom_minimum_size = Vector2(48, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+toggle_mode = true
+text = "x1"
+
+[node name="QtyButton10" type="Button" parent="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer"]
+custom_minimum_size = Vector2(48, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+toggle_mode = true
+text = "x10"
+
+[node name="QtyButton100" type="Button" parent="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer"]
+custom_minimum_size = Vector2(48, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+toggle_mode = true
+text = "x100"
+
+[node name="QtyButton1k" type="Button" parent="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer"]
+custom_minimum_size = Vector2(48, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+toggle_mode = true
+text = "x1000"
+
+[node name="QtyButton10k" type="Button" parent="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer"]
+custom_minimum_size = Vector2(48, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+toggle_mode = true
+text = "x10k"
+
+[node name="QtyButton100k" type="Button" parent="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer"]
+custom_minimum_size = Vector2(48, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/hover = ExtResource("5_3f0h3")
+theme_override_styles/pressed = ExtResource("6_exlu1")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
+toggle_mode = true
+text = "x100k"
+
+[node name="CurrBankHBox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox"]
+layout_mode = 2
+
+[node name="BankVBox" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox"]
+layout_mode = 2
+
+[node name="GoldCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="GoldCtrl" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter"]
+custom_minimum_size = Vector2(144, 64)
+layout_mode = 2
+
+[node name="MoneyChangingLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+text = "Bank :"
+
+[node name="GoldTopHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="GoldHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl"]
+layout_mode = 2
+
+[node name="BankGldButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("9_r3ivk")
+theme_override_styles/hover = ExtResource("9_r3ivk")
+theme_override_styles/pressed = ExtResource("10_ugkg6")
+
+[node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("11_xatrt")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="BankCnsLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox/LabelPatchRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "999999"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BankGldButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("11_4xe7j")
+theme_override_styles/hover = ExtResource("11_4xe7j")
+theme_override_styles/pressed = ExtResource("12_rbl45")
+
+[node name="GoldBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="GemCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="GemCtrl" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter"]
+custom_minimum_size = Vector2(144, 64)
+layout_mode = 2
+
+[node name="GemTopHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="GemHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl"]
+layout_mode = 2
+
+[node name="BankGemButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("9_r3ivk")
+theme_override_styles/hover = ExtResource("9_r3ivk")
+theme_override_styles/pressed = ExtResource("10_ugkg6")
+
+[node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("11_xatrt")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="BankGemLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox/LabelPatchRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "999999"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BankGemButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("11_4xe7j")
+theme_override_styles/hover = ExtResource("11_4xe7j")
+theme_override_styles/pressed = ExtResource("12_rbl45")
+
+[node name="GemBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="JewCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="JewCtrl" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter"]
+custom_minimum_size = Vector2(144, 64)
+layout_mode = 2
+
+[node name="JewTopHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="JewHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl"]
+layout_mode = 2
+
+[node name="BankJewButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("9_r3ivk")
+theme_override_styles/hover = ExtResource("9_r3ivk")
+theme_override_styles/pressed = ExtResource("10_ugkg6")
+
+[node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("11_xatrt")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="BankJewLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox/LabelPatchRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "999999"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BankJewButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox"]
+custom_minimum_size = Vector2(16, 2)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("11_4xe7j")
+theme_override_styles/hover = ExtResource("11_4xe7j")
+theme_override_styles/pressed = ExtResource("12_rbl45")
+
+[node name="JewBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="CurrencyVBox" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox"]
+layout_mode = 2
+
+[node name="GoldCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="GoldCtrl" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter"]
+custom_minimum_size = Vector2(144, 64)
+layout_mode = 2
+
+[node name="PoolLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_bco2e")
+text = "Money Pool :"
+
+[node name="GoldTopHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="GoldHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl"]
+layout_mode = 2
+
+[node name="CoinsTextureRect" type="TextureRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("8_0o4wd")
+
+[node name="GldButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("9_r3ivk")
+theme_override_styles/hover = ExtResource("9_r3ivk")
+theme_override_styles/pressed = ExtResource("10_ugkg6")
+
+[node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("11_xatrt")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="CoinsLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox/LabelPatchRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "999999"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="GldButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("11_4xe7j")
+theme_override_styles/hover = ExtResource("11_4xe7j")
+theme_override_styles/pressed = ExtResource("12_rbl45")
+
+[node name="GoldBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="GldButDown" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldBotHbox"]
+custom_minimum_size = Vector2(32, 16)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("10_qxcm0")
+theme_override_styles/hover = ExtResource("10_qxcm0")
+theme_override_styles/pressed = ExtResource("11_eg6cl")
+
+[node name="GemCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="GemCtrl" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter"]
+custom_minimum_size = Vector2(144, 64)
+layout_mode = 2
+
+[node name="GemTopHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="GemButUp" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemTopHbox"]
+custom_minimum_size = Vector2(32, 16)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("14_eelih")
+theme_override_styles/hover = ExtResource("14_eelih")
+theme_override_styles/pressed = ExtResource("15_v4b7c")
+
+[node name="GemHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl"]
+layout_mode = 2
+
+[node name="GemsTextureRect" type="TextureRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("12_b1pq8")
+
+[node name="GemButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("9_r3ivk")
+theme_override_styles/hover = ExtResource("9_r3ivk")
+theme_override_styles/pressed = ExtResource("10_ugkg6")
+
+[node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("11_xatrt")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="GemsLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox/LabelPatchRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "999999"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="GemButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("11_4xe7j")
+theme_override_styles/hover = ExtResource("11_4xe7j")
+theme_override_styles/pressed = ExtResource("12_rbl45")
+
+[node name="GemBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="GemButDown" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemBotHbox"]
+custom_minimum_size = Vector2(32, 16)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("10_qxcm0")
+theme_override_styles/hover = ExtResource("10_qxcm0")
+theme_override_styles/pressed = ExtResource("11_eg6cl")
+
+[node name="JewCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="JewCtrl" type="VBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter"]
+custom_minimum_size = Vector2(144, 64)
+layout_mode = 2
+
+[node name="JewTopHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="JewButUp" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewTopHbox"]
+custom_minimum_size = Vector2(32, 16)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("14_eelih")
+theme_override_styles/hover = ExtResource("14_eelih")
+theme_override_styles/pressed = ExtResource("15_v4b7c")
+
+[node name="JewHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl"]
+layout_mode = 2
+
+[node name="JewelsTextureRect" type="TextureRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("13_fo63a")
+
+[node name="JewButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox"]
+custom_minimum_size = Vector2(16, 32)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("9_r3ivk")
+theme_override_styles/hover = ExtResource("9_r3ivk")
+theme_override_styles/pressed = ExtResource("10_ugkg6")
+
+[node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("11_xatrt")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="JewelsLabel" type="Label" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox/LabelPatchRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "999999"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="JewButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox"]
+custom_minimum_size = Vector2(16, 2)
+layout_mode = 2
+theme_override_styles/normal = ExtResource("11_4xe7j")
+theme_override_styles/hover = ExtResource("11_4xe7j")
+theme_override_styles/pressed = ExtResource("12_rbl45")
+
+[node name="JewBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(455, 0)
+layout_mode = 2
+
+[node name="CharasVBox" type="VBoxContainer" parent="HBoxContainer/ScrollContainer"]
+layout_mode = 2
+
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl/PoolButton" to="." method="_on_PoolButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl/ShareButton" to="." method="_on_ShareButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl/DoneButton" to="." method="_on_DoneButton_pressed"]
+[connection signal="toggled" from="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer/QtyButton1" to="." method="_on_QtyButton_toggled" binds= [1]]
+[connection signal="toggled" from="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer/QtyButton10" to="." method="_on_QtyButton_toggled" binds= [10]]
+[connection signal="toggled" from="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer/QtyButton100" to="." method="_on_QtyButton_toggled" binds= [100]]
+[connection signal="toggled" from="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer/QtyButton1k" to="." method="_on_QtyButton_toggled" binds= [1000]]
+[connection signal="toggled" from="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer/QtyButton10k" to="." method="_on_QtyButton_toggled" binds= [10000]]
+[connection signal="toggled" from="HBoxContainer/MoneyVbox/QtyHbox/QtyGridContainer/QtyButton100k" to="." method="_on_QtyButton_toggled" binds= [100000]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox/BankGldButLeft" to="." method="_on_bank_but_pressed" binds= [-1, 0]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox/BankGldButRight" to="." method="_on_bank_but_pressed" binds= [1, 0]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox/BankGemButLeft" to="." method="_on_bank_but_pressed" binds= [-1, 1]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox/BankGemButRight" to="." method="_on_bank_but_pressed" binds= [1, 1]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox/BankJewButLeft" to="." method="_on_bank_but_pressed" binds= [-1, 2]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox/BankJewButRight" to="." method="_on_bank_but_pressed" binds= [1, 2]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox/GldButLeft" to="." method="_on_poolArrow_pressed" binds= [-1, 0]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox/GldButRight" to="." method="_on_poolArrow_pressed" binds= [1, 0]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldBotHbox/GldButDown" to="." method="_on_changeArrow_pressed" binds= [0, 1]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemTopHbox/GemButUp" to="." method="_on_changeArrow_pressed" binds= [1, 0]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox/GemButLeft" to="." method="_on_poolArrow_pressed" binds= [-1, 1]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox/GemButRight" to="." method="_on_poolArrow_pressed" binds= [1, 1]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemBotHbox/GemButDown" to="." method="_on_changeArrow_pressed" binds= [1, 2]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewTopHbox/JewButUp" to="." method="_on_changeArrow_pressed" binds= [2, 1]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox/JewButLeft" to="." method="_on_poolArrow_pressed" binds= [-1, 2]]
+[connection signal="pressed" from="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox/JewButRight" to="." method="_on_poolArrow_pressed" binds= [1, 2]]

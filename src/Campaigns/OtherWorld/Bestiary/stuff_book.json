@@ -1,0 +1,54 @@
+{
+
+
+"Vodada !" :
+   {
+      "data" :
+      {
+         "name" : "Vodada !",
+         "image" : "CREA_Vodalian",
+         "size" : [1,1],
+	 "tags" : ["Intelligent","Magic User"],
+         "in_bestiary" : 1,
+         "summonable" : 0,
+	 "exp" : 1000,
+	 "level" : 15,
+         "faction" : 1,
+	 "is_player_controlled" : 1,
+         "description" : "Friendly fire is friendly."
+      },
+      "stats" :
+      {
+         "maxHP" : 20,
+         "maxSP" : 80,
+         "Dexterity" : 11,
+         "MaxMovement" : 8,
+         "MaxActions": 2,
+	 "AccuracyMelee" : 100,
+	 "ResistancePhysical" : 0,
+         "MultiplierHealing" : 1,
+         "MultiplierFire" : 1,
+	 "MultiplierMagic" : 1
+      },
+      "ai" :
+      {
+         "cast_chance" : 100,
+	 "missile_chance" : 0,
+	 "flees_at" : 15
+	
+      },
+      "tools" :
+      {
+	 "melee_weapon" : "",
+	 "ranged_weapon" : "",
+	 "equipped_armor" : [],
+	 "inventory" : ["Leather Cap"],
+	 "money" : [0,0,0],
+	 "melee_attacks" : [[1,8,""],[1,2,"Fear"]],
+	 "spells" : [["Heal Minor Wounds", 3]]
+      },
+      "scripts" : {}
+   }
+
+
+}

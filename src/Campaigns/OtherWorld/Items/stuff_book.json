@@ -1,0 +1,9 @@
+{
+   "Bywater Dagger" : 
+   {
+      "img_ptr" : "ITEM_CityBywater_dagger",
+      "name" : "Bywater Dagger",
+      "sound" : "metal hit.ogg",
+      "type" : "dagger"
+   }
+}

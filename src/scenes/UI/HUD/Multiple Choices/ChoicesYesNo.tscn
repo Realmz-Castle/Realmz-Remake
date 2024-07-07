@@ -1,0 +1,65 @@
+[gd_scene load_steps=8 format=3 uid="uid://daoj20idrc3n6"]
+
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="1"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="2"]
+[ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="3"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="6"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Multiple Choices/ChoicesYesNo.gd" id="7"]
+
+[node name="ChoicesYesNo" type="Control"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 3
+anchors_preset = 0
+offset_bottom = 40.0
+script = ExtResource("7")
+
+[node name="ChoicesYesNoBox" type="HBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -10.0
+offset_right = 40.0
+offset_bottom = -10.0
+size_flags_horizontal = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 0
+
+[node name="YesButton" type="Button" parent="ChoicesYesNoBox"]
+custom_minimum_size = Vector2(54, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0.8, 0, 1)
+theme_override_fonts/font = ExtResource("6")
+theme_override_styles/normal = ExtResource("2")
+theme_override_styles/hover = ExtResource("1")
+theme_override_styles/pressed = ExtResource("5")
+theme_override_styles/disabled = ExtResource("4")
+theme_override_styles/focus = ExtResource("3")
+text = "YES"
+
+[node name="NoButton" type="Button" parent="ChoicesYesNoBox"]
+custom_minimum_size = Vector2(54, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.0196078, 0, 1)
+theme_override_colors/font_pressed_color = Color(0.8, 0.0156863, 0, 1)
+theme_override_fonts/font = ExtResource("6")
+theme_override_styles/normal = ExtResource("2")
+theme_override_styles/hover = ExtResource("1")
+theme_override_styles/pressed = ExtResource("5")
+theme_override_styles/disabled = ExtResource("4")
+theme_override_styles/focus = ExtResource("3")
+text = "NO"
+
+[node name="ControlForty" type="Control" parent="ChoicesYesNoBox"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[connection signal="pressed" from="ChoicesYesNoBox/YesButton" to="." method="_on_YesButton_pressed"]
+[connection signal="pressed" from="ChoicesYesNoBox/NoButton" to="." method="_on_NoButton_pressed"]

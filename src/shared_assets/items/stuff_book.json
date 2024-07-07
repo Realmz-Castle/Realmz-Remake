@@ -1,0 +1,255 @@
+{
+   "Leather Cap" : 
+   {
+      "name" :  "Leather Cap",
+      "unidentified_name"  : "Leather Cap",
+      "img_ptr" : "ITEM_leather_cap",
+      "description" : "An old stinky cap made of dead  cow skin",
+      "weight" : 15,
+      "price" : 10,
+      "type" : "Soft Helmet",
+      "slots" : ["Head"],
+      "equippable" : 1,
+      "stats_mini" : "Armor : 3",
+      "stats" : {"EvasionRanged" : 3, "EvasionMelee" : 3},
+      "sound" : "cloth armor.wav",
+      "_on_equipping_source" :
+"
+	print(_character.name+' equipped '+_item['name']+' ! This is Script !')
+	print('Does the second liek work ?')
+"
+   },
+   "Iron Cap" : 
+   {
+      "name" :  "Iron Cap",
+      "unidentified_name"  : "Iron Cap",
+      "img_ptr" : "ITEM_iron_cap",
+      "description" : "A cap made of iron. You hair grease keeps it from rusting.",
+      "weight" : 25,
+      "price" : 20,
+      "type" : "Light Helmet",
+      "slots" : ["Head"],
+      "equippable" : 1,
+      "stats_mini" : "Armor : 5",
+      "stats" : {"EvasionRanged" : 5, "EvasionMelee" : 5},
+      "sound" : "metal armor.wav"
+   },
+   "Helm of Pain" : 
+   {
+      "name" :  "Helm of Pain",
+      "unidentified_name"  : "Great Helm",
+      "img_ptr" : "ITEM_helm_pain",
+      "description" : "A particularly uncomfortable helmet. Also, it's cursed.",
+      "weight" : 25,
+      "price" : 1,
+      "is_magical" : 1,
+      "type" : "Great Helm",
+      "slots" : ["Head"],
+      "equippable" : 1,
+      "stats_mini" : "Armor : 10",
+      "stats" : {"EvasionRanged" : 10, "EvasionMelee" : 10},
+      "sound" : "metal armor.wav"
+   },
+   "Health Potion" : 
+   {
+      "name" :  "Health Potion",
+      "unidentified_name"  : "Potion",
+      "img_ptr" : "ITEM_health_potion",
+      "description" : "Somehow heals the drinkers instantaneously.",
+      "weight" : 0,
+      "price" : 20,
+      "is_magical" : 1,
+      "type" : "Potion",
+      "sound" : "slurpy.wav",
+      "charges_max" : 6,
+      "charges" : 5 ,
+      "charges_weight" : 1,
+      "splittable" :1,
+      "delete_on_empty" : 1,
+      "stats_mini" : "Heals 10 HP",
+      "_on_field_use_source" :
+"
+	print(_character.name+' used '+_item['name']+' ! This is POTION Script !')
+	if _item['charges']>0 :
+		_item['charges'] -=1
+		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[_item['sound']]
+		SfxPlayer.play()
+		_character.stats['curHP'] +=10
+		# character.stats['curHP'] = max(character.stats['curHP'], character.stats['maxHP'] )
+		GameGlobal.refresh_OW_HUD()
+		print('Did it taste good ?')
+	else :
+		print(_item['name']+' is empty !')
+"
+   },
+   "Dagger" :
+   {
+	"name" : "Dagger",
+	"unidentified_name"  : "Dagger",
+	"description" : "A suspicious looking dagger.",
+        "weight" : 10,
+        "price" : 10,
+        "is_magical" : 1,
+	"type" : "Dagger",
+	"img_ptr" : "ITEM_dagger",
+	"sound" : "metal hit.wav",
+	"slots" : ["Melee Weapon"],
+	"weapon_dmg" : {"Physical" : [1,4], "Fire" : [1,2]},
+	"melee_atk_anim_icon" : "ATK_WPN",
+	"hands" : 1,
+	"equippable" : 1 ,
+        "stats_mini" : "Damage : 1-4",
+        "stats" : { "EvasionMelee" : 3 },
+	"melee_inflicted_traits" : [  ["t_poison.gd" , [1.0] ,1.0]  ],
+	
+	"_calculate_melee_attack_source" : "
+	print('defender tags : ', _defender.tags)
+	if _defender.tags.has('Undead') :
+		return {'Physical' : 999, 'total':999}
+	else :
+		return GameGlobal.calculate_melee_damage(_attacker, _defender,_weapon, _is_crit, _crit_mult,false)
+	
+	"
+	,
+	
+	"_on_drop_source" :
+"
+	SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.wav']
+	SfxPlayer.play()
+	print('CAN T DROP DAGGER LOL')
+	_item['name'] = 'Cursed Undroppable Dagger'
+	_item['description'] = 'This dagger wasnt just suspicious,  it was cursed !'
+	return false
+"
+   },
+   "Buckler" :
+   {
+	"name" : "Buckler",
+	"unidentified_name"  : "Buckler",
+	"description" : "A small, round shield worn on the hand.",
+        "weight" : 25,
+        "price" : 25,
+	"type" : "Small Shield",
+	"img_ptr" : "ITEM_buckler",
+	"slots" : ["Shield"],
+	"sound" : "metal hit.wav",
+	"hands" : 1,
+	"equippable" : 1,
+        "stats_mini" : "Evasion : 6",
+	"stats" : {"EvasionRanged" : 6, "EvasionMelee" : 6},
+   },
+   "Lantern" :
+   {
+	"name" : "Lantern",
+	"unidentified_name"  : "Lantern",
+	"description" : "More convenient than torches..",
+        "weight" : 20,
+	"price" : 15,
+	"type" : "Consumable",
+	"img_ptr" : "ITEM_lantern",
+	"sound" : "slurpy.wav",
+	"charges_max" : 50,
+	"charges" : 50,
+	"stats_mini" : "Light +3600 s",
+	"_on_field_use_source" :
+"
+	if _item['charges']>0 :
+		_item['charges'] -=1
+		GameGlobal.add_light_effect(3, 3600)
+		print('used Lantern, light_time is now : '+ str(GameGlobal.light_time) )
+		GameGlobal.refresh_OW_HUD()
+	else :
+		print('Lantern empty, light_time is still : '+ str(GameGlobal.light_time) )
+	
+"
+   },
+   "Shield of the Blue Oxen" :
+   {
+	"name" : "Shield of the Blue Oxen",
+	"unidentified_name"  : "Shield",
+	"description" : "There is probably some lore behind it.",
+        "weight" : 40,
+	"price" : 100,
+	"is_magical" : 1,
+	"type" : "Small Shield",
+	"img_ptr" : "ITEM_shield_blue_oxen",
+	"slots" : ["Shield"],
+	"sound" : "metal hit.wav",
+	"hands" : 1,
+	"equippable" : 1,
+	"unique" : 1,
+        "stats_mini" : "Evasion : 15",
+	"stats" : {"EvasionRanged" : 15, "EvasionMelee" : 15},
+	"traits" : [["Blue Ox Regeneration", [1] ]],
+	"Blue Ox Regeneration_source" :
+"
+const name = 'Blue Ox Regeneration'
+const menuname = 'Blue Ox Regeneration'
+const stacks = false  #one instance per applied effect, removed instance chosen if equals_args
+var chara = null
+var power = 1
+var permanent = 1
+func _init(args : Array):
+	power = args[0]
+	return
+func _on_time_pass(character, s : int) :
+	print('shield blue oxen time pass script ! ')
+	character.stats['curHP'] += s*power
+	character.name = 'debug'
+func equals_args(args : Array) ->bool :
+	return  (power == args[0])
+"
+   },
+   "Ring of Regeneration" :
+   {
+	"name" : "Ring of Regeneration",
+	"unidentified_name"  : "Ring",
+	"description" : "Somehow heals its wearer. Slooooooowly.",
+        "weight" : 1,
+	"price" : 100,
+	"is_magical" : 1,
+	"type" : "Ring",
+	"img_ptr" : "ITEM_ring_regeneration",
+	"slots" : ["Accessory"],
+	"sound" : "metal hit.wav",
+	"equippable" : 1,
+        "stats_mini" : "1.0 HP / s",
+	"stats" : {"EvasionRanged" : 15, "EvasionMelee" : 15},
+	"traits" : [ ["p_speedy.gd" , [] ] ]
+   },
+   "Bow" :
+   {
+	"name" : "Bow",
+	"unidentified_name"  : "Bow",
+	"description" : "One day, long ago, a dog barked at a stick propelled by a string on an arched piece of wood.",
+        "weight" : 10,
+        "price" : 10,
+	"type" : "Bow",
+	"img_ptr" : "ITEM_bow",
+	"sound" : "bow.wav",
+	"slots" : ["Ranged Weapon"],
+	"ammo_type" : "Quiver",
+	"hands" : 0,
+	"equippable" : 1 ,
+        "stats_mini" : "Damage : 1-6",
+        "stats" : {},
+	"_on_combat_use_spell" : ["Bow Shot",1],
+   },
+   "Quiver" :
+   {
+	"name" : "Quiver",
+	"unidentified_name"  : "Quiver",
+	"description" : "Quiver (noun) : a slight trembling movement or sound, especially one caused by a sudden strong emotion.",
+        "weight" : 10,
+        "price" : 10,
+	"type" : "Quiver",
+	"img_ptr" : "ITEM_quiver",
+	"sound" : "bow.wav",
+	"slots" : ["Ammunition"],
+	"ammo_type" : "Quiver",
+	"hands" : 0,
+	"equippable" : 1 ,
+        "stats_mini" : "Damage : 1-6 Range+1",
+        "stats" : {"Range" : 1},
+   }
+}

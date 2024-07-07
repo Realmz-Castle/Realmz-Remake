@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://y2mh6jttjyop"]
+
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="2_fjbhs"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="3_alilu"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButton.gd" id="4"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="4_vjs46"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="5_2sbo3"]
+
+[node name="Label" type="Label"]
+custom_minimum_size = Vector2(0, 32)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 5.0
+offset_right = 10.0
+offset_bottom = 5.0
+text = "
+"
+script = ExtResource("4")
+
+[node name="ChoicesButton" type="Button" parent="."]
+show_behind_parent = true
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -10.0
+offset_bottom = 10.0
+focus_mode = 0
+theme_override_styles/normal = ExtResource("2_fjbhs")
+theme_override_styles/hover = ExtResource("3_alilu")
+theme_override_styles/pressed = ExtResource("4_vjs46")
+theme_override_styles/disabled = ExtResource("5_2sbo3")
+
+[connection signal="pressed" from="ChoicesButton" to="." method="_on_ChoicesButton_pressed"]

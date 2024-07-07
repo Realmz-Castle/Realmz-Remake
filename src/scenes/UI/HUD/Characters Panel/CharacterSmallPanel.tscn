@@ -1,0 +1,349 @@
+[gd_scene load_steps=15 format=3 uid="uid://5lpomncnwc17"]
+
+[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://cgtqr1mjfcabu" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOff.png" id="3"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Characters Panel/CharacterSmallPanel.gd" id="6"]
+[ext_resource type="FontFile" uid="uid://dijqs5swqcb6v" path="res://Fonts/BlackChancery.ttf" id="7_7ai5k"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="8_ottph"]
+[ext_resource type="Texture2D" uid="uid://fmavxbke86wc" path="res://scenes/UI/HUD/Characters Panel/BanDead.png" id="9_i0x8r"]
+[ext_resource type="Texture2D" uid="uid://bummlo3vrlkpi" path="res://shared_assets/BattleEffects/BattleEffectsAnim.png" id="9_lnf3b"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="9_tfwx5"]
+[ext_resource type="Texture2D" uid="uid://c0dhe8lssuptb" path="res://shared_assets/UI/buttonPRESSED.png" id="10"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="10_sywfy"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="11_g8sol"]
+[ext_resource type="PackedScene" path="res://scenes/UI/HUD/Characters Panel/DropItemButton.tscn" id="12"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e33li"]
+
+[node name="CharacterSmallPanel" type="Panel"]
+texture_filter = 1
+custom_minimum_size = Vector2(200, 60)
+offset_right = 320.0
+offset_bottom = 60.0
+script = ExtResource("6")
+dropItemEntryTSCN = ExtResource("12")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+layout_mode = 0
+offset_right = 320.0
+offset_bottom = 60.0
+texture = ExtResource("2")
+region_rect = Rect2(0, 0, 84, 84)
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="PortraitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 4.0
+offset_right = 64.0
+offset_bottom = 56.0
+mouse_filter = 1
+theme_override_styles/normal = ExtResource("8_ottph")
+theme_override_styles/hover = ExtResource("9_tfwx5")
+theme_override_styles/pressed = ExtResource("10_sywfy")
+theme_override_styles/disabled = ExtResource("11_g8sol")
+icon = ExtResource("1")
+
+[node name="NumberLabel" type="Label" parent="PortraitButton"]
+layout_mode = 0
+offset_right = 44.0
+offset_bottom = 44.0
+
+[node name="BanDeadSprite" type="Sprite2D" parent="PortraitButton"]
+position = Vector2(1, 1)
+texture = ExtResource("9_i0x8r")
+centered = false
+hframes = 4
+
+[node name="EffectSprite" type="Sprite2D" parent="PortraitButton"]
+visible = false
+position = Vector2(10, 11)
+texture = ExtResource("9_lnf3b")
+centered = false
+hframes = 8
+vframes = 16
+
+[node name="Timer" type="Timer" parent="PortraitButton/EffectSprite"]
+wait_time = 0.05
+
+[node name="CharnameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 67.2006
+offset_top = 11.4013
+offset_right = 205.201
+offset_bottom = 37.4013
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("7_7ai5k")
+theme_override_font_sizes/font_size = 20
+text = "Name"
+
+[node name="HPLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 67.0
+offset_top = 37.0
+offset_right = 107.0
+offset_bottom = 57.0
+theme_override_font_sizes/font_size = 12
+text = "HP :"
+
+[node name="CurHPLabel" type="Label" parent="HPLabel"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = -4.0
+offset_right = 65.0
+offset_bottom = 22.0
+text = "9999"
+
+[node name="HPSlashLabel" type="Label" parent="HPLabel"]
+layout_mode = 0
+offset_left = 63.0
+offset_top = -4.0
+offset_right = 103.0
+offset_bottom = 22.0
+text = "/"
+
+[node name="MaxHPLabel" type="Label" parent="HPLabel"]
+layout_mode = 0
+offset_left = 71.0
+offset_top = -4.0
+offset_right = 111.0
+offset_bottom = 22.0
+text = "9999"
+
+[node name="SPLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 189.0
+offset_top = 37.0
+offset_right = 229.0
+offset_bottom = 57.0
+theme_override_font_sizes/font_size = 12
+text = "SP :"
+
+[node name="CurSPLabel" type="Label" parent="SPLabel"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = -3.0
+offset_right = 64.0
+offset_bottom = 23.0
+text = "9999"
+
+[node name="SPSlashLabel" type="Label" parent="SPLabel"]
+layout_mode = 0
+offset_left = 68.0
+offset_top = -3.0
+offset_right = 108.0
+offset_bottom = 23.0
+text = "/"
+
+[node name="MaxSPLabel" type="Label" parent="SPLabel"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = -3.0
+offset_right = 120.0
+offset_bottom = 23.0
+text = "9999"
+
+[node name="SelectButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = -6.0
+offset_top = 5.0
+offset_right = 20.0
+offset_bottom = 55.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_e33li")
+icon = ExtResource("3")
+
+[node name="lootRect" type="NinePatchRect" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 61.0
+offset_top = 30.0
+offset_right = 317.0
+offset_bottom = 59.0
+texture = ExtResource("2")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="lootRect2" type="NinePatchRect" parent="lootRect"]
+layout_mode = 0
+offset_left = 145.0
+offset_top = -20.0
+offset_right = 256.0
+offset_bottom = 1.0
+texture = ExtResource("2")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="ItemsLabel" type="Label" parent="lootRect/lootRect2"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 46.0
+offset_bottom = 22.0
+theme_override_font_sizes/font_size = 12
+text = "Items :"
+
+[node name="ItemsNLabel" type="Label" parent="lootRect/lootRect2"]
+layout_mode = 0
+offset_left = 55.0
+offset_top = -1.0
+offset_right = 101.0
+offset_bottom = 25.0
+text = "10000"
+
+[node name="DropItemButton" type="Button" parent="lootRect"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 4.0
+offset_right = 47.0
+offset_bottom = 29.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("7_7ai5k")
+theme_override_styles/normal = ExtResource("8_ottph")
+theme_override_styles/hover = ExtResource("9_tfwx5")
+theme_override_styles/pressed = ExtResource("10_sywfy")
+theme_override_styles/disabled = ExtResource("11_g8sol")
+text = "Drop"
+
+[node name="DropPopup" type="PopupPanel" parent="lootRect/DropItemButton"]
+
+[node name="DropScroll" type="ScrollContainer" parent="lootRect/DropItemButton/DropPopup"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 96.0
+offset_bottom = 96.0
+
+[node name="DropVBox" type="VBoxContainer" parent="lootRect/DropItemButton/DropPopup/DropScroll"]
+layout_mode = 2
+
+[node name="DropRect" type="NinePatchRect" parent="lootRect/DropItemButton"]
+visible = false
+layout_mode = 0
+offset_right = 80.0
+offset_bottom = 200.0
+texture = ExtResource("10")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MoveLabel" type="Label" parent="lootRect"]
+layout_mode = 0
+offset_left = 47.9744
+offset_top = 6.19025
+offset_right = 87.9744
+offset_bottom = 23.1902
+theme_override_font_sizes/font_size = 12
+text = "Move:"
+
+[node name="MoveNLabel" type="Label" parent="lootRect"]
+layout_mode = 0
+offset_left = 83.0
+offset_top = 3.0
+offset_right = 123.0
+offset_bottom = 29.0
+text = "12"
+
+[node name="LoadLabel" type="Label" parent="lootRect"]
+layout_mode = 0
+offset_left = 117.484
+offset_top = 5.96402
+offset_right = 160.484
+offset_bottom = 31.964
+theme_override_font_sizes/font_size = 12
+text = "Load:"
+
+[node name="LoadCNLabel" type="Label" parent="lootRect"]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 3.0
+offset_right = 196.0
+offset_bottom = 29.0
+text = "10000"
+
+[node name="LoadMNLabel" type="Label" parent="lootRect"]
+layout_mode = 0
+offset_left = 203.391
+offset_top = 3.00005
+offset_right = 249.391
+offset_bottom = 29.0
+text = "20000"
+
+[node name="LoadSLabel" type="Label" parent="lootRect"]
+layout_mode = 0
+offset_left = 193.645
+offset_top = 4.00002
+offset_right = 201.645
+offset_bottom = 30.0
+text = "/"
+
+[node name="combatControl" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -10.0
+offset_top = 4.0
+offset_right = 110.0
+offset_bottom = 25.0
+grow_horizontal = 0
+
+[node name="MvLabel" type="Label" parent="combatControl"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 3.0
+offset_right = 58.0
+offset_bottom = 29.0
+theme_override_font_sizes/font_size = 12
+text = "Mv :"
+
+[node name="APRLabel" type="Label" parent="combatControl"]
+layout_mode = 0
+offset_left = 69.0
+offset_top = 4.0
+offset_right = 109.0
+offset_bottom = 30.0
+theme_override_font_sizes/font_size = 12
+text = "APR :"
+
+[node name="MvnLabel" type="Label" parent="combatControl"]
+layout_mode = 0
+offset_left = 43.0
+offset_top = 4.0
+offset_right = 66.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 12
+text = "99"
+
+[node name="APRnLabel" type="Label" parent="combatControl"]
+layout_mode = 0
+offset_left = 104.0
+offset_top = 4.0
+offset_right = 144.0
+offset_bottom = 30.0
+theme_override_font_sizes/font_size = 12
+text = "99"
+
+[connection signal="pressed" from="PortraitButton" to="." method="_on_portrait_button_pressed"]
+[connection signal="timeout" from="PortraitButton/EffectSprite/Timer" to="." method="_on_EffectSprite_Timer_timeout"]
+[connection signal="pressed" from="SelectButton" to="." method="_on_SelectButton_pressed"]
+[connection signal="pressed" from="lootRect/DropItemButton" to="." method="_on_DropItemButton_pressed"]

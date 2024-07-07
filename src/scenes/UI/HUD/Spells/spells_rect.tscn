@@ -1,0 +1,707 @@
+[gd_scene load_steps=24 format=3 uid="uid://buub48wqri0s6"]
+
+[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_xn72t"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Spells/SpellsRect.gd" id="2_h8dvl"]
+[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="3_qj0vv"]
+[ext_resource type="Texture2D" uid="uid://cnmil5dp78ypd" path="res://shared_assets/UI/buttonDISABLED.png" id="4_b805k"]
+[ext_resource type="Texture2D" uid="uid://p8y7apjaxgyd" path="res://scenes/UI/HUD/Spells/SpellLevelText.png" id="5_k55ol"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="6_j0ouq"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="7_85ad7"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="8_7t5l1"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="9_55mvm"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="10_frnva"]
+[ext_resource type="Texture2D" uid="uid://dsqdlmbhi7k0l" path="res://scenes/UI/HUD/Spells/PowerLevelText.png" id="11_mxq6m"]
+[ext_resource type="Texture2D" uid="uid://c0dhe8lssuptb" path="res://shared_assets/UI/buttonPRESSED.png" id="12_pmjwq"]
+[ext_resource type="Texture2D" uid="uid://ddkb1ppvtr2gy" path="res://scenes/UI/HUD/Spells/TargetImages/DoNotUse.png" id="13_62ksd"]
+[ext_resource type="Texture2D" uid="uid://byuyyoob1w4lo" path="res://scenes/UI/HUD/Spells/SpellsStatsBg.png" id="14_bxkic"]
+[ext_resource type="Texture2D" uid="uid://by5iwd3204ras" path="res://scenes/UI/HUD/Spells/SpellCostBg.png" id="15_iad4l"]
+[ext_resource type="Texture2D" uid="uid://bbrhyi1klsxq2" path="res://scenes/UI/HUD/Spells/CastSpellText.png" id="16_sukjf"]
+[ext_resource type="Texture2D" uid="uid://dcucxc33tgqj8" path="res://shared_assets/UI/arrow_button_h.png" id="17_1t61o"]
+[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="18_dkie6"]
+[ext_resource type="Texture2D" uid="uid://c8dna0xtlkynt" path="res://scenes/UI/HUD/Spells/AbortSpellText.png" id="19_d1nqd"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vqsrx"]
+texture = ExtResource("17_1t61o")
+region_rect = Rect2(0, 0, 25, 50)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_28wft"]
+texture = ExtResource("17_1t61o")
+region_rect = Rect2(25, 0, 25, 50)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1objm"]
+texture = ExtResource("17_1t61o")
+region_rect = Rect2(50, 0, 25, 50)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_p2n7x"]
+texture = ExtResource("17_1t61o")
+region_rect = Rect2(75, 0, 25, 50)
+
+[node name="SpellsRect" type="NinePatchRect"]
+custom_minimum_size = Vector2(320, 400)
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -20.0
+grow_horizontal = 0
+grow_vertical = 2
+texture = ExtResource("1_xn72t")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_h8dvl")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_right = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="TopContainer" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="SpellLevelsRect" type="NinePatchRect" parent="VBoxContainer/TopContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+texture = ExtResource("3_qj0vv")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="SpellLevelsContainer" type="VBoxContainer" parent="VBoxContainer/TopContainer/SpellLevelsRect"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 10.0
+offset_right = -5.0
+offset_bottom = -5.0
+
+[node name="SpellsTextRect" type="NinePatchRect" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+texture = ExtResource("4_b805k")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SpellsTextRect"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -36.5
+offset_top = -9.0
+offset_right = 36.5
+offset_bottom = 9.0
+texture = ExtResource("5_k55ol")
+
+[node name="SLevelButton1" type="Button" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "Level 1"
+
+[node name="SLevelButton2" type="Button" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.831373, 0, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "Level 2"
+
+[node name="SLevelButton3" type="Button" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.666667, 0, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "Level 3"
+
+[node name="SLevelButton4" type="Button" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.498039, 0, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "Level 4"
+
+[node name="SLevelButton5" type="Button" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.333333, 0, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "Level 5"
+
+[node name="SLevelButton6" type="Button" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.164706, 0, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "Level 6"
+
+[node name="SLevelButton7" type="Button" parent="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "Level 7"
+
+[node name="SpellsListRect" type="NinePatchRect" parent="VBoxContainer/TopContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+texture = ExtResource("3_qj0vv")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TopContainer/SpellsListRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+
+[node name="SpellListContainer" type="VBoxContainer" parent="VBoxContainer/TopContainer/SpellsListRect/ScrollContainer"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+
+[node name="MiddleContainer" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="PowerLevelsRect" type="NinePatchRect" parent="VBoxContainer/MiddleContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+texture = ExtResource("3_qj0vv")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="PowerLevelsContainer" type="VBoxContainer" parent="VBoxContainer/MiddleContainer/PowerLevelsRect"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 10.0
+offset_right = -5.0
+offset_bottom = -5.0
+
+[node name="PowerTextRect" type="NinePatchRect" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+texture = ExtResource("4_b805k")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PowerTextRect"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -12.0
+offset_right = 38.0
+offset_bottom = 12.0
+texture = ExtResource("11_mxq6m")
+
+[node name="PLevelButton1" type="Button" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "X 1"
+
+[node name="PLevelButton2" type="Button" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.831373, 1, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "X 2"
+
+[node name="PLevelButton3" type="Button" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.666667, 1, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "X 3"
+
+[node name="PLevelButton4" type="Button" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.498039, 1, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "X 4"
+
+[node name="PLevelButton5" type="Button" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.333333, 1, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "X 5"
+
+[node name="PLevelButton6" type="Button" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.164706, 1, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "X 6"
+
+[node name="PLevelButton7" type="Button" parent="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"]
+custom_minimum_size = Vector2(90, 33)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 1, 1)
+theme_override_fonts/font = ExtResource("6_j0ouq")
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+toggle_mode = true
+text = "X 7"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/MiddleContainer"]
+layout_mode = 2
+
+[node name="SpellInfoRect" type="NinePatchRect" parent="VBoxContainer/MiddleContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+texture = ExtResource("3_qj0vv")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="SpellAoERect" type="NinePatchRect" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 74.0
+offset_bottom = 74.0
+texture = ExtResource("12_pmjwq")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="AoETextureRect" type="TextureRect" parent="VBoxContainer/MiddleContainer/SpellInfoRect/SpellAoERect"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+texture = ExtResource("13_62ksd")
+
+[node name="StatsRect" type="TextureRect" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+layout_mode = 0
+offset_left = 75.0
+offset_top = 4.0
+offset_right = 217.0
+offset_bottom = 74.0
+texture = ExtResource("14_bxkic")
+
+[node name="DamageMinLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 1.0
+offset_right = 91.0
+offset_bottom = 16.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="DamageMaxLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 106.0
+offset_top = 1.0
+offset_right = 138.0
+offset_bottom = 16.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="DurationMinLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 18.0
+offset_right = 91.0
+offset_bottom = 33.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="DurationMaxLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 106.0
+offset_top = 18.0
+offset_right = 138.0
+offset_bottom = 33.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="RangeLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 36.0
+offset_right = 73.0
+offset_bottom = 51.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="RotationLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 111.34
+offset_top = 35.6682
+offset_right = 133.34
+offset_bottom = 50.6682
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Yes"
+
+[node name="TargetsLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 54.0
+offset_right = 73.0
+offset_bottom = 69.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="LoSLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect"]
+layout_mode = 0
+offset_left = 111.34
+offset_top = 53.6682
+offset_right = 133.34
+offset_bottom = 68.6682
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Yes"
+
+[node name="AttributesBgLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 80.0
+offset_right = 74.0
+offset_bottom = 94.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Attributes :"
+
+[node name="AttributesLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 95.0
+offset_right = 215.0
+offset_bottom = 155.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Ranged, Physical, Fire, Ice, Electric, Poison, Disease, Chemical, Magic, Healing"
+autowrap_mode = 3
+
+[node name="AttributesBgLabel2" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = -106.0
+offset_right = 5.0
+offset_bottom = -86.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Cost Formula :"
+
+[node name="CostFormulaLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = -94.0
+offset_right = 5.0
+offset_bottom = -74.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "100*Power"
+
+[node name="SpellCostBGRect" type="TextureRect" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -72.0
+offset_bottom = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("15_iad4l")
+
+[node name="PowerLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/SpellCostBGRect"]
+layout_mode = 0
+offset_left = 11.1892
+offset_top = 27.9481
+offset_right = 80.1892
+offset_bottom = 47.9481
+theme_override_font_sizes/font_size = 12
+text = "7"
+
+[node name="SPCostLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/SpellCostBGRect"]
+layout_mode = 0
+offset_left = 63.4756
+offset_top = 28.1642
+offset_right = 111.476
+offset_bottom = 48.1642
+theme_override_font_sizes/font_size = 12
+text = "999999"
+
+[node name="CharaSPLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/SpellCostBGRect"]
+layout_mode = 0
+offset_left = 129.476
+offset_top = 28.1642
+offset_right = 202.476
+offset_bottom = 48.1642
+theme_override_font_sizes/font_size = 12
+text = "999999999"
+
+[node name="CharNameRect" type="NinePatchRect" parent="VBoxContainer/MiddleContainer/SpellInfoRect"]
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = -24.0
+offset_right = 216.0
+offset_bottom = -3.0
+texture = ExtResource("12_pmjwq")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="CharNameLabel" type="Label" parent="VBoxContainer/MiddleContainer/SpellInfoRect/CharNameRect"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = -2.0
+text = "Samuel Rabreau, Main Dev"
+clip_text = true
+
+[node name="BottomContainer" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(336, 50)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="CastButton" type="Button" parent="VBoxContainer/BottomContainer"]
+custom_minimum_size = Vector2(110, 50)
+layout_mode = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+disabled = true
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/BottomContainer/CastButton"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.5
+offset_top = -12.0
+offset_right = 50.5
+offset_bottom = 12.0
+texture = ExtResource("16_sukjf")
+
+[node name="LeftButton" type="Button" parent="VBoxContainer/BottomContainer"]
+custom_minimum_size = Vector2(25, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_vqsrx")
+theme_override_styles/hover = SubResource("StyleBoxTexture_vqsrx")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_28wft")
+
+[node name="PortraitFrameRect" type="TextureRect" parent="VBoxContainer/BottomContainer"]
+layout_mode = 2
+texture = ExtResource("12_pmjwq")
+
+[node name="PortraitRect" type="TextureRect" parent="VBoxContainer/BottomContainer/PortraitFrameRect"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -22.0
+offset_top = -22.0
+offset_right = 22.0
+offset_bottom = 22.0
+texture = ExtResource("18_dkie6")
+
+[node name="RightButton" type="Button" parent="VBoxContainer/BottomContainer"]
+custom_minimum_size = Vector2(25, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_1objm")
+theme_override_styles/hover = SubResource("StyleBoxTexture_1objm")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_p2n7x")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_1objm")
+
+[node name="AbortButton" type="Button" parent="VBoxContainer/BottomContainer"]
+custom_minimum_size = Vector2(110, 50)
+layout_mode = 2
+focus_mode = 0
+theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/hover = ExtResource("8_7t5l1")
+theme_override_styles/pressed = ExtResource("9_55mvm")
+theme_override_styles/disabled = ExtResource("10_frnva")
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/BottomContainer/AbortButton"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -28.0
+offset_top = -12.0
+offset_right = 28.0
+offset_bottom = 12.0
+texture = ExtResource("19_d1nqd")
+
+[connection signal="pressed" from="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton1" to="." method="_on_SLevelButton_pressed" binds= [1]]
+[connection signal="pressed" from="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton2" to="." method="_on_SLevelButton_pressed" binds= [2]]
+[connection signal="pressed" from="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton3" to="." method="_on_SLevelButton_pressed" binds= [3]]
+[connection signal="pressed" from="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton4" to="." method="_on_SLevelButton_pressed" binds= [4]]
+[connection signal="pressed" from="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton5" to="." method="_on_SLevelButton_pressed" binds= [5]]
+[connection signal="pressed" from="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton6" to="." method="_on_SLevelButton_pressed" binds= [6]]
+[connection signal="pressed" from="VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton7" to="." method="_on_SLevelButton_pressed" binds= [7]]
+[connection signal="pressed" from="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton1" to="." method="_on_PLevelButton_pressed" binds= [1]]
+[connection signal="pressed" from="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton2" to="." method="_on_PLevelButton_pressed" binds= [2]]
+[connection signal="pressed" from="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton3" to="." method="_on_PLevelButton_pressed" binds= [3]]
+[connection signal="pressed" from="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton4" to="." method="_on_PLevelButton_pressed" binds= [4]]
+[connection signal="pressed" from="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton5" to="." method="_on_PLevelButton_pressed" binds= [5]]
+[connection signal="pressed" from="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton6" to="." method="_on_PLevelButton_pressed" binds= [6]]
+[connection signal="pressed" from="VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton7" to="." method="_on_PLevelButton_pressed" binds= [7]]
+[connection signal="pressed" from="VBoxContainer/BottomContainer/CastButton" to="." method="_on_CastButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/BottomContainer/LeftButton" to="." method="_on_LeftButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/BottomContainer/RightButton" to="." method="_on_RightButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/BottomContainer/AbortButton" to="." method="_on_AbortButton_pressed"]
