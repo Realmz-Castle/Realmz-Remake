@@ -105,7 +105,7 @@ func check_los(fromV : Vector2, toV : Vector2) -> bool :
 
 
 
-func add_pc_or_npcally_to_battle_map(crea : Creature, init_pos : Vector2) -> bool:
+func add_pc_or_npc_ally_to_battle_map(crea : Creature, init_pos : Vector2) -> bool:
 	if crea.get_stat("curHP")<=0 or (not crea.joins_combat):
 		return false
 	var move_attempts : int = 0

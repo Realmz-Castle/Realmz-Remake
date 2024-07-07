@@ -57,6 +57,8 @@ var pressed : bool = false # true iff the map (and not a character) is being cli
 @onready var aStar21 = preload("res://scenes/MyAstar2D.gd").new()  #2 wide 1 high
 @onready var aStar22 = preload("res://scenes/MyAstar2D.gd").new()  #2 wide 2 high
 
+#@onready var aStarExtra = preload("res://scenes/MyAstar2D.gd").new()
+
 
 var last_generated_path : Array = []
 
@@ -169,6 +171,7 @@ func _on_new_round() :
 # Call functions to load the map #
 func _ready():
 	aStar11.crea_size = Vector2.ONE
+	#aStarExtra.crea_size = Vector2(2,2)#Vector2.ONE*2
 	aStar12.crea_size = Vector2(1,2)
 	aStar21.crea_size = Vector2(2,1)
 	aStar22.crea_size = Vector2(2,2)
@@ -245,6 +248,9 @@ func load_map( _campaign : String, mapname : String) -> void:
 	aStar12.generate_graph(mapdata, true, false, true) #swimmer flyer big
 	aStar21.generate_graph(mapdata, true, false, true) #swimmer flyer big
 	aStar22.generate_graph(mapdata, true, false, true) #swimmer flyer big
+	
+	#aStarExtra.generate_graph(mapdata, true, false, true)
+	
 	
 #	maps_book[mapname] = [newmapdata, newmapscriptareas, newmapscripts, maptype,mapmusictype, outdoor_riding, darkness_level]
 #	var mapbookscriptsinfo:String = ''
@@ -503,9 +509,12 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 	explored_tiles[tpos.x][tpos.y] = 1
 	# do bresentham is neveral directions
 	#bresenham_line(startpt : Vector2, endpt : Vector2, min_range : int, max_range : int) -> Array :
+	var explored_tiles_x_size = explored_tiles[0].size()
+	var explored_tiles_y_size = explored_tiles.size()
 	for endpt in exploration_sight_dirs :
 		var line : Array = targetingLayer.bresenham_line(tpos, tpos+5*endpt,1,20) #Array of vector2
 		for t in line : 
+			if t.x<0 or t.y<0 or t.x>explored_tiles_x_size or t.y>explored_tiles_y_size : break
 			explored_tiles[t.x][t.y] = 1
 #			print(mapdata[t.x][t.y])
 			if bool(mapdata[t.x][t.y][0]["blkview"]) :
@@ -513,12 +522,16 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 
 func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, big : bool, crea : Creature, melee_enemies_on_the_way : bool) -> Array :
 	var right_astar : SpecificAstar2D = get_right_graph_for_crea(crea)
+	print("MAP ASTAR CRA  SIZE : ", right_astar.crea_size)
 	var unblocked_poses : Array = []
 	var who = GameGlobal.who_is_at_tile(to)
 	if who :
-		for x in range(who.size.x) :
-			for y in range(who.size.y) :
-				var ubp : Vector2 = Vector2(to.x+x, to.y+y)
+		for x in range(who.creature.size.x) :
+			for y in range(who.creature.size.y) :
+				#var ubp : Vector2 = Vector2(to.x+x, to.y+y)
+				var ubp : Vector2 = Vector2(who.creature.position.x+x, who.creature.position.y+y)
+				#print("map.find_path , to who : "+who.creature.name+ ', at '+ str(who.creature.position)+", size: "+str(who.creature.size))
+				
 				if GameGlobal.is_map_tile_walkable_by_char(crea,ubp) :
 					unblocked_poses.append(ubp)
 					pathfinder_clear_pos(ubp)
@@ -540,7 +553,9 @@ func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, bi
 	return last_generated_path
 
 func get_right_graph_for_crea(crea : Creature) -> SpecificAstar2D :
-	return aStar11  #TOD FIX THIS
+	#return aStar11  #TODO FIX THIS
+	#return aStarExtra
+	pass
 	match crea.size :
 		Vector2.ONE :
 			return aStar11
@@ -555,8 +570,9 @@ func get_right_graph_for_crea(crea : Creature) -> SpecificAstar2D :
 
 #called at GameState.end_active_creature_turn and GameGlobal.start_new_round
 func pathfinder_update_characters(charlist : Array, active_crea) :
-	print("MAP pathfinder_update_characters, active crea : " +active_crea.name + ' ', +active_crea.size)
+	#print("MAP pathfinder_update_characters, active crea : " +active_crea.name + ' ', +active_crea.size)
 	var spec_astar = get_right_graph_for_crea(active_crea)
+	#print("MAP pathfinder_update_characters, astar creasize : ", spec_astar.crea_size)
 	spec_astar.update_blocked_by_creas(charlist, active_crea)
 	#aStar12.update_blocked_by_creas(charlist)
 	#aStar21.update_blocked_by_creas(charlist)
@@ -566,10 +582,12 @@ func pathfinder_clear_pos(pos : Vector2i) :
 	aStar11.clear_pos(pos)
 	aStar12.clear_pos(pos)
 	aStar21.clear_pos(pos)
-	aStar12.clear_pos(pos)
+	aStar22.clear_pos(pos)
+	#aStarExtra.clear_pos(pos)
 
 func pathfinder_block_pos(pos : Vector2) :
 	aStar11.block_pos(pos)
 	aStar12.block_pos(pos)
 	aStar21.block_pos(pos)
-	aStar12.block_pos(pos)
+	aStar22.block_pos(pos)
+	#aStarExtra.block_pos(pos)

@@ -86,7 +86,7 @@ func enter(_msg : Dictionary = {}) -> void:
 		end_active_creature_turn(true)
 		StateMachine.transition_to("Combat/CbAnimation")
 		pass
-	var action_msg : Dictionary = {}
+	
 	
 	
 	UI.ow_hud.xPosLabel.text = str(cur_act_crea.position.x)
@@ -97,63 +97,9 @@ func enter(_msg : Dictionary = {}) -> void:
 		print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() true so skippinf dcideaction")
 		#action_msg = await player_cb_action_msg_signal
 		return
-	else :
-		
-		#await get_tree().create_timer(1.0*GameGlobal.gamespeed).timeout
 
-		#print("CbDecideAction : "+ cur_act_crea.name+" is going to take a decision")
-		var decision_array : Array = cur_act_crea.get_creature_script().decide_action(current_active_creabutton.creature)
-		print("CbDecideAction : "+ cur_act_crea.name+"'s decision taken !", decision_array)
-		if decision_array[0] == 0 :  #MOVE  (or finish ?)
-			
-			
-			var attemptedpos = Vector2(cur_act_crea.position + Vector2(decision_array[1]))
-			#var tilestack : Array = GameGlobal.map.mapdata[cur_act_crea.position.x+decision_array[1].x][cur_act_crea.position.y+decision_array[1].y]
-			#var canmoveandtime : Array = StateMachine.on_trying_to_move_to_tile_stack(cur_act_crea, tilestack, attemptedpos )
-			var canmoveandtime : Array = combat_state.on_trying_to_move_to_position(cur_act_crea, attemptedpos)
-			
-			
-			action_msg = {"type" : "Move", "mover" : current_active_creabutton, "Direction" : decision_array[1], "canmoveandtime" : canmoveandtime , "check_before_scripts" : true}
-			if decision_array[1]==Vector2i.ZERO :
-				end_active_creature_turn(true)
-				return
-			var whothere = null
-			
-			for x : int in range(cur_act_crea.size.x) :
-				for y : int in range(cur_act_crea.size.y) :
-					var whotherexy = GameGlobal.who_is_at_tile(attemptedpos+Vector2(x,y)) #combatbutton
-					if whotherexy != null and whotherexy != current_active_creabutton :
-						whothere = whotherexy
-			if is_instance_valid(whothere) :
-				var sameside : bool = whothere.creature.curFaction == cur_act_crea.curFaction
-				if sameside :
-					end_active_creature_turn(true)
-					return
-				else :
-					var used_weapon : Dictionary = cur_act_crea.current_melee_weapons[0]
-					action_msg = {"type" : "MeleeAttack", "attacker" : current_active_creabutton, "defender" : whothere, "weapon": used_weapon }
-		if decision_array[0] == 1 : #cast spell
-			#return [1, selectedSpell, selectedplvl, spell_target_pos, aoe_shape, {},[Vector2i(spell_target_pos)] , true, true]
-			var spell = decision_array[1]
-			var power : int = decision_array[2]
-			var target_pos : Vector2i = decision_array[3]
-			var aoe_shape : Array = decision_array[4]
-			var item : Dictionary = decision_array[5]
-			var main_tpos : Vector2i = decision_array[6]
-			var tg_tiles : Array = decision_array[7]
-			var tg_creas : Array = decision_array[8]
-						#c_tg_act_msg["Effected Tiles"] = effected_tiles
-			#c_tg_act_msg["Effected Creas"] = effected_creas
-			#c_tg_act_msg["Targeted Tiles"] = targeted_tiles
-			#c_tg_act_msg["Main Targeted Tile"] = tpos
-			
-			
-			action_msg = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : tg_tiles, "used_item" : item , "must_add_terrain" : true, "override_aoe" : [] }
-			on_spellcast_confirmed(action_msg)
-			return
-	combat_state.add_to_action_queue([action_msg])
-	await get_tree().create_timer(GameGlobal.gamespeed).timeout
-	StateMachine.transition_to("Combat/CbAnimation")
+	do_ai_creature_action(cur_act_crea)
+
 	#now wait for walk/spell/item_use/
 
 func initialize_battle(_msg :  Dictionary, resources : CampaignResources, map : Map) :
@@ -211,7 +157,7 @@ func initialize_battle(_msg :  Dictionary, resources : CampaignResources, map : 
 	#combat_state.pcs_in_battle = pc_joining
 
 	for pc in pc_joining :
-		combat_state.add_pc_or_npcally_to_battle_map(pc, init_pos+battle_position_offset)
+		combat_state.add_pc_or_npc_ally_to_battle_map(pc, init_pos+battle_position_offset)
 	if _msg["npcs_allowed"] :
 		for npc in GameGlobal.player_allies :
 			combat_state.add_pc_or_npc_ally_to_battle_map(npc, init_pos+battle_position_offset)
@@ -264,7 +210,9 @@ func start_new_round() :
 	get_parent().all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
 	GameGlobal.map.pathfinder_update_characters(all_creatures,current_active_creabutton.creature)
 	GameGlobal.map.pathfinder_clear_pos(Vector2i(current_active_creabutton.creature.position))
-
+	#enter()
+	if not current_active_creabutton.creature.is_player_controlled :
+		do_ai_creature_action(current_active_creabutton.creature)
 
 func check_camera_movement_command()->void :
 	if Input.is_action_just_pressed("MoveCamera") :
@@ -352,12 +300,73 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 					# end its turn ?  CBDecideAction should take care of that
 					return
 		
-		combat_state.add_to_action_queue([action_msg])
-		StateMachine.transition_to("Combat/CbAnimation")
+		if GameGlobal.is_map_tile_walkable_by_char(current_active_creabutton.creature, attemptedpos) :
+			combat_state.add_to_action_queue([action_msg])
+			StateMachine.transition_to("Combat/CbAnimation")
 
 func _on_player_cb_action_signal_received(msg : Dictionary) :
 	print("CbDecideAction _on_player_cb_action : ", msg)
 	pass
+
+
+
+
+func do_ai_creature_action(cur_act_crea : Creature) :
+
+		#await get_tree().create_timer(1.0*GameGlobal.gamespeed).timeout
+
+	print("CbDecideAction : "+ cur_act_crea.name+" is going to take a decision")
+	var decision_array : Array = cur_act_crea.get_creature_script().decide_action(current_active_creabutton.creature)
+	print("CbDecideAction : "+ cur_act_crea.name+"'s decision taken !", decision_array)
+	var action_msg : Dictionary = {}
+	if decision_array[0] == 0 :  #MOVE  (or finish ?)
+		
+		
+		var attemptedpos = Vector2(cur_act_crea.position + Vector2(decision_array[1]))
+		#var tilestack : Array = GameGlobal.map.mapdata[cur_act_crea.position.x+decision_array[1].x][cur_act_crea.position.y+decision_array[1].y]
+		#var canmoveandtime : Array = StateMachine.on_trying_to_move_to_tile_stack(cur_act_crea, tilestack, attemptedpos )
+		var canmoveandtime : Array = combat_state.on_trying_to_move_to_position(cur_act_crea, attemptedpos)
+		
+		
+		action_msg = {"type" : "Move", "mover" : current_active_creabutton, "Direction" : decision_array[1], "canmoveandtime" : canmoveandtime , "check_before_scripts" : true}
+		if decision_array[1]==Vector2i.ZERO :
+			end_active_creature_turn(true)
+			return
+		var whothere = null
+		
+		for x : int in range(cur_act_crea.size.x) :
+			for y : int in range(cur_act_crea.size.y) :
+				var whotherexy = GameGlobal.who_is_at_tile(attemptedpos+Vector2(x,y)) #combatbutton
+				if whotherexy != null and whotherexy != current_active_creabutton :
+					whothere = whotherexy
+		if is_instance_valid(whothere) :
+			var sameside : bool = whothere.creature.curFaction == cur_act_crea.curFaction
+			if sameside :
+				end_active_creature_turn(true)
+				return
+			else :
+				var used_weapon : Dictionary = cur_act_crea.current_melee_weapons[0]
+				action_msg = {"type" : "MeleeAttack", "attacker" : current_active_creabutton, "defender" : whothere, "weapon": used_weapon }
+	if decision_array[0] == 1 : #cast spell
+		#return [1, selectedSpell, selectedplvl, spell_target_pos, aoe_shape, {},[Vector2i(spell_target_pos)] , true, true]
+		var spell = decision_array[1]
+		var power : int = decision_array[2]
+		var target_pos : Vector2i = decision_array[3]
+		var aoe_shape : Array = decision_array[4]
+		var item : Dictionary = decision_array[5]
+		var main_tpos : Vector2i = decision_array[6]
+		var tg_tiles : Array = decision_array[7]
+		var tg_creas : Array = decision_array[8]
+
+		action_msg = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : tg_tiles, "used_item" : item , "must_add_terrain" : true, "override_aoe" : [] }
+		on_spellcast_confirmed(action_msg)
+		return
+
+	combat_state.add_to_action_queue([action_msg])
+	await get_tree().create_timer(GameGlobal.gamespeed).timeout
+	StateMachine.transition_to("Combat/CbAnimation")
+
+
 
 
 func end_active_creature_turn(set_apr_zero : bool)->void :
@@ -502,6 +511,7 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	var actions_array = []
 	for c in chain :
 		#print("CBDecideAction print c l 396 : ", c[0].name)
+		#print(" DecideAction  on_spellcast_confirmed current_active_creabutton : ", current_active_creabutton , )
 		var c_act_msg = {"type" : "Spell", "caster" : current_active_creabutton, "spell" : c[0], "s_plvl" : c[1], "used_item" : used_item , "add_terrain" : must_add_terrain, "override_aoe" : override_aoe, "from_terrain" : false , "oob_creas" : targ_creas}
 		#print("398 c_act_msg s", c_act_msg["spell"].name)
 		#action_msg = {"Effected Tiles" : [], "effected creas" : [], "targeted_tiles" : [] }
