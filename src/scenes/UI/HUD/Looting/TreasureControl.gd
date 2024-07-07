@@ -52,7 +52,7 @@ func display(items : Array, money : Array, experience : int) :
 	exp = experience
 	exp_receivers.clear()
 	for pc : PlayerCharacter in GameGlobal.player_characters :
-		if pc.get_stat("curHP")>0 :
+		if pc.get_stat("curHP")<=0 :
 			continue
 		for t in pc.traits :
 			if t.trait_types.has("no_exp") :
@@ -133,7 +133,7 @@ func close() :
 	get_parent().set_charactersRect_type(0)
 	get_parent().moneyControl.close()
 	NodeAccess.__Map().show()
-	emit_signal( "done_looting")
+	emit_signal("done_looting")
 	print("teasure_control  close()")
 	hide()
 
