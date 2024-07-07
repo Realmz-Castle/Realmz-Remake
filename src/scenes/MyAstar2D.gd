@@ -40,6 +40,9 @@ func generate_graph(mapdata : Array, swimmer : bool, flyer : bool, big : bool) :
 		for ts in l :
 			var weight : float = get_tilestack_cost(ts, swimmer, flyer, big)
 			pos = Vector2i(y,x)
+			#if big :
+				#print("astar big crea : "+str(pos)+' size:'+str(crea_size)+' w8:' + str(weight))
+			
 #			print("ASTAR : tile at "+str(pos)+" is "+ts[0]["name"]+" and weight "+str(weight))
 #			set_point_solid(pos, weight<0)
 			if weight>=0 :
@@ -57,10 +60,10 @@ func specific_set_point_weight_scale(pos : Vector2i, weight_scale: float) :
 	var region_end : Vector2i = region.end
 	for cx in range(crea_size.x) :
 		for cy in range(crea_size.y) :
-			if pos.x+cx<region_end.x and pos.y+cy<region_end.y :
-				var bpos : Vector2i =  pos+Vector2i(cx,cy)
+			if pos.x-cx<region_end.x and pos.y-cy<region_end.y and pos.x-cx>=0 and pos.y-cy>=0 :
+				var bpos : Vector2i =  pos-Vector2i(cx,cy)
 				var prev_weight : float = get_point_weight_scale(bpos)
-				set_point_weight_scale(pos+Vector2i(cx,cy), max(weight_scale,prev_weight))
+				set_point_weight_scale(pos-Vector2i(cx,cy), max(weight_scale,prev_weight))
 	
 
 func get_tilestack_cost(ts : Array, swimmer : bool, flyer : bool, big : bool) -> float :

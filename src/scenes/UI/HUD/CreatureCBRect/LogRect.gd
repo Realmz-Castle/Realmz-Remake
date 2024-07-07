@@ -66,7 +66,7 @@ func log_melee_attack(attacker : CombatCreaButton, defender : CombatCreaButton, 
 	detaillabel.bbcode_enabled = true
 	detailtext += "    ("
 	for t in damage_detail :
-		if t!="total" :
+		if not ["total", "is_crit", "crit_mult"].has(t) :
 			var tcolor : Color = attrColorDict[t]
 			var tcol_string : String = '#'+tcolor.to_html()
 			if needcomma :

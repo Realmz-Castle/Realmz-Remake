@@ -152,7 +152,7 @@ func set_creature_represented(crea) : #Crea is a creature.gd instance, or a play
 #	print("set_creature_represented : ", crea)
 #	sprite.texture = crea.textureL
 	if crea.get("icon") :
-		print("CombatCharacter "+crea.name+" must be a PC !")
+		#print("CombatCharacter "+crea.name+" must be a PC !")
 		set_icon(crea.icon, crea.size)
 	else :
 		set_icon(crea.textureL, crea.size)

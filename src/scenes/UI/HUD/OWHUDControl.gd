@@ -563,6 +563,7 @@ func exit_battle_mode() :
 	
 func set_selected_creature(c : Creature) : # for battle, any creature on field not just pc
 	#also check called_on_CharPanel_SelectButton_pressed
+	print("OWHUD set_selected_creature "+c.name)
 	selected_character = c
 	if GameGlobal.player_characters.has(c) or GameGlobal.player_allies.has(c) : #select the right character
 		for p in charsVContainer.get_children() :
