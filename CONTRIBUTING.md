@@ -18,6 +18,12 @@ Thank you for considering contributing to our project! Here are a few guidelines
     git remote add upstream https://github.com/realmz-castle/realmz-remake.git
     ```
 
+4. **Fetch** lfs files
+
+    ```sh
+    git lfs fetch --all
+    ```
+
 ### Create a Branch
 
 1. **Create** a new branch for your changes:
