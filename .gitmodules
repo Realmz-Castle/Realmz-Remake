@@ -1,0 +1,3 @@
+[submodule "src/scenes/MusicPlayer/godot-mod-player-g4"]
+	path = src/scenes/MusicPlayer/godot-mod-player-g4
+	url = https://bitbucket.org/arlez80/godot-mod-player-g4.git

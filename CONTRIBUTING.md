@@ -9,7 +9,7 @@ Thank you for considering contributing to our project! Here are a few guidelines
 2. **Clone** your fork to your local machine:
 
     ```sh
-    git clone https://github.com/your-username/your-repository.git
+    git clone https://github.com/your-username/your-repository.git --recurse-submodules
     ```
 
 3. **Add** the original repository as a remote:

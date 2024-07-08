@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://x6hjye7oln8v"]
 
-[ext_resource type="Script" path="res://scenes/MusicPlayer/modplayer/ModPlayer.gd" id="1"]
+[ext_resource type="Script" path="res://scenes/MusicPlayer/godot-mod-player-g4/addons/modplayer/ModPlayer.gd" id="1"]
 [ext_resource type="Script" path="res://scenes/MusicPlayer/MusicStreamPlayer.gd" id="2"]
 
 [node name="MusicStreamPlayer" type="AudioStreamPlayer"]
