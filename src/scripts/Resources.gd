@@ -92,45 +92,50 @@ func clear_ressources() -> void:
 
 func load_campaign_ressources( campaign : String = "") ->void :
 	print("RESOURCES load_campaign_ressources")
+	
+	
+	
 	clear_ressources()
 	load_tile_resources("shared_assets/tiles/")
 	var tilesetspath : String = Paths.campaignsfolderpath + campaign + "/Tilesets/"
-	var tilesets : Array = Utils.FileHandler.list_dirs_in_directory(tilesetspath)
-	for ts in tilesets :
+	if DirAccess.dir_exists_absolute(tilesetspath) :
+		#var tilesets : Array = Utils.FileHandler.list_dirs_in_directory(tilesetspath)
+		#for ts in tilesets :
 		load_tile_resources(tilesetspath)# + ts + '/')
 	
 	load_item_resources("shared_assets/items/")
 	var itemsetpath : String = Paths.campaignsfolderpath + campaign + "/Items/"
-	load_item_resources(itemsetpath)
+	if DirAccess.dir_exists_absolute(itemsetpath) :
+		load_item_resources(itemsetpath)
 	
 	load_sound_ressources("shared_assets/sounds/")
 	var soundsspath : String = Paths.campaignsfolderpath + campaign + "/Sounds/"
-	load_sound_ressources(soundsspath)
+	if DirAccess.dir_exists_absolute(soundsspath) :
+		load_sound_ressources(soundsspath)
 	
 #	print(sounds_book)
 	load_music_resources(Paths.datafolderpath+'Music/')
 	var musicspath = Paths.campaignsfolderpath + campaign + "/Music/"
-
-#	print("load musics from campaing now")
-#	print(Paths.datafolderpath+'Music/')
-#	print(musicspath+'\n')
-	
-	load_music_resources(musicspath)
+	if DirAccess.dir_exists_absolute(musicspath) :
+		load_music_resources(musicspath)
 	
 	print("Resources B4load spells")
 	
 	load_spell_resources( "res://shared_assets/spells/" )
 	var spellspath = Paths.campaignsfolderpath + campaign + "/Spells/"
-	load_spell_resources(spellspath)
+	if DirAccess.dir_exists_absolute(spellspath) :
+		load_spell_resources(spellspath)
 #	print("\n\n", "spell resources : \n", spells_book.keys() ,"\n\n")
 	
 	load_creature_ai_resources("res://shared_assets/CreatureScripts/")
 	var creascriptspath : String = Paths.campaignsfolderpath + campaign + "/CreatureScripts/"
-	load_creature_ai_resources(creascriptspath)
+	if DirAccess.dir_exists_absolute(creascriptspath) :
+		load_creature_ai_resources(creascriptspath)
 	
 	load_bestiary_resources("res://shared_assets/Bestiary/")
 	var bestiarypath = Paths.campaignsfolderpath + campaign + "/Bestiary/"
-	load_bestiary_resources(bestiarypath)
+	if DirAccess.dir_exists_absolute(bestiarypath) :
+		load_bestiary_resources(bestiarypath)
 	
 	load_battle_resources(campaign)
 	
@@ -311,11 +316,7 @@ func load_bestiary_resources( path : String ) -> void:
 	var n_crea_img_pack : Dictionary = {}
 	n_crea_img_pack = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path + "img_pack.json"))
 	var texture_atlas : Image = Image.new()
-	
-	var atlasPngBuffer : PackedByteArray = FileAccess.get_file_as_bytes(path+"textureAtlas.png")
-	texture_atlas.load_png_from_buffer(atlasPngBuffer)
-	
-	#var _err_textureatlasload = texture_atlas.load(path+"textureAtlas.png")
+	var _err_textureatlasload = texture_atlas.load(path+"textureAtlas.png")
 	
 	#load images to images_book
 	for i in n_crea_img_pack :
@@ -524,7 +525,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 
 		var _err_newscript_reload = custom_spellscript.reload()
 #		print(_err_newscript_reload)
-		#var newscript = custom_spellscript.new()
+		var newscript = custom_spellscript.new()
 		spells_book[custom_spellscript.name] = { "name" : custom_spellscript.name, "source" : custom_spell_source, "script" : custom_spellscript}
 
 	if json_dict.has("weapon_dmg") :
@@ -605,7 +606,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 			print("item traitarray ",traitarray)
 			var traitname = traitarray[0]
 			var traitinit = traitarray[1]
-			#var _chance = traitarray[2]
+			var chance = traitarray[2]
 			var newscript : GDScript = GDScript.new()
 
 			if traitname.ends_with('.gd') :
@@ -672,6 +673,7 @@ func load_sound_ressources( path : String ) -> void :
 
 func load_music_resources(path : String) :
 	#path =  path to  a Music folder that may have subfolders
+	print('Resources.gd load_music_resources ',path)
 	#Paths.datafolderpath+"Music/"
 	var subfoldernames = Utils.FileHandler.list_dirs_in_directory(path)
 	#list all subfolders, this is just an array of Strings
@@ -864,7 +866,7 @@ func sort_item_type(a : String, b : String):
 
 
 func load_creature_ai_resources(path : String) :
-#	print("resources.gd load_creature_ai_resources "+path)
+	print("resources.gd load_creature_ai_resources "+path)
 	var scriptfilenames : Array = Utils.FileHandler.list_files_in_directory(path)
 #	var n_creascripts_book = Utils.FileHandler.read_json_dic_from_file(path +"spells_book.json")
 #	print("n_spells_book : ", n_spells_book)

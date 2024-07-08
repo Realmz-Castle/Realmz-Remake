@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://ydrlw05iy1k5"]
+[gd_scene load_steps=14 format=3 uid="uid://ydrlw05iy1k5"]
 
 [ext_resource type="PackedScene" uid="uid://jlb06ro2rvdg" path="res://scenes/Map/OWCharacter.tscn" id="1"]
 [ext_resource type="Script" path="res://scenes/Map/Map.gd" id="2"]
@@ -7,7 +7,6 @@
 [ext_resource type="Script" path="res://scenes/Map/TargetingLayer.gd" id="5_4df2b"]
 [ext_resource type="Script" path="res://scripts/Main.gd" id="6"]
 [ext_resource type="Shader" path="res://scenes/CRT.gdshader" id="7_5xixa"]
-[ext_resource type="Texture2D" uid="uid://c6vdcyhnn3ejn" path="res://scenes/Capture.PNG" id="7_hcueg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5xg8f"]
 
@@ -98,13 +97,6 @@ offset_bottom = 44.0
 
 [node name="CombatSystem" type="Node" parent="."]
 script = ExtResource("5")
-
-[node name="TextureRect" type="TextureRect" parent="."]
-visible = false
-layout_mode = 0
-offset_right = 634.0
-offset_bottom = 457.0
-texture = ExtResource("7_hcueg")
 
 [node name="ShaderOverlay" type="ColorRect" parent="."]
 visible = false
