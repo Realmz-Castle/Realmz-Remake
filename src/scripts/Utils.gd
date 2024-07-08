@@ -107,10 +107,14 @@ class FileHandler:
 		
 	static func list_files_in_directory(path) -> Array :  #copied from profileslist.gd
 		var dir = DirAccess.open(path)
+		if dir == null:
+			return [] 
 		return dir.get_files()
 
 	static func list_dirs_in_directory(path) :
 		var dir = DirAccess.open(path)
+		if dir == null:
+			return []
 		return dir.get_directories()
 
 	static func get_cfg_setting(path, section, key, default) :
