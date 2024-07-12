@@ -48,7 +48,8 @@ func on_viewport_size_changed(screensize):
 
 func set_item(nitem : Dictionary) -> void :
 #	print("item : ",item)
-	var screensize : Vector2 = UI.get_window().get_size() #UI.get_tree().get_root().get_size()#get_window().get_size()
+	var screensize : Vector2  = ScreenUtils.get_logical_window_size(self)
+	#UI.get_tree().get_root().get_size()#get_window().get_size()
 	colorRect._set_size(Vector2(floor((screensize.x-320-44-20)/2), 40))
 	_set_size(Vector2(floor((screensize.x-320-44-20)/2), 40))
 	iconsprite.set_texture( nitem["texture"] )

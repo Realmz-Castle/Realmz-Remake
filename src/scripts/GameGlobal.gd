@@ -62,6 +62,8 @@ var global_effects : Dictionary = {
 	"Shielded" : {"Duration" : 0},
 	"Sentry" : {"Duration" : 0}
 }
+## To 2x scale or not to 2x scale that is the question
+var hd_mode : bool = 1.0 
 
 #settings
 var gamespeed : float = 0.2
@@ -155,6 +157,8 @@ func set_current_profile(profilename : String) -> void :
 	for type in MusicStreamPlayer.oneofeachtype.keys() :
 		var favofthistype : String = Utils.FileHandler.get_cfg_setting(path, "MUSIC", type, "No Music")
 		MusicStreamPlayer.set_type_music_choice(type,favofthistype)
+	self.hd_mode = Utils.FileHandler.get_cfg_setting(path, "WINDOW", "hd_mode", false)
+
 	GameGlobal.load_profile_characters()
 
 

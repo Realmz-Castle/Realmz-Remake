@@ -302,7 +302,8 @@ func load_map( _campaign : String, mapname : String) -> void:
 #
 
 func _on_viewport_size_changed() :
-	var screensize : Vector2 = get_window().get_size()
+
+	var screensize : Vector2 = ScreenUtils.get_logical_window_size(self)
 	mapbutton.size = screensize-Vector2(320,201)
 	var vscale =Vector2.ONE
 	if screensize.x<512 :

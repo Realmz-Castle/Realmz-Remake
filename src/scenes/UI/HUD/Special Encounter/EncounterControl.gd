@@ -22,7 +22,7 @@ signal encounter_over
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	on_viewport_size_changed(get_window().get_size())
+	on_viewport_size_changed(ScreenUtils.get_logical_window_size(self))
 	useitemRect.connect("item_picked",Callable(self,"_on_item_used"))
 
 

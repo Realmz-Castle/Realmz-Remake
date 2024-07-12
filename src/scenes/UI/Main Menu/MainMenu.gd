@@ -28,6 +28,9 @@ func _ready():
 		newCampaignButton.disabled = false
 		newCharacterButton.disabled = false
 		loadgameButton.disabled = false
+		if GameGlobal.hd_mode:
+			ScreenUtils.set_window_scale(self, 2.0)
+
 	#print("Mainmenu _ready over")
 
 
@@ -83,10 +86,13 @@ func _on_load_button_pressed():
 
 
 func _on_hd_button_pressed():
-	#display/window/stretch/scale
-	var settingscale : float = ProjectSettings.get_setting_with_override("display/window/stretch/scale")
-	var newscale : float = 1.0 if settingscale !=1.0 else 2.0
-	ProjectSettings.set_setting("display/window/stretch/scale", newscale)
-	ProjectSettings.save()
-	get_tree().quit()
+	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
+	var hd_mode = Utils.FileHandler.get_cfg_setting(path, "WINDOW", "hd_mode", false)
 	
+	if hd_mode:
+		ScreenUtils.set_window_scale(self, 1.0)
+	else:
+		ScreenUtils.set_window_scale(self, 2.0)
+
+	Utils.FileHandler.set_cfg_setting(path, "WINDOW", "hd_mode", !hd_mode)
+

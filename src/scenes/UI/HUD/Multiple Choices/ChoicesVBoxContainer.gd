@@ -91,7 +91,7 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 		#		separation.hide()
 		
 	print("height : ",height)
-	var screensize : Vector2 = get_window().get_size()
+	var screensize : Vector2  = ScreenUtils.get_logical_window_size(self)
 	on_viewport_size_changed(screensize)
 
 
