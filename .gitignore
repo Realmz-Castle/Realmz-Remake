@@ -11,3 +11,6 @@ addons/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
+
+# VS Code specific ignores
+.vscode/
