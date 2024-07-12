@@ -144,7 +144,7 @@ func get_mofified_screensize() :
 #	screensize.x = (1/newscalex)*screensize.x
 #	screensize.y = (1/newscaley)*screensize.y
 	if screensize.x<800 :
-		screensize.x = 800 
+		screensize.x = 800
 	if screensize.y<400 :
 		screensize.y = 400
 	return screensize
