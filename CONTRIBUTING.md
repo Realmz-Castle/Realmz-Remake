@@ -9,13 +9,19 @@ Thank you for considering contributing to our project! Here are a few guidelines
 2. **Clone** your fork to your local machine:
 
     ```sh
-    git clone https://github.com/your-username/your-repository.git --recurse-submodules
+    git clone https://github.com/your-username/realmz-remake.git --recurse-submodules
     ```
 
 3. **Add** the original repository as a remote:
 
     ```sh
     git remote add upstream https://github.com/realmz-castle/realmz-remake.git
+    ```
+
+4. **Pull** lfs files [See more on using git-lfs](https://git-lfs.com/)
+
+    ```sh
+    git lfs pull
     ```
 
 ### Create a Branch
@@ -57,6 +63,8 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 ## Additional Resources
 
 For more detailed information on project structure and implementation, please refer to the [RealmzRemake Manual](src/RealmzRemake%20Manual).
+
+You can also find reference material in [this shared Google Drive Folder](https://drive.google.com/drive/folders/1T471mud1wpp-mqGuzrgvVjX35PRQYJ3F?usp=sharing)
 
 Thank you for your contributions!
 
