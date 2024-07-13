@@ -154,13 +154,13 @@ text = "Honest mode ?"
 modulate = Color(3, 3, 3, 1)
 layout_mode = 2
 
-[node name="HDButton" type="Button" parent="."]
+[node name="HDButton" type="CheckButton" parent="."]
 layout_mode = 0
 offset_left = 6.0
 offset_top = 104.0
 offset_right = 137.0
 offset_bottom = 129.0
-text = "Toggle HD mode !"
+text = "HD mode !"
 
 [node name="NewCharacterButton" type="Button" parent="."]
 layout_mode = 1

@@ -12,6 +12,7 @@ extends Control
 @onready var loadgameWindow : Window = $LoadWindow
 @onready var loadgameCtrl : SaveLoadCtrl = $LoadWindow/SaveLoadRect
 @onready var newCharacterPanel : NinePatchRect = $NewCharacterPanel
+@onready var hdModeCheckButton : CheckButton = $HDButton
 var profileslist : Array =  []
 
 # Called when the node enters the scene tree for the first time.
@@ -28,6 +29,7 @@ func _ready():
 		newCampaignButton.disabled = false
 		newCharacterButton.disabled = false
 		loadgameButton.disabled = false
+		hdModeCheckButton.button_pressed = GameGlobal.hd_mode
 		if GameGlobal.hd_mode:
 			ScreenUtils.set_window_scale(self, 2.0)
 
@@ -87,12 +89,14 @@ func _on_load_button_pressed():
 
 func _on_hd_button_pressed():
 	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
-	var hd_mode = Utils.FileHandler.get_cfg_setting(path, "WINDOW", "hd_mode", false)
+	var hd_mode = Utils.FileHandler.get_cfg_setting(path, "WINDOW", "hd_mode", GameGlobal.hd_mode)
 	
 	if hd_mode:
 		ScreenUtils.set_window_scale(self, 1.0)
 	else:
 		ScreenUtils.set_window_scale(self, 2.0)
 
-	Utils.FileHandler.set_cfg_setting(path, "WINDOW", "hd_mode", !hd_mode)
+	var new_hd_mode = !hd_mode
+	Utils.FileHandler.set_cfg_setting(path, "WINDOW", "hd_mode", new_hd_mode)
+	GameGlobal.hd_mode = new_hd_mode
 
