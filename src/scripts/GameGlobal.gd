@@ -157,7 +157,7 @@ func set_current_profile(profilename : String) -> void :
 	for type in MusicStreamPlayer.oneofeachtype.keys() :
 		var favofthistype : String = Utils.FileHandler.get_cfg_setting(path, "MUSIC", type, "No Music")
 		MusicStreamPlayer.set_type_music_choice(type,favofthistype)
-	hd_mode = Utils.FileHandler.get_cfg_setting(path, "WINDOW", "hd_mode", hd_mode)
+
 
 	GameGlobal.load_profile_characters()
 
@@ -183,6 +183,10 @@ func load_character_to_profile(c : String) :
 	var newchar = Utils.FileHandler.load_character(path)
 #	print("loaded char ", newchar.name)
 	profile_characters_list.append(newchar)
+
+func set_hd_mode(new_hd_mode: bool) -> void:
+	hd_mode = new_hd_mode
+	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", new_hd_mode)
 
 func init_globals_before_game_start(data_dict : Dictionary) :
 	# used in  load_game()

@@ -20,6 +20,8 @@ func _ready():
 	newprofileVBox.my_menu = self
 	build_profiles_list()
 	var profilefromcfg = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
+	var hd_mode_from_config = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", GameGlobal.hd_mode)
+	GameGlobal.set_hd_mode(hd_mode_from_config)
 #	var dir = Directory.new()
 	if DirAccess.dir_exists_absolute(Paths.profilesfolderpath+"/" + profilefromcfg) :
 #	if dir.dir_exists(Paths.profilesfolderpath+"/" + profilefromcfg) :
@@ -88,15 +90,15 @@ func _on_load_button_pressed():
 
 
 func _on_hd_button_pressed():
-	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
-	var hd_mode = Utils.FileHandler.get_cfg_setting(path, "WINDOW", "hd_mode", GameGlobal.hd_mode)
+	var hd_mode_chosen = hdModeCheckButton.button_pressed
 	
-	if hd_mode:
-		ScreenUtils.set_window_scale(self, 1.0)
-	else:
+	if hd_mode_chosen:
+		# Switch to HD
 		ScreenUtils.set_window_scale(self, 2.0)
+	else:
+				ScreenUtils.set_window_scale(self, 1.0)
+		# Switch to SD
 
-	var new_hd_mode = !hd_mode
-	Utils.FileHandler.set_cfg_setting(path, "WINDOW", "hd_mode", new_hd_mode)
-	GameGlobal.hd_mode = new_hd_mode
+
+	GameGlobal.set_hd_mode(hd_mode_chosen)
 
