@@ -11,6 +11,7 @@ static func set_window_scale(node: Node, scale: float) -> void:
 	var relative_scale:float = scale / window.content_scale_factor
 	window.content_scale_factor = scale
 	window.size = window.size*relative_scale
+	window.move_to_center()
 
 ## Returns the window size in logical pixels (not physical pixels)
 static func get_logical_window_size(node: Node) -> Vector2:
