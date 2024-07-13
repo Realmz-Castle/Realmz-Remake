@@ -15,6 +15,7 @@ You can find latest releases [here](https://github.com/Realmz-Castle/Realmz-Rema
 ### Prerequisites
 
 [Godot 4.x](https://godotengine.org/download)
+[Git LFS](https://git-lfs.com)
 
 ## Contributing
 
