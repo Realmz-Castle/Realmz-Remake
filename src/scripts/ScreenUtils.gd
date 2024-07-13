@@ -20,7 +20,7 @@ static func get_logical_window_size(node: Node) -> Vector2:
 
 	return window.get_size() / scale
 
-## Returns true if the screen is considered HD (1920x1080 or higher)
+## Returns true if the screen is considered HD
 static func screen_is_hd() -> bool:
 	var window = DisplayServer.screen_get_size()
 	return window.x >= HD.x and window.y >= HD.y
@@ -32,7 +32,7 @@ static func get_hd_mode_default() -> bool:
 	if is_retina:
 		return true
 	else:
-		if DisplayServer.screen_get_size().x >= 1920:
+		if screen_is_hd():
 			# Assume 2x scale for high resolution displays
 			return true
 		# Assume 1x scale for other platforms
