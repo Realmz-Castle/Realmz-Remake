@@ -62,7 +62,7 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 ## Additional Resources
 
-For more detailed information on project structure and implementation, please refer to the [RealmzRemake Manual](src/RealmzRemake%20Manual).
+For more detailed information on project structure and implementation, please refer to the [RealmzRemake Manual](https://github.com/Realmz-Castle/Realmz-Remake/wiki/RemakeManual-%E2%80%90-Introduction).
 
 You can also find reference material in [this shared Google Drive Folder](https://drive.google.com/drive/folders/1T471mud1wpp-mqGuzrgvVjX35PRQYJ3F?usp=sharing)
 
