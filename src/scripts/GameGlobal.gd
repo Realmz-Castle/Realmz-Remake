@@ -186,6 +186,9 @@ func load_character_to_profile(c : String) :
 
 func set_hd_mode(new_hd_mode: bool) -> void:
 	hd_mode = new_hd_mode
+
+
+func save_hd_mode(new_hd_mode: bool) -> void:
 	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", new_hd_mode)
 
 func init_globals_before_game_start(data_dict : Dictionary) :
