@@ -569,6 +569,15 @@ func get_spell_data(spell, power : int)->Dictionary :
 
 	return spelldata
 
+
+func does_crea_know_spell_named(spellname : String) :
+	for slvl : int in range(spells.size()) :
+		for s_dict : Dictionary in  spells[slvl] :
+			#print(s_dict)
+			if s_dict['name']==spellname : return true
+	return false
+
+
 #func get_spell_cost(spell,power : int) :
 #	if spell.has_method("get_sp_cost") :
 #		var sp_cost = spell.get_sp_cost(power, self)

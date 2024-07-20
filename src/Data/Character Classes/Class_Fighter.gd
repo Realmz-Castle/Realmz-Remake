@@ -236,9 +236,11 @@ static func _level_up(_character, _new_level : int) :
 	if [5,10,15,20,25,30,35,40].has(_new_level) :
 		_character.base_stats["MaxActions"] += 0.5
 
-#if  class OR race  scripts allow  (>0),  character ca, learn
+## returns  the  Spell Level at which a spell is learned.
+## <=0 should be changed to 1 in PlayerCHaracter 's can_learn_spell
+## >7 means  the character can't learn this spell (unless race changes it)
 static func can_learn_spell(_character, _spell) -> int :
-	return 0
+	return 10  #Fighter can't learn any spell
 
 static func _character_creation_gifts(_character) :
 	#will have to be rewritten wehn items are implemented

@@ -159,7 +159,8 @@ func save_game(campaignname : String, savename : String) :
 		"boat_image" : GameGlobal.boat_sailed_image_name,
 		"pc_order" : pc_order,
 		"preview" : preview_arr,
-		"notes" : notes
+		"notes" : notes,
+		"GlobalEffects" : GameGlobal.global_effects
 		}
 	if GameGlobal.honest_mode :
 		dict_to_save.erase("money_banked")
@@ -264,7 +265,8 @@ func load_game(campaignname : String, savename : String) :
 		"save_descr" = data_dict["notes"],
 		"campaign" = campaignname,
 		"currentmap_name" = data_dict["currentmap_name"],
-		"shops_dict" = shop_data
+		"shops_dict" = shop_data,
+		"GlobalEffects" = data_dict["GlobalEffects"]
 	}
 	print("load_game : data_dict[currentmap_name] : ", data_dict["currentmap_name"])
 	

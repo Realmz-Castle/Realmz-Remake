@@ -299,7 +299,7 @@ func play_spell_resolution(gfxname : String, _castercrea : Creature, effected_ti
 func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_targeted_tile : Vector2, effected_tiles : Array, effected_creas : Array, add_terrain : bool) :
 	print("CbAnimState after_spell_anim_finished : "+castercrea.name+'s '+spell.name)
 	if spell.get("special_effect") :
-		var is_over : bool = spell.special_effect(castercrea, spell, power, main_targeted_tile, effected_tiles, effected_creas, add_terrain)
+		var is_over : bool = await spell.special_effect(castercrea, spell, power, main_targeted_tile, effected_tiles, effected_creas, add_terrain)
 		if is_over :
 			return
 	for c in effected_creas :

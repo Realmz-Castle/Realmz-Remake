@@ -26,6 +26,8 @@ var melee_unarmed : Texture2D = preload("res://scenes/UI/HUD/CreatureCBRect/unar
 @onready var creaAmmoPanel : Panel = $HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl/AmmoButton/AmmoPanel
 @onready var creaAmmoVBox : VBoxContainer = $HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl/AmmoButton/AmmoPanel/AmmoVBox
 
+@onready var turnorderButton : CheckButton = $TurnOrderButton
+
 @onready var logrect : LogRect = $HBoxContainer/LogRect
 
 
@@ -187,3 +189,10 @@ func _on_mouse_entered():
 		if charbutton_this_turn != my_crea_button :
 			display_crea_info(charbutton_this_turn)
 
+
+
+
+
+
+func _on_turn_order_button_toggled(toggled_on):
+	UI.ow_hud._on_turn_order_button_toggled(toggled_on)

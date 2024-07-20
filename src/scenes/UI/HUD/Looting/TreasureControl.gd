@@ -21,8 +21,12 @@ extends Control
 
 @onready var moneyLabel : Label = $BotRightLootInfo/ItemInfoRect/MoneynLabel
 
+@onready var detect_button : Button = $BotRightLootInfo/DetectButton
+
 var exp_gain : int = 0
 var exp_receivers : Array = []
+
+var already_identified : bool = false
 
 signal done_looting
 
@@ -51,6 +55,8 @@ func on_viewport_size_changed(screensize : Vector2) :
 func display(items : Array, money : Array, experience : int) :
 	exp_gain = experience
 	exp_receivers.clear()
+	detect_button.disabled = false
+	already_identified = false
 	for pc : PlayerCharacter in GameGlobal.player_characters :
 		if pc.get_stat("curHP")<=0 :
 			continue
@@ -159,3 +165,23 @@ func _on_ShareButton_pressed():
 
 func _on_money_button_pressed():
 	get_parent()._on_MoneyButton_pressed()
+
+
+func _on_detect_button_pressed():
+	if already_identified : return
+	var character : Creature = UI.ow_hud.selected_character
+	var resources = NodeAccess.__Resources()
+	var disco_spell = resources.spells_book["Discover Magic"]['script']
+	var sp_cost : int = character.get_spell_resource_cost(disco_spell, 1)
+
+	if character.does_crea_know_spell_named("Discover Magic") and character.get_stat('curSP') >= sp_cost :
+		for ilb : Button in itemsContainer.get_children() :
+			var item : Dictionary = ilb.pressed.get_connections()[0]['callable'].get_bound_arguments()[0]
+			if item['is_magical'] :
+				ilb.find_child("GlowTextureRect").show()
+		character.change_cur_sp( -sp_cost )
+		detect_button.disabled = true
+		already_identified = true
+	else :
+		SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.wav']
+		SfxPlayer.play()

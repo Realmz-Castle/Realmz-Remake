@@ -171,7 +171,10 @@ static func _character_creation_gifts(_character) :
 static func get_selection_cost(_character, _ability, _cost) :
 	return _cost
 
-#if  class OR race  scripts allow  (>0),  character ca, learn
+## returns  the  Spell Level at which a spell is learned. <=7 : can learn.
+## the normal value is returned  by the Class  script, not this one.
+## Should return 0 (no modification) unless  this race  really should/shouldnt
+## learn  this spell at a different level/never.
 static func can_learn_spell(_character, _spell) -> int :
 	return 0
 

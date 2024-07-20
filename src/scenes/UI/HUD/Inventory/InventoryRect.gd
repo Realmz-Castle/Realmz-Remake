@@ -337,13 +337,54 @@ func _on_ButtonDrop_pressed():
 #		fill_inventory_Vbox(inventoryBoxRight, hud.selected_character)
 
 func _on_ButtonIdentify_pressed():
-	print("_on_ButtonIdentify_pressed TBI, doesnt  use  spell yet")
-	for i in hud.selected_character.inventory :
-		GameGlobal.identify_item(i)
-	GameGlobal.refresh_OW_HUD()
+	if not is_instance_valid(selected_item_ctrl) : return
+	if selected_item_ctrl.item["is_identified"] > 0 : return
+	print("INventoryRect _on_ButtonIdentify_pressed ok")
+	var chara_cancast_identify : Creature = null
+	var resources = NodeAccess.__Resources()
+	var id_spell = resources.spells_book["Identify Objects"]['script']
+	var my_creas : Array = GameGlobal.player_allies + GameGlobal.player_characters
+	var sp_cost : int = 0
+	for c : Creature in my_creas :
+		
+		sp_cost = c.get_spell_resource_cost(id_spell, 1)
+		print('   '+c.name+ ' cost: '+ str(sp_cost), '  knows? ',  c.does_crea_know_spell_named("Identify Objects") )
+		if c.does_crea_know_spell_named("Identify Objects") and c.get_stat('curSP') >= sp_cost :
+			chara_cancast_identify = c
+			break
+	if is_instance_valid(chara_cancast_identify) :
+		SfxPlayer.stream = resources.sounds_book[id_spell.sounds[1]]
+		SfxPlayer.play()
+		chara_cancast_identify.change_cur_sp(-sp_cost)
+		GameGlobal.identify_item(selected_item_ctrl.item)
+		selected_item_ctrl.set_item(selected_item_ctrl.item)
+		GameGlobal.refresh_OW_HUD()
+	else :
+		SfxPlayer.stream = resources.sounds_book['generation error.wav']
+		SfxPlayer.play()
+	
+	#for i in hud.selected_character.inventory :
+		#GameGlobal.identify_item(i)
+	#GameGlobal.refresh_OW_HUD()
 
 func _on_ButtonidentiPay_pressed():
-	print("_on_ButtonIdentiPay_pressed TBI")
+	print("_on_ButtonIdentiPay_pressed")
+	if not is_instance_valid(selected_item_ctrl) : return
+	if selected_item_ctrl.item["is_identified"] > 0 : return
+	if hud.selected_character.money[0] >= 10 or GameGlobal.money_pool[0] >= 10 :
+		GameGlobal.identify_item(selected_item_ctrl.item)
+		selected_item_ctrl.set_item(selected_item_ctrl.item)
+		if hud.selected_character.money[0] >= 10 :
+			hud.selected_character.money[0] -= 10
+			shopRect.goldLabel.text = str( hud.selected_character.money[0] )
+		else :
+			GameGlobal.money_pool[0] -= 10
+			shopRect.poolLabel.text = str( GameGlobal.money_pool[0] )
+		GameGlobal.refresh_OW_HUD()
+	else :
+		SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.wav']
+		SfxPlayer.play()
+
 
 func _on_ButtonDone_pressed():
 	print("_on_ButtonDone_pressed")
@@ -464,6 +505,7 @@ func _on_ButtonJoin_pressed():
 func _on_ButtonShop_pressed():
 	traderect.hide()
 	shopRect.initialize()
+	buttonIdenPay.show()
 	buttonJoin.hide()
 	buttonSplit.hide()
 	hud.set_charactersRect_type(1)

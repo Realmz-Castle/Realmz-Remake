@@ -1,32 +1,33 @@
-[gd_scene load_steps=61 format=3 uid="uid://bcm4yk3e2uv7"]
+[gd_scene load_steps=63 format=3 uid="uid://bcm4yk3e2uv7"]
 
 [ext_resource type="PackedScene" uid="uid://y2mh6jttjyop" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButton.tscn" id="1"]
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
 [ext_resource type="PackedScene" uid="uid://cjpb8ppwrbrtl" path="res://scenes/UI/HUD/Bestiary/bestiary_rect.tscn" id="3_j1454"]
-[ext_resource type="Texture2D" uid="uid://ss44lqbhulsx" path="res://scenes/UI/HUD/Button_Items.png" id="5"]
-[ext_resource type="Texture2D" uid="uid://bfdh53tg5brip" path="res://shared_assets/UI/stone_pattern.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://bcs1n6hjnlb45" path="res://scenes/UI/HUD/Button_Items.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://xts8t37jlrj1" path="res://shared_assets/UI/stone_pattern.png" id="6"]
 [ext_resource type="PackedScene" uid="uid://biqyyjm2makqt" path="res://scenes/UI/HUD/AbilitiesManagement/abilities_mngt_rect.tscn" id="9_240h7"]
 [ext_resource type="PackedScene" uid="uid://7v3a8w4rknyq" path="res://scenes/UI/HUD/SaveLoad/save_load_rect.tscn" id="10_fxj6e"]
 [ext_resource type="PackedScene" uid="uid://iiocvdyx6axc" path="res://scenes/UI/HUD/Storage/storage_rect.tscn" id="10_v5rum"]
+[ext_resource type="PackedScene" uid="uid://bauulxe7dboxs" path="res://scenes/UI/HUD/TurnOrderPanel/turn_order_panel.tscn" id="11_6j1vb"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="12_c6hp3"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="13_dm23x"]
 [ext_resource type="PackedScene" uid="uid://bok34jeuhstd2" path="res://scenes/UI/HUD/CreatureCBRect/creature_rect.tscn" id="13_svkkd"]
-[ext_resource type="Texture2D" uid="uid://ddkb1ppvtr2gy" path="res://scenes/UI/HUD/Spells/TargetImages/DoNotUse.png" id="14_mlt3e"]
+[ext_resource type="Texture2D" uid="uid://b2amq0mrdgejm" path="res://scenes/UI/HUD/Spells/TargetImages/DoNotUse.png" id="14_mlt3e"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="14_pjtj6"]
-[ext_resource type="Texture2D" uid="uid://ueqocr1cegi8" path="res://shared_assets/UI/BarTextGray.png" id="14_u7mw3"]
+[ext_resource type="Texture2D" uid="uid://ch5jrxo4xaf7s" path="res://shared_assets/UI/BarTextGray.png" id="14_u7mw3"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/TextRect.gd" id="15"]
-[ext_resource type="Texture2D" uid="uid://d2my40a3mkspk" path="res://shared_assets/UI/BartextRed.png" id="15_3lusa"]
-[ext_resource type="Texture2D" uid="uid://cj2npdsnsqein" path="res://scenes/UI/HUD/Inventory/EquippedGray.png" id="15_22ixm"]
+[ext_resource type="Texture2D" uid="uid://cj6ig4g8cx4t6" path="res://shared_assets/UI/BartextRed.png" id="15_3lusa"]
+[ext_resource type="Texture2D" uid="uid://cvs04hlnss3nh" path="res://scenes/UI/HUD/Inventory/EquippedGray.png" id="15_22ixm"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="15_rs5dt"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/BotRightPanel.gd" id="20_oijwo"]
-[ext_resource type="Texture2D" uid="uid://ckpcpybt2rdfd" path="res://scenes/UI/HUD/Button_Bestiary.png" id="22_a5ehs"]
-[ext_resource type="Texture2D" uid="uid://bxkusgjl4q7lk" path="res://scenes/UI/HUD/Button_CharSwap.png" id="23"]
+[ext_resource type="Texture2D" uid="uid://b6bunhvw15xat" path="res://scenes/UI/HUD/Button_Bestiary.png" id="22_a5ehs"]
+[ext_resource type="Texture2D" uid="uid://btpwl08klh1of" path="res://scenes/UI/HUD/Button_CharSwap.png" id="23"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/CharSwapRect.gd" id="24"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Multiple Choices/ChoicesVBoxContainer.gd" id="25"]
 [ext_resource type="PackedScene" uid="uid://daoj20idrc3n6" path="res://scenes/UI/HUD/Multiple Choices/ChoicesYesNo.tscn" id="26"]
-[ext_resource type="Texture2D" uid="uid://bc1j7tovn6r53" path="res://scenes/UI/HUD/Button_AbilitesList.png" id="26_silsh"]
+[ext_resource type="Texture2D" uid="uid://dx1grpkmq7w2y" path="res://scenes/UI/HUD/Button_AbilitesList.png" id="26_silsh"]
 [ext_resource type="PackedScene" uid="uid://byeahfs6d5i36" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButtonSeparator.tscn" id="27"]
-[ext_resource type="Texture2D" uid="uid://bv85uf3xa88li" path="res://scenes/UI/HUD/Button_SaveQ.png" id="27_drj61"]
+[ext_resource type="Texture2D" uid="uid://b7h2b36wa7x8l" path="res://scenes/UI/HUD/Button_SaveQ.png" id="27_drj61"]
 [ext_resource type="PackedScene" uid="uid://d3b75oe6r5ua4" path="res://scenes/UI/HUD/Multiple Choices/ChoicesStop.tscn" id="28"]
 [ext_resource type="PackedScene" uid="uid://buub48wqri0s6" path="res://scenes/UI/HUD/Spells/spells_rect.tscn" id="28_20wsm"]
 [ext_resource type="PackedScene" uid="uid://ceolb7qhukb47" path="res://scenes/UI/HUD/Combat_BR_Panel/combat_br_panel.tscn" id="28_s8a54"]
@@ -34,19 +35,20 @@
 [ext_resource type="PackedScene" uid="uid://ccbrj0rjl87wg" path="res://scenes/UI/HUD/Special Encounter/encounter_control.tscn" id="29_2kg64"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/OWHUDControl.gd" id="30"]
 [ext_resource type="PackedScene" uid="uid://cq2p1ikurai08" path="res://scenes/UI/HUD/Looting/treasure_control.tscn" id="33_k50bo"]
-[ext_resource type="Texture2D" uid="uid://cwrabk1cwbayt" path="res://scenes/UI/HUD/Button_Settings.png" id="36"]
+[ext_resource type="Texture2D" uid="uid://boq0ybnq1y16x" path="res://scenes/UI/HUD/Button_Settings.png" id="36"]
+[ext_resource type="PackedScene" uid="uid://b6pytyonlmi0h" path="res://scenes/UI/HUD/GlobalEffectsRect/global_effects_rect.tscn" id="38_2g7oy"]
 [ext_resource type="PackedScene" uid="uid://ckk0txf7ssl6a" path="res://scenes/UI/HUD/MoneyRect/money_rect.tscn" id="38_5dnvn"]
-[ext_resource type="Texture2D" uid="uid://bsv31ioswuobw" path="res://scenes/UI/HUD/Button_Encounter.png" id="39"]
+[ext_resource type="Texture2D" uid="uid://ctbmlcwy148k3" path="res://scenes/UI/HUD/Button_Encounter.png" id="39"]
 [ext_resource type="PackedScene" uid="uid://b5341ljf605d7" path="res://scenes/UI/HUD/Inventory/inventory_rect.tscn" id="42_uqsid"]
 [ext_resource type="PackedScene" uid="uid://ux82qv1x7yu5" path="res://scenes/UI/HUD/LevelUp/level_up_rect.tscn" id="47_7a5ck"]
 [ext_resource type="PackedScene" uid="uid://diwmugxendkdn" path="res://scenes/UI/HUD/Settings/settings_rect.tscn" id="47_7r2s1"]
 [ext_resource type="PackedScene" uid="uid://37bdl7c76fpb" path="res://scenes/UI/HUD/Allies/allies_rect.tscn" id="48_mnk6s"]
-[ext_resource type="Texture2D" uid="uid://dkkvumxv2ebeb" path="res://scenes/UI/HUD/Button_Camp.png" id="53"]
-[ext_resource type="Texture2D" uid="uid://c1wtx6v8kc6ld" path="res://scenes/UI/HUD/Button_Rest.png" id="54"]
-[ext_resource type="Texture2D" uid="uid://ccgwnh5lop7ta" path="res://scenes/UI/HUD/Button_Save.png" id="55"]
-[ext_resource type="Texture2D" uid="uid://dt6qfh78mmb10" path="res://scenes/UI/HUD/Button_Money.png" id="56"]
+[ext_resource type="Texture2D" uid="uid://bl3nsxf28o8ma" path="res://scenes/UI/HUD/Button_Camp.png" id="53"]
+[ext_resource type="Texture2D" uid="uid://bam2smxq28ugh" path="res://scenes/UI/HUD/Button_Rest.png" id="54"]
+[ext_resource type="Texture2D" uid="uid://bstxo6k3kefdb" path="res://scenes/UI/HUD/Button_Save.png" id="55"]
+[ext_resource type="Texture2D" uid="uid://bemc1ho5y8asb" path="res://scenes/UI/HUD/Button_Money.png" id="56"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="67_o5gys"]
-[ext_resource type="Texture2D" uid="uid://ck0lm5knfrrao" path="res://scenes/UI/HUD/Button_Spells.png" id="81"]
+[ext_resource type="Texture2D" uid="uid://d3vnjgyob6xvm" path="res://scenes/UI/HUD/Button_Spells.png" id="81"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kbh82"]
 
@@ -150,6 +152,12 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="TurnOrderPanel" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("11_6j1vb")]
+visible = false
+layout_mode = 1
+offset_top = 0.0
 offset_bottom = 0.0
 
 [node name="VBoxCharTime" type="VBoxContainer" parent="VBoxScreen/HBoxTop"]
@@ -533,10 +541,10 @@ icon = ExtResource("27_drj61")
 [node name="BestiaryButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 0
-offset_left = 170.0
-offset_top = 50.0
-offset_right = 220.0
-offset_bottom = 100.0
+offset_left = 50.0
+offset_top = 150.0
+offset_right = 100.0
+offset_bottom = 200.0
 theme_override_styles/normal = ExtResource("12_c6hp3")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
@@ -598,6 +606,13 @@ theme_override_styles/pressed = ExtResource("14_pjtj6")
 theme_override_styles/disabled = ExtResource("15_rs5dt")
 shortcut = SubResource("12")
 icon = ExtResource("81")
+
+[node name="GlobalEffectsRect" parent="VBoxScreen/HBoxBot/BotRightPanel" instance=ExtResource("38_2g7oy")]
+layout_mode = 0
+offset_left = 107.189
+offset_top = 7.94815
+offset_right = 180.189
+offset_bottom = 116.948
 
 [node name="CombatBRPanel" parent="VBoxScreen/HBoxBot" instance=ExtResource("28_s8a54")]
 visible = false

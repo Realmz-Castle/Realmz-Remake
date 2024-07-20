@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://df0n7iov8urn3"]
 
 [ext_resource type="Script" path="res://scenes/Map/CombatCharacter.gd" id="1_6vrfh"]
-[ext_resource type="Texture2D" uid="uid://bdqm7hng8keon" path="res://scenes/Map/CreaSelection11.png" id="2_c7n50"]
-[ext_resource type="Texture2D" uid="uid://dbys7abqx7smb" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="2_csw5h"]
-[ext_resource type="Texture2D" uid="uid://b4co000kb4k8c" path="res://shared_assets/BattleEffects/BattleEffects.png" id="4_lfo5q"]
+[ext_resource type="Texture2D" uid="uid://b3q6c14si8hwv" path="res://scenes/Map/CreaSelection11.png" id="2_c7n50"]
+[ext_resource type="Texture2D" uid="uid://of37cx0jjr8c" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="2_csw5h"]
+[ext_resource type="Texture2D" uid="uid://bxrobmwp662qq" path="res://shared_assets/BattleEffects/BattleEffects.png" id="4_lfo5q"]
 
 [node name="CombatCharacter" type="Button" node_paths=PackedStringArray("atkanimTimer")]
 offset_right = 32.0

@@ -150,9 +150,10 @@ func _on_CastButton_pressed():
 #	hide()
 #	picked_spell = "some spell "+String(randi()%1000)
 	emit_signal("spell_picked", picked_character, picked_spell, picked_power, {} ) #item is {}
-	textRect.hide()
-	UI.ow_hud.creatureRect.show()
-	UI.ow_hud.creatureRect.display_crea_info(UI.ow_hud.creatureRect.my_crea_button)
+	if StateMachine.is_combat_state() :
+		textRect.hide()
+		UI.ow_hud.creatureRect.show()
+		UI.ow_hud.creatureRect.display_crea_info(UI.ow_hud.creatureRect.my_crea_button)
 
 func _on_AbortButton_pressed():
 	print("SpellsRect AbortButton_pressed")
