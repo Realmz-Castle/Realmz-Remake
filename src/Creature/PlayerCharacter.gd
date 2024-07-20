@@ -313,22 +313,31 @@ func get_selection_cost(ability) -> int:
 static func get_exp_req_for_lvl(lvl : int) -> int :
 	return pow(lvl,3)*100
 
-func can_learn_spell(spell) :
-	return classgd.can_learn_spell(self,spell) + racegd.can_learn_spell(self,spell) > 0
+## returns  the spell level at which the character can learn spell,  or  0 if it can't.
+## should return a value in [0,7]
+func can_learn_spell_at_level(spell) -> int :
+	var spell_level : int = classgd.can_learn_spell(self,spell) + racegd.can_learn_spell(self,spell)
+	if spell_level > 7 : return 0
+	return max(1, spell_level)
 
+##returns an array of  arrays  [spellname:String, level:int]
 func get_abilities_pc_can_learn() ->Array : #only  Strings  as spell names
 	var spells_book = NodeAccess.__Resources().spells_book
 	var returned = []
 	for sn in spells_book :#classgd.get_abilities_pc_can_learn(self) :
-		if can_learn_spell(spells_book[sn]) :
-			returned.append(sn)
+		var s_level : int = can_learn_spell_at_level(spells_book[sn]['script'])
+		if s_level>0 :
+			returned.append([sn, s_level])
 	#for sn in racegd.get_abilities_pc_can_learn(self) :
 		#if can_learn_spell(spells_book[sn]) :
 			#if (not returned.has(sn)) :
 				#returned.append(sn)
 	return returned
 
-func can_manage_ablt_anywhere()->bool :
+#func can_manage_ablt_anywhere()->bool :
+	#return classgd.can_manage_ablt_anywhere
+
+func can_show_ability_list() -> bool :
 	return classgd.can_manage_ablt_anywhere
 
 

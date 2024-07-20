@@ -1,20 +1,19 @@
-[gd_scene load_steps=19 format=3 uid="uid://bok34jeuhstd2"]
+[gd_scene load_steps=18 format=3 uid="uid://bok34jeuhstd2"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_0s37h"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_0s37h"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/CreatureCBRect/creature_rect.gd" id="2_ikhnd"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_ufhxe"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_ggj6v"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_hyxth"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_nrv76"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_jef17"]
-[ext_resource type="Texture2D" uid="uid://c60xx52brghq2" path="res://icon.png" id="7_fecvo"]
+[ext_resource type="Texture2D" uid="uid://c5awi2tmgde6b" path="res://icon.png" id="7_fecvo"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="8_kacdk"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="9_o88gy"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="10_pp780"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="11_6wepc"]
-[ext_resource type="Texture2D" uid="uid://dpk1fon14ik7f" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_icon.png" id="12_v6qo5"]
-[ext_resource type="Texture2D" uid="uid://drwnlqb0flrd" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_range.png" id="13_ya1i5"]
-[ext_resource type="Texture2D" uid="uid://cr3vxwufu5na6" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_ammo.png" id="14_ytpkj"]
+[ext_resource type="Texture2D" uid="uid://c7wn4d37i5l0a" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_range.png" id="13_ya1i5"]
+[ext_resource type="Texture2D" uid="uid://cr7s2cy40jo8e" path="res://scenes/UI/HUD/CreatureCBRect/unarmed_ammo.png" id="14_ytpkj"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/CreatureCBRect/LogRect.gd" id="16_6b4ns"]
 
 [sub_resource type="InputEventAction" id="InputEventAction_jonq4"]
@@ -75,8 +74,10 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -103.0
-offset_bottom = 26.0
+offset_left = -198.0
+offset_top = 84.0
+offset_right = -95.0
+offset_bottom = 110.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
@@ -243,7 +244,6 @@ theme_override_styles/normal = ExtResource("8_kacdk")
 theme_override_styles/hover = ExtResource("9_o88gy")
 theme_override_styles/pressed = ExtResource("10_pp780")
 theme_override_styles/disabled = ExtResource("11_6wepc")
-icon = ExtResource("12_v6qo5")
 icon_alignment = 1
 
 [node name="MChargesLabel" type="Label" parent="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/MeleeControl/MeleeButton"]
@@ -416,8 +416,26 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = -2
 
+[node name="TurnOrderButton" type="CheckButton" parent="."]
+layout_mode = 0
+offset_left = 263.0
+offset_top = 21.0
+offset_right = 403.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_focus_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_disabled_color = Color(1, 0.980392, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 0.980392, 0, 1)
+theme_override_fonts/font = ExtResource("2_ufhxe")
+theme_override_font_sizes/font_size = 12
+text = "Show Turn Order"
+
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="timeout" from="HBoxContainer/CreaInfoRect/StatusesControl/StatusTimer" to="." method="_on_status_timer_timeout"]
 [connection signal="pressed" from="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/MeleeControl/MeleeButton" to="." method="_on_melee_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/RangeControl/RangeButton" to="." method="_on_range_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/CreaInfoRect/WeaponsBoxContainer/AmmoControl/AmmoButton" to="." method="_on_ammo_button_pressed"]
+[connection signal="toggled" from="TurnOrderButton" to="." method="_on_turn_order_button_toggled"]

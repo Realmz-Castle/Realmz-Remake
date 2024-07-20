@@ -185,7 +185,7 @@ var attrColorDict : Dictionary = {"Fire" : Color.ORANGE, "Ice" : Color.CYAN, "El
 func set_spell_info(spelldict : Dictionary, crea : Creature) :
 	itemtex.hide()
 	var spellscript = spelldict["script"]
-	var spell_info_txt : String = spelldict["name"]+", level "+ str(spellscript.level) +" "+ spellscript.school +" ability.\nAttributes : "
+	var spell_info_txt : String = spelldict["name"]+", level "+ str(spellscript.level) +" "+ str(spellscript.schools) +" ability.\nAttributes : "
 	
 	for attr in spellscript.attributes :
 		var colorcode : String = '#'+get_attribute_color(attr).to_html()

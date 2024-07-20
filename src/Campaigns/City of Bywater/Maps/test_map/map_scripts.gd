@@ -96,7 +96,8 @@ static func Find_Treasure() :
 	for i in range(200) :
 		var healpotion = healpottemplate.duplicate(true)
 		treasureitems.append(healpotion)
-	await GameGlobal.show_loot_menu(treasureitems,[10,5,3],2000)
+	await StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [10,5,3] ,"exp" : 2000 })
+	#await GameGlobal.show_loot_menu(treasureitems,[10,5,3],2000)
 	#yield(textRect, "interruption_over")
 
 static func Take_Stairs_D() :

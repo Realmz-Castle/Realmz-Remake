@@ -1,32 +1,31 @@
-[gd_scene load_steps=43 format=3 uid="uid://b5341ljf605d7"]
+[gd_scene load_steps=42 format=3 uid="uid://b5341ljf605d7"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ci4xc"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ci4xc"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/InventoryRect.gd" id="2_vmm2o"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/InventoryContainer.gd" id="3_vljtu"]
-[ext_resource type="Texture2D" uid="uid://cl330bnnyhheb" path="res://shared_assets/UI/buttonShopText.png" id="4_lu8oq"]
+[ext_resource type="Texture2D" uid="uid://bcs35jeefuka" path="res://shared_assets/UI/buttonShopText.png" id="4_lu8oq"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_n8kmo"]
-[ext_resource type="Texture2D" uid="uid://dmgbo00sha4ov" path="res://scenes/UI/HUD/Inventory/ButtonUse.png" id="5_r22e4"]
-[ext_resource type="Texture2D" uid="uid://dtnac1etf1gt0" path="res://scenes/UI/HUD/Inventory/ButtonIdentify.png" id="6_vgnm8"]
-[ext_resource type="Texture2D" uid="uid://c5m4lassefpnp" path="res://scenes/UI/HUD/Inventory/ButtonIdentifyPay.png" id="7_npc5j"]
-[ext_resource type="Texture2D" uid="uid://8cn1usc0p51s" path="res://scenes/UI/HUD/Inventory/ButtonDrop.png" id="8_46qhf"]
+[ext_resource type="Texture2D" uid="uid://c4msxnsi2l51h" path="res://scenes/UI/HUD/Inventory/ButtonUse.png" id="5_r22e4"]
+[ext_resource type="Texture2D" uid="uid://qhc7r0g6vp0s" path="res://scenes/UI/HUD/Inventory/ButtonIdentify.png" id="6_vgnm8"]
+[ext_resource type="Texture2D" uid="uid://d3podxaafwwtp" path="res://scenes/UI/HUD/Inventory/ButtonIdentifyPay.png" id="7_npc5j"]
+[ext_resource type="Texture2D" uid="uid://dvfks5or4gkyg" path="res://scenes/UI/HUD/Inventory/ButtonDrop.png" id="8_46qhf"]
 [ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="9_5uo50"]
-[ext_resource type="Texture2D" uid="uid://byeycaftdmdf2" path="res://shared_assets/UI/buttonDone.png" id="9_8kq1x"]
-[ext_resource type="Texture2D" uid="uid://0mqygvk7fx1n" path="res://scenes/UI/HUD/Inventory/ButtonShow.png" id="10_cfsls"]
-[ext_resource type="Texture2D" uid="uid://cccgn45o1otqw" path="res://scenes/UI/HUD/Inventory/TradeSelect.png" id="11_umd6h"]
+[ext_resource type="Texture2D" uid="uid://do1707wxlbdtv" path="res://shared_assets/UI/buttonDone.png" id="9_8kq1x"]
+[ext_resource type="Texture2D" uid="uid://dbx4bqyuuro8v" path="res://scenes/UI/HUD/Inventory/ButtonShow.png" id="10_cfsls"]
+[ext_resource type="Texture2D" uid="uid://dytswasc4be4b" path="res://scenes/UI/HUD/Inventory/TradeSelect.png" id="11_umd6h"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/ShopRect.gd" id="12_h7a4g"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/ShopInventoryContainerShop.gd" id="13_adyqs"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="14_5juv1"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="15_gerk8"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="16_30rcg"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="17_3h1a5"]
-[ext_resource type="Texture2D" uid="uid://ir2s3cje4v6" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="18_vqq75"]
-[ext_resource type="Texture2D" uid="uid://5wrhtdqct47x" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="19_f3a2p"]
-[ext_resource type="Texture2D" uid="uid://ciudni0bpnnqm" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="20_xluxo"]
-[ext_resource type="Texture2D" uid="uid://djctc8bi61ixv" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="21_a5wiv"]
-[ext_resource type="Texture2D" uid="uid://3hxru375at07" path="res://scenes/UI/HUD/Inventory/ButtonBuyBack.png" id="22_brh2y"]
-[ext_resource type="Texture2D" uid="uid://cnsml3nc7hh8y" path="res://scenes/UI/HUD/Inventory/ButtonJoin.png" id="23_j6psa"]
-[ext_resource type="BitMap" uid="uid://c28ehvdiwq3le" path="res://scenes/UI/HUD/Inventory/ButtonHalfSquareBitmask.png" id="24_ucvhd"]
-[ext_resource type="Texture2D" uid="uid://b0ekbgja0pftq" path="res://scenes/UI/HUD/Inventory/ButtonSplit.png" id="25_xegxq"]
+[ext_resource type="Texture2D" uid="uid://5mbti7m4lvxg" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="18_vqq75"]
+[ext_resource type="Texture2D" uid="uid://ch64pqgraojqp" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="19_f3a2p"]
+[ext_resource type="Texture2D" uid="uid://devjljqtg4bkh" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="20_xluxo"]
+[ext_resource type="Texture2D" uid="uid://dm7uqd5jjpbdm" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="21_a5wiv"]
+[ext_resource type="Texture2D" uid="uid://dpsqn8aw7pnxy" path="res://scenes/UI/HUD/Inventory/ButtonBuyBack.png" id="22_brh2y"]
+[ext_resource type="Texture2D" uid="uid://dyk0ju44cut36" path="res://scenes/UI/HUD/Inventory/ButtonJoin.png" id="23_j6psa"]
+[ext_resource type="Texture2D" uid="uid://b5uf7vx0hkywk" path="res://scenes/UI/HUD/Inventory/ButtonSplit.png" id="25_xegxq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y06if"]
 bg_color = Color(1, 1, 1, 1)
@@ -426,14 +425,12 @@ visible = false
 layout_mode = 2
 shortcut = SubResource("56")
 texture_normal = ExtResource("23_j6psa")
-texture_click_mask = ExtResource("24_ucvhd")
 
 [node name="ButtonSplit" type="TextureButton" parent="VBoxContainer/TopHBox/MiddleColumn/VBoxJoinSplit"]
 visible = false
 layout_mode = 2
 shortcut = SubResource("58")
 texture_normal = ExtResource("25_xegxq")
-texture_click_mask = ExtResource("24_ucvhd")
 
 [node name="RightPage" type="Control" parent="VBoxContainer/TopHBox"]
 layout_mode = 2

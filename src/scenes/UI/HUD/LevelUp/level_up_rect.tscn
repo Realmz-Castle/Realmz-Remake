@@ -1,9 +1,9 @@
 [gd_scene load_steps=11 format=3 uid="uid://ux82qv1x7yu5"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_2qxdv"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_2qxdv"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/LevelUp/level_up_rect.gd" id="2_u0eid"]
-[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_d7fwe"]
-[ext_resource type="FontFile" uid="uid://dijqs5swqcb6v" path="res://Fonts/BlackChancery.ttf" id="4_v8mn5"]
+[ext_resource type="Texture2D" uid="uid://bydfdurfom1ml" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_d7fwe"]
+[ext_resource type="FontFile" uid="uid://dsvjovg5dhkqq" path="res://Fonts/BlackChancery.ttf" id="4_v8mn5"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="5_5r63f"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="6_nn0ye"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="7_x7b0t"]

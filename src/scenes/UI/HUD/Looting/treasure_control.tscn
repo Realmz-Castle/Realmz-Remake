@@ -1,16 +1,17 @@
-[gd_scene load_steps=13 format=3 uid="uid://cq2p1ikurai08"]
+[gd_scene load_steps=14 format=3 uid="uid://cq2p1ikurai08"]
 
 [ext_resource type="Script" path="res://scenes/UI/HUD/Looting/TreasureControl.gd" id="1_ipum1"]
 [ext_resource type="PackedScene" uid="uid://bbocdc7s2hxuv" path="res://scenes/UI/HUD/Looting/ItemLootButton.tscn" id="2_7u8km"]
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="3_17gs7"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="3_17gs7"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_mxj8x"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="4_vl2ad"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="5_2gofa"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="6_den0p"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="7_365ag"]
-[ext_resource type="Texture2D" uid="uid://dt6qfh78mmb10" path="res://scenes/UI/HUD/Button_Money.png" id="8_xknn3"]
+[ext_resource type="Texture2D" uid="uid://bemc1ho5y8asb" path="res://scenes/UI/HUD/Button_Money.png" id="8_xknn3"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="9_bp3bw"]
-[ext_resource type="Texture2D" uid="uid://byeycaftdmdf2" path="res://shared_assets/UI/buttonDone.png" id="10_krfry"]
+[ext_resource type="Texture2D" uid="uid://do1707wxlbdtv" path="res://shared_assets/UI/buttonDone.png" id="10_krfry"]
+[ext_resource type="Texture2D" uid="uid://rwil78n162hm" path="res://scenes/UI/HUD/Looting/button_Detect.png" id="12_2tonn"]
 
 [sub_resource type="Shortcut" id="46"]
 
@@ -201,7 +202,22 @@ shortcut = SubResource("46")
 icon = ExtResource("10_krfry")
 flat = true
 
+[node name="DetectButton" type="Button" parent="BotRightLootInfo"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 261.0
+offset_top = 151.0
+offset_right = 311.0
+offset_bottom = 201.0
+scale = Vector2(1, 0.8)
+theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/hover = ExtResource("5_2gofa")
+theme_override_styles/pressed = ExtResource("6_den0p")
+theme_override_styles/disabled = ExtResource("7_365ag")
+icon = ExtResource("12_2tonn")
+
 [connection signal="pressed" from="BotRightLootInfo/MoneyButton" to="." method="_on_money_button_pressed"]
 [connection signal="pressed" from="BotRightLootInfo/PoolButton" to="." method="_on_PoolButton_pressed"]
 [connection signal="pressed" from="BotRightLootInfo/ShareButton" to="." method="_on_ShareButton_pressed"]
 [connection signal="pressed" from="BotRightLootInfo/ButtonDone" to="." method="_on_ButtonDone_pressed"]
+[connection signal="pressed" from="BotRightLootInfo/DetectButton" to="." method="_on_detect_button_pressed"]

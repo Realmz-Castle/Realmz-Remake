@@ -60,6 +60,10 @@ func enter(_msg : Dictionary = {}) -> void:
 	UI.ow_hud.creatureRect.show()
 	UI.ow_hud.botrightpanel.hide()
 	UI.ow_hud.combatBRPanel.show()
+	
+	if UI.ow_hud.turnorderPanel.visible :
+		UI.ow_hud.turnorderPanel.update_display()
+	
 	if _msg.has("battle_start") :
 		initialize_battle(_msg, resources, map)
 	var battle_end_str : String = combat_state.check_battle_end()  # 0=nope 1=won 2=lost 3=fled

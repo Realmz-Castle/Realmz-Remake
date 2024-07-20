@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://bbocdc7s2hxuv"]
 
 [ext_resource type="StyleBox" path="res://scenes/UI/HUD/Looting/lootselectionStyleBox.tres" id="1"]
-[ext_resource type="Texture2D" uid="uid://bpprductj3fl1" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://lirboda4dp55" path="res://scenes/UI/HUD/Looting/LootSelectionCircleDisabled.png" id="2_meav6"]
+[ext_resource type="Texture2D" uid="uid://dn401efanxfhj" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://6wvxwxty12h" path="res://scenes/UI/HUD/Looting/LootSelectionCircleDisabled.png" id="2_meav6"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w1hg7"]
 

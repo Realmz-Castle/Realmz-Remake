@@ -184,8 +184,11 @@ static func _level_up(_character, _new_level : int) :
 
 
 #if  class OR race  scripts allow  (>0),  character ca, learn
-static func can_learn_spell(character, spell) -> int :
-	return 0
+## returns  the  Spell Level at which a spell is learned.
+## <=0 should be changed to 1 in PlayerCHaracter 's can_learn_spell
+## >7 means  the character can't learn this spell (unless race changes it)
+static func can_learn_spell(_character, _spell) -> int :
+	return _spell.level if _spell.level <= 3 else 10  #Rogues can learn all spells of level <=3
 
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()

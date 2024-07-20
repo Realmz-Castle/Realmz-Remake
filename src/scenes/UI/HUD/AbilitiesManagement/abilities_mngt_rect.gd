@@ -42,7 +42,7 @@ func _ready():
 #		spells.append([])
 #	spells[level-1].append(spelldict)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+## extra_avail  should be an array of  arrays of teh form [spellname : String, spell_level : int]
 func set_displayed_character(pc : PlayerCharacter, show_class_abilities : bool, extra_avail : Array = []) :
 #	print("set_displayed_character")
 	show_class_abs = show_class_abilities
@@ -66,15 +66,16 @@ func set_displayed_character(pc : PlayerCharacter, show_class_abilities : bool, 
 		known[lvl] = charspells[lvl-1].duplicate(true)
 #	print(" known l54 : ", known)
 	var _canlearnfromextras : Array = []
-	for sn in character.get_abilities_pc_can_learn()+extra_avail :
-		var slvl : int = spells_book[sn]["script"].level
+	for sa : Array in character.get_abilities_pc_can_learn()+extra_avail :
+		var slvl : int = sa[1]
+		var sn : String = sa[0]
 		if slvl <= maxlevel :
 			var  is_known : bool = false
 			for sdict in known[slvl] :
 				if spells_book[sn]["script"].name == sdict["name"] :
 					is_known = true
 					break
-			if  character.can_learn_spell(spells_book[sn]["script"]) and (not is_known) :
+			if  character.can_learn_spell_at_level(spells_book[sn]["script"])>0 and (not is_known) :
 				avail[slvl].append(spells_book[sn])
 	
 	_on_s_level_button_pressed(1)

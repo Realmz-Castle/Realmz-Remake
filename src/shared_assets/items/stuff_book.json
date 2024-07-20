@@ -3,6 +3,7 @@
    {
       "name" :  "Leather Cap",
       "unidentified_name"  : "Leather Cap",
+      "is_magical" : 0,
       "img_ptr" : "ITEM_leather_cap",
       "description" : "An old stinky cap made of dead  cow skin",
       "weight" : 15,
@@ -23,6 +24,7 @@
    {
       "name" :  "Iron Cap",
       "unidentified_name"  : "Iron Cap",
+      "is_magical" : 0,
       "img_ptr" : "ITEM_iron_cap",
       "description" : "A cap made of iron. You hair grease keeps it from rusting.",
       "weight" : 25,
@@ -38,6 +40,7 @@
    {
       "name" :  "Helm of Pain",
       "unidentified_name"  : "Great Helm",
+      "is_magical" : 0,
       "img_ptr" : "ITEM_helm_pain",
       "description" : "A particularly uncomfortable helmet. Also, it's cursed.",
       "weight" : 25,
@@ -54,6 +57,7 @@
    {
       "name" :  "Health Potion",
       "unidentified_name"  : "Potion",
+      "is_magical" : 0,
       "img_ptr" : "ITEM_health_potion",
       "description" : "Somehow heals the drinkers instantaneously.",
       "weight" : 0,
@@ -84,8 +88,9 @@
    },
    "Dagger" :
    {
-	"name" : "Dagger",
+	"name" : "Weird Dagger",
 	"unidentified_name"  : "Dagger",
+        "is_magical" : 0,
 	"description" : "A suspicious looking dagger.",
         "weight" : 10,
         "price" : 10,
@@ -126,6 +131,7 @@
    {
 	"name" : "Buckler",
 	"unidentified_name"  : "Buckler",
+	"is_magical" : 0,
 	"description" : "A small, round shield worn on the hand.",
         "weight" : 25,
         "price" : 25,
@@ -142,6 +148,7 @@
    {
 	"name" : "Lantern",
 	"unidentified_name"  : "Lantern",
+	"is_magical" : 0,
 	"description" : "More convenient than torches..",
         "weight" : 20,
 	"price" : 15,
@@ -167,6 +174,7 @@
    {
 	"name" : "Shield of the Blue Oxen",
 	"unidentified_name"  : "Shield",
+	"is_magical" : 1,
 	"description" : "There is probably some lore behind it.",
         "weight" : 40,
 	"price" : 100,
@@ -204,6 +212,7 @@ func equals_args(args : Array) ->bool :
    {
 	"name" : "Ring of Regeneration",
 	"unidentified_name"  : "Ring",
+	"is_magical" : 1,
 	"description" : "Somehow heals its wearer. Slooooooowly.",
         "weight" : 1,
 	"price" : 100,

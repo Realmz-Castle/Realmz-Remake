@@ -59,9 +59,8 @@ func enter(_msg : Dictionary = {} ) ->void :
 			cur_menu_name = menu_name
 			await GameGlobal.show_loot_menu(_msg["treasure"],_msg["money"],_msg["exp"])
 			#if not GameGlobal.player_allies.is_empty() :
-			GameGlobal.show_allies_menu()
-			await UI.ow_hud.alliesCtrl.done_allying
-			pass
+
+	pass
 
 func exit() :
 	print("MenuState Exit menu:" +cur_menu_name)
@@ -173,7 +172,7 @@ func get_num_of_targs_of_spell_in_field(spell, spellpower, user : Creature) -> i
 	how_many_targets = min(how_many_targets, GameGlobal.player_allies.size()+GameGlobal.player_characters.size())
 	return how_many_targets
 
-func on_spell_picked(character, spell, powerlevel) :
+func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dictionary) :
 	print("ExMenus state on_spell_picked : ",character.name," ", spell)
 	var _spelldata :  Dictionary = character.get_spell_data(spell, powerlevel)
 	var how_many_targets : int = get_num_of_targs_of_spell_in_field(spell, powerlevel, character)
@@ -188,9 +187,11 @@ func on_spell_picked(character, spell, powerlevel) :
 	if how_many_targets > 0 :
 		print("ow hud pick targets among party members")
 		UI.ow_hud.spellcastMenu.hide()
+		pass
 		#request PC pick
 		UI.ow_hud.request_pc_pick(how_many_targets)
 		targets = await UI.ow_hud.pc_picked
+		pass
 		#print("MenusState entered PC_Pick")
 		#picked_charapanels.clear()
 		#need_to_pick_n = how_many_targets
@@ -204,16 +205,15 @@ func on_spell_picked(character, spell, powerlevel) :
 		character.on_ability_use(spell, powerlevel)
 		for target in targets :
 			print ("cast "+spell.name+" on "+target.name)
-			
 			#do the spells effect !
-			GameGlobal.do_spell_field_effect(character, target, spell, powerlevel)
 			
 			SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
 			SfxPlayer.play()
+			
 			if spell.get("proj_hit") :
 				print("OW HUD display spell effect ",spell.proj_hit)
 				UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
-
+			await GameGlobal.do_spell_field_effect(character, target, spell, powerlevel)
 			UI.ow_hud._on_spell_menu_closed()
 			UI.ow_hud.updateCharPanelDisplay()
 			
@@ -229,5 +229,6 @@ func on_spell_picked(character, spell, powerlevel) :
 
 
 func set_selected_chara(_c : Creature) :
+	print("ExMenusState set_selected_chara "+_c.name)
 	if UI.ow_hud.inventoryRect.visible :
 		UI.ow_hud.inventoryRect.when_Items_Button_pressed()

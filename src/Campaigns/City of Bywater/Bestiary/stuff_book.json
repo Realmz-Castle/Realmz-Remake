@@ -43,7 +43,7 @@
 	 "inventory" : [["Leather Cap", 1]],
 	 "money" : [0,0,0],
 	 "unarmed_melee_attacks" : [
-		{"weapon_dmg" : {"Physical" : [1,4], "Ice" : [1,2]}, "sound" : "slurpy.wav", "melee_atk_anim_icon" : "ATK_SLM", "melee_inflicted_traits" : [  ["regeneration_over_time.gd" , [1.0,-1] ,1.0]  ] },
+		{"weapon_dmg" : {"Physical" : [1,4], "Ice" : [1,2]}, "sound" : "slurpy.wav", "melee_atk_anim_icon" : "ATK_SLM", "melee_inflicted_traits" : [  ["t_poison.gd" , [1] ,1.0]  ] },
 		{"weapon_name" : "Dagger"}
 	 ],
 	 "spells" : [["Heal Minor Wounds", 3]]

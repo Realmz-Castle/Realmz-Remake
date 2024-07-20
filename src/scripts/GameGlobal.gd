@@ -52,7 +52,16 @@ var pos_when_battle_started : Vector2 = Vector2.ZERO
 var currentShop : String = ''
 var currentSpecialEncounterName : String = "default.gd"
 
+var can_show_ability_list : bool = false
 
+var global_effects : Dictionary = {
+	"WaterBreath" : {"Duration" : 0},
+	"FeatherFall" : {"Duration" : 0},
+	"Awareness" : {"Duration" : 0},
+	"Scrying" : {"Duration" : 0},
+	"Shielded" : {"Duration" : 0},
+	"Sentry" : {"Duration" : 0}
+}
 
 #settings
 var gamespeed : float = 0.2
@@ -196,6 +205,8 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	set_current_campaign(data_dict["campaign"])
 	currentmap_name = data_dict["currentmap_name"]
 	shops_dict = data_dict["shops_dict"]
+	
+	global_effects = data_dict["GlobalEffects"]
 
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	time += seconds *time_scale
@@ -211,8 +222,12 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	for character in player_allies :
 		character._on_time_pass(seconds)
 	
+	for effect in global_effects.keys() :
+		global_effects[effect]["Duration"] = max(0, global_effects[effect]["Duration"] - seconds)
+	
 #	player_characters[0].stats["curHP"] = seconds
 	UI.ow_hud.updateTimeDisplay()
+	UI.ow_hud.updateGlobalEffectsDisplay()
 	UI.ow_hud.updateCharPanelDisplay()
 	light_time = clamp(light_time-seconds,0,31536000)
 	if light_time == 0 :
@@ -256,6 +271,8 @@ func refresh_OW_HUD() :
 	UI.ow_hud.update_fatigue_bar()
 	UI.ow_hud.updateCharPanelDisplay()
 	UI.ow_hud.updateTimeDisplay()
+	UI.ow_hud.updateGlobalEffectsDisplay()
+	
 	var invrect = UI.ow_hud.inventoryRect
 	if invrect.visible :
 #		invrect.when_Items_Button_pressed()
@@ -420,6 +437,9 @@ func end_battle( wonfledlost : String ) :
 			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : treasureitems, "money" : money_drop, "exp" : experience, "prev_state" : "Exploration"})
 			await UI.ow_hud.treasureControl.done_looting
 			print("done looting")
+			GameGlobal.show_allies_menu()
+			await UI.ow_hud.alliesCtrl.done_allying
+			print("done allying")
 			
 			
 			
@@ -677,6 +697,9 @@ func do_spell_field_effect(caster : Creature, target : Creature, spell, plvl : i
 	target.change_cur_hp(-spell_dmg)
 	if spell.has_method("add_traits_to_target") :
 		spell.add_traits_to_target(caster, target, plvl)
+	if spell.get("special_effect") :
+		await spell.special_effect(caster, spell, plvl, Vector2.ZERO, [], [target], false)
+
 
 func add_npc_ally(crea : Creature) :
 	crea.is_npc_ally = true

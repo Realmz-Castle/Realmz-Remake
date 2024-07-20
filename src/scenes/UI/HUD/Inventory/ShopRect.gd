@@ -86,6 +86,7 @@ func _on_LeaveShopButton_pressed():
 		inventoryrect.hud.set_charactersRect_type(0)
 		hide()
 		inventoryrect.hud.moneyControl._on_ShareButton_pressed()
+		inventoryrect.buttonIdenPay.hide()
 #		$"../../MoneyRect"._on_ShareButton_pressed()
 
 func _on_character_selected(chara) :

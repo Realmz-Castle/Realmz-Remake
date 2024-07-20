@@ -21,7 +21,7 @@ var selected_character = null
 
 @onready var inventoryRect = $VBoxScreen/HBoxTop/MapArea/InventoryRect#$InventoryRect
 @onready var bestiaryRect = $VBoxScreen/HBoxTop/MapArea/BestiaryRect
-
+@onready var turnorderPanel : TurnOrderPanel = $VBoxScreen/HBoxTop/MapArea/TurnOrderPanel
 
 @onready var canvaslayer : CanvasLayer = $Canvaslayer
 
@@ -32,7 +32,7 @@ var selected_character = null
 
 @onready var creatureRect = $VBoxScreen/HBoxBot/CreatureRect
 @onready var combatBRPanel = $VBoxScreen/HBoxBot/CombatBRPanel
-
+@onready var globaleffectsRect : GlobalEffectsRect = $VBoxScreen/HBoxBot/BotRightPanel/GlobalEffectsRect
 #onready var inventoryBoxCont = $"InventoryRect/InvScrollContainer/VBoxContainer"
 
 
@@ -85,6 +85,7 @@ func initialize() : # takes an array of Characters GD class objects !
 	selected_character = GameGlobal.player_characters[0]
 	charsVContainer.get_child(0).toggle_SelectButton_Icon(true)
 	updateTimeDisplay()
+	updateGlobalEffectsDisplay()
 	NodeAccess.__Map().set_ow_character_icon(GameGlobal.player_characters[0].icon)
 	set_party_swap_enabled(false)
 	settingsControl._initialize()
@@ -185,10 +186,14 @@ func fillCharactersRect() :
 		charpanel.chara_small_panel_selected.connect(self._on_chara_panel_selected.bind(charpanel))
 
 func _on_chara_panel_selected(cp : CharaSmallPanel) :
+	print("OWHUDControl _on_chara_panel_selected "+ cp.character.name+ ' is exmenu ? ', StateMachine.state == StateMachine.ex_menu_state)
+	print("     StateMachine.state : ", StateMachine.state.name)
 	match StateMachine.state :
 		StateMachine.exploration_state :
+			#print("OWHUDControl _on_chara_panel_selected BOOP EXPLORATIONSTATE")
 			set_selected_creature(cp.character)
 		StateMachine.ex_menu_state :
+			#print("OWHUDControl _on_chara_panel_selected BOOP EXMENUSTATE ")
 			set_selected_creature(cp.character)
 			StateMachine.ex_menu_state.set_selected_chara(selected_character)
 		StateMachine.cb_decide_state :
@@ -227,6 +232,9 @@ func updateTimeDisplay() :
 func updateCharPanelDisplay() :
 	for p in charsVContainer.get_children() :
 		p.update_display()
+
+func updateGlobalEffectsDisplay() :
+	globaleffectsRect.update_display()
 
 func called_on_CharPanel_SelectButton_pressed(panel) :
 	print("called_on_CharPanel_SelectButton_pressed. Selecting several?", selecting_several_characters, ', ',panel.character.name)
@@ -273,7 +281,9 @@ func called_on_CharPanel_SelectButton_pressed(panel) :
 				p.toggle_SelectButton_Icon(false)
 		selected_character = panel.character
 		spellcastButton.disabled = (selected_character.spells.size()==0)
-		abilistButton.disabled = selected_character.get("selection_pts")==null
+		
+		abilistButton.disabled = !(selected_character.can_show_ability_list() or GameGlobal.can_show_ability_list)
+		
 		inventoryRect.reset_trade_panel()
 		if inventoryRect.visible :
 			inventoryRect.when_Items_Button_pressed()
@@ -295,8 +305,11 @@ func request_pc_pick(n : int) :
 	else :
 		for cp : CharaSmallPanel in charsVContainer.get_children() :
 			cp.chara_small_panel_selected.connect(StateMachine.ex_menu_state._on_chara_panel_selected_for_picking.bind(cp))
+		
 		StateMachine.enter_ex_menu_state({"PC_Pick" : n, "menu_name" : "PC_Pick" })
+		
 		selected_several_characters = await StateMachine.ex_menu_state.characters_picked
+		
 		for cp : CharaSmallPanel in charsVContainer.get_children() :
 			cp.chara_small_panel_selected.disconnect(StateMachine.ex_menu_state._on_chara_panel_selected_for_picking)
 		print("got!")
@@ -544,6 +557,10 @@ func enter_battle_mode() :
 	creatureRect.show()
 	combatBRPanel.show()
 	combatBRPanel.set_buttons_enabled(true)
+	if creatureRect.turnorderButton.button_pressed :
+		turnorderPanel.show()
+		turnorderPanel.update_display()
+	
 	for p in charsVContainer.get_children() : 
 		p.set_type(2, false) #type :  0:map 1:loot 2:combat
 		p.update_display()
@@ -554,6 +571,7 @@ func exit_battle_mode() :
 	botrightpanel.show()
 	creatureRect.hide()
 	combatBRPanel.hide()
+	turnorderPanel.hide()
 	for p in charsVContainer.get_children() : 
 		p.set_type(0, false) #type :  0:map 1:loot 2:combat
 		p.update_display()
@@ -670,3 +688,8 @@ func close_storage_rect() :
 	inventoryRect.hide()
 	_on_InventoryButton_pressed()
 	inventoryRect.show()
+
+
+func _on_turn_order_button_toggled(toggled_on : bool) :
+	turnorderPanel.visible = toggled_on
+	if toggled_on : turnorderPanel.update_display()

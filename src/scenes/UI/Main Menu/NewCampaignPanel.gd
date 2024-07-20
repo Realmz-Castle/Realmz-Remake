@@ -65,7 +65,15 @@ func _on_StartButton_pressed() -> void :
 		"save_descr" = '',
 		"campaign" = selectedCampaign,
 		"currentmap_name" = "Default Map",
-		"shops_dict" = {}
+		"shops_dict" = {},
+		"GlobalEffects" = {
+			"WaterBreath" : {"Duration" : 0},
+			"FeatherFall" : {"Duration" : 0},
+			"Awareness" : {"Duration" : 0},
+			"Scrying" : {"Duration" : 0},
+			"Shielded" : {"Duration" : 0},
+			"Sentry" : {"Duration" : 0}
+		}
 	}
 	for pc in pickedparty :
 		pc.cur_campaign = GameGlobal.currentcampaign

@@ -409,6 +409,11 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 	else :
 		new_item["is_unique"] = 0
 	
+	if json_dict.has("is_magical") :
+		new_item["is_magical"] = json_dict["is_magical"]
+	else :
+		new_item["is_magical"] = 0
+	
 	if json_dict.has("unidentified_name") :
 		new_item["unidentified_name"] = json_dict["unidentified_name"]
 		if not json_dict.has("is_identified") :
