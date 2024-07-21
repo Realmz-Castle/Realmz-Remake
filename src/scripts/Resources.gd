@@ -178,7 +178,7 @@ func load_tile_resources( path : String ) -> void:
 		var json_tiles_array : Array = n_ts_json_data["tiles"]
 		
 		var templates_dict : Dictionary = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path +'/'+ ts_name + "/tile_templates.json"))
-		
+		#print(json_tiles_array.size())
 		for id in range(n_ts_json_data["tilecount"]) :
 			
 			var t_dict : Dictionary =  json_tiles_array[id]
@@ -205,6 +205,7 @@ func load_tile_resources( path : String ) -> void:
 			var tile_name : String = t_dict["properties"][0]["value"]
 			var tile_template_name : String = t_dict["properties"][1]["value"]
 			#print("resource tile_template_name :  "+tile_template_name+ " for "+tile_name+" id "+str(id))
+			#print("Resources var template_dict ", tile_template_name,' ', templates_dict.has(tile_template_name))
 			var template_dict : Dictionary = templates_dict[tile_template_name]
 			for property in template_dict.keys() :
 				n_tile_dict[property] = template_dict[property]

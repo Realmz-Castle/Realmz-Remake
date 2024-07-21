@@ -747,5 +747,195 @@ static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _ef
 		for i : Dictionary in c.inventory :
 			i['is_identified'] = 1
 	return true
+",
+"Free Fall" :
+"var name : String = 'Free Fall'
+var attributes : Array = []
+var tags : Array = ['Magical', 'Free Fall']
+var schools : Array = ['Enchanter','Sorcerer']
+
+var targettile : int = 0  #0=anywhere 1=creature 2=empty 3=nowall 
+
+var level : int = 1
+var selection_cost : int = 1
+var max_plevel : int = 1
+var in_field : bool = true
+var in_combat : bool = false
+var description : String = 'Identifies all magic items on target.\\nOnly usable out of combat.\\nSP cost : 25'
+var resist : int = 0 #ignores resistances and dodge
+var los : bool = true
+var ray : bool = false
+var rot : bool = false
+var proj_tex : String = 'Sphere'
+var proj_hit : String = 'Target'
+var sounds : Array = ['wind.wav','boing.wav']
+var max_focus_loss : int = 0
+
+static func get_targets(_power : int, __casterchar)->int :
+	return 0
+
+#static func get_hits(_power : int, __casterchar)->int :
+#	return 1
+
+static func get_min_duration(_power : int, __casterchar) -> int :
+	return 20
+
+static func get_max_duration(_power : int, __casterchar) -> int :
+	return 40
+
+#static func get_duration_roll(_power : int, __casterchar) -> int :
+#	return 0
+
+static func get_range(_power : int, __casterchar) -> int :
+	return 0
+	
+static func get_min_damage(_power:int, _casterchar) :
+	return 0
+	
+static func get_max_damage(_power:int, _casterchar) :
+	return 0
+	
+static func get_damage_roll(_power : int, _casterchar) :
+	return 0
+
+static func get_accuracy(_casterchar, _power : int) :
+	return 100 #= infinite wiith resist==0 anyway
+
+static func get_sp_cost(_power : int, _casterchar) :
+	return _power*10
+
+static func get_target_number(_power : int, _casterchar) :
+	return 0
+
+static func get_aoe(_power : int, _casterchar) :
+	return 'sf'
+
+
+static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
+	var duration = 0
+	for i in range(_power) :
+		duration += 20 + randi()% 21
+	GameGlobal.global_effects['FeatherFall']['Duration'] += _power * duration
+	UI.ow_hud.updateGlobalEffectsDisplay()
+	return true
+",
+"Magic Darts" :
+"var name : String = 'Magic Darts'
+var attributes : Array = ['Magical']
+var targettile : int = 1  #0=anywhere 1=creature 2=empty 3=nowall 
+var school : String = 'Sorcerer'
+var level : int = 1
+var selection_cost : int = 1
+var max_plevel : int = 7
+var in_field : bool = false
+var in_combat : bool = true
+var description : String = '1-5*Power damage, Power= targets, 15 Range.'
+var resist : int = 2 #ignores evasion
+#var aoe : String = 'b1'
+var los : bool = true
+var ray : bool = false
+var rot : bool = false
+var proj_tex : String = 'Spark'
+var proj_hit : String = 'Spark'
+var sounds : Array = ['bonk.wav','energy blast.wav']
+var max_focus_loss : int = 0
+
+static func get_targets(_power : int, __casterchar)->int :
+	return _power
+
+static func get_min_duration(_power : int, __casterchar) -> int :
+	return 0
+
+static func get_max_duration(_power : int, __casterchar) -> int :
+	return 0
+
+static func get_range(_power : int, __casterchar) -> int :
+	return 15
+	
+static func get_min_damage(_power:int, _casterchar) :
+	return 1
+	
+static func get_max_damage(_power:int, _casterchar) :
+	return 5
+	
+static func get_damage_roll(_power : int, _casterchar) :
+	var dmg = 0
+	var mindmg = 1
+	var maxdmg = 5
+	for i in range(_power) :
+		dmg += mindmg+ randi()%maxdmg
+	return dmg
+
+static func get_accuracy(_casterchar, _power : int) :
+	return 1.0
+
+static func get_sp_cost(_power : int, _casterchar) :
+	return 4*_power
+
+static func get_target_number(_power : int, _casterchar) :
+	return _power
+
+static func get_aoe(_power : int, _casterchar) :
+	return 'b1'
+"
+,
+"Sparkling Armor" :
+"var name : String = 'Sparkling Armor'
+var attributes : Array = []
+var targettile : int = 0  #0=anywhere 1=creature 2=empty 3=nowall 
+var school : String = 'Sorcerer'
+var level : int = 1
+var selection_cost : int = 1
+var max_plevel : int = 7
+var in_field : bool = true
+var in_combat : bool = true
+var description : String = 'Temporary Protection from Physical Attacks.'
+var resist : int = 0 #ignores resistances and dodge
+#var aoe : String = 'b1'
+var los : bool = false
+var ray : bool = false
+var rot : bool = false
+var proj_tex : String = 'Whirl'
+var proj_hit : String = 'Target'
+var sounds : Array = ['dididup.wav','hit effect 1.wav']
+var max_focus_loss : int = 1
+
+static func get_targets(_power : int, __casterchar)->int :
+	return 1
+
+static func get_min_duration(_power : int, __casterchar) -> int :
+	return _power
+
+static func get_max_duration(_power : int, __casterchar) -> int :
+	return _power
+
+static func get_range(_power : int, __casterchar) -> int :
+	return 0
+	
+static func get_min_damage(_power:int, _casterchar) :
+	return 0
+	
+static func get_max_damage(_power:int, _casterchar) :
+	return 0
+	
+static func get_damage_roll(_power : int, _casterchar) :
+	return 0
+
+static func get_accuracy(_casterchar, _power : int) :
+	return -7777777 #= infinite wiith resist==0 anyway
+
+static func get_sp_cost(_power : int, _casterchar) :
+	return 2*_power
+
+static func get_target_number(_power : int, _casterchar) :
+	return 1
+
+static func get_aoe(_power : int, _casterchar) :
+	return 'sf' #self
+
+static func add_traits_to_target(_castercrea, c,_power) :
+	var traitscript = load('res://shared_assets/traits/'+'t_pro_hits.gd')
+	c.add_trait(traitscript,[_power])
+
 "
 }

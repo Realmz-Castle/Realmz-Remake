@@ -173,15 +173,20 @@ func get_num_of_targs_of_spell_in_field(spell, spellpower, user : Creature) -> i
 	return how_many_targets
 
 func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dictionary) :
-	print("ExMenus state on_spell_picked : ",character.name," ", spell)
+	print("ExMenus state on_spell_picked : ",character.name," ", spell.name)
 	var _spelldata :  Dictionary = character.get_spell_data(spell, powerlevel)
 	var how_many_targets : int = get_num_of_targs_of_spell_in_field(spell, powerlevel, character)
 	var targets : Array = []
-	if how_many_targets == -2 :
+	var must_pick : bool = true
+	if how_many_targets == -2 :  # sf
 		targets.append(character)
+		how_many_targets = 1
+		must_pick = false
 		#targs_picked = true
-	if how_many_targets == -1 :
+	if how_many_targets == -1 :  #["pt","af","ae", "eo"]
 		targets = GameGlobal.player_characters + GameGlobal.player_allies
+		must_pick = false
+		how_many_targets = 1
 		#targs_picked = true
 
 	if how_many_targets > 0 :
@@ -189,8 +194,9 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 		UI.ow_hud.spellcastMenu.hide()
 		pass
 		#request PC pick
-		UI.ow_hud.request_pc_pick(how_many_targets)
-		targets = await UI.ow_hud.pc_picked
+		if must_pick :
+			UI.ow_hud.request_pc_pick(how_many_targets)
+			targets = await UI.ow_hud.pc_picked
 		pass
 		#print("MenusState entered PC_Pick")
 		#picked_charapanels.clear()
@@ -203,6 +209,7 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 		
 
 		character.on_ability_use(spell, powerlevel)
+
 		for target in targets :
 			print ("cast "+spell.name+" on "+target.name)
 			#do the spells effect !
@@ -211,9 +218,14 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 			SfxPlayer.play()
 			
 			if spell.get("proj_hit") :
-				print("OW HUD display spell effect ",spell.proj_hit)
+				print("ExMenusState : OW HUD display spell effect ",spell.proj_hit)
 				UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
 			await GameGlobal.do_spell_field_effect(character, target, spell, powerlevel)
+			
+			if spell.get("special_effect") : 
+				print("FIELD SPECIAL EFFECT")
+				var is_over : bool = await spell.special_effect(character, spell, powerlevel, Vector2.ZERO, [], [target], false)
+			
 			UI.ow_hud._on_spell_menu_closed()
 			UI.ow_hud.updateCharPanelDisplay()
 			
@@ -222,7 +234,7 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 #			charactersrect._set_position(Vector2(screensize.x-320,0) )
 #			charactersrect._set_size(Vector2(320,charrectheight))
 	else :
-		print("Ow HUD : spell targ number = 0 ,  not implemented :(")
+		print("ExMenusState : spell targ number = 0 ,  not implemented :(")
 
 	UI.ow_hud.spellcastMenu.hide()
 	UI.ow_hud.textRect.textLabel.parse_bbcode('')

@@ -5,7 +5,7 @@
  "margin":0,
  "name":"DesertDay",
  "spacing":0,
- "tilecount":200,
+ "tilecount":193,
  "tiledversion":"1.10.1",
  "tileheight":32,
  "tiles":[
@@ -519,12 +519,12 @@
                 {
                  "name":"name",
                  "type":"string",
-                 "value":""
+                 "value":"null1"
                 }, 
                 {
                  "name":"template",
                  "type":"string",
-                 "value":""
+                 "value":"null"
                 }]
         }, 
         {
