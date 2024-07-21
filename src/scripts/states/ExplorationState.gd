@@ -47,7 +47,7 @@ func _state_process(_delta: float) -> void:
 #	print("_state_process : "+name)
 	#Set the mouse cursor...
 	var mousepos : Vector2 = UI.ow_hud.get_local_mouse_position()
-	var wsize : Vector2 = get_window().size / get_window().content_scale_factor
+	var wsize : Vector2 = ScreenUtils.get_logical_window_size(self)
 	if mousepos.x+320<wsize.x and mousepos.y+200<wsize.y :
 		var targoffset : Vector2 = GameGlobal.map.focuscharacter.get_pixel_position()
 		var cursordir = StateMachine.get_dir_input_from_mouse(_delta, targoffset)
