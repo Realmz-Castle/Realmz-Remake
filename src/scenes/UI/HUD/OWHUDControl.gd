@@ -100,7 +100,8 @@ func initialize() : # takes an array of Characters GD class objects !
 
 func _on_viewport_size_changed() :
 #	if self.visible :
-	var screensize : Vector2 = get_window().get_size()
+
+	var screensize : Vector2 = ScreenUtils.get_logical_window_size(self)
 	var newscalex = min(1.0, screensize.x/800)
 	var newscaley = min(1.0, screensize.y/400)
 #	set_scale(Vector2(newscalex,newscaley))
@@ -135,7 +136,7 @@ func _on_viewport_size_changed() :
 	spellcastMenu.on_viewport_size_changed(screensize)
 
 func get_mofified_screensize() :
-	var screensize : Vector2 = get_window().get_size()
+	var screensize : Vector2 = ScreenUtils.get_logical_window_size(self)
 	#var newscalex = min(1.0, screensize.x/800)
 	#var newscaley = min(1.0, screensize.y/400)
 #	set_scale(Vector2(newscalex,newscaley))

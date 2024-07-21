@@ -62,6 +62,8 @@ var global_effects : Dictionary = {
 	"Shielded" : {"Duration" : 0},
 	"Sentry" : {"Duration" : 0}
 }
+## To 2x scale or not to 2x scale that is the question
+var hd_mode : bool = ScreenUtils.get_hd_mode_default()
 
 #settings
 var gamespeed : float = 0.2
@@ -155,6 +157,8 @@ func set_current_profile(profilename : String) -> void :
 	for type in MusicStreamPlayer.oneofeachtype.keys() :
 		var favofthistype : String = Utils.FileHandler.get_cfg_setting(path, "MUSIC", type, "No Music")
 		MusicStreamPlayer.set_type_music_choice(type,favofthistype)
+
+
 	GameGlobal.load_profile_characters()
 
 
@@ -179,6 +183,13 @@ func load_character_to_profile(c : String) :
 	var newchar = Utils.FileHandler.load_character(path)
 #	print("loaded char ", newchar.name)
 	profile_characters_list.append(newchar)
+
+func set_hd_mode(new_hd_mode: bool) -> void:
+	hd_mode = new_hd_mode
+
+
+func save_hd_mode(new_hd_mode: bool) -> void:
+	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", new_hd_mode)
 
 func init_globals_before_game_start(data_dict : Dictionary) :
 	# used in  load_game()

@@ -12,6 +12,7 @@ extends Control
 @onready var loadgameWindow : Window = $LoadWindow
 @onready var loadgameCtrl : SaveLoadCtrl = $LoadWindow/SaveLoadRect
 @onready var newCharacterPanel : NinePatchRect = $NewCharacterPanel
+@onready var hdModeCheckButton : CheckButton = $HDButton
 var profileslist : Array =  []
 
 # Called when the node enters the scene tree for the first time.
@@ -19,6 +20,8 @@ func _ready():
 	newprofileVBox.my_menu = self
 	build_profiles_list()
 	var profilefromcfg = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
+	var hd_mode_from_config = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", GameGlobal.hd_mode)
+	GameGlobal.set_hd_mode(hd_mode_from_config)
 #	var dir = Directory.new()
 	if DirAccess.dir_exists_absolute(Paths.profilesfolderpath+"/" + profilefromcfg) :
 #	if dir.dir_exists(Paths.profilesfolderpath+"/" + profilefromcfg) :
@@ -28,6 +31,10 @@ func _ready():
 		newCampaignButton.disabled = false
 		newCharacterButton.disabled = false
 		loadgameButton.disabled = false
+		hdModeCheckButton.button_pressed = GameGlobal.hd_mode
+		if GameGlobal.hd_mode:
+			ScreenUtils.set_window_scale(self, 2.0)
+
 	#print("Mainmenu _ready over")
 
 
@@ -83,10 +90,19 @@ func _on_load_button_pressed():
 
 
 func _on_hd_button_pressed():
-	#display/window/stretch/scale
-	var settingscale : float = ProjectSettings.get_setting_with_override("display/window/stretch/scale")
-	var newscale : float = 1.0 if settingscale !=1.0 else 2.0
-	ProjectSettings.set_setting("display/window/stretch/scale", newscale)
-	ProjectSettings.save()
-	get_tree().quit()
+	var hd_mode_chosen = hdModeCheckButton.button_pressed
 	
+	if hd_mode_chosen:
+		# Switch to HD
+		ScreenUtils.set_window_scale(self, 2.0)
+	else:
+				ScreenUtils.set_window_scale(self, 1.0)
+		# Switch to SD
+
+
+	GameGlobal.set_hd_mode(hd_mode_chosen)
+
+	# Save the setting on change, otherwise smart defaults will be used every time 
+	# for the screen you start the game on
+	GameGlobal.save_hd_mode(hd_mode_chosen)
+
