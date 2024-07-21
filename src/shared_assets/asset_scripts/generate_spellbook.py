@@ -4,7 +4,7 @@ import json
 # Define the source and target directories
 SOURCE_DIR = '../Spells 1fileperspell'
 TARGET_DIR = '../spells'
-JSON_FILENAME = 'spellbook.json'
+JSON_FILENAME = 'spells_book.json'
 
 # Ensure target directory exists
 os.makedirs(TARGET_DIR, exist_ok=True)
