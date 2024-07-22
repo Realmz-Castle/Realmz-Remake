@@ -489,20 +489,20 @@ func remove_trait_stack(traitscript : GDScript, trait_array : Array) :
 					#return
 	#remove_trait(traitscript)
 
-func add_spell_from_source(spellname : String, spellsource : String) :
+func add_spell_from_source(spellname : String, spellsource : String, slevel : int) :
 	var spellscript  = GDScript.new()
 	spellscript.set_source_code(spellsource)
 	var _err_newscript_reload = spellscript.reload()
-	var slevel = spellscript.level
+	#var slevel = spellscript.level
 	spells[slevel-1].append({"name":spellname, "source":spellsource, "script":spellscript})
 
-func add_spell_from_spells_book(spellname : String) :
+func add_spell_from_spells_book(spellname : String, slevel : int) :
 	var resources = NodeAccess.__Resources()
 	var spelldict = resources.spells_book[spellname]
-	add_spell_drom_dict(spelldict)
+	add_spell_drom_dict(spelldict, slevel)
 
-func add_spell_drom_dict(spell_dict : Dictionary) :
-	var slevel = spell_dict["script"].level
+func add_spell_drom_dict(spell_dict : Dictionary, slevel : int) :
+	#var slevel = spell_dict["script"].level
 	while spells.size() < level :
 		spells.append([])
 	spells[slevel-1].append(spell_dict)
@@ -639,8 +639,11 @@ func initialize_from_bestiary_dict(creaname : String) :
 	if cdata["data"].has("is_player_controlled") :
 		is_player_controlled = bool(cdata["data"]["is_player_controlled"])
 #	var resources = NodeAccess.__Resources()
+	spells = [ [],[],[],[],[],[],[] ]
 	for se in cdata["tools"]["spells"] :
-		add_spell_from_spells_book(se[0])
+		var spell = resources.spells_book[se[0]]['script']
+
+		add_spell_from_spells_book(se[0], spell.level)
 #		spells.append([ resources.spells_book[se[0]] , se[1] ])
 	for s in cdata["stats"] :
 		base_stats[s] = cdata["stats"][s]
@@ -720,8 +723,8 @@ func initialize_from_bestiary_dict(creaname : String) :
 	creature_script = NodeAccess.__Resources().creascripts_book[default_script_name]
 	
 	spells.clear()
-	for s in  cdata["tools"]["spells"] :
-		add_spell_from_spells_book(s[0])
+	#for s in  cdata["tools"]["spells"] :
+		#add_spell_from_spells_book(s[0])
 		
 	recalculate_stats()
 
@@ -799,6 +802,8 @@ func _on_before_melee_attack(_attacker : CombatCreaButton, damage_detail : Dicti
 		#var mul_stat : float = stats[mul_name]
 		#spell_damage = max(0,spell_damage - res_stat)*mul_stat
 
+
+##returns  [has_effect : bool , applied_damage : int , added_to_action_queue : Array ]
 func on_hit_by_spell(caster : Creature, spell, powerlevel, spell_damage : int) :
 	var applied_damage = spell_damage
 	var has_effect : bool = true

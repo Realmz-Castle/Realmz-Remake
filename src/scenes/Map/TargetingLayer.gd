@@ -34,8 +34,9 @@ var wj : Array = [Vector2i(0,0),Vector2i(-1,-1),Vector2i(1,1),Vector2i(-2,-2),Ve
 					Vector2i(0,1),Vector2i(-1,-0),Vector2i(1,2),Vector2i(-2,-1),Vector2i(2,3),Vector2i(-3,-2)]
 var wl : Array = [Vector2i(0,0),Vector2i(1,-1),Vector2i(-1,1),Vector2i(2,-2),Vector2i(-2,2),Vector2i(3,-3),Vector2i(-3,3),
 					Vector2i(0,1),Vector2i(1,-0),Vector2i(-1,2),Vector2i(2,-1),Vector2i(-2,3),Vector2i(3,-2)]
-var cr : Array = b3+b4
-var bdict : Dictionary = {"b1":b1, "b2":b2,"b3":b3,"b4":b4,"b5":b5,"b6":b6,"b7":b7,"wh":wh,"wv":wv,"wj":wj,"wl":wl , 'cr':cr}
+var cr : Array = [Vector2i(1,-1),Vector2i(1,1),Vector2i(-1,1),Vector2i(-1,-1) , Vector2i(0,-2),Vector2i(2,0),Vector2i(0,2),Vector2i(-2,0)]#b3+b4
+var rd : Array = [Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0) , Vector2i(1,-1),Vector2i(1,1),Vector2i(-1,1),Vector2i(-1,-1)]
+var bdict : Dictionary = {"b1":b1, "b2":b2,"b3":b3,"b4":b4,"b5":b5,"b6":b6,"b7":b7,"wh":wh,"wv":wv,"wj":wj,"wl":wl , 'cr':cr,  'rd' : rd}
 
 var attrColorDict : Dictionary = {"Fire" : Color.ORANGE, "Ice" : Color.CYAN, "Electric" : Color.MEDIUM_SLATE_BLUE,
 	"Poison" : Color.FOREST_GREEN, "Chemical" : Color.GREEN_YELLOW, "Disease" : Color.YELLOW, "Healing" : Color.WHITE, "Mental" : Color.DEEP_PINK, 
@@ -116,7 +117,11 @@ func update_targeting()->void:
 					notarg_picked_tiles.append(cb.creature.position)
 			print("TargetingLayer  calls execute_spell !")
 			#execute_spell(caster : CombatCreaButton,spell,power : int, trgt_tiles : Array, used_item : Dictionary, must_add_terrain : bool)
-			execute_spell(caster,spell,power,notarg_picked_tiles, used_item, true, [])
+			#execute_spell(caster,spell,power,notarg_picked_tiles, used_item, true, [])
+			execute_spell(caster,spell,power,notarg_picked_tiles, used_item, true, [Vector2i.ZERO]) 
+			##IMPORTANT keping notarg_picked_tiles and adding the [Vector2i.ZERO] increases the length of the queue, 1 queue element per target
+			###execute_spell(caster,spell,power,[notarg_picked_tiles[0], used_item, true, []) would keep queue length at 1 and do all in one AoE
+			
 			return
 		
 	if StateMachine.state == StateMachine.cb_decide_state :
@@ -354,7 +359,7 @@ func get_aoe_from_name(aoename) -> Array :
 	if typeof(aoename) == TYPE_ARRAY:
 		return aoename
 	match aoename :
-		"b1","b2","b3","b4","b5","b6","b7","wh","wl","wv","wj" :
+		"b1","b2","b3","b4","b5","b6","b7","wh","wl","wv","wj" , "cr" , "rd":
 			return bdict[aoename]
 	return [aoename]
 
@@ -375,7 +380,7 @@ func start_targ(tspell, tspellpower : int, tcaster : CombatCreaButton, _used_ite
 	aoe_shape = get_aoe_from_name(spell_aoe_name)
 	print("AoEshape : ", aoe_shape, "max range : ", max_range)
 	match spell_aoe_name :
-		"b1","b2","b3","b4","b5","b6","b7", "r" :
+		"b1","b2","b3","b4","b5","b6","b7", "r" , "cr" , "rd" :
 			aoe_type = 1
 		"wh","wv","wj","wl" :
 			aoe_type = 3
@@ -488,7 +493,7 @@ func get_tiles_under_cb(cb : CombatCreaButton) -> Array :
 			returned_array.append(Vector2i(crea.position)+Vector2i(x,y))
 	return returned_array
 
-func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_targeted_pos : Vector2, s_aoe_override = []) :
+func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_targeted_pos : Vector2, s_aoe_override = []) ->Array :
 	var s_max_range : int = s_spell.get_range(s_power, s_caster.creature)
 	var s_aoe_los = s_spell.los
 	var s_aoe_ray : bool = s_spell.ray
@@ -509,7 +514,7 @@ func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_t
 		s_spell_aoe_name = ["wh", "wl", "wv", "wj"][rotation]
 	var s_aoe_type : int = 9999 #0=no targeting 1=ballb1etc 2=ray 3=wall
 	match s_spell_aoe_name :
-		"b1","b2","b3","b4","b5","b6","b7" :
+		"b1","b2","b3","b4","b5","b6","b7", 'rd', 'cr' :
 			s_aoe_type = 1
 		"wh","wv","wj","wl" :
 			s_aoe_type = 1
@@ -532,7 +537,7 @@ func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_t
 			targ_factions.erase(s_caster.creature.curFaction)
 		for cb in StateMachine.combat_state.all_battle_creatures_btns :
 			if targ_factions.has(cb.creature.curFaction):
-				returned_array.append(get_tiles_under_cb(cb))
+				returned_array = returned_array + get_tiles_under_cb(cb)
 		return returned_array
 	
 	if s_aoe_type==1 :
@@ -554,6 +559,7 @@ func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_t
 func get_cbs_touching_tiles(effected_tiles : Array) -> Array:
 	var returned_array : Array= []
 	for pos in effected_tiles :
+		print(" TGLAYER get_cbs_touching_tiles effected_tiles ", effected_tiles)
 		var cb = GameGlobal.who_is_at_tile(pos)
 		if is_instance_valid(cb) :
 			if not returned_array.has(cb) :
@@ -566,5 +572,6 @@ func get_cbs_touching_tiles(effected_tiles : Array) -> Array:
 
 func execute_spell(caster : CombatCreaButton,spell,power : int, trgt_tiles : Array, spell_used_item : Dictionary, must_add_terrain : bool, override_aoe : Array) :
 	#print("TargetingLayer execute_spell : "+spell.name+" trgt_tiles : ", trgt_tiles)
+	#print("TargetingLayer aoe_shape ", aoe_shape)
 	var msg : Dictionary = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : trgt_tiles, "used_item" : spell_used_item , "must_add_terrain" : must_add_terrain, "override_aoe" : override_aoe }
 	StateMachine.state.on_spellcast_confirmed(msg)

@@ -167,7 +167,8 @@ func _on_AbortButton_pressed():
 	UI.ow_hud._on_viewport_size_changed()
 	textRect.hide()
 	UI.ow_hud.creatureRect.show()
-	UI.ow_hud.creatureRect.display_crea_info(UI.ow_hud.creatureRect.my_crea_button)
+	if StateMachine.is_combat_state() and is_instance_valid(UI.ow_hud.creatureRect.my_crea_button):
+		UI.ow_hud.creatureRect.display_crea_info(UI.ow_hud.creatureRect.my_crea_button)
 #	UI.ow_hud.emit_signal( "pc_picked", [])
 
 func _on_LeftButton_pressed():

@@ -52,11 +52,12 @@ func _state_process(delta : float) -> void :
 
 func enter(_msg : Dictionary = {}) -> void:
 	#print("CbAnimationState enter _msg : ", _msg)
-	print("comabt aniim queue size : "+str(combat_state.action_queue.size()))
+	print("CbANimState anim queue size : "+str(combat_state.action_queue.size()) )#,  combat_state.action_queue)
 	Input.set_custom_mouse_cursor(UI.cursor_sword)
 	while not combat_state.action_queue.is_empty() :
 		cur_action = combat_state.action_queue.pop_front()
 		print("CBAnimState : cur action : "+str(cur_action)+" , left : "+str(combat_state.action_queue.size()))
+		pass
 		match cur_action["type"] :
 			"Move" :
 				if not is_instance_valid( cur_action["mover"]):
@@ -141,6 +142,8 @@ func enter(_msg : Dictionary = {}) -> void:
 				var a_effected_tiles : Array = []
 				if cur_action["override_aoe"].is_empty() :
 					a_effected_tiles = targetinglayer.get_affected_tiles(a_spell, a_power, a_caster, a_main_targeted_tile, [])
+					#print("CBANILSTATE a_effected_tiles : ", a_effected_tiles,  ', a_main_targeted_tile : ',a_main_targeted_tile)
+					#pass
 				else :
 					a_effected_tiles = cur_action["override_aoe"]
 					for i in range(a_effected_tiles.size()) :
