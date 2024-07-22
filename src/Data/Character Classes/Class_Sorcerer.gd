@@ -197,17 +197,19 @@ static func _character_creation_gifts(_character) :
 	_character.inventory.append(dagger.duplicate(true))
 	resources.items_book.clear()
 	
+	_character.spells =  [ [],[],[],[],[],[],[] ]
+	
 	print("class.gd adding spell to newly created  sorcerer "+_character.name)
 	resources.load_spell_resources( "res://shared_assets/spells/" )
 	print("class.gd load_spell_resources  finished")
-	_character.add_spell_from_spells_book("Heal Minor Wounds") #fuction in creature.gd
-	_character.add_spell_from_spells_book("Plane of Frost")
-	_character.add_spell_from_spells_book("Phase")
-	_character.add_spell_from_spells_book("Summon Alien Beetle")
-	_character.add_spell_from_spells_book("Bear Form")
-	_character.add_spell_from_spells_book("Cosmic Blast")
-	_character.add_spell_from_spells_book("Heat Ray")
-	_character.add_spell_from_spells_book("Discover Magic")
+	_character.add_spell_from_spells_book("Heal Minor Wounds",1) #fuction in creature.gd
+	_character.add_spell_from_spells_book("Plane of Frost",1)
+	_character.add_spell_from_spells_book("Phase",1)
+	_character.add_spell_from_spells_book("Summon Alien Beetle",1)
+	_character.add_spell_from_spells_book("Bear Form",1)
+	_character.add_spell_from_spells_book("Cosmic Blast",1)
+	_character.add_spell_from_spells_book("Heat Ray",1)
+	_character.add_spell_from_spells_book("Discover Magic",1)
 	print("class.gd DONE adding spell to newly created  sorcerer "+_character.name)
 
 static func get_max_perma_summons(_character) ->int :

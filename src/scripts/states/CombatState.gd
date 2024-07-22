@@ -133,10 +133,9 @@ func remove_cb_from_battle(cb) ->void :  #do this in   CbAnimState !
 
 func add_to_action_queue(arr : Array) :
 	if not arr.is_empty() :
+		pass
 		action_queue = arr + action_queue
-	#if not arr.is_empty() :
-		#arr.append_array(action_queue)
-		#action_queue = arr
+
 
 
 

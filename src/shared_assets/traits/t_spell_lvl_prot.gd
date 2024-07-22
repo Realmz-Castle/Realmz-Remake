@@ -1,5 +1,5 @@
-const name : String = 'pro_proj.gd'
-const menuname : String = 'Protection from Projectiles'
+const name : String = 't_spell_lvl_prot.gd'
+const menuname : String = 'Protection from Spell up to Level '
 const stacks : bool = true
 const trait_types : Array = []
 var chara

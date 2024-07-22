@@ -513,6 +513,7 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	var targetinglayer : TargetingLayer = GameGlobal.map.targetingLayer
 	var override_aoe : Array = msg["override_aoe"]
 	var actions_array = []
+	#print("CBdecidestat chain ? ",chain)
 	for c in chain :
 		#print("CBDecideAction print c l 396 : ", c[0].name)
 		#print(" DecideAction  on_spellcast_confirmed current_active_creabutton : ", current_active_creabutton , )
@@ -543,6 +544,7 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	print("CbDecideAction spell_confirmed queue length : "+str(actions_array.size())+", chain length : "+str(chain.size()))
 	combat_state.add_to_action_queue(actions_array)
 	picked_charas.clear()
+
 	StateMachine.transition_to("Combat/CbAnimation")
 
 
