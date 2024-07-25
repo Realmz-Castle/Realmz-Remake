@@ -14,3 +14,10 @@ addons/
 
 # VS Code specific ignores
 .vscode/
+
+# Asset scripts ignores
+src/shared_assets/asset_scripts/gd_scripts/*
+src/shared_assets/asset_scripts/spells.csv
+src/shared_assets/asset_scripts/message.txt
+src/shared_assets/asset_scripts/__pycache__/
+
