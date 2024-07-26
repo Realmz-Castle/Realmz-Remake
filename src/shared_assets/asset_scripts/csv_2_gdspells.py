@@ -2,7 +2,7 @@ import csv
 import os
 import re
 from lookups import level_spellpoint_lookup
-from spell_utils import generate_filename, get_proj_tex, get_proj_hit, get_sounds, parse_damage
+from spell_utils import generate_filename, get_proj_tex, get_proj_hit, get_sounds, parse_damage, get_description
 from spell_template import gdscript_template
 
 # Define the path to your CSV file
@@ -30,7 +30,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             base_cost=row['base_cost'],
             usable_in_camp='true' if row['usable_in_camp'] == '1' else 'false',
             usable_in_combat='true' if row['usable_in_combat'] == '1' else 'false',
-            description='FIXME',
+            description=get_description(row),
             resist_adjust=row['resist_adjust'],
             can_rotate='true' if row['can_rotate'] == '1' else 'false',
             cast_media=row['cast_media'].split(', ')[1] if 'sound=' in row['cast_media'] else '',

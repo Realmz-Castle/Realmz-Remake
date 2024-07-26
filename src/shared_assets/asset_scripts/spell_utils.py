@@ -1,5 +1,10 @@
 import re
-from lookups import icon_lookup, sound_lookup 
+import json
+from lookups import icon_lookup, sound_lookup
+
+# Load descriptions.json
+with open('descriptions.json', 'r') as json_file:
+    descriptions = json.load(json_file)
 
 def generate_filename(caster_class, spell_id, spell_name):
     """
@@ -80,3 +85,10 @@ def parse_damage(damage_field):
     else:
         # Return a default value if the pattern does not match
         return (0, 0)
+    
+
+def get_description(row):
+  name = row['name']
+  caste = row['caster_class']
+  return descriptions[caste][name] if name in descriptions[caste] else name
+
