@@ -2,7 +2,7 @@ import csv
 import os
 import re
 from lookups import level_spellpoint_lookup
-from spell_utils import generate_filename, get_proj_tex, get_proj_hit, get_sounds, parse_damage, get_description
+from spell_utils import generate_filename, get_proj_tex, get_proj_hit, get_sounds, parse_damage, get_description, get_los
 from spell_template import gdscript_template
 
 # Define the path to your CSV file
@@ -25,7 +25,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
         damage = parse_damage(row['damage'])
         gdscript_content = gdscript_template.format(
             name=row['name'],
-            target_type=row['target_type'],
+            target_type=row['target_type'], # what does this mean?
             level=row['level'],
             base_cost=row['base_cost'],
             usable_in_camp='true' if row['usable_in_camp'] == '1' else 'false',
@@ -33,7 +33,6 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             description=get_description(row),
             resist_adjust=row['resist_adjust'],
             can_rotate='true' if row['can_rotate'] == '1' else 'false',
-            cast_media=row['cast_media'].split(', ')[1] if 'sound=' in row['cast_media'] else '',
             range=row['range'],
             tags=[],
             schools=[row['caster_class']],
@@ -43,7 +42,10 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             special_effect_function='# Implement special effects here',
             min_damage=damage[0],
             max_damage=damage[1],
-            selection_cost=level_spellpoint_lookup[row['level']]
+            selection_cost=level_spellpoint_lookup[row['level']],
+            add_traits_to_target='# Implement adding traits to target here',
+            is_ray='true' if row['target_type'] == '6' else 'false',
+            is_los=get_los(row)
         )
         
         # Define the file name for the GDScript file

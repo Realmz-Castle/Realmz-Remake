@@ -92,3 +92,19 @@ def get_description(row):
   caste = row['caster_class']
   return descriptions[caste][name] if name in descriptions[caste] else name
 
+
+def get_los(row):
+    if (int(row['damage_type']) in [6, 1, 7, 8, 4] and
+        int(row['target_type']) not in [10, 11] and
+        int(row['effect']) in [0, 49] and
+        int(row['size']) != 8 and
+        not row['range'].startswith('-') and
+        not row['resist_adjust'].startswith('-5%') and
+        int(row['usable_in_camp']) != -1 and
+        int(row['usable_in_combat']) == 1 and
+        not int((row['damage_type']) == 4 and int(row['target_type']) == 4) and
+        not int((row['damage_type']) == 7 and int(row['target_type']) == 4) and
+        row['name'] != 'Acid Splash'):
+        return 'true'
+    return 'false'
+  
