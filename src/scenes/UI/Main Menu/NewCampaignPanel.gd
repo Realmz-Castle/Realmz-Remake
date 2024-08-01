@@ -72,7 +72,8 @@ func _on_StartButton_pressed() -> void :
 			"Awareness" : {"Duration" : 0},
 			"Scrying" : {"Duration" : 0},
 			"Shielded" : {"Duration" : 0},
-			"Sentry" : {"Duration" : 0}
+			"Sentry" : {"Duration" : 0},
+			"CharmProt" : {"Duration" : 0}
 		}
 	}
 	for pc in pickedparty :

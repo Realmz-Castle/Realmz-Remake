@@ -60,7 +60,8 @@ var global_effects : Dictionary = {
 	"Awareness" : {"Duration" : 0},
 	"Scrying" : {"Duration" : 0},
 	"Shielded" : {"Duration" : 0},
-	"Sentry" : {"Duration" : 0}
+	"Sentry" : {"Duration" : 0},
+	"CharmProt" : {"Duration" : 0}
 }
 ## To 2x scale or not to 2x scale that is the question
 var hd_mode : bool = ScreenUtils.get_hd_mode_default()

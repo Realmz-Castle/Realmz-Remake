@@ -21,12 +21,13 @@ func _ready():
 	pass # Replace with function body.
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	check_camera_movement_command()
+## Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(_delta):
+
 
 
 func _state_process(_delta: float) -> void:
+	check_camera_movement_command()
 	#Set the mouse cursor...
 	if is_picking_menu_chara :
 		if Input.is_action_just_pressed("escape") :
@@ -220,7 +221,7 @@ func start_new_round() :
 
 func check_camera_movement_command()->void :
 	if Input.is_action_just_pressed("MoveCamera") :
-			print('GameState "MoveCamera"')
+			print('CBDecideAction "MoveCamera"')
 			GameGlobal.map.focuscharacter.set_tile_position( GameGlobal.map.targetingLayer.get_world_mousepos() )
 
 func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :

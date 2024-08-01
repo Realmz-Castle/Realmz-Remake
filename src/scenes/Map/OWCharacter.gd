@@ -51,6 +51,7 @@ func move(dir : Vector2) :
 		sprite.set_flip_h(true) 
 	if self== map.focuscharacter :
 		map.queue_redraw()
+	
 
 #used to move the camera  focus in combat mostly
 func set_tile_position(pos : Vector2) :
@@ -58,8 +59,9 @@ func set_tile_position(pos : Vector2) :
 	tile_position_x = pos.x
 	tile_position_y = pos.y
 	map.queue_redraw()
+	
 #func _process(delta):
-#	pass
+	#print("OWPlayer new pos : ",tile_position_x,',',tile_position_y)
 #
 #func on_thing_enter():
 #	pass
