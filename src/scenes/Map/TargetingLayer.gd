@@ -278,6 +278,8 @@ func _draw() :
 	if aoe_los or aoe_ray :
 		tiles_line_array = TargetingLayer.bresenham_line(caster.creature.position, get_world_mousepos(), 0, max_range)
 
+	#var tilev : Vector2 = Vector2(32,32)
+	#var aoe_modified_shape = aoe_shape.duplicate()
 	if aoe_type==1 or aoe_type==3:
 		var tilev : Vector2 = Vector2(32,32)
 		var aoe_modified_shape = aoe_shape.duplicate()
@@ -327,12 +329,20 @@ func _draw() :
 		var wmousepos = get_world_mousepos()
 		if spell.get("targettile")  : #0=anywhere 1=creature 2=empty 3=nowall 
 			targettile_type = spell.targettile
-		if ((targettile_type==2 or targettile_type==3) and is_aoe_empty(wmousepos, aoe_shape)==false) :
-			is_obstructed = true
-			obstructed_at = wmousepos
+
+		if ((targettile_type==2 or targettile_type==3) ) :
+			var aoe_modified_shape = []
+			#var mouseworldpos : Vector2i = get_world_mousepos()
+			for t in aoe_shape :
+				aoe_modified_shape.append( wmousepos + t)
+			var cbs_touching : Array = get_cbs_touching_tiles(aoe_modified_shape)
+			#print("targetinglayer cbs_touching ", cbs_touching)
+			if is_aoe_empty(wmousepos, aoe_shape)==false or (targettile_type==2 and cbs_touching.size()>0 ) :
+				is_obstructed = true
+				obstructed_at = wmousepos
 #			get_parent().debuglabel.text+=str(obstructed_at)
-		else :
-			is_obstructed = false
+		#else :
+			#is_obstructed = false
 	
 	if is_obstructed :
 		
@@ -375,9 +385,15 @@ func start_targ(tspell, tspellpower : int, tcaster : CombatCreaButton, _used_ite
 	aoe_ray = spell.ray
 	allow_rotation = spell.rot
 	max_targets = spell.get_target_number(power, caster.creature)
-	spell_aoe_name = spell.get_aoe(power, caster.creature)
+	var spell_aoe_from_script = spell.get_aoe(power, caster.creature)
+	if typeof(spell_aoe_from_script) == TYPE_STRING :
+		spell_aoe_name = spell.get_aoe(power, caster.creature)
+		aoe_shape = get_aoe_from_name(spell_aoe_name)
+	else :
+		spell_aoe_name = "b1"
+		aoe_shape = spell_aoe_from_script
 	print("TARGETINGLAYER spell_aoe_name :",spell_aoe_name)
-	aoe_shape = get_aoe_from_name(spell_aoe_name)
+
 	print("AoEshape : ", aoe_shape, "max range : ", max_range)
 	match spell_aoe_name :
 		"b1","b2","b3","b4","b5","b6","b7", "r" , "cr" , "rd" :
@@ -558,8 +574,9 @@ func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_t
 #ROTATION SHULD BE -1 IF NOT A ROTATABLE SPELL
 func get_cbs_touching_tiles(effected_tiles : Array) -> Array:
 	var returned_array : Array= []
+	#print(" TGLAYER get_cbs_touching_tiles effected_tiles ", effected_tiles)
 	for pos in effected_tiles :
-		print(" TGLAYER get_cbs_touching_tiles effected_tiles ", effected_tiles)
+		
 		var cb = GameGlobal.who_is_at_tile(pos)
 		if is_instance_valid(cb) :
 			if not returned_array.has(cb) :

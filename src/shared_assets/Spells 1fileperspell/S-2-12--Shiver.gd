@@ -1,6 +1,6 @@
 var name : String = 'Shiver'
 var attributes : Array = ['Magical', 'Ice']
-var tags : Array = ['Magical', 'Ice']
+var tags : Array = ['Magical', 'Ice', 'AllEnemies']
 var schools : Array = ['Sorcerer']
 
 var targettile : int = 1  #0=anywhere 1=creature 2=empty 3=nowall 

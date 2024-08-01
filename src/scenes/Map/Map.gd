@@ -100,7 +100,7 @@ var terrains_tex_pos_dict : Dictionary = {
 	"Bnd" : Vector2i(2,1),	"Web" : Vector2i(3,1),	"Trg" : Vector2i(4,1),"Yfr" : Vector2i(5,1),
 	"Gcl" : Vector2i(6,1),	"Bcl" : Vector2i(7,1),	"Spn" : Vector2i(8,1),"Slm" : Vector2i(9,1),
 	"Spr" : Vector2i(10,1),	"Bal" : Vector2i(11,1),	"Orb" : Vector2i(12,1),"Thn" : Vector2i(13,1),
-	"Spk" : Vector2i(14,1),	"Str" : Vector2i(0,2),	"Dts" : Vector2i(1,2) }
+	"Spk" : Vector2i(14,1),	"Str" : Vector2i(0,2),	"Dts" : Vector2i(1,2) ,"Ice" : Vector2i(5,2) }
 var tex_name_tex_dict : Dictionary = {}
 
 func add_terrain_effect_from_spell(spell,power : int, aoe : Array, targ_pos : Vector2i,caster : Creature) :

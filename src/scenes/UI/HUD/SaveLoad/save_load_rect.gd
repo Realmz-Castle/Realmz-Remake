@@ -162,6 +162,7 @@ func save_game(campaignname : String, savename : String) :
 		"notes" : notes,
 		"GlobalEffects" : GameGlobal.global_effects
 		}
+	print("SAVE RECT position : ", dict_to_save["position"])
 	if GameGlobal.honest_mode :
 		dict_to_save.erase("money_banked")
 		#set_cfg_setting(path, section, key, value) :
