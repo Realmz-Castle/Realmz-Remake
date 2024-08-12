@@ -72,19 +72,20 @@ def parse_damage(damage_field):
     - damage_field: The damage field string from the CSV.
 
     Returns:
-    A tuple containing (min_damage, max_damage).
+    A tuple containing (base_min, base_max, scaled_min, scaled_max).
     """
     # Regex to match the damage pattern
     damage_match = re.match(
         r'\[(\d+), (\d+)\] \+ \[(\d+), (\d+)\]/level', damage_field)
     if damage_match:
-        min_damage = int(damage_match.group(1))
-        max_damage = int(damage_match.group(2))
-        # Assuming the damage does not need to be adjusted by level for this parsing
-        return (min_damage, max_damage)
+        base_min = int(damage_match.group(1))
+        base_max = int(damage_match.group(2))
+        scaled_min = int(damage_match.group(3))
+        scaled_max = int(damage_match.group(4))
+        return (base_min, base_max, scaled_min, scaled_max)
     else:
         # Return a default value if the pattern does not match
-        return (0, 0)
+        return (0, 0, 0, 0)
     
 
 def get_description(row):
@@ -108,3 +109,24 @@ def get_los(row):
         return 'true'
     return 'false'
   
+def get_min_damage(damage):
+    return f"{damage[0]} + ({damage[2]} * _power)"
+
+def get_max_damage(damage):
+     return f"{damage[1]} + ({damage[3]} * _power)"
+ 
+def get_damage_roll(damage):
+    return f"""var base_damage = 0
+	var scaled_damage = 0
+
+	var base_min = {damage[0]}
+	var base_max = {damage[1]}
+
+	base_damage = base_min + (randi() % base_max)
+ 
+	var scaled_min = {damage[2]}
+	var scaled_max = {damage[3]}
+	for i in range(_power) :
+		base_damage += scaled_min + (randi() % scaled_max)
+
+	return scaled_damage + base_damage"""
