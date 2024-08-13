@@ -122,11 +122,11 @@ def get_damage_roll(damage):
 	var base_min = {damage[0]}
 	var base_max = {damage[1]}
 
-	base_damage = base_min + (randi() % base_max)
+	base_damage = randi_range(base_min, base_max)
  
 	var scaled_min = {damage[2]}
 	var scaled_max = {damage[3]}
 	for i in range(_power) :
-		base_damage += scaled_min + (randi() % scaled_max)
+		base_damage += randi_range(scaled_min, scaled_max)
 
 	return scaled_damage + base_damage"""

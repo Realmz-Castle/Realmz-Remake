@@ -19,7 +19,7 @@ var in_combat : bool = {usable_in_combat}
 var description : String = '{description}'
 
 # How does this work?
-var resist : int = {resist_adjust} #ignores resistances and dodge
+var resist : int = 0 #ignores resistances and dodge 
 var los : bool = {is_los} # line of sight
 var ray : bool = {is_ray}
 var rot : bool = {can_rotate}
@@ -42,7 +42,7 @@ static func get_max_duration(_power : int, __casterchar) -> int :
 
 # Should the be a range roll?
 static func get_range(_power : int, __casterchar) -> int :
-\treturn {range}
+\treturn 1
 
 static func get_min_damage(_power:int, _casterchar) :
 \treturn {min_damage}
