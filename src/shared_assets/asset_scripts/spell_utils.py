@@ -116,17 +116,24 @@ def get_max_damage(damage):
      return f"{damage[1]} + ({damage[3]} * _power)"
  
 def get_damage_roll(damage):
-    return f"""var base_damage = 0
-	var scaled_damage = 0
-
-	var base_min = {damage[0]}
-	var base_max = {damage[1]}
-
-	base_damage = randi_range(base_min, base_max)
- 
-	var scaled_min = {damage[2]}
-	var scaled_max = {damage[3]}
-	for i in range(_power) :
-		base_damage += randi_range(scaled_min, scaled_max)
-
-	return scaled_damage + base_damage"""
+    if (damage[0] == 0 and damage[1] == 0 and damage[2] == 0 and damage[3] == 0):
+        return  "return 0"
+    
+    base_string = ""
+    if (damage[0] != 0 or damage[1] != 0):
+        base_string = f"var base_damage = randi_range({damage[0]}, {damage[1]})"
+    
+    scaled_string = ""
+    if (damage[2] != 0 or damage[3] != 0):
+        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({damage[2]}, {damage[3]})"
+    
+    return_string = "return 0"
+    
+    if base_string and scaled_string:
+        return_string = "return base_damage + scaled_damage"
+    elif base_string:
+        return_string = "return base_damage"
+    elif scaled_string:
+        return_string = "return scaled_damage"
+    
+    return f"{base_string}\n{scaled_string}\n\t{return_string}"
