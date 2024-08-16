@@ -51,7 +51,7 @@ static func get_max_damage(_power:int, _casterchar) :
 \treturn {max_damage}
 
 static func get_damage_roll(_power : int, _casterchar) :
-\t{damage_roll}
+{damage_roll}
 
 # How does this work?
 static func get_accuracy(_casterchar, _power : int) :

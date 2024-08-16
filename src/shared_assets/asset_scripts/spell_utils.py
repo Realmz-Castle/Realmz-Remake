@@ -110,30 +110,46 @@ def get_los(row):
     return 'false'
   
 def get_min_damage(damage):
+    base_min, _, scaled_min, _ = damage
+    
+    if (base_min == 0 and scaled_min == 0):
+        return "0"
+    if (base_min == 0):
+        return f"{scaled_min} * _power"
+    if (scaled_min == 0):
+        return f"{base_min}"
     return f"{damage[0]} + ({damage[2]} * _power)"
 
 def get_max_damage(damage):
-     return f"{damage[1]} + ({damage[3]} * _power)"
+    _, base_max, _, scaled_max = damage
+    
+    if base_max == 0 and scaled_max == 0:
+        return "0"
+    if base_max == 0:
+        return f"{scaled_max} * _power"
+    if scaled_max == 0:
+        return f"{base_max}"
+    return f"{base_max} + ({scaled_max} * _power)"
  
 def get_damage_roll(damage):
     if (damage[0] == 0 and damage[1] == 0 and damage[2] == 0 and damage[3] == 0):
-        return  "return 0"
+        return  "\treturn 0"
     
     base_string = ""
     if (damage[0] != 0 or damage[1] != 0):
-        base_string = f"var base_damage = randi_range({damage[0]}, {damage[1]})"
+        base_string = f"\tvar base_damage = randi_range({damage[0]}, {damage[1]})\n"
     
     scaled_string = ""
     if (damage[2] != 0 or damage[3] != 0):
-        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({damage[2]}, {damage[3]})"
+        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({damage[2]}, {damage[3]})\n"
     
     return_string = "return 0"
     
     if base_string and scaled_string:
-        return_string = "return base_damage + scaled_damage"
+        return_string = "\treturn base_damage + scaled_damage"
     elif base_string:
-        return_string = "return base_damage"
+        return_string = "\treturn base_damage"
     elif scaled_string:
-        return_string = "return scaled_damage"
+        return_string = "\treturn scaled_damage"
     
-    return f"{base_string}\n{scaled_string}\n\t{return_string}"
+    return f"{base_string}{scaled_string}{return_string}"
