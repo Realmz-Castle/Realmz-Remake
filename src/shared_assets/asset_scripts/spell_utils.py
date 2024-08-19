@@ -108,7 +108,7 @@ def get_los(row):
         row['name'] != 'Acid Splash'):
         return 'true'
     return 'false'
-  
+
 def get_min_damage(damage):
     base_min, _, scaled_min, _ = damage
     
@@ -153,3 +153,60 @@ def get_damage_roll(damage):
         return_string = "\treturn scaled_damage"
     
     return f"{base_string}{scaled_string}{return_string}"
+
+get_min_duration = get_min_damage
+get_max_duration = get_max_damage
+
+def get_duration_roll(duration):
+    if (duration[0] == 0 and duration[1] == 0 and duration[2] == 0 and duration[3] == 0):
+        return  "\treturn 0"
+    
+    base_string = ""
+    if (duration[0] != 0 or duration[1] != 0):
+        base_string = f"\tvar base_duration = randi_range({duration[0]}, {duration[1]})\n"
+    
+    scaled_string = ""
+    if (duration[2] != 0 or duration[3] != 0):
+        scaled_string = f"\tvar scaled_duration = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({duration[2]}, {duration[3]})\n"
+    
+    return_string = "return 0"
+    
+    if base_string and scaled_string:
+        return_string = "\treturn base_duration + scaled_duration"
+    elif base_string:
+        return_string = "\treturn base_duration"
+    elif scaled_string:
+        return_string = "\treturn scaled_duration"
+    
+    return f"static func get_duration_roll(_power : int, __casterchar) -> int:\n{base_string}{scaled_string}{return_string}\n"
+
+parse_duration = parse_damage
+
+def parse_range(range_field):
+    """
+    Parses the range field to extract the range value.
+
+    Parameters:
+    - range_field: The range field string from the CSV.
+
+    Returns:
+    An integer representing the range value.
+    """
+    # Regex to match the range pattern
+    range_match = re.match(r'(-?\d+) \+ (-?\d+)/level', range_field)
+    if range_match:
+        base_value = int(range_match.group(1))
+        scale_value = int(range_match.group(2))
+        return (abs(base_value), abs(scale_value))
+    else:
+        # Return a default value if the pattern does not match
+        return (0, 0)
+    
+def get_range(range):
+    if (range[0] == 0 and range[1] == 0):
+        return "0"
+    if (range[0] == 0):
+        return f"{range[1]} * _power"
+    if (range[1] == 0):
+        return f"{range[0]}"
+    return f"{range[0]} + ({range[1]} * _power)"

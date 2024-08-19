@@ -32,23 +32,21 @@ var max_focus_loss : int = 0 # Where does this come from?
 static func get_targets(_power : int, __casterchar)->int :
 \treturn 1
 
-# How does this relate to duration roll?
 static func get_min_duration(_power : int, __casterchar) -> int :
-\treturn 0
+\treturn {min_duration}
 
-# How does this relate to duration roll?
+{duration_roll}
 static func get_max_duration(_power : int, __casterchar) -> int :
-\treturn 0
+\treturn {max_duration}
 
-# Should the be a range roll?
 static func get_range(_power : int, __casterchar) -> int :
-\treturn 1
+\treturn {range}
 
 static func get_min_damage(_power:int, _casterchar) :
-\treturn {min_damage}
+return {min_damage}
 
 static func get_max_damage(_power:int, _casterchar) :
-\treturn {max_damage}
+return {max_damage}
 
 static func get_damage_roll(_power : int, _casterchar) :
 {damage_roll}

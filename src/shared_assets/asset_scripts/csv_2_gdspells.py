@@ -12,7 +12,13 @@ from spell_utils import (
     get_los,
     get_min_damage,
     get_max_damage,
-    get_damage_roll
+    get_damage_roll,
+    get_min_duration,
+    get_max_duration,
+    get_duration_roll,
+    parse_duration,
+    parse_range,
+    get_range,
 )
 from spell_template import gdscript_template
 
@@ -34,6 +40,9 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
     for row in csv_reader:
         # Prepare the content for the GDScript file
         damage = parse_damage(row['damage'])
+        duration = parse_duration(row['duration'])
+        range = parse_range(row['range'])
+        
         gdscript_content = gdscript_template.format(
             name=row['name'],
             target_type=row['target_type'],
@@ -43,7 +52,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             description=get_description(row),
             resist_adjust=row['resist_adjust'],
             can_rotate='true' if row['can_rotate'] == '1' else 'false',
-            range=row['range'],
+            range=get_range(range),
             tags=[],
             schools=[row['caster_class']],
             proj_tex=get_proj_tex(row['cast_media']),
@@ -53,6 +62,9 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             min_damage=get_min_damage(damage),
             max_damage=get_max_damage(damage),
             damage_roll=get_damage_roll(damage),
+            min_duration=get_min_duration(duration),
+            max_duration=get_max_duration(duration),
+            duration_roll=get_duration_roll(duration),
             selection_cost=level_spellpoint_lookup[row['level']],
             add_traits_to_target='# Implement adding traits to target here',
             is_ray='true' if row['target_type'] == '6' else 'false',
