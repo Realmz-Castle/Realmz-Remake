@@ -30,7 +30,7 @@ var max_focus_loss : int = 0 # Where does this come from?
 
 # Is this number of targets?
 static func get_targets(_power : int, __casterchar)->int :
-\treturn 1
+\treturn {targets}
 
 static func get_min_duration(_power : int, __casterchar) -> int :
 \treturn {min_duration}
@@ -60,9 +60,9 @@ static func get_sp_cost(_power : int, _casterchar) :
 
 # How is this different from get_targets
 static func get_target_number(_power : int, _casterchar) :
-\treturn 1
+\treturn {targets}
 
-# What is this?
+# Area of effect (the shape of the spell target)
 static func get_aoe(_power : int, _casterchar) :
 \treturn 'b1'
 

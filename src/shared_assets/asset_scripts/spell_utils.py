@@ -206,3 +206,30 @@ def get_traits(effect):
     if(int(effect) in TRAITS):
         return traits_template.format(trait_filename=TRAITS[int(effect)])
     return ""
+
+def get_targets(target_type):
+   match target_type:
+       case "-1": 
+           return "1" #multi open space
+       case "0":
+          return  "_power" #multi target
+       case "1": 
+           return "1" #single target
+       case "3":
+           return "1" #fixed size
+       case "4":
+           return "4" #area x power
+       case "5":
+           return "1" #self
+       case "6":
+           return "1" #ray
+       case "7":
+           return "1" #party
+       case "8":
+           return "1" #single open
+       case "9": # all friendly
+           return "1"
+       case "10": # all enemies
+           return "1"
+       case "11": # Special?
+           return "1"

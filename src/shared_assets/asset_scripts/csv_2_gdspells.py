@@ -19,7 +19,8 @@ from spell_utils import (
     parse_duration,
     parse_range,
     get_range,
-    get_traits
+    get_traits,
+    get_targets,
 )
 from spell_template import gdscript_template
 
@@ -71,6 +72,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             is_ray='true' if row['target_type'] == '6' else 'false',
             is_los=get_los(row),
             level=row['level'],
+            targets=get_targets(row['target_type']),
         )
 
         # Define the file name for the GDScript file
