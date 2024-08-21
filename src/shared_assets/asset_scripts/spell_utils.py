@@ -1,6 +1,7 @@
 import re
 import json
-from lookups import icon_lookup, sound_lookup
+from lookups import icon_lookup, sound_lookup, TRAITS
+from traits_template import traits_template
 
 # Load descriptions.json
 with open('descriptions.json', 'r') as json_file:
@@ -210,3 +211,8 @@ def get_range(range):
     if (range[1] == 0):
         return f"{range[0]}"
     return f"{range[0]} + ({range[1]} * _power)"
+
+def get_traits(effect):
+    if(int(effect) in TRAITS):
+        return traits_template.format(trait_filename=TRAITS[int(effect)])
+    return ""

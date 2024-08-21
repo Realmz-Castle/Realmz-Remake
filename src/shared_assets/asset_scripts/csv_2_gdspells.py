@@ -19,6 +19,7 @@ from spell_utils import (
     parse_duration,
     parse_range,
     get_range,
+    get_traits
 )
 from spell_template import gdscript_template
 
@@ -66,10 +67,10 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             max_duration=get_max_duration(duration),
             duration_roll=get_duration_roll(duration),
             selection_cost=level_spellpoint_lookup[row['level']],
-            add_traits_to_target='# Implement adding traits to target here',
+            add_traits_to_target=get_traits(row["effect"]),
             is_ray='true' if row['target_type'] == '6' else 'false',
             is_los=get_los(row),
-            level=row['level']
+            level=row['level'],
         )
 
         # Define the file name for the GDScript file
