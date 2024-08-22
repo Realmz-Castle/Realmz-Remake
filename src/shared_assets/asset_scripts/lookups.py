@@ -1,3 +1,19 @@
+from enum import Enum
+
+class TargetType(Enum):
+    MULTI_OPEN_SPACE = "-1"
+    MULTI_TARGET = "0"
+    SINGLE_TARGET = "1"
+    FIXED_SIZE = "3"
+    AREA_X_POWER = "4"
+    SELF = "5"
+    RAY = "6"
+    PARTY = "7"
+    SINGLE_OPEN = "8"
+    ALL_FRIENDLY = "9"
+    ALL_ENEMIES = "10"
+    SPECIAL = "11"
+
 sound_lookup = {
     0: 'spell launch 1.wav',
     1: 'spell launch 2.wav',

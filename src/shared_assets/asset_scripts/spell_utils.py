@@ -1,11 +1,12 @@
 import re
 import json
-from lookups import icon_lookup, sound_lookup, TRAITS
+from lookups import icon_lookup, sound_lookup, TRAITS, TargetType
 from traits_template import traits_template
 
 # Load descriptions.json
 with open('descriptions.json', 'r') as json_file:
     descriptions = json.load(json_file)
+
 
 def generate_filename(caster_class, spell_id, spell_name):
     """
@@ -38,6 +39,7 @@ def get_icon_number(s):
     else:
         return None
 
+
 def get_proj_tex(s):
     icon_number = get_icon_number(s)
     icon = icon_lookup.get(icon_number)
@@ -46,6 +48,7 @@ def get_proj_tex(s):
     else:
         return ""
 
+
 def get_proj_hit(s):
     icon_number = get_icon_number(s)
     icon = icon_lookup.get(icon_number)
@@ -53,17 +56,20 @@ def get_proj_hit(s):
         return f"var proj_hit : String = '{icon}'"
     else:
         return ""
-        
+
 
 def get_sounds(cast_media, resolution_media):
     sounds = []
     cast_sound_match = re.search(r'sound=(\d+)', cast_media)
     if cast_sound_match:
-        sounds.append(sound_lookup.get(int(cast_sound_match.group(1)), cast_sound_match.group(1)))
+        sounds.append(sound_lookup.get(
+            int(cast_sound_match.group(1)), cast_sound_match.group(1)))
     resolution_sound_match = re.search(r'sound=(\d+)', resolution_media)
     if resolution_sound_match:
-        sounds.append(sound_lookup.get(int(resolution_sound_match.group(1)), resolution_sound_match.group(1)))
+        sounds.append(sound_lookup.get(
+            int(resolution_sound_match.group(1)), resolution_sound_match.group(1)))
     return sounds
+
 
 def parse_damage(damage_field):
     """
@@ -87,12 +93,12 @@ def parse_damage(damage_field):
     else:
         # Return a default value if the pattern does not match
         return (0, 0, 0, 0)
-    
+
 
 def get_description(row):
-  name = row['name']
-  caste = row['caster_class']
-  return descriptions[caste][name] if name in descriptions[caste] else name
+    name = row['name']
+    caste = row['caster_class']
+    return descriptions[caste][name] if name in descriptions[caste] else name
 
 
 def get_los(row):
@@ -100,9 +106,10 @@ def get_los(row):
         return 'false'
     return 'true'
 
+
 def get_min_damage(damage):
     base_min, _, scaled_min, _ = damage
-    
+
     if (base_min == 0 and scaled_min == 0):
         return "0"
     if (base_min == 0):
@@ -111,9 +118,10 @@ def get_min_damage(damage):
         return f"{base_min}"
     return f"{damage[0]} + ({damage[2]} * _power)"
 
+
 def get_max_damage(damage):
     _, base_max, _, scaled_max = damage
-    
+
     if base_max == 0 and scaled_max == 0:
         return "0"
     if base_max == 0:
@@ -121,57 +129,64 @@ def get_max_damage(damage):
     if scaled_max == 0:
         return f"{base_max}"
     return f"{base_max} + ({scaled_max} * _power)"
- 
+
+
 def get_damage_roll(damage):
     if (damage[0] == 0 and damage[1] == 0 and damage[2] == 0 and damage[3] == 0):
-        return  "\treturn 0"
-    
+        return "\treturn 0"
+
     base_string = ""
     if (damage[0] != 0 or damage[1] != 0):
-        base_string = f"\tvar base_damage = randi_range({damage[0]}, {damage[1]})\n"
-    
+        base_string = f"\tvar base_damage = randi_range({damage[0]}, {
+            damage[1]})\n"
+
     scaled_string = ""
     if (damage[2] != 0 or damage[3] != 0):
-        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({damage[2]}, {damage[3]})\n"
-    
+        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({
+            damage[2]}, {damage[3]})\n"
+
     return_string = "return 0"
-    
+
     if base_string and scaled_string:
         return_string = "\treturn base_damage + scaled_damage"
     elif base_string:
         return_string = "\treturn base_damage"
     elif scaled_string:
         return_string = "\treturn scaled_damage"
-    
+
     return f"{base_string}{scaled_string}{return_string}"
+
 
 get_min_duration = get_min_damage
 get_max_duration = get_max_damage
 
+
 def get_duration_roll(duration):
     if (duration[0] == 0 and duration[1] == 0 and duration[2] == 0 and duration[3] == 0):
-        return  "\treturn 0"
-    
+        return "\treturn 0"
+
     base_string = ""
     if (duration[0] != 0 or duration[1] != 0):
         base_string = f"\tvar base_duration = randi_range({duration[0]}, {duration[1]})\n"
-    
+
     scaled_string = ""
     if (duration[2] != 0 or duration[3] != 0):
         scaled_string = f"\tvar scaled_duration = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({duration[2]}, {duration[3]})\n"
-    
+
     return_string = "return 0"
-    
+
     if base_string and scaled_string:
         return_string = "\treturn base_duration + scaled_duration"
     elif base_string:
         return_string = "\treturn base_duration"
     elif scaled_string:
         return_string = "\treturn scaled_duration"
-    
+
     return f"static func get_duration_roll(_power : int, __casterchar) -> int:\n{base_string}{scaled_string}{return_string}\n"
 
+
 parse_duration = parse_damage
+
 
 def parse_range(range_field):
     """
@@ -192,7 +207,8 @@ def parse_range(range_field):
     else:
         # Return a default value if the pattern does not match
         return (0, 0)
-    
+
+
 def get_range(range):
     if (range[0] == 0 and range[1] == 0):
         return "0"
@@ -202,34 +218,38 @@ def get_range(range):
         return f"{range[0]}"
     return f"{range[0]} + ({range[1]} * _power)"
 
+
 def get_traits(effect):
-    if(int(effect) in TRAITS):
+    if (int(effect) in TRAITS):
         return traits_template.format(trait_filename=TRAITS[int(effect)])
     return ""
 
-def get_targets(target_type):
-   match target_type:
-       case "-1": 
-           return "1" #multi open space
-       case "0":
-          return  "_power" #multi target
-       case "1": 
-           return "1" #single target
-       case "3":
-           return "1" #fixed size
-       case "4":
-           return "4" #area x power
-       case "5":
-           return "1" #self
-       case "6":
-           return "1" #ray
-       case "7":
-           return "1" #party
-       case "8":
-           return "1" #single open
-       case "9": # all friendly
-           return "1"
-       case "10": # all enemies
-           return "1"
-       case "11": # Special?
-           return "1"
+
+def get_targets(target_type: TargetType):
+    match target_type:
+        case TargetType.MULTI_OPEN_SPACE.value:
+            return "1"
+        case TargetType.MULTI_TARGET.value:
+            return "_power"
+        case TargetType.SINGLE_TARGET.value:
+            return "1"
+        case TargetType.FIXED_SIZE.value:
+            return "1"
+        case TargetType.AREA_X_POWER.value:
+            return "4"
+        case TargetType.SELF.value:
+            return "1"
+        case TargetType.RAY.value:
+            return "1"
+        case TargetType.PARTY.value:
+            return "1"
+        case TargetType.SINGLE_OPEN.value:
+            return "1"
+        case TargetType.ALL_FRIENDLY.value:
+            return "1"
+        case TargetType.ALL_ENEMIES.value:
+            return "1"
+        case TargetType.SPECIAL.value:
+            return "1"
+        case _:
+            return "1"

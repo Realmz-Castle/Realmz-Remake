@@ -43,10 +43,10 @@ static func get_range(_power : int, __casterchar) -> int :
 \treturn {range}
 
 static func get_min_damage(_power:int, _casterchar) :
-return {min_damage}
+\treturn {min_damage}
 
 static func get_max_damage(_power:int, _casterchar) :
-return {max_damage}
+\treturn {max_damage}
 
 static func get_damage_roll(_power : int, _casterchar) :
 {damage_roll}
