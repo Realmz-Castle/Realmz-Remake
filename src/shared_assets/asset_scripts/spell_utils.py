@@ -227,29 +227,7 @@ def get_traits(effect):
 
 def get_targets(target_type: TargetType):
     match target_type:
-        case TargetType.MULTI_OPEN_SPACE.value:
-            return "1"
         case TargetType.MULTI_TARGET.value:
             return "_power"
-        case TargetType.SINGLE_TARGET.value:
-            return "1"
-        case TargetType.FIXED_SIZE.value:
-            return "1"
-        case TargetType.AREA_X_POWER.value:
-            return "4"
-        case TargetType.SELF.value:
-            return "1"
-        case TargetType.RAY.value:
-            return "1"
-        case TargetType.PARTY.value:
-            return "1"
-        case TargetType.SINGLE_OPEN.value:
-            return "1"
-        case TargetType.ALL_FRIENDLY.value:
-            return "1"
-        case TargetType.ALL_ENEMIES.value:
-            return "1"
-        case TargetType.SPECIAL.value:
-            return "1"
         case _:
             return "1"
