@@ -153,3 +153,13 @@ TRAITS = {
     39: "t_def_bonus.gd",
     40: "t_dumb.gd"  # silenced, same efefct as tangled i think
 }
+
+
+size_to_aoe = {
+  4: "'b4'", # 3x3
+  7: "'b7'",
+  8: "'rd'", # around caster radiate
+  9: "'b5'", # circle 5 radius energy storm (not accurate)
+  10: "'wh'", # plane
+  14: "'b6'", # super donut solar flare (not accurate)
+}

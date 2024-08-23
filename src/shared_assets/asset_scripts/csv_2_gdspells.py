@@ -21,6 +21,7 @@ from spell_utils import (
     get_range,
     get_traits,
     get_targets,
+    get_aoe
 )
 from spell_template import gdscript_template
 
@@ -73,6 +74,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             is_los=get_los(row),
             level=row['level'],
             targets=get_targets(row['target_type']),
+            aoe=get_aoe(row['target_type'], row['size']),
         )
 
         # Define the file name for the GDScript file

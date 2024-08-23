@@ -1,6 +1,6 @@
 import re
 import json
-from lookups import icon_lookup, sound_lookup, TRAITS, TargetType
+from lookups import icon_lookup, sound_lookup, TRAITS, TargetType, size_to_aoe
 from traits_template import traits_template
 
 # Load descriptions.json
@@ -137,13 +137,11 @@ def get_damage_roll(damage):
 
     base_string = ""
     if (damage[0] != 0 or damage[1] != 0):
-        base_string = f"\tvar base_damage = randi_range({damage[0]}, {
-            damage[1]})\n"
+        base_string = f"\tvar base_damage = randi_range({damage[0]}, {damage[1]})\n"
 
     scaled_string = ""
     if (damage[2] != 0 or damage[3] != 0):
-        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({
-            damage[2]}, {damage[3]})\n"
+        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({damage[2]}, {damage[3]})\n"
 
     return_string = "return 0"
 
@@ -163,7 +161,7 @@ get_max_duration = get_max_damage
 
 def get_duration_roll(duration):
     if (duration[0] == 0 and duration[1] == 0 and duration[2] == 0 and duration[3] == 0):
-        return "\treturn 0"
+        return f"static func get_duration_roll(_power : int, __casterchar) -> int:\n\treturn 0"
 
     base_string = ""
     if (duration[0] != 0 or duration[1] != 0):
@@ -231,3 +229,22 @@ def get_targets(target_type: TargetType):
             return "_power"
         case _:
             return "1"
+        
+def get_aoe(target_type: TargetType, size: int):
+    match target_type:
+        case TargetType.ALL_ENEMIES.value:
+            return "'ae'"
+        case TargetType.ALL_FRIENDLY.value:
+            return "'af'"
+        case TargetType.FIXED_SIZE.value:
+            return size_to_aoe.get(size,"'b1'")
+        case TargetType.SELF.value:
+            return "'sf'"
+        case TargetType.AREA_X_POWER.value:
+            return "['b1','b2','b3','b4','b5','b6','b7'][_power]"
+        case TargetType.PARTY.value:
+            return "'af'" # make a new one for party?
+        case _:
+            return "'b1'" # default to single target
+
+
