@@ -161,5 +161,5 @@ size_to_aoe = {
   8: "'rd'", # around caster radiate
   9: "'b5'", # circle 5 radius energy storm (not accurate)
   10: "'wh'", # plane
-  14: "'b6'", # super donut solar flare (not accurate)
+  14: "'cr'", # super donut solar flare
 }
