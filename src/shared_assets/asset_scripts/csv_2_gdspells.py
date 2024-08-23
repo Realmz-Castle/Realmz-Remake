@@ -74,7 +74,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             is_los=get_los(row),
             level=row['level'],
             targets=get_targets(row['target_type']),
-            aoe=get_aoe(row['target_type'], row['size']),
+            aoe=get_aoe(row['target_type'], int(row['size'])),
         )
 
         # Define the file name for the GDScript file

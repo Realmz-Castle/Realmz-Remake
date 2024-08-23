@@ -237,7 +237,7 @@ def get_aoe(target_type: TargetType, size: int):
         case TargetType.ALL_FRIENDLY.value:
             return "'af'"
         case TargetType.FIXED_SIZE.value:
-            return size_to_aoe.get(size,"'b1'")
+            return size_to_aoe.get(size, "'b1'")
         case TargetType.SELF.value:
             return "'sf'"
         case TargetType.AREA_X_POWER.value:
