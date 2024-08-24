@@ -163,3 +163,7 @@ size_to_aoe = {
   10: "'wh'", # plane
   14: "'cr'", # super donut solar flare
 }
+
+effect_to_attribute = {
+   57: "Healing",
+}

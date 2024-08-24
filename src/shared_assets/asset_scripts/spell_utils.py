@@ -1,6 +1,6 @@
 import re
 import json
-from lookups import icon_lookup, sound_lookup, TRAITS, TargetType, size_to_aoe
+from lookups import icon_lookup, sound_lookup, TRAITS, TargetType, size_to_aoe, effect_to_attribute
 from traits_template import traits_template
 
 # Load descriptions.json
@@ -131,7 +131,7 @@ def get_max_damage(damage):
     return f"{base_max} + ({scaled_max} * _power)"
 
 
-def get_damage_roll(damage):
+def get_damage_roll(damage, effect: int):
     if (damage[0] == 0 and damage[1] == 0 and damage[2] == 0 and damage[3] == 0):
         return "\treturn 0"
 
@@ -151,8 +151,13 @@ def get_damage_roll(damage):
         return_string = "\treturn base_damage"
     elif scaled_string:
         return_string = "\treturn scaled_damage"
+        
+    healing = ""
+    
+    if effect_to_attribute.get(effect) == "Healing":
+        healing = " * -1"
 
-    return f"{base_string}{scaled_string}{return_string}"
+    return f"{base_string}{scaled_string}{return_string}{healing}"
 
 
 get_min_duration = get_min_damage
@@ -246,5 +251,10 @@ def get_aoe(target_type: TargetType, size: int):
             return "'af'" # make a new one for party?
         case _:
             return "'b1'" # default to single target
+        
+def get_attributes(effect: int):
+    if (effect in effect_to_attribute):
+        return f"['{effect_to_attribute[effect]}']"
+    return "[]"
 
 

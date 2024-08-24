@@ -1,7 +1,7 @@
 # Template for the GDScript content
 gdscript_template = """var name : String = '{name}'
 # Can we auto-generate this?
-var attributes : Array = []
+var attributes : Array = {attributes}
 # Can we auto-generate this?
 var tags : Array = {tags}
 

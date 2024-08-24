@@ -21,7 +21,8 @@ from spell_utils import (
     get_range,
     get_traits,
     get_targets,
-    get_aoe
+    get_aoe,
+    get_attributes
 )
 from spell_template import gdscript_template
 
@@ -64,7 +65,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             special_effect_function='# Implement special effects here',
             min_damage=get_min_damage(damage),
             max_damage=get_max_damage(damage),
-            damage_roll=get_damage_roll(damage),
+            damage_roll=get_damage_roll(damage, int(row['effect'])),
             min_duration=get_min_duration(duration),
             max_duration=get_max_duration(duration),
             duration_roll=get_duration_roll(duration),
@@ -75,6 +76,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
             level=row['level'],
             targets=get_targets(row['target_type']),
             aoe=get_aoe(row['target_type'], int(row['size'])),
+            attributes=get_attributes(int(row['effect']))
         )
 
         # Define the file name for the GDScript file
