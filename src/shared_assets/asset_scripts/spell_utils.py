@@ -1,10 +1,12 @@
 import re
 import json
-from lookups import icon_lookup, sound_lookup
+from lookups import icon_lookup, sound_lookup, TRAITS, TargetType, size_to_aoe, effect_to_attribute
+from traits_template import traits_template
 
 # Load descriptions.json
 with open('descriptions.json', 'r') as json_file:
     descriptions = json.load(json_file)
+
 
 def generate_filename(caster_class, spell_id, spell_name):
     """
@@ -37,6 +39,7 @@ def get_icon_number(s):
     else:
         return None
 
+
 def get_proj_tex(s):
     icon_number = get_icon_number(s)
     icon = icon_lookup.get(icon_number)
@@ -45,6 +48,7 @@ def get_proj_tex(s):
     else:
         return ""
 
+
 def get_proj_hit(s):
     icon_number = get_icon_number(s)
     icon = icon_lookup.get(icon_number)
@@ -52,17 +56,20 @@ def get_proj_hit(s):
         return f"var proj_hit : String = '{icon}'"
     else:
         return ""
-        
+
 
 def get_sounds(cast_media, resolution_media):
     sounds = []
     cast_sound_match = re.search(r'sound=(\d+)', cast_media)
     if cast_sound_match:
-        sounds.append(sound_lookup.get(int(cast_sound_match.group(1)), cast_sound_match.group(1)))
+        sounds.append(sound_lookup.get(
+            int(cast_sound_match.group(1)), cast_sound_match.group(1)))
     resolution_sound_match = re.search(r'sound=(\d+)', resolution_media)
     if resolution_sound_match:
-        sounds.append(sound_lookup.get(int(resolution_sound_match.group(1)), resolution_sound_match.group(1)))
+        sounds.append(sound_lookup.get(
+            int(resolution_sound_match.group(1)), resolution_sound_match.group(1)))
     return sounds
+
 
 def parse_damage(damage_field):
     """
@@ -72,39 +79,182 @@ def parse_damage(damage_field):
     - damage_field: The damage field string from the CSV.
 
     Returns:
-    A tuple containing (min_damage, max_damage).
+    A tuple containing (base_min, base_max, scaled_min, scaled_max).
     """
     # Regex to match the damage pattern
     damage_match = re.match(
         r'\[(\d+), (\d+)\] \+ \[(\d+), (\d+)\]/level', damage_field)
     if damage_match:
-        min_damage = int(damage_match.group(1))
-        max_damage = int(damage_match.group(2))
-        # Assuming the damage does not need to be adjusted by level for this parsing
-        return (min_damage, max_damage)
+        base_min = int(damage_match.group(1))
+        base_max = int(damage_match.group(2))
+        scaled_min = int(damage_match.group(3))
+        scaled_max = int(damage_match.group(4))
+        return (base_min, base_max, scaled_min, scaled_max)
     else:
         # Return a default value if the pattern does not match
-        return (0, 0)
-    
+        return (0, 0, 0, 0)
+
 
 def get_description(row):
-  name = row['name']
-  caste = row['caster_class']
-  return descriptions[caste][name] if name in descriptions[caste] else name
+    name = row['name']
+    caste = row['caster_class']
+    return descriptions[caste][name] if name in descriptions[caste] else name
 
 
 def get_los(row):
-    if (int(row['damage_type']) in [6, 1, 7, 8, 4] and
-        int(row['target_type']) not in [10, 11] and
-        int(row['effect']) in [0, 49] and
-        int(row['size']) != 8 and
-        not row['range'].startswith('-') and
-        not row['resist_adjust'].startswith('-5%') and
-        int(row['usable_in_camp']) != -1 and
-        int(row['usable_in_combat']) == 1 and
-        not int((row['damage_type']) == 4 and int(row['target_type']) == 4) and
-        not int((row['damage_type']) == 7 and int(row['target_type']) == 4) and
-        row['name'] != 'Acid Splash'):
-        return 'true'
-    return 'false'
-  
+    if (row['range'].startswith('-')):
+        return 'false'
+    return 'true'
+
+
+def get_min_damage(damage):
+    base_min, _, scaled_min, _ = damage
+
+    if (base_min == 0 and scaled_min == 0):
+        return "0"
+    if (base_min == 0):
+        return f"{scaled_min} * _power"
+    if (scaled_min == 0):
+        return f"{base_min}"
+    return f"{damage[0]} + ({damage[2]} * _power)"
+
+
+def get_max_damage(damage):
+    _, base_max, _, scaled_max = damage
+
+    if base_max == 0 and scaled_max == 0:
+        return "0"
+    if base_max == 0:
+        return f"{scaled_max} * _power"
+    if scaled_max == 0:
+        return f"{base_max}"
+    return f"{base_max} + ({scaled_max} * _power)"
+
+
+def get_damage_roll(damage, effect: int):
+    if (damage[0] == 0 and damage[1] == 0 and damage[2] == 0 and damage[3] == 0):
+        return "\treturn 0"
+
+    base_string = ""
+    if (damage[0] != 0 or damage[1] != 0):
+        base_string = f"\tvar base_damage = randi_range({damage[0]}, {damage[1]})\n"
+
+    scaled_string = ""
+    if (damage[2] != 0 or damage[3] != 0):
+        scaled_string = f"\tvar scaled_damage = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({damage[2]}, {damage[3]})\n"
+
+    return_string = "return 0"
+
+    if base_string and scaled_string:
+        return_string = "\treturn base_damage + scaled_damage"
+    elif base_string:
+        return_string = "\treturn base_damage"
+    elif scaled_string:
+        return_string = "\treturn scaled_damage"
+        
+    healing = ""
+    
+    if effect_to_attribute.get(effect) == "Healing":
+        healing = " * -1"
+
+    return f"{base_string}{scaled_string}{return_string}{healing}"
+
+
+get_min_duration = get_min_damage
+get_max_duration = get_max_damage
+
+
+def get_duration_roll(duration):
+    if (duration[0] == 0 and duration[1] == 0 and duration[2] == 0 and duration[3] == 0):
+        return f"static func get_duration_roll(_power : int, __casterchar) -> int:\n\treturn 0"
+
+    base_string = ""
+    if (duration[0] != 0 or duration[1] != 0):
+        base_string = f"\tvar base_duration = randi_range({duration[0]}, {duration[1]})\n"
+
+    scaled_string = ""
+    if (duration[2] != 0 or duration[3] != 0):
+        scaled_string = f"\tvar scaled_duration = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({duration[2]}, {duration[3]})\n"
+
+    return_string = "return 0"
+
+    if base_string and scaled_string:
+        return_string = "\treturn base_duration + scaled_duration"
+    elif base_string:
+        return_string = "\treturn base_duration"
+    elif scaled_string:
+        return_string = "\treturn scaled_duration"
+
+    return f"static func get_duration_roll(_power : int, __casterchar) -> int:\n{base_string}{scaled_string}{return_string}\n"
+
+
+parse_duration = parse_damage
+
+
+def parse_range(range_field):
+    """
+    Parses the range field to extract the range value.
+
+    Parameters:
+    - range_field: The range field string from the CSV.
+
+    Returns:
+    An integer representing the range value.
+    """
+    # Regex to match the range pattern
+    range_match = re.match(r'(-?\d+) \+ (-?\d+)/level', range_field)
+    if range_match:
+        base_value = int(range_match.group(1))
+        scale_value = int(range_match.group(2))
+        return (abs(base_value), abs(scale_value))
+    else:
+        # Return a default value if the pattern does not match
+        return (0, 0)
+
+
+def get_range(range):
+    if (range[0] == 0 and range[1] == 0):
+        return "0"
+    if (range[0] == 0):
+        return f"{range[1]} * _power"
+    if (range[1] == 0):
+        return f"{range[0]}"
+    return f"{range[0]} + ({range[1]} * _power)"
+
+
+def get_traits(effect):
+    if (int(effect) in TRAITS):
+        return traits_template.format(trait_filename=TRAITS[int(effect)])
+    return ""
+
+
+def get_targets(target_type: TargetType):
+    match target_type:
+        case TargetType.MULTI_TARGET.value:
+            return "_power"
+        case _:
+            return "1"
+        
+def get_aoe(target_type: TargetType, size: int):
+    match target_type:
+        case TargetType.ALL_ENEMIES.value:
+            return "'ae'"
+        case TargetType.ALL_FRIENDLY.value:
+            return "'af'"
+        case TargetType.FIXED_SIZE.value:
+            return size_to_aoe.get(size, "'b1'")
+        case TargetType.SELF.value:
+            return "'sf'"
+        case TargetType.AREA_X_POWER.value:
+            return "['b1','b2','b3','b4','b5','b6','b7'][_power]"
+        case TargetType.PARTY.value:
+            return "'af'" # make a new one for party?
+        case _:
+            return "'b1'" # default to single target
+        
+def get_attributes(effect: int):
+    if (effect in effect_to_attribute):
+        return f"['{effect_to_attribute[effect]}']"
+    return "[]"
+
+

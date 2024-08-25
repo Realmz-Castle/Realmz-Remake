@@ -1,3 +1,19 @@
+from enum import Enum
+
+class TargetType(Enum):
+    MULTI_OPEN_SPACE = "-1"
+    MULTI_TARGET = "0"
+    SINGLE_TARGET = "1"
+    FIXED_SIZE = "3"
+    AREA_X_POWER = "4"
+    SELF = "5"
+    RAY = "6"
+    PARTY = "7"
+    SINGLE_OPEN = "8"
+    ALL_FRIENDLY = "9"
+    ALL_ENEMIES = "10"
+    SPECIAL = "11"
+
 sound_lookup = {
     0: 'spell launch 1.wav',
     1: 'spell launch 2.wav',
@@ -95,45 +111,59 @@ level_spellpoint_lookup = {
 }
 
 TRAITS = {
-    0: "t_fleeing.gd",
-    1: "t_helpless.gd",
-    2: "t_slow.gd",  # tangled , same as  slowi think
-    3: "t_cursed.gd",
-    4: "t_aura.gd",
-    5: "t_dumb.gd",  # stupid , same as  dumb i think
-    6: "t_slow.gd",  # slow, same as tangled  i  think
-    7: "t_pro_hits.gd",
-    8: "t_pro_proj.gd",
-    9: "t_poison.gd",  # no duration x5
-    10: "t_hp_regen.gd",  # no duration x5
-    11: "t_prot_fire.gd",
-    12: "t_prot_ice.gd",
-    13: "t_prot_elect.gd",
-    14: "t_prot_chem.gd",
-    15: "t_prot_mental.gd",
+    1: "t_fleeing.gd",
+    2: "t_helpless.gd",
+    3: "t_slow.gd",  # tangled , same as  slowi think
+    4: "t_cursed.gd",
+    5: "t_aura.gd",
+    6: "t_dumb.gd",  # stupid , same as  dumb i think
+    7: "t_slow.gd",  # slow, same as tangled  i  think
+    8: "t_pro_hits.gd",
+    9: "t_pro_proj.gd",
+    10: "t_poison.gd",  # no duration x5
+    11: "t_hp_regen.gd",  # no duration x5
+    12: "t_prot_fire.gd",
+    13: "t_prot_ice.gd",
+    14: "t_prot_elect.gd",
+    15: "t_prot_chem.gd",
+    16: "t_prot_mental.gd",
     # argument for init is [duration : int, level : int] . Lv1
-    16: "t_spell_lvl_prot.gd",
-    17: "t_spell_lvl_prot.gd",  # Lv2
-    18: "t_spell_lvl_prot.gd",  # Lv3
-    19: "t_spell_lvl_prot.gd",  # Lv4
-    20: "t_spell_lvl_prot.gd",  # Lv5
-    21: "t_strong.gd",
-    22: "t_prot_evil.gd",
-    23: "t_speedy.gd",
-    24: "t_invisible.gd",
-    25: "t_animated.gd",
-    26: "p_petrified.gd",
-    27: "t_blind.gd",
-    28: "t_disease.gd",
-    29: "t_confused.gd",
-    30: "t_reflect_spells.gd",
-    31: "t_reflect_melee.gd",
-    32: "t_phys_dmg_bonus.gd",
-    33: "t_sp_regen.gd",
-    34: "t_sp_leak.gd",
-    35: "t_sp_absorb.gd",
-    36: "t_hindered_atk.gd",
-    37: "t_hindered_def.gd",
-    38: "t_def_bonus.gd",
-    39: "t_dumb.gd"  # silenced, same efefct as tangled i think
+    17: "t_spell_lvl_prot.gd",
+    18: "t_spell_lvl_prot.gd",  # Lv2
+    19: "t_spell_lvl_prot.gd",  # Lv3
+    20: "t_spell_lvl_prot.gd",  # Lv4
+    21: "t_spell_lvl_prot.gd",  # Lv5
+    22: "t_strong.gd",
+    23: "t_prot_evil.gd",
+    24: "t_speedy.gd",
+    25: "t_invisible.gd",
+    26: "t_animated.gd",
+    27: "p_petrified.gd",
+    28: "t_blind.gd",
+    29: "t_disease.gd",
+    30: "t_confused.gd",
+    31: "t_reflect_spells.gd",
+    32: "t_reflect_melee.gd",
+    33: "t_phys_dmg_bonus.gd",
+    34: "t_sp_regen.gd",
+    35: "t_sp_leak.gd",
+    36: "t_sp_absorb.gd",
+    37: "t_hindered_atk.gd",
+    38: "t_hindered_def.gd",
+    39: "t_def_bonus.gd",
+    40: "t_dumb.gd"  # silenced, same efefct as tangled i think
+}
+
+
+size_to_aoe = {
+  4: "'b4'", # 3x3
+  7: "'b7'",
+  8: "'rd'", # around caster radiate
+  9: "'bf'", # circle radius 5 energy storm 
+  10: "'wh'", # plane
+  14: "'cr'", # super donut solar flare
+}
+
+effect_to_attribute = {
+   57: "Healing",
 }

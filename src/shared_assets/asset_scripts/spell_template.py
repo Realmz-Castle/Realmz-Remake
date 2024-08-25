@@ -1,7 +1,7 @@
 # Template for the GDScript content
 gdscript_template = """var name : String = '{name}'
 # Can we auto-generate this?
-var attributes : Array = []
+var attributes : Array = {attributes}
 # Can we auto-generate this?
 var tags : Array = {tags}
 
@@ -19,7 +19,7 @@ var in_combat : bool = {usable_in_combat}
 var description : String = '{description}'
 
 # How does this work?
-var resist : int = {resist_adjust} #ignores resistances and dodge
+var resist : int = 0 #ignores resistances and dodge 
 var los : bool = {is_los} # line of sight
 var ray : bool = {is_ray}
 var rot : bool = {can_rotate}
@@ -30,17 +30,15 @@ var max_focus_loss : int = 0 # Where does this come from?
 
 # Is this number of targets?
 static func get_targets(_power : int, __casterchar)->int :
-\treturn 1
+\treturn {targets}
 
-# How does this relate to duration roll?
 static func get_min_duration(_power : int, __casterchar) -> int :
-\treturn 0
+\treturn {min_duration}
 
-# How does this relate to duration roll?
+{duration_roll}
 static func get_max_duration(_power : int, __casterchar) -> int :
-\treturn 0
+\treturn {max_duration}
 
-# Should the be a range roll?
 static func get_range(_power : int, __casterchar) -> int :
 \treturn {range}
 
@@ -51,7 +49,7 @@ static func get_max_damage(_power:int, _casterchar) :
 \treturn {max_damage}
 
 static func get_damage_roll(_power : int, _casterchar) :
-\treturn 0
+{damage_roll}
 
 # How does this work?
 static func get_accuracy(_casterchar, _power : int) :
@@ -62,11 +60,11 @@ static func get_sp_cost(_power : int, _casterchar) :
 
 # How is this different from get_targets
 static func get_target_number(_power : int, _casterchar) :
-\treturn 1
+\treturn {targets}
 
-# What is this?
+# Area of effect (the shape of the spell target)
 static func get_aoe(_power : int, _casterchar) :
-\treturn 'b1'
+\treturn {aoe}
 
 {add_traits_to_target}
 

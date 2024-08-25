@@ -18,9 +18,9 @@ def parse_file(file_path):
                 new_key = new_key.strip()
                 result_dict[new_key] = value
             elif ':' in value:
-                 new_key, _ = value.split(':', 1)
-                 new_key = new_key.strip()
-                 result_dict[new_key] = value
+                new_key, _ = value.split(':', 1)
+                new_key = new_key.strip()
+                result_dict[new_key] = value
     return result_dict
 
 
@@ -41,7 +41,6 @@ def replace_single_quotes(data):
     elif isinstance(data, str):
         return data.replace("'", "\\'")
     return data
-
 
 
 def main():
@@ -69,17 +68,16 @@ def main():
                 priest_results = merge_dicts(priest_results, file_results)
             else:
                 general_results = merge_dicts(general_results, file_results)
-    
-    
+
     all_results = {
         "Sorcerer": sorcerer_results,
         "Enchanter": enchanter_results,
         "Priest": priest_results
     }
-    
+
     # Replace single quotes with escaped single quotes
     all_results = replace_single_quotes(all_results)
-    
+
     with open('descriptions.json', 'w') as json_file:
         json.dump(all_results, json_file, indent=4, ensure_ascii=False)
 
