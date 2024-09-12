@@ -10,7 +10,6 @@ Add engine_strings directory and spells.csv to this directory
 
 To run the scripts, navigate to the directory containing the script in your terminal and execute:
 
-
 To build descriptions.json from engine_string
 ```bash
 python3 parse_descriptions.py engine_strings
@@ -18,8 +17,10 @@ python3 parse_descriptions.py engine_strings
 
 To convert generated spell scripts json and install them
 ```bash
-python3 generate_spellbook.py
+python3 generate_spellbook.py --source-dir ./gd_scripts
 ```
+
+
 
 To build spells in this directory
 Requires `descriptions.json` and `spells.csv`
