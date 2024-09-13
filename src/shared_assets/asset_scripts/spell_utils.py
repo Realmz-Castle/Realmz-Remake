@@ -151,13 +151,8 @@ def get_damage_roll(damage, effect: int):
         return_string = "\treturn base_damage"
     elif scaled_string:
         return_string = "\treturn scaled_damage"
-        
-    healing = ""
-    
-    if effect_to_attribute.get(effect) == "Healing":
-        healing = " * -1"
 
-    return f"{base_string}{scaled_string}{return_string}{healing}"
+    return f"{base_string}{scaled_string}{return_string}"
 
 
 get_min_duration = get_min_damage
@@ -174,7 +169,7 @@ def get_duration_roll(duration):
 
     scaled_string = ""
     if (duration[2] != 0 or duration[3] != 0):
-        scaled_string = f"\tvar scaled_duration = 0\n\tfor i in range(_power) :\n\t\tscaled_damage += randi_range({duration[2]}, {duration[3]})\n"
+        scaled_string = f"\tvar scaled_duration = 0\n\tfor i in range(_power) :\n\t\tscaled_duration += randi_range({duration[2]}, {duration[3]})\n"
 
     return_string = "return 0"
 
