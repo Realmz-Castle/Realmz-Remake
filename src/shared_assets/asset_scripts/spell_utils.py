@@ -2,6 +2,7 @@ import re
 import json
 from lookups import icon_lookup, sound_lookup, TRAITS, TargetType, size_to_aoe, effect_to_attribute
 from traits_template import traits_template
+from special_fx_templates import special_fx
 
 # Load descriptions.json
 with open('descriptions.json', 'r') as json_file:
@@ -251,5 +252,10 @@ def get_attributes(effect: int):
     if (effect in effect_to_attribute):
         return f"['{effect_to_attribute[effect]}']"
     return "[]"
+
+def get_special_effect_function(row):
+    if (int(row['effect']) in special_fx):
+        return special_fx[int(row['effect'])](row)
+    return ""
 
 
