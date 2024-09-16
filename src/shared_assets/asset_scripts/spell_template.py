@@ -65,7 +65,8 @@ static func get_target_number(_power : int, _casterchar) :
 # Area of effect (the shape of the spell target)
 static func get_aoe(_power : int, _casterchar) :
 \treturn {aoe}
-{add_traits_to_target}
-{special_effect_function}
 
+{add_traits_to_target}
+
+{special_effect_function}
 """

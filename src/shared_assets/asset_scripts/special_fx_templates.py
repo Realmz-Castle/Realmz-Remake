@@ -30,6 +30,7 @@ def phase_args(args: Dict) -> Dict:
 	print(result)
 	return result
 
+
 discover_magic_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
 	var text : String = ''
 	for c : Creature in _effected_creas :
@@ -56,7 +57,23 @@ discover_magic_template = """static func special_effect(_castercrea, _spell, _po
 		UI.ow_hud.creatureRect.show()
 	return true"""
 
+identify_objects_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
+	for c : Creature in _effected_creas :
+		for i : Dictionary in c.inventory :
+			i['is_identified'] = 1
+	return true"""
+
+freefall_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
+	var duration = 0
+	for i in range(_power) :
+		duration += 20 + randi()% 21
+	GameGlobal.global_effects['FeatherFall']['Duration'] += _power * duration
+	UI.ow_hud.updateGlobalEffectsDisplay()
+	return true"""
+
 special_fx = {
+	6: effect(freefall_template, no_args),
+	48: effect(identify_objects_template, no_args),
 	56: effect(phase_template, phase_args),
 	63: effect(discover_magic_template, no_args),
 }
