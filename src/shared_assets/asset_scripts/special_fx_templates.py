@@ -71,9 +71,14 @@ freefall_template = """static func special_effect(_castercrea, _spell, _power, _
 	UI.ow_hud.updateGlobalEffectsDisplay()
 	return true"""
 
+shine_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
+	GameGlobal.add_light_effect(_power, 1200*_power)
+	return true"""
+
 special_fx = {
 	6: effect(freefall_template, no_args),
 	48: effect(identify_objects_template, no_args),
+	50: effect(shine_template, no_args),
 	56: effect(phase_template, phase_args),
 	63: effect(discover_magic_template, no_args),
 }
