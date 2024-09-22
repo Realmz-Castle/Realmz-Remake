@@ -1,12 +1,13 @@
 from typing import Callable, Dict
 
 
-def effect(template: str, to_args: Callable[[Dict], Dict]) -> Callable[[Dict], str]:
-	return lambda args: template.format(**to_args(args))
-
-
 def no_args(_: Dict) -> Dict:
-	return {}
+    return {}
+
+
+def effect(template: str, to_args: Callable[[Dict], Dict] = no_args) -> Callable[[Dict], str]:
+    return lambda args: template.format(**to_args(args))
+
 
 phase_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) :
 	var newtpos : Vector2 = _main_targeted_tile
@@ -17,18 +18,16 @@ phase_template = """static func special_effect(_castercrea, _spell, _power, _mai
 
 
 def phase_args(args: Dict) -> Dict:
-	print(args)
-	after_effect = ""
-	if (args["name"] == "Limited Phase"):
-		after_effect = "_castercrea.used_apr = 1000"
-	else:
-		after_effect = ""
+    after_effect = ""
+    if (args["name"] == "Limited Phase"):
+        after_effect = "_castercrea.used_apr = 1000"
+    else:
+        after_effect = ""
 
-	result = {
-		"after_effect": after_effect
-	}
-	print(result)
-	return result
+    result = {
+        "after_effect": after_effect
+    }
+    return result
 
 
 discover_magic_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
@@ -63,10 +62,20 @@ identify_objects_template = """static func special_effect(_castercrea, _spell, _
 			i['is_identified'] = 1
 	return true"""
 
+def feather_fall_args(args: Dict) -> Dict:
+    base = 20 if args["name"] == "Free Fall" else 50
+    extra = 21 if args["name"] == "Free Fall" else 51
+    
+    return {
+        "base": base,
+        "extra": extra
+    }
+
+# add arguments to the template to make hover as well
 freefall_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
 	var duration = 0
 	for i in range(_power) :
-		duration += 20 + randi()% 21
+		duration += {base} + randi()% {extra}
 	GameGlobal.global_effects['FeatherFall']['Duration'] += _power * duration
 	UI.ow_hud.updateGlobalEffectsDisplay()
 	return true"""
@@ -74,7 +83,7 @@ freefall_template = """static func special_effect(_castercrea, _spell, _power, _
 shine_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
 	GameGlobal.add_light_effect(_power, 1200*_power)
 	return true"""
- 
+
 discover_secret_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
 	var duration = 0
 	for i in range(_power) :
@@ -84,10 +93,10 @@ discover_secret_template = """static func special_effect(_castercrea, _spell, _p
 	return true"""
 
 special_fx = {
-	3: effect(discover_secret_template, no_args),
-	6: effect(freefall_template, no_args),
-	48: effect(identify_objects_template, no_args),
-	50: effect(shine_template, no_args),
-	56: effect(phase_template, phase_args),
-	63: effect(discover_magic_template, no_args),
+    3: effect(discover_secret_template),
+    6: effect(freefall_template, feather_fall_args),
+    48: effect(identify_objects_template),
+    50: effect(shine_template),
+    56: effect(phase_template, phase_args),
+    63: effect(discover_magic_template),
 }
