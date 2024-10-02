@@ -27,6 +27,10 @@ StateMachine="*res://scripts/game_state.tscn"
 SfxPlayer="*res://scenes/SFXPlayer.tscn"
 MusicStreamPlayer="*res://scenes/MusicPlayer/MusicStreamPlayer.tscn"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/realmz_export_plugin/plugin.cfg")
+
 [filesystem]
 
 import/blender/enabled=false
