@@ -25,3 +25,4 @@ src/shared_assets/asset_scripts/descriptions.json
 # External addons
 src/addons/godot-git-plugin/
 src/addons/TilED/
+src/addons/rcedit-x64.exe
