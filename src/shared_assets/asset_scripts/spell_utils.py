@@ -249,9 +249,10 @@ def get_aoe(target_type: TargetType, size: int):
             return "'b1'" # default to single target
         
 def get_attributes(effect: int):
+    attributes = ["'Magical'"]
     if (effect in effect_to_attribute):
-        return f"['{effect_to_attribute[effect]}']"
-    return "[]"
+      attributes.append(f"'{effect_to_attribute[effect]}'")
+    return f"[{','.join(attributes)}]"
 
 def get_special_effect_function(row):
     if (int(row['effect']) in special_fx):

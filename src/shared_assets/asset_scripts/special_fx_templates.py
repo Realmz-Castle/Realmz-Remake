@@ -29,7 +29,6 @@ def phase_args(args: Dict) -> Dict:
     }
     return result
 
-
 discover_magic_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
 	var text : String = ''
 	for c : Creature in _effected_creas :
@@ -91,12 +90,33 @@ discover_secret_template = """static func special_effect(_castercrea, _spell, _p
 	GameGlobal.global_effects['Awareness']['Duration'] += _power * duration
 	UI.ow_hud.updateGlobalEffectsDisplay()
 	return true"""
+ 
+destroy_magic_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) :
+	for c : Creature in _effected_creas :
+		var removed : Array = []
+		for t in c .traits :
+			if t.permanent : removed.append(t)
+		for t in removed :
+			c.remove_trait(t)
+	return true
+"""
+
+waterworld_template = """static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
+	var duration = 0
+	for i in range(_power) :
+		duration += 50 + randi()% 51
+	GameGlobal.global_effects['WaterBreath']['Duration'] += _power * duration
+	UI.ow_hud.updateGlobalEffectsDisplay()
+	return true
+"""
 
 special_fx = {
+    1: effect(waterworld_template),
     3: effect(discover_secret_template),
     6: effect(freefall_template, feather_fall_args),
     48: effect(identify_objects_template),
     50: effect(shine_template),
     56: effect(phase_template, phase_args),
-    63: effect(discover_magic_template),
+    61: effect(destroy_magic_template),
+    63: effect(discover_magic_template)
 }

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class TargetType(Enum):
     MULTI_OPEN_SPACE = "-1"
     MULTI_TARGET = "0"
@@ -13,6 +14,7 @@ class TargetType(Enum):
     ALL_FRIENDLY = "9"
     ALL_ENEMIES = "10"
     SPECIAL = "11"
+
 
 sound_lookup = {
     0: 'spell launch 1.wav',
@@ -156,14 +158,18 @@ TRAITS = {
 
 
 size_to_aoe = {
-  4: "'b4'", # 3x3
-  7: "'b7'",
-  8: "'rd'", # around caster radiate
-  9: "'bf'", # circle radius 5 energy storm 
-  10: "'wh'", # plane
-  14: "'cr'", # super donut solar flare
+    4: "'b4'",  # 3x3
+    7: "'b7'",
+    8: "'rd'",  # around caster radiate
+    9: "'bf'",  # circle radius 5 energy storm
+    10: "'wh'",  # plane
+    14: "'cr'",  # super donut solar flare
 }
 
 effect_to_attribute = {
-   57: "Healing",
+    57: "Healing",
+}
+
+damage_type_to_attribute = {
+    
 }
