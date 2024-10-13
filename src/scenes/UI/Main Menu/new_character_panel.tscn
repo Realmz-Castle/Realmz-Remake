@@ -1,9 +1,9 @@
 [gd_scene load_steps=6 format=3 uid="uid://ci4cf1yx31p2n"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_fcejw"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_fcejw"]
 [ext_resource type="Script" path="res://scenes/UI/Main Menu/NewCharacterPanel.gd" id="2_nga7k"]
-[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_nona8"]
-[ext_resource type="Texture2D" uid="uid://dbys7abqx7smb" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="4_k8qi4"]
+[ext_resource type="Texture2D" uid="uid://bydfdurfom1ml" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_nona8"]
+[ext_resource type="Texture2D" uid="uid://of37cx0jjr8c" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="4_k8qi4"]
 [ext_resource type="PackedScene" uid="uid://bov2d346tediq" path="res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.tscn" id="5_pga5p"]
 
 [node name="NewCharacterPanel" type="NinePatchRect" node_paths=PackedStringArray("cancelButton", "okButton", "lineEdit", "nameLabel", "portraitContainer", "iconContainer", "portraitScroll", "iconScroll", "toggleButton", "classitemlist", "raceitemlist", "characterstatrect", "levelMenuButton", "portraitRect", "iconRect")]

@@ -63,8 +63,8 @@ func specific_set_point_weight_scale(pos : Vector2i, weight_scale: float) :
 			if pos.x-cx<region_end.x and pos.y-cy<region_end.y and pos.x-cx>=0 and pos.y-cy>=0 :
 				var bpos : Vector2i =  pos-Vector2i(cx,cy)
 				var prev_weight : float = get_point_weight_scale(bpos)
-				set_point_weight_scale(pos-Vector2i(cx,cy), max(weight_scale,prev_weight))
-	
+				#set_point_weight_scale(pos-Vector2i(cx,cy), max(weight_scale,prev_weight))
+				set_point_solid(pos-Vector2i(cx,cy), true)
 
 func get_tilestack_cost(ts : Array, swimmer : bool, flyer : bool, big : bool) -> float :
 	#returns -1 if not walkable, else the movement cost
