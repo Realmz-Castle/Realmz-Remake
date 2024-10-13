@@ -69,5 +69,4 @@ static func get_aoe(_power : int, _casterchar) :
 {add_traits_to_target}
 
 {special_effect_function}
-
 """
