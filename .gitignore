@@ -7,7 +7,6 @@ export.cfg
 export_presets.cfg
 *.import
 [Pp]ublish/
-addons/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -23,3 +22,7 @@ src/shared_assets/asset_scripts/engine_strings/*
 src/shared_assets/asset_scripts/__pycache__/
 src/shared_assets/asset_scripts/descriptions.json
 
+# External addons
+src/addons/godot-git-plugin/
+src/addons/TilED/
+src/addons/rcedit-x64.exe
