@@ -58,4 +58,3 @@ static func get_target_number(_power : int, _casterchar) :
 
 static func get_aoe(_power : int, _casterchar) :
 	return 'sf'
-

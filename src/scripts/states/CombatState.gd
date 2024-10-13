@@ -195,12 +195,16 @@ func on_trying_to_move_to_position(crea : Creature, position : Vector2, notreall
 
 func check_battle_end() -> String :	 # '':continue 'won'  'fled' lost
 	var all_pc_dead : bool = true
+	print('cur_battle_data["pc_participating"]  \n ', cur_battle_data["pc_participating"])
 	#print("cbstate pc participating : ", cur_battle_data["pc_participating"].size())
 	for crea : Creature in cur_battle_data["pc_participating"] :
 		#var life_status : int = 0  #0=fine  1=ko'd bleeding 2=ko'd bandaged 3=dead
 		if crea.life_status == 0 and crea.curFaction==0 and crea.joins_combat :
 			all_pc_dead = false
 			break
+	#if cur_battle_data["pc_participating"].is_empty() :
+		#all_pc_dead = true
+	print("all_pc_dead : ", all_pc_dead)
 	if all_pc_dead :
 		return "lost"
 	var all_pc_dead_or_fled : bool = true

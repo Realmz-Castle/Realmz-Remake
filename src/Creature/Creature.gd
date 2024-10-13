@@ -177,6 +177,11 @@ func set_textures(lefttext : Texture2D, righttext : Texture2D = null)->void :
 #NOT same as  being a playercharacter object !
 func is_crea_player_controlled() -> bool :
 #	var no_trait_control_loss : bool = true
+	for t in traits :
+		if t.has_method("_on_get_player_controlled") :
+			var t_allows_control = t._on_get_player_controlled()
+			if not t_allows_control :
+				return false
 	return curFaction==0 and is_player_controlled #and no_trait_control_loss
 
 func move(dir : Vector2)->Array :  #Array returned is the list of  new  actions for the state action queue (counterattacks...)

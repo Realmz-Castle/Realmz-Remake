@@ -76,7 +76,7 @@ func _on_debug_kill_pressed():
 
 
 func _on_guard_button_pressed():
-	
+	print("\n\n\n\n\n\n Combat_br_panel GUARD BUTTON PRESSED \n\n\n\n\n\n")
 	hud.creatureRect._on_mouse_entered()
 	if StateMachine._state_name == "CbDecideAction" :
 		var active_cb : CombatCreaButton = StateMachine.combat_state.get_selected_character_combatbutton()

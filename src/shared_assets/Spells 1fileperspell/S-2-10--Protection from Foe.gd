@@ -58,4 +58,3 @@ static func add_traits_to_target(_castercrea, c,_power) :
 		duration += 10 + randi()% 26
 	var traitscript = load('res://shared_assets/traits/'+'t_pro_hits.gd')
 	c.add_trait(traitscript,[duration])
-

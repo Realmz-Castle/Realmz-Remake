@@ -56,4 +56,3 @@ static func add_traits_to_target(_castercrea, c,_power) :
 	var duration = 2 + randi()% 7
 	var traitscript = load('res://shared_assets/traits/'+'t_spell_lvl_prot.gd')
 	c.add_trait(traitscript,[duration, 2])
-

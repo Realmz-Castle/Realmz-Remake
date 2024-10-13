@@ -3,12 +3,14 @@ const menuname : String = 'Spell Reflection (T)'
 const stacks : bool = true
 const trait_types : Array = []
 var chara
+var power : int
 var duration : int #in seconds, 1 round = 5s
 
 func _init(args : Array):
 	#[chara, duration]
 	chara = args[0]
 	duration = 5*args[1]
+	power = args[2]
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Spell Reflection !', null,'')
 
 func stack(args : Array) :
@@ -51,4 +53,3 @@ func _on_evasion_check(crea, evasion_stats_used : Array, attacker, spellornull, 
 
 func get_info_as_text() -> String :
 	return 'Spell Reflection for '+str(ceil(duration/5))+' rounds'
-

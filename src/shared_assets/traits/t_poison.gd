@@ -1,4 +1,4 @@
-const name : String = 'poison.gd'
+const name : String = 't_poison.gd'
 const menuname : String = 'Poison'
 const stacks : bool = true
 const trait_types : Array = ['Poison']

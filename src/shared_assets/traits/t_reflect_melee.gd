@@ -4,11 +4,13 @@ const stacks : bool = true
 const trait_types : Array = []
 var chara
 var duration : int #in seconds, 1 round = 5s
+var power : int
 
 func _init(args : Array):
 	#[chara, duration]
 	chara = args[0]
 	duration = 5*args[1]
+	power = args[2]
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Melee Reflection !', null,'')
 
 func stack(args : Array) :

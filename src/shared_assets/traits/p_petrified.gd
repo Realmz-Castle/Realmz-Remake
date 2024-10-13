@@ -20,6 +20,9 @@ func _on_new_round(_character : Creature) :
 	chara.used_movepoints = chara.get_movement_left()
 
 
+func _on_get_player_controlled() :
+	return false
+
 func _on_get_stat(statname : String, stat : int) :
 	if ['EvasionMelee','EvasionRanged'].has(statname) :
 		return 0

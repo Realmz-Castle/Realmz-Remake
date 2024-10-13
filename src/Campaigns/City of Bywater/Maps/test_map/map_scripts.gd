@@ -40,7 +40,7 @@ static func GlyphScript_One() :
 	print('yield(textRect, "interruption_over") after again')
 
 static func GlyphScript_Two() :
-	if true :
+	if false  :
 		var hud = UI.ow_hud
 		hud.request_pc_pick(3)
 		var picked = await hud.pc_picked

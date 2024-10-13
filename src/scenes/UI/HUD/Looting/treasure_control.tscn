@@ -158,10 +158,10 @@ offset_top = 151.0
 offset_right = 100.0
 offset_bottom = 201.0
 scale = Vector2(1, 0.8)
-theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/disabled = ExtResource("7_365ag")
 theme_override_styles/hover = ExtResource("5_2gofa")
 theme_override_styles/pressed = ExtResource("6_den0p")
-theme_override_styles/disabled = ExtResource("7_365ag")
+theme_override_styles/normal = ExtResource("4_vl2ad")
 icon = ExtResource("8_xknn3")
 
 [node name="PoolButton" type="Button" parent="BotRightLootInfo"]
@@ -172,10 +172,10 @@ offset_right = 139.0
 offset_bottom = 191.0
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("9_bp3bw")
-theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/disabled = ExtResource("7_365ag")
 theme_override_styles/hover = ExtResource("5_2gofa")
 theme_override_styles/pressed = ExtResource("6_den0p")
-theme_override_styles/disabled = ExtResource("7_365ag")
+theme_override_styles/normal = ExtResource("4_vl2ad")
 text = "Pool"
 
 [node name="ShareButton" type="Button" parent="BotRightLootInfo"]
@@ -186,10 +186,10 @@ offset_right = 179.0
 offset_bottom = 191.0
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("9_bp3bw")
-theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/disabled = ExtResource("7_365ag")
 theme_override_styles/hover = ExtResource("5_2gofa")
 theme_override_styles/pressed = ExtResource("6_den0p")
-theme_override_styles/disabled = ExtResource("7_365ag")
+theme_override_styles/normal = ExtResource("4_vl2ad")
 text = "Share"
 
 [node name="ButtonDone" type="Button" parent="BotRightLootInfo"]
@@ -210,10 +210,10 @@ offset_top = 151.0
 offset_right = 311.0
 offset_bottom = 201.0
 scale = Vector2(1, 0.8)
-theme_override_styles/normal = ExtResource("4_vl2ad")
+theme_override_styles/disabled = ExtResource("7_365ag")
 theme_override_styles/hover = ExtResource("5_2gofa")
 theme_override_styles/pressed = ExtResource("6_den0p")
-theme_override_styles/disabled = ExtResource("7_365ag")
+theme_override_styles/normal = ExtResource("4_vl2ad")
 icon = ExtResource("12_2tonn")
 
 [connection signal="pressed" from="BotRightLootInfo/MoneyButton" to="." method="_on_money_button_pressed"]

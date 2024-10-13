@@ -59,4 +59,3 @@ static func add_traits_to_target(_castercrea, c,_power) :
 	var duration : int = min_duration + randi() % (max_duration - min_duration +1)
 	var traitscript = load('res://shared_assets/traits/'+'t_sp_absorb.gd')
 	c.add_trait(traitscript,[duration])
-

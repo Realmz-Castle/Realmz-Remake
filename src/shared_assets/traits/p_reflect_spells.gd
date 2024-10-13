@@ -3,6 +3,7 @@ const menuname : String = 'Spell Reflection'
 const stacks : bool = false
 const trait_types : Array = []
 var chara
+var power : int #chance in %
 const permanent : int = 1
 var trait_source : String = ''
 
@@ -28,7 +29,7 @@ func _on_evasion_check(crea, evasion_stats_used : Array, attacker, spellornull, 
 	return [true, []]
 
 func get_info_as_text() -> String :
-	return 'Permanent Spell Reflection'+' (source : '+trait_source+')'
+	return 'Permanent Spell Reflection'+str(power)+'% (source : '+trait_source+')'
 
 func equals_args(traits_array : Array) :
 	return true

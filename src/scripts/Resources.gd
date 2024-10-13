@@ -913,5 +913,3 @@ func get_sounds_book() -> Dictionary:
 ## Get texture Atlas #
 #func get_texture_atlas() -> Image:
 #	return g_texture_atlas
-
-

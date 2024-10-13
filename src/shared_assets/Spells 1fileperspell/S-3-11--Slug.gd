@@ -64,4 +64,3 @@ static func add_traits_to_target(_castercrea, c,_power) :
 		duration += 1 + randi()% 2
 	var traitscript = load('res://shared_assets/traits/'+'t_slow.gd')
 	c.add_trait(traitscript,[duration])
-

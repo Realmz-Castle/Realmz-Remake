@@ -46,4 +46,3 @@ func levelup_character(chara : PlayerCharacter) :
 func _on_close_button_pressed():
 	get_parent().hide()
 	emit_signal("closed_lvlup_popup")
-

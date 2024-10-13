@@ -193,6 +193,10 @@ func enter(_msg : Dictionary = {}) -> void:
 						SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[ a_spell.sounds[1] ]
 						SfxPlayer.play()
 				await play_spell_resolution(a_spell.proj_hit, a_castercrea, a_effected_tiles, a_effected_creas)
+				print("CbAnim l 196 just played anim for spell "+a_spell.name)
+				##DEBUG
+				#if not cur_action.has("used_item") :
+					#print('CUR ACTION NO USEDITEM :  \n'+str(cur_action)+'\n')
 				var used_item : Dictionary = cur_action["used_item"]
 				if not used_item.is_empty() :
 					if used_item.has("ammo_type") :
@@ -206,10 +210,10 @@ func enter(_msg : Dictionary = {}) -> void:
 				
 				
 			"Spawn" : #from creature.change_hp or spells   return ["Spawn", self, Vector2i.ZERO]
-				pass
+				print("CBAnimState  Spawn  action TBI  :c")
 		UI.ow_hud.updateCharPanelDisplay()
 
-		print("cbanimstate  check deaths l116")
+		print("cbanimstate  check deaths l216")
 		var dying : Array = get_new_deads() #those will do on_death script
 		if not dying.is_empty() :
 			
@@ -226,6 +230,7 @@ func enter(_msg : Dictionary = {}) -> void:
 					for t in ded.creature.traits :
 						if t.has_method("_on_crea_death") :
 							added_to_queue += t._on_crea_death(ded.creature)
+					pass
 					if added_to_queue.is_empty() :
 						ded.creature.please_remove_from_combat = true
 						ded.creature.doing_on_death_action = false
@@ -235,6 +240,7 @@ func enter(_msg : Dictionary = {}) -> void:
 						combat_state.add_to_action_queue(added_to_queue)
 			#print("CbANimSTate l140 await tilmer over")
 			await timer_over
+		
 	#end while
 	print("CbAnimState END OF WHILE<")
 	print("combat_state.all_battle_creatures_btns.size()? ", combat_state.all_battle_creatures_btns.size())
@@ -255,9 +261,11 @@ func enter(_msg : Dictionary = {}) -> void:
 		cb.creature.doing_on_death_action = false
 		
 	var battle_end_str : String = combat_state.check_battle_end()  # 0=nope 1=won 2=lost 3=fled
+	print("CbAnim l263 before check balle end")
 	if not battle_end_str.is_empty() :
 		GameGlobal.end_battle(battle_end_str)
 		return
+	print("Cbanim m 266 transition_to(Combat/CbDecideAction)")
 	StateMachine.transition_to("Combat/CbDecideAction")
 	
 	
@@ -347,6 +355,7 @@ func get_new_deads() -> Array :
 	for cb in combat_state.all_battle_creatures_btns :
 		if cb.creature.get_stat("curHP") <=0 :
 			if not cb.creature.doing_on_death_action :
+				print("CbAnimationState : get_new_deads() : "+cb.creature.name)
 				returned.append(cb)
 	return returned
 

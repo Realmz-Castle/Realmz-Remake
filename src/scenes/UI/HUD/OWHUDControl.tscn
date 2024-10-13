@@ -50,23 +50,23 @@
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="67_o5gys"]
 [ext_resource type="Texture2D" uid="uid://d3vnjgyob6xvm" path="res://scenes/UI/HUD/Button_Spells.png" id="81"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kbh82"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_swe7o"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cco5e"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3olkx"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n8nai"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cco5e"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kbh82"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_swe7o"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_okqna"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0chsf"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uclwc"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_u3nr5"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0chsf"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_okqna"]
 
 [sub_resource type="Shortcut" id="6"]
 
@@ -203,10 +203,10 @@ offset_bottom = 22.0
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
 theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/line_spacing = 1
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/shadow_outline_size = 1
-theme_override_constants/line_spacing = 1
 theme_override_fonts/font = ExtResource("67_o5gys")
 text = "Fatigue :"
 
@@ -219,10 +219,10 @@ offset_bottom = 37.0
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
 theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/line_spacing = 1
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/shadow_outline_size = 1
-theme_override_constants/line_spacing = 1
 theme_override_fonts/font = ExtResource("67_o5gys")
 text = "Time :"
 
@@ -244,10 +244,10 @@ offset_bottom = 38.0
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
 theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/line_spacing = 1
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/shadow_outline_size = 1
-theme_override_constants/line_spacing = 1
 theme_override_fonts/font = ExtResource("67_o5gys")
 text = "Light :"
 
@@ -279,10 +279,10 @@ offset_bottom = 22.9482
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
 theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/line_spacing = 1
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/shadow_outline_size = 1
-theme_override_constants/line_spacing = 1
 theme_override_fonts/font = ExtResource("67_o5gys")
 text = "X :"
 
@@ -295,10 +295,10 @@ offset_bottom = 22.9482
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(0.12549, 0.12549, 0.12549, 1)
 theme_override_colors/font_outline_color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+theme_override_constants/line_spacing = 1
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/shadow_outline_size = 1
-theme_override_constants/line_spacing = 1
 theme_override_fonts/font = ExtResource("67_o5gys")
 text = "Y :"
 
@@ -412,11 +412,11 @@ offset_top = -450.0
 offset_right = 323.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_kbh82")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_swe7o")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_cco5e")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_3olkx")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_n8nai")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_cco5e")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_swe7o")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_kbh82")
 
 [node name="ItemRect" type="TextureRect" parent="VBoxScreen/HBoxBot/TextRect"]
 visible = false
@@ -446,10 +446,10 @@ offset_left = 1.18921
 offset_top = 50.9482
 offset_right = 51.1892
 offset_bottom = 100.948
-theme_override_styles/normal = SubResource("StyleBoxEmpty_okqna")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_0chsf")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_uclwc")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_u3nr5")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_0chsf")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_okqna")
 shortcut = SubResource("6")
 shortcut_in_tooltip = false
 icon = ExtResource("5")
@@ -462,10 +462,10 @@ offset_left = 270.0
 offset_right = 320.0
 offset_bottom = 50.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 disabled = true
 shortcut_in_tooltip = false
 icon = ExtResource("23")
@@ -478,10 +478,10 @@ offset_top = 150.0
 offset_right = 320.0
 offset_bottom = 200.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 shortcut_in_tooltip = false
 icon = ExtResource("36")
 
@@ -492,10 +492,10 @@ offset_top = 150.0
 offset_right = 50.0
 offset_bottom = 200.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 shortcut_in_tooltip = false
 icon = ExtResource("39")
 
@@ -504,10 +504,10 @@ custom_minimum_size = Vector2(50, 50)
 layout_mode = 0
 offset_right = 50.0
 offset_bottom = 50.0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 shortcut = SubResource("8")
 shortcut_in_tooltip = false
 icon = ExtResource("53")
@@ -519,10 +519,10 @@ offset_left = 270.0
 offset_top = 100.0
 offset_right = 320.0
 offset_bottom = 150.0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 icon = ExtResource("55")
 
 [node name="QSaveButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
@@ -532,10 +532,10 @@ offset_left = 270.189
 offset_top = 50.9481
 offset_right = 320.189
 offset_bottom = 100.948
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 icon = ExtResource("27_drj61")
 
 [node name="BestiaryButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
@@ -545,10 +545,10 @@ offset_left = 50.0
 offset_top = 150.0
 offset_right = 100.0
 offset_bottom = 200.0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 icon = ExtResource("22_a5ehs")
 
 [node name="AbiListButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
@@ -558,10 +558,10 @@ offset_left = 50.0
 offset_top = 100.0
 offset_right = 100.0
 offset_bottom = 150.0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 icon = ExtResource("26_silsh")
 
 [node name="MoneyButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
@@ -571,10 +571,10 @@ offset_left = 50.0
 offset_top = 50.0
 offset_right = 100.0
 offset_bottom = 100.0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 icon = ExtResource("56")
 
 [node name="RestButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
@@ -583,10 +583,10 @@ layout_mode = 0
 offset_left = 50.0
 offset_right = 100.0
 offset_bottom = 50.0
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 shortcut = SubResource("10")
 shortcut_in_tooltip = false
 icon = ExtResource("54")
@@ -600,10 +600,10 @@ layout_mode = 0
 offset_top = 100.784
 offset_right = 50.0
 offset_bottom = 150.784
-theme_override_styles/normal = ExtResource("12_c6hp3")
+theme_override_styles/disabled = ExtResource("15_rs5dt")
 theme_override_styles/hover = ExtResource("13_dm23x")
 theme_override_styles/pressed = ExtResource("14_pjtj6")
-theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/normal = ExtResource("12_c6hp3")
 shortcut = SubResource("12")
 icon = ExtResource("81")
 

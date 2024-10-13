@@ -8,37 +8,20 @@ class_name TestCreaScript
 #  [1, selectedSpell, selectedplvl, spell_target_pos].......aoe_shape : Array, picked_targets : Dictionary, picked_tiles:Dictionary, chain_start : bool, must_add_terrain : bool)
 static func decide_action(crea : Creature) -> Array :
 	print("test_crea_script decide_action : "+crea.name)
-	var target_crea : Creature = null
-	if crea.creature_script_memory.has("target_crea") :
-		target_crea = crea.creature_script_memory["target_crea"]
-	#check if  target_crea is next to me, else find closest one :
-	var is_targ_next_to_crea : bool = false
-	if target_crea :
-		if target_crea.combat_button != null :
-			target_crea = null
-			is_targ_next_to_crea = false
-		else :
-			is_targ_next_to_crea = is_other_in_range(crea, target_crea, 1)
-	var targ_range = 1
-	if is_targ_next_to_crea :
-		targ_range = 1
-	if not is_targ_next_to_crea :
-		var closest_enemies : Array = get_closest_creas_not_of_side(crea, crea.curFaction)
-		if not closest_enemies.is_empty():
-			target_crea = closest_enemies[0]
-			targ_range = get_range_between_creas(crea, target_crea)
-		else :
-			target_crea = null
-			targ_range = 9999
+	var missile_chance : int = crea.ai_variables["missile_chance"] # 100  is 100%
+	var cast_chance : int = crea.ai_variables["cast_chance"]
+	var flees_at : int = crea.ai_variables["flees_at"]
+	var target_crea = find_target_crea(crea)
+	var targ_range : int = AiFunctions.get_range_between_creas(crea, target_crea)
+	print("TestCreaScript "+crea.name+' tg is '+target_crea.name+ " targ_range : " + str(targ_range))
 	
 	#if have a target and it's close enough, walk to it and attack
 	if target_crea :
 		var target_pos : Vector2 = target_crea.position
-		print("   target_crea : ", target_crea.name,   "position : ", target_pos)
 		if targ_range<=crea.get_movement_left() and int(crea.ai_variables["cast_chance"])<randi_range(0,100) :
 			var path : Array = GameGlobal.map.find_path(crea.position, target_pos, true, false, false, crea, true)
-			if crea.get_apr_left() == 0 or  path.size() < 2 :
-				print("ai decideaction : crea.get_apr_left() == 0 : "+str(crea.get_apr_left())+"  or  path.size() < 2 : "+str( path.size() < 2)  )
+			if crea.get_apr_left() <= 0 or  path.size() < 2 :
+				print("ai decideaction : crea.get_apr_left() <= 0 : "+str(crea.get_apr_left())+"  or  path.size() < 2 : "+str( path.size() < 2)  )
 				return [0, Vector2i.ZERO ]
 			else :
 				print("ai decideaction : "+crea.name+" 's path is : "+str(path.size())+' long')
@@ -118,39 +101,32 @@ static func decide_action(crea : Creature) -> Array :
 		#return [0,Vector2(path[1])-crea.position ]
 	
 
-# return true iff the other crea is "range"  or less tiles away.
-static func is_other_in_range(crea :Creature, othercrea : Creature, mrange : int) ->bool :
-	for cx in range(0,crea.size.x) :
-		for cy in range(0,crea.size.y) :
-			for tx in range(0,othercrea.size.x) :
-				for ty in range(0,othercrea.size.y) :
-					if GameGlobal.calculate_range_v(Vector2(cx,cy)-Vector2(tx,ty)) <= mrange :
-						return true
-	return false
+
 
 #useful for bigger creatures !
 # ignores terrain
-static func get_range_between_creas(crea : Creature, othercrea : Creature) ->int :
-	var min_range : int = 9999
-	for cx in range(0,crea.size.x) :
-		for cy in range(0,crea.size.y) :
-			for tx in range(0,othercrea.size.x) :
-				for ty in range(0,othercrea.size.y) :
-					var r : int = GameGlobal.calculate_range_v(Vector2(cx,cy)-Vector2(tx,ty))
-					min_range = min(min_range, r)
-	return min_range
+
 
 #ignores terrain
-static func get_closest_creas_not_of_side(crea : Creature, notside : int) -> Array :
-	var found_creas : Array = []
-	var found_range : int = 9999
-	for cb in StateMachine.combat_state.all_battle_creatures_btns :
-		if cb.creature.curFaction != notside :
-			var r : int = get_range_between_creas(crea, cb.creature)
-			if r < found_range :
-				found_creas.clear()
-				found_range = r
-			if r == found_range :
-				found_creas.append(cb.creature)
-	found_creas.shuffle()
-	return found_creas
+
+
+
+static func find_target_crea(crea : Creature) :
+	var tg_crea = null
+	if crea.creature_script_memory.has("target_crea") :
+		tg_crea = crea.creature_script_memory["target_crea"]
+	
+	#check if  target_crea is next to me, else find closest one :
+	var is_targ_next_to_crea : bool = false
+	if is_instance_valid(tg_crea) :
+		if is_instance_valid(tg_crea.combat_button) :
+			is_targ_next_to_crea = AiFunctions.get_range_between_creas(crea, tg_crea)<=1
+		else :
+			tg_crea = null
+	else :
+		var closest_enemies : Array = AiFunctions.get_closest_creas_not_of_side(crea, crea.curFaction)
+		if not closest_enemies.is_empty():
+			tg_crea = closest_enemies[0]
+		else :
+			tg_crea = null
+	return tg_crea

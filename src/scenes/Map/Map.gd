@@ -536,8 +536,13 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 
 func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, big : bool, crea : Creature, melee_enemies_on_the_way : bool) -> Array :
 	var right_astar : SpecificAstar2D = get_right_graph_for_crea(crea)
-	print("MAP ASTAR CRA  SIZE : ", right_astar.crea_size)
+	print("MAP ASTAR CREA  SIZE : ", right_astar.crea_size)
 	var unblocked_poses : Array = []
+	for cx in range(right_astar.crea_size.x) :
+		for cy in range(right_astar.crea_size.y):
+			unblocked_poses.append(from+Vector2i(cx,cy))
+			pathfinder_clear_pos(from+Vector2i(cx,cy))
+	
 	var who = GameGlobal.who_is_at_tile(to)
 	if who :
 		for x in range(who.creature.size.x) :

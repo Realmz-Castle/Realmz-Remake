@@ -1,24 +1,24 @@
 [gd_scene load_steps=16 format=3 uid="uid://ceolb7qhukb47"]
 
-[ext_resource type="Texture2D" uid="uid://bfdh53tg5brip" path="res://shared_assets/UI/stone_pattern.png" id="1_fwg6b"]
+[ext_resource type="Texture2D" uid="uid://xts8t37jlrj1" path="res://shared_assets/UI/stone_pattern.png" id="1_fwg6b"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Combat_BR_Panel/combat_br_panel.gd" id="2_kfkt4"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_ss5ln"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="3_uqsbt"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="4_pr50w"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="5_j7pu4"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="6_4nwnf"]
-[ext_resource type="Texture2D" uid="uid://ck0lm5knfrrao" path="res://scenes/UI/HUD/Button_Spells.png" id="7_a7o8r"]
-[ext_resource type="Texture2D" uid="uid://ss44lqbhulsx" path="res://scenes/UI/HUD/Button_Items.png" id="8_6riss"]
+[ext_resource type="Texture2D" uid="uid://d3vnjgyob6xvm" path="res://scenes/UI/HUD/Button_Spells.png" id="7_a7o8r"]
+[ext_resource type="Texture2D" uid="uid://bcs1n6hjnlb45" path="res://scenes/UI/HUD/Button_Items.png" id="8_6riss"]
 
 [sub_resource type="Shortcut" id="12"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_okqna"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0chsf"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uclwc"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_u3nr5"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0chsf"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_okqna"]
 
 [sub_resource type="Shortcut" id="6"]
 
@@ -37,10 +37,10 @@ focus_mode = 0
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Auto"
 
@@ -53,10 +53,10 @@ focus_mode = 0
 theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Finish
 "
@@ -81,10 +81,10 @@ focus_mode = 0
 theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Delay
 "
@@ -110,10 +110,10 @@ focus_mode = 0
 theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Guard
 "
@@ -139,10 +139,10 @@ focus_mode = 0
 theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Prep.
 "
@@ -169,10 +169,10 @@ focus_mode = 0
 theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Parry
 
@@ -195,10 +195,10 @@ offset_top = 100.784
 offset_right = 50.0
 offset_bottom = 150.784
 focus_mode = 0
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 icon = ExtResource("7_a7o8r")
 
@@ -208,10 +208,10 @@ offset_top = 50.0
 offset_right = 50.0
 offset_bottom = 100.0
 focus_mode = 0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_okqna")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_0chsf")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_uclwc")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_u3nr5")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_0chsf")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_okqna")
 shortcut = SubResource("6")
 shortcut_in_tooltip = false
 icon = ExtResource("8_6riss")
@@ -226,10 +226,10 @@ offset_bottom = 196.0
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Escape"
 
@@ -242,10 +242,10 @@ offset_bottom = 196.0
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "Bandage"
 
@@ -256,10 +256,10 @@ offset_top = 100.0
 offset_right = 200.0
 offset_bottom = 150.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 
 [node name="debugFinish" type="Button" parent="."]
@@ -269,10 +269,10 @@ offset_top = 1.0
 offset_right = 202.0
 offset_bottom = 51.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "debug
 finish"
@@ -284,10 +284,10 @@ offset_top = 1.0
 offset_right = 256.0
 offset_bottom = 51.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "debug
 win"
@@ -299,10 +299,10 @@ offset_top = 25.0
 offset_right = 312.0
 offset_bottom = 75.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("3_uqsbt")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
-theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
 text = "debug
 kill"

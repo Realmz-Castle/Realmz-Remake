@@ -413,7 +413,10 @@ func start_battle(battlename : String, is_ambush : bool, allow_loss : bool, allo
 
 
 func end_battle( wonfledlost : String ) :
-	print("GameGlobal end_battle")
+	print("GameGlobal end_battle", last_exploration_map_name,wonfledlost)
+	StateMachine.combat_state.battle_creatures_yet_to_act_btns.clear()
+	StateMachine.combat_state.all_battle_creatures_btns.clear()
+	StateMachine.combat_state.action_queue.clear()
 	map.focuscharacter.tile_position_x = pos_when_battle_started.x
 	map.focuscharacter.tile_position_y = pos_when_battle_started.y
 	

@@ -32,7 +32,7 @@
 	  "ai" :
 	  {
 		 "cast_chance" : 0,
-	 "missile_chance" : 0,
+	 "missile_chance" : 100,
 	 "flees_at" : 80
 	
 	  },

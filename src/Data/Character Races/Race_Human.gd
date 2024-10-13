@@ -146,7 +146,15 @@ static func _add_base_stats(character) :
 		else :
 			if not character.base_stats.has(s) :
 				character.base_stats[s] = 0
-			character.base_stats[s] += base_stat_bonuses[s]
+			if s.begins_with("Multiplier") :
+				if character.base_stats[s]<0 and base_stat_bonuses[s]<0 :
+					character.base_stats[s] = - abs(base_stat_bonuses[s] * character.base_stats[s])
+				else :
+					character.base_stats[s] *= base_stat_bonuses[s]
+			else :
+				character.base_stats[s] += base_stat_bonuses[s]
+			
+				
 
 
 

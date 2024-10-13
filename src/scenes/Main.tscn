@@ -8,15 +8,15 @@
 [ext_resource type="Script" path="res://scripts/Main.gd" id="6"]
 [ext_resource type="Shader" path="res://scenes/CRT.gdshader" id="7_5xixa"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5xg8f"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_12uap"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jefig"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pmuav"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wqnq8"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jefig"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_12uap"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5xg8f"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_juq17"]
 shader = ExtResource("7_5xixa")
@@ -70,11 +70,11 @@ script = ExtResource("2")
 layout_mode = 1
 offset_right = 832.0
 offset_bottom = 447.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_5xg8f")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_12uap")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_jefig")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_pmuav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_wqnq8")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_jefig")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_12uap")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_5xg8f")
 
 [node name="ExtraImages" type="Node2D" parent="Map"]
 

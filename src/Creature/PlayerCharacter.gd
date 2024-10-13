@@ -226,6 +226,7 @@ func apply_raceclass_base_stats() :
 	stats["curFP"] = base_stats["maxFP"]
 	stats["curTP"] = base_stats["maxTP"]
 	stats["curRP"] = base_stats["maxRP"]
+	
 #	print(name," has curHP maxHP : ", stats["curHP"], ' ',stats["maxHP"])
 	can_dual_wield = classgd.can_dual_wield and racegd.can_dual_wield
 	print("PC after apply_raceclass_base_stats(), ",base_stats["curHP"] ,'/',base_stats["maxHP"])

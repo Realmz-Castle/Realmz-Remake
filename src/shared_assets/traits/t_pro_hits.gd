@@ -40,4 +40,3 @@ func _on_time_pass(_character, seconds) :
 	
 func get_info_as_text() -> String :
 	return 'Protection from Hits for '+str(ceil(duration/5))+' rounds'
-

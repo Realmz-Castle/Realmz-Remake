@@ -31,6 +31,8 @@ func _on_new_round(_character : Creature) :
 	chara.used_movepoints = chara.get_movement_left()
 	duration -= 1
 
+func _on_get_player_controlled() :
+	return false
 
 func _on_battle_end(chara) :
 	chara.remove_trait(self)

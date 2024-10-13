@@ -1,7 +1,9 @@
 When you rename the folder, also change this line in paths.gd :
 const MYFILENAME = "Realmz Remake/"
 
-
+bugs - big monsters clipping in walls
+-spell relosution over  after  the  game state has  passed to the next action in queue causing bug
+-some weird  end of battle sometimes.
 
 FOR IMAGE STORAGE :
 
