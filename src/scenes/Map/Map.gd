@@ -336,8 +336,10 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 			if cam_x+x<0 or cam_y+y<0 or cam_x+x>=map_size.x or cam_y+y>=map_size.y :
 				draw_texture_rect(blacktexture, Rect2(32*x,32*y,32,32), true)
 				continue
-
-			if display_explored_only and (not explored_tiles[cam_x+x][cam_y+y]==1) :
+			#print("Map 340 : ",cam_x+x,'<=',map_size.x, ',  ', cam_y+y,'<=',map_size.y, ", explored_tules size : ", explored_tiles.size(), "explored_tiles[0] size  : ", explored_tiles[0].size())
+			# mapsizeX is 30  mapsizeY is 20 , all good
+			#explosize is 20  explsize(0) is 30... width is y and height is x
+			if display_explored_only and (not explored_tiles[cam_y+y][cam_x+x]==1) :
 				draw_texture_rect(blacktexture, Rect2(32*x,32*y,32,32), true)
 				continue
 
@@ -520,13 +522,15 @@ func dock_boat_at(pos : Vector2i) :
 	set_ow_character_icon(GameGlobal.player_characters[0].icon)
 
 func explore_tiles_from_tilepos(tpos : Vector2) -> void :
-	explored_tiles[tpos.x][tpos.y] = 1
+	print("explore_tiles_from_tilepos ", tpos)
+	explored_tiles[tpos.y][tpos.x] = 1
 	# do bresentham is neveral directions
 	#bresenham_line(startpt : Vector2, endpt : Vector2, min_range : int, max_range : int) -> Array :
 	var explored_tiles_x_size = explored_tiles[0].size()
 	var explored_tiles_y_size = explored_tiles.size()
 	for endpt in exploration_sight_dirs :
-		print("explored_tiles_x_size : ",explored_tiles_x_size, ", explored_tiles_y_size : ", explored_tiles_y_size)
+		#continue
+		#print("explored_tiles_x_size : ",explored_tiles_x_size, ", explored_tiles_y_size : ", explored_tiles_y_size)
 		var line : Array = targetingLayer.bresenham_line(tpos, tpos+5*endpt,1,20) #Array of vector2
 		for t in line : 
 			if t.x<0 or t.y<0 or t.x>=explored_tiles_x_size or t.y>=explored_tiles_y_size : break
