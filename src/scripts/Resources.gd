@@ -782,9 +782,9 @@ func load_map_ressources( path : String , _name : String) -> void :
 #	print(used_tilesets_array)
 	# build the array
 	var newmapdata : Array = []
-	for _y in range(sizey) :
+	for _y in range(sizex) :
 		var newline : Array = []
-		for _x in range(sizex) :
+		for _x in range(sizey) :
 			newline.append([])
 		newmapdata.append(newline)
 	
@@ -818,6 +818,7 @@ func load_map_ressources( path : String , _name : String) -> void :
 			var x : int = t_number%sizex
 			var tile = tiles_book[used_tileset_name][t_id]
 			newmapdata[x][y].append(tile)
+			#print(sizex, ' sx: ', x, ' ,  sy :', sizey, ' ', y)
 #			print("newmapdata" , newmapdata)
 #			return
 			t_number+=1

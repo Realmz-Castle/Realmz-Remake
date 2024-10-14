@@ -526,10 +526,11 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 	var explored_tiles_x_size = explored_tiles[0].size()
 	var explored_tiles_y_size = explored_tiles.size()
 	for endpt in exploration_sight_dirs :
+		print("explored_tiles_x_size : ",explored_tiles_x_size, ", explored_tiles_y_size : ", explored_tiles_y_size)
 		var line : Array = targetingLayer.bresenham_line(tpos, tpos+5*endpt,1,20) #Array of vector2
 		for t in line : 
 			if t.x<0 or t.y<0 or t.x>=explored_tiles_x_size or t.y>=explored_tiles_y_size : break
-			explored_tiles[t.x][t.y] = 1
+			explored_tiles[t.y][t.x] = 1
 #			print(mapdata[t.x][t.y])
 			if bool(mapdata[t.x][t.y][0]["blkview"]) :
 				break

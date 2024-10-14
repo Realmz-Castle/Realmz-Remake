@@ -11,6 +11,7 @@ static func before_loading_ressources() :
 static func after_loading_ressources() :
 	GameGlobal.time = 86401	#set starting dime  (day 1, 1s)
 	GameGlobal.currentmap_name = "test_map"	# set starting map
+	#GameGlobal.currentmap_name = "new_map_tutorial"
 	#GameGlobal.allow_character_swap_anywhere = true
 	set_boats_in_gameglobal()
 
