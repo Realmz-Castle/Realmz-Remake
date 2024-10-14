@@ -13,10 +13,10 @@ func _init(args : Array):
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Electricity Protection !', null,'')
 
 func stack(args : Array) :
-	duration += 5*args[1]
+	duration += 5*args[0]
 
 func unstack(args : Array) :
-	duration -= 5*args[1]
+	duration -= 5*args[0]
 
 func get_saved_variables() :
 	return [ceil(duration/5)]

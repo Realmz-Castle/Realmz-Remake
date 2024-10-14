@@ -105,4 +105,3 @@ func _on_hd_button_pressed():
 	# Save the setting on change, otherwise smart defaults will be used every time 
 	# for the screen you start the game on
 	GameGlobal.save_hd_mode(hd_mode_chosen)
-

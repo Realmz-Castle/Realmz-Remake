@@ -20,10 +20,10 @@ func _init(args : Array):
 	chara.combat_button.set_icon( texture, chara.size)
 
 func stack(args : Array) :
-	duration += args[2]
+	duration += args[1]
 
 func unstack(args : Array) :
-	duration -= args[2]
+	duration -= args[1]
 	if duration==0 :
 		chara.combat_button.set_icon( chara.icon, chara.size )
 		chara.remove_trait(self)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dnrfjpqs4sges"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_qh02u"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_qh02u"]
 [ext_resource type="Script" path="res://scenes/UI/Main Menu/NewCampaignPanel.gd" id="2_nuwob"]
 [ext_resource type="PackedScene" uid="uid://dg78xp74hy78q" path="res://scenes/UI/Party Selection/CharPickRect.tscn" id="3_0intd"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_6yu0i"]

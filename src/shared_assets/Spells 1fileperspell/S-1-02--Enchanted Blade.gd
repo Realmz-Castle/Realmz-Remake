@@ -18,7 +18,7 @@ var ray : bool = false
 var rot : bool = false
 var proj_tex : String = 'Ball'
 var proj_hit : String = 'Target'
-var sounds : Array = ['spell launch 5.wav','clash.wav']
+var sounds : Array = ['spell launch 1.wav','clash.wav']
 var max_focus_loss : int = 0
 
 static func get_targets(_power : int, __casterchar)->int :

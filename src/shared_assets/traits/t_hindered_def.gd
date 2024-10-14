@@ -8,11 +8,11 @@ var duration : float #in seconds, 1 round = 5s
 func _init(args : Array):
 	#npower : float, nduration : int
 	chara = args[0]
-	duration = 5*args[1]
+	duration = 5*args[0]
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, 's evasion is Hindered !', null,'')
 
 func stack(args : Array) :
-	duration += 5*args[1]
+	duration += 5*args[0]
 
 func unstack(args : Array) :
 	duration -= 5*args[1]

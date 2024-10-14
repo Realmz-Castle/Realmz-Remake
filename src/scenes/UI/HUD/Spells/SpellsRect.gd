@@ -226,6 +226,8 @@ func _on_SLevelButton_pressed(slevel : int):
 			#castButton.disabled = castButton.disabled and picked_spell.in_field
 
 func can_cast_spell(crea : Creature, spell, power : int) -> bool :
+	if not spell.get("is_not_spell") and crea.get_spellsperround_left()<=0 :
+		return false
 	if StateMachine.is_combat_state() and (not spell.in_combat) :
 		#print("SpellsRect can_cast_spell : "+spell.name+ "is not for combat mode")
 		return false

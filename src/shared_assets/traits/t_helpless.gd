@@ -12,10 +12,10 @@ func _init(args : Array):
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is rendered Helpless !', null,'')
 
 func stack(args : Array) :
-	duration += args[1]
+	duration += args[0]
 
 func unstack(args : Array) :
-	duration -= args[1]
+	duration -= args[0]
 	if duration <= 0 :
 		chara.remove_trait(self)
 

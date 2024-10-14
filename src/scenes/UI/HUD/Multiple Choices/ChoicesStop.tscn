@@ -1,18 +1,18 @@
 [gd_scene load_steps=9 format=3 uid="uid://d3b75oe6r5ua4"]
 
-[ext_resource type="Texture2D" uid="uid://bfdh53tg5brip" path="res://shared_assets/UI/stone_pattern.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://c0pknvj0m35le" path="res://scenes/UI/HUD/Multiple Choices/STOP.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://xts8t37jlrj1" path="res://shared_assets/UI/stone_pattern.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://lqutxsxv40my" path="res://scenes/UI/HUD/Multiple Choices/STOP.png" id="2"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Multiple Choices/ChoicesStop.gd" id="3"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8ile6"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_no61y"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_478iw"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_odpw2"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7ewik"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_478iw"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_no61y"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8ile6"]
 
 [node name="ChoicesStop" type="Control"]
 custom_minimum_size = Vector2(64, 64)
@@ -44,11 +44,11 @@ anchor_bottom = 1.0
 [node name="Button" type="Button" parent="TextureRect/Container"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_8ile6")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_no61y")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_478iw")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_odpw2")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_7ewik")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_478iw")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_no61y")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_8ile6")
 icon = ExtResource("2")
 
 [connection signal="pressed" from="TextureRect/Container/Button" to="." method="_on_Button_pressed"]

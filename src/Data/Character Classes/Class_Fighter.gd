@@ -18,6 +18,7 @@ const can_manage_ablt_anywhere = true  #new, can  they reorganize their spell li
 const base_stat_bonuses : Dictionary = {
 	"MaxMovement" : 2,		#Movement points bonus for this class
 	"MaxActions" : 1,			#Actions per round, = 1+bonus_half_attacks_per_round*0.5       
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,		#to be honest, not  implemented....
 	"Strength" : 2,
 	"Intellect" : -2,
@@ -84,6 +85,7 @@ const base_stat_bonuses : Dictionary = {
 const levelup_bonuses : Dictionary = {
 	"MaxMovement" : 0,		#Movement points, usually dont increase w level
 	"MaxActions" : 0,			#Actions per round, they don't increase regularly
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,	#still to be implemented but shouldnt increase anyway
 	"Strength" : 0,
 	"Intellect" : 0,		#those should be left at 0 unless you re making a very unique class

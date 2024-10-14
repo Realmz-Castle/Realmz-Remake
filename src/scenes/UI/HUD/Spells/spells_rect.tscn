@@ -1,24 +1,24 @@
 [gd_scene load_steps=24 format=3 uid="uid://buub48wqri0s6"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_xn72t"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_xn72t"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Spells/SpellsRect.gd" id="2_h8dvl"]
-[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="3_qj0vv"]
-[ext_resource type="Texture2D" uid="uid://cnmil5dp78ypd" path="res://shared_assets/UI/buttonDISABLED.png" id="4_b805k"]
-[ext_resource type="Texture2D" uid="uid://p8y7apjaxgyd" path="res://scenes/UI/HUD/Spells/SpellLevelText.png" id="5_k55ol"]
+[ext_resource type="Texture2D" uid="uid://ctd2tjshe6dve" path="res://shared_assets/UI/buttonUP.png" id="3_qj0vv"]
+[ext_resource type="Texture2D" uid="uid://dm7d2lkqfnw05" path="res://shared_assets/UI/buttonDISABLED.png" id="4_b805k"]
+[ext_resource type="Texture2D" uid="uid://btusweffkxdrv" path="res://scenes/UI/HUD/Spells/SpellLevelText.png" id="5_k55ol"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="6_j0ouq"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="7_85ad7"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="8_7t5l1"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="9_55mvm"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="10_frnva"]
-[ext_resource type="Texture2D" uid="uid://dsqdlmbhi7k0l" path="res://scenes/UI/HUD/Spells/PowerLevelText.png" id="11_mxq6m"]
-[ext_resource type="Texture2D" uid="uid://c0dhe8lssuptb" path="res://shared_assets/UI/buttonPRESSED.png" id="12_pmjwq"]
-[ext_resource type="Texture2D" uid="uid://ddkb1ppvtr2gy" path="res://scenes/UI/HUD/Spells/TargetImages/DoNotUse.png" id="13_62ksd"]
-[ext_resource type="Texture2D" uid="uid://byuyyoob1w4lo" path="res://scenes/UI/HUD/Spells/SpellsStatsBg.png" id="14_bxkic"]
-[ext_resource type="Texture2D" uid="uid://by5iwd3204ras" path="res://scenes/UI/HUD/Spells/SpellCostBg.png" id="15_iad4l"]
-[ext_resource type="Texture2D" uid="uid://bbrhyi1klsxq2" path="res://scenes/UI/HUD/Spells/CastSpellText.png" id="16_sukjf"]
-[ext_resource type="Texture2D" uid="uid://dcucxc33tgqj8" path="res://shared_assets/UI/arrow_button_h.png" id="17_1t61o"]
-[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="18_dkie6"]
-[ext_resource type="Texture2D" uid="uid://c8dna0xtlkynt" path="res://scenes/UI/HUD/Spells/AbortSpellText.png" id="19_d1nqd"]
+[ext_resource type="Texture2D" uid="uid://bu8m4yyouaru5" path="res://scenes/UI/HUD/Spells/PowerLevelText.png" id="11_mxq6m"]
+[ext_resource type="Texture2D" uid="uid://b7gshsqh5wew0" path="res://shared_assets/UI/buttonPRESSED.png" id="12_pmjwq"]
+[ext_resource type="Texture2D" uid="uid://b2amq0mrdgejm" path="res://scenes/UI/HUD/Spells/TargetImages/DoNotUse.png" id="13_62ksd"]
+[ext_resource type="Texture2D" uid="uid://jswqeef2nsxs" path="res://scenes/UI/HUD/Spells/SpellsStatsBg.png" id="14_bxkic"]
+[ext_resource type="Texture2D" uid="uid://bap8sp8t3kvnn" path="res://scenes/UI/HUD/Spells/SpellCostBg.png" id="15_iad4l"]
+[ext_resource type="Texture2D" uid="uid://d3ygnl07ytr50" path="res://scenes/UI/HUD/Spells/CastSpellText.png" id="16_sukjf"]
+[ext_resource type="Texture2D" uid="uid://b0qgpi0v8r231" path="res://shared_assets/UI/arrow_button_h.png" id="17_1t61o"]
+[ext_resource type="Texture2D" uid="uid://bydfdurfom1ml" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="18_dkie6"]
+[ext_resource type="Texture2D" uid="uid://bmyn0nspf0p61" path="res://scenes/UI/HUD/Spells/AbortSpellText.png" id="19_d1nqd"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vqsrx"]
 texture = ExtResource("17_1t61o")
@@ -121,10 +121,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 0, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "Level 1"
 
@@ -133,10 +133,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.831373, 0, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "Level 2"
 
@@ -145,10 +145,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.666667, 0, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "Level 3"
 
@@ -157,10 +157,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.498039, 0, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "Level 4"
 
@@ -169,10 +169,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.333333, 0, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "Level 5"
 
@@ -181,10 +181,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.164706, 0, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "Level 6"
 
@@ -193,10 +193,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "Level 7"
 
@@ -280,10 +280,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "X 1"
 
@@ -292,10 +292,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.831373, 1, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "X 2"
 
@@ -304,10 +304,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.666667, 1, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "X 3"
 
@@ -316,10 +316,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.498039, 1, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "X 4"
 
@@ -328,10 +328,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.333333, 1, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "X 5"
 
@@ -340,10 +340,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.164706, 1, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "X 6"
 
@@ -352,10 +352,10 @@ custom_minimum_size = Vector2(90, 33)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 1, 1)
 theme_override_fonts/font = ExtResource("6_j0ouq")
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 toggle_mode = true
 text = "X 7"
 
@@ -617,10 +617,10 @@ alignment = 1
 custom_minimum_size = Vector2(110, 50)
 layout_mode = 2
 focus_mode = 0
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 disabled = true
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/BottomContainer/CastButton"]
@@ -638,9 +638,9 @@ texture = ExtResource("16_sukjf")
 [node name="LeftButton" type="Button" parent="VBoxContainer/BottomContainer"]
 custom_minimum_size = Vector2(25, 50)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxTexture_vqsrx")
 theme_override_styles/hover = SubResource("StyleBoxTexture_vqsrx")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_28wft")
+theme_override_styles/normal = SubResource("StyleBoxTexture_vqsrx")
 
 [node name="PortraitFrameRect" type="TextureRect" parent="VBoxContainer/BottomContainer"]
 layout_mode = 2
@@ -661,19 +661,19 @@ texture = ExtResource("18_dkie6")
 [node name="RightButton" type="Button" parent="VBoxContainer/BottomContainer"]
 custom_minimum_size = Vector2(25, 50)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxTexture_1objm")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_1objm")
 theme_override_styles/hover = SubResource("StyleBoxTexture_1objm")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_p2n7x")
-theme_override_styles/disabled = SubResource("StyleBoxTexture_1objm")
+theme_override_styles/normal = SubResource("StyleBoxTexture_1objm")
 
 [node name="AbortButton" type="Button" parent="VBoxContainer/BottomContainer"]
 custom_minimum_size = Vector2(110, 50)
 layout_mode = 2
 focus_mode = 0
-theme_override_styles/normal = ExtResource("7_85ad7")
+theme_override_styles/disabled = ExtResource("10_frnva")
 theme_override_styles/hover = ExtResource("8_7t5l1")
 theme_override_styles/pressed = ExtResource("9_55mvm")
-theme_override_styles/disabled = ExtResource("10_frnva")
+theme_override_styles/normal = ExtResource("7_85ad7")
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/BottomContainer/AbortButton"]
 layout_mode = 0

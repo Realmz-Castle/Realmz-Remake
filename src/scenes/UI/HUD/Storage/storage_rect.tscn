@@ -1,16 +1,16 @@
 [gd_scene load_steps=12 format=3 uid="uid://iiocvdyx6axc"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ewvts"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ewvts"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Storage/storage_rect.gd" id="2_5axds"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_xd7xv"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_01glb"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_miylq"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_7c4vm"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_7kijc"]
-[ext_resource type="Texture2D" uid="uid://ir2s3cje4v6" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="7_ej171"]
-[ext_resource type="Texture2D" uid="uid://5wrhtdqct47x" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="8_5uqhq"]
-[ext_resource type="Texture2D" uid="uid://ciudni0bpnnqm" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="9_h6r0l"]
-[ext_resource type="Texture2D" uid="uid://djctc8bi61ixv" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="10_xokcx"]
+[ext_resource type="Texture2D" uid="uid://5mbti7m4lvxg" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="7_ej171"]
+[ext_resource type="Texture2D" uid="uid://ch64pqgraojqp" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="8_5uqhq"]
+[ext_resource type="Texture2D" uid="uid://devjljqtg4bkh" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="9_h6r0l"]
+[ext_resource type="Texture2D" uid="uid://dm7uqd5jjpbdm" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="10_xokcx"]
 
 [node name="StorageRect" type="NinePatchRect" node_paths=PackedStringArray("profilenameLabel", "charanameLabel", "charaGrid", "storageGrid")]
 anchors_preset = 15
@@ -97,51 +97,51 @@ custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_xd7xv")
 theme_override_font_sizes/font_size = 32
-theme_override_styles/normal = ExtResource("3_01glb")
+theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/disabled = ExtResource("6_7kijc")
 theme_override_styles/hover = ExtResource("4_miylq")
 theme_override_styles/pressed = ExtResource("5_7c4vm")
-theme_override_styles/disabled = ExtResource("6_7kijc")
-theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/normal = ExtResource("3_01glb")
 text = "All"
 
 [node name="WeaponsButton" type="Button" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("3_01glb")
+theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/disabled = ExtResource("6_7kijc")
 theme_override_styles/hover = ExtResource("4_miylq")
 theme_override_styles/pressed = ExtResource("5_7c4vm")
-theme_override_styles/disabled = ExtResource("6_7kijc")
-theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/normal = ExtResource("3_01glb")
 icon = ExtResource("7_ej171")
 
 [node name="BArmorButton" type="Button" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("3_01glb")
+theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/disabled = ExtResource("6_7kijc")
 theme_override_styles/hover = ExtResource("4_miylq")
 theme_override_styles/pressed = ExtResource("5_7c4vm")
-theme_override_styles/disabled = ExtResource("6_7kijc")
-theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/normal = ExtResource("3_01glb")
 icon = ExtResource("8_5uqhq")
 
 [node name="LArmorButton" type="Button" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("3_01glb")
+theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/disabled = ExtResource("6_7kijc")
 theme_override_styles/hover = ExtResource("4_miylq")
 theme_override_styles/pressed = ExtResource("5_7c4vm")
-theme_override_styles/disabled = ExtResource("6_7kijc")
-theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/normal = ExtResource("3_01glb")
 icon = ExtResource("9_h6r0l")
 
 [node name="SuppliesButton" type="Button" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("3_01glb")
+theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/disabled = ExtResource("6_7kijc")
 theme_override_styles/hover = ExtResource("4_miylq")
 theme_override_styles/pressed = ExtResource("5_7c4vm")
-theme_override_styles/disabled = ExtResource("6_7kijc")
-theme_override_styles/focus = ExtResource("3_01glb")
+theme_override_styles/normal = ExtResource("3_01glb")
 icon = ExtResource("10_xokcx")
 
 [node name="CharaItemsRect" type="ColorRect" parent="VBoxContainer/HBoxContainer"]
@@ -165,16 +165,16 @@ columns = 14
 [node name="ExitButton" type="Button" parent="VBoxContainer"]
 modulate = Color(0.8, 0.8, 0.8, 1)
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 1.5, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0.768627, 0, 1)
-theme_override_colors/font_hover_color = Color(0.13, 2, 0.13, 1)
 theme_override_colors/font_hover_pressed_color = Color(0, 0.501961, 0, 1)
+theme_override_colors/font_hover_color = Color(0.13, 2, 0.13, 1)
+theme_override_colors/font_pressed_color = Color(0, 0.768627, 0, 1)
+theme_override_colors/font_color = Color(0, 1.5, 0, 1)
 theme_override_fonts/font = ExtResource("2_xd7xv")
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = ExtResource("3_01glb")
+theme_override_styles/disabled = ExtResource("6_7kijc")
 theme_override_styles/hover = ExtResource("4_miylq")
 theme_override_styles/pressed = ExtResource("5_7c4vm")
-theme_override_styles/disabled = ExtResource("6_7kijc")
+theme_override_styles/normal = ExtResource("3_01glb")
 text = "Exit and Quick Save"
 
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/ButtonsVBox/AllButton" to="." method="set_selected_type" binds= ["All"]]

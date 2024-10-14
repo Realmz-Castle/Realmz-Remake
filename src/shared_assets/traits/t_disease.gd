@@ -12,10 +12,10 @@ func _init(args : Array):
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is Dumbfounded !', null,'')
 
 func stack(args : Array) :
-	power += args[1]
+	power += args[0]
 
 func unstack(args : Array) :
-	power -= args[1]
+	power -= args[0]
 	if power <= 0 :
 		chara.remove_trait(self)
 

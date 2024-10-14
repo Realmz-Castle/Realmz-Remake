@@ -2,18 +2,18 @@
 
 [ext_resource type="Script" path="res://scenes/UI/HUD/Special Encounter/EncounterControl.gd" id="1_lkbnn"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="2_ygg0n"]
-[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="3_1rvju"]
+[ext_resource type="Texture2D" uid="uid://ctd2tjshe6dve" path="res://shared_assets/UI/buttonUP.png" id="3_1rvju"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="3_ydgsm"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="4_5u5al"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Use Item Menu/UseItemRect.gd" id="4_qisvq"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="5_8b2o1"]
-[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="5_nqj2a"]
-[ext_resource type="Texture2D" uid="uid://bb2an3nlerhav" path="res://scenes/UI/HUD/Special Encounter/ItemsIcon.png" id="6_h1di3"]
+[ext_resource type="Texture2D" uid="uid://bydfdurfom1ml" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="5_nqj2a"]
+[ext_resource type="Texture2D" uid="uid://d4a0qg18nqcno" path="res://scenes/UI/HUD/Special Encounter/ItemsIcon.png" id="6_h1di3"]
 [ext_resource type="PackedScene" uid="uid://bhthrfyy8yll3" path="res://scenes/UI/HUD/Inventory/ItemSmallButton.tscn" id="6_thf3l"]
-[ext_resource type="Texture2D" uid="uid://b40pbcjy5j7qv" path="res://scenes/UI/HUD/Special Encounter/ActionIcon.png" id="7_yf7ge"]
-[ext_resource type="Texture2D" uid="uid://qu56l0oj7lgp" path="res://scenes/UI/HUD/Special Encounter/speak_icon.png" id="8_2anlg"]
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="9_7ke52"]
-[ext_resource type="Texture2D" uid="uid://cdr0pghuu5qnq" path="res://scenes/UI/HUD/Special Encounter/stop_icon.png" id="10_30dcr"]
+[ext_resource type="Texture2D" uid="uid://b2t2ap8up6ldj" path="res://scenes/UI/HUD/Special Encounter/ActionIcon.png" id="7_yf7ge"]
+[ext_resource type="Texture2D" uid="uid://dq0cgr7wij588" path="res://scenes/UI/HUD/Special Encounter/speak_icon.png" id="8_2anlg"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="9_7ke52"]
+[ext_resource type="Texture2D" uid="uid://dc765jb6bd5m4" path="res://scenes/UI/HUD/Special Encounter/stop_icon.png" id="10_30dcr"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="11_7geeq"]
 
 [sub_resource type="Shortcut" id="6"]
@@ -40,10 +40,10 @@ grow_vertical = 0
 
 [node name="InventoryButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
 theme_override_styles/hover = ExtResource("3_ydgsm")
 theme_override_styles/pressed = ExtResource("4_5u5al")
-theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/normal = ExtResource("2_ygg0n")
 shortcut = SubResource("6")
 shortcut_in_tooltip = false
 icon = ExtResource("6_h1di3")
@@ -142,26 +142,26 @@ offset_right = -3.0
 offset_bottom = -5.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(1, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0.8, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(1, 0.2, 0, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.8, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 0.2, 0, 1)
+theme_override_colors/font_pressed_color = Color(0.8, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_fonts/font = ExtResource("11_7geeq")
 theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
 theme_override_styles/hover = ExtResource("3_ydgsm")
 theme_override_styles/pressed = ExtResource("4_5u5al")
-theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/normal = ExtResource("2_ygg0n")
 text = "Cancel"
 
 [node name="ActionButton" type="Button" parent="HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 focus_mode = 0
-theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
 theme_override_styles/hover = ExtResource("3_ydgsm")
 theme_override_styles/pressed = ExtResource("4_5u5al")
-theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/normal = ExtResource("2_ygg0n")
 shortcut_in_tooltip = false
 icon = ExtResource("7_yf7ge")
 
@@ -169,10 +169,10 @@ icon = ExtResource("7_yf7ge")
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 focus_mode = 0
-theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
 theme_override_styles/hover = ExtResource("3_ydgsm")
 theme_override_styles/pressed = ExtResource("4_5u5al")
-theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/normal = ExtResource("2_ygg0n")
 shortcut_in_tooltip = false
 icon = ExtResource("8_2anlg")
 
@@ -221,10 +221,10 @@ text = "Done"
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 focus_mode = 0
-theme_override_styles/normal = ExtResource("2_ygg0n")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
 theme_override_styles/hover = ExtResource("3_ydgsm")
 theme_override_styles/pressed = ExtResource("4_5u5al")
-theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/normal = ExtResource("2_ygg0n")
 shortcut_in_tooltip = false
 icon = ExtResource("10_30dcr")
 

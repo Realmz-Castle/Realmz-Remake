@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://bov2d346tediq"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bydfdurfom1ml" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3"]
 [ext_resource type="Script" path="res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.gd" id="4"]
 
 [node name="CharacterStatsRect" type="NinePatchRect" node_paths=PackedStringArray("portraitrect", "namelabel", "raceclasslabel", "levellabel", "statstable", "modstable")]

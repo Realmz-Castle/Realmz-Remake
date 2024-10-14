@@ -14,6 +14,7 @@ const can_manage_ablt_anywhere = true
 const base_stat_bonuses : Dictionary = {
 	"MaxMovement" : 2,		#Movement points
 	"MaxActions" : 1,			#Actions per round
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,
 	"Strength" : 1,
 	"Intellect" : -1,
@@ -79,6 +80,7 @@ const base_stat_bonuses : Dictionary = {
 const levelup_bonuses : Dictionary = {
 	"MaxMovement" : 0,		#Movement points
 	"MaxActions" : 0,			#Actions per round
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,
 	"Strength" : 0,
 	"Intellect" : 0,

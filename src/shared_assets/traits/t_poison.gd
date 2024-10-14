@@ -45,4 +45,3 @@ func _on_time_pass(_character, seconds) :
 func get_info_as_text() -> String :
 	var usedpower : int = ceil(sqrt(power*2))
 	return 'Poisoned for '+str(power)+'rounds'
-

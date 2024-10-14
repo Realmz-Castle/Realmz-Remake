@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dp81puofvcd7q"]
 
-[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://ctd2tjshe6dve" path="res://shared_assets/UI/buttonUP.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bydfdurfom1ml" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="2"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/MoneyRect/CharacterMoneyPanel.gd" id="3"]
 
 [node name="CharacterMoneyPanel" type="Control"]

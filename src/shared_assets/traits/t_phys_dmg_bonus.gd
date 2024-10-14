@@ -21,10 +21,10 @@ func _on_get_stat(statname : String, stat : int) :
 		return stat
 
 func stack(args : Array) :
-	power += args[1]
+	power += args[0]
 
 func unstack(args : Array) :
-	power -= args[1]
+	power -= args[0]
 	if power <= 0 :
 		chara.remove_trait(self)
 

@@ -12,10 +12,10 @@ func _init(args : Array):
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, 's evasion is Hindered !', null,'')
 
 func stack(args : Array) :
-	duration += 5*args[1]
+	duration += 5*args[0]
 
 func unstack(args : Array) :
-	duration -= 5*args[1]
+	duration -= 5*args[0]
 	if duration <= 0 :
 		chara.remove_trait(self)
 

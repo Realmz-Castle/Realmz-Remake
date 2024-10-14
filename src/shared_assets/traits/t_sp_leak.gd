@@ -13,10 +13,10 @@ func _init(args : Array):
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' suffers SP Leak !', null,'')
 
 func stack(args : Array) :
-	power += args[1]
+	power += args[0]
 
 func unstack(args : Array) :
-	power -= args[1]
+	power -= args[0]
 	if power <= 0 :
 		chara.remove_trait(self)
 
@@ -46,4 +46,3 @@ func _on_time_pass(_character, seconds) :
 	
 func get_info_as_text() -> String :
 	return 'SP Leak for '+str(power)+' total'
-

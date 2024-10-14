@@ -45,6 +45,8 @@ var ai_variables : Dictionary = {}  #variables to be accessed by ai, normally  s
 
 var used_movepoints : int = 0 #used movement points THIS TURN
 var used_apr : int = 0 #used mactions per round THIS TURN
+var used_spr : int = 0 #used spells per round THIS TURN
+
 
 #var attacked_this_turn : bool = false
 var terrain_already_crossed_this_turn : Dictionary = {}
@@ -73,6 +75,7 @@ var equipment_slots : Dictionary = {
 var stats : Dictionary = {
 	"MaxMovement" : 0,		#base max Movement points
 	"MaxActions" : 0,			#Actions per round
+	"MaxSpellsPerRound" : 0,
 	"Strength" : 0,
 	"Intellect" : 0,
 	"Wisdom" : 0,
@@ -401,6 +404,9 @@ func get_apr_left() :
 		if StateMachine.combat_state.cur_battle_round %2 == 0 :
 			evenroundbonus = 1
 	return floor(get_stat("MaxActions"))-used_apr + evenroundbonus
+
+func get_spellsperround_left() :
+	return get_stat("MaxSpellsPerRound") - used_spr
 
 func add_inventory_item(item : Dictionary,  index = -1) ->bool :
 #	print("Creature add_inventory_item :  i changed true  to can_add_inventory_item")
@@ -742,6 +748,7 @@ func _on_new_round() :
 	reaction_ready = true
 	used_movepoints = 0
 	used_apr = 0
+	used_spr = 0
 	focus_counter = 0
 	please_remove_from_combat = false
 	doing_on_death_action = false
@@ -828,6 +835,7 @@ func change_cur_hp(hpchange : int) -> void :
 		return
 	var prev_hp = stats['curHP']
 	stats['curHP'] += hpchange
+	stats['curHP'] = min(  get_stat('maxHP') , stats['curHP'])
 	if prev_hp>0 and stats['curHP'] <=0 :
 		for t in traits :
 			if t.has_method("_on_chara_dead") :
@@ -848,7 +856,7 @@ func change_cur_sp(spchange : int) :
 	#print("Creature change_cur_sp "+name+' ',spchange,' cursp : ',stats['curSP'])
 	stats['curSP'] += spchange
 	#print("after changecurdsp : ", stats['curSP'])
-	stats['curSP'] = min (stats['curSP'],stats['maxSP'])
+	stats['curSP'] = min (stats['curSP'], get_stat('maxSP') )
 #	stats['curSP'] = max (stats['curSP'],0)
 
 func die() :

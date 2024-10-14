@@ -158,8 +158,10 @@ class FileHandler:
 		#else :
 			#print("UTILS load_character "+jsonresult["name"]+": Melee_Crit_Rate ? "+str(jsonresult["base_stats"]["Melee_Crit_Rate"]))
 
-		var newchar = GameGlobal.playerCharacterGD.new(jsonresult, newicon, newportrait, classgd, racegd)
-
+		var newchar : PlayerCharacter = GameGlobal.playerCharacterGD.new(jsonresult, newicon, newportrait, classgd, racegd)
+		
+		#print("UTILS load character : curHP", newchar.get_stat("curHP"), 'curSP:', newchar.get_stat("curSP"))
+		
 		return newchar
 	
 	

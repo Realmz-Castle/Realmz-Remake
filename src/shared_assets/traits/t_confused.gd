@@ -22,11 +22,11 @@ func _init(args : Array):
 
 
 func stack(args : Array) :
-	duration += 5*args[1]
+	duration += 5*args[0]
 
 func unstack(args : Array) :
 
-	duration -= 5*args[1]
+	duration -= 5*args[0]
 	if duration==0 :
 		chara.remove_trait(self)
 
@@ -51,7 +51,7 @@ func _on_time_pass(character, s : int) :
 			character.remove_trait(self)
 
 func _on_get_player_controlled() :
-	return false
+	return [true, false, false].pick_random()
 
 func _on_get_creature_script() :
 	#print(GameGlobal.cmp_resources.creascripts_book)

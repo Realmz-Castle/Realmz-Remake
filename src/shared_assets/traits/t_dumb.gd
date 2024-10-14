@@ -12,10 +12,10 @@ func _init(args : Array):
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is Dumbfounded !', null,'')
 
 func stack(args : Array) :
-	duration += 5*args[1]
+	duration += 5*args[0]
 
 func unstack(args : Array) :
-	duration -= 5*args[1]
+	duration -= 5*args[0]
 	if duration <= 0 :
 		chara.remove_trait(self)
 
@@ -37,4 +37,3 @@ func _on_time_pass(_character, seconds) :
 	
 func get_info_as_text() -> String :
 	return 'Dumb for '+str(ceil(duration/5))+' rounds'
-

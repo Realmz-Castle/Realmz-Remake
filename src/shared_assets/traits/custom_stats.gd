@@ -3,6 +3,7 @@ const menuname : String = 'Custom Stats'
 const stacks = false  #one instance per applied effect, removed instance chosen if equals_args
 const trait_types : Array = []
 var stat_changes : Dictionary = {}
+var chara
 
 
 func _init(args : Array):

@@ -545,7 +545,7 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	print("CbDecideAction spell_confirmed queue length : "+str(actions_array.size())+", chain length : "+str(chain.size()))
 	combat_state.add_to_action_queue(actions_array)
 	picked_charas.clear()
-
+	current_active_creabutton.creature.used_spr +=1
 	StateMachine.transition_to("Combat/CbAnimation")
 
 

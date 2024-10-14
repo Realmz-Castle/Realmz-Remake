@@ -1,16 +1,15 @@
-[gd_scene load_steps=14 format=3 uid="uid://dg78xp74hy78q"]
+[gd_scene load_steps=13 format=3 uid="uid://dg78xp74hy78q"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
-[ext_resource type="BitMap" uid="uid://bomsiyq78eu6w" path="res://scenes/UI/Party Selection/ButtonSquareBitmask.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://bgbeptqtdjpo" path="res://scenes/UI/Party Selection/ButtonPartyAddPressed.png" id="4"]
-[ext_resource type="Texture2D" uid="uid://dsoat4p6suoqq" path="res://scenes/UI/Party Selection/ButtonPartyDropDisabled.png" id="5"]
-[ext_resource type="Texture2D" uid="uid://cjrivsqv7q34w" path="res://scenes/UI/Party Selection/ButtonPartyAdd.png" id="6"]
-[ext_resource type="Texture2D" uid="uid://dg5qspocwipi6" path="res://scenes/UI/Party Selection/ButtonPartyAddHover.png" id="7"]
-[ext_resource type="Texture2D" uid="uid://c3sxcgpx2uv0l" path="res://scenes/UI/Party Selection/ButtonPartyDrop.png" id="8"]
-[ext_resource type="Texture2D" uid="uid://b7n1mos7am82n" path="res://scenes/UI/Party Selection/ButtonPartyDropHover.png" id="9"]
-[ext_resource type="Texture2D" uid="uid://coyipqtfh2k6i" path="res://scenes/UI/Party Selection/ButtonPartyAddDisabled.png" id="10"]
-[ext_resource type="Texture2D" uid="uid://dps6k4obpassq" path="res://scenes/UI/Party Selection/ButtonPartyDropPressed.png" id="11"]
-[ext_resource type="Texture2D" uid="uid://0avr3chce768" path="res://scenes/UI/Party Selection/ButtonOK.png" id="12"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://28w3ljlb2fyp" path="res://scenes/UI/Party Selection/ButtonPartyAddPressed.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://biqbfunn1t7vd" path="res://scenes/UI/Party Selection/ButtonPartyDropDisabled.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://btnk6tvi2pps8" path="res://scenes/UI/Party Selection/ButtonPartyAdd.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://b8ouw07nlt6ge" path="res://scenes/UI/Party Selection/ButtonPartyAddHover.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://wq56u5j2kmsy" path="res://scenes/UI/Party Selection/ButtonPartyDrop.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://dbg67bge1i4e6" path="res://scenes/UI/Party Selection/ButtonPartyDropHover.png" id="9"]
+[ext_resource type="Texture2D" uid="uid://caye6q1yhmxjq" path="res://scenes/UI/Party Selection/ButtonPartyAddDisabled.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://clmyuvccs56w3" path="res://scenes/UI/Party Selection/ButtonPartyDropPressed.png" id="11"]
+[ext_resource type="Texture2D" uid="uid://c5mfkrlkc0ien" path="res://scenes/UI/Party Selection/ButtonOK.png" id="12"]
 [ext_resource type="Script" path="res://scenes/UI/Party Selection/CharPickRect.gd" id="13"]
 [ext_resource type="Script" path="res://scenes/UI/Party Selection/CharListRect.gd" id="14"]
 
@@ -99,7 +98,6 @@ texture_normal = ExtResource("6")
 texture_pressed = ExtResource("4")
 texture_hover = ExtResource("7")
 texture_disabled = ExtResource("10")
-texture_click_mask = ExtResource("3")
 
 [node name="DropButton" type="TextureButton" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
 layout_mode = 2
@@ -107,7 +105,6 @@ texture_normal = ExtResource("8")
 texture_pressed = ExtResource("11")
 texture_hover = ExtResource("9")
 texture_disabled = ExtResource("5")
-texture_click_mask = ExtResource("3")
 
 [node name="OKButton" type="TextureButton" parent="VBoxContainer/HBoxContainer/ButtonsVBox"]
 visible = false
@@ -116,7 +113,6 @@ texture_normal = ExtResource("12")
 texture_pressed = ExtResource("12")
 texture_hover = ExtResource("12")
 texture_disabled = ExtResource("12")
-texture_click_mask = ExtResource("3")
 
 [node name="SelectedVBox" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2

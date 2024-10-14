@@ -14,10 +14,10 @@ func _init(args : Array):
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Melee Reflection !', null,'')
 
 func stack(args : Array) :
-	duration += 5*args[1]
+	duration += 5*args[0]
 
 func unstack(args : Array) :
-	duration -= 5*args[1]
+	duration -= 5*args[0]
 	if duration <= 0 :
 		chara.remove_trait(self)
 
@@ -45,6 +45,9 @@ func _on_evasion_check(crea, evasion_stats_used : Array, attacker, spellornull, 
 	if (not is_instance_valid(attacker.combat_button)) or (not is_instance_valid(chara.combat_button)) :
 		#print('    on e of the cmbat buton is nt instance_valid so nothing happens')
 		return [true, []]
+	
+	if randf()<0.666 : return [true, []]
+	
 	var used_weapon : Dictionary = crea.current_melee_weapons[0]
 	var action_msg : Dictionary = {'type' : 'MeleeAttack', 'attacker' : crea.combat_button, 'defender' : attacker.combat_button, 'weapon': used_weapon }
 	return [false,[action_msg]]

@@ -127,4 +127,3 @@ func _on_ItemSmallButton_mouse_entered():
 
 func _on_ItemSmallButton_mouse_exited():
 	colorRect.color = Color(1,1,1, 1)
-

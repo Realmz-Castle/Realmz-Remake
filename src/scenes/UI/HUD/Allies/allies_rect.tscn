@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://37bdl7c76fpb"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ogmno"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ogmno"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Allies/allies_rect.gd" id="2_pi45d"]
 [ext_resource type="PackedScene" uid="uid://2w0rb8651ynm" path="res://scenes/UI/HUD/Allies/crea_v_box.tscn" id="3_4437a"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_g2gb7"]
@@ -135,16 +135,16 @@ offset_right = 40.0
 offset_bottom = 17.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
-theme_override_colors/font_pressed_color = Color(0.8, 0.784314, 0, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
 theme_override_colors/font_disabled_color = Color(0.501961, 0.501961, 0.376471, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_pressed_color = Color(0.8, 0.784314, 0, 1)
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_fonts/font = ExtResource("3_g2gb7")
 theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = ExtResource("4_t6gqf")
+theme_override_styles/disabled = ExtResource("7_i86ev")
 theme_override_styles/hover = ExtResource("5_xllfx")
 theme_override_styles/pressed = ExtResource("6_oxt08")
-theme_override_styles/disabled = ExtResource("7_i86ev")
+theme_override_styles/normal = ExtResource("4_t6gqf")
 text = "OK"
 
 [node name="OKLabel" type="Label" parent="VBoxContainer/BotControl/OKButton"]

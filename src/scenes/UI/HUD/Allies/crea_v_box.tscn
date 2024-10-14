@@ -5,7 +5,7 @@
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_v5g1w"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="3_lca44"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4_nalee"]
-[ext_resource type="Texture2D" uid="uid://c60xx52brghq2" path="res://icon.png" id="5_wum1u"]
+[ext_resource type="Texture2D" uid="uid://c5awi2tmgde6b" path="res://icon.png" id="5_wum1u"]
 
 [node name="CreaVBox" type="VBoxContainer"]
 theme_override_constants/separation = 0
@@ -15,10 +15,10 @@ script = ExtResource("1_d5uwa")
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 focus_mode = 0
-theme_override_styles/normal = ExtResource("1_n0y55")
+theme_override_styles/disabled = ExtResource("4_nalee")
 theme_override_styles/hover = ExtResource("2_v5g1w")
 theme_override_styles/pressed = ExtResource("3_lca44")
-theme_override_styles/disabled = ExtResource("4_nalee")
+theme_override_styles/normal = ExtResource("1_n0y55")
 toggle_mode = true
 icon = ExtResource("5_wum1u")
 icon_alignment = 1

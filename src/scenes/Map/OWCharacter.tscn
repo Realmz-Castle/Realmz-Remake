@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://jlb06ro2rvdg"]
 
-[ext_resource type="Texture2D" uid="uid://dbys7abqx7smb" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://of37cx0jjr8c" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="1"]
 [ext_resource type="Script" path="res://scenes/Map/OWCharacter.gd" id="2"]
 
 [node name="OWCharacter" type="Button"]

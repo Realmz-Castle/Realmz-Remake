@@ -196,6 +196,8 @@ func _on_OKButton_pressed() -> void :
 	print("new char path : ", path)
 	DirAccess.make_dir_recursive_absolute(path)
 	
+
+	
 	#let the character  get their free stuff
 	new_character.racegd._character_creation_gifts(new_character)
 	new_character.classgd._character_creation_gifts(new_character)
@@ -203,7 +205,9 @@ func _on_OKButton_pressed() -> void :
 	# generate the stats modification  trait script source
 
 	var statsmodsdict : Dictionary = characterstatrect.stat_mods_dict
+	print("NewCharacterPanel ADDING custom_stats.gd ? ", statsmodsdict.size() >0)
 	if statsmodsdict.size() >0 :
+		print("NewCharacterPanel ADDING custom_stats.gd")
 		var traitscript = load('res://shared_assets/traits/custom_stats.gd')
 #		var ntraitscript = traitscript.new([statsmodsdict])
 		new_character.add_trait(traitscript, [statsmodsdict])
@@ -220,8 +224,17 @@ func _on_OKButton_pressed() -> void :
 
 #
 #	path = "D:/Programming/Godot 4/Godot 4 Projects/Realmz Remake Folder/Profiles/Samuel/Saves/City of Bywater/toto/Characters/test"
+	
+
+	new_character.stats["curHP"] = new_character.get_stat("maxHP")
+	match new_character.used_resource :
+		"SP" : 
+			new_character.stats["curSP"] = new_character.get_stat("maxSP")
+	
+	
 	Utils.FileHandler.save_character(path, new_character)
 
+	
 	GameGlobal.load_character_to_profile(new_character.name)
 	
 #	save_char.open(path+'/data.json', File.WRITE)

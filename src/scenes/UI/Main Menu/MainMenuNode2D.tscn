@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://c3on0sw1e8ed5"]
 
-[ext_resource type="Texture2D" uid="uid://d23abg1ddq3b1" path="res://scenes/UI/Main Menu/Splash Screen.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://86rp7q4a5xap" path="res://scenes/UI/Main Menu/Splash Screen.png" id="1"]
 [ext_resource type="Theme" uid="uid://0pl8f657l17e" path="res://scenes/UI/Main Menu/mainmenu_theme.tres" id="1_4258f"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_dy765"]
 [ext_resource type="Script" path="res://scenes/UI/Main Menu/QuitButton.gd" id="5"]
@@ -117,9 +117,9 @@ text = "Enter Profile Name :"
 [node name="LineEdit" type="LineEdit" parent="NewProfileVBox/NewProfileHBox"]
 custom_minimum_size = Vector2(128, 32)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_6o0si")
 theme_override_styles/focus = SubResource("StyleBoxFlat_6o0si")
 theme_override_styles/read_only = SubResource("StyleBoxFlat_6o0si")
+theme_override_styles/normal = SubResource("StyleBoxFlat_6o0si")
 caret_blink = true
 caret_blink_interval = 0.5
 

@@ -1,1 +1,0 @@
-{ "shop_1": { "buy_rate": 0.5, "sell_rate": 2, "Weapons": [["Dagger", 6, -1]], "Armor": [], "Limbs": [["Leather Cap", 5, -1], ["Iron Cap", 5, -1], ["Buckler", 4, -1], ["Shield of the Blue Oxen", 1, -1], ["Ring of Regeneration", 1, -1]], "Supplies": [["Health Potion", 10, -1], ["Lantern", 20, -1]], "BuyBack": [] } }

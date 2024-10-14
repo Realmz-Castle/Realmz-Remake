@@ -6,7 +6,7 @@ class_name NewCharStatsRect
 # var b = "text"
 
 var statnames = (
-	["MaxMovement","MaxActions","","Weight_Limit",""]
+	["MaxMovement","MaxActions","","Weight_Limit","MaxSpellsPerRound",""]
 	+ ["maxHP","HP_regen_base","HP_regen_mult","maxSP","SP_regen_base","SP_regen_mult",""]
 	+ ["Strength","Intellect","Wisdom","Dexterity","Vitality",""]
 	+ ["AccuracyMelee","AccuracyRanged","AccuracyMagic",""]
@@ -72,7 +72,7 @@ func statslabel_clicked(meta) :
 		modstable.pop()
 		modstable.push_cell()
 #		modstable.push_align ( 0)
-		modstable.add_text(str(stat_mods_dict[s])+'lol')
+		modstable.add_text(str(stat_mods_dict[s])+' !')
 		modstable.pop()
 #		modstable.pop()
 #		modstable.push_cell()

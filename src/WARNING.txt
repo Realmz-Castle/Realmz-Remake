@@ -1,6 +1,23 @@
 When you rename the folder, also change this line in paths.gd :
 const MYFILENAME = "Realmz Remake/"
 
+
+TODO :
+
+ok charm effect
+instant death
+finsh summoning 
+turn undead
+
+
+
+
+ ok limit spells per  round  (esp for limtied phase spell)
+
+spell resolution bug
+
+
+
 bugs - big monsters clipping in walls
 -spell relosution over  after  the  game state has  passed to the next action in queue causing bug
 -some weird  end of battle sometimes.
@@ -13,6 +30,14 @@ var array = PoolByteArray()  Beware though, these use copy-on-write, unlike arra
 TRAITS :  in item files, if a trait name ends with .gd it shares for a standard Trait in the shared assets filder inside realmz. in chara file, same, and they dont need source.
 
 var specialskills : Array = ["Melee_Crit_Rate","Melee_Crit_Mult","Ranged_Crit_Rate","Ranged_Crit_Mult","Detect_Secret","Acrobatics","Detect_Trap","Disable_Trap","Force_Lock","Pick_Lock","Turn_Undead"]
+
+
+> important  :  reinstall Mod Player from  Asset Store before building.
+
+
+
+
+
 
 TODO :
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dotw82gnpi75b"]
 
-[ext_resource type="Texture2D" uid="uid://0lw8kmgygsht" path="res://scenes/UI/Party Selection/DefaultPortrait.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://b7x7ex0bh0vho" path="res://scenes/UI/Party Selection/DefaultPortrait.png" id="4"]
 [ext_resource type="Script" path="res://scenes/UI/Party Selection/CharPickButton.gd" id="6"]
 
 [node name="CharPickButton" type="Button"]

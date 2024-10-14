@@ -1,22 +1,22 @@
 [gd_scene load_steps=20 format=3 uid="uid://ckk0txf7ssl6a"]
 
-[ext_resource type="Texture2D" uid="uid://sao1pmo6sbdf" path="res://shared_assets/UI/buttonUP.png" id="1_5h348"]
+[ext_resource type="Texture2D" uid="uid://ctd2tjshe6dve" path="res://shared_assets/UI/buttonUP.png" id="1_5h348"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/MoneyRect/MoneyRect.gd" id="2_ywmd7"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_bco2e"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="4_u6a5c"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="5_3f0h3"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="6_exlu1"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="7_w6pn8"]
-[ext_resource type="Texture2D" uid="uid://bc6rk1sjey2m8" path="res://scenes/UI/HUD/MoneyRect/coins.png" id="8_0o4wd"]
+[ext_resource type="Texture2D" uid="uid://b2ni41m6pn8ml" path="res://scenes/UI/HUD/MoneyRect/coins.png" id="8_0o4wd"]
 [ext_resource type="StyleBox" uid="uid://do2165v7bw27k" path="res://shared_assets/UI/arrow_left_normal_stylebox.tres" id="9_r3ivk"]
 [ext_resource type="StyleBox" uid="uid://drya3v3f4frv5" path="res://shared_assets/UI/arrow_down_normal_stylebox.tres" id="10_qxcm0"]
 [ext_resource type="StyleBox" uid="uid://dy0h5y6q52egy" path="res://shared_assets/UI/arrow_left_pressed_stylebox.tres" id="10_ugkg6"]
 [ext_resource type="StyleBox" uid="uid://5ike745bi8ue" path="res://shared_assets/UI/arrow_right_normal_stylebox.tres" id="11_4xe7j"]
 [ext_resource type="StyleBox" uid="uid://cjnv6xax8abwn" path="res://shared_assets/UI/arrow_down_pressed_stylebox.tres" id="11_eg6cl"]
-[ext_resource type="Texture2D" uid="uid://c0dhe8lssuptb" path="res://shared_assets/UI/buttonPRESSED.png" id="11_xatrt"]
-[ext_resource type="Texture2D" uid="uid://lmn0vp8ggpct" path="res://scenes/UI/HUD/MoneyRect/gems.png" id="12_b1pq8"]
+[ext_resource type="Texture2D" uid="uid://b7gshsqh5wew0" path="res://shared_assets/UI/buttonPRESSED.png" id="11_xatrt"]
+[ext_resource type="Texture2D" uid="uid://bxkujjq0vkjvp" path="res://scenes/UI/HUD/MoneyRect/gems.png" id="12_b1pq8"]
 [ext_resource type="StyleBox" uid="uid://cxqaelp85815h" path="res://shared_assets/UI/arrow_right_pressed_stylebox.tres" id="12_rbl45"]
-[ext_resource type="Texture2D" uid="uid://dwsqco8bljwl1" path="res://scenes/UI/HUD/MoneyRect/jewelry.png" id="13_fo63a"]
+[ext_resource type="Texture2D" uid="uid://bobtdwm432n3n" path="res://scenes/UI/HUD/MoneyRect/jewelry.png" id="13_fo63a"]
 [ext_resource type="StyleBox" uid="uid://pt7s1vtmfxea" path="res://shared_assets/UI/arrow_up_normal_stylebox.tres" id="14_eelih"]
 [ext_resource type="StyleBox" uid="uid://g8xysx1tlx2p" path="res://shared_assets/UI/arrow_up_pressed_stylebox.tres" id="15_v4b7c"]
 
@@ -89,10 +89,10 @@ offset_right = 59.9999
 offset_bottom = 37.0
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 text = "Pool"
 
 [node name="ShareButton" type="Button" parent="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl"]
@@ -102,10 +102,10 @@ offset_right = 120.0
 offset_bottom = 37.0
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 text = "Share"
 
 [node name="DoneButton" type="Button" parent="HBoxContainer/MoneyVbox/ButtonsBox/ButtonsControl"]
@@ -115,10 +115,10 @@ offset_right = 120.0
 offset_bottom = 73.9998
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 text = "Done"
 
 [node name="QtyHbox" type="CenterContainer" parent="HBoxContainer/MoneyVbox"]
@@ -134,10 +134,10 @@ custom_minimum_size = Vector2(48, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 toggle_mode = true
 text = "x1"
 
@@ -146,10 +146,10 @@ custom_minimum_size = Vector2(48, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 toggle_mode = true
 text = "x10"
 
@@ -158,10 +158,10 @@ custom_minimum_size = Vector2(48, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 toggle_mode = true
 text = "x100"
 
@@ -170,10 +170,10 @@ custom_minimum_size = Vector2(48, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 toggle_mode = true
 text = "x1000"
 
@@ -182,10 +182,10 @@ custom_minimum_size = Vector2(48, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 toggle_mode = true
 text = "x10k"
 
@@ -194,10 +194,10 @@ custom_minimum_size = Vector2(48, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_bco2e")
-theme_override_styles/normal = ExtResource("4_u6a5c")
+theme_override_styles/disabled = ExtResource("7_w6pn8")
 theme_override_styles/hover = ExtResource("5_3f0h3")
 theme_override_styles/pressed = ExtResource("6_exlu1")
-theme_override_styles/disabled = ExtResource("7_w6pn8")
+theme_override_styles/normal = ExtResource("4_u6a5c")
 toggle_mode = true
 text = "x100k"
 
@@ -231,9 +231,9 @@ layout_mode = 2
 [node name="BankGldButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("9_r3ivk")
 theme_override_styles/hover = ExtResource("9_r3ivk")
 theme_override_styles/pressed = ExtResource("10_ugkg6")
+theme_override_styles/normal = ExtResource("9_r3ivk")
 
 [node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox"]
 layout_mode = 2
@@ -263,9 +263,9 @@ vertical_alignment = 1
 [node name="BankGldButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl/GoldHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("11_4xe7j")
 theme_override_styles/hover = ExtResource("11_4xe7j")
 theme_override_styles/pressed = ExtResource("12_rbl45")
+theme_override_styles/normal = ExtResource("11_4xe7j")
 
 [node name="GoldBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GoldCenter/GoldCtrl"]
 custom_minimum_size = Vector2(0, 16)
@@ -289,9 +289,9 @@ layout_mode = 2
 [node name="BankGemButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("9_r3ivk")
 theme_override_styles/hover = ExtResource("9_r3ivk")
 theme_override_styles/pressed = ExtResource("10_ugkg6")
+theme_override_styles/normal = ExtResource("9_r3ivk")
 
 [node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox"]
 layout_mode = 2
@@ -321,9 +321,9 @@ vertical_alignment = 1
 [node name="BankGemButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl/GemHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("11_4xe7j")
 theme_override_styles/hover = ExtResource("11_4xe7j")
 theme_override_styles/pressed = ExtResource("12_rbl45")
+theme_override_styles/normal = ExtResource("11_4xe7j")
 
 [node name="GemBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/GemCenter/GemCtrl"]
 custom_minimum_size = Vector2(0, 16)
@@ -347,9 +347,9 @@ layout_mode = 2
 [node name="BankJewButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("9_r3ivk")
 theme_override_styles/hover = ExtResource("9_r3ivk")
 theme_override_styles/pressed = ExtResource("10_ugkg6")
+theme_override_styles/normal = ExtResource("9_r3ivk")
 
 [node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox"]
 layout_mode = 2
@@ -379,9 +379,9 @@ vertical_alignment = 1
 [node name="BankJewButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl/JewHbox"]
 custom_minimum_size = Vector2(16, 2)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("11_4xe7j")
 theme_override_styles/hover = ExtResource("11_4xe7j")
 theme_override_styles/pressed = ExtResource("12_rbl45")
+theme_override_styles/normal = ExtResource("11_4xe7j")
 
 [node name="JewBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/BankVBox/JewCenter/JewCtrl"]
 custom_minimum_size = Vector2(0, 16)
@@ -419,9 +419,9 @@ texture = ExtResource("8_0o4wd")
 [node name="GldButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("9_r3ivk")
 theme_override_styles/hover = ExtResource("9_r3ivk")
 theme_override_styles/pressed = ExtResource("10_ugkg6")
+theme_override_styles/normal = ExtResource("9_r3ivk")
 
 [node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox"]
 layout_mode = 2
@@ -451,9 +451,9 @@ vertical_alignment = 1
 [node name="GldButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("11_4xe7j")
 theme_override_styles/hover = ExtResource("11_4xe7j")
 theme_override_styles/pressed = ExtResource("12_rbl45")
+theme_override_styles/normal = ExtResource("11_4xe7j")
 
 [node name="GoldBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl"]
 custom_minimum_size = Vector2(0, 16)
@@ -462,9 +462,9 @@ layout_mode = 2
 [node name="GldButDown" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GoldCenter/GoldCtrl/GoldBotHbox"]
 custom_minimum_size = Vector2(32, 16)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("10_qxcm0")
 theme_override_styles/hover = ExtResource("10_qxcm0")
 theme_override_styles/pressed = ExtResource("11_eg6cl")
+theme_override_styles/normal = ExtResource("10_qxcm0")
 
 [node name="GemCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox"]
 custom_minimum_size = Vector2(0, 64)
@@ -481,9 +481,9 @@ layout_mode = 2
 [node name="GemButUp" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemTopHbox"]
 custom_minimum_size = Vector2(32, 16)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("14_eelih")
 theme_override_styles/hover = ExtResource("14_eelih")
 theme_override_styles/pressed = ExtResource("15_v4b7c")
+theme_override_styles/normal = ExtResource("14_eelih")
 
 [node name="GemHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl"]
 layout_mode = 2
@@ -496,9 +496,9 @@ texture = ExtResource("12_b1pq8")
 [node name="GemButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("9_r3ivk")
 theme_override_styles/hover = ExtResource("9_r3ivk")
 theme_override_styles/pressed = ExtResource("10_ugkg6")
+theme_override_styles/normal = ExtResource("9_r3ivk")
 
 [node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox"]
 layout_mode = 2
@@ -528,9 +528,9 @@ vertical_alignment = 1
 [node name="GemButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("11_4xe7j")
 theme_override_styles/hover = ExtResource("11_4xe7j")
 theme_override_styles/pressed = ExtResource("12_rbl45")
+theme_override_styles/normal = ExtResource("11_4xe7j")
 
 [node name="GemBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl"]
 custom_minimum_size = Vector2(0, 16)
@@ -539,9 +539,9 @@ layout_mode = 2
 [node name="GemButDown" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/GemCenter/GemCtrl/GemBotHbox"]
 custom_minimum_size = Vector2(32, 16)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("10_qxcm0")
 theme_override_styles/hover = ExtResource("10_qxcm0")
 theme_override_styles/pressed = ExtResource("11_eg6cl")
+theme_override_styles/normal = ExtResource("10_qxcm0")
 
 [node name="JewCenter" type="CenterContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox"]
 custom_minimum_size = Vector2(0, 64)
@@ -558,9 +558,9 @@ layout_mode = 2
 [node name="JewButUp" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewTopHbox"]
 custom_minimum_size = Vector2(32, 16)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("14_eelih")
 theme_override_styles/hover = ExtResource("14_eelih")
 theme_override_styles/pressed = ExtResource("15_v4b7c")
+theme_override_styles/normal = ExtResource("14_eelih")
 
 [node name="JewHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl"]
 layout_mode = 2
@@ -573,9 +573,9 @@ texture = ExtResource("13_fo63a")
 [node name="JewButLeft" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox"]
 custom_minimum_size = Vector2(16, 32)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("9_r3ivk")
 theme_override_styles/hover = ExtResource("9_r3ivk")
 theme_override_styles/pressed = ExtResource("10_ugkg6")
+theme_override_styles/normal = ExtResource("9_r3ivk")
 
 [node name="LabelPatchRect" type="NinePatchRect" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox"]
 layout_mode = 2
@@ -605,9 +605,9 @@ vertical_alignment = 1
 [node name="JewButRight" type="Button" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl/JewHbox"]
 custom_minimum_size = Vector2(16, 2)
 layout_mode = 2
-theme_override_styles/normal = ExtResource("11_4xe7j")
 theme_override_styles/hover = ExtResource("11_4xe7j")
 theme_override_styles/pressed = ExtResource("12_rbl45")
+theme_override_styles/normal = ExtResource("11_4xe7j")
 
 [node name="JewBotHbox" type="HBoxContainer" parent="HBoxContainer/MoneyVbox/CurrBankHBox/CurrencyVBox/JewCenter/JewCtrl"]
 custom_minimum_size = Vector2(0, 16)

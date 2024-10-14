@@ -122,11 +122,3 @@ func _on_StopButton_pressed():
 	if UI.ow_hud.textRect.choicesContainer.visible :
 		return
 	emit_signal("encounter_over")
-
-
-
-
-
-
-
-

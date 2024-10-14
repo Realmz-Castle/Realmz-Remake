@@ -24,10 +24,10 @@ func _on_new_round(_character : Creature) :
 
 
 func stack(args : Array) :
-	duration += 5*args[1]
+	duration += 5*args[0]
 
 func unstack(args : Array) :
-	duration -= 5*args[1]
+	duration -= 5*args[0]
 	if duration <= 0 :
 		chara.remove_trait(self)
 
@@ -47,4 +47,3 @@ func _on_time_pass(_character, seconds) :
 	
 func get_info_as_text() -> String :
 	return 'Strong for '+str(ceil(duration/5))+' rounds'
-

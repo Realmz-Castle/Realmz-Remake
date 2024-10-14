@@ -668,7 +668,7 @@ func calculate_spell_damage(attacker : Creature, defender : Creature, spell, spe
 
 func calculate_spell_accuracy(caster : Creature, defender : Creature, spell, spellpower : int) -> Array :
 	#resist==0  ignores both resistance and dodge, resist==1 ignores resistance, resist==2 ignores evasion, resist==3 ignores neither
-	#print("GAMEGLOBAL calculate_spell_accuracy ",caster.name,"'s ", spell.name)
+	print("GAMEGLOBAL calculate_spell_accuracy ",caster.name,"'s ", spell.name)
 	var res : int = spell.resist
 	if res==0 or res==2 :
 		#print("GAMEGLOBAL calculate_spell_accuracy  if res==0 or res==2 : return 1.0 ")
