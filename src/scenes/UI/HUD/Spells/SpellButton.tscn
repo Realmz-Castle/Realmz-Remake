@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://16o4d25gw8rv"]
 
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_qdbs2"]
-[ext_resource type="Texture2D" uid="uid://bj3kx0d5hptcc" path="res://scenes/UI/HUD/Spells/SpellButtonIconGray.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://ciovsadpc4ull" path="res://scenes/UI/HUD/Spells/SpellButtonIconGray.png" id="2"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_ckl22"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="3_b88ef"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4_ivhnn"]
@@ -11,9 +11,9 @@ offset_right = 210.0
 offset_bottom = 16.0
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = ExtResource("1_qdbs2")
+theme_override_styles/disabled = ExtResource("4_ivhnn")
 theme_override_styles/hover = ExtResource("2_ckl22")
 theme_override_styles/pressed = ExtResource("3_b88ef")
-theme_override_styles/disabled = ExtResource("4_ivhnn")
+theme_override_styles/normal = ExtResource("1_qdbs2")
 text = "Spell Name"
 icon = ExtResource("2")

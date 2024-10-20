@@ -6,16 +6,16 @@
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4_yyag1"]
 [ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="5_d2abx"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Bestiary/bestiary_button.gd" id="6_pb6lk"]
-[ext_resource type="Texture2D" uid="uid://bpprductj3fl1" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="6_soebm"]
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="7_5bp81"]
+[ext_resource type="Texture2D" uid="uid://dn401efanxfhj" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="6_soebm"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="7_5bp81"]
 
 [node name="BestiaryButton" type="Button"]
 custom_minimum_size = Vector2(237, 80)
-theme_override_styles/normal = ExtResource("1_ooqtm")
+theme_override_styles/focus = ExtResource("5_d2abx")
+theme_override_styles/disabled = ExtResource("4_yyag1")
 theme_override_styles/hover = ExtResource("2_3pj0r")
 theme_override_styles/pressed = ExtResource("3_dilmj")
-theme_override_styles/disabled = ExtResource("4_yyag1")
-theme_override_styles/focus = ExtResource("5_d2abx")
+theme_override_styles/normal = ExtResource("1_ooqtm")
 script = ExtResource("6_pb6lk")
 
 [node name="Label" type="Label" parent="."]

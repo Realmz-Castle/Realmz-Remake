@@ -1,15 +1,15 @@
 [gd_scene load_steps=15 format=3 uid="uid://5lpomncnwc17"]
 
-[ext_resource type="Texture2D" uid="uid://bl0dmx01od5qb" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://cgtqr1mjfcabu" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOff.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://bydfdurfom1ml" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://cw0vopeh0a1a" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOff.png" id="3"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Characters Panel/CharacterSmallPanel.gd" id="6"]
-[ext_resource type="FontFile" uid="uid://dijqs5swqcb6v" path="res://Fonts/BlackChancery.ttf" id="7_7ai5k"]
+[ext_resource type="FontFile" uid="uid://dsvjovg5dhkqq" path="res://Fonts/BlackChancery.ttf" id="7_7ai5k"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="8_ottph"]
-[ext_resource type="Texture2D" uid="uid://fmavxbke86wc" path="res://scenes/UI/HUD/Characters Panel/BanDead.png" id="9_i0x8r"]
-[ext_resource type="Texture2D" uid="uid://bummlo3vrlkpi" path="res://shared_assets/BattleEffects/BattleEffectsAnim.png" id="9_lnf3b"]
+[ext_resource type="Texture2D" uid="uid://b7ws34d3csl3q" path="res://scenes/UI/HUD/Characters Panel/BanDead.png" id="9_i0x8r"]
+[ext_resource type="Texture2D" uid="uid://vlwe1y07hr46" path="res://shared_assets/BattleEffects/BattleEffectsAnim.png" id="9_lnf3b"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="9_tfwx5"]
-[ext_resource type="Texture2D" uid="uid://c0dhe8lssuptb" path="res://shared_assets/UI/buttonPRESSED.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://b7gshsqh5wew0" path="res://shared_assets/UI/buttonPRESSED.png" id="10"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="10_sywfy"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="11_g8sol"]
 [ext_resource type="PackedScene" path="res://scenes/UI/HUD/Characters Panel/DropItemButton.tscn" id="12"]
@@ -44,10 +44,10 @@ offset_top = 4.0
 offset_right = 64.0
 offset_bottom = 56.0
 mouse_filter = 1
-theme_override_styles/normal = ExtResource("8_ottph")
+theme_override_styles/disabled = ExtResource("11_g8sol")
 theme_override_styles/hover = ExtResource("9_tfwx5")
 theme_override_styles/pressed = ExtResource("10_sywfy")
-theme_override_styles/disabled = ExtResource("11_g8sol")
+theme_override_styles/normal = ExtResource("8_ottph")
 icon = ExtResource("1")
 
 [node name="NumberLabel" type="Label" parent="PortraitButton"]
@@ -213,10 +213,10 @@ offset_right = 47.0
 offset_bottom = 29.0
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_fonts/font = ExtResource("7_7ai5k")
-theme_override_styles/normal = ExtResource("8_ottph")
+theme_override_styles/disabled = ExtResource("11_g8sol")
 theme_override_styles/hover = ExtResource("9_tfwx5")
 theme_override_styles/pressed = ExtResource("10_sywfy")
-theme_override_styles/disabled = ExtResource("11_g8sol")
+theme_override_styles/normal = ExtResource("8_ottph")
 text = "Drop"
 
 [node name="DropPopup" type="PopupPanel" parent="lootRect/DropItemButton"]
@@ -227,8 +227,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 96.0
-offset_bottom = 96.0
+offset_right = -416.0
+offset_bottom = -416.0
 
 [node name="DropVBox" type="VBoxContainer" parent="lootRect/DropItemButton/DropPopup/DropScroll"]
 layout_mode = 2

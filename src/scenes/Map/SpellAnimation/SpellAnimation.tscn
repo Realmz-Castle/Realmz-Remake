@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dc68j7db416ld"]
 
 [ext_resource type="Script" path="res://scenes/Map/SpellAnimation/SpellAnimation.gd" id="1_duw8g"]
-[ext_resource type="Texture2D" uid="uid://bummlo3vrlkpi" path="res://shared_assets/BattleEffects/BattleEffectsAnim.png" id="2_kgw5u"]
+[ext_resource type="Texture2D" uid="uid://vlwe1y07hr46" path="res://shared_assets/BattleEffects/BattleEffectsAnim.png" id="2_kgw5u"]
 
 [node name="SpellAnimation" type="Node2D"]
 script = ExtResource("1_duw8g")

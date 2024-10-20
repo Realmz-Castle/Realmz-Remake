@@ -18,4 +18,3 @@ func set_creature(crea_data : Dictionary) :
 	texrect.position.x = 3-sizev.x/2
 	texrect.position.y = 3-sizev.y/2
 #$Label.text =  str( crea_data["data"]["image"].get_image().get_size() )
-

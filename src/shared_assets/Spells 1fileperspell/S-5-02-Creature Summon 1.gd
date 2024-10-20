@@ -69,15 +69,15 @@ static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _ef
 	var creature_name : String = ''
 	match aoe_shape :
 		ixi :
-			creature_name = 'Alien Beetle'
+			creature_name = ScriptHelperFuncs.get_random_creature_of_size(Vector2i.ONE, false, 3)
 		ixii :
-			creature_name = 'Alien Beetle'
+			creature_name = ScriptHelperFuncs.get_random_creature_of_size(Vector2i(1,2), false, 3)
 		iixi :
-			creature_name = 'Alien Beetle'
+			creature_name = ScriptHelperFuncs.get_random_creature_of_size(Vector2i(2,1), false, 3)
 		iixii :
-			creature_name = 'Giant Snail'
+			creature_name = ScriptHelperFuncs.get_random_creature_of_size(Vector2i(2,2), false, 3)
 		_ :
-			creature_name = 'Alien Beetle'
+			creature_name = ScriptHelperFuncs.get_random_creature_of_size(Vector2i.ONE, false, 3)
 	creascript.initialize_from_bestiary_dict(creature_name)
 	print('SPECIAL aftre init from bestiary')
 	creascript.position = newpos

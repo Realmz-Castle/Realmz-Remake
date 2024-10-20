@@ -1,10 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://cjpb8ppwrbrtl"]
 
-[ext_resource type="Texture2D" uid="uid://cdljkwsqqbhek" path="res://shared_assets/UI/StonePatternRect9.png" id="1_3d0g0"]
+[ext_resource type="Texture2D" uid="uid://simib1bbasi0" path="res://shared_assets/UI/StonePatternRect9.png" id="1_3d0g0"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Bestiary/bestiary_rect.gd" id="2_l1a6x"]
 [ext_resource type="PackedScene" uid="uid://cy33c86e0nsoa" path="res://scenes/UI/HUD/Bestiary/bestiary_button.tscn" id="3_o15vd"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_ev21x"]
-[ext_resource type="Texture2D" uid="uid://bpprductj3fl1" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="5_tium4"]
+[ext_resource type="Texture2D" uid="uid://dn401efanxfhj" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="5_tium4"]
 
 [node name="BestiaryRect" type="NinePatchRect"]
 anchors_preset = 15

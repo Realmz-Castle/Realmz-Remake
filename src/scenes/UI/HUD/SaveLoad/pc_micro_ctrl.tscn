@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c2put8ty4yst6"]
 
-[ext_resource type="Texture2D" uid="uid://0lw8kmgygsht" path="res://scenes/UI/Party Selection/DefaultPortrait.png" id="1_404jt"]
+[ext_resource type="Texture2D" uid="uid://b7x7ex0bh0vho" path="res://scenes/UI/Party Selection/DefaultPortrait.png" id="1_404jt"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/pc_micro_ctrl.gd" id="1_yx3b2"]
 
 [node name="PCMicroCtrl" type="Control" node_paths=PackedStringArray("texture_rect", "name_label", "lvl_class_label", "health_label")]

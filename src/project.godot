@@ -26,6 +26,7 @@ NodeAccess="*res://scripts/NodeAccess.gd"
 StateMachine="*res://scripts/game_state.tscn"
 SfxPlayer="*res://scenes/SFXPlayer.tscn"
 MusicStreamPlayer="*res://scenes/MusicPlayer/MusicStreamPlayer.tscn"
+ScriptHelperFuncs="*res://scripts/ScriptHelperFuncs.gd"
 AiFunctions="*res://scripts/AIScripts_functions.gd"
 
 [editor_plugins]
