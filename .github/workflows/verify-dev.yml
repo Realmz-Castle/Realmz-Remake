@@ -6,7 +6,7 @@ on:
 
 env:
   GODOT_VERSION: 4.3
-  VERSION_FILE: src/project.godot
+  PROJECT_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       - name: Extract old version string
         uses: CapsCollective/version-actions/extract-version@v1.0
         with:
-          version-file: ${{ env.VERSION_FILE }}
+          version-file: ${{ env.PROJECT_FILE }}
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version-old
 
@@ -31,7 +31,7 @@ jobs:
       - name: Extract new version string
         uses: CapsCollective/version-actions/extract-version@v1.0
         with:
-          version-file: ${{ env.VERSION_FILE }}
+          version-file: ${{ env.PROJECT_FILE }}
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version-new
 
