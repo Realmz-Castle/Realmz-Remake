@@ -1,0 +1,35 @@
+name: 'Verify Release'
+
+on:
+  pull_request:
+    branches: [ 'release' ]
+
+env:
+  VERSION_FILE: project.godot
+  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+
+jobs:
+  check-release-validity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version
+
+      - name: Check that a release exists for the HEAD commit
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          commitSha: ${{ github.event.pull_request.head.sha }}
+        id: check-release
+
+      - name: Check that the release tag matches the version string
+        run: |
+          [ ${{ steps.extract-version.outputs.version-string }} = ${{ steps.check-release.outputs.tag_name }} ]
