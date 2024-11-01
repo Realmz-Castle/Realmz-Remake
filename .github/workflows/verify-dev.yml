@@ -1,8 +1,8 @@
-name: 'Verify Develop'
+name: 'Verify Dev'
 
 on:
   pull_request:
-    branches: [ 'develop' ]
+    branches: [ 'dev' ]
 
 env:
   GODOT_VERSION: 4.3

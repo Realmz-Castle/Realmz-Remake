@@ -1,8 +1,8 @@
-name: 'Submit Develop'
+name: 'Submit Dev'
 
 on:
   push:
-    branches: [ 'develop' ]
+    branches: [ 'dev' ]
 
 env:
   GODOT_VERSION: 4.3
