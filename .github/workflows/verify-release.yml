@@ -5,7 +5,7 @@ on:
     branches: [ 'release' ]
 
 env:
-  VERSION_FILE: project.godot
+  VERSION_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
 
 jobs:
