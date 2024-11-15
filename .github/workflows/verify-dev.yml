@@ -68,6 +68,9 @@ jobs:
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
+
+      - name: Checkout LFS
+        run: git lfs fetch --all && git lfs checkout
       
       # Alternative Godot runner, docs - https://github.com/marketplace/actions/godot-ci
       #- name: godot-ci
