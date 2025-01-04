@@ -6,6 +6,10 @@ inputs:
     description: 'The version of Godot to install'
     required: true
     default: '4.3'
+  install-templates:
+    description: 'Whether to install the export templates'
+    required: false
+    default: false
 
 outputs:
   godot-executable:
@@ -24,10 +28,11 @@ runs:
 
     - name: Install Godot templates
       shell: bash
+      if: ${{ inputs.install-templates }}
       env:
         GODOT_TEMPLATES_DIR: /Users/runner/Library/Application Support/Godot/export_templates
       run: |
-        curl -L -o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
+        curl -L-o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
         unzip ./godot-templates.zip
         mkdir -p "$GODOT_TEMPLATES_DIR"
         mv ./templates "$GODOT_TEMPLATES_DIR/${{ inputs.godot-version }}.stable"
