@@ -23,20 +23,20 @@ runs:
       working-directory: ${{ inputs.project-dir }}
       run: ${{ inputs.godot-executable }} --import --headless --verbose
       
-    - name: Build macOS application
-      shell: bash
-      working-directory: ${{ inputs.project-dir }}
-      run: |
-        mkdir -p ${{ inputs.build-dir }}/macos
-        ${{ inputs.godot-executable }} --export-debug macOS --headless
-        [ "$(ls -A ${{ inputs.build-dir }}/macos)" ]
+    # - name: Build macOS application
+    #   shell: bash
+    #   working-directory: ${{ inputs.project-dir }}
+    #   run: |
+    #     mkdir -p ${{ inputs.build-dir }}/macos
+    #     ${{ inputs.godot-executable }} --export-debug macOS --headless
+    #     [ "$(ls -A ${{ inputs.build-dir }}/macos)" ]
 
-    - name: Compress macOS build (to preserve permissions)
-      shell: bash
-      working-directory: ${{ inputs.project-dir }}
-      run: |
-        cd ${{ inputs.build-dir }}/macos
-        tar -cvf ./macos.tar --exclude='*.command' ./*
+    # - name: Compress macOS build (to preserve permissions)
+    #   shell: bash
+    #   working-directory: ${{ inputs.project-dir }}
+    #   run: |
+    #     cd ${{ inputs.build-dir }}/macos
+    #     tar -cvf ./macos.tar --exclude='*.command' ./*
     
     - uses: actions/upload-artifact@v3
       with:
@@ -63,20 +63,20 @@ runs:
         name: windows
         path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/windows/windows.zip
 
-    - name: Build Linux application
-      shell: bash
-      working-directory: ${{ inputs.project-dir }}
-      run: |
-        mkdir -p ${{ inputs.build-dir }}/linux
-        ${{ inputs.godot-executable }} --export-debug Linux --headless
-        [ "$(ls -A ${{ inputs.build-dir }}/linux)" ]
+    # - name: Build Linux application
+    #   shell: bash
+    #   working-directory: ${{ inputs.project-dir }}
+    #   run: |
+    #     mkdir -p ${{ inputs.build-dir }}/linux
+    #     ${{ inputs.godot-executable }} --export-debug Linux --headless
+    #     [ "$(ls -A ${{ inputs.build-dir }}/linux)" ]
 
-    - name: Compress Linux build (to preserve permissions)
-      shell: bash
-      working-directory: ${{ inputs.project-dir }}
-      run: |
-        cd ${{ inputs.build-dir }}/linux
-        tar -cvf ./linux.tar ./*
+    # - name: Compress Linux build (to preserve permissions)
+    #   shell: bash
+    #   working-directory: ${{ inputs.project-dir }}
+    #   run: |
+    #     cd ${{ inputs.build-dir }}/linux
+    #     tar -cvf ./linux.tar ./*
 
     - uses: actions/upload-artifact@v3
       with:
