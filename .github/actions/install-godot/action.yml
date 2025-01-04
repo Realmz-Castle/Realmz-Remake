@@ -1,0 +1,40 @@
+name: 'Install Godot'
+description: 'Installs the Godot engine for macOS'
+
+inputs:
+  godot-version:
+    description: 'The version of Godot to install'
+    required: true
+    default: '4.3'
+
+outputs:
+  godot-executable:
+    description: 'The installed executable location'
+    value: ${{ steps.assign-executable.outputs.GODOT_EXECUTABLE }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Godot
+      shell: bash
+      run: |
+        curl -o ./godot.zip https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v${{ inputs.godot-version }}-stable_macos.universal.zip"
+        unzip ./godot.zip
+        mv ./Godot.app /Applications/Godot.app
+
+    - name: Install Godot templates
+      shell: bash
+      env:
+        GODOT_TEMPLATES_DIR: /Users/runner/Library/Application Support/Godot/export_templates
+      run: |
+        curl -o ./godot-templates.zip https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
+        unzip ./godot-templates.zip
+        mkdir -p "$GODOT_TEMPLATES_DIR"
+        mv ./templates "$GODOT_TEMPLATES_DIR/${{ inputs.godot-version }}.stable"
+
+    - name: Report back the executable location
+      shell: bash
+      env:
+        GODOT_EXECUTABLE: /Applications/Godot.app/Contents/MacOS/Godot
+      run: echo "GODOT_EXECUTABLE=${{ env.GODOT_EXECUTABLE }}" >> $GITHUB_OUTPUT
+      id: assign-executable

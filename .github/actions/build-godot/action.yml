@@ -1,0 +1,89 @@
+name: 'Build Godot'
+description: 'Build Godot applications for Windows, macOS, and Linux'
+
+inputs:
+  project-dir:
+    description: 'The path to the Godot project (folder that contains the project.godot file)'
+    required: false
+    default: ''
+  build-dir:
+    description: 'The chosen build directory'
+    required: true
+    default: 'build'
+  godot-executable:
+    description: 'The path to the Godot executable'
+    required: false
+    default: /Applications/Godot.app/Contents/MacOS/Godot
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Open Godot editor for reimport
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: ${{ inputs.godot-executable }} --import --headless --verbose
+
+    - name: Apply version to export information
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: ${{ inputs.godot-executable }} --script scripts/apply_version.gd --headless
+      
+    - name: Build macOS application
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        mkdir -p ${{ inputs.build-dir }}/macos
+        ${{ inputs.godot-executable }} --export-debug macOS --headless
+        [ "$(ls -A ${{ inputs.build-dir }}/macos)" ]
+
+    - name: Compress macOS build (to preserve permissions)
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        cd ${{ inputs.build-dir }}/macos
+        tar -cvf ./macos.tar --exclude='*.command' ./*
+    
+    - uses: actions/upload-artifact@v3
+      with:
+        name: macos
+        path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/macos/macos.tar
+
+    - name: Build Windows application
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        mkdir -p ${{ inputs.build-dir }}/windows
+        ${{ inputs.godot-executable }} --export-debug Windows --headless
+        [ "$(ls -A ${{ inputs.build-dir }}/windows)" ]
+
+    - name: Compress Windows build
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        cd ${{ inputs.build-dir }}/windows
+        zip -m ./windows.zip ./*
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: windows
+        path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/windows/windows.zip
+
+    - name: Build Linux application
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        mkdir -p ${{ inputs.build-dir }}/linux
+        ${{ inputs.godot-executable }} --export-debug Linux --headless
+        [ "$(ls -A ${{ inputs.build-dir }}/linux)" ]
+
+    - name: Compress Linux build (to preserve permissions)
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        cd ${{ inputs.build-dir }}/linux
+        tar -cvf ./linux.tar ./*
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: linux
+        path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/linux/linux.tar
