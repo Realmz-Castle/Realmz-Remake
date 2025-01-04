@@ -20,7 +20,7 @@ jobs:
         run: git lfs fetch --all && git lfs checkout
 
       - name: Install Godot
-        uses: CapsCollective/godot-actions/install-godot@v1.0
+        uses: CapsCollective/godot-actions/install-godot@v1.2
         with:
           godot-version: ${{ env.GODOT_VERSION }}
           install-templates: true
@@ -30,7 +30,7 @@ jobs:
         run: ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit || true
 
       - name: Build and upload artifacts for all platforms
-        uses: CapsCollective/godot-actions/build-godot@v1.0
+        uses: CapsCollective/godot-actions/build-godot@v1.2
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
 

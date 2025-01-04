@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Godot
-        uses: CapsCollective/godot-actions/install-godot@v1.0
+        uses: CapsCollective/godot-actions/install-godot@v1.2
         with:
           godot-version: ${{ env.GODOT_VERSION }}
         id: install-godot
@@ -77,7 +77,7 @@ jobs:
       #  uses: abarichello/godot-ci@4.3-stable
       
       - name: Install Godot
-        uses: CapsCollective/godot-actions/install-godot@v1.0
+        uses: CapsCollective/godot-actions/install-godot@v1.2
         with:
           godot-version: ${{ env.GODOT_VERSION }}
           install-templates: true
@@ -87,6 +87,6 @@ jobs:
         run: ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit || true
 
       - name: Build and upload artifacts for all platforms
-        uses: CapsCollective/godot-actions/build-godot@v1.0
+        uses: CapsCollective/godot-actions/build-godot@v1.2
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
