@@ -22,11 +22,6 @@ runs:
       shell: bash
       working-directory: ${{ inputs.project-dir }}
       run: ${{ inputs.godot-executable }} --import --headless --verbose
-
-    - name: Apply version to export information
-      shell: bash
-      working-directory: ${{ inputs.project-dir }}
-      run: ${{ inputs.godot-executable }} --script scripts/apply_version.gd --headless
       
     - name: Build macOS application
       shell: bash
