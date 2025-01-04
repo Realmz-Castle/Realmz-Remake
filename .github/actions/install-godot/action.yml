@@ -32,7 +32,7 @@ runs:
       env:
         GODOT_TEMPLATES_DIR: /Users/runner/Library/Application Support/Godot/export_templates
       run: |
-        curl -L-o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
+        curl -L -o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
         unzip ./godot-templates.zip
         mkdir -p "$GODOT_TEMPLATES_DIR"
         mv ./templates "$GODOT_TEMPLATES_DIR/${{ inputs.godot-version }}.stable"
