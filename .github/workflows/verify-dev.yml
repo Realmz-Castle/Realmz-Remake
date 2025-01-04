@@ -90,3 +90,4 @@ jobs:
         uses: ./.github/actions/build-godot
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
+          project-dir: './src'
