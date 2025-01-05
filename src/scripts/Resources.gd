@@ -93,22 +93,20 @@ func clear_ressources() -> void:
 func load_campaign_ressources( campaign : String = "") ->void :
 	print("RESOURCES load_campaign_ressources")
 	
-	
-	
 	clear_ressources()
-	load_tile_resources("shared_assets/tiles/")
+	load_tile_resources("res://shared_assets/tiles")
 	var tilesetspath : String = Paths.campaignsfolderpath + campaign + "/Tilesets/"
 	if DirAccess.dir_exists_absolute(tilesetspath) :
 		#var tilesets : Array = Utils.FileHandler.list_dirs_in_directory(tilesetspath)
 		#for ts in tilesets :
 		load_tile_resources(tilesetspath)# + ts + '/')
 	
-	load_item_resources("shared_assets/items/")
+	load_item_resources("res://shared_assets/items/")
 	var itemsetpath : String = Paths.campaignsfolderpath + campaign + "/Items/"
 	if DirAccess.dir_exists_absolute(itemsetpath) :
 		load_item_resources(itemsetpath)
 	
-	load_sound_ressources("shared_assets/sounds/")
+	load_sound_ressources("res://shared_assets/sounds/")
 	var soundsspath : String = Paths.campaignsfolderpath + campaign + "/Sounds/"
 	if DirAccess.dir_exists_absolute(soundsspath) :
 		load_sound_ressources(soundsspath)
@@ -121,7 +119,7 @@ func load_campaign_ressources( campaign : String = "") ->void :
 	
 	print("Resources B4load spells")
 	
-	load_spell_resources( "res://shared_assets/spells/" )
+	load_spell_resources("res://shared_assets/spells/")
 	var spellspath = Paths.campaignsfolderpath + campaign + "/Spells/"
 	if DirAccess.dir_exists_absolute(spellspath) :
 		load_spell_resources(spellspath)
@@ -159,11 +157,12 @@ func load_campaign_ressources( campaign : String = "") ->void :
 # Load tiles data, added to the tiles_book ressource dictionary #
 func load_tile_resources( path : String ) -> void:		
 	# load the tile data at the "path" location
+	print("Resources load_tile_resources path: ", path)
 	
 	
 	#make a list of the folders inside the directory at paths
 	var tileset_folder_names : Array = Utils.FileHandler.list_dirs_in_directory(path)
-#	print("resources load_tile_resources tileset_folder_names : ", tileset_folder_names)
+	print("resources load_tile_resources tileset_folder_names : ", tileset_folder_names)
 	
 	for ts_name in tileset_folder_names : 
 		print("resource load tiles : ", ts_name)
@@ -173,6 +172,7 @@ func load_tile_resources( path : String ) -> void:
 		var atlas_width : int = n_ts_json_data["columns"]
 		
 		var texture_atlas : Image = Image.new()
+	
 		var _err_textureatlasload = texture_atlas.load(path +'/'+ ts_name + '/'+ts_name+".png")
 		var tileset_name : String = n_ts_json_data["name"]
 		var json_tiles_array : Array = n_ts_json_data["tiles"]

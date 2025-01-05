@@ -30,6 +30,10 @@ MusicStreamPlayer="*res://scenes/MusicPlayer/MusicStreamPlayer.tscn"
 ScriptHelperFuncs="*res://scripts/ScriptHelperFuncs.gd"
 AiFunctions="*res://scripts/AIScripts_functions.gd"
 
+[editor]
+
+export/convert_text_resources_to_binary=false
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/realmz_export_plugin/plugin.cfg")
