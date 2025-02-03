@@ -38,7 +38,7 @@ runs:
         cd ${{ inputs.build-dir }}/macos
         tar -cvf ./macos.tar --exclude='*.command' ./*
     
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: macos
         path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/macos.tar
@@ -58,7 +58,7 @@ runs:
         cd ${{ inputs.build-dir }}/windows
         zip -m ./windows.zip ./*
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: windows
         path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/windows/windows.zip
@@ -78,7 +78,7 @@ runs:
         cd ${{ inputs.build-dir }}/linux
         tar -cvf ./linux.tar ./*
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: linux
         path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/linux/linux.tar
