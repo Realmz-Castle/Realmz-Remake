@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Realmz"
-config/version="0.0.0"
+config/version="0.0.1"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.3")
 config/icon="res://icon.png"
@@ -29,6 +29,10 @@ SfxPlayer="*res://scenes/SFXPlayer.tscn"
 MusicStreamPlayer="*res://scenes/MusicPlayer/MusicStreamPlayer.tscn"
 ScriptHelperFuncs="*res://scripts/ScriptHelperFuncs.gd"
 AiFunctions="*res://scripts/AIScripts_functions.gd"
+
+[editor]
+
+export/convert_text_resources_to_binary=false
 
 [editor_plugins]
 
@@ -224,4 +228,5 @@ RotateAoE={
 
 [rendering]
 
+textures/vram_compression/import_etc2_astc=true
 environment/default_environment="res://default_env.tres"

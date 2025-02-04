@@ -7,10 +7,10 @@ demo/*
 *.import
 default_bus_layout.tres
 default_env.tres
-export_presets.cfg
 godot-mod-player.png
 icon.png
 project.godot
 TestScene.tscn
 TestScene.gd
 global.gd
+build/*
