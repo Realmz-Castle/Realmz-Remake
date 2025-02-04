@@ -216,5 +216,5 @@ offset_bottom = 29.0
 text = "Cancel"
 
 [connection signal="pressed" from="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/ToggleIcoPortButton" to="." method="_on_ToggleIcoPortButton_pressed"]
-[connection signal="item_selected" from="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox/ClassItemList" to="." method="_on_classrace_select" binds= [true]]
-[connection signal="item_selected" from="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox/RaceItemList" to="." method="_on_classrace_select" binds= [false]]
+[connection signal="item_selected" from="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox/ClassItemList" to="." method="_on_class_select"]
+[connection signal="item_selected" from="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox/RaceItemList" to="." method="_on_race_select"]

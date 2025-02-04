@@ -68,6 +68,7 @@ func set_clean_character() :
 
 func try_create_character() :
 #	print("try_create_character : ", new_char_name)
+	print("try create", new_char_class, new_char_race)
 	if not (new_char_class and  new_char_race) :
 		return
 	new_character = GameGlobal.playerCharacterGD.new({"level":newchar_level}, new_char_icon, new_char_portrait, new_char_class, new_char_race)
@@ -154,18 +155,23 @@ func fillClassesRacesMenus() :
 		i=i+1
 
 
-func _on_classrace_select(i : int, isclass : bool) :
-	if isclass :
-		new_char_class = classesgd[i]
-	else :
-		new_char_race = racesgd[i]
+func _on_class_select(i : int) :
+	new_char_class = classesgd[i]
+	print("new_char_class : ", new_char_class)
 	if new_char_name != "[NO NAME]" and new_char_name == "" and new_char_class!=null and new_char_race!=null :
 		okButton.disabled = false
 	_on_LineEdit_changed(lineEdit.text)
 #	characterstatrect.display_raceclass(new_char_race,new_char_class)
 	try_create_character()
 
-	
+func _on_race_select(i : int) :
+	new_char_race = racesgd[i]
+	print("new_char_race : ", new_char_race)
+	if new_char_name != "[NO NAME]" and new_char_name == "" and new_char_class!=null and new_char_race!=null :
+		okButton.disabled = false
+	_on_LineEdit_changed(lineEdit.text)
+#	characterstatrect.display_raceclass(new_char_race,new_char_class)
+	try_create_character()
 
 func _on_portrait_button_pressed(i : int) :
 	new_char_portrait = portraitsTextures[i]
@@ -257,6 +263,7 @@ func _on_OKButton_pressed() -> void :
 	_on_CancelButton_pressed()
 
 func _on_LineEdit_changed(newtext : String) -> void :
+	print("on_LineEdit")
 	new_char_name = newtext
 	nameLabel.text = new_char_name
 #	print(Autoloaded.profilesfolderpath+"/"+Autoloaded.currentProfileFolderName+"/Characters/"+new_char_name)

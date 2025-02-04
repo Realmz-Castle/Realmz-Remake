@@ -27,11 +27,11 @@ func _ready():
 	else:
 		realmzfolderpath = OS.get_executable_path().get_base_dir()
 		if OS.get_name() == "macOS":
-			realmzfolderpath = realmzfolderpath.replace("/Realmz.app/Contents/MacOS", "")
+			realmzfolderpath = realmzfolderpath.replace("/Realmz.app/Contents/MacOS", "/")
 
 	print(" realmzfolderpath : ", realmzfolderpath)
 
-	profilesfolderpath = realmzfolderpath.path_join("Profiles/")
-	campaignsfolderpath = realmzfolderpath.path_join("Campaigns/")
-	datafolderpath = realmzfolderpath.path_join("Data/")
+	profilesfolderpath = realmzfolderpath + "Profiles/"
+	campaignsfolderpath = realmzfolderpath + "Campaigns/"
+	datafolderpath = realmzfolderpath + "Data/"
 	currentProfileFolderName = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
