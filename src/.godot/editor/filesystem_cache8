@@ -18,7 +18,7 @@ plugin.cfg::TextFile::-1::1735911941::0::1::::<><>::
 XM.gd::GDScript::-1::1731691373::0::1::::XM<>RefCounted<>::
 ::res://addons/realmz_export_plugin/::1736190333
 plugin.cfg::TextFile::-1::1731691373::0::1::::<><>::
-plugin.gd::GDScript::-1::1736190333::0::1::::<>EditorPlugin<>::
+plugin.gd::GDScript::-1::1739027461::0::1::::<>EditorPlugin<>::
 ::res://application_icons/::1738618846
 AppIcon.png::CompressedTexture2D::3663239210775019106::1724437246::1738618846::1::::<><>::
 ConsoleIcon.png::CompressedTexture2D::1574160626562915652::1724437245::1738618846::1::::<><>::

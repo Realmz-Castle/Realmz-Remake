@@ -17,6 +17,7 @@ class RealmzExportPlugin extends EditorExportPlugin:
 	func _export_begin(features: PackedStringArray, is_debug: bool, path: String, flags: int) -> void:
 		_export_dir(path.get_base_dir(), "Data")
 		_export_dir(path.get_base_dir(), "Campaigns")
+		_export_dir(path.get_base_dir(), "Profiles")
 
 	func _export_dir(export_root: String, source_dir_name: String):
 		var src_dir_path = ProjectSettings.globalize_path("res://" + source_dir_name)
