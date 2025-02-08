@@ -16,9 +16,12 @@ extends Control
 var profileslist : Array =  []
 
 # Called when the node enters the scene tree for the first time.
-func _ready():	
+func _ready():
 	newprofileVBox.my_menu = self
 	build_profiles_list()
+	var config = FileAccess.open(Paths.realmzfolderpath+"settings.cfg", FileAccess.ModeFlags.WRITE_READ)
+	if config:
+		config.close()
 	var profilefromcfg = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
 	var hd_mode_from_config = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", GameGlobal.hd_mode)
 	GameGlobal.set_hd_mode(hd_mode_from_config)
@@ -91,7 +94,7 @@ func _on_load_button_pressed():
 
 func _on_hd_button_pressed():
 	var hd_mode_chosen = hdModeCheckButton.button_pressed
-	
+
 	if hd_mode_chosen:
 		# Switch to HD
 		ScreenUtils.set_window_scale(self, 2.0)
@@ -102,6 +105,6 @@ func _on_hd_button_pressed():
 
 	GameGlobal.set_hd_mode(hd_mode_chosen)
 
-	# Save the setting on change, otherwise smart defaults will be used every time 
+	# Save the setting on change, otherwise smart defaults will be used every time
 	# for the screen you start the game on
 	GameGlobal.save_hd_mode(hd_mode_chosen)
