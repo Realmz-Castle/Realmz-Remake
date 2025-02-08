@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://s4nyl4kp1b34"
+path="res://.godot/imported/bom bom.wav-c1bc719a42842ff8a91bfa0a5c4d7530.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/bom bom.wav"
+dest_files=["res://.godot/imported/bom bom.wav-c1bc719a42842ff8a91bfa0a5c4d7530.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

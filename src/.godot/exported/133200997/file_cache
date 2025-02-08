@@ -1,0 +1,77 @@
+res://addons/modplayer/ModPlayer.tscn::32b59a5b5ba63cfa468e9a29ba024fe1::1731691373::res://.godot/exported/133200997/export-0c29c0207a153d828ef1c80f60359a81-ModPlayer.scn
+res://Fonts/BlackChancery.tres::b101a00865931217f7d5377942a9b1df::1724437235::res://.godot/exported/133200997/export-242d44684fed50e4f9c86c971099feb3-BlackChancery.res
+res://Fonts/OldLondon44.tres::e1a8cd0ffda81b20a203ba028a156d00::1724437235::res://.godot/exported/133200997/export-e89c4a8b7a694aa01fdd78be2ac54f4c-OldLondon44.res
+res://Fonts/theldrowremake.tres::b9a8f72b44aff3e3fc8e63eebab00dc1::1724437235::res://.godot/exported/133200997/export-c2890e6ed9fc247370792ef702ccd8db-theldrowremake.res
+res://scenes/Map/SpellAnimation/SpellAnimation.tscn::83bb607c0ba09d56de054ee7f38aa1d5::1731691373::res://.godot/exported/133200997/export-52e9434dbf3b2094794b7b447f51bc42-SpellAnimation.scn
+res://scenes/Map/CombatCharacter.tscn::6d9a24698221308c92f362c3c7c8d533::1738615197::res://.godot/exported/133200997/export-7972f778fc549312421aad5ff29635e4-CombatCharacter.scn
+res://scenes/Map/Map unused.tscn::feb6d34354ae675d0e12f7f4271f9652::1736191760::res://.godot/exported/133200997/export-ed4dd2dd67a9d15b3b21d73d537a4ad1-Map unused.scn
+res://scenes/Map/OWCharacter.tscn::0d1a0a2773782ca2589d4898ee909b47::1738618171::res://.godot/exported/133200997/export-b6cc25899c86ac5bfd7a67ef5525c40b-OWCharacter.scn
+res://scenes/MusicPlayer/MusicStreamPlayer.tscn::d84418ed2e75876ab61d5948f7889c4b::1725556120::res://.godot/exported/133200997/export-bcebfb1ffddd8371a8291a5035a99e99-MusicStreamPlayer.scn
+res://scenes/UI/HUD/AbilitiesManagement/abilities_mngt_rect.tscn::6d231c0d52fbdca3c4d5a22e306fc51e::1731691373::res://.godot/exported/133200997/export-1d4509cbc193d3977a3debbc712bf527-abilities_mngt_rect.scn
+res://scenes/UI/HUD/AbilitiesManagement/ability_button.tscn::5ad6bd1fb3903df01fee31bcb740c481::1724437235::res://.godot/exported/133200997/export-d3a9712f730a9db4368d7355bb71fbd3-ability_button.scn
+res://scenes/UI/HUD/Allies/allies_rect.tscn::d14ddf61115973267ae333fcdb3146de::1731691373::res://.godot/exported/133200997/export-9e011f7aef2328f08824bef1bd8f2d9d-allies_rect.scn
+res://scenes/UI/HUD/Allies/crea_v_box.tscn::f6a4da02266b3e108218318186b3d2ff::1731691373::res://.godot/exported/133200997/export-1232561cecc0bec08d588a6a74fa804e-crea_v_box.scn
+res://scenes/UI/HUD/Allies/summons_v_box.tscn::9e6233f6bcdd63a98b1fa07eb5a1f5a3::1724437235::res://.godot/exported/133200997/export-34a61b5ab0ff595fc0d65256f5aadcf5-summons_v_box.scn
+res://scenes/UI/HUD/Bestiary/bestiary_button.tscn::f66d4a817cf35a515e6de97c36d84861::1731691373::res://.godot/exported/133200997/export-eaab809e2dc0db65da6e9c539ee522c2-bestiary_button.scn
+res://scenes/UI/HUD/Bestiary/bestiary_rect.tscn::ada5b01cf7df690a5558cc0388631103::1731691373::res://.godot/exported/133200997/export-f25340e592913e2a5072ef4cb2b8fc9a-bestiary_rect.scn
+res://scenes/UI/HUD/Characters Panel/CharacterSmallPanel.tscn::b88e9a9110611bad3df979f53bf915af::1731691373::res://.godot/exported/133200997/export-e79e391b9acb6f4f5c38a7aec1a8d025-CharacterSmallPanel.scn
+res://scenes/UI/HUD/Characters Panel/DropItemButton.tscn::0901e43153119f762d6c5b521d1a2e3a::1724437235::res://.godot/exported/133200997/export-45eb1e8e9aa0c21df08ad31381a2e3b4-DropItemButton.scn
+res://scenes/UI/HUD/Combat_BR_Panel/combat_br_panel.tscn::eddc7b582b9e4143b8adc5c0f5ba9919::1731691373::res://.godot/exported/133200997/export-f5f642bee6131e788c0fe82ef0598bde-combat_br_panel.scn
+res://scenes/UI/HUD/CreatureCBRect/creature_rect.tscn::b3d2f2fa4d6cd96efa0eefe73776e977::1724437235::res://.godot/exported/133200997/export-1f4c8830de5e3ed7183b185396948498-creature_rect.scn
+res://scenes/UI/HUD/GlobalEffectsRect/global_effects_rect.tscn::d1cfba9640746ab976c01d72be648c58::1724437235::res://.godot/exported/133200997/export-4615dfb2139bf9e2483e0b81c2f2e777-global_effects_rect.scn
+res://scenes/UI/HUD/Inventory/inventory_rect.tscn::34538ef07e0aacc536eea31b1c2f1f58::1724437235::res://.godot/exported/133200997/export-5c112ba5df0c8032645f1d94e138e63f-inventory_rect.scn
+res://scenes/UI/HUD/Inventory/ItemShopButton.tscn::a1b707f6f42efea30a674d4635ff79b7::1731691373::res://.godot/exported/133200997/export-4076e2ebe8d474ffdbe1e8fddf0cde20-ItemShopButton.scn
+res://scenes/UI/HUD/Inventory/ItemSmallButton.tscn::7ec0db305d102fed35df8db7527af252::1724437235::res://.godot/exported/133200997/export-91b3b917f27e99fa3d623d0e8935e1f2-ItemSmallButton.scn
+res://scenes/UI/HUD/LevelUp/level_up_rect.tscn::47e551bcba19398bb1a8a2f9208f63af::1724437236::res://.godot/exported/133200997/export-39d594e83a4a318d66c75ae4d337a0c5-level_up_rect.scn
+res://scenes/UI/HUD/Looting/ItemLootButton.tscn::005320937f7355a3031ea6b2103d7ce0::1724437236::res://.godot/exported/133200997/export-5962b95ab562efb917b668215d5bb16c-ItemLootButton.scn
+res://scenes/UI/HUD/Looting/lootselectionStyleBox.tres::28d9868ecf49a672f6e6782b441cb1a5::1724437236::res://.godot/exported/133200997/export-aa83a5ac8e53303ed841af82439a945d-lootselectionStyleBox.res
+res://scenes/UI/HUD/Looting/treasure_control.tscn::e9fd609bfbd2e5e514fa67f590806f61::1731691373::res://.godot/exported/133200997/export-ab7e9618b7f8781a373eed1ce1e593cf-treasure_control.scn
+res://scenes/UI/HUD/MoneyRect/CharacterMoneyPanel.tscn::57ec2d4cfd723c72a42be3975ca6e427::1731691373::res://.godot/exported/133200997/export-da5829fba6d9c16167b16c05aa8f3545-CharacterMoneyPanel.scn
+res://scenes/UI/HUD/MoneyRect/money_rect.tscn::55a3c1b427ed66d0ca742e0f671766d2::1731691373::res://.godot/exported/133200997/export-ee1c87029323f155239486a96ab72166-money_rect.scn
+res://scenes/UI/HUD/Multiple Choices/ChoicesButton.tscn::5e1dd6dc628a9c3119f8e77c399884f7::1731691373::res://.godot/exported/133200997/export-89165b0130ab2a11899f66c269ca63de-ChoicesButton.scn
+res://scenes/UI/HUD/Multiple Choices/ChoicesButtonSeparator.tscn::8659ce848b4c909c062eca58a95598ba::1724437236::res://.godot/exported/133200997/export-f9b79eff70a39a98a2d9bc06838252d8-ChoicesButtonSeparator.scn
+res://scenes/UI/HUD/Multiple Choices/ChoicesStop.tscn::d65ab8df4e53110f07e568a4e78540be::1731691373::res://.godot/exported/133200997/export-ff12451f468e7d8c119050f099ad342e-ChoicesStop.scn
+res://scenes/UI/HUD/Multiple Choices/ChoicesYesNo.tscn::9eefd52f39ba284d6fe5cdbaef6ec057::1731691373::res://.godot/exported/133200997/export-e65fdc1515242bd32b95dde43b6bb68c-ChoicesYesNo.scn
+res://scenes/UI/HUD/SaveLoad/pc_micro_ctrl.tscn::1f3a0c6a9b5c2e66c83607bf508c7ceb::1731691373::res://.godot/exported/133200997/export-24473d9c1b9df929b3d4799868204d01-pc_micro_ctrl.scn
+res://scenes/UI/HUD/SaveLoad/saves_panel.tscn::b0bb0192e1f60725034441ead99ca0b3::1724437236::res://.godot/exported/133200997/export-e7731f5683b5f22f79c2557b2b72ed5e-saves_panel.scn
+res://scenes/UI/HUD/SaveLoad/save_load_rect.tscn::531d84db4909af863906cb8bd82c5776::1731691373::res://.godot/exported/133200997/export-8c4f630f4221bb2fabc9b9647e6fd58b-save_load_rect.scn
+res://scenes/UI/HUD/SaveLoad/save_preview_panel.tscn::9f20adc0c8e13c6fc07272fe5cac2639::1724437236::res://.godot/exported/133200997/export-c76add926eeb96e024dbbb77f5a66f57-save_preview_panel.scn
+res://scenes/UI/HUD/SaveLoad/scenarios_panel.tscn::feacf155bca6b0326a45a1947d2a7b78::1724437236::res://.godot/exported/133200997/export-1650fcedcf1d3a2a68b79a5af2e138a7-scenarios_panel.scn
+res://scenes/UI/HUD/Settings/music_type_setting.tscn::dcd5c3af683a353a6a6d8227be10b821::1724437236::res://.godot/exported/133200997/export-5927a7f1580e25a425c7709b07fae347-music_type_setting.scn
+res://scenes/UI/HUD/Settings/settings_rect.tscn::bf5bc75fddfa2290028e463751350684::1731691373::res://.godot/exported/133200997/export-17e002fc70b3c0bf6bf597b6ee88eb53-settings_rect.scn
+res://scenes/UI/HUD/Special Encounter/encounter_control.tscn::385742ce87a4276f8af189a93eec3c22::1731691373::res://.godot/exported/133200997/export-96d336f4cf333166197fecd06020fcdd-encounter_control.scn
+res://scenes/UI/HUD/Spells/SpellButton.tscn::5bc8117ca6a70738a74215a44e6402da::1731691373::res://.godot/exported/133200997/export-d3c4fb61676cd5da838702f8dfb1e9b4-SpellButton.scn
+res://scenes/UI/HUD/Spells/spells_rect.tscn::7da2e19a65ae0bc094116f83e3762627::1731691373::res://.godot/exported/133200997/export-3b69371ca0e773641bb5e04a493b8587-spells_rect.scn
+res://scenes/UI/HUD/Storage/storage_rect.tscn::3dc6f467a607fed6d427481da8b581a4::1731691373::res://.godot/exported/133200997/export-b20770e3f8196f6631929cee7c527f01-storage_rect.scn
+res://scenes/UI/HUD/TurnOrderPanel/turn_order_panel.tscn::91a34944022d890ce9ed3e7a417151d8::1724437236::res://.godot/exported/133200997/export-de7a5ab8b076ce22146b857f682ccea9-turn_order_panel.scn
+res://scenes/UI/HUD/OWHUDControl.tscn::19d8c2274452eae13b93864069b15b41::1731691373::res://.godot/exported/133200997/export-70eb7e0c3d11218aa4b31f0f8ff6a278-OWHUDControl.scn
+res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.tscn::84a2fc576ff21c29b6ba472dc1de6ecf::1738618171::res://.godot/exported/133200997/export-f4edbef20103645722af852ce3f6ef64-CharacterStatsRect.scn
+res://scenes/UI/Main Menu/MainMenuNode2D.tscn::fb271e32d6394de0f6c431877fb6ad43::1731691373::res://.godot/exported/133200997/export-a94674aeda01c60882154df2a665312f-MainMenuNode2D.scn
+res://scenes/UI/Main Menu/mainmenu_theme.tres::96325cf991cf5507cda7e344c0c1e3fe::1724437236::res://.godot/exported/133200997/export-dd6450c4347496f9d19e14ff6cc29775-mainmenu_theme.res
+res://scenes/UI/Main Menu/new_campaign_panel.tscn::83b5db0df3ed582e17faecb9793c493b::1731691373::res://.godot/exported/133200997/export-2c3ac385908dd0a3ec4b80591f00373a-new_campaign_panel.scn
+res://scenes/UI/Main Menu/new_character_panel.tscn::1d9e86486d71a2dc51884ce9d4e7a936::1738699103::res://.godot/exported/133200997/export-6ad4c856b353ed15f9150d9c362fea7f-new_character_panel.scn
+res://scenes/UI/Party Selection/CharPickButton.tscn::1087935f125715fee2b3c084fe2b0c0b::1731691373::res://.godot/exported/133200997/export-9e0e64c4ceba73b4cbeaef85f7376b34-CharPickButton.scn
+res://scenes/UI/Party Selection/CharPickRect.tscn::ed5b9742efb3971911125fd15cc8550d::1731691373::res://.godot/exported/133200997/export-21997049521409b1bc6461f3a5965c71-CharPickRect.scn
+res://scenes/UI/UI.tscn::d15d2352a1f89847841140618cca0048::1724437236::res://.godot/exported/133200997/export-fa88df01bcee899e56c5e78bd9dc85e8-UI.scn
+res://scenes/Main.tscn::d3da0f6a3897e3611ca57536b02d0ba1::1738621575::res://.godot/exported/133200997/export-4a24720ee5e787dbe30abc634fa3679d-Main.scn
+res://scenes/SFXPlayer.tscn::580960683726c10204ce1ef44d5d329d::1724437235::res://.godot/exported/133200997/export-1f3d61b3c97207b61dadf40036d30021-SFXPlayer.scn
+res://scripts/game_state.tscn::a5197916e6708278ad68fad8ca2106c7::1724437236::res://.godot/exported/133200997/export-de49df5758b5ae32e17b37e69a77a0e7-game_state.scn
+res://shared_assets/UI/arrow_down_normal_stylebox.tres::2fe1ffa83178e2f953e2da643ed73524::1731691373::res://.godot/exported/133200997/export-25b44b092c469df01a3dd8e2a7750d45-arrow_down_normal_stylebox.res
+res://shared_assets/UI/arrow_down_pressed_stylebox.tres::f71b9342477d48214f381e593a3f6c4e::1731691373::res://.godot/exported/133200997/export-74fb48ace5d92e04f39e5f61a7b76324-arrow_down_pressed_stylebox.res
+res://shared_assets/UI/arrow_left_normal_stylebox.tres::c784fa294346791b445f896d72438b4d::1731691373::res://.godot/exported/133200997/export-e703db2a629dc94c07099c482730a68a-arrow_left_normal_stylebox.res
+res://shared_assets/UI/arrow_left_pressed_stylebox.tres::831ebd7708620937430a3787cf382a06::1731691373::res://.godot/exported/133200997/export-ab604f754c94406ede873230b28cb04f-arrow_left_pressed_stylebox.res
+res://shared_assets/UI/arrow_right_normal_stylebox.tres::fa0b9858e10c5c77451da387523e2820::1731691373::res://.godot/exported/133200997/export-b83ceb20b77c005ec1406d44ae57d064-arrow_right_normal_stylebox.res
+res://shared_assets/UI/arrow_right_pressed_stylebox.tres::36077b0b434609eecf87b94c5eb9930f::1731691373::res://.godot/exported/133200997/export-827a60d98d4e468298298c2ff8b7d946-arrow_right_pressed_stylebox.res
+res://shared_assets/UI/arrow_up_normal_stylebox.tres::cad7583dda9bdd52bd11fa7b153a2f63::1731691373::res://.godot/exported/133200997/export-9936d061483207c71eda4d6425fe7c2b-arrow_up_normal_stylebox.res
+res://shared_assets/UI/arrow_up_pressed_stylebox.tres::315ed5648950107916bd080624a26d18::1731691373::res://.godot/exported/133200997/export-d5bcda6b66c1c623be7e067d2efeda12-arrow_up_pressed_stylebox.res
+res://shared_assets/UI/button50_disabled_styleboxtexture.tres::96e2d880487474903b8d52827580a49a::1731691373::res://.godot/exported/133200997/export-a1e6fa85eff826c9079f1b6117705a23-button50_disabled_styleboxtexture.res
+res://shared_assets/UI/button50_hover_styleboxtexture.tres::ec5dc7738bf68e923760086390edbdc6::1731691373::res://.godot/exported/133200997/export-fca3f38ff3b217b8d56d7c90241c8fdd-button50_hover_styleboxtexture.res
+res://shared_assets/UI/button50_normal_styleboxtexture.tres::d89480a056c580887b9bbb46f2a06676::1724437236::res://.godot/exported/133200997/export-df6b61d6357c6b0effa22d18ce1f7d73-button50_normal_styleboxtexture.res
+res://shared_assets/UI/button50_pressed_styleboxtexture.tres::461425ff1689599389df5ecb002d6bb7::1731691373::res://.godot/exported/133200997/export-fe495a0fb54b40090b4a9ebd6f9641bf-button50_pressed_styleboxtexture.res
+res://shared_assets/UI/button_disabled_styleboxtexture.tres::500cc81650d4fd3617668531729f19c6::1731691373::res://.godot/exported/133200997/export-e73ca9d87aca3998bf90f898d71f1b19-button_disabled_styleboxtexture.res
+res://shared_assets/UI/button_focus_styleboxtexture.tres::fc24abbdc8e7a1dfe87bf1b2dbfdf517::1731691373::res://.godot/exported/133200997/export-3a6ad100b19a7c93783c2d5e079632fd-button_focus_styleboxtexture.res
+res://shared_assets/UI/button_hover_styleboxtexture.tres::9f88b340ae103c8c632de35aa1e60a10::1731691374::res://.godot/exported/133200997/export-14173dff09e34df9d05811af07b4fbb6-button_hover_styleboxtexture.res
+res://shared_assets/UI/button_normal_styleboxtexture.tres::b8a083ecf8e2b92cafdb38ff401fe33a::1731691374::res://.godot/exported/133200997/export-fcc8ac881d828b63d8e9f9f5de70db60-button_normal_styleboxtexture.res
+res://shared_assets/UI/button_pressed_styleboxtexture.tres::42e132f8d53d95bc8227029c0a4148fb::1731691374::res://.godot/exported/133200997/export-d38ae3593e3c97d00ddf8c95ddf7c3ed-button_pressed_styleboxtexture.res
+res://shared_assets/UI/new_styleboxtexture_light.tres::a9a30fb33b25a741e22031eec0f1cefe::1724437236::res://.godot/exported/133200997/export-39d5bf4c77893a2eac9e61230f5b5682-new_styleboxtexture_light.res
+res://default_env.tres::a52129f071fffbd20a6013a6c0edec1e::1724437235::res://.godot/exported/133200997/export-7cf3fd67ad9f55210191d77b582b8209-default_env.res

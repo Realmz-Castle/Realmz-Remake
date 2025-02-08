@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cit0hgaen1ytl"
+path="res://.godot/imported/energy blast.wav-9a7f5b5e6211dd6e4cd09d1a6f97165d.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/energy blast.wav"
+dest_files=["res://.godot/imported/energy blast.wav-9a7f5b5e6211dd6e4cd09d1a6f97165d.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

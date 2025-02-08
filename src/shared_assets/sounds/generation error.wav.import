@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://br3febd60yojl"
+path="res://.godot/imported/generation error.wav-939e5c1c89ceb21e99be057ed3606dcd.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/generation error.wav"
+dest_files=["res://.godot/imported/generation error.wav-939e5c1c89ceb21e99be057ed3606dcd.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

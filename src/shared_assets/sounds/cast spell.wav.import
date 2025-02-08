@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cy4t4dvo5ldig"
+path="res://.godot/imported/cast spell.wav-69755af722014ed1bef32d852e619dea.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/cast spell.wav"
+dest_files=["res://.godot/imported/cast spell.wav-69755af722014ed1bef32d852e619dea.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

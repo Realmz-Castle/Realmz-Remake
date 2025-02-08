@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bjgldgh8k8phi"
+path="res://.godot/imported/Attack Miss.wav-76eb9dcc24d3e5a2004cf0559f4298bf.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/Attack Miss.wav"
+dest_files=["res://.godot/imported/Attack Miss.wav-76eb9dcc24d3e5a2004cf0559f4298bf.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

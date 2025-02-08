@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://day4bgwypn715"
+path="res://.godot/imported/hit effect 1.wav-da6960a94a8d429ae3fb28a495360a6f.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/hit effect 1.wav"
+dest_files=["res://.godot/imported/hit effect 1.wav-da6960a94a8d429ae3fb28a495360a6f.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

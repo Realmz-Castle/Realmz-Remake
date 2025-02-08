@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dbbauqttmskw5"
+path="res://.godot/imported/walk city.wav-80cab31ad859aec292d5988bcd672cfa.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/walk city.wav"
+dest_files=["res://.godot/imported/walk city.wav-80cab31ad859aec292d5988bcd672cfa.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

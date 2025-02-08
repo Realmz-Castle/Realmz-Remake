@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://bxcksnnmk7knk"
+path="res://.godot/imported/Castle.png-61f1575ed7680b5c89e7a1e77aab1515.image"
+
+[deps]
+
+source_file="res://shared_assets/tiles/Castle/Castle.png"
+dest_files=["res://.godot/imported/Castle.png-61f1575ed7680b5c89e7a1e77aab1515.image"]
+
+[params]
+

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dix5n8656ae5s"
+path="res://.godot/imported/walk carpet.wav-8cc8ec45c4a55ca29a45c05c5ec25b8a.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/walk carpet.wav"
+dest_files=["res://.godot/imported/walk carpet.wav-8cc8ec45c4a55ca29a45c05c5ec25b8a.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

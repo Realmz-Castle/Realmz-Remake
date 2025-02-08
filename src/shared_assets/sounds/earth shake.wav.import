@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://ch88epr06feyk"
+path="res://.godot/imported/earth shake.wav-30b70064ad968b8da00f5b94441ce147.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/earth shake.wav"
+dest_files=["res://.godot/imported/earth shake.wav-30b70064ad968b8da00f5b94441ce147.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

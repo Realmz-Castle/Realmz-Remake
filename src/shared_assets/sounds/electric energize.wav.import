@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://b86bpw2c4d7lo"
+path="res://.godot/imported/electric energize.wav-28fd6f85409c1eec1e96cc99f1b2de96.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/electric energize.wav"
+dest_files=["res://.godot/imported/electric energize.wav-28fd6f85409c1eec1e96cc99f1b2de96.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

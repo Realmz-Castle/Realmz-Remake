@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://c1evcuj7quh4d"
+path="res://.godot/imported/pro jo miss.wav-bd5adcb74f4dac42559802c041de5917.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/pro jo miss.wav"
+dest_files=["res://.godot/imported/pro jo miss.wav-bd5adcb74f4dac42559802c041de5917.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

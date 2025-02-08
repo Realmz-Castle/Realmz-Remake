@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://d0n4rgvo0jvjt"
+path="res://.godot/imported/level up.wav-f117521b21d6f7ad930fe91778155ece.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/level up.wav"
+dest_files=["res://.godot/imported/level up.wav-f117521b21d6f7ad930fe91778155ece.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

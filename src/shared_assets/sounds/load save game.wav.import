@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://djme2h08n6pqk"
+path="res://.godot/imported/load save game.wav-bb4d4a8e017988c98a250a708781a83c.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/load save game.wav"
+dest_files=["res://.godot/imported/load save game.wav-bb4d4a8e017988c98a250a708781a83c.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://nw285nr4xy1o"
+path="res://.godot/imported/spell launch 2.wav-6113d63eb793e4abd7093e51e26d12f9.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/spell launch 2.wav"
+dest_files=["res://.godot/imported/spell launch 2.wav-6113d63eb793e4abd7093e51e26d12f9.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

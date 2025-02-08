@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cc8w3cki0q3hx"
+path="res://.godot/imported/punch kick.wav-0e56523ab5b0c73853870dec6edc1e34.sample"
+
+[deps]
+
+source_file="res://shared_assets/sounds/punch kick.wav"
+dest_files=["res://.godot/imported/punch kick.wav-0e56523ab5b0c73853870dec6edc1e34.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0
