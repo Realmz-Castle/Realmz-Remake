@@ -125,10 +125,16 @@ func load_tile_resources( path : String ) -> void:
 	for ts_name in tileset_folder_names :
 		print("resource load tiles : ", ts_name)
 		var n_tileset : Array = []
-		var n_ts_json_data : Dictionary = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path +'/'+ ts_name + "/"+ts_name+".json"))
+		var n_ts_json_data : Dictionary = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path +'/'+ ts_name + "/" +ts_name+".json"))
 		var atlas_width : int = n_ts_json_data["columns"]
-		var texture_atlas_path: String = path.path_join(ts_name + '/'+ts_name+".png")
-		var texture_atlas: Image = load(texture_atlas_path)
+		var texture_atlas_path: String = path.path_join(ts_name +"/"+ ts_name+".png")
+		var texture_atlas: Image
+		if texture_atlas_path.begins_with("res://") :
+			texture_atlas = load(texture_atlas_path)
+		else :
+			texture_atlas = Image.new()
+			var _err = texture_atlas.load(texture_atlas_path)
+
 		var tileset_name : String = n_ts_json_data["name"]
 		var json_tiles_array : Array = n_ts_json_data["tiles"]
 
@@ -176,7 +182,13 @@ func load_item_resources( path : String ) -> void:
 	# load the item data at the "path" location
 	var n_item_img_pack : Dictionary = {}
 	n_item_img_pack = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path + "img_pack.json"))
-	var texture_atlas : Image = load(path+"textureAtlas.png")
+	var texture_atlas : Image
+	var texture_atlas_path: String = path+"textureAtlas.png"
+	if texture_atlas_path.begins_with("res://") :
+		texture_atlas = load(texture_atlas_path)
+	else :
+		texture_atlas = Image.new()
+		var _err = texture_atlas.load(texture_atlas_path)
 
 	for i in n_item_img_pack :
 		# Get position inside  texture atlas #
