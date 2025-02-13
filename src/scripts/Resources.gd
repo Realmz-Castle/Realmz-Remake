@@ -221,7 +221,13 @@ func load_bestiary_resources( path : String ) -> void:
 
 	var n_crea_img_pack : Dictionary = {}
 	n_crea_img_pack = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path + "img_pack.json"))
-	var texture_atlas: Image = load(path+"textureAtlas.png")
+	var texture_atlas_path : String = path+"textureAtlas.png"
+	var texture_atlas : Image
+	if (texture_atlas_path.begins_with("res://")) :
+		texture_atlas = load(texture_atlas_path)
+	else :
+		texture_atlas = Image.new()
+		var _err = texture_atlas.load(texture_atlas_path)
 
 	#load images to images_book
 	for i in n_crea_img_pack :
@@ -784,9 +790,15 @@ func load_creature_ai_resources(path : String) :
 #	var n_creascripts_book = Utils.FileHandler.read_json_dic_from_file(path +"spells_book.json")
 #	print("n_spells_book : ", n_spells_book)
 	for sn in scriptfilenames :
-#		print("adding " +sn)
-		var newcreascript = load(path+sn)
-		creascripts_book[sn] = newcreascript
+		if sn.ends_with(".gd") :
+			print("adding " +sn)
+			var newcreascript : GDScript
+			if path.begins_with("res://") :
+				newcreascript = load(path+sn)
+			else :
+				newcreascript = GDScript.new()
+				var _err = newcreascript.load(path+sn)
+
 
 
 """ Accessible resources """
