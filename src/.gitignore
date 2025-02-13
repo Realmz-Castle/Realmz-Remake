@@ -6,6 +6,7 @@ dev/*
 demo/*
 *.import
 !textureAtlas.png.import
+!tiles/**/*.import
 default_bus_layout.tres
 default_env.tres
 godot-mod-player.png
