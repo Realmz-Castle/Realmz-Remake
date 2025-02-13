@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://dhxhyf20guprq"
+path="res://.godot/imported/textureAtlas.png-8c3834379c2fff2d4215c85382b85638.image"
+
+[deps]
+
+source_file="res://shared_assets/Bestiary/textureAtlas.png"
+dest_files=["res://.godot/imported/textureAtlas.png-8c3834379c2fff2d4215c85382b85638.image"]
+
+[params]
+

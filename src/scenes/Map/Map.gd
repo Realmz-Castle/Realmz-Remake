@@ -15,19 +15,12 @@ class_name Map
 # Get Thing Scene By default #
 #@export (PackedScene) var _thing
 
-
 var secret_texture : Texture2D
 var path_texture : Texture2D
-
 var display_explored_only : bool = false
 var explored_tiles : Array = []  #array of array  of boold, true=explored
-
-
 var extra_images : Dictionary = {}
-
-
 var show_scripts : bool = true
-
 var mapdata : Array = []
 var map_size : Vector2 = Vector2.ONE
 var mapscriptareas : Dictionary = {}
@@ -38,15 +31,12 @@ var mapscripts : GDScript = null
 var maptype : String = ""
 var mapmusictype : String = ""
 var outdoor_riding : bool = false
-
 var cam_x : int = 0
 var cam_y : int = 0
-
 var widthtiles : int = 32
 var heighttiles : int = 18
 const RIGHTPANELWIDTH : int = 320
 const BOTTOMPANELHEIGHT : int = 200
-
 var mouseinside : bool = false # true iff the mouse is inside teh map area / button
 var pressed : bool = false # true iff the map (and not a character) is being clicked, used for movements.
 
@@ -175,16 +165,8 @@ func _ready():
 	aStar12.crea_size = Vector2(1,2)
 	aStar21.crea_size = Vector2(2,1)
 	aStar22.crea_size = Vector2(2,2)
-	var terrainTexAtlas : Image = Image.new()
-	#var _err_terrainTexAtlas = terrainTexAtlas.load("res://shared_assets/BattleEffects/BattleEffects.png")
-	
-	#var terrainPngBuffer : PackedByteArray = load("res://shared_assets/BattleEffects/BattleEffects.png")
-	#terrainTexAtlas.load_png_from_buffer(terrainPngBuffer)
-	
-	#var terrainTexture : Texture = load("res://shared_assets/BattleEffects/BattleEffects.png")
-	var terrainPngBuffer : PackedByteArray = FileAccess.get_file_as_bytes("res://shared_assets/BattleEffects/BattleEffects.png")
-	terrainTexAtlas.load_png_from_buffer(terrainPngBuffer)
-	
+	var terrainTexAtlas: Image = load("res://shared_assets/BattleEffects/BattleEffects.png")
+
 	for n in terrains_tex_pos_dict :
 		var new_tex : ImageTexture = ImageTexture.new()
 		var pos : Vector2i = terrains_tex_pos_dict[n]
@@ -193,18 +175,13 @@ func _ready():
 		# Loads texture from texture atlas #
 		new_tex = ImageTexture.create_from_image(image) #,0
 		tex_name_tex_dict[n] = new_tex
-	var map_symbols_atlas : Image = Image.new()
-	#
-	#var err_map_symbols_atlas = map_symbols_atlas.load("res://scenes/Map/map_symbols.png")
-	#
-	var map_symbols_PngBuffer : PackedByteArray = FileAccess.get_file_as_bytes("res://scenes/Map/map_symbols.png")
-	map_symbols_atlas.load_png_from_buffer(map_symbols_PngBuffer)
-	
+	var map_symbols_atlas : Image = load("res://scenes/Map/map_symbols.png")
+
 	var path_image : Image = map_symbols_atlas.get_region(Rect2i( Vector2i.ZERO, Vector2i(32,32)))
 	path_texture = ImageTexture.create_from_image(path_image)
 	var secret_image : Image = map_symbols_atlas.get_region(Rect2i( Vector2i(32,0), Vector2i(32,32)))
 	secret_texture = ImageTexture.create_from_image(secret_image)
-	
+
 	var raysperside : int = 16
 	var halfray : int = floor(raysperside/2)
 	for x in range(0,raysperside) : #[0,1,2,3,4,5,6,7]
@@ -225,7 +202,7 @@ func set_ow_character_icon(icon : Texture2D) :
 	elif outdoor_riding :
 		owcharacter.set_icon(riding_character)
 		return
-	
+
 	owcharacter.set_icon(icon)
 
 # Load the game map #
@@ -241,39 +218,25 @@ func load_map( _campaign : String, mapname : String) -> void:
 	for p in resources.maps_book[mapname][1]["Secrets"] :
 		mapsecrets[Vector2i(p[0],p[1])] = [ p[2], p[3] , p[4] ]  #seen, fucntionname,  failchance
 	mapscripts = resources.maps_book[mapname][2]
-	
+
 	mapboats.clear()
 	extra_images.clear()
 	for c in images_node.get_children() :
 		c.queue_free()
-	
+
 	for c in creatures_node.get_children() :
 		c.queue_free()
-	
-#	print("MAP : mapscripts.has_method('_on_map_load') ?", mapscripts.has_method("_on_map_load"))
-#	if mapscripts.has_method("_on_map_load") :
+
 	mapscripts._on_map_load(self)
-	
+
 	map_size = Vector2( mapdata.size(), mapdata[0].size())
-	
+
 	#generate_graph(mapdata : Array, swimmer : bool, flyer : bool, big : bool)
 	aStar11.generate_graph(mapdata, true, false, false) #swimmer flyer big
 	aStar12.generate_graph(mapdata, true, false, true) #swimmer flyer big
 	aStar21.generate_graph(mapdata, true, false, true) #swimmer flyer big
 	aStar22.generate_graph(mapdata, true, false, true) #swimmer flyer big
-	
-	#aStarExtra.generate_graph(mapdata, true, false, true)
-	
-	
-#	maps_book[mapname] = [newmapdata, newmapscriptareas, newmapscripts, maptype,mapmusictype, outdoor_riding, darkness_level]
-#	var mapbookscriptsinfo:String = ''
-#	for m in resources.maps_book :
-#		mapbookscriptsinfo += m + ' :\n'
-#		mapbookscriptsinfo += ' script ares : '+str(resources.maps_book[m][1]) + '\n'
-#		mapbookscriptsinfo += ' scripts : '+str(resources.maps_book[m][2]) + '\n'
-#	print("Map : show mapbok : ", mapbookscriptsinfo)
-#	print("Map scripts =\n ",mapscripts)
-	
+
 	tiles_book = NodeAccess.__Resources().tiles_book
 	maptype = resources.maps_book[mapname][3]
 	mapmusictype = resources.maps_book[mapname][4]
@@ -281,7 +244,7 @@ func load_map( _campaign : String, mapname : String) -> void:
 	darkness_level = resources.maps_book[mapname][6]
 	display_explored_only = resources.maps_book[mapname][7]
 	explored_tiles = resources.maps_book[mapname][8]
-	
+
 	if GameGlobal.map_boats_dict.has(mapname) :
 		for b : String in GameGlobal.map_boats_dict[mapname] :
 			#print("MAP: print images_book")
@@ -294,15 +257,8 @@ func load_map( _campaign : String, mapname : String) -> void:
 			mapboats[Vector2i(int(s[0]), int(s[1]))] = [boatimage, imgname ]
 	else :
 		mapboats.clear()
-#func update() :
-#	manage_inputs()
-#
-#func manage_inputs() :
-#	var dirpressed = Vector2.ZERO
-#
 
 func _on_viewport_size_changed() :
-
 	var screensize : Vector2 = ScreenUtils.get_logical_window_size(self)
 	mapbutton.size = screensize-Vector2(320,201)
 	var vscale =Vector2.ONE
@@ -311,16 +267,15 @@ func _on_viewport_size_changed() :
 	if screensize.y<400 :
 		vscale.y = screensize.y/400
 
-	
 	widthtiles = ceil(screensize.x/32)-(vscale.x*RIGHTPANELWIDTH/32)+3
 	heighttiles = ceil(screensize.y/32)-(vscale.y*BOTTOMPANELHEIGHT/32)+1
 	queue_redraw()
 
-func _draw() :  #map cells are  [ [used_tileset_name,t_id,true], 
+func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 #	return
 #	if mapdata.is_empty() :
 #		return
-	
+
 	cam_x = focuscharacter.tile_position_x - int((widthtiles)/2) +1
 	cam_y = focuscharacter.tile_position_y - int((heighttiles)/2)
 	charactersnode.position = Vector2(-cam_x*32,-cam_y*32)
@@ -328,8 +283,8 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 	images_node.position = charactersnode.position
 	gfx_node.position = charactersnode.position
 #	print("Map mapdata , ", mapdata)
-	
-	
+
+
 	for x in range(widthtiles) :
 		for y in range(heighttiles) :
 #			print("Map 116: ", cam_x, ' ',x,' , ', cam_y, ' ',y)
@@ -365,20 +320,20 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 						draw_texture_rect(i["texture"], Rect2(32*x,32*y,32,32), true)
 					if last_generated_path.has(Vector2(cam_x+x,cam_y+y)) :#Vector2(cam_x+x,cam_y+y)) :  #last_generated_path
 						draw_texture_rect(darktexture, Rect2(32*x,32*y,32,32), true)
-			
+
 			#DEBUG
 			if aStar22.is_point_solid(Vector2i(cam_x+x, cam_y+y)) :
 				#draw_texture_rect(path_texture, Rect2(32*x,32*y,32,32), true)
 				draw_texture_rect(secret_texture, Rect2(32*x,32*y,32,32), true)
-			
-			
+
+
 			# draw terrain effects :
 			for t in terrainEffects :
 #				print("Map : There sia terrain effect, does it ", t["tiles"])
 				if t["tiles"].has(Vector2i(cam_x+x,cam_y+y)) : #t["texture"]
 #					print("map : it contains tile ", Vector2i(x,y))
 					draw_texture_rect(t["texture"], Rect2(32*x,32*y,32,32), true, Color(1,1,1,0.5))
-			
+
 			#draw secret paths etc
 			var tpos : Vector2i = Vector2i(cam_x+x,cam_y+y)
 			if mapsecretpaths.has(tpos) :
@@ -393,8 +348,8 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 				#print("MAP mapboats[tpos] : ", mapboats[tpos])
 				var btimg : Texture = mapboats[tpos][0]["tex"]
 				draw_texture_rect(btimg, Rect2(32*x,32*y,32,32), true, Color(1,1,1,1))
-	
-	if darkness_level >=0 : 
+
+	if darkness_level >=0 :
 		var light_level : int = darkness_level + GameGlobal.light_power
 		light_level = int(clamp(light_level, 0, 6))
 		if light_level <= 6 and light_level >=0:
@@ -404,7 +359,7 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 			draw_rect(Rect2(Vector2(widthtiles*16+darkness_offset-8,0),Vector2(widthtiles*16-darkness_offset,heighttiles*32) ), Color.BLACK, true)
 			draw_rect(Rect2(Vector2(0,0),Vector2(widthtiles*32,heighttiles*16-darkness_offset) ), Color.BLACK, true)
 			draw_rect(Rect2(Vector2(0,heighttiles*16+darkness_offset),Vector2(widthtiles*32,heighttiles*16-darkness_offset) ), Color.BLACK, true)
-	
+
 	if show_scripts :
 		for s in mapscriptareas :
 #			print (s)
@@ -444,30 +399,6 @@ func _on_MapMouseControlButton_mouse_exited():
 func _process(_delta):
 	pass
 	var newtext : String = "GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(StateMachine.combat_state.cbanimstate.timer)+'\n'
-	#newtext += "owchar : " + str(focuscharacter.position)
-	#for c in creatures_node.get_children() :
-		#if is_instance_valid(c) :
-			#newtext += "\n" + c.creature.name + ' crea : ' + str(c.creature.position) +' ,btn pos : '+ str(c.position/32)
-	#newtext += "\nTeraainEffects Number : "+str(terrainEffects.size())
-	#var resources = NodeAccess.__Resources()
-##	print(resources.battles_book[battlename])
-	#newtext += "\nGameGlobal map_boats_dict : "+ str(GameGlobal.map_boats_dict)
-	#var is_testbattle_in_book : bool = resources.battles_book.has("Test_Battle")
-	#if is_testbattle_in_book :
-		#var battle_data : Dictionary = resources.battles_book["Test_Battle"]
-		#newtext += "\nTest_Battle battle_data : "+ str(battle_data)
-		#if battle_data.is_empty() :
-			#pass
-	
-		
-	#newtext += "\n map pressed ? "+str(pressed)+", mouseinside ?"+str(mouseinside)
-#	newtext += "\n last_generated_path : "+str(last_generated_path)
-	#if GameGlobal.player_characters.size()>0 :
-		#var pc = GameGlobal.player_characters[0]
-		#newtext += "\n pc name : "+pc.name+"   Melee_Crit_Rate : " + str(pc.get_stat("Melee_Crit_Rate"))
-##		newtext += "\n 1stPC slots"+
-##		newtext += "\n 1stPC stats hp"+str(pc.get_stat("curHP"))+"/"+str(pc.get_stat("maxHP"))
-##		newtext += "\n base_stats hp"+str(pc.base_stats["curHP"])+'/'+str(pc.base_stats["maxHP"])
 	debuglabel.text = newtext + '\n teamsize : '+str(GameGlobal.player_characters.size())
 
 func set_secret_seen(pos : Vector2i) :
@@ -520,7 +451,7 @@ func dock_boat_at(pos : Vector2i) :
 	#for b in GameGlobal.map_boats_dict[mapname] :
 	#var boatimage =  NodeAccess.__Resources().images_book[b[2]]
 	#mapboats[Vector2i(b[0], b[1])] = [boatimage, b[2] ]   in  loader, b2 is  name
-	
+
 	var tex : Texture = NodeAccess.__Resources().images_book[GameGlobal.boat_sailed_image_name]["tex"]
 	mapboats[pos] = [{"tex":tex, "img" : null},GameGlobal.boat_sailed_image_name]
 	#var btimg : Texture = mapboats[tpos][0]["tex"] in the _draw
@@ -538,7 +469,7 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 		#continue
 		#print("explored_tiles_x_size : ",explored_tiles_x_size, ", explored_tiles_y_size : ", explored_tiles_y_size)
 		var line : Array = targetingLayer.bresenham_line(tpos, tpos+5*endpt,1,20) #Array of vector2
-		for t in line : 
+		for t in line :
 			if t.x<0 or t.y<0 or t.x>=explored_tiles_x_size or t.y>=explored_tiles_y_size : break
 			explored_tiles[t.y][t.x] = 1
 #			print(mapdata[t.x][t.y])
@@ -554,7 +485,7 @@ func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, bi
 		for cy in range(right_astar.crea_size.y):
 			unblocked_poses.append(from+Vector2i(cx,cy))
 			pathfinder_clear_pos(from+Vector2i(cx,cy))
-	
+
 	var who = GameGlobal.who_is_at_tile(to)
 	if who :
 		for x in range(who.creature.size.x) :
@@ -562,7 +493,7 @@ func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, bi
 				#var ubp : Vector2 = Vector2(to.x+x, to.y+y)
 				var ubp : Vector2 = Vector2(who.creature.position.x+x, who.creature.position.y+y)
 				#print("map.find_path , to who : "+who.creature.name+ ', at '+ str(who.creature.position)+", size: "+str(who.creature.size))
-				
+
 				if GameGlobal.is_map_tile_walkable_by_char(crea,ubp) :
 					#print("map find_path unlock ubp  unblockposition")
 					unblocked_poses.append(ubp)
@@ -571,14 +502,14 @@ func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, bi
 		for cb : CombatCreaButton in StateMachine.combat_state.all_battle_creatures_btns :
 			var c : Creature = cb.creature
 			if c.curFaction != crea.curFaction :
-				
+
 				for x in range(c.size.x) :
 					for y in range(c.size.y) :
 						var ubp : Vector2 = Vector2(to.x+x, to.y+y)
 						if GameGlobal.is_map_tile_walkable_by_char(crea,ubp) :
 							unblocked_poses.append(ubp)
 							pathfinder_clear_pos(ubp)
-				
+
 	last_generated_path = right_astar.get_point_path(from, to)
 	for p in unblocked_poses :
 		pathfinder_block_pos(p)

@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://brcbpvryivkpp"
+path="res://.godot/imported/textureAtlas.png-5ea3a5cff70597b59f6eaeb63dfc9a35.image"
+
+[deps]
+
+source_file="res://shared_assets/items/textureAtlas.png"
+dest_files=["res://.godot/imported/textureAtlas.png-5ea3a5cff70597b59f6eaeb63dfc9a35.image"]
+
+[params]
+
