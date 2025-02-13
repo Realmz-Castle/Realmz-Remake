@@ -5,6 +5,7 @@ Thumbs.db
 dev/*
 demo/*
 *.import
+!textureAtlas.import
 default_bus_layout.tres
 default_env.tres
 godot-mod-player.png
