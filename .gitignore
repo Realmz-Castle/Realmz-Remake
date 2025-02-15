@@ -2,9 +2,6 @@
 .godot/
 
 # Godot-specific ignores
-.import/
-export.cfg
-*.import
 [Pp]ublish/
 
 # Imported translations (automatically generated from CSV files)
