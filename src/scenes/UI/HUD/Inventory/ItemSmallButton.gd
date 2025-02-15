@@ -14,7 +14,7 @@ extends Button
 @onready var infolabel : Label = $"IteminfoLabel"
 #onready var inventoryrect : Control = get_parent().get_parent().inventoryrect
 @onready var chargesLabel : Label = $ChargesLabel
-@onready var statsLabel : Label = $ItemstatsLabel
+@onready var statsLabel : RichTextLabel = $ItemstatsRTLabel
 @onready var selectedSprite : Sprite2D = $SpriteSelected
 
 var belongstoally : bool = false
@@ -67,11 +67,11 @@ func set_item(nitem : Dictionary) -> void :
 #		var screensize : Vector2 = get_window().get_size()
 		chargesLabel._set_position( Vector2(floor((screensize.x-320-44-20)/2) - 85 -10, 4) )
 	if nitem.has("stats_mini") :
-		statsLabel.text = nitem["stats_mini"]
+		statsLabel.parse_bbcode( nitem["stats_mini"] )
 #		var screensize : Vector2 = get_window().get_size()
 		statsLabel._set_position( Vector2(floor((screensize.x-320-44-20)/2) - 205 -10, 20) )
 	else :
-		statsLabel.text = ''
+		statsLabel.clear()
 	
 	#print("ItemSmallButton nitem[is_identified]>0 "+nitem["name"] + ' identfied? ',nitem["is_identified"]>0 )
 	#print(nitem)

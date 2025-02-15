@@ -2,8 +2,8 @@
 
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="1"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/ItemShopButton.gd" id="2"]
-[ext_resource type="Texture2D" uid="uid://cy8nk63ch3pvl" path="res://shared_assets/Map Symbols/tileDark.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://d3o2xdrf4yve2" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOn.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://572rwgtjbc0x" path="res://shared_assets/Map Symbols/tileDark.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://du5fc526fiqol" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOn.png" id="4"]
 
 [node name="ItemShopButton" type="Button"]
 custom_minimum_size = Vector2(160, 60)
@@ -102,16 +102,19 @@ theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Item Info"
 
-[node name="ItemstatsLabel" type="Label" parent="."]
+[node name="ItemstatsRTLabel" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 105.0
+offset_left = 129.0
 offset_top = 20.0
 offset_right = 305.0
-offset_bottom = 34.0
-theme_override_colors/font_color = Color(0, 0, 1, 1)
-theme_override_font_sizes/font_size = 12
+offset_bottom = 37.0
+theme_override_colors/default_color = Color(0, 0, 1, 1)
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
 text = "Stats"
-horizontal_alignment = 2
 
 [node name="ChargesLabel" type="Label" parent="."]
 layout_mode = 0

@@ -68,6 +68,7 @@ var equipment_slots : Dictionary = {
 	"Neck" : 0,
 	"Belt" : 0,
 	"Accessory" : 0,
+	"IonStone" : 0,
 	"Ring" : 0
 }
 

@@ -1,69 +1,1847 @@
 {
-   "ITEM_leather_cap" : 
+   "ITEM_Dagger" : 
    {
-      "0_ref_x" : 0,
-      "0_ref_y" : 0,
-      "size" : "32x32"
-   },
-   "ITEM_iron_cap" : 
-   {
-      "0_ref_x" : 1,
-      "0_ref_y" : 0,
-      "size" : "32x32"
-   },
-"ITEM_helm_pain" : 
-   {
-      "0_ref_x" : 2,
-      "0_ref_y" : 0,
-      "size" : "32x32"
-   },
-"ITEM_health_potion" : 
-   {
-      "0_ref_x" : 20,
-      "0_ref_y" : 3,
-      "size" : "32x32"
-   },
-"ITEM_dagger" : 
-   {
-      "0_ref_x" : 18,
+      "0_ref_x" : 19,
       "0_ref_y" : 5,
       "size" : "32x32"
    },
-"ITEM_buckler" : 
+   
+   "ITEM_Dagger_of_shielding" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+   
+   "ITEM_Double_Dagger" : 
+   {
+      "0_ref_x" : 21,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+
+   "ITEM_Dagger_of_styx" : 
+   {
+      "0_ref_x" : 22,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Dagger_sting" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Frozen_viper" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Longsword" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Longsword_1" : 
+   {
+      "0_ref_x" : 29,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Longsword_2" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Flameheart" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Frostblade" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Broadsword" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Broadsword_1" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Two_handed_sword" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Two_handed_sword_1" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Two_hand_electro_sword" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Sword_of_the_voltar" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Scimitar" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Scimitar_1" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Scimitar_3" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Mace" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Mace_1" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Mace_2" : 
+   {
+      "0_ref_x" : 21,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Nunchuka" : 
+   {
+      "0_ref_x" : 23,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Nunchuka_1" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Nunchuka_of_speed" : 
+   {
+      "0_ref_x" : 25,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Jo_stick" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Jo_stick_2" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Morning_star" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Throwing_stars" : 
+   {
+      "0_ref_x" : 29,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Flail" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Tip_sword" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Sword_of_the_powers" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Short_sword" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+    
+   "ITEM_War_axe" : 
+   {
+      "0_ref_x" : 17,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Throwing_stars_1" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Throwing_axe" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Battleaxe" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Battleaxe_1" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Quarter_staff" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Quarter_staff_1" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Staff_of_merlin" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Quarter_staff_2" : 
+   {
+      "0_ref_x" : 21,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Bow" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Perrins_eye" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Bow_of_thumbs" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Bow_of_shalomar" : 
+   {
+      "0_ref_x" : 29,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+    
+   "ITEM_Darts" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+
+   "ITEM_Darts_OTHER" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+
+   "ITEM_Spear" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+
+   "ITEM_Spear_Piercing" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+
+      "ITEM_Club" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+
+      "ITEM_Stone_Hammer" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+
+      "ITEM_stone_Axe" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+
+      "ITEM_War_Hammer" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+
+      "ITEM_Pike_Axe" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+
+      "ITEM_Throwing_Daggers" : 
+   {
+      "0_ref_x" : 25,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+
+      "ITEM_Bag_of_Rocks" : 
+   {
+      "0_ref_x" : 17,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+      "ITEM_Crossbow" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Crossbow_2" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Crossbow_Thumbs" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Stormbringer" : 
+   {
+      "0_ref_x" : 23,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+   
+      "ITEM_War_Hammer_5s" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Hammer_Thor" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Shuriken" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Sling_of_bullets" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Throwing_Knife" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Deaths_Head_Axe" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Blade_Of_Blackpool" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Cobrastrike" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Excalibur" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Bull_Whip" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Orcrist" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Shadowhawk" : 
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Firestorm" : 
+   {
+      "0_ref_x" : 29,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Snowstorm" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Rapier" : 
+   {
+      "0_ref_x" : 17,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Rapier_Of_The_Wind" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 6,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Net" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Cheters_Blade" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Robe" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Robe_Of_The_Magi" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Robe_Of_Enchanters" : 
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Robe_Many_Favors" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Robe_of_Protection" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Robe_of_Speed" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Robe_Of_Vulnerability" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Leather_Armor" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Chain_Armor" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+      "ITEM_Chain_Armor_3" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+      
+      "ITEM_Mithril_Chain" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Banded_Armor" : 
+   {
+      "0_ref_x" : 22,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Banded_Armor_3" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Banded_Armor_6" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Plate_Armor" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Plate_Armor 3" : 
+   {
+      "0_ref_x" : 25,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Mithril_Plate_6" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Plate_Armor_13" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Plate_of_Imprisonment" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 7,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Plate_Armor_9" : 
+   {
+      "0_ref_x" : 29,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Plate_Armor_of_Magicks" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Plate_Armor_of_Scorland" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Gauntlets_8" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Gauntlets_12" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Gauntlets_16" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Gauntlets_24" : 
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cloak_of_Fog" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cloak_Of_Small_Folk" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cloak_Of_Outcasts" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cloak_Of_Protection_6" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Shadow_Cloak" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cloak_Of_Light" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cloak_Of_Regeneration" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Padded_Armor" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Helm_Of_Kranack" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cap_of_the_Magi" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+         
+      "ITEM_Cap_of_Protection" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Cap_of_Regeneration" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Shield" : 
    {
       "0_ref_x" : 16,
       "0_ref_y" : 0,
       "size" : "32x32"
    },
-"ITEM_lantern" :
+            
+      "ITEM_Shield_3" : 
    {
-      "0_ref_x" : 19,
-      "0_ref_y" : 8,
+      "0_ref_x" : 17,
+      "0_ref_y" : 0,
       "size" : "32x32"
    },
-   "ITEM_shield_blue_oxen" : 
+            
+      "ITEM_Shield_of_Vulnerability" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Iron_Scales" : 
+   {
+      "0_ref_x" : 21,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Shield_5" : 
+   {
+      "0_ref_x" : 22,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Shield_6" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Shield_of_Hawksight" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Dragon_Breath" : 
+   {
+      "0_ref_x" : 23,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Shield_of_Healing" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Shield_of_the_Blue_Oxen" : 
    {
       "0_ref_x" : 26,
       "0_ref_y" : 0,
       "size" : "32x32"
    },
-   "ITEM_ring_regeneration" : 
+            
+      "ITEM_Shield_of_Happenstance" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+               
+      "ITEM_Shield_of_Protection" : 
+   {
+      "0_ref_x" : 29,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Leather_Gloves" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Plate_Gauntlets" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Gloves_of_the_Huntsman" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Gauntlets_of_Damage" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Gloves_of_Trickery" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Leather_Boots" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Steel_Shod_Boots" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Deaths_Head_Shield" : 
+   {
+      "0_ref_x" : 25,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Emerald_Alloy_Shield" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Band_of_the_Unicorn" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Sir_Robbins_Shield" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Saurons_Bane" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Hellsbane" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Ruby_Shield" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+            
+      "ITEM_Hells_Caretaker" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Quiver" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                  
+      "ITEM_Razor_Claws" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 1,
+      "size" : "32x32"
+   },
+   
+                  
+      "ITEM_Invisible_Skin" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_WhitePurple_Potion" : 
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Red_Potion" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Blue_Potion" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Green_Potion" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Improvement" : 
+   {
+      "0_ref_x" : 22,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Waterworld" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Heal_Small_Wounds" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Heal_Medium_Wounds" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Heal_Massive_Wounds" : 
+   {
+      "0_ref_x" : 21,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Aqua_Luck_Stone" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                   
+      "ITEM_Copper_Luck_Stone" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                   
+      "ITEM_Yellow_Luck_Stone" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                   
+      "ITEM_Green_Luck_Stone" : 
+   {
+      "0_ref_x" : 17,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                   
+      "ITEM_Purple_Luck_Stone" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                   
+      "ITEM_Blue_Luck_Stone" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                   
+      "ITEM_Red_Luck_Stone" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                   
+      "ITEM_Speckled_Luck_Stone" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Ring_of_Defense_3" : 
+   {
+      "0_ref_x" : 23,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                               
+      "ITEM_Ring_of_Defense_5" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                               
+      "ITEM_Ring_of_Defense_7" : 
+   {
+      "0_ref_x" : 25,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                               
+      "ITEM_Ring_of_Heat" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                               
+      "ITEM_Ring_of_Cold" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                               
+      "ITEM_Ring_of_Creature_Summons" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                               
+      "ITEM_Ring_of_Healing" : 
    {
       "0_ref_x" : 0,
       "0_ref_y" : 3,
       "size" : "32x32"
    },
-   "ITEM_bow" : 
+                         
+      "ITEM_Ring_of_Fech" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                         
+      "ITEM_Necklace_of_Fireballs" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                
+      "ITEM_Necklace_of_Lightning" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 26,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Revival" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Many_Favors" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 26,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Keys" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Acrobatics" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 26,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Garland" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Protection" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Spells" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                      
+      "ITEM_Necklace_of_Abyss" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Bitter_Sweet" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Necklace_of_Invisibility" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Necklace_of_Shen" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Necklace_of_Shielding" : 
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                          
+      "ITEM_Iron_Key" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Brass_Keys" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                            
+      "ITEM_Tome_of_Shalizar" : 
    {
       "0_ref_x" : 25,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Book_of_Judgment" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Book_of_Turanians" : 
+   {
+      "0_ref_x" : 22,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Prism_of_Power" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                             
+      "ITEM_Dancer_of_the_Dead" : 
+   {
+      "0_ref_x" : 23,
       "0_ref_y" : 7,
       "size" : "32x32"
    },
-   "ITEM_quiver" : 
+                                             
+      "ITEM_Crown" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                        
+      "ITEM_Heavy_Brass_Key" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                        
+      "ITEM_Skeleton_Key" : 
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                        
+      "ITEM_Selinadas_Gift" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                        
+      "ITEM_Tools" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                        
+      "ITEM_Belt_of_Brawn" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                        
+      "ITEM_Belt_of_Deflection" : 
+   {
+      "0_ref_x" : 17,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                        
+      "ITEM_Quiver_of_Tchart" : 
    {
       "0_ref_x" : 3,
       "0_ref_y" : 4,
       "size" : "32x32"
+   },
+                                                        
+      "ITEM_Improved_Brawn" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                              
+      "ITEM_Improved_Knowledge" : 
+   {
+      "0_ref_x" : 29,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                              
+      "ITEM_Healing_Cream" : 
+   {
+      "0_ref_x" : 23,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                              
+      "ITEM_Combat_Mask" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Pearled_Ion_Stone" : 
+   {
+      "0_ref_x" : 21,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Horn_of_Summoning" : 
+   {
+      "0_ref_x" : 22,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Scroll" : 
+   {
+      "0_ref_x" : 23,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Unholy_Visor" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Jesters_Prey" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Shadow_Mask" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Rod_of_Transmutation" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Scepter_of_Clairvoyance" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Scepter_of_Soul_Stealing" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                                        
+      "ITEM_Trinity_Boomerang" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                       
+      "ITEM_Leaf_of_Apollo" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                          
+      "ITEM_Serpents_Head" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Emerald_Heirloom" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Eye_of_the_Serpent" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Divine_Holy_Symbol" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Eye_of_Peace" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Lantern" : 
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Holy_Hand_Grenade" : 
+   {
+      "0_ref_x" : 20,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Raven_Familiar" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Cat_Familiar" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+                                                                             
+      "ITEM_Chimes_of_Dissonance" : 
+   {
+      "0_ref_x" : 10,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Drums" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Salt" : 
+   {
+      "0_ref_x" : 13,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Pepper" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Field_Medic_Kit" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Lute_of_Shielding" : 
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Lute" : 
+   {
+      "0_ref_x" : 16,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Pipes_of_Enchantment" : 
+   {
+      "0_ref_x" : 15,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Pipes" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Gnomish_Drinking_Song" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Charmers_Flute" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Flute_of_Freedom" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 9,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Magic_Spell" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Torch" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Parchment" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   },
+                                                                                   
+      "ITEM_Orc_Baby" : 
+   {
+      "0_ref_x" : 6,
+      "0_ref_y" : 13,
+      "size" : "32x32"
+   },
+                                                                                         
+      "ITEM_Iron_Rations" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                                                         
+      "ITEM_Rope" : 
+   {
+      "0_ref_x" : 24,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                                                         
+      "ITEM_Mirror" : 
+   {
+      "0_ref_x" : 27,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                                                         
+      "ITEM_Iron Spikes" : 
+   {
+      "0_ref_x" : 25,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                                                         
+      "ITEM_Flask_of_Oil" : 
+   {
+      "0_ref_x" : 26,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   },
+                                                             
+      "ITEM_Wine" : 
+   {
+      "0_ref_x" : 18,
+      "0_ref_y" : 2,
+      "size" : "32x32"
+   },
+      
+   "ITEM_Leather_cap" : 
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Iron_cap" : 
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_pain" : 
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_true_sight" : 
+   {
+      "0_ref_x" : 7,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_defense" : 
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_3" : 
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_4" : 
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_speed" : 
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_might" : 
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_defense6" : 
+   {
+      "0_ref_x" : 11,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Helm_spells" : 
+   {
+      "0_ref_x" : 12,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Snake_statue" :
+   {
+      "0_ref_x" : 1,
+      "0_ref_y" : 29,
+      "size" : "32x32"
+   },
+      "ITEM_Troll_statue" :
+   {
+      "0_ref_x" : 0,
+      "0_ref_y" : 29,
+      "size" : "32x32"
+   },
+      "ITEM_Dragon_statue" :
+   {
+      "0_ref_x" : 2,
+      "0_ref_y" : 29,
+      "size" : "32x32"
    }
-   
+   ,
+      "ITEM_Arrow_storm" :
+   {
+      "0_ref_x" : 4,
+      "0_ref_y" : 29,
+      "size" : "32x32"
+   }   ,
+      "ITEM_Brooch_sneflin" :
+   {
+      "0_ref_x" : 9,
+      "0_ref_y" : 5,
+      "size" : "32x32"
+   } ,
+      "ITEM_Arrow_death" :
+   {
+      "0_ref_x" : 8,
+      "0_ref_y" : 8,
+      "size" : "32x32"
+   },
+      "ITEM_Quiver_speed" :
+   {
+      "0_ref_x" : 5,
+      "0_ref_y" : 4,
+      "size" : "32x32"
+   }
 }
