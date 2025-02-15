@@ -10,6 +10,8 @@ demo/*
 !DesertDay.png.import
 !ForestDay.png.import
 !ForestNight.png.import
+!BattleEffects.png.import
+!BattleEffectsAnim.png.import
 default_bus_layout.tres
 default_env.tres
 godot-mod-player.png
