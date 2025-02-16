@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout LFS
-        run: git lfs fetch --all --skip-smudge && git lfs pull
+        run: git lfs fetch --all --skip-smudge && git lfs checkout
 
       - name: Install Godot
         uses: CapsCollective/godot-actions/install-godot@v1.2
