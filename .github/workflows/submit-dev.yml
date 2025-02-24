@@ -35,9 +35,10 @@ jobs:
         run: ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit || true
 
       - name: Build and upload artifacts for all platforms
-        uses: CapsCollective/godot-actions/build-godot@v1.2
+        uses: ./.github/actions/build-godot
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
+          project-dir: "./src"
 
   generate-release:
     needs: build
