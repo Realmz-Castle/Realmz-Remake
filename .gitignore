@@ -25,3 +25,6 @@ src/addons/godot-git-plugin/
 src/addons/TilED/
 src/addons/rcedit-x64.exe
 src/Profiles/Default Profile/
+
+# Git LFS ignores
+.lfsconfig

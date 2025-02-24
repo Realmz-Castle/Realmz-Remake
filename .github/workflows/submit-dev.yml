@@ -1,13 +1,15 @@
-name: 'Submit Dev'
+name: "Submit Dev"
 
 on:
   push:
-    branches: [ 'dev' ]
+    branches: ["dev"]
 
 env:
   GODOT_VERSION: 4.3
   PROJECT_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+  LFS_USERNAME: ${{secrets.LFS_USERNAME}}
+  LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
 
 jobs:
   build:
@@ -15,6 +17,11 @@ jobs:
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Configure Git LFS
+        run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
@@ -47,7 +54,7 @@ jobs:
           version-file: ${{ env.PROJECT_FILE }}
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
-      
+
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:

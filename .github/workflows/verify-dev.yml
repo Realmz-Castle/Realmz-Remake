@@ -1,13 +1,15 @@
-name: 'Verify Dev'
+name: "Verify Dev"
 
 on:
   pull_request:
-    branches: [ 'dev' ]
+    branches: ["dev"]
 
 env:
   GODOT_VERSION: 4.3
   PROJECT_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+  LFS_USERNAME: ${{secrets.LFS_USERNAME}}
+  LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
 
 jobs:
   check-version-bump:
@@ -40,7 +42,7 @@ jobs:
         with:
           new-version: ${{ steps.extract-version-new.outputs.version-string }}
           old-version: ${{ steps.extract-version-old.outputs.version-string }}
-      
+
   run-project-validation:
     needs: check-version-bump
     runs-on: macos-latest
@@ -69,13 +71,16 @@ jobs:
       - name: Checkout current branch
         uses: actions/checkout@v4
 
+      - name: Configure Git LFS
+        run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
+
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
-      
+
       # Alternative Godot runner, docs - https://github.com/marketplace/actions/godot-ci
       #- name: godot-ci
       #  uses: abarichello/godot-ci@4.3-stable
-      
+
       - name: Install Godot
         uses: ./.github/actions/install-godot
         with:
@@ -90,4 +95,4 @@ jobs:
         uses: ./.github/actions/build-godot
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
-          project-dir: './src'
+          project-dir: "./src"
