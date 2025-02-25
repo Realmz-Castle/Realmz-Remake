@@ -36,7 +36,7 @@ runs:
       working-directory: ${{ inputs.project-dir }}
       run: |
         cd ${{ inputs.build-dir }}/macos
-        tar -cvf ./macos.tar --exclude='*.command' ./*
+        zip -r ./macos.zip ./*
 
     - uses: actions/upload-artifact@v4
       with:
