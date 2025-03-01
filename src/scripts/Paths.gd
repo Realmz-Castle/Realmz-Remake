@@ -10,24 +10,20 @@ This module contains constantes to all important paths used into this project.
 """
 extends Node
 
-const MYFILENAME = "Realmz Remake/"
 var profilesfolderpath : String = ''
 var realmzfolderpath : String = ''
 var campaignsfolderpath : String = ''
 var datafolderpath : String = ''
 
-var thingtypes : Dictionary = {}
-var tiles_stuffbook : Dictionary = {}
-
 var currentProfileFolderName : String = "Default Profile"
 
 func _ready():
 	if OS.has_feature("editor"):
-		realmzfolderpath = ProjectSettings.globalize_path("res://").trim_suffix(MYFILENAME)
+		realmzfolderpath = ProjectSettings.globalize_path("res://")
 	else:
 		realmzfolderpath = OS.get_executable_path().get_base_dir()
 		if OS.get_name() == "macOS":
-			realmzfolderpath = realmzfolderpath.replace("/Realmz.app/Contents/MacOS", "/")
+			realmzfolderpath = "/Applications/Realmz-Remake/"
 
 	print(" realmzfolderpath : ", realmzfolderpath)
 

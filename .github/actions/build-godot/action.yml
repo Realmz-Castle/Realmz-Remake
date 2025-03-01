@@ -23,6 +23,12 @@ runs:
       working-directory: ${{ inputs.project-dir }}
       run: ${{ inputs.godot-executable }} --import --headless --verbose
 
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        brew install fileicon
+
     - name: Build macOS application
       shell: bash
       working-directory: ${{ inputs.project-dir }}
