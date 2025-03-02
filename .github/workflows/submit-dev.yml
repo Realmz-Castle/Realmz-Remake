@@ -39,6 +39,7 @@ jobs:
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
           project-dir: "./src"
+          version: ${{ steps.extract-version.outputs.version }}
 
   generate-release:
     needs: build
