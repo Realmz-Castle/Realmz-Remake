@@ -45,7 +45,7 @@ jobs:
 
   run-project-validation:
     needs: check-version-bump
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
