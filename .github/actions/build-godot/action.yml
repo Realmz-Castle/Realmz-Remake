@@ -24,7 +24,7 @@ runs:
     - name: Open Godot editor for reimport
       shell: bash
       working-directory: ${{ inputs.project-dir }}
-      run: ${{ inputs.godot-executable }} --import --headless --verbose
+      run: ${{ inputs.godot-executable }} --import --headless
 
     - name: Install dependencies
       shell: bash
