@@ -50,7 +50,7 @@ runs:
     - uses: actions/upload-artifact@v4
       with:
         name: macos
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/macos.tar
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/realmz-remake-macos-${{ inputs.version }}.zip
 
     # - name: Build Windows application
     #   shell: bash
