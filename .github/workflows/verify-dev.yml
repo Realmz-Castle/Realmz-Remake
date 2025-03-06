@@ -77,13 +77,6 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
-      - name: Extract new version string
-        uses: CapsCollective/version-actions/extract-version@v1.0
-        with:
-          version-file: ${{ env.PROJECT_FILE }}
-          version-regex: ${{ env.VERSION_REGEX }}
-        id: extract-version-new
-
       # Alternative Godot runner, docs - https://github.com/marketplace/actions/godot-ci
       #- name: godot-ci
       #  uses: abarichello/godot-ci@4.3-stable
@@ -103,4 +96,3 @@ jobs:
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
           project-dir: "./src"
-          version: ${{ steps.extract-version-new.outputs.version-string }}
