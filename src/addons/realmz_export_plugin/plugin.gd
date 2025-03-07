@@ -32,10 +32,10 @@ class RealmzExportPlugin extends EditorExportPlugin:
 			# var result = []
 			# var exit_code = OS.execute("ln", ["-s", "/Applications", path.get_base_dir().path_join("/Applications")], result)
 
-			if exit_code != 0:
-				push_error("Failed to create Applications folder symlink: " + str(result))
-			else:
-				print("Successfully created Applications folder symlink in: " + folder_path)
+			# if exit_code != 0:
+			# 	push_error("Failed to create Applications folder symlink: " + str(result))
+			# else:
+			# 	print("Successfully created Applications folder symlink in: " + folder_path)
 
 		_export_dir(base_dir, "Data")
 		_export_dir(base_dir, "Campaigns")
