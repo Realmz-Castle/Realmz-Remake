@@ -23,19 +23,10 @@ class RealmzExportPlugin extends EditorExportPlugin:
 			_copy_file("res://INSTALL.txt", base_dir + "/INSTALL.txt")
 			base_dir = base_dir + "/Realmz-Remake"
 
-			Set the folder icon
+			#Set the folder icon
 
 			var folder_path = ProjectSettings.globalize_path(base_dir)
 			_set_folder_icon_mac(base_dir, icons_path.path_join("RealmzIcon.png"))
-
-		 #  # Create a symlink to the Applications folder using ln -s command
-			# var result = []
-			# var exit_code = OS.execute("ln", ["-s", "/Applications", path.get_base_dir().path_join("/Applications")], result)
-
-			# if exit_code != 0:
-			# 	push_error("Failed to create Applications folder symlink: " + str(result))
-			# else:
-			# 	print("Successfully created Applications folder symlink in: " + folder_path)
 
 		_export_dir(base_dir, "Data")
 		_export_dir(base_dir, "Campaigns")
