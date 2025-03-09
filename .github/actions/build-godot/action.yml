@@ -45,6 +45,7 @@ runs:
         hdiutil attach Realmz-Remake.dmg
         mkdir ./temp_dmg_parent
         cp -R ./Realmz-Remake ./temp_dmg_parent/
+        ln -s /Applications ./temp_dmg_parent/Applications
         ls /Volumes/Realmz
         ls /Volumes
         cp -R  /Volumes/Realmz/Realmz.app ./temp_dmg_parent/Realmz-Remake
