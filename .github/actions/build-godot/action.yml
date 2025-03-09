@@ -47,7 +47,7 @@ runs:
         cp -R ./Realmz-Remake ./temp_dmg_parent/
         ls /Volumes/Realmz
         ls /Volumes
-        cp -R  /Volumes/Realmz/Realmz ./temp_dmg_parent/Realmz-Remake
+        cp -R  /Volumes/Realmz/Realmz.app ./temp_dmg_parent/Realmz-Remake
         hdiutil create -volname "Realmz-Remake" -srcfolder ./temp_dmg_parent -ov -format UDZO realmz-remake-macos.dmg
       # zip -r -y ./realmz-remake-macos.zip ./*
 
