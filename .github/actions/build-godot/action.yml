@@ -44,7 +44,7 @@ runs:
         cd ${{ inputs.build-dir }}/macos
         hdiutil attach Realmz-Remake.dmg
         cp -R  /Volumes/Realmz-Remake ./Realmz-Remake
-        hdiutil create -volname "Realmz Remake" -srcfolder ./Realmz-Remake -ov -format UDZO realmz-remake-macos.dmg
+        hdiutil create -volname "Realmz-Remake" -srcfolder ./Realmz-Remake -ov -format UDZO realmz-remake-macos.dmg
       # zip -r -y ./realmz-remake-macos.zip ./*
 
     - uses: actions/upload-artifact@v4
