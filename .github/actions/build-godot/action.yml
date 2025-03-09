@@ -42,12 +42,15 @@ runs:
       working-directory: ${{ inputs.project-dir }}
       run: |
         cd ${{ inputs.build-dir }}/macos
-        zip -r -y ./realmz-remake-macos.zip ./*
+        hdiutil attach Realmz-Remake.dmg
+        cp -R  /Volumes/Realmz-Remake ./Realmz-Remake
+        hdiutil create -volname "Realmz Remake" -srcfolder ./Realmz-Remake -ov -format UDZO realmz-remake-macos.dmg
+      # zip -r -y ./realmz-remake-macos.zip ./*
 
     - uses: actions/upload-artifact@v4
       with:
         name: macos
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/realmz-remake-macos.zip
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/realmz-remake-macos.dmg
 
     # - name: Build Windows application
     #   shell: bash
