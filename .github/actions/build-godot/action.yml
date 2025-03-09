@@ -45,6 +45,8 @@ runs:
         hdiutil attach Realmz-Remake.dmg
         mkdir ./temp_dmg_parent
         cp -R ./Realmz-Remake ./temp_dmg_parent/
+        ls /Volumes/Realmz
+        ls /Volumes
         cp -R  /Volumes/Realmz/Realmz ./temp_dmg_parent/Realmz-Remake
         hdiutil create -volname "Realmz-Remake" -srcfolder ./temp_dmg_parent -ov -format UDZO realmz-remake-macos.dmg
       # zip -r -y ./realmz-remake-macos.zip ./*
