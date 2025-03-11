@@ -24,7 +24,9 @@ src/shared_assets/asset_scripts/descriptions.json
 src/addons/godot-git-plugin/
 src/addons/TilED/
 src/addons/rcedit-x64.exe
-src/Profiles/Default Profile/
+src/Profiles/Default Profile/Characters/*
+src/Profiles/Default Profile/Saves/*
+!src/Profiles/Default Profile/Saves/.gitkeep
+!src/Profiles/Default Profile/Characters/.gitkeep
 
 # Git LFS ignores
-.lfsconfig

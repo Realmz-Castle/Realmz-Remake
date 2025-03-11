@@ -21,7 +21,13 @@ runs:
     - name: Open Godot editor for reimport
       shell: bash
       working-directory: ${{ inputs.project-dir }}
-      run: ${{ inputs.godot-executable }} --import --headless --verbose
+      run: ${{ inputs.godot-executable }} --import --headless
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        brew install fileicon
 
     - name: Build macOS application
       shell: bash
@@ -36,12 +42,20 @@ runs:
       working-directory: ${{ inputs.project-dir }}
       run: |
         cd ${{ inputs.build-dir }}/macos
-        tar -cvf ./macos.tar --exclude='*.command' ./*
+        hdiutil attach Realmz-Remake.dmg
+        mkdir ./temp_dmg_parent
+        cp -R ./Realmz-Remake ./temp_dmg_parent/
+        ln -s /Applications ./temp_dmg_parent/Applications
+        ls /Volumes/Realmz
+        ls /Volumes
+        cp -R  /Volumes/Realmz/Realmz.app ./temp_dmg_parent/Realmz-Remake
+        hdiutil create -volname "Realmz-Remake" -srcfolder ./temp_dmg_parent -ov -format UDZO realmz-remake-macos.dmg
+      # zip -r -y ./realmz-remake-macos.zip ./*
 
     - uses: actions/upload-artifact@v4
       with:
         name: macos
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/macos.tar
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/realmz-remake-macos.dmg
 
     # - name: Build Windows application
     #   shell: bash

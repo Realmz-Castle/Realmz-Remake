@@ -1,0 +1,7 @@
+Installation
+============
+
+Mac
+---
+- Open the Realmz-Remake.dmg and drag and drop the Realmz Remake application into the Realmz-Remake folder.
+- Drag and drop Realmz Remake folder into the Applications folder.

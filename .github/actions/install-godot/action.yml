@@ -1,23 +1,23 @@
-name: 'Install Godot'
-description: 'Installs the Godot engine for macOS'
+name: "Install Godot"
+description: "Installs the Godot engine for macOS"
 
 inputs:
   godot-version:
-    description: 'The version of Godot to install'
+    description: "The version of Godot to install"
     required: true
-    default: '4.3'
+    default: "4.3"
   install-templates:
-    description: 'Whether to install the export templates'
+    description: "Whether to install the export templates"
     required: false
-    default: false
+    default: "false"
 
 outputs:
   godot-executable:
-    description: 'The installed executable location'
+    description: "The installed executable location"
     value: ${{ steps.assign-executable.outputs.GODOT_EXECUTABLE }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Install Godot
       shell: bash
