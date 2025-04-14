@@ -1,5 +1,5 @@
 name: "Build Godot"
-description: "Build Godot applications for Windows, macOS, and Linux"
+description: "Build Godot applications for macOS"
 
 inputs:
   project-dir:
@@ -50,7 +50,6 @@ runs:
         ls /Volumes
         cp -R  /Volumes/Realmz/Realmz.app ./temp_dmg_parent/Realmz-Remake
         hdiutil create -volname "Realmz-Remake" -srcfolder ./temp_dmg_parent -ov -format UDZO realmz-remake-macos.dmg
-      # zip -r -y ./realmz-remake-macos.zip ./*
 
     - uses: actions/upload-artifact@v4
       with:
@@ -76,23 +75,3 @@ runs:
     #   with:
     #     name: windows
     #     path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/windows/windows.zip
-
-    # - name: Build Linux application
-    #   shell: bash
-    #   working-directory: ${{ inputs.project-dir }}
-    #   run: |
-    #     mkdir -p ${{ inputs.build-dir }}/linux
-    #     ${{ inputs.godot-executable }} --export-debug Linux --headless
-    #     [ "$(ls -A ${{ inputs.build-dir }}/linux)" ]
-
-    # - name: Compress Linux build (to preserve permissions)
-    #   shell: bash
-    #   working-directory: ${{ inputs.project-dir }}
-    #   run: |
-    #     cd ${{ inputs.build-dir }}/linux
-    #     tar -cvf ./linux.tar ./*
-
-    # - uses: actions/upload-artifact@v4
-    #   with:
-    #     name: linux
-    #     path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/linux/linux.tar

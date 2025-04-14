@@ -1,0 +1,63 @@
+name: Build Godot Project
+description: "Builds a Godot project for Linux"
+author: "Your Name"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Godot
+      uses: chickensoft-games/setup-godot@v1
+      with:
+        version: 4.3.stable
+        use-dotnet: false
+
+    - name: Reimport
+      shell: bash
+      run: godot --editor --headless --quit || true
+
+    - name: Build
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        mkdir -p ${{ inputs.build-dir }}/linux-
+        ${{ inputs.godot-executable }} --export-debug "Linux/x86_64" --headless
+        ["$(ls -A ${{ inputs.build-dir }}/linux)"]
+
+    - name: Build
+      shell: bash
+      run: |
+        mkdir -p build/linux-x86_64
+        godot --headless --export-release "Linux/X11" build/linux-x86_64/${{ github.event.repository.name }}
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-x86_64
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/linux-x86_64
+
+inputs:
+  godot-version:
+    description: "Godot version to use"
+    required: false
+    default: "4.3.stable"
+  project-dir:
+    description: "Project directory"
+    required: false
+    default: "."
+  build-dir:
+    description: "Build directory"
+    required: false
+    default: "build"
+  export-preset:
+    description: "Export preset name"
+    required: false
+    default: "Linux/x86_64"
+  output-path:
+    description: "Output path for the build"
+    required: false
+    default: "build/linux-x86_64"
+
+outputs:
+  build-path:
+    description: "Path to the built artifact"
+    value: ${{ steps.build.outputs.build-path }}
