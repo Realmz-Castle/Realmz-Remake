@@ -43,29 +43,29 @@ jobs:
           new-version: ${{ steps.extract-version-new.outputs.version-string }}
           old-version: ${{ steps.extract-version-old.outputs.version-string }}
 
-  run-project-validation:
-    needs: check-version-bump
-    runs-on: macos-13
-    steps:
-      - name: Checkout current branch
-        uses: actions/checkout@v4
+  # run-project-validation:
+  #   needs: check-version-bump
+  #   runs-on: macos-13
+  #   steps:
+  #     - name: Checkout current branch
+  #       uses: actions/checkout@v4
 
-      - name: Install Godot
-        uses: ./.github/actions/install-godot
-        with:
-          godot-version: ${{ env.GODOT_VERSION }}
-        id: install-godot
+  #     - name: Install Godot
+  #       uses: ./.github/actions/install-godot-macos
+  #       with:
+  #         godot-version: ${{ env.GODOT_VERSION }}
+  #       id: install-godot
 
-      - name: Open Godot editor for reimport
-        run: ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit || true
+  #     - name: Open Godot editor for reimport
+  #       run: ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit || true
 
-      # disabled as we dont have any validation scripts, yet
-      - name: Run project validations
-        if: false
-        run: ${{ steps.install-godot.outputs.godot-executable }} --script scripts/run_validations.gd --headless
+  #     # disabled as we dont have any validation scripts, yet
+  #     - name: Run project validations
+  #       if: false
+  #       run: ${{ steps.install-godot.outputs.godot-executable }} --script scripts/run_validations.gd --headless
 
   build-macos:
-    needs: run-project-validation
+    needs: check-version-bump
     runs-on: macos-13
     steps:
       - name: Checkout current branch
