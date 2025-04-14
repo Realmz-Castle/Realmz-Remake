@@ -17,23 +17,23 @@ runs:
 
     - name: Build
       shell: bash
+      run: |
+        mkdir -p ${{ inputs.build-dir }}/linux-86_64
+        godot --export-debug "Linux/x86_64" --headless
+        ["$(ls -A ${{ inputs.build-dir }}/linux-86_64)"]
+
+    - name: Compress
+      shell: bash
       working-directory: ${{ inputs.project-dir }}
       run: |
-        mkdir -p ${{ inputs.build-dir }}/linux-
-        ${{ inputs.godot-executable }} --export-debug "Linux/x86_64" --headless
-        ["$(ls -A ${{ inputs.build-dir }}/linux)"]
-
-    - name: Build
-      shell: bash
-      run: |
-        mkdir -p build/linux-x86_64
-        godot --headless --export-release "Linux/X11" build/linux-x86_64/${{ github.event.repository.name }}
+        cd ${{ inputs.build-dir }}/
+        tar -czpf ./linux-x86_64.tar.gz ./*
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: linux-x86_64
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/linux-x86_64
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/linux-x86_64/linux-x86_64.tar.gz
 
 inputs:
   godot-version:
@@ -56,7 +56,6 @@ inputs:
     description: "Output path for the build"
     required: false
     default: "build/linux-x86_64"
-
 outputs:
   build-path:
     description: "Path to the built artifact"

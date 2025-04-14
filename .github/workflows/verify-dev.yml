@@ -93,7 +93,7 @@ jobs:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
           project-dir: "./src"
   build-linux:
-    needs: run-project-validation
+    needs: check-version-bump
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current branch
