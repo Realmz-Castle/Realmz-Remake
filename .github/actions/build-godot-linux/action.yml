@@ -18,9 +18,9 @@ runs:
 
     - name: Build
       shell: bash
+      working-directory: ${{ inputs.project-dir }}
       run: |
         mkdir -p ${{ inputs.output-path }}
-        cd ${{ inputs.project-dir }}
         godot --export-debug "Linux" --headless
         ["$(ls -A ${{ inputs.output-path }}"]
 
@@ -32,10 +32,11 @@ runs:
         tar -czpf ./linux-x86_64.tar.gz ./*
 
     - name: Upload Artifact
+      working-directory: ${{ inputs.project-dir }}
       uses: actions/upload-artifact@v4
       with:
         name: linux-x86_64
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/linux-x86_64/linux-x86_64.tar.gz
+        path: ${{ inputs.output-path }}/linux-x86_64.tar.gz
 
 inputs:
   godot-version:
@@ -49,7 +50,7 @@ inputs:
   build-dir:
     description: "Build directory"
     required: false
-    default: "./src/build"
+    default: "./build"
   export-preset:
     description: "Export preset name"
     required: false
@@ -57,7 +58,7 @@ inputs:
   output-path:
     description: "Output path for the build"
     required: false
-    default: "./src/build/linux-x86_64"
+    default: "./build/linux-x86_64"
 outputs:
   build-path:
     description: "Path to the built artifact"
