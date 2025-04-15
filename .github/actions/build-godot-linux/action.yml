@@ -19,7 +19,7 @@ runs:
     - name: Build
       shell: bash
       run: |
-        mkdir -p ${{ inputs.build-dir }}/linux-x86_64
+        mkdir -p ${{ inputs.output-path }}
         cd ${{ inputs.project-dir }}
         godot --export-debug "Linux" --headless
         ["$(ls -A ${{ inputs.build-dir }}/linux-x86_64)"]
@@ -45,11 +45,11 @@ inputs:
   project-dir:
     description: "Project directory"
     required: false
-    default: "src"
+    default: "./src"
   build-dir:
     description: "Build directory"
     required: false
-    default: "src/build"
+    default: "./src/build"
   export-preset:
     description: "Export preset name"
     required: false
@@ -57,7 +57,7 @@ inputs:
   output-path:
     description: "Output path for the build"
     required: false
-    default: "src/build/linux-x86_64"
+    default: "./src/build/linux-x86_64"
 outputs:
   build-path:
     description: "Path to the built artifact"
