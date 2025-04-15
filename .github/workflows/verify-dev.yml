@@ -110,3 +110,22 @@ jobs:
         with:
           project-dir: "./src"
           export-preset: "Linux"
+  build-windows:
+    needs: check-version-bump
+    runs-on: windows-latest
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+
+      - name: Configure Git LFS
+        run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
+
+      - name: Checkout LFS
+        run: git lfs fetch --all && git lfs checkout
+
+      - name: Build and upload artifacts for windows
+        uses: ./.github/actions/build-godot-linux
+        with:
+          project-dir: "./src"
+          export-preset: "Windows"
+          platform-name: "windows-x86_64"
