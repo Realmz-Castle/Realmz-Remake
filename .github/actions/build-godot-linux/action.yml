@@ -10,6 +10,7 @@ runs:
       with:
         version: ${{ inputs.godot-version }}
         use-dotnet: false
+        include-templates: true
 
     - name: Reimport
       shell: bash
