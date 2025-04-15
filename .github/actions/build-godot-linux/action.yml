@@ -45,11 +45,11 @@ inputs:
   project-dir:
     description: "Project directory"
     required: false
-    default: "."
+    default: "src"
   build-dir:
     description: "Build directory"
     required: false
-    default: "build"
+    default: "src/build"
   export-preset:
     description: "Export preset name"
     required: false
@@ -57,7 +57,7 @@ inputs:
   output-path:
     description: "Output path for the build"
     required: false
-    default: "build/linux-x86_64"
+    default: "src/build/linux-x86_64"
 outputs:
   build-path:
     description: "Path to the built artifact"
