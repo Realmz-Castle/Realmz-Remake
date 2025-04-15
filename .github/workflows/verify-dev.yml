@@ -78,7 +78,7 @@ jobs:
         run: git lfs fetch --all && git lfs checkout
 
       - name: Install Godot
-        uses: ./.github/actions/install-godot-mac
+        uses: ./.github/actions/install-godot-macos
         with:
           godot-version: ${{ env.GODOT_VERSION }}
           install-templates: true
