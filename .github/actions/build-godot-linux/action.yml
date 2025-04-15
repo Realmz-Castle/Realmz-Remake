@@ -22,7 +22,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.project-dir }}
       run: |
-        mkdir -p ${{ inputs.build-dir }}
+        mkdir -p ${{ inputs.build-dir }}/${{ inputs.platform-name }}
         godot --export-debug "${{ inputs.export-preset }}" --headless
 
     - name: Compress
@@ -30,7 +30,7 @@ runs:
       id: compress
       working-directory: ${{ inputs.project-dir }}
       run: |
-        cd ${{ inputs.build-dir }}/
+        cd ${{ inputs.build-dir }}/${{ inputs.platform-name }}
         tar -czpf ./${{ inputs.platform-name }}.tar.gz ./*
 
     - name: Upload Artifact
