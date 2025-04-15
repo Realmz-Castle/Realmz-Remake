@@ -22,7 +22,6 @@ runs:
       run: |
         mkdir -p ${{ inputs.build-dir }}
         godot --export-debug "Linux" --headless
-        ["$(ls -A ${{ inputs.output-path }}"]
 
     - name: Compress
       shell: bash
