@@ -19,6 +19,7 @@ runs:
       shell: bash
       run: |
         mkdir -p ${{ inputs.build-dir }}/linux-86_64
+        cd ${{ inputs.project-dir }}/linux-86_64
         godot --export-debug "Linux/x86_64" --headless
         ["$(ls -A ${{ inputs.build-dir }}/linux-86_64)"]
 
