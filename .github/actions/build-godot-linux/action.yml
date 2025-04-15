@@ -51,7 +51,7 @@ inputs:
   build-dir:
     description: "Build directory (relative to project-dir)"
     required: false
-    default: "./build"
+    default: "build"
   export-preset:
     description: "Export preset name"
     required: true
