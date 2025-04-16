@@ -34,3 +34,5 @@ runs:
         mkdir -p "$GODOT_TEMPLATES_DIR"
         mv ./templates/* "$GODOT_TEMPLATES_DIR"
         ls "$GODOT_TEMPLATES_DIR"
+        echo "$GODOT_TEMPLATES_DIR"
+        ls /home/runner/.local/share/godot/export_templates/4.3.stable/linux_debug.arm64
