@@ -27,9 +27,10 @@ runs:
       shell: bash
       if: ${{ inputs.install-templates }}
       env:
-        GODOT_TEMPLATES_DIR: ~/.local/share/godot/templates
+        GODOT_TEMPLATES_DIR: ~/.local/share/godot
       run: |
         curl -L -o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
         unzip ./godot-templates.zip
+        ls
         mkdir -p "$GODOT_TEMPLATES_DIR"
-        mv ./templates "$GODOT_TEMPLATES_DIR/${{ inputs.godot-version }}.stable"
+        mv ./export_templates "$GODOT_TEMPLATES_DIR/${{ inputs.godot-version }}.stable"
