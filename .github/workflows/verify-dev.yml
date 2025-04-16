@@ -123,6 +123,13 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Install Godot
+        uses: ./.github/actions/install-godot-raspberry-pi
+        with:
+          godot-version: ${{ env.GODOT_VERSION }}
+          install-templates: true
+        id: install-godot
+
       - name: Build and upload artifacts for linux
         uses: ./.github/actions/build-godot-linux
         with:
