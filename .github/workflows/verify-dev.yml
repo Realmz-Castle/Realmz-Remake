@@ -130,8 +130,8 @@ jobs:
           install-templates: true
         id: install-godot
 
-      - name: Build and upload artifacts for linux
-        uses: ./.github/actions/build-godot-linux
+      - name: Build and upload artifacts for raspberry pi
+        uses: ./.github/actions/build-godot-raspberry-pi
         with:
           project-dir: "./src"
           platform-name: "linux-arm64"
