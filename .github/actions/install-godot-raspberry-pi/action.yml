@@ -31,6 +31,6 @@ runs:
       run: |
         curl -L -o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
         unzip ./godot-templates.zip
-        ls
         mkdir -p "$GODOT_TEMPLATES_DIR"
         mv ./templates/* "$GODOT_TEMPLATES_DIR"
+        ls "$GODOT_TEMPLATES_DIR"
