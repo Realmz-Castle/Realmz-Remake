@@ -15,7 +15,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.project-dir }}
       run: |
-        mkdir -p ${{ inputs.build-dir }}/${{ inputs.project-name }}
+        mkdir -p ${{ inputs.build-dir }}/${{ inputs.platform-name }}
         godot --export-debug "${{ inputs.export-preset }}" --headless
 
     - name: Compress
@@ -23,15 +23,17 @@ runs:
       id: compress
       working-directory: ${{ inputs.project-dir }}
       run: |
-        cd ${{ inputs.build-dir }}/${{ inputs.project-name }}
-        tar -czpf ${{ inputs.project-name }}.tar.gz ./*
+        cd ≈/${{ inputs.platform-name }}
+        mkdir -p ${{ inputs.project-name }}
+        cp -r ./* ${{ inputs.project-name }}
+        tar -czpf ${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz ${{ inputs.project-name }}
 
     - name: Upload Artifact
       id: upload
       uses: actions/upload-artifact@v4
       with:
         name: realmz-remake-${{ inputs.platform-name }}
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.project-name }}/${{ inputs.project-name }}.tar.gz
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz
 inputs:
   godot-version:
     description: "Godot version to use"
