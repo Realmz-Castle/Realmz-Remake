@@ -30,9 +30,9 @@ runs:
       id: upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.platform-name }}
+        name: realms-remake-${{ inputs.platform-name }}
         path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.platform-name }}.tar.gz
-
+        compression-level: 0
 inputs:
   godot-version:
     description: "Godot version to use"
