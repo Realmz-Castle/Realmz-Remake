@@ -23,15 +23,15 @@ runs:
       id: compress
       working-directory: ${{ inputs.project-dir }}
       run: |
-        cd ${{ inputs.build-dir }}/${{ inputs.platform-name }}
-        tar -czpf ./${{ inputs.platform-name }}.tar.gz ./*
+        cd ${{ inputs.build-dir }}/${{ inputs.project-name }}
+        tar -czpf ${{ inputs.project-name }}.tar.gz ./*
 
     - name: Upload Artifact
       id: upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.platform-name }}.tar.gz
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.platform-name }}.tar.gz
+        name: realmz-remake-${{ inputs.platform-name }}
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.project-name }}/${{ inputs.project-name }}.tar.gz
 inputs:
   godot-version:
     description: "Godot version to use"
@@ -51,3 +51,7 @@ inputs:
     description: "Platform name for artifacts and directories"
     required: false
     default: "linux-x86_64"
+  project-name:
+    description: "Project name"
+    required: false
+    default: "Realmz-Remake"
