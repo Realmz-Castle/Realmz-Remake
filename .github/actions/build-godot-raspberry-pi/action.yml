@@ -15,7 +15,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.project-dir }}
       run: |
-        mkdir -p ${{ inputs.build-dir }}/ ${{ inputs.platform-name }}
+        mkdir -p ${{ inputs.build-dir }}/${{ inputs.platform-name }}
         godot --export-debug "${{ inputs.export-preset }}" --headless
 
     - name: Compress
