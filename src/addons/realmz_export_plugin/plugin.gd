@@ -28,6 +28,9 @@ class RealmzExportPlugin extends EditorExportPlugin:
 			var folder_path = ProjectSettings.globalize_path(base_dir)
 			_set_folder_icon_mac(base_dir, icons_path.path_join("RealmzIcon.png"))
 
+		if OS.get_name() == "Linux":
+			_export_dir(base_dir, "application_icons", "icons")
+
 		_export_dir(base_dir, "Data")
 		_export_dir(base_dir, "Campaigns")
 		_export_dir(base_dir, "Profiles")
@@ -46,10 +49,10 @@ class RealmzExportPlugin extends EditorExportPlugin:
 			_set_folder_icon_mac(path.get_base_dir().path_join("INSTALL.txt"), icons_path.path_join("Document.png"))
 
 
-	func _export_dir(export_root: String, source_dir_name: String):
+	func _export_dir(export_root: String, source_dir_name: String, dest_dir_name: String = ""):
 		var src_dir_path = ProjectSettings.globalize_path("res://" + source_dir_name)
 		var export_path = ProjectSettings.globalize_path("res://" + export_root)
-		var dest_dir_path = export_path + "/" + source_dir_name
+		var dest_dir_path = export_path + "/" + (dest_dir_name if dest_dir_name else source_dir_name)
 		print_verbose("Starting export of data files from '" + src_dir_path + "' to '" + dest_dir_path + "'")
 
 		var src_dir = DirAccess.open(src_dir_path)
