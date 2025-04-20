@@ -7,7 +7,7 @@ runs:
   steps:
     - name: Install Dependencies
       shell: bash
-      run: sudo choco install -y zip
+      run: choco install -y zip
 
     - name: Setup Godot
       uses: chickensoft-games/setup-godot@v1
