@@ -36,7 +36,7 @@ runs:
       id: upload
       uses: actions/upload-artifact@v4
       with:
-        name: realmz-remake-${{ inputs.platform-name }}
+        name: ${{ inputs.project-name }}-${{ inputs.platform-name }}
         path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz
 
 inputs:

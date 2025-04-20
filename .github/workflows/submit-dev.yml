@@ -72,8 +72,14 @@ jobs:
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: linux
+          name: linux-x86_64
           path: artifacts/linux-x86_64
+
+      - name: Download Linux aarch64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arch64
+          path: artifacts/linux-arch64
 
       - name: Tag and upload artifacts to release
         uses: ncipollo/release-action@v1

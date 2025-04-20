@@ -53,25 +53,5 @@ runs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: macos
+        name: Realmz-Remake-macos
         path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/realmz-remake-macos.dmg
-
-    # - name: Build Windows application
-    #   shell: bash
-    #   working-directory: ${{ inputs.project-dir }}
-    #   run: |
-    #     mkdir -p ${{ inputs.build-dir }}/windows
-    #     ${{ inputs.godot-executable }} --export-debug Windows --headless
-    #     [ "$(ls -A ${{ inputs.build-dir }}/windows)" ]
-
-    # - name: Compress Windows build
-    #   shell: bash
-    #   working-directory: ${{ inputs.project-dir }}
-    #   run: |
-    #     cd ${{ inputs.build-dir }}/windows
-    #     zip -m ./windows.zip ./*
-
-    # - uses: actions/upload-artifact@v4
-    #   with:
-    #     name: windows
-    #     path: ${{ inputs.project-dir }}${{ inputs.build-dir }}/windows/windows.zip

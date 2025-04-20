@@ -30,7 +30,7 @@ runs:
       id: upload
       uses: actions/upload-artifact@v4
       with:
-        name: realmz-remake-${{ inputs.platform-name }}
+        name: ${{ inputs.project-name }}-${{ inputs.platform-name }}
         path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz
 inputs:
   godot-version:
@@ -46,11 +46,12 @@ inputs:
     default: "build"
   export-preset:
     description: "Export preset name"
-    required: true
+    default: "Raspberry-Pi"
+    required: false
   platform-name:
     description: "Platform name for artifacts and directories"
     required: false
-    default: "linux-x86_64"
+    default: "linux-aarch64"
   project-name:
     description: "Project name"
     required: false

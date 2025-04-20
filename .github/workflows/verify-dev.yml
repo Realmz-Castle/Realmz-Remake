@@ -109,7 +109,6 @@ jobs:
         uses: ./.github/actions/build-godot-linux
         with:
           project-dir: "./src"
-          export-preset: "Linux"
   build-raspberry-pi:
     needs: check-version-bump
     runs-on: ubuntu-22.04-arm
@@ -134,8 +133,6 @@ jobs:
         uses: ./.github/actions/build-godot-raspberry-pi
         with:
           project-dir: "./src"
-          platform-name: "linux-arm64"
-          export-preset: "Raspberry-Pi"
   build-windows:
     needs: check-version-bump
     runs-on: windows-latest
@@ -150,8 +147,6 @@ jobs:
         run: git lfs fetch --all && git lfs checkout
 
       - name: Build and upload artifacts for windows
-        uses: ./.github/actions/build-godot-linux
+        uses: ./.github/actions/build-godot-windows
         with:
           project-dir: "./src"
-          export-preset: "Windows"
-          platform-name: "windows-x86_64"
