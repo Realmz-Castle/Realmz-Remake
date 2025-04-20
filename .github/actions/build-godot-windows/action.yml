@@ -1,5 +1,5 @@
 name: Build Godot Project
-description: "Builds a Godot project for Linux"
+description: "Builds a Godot project for Windows"
 author: "Daniel Konar"
 
 runs:
@@ -11,7 +11,6 @@ runs:
         version: ${{ inputs.godot-version }}
         use-dotnet: false
         include-templates: true
-
     - name: Reimport
       shell: bash
       id: reimport
@@ -55,11 +54,11 @@ inputs:
   export-preset:
     description: "Export preset name"
     required: false
-    default: "Linux"
+    default: "Windows"
   platform-name:
     description: "Platform name for artifacts and directories"
     required: false
-    default: "linux-x86_64"
+    default: "windows-x86_64"
   project-name:
     description: "Project name"
     required: false

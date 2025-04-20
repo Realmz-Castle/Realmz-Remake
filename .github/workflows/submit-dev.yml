@@ -67,7 +67,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: windows
-          path: artifacts/windows
+          path: artifacts/windows-x86_64
 
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
