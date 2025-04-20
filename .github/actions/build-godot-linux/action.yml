@@ -59,3 +59,7 @@ inputs:
     description: "Platform name for artifacts and directories"
     required: false
     default: "linux-x86_64"
+  project-name:
+    description: "Project name"
+    required: false
+    default: "Realmz-Remake"
