@@ -53,5 +53,5 @@ runs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: Realmz-Remake-macos
+        name: realmz-remake-macos
         path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/realmz-remake-macos.dmg
