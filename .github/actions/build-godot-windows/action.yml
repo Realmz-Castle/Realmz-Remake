@@ -30,14 +30,14 @@ runs:
       working-directory: ${{ inputs.project-dir }}
       run: |
         cd ${{ inputs.build-dir }}/${{ inputs.platform-name }}
-        tar -czpf ${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz --transform 's,^,${{ inputs.project-name }}/,' *
+        zip -m ${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz --transform 's,^,${{ inputs.project-name }}/,' *
 
     - name: Upload Artifact
       id: upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.project-name }}-${{ inputs.platform-name }}
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.zip
 
 inputs:
   godot-version:
