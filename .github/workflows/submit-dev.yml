@@ -126,7 +126,7 @@ jobs:
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: Realmz-Remake-macos-linux-x86_64
+          name: Realmz-Remake-linux-x86_64
           path: artifacts/Realmz-Remake-linux-x86_64
 
       - name: Download Linux aarch64 artifact
