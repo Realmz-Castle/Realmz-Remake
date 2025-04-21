@@ -34,8 +34,9 @@ runs:
       working-directory: ${{ inputs.project-dir }}
       run: |
         cd ${{ inputs.build-dir }}/${{ inputs.platform-name }}
-        zip -m ${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz --transform 's,^,${{ inputs.project-name }}/,' *
-
+        mkdir "${{ inputs.project-name }}"
+        cp -r * "${{ inputs.project-name }}/"
+        zip -r "${{ inputs.project-name }}-${{ inputs.platform-name }}.zip" "${{ inputs.project-name }}"
     - name: Upload Artifact
       id: upload
       uses: actions/upload-artifact@v4
