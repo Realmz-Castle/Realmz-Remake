@@ -61,19 +61,25 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: macos
-          path: artifacts/macos
+          path: artifacts/Realmz-Remake-macos
 
-      # - name: Download Windows artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: windows
-      #     path: artifacts/windows
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows
+          path: artifacts/Realmz-Remake-windows-x86_64
 
-      # - name: Download Linux artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: linux
-      #     path: artifacts/linux
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-x86_64
+          path: artifacts/Realmz-Remake-linux-x86_64
+
+      - name: Download Linux aarch64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arch64
+          path: artifacts/Realmz-Remake-linux-arch64
 
       - name: Tag and upload artifacts to release
         uses: ncipollo/release-action@v1

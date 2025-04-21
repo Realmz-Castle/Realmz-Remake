@@ -1,0 +1,58 @@
+name: Build Godot Project
+description: "Builds a Godot project for Linux"
+author: "Daniel Konar"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Reimport
+      shell: bash
+      id: reimport
+      run: godot --editor --headless --quit || true
+
+    - name: Build
+      id: build
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        mkdir -p ${{ inputs.build-dir }}/${{ inputs.platform-name }}
+        godot --export-debug "${{ inputs.export-preset }}" --headless
+
+    - name: Compress
+      shell: bash
+      id: compress
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        cd ${{ inputs.build-dir }}/${{ inputs.platform-name }}
+        tar -czpf ${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz --transform 's,^,${{ inputs.project-name }}/,' *
+
+    - name: Upload Artifact
+      id: upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.project-name }}-${{ inputs.platform-name }}
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.tar.gz
+inputs:
+  godot-version:
+    description: "Godot version to use"
+    required: false
+    default: "4.3.0"
+  project-dir:
+    description: "Project directory"
+    required: true
+  build-dir:
+    description: "Build directory (relative to project-dir)"
+    required: false
+    default: "build"
+  export-preset:
+    description: "Export preset name"
+    default: "Raspberry-Pi"
+    required: false
+  platform-name:
+    description: "Platform name for artifacts and directories"
+    required: false
+    default: "linux-aarch64"
+  project-name:
+    description: "Project name"
+    required: false
+    default: "Realmz-Remake"

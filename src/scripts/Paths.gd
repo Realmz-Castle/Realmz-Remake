@@ -24,7 +24,7 @@ func _ready():
 		realmzfolderpath = OS.get_executable_path().get_base_dir()
 		if OS.get_name() == "macOS":
 			realmzfolderpath = "/Applications/Realmz-Remake/"
-
+	realmzfolderpath = realmzfolderpath.rstrip("/") + "/"
 	print(" realmzfolderpath : ", realmzfolderpath)
 
 	profilesfolderpath = realmzfolderpath + "Profiles/"
