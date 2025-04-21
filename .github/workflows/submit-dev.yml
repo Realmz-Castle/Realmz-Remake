@@ -96,7 +96,7 @@ jobs:
           project-dir: "./src"
 
   generate-release:
-    needs: build
+    needs: [build-windows, build-raspberry-pi, build-linux, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
