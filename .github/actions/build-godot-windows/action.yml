@@ -35,7 +35,7 @@ runs:
       run: |
         cd ${{ inputs.build-dir }}/${{ inputs.platform-name }}
         mkdir "${{ inputs.project-name }}"
-        cp -r * "${{ inputs.project-name }}/"
+        mv * "${{ inputs.project-name }}/" 2>/dev/null || true
         zip -r "${{ inputs.project-name }}-${{ inputs.platform-name }}.zip" "${{ inputs.project-name }}"
     - name: Upload Artifact
       id: upload
