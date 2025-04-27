@@ -160,6 +160,7 @@ func save_game(campaignname : String, savename : String) :
 		"pc_order" : pc_order,
 		"preview" : preview_arr,
 		"notes" : notes,
+		"minimaps" : GameGlobal.minimaps,
 		"GlobalEffects" : GameGlobal.global_effects
 		}
 	print("SAVE RECT position : ", dict_to_save["position"])
@@ -233,6 +234,7 @@ func disable_create_new_save(dis : bool) :
 
 func load_game(campaignname : String, savename : String) :
 	var prevCampaign : String = GameGlobal.currentcampaign+''
+	GameGlobal.allow_next_battle_loot = true
 	# GameGlobal.init_globals_before_game_start....
 	var save_path : String = Paths.profilesfolderpath + GameGlobal.currentprofile + "/Saves/"+ campaignname + "/"+ savename
 	print("load_game save_path : ", save_path)
@@ -267,7 +269,8 @@ func load_game(campaignname : String, savename : String) :
 		"campaign" = campaignname,
 		"currentmap_name" = data_dict["currentmap_name"],
 		"shops_dict" = shop_data,
-		"GlobalEffects" = data_dict["GlobalEffects"]
+		"GlobalEffects" = data_dict["GlobalEffects"],
+		"minimaps" = data_dict["minimaps"]
 	}
 	print("load_game : data_dict[currentmap_name] : ", data_dict["currentmap_name"])
 	

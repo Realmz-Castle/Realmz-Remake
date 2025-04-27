@@ -28,6 +28,7 @@ func _ready():
 
 func initialize(scriptname : String) :
 	print("encountercontrol initialize : "+scriptname)
+	#GameGlobal.currentSpecialEncounterName = scriptname
 #	for b in boxContainer.get_children() :
 #		b.show()
 #	return

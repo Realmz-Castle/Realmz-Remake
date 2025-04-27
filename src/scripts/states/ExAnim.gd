@@ -70,6 +70,12 @@ func enter(_msg : Dictionary = {}) -> void:
 			await StateMachine.check_map_script(attemptedpos)
 			GameGlobal.pass_time(canmoveandtime[1])
 			GameGlobal.map.explore_tiles_from_tilepos(Vector2i(attemptedpos))
+			
+			if GameGlobal.must_cancel_movement :
+				mapfocuschar.move(-input)
+				GameGlobal.must_cancel_movement = false
+				
+			
 			var new_pos = Vector2i(mapfocuschar.tile_position_x, mapfocuschar.tile_position_y )
 			if GameGlobal.map.mapboats.has(new_pos) :
 				GameGlobal.map.on_step_on_boat(new_pos)

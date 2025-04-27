@@ -1,20 +1,223 @@
 {
-   "Test_Battle" :
-   {
-      "Map" : "test_battle_map",
-      "Position" : [21,23],
-      "is_relative_coords" : 0,
-      "Creatures" : [
-	 ["Giant Snail" , [17,23] ]
 
-      ],
-      "Scripts" : {
-         "start_source" : "	print('Test_Battle start script')",
-	 "turn_source" : "	print('Test_Battle turn script')",
-	 "win_source" : "	print('Test_Battle win script')",
-	 "lose_source" : "	print('Test_Battle lose script')",
-	 "flee_source" : "	print('Test_Battle flee script')"
-      }
-   }
+"Battle_0" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance" : 0,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_1" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+  "Creatures": [
+    ["Royal Guard", [1, 2]],
+    ["Royal Guard", [2, 2]],
+    ["Royal Sergeant", [4, 2]],
+    ["Royal Guard", [6, 2]],
+    ["Royal Guard", [7, 2]],
+    ["Royal Guard", [3, 3]],
+    ["Royal Guard", [4, 3]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_2" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 15,
+  "Creatures": [
+    ["Royal Guard", [8, 2]],
+    ["Royal Guard", [7, 3]],
+    ["Royal Guard", [1, 5]],
+    ["Royal Guard", [1, 6]],
+    ["Royal Corporal", [2, 6]],
+    ["Royal Guard", [10, 7]],
+    ["Royal Lieutenant", [7, 8]],
+    ["Royal Guard", [8, 8]],
+    ["Royal Corporal", [5, 9]],
+    ["Royal Guard", [2, 10]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_3" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+  "Creatures": [
+    ["Royal Guard", [7, 1]],
+    ["Royal Corporal", [4, 2]],
+    ["Royal Guard", [8, 2]],
+    ["Royal Corporal", [9, 2]],
+    ["Royal Guard", [4, 3]],
+    ["Royal Guard", [5, 3]],
+    ["Royal Sergeant", [10, 3]],
+    ["Royal Sergeant", [6, 4]],
+    ["Royal Captain", [8, 4]],
+    ["Royal Lieutenant", [11, 4]],
+    ["Royal Guard", [2, 5]],
+    ["Royal Lieutenant", [7, 5]],
+    ["Royal Guard", [1, 6]],
+    ["Royal Corporal", [2, 6]],
+    ["Royal Captain", [6, 6]],
+    ["Royal Sergeant", [3, 7]],
+    ["Royal Lieutenant", [4, 8]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_4" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 6,
+  "Creatures": [
+    ["Royal Guard", [4, 2]],
+    ["Royal Guard", [3, 3]],
+    ["Royal Corporal", [4, 3]],
+    ["Royal Guard", [2, 4]],
+    ["Royal Sergeant", [3, 4]],
+    ["Royal Corporal", [1, 5]],
+    ["Royal Guard", [2, 5]],
+    ["Royal Guard", [1, 6]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_5" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 7,
+  "Creatures": [
+    ["Royal Corporal", [6, 3]],
+    ["Royal Corporal", [9, 3]],
+    ["Royal Guard", [4, 4]],
+    ["Royal Sergeant", [7, 4]],
+    ["Royal Guard", [10, 4]],
+    ["Royal Guard", [2, 5]],
+    ["Royal Guard", [12, 5]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_6" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 8,
+  "Creatures": [
+    ["Royal Guard", [4, 3]],
+    ["Royal Guard", [5, 4]],
+    ["Royal Corporal", [6, 4]],
+    ["Royal Sergeant", [5, 5]],
+    ["Royal Guard", [4, 6]],
+    ["Royal Guard", [6, 6]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_7" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 6,
+  "Creatures": [
+    ["Royal Guard", [3, 3]],
+    ["Royal Guard", [5, 3]],
+    ["Royal Corporal", [3, 4]],
+    ["Royal Guard", [4, 4]],
+    ["Royal Sergeant", [5, 5]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_8" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 6,
+  "Creatures": [
+    ["Royal Guard", [2, 3]],
+    ["Royal Guard", [3, 3]],
+    ["Royal Guard", [4, 4]],
+    ["Royal Corporal", [5, 4]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_9" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 10,
+  "Creatures": [
+    ["Goblin Archer", [7, 2]],
+    ["Goblin", [5, 3]],
+    ["Goblin", [7, 3]],
+    ["Goblin", [1, 4]],
+    ["Goblin", [2, 5]]
+  ],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_10" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 11,
+  "Creatures": [
+    ["Goblin Archer", [8, 2]],
+    ["Goblin Shaman", [7, 3]],
+    ["Goblin", [8, 3]],
+    ["Goblin", [10, 3]],
+    ["Goblin", [3, 4]],
+    ["Goblin", [5, 4]],
+    ["Goblin", [3, 10]],
+    ["Goblin Champion", [4, 10]],
+    ["Goblin", [6, 11]]
+  ],
+  "Scripts": {
+    
+  }
+}
 
 }

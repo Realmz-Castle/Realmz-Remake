@@ -59,6 +59,10 @@ func enter(_msg : Dictionary = {} ) ->void :
 			cur_menu_name = menu_name
 			await GameGlobal.show_loot_menu(_msg["treasure"],_msg["money"],_msg["exp"])
 			#if not GameGlobal.player_allies.is_empty() :
+		"MiniMapsMenu" :
+			UI.ow_hud.minimapRect.show()
+			UI.ow_hud.minimapRect.on_display()
+			cur_menu_name = menu_name
 
 	pass
 
@@ -81,6 +85,9 @@ func exit() :
 		UI.ow_hud.textRect.set_text('', false)
 	
 	cur_menu_name = ''
+	
+	if cur_menu_name == "MiniMapsMenu" :
+		UI.ow_hud.minimapRect.hide()
 
 
 func _state_process(_delta : float) -> void :

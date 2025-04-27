@@ -1,5 +1,5 @@
 extends NinePatchRect
-#TextRect
+class_name TextRect
 
 # Declare member variables here. Examples:
 # var a = 2

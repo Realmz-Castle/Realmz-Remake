@@ -21,6 +21,8 @@ var selected_character = null
 
 @onready var inventoryRect = $VBoxScreen/HBoxTop/MapArea/InventoryRect#$InventoryRect
 @onready var bestiaryRect = $VBoxScreen/HBoxTop/MapArea/BestiaryRect
+@onready var minimapRect = $VBoxScreen/HBoxTop/MapArea/MinimapsRect
+
 @onready var turnorderPanel : TurnOrderPanel = $VBoxScreen/HBoxTop/MapArea/TurnOrderPanel
 
 @onready var canvaslayer : CanvasLayer = $Canvaslayer
@@ -331,7 +333,7 @@ func _ready():
 
 func _on_InventoryButton_pressed():
 	#print("OW HUD _on_InventoryButton_pressed")
-	if moneyControl.visible or encounterControl.visible or bestiaryRect.visible or textRect.choicesContainer.visible or abilitesmngtMenu.visible or spellcastMenu.visible or charSwapRect.visible or saveloadCtrl.visible or settingsControl.visible or treasureControl.visible :
+	if moneyControl.visible or encounterControl.visible or bestiaryRect.visible or minimapRect.visible or textRect.choicesContainer.visible or abilitesmngtMenu.visible or spellcastMenu.visible or charSwapRect.visible or saveloadCtrl.visible or settingsControl.visible or treasureControl.visible :
 		return
 	if StateMachine._state_name=="Exploration" :
 		StateMachine.enter_ex_menu_state({"menu_name" : "InventoryMenu", "selected_character" : selected_character})
@@ -694,3 +696,8 @@ func close_storage_rect() :
 func _on_turn_order_button_toggled(toggled_on : bool) :
 	turnorderPanel.visible = toggled_on
 	if toggled_on : turnorderPanel.update_display()
+
+
+func _on_minimaps_button_pressed() -> void:
+	if not StateMachine.is_combat_state() :
+		StateMachine.enter_ex_menu_state(({"menu_name" : "MiniMapsMenu"}))

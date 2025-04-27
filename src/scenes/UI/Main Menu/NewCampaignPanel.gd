@@ -80,6 +80,13 @@ func _on_StartButton_pressed() -> void :
 		pc.cur_campaign = GameGlobal.currentcampaign
 	GameGlobal.player_characters = pickedparty
 	GameGlobal.init_globals_before_game_start(data_dict)
+	
+	#minimaps from on_campaign_start.gd  :
+	pass
+	#GameGlobal.currentcampaign_onload_script
+	
+	
+	
 	StateMachine.transition_to("Exploration", {"campaign_start" : true})
 	#GameState._state = GameGlobal.eGameStates.startGame
 	#transition here ?

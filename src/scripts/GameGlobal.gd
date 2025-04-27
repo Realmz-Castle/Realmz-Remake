@@ -15,6 +15,7 @@ const UDLR : Array = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
 @onready var cmp_resources : CampaignResources = NodeAccess.__Resources()
 
 var map : Map
+var current_map_script_name : String = ''
 
 var playerCharacterGD : GDScript = preload("res://Creature/PlayerCharacter.gd")
 var combatCreatureGD : GDScript = preload("res://Creature/Creature.gd")
@@ -82,13 +83,17 @@ var camping : bool = false
 var money_pool : Array = [0,0,0] # coins gems jewels
 var money_banked : Array = [0,0,0] # coins gems jewels
 
+var must_cancel_movement : bool = false
+
 var is_sailing_boat : bool = false
 var boat_sailed_image_name : String = ''
+var allow_next_battle_loot : bool = true
 
 var shopScript = null # a script that initializes shops checked campaign start and may run script checked accessing shops
 var shops_dict : Dictionary = {}
 var allow_character_swap_anywhere : bool = false
 var stuff_done : Dictionary = {}
+var minimaps : Array = []
 var map_boats_dict : Dictionary = {}
 
 signal battle_end
@@ -193,7 +198,7 @@ func save_hd_mode(new_hd_mode: bool) -> void:
 	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", new_hd_mode)
 
 func init_globals_before_game_start(data_dict : Dictionary) :
-	# used in  load_game()
+	# used in  load_game() and new_campain_panel  _on_StartButton_pressed
 	map.owcharacter.set_tile_position(data_dict["position"])
 	fatigue = data_dict["fatigue"]
 	UI.ow_hud.update_fatigue_bar()
@@ -212,6 +217,7 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	is_sailing_boat = bool(data_dict["is_sailing_boat"])
 	boat_sailed_image_name = data_dict["boat_image"]
 	
+	
 	cur_save_name = data_dict["save_name"]
 	cur_save_descrition = data_dict["save_descr"]
 	set_current_campaign(data_dict["campaign"])
@@ -219,6 +225,8 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	shops_dict = data_dict["shops_dict"]
 	
 	global_effects = data_dict["GlobalEffects"]
+	
+	allow_next_battle_loot = true
 
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	time += seconds *time_scale
@@ -437,13 +445,15 @@ func end_battle( wonfledlost : String ) :
 			var treasureitems = []
 			var experience : int = 0
 			var money_drop : Array = [0,0,0]
-			for c  in StateMachine.combat_state.battle_dead_enemies :
-				#print("dead : "+c.name)
-				experience += c.experience
-				for g in  range(money_drop.size()) :
-					money_drop[g] += c.money[g]
-				for i in c.inventory :
-					treasureitems.append(i)
+			if allow_next_battle_loot :
+				for c  in StateMachine.combat_state.battle_dead_enemies :
+					#print("dead : "+c.name)
+					experience += c.experience
+					for g in  range(money_drop.size()) :
+						money_drop[g] += c.money[g]
+					for i in c.inventory :
+						treasureitems.append(i)
+			allow_next_battle_loot = true
 			
 			#this won't show the allies  screen
 			#await UI.ow_hud.show_loot_menu(treasureitems,money_drop,experience)
@@ -470,11 +480,12 @@ func end_battle( wonfledlost : String ) :
 			#
 			#
 		"fled" :
-
+			allow_next_battle_loot = true
 			if map.mapscripts.has_method("_on_battle_escaped") :
 				map.mapscripts.call("_on_battle_escaped")
 		"lost" :
 			#print("GameGlobal end_battle : battle lost !")
+			allow_next_battle_loot = true
 			if StateMachine.combat_state.cur_battle_data["allow_loss"] :
 				StateMachine.transition_to("Exploration",{})
 				##GameState._combat_state = eCombatStates.unchecked
@@ -502,6 +513,7 @@ func end_battle( wonfledlost : String ) :
 	#
 	#cur_battle_data = {}
 	#cur_battle_data.clear() CLEARED THE RESOURCE DICT  LOL  
+	allow_next_battle_loot = true
 	print("GAMEGLOBAL emit_signal('battle_end', wonfledlost)")
 	emit_signal("battle_end", wonfledlost)
 	map.focuscharacter = map.owcharacter

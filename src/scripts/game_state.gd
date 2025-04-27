@@ -290,7 +290,9 @@ func check_map_script(position) ->bool :
 				break
 		
 		if mapscriptareas_still_has_s :#map.mapscripts.has_method(s) :
+			GameGlobal.current_map_script_name = s
 			await GameGlobal.map.mapscripts.call (s)
+			GameGlobal.current_map_script_name = ''
 			print("StateMashine DONE await GameGlobal.map.mapscripts.call_deferred (s)")
 			GameGlobal.map.queue_redraw()
 			GameGlobal.refresh_OW_HUD()

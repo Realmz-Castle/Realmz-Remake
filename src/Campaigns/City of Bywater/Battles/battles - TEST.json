@@ -1,0 +1,21 @@
+{
+   "Test_Battle" :
+   {
+      "Map" : "test_battle_map",
+      "Position" : [21,23],
+      "is_relative_coords" : 0,
+      "Creatures" : [
+         ["Lich" , [17,16] ],
+	 ["Giant Snail" , [14,23] ],
+	 ["Giant Snail" , [17,23] ]
+      ],
+      "Scripts" : {
+         "start_source" : "	print('Test_Battle start script')",
+	 "turn_source" : "	print('Test_Battle turn script')",
+	 "win_source" : "	print('Test_Battle win script')",
+	 "lose_source" : "	print('Test_Battle lose script')",
+	 "flee_source" : "	print('Test_Battle flee script')"
+      }
+   }
+
+}
