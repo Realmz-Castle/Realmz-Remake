@@ -1,0 +1,57 @@
+name: "Build Godot"
+description: "Build Godot applications for macOS"
+
+inputs:
+  project-dir:
+    description: "The path to the Godot project (folder that contains the project.godot file)"
+    required: false
+    default: ""
+  build-dir:
+    description: "The chosen build directory"
+    required: true
+    default: "build"
+  godot-executable:
+    description: "The path to the Godot executable"
+    required: false
+    default: /Applications/Godot.app/Contents/MacOS/Godot
+
+runs:
+  using: "composite"
+  steps:
+    - name: Open Godot editor for reimport
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: ${{ inputs.godot-executable }} --import --headless
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        brew install fileicon
+
+    - name: Build macOS application
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        mkdir -p ${{ inputs.build-dir }}/macos
+        ${{ inputs.godot-executable }} --export-debug macOS --headless
+        [ "$(ls -A ${{ inputs.build-dir }}/macos)" ]
+
+    - name: Compress macOS build (to preserve permissions)
+      shell: bash
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        cd ${{ inputs.build-dir }}/macos
+        hdiutil attach Realmz-Remake.dmg
+        mkdir ./temp_dmg_parent
+        cp -R ./Realmz-Remake ./temp_dmg_parent/
+        ln -s /Applications ./temp_dmg_parent/Applications
+        ls /Volumes/Realmz
+        ls /Volumes
+        cp -R  /Volumes/Realmz/Realmz.app ./temp_dmg_parent/Realmz-Remake
+        hdiutil create -volname "Realmz-Remake" -srcfolder ./temp_dmg_parent -ov -format UDZO Realmz-Remake-macos.dmg
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Realmz-Remake-macos
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/macos/Realmz-Remake-macos.dmg
