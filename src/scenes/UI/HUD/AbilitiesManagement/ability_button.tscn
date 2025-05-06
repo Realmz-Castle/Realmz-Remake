@@ -11,10 +11,10 @@ custom_minimum_size = Vector2(32, 32)
 offset_right = 336.0
 offset_bottom = 31.0
 focus_mode = 0
-theme_override_styles/normal = ExtResource("1_dw1ma")
+theme_override_styles/disabled = ExtResource("3_u4rv7")
 theme_override_styles/hover = ExtResource("2_qmje4")
 theme_override_styles/pressed = ExtResource("2_qmje4")
-theme_override_styles/disabled = ExtResource("3_u4rv7")
+theme_override_styles/normal = ExtResource("1_dw1ma")
 alignment = 0
 script = ExtResource("4_5f3v5")
 

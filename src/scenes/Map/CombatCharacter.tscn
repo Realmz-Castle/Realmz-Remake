@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://df0n7iov8urn3"]
+[gd_scene load_steps=4 format=3 uid="uid://df0n7iov8urn3"]
 
 [ext_resource type="Script" path="res://scenes/Map/CombatCharacter.gd" id="1_6vrfh"]
-[ext_resource type="Texture2D" uid="uid://b3q6c14si8hwv" path="res://scenes/Map/CreaSelection11.png" id="2_c7n50"]
-[ext_resource type="Texture2D" uid="uid://of37cx0jjr8c" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="2_csw5h"]
-[ext_resource type="Texture2D" uid="uid://bxrobmwp662qq" path="res://shared_assets/BattleEffects/BattleEffects.png" id="4_lfo5q"]
+[ext_resource type="Texture2D" uid="uid://bts50vclddck3" path="res://scenes/Map/CreaSelection11.png" id="2_c7n50"]
+[ext_resource type="Texture2D" uid="uid://c5lxpgshkujrm" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="2_csw5h"]
 
 [node name="CombatCharacter" type="Button" node_paths=PackedStringArray("atkanimTimer")]
 offset_right = 32.0
@@ -27,7 +26,6 @@ centered = false
 [node name="AttackSprite2D" type="Sprite2D" parent="."]
 visible = false
 position = Vector2(16, 16)
-texture = ExtResource("4_lfo5q")
 hframes = 16
 vframes = 16
 frame = 35

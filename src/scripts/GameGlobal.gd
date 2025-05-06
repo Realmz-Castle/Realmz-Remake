@@ -791,3 +791,8 @@ func calculate_range_v(vect : Vector2)->int :
 	var y  = abs(vect.y)
 	var d = min(x,y)
 	return floor(d*1.5+ x-d +y-d)
+
+func generate_item(itemname : String) -> Dictionary :
+	var itemtemplate = NodeAccess.__Resources().items_book[itemname]
+	var itemcopy : Dictionary = itemtemplate.duplicate(true)
+	return itemcopy

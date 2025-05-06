@@ -5,7 +5,7 @@
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_v5g1w"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="3_lca44"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4_nalee"]
-[ext_resource type="Texture2D" uid="uid://c5awi2tmgde6b" path="res://icon.png" id="5_wum1u"]
+[ext_resource type="Texture2D" uid="uid://cbui5us5w455l" path="res://icon.png" id="5_wum1u"]
 
 [node name="CreaVBox" type="VBoxContainer"]
 theme_override_constants/separation = 0

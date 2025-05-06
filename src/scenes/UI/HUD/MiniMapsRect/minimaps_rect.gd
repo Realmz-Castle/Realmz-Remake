@@ -23,6 +23,7 @@ func on_display() :
 			if not cur_map.is_empty() :
 				if m[0]==cur_map[0] :
 					found_cur_map = true
+					break
 	maptextrect.visible = found_a_map
 	if not found_cur_map :
 		cur_map = first_map_found

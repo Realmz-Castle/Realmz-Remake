@@ -41,10 +41,10 @@ size_flags_horizontal = 3
 focus_mode = 0
 theme_override_colors/font_color = Color(0, 1, 0, 1)
 theme_override_fonts/font = ExtResource("3_3av8d")
-theme_override_styles/normal = ExtResource("1_mgwxa")
+theme_override_styles/disabled = ExtResource("6_qr38m")
 theme_override_styles/hover = ExtResource("4_l1bhv")
 theme_override_styles/pressed = ExtResource("5_vihe7")
-theme_override_styles/disabled = ExtResource("6_qr38m")
+theme_override_styles/normal = ExtResource("1_mgwxa")
 text = "Save
 "
 
@@ -54,10 +54,10 @@ size_flags_horizontal = 3
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_3av8d")
-theme_override_styles/normal = ExtResource("1_mgwxa")
+theme_override_styles/disabled = ExtResource("6_qr38m")
 theme_override_styles/hover = ExtResource("4_l1bhv")
 theme_override_styles/pressed = ExtResource("5_vihe7")
-theme_override_styles/disabled = ExtResource("6_qr38m")
+theme_override_styles/normal = ExtResource("1_mgwxa")
 text = "Load"
 
 [node name="PreviewVBox" type="VBoxContainer" parent="."]

@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://d3b75oe6r5ua4"]
 
-[ext_resource type="Texture2D" uid="uid://xts8t37jlrj1" path="res://shared_assets/UI/stone_pattern.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://lqutxsxv40my" path="res://scenes/UI/HUD/Multiple Choices/STOP.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://dbt837usdrpiw" path="res://shared_assets/UI/stone_pattern.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://djas7qa4ymfa3" path="res://scenes/UI/HUD/Multiple Choices/STOP.png" id="2"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Multiple Choices/ChoicesStop.gd" id="3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_no61y"]

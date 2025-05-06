@@ -22,6 +22,7 @@ var selected_character = null
 @onready var inventoryRect = $VBoxScreen/HBoxTop/MapArea/InventoryRect#$InventoryRect
 @onready var bestiaryRect = $VBoxScreen/HBoxTop/MapArea/BestiaryRect
 @onready var minimapRect = $VBoxScreen/HBoxTop/MapArea/MinimapsRect
+@onready var pictureRect = $VBoxScreen/HBoxTop/MapArea/PictureRect
 
 @onready var turnorderPanel : TurnOrderPanel = $VBoxScreen/HBoxTop/MapArea/TurnOrderPanel
 
@@ -699,5 +700,5 @@ func _on_turn_order_button_toggled(toggled_on : bool) :
 
 
 func _on_minimaps_button_pressed() -> void:
-	if not StateMachine.is_combat_state() :
+	if StateMachine._state_name == "ExWalking" :
 		StateMachine.enter_ex_menu_state(({"menu_name" : "MiniMapsMenu"}))

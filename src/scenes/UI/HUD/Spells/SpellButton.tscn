@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://16o4d25gw8rv"]
 
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_qdbs2"]
-[ext_resource type="Texture2D" uid="uid://ciovsadpc4ull" path="res://scenes/UI/HUD/Spells/SpellButtonIconGray.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://svv6q1vyx8pk" path="res://scenes/UI/HUD/Spells/SpellButtonIconGray.png" id="2"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_ckl22"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="3_b88ef"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4_ivhnn"]

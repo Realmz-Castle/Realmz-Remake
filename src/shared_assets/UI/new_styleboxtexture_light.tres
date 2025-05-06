@@ -1,13 +1,9 @@
-[gd_resource type="StyleBoxTexture" load_steps=2 format=2]
+[gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://firqpnnpa28l"]
 
-[ext_resource path="res://shared_assets/UI/Button_style light.png" type="Texture2D" id=1]
+[ext_resource type="Texture2D" uid="uid://7klx5sxrbgug" path="res://shared_assets/UI/Button_style light.png" id="1"]
 
 [resource]
-texture = ExtResource( 1 )
-region_rect = Rect2( 50, 0, 50, 50 )
-margin_left = 10.0
-margin_right = 10.0
-margin_top = 10.0
-margin_bottom = 10.0
+texture = ExtResource("1")
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
+region_rect = Rect2(50, 0, 50, 50)

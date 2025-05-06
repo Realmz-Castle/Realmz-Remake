@@ -44,12 +44,12 @@ static func does_party_have_item_named(item_name : String)-> bool :
 
 #Divinity Codes !
 
-# Divinity Code 1, string
-static func display_text(txt : String) -> void :
+## Divinity Code 1, string
+static func display_text(txt) -> void :
 	var textRect = UI.ow_hud.textRect
-	textRect.set_text("Your old friend Vodada is here waiting for you !", false)
+	textRect.set_text(str(txt), false)
 
-# Divinity Code 3 Player Option , option
+## Divinity Code 3 Player Option , option
 static func yesno_branch(continue_on_yes : bool, tg_type : int, tg_name : String, lefttxt : String, righttxt : String) ->void :
 	#continue_option=, target_type=, target=, left_prompt=, right_prompt=
 	# 0: back  a step, 1: continue normally,  2:simple enc, 3:complex_end ; 4 : exit  and disable script
@@ -75,24 +75,24 @@ static func yesno_branch(continue_on_yes : bool, tg_type : int, tg_name : String
 			
 	
 	
-#Divinity Code 4, Simple Encounter  , simple_enc
+## Divinity Code 4, Simple Encounter  , simple_enc
 static func display_simple_encounter(enc_name : String) :
 	print("display_simple_encounter must be translated by hand as they are not independent objects in realmzremake")
 
-# Divinity Code 5: Complex Encounter, complex_enc
-# Use: Send party to a Complex Encounter.
+## Divinity Code 5: Complex Encounter, complex_enc
+## Use: Send party to a Complex Encounter.
 static func start_complex_encounter( comp_enc_name : String) :
 	StateMachine.enter_ex_menu_state({"prev_state" : "Exploration", "menu_name" : "SpecEncounter_menu"})
 	UI.ow_hud.encounterControl.show()
 	UI.ow_hud.encounterControl.initialize(comp_enc_name)
 
-# Divinity Code 9: Play Sound , sound
+## Divinity Code 9: Play Sound , sound
 static func play_sound(sfx_name : String, stop : bool) :
 	SfxPlayer.stream = NodeAccess.__Resources().sounds_book[sfx_name]
 	SfxPlayer.play()
 	if stop : await SfxPlayer.finished
 
-#Divinity Code 21: Branch on Possession of Specific Item, jmp_if_item
+##Divinity Code 21: Branch on Possession of Specific Item, jmp_if_item
 static func branch_on_posession_of_item(item_name : String, tg_type : int, should_ignore_if_no : bool, exec_if_yes : String, exec_if_no : String) :
 #0 = X-AP, 1 = Simple Encounter, 2 = Complex Encounter 
 	var cur_script_name : String = GameGlobal.current_map_script_name
@@ -117,23 +117,23 @@ static func branch_on_posession_of_item(item_name : String, tg_type : int, shoul
 				await UI.ow_hud.encounterControl.encounter_over
 	GameGlobal.current_map_script_name = cur_script_name
 
-# Divinity Code 24 exit_ap , Exit Action Point and Keep Codes,  doesn't need anything
+## Divinity Code 24 exit_ap , Exit Action Point and Keep Codes,  doesn't need anything
 
-#Divinity 25: Exit Action Point and Delete Action Point  , exit_ap_delete
+##Divinity 25: Exit Action Point and Delete Action Point  , exit_ap_delete
 static func flag_disabled_current_script() ->void :
 	var map_name = GameGlobal.currentmap_name
 	var script_name = GameGlobal.current_map_script_name
-	GameGlobal.stuff_done[map_name+'.'+script_name+'.disabled'] = true
+	GameGlobal.stuff_done[map_name+'.'+script_name+'.disabled'] = 1
 
-# Divinity Code 32: Offer Temple : temple
+## Divinity Code 32: Offer Temple : temple
 static func allow_temple_menu(price_mult : float) :
 	print("allow_temple_menu TBI when temple menu is done")
 
-# DivinityCode 38: Continue On Possession, Else Branch Within Encounters 
+## DivinityCode 38: Continue On Possession, Else Branch Within Encounters 
 static func branch_item_pos_encounter(item_name : String, continue_on_pos : bool, target_type:int, target:String, code_index:int) :
 	print('branch_item_pos_encounter  TBI  when encounters are understood')
 
-# Divinity Code 45: Teleport Only , tele
+## Divinity Code 45: Teleport Only , tele
 static func teleport_to_map_and_pos(mapname : String, pos : Vector2, sfx_name : String) :
 	if not sfx_name.is_empty() :
 		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[sfx_name]
@@ -148,7 +148,7 @@ static func set_walk_back_once(should : bool) :
 	GameGlobal.must_cancel_movement = should
 
 
-# Divinity Code 2 : battle
+## Divinity Code 2 : battle
 static func start_battle_in_range(low : int, high : int, sfx_id : int, displaytext : String, give_treasure : int) :
 	#low=, high=, sound_id=, string_id=, treasure_mode= 
 	var battles_id_name_dict = GameGlobal.campaign_global_script.battles_id_name_dict
@@ -158,8 +158,200 @@ static func start_battle_in_range(low : int, high : int, sfx_id : int, displayte
 	play_sound(sfx_id_name_dict[sfx_id], true)
 	GameGlobal.start_battle(battle_name, false, give_treasure==10, true, true, [] ) # all party if pc_particiating is empty
 
-# Divinity Code 7 : modify_ap    level=, id=, source_xap=, level_type=, result_code=
+## Divinity Code 7 : modify_ap    level=, id=, source_xap=, level_type=, result_code=
 static func add_script_branch_flag( map_id : int, type : int, source_id : int, modified_script_id : int) :
 	var flagname : String = "modify_ap_map"+str(map_id)+"_type"+str(type)+"_AP"+str(source_id)
 	GameGlobal.stuff_done[flagname] = modified_script_id
 	printerr("\n\n\n   USED add_script_branch_flag !!!\n    "+flagname+' '+str(modified_script_id)+"\nPlease make sure the script branches properly\n\n")
+
+## Divinity Code 29: Give/Display Map  id:int , if negative, give |id| and also display
+static func give_minimap(id : int) :
+	GameGlobal.minimaps[abs(id)][6] = 1
+	if id<0 :
+		show_minimap(abs(id))
+
+static func show_minimap(id : int) :
+	GameGlobal.minimaps[id][6] = 1
+	UI.ow_hud.minimapRect.cur_map = GameGlobal.minimaps[id]
+	UI.ow_hud.minimapRect.show()
+	UI.ow_hud.minimapRect.on_display()
+	StateMachine.enter_ex_menu_state(({"menu_name" : "MiniMapsMenu"}))
+
+## Divinity Code 10: Give Treasure(treasure_id)
+static func give_treasure_with_id(treasure_id : int) :
+	var treasure_dict : Dictionary = GameGlobal.campaign_global_script.generate_treasure_with_id(treasure_id)
+	await StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasure_dict["treasure"] ,"money" : treasure_dict["money"] ,"exp" : treasure_dict["exp"] })
+
+
+##Divinity Code 13: Enable/Disable Action Point  level=, id=, percent_chance=, low=, high= 
+static func set_scrip_enabled_flag(useless : int, map_id, exec_chance : float, ap_id : int, ap_upto_id : int) ->void :
+	var map_name = "map_"+str(map_id)
+	for id in range(ap_id, ap_upto_id) :
+		var script_name = "script_"+str(id)
+		var flag_name : String = map_name+'.'+script_name+'.chance'
+		GameGlobal.stuff_done[flag_name] = exec_chance
+		printerr("\n\n\n   USED set_scrip_enabled !!!\n    "+flag_name+' = '+str(exec_chance)+"\nPlease make sure the script checks this flag !\n\n")
+
+## Divinity Code 52: Pick on Miscellaneous type=, parameter=, who=
+static func filter_PCs_Divinity(type : int, parameter : int, who : int, previously_picked = []) -> Array :
+	var picked_array : Array = []
+	if previously_picked.is_empty() or who!=2:
+		previously_picked = GameGlobal.player_characters.duplicate()
+	var pc_picked_pre_filter: Array = []
+	for pc in previously_picked :
+			if who == 1 :
+				if pc.get_stat("curHP") > 0 :
+					pc_picked_pre_filter.append(pc)
+			else :
+				pc_picked_pre_filter.append(pc)
+	match type :
+		0 : #move
+			for pc in pc_picked_pre_filter :
+				if pc.get_stat("MaxMovement") > parameter :
+					picked_array.append(pc)
+		1 : #position
+			if UI.ow_hud.charsVContainer.get_child_count() > parameter :
+				var candidate = UI.ow_hud.charsVContainer.get_child(parameter)
+				if pc_picked_pre_filter.has(candidate) :
+					picked_array.append(candidate)
+			if pc_picked_pre_filter.has(UI.ow_hud.selected_character) :
+				picked_array.append(UI.ow_hud.selected_character)
+		2 : #Item
+			if typeof(parameter) != TYPE_STRING :
+				printerr("filter_PCs_Divinity on item posession, parameter must be a String, it is ", parameter)
+				while(true) :{
+				}
+			for pc in pc_picked_pre_filter :
+				for i in pc.inventory :
+					if i["name"]==parameter :
+						picked_array.append(pc)
+						break
+		3 : #%chance
+			for pc in pc_picked_pre_filter :
+				if randf() <= parameter :
+					picked_array.append(pc)
+		4 : #attribute
+			var attrnamesarray : Array = ["Strength", "Intellect", "Wisdom", "Dexterity", "Vitality", "???Divinity is weird???", "Luck"]
+			var attributename : String = attrnamesarray[parameter]
+			for pc in pc_picked_pre_filter :
+				if randi_range(1,20) <= pc.get_stat(attributename) :
+					picked_array.append(pc)
+		5 : #DRVs, restist pspell type
+			var elementnamesarray : Array = ["ResistanceMental", "ResistanceFire", "ResistanceIce", "ResistanceElect", "ResistanceChemical", "ResistanceMental", "ResistanceMagic", "ResistanceHealing"]
+			var elementname : String = elementnamesarray[parameter]
+			for pc in pc_picked_pre_filter :
+				if randf() <= pc.get_stat(elementname) :
+					picked_array.append(pc)
+		6 : #currently selected
+			if pc_picked_pre_filter.has(UI.ow_hud.selected_character) :
+				picked_array.append(UI.ow_hud.selected_character)
+	return picked_array
+
+
+## Divinity Code 15: Heal/Hurt Picked     picked using a Code 14 or 30
+static func heal_picked_Divinity(mult : int, low_range, high_range, sound, string, prev_picked) :
+	print("calling ScriptHelperFuncs  heal_picked_Divinity")
+	if prev_picked.is_empty() :
+		printerr('heal_picked_Divinity,  dindt have any picked character')
+	for pc in prev_picked :
+		var hp_gained = randi_range(low_range,high_range)*mult
+		pc.change_cur_hp(hp_gained)
+	if sound>=0  and string >=0 :
+		printerr("heal_picked_Divinity tried to play sound "+str(sound)+"and display string "+str(string))
+
+
+## Divinity Code 27: Display Picture, from the campaign splash folder
+static func display_picture_file(img_name : String) :
+	UI.ow_hud.pictureRect.display_image(img_name)
+
+## Divinity Code 28: Redraw Screen ,  after you have displayed a picture.
+static func hide_picture() :
+	UI.ow_hud.pictureRect.hide()
+
+
+## Divinity Code 47: Set Clear Quest Flag , set_quest : quest_id
+static func set_quest_id_flag_Divinity(quest_id : int) :
+	var zeroone : int = 1
+	if quest_id < 0:
+		zeroone = 0
+	GameGlobal.stuff_done["quest_"+str(abs(quest_id))] = zeroone
+
+## Divinity Code 46: Branch on Quest (See code 72 & 77 for more options) , jmp_quest
+static func branch_on_quest_Divinity(quest_id : int, go_on_if_done : int, target_type : int, target : int, code_index : int) :
+	var quest_name : String = "quest_"+str(quest_id)
+	var should_continue : bool = GameGlobal.stuff_done[quest_name] + go_on_if_done ==  1 #not brainching if true
+	printerr("Code 46 branch_on_quest_Divinity : go_on_if_done:",go_on_if_done,", target_type:",target_type,", target:", target, ", code_index:", code_index)
+	return should_continue
+
+## Divinity Code 12: Change Land Tile 
+static func change_map_tile_Divinity(map_id : int, xcoord : int, ycoord : int, tileid : int, useless) :
+	var map_name = 'map_'+str(map_id)
+	if map_name==GameGlobal.currentmap_name :
+		var map = NodeAccess.__Map()
+		map.mapdata[ycoord][xcoord][0]= NodeAccess.__Resources().tiles_book["ForestDay.json"][181]
+	printerr("change_map_tile_Divinity, mapid:",map_id,', x:', xcoord, ', y:',ycoord, 'tile_id:', tileid )
+
+## Divinity Code 106: Set Dark Land • Line of Sight Status, must exit AP is  returns true
+static func change_dark_los_Divinity(is_dark:int, skip_if_dark_same:int, los:int, skip_if_los_same: int) -> bool :
+	#if skip_if_dark_same or skip_if_los_same :
+		#printerr("Divinity Code 106: change_dark_los_Divinity causes brainching, make sure the script does!  return true=skip rest of AP")
+	
+	var map : Map = NodeAccess.__Map()
+	var new_dark = 7-7*is_dark  #0=darkest, 7 =  alwayslight
+	if new_dark==0 and map.darkness_level<=0 and skip_if_dark_same :
+		return true
+	map.darkness_level = new_dark
+	if los and map.display_explored_only and skip_if_los_same :
+		return true
+	map.display_explored_only = los==1
+	return false
+	
+## Divinity Code 26: Get Mouse Click
+static func request_click() :
+	UI.ow_hud.textRect.disablerButton.show()
+	Input.set_custom_mouse_cursor(UI.cursor_click)
+	await UI.ow_hud.textRect.disablerButton.pressed
+	print('""disablerButton, "pressed"')
+	Input.set_custom_mouse_cursor(UI.cursor_sword)
+	UI.ow_hud.textRect.disablerButton.hide()
+
+
+## Divinity Code 11: Give Victory Points
+static func give_exp(exp : int) :
+	await StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [] ,"money" : [0,0,0] ,"exp" : exp })
+
+## Divinity Code 30: Pick on Check Vs. Attribute • Special Abilities 
+static func filter_PCs_ability_Divinity(ability_id:int, success_mod:int, who:int, what_type:int, previously_picked : Array = []) :
+	var ability_arr : Array =["Melee_Crit_Mult",'','','Melee_Crit_Rate', 'Detect_Secret', 'Acrobatics', "Detect_Trap", "Disable_Trap",'',"Force_Lock",'',"Pick_Lock", 'read lv1 scrolls', 'Turn_Undead' ]
+	var ability_name : String = ability_arr[ability_id]
+	var picked_array : Array = []
+	if previously_picked.is_empty() or who!=0:
+		previously_picked = GameGlobal.player_characters.duplicate()
+	var pc_picked_pre_filter: Array = []
+	for pc in previously_picked :
+			if who == 2 :
+				if pc.get_stat("curHP") > 0 :
+					pc_picked_pre_filter.append(pc)
+			else :
+				pc_picked_pre_filter.append(pc)
+	for pc in pc_picked_pre_filter :
+		if pc.get_stat(ability_name)+success_mod >= randi_range(1,20) :
+			picked_array.append(pc)
+	return picked_array
+
+##Divinity Code 18: Cast Spell on Party
+static func castSpellOnPartyDivinity(spell_id, power, drv_modifier, can_drv) :
+	printerr("Divinity Code 18: Cast Spell on Party, use castspellonpickedcharacters instead.")
+
+static func CastSpellOnPickedCharacters(characters : Array, spell_name : String, power : int) :
+	var spell = NodeAccess.__Resources().spells_book[spell_name]
+	var character = Creature.new()
+	for target in characters :
+			SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
+			SfxPlayer.play()
+			if spell.get("proj_hit") :
+				UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
+			await GameGlobal.do_spell_field_effect(character, target, spell, power)
+			if spell.get("special_effect") : 
+				var is_over : bool = await spell.special_effect(character, spell, power, Vector2.ZERO, [], [target], false)
+			

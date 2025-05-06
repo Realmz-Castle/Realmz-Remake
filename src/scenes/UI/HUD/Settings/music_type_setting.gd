@@ -7,4 +7,3 @@ extends Label
 func set_type(type : String, favs_dict : Dictionary) :
 	text = type.capitalize()+ ' : '
 	button.text = favs_dict[type]
-
