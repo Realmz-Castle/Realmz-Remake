@@ -728,6 +728,7 @@ func load_map_ressources( path : String , _name : String) -> void :
 			var t_id = tn - ts_first_id_dict[used_tileset_name] #id of the tile in its own tileset
 			var y : int = floor(float(t_number)/float(sizex))
 			var x : int = t_number%sizex
+			#print(tn)
 			var tile = tiles_book[used_tileset_name][t_id]
 			newmapdata[x][y].append(tile)
 			#print(sizex, ' sx: ', x, ' ,  sy :', sizey, ' ', y)

@@ -1,0 +1,8 @@
+{
+   "name" : "mapd_1",
+   "map_type" : "Indoor",
+   "music_type" : "Indoor",
+   "outdoor_riding" : false,
+   "darkness_level" : 7,
+   "display_explored_only" : 1
+}

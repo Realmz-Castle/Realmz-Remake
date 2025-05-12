@@ -8,7 +8,7 @@ func get_string_to_save() -> String :
 	return  JSON.stringify(dict_to_save)
 
 
-func give_treasure_with_id(treasure_id)	##Necessary for ScriptHelperFuncs.give_treasure_with_id
+func give_treasure_with_id(treasure_id) :	##Necessary for ScriptHelperFuncs.give_treasure_with_id
 	var items : Array= []
 	var money : Array = [0,0,0]
 	var exp : int = 0
