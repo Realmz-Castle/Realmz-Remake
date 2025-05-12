@@ -2116,6 +2116,66 @@
   }
 },
 
+"Battle_110" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_111" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 6,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_112" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 7,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_113" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_114" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
 "Battle_115" :
 {
   "Map": "citymap_name",
@@ -2147,6 +2207,314 @@
   }
 },
 
+"Battle_117" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_118" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+  "Creatures": [],
+  "Scripts": {
+    
+  }
+},
+
+"Battle_119" :
+{
+  "Map": "citymap_name",
+  "Position": [-6, -6],
+  "is_relative_coords": 1,
+  "bonus_distance": 0,
+}
+
+"Battle_180" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 10,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_181" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 10,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_182" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_183" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_184" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_185" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_186" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 10,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_187" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_188" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 14,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_189" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_190" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 5,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_191" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_192" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_193" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_194" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_195" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_196" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_197" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_198" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_199" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_200" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_201" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 7,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_202" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 8,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
 "Battle_203" :
 {
   "Map" : "citymap_name",
@@ -2166,6 +2534,18 @@
   "is_relative_coords" : 1,
   "bonus_distance" : 0,
   "Creatures" : [["Zombie",[7,0]],["Zombie",[3,1]],["Skeletal Warrior",[4,1]],["Skeletal Warrior",[7,1]],["Zombie",[9,1]],["Skeletal Warrior",[3,2]],["Zombie",[4,2]],["Zombie",[3,3]],["Zombie",[1,4]],["Skeletal Warrior",[2,4]],["Zombie",[8,4]],["Skeletal Warrior",[1,5]]],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_205" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
   "Scripts" : {
     
   }
@@ -2208,6 +2588,30 @@
   }
 },
 
+"Battle_209" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_210" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
 "Battle_211" :
 {
   "Map" : "citymap_name",
@@ -2245,6 +2649,66 @@
   }
 },
 
+"Battle_214" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_215" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_216" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 15,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_217" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_218" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
 "Battle_219" :
 {
   "Map" : "citymap_name",
@@ -2252,6 +2716,90 @@
   "is_relative_coords" : 1,
   "bonus_distance" : 0,
   "Creatures" : [["Flesh Fiend",[10,4]],["Flesh Fiend",[9,5]],["Flesh Fiend",[8,6]],["Flesh Fiend",[9,6]],["Flesh Fiend",[9,7]],["Flesh Fiend",[10,8]]],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_220" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_221" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_222" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_223" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_224" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_225" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_226" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
   "Scripts" : {
     
   }
@@ -2269,6 +2817,18 @@
   }
 },
 
+"Battle_228" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
 "Battle_229" :
 {
   "Map" : "citymap_name",
@@ -2281,6 +2841,18 @@
   }
 },
 
+"Battle_230" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
 "Battle_231" :
 {
   "Map" : "citymap_name",
@@ -2288,6 +2860,54 @@
   "is_relative_coords" : 1,
   "bonus_distance" : 0,
   "Creatures" : [["Mental Flea",[3,1]],["Mental Flea",[5,1]],["Mental Flea",[7,1]],["Mental Flea",[9,1]],["Mental Flea",[4,2]],["Mental Flea",[8,2]],["Mental Flea",[5,3]],["Mental Flea",[7,3]],["Mental Flea",[6,4]]],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_232" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_233" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_234" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_235" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
   "Scripts" : {
     
   }
@@ -2312,6 +2932,31 @@
   "is_relative_coords" : 1,
   "bonus_distance" : 0,
   "Creatures" : [["Royal Guard",[5,2]],["Royal Guard",[4,3]],["Royal Guard",[5,3]],["Royal Corporal",[6,3]],["Royal Corporal",[5,4]],["Royal Sergeant",[6,4]],["Royal Guard",[5,5]],["Royal Guard",[6,5]],["Royal Guard",[5,6]],["Royal Guard",[6,6]],["Royal Guard",[5,7]],["Royal Guard",[6,7]],["Royal Lieutenant",[6,8]],["Royal Corporal",[7,8]]],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_238" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+        "macro_number" : -153
+  }
+},
+
+"Battle_239" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
   "Scripts" : {
     
   }
@@ -2353,6 +2998,116 @@
   }
 },
 
+"Battle_243" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_244" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_245" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_246" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_247" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_248" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_249" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+        "macro_number" : -94
+  }
+},
+
+"Battle_250" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_251" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 0,
+  "Creatures" : [],
+  "Scripts" : {
+    
+        "macro_number" : -94
+  }
+},
+
 "Battle_252" :
 {
   "Map" : "citymap_name",
@@ -2360,6 +3115,42 @@
   "is_relative_coords" : 1,
   "bonus_distance" : 11,
   "Creatures" : [["Flesh Fiend",[10,6]],["Flesh Fiend",[1,7]],["Flesh Fiend",[4,7]],["Flesh Fiend",[9,7]],["Flesh Fiend",[2,8]],["Flesh Fiend",[6,8]],["Flesh Fiend",[7,8]],["Flesh Fiend",[8,8]],["Flesh Fiend",[9,8]],["Flesh Fiend",[10,8]],["Flesh Fiend",[3,9]],["Flesh Fiend",[4,9]],["Flesh Fiend",[6,9]],["Flesh Fiend",[7,9]],["Flesh Fiend",[4,10]],["Flesh Fiend",[5,10]]],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_253" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 11,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_254" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 11,
+  "Creatures" : [],
+  "Scripts" : {
+    
+  }
+},
+
+"Battle_255" :
+{
+  "Map" : "citymap_name",
+  "Position" : [-6,-6],
+  "is_relative_coords" : 1,
+  "bonus_distance" : 11,
+  "Creatures" : [],
   "Scripts" : {
     
   }
