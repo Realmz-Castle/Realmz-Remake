@@ -102,6 +102,7 @@ static func Find_Treasure() :
 
 static func Take_Stairs_D() :
 	var textRect = UI.ow_hud.textRect
+	print("MAP 1 !!!")
 	textRect.set_text("You take the stairs down to rug_dungeon_floor !", true)
 	GameGlobal.change_map("rug_dungeon_floor",3,3)
 

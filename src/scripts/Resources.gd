@@ -557,11 +557,11 @@ func load_sound_ressources( path : String ) -> void :
 			soundnames.append(s)
 	print ("sounds in folder : ",soundnames)
 	for s in soundnames :
-		print("sound path : ", path+s)
+		#print("sound path : ", path+s)
 		var loadedsound : AudioStream
 		# DOESNT WORK IN  OUTSIDE FOLDERS !
 		if path == "res://shared_assets/sounds/" :  #easy to load from inside res:// !
-			print(path+s)
+			#print(path+s)
 			loadedsound = load(path+s.replace(".import",""))
 		else :
 			var snd_file : FileAccess = FileAccess.open(path+s, FileAccess.ModeFlags.READ)
@@ -751,6 +751,14 @@ func load_map_ressources( path : String , _name : String) -> void :
 #		newmapdata[x][y].append(newtiledata)
 #	var secret_paths : Dictionary = {}
 #	var secrets : Dictionary = {}
+
+	#print("RESOURCE load maps : "+mapname+" scriptareas : ", newmapscriptareas)
+	#if maps_book.has("map_0") :
+		#print("RESOURCE load maps : map_0 scriptareas is :", maps_book["map_0"][1])
+	#else :
+		#print("RESOURCE load maps : map_0 not loaded yet")
+	#print(' , ')
+	#pass
 	maps_book[mapname] = [newmapdata, newmapscriptareas, newmapscripts, maptype,mapmusictype, outdoor_riding, darkness_level, display_explored_only, explored_tiles]
 	print("Resources done load map resources : ", _name)
 	return
@@ -768,12 +776,12 @@ func load_special_encounter_resources(campaign : String) :
 #	print("special encounters : ", special_encounters_book.keys())
 
 func load_battle_resources(campaign : String) :
-	print("Resources load_battle_resources :")
+	print("Resources load_battle_resources ")
 	var battles_folder_path = Paths.campaignsfolderpath+ campaign + "/Battles/"
 	var n_battle_stuff_book : Dictionary = {}
 	n_battle_stuff_book = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(battles_folder_path +"battles.json"))
 	for b in n_battle_stuff_book.keys() :
-		print(n_battle_stuff_book[b])
+		#print(n_battle_stuff_book[b])
 		for s in ["start","turn","win","lose","flee"] :
 			if n_battle_stuff_book[b]["Scripts"].has(s+"_source") :
 				_add_script_to_dict_from_source(n_battle_stuff_book[b]["Scripts"],s,'()')

@@ -211,6 +211,7 @@ func load_map( _campaign : String, mapname : String) -> void:
 	var resources = NodeAccess.__Resources()
 	mapdata = resources.maps_book[mapname][0]
 	mapscriptareas = resources.maps_book[mapname][1]["ScriptRects"]
+	print("MAP load map, name : ",mapname,", mapscriptareas: ", mapscriptareas)
 	mapsecretpaths.clear()
 	for p in resources.maps_book[mapname][1]["Paths"] :
 		mapsecretpaths[Vector2i(p[0],p[1])] = p[2]

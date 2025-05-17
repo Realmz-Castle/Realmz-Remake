@@ -30,11 +30,6 @@
       "scriptRectangle" : [ [2,17] , [2,17] ],
       "scriptToLoad" : "Find_Treasure"
    },
-   "Stairs Down" :
-   {
-      "scriptRectangle" : [ [2,2] , [2,2] ],
-      "scriptToLoad" : "Take_Stairs_D"
-   },
    "Start Battle" :
    {
       "scriptRectangle" : [ [6,6] , [6,6] ],

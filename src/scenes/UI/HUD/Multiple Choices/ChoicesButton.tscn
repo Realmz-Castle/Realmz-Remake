@@ -17,12 +17,14 @@ offset_right = 10.0
 offset_bottom = 5.0
 text = "
 "
+autowrap_mode = 3
 script = ExtResource("4")
 
 [node name="ChoicesButton" type="Button" parent="."]
 show_behind_parent = true
 custom_minimum_size = Vector2(160, 40)
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -20.0

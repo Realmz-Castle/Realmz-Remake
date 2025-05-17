@@ -277,7 +277,8 @@ func check_map_script(position) ->bool :
 
 	for s in scriptstocall :
 		#find the script
-#				print (" map.mapscriptareas : ",map.mapscriptareas)
+		print (" map.mapscriptareas : ",GameGlobal.map.mapscriptareas)
+		print(GameGlobal.map.maptype)
 		var mapscriptareas_still_has_s : bool = false
 		for sa in GameGlobal.map.mapscriptareas :
 #					print(sa)

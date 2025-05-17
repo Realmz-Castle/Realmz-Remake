@@ -3,7 +3,7 @@
 static func before_loading_ressources() :
 	print("City of bywater before_loading_ressources() ")
 	var owchar = NodeAccess.__Map().owcharacter
-	owchar .position = Vector2(3,3) * Utils.GRID_SIZE
+	owchar .position = Vector2(2,1) * Utils.GRID_SIZE
 	owchar.tile_position_x = 2
 	owchar.tile_position_y = 1
 	pass
