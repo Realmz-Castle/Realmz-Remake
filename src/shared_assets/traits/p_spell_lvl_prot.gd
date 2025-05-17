@@ -1,4 +1,4 @@
-const name : String = 'pro_proj.gd'
+const name : String = 'p_spell_lvl_prot.gd'
 const menuname : String = 'Protection from Projectiles'
 const stacks : bool = false
 const trait_types : Array = []

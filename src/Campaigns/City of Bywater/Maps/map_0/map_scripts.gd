@@ -4,40 +4,36 @@ static func _on_map_load(_map) :  #Necessary even if unused, replace body with "
 		_map.add_extra_image("Vodada", "CREA_Vodalian",Vector2(13,10))
 
 
-static func Vodada() :
-	if GameGlobal.stuff_done.has("recruited_vodada") :
+static func scenario_start() :  #===== LAND AP level=0 id=76 x=2 y=2 [LAP0/76]
+	if GameGlobal.stuff_done.has("scenario_start_seen") :
 		return
-	var textRect = UI.ow_hud.textRect
-	textRect.set_text("Your old friend Vodada is here waiting for you !", false)
-	textRect.display_multiple_choices(["He really wants to tag along with you.\nDo you recruit him ?","YESNO"],["TEXT", "YESNO"])
-	var answer = await textRect.choice_pressed
-	print("mapscript answer : "+answer)
-	if answer == "YES" :
-		var CreatureGD : GDScript = load('res://Creature/Creature.gd')
-		var creascript = CreatureGD.new()
-		creascript.initialize_from_bestiary_dict("Vodada !")
-		GameGlobal.add_npc_ally(creascript)
-		GameGlobal.stuff_done["recruited_vodada"] = 1
-		GameGlobal.map.remove_extra_image("Vodada")
-		print("MAPSCRIPT"+creascript.name+" IS SO HAPPY !")
-		textRect.set_text("Vodada hugs  you and makes you  promise to never leave him again.", false)
+	ScriptHelperFuncsClass.display_picture_file('Scenario_Start.png')
 	
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('heal.wav', false)
+	textRect.set_text('Welcome to "The City of Bywater", a scenario for use with the Realmz Scenario Driver.  If you enjoy playing Realmz and would like to see more scenarios developed, please support us by sending in your registration fee.', true)
+	await textRect.interruption_over
+	ScriptHelperFuncsClass.play_sound('heal.wav', false)
+	textRect.set_text('Once you have registered this copy of Realmz, you will be able to play the entire scenario.  This scenario is very loose.  It does not have a strong plot line.  You can adventure where you want for as long as you want', true)
+	await textRect.interruption_over
+	ScriptHelperFuncsClass.play_sound('hallelujah.wav', false)
+	textRect.set_text("Once you have registered this copy of Realmz, you will also be able to play test other scenarios BEFORE having to register them.  The fee for each additional scenario are $13 each.  For information on how to register, see chapter 3 of the Realmz Manual.", true)
+	await textRect.interruption_over
+	ScriptHelperFuncsClass.play_sound('swup.wav', false)
+	textRect.set_text("Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.", true)
+	await textRect.interruption_over
+	ScriptHelperFuncsClass.hide_picture()
+	GameGlobal.stuff_done["scenario_start_seen"] = 1
 
-static func GlyphScript_One() :
-	print("GlyphScript_OneGlyphScript_OneGlyphScript_One")
-	var map = NodeAccess.__Map()
-	map.focuscharacter.move(Vector2(-9,11))
+
+static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 	var textRect = UI.ow_hud.textRect
-	#textRect.set_text("HELLLOOOO WOOOORLD !", true)
-	#textRect.set_text("HELLLOOOO AGAAAIIIN !", true)
-	
-	#interruption_over
-	textRect.set_text("The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. Jackdaws love my big sphinx of quartz. How vexingly quick daft zebras jump! \nSphinx of black quartz, judge my vow.", true)
+	ScriptHelperFuncsClass.play_sound('swup.wav', false)
+	textRect.set_text("You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.", true)
 	await textRect.interruption_over
-	print('yield(textRect, "interruption_over") after world')
-	textRect.set_text("HELLLOOOO AGAAAIIIN !", true)
-	await textRect.interruption_over
-	print('yield(textRect, "interruption_over") after again')
+	# SIMPLE ENCOUNTER id=0
+	textRect.set_text("Judging by the man's large girth, robes are not all he fancies.  You approach his fine oak desk.  \"Present your invitation so I may validate it for passage to yon castle.\"", false)
+	textRect.display_multiple_choices(["Exposition text_a\nwith\nextra lines","A wordy choice.", "YESNO","STOP"],["TEXT","answer_words", "YESNO","STOP"])
 
 static func GlyphScript_Two() :
 	if false  :

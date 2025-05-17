@@ -1,4 +1,4 @@
-const name : String = 'pro_evil.gd'
+const name : String = 'p_prot_evil.gd'
 const menuname : String = 'Protection from Evil'
 const stacks : bool = false
 const trait_types : Array = []

@@ -1,9 +1,38 @@
 {
-   "Bywater Dagger" : 
-   {
-      "img_ptr" : "ITEM_CityBywater_dagger",
-      "name" : "Bywater Dagger",
-      "sound" : "metal hit.ogg",
-      "type" : "dagger"
-   }
+   "Invitation" : {
+    "name": "Invitation",
+    "unidentified_name": "Invitation",
+    "is_magical": 0,
+    "description": "This fine document will allow you to gain entrance into Castle Antrax whenever you wish.'",
+    "weight": 1,
+    "price": 0,
+    "type": "Scroll",
+    "img_ptr": "ITEM_Heal Small Wounds",
+    "sound": "special stats scroll.wav",
+    "slots": []
+  },
+   "Writ of Entrance" : {
+    "name": "Writ of Entrance",
+    "unidentified_name": "Writ of Entrance",
+    "is_magical": 0,
+    "description": "This document will allow you to enter the barracks near the castle.'",
+    "weight": 1,
+    "price": 0,
+    "type": "Scroll",
+    "img_ptr": "ITEM_Heal Small Wounds",
+    "sound": "special stats scroll.wav",
+    "slots": []
+  },
+     "Baby Orc" : {
+    "name": "Baby Orc",
+    "unidentified_name": "Baby Orc",
+    "is_magical": 0,
+    "description": "This document will allow you to enter the barracks near the castle.'",
+    "weight": 1,
+    "price": 0,
+    "type": "Scroll",
+    "img_ptr": "ITEM_Heal Small Wounds",
+    "sound": "special stats scroll.wav",
+    "slots": []
+  }
 }

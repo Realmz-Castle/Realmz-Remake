@@ -14,7 +14,7 @@
 
 "Battle_1" :
 {
-  "Map": "citymap_name",
+  "Map": "map_0",
   "Position": [-6, -6],
   "is_relative_coords": 1,
   "bonus_distance": 0,

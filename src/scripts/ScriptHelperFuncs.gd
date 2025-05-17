@@ -49,6 +49,13 @@ static func display_text(txt) -> void :
 	var textRect = UI.ow_hud.textRect
 	textRect.set_text(str(txt), false)
 
+## Divinity Code 1, string  more convenient
+static func display_text_wait_noise(txt) -> void :
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	textRect.set_text(str(txt), false)
+	await textRect.interruption_over
+
 ## Divinity Code 3 Player Option , option
 static func yesno_branch(continue_on_yes : bool, tg_type : int, tg_name : String, lefttxt : String, righttxt : String) ->void :
 	#continue_option=, target_type=, target=, left_prompt=, right_prompt=

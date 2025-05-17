@@ -1,29 +1,30 @@
 {
 
 "ScriptRects" : {
-   "VODADA AP" : 
+   "Start" : 
    {
-      "scriptRectangle" : [ [13,10] , [13,10] ],
-      "scriptToLoad" : "Vodada"
+      "scriptRectangle" : [ [2,2] , [2,2] ],
+      "scriptToLoad" : "scenario_start"
    }
    ,
-   "First AP" : 
+   "Guard_House" : 
    {
-      "scriptRectangle" : [ [15,4] , [16,5] ],
-      "scriptToLoad" : "GlyphScript_One"
+      "scriptRectangle" : [ [9,17] , [9,17] ],
+      "scriptToLoad" : "guard_house"
    }
    ,
-   "Second AP" : 
+   "Castle_Gate" : 
    {
-      "scriptRectangle" : [ [6,15] , [7,16] ],
-      "scriptToLoad" : "GlyphScript_Two"
+      "scriptRectangle" : [ [8,16] , [8,16] ],
+      "scriptToLoad" : "castle_gate"
    }
    ,
-   "Third AP" : 
+   "Guard_Barracks" : 
    {
-      "scriptRectangle" : [ [9,6] , [9,6] ],
-      "scriptToLoad" : "Allow_Char_Swap"
+      "scriptRectangle" : [ [6,16] , [6,16] ],
+      "scriptToLoad" : "guard_barracks"
    },
+   
    "Fourth AP" : 
    {
       "scriptRectangle" : [ [2,17] , [2,17] ],

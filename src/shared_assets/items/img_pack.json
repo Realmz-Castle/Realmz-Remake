@@ -1427,6 +1427,13 @@
       "size" : "32x32"
    },
                                                               
+      "ITEM_Improved_Stamina" : 
+   {
+      "0_ref_x" : 28,
+      "0_ref_y" : 3,
+      "size" : "32x32"
+   },
+                                                              
       "ITEM_Healing_Cream" : 
    {
       "0_ref_x" : 23,

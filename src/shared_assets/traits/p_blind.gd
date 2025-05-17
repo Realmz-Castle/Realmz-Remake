@@ -1,4 +1,4 @@
-const name : String = 'blind.gd'
+const name : String = 'p_blind.gd'
 const menuname : String = 'Blind (P)'
 const stacks : bool = false
 const trait_types : Array = []

@@ -1,4 +1,4 @@
-const name : String = 'reflect_melee.gd'
+const name : String = 'p_reflect_melee.gd'
 const menuname : String = 'Melee Reflection'
 const stacks : bool = false
 const trait_types : Array = []
@@ -17,6 +17,8 @@ func get_saved_variables() :
 
 func _on_evasion_check(crea, evasion_stats_used : Array, attacker, spellornull, power : int) -> Array :
 	#return array : [ proceed_with_atatack_on_self : bool, added_actions_queue : Array]
+	if randf()>0.333 :
+		return [true, []]
 	print('Melee Reflection Trait : _on_evasion_check attacker = '+attacker.name+', crea = '+crea.name)
 	if is_instance_valid(spellornull) :	#null if melee
 		#print('   spellornull is instance valid so nothing happens')

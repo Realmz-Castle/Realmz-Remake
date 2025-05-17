@@ -1,5 +1,5 @@
-const name : String = 't_hindered_def.gd'
-const menuname : String = 'Hindered Evasion (P)'
+const name : String = 'p_increased_def.gd'
+const menuname : String = 'Increased Evasion (P)'
 const stacks : bool = false
 const trait_types : Array = []
 var chara

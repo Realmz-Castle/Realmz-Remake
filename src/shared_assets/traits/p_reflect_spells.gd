@@ -1,4 +1,4 @@
-const name : String = 'reflect_spells.gd'
+const name : String = 'p_reflect_spells.gd'
 const menuname : String = 'Spell Reflection'
 const stacks : bool = false
 const trait_types : Array = []
@@ -19,7 +19,7 @@ func _on_evasion_check(crea, evasion_stats_used : Array, attacker, spellornull, 
 	#return array : [ proceed_with_atatack_on_self : bool, added_actions_queue : Array]
 	if not is_instance_valid(spellornull) or (not is_instance_valid(attacker.combat_button)) or (not is_instance_valid(chara.combat_button)):
 		return [true, []]
-	if spellornull.attributes.has('Magical'):
+	if randf()<0.333 and spellornull.attributes.has('Magical'):
 		var act_msg : Dictionary = {'type' : 'Spell', 'caster' : chara.combat_button, 'spell' : spellornull, 's_plvl' : power, 'used_item' : {'charges_max'=100, 'charges'=100} , 'add_terrain' : true, 'override_aoe' : [Vector2.ZERO], 'from_terrain' : false }
 		act_msg['Effected Tiles'] = [attacker.position]
 		act_msg['Effected Creas'] = [attacker.combat_button]

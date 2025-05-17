@@ -17,14 +17,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 3,
+      "EvasionMagic" : 3
+    }
   },
   "Gauntlets +12": {
     "name": "Gauntlets +12",
@@ -84,7 +79,8 @@
     "stats": {
       "Bonus_Physical_dmg": 1,
       "AccuracyRanged": 5,
-      "AccuracyMelee": 5
+      "AccuracyMelee": 5,
+	"EvasionMagic" : 5
     },
     "weapon_dmg": {
       "Physical": [
@@ -94,14 +90,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Pro' Second Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 2]
     ]
   },
   "Gloves of The Huntsman +4": {
@@ -162,13 +151,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "turn undead",
-        50
-      ]
-    ]
+    "stats": {"Turn_Undead" : 50}
   },
   "Pepper": {
     "name": "Pepper",
@@ -205,7 +188,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -242,14 +225,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        2
-      ]
-    ]
+      "EvasionRanged": 3,
+	"EvasionMagic" : 2
+    }
   },
   "Ring of Defense +5": {
     "name": "Ring of Defense +5",
@@ -269,14 +247,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 5,
-      "EvasionRanged": 5
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        4
-      ]
-    ]
+      "EvasionRanged": 5,
+      "EvasionMagic" : 4
+    }
   },
   "Ring of Defense +7": {
     "name": "Ring of Defense +7",
@@ -296,14 +269,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 7,
-      "EvasionRanged": 7
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        6
-      ]
-    ]
+      "EvasionRanged": 7,
+      "EvasionMagic" : 6
+    }
   },
   "Unholy Visor": {
     "name": "Unholy Visor",
@@ -322,7 +290,7 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {},
-    "traits": [
+    "notraits": [
       [
         "+ vs demonic",
         3
@@ -379,10 +347,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ]
   },
   "Spear of Might +3": {
@@ -496,10 +461,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Moving Slowly",
-        -1
-      ]
+     ["p_slow.gd",[]]
     ],
     "unique": 1
   },
@@ -546,10 +508,7 @@
       "EvasionRanged": 4
     },
     "traits": [
-      [
-        "Regenerating",
-        -1
-      ]
+      ["p_hp_regen.gd",[1]]
     ],
     "unique": 1
   },
@@ -588,7 +547,7 @@
     "weight": 0,
     "price": 450,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -648,7 +607,7 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {},
-    "traits": [
+    "notraits": [
       [
         "+ vs evil",
         5
@@ -723,17 +682,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "disable trap",
-        15
-      ],
-      [
-        "pick lock",
-        15
-      ]
-    ]
+    "stats": {"Disable_Trap": 15, "Pick_Lock" : 15}
   },
   "Blade of Blackpool +5": {
     "name": "Blade of Blackpool +5",
@@ -766,10 +715,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Invisible",
-        -1
-      ]
+      ["'p_invisible.gd",[]]
     ],
     "unique": 1
   },
@@ -781,7 +727,7 @@
     "weight": 105,
     "price": 32000,
     "type": "Medium Bladed Weapon",
-    "img_ptr": "ITEM_Shadowhawk +7",
+    "img_ptr": "ITEM_Shadowhawk",
     "sound": "attack hit.wav",
     "slots": [
       "melee weapon"
@@ -847,10 +793,7 @@
       "EvasionRanged": 9
     },
     "traits": [
-      [
-        "Strong",
-        -1
-      ]
+      ["p_strong.gd",[]]
     ],
     "unique": 1
   },
@@ -862,7 +805,7 @@
     "weight": 0,
     "price": 300,
     "type": "Potion",
-    "img_ptr": "ITEM_Cold Resistance",
+    "img_ptr": "ITEM_Blue_Potion",
     "sound": "slurpy.wav",
     "slots": [
       "magic item"
@@ -947,17 +890,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "disable trap",
-        10
-      ],
-      [
-        "pick lock",
-        10
-      ]
-    ]
+    "stats": {"Disable_Trap": 10, "Pick_Lock" : 10}
   },
   "Gloves of Wizardry +2": {
     "name": "Gloves of Wizardry +2",
@@ -1013,7 +946,7 @@
     "weight": 5,
     "price": 5,
     "type": "Very Small Bladed Weapon",
-    "img_ptr": "ITEM_Sting +3",
+    "img_ptr": "ITEM_Dagger_sting",
     "sound": "metal hit.wav",
     "slots": [
       "melee weapon"
@@ -1093,10 +1026,7 @@
       "EvasionRanged": 4
     },
     "traits": [
-      [
-        "Regenerating",
-        -1
-      ]
+      ["p_hp_regen.gd",[1]]
     ],
     "unique": 1
   },
@@ -1167,7 +1097,7 @@
       "AccuracyRanged": 20,
       "AccuracyMelee": 20
     },
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
         5
@@ -1239,7 +1169,7 @@
     "weight": 0,
     "price": 750,
     "type": "Normal Bow",
-    "img_ptr": "ITEM_Arrow Storm",
+    "img_ptr": "ITEM_Arrow_storm",
     "sound": "arrow hit.wav",
     "slots": [
       "quiver"
@@ -1277,7 +1207,8 @@
     "stats": {
       "Bonus_Physical_dmg": 3,
       "AccuracyRanged": 15,
-      "AccuracyMelee": 15
+      "AccuracyMelee": 15,
+      "EvasionMagic" : 5
     },
     "weapon_dmg": {
       "Physical": [
@@ -1287,14 +1218,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Invisible",
-        -1
-      ]
+      ["'p_invisible.gd",[]]
     ],
     "unique": 1
   },
@@ -1372,10 +1296,7 @@
       "EvasionRanged": 3
     },
     "traits": [
-      [
-        "Magic Aura",
-        -1
-      ]
+      ["p_aura.gd",[]]
     ],
     "unique": 1
   },
@@ -1403,10 +1324,7 @@
       "AccuracyMelee": 5
     },
     "traits": [
-      [
-        "Psi Protection",
-        -1
-      ]
+      ["p_prot_mental.gd",[]]
     ],
     "unique": 1
   },
@@ -1426,17 +1344,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "disable trap",
-        20
-      ],
-      [
-        "pick lock",
-        20
-      ]
-    ]
+    "stats": {"Disable_Trap": 20, "Pick_Lock" : 20}
   },
   "Sandman": {
     "name": "Sandman",
@@ -1446,7 +1354,7 @@
     "weight": 0,
     "price": 50,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -1534,14 +1442,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 3,
+      "EvasionMagic" : 3
+    }
   },
   "Quiver of Magic Resistance": {
     "name": "Quiver of Magic Resistance",
@@ -1559,13 +1462,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ]
+    "stats": {"EvasionMagic" : 5}
   },
   "Shield of Healing +10": {
     "name": "Shield of Healing +10",
@@ -1620,10 +1517,7 @@
       "AccuracyMelee": -15
     },
     "traits": [
-      [
-        "In Retreat",
-        -1
-      ]
+      ["p_fleeing.gd",[]]
     ],
     "unique": 1
   },
@@ -1645,17 +1539,11 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 21,
-      "EvasionRanged": 21
+      "EvasionRanged": 21,
+      "EvasionMagic" : 3
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Electrical Protection",
-        -1
-      ]
+      ["p_prot_elect.gd",[]]
     ],
     "unique": 1
   },
@@ -1758,17 +1646,11 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 4,
-      "EvasionRanged": 4
+      "EvasionRanged": 4,
+      "EvasionMagic" : 10
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        10
-      ],
-      [
-        "Pro' Third Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 3]
     ],
     "unique": 1
   },
@@ -1858,7 +1740,7 @@
     "weight": 0,
     "price": 900,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -1894,7 +1776,7 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {},
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
         2
@@ -1909,7 +1791,7 @@
     "weight": 5,
     "price": 30250,
     "type": "Broach � Pin",
-    "img_ptr": "ITEM_Stick Pin +6",
+    "img_ptr": "ITEM_Trinity_Boomerang",
     "sound": "attack hit.wav",
     "slots": [
       "broach"
@@ -1955,7 +1837,7 @@
     "weight": 0,
     "price": 100,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -2021,10 +1903,7 @@
       "EvasionRanged": 7
     },
     "traits": [
-      [
-        "Absorbing Spell Energy",
-        -1
-      ]
+     ["p_sp_absorb.gd",[]]
     ]
   },
   "Morning Star of Defense +2": {
@@ -2056,10 +1935,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Shielded from Hits",
-        -1
-      ]
+      ["p_increased_def.gd",[1]]
     ]
   },
   "Quarter Staff +2": {
@@ -2107,17 +1983,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "disable trap",
-        5
-      ],
-      [
-        "pick lock",
-        5
-      ]
-    ]
+    "stats": {"Disable_Trap": 5, "Pick_Lock" : 5}
   },
   "Quarter Staff +1": {
     "name": "Quarter Staff +1",
@@ -2166,17 +2032,11 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 7,
-      "EvasionRanged": 7
+      "EvasionRanged": 7,
+      "EvasionMagic" : 2
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        2
-      ],
-      [
-        "Pro' First Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 1]
     ]
   },
   "Helm of Pain -1": {
@@ -2223,10 +2083,7 @@
       "AccuracyMelee": 15
     },
     "traits": [
-      [
-        "Pro' Fourth Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 4]
     ],
     "unique": 1
   },
@@ -2423,10 +2280,7 @@
       "AccuracyMelee": 10
     },
     "traits": [
-      [
-        "Invisible",
-        -1
-      ]
+      ["'p_invisible.gd",[]]
     ]
   },
   "Boots of Balance": {
@@ -2621,7 +2475,7 @@
     "weight": 25,
     "price": 3000,
     "type": "Scroll",
-    "img_ptr": "ITEM_Gnomish Drinking Song",
+    "img_ptr": "ITEM_Gnomish_Drinking_Song",
     "sound": "special stats scroll.wav",
     "slots": [
       "magic item"
@@ -2682,15 +2536,9 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
+    "stats": {"EvasionMagic" : 3},
     "charges": 6,
     "charges_max": 6,
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ],
     "_on_combat_use_spell": [
       "Creature Summon 6 (3701)",
       1
@@ -2718,10 +2566,7 @@
       "EvasionRanged": 6
     },
     "traits": [
-      [
-        "Pro' Second Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 2]
     ]
   },
   "Longsword": {
@@ -2784,7 +2629,7 @@
     "weight": 0,
     "price": 300,
     "type": "Potion",
-    "img_ptr": "ITEM_Improved Luck",
+    "img_ptr": "ITEM_Green_Potion",
     "sound": "slurpy.wav",
     "slots": [
       "magic item"
@@ -2965,10 +2810,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Poisoned",
-        -1
-      ]
+      ["p_poison.gd",[1]]
     ],
     "unique": 1
   },
@@ -3074,10 +2916,7 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {},
     "traits": [
-      [
-        "Regenerating",
-        -1
-      ]
+      ["p_hp_regen.gd",[1]]
     ]
   },
   "Cloak of Protection +6": {
@@ -3098,14 +2937,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 8,
-      "EvasionRanged": 8
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 8,
+      "EvasionMagic" : 3
+    }
   },
   "Arrow of Seeking": {
     "name": "Arrow of Seeking",
@@ -3231,10 +3065,7 @@
       "EvasionRanged": -2
     },
     "traits": [
-      [
-        "Poisoned",
-        -1
-      ]
+      ["p_poison.gd",[1]]
     ],
     "unique": 1
   },
@@ -3413,15 +3244,12 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {
-      "maxSP": 15
+      "maxSP": 15,
+      "EvasionMagic" : 1
     },
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
-        1
-      ],
-      [
-        "magic_resist_bonus",
         1
       ]
     ]
@@ -3580,7 +3408,8 @@
       "Bonus_Physical_dmg": 8,
       "AccuracyRanged": 40,
       "Strength": 2,
-      "AccuracyMelee": 40
+      "AccuracyMelee": 40,
+      "EvasionMagic" : 10
     },
     "weapon_dmg": {
       "Physical": [
@@ -3589,12 +3418,6 @@
       ]
     },
     "melee_atk_anim_icon": "ATK_WPN",
-    "traits": [
-      [
-        "magic_resist_bonus",
-        10
-      ]
-    ],
     "unique": 1
   },
   "Longsword +3": {
@@ -3698,10 +3521,7 @@
       "AccuracyMelee": 10
     },
     "traits": [
-      [
-        "Shielded from Hits",
-        -1
-      ]
+      ["p_increased_def.gd",[1]]
     ]
   },
   "Creature Summon 3": {
@@ -3739,7 +3559,7 @@
     "weight": 37,
     "price": 13500,
     "type": "Cloak � Cape",
-    "img_ptr": "ITEM_Cloak of Light +10",
+    "img_ptr": "ITEM_Cloak_Of_Light",
     "sound": "cloth armor.wav",
     "slots": [
       "cloak"
@@ -3788,7 +3608,7 @@
     "weight": 0,
     "price": 1200,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -3815,7 +3635,7 @@
     "weight": 0,
     "price": 950,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -3965,7 +3785,7 @@
     "weight": 0,
     "price": 2000,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -4021,7 +3841,7 @@
     "weight": 0,
     "price": 100,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -4048,7 +3868,7 @@
     "weight": 15,
     "price": 19000,
     "type": "Soft Helm",
-    "img_ptr": "ITEM_Leather Cap",
+    "img_ptr": "ITEM_Leather_cap",
     "sound": "force field.wav",
     "slots": [
       "helmet"
@@ -4064,10 +3884,7 @@
       "AccuracyMelee": 15
     },
     "traits": [
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ],
     "unique": 1
   },
@@ -4092,7 +3909,8 @@
       "Bonus_Physical_dmg": 7,
       "AccuracyRanged": 35,
       "EvasionRanged": 7,
-      "AccuracyMelee": 35
+      "AccuracyMelee": 35,
+      "EvasionMagic" : 5
     },
     "weapon_dmg": {
       "Physical": [
@@ -4103,13 +3921,9 @@
     "melee_atk_anim_icon": "ATK_WPN",
     "charges": 4,
     "charges_max": 4,
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
-        5
-      ],
-      [
-        "magic_resist_bonus",
         5
       ]
     ],
@@ -4357,7 +4171,7 @@
     "weight": 0,
     "price": 300,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -4470,16 +4284,9 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
+    "stats": {"EvasionMagic" : 10},
     "traits": [
-      [
-        "magic_resist_bonus",
-        10
-      ],
-      [
-        "Pro' First Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 1]
     ]
   },
   "Gnomish Drinking Song": {
@@ -4600,7 +4407,8 @@
       "Bonus_Physical_dmg": 4,
       "AccuracyRanged": 20,
       "EvasionRanged": 3,
-      "AccuracyMelee": 20
+      "AccuracyMelee": 20,
+      "EvasionMagic" : 3
     },
     "weapon_dmg": {
       "Physical": [
@@ -4613,12 +4421,6 @@
       ]
     },
     "melee_atk_anim_icon": "ATK_WPN",
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ],
     "unique": 1
   },
   "War Hammer": {
@@ -4717,16 +4519,13 @@
       "AccuracyRanged": 5,
       "EvasionRanged": 3,
       "MaxMovement": 2,
-      "AccuracyMelee": 5
+      "AccuracyMelee": 5,
+      "EvasionMagic" : 3
     },
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
         2
-      ],
-      [
-        "magic_resist_bonus",
-        3
       ]
     ],
     "unique": 1
@@ -4760,10 +4559,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Magic Aura",
-        -1
-      ]
+      ["p_aura.gd",[]]
     ],
     "unique": 1
   },
@@ -4968,18 +4764,10 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 4,
-      "EvasionRanged": 4
-    },
-    "traits": [
-      [
-        "detect trap",
-        10
-      ],
-      [
-        "pick lock",
-        10
-      ]
-    ]
+      "EvasionRanged": 4,
+      "Pick_Lock" : 10,
+      "Detect_Trap" : 10
+    }
   },
   "Saurons Bane +9": {
     "name": "Saurons Bane +9",
@@ -5002,17 +4790,11 @@
       "Bonus_Physical_dmg": 1,
       "AccuracyRanged": 5,
       "EvasionRanged": 15,
-      "AccuracyMelee": 5
+      "AccuracyMelee": 5,
+      "EvasionMagic" : 5
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Pro' from Foe",
-        -1
-      ]
+     ["p_prot_evil.gd",[]]
     ],
     "unique": 1
   },
@@ -5024,7 +4806,7 @@
     "weight": 0,
     "price": 600,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -5153,17 +4935,11 @@
       "Bonus_Physical_dmg": 1,
       "AccuracyRanged": 5,
       "EvasionRanged": 39,
-      "AccuracyMelee": 5
+      "AccuracyMelee": 5,
+      "EvasionMagic" : 2
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        2
-      ],
-      [
-        "Chemical Protection",
-        -1
-      ]
+      ["p_prot_chem.gd",[]]
     ],
     "unique": 1
   },
@@ -5185,17 +4961,11 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 6,
-      "EvasionRanged": 6
+      "EvasionRanged": 6,
+      "EvasionMagic" : 5
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Pro' Second Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 2]
     ],
     "unique": 1
   },
@@ -5219,7 +4989,7 @@
       "EvasionMelee": 12,
       "EvasionRanged": 12
     },
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
         3
@@ -5272,14 +5042,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 3,
+      "EvasionMagic" : 3
+    }
   },
   "Flameheart +2": {
     "name": "Flameheart +2",
@@ -5387,14 +5152,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 3,
+      "EvasionMagic" : 3
+    }
   },
   "Shadow Cloak +9": {
     "name": "Shadow Cloak +9",
@@ -5485,7 +5245,8 @@
       "AccuracyRanged": 15,
       "maxSP": 30,
       "MaxMovement": 8,
-      "AccuracyMelee": 15
+      "AccuracyMelee": 15,
+      "EvasionMagic" : 5
     },
     "weapon_dmg": {
       "Physical": [
@@ -5498,12 +5259,6 @@
       ]
     },
     "melee_atk_anim_icon": "ATK_WPN",
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ],
     "unique": 1
   },
   "Belt of Brawn": {
@@ -5700,13 +5455,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "magic_resist_bonus",
-        30
-      ]
-    ],
+    "stats": {"EvasionMagic" : 30},
     "unique": 1
   },
   "Nethermace +2": {
@@ -5927,10 +5676,7 @@
       "AccuracyMelee": 5
     },
     "traits": [
-      [
-        "Magic Aura",
-        -1
-      ]
+      ["p_aura.gd",[]]
     ],
     "unique": 1
   },
@@ -6006,7 +5752,7 @@
     "weight": 0,
     "price": 250,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -6046,7 +5792,8 @@
       "Bonus_Physical_dmg": 2,
       "AccuracyRanged": 10,
       "EvasionRanged": 6,
-      "AccuracyMelee": 10
+      "AccuracyMelee": 10,
+      "EvasionMagic" : 5
     },
     "weapon_dmg": {
       "Physical": [
@@ -6054,13 +5801,7 @@
         6
       ]
     },
-    "melee_atk_anim_icon": "ATK_WPN",
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ]
+    "melee_atk_anim_icon": "ATK_WPN"
   },
   "The Book of Judgment": {
     "name": "The Book of Judgment",
@@ -6361,13 +6102,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "turn undead",
-        20
-      ]
-    ]
+    "stats": {"Turn_Undead" : 20}
   },
   "Dragon Breath +5": {
     "name": "Dragon Breath +5",
@@ -6458,10 +6193,7 @@
       "AccuracyMelee": 5
     },
     "traits": [
-      [
-        "Pro' from Foe",
-        -1
-      ],
+     ["p_prot_evil.gd",[]],
       [
         "major wound",
         5
@@ -6490,7 +6222,7 @@
       "AccuracyRanged": 20,
       "AccuracyMelee": 20
     },
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
         4
@@ -6595,7 +6327,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -6636,17 +6368,11 @@
       "AccuracyRanged": 5,
       "maxSP": 40,
       "EvasionRanged": 9,
-      "AccuracyMelee": 5
+      "AccuracyMelee": 5,
+      "EvasionMagic" : 9
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        9
-      ],
-      [
-        "Pro' from Foe",
-        -1
-      ]
+     ["p_prot_evil.gd",[]]
     ],
     "unique": 1
   },
@@ -6767,15 +6493,12 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "maxSP": 20,
-      "MaxMovement": -1
+      "MaxMovement": -1,
+      "EvasionMagic" : 2
     },
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
-        2
-      ],
-      [
-        "magic_resist_bonus",
         2
       ]
     ]
@@ -6822,14 +6545,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 3,
+      "EvasionMagic" : 3
+    }
   },
   "Ring of Revival": {
     "name": "Ring of Revival",
@@ -6956,7 +6674,7 @@
     "weight": 0,
     "price": 250,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -7164,14 +6882,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "melee_inflicted_traits": [
-      [
-        "Poisoned",
-        [
-          1,
-          -4
-        ],
-        1
-      ]
+      ["t_poison.gd",[1],1]
     ]
   },
   "Necklace of Shielding": {
@@ -7192,10 +6903,7 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {},
     "traits": [
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ]
   },
   "Cloak of Power +5": {
@@ -7318,7 +7026,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -7402,14 +7110,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 2,
-      "EvasionRanged": 2
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        2
-      ]
-    ]
+      "EvasionRanged": 2,
+      "EvasionMagic" : 2
+    }
   },
   "Bitter Sweet +1 (-2)": {
     "name": "Bitter Sweet +1 (-2)",
@@ -7455,7 +7158,7 @@
       "EvasionMelee": 8,
       "EvasionRanged": 8
     },
-    "traits": [
+    "notraits": [
       [
         "+ vs undead",
         2
@@ -7617,10 +7320,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ]
   },
   "Perrin's Eye +3": {
@@ -7898,15 +7598,12 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 10,
-      "EvasionRanged": 10
+      "EvasionRanged": 10,
+      "Disable_Trap": 10
     },
     "traits": [
       [
         "detect trap",
-        10
-      ],
-      [
-        "disable trap",
         10
       ]
     ],
@@ -7993,7 +7690,7 @@
     "weight": 0,
     "price": 350,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -8042,7 +7739,7 @@
     "weight": 0,
     "price": 900,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -8105,14 +7802,9 @@
     "stats": {
       "EvasionMelee": 4,
       "maxSP": 15,
-      "EvasionRanged": 4
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        2
-      ]
-    ]
+      "EvasionRanged": 4,
+      "EvasionMagic" : 2
+    }
   },
   "Ring of Cold": {
     "name": "Ring of Cold",
@@ -8160,7 +7852,8 @@
       "AccuracyRanged": 35,
       "EvasionRanged": 7,
       "Strength": 1,
-      "AccuracyMelee": 35
+      "AccuracyMelee": 35,
+      "EvasionMagic" : 10
     },
     "weapon_dmg": {
       "Physical": [
@@ -8170,19 +7863,9 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "luck_bonus",
-        2
-      ],
-      [
-        "magic_resist_bonus",
-        10
-      ],
-      [
-        "Regenerating",
-        -3
-      ]
+      ["p_hp_regen.gd",[3]]
     ],
+    "notraits" : "+2 luck",
     "unique": 1
   },
   "Steel Tooth +7": {
@@ -8214,10 +7897,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ],
     "unique": 1
   },
@@ -8308,7 +7988,7 @@
     "weight": 0,
     "price": 150,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -8345,13 +8025,10 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "maxSP": 25,
-      "MaxMovement": 4
+      "MaxMovement": 4,
+      "EvasionMagic" : 3
     },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ],
+    "notraits": [
       [
         "+ vs demonic",
         2
@@ -8366,7 +8043,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -8406,21 +8083,12 @@
       "AccuracyRanged": 5,
       "maxSP": 50,
       "MaxMovement": -1,
-      "AccuracyMelee": 5
+      "AccuracyMelee": 5,
+      "EvasionMagic" : 10
     },
+    "notraits" : "+2 luck",
     "traits": [
-      [
-        "luck_bonus",
-        2
-      ],
-      [
-        "magic_resist_bonus",
-        10
-      ],
-      [
-        "Pro' Third Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 3]
     ],
     "unique": 1
   },
@@ -8442,17 +8110,11 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 9,
-      "EvasionRanged": 9
+      "EvasionRanged": 9,
+      "EvasionMagic" : 5
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Pro' Second Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 2]
     ],
     "unique": 1
   },
@@ -8477,11 +8139,8 @@
       "EvasionRanged": 7
     },
     "traits": [
-      [
-        "Shielded from Hits",
-        -1
+      ["p_increased_def.gd",[1]]
       ]
-    ]
   },
   "Robe of Strength": {
     "name": "Robe of Strength",
@@ -8631,10 +8290,7 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {},
     "traits": [
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ]
   },
   "Staff of Spells +2": {
@@ -8686,18 +8342,10 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 2,
-      "EvasionRanged": 2
+      "EvasionRanged": 2,
+      "Pick_Lock" : 15,
+      "Detect_Trap" : 15
     },
-    "traits": [
-      [
-        "detect trap",
-        -15
-      ],
-      [
-        "pick lock",
-        -15
-      ]
-    ],
     "unique": 1
   },
   "Chain Gloves": {
@@ -8868,10 +8516,7 @@
       "EvasionRanged": 8
     },
     "traits": [
-      [
-        "Pro' from Foe",
-        -1
-      ]
+     ["p_prot_evil.gd",[]]
     ],
     "unique": 1
   },
@@ -8883,7 +8528,7 @@
     "weight": 0,
     "price": 340,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -9058,14 +8703,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "melee_inflicted_traits": [
-      [
-        "Poisoned",
-        [
-          1,
-          -5
-        ],
-        1
-      ]
+      ["t_poison.gd",[5],1]
     ],
     "unique": 1
   },
@@ -9181,7 +8819,7 @@
     "melee_atk_anim_icon": "ATK_WPN"
   },
   "Shadowhawk +7": {
-    "name": "Shadowhawk +7",
+    "name": "ITEM_Shadowhawk",
     "unidentified_name": "Short Sword",
     "is_magical": 1,
     "description": "Giving the wielder incredible speed is but one advantage of this beautiful sword.",
@@ -9597,14 +9235,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 20,
-      "EvasionRanged": 20
+      "EvasionRanged": 20,
+      "EvasionMagic" : 20
     },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        20
-      ]
-    ],
     "unique": 1
   },
   "Jo Stick +2": {
@@ -9795,14 +9428,9 @@
     "stats": {
       "EvasionMelee": 10,
       "EvasionRanged": 10,
-      "MaxMovement": 2
+      "MaxMovement": 2,
+      "EvasionMagic" : 5
     },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ]
   },
   "Savage Winds +9": {
     "name": "Savage Winds +9",
@@ -9944,10 +9572,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Pro' from Foe",
-        -1
-      ]
+     ["p_prot_evil.gd",[]]
     ]
   },
   "Penetration Broadsword +2": {
@@ -10042,14 +9667,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 3,
+      "EvasionMagic" : 3
+    }
   },
   "Short Sword of Defense +2": {
     "name": "Short Sword of Defense +2",
@@ -10072,7 +9692,8 @@
       "Bonus_Physical_dmg": 2,
       "AccuracyRanged": 10,
       "EvasionRanged": 3,
-      "AccuracyMelee": 10
+      "AccuracyMelee": 10,
+      "EvasionMagic" : 1
     },
     "weapon_dmg": {
       "Physical": [
@@ -10082,10 +9703,6 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "magic_resist_bonus",
-        1
-      ],
       [
         "Cold Protection",
         -1
@@ -10196,17 +9813,11 @@
       "Bonus_Physical_dmg": 2,
       "AccuracyRanged": 10,
       "EvasionRanged": 37,
-      "AccuracyMelee": 10
+      "AccuracyMelee": 10,
+      "EvasionMagic" : 5
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Chemical Protection",
-        -1
-      ]
+      ["p_prot_chem.gd",[]]
     ],
     "unique": 1
   },
@@ -10274,14 +9885,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 3,
-      "EvasionRanged": 3
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        3
-      ]
-    ]
+      "EvasionRanged": 3,
+      "EvasionMagic" : 3
+    }
   },
   "Scimitar of Dodging +2": {
     "name": "Scimitar of Dodging +2",
@@ -10312,10 +9918,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ],
     "unique": 1
   },
@@ -10374,14 +9977,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 5,
-      "EvasionRanged": 5
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        2
-      ]
-    ]
+      "EvasionRanged": 5,
+      "EvasionMagic" : 2
+    }
   },
   "Shield of the Blue Oxen +4": {
     "name": "Shield of the Blue Oxen +4",
@@ -10404,10 +10002,7 @@
       "EvasionRanged": 10
     },
     "traits": [
-      [
-        "Regenerating",
-        -1
-      ]
+      ["p_hp_regen.gd",[1]]
     ],
     "unique": 1
   },
@@ -10454,10 +10049,7 @@
       "EvasionRanged": 2
     },
     "traits": [
-      [
-        "Regenerating",
-        -1
-      ]
+      ["p_hp_regen.gd",[1]]
     ],
     "unique": 1
   },
@@ -10479,14 +10071,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 18,
-      "EvasionRanged": 18
+      "EvasionRanged": 18,
+      "EvasionMagic" : 5
     },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ],
     "unique": 1
   },
   "Major Soul Bind": {
@@ -10497,7 +10084,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -10524,7 +10111,7 @@
     "weight": 0,
     "price": 300,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -10572,10 +10159,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Regenerating",
-        -1
-      ]
+      ["p_hp_regen.gd",[1]]
     ],
     "unique": 1
   },
@@ -10650,7 +10234,7 @@
     "weight": 0,
     "price": 400,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -10739,18 +10323,15 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {
-      "maxSP": 25
+      "maxSP": 25,
+      "EvasionMagic" : 3
     },
     "charges": 6,
     "charges_max": 6,
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
         2
-      ],
-      [
-        "magic_resist_bonus",
-        3
       ]
     ],
     "unique": 1,
@@ -10861,10 +10442,7 @@
       "EvasionRanged": 8
     },
     "traits": [
-      [
-        "Chemical Protection",
-        -1
-      ]
+      ["p_prot_chem.gd",[]]
     ]
   },
   "The Four Winds +4": {
@@ -10971,7 +10549,7 @@
     "weight": 0,
     "price": 200,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -11027,13 +10605,7 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
-    "traits": [
-      [
-        "turn undead",
-        35
-      ]
-    ]
+    "stats": {"Turn_Undead" : 35}
   },
   "Sword of the Lost Soul -3": {
     "name": "Sword of the Lost Soul -3",
@@ -11139,14 +10711,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 2,
-      "EvasionRanged": 2
-    },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        1
-      ]
-    ]
+      "EvasionRanged": 2,
+      "EvasionMagic" : 1
+    }
   },
   "Robe of Vulnerability -2": {
     "name": "Robe of Vulnerability -2",
@@ -11345,7 +10912,7 @@
     "weight": 0,
     "price": 450,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -11527,7 +11094,7 @@
     "weight": 0,
     "price": 50,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -11644,15 +11211,9 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
+    "stats": {"EvasionMagic" : 5},
     "charges": 4,
     "charges_max": 4,
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ],
     "unique": 1,
     "_on_combat_use_spell": [
       "Destroy Magic (2302)",
@@ -11759,21 +11320,12 @@
       "maxSP": 10,
       "EvasionRanged": 4,
       "MaxMovement": 2,
-      "AccuracyMelee": 5
+      "AccuracyMelee": 5,
+      "EvasionMagic" : 3
     },
+    "notraits" : "+1 luck",
     "traits": [
-      [
-        "luck_bonus",
-        1
-      ],
-      [
-        "magic_resist_bonus",
-        3
-      ],
-      [
-        "Magic Aura",
-        -1
-      ]
+       ["p_aura.gd",[]]
     ],
     "unique": 1
   },
@@ -11879,7 +11431,8 @@
     "stats": {
       "Bonus_Physical_dmg": 2,
       "AccuracyRanged": 10,
-      "AccuracyMelee": 10
+      "AccuracyMelee": 10,
+      "EvasionMagic" : 5
     },
     "weapon_dmg": {
       "Physical": [
@@ -11887,13 +11440,7 @@
         6
       ]
     },
-    "melee_atk_anim_icon": "ATK_WPN",
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ]
+    "melee_atk_anim_icon": "ATK_WPN"
   },
   "Leather of Strength +9": {
     "name": "Leather of Strength +9",
@@ -12044,14 +11591,9 @@
       "Bonus_Physical_dmg": 6,
       "AccuracyRanged": 30,
       "EvasionRanged": 10,
-      "AccuracyMelee": 30
+      "AccuracyMelee": 30,
+      "EvasionMagic" : 5
     },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ],
     "unique": 1
   },
   "Short Sword +3": {
@@ -12140,10 +11682,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Strong",
-        -1
-      ]
+      ["p_strong.gd",[]]
     ],
     "unique": 1
   },
@@ -12327,10 +11866,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Moving Slowly",
-        -1
-      ]
+     ["p_slow.gd",[]]
     ],
     "unique": 1
   },
@@ -12396,7 +11932,8 @@
     "stats": {
       "Bonus_Physical_dmg": 2,
       "AccuracyRanged": 10,
-      "AccuracyMelee": 10
+      "AccuracyMelee": 10,
+      "EvasionMagic" : 5
     },
     "weapon_dmg": {
       "Physical": [
@@ -12404,13 +11941,7 @@
         10
       ]
     },
-    "melee_atk_anim_icon": "ATK_WPN",
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ]
+    "melee_atk_anim_icon": "ATK_WPN"
   },
   "War Axe": {
     "name": "War Axe",
@@ -12661,17 +12192,11 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 40,
-      "EvasionRanged": 40
+      "EvasionRanged": 40,
+      "EvasionMagic" : 5
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ],
-      [
-        "Pro' Second Level",
-        -1
-      ]
+      ["p_spell_lvl_prot.gd", 2]
     ],
     "unique": 1
   },
@@ -12712,7 +12237,7 @@
     "weight": 0,
     "price": 900,
     "type": "Normal Bow",
-    "img_ptr": "ITEM_Arrow Storm",
+    "img_ptr": "ITEM_Arrow_storm",
     "sound": "spell launch 3.wav",
     "slots": [
       "quiver"
@@ -12749,14 +12274,9 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 20,
-      "EvasionRanged": 20
+      "EvasionRanged": 20,
+      "EvasionMagic" : 20
     },
-    "traits": [
-      [
-        "magic_resist_bonus",
-        20
-      ]
-    ],
     "unique": 1
   },
   "Sting +3": {
@@ -12863,15 +12383,9 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
+    "stats": {"EvasionMagic" : 6},
     "charges": 1,
     "charges_max": 6,
-    "traits": [
-      [
-        "magic_resist_bonus",
-        5
-      ]
-    ],
     "unique": 1,
     "_on_combat_use_spell": [
       "Destroy / Turn Undead (3504)",
@@ -12953,7 +12467,7 @@
       "EvasionMelee": 7,
       "EvasionRanged": 7
     },
-    "traits": [
+    "notraits": [
       [
         "+ vs magic using",
         1
@@ -12995,7 +12509,7 @@
     "weight": 0,
     "price": 35,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -13181,10 +12695,7 @@
       "EvasionRanged": 2
     },
     "traits": [
-      [
-        "Regenerating",
-        -2
-      ]
+      ["p_hp_regen.gd",[2]]
     ],
     "unique": 1
   },
@@ -13326,15 +12837,9 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {},
+    "notraits" : "+5 luck",
     "traits": [
-      [
-        "luck_bonus",
-        3
-      ],
-      [
-        "Missile Shield",
-        -1
-      ]
+     ["p_pro_proj.gd",[]]
     ]
   },
   "Flail of Devilish Dare +4": {
@@ -13422,10 +12927,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Shielded from Hits",
-        -1
-      ]
+      ["p_increased_def.gd",[1]]
     ]
   },
   "Crossbow": {
@@ -13493,7 +12995,7 @@
     },
     "charges": 24,
     "charges_max": 24,
-    "traits": [
+    "notraits": [
       [
         "luck_bonus",
         4
@@ -13522,7 +13024,7 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {},
-    "traits": [
+    "notraits": [
       [
         "+ vs reptilian",
         5
@@ -13692,13 +13194,10 @@
     "stats_mini": "stats_mini placeholder",
     "stats": {
       "EvasionMelee": 12,
-      "EvasionRanged": 12
+      "EvasionRanged": 12,
+      "EvasionMagic" : 2
     },
     "traits": [
-      [
-        "magic_resist_bonus",
-        2
-      ],
       [
         "Increased Defense",
         -5
@@ -13776,7 +13275,7 @@
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
     "stats": {},
-    "traits": [
+    "notraits": [
       [
         "+ vs demonic",
         3
@@ -13954,10 +13453,7 @@
     },
     "melee_atk_anim_icon": "ATK_WPN",
     "traits": [
-      [
-        "Strong",
-        -1
-      ]
+      ["p_strong.gd",[]]
     ]
   },
   "Ring of Fech": {
@@ -13976,12 +13472,8 @@
     "hands": 0,
     "equippable": 1,
     "stats_mini": "stats_mini placeholder",
-    "stats": {},
+    "stats": {"EvasionMagic" : -10},
     "traits": [
-      [
-        "magic_resist_bonus",
-        -10
-      ],
       [
         "Stupid",
         -1
@@ -14018,7 +13510,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal Small Wounds",
+    "img_ptr": "ITEM_Heal_Small_Wounds",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -14160,10 +13652,7 @@
       "EvasionRanged": 24
     },
     "traits": [
-      [
-        "Electrical Protection",
-        -1
-      ]
+      ["p_prot_elect.gd",[]]
     ],
     "unique": 1
   },
