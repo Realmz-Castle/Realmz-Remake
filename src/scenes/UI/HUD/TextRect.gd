@@ -164,13 +164,13 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 	itemtex.hide()
 	StateMachine.transition_to("MultipleChoices", {"prev_state" : StateMachine._state_name, "choicesContainer" : choicesContainer})
 	Input.set_custom_mouse_cursor(UI.cursor_click)
-	choicesContainer.display_multiple_choices(choices, scripts)
-	
 	choicesContainer.show()
+	choicesContainer.display_multiple_choices(choices, scripts)
 	var choice = await choicesContainer.choice_pressed
-	#print("textrect choice "+choice)
-	emit_signal("choice_pressed", choice)
+	print("textrect choice "+choice)
 	choicesContainer.hide()
+	emit_signal("choice_pressed", choice)
+
 	
 	#GameState.set_paused(false)
 	#Input.set_custom_mouse_cursor(GameState.cursor_sword)

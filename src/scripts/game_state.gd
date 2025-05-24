@@ -312,8 +312,9 @@ func check_map_script(position) ->bool :
 
 
 func enter_ex_menu_state(msg_dict : Dictionary) :
-	msg_dict["prev_state"] = _state_name
-	transition_to("Exploration/ExMenus", msg_dict)
+	if _state_name!="ExMenus" :
+		msg_dict["prev_state"] = _state_name
+		transition_to("Exploration/ExMenus", msg_dict)
 
 func enter_cb_menu_state(msg_dict : Dictionary) :
 	msg_dict["prev_state"] = _state_name

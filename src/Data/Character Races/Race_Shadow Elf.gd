@@ -1,16 +1,16 @@
-const classrace_name  : String = "Human"
+const classrace_name  : String = "Shadow Elf"
 const classrace_types : Array = ["Human Races"]
 const classrace_definition : String = "Description will come soon"
 const can_dual_wield : bool = false
 
 const base_stat_bonuses : Dictionary = {
-	"MaxMovement" : 12,
+	"MaxMovement" : 13,
 	"MaxActions" : 1,
 	"Weight_Limit" : 0,
-	"Strength" : 10,
+	"Strength" : 9,
 	"Intellect" : 10,
 	"Wisdom" : 10,
-	"Dexterity" : 10,
+	"Dexterity" : 11,
 	"Vitality" : 10,
 	"curHP" : 0,
 	"curSP" : 0,
@@ -25,7 +25,7 @@ const base_stat_bonuses : Dictionary = {
 	"HP_regen_mult" : 1.0,
 	"SP_regen_mult" : 1.0,
 	"AccuracyMelee" : 0,
-	"AccuracyRanged" : 0,
+	"AccuracyRanged" : 15,
 	"AccuracyMagic" : 0,
 	"EvasionMelee" : 0,
 	"EvasionRanged" : 0,
@@ -38,32 +38,32 @@ const base_stat_bonuses : Dictionary = {
 	"ResistancePoison" : 0.0,
 	"ResistanceChemical" : 0.0,
 	"ResistanceDisease" : 0.0,
-	"ResistanceMagic" : 0.0,
+	"ResistanceMagic" : 5.0,
 	"ResistanceHealing" : 0.0,
 	"ResistanceMental" : 0.0,
 	
-	"MultiplierPhysical" : 0.975,
-	"MultiplierFire" : 1.0,
-	"MultiplierIce" : 1.0,
-	"MultiplierElect" : 1.0,
+	"MultiplierPhysical" : 1.0,
+	"MultiplierFire" : 0.975,
+	"MultiplierIce" : 1.05,
+	"MultiplierElect" : 1.025,
 	"MultiplierPoison" : 1.0,
 	"MultiplierChemical" : 1.0,
 	"MultiplierDisease" : 1.0,
-	"MultiplierMagic" : 1.0,
+	"MultiplierMagic" : 0.95,
 	"MultiplierHealing" : -1.0,
 	
 	"MultiplierMental" : 0.975,
 	
-	"Melee_Crit_Rate" : 0.0,
+	"Melee_Crit_Rate" : 6.0,
 	"Melee_Crit_Mult" : 0.0,
 	"Ranged_Crit_Rate" : 0.0,
 	"Ranged_Crit_Mult" : 0.0,
-	"Detect_Secret" : 0.0,
-	"Acrobatics" : 0.0,
-	"Detect_Trap" : 0.0,
-	"Disable_Trap" : 0.0,
-	"Force_Lock" : 0.0,
-	"Pick_Lock" : 0.0,
+	"Detect_Secret" : 5.0,
+	"Acrobatics" : 5.0,
+	"Detect_Trap" : 5.0,
+	"Disable_Trap" : 5.0,
+	"Force_Lock" : -20.0,
+	"Pick_Lock" : 5.0,
 	"Turn_Undead" : 0.0
 } 
 

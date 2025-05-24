@@ -1,40 +1,37 @@
-#extends 'res://Creature/classrace_base.gd' # Weird, right?
-
-const classrace_name  : String = "Lizardfolk"
-const classrace_types : Array = ["Reptilian Races"]
-const classrace_definition : String = "Passive regeneration trait !"
-
-const can_dual_wield : bool = true
+const classrace_name : String = "Demon"
+const classrace_types : Array = ["Human Races"]
+const classrace_definition : String = "Description will come soon"
+const can_dual_wield : bool = false
 
 #Applied once on character creation
 const base_stat_bonuses : Dictionary = {
-	"MaxMovement" : 11,		#Movement points
-	"MaxActions" : 3,			#Actions per round
-	"MaxSpellsPerRound" : 0,
+	"MaxMovement" : 10,
+	"MaxActions" : 1,
 	"Weight_Limit" : 0,
 	"Strength" : 12,
-	"Intellect" : 8,
-	"Wisdom" : 8,
-	"Dexterity" : 11,
-	"Vitality" : 11,
-	"curHP" : 8,
-	"curSP" : -2,
+	"Intellect" : 9,
+	"Wisdom" : 9,
+	"Dexterity" : 12,
+	"Vitality" : 12,
+	"curHP" : 0,
+	"curSP" : 0,
 	"curFP" : 0,
-	"curRP" : 10,
-	"maxHP" : 8,
-	"maxSP" : -2,
+	"curRP" : 0,
+	"maxHP" : 0,
+	"maxSP" : 0,
 	"maxFP" : 0,
-	"maxRP" : 10,
+	"maxRP" : 0,
 	"HP_regen_base" : 1.0,
 	"SP_regen_base" : 1.0,
-	"HP_regen_mult" : 0.0, #added to the character's multiplier
-	"SP_regen_mult" : 0.0, #added to the character's multiplier
+	"HP_regen_mult" : 1.0,
+	"SP_regen_mult" : 1.0,
 	"AccuracyMelee" : 0,
-	"AccuracyRanged" :0,
+	"AccuracyRanged" : -10,
 	"AccuracyMagic" : 0,
 	"EvasionMelee" : 0,
 	"EvasionRanged" : 0,
 	"EvasionMagic" : 0,
+	
 	"ResistancePhysical" : 0.0,
 	"ResistanceFire" : 0.0,
 	"ResistanceIce" : 0.0,
@@ -45,52 +42,51 @@ const base_stat_bonuses : Dictionary = {
 	"ResistanceMagic" : 0.0,
 	"ResistanceHealing" : 0.0,
 	"ResistanceMental" : 0.0,
-	"MultiplierPhysical" : 1.0,
-	"MultiplierFire" : 1.0,
-	"MultiplierIce" : 1.0,
-	"MultiplierElect" : 1.0,
+	
+	"MultiplierPhysical" : 1.10,
+	"MultiplierFire" : 0.775,
+	"MultiplierIce" : 1.25,
+	"MultiplierElect" : 0.95,
 	"MultiplierPoison" : 1.0,
 	"MultiplierChemical" : 1.0,
 	"MultiplierDisease" : 1.0,
-	"MultiplierMagic" : 1.0,
+	"MultiplierMagic" : 0.95,
 	"MultiplierHealing" : -1.0,
-	# Resistances is damage  taken substracted, Multipliers is damage taken multiplied.
-	# Damage taken = (base_damage - damage_resistance)*damage_multiplier
-	"MultiplierMental" : 0.0,
-	"Melee_Crit_Rate" : 0.25,
-	"Melee_Crit_Mult" : -0.5,
+	
+	"MultiplierMental" : 1.05,
+	
+	"Melee_Crit_Rate" : -2.0,
+	"Melee_Crit_Mult" : 0.0,
 	"Ranged_Crit_Rate" : 0.0,
 	"Ranged_Crit_Mult" : 0.0,
-	"Detect_Secret" : 0.0,
-	"Acrobatics" : 0.0,
-	"Detect_Trap" : 0.0,
-	"Disable_Trap" : 0.0,
-	"Force_Lock" : 0.0,
-	"Pick_Lock" : 0.0,
+	"Detect_Secret" : -10.0,
+	"Acrobatics" : -5.0,
+	"Detect_Trap" : -5.0,
+	"Disable_Trap" : -5.0,
+	"Force_Lock" : 15.0,
+	"Pick_Lock" : 10.0,
 	"Turn_Undead" : 0.0
 } 
 
-
 const levelup_bonuses : Dictionary = {
-	"MaxMovement" : 0,		#Movement points
-	"MaxActions" : 0,			#Actions per round
-	"MaxSpellsPerRound" : 0,
+	"MaxMovement" : 0,
+	"MaxActions" : 0,
 	"Weight_Limit" : 0,
 	"Strength" : 0,
 	"Intellect" : 0,
 	"Wisdom" : 0,
 	"Dexterity" : 0,
 	"Vitality" : 0,
-	"curHP" : 5,
+	"curHP" : 0,
 	"curSP" : 0,
-	"maxHP" : 5,
+	"maxHP" : 0,
 	"maxSP" : 0,
 	"HP_regen_base" : 0.0,
 	"SP_regen_base" : 0.0,
-	"HP_regen_mult" : 0.0, #added to the character's multiplier
-	"SP_regen_mult" : 0.0, #added to the character's multiplier
+	"HP_regen_mult" : 0.0,
+	"SP_regen_mult" : 0.0,
 	"AccuracyMelee" : 0,
-	"AccuracyRanged" :0,
+	"AccuracyRanged" : 0,
 	"AccuracyMagic" : 0,
 	"EvasionMelee" : 0,
 	"EvasionRanged" : 0,
@@ -114,8 +110,7 @@ const levelup_bonuses : Dictionary = {
 	"MultiplierDisease" : 0.0,
 	"MultiplierMagic" : 0.0,
 	"MultiplierHealing" : 0.0,
-	# Resistances is damage  taken substracted, Multipliers is damage taken multiplied.
-	# Damage taken = (base_damage - damage_resistance)*damage_multiplier
+	
 	"MultiplierMental" : 0.0,
 	"Melee_Crit_Rate" : 0.0,
 	"Melee_Crit_Mult" : 0.0,
@@ -130,11 +125,60 @@ const levelup_bonuses : Dictionary = {
 	"Turn_Undead" : 0.0
 } 
 
-
-
 static func _mod_equippable(_character) :
-	pass
-
+	var mod_equippable_types : Dictionary = {
+		"Mace" : 0,
+		"Club" : 0,
+		"Hammer" : 0,
+		"Warhammer/Maul" : 0,
+		"Dagger" : 0,
+		"Shortsword" : 0,
+		"Arming Sword" : 0,
+		"Longsword" : 0,
+		"Short Axe" : 0,
+		"Staff" : 0,
+		"Pole Axe" : 0,
+		"Spear" : 0,
+		"Eastern Weapon" : 0,
+		"Dart" : 0,
+		"Throwing Bottle" : 0,
+		"Throwing Dagger" : 0,
+		"Throwing Rock" : 0,
+		"Throwing Axe" : 0,
+		"Throwing Hammer" : 0,
+		"Throwing Spear" : 0,
+		"Whip" : 0,
+		"Bow" : 0,
+		"Crossbow" : 0,
+		"Quiver" : 0,
+		"Throwing Aid" : 0,
+		"Misc. Melee Weapon" : 0,
+		"Misc Ranged Weapon" : 0,
+		"Belt" : 0,
+		"Necklace" : 0,
+		"Ring" : 0,
+		"Hat" : 0,
+		"Soft Helmet" : 0,
+		"Light Helmet" : 0,
+		"Great Helm" : 0,
+		"Small Shield" : 0,
+		"Medium Shield" : 0,
+		"Large Shield" : 0,
+		"Bracers" : 0,
+		"Cloth Gloves" : 0,
+		"Leather Gloves" : 0,
+		"Metal Gloves" : 0,
+		"Cloak/Cape" : 0,
+		"Robe" : 0,
+		"Gambeson" : 0,
+		"Leather Armor" : 0,
+		"Chainmail Armor" : 0,
+		"Splint Armor" : 0,
+		"Plate Armor" : 0,
+		"Soft Boots" : 0,
+		"Hard Boots" : 0,
+		"Scroll Case" : 0,
+	}
 
 static func _add_base_stats(character) :
 	for s in base_stat_bonuses :
@@ -148,7 +192,13 @@ static func _add_base_stats(character) :
 		else :
 			if not character.base_stats.has(s) :
 				character.base_stats[s] = 0
-			character.base_stats[s] += base_stat_bonuses[s]
+			if s.begins_with("Multiplier") :
+				if character.base_stats[s]<0 and base_stat_bonuses[s]<0 :
+					character.base_stats[s] = - abs(base_stat_bonuses[s] * character.base_stats[s])
+				else :
+					character.base_stats[s] *= base_stat_bonuses[s]
+			else :
+				character.base_stats[s] += base_stat_bonuses[s]
 
 
 
@@ -166,8 +216,6 @@ static func _level_up(character, _new_level : int) :
 
 
 static func _character_creation_gifts(_character) :
-	var traitscript = load("res://shared_assets/traits/"+"regeneration_over_time.gd")
-	_character.add_trait(traitscript.new( [1.0,-1] ) )
 	return
 
 static func get_selection_cost(_character, _ability, _cost) :

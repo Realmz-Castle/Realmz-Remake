@@ -1,26 +1,26 @@
-const classrace_name : String = "Sorcerer"
-const classrace_types : Array = ["Magic Classes"]  # changed to reflect mage type
+const classrace_name : String = "Priest"
+const classrace_types : Array = ["Magic Classes"]  # changed to reflect divine magic type
 const classrace_definition : String = "Description will come soon" # leave it as is
 const can_dual_wield : bool = false  #leave it as is
-const used_resource : String = "MP"  #changed to MP for mage class
+const used_resource : String = "MP"  #changed to MP for magic class
 const can_manage_ablt_anywhere = false  #leave it as is
 
 #Applied once on character creation
 const base_stat_bonuses : Dictionary = {
-    "MaxMovement" : -2,
+    "MaxMovement" : -1,
     "MaxActions" : 1,
     "Weight_Limit" : 0,
-    "Strength" : -2,
-    "Intellect" : 2,
-    "Wisdom" : 1,
-    "Dexterity" : 1,
-    "Vitality" : -2,
-    "curHP" : 8,
+    "Strength" : -1,
+    "Intellect" : 1,
+    "Wisdom" : 2,
+    "Dexterity" : -1,
+    "Vitality" : 0,
+    "curHP" : 12,
     "curSP" : 0,
     "curTP" : 0,
     "curFP" : 0,
     "curMP" : 0,
-    "maxHP" : 8,
+    "maxHP" : 12,
     "maxSP" : 0,
     "maxTP" : 0,
     "maxFP" : 0,
@@ -29,11 +29,11 @@ const base_stat_bonuses : Dictionary = {
     "SP_regen_base" : 0.0,
     "HP_regen_mult" : 0.0,
     "SP_regen_mult" : -10.0,
-    "AccuracyMelee" : 0.02,
+    "AccuracyMelee" : 0.04,
     "AccuracyRanged" : 0.03,
     "AccuracyMagic" : 1.0,
     "EvasionMelee" : 0,
-    "EvasionRanged" : 0.03,
+    "EvasionRanged" : 0.04,
     "EvasionMagic" : 0,
     "ResistancePhysical" : 0.0,
     "ResistanceFire" : 0.0,
@@ -47,12 +47,12 @@ const base_stat_bonuses : Dictionary = {
     "ResistanceMental" : 0.0,
     "MultiplierPhysical" : 1.0,
     "MultiplierFire" : 1.025,
-    "MultiplierIce" : 1.025,
-    "MultiplierElect" : 0.975,
+    "MultiplierIce" : 0.975,
+    "MultiplierElect" : 1.0,
     "MultiplierPoison" : 1.0,
-    "MultiplierChemical" : 1.05,
+    "MultiplierChemical" : 0.975,
     "MultiplierDisease" : 1.0,
-    "MultiplierMagic" : 0.95,
+    "MultiplierMagic" : 1.025,
     "MultiplierHealing" : 1.0,
     "MultiplierMental" : 0.975,
     "Melee_Crit_Rate" : 0.0,
@@ -62,10 +62,10 @@ const base_stat_bonuses : Dictionary = {
     "Detect_Secret" : 5,
     "Acrobatics" : 2.0,
     "Detect_Trap" : 5.0,
-    "Disable_Trap" : 5.0,
-    "Force_Lock" : 0.0,
+    "Disable_Trap" : 2.0,
+    "Force_Lock" : 10.0,
     "Pick_Lock" : 0.0,
-    "Turn_Undead" : 0.0
+    "Turn_Undead" : 5.0
 }
 
 #How those values increase !
@@ -80,17 +80,17 @@ const levelup_bonuses : Dictionary = {
     "Vitality" : 0,
     "curHP" : 0,
     "curSP" : 0,
-    "maxHP" : 3,
+    "maxHP" : 4,
     "maxSP" : 0,
     "HP_regen_base" : 0.0,
     "SP_regen_base" : 0.0,
     "HP_regen_mult" : 0.0,
     "SP_regen_mult" : 0.0,
-    "AccuracyMelee" : 0.02,
-    "AccuracyRanged" : 0.01,
+    "AccuracyMelee" : 0.04,
+    "AccuracyRanged" : 0.02,
     "AccuracyMagic" : 0,
     "EvasionMelee" : 0,
-    "EvasionRanged" : 0.01,
+    "EvasionRanged" : 0.02,
     "EvasionMagic" : 0,
     "ResistancePhysical" : 0.0,
     "ResistanceFire" : 0.0,
@@ -120,18 +120,18 @@ const levelup_bonuses : Dictionary = {
     "Acrobatics" : 0.0,
     "Detect_Trap" : 0.0,
     "Disable_Trap" : 0.0,
-    "Force_Lock" : 0.0,
+    "Force_Lock" : 1.0,
     "Pick_Lock" : 0.0,
-    "Turn_Undead" : 0.0
+    "Turn_Undead" : 5.0
 }
 
 static func _mod_equippable(_character) :
     var mod_equippable_types : Dictionary = {
-        "Mace" : 0,
-        "Club" : 0,
-        "Hammer" : 0,
-        "Warhammer/Maul" : 0,
-        "Dagger" : 1,
+        "Mace" : 1,
+        "Club" : 1,
+        "Hammer" : 1,
+        "Warhammer/Maul" : 1,
+        "Dagger" : 0,
         "Shortsword" : 0,
         "Arming Sword" : 0,
         "Longsword" : 0,
@@ -140,14 +140,14 @@ static func _mod_equippable(_character) :
         "Pole Axe" : 0,
         "Spear" : 0,
         "Eastern Weapon" : 0,
-        "Dart" : 1,
+        "Dart" : 0,
         "Throwing Bottle" : 1,
         "Throwing Dagger" : 0,
         "Throwing Rock" : 0,
         "Throwing Axe" : 0,
-        "Throwing Hammer" : 0,
+        "Throwing Hammer" : 1,
         "Throwing Spear" : 0,
-        "Whip" : 0,
+        "Whip" : 1,
         "Bow" : 0,
         "Crossbow" : 0,
         "Quiver" : 0,
@@ -158,27 +158,28 @@ static func _mod_equippable(_character) :
         "Necklace" : 1,
         "Ring" : 1,
         "Hat" : 1,
-        "Soft Helmet" : 0,
-        "Light Helmet" : 0,
-        "Great Helm" : 0,
-        "Small Shield" : 0,
-        "Medium Shield" : 0,
-        "Large Shield" : 0,
+        "Soft Helmet" : 1,
+        "Light Helmet" : 1,
+        "Great Helm" : 1,
+        "Small Shield" : 1,
+        "Medium Shield" : 1,
+        "Large Shield" : 1,
         "Bracers" : 1,
         "Cloth Gloves" : 1,
-        "Leather Gloves" : 0,
-        "Metal Gloves" : 0,
+        "Leather Gloves" : 1,
+        "Metal Gloves" : 1,
         "Cloak/Cape" : 1,
         "Robe" : 1,
-        "Gambeson" : 0,
-        "Leather Armor" : 0,
-        "Chainmail Armor" : 0,
-        "Splint Armor" : 0,
-        "Plate Armor" : 0,
+        "Gambeson" : 1,
+        "Leather Armor" : 1,
+        "Chainmail Armor" : 1,
+        "Splint Armor" : 1,
+        "Plate Armor" : 1,
         "Soft Boots" : 1,
-        "Hard Boots" : 0,
+        "Hard Boots" : 1,
         "Scroll Case" : 1
     }
+
     for t in _character.equippable_types :
         _character.equippable_types[t] += mod_equippable_types[t]
 
@@ -212,7 +213,7 @@ static func _level_up(_character, _new_level : int) :
                 _character.base_stats[s] = 0
             _character.base_stats[s] += levelup_bonuses[s]
     # ADD APR AT LEVEL
-    if [15].has(_new_level) :
+    if [10,20].has(_new_level) :
         _character.base_stats["MaxActions"] += 0.5
 
 ## returns  the  Spell Level at which a spell is learned.

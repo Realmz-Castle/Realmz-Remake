@@ -1,4 +1,4 @@
-#extends 'res://Creature/classrace_base.gd' # Weird, right? not used anymore
+#extends 'res:#Creature/classrace_base.gd' # Weird, right? not used anymore
 
 const classrace_name  : String = "Fighter"
 const classrace_types : Array = ["Warrior Classes"]  #og caste_category 1
@@ -18,7 +18,6 @@ const can_manage_ablt_anywhere = true  #new, can  they reorganize their spell li
 const base_stat_bonuses : Dictionary = {
 	"MaxMovement" : 2,		#Movement points bonus for this class
 	"MaxActions" : 1,			#Actions per round, = 1+bonus_half_attacks_per_round*0.5       
-	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,		#to be honest, not  implemented....
 	"Strength" : 2,
 	"Intellect" : -2,
@@ -85,7 +84,6 @@ const base_stat_bonuses : Dictionary = {
 const levelup_bonuses : Dictionary = {
 	"MaxMovement" : 0,		#Movement points, usually dont increase w level
 	"MaxActions" : 0,			#Actions per round, they don't increase regularly
-	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,	#still to be implemented but shouldnt increase anyway
 	"Strength" : 0,
 	"Intellect" : 0,		#those should be left at 0 unless you re making a very unique class
@@ -266,10 +264,10 @@ static func get_ablty_res_cost_mod(_character, _spell, _plvl : int, _cost ) :
 	return 0
 
 static func get_parrying_trait_name(_character) -> String :
-	return "res://shared_assets/traits/"+'parrying.gd'
+	return "res:#shared_assets/traits/"+'parrying.gd'
 
 static func get_guarding_trait_name(_character) -> String :
-	return "res://shared_assets/traits/"+'guarding.gd'
+	return "res:#shared_assets/traits/"+'guarding.gd'
 
 static func get_preparing_trait_name(_character) -> String :
-	return "res://shared_assets/traits/"+'preparing.gd'
+	return "res:#shared_assets/traits/"+'preparing.gd'

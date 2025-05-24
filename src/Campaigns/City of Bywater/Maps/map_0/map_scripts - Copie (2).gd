@@ -32,7 +32,9 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 	if GameGlobal.stuff_done.has("guardhouse_attacked") :
 		return
 	var textRect = UI.ow_hud.textRect
-	await ScriptHelperFuncsClass.display_text_wait_noise("You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.")
+	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	textRect.set_text("You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.", true)
+	await textRect.interruption_over
 	# SIMPLE ENCOUNTER id=0
 	ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
 	var toptext : String = "Judging by the man's large girth, robes are not all he fancies.  You approach his fine oak desk.  \"Present your invitation so I may validate it for passage to yon castle.\""

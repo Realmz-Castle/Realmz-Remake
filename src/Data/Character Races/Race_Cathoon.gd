@@ -1,16 +1,17 @@
-const classrace_name  : String = "Human"
+const classrace_name : String = "Cathoon"
 const classrace_types : Array = ["Human Races"]
 const classrace_definition : String = "Description will come soon"
 const can_dual_wield : bool = false
 
+#Applied once on character creation
 const base_stat_bonuses : Dictionary = {
-	"MaxMovement" : 12,
-	"MaxActions" : 1,
+	"MaxMovement" : 15,
+	"MaxActions" : 2,
 	"Weight_Limit" : 0,
-	"Strength" : 10,
+	"Strength" : 8,
 	"Intellect" : 10,
 	"Wisdom" : 10,
-	"Dexterity" : 10,
+	"Dexterity" : 14,
 	"Vitality" : 10,
 	"curHP" : 0,
 	"curSP" : 0,
@@ -25,7 +26,7 @@ const base_stat_bonuses : Dictionary = {
 	"HP_regen_mult" : 1.0,
 	"SP_regen_mult" : 1.0,
 	"AccuracyMelee" : 0,
-	"AccuracyRanged" : 0,
+	"AccuracyRanged" : 15,
 	"AccuracyMagic" : 0,
 	"EvasionMelee" : 0,
 	"EvasionRanged" : 0,
@@ -42,28 +43,28 @@ const base_stat_bonuses : Dictionary = {
 	"ResistanceHealing" : 0.0,
 	"ResistanceMental" : 0.0,
 	
-	"MultiplierPhysical" : 0.975,
-	"MultiplierFire" : 1.0,
-	"MultiplierIce" : 1.0,
+	"MultiplierPhysical" : 0.90,
+	"MultiplierFire" : 1.075,
+	"MultiplierIce" : 0.95,
 	"MultiplierElect" : 1.0,
-	"MultiplierPoison" : 1.0,
-	"MultiplierChemical" : 1.0,
-	"MultiplierDisease" : 1.0,
-	"MultiplierMagic" : 1.0,
+	"MultiplierPoison" : 0.975,
+	"MultiplierChemical" : 0.975,
+	"MultiplierDisease" : 0.975,
+	"MultiplierMagic" : 0.975,
 	"MultiplierHealing" : -1.0,
 	
-	"MultiplierMental" : 0.975,
+	"MultiplierMental" : 0.95,
 	
-	"Melee_Crit_Rate" : 0.0,
+	"Melee_Crit_Rate" : 10.0,
 	"Melee_Crit_Mult" : 0.0,
 	"Ranged_Crit_Rate" : 0.0,
 	"Ranged_Crit_Mult" : 0.0,
-	"Detect_Secret" : 0.0,
-	"Acrobatics" : 0.0,
-	"Detect_Trap" : 0.0,
-	"Disable_Trap" : 0.0,
-	"Force_Lock" : 0.0,
-	"Pick_Lock" : 0.0,
+	"Detect_Secret" : 15.0,
+	"Acrobatics" : 35.0,
+	"Detect_Trap" : 5.0,
+	"Disable_Trap" : 15.0,
+	"Force_Lock" : -20.0,
+	"Pick_Lock" : 12.0,
 	"Turn_Undead" : 0.0
 } 
 
@@ -109,6 +110,7 @@ const levelup_bonuses : Dictionary = {
 	"MultiplierDisease" : 0.0,
 	"MultiplierMagic" : 0.0,
 	"MultiplierHealing" : 0.0,
+	
 	"MultiplierMental" : 0.0,
 	"Melee_Crit_Rate" : 0.0,
 	"Melee_Crit_Mult" : 0.0,

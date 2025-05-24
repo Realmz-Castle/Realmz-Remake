@@ -43,7 +43,7 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 	if answer == "bribe" :
 		toptext = "The lump of a man leans close so the guards do not hear.  \"For 300 Gold, I shall give you an invitation, but you must swear to use it but once.  To do so more than once will raise my ire.\""
 		ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-		textRect.display_multiple_choices([toptext,"Pay the gold.", "Refuse his offer."],["TEXT", "pay", "refuse"])
+		await textRect.display_multiple_choices([toptext,"Pay the gold.", "Refuse his offer."],["TEXT", "pay", "refuse"])
 		var answer2 = await textRect.choice_pressed
 		if answer2 == "pay" :
 			# check if characters have 300g :
@@ -217,20 +217,23 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 
 static func castle_gate() :#===== LAND AP level=0 id=1 x=8 y=16 [LAP0/1]
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	textRect.set_text("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.", true)
-	await textRect.interruption_over
+	#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	#textRect.set_text("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.", true)
+	#await textRect.interruption_over
+	await ScriptHelperFuncsClass.display_text_wait_noise("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.")
 	if ScriptHelperFuncsClass.does_party_have_item_named("Invitation") :
 		#===== XAP id=1 [XAP1]
-		ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-		textRect.set_text("The gate guards check your invitation and wave you through.", true)
-		await textRect.interruption_over
+		#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+		#textRect.set_text("The gate guards check your invitation and wave you through.", true)
+		#await textRect.interruption_over
+		await ScriptHelperFuncsClass.display_text_wait_noise("The gate guards check your invitation and wave you through.")
 	else :
 		#===== XAP id=2 [XAP2]
-		ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-		textRect.set_text("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"", true)
-		await textRect.interruption_over
+		#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+		#textRect.set_text("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"", true)
+		#await textRect.interruption_over
 		ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(9,16), '')
+		await ScriptHelperFuncsClass.display_text_wait_noise("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"")
 	return
 
 static func guard_barracks() : #===== LAND AP level=0 id=2 x=6 y=16 [LAP0/2]

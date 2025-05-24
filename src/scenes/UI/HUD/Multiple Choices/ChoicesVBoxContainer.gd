@@ -18,6 +18,7 @@ var height : float = 0
 func display_multiple_choices(choices : Array, scripts : Array) :
 	print("ChoicesVBoxContainer display_multiple_choices")
 	print(" ",choices,scripts)
+	show()
 	if choices.size() != scripts.size() :
 		print("display_multiple_choices : Not as many scripts and choices !")
 		return
@@ -89,7 +90,7 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 		
 
 		#		separation.hide()
-		
+	show()
 	print("height : ",height)
 	var screensize : Vector2  = ScreenUtils.get_logical_window_size(self)
 	on_viewport_size_changed(screensize)

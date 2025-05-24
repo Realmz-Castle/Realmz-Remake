@@ -1,8 +1,8 @@
-const classrace_name : String = "Sorcerer"
-const classrace_types : Array = ["Magic Classes"]  # changed to reflect mage type
+const classrace_name : String = "Enchanter"
+const classrace_types : Array = ["Magic Classes"]  # reflects the magical nature of this class
 const classrace_definition : String = "Description will come soon" # leave it as is
 const can_dual_wield : bool = false  #leave it as is
-const used_resource : String = "MP"  #changed to MP for mage class
+const used_resource : String = "MP"  #changed to MP for magic class
 const can_manage_ablt_anywhere = false  #leave it as is
 
 #Applied once on character creation
@@ -11,10 +11,10 @@ const base_stat_bonuses : Dictionary = {
     "MaxActions" : 1,
     "Weight_Limit" : 0,
     "Strength" : -2,
-    "Intellect" : 2,
-    "Wisdom" : 1,
+    "Intellect" : 1,
+    "Wisdom" : 2,
     "Dexterity" : 1,
-    "Vitality" : -2,
+    "Vitality" : -3,
     "curHP" : 8,
     "curSP" : 0,
     "curTP" : 0,
@@ -48,7 +48,7 @@ const base_stat_bonuses : Dictionary = {
     "MultiplierPhysical" : 1.0,
     "MultiplierFire" : 1.025,
     "MultiplierIce" : 1.025,
-    "MultiplierElect" : 0.975,
+    "MultiplierElect" : 1.025,
     "MultiplierPoison" : 1.0,
     "MultiplierChemical" : 1.05,
     "MultiplierDisease" : 1.0,
@@ -128,7 +128,7 @@ const levelup_bonuses : Dictionary = {
 static func _mod_equippable(_character) :
     var mod_equippable_types : Dictionary = {
         "Mace" : 0,
-        "Club" : 0,
+        "Club" : 1,
         "Hammer" : 0,
         "Warhammer/Maul" : 0,
         "Dagger" : 1,
@@ -152,7 +152,7 @@ static func _mod_equippable(_character) :
         "Crossbow" : 0,
         "Quiver" : 0,
         "Throwing Aid" : 0,
-        "Misc. Melee Weapon" : 0,
+        "Misc. Melee Weapon" : 1,
         "Misc Ranged Weapon" : 0,
         "Belt" : 1,
         "Necklace" : 1,
@@ -170,7 +170,7 @@ static func _mod_equippable(_character) :
         "Metal Gloves" : 0,
         "Cloak/Cape" : 1,
         "Robe" : 1,
-        "Gambeson" : 0,
+        "Gambeson" : 1,
         "Leather Armor" : 0,
         "Chainmail Armor" : 0,
         "Splint Armor" : 0,
@@ -179,6 +179,7 @@ static func _mod_equippable(_character) :
         "Hard Boots" : 0,
         "Scroll Case" : 1
     }
+
     for t in _character.equippable_types :
         _character.equippable_types[t] += mod_equippable_types[t]
 
@@ -212,7 +213,7 @@ static func _level_up(_character, _new_level : int) :
                 _character.base_stats[s] = 0
             _character.base_stats[s] += levelup_bonuses[s]
     # ADD APR AT LEVEL
-    if [15].has(_new_level) :
+    if [20].has(_new_level) :
         _character.base_stats["MaxActions"] += 0.5
 
 ## returns  the  Spell Level at which a spell is learned.

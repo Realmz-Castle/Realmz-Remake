@@ -333,10 +333,12 @@ func _ready():
 
 
 func _on_InventoryButton_pressed():
-	#print("OW HUD _on_InventoryButton_pressed")
+	print("OW HUD _on_InventoryButton_pressed, state "+StateMachine._state_name)
 	if moneyControl.visible or encounterControl.visible or bestiaryRect.visible or minimapRect.visible or textRect.choicesContainer.visible or abilitesmngtMenu.visible or spellcastMenu.visible or charSwapRect.visible or saveloadCtrl.visible or settingsControl.visible or treasureControl.visible :
+		print("OW HUD _on_InventoryButton_pressed  unwanted panel  shown",   moneyControl.visible , encounterControl.visible , bestiaryRect.visible , minimapRect.visible , textRect.choicesContainer.visible , abilitesmngtMenu.visible , spellcastMenu.visible , charSwapRect.visible , saveloadCtrl.visible , settingsControl.visible , treasureControl.visible)
 		return
 	if StateMachine._state_name=="Exploration" :
+		print("OW HUD _on_InventoryButton_pressed  Exploration  ok")
 		StateMachine.enter_ex_menu_state({"menu_name" : "InventoryMenu", "selected_character" : selected_character})
 		return
 	if StateMachine._state_name=="ExMenus" :

@@ -161,13 +161,17 @@ func _on_AbortButton_pressed():
 	picked_spell = "abort"
 	if StateMachine.is_combat_state() :
 		StateMachine.exit_cb_menu_state()
+		textRect.hide()
+		UI.ow_hud.creatureRect.show()
 	else :
 		StateMachine.exit_ex_menu_state()
+		textRect.show()
+		UI.ow_hud.creatureRect.hide()
 	UI.ow_hud._on_spell_menu_closed()
 	UI.ow_hud._on_viewport_size_changed()
-	textRect.hide()
-	UI.ow_hud.creatureRect.show()
+
 	if StateMachine.is_combat_state() and is_instance_valid(UI.ow_hud.creatureRect.my_crea_button):
+		#print("SpellsRect I AM AN IDIOT HOHOHOHOHO")
 		UI.ow_hud.creatureRect.display_crea_info(UI.ow_hud.creatureRect.my_crea_button)
 #	UI.ow_hud.emit_signal( "pc_picked", [])
 

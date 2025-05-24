@@ -53,7 +53,7 @@ static func display_text(txt) -> void :
 static func display_text_wait_noise(txt) -> void :
 	var textRect = UI.ow_hud.textRect
 	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	textRect.set_text(str(txt), false)
+	textRect.set_text(str(txt), true)
 	await textRect.interruption_over
 
 ## Divinity Code 3 Player Option , option
@@ -146,7 +146,9 @@ static func teleport_to_map_and_pos(mapname : String, pos : Vector2, sfx_name : 
 		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[sfx_name]
 		SfxPlayer.play()
 	if mapname == GameGlobal.currentmap_name :
-		GameGlobal.map.focuscharacter.move(pos)
+		#GameGlobal.map.focuscharacter.move(pos)
+		GameGlobal.map.focuscharacter.set_tile_position(Vector2(pos.x,pos.y))
+		GameGlobal.map.owcharacter.set_tile_position(Vector2(pos.x,pos.y))
 	else :
 		GameGlobal.change_map(mapname, pos.x, pos.y)
 
