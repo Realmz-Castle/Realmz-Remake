@@ -195,6 +195,15 @@ func display_stat_table(displayed_statnames : Array, character) :
 		if sn != "" :
 			#cbs[sn],rbs[sn],cbs[sn]+rbs[sn]," ",clu[sn],rlu[sn],clu[sn]+rlu[sn]," ",cbs[sn]+rbs[sn] + (clu[sn]+rlu[sn])*character_level]
 			var total_stat = character.get_stat(sn)
+			print("current sn : "+sn)
+			
+			print('cbs has sn ?', cbs.has(sn))
+			print('rbs has sn ?', rbs.has(sn))
+			
+			print('clu has sn ?', clu.has(sn))
+			print('rlu has sn ?', rlu.has(sn))
+			
+			
 			row =  [sn, cbs[sn],rbs[sn]," ",clu[sn],rlu[sn]," ",total_stat]
 		for c in row :
 			statstable.push_cell()

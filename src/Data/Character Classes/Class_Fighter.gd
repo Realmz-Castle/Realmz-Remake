@@ -18,6 +18,7 @@ const can_manage_ablt_anywhere = true  #new, can  they reorganize their spell li
 const base_stat_bonuses : Dictionary = {
 	"MaxMovement" : 2,		#Movement points bonus for this class
 	"MaxActions" : 1,			#Actions per round, = 1+bonus_half_attacks_per_round*0.5       
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,		#to be honest, not  implemented....
 	"Strength" : 2,
 	"Intellect" : -2,
@@ -84,6 +85,7 @@ const base_stat_bonuses : Dictionary = {
 const levelup_bonuses : Dictionary = {
 	"MaxMovement" : 0,		#Movement points, usually dont increase w level
 	"MaxActions" : 0,			#Actions per round, they don't increase regularly
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,	#still to be implemented but shouldnt increase anyway
 	"Strength" : 0,
 	"Intellect" : 0,		#those should be left at 0 unless you re making a very unique class
@@ -243,14 +245,16 @@ static func can_learn_spell(_character, _spell) -> int :
 	return 10  #Fighter can't learn any spell
 
 static func _character_creation_gifts(_character) :
-	#will have to be rewritten wehn items are implemented
 	var resources = NodeAccess.__Resources()
 	resources.load_item_resources("shared_assets/items/")
-	var dagger = resources.items_book["Dagger"]
-	_character.inventory.append(dagger.duplicate(true))
-	var oxshield =  resources.items_book["Shield of the Blue Oxen"]
-	_character.inventory.append(oxshield.duplicate(true))
+	
+	for name in ["Broadsword","Dagger","Leather Armor","Helm","Leather Gloves","Steel Shod Boots","Shield"] :
+		var item = resources.items_book[name]
+		_character.inventory.append(item.duplicate(true))
+	_character.money[0] += 30
 	resources.items_book.clear()
+
+
 
 static func get_max_perma_summons(_character) ->int :
 	return 0

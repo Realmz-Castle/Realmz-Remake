@@ -7,6 +7,7 @@ const can_dual_wield : bool = false
 const base_stat_bonuses : Dictionary = {
 	"MaxMovement" : 24,
 	"MaxActions" : 2,
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,
 	"Strength" : 7,
 	"Intellect" : 9,
@@ -71,6 +72,7 @@ const base_stat_bonuses : Dictionary = {
 const levelup_bonuses : Dictionary = {
 	"MaxMovement" : 0,
 	"MaxActions" : 0,
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,
 	"Strength" : 0,
 	"Intellect" : 0,

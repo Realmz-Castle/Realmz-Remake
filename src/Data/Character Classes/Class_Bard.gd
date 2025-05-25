@@ -9,6 +9,7 @@ const can_manage_ablt_anywhere = false  #leave it as is
 const base_stat_bonuses : Dictionary = {
 	"MaxMovement" : 2, 	
 	"MaxActions" : 1,   
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,	
 	"Strength" : -1,     
 	"Intellect" : 1,   
@@ -71,7 +72,8 @@ const base_stat_bonuses : Dictionary = {
 #How those values increase !
 const levelup_bonuses : Dictionary = {
 	"MaxMovement" : 0,		
-	"MaxActions" : 0,		
+	"MaxActions" : 0,
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,		
 	"Strength" : 0,			
 	"Intellect" : 0,		
@@ -223,13 +225,13 @@ static func can_learn_spell(_character, _spell) -> int :
 	return 10  #Fighter can't learn any spell
 
 static func _character_creation_gifts(_character) :
-	#will have to be rewritten wehn items are implemented
 	var resources = NodeAccess.__Resources()
 	resources.load_item_resources("shared_assets/items/")
-	var dagger = resources.items_book["Dagger"]
-	_character.inventory.append(dagger.duplicate(true))
-	var oxshield =  resources.items_book["Shield of the Blue Oxen"]
-	_character.inventory.append(oxshield.duplicate(true))
+	
+	for name in ["Short Sword","Dagger","Leather Armor","Silk Gloves","Leather Boots"] :
+		var item = resources.items_book[name]
+		_character.inventory.append(item.duplicate(true))
+	_character.money[0] += 150
 	resources.items_book.clear()
 
 static func get_max_perma_summons(_character) ->int :

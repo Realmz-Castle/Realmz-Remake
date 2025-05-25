@@ -6,6 +6,7 @@ const can_dual_wield : bool = false
 const base_stat_bonuses : Dictionary = {
 	"MaxMovement" : 14,
 	"MaxActions" : 1,
+	"MaxSpellsPerRound" : 0,
 	"Weight_Limit" : 0,
 	"Strength" : 13,
 	"Intellect" : 9,
@@ -67,8 +68,62 @@ const base_stat_bonuses : Dictionary = {
 }
 
 const levelup_bonuses : Dictionary = {
-	# All values are 0 as per template instructions
-}
+	"MaxMovement" : 0,
+	"MaxActions" : 0,
+	"MaxSpellsPerRound" : 0,
+	"Weight_Limit" : 0,
+	"Strength" : 0,
+	"Intellect" : 0,
+	"Wisdom" : 0,
+	"Dexterity" : 0,
+	"Vitality" : 0,
+	"curHP" : 0,
+	"curSP" : 0,
+	"maxHP" : 0,
+	"maxSP" : 0,
+	"HP_regen_base" : 0.0,
+	"SP_regen_base" : 0.0,
+	"HP_regen_mult" : 0.0,
+	"SP_regen_mult" : 0.0,
+	"AccuracyMelee" : 0,
+	"AccuracyRanged" : 0,
+	"AccuracyMagic" : 0,
+	"EvasionMelee" : 0,
+	"EvasionRanged" : 0,
+	"EvasionMagic" : 0,
+	"ResistancePhysical" : 0.0,
+	"ResistanceFire" : 0.0,
+	"ResistanceIce" : 0.0,
+	"ResistanceElect" : 0.0,
+	"ResistancePoison" : 0.0,
+	"ResistanceChemical" : 0.0,
+	"ResistanceDisease" : 0.0,
+	"ResistanceMagic" : 0.0,
+	"ResistanceHealing" : 0.0,
+	"ResistanceMental" : 0.0,
+	"MultiplierPhysical" : 0.0,
+	"MultiplierFire" : 0.0,
+	"MultiplierIce" : 0.0,
+	"MultiplierElect" : 0.0,
+	"MultiplierPoison" : 0.0,
+	"MultiplierChemical" : 0.0,
+	"MultiplierDisease" : 0.0,
+	"MultiplierMagic" : 0.0,
+	"MultiplierHealing" : 0.0,
+	
+	"MultiplierMental" : 0.0,
+	"Melee_Crit_Rate" : 0.0,
+	"Melee_Crit_Mult" : 0.0,
+	"Ranged_Crit_Rate" : 0.0,
+	"Ranged_Crit_Mult" : 0.0,
+	"Detect_Secret" : 0.0,
+	"Acrobatics" : 0.0,
+	"Detect_Trap" : 0.0,
+	"Disable_Trap" : 0.0,
+	"Force_Lock" : 0.0,
+	"Pick_Lock" : 0.0,
+	"Turn_Undead" : 0.0
+} 
 
 static func _mod_equippable(_character) :
 	var mod_equippable_types : Dictionary = {
