@@ -118,7 +118,7 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 			inventory.append(item)
 			if item["equipped"] == 2 :
 				equip_item(item)
-	
+
 	if data.has("spells") :
 		spells = data["spells"]
 		for slevel in spells :
@@ -137,7 +137,7 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		classgd._mod_equippable(self)
 	if racegd :
 		racegd._mod_equippable(self)
-	
+
 	if not data.has("base_stats") :
 		level = 0
 		selection_pts = 0
@@ -149,8 +149,8 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		level = data["level"]
 		base_stats = data["base_stats"]
 		selection_pts = data["selection_pts"]
-	
-	
+
+
 	#set current "Melee Weapon" "Ranged Weapon" "Ammunition"
 	for item in inventory :
 		if item["equipped"] :  #=1 or 2 for unequipped but should be equipped on load
@@ -165,7 +165,7 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 			if item["slots"].has("Ammunition") :
 				current_ammo_weapon = item
 				break
-	
+
 	recalculate_stats()
 #	# generate inventory from the data dict :
 #	if data.has("inventory") :
@@ -184,7 +184,7 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 			if trait_dict["type"] == "standard" :
 				var traitscript = load("res://shared_assets/traits/"+trait_dict["name"])
 				add_trait(traitscript,trait_dict["saved_variables"])
-				
+
 	if data.has("curHP") :
 		stats["curHP"] = data["curHP"]
 	else :
@@ -196,7 +196,7 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		stats["curSP"] = data["curSP"]
 	else :
 		stats["curSP"] = stats["maxSP"]
-				
+
 #			elif  trait_dict["type"] == "custom" :
 #				var newscript = GDScript.new()
 #
@@ -226,7 +226,7 @@ func apply_raceclass_base_stats() :
 	stats["curFP"] = base_stats["maxFP"]
 	stats["curTP"] = base_stats["maxTP"]
 	stats["curRP"] = base_stats["maxRP"]
-	
+
 #	print(name," has curHP maxHP : ", stats["curHP"], ' ',stats["maxHP"])
 	can_dual_wield = classgd.can_dual_wield and racegd.can_dual_wield
 	print("PC after apply_raceclass_base_stats(), ",base_stats["curHP"] ,'/',base_stats["maxHP"])
@@ -239,7 +239,7 @@ func level_up() :
 	level +=1
 	classgd._level_up(self, level)
 	racegd._level_up(self, level)
-	
+
 	recalculate_stats()
 	print("PC after level up  base_stats ", base_stats["curHP"] ,'/',base_stats["maxHP"])
 
@@ -250,7 +250,7 @@ func can_equip_item(item) -> bool :
 	#check "only_usable_by_classes"
 	var my_class_types : Array = classgd.classrace_types
 	var my_race_types : Array = racegd.classrace_types
-	
+
 	if item.has("only_usable_by_classes") :
 		var item_usable_by_classes : Array = item["only_usable_by_classes"]
 		if not array_contains_lfstr_or_one_of_oarray(item_usable_by_classes, classgd.classrace_name,my_class_types) :
@@ -267,13 +267,13 @@ func can_equip_item(item) -> bool :
 		var item_not_usable_by_races : Array = item["not_usable_by_races"]
 		if array_contains_lfstr_or_one_of_oarray(item_not_usable_by_races, racegd.classrace_name,my_race_types) :
 			return false
-	#check "not_usable_by" 
+	#check "not_usable_by"
 	var hasfreeslots : bool = true
 	for s in item["slots"] :
 		hasfreeslots = hasfreeslots and (equipment_slots[s]==0)
 	print(" PlayerCharacter hasfreeslots : ", hasfreeslots)
 	if item.has("hands") :
-	
+
 	# you can equip two 1 handed melee weapons if you can dual wield
 	# however you may still equip  only  one shield
 		if item["slots"].has("Shield") :
@@ -304,10 +304,9 @@ func get_max_perma_summons() ->int :
 	return classgd.get_max_perma_summons(self)
 
 func get_selection_cost(ability) -> int:
-	var cost : float = ability.selection_cost
-	cost = racegd.get_selection_cost(self, ability, cost)
+	var cost : int = 0
 	cost = classgd.get_selection_cost(self, ability, cost)
-	return roundi(cost)
+	return cost
 #func get_used_resource()->String :
 #	return classgd.used_resource
 
