@@ -1,9 +1,10 @@
 import argparse
 import os
 import json
+from typing import Dict, Any
 
 
-def parse_file(file_path):
+def parse_file(file_path: str) -> Dict[str, str]:
     result_dict = {}
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -24,7 +25,7 @@ def parse_file(file_path):
     return result_dict
 
 
-def merge_dicts(dict1, dict2):
+def merge_dicts(dict1: Dict[str, str], dict2: Dict[str, str]) -> Dict[str, str]:
     for key, value in dict2.items():
         if key in dict1:
             dict1[key] += f"; {value}"
@@ -33,7 +34,7 @@ def merge_dicts(dict1, dict2):
     return dict1
 
 
-def replace_single_quotes(data):
+def replace_single_quotes(data: Any) -> Any:
     if isinstance(data, dict):
         return {k: replace_single_quotes(v) for k, v in data.items()}
     elif isinstance(data, list):
@@ -43,7 +44,7 @@ def replace_single_quotes(data):
     return data
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='Parse and merge files.')
     parser.add_argument('directory', type=str,
                         help='Directory containing the files to parse')
