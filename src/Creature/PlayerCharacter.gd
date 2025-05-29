@@ -305,7 +305,7 @@ func get_max_perma_summons() ->int :
 
 func get_selection_cost(ability) -> int:
 	var cost : float = 0
-	racegd.get_selection_cost(self, ability, cost) + classgd.get_selection_cost(self, ability, cost)
+	cost = racegd.get_selection_cost(self, ability, cost) + classgd.get_selection_cost(self, ability, cost)
 	return roundi(cost)
 #func get_used_resource()->String :
 #	return classgd.used_resource
