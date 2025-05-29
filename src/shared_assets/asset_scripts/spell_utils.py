@@ -1,5 +1,6 @@
 import re
 import json
+from typing import Optional, Tuple, List, Dict, Union
 from lookups import icon_lookup, sound_lookup, TRAITS, TargetType, size_to_aoe, damage_type_to_attribute, effect_to_tag
 from traits_template import traits_template, traits_template_level
 from special_fx_templates import special_fx
@@ -9,7 +10,7 @@ with open('descriptions.json', 'r') as json_file:
     descriptions = json.load(json_file)
 
 
-def generate_filename(caster_class, spell_id, spell_name):
+def generate_filename(caster_class: str, spell_id: str, spell_name: str) -> str:
     """
     Generates a filename based on the caster class, spell ID, and spell name.
 
@@ -35,7 +36,7 @@ def generate_filename(caster_class, spell_id, spell_name):
     return filename
 
 
-def get_icon_number(s):
+def get_icon_number(s: str) -> Optional[int]:
     match = re.search(r'icon=(\d+)', s)
     if match:
         return int(match.group(1))
@@ -43,25 +44,25 @@ def get_icon_number(s):
         return None
 
 
-def get_proj_tex(s):
+def get_proj_tex(s: str) -> str:
     icon_number = get_icon_number(s)
-    icon = icon_lookup.get(icon_number)
-    if icon_number != 0:
+    if icon_number is not None and icon_number != 0:
+        icon = icon_lookup.get(icon_number)
         return f"var proj_tex : String = '{icon}'"
     else:
         return ""
 
 
-def get_proj_hit(s):
+def get_proj_hit(s: str) -> str:
     icon_number = get_icon_number(s)
-    icon = icon_lookup.get(icon_number)
-    if icon_number != 0:
+    if icon_number is not None and icon_number != 0:
+        icon = icon_lookup.get(icon_number)
         return f"var proj_hit : String = '{icon}'"
     else:
         return ""
 
 
-def get_sounds(cast_media, resolution_media):
+def get_sounds(cast_media: str, resolution_media: str) -> List[str]:
     sounds = []
     cast_sound_match = re.search(r'sound=(\d+)', cast_media)
     if cast_sound_match:
@@ -74,7 +75,7 @@ def get_sounds(cast_media, resolution_media):
     return sounds
 
 
-def parse_damage(damage_field):
+def parse_damage(damage_field: str) -> Tuple[int, int, int, int]:
     """
     Parses the damage field to extract minimum and maximum damage values.
 
@@ -98,19 +99,19 @@ def parse_damage(damage_field):
         return (0, 0, 0, 0)
 
 
-def get_description(row):
+def get_description(row: Dict[str, str]) -> str:
     name = row['name']
     caste = row['caster_class']
     return descriptions.get(caste).get(name) if descriptions.get(caste) and name in descriptions.get(caste) else name.replace("'", "\\'")
 
 
-def get_los(row):
+def get_los(row: Dict[str, str]) -> str:
     if (row['range'].startswith('-')):
         return 'false'
     return 'true'
 
 
-def get_min_damage(damage):
+def get_min_damage(damage: Tuple[int, int, int, int]) -> str:
     base_min, _, scaled_min, _ = damage
 
     if (base_min == 0 and scaled_min == 0):
@@ -122,7 +123,7 @@ def get_min_damage(damage):
     return f"{damage[0]} + ({damage[2]} * _power)"
 
 
-def get_max_damage(damage):
+def get_max_damage(damage: Tuple[int, int, int, int]) -> str:
     _, base_max, _, scaled_max = damage
 
     if base_max == 0 and scaled_max == 0:
@@ -134,7 +135,7 @@ def get_max_damage(damage):
     return f"{base_max} + ({scaled_max} * _power)"
 
 
-def get_damage_roll(damage, effect: int):
+def get_damage_roll(damage: Tuple[int, int, int, int], effect: int) -> str:
     if (damage[0] == 0 and damage[1] == 0 and damage[2] == 0 and damage[3] == 0):
         return "\treturn 0"
 
@@ -162,7 +163,7 @@ get_min_duration = get_min_damage
 get_max_duration = get_max_damage
 
 
-def get_duration_roll(duration):
+def get_duration_roll(duration: Tuple[int, int, int, int]) -> str:
     if (duration[0] == 0 and duration[1] == 0 and duration[2] == 0 and duration[3] == 0):
         return f"static func get_duration_roll(_power : int, __casterchar) -> int:\n\treturn 0"
 
@@ -189,7 +190,7 @@ def get_duration_roll(duration):
 parse_duration = parse_damage
 
 
-def parse_range(range_field):
+def parse_range(range_field: str) -> Tuple[int, int]:
     """
     Parses the range field to extract the range value.
 
@@ -210,7 +211,7 @@ def parse_range(range_field):
         return (0, 0)
 
 
-def get_range(range):
+def get_range(range: Tuple[int, int]) -> str:
     if (range[0] == 0 and range[1] == 0):
         return "0"
     if (range[0] == 0):
@@ -220,7 +221,7 @@ def get_range(range):
     return f"{range[0]} + ({range[1]} * _power)"
 
 
-def get_traits(effect):
+def get_traits(effect: Union[str, int]) -> str:
     if (not int(effect) in TRAITS):
         return ""
     if (int(effect) in [17,18,19,20,21]):
@@ -231,14 +232,14 @@ def get_traits(effect):
 
 
 
-def get_targets(target_type: TargetType):
+def get_targets(target_type: TargetType) -> str:
     match target_type:
         case TargetType.MULTI_TARGET.value:
             return "_power"
         case _:
             return "1"
         
-def get_aoe(target_type: TargetType, size: int):
+def get_aoe(target_type: TargetType, size: int) -> str:
     match target_type:
         case TargetType.ALL_ENEMIES.value:
             return "'ae'"
@@ -255,14 +256,14 @@ def get_aoe(target_type: TargetType, size: int):
         case _:
             return "'b1'" # default to single target
         
-def get_attributes(row):
+def get_attributes(row: Dict[str, str]) -> str:
     damage_type = int(row['damage_type'])
     attributes = ["'Magical'"]
     if (damage_type in damage_type_to_attribute):
       attributes.append(f"'{damage_type_to_attribute[damage_type]}'")
     return f"[{','.join(attributes)}]"
 
-def get_tags(row):
+def get_tags(row: Dict[str, str]) -> str:
     effect = int(row['effect'])
     tags = ["'Magical'"]
     if (effect in effect_to_tag):
@@ -270,12 +271,12 @@ def get_tags(row):
     return f"[{','.join(tags)}]"
     
 
-def get_special_effect_function(row):
+def get_special_effect_function(row: Dict[str, str]) -> str:
     if (int(row['effect']) in special_fx):
         return special_fx[int(row['effect'])](row)
     return ""
 
-def get_target_type(row):
+def get_target_type(row: Dict[str, str]) -> int:
     is_summon = row['effect'] == '58'
     if is_summon:
         return 2

@@ -1,8 +1,9 @@
 import re
 import csv
+from typing import Dict, Any
 
 # Function to process each spell block
-def process_spell_block(block):
+def process_spell_block(block: str) -> Dict[str, Any]:
     spell_data = {}
     
     # Extract spell id, code, and details from the header

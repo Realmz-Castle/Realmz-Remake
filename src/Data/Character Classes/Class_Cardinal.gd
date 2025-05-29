@@ -220,7 +220,14 @@ static func _level_up(_character, _new_level : int) :
 ## <=0 should be changed to 1 in PlayerCHaracter 's can_learn_spell
 ## >7 means  the character can't learn this spell (unless race changes it)
 static func can_learn_spell(_character, _spell) -> int :
-    return 10  #Fighter can't learn any spell
+    # Check school_levels dictionary first
+    if _spell.has("school_levels") and not _spell.school_levels.is_empty():
+        # Only care about Priest school
+        if _spell.school_levels.has("Priest"):
+            return _spell.school_levels["Priest"]
+        return 10  # Can't learn non-Priest spells
+
+    return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :
     #will have to be rewritten wehn items are implemented
@@ -236,7 +243,10 @@ static func get_max_perma_summons(_character) ->int :
     return 0
 
 static func get_selection_cost(_character, _ability, _cost) :
-    return _cost
+    # Only use Priest school cost if available
+    if _ability.has("selection_costs") and _ability.selection_costs.has("Priest"):
+        return _ability.selection_costs["Priest"]
+    return _cost  # Return base cost if no school cost available
 
 
 #modifies the SP  (or FP RP etc)  cost of a spell or  ability
