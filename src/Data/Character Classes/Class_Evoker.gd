@@ -222,10 +222,10 @@ static func _level_up(_character, _new_level : int) :
 static func can_learn_spell(_character, _spell) -> int :
     # Check school_levels dictionary first
     if _spell.has("school_levels") and not _spell.school_levels.is_empty():
-        # Only care about Evoker school
+        # Only care about Enchanter school
         if _spell.school_levels.has("Enchanter"):
             return _spell.school_levels["Enchanter"]
-        return 10  # Can't learn non-Evoker spells
+        return 10  # Can't learn non-Enchanter spells
     return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :
