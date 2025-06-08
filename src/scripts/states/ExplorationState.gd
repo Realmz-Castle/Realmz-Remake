@@ -34,8 +34,7 @@ func enter(_msg : Dictionary = {}) -> void:
 		map = GameGlobal.map
 		if is_start :
 			onstartGD.after_loading_ressources()
-			map.load_map( campaign, GameGlobal.currentmap_name )
-
+		map.load_map( campaign, GameGlobal.currentmap_name )
 		map.explore_tiles_from_tilepos(Vector2(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y))
 		map.visible = true
 		UI.show_only(UI.ow_hud)

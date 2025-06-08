@@ -50,9 +50,9 @@ static func display_text(txt) -> void :
 	textRect.set_text(str(txt), false)
 
 ## Divinity Code 1, string  more convenient
-static func display_text_wait_noise(txt) -> void :
+static func display_text_wait_noise(txt : String, sfxname : String) -> void :
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	ScriptHelperFuncsClass.play_sound(sfxname, false) #'message nod.wav'
 	textRect.set_text(str(txt), true)
 	await textRect.interruption_over
 

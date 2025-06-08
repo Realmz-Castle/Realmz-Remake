@@ -12,18 +12,11 @@ static func scenario_start() :  #===== LAND AP level=0 id=76 x=2 y=2 [LAP0/76]
 	ScriptHelperFuncsClass.display_picture_file('Scenario_Start.png')
 	
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('heal.wav', false)
-	textRect.set_text('Welcome to "The City of Bywater", a scenario for use with the Realmz Scenario Driver.  If you enjoy playing Realmz and would like to see more scenarios developed, please support us by sending in your registration fee.', true)
-	await textRect.interruption_over
-	ScriptHelperFuncsClass.play_sound('heal.wav', false)
-	textRect.set_text('Once you have registered this copy of Realmz, you will be able to play the entire scenario.  This scenario is very loose.  It does not have a strong plot line.  You can adventure where you want for as long as you want', true)
-	await textRect.interruption_over
-	ScriptHelperFuncsClass.play_sound('hallelujah.wav', false)
-	textRect.set_text("Once you have registered this copy of Realmz, you will also be able to play test other scenarios BEFORE having to register them.  The fee for each additional scenario are $13 each.  For information on how to register, see chapter 3 of the Realmz Manual.", true)
-	await textRect.interruption_over
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	textRect.set_text("Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.", true)
-	await textRect.interruption_over
+	
+	await ScriptHelperFuncsClass.display_text_wait_noise('Welcome to "The City of Bywater", a scenario for use with the Realmz Scenario Driver.  If you enjoy playing Realmz and would like to see more scenarios developed, please support us by sending in your registration fee.', 'heal.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Once you have registered this copy of Realmz, you will be able to play the entire scenario.  This scenario is very loose.  It does not have a strong plot line.  You can adventure where you want for as long as you want', 'heal.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise("Once you have registered this copy of Realmz, you will also be able to play test other scenarios BEFORE having to register them.  The fee for each additional scenario are $13 each.  For information on how to register, see chapter 3 of the Realmz Manual.", 'hallelujah.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise("Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.",'message nod.wav')
 	ScriptHelperFuncsClass.hide_picture()
 	GameGlobal.stuff_done["scenario_start_seen"] = 1
 
@@ -32,9 +25,8 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 	if GameGlobal.stuff_done.has("guardhouse_attacked") :
 		return
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	textRect.set_text("You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.", true)
-	await textRect.interruption_over
+	await ScriptHelperFuncsClass.display_text_wait_noise("You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.",'message nod.wav')
+	
 	# SIMPLE ENCOUNTER id=0
 	ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
 	var toptext : String = "Judging by the man's large girth, robes are not all he fancies.  You approach his fine oak desk.  \"Present your invitation so I may validate it for passage to yon castle.\""
@@ -43,13 +35,15 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 	if answer == "bribe" :
 		toptext = "The lump of a man leans close so the guards do not hear.  \"For 300 Gold, I shall give you an invitation, but you must swear to use it but once.  To do so more than once will raise my ire.\""
 		ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-		await textRect.display_multiple_choices([toptext,"Pay the gold.", "Refuse his offer."],["TEXT", "pay", "refuse"])
+		textRect.display_multiple_choices([toptext,"Pay the gold.", "Refuse his offer."],["TEXT", "pay", "refuse"])
 		var answer2 = await textRect.choice_pressed
+		print("MAP  SCRIPT  map_0 : answer2 : ", answer2, " pay ? ", answer2=="pay")
 		if answer2 == "pay" :
 			# check if characters have 300g :
 			var totalgold : int = 0
 			for character in GameGlobal.player_characters :
 				totalgold += character.money[0] #0 is gold
+			print("MAP  SCRIPT  map_0 : total gold : ", totalgold)
 			if totalgold>=300 :
 				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
 				textRect.set_text("He hands you an invitation to the Castle Anthrax.", true)
@@ -66,26 +60,20 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 				StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
 				await UI.ow_hud.treasureControl.done_looting
 				
-				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-				textRect.set_text("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.", true)
-				await textRect.interruption_over
+				await ScriptHelperFuncsClass.display_text_wait_noise("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.",'message nod.wav')
+				
 				return
 			else :
-				ScriptHelperFuncsClass.play_sound('generation error.wav', false)
-				textRect.set_text("Your party does not have enough gold.", true)
-				await textRect.interruption_over
+				await ScriptHelperFuncsClass.display_text_wait_noise("Your party does not have enough gold.",'generation error.wav')
 				textRect.set_text("He bids you farewell as you make your way from the gate house.", true)
 				await textRect.interruption_over
 				return
 	if answer == "show" :
 		if ScriptHelperFuncsClass.does_party_have_item_named("Invitation") :
-			textRect.set_text("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.", true)
-			await textRect.interruption_over
+			await ScriptHelperFuncsClass.display_text_wait_noise("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.",'message nod.wav')
 			return
 		else :
-			ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-			textRect.set_text("The Magistrate gazes at you and speaks \"Without an invitation you will not be allowed through the main gate.  Perhaps we can work something out.\"", true)
-			await textRect.interruption_over
+			await ScriptHelperFuncsClass.display_text_wait_noise("The Magistrate gazes at you and speaks \"Without an invitation you will not be allowed through the main gate.  Perhaps we can work something out.\"",'message nod.wav')
 			#copypasted from above
 			toptext = "The lump of a man leans close so the guards do not hear.  \"For 300 Gold, I shall give you an invitation, but you must swear to use it but once.  To do so more than once will raise my ire.\""
 			ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
@@ -112,106 +100,83 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 					StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
 					await UI.ow_hud.treasureControl.done_looting
 					
-					ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-					textRect.set_text("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.", true)
-					await textRect.interruption_over
+					await ScriptHelperFuncsClass.display_text_wait_noise("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.",'message nod.wav')
+				
 					return
 				else :
-					ScriptHelperFuncsClass.play_sound('generation error.wav', false)
-					textRect.set_text("Your party does not have enough gold.", true)
-					await textRect.interruption_over
+					await ScriptHelperFuncsClass.display_text_wait_noise("Your party does not have enough gold.",'generation error.wav')
 					textRect.set_text("He bids you farewell as you make your way from the gate house.", true)
 					await textRect.interruption_over
 					return
-		if answer == "forged" :
-			#SIMPLE ENCOUNTER id=1
-			toptext = "He takes your clever forgery and looks it over carefully.  Ere he hands it back to you his eyes go wide and he summons the guards.\n\"Hold these fools, they attempt deception.\"\nGuards rush to apprehend you."
-			ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-			textRect.display_multiple_choices([toptext,"Attack the guards in an attempt to gain entry to the castle.", "Take the magistrate hostage.", "Flee from the gatehouse.", "Let them seize you and attempt to explain that there has been a mistake." ],["TEXT", "attack", "hostage", "flee", "explain"])
-			var answer2 = await textRect.choice_pressed
-			if answer2 == "attack" :
-					ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-					textRect.set_text("The sergeant of the guard grins in anticipation.  \"You shall swing from the gallows ere today's sun bids us farewell.\"  The battle is joined.", true)
-					await textRect.interruption_over
-					#change_rect              level=0, id=0, times_in_10k=150, new_battle_low=4, new_battle_high=8
-					GameGlobal.stuff_done["guardhouse_attacked"] = 1
-					#BATTLE
-					GameGlobal.start_battle("Battle_1",false, true,true,true,[])
-					var battle_outcome = await GameGlobal.battle_end
-					return
-			if answer2 == "hostage" :
+	if answer == "forged" :
+		#SIMPLE ENCOUNTER id=1
+		toptext = "He takes your clever forgery and looks it over carefully.  Ere he hands it back to you his eyes go wide and he summons the guards.\n\"Hold these fools, they attempt deception.\"\nGuards rush to apprehend you."
+		ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
+		textRect.display_multiple_choices([toptext,"Attack the guards in an attempt to gain entry to the castle.", "Take the magistrate hostage.", "Flee from the gatehouse.", "Let them seize you and attempt to explain that there has been a mistake." ],["TEXT", "attack", "hostage", "flee", "explain"])
+		var answer2 = await textRect.choice_pressed
+		if answer2 == "attack" :
+				await ScriptHelperFuncsClass.display_text_wait_noise("The sergeant of the guard grins in anticipation.  \"You shall swing from the gallows ere today's sun bids us farewell.\"  The battle is joined.",'message nod.wav')
+				#change_rect              level=0, id=0, times_in_10k=150, new_battle_low=4, new_battle_high=8
 				GameGlobal.stuff_done["guardhouse_attacked"] = 1
-				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-				textRect.set_text("The Magistrate screeches in fear.  \"Hold men, for I fear they have foul intentions!\"  With your hostage you manage to beat a hasty retreat from the guardhouse and disappear.\nTwas a difficult task with such bulk in tow.", true)
-				await textRect.interruption_over
-				ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(4,3), '')
-				
-				#SIMPLE ENCOUNTER id=2
-				
-				toptext ="With the reluctant aid of the Magistrate you find your way to a secluded alley.  From the shouts you here in the streets, it would seem the whole kingdom is in search of your whereabouts."
-				ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-				textRect.display_multiple_choices([toptext,"Set the magistrate free.", "Kill the magistrate so he cannot give you away and take his possessions.", "Search the magistrate,  take his possessions and set him free.", "State that you have panicked and beg forgiveness." ],["TEXT", "free", "kill", "mug", "apology"])
-				var answer3 = await textRect.choice_pressed
-				if answer3=="free" :
-					ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-					textRect.set_text("As he flees, he shouts to no one in particular.  \"Help, I am being waylaid.  Help....Help!\"  Unfortunately for you, the streets are filled with troops searching for you and they stream towards you.  They do not even ask you to throw down your arms.", true)
-					await textRect.interruption_over
-						#BATTLE
-					GameGlobal.start_battle("Battle_2",false, true,true,true,[])
-					var battle_outcome = await GameGlobal.battle_end
-					return
-				if answer3=="kill" :
-					ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-					textRect.set_text("You send him to the gods.  In his dying whispers he says a prayer to an unfamiliar god.  It would seem he has cursed you with his last gasp.  One might hope he was not held in high regard by his deity.\nYou search the body.", true)
-					await textRect.interruption_over
-					#result2> modify_ap                level=0, id=4, source_xap=3, level_type=same, result_code=0
-					#result2> modify_ap                level=0, id=1, source_xap=3, level_type=same, result_code=0
-					#result2> modify_ap                level=0, id=0, source_xap=3, level_type=same, result_code=0
-					#result2> enable_ap                level=0, id=0, percent_chance=-100, low=0, high=0
-					#result2> change_rect              level=0, id=0, times_in_10k=150, new_battle_low=4, new_battle_high=8
-					
-					#give treasure 1
-					var itemsbook : Dictionary = NodeAccess.__Resources().items_book
-					StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [itemsbook["Robe of Protection +1"].duplicate(true),itemsbook["Dagger of Penetration +2"].duplicate(true)] ,"money" : [45,3,0] ,"exp" : 0 })
-					await UI.ow_hud.treasureControl.done_looting
-					return
-				if answer3=="mug" :
-					ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-					textRect.set_text("You take all his possessions as you strip him down to his breeches.  \"You ruffians shall pay dearly for this!  The King will spare no expense at expunging you and your kind!\" he cries.", true)
-					await textRect.interruption_over
-					#give treasure 1
-					var itemsbook : Dictionary = NodeAccess.__Resources().items_book
-					StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [itemsbook["Robe of Protection +1"].duplicate(true),itemsbook["Dagger of Penetration +2"].duplicate(true)] ,"money" : [45,3,0] ,"exp" : 0 })
-					await UI.ow_hud.treasureControl.done_looting
-					return
-				if answer3=="apology":
-					ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-					textRect.set_text("\"Well, I should guess so.  I shall explain the error of your ways to the city guard.  It is fortunate for you that I am a patient man.  Now be gone, for I must return to my duties.\"")
-					await textRect.interruption_over
-					return
-				
-			if answer2=="flee" :
-				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-				textRect.set_text("The guards begin to pursue when you here the Magistrate bellow with laughter as he calls them back.  \"Run foul vermin, for we are far too busy to chase the likes of you!\"  It would seem they did not take you as too serious a threat.", true)
-				await textRect.interruption_over
+				#BATTLE
+				GameGlobal.start_battle("Battle_1",false, true,true,true,[])
+				var battle_outcome = await GameGlobal.battle_end
 				return
-			if answer2=="explain" :
-				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-				textRect.set_text("After you explain that you only want to gain entrance to the court on honest business, the Magistrate is so amused that he lets you enter.  \"Since you chose not to resist, I deem you to be honest folk, and this is an honest kingdom.  Enter as you will.\"", true)
-				await textRect.interruption_over
-				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-				textRect.set_text("He hands you an invitation to the Castle Anthrax.", true)
-				await textRect.interruption_over
-				#give treasure 0
-				var invtemplate = NodeAccess.__Resources().items_book["Invitation"]
-				var treasureitems = [ invtemplate.duplicate(true)]
-				StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
+		if answer2 == "hostage" :
+			GameGlobal.stuff_done["guardhouse_attacked"] = 1
+			await ScriptHelperFuncsClass.display_text_wait_noise("The Magistrate screeches in fear.  \"Hold men, for I fear they have foul intentions!\"  With your hostage you manage to beat a hasty retreat from the guardhouse and disappear.\nTwas a difficult task with such bulk in tow.",'message nod.wav')
+			ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(4,3), '')
+			
+			#SIMPLE ENCOUNTER id=2
+			
+			toptext ="With the reluctant aid of the Magistrate you find your way to a secluded alley.  From the shouts you here in the streets, it would seem the whole kingdom is in search of your whereabouts."
+			ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
+			textRect.display_multiple_choices([toptext,"Set the magistrate free.", "Kill the magistrate so he cannot give you away and take his possessions.", "Search the magistrate,  take his possessions and set him free.", "State that you have panicked and beg forgiveness." ],["TEXT", "free", "kill", "mug", "apology"])
+			var answer3 = await textRect.choice_pressed
+			if answer3=="free" :
+				await ScriptHelperFuncsClass.display_text_wait_noise("As he flees, he shouts to no one in particular.  \"Help, I am being waylaid.  Help....Help!\"  Unfortunately for you, the streets are filled with troops searching for you and they stream towards you.  They do not even ask you to throw down your arms.",'message nod.wav')
+					#BATTLE
+				GameGlobal.start_battle("Battle_2",false, true,true,true,[])
+				var battle_outcome = await GameGlobal.battle_end
+				return
+			if answer3=="kill" :
+				await ScriptHelperFuncsClass.display_text_wait_noise("You send him to the gods.  In his dying whispers he says a prayer to an unfamiliar god.  It would seem he has cursed you with his last gasp.  One might hope he was not held in high regard by his deity.\nYou search the body.",'message nod.wav')
+				#result2> modify_ap                level=0, id=4, source_xap=3, level_type=same, result_code=0
+				#result2> modify_ap                level=0, id=1, source_xap=3, level_type=same, result_code=0
+				#result2> modify_ap                level=0, id=0, source_xap=3, level_type=same, result_code=0
+				#result2> enable_ap                level=0, id=0, percent_chance=-100, low=0, high=0
+				#result2> change_rect              level=0, id=0, times_in_10k=150, new_battle_low=4, new_battle_high=8
+				
+				#give treasure 1
+				var itemsbook : Dictionary = NodeAccess.__Resources().items_book
+				StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [itemsbook["Robe of Protection +1"].duplicate(true),itemsbook["Dagger of Penetration +2"].duplicate(true)] ,"money" : [45,3,0] ,"exp" : 0 })
 				await UI.ow_hud.treasureControl.done_looting
 				return
-		if answer== "leave" :
-			ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-			textRect.set_text("He bids you farewell as you make your way from the gate house.", true)
-			await textRect.interruption_over
+			if answer3=="mug" :
+				await ScriptHelperFuncsClass.display_text_wait_noise("You take all his possessions as you strip him down to his breeches.  \"You ruffians shall pay dearly for this!  The King will spare no expense at expunging you and your kind!\" he cries.",'message nod.wav')
+				#give treasure 1
+				var itemsbook : Dictionary = NodeAccess.__Resources().items_book
+				StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [itemsbook["Robe of Protection +1"].duplicate(true),itemsbook["Dagger of Penetration +2"].duplicate(true)] ,"money" : [45,3,0] ,"exp" : 0 })
+				await UI.ow_hud.treasureControl.done_looting
+				return
+			if answer3=="apology":
+				await ScriptHelperFuncsClass.display_text_wait_noise("\"Well, I should guess so.  I shall explain the error of your ways to the city guard.  It is fortunate for you that I am a patient man.  Now be gone, for I must return to my duties.\"",'message nod.wav')
+				return
+			
+		if answer2=="flee" :
+			await ScriptHelperFuncsClass.display_text_wait_noise("The guards begin to pursue when you here the Magistrate bellow with laughter as he calls them back.  \"Run foul vermin, for we are far too busy to chase the likes of you!\"  It would seem they did not take you as too serious a threat.",'message nod.wav')
+			return
+		if answer2=="explain" :
+			await ScriptHelperFuncsClass.display_text_wait_noise("After you explain that you only want to gain entrance to the court on honest business, the Magistrate is so amused that he lets you enter.  \"Since you chose not to resist, I deem you to be honest folk, and this is an honest kingdom.  Enter as you will.\"",'message nod.wav')
+			await ScriptHelperFuncsClass.display_text_wait_noise("He hands you an invitation to the Castle Anthrax.",'message nod.wav')
+			#give treasure 0
+			var invtemplate = NodeAccess.__Resources().items_book["Invitation"]
+			var treasureitems = [ invtemplate.duplicate(true)]
+			StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
+			await UI.ow_hud.treasureControl.done_looting
+			return
+	if answer== "leave" :
+		await ScriptHelperFuncsClass.display_text_wait_noise("He bids you farewell as you make your way from the gate house.",'message nod.wav')
 
 
 
@@ -220,20 +185,20 @@ static func castle_gate() :#===== LAND AP level=0 id=1 x=8 y=16 [LAP0/1]
 	#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
 	#textRect.set_text("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.", true)
 	#await textRect.interruption_over
-	await ScriptHelperFuncsClass.display_text_wait_noise("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.")
+	await ScriptHelperFuncsClass.display_text_wait_noise("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.", 'message nod.wav')
 	if ScriptHelperFuncsClass.does_party_have_item_named("Invitation") :
 		#===== XAP id=1 [XAP1]
 		#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
 		#textRect.set_text("The gate guards check your invitation and wave you through.", true)
 		#await textRect.interruption_over
-		await ScriptHelperFuncsClass.display_text_wait_noise("The gate guards check your invitation and wave you through.")
+		await ScriptHelperFuncsClass.display_text_wait_noise("The gate guards check your invitation and wave you through.", 'message nod.wav')
 	else :
 		#===== XAP id=2 [XAP2]
 		#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
 		#textRect.set_text("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"", true)
 		#await textRect.interruption_over
 		ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(9,16), '')
-		await ScriptHelperFuncsClass.display_text_wait_noise("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"")
+		await ScriptHelperFuncsClass.display_text_wait_noise("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"",'message nod.wav')
 	return
 
 static func guard_barracks() : #===== LAND AP level=0 id=2 x=6 y=16 [LAP0/2]
