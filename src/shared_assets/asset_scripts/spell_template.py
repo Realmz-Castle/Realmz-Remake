@@ -9,8 +9,8 @@ var schools : Array = {schools}
 # Fuction of target type, effect (phase), and line of sight
 var targettile : int = {target_type}  #0=anywhere 1=creature 2=empty 3=nowall
 
-var level : int = {level}
-var selection_cost : int = {selection_cost}
+var school_levels : Dictionary = {school_levels}
+var selection_costs : Dictionary = {selection_costs}
 var max_plevel : int = 7 # Is this ever not 7?
 var in_field : bool = {usable_in_camp}
 var in_combat : bool = {usable_in_combat}

@@ -14,6 +14,7 @@ class TargetType(Enum):
     ALL_FRIENDLY = "9"
     ALL_ENEMIES = "10"
     SPECIAL = "11"
+    UNKNOWN_12 = "12"
 
 
 sound_lookup = {

@@ -1,5 +1,5 @@
-from typing import Dict
-from lookups import level_spellpoint_lookup
+from typing import Dict, Any
+from lookups import level_spellpoint_lookup, TargetType
 from spell_utils import (
     get_proj_tex,
     get_proj_hit,
@@ -25,7 +25,14 @@ from spell_utils import (
     get_tags
 )
 
-def build_data(row: Dict[str, str]) -> Dict[str, str]: 
+# Define main schools (excluding Special schools)
+MAIN_SCHOOLS = [
+    "Sorcerer",
+    "Priest",
+    "Enchanter"
+]
+
+def build_data(row: Dict[str, str]) -> Dict[str, Any]:
     damage = parse_damage(row['damage'])
     duration = parse_duration(row['duration'])
     range = parse_range(row['range'])
@@ -42,6 +49,7 @@ def build_data(row: Dict[str, str]) -> Dict[str, str]:
         'range': get_range(range),
         'tags': get_tags(row),
         'schools': [row['caster_class']],
+        'school_levels': {row['caster_class']: int(row['level']) if row['level'] else 0} if row['caster_class'] in MAIN_SCHOOLS else {},
         'proj_tex': get_proj_tex(row['cast_media']),
         'proj_hit': get_proj_hit(row['resolution_media']),
         'sounds': get_sounds(row['cast_media'], row['resolution_media']),
@@ -52,12 +60,11 @@ def build_data(row: Dict[str, str]) -> Dict[str, str]:
         'min_duration': get_min_duration(duration),
         'max_duration': get_max_duration(duration),
         'duration_roll': get_duration_roll(duration),
-        'selection_cost': level_spellpoint_lookup[row['level']] if row['level'] else 0,
+        'selection_costs': {},
         'add_traits_to_target': get_traits(row["effect"]),
         'is_ray': 'true' if row['target_type'] == '6' else 'false',
         'is_los': get_los(row),
-        'level': row['level'] if row['level'] else 0,
-        'targets': get_targets(row['target_type']),
-        'aoe': get_aoe(row['target_type'], int(row['size'])),
+        'targets': get_targets(TargetType(row['target_type'])),
+        'aoe': get_aoe(TargetType(row['target_type']), int(row['size'])),
         'attributes': get_attributes(row)
     }
