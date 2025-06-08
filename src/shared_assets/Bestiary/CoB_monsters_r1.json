@@ -1,7 +1,7 @@
 {
     "Giant Wyrm 9": {
         "data": {
-            "image": "CREA_giant_wyrm",
+            "image": 401,
             "size": [
                 2,
                 1
@@ -55,7 +55,7 @@
     },
     "Orc Warrior 122": {
         "data": {
-            "image": "CREA_orc_warrior",
+            "image": 512,
             "size": [
                 1,
                 1
@@ -136,7 +136,7 @@
     },
     "Podling 42": {
         "data": {
-            "image": "CREA_podling" ,
+            "image": 458,
             "size": [
                 1,
                 1
@@ -216,7 +216,7 @@
     },
     "Podling 44": {
         "data": {
-            "image": "CREA_podling" ,
+            "image": 458,
             "size": [
                 1,
                 1
@@ -294,9 +294,9 @@
             ]
         }
     },
-    "Mummy": {
+    "Mummy 65": {
         "data": {
-            "image": "CREA_mummy",
+            "image": 457,
             "size": [
                 1,
                 2
@@ -372,9 +372,9 @@
             ]
         }
     },
-    "Goblin Chief": {
+    "Goblin Chief 131": {
         "data": {
-            "image": "CREA_goblin_chief",
+            "image": 389,
             "size": [
                 1,
                 1
@@ -455,7 +455,7 @@
     },
     "Dinosaur 51": {
         "data": {
-            "image": "CREA_dinosaur3",
+            "image": 443,
             "size": [
                 1,
                 2
@@ -510,9 +510,9 @@
             }]
         }
     },
-    "Proto-Badger": {
+    "Proto-Badger 47": {
         "data": {
-            "image": "CREA_proto_badger",
+            "image": 439,
             "size": [
                 2,
                 1
@@ -584,7 +584,7 @@
     },
     "Dinosaur 54": {
         "data": {
-            "image": "CREA_dinosaur6",
+            "image": 446,
             "size": [
                 2,
                 1
@@ -641,7 +641,7 @@
     },
     "Slime Demon 83": {
         "data": {
-            "image": "CREA_antiid",
+            "image": 475,
             "size": [
                 1,
                 1
@@ -701,9 +701,9 @@
             }]
         }
     },
-    "Cavalry Trooper": {
+    "Cavalry Trooper 49": {
         "data": {
-            "image": "CREA_cavalry_trooper",
+            "image": 441,
             "size": [
                 1,
                 2
@@ -774,7 +774,7 @@
     },
     "Dinosaur 57": {
         "data": {
-            "image": "CREA_dinosaur3",
+            "image": 448,
             "size": [
                 1,
                 2
@@ -850,9 +850,9 @@
             ]
         }
     },
-    "Zombie": {
+    "Zombie 78": {
         "data": {
-            "image": "CREA_zombie",
+            "image": 470,
             "size": [
                 1,
                 1
@@ -908,9 +908,9 @@
             }]
         }
     },
-    "Orc Shaman": {
+    "Orc Shaman 121": {
         "data": {
-            "image": "CREA_orc_shaman",
+            "image": 385,
             "size": [
                 1,
                 1
@@ -1031,9 +1031,9 @@
             }]
         }
     },
-    "Giant Worker Ant": {
+    "Giant Worker Ant 128": {
         "data": {
-            "image": "CREA_giant_worker_ant",
+            "image": 516,
             "size": [
                 1,
                 1
@@ -1085,9 +1085,9 @@
             }]
         }
     },
-    "Guardian Spider": {
+    "Guardian Spider 32": {
         "data": {
-            "image": "CREA_guardian_spider",
+            "image": 424,
             "size": [
                 2,
                 2
@@ -1164,9 +1164,9 @@
             ]
         }
     },
-    "Mad Troll": {
+    "Mad Troll 66": {
         "data": {
-            "image": "CREA_troll",
+            "image": 408,
             "size": [
                 2,
                 2
@@ -1239,9 +1239,9 @@
             ]
         }
     },
-    "Green Dragon": {
+    "Green Dragon 40": {
         "data": {
-            "image": "CREA_green_dragon",
+            "image": 432,
             "size": [
                 2,
                 2
@@ -1362,9 +1362,9 @@
             ]
         }
     },
-    "Vixies Spider": {
+    "Vixies Spider 94": {
         "data": {
-            "image": "CREA_vixies_spider",
+            "image": 423,
             "size": [
                 2,
                 2
@@ -1434,9 +1434,9 @@
             ]
         }
     },
-    "Recluse Wizard": {
+    "Recluse Wizard 87": {
         "data": {
-            "image": "CREA_apprentice",
+            "image": 417,
             "size": [
                 1,
                 1
@@ -1554,9 +1554,9 @@
             }]
         }
     },
-    "Mush Man": {
+    "Mush Man 29": {
         "data": {
-            "image": "CREA_podling",
+            "image": 458,
             "size": [
                 1,
                 1
@@ -1622,9 +1622,9 @@
             ]
         }
     },
-    "Giant Bee": {
+    "Giant Bee 127": {
         "data": {
-            "image": "CREA_giant_bee",
+            "image": 391,
             "size": [
                 1,
                 1
@@ -1679,9 +1679,9 @@
             }]
         }
     },
-    "Royal Guard": {
+    "Royal Guard 95": {
         "data": {
-            "image": "CREA_royal_guard",
+            "image": 486,
             "size": [
                 1,
                 1
@@ -1754,9 +1754,9 @@
             }]
         }
     },
-    "Royal Corporal": {
+    "Royal Corporal 96": {
         "data": {
-            "image": "CREA_royal_corporal",
+            "image": 487,
             "size": [
                 1,
                 1
@@ -1829,9 +1829,9 @@
             }]
         }
     },
-    "Shantile": {
+    "Shantile 110": {
         "data": {
-            "image": "CREA_shantile",
+            "image": 502,
             "size": [
                 1,
                 1
@@ -1897,9 +1897,9 @@
             ]
         }
     },
-    "Giant Scorpion": {
+    "Giant Scorpion 118": {
         "data": {
-            "image": "CREA_giant_scorpion",
+            "image": 510,
             "size": [
                 2,
                 1
@@ -1972,9 +1972,9 @@
             ]
         }
     },
-    "Minor Demon": {
+    "Minor Demon 4": {
         "data": {
-            "image": "CREA_minor_demon",
+            "image": 444,
             "size": [
                 2,
                 2
@@ -2058,9 +2058,9 @@
             ]
         }
     },
-    "Goblin Shaman": {
+    "Goblin Shaman 116": {
         "data": {
-            "image": "CREA_goblin_shaman",
+            "image": 508,
             "size": [
                 1,
                 1
@@ -2171,7 +2171,7 @@
     },
     "Podling 37": {
         "data": {
-            "image": "CREA_podling",
+            "image": 458,
             "size": [
                 1,
                 1
@@ -2251,7 +2251,7 @@
     },
     "Dinosaur 60": {
         "data": {
-            "image": "CREA_dinosaur1",
+            "image": 452,
             "size": [
                 2,
                 2
@@ -2308,7 +2308,7 @@
     },
     "Slime 73": {
         "data": {
-            "image": "CREA_slime1",
+            "image": 465,
             "size": [
                 1,
                 1
@@ -2366,9 +2366,9 @@
             }]
         }
     },
-    "Krise": {
+    "Krise 80": {
         "data": {
-            "image": "CREA_krise",
+            "image": 494,
             "size": [
                 1,
                 1
@@ -2428,9 +2428,9 @@
             }]
         }
     },
-    "Horvath": {
+    "Horvath 18": {
         "data": {
-            "image": "CREA_horvath",
+            "image": 410,
             "size": [
                 2,
                 2
@@ -2520,9 +2520,9 @@
             ]
         }
     },
-    "Carrion Beast": {
+    "Carrion Beast 102": {
         "data": {
-            "image": "CREA_carrion_beast",
+            "image": 479,
             "size": [
                 2,
                 2
@@ -2608,9 +2608,9 @@
             ]
         }
     },
-    "Giant Centipede": {
+    "Giant Centipede 1": {
         "data": {
-            "image": "CREA_giant_centipede",
+            "image": 393,
             "size": [
                 2,
                 1
@@ -2667,7 +2667,7 @@
     },
     "Slime 72": {
         "data": {
-            "image": "CREA_slime2",
+            "image": 464,
             "size": [
                 1,
                 1
@@ -2725,9 +2725,9 @@
             }]
         }
     },
-    "Dune Spider": {
+    "Dune Spider 11": {
         "data": {
-            "image": "CREA_dune_spider",
+            "image": 403,
             "size": [
                 2,
                 1
@@ -2782,9 +2782,9 @@
             }]
         }
     },
-    "Skeletal Giant": {
+    "Skeletal Giant 19": {
         "data": {
-            "image": "CREA_skeletal_giant",
+            "image": 411,
             "size": [
                 2,
                 2
@@ -2920,9 +2920,9 @@
             ]
         }
     },
-    "Giant Spider": {
+    "Giant Spider 76": {
         "data": {
-            "image": "CREA_giant_spider",
+            "image": 468,
             "size": [
                 1,
                 1
@@ -2992,9 +2992,9 @@
             ]
         }
     },
-    "Goblin Champion": {
+    "Goblin Champion 129": {
         "data": {
-            "image": "CREA_goblin_champion",
+            "image": 390,
             "size": [
                 1,
                 1
@@ -3059,9 +3059,9 @@
             }]
         }
     },
-    "Ghoul": {
+    "Ghoul 75": {
         "data": {
-            "image": "CREA_ghoul",
+            "image": 467,
             "size": [
                 1,
                 1
@@ -3148,9 +3148,9 @@
             ]
         }
     },
-    "Vesp Spider": {
+    "Vesp Spider 22": {
         "data": {
-            "image": "CREA_vesp_spider",
+            "image": 414,
             "size": [
                 2,
                 1
@@ -3205,9 +3205,9 @@
             }]
         }
     },
-    "Hell Dragon": {
+    "Hell Dragon 13": {
         "data": {
-            "image": "CREA_hell_dragon",
+            "image": 405,
             "size": [
                 2,
                 2
@@ -3319,9 +3319,9 @@
             }]
         }
     },
-    "Anti'id": {
+    "Anti'id 77": {
         "data": {
-            "image": "CREA_antiid",
+            "image": 475,
             "size": [
                 1,
                 1
@@ -3439,9 +3439,9 @@
             ]
         }
     },
-    "Gnome Warrior": {
+    "Gnome Warrior 124": {
         "data": {
-            "image": "CREA_gnome_warrior",
+            "image": 437,
             "size": [
                 1,
                 1
@@ -3495,9 +3495,9 @@
             }]
         }
     },
-    "Giant Snake": {
+    "Giant Snake 33": {
         "data": {
-            "image": "CREA_giant_snake",
+            "image": 425,
             "size": [
                 2,
                 2
@@ -3555,9 +3555,9 @@
             }]
         }
     },
-    "Whip Scorpion": {
+    "Whip Scorpion 7": {
         "data": {
-            "image": "CREA_whip_scorpion",
+            "image": 399,
             "size": [
                 2,
                 1
@@ -3638,9 +3638,9 @@
             ]
         }
     },
-    "Giant Troll": {
+    "Giant Troll 16": {
         "data": {
-            "image": "CREA_troll",
+            "image": 408,
             "size": [
                 2,
                 2
@@ -3715,9 +3715,9 @@
             ]
         }
     },
-    "Carrion Slug": {
+    "Carrion Slug 46": {
         "data": {
-            "image": "CREA_carrion_slug",
+            "image": 398,
             "size": [
                 2,
                 1
@@ -3769,9 +3769,9 @@
             }]
         }
     },
-    "High Priest": {
+    "High Priest 111": {
         "data": {
-            "image": "CREA_humanmage",
+            "image": 386,
             "size": [
                 1,
                 1
@@ -3884,9 +3884,9 @@
             }]
         }
     },
-    "Human Mage": {
+    "Human Mage 82": {
         "data": {
-            "image": "CREA_humanmage",
+            "image": 466,
             "size": [
                 1,
                 1
@@ -4000,9 +4000,9 @@
             }]
         }
     },
-    "Dogre Champion": {
+    "Dogre Champion 64": {
         "data": {
-            "image": "CREA_dogre_champion",
+            "image": 438,
             "size": [
                 2,
                 2
@@ -4079,9 +4079,9 @@
             }]
         }
     },
-    "Terror Beast": {
+    "Terror Beast 28": {
         "data": {
-            "image": "CREA_terror_beast",
+            "image": 420,
             "size": [
                 2,
                 2
@@ -4136,9 +4136,9 @@
             }]
         }
     },
-    "Giant Boar": {
+    "Giant Boar 81": {
         "data": {
-            "image": "CREA_giant_boar",
+            "image": 473,
             "size": [
                 2,
                 1
@@ -4192,7 +4192,7 @@
     },
     "Minotaur 15": {
         "data": {
-            "image": "CREA_minotaur2",
+            "image": 406,
             "size": [
                 2,
                 2
@@ -4270,7 +4270,7 @@
     },
     "Minotaur 14": {
         "data": {
-            "image": "CREA_minotaur1",
+            "image": 407,
             "size": [
                 2,
                 2
@@ -4346,9 +4346,9 @@
             }]
         }
     },
-    "Skeletal Warrior": {
+    "Skeletal Warrior 70": {
         "data": {
-            "image": "CREA_skeletal_warrior",
+            "image": 505,
             "size": [
                 1,
                 1
@@ -4427,9 +4427,9 @@
             ]
         }
     },
-    "Royal Sergeant": {
+    "Royal Sergeant 97": {
         "data": {
-            "image": "CREA_royal_sergeant",
+            "image": 488,
             "size": [
                 1,
                 1
@@ -4502,9 +4502,9 @@
             }]
         }
     },
-    "Undead Rat Demi-Lord": {
+    "Undead Rat Demi-Lord 135": {
         "data": {
-            "image": "CREA_rat_demilord",
+            "image": 434,
             "size": [
                 1,
                 2
@@ -4644,9 +4644,9 @@
             ]
         }
     },
-    "Cavalry Officer": {
+    "Cavalry Officer 50": {
         "data": {
-            "image": "CREA_cavalry_officer",
+            "image": 442,
             "size": [
                 1,
                 2
@@ -4719,9 +4719,9 @@
             }]
         }
     },
-    "Bigbelly": {
+    "Bigbelly 132": {
         "data": {
-            "image": "CREA_goblin_champion",
+            "image": 389,
             "size": [
                 1,
                 1
@@ -4813,7 +4813,7 @@
     },
     "Human Mage 74": {
         "data": {
-            "image": "CREA_humanmage",
+            "image": 466,
             "size": [
                 1,
                 1
@@ -4930,9 +4930,9 @@
             }]
         }
     },
-    "Giant Rat": {
+    "Giant Rat 133": {
         "data": {
-            "image": "CREA_giant_rat",
+            "image": 449,
             "size": [
                 1,
                 1
@@ -4987,9 +4987,9 @@
             }]
         }
     },
-    "Demon Lord": {
+    "Demon Lord 89": {
         "data": {
-            "image": "CREA_demon_lord",
+            "image": 444,
             "size": [
                 2,
                 2
@@ -5085,9 +5085,9 @@
             ]
         }
     },
-    "Orc Warrior": {
+    "Orc Warrior 91": {
         "data": {
-            "image": "CREA_orc_warrior",
+            "image": 515,
             "size": [
                 1,
                 1
@@ -5160,9 +5160,9 @@
             }]
         }
     },
-    "Blue Dragon": {
+    "Blue Dragon 39": {
         "data": {
-            "image": "CREA_blue_dragon",
+            "image": 431,
             "size": [
                 2,
                 2
@@ -5283,9 +5283,9 @@
             ]
         }
     },
-    "Young Hill Giant": {
+    "Young Hill Giant 55": {
         "data": {
-            "image": "CREA_hill_giant",
+            "image": 440,
             "size": [
                 1,
                 2
@@ -5350,9 +5350,9 @@
             }]
         }
     },
-    "Troll": {
+    "Troll 67": {
         "data": {
-            "image": "CREA_troll",
+            "image": 408,
             "size": [
                 2,
                 2
@@ -5425,9 +5425,9 @@
             ]
         }
     },
-    "Cragentooth": {
+    "Cragentooth 69": {
         "data": {
-            "image": "CREA_dogre_champion",
+            "image": 438,
             "size": [
                 2,
                 2
@@ -5526,9 +5526,9 @@
             ]
         }
     },
-    "Proto-Hyena": {
+    "Proto-Hyena 24": {
         "data": {
-            "image": "CREA_proto_hyena",
+            "image": 416,
             "size": [
                 2,
                 2
@@ -5598,9 +5598,9 @@
             ]
         }
     },
-    "Cacodeamon Warlord": {
+    "Cacodeamon Warlord 58": {
         "data": {
-            "image": "CREA_cacodaemon_warlord",
+            "image": 450,
             "size": [
                 2,
                 2
@@ -5690,9 +5690,9 @@
             ]
         }
     },
-    "Troglodyte": {
+    "Troglodyte 119": {
         "data": {
-            "image": "CREA_troglodyte",
+            "image": 502,
             "size": [
                 1,
                 1
@@ -5758,9 +5758,9 @@
             ]
         }
     },
-    "Mush Mound": {
+    "Mush Mound 43": {
         "data": {
-            "image": "CREA_mush_mound",
+            "image": 456,
             "size": [
                 1,
                 2
@@ -5822,10 +5822,10 @@
             }]
         }
     },
-    "Reppep Rd": {
+    "Reppep Rd 90": {
         "data": {
             "NPC": 1,
-            "image": "CREA_dwarfwarrior",
+            "image": 492,
             "size": [
                 1,
                 1
@@ -5912,9 +5912,9 @@
             ]
         }
     },
-    "Magistrate": {
+    "Magistrate 105": {
         "data": {
-            "image": "CREA_greenmagistrate",
+            "image": 481,
             "size": [
                 1,
                 1
@@ -6019,9 +6019,9 @@
             }]
         }
     },
-    "Winged Devil": {
+    "Winged Devil 63": {
         "data": {
-            "image": "CREA_winged_devil",
+            "image": 455,
             "size": [
                 1,
                 1
@@ -6134,9 +6134,9 @@
             }]
         }
     },
-    "Widow of the Web": {
+    "Widow of the Web 31": {
         "data": {
-            "image": "CREA_vixies_spider",
+            "image": 423,
             "size": [
                 2,
                 2
@@ -6261,7 +6261,7 @@
     },
     "Mush Mound 41": {
         "data": {
-            "image": "CREA_mush_mound",
+            "image": 456,
             "size": [
                 1,
                 2
@@ -6325,7 +6325,7 @@
     },
     "Cacodaemon Warrior 101": {
         "data": {
-            "image": "CREA_cacodaemon_warlord",
+            "image": 493,
             "size": [
                 1,
                 1
@@ -6415,9 +6415,9 @@
             ]
         }
     },
-    "Ghost": {
+    "Ghost 84": {
         "data": {
-            "image": "CREA_ghost",
+            "image": 435,
             "size": [
                 1,
                 1
@@ -6479,9 +6479,9 @@
             }]
         }
     },
-    "Larva": {
+    "Larva 6": {
         "data": {
-            "image": "CREA_larva",
+            "image": 398,
             "size": [
                 2,
                 1
@@ -6536,9 +6536,9 @@
             }]
         }
     },
-    "Giant Frog": {
+    "Giant Frog 0": {
         "data": {
-            "image": "CREA_giant_frog",
+            "image": 392,
             "size": [
                 2,
                 1
@@ -6590,9 +6590,9 @@
             }]
         }
     },
-    "Royal Lieutenant": {
+    "Royal Lieutenant 98": {
         "data": {
-            "image": "CREA_royal_lieutenant",
+            "image": 489,
             "size": [
                 1,
                 1
@@ -6665,9 +6665,9 @@
             }]
         }
     },
-    "Sabre Feline": {
+    "Sabre Feline 36": {
         "data": {
-            "image": "CREA_sabre_feline",
+            "image": 428,
             "size": [
                 2,
                 1
@@ -6737,9 +6737,9 @@
             ]
         }
     },
-    "Gnath": {
+    "Gnath 56": {
         "data": {
-            "image": "CREA_gnath",
+            "image": 397,
             "size": [
                 2,
                 2
@@ -6811,9 +6811,9 @@
             }]
         }
     },
-    "Young Troll": {
+    "Young Troll 112": {
         "data": {
-            "image": "CREA_young_troll",
+            "image": 504,
             "size": [
                 1,
                 1
@@ -6876,9 +6876,9 @@
             }]
         }
     },
-    "Wizard Headmaster": {
+    "Wizard Headmaster 88": {
         "data": {
-            "image": "CREA_humanmage",
+            "image": 466,
             "size": [
                 1,
                 1
@@ -6996,9 +6996,9 @@
             }]
         }
     },
-    "Skeletal Beast": {
+    "Skeletal Beast 17": {
         "data": {
-            "image": "CREA_skeletal_beast",
+            "image": 409,
             "size": [
                 2,
                 2
@@ -7077,7 +7077,7 @@
     },
     "Dinosaur 26": {
         "data": {
-            "image": "CREA_dinosaur6",
+            "image": 418,
             "size": [
                 2,
                 2
@@ -7134,7 +7134,7 @@
     },
     "Mush Mound 35": {
         "data": {
-            "image": "CREA_mush_mound",
+            "image": 456,
             "size": [
                 1,
                 2
@@ -7196,9 +7196,9 @@
             }]
         }
     },
-    "Fire Fiend": {
+    "Fire Fiend 45": {
         "data": {
-            "image": "CREA_fire_fiend",
+            "image": 478,
             "size": [
                 2,
                 2
@@ -7266,9 +7266,9 @@
             }]
         }
     },
-    "Demon": {
+    "Demon 108": {
         "data": {
-            "image": "CREA_demon",
+            "image": 500,
             "size": [
                 1,
                 1
@@ -7399,9 +7399,9 @@
             ]
         }
     },
-    "Spectre": {
+    "Spectre 85": {
         "data": {
-            "image": "CREA_spectre",
+            "image": 435,
             "size": [
                 2,
                 2
@@ -7525,9 +7525,9 @@
             ]
         }
     },
-    "Goblin Hero": {
+    "Goblin Hero 93": {
         "data": {
-            "image": "CREA_goblin_hero",
+            "image": 387,
             "size": [
                 1,
                 1
@@ -7602,9 +7602,9 @@
             ]
         }
     },
-    "Rat Demi-Lord": {
+    "Rat Demi-Lord 134": {
         "data": {
-            "image": "CREA_rat_demilord",
+            "image": 434,
             "size": [
                 1,
                 2
@@ -7736,9 +7736,9 @@
             ]
         }
     },
-    "Great Wizard": {
+    "Great Wizard 25": {
         "data": {
-            "image": "CREA_humanmage",
+            "image": 417,
             "size": [
                 1,
                 1
@@ -7852,9 +7852,9 @@
             }]
         }
     },
-    "Secret Cleric": {
+    "Secret Cleric 52": {
         "data": {
-            "image": "CREA_humanmage",
+            "image": 417,
             "size": [
                 1,
                 1
@@ -7967,9 +7967,9 @@
             }]
         }
     },
-    "Slime Worm": {
+    "Slime Worm 117": {
         "data": {
-            "image": "CREA_slime_worm",
+            "image": 398,
             "size": [
                 2,
                 1
@@ -8042,9 +8042,9 @@
             ]
         }
     },
-    "Proto-Shantile": {
+    "Proto-Shantile 20": {
         "data": {
-            "image": "CREA_proto_shantile",
+            "image": 412,
             "size": [
                 2,
                 2
@@ -8111,9 +8111,9 @@
             ]
         }
     },
-    "Small Slime": {
+    "Small Slime 62": {
         "data": {
-            "image": "CREA_small_slime",
+            "image": 465,
             "size": [
                 1,
                 1
@@ -8175,9 +8175,9 @@
             }]
         }
     },
-    "Orc Champion": {
+    "Orc Champion 120": {
         "data": {
-            "image": "CREA_orc_champion",
+            "image": 512,
             "size": [
                 1,
                 1
@@ -8264,9 +8264,9 @@
             ]
         }
     },
-    "Royal Captain": {
+    "Royal Captain 99": {
         "data": {
-            "image": "CREA_royal_captain",
+            "image": 490,
             "size": [
                 1,
                 1
@@ -8343,9 +8343,9 @@
             }]
         }
     },
-    "Hell Bat": {
+    "Hell Bat 59": {
         "data": {
-            "image": "CREA_hell_bat",
+            "image": 451,
             "size": [
                 2,
                 1
@@ -8443,9 +8443,9 @@
             }]
         }
     },
-    "Flesh Fiend": {
+    "Flesh Fiend 100": {
         "data": {
-            "image": "CREA_flesh_fiend",
+            "image": 461,
             "size": [
                 1,
                 1
@@ -8533,9 +8533,9 @@
             ]
         }
     },
-    "Dogre": {
+    "Dogre 3": {
         "data": {
-            "image": "CREA_dogre",
+            "image": 395,
             "size": [
                 2,
                 2
@@ -8614,7 +8614,7 @@
     },
     "Dinosaur 34": {
         "data": {
-            "image": "CREA_dinosaur5",
+            "image": 426,
             "size": [
                 2,
                 1
@@ -8669,9 +8669,9 @@
             }]
         }
     },
-    "Cave Lizard": {
+    "Cave Lizard 2": {
         "data": {
-            "image": "CREA_cave_lizard",
+            "image": 394,
             "size": [
                 2,
                 1
@@ -8726,9 +8726,9 @@
             }]
         }
     },
-    "Red Dragon": {
+    "Red Dragon 38": {
         "data": {
-            "image": "CREA_red_dragon",
+            "image": 430,
             "size": [
                 2,
                 2
@@ -8849,9 +8849,9 @@
             ]
         }
     },
-    "Hag": {
+    "Hag 68": {
         "data": {
-            "image": "CREA_hag",
+            "image": 460,
             "size": [
                 1,
                 2
@@ -8917,9 +8917,55 @@
             ]
         }
     },
-    "Hill Giant": {
+    " 107": {
         "data": {
-            "image": "CREA_hill_giant",
+            "image": 0,
+            "size": [
+                1,
+                1
+            ],
+            "level": 0,
+            "in_bestiary": 1,
+            "faction": 0,
+            "name": "",
+            "description": "                                                                                                                                                                                                                                                               ",
+            "summonable": 0,
+            "id": 107,
+            "exp": 0
+        },
+        "stats": {
+            "maxHP": 0,
+            "EvasionMelee": 50,
+            "Dexterity": 0,
+            "ResistanceElect": 0,
+            "EvasionMagic": 0,
+            "ResistanceMental": 0,
+            "ResistanceChemical": 0,
+            "maxSP": 0,
+            "MaxMovement": 0,
+            "AccuracyMelee": 50,
+            "ResistanceIce": 0,
+            "MaxActions": 0,
+            "AccuracyRanged": 50,
+            "ResistanceMagic": 0,
+            "ResistanceFire": 0,
+            "EvasionRanged": 50
+        },
+        "ai": {
+            "flees_at": 0,
+            "cast_chance": 0,
+            "missile_chance": 0
+        },
+        "tools": {
+            "money": "[0,0,0]",
+            "inventory": [],
+            "spells": [],
+            "unarmed_melee_attacks": []
+        }
+    },
+    "Hill Giant 48": {
+        "data": {
+            "image": 440,
             "size": [
                 1,
                 2
@@ -8984,9 +9030,9 @@
             }]
         }
     },
-    "Giant Zombie": {
+    "Giant Zombie 86": {
         "data": {
-            "image": "CREA_giant_zombie",
+            "image": 436,
             "size": [
                 2,
                 2
@@ -9048,9 +9094,55 @@
             }]
         }
     },
-    "Trigwig": {
+    " 106": {
         "data": {
-            "image": "CREA_trigwig",
+            "image": 0,
+            "size": [
+                1,
+                1
+            ],
+            "level": 0,
+            "in_bestiary": 1,
+            "faction": 0,
+            "name": "",
+            "description": "                                                                                                                                                                                                                                                               ",
+            "summonable": 0,
+            "id": 106,
+            "exp": 0
+        },
+        "stats": {
+            "maxHP": 0,
+            "EvasionMelee": 50,
+            "Dexterity": 0,
+            "ResistanceElect": 0,
+            "EvasionMagic": 0,
+            "ResistanceMental": 0,
+            "ResistanceChemical": 0,
+            "maxSP": 0,
+            "MaxMovement": 0,
+            "AccuracyMelee": 50,
+            "ResistanceIce": 0,
+            "MaxActions": 0,
+            "AccuracyRanged": 50,
+            "ResistanceMagic": 0,
+            "ResistanceFire": 0,
+            "EvasionRanged": 50
+        },
+        "ai": {
+            "flees_at": 0,
+            "cast_chance": 0,
+            "missile_chance": 0
+        },
+        "tools": {
+            "money": "[0,0,0]",
+            "inventory": [],
+            "spells": [],
+            "unarmed_melee_attacks": []
+        }
+    },
+    "Trigwig 79": {
+        "data": {
+            "image": 482,
             "size": [
                 2,
                 2
@@ -9128,9 +9220,9 @@
             ]
         }
     },
-    "Giant Wasp": {
+    "Giant Wasp 109": {
         "data": {
-            "image": "CREA_giant_wasp",
+            "image": 501,
             "size": [
                 1,
                 1
@@ -9185,9 +9277,9 @@
             }]
         }
     },
-    "Mental Flea": {
+    "Mental Flea 114": {
         "data": {
-            "image": "CREA_mental_flea",
+            "image": 506,
             "size": [
                 1,
                 1
@@ -9248,9 +9340,9 @@
             }]
         }
     },
-    "Rock Spider": {
+    "Rock Spider 10": {
         "data": {
-            "image": "CREA_rock_spider",
+            "image": 402,
             "size": [
                 2,
                 1
@@ -9305,9 +9397,9 @@
             }]
         }
     },
-    "Mercenary Villain": {
+    "Mercenary Villain 103": {
         "data": {
-            "image": "CREA_mercenary_villain",
+            "image": 496,
             "size": [
                 1,
                 1
@@ -9379,9 +9471,9 @@
             }]
         }
     },
-    "Beast Man": {
+    "Beast Man 123": {
         "data": {
-            "image": "CREA_beast_man",
+            "image": 514,
             "size": [
                 1,
                 1
@@ -9435,9 +9527,9 @@
             }]
         }
     },
-    "Goblin Archer": {
+    "Goblin Archer 130": {
         "data": {
-            "image": "CREA_goblin_archer",
+            "image": 388,
             "size": [
                 1,
                 1
@@ -9510,9 +9602,9 @@
             }]
         }
     },
-    "Orc Archer": {
+    "Orc Archer 126": {
         "data": {
-            "image": "CREA_orc_archer",
+            "image": 513,
             "size": [
                 1,
                 1
@@ -9589,9 +9681,9 @@
             }]
         }
     },
-    "Goblin": {
+    "Goblin 92": {
         "data": {
-            "image": "CREA_goblin",
+            "image": 384,
             "size": [
                 1,
                 1
@@ -9656,9 +9748,9 @@
             }]
         }
     },
-    "Thief": {
+    "Thief 104": {
         "data": {
-            "image": "CREA_thief",
+            "image": 495,
             "size": [
                 1,
                 1
@@ -9726,9 +9818,9 @@
             }]
         }
     },
-    "Silt Spider": {
+    "Silt Spider 21": {
         "data": {
-            "image": "CREA_silt_spider",
+            "image": 413,
             "size": [
                 2,
                 1
@@ -9780,9 +9872,9 @@
             }]
         }
     },
-    "Rewop": {
+    "Rewop 12": {
         "data": {
-            "image": "CREA_rewop",
+            "image": 454,
             "size": [
                 2,
                 2
@@ -9914,10 +10006,10 @@
             ]
         }
     },
-    "Vodalian": {
+    "Vodalian 71": {
         "data": {
             "NPC": 1,
-            "image": "CREA_humanmage",
+            "image": 466,
             "size": [
                 1,
                 1
@@ -10034,9 +10126,9 @@
             }]
         }
     },
-    "Dragon Lizard": {
+    "Dragon Lizard 5": {
         "data": {
-            "image": "CREA_dragon_lizard",
+            "image": 420,
             "size": [
                 2,
                 2
@@ -10109,9 +10201,9 @@
             ]
         }
     },
-    "Kisk Dragon": {
+    "Kisk Dragon 8": {
         "data": {
-            "image": "CREA_kisk_dragon",
+            "image": 400,
             "size": [
                 2,
                 2
@@ -10229,7 +10321,7 @@
     },
     "Apprentice 30": {
         "data": {
-            "image": "CREA_apprentice",
+            "image": 417,
             "size": [
                 1,
                 1
@@ -10339,9 +10431,9 @@
             }]
         }
     },
-    "Monstrous Rat": {
+    "Monstrous Rat 125": {
         "data": {
-            "image": "CREA_monstrous_rat",
+            "image": 511,
             "size": [
                 2,
                 1
@@ -10393,9 +10485,9 @@
             }]
         }
     },
-    "Ogre": {
+    "Ogre 53": {
         "data": {
-            "image": "CREA_ogre",
+            "image": 445,
             "size": [
                 1,
                 2
@@ -10460,9 +10552,9 @@
             }]
         }
     },
-    "Giant Beetle": {
+    "Giant Beetle 115": {
         "data": {
-            "image": "CREA_beetle",
+            "image": 507,
             "size": [
                 1,
                 1
@@ -10516,7 +10608,7 @@
     },
     "Cave Bear 27": {
         "data": {
-            "image": "CREA_cavebear",
+            "image": 419,
             "size": [
                 2,
                 2
@@ -10586,9 +10678,9 @@
             ]
         }
     },
-    "Huge Slime": {
+    "Huge Slime 61": {
         "data": {
-            "image": "CREA_huge_slime",
+            "image": 465,
             "size": [
                 2,
                 2
@@ -10650,9 +10742,55 @@
             }]
         }
     },
-    "Proto-Vrack": {
+    " 113": {
         "data": {
-            "image": "CREA_proto_vrack",
+            "image": 0,
+            "size": [
+                1,
+                1
+            ],
+            "level": 0,
+            "in_bestiary": 1,
+            "faction": 0,
+            "name": "",
+            "description": "",
+            "summonable": 0,
+            "id": 113,
+            "exp": 0
+        },
+        "stats": {
+            "maxHP": 0,
+            "EvasionMelee": 50,
+            "Dexterity": 0,
+            "ResistanceElect": 0,
+            "EvasionMagic": 0,
+            "ResistanceMental": 0,
+            "ResistanceChemical": 0,
+            "maxSP": 0,
+            "MaxMovement": 0,
+            "AccuracyMelee": 50,
+            "ResistanceIce": 0,
+            "MaxActions": 0,
+            "AccuracyRanged": 50,
+            "ResistanceMagic": 0,
+            "ResistanceFire": 0,
+            "EvasionRanged": 50
+        },
+        "ai": {
+            "flees_at": 0,
+            "cast_chance": 0,
+            "missile_chance": 0
+        },
+        "tools": {
+            "money": "[0,0,0]",
+            "inventory": [],
+            "spells": [],
+            "unarmed_melee_attacks": []
+        }
+    },
+    "Proto-Vrack 23": {
+        "data": {
+            "image": 415,
             "size": [
                 2,
                 2

@@ -270,7 +270,10 @@ func load_bestiary_resources( path : String ) -> void:
 		new_crea_data["data"]["image"] = images_book[ new_crea_data["data"]["image"] ]["tex"]
 		new_crea_data["tools"] = n_crea_stuff_book[crea_name]["tools"]
 		new_crea_data["ai"] = n_crea_stuff_book[crea_name]["ai"]
-		new_crea_data["scripts"] = n_crea_stuff_book[crea_name]["scripts"]
+		if n_crea_stuff_book[crea_name].has("scripts"):
+			new_crea_data["scripts"] = n_crea_stuff_book[crea_name]["scripts"]
+		else :
+			new_crea_data["scripts"] = {"default" : "test_crea_script.gd"}
 		n_crea_stuff_book[crea_name] = new_crea_data
 	#add to crea book
 	for crea_name in n_crea_stuff_book :
