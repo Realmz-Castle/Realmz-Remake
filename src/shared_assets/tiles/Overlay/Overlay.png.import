@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://cktyqk5ysudev"
+path="res://.godot/imported/Overlay.png-d6acc8f1750091344d64c946466a5923.image"
+
+[deps]
+
+source_file="res://shared_assets/tiles/Overlay/Overlay.png"
+dest_files=["res://.godot/imported/Overlay.png-d6acc8f1750091344d64c946466a5923.image"]
+
+[params]
+

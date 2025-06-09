@@ -5,13 +5,10 @@ Thumbs.db
 dev/*
 demo/*
 *.import
+# Include .import files for tiles
+!shared_assets/tiles/**/*.import
+!BattleEffects/*.import
 !textureAtlas.png.import
-!Castle.png.import
-!DesertDay.png.import
-!ForestDay.png.import
-!ForestNight.png.import
-!BattleEffects.png.import
-!BattleEffectsAnim.png.import
 !map_symbols.png.import
 default_bus_layout.tres
 default_env.tres

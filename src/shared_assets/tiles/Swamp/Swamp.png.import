@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://3vprhnhh7q2"
+path="res://.godot/imported/Swamp.png-d16ce192e909b67a5463f5042407165e.image"
+
+[deps]
+
+source_file="res://shared_assets/tiles/Swamp/Swamp.png"
+dest_files=["res://.godot/imported/Swamp.png-d16ce192e909b67a5463f5042407165e.image"]
+
+[params]
+
