@@ -222,7 +222,13 @@ static func _level_up(_character, _new_level : int) :
 ## <=0 should be changed to 1 in PlayerCHaracter 's can_learn_spell
 ## >7 means  the character can't learn this spell (unless race changes it)
 static func can_learn_spell(_character, _spell) -> int :
-	return 10  #Fighter can't learn any spell
+    # Check school_levels dictionary first
+    if _spell.has("school_levels") and not _spell.school_levels.is_empty():
+        # Only care about Enchanter school
+        if _spell.school_levels.has("Enchanter"):
+            return _spell.school_levels["Enchanter"]
+        return 10  # Can't learn non-Enchanter spells
+    return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()
@@ -237,8 +243,8 @@ static func _character_creation_gifts(_character) :
 static func get_max_perma_summons(_character) ->int :
 	return 0
 
-static func get_selection_cost(_character, _ability, _cost) :
-	return _cost
+static func get_selection_cost(_character, _spell, _cost) :
+    return _spell.selection_costs.get("Enchanter", _cost)
 
 
 #modifies the SP  (or FP RP etc)  cost of a spell or  ability
