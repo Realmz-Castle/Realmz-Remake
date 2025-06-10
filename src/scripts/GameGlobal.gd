@@ -154,9 +154,7 @@ func set_current_profile(profilename : String) -> void :
 	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
 	#get_cfg_setting(path, section, key, default) :
 	var musicvolume : float = Utils.FileHandler.get_cfg_setting(path, "VOLUME", "volume_music", 50)
-	MusicStreamPlayer.volume_db = (musicvolume -100)*0.5
-	if MusicStreamPlayer.modplayer :
-		MusicStreamPlayer.modplayer.volume_db = musicvolume-20
+	MusicStreamPlayer.volume_db = (musicvolume -100)*0.5 - 20 # Combined volume offset for all music types
 	var sfxvolume : float = Utils.FileHandler.get_cfg_setting(path, "VOLUME", "volume_sound", 50)
 	SfxPlayer.volume_db = (sfxvolume -100)*0.5
 	honest_mode = bool(Utils.FileHandler.get_cfg_setting(path, "SET_IN_STONE", "honest_mode", 0))
