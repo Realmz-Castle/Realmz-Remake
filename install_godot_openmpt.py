@@ -99,7 +99,7 @@ def is_cache_restored_installation(target_dir):
     # Check for key files that indicate a complete installation
     if (target_path.exists() and
         plugin_cfg.exists() and
-        any(target_path.glob("*.dll")) or any(target_path.glob("*.so")) or any(target_path.glob("*.dylib"))):
+        any(target_path.glob("**/*.dll")) or any(target_path.glob("**/*.so")) or any(target_path.glob("**/*.dylib"))):
         return True
     return False
 
