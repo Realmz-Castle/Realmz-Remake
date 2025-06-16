@@ -13,10 +13,17 @@ func _exit_tree():
 
 class RealmzExportPlugin extends EditorExportPlugin:
 	var _plugin_name = "RealmzExportPlugin"
+	var _export_path: String
+	var _export_base_dir: String
 
 	func _export_begin(features: PackedStringArray, is_debug: bool, path: String, flags: int) -> void:
 		var base_dir = path.get_base_dir()
 		var	icons_path = ProjectSettings.globalize_path("res://application_icons")
+
+		# Store export info for later use
+		_export_path = path
+		_export_base_dir = base_dir
+
 		if OS.get_name() == "macOS":
 			var dir = DirAccess.open(base_dir)
 			dir.make_dir("Realmz-Remake")
@@ -48,6 +55,21 @@ class RealmzExportPlugin extends EditorExportPlugin:
 			_set_folder_icon_mac(base_dir.path_join("Profiles").path_join("Default Profile").path_join("Characters"), icons_path.path_join("Characters.png"))
 			_set_folder_icon_mac(path.get_base_dir().path_join("INSTALL.txt"), icons_path.path_join("Document.png"))
 
+	func _export_end() -> void:
+		if OS.get_name() == "macOS" and _export_path and _export_base_dir:
+			_organize_macos_dmg_contents()
+
+	func _organize_macos_dmg_contents() -> void:
+		var app_name = _export_path.get_file().get_basename()
+		var console_wrapper_path = _export_base_dir + "/" + app_name + ".command"
+		var realmz_folder = _export_base_dir + "/Realmz-Remake"
+
+		# Move console wrapper to Realmz-Remake folder if it exists
+		if FileAccess.file_exists(console_wrapper_path):
+			var dest_console = realmz_folder + "/" + app_name + ".command"
+			_copy_file(console_wrapper_path, dest_console)
+			DirAccess.open(_export_base_dir).remove(console_wrapper_path)
+			print("Moved console wrapper to Realmz-Remake folder")
 
 	func _export_dir(export_root: String, source_dir_name: String, dest_dir_name: String = ""):
 		var src_dir_path = ProjectSettings.globalize_path("res://" + source_dir_name)
@@ -123,6 +145,8 @@ class RealmzExportPlugin extends EditorExportPlugin:
 				push_error("Could not open destination directory: " + parent_path)
 				return false
 		return true
+
+
 
 	func _get_name():
 		return _plugin_name

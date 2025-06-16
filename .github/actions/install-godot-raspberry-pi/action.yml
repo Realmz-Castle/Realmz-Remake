@@ -11,11 +11,6 @@ inputs:
     required: false
     default: "false"
 
-outputs:
-  godot-executable:
-    description: "The installed executable location"
-    value: /usr/local/bin/godot
-
 runs:
   using: "composite"
   steps:
