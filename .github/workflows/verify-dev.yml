@@ -162,13 +162,17 @@ jobs:
           echo "GDExtension configuration:"
           cat src/addons/godot-openmpt/openmpt.gdextension
 
-      - name: Install Godot and initialize extensions
+      - name: Setup Godot for Linux
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Initialize Godot extensions
         run: |
-          wget -O godot.zip "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64.zip"
-          unzip godot.zip
-          chmod +x Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64
           cd src
-          ../Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64 --editor --headless --quit --verbose || true
+          godot --editor --headless --quit --verbose || true
           sleep 2
           echo "Checking for .godot/extension_list.cfg..."
           if [ -f ".godot/extension_list.cfg" ]; then
@@ -176,12 +180,13 @@ jobs:
             cat .godot/extension_list.cfg
           else
             echo "No extension list found, running import again..."
-            ../Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64 --import --headless --verbose || true
+            godot --import --headless --verbose || true
           fi
 
       - name: Build and upload artifacts for linux
         uses: ./.github/actions/build-godot-linux
         with:
+          godot-version: ${{ env.GODOT_VERSION }}
           project-dir: "./src"
 
   build-raspberry-pi:
@@ -277,13 +282,18 @@ jobs:
           echo "Plugin configuration:"
           cat src/addons/godot-openmpt/plugin.cfg
 
-      - name: Install Godot and initialize extensions
+      - name: Setup Godot for Windows
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Initialize Godot extensions
         shell: bash
         run: |
-          curl -L -o godot.zip "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_win64.exe.zip"
-          unzip godot.zip
           cd src
-          ../Godot_v${{ env.GODOT_VERSION }}-stable_win64.exe --editor --headless --quit --verbose || true
+          godot --editor --headless --quit --verbose || true
           sleep 2
           echo "Checking for .godot/extension_list.cfg..."
           if [ -f ".godot/extension_list.cfg" ]; then
@@ -291,10 +301,11 @@ jobs:
             cat .godot/extension_list.cfg
           else
             echo "No extension list found, running import again..."
-            ../Godot_v${{ env.GODOT_VERSION }}-stable_win64.exe --import --headless --verbose || true
+            godot --import --headless --verbose || true
           fi
 
       - name: Build and upload artifacts for windows
         uses: ./.github/actions/build-godot-windows
         with:
+          godot-version: ${{ env.GODOT_VERSION }}
           project-dir: "./src"
