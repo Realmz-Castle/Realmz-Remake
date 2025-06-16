@@ -6,6 +6,7 @@ on:
 
 env:
   GODOT_VERSION: 4.3.0
+  GODOT_VERSION_MAC_PI: 4.3
   PROJECT_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
   LFS_USERNAME: ${{secrets.LFS_USERNAME}}
@@ -50,7 +51,7 @@ jobs:
       - name: Install Godot
         uses: ./.github/actions/install-godot-macos
         with:
-          godot-version: ${{ env.GODOT_VERSION }}
+          godot-version: ${{ env.GODOT_VERSION_MAC_PI }}
           install-templates: true
         id: install-godot
 
@@ -170,7 +171,7 @@ jobs:
       - name: Install Godot
         uses: ./.github/actions/install-godot-raspberry-pi
         with:
-          godot-version: ${{ env.GODOT_VERSION }}
+          godot-version: ${{ env.GODOT_VERSION_MAC_PI }}
           install-templates: true
         id: install-godot
 

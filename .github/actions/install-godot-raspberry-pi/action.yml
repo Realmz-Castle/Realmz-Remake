@@ -11,6 +11,11 @@ inputs:
     required: false
     default: "false"
 
+outputs:
+  godot-executable:
+    description: "The installed executable location"
+    value: /usr/local/bin/godot
+
 runs:
   using: "composite"
   steps:
@@ -29,11 +34,11 @@ runs:
       env:
         GODOT_TEMPLATES_DIR: /home/runner/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
       run: |
-        curl -L -o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v4.3-stable_export_templates.tpz"
+        curl -L -o ./godot-templates.zip "https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v${{ inputs.godot-version }}-stable_export_templates.tpz"
         unzip ./godot-templates.zip
         mkdir -p "$GODOT_TEMPLATES_DIR"
         mv ./templates/* "$GODOT_TEMPLATES_DIR"
         ls "$GODOT_TEMPLATES_DIR"
         echo "$GODOT_TEMPLATES_DIR"
         echo ~
-        ls /home/runner/.local/share/godot/export_templates/4.3.stable
+        ls "$GODOT_TEMPLATES_DIR"
