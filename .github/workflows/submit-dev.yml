@@ -10,6 +10,7 @@ env:
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
   LFS_USERNAME: ${{secrets.LFS_USERNAME}}
   LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
+  OPENMPT_VERSION: v1.3
 
 jobs:
   build-macos:
@@ -23,6 +24,12 @@ jobs:
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
+
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}
 
       - name: Install OpenMPT Plugin
         run: python3 install_godot_openmpt.py --force
@@ -54,6 +61,12 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}
+
       - name: Install OpenMPT Plugin
         run: python3 install_godot_openmpt.py --force
 
@@ -72,6 +85,12 @@ jobs:
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
+
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}
 
       - name: Install OpenMPT Plugin
         run: python3 install_godot_openmpt.py --force
@@ -98,6 +117,12 @@ jobs:
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
+
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}
 
       - name: Install OpenMPT Plugin
         run: python3 install_godot_openmpt.py --force

@@ -81,6 +81,28 @@ def download_file(url, output_path):
         print_error(f"Unexpected error during download: {e}")
         return False
 
+def check_existing_installation(target_dir):
+    """Check if a valid installation already exists"""
+    target_path = Path(target_dir)
+    plugin_cfg = target_path / "plugin.cfg"
+
+    if target_path.exists() and plugin_cfg.exists():
+        print_status(f"Found existing installation at: {target_dir}")
+        return True
+    return False
+
+def is_cache_restored_installation(target_dir):
+    """Check if installation was restored from cache (has valid structure)"""
+    target_path = Path(target_dir)
+    plugin_cfg = target_path / "plugin.cfg"
+
+    # Check for key files that indicate a complete installation
+    if (target_path.exists() and
+        plugin_cfg.exists() and
+        any(target_path.glob("*.dll")) or any(target_path.glob("*.so")) or any(target_path.glob("*.dylib"))):
+        return True
+    return False
+
 def backup_existing_installation(target_dir):
     """Create a backup of existing installation if it exists"""
     target_path = Path(target_dir)
@@ -204,6 +226,25 @@ def install_addon(force=False):
     print_status("Creating directories...")
     addons_dir.mkdir(exist_ok=True)
 
+    # Check if valid installation already exists (cache hit)
+    if check_existing_installation(target_dir):
+        if is_cache_restored_installation(target_dir):
+            # This is likely a cache hit with complete installation
+            print_success(f"Godot OpenMPT {VERSION} restored from cache and appears complete.")
+            if not force:
+                verify_installation(target_dir, platform_info)
+                return True
+            else:
+                print_status("Cache restored but --force specified. Proceeding with fresh download...")
+        else:
+            # Incomplete installation found
+            if not force:
+                print_warning(f"Incomplete installation found at {target_dir}")
+                print_status("Use --force to reinstall if needed.")
+                return False
+            else:
+                print_status("Incomplete installation found, --force specified. Proceeding with reinstall...")
+
     # Backup existing installation
     backup_existing_installation(target_dir)
 
@@ -254,7 +295,7 @@ This script will:
 
     parser.add_argument('-f', '--force',
                        action='store_true',
-                       help='Force installation (skip confirmation)')
+                       help='Force installation (skip confirmations and reinstall even if cached)')
 
     args = parser.parse_args()
 
