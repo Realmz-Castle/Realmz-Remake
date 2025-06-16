@@ -24,6 +24,11 @@ class RealmzExportPlugin extends EditorExportPlugin:
 		_export_path = path
 		_export_base_dir = base_dir
 
+		print("Export begin - Path: " + path)
+		print("Export begin - Base dir: " + base_dir)
+		print("Export begin - Features: " + str(features))
+		print("Export begin - Debug: " + str(is_debug))
+
 		if OS.get_name() == "macOS":
 			var dir = DirAccess.open(base_dir)
 			dir.make_dir("Realmz-Remake")
@@ -60,16 +65,51 @@ class RealmzExportPlugin extends EditorExportPlugin:
 			_organize_macos_dmg_contents()
 
 	func _organize_macos_dmg_contents() -> void:
-		var app_name = _export_path.get_file().get_basename()
-		var console_wrapper_path = _export_base_dir + "/" + app_name + ".command"
+		# Get the actual project name from project settings instead of export path
+		var project_name = ProjectSettings.get_setting("application/config/name", "Realmz")
+		var console_wrapper_path = _export_base_dir + "/" + project_name + ".command"
 		var realmz_folder = _export_base_dir + "/Realmz-Remake"
 
-		# Move console wrapper to Realmz-Remake folder if it exists
+		print("Looking for console wrapper at: " + console_wrapper_path)
+		print("Realmz folder path: " + realmz_folder)
+
+		# Check if console wrapper exists
 		if FileAccess.file_exists(console_wrapper_path):
-			var dest_console = realmz_folder + "/" + app_name + ".command"
+			print("Console wrapper found, moving to Realmz-Remake folder")
+
+			# Ensure destination directory exists
+			var dir = DirAccess.open(_export_base_dir)
+			if not dir.dir_exists("Realmz-Remake"):
+				print("Creating Realmz-Remake directory")
+				dir.make_dir("Realmz-Remake")
+
+			var dest_console = realmz_folder + "/" + project_name + ".command"
+
+			# Copy the file
 			_copy_file(console_wrapper_path, dest_console)
-			DirAccess.open(_export_base_dir).remove(console_wrapper_path)
-			print("Moved console wrapper to Realmz-Remake folder")
+
+			# Verify the copy succeeded before removing original
+			if FileAccess.file_exists(dest_console):
+				var remove_result = DirAccess.open(_export_base_dir).remove(console_wrapper_path)
+				if remove_result == OK:
+					print("Successfully moved console wrapper to Realmz-Remake folder")
+				else:
+					print("Failed to remove original console wrapper, error: " + str(remove_result))
+			else:
+				print("Failed to copy console wrapper to destination")
+		else:
+			print("Console wrapper not found at expected location")
+			# List files in export directory for debugging
+			var dir = DirAccess.open(_export_base_dir)
+			if dir:
+				print("Files in export directory:")
+				dir.list_dir_begin()
+				var file_name = dir.get_next()
+				while file_name != "":
+					if not dir.current_is_dir():
+						print("  - " + file_name)
+					file_name = dir.get_next()
+				dir.list_dir_end()
 
 	func _export_dir(export_root: String, source_dir_name: String, dest_dir_name: String = ""):
 		var src_dir_path = ProjectSettings.globalize_path("res://" + source_dir_name)
