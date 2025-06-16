@@ -77,6 +77,9 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py --force
+
       - name: Install Godot
         uses: ./.github/actions/install-godot-macos
         with:
@@ -105,6 +108,9 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py --force
+
       - name: Build and upload artifacts for linux
         uses: ./.github/actions/build-godot-linux
         with:
@@ -121,6 +127,9 @@ jobs:
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
+
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py --force
 
       - name: Install Godot
         uses: ./.github/actions/install-godot-raspberry-pi
@@ -145,6 +154,9 @@ jobs:
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
+
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py --force
 
       - name: Build and upload artifacts for windows
         uses: ./.github/actions/build-godot-windows
