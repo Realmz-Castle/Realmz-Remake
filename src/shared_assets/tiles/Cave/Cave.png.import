@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://bqb5pk2sjtqht"
+path="res://.godot/imported/Cave.png-b7e03ba1c154b2b268b7efce346e8c18.image"
+
+[deps]
+
+source_file="res://shared_assets/tiles/Cave/Cave.png"
+dest_files=["res://.godot/imported/Cave.png-b7e03ba1c154b2b268b7efce346e8c18.image"]
+
+[params]
+
