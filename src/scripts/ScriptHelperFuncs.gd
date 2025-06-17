@@ -268,6 +268,14 @@ static func heal_picked_Divinity(mult : int, low_range, high_range, sound, strin
 	if sound>=0  and string >=0 :
 		printerr("heal_picked_Divinity tried to play sound "+str(sound)+"and display string "+str(string))
 
+static func heal_party(mult : int, low_range : int, high_range : int, sfxname : String) :
+	var playsound : bool = false
+	for pc in GameGlobal.player_characters :
+		var hp_gained = randi_range(low_range,high_range)*mult
+		pc.change_cur_hp(hp_gained)
+		playsound = true
+	if playsound :
+		ScriptHelperFuncsClass.play_sound(sfxname, false)
 
 ## Divinity Code 27: Display Picture, from the campaign splash folder
 static func display_picture_file(img_name : String) :

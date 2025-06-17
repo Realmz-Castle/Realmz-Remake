@@ -211,6 +211,71 @@ static func guard_barracks() : #===== LAND AP level=0 id=2 x=6 y=16 [LAP0/2]
 	await textRect.interruption_over
 
 
+
+static func cookhouse() : #===== LAND AP level=0 id=14 x=25 y=6 [LAP0/14]
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	var text : String = "You come upon an inn and cookhouse.  The smell of hot meals and the sounds of good conversation waft to you from inside.   Do you step inside?"
+	textRect.set_text(text)
+	textRect.display_multiple_choices([text, "YESNO"],["TEXT","YESNO"])
+	var answer = await textRect.choice_pressed
+	if answer == "YES" :
+		GameGlobal.currentSpecialEncounterName = "cookhouse.gd"
+		UI.ow_hud._on_EncounterButton_pressed()
+		#TODO  CONTINUE, was  actually  not a complex encounter...
+		
+
+static func caved_in_cavern() :  #===== LAND AP level=0 id=19 x=2 y=48 [LAP0/19]
+	if GameGlobal.stuff_done.has("caved_in_cavern_solved") :
+		if GameGlobal.stuff_done["caved_in_cavern_solved"] == 1 :
+			return
+		if GameGlobal.stuff_done["caved_in_cavern_solved"] == 2 :
+			ScriptHelperFuncsClass.play_sound("effort 1.wav", false)
+			ScriptHelperFuncsClass.set_walk_back_once(true)
+			return
+	ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
+	var textRect = UI.ow_hud.textRect
+	var text : String = "This appears to be the site of a rather large cavern that has recently caved in."
+	textRect.set_text(text)
+	GameGlobal.currentSpecialEncounterName = "caved_in_cavern.gd"
+	UI.ow_hud.show_special_encounter()
+
+
+static func frost_viper_lady() : #===== XAP id=6 [XAP6]
+	if GameGlobal.stuff_done.has("met_osswell") :
+		return
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	var text : String = "You come upon a shocking scene.  You spy a small group of town bullies attacking an old woman.  It would seem they are after a dagger she is clutching to her chest.  Do you wish to intervene on her behalf?"
+	textRect.set_text(text)
+	textRect.display_multiple_choices([text, "Rescue the woman", "Back away"],["TEXT","rescue", "leave"])
+	var answer = await textRect.choice_pressed
+	if answer == "leave" :
+		GameGlobal.stuff_done["met_osswell"] = 2 #abandonned her
+		return
+	text = "The bullies do not have the stomach to fight and flee at your approach.  The old hag scowls at you, \"Stay away!  You can't have it!\"  The dagger she is clutching is rather ornate and seems very likely to be magical in nature.  What do you do?"
+	ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
+	textRect.display_multiple_choices([text, "Take the dagger", "Bid her goodday"],["TEXT","steal", "bye"])
+	answer = await textRect.choice_pressed
+	if answer == "steal" :
+		text = "\"You young whelps!  You shall rot in hell for your evil ways!\"  Having lost the dagger she shuffles away."
+		ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
+		#TSR3  #"Frozen Viper +2"
+		
+		var invtemplate = NodeAccess.__Resources().items_book["Frozen Viper +2"]
+		var treasureitems = [ invtemplate.duplicate(true)]
+		StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
+		await UI.ow_hud.treasureControl.done_looting
+		
+		
+		GameGlobal.stuff_done["met_osswell"] = 3 #stole frost viper
+		return
+	if answer == "bye" :
+		text = "As you walk away, she yells, \"Come and see me at my shop.  I will give you a special price!\"  She quickly disappears around a corner before you realize that you do not even know where her shop is."
+		ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
+		GameGlobal.stuff_done["met_osswell"] = 1  #honest to osswell
+		
+
 static func GlyphScript_Two() :
 	if false  :
 		var hud = UI.ow_hud
@@ -322,7 +387,7 @@ static func example_script() :
 		UI.ow_hud.show_spell_effect_on_char_menu(GameGlobal.player_characters[0], "Slime")
 		GameGlobal.player_characters[0].stats["curHP"] -=5
 		UI.ow_hud.updateCharPanelDisplay()
-		GameGlobal.stuff_done["helped_boy"] = true
+		GameGlobal.stuff_done["helped_boy"] = 1
 	if answer == "NO" :
 		textRect.set_text("The boy walks away crying", false)
 

@@ -69,7 +69,12 @@ var equipment_slots : Dictionary = {
 	"Belt" : 0,
 	"Accessory" : 0,
 	"IonStone" : 0,
-	"Ring" : 0
+	"Ring" : 0,
+	"Loop" : 0,  #Holy Symbols, Tools, Instruments
+	"Broach" : 0,
+	"Mask" : 0,
+	"ScrollCase" : 0,
+	"Cloak" : 0
 }
 
 

@@ -334,8 +334,8 @@ func _ready():
 
 func _on_InventoryButton_pressed():
 	print("OW HUD _on_InventoryButton_pressed, state "+StateMachine._state_name)
-	if moneyControl.visible or encounterControl.visible or bestiaryRect.visible or minimapRect.visible or textRect.choicesContainer.visible or abilitesmngtMenu.visible or spellcastMenu.visible or charSwapRect.visible or saveloadCtrl.visible or settingsControl.visible or treasureControl.visible :
-		print("OW HUD _on_InventoryButton_pressed  unwanted panel  shown",   moneyControl.visible , encounterControl.visible , bestiaryRect.visible , minimapRect.visible , textRect.choicesContainer.visible , abilitesmngtMenu.visible , spellcastMenu.visible , charSwapRect.visible , saveloadCtrl.visible , settingsControl.visible , treasureControl.visible)
+	if moneyControl.visible or encounterControl.visible or bestiaryRect.visible or minimapRect.visible or (textRect.choicesContainer.visible or textRect.choicesContainer.get_child_count()>0) or abilitesmngtMenu.visible or spellcastMenu.visible or charSwapRect.visible or saveloadCtrl.visible or settingsControl.visible or treasureControl.visible :
+		print("OW HUD _on_InventoryButton_pressed  unwanted panel  shown : ",   moneyControl.visible , encounterControl.visible , bestiaryRect.visible , minimapRect.visible , (textRect.choicesContainer.visible or textRect.choicesContainer.get_child_count()>0) , abilitesmngtMenu.visible , spellcastMenu.visible , charSwapRect.visible , saveloadCtrl.visible , settingsControl.visible , treasureControl.visible)
 		return
 	if StateMachine._state_name=="Exploration" :
 		print("OW HUD _on_InventoryButton_pressed  Exploration  ok")
@@ -445,15 +445,16 @@ func _on_EncounterButton_pressed():
 	print("OWHUD _on_EncounterButton_pressed, visible ? "+str(encounterControl.visible))
 	if not encounterControl.visible :
 		#if not GameState.paused :
-			StateMachine.enter_ex_menu_state({"prev_state" : "Exploration", "menu_name" : "SpecEncounter_menu"})
-			encounterControl.show()
-		#	encounterControl.disablerButton.show()
-		#	textRect.disablerButton.show()
-			encounterControl.initialize(GameGlobal.currentSpecialEncounterName)
+			show_special_encounter()
 	else :
 		if encounterControl.stopButton.visible :
 			#encounterControl.close()
 			close_special_encounter(true)
+
+func show_special_encounter() :
+	StateMachine.enter_ex_menu_state({"prev_state" : "Exploration", "menu_name" : "SpecEncounter_menu"})
+	encounterControl.show()
+	encounterControl.initialize(GameGlobal.currentSpecialEncounterName)
 
 func close_special_encounter(go_to_exploration_mode : bool) :
 	encounterControl.hide()

@@ -81,4 +81,7 @@ func enter(_msg : Dictionary = {}) -> void:
 				GameGlobal.map.on_step_on_boat(new_pos)
 	
 	#print(get_stack())
-	StateMachine.transition_to("Exploration")
+	if StateMachine.state.name == "ExMenus" :
+		print("ExAnim exit, current state is ", StateMachine.state.name)
+	else :
+		StateMachine.transition_to("Exploration")

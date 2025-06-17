@@ -40,7 +40,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -94,7 +94,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[25,2,0]",
+            "money": [25,2,0],
             "inventory": [
                 [
                     "Dagger",
@@ -179,7 +179,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -259,7 +259,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -343,7 +343,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -413,7 +413,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[45,2,0]",
+            "money": [45,2,0],
             "inventory": [
                 [
                     "War Axe +2",
@@ -497,7 +497,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -551,7 +551,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -626,7 +626,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -688,7 +688,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -742,7 +742,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[15,0,0]",
+            "money": [15,0,0],
             "inventory": [
                 [
                     "Chain Armor",
@@ -816,7 +816,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -895,7 +895,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -952,7 +952,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[20,5,0]",
+            "money": [20,5,0],
             "inventory": [
                 [
                     "Mace",
@@ -1072,7 +1072,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -1130,7 +1130,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -1210,7 +1210,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -1290,7 +1290,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -1403,7 +1403,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -1483,7 +1483,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[1500,25,3]",
+            "money": [1500,25,3],
             "inventory": [
                 [
                     "Staff of Missiles +1",
@@ -1599,7 +1599,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -1663,7 +1663,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -1720,7 +1720,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[10,0,0]",
+            "money": [10,0,0],
             "inventory": [
                 [
                     "Dagger",
@@ -1795,7 +1795,7 @@
             "missile_chance": 0.9
         },
         "tools": {
-            "money": "[20,0,0]",
+            "money": [20,0,0],
             "inventory": [
                 [
                     "Bow",
@@ -1874,7 +1874,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -1938,7 +1938,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -2022,7 +2022,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "War Axe +3",
@@ -2106,7 +2106,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[25,0,0]",
+            "money": [25,0,0],
             "inventory": [
                 [
                     "Quarter Staff",
@@ -2214,7 +2214,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -2293,7 +2293,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -2347,7 +2347,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -2412,7 +2412,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[4,0,0]",
+            "money": [4,0,0],
             "inventory": [[
                 "Shield",
                 1
@@ -2473,7 +2473,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -2561,7 +2561,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -2649,7 +2649,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -2706,7 +2706,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -2766,7 +2766,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -2843,7 +2843,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Battleaxe +1",
@@ -2961,7 +2961,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -3033,7 +3033,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[20,0,0]",
+            "money": [20,0,0],
             "inventory": [
                 [
                     "Leather Armor",
@@ -3114,7 +3114,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -3189,7 +3189,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -3265,7 +3265,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -3369,7 +3369,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -3479,7 +3479,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [[
                 "Club",
                 1
@@ -3539,7 +3539,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -3596,7 +3596,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -3683,7 +3683,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[50,0,0]",
+            "money": [50,0,0],
             "inventory": [[
                 "Club",
                 1
@@ -3756,7 +3756,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -3817,7 +3817,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[35,4,1]",
+            "money": [35,4,1],
             "inventory": [
                 [
                     "Mace +1",
@@ -3933,7 +3933,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Dagger of Penetration +2",
@@ -4045,7 +4045,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[15,0,0]",
+            "money": [15,0,0],
             "inventory": [
                 [
                     "Chain Armor",
@@ -4123,7 +4123,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -4177,7 +4177,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -4234,7 +4234,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[20,1,0]",
+            "money": [20,1,0],
             "inventory": [
                 [
                     "Battleaxe",
@@ -4312,7 +4312,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[5,0,0]",
+            "money": [5,0,0],
             "inventory": [
                 [
                     "Battleaxe",
@@ -4391,7 +4391,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Longsword",
@@ -4468,7 +4468,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[30,0,0]",
+            "money": [30,0,0],
             "inventory": [
                 [
                     "Dagger",
@@ -4563,7 +4563,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -4685,7 +4685,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[30,5,0]",
+            "money": [30,5,0],
             "inventory": [
                 [
                     "Longsword +1",
@@ -4763,7 +4763,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[50,15,0]",
+            "money": [50,15,0],
             "inventory": [
                 [
                     "Flail",
@@ -4859,7 +4859,7 @@
             "missile_chance": 0.25
         },
         "tools": {
-            "money": "[25,3,0]",
+            "money": [25,3,0],
             "inventory": [
                 [
                     "Quarter Staff",
@@ -4971,7 +4971,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -5033,7 +5033,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Mace +2",
@@ -5126,7 +5126,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[8,0,0]",
+            "money": [8,0,0],
             "inventory": [
                 [
                     "Dagger",
@@ -5211,7 +5211,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -5328,7 +5328,7 @@
             "missile_chance": 0.5
         },
         "tools": {
-            "money": "[5,0,0]",
+            "money": [5,0,0],
             "inventory": [
                 [
                     "Spear",
@@ -5396,7 +5396,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -5470,7 +5470,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[150,5,0]",
+            "money": [150,5,0],
             "inventory": [
                 [
                     "War Hammer +1",
@@ -5567,7 +5567,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -5643,7 +5643,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -5735,7 +5735,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -5806,7 +5806,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -5864,7 +5864,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "War Axe +1",
@@ -5956,7 +5956,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Quarter Staff +2",
@@ -6071,7 +6071,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Longsword",
@@ -6184,7 +6184,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -6307,7 +6307,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -6368,7 +6368,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -6463,7 +6463,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -6520,7 +6520,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -6577,7 +6577,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -6631,7 +6631,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[50,2,0]",
+            "money": [50,2,0],
             "inventory": [
                 [
                     "Dagger",
@@ -6706,7 +6706,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -6781,7 +6781,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Dagger",
@@ -6857,7 +6857,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[8,0,0]",
+            "money": [8,0,0],
             "inventory": [[
                 "Club",
                 1
@@ -6925,7 +6925,7 @@
             "missile_chance": 0.25
         },
         "tools": {
-            "money": "[25,3,0]",
+            "money": [25,3,0],
             "inventory": [
                 [
                     "Quarter Staff +2",
@@ -7044,7 +7044,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -7119,7 +7119,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -7180,7 +7180,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -7247,7 +7247,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -7322,7 +7322,7 @@
             "missile_chance": 0.5
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Dagger",
@@ -7455,7 +7455,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -7566,7 +7566,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[40,0,0]",
+            "money": [40,0,0],
             "inventory": [
                 [
                     "Pike Axe",
@@ -7657,7 +7657,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[50,10,5]",
+            "money": [50,10,5],
             "inventory": [
                 [
                     "Dagger +1",
@@ -7785,7 +7785,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[1500,25,3]",
+            "money": [1500,25,3],
             "inventory": [
                 [
                     "Staff of Fireballs +1",
@@ -7900,7 +7900,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[35,4,1]",
+            "money": [35,4,1],
             "inventory": [
                 [
                     "Mace +1",
@@ -8008,7 +8008,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -8088,7 +8088,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -8156,7 +8156,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -8216,7 +8216,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[50,15,0]",
+            "money": [50,15,0],
             "inventory": [
                 [
                     "War Axe",
@@ -8305,7 +8305,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[30,10,2]",
+            "money": [30,10,2],
             "inventory": [
                 [
                     "War Axe +1",
@@ -8389,7 +8389,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -8499,7 +8499,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -8578,7 +8578,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "Chain Armor",
@@ -8656,7 +8656,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -8713,7 +8713,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -8777,7 +8777,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -8894,7 +8894,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -8962,7 +8962,7 @@
             "missile_chance": 0.45
         },
         "tools": {
-            "money": "[25,0,0]",
+            "money": [25,0,0],
             "inventory": [
                 [
                     "Spear",
@@ -9035,7 +9035,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -9089,7 +9089,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -9169,7 +9169,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -9229,7 +9229,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -9289,7 +9289,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -9349,7 +9349,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[12,0,0]",
+            "money": [12,0,0],
             "inventory": [
                 [
                     "Leather Armor",
@@ -9419,7 +9419,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [[
                 "Club",
                 1
@@ -9476,7 +9476,7 @@
             "missile_chance": 0.8
         },
         "tools": {
-            "money": "[4,0,0]",
+            "money": [4,0,0],
             "inventory": [
                 [
                     "Dagger",
@@ -9551,7 +9551,7 @@
             "missile_chance": 0.75
         },
         "tools": {
-            "money": "[8,0,0]",
+            "money": [8,0,0],
             "inventory": [
                 [
                     "Short Sword",
@@ -9630,7 +9630,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[4,0,0]",
+            "money": [4,0,0],
             "inventory": [
                 [
                     "Leather Armor",
@@ -9700,7 +9700,7 @@
             "missile_chance": 0.66
         },
         "tools": {
-            "money": "[15,0,0]",
+            "money": [15,0,0],
             "inventory": [
                 [
                     "Short Sword",
@@ -9767,7 +9767,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -9837,7 +9837,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [
                 [
                     "War Axe +2",
@@ -9963,7 +9963,7 @@
             "missile_chance": 0.25
         },
         "tools": {
-            "money": "[25,3,0]",
+            "money": [25,3,0],
             "inventory": [
                 [
                     "Quarter Staff +1",
@@ -10078,7 +10078,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -10155,7 +10155,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [
                 [
@@ -10272,7 +10272,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[50,3,0]",
+            "money": [50,3,0],
             "inventory": [
                 [
                     "Quarter Staff",
@@ -10380,7 +10380,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -10438,7 +10438,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[12,0,0]",
+            "money": [12,0,0],
             "inventory": [
                 [
                     "Dagger",
@@ -10501,7 +10501,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -10555,7 +10555,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [
@@ -10631,7 +10631,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{
@@ -10691,7 +10691,7 @@
             "missile_chance": 0
         },
         "tools": {
-            "money": "[0,0,0]",
+            "money": [0,0,0],
             "inventory": [],
             "spells": [],
             "unarmed_melee_attacks": [{

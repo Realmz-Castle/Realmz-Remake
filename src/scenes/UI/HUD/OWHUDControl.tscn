@@ -118,6 +118,7 @@ size_flags_horizontal = 3
 mouse_filter = 2
 
 [node name="ChoicesVBoxContainer" type="VBoxContainer" parent="VBoxScreen/HBoxTop/MapArea"]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

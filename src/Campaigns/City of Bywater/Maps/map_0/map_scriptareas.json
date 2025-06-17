@@ -25,6 +25,25 @@
       "scriptToLoad" : "guard_barracks"
    },
    
+   "Cookhouse" : 
+   {
+      "scriptRectangle" : [ [25,6] , [25,6] ],
+      "scriptToLoad" : "cookhouse"
+   },
+   
+   "caved_in_cavern" : 
+   {
+      "scriptRectangle" : [ [2,48] , [2,48] ],
+      "scriptToLoad" : "caved_in_cavern"
+   },
+   
+   "frost_viper_lady" : 
+   {
+      "scriptRectangle" : [ [0,0] , [41,18] ],
+      "scriptToLoad" : "frost_viper_lady",
+      "chance" : 0.05
+   },
+   
    "Fourth AP" : 
    {
       "scriptRectangle" : [ [2,17] , [2,17] ],

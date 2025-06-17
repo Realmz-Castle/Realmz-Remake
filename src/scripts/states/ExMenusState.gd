@@ -63,6 +63,8 @@ func enter(_msg : Dictionary = {} ) ->void :
 			UI.ow_hud.minimapRect.show()
 			UI.ow_hud.minimapRect.on_display()
 			cur_menu_name = menu_name
+		"SpecEncounter_menu" :
+			UI.ow_hud.encounterControl.disablerButton.hide()
 
 	pass
 

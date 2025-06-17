@@ -35,7 +35,7 @@ static func set_minimaps_in_gameglobal() :
 		["Crypt Secrets", "map_5", [20,20], "CryptMiniMap.png", "Map showing two secret locations.  One is a secret wall and the other is a secret passage in the crypt under the graveyard.", 1, 0],
 		["Beastmen Corral", "map_0", [20,20], "BeastmenMiniMap.png", "This map shows the location of a corral of beastmen.  You have agreed to eliminate the corral for the sum of 400 gold pieces.", 1, 0],
 		["Slave Shed", "map_0", [20,20], "SlaveShedMiniMap.png", "Map showing the location of the slave shed.  Your to deliver 3 Proto-Hyenas in return for a reward of gold coins.", 1, 0],
-		["Kings Gardens", "map_0", [20,20], "GardenMiniMap.png", "A map showing the loation of the King's gardens.  You are to destroy a rabid beast that dwells within.", 1, 0],
+		["Kings Gardens", "map_0", [20,20], "GardenMiniMap.png", "A map showing the loation of the King s gardens.  You are to destroy a rabid beast that dwells within.", 1, 0],
 		["ScrollingText", "map_0", [20,20], "CastleMiniMap.png", "text id=-200", 1, 0],
 		["ScrollingText", "map_0", [20,20], "CastleMiniMap.png", "text id=-201", 1, 0],
 		["ScrollingText", "map_0", [20,20], "CastleMiniMap.png", "text id=-202", 1, 0],

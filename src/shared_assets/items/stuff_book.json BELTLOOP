@@ -10,7 +10,7 @@
 	"img_ptr": "ITEM_Aqua_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -71,7 +71,7 @@
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -125,7 +125,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -146,7 +146,7 @@
 	"img_ptr": "ITEM_Divine_Holy_Symbol",
 	"sound": "hit effect 4.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -218,7 +218,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "prout.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -240,7 +240,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "prout.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -262,7 +262,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "prout.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -329,7 +329,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -361,7 +361,7 @@
 	"img_ptr": "ITEM_Spear",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -418,7 +418,7 @@
 	"img_ptr": "ITEM_Tip_sword",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -443,7 +443,7 @@
 	"img_ptr": "ITEM_Tip_sword",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -577,7 +577,7 @@
 	"img_ptr": "ITEM_Necklace_of_Fireballs",
 	"sound": "big explode.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -648,7 +648,7 @@
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -677,7 +677,7 @@
 	"img_ptr": "ITEM_Tools",
 	"sound": "pro jo miss.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -695,7 +695,7 @@
 	"img_ptr": "ITEM_Blade_Of_Blackpool",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -730,7 +730,7 @@
 	"img_ptr": "ITEM_Shadowhawk",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -761,7 +761,7 @@
 	"img_ptr": "ITEM_Necklace_of_Spells",
 	"sound": "spell launch 3.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -835,7 +835,7 @@
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -885,7 +885,7 @@
 	"img_ptr": "ITEM_Tools",
 	"sound": "pro jo miss.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -949,7 +949,7 @@
 	"img_ptr": "ITEM_Dagger_sting",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -986,7 +986,7 @@
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1062,7 +1062,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "spell launch 2.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1199,7 +1199,7 @@
 	"img_ptr": "ITEM_Nunchuka_of_speed",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -1260,7 +1260,7 @@
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1285,7 +1285,7 @@
 	"img_ptr": "ITEM_Necklace_of_Shen",
 	"sound": "door slam.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1311,7 +1311,7 @@
 	"img_ptr": "ITEM_Ruby_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1339,7 +1339,7 @@
 	"img_ptr": "ITEM_Tools",
 	"sound": "pro jo miss.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1435,7 +1435,7 @@
 	"img_ptr": "ITEM_Yellow_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1475,7 +1475,7 @@
 	"img_ptr": "ITEM_Shield_of_Healing",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1503,7 +1503,7 @@
 	"img_ptr": "ITEM_Sir_Robbins_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1532,7 +1532,7 @@
 	"img_ptr": "ITEM_Band_of_the_Unicorn",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1558,7 +1558,7 @@
 	"img_ptr": "ITEM_Flail",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1692,7 +1692,7 @@
 	"img_ptr": "ITEM_Iron_Scales",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1713,7 +1713,7 @@
 	"img_ptr": "ITEM_Spear",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1867,7 +1867,7 @@
 	"img_ptr": "ITEM_Broadsword",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1917,7 +1917,7 @@
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -1949,7 +1949,7 @@
 	"img_ptr": "ITEM_Quarter_staff",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -1978,7 +1978,7 @@
 	"img_ptr": "ITEM_Tools",
 	"sound": "pro jo miss.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1996,7 +1996,7 @@
 	"img_ptr": "ITEM_Quarter_staff",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -2098,7 +2098,7 @@
 	"img_ptr": "ITEM_Quarter_staff",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -2127,7 +2127,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2156,7 +2156,7 @@
 	"img_ptr": "ITEM_War_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2239,7 +2239,7 @@
 	"img_ptr": "ITEM_War_Hammer",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -2269,7 +2269,7 @@
 	"img_ptr": "ITEM_Necklace_of_Fireballs",
 	"sound": "electric energize.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2343,7 +2343,7 @@
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2390,7 +2390,7 @@
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2419,7 +2419,7 @@
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2449,7 +2449,7 @@
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2502,7 +2502,7 @@
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2531,7 +2531,7 @@
 	"img_ptr": "ITEM_Charmers_Flute",
 	"sound": "pipes.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2580,7 +2580,7 @@
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2713,7 +2713,7 @@
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2763,7 +2763,7 @@
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2792,7 +2792,7 @@
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -2825,7 +2825,7 @@
 	"img_ptr": "ITEM_Staff_of_merlin",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -2909,7 +2909,7 @@
 	"img_ptr": "ITEM_Ring_of_Healing",
 	"sound": "energy blast.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3080,7 +3080,7 @@
 	"img_ptr": "ITEM_Spear",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3109,7 +3109,7 @@
 	"img_ptr": "ITEM_Stormbringer",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3145,7 +3145,7 @@
 	"img_ptr": "ITEM_Club",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3217,7 +3217,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "dingy ray gun.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3238,7 +3238,7 @@
 	"img_ptr": "ITEM_Pipes",
 	"sound": "pipes.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3341,7 +3341,7 @@
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3370,7 +3370,7 @@
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3399,7 +3399,7 @@
 	"img_ptr": "ITEM_Cheters_Blade",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -3431,7 +3431,7 @@
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3763,7 +3763,7 @@
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3815,7 +3815,7 @@
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3899,7 +3899,7 @@
 	"img_ptr": "ITEM_Hammer_Thor",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3965,7 +3965,7 @@
 	"img_ptr": "ITEM_Quarter_staff",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -3995,7 +3995,7 @@
 	"img_ptr": "ITEM_Necklace_of_Fireballs",
 	"sound": "item.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4198,7 +4198,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -4247,7 +4247,7 @@
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -4276,7 +4276,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "spell launch 4.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4364,7 +4364,7 @@
 	"img_ptr": "ITEM_Holy_Hand_Grenade",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4394,7 +4394,7 @@
 	"img_ptr": "ITEM_Sword_of_the_powers",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4431,7 +4431,7 @@
 	"img_ptr": "ITEM_War_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4456,7 +4456,7 @@
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -4502,7 +4502,7 @@
 	"img_ptr": "ITEM_Necklace_of_Many_Favors",
 	"sound": "identify.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4535,7 +4535,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -4594,7 +4594,7 @@
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4650,7 +4650,7 @@
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4727,7 +4727,7 @@
 	"img_ptr": "ITEM_Necklace_of_Revival",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4774,7 +4774,7 @@
 	"img_ptr": "ITEM_Saurons_Bane",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4830,7 +4830,7 @@
 	"img_ptr": "ITEM_Orcrist",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4861,7 +4861,7 @@
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4974,7 +4974,7 @@
 	"img_ptr": "ITEM_Shield_of_Happenstance",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5029,7 +5029,7 @@
 	"img_ptr": "ITEM_Blue_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5051,7 +5051,7 @@
 	"img_ptr": "ITEM_Flameheart",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5139,7 +5139,7 @@
 	"img_ptr": "ITEM_Green_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5226,7 +5226,7 @@
 	"img_ptr": "ITEM_Staff_of_merlin",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -5357,7 +5357,7 @@
 	"img_ptr": "ITEM_Necklace_of_Acrobatics",
 	"sound": "item.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5407,7 +5407,7 @@
 	"img_ptr": "ITEM_Frostblade",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5460,7 +5460,7 @@
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5517,7 +5517,7 @@
 	"img_ptr": "ITEM_Hammer_Thor",
 	"sound": "door slam.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -5579,7 +5579,7 @@
 	"img_ptr": "ITEM_Rapier",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5654,7 +5654,7 @@
 	"img_ptr": "ITEM_Hellsbane",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5682,7 +5682,7 @@
 	"img_ptr": "ITEM_Broadsword_1",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -5773,7 +5773,7 @@
 	"img_ptr": "ITEM_Staff_of_merlin",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -5830,7 +5830,7 @@
 	"img_ptr": "ITEM_stone_Axe",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5909,7 +5909,7 @@
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5934,7 +5934,7 @@
 	"img_ptr": "ITEM_Two_hand_electro_sword",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -5968,7 +5968,7 @@
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -5998,7 +5998,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "prout.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6020,7 +6020,7 @@
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -6049,7 +6049,7 @@
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -6082,7 +6082,7 @@
 	"img_ptr": "ITEM_Divine_Holy_Symbol",
 	"sound": "hit effect 4.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6100,7 +6100,7 @@
 	"img_ptr": "ITEM_Dragon_Breath",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -6128,7 +6128,7 @@
 	"img_ptr": "ITEM_Rapier_Of_The_Wind",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -6220,7 +6220,7 @@
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -6249,7 +6249,7 @@
 	"img_ptr": "ITEM_Staff_of_merlin",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -6333,7 +6333,7 @@
 	"img_ptr": "ITEM_Pearled_Ion_Stone",
 	"sound": "hit effect 1.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6462,7 +6462,7 @@
 	"img_ptr": "ITEM_Lute",
 	"sound": "lute.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6490,7 +6490,7 @@
 	"img_ptr": "ITEM_Necklace_of_Lightning",
 	"sound": "lighning.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6514,7 +6514,7 @@
 	"img_ptr": "ITEM_Red_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6536,7 +6536,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6581,7 +6581,7 @@
 	"img_ptr": "ITEM_Staff_of_merlin",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -6680,7 +6680,7 @@
 	"img_ptr": "ITEM_Staff_of_merlin",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -6715,7 +6715,7 @@
 	"img_ptr": "ITEM_Dagger_of_styx",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -6744,7 +6744,7 @@
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -6840,7 +6840,7 @@
 	"img_ptr": "ITEM_Snake_statue",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -6872,7 +6872,7 @@
 	"img_ptr": "ITEM_Necklace_of_Shielding",
 	"sound": "swup.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6915,7 +6915,7 @@
 	"img_ptr": "ITEM_Flail",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -7079,7 +7079,7 @@
 	"img_ptr": "ITEM_Speckled_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7101,7 +7101,7 @@
 	"img_ptr": "ITEM_Bitter_Sweet",
 	"sound": "swup.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7253,7 +7253,7 @@
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -7278,7 +7278,7 @@
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -7448,7 +7448,7 @@
 	"img_ptr": "ITEM_Necklace_of_Keys",
 	"sound": "item.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7472,7 +7472,7 @@
 	"img_ptr": "ITEM_Rapier",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -7500,7 +7500,7 @@
 	"img_ptr": "ITEM_Quarter_staff",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -7537,7 +7537,7 @@
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -7691,7 +7691,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -7740,7 +7740,7 @@
 	"img_ptr": "ITEM_Two_handed_sword",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -7765,7 +7765,7 @@
 	"img_ptr": "ITEM_Necklace_of_Garland",
 	"sound": "teleport.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7788,7 +7788,7 @@
 	"img_ptr": "ITEM_Ring_of_Cold",
 	"sound": "underwater laser.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7809,7 +7809,7 @@
 	"img_ptr": "ITEM_Excalibur",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -7847,7 +7847,7 @@
 	"img_ptr": "ITEM_Steel_Shod_Boots",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -7901,7 +7901,7 @@
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -7930,7 +7930,7 @@
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -7986,7 +7986,7 @@
 	"img_ptr": "ITEM_Necklace_of_Abyss",
 	"sound": "bwabble.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8041,7 +8041,7 @@
 	"img_ptr": "ITEM_Lute_of_Shielding",
 	"sound": "lute.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8071,7 +8071,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8143,7 +8143,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8193,7 +8193,7 @@
 	"img_ptr": "ITEM_Flail",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8266,7 +8266,7 @@
 	"img_ptr": "ITEM_Staff_of_merlin",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -8369,7 +8369,7 @@
 	"img_ptr": "ITEM_Drums",
 	"sound": "drum beat.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8387,7 +8387,7 @@
 	"img_ptr": "ITEM_Ring_of_Creature_Summons",
 	"sound": "item.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8411,7 +8411,7 @@
 	"img_ptr": "ITEM_Stormbringer",
 	"sound": "lighning.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8647,7 +8647,7 @@
 	"img_ptr": "ITEM_Cobrastrike",
 	"sound": "slimed.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8680,7 +8680,7 @@
 	"img_ptr": "ITEM_Shield_of_Vulnerability",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8702,7 +8702,7 @@
 	"img_ptr": "ITEM_Frozen_viper",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8739,7 +8739,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "prout.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8760,7 +8760,7 @@
 	"img_ptr": "ITEM_Short_sword",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8785,7 +8785,7 @@
 	"img_ptr": "ITEM_Shadowhawk",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8843,7 +8843,7 @@
 	"img_ptr": "ITEM_Bull_Whip",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8876,7 +8876,7 @@
 	"img_ptr": "ITEM_Tip_sword",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8905,7 +8905,7 @@
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8935,7 +8935,7 @@
 	"img_ptr": "ITEM_Bull_Whip",
 	"sound": "smack.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8968,7 +8968,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9002,7 +9002,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9120,7 +9120,7 @@
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9153,7 +9153,7 @@
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9178,7 +9178,7 @@
 	"img_ptr": "ITEM_Aqua_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9201,7 +9201,7 @@
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9230,7 +9230,7 @@
 	"img_ptr": "ITEM_Selinadas_Gift",
 	"sound": "smack.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9256,7 +9256,7 @@
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9285,7 +9285,7 @@
 	"img_ptr": "ITEM_Hammer_Thor",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9387,7 +9387,7 @@
 	"img_ptr": "ITEM_Flameheart",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9493,7 +9493,7 @@
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9527,7 +9527,7 @@
 	"img_ptr": "ITEM_Broadsword_1",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9556,7 +9556,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "energy blast.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9601,7 +9601,7 @@
 	"img_ptr": "ITEM_Copper_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9623,7 +9623,7 @@
 	"img_ptr": "ITEM_Short_sword",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9658,7 +9658,7 @@
 	"img_ptr": "ITEM_Nunchuka_of_speed",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9710,7 +9710,7 @@
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9816,7 +9816,7 @@
 	"img_ptr": "ITEM_Purple_Luck_Stone",
 	"sound": "dripity beep.wav",
 	"slots": [
-	  "IonStone"
+	  "ion stone"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9838,7 +9838,7 @@
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9871,7 +9871,7 @@
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9908,7 +9908,7 @@
 	"img_ptr": "ITEM_Necklace_of_Protection",
 	"sound": "teleport.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9930,7 +9930,7 @@
 	"img_ptr": "ITEM_Shield_of_the_Blue_Oxen",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10002,7 +10002,7 @@
 	"img_ptr": "ITEM_Emerald_Alloy_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10079,7 +10079,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10112,7 +10112,7 @@
 	"img_ptr": "ITEM_Flail",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10252,7 +10252,7 @@
 	"img_ptr": "ITEM_Pipes_of_Enchantment",
 	"sound": "pipes.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10308,7 +10308,7 @@
 	"img_ptr": "ITEM_Hells_Caretaker",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10385,7 +10385,7 @@
 	"img_ptr": "ITEM_Nunchuka_of_speed",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -10529,7 +10529,7 @@
 	"img_ptr": "ITEM_Divine_Holy_Symbol",
 	"sound": "hit effect 4.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10547,7 +10547,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10878,7 +10878,7 @@
 	"img_ptr": "ITEM_Flail",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11039,7 +11039,7 @@
 	"img_ptr": "ITEM_Deaths_Head_Shield",
 	"sound": "bwee.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11067,7 +11067,7 @@
 	"img_ptr": "ITEM_Ring_of_Heat",
 	"sound": "small explode.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11088,7 +11088,7 @@
 	"img_ptr": "ITEM_Club",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11118,7 +11118,7 @@
 	"img_ptr": "ITEM_Flute_of_Freedom",
 	"sound": "pipes.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11191,7 +11191,7 @@
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11252,7 +11252,7 @@
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11281,7 +11281,7 @@
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11306,7 +11306,7 @@
 	"img_ptr": "ITEM_Two_handed_sword",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -11335,7 +11335,7 @@
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11388,7 +11388,7 @@
 	"img_ptr": "ITEM_Broadsword",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11417,7 +11417,7 @@
 	"img_ptr": "ITEM_Broadsword",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11446,7 +11446,7 @@
 	"img_ptr": "ITEM_Two_handed_sword",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -11493,7 +11493,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11519,7 +11519,7 @@
 	"img_ptr": "ITEM_Short_sword",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11548,7 +11548,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11576,7 +11576,7 @@
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11609,7 +11609,7 @@
 	"img_ptr": "ITEM_Broadsword_1",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11735,7 +11735,7 @@
 	"img_ptr": "ITEM_Spear",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11760,7 +11760,7 @@
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -11793,7 +11793,7 @@
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -11836,7 +11836,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11866,7 +11866,7 @@
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11891,7 +11891,7 @@
 	"img_ptr": "ITEM_Spear",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11945,7 +11945,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12003,7 +12003,7 @@
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12032,7 +12032,7 @@
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12061,7 +12061,7 @@
 	"img_ptr": "ITEM_Short_sword",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12117,7 +12117,7 @@
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12173,7 +12173,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12196,7 +12196,7 @@
 	"img_ptr": "ITEM_Dagger_sting",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12284,7 +12284,7 @@
 	"img_ptr": "ITEM_Chimes_of_Dissonance",
 	"sound": "windchime.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12495,7 +12495,7 @@
 	"img_ptr": "ITEM_Deaths_Head_Axe",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12632,7 +12632,7 @@
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -12657,7 +12657,7 @@
 	"img_ptr": "ITEM_Horn_of_Summoning",
 	"sound": "force field.wav",
 	"slots": [
-	  "Loop"
+	  "belt loop"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12680,7 +12680,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "punch kick.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12755,7 +12755,7 @@
 	"img_ptr": "ITEM_Flail",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12809,7 +12809,7 @@
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -12886,7 +12886,7 @@
 	"img_ptr": "ITEM_Shield_of_Protection",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12967,7 +12967,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -13043,7 +13043,7 @@
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -13118,7 +13118,7 @@
 	"img_ptr": "ITEM_Club",
 	"sound": "pummel.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -13171,7 +13171,7 @@
 	"img_ptr": "ITEM_Necklace_of_Fireballs",
 	"sound": "spell effect heal.wav",
 	"slots": [
-	  "Neck"
+	  "neck"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13200,7 +13200,7 @@
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -13250,7 +13250,7 @@
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -13282,7 +13282,7 @@
 	"img_ptr": "ITEM_Quarter_staff",
 	"sound": "club.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -13334,7 +13334,7 @@
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "Melee Weapon"
+	  "melee weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -13366,7 +13366,7 @@
 	"img_ptr": "ITEM_Ring_of_Fech",
 	"sound": "join.wav",
 	"slots": [
-	  "Ring"
+	  "ring"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13388,7 +13388,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -13463,7 +13463,7 @@
 	"img_ptr": "ITEM_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "Shield"
+	  "shield"
 	],
 	"hands": 1,
 	"equippable": 1,

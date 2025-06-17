@@ -129,9 +129,14 @@ func get_dir_input_from_mouse(_delta, offset : Vector2)->Vector2 :
 func _process(delta):
 	time_since_last_dir_input += delta
 
-	
+	#print("game_state process :  state_name : ", state.name)
+	#if StateMachine.state == StateMachine.ex_menu_state :
+		#return
 
 	if StateMachine.time_since_last_dir_input > GameGlobal.gamespeed :
+		
+
+		
 		var maybe_input : Vector2i = Vector2i.ZERO
 		if GameGlobal.map.mouseinside :
 			#if Input.is_action_pressed("RightClick") :
@@ -255,10 +260,14 @@ func check_map_script(position) ->bool :
 		var u = sr["scriptRectangle"][0][1]
 		var r = sr["scriptRectangle"][1][0]
 		var d = sr["scriptRectangle"][1][1]
+		var chance : float = 1.0
+		if sr.has("chance") :
+			chance = sr["chance"]
 		if l<=position.x and position.x<=r :
 			if u<=position.y and position.y<=d :
-				print("StateMachine check_map_script Script rectangle : ", s , ", script : ", sr["scriptToLoad"])
-				scriptstocall[sr["scriptToLoad"]] = ''
+				if randf() <= chance :
+					print("StateMachine check_map_script Script rectangle : ", s , ", script : ", sr["scriptToLoad"])
+					scriptstocall[sr["scriptToLoad"]] = ''
 	#check map secrets :
 	for x in [-1,0,1] :
 		for y in [-1,0,1] :
