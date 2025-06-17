@@ -18,7 +18,7 @@ from datetime import datetime
 
 # Configuration
 ADDON_NAME = "godot-openmpt"
-VERSION = "v1.3"
+VERSION = "v1.3.1"
 DOWNLOAD_URL = f"https://github.com/dkonar/godot-openmpt/releases/download/{VERSION}/godot-openmpt-{VERSION}.zip"
 SRC_DIR = "src"
 
@@ -103,17 +103,14 @@ def is_cache_restored_installation(target_dir):
         return True
     return False
 
-def backup_existing_installation(target_dir):
-    """Create a backup of existing installation if it exists"""
+def remove_existing_installation(target_dir):
+    """Remove existing installation if it exists"""
     target_path = Path(target_dir)
 
     if target_path.exists() and any(target_path.iterdir()):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_path = Path(f"{target_dir}.backup.{timestamp}")
-
-        print_warning(f"Existing installation found. Creating backup at: {backup_path}")
-        shutil.move(str(target_path), str(backup_path))
-        print_success("Backup created successfully.")
+        print_warning(f"Existing installation found. Removing: {target_dir}")
+        shutil.rmtree(target_path)
+        print_success("Existing installation removed.")
 
 def extract_addon(zip_path, temp_dir):
     """Extract the addon from zip file"""
@@ -245,8 +242,8 @@ def install_addon(force=False):
             else:
                 print_status("Incomplete installation found, --force specified. Proceeding with reinstall...")
 
-    # Backup existing installation
-    backup_existing_installation(target_dir)
+    # Remove existing installation
+    remove_existing_installation(target_dir)
 
     # Create temporary directory for download and extraction
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -290,7 +287,7 @@ def main():
 This script will:
   - Download Godot OpenMPT from GitHub
   - Install it to the ./addons directory
-  - Backup any existing installation
+  - Remove any existing installation
         """)
 
     parser.add_argument('-f', '--force',
