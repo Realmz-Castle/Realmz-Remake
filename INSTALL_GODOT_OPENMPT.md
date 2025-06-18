@@ -1,10 +1,10 @@
 # Godot OpenMPT Installation Guide
 
-This guide explains how to install the Godot OpenMPT addon (v1.3) for your Godot project using the provided installation scripts.
+This guide explains how to install the Godot OpenMPT addon (v1.3.2) for your Godot project using the provided installation scripts.
 
 ## What is Godot OpenMPT?
 
-Godot OpenMPT is a plugin that adds support for playing tracker music formats (MOD, S3M, XM, IT, etc.) in Godot Engine using the OpenMPT library. Version 1.3 includes support for:
+Godot OpenMPT is a plugin that adds support for playing tracker music formats (MOD, S3M, XM, IT, etc.) in Godot Engine using the OpenMPT library. Version 1.3.2 includes support for:
 
 - Windows (x86_64)
 - Linux (x86_64 and ARM64)
@@ -45,7 +45,7 @@ python3 install_godot_openmpt.py --force
 1. **Platform Detection**: Automatically detects your operating system and architecture
 2. **Project Validation**: Checks for the presence of `src/project.godot` to ensure you're in the correct directory
 3. **Backup**: Creates a backup of any existing godot-openmpt installation
-4. **Download**: Downloads the latest release (v1.3) from GitHub
+4. **Download**: Downloads the latest release (v1.3.2) from GitHub
 5. **Extract**: Extracts the addon files to the correct location
 6. **Install**: Places the addon in your project's `src/addons/godot-openmpt` directory
 7. **Verify**: Confirms the installation was successful
@@ -114,7 +114,7 @@ openmpt.set_position(0.0)
 
 If the script doesn't work, you can install manually:
 
-1. Download `godot-openmpt-v1.3.zip` from the [GitHub releases page](https://github.com/dkonar/godot-openmpt/releases/tag/v1.3)
+1. Download `godot-openmpt-v1.3.2.zip` from the [GitHub releases page](https://github.com/dkonar/godot-openmpt/releases/tag/v1.3.2)
 2. Extract the zip file
 3. Copy the `addons/godot-openmpt` folder to your project's `src/addons/` directory
 4. Enable the plugin in Godot's Project Settings

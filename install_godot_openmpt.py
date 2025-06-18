@@ -14,11 +14,10 @@ import shutil
 import tempfile
 import argparse
 from pathlib import Path
-from datetime import datetime
 
 # Configuration
 ADDON_NAME = "godot-openmpt"
-VERSION = "v1.3.1"
+VERSION = "v1.3.2"
 DOWNLOAD_URL = f"https://github.com/dkonar/godot-openmpt/releases/download/{VERSION}/godot-openmpt-{VERSION}.zip"
 SRC_DIR = "src"
 
