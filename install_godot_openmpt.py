@@ -90,6 +90,30 @@ def check_existing_installation(target_dir):
         return True
     return False
 
+def get_installed_version(target_dir):
+    """Get the version of the currently installed addon by checking for version marker file"""
+    target_path = Path(target_dir)
+    version_file = target_path / ".version"
+
+    if version_file.exists():
+        try:
+            with open(version_file, 'r') as f:
+                return f.read().strip()
+        except Exception:
+            return None
+    return None
+
+def create_version_marker(target_dir, version):
+    """Create a version marker file to track the installed version"""
+    target_path = Path(target_dir)
+    version_file = target_path / ".version"
+
+    try:
+        with open(version_file, 'w') as f:
+            f.write(version)
+    except Exception as e:
+        print_warning(f"Could not create version marker: {e}")
+
 def is_cache_restored_installation(target_dir):
     """Check if installation was restored from cache (has valid structure)"""
     target_path = Path(target_dir)
@@ -224,22 +248,31 @@ def install_addon(force=False):
 
     # Check if valid installation already exists (cache hit)
     if check_existing_installation(target_dir):
-        if is_cache_restored_installation(target_dir):
-            # This is likely a cache hit with complete installation
-            print_success(f"Godot OpenMPT {VERSION} restored from cache and appears complete.")
-            if not force:
-                verify_installation(target_dir, platform_info)
-                return True
+        installed_version = get_installed_version(target_dir)
+
+        if installed_version == VERSION:
+            # Same version already installed
+            if is_cache_restored_installation(target_dir):
+                print_success(f"Godot OpenMPT {VERSION} is already installed and appears complete.")
+                if not force:
+                    verify_installation(target_dir, platform_info)
+                    return True
+                else:
+                    print_status("Same version found but --force specified. Proceeding with reinstall...")
             else:
-                print_status("Cache restored but --force specified. Proceeding with fresh download...")
+                # Incomplete installation of same version
+                if not force:
+                    print_warning(f"Incomplete installation of {VERSION} found at {target_dir}")
+                    print_status("Use --force to reinstall if needed.")
+                    return False
+                else:
+                    print_status("Incomplete installation found, --force specified. Proceeding with reinstall...")
         else:
-            # Incomplete installation found
-            if not force:
-                print_warning(f"Incomplete installation found at {target_dir}")
-                print_status("Use --force to reinstall if needed.")
-                return False
+            # Different version installed (upgrade/downgrade)
+            if installed_version:
+                print_status(f"Found existing installation of {installed_version}, updating to {VERSION}...")
             else:
-                print_status("Incomplete installation found, --force specified. Proceeding with reinstall...")
+                print_status(f"Found existing installation (version unknown), updating to {VERSION}...")
 
     # Remove existing installation
     remove_existing_installation(target_dir)
@@ -270,6 +303,9 @@ def install_addon(force=False):
         # Move to target directory
         print_status(f"Installing addon to {target_dir}...")
         shutil.move(addon_source_dir, target_dir)
+
+        # Create version marker file
+        create_version_marker(target_dir, VERSION)
 
         # Verify installation
         if not verify_installation(target_dir, platform_info):

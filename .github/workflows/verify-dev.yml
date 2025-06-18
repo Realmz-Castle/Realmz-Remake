@@ -11,7 +11,7 @@ env:
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
   LFS_USERNAME: ${{secrets.LFS_USERNAME}}
   LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
-  OPENMPT_VERSION: v1.3
+  OPENMPT_VERSION: v1.3.2
 
 jobs:
   check-version-bump:
