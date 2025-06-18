@@ -88,6 +88,7 @@ clean-build:
 
 # Addon management
 .PHONY: install-openmpt clean-openmpt
+install-openmpt:
 	@printf "$(COLOR_BLUE)Installing Godot OpenMPT addon...$(COLOR_RESET)\n"
 	@$(PYTHON) install_godot_openmpt.py --force
 	@printf "$(COLOR_GREEN)✓ Godot OpenMPT addon installed$(COLOR_RESET)\n"

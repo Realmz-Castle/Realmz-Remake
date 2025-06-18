@@ -34,6 +34,7 @@ var new_char_class : GDScript = null
 var new_char_race : GDScript = null
 
 var new_character = null
+var previous_music_info = null  # Store info about music playing before character creation
 
 @export var portraitRect : TextureRect# = $"PortraitRect"
 @export var iconRect : TextureRect# = $"IconRect"
@@ -53,16 +54,19 @@ func _ready():
 	fillClassesRacesMenus()
 	fillLevelMenuButton([1,3,5,10,15,20,30])
 
+	# Connect to visibility changed signal to handle music
+	connect("visibility_changed", Callable(self, "_on_visibility_changed"))
+
 
 func set_clean_character() :
 	new_character = null
-	
+
 	new_char_portrait = default_portrait
 	portraitRect.texture = default_portrait
 	characterstatrect.display_portrait(portraitRect.texture )
 	new_char_icon = default_icon
 	iconRect.texture = default_icon
-	
+
 #	new_character = GameGlobal.playerCharacterGD.new({"name":"ENTER NAME"}, default_icon, default_portrait, null, null)
 	#GameGlobal.playerCharacterGD.new(jsonresult, newicon, newportrait, classgd, racegd)
 
@@ -110,7 +114,7 @@ func fillIconsPortraitsChoices():
 	for ifn in iconfilenames :
 		var icontex = Utils.FileHandler.load_img_texture(iconspath+ifn)
 		iconsTextures.append(icontex)
-	
+
 	for p in range(portraitsTextures.size()) :
 		var b = Button.new()
 		b.flat = true
@@ -201,9 +205,9 @@ func _on_OKButton_pressed() -> void :
 	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/Characters/'+new_char_name
 	print("new char path : ", path)
 	DirAccess.make_dir_recursive_absolute(path)
-	
 
-	
+
+
 	#let the character  get their free stuff
 	new_character.racegd._character_creation_gifts(new_character)
 	new_character.classgd._character_creation_gifts(new_character)
@@ -230,19 +234,19 @@ func _on_OKButton_pressed() -> void :
 
 #
 #	path = "D:/Programming/Godot 4/Godot 4 Projects/Realmz Remake Folder/Profiles/Samuel/Saves/City of Bywater/toto/Characters/test"
-	
+
 
 	new_character.stats["curHP"] = new_character.get_stat("maxHP")
 	match new_character.used_resource :
-		"SP" : 
+		"SP" :
 			new_character.stats["curSP"] = new_character.get_stat("maxSP")
-	
-	
+
+
 	Utils.FileHandler.save_character(path, new_character)
 
-	
+
 	GameGlobal.load_character_to_profile(new_character.name)
-	
+
 #	save_char.open(path+'/data.json', File.WRITE)
 #	save_char.store_line('{"name":"'+new_char_name+'", "free":1}')
 #	save_char.close()
@@ -312,4 +316,21 @@ func _on_ToggleIcoPortButton_pressed():
 		toggleButton.text = "Show Portraits"
 		if iconsTextures.size() == portraitsTextures.size() :
 			iconScroll.set_v_scroll(portraitScroll.get_v_scroll())
-		
+
+func _on_visibility_changed():
+	if visible:
+		# Panel is being shown - play character creation music
+		print("Starting character creation music")
+		# Store current music info so we can restore it later
+		previous_music_info = MusicStreamPlayer.currently_playing.duplicate()
+		MusicStreamPlayer.play_music_type("Create")
+	else:
+		# Panel is being hidden - restore previous music
+		print("Stopping character creation music")
+		if previous_music_info != null and previous_music_info.has("path") and previous_music_info["path"] != '':
+			# Restore the previous music
+			MusicStreamPlayer.play_music(previous_music_info)
+		else:
+			# No previous music was playing, so stop music
+			MusicStreamPlayer.stop()
+		previous_music_info = null
