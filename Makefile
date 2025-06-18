@@ -87,15 +87,10 @@ clean-build:
 	fi
 
 # Addon management
-.PHONY: install-openmpt install-addons clean-openmpt clean-addons setup-project check-addons git-status-addons
-install-openmpt:
+.PHONY: install-openmpt clean-openmpt
 	@printf "$(COLOR_BLUE)Installing Godot OpenMPT addon...$(COLOR_RESET)\n"
 	@$(PYTHON) install_godot_openmpt.py --force
 	@printf "$(COLOR_GREEN)✓ Godot OpenMPT addon installed$(COLOR_RESET)\n"
-
-install-addons: install-openmpt
-	@printf "$(COLOR_GREEN)✓ All addons installed successfully!$(COLOR_RESET)\n"
-
 clean-openmpt:
 	@printf "$(COLOR_YELLOW)Removing Godot OpenMPT addon...$(COLOR_RESET)\n"
 	@if [ -d "$(ADDONS_DIR)/godot-openmpt" ]; then \
@@ -103,33 +98,6 @@ clean-openmpt:
 		printf "$(COLOR_GREEN)✓ Godot OpenMPT addon removed$(COLOR_RESET)\n"; \
 	else \
 		printf "$(COLOR_YELLOW)⚠ Godot OpenMPT addon not found$(COLOR_RESET)\n"; \
-	fi
-
-clean-addons: clean-openmpt
-	@printf "$(COLOR_GREEN)✓ All addons cleaned$(COLOR_RESET)\n"
-
-check-addons:
-	@printf "$(COLOR_BLUE)Checking installed addons...$(COLOR_RESET)\n"
-	@if [ -d "$(ADDONS_DIR)" ]; then \
-		printf "$(COLOR_BOLD)Installed addons in $(ADDONS_DIR):$(COLOR_RESET)\n"; \
-		ls -la $(ADDONS_DIR)/ | grep ^d | awk '{print "  - " $$9}' | grep -v '^\s*-\s*\.\s*$$' | grep -v '^\s*-\s*\.\.\s*$$'; \
-	else \
-		printf "$(COLOR_YELLOW)⚠ No addons directory found at $(ADDONS_DIR)$(COLOR_RESET)\n"; \
-	fi
-
-setup-project: install-addons
-	@printf "$(COLOR_BLUE)Setting up project...$(COLOR_RESET)\n"
-	@mkdir -p $(ADDONS_DIR)
-	@printf "$(COLOR_GREEN)✓ Project setup complete! Addons installed to $(ADDONS_DIR)$(COLOR_RESET)\n"
-
-git-status-addons:
-	@printf "$(COLOR_BLUE)Checking git status for addons...$(COLOR_RESET)\n"
-	@if git ls-files | grep -E "src/addons/(godot-openmpt|godot-git-plugin|TilED)" > /dev/null 2>&1; then \
-		printf "$(COLOR_YELLOW)⚠ Warning: External addons are being tracked by git:$(COLOR_RESET)\n"; \
-		git ls-files | grep -E "src/addons/(godot-openmpt|godot-git-plugin|TilED)"; \
-		printf "$(COLOR_YELLOW)Consider running: git rm --cached <addon-path>$(COLOR_RESET)\n"; \
-	else \
-		printf "$(COLOR_GREEN)✓ No external addons are being tracked by git$(COLOR_RESET)\n"; \
 	fi
 
 # Help target
