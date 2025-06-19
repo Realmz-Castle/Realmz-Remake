@@ -1,660 +1,672 @@
 {
    "CREA_antiid" :
    {
-      "0_ref_x" : 0,
-      "0_ref_y" : 0,
+      "0_ref_x" : 12,
+      "0_ref_y" : 27,
       "size" : "32x32"
    },
 
    "CREA_apprentice" :
    {
-      "0_ref_x" : 1,
-      "0_ref_y" : 14,
+      "0_ref_x" : 11,
+      "0_ref_y" : 22,
       "size" : "32x32"
    },
- 
+   
    "CREA_beast_man" :
    {
       "0_ref_x" : 6,
       "0_ref_y" : 1,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_blue_dragon" :
    {
       "0_ref_x" : 6,
       "0_ref_y" : 23,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_cacodaemon_warlord" :
    {
       "0_ref_x" : 9,
       "0_ref_y" : 25,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_carrion_beast" :
    {
       "0_ref_x" : 8,
       "0_ref_y" : 15,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_carrion_slug" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 5,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_cavalry_officer" :
    {
       "0_ref_x" : 25,
       "0_ref_y" : 23,
       "size" : "32x64"
-   } ,
+   }, 
    "CREA_cavalry_trooper" :
    {
       "0_ref_x" : 24,
       "0_ref_y" : 23,
       "size" : "32x64"
-   } ,
+   }, 
    "CREA_cave_lizard" :
    {
       "0_ref_x" : 13,
       "0_ref_y" : 0,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_demon" :
    {
       "0_ref_x" : 8,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_demon_lord" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 25,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_dinosaur1" :
    {
       "0_ref_x" : 12,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_dinosaur2" :
    {
       "0_ref_x" : 29,
       "0_ref_y" : 22,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_dinosaur3" :
    {
       "0_ref_x" : 27,
       "0_ref_y" : 23,
       "size" : "32x64"
-   } ,
+   }, 
    "CREA_dinosaur4" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 26,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_dinosaur5" :
    {
       "0_ref_x" : 26,
       "0_ref_y" : 1,
       "size" : "32x64"
-   } ,
+   }, 
    "CREA_dinosaur6" :
    {
       "0_ref_x" : 13,
       "0_ref_y" : 25,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_dogre" :
    {
       "0_ref_x" : 7,
       "0_ref_y" : 1,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_dogre_champion" :
    {
       "0_ref_x" : 19,
       "0_ref_y" : 23,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_dragon_lizard" :
    {
       "0_ref_x" : 16,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_dune_spider" :
    {
       "0_ref_x" : 6,
       "0_ref_y" : 12,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_fire_fiend" :
    {
       "0_ref_x" : 17,
       "0_ref_y" : 5,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_flesh_fiend" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,
+   }, 
+   "CREA_ghost" :
+   {
+      "0_ref_x" : 14,
+      "0_ref_y" : 23,
+      "size" : "32x32"
+   },    
    "CREA_ghoul" :
    {
       "0_ref_x" : 5,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_giant_bee" :
    {
       "0_ref_x" : 2,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_beetle" :
    {
       "0_ref_x" : 17,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_giant_boar" :
    {
       "0_ref_x" : 10,
       "0_ref_y" : 27,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_giant_centipede" :
    {
       "0_ref_x" : 1,
       "0_ref_y" : 0,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_giant_frog" :
    {
       "0_ref_x" : 15,
       "0_ref_y" : 28,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_giant_rat" :
    {
       "0_ref_x" : 8,
       "0_ref_y" : 26,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_giant_scorpion" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 1,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_giant_snake" :
    {
       "0_ref_x" : 27,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_giant_spider" :
    {
       "0_ref_x" : 6,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_giant_troll" :
    {
       "0_ref_x" : 5,
       "0_ref_y" : 17,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_giant_wasp" :
    {
       "0_ref_x" : 9,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_giant_worker_ant" :
    {
       "0_ref_x" : 10,
       "0_ref_y" : 2,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_giant_wyrm" :
    {
       "0_ref_x" : 27,
-      "0_ref_y" : 28,
+      "0_ref_y" : 8,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_giant_zombie" :
    {
       "0_ref_x" : 11,
       "0_ref_y" : 11,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_gnath" :
    {
       "0_ref_x" : 11,
       "0_ref_y" : 3,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_gnome_warrior" :
    {
       "0_ref_x" : 18,
       "0_ref_y" : 24,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_goblin" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_goblin_archer" :
    {
       "0_ref_x" : 10,
       "0_ref_y" : 24,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_goblin_champion" :
    {
       "0_ref_x" : 15,
       "0_ref_y" : 26,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_goblin_chief" :
    {
       "0_ref_x" : 26,
       "0_ref_y" : 24,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_goblin_hero" :
    {
       "0_ref_x" : 22,
       "0_ref_y" : 22,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_goblin_shaman" :
    {
       "0_ref_x" : 18,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,
+   }, 
    "CREA_green_dragon" :
    {
       "0_ref_x" : 8,
       "0_ref_y" : 23,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_guardian_spider" :
    {
       "0_ref_x" : 25,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_hag" :
    {
       "0_ref_x" : 25,
       "0_ref_y" : 25,
       "size" : "32x64"
-   } ,
+   }, 
    "CREA_hell_bat" :
    {
       "0_ref_x" : 11,
       "0_ref_y" : 26,
       "size" : "64x32"
-   } ,
+   }, 
    "CREA_hell_dragon" :
    {
       "0_ref_x" : 8,
       "0_ref_y" : 13,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_hill_giant" :
    {
       "0_ref_x" : 23,
       "0_ref_y" : 23,
       "size" : "32x64"
-   } ,
+   }, 
    "CREA_horvath" :
    {
       "0_ref_x" : 9,
       "0_ref_y" : 19,
       "size" : "64x64"
-   } ,
+   },
+    "CREA_huge_slime" :
+   {
+      "0_ref_x" : 3,
+      "0_ref_y" : 27,
+      "size" : "64x64"
+   }, 
    "CREA_kisk_dragon" :
    {
       "0_ref_x" : 6,
       "0_ref_y" : 7,
       "size" : "64x64"
-   } ,
+   }, 
    "CREA_krise" :
    {
       "0_ref_x" : 5,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } , 
+   },  
    "CREA_larva" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 5,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_mental_flea" :
    {
       "0_ref_x" : 16,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_mercenary_villain" :
    {
       "0_ref_x" : 7,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_minor_demon" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 25,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_minotaur1" :
    {
       "0_ref_x" : 16,
       "0_ref_y" : 15,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_minotaur2" :
    {
       "0_ref_x" : 2,
       "0_ref_y" : 15,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_monstrous_rat" :
    {
       "0_ref_x" : 2,
       "0_ref_y" : 1,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_mummy" :
    {
       "0_ref_x" : 21,
       "0_ref_y" : 25,
       "size" : "32x64"
-   } ,  
+   },   
    "CREA_mush_man" :
    {
       "0_ref_x" : 22,
       "0_ref_y" : 26,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_mush_mound" :
    {
       "0_ref_x" : 20,
       "0_ref_y" : 25,
       "size" : "32x64"
-   } ,  
+   },   
    "CREA_ogre" :
    {
       "0_ref_x" : 2,
       "0_ref_y" : 25,
       "size" : "32x64"
-   } ,  
+   },   
    "CREA_orc_archer" :
    {
       "0_ref_x" : 5,
       "0_ref_y" : 1,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_orc_champion" :
    {
       "0_ref_x" : 4,
       "0_ref_y" : 1,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_orc_shaman" :
    {
       "0_ref_x" : 5,
       "0_ref_y" : 12,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_orc_warrior" :
    {
       "0_ref_x" : 9,
-      "0_ref_y" : 1,
+      "0_ref_y" : 2,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_orc_warrior2" :
    {
       "0_ref_x" : 4,
       "0_ref_y" : 1,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_podling" :
    {
       "0_ref_x" : 22,
       "0_ref_y" : 26,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_proto_badger" :
    {
       "0_ref_x" : 21,
       "0_ref_y" : 24,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_proto_hyena" :
    {
       "0_ref_x" : 9,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_proto_shantile" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_proto_vrack" :
    {
       "0_ref_x" : 7,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_rat_demilord" :
    {
       "0_ref_x" : 13,
       "0_ref_y" : 23,
       "size" : "32x64"
-   } ,  
+   },   
    "CREA_red_dragon" :
    {
       "0_ref_x" : 4,
       "0_ref_y" : 23,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_rewop" :
    {
       "0_ref_x" : 17,
       "0_ref_y" : 25,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_rock_spider" :
    {
       "0_ref_x" : 19,
       "0_ref_y" : 10,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_royal_captain" :
    {
       "0_ref_x" : 4,
       "0_ref_y" : 29,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_royal_corporal" :
    {
       "0_ref_x" : 1,
       "0_ref_y" : 29,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_royal_guard" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 29,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_royal_lieutenant" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 29,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_royal_sergeant" :
    {
       "0_ref_x" : 2,
       "0_ref_y" : 29,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_sabre_feline" :
    {
       "0_ref_x" : 0,
       "0_ref_y" : 23,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_shantile" :
    {
       "0_ref_x" : 10,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_silt_spider" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 22,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_skeletal_beast" :
    {
       "0_ref_x" : 18,
       "0_ref_y" : 17,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_skeletal_giant" :
    {
       "0_ref_x" : 19,
       "0_ref_y" : 19,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_skeletal_warrior" :
    {
       "0_ref_x" : 15,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_slime1" :
    {
       "0_ref_x" : 1,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_slime2" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_slime_demon" :
    {
       "0_ref_x" : 12,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_slime_worm" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 5,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_small_slime" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 27,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_spectre" :
    {
       "0_ref_x" : 14,
       "0_ref_y" : 23,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_terror_beast" :
    {
       "0_ref_x" : 16,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_thief" :
    {
       "0_ref_x" : 6,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_trigwig" :
    {
       "0_ref_x" : 18,
       "0_ref_y" : 27,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_troglodyte" :
    {
       "0_ref_x" : 10,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_troll" :
    {
       "0_ref_x" : 5,
       "0_ref_y" : 17,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_vesp_spider" :
    {
       "0_ref_x" : 5,
       "0_ref_y" : 22,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_vixies_spider" :
    {
       "0_ref_x" : 23,
       "0_ref_y" : 21,
       "size" : "64x64"
-   } ,  
+   },   
    "CREA_whip_scorpion" :
    {
       "0_ref_x" : 19,
       "0_ref_y" : 6,
       "size" : "64x32"
-   } ,  
+   },   
    "CREA_winged_devil" :
    {
       "0_ref_x" : 19,
       "0_ref_y" : 26,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_young_hill_giant" :
    {
       "0_ref_x" : 23,
       "0_ref_y" : 23,
       "size" : "32x64"
-   } ,  
+   },   
    "CREA_young_troll" :
    {
       "0_ref_x" : 12,
       "0_ref_y" : 0,
       "size" : "32x32"
-   } ,  
+   },   
    "CREA_zombie" :
    {
       "0_ref_x" : 8,

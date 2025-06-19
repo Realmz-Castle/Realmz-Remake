@@ -250,10 +250,10 @@ static func get_max_perma_summons(_character) ->int :
 	return 0
 
 static func get_selection_cost(_character, _ability, _cost) :
-    # Only use Priest school cost if available
-    if _ability.has("selection_costs") and _ability.selection_costs.has("Priest"):
-        return _ability.selection_costs["Priest"]
-    return _cost  # Return base cost if no school cost available
+	# Only use Priest school cost if available
+	if _ability.has("selection_costs") and _ability.selection_costs.has("Priest"):
+		return _ability.selection_costs["Priest"]
+	return _cost  # Return base cost if no school cost available
 
 
 #modifies the SP  (or FP RP etc)  cost of a spell or  ability
