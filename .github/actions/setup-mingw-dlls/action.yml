@@ -1,0 +1,115 @@
+name: 'Setup MinGW Runtime DLLs'
+description: 'Downloads and sets up MinGW runtime DLLs required for OpenMPT on Windows'
+author: 'Realmz-Remake Team'
+
+inputs:
+  runtime_dir:
+    description: 'Directory to place the runtime DLLs'
+    required: false
+    default: 'src/addons/godot-openmpt/bin/runtime'
+
+outputs:
+  dlls_found:
+    description: 'Whether all required DLLs were found and copied'
+    value: ${{ steps.setup-dlls.outputs.dlls_found }}
+  runtime_dir:
+    description: 'Path to the runtime directory containing the DLLs'
+    value: ${{ inputs.runtime_dir }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup MinGW Runtime DLLs
+      id: setup-dlls
+      shell: bash
+      run: |
+        echo "Setting up MinGW runtime DLLs for Windows OpenMPT support..."
+
+        # Create runtime directory
+        mkdir -p "${{ inputs.runtime_dir }}"
+
+        # Find MinGW installation paths on GitHub runner
+        mingw_paths=(
+          "/c/msys64/mingw64/bin"
+          "/c/tools/msys64/mingw64/bin"
+          "/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin"
+          "/c/tools/mingw64/bin"
+        )
+
+        # Required DLLs for OpenMPT
+        required_dlls=("libgcc_s_seh-1.dll" "libstdc++-6.dll")
+
+        echo "Searching for MinGW runtime DLLs..."
+        all_found=true
+
+        for dll in "${required_dlls[@]}"; do
+          found=false
+          for path in "${mingw_paths[@]}"; do
+            if [ -f "$path/$dll" ]; then
+              echo "✓ Found $dll in $path"
+              cp "$path/$dll" "${{ inputs.runtime_dir }}/"
+              echo "  Copied to runtime directory"
+              found=true
+              break
+            fi
+          done
+
+          if [ "$found" = false ]; then
+            echo "⚠️  Could not find $dll in standard MinGW paths"
+            echo "Trying system PATH..."
+
+            # Try to find via where command (Windows)
+            dll_path=$(where "$dll" 2>/dev/null | head -1 || echo "")
+            if [ -n "$dll_path" ] && [ -f "$dll_path" ]; then
+              echo "✓ Found $dll via system PATH: $dll_path"
+              cp "$dll_path" "${{ inputs.runtime_dir }}/"
+              echo "  Copied to runtime directory"
+              found=true
+            else
+              echo "❌ ERROR: Could not find $dll anywhere"
+              all_found=false
+            fi
+          fi
+        done
+
+        # Output results
+        echo "Runtime DLL setup results:"
+        if [ -d "${{ inputs.runtime_dir }}" ]; then
+          ls -la "${{ inputs.runtime_dir }}/"
+        else
+          echo "Runtime directory not found!"
+          all_found=false
+        fi
+
+        # Verify all DLLs are present and valid
+        echo "Verifying DLLs..."
+        for dll in "${required_dlls[@]}"; do
+          dll_path="${{ inputs.runtime_dir }}/$dll"
+          if [ -f "$dll_path" ]; then
+            size=$(stat -f%z "$dll_path" 2>/dev/null || stat -c%s "$dll_path" 2>/dev/null || echo "unknown")
+            echo "✓ $dll (${size} bytes)"
+          else
+            echo "❌ $dll missing"
+            all_found=false
+          fi
+        done
+
+        if [ "$all_found" = true ]; then
+          echo "✅ All MinGW runtime DLLs successfully set up!"
+          echo "dlls_found=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Failed to set up all required MinGW runtime DLLs"
+          echo "dlls_found=false" >> $GITHUB_OUTPUT
+
+          echo "Available MinGW paths checked:"
+          for path in "${mingw_paths[@]}"; do
+            if [ -d "$path" ]; then
+              echo "  ✓ $path (exists)"
+              echo "    Contents: $(ls "$path"/*.dll 2>/dev/null | head -5 | xargs -I {} basename {} || echo 'no DLLs found')"
+            else
+              echo "  ❌ $path (not found)"
+            fi
+          done
+
+          exit 1
+        fi
