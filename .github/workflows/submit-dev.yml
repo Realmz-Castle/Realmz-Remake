@@ -215,9 +215,6 @@ jobs:
       - name: Install OpenMPT Plugin
         run: python3 install_godot_openmpt.py
 
-      - name: Setup MinGW Runtime DLLs for OpenMPT
-        uses: ./.github/actions/setup-mingw-dlls
-
       - name: Verify OpenMPT Plugin Installation
         shell: bash
         run: |
