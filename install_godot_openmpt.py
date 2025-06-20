@@ -3,6 +3,12 @@
 """
 Godot OpenMPT v1.3 Installation Script
 This script downloads and installs the godot-openmpt addon for Godot projects
+
+# NOTE: This script supports both the original source (Dudejoe870, https://github.com/Dudejoe870/godot-openmpt)
+#       and the dkonar fork (https://github.com/dkonar/godot-openmpt).
+#       - Dudejoe870 is the original and provides Windows and Linux x86_64 binaries (v1.3).
+#       - dkonar is a fork that adds macOS and Pi/ARM64 binaries (v1.3.2).
+#       The script auto-selects the best source for your platform, or you can override with --source.
 """
 
 import sys
@@ -17,8 +23,23 @@ from pathlib import Path
 
 # Configuration
 ADDON_NAME = "godot-openmpt"
-VERSION = "v1.3.2"
-DOWNLOAD_URL = f"https://github.com/dkonar/godot-openmpt/releases/download/{VERSION}/godot-openmpt-{VERSION}.zip"
+
+# Supported sources
+# - "dudejoe870": The original repo, provides Windows and Linux x86_64 binaries (v1.3)
+# - "dkonar": Fork with macOS and Pi/ARM64 binaries (v1.3.2)
+SOURCES = {
+    "dkonar": {
+        "version": "v1.3.2",
+        "url": "https://github.com/dkonar/godot-openmpt/releases/download/v1.3.2/godot-openmpt-v1.3.2.zip"
+    },
+    "dudejoe870": {
+        "version": "v1.3",
+        "url": "https://github.com/Dudejoe870/godot-openmpt/archive/refs/tags/v1.3.zip"
+    }
+}
+DEFAULT_SOURCE = "dkonar"
+
+SRC_DIR = "src{VERSION}/godot-openmpt-{VERSION}.zip"
 SRC_DIR = "src"
 
 class Colors:
@@ -64,6 +85,23 @@ def detect_platform():
         return "windows-x64"
     else:
         return "unknown"
+
+def auto_select_source(platform_info):
+    """
+    Automatically select the best source for the given platform.
+    - macOS (any arch) and Linux ARM64 (Pi): dkonar (fork, v1.3.2, adds macOS/Pi support)
+    - Windows (x86_64) and Linux x86_64: dudejoe870 (original, v1.3, Windows/Linux x86_64)
+    """
+    if platform_info.startswith("darwin"):
+        return "dkonar"
+    elif platform_info == "linux-arm64":
+        return "dkonar"
+    elif platform_info == "windows-x64":
+        return "dudejoe870"
+    elif platform_info == "linux-x64":
+        return "dudejoe870"
+    else:
+        return "dkonar"
 
 def download_file(url, output_path):
     """Download a file from URL to output_path"""
@@ -169,7 +207,7 @@ def find_addon_directory(temp_dir):
 
     return None
 
-def verify_installation(target_dir, platform_info):
+def verify_installation(target_dir, platform_info, version):
     """Verify the installation and show platform-specific information"""
     target_path = Path(target_dir)
     plugin_cfg = target_path / "plugin.cfg"
@@ -178,7 +216,7 @@ def verify_installation(target_dir, platform_info):
         print_error("Installation verification failed. plugin.cfg not found.")
         return False
 
-    print_success(f"Godot OpenMPT {VERSION} has been successfully installed!")
+    print_success(f"Godot OpenMPT {version} has been successfully installed!")
     print_status(f"Location: {target_dir}")
 
     # Show platform-specific binaries
@@ -214,13 +252,24 @@ def verify_installation(target_dir, platform_info):
 
     return True
 
-def install_addon(force=False):
+def install_addon(force=False, source=None):
     """Main installation function"""
-    print_status(f"Starting Godot OpenMPT {VERSION} installation...")
-
     # Detect platform
     platform_info = detect_platform()
     print_status(f"Detected platform: {platform_info}")
+
+    # Select source
+    if source is None:
+        selected_source = auto_select_source(platform_info)
+        print_status(f"Automatically selected source: {selected_source}")
+    else:
+        selected_source = source
+        print_status(f"Using user-specified source: {selected_source}")
+
+    version = SOURCES[selected_source]["version"]
+    download_url = SOURCES[selected_source]["url"]
+
+    print_status(f"Starting Godot OpenMPT {version} installation from {selected_source}...")
 
     if platform_info == "unknown":
         print_error("Unsupported platform. This addon supports Windows, Linux, and macOS.")
@@ -250,19 +299,19 @@ def install_addon(force=False):
     if check_existing_installation(target_dir):
         installed_version = get_installed_version(target_dir)
 
-        if installed_version == VERSION:
+        if installed_version == version:
             # Same version already installed
             if is_cache_restored_installation(target_dir):
-                print_success(f"Godot OpenMPT {VERSION} is already installed and appears complete.")
+                print_success(f"Godot OpenMPT {version} is already installed and appears complete.")
                 if not force:
-                    verify_installation(target_dir, platform_info)
+                    verify_installation(target_dir, platform_info, version)
                     return True
                 else:
                     print_status("Same version found but --force specified. Proceeding with reinstall...")
             else:
                 # Incomplete installation of same version
                 if not force:
-                    print_warning(f"Incomplete installation of {VERSION} found at {target_dir}")
+                    print_warning(f"Incomplete installation of {version} found at {target_dir}")
                     print_status("Use --force to reinstall if needed.")
                     return False
                 else:
@@ -270,9 +319,9 @@ def install_addon(force=False):
         else:
             # Different version installed (upgrade/downgrade)
             if installed_version:
-                print_status(f"Found existing installation of {installed_version}, updating to {VERSION}...")
+                print_status(f"Found existing installation of {installed_version}, updating to {version}...")
             else:
-                print_status(f"Found existing installation (version unknown), updating to {VERSION}...")
+                print_status(f"Found existing installation (version unknown), updating to {version}...")
 
     # Remove existing installation
     remove_existing_installation(target_dir)
@@ -280,10 +329,10 @@ def install_addon(force=False):
     # Create temporary directory for download and extraction
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
-        zip_path = temp_path / f"godot-openmpt-{VERSION}.zip"
+        zip_path = temp_path / f"godot-openmpt-{version}.zip"
 
         # Download the addon
-        if not download_file(DOWNLOAD_URL, zip_path):
+        if not download_file(download_url, zip_path):
             print_error("Failed to download the addon. Please check your internet connection and try again.")
             return False
 
@@ -305,10 +354,10 @@ def install_addon(force=False):
         shutil.move(addon_source_dir, target_dir)
 
         # Create version marker file
-        create_version_marker(target_dir, VERSION)
+        create_version_marker(target_dir, version)
 
         # Verify installation
-        if not verify_installation(target_dir, platform_info):
+        if not verify_installation(target_dir, platform_info, version):
             return False
 
     return True
@@ -316,23 +365,32 @@ def install_addon(force=False):
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
-        description=f"Install Godot OpenMPT {VERSION} addon for Godot projects",
+        description="Install Godot OpenMPT addon for Godot projects",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 This script will:
   - Download Godot OpenMPT from GitHub
   - Install it to the ./addons directory
   - Remove any existing installation
+
+Source selection:
+  By default, the script will automatically select the best source for your platform:
+    - macOS (any arch) and Linux ARM64 (Raspberry Pi): dkonar (v1.3.2)
+    - Windows (x86_64) and Linux x86_64: dudejoe870 (v1.3)
+  You can override this with --source dkonar or --source dudejoe870
         """)
 
     parser.add_argument('-f', '--force',
                        action='store_true',
                        help='Force installation (skip confirmations and reinstall even if cached)')
+    parser.add_argument('--source',
+                       choices=['dkonar', 'dudejoe870'],
+                       help='Override automatic source selection: dkonar or dudejoe870')
 
     args = parser.parse_args()
 
     try:
-        success = install_addon(force=args.force)
+        success = install_addon(force=args.force, source=args.source)
         if success:
             print_success("Installation complete!")
             sys.exit(0)
