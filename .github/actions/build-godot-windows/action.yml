@@ -5,10 +5,6 @@ author: "Daniel Konar"
 runs:
   using: "composite"
   steps:
-    - name: Install Dependencies
-      shell: bash
-      run: choco install -y zip
-
     - name: Setup Godot
       uses: chickensoft-games/setup-godot@v1
       with:
@@ -28,21 +24,12 @@ runs:
         mkdir -p ${{ inputs.build-dir }}/${{ inputs.platform-name }}
         godot --export-debug "${{ inputs.export-preset }}" --headless
 
-    - name: Compress
-      shell: bash
-      id: compress
-      working-directory: ${{ inputs.project-dir }}
-      run: |
-        cd ${{ inputs.build-dir }}/${{ inputs.platform-name }}
-        mkdir "${{ inputs.project-name }}"
-        mv * "${{ inputs.project-name }}/" 2>/dev/null || true
-        zip -r "${{ inputs.project-name }}-${{ inputs.platform-name }}.zip" "${{ inputs.project-name }}"
     - name: Upload Artifact
       id: upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.project-name }}-${{ inputs.platform-name }}
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.zip
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}
 
 inputs:
   godot-version:
