@@ -5,11 +5,13 @@ on:
     branches: ["dev"]
 
 env:
-  GODOT_VERSION: 4.3
+  GODOT_VERSION: 4.3.0
+  GODOT_VERSION_MAC_PI: 4.3
   PROJECT_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
   LFS_USERNAME: ${{secrets.LFS_USERNAME}}
   LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
+  OPENMPT_VERSION: v1.3.2
 
 jobs:
   check-version-bump:
@@ -77,21 +79,55 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py
+
+      - name: Verify OpenMPT Plugin Installation
+        run: |
+          if [ ! -f "src/addons/godot-openmpt/plugin.cfg" ]; then
+            echo "Plugin not found, forcing reinstall..."
+            python3 install_godot_openmpt.py --force
+          fi
+          echo "Verifying macOS libraries:"
+          ls -la src/addons/godot-openmpt/bin/*darwin* || echo "No darwin libraries found"
+          echo "Plugin configuration:"
+          cat src/addons/godot-openmpt/plugin.cfg
+          echo "GDExtension configuration:"
+          cat src/addons/godot-openmpt/openmpt.gdextension
+
       - name: Install Godot
         uses: ./.github/actions/install-godot-macos
         with:
-          godot-version: ${{ env.GODOT_VERSION }}
+          godot-version: ${{ env.GODOT_VERSION_MAC_PI }}
           install-templates: true
         id: install-godot
 
-      - name: Open Godot editor for reimport
-        run: ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit || true
+      - name: Open Godot editor for reimport and extension loading
+        run: |
+          cd src
+          ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit --verbose || true
+          sleep 2
+          echo "Checking for .godot/extension_list.cfg..."
+          if [ -f ".godot/extension_list.cfg" ]; then
+            echo "Extension list found:"
+            cat .godot/extension_list.cfg
+          else
+            echo "No extension list found, running import again..."
+            ${{ steps.install-godot.outputs.godot-executable }} --import --headless --verbose || true
+          fi
 
       - name: Build and upload artifacts for macOS
         uses: ./.github/actions/build-godot-macos
         with:
           godot-executable: ${{ steps.install-godot.outputs.godot-executable }}
           project-dir: "./src"
+
   build-linux:
     needs: check-version-bump
     runs-on: ubuntu-latest
@@ -105,10 +141,55 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py
+
+      - name: Verify OpenMPT Plugin Installation
+        run: |
+          if [ ! -f "src/addons/godot-openmpt/plugin.cfg" ]; then
+            echo "Plugin not found, forcing reinstall..."
+            python3 install_godot_openmpt.py --force
+          fi
+          echo "Verifying Linux libraries:"
+          ls -la src/addons/godot-openmpt/bin/*linux* || echo "No linux libraries found"
+          echo "Plugin configuration:"
+          cat src/addons/godot-openmpt/plugin.cfg
+          echo "GDExtension configuration:"
+          cat src/addons/godot-openmpt/openmpt.gdextension
+
+      - name: Setup Godot for Linux
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Initialize Godot extensions
+        run: |
+          cd src
+          godot --editor --headless --quit --verbose || true
+          sleep 2
+          echo "Checking for .godot/extension_list.cfg..."
+          if [ -f ".godot/extension_list.cfg" ]; then
+            echo "Extension list found:"
+            cat .godot/extension_list.cfg
+          else
+            echo "No extension list found, running import again..."
+            godot --import --headless --verbose || true
+          fi
+
       - name: Build and upload artifacts for linux
         uses: ./.github/actions/build-godot-linux
         with:
+          godot-version: ${{ env.GODOT_VERSION }}
           project-dir: "./src"
+
   build-raspberry-pi:
     needs: check-version-bump
     runs-on: ubuntu-22.04-arm
@@ -122,17 +203,52 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py
+
+      - name: Verify OpenMPT Plugin Installation
+        run: |
+          if [ ! -f "src/addons/godot-openmpt/plugin.cfg" ]; then
+            echo "Plugin not found, forcing reinstall..."
+            python3 install_godot_openmpt.py --force
+          fi
+          echo "Verifying Linux ARM libraries:"
+          ls -la src/addons/godot-openmpt/bin/*linux*arm64* || echo "No linux arm64 libraries found"
+          echo "Plugin configuration:"
+          cat src/addons/godot-openmpt/plugin.cfg
+
       - name: Install Godot
         uses: ./.github/actions/install-godot-raspberry-pi
         with:
-          godot-version: ${{ env.GODOT_VERSION }}
+          godot-version: ${{ env.GODOT_VERSION_MAC_PI }}
           install-templates: true
         id: install-godot
+
+      - name: Open Godot editor for reimport and extension loading
+        run: |
+          cd src
+          ${{ steps.install-godot.outputs.godot-executable }} --editor --headless --quit --verbose || true
+          sleep 2
+          echo "Checking for .godot/extension_list.cfg..."
+          if [ -f ".godot/extension_list.cfg" ]; then
+            echo "Extension list found:"
+            cat .godot/extension_list.cfg
+          else
+            echo "No extension list found, running import again..."
+            ${{ steps.install-godot.outputs.godot-executable }} --import --headless --verbose || true
+          fi
 
       - name: Build and upload artifacts for raspberry pi
         uses: ./.github/actions/build-godot-raspberry-pi
         with:
           project-dir: "./src"
+
   build-windows:
     needs: check-version-bump
     runs-on: windows-latest
@@ -146,7 +262,51 @@ jobs:
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
+      - name: Cache OpenMPT Plugin
+        uses: actions/cache@v4
+        with:
+          path: src/addons/godot-openmpt
+          key: openmpt-${{ env.OPENMPT_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Install OpenMPT Plugin
+        run: python3 install_godot_openmpt.py
+
+      - name: Verify OpenMPT Plugin Installation
+        shell: bash
+        run: |
+          if [ ! -f "src/addons/godot-openmpt/plugin.cfg" ]; then
+            echo "Plugin not found, forcing reinstall..."
+            python3 install_godot_openmpt.py --force
+          fi
+          echo "Verifying Windows libraries:"
+          ls -la src/addons/godot-openmpt/bin/*windows* || echo "No windows libraries found"
+          echo "Plugin configuration:"
+          cat src/addons/godot-openmpt/plugin.cfg
+
+      - name: Setup Godot for Windows
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Initialize Godot extensions
+        shell: bash
+        run: |
+          cd src
+          godot --editor --headless --quit --verbose || true
+          sleep 2
+          echo "Checking for .godot/extension_list.cfg..."
+          if [ -f ".godot/extension_list.cfg" ]; then
+            echo "Extension list found:"
+            cat .godot/extension_list.cfg
+          else
+            echo "No extension list found, running import again..."
+            godot --import --headless --verbose || true
+          fi
+
       - name: Build and upload artifacts for windows
         uses: ./.github/actions/build-godot-windows
         with:
+          godot-version: ${{ env.GODOT_VERSION }}
           project-dir: "./src"

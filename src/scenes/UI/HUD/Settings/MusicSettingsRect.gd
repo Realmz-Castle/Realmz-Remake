@@ -93,4 +93,3 @@ func _on_music_h_scroll_bar_value_changed(value):
 	Utils.FileHandler.set_cfg_setting(path, "VOLUME", "volume_music", value)
 	MusicStreamPlayer.volume_db = (value-100)*0.5
 	musicvolLabel.text = str(value)+'%'
-	MusicStreamPlayer.modplayer.volume_db = value-100-20

@@ -49,6 +49,7 @@ runs:
         ls /Volumes/Realmz
         ls /Volumes
         cp -R  /Volumes/Realmz/Realmz.app ./temp_dmg_parent/Realmz-Remake
+        cp /Volumes/Realmz/Realmz.command ./temp_dmg_parent/Realmz-Remake 2>/dev/null || true
         hdiutil create -volname "Realmz-Remake" -srcfolder ./temp_dmg_parent -ov -format UDZO Realmz-Remake-macos.dmg
 
     - uses: actions/upload-artifact@v4

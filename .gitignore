@@ -22,6 +22,8 @@ asset_scripts/descriptions.json
 # External addons
 src/addons/godot-git-plugin/
 src/addons/TilED/
+src/addons/godot-openmpt/
+src/addons/godot-openmpt.backup.*/
 src/addons/rcedit-x64.exe
 src/Profiles/Default Profile/Characters/*
 src/Profiles/Default Profile/Saves/*

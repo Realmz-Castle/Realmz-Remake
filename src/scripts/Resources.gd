@@ -635,7 +635,7 @@ func load_music_resources(path : String) :
 				loadedsound.data = bytes
 				mp3_file.close()
 				musicdict["sound"] = loadedsound
-			elif sfmn.ends_with(".mod") or sfmn.ends_with(".xm") :
+			elif _is_tracker_format(sfmn) :
 				musicdict["type"] = 'mod'
 
 			musicdict["path"] = sfpath+'/'+sfmn
@@ -647,6 +647,45 @@ func load_music_resources(path : String) :
 #	pass
 #	print("MSUIC LOADED")
 #	print(musics_book)
+
+func _is_tracker_format(filename: String) -> bool:
+	# Check if the file extension matches any OpenMPT supported tracker format
+	var tracker_extensions = [
+		".mod",   # ProTracker modules
+		".s3m",   # Scream Tracker 3 modules
+		".xm",    # FastTracker 2 modules
+		".it",    # Impulse Tracker modules
+		".mtm",   # MultiTracker modules
+		".669",   # Composer 669 modules
+		".ptm",   # PolyTracker modules
+		".psm",   # Protracker Studio modules
+		".umx",   # Unreal Music Container
+		".med",   # OctaMED modules
+		".dbm",   # DigiBooster Pro modules
+		".ams",   # Velvet Studio AMS modules
+		".dsm",   # DSIK modules
+		".far",   # Farandole Composer modules
+		".mdl",   # Digitrakker modules
+		".okt",   # Oktalyzer modules
+		".stm",   # Scream Tracker 2 modules
+		".ult",   # UltraTracker modules
+		".j2b",   # Jazz Jackrabbit 2 modules
+		".mt2",   # MadTracker 2 modules
+		".imf",   # Imago Orpheus modules
+		".gdm",   # General DigiMusic modules
+		".mptm",  # OpenMPT modules
+		".plm",   # DisorderTracker 2 modules
+		".mo3",   # Compressed modules
+		".xpk",   # Various compressed formats
+		".pp20",  # PowerPacker compressed
+		".mmcmp"  # MO3-style compressed
+	]
+
+	var filename_lower = filename.to_lower()
+	for ext in tracker_extensions:
+		if filename_lower.ends_with(ext):
+			return true
+	return false
 
 func load_spell_resources(path : String) :
 #	print("resources.gd load_spell_resources "+path)

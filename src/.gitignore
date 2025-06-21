@@ -19,3 +19,6 @@ TestScene.tscn
 TestScene.gd
 global.gd
 build/*
+
+# MinGW runtime DLLs (downloaded during build)
+addons/godot-openmpt/bin/runtime/*.dll
