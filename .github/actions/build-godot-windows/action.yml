@@ -24,12 +24,21 @@ runs:
         mkdir -p ${{ inputs.build-dir }}/${{ inputs.platform-name }}
         godot --export-debug "${{ inputs.export-preset }}" --headless
 
+    - name: Compress Build Output
+      id: compress
+      shell: pwsh
+      working-directory: ${{ inputs.project-dir }}
+      run: |
+        $zipPath = "${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.zip"
+        $sourcePath = "${{ inputs.build-dir }}/${{ inputs.platform-name }}"
+        Compress-Archive -Path $sourcePath\* -DestinationPath $zipPath -Force
+
     - name: Upload Artifact
       id: upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.project-name }}-${{ inputs.platform-name }}
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.zip
 
 inputs:
   godot-version:
