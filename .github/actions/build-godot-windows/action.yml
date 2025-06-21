@@ -29,7 +29,7 @@ runs:
       shell: pwsh
       working-directory: ${{ inputs.project-dir }}
       run: |
-        $zipPath = "${{ inputs.build-dir }}/${{ inputs.platform-name }}.zip"
+        $zipPath = "${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.zip"
         $sourcePath = "${{ inputs.build-dir }}/${{ inputs.platform-name }}"
         Compress-Archive -Path $sourcePath\* -DestinationPath $zipPath -Force
 
