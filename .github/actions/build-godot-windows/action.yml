@@ -38,7 +38,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.project-name }}-${{ inputs.platform-name }}
-        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}.zip
+        path: ${{ inputs.project-dir }}/${{ inputs.build-dir }}/${{ inputs.platform-name }}/${{ inputs.project-name }}-${{ inputs.platform-name }}.zip
 
 inputs:
   godot-version:
