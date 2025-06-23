@@ -1,0 +1,312 @@
+[gd_scene load_steps=16 format=3 uid="uid://h2i1l0u4nyv0"]
+
+[ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="1_73m1k"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Temple/temple_rect.gd" id="2_8bo5l"]
+[ext_resource type="Texture2D" uid="uid://ccuh0188gqxja" path="res://shared_assets/UI/arrow_button_h.png" id="4_85qam"]
+[ext_resource type="Texture2D" uid="uid://c8qui06t0l5t1" path="res://shared_assets/UI/buttonPRESSED.png" id="5_h5wjq"]
+[ext_resource type="Texture2D" uid="uid://c4c11arsu4nmc" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="6_fitqa"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="7_3bo5i"]
+[ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="8_t43fx"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="9_nxkbn"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="10_3m04m"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="11_ho3p6"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="12_m34f8"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_g810x"]
+texture = ExtResource("4_85qam")
+region_rect = Rect2(0, 0, 25, 50)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_avamh"]
+texture = ExtResource("4_85qam")
+region_rect = Rect2(25, 0, 25, 50)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8fbht"]
+texture = ExtResource("4_85qam")
+region_rect = Rect2(50, 0, 25, 50)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_56p2f"]
+texture = ExtResource("4_85qam")
+region_rect = Rect2(75, 0, 25, 50)
+
+[node name="TempleRect" type="NinePatchRect"]
+custom_minimum_size = Vector2(400, 0)
+offset_right = 400.0
+offset_bottom = 612.0
+texture = ExtResource("1_73m1k")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_8bo5l")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="TempleLabel" type="Label" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+theme_override_font_sizes/font_size = 24
+text = "Temple
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BorderControlTop" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 9)
+layout_mode = 2
+
+[node name="ServicesBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SpellsVBoxContainer" type="VBoxContainer" parent="VBoxContainer/ServicesBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PricesVBoxContainer" type="VBoxContainer" parent="VBoxContainer/ServicesBoxContainer"]
+layout_mode = 2
+
+[node name="CharaHBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LeftButton" type="Button" parent="VBoxContainer/CharaHBoxContainer"]
+custom_minimum_size = Vector2(25, 50)
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxTexture_g810x")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_avamh")
+theme_override_styles/normal = SubResource("StyleBoxTexture_g810x")
+
+[node name="PortraitFrameRect" type="TextureRect" parent="VBoxContainer/CharaHBoxContainer"]
+layout_mode = 2
+texture = ExtResource("5_h5wjq")
+
+[node name="PortraitRect" type="TextureRect" parent="VBoxContainer/CharaHBoxContainer/PortraitFrameRect"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -22.0
+offset_top = -22.0
+offset_right = 22.0
+offset_bottom = 22.0
+texture = ExtResource("6_fitqa")
+
+[node name="RightButton" type="Button" parent="VBoxContainer/CharaHBoxContainer"]
+custom_minimum_size = Vector2(25, 50)
+layout_mode = 2
+theme_override_styles/disabled = SubResource("StyleBoxTexture_8fbht")
+theme_override_styles/hover = SubResource("StyleBoxTexture_8fbht")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_56p2f")
+theme_override_styles/normal = SubResource("StyleBoxTexture_8fbht")
+
+[node name="CharPanel" type="NinePatchRect" parent="VBoxContainer/CharaHBoxContainer"]
+custom_minimum_size = Vector2(256, 0)
+layout_mode = 2
+texture = ExtResource("1_73m1k")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="NameLabel" type="Label" parent="VBoxContainer/CharaHBoxContainer/CharPanel"]
+custom_minimum_size = Vector2(0, 25)
+offset_left = 12.0
+offset_top = 7.0
+offset_right = 122.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+text = "Samuel Rabreau
+"
+vertical_alignment = 1
+
+[node name="ConditionsLabel" type="Label" parent="VBoxContainer/CharaHBoxContainer/CharPanel"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -27.0
+offset_right = -10.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0, 0.960784, 1, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+text = "Weak (Permanent)"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="HPLabel" type="Label" parent="VBoxContainer/CharaHBoxContainer/CharPanel"]
+custom_minimum_size = Vector2(0, 25)
+offset_left = 12.0
+offset_top = 23.0
+offset_right = 66.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+text = "999/999
+"
+vertical_alignment = 1
+
+[node name="Timer" type="Timer" parent="VBoxContainer/CharaHBoxContainer/CharPanel"]
+
+[node name="BorderControl" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 9)
+layout_mode = 2
+
+[node name="MoneyRect" type="NinePatchRect" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+texture = ExtResource("1_73m1k")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="GoldLabel" type="Label" parent="VBoxContainer/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 6.0
+offset_top = -15.0
+offset_right = 51.0
+offset_bottom = 11.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+text = "Gold :"
+
+[node name="GoldnLabel" type="Label" parent="VBoxContainer/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 50.0
+offset_top = -17.0
+offset_right = 126.0
+offset_bottom = 9.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "999999"
+
+[node name="PoolLabel" type="Label" parent="VBoxContainer/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 7.0
+offset_top = 1.0
+offset_right = 50.0
+offset_bottom = 27.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+text = "Pool :"
+
+[node name="PoolnLabel" type="Label" parent="VBoxContainer/MoneyRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 49.0
+offset_top = -1.0
+offset_right = 128.0
+offset_bottom = 25.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "999999"
+
+[node name="PoolButton" type="Button" parent="VBoxContainer/MoneyRect"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -103.0
+offset_top = -13.0
+offset_right = -55.0
+offset_bottom = 12.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+theme_override_styles/focus = ExtResource("8_t43fx")
+theme_override_styles/disabled = ExtResource("9_nxkbn")
+theme_override_styles/hover = ExtResource("10_3m04m")
+theme_override_styles/pressed = ExtResource("11_ho3p6")
+theme_override_styles/normal = ExtResource("12_m34f8")
+text = "Pool"
+
+[node name="ShareButton" type="Button" parent="VBoxContainer/MoneyRect"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -56.0
+offset_top = -13.0
+offset_right = -8.0
+offset_bottom = 12.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+theme_override_styles/focus = ExtResource("8_t43fx")
+theme_override_styles/disabled = ExtResource("9_nxkbn")
+theme_override_styles/hover = ExtResource("10_3m04m")
+theme_override_styles/pressed = ExtResource("11_ho3p6")
+theme_override_styles/normal = ExtResource("12_m34f8")
+text = "Share"
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -44.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.960784, 1, 0, 1)
+theme_override_fonts/font = ExtResource("7_3bo5i")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/focus = ExtResource("8_t43fx")
+theme_override_styles/disabled = ExtResource("9_nxkbn")
+theme_override_styles/hover = ExtResource("10_3m04m")
+theme_override_styles/pressed = ExtResource("11_ho3p6")
+theme_override_styles/normal = ExtResource("12_m34f8")
+text = "Exit"
+
+[connection signal="pressed" from="VBoxContainer/CharaHBoxContainer/LeftButton" to="." method="_on_left_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/CharaHBoxContainer/RightButton" to="." method="_on_right_button_pressed"]
+[connection signal="timeout" from="VBoxContainer/CharaHBoxContainer/CharPanel/Timer" to="." method="_on_char_status_time_out"]

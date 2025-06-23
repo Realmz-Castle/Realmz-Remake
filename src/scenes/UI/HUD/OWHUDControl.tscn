@@ -1,4 +1,4 @@
-[gd_scene load_steps=66 format=3 uid="uid://bcm4yk3e2uv7"]
+[gd_scene load_steps=68 format=3 uid="uid://bcm4yk3e2uv7"]
 
 [ext_resource type="PackedScene" uid="uid://y2mh6jttjyop" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButton.tscn" id="1"]
 [ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://1ulsncmtjfnq" path="res://scenes/UI/HUD/PictureRect/picture_rect.tscn" id="13_vmq7b"]
 [ext_resource type="Texture2D" uid="uid://b8s6y08hmh6x4" path="res://scenes/UI/HUD/Spells/TargetImages/DoNotUse.png" id="14_mlt3e"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="14_pjtj6"]
+[ext_resource type="PackedScene" uid="uid://h2i1l0u4nyv0" path="res://scenes/UI/HUD/Temple/temple_rect.tscn" id="14_rniew"]
 [ext_resource type="Texture2D" uid="uid://cf1vcjxm88o8n" path="res://shared_assets/UI/BarTextGray.png" id="14_u7mw3"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/TextRect.gd" id="15"]
 [ext_resource type="Texture2D" uid="uid://ciybmpcetgk57" path="res://shared_assets/UI/BartextRed.png" id="15_3lusa"]
@@ -38,6 +39,7 @@
 [ext_resource type="Script" path="res://scenes/UI/HUD/OWHUDControl.gd" id="30"]
 [ext_resource type="Texture2D" uid="uid://cwwjxc8qk8211" path="res://scenes/UI/HUD/Button_Minimaps.png" id="33_510ry"]
 [ext_resource type="PackedScene" uid="uid://cq2p1ikurai08" path="res://scenes/UI/HUD/Looting/treasure_control.tscn" id="33_k50bo"]
+[ext_resource type="Texture2D" uid="uid://buuu1ig0ilw75" path="res://scenes/UI/HUD/Button_Temple.png" id="35_k5nci"]
 [ext_resource type="Texture2D" uid="uid://mnyf6d7osnld" path="res://scenes/UI/HUD/Button_Settings.png" id="36"]
 [ext_resource type="PackedScene" uid="uid://b6pytyonlmi0h" path="res://scenes/UI/HUD/GlobalEffectsRect/global_effects_rect.tscn" id="38_2g7oy"]
 [ext_resource type="PackedScene" uid="uid://ckk0txf7ssl6a" path="res://scenes/UI/HUD/MoneyRect/money_rect.tscn" id="38_5dnvn"]
@@ -177,6 +179,9 @@ layout_mode = 1
 [node name="PictureRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("13_vmq7b")]
 visible = false
 layout_mode = 1
+
+[node name="TempleRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("14_rniew")]
+layout_mode = 0
 
 [node name="VBoxCharTime" type="VBoxContainer" parent="VBoxScreen/HBoxTop"]
 layout_mode = 2
@@ -543,6 +548,20 @@ theme_override_styles/pressed = ExtResource("14_pjtj6")
 theme_override_styles/normal = ExtResource("12_c6hp3")
 icon = ExtResource("55")
 
+[node name="TempleButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 180.0
+offset_top = 128.0
+offset_right = 230.0
+offset_bottom = 178.0
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/normal = ExtResource("12_c6hp3")
+disabled = true
+icon = ExtResource("35_k5nci")
+
 [node name="QSaveButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 0
@@ -765,6 +784,7 @@ popup_window = true
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/EncounterButton" to="." method="_on_EncounterButton_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/CampButton" to="." method="_on_CampButton_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/TempleButton" to="." method="_on_temple_button_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/QSaveButton" to="." method="_on_q_save_button_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/MinimapsButton" to="." method="_on_minimaps_button_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/BestiaryButton" to="." method="_on_bestiary_button_pressed"]

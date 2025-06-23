@@ -65,7 +65,8 @@ func enter(_msg : Dictionary = {} ) ->void :
 			cur_menu_name = menu_name
 		"SpecEncounter_menu" :
 			UI.ow_hud.encounterControl.disablerButton.hide()
-
+		"TempleMenu" :
+			UI.ow_hud.temple_rect.show_temple_window()
 	pass
 
 func exit() :
@@ -90,6 +91,9 @@ func exit() :
 	
 	if cur_menu_name == "MiniMapsMenu" :
 		UI.ow_hud.minimapRect.hide()
+	
+	if cur_menu_name == "TempleMenu" :
+		UI.ow_hud.temple_rect.close_temple_window()
 
 
 func _state_process(_delta : float) -> void :

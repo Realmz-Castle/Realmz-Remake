@@ -30,9 +30,11 @@ func enter(_msg : Dictionary = {}) -> void:
 		warned_empty_pool = false
 
 	GameGlobal.currentShop = ''
+	GameGlobal.currentTemple = []
 	GameGlobal.allow_money_change(false)
 	GameGlobal.allow_banking(false)
 	GameGlobal.allow_honest_storage(false)
+	GameGlobal.allow_temple(false)
 
 	
 	

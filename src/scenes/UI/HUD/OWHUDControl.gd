@@ -49,6 +49,8 @@ var selected_character = null
 @onready var moneyControl = $MoneyRect
 @onready var spellcastButton : Button = $VBoxScreen/HBoxBot/BotRightPanel/SpellButton
 @onready var abilistButton   : Button = $VBoxScreen/HBoxBot/BotRightPanel/AbiListButton
+@onready var templeButton    : Button = $VBoxScreen/HBoxBot/BotRightPanel/TempleButton
+@onready var temple_rect : TempleMenu = $VBoxScreen/HBoxTop/MapArea/TempleRect
 @onready var spellcastMenu = $SpellsRect
 @onready var abilitesmngtMenu = $VBoxScreen/HBoxTop/MapArea/AbilitiesMngtRect
 @onready var restTimer : Timer = $VBoxScreen/HBoxBot/BotRightPanel/RestButton/RestTimer
@@ -372,6 +374,9 @@ func set_party_swap_enabled(enabled : bool) :
 	party_swap_enabled = enabled
 	$VBoxScreen/HBoxBot/BotRightPanel/CharSwapButton.disabled = not enabled
 
+func set_temple_availlable(enabled : bool) :
+	templeButton.disabled = !enabled
+
 func _on_CharSwapButton_pressed():
 	print('_on_CharSwapButton_pressed')
 	if charSwapRect.visible :
@@ -526,7 +531,7 @@ func _on_SpellButton_pressed():
 
 func _on_spell_picked(character, spell, powerlevel, item : Dictionary) :
 	if typeof(spell) == TYPE_STRING :
-		print("OW HUD ERROR : spell from spells menu was a STRING not a  gdscript ! "+spell)
+		printerr("OW HUD ERROR : spell from spells menu was a STRING not a  gdscript ! "+spell)
 		return
 	StateMachine.state.on_spell_picked(character, spell, powerlevel, item)
 	#GameState.set_paused(false)
@@ -705,3 +710,11 @@ func _on_turn_order_button_toggled(toggled_on : bool) :
 func _on_minimaps_button_pressed() -> void:
 	if StateMachine._state_name == "ExWalking" :
 		StateMachine.enter_ex_menu_state(({"menu_name" : "MiniMapsMenu"}))
+
+
+func _on_temple_button_pressed() -> void:
+	if temple_rect.visible :
+		temple_rect.hide()
+		StateMachine.exit_ex_menu_state()
+	else :
+		StateMachine.enter_ex_menu_state(({"menu_name" : "TempleMenu"}))

@@ -1,0 +1,21 @@
+[gd_scene load_steps=8 format=3 uid="uid://cicy50wbh00qf"]
+
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="1_cntso"]
+[ext_resource type="StyleBox" uid="uid://jdfe7254lt8u" path="res://shared_assets/UI/button_focus_styleboxtexture.tres" id="2_nqip2"]
+[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="3_pa2l6"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_uln4r"]
+[ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_nsmm1"]
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="6_mwof2"]
+
+[sub_resource type="Shortcut" id="Shortcut_05sxb"]
+
+[node name="TempleSpellButton" type="Button"]
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("1_cntso")
+theme_override_styles/focus = ExtResource("2_nqip2")
+theme_override_styles/disabled = ExtResource("3_pa2l6")
+theme_override_styles/hover = ExtResource("4_uln4r")
+theme_override_styles/pressed = ExtResource("5_nsmm1")
+theme_override_styles/normal = ExtResource("6_mwof2")
+shortcut = SubResource("Shortcut_05sxb")
+text = "Heal Small Wounds"

@@ -167,6 +167,29 @@ static func start_battle_in_range(low : int, high : int, sfx_id : int, displayte
 	play_sound(sfx_id_name_dict[sfx_id], true)
 	GameGlobal.start_battle(battle_name, false, give_treasure==10, true, true, [] ) # all party if pc_particiating is empty
 
+
+## DIVINITY : Random Rectangle battles with no actual AP :
+static func randomrect_battle(b : Array, o : int, s : String, t : String, battle_text : String) :
+	var textRect = UI.ow_hud.textRect
+	var text : String  = ''
+	if randi_range(0,100)<= o :
+		ScriptHelperFuncsClass.play_sound(s, false)
+		text = t
+		textRect.set_text(text)
+		textRect.display_multiple_choices([text, "YESNO"],["TEXT","YESNO"])
+		var answer = await textRect.choice_pressed
+		if answer == "NO" :
+			return
+	#this is  the starting text of  all battles in b
+	text = battle_text
+	await ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
+	# b = [24, 31]
+	var rand_battle_id : int = range([b[0], b[1]+1]).pick_random()
+	GameGlobal.start_battle("Battle_"+str(rand_battle_id),false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+
+
+
 ## Divinity Code 7 : modify_ap    level=, id=, source_xap=, level_type=, result_code=
 static func add_script_branch_flag( map_id : int, type : int, source_id : int, modified_script_id : int) :
 	var flagname : String = "modify_ap_map"+str(map_id)+"_type"+str(type)+"_AP"+str(source_id)
@@ -372,3 +395,17 @@ static func CastSpellOnPickedCharacters(characters : Array, spell_name : String,
 			if spell.get("special_effect") : 
 				var is_over : bool = await spell.special_effect(character, spell, power, Vector2.ZERO, [], [target], false)
 			
+# Divinity code : Code 32: Offer Temple 
+static func enable_default_temple(price_mult) :
+	GameGlobal.currentTemple = [
+		["Heal Small Wounds", 1, roundi(100*price_mult/10)*10 ],
+		["Heal Medium Wounds", 1,roundi(140*price_mult/10)*10 ],
+		["Heal Large Wounds", 1, roundi(330*price_mult/10)*10 ],
+		["Heal Disease", 1, roundi(75*price_mult/10)*10 ],
+		["Flesh", 1,roundi(290*price_mult/10)*10 ],
+		["Heal Poison", 1, roundi(75*price_mult/10)*10 ],
+		["Heal Blindness", 1, roundi(140*price_mult/10)*10 ],
+		["Remove Items", 1,roundi(250*price_mult/10)*10 ],
+		["Revive Dead", 1, roundi(615*price_mult/10)*10 ]
+	]
+	GameGlobal.set_temple_availlable(true)

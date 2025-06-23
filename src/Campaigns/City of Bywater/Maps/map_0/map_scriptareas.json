@@ -44,6 +44,43 @@
       "chance" : 0.05
    },
    
+   "graveyard_random_battle" :{
+      "scriptRectangle" : [ [12,13] , [22,18] ],
+      "scriptToLoad" : "graveyard_random_battle",
+      "chance" : 0.3
+    },
+   
+   "enter_brothel" :{
+      "scriptRectangle" : [ [7,6] , [7,6] ],
+      "scriptToLoad" : "enter_brothel",
+    },
+   
+   "general_store" :{
+      "scriptRectangle" : [ [9,11] , [9,11] ],
+      "scriptToLoad" : "general_store",
+    },
+    
+   "sestuona_temple" :{
+      "scriptRectangle" : [ [9,11] , [9,11] ],
+      "scriptToLoad" : "sestuona_temple",
+    },
+    
+    "meet_vodalian" :{
+      "scriptRectangle" : [ [0,0] , [41,13] ],
+      "scriptToLoad" : "meet_vodalian",
+      "chance" : 0.3
+    },
+    
+   "guard_give_map_1" :{
+      "scriptRectangle" : [ [23,12] , [23,12] ],
+      "scriptToLoad" : "guard_give_map",
+    },
+    
+   "guard_give_map_2" :{
+      "scriptRectangle" : [ [22,33] , [22,33] ],
+      "scriptToLoad" : "guard_give_map",
+    },
+    
    "Fourth AP" : 
    {
       "scriptRectangle" : [ [2,17] , [2,17] ],

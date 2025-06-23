@@ -51,6 +51,7 @@ var last_exploration_map_name : String = 'Default Map'
 var pos_when_battle_started : Vector2 = Vector2.ZERO
 
 var currentShop : String = ''
+var currentTemple : Array = [] # [ [spellname, price] ]
 var currentSpecialEncounterName : String = "default.gd"
 
 var can_show_ability_list : bool = false
@@ -210,6 +211,7 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	cur_save_descrition = data_dict["save_descr"]
 	allow_character_swap(bool(data_dict["allow_char_swap"]))
 	currentShop = data_dict["curr_shop"]
+	currentTemple = data_dict["curr_temple"]
 	stuff_done = data_dict["stuff_done"]
 	map_boats_dict = data_dict["map_boats_dict"]
 	is_sailing_boat = bool(data_dict["is_sailing_boat"])
@@ -344,8 +346,12 @@ func allow_character_swap(yes : bool) :
 func allow_money_change(yes : bool) :
 	# enables the party swap button until you move
 	UI.ow_hud.set_money_change_enabled(yes)
+
 func allow_banking(yes : bool) :
 	UI.ow_hud.set_banking_availlable(yes)
+	
+func allow_temple(yes : bool) :
+	UI.ow_hud.set_temple_availlable(yes)
 
 func allow_honest_storage(yes : bool) :
 	UI.ow_hud.set_allow_honest_storage(honest_mode and yes)

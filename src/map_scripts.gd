@@ -2,7 +2,7 @@
 
 static func _on_map_load(_map) :  #Necessary even if unused, replace body with "pass" if so.
 	print("mapscript _on_map_load() !!! ")
-	if not GameGlobal.stuff_done.has("recruited_vodada") :
+	if not GameGlobal.stuff_done.has("met_vodalian") :
 		_map.add_extra_image("Vodada", "CREA_Vodalian",Vector2(13,10))
 
 
@@ -259,7 +259,7 @@ static func frost_viper_lady() : #===== XAP id=6 [XAP6]
 	answer = await textRect.choice_pressed
 	if answer == "steal" :
 		text = "\"You young whelps!  You shall rot in hell for your evil ways!\"  Having lost the dagger she shuffles away."
-		ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
+		await ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
 		#TSR3  #"Frozen Viper +2"
 		
 		var invtemplate = NodeAccess.__Resources().items_book["Frozen Viper +2"]
@@ -275,6 +275,68 @@ static func frost_viper_lady() : #===== XAP id=6 [XAP6]
 		ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
 		GameGlobal.stuff_done["met_osswell"] = 1  #honest to osswell
 		
+
+
+static func graveyard_random_battle() :  #LRR0/3, not a  real AP
+	#  from  the radom  rectangle  data
+	var t : String = "You spot a group of undead stumbling about. Do you wish to attack them?"
+	#  from  the battle data  of battles  of id in b
+	var bt : String = "The stench of death assaults you as you are attacked by zombies."
+	await ScriptHelperFuncsClass.randomrect_battle([24,31], 33, "growl 2.wav", t, bt)
+
+static func enter_brothel() :  #===== LAND AP level=0 id=16 x=7 y=6 to_level=6 to_x=8 to_y=1 [LAP0/16]
+	await ScriptHelperFuncsClass.display_text_wait_noise("You have come to the town brothel.  Perfume fills the air and covers any original odor that may come from this former boarding house.  A sign outside the building gives prices for various races and sexes.",'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise("It appears to be well-managed and doing a lot of business.  There is a steady stream of customers going in the front door and another coming out the back.",'message nod.wav')
+	# add this because AP  description has a to_level  to_x  to_y
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_6", Vector2(8,1), '')
+
+static func general_store() : #===== LAND AP level=0 id=9 x=7 y=11 [LAP0/9]
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	var text : String = "You enter a pleasant little shop that seems well stocked.  The shopkeeper smiles and asks you to look around at his fine wares.   (To enter shops, click the button labeled SHOP at the bottom right of the game screen.)"
+	textRect.set_text(text, false)
+	
+	GameGlobal.currentShop = 'shop_1'
+	GameGlobal.allow_money_change(true)
+	GameGlobal.allow_banking(true)
+
+static func sestuona_temple() :
+	# ===== XAP id=85 [XAP85]
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('heal.wav', false)
+	var text : String = "You arrive at a temple dedicated to Sestuona, goddess of nature.  You will be permitted entry only if you are willing to pay an outrageous price for the temple's services.  Your presence here is opposed by a powerful enemy within the sect."
+	textRect.set_text(text, false)
+	GameGlobal.cu
+	GameGlobal.allow_temple(true)
+
+static func meet_vodalian() : #===== XAP id=103 [XAP103]
+	#RANDOM RECTANGLE REFERENCE land_level=0 rect_num=8 start_coord=0,0 end_coord=41,13 [LRR0/8]
+	if GameGlobal.stuff_done.has("met_vodalian") :
+		return
+	GameGlobal.stuff_done["met_vodalian"] = 1
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('talk 1.wav', false)
+	await SfxPlayer.finished
+	ScriptHelperFuncsClass.play_sound('talk 2.wav', false)
+	var text : String = "You greet a passing wizard who smiles warmly at you.  You strike up a wonderful conversation and become friends.  He asks about your travels and would like to know if he may accompany you on your exploits?"
+	textRect.set_text(text, false)
+	textRect.display_multiple_choices([text, "YESNO"],["TEXT","YESNO"])
+	var answer = await textRect.choice_pressed
+	if answer == "NO" :
+		return
+	await ScriptHelperFuncsClass.display_text_wait_noise("You return to his small shack to gather his things before you set off with your new found friend.  His name is Vodalian and he states that he simply loves adventure.",'message nod.wav')
+	var vodalian : Creature = Creature.new()
+	vodalian.initialize_from_bestiary_dict(NodeAccess.__Resources().crea_book["Vodalian"])
+	GameGlobal.add_npc_ally(vodalian)
+
+static func guard_give_map() :
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	var text : String = "The town patrol waves you through as they hand you a map showing where you can buy provisions."
+	textRect.set_text(text, false)
+	GameGlobal.minimaps[0][6]=1
+
+
 
 static func GlyphScript_Two() :
 	if false  :

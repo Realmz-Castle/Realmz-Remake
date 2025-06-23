@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dyry8xaqusya6"]
+
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="1_gh3ye"]
+
+[node name="SpellPriceLabel" type="Label"]
+custom_minimum_size = Vector2(0, 25)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("1_gh3ye")
+text = "100 G"
+vertical_alignment = 1

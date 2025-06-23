@@ -1,0 +1,120 @@
+extends NinePatchRect
+class_name TempleMenu
+
+const SPELLBUTTON_TSCN : PackedScene = preload("res://scenes/UI/HUD/Temple/temple_spell_button.tscn")
+const PRICELABEL_TSCN : PackedScene = preload("res://scenes/UI/HUD/Temple/spell_price_label.tscn")
+
+@export var spells_box : Container
+@export var prices_box : Container
+@export var char_portrait: TextureRect
+@export var char_name_label : Label
+@export var char_hp_label : Label
+@export var char_status_label : Label
+@export var char_gold_label : Label
+@export var pool_gold_label : Label
+@export var char_status_timer : Timer
+
+var displayed_chara : Creature
+var chara_conditions : Array = []
+var statusesindex : int = 0
+
+var temple_caster : Creature #used for casting the spells, dummy creature
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	temple_caster = Creature.new()
+	temple_caster.stats["maxSP"] = 9999999999
+	temple_caster.stats["curSP"] = 9999999999
+	pass # Replace with function body.
+
+func show_temple_window() :
+	show()
+	display_character(GameGlobal.player_characters[0])
+
+func close_temple_window() :
+	hide()
+	char_status_timer.stop()
+
+func _display_services() :
+	for c in spells_box.get_children() :
+		spells_box.remove_child(c)
+	for c in prices_box.get_children() :
+		prices_box.remove_child(c)
+	for e in GameGlobal.currentTemple :
+		var newbutton : Button = SPELLBUTTON_TSCN.instantiate()
+		newbutton.text = e[0]
+		if displayed_chara.money[0]>= e[2] or GameGlobal.money_pool[0] >= e[2] :
+			newbutton.pressed.connect(_on_spell_button_pressed.bind(e))
+		else :
+			newbutton.disabled = true
+		spells_box.add_child(newbutton)
+		var newprice : Label = PRICELABEL_TSCN.instantiate()
+		newprice.text = str(e[2]) + ' G'
+
+func display_character(chara : Creature) :
+	displayed_chara = chara
+	char_gold_label.text = str(chara.money[0])
+	pool_gold_label.text = str(GameGlobal.money_pool[0])
+	char_name_label.text = chara.name
+	char_hp_label.text = str(chara.get_stat("curHP"))+' / '+ str(chara.get_stat("maxHP"))
+	if chara.get("portrait") :
+		char_portrait.texture = chara.portrait
+	else :
+		char_portrait.texture = chara.textureL
+	chara_conditions.clear()
+	statusesindex = 0
+	for t in chara.traits :
+		chara_conditions.append(t.get_info_as_text())
+	_on_char_status_time_out()
+	char_status_timer.start()
+	_display_services()
+
+func _on_spell_button_pressed(namepowercost : Array) :
+	temple_caster.stats["curSP"] = 9999999999
+	var spell = NodeAccess.__Resources().spells_book[namepowercost[0]]
+	SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
+	SfxPlayer.play()
+	if spell.get("proj_hit") :
+		UI.ow_hud.show_spell_effect_on_char_menu( displayed_chara, spell.proj_hit)
+	await GameGlobal.do_spell_field_effect(temple_caster, displayed_chara, spell, namepowercost[1])
+	if spell.get("special_effect") : 
+		print("TEMPLE FIELD SPECIAL EFFECT")
+		var is_over : bool = await spell.special_effect(temple_caster, spell, namepowercost[1], Vector2.ZERO, [], [displayed_chara], false)
+	display_character(displayed_chara)
+	UI.ow_hud.updateCharPanelDisplay()
+
+func _on_char_status_time_out() :
+	if chara_conditions.is_empty() :
+		char_status_label.text = ''
+		statusesindex = 0
+	else :
+		statusesindex += 1
+		statusesindex = statusesindex % chara_conditions.size()
+		char_status_label.text = chara_conditions[statusesindex]
+
+
+func _on_left_button_pressed() -> void:
+	var pcid : int = GameGlobal.player_characters.find(displayed_chara)-1
+	var teamsize : int = GameGlobal.player_characters.size()
+	#find the magic user before picked_character
+	var prevchar : Creature = GameGlobal.player_characters[(pcid)%teamsize]
+	if prevchar == displayed_chara :
+		return
+	else :
+		display_character(prevchar)
+
+
+func _on_right_button_pressed() -> void:
+	var pcid : int = GameGlobal.player_characters.find(displayed_chara)+1
+	var teamsize : int = GameGlobal.player_characters.size()
+	#find the magic user before picked_character
+	var nextchar = GameGlobal.player_characters[(pcid)%teamsize]
+	if nextchar == displayed_chara :
+		return
+	else :
+		display_character(nextchar)
+
+
+func _on_timer_timeout() -> void:
+	pass # Replace with function body.
