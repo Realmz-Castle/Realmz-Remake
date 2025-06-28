@@ -244,6 +244,10 @@
         {
          "firstgid":241,
          "source":"Overlay.json"
+        }, 
+        {
+         "firstgid":481,
+         "source":"ForestNight.json"
         }],
  "tilewidth":32,
  "type":"map",

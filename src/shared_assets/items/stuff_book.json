@@ -32,7 +32,7 @@
 	"img_ptr": "ITEM_Gauntlets_8",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -44,16 +44,16 @@
   },
   "Sorcerer Scroll Case": {
 	"name": "Sorcerer Scroll Case",
-	"unidentified_name": "Scroll Case",
+	"unidentified_name": "ScrollCase",
 	"is_magical": 1,
 	"description": "A magical wrapping that can store up to five scrolls.",
 	"weight": 12,
 	"price": 1200,
-	"type": "Scroll Case",
+	"type": "ScrollCase",
 	"img_ptr": "ITEM_Scroll",
 	"sound": "special stats scroll.wav",
 	"slots": [
-	  "scroll case"
+	  "ScrollCase"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -95,7 +95,7 @@
   },
   "Gloves of The Huntsman +4": {
 	"name": "Gloves of The Huntsman +4",
-	"unidentified_name": "Gloves",
+	"unidentified_name": "Hands",
 	"is_magical": 1,
 	"description": "Favored by the archer, these gloves will do good for no other.",
 	"weight": 23,
@@ -104,7 +104,7 @@
 	"img_ptr": "ITEM_Gloves_of_the_Huntsman",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -284,7 +284,7 @@
 	"img_ptr": "ITEM_Unholy_Visor",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "mask"
+	  "Mask"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -308,7 +308,7 @@
 	"img_ptr": "ITEM_Gauntlets_8",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -476,7 +476,7 @@
 	"img_ptr": "ITEM_Plate_of_Imprisonment",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -489,7 +489,7 @@
   },
   "Gloves of Regeneration +1": {
 	"name": "Gloves of Regeneration +1",
-	"unidentified_name": "Gloves",
+	"unidentified_name": "Hands",
 	"is_magical": 1,
 	"description": "Useable by any caste, these gloves are considerd the most powerful of their kind.",
 	"weight": 6,
@@ -498,7 +498,7 @@
 	"img_ptr": "ITEM_Cloak_Of_Regeneration",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -601,7 +601,7 @@
 	"img_ptr": "ITEM_Emerald_Heirloom",
 	"sound": "special stats scroll.wav",
 	"slots": [
-	  "broach"
+	  "Broach"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -626,7 +626,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -783,7 +783,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -864,7 +864,7 @@
 	"img_ptr": "ITEM_Cloak_of_Fog",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -894,7 +894,7 @@
   },
   "Gloves of Wizardry +2": {
 	"name": "Gloves of Wizardry +2",
-	"unidentified_name": "Gloves",
+	"unidentified_name": "Hands",
 	"is_magical": 1,
 	"description": "Only sorcerers and enchanters may wear these fine gloves, all else should keep their distance.",
 	"weight": 7,
@@ -903,7 +903,7 @@
 	"img_ptr": "ITEM_Gloves_of_the_Huntsman",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -925,7 +925,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1016,7 +1016,7 @@
 	"img_ptr": "ITEM_Cap_of_Regeneration",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1032,7 +1032,7 @@
   },
   "Leather Boots": {
 	"name": "Leather Boots",
-	"unidentified_name": "Boots",
+	"unidentified_name": "Feet",
 	"is_magical": 0,
 	"description": "Comfortable boots made of soft leather, they offer some protection from the elements.",
 	"weight": 40,
@@ -1041,7 +1041,7 @@
 	"img_ptr": "ITEM_Leather_Boots",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "boots"
+	  "Feet"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1087,7 +1087,7 @@
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -1172,7 +1172,7 @@
 	"img_ptr": "ITEM_Arrow_storm",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1384,7 +1384,7 @@
 	"img_ptr": "ITEM_Gauntlets_of_Damage",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1448,16 +1448,16 @@
   },
   "Quiver of Magic Resistance": {
 	"name": "Quiver of Magic Resistance",
-	"unidentified_name": "Quiver",
+	"unidentified_name": "Ammunition",
 	"is_magical": 1,
 	"description": "A valuble item for those that will want to do battle with magic.",
 	"weight": 90,
 	"price": 1000,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1613,7 +1613,7 @@
 	"img_ptr": "ITEM_Double_Dagger",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -1639,7 +1639,7 @@
 	"img_ptr": "ITEM_Trinity_Boomerang",
 	"sound": "hit effect 1.wav",
 	"slots": [
-	  "broach"
+	  "Broach"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1665,7 +1665,7 @@
 	"img_ptr": "ITEM_Necklace_of_Lightning",
 	"sound": "lighning.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1761,16 +1761,16 @@
   },
   "Quiver of Luck": {
 	"name": "Quiver of Luck",
-	"unidentified_name": "Quiver",
+	"unidentified_name": "Ammunition",
 	"is_magical": 1,
 	"description": "A favorite of the gambler, this item comes in handy in both brothels and battles.",
 	"weight": 95,
 	"price": 750,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1794,7 +1794,7 @@
 	"img_ptr": "ITEM_Trinity_Boomerang",
 	"sound": "attack hit.wav",
 	"slots": [
-	  "broach"
+	  "Broach"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1819,7 +1819,7 @@
 	"img_ptr": "ITEM_Gloves_of_the_Huntsman",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -1892,7 +1892,7 @@
 	"img_ptr": "ITEM_Shadow_Cloak",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2025,7 +2025,7 @@
 	"img_ptr": "ITEM_Cap_of_Protection",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2050,7 +2050,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2072,7 +2072,7 @@
 	"img_ptr": "ITEM_Leaf_of_Apollo",
 	"sound": "spell launch 5.wav",
 	"slots": [
-	  "broach"
+	  "Broach"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2285,7 +2285,7 @@
   },
   "Boots of Balance": {
 	"name": "Boots of Balance",
-	"unidentified_name": "Boots",
+	"unidentified_name": "Feet",
 	"is_magical": 1,
 	"description": "These boots will allow the wearer to perform acrobatic acts previously not possible.",
 	"weight": 20,
@@ -2294,7 +2294,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "boots"
+	  "Feet"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2321,7 +2321,7 @@
 	"img_ptr": "ITEM_Chain_Armor_3",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2359,7 +2359,7 @@
   },
   "Boots of Quick Step": {
 	"name": "Boots of Quick Step",
-	"unidentified_name": "Boots",
+	"unidentified_name": "Feet",
 	"is_magical": 1,
 	"description": "These boots not only  make the foot feel fleet, but make you fleet of foot.",
 	"weight": 12,
@@ -2368,7 +2368,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "boots"
+	  "Feet"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2555,7 +2555,7 @@
 	"img_ptr": "ITEM_Cap_of_the_Magi",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2659,7 +2659,7 @@
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -2742,7 +2742,7 @@
 	"img_ptr": "ITEM_Plate_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2930,7 +2930,7 @@
 	"img_ptr": "ITEM_Cloak_Of_Protection_6",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2952,7 +2952,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -2979,7 +2979,7 @@
 	"img_ptr": "ITEM_Cap_of_the_Magi",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3055,7 +3055,7 @@
 	"img_ptr": "ITEM_Gauntlets_of_Damage",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3170,7 +3170,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3265,7 +3265,7 @@
 	"img_ptr": "ITEM_Throwing_Daggers",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3292,7 +3292,7 @@
 	"img_ptr": "ITEM_Bow_of_shalomar",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -3319,7 +3319,7 @@
 	"img_ptr": "ITEM_Bag_of_Rocks",
 	"sound": "smack.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -3460,7 +3460,7 @@
 	"img_ptr": "ITEM_Mithril_Plate_6",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3508,7 +3508,7 @@
 	"img_ptr": "ITEM_Gauntlets_of_Damage",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3562,7 +3562,7 @@
 	"img_ptr": "ITEM_Cloak_Of_Light",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3714,11 +3714,11 @@
 	"description": "Sturdy shafts that fly straight and true.",
 	"weight": 75,
 	"price": 12,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3871,7 +3871,7 @@
 	"img_ptr": "ITEM_Leather_cap",
 	"sound": "force field.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -3944,7 +3944,7 @@
 	"img_ptr": "ITEM_Iron_cap",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4047,7 +4047,7 @@
 	"img_ptr": "ITEM_Throwing_stars",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4074,7 +4074,7 @@
 	"img_ptr": "ITEM_Throwing_stars",
 	"sound": "pummel.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4122,7 +4122,7 @@
 	"img_ptr": "ITEM_Robe_Of_Enchanters",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4144,7 +4144,7 @@
 	"img_ptr": "ITEM_Throwing_Daggers",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4472,16 +4472,16 @@
   },
   "Quiver of Confusion": {
 	"name": "Quiver of Confusion",
-	"unidentified_name": "Quiver",
+	"unidentified_name": "Ammunition",
 	"is_magical": 1,
 	"description": "Loved by the slippery type.  This quiver is favored by the fleet of foot as well as the lethargic.",
 	"weight": 95,
 	"price": 200,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4568,7 +4568,7 @@
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -4623,7 +4623,7 @@
 	"img_ptr": "ITEM_Net",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -4705,7 +4705,7 @@
 	"img_ptr": "ITEM_Gauntlets_of_Damage",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4742,7 +4742,7 @@
   },
   "Gloves of Thievery +2": {
 	"name": "Gloves of Thievery +2",
-	"unidentified_name": "Gloves",
+	"unidentified_name": "Hands",
 	"is_magical": 1,
 	"description": "These finely made gloves enhance a rogue's abilities.",
 	"weight": 17,
@@ -4751,7 +4751,7 @@
 	"img_ptr": "ITEM_Gloves_of_the_Huntsman",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4892,7 +4892,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -4919,7 +4919,7 @@
 	"img_ptr": "ITEM_Plate_Armor_of_Scorland",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -4948,7 +4948,7 @@
 	"img_ptr": "ITEM_Leather_Gloves",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5161,7 +5161,7 @@
 	"img_ptr": "ITEM_Shadow_Cloak",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5183,7 +5183,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5205,7 +5205,7 @@
 	"img_ptr": "ITEM_Unholy_Visor",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "mask"
+	  "Mask"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5263,7 +5263,7 @@
 	"img_ptr": "ITEM_Belt_of_Brawn",
 	"sound": "bombom.wav",
 	"slots": [
-	  "belt"
+	  "Belt"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5283,7 +5283,7 @@
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -5305,7 +5305,7 @@
 	"img_ptr": "ITEM_Throwing_stars",
 	"sound": "pummel.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5331,7 +5331,7 @@
 	"img_ptr": "ITEM_Throwing_stars",
 	"sound": "pummel.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5381,7 +5381,7 @@
 	"img_ptr": "ITEM_Throwing_stars",
 	"sound": "pummel.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5441,7 +5441,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "broach"
+	  "Broach"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -5490,7 +5490,7 @@
 	"img_ptr": "ITEM_Shuriken",
 	"sound": "join.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5552,7 +5552,7 @@
 	"img_ptr": "ITEM_Holy_Hand_Grenade",
 	"sound": "big explode.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5715,7 +5715,7 @@
 	"img_ptr": "ITEM_Throwing_Daggers",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -5882,7 +5882,7 @@
 	"img_ptr": "ITEM_Plate_Armor_of_Magicks",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6162,7 +6162,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6191,7 +6191,7 @@
 	"img_ptr": "ITEM_Jesters_Prey",
 	"sound": "item.wav",
 	"slots": [
-	  "mask"
+	  "Mask"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6284,7 +6284,7 @@
 	"img_ptr": "ITEM_Shadow_Mask",
 	"sound": "item.wav",
 	"slots": [
-	  "mask"
+	  "Mask"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6363,7 +6363,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6387,7 +6387,7 @@
 	"img_ptr": "ITEM_Cloak_of_Fog",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6552,16 +6552,16 @@
   },
   "Quiver of Speed": {
 	"name": "Quiver of Speed",
-	"unidentified_name": "Quiver",
+	"unidentified_name": "Ammunition",
 	"is_magical": 1,
 	"description": "Loved by the slippery type.  This quiver is favored by the fleet of foot as well as the lethargic.",
 	"weight": 100,
 	"price": 800,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6606,7 +6606,7 @@
 	"img_ptr": "ITEM_Gauntlets_8",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6774,7 +6774,7 @@
 	"img_ptr": "ITEM_Gauntlets_8",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6786,7 +6786,7 @@
   },
   "Combat Boots +2": {
 	"name": "Combat Boots +2",
-	"unidentified_name": "Boots",
+	"unidentified_name": "Feet",
 	"is_magical": 1,
 	"description": "These magical boots increase the wearer's ability to inflict damage on an opponent during combat.",
 	"weight": 60,
@@ -6795,7 +6795,7 @@
 	"img_ptr": "ITEM_Leather_Boots",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "boots"
+	  "Feet"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6819,7 +6819,7 @@
 	"img_ptr": "ITEM_Leather_cap",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6893,7 +6893,7 @@
 	"img_ptr": "ITEM_Cloak_of_Fog",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6944,7 +6944,7 @@
 	"img_ptr": "ITEM_Cloak_Of_Light",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -6976,16 +6976,16 @@
   },
   "Quiver of Strength": {
 	"name": "Quiver of Strength",
-	"unidentified_name": "Quiver",
+	"unidentified_name": "Ammunition",
 	"is_magical": 1,
 	"description": "This magical device makes everything seem lighter.",
 	"weight": 95,
 	"price": 850,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7032,7 +7032,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7054,7 +7054,7 @@
 	"img_ptr": "ITEM_Eye_of_Peace",
 	"sound": "poinkeroo.wav",
 	"slots": [
-	  "mask"
+	  "Mask"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7125,7 +7125,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7184,7 +7184,7 @@
 	"img_ptr": "ITEM_Plate_Gauntlets",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7205,7 +7205,7 @@
 	"img_ptr": "ITEM_Leather_Armor",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7310,7 +7310,7 @@
 	"img_ptr": "ITEM_Perrins_eye",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -7384,7 +7384,7 @@
 	"img_ptr": "ITEM_Robe_Of_The_Magi",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7567,7 +7567,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7591,7 +7591,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7612,7 +7612,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -7633,7 +7633,7 @@
 	"img_ptr": "ITEM_Throwing_stars_1",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -7880,7 +7880,7 @@
 	"img_ptr": "ITEM_Padded_Armor",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8097,7 +8097,7 @@
 	"img_ptr": "ITEM_Cap_of_the_Magi",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8121,7 +8121,7 @@
 	"img_ptr": "ITEM_Robe",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8168,7 +8168,7 @@
 	"img_ptr": "ITEM_Gauntlets_of_Damage",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8245,7 +8245,7 @@
 	"img_ptr": "ITEM_Belt_of_Deflection",
 	"sound": "hit bumper.wav",
 	"slots": [
-	  "belt"
+	  "Belt"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8288,7 +8288,7 @@
   },
   "Gloves of Trickery -15": {
 	"name": "Gloves of Trickery -15",
-	"unidentified_name": "Gloves",
+	"unidentified_name": "Hands",
 	"is_magical": 1,
 	"description": "These finely made gloves enhance a rogue's abilities.",
 	"weight": 16,
@@ -8297,7 +8297,7 @@
 	"img_ptr": "ITEM_Gloves_of_Trickery",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8321,7 +8321,7 @@
 	"img_ptr": "ITEM_Chain_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8342,7 +8342,7 @@
 	"img_ptr": "ITEM_Throwing_axe",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8441,7 +8441,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8468,7 +8468,7 @@
 	"img_ptr": "ITEM_Gauntlets_of_Damage",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8547,7 +8547,7 @@
 	"img_ptr": "ITEM_Chain_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8559,7 +8559,7 @@
   },
   "Steel Shod Boots": {
 	"name": "Steel Shod Boots",
-	"unidentified_name": "Boots",
+	"unidentified_name": "Feet",
 	"is_magical": 0,
 	"description": "Heavy but they offer good protection.",
 	"weight": 65,
@@ -8568,7 +8568,7 @@
 	"img_ptr": "ITEM_Steel_Shod_Boots",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "boots"
+	  "Feet"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -8616,7 +8616,7 @@
 	"img_ptr": "ITEM_Throwing_stars",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -8817,7 +8817,7 @@
 	"img_ptr": "ITEM_Crossbow",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -9032,7 +9032,7 @@
 	"img_ptr": "ITEM_Throwing_Knife",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9062,7 +9062,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_5",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9089,7 +9089,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9319,7 +9319,7 @@
 	"img_ptr": "ITEM_Robe_of_Protection",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9343,7 +9343,7 @@
 	"img_ptr": "ITEM_Chain_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9364,7 +9364,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9424,7 +9424,7 @@
 	"img_ptr": "ITEM_Plate_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9445,7 +9445,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -9472,7 +9472,7 @@
 	"img_ptr": "ITEM_Plate_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9688,7 +9688,7 @@
 	"img_ptr": "ITEM_Razor_Claws",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9741,7 +9741,7 @@
 	"img_ptr": "ITEM_Emerald_Alloy_Shield",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9955,7 +9955,7 @@
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -9977,7 +9977,7 @@
 	"img_ptr": "ITEM_Cloak_Of_Regeneration",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10286,7 +10286,7 @@
 	"img_ptr": "ITEM_Bag_of_Rocks",
 	"sound": "smack.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10336,7 +10336,7 @@
 	"img_ptr": "ITEM_Banded_Armor_6",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10361,7 +10361,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10454,7 +10454,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10508,7 +10508,7 @@
 	"img_ptr": "ITEM_Chain_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10582,7 +10582,7 @@
 	"img_ptr": "ITEM_Firestorm",
 	"sound": "bow.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10609,7 +10609,7 @@
 	"img_ptr": "ITEM_Banded_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10621,16 +10621,16 @@
   },
   "Quiver of Protection +2": {
 	"name": "Quiver of Protection +2",
-	"unidentified_name": "Quiver",
+	"unidentified_name": "Ammunition",
 	"is_magical": 1,
 	"description": "Many warriors with a disdain for the bow will wear an item such as this merely for its magical benefits.",
 	"weight": 70,
 	"price": 750,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10652,7 +10652,7 @@
 	"img_ptr": "ITEM_Robe_Of_Vulnerability",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10674,7 +10674,7 @@
 	"img_ptr": "ITEM_Leather_Gloves",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10695,7 +10695,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "special stats scroll.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10721,7 +10721,7 @@
 	"img_ptr": "ITEM_Chain_Armor_3",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10746,7 +10746,7 @@
 	"img_ptr": "ITEM_Throwing_axe",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -10759,7 +10759,7 @@
   },
   "Boots of Stealth": {
 	"name": "Boots of Stealth",
-	"unidentified_name": "Boots",
+	"unidentified_name": "Feet",
 	"is_magical": 1,
 	"description": "Only the dreaded hill panther will make less noise than the wearer of these enchanted boots.",
 	"weight": 40,
@@ -10768,7 +10768,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "boots"
+	  "Feet"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10790,7 +10790,7 @@
 	"img_ptr": "ITEM_Cloak_Of_Outcasts",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10812,7 +10812,7 @@
 	"img_ptr": "ITEM_Banded_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10851,16 +10851,16 @@
   },
   "Enchanter Scroll Case": {
 	"name": "Enchanter Scroll Case",
-	"unidentified_name": "Scroll Case",
+	"unidentified_name": "ScrollCase",
 	"is_magical": 1,
 	"description": "A magical wrapping that can store up to five scrolls.",
 	"weight": 12,
 	"price": 1200,
-	"type": "Scroll Case",
+	"type": "ScrollCase",
 	"img_ptr": "ITEM_Scroll",
 	"sound": "special stats scroll.wav",
 	"slots": [
-	  "scroll case"
+	  "ScrollCase"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10920,7 +10920,7 @@
 	"img_ptr": "ITEM_Snowstorm",
 	"sound": "bow.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10947,7 +10947,7 @@
 	"img_ptr": "ITEM_Robe",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10968,7 +10968,7 @@
 	"img_ptr": "ITEM_Shadow_Mask",
 	"sound": "wind.wav",
 	"slots": [
-	  "mask"
+	  "Mask"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -10990,7 +10990,7 @@
 	"img_ptr": "ITEM_Robe",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11143,7 +11143,7 @@
 	"img_ptr": "ITEM_Darts",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11170,7 +11170,7 @@
 	"img_ptr": "ITEM_Banded_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11220,7 +11220,7 @@
 	"img_ptr": "ITEM_Necklace_of_Many_Favors",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11365,7 +11365,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11466,16 +11466,16 @@
   },
   "Priest Scroll Case": {
 	"name": "Priest Scroll Case",
-	"unidentified_name": "Scroll Case",
+	"unidentified_name": "ScrollCase",
 	"is_magical": 1,
 	"description": "A magical wrapping that can store up to five scrolls.",
 	"weight": 12,
 	"price": 1200,
-	"type": "Scroll Case",
+	"type": "ScrollCase",
 	"img_ptr": "ITEM_Scroll",
 	"sound": "special stats scroll.wav",
 	"slots": [
-	  "scroll case"
+	  "ScrollCase"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11645,7 +11645,7 @@
 	"img_ptr": "ITEM_Mithril_Plate_6",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11667,7 +11667,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11688,7 +11688,7 @@
 	"img_ptr": "ITEM_Throwing_axe",
 	"sound": "metal hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -11714,7 +11714,7 @@
 	"img_ptr": "ITEM_Plate_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11920,7 +11920,7 @@
 	"img_ptr": "ITEM_Robe_of_Speed",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -11980,7 +11980,7 @@
 	"img_ptr": "ITEM_Bow_of_thumbs",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -12091,7 +12091,7 @@
 	"img_ptr": "ITEM_Plate_Armor_of_Magicks",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12146,7 +12146,7 @@
 	"img_ptr": "ITEM_Arrow_storm",
 	"sound": "spell launch 3.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12236,7 +12236,7 @@
 	"img_ptr": "ITEM_Shadow_Cloak",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12257,7 +12257,7 @@
 	"img_ptr": "ITEM_Bow_of_thumbs",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -12309,7 +12309,7 @@
 	"img_ptr": "ITEM_Combat_Mask",
 	"sound": "ressurect death.wav",
 	"slots": [
-	  "mask"
+	  "Mask"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12361,7 +12361,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12442,7 +12442,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12469,7 +12469,7 @@
 	"img_ptr": "ITEM_Sling_of_bullets",
 	"sound": "spell launch 7.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 1,
 	"equippable": 1,
@@ -12525,7 +12525,7 @@
 	"img_ptr": "ITEM_Leather_Armor",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12546,7 +12546,7 @@
 	"img_ptr": "ITEM_Leather_Armor",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12567,7 +12567,7 @@
 	"img_ptr": "ITEM_Leather_Armor",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12588,7 +12588,7 @@
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12724,16 +12724,16 @@
   },
   "Quiver of Tchart": {
 	"name": "Quiver of Tchart",
-	"unidentified_name": "Quiver",
+	"unidentified_name": "Ammunition",
 	"is_magical": 1,
 	"description": "A somewhat useful item for those that know of its use.",
 	"weight": 75,
 	"price": 2250,
-	"type": "Quiver",
+	"type": "Ammunition",
 	"img_ptr": "ITEM_Quiver_of_Tchart",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "quiver"
+	  "Ammunition"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12843,7 +12843,7 @@
 	"img_ptr": "ITEM_Crossbow",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -12865,7 +12865,7 @@
 	"img_ptr": "ITEM_Gauntlets_8",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12920,7 +12920,7 @@
 	"img_ptr": "ITEM_Serpents_Head",
 	"sound": "punch kick.wav",
 	"slots": [
-	  "broach"
+	  "Broach"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -12945,7 +12945,7 @@
 	"img_ptr": "ITEM_Crossbow_2",
 	"sound": "bow.wav",
 	"slots": [
-	  "missile weapon"
+	  "Ranged Weapon"
 	],
 	"hands": 2,
 	"equippable": 1,
@@ -13015,7 +13015,7 @@
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "helmet"
+	  "Head"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13068,7 +13068,7 @@
 	"img_ptr": "ITEM_Padded_Armor",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13089,7 +13089,7 @@
 	"img_ptr": "ITEM_Razor_Claws",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13229,7 +13229,7 @@
 	"img_ptr": "ITEM_Gauntlets_8",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13538,7 +13538,7 @@
 	"img_ptr": "ITEM_Mithril_Chain",
 	"sound": "metal armor.wav",
 	"slots": [
-	  "armor"
+	  "Body"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13563,7 +13563,7 @@
 	"img_ptr": "ITEM_Leather_Gloves",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "gloves"
+	  "Hands"
 	],
 	"hands": 0,
 	"equippable": 1,
@@ -13584,7 +13584,7 @@
 	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
 	"sound": "cloth armor.wav",
 	"slots": [
-	  "cloak"
+	  "Cloak"
 	],
 	"hands": 0,
 	"equippable": 1,

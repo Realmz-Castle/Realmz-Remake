@@ -127,6 +127,7 @@ axis_stretch_vertical = 1
 
 [node name="NameLabel" type="Label" parent="VBoxContainer/CharaHBoxContainer/CharPanel"]
 custom_minimum_size = Vector2(0, 25)
+layout_mode = 0
 offset_left = 12.0
 offset_top = 7.0
 offset_right = 122.0
@@ -158,6 +159,7 @@ vertical_alignment = 1
 
 [node name="HPLabel" type="Label" parent="VBoxContainer/CharaHBoxContainer/CharPanel"]
 custom_minimum_size = Vector2(0, 25)
+layout_mode = 0
 offset_left = 12.0
 offset_top = 23.0
 offset_right = 66.0
@@ -310,3 +312,5 @@ text = "Exit"
 [connection signal="pressed" from="VBoxContainer/CharaHBoxContainer/LeftButton" to="." method="_on_left_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/CharaHBoxContainer/RightButton" to="." method="_on_right_button_pressed"]
 [connection signal="timeout" from="VBoxContainer/CharaHBoxContainer/CharPanel/Timer" to="." method="_on_char_status_time_out"]
+[connection signal="pressed" from="VBoxContainer/MoneyRect/PoolButton" to="." method="_on_pool_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/MoneyRect/ShareButton" to="." method="_on_share_button_pressed"]

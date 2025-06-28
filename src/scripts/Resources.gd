@@ -259,9 +259,17 @@ func load_bestiary_resources( path : String ) -> void:
 	n_crea_stuff_book = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path +"stuff_book.json"))
 	#load creature data
 	for crea_name in n_crea_stuff_book :
-		var new_crea_data = { "stats" : crea_template.stats.duplicate() , "tools" : {} }
-		var ncreastatmods = n_crea_stuff_book[crea_name]["stats"]
+		var new_crea_data : Dictionary = { "stats" : crea_template.stats.duplicate() , "tools" : {} }
+		var ncreastatmods : Dictionary = n_crea_stuff_book[crea_name]["stats"]
+		
+		if ncreastatmods.has("traits") :
+			n_crea_stuff_book[crea_name]["traits"] = ncreastatmods["traits"]
+			ncreastatmods.erase("traits")
+		
 		for s in ncreastatmods :
+			#printerr("Resources load _bestiary l268 : "+crea_name+"ncreastatmods :\n", ncreastatmods)
+			#assert( s!="traits")
+			
 			new_crea_data["stats"][s] = ncreastatmods[s]
 		if n_crea_stuff_book[crea_name].has("traits") :
 			#print("RESOURCELOADER n_crea_stuff_book[crea_name][traits] : "+crea_name+" : ", n_crea_stuff_book[crea_name]["traits"])
@@ -278,6 +286,9 @@ func load_bestiary_resources( path : String ) -> void:
 	#add to crea book
 	for crea_name in n_crea_stuff_book :
 		crea_book[crea_name] = n_crea_stuff_book[crea_name]
+	#if n_crea_stuff_book.has("Vodalian") :
+		#printerr("Resources load _bestiary l285 : n_crea_stuff_book['Vodalian'] :\n", n_crea_stuff_book["Vodalian"])
+		#pass
 
 func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 	# sets  item's sound image etc from its dict data
@@ -519,7 +530,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 				new_item[traitname] = [newscript,traitinit]#new_trait_script
 
 	if json_dict.has("melee_inflicted_traits") :
-		#print("RESOURCES : item "+new_item["name"]+"has melee_inflicted_traits")
+		#printerr("RESOURCES : item "+new_item["name"]+"has melee_inflicted_traits : ", json_dict["melee_inflicted_traits"])
 		new_item["melee_inflicted_traits"] = json_dict["melee_inflicted_traits"]
 		for traitarray in json_dict["melee_inflicted_traits"] :
 			print("item traitarray ",traitarray)
@@ -849,6 +860,7 @@ func load_creature_ai_resources(path : String) :
 			else :
 				newcreascript = GDScript.new()
 				var _err = newcreascript.load(path+sn)
+			creascripts_book[sn] = newcreascript
 
 
 

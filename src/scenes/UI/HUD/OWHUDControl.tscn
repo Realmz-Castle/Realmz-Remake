@@ -181,6 +181,7 @@ visible = false
 layout_mode = 1
 
 [node name="TempleRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("14_rniew")]
+visible = false
 layout_mode = 0
 
 [node name="VBoxCharTime" type="VBoxContainer" parent="VBoxScreen/HBoxTop"]

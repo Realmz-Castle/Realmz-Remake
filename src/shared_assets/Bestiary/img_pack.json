@@ -675,8 +675,8 @@
    },
    "CREA_humanmage" :
    {
-      "0_ref_x" : 0,
-      "0_ref_y" : 14,
+      "0_ref_x" : 4,
+      "0_ref_y" : 27,
       "size" : "32x32"
    },
    "CREA_dwarfwarrior" :

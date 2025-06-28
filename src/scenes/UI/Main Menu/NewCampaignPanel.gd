@@ -56,6 +56,7 @@ func _on_StartButton_pressed() -> void :
 		"light_power" = 0,
 		"camping" = 0,
 		"allow_char_swap" = 0,
+		"curr_temple" = [],
 		"curr_shop" = '',
 		"stuff_done" = {},
 		"map_boats_dict" = {},

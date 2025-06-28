@@ -44,7 +44,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					10,
@@ -116,7 +116,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -124,7 +124,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -184,7 +184,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {
 						"Physical": [
@@ -198,7 +198,7 @@
 					}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {
 						"Physical": [
@@ -264,7 +264,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {
 						"Physical": [
@@ -278,7 +278,7 @@
 					}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {
 						"Physical": [
@@ -435,7 +435,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -443,7 +443,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -501,7 +501,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -556,7 +556,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -564,7 +564,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -572,7 +572,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -630,7 +630,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					4,
@@ -692,7 +692,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "slime_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -763,7 +763,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -821,7 +821,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -829,7 +829,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -899,7 +899,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -1022,7 +1022,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -1076,7 +1076,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -1135,7 +1135,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -1143,7 +1143,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -1336,7 +1336,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -1344,7 +1344,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -1352,7 +1352,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -1408,7 +1408,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -1416,7 +1416,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -1424,7 +1424,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -1545,7 +1545,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "no_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -1604,7 +1604,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -1612,7 +1612,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -1745,7 +1745,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -1820,7 +1820,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -1879,7 +1879,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -1887,7 +1887,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -1943,7 +1943,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -1951,7 +1951,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2040,7 +2040,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -2048,7 +2048,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -2160,7 +2160,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -2219,7 +2219,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {
 						"Physical": [
@@ -2233,7 +2233,7 @@
 					}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {
 						"Physical": [
@@ -2297,7 +2297,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					6,
@@ -2351,7 +2351,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "slime_attack_sound",
 				"weapon_dmg": {
 					"Physical": [
@@ -2419,7 +2419,7 @@
 			]],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -2478,7 +2478,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2486,7 +2486,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2494,7 +2494,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2502,7 +2502,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2510,7 +2510,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2566,7 +2566,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2574,7 +2574,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2582,7 +2582,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2590,7 +2590,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2598,7 +2598,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2710,7 +2710,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "slime_attack_sound",
 				"weapon_dmg": {
 					"Physical": [
@@ -2902,7 +2902,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -2910,7 +2910,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -2966,7 +2966,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2974,7 +2974,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -2982,7 +2982,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -3050,7 +3050,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -3119,7 +3119,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -3127,7 +3127,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -3310,7 +3310,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					6,
@@ -3486,7 +3486,7 @@
 			]],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -3601,7 +3601,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -3609,7 +3609,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -3617,7 +3617,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -3760,7 +3760,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "slime_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -3875,7 +3875,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -3911,7 +3911,7 @@
 			"Dexterity": 15,
 			"ResistanceElect": 0.5,
 			"traits": [[
-				"p_spell_lvl_prot.gd",
+				"Pro' First Level",
 				-1
 			]],
 			"EvasionMagic": 15,
@@ -3991,7 +3991,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -4070,7 +4070,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -4127,7 +4127,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					6,
@@ -4181,7 +4181,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -4259,7 +4259,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -4337,7 +4337,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -4409,7 +4409,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "no_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -4417,7 +4417,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "no_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -4493,7 +4493,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -4710,7 +4710,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -4793,7 +4793,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -4801,7 +4801,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -4837,7 +4837,7 @@
 			"Dexterity": 16,
 			"ResistanceElect": 0.45,
 			"traits": [[
-				"p_spell_lvl_prot.gd",
+				"Pro' First Level",
 				-1
 			]],
 			"EvasionMagic": 8,
@@ -4921,7 +4921,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -5059,7 +5059,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5067,7 +5067,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5075,7 +5075,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5151,7 +5151,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -5257,7 +5257,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5265,7 +5265,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5273,7 +5273,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -5341,7 +5341,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -5500,7 +5500,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -5508,7 +5508,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -5516,7 +5516,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -5572,7 +5572,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5580,7 +5580,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5588,7 +5588,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						4,
@@ -5648,7 +5648,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5656,7 +5656,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5664,7 +5664,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5672,7 +5672,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5680,7 +5680,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5740,7 +5740,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5748,7 +5748,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5894,7 +5894,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -5902,7 +5902,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6010,7 +6010,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -6125,7 +6125,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -6230,7 +6230,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6238,7 +6238,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6373,7 +6373,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6381,7 +6381,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6389,7 +6389,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6397,7 +6397,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6405,7 +6405,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6581,7 +6581,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -6656,7 +6656,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -6711,7 +6711,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6719,7 +6719,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -6727,7 +6727,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -6802,7 +6802,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -6987,7 +6987,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -7049,7 +7049,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -7057,7 +7057,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -7065,7 +7065,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						4,
@@ -7123,7 +7123,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					3,
@@ -7251,7 +7251,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {
 					"Physical": [
@@ -7299,7 +7299,7 @@
 					-1
 				],
 				[
-					"p_spell_lvl_prot.gd",
+					"Pro' First Level",
 					-1
 				]
 			],
@@ -7381,7 +7381,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -7389,7 +7389,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -7428,7 +7428,7 @@
 			"ResistanceElect": 1,
 			"traits": [
 				[
-					"p_spell_lvl_prot.gd",
+					"Pro' First Level",
 					-1
 				],
 				[
@@ -7584,7 +7584,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -7592,7 +7592,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -7843,7 +7843,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "no_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -7958,7 +7958,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -8013,7 +8013,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "slime_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8021,7 +8021,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "slime_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8093,7 +8093,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -8101,7 +8101,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -8160,7 +8160,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "slime_attack_sound",
 				"weapon_dmg": {
 					"Physical": [
@@ -8246,7 +8246,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8254,7 +8254,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8334,7 +8334,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -8434,7 +8434,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -8504,7 +8504,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8512,7 +8512,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8603,7 +8603,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -8660,7 +8660,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -8717,7 +8717,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -8823,7 +8823,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8831,7 +8831,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -8839,7 +8839,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -8899,7 +8899,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -8907,7 +8907,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -8975,7 +8975,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9039,7 +9039,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,
@@ -9094,7 +9094,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -9102,7 +9102,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -9110,7 +9110,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "pummel_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -9118,7 +9118,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -9233,7 +9233,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {
 					"Physical": [
@@ -9370,7 +9370,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9426,7 +9426,7 @@
 			]],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9501,7 +9501,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9580,7 +9580,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9647,7 +9647,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9717,7 +9717,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9771,7 +9771,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -9814,7 +9814,7 @@
 					-4
 				],
 				[
-					"p_spell_lvl_prot.gd",
+					"Pro' First Level",
 					-1
 				]
 			],
@@ -9896,7 +9896,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -9904,7 +9904,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -9941,8 +9941,8 @@
 			"Dexterity": 17,
 			"ResistanceElect": 0.45,
 			"traits": [[
-				"p_spell_lvl_prot.gd",
-				[1]
+				"Pro' First Level",
+				-1
 			]],
 			"EvasionMagic": 8,
 			"ResistanceMental": 0.45,
@@ -10025,7 +10025,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "pummel_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -10083,7 +10083,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -10091,7 +10091,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -10099,7 +10099,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -10201,7 +10201,7 @@
 			],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -10209,7 +10209,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -10217,7 +10217,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						1,
@@ -10330,7 +10330,7 @@
 				]
 			],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "no_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -10384,7 +10384,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -10451,7 +10451,7 @@
 			],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "claw_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -10505,7 +10505,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					1,
@@ -10560,7 +10560,7 @@
 			"spells": [],
 			"unarmed_melee_attacks": [
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -10568,7 +10568,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "claw_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -10576,7 +10576,7 @@
 					]}
 				},
 				{
-					"melee_inflicted_traits": [],
+					"melee_inflicted_traits": [[]],
 					"sound": "bite_attack_sound",
 					"weapon_dmg": {"Physical": [
 						2,
@@ -10635,7 +10635,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "slime_attack_sound",
 				"weapon_dmg": {
 					"Physical": [
@@ -10695,7 +10695,7 @@
 			"inventory": [],
 			"spells": [],
 			"unarmed_melee_attacks": [{
-				"melee_inflicted_traits": [],
+				"melee_inflicted_traits": [[]],
 				"sound": "bite_attack_sound",
 				"weapon_dmg": {"Physical": [
 					2,

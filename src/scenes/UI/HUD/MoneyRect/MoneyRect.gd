@@ -1,4 +1,5 @@
 extends NinePatchRect
+class_name MoneyMenu
 
 @export var done_button : Button
 

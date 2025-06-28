@@ -19,6 +19,7 @@ static func scenario_start() :  #===== LAND AP level=0 id=76 x=2 y=2 [LAP0/76]
 	await ScriptHelperFuncsClass.display_text_wait_noise("Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.",'message nod.wav')
 	ScriptHelperFuncsClass.hide_picture()
 	GameGlobal.stuff_done["scenario_start_seen"] = 1
+	ScriptHelperFuncsClass.change_tileset("fromts", "tots")
 
 
 static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
@@ -48,11 +49,7 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
 				textRect.set_text("He hands you an invitation to the Castle Anthrax.", true)
 				#pay 300g
-				var gold_to_give : int = 300
-				for character in GameGlobal.player_characters :
-					var gold_given : int = min (gold_to_give, character.money[0])
-					gold_to_give -= gold_given
-					character.money[0] -= gold_given
+				ScriptHelperFuncsClass.remove_gold_from_party(300)
 				await textRect.interruption_over
 				#give treasure 0
 				var invtemplate = NodeAccess.__Resources().items_book["Invitation"]

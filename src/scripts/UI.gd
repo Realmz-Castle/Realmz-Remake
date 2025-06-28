@@ -12,7 +12,7 @@ All operations over UI should use this wrapper.
 extends Node
 
 @onready var main_menu : CanvasItem = $MainMenuControl
-@onready var ow_hud : Control = $OWHUDControl
+@onready var ow_hud : OW_HUD = $OWHUDControl
 @onready var allmenus : Array = [main_menu, ow_hud]
 
 

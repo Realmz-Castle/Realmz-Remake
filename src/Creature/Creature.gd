@@ -659,9 +659,16 @@ func initialize_from_bestiary_dict(creaname : String) :
 	spells = [ [],[],[],[],[],[],[] ]
 	for se in cdata["tools"]["spells"] :
 		var spell = resources.spells_book[se[0]]['script']
+		var slevel : int = 1
+		for school in spell.school_levels :
+			if spell.school_levels[school] > slevel :
+				slevel = spell.school_levels[school]
 
-		add_spell_from_spells_book(se[0], spell.level)
+		add_spell_from_spells_book(se[0], slevel)
 #		spells.append([ resources.spells_book[se[0]] , se[1] ])
+
+	#printerr("CREATURE initiaize from bestiary : sometimes has a traits array stat ? \n stats :", stats)
+	#printerr("\ncdata['stats'] : ", cdata["stats"])
 	for s in cdata["stats"] :
 		base_stats[s] = cdata["stats"][s]
 		stats[s] = cdata["stats"][s]
@@ -680,6 +687,7 @@ func initialize_from_bestiary_dict(creaname : String) :
 			equip_item(item_added)
 		else :
 			print("Creature generation : "+name+" does not equip "+item_added["name"])
+	
 	#rotating_unarmed_melee_weapons
 	rotating_unarmed_melee_weapons.clear()
 	var loaded_unarmed : Array = cdata["tools"]["unarmed_melee_attacks"]  #an array of  dicts with meapon_name or  weapon item  dict data
@@ -719,6 +727,7 @@ func initialize_from_bestiary_dict(creaname : String) :
 			else :
 				newscript.set_source_code(traitname)
 				var _err_newscript_reload = newscript.reload()
+				pass
 				if _err_newscript_reload == OK :
 					scriptcreated = true
 				else :
@@ -729,9 +738,9 @@ func initialize_from_bestiary_dict(creaname : String) :
 				var newtrait = add_trait(newscript, traitinit)
 				if newscript.permanent :
 					newtrait.trait_source = "Innate"
+	print("CREATURE initialize_from_bestiary_dict : done adding trait")
 	
-	
-	#TODO  ai stuff
+	#ai stuff
 	
 	ai_variables = cdata["ai"].duplicate()
 	
@@ -739,12 +748,12 @@ func initialize_from_bestiary_dict(creaname : String) :
 	var default_script_name : String = scripts_dict["default"]
 	creature_script = NodeAccess.__Resources().creascripts_book[default_script_name]
 	
-	spells.clear()
+	#spells.clear()
 	#for s in  cdata["tools"]["spells"] :
 		#add_spell_from_spells_book(s[0])
 		
 	recalculate_stats()
-
+	#printerr("CREATURE initiaize from bestiary : sometimes has a traits array stat ? \n", stats)
 
 # called by CbDecideAction State
 func _on_new_round() :
@@ -1019,9 +1028,9 @@ func equip_item(item) -> bool :  #returns true iff could equip
 				var traitname : String = t[0]
 				print(item[traitname])
 #				new_item[traitname] = [newscript,traitinit]#new_trait_script
-				add_trait(item[traitname][0],item[traitname][1])
-				if item[traitname][0].permanent :
-					item[traitname][0].trait_source = "Equipment : "+item['name']
+				var  addedtrait = add_trait(item[traitname][0],item[traitname][1])
+				if addedtrait.permanent :
+					addedtrait.trait_source = "Equipment : "+item['name']
 		
 #		print(item.name, " equipped : ", item["equipped"])
 		recalculate_stats()

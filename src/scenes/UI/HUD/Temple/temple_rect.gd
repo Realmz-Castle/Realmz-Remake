@@ -71,6 +71,8 @@ func display_character(chara : Creature) :
 	_display_services()
 
 func _on_spell_button_pressed(namepowercost : Array) :
+	var cost : int = round(namepowercost[2])
+	displayed_chara.money[0] = max(0, displayed_chara.money[0] - cost)
 	temple_caster.stats["curSP"] = 9999999999
 	var spell = NodeAccess.__Resources().spells_book[namepowercost[0]]
 	SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
@@ -118,3 +120,13 @@ func _on_right_button_pressed() -> void:
 
 func _on_timer_timeout() -> void:
 	pass # Replace with function body.
+
+
+func _on_pool_button_pressed() -> void:
+	UI.ow_hud.moneyControl._on_PoolButton_pressed()
+	display_character(displayed_chara)
+
+
+func _on_share_button_pressed() -> void:
+	UI.ow_hud.moneyControl._on_ShareButton_pressed()
+	display_character(displayed_chara)

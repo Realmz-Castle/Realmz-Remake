@@ -409,3 +409,21 @@ static func enable_default_temple(price_mult) :
 		["Revive Dead", 1, roundi(615*price_mult/10)*10 ]
 	]
 	GameGlobal.set_temple_availlable(true)
+
+static func remove_gold_from_party(gold_to_give : int) :
+	for character : Creature in GameGlobal.player_characters :
+		var gold_given : int = min (gold_to_give, character.money[0])
+		gold_to_give -= gold_given
+		character.money[0] -= gold_given
+
+
+static func change_tileset(fromname : String, toname : String) :
+	var map  : Map =  GameGlobal.map
+	var resources : CampaignResources = GameGlobal.cmp_resources
+	var tonamejson : String = toname + '.json'
+	printerr(str(GameGlobal.map.mapdata[0][0]))
+	for x in range(map.mapdata[0].size()) :
+		for y in range(map.mapdata.size()) :
+			var curtile : Dictionary = map.mapdata[y][x][0]
+			if curtile["tileset_name"] == fromname :
+				map.mapdata[y][x][0] = resources.tiles_book[tonamejson][curtile["id"]]

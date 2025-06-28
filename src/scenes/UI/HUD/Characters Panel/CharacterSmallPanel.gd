@@ -292,6 +292,8 @@ func _on_portrait_button_pressed():
 		else :
 			cdata["data"]["image"] = character.textureL
 		cdata["data"]["tags"] = character.tags
+		#printerr("CharacterSmallPanel _on_portrait_button_pressed stats  : \n", str(character.stats))
 		for s in character.stats :
+			printerr("CharacterSmallPanel _on_portrait_button_pressed stats "+s)
 			cdata["stats"][s] = character.get_stat(s)
 		UI.ow_hud.bestiaryRect._on_entry_pressed(cdata)
