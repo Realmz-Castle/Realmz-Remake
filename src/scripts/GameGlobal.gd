@@ -398,11 +398,12 @@ func rest() :
 
 
 #if pc_participating is empty, use all PC
-func start_battle(battlename : String, is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pc_participating : Array) :
+func start_battle(battlename : String, mapname : String, is_relative : bool, is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pc_participating : Array) :
 	print("GameGlobal start_battle " + battlename)
 	var battle_data : Dictionary = GameGlobal.cmp_resources.battles_book[battlename]
 	battle_data["battle_start"] = true
 	battle_data["battlename"] = battlename
+	battle_data["mapname"] = mapname
 	battle_data["is_ambush"] = is_ambush
 	battle_data["allow_loss"] = allow_loss
 	battle_data["allow_escape"] = allow_escape

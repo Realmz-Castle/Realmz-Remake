@@ -19,7 +19,7 @@ static func scenario_start() :  #===== LAND AP level=0 id=76 x=2 y=2 [LAP0/76]
 	await ScriptHelperFuncsClass.display_text_wait_noise("Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.",'message nod.wav')
 	ScriptHelperFuncsClass.hide_picture()
 	GameGlobal.stuff_done["scenario_start_seen"] = 1
-	ScriptHelperFuncsClass.change_tileset("ForestDay", "ForestNight")
+	ScriptHelperFuncsClass.change_tileset("ForestDay", "SnowDay")
 
 
 static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
@@ -116,7 +116,7 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 				#change_rect              level=0, id=0, times_in_10k=150, new_battle_low=4, new_battle_high=8
 				GameGlobal.stuff_done["guardhouse_attacked"] = 1
 				#BATTLE
-				GameGlobal.start_battle("Battle_1",false, true,true,true,[])
+				GameGlobal.start_battle("Battle_1","map_0", true,false, true,true,true,[])
 				var battle_outcome = await GameGlobal.battle_end
 				return
 		if answer2 == "hostage" :
@@ -133,7 +133,7 @@ static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
 			if answer3=="free" :
 				await ScriptHelperFuncsClass.display_text_wait_noise("As he flees, he shouts to no one in particular.  \"Help, I am being waylaid.  Help....Help!\"  Unfortunately for you, the streets are filled with troops searching for you and they stream towards you.  They do not even ask you to throw down your arms.",'message nod.wav')
 					#BATTLE
-				GameGlobal.start_battle("Battle_2",false, true,true,true,[])
+				GameGlobal.start_battle("Battle_2","",true,false, true,true,true,[])
 				var battle_outcome = await GameGlobal.battle_end
 				return
 			if answer3=="kill" :
@@ -279,7 +279,7 @@ static func graveyard_random_battle() :  #LRR0/3, not a  real AP
 	var t : String = "You spot a group of undead stumbling about. Do you wish to attack them?"
 	#  from  the battle data  of battles  of id in b
 	var bt : String = "The stench of death assaults you as you are attacked by zombies."
-	await ScriptHelperFuncsClass.randomrect_battle([24,31], 33, "growl 2.wav", t, bt)
+	await ScriptHelperFuncsClass.randomrect_battle([52,52], 33, "growl 2.wav", t, bt)
 
 static func enter_brothel() :  #===== LAND AP level=0 id=16 x=7 y=6 to_level=6 to_x=8 to_y=1 [LAP0/16]
 	await ScriptHelperFuncsClass.display_text_wait_noise("You have come to the town brothel.  Perfume fills the air and covers any original odor that may come from this former boarding house.  A sign outside the building gives prices for various races and sexes.",'message nod.wav')
@@ -404,7 +404,7 @@ static func Take_Stairs_D() :
 static func Test_Battle() :
 	print("Map Script func Test_Battle() ")
 	#start_battle(battlename : String, is_ambush : bool, allow_loss : bool, allow_escape : bool, summons_allowed : bool, pc_participating : Array)
-	GameGlobal.start_battle("Test_Battle",false, true,true,true,[])
+	GameGlobal.start_battle("Test_Battle","",true,false, true,true,true,[])
 	var battle_outcome = await GameGlobal.battle_end
 	print("mapScript battle_outcome : ", battle_outcome)
 	if battle_outcome == "won" :

@@ -121,7 +121,13 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	print("State CbDecideAction start_battle pos_when_battle_started : ", pos_when_battle_started)
 	GameGlobal.last_exploration_map_name = _msg["end_in_map_name"]
 	print("State CbDecideAction start_battle , battlename : ",_msg["battlename"],", battle_data : ",  _msg)
-	GameGlobal.change_map(_msg["Map"],map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
+	var map_name : String = _msg["mapname"]
+	if map_name.is_empty() :
+		pass #TODO generate temporary  zoomed in map
+		map_name = "temporary_zoomed_map"
+		map_name = "map_0"
+	
+	GameGlobal.change_map(map_name,map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
 
 	combat_state.all_battle_creatures_btns.clear()
 
@@ -176,7 +182,9 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.cur_battle_data = _msg
 	print("beep")
 	print("GameGlobal start_battle cur_battle_data : ", combat_state.cur_battle_data)
-	combat_state.cur_battle_data["Scripts"]["start"].start()
+	#if combat_state.cur_battle_data["Scripts"].has("Start") :
+		#combat_state.cur_battle_data["Scripts"]["start"].start()
+	
 	start_new_round()
 
 func start_new_round() :
@@ -189,9 +197,11 @@ func start_new_round() :
 		creab.creature._on_new_round()
 
 	if combat_state.cur_battle_round == 1 :
-		combat_state.cur_battle_data["Scripts"]["start"].start()
+		if combat_state.cur_battle_data["Scripts"].has("Start") :
+			combat_state.cur_battle_data["Scripts"]["start"].start()
 	else :
-		combat_state.cur_battle_data["Scripts"]["turn"].turn()
+		if combat_state.cur_battle_data["Scripts"].has("turn") :
+			combat_state.cur_battle_data["Scripts"]["turn"].turn()
 		combat_state.all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
 	
 	

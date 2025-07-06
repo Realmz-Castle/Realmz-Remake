@@ -836,6 +836,8 @@ func load_battle_resources(campaign : String) :
 	for b in n_battle_stuff_book.keys() :
 		#print(n_battle_stuff_book[b])
 		for s in ["start","turn","win","lose","flee"] :
+			if not n_battle_stuff_book[b].has("Scripts") :
+				printerr(n_battle_stuff_book[b])
 			if n_battle_stuff_book[b]["Scripts"].has(s+"_source") :
 				_add_script_to_dict_from_source(n_battle_stuff_book[b]["Scripts"],s,'()')
 	for b in n_battle_stuff_book :

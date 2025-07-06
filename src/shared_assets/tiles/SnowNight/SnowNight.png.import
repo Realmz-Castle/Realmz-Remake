@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://cgo4pd4irfubr"
+path="res://.godot/imported/SnowNight.png-f250c9fa18b18b705f7791fdbf43010f.image"
+
+[deps]
+
+source_file="res://shared_assets/tiles/SnowNight/SnowNight.png"
+dest_files=["res://.godot/imported/SnowNight.png-f250c9fa18b18b705f7791fdbf43010f.image"]
+
+[params]
+

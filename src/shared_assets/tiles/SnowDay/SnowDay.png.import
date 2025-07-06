@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://dn8sann1dcj1m"
+path="res://.godot/imported/SnowDay.png-daa54d2ae4d58743d537dd6a9271fdb3.image"
+
+[deps]
+
+source_file="res://shared_assets/tiles/SnowDay/SnowDay.png"
+dest_files=["res://.godot/imported/SnowDay.png-daa54d2ae4d58743d537dd6a9271fdb3.image"]
+
+[params]
+

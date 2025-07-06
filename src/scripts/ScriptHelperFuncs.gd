@@ -165,7 +165,7 @@ static func start_battle_in_range(low : int, high : int, sfx_id : int, displayte
 	var battle_name = battles_id_name_dict[randi_range(low, high)]
 	GameGlobal.allow_next_battle_loot = give_treasure!=5 # from divinity doc : A value of 5 here : no loot. 10 : no gameover.
 	play_sound(sfx_id_name_dict[sfx_id], true)
-	GameGlobal.start_battle(battle_name, false, give_treasure==10, true, true, [] ) # all party if pc_particiating is empty
+	GameGlobal.start_battle(battle_name,"",true, false, give_treasure==10, true, true, [] ) # all party if pc_particiating is empty
 
 
 ## DIVINITY : Random Rectangle battles with no actual AP :
@@ -184,8 +184,9 @@ static func randomrect_battle(b : Array, o : int, s : String, t : String, battle
 	text = battle_text
 	await ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
 	# b = [24, 31]
-	var rand_battle_id : int = range([b[0], b[1]+1]).pick_random()
-	GameGlobal.start_battle("Battle_"+str(rand_battle_id),false, true,true,true,[])
+	printerr("randomrect_battle b :", b)
+	var rand_battle_id : int = range(b[0], b[1]+1).pick_random()
+	GameGlobal.start_battle("Battle_"+str(rand_battle_id),"", true, false, true,true,true,[])
 	var battle_outcome = await GameGlobal.battle_end
 
 

@@ -1,10 +1,9 @@
 {
 
-	"Giant Frog 0" : {
+	"Giant Frog" : {
 		"data" : {
-			"id" : 0,
 			"name" : "Giant Frog",
-			"image" : "CREA_giant_frog",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -103,11 +102,10 @@
 	
 },
 
-	"Giant Centipede 1" : {
+	"Giant Centipede" : {
 		"data" : {
-			"id" : 1,
 			"name" : "Giant Centipede",
-			"image" : "CREA_giant_centipede",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -214,11 +212,10 @@
 	
 },
 
-	"Cave Lizard 2" : {
+	"Cave Lizard" : {
 		"data" : {
-			"id" : 2,
 			"name" : "Cave Lizard",
-			"image" : "CREA_cave_lizard",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -317,11 +314,10 @@
 	
 },
 
-	"Dogre 3" : {
+	"Dogre" : {
 		"data" : {
-			"id" : 3,
 			"name" : "Dogre",
-			"image" : "CREA_dogre",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -420,11 +416,10 @@
 	
 },
 
-	"Minor Demon 4" : {
+	"Minor Demon" : {
 		"data" : {
-			"id" : 4,
 			"name" : "Minor Demon",
-			"image" : "CREA_minor_demon",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Demon/Devil", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -534,11 +529,10 @@
 	
 },
 
-	"Dragon Lizard 5" : {
+	"Dragon Lizard" : {
 		"data" : {
-			"id" : 5,
 			"name" : "Dragon Lizard",
-			"image" : "CREA_dragon_lizard",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -659,11 +653,10 @@
 	
 },
 
-	"Larva 6" : {
+	"Larva" : {
 		"data" : {
-			"id" : 6,
 			"name" : "Larva",
-			"image" : "CREA_larva",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -770,11 +763,10 @@
 	
 },
 
-	"Whip Scorpion 7" : {
+	"Whip Scorpion" : {
 		"data" : {
-			"id" : 7,
 			"name" : "Whip Scorpion",
-			"image" : "CREA_whip_scorpion",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -914,11 +906,10 @@
 	
 },
 
-	"Kisk Dragon 8" : {
+	"Kisk Dragon" : {
 		"data" : {
-			"id" : 8,
 			"name" : "Kisk Dragon",
-			"image" : "CREA_kisk_dragon",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Reptilian", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -1039,11 +1030,10 @@
 	
 },
 
-	"Giant Wyrm 9" : {
+	"Giant Wyrm" : {
 		"data" : {
-			"id" : 9,
 			"name" : "Giant Wyrm",
-			"image" : "CREA_giant_wyrm",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -1142,11 +1132,10 @@
 	
 },
 
-	"Rock Spider 10" : {
+	"Rock Spider" : {
 		"data" : {
-			"id" : 10,
 			"name" : "Rock Spider",
-			"image" : "CREA_rock_spider",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -1253,11 +1242,10 @@
 	
 },
 
-	"Dune Spider 11" : {
+	"Dune Spider" : {
 		"data" : {
-			"id" : 11,
 			"name" : "Dune Spider",
-			"image" : "CREA_dune_spider",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -1364,11 +1352,10 @@
 	
 },
 
-	"Rewop 12" : {
+	"Rewop" : {
 		"data" : {
-			"id" : 12,
 			"name" : "Rewop",
-			"image" : "CREA_rewop",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Demon/Devil", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -1478,11 +1465,10 @@
 	
 },
 
-	"Hell Dragon 13" : {
+	"Hell Dragon" : {
 		"data" : {
-			"id" : 13,
 			"name" : "Hell Dragon",
-			"image" : "CREA_hell_dragon",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -1581,11 +1567,10 @@
 	
 },
 
-	"Minotaur 15" : {
+	"Minotaur" : {
 		"data" : {
-			"id" : 15,
 			"name" : "Minotaur",
-			"image" : "CREA_minotaur2",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -1684,11 +1669,10 @@
 	
 },
 
-	"Minotaur 15" : {
+	"Minotaur" : {
 		"data" : {
-			"id" : 15,
 			"name" : "Minotaur",
-			"image" : "CREA_minotaur2",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -1787,11 +1771,10 @@
 	
 },
 
-	"Giant Troll 16" : {
+	"Giant Troll" : {
 		"data" : {
-			"id" : 16,
 			"name" : "Giant Troll",
-			"image" : "CREA_troll",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -1917,11 +1900,10 @@
 	
 },
 
-	"Skeletal Beast 17" : {
+	"Skeletal Beast" : {
 		"data" : {
-			"id" : 17,
 			"name" : "Skeletal Beast",
-			"image" : "CREA_skeletal_beast",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Undead", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -2042,11 +2024,10 @@
 	
 },
 
-	"Horvath 18" : {
+	"Horvath" : {
 		"data" : {
-			"id" : 18,
 			"name" : "Horvath",
-			"image" : "CREA_horvath",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -2189,11 +2170,10 @@
 	
 },
 
-	"Skeletal Giant 19" : {
+	"Skeletal Giant" : {
 		"data" : {
-			"id" : 19,
 			"name" : "Skeletal Giant",
-			"image" : "CREA_skeletal_giant",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Undead", "Very Evil", "Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -2303,11 +2283,10 @@
 	
 },
 
-	"Proto-Shantile 20" : {
+	"Proto-Shantile" : {
 		"data" : {
-			"id" : 20,
 			"name" : "Proto-Shantile",
-			"image" : "CREA_proto_shantile",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Intelligent", "Giant", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -2417,11 +2396,10 @@
 	
 },
 
-	"Silt Spider 21" : {
+	"Silt Spider" : {
 		"data" : {
-			"id" : 21,
 			"name" : "Silt Spider",
-			"image" : "CREA_silt_spider",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -2520,11 +2498,10 @@
 	
 },
 
-	"Vesp Spider 22" : {
+	"Vesp Spider" : {
 		"data" : {
-			"id" : 22,
 			"name" : "Vesp Spider",
-			"image" : "CREA_vesp_spider",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -2631,11 +2608,10 @@
 	
 },
 
-	"Proto-Vrack 23" : {
+	"Proto-Vrack" : {
 		"data" : {
-			"id" : 23,
 			"name" : "Proto-Vrack",
-			"image" : "CREA_proto_vrack",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -2734,11 +2710,10 @@
 	
 },
 
-	"Proto-Hyena 24" : {
+	"Proto-Hyena" : {
 		"data" : {
-			"id" : 24,
 			"name" : "Proto-Hyena",
-			"image" : "CREA_proto_hyena",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -2859,11 +2834,10 @@
 	
 },
 
-	"Great Wizard 25" : {
+	"Great Wizard" : {
 		"data" : {
-			"id" : 25,
 			"name" : "Great Wizard",
-			"image" : "CREA_humanmage",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent"],
 			"in_bestiary" : 0,
@@ -2950,11 +2924,10 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur" : {
 		"data" : {
-			"id" : 51,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -3053,11 +3026,10 @@
 	
 },
 
-	"Cave Bear 27" : {
+	"Cave Bear" : {
 		"data" : {
-			"id" : 27,
 			"name" : "Cave Bear",
-			"image" : "CREA_cavebear",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 0,
@@ -3178,11 +3150,10 @@
 	
 },
 
-	"Terror Beast 28" : {
+	"Terror Beast" : {
 		"data" : {
-			"id" : 28,
 			"name" : "Terror Beast",
-			"image" : "CREA_terror_beast",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -3281,11 +3252,10 @@
 	
 },
 
-	"Mush Man 29" : {
+	"Mush Man" : {
 		"data" : {
-			"id" : 29,
 			"name" : "Mush Man",
-			"image" : "CREA_podling",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -3395,11 +3365,10 @@
 	
 },
 
-	"Apprentice 30" : {
+	"Apprentice" : {
 		"data" : {
-			"id" : 30,
 			"name" : "Apprentice",
-			"image" : "CREA_apprentice",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent"],
 			"in_bestiary" : 1,
@@ -3486,11 +3455,10 @@
 	
 },
 
-	"Widow of the Web 31" : {
+	"Widow of the Web" : {
 		"data" : {
-			"id" : 31,
 			"name" : "Widow of the Web",
-			"image" : "CREA_vixies_spider",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 0,
@@ -3611,11 +3579,10 @@
 	
 },
 
-	"Guardian Spider 32" : {
+	"Guardian Spider" : {
 		"data" : {
-			"id" : 32,
 			"name" : "Guardian Spider",
-			"image" : "CREA_guardian_spider",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -3744,11 +3711,10 @@
 	
 },
 
-	"Giant Snake 33" : {
+	"Giant Snake" : {
 		"data" : {
-			"id" : 33,
 			"name" : "Giant Snake",
-			"image" : "CREA_giant_snake",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -3855,11 +3821,10 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur" : {
 		"data" : {
-			"id" : 51,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -3958,11 +3923,10 @@
 	
 },
 
-	"Mush Mound 43" : {
+	"Mush Mound" : {
 		"data" : {
-			"id" : 43,
 			"name" : "Mush Mound",
-			"image" : "CREA_mush_mound",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -4061,11 +4025,10 @@
 	
 },
 
-	"Sabre Feline 36" : {
+	"Sabre Feline" : {
 		"data" : {
-			"id" : 36,
 			"name" : "Sabre Feline",
-			"image" : "CREA_sabre_feline",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -4186,11 +4149,10 @@
 	
 },
 
-	"Podling 42" : {
+	"Podling" : {
 		"data" : {
-			"id" : 42,
 			"name" : "Podling",
-			"image" : "CREA_podling",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -4300,11 +4262,10 @@
 	
 },
 
-	"Red Dragon 38" : {
+	"Red Dragon" : {
 		"data" : {
-			"id" : 38,
 			"name" : "Red Dragon",
-			"image" : "CREA_red_dragon",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Reptilian", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -4425,11 +4386,10 @@
 	
 },
 
-	"Blue Dragon 39" : {
+	"Blue Dragon" : {
 		"data" : {
-			"id" : 39,
 			"name" : "Blue Dragon",
-			"image" : "CREA_blue_dragon",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Reptilian", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -4550,11 +4510,10 @@
 	
 },
 
-	"Green Dragon 40" : {
+	"Green Dragon" : {
 		"data" : {
-			"id" : 40,
 			"name" : "Green Dragon",
-			"image" : "CREA_green_dragon",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Reptilian", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -4675,11 +4634,10 @@
 	
 },
 
-	"Mush Mound 43" : {
+	"Mush Mound" : {
 		"data" : {
-			"id" : 43,
 			"name" : "Mush Mound",
-			"image" : "CREA_mush_mound",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 0,
@@ -4778,11 +4736,10 @@
 	
 },
 
-	"Podling 42" : {
+	"Podling" : {
 		"data" : {
-			"id" : 42,
 			"name" : "Podling",
-			"image" : "CREA_podling",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 0,
@@ -4892,11 +4849,10 @@
 	
 },
 
-	"Mush Mound 43" : {
+	"Mush Mound" : {
 		"data" : {
-			"id" : 43,
 			"name" : "Mush Mound",
-			"image" : "CREA_mush_mound",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 0,
@@ -4995,11 +4951,10 @@
 	
 },
 
-	"Podling 42" : {
+	"Podling" : {
 		"data" : {
-			"id" : 42,
 			"name" : "Podling",
-			"image" : "CREA_podling",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 0,
@@ -5109,11 +5064,10 @@
 	
 },
 
-	"Fire Fiend 45" : {
+	"Fire Fiend" : {
 		"data" : {
-			"id" : 45,
 			"name" : "Fire Fiend",
-			"image" : "CREA_fire_fiend",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -5256,11 +5210,10 @@
 	
 },
 
-	"Carrion Slug 46" : {
+	"Carrion Slug" : {
 		"data" : {
-			"id" : 46,
 			"name" : "Carrion Slug",
-			"image" : "CREA_carrion_slug",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -5403,11 +5356,10 @@
 	
 },
 
-	"Proto-Badger 47" : {
+	"Proto-Badger" : {
 		"data" : {
-			"id" : 47,
 			"name" : "Proto-Badger",
-			"image" : "CREA_proto_badger",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -5528,11 +5480,10 @@
 	
 },
 
-	"Hill Giant 48" : {
+	"Hill Giant" : {
 		"data" : {
-			"id" : 48,
 			"name" : "Hill Giant",
-			"image" : "CREA_hill_giant",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -5631,11 +5582,10 @@
 	
 },
 
-	"Cavalry Trooper 49" : {
+	"Cavalry Trooper" : {
 		"data" : {
-			"id" : 49,
 			"name" : "Cavalry Trooper",
-			"image" : "CREA_cavalry_trooper",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -5734,11 +5684,10 @@
 	
 },
 
-	"Cavalry Officer 50" : {
+	"Cavalry Officer" : {
 		"data" : {
-			"id" : 50,
 			"name" : "Cavalry Officer",
-			"image" : "CREA_cavalry_officer",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -5837,11 +5786,10 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur" : {
 		"data" : {
-			"id" : 51,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -5940,11 +5888,10 @@
 	
 },
 
-	"Secret Cleric 52" : {
+	"Secret Cleric" : {
 		"data" : {
-			"id" : 52,
 			"name" : "Secret Cleric",
-			"image" : "CREA_humanmage",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Intelligent"],
 			"in_bestiary" : 0,
@@ -6043,11 +5990,10 @@
 	
 },
 
-	"Ogre 53" : {
+	"Ogre" : {
 		"data" : {
-			"id" : 53,
 			"name" : "Ogre",
-			"image" : "CREA_ogre",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -6146,11 +6092,10 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur" : {
 		"data" : {
-			"id" : 51,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6249,11 +6194,10 @@
 	
 },
 
-	"Young Hill Giant 55" : {
+	"Young Hill Giant" : {
 		"data" : {
-			"id" : 55,
 			"name" : "Young Hill Giant",
-			"image" : "CREA_hill_giant",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -6352,11 +6296,10 @@
 	
 },
 
-	"Gnath 56" : {
+	"Gnath" : {
 		"data" : {
-			"id" : 56,
 			"name" : "Gnath",
-			"image" : "CREA_gnath",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent"],
 			"in_bestiary" : 1,
@@ -6455,11 +6398,10 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur" : {
 		"data" : {
-			"id" : 51,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6588,11 +6530,10 @@
 	
 },
 
-	"Cacodeamon Warlord 58" : {
+	"Cacodeamon Warlord" : {
 		"data" : {
-			"id" : 58,
 			"name" : "Cacodeamon Warlord",
-			"image" : "CREA_cacodaemon_warlord",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6735,11 +6676,10 @@
 	
 },
 
-	"Hell Bat 59" : {
+	"Hell Bat" : {
 		"data" : {
-			"id" : 59,
 			"name" : "Hell Bat",
-			"image" : "CREA_hell_bat",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6838,11 +6778,10 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur" : {
 		"data" : {
-			"id" : 51,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6941,11 +6880,10 @@
 	
 },
 
-	"Huge Slime 61" : {
+	"Huge Slime" : {
 		"data" : {
-			"id" : 61,
 			"name" : "Huge Slime",
-			"image" : "CREA_huge_slime",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -7044,11 +6982,10 @@
 	
 },
 
-	"Small Slime 62" : {
+	"Small Slime" : {
 		"data" : {
-			"id" : 62,
 			"name" : "Small Slime",
-			"image" : "CREA_small_slime",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -7147,11 +7084,10 @@
 	
 },
 
-	"Winged Devil 63" : {
+	"Winged Devil" : {
 		"data" : {
-			"id" : 63,
 			"name" : "Winged Devil",
-			"image" : "CREA_winged_devil",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Demon/Devil", "Reptilian", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -7250,11 +7186,10 @@
 	
 },
 
-	"Dogre Champion 64" : {
+	"Dogre Champion" : {
 		"data" : {
-			"id" : 64,
 			"name" : "Dogre Champion",
-			"image" : "CREA_dogre_champion",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -7353,11 +7288,10 @@
 	
 },
 
-	"Mummy 65" : {
+	"Mummy" : {
 		"data" : {
-			"id" : 65,
 			"name" : "Mummy",
-			"image" : "CREA_mummy",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Undead", "Very Evil", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -7467,11 +7401,10 @@
 	
 },
 
-	"Mad Troll 66" : {
+	"Mad Troll" : {
 		"data" : {
-			"id" : 66,
 			"name" : "Mad Troll",
-			"image" : "CREA_troll",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant", "Non-Humanoid"],
 			"in_bestiary" : 0,
@@ -7597,11 +7530,10 @@
 	
 },
 
-	"Troll 67" : {
+	"Troll" : {
 		"data" : {
-			"id" : 67,
 			"name" : "Troll",
-			"image" : "CREA_troll",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -7727,11 +7659,10 @@
 	
 },
 
-	"Hag 68" : {
+	"Hag" : {
 		"data" : {
-			"id" : 68,
 			"name" : "Hag",
-			"image" : "CREA_hag",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -7841,11 +7772,10 @@
 	
 },
 
-	"Cragentooth 69" : {
+	"Cragentooth" : {
 		"data" : {
-			"id" : 69,
 			"name" : "Cragentooth",
-			"image" : "CREA_dogre_champion",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Very Evil", "Intelligent", "Giant"],
 			"in_bestiary" : 0,
@@ -7966,11 +7896,10 @@
 	
 },
 
-	"Skeletal Warrior 70" : {
+	"Skeletal Warrior" : {
 		"data" : {
-			"id" : 70,
 			"name" : "Skeletal Warrior",
-			"image" : "CREA_skeletal_warrior",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Undead"],
 			"in_bestiary" : 1,
@@ -8057,11 +7986,10 @@
 	
 },
 
-	"Vodalian 71" : {
+	"Vodalian" : {
 		"data" : {
-			"id" : 71,
 			"name" : "Vodalian",
-			"image" : "CREA_humanmage",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Intelligent"],
 			"in_bestiary" : 0,
@@ -8160,11 +8088,10 @@
 	
 },
 
-	"Slime 73" : {
+	"Slime" : {
 		"data" : {
-			"id" : 73,
 			"name" : "Slime",
-			"image" : "CREA_slime1",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -8263,11 +8190,10 @@
 	
 },
 
-	"Slime 73" : {
+	"Slime" : {
 		"data" : {
-			"id" : 73,
 			"name" : "Slime",
-			"image" : "CREA_slime1",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -8377,11 +8303,10 @@
 	
 },
 
-	"Human Mage 82" : {
+	"Human Mage" : {
 		"data" : {
-			"id" : 82,
 			"name" : "Human Mage",
-			"image" : "CREA_humanmage",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Intelligent"],
 			"in_bestiary" : 0,
@@ -8480,11 +8405,10 @@
 	
 },
 
-	"Ghoul 75" : {
+	"Ghoul" : {
 		"data" : {
-			"id" : 75,
 			"name" : "Ghoul",
-			"image" : "CREA_ghoul",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Undead", "Very Evil", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -8613,11 +8537,10 @@
 	
 },
 
-	"Giant Spider 76" : {
+	"Giant Spider" : {
 		"data" : {
-			"id" : 76,
 			"name" : "Giant Spider",
-			"image" : "CREA_giant_spider",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -8738,9 +8661,8 @@
 	
 },
 
-	"Anti'id 77" : {
+	"Anti'id" : {
 		"data" : {
-			"id" : 77,
 			"name" : "Anti'id",
 			"image" : "CREA_antiid",
 			"size" : [1,1],
@@ -8868,11 +8790,10 @@
 	
 },
 
-	"Zombie 78" : {
+	"Zombie" : {
 		"data" : {
-			"id" : 78,
 			"name" : "Zombie",
-			"image" : "CREA_zombie",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Undead"],
 			"in_bestiary" : 1,
@@ -8971,11 +8892,10 @@
 	
 },
 
-	"Trigwig 79" : {
+	"Trigwig" : {
 		"data" : {
-			"id" : 79,
 			"name" : "Trigwig",
-			"image" : "CREA_trigwig",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -9107,11 +9027,10 @@
 	
 },
 
-	"Krise 80" : {
+	"Krise" : {
 		"data" : {
-			"id" : 80,
 			"name" : "Krise",
-			"image" : "CREA_krise",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Reptilian", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -9210,11 +9129,10 @@
 	
 },
 
-	"Giant Boar 81" : {
+	"Giant Boar" : {
 		"data" : {
-			"id" : 81,
 			"name" : "Giant Boar",
-			"image" : "CREA_giant_boar",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -9313,11 +9231,10 @@
 	
 },
 
-	"Human Mage 82" : {
+	"Human Mage" : {
 		"data" : {
-			"id" : 82,
 			"name" : "Human Mage",
-			"image" : "CREA_humanmage",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent"],
 			"in_bestiary" : 0,
@@ -9416,9 +9333,8 @@
 	
 },
 
-	"Slime Demon 83" : {
+	"Slime Demon" : {
 		"data" : {
-			"id" : 83,
 			"name" : "Slime Demon",
 			"image" : "CREA_antiid",
 			"size" : [1,1],
@@ -9519,11 +9435,10 @@
 	
 },
 
-	"Ghost 84" : {
+	"Ghost" : {
 		"data" : {
-			"id" : 84,
 			"name" : "Ghost",
-			"image" : "CREA_ghost",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Undead", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -9630,11 +9545,10 @@
 	
 },
 
-	"Spectre 85" : {
+	"Spectre" : {
 		"data" : {
-			"id" : 85,
 			"name" : "Spectre",
-			"image" : "CREA_spectre",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Magic Using", "Undead", "Very Evil", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -9760,11 +9674,10 @@
 	
 },
 
-	"Giant Zombie 86" : {
+	"Giant Zombie" : {
 		"data" : {
-			"id" : 86,
 			"name" : "Giant Zombie",
-			"image" : "CREA_giant_zombie",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Undead"],
 			"in_bestiary" : 1,
@@ -9863,11 +9776,10 @@
 	
 },
 
-	"Recluse Wizard 87" : {
+	"Recluse Wizard" : {
 		"data" : {
-			"id" : 87,
 			"name" : "Recluse Wizard",
-			"image" : "CREA_apprentice",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent"],
 			"in_bestiary" : 0,
@@ -9954,11 +9866,10 @@
 	
 },
 
-	"Wizard Headmaster 88" : {
+	"Wizard Headmaster" : {
 		"data" : {
-			"id" : 88,
 			"name" : "Wizard Headmaster",
-			"image" : "CREA_humanmage",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Very Evil", "Intelligent"],
 			"in_bestiary" : 0,
@@ -10057,11 +9968,10 @@
 	
 },
 
-	"Demon Lord 89" : {
+	"Demon Lord" : {
 		"data" : {
-			"id" : 89,
 			"name" : "Demon Lord",
-			"image" : "CREA_demon_lord",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Demon/Devil", "Reptilian", "Very Evil", "Intelligent"],
 			"in_bestiary" : 1,
@@ -10182,11 +10092,10 @@
 	
 },
 
-	"Reppep Rd 90" : {
+	"Reppep Rd" : {
 		"data" : {
-			"id" : 90,
 			"name" : "Reppep Rd",
-			"image" : "CREA_dwarfwarrior",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 0,
@@ -10296,11 +10205,10 @@
 	
 },
 
-	"Orc Warrior 122" : {
+	"Orc Warrior" : {
 		"data" : {
-			"id" : 122,
 			"name" : "Orc Warrior",
-			"image" : "CREA_orc_warrior",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -10399,11 +10307,10 @@
 	
 },
 
-	"Goblin 92" : {
+	"Goblin" : {
 		"data" : {
-			"id" : 92,
 			"name" : "Goblin",
-			"image" : "CREA_goblin",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -10502,11 +10409,10 @@
 	
 },
 
-	"Goblin Hero 93" : {
+	"Goblin Hero" : {
 		"data" : {
-			"id" : 93,
 			"name" : "Goblin Hero",
-			"image" : "CREA_goblin_hero",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -10616,11 +10522,10 @@
 	
 },
 
-	"Vixies Spider 94" : {
+	"Vixies Spider" : {
 		"data" : {
-			"id" : 94,
 			"name" : "Vixies Spider",
-			"image" : "CREA_vixies_spider",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -10741,11 +10646,10 @@
 	
 },
 
-	"Royal Guard 95" : {
+	"Royal Guard" : {
 		"data" : {
-			"id" : 95,
 			"name" : "Royal Guard",
-			"image" : "CREA_royal_guard",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -10844,11 +10748,10 @@
 	
 },
 
-	"Royal Corporal 96" : {
+	"Royal Corporal" : {
 		"data" : {
-			"id" : 96,
 			"name" : "Royal Corporal",
-			"image" : "CREA_royal_corporal",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -10947,11 +10850,10 @@
 	
 },
 
-	"Royal Sergeant 97" : {
+	"Royal Sergeant" : {
 		"data" : {
-			"id" : 97,
 			"name" : "Royal Sergeant",
-			"image" : "CREA_royal_sergeant",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -11050,11 +10952,10 @@
 	
 },
 
-	"Royal Lieutenant 98" : {
+	"Royal Lieutenant" : {
 		"data" : {
-			"id" : 98,
 			"name" : "Royal Lieutenant",
-			"image" : "CREA_royal_lieutenant",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -11153,11 +11054,10 @@
 	
 },
 
-	"Royal Captain 99" : {
+	"Royal Captain" : {
 		"data" : {
-			"id" : 99,
 			"name" : "Royal Captain",
-			"image" : "CREA_royal_captain",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -11256,11 +11156,10 @@
 	
 },
 
-	"Flesh Fiend 100" : {
+	"Flesh Fiend" : {
 		"data" : {
-			"id" : 100,
 			"name" : "Flesh Fiend",
-			"image" : "CREA_flesh_fiend",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Undead", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -11389,11 +11288,10 @@
 	
 },
 
-	"Cacodaemon Warrior 101" : {
+	"Cacodaemon Warrior" : {
 		"data" : {
-			"id" : 101,
 			"name" : "Cacodaemon Warrior",
-			"image" : "CREA_cacodaemon_warlord",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Reptilian", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -11536,11 +11434,10 @@
 	
 },
 
-	"Carrion Beast 102" : {
+	"Carrion Beast" : {
 		"data" : {
-			"id" : 102,
 			"name" : "Carrion Beast",
-			"image" : "CREA_carrion_beast",
+			"image" : "CREA_antiid",
 			"size" : [2,2],
 			"tags" : ["Reptilian"],
 			"in_bestiary" : 1,
@@ -11683,11 +11580,10 @@
 	
 },
 
-	"Mercenary Villain 103" : {
+	"Mercenary Villain" : {
 		"data" : {
-			"id" : 103,
 			"name" : "Mercenary Villain",
-			"image" : "CREA_mercenary_villain",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Very Evil", "Intelligent"],
 			"in_bestiary" : 1,
@@ -11786,11 +11682,10 @@
 	
 },
 
-	"Thief 104" : {
+	"Thief" : {
 		"data" : {
-			"id" : 104,
 			"name" : "Thief",
-			"image" : "CREA_thief",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Very Evil", "Intelligent"],
 			"in_bestiary" : 1,
@@ -11889,11 +11784,10 @@
 	
 },
 
-	"Magistrate 105" : {
+	"Magistrate" : {
 		"data" : {
-			"id" : 105,
 			"name" : "Magistrate",
-			"image" : "CREA_greenmagistrate",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Intelligent"],
 			"in_bestiary" : 0,
@@ -11991,11 +11885,303 @@
 		"scripts" : {"default" : "test_crea_script.gd"}
 	
 },
-	"Demon 108" : {
+
+	"" : {
 		"data" : {
-			"id" : 108,
+			"name" : "",
+			"image" : "CREA_antiid",
+			"size" : [1,1],
+			"tags" : [],
+			"in_bestiary" : 1,
+			"summonable" : 0,
+			"exp" : 100,
+			"level" : 0,
+			"faction" : 0,
+			"is_player_controlled" : 0,
+			"description" : "\""
+		},
+		"stats" : {
+			"MaxMovement" : 0,
+			"MaxActions" : 0,
+			"MaxSpellsPerRound" : 0,
+			"Strength" : 10,
+			"Intellect" : 10,
+			"Wisdom" : 10,
+			"Dexterity" : 0,
+			"Vitality" : 10,
+			"Weight_Limit" : 1000000000,
+			"curHP" : 0,
+			"curSP" : 0,
+			"curTP" : 0,
+			"curFP" : 0,
+			"curRP" : 0,
+			"maxHP" : 0,
+			"maxSP" : 0,
+			"maxTP" : 0,
+			"maxFP" : 0,
+			"maxRP" : 0,
+			"HP_regen_base" : 1.0,
+			"SP_regen_base" : 1.0,
+			"HP_regen_mult" : 1.0,
+			"SP_regen_mult" : 1.0,
+			"AccuracyMelee" : 0,
+			"AccuracyRanged" : 0,
+			"AccuracyMagic" : 0,
+			"EvasionMelee" : 50,
+			"EvasionRanged" : 50,
+			"EvasionMagic" : 0,
+			"ResistancePhysical" : 0.0,
+			"ResistanceFire" : 0.0,
+			"ResistanceIce" : 0.0,
+			"ResistanceElect" : 0.0,
+			"ResistancePoison" : 0.0,
+			"ResistanceChemical" : 0.0,
+			"ResistanceDisease" : 0.0,
+			"ResistanceMagic" : 0.0,
+			"ResistanceHealing" : 0.0,
+			"ResistanceMental" : 0.0,
+			"MultiplierPhysical" : 1.0,
+			"MultiplierFire" : 1.0,
+			"MultiplierIce" : 1.0,
+			"MultiplierElect" : 1.0,
+			"MultiplierPoison" : 1.0,
+			"MultiplierChemical" : 1.0,
+			"MultiplierDisease" : 1.0,
+			"MultiplierMagic" : 1.00,
+			"MultiplierHealing" : 1.0,
+			"MultiplierMental" : 1.0,
+			"Melee_Crit_Rate" : 0.0,
+			"Melee_Crit_Mult" : 0.0,
+			"Ranged_Crit_Rate" : 0.0,
+			"Ranged_Crit_Mult" : 0.0,
+			"Bonus_Physical_dmg" : 0,
+			"Bonus_Magical_dmg" : 0,
+			"Detect_Secret" : 0.0,
+			"Acrobatics" : 0.0,
+			"Detect_Trap" : 0.0,
+			"Disable_Trap" : 0.0,
+			"Force_Lock" : 0.0,
+			"Pick_Lock" : 0.0,
+			"Turn_Undead" : 0.0
+		},
+		"traits" : [],
+		"ai" : { "flees_at" : 0, "cast_chance" : 0, "missile_chance" : 0 },
+		"tools" : {
+		"inventory" : [],
+		"money" : [0,0,0],
+		"unarmed_melee_attacks" : [
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  }
+],
+		"spells" : []
+	},
+		"scripts" : {"default" : "test_crea_script.gd"}
+	
+},
+
+	"" : {
+		"data" : {
+			"name" : "",
+			"image" : "CREA_antiid",
+			"size" : [1,1],
+			"tags" : [],
+			"in_bestiary" : 1,
+			"summonable" : 0,
+			"exp" : 100,
+			"level" : 0,
+			"faction" : 0,
+			"is_player_controlled" : 0,
+			"description" : "\""
+		},
+		"stats" : {
+			"MaxMovement" : 0,
+			"MaxActions" : 0,
+			"MaxSpellsPerRound" : 0,
+			"Strength" : 10,
+			"Intellect" : 10,
+			"Wisdom" : 10,
+			"Dexterity" : 0,
+			"Vitality" : 10,
+			"Weight_Limit" : 1000000000,
+			"curHP" : 0,
+			"curSP" : 0,
+			"curTP" : 0,
+			"curFP" : 0,
+			"curRP" : 0,
+			"maxHP" : 0,
+			"maxSP" : 0,
+			"maxTP" : 0,
+			"maxFP" : 0,
+			"maxRP" : 0,
+			"HP_regen_base" : 1.0,
+			"SP_regen_base" : 1.0,
+			"HP_regen_mult" : 1.0,
+			"SP_regen_mult" : 1.0,
+			"AccuracyMelee" : 0,
+			"AccuracyRanged" : 0,
+			"AccuracyMagic" : 0,
+			"EvasionMelee" : 50,
+			"EvasionRanged" : 50,
+			"EvasionMagic" : 0,
+			"ResistancePhysical" : 0.0,
+			"ResistanceFire" : 0.0,
+			"ResistanceIce" : 0.0,
+			"ResistanceElect" : 0.0,
+			"ResistancePoison" : 0.0,
+			"ResistanceChemical" : 0.0,
+			"ResistanceDisease" : 0.0,
+			"ResistanceMagic" : 0.0,
+			"ResistanceHealing" : 0.0,
+			"ResistanceMental" : 0.0,
+			"MultiplierPhysical" : 1.0,
+			"MultiplierFire" : 1.0,
+			"MultiplierIce" : 1.0,
+			"MultiplierElect" : 1.0,
+			"MultiplierPoison" : 1.0,
+			"MultiplierChemical" : 1.0,
+			"MultiplierDisease" : 1.0,
+			"MultiplierMagic" : 1.00,
+			"MultiplierHealing" : 1.0,
+			"MultiplierMental" : 1.0,
+			"Melee_Crit_Rate" : 0.0,
+			"Melee_Crit_Mult" : 0.0,
+			"Ranged_Crit_Rate" : 0.0,
+			"Ranged_Crit_Mult" : 0.0,
+			"Bonus_Physical_dmg" : 0,
+			"Bonus_Magical_dmg" : 0,
+			"Detect_Secret" : 0.0,
+			"Acrobatics" : 0.0,
+			"Detect_Trap" : 0.0,
+			"Disable_Trap" : 0.0,
+			"Force_Lock" : 0.0,
+			"Pick_Lock" : 0.0,
+			"Turn_Undead" : 0.0
+		},
+		"traits" : [],
+		"ai" : { "flees_at" : 0, "cast_chance" : 0, "missile_chance" : 0 },
+		"tools" : {
+		"inventory" : [],
+		"money" : [0,0,0],
+		"unarmed_melee_attacks" : [
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  }
+],
+		"spells" : []
+	},
+		"scripts" : {"default" : "test_crea_script.gd"}
+	
+},
+
+	"Demon" : {
+		"data" : {
 			"name" : "Demon",
-			"image" : "CREA_demon",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Demon/Devil", "Very Evil", "Intelligent"],
 			"in_bestiary" : 1,
@@ -12105,11 +12291,10 @@
 	
 },
 
-	"Giant Wasp 109" : {
+	"Giant Wasp" : {
 		"data" : {
-			"id" : 109,
 			"name" : "Giant Wasp",
-			"image" : "CREA_giant_wasp",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -12216,11 +12401,10 @@
 	
 },
 
-	"Shantile 110" : {
+	"Shantile" : {
 		"data" : {
-			"id" : 110,
 			"name" : "Shantile",
-			"image" : "CREA_shantile",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Reptilian", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -12330,11 +12514,10 @@
 	
 },
 
-	"High Priest 111" : {
+	"High Priest" : {
 		"data" : {
-			"id" : 111,
 			"name" : "High Priest",
-			"image" : "CREA_humanmage",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Intelligent"],
 			"in_bestiary" : 0,
@@ -12433,11 +12616,10 @@
 	
 },
 
-	"Young Troll 112" : {
+	"Young Troll" : {
 		"data" : {
-			"id" : 112,
 			"name" : "Young Troll",
-			"image" : "CREA_young_troll",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Very Evil", "Intelligent", "Giant", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -12544,11 +12726,156 @@
 	
 },
 
-	"Mental Flea 114" : {
+	"" : {
 		"data" : {
-			"id" : 114,
+			"name" : "",
+			"image" : "CREA_antiid",
+			"size" : [1,1],
+			"tags" : [],
+			"in_bestiary" : 1,
+			"summonable" : 0,
+			"exp" : 100,
+			"level" : 0,
+			"faction" : 0,
+			"is_player_controlled" : 0,
+			"description" : ""
+		},
+		"stats" : {
+			"MaxMovement" : 0,
+			"MaxActions" : 0,
+			"MaxSpellsPerRound" : 0,
+			"Strength" : 10,
+			"Intellect" : 10,
+			"Wisdom" : 10,
+			"Dexterity" : 0,
+			"Vitality" : 10,
+			"Weight_Limit" : 1000000000,
+			"curHP" : 0,
+			"curSP" : 0,
+			"curTP" : 0,
+			"curFP" : 0,
+			"curRP" : 0,
+			"maxHP" : 0,
+			"maxSP" : 0,
+			"maxTP" : 0,
+			"maxFP" : 0,
+			"maxRP" : 0,
+			"HP_regen_base" : 1.0,
+			"SP_regen_base" : 1.0,
+			"HP_regen_mult" : 1.0,
+			"SP_regen_mult" : 1.0,
+			"AccuracyMelee" : 0,
+			"AccuracyRanged" : 0,
+			"AccuracyMagic" : 0,
+			"EvasionMelee" : 50,
+			"EvasionRanged" : 50,
+			"EvasionMagic" : 0,
+			"ResistancePhysical" : 0.0,
+			"ResistanceFire" : 0.0,
+			"ResistanceIce" : 0.0,
+			"ResistanceElect" : 0.0,
+			"ResistancePoison" : 0.0,
+			"ResistanceChemical" : 0.0,
+			"ResistanceDisease" : 0.0,
+			"ResistanceMagic" : 0.0,
+			"ResistanceHealing" : 0.0,
+			"ResistanceMental" : 0.0,
+			"MultiplierPhysical" : 1.0,
+			"MultiplierFire" : 1.0,
+			"MultiplierIce" : 1.0,
+			"MultiplierElect" : 1.0,
+			"MultiplierPoison" : 1.0,
+			"MultiplierChemical" : 1.0,
+			"MultiplierDisease" : 1.0,
+			"MultiplierMagic" : 1.00,
+			"MultiplierHealing" : 1.0,
+			"MultiplierMental" : 1.0,
+			"Melee_Crit_Rate" : 0.0,
+			"Melee_Crit_Mult" : 0.0,
+			"Ranged_Crit_Rate" : 0.0,
+			"Ranged_Crit_Mult" : 0.0,
+			"Bonus_Physical_dmg" : 0,
+			"Bonus_Magical_dmg" : 0,
+			"Detect_Secret" : 0.0,
+			"Acrobatics" : 0.0,
+			"Detect_Trap" : 0.0,
+			"Disable_Trap" : 0.0,
+			"Force_Lock" : 0.0,
+			"Pick_Lock" : 0.0,
+			"Turn_Undead" : 0.0
+		},
+		"traits" : [],
+		"ai" : { "flees_at" : 0, "cast_chance" : 0, "missile_chance" : 0 },
+		"tools" : {
+		"inventory" : [],
+		"money" : [0,0,0],
+		"unarmed_melee_attacks" : [
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  },
+  {
+	"weapon_dmg": {
+	  "Physical": [
+		0,
+		0
+	  ]
+	},
+	"sound": "slurpy.wav",
+	"melee_atk_anim_icon": "ATK_HTH",
+	"melee_inflicted_traits": []
+  }
+],
+		"spells" : []
+	},
+		"scripts" : {"default" : "test_crea_script.gd"}
+	
+},
+
+	"Mental Flea" : {
+		"data" : {
 			"name" : "Mental Flea",
-			"image" : "CREA_mental_flea",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -12647,11 +12974,10 @@
 	
 },
 
-	"Giant Beetle 115" : {
+	"Giant Beetle" : {
 		"data" : {
-			"id" : 115,
 			"name" : "Giant Beetle",
-			"image" : "CREA_beetle",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -12750,11 +13076,10 @@
 	
 },
 
-	"Goblin Shaman 116" : {
+	"Goblin Shaman" : {
 		"data" : {
-			"id" : 116,
 			"name" : "Goblin Shaman",
-			"image" : "CREA_goblin_shaman",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Intelligent"],
 			"in_bestiary" : 1,
@@ -12853,11 +13178,10 @@
 	
 },
 
-	"Slime Worm 117" : {
+	"Slime Worm" : {
 		"data" : {
-			"id" : 117,
 			"name" : "Slime Worm",
-			"image" : "CREA_slime_worm",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -12986,11 +13310,10 @@
 	
 },
 
-	"Giant Scorpion 118" : {
+	"Giant Scorpion" : {
 		"data" : {
-			"id" : 118,
 			"name" : "Giant Scorpion",
-			"image" : "CREA_giant_scorpion",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -13119,11 +13442,10 @@
 	
 },
 
-	"Troglodyte 119" : {
+	"Troglodyte" : {
 		"data" : {
-			"id" : 119,
 			"name" : "Troglodyte",
-			"image" : "CREA_troglodyte",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Reptilian", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -13233,11 +13555,10 @@
 	
 },
 
-	"Orc Champion 120" : {
+	"Orc Champion" : {
 		"data" : {
-			"id" : 120,
 			"name" : "Orc Champion",
-			"image" : "CREA_orc_champion",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -13347,11 +13668,10 @@
 	
 },
 
-	"Orc Shaman 121" : {
+	"Orc Shaman" : {
 		"data" : {
-			"id" : 121,
 			"name" : "Orc Shaman",
-			"image" : "CREA_orc_shaman",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Magic Using", "Intelligent"],
 			"in_bestiary" : 1,
@@ -13450,11 +13770,10 @@
 	
 },
 
-	"Orc Warrior 122" : {
+	"Orc Warrior" : {
 		"data" : {
-			"id" : 122,
 			"name" : "Orc Warrior",
-			"image" : "CREA_orc_warrior",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -13564,11 +13883,10 @@
 	
 },
 
-	"Beast Man 123" : {
+	"Beast Man" : {
 		"data" : {
-			"id" : 123,
 			"name" : "Beast Man",
-			"image" : "CREA_beast_man",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : [],
 			"in_bestiary" : 1,
@@ -13667,11 +13985,10 @@
 	
 },
 
-	"Gnome Warrior 124" : {
+	"Gnome Warrior" : {
 		"data" : {
-			"id" : 124,
 			"name" : "Gnome Warrior",
-			"image" : "CREA_gnome_warrior",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : [],
 			"in_bestiary" : 1,
@@ -13770,11 +14087,10 @@
 	
 },
 
-	"Monstrous Rat 125" : {
+	"Monstrous Rat" : {
 		"data" : {
-			"id" : 125,
 			"name" : "Monstrous Rat",
-			"image" : "CREA_monstrous_rat",
+			"image" : "CREA_antiid",
 			"size" : [2,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -13873,11 +14189,10 @@
 	
 },
 
-	"Orc Archer 126" : {
+	"Orc Archer" : {
 		"data" : {
-			"id" : 126,
 			"name" : "Orc Archer",
-			"image" : "CREA_orc_archer",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -13976,11 +14291,10 @@
 	
 },
 
-	"Giant Bee 127" : {
+	"Giant Bee" : {
 		"data" : {
-			"id" : 127,
 			"name" : "Giant Bee",
-			"image" : "CREA_giant_bee",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -14087,11 +14401,10 @@
 	
 },
 
-	"Giant Worker Ant 128" : {
+	"Giant Worker Ant" : {
 		"data" : {
-			"id" : 128,
 			"name" : "Giant Worker Ant",
-			"image" : "CREA_giant_worker_ant",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -14190,11 +14503,10 @@
 	
 },
 
-	"Goblin Champion 129" : {
+	"Goblin Champion" : {
 		"data" : {
-			"id" : 129,
 			"name" : "Goblin Champion",
-			"image" : "CREA_goblin_champion",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -14293,11 +14605,10 @@
 	
 },
 
-	"Goblin Archer 130" : {
+	"Goblin Archer" : {
 		"data" : {
-			"id" : 130,
 			"name" : "Goblin Archer",
-			"image" : "CREA_goblin_archer",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -14396,11 +14707,10 @@
 	
 },
 
-	"Goblin Chief 131" : {
+	"Goblin Chief" : {
 		"data" : {
-			"id" : 131,
 			"name" : "Goblin Chief",
-			"image" : "CREA_goblin_chief",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
@@ -14510,11 +14820,10 @@
 	
 },
 
-	"Bigbelly 132" : {
+	"Bigbelly" : {
 		"data" : {
-			"id" : 132,
 			"name" : "Bigbelly",
-			"image" : "CREA_goblin_champion",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Very Evil", "Intelligent"],
 			"in_bestiary" : 0,
@@ -14624,11 +14933,10 @@
 	
 },
 
-	"Giant Rat 133" : {
+	"Giant Rat" : {
 		"data" : {
-			"id" : 133,
 			"name" : "Giant Rat",
-			"image" : "CREA_giant_rat",
+			"image" : "CREA_antiid",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -14735,11 +15043,10 @@
 	
 },
 
-	"Rat Demi-Lord 134" : {
+	"Rat Demi-Lord" : {
 		"data" : {
-			"id" : 134,
 			"name" : "Rat Demi-Lord",
-			"image" : "CREA_rat_demilord",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -14898,11 +15205,10 @@
 	
 },
 
-	"Undead Rat Demi-Lord 135" : {
+	"Undead Rat Demi-Lord" : {
 		"data" : {
-			"id" : 135,
 			"name" : "Undead Rat Demi-Lord",
-			"image" : "CREA_rat_demilord",
+			"image" : "CREA_antiid",
 			"size" : [1,2],
 			"tags" : ["Magic Using", "Undead", "Very Evil", "Intelligent", "Non-Humanoid"],
 			"in_bestiary" : 0,
