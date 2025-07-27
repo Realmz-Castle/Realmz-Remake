@@ -1,6 +1,6 @@
 #SpellsRect is the script for the spells menu checked the HUD
 extends NinePatchRect
-
+class_name SpellsMenu
 
 
 

@@ -1,23 +1,26 @@
-[gd_scene load_steps=4 format=3 uid="uid://bauulxe7dboxs"]
+[gd_scene load_steps=5 format=3 uid="uid://bauulxe7dboxs"]
 
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_0m6qr"]
+[ext_resource type="Theme" uid="uid://u282hirfbjlc" path="res://scenes/UI/HUD/TurnOrderPanel/turnorderTheme.tres" id="1_qws3t"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/TurnOrderPanel/turn_order_panel.gd" id="2_0epos"]
 [ext_resource type="Texture2D" uid="uid://cbui5us5w455l" path="res://icon.png" id="3_5qswj"]
 
 [node name="TurnOrderPanel" type="Panel"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 92)
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -648.0
-offset_bottom = -600.0
+offset_bottom = -558.0
 grow_horizontal = 2
 grow_vertical = 0
+theme = ExtResource("1_qws3t")
 theme_override_styles/panel = ExtResource("1_0m6qr")
 script = ExtResource("2_0epos")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

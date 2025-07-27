@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://ydrlw05iy1k5"]
+[gd_scene load_steps=15 format=3 uid="uid://ydrlw05iy1k5"]
 
 [ext_resource type="PackedScene" uid="uid://jlb06ro2rvdg" path="res://scenes/Map/OWCharacter.tscn" id="1"]
 [ext_resource type="Script" path="res://scenes/Map/Map.gd" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scenes/Map/TargetingLayer.gd" id="5_4df2b"]
 [ext_resource type="Script" path="res://scripts/Main.gd" id="6"]
 [ext_resource type="Shader" path="res://scenes/CRT.gdshader" id="7_5xixa"]
+[ext_resource type="Texture2D" uid="uid://dw7ve0ahco0q3" path="res://scenes/CRT test image.png" id="7_8ms7i"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_12uap"]
 
@@ -21,7 +22,7 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_juq17"]
 shader = ExtResource("7_5xixa")
 shader_parameter/overlay = true
-shader_parameter/scanlines_opacity = 0.391
+shader_parameter/scanlines_opacity = 0.2
 shader_parameter/scanlines_width = 0.326
 shader_parameter/scanlines_v_width = 0.104
 shader_parameter/grille_opacity = 0.0
@@ -40,8 +41,8 @@ shader_parameter/brightness = 1.2
 shader_parameter/discolor = false
 shader_parameter/warp_amount = 0.0
 shader_parameter/clip_warp = false
-shader_parameter/vignette_intensity = 0.0
-shader_parameter/vignette_opacity = 0.0
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_opacity = 0.05
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -98,6 +99,13 @@ offset_bottom = 44.0
 [node name="CombatSystem" type="Node" parent="."]
 script = ExtResource("5")
 
+[node name="ShaderTestRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("7_8ms7i")
+
 [node name="ShaderOverlay" type="ColorRect" parent="."]
 visible = false
 material = SubResource("ShaderMaterial_juq17")
@@ -107,6 +115,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [connection signal="button_down" from="Map/MapMouseControlButton" to="Map" method="_on_MapMouseControlButton_button_down"]
 [connection signal="button_up" from="Map/MapMouseControlButton" to="Map" method="_on_MapMouseControlButton_button_up"]

@@ -1,20 +1,33 @@
-[gd_scene load_steps=17 format=3 uid="uid://ccbrj0rjl87wg"]
+[gd_scene load_steps=29 format=3 uid="uid://ccbrj0rjl87wg"]
 
 [ext_resource type="Script" path="res://scenes/UI/HUD/Special Encounter/EncounterControl.gd" id="1_lkbnn"]
+[ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="2_gk0l1"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="2_ygg0n"]
 [ext_resource type="Texture2D" uid="uid://2mvhqint3yr6" path="res://shared_assets/UI/buttonUP.png" id="3_1rvju"]
+[ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="3_fpyrf"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="3_ydgsm"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="4_5u5al"]
-[ext_resource type="Script" path="res://scenes/UI/HUD/Use Item Menu/UseItemRect.gd" id="4_qisvq"]
+[ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="4_m70ag"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="5_8b2o1"]
+[ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="5_84u8u"]
 [ext_resource type="Texture2D" uid="uid://c4c11arsu4nmc" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="5_nqj2a"]
 [ext_resource type="Texture2D" uid="uid://bhb346mi13h2m" path="res://scenes/UI/HUD/Special Encounter/ItemsIcon.png" id="6_h1di3"]
+[ext_resource type="Texture2D" uid="uid://dwxmsdi3m1qmk" path="res://scenes/UI/HUD/Button_Spells.png" id="6_jhwti"]
 [ext_resource type="PackedScene" uid="uid://bhthrfyy8yll3" path="res://scenes/UI/HUD/Inventory/ItemSmallButton.tscn" id="6_thf3l"]
 [ext_resource type="Texture2D" uid="uid://bswnj332q36ra" path="res://scenes/UI/HUD/Special Encounter/ActionIcon.png" id="7_yf7ge"]
 [ext_resource type="Texture2D" uid="uid://dfkyue3ko3ww2" path="res://scenes/UI/HUD/Special Encounter/speak_icon.png" id="8_2anlg"]
 [ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="9_7ke52"]
 [ext_resource type="Texture2D" uid="uid://cpp0jo86s376s" path="res://scenes/UI/HUD/Special Encounter/stop_icon.png" id="10_30dcr"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="11_7geeq"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Special Encounter/UseItemRect.gd" id="13_ti0g8"]
+[ext_resource type="StyleBox" uid="uid://dy0h5y6q52egy" path="res://shared_assets/UI/arrow_left_pressed_stylebox.tres" id="14_56nlr"]
+[ext_resource type="StyleBox" uid="uid://do2165v7bw27k" path="res://shared_assets/UI/arrow_left_normal_stylebox.tres" id="15_0seeu"]
+[ext_resource type="StyleBox" uid="uid://cxqaelp85815h" path="res://shared_assets/UI/arrow_right_pressed_stylebox.tres" id="17_2g7hx"]
+[ext_resource type="StyleBox" uid="uid://5ike745bi8ue" path="res://shared_assets/UI/arrow_right_normal_stylebox.tres" id="18_giup5"]
+[ext_resource type="Texture2D" uid="uid://whf3jogyanhq" path="res://scenes/UI/HUD/Special Encounter/SkillsIcon.png" id="18_qq2je"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Special Encounter/use_skill_rect.gd" id="23_warwl"]
+
+[sub_resource type="Shortcut" id="Shortcut_6nw34"]
 
 [sub_resource type="Shortcut" id="6"]
 
@@ -38,6 +51,15 @@ offset_top = -58.0
 offset_right = 244.0
 grow_vertical = 0
 
+[node name="SpellButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_styles/disabled = ExtResource("2_gk0l1")
+theme_override_styles/hover = ExtResource("3_fpyrf")
+theme_override_styles/pressed = ExtResource("4_m70ag")
+theme_override_styles/normal = ExtResource("5_84u8u")
+shortcut = SubResource("Shortcut_6nw34")
+icon = ExtResource("6_jhwti")
+
 [node name="InventoryButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 theme_override_styles/disabled = ExtResource("5_8b2o1")
@@ -49,6 +71,7 @@ shortcut_in_tooltip = false
 icon = ExtResource("6_h1di3")
 
 [node name="UseItemRect" type="NinePatchRect" parent="HBoxContainer/InventoryButton"]
+visible = false
 layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
@@ -63,7 +86,7 @@ patch_margin_right = 4
 patch_margin_bottom = 4
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-script = ExtResource("4_qisvq")
+script = ExtResource("13_ti0g8")
 
 [node name="LeftButton" type="Button" parent="HBoxContainer/InventoryButton/UseItemRect"]
 layout_mode = 0
@@ -71,6 +94,8 @@ offset_left = 4.0
 offset_top = 3.0
 offset_right = 29.0
 offset_bottom = 53.0
+theme_override_styles/pressed = ExtResource("14_56nlr")
+theme_override_styles/normal = ExtResource("15_0seeu")
 
 [node name="CharFaceRect" type="TextureRect" parent="HBoxContainer/InventoryButton/UseItemRect"]
 custom_minimum_size = Vector2(44, 44)
@@ -87,6 +112,8 @@ offset_left = 73.2964
 offset_top = 3.0
 offset_right = 98.2964
 offset_bottom = 53.0
+theme_override_styles/pressed = ExtResource("17_2g7hx")
+theme_override_styles/normal = ExtResource("18_giup5")
 
 [node name="CharNameLabel" type="Label" parent="HBoxContainer/InventoryButton/UseItemRect"]
 layout_mode = 0
@@ -165,6 +192,244 @@ theme_override_styles/normal = ExtResource("2_ygg0n")
 shortcut_in_tooltip = false
 icon = ExtResource("7_yf7ge")
 
+[node name="SkillsButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+focus_mode = 0
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+icon = ExtResource("18_qq2je")
+
+[node name="UseSkillRect" type="NinePatchRect" parent="HBoxContainer/SkillsButton"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 144.0
+offset_top = -270.0
+offset_right = 431.0
+offset_bottom = -38.0
+grow_horizontal = 0
+texture = ExtResource("3_1rvju")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("23_warwl")
+
+[node name="LeftButton" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 3.0
+offset_right = 29.0
+offset_bottom = 53.0
+theme_override_styles/pressed = ExtResource("14_56nlr")
+theme_override_styles/normal = ExtResource("15_0seeu")
+
+[node name="CharFaceRect" type="TextureRect" parent="HBoxContainer/SkillsButton/UseSkillRect"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 0
+offset_left = 29.2165
+offset_top = 5.56763
+offset_right = 73.2165
+offset_bottom = 49.5676
+texture = ExtResource("5_nqj2a")
+
+[node name="RightButton" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect"]
+layout_mode = 0
+offset_left = 73.2964
+offset_top = 3.0
+offset_right = 98.2964
+offset_bottom = 53.0
+theme_override_styles/pressed = ExtResource("17_2g7hx")
+theme_override_styles/normal = ExtResource("18_giup5")
+
+[node name="CharNameLabel" type="Label" parent="HBoxContainer/SkillsButton/UseSkillRect"]
+layout_mode = 0
+offset_left = 113.363
+offset_top = 20.1298
+offset_right = 177.363
+offset_bottom = 37.1298
+text = "Charname"
+
+[node name="CancelButton" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -87.0
+offset_top = -45.0
+offset_right = -3.0
+offset_bottom = -5.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_hover_pressed_color = Color(0.8, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 0.2, 0, 1)
+theme_override_colors/font_pressed_color = Color(0.8, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+text = "Cancel"
+
+[node name="textContainer" type="HBoxContainer" parent="HBoxContainer/SkillsButton/UseSkillRect"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 56.0
+offset_right = 281.0
+offset_bottom = 73.0
+
+[node name="SkillLabel" type="Label" parent="HBoxContainer/SkillsButton/UseSkillRect/textContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+text = "Skill"
+
+[node name="GoldLabel" type="Label" parent="HBoxContainer/SkillsButton/UseSkillRect/textContainer"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+text = "Chance"
+
+[node name="skillchanceContainer" type="HBoxContainer" parent="HBoxContainer/SkillsButton/UseSkillRect"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 72.0
+offset_right = 281.0
+offset_bottom = 184.0
+
+[node name="skillContainer" type="VBoxContainer" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AcroSkillButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "Acrobatic Act"
+
+[node name="DeteSkillButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "Detect Trap"
+
+[node name="DisaSkillButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "Disable Trap"
+
+[node name="PickSkillButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("5_8b2o1")
+theme_override_styles/hover = ExtResource("3_ydgsm")
+theme_override_styles/pressed = ExtResource("4_5u5al")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "Pick Lock"
+
+[node name="chanceContainer" type="VBoxContainer" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="AcroChanceButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/chanceContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("2_ygg0n")
+theme_override_styles/pressed = ExtResource("2_ygg0n")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "99%"
+
+[node name="DeteChanceButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/chanceContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("2_ygg0n")
+theme_override_styles/pressed = ExtResource("2_ygg0n")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "99%"
+
+[node name="DisaChanceButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/chanceContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("2_ygg0n")
+theme_override_styles/pressed = ExtResource("2_ygg0n")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "99%"
+
+[node name="PickChanceButt" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/chanceContainer"]
+custom_minimum_size = Vector2(50, 20)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("11_7geeq")
+theme_override_styles/disabled = ExtResource("2_ygg0n")
+theme_override_styles/hover = ExtResource("2_ygg0n")
+theme_override_styles/pressed = ExtResource("2_ygg0n")
+theme_override_styles/normal = ExtResource("2_ygg0n")
+shortcut_in_tooltip = false
+text = "99%"
+
 [node name="SpeakButton" type="Button" parent="HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
@@ -228,11 +493,20 @@ theme_override_styles/normal = ExtResource("2_ygg0n")
 shortcut_in_tooltip = false
 icon = ExtResource("10_30dcr")
 
+[connection signal="pressed" from="HBoxContainer/SpellButton" to="." method="_on_spell_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/InventoryButton" to="." method="_on_InventoryButton_pressed"]
 [connection signal="pressed" from="HBoxContainer/InventoryButton/UseItemRect/LeftButton" to="HBoxContainer/InventoryButton/UseItemRect" method="_on_LeftButton_pressed"]
 [connection signal="pressed" from="HBoxContainer/InventoryButton/UseItemRect/RightButton" to="HBoxContainer/InventoryButton/UseItemRect" method="_on_RightButton_pressed"]
 [connection signal="pressed" from="HBoxContainer/InventoryButton/UseItemRect/CancelButton" to="HBoxContainer/InventoryButton/UseItemRect" method="_on_CancelButton_pressed"]
 [connection signal="pressed" from="HBoxContainer/ActionButton" to="." method="_on_ActionButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/SkillsButton" to="." method="_on_skills_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/SkillsButton/UseSkillRect/LeftButton" to="HBoxContainer/SkillsButton/UseSkillRect" method="_on_LeftButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/SkillsButton/UseSkillRect/RightButton" to="HBoxContainer/SkillsButton/UseSkillRect" method="_on_RightButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/SkillsButton/UseSkillRect/CancelButton" to="HBoxContainer/SkillsButton/UseSkillRect" method="_on_CancelButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer/AcroSkillButt" to="HBoxContainer/SkillsButton/UseSkillRect" method="_on_skillbutton_pressed" binds= ["Acrobatics"]]
+[connection signal="pressed" from="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer/DeteSkillButt" to="HBoxContainer/SkillsButton/UseSkillRect" method="_on_skillbutton_pressed" binds= ["Detect_Trap"]]
+[connection signal="pressed" from="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer/DisaSkillButt" to="HBoxContainer/SkillsButton/UseSkillRect" method="_on_skillbutton_pressed" binds= ["Disable_Trap"]]
+[connection signal="pressed" from="HBoxContainer/SkillsButton/UseSkillRect/skillchanceContainer/skillContainer/PickSkillButt" to="HBoxContainer/SkillsButton/UseSkillRect" method="_on_skillbutton_pressed" binds= ["Pick_Lock"]]
 [connection signal="pressed" from="HBoxContainer/SpeakButton" to="." method="_on_SpeakButton_pressed"]
 [connection signal="pressed" from="HBoxContainer/SpeakButton/NinePatchRect/SpeakDoneButton" to="." method="_on_SpeakDoneButton_pressed"]
 [connection signal="pressed" from="HBoxContainer/StopButton" to="." method="_on_StopButton_pressed"]

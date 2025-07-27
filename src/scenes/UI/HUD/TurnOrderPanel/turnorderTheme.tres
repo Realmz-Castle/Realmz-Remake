@@ -1,0 +1,10 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://u282hirfbjlc"]
+
+[ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_7bphj"]
+[ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_bjvet"]
+
+[resource]
+Button/styles/focus = ExtResource("1_7bphj")
+Button/styles/hover = ExtResource("2_bjvet")
+Button/styles/normal = ExtResource("1_7bphj")
+Button/styles/pressed = ExtResource("2_bjvet")

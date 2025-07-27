@@ -9,11 +9,14 @@ func _ready():
 
 
 func update_display() :
+
 	for c in box.get_children() :
 		box.remove_child(c)
 		c.queue_free()
 	var battle_creatures_yet_to_act_btns : Array = StateMachine.combat_state.battle_creatures_yet_to_act_btns
 	# this is an array of CombatCreaButtons
+	printerr("TURNORDERPANEL UPDATE_DISPLAY : ", battle_creatures_yet_to_act_btns)
+	
 	for cb : CombatCreaButton in battle_creatures_yet_to_act_btns :
 		var nbutton : Button = Button.new()
 		nbutton.icon = cb.sprite.texture
@@ -21,13 +24,14 @@ func update_display() :
 		nbutton.mouse_exited.connect( UI.ow_hud._on_mouse_exit_combat_crea_button )
 		#button.pressed.connect(_on_pressed.bind(button))
 		box.add_child(nbutton)
-		nbutton.cust
+		#nbutton.custom_minimum_size.y = 64
+		#nbutton.add_theme_stylebox_override()
 
 
 
 
 func _on_mouse_entered():
-	UI.ow_hud._on_mouse_enter_combat_crea_button(self)
+	#UI.ow_hud._on_mouse_enter_combat_crea_button(self)
 	GameGlobal.map.mouseinside = true
 
 

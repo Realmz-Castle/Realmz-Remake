@@ -11,7 +11,7 @@ static func get_range_between_creas(crea : Creature, othercrea : Creature) ->int
 					var r : int = GameGlobal.calculate_range_v(crea.position + Vector2(cx,cy)-othercrea.position - Vector2(tx,ty))
 					#print(cx,' ',cy,' , ',tx,' ',ty,' ',r)
 					min_range = min(min_range, r)
-	print("test crea script get_range_between_creas returns", min_range)
+	#print("test crea script get_range_between_creas returns", min_range)
 	return min_range
 
 ## returns an array of Creatures

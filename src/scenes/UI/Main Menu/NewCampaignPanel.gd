@@ -83,7 +83,8 @@ func _on_StartButton_pressed() -> void :
 	GameGlobal.init_globals_before_game_start(data_dict)
 	
 	#minimaps from on_campaign_start.gd  :
-	pass
+	var onstartscript = load(Paths.campaignsfolderpath + selectedCampaign + "/on_campaign_start.gd" )
+	onstartscript.set_minimaps_in_gameglobal()
 	#GameGlobal.currentcampaign_onload_script
 	
 	

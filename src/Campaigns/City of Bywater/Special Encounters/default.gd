@@ -1,8 +1,19 @@
+const allow_spells : bool = true
 const allow_items : bool = true
 const allow_action : bool = true
 const allow_skill : bool = true
 const allow_speak : bool = true
 const allow_stop : bool = true
+
+
+var detected_trap_flag_stuff_done : String = 'default_enc_detect'
+var disabled_trap_flag_stuff_done : String = 'default_enc_disable'
+var picked_trap_flag_stuff_done : String = 'default_enc_picked'
+var acro_difficulty : float = 10
+var dete_difficulty : float = 10
+var disa_difficulty : float = 10
+var pick_difficulty : float = 10
+
 
 signal encounter_over
 
@@ -14,7 +25,8 @@ signal encounter_over
 func _ready() :
 	pass
 
-func _on_spell_used(spell, character) :
+func _on_spell_used(character, spell, power) :
+	await ScriptHelperFuncsClass.display_text_wait_noise("You cast "+spell.name+" at thin air.",spell.sounds[1])
 	await generic_outcome()
 	emit_signal("encounter_over")
 

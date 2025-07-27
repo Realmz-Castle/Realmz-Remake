@@ -8,26 +8,31 @@ class_name TestCreaScript
 #  [1, selectedSpell, selectedplvl, spell_target_pos].......aoe_shape : Array, picked_targets : Dictionary, picked_tiles:Dictionary, chain_start : bool, must_add_terrain : bool)
 static func decide_action(crea : Creature) -> Array :
 	print("test_crea_script decide_action : "+crea.name)
+	
+	if crea.get_apr_left() <= 0 :
+		print("ai decideaction : crea.get_apr_left() <= 0 : "+str(crea.get_apr_left())  )
+		return [0, Vector2i.ZERO ]
+	
 	var missile_chance : int = int(crea.ai_variables["missile_chance"]) # 100  is 100%
 	var cast_chance : int = int(crea.ai_variables["cast_chance"])
 	var flees_at : int = crea.ai_variables["flees_at"]
 	var target_crea = find_target_crea(crea)
 	var targ_range : int = AiFunctions.get_range_between_creas(crea, target_crea)
+	
+	printerr(missile_chance,' ',cast_chance,' ',flees_at,' ',target_crea.name,' ',targ_range)
+	
 	print("TestCreaScript "+crea.name+' tg is '+target_crea.name+ " targ_range : " + str(targ_range))
 	
 	#if have a target and it's close enough, walk to it and attack
 	if target_crea :
 		var target_pos : Vector2 = target_crea.position
-		if targ_range<=crea.get_movement_left() and int(crea.ai_variables["cast_chance"])<randi_range(0,100) :
+		if targ_range<=crea.get_movement_left()*3 and int(crea.ai_variables["cast_chance"])<randi_range(0,100) :
 			var path : Array = GameGlobal.map.find_path(crea.position, target_pos, true, false, false, crea, true)
 			print("TestCreaScript "+crea.name+' path size is ', path.size() )
-			if crea.get_apr_left() <= 0 :
-				print("ai decideaction : crea.get_apr_left() <= 0 : "+str(crea.get_apr_left())+"  or  path.size() < 2 : "+str( path.size() < 2)  )
-				return [0, Vector2i.ZERO ]
-			else :
-				if path.size() < 2 and path.size() >0 :
-					print("ai decideaction : "+crea.name+" 's path is : "+str(path.size())+' long')
-					return [0,Vector2i(path[1])-Vector2i(crea.position) ]
+
+			if path.size() >0 :
+				print("ai decideaction : "+crea.name+" 's path is : "+str(path.size())+' long')
+				return [0,Vector2i(path[1])-Vector2i(crea.position) ]
 		else :
 			# CAST MAGIC or use bow !!!
 			print("test_crea_script.gd "+crea.name+" considers using item or maguc")
@@ -53,7 +58,7 @@ static func decide_action(crea : Creature) -> Array :
 			var ignore_cost : bool = false
 			var used_an_item : bool = false
 			var item_used : Dictionary = {}
-			print("want_use_item ? ", want_use_item, " , missile_chance :", missile_chance, '  , randint : ', randint)
+			print("test crea script.gd want_use_item ? ", want_use_item, " , missile_chance :", missile_chance, '  , randint : ', randint)
 			if want_use_item :
 				#var weapon_spell_arr : Array =  crea.current_range_weapon["_on_combat_use_spell"]
 				item_used = allitemswspellsArray[0]
@@ -66,7 +71,7 @@ static func decide_action(crea : Creature) -> Array :
 				selectedSpell = allspellsArray[0][0]["script"]
 				selectedplvl  = randi_range(1,7)
 			if not (want_use_item or want_use_spell) :
-				print("decideaction : "+crea.name+" wants to do nothing")
+				print("test crea script.gd decideaction : "+crea.name+" wants to do nothing")
 				return [0, Vector2i.ZERO ]
 			
 			#var spell_cast_message :  Array = [0, Vector2i.ZERO ]

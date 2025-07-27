@@ -62,11 +62,17 @@ func enter(_msg : Dictionary = {}) -> void:
 	UI.ow_hud.botrightpanel.hide()
 	UI.ow_hud.combatBRPanel.show()
 	
-	if UI.ow_hud.turnorderPanel.visible :
-		UI.ow_hud.turnorderPanel.update_display()
+
 	
 	if _msg.has("battle_start") :
 		initialize_battle(_msg, resources, map)
+		#printerr("CBDecideAction combat_state.all_battle_creatures_btns after  init : ", combat_state.all_battle_creatures_btns)
+		printerr("CBDecideAction combat_state.battle_creatures_yet_to_act_btns after  init : ", combat_state.battle_creatures_yet_to_act_btns)
+	
+	if UI.ow_hud.turnorderPanel.visible :
+		UI.ow_hud.turnorderPanel.update_display()
+	
+	
 	var battle_end_str : String = combat_state.check_battle_end()  # 0=nope 1=won 2=lost 3=fled
 	if not battle_end_str.is_empty() :
 		GameGlobal.end_battle(battle_end_str)
@@ -97,9 +103,11 @@ func enter(_msg : Dictionary = {}) -> void:
 	UI.ow_hud.xPosLabel.text = str(cur_act_crea.position.x)
 	UI.ow_hud.yPosLabel.text = str(cur_act_crea.position.y)
 	
+
+	
 	print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() ", cur_act_crea.is_crea_player_controlled())
 	if cur_act_crea.is_crea_player_controlled() :
-		print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() true so skippinf dcideaction")
+		print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() true so skipping dcideaction")
 		#action_msg = await player_cb_action_msg_signal
 		return
 
@@ -206,6 +214,7 @@ func start_new_round() :
 	
 	
 	combat_state.battle_creatures_yet_to_act_btns = combat_state.all_battle_creatures_btns.duplicate(false)
+	printerr("CBDecideAction combat_state.battle_creatures_yet_to_act_btns on new turn : ", combat_state.battle_creatures_yet_to_act_btns)
 
 	UI.ow_hud.set_selected_creature(combat_state.battle_creatures_yet_to_act_btns[0].creature)
 	UI.ow_hud._on_mouse_exit_combat_crea_button()

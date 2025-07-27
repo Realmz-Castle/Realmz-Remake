@@ -226,6 +226,8 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	
 	global_effects = data_dict["GlobalEffects"]
 	
+	minimaps = data_dict["minimaps"]
+	
 	allow_next_battle_loot = true
 
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :

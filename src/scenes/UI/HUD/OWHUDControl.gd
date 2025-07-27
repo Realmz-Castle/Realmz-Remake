@@ -708,7 +708,9 @@ func _on_turn_order_button_toggled(toggled_on : bool) :
 
 
 func _on_minimaps_button_pressed() -> void:
-	if StateMachine._state_name == "ExWalking" :
+	print("owhud _on_minimaps_button_pressed")
+	if StateMachine._state_name == "Exploration" :
+		print("owhud show minimaps panel")
 		StateMachine.enter_ex_menu_state(({"menu_name" : "MiniMapsMenu"}))
 
 
