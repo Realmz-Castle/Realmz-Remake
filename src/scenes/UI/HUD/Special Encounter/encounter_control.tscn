@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://ccbrj0rjl87wg"]
+[gd_scene load_steps=30 format=3 uid="uid://ccbrj0rjl87wg"]
 
 [ext_resource type="Script" path="res://scenes/UI/HUD/Special Encounter/EncounterControl.gd" id="1_lkbnn"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="2_gk0l1"]
@@ -26,6 +26,7 @@
 [ext_resource type="StyleBox" uid="uid://5ike745bi8ue" path="res://shared_assets/UI/arrow_right_normal_stylebox.tres" id="18_giup5"]
 [ext_resource type="Texture2D" uid="uid://whf3jogyanhq" path="res://scenes/UI/HUD/Special Encounter/SkillsIcon.png" id="18_qq2je"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Special Encounter/use_skill_rect.gd" id="23_warwl"]
+[ext_resource type="FontFile" uid="uid://38j7ftucag8s" path="res://Fonts/BlackChancery.ttf" id="24_mfkhb"]
 
 [sub_resource type="Shortcut" id="Shortcut_6nw34"]
 
@@ -228,6 +229,7 @@ offset_left = 4.0
 offset_top = 3.0
 offset_right = 29.0
 offset_bottom = 53.0
+theme_override_styles/hover = ExtResource("15_0seeu")
 theme_override_styles/pressed = ExtResource("14_56nlr")
 theme_override_styles/normal = ExtResource("15_0seeu")
 
@@ -238,6 +240,7 @@ offset_left = 29.2165
 offset_top = 5.56763
 offset_right = 73.2165
 offset_bottom = 49.5676
+mouse_filter = 2
 texture = ExtResource("5_nqj2a")
 
 [node name="RightButton" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect"]
@@ -246,6 +249,7 @@ offset_left = 73.2964
 offset_top = 3.0
 offset_right = 98.2964
 offset_bottom = 53.0
+theme_override_styles/hover = ExtResource("18_giup5")
 theme_override_styles/pressed = ExtResource("17_2g7hx")
 theme_override_styles/normal = ExtResource("18_giup5")
 
@@ -255,6 +259,9 @@ offset_left = 113.363
 offset_top = 20.1298
 offset_right = 177.363
 offset_bottom = 37.1298
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("24_mfkhb")
+theme_override_font_sizes/font_size = 20
 text = "Charname"
 
 [node name="CancelButton" type="Button" parent="HBoxContainer/SkillsButton/UseSkillRect"]

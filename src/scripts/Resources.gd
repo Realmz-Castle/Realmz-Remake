@@ -68,7 +68,7 @@ func load_campaign_ressources( campaign : String = "") ->void :
 		#var tilesets : Array = Utils.FileHandler.list_dirs_in_directory(tilesetspath)
 		#for ts in tilesets :
 		load_tile_resources(tilesetspath)# + ts + '/')
-
+	pass
 	load_item_resources("res://shared_assets/items/")
 	var itemsetpath : String = Paths.campaignsfolderpath + campaign + "/Items/"
 	if DirAccess.dir_exists_absolute(itemsetpath) :

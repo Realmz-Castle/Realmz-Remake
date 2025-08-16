@@ -40,6 +40,13 @@ func _ready():
 func display_character_skills(encounterscript) :
 	if character == null :
 		return
+	if character.get("portrait") :
+		charportrait.texture = character.portrait
+	else :
+		charportrait.texture = character.textureL
+	charnamelabel.text = character.name
+	
+	
 	encounter_script = encounterscript
 	#initialize flags just in case, Object.get(property: StringName) const
 	if encounterscript.get("detected_trap_flag_stuff_done") != null :
@@ -66,6 +73,9 @@ func display_character_skills(encounterscript) :
 		acroskillbutt.disabled = false
 		acro_chance = clampf(0.01*(character.get_stat("Acrobatics")-encounterscript.acro_difficulty),0.0,1.0)
 		acrochancebutt.text = str(acro_chance*100)+'%'
+	else :
+		acroskillbutt.disabled = true
+		acrochancebutt.text = "X"
 	
 	#DETECT
 	if encounterscript.get("detected_trap_flag_stuff_done") :
@@ -73,11 +83,16 @@ func display_character_skills(encounterscript) :
 			deteskillbutt.disabled = false
 			dete_chance = clampf(0.01*(character.get_stat("Detect_Trap")-encounterscript.dete_difficulty),0.0,1.0)
 			detechancebutt.text = str(dete_chance*100)+'%'
+		else :
+			deteskillbutt.disabled = true
+			detechancebutt.text = "X"
 		if GameGlobal.stuff_done.has(encounter_script.detected_trap_flag_stuff_done) :
 			if GameGlobal.stuff_done[encounter_script.detected_trap_flag_stuff_done]>0 :
 				deteskillbutt.disabled = true
 				detechancebutt.text = "DONE"
-
+	else :
+		deteskillbutt.disabled = true
+		detechancebutt.text = "X"
 			
 
 	#DISABLE
@@ -92,6 +107,9 @@ func display_character_skills(encounterscript) :
 				if GameGlobal.stuff_done[encounter_script.disabled_trap_flag_stuff_done]>0 :
 					disaskillbutt.disabled = true
 					disachancebutt.text = "DONE"
+	else :
+		disaskillbutt.disabled = true
+		disachancebutt.text = "X"
 	
 	#PICK
 	if encounterscript.get("pick_difficulty") != null :
@@ -102,7 +120,34 @@ func display_character_skills(encounterscript) :
 			if GameGlobal.stuff_done[encounter_script.picked_trap_flag_stuff_done]>0 :
 				pickskillbutt.disabled = true
 				pickchancebutt.text = "DONE"
+	else :
+		pickskillbutt.disabled = true
+		pickchancebutt.text = "X"
+
 	
+	#DISABLE : 
+	if encounterscript.get("disa_difficulty") != null :
+		if GameGlobal.stuff_done.has(encounter_script.detected_trap_success_flag_stuff_done) :
+			if GameGlobal.stuff_done[encounter_script.detected_trap_success_flag_stuff_done] >0 :
+				disaskillbutt.disabled = false
+				disa_chance = clampf(0.01*(character.get_stat("Disable_Trap")-encounterscript.disa_difficulty),0.0,1.0)
+				disachancebutt.text = str(disa_chance*100)+'%'
+		else :
+			disaskillbutt.disabled = true
+			disachancebutt.text = "?"
+		
+		if GameGlobal.stuff_done.has(encounter_script.disabled_trap_flag_stuff_done) :
+			if GameGlobal.stuff_done[encounter_script.disabled_trap_flag_stuff_done] >0 :
+				disaskillbutt.disabled = true
+				disachancebutt.text = "DONE"
+
+	else :
+		if not GameGlobal.stuff_done.has(encounter_script.disabled_trap_success_flag_stuff_done) :
+			disaskillbutt.disabled = true
+			disachancebutt.text = "?"
+		else :
+			disaskillbutt.disabled = true
+			disachancebutt.text = "DONE"
 	#var detected_trap_flag_stuff_done : String = ''
 	#var disabled_trap_flag_stuff_done : String = ''
 	#var acro_difficulty : float = 0
@@ -137,7 +182,7 @@ func _on_RightButton_pressed():
 
 func _on_skillbutton_pressed(skillname : String) :
 	emit_signal("skill_picked", skillname, character)
-	hide()
+	#hide()
 
 func _on_CancelButton_pressed():
 	emit_signal("skill_picked", "abort", null)

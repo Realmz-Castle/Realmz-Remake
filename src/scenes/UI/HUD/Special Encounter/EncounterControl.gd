@@ -27,7 +27,7 @@ signal encounter_over
 func _ready():
 	on_viewport_size_changed(ScreenUtils.get_logical_window_size(self))
 	useitemRect.connect("item_picked",Callable(self,"_on_item_used"))
-
+	useSkillRect.connect("skill_picked", Callable(self,"_on_skill_used"))
 
 func initialize(scriptname : String) :
 	print("encountercontrol initialize : "+scriptname)
@@ -114,6 +114,25 @@ func _on_item_used(item : Dictionary, character) :
 #	print(character.name+' used '+item["name"]+' !')
 	useitemRect.hide()
 	await encounter_script._on_item_used(item, character)
+
+func _on_skill_used(skillname : String, character) :
+	print("EncounterControl _on_skill_used : "+skillname+" by "+character.name)
+	var stat : float = character.get_stat(skillname)
+	match skillname :
+		"abort" :
+			useSkillRect.hide()
+		"Acrobatics" :
+			await encounter_script._on_acro_used(stat, character)
+		"Detect_Trap" :
+			await encounter_script._on_dete_used(stat, character)
+		"Disable_Trap" :
+			await encounter_script._on_disa_used(stat, character)
+		"Pick_Lock" :
+			await encounter_script._on_pick_used(stat, character)
+		"Force_Lock" :
+			await encounter_script._on_forc_used(stat, character)
+	useSkillRect.display_character_skills(encounter_script)
+
 
 func _on_ActionButton_pressed():
 	close_spell_menu()

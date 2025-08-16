@@ -57,28 +57,32 @@ static func display_text_wait_noise(txt : String, sfxname : String) -> void :
 	await textRect.interruption_over
 
 ## Divinity Code 3 Player Option , option
-static func yesno_branch(continue_on_yes : bool, tg_type : int, tg_name : String, lefttxt : String, righttxt : String) ->void :
+static func yesno_branch(continue_on_yes : bool, tg_type : int, tg_name : String, lefttxt : String, righttxt : String) ->bool :
+	#return true iff branching, if continuing return false does nothing
 	#continue_option=, target_type=, target=, left_prompt=, right_prompt=
 	# 0: back  a step, 1: continue normally,  2:simple enc, 3:complex_end ; 4 : exit  and disable script
 	var textRect : TextRect = UI.ow_hud.textRect
-	if lefttxt=='0' and righttxt=='0' :
+	if lefttxt=='' and righttxt=='' :
 		textRect.display_multiple_choices(["YESNO"],["YESNO"])
 	else :
 		textRect.display_multiple_choices([lefttxt, righttxt],["YES", "NO"])
 	var answer = await textRect.choice_pressed
 	if (continue_on_yes and answer=='NO') or (not continue_on_yes and answer=='YES') :
-		return
+		return false #don't branch, keep executing AP normally
 	else:
 		if tg_type==0 :
-			GameGlobal.must_cancel_movement = true
-			return
+			GameGlobal.must_cancel_movement = true # that's  "cancel movement"
+			print("yesno_branch back a step")
 		if tg_type == 1 :
-			return
+			print("yesno_branch continue normally")
 		if tg_type == 2 :
-			print("yesno_branch TBI when simple encounters are  understood")
+			printerr("yesno_branch to simple  encounter "+str(tg_name)+", pleae fix manually and set the 2nd parameter 2 (simple enc) to 1 (continue manually)")
+		if tg_type == 3 :
+			printerr("yesno_branch to complex encounter "+str(tg_name)+", pleae fix manually and set the 2nd parameter 3 (complex enc) to 1 (continue manually)")
 		if tg_type==4 :
+			printerr("yesno_branch flag script as disabled, make sure to add a check at script start")
 			flag_disabled_current_script()
-			return
+		return true
 			
 	
 	

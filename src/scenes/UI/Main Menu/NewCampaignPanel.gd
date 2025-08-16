@@ -67,6 +67,7 @@ func _on_StartButton_pressed() -> void :
 		"campaign" = selectedCampaign,
 		"currentmap_name" = "Default Map",
 		"shops_dict" = {},
+		"minimaps" = [],
 		"GlobalEffects" = {
 			"WaterBreath" : {"Duration" : 0},
 			"FeatherFall" : {"Duration" : 0},

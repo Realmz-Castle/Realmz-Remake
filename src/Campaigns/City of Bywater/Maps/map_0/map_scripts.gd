@@ -1,455 +1,734 @@
-#City of Bywater Map 0  (overworld)
+#Map test Script generated from old AP format
 
-static func _on_map_load(_map) :  #Necessary even if unused, replace body with "pass" if so.
+static func _on_map_load(_map) :
 	print("mapscript _on_map_load() !!! ")
-	if not GameGlobal.stuff_done.has("met_vodalian") :
-		_map.add_extra_image("Vodada", "CREA_Vodalian",Vector2(13,10))
+	# Add any initialization code here
 
-
-static func scenario_start() :  #===== LAND AP level=0 id=76 x=2 y=2 [LAP0/76]
-	if GameGlobal.stuff_done.has("scenario_start_seen") :
-		return
-	ScriptHelperFuncsClass.display_picture_file('Scenario_Start.png')
-	
+static func AP0x9y17() : #0 at 9,17
 	var textRect = UI.ow_hud.textRect
-	
-	await ScriptHelperFuncsClass.display_text_wait_noise('Welcome to "The City of Bywater", a scenario for use with the Realmz Scenario Driver.  If you enjoy playing Realmz and would like to see more scenarios developed, please support us by sending in your registration fee.', 'heal.wav')
-	await ScriptHelperFuncsClass.display_text_wait_noise('Once you have registered this copy of Realmz, you will be able to play the entire scenario.  This scenario is very loose.  It does not have a strong plot line.  You can adventure where you want for as long as you want', 'heal.wav')
-	await ScriptHelperFuncsClass.display_text_wait_noise("Once you have registered this copy of Realmz, you will also be able to play test other scenarios BEFORE having to register them.  The fee for each additional scenario are $13 each.  For information on how to register, see chapter 3 of the Realmz Manual.", 'hallelujah.wav')
-	await ScriptHelperFuncsClass.display_text_wait_noise("Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.",'message nod.wav')
-	ScriptHelperFuncsClass.hide_picture()
-	GameGlobal.stuff_done["scenario_start_seen"] = 1
-	ScriptHelperFuncsClass.change_tileset("ForestDay", "SnowDay")
-
-
-static func guard_house() : #LAND AP level=0 id=0 x=9 y=17 [LAP0/0]
-	if GameGlobal.stuff_done.has("guardhouse_attacked") :
-		return
-	var textRect = UI.ow_hud.textRect
-	await ScriptHelperFuncsClass.display_text_wait_noise("You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.",'message nod.wav')
-	
-	# SIMPLE ENCOUNTER id=0
-	ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-	var toptext : String = "Judging by the man's large girth, robes are not all he fancies.  You approach his fine oak desk.  \"Present your invitation so I may validate it for passage to yon castle.\""
-	textRect.display_multiple_choices([toptext, "Attempt to bribe your way into the castle.","Show him an invitation to the castle.", "Show him a forged invitation.","Kindly bid him farewell and leave the guardhouse."],["TEXT","bribe", "show","forged", "leave"])
-	var answer = await textRect.choice_pressed
-	if answer == "bribe" :
-		toptext = "The lump of a man leans close so the guards do not hear.  \"For 300 Gold, I shall give you an invitation, but you must swear to use it but once.  To do so more than once will raise my ire.\""
-		ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-		textRect.display_multiple_choices([toptext,"Pay the gold.", "Refuse his offer."],["TEXT", "pay", "refuse"])
-		var answer2 = await textRect.choice_pressed
-		print("MAP  SCRIPT  map_0 : answer2 : ", answer2, " pay ? ", answer2=="pay")
-		if answer2 == "pay" :
-			# check if characters have 300g :
-			var totalgold : int = 0
-			for character in GameGlobal.player_characters :
-				totalgold += character.money[0] #0 is gold
-			print("MAP  SCRIPT  map_0 : total gold : ", totalgold)
-			if totalgold>=300 :
-				ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-				textRect.set_text("He hands you an invitation to the Castle Anthrax.", true)
-				#pay 300g
-				ScriptHelperFuncsClass.remove_gold_from_party(300)
-				await textRect.interruption_over
-				#give treasure 0
-				var invtemplate = NodeAccess.__Resources().items_book["Invitation"]
-				var treasureitems = [ invtemplate.duplicate(true)]
-				StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
-				await UI.ow_hud.treasureControl.done_looting
-				
-				await ScriptHelperFuncsClass.display_text_wait_noise("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.",'message nod.wav')
-				
-				return
-			else :
-				await ScriptHelperFuncsClass.display_text_wait_noise("Your party does not have enough gold.",'generation error.wav')
-				textRect.set_text("He bids you farewell as you make your way from the gate house.", true)
-				await textRect.interruption_over
-				return
-	if answer == "show" :
-		if ScriptHelperFuncsClass.does_party_have_item_named("Invitation") :
-			await ScriptHelperFuncsClass.display_text_wait_noise("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.",'message nod.wav')
-			return
-		else :
-			await ScriptHelperFuncsClass.display_text_wait_noise("The Magistrate gazes at you and speaks \"Without an invitation you will not be allowed through the main gate.  Perhaps we can work something out.\"",'message nod.wav')
-			#copypasted from above
-			toptext = "The lump of a man leans close so the guards do not hear.  \"For 300 Gold, I shall give you an invitation, but you must swear to use it but once.  To do so more than once will raise my ire.\""
-			ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-			textRect.display_multiple_choices([toptext,"Pay the gold.", "Refuse his offer."],["TEXT", "pay", "refuse"])
-			var answer2 = await textRect.choice_pressed
-			if answer2 == "pay" :
-				# check if characters have 300g :
-				var totalgold : int = 0
-				for character in GameGlobal.player_characters :
-					totalgold += character.money[0] #0 is gold
-				if totalgold>=300 :
-					ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-					textRect.set_text("He hands you an invitation to the Castle Anthrax.", true)
-					#pay 300g
-					var gold_to_give : int = 300
-					for character in GameGlobal.player_characters :
-						var gold_given : int = min (gold_to_give, character.money[0])
-						gold_to_give -= gold_given
-						character.money[0] -= gold_given
-					await textRect.interruption_over
-					#give treasure 0
-					var invtemplate = NodeAccess.__Resources().items_book["Invitation"]
-					var treasureitems = [ invtemplate.duplicate(true)]
-					StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
-					await UI.ow_hud.treasureControl.done_looting
-					
-					await ScriptHelperFuncsClass.display_text_wait_noise("In a booming voice, he pronounces you valid petitioners and bids the guards to let you pass into Castle Anthrax.",'message nod.wav')
-				
-					return
-				else :
-					await ScriptHelperFuncsClass.display_text_wait_noise("Your party does not have enough gold.",'generation error.wav')
-					textRect.set_text("He bids you farewell as you make your way from the gate house.", true)
-					await textRect.interruption_over
-					return
-	if answer == "forged" :
-		#SIMPLE ENCOUNTER id=1
-		toptext = "He takes your clever forgery and looks it over carefully.  Ere he hands it back to you his eyes go wide and he summons the guards.\n\"Hold these fools, they attempt deception.\"\nGuards rush to apprehend you."
-		ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-		textRect.display_multiple_choices([toptext,"Attack the guards in an attempt to gain entry to the castle.", "Take the magistrate hostage.", "Flee from the gatehouse.", "Let them seize you and attempt to explain that there has been a mistake." ],["TEXT", "attack", "hostage", "flee", "explain"])
-		var answer2 = await textRect.choice_pressed
-		if answer2 == "attack" :
-				await ScriptHelperFuncsClass.display_text_wait_noise("The sergeant of the guard grins in anticipation.  \"You shall swing from the gallows ere today's sun bids us farewell.\"  The battle is joined.",'message nod.wav')
-				#change_rect              level=0, id=0, times_in_10k=150, new_battle_low=4, new_battle_high=8
-				GameGlobal.stuff_done["guardhouse_attacked"] = 1
-				#BATTLE
-				GameGlobal.start_battle("Battle_1","map_0", true,false, true,true,true,[])
-				var battle_outcome = await GameGlobal.battle_end
-				return
-		if answer2 == "hostage" :
-			GameGlobal.stuff_done["guardhouse_attacked"] = 1
-			await ScriptHelperFuncsClass.display_text_wait_noise("The Magistrate screeches in fear.  \"Hold men, for I fear they have foul intentions!\"  With your hostage you manage to beat a hasty retreat from the guardhouse and disappear.\nTwas a difficult task with such bulk in tow.",'message nod.wav')
-			ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(4,3), '')
-			
-			#SIMPLE ENCOUNTER id=2
-			
-			toptext ="With the reluctant aid of the Magistrate you find your way to a secluded alley.  From the shouts you here in the streets, it would seem the whole kingdom is in search of your whereabouts."
-			ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
-			textRect.display_multiple_choices([toptext,"Set the magistrate free.", "Kill the magistrate so he cannot give you away and take his possessions.", "Search the magistrate,  take his possessions and set him free.", "State that you have panicked and beg forgiveness." ],["TEXT", "free", "kill", "mug", "apology"])
-			var answer3 = await textRect.choice_pressed
-			if answer3=="free" :
-				await ScriptHelperFuncsClass.display_text_wait_noise("As he flees, he shouts to no one in particular.  \"Help, I am being waylaid.  Help....Help!\"  Unfortunately for you, the streets are filled with troops searching for you and they stream towards you.  They do not even ask you to throw down your arms.",'message nod.wav')
-					#BATTLE
-				GameGlobal.start_battle("Battle_2","",true,false, true,true,true,[])
-				var battle_outcome = await GameGlobal.battle_end
-				return
-			if answer3=="kill" :
-				await ScriptHelperFuncsClass.display_text_wait_noise("You send him to the gods.  In his dying whispers he says a prayer to an unfamiliar god.  It would seem he has cursed you with his last gasp.  One might hope he was not held in high regard by his deity.\nYou search the body.",'message nod.wav')
-				#result2> modify_ap                level=0, id=4, source_xap=3, level_type=same, result_code=0
-				#result2> modify_ap                level=0, id=1, source_xap=3, level_type=same, result_code=0
-				#result2> modify_ap                level=0, id=0, source_xap=3, level_type=same, result_code=0
-				#result2> enable_ap                level=0, id=0, percent_chance=-100, low=0, high=0
-				#result2> change_rect              level=0, id=0, times_in_10k=150, new_battle_low=4, new_battle_high=8
-				
-				#give treasure 1
-				var itemsbook : Dictionary = NodeAccess.__Resources().items_book
-				StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [itemsbook["Robe of Protection +1"].duplicate(true),itemsbook["Dagger of Penetration +2"].duplicate(true)] ,"money" : [45,3,0] ,"exp" : 0 })
-				await UI.ow_hud.treasureControl.done_looting
-				return
-			if answer3=="mug" :
-				await ScriptHelperFuncsClass.display_text_wait_noise("You take all his possessions as you strip him down to his breeches.  \"You ruffians shall pay dearly for this!  The King will spare no expense at expunging you and your kind!\" he cries.",'message nod.wav')
-				#give treasure 1
-				var itemsbook : Dictionary = NodeAccess.__Resources().items_book
-				StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [itemsbook["Robe of Protection +1"].duplicate(true),itemsbook["Dagger of Penetration +2"].duplicate(true)] ,"money" : [45,3,0] ,"exp" : 0 })
-				await UI.ow_hud.treasureControl.done_looting
-				return
-			if answer3=="apology":
-				await ScriptHelperFuncsClass.display_text_wait_noise("\"Well, I should guess so.  I shall explain the error of your ways to the city guard.  It is fortunate for you that I am a patient man.  Now be gone, for I must return to my duties.\"",'message nod.wav')
-				return
-			
-		if answer2=="flee" :
-			await ScriptHelperFuncsClass.display_text_wait_noise("The guards begin to pursue when you here the Magistrate bellow with laughter as he calls them back.  \"Run foul vermin, for we are far too busy to chase the likes of you!\"  It would seem they did not take you as too serious a threat.",'message nod.wav')
-			return
-		if answer2=="explain" :
-			await ScriptHelperFuncsClass.display_text_wait_noise("After you explain that you only want to gain entrance to the court on honest business, the Magistrate is so amused that he lets you enter.  \"Since you chose not to resist, I deem you to be honest folk, and this is an honest kingdom.  Enter as you will.\"",'message nod.wav')
-			await ScriptHelperFuncsClass.display_text_wait_noise("He hands you an invitation to the Castle Anthrax.",'message nod.wav')
-			#give treasure 0
-			var invtemplate = NodeAccess.__Resources().items_book["Invitation"]
-			var treasureitems = [ invtemplate.duplicate(true)]
-			StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
-			await UI.ow_hud.treasureControl.done_looting
-			return
-	if answer== "leave" :
-		await ScriptHelperFuncsClass.display_text_wait_noise("He bids you farewell as you make your way from the gate house.",'message nod.wav')
-
-
-
-static func castle_gate() :#===== LAND AP level=0 id=1 x=8 y=16 [LAP0/1]
-	var textRect = UI.ow_hud.textRect
-	#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	#textRect.set_text("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.", true)
-	#await textRect.interruption_over
-	await ScriptHelperFuncsClass.display_text_wait_noise("You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.", 'message nod.wav')
-	if ScriptHelperFuncsClass.does_party_have_item_named("Invitation") :
-		#===== XAP id=1 [XAP1]
-		#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-		#textRect.set_text("The gate guards check your invitation and wave you through.", true)
-		#await textRect.interruption_over
-		await ScriptHelperFuncsClass.display_text_wait_noise("The gate guards check your invitation and wave you through.", 'message nod.wav')
-	else :
-		#===== XAP id=2 [XAP2]
-		#ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-		#textRect.set_text("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"", true)
-		#await textRect.interruption_over
-		ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(9,16), '')
-		await ScriptHelperFuncsClass.display_text_wait_noise("\"Sorry citizen, without a formal invitation, the only way into the castle is in chains.  See the magistrate in yon building, he can explain all.  Now be off.\"",'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.', 'message nod.wav')
+	#await ScriptHelperFuncsClass.display_simple_encounter(0)
 	return
 
-static func guard_barracks() : #===== LAND AP level=0 id=2 x=6 y=16 [LAP0/2]
+static func AP1x8y16() : #1 at 8,16
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	textRect.set_text("You enter the barracks of the town guard.", true)
-	await textRect.interruption_over
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	textRect.set_text("As you enter, you hear sharp words being exchanged from two high-ranking men.  It would seem the guardsmen are split into two factions.  One faction appears to be headed by a man by the name of Haikur, the other by a man named Thurfur.", true)
-	await textRect.interruption_over
+	await ScriptHelperFuncsClass.display_text_wait_noise('You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.', 'message nod.wav')
+	#await ScriptHelperFuncsClass.branch_on_posession_of_item(990, "xap", "jump_other", 1, 2)
+	return
 
-
-
-static func cookhouse() : #===== LAND AP level=0 id=14 x=25 y=6 [LAP0/14]
+static func AP2x6y16() : #2 at 6,16
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	var text : String = "You come upon an inn and cookhouse.  The smell of hot meals and the sounds of good conversation waft to you from inside.   Do you step inside?"
-	textRect.set_text(text)
-	textRect.display_multiple_choices([text, "YESNO"],["TEXT","YESNO"])
-	var answer = await textRect.choice_pressed
-	if answer == "YES" :
-		GameGlobal.currentSpecialEncounterName = "cookhouse.gd"
-		UI.ow_hud._on_EncounterButton_pressed()
-		#TODO  CONTINUE, was  actually  not a complex encounter...
-		
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the barracks of the town guard.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('As you enter, you hear sharp words being exchanged from two high-ranking men.  It would seem the guardsmen are split into two factions.  One faction appears to be headed by a man by the name of Haikur, the other by a man named Thurfur.                    ', 'message nod.wav')
+	#await ScriptHelperFuncsClass.branch_item_pos_encounter(991, "if_not_poss", "xap", 4, 0)
+	await ScriptHelperFuncsClass.display_text_wait_noise('Before you catch too much of the argument, the barracks falls silent as all heads turn to you.  Thurfur comes over and demands to know your business for being there.  Not satisfied with your answer, he orders you to leave.  Do you leave?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "xap", 5, "0", "0")
+	return
 
-static func caved_in_cavern() :  #===== LAND AP level=0 id=19 x=2 y=48 [LAP0/19]
-	if GameGlobal.stuff_done.has("caved_in_cavern_solved") :
-		if GameGlobal.stuff_done["caved_in_cavern_solved"] == 1 :
-			return
-		if GameGlobal.stuff_done["caved_in_cavern_solved"] == 2 :
-			ScriptHelperFuncsClass.play_sound("effort 1.wav", false)
-			ScriptHelperFuncsClass.set_walk_back_once(true)
-			return
-	ScriptHelperFuncsClass.play_sound('hit effect 3.wav', false)
+static func AP3x4y17() : #3 at 4,17
 	var textRect = UI.ow_hud.textRect
-	var text : String = "This appears to be the site of a rather large cavern that has recently caved in."
-	textRect.set_text(text)
-	GameGlobal.currentSpecialEncounterName = "caved_in_cavern.gd"
-	UI.ow_hud.show_special_encounter()
+	# This AP teleports to level 5 at 29,88
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_5", Vector2(29,88), '')
+	await ScriptHelperFuncsClass.teleport_to_map_and_pos("map_5", Vector2(6,83), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter Anthrax castle.  The herald announces your arrival to the king who is holding audience.  As your names are called, there are puzzled looks.  It is obvious that you are newcomers.  King Steven\'s motions you to approach.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"Hail, good people!  What brings you here this fine day?  You are obviously not from Bywater, for your manner of dress is most foreign.\"  You explain to the king that you are but simple travelers in search of adventure.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"Adventure!  Well, my good citizens.  This is the place!  Many strange happenings have been taking place of late.  Many, I\'m sure, the direct result of that accursed Spider Tower that has sprung up at the east end of town.\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"But this is a peaceful land, which claims hatred towards no one who does no direct harm.  As of yet, there has been no evil which can be proven to have originated from that foul spire.  Come, meet with me in my chambers.\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('With little fanfare, he calls an end to court and bids his patrons good day.  You retreat with the king to a chamber adjoining the main hall.  The door is closed, and you are surrounded by only the king and his closest advisors.  The king speaks.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"My good fellows.  Dark times have befallen this fair city.  Alas, politics prevent me from declaring so in public.  This foul spider cult is sapping the very strength of our bustling city.  I would see this vile cult rousted from my kingdom, ', 'message nod.wav')
+	# XAP 22 content (recursively resolved):
+	await ScriptHelperFuncsClass.display_text_wait_noise('but my own decrees of fairness prevent me from doing so. If you rid this town of this accursed tower, I could not reward you publicly.  In private, however, is another matter.  I charge you to rid Bywater of this foul cult!\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"What say you?  Will you accept my plea of help for this fair city?\"', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "xap", 24, "0", "0")
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"Good!  It\'s settled then.  There is another secret agent of mine that is striving toward a similar goal.  If you cross paths, I decree you to help rather than hinder each other\'s efforts.  Well!  We all have much to do.\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('The steward tells you of the armory and asks you to take your pick of equipment.  He also gives you an item. \"Use this magic crown to return to the front gate of our fair castle.  It will work but 3 times so use it only in time of great need.\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.give_treasure_with_id(0)
+	await ScriptHelperFuncsClass.display_text_wait_noise('The steward informs the kings provisioner to allow you to have anything you want from the kings storeroom.  \"You will find the storeroom near the entrance.  Fair thee well.\"', 'message nod.wav')
+	# XAP 160 content (integrated):
+	ScriptHelperFuncsClass.add_script_branch_flag(0, 3, 25, 0)
+	return
+	# end of XAP 22 (with nested expansions)
 
-
-static func frost_viper_lady() : #===== XAP id=6 [XAP6]
-	if GameGlobal.stuff_done.has("met_osswell") :
-		return
+static func AP4x23y12() : #4 at 23,12
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	var text : String = "You come upon a shocking scene.  You spy a small group of town bullies attacking an old woman.  It would seem they are after a dagger she is clutching to her chest.  Do you wish to intervene on her behalf?"
-	textRect.set_text(text)
-	textRect.display_multiple_choices([text, "Rescue the woman", "Back away"],["TEXT","rescue", "leave"])
-	var answer = await textRect.choice_pressed
-	if answer == "leave" :
-		GameGlobal.stuff_done["met_osswell"] = 2 #abandonned her
-		return
-	text = "The bullies do not have the stomach to fight and flee at your approach.  The old hag scowls at you, \"Stay away!  You can't have it!\"  The dagger she is clutching is rather ornate and seems very likely to be magical in nature.  What do you do?"
-	ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
-	textRect.display_multiple_choices([text, "Take the dagger", "Bid her goodday"],["TEXT","steal", "bye"])
-	answer = await textRect.choice_pressed
-	if answer == "steal" :
-		text = "\"You young whelps!  You shall rot in hell for your evil ways!\"  Having lost the dagger she shuffles away."
-		await ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
-		#TSR3  #"Frozen Viper +2"
-		
-		var invtemplate = NodeAccess.__Resources().items_book["Frozen Viper +2"]
-		var treasureitems = [ invtemplate.duplicate(true)]
-		StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [0,0,0] ,"exp" : 0 })
-		await UI.ow_hud.treasureControl.done_looting
-		
-		
-		GameGlobal.stuff_done["met_osswell"] = 3 #stole frost viper
-		return
-	if answer == "bye" :
-		text = "As you walk away, she yells, \"Come and see me at my shop.  I will give you a special price!\"  She quickly disappears around a corner before you realize that you do not even know where her shop is."
-		ScriptHelperFuncsClass.display_text_wait_noise(text,'message nod.wav')
-		GameGlobal.stuff_done["met_osswell"] = 1  #honest to osswell
-		
+	await ScriptHelperFuncsClass.display_text_wait_noise('The town patrol waves you through as they hand you a map showing where you can buy provisions.', 'message nod.wav')
+	return
 
-
-static func graveyard_random_battle() :  #LRR0/3, not a  real AP
-	#  from  the radom  rectangle  data
-	var t : String = "You spot a group of undead stumbling about. Do you wish to attack them?"
-	#  from  the battle data  of battles  of id in b
-	var bt : String = "The stench of death assaults you as you are attacked by zombies."
-	await ScriptHelperFuncsClass.randomrect_battle([52,52], 33, "growl 2.wav", t, bt)
-
-static func enter_brothel() :  #===== LAND AP level=0 id=16 x=7 y=6 to_level=6 to_x=8 to_y=1 [LAP0/16]
-	await ScriptHelperFuncsClass.display_text_wait_noise("You have come to the town brothel.  Perfume fills the air and covers any original odor that may come from this former boarding house.  A sign outside the building gives prices for various races and sexes.",'message nod.wav')
-	await ScriptHelperFuncsClass.display_text_wait_noise("It appears to be well-managed and doing a lot of business.  There is a steady stream of customers going in the front door and another coming out the back.",'message nod.wav')
-	# add this because AP  description has a to_level  to_x  to_y
-	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_6", Vector2(8,1), '')
-
-static func general_store() : #===== LAND AP level=0 id=9 x=7 y=11 [LAP0/9]
+static func AP5x10y14() : #5 at 10,14
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	var text : String = "You enter a pleasant little shop that seems well stocked.  The shopkeeper smiles and asks you to look around at his fine wares.   (To enter shops, click the button labeled SHOP at the bottom right of the game screen.)"
-	textRect.set_text(text, false)
-	
-	GameGlobal.currentShop = 'shop_1'
-	GameGlobal.allow_money_change(true)
+	# TODO: Implement use_ap level=990, id=2
+	return
+
+static func AP6x41y7() : #6 at 41,7
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=990, id=2
+	return
+
+static func AP7x10y15() : #7 at 10,15
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The corporal of the watch shouts \"Be sure to check in with the Magistrate in the guard house before entering.\"', 'message nod.wav')
+	#ScriptHelperFuncsClass.flag_disabled_ap("ap_name")
+	return
+
+static func AP8x9y13() : #8 at 9,13
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You have entered a rather fine tavern filled with only the best citizens of Bywater.  Most of the tables are filled with patrons eating spiced potatoes and engaged in interesting discussions.  You find yourself a table near the back.', 'message nod.wav')
+	#await ScriptHelperFuncsClass.display_simple_encounter(0)
+	return
+
+static func AP9x7y11() : #9 at 7,11
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter a pleasant little shop that seems well stocked.  The shopkeeper smiles and asks you to look around at his fine wares. ', 'message nod.wav')
 	GameGlobal.allow_banking(true)
+	GameGlobal.currentShop = 'shop_0'
+	GameGlobal.allow_money_change(true)
+	return
 
-static func sestuona_temple() :
-	# ===== XAP id=85 [XAP85]
+static func AP10x16y3() : #10 at 16,3
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('heal.wav', false)
-	var text : String = "You arrive at a temple dedicated to Sestuona, goddess of nature.  You will be permitted entry only if you are willing to pay an outrageous price for the temple's services.  Your presence here is opposed by a powerful enemy within the sect."
-	textRect.set_text(text, false)
-	GameGlobal.cu
+	await ScriptHelperFuncsClass.display_text_wait_noise('This is a temple dedicated to Sestuona, goddess of nature.  A portly-looking man wearing a green robe approaches and speaks.  \"Welcome travelers, to this most holy of temples.  If you like, you may partake of our healing skills.\"', 'message nod.wav')
+	GameGlobal.allow_banking(true)
 	GameGlobal.allow_temple(true)
+	ScriptHelperFuncsClass.play_sound('heal.wav', false)
+	return
 
-static func meet_vodalian() : #===== XAP id=103 [XAP103]
-	#RANDOM RECTANGLE REFERENCE land_level=0 rect_num=8 start_coord=0,0 end_coord=41,13 [LRR0/8]
-	if GameGlobal.stuff_done.has("met_vodalian") :
-		return
-	GameGlobal.stuff_done["met_vodalian"] = 1
+static func AP11x4y13() : #11 at 4,13
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('talk 1.wav', false)
-	await SfxPlayer.finished
-	ScriptHelperFuncsClass.play_sound('talk 2.wav', false)
-	var text : String = "You greet a passing wizard who smiles warmly at you.  You strike up a wonderful conversation and become friends.  He asks about your travels and would like to know if he may accompany you on your exploits?"
-	textRect.set_text(text, false)
-	textRect.display_multiple_choices([text, "YESNO"],["TEXT","YESNO"])
-	var answer = await textRect.choice_pressed
-	if answer == "NO" :
-		return
-	await ScriptHelperFuncsClass.display_text_wait_noise("You return to his small shack to gather his things before you set off with your new found friend.  His name is Vodalian and he states that he simply loves adventure.",'message nod.wav')
-	var vodalian : Creature = Creature.new()
-	vodalian.initialize_from_bestiary_dict("Vodalian")
-	GameGlobal.add_npc_ally(vodalian)
+	pass
+	return
 
-static func guard_give_map() :
+static func AP12x27y5() : #12 at 27,5
 	var textRect = UI.ow_hud.textRect
-	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
-	var text : String = "The town patrol waves you through as they hand you a map showing where you can buy provisions."
-	textRect.set_text(text, false)
-	GameGlobal.minimaps[0][6]=1
+	await ScriptHelperFuncsClass.display_text_wait_noise('This is an old abandoned well.  It looks to be a long ways down.  The bucket and crank are almost rotted out.  This well has not been in use for quite some time.', 'message nod.wav')
+	return
 
-
-
-static func GlyphScript_Two() :
-	if false  :
-		var hud = UI.ow_hud
-		hud.request_pc_pick(3)
-		var picked = await hud.pc_picked
-		print(picked)
-		var pickednames = "picked characters : "
-		for c in picked :
-			pickednames = pickednames + c.name + ' '
-		pickednames = pickednames + ", in this order."
-		var textbox = UI.ow_hud.textRect
-		textbox.set_text(pickednames, false)
-		print("mapscript over and  out")
-		return
-
-	print("GlyphScript_TwoGlyphScript_TwoGlyphScript_Two")
+static func AP13x26y7() : #13 at 26,7
 	var textRect = UI.ow_hud.textRect
-	textRect.set_text("MULTIPLE CHOICE !", false)
-	textRect.display_multiple_choices(["Exposition text_a\nwith\nextra lines","A wordy choice.", "YESNO","STOP"],["TEXT","answer_words", "YESNO","STOP"])
-	var answer = await textRect.choice_pressed
-	print("choice_pressed : ", answer)
-	if answer == "answer_words" :
-		print("You give a long, verbose answer.")
-		pass #do stuff
-	if answer == "YES" :
-		print("You categorically answer YES.")
-	if answer == "NO" :
-		print("You firmly refuse")
-	if answer == "STOP" :
-		print("Nothing stops you from just walking away. You do just that.")
-	
+	await ScriptHelperFuncsClass.display_text_wait_noise('You hear the yip of a frightened dog followed by a howl and barking.  A dog appears to be in distress somewhere close by.  Hopefully, someone does not intend to dine on poor man\'s filet mignon tonight.                                          ', 'message nod.wav')
+	return
 
-static func Allow_Char_Swap() :
-	print("Allow_Char_Swap")
-	SfxPlayer.stream = NodeAccess.__Resources().sounds_book["generation good.wav"]
-	SfxPlayer.play()
+static func AP14x25y6() : #14 at 25,6
 	var textRect = UI.ow_hud.textRect
-	textRect.set_text("You may swap characters here. And exchange currencies. And shop at 'SimpleShop'.", false)
-	GameGlobal.allow_character_swap(true)
-	GameGlobal.allow_honest_storage(true)
-	GameGlobal.currentShop = 'shop_1'
-	MusicStreamPlayer.play_music_type("Dungeon")
-	GameGlobal.currentSpecialEncounterName = "otherencounter.gd"
-	#MusicStreamPlayer.play_music_specific("camp.mod")
-	GameGlobal.allow_money_change(true)
-	GameGlobal.allow_banking(true)
+	await ScriptHelperFuncsClass.display_text_wait_noise('You come upon an inn and cookhouse.  The smell of hot meals and the sounds of good conversation waft to you from inside.   Do you step inside?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 0, "0", "0")
+	# XAP 100 content (integrated):
+	# Simple exit - no additional action needed
+	#await ScriptHelperFuncsClass.display_simple_encounter(0)
+	return
 
-static func Find_Treasure() :
+static func AP15x24y9() : #15 at 24,9
 	var textRect = UI.ow_hud.textRect
-	textRect.set_text("You find some delicious loot !", true)
-	await textRect.interruption_over
-	#var treasureControl = UI.ow_hud.treasureControl
-	var healpottemplate = NodeAccess.__Resources().items_book["Health Potion"]
-	var treasureitems = []
-	for i in range(200) :
-		var healpotion = healpottemplate.duplicate(true)
-		treasureitems.append(healpotion)
-	await StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasureitems ,"money" : [10,5,3] ,"exp" : 2000 })
-	#await GameGlobal.show_loot_menu(treasureitems,[10,5,3],2000)
-	#yield(textRect, "interruption_over")
+	# This AP teleports to level 6 at 80,42
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_6", Vector2(80,42), '')
+	return
 
-static func Take_Stairs_D() :
+static func AP16x7y6() : #16 at 7,6
 	var textRect = UI.ow_hud.textRect
-	textRect.set_text("You take the stairs down to rug_dungeon_floor !", true)
-	GameGlobal.change_map("rug_dungeon_floor",3,3)
+	# This AP teleports to level 6 at 8,1
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_6", Vector2(8,1), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You have come to the town brothel.  Perfume fills the air and covers any original odor that may come from this former boarding house.  A sign outside the building gives prices for various races and sexes.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('It appears to be well-managed and doing a lot of business.  There is a steady stream of customers going in the front door and another coming out the back.', 'message nod.wav')
+	return
 
-static func Test_Battle() :
-	print("Map Script func Test_Battle() ")
-	#start_battle(battlename : String, is_ambush : bool, allow_loss : bool, allow_escape : bool, summons_allowed : bool, pc_participating : Array)
-	GameGlobal.start_battle("Test_Battle","",true,false, true,true,true,[])
+static func AP17x10y6() : #17 at 10,6
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You have entered the blacksmith\'s shop.  The smith is hard at work on repairing the bellows.  His face is covered with soot except for a clean streak leading down each cheek.  It would appear he has been crying.                                           ', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"Hello.  Good people, what can I do for you today?\"  You ask him where his apprentice is that he must stoop to fixing the bellows.  \"My son was slain several days ago in the Barren mountains.  We found his body defiled by the evil sluk that live there.\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"I cannot get the King\'s men to rout out these foul vermin, and I do not have the gold to purchase retribution from mercenaries.  All I have is the sweat of my brow, and that buys little justice these days.  You would seem to be of hardy stock.\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('If you were to send these foul sluk to the pits that spawned them, I would be eternally grateful.\"  What do you do?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("0", "xap", 14, "You", "You")
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"I bid you good day then, for I have much work to do and can ill afford to waste my time telling my problems to every wayward band.\"                                                                                                                     ', 'message nod.wav')
+	return
+
+static func AP18x6y43() : #18 at 6,43
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You see a small village in the distance.  It appears to be vacant.  Many of the straw huts have fallen into total decay.  Pieces of broken crockery and cooking utensils lie scattered about.  Whoever lived here seems to have beaten a hasty retreat.', 'message nod.wav')
+	return
+
+static func AP19x2y48() : #19 at 2,48
+	var textRect = UI.ow_hud.textRect
+	GameGlobal.currentSpecialEncounterName = "encounter_0.gd"
+	UI.ow_hud.show_special_encounter()
+	return
+
+static func AP20x2y50() : #20 at 2,50
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You find the slain bodies of several goblins.  Their bodies have been scattered about the area.  You also see a small pile of what looks to be polished stones.  As you kick the pile around you notice a gem among them.  Do you wish to look for more?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("0", "xap", 15, "This", "You")
+	await ScriptHelperFuncsClass.display_text_wait_noise('You search the remains of the cavern and find nothing of interest.', 'message nod.wav')
+	return
+
+static func AP21x39y9() : #21 at 39,9
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=990, id=2
+	return
+
+static func AP22x33y18() : #22 at 33,18
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The town patrol waves you through as they hand you a map showing where you can buy provisions.', 'message nod.wav')
+	return
+
+static func AP23x6y19() : #23 at 6,19
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('This is an ancient secret passage into the courtyard of castle Anthrax.', 'message nod.wav')
+	return
+
+static func AP24x22y14() : #24 at 22,14
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The gate stands unguarded.  A notice from the king is posted.  It reads, \"Stanchion burial lands are closed until further notice.  All those that enter do so of their own accord and at their own risk.\" ', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('The graveyard has fallen into a state of total disrepair.  Most of the graves and crypts have been looted.  The caretakers have not been busy for quite some time.', 'message nod.wav')
+	return
+
+static func AP25x16y17() : #25 at 16,17
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 5 at 21,5
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_5", Vector2(21,5), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('The doors on this crypt are broken as are most in the graveyard.  As you peer in, you happen to see a small crack in the floor.  Your investigation reveals that it is a trap door that leads to a subterranean crypt.', 'message nod.wav')
+	return
+
+static func AP26x13y17() : #26 at 13,17
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 1 at 9,1
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_1", Vector2(9,1), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You come upon some fresh excavation.  It would seem that someone or something has burrowed up from below.  The tunnel is considerable in size and looks to be frequently used.  You venture inside.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You descend approximately 60 feet below the surface by means of a well-trod slope.  It would take countless shuffling feet to compact the earth to such a flat and hard surface.  It is likely that you are not alone below the city of Bywater.', 'message nod.wav')
+	return
+
+static func AP27x47y5() : #27 at 47,5
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('This is the gate to enter the Spider Tower.  Herein dwells an evil cult bent on total dominance of the world by arachnids and others of their ilk.  The gates are massive, and the walls are guarded by fierce creatures.  Do you wish to attack?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 0, "0", "0")
+	GameGlobal.start_battle("Battle_38","map_0", true,false, true,true,true,[])
 	var battle_outcome = await GameGlobal.battle_end
-	print("mapScript battle_outcome : ", battle_outcome)
-	if battle_outcome == "won" :
-		print("BATTLE WON")
-		UI.ow_hud.textRect.set_text("You won this battle, but did you use the Debug buttons ?", true)
-	if battle_outcome == "fled" :
-		print("BATTLE ESCAPED")
-		UI.ow_hud.textRect.set_text("You escaped this battle, but HOW ? This is not implemented yet !", true)
-	if battle_outcome == "lost" :
-		for pc in GameGlobal.player_characters :
-			pc.stats["curHP"] = 1
-			pc.life_status = 0
-		print("BATTLE LOST")
-		UI.ow_hud.textRect.set_text("You lost this battle, but live to fight another day.", true)
-
-static func example_script() :
+	await ScriptHelperFuncsClass.display_text_wait_noise('You have managed to battle your way past the gate.  Something tells you that the tough battles are yet to come.', 'message nod.wav')
+	ScriptHelperFuncsClass.add_script_branch_flag(0, 27, 18, 0)
 	return
-	var map = NodeAccess.__Map()
-	map.modulate = Color(0.5, 0, 1, 1)
-	var resources = NodeAccess.__Resources()
-	print(resources.tiles_book["ForestDay.json"][181])
-	map.mapdata[5][5][0]= resources.tiles_book["ForestDay.json"][181]
-	return
-	if GameGlobal.stuff_done.has("helped_boy") :
-		if GameGlobal.stuff_done["helped_boy"] :
-			UI.ow_hud.modulate = Color(0, 0, 1, 0.5)
 
-			return
+static func AP28x47y2() : #28 at 47,2
 	var textRect = UI.ow_hud.textRect
-	textRect.set_text("A boy  asks you to recue his dog.", false)
-	textRect.display_multiple_choices(["Do you help the dog ?","Ask for details", "YESNO","STOP"],["TEXT","ask_details", "YESNO","STOP"])
-	var answer = await textRect.choice_pressed
-	if answer == "ask_details" :
-		textRect.set_text("The boy explains the dog fell in a well and can't get out", false)
-		textRect.display_multiple_choices(["Do you help the dog ?", "YESNO","STOP"],["TEXT", "YESNO","STOP"])
-		answer = await textRect.choice_pressed
-	if answer == "YES" :
-		textRect.set_text("You help the  dog,  but get hurt.", false)
-		UI.ow_hud.show_spell_effect_on_char_menu(GameGlobal.player_characters[0], "Slime")
-		GameGlobal.player_characters[0].stats["curHP"] -=5
-		UI.ow_hud.updateCharPanelDisplay()
-		GameGlobal.stuff_done["helped_boy"] = 1
-	if answer == "NO" :
-		textRect.set_text("The boy walks away crying", false)
+	# This AP teleports to level 5 at 81,39
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_5", Vector2(81,39), '')
+	return
 
-static func Secret_AP() :
-	GameGlobal.play_sfx("generation good.wav")
-	UI.ow_hud.textRect.set_text("You find a secret path in the mountain.", false)
+static func AP29x38y13() : #29 at 38,13
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You have walked into a tannery.  Many fine quality leather goods are made and sold here.', 'message nod.wav')
+	GameGlobal.currentShop = 'shop_0'
+	GameGlobal.allow_money_change(true)
+	return
+
+static func AP30x2y44() : #30 at 2,44
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('In this hut there is a wounded goblin lying on the floor.  Blood leaks slowly between his fingers as he clutches at his chest.  He sees you and his eyes grow wide in horror.  He topples over dead, his face locked in a horrible grimace.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You search his body and turn up a map scribbled on a piece of bark.  What it represents, no one will ever know.  As you prepare to leave, you hear a loud thump. A  party of krise storm the village behind you.', 'message nod.wav')
+	GameGlobal.minimaps[0][0]=1
+	GameGlobal.start_battle("Battle_45","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	await ScriptHelperFuncsClass.display_text_wait_noise('Among the items, you find a sack with personal items belonging to the blacksmith\'s son.  It would seem you have killed the very group who had slain the smith\'s son.', 'message nod.wav')
+	await ScriptHelperFuncsClass.give_treasure_with_id(0)
+	ScriptHelperFuncsClass.set_scrip_enabled_flag(0, 17, 100 / 100, 0, 0)
+	ScriptHelperFuncsClass.add_script_branch_flag(0, 17, 39, 0)
+	return
+
+static func AP31x5y87() : #31 at 5,87
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You burst into the most flamboyant hut in the village.  The goblin king is inside with several of his most prominent warriors.  They jump in front of the king ready to attack.  However, the king barks out a sharp command to call off his dogs of war.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('He speaks in surprisingly good common, \"Why you come my land.  Me no have war with human king.  We no raid human village.  We only have war with krise sluk.  We fight sluk well.  We good warriors.  Why you no like goblin?\"', 'message nod.wav')
+	#await ScriptHelperFuncsClass.display_simple_encounter(0)
+	return
+
+static func AP32x24y89() : #32 at 24,89
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 0 at 24,88
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(24,88), '')
+	#await ScriptHelperFuncsClass.display_simple_encounter(0)
+	return
+
+static func AP33x20y89() : #33 at 20,89
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 1 at 19,35
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_1", Vector2(19,35), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('This passage leads to the underdark.', 'message nod.wav')
+	return
+
+static func AP34x6y18() : #34 at 6,18
+	var textRect = UI.ow_hud.textRect
+	pass
+	return
+
+static func AP35x77y37() : #35 at 77,37
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You find a cave behind a stone outcropping.  It is practically invisible unless you\'re right in front of the opening. This passage has lain hidden for ages.  It winds east through a jagged crevasse.', 'message nod.wav')
+	return
+
+static func AP36x79y37() : #36 at 79,37
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You step into a large valley.  It is completely shut out from the outside world by high peaks.  Towards the east you can make out a large cave in the distance.', 'message nod.wav')
+	return
+
+static func AP37x89y37() : #37 at 89,37
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 3 at 0,7
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_3", Vector2(0,7), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('This is the cave that leads to the sunken city of Waterford.', 'message nod.wav')
+	return
+
+static func AP38x88y13() : #38 at 88,13
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('This is the shack belonging to the village chief.  His features are clouded by a worried expression.  During your conversation, you learn that his pregnant daughter is missing.  \"If you find my daughter, I will reward you.\"  He sends you on your way.', 'message nod.wav')
+	ScriptHelperFuncsClass.add_script_branch_flag(0, 38, 32, 0)
+	return
+
+static func AP39x39y56() : #39 at 39,56
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('Just as Ranthog had promised, you find a sizable treasure larder.  Most of this stuff looks incredibly valuable.  Ranthog must have had no idea how valuable it was, or he would never have given it away.', 'message nod.wav')
+	await ScriptHelperFuncsClass.give_treasure_with_id(0)
+	return
+
+static func AP40x57y62() : #40 at 57,62
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 2 at 12,20
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_2", Vector2(12,20), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You notice a small cave opening along the shoreline.  A putrid smell pours out of the entrance. You suspect some creature must be living down there in its own offal.  Do you enter?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 137, "0", "0")
+	return
+
+static func AP41x58y58() : #41 at 58,58
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 2 at 19,13
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_2", Vector2(19,13), '')
+	return
+
+static func AP42x49y85() : #42 at 49,85
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The river flows into a large cave.  Shortly after entering the cave, the river disappears underground and becomes  subterranean.  The cave is not completely without interest.  The creatures that attack you can attest to this!', 'message nod.wav')
+	GameGlobal.start_battle("Battle_95","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	return
+
+static func AP43x89y88() : #43 at 89,88
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 2 at 30,4
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_2", Vector2(30,4), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('A river emerges from below and flows out of the cave entrance.  You can smell the stench of some creature living inside.  Towards the back of the main chamber, there is a whole network of caves leading in various directions.  Do you enter?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 137, "0", "0")
+	return
+
+static func AP44x16y18() : #44 at 16,18
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The gate stands unguarded.  A notice from the king is posted.  It reads, \"Stanchion burial lands are closed until further notice.  All those that enter do so of their own accord and at their own risk.\" ', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('The graveyard has fallen into a state of total disrepair.  Most of the graves and crypts have been looted.  The caretakers have not been busy for quite some time.', 'message nod.wav')
+	return
+
+static func AP45x11y16() : #45 at 11,16
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The gate stands unguarded.  A notice from the king is posted.  It reads, \"Stanchion burial lands are closed until further notice.  All those that enter do so of their own accord and at their own risk.\" ', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('The graveyard has fallen into a state of total disrepair.  Most of the graves and crypts have been looted.  The caretakers have not been busy for quite some time.', 'message nod.wav')
+	return
+
+static func AP46x24y14() : #46 at 24,14
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=990, id=2
+	return
+
+static func AP47x89y69() : #47 at 89,69
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 2 at 1,35
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_2", Vector2(1,35), '')
+	return
+
+static func AP48x50y4() : #48 at 50,4
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You find a secret passage into the courtyard of the spider tower.', 'message nod.wav')
+	await ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(48,3), 'earth shake.wav')
+	return
+
+static func AP49x72y13() : #49 at 72,13
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You see a large iron door set into the mountain.  Inscribed into the steel of the door are strange runes.  They are an ancient but familiar script.  It tells of a great evil that has been banished beyond the mighty portal.  Do you open it?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 137, "0", "0")
+	ScriptHelperFuncsClass.play_sound('door slam.wav', true)
+	await ScriptHelperFuncsClass.display_text_wait_noise('A blast of stale air pours forth.  Along with a vile creature.', 'message nod.wav')
+	ScriptHelperFuncsClass.play_sound('wind.wav', true)
+	GameGlobal.start_battle("Battle_148","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	await ScriptHelperFuncsClass.display_text_wait_noise('Strange footprints trail off to the east.  Something else would appear to live deeper within the cave.', 'message nod.wav')
+	return
+
+static func AP50x52y38() : #50 at 52,38
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You find the remains of an old grave.  It has been dug up and pilfered.  The bones of the buried lie about the area.  Do you bury the bones or leave them where they lay?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 0, "", "")
+	await ScriptHelperFuncsClass.display_text_wait_noise('A whisper from nowhere thanks you.', 'message nod.wav')
+	await ScriptHelperFuncsClass.give_treasure_with_id(0)
+	#ScriptHelperFuncsClass.flag_disabled_ap(ap_name)
+	return
+
+static func AP51x4y24() : #51 at 4,24
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the gaming arena.  The master of the games asks if you wish to pit your skills in combat against dire creatures for a wager.  Do you wish to enter the games?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 0, "0", "0")
+	#await ScriptHelperFuncsClass.display_simple_encounter(0)
+	return
+
+static func AP52x7y24() : #52 at 7,24
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('A sign above the front gate reads,  \"Official Sanctioned Gaming Arena.\"  From inside you here the cheers of an excited crowd and the moans of the wounded and dying.', 'message nod.wav')
+	return
+
+static func AP53x17y21() : #53 at 17,21
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You find the small cave that leads to the stable.  You creep inside to see a large corral of beastmen.  They number a  baker\'s dozen.  This won\'t be easy.  Do you wish to attack these vermin now?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 0, "", "")
+	GameGlobal.start_battle("Battle_114","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	await ScriptHelperFuncsClass.display_text_wait_noise('Having completed your handiwork, the man contacts you as planned.  He hands you a sizable leather pouch.  \"Here is the price as we agreed.  I have given ye a little something extra for your trouble.\"', 'message nod.wav')
+	await ScriptHelperFuncsClass.give_treasure_with_id(0)
+	return
+
+static func AP54x65y88() : #54 at 65,88
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You step into a rather large cave only to find 8 eyes staring at you from 4 thick necks.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_57","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	return
+
+static func AP55x89y79() : #55 at 89,79
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 1 at 5,63
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_1", Vector2(5,63), '')
+	return
+
+static func AP56x83y78() : #56 at 83,78
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You see the footprints of some two footed creatures with clawed feet.  Blood is smeared from floor to ceiling.  The bodies of several farmers have been ripped limb from limb and partially eaten.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('A bloody trail leads from the shack to the east.  Someone has been dragged from the shack kicking and screaming.', 'message nod.wav')
+	return
+
+static func AP57x79y79() : #57 at 79,79
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('As you walk in the small shack you witness a scene out of your worst nightmares.  Nailed to the walls are the half eaten corpses of a farmer and his wife.  From the way the blood has pooled at their feet it is obvious they were eaten alive.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('On a small table lies the remains of a small 10 year old girl.  Her arms and feet have been nailed to the table in order to make easy pickings for whatever has chosen to dine on her.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('A bloody trail leads from the shack to the east.  Someone has been dragged from the shack kicking and screaming.', 'message nod.wav')
+	return
+
+static func AP58x45y1() : #58 at 45,1
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You spot a small cave in the side of the mountain.  When you proceed inside to investigate the source of a strong acrid odor you are confronted by the true ruler of the Spider Tower - a powerful spider queen.', 'message nod.wav')
+	# TODO: Implement jmp_battle battle_low=174, battle_high=0, loss_xap=144, sound=0, string=0
+	# TODO: Implement change_rect level=0, id=19, times_in_10k=0, new_battle_low=0, new_battle_high=0
+	ScriptHelperFuncsClass.set_scrip_enabled_flag(5, 94, 100 / 100, 0, 0)
+	ScriptHelperFuncsClass.change_map_tile_Divinity(0, 48, 2, 155, "land")
+	ScriptHelperFuncsClass.play_sound('spell launch 1.wav', false)
+	ScriptHelperFuncsClass.change_map_tile_Divinity(0, 48, 1, 155, "land")
+	# XAP 156 content (recursively resolved):
+	ScriptHelperFuncsClass.play_sound('spell launch 4.wav', false)
+	ScriptHelperFuncsClass.change_map_tile_Divinity(0, 47, 1, 155, "land")
+	ScriptHelperFuncsClass.play_sound('spell launch 3.wav', false)
+	ScriptHelperFuncsClass.change_map_tile_Divinity(0, 47, 2, 155, "land")
+	await ScriptHelperFuncsClass.display_text_wait_noise('With the Widow of the Web banished from the Realmz, her powers to keep the temple also in the Realmz fails.  The Widow will have to face Vixies and explain her failure to achieve victory over a few puny mortals.', 'message nod.wav')
+	ScriptHelperFuncsClass.set_scrip_enabled_flag(5, 93, 0 / 100, 0, 0)
+	# end of XAP 156 (with nested expansions)
+	return
+
+static func AP59x83y4() : #59 at 83,4
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You see several dozen dead orcs strewn about the cave.  Most of the bodies have been nibbled on somewhat by some creature that must be quiet large.  The cave continues off to the back.  You hear heavy breathing and the shuffling of great feet.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Do you wish to move to the back of the cave to investigate?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 137, "0", "0")
+	await ScriptHelperFuncsClass.display_text_wait_noise('You discover that this cave is inhabited by a mated pair of trolls.  Though you have approached with the stealth of a clemidian devil cat, the trolls can smell you as if you had sacks of bacon strapped to your backs.  Trolls like bacon!!!', 'message nod.wav')
+	GameGlobal.start_battle("Battle_169","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	return
+
+static func AP60x83y1() : #60 at 83,1
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You discover what can only be described as a nest for lack of a better word.  The bodies of even more orcs are heaped in mounds about the cave.  Beasts such as trolls need to eat a lot.  Why so many look to be hardly touched is a mystery.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('As you continue to look around for anything of interest you hear the wail of a baby troll coming from the west.', 'message nod.wav')
+	return
+
+static func AP61x81y1() : #61 at 81,1
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('In this end of the cave is a very frightened young troll. The babe must have witnessed you killing its parents.  Its eyes bulge like saucers as it looks at you in total fear. Suddenly the babe begins to relax.  The fear subsides for an unknown reason.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Unknown, that is, until you look behind you.  The babe\'s brothers and sisters have stalked up on you.  They charge you in an attempt to revenge their fallen parents and save their baby brother.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_170","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	await ScriptHelperFuncsClass.display_text_wait_noise('During the melee the babe has disappeared.  The remainder of the cave has nothing of interest.', 'message nod.wav')
+	return
+
+static func AP62x73y13() : #62 at 73,13
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('As you travel deeper into the cavern you find that the skeletal giant had a trio of rather nasty pets.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_171","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	#ScriptHelperFuncsClass.flag_disabled_ap(ap_name)
+	return
+
+static func AP63x26y41() : #63 at 26,41
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('As you are journey through a grove of oaks, large snakes drop from the branches.  They intend to make an easy meal of you.', 'message nod.wav')
+	ScriptHelperFuncsClass.play_sound('drop item.wav', true)
+	ScriptHelperFuncsClass.play_sound('drop item.wav', true)
+	ScriptHelperFuncsClass.play_sound('drop item.wav', true)
+	GameGlobal.start_battle("Battle_175","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	return
+
+static func AP64x30y26() : #64 at 30,26
+	var textRect = UI.ow_hud.textRect
+	return
+
+static func AP65x27y25() : #65 at 27,25
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The cave dead ends here.  Chained on the wall are the remains of a hill giant that has been partially devoured.  You are unable to tell if the body parts were consumed before being chained to the wall or if it simply fell prey to scavengers.', 'message nod.wav')
+	return
+
+static func AP66x27y24() : #66 at 27,24
+	var textRect = UI.ow_hud.textRect
+	return
+
+static func AP67x29y24() : #67 at 29,24
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You emerge into the musty confines of a large cavern.  It would appear the hapless giant was to be milk and cookies for the beast resting here.  Resting that is, until now!', 'message nod.wav')
+	GameGlobal.start_battle("Battle_176","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	ScriptHelperFuncsClass.set_scrip_enabled_flag(0, 68, -1 / 100, 0, 0)
+	await ScriptHelperFuncsClass.display_text_wait_noise('You find a sizable cache of wealth and a small sack with a group of 4 daggers.', 'message nod.wav')
+	await ScriptHelperFuncsClass.give_treasure_with_id(0)
+	return
+
+static func AP68x27y21() : #68 at 27,21
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('Your skin prickles, and your hair stands completely on end as if you are rubbing your feet furiously on a bearskin rug while wearing wool socks.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('There must be a powerful source of electrical energy nearby.', 'message nod.wav')
+	return
+
+static func AP69x5y27() : #69 at 5,27
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.change_map_tile_Divinity(0, 3, 28, 193, "land")
+	await ScriptHelperFuncsClass.display_text_wait_noise('You have found your way to the alley behind the combat arena.  You see a large shack in the distance that you had not seen before.', 'message nod.wav')
+	return
+
+static func AP70x4y27() : #70 at 4,27
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('As you approach the shack, a man wearing a leather harness exits from the hut and approaches.  \"What are you doing here?  This area is off limits.\"  He turns to go back inside when suddenly a huge creature bursts from the shack.', 'message nod.wav')
+	ScriptHelperFuncsClass.play_sound('door slam.wav', true)
+	ScriptHelperFuncsClass.play_sound('glowl 3.wav', true)
+	await ScriptHelperFuncsClass.display_text_wait_noise('The creature bears the remains of shackles.  Blood-soaked chains, wrapped about its fists, create crude but effective weapons.  The man in the leather harness yells, \"Look out!  It\'s loose!\" In hot pursuit, several armed men storm out the door.', 'angry mob.wav')
+	GameGlobal.start_battle("Battle_177","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	await ScriptHelperFuncsClass.display_text_wait_noise('You discover a scroll inside the shack.  It contains orders that the corporal train the troll to fight in the arena.  Bad idea!', 'message nod.wav')
+	return
+
+static func AP71x75y53() : #71 at 75,53
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('Holes have been ripped into the thatched roof of an abandoned shack.  Bloodstains on the floor bear witness that the former occupant suffered a violent death.', 'message nod.wav')
+	# Random chance 33% to jump to xap 72 - needs implementation
+	return
+
+static func AP72x65y87() : #72 at 65,87
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('Large piles of bones litter the cave\'s entrance to the south.', 'message nod.wav')
+	return
+
+static func AP73x42y88() : #73 at 42,88
+	var textRect = UI.ow_hud.textRect
+	return
+
+static func AP74x46y87() : #74 at 46,87
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('The creatures that caused the demise of the former occupant are now back searching for more food.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_182","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	return
+
+static func AP75x13y10() : #75 at 13,10
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You notice a small wooden sign near the window.  It\'s so old and faded as to be almost illegible.  It reads, \"Madam Osswel\'s Specialty Shop.\"  It appears to be closed.                                                     ', 'message nod.wav')
+	return
+
+static func AP76x2y2() : #76 at 2,2
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.display_picture_file('0.png')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Welcome to \"The City of Bywater\", a scenario for use with the Realmz Scenario Driver.  If you enjoy playing Realmz and would like to see more scenarios developed, please support us by sending in your registration fee.', 'heal.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Once you have registered this copy of Realmz, you will be able to play the entire scenario.  This scenario is very loose.  It does not have a strong plot line.  You can adventure where you want for as long as you want.', 'heal.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Once you have registered this copy of Realmz, you will also be able to play test other scenarios BEFORE having to register them.  The fee for each additional scenario are $13 each.  For information on how to register, see chapter 3 of the Realmz Manual.', 'hallelujah.wav')
+	# XAP 73 content (recursively resolved):
+	await ScriptHelperFuncsClass.display_text_wait_noise('Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.', 'message nod.wav')
+	# end of XAP 73 (with nested expansions)
+	ScriptHelperFuncsClass.hide_picture()
+	#GameGlobal.stuff_done["scenario_start_seen"] = 1
+	return 'jumptome'
+
+static func AP77x18y9() : #77 at 18,9
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 5 at 52,3
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_5", Vector2(52,3), '')
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter a massive building.  It appears to be an endless maze of hallways and corridors.', 'message nod.wav')
+	return
+
+static func AP78x2y28() : #78 at 2,28
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement jmp_quest check=set, target_type=xap, target=100, code_index=0
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the slave prison.  A potbellied Corporal Sampson is slumped over a shaky table.  He\'s slept through the entire ordeal that just took place outside.  The smell of elderberry wine permeates his clothes.  You try to rouse him to collect your fee.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Sampson awakens with a jolt and sits up quickly.  An offensive stream of drool has slid across his left cheek.  Heavy bags underneath his eyes imply he hasn\'t slept well lately.  \"What\'s this?  Can a man have no rest?\" You promptly display your contract.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Sampson swiftly scans the contract with disbelief.  \"I see that you have been promised the sum of 100 gold Zelots.  Well, there is not that many gold Zelots in all of Bywater!  You may be very brave, but you are also very gullible!\"', 'talk 2.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('\"I can offer you a few silver for your trouble.  That is the best I can do.\"  He begins to search his belongings for a few paltry coins.  Suddenly, a nasty brawl breaks out between two of the beasts. ', 'message nod.wav')
+	# XAP 82 content (recursively resolved):
+	await ScriptHelperFuncsClass.display_text_wait_noise('During the battle with the mad troll, one of the troll\'s hands had been severed.  One of your charges hungrily snatched it up to eat.  However, another beast greedily attempted to steal the tender morsel.  This attempt has provoked an all-out brawl.', 'growl 1.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Before you are able to get the situation under control, the beasts erupt explosively into a convulsing ball of fur and slashing claws.  You are immediately  pulled into the fray.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_206","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	#await ScriptHelperFuncsClass.display_simple_encounter(0)
+	# end of XAP 82 (with nested expansions)
+	return
+
+static func AP79x34y2() : #79 at 34,2
+	var textRect = UI.ow_hud.textRect
+	# This AP teleports to level 4 at 2,25
+	ScriptHelperFuncsClass.teleport_to_map_and_pos("map_4", Vector2(2,25), '')
+	return
+
+static func AP80x7y21() : #80 at 7,21
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('You are just about to enter the king\'s private gardens.  Someone has posted a message at the front gate.  \"Closed until further notice.  Do not enter under any circumstances.  You have been warned!\"', 'message nod.wav')
+	# TODO: Implement jmp_quest check=set, target_type=xap, target=100, code_index=0
+	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the king\'s gardens and begin to stalk for signs of the rabid beast.  Several  plants have been uprooted or mutilated.  You hear something up ahead on your right.  There are indications that the beast may not be alone.  Do you wish to continue?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 137, "0", "0")
+	GameGlobal.start_battle("Battle_209","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	ScriptHelperFuncsClass.set_quest_id_flag_Divinity(0)
+	return
+
+static func AP81x5y5() : #81 at 5,5
+	var textRect = UI.ow_hud.textRect
+	pass
+	return
+
+static func AP82x6y3() : #82 at 6,3
+	var textRect = UI.ow_hud.textRect
+	# XAP 104 content (integrated):
+	ScriptHelperFuncsClass.play_sound('talk 2.wav', false)
+	await ScriptHelperFuncsClass.display_text_wait_noise('A seedy looking group of gnomes are sitting at a vomit stained table.  They are swilling cheap grog from a clay jug.  They seem more concerned with getting more than their share of the wine and pay you little attention.', 'message nod.wav')
+	ScriptHelperFuncsClass.play_sound('angry mob.wav', false)
+	await ScriptHelperFuncsClass.display_text_wait_noise('Just as you\'re about to dismiss the group,  Vodalian rears up a glinting dagger and charges against one of the gnomes.  "Murderous scum!  I shall avenge my sweet Alex this very day!"', 'message nod.wav')
+	ScriptHelperFuncsClass.play_sound('sword hit.wav', false)
+	await ScriptHelperFuncsClass.display_text_wait_noise('You burst forth in an attempt to restrain Vodalian.   Gnomes rush from the shadows to aid their drunken friends.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_217","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	# XAP 105 content (integrated):
+	ScriptHelperFuncsClass.play_sound('talk 2.wav', false)
+	await ScriptHelperFuncsClass.display_text_wait_noise('Vodalian thanks you for your aid.  "This vermin slew my son.  Alex was an extremely intelligent and talented pupil.  He could have grown to become a powerful mage.  This foul creature deserved a more cruel demise."', 'message nod.wav')
+	return
+
+static func AP83x89y48() : #83 at 89,48
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement set_dungeon level=0, x=33, y=72, dir=east
+	return
+
+static func AP84x71y78() : #84 at 71,78
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('big splat.wav', true)
+	ScriptHelperFuncsClass.play_sound('big splat.wav', true)
+	await ScriptHelperFuncsClass.display_text_wait_noise('You plow through thick clumps of fungus. Movement flashes at your side.  You halt and warily eye the surroundings.  A constant, steady rustling seems to come from all directions.  You feel quite on edge.  There\'s something odd about these plants.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Huge fungus-like plants grow throughout the area.  Each fungus is surrounded by small podlings attached by long vines.  The podlings slither in your direction.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_191","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	await ScriptHelperFuncsClass.display_text_wait_noise('A faint smell begins to permeate the air. It slowly gains strength.  You toy with the idea of capturing one of the creatures.  A wizard would pay dearly to use such a  plant in experiments.  The nasty odor hastily devours this thought.', 'message nod.wav')
+	return
+
+static func AP85x73y76() : #85 at 73,76
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=44, id=0
+	return
+
+static func AP86x68y77() : #86 at 68,77
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=44, id=0
+	return
+
+static func AP87x69y79() : #87 at 69,79
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=44, id=0
+	return
+
+static func AP88x72y79() : #88 at 72,79
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=44, id=0
+	return
+
+static func AP89x70y76() : #89 at 70,76
+	var textRect = UI.ow_hud.textRect
+	# TODO: Implement use_ap level=44, id=0
+	return
+
+static func AP90x4y36() : #90 at 4,36
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('underwater laser.wav', true)
+	await ScriptHelperFuncsClass.display_text_wait_noise('Open grassland is marred by a dark, gaping pit.  Muted bubbling fizzles below.  A large log lies near the pit\'s edge.  It might be possible to use it as a crude, makeshift ladder.  Do you push the log in and attempt to enter the pit?', 'message nod.wav')
+	#await ScriptHelperFuncsClass.yesno_branch("yes", "back_up", 0, "0", "0")
+	await ScriptHelperFuncsClass.display_text_wait_noise('You start to slowly clamber down the log.  With a heavy thump, the log shifts to the right and begins to shake with violent force.  Clinging for dear life, you scramble your way back up out of the pit.  Massive slime creatures slither up the log.', 'message nod.wav')
+	GameGlobal.start_battle("Battle_218","map_0", true,false, true,true,true,[])
+	var battle_outcome = await GameGlobal.battle_end
+	return
+
+static func AP91x6y3() : #91 at 6,3
+	var textRect = UI.ow_hud.textRect
+	pass
+	return
+
+static func AP92x6y3() : #92 at 6,3
+	var textRect = UI.ow_hud.textRect
+	pass
+	return
+
+static func AP93x6y3() : #93 at 6,3
+	var textRect = UI.ow_hud.textRect
+	pass
+	return
+
+static func AP94x88y12() : #94 at 88,12
+	var textRect = UI.ow_hud.textRect
+	await ScriptHelperFuncsClass.display_text_wait_noise('A small orcish dwelling that belongs to the local witch doctor.  The owner gives you a toothless grin and offers to sell you a few potions and trinkets.', 'message nod.wav')
+	GameGlobal.currentShop = 'shop_0'
+	GameGlobal.allow_money_change(true)
+	return
+	
+	
+	
+static func XAP6x0y0x41y18() :
+	return
+
+static func XAP9x0y0x41y18() :
+	return
+
+static func XAP21x0y0x27y48() :
+	return
+
+static func XAP26x0y0x41y18() :
+	return
+
+static func XAP44x1y2x26y9() :
+	return
+
+static func XAP45x1y2x26y9() :
+	return
+
+static func XAP57x0y0x38y30() :
+	return
+
+static func XAP64x0y0x41y13() :
+	return
+
+static func XAP103x0y0x41y13() :
+	return
+
+static func XAP106x0y0x90y90() :
+	return
+
+static func XAP142x0y0x16y11() :
+	return
+
+static func jumptome() :
+	await ScriptHelperFuncsClass.display_text_wait_noise('Successfully jumped to another AP  after executing one.', 'metal hit.wav')
+	return
