@@ -9,15 +9,15 @@ var level : int = 0
 func _init(args : Array):
 	#[chara, duration,level]
 	chara = args[0]
-	duration = 5*args[1]
+	duration = args[1]
 	level = args[2]
 	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is Immune to spells up tp Lv.+'+str(level)+' !', null,'')
 
 func stack(args : Array) :
-	duration += 5*args[0]
+	duration += args[0]
 
 func unstack(args : Array) :
-	duration -= 5*args[0]
+	duration -= args[0]
 
 func get_saved_variables() :
 	return [ceil(duration/5),level]
@@ -34,7 +34,7 @@ func _on_new_round(_character : Creature) :
 	if duration <= 0 :
 		chara.remove_trait(self)
 		return
-	duration -= 5
+	duration -= 1
 
 func _on_time_pass(_character, seconds) :
 	if duration <= 0 :

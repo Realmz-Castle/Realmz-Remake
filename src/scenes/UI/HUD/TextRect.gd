@@ -159,11 +159,14 @@ func set_text(text : String, _interrupt : bool = true, _sound : String = "") :
 
 #	pause = false
 
-func display_multiple_choices(choices : Array, scripts : Array) :
+func display_multiple_choices(choices : Array, scripts : Array = []) :
 	aoetex.hide()
 	itemtex.hide()
 	StateMachine.transition_to("MultipleChoices", {"prev_state" : StateMachine._state_name, "choicesContainer" : choicesContainer})
 	Input.set_custom_mouse_cursor(UI.cursor_click)
+	
+	if scripts.is_empty() : scripts = range(choices.size())
+	
 	choicesContainer.show()
 	choicesContainer.display_multiple_choices(choices, scripts)
 	var choice = await choicesContainer.choice_pressed

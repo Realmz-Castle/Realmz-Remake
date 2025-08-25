@@ -15,6 +15,7 @@ class_name Map
 # Get Thing Scene By default #
 #@export (PackedScene) var _thing
 
+
 var secret_texture : Texture2D
 var path_texture : Texture2D
 var display_explored_only : bool = false
@@ -258,6 +259,17 @@ func load_map( _campaign : String, mapname : String) -> void:
 			mapboats[Vector2i(int(s[0]), int(s[1]))] = [boatimage, imgname ]
 	else :
 		mapboats.clear()
+	#TEST
+	#GameGlobal.stuff_done['TileSwaps.'+mapname] = {}
+	#GameGlobal.stuff_done['TileSwaps.'+mapname]["x4y4l0"] = [4, 4, 0, "ForestDay", 55]
+	#apply tile swap changes  marked by  flags :
+	if GameGlobal.stuff_done.has('TileSwaps.'+mapname) :
+		var tswapdict : Dictionary = GameGlobal.stuff_done['TileSwaps.'+mapname]
+		for tswapkey : String in tswapdict : #eg x4y4l0
+			var tsd : Array = tswapdict[tswapkey] #eg [4, 4, 0, "ForestDay", 55]
+			ScriptHelperFuncsClass.change_currmap_tile(tsd[0],tsd[1],tsd[2],tsd[3], tsd[4])
+			
+	load_simple_encounter_data(mapname)
 
 func _on_viewport_size_changed() :
 	var screensize : Vector2 = ScreenUtils.get_logical_window_size(self)
@@ -401,6 +413,7 @@ func _process(_delta):
 	pass
 	var newtext : String = "GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(StateMachine.combat_state.cbanimstate.timer)+'\n'
 	debuglabel.text = newtext + '\n teamsize : '+str(GameGlobal.player_characters.size())
+
 
 func set_secret_seen(pos : Vector2i) :
 	if mapsecrets.has(pos) :
@@ -555,3 +568,17 @@ func pathfinder_block_pos(pos : Vector2) :
 	aStar21.block_pos(pos)
 	aStar22.block_pos(pos)
 	#aStarExtra.block_pos(pos)
+
+
+func load_simple_encounter_data(mapname : String) :
+	print("MAP load_simple_encounter_data")
+	#check if GameGlobal.load_simple_encounter_data has data for this map, else  load from campaign
+	if not GameGlobal.stuff_done.has(mapname+'.SEdata') :
+		var mapspath : String =  Paths.campaignsfolderpath + GameGlobal.currentcampaign + "/Maps/"+mapname+"/map_SimpleEncounters.json"
+		print(mapspath)
+		var map_se_data : Dictionary = Utils.FileHandler.read_json_dic_from_file(mapspath)
+		#if map_se_data.is_empty() : 
+		GameGlobal.stuff_done[mapname+'.SEdata']=map_se_data
+			#return
+		#printerr("MAP load_simple_encounter_data "+mapname+" data : ", GameGlobal.stuff_done[mapname+'.SEdata'])
+		

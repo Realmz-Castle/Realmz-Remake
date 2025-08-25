@@ -56,6 +56,11 @@ static func display_text_wait_noise(txt : String, sfxname : String) -> void :
 	textRect.set_text(str(txt), true)
 	await textRect.interruption_over
 
+static func display_multiple_choices(choices : Array, answers : Array = []) :
+	UI.ow_hud.textRect.display_multiple_choices(choices, answers)
+	var answer = await UI.ow_hud.textRect.choice_pressed
+	return answer
+
 ## Divinity Code 3 Player Option , option
 static func yesno_branch(continue_on_yes : bool, tg_type : int, tg_name : String, lefttxt : String, righttxt : String) ->bool :
 	#return true iff branching, if continuing return false does nothing
@@ -97,11 +102,16 @@ static func start_complex_encounter( comp_enc_name : String) :
 	UI.ow_hud.encounterControl.show()
 	UI.ow_hud.encounterControl.initialize(comp_enc_name)
 
-## Divinity Code 9: Play Sound , sound
+
 static func play_sound(sfx_name : String, stop : bool) :
 	SfxPlayer.stream = NodeAccess.__Resources().sounds_book[sfx_name]
 	SfxPlayer.play()
 	if stop : await SfxPlayer.finished
+
+#code 9, use with await
+static func play_sound_divinity(sfx_id : int) :
+	if SfxIdDivinity.mapping.has(sfx_id) :
+		await play_sound(SfxIdDivinity.mapping[sfx_id], sfx_id<0)
 
 ##Divinity Code 21: Branch on Possession of Specific Item, jmp_if_item
 static func branch_on_posession_of_item(item_name : String, tg_type : int, should_ignore_if_no : bool, exec_if_yes : String, exec_if_no : String) :
@@ -132,6 +142,7 @@ static func branch_on_posession_of_item(item_name : String, tg_type : int, shoul
 
 ##Divinity 25: Exit Action Point and Delete Action Point  , exit_ap_delete
 static func flag_disabled_current_script() ->void :
+	printerr("flag_disabled_current_script() won't work from XAP, be careful !")
 	var map_name = GameGlobal.currentmap_name
 	var script_name = GameGlobal.current_map_script_name
 	GameGlobal.stuff_done[map_name+'.'+script_name+'.disabled'] = 1
@@ -164,11 +175,17 @@ static func set_walk_back_once(should : bool) :
 ## Divinity Code 2 : battle
 static func start_battle_in_range(low : int, high : int, sfx_id : int, displaytext : String, give_treasure : int) :
 	#low=, high=, sound_id=, string_id=, treasure_mode= 
+	var sound_name_from_mapping : String = ''
+	if SfxIdDivinity.mapping.has(sfx_id) :
+		sound_name_from_mapping = SfxIdDivinity.mapping[sfx_id]
+	if not displaytext.is_empty() :
+		await ScriptHelperFuncsClass.display_text_wait_noise(displaytext, sound_name_from_mapping)
+	
 	var battles_id_name_dict = GameGlobal.campaign_global_script.battles_id_name_dict
-	var sfx_id_name_dict = GameGlobal.campaign_global_script.sfx_id_name_dict
+
 	var battle_name = battles_id_name_dict[randi_range(low, high)]
 	GameGlobal.allow_next_battle_loot = give_treasure!=5 # from divinity doc : A value of 5 here : no loot. 10 : no gameover.
-	play_sound(sfx_id_name_dict[sfx_id], true)
+	play_sound(sound_name_from_mapping, true)
 	GameGlobal.start_battle(battle_name,"",true, false, give_treasure==10, true, true, [] ) # all party if pc_particiating is empty
 
 
@@ -195,11 +212,27 @@ static func randomrect_battle(b : Array, o : int, s : String, t : String, battle
 
 
 
+#Code 7: Change Action Point Script 
+#ID: Extra Codes ID 
+#Use: Allows you to change the codes for an Action Point anywhere in the scenario. 
 ## Divinity Code 7 : modify_ap    level=, id=, source_xap=, level_type=, result_code=
-static func add_script_branch_flag( map_id : int, type : int, source_id : int, modified_script_id : int) :
-	var flagname : String = "modify_ap_map"+str(map_id)+"_type"+str(type)+"_AP"+str(source_id)
-	GameGlobal.stuff_done[flagname] = modified_script_id
-	printerr("\n\n\n   USED add_script_branch_flag !!!\n    "+flagname+' '+str(modified_script_id)+"\nPlease make sure the script branches properly\n\n")
+static func add_Divinity_script_branch_flag( map_id : int, source_id : int, modified_script_id : int, thing, sexap_result_to_replace) :
+	var aptype : String = "AP"
+	if map_id== -2 :
+		aptype = "SEXAP or CEXAP"
+		printerr("USING SCRIPTHELPERFUNCS.add_Divinity_script_branch_flag to change a SIMPLE ENCUNTER or COMPLEX ENCOUNTER ",map_id,",  pls do it manually !!!!!",
+		' source id : ',source_id,', replacement id : ', modified_script_id)
+		assert(false)
+		return
+	var sourceapname = get_ap_name_starting_with(aptype+str(source_id)+'x')
+	var new_ap_name = get_ap_name_starting_with("XAP"+str(modified_script_id)+'x')
+	add_AP_replaced_flag('map_'+str(map_id), sourceapname, new_ap_name )
+
+static func add_AP_replaced_flag(_mapname : String, _ap_name : String, _newap_name : String) :
+	var script_name = "script_"+str(_ap_name)
+	var flag_name : String = _mapname+'.'+script_name+'.replaced'
+	GameGlobal.stuff_done[flag_name] = _newap_name
+	printerr("\n   USED ScriptHelperFuncs add_AP_replaced_flag !!!\n    "+flag_name+':'+str(_newap_name))
 
 ## Divinity Code 29: Give/Display Map  id:int , if negative, give |id| and also display
 static func give_minimap(id : int) :
@@ -220,14 +253,39 @@ static func give_treasure_with_id(treasure_id : int) :
 	await StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : treasure_dict["treasure"] ,"money" : treasure_dict["money"] ,"exp" : treasure_dict["exp"] })
 
 
+static func get_ap_name_starting_with(startstring : String) -> String :
+	var mapscript_methods_dicts : Array = GameGlobal.map.mapscripts.get_script_method_list()
+	for d in mapscript_methods_dicts :
+		var ap_name : String = d["name"]
+		if ap_name.begins_with(startstring) :
+			return ap_name
+	return ''
+	
+
 ##Divinity Code 13: Enable/Disable Action Point  level=, id=, percent_chance=, low=, high= 
-static func set_scrip_enabled_flag(useless : int, map_id, exec_chance : float, ap_id : int, ap_upto_id : int) ->void :
+#Use: Use this to enable or disable an Action Point or to alter the percent chance that you encounter it. 
+static func set_divinity_script_enabled_flag(map_id : int, ap_id : int, exec_chance : float, ap_downto_id : int, ap_upto_id : int) ->void :
+	printerr("ScripHelperFuncs set_divinity_script_enabled_flag("+str(map_id)+','+str(ap_id)+','+str(exec_chance)+','+str(ap_upto_id)+')')
 	var map_name = "map_"+str(map_id)
-	for id in range(ap_id, ap_upto_id) :
-		var script_name = "script_"+str(id)
-		var flag_name : String = map_name+'.'+script_name+'.chance'
-		GameGlobal.stuff_done[flag_name] = exec_chance
-		printerr("\n\n\n   USED set_scrip_enabled !!!\n    "+flag_name+' = '+str(exec_chance)+"\nPlease make sure the script checks this flag !\n\n")
+	var apnames_array = []
+	var ap_name : String = get_ap_name_starting_with('AP'+str(ap_id)+'x')
+	if not ap_name.is_empty() :
+		apnames_array.append(ap_name)
+	for id in range(ap_downto_id, ap_upto_id+1) :
+		var apn : String = get_ap_name_starting_with('AP'+str(id)+'x')
+		if not apn.is_empty() :
+			apnames_array.append(apn)
+	#printerr(mapscript_methods_arr)
+	for apn in apnames_array :
+		set_ap_enabled_flag(map_name, str(apn), exec_chance)
+
+
+#sets a GameGlobal flag for this AP  name, chance between 0 and 1
+static func set_ap_enabled_flag(_mapname : String, _apname : String, _chance : float) :
+	var script_name = "script_"+str(_apname)
+	var flag_name : String = _mapname+'.'+script_name+'.chance'
+	GameGlobal.stuff_done[flag_name] = _chance
+	printerr("\n USED ScriptHelperFuncs set_ap_enabled_flag !! "+flag_name+' = '+str(_chance))
 
 ## Divinity Code 52: Pick on Miscellaneous type=, parameter=, who=
 static func filter_PCs_Divinity(type : int, parameter : int, who : int, previously_picked = []) -> Array :
@@ -284,6 +342,16 @@ static func filter_PCs_Divinity(type : int, parameter : int, who : int, previous
 				picked_array.append(UI.ow_hud.selected_character)
 	return picked_array
 
+#takes this amount of gold from party if possible, and returns bool  of whether it's successful
+# Similar to Divinity's  take_money
+static func take_money_if_possible(gold : int) -> bool :
+	var totalgold : int = 0
+	for character in GameGlobal.player_characters :
+		totalgold += character.money[0] #0 is gold
+	if totalgold >= gold :
+		remove_gold_from_party(gold)
+		return true
+	return false
 
 ## Divinity Code 15: Heal/Hurt Picked     picked using a Code 14 or 30
 static func heal_picked_Divinity(mult : int, low_range, high_range, sound, string, prev_picked) :
@@ -421,14 +489,407 @@ static func remove_gold_from_party(gold_to_give : int) :
 		gold_to_give -= gold_given
 		character.money[0] -= gold_given
 
-
+#affects current map
 static func change_tileset(fromname : String, toname : String) :
 	var map  : Map =  GameGlobal.map
 	var resources : CampaignResources = GameGlobal.cmp_resources
 	var tonamejson : String = toname + '.json'
-	printerr(str(GameGlobal.map.mapdata[0][0]))
+	#printerr("ScriptHelperFuncs  change_tileset  topleft tile : ",str(GameGlobal.map.mapdata[0][0]))
 	for x in range(map.mapdata[0].size()) :
 		for y in range(map.mapdata.size()) :
 			var curtile : Dictionary = map.mapdata[y][x][0]
 			if curtile["tileset_name"] == fromname :
 				map.mapdata[y][x][0] = resources.tiles_book[tonamejson][curtile["id"]]
+	map.queue_redraw()
+
+#changes a single tile on a map, adds a flag so change can be applied on map load. Returns stuffdoneflag name.
+static func change_tile_anymap_add_flag(map_name : String, x:int, y:int, tileset_name : String, tile_id : int, layer : int = 0) -> Array:
+	var mapflagname : String = 'TileSwaps.'+map_name
+	var flagname : String = 'x'+str(x)+'y'+str(y)+'l'+str(layer)
+	var flagvalue : Array = [x,y,layer,tileset_name, tile_id]
+	if map_name==GameGlobal.currentmap_name :
+		change_currmap_tile(x,y,layer,tileset_name, tile_id )
+	if not GameGlobal.stuff_done.has(mapflagname) : 
+		GameGlobal.stuff_done[mapflagname] = {}
+	GameGlobal.stuff_done[mapflagname][flagname]=flagvalue
+	return [mapflagname, flagname, flagvalue]
+
+static func change_currmap_tile(x:int,y:int,l:int, ts_name : String, tile_id : int) :
+	var resources : CampaignResources = GameGlobal.cmp_resources
+	#var curtile : Dictionary = GameGlobal.map.mapdata[y][x][l]
+	GameGlobal.map.mapdata[y][x][l] = resources.tiles_book[ts_name+'.json'][tile_id-1]
+	GameGlobal.map.queue_redraw()
+
+static func request_pc_pick(n : int) :
+	UI.ow_hud.request_pc_pick(n)
+	GameGlobal.last_picked_characters = await UI.ow_hud.pc_picked
+	return GameGlobal.last_picked_characters
+
+#Code 43: Give Condition 
+#Use: Will allow you to give characters a specified condition.
+#Negative values will be permanent unless that character alreadysuffers from the specified condition in a permanent way. 
+#1) Affect Who: 0 = Party, 1 = Picked, 2 = Alive 
+static func give_Divinity_condition(affect_who : int, condition_id : int, powerperm : int, sound_name_id ):
+	var affected_characters : Array = []
+	var permanent : bool =  powerperm<0
+	var power : int = absi(powerperm)
+	match affect_who :
+		0 :
+			affected_characters = GameGlobal.player_characters
+		1 :
+			affected_characters = GameGlobal.last_picked_characters
+		2:
+			for c : Creature in GameGlobal.player_characters :
+				if c.life_status <3 : affected_characters.append(c) #not dead
+	var traitscript_filename : String = ''
+	var trait_array : Array = []
+	if(permanent) :
+		trait_array = []
+		traitscript_filename = 'p_'
+	else :
+		trait_array = [power]
+		traitscript_filename = 't_'
+	match condition_id :
+		0: #run
+			traitscript_filename += "fleeing.gd"
+		1 : #Helpless
+			traitscript_filename = "t_helpless.gd"
+			if(permanent) : trait_array = [9999]
+		2 : #Tangled
+			traitscript_filename += "slow.gd"
+		3: #Curse
+			traitscript_filename += "cursed.gd"
+		4: #Magic Aura
+			traitscript_filename += "aura.gd"
+		5: #Stupid
+			traitscript_filename += "dumb.gd"
+		6: #Slow
+			traitscript_filename += "slow.gd"
+		7:#Shield from hits :
+			traitscript_filename += "pro_hits"
+			trait_array = [power] # permanent still stacks !
+		8: #Shielded from Projectiles
+			traitscript_filename += "pro_proj.gd"
+		9: #Poison
+			traitscript_filename += "poison.gd"
+			trait_array = [power] # permanent still stacks !
+		10: #Regenerate
+			traitscript_filename += "hp_regen.gd"
+			trait_array = [power] # permanent still stacks !
+		11: #Protection from Fire
+			traitscript_filename += "prot_fire.gd"
+		12:
+			traitscript_filename += "prot_ice.gd"
+		13:
+			traitscript_filename += "prot_elect.gd"
+		14:
+			traitscript_filename += "prot_chem.gd"
+		15:
+			traitscript_filename += "prot_mental.gd"
+		16,17,18,19,20: #Protection from 1-5th Level Spells
+			traitscript_filename += "spell_lvl_prot.gd"
+			if(permanent) :trait_array = [condition_id-15]
+			else : trait_array = [power,condition_id-15 ]
+		21 : #Strong
+			traitscript_filename += "strong.gd"
+		22 : #Protection from evil
+			traitscript_filename += "prot_evil.gd"
+			trait_array = [power]
+		23: #Speedy
+			traitscript_filename += "speedy.gd"
+		24: #invisible
+			traitscript_filename += "invisible.gd"
+		25: #Animated
+			traitscript_filename += "animated.gd"
+		26: #SToned
+			traitscript_filename = "p_petrified.gd"
+			trait_array = [] #always permanent
+		27: #Blind
+			traitscript_filename += "blind.gd"
+		28: #Diseased
+			traitscript_filename += "disease.gd"
+		29: #Confused
+			traitscript_filename += "confused.gd"
+		30: #Reflecting Spells
+			traitscript_filename += "reflect_spells.gd"
+		31: #Reflecting Melee
+			traitscript_filename += "reflect_melee.gd"
+		32: #Attack Bonus
+			traitscript_filename += "phys_dmg_bonus.gd"
+			trait_array = [power]
+		33: #Absorbing Energy
+			traitscript_filename += "sp_regen.gd"
+			trait_array = [power]
+		34: #Energy Drain
+			traitscript_filename += "sp_regen.gd"
+			trait_array = [-power]
+		35: #Absorb SP from Attacks
+			traitscript_filename += "sp_absorb.gd"
+		36: #Hinder Attack
+			traitscript_filename += "hindered_atk.gd"
+			trait_array = [power]
+		37: #Hinder Defense
+			traitscript_filename += "hindered_def.gd"
+			trait_array = [power]
+		38: #Defense Bonus
+			traitscript_filename += "increased_def.gd"
+			trait_array = [power]
+		39: #Silenced
+			traitscript_filename += "dumb.gd"
+			trait_array = [power]
+	var traitscript = load("res://shared_assets/traits/"+traitscript_filename)
+	for c in affected_characters :
+		c.add_trait(traitscript, trait_array)
+		if sound_name_id is String :
+			await play_sound(sound_name_id, true)
+# Code 52: Pick on Miscellaneous 
+# Use: Allows you to PICK characters on a number of conditions.
+#1) Type Of Check, 0 = Move, 1 = Position, 2 = Item Poss, 3 = % Chance, 4 = Save Vs Attr, 5 = Save Vs Spell Type, 6 = Pick Currently Selected PC, 7 8 = Pick Character In Specific 
+#2) < Move, < Pos, Item ID, % Chance, Attr No., Spell Type No., Item ID, Position (1-6) 
+#3) 0 = Check All, 1 = Alive Only, 2 = Check picked only. 
+static func pick_chara_Divinity_misc(type:int, challenge : int, checkwho : int, item_poss_name : String = '') ->Array :
+	var tested_charas : Array = []
+	var picked_charas : Array = []
+	match checkwho :
+		0 :
+			tested_charas = GameGlobal.player_characters
+		1 :
+			for c : Creature in GameGlobal.player_characters :
+				if c.life_status <3 : tested_charas.append(c) #not dead
+		2:
+			tested_charas = GameGlobal.last_picked_characters
+			
+	match type :
+		0: #Move
+			for c : Creature in tested_charas :
+				if c.get_stat("MaxMovement") > challenge : picked_charas.append(c)
+		1 : #Position
+			var i = 0
+			for c : Creature in tested_charas :
+				if i==challenge : picked_charas.append(c)
+				i+=1
+		2: #Item Possession
+			if item_poss_name.is_empty() :
+				printerr("ScriptHelperFunc pick_chara_Divinity_misc : "+GameGlobal.current_map_script_name+' : please manually fix by adding the item name as argument : '+str(challenge))
+				return []
+			var item_dict : Dictionary = GameGlobal.cmp_resources.items_book[item_poss_name]
+			for c : Creature in tested_charas :
+				if not c.get_item(item_dict).is_empty() : picked_charas.append(c)
+		3: # %chance
+			for c : Creature in tested_charas :
+				if randi()%100>=challenge : picked_charas.append(c)
+		4: #save vs attribute
+			var attribute_name : String = ["Strength", "Intellect", "Wisdom","Dexterity","Vitality", "ERROR IN SCRIPT", "Luck" ][challenge]
+			for c : Creature in tested_charas :
+				if c.get_stat(attribute_name)>=randi()%25 : picked_charas.append(c)
+		5: #Save vs Spell Type
+			var spelltype_name : String = ["Mental", "Fire", "Ice","Elect","Chemical", "Mental", "Magic", "Healing" ][challenge]
+			for c : Creature in tested_charas :
+				var chance : float = 2*(1-c.get_stat('Multiplier'+spelltype_name)) + 0.1*c.get_stat('Resistance'+spelltype_name)
+				if randf()<=chance : picked_charas.append(c)
+		6: #Pick currently selected PC :
+			picked_charas.append(UI.ow_hud.selected_character)
+		7, 8 : #Pick Character In Specific   WHAT DOES IT EVEN MEAN
+			printerr("ScriptHelperFunc pick_chara_Divinity_misc : "+GameGlobal.current_map_script_name+' : supposedly PICK CHARACTER ON SPECIFIC? no idea what to do, TBI : '+str(challenge))
+		_ :
+			printerr("ScriptHelperFunc pick_chara_Divinity_misc : "+GameGlobal.current_map_script_name+' : UNHANDLED CHALLENGE  VALUE : '+str(challenge))
+	return picked_charas
+
+
+
+
+#Code 30: Pick on Check Vs. Attribute • Special Abilities 
+#ID: Extra Codes ID 
+#Use: This will allow you to PICK characters from the party according to the success
+#of a check vs. a speci ability.
+# Example: You could have each character who fails to perform an "Acrobatic Act" fall in a pit and take damage. 
+#Options: None 
+#E-Codes: 
+#1) What Attribute/Special Ability To Check (Negative = Set on Fail) 
+#2) +/- Modifer (Negative values hurt success odds) 
+#3) Who to check: 0 = Picked, 1 = Everyone, 2 = Alive 
+#4) 0 = Check Special Ability, 1 = Check Attribute 
+#Note: The +/- Modifier for checks vs. special abilities is a percentage check.
+# Example: If the character has a 40% chance to perform an acrobatic act, they will be successful 40% of the time. If you have a Modifier of + 20 they will be successful 60% of the time. 
+#Checks on attributes is base 25. Example: If a character has a agility score of 16,
+#then 16 out of 25 times they will be successful on a check vs.. agility.
+#If you put a modifier of -5 then they will only be successful 9 out of 25 times. 
+static func pick_chara_on_attribute_or_special_Divinity(what : int, modifier : int, checkwho : int, specorattr : int) -> Array :
+	var tested_charas : Array = []
+	var picked_charas : Array = []
+	match checkwho :
+		0 :
+			tested_charas = GameGlobal.last_picked_characters
+		1 :
+			tested_charas = GameGlobal.player_characters
+		2:
+			for c : Creature in GameGlobal.player_characters :
+				if c.life_status <3 : tested_charas.append(c) #not dead
+	var attributes_arr : Array = ["Strength", "Intellect", "Wisdom","Dexterity","Vitality", "ERROR IN SCRIPT", "Luck" ]
+	var specskills_arr : Array = ["Melee_Crit_Mult","N/A","N/A","Melee_Crit_Rate","Detect_Secret","Acrobatics", "Detect_Trap", "Disable_Trap", "N/A", "Force_Lock", "N/A", "Pick_Lock", "ERROR read_scrolls", "Turn_Undead" ]
+	var setonfail : bool = what<0
+	var checked_arr = [specskills_arr, attributes_arr][specorattr]
+	var checked_skill_name : String = checked_arr[what]
+	for c : Creature in tested_charas :
+		var c_skill = c.get_stat(checked_skill_name)
+		var succeed : bool = false
+		match specorattr :
+			0 : #special skill
+				if c_skill+modifier > 1+randi()%100 : succeed = true
+			1 : #attribute
+				if c_skill+modifier > 1+randi()%25 : succeed = true
+		if (setonfail and (not succeed)) or (succeed and (not setonfail)) :
+			picked_charas.append(c)
+	return picked_charas
+
+#returns next AP name, check around l305 of StateMachine script.
+# use as 
+# return await ScriptHelperFuncsClass.display_simple_encounter_from_data('SE0')
+static func display_simple_encounter_from_data(_enc_name : String) :
+	printerr("HELPER display_simple_encounter_from_data")
+	var se_data : Array = GameGlobal.stuff_done[GameGlobal.currentmap_name+'.SEdata'][_enc_name]
+	GameGlobal.prev_simple_enc_name = _enc_name
+	var prompt : String = se_data[0]
+	var choices_data_arr : Array = se_data[1]
+	var sexap_arr : Array = se_data[2]
+	var canleave : bool = se_data[3]
+	
+	var choices : Array = [prompt]
+	var answers : Array = ["TEXT"]
+	for c in choices_data_arr :
+		if c[2]>0 :
+			choices.append(c[0])
+			answers.append(str(c[1]))
+	if canleave :
+			choices.append('STOP')
+			answers.append('STOP')
+	display_text(prompt)
+	var answer = await display_multiple_choices(choices,answers)
+	var sexap_name : String = ''
+	if answer=="STOP" : return
+	else : return sexap_arr[choices_data_arr[int(answer)][1]]
+
+
+#Divinity Code 38: Continue On Possession, Else Branch Within Encounters 
+#ID: Extra Codes ID 
+#Use: Allows you to check for a specific item and branch depending on whether or not someone in the party possess it. This is similar to CODE 21 which allows you to branch to different encounters/Action Points, however, this code lets you branch to different scripts within a specific encounter. 
+#Options: None 
+#E-Codes: 
+#1) Item ID to check for. 
+#2) 0 = Cont On Poss, 1 = Cont not Poss 
+#3) 0 = X-AP, 1 = Within simple, 2 = Within complex 
+#4) X-AP/Branch No. (0-3 if within encounter) 
+#5) Code No. (0 = top Code/ID) 
+#use : 
+#var branch : String = branch_item_possession_divinity()
+#if not branch.is_empty() :
+	#return branch
+static func branch_item_possession_divinity(item_id : int, cont_not_poss : int, type : int, xap_id : int, code_no : int)->String :
+	var has_item : bool  = does_party_have_item_named(ItemIdDivinity.mapping[item_id])
+	if (cont_not_poss and (not has_item)) or ((not cont_not_poss) and has_item) :
+		return ''
+	var returned : String = 'xapid'
+	match type :
+		0 :
+			return "XAP"+str(xap_id)
+		1 :
+			return "SEXAP"+str(xap_id)
+		2 :
+			return "CEXAP"+str(xap_id)
+		_:
+			return ''
+			
+#Code 41: Eliminate Other Encounter Choice 
+#ID: Extra Codes ID 
+#Use: Similar to CODE 35, this will eliminate one of the 4 possible choices for a Simple Encounter. However, will eliminate the choice of ANY encounter at any time. 
+#Options: None 
+#E-Codes: 
+#1) Simple Encounter No. 
+#2) Choice No. To Eliminate (1-4) 
+static func eliminate_se_option_divinity(enc_id : int, choice_id : int) :
+	var se_name : String = 'SE'+str(enc_id)
+	eliminate_se_option(se_name, choice_id )
+
+#Divinity Code 35, calls 41
+static func eliminate_current_se_option_divinity(choice_id : int) :
+	var se_name : String = GameGlobal.prev_simple_enc_name
+	eliminate_se_option(se_name, choice_id )
+
+static func eliminate_se_option(se_name : String, choice_id : int) :
+	var se_data : Array = GameGlobal.stuff_done[GameGlobal.currentmap_name+'.SEdata'][se_name]
+	se_data[1][choice_id][2]=0
+
+static func display_random_text_from_array_wait(text_arr : Array) :
+	var textRect = UI.ow_hud.textRect
+	ScriptHelperFuncsClass.play_sound('message nod.wav', false)
+	textRect.set_text(str(text_arr.pick_random()), true)
+	await textRect.interruption_over
+
+#Code 42: Branch on Percent Chance 
+#ID: Extra Codes ID 
+#Use: Allows you to specify a percent chance that an action of a specified type will happen.
+#Otherwise, the c will continue to be executed. 
+#Options: Code -42 will add current script to the stack. The next Code 111 will return control
+#to the calling script where it left off.
+#See chapter "Action Points • Gosubs" for more info on the Stack and GOSUBS. 
+#E-Codes: 
+#1) Percent Chance of Happening, Else Continue Codes 
+#2) 1 = Branch, 2 = Exit & Save Codes, -2 = Exit & Erase Codes 
+#3) 0 = X-AP, 1 = Within Simple, 2 = Within Complex 
+#4) X-AP/Branch No. (0-3) 
+#5) Code No. (0 = Top Code/ID) 
+#use : 
+#var branch : String = branch_percent_chance_divinity()
+#if not branch.is_empty() :
+	#return branch
+static func branch_percent_chance_divinity(percent : int, whatdo : int, type : int, number : int, lineskip : int) :
+	if lineskip != 0 :
+		printerr("ScriptHelperFunc branch_percent_chance_divinity :"+GameGlobal.currentSpecialEncounterName+"\nLine skip is not supported,\nfix manually !")
+		assert(false)
+	if randf()<= float(percent)/100.0 : return ''
+	match whatdo :
+		1 :
+			match type :
+				0 : #XAP
+					return 'XAP'+str(number)
+				1 : #SEXAP :
+					return GameGlobal.prev_simple_enc_name+'XAP'+str(number)
+				2 : #CEXAP :
+					printerr("ScriptHelperFunc branch_percent_chance_divinity :"+GameGlobal.currentSpecialEncounterName+"\nbranching in Special Encounter is not supported,\nfix manually !")
+					assert(false)
+		2 :
+			return ""
+		-2 :
+			flag_disabled_current_script()
+			return ''
+
+
+#Code 54: Alter Time Encounter 
+#ID: Extra Codes ID 
+#Use: Use this code to change a time based encounter. 
+#Options: None 
+#E-Codes: 
+#1) Time Encounter ID 
+#2) New % Chance Of Activation (-1 = No Change) 
+#3) New Day Increment (-1 = No Change) 
+#4) 1 = Reset to current date  :  4) If you want the encounter to be activated 3 days from
+#	the present time, then place a 1 in this field. It will change the day of activation to
+#	the present day PLUS the value in 5). 
+#5) Days to add to next activation (-1 = No Change) 
+#check campaign's campaign_global_script.gd and on_campaign_start.gd,   ===== TIME ENCOUNTER in dump
+static func alter_time_event_divinity(_tenc_id : int, _newchance_prct : int, _new_incr : int, _reset : int, _to_next_act : int ) :
+	var tenc_name : String = 'Time_Enc_'+str(_tenc_id)
+	var enc_dict : Dictionary = GameGlobal.stuff_done["Timed_Encounters"][tenc_name]
+	if _newchance_prct>=0 :
+		enc_dict["chance_prct"] = _newchance_prct
+	if _new_incr >=0 :
+		enc_dict["chance_prct"] = _new_incr
+	if _reset >=0 :
+		if enc_dict.has("after") :
+			enc_dict["after"] = enc_dict["after"] + 86400*_to_next_act
+		if enc_dict.has("before") :
+			if enc_dict["before"] >= 0 :
+				enc_dict["before"] = enc_dict["before"] + 86400*_to_next_act
+
+static func set_time_event_chance( _tenc_name : String, _newchance_prct : int) :
+	GameGlobal.stuff_done["Timed_Encounters"][_tenc_name]["chance_prct"] = _newchance_prct

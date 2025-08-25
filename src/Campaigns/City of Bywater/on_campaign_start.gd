@@ -15,6 +15,7 @@ static func after_loading_ressources() :
 	#GameGlobal.allow_character_swap_anywhere = true
 	set_boats_in_gameglobal()
 	set_minimaps_in_gameglobal()
+	set_time_encounters_in_gameglobal()
 
 #sets boat data in GameGlobal.map_boats_dict
 static func set_boats_in_gameglobal() :
@@ -42,3 +43,12 @@ static func set_minimaps_in_gameglobal() :
 		["Waterford Cave", "map_1", [20,20], "GnollsMiniMap.png", "A map showing a treasure that the gnolls cant reach because of their size.", 1, 0],
 		["Waterford Cave", "map_0", [20,20], "CastleMiniMap.png", 'On the bottom of the map is a note:\n"After several weeks of sneaking about after the inn has closed for the night, I think I have found the source of the dissapearing townsfolk.\n     Corporal Sanchez.  Kings Investigative Agent 4th class.\"', 1, 0]
 	]
+
+static func set_time_encounters_in_gameglobal() :
+	GameGlobal.stuff_done["Timed_Encounters"] = {}
+	var t_encs : Dictionary = GameGlobal.stuff_done["Timed_Encounters"]
+	# "called_func" is  the name of the function in the campaign's global script.gd
+	#before<0 means  ignored,  req_rect empty means  anywhere on map,  req_map empty means any map
+	t_encs["Time_Enc_0"] = { "called_func" : "Time_Enc_0", "after" : -1*86400, "before" : -1, "chance_prct" : 0   ,"increment" : 0, "req_map" : "map_0", "req_rect" : [], "req_quest" : "" }
+	t_encs["Time_Enc_1"] = { "called_func" : "Time_Enc_1", "after" : 0.03*86400 , "before" : -1, "chance_prct" : 100,"increment" : 0, "req_map" : "", "req_rect" : [] , "req_quest" : ""}
+	t_encs["Time_Enc_2"] = { "called_func" : "Time_Enc_2", "after" : 0*86400 , "before" : -1, "chance_prct" : 0    ,"increment" : 0, "req_map" : "mapd_0", "req_rect" : [], "req_quest" : "" }

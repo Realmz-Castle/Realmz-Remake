@@ -551,22 +551,18 @@ static func AP76x2y2() : #76 at 2,2
 	var textRect = UI.ow_hud.textRect
 	ScriptHelperFuncsClass.display_picture_file('0.png')
 	await ScriptHelperFuncsClass.display_text_wait_noise('Welcome to \"The City of Bywater\", a scenario for use with the Realmz Scenario Driver.  If you enjoy playing Realmz and would like to see more scenarios developed, please support us by sending in your registration fee.', 'heal.wav')
-	await ScriptHelperFuncsClass.display_text_wait_noise('UGUU you have registered this copy of Realmz, you will be able to play the entire scenario.  This scenario is very loose.  It does not have a strong plot line.  You can adventure where you want for as long as you want.', 'heal.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('Once you have registered this copy of Realmz, you will be able to play the entire scenario.  This scenario is very loose.  It does not have a strong plot line.  You can adventure where you want for as long as you want.', 'heal.wav')
 	await ScriptHelperFuncsClass.display_text_wait_noise('Once you have registered this copy of Realmz, you will also be able to play test other scenarios BEFORE having to register them.  The fee for each additional scenario are $13 each.  For information on how to register, see chapter 3 of the Realmz Manual.', 'hallelujah.wav')
-	
 	# XAP 73 content (recursively resolved):
 	await ScriptHelperFuncsClass.display_text_wait_noise('Other scenarios utilize the capabilities of the Realmz scenario driver to a greater extent.  These scenarios feature a definite plot line, new monsters, new magical items and more dangerous encounters.', 'message nod.wav')
 	# end of XAP 73 (with nested expansions)
 	ScriptHelperFuncsClass.hide_picture()
 	#GameGlobal.stuff_done["scenario_start_seen"] = 1
-
+	
 	#ScriptHelperFuncsClass.set_divinity_script_enabled_flag(0, 76, 0.0, 0, 0)
 	
 	ScriptHelperFuncsClass.add_Divinity_script_branch_flag(0,76, 99, 0,0)
 	#ScriptHelperFuncsClass.change_currmap_tile(4,4,0, "ForestDay", 55)
-	
-	var nextap =  await ScriptHelperFuncsClass.display_simple_encounter_from_data('SE0')
-	return nextap
 	
 	#var flags =ScriptHelperFuncsClass.change_tile_anymap_add_flag("map_0", 4, 4, "ForestDay", 55, 0)
 	#printerr(flags)#["TileSwaps.map_0", "x4y4l0", [4, 4, 0, "ForestDay", 55]]
@@ -742,26 +738,9 @@ static func XAP142x0y0x16y11() :
 	return
 	
 static func XAP99x99y99x99y99() :
-	await ScriptHelperFuncsClass.display_text_wait_noise('XAP99 : You already saw the intro.', 'message nod.wav')
+	await ScriptHelperFuncsClass.display_text_wait_noise('XAP6 : A small orcish dwelling that belongs to the local witch doctor.  The owner gives you a toothless grin and offers to sell you a few potions and trinkets.', 'message nod.wav')
 	return
 
 static func jumptome() :
 	await ScriptHelperFuncsClass.display_text_wait_noise('Successfully jumped to another AP  after executing one.', 'metal hit.wav')
 	return
-
-
-#static func LRR1() :
-	#pass
-	#if randi()%10000>=option_chance : return
-	#start_battle_in_range(low : int, high : int, sfx_id : int, displaytext : String, 0) :
-	#var battle_outcome = await GameGlobal.battle_end
-	
-	
-static func SE0XAP0() :
-	await ScriptHelperFuncsClass.display_text_wait_noise('This is SE0XAP0.', 'message nod.wav')
-static func SE0XAP1() :
-	await ScriptHelperFuncsClass.display_text_wait_noise('This is SE0XAP1.', 'message nod.wav')
-static func SE0XAP2() :
-	await ScriptHelperFuncsClass.display_text_wait_noise('This is SE0XAP2.', 'message nod.wav')
-static func SE0XAP3() :
-	await ScriptHelperFuncsClass.display_text_wait_noise('This is SE0XAP3.', 'message nod.wav')

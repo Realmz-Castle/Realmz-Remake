@@ -52,9 +52,12 @@ var pos_when_battle_started : Vector2 = Vector2.ZERO
 
 var currentShop : String = ''
 var currentTemple : Array = [] # [ [spellname, price] ]
+var prev_simple_enc_name : String = ''  #not saved, only for use inside that simple encounter
 var currentSpecialEncounterName : String = "default.gd"
 
 var can_show_ability_list : bool = false
+
+var last_picked_characters : Array = [] #set by ScriptHelperFuncs, not owh_hud.request_pick
 
 var global_effects : Dictionary = {
 	"WaterBreath" : {"Duration" : 0},
@@ -217,9 +220,6 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	is_sailing_boat = bool(data_dict["is_sailing_boat"])
 	boat_sailed_image_name = data_dict["boat_image"]
 	
-	
-	cur_save_name = data_dict["save_name"]
-	cur_save_descrition = data_dict["save_descr"]
 	set_current_campaign(data_dict["campaign"])
 	currentmap_name = data_dict["currentmap_name"]
 	shops_dict = data_dict["shops_dict"]
@@ -229,6 +229,7 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	minimaps = data_dict["minimaps"]
 	
 	allow_next_battle_loot = true
+	prev_simple_enc_name = ''
 
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	time += seconds *time_scale
@@ -236,9 +237,53 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	fatigue = clampf(fatigue, 0.0, 172800.0)
 	UI.ow_hud.update_fatigue_bar()
 	
-	if campaign_global_script.has_on_time_pass :
+	if campaign_global_script.has_on_time_pass and ( not StateMachine.is_combat_state() ):
 		campaign_global_script._on_time_pass(seconds)
 	
+	if not StateMachine.is_combat_state() :   #check timed   encounters
+		if stuff_done.has("Timed_Encounters") :
+			#var campaign_script_methods_dicts : Array = campaign_global_script.get_script_method_list()
+			for t_enc_name : String in stuff_done["Timed_Encounters"] :
+
+				var t_enc_dict = stuff_done["Timed_Encounters"][t_enc_name]
+				if t_enc_name == "Time_Enc_1" :
+					print(time,' , ', t_enc_dict["before"], ',',t_enc_dict["after"])
+				
+				#t_encs["Time_Enc_1"] = { "called_func" = "Time_Enc_1", "after" : 3*86400 , "before" : -1, "chance_prct" : 100,"increment" : 0, "req_map" : "", "req_rect" : [] , "req_quest" : "quest_0"}
+				if not (t_enc_dict["req_map"].is_empty() or t_enc_dict["req_map"]==currentmap_name) :
+					continue
+				if not (time>=t_enc_dict["after"] and (time<=t_enc_dict["before"] or t_enc_dict["before"]<0)) :
+					#if t_enc_name == "Time_Enc_1" :
+						#print("time check failed")
+					continue
+				if (not t_enc_dict["req_quest"].is_empty() or stuff_done.has(t_enc_dict["req_quest"].is_empty())) :
+					#if t_enc_name == "Time_Enc_1" :
+						#print("quest check failed")
+					continue
+				if t_enc_dict["chance_prct"] <= randi()%100 :
+					continue
+				var x : int = map.owcharacter.tile_position_x
+				var y : int = map.owcharacter.tile_position_y
+				print('t_enc_dict["req_rect"]', t_enc_dict["req_rect"])
+				if not t_enc_dict["req_rect"].is_empty() :
+					var l = t_enc_dict["req_rect"][0][0]
+					var u = t_enc_dict["req_rect"][0][1]
+					var r = t_enc_dict["req_rect"][1][0]
+					var d = t_enc_dict["req_rect"][1][1]
+					if not (x>l and x<r and y>u and y<d) :
+						continue
+				#ok that should be enough checks  let s execute that global script function
+				var func_name : String = t_enc_dict["called_func"]
+				#var found : bool = false
+				#for meth_d in campaign_script_methods_dicts :
+					#var meth_name : String = meth_d["name"]
+					#if meth_name == func_name :
+						#found = true
+						#break
+				#if found :
+				campaign_global_script.call (func_name)
+				#else :
+					#printerr("GameGlobal ERROR pass_time : Campaign Global function "+ func_name+" NOT FOUND")
 	for character in player_characters :
 		character._on_time_pass(seconds)
 	for character in player_allies :
@@ -803,3 +848,27 @@ func generate_item(itemname : String) -> Dictionary :
 	var itemtemplate = NodeAccess.__Resources().items_book[itemname]
 	var itemcopy : Dictionary = itemtemplate.duplicate(true)
 	return itemcopy
+
+#updates the current_map_script_name according to stuff done flags that disable or change the AP
+#returns false iff AP should not be executed due to chance  (or disabled if chance==0)
+func check_flags_for_current_map_script_name() -> bool:
+	#"quest_"+str(quest_id)
+
+	var chanceflagname : String = currentmap_name+'.'+"script_"+str(current_map_script_name)+'.chance'
+	var replaceflagname : String = currentmap_name+'.'+"script_"+str(current_map_script_name)+'.replaced'
+	if not current_map_script_name.begins_with('X') :
+		printerr("GameGlobal check_flags_for_current_map_script_name "+current_map_script_name+ " "+replaceflagname)
+	#if not (stuff_done.has(chanceflagname) or stuff_done.has(replaceflagname)) :
+		#return true
+	var returned = current_map_script_name
+	if stuff_done.has(replaceflagname) :
+		printerr("found replaced ap flag :  ",replaceflagname,':',stuff_done[replaceflagname])
+		current_map_script_name = stuff_done[replaceflagname]
+	if stuff_done.has(chanceflagname) :
+		if randf()>stuff_done[chanceflagname] :
+			return false
+	return true
+	
+	#var script_name = "script_"+str(_apname)
+	#var flag_name : String = _mapname+'.'+script_name+'.chance'
+	#GameGlobal.stuff_done[flag_name] = _chance

@@ -266,7 +266,7 @@ func check_map_script(position) ->bool :
 		if l<=position.x and position.x<=r :
 			if u<=position.y and position.y<=d :
 				if randf() <= chance :
-					print("StateMachine check_map_script Script rectangle : ", s , ", script : ", sr["scriptToLoad"])
+					#print("StateMachine check_map_script Script rectangle : ", s , ", script : ", sr["scriptToLoad"])
 					scriptstocall[sr["scriptToLoad"]] = ''
 	#check map secrets :
 	for x in [-1,0,1] :
@@ -287,7 +287,6 @@ func check_map_script(position) ->bool :
 	for s in scriptstocall :
 		#find the script
 		#print (" map.mapscriptareas : ",GameGlobal.map.mapscriptareas)
-		print(GameGlobal.map.maptype)
 		var mapscriptareas_still_has_s : bool = false
 		for sa in GameGlobal.map.mapscriptareas :
 #					print(sa)
@@ -304,18 +303,23 @@ func check_map_script(position) ->bool :
 			var script_returned = s
 			
 			while script_returned != null :
+				
+				#check flags for if AP is disabled or replaced :
+				var shouldcontinue : bool = GameGlobal.check_flags_for_current_map_script_name()
+				if not shouldcontinue : break
+				
 				script_returned = await GameGlobal.map.mapscripts.call (GameGlobal.current_map_script_name)
 				if script_returned != null :
 					print("StateMachine check_map_scripts : script_returned is "+str(script_returned))
 					GameGlobal.current_map_script_name = script_returned
 			
 			GameGlobal.current_map_script_name = ''
-			print("StateMachine DONE await GameGlobal.map.mapscripts.call_deferred (s)")
-			GameGlobal.map.queue_redraw()
-			GameGlobal.refresh_OW_HUD()
+
 		else :
 			print("StateMachine : mapscript doesnt have script "+s+", ok if it's mecause of a map change")
-
+	#print("StateMachine DONE await GameGlobal.map.mapscripts.call_deferred (s)")
+	GameGlobal.map.queue_redraw()
+	GameGlobal.refresh_OW_HUD()
 	#print("STateMachine finished check_map_script")
 	if state==ex_menu_state :
 		print("StateMachine escape out of MenuState")

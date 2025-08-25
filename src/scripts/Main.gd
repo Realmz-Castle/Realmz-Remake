@@ -7,7 +7,7 @@ extends Control
 
 func _ready():
 #	get_viewport().set_sdf_scale(2)
-
+	#print("MAIN METHODS : \n",get_script().get_script_method_list())
 	var _err1 = get_tree().root.connect("size_changed",Callable(NodeAccess.__Map(),"_on_viewport_size_changed"))
 	var _err2 = get_tree().root.connect("size_changed",Callable(UI.ow_hud,"_on_viewport_size_changed"))
 	NodeAccess.__Map()._on_viewport_size_changed()
