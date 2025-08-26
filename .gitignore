@@ -18,6 +18,12 @@ asset_scripts/message.txt
 asset_scripts/engine_strings/*
 asset_scripts/__pycache__/
 asset_scripts/descriptions.json
+asset_scripts/expansion_tiles
+asset_scripts/The Family Jewels*
+asset_scripts/tileset_outdoor.png
+asset_scripts/expansion_tiles
+.venv/
+
 
 # External addons
 src/addons/godot-git-plugin/
