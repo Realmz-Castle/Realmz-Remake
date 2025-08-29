@@ -376,7 +376,6 @@ def process(
         # Apply mapping to expansion references if mapping is provided
         # For each row in the 3x3, only include mapped remake IDs, skipping unmapped
         # Remap all references, skip tile if any reference can't be mapped
-        mapped_refs_matrix: List[List[int]] = []
         if map_ref is not None:
             all_mapped = True
             remapped_flat: List[int] = []
@@ -392,17 +391,9 @@ def process(
                 if cfg.strict:
                     stats.errors += 1
                 continue
-            mapped_refs_matrix = [
-                remapped_flat[0:3],
-                remapped_flat[3:6],
-                remapped_flat[6:9]
-            ]
+            mapped_refs_flat = remapped_flat
         else:
-            mapped_refs_matrix = [
-                raw_refs[0:3],
-                raw_refs[3:6],
-                raw_refs[6:9]
-            ]
+            mapped_refs_flat = raw_refs
 
         # Apply reference shift
         if cfg.ref_shift != 0:
@@ -417,8 +408,8 @@ def process(
                     stats.out_of_range_refs += 1
                     warn(f"Line {row_index}: reference {r} out of range [{mn},{mx}] (src_id={src_id})")
 
-        # Build 3x3 matrix from mapped_refs_matrix
-        result[remake_key] = mapped_refs_matrix
+        # Store as flat 9-element array
+        result[remake_key] = mapped_refs_flat
         stats.tiles_written += 1
         stats.data_rows_processed += 1
 
@@ -429,7 +420,7 @@ def process(
 # Output Assembly
 # ---------------------------------------------------------------------------
 
-def build_output_json(cfg: Config, stats: ParseStats, tiles: Dict[int, List[List[int]]]) -> dict:
+def build_output_json(cfg: Config, stats: ParseStats, tiles: Dict[int, list]) -> dict:
     # Always output only the tiles object, sorted if requested
     return {str(k): v for k, v in (tiles.items() if cfg.no_sort else sorted(tiles.items()))}
 

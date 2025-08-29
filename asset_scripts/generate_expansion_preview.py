@@ -284,9 +284,9 @@ def load_json(path: str, desc: str) -> Any:
         sys.exit(1)
 
 
-def normalize_expansions(data: Any, cfg: Config, sink: WarningSink) -> Dict[int, List[List[int]]]:
+def normalize_expansions(data: Any, cfg: Config, sink: WarningSink) -> Dict[int, list]:
     """
-    Accept both shapes described above and return dict[int, 3x3 list].
+    Accept only flat 9-element lists and return dict[int, flat list].
     Applies key_shift if provided.
     """
     tiles_section = None
@@ -298,7 +298,7 @@ def normalize_expansions(data: Any, cfg: Config, sink: WarningSink) -> Dict[int,
         sink.error("Expansions JSON has unexpected top-level structure.")
         return {}
 
-    result: Dict[int, List[List[int]]] = {}
+    result: Dict[int, list] = {}
     for k, v in tiles_section.items():
         try:
             key_int = int(k) + cfg.key_shift
@@ -306,20 +306,11 @@ def normalize_expansions(data: Any, cfg: Config, sink: WarningSink) -> Dict[int,
             sink.warn(f"Skipping non-integer key: {k!r}")
             continue
 
-        if isinstance(v, list) and len(v) == 3 and all(isinstance(r, list) for r in v):
-            # Already 3x3 shape
-            flat = sum((row for row in v), [])
-            if len(flat) != 9:
-                sink.warn(f"Key {k}: expected 3x3 (9 cells) found {len(flat)}")
-                continue
-            matrix = v
-        elif isinstance(v, list) and len(v) == 9 and all(isinstance(x, int) for x in v):
-            matrix = [v[0:3], v[3:6], v[6:9]]
+        if isinstance(v, list) and len(v) == 9 and all(isinstance(x, int) for x in v):
+            result[key_int] = v
         else:
-            sink.warn(f"Key {k}: value not recognized as 3x3 or flat list of length 9.")
+            sink.warn(f"Key {k}: value not recognized as flat list of length 9.")
             continue
-
-        result[key_int] = matrix
     return result
 
 
@@ -387,21 +378,18 @@ def get_tile_crop(tileset_img: Image.Image, tile_id: int, tile_w: int, tile_h: i
     return tileset_img.crop((left, top, left + tile_w, top + tile_h))
 
 
-def apply_mapping_and_shift(matrix: List[List[int]], mapping: Dict[int, int], ref_shift: int,
-                            stats: Stats) -> List[List[int]]:
-    new_matrix: List[List[int]] = []
-    for row in matrix:
-        new_row = []
-        for cid in row:
-            mapped = mapping.get(cid, cid)
-            if mapped != cid:
-                stats.mapped_refs += 1
-            shifted = mapped + ref_shift
-            if ref_shift != 0:
-                stats.shifted_refs += 1
-            new_row.append(shifted)
-        new_matrix.append(new_row)
-    return new_matrix
+def apply_mapping_and_shift(flat: list, mapping: Dict[int, int], ref_shift: int,
+                            stats: Stats) -> list:
+    new_flat: list = []
+    for cid in flat:
+        mapped = mapping.get(cid, cid)
+        if mapped != cid:
+            stats.mapped_refs += 1
+        shifted = mapped + ref_shift
+        if ref_shift != 0:
+            stats.shifted_refs += 1
+        new_flat.append(shifted)
+    return new_flat
 
 
 def analyze_expansion(matrix: List[List[int]],
@@ -536,13 +524,13 @@ def generate(cfg: Config) -> int:
     analysis_entries: List[Tuple[int, HeuristicResult]] = []
 
     for exp_id in expansion_order:
-        matrix = expansions[exp_id]
+        flat = expansions[exp_id]
         # Apply mapping + shift
-        matrix = apply_mapping_and_shift(matrix, mapping, cfg.ref_shift, stats)
+        flat = apply_mapping_and_shift(flat, mapping, cfg.ref_shift, stats)
 
         # Validate references
         out_of_range = False
-        for r in (c for row in matrix for c in row):
+        for r in flat:
             if r < 0 or r >= total_tiles:
                 stats.invalid_references += 1
                 out_of_range = True
@@ -551,6 +539,8 @@ def generate(cfg: Config) -> int:
             continue  # Skip rendering in strict mode (counts as error)
 
         # Analysis
+        # Reshape flat to 3x3 for analysis and rendering
+        matrix = [flat[0:3], flat[3:6], flat[6:9]]
         heur_res = analyze_expansion(matrix, tile_types, cfg.max_types, cfg.no_heuristics)
         analysis_entries.append((exp_id, heur_res))
         stats.expansions_analyzed += 1

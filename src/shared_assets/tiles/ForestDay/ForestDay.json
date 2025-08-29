@@ -1,3632 +1,4617 @@
 {
-    "columns": 20,
-    "image": "ForestDay.png",
-    "imageheight": 384,
-    "imagewidth": 640,
-    "margin": 0,
-    "name": "ForestDay",
-    "spacing": 0,
-    "tilecount": 228,
-    "tiledversion": "1.10.1",
-    "tileheight": 32,
-    "tiles": [
-        {
-            "id": 0,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 1,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 3,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 4,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 5,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 6,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 7,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 8,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 9,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_10"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 10,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 11,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_12"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 12,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_13"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 13,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_14"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 14,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_15"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 15,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_16"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 16,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_17"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 17,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_18"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 18,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_19"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 19,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_20"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 20,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_21"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 21,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_22"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 22,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_23"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 23,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_24"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 24,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_25"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 25,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_26"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 26,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_27"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 27,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_28"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 28,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_29"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 29,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_30"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 30,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_31"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 31,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "shore_32"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 32,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "water_rocks_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "water_rocks"
-                }
-            ]
-        },
-        {
-            "id": 33,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "water_rocks_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "water_rocks"
-                }
-            ]
-        },
-        {
-            "id": 34,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "water_rocks_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "water_rocks"
-                }
-            ]
-        },
-        {
-            "id": 35,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "grass_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 36,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "grass_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 37,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 38,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 39,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 40,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 41,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 42,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 43,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 44,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 45,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 46,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_10"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 47,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 48,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_12"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 49,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_13"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 50,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "river_14"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 51,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "grave_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "river"
-                }
-            ]
-        },
-        {
-            "id": 52,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "grave_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grave"
-                }
-            ]
-        },
-        {
-            "id": 53,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "grave_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grave"
-                }
-            ]
-        },
-        {
-            "id": 54,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "island_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 55,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "bigroad"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 56,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "island_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 57,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "island_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 58,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "island_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "shore"
-                }
-            ]
-        },
-        {
-            "id": 59,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "water"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "water"
-                }
-            ]
-        },
-        {
-            "id": 60,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 61,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 62,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 63,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 64,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 65,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 66,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 67,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 68,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 69,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_10"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 70,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 71,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_12"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 72,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_13"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 73,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_14"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 74,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_15"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 75,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_16"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 76,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_17"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 77,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_18"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 78,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_19"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 79,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_20"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 80,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_21"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 81,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_22"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 82,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_23"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 83,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_24"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 84,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_25"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 85,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_26"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 86,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_27"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 87,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_28"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 88,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_29"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 89,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_30"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 90,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_31"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 91,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_32"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 92,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_33"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 93,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 94,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 95,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 96,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 97,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 98,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 99,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 100,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 101,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 102,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_10"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 103,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 104,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 105,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 106,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 107,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 108,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 109,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 110,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 111,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "cave_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "cave"
-                }
-            ]
-        },
-        {
-            "id": 112,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "gate_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 113,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "gate_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 114,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "bridge_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "bridge"
-                }
-            ]
-        },
-        {
-            "id": 115,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "bridge_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "bridge"
-                }
-            ]
-        },
-        {
-            "id": 116,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "bridge_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "bridge"
-                }
-            ]
-        },
-        {
-            "id": 117,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 118,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 119,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 120,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 121,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 122,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 123,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 124,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 125,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 126,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_10"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 127,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 128,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "trees_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "trees"
-                }
-            ]
-        },
-        {
-            "id": 129,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "bridge_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "bridge"
-                }
-            ]
-        },
-        {
-            "id": 130,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "bridge_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "bridge"
-                }
-            ]
-        },
-        {
-            "id": 131,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 132,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 133,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 134,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 135,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 136,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 137,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 138,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 139,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 140,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_10"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 141,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 142,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_12"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 143,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_13"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 144,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_14"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 145,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "road_15"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "road"
-                }
-            ]
-        },
-        {
-            "id": 146,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "ship"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "ship"
-                }
-            ]
-        },
-        {
-            "id": 147,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "well"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "well"
-                }
-            ]
-        },
-        {
-            "id": 148,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "log"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "log"
-                }
-            ]
-        },
-        {
-            "id": 149,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "bush"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "bush"
-                }
-            ]
-        },
-        {
-            "id": 150,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "tall_grass_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "tall_grass"
-                }
-            ]
-        },
-        {
-            "id": 151,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "tall_grass_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "tall_grass"
-                }
-            ]
-        },
-        {
-            "id": 152,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mud_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mud"
-                }
-            ]
-        },
-        {
-            "id": 153,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mud_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mud"
-                }
-            ]
-        },
-        {
-            "id": 154,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 155,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 156,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 157,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 158,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 159,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 160,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 161,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 162,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 163,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_34"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 164,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 165,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 166,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 167,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 168,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 169,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 170,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_7"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 171,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_8"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 172,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_9"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 173,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_10"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 174,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_35"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 175,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_36"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 176,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_37"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 177,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "mountain_38"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "mountain"
-                }
-            ]
-        },
-        {
-            "id": 178,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_12"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 179,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "town_wall_13"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "town_wall"
-                }
-            ]
-        },
-        {
-            "id": 180,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_11"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 181,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "graves_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "graves"
-                }
-            ]
-        },
-        {
-            "id": 182,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "graves_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "graves"
-                }
-            ]
-        },
-        {
-            "id": 183,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "graves_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "graves"
-                }
-            ]
-        },
-        {
-            "id": 184,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_12"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 185,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_13"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 186,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_14"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 187,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_15"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 188,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_16"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 189,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_17"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 190,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_18"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 191,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_19"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 192,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_20"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 193,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_21"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 194,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "house_22"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 195,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_top_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_top"
-                }
-            ]
-        },
-        {
-            "id": 196,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_top_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_top"
-                }
-            ]
-        },
-        {
-            "id": 197,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_top_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_top"
-                }
-            ]
-        },
-        {
-            "id": 198,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_top_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_top"
-                }
-            ]
-        },
-        {
-            "id": 199,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_top_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_top"
-                }
-            ]
-        },
-        {
-            "id": 200,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_bottom_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_bottom"
-                }
-            ]
-        },
-        {
-            "id": 201,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_bottom_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_bottom"
-                }
-            ]
-        },
-        {
-            "id": 202,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_bottom_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_bottom"
-                }
-            ]
-        },
-        {
-            "id": 203,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_bottom_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_bottom"
-                }
-            ]
-        },
-        {
-            "id": 204,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_bottom_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_bottom"
-                }
-            ]
-        },
-        {
-            "id": 205,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "Big_tree_bottom_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "Big_tree_bottom"
-                }
-            ]
-        },
-        {
-            "id": 206,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "rocks_12"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "rocks"
-                }
-            ]
-        },
-        {
-            "id": 207,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigTemple_bottom_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 208,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigTemple_bottom_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 209,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigTemple_top_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 210,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigTemple_top_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 211,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_top_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 212,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_top_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 213,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_bottom_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 214,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_bottom_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 215,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_top_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 216,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_top_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 217,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_bottom_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 218,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_bottom_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 219,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_bottom_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 220,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_bottom_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_bot"
-                }
-            ]
-        },
-        {
-            "id": 221,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_top_5"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 222,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "BigHouse_top_6"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "big_house_top"
-                }
-            ]
-        },
-        {
-            "id": 223,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "small_temple_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 224,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "small_temple_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "house"
-                }
-            ]
-        },
-        {
-            "id": 225,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "ground_pentagram_1"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 226,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "ground_pentagram_2"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 227,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "ground_pentagram_3"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 228,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": "ground_pentagram_4"
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": "grass"
-                }
-            ]
-        },
-        {
-            "id": 229,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 230,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 231,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 232,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 233,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 234,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 235,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 236,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 237,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 238,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 239,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
-        },
-        {
-            "id": 240,
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "string",
-                    "value": ""
-                },
-                {
-                    "name": "template",
-                    "type": "string",
-                    "value": ""
-                }
-            ]
+  "columns": 20,
+  "image": "ForestDay.png",
+  "imageheight": 384,
+  "imagewidth": 640,
+  "margin": 0,
+  "name": "ForestDay",
+  "spacing": 0,
+  "tilecount": 228,
+  "tiledversion": "1.10.1",
+  "tileheight": 32,
+  "tiles": [
+    {
+      "id": 0,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 0, 59, 35, 0, 59, 35, 0, 59]
         }
-    ],
-    "tilewidth": 32,
-    "type": "tileset",
-    "version": "1.10"
+      ]
+    },
+    {
+      "id": 1,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 1, 36, 59, 1, 36, 59, 1, 36]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 36, 36, 2, 2, 2, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 3, 3, 3, 36, 36, 36]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [152, 4, 59, 35, 35, 5, 35, 153, 4]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [5, 59, 59, 4, 59, 59, 150, 5, 59]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 6, 59, 59, 7, 59, 6, 151]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 7, 36, 6, 36, 36, 7, 153, 36]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 151, 8, 35, 150, 9, 35, 8, 59]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_10"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [151, 9, 59, 8, 59, 59, 9, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [10, 150, 151, 11, 151, 36, 59, 10, 153]
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_12"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 11, 36, 59, 59, 10, 59, 59, 11]
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_13"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [12, 13, 36, 59, 59, 12, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_14"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 150, 13, 151, 153, 59, 12, 13]
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_15"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 59, 59, 14, 14, 15, 151]
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_16"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 14, 15, 15, 150, 35, 153, 36, 35]
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_17"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 151, 153, 35, 150, 16, 16, 17, 59]
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_18"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 16, 17, 17, 59, 59, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_19"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [18, 19, 59, 150, 35, 18, 35, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_20"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 19, 59, 59, 35, 18, 19]
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_21"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 31, 59, 30, 0, 59, 1]
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_22"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [2, 29, 59, 59, 59, 59, 3, 31, 59]
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_23"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 28, 2, 59, 59, 59, 59, 30, 3]
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_24"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [0, 59, 1, 29, 59, 28, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_25"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 150, 36, 151, 24, 2, 36, 0, 59]
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_26"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 150, 35, 2, 25, 151, 59, 1, 150]
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_27"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 0, 59, 35, 26, 3, 35, 150, 35]
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_28"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 1, 150, 3, 27, 151, 35, 151, 150]
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_29"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 1, 151, 59, 28, 2, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_30"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 0, 59, 2, 29, 59, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_31"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 59, 30, 3, 59, 1, 35]
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "shore_32"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 3, 31, 59, 35, 0, 59]
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "water_rocks_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "water_rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [33, 59, 59, 59, 32, 59, 59, 33, 32]
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "water_rocks_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "water_rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [33, 59, 33, 34, 32, 59, 59, 34, 32]
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "water_rocks_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "water_rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [33, 32, 59, 59, 34, 34, 34, 33, 32]
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "grass_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 35, 151, 35, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "grass_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 151, 36, 36, 35, 36, 36, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [0, 59, 1, 0, 59, 1, 0, 59, 1]
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [2, 2, 2, 59, 59, 59, 3, 3, 3]
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [0, 59, 1, 0, 59, 1, 26, 3, 27]
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [24, 2, 2, 0, 59, 59, 26, 3, 3]
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [24, 2, 25, 0, 59, 1, 0, 59, 1]
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [2, 2, 25, 59, 59, 1, 3, 3, 27]
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [29, 59, 28, 59, 59, 59, 3, 3, 3]
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [0, 59, 28, 0, 59, 59, 0, 59, 30]
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [2, 2, 2, 59, 59, 59, 31, 59, 30]
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_10"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [29, 59, 1, 59, 59, 1, 31, 59, 1]
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [24, 2, 2, 0, 59, 59, 0, 59, 30]
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_12"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [2, 2, 25, 59, 59, 1, 31, 59, 1]
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_13"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [0, 59, 28, 0, 59, 59, 26, 3, 3]
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "river_14"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [29, 59, 1, 59, 59, 1, 3, 3, 27]
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "grave_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "river"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 51, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "grave_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 52, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "grave_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 53, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "island_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [54, 54, 54, 54, 54, 54, 54, 54, 54]
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "bigroad"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [30, 31, 59, 28, 29, 57, 55, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "island_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [57, 30, 31, 30, 27, 0, 28, 2, 29]
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "island_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [30, 19, 58, 1, 153, 5, 28, 2, 29]
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "island_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [58, 30, 31, 30, 27, 9, 28, 17, 56]
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "water"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "water"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 59, 59, 59, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 60, 60, 60, 60, 60, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 63, 60, 62, 151, 61, 36, 36]
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 62, 60, 63, 36, 61, 36, 36]
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 61, 60, 62, 36, 63, 36, 36]
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 66, 35, 65, 60, 64, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 64, 35, 66, 60, 65, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 65, 35, 64, 60, 66, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [69, 60, 60, 36, 68, 60, 36, 36, 67]
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [67, 60, 60, 36, 69, 60, 36, 36, 68]
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_10"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [68, 60, 60, 36, 67, 60, 36, 36, 69]
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [72, 35, 35, 60, 71, 35, 60, 60, 70]
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_12"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [70, 35, 35, 60, 72, 35, 60, 60, 71]
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_13"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [71, 35, 35, 60, 70, 35, 60, 60, 72]
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_14"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 75, 60, 60, 74, 60, 60, 73]
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_15"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 75, 60, 60, 73, 60, 60, 75]
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_16"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 74, 60, 60, 75, 60, 60, 73]
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_17"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [78, 60, 60, 76, 60, 60, 77, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_18"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [76, 60, 60, 77, 60, 60, 78, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_19"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [77, 60, 60, 76, 60, 60, 78, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_20"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 60, 60, 60, 60, 79, 81, 80]
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_21"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 60, 60, 60, 60, 80, 79, 81]
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_22"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 60, 60, 60, 60, 81, 80, 79]
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_23"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [82, 83, 84, 60, 60, 60, 60, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_24"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [83, 82, 84, 60, 60, 60, 60, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_25"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [83, 84, 82, 60, 60, 60, 60, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_26"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 85, 59, 85, 60, 85, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_27"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [86, 59, 59, 60, 86, 59, 60, 60, 86]
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_28"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [87, 60, 60, 59, 87, 60, 59, 59, 87]
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_29"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 88, 60, 88, 59, 88, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_30"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [89, 60, 60, 89, 60, 60, 89, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_31"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 90, 60, 60, 90, 60, 60, 90]
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_32"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [91, 91, 91, 60, 60, 60, 60, 60, 60]
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_33"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [60, 60, 60, 60, 60, 60, 92, 92, 92]
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 93, 150, 151, 93, 35, 35, 93, 151]
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 150, 150, 94, 94, 94, 35, 150, 151]
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 93, 150, 151, 95, 94, 35, 93, 151]
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 93, 150, 94, 96, 35, 35, 93, 151]
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 93, 150, 151, 97, 94, 35, 150, 150]
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 93, 150, 94, 98, 35, 35, 35, 151]
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 93, 150, 94, 99, 94, 35, 93, 151]
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 93, 150, 94, 100, 94, 35, 35, 151]
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 36, 150, 94, 101, 94, 35, 93, 151]
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_10"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 150, 151, 102, 94, 35, 93, 151]
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 36, 150, 94, 103, 35, 35, 93, 151]
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [24, 2, 2, 0, 59, 59, 26, 3, 3]
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [2, 2, 25, 59, 59, 1, 3, 3, 27]
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [0, 59, 1, 0, 59, 1, 26, 3, 27]
+        }
+      ]
+    },
+    {
+      "id": 107,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [24, 2, 25, 0, 59, 1, 0, 59, 1]
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [153, 150, 153, 152, 36, 150, 151, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [153, 150, 153, 152, 36, 150, 151, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [153, 150, 153, 152, 36, 150, 151, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "cave_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "cave"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [153, 150, 153, 152, 36, 150, 151, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 112,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "gate_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "gate_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "bridge_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "bridge"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 114, 114, 114, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 115,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "bridge_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "bridge"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 1, 150, 114, 115, 36, 59, 1, 153]
+        }
+      ]
+    },
+    {
+      "id": 116,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "bridge_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "bridge"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 0, 59, 151, 116, 114, 150, 0, 59]
+        }
+      ]
+    },
+    {
+      "id": 117,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [117, 117, 117, 117, 117, 117, 117, 117, 117]
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [118, 118, 118, 118, 118, 118, 118, 118, 118]
+        }
+      ]
+    },
+    {
+      "id": 119,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [119, 119, 119, 119, 119, 119, 119, 119, 119]
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [120, 120, 120, 120, 120, 120, 120, 120, 120]
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 123,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 124,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 125,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 126,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_10"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 127,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 128,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "trees_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "trees"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "bridge_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "bridge"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [0, 59, 1, 116, 114, 115, 0, 59, 1]
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "bridge_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "bridge"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [13, 54, 16, 59, 54, 59, 15, 54, 18]
+        }
+      ]
+    },
+    {
+      "id": 131,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 36, 54, 54, 54, 35, 35, 36]
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 54, 36, 150, 54, 150, 35, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 133,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 54, 36, 54, 54, 54, 35, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 134,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 36, 36, 54, 54, 54, 35, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 135,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 54, 36, 54, 54, 54, 35, 150, 36]
+        }
+      ]
+    },
+    {
+      "id": 136,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 54, 36, 150, 54, 54, 150, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 137,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 54, 36, 54, 54, 36, 36, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 138,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 151, 36, 151, 54, 54, 35, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 139,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 54, 36, 54, 54, 150, 35, 152, 36]
+        }
+      ]
+    },
+    {
+      "id": 140,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_10"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 54, 36, 152, 54, 54, 35, 152, 36]
+        }
+      ]
+    },
+    {
+      "id": 141,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 36, 54, 54, 35, 35, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 142,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_12"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 36, 151, 54, 54, 151, 35, 36]
+        }
+      ]
+    },
+    {
+      "id": 143,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_13"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 36, 36, 36, 54, 36, 35, 54, 36]
+        }
+      ]
+    },
+    {
+      "id": 144,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_14"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [151, 36, 36, 54, 54, 151, 35, 36, 36]
+        }
+      ]
+    },
+    {
+      "id": 145,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "road_15"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "road"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 54, 36, 35, 54, 35, 152, 35, 36]
+        }
+      ]
+    },
+    {
+      "id": 146,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "ship"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "ship"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [59, 59, 59, 59, 59, 59, 59, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 147,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "well"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "well"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 36, 151, 151, 147, 150, 36, 151, 36]
+        }
+      ]
+    },
+    {
+      "id": 148,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "log"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "log"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 148, 150, 151, 150, 148, 150, 148, 153]
+        }
+      ]
+    },
+    {
+      "id": 149,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "bush"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "bush"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [149, 150, 150, 150, 149, 149, 149, 150, 153]
+        }
+      ]
+    },
+    {
+      "id": 150,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "tall_grass_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "tall_grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 35, 151, 35, 36, 35, 35, 151, 150]
+        }
+      ]
+    },
+    {
+      "id": 151,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "tall_grass_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "tall_grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 152,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mud_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mud"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [152, 150, 36, 153, 152, 150, 152, 150, 153]
+        }
+      ]
+    },
+    {
+      "id": 153,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mud_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mud"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [153, 150, 153, 152, 36, 150, 151, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 154,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [153, 154, 153, 152, 157, 154, 156, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 155,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [155, 150, 153, 152, 155, 158, 158, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 156,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [156, 150, 158, 152, 156, 150, 151, 158, 152]
+        }
+      ]
+    },
+    {
+      "id": 157,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [157, 150, 156, 152, 156, 157, 157, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 158,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [153, 156, 153, 158, 158, 150, 156, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 159,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [159, 160, 153, 152, 159, 150, 160, 150, 152]
+        }
+      ]
+    },
+    {
+      "id": 160,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [160, 150, 159, 152, 159, 160, 151, 160, 151]
+        }
+      ]
+    },
+    {
+      "id": 161,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        }
+      ]
+    },
+    {
+      "id": 162,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        }
+      ]
+    },
+    {
+      "id": 163,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_34"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 35, 36, 35, 150, 35, 150, 36, 151]
+        }
+      ]
+    },
+    {
+      "id": 164,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 165,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 166,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 167,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 168,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 169,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 170,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_7"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 171,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_8"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 172,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_9"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 173,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_10"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 174,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_35"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [158, 35, 152, 35, 154, 35, 151, 35, 159]
+        }
+      ]
+    },
+    {
+      "id": 175,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_36"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [158, 150, 157, 35, 154, 151, 158, 150, 159]
+        }
+      ]
+    },
+    {
+      "id": 176,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_37"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [158, 35, 35, 35, 154, 35, 157, 35, 159]
+        }
+      ]
+    },
+    {
+      "id": 177,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "mountain_38"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "mountain"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [158, 35, 156, 35, 154, 35, 158, 35, 159]
+        }
+      ]
+    },
+    {
+      "id": 178,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_12"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 35, 35, 36, 35, 36, 35, 36]
+        }
+      ]
+    },
+    {
+      "id": 179,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "town_wall_13"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "town_wall"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 35, 36, 35, 36, 35, 150, 35, 36]
+        }
+      ]
+    },
+    {
+      "id": 180,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_11"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [150, 36, 151, 151, 180, 150, 36, 151, 36]
+        }
+      ]
+    },
+    {
+      "id": 181,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "graves_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "graves"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [51, 35, 151, 151, 52, 53, 52, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 182,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "graves_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "graves"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [53, 35, 151, 151, 52, 51, 35, 53, 150]
+        }
+      ]
+    },
+    {
+      "id": 183,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "graves_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "graves"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 52, 151, 53, 35, 52, 36, 51]
+        }
+      ]
+    },
+    {
+      "id": 184,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_12"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 185,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_13"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 186,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_14"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 187,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_15"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 188,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_16"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 189,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_17"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 190,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_18"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 191,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_19"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 192,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_20"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 193,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_21"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 194,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "house_22"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 35, 151, 151, 150, 35, 35, 36, 150]
+        }
+      ]
+    },
+    {
+      "id": 195,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_top_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_top"
+        }
+      ]
+    },
+    {
+      "id": 196,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_top_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_top"
+        }
+      ]
+    },
+    {
+      "id": 197,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_top_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [197, 36, 35, 203, 35, 197, 35, 197, 203]
+        }
+      ]
+    },
+    {
+      "id": 198,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_top_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [198, 36, 35, 204, 36, 198, 35, 198, 204]
+        }
+      ]
+    },
+    {
+      "id": 199,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_top_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_top"
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_bottom_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_bottom"
+        }
+      ]
+    },
+    {
+      "id": 201,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_bottom_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_bottom"
+        }
+      ]
+    },
+    {
+      "id": 202,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_bottom_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_bottom"
+        }
+      ]
+    },
+    {
+      "id": 203,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_bottom_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_bottom"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [36, 203, 197, 197, 36, 203, 203, 36, 36]
+        }
+      ]
+    },
+    {
+      "id": 204,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_bottom_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_bottom"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [198, 204, 35, 204, 35, 198, 35, 36, 204]
+        }
+      ]
+    },
+    {
+      "id": 205,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "Big_tree_bottom_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "Big_tree_bottom"
+        }
+      ]
+    },
+    {
+      "id": 206,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "rocks_12"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "rocks"
+        }
+      ]
+    },
+    {
+      "id": 207,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigTemple_bottom_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 208,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigTemple_bottom_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 209,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigTemple_top_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 210,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigTemple_top_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 211,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_top_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 212,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_top_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 213,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_bottom_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 214,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_bottom_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 215,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_top_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 216,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_top_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 217,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_bottom_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 218,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_bottom_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 219,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_bottom_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 220,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_bottom_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_bot"
+        }
+      ]
+    },
+    {
+      "id": 221,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_top_5"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 222,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "BigHouse_top_6"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "big_house_top"
+        }
+      ]
+    },
+    {
+      "id": 223,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "small_temple_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        }
+      ]
+    },
+    {
+      "id": 224,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "small_temple_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "house"
+        }
+      ]
+    },
+    {
+      "id": 225,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "ground_pentagram_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        }
+      ]
+    },
+    {
+      "id": 226,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "ground_pentagram_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        }
+      ]
+    },
+    {
+      "id": 227,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "ground_pentagram_3"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        }
+      ]
+    },
+    {
+      "id": 228,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "ground_pentagram_4"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "grass"
+        }
+      ]
+    },
+    {
+      "id": 229,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 230,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 231,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 232,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 233,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 234,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 235,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 236,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 237,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 238,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 239,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": 240,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": ""
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "tilewidth": 32,
+  "type": "tileset",
+  "version": "1.10"
 }
