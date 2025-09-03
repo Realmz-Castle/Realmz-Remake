@@ -268,7 +268,6 @@ func load_map( _campaign : String, mapname : String) -> void:
 		for tswapkey : String in tswapdict : #eg x4y4l0
 			var tsd : Array = tswapdict[tswapkey] #eg [4, 4, 0, "ForestDay", 55]
 			ScriptHelperFuncsClass.change_currmap_tile(tsd[0],tsd[1],tsd[2],tsd[3], tsd[4])
-			
 	load_simple_encounter_data(mapname)
 
 func _on_viewport_size_changed() :
@@ -490,6 +489,70 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 			if bool(mapdata[t.x][t.y][0]["blkview"]) :
 				break
 
+func generate_zoomed_map(mapname : String) -> void:
+	var resources = NodeAccess.__Resources()
+	if not resources.maps_book.has(mapname):
+		print("Map not found: ", mapname)
+		return
+
+	# Get original map data (assume [0] is the tile array)
+	var original_map = resources.maps_book[mapname]
+	var original_tilemap = original_map[0]
+	var orig_cols = original_tilemap.size()
+	var orig_rows = original_tilemap[0].size()
+
+	# Prepare expanded map
+	var expanded_cols = orig_cols * 3
+	var expanded_rows = orig_rows * 3
+	var expanded_tilemap = []
+	for i in range(expanded_cols):
+		expanded_tilemap.append([])
+		for j in range(expanded_rows):
+			expanded_tilemap[i].append([]) # will be array of one tile dict
+
+	# Expand each tile using only the ground layer, keep cell as array of one dict
+	for col in range(orig_cols):
+		for row in range(orig_rows):
+			var cell = original_tilemap[col][row]
+			var ground_tile = null
+			if cell.size() > 0:
+				ground_tile = cell[0] # Only use ground layer
+			else:
+				push_warning("No tilesets loaded for fallback tile!")
+				continue
+
+			var expansion = []
+			if ground_tile.has("expansion") and ground_tile["expansion"].size() == 9:
+				expansion = ground_tile["expansion"]
+			else:
+				push_warning("Expansion data missing for tile: %s" % [str(ground_tile)])
+				for k in range(9):
+					expansion.append(ground_tile["id"])
+
+			# LOGGING for debugging
+			print("Expanding cell [", col, ",", row, "] with expansion: ", expansion, " from tileset: ", ground_tile["tileset_name"])
+
+			for i in range(3):
+				for j in range(3):
+					var expanded_col = col * 3 + j
+					var expanded_row = row * 3 + i
+					var exp_index = i * 3 + j
+					var tileset_key = ground_tile["tileset_name"] + ".json"
+					var expanded_tile_dict = null
+					if resources.tiles_book.has(tileset_key) and expansion[exp_index] < resources.tiles_book[tileset_key].size() and expansion[exp_index] >= 0:
+						expanded_tile_dict = resources.tiles_book[tileset_key][expansion[exp_index]]
+					else:
+						push_warning("Invalid expansion index %s for tileset %s, using ground_tile" % [str(expansion[exp_index]), tileset_key])
+						expanded_tile_dict = ground_tile # fallback to ground_tile
+					expanded_tilemap[expanded_col][expanded_row] = [expanded_tile_dict] # array of one dict
+
+	# Duplicate original map structure, but replace tilemap with expanded_tilemap
+	var zoomed_map = original_map.duplicate(true)
+	zoomed_map[0] = expanded_tilemap
+	zoomed_map[4] = "Battle" # Set mapmusictype to "Battle"
+	resources.maps_book["temporary_zoomed_map"] = zoomed_map
+	print("Generated temporary zoomed map from: ", mapname, " with music type set to Battle and expanded tiles")
+
 func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, big : bool, crea : Creature, melee_enemies_on_the_way : bool) -> Array :
 	#var right_astar : SpecificAstar2D = aStar11 #get_right_graph_for_crea(crea)
 	var right_astar : SpecificAstar2D = get_right_graph_for_crea(crea)
@@ -571,14 +634,15 @@ func pathfinder_block_pos(pos : Vector2) :
 
 
 func load_simple_encounter_data(mapname : String) :
+	if mapname=="temporary_zoomed_map" :
+		return
 	print("MAP load_simple_encounter_data")
 	#check if GameGlobal.load_simple_encounter_data has data for this map, else  load from campaign
 	if not GameGlobal.stuff_done.has(mapname+'.SEdata') :
 		var mapspath : String =  Paths.campaignsfolderpath + GameGlobal.currentcampaign + "/Maps/"+mapname+"/map_SimpleEncounters.json"
 		print(mapspath)
 		var map_se_data : Dictionary = Utils.FileHandler.read_json_dic_from_file(mapspath)
-		#if map_se_data.is_empty() : 
+		#if map_se_data.is_empty() :
 		GameGlobal.stuff_done[mapname+'.SEdata']=map_se_data
 			#return
 		#printerr("MAP load_simple_encounter_data "+mapname+" data : ", GameGlobal.stuff_done[mapname+'.SEdata'])
-		

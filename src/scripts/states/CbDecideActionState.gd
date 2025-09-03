@@ -9,7 +9,7 @@ var need_pick_how_many : int = 0
 var is_bandaging : bool = false
 var picked_charas : Array = []
 var pleaseconfirmspell : bool = false
-var current_active_creabutton : CombatCreaButton 
+var current_active_creabutton : CombatCreaButton
 
 signal cbdecide_picked_characters_done
 signal cbdecide_charpanel_clicked
@@ -61,18 +61,18 @@ func enter(_msg : Dictionary = {}) -> void:
 	UI.ow_hud.creatureRect.show()
 	UI.ow_hud.botrightpanel.hide()
 	UI.ow_hud.combatBRPanel.show()
-	
 
-	
+
+
 	if _msg.has("battle_start") :
 		initialize_battle(_msg, resources, map)
 		#printerr("CBDecideAction combat_state.all_battle_creatures_btns after  init : ", combat_state.all_battle_creatures_btns)
 		printerr("CBDecideAction combat_state.battle_creatures_yet_to_act_btns after  init : ", combat_state.battle_creatures_yet_to_act_btns)
-	
+
 	if UI.ow_hud.turnorderPanel.visible :
 		UI.ow_hud.turnorderPanel.update_display()
-	
-	
+
+
 	var battle_end_str : String = combat_state.check_battle_end()  # 0=nope 1=won 2=lost 3=fled
 	if not battle_end_str.is_empty() :
 		GameGlobal.end_battle(battle_end_str)
@@ -91,20 +91,20 @@ func enter(_msg : Dictionary = {}) -> void:
 	while  cur_act_crea.get_apr_left() <= 0 :
 		end_active_creature_turn(true)
 		cur_act_crea = current_active_creabutton.creature
-	
+
 	print("    CBDecideAction : cur_act_crea is "+cur_act_crea.name+", player controlled ? ", cur_act_crea.is_crea_player_controlled())
 	if cur_act_crea.get_apr_left() <=0 :
 		end_active_creature_turn(true)
 		StateMachine.transition_to("Combat/CbAnimation")
 		pass
-	
-	
-	
+
+
+
 	UI.ow_hud.xPosLabel.text = str(cur_act_crea.position.x)
 	UI.ow_hud.yPosLabel.text = str(cur_act_crea.position.y)
-	
 
-	
+
+
 	print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() ", cur_act_crea.is_crea_player_controlled())
 	if cur_act_crea.is_crea_player_controlled() :
 		print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() true so skipping dcideaction")
@@ -131,12 +131,10 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	print("State CbDecideAction start_battle , battlename : ",_msg["battlename"],", battle_data : ",  _msg)
 	var map_name : String = _msg["mapname"]
 	if map_name.is_empty() :
-		pass #TODO generate temporary  zoomed in map
 		map_name = "temporary_zoomed_map"
-		map_name = "map_0"
-	
-	GameGlobal.change_map(map_name,map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
 
+
+	GameGlobal.change_map(map_name,map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
 	combat_state.all_battle_creatures_btns.clear()
 
 	var battle_position_offset : Vector2 = Vector2.ZERO
@@ -157,6 +155,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		creascript.position = Vector2(posArray[0],posArray[1])+battle_position_offset
 		#find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, _is_failure_ok : bool, max_move_attempts : int, max_los_attempts : int) ->Vector2 :
 		creascript.position = combat_state.find_pos_for_crea_on_battlefield(creascript, creascript.position, true, 15,10)
+
 		var crea_mapb = combat_state.combatcreaturemapobjectTSCN.instantiate()
 		# creatures_node charactersnode
 		map.creatures_node.add_child(crea_mapb)
@@ -170,13 +169,14 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		print("Gameglobal start_battle  : added a "+ creaArray[0] +" at ", creascript.position)
 	#spawn combatcharacters for the player s party  around battle_pos
 	
+	var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1])
 
 	var pc_joining = _msg["pc_participating"]
 	if pc_joining.is_empty() :
 		pc_joining = GameGlobal.player_characters
-	
+
 	#combat_state.pcs_who_joined_battle = pc_joining
-	
+
 	#combat_state.pcs_in_battle = pc_joining
 
 	
@@ -185,7 +185,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	if _msg["npcs_allowed"] :
 		for npc in GameGlobal.player_allies :
 			combat_state.add_pc_or_npc_ally_to_battle_map(npc, init_pos+battle_position_offset)
-			
+
 	# order Ambush ?
 #	print(" all_battle_creatures ",all_battle_creatures,' ',all_battle_creatures[0].name,all_battle_creatures[1].name,all_battle_creatures[2].name,all_battle_creatures[3].name)
 	if _msg["is_ambush"] :
@@ -197,7 +197,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	print("GameGlobal start_battle cur_battle_data : ", combat_state.cur_battle_data)
 	#if combat_state.cur_battle_data["Scripts"].has("Start") :
 		#combat_state.cur_battle_data["Scripts"]["start"].start()
-	
+
 	start_new_round()
 
 func start_new_round() :
@@ -216,8 +216,8 @@ func start_new_round() :
 		if combat_state.cur_battle_data["Scripts"].has("turn") :
 			combat_state.cur_battle_data["Scripts"]["turn"].turn()
 		combat_state.all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
-	
-	
+
+
 	combat_state.battle_creatures_yet_to_act_btns = combat_state.all_battle_creatures_btns.duplicate(false)
 	printerr("CBDecideAction combat_state.battle_creatures_yet_to_act_btns on new turn : ", combat_state.battle_creatures_yet_to_act_btns)
 
@@ -231,12 +231,12 @@ func start_new_round() :
 	var all_creatures : Array = []
 	for cb : CombatCreaButton in combat_state.battle_creatures_yet_to_act_btns :
 		all_creatures.append(cb.creature)
-	
+
 	#combat_state.all_battle_creatures_btns.clear()
 	#combat_state.battle_dead_enemies.clear()
 	#combat_state.battle_dead_party_members.clear()
-	
-	combat_state.all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
+
+	get_parent().all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
 	GameGlobal.map.pathfinder_update_characters(all_creatures,current_active_creabutton.creature)
 	GameGlobal.map.pathfinder_clear_pos(Vector2i(current_active_creabutton.creature.position))
 	#enter()
@@ -257,7 +257,7 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 			camfocus.set_tile_position(focuspos+3*Vector2(input))
 		return
 	if input!=Vector2i.ZERO :
-		
+
 		var cur_act_crea : Creature = current_active_creabutton.creature
 		var _inputv2 : Vector2 = Vector2(input)
 		var attemptedpos = cur_act_crea.position + Vector2(input)
@@ -265,9 +265,9 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 		#var canmoveandtime : Array = StateMachine.on_trying_to_move_to_tile_stack(current_active_creabutton.creature, tilestack, attemptedpos )
 		var canmoveandtime = combat_state.on_trying_to_move_to_position(cur_act_crea, attemptedpos)
 		var action_msg : Dictionary= {"type" : "Move", "mover" : current_active_creabutton, "Direction" : input , "canmoveandtime" : canmoveandtime, "check_before_scripts" : true}
-		
+
 		var whothere = null
-		
+
 		for x : int in range(current_active_creabutton.creature.size.x) :
 			for y : int in range(current_active_creabutton.creature.size.y) :
 				print("cbdecide checked : ", attemptedpos+Vector2(x,y), "all_battle_creatures_btns size ?"+str(combat_state.all_battle_creatures_btns.size()))
@@ -288,7 +288,7 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 					var hasmvmnt : bool = current_active_creabutton.creature.get_stat("MaxMovement") - current_active_creabutton.creature.used_movepoints >= 5
 					var hasapr : bool = current_active_creabutton.creature.get_stat("MaxActions") - current_active_creabutton.creature.used_apr >= 5
 					var answer : String = "NO"# if (hasmvmnt and canmoveandtime[0]) else "NO"
-				
+
 					if hasmvmnt and canmoveandtime[0]:
 						if hasapr :
 							textRect.display_multiple_choices([askswaptext, "YESNO", "Attack ally !"],["TEXT", "YESNO", "ATTACK"])
@@ -301,7 +301,7 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 							print("GameState manage_map_inputs : Swap : This turn should already be over...")
 							return
 					answer = await textRect.choice_pressed
-				
+
 					if answer == "YES" :
 						action_msg = {"type" : "Swap", "mover" : current_active_creabutton, "moved" : whothere }
 						combat_state.add_to_action_queue([action_msg])
@@ -316,7 +316,7 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 					combat_state.add_to_action_queue([action_msg])
 					StateMachine.transition_to("Combat/CbAnimation")
 					return
-					
+
 			else :
 				if current_active_creabutton.creature.get_apr_left()>0 :
 					var used_weapon : Dictionary = current_active_creabutton.creature.current_melee_weapons[0]
@@ -324,11 +324,11 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 					combat_state.add_to_action_queue([action_msg])
 					StateMachine.transition_to("Combat/CbAnimation")
 					return
-					
+
 				else :
 					# end its turn ?  CBDecideAction should take care of that
 					return
-		
+
 		if GameGlobal.is_map_tile_walkable_by_char(current_active_creabutton.creature, attemptedpos) :
 			combat_state.add_to_action_queue([action_msg])
 			StateMachine.transition_to("Combat/CbAnimation")
@@ -349,20 +349,20 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 	print("CbDecideAction : "+ cur_act_crea.name+"'s decision taken !", decision_array)
 	var action_msg : Dictionary = {}
 	if decision_array[0] == 0 :  #MOVE  (or finish ?)
-		
-		
+
+
 		var attemptedpos = Vector2(cur_act_crea.position + Vector2(decision_array[1]))
 		#var tilestack : Array = GameGlobal.map.mapdata[cur_act_crea.position.x+decision_array[1].x][cur_act_crea.position.y+decision_array[1].y]
 		#var canmoveandtime : Array = StateMachine.on_trying_to_move_to_tile_stack(cur_act_crea, tilestack, attemptedpos )
 		var canmoveandtime : Array = combat_state.on_trying_to_move_to_position(cur_act_crea, attemptedpos)
-		
-		
+
+
 		action_msg = {"type" : "Move", "mover" : current_active_creabutton, "Direction" : decision_array[1], "canmoveandtime" : canmoveandtime , "check_before_scripts" : true}
 		if decision_array[1]==Vector2i.ZERO :
 			end_active_creature_turn(true)
 			return
 		var whothere = null
-		
+
 		for x : int in range(cur_act_crea.size.x) :
 			for y : int in range(cur_act_crea.size.y) :
 				var whotherexy = GameGlobal.who_is_at_tile(attemptedpos+Vector2(x,y)) #combatbutton
@@ -399,13 +399,13 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 
 
 func end_active_creature_turn(set_apr_zero : bool)->void :
-	pass
+
 	if set_apr_zero :
 		current_active_creabutton.creature.used_movepoints = current_active_creabutton.creature.get_stat("MaxMovement")
 		current_active_creabutton.creature.used_apr = current_active_creabutton.creature.get_stat("MaxActions")
-	
+
 	combat_state.battle_creatures_yet_to_act_btns.erase(current_active_creabutton)
-	
+
 	if combat_state.battle_creatures_yet_to_act_btns.is_empty() :
 		start_new_round()
 		return
@@ -417,14 +417,14 @@ func end_active_creature_turn(set_apr_zero : bool)->void :
 	UI.ow_hud.creatureRect.display_crea_info( current_active_creabutton )
 	UI.ow_hud.combatBRPanel.prepare_for_creab(current_active_creabutton)
 	GameGlobal.map.focuscharacter.set_tile_position(current_active_creabutton.creature.position)
-	
+
 	var crealist : Array = []
 	for cb in combat_state.all_battle_creatures_btns :
 		crealist.append(cb.creature)
 	GameGlobal.map.pathfinder_update_characters(crealist, current_active_creabutton.creature)
-	
+
 	GameGlobal.refresh_OW_HUD()
-	
+
 	combat_state.action_queue.clear()
 	StateMachine.transition_to("Combat/CbAnimation")
 
@@ -434,7 +434,7 @@ func delay_active_creature_turn() :
 	combat_state.battle_creatures_yet_to_act_btns.append(current_active_creabutton)
 	UI.ow_hud.set_selected_creature(combat_state.battle_creatures_yet_to_act_btns[0].creature)
 	current_active_creabutton = combat_state.battle_creatures_yet_to_act_btns[0]
-	
+
 	UI.ow_hud._on_mouse_exit_combat_crea_button()
 	UI.ow_hud.creatureRect.charbutton_this_turn = current_active_creabutton
 	UI.ow_hud.creatureRect.display_crea_info( current_active_creabutton )
@@ -521,7 +521,7 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	var spell = msg["spell"]
 	#print("CbDecideState on_spellcast_confirmed, spell is ", spell.name)
 	var power : int = msg["s_plvl"]
-	
+
 	var chain : Array =[]
 	if spell.has_method("get_chain") :
 		chain = spell.get_chain()
