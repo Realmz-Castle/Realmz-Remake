@@ -31,20 +31,22 @@ def save_json(obj: Any, path: str):
 
 def add_expansions_to_tileset(tileset: Dict, expansions: Dict[str, List[int]]) -> Dict:
     # Defensive: ensure 'tiles' exists and is a list
+    DEFAULT_GRASS_EXPANSION = [35] * 9
     tiles = tileset.get("tiles", [])
     for tile in tiles:
         tile_id = str(tile.get("id"))
+        props = tile.get("properties", [])
+        props = [p for p in props if p.get("name") != "expansion"]
         if tile_id in expansions:
-            # Remove any existing "expansion" property
-            props = tile.get("properties", [])
-            props = [p for p in props if p.get("name") != "expansion"]
-            # Add new expansion property as a JSON array
-            props.append({
-                "name": "expansion",
-                "type": "object",  # Tiled doesn't have "array", but "object" is accepted for arbitrary JSON
-                "value": expansions[tile_id]
-            })
-            tile["properties"] = props
+            expansion_value = expansions[tile_id]
+        else:
+            expansion_value = DEFAULT_GRASS_EXPANSION
+        props.append({
+            "name": "expansion",
+            "type": "object",  # Tiled doesn't have "array", but "object" is accepted for arbitrary JSON
+            "value": expansion_value
+        })
+        tile["properties"] = props
     return tileset
 
 def main():

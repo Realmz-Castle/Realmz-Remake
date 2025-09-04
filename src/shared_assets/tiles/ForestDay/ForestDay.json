@@ -3242,6 +3242,11 @@
           "name": "template",
           "type": "string",
           "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -3257,6 +3262,11 @@
           "name": "template",
           "type": "string",
           "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -3912,6 +3922,11 @@
           "name": "template",
           "type": "string",
           "value": "Big_tree_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -3927,6 +3942,11 @@
           "name": "template",
           "type": "string",
           "value": "Big_tree_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -3982,6 +4002,11 @@
           "name": "template",
           "type": "string",
           "value": "Big_tree_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -3997,6 +4022,11 @@
           "name": "template",
           "type": "string",
           "value": "Big_tree_bottom"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4012,6 +4042,11 @@
           "name": "template",
           "type": "string",
           "value": "Big_tree_bottom"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4027,6 +4062,11 @@
           "name": "template",
           "type": "string",
           "value": "Big_tree_bottom"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4082,6 +4122,11 @@
           "name": "template",
           "type": "string",
           "value": "Big_tree_bottom"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4097,6 +4142,11 @@
           "name": "template",
           "type": "string",
           "value": "rocks"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4112,6 +4162,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4127,6 +4182,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4142,6 +4202,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4157,6 +4222,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4172,6 +4242,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4187,6 +4262,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4202,6 +4282,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4217,6 +4302,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4232,6 +4322,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4247,6 +4342,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4262,6 +4362,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4277,6 +4382,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4292,6 +4402,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4307,6 +4422,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_bot"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4322,6 +4442,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4337,6 +4462,11 @@
           "name": "template",
           "type": "string",
           "value": "big_house_top"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4352,6 +4482,11 @@
           "name": "template",
           "type": "string",
           "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4367,6 +4502,11 @@
           "name": "template",
           "type": "string",
           "value": "house"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4382,6 +4522,11 @@
           "name": "template",
           "type": "string",
           "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4397,6 +4542,11 @@
           "name": "template",
           "type": "string",
           "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4412,6 +4562,11 @@
           "name": "template",
           "type": "string",
           "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4427,6 +4582,11 @@
           "name": "template",
           "type": "string",
           "value": "grass"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4442,6 +4602,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4457,6 +4622,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4472,6 +4642,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4487,6 +4662,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4502,6 +4682,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4517,6 +4702,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4532,6 +4722,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4547,6 +4742,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4562,6 +4762,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4577,6 +4782,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4592,6 +4802,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     },
@@ -4607,6 +4822,11 @@
           "name": "template",
           "type": "string",
           "value": ""
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [35, 35, 35, 35, 35, 35, 35, 35, 35]
         }
       ]
     }

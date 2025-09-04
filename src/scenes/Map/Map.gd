@@ -229,7 +229,8 @@ func load_map( _campaign : String, mapname : String) -> void:
 	for c in creatures_node.get_children() :
 		c.queue_free()
 
-	mapscripts._on_map_load(self)
+	if mapscripts != null:
+		mapscripts._on_map_load(self)
 
 	map_size = Vector2( mapdata.size(), mapdata[0].size())
 
@@ -549,6 +550,12 @@ func generate_zoomed_map(mapname : String) -> void:
 	# Duplicate original map structure, but replace tilemap with expanded_tilemap
 	var zoomed_map = original_map.duplicate(true)
 	zoomed_map[0] = expanded_tilemap
+	zoomed_map[1] = {
+		"ScriptRects": {},
+		"Paths": [],
+		"Secrets": []
+	} # ScriptRects, Paths, and Secrets are present but empty
+	zoomed_map[2] = null # Clear map scripts
 	zoomed_map[4] = "Battle" # Set mapmusictype to "Battle"
 	resources.maps_book["temporary_zoomed_map"] = zoomed_map
 	print("Generated temporary zoomed map from: ", mapname, " with music type set to Battle and expanded tiles")
