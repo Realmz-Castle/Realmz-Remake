@@ -196,9 +196,9 @@ func _on_mouse_exited():
 #
 
 func display_effect(picture : String, damage : int, time) :
-	if time <= 0.05 :
-		_on_atk_anim_timer_timeout()
-		return
+	#if time <= 0.05 :
+		#_on_atk_anim_timer_timeout()
+		#return
 	atkSprite.frame = pic_frame_dict[picture]
 	dmgLabel.text = str(damage)
 	atkSprite.show()
