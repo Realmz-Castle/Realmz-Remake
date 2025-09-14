@@ -1,10 +1,10 @@
 {
     "columns": 20,
-    "image": "SnowDay.png",
+    "image": "ForestDay.png",
     "imageheight": 384,
     "imagewidth": 640,
     "margin": 0,
-    "name": "SnowDay",
+    "name": "ForestDay",
     "spacing": 0,
     "tilecount": 228,
     "tiledversion": "1.10.1",

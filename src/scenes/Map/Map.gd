@@ -334,9 +334,9 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 					if last_generated_path.has(Vector2(cam_x+x,cam_y+y)) :#Vector2(cam_x+x,cam_y+y)) :  #last_generated_path
 						draw_texture_rect(darktexture, Rect2(32*x,32*y,32,32), true)
 
-			##DEBUG
-			#if aStar22.is_point_solid(Vector2i(cam_x+x, cam_y+y)) :
-				##draw_texture_rect(path_texture, Rect2(32*x,32*y,32,32), true)
+			##PATHFINDING DEBUG
+			#if aStar11.is_point_solid(Vector2i(cam_x+x, cam_y+y)) :
+				###draw_texture_rect(path_texture, Rect2(32*x,32*y,32,32), true)
 				#draw_texture_rect(secret_texture, Rect2(32*x,32*y,32,32), true)
 
 

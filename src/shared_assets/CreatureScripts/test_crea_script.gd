@@ -30,7 +30,7 @@ static func decide_action(crea : Creature) -> Array :
 			var path : Array = GameGlobal.map.find_path(crea.position, target_pos, true, false, false, crea, true)
 			print("TestCreaScript "+crea.name+' path size is ', path.size() )
 
-			if path.size() >0 :
+			if path.size() > 1 :
 				print("ai decideaction : "+crea.name+" 's path is : "+str(path.size())+' long')
 				return [0,Vector2i(path[1])-Vector2i(crea.position) ]
 		else :

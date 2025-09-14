@@ -485,7 +485,11 @@ func end_battle( wonfledlost : String ) :
 	#for cb in GameState.map.creatures_node.get_children() :
 		#cb.queue_free()   #done in MAp.load map now
 	#print("GameGlobal end_battle pos_when_battle_started : ", pos_when_battle_started)
-	change_map(last_exploration_map_name,pos_when_battle_started.x,pos_when_battle_started.y)
+	
+	if not (wonfledlost == 'lost' and (not StateMachine.combat_state.cur_battle_data["allow_loss"])) :
+		#if not game over...
+		change_map(last_exploration_map_name,pos_when_battle_started.x,pos_when_battle_started.y)
+	
 	UI.ow_hud.exit_battle_mode()
 
 	match wonfledlost :
@@ -554,8 +558,10 @@ func end_battle( wonfledlost : String ) :
 				#emit_signal("battle_end", "lost")
 			else :
 				print("GameGlobal end_battle : GAME OVER")
-				SfxPlayer.stream = cmp_resources.sounds_book["party loss.wav"]
-				SfxPlayer.play()
+				if cmp_resources.sounds_book.has("party loss.wav") :
+					SfxPlayer.stream = cmp_resources.sounds_book["party loss.wav"]
+					SfxPlayer.play()
+				ScriptHelperFuncs.play_sound('party loss.wav', false)
 				StateMachine.transition_to("Inactive",{})
 				##GameState._state = eGameStates.unchecked
 				##GameState._combat_state = eCombatStates.unchecked
