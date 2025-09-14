@@ -140,9 +140,12 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.all_battle_creatures_btns.clear()
 
 	var battle_position_offset : Vector2 = Vector2.ZERO
+	var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1]) 
 	if  bool(_msg["is_relative_coords"]) :
 		var map_focus_char = map.focuscharacter
 		battle_position_offset = Vector2(map_focus_char.tile_position_x,map_focus_char.tile_position_y)
+		init_pos = Vector2.ZERO#(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
+		print("CbDecidAction init batle battle_position_offset : ", battle_position_offset, " , init pos : ", init_pos )
 
 	for creaArray in _msg["Creatures"] :
 		print(" creaArray : ", creaArray)
@@ -152,7 +155,8 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 			continue
 		var posArray : Array = creaArray[1]
 		creascript.position = Vector2(posArray[0],posArray[1])+battle_position_offset
-		
+		#find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, _is_failure_ok : bool, max_move_attempts : int, max_los_attempts : int) ->Vector2 :
+		creascript.position = combat_state.find_pos_for_crea_on_battlefield(creascript, creascript.position, true, 15,10)
 		var crea_mapb = combat_state.combatcreaturemapobjectTSCN.instantiate()
 		# creatures_node charactersnode
 		map.creatures_node.add_child(crea_mapb)
@@ -165,7 +169,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		#print("all_battle_creatures_btns size : ", combat_state.all_battle_creatures_btns.size())
 		print("Gameglobal start_battle  : added a "+ creaArray[0] +" at ", creascript.position)
 	#spawn combatcharacters for the player s party  around battle_pos
-	var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1]) 
+	
 
 	var pc_joining = _msg["pc_participating"]
 	if pc_joining.is_empty() :
@@ -175,6 +179,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	
 	#combat_state.pcs_in_battle = pc_joining
 
+	
 	for pc in pc_joining :
 		combat_state.add_pc_or_npc_ally_to_battle_map(pc, init_pos+battle_position_offset)
 	if _msg["npcs_allowed"] :
@@ -231,7 +236,7 @@ func start_new_round() :
 	#combat_state.battle_dead_enemies.clear()
 	#combat_state.battle_dead_party_members.clear()
 	
-	get_parent().all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
+	combat_state.all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
 	GameGlobal.map.pathfinder_update_characters(all_creatures,current_active_creabutton.creature)
 	GameGlobal.map.pathfinder_clear_pos(Vector2i(current_active_creabutton.creature.position))
 	#enter()

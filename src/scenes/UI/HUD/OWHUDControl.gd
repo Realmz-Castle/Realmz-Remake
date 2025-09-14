@@ -110,7 +110,7 @@ func _on_viewport_size_changed() :
 	var newscalex = min(1.0, screensize.x/800)
 	var newscaley = min(1.0, screensize.y/400)
 #	set_scale(Vector2(newscalex,newscaley))
-	print(screensize)
+	print("OWHUD screenshize", screensize)
 #	screensize.x = (1/newscalex)*screensize.x
 #	screensize.y = (1/newscaley)*screensize.y
 	if screensize.x<800 :

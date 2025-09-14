@@ -246,8 +246,8 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 			for t_enc_name : String in stuff_done["Timed_Encounters"] :
 
 				var t_enc_dict = stuff_done["Timed_Encounters"][t_enc_name]
-				if t_enc_name == "Time_Enc_1" :
-					print(time,' , ', t_enc_dict["before"], ',',t_enc_dict["after"])
+				#if t_enc_name == "Time_Enc_1" :
+					#print("GameGlobal check time event ", time,' , ', t_enc_dict["before"], ',',t_enc_dict["after"])
 				
 				#t_encs["Time_Enc_1"] = { "called_func" = "Time_Enc_1", "after" : 3*86400 , "before" : -1, "chance_prct" : 100,"increment" : 0, "req_map" : "", "req_rect" : [] , "req_quest" : "quest_0"}
 				if not (t_enc_dict["req_map"].is_empty() or t_enc_dict["req_map"]==currentmap_name) :
@@ -445,9 +445,9 @@ func rest() :
 
 
 #if pc_participating is empty, use all PC
-func start_battle(battlename : String, mapname : String, is_relative : bool, is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pc_participating : Array) :
+func start_battle(battlename : String, mapname : String, is_pos_relative : bool, is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pc_participating : Array) :
 	print("GameGlobal start_battle " + battlename)
-	var battle_data : Dictionary = GameGlobal.cmp_resources.battles_book[battlename]
+	var battle_data : Dictionary = GameGlobal.cmp_resources.battles_book[battlename].duplicate()
 	battle_data["battle_start"] = true
 	battle_data["battlename"] = battlename
 	battle_data["mapname"] = mapname
@@ -458,6 +458,7 @@ func start_battle(battlename : String, mapname : String, is_relative : bool, is_
 	var pc_part : Array = player_characters if pc_participating.is_empty() else pc_participating
 	battle_data["pc_participating"] = pc_part
 	battle_data["end_in_map_name"] = currentmap_name
+	#battle_data["is_relative_coords"] = is_pos_relative
 	UI.ow_hud.combatBRPanel.escape_allowed = allow_escape
 	var ow_character =  map.owcharacter
 	pos_when_battle_started = Vector2(ow_character.tile_position_x,ow_character.tile_position_y)
@@ -510,6 +511,9 @@ func end_battle( wonfledlost : String ) :
 			#this won't show the allies  screen
 			#await UI.ow_hud.show_loot_menu(treasureitems,money_drop,experience)
 			
+			StateMachine.combat_state.all_battle_creatures_btns.clear()
+			StateMachine.combat_state.battle_dead_enemies.clear()
+			StateMachine.combat_state.battle_dead_party_members.clear()
 			
 			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : treasureitems, "money" : money_drop, "exp" : experience, "prev_state" : "Exploration"})
 			await UI.ow_hud.treasureControl.done_looting

@@ -4,7 +4,7 @@
         "LRR0.2": {
             "scriptRectangle": [[5,5], [89,34]],
             "chance": 0.5,
-            "scriptToLoad":[
+            "scriptToLoad": [
                 "XAP27",50,
                 "XAP28", 33,
                 "XAP29",33

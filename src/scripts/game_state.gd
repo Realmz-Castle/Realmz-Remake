@@ -263,11 +263,29 @@ func check_map_script(position) ->bool :
 		var chance : float = 1.0
 		if sr.has("chance") :
 			chance = sr["chance"]
+
 		if l<=position.x and position.x<=r :
 			if u<=position.y and position.y<=d :
+				var scriptname : String = ''
+				
+				if sr.has("RR_Battle") :
+					printerr("StateMachine sr has RR_Battle")
+					var battle_result = await ScriptHelperFuncs.do_RR_battle(sr["RR_Battle"])
+					return false
+				
+				if sr["scriptToLoad"] is Array :
+					printerr('STateMachine sr["scriptToLoad"] is array , ', range(0,sr["scriptToLoad"].size(),2))
+					for i in range(0,sr["scriptToLoad"].size(),2) :
+						if randf() <= sr["scriptToLoad"][i+1]/100 :
+							scriptname = sr["scriptToLoad"][i]
+							break
+				else : scriptname = sr["scriptToLoad"]
+				
 				if randf() <= chance :
 					#print("StateMachine check_map_script Script rectangle : ", s , ", script : ", sr["scriptToLoad"])
-					scriptstocall[sr["scriptToLoad"]] = ''
+					if not scriptname.is_empty() : scriptstocall[scriptname] = '' #just a set, value doesnt matter
+	
+	printerr("SStateMachine l282 scriptstocall : ", scriptstocall)
 	#check map secrets :
 	for x in [-1,0,1] :
 		for y in [-1,0,1] :
@@ -290,9 +308,15 @@ func check_map_script(position) ->bool :
 		var mapscriptareas_still_has_s : bool = false
 		for sa in GameGlobal.map.mapscriptareas :
 #					print(sa)
-			if GameGlobal.map.mapscriptareas[sa]["scriptToLoad"] == s:
-				mapscriptareas_still_has_s = true
-				break
+			var mapstlentry = GameGlobal.map.mapscriptareas[sa]["scriptToLoad"]
+			if mapstlentry is Array :
+				if mapstlentry.has(s) :
+					mapscriptareas_still_has_s = true
+					break
+			else :
+				if mapstlentry == s:
+					mapscriptareas_still_has_s = true
+					break
 		for secretpos in GameGlobal.map.mapsecrets.keys() :
 			if GameGlobal.map.mapsecrets[secretpos][1]==s :
 				mapscriptareas_still_has_s = true
@@ -302,7 +326,9 @@ func check_map_script(position) ->bool :
 			GameGlobal.current_map_script_name = s
 			var script_returned = s
 			
-			while script_returned != null :
+			if script_returned=='STOP' : break
+			
+			while script_returned != null and script_returned != '':
 				
 				#check flags for if AP is disabled or replaced :
 				var shouldcontinue : bool = GameGlobal.check_flags_for_current_map_script_name()

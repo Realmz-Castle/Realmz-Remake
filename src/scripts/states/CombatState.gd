@@ -113,6 +113,7 @@ func add_pc_or_npc_ally_to_battle_map(crea : Creature, init_pos : Vector2) -> bo
 	var _los_attempts : int = 0
 	var max_los_attempts : int = GameGlobal.player_characters.size()*100
 	var _is_los : bool = true
+	print("CombatState add_pc_or_npc_ally_to_battle_map "+crea.name+" near: ", init_pos)
 	var pos : Vector2 = find_pos_for_crea_on_battlefield(crea, init_pos, false, max_move_attempts, max_los_attempts)
 	crea.position = pos
 	crea.creature_script_memory.clear()
@@ -124,6 +125,7 @@ func add_pc_or_npc_ally_to_battle_map(crea : Creature, init_pos : Vector2) -> bo
 	#print("cbstate all_battle_creatures_btns size : ", all_battle_creatures_btns.size())
 	pc_mapb.set_creature_represented(crea)
 	pc_mapb.bgsprite.hide()
+	print("CombatState add_pc_or_npc_ally_to_battle_map "+crea.name+" at : ", crea.position)
 	return true
 
 func remove_cb_from_battle(cb) ->void :  #do this in   CbAnimState !
@@ -181,8 +183,9 @@ func on_trying_to_move_to_position(crea : Creature, position : Vector2, notreall
 			GameGlobal.map.set_secret_seen( Vector2i(position) )
 
 	soundslist.shuffle()
-	SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[soundslist[0]]
-	SfxPlayer.play()
+	if not soundslist.is_empty() :
+		SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[soundslist[0]]
+		SfxPlayer.play()
 
 	return [canwalk, timetowalk ]
 

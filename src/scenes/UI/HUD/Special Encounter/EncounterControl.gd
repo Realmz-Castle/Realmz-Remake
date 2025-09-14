@@ -75,10 +75,11 @@ func initialize(scriptname : String) :
 	print('encounter_over')
 	close()
 
-func close() :
+func close(returnedbyencounter=null) :
 	#GameState.set_paused(false)
 #	Input.set_custom_mouse_cursor(GameState.cursor_sword)
 #	disablerButton.hide()
+	print("EncounterControl returnedbyencounter : ", returnedbyencounter)
 	hide()
 	close_spell_menu()
 	UI.ow_hud.close_special_encounter(true)

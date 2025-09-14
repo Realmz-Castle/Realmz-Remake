@@ -54,7 +54,7 @@ func _on_speaking(spoken : String) :
 		print("You speak home")
 	else :
 		await generic_outcome()
-	emit_signal("encounter_over")
+	emit_signal("encounter_over", spoken)
 
 func generic_outcome() :
 	var random_text_1 : String = "You are unable to see any result"
