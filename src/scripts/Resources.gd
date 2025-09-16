@@ -823,10 +823,11 @@ func load_special_encounter_resources(campaign : String) :
 	var encounter_file_names : Array = Utils.FileHandler.list_files_in_directory(encounters_folder_path)
 	for fn in encounter_file_names :
 #		print("encounter : ", fn)
+		var enc_name : String = fn.trim_suffix('.gd')
 		var enc = load(encounters_folder_path+fn).new()
 #		print("encounter enc : ", enc)
-		special_encounters_book[fn] = enc
-#	print("special encounters : ", special_encounters_book.keys())
+		special_encounters_book[enc_name] = enc
+	print("special encounters : ", special_encounters_book.keys())
 
 func load_battle_resources(campaign : String) :
 	print("Resources load_battle_resources ")

@@ -2,6 +2,7 @@ extends Node
 class_name SFX_Id_Divinity
 
 var mapping : Dictionary = {
+0:'',
 20:"booty.wav.wav",
 82:"walk road.wav",
 83:"walk cave.wav",

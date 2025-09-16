@@ -32,16 +32,15 @@ func show_temple_window() :
 	show()
 	display_character(GameGlobal.player_characters[0])
 
-func close_temple_window() :
-	hide()
-	char_status_timer.stop()
 
 func _display_services() :
+	print("Temple _display_services : GameGlobal.currentTemple : ", GameGlobal.currentTemple)
 	for c in spells_box.get_children() :
 		spells_box.remove_child(c)
 	for c in prices_box.get_children() :
 		prices_box.remove_child(c)
 	for e in GameGlobal.currentTemple :
+		print("Temple proot")
 		var newbutton : Button = SPELLBUTTON_TSCN.instantiate()
 		newbutton.text = e[0]
 		if displayed_chara.money[0]>= e[2] or GameGlobal.money_pool[0] >= e[2] :
@@ -51,6 +50,9 @@ func _display_services() :
 		spells_box.add_child(newbutton)
 		var newprice : Label = PRICELABEL_TSCN.instantiate()
 		newprice.text = str(e[2]) + ' G'
+		newprice.custom_minimum_size = Vector2(0,25)
+		newprice.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		prices_box.add_child(newprice)
 
 func display_character(chara : Creature) :
 	displayed_chara = chara
@@ -74,7 +76,8 @@ func _on_spell_button_pressed(namepowercost : Array) :
 	var cost : int = round(namepowercost[2])
 	displayed_chara.money[0] = max(0, displayed_chara.money[0] - cost)
 	temple_caster.stats["curSP"] = 9999999999
-	var spell = NodeAccess.__Resources().spells_book[namepowercost[0]]
+	var spell = NodeAccess.__Resources().spells_book[namepowercost[0]]["script"]
+	print(spell)
 	SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
 	SfxPlayer.play()
 	if spell.get("proj_hit") :
@@ -130,3 +133,9 @@ func _on_pool_button_pressed() -> void:
 func _on_share_button_pressed() -> void:
 	UI.ow_hud.moneyControl._on_ShareButton_pressed()
 	display_character(displayed_chara)
+
+
+func _on_exit_button_pressed() -> void:
+		hide()
+		char_status_timer.stop()
+		StateMachine.exit_ex_menu_state()

@@ -260,22 +260,42 @@ func check_map_script(position) ->bool :
 		var u = sr["scriptRectangle"][0][1]
 		var r = sr["scriptRectangle"][1][0]
 		var d = sr["scriptRectangle"][1][1]
-		var chance : float = 1.0
-		if sr.has("chance") :
-			chance = sr["chance"]
+		
+
+
 
 		if l<=position.x and position.x<=r :
 			if u<=position.y and position.y<=d :
 				var scriptname : String = ''
 				
+				
+				var chance : float = 1.0
+				if sr.has("chance") :
+					chance = sr["chance"]
+				printerr("StateMachine chance", ' ', chance, ' ', sr["scriptToLoad"])
+				pass
+				if randf() > chance :	#skip this
+					continue
+				
+
 				if sr.has("RR_Battle") :
 					printerr("StateMachine sr has RR_Battle")
-					var battle_result = await ScriptHelperFuncs.do_RR_battle(sr["RR_Battle"])
-					if state==ex_menu_state :
-						print("StateMachine escape out of MenuState")
-						exit_ex_menu_state()
-						exit_cb_menu_state()
-					return false
+					var do_rr_fight : bool = false
+					var num_of_poss_outcomes : int = 1
+					if sr["scriptToLoad"] is Array :
+						num_of_poss_outcomes += floor(sr["scriptToLoad"].size()/2)
+					else : 
+						num_of_poss_outcomes +=1
+					do_rr_fight = randi()%num_of_poss_outcomes==0
+					if do_rr_fight :
+						var battle_result = await ScriptHelperFuncs.do_RR_battle(sr["RR_Battle"])
+						if state==ex_menu_state :
+							print("StateMachine escape out of MenuState")
+							exit_ex_menu_state()
+							exit_cb_menu_state()
+						return false
+
+
 				
 				if sr["scriptToLoad"] is Array :
 					printerr('STateMachine sr["scriptToLoad"] is array , ', range(0,sr["scriptToLoad"].size(),2))
@@ -285,9 +305,10 @@ func check_map_script(position) ->bool :
 							break
 				else : scriptname = sr["scriptToLoad"]
 				
-				if randf() <= chance :
-					#print("StateMachine check_map_script Script rectangle : ", s , ", script : ", sr["scriptToLoad"])
-					if not scriptname.is_empty() : scriptstocall[scriptname] = '' #just a set, value doesnt matter
+
+				
+				
+				if not scriptname.is_empty() : scriptstocall[scriptname] = '' #just a set, value doesnt matter
 	
 	printerr("SStateMachine l282 scriptstocall : ", scriptstocall)
 	#check map secrets :

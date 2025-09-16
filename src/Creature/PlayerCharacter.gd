@@ -271,18 +271,21 @@ func can_equip_item(item) -> bool :
 	var hasfreeslots : bool = true
 	for s in item["slots"] :
 		hasfreeslots = hasfreeslots and (equipment_slots[s]==0)
-	print(" PlayerCharacter hasfreeslots : ", hasfreeslots)
+	print(" PlayerCharacter hasfreeslots l274 : ", hasfreeslots)
 	if item.has("hands") :
 
 	# you can equip two 1 handed melee weapons if you can dual wield
 	# however you may still equip  only  one shield
 		if item["slots"].has("Shield") :
 			hasfreeslots = hasfreeslots and (free_hands >= item["hands"])
+			print(" PlayerCharacter hasfreeslots l281: ", hasfreeslots)
 		else :
-			hasfreeslots =  hasfreeslots and (free_hands >= item["hands"])
+			if item["slots"].has("Melee Weapon") :
+				hasfreeslots =  hasfreeslots and (free_hands >= item["hands"])
+				print(" PlayerCharacter hasfreeslots l284: ", hasfreeslots)
 			if item["slots"].has("Melee Weapon") and equipment_slots["Melee Weapon"]!=0 :
 				hasfreeslots = can_dual_wield and hasfreeslots
-	print(" PlayerCharacter canequipitem : ", equippable_types[item["type"]]>0, hasfreeslots)
+	print(" PlayerCharacter canequipitem : ", equippable_types[item["type"]]>0, 'free slots:',hasfreeslots)
 	return equippable_types[item["type"]]>0 and hasfreeslots #and super.can_equip_item(item)
 
 

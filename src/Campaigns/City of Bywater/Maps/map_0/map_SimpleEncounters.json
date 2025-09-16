@@ -1,13 +1,191 @@
 {
-"SE0" : [
-	"this is the prompt",
-	[
-		[ "choice 1 text", 0, 1],
-		[ "choice 2 text", 1, 1],
-		[ "choice 3 text", 2, 1],
-		[ "choice 4 text", 3, 1]
-	],
-	["SE0XAP0", "SE0XAP1","SE0XAP2","SE0XAP3"],
-	1
-]
+    "SE0": [
+        "Judging by the man's large girth, robes are not all he fancies. You approach his fine oak desk. \"Present your invitation so I may validate it for passage to yon castle.\"",
+        [
+            ["Attempt to bribe your way into the castle.", 0, 1],
+            ["Show him an invitation to the castle.", 1, 1],
+            ["Show him a forged invitation.", 2, 1],
+            ["Kindly bid him farewell and leave the guardhouse.", 3, 1]
+        ],
+        ["SE0XAP0", "SE0XAP1", "SE0XAP2", "SE0XAP3"],
+        1
+    ],
+    "SE1": [
+        "He takes your clever forgery and looks it over carefully. Ere he hands it back to you his eyes go wide and he summons the guards. \"Hold these fools, they attempt deception.\" Guards rush to apprehend you.",
+        [
+            ["Attack the guards in an attempt to gain entry to the castle.", 0, 1],
+            ["Take the magistrate hostage.", 1, 1],
+            ["Flee from the gatehouse.", 2, 1],
+            ["Let them seize you and attempt to explain that there has been a mistake.", 3, 1]
+        ],
+        ["SE1XAP0", "SE1XAP1", "SE1XAP2", "SE1XAP3"],
+        1
+    ],
+    "SE2": [
+        "With the reluctant aid of the Magistrate you find your way to a secluded alley. From the shouts you here in the streets, it would seem the whole kingdom is in search of your whereabouts.",
+        [
+            ["Set the magistrate free.", 0, 1],
+            ["Kill the magistrate so he cannot give you away and take his possessions.", 1, 1],
+            ["Search the magistrate, take his possessions and set him free.", 2, 1],
+            ["State that you have panicked and beg forgiveness.", 3, 1]
+        ],
+        ["SE2XAP0", "SE2XAP1", "SE2XAP2", "SE2XAP3"],
+        1
+    ],
+    "SE3": [
+        "You are standing in a tavern.",
+        [
+            ["Buy a round of drinks and listen to rumors.", 0, 1],
+            ["Slip the barkeep some gold and hope he will tell you some news.", 1, 1],
+            ["Approach the table of a seedy-looking character who is watching you.", 2, 1],
+            ["Ask the barmaid to tell you of any local news.", 3, 1]
+        ],
+        ["SE3XAP0", "SE3XAP1", "SE3XAP2", "SE3XAP3"],
+        1
+    ],
+    "SE4": [
+        "They make for the door in haste, yelling, \"Targ the thief has gotten his due! Any man who follows us shall join him in Hades!\" Apparently, they did not see the slip of paper Targ gave you.",
+        [
+            ["Chase the orcs in spite of their warning.", 0, 1],
+            ["Play dumb and examine the map back at your table to avoid getting involved.", 1, 1],
+            ["Search Targ's body quickly.", 2, 1],
+            ["Wait around for the town guard to show up and explain what happened.", 3, 1]
+        ],
+        ["SE4XAP0", "SE4XAP1", "SE4XAP2", "SE4XAP3"],
+        1
+    ],
+    "SE5": [
+        "Both men are determined to take their troops and engage the enemy. What do you do?",
+        [
+            ["Support Haikur in his aim to rid the southlands of the goblins.", 0, 1],
+            ["Join Thurfur in his quest to rid the east of the orcs.", 1, 1],
+            ["Decline to help either man on his quest and proceed to the castle.", 2, 1]
+        ],
+        ["SE5XAP0", "SE5XAP1", "SE5XAP2"],
+        1
+    ],
+    "SE6": [
+        "As you try the fare, disappointment is king. The aroma far outshines the taste. Most of the food is very bland indeed. Some is outright awful. The cook approaches you. \"Well, good patrons, how is my fine meal today?\"",
+        [
+            ["Do not insult the cook. Tell him it was most delicious.", 0, 1],
+            ["Tell him the bitter truth. His food is not fit for swine.", 1, 1],
+            ["Walk away from both the food and the cook without a word.", 2, 1]
+        ],
+        ["SE6XAP0", "SE6XAP1", "SE6XAP2"],
+        1
+    ],
+    "SE7": [
+        "As you step inside, you are instructed by several thugs to see a small scruffy-looking dwarf behind a desk. You step up to the desk, as he smiles at you displaying more gold teeth than ivory.",
+        [
+            ["Pay 50 gold to sample some of the goods.", 0, 1],
+            ["Wink at the dwarf as if you know the real story, whatever that may be.", 1, 1],
+            ["Thank him for his offer, but ask to look about a bit before you decide.", 2, 1]
+        ],
+        ["SE7XAP0", "SE7XAP1", "SE7XAP2"],
+        1
+    ],
+    "SE8": [
+        "You lift off the lid and peer inside, but it appears to be empty after all.",
+        [
+            ["Search the inside of the coffin.", 0, 1],
+            ["Put the lid back on and leave it alone.", 1, 1],
+            ["Destroy the coffin.", 2, 1]
+        ],
+        ["SE8XAP0", "SE8XAP1", "SE8XAP2"],
+        1
+    ],
+    "SE9": [
+        "He suddenly sees you and calls zombies to stand between him and you. In a very strange tone of voice he says, \"Where have you been? I'm almost out of bodies and the time for attack grows nigh.\"",
+        [
+            ["Attack the cleric and his unholy army.", 0, 1],
+            ["Play along and claim you have bodies.", 1, 1],
+            ["Explain who you are and ask him who he is and what he is doing.", 2, 1]
+        ],
+        ["SE9XAP0", "SE9XAP1", "SE9XAP2"],
+        1
+    ],
+    "SE10": [
+        "",
+        [
+            ["Ignore his babbling and attack this cur.", 0, 1],
+            ["Explain that you have made a mistake and wish to leave.", 1, 1],
+            ["Offer to join forces with him and fight against the krise.", 2, 1]
+        ],
+        ["SE10XAP0", "SE10XAP1", "SE10XAP2"],
+        1
+    ],
+    "SE11": [
+        "You figure that the beast will completely consume the corpse in short order unless you interfere.",
+        [
+            ["Attack the troll immediately.", 0, 1],
+            ["Wait to see what happens after he is finished with his grisly meal.", 1, 1],
+            ["Leave the monster to finish his meal in peace.", 2, 1]
+        ],
+        ["SE11XAP0", "SE11XAP1", "SE11XAP2"],
+        1
+    ],
+    "SE12": [
+        "You stand before a great iron door set into the side of the mountain.",
+        [
+            ["Knock on the door.", 0, 1],
+            ["Attempt to open the door by physical means.", 1, 1],
+            ["Attempt to open the door by magical means.", 2, 1]
+        ],
+        ["SE12XAP0", "SE12XAP1", "SE12XAP2"],
+        1
+    ],
+    "SE13": [
+        "The king sees you immediately. \"Ah! Our mighty heroes. This fine day you have done a great service indeed. Your efforts shall be rewarded with great treasure.\" He orders three chests brought out. \"You may select one chest as your reward.\"",
+        [
+            ["Select the trove of magical weapons.", 0, 1],
+            ["Select the trove of magical armor.", 1, 1],
+            ["Select the trove of magical items.", 2, 1]
+        ],
+        ["SE13XAP0", "SE13XAP1", "SE13XAP2"],
+        1
+    ],
+    "SE14": [
+        "\"Who dares summon me with the help of my very own scrying crystal? AHHHH! It is foolish mortals. How entertaining! What rash passions can drive such frail beings such as yourselves to the point of utter insanity?\"",
+        [
+            ["Look the beast in the eye and challenge him to show himself.", 0, 1],
+            ["Ignore him as if his threat does not even deserve your notice.", 1, 1],
+            ["Attempt to smash the sphere.", 2, 1],
+            ["Run like there is no tomorrow.", 3, 1]
+        ],
+        ["SE14XAP0", "SE14XAP1", "SE14XAP2", "SE14XAP3"],
+        1
+    ],
+    "SE15": [
+        "You come upon a stone statue of a man. In one hand he grasps a staff. The other outstretched hand holds a bowl. Water continually pours from this bowl, forming a shallow pool at the statue's feet.",
+        [
+            ["Attempt to take the staff from the statue's grasp.", 0, 1],
+            ["Take some of the water.", 1, 1],
+            ["Drink some of the water.", 2, 1],
+            ["Wade into the fountain.", 3, 1]
+        ],
+        ["SE15XAP0", "SE15XAP1", "SE15XAP2", "SE15XAP3"],
+        1
+    ],
+    "SE16": [
+        "You enter the gaming arena. The master of the games asks if you wish to pit your skills in combat against dire creatures for a wager. Do you wish to enter the games?",
+        [
+            ["Enter one member of the party in the games.", 0, 1],
+            ["Enter two members of the party in the games.", 1, 1],
+            ["Enter three members of the party in the games.", 2, 1],
+            ["Enter four members of the party in the games.", 3, 1]
+        ],
+        ["SE16XAP0", "SE16XAP1", "SE16XAP2", "SE16XAP3"],
+        1
+    ],
+    "SE17": [
+        "Corporal Sampson is badly wounded during the melee. He asks you to take him to the village healers.",
+        [
+            ["Heal him yourself.", 0, 1],
+            ["Take him to the village healer as he requests.", 1, 1],
+            ["Leave him to fend for himself.", 2, 1],
+            ["Take the opportunity to slay him, blame it on the beasts and rob him.", 3, 1]
+        ],
+        ["SE17XAP0", "SE17XAP1", "SE17XAP2", "SE17XAP3"],
+        1
+    ]
 }

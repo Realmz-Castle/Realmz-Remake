@@ -213,8 +213,29 @@ static func start_battle_in_range(low : int, high : int, sfx_id : int, displayte
 	GameGlobal.allow_next_battle_loot = give_treasure!=5 # from divinity doc : A value of 5 here : no loot. 10 : no gameover.
 	play_sound(sound_name_from_mapping, true)
 	GameGlobal.start_battle(battle_name,"",true, false, give_treasure==10, true, true, [] ) # all party if pc_particiating is empty
-	await GameGlobal.battle_end
-	
+	var wonfledlost = await GameGlobal.battle_end
+	return wonfledlost
+
+#Divinity Code 26 : Branching Battle, jmp_battle
+#1) Battle Number: Low Battle Number for Range Battle 
+#2) High Battle Number for Range Battle 
+#3) If defeated branch to X-AP, Else -1 = Backstep 
+#4) Sound. (Optional) 
+#5) String ID to display prior to battle. (Optional) 
+#uUse : 
+#var branch = await ScriptHelperFuncs.branching_battle_Divinity()
+#if branch != "GO_ON" : return branch
+static func branching_battle_Divinity(low: int, high : int, xap_or_backstep : int, sfx_id : int, displaytext : String) :
+	start_battle_in_range(low, high, sfx_id , displaytext, 0)
+	var wonfledlost = await GameGlobal.battle_end
+	if wonfledlost != "won" :
+		if xap_or_backstep < 0 :
+			GameGlobal.must_cancel_movement = true # that's  "cancel movement"
+			return
+		return "XAP"+str(xap_or_backstep)
+	return "GO_ON"
+		
+
 ## DIVINITY : Random Rectangle battles with no actual AP :
 static func randomrect_battle(b : Array, o : int, s : String, t : String, battle_text : String) :
 	var textRect = UI.ow_hud.textRect
@@ -429,10 +450,13 @@ static func hide_picture() :
 
 ## Divinity Code 47: Set Clear Quest Flag , set_quest : quest_id
 static func set_quest_id_flag_Divinity(quest_id : int) :
-	var zeroone : int = 1
 	if quest_id < 0:
-		zeroone = 0
-	GameGlobal.stuff_done["quest_"+str(abs(quest_id))] = zeroone
+		GameGlobal.stuff_done.erase("quest_"+str(abs(quest_id)))
+		return
+	GameGlobal.stuff_done["quest_"+str(abs(quest_id))] = 1
+	
+static func clear_quest_id_flag_Divinity(quest_id : int) :
+	GameGlobal.stuff_done.erase("quest_"+str(abs(quest_id)))
 
 ## Divinity Code 46: Branch on Quest (See code 72 & 77 for more options) , jmp_quest
 static func branch_on_quest_Divinity(quest_id : int, go_on_if_done : int, target_type : int, target : int, code_index : int) -> String:
@@ -513,6 +537,12 @@ static func castSpellOnPartyDivinity(spell_id, power, drv_modifier, can_drv) :
 	var spell_name : String = SpellsIdDivinity.mappings[spell_id]
 	CastSpellOnPickedCharacters(GameGlobal.player_characters, spell_name, power)
 
+#Divinity Code 17: Cast Spell on Picked 
+static func castSpellOnPickedDivinity(spell_id, power, drv_modifier, can_drv) :
+	var spell_name : String = SpellsIdDivinity.mappings[spell_id]
+	CastSpellOnPickedCharacters(GameGlobal.last_picked_characters, spell_name, power)
+
+
 static func CastSpellOnPickedCharacters(characters : Array, spell_name : String, power : int) :
 	var spell = NodeAccess.__Resources().spells_book[spell_name]
 	var character = Creature.new()
@@ -538,7 +568,7 @@ static func enable_default_temple(price_mult) :
 		["Remove Items", 1,roundi(250*price_mult/10)*10 ],
 		["Revive Dead", 1, roundi(615*price_mult/10)*10 ]
 	]
-	GameGlobal.set_temple_availlable(true)
+	GameGlobal.allow_temple(true)
 
 static func remove_gold_from_party(gold_to_give : int) :
 	for character : Creature in GameGlobal.player_characters :
@@ -1014,3 +1044,12 @@ static func branch_NPC_in_party_Divinity(creature_name : String, ifpresenttype :
 				printerr("ScriptHelperFuncs branch_NPC_in_party_Divinity : cant  handle  special encounter "+str(ifabsentto)+", fix manually")
 				assert(false)
 	return ''
+
+#Divinity Code 150 destroy_related_monsters
+static func destroy_related_monsters(cname : String, number : int,  allies_too : bool) :
+	for cb in StateMachine.combat_state.all_battle_creatures_btns :
+		if cb.creature.name ==  cname and not GameGlobal.player_characters.has(cb.creature):
+			if cb.creature.baseFaction == 0 and (not allies_too) :
+				continue
+			cb.creature.change_cur_hp(-999999999)
+	
