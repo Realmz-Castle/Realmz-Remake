@@ -179,7 +179,7 @@ func _drop_data(_pos, data):
 	
 	else :
 		if characteritemcamefrom == "Shop" :
-			print ("char money : ", mycharacter.money[0], ", pool : ", GameGlobal.money_pool[0])
+			print ("ItemSmallButton : char money : ", mycharacter.money[0], ", pool : ", GameGlobal.money_pool[0])
 			if mycharacter.can_add_inventory_item(item) :
 				#if selchar.drop_inventory_item(item) :
 				var shop = GameGlobal.get_shop(GameGlobal.currentShop)
@@ -189,12 +189,12 @@ func _drop_data(_pos, data):
 				mycharacter.add_inventory_item(otheritem, myIndexInCharInv)
 				#deduct money
 				var price = int(otheritem["price"]*shop["sell_rate"])
-				print("price : ", price)
+				print("ItemSmallButton : price : ", price)
 				var  removed = min(price, mycharacter.money[0])
 				mycharacter.money[0]-=removed
 				price -= removed
 				GameGlobal.money_pool[0]-=price
-				print ("char money : ", mycharacter.money[0], ", pool : ", GameGlobal.money_pool[0])
+				print ("ItemSmallButton : char money : ", mycharacter.money[0], ", pool : ", GameGlobal.money_pool[0])
 				inventoryrect.shopRect.goldLabel.text = str(mycharacter.money[0])
 				inventoryrect.shopRect.poolLabel.text = str( GameGlobal.money_pool[0] )
 				inventoryrect.shopRect.fillVbox(inventoryrect.shopRect.current_shop_category)
@@ -246,7 +246,7 @@ func _on_ItemSmallButton_gui_input(event):
 
 func equip_item() :
 	var itemowner = self.get_parent().get_parent().get_inventory_owner()
-	print("owner is : ", itemowner)
+	print("ItemSmallButton : owner is : ", itemowner)
 	
 	if item["equippable"] == 1 :
 		if item["equipped"] == 0 :

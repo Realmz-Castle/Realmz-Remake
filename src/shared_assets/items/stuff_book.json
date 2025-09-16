@@ -67,7 +67,7 @@
 	"description": "Arcane powers help make this weapon a worthy aid against magic.",
 	"weight": 7,
 	"price": 4500,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -325,7 +325,7 @@
 	"description": "Probably one of the most lovely weapons of its kind, truly a valuable item.",
 	"weight": 6,
 	"price": 10000,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -779,7 +779,7 @@
 	"description": "One of the most prized of prizes. ",
 	"weight": 32,
 	"price": 7000,
-	"type": "Large Helm",
+	"type": "Great Helm",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -860,7 +860,7 @@
 	"description": "Truly a sweet release to the troubled conscience.",
 	"weight": 35,
 	"price": 5200,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_of_Fog",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -945,7 +945,7 @@
 	"description": "Few relics can match this dagger in either power or beauty.",
 	"weight": 5,
 	"price": 5,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger_sting",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -1083,7 +1083,7 @@
 	"description": "Only the mightiest and most worthy of archers can claim ownership of this piece.  It retains the skill of champions to guide its master's aim. (2 hits)",
 	"weight": 75,
 	"price": 32000,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
@@ -1168,7 +1168,7 @@
 	"description": "A normal bolt that sports a wicked flame.",
 	"weight": 0,
 	"price": 750,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Arrow_storm",
 	"sound": "arrow hit.wav",
 	"slots": [
@@ -1195,7 +1195,7 @@
 	"description": "The master of this weapon walks unseen.",
 	"weight": 45,
 	"price": 14500,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka_of_speed",
 	"sound": "club.wav",
 	"slots": [
@@ -1453,7 +1453,7 @@
 	"description": "A valuble item for those that will want to do battle with magic.",
 	"weight": 90,
 	"price": 1000,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -1609,7 +1609,7 @@
 	"description": "This weapon fires at double the normal rate. (2 hits)",
 	"weight": 160,
 	"price": 5500,
-	"type": "Cross Bow",
+	"type": "Crossbow",
 	"img_ptr": "ITEM_Double_Dagger",
 	"sound": "bow.wav",
 	"slots": [
@@ -1661,7 +1661,7 @@
 	"description": "A shocking surprise is in store for the recipient of this tricky arrow.",
 	"weight": 0,
 	"price": 1000,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Necklace_of_Lightning",
 	"sound": "lighning.wav",
 	"slots": [
@@ -1766,7 +1766,7 @@
 	"description": "A favorite of the gambler, this item comes in handy in both brothels and battles.",
 	"weight": 95,
 	"price": 750,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -2317,7 +2317,7 @@
 	"description": "Powerful protection from almost any attack.",
 	"weight": 300,
 	"price": 1000,
-	"type": "Banded Armor",
+	"type": "Splint Armor",
 	"img_ptr": "ITEM_Chain_Armor_3",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -2386,7 +2386,7 @@
 	"description": "A weapon enchanted with the most powerful of magic.",
 	"weight": 9,
 	"price": 4750,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -2655,7 +2655,7 @@
 	"description": "Only a dedicated archer of Elvish ancestry can master this powerfully enchanted bow. (2 hits)",
 	"weight": 80,
 	"price": 32000,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
@@ -2926,7 +2926,7 @@
 	"description": "Its very name implies its value.",
 	"weight": 52,
 	"price": 5200,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_Of_Protection_6",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -2948,7 +2948,7 @@
 	"description": "Its name implies its worth.  Though no more powerful than a normal arrow, it never misses.",
 	"weight": 0,
 	"price": 275,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
@@ -3166,7 +3166,7 @@
 	"description": "If one listens closely, the voice of the ancient powers that created this cloak can be heard.  Great was their power.",
 	"weight": 42,
 	"price": 500,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Ring_of_Defense_3",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -3288,7 +3288,7 @@
 	"description": "This mystical weapon was thought to have been lost when the golden elves were banished from the Realmz. That does not now seem to be the case.",
 	"weight": 55,
 	"price": 23200,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Bow_of_shalomar",
 	"sound": "bow.wav",
 	"slots": [
@@ -3558,7 +3558,7 @@
 	"description": "If one listens closely, the voice of the ancient powers that created this cloak can be heard.  Great was their power.",
 	"weight": 37,
 	"price": 13500,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_Of_Light",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -3714,7 +3714,7 @@
 	"description": "Sturdy shafts that fly straight and true.",
 	"weight": 75,
 	"price": 12,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "arrow hit.wav",
 	"slots": [
@@ -3811,7 +3811,7 @@
 	"description": "A simple dagger of fine make, enchanted with magic. ",
 	"weight": 5,
 	"price": 5,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -3867,7 +3867,7 @@
 	"description": "This plain-looking cap makes slings and arrows far more bearable.",
 	"weight": 15,
 	"price": 19000,
-	"type": "Soft Helm",
+	"type": "Soft Helmet",
 	"img_ptr": "ITEM_Leather_cap",
 	"sound": "force field.wav",
 	"slots": [
@@ -4243,7 +4243,7 @@
 	"description": "A large and cumbersome weapon. It does great damage if used correctly.",
 	"weight": 150,
 	"price": 1200,
-	"type": "Pole Arm",
+	"type": "Pole Axe",
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -4477,7 +4477,7 @@
 	"description": "Loved by the slippery type.  This quiver is favored by the fleet of foot as well as the lethargic.",
 	"weight": 95,
 	"price": 200,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -4564,7 +4564,7 @@
 	"description": "A handy weapon for dealing with foulness at a distance.",
 	"weight": 70,
 	"price": 1200,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
@@ -4590,7 +4590,7 @@
 	"description": "A weapon enchanted with the most powerful of magic.",
 	"weight": 7,
 	"price": 150,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -4646,7 +4646,7 @@
 	"description": "This item channels magical energy most efficiently, giving its owner a greater ability to invoke arcane power.",
 	"weight": 6,
 	"price": 3200,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -5157,7 +5157,7 @@
 	"description": "No other than a true monk may wear this cloak.  It was only rumored to exist.  The Four Seasons seek this cloak for their own gain.  How can four split one?",
 	"weight": 45,
 	"price": 12500,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Shadow_Cloak",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -5179,7 +5179,7 @@
 	"description": "Power will seep into the feet of the wearer of this magical piece.",
 	"weight": 20,
 	"price": 3500,
-	"type": "Large Helm",
+	"type": "Great Helm",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -5279,7 +5279,7 @@
 	"description": "Made of fine wood, this bow will be of great use in the hands of a great warrior.",
 	"weight": 80,
 	"price": 250,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Bow",
 	"sound": "bow.wav",
 	"slots": [
@@ -5486,7 +5486,7 @@
 	"description": "Many spikes and sharp barbs will litter the ground.  This makes movement a real danger for those who do not watch their step.",
 	"weight": 0,
 	"price": 750,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Shuriken",
 	"sound": "join.wav",
 	"slots": [
@@ -5878,7 +5878,7 @@
 	"description": "Enemies will flee before the destructive power of these projectiles.",
 	"weight": 0,
 	"price": 550,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Plate_Armor_of_Magicks",
 	"sound": "arrow hit.wav",
 	"slots": [
@@ -6016,7 +6016,7 @@
 	"description": "A mighty weapon in the hands of a monk, this weapon is prized by all.",
 	"weight": 35,
 	"price": 3000,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
@@ -6045,7 +6045,7 @@
 	"description": "This wonderous item is better than a suit of armor.  To parry any blow will be your greatest success.",
 	"weight": 35,
 	"price": 450,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
@@ -6124,7 +6124,7 @@
 	"description": "This fantastic rapier is the true weapon of the master swordsman. It lends its master the speed and grace of the wind.",
 	"weight": 0,
 	"price": 32000,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Rapier_Of_The_Wind",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -6158,7 +6158,7 @@
 	"description": "The mark of a powerful warrior, this extraordinary helm is a treasure of kings.",
 	"weight": 60,
 	"price": 20000,
-	"type": "Large Helm",
+	"type": "Great Helm",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -6216,7 +6216,7 @@
 	"description": "Shining studs appear to the untrained eye to be this weapon's only virtue.",
 	"weight": 30,
 	"price": 900,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
@@ -6359,7 +6359,7 @@
 	"description": "This wondrous helm is a boon to warrior classes.",
 	"weight": 45,
 	"price": 1250,
-	"type": "Large Helm",
+	"type": "Great Helm",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -6383,7 +6383,7 @@
 	"description": "A source of protection for those capable of defending the possession of it.",
 	"weight": 40,
 	"price": 550,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_of_Fog",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -6557,7 +6557,7 @@
 	"description": "Loved by the slippery type.  This quiver is favored by the fleet of foot as well as the lethargic.",
 	"weight": 100,
 	"price": 800,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -6711,7 +6711,7 @@
 	"description": "After being hammered out this blade was quenched in the waters of that infamous nether river.  It is especially deadly against demons.",
 	"weight": 8,
 	"price": 3200,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger_of_styx",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -6815,7 +6815,7 @@
 	"description": "Old cracked leather provides a minimal amount of protection for the melon.",
 	"weight": 10,
 	"price": 5,
-	"type": "Soft Helm",
+	"type": "Soft Helmet",
 	"img_ptr": "ITEM_Leather_cap",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -6889,7 +6889,7 @@
 	"description": "Capable of giving supernatural powers to its wearer, this cloak is one of the most sought after prizes ever known.",
 	"weight": 52,
 	"price": 3000,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_of_Fog",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -6940,7 +6940,7 @@
 	"description": "To be worn only by the crusader.",
 	"weight": 33,
 	"price": 22000,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_Of_Light",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -6976,12 +6976,12 @@
   },
   "Quiver of Strength": {
 	"name": "Quiver of Strength",
-	"unidentified_name": "Ammunition",
+	"unidentified_name": "Quiver",
 	"is_magical": 1,
 	"description": "This magical device makes everything seem lighter.",
 	"weight": 95,
 	"price": 850,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -7249,7 +7249,7 @@
 	"description": "A fine blade.",
 	"weight": 5,
 	"price": 5,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -7274,7 +7274,7 @@
 	"description": "This weapon's master moves with great skill and stikes with superhuman accuracy.",
 	"weight": 45,
 	"price": 4500,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
@@ -7306,7 +7306,7 @@
 	"description": "The sight of the hawk will guide your shot to the target every time if this is your weapon.",
 	"weight": 50,
 	"price": 25000,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Perrins_eye",
 	"sound": "bow.wav",
 	"slots": [
@@ -7468,7 +7468,7 @@
 	"description": "The rapier is a simple, nonmagical weapon. It is light and well balanced, but difficult to use correctly. In the hands of a master it can parry any blow, and strike with incredible speed.",
 	"weight": 60,
 	"price": 300,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Rapier",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -7533,7 +7533,7 @@
 	"description": "A powerful weapon, especially against the forces of evil.",
 	"weight": 55,
 	"price": 23500,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
@@ -7563,7 +7563,7 @@
 	"description": "A rogues best friend, if that is even possible.  None but a rogue may wear this powerful piece.",
 	"weight": 42,
 	"price": 16000,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -8407,7 +8407,7 @@
 	"description": "Powerful magic has blessed this dagger to be capable of striking demons and devils a mighty blow.",
 	"weight": 9,
 	"price": 32000,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Stormbringer",
 	"sound": "lighning.wav",
 	"slots": [
@@ -8437,7 +8437,7 @@
 	"description": "Merely nocking this arrow is enough to bring fear into the hearts of many.",
 	"weight": 0,
 	"price": 950,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "ressurect death.wav",
 	"slots": [
@@ -8698,7 +8698,7 @@
 	"description": "Forged in the times of the Dragon Wars as a potent defense against dragons.",
 	"weight": 5,
 	"price": 5200,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Frozen_viper",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -8813,7 +8813,7 @@
 	"description": "The magic and skill behind the creation of this item have given it ability beyond the greatest expectation.",
 	"weight": 170,
 	"price": 1750,
-	"type": "Cross Bow",
+	"type": "Crossbow",
 	"img_ptr": "ITEM_Crossbow",
 	"sound": "bow.wav",
 	"slots": [
@@ -9085,7 +9085,7 @@
 	"description": "Used in the Saphrinie wars, these wicked shafts deal a mighty blow and slow their target.",
 	"weight": 0,
 	"price": 1500,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "arrow hit.wav",
 	"slots": [
@@ -9149,7 +9149,7 @@
 	"description": "A large and cumbersome weapon. It does great damage if used correctly.",
 	"weight": 190,
 	"price": 130,
-	"type": "Pole Arm",
+	"type": "Pole Axe",
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -9197,7 +9197,7 @@
 	"description": "Both strong and light, this weapon can be deadly in the hands of a master.",
 	"weight": 35,
 	"price": 1200,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
@@ -9252,7 +9252,7 @@
 	"description": "A specialized weapon effective only in the hands of the skilled.",
 	"weight": 55,
 	"price": 600,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
@@ -9489,7 +9489,7 @@
 	"description": "This wonderous item is better than a suit of armor.  To parry any blow will be your greatest success.",
 	"weight": 50,
 	"price": 2500,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
@@ -9654,7 +9654,7 @@
 	"description": "Never has a weapon of its kind been seen until now.  A monk's dream enacted.",
 	"weight": 40,
 	"price": 3350,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka_of_speed",
 	"sound": "club.wav",
 	"slots": [
@@ -9973,7 +9973,7 @@
 	"description": "A true treasure.  Buried with the Duke of Evenlase, this cloak was thought to be lost to all but the gods.",
 	"weight": 24,
 	"price": 32100,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_Of_Regeneration",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -10381,7 +10381,7 @@
 	"description": "This device moves with the swiftness and subtlety of a zephyr, yet strikes with the force of a hurricane.",
 	"weight": 40,
 	"price": 16500,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka_of_speed",
 	"sound": "club.wav",
 	"slots": [
@@ -10578,7 +10578,7 @@
 	"description": "Invented by a senile fire giant who was attempting to construct a interior heating system, firestorm arrows will blanket an area with flames that persist for up to five rounds.",
 	"weight": 0,
 	"price": 1000,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Firestorm",
 	"sound": "bow.wav",
 	"slots": [
@@ -10605,7 +10605,7 @@
 	"description": "Powerful protection from almost any attack.",
 	"weight": 250,
 	"price": 3000,
-	"type": "Banded Armor",
+	"type": "Splint Armor",
 	"img_ptr": "ITEM_Banded_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -10626,7 +10626,7 @@
 	"description": "Many warriors with a disdain for the bow will wear an item such as this merely for its magical benefits.",
 	"weight": 70,
 	"price": 750,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -10786,7 +10786,7 @@
 	"description": "This wondrous cloak is wearable only to mixed races.  Made by a wizard who looked kindly upon the outcasts of society.",
 	"weight": 24,
 	"price": 13500,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_Of_Outcasts",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -10808,7 +10808,7 @@
 	"description": "A superior craftsman was surely the creator of this fine suit.  ",
 	"weight": 300,
 	"price": 1300,
-	"type": "Banded Armor",
+	"type": "Splint Armor",
 	"img_ptr": "ITEM_Banded_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -10916,7 +10916,7 @@
 	"description": "Legend has it that snowstorm arrows were created by the goddess Icicle, patroness of frostbite, as a gift to a nomadic goblin tribe. Goblins still burn hundreds of icicles in an annual sacrifice of thanksgiving.",
 	"weight": 0,
 	"price": 1000,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Snowstorm",
 	"sound": "bow.wav",
 	"slots": [
@@ -11166,7 +11166,7 @@
 	"description": "A somewhat rusty, but effective metal skin.  Strong is the man who wears it with ease.",
 	"weight": 350,
 	"price": 350,
-	"type": "Banded Armor",
+	"type": "Splint Armor",
 	"img_ptr": "ITEM_Banded_Armor",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -11756,7 +11756,7 @@
 	"description": "The master of this weapon walks unseen.",
 	"weight": 35,
 	"price": 250,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
@@ -11789,7 +11789,7 @@
 	"description": "A large and cumbersome weapon. It does great damage if used correctly.",
 	"weight": 140,
 	"price": 160,
-	"type": "Pole Arm",
+	"type": "Pole Axe",
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -11976,7 +11976,7 @@
 	"description": "Though not enchanted with any magical pluses, this device will do triple normal damage if you can but hit your target.",
 	"weight": 200,
 	"price": 1000,
-	"type": "Cross Bow",
+	"type": "Crossbow",
 	"img_ptr": "ITEM_Bow_of_thumbs",
 	"sound": "bow.wav",
 	"slots": [
@@ -12142,7 +12142,7 @@
 	"description": "These magical shafts split in mid-flight, causing damage from each of the numerous smaller warheads. (6 hits)",
 	"weight": 0,
 	"price": 900,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Arrow_storm",
 	"sound": "spell launch 3.wav",
 	"slots": [
@@ -12192,7 +12192,7 @@
 	"description": "A fabled weapon thought only to exist in legend until now. The possessor of this weapon can truly be counted among the worthy.",
 	"weight": 8,
 	"price": 7500,
-	"type": "Very Small Bladed Weapon",
+	"type": "Dagger",
 	"img_ptr": "ITEM_Dagger_sting",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -12232,7 +12232,7 @@
 	"description": "A fine cover that lends a small amount of protection from both foes and the elements.",
 	"weight": 55,
 	"price": 25,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Shadow_Cloak",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -12253,7 +12253,7 @@
 	"description": "This mystical weapon was thought to have been lost when the golden elves were banished from the Realmz. That does not now seem to be the case.",
 	"weight": 60,
 	"price": 450,
-	"type": "Normal Bow",
+	"type": "Bow",
 	"img_ptr": "ITEM_Bow_of_thumbs",
 	"sound": "bow.wav",
 	"slots": [
@@ -12357,7 +12357,7 @@
 	"description": "Easily one of the most sought after relics of old. It is a strong ally to the brave.",
 	"weight": 35,
 	"price": 13000,
-	"type": "Large Helm",
+	"type": "Great Helm",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -12584,7 +12584,7 @@
 	"description": "An unending flow of life-force comes from this magical robe healing all those of non-Elven heritage.",
 	"weight": 40,
 	"price": 30000,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Dagger_of_shielding",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -12628,7 +12628,7 @@
 	"description": "A specialized weapon effective only in the hands of the skilled.",
 	"weight": 70,
 	"price": 40,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
@@ -12729,7 +12729,7 @@
 	"description": "A somewhat useful item for those that know of its use.",
 	"weight": 75,
 	"price": 2250,
-	"type": "Ammunition",
+	"type": "Quiver",
 	"img_ptr": "ITEM_Quiver_of_Tchart",
 	"sound": "cloth armor.wav",
 	"slots": [
@@ -12839,7 +12839,7 @@
 	"description": "Advanced technology for launching missles in combat.",
 	"weight": 150,
 	"price": 200,
-	"type": "Cross Bow",
+	"type": "Crossbow",
 	"img_ptr": "ITEM_Crossbow",
 	"sound": "bow.wav",
 	"slots": [
@@ -12941,7 +12941,7 @@
 	"description": "Though not enchanted with any magical pluses, this device will do triple normal damage if you can but hit your target.",
 	"weight": 180,
 	"price": 4500,
-	"type": "Cross Bow",
+	"type": "Crossbow",
 	"img_ptr": "ITEM_Crossbow_2",
 	"sound": "bow.wav",
 	"slots": [
@@ -13039,7 +13039,7 @@
 	"description": "Made of polished teak, this weapon is useable only by the skilled.",
 	"weight": 60,
 	"price": 30,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Nunchuka",
 	"sound": "club.wav",
 	"slots": [
@@ -13196,7 +13196,7 @@
 	"description": "A large and cumbersome weapon. It does great damage if used correctly.",
 	"weight": 100,
 	"price": 1200,
-	"type": "Pole Arm",
+	"type": "Pole Axe",
 	"img_ptr": "ITEM_Pike_Axe",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -13246,7 +13246,7 @@
 	"description": "The speed of the gazelle and the quickness of the viper will aid the wielder of this item.",
 	"weight": 45,
 	"price": 2600,
-	"type": "Ninja Style Weapon",
+	"type": "Eastern Weapon",
 	"img_ptr": "ITEM_Jo_stick",
 	"sound": "club.wav",
 	"slots": [
@@ -13580,7 +13580,7 @@
 	"description": "Wearable by only small races. The most powerful of magic blesses this fine garment.",
 	"weight": 30,
 	"price": 13200,
-	"type": "Cloak � Cape",
+	"type": "Cloak/Cape",
 	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
 	"sound": "cloth armor.wav",
 	"slots": [

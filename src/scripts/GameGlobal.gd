@@ -201,6 +201,7 @@ func save_hd_mode(new_hd_mode: bool) -> void:
 
 func init_globals_before_game_start(data_dict : Dictionary) :
 	# used in  load_game() and new_campain_panel  _on_StartButton_pressed
+	map.owcharacter.visible = true
 	map.owcharacter.set_tile_position(data_dict["position"])
 	fatigue = data_dict["fatigue"]
 	UI.ow_hud.update_fatigue_bar()
@@ -495,7 +496,8 @@ func end_battle( wonfledlost : String ) :
 	match wonfledlost :
 		"won" :
 			#print("GameGlobal end_battle : battle won !")
-			StateMachine.combat_state.cur_battle_data["Scripts"]["win"].win()
+			if StateMachine.combat_state.cur_battle_data["Scripts"].has("_on_battle_win") :
+				StateMachine.combat_state.cur_battle_data["Scripts"]["_on_battle_win"].win()
 			#var textRect = UI.ow_hud.textRect
 			var treasureControl = UI.ow_hud.treasureControl
 ##	var healpottemplate = NodeAccess.__Resources().items_book["Health Potion"]

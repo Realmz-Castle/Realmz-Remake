@@ -74,7 +74,7 @@ func set_item_info(item : Dictionary) :
 		if not item["traits"].is_empty() :
 			var traitsnameslist : Array = []
 			for t in item["traits"] :
-				print("t : ",t)
+				print("TextRect t : ",t)
 				var traitname = t[0]
 #				print(item["name"]+"traitname : ",traitname)
 				var traitscript = item[traitname][0]
@@ -131,7 +131,7 @@ func set_text(text : String, _interrupt : bool = true, _sound : String = "") :
 
 		#GDScriptFunctionState await object: Object = null.signal:String=
 		await disablerButton.pressed
-		print('""disablerButton, "pressed"', text)
+		print('""TextRect disablerButton, "pressed"', text)
 
 		#GameState.set_paused(false)
 		Input.set_custom_mouse_cursor(UI.cursor_sword)
@@ -170,7 +170,7 @@ func display_multiple_choices(choices : Array, scripts : Array = []) :
 	choicesContainer.show()
 	choicesContainer.display_multiple_choices(choices, scripts)
 	var choice = await choicesContainer.choice_pressed
-	print("textrect choice "+choice)
+	print("TextRect textrect choice "+choice)
 	choicesContainer.hide()
 	emit_signal("choice_pressed", choice)
 

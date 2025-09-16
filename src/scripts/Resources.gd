@@ -192,7 +192,7 @@ func load_item_resources( path : String ) -> void:
 
 	for i in n_item_img_pack :
 		# Get position inside  texture atlas #
-		var rect = Rect2(n_item_img_pack[i]["0_ref_x"] * 32, n_item_img_pack[i]["0_ref_y"] * 32, 32, 32)
+		var rect = Rect2(n_item_img_pack[i]["0_ref_x"] * 34+1, n_item_img_pack[i]["0_ref_y"] * 34+1, 32, 32)
 		# Create a new texture for this thing #
 		var image = texture_atlas.get_region(rect)
 		# Loads texture from texture atlas #

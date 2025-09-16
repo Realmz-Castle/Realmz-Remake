@@ -348,7 +348,7 @@ func _on_ButtonIdentify_pressed():
 	for c : Creature in my_creas :
 		
 		sp_cost = c.get_spell_resource_cost(id_spell, 1)
-		print('   '+c.name+ ' cost: '+ str(sp_cost), '  knows? ',  c.does_crea_know_spell_named("Identify Objects") )
+		print('InvRect   '+c.name+ ' cost: '+ str(sp_cost), '  knows? ',  c.does_crea_know_spell_named("Identify Objects") )
 		if c.does_crea_know_spell_named("Identify Objects") and c.get_stat('curSP') >= sp_cost :
 			chara_cancast_identify = c
 			break
@@ -368,7 +368,7 @@ func _on_ButtonIdentify_pressed():
 	#GameGlobal.refresh_OW_HUD()
 
 func _on_ButtonidentiPay_pressed():
-	print("_on_ButtonIdentiPay_pressed")
+	print("InvRect _on_ButtonIdentiPay_pressed")
 	if not is_instance_valid(selected_item_ctrl) : return
 	if selected_item_ctrl.item["is_identified"] > 0 : return
 	if hud.selected_character.money[0] >= 10 or GameGlobal.money_pool[0] >= 10 :
@@ -387,7 +387,7 @@ func _on_ButtonidentiPay_pressed():
 
 
 func _on_ButtonDone_pressed():
-	print("_on_ButtonDone_pressed")
+	print("InvRect _on_ButtonDone_pressed")
 	hud._on_InventoryButton_pressed()
 
 
@@ -423,7 +423,7 @@ func _on_ButtonSplit_pressed():
 		buttonSplit.hide()
 		return
 	var owner_character = selected_item_ctrl.get_parent().get_parent().get_inventory_owner()
-	print("owner of ", selected_item_ctrl.item["name"]," is ", owner_character.name)
+	print("InvRect split : owner of ", selected_item_ctrl.item["name"]," is ", owner_character.name)
 	var item_index_in_owner_inv = owner_character.inventory.find(selected_item_ctrl.item)
 	var selitem = selected_item_ctrl.item
 	var itemcopy = selitem.duplicate(true)
@@ -436,7 +436,7 @@ func _on_ButtonSplit_pressed():
 	selected_item_ctrl.item["charges"] = left
 	itemcopy["charges"] = removed
 	owner_character.inventory.insert(item_index_in_owner_inv+1,itemcopy)
-	print("vbox of selected ctrl ? ", selected_item_ctrl.get_parent())
+	print("InvRect vbox of selected ctrl ? ", selected_item_ctrl.get_parent())
 	
 	var vbox = selected_item_ctrl.get_parent()
 		

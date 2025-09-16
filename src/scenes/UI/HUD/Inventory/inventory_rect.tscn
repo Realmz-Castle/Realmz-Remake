@@ -128,6 +128,7 @@ offset_bottom = 8.5
 text = "You can't trade with yourslelf !"
 
 [node name="InvScrollContainerL" type="ScrollContainer" parent="VBoxContainer/TopHBox/LeftPage/TradeRect"]
+custom_minimum_size = Vector2(96, 64)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -141,6 +142,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_y06if")
 script = ExtResource("3_vljtu")
 
 [node name="VBoxContainerL" type="VBoxContainer" parent="VBoxContainer/TopHBox/LeftPage/TradeRect/InvScrollContainerL"]
+custom_minimum_size = Vector2(96, 64)
 layout_mode = 2
 size_flags_horizontal = 3
 
