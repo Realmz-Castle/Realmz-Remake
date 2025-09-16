@@ -1,6 +1,6 @@
 {
   "Battle_0": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -8,7 +8,7 @@
     "Scripts": {}
   },
   "Battle_1": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -24,7 +24,7 @@
     "Scripts": {}
   },
   "Battle_2": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 15,
@@ -43,7 +43,7 @@
     "Scripts": {}
   },
   "Battle_3": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -69,7 +69,7 @@
     "Scripts": {}
   },
   "Battle_4": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -86,7 +86,7 @@
     "Scripts": {}
   },
   "Battle_5": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -102,7 +102,7 @@
     "Scripts": {}
   },
   "Battle_6": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -117,7 +117,7 @@
     "Scripts": {}
   },
   "Battle_7": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -131,7 +131,7 @@
     "Scripts": {}
   },
   "Battle_8": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -144,7 +144,7 @@
     "Scripts": {}
   },
   "Battle_9": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -158,7 +158,7 @@
     "Scripts": {}
   },
   "Battle_10": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 11,
@@ -176,7 +176,7 @@
     "Scripts": {}
   },
   "Battle_11": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -190,7 +190,7 @@
     "Scripts": {}
   },
   "Battle_12": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 12,
@@ -207,7 +207,7 @@
     "Scripts": {}
   },
   "Battle_13": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -225,7 +225,7 @@
     "Scripts": {}
   },
   "Battle_14": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -237,7 +237,7 @@
     "Scripts": {}
   },
   "Battle_15": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -250,7 +250,7 @@
     "Scripts": {}
   },
   "Battle_16": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -263,7 +263,7 @@
     "Scripts": {}
   },
   "Battle_17": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -278,7 +278,7 @@
     "Scripts": {}
   },
   "Battle_18": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -296,7 +296,7 @@
     "Scripts": {}
   },
   "Battle_19": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -316,7 +316,7 @@
     "Scripts": {}
   },
   "Battle_20": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 13,
@@ -337,7 +337,7 @@
     "Scripts": {}
   },
   "Battle_21": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -390,7 +390,7 @@
     "Scripts": {}
   },
   "Battle_22": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -406,7 +406,7 @@
     "Scripts": {}
   },
   "Battle_23": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -418,7 +418,7 @@
     "Scripts": {}
   },
   "Battle_24": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -430,7 +430,7 @@
     "Scripts": {}
   },
   "Battle_25": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -443,7 +443,7 @@
     "Scripts": {}
   },
   "Battle_26": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -457,7 +457,7 @@
     "Scripts": {}
   },
   "Battle_27": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -474,7 +474,7 @@
     "Scripts": {}
   },
   "Battle_28": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -490,7 +490,7 @@
     "Scripts": {}
   },
   "Battle_29": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -504,7 +504,7 @@
     "Scripts": {}
   },
   "Battle_30": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -520,7 +520,7 @@
     "Scripts": {}
   },
   "Battle_31": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -537,7 +537,7 @@
     "Scripts": {}
   },
   "Battle_32": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -550,7 +550,7 @@
     "Scripts": {}
   },
   "Battle_33": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -566,7 +566,7 @@
     "Scripts": {}
   },
   "Battle_34": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -577,7 +577,7 @@
     "Scripts": {}
   },
   "Battle_35": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -595,7 +595,7 @@
     "Scripts": {}
   },
   "Battle_36": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -609,7 +609,7 @@
     "Scripts": {}
   },
   "Battle_37": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 15,
@@ -648,7 +648,7 @@
     }
   },
   "Battle_38": {
-    "Map": "",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -669,7 +669,7 @@
     "Scripts": {}
   },
   "Battle_39": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -682,7 +682,7 @@
     "Scripts": {}
   },
   "Battle_40": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -695,7 +695,7 @@
     "Scripts": {}
   },
   "Battle_41": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -706,7 +706,7 @@
     "Scripts": {}
   },
   "Battle_42": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -717,7 +717,7 @@
     "Scripts": {}
   },
   "Battle_43": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -751,7 +751,7 @@
     "Scripts": {}
   },
   "Battle_44": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -781,7 +781,7 @@
     "Scripts": {}
   },
   "Battle_45": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -816,7 +816,7 @@
     }
   },
   "Battle_46": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -848,7 +848,7 @@
     }
   },
   "Battle_47": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -890,7 +890,7 @@
     }
   },
   "Battle_48": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -902,7 +902,7 @@
     "Scripts": {}
   },
   "Battle_49": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -915,7 +915,7 @@
     "Scripts": {}
   },
   "Battle_50": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -930,7 +930,7 @@
     "Scripts": {}
   },
   "Battle_51": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -938,7 +938,7 @@
     "Scripts": {}
   },
   "Battle_52": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -953,7 +953,7 @@
     "Scripts": {}
   },
   "Battle_53": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 11,
@@ -1010,7 +1010,7 @@
     }
   },
   "Battle_54": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 11,
@@ -1057,7 +1057,7 @@
     }
   },
   "Battle_55": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1065,7 +1065,7 @@
     "Scripts": {}
   },
   "Battle_56": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1079,7 +1079,7 @@
     }
   },
   "Battle_57": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1092,7 +1092,7 @@
     "Scripts": {}
   },
   "Battle_58": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1107,7 +1107,7 @@
     "Scripts": {}
   },
   "Battle_59": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1122,7 +1122,7 @@
     "Scripts": {}
   },
   "Battle_60": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1140,7 +1140,7 @@
     "Scripts": {}
   },
   "Battle_61": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1160,7 +1160,7 @@
     "Scripts": {}
   },
   "Battle_62": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1168,7 +1168,7 @@
     "Scripts": {}
   },
   "Battle_63": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1176,7 +1176,7 @@
     "Scripts": {}
   },
   "Battle_64": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1184,7 +1184,7 @@
     "Scripts": {}
   },
   "Battle_65": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1199,7 +1199,7 @@
     "Scripts": {}
   },
   "Battle_66": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1207,7 +1207,7 @@
     "Scripts": {}
   },
   "Battle_67": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1221,7 +1221,7 @@
     "Scripts": {}
   },
   "Battle_68": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -1233,7 +1233,7 @@
     "Scripts": {}
   },
   "Battle_69": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -1244,7 +1244,7 @@
     "Scripts": {}
   },
   "Battle_70": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1256,7 +1256,7 @@
     "Scripts": {}
   },
   "Battle_71": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1268,7 +1268,7 @@
     "Scripts": {}
   },
   "Battle_72": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1279,7 +1279,7 @@
     "Scripts": {}
   },
   "Battle_73": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1292,7 +1292,7 @@
     "Scripts": {}
   },
   "Battle_74": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1306,7 +1306,7 @@
     "Scripts": {}
   },
   "Battle_75": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1321,7 +1321,7 @@
     "Scripts": {}
   },
   "Battle_76": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -1329,7 +1329,7 @@
     "Scripts": {}
   },
   "Battle_77": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1340,7 +1340,7 @@
     "Scripts": {}
   },
   "Battle_78": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 2,
@@ -1348,7 +1348,7 @@
     "Scripts": {}
   },
   "Battle_79": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 4,
@@ -1356,7 +1356,7 @@
     "Scripts": {}
   },
   "Battle_80": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1368,7 +1368,7 @@
     "Scripts": {}
   },
   "Battle_81": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 15,
@@ -1381,7 +1381,7 @@
     "Scripts": {}
   },
   "Battle_82": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -1393,7 +1393,7 @@
     "Scripts": {}
   },
   "Battle_83": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -1405,7 +1405,7 @@
     "Scripts": {}
   },
   "Battle_84": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1417,7 +1417,7 @@
     "Scripts": {}
   },
   "Battle_85": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1431,7 +1431,7 @@
     "Scripts": {}
   },
   "Battle_86": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 4,
@@ -1446,7 +1446,7 @@
     "Scripts": {}
   },
   "Battle_87": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1459,7 +1459,7 @@
     "Scripts": {}
   },
   "Battle_88": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -1475,7 +1475,7 @@
     "Scripts": {}
   },
   "Battle_89": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 4,
@@ -1487,7 +1487,7 @@
     "Scripts": {}
   },
   "Battle_90": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1501,7 +1501,7 @@
     "Scripts": {}
   },
   "Battle_91": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -1516,7 +1516,7 @@
     "Scripts": {}
   },
   "Battle_92": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1543,7 +1543,7 @@
     "Scripts": {}
   },
   "Battle_93": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1555,7 +1555,7 @@
     "Scripts": {}
   },
   "Battle_94": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1570,7 +1570,7 @@
     "Scripts": {}
   },
   "Battle_95": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1584,7 +1584,7 @@
     "Scripts": {}
   },
   "Battle_96": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1595,7 +1595,7 @@
     "Scripts": {}
   },
   "Battle_97": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1608,7 +1608,7 @@
     "Scripts": {}
   },
   "Battle_98": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1620,7 +1620,7 @@
     "Scripts": {}
   },
   "Battle_99": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1631,7 +1631,7 @@
     "Scripts": {}
   },
   "Battle_100": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1648,7 +1648,7 @@
     "Scripts": {}
   },
   "Battle_101": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1666,7 +1666,7 @@
     "Scripts": {}
   },
   "Battle_102": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -1688,7 +1688,7 @@
     "Scripts": {}
   },
   "Battle_103": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -1718,7 +1718,7 @@
     "Scripts": {}
   },
   "Battle_104": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1741,7 +1741,7 @@
     "Scripts": {}
   },
   "Battle_105": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1749,7 +1749,7 @@
     "Scripts": {}
   },
   "Battle_106": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1757,7 +1757,7 @@
     "Scripts": {}
   },
   "Battle_107": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1765,7 +1765,7 @@
     "Scripts": {}
   },
   "Battle_108": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1787,7 +1787,7 @@
     "Scripts": {}
   },
   "Battle_109": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1809,7 +1809,7 @@
     "Scripts": {}
   },
   "Battle_110": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1829,7 +1829,7 @@
     "Scripts": {}
   },
   "Battle_111": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -1840,7 +1840,7 @@
     "Scripts": {}
   },
   "Battle_112": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -1853,7 +1853,7 @@
     "Scripts": {}
   },
   "Battle_113": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1872,7 +1872,7 @@
     "Scripts": {}
   },
   "Battle_114": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1893,7 +1893,7 @@
     "Scripts": {}
   },
   "Battle_115": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1905,7 +1905,7 @@
     "Scripts": {}
   },
   "Battle_116": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1916,7 +1916,7 @@
     "Scripts": {}
   },
   "Battle_117": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1927,7 +1927,7 @@
     "Scripts": {}
   },
   "Battle_118": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1935,7 +1935,7 @@
     "Scripts": {}
   },
   "Battle_119": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1943,7 +1943,7 @@
     "Scripts": {}
   },
   "Battle_120": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1954,7 +1954,7 @@
     "Scripts": {}
   },
   "Battle_121": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1966,7 +1966,7 @@
     "Scripts": {}
   },
   "Battle_122": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1974,7 +1974,7 @@
     "Scripts": {}
   },
   "Battle_123": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -1987,7 +1987,7 @@
     "Scripts": {}
   },
   "Battle_124": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2001,7 +2001,7 @@
     "Scripts": {}
   },
   "Battle_125": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2016,7 +2016,7 @@
     "Scripts": {}
   },
   "Battle_126": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2032,7 +2032,7 @@
     "Scripts": {}
   },
   "Battle_127": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2044,7 +2044,7 @@
     "Scripts": {}
   },
   "Battle_128": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2057,7 +2057,7 @@
     "Scripts": {}
   },
   "Battle_129": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2068,7 +2068,7 @@
     "Scripts": {}
   },
   "Battle_130": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2080,7 +2080,7 @@
     "Scripts": {}
   },
   "Battle_131": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2094,7 +2094,7 @@
     "Scripts": {}
   },
   "Battle_132": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2107,7 +2107,7 @@
     "Scripts": {}
   },
   "Battle_133": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2125,7 +2125,7 @@
     "Scripts": {}
   },
   "Battle_134": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2144,7 +2144,7 @@
     "Scripts": {}
   },
   "Battle_135": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2157,7 +2157,7 @@
     "Scripts": {}
   },
   "Battle_136": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2172,7 +2172,7 @@
     "Scripts": {}
   },
   "Battle_137": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2189,7 +2189,7 @@
     "Scripts": {}
   },
   "Battle_138": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2208,7 +2208,7 @@
     "Scripts": {}
   },
   "Battle_139": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 9,
@@ -2226,7 +2226,7 @@
     "Scripts": {}
   },
   "Battle_140": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -2243,7 +2243,7 @@
     "Scripts": {}
   },
   "Battle_141": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -2259,7 +2259,7 @@
     "Scripts": {}
   },
   "Battle_142": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -2273,7 +2273,7 @@
     "Scripts": {}
   },
   "Battle_143": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2293,7 +2293,7 @@
     "Scripts": {}
   },
   "Battle_144": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2306,7 +2306,7 @@
     "Scripts": {}
   },
   "Battle_145": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2320,7 +2320,7 @@
     "Scripts": {}
   },
   "Battle_146": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2335,7 +2335,7 @@
     "Scripts": {}
   },
   "Battle_147": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2388,7 +2388,7 @@
     "Scripts": {}
   },
   "Battle_148": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -2396,7 +2396,7 @@
     "Scripts": {}
   },
   "Battle_149": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2407,7 +2407,7 @@
     "Scripts": {}
   },
   "Battle_150": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2420,7 +2420,7 @@
     "Scripts": {}
   },
   "Battle_151": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2435,7 +2435,7 @@
     "Scripts": {}
   },
   "Battle_152": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2447,7 +2447,7 @@
     "Scripts": {}
   },
   "Battle_153": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2460,7 +2460,7 @@
     "Scripts": {}
   },
   "Battle_154": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2474,7 +2474,7 @@
     "Scripts": {}
   },
   "Battle_155": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2489,7 +2489,7 @@
     "Scripts": {}
   },
   "Battle_156": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2505,7 +2505,7 @@
     "Scripts": {}
   },
   "Battle_157": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -2518,7 +2518,7 @@
     "Scripts": {}
   },
   "Battle_158": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -2533,7 +2533,7 @@
     "Scripts": {}
   },
   "Battle_159": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -2546,7 +2546,7 @@
     "Scripts": {}
   },
   "Battle_160": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -2560,7 +2560,7 @@
     "Scripts": {}
   },
   "Battle_161": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -2575,7 +2575,7 @@
     "Scripts": {}
   },
   "Battle_162": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -2591,7 +2591,7 @@
     "Scripts": {}
   },
   "Battle_163": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2603,7 +2603,7 @@
     "Scripts": {}
   },
   "Battle_164": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 3,
@@ -2617,7 +2617,7 @@
     "Scripts": {}
   },
   "Battle_165": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -2635,7 +2635,7 @@
     "Scripts": {}
   },
   "Battle_166": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -2651,7 +2651,7 @@
     "Scripts": {}
   },
   "Battle_167": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 6,
@@ -2670,7 +2670,7 @@
     "Scripts": {}
   },
   "Battle_168": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2684,7 +2684,7 @@
     "Scripts": {}
   },
   "Battle_169": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2695,7 +2695,7 @@
     "Scripts": {}
   },
   "Battle_170": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2710,7 +2710,7 @@
     "Scripts": {}
   },
   "Battle_171": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2722,7 +2722,7 @@
     "Scripts": {}
   },
   "Battle_172": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2736,7 +2736,7 @@
     "Scripts": {}
   },
   "Battle_173": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2751,7 +2751,7 @@
     "Scripts": {}
   },
   "Battle_174": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2767,7 +2767,7 @@
     }
   },
   "Battle_175": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2783,7 +2783,7 @@
     "Scripts": {}
   },
   "Battle_176": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2791,7 +2791,7 @@
     "Scripts": {}
   },
   "Battle_177": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2799,7 +2799,7 @@
     "Scripts": {}
   },
   "Battle_178": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2820,7 +2820,7 @@
     "Scripts": {}
   },
   "Battle_179": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -2831,7 +2831,7 @@
     "Scripts": {}
   },
   "Battle_180": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -2843,7 +2843,7 @@
     "Scripts": {}
   },
   "Battle_181": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -2856,7 +2856,7 @@
     "Scripts": {}
   },
   "Battle_182": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2874,7 +2874,7 @@
     "Scripts": {}
   },
   "Battle_183": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2902,7 +2902,7 @@
     "Scripts": {}
   },
   "Battle_184": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2922,7 +2922,7 @@
     "Scripts": {}
   },
   "Battle_185": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2939,7 +2939,7 @@
     "Scripts": {}
   },
   "Battle_186": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 10,
@@ -2960,7 +2960,7 @@
     "Scripts": {}
   },
   "Battle_187": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -2982,7 +2982,7 @@
     "Scripts": {}
   },
   "Battle_188": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 14,
@@ -3004,7 +3004,7 @@
     "Scripts": {}
   },
   "Battle_189": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3019,7 +3019,7 @@
     "Scripts": {}
   },
   "Battle_190": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 5,
@@ -3035,7 +3035,7 @@
     "Scripts": {}
   },
   "Battle_191": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3065,7 +3065,7 @@
     "Scripts": {}
   },
   "Battle_192": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3077,7 +3077,7 @@
     "Scripts": {}
   },
   "Battle_193": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3088,7 +3088,7 @@
     "Scripts": {}
   },
   "Battle_194": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3096,7 +3096,7 @@
     "Scripts": {}
   },
   "Battle_195": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3111,7 +3111,7 @@
     "Scripts": {}
   },
   "Battle_196": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3124,7 +3124,7 @@
     "Scripts": {}
   },
   "Battle_197": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3139,7 +3139,7 @@
     "Scripts": {}
   },
   "Battle_198": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3156,7 +3156,7 @@
     "Scripts": {}
   },
   "Battle_199": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3169,7 +3169,7 @@
     "Scripts": {}
   },
   "Battle_200": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3184,7 +3184,7 @@
     "Scripts": {}
   },
   "Battle_201": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 7,
@@ -3199,7 +3199,7 @@
     "Scripts": {}
   },
   "Battle_202": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 8,
@@ -3221,7 +3221,7 @@
     "Scripts": {}
   },
   "Battle_203": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3246,7 +3246,7 @@
     "Scripts": {}
   },
   "Battle_204": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3268,7 +3268,7 @@
     "Scripts": {}
   },
   "Battle_205": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3276,7 +3276,7 @@
     "Scripts": {}
   },
   "Battle_206": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3288,7 +3288,7 @@
     "Scripts": {}
   },
   "Battle_207": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 12,
@@ -3324,7 +3324,7 @@
     "Scripts": {}
   },
   "Battle_208": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3355,7 +3355,7 @@
     }
   },
   "Battle_209": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3370,7 +3370,7 @@
     "Scripts": {}
   },
   "Battle_210": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3386,7 +3386,7 @@
     "Scripts": {}
   },
   "Battle_211": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3406,7 +3406,7 @@
     "Scripts": {}
   },
   "Battle_212": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3436,7 +3436,7 @@
     }
   },
   "Battle_213": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3472,7 +3472,7 @@
     "Scripts": {}
   },
   "Battle_214": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3480,7 +3480,7 @@
     "Scripts": {}
   },
   "Battle_215": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3493,7 +3493,7 @@
     "Scripts": {}
   },
   "Battle_216": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 15,
@@ -3513,7 +3513,7 @@
     "Scripts": {}
   },
   "Battle_217": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3540,7 +3540,7 @@
     "Scripts": {}
   },
   "Battle_218": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3554,7 +3554,7 @@
     "Scripts": {}
   },
   "Battle_219": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3569,7 +3569,7 @@
     "Scripts": {}
   },
   "Battle_220": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3585,7 +3585,7 @@
     "Scripts": {}
   },
   "Battle_221": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3598,7 +3598,7 @@
     "Scripts": {}
   },
   "Battle_222": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3609,7 +3609,7 @@
     "Scripts": {}
   },
   "Battle_223": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3628,7 +3628,7 @@
     "Scripts": {}
   },
   "Battle_224": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3640,7 +3640,7 @@
     "Scripts": {}
   },
   "Battle_225": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3654,7 +3654,7 @@
     "Scripts": {}
   },
   "Battle_226": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3666,7 +3666,7 @@
     "Scripts": {}
   },
   "Battle_227": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3681,7 +3681,7 @@
     "Scripts": {}
   },
   "Battle_228": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3701,7 +3701,7 @@
     "Scripts": {}
   },
   "Battle_229": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3718,7 +3718,7 @@
     "Scripts": {}
   },
   "Battle_230": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3738,7 +3738,7 @@
     "Scripts": {}
   },
   "Battle_231": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3757,7 +3757,7 @@
     "Scripts": {}
   },
   "Battle_232": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3774,7 +3774,7 @@
     "Scripts": {}
   },
   "Battle_233": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3792,7 +3792,7 @@
     "Scripts": {}
   },
   "Battle_234": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3800,7 +3800,7 @@
     "Scripts": {}
   },
   "Battle_235": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3812,7 +3812,7 @@
     "Scripts": {}
   },
   "Battle_236": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3837,7 +3837,7 @@
     "Scripts": {}
   },
   "Battle_237": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3860,7 +3860,7 @@
     "Scripts": {}
   },
   "Battle_238": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3870,7 +3870,7 @@
     }
   },
   "Battle_239": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3887,7 +3887,7 @@
     "Scripts": {}
   },
   "Battle_240": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3904,7 +3904,7 @@
     "Scripts": {}
   },
   "Battle_241": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3918,7 +3918,7 @@
     "Scripts": {}
   },
   "Battle_242": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3935,7 +3935,7 @@
     "Scripts": {}
   },
   "Battle_243": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3951,7 +3951,7 @@
     "Scripts": {}
   },
   "Battle_244": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3967,7 +3967,7 @@
     "Scripts": {}
   },
   "Battle_245": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -3986,7 +3986,7 @@
     "Scripts": {}
   },
   "Battle_246": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -4016,7 +4016,7 @@
     "Scripts": {}
   },
   "Battle_247": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -4037,7 +4037,7 @@
     "Scripts": {}
   },
   "Battle_248": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -4045,7 +4045,7 @@
     "Scripts": {}
   },
   "Battle_249": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -4075,7 +4075,7 @@
     }
   },
   "Battle_250": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -4104,7 +4104,7 @@
     "Scripts": {}
   },
   "Battle_251": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 0,
@@ -4132,7 +4132,7 @@
     }
   },
   "Battle_252": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 11,
@@ -4157,7 +4157,7 @@
     "Scripts": {}
   },
   "Battle_253": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 11,
@@ -4165,7 +4165,7 @@
     "Scripts": {}
   },
   "Battle_254": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 11,
@@ -4173,7 +4173,7 @@
     "Scripts": {}
   },
   "Battle_255": {
-    "Map": "citymap_name",
+    "Map": "temporary_zoomed_map",
     "Position": [-6, -6],
     "is_relative_coords": 1,
     "bonus_distance": 11,
