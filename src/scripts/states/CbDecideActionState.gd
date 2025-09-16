@@ -138,7 +138,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.all_battle_creatures_btns.clear()
 
 	var battle_position_offset : Vector2 = Vector2.ZERO
-	var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1]) 
+	var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1])
 	if  bool(_msg["is_relative_coords"]) :
 		var map_focus_char = map.focuscharacter
 		battle_position_offset = Vector2(map_focus_char.tile_position_x,map_focus_char.tile_position_y)
@@ -168,8 +168,6 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		#print("all_battle_creatures_btns size : ", combat_state.all_battle_creatures_btns.size())
 		print("Gameglobal start_battle  : added a "+ creaArray[0] +" at ", creascript.position)
 	#spawn combatcharacters for the player s party  around battle_pos
-	
-	var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1])
 
 	var pc_joining = _msg["pc_participating"]
 	if pc_joining.is_empty() :
@@ -179,7 +177,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 
 	#combat_state.pcs_in_battle = pc_joining
 
-	
+
 	for pc in pc_joining :
 		combat_state.add_pc_or_npc_ally_to_battle_map(pc, init_pos+battle_position_offset)
 	if _msg["npcs_allowed"] :

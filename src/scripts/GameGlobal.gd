@@ -247,15 +247,10 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 			for t_enc_name : String in stuff_done["Timed_Encounters"] :
 
 				var t_enc_dict = stuff_done["Timed_Encounters"][t_enc_name]
-<<<<<<< HEAD
-				#if t_enc_name == "Time_Enc_1" :
-					#print("GameGlobal check time event ", time,' , ', t_enc_dict["before"], ',',t_enc_dict["after"])
-				
-=======
+
 				if t_enc_name == "Time_Enc_1" :
 					print(time,' , ', t_enc_dict["before"], ',',t_enc_dict["after"])
 
->>>>>>> 34b9d4c (Basic working expansion)
 				#t_encs["Time_Enc_1"] = { "called_func" = "Time_Enc_1", "after" : 3*86400 , "before" : -1, "chance_prct" : 100,"increment" : 0, "req_map" : "", "req_rect" : [] , "req_quest" : "quest_0"}
 				if not (t_enc_dict["req_map"].is_empty() or t_enc_dict["req_map"]==currentmap_name) :
 					continue
@@ -495,11 +490,11 @@ func end_battle( wonfledlost : String ) :
 	#for cb in GameState.map.creatures_node.get_children() :
 		#cb.queue_free()   #done in MAp.load map now
 	#print("GameGlobal end_battle pos_when_battle_started : ", pos_when_battle_started)
-	
+
 	if not (wonfledlost == 'lost' and (not StateMachine.combat_state.cur_battle_data["allow_loss"])) :
 		#if not game over...
 		change_map(last_exploration_map_name,pos_when_battle_started.x,pos_when_battle_started.y)
-	
+
 	UI.ow_hud.exit_battle_mode()
 
 	match wonfledlost :
@@ -525,11 +520,11 @@ func end_battle( wonfledlost : String ) :
 
 			#this won't show the allies  screen
 			#await UI.ow_hud.show_loot_menu(treasureitems,money_drop,experience)
-			
+
 			StateMachine.combat_state.all_battle_creatures_btns.clear()
 			StateMachine.combat_state.battle_dead_enemies.clear()
 			StateMachine.combat_state.battle_dead_party_members.clear()
-			
+
 
 
 			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : treasureitems, "money" : money_drop, "exp" : experience, "prev_state" : "Exploration"})
