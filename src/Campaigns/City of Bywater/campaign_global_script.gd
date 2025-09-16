@@ -13,7 +13,7 @@ func get_string_to_save() -> String :
 	return  JSON.stringify(dict_to_save)
 
 
-static func Time_Enc_0() : #xap_id=XAP83
+static func Time_Enc_0() : #xap_id=XAP83 
 	await ScriptHelperFuncsClass.play_sound_divinity(10136)
 	var text : String = "Frenzied shouting suddenly breaks out.  A patrol of men rapidly approach your position.  \"They're the ones!  They left Corporal Sampson to die like a wretched beast!  Seize them!\""
 	await ScriptHelperFuncsClass.display_text_wait_noise(text, 'message nod.wav')
