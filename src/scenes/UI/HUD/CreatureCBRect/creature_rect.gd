@@ -60,7 +60,7 @@ func display_crea_info(creabutton : CombatCreaButton) :
 	creaMPnLabel.text = str( my_crea.get_stat("curSP") ) + '/' + str( my_crea.get_stat("maxSP") )
 	creaArmornLabel.text = str( my_crea.get_stat("ResistancePhysical") )
 	creaAPRnLabel.text = str( my_crea.get_stat("MaxActions") - my_crea.used_apr ) + '/' + str( my_crea.get_stat("MaxActions") )
-	creaMovenLabel.text = str( my_crea.get_stat("MaxMovement") - my_crea.used_movepoints ) + '/' + str( my_crea.get_stat("MaxMovement") )
+	creaMovenLabel.text = str( my_crea.get_movement_left() ) + '/' + str( my_crea.get_max_movement_weighted_down() )
 	statuses.clear()
 	for t in my_crea.traits :
 		

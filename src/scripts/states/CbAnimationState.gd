@@ -72,8 +72,8 @@ func enter(_msg : Dictionary = {}) -> void:
 					continue
 				var canmoveandtime : Array = cur_action["canmoveandtime"]
 				if canmoveandtime[0] :
+					printerr("CBAnimationState : Move :"+movercb.creature.name+"tries to move. MP"+str(movercb.creature.get_movement_left())+", MP needed"+str(canmoveandtime[1]) )
 					if  movercb.creature.get_movement_left() >=canmoveandtime[1] :
-						
 						if cur_action.has("check_before_scripts") :
 							if cur_action["check_before_scripts"] :
 								var extra_act_before_move : Array = movercb.creature._on_before_move(dir)
@@ -87,7 +87,7 @@ func enter(_msg : Dictionary = {}) -> void:
 						print("CbAnim onmove extra_actions : ", extra_actions)
 						var xdiff : float = abs(GameGlobal.map.focuscharacter.tile_position_x-movercb.creature.position.x)
 						var ydiff : float = abs(GameGlobal.map.focuscharacter.tile_position_y-movercb.creature.position.y)
-						if xdiff>3 or ydiff>4 :
+						if combat_state.is_cam_too_far(xdiff,ydiff) :
 							GameGlobal.map.focuscharacter.set_tile_position(movercb.creature.position)
 						UI.ow_hud.updateCharPanelDisplay()
 						UI.ow_hud.creatureRect.display_crea_info(movercb)

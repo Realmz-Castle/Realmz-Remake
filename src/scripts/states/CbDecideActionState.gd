@@ -399,7 +399,7 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 
 
 func end_active_creature_turn(set_apr_zero : bool)->void :
-	
+	pass
 	if set_apr_zero :
 		current_active_creabutton.creature.used_movepoints = current_active_creabutton.creature.get_stat("MaxMovement")
 		current_active_creabutton.creature.used_apr = current_active_creabutton.creature.get_stat("MaxActions")

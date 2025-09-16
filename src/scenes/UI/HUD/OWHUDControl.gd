@@ -19,6 +19,7 @@ var selected_character = null
 
 @onready var textRect = $VBoxScreen/HBoxBot/TextRect
 
+@onready var mapAreaControl : Control = $VBoxScreen/HBoxTop/MapArea
 @onready var inventoryRect = $VBoxScreen/HBoxTop/MapArea/InventoryRect#$InventoryRect
 @onready var bestiaryRect = $VBoxScreen/HBoxTop/MapArea/BestiaryRect
 @onready var minimapRect = $VBoxScreen/HBoxTop/MapArea/MinimapsRect
@@ -337,7 +338,7 @@ func _ready():
 func _on_InventoryButton_pressed():
 	print("OW HUD _on_InventoryButton_pressed, state "+StateMachine._state_name)
 	if moneyControl.visible or encounterControl.visible or bestiaryRect.visible or minimapRect.visible or (textRect.choicesContainer.visible or textRect.choicesContainer.get_child_count()>0) or abilitesmngtMenu.visible or spellcastMenu.visible or charSwapRect.visible or saveloadCtrl.visible or settingsControl.visible or treasureControl.visible :
-		print("OW HUD _on_InventoryButton_pressed  unwanted panel  shown : ",   'money',moneyControl.visible , ', enc',encounterControl.visible , ', bestiary:',bestiaryRect.visible , ', minimap',minimapRect.visible , ', choices:',(textRect.choicesContainer.visible or textRect.choicesContainer.get_child_count()>0) , ', abltmngt:',abilitesmngtMenu.visible , ', spells:',spellcastMenu.visible , ', charswap:',charSwapRect.visible , ', saveload:',saveloadCtrl.visible , ', settings:',settingsControl.visible , ', treasure:',treasureControl.visible)
+		print("OW HUD _on_InventoryButton_pressed  unwanted panel  shown : ",   'money',moneyControl.visible , ', enc',encounterControl.visible , ', bestiary:',bestiaryRect.visible , ', minimap',minimapRect.visible , ', choices:',textRect.choicesContainer.visible , ', abltmngt:',abilitesmngtMenu.visible , ', spells:',spellcastMenu.visible , ', charswap:',charSwapRect.visible , ', saveload:',saveloadCtrl.visible , ', settings:',settingsControl.visible , ', treasure:',treasureControl.visible)
 		return
 	if StateMachine._state_name=="Exploration" :
 		print("OW HUD _on_InventoryButton_pressed  Exploration  ok")

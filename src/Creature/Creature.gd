@@ -394,12 +394,12 @@ func get_inventory_weight() -> int :
 	carriedweight += ( money[0] +money[1] +money[2] )
 	return carriedweight
 
-func get_movement() ->int :
+func get_max_movement_weighted_down() ->int :
 #	print("name ", name, ", base_stats[maxmove] :  ",base_stats["MaxMovement"], ', invweight : ' , get_inventory_weight(), ', max : ', get_stat("Weight_Limit") )
 	return int(ceil(base_stats["MaxMovement"] * ( 1.0 - float(get_inventory_weight() / float(get_stat("Weight_Limit")) ) ) ) )
 
 func get_movement_left() ->int :
-	return get_movement() - used_movepoints
+	return get_max_movement_weighted_down() - used_movepoints
 
 func get_apr_left() :
 	var max_actions_stat : float = get_stat("MaxActions")

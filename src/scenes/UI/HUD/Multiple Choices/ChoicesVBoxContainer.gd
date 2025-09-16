@@ -97,7 +97,12 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 
 
 func _on_choice_button_pressed(script) :
-		emit_signal( "choice_pressed", script)
+	
+	for c in get_children() :
+		remove_child(c)
+		c.queue_free()
+	
+	emit_signal( "choice_pressed", script)
 
 func on_viewport_size_changed(screensize) :
 	_set_global_position(Vector2((screensize.x-320-380)/2+10,(screensize.y-200-height)/2))

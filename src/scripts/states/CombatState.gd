@@ -221,3 +221,11 @@ func check_battle_end() -> String :	 # '':continue 'won'  'fled' lost
 		if cb.creature.curFaction != 0 :
 			return ''
 	return "won"
+
+
+
+func is_cam_too_far(xdelta : int, ydelta : int) ->bool :
+	var map_panel_size : Vector2 = UI.ow_hud.mapAreaControl.size / 64
+	var max_x = map_panel_size.x -3
+	var max_y = map_panel_size.y -3
+	return xdelta>max_x or ydelta>max_y

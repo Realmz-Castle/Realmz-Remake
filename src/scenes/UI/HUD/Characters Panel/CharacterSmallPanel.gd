@@ -121,7 +121,7 @@ func update_display() ->void :
 	
 	bandead_sprite.frame = character.life_status
 	
-	mvnLabel.text = str(character.get_movement() - character.used_movepoints)
+	mvnLabel.text = str(character.get_movement_left())
 	aprnLabel.text = str(character.get_stat("MaxActions") - character.used_apr)
 
 

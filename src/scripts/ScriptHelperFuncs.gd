@@ -186,7 +186,9 @@ static func set_walk_back_once(should : bool) :
 
 static func do_RR_battle(rr_dict : Dictionary) :
 	var answer = "YES"
-	if rr_dict["option_chance"]<=randi()%100 :
+	var randi : int = randi()%100
+	#printerr("ScriptHelperFuncs do_RR_battle chance : " ,rr_dict["option_chance"],'>=',randi,' : start fight ? ', rr_dict["option_chance"]<=randi )
+	if rr_dict["option_chance"]>=randi :
 		play_sound("generation error.wav", false)
 		var textRect : TextRect = UI.ow_hud.textRect
 		textRect.display_multiple_choices([rr_dict['text'],"YESNO"],["TEXT","YESNO"])
