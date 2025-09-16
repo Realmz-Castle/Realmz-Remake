@@ -411,8 +411,8 @@ func _on_MapMouseControlButton_mouse_exited():
 
 func _process(_delta):
 	pass
-	var newtext : String = "GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(StateMachine.combat_state.cbanimstate.timer)+'\n'
-	debuglabel.text = newtext + '\n teamsize : '+str(GameGlobal.player_characters.size())
+	var newtext : String = "Map Debug Label : GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(StateMachine.combat_state.cbanimstate.timer)+'\n'
+	debuglabel.text = newtext + '\n teamsize : '+str(GameGlobal.player_characters.size())+ "\n TectRectChoiceContainer visible ?"+str(UI.ow_hud.textRect.choicesContainer.visible)
 
 
 func set_secret_seen(pos : Vector2i) :

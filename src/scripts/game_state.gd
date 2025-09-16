@@ -271,6 +271,10 @@ func check_map_script(position) ->bool :
 				if sr.has("RR_Battle") :
 					printerr("StateMachine sr has RR_Battle")
 					var battle_result = await ScriptHelperFuncs.do_RR_battle(sr["RR_Battle"])
+					if state==ex_menu_state :
+						print("StateMachine escape out of MenuState")
+						exit_ex_menu_state()
+						exit_cb_menu_state()
 					return false
 				
 				if sr["scriptToLoad"] is Array :

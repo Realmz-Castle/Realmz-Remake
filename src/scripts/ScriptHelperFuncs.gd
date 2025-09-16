@@ -188,9 +188,10 @@ static func do_RR_battle(rr_dict : Dictionary) :
 	var answer = "YES"
 	if rr_dict["option_chance"]<=randi()%100 :
 		play_sound("generation error.wav", false)
-		var textRect = UI.ow_hud.textRect
+		var textRect : TextRect = UI.ow_hud.textRect
 		textRect.display_multiple_choices([rr_dict['text'],"YESNO"],["TEXT","YESNO"])
 		answer = await textRect.choice_pressed
+		textRect.choicesContainer.hide()
 	if answer == "YES" :
 		start_battle_in_range(rr_dict["battle_range"][0], rr_dict["battle_range"][1], 10049, '', 0)
 		await GameGlobal.battle_end
