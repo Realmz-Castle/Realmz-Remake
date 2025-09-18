@@ -491,6 +491,7 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 				break
 
 func generate_zoomed_map(mapname : String) -> void:
+	printerr("Map.generate_zoomed_map ", mapname)
 	var resources = NodeAccess.__Resources()
 	if not resources.maps_book.has(mapname):
 		print("Map not found: ", mapname)
@@ -501,7 +502,6 @@ func generate_zoomed_map(mapname : String) -> void:
 	var original_tilemap = original_map[0]
 	var orig_cols = original_tilemap.size()
 	var orig_rows = original_tilemap[0].size()
-
 	# Prepare expanded map
 	var expanded_cols = orig_cols * 3
 	var expanded_rows = orig_rows * 3
@@ -510,7 +510,6 @@ func generate_zoomed_map(mapname : String) -> void:
 		expanded_tilemap.append([])
 		for j in range(expanded_rows):
 			expanded_tilemap[i].append([]) # will be array of one tile dict
-
 	# Expand each tile using only the ground layer, keep cell as array of one dict
 	for col in range(orig_cols):
 		for row in range(orig_rows):
@@ -529,9 +528,8 @@ func generate_zoomed_map(mapname : String) -> void:
 				push_warning("Expansion data missing for tile: %s" % [str(ground_tile)])
 				for k in range(9):
 					expansion.append(ground_tile["id"])
-
 			# LOGGING for debugging
-			print("Expanding cell [", col, ",", row, "] with expansion: ", expansion, " from tileset: ", ground_tile["tileset_name"])
+			#print("Expanding cell [", col, ",", row, "] with expansion: ", expansion, " from tileset: ", ground_tile["tileset_name"])
 
 			for i in range(3):
 				for j in range(3):
@@ -558,7 +556,9 @@ func generate_zoomed_map(mapname : String) -> void:
 	zoomed_map[2] = null # Clear map scripts
 	zoomed_map[4] = "Battle" # Set mapmusictype to "Battle"
 	resources.maps_book["temporary_zoomed_map"] = zoomed_map
-	print("Generated temporary zoomed map from: ", mapname, " with music type set to Battle and expanded tiles")
+	print("MAP Generated temporary zoomed map from: ", mapname, " with music type set to Battle and expanded tiles")
+	load_map(GameGlobal.currentcampaign,"temporary_zoomed_map" )
+	print("MAP loaded  temporary_zoomed_map")
 
 func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, big : bool, crea : Creature, melee_enemies_on_the_way : bool) -> Array :
 	#var right_astar : SpecificAstar2D = aStar11 #get_right_graph_for_crea(crea)

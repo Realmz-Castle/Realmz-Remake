@@ -1,6 +1,6 @@
 {
     "SE0": [
-        "Judging by the man's large girth, robes are not all he fancies. You approach his fine oak desk. \"Present your invitation so I may validate it for passage to yon castle.\"",
+        "Judging by the man`s large girth, robes are not all he fancies. You approach his fine oak desk. \"Present your invitation so I may validate it for passage to yon castle.\"",
         [
             ["Attempt to bribe your way into the castle.", 0, 1],
             ["Show him an invitation to the castle.", 1, 1],
@@ -48,7 +48,7 @@
         [
             ["Chase the orcs in spite of their warning.", 0, 1],
             ["Play dumb and examine the map back at your table to avoid getting involved.", 1, 1],
-            ["Search Targ's body quickly.", 2, 1],
+            ["Search Targ`s body quickly.", 2, 1],
             ["Wait around for the town guard to show up and explain what happened.", 3, 1]
         ],
         ["SE4XAP0", "SE4XAP1", "SE4XAP2", "SE4XAP3"],
@@ -95,7 +95,7 @@
         1
     ],
     "SE9": [
-        "He suddenly sees you and calls zombies to stand between him and you. In a very strange tone of voice he says, \"Where have you been? I'm almost out of bodies and the time for attack grows nigh.\"",
+        "He suddenly sees you and calls zombies to stand between him and you. In a very strange tone of voice he says, \"Where have you been? I`m almost out of bodies and the time for attack grows nigh.\"",
         [
             ["Attack the cleric and his unholy army.", 0, 1],
             ["Play along and claim you have bodies.", 1, 1],
@@ -156,9 +156,9 @@
         1
     ],
     "SE15": [
-        "You come upon a stone statue of a man. In one hand he grasps a staff. The other outstretched hand holds a bowl. Water continually pours from this bowl, forming a shallow pool at the statue's feet.",
+        "You come upon a stone statue of a man. In one hand he grasps a staff. The other outstretched hand holds a bowl. Water continually pours from this bowl, forming a shallow pool at the statue`s feet.",
         [
-            ["Attempt to take the staff from the statue's grasp.", 0, 1],
+            ["Attempt to take the staff from the statue`s grasp.", 0, 1],
             ["Take some of the water.", 1, 1],
             ["Drink some of the water.", 2, 1],
             ["Wade into the fountain.", 3, 1]

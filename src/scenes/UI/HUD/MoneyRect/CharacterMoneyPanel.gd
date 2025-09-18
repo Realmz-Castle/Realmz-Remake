@@ -27,7 +27,7 @@ func setup(menu,chara) -> void :
 	$GemsnLabel.text = str(character.money[1])
 	$JewelsnLabel.text=str(character.money[2])
 	$WeightnLabel.text = str(character.get_inventory_weight())+' / '+ str(character.get_stat("Weight_Limit"))
-	$MovenLabel.text   = str(character.get_movement())
+	$MovenLabel.text   = str(character.get_max_movement_weighted_down())
 
 func set_selected(me : bool) :
 	if me :

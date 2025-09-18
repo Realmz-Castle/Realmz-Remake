@@ -670,7 +670,7 @@ static func AP90x4y36() : #90 at 4,36
 	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "", "")
 	if not branch.is_empty(): return branch
 	await ScriptHelperFuncsClass.display_text_wait_noise('You start to slowly clamber down the log.  With a heavy thump, the log shifts to the right and begins to shake with violent force.  Clinging for dear life, you scramble your way back up out of the pit.  Massive slime creatures slither up the log.', 'message nod.wav')
-	GameGlobal.start_battle("Battle_218","map_0", true,false, true,true,true,[])
+	GameGlobal.start_battle("Battle_218","", true,false, true,true,true,[])
 	var battle_outcome = await GameGlobal.battle_end
 	return
 

@@ -129,10 +129,12 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	print("State CbDecideAction start_battle pos_when_battle_started : ", pos_when_battle_started)
 	GameGlobal.last_exploration_map_name = _msg["end_in_map_name"]
 	print("State CbDecideAction start_battle , battlename : ",_msg["battlename"],", battle_data : ",  _msg)
-	var map_name : String = _msg["mapname"]
+	var map_name : String = _msg["Map"]
+	print("CbDecideAction mapname : ,", map_name)
 	if map_name.is_empty() :
 		map_name = "temporary_zoomed_map"
-
+	print("CbDecideAction mapname : ,", map_name)
+	pass
 
 	GameGlobal.change_map(map_name,map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
 	combat_state.all_battle_creatures_btns.clear()

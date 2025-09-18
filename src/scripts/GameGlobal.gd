@@ -409,9 +409,11 @@ func change_map(mapname : String, x : int, y : int) :
 	print("change_map : "+mapname+" ; "+ str(Vector2(x,y)))
 	if mapname == 'temporary_zoomed_map':
 		map.generate_zoomed_map(currentmap_name)
+	else :
+		map.load_map(currentcampaign, currentmap_name)
 	currentmap_name = mapname
 
-	map.load_map(currentcampaign, currentmap_name)
+	
 	MusicStreamPlayer.play_music_map()
 	map.set_ow_character_icon(GameGlobal.player_characters[0].icon)
 #	GameState.map.focuscharacter.tile_position_x = x
@@ -455,7 +457,8 @@ func start_battle(battlename : String, mapname : String, is_pos_relative : bool,
 	var battle_data : Dictionary = GameGlobal.cmp_resources.battles_book[battlename].duplicate()
 	battle_data["battle_start"] = true
 	battle_data["battlename"] = battlename
-	battle_data["mapname"] = mapname
+	if not mapname.is_empty() :
+		battle_data["Map"] = mapname
 	battle_data["is_ambush"] = is_ambush
 	battle_data["allow_loss"] = allow_loss
 	battle_data["allow_escape"] = allow_escape
