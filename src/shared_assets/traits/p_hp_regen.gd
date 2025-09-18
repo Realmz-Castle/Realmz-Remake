@@ -4,6 +4,7 @@ const stacks : bool = false
 const trait_types : Array = []
 var chara
 var power : int #in seconds, 1 round = 5s
+const permanent : int = 1
 var trait_source : String = ''
 
 
@@ -32,4 +33,3 @@ func _on_time_pass(_character, seconds) :
 func get_info_as_text() -> String :
 	var usedpower : int = floor(sqrt(power*2))
 	return 'Regenerating '+str(power)+'HP per round, Permanent'
-

@@ -96,6 +96,7 @@ func exit() :
 		UI.ow_hud.temple_rect.close_temple_window()
 
 
+
 func _state_process(_delta : float) -> void :
 	#print("cur_menu_name : "+ cur_menu_name)
 	if cur_menu_name== "PC_Pick" :

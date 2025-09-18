@@ -141,6 +141,7 @@ func close() :
 	NodeAccess.__Map().show()
 	emit_signal("done_looting")
 	print("teasure_control  close()")
+	StateMachine.exit_ex_menu_state()
 	hide()
 
 

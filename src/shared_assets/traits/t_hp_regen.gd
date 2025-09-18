@@ -4,7 +4,8 @@ const stacks : bool = true
 const trait_types : Array = []
 var chara
 var power : int #in seconds, 1 round = 5s
-
+const permanent : int = 0
+var trait_source : String = ''
 
 func _init(args : Array):
 	#[chara, duration, permanent]
