@@ -165,6 +165,9 @@ func load_tile_resources( path : String ) -> void:
 			#set tiles  data from its template
 			var tile_name : String = t_dict["properties"][0]["value"]
 			var tile_template_name : String = t_dict["properties"][1]["value"]
+			var expansion: Array = []
+			if t_dict["properties"].size() > 2 :
+				expansion = t_dict["properties"][2]["value"]
 			#print("resource tile_template_name :  "+tile_template_name+ " for "+tile_name+" id "+str(id))
 			#print("Resources var template_dict ", tile_template_name,' ', templates_dict.has(tile_template_name))
 			var template_dict : Dictionary = templates_dict[tile_template_name]
@@ -173,6 +176,7 @@ func load_tile_resources( path : String ) -> void:
 			n_tile_dict["name"] = tile_name
 			n_tile_dict["tileset_name"] = ts_name
 			n_tile_dict["id"]= id
+			n_tile_dict["expansion"] = expansion
 			n_tileset.append(n_tile_dict)
 		tiles_book[ts_name+'.json'] = n_tileset
 	print("Done loading tiles from : ", path)
@@ -261,15 +265,15 @@ func load_bestiary_resources( path : String ) -> void:
 	for crea_name in n_crea_stuff_book :
 		var new_crea_data : Dictionary = { "stats" : crea_template.stats.duplicate() , "tools" : {} }
 		var ncreastatmods : Dictionary = n_crea_stuff_book[crea_name]["stats"]
-		
+
 		if ncreastatmods.has("traits") :
 			n_crea_stuff_book[crea_name]["traits"] = ncreastatmods["traits"]
 			ncreastatmods.erase("traits")
-		
+
 		for s in ncreastatmods :
 			#printerr("Resources load _bestiary l268 : "+crea_name+"ncreastatmods :\n", ncreastatmods)
 			#assert( s!="traits")
-			
+
 			new_crea_data["stats"][s] = ncreastatmods[s]
 		if n_crea_stuff_book[crea_name].has("traits") :
 			#print("RESOURCELOADER n_crea_stuff_book[crea_name][traits] : "+crea_name+" : ", n_crea_stuff_book[crea_name]["traits"])

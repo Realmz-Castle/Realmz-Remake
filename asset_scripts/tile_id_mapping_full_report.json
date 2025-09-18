@@ -1,0 +1,1002 @@
+[
+  {
+    "original_tile": 1,
+    "remake_tile": 0,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 2,
+    "remake_tile": 1,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 3,
+    "remake_tile": 2,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 4,
+    "remake_tile": 3,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 5,
+    "remake_tile": 4,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 6,
+    "remake_tile": 5,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 7,
+    "remake_tile": 6,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 8,
+    "remake_tile": 7,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 9,
+    "remake_tile": 8,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 10,
+    "remake_tile": 9,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 11,
+    "remake_tile": 10,
+    "cost": 0.010498046875
+  },
+  {
+    "original_tile": 12,
+    "remake_tile": 11,
+    "cost": 0.00927734375
+  },
+  {
+    "original_tile": 13,
+    "remake_tile": 12,
+    "cost": 0.00537109375
+  },
+  {
+    "original_tile": 14,
+    "remake_tile": 13,
+    "cost": 0.006591796875
+  },
+  {
+    "original_tile": 15,
+    "remake_tile": 14,
+    "cost": 0.004150390625
+  },
+  {
+    "original_tile": 16,
+    "remake_tile": 15,
+    "cost": 0.004638671875
+  },
+  {
+    "original_tile": 17,
+    "remake_tile": 16,
+    "cost": 0.005615234375
+  },
+  {
+    "original_tile": 18,
+    "remake_tile": 17,
+    "cost": 0.008056640625
+  },
+  {
+    "original_tile": 19,
+    "remake_tile": 18,
+    "cost": 0.00634765625
+  },
+  {
+    "original_tile": 20,
+    "remake_tile": 19,
+    "cost": 0.00732421875
+  },
+  {
+    "original_tile": 21,
+    "remake_tile": 20,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 22,
+    "remake_tile": 21,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 23,
+    "remake_tile": 22,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 24,
+    "remake_tile": 23,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 25,
+    "remake_tile": 24,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 26,
+    "remake_tile": 25,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 27,
+    "remake_tile": 26,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 28,
+    "remake_tile": 27,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 29,
+    "remake_tile": 28,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 30,
+    "remake_tile": 29,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 31,
+    "remake_tile": 30,
+    "cost": 0.005126953125
+  },
+  {
+    "original_tile": 32,
+    "remake_tile": 31,
+    "cost": 0.005126953125
+  },
+  {
+    "original_tile": 33,
+    "remake_tile": 32,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 34,
+    "remake_tile": 33,
+    "cost": 0.000244140625
+  },
+  {
+    "original_tile": 35,
+    "remake_tile": 34,
+    "cost": 0.023681640625
+  },
+  {
+    "original_tile": 36,
+    "remake_tile": null,
+    "cost": 6308.477783203125
+  },
+  {
+    "original_tile": 37,
+    "remake_tile": null,
+    "cost": 6308.477783203125
+  },
+  {
+    "original_tile": 38,
+    "remake_tile": 37,
+    "cost": 0.0185546875
+  },
+  {
+    "original_tile": 39,
+    "remake_tile": 38,
+    "cost": 0.011962890625
+  },
+  {
+    "original_tile": 40,
+    "remake_tile": 39,
+    "cost": 0.014404296875
+  },
+  {
+    "original_tile": 41,
+    "remake_tile": 40,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 42,
+    "remake_tile": 41,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 43,
+    "remake_tile": 42,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 44,
+    "remake_tile": 43,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 45,
+    "remake_tile": 44,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 46,
+    "remake_tile": 45,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 47,
+    "remake_tile": 46,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 48,
+    "remake_tile": 47,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 49,
+    "remake_tile": 48,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 50,
+    "remake_tile": 49,
+    "cost": 0.0029296875
+  },
+  {
+    "original_tile": 51,
+    "remake_tile": 50,
+    "cost": 0.0126953125
+  },
+  {
+    "original_tile": 52,
+    "remake_tile": 51,
+    "cost": 0.00537109375
+  },
+  {
+    "original_tile": 53,
+    "remake_tile": 52,
+    "cost": 0.00048828125
+  },
+  {
+    "original_tile": 54,
+    "remake_tile": 53,
+    "cost": 0.009521484375
+  },
+  {
+    "original_tile": 55,
+    "remake_tile": 54,
+    "cost": 515.5576171875
+  },
+  {
+    "original_tile": 56,
+    "remake_tile": 55,
+    "cost": 0.008056640625
+  },
+  {
+    "original_tile": 57,
+    "remake_tile": 56,
+    "cost": 0.009033203125
+  },
+  {
+    "original_tile": 58,
+    "remake_tile": 57,
+    "cost": 0.01220703125
+  },
+  {
+    "original_tile": 59,
+    "remake_tile": 58,
+    "cost": 0.01025390625
+  },
+  {
+    "original_tile": 60,
+    "remake_tile": 59,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 61,
+    "remake_tile": 60,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 62,
+    "remake_tile": 61,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 63,
+    "remake_tile": 62,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 64,
+    "remake_tile": 63,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 65,
+    "remake_tile": 64,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 66,
+    "remake_tile": 65,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 67,
+    "remake_tile": 66,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 68,
+    "remake_tile": 67,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 69,
+    "remake_tile": 68,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 70,
+    "remake_tile": 69,
+    "cost": 0.000244140625
+  },
+  {
+    "original_tile": 71,
+    "remake_tile": 70,
+    "cost": 0.002685546875
+  },
+  {
+    "original_tile": 72,
+    "remake_tile": 71,
+    "cost": 0.0029296875
+  },
+  {
+    "original_tile": 73,
+    "remake_tile": 72,
+    "cost": 0.00244140625
+  },
+  {
+    "original_tile": 74,
+    "remake_tile": 73,
+    "cost": 0.002197265625
+  },
+  {
+    "original_tile": 75,
+    "remake_tile": 74,
+    "cost": 0.001953125
+  },
+  {
+    "original_tile": 76,
+    "remake_tile": 75,
+    "cost": 0.0029296875
+  },
+  {
+    "original_tile": 77,
+    "remake_tile": 76,
+    "cost": 0.003662109375
+  },
+  {
+    "original_tile": 78,
+    "remake_tile": 77,
+    "cost": 0.002685546875
+  },
+  {
+    "original_tile": 79,
+    "remake_tile": 78,
+    "cost": 0.00146484375
+  },
+  {
+    "original_tile": 80,
+    "remake_tile": 79,
+    "cost": 0.001220703125
+  },
+  {
+    "original_tile": 81,
+    "remake_tile": 80,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 82,
+    "remake_tile": 81,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 83,
+    "remake_tile": 82,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 84,
+    "remake_tile": 83,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 85,
+    "remake_tile": 84,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 86,
+    "remake_tile": 85,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 87,
+    "remake_tile": 86,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 88,
+    "remake_tile": 87,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 89,
+    "remake_tile": 88,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 90,
+    "remake_tile": 89,
+    "cost": 0.00048828125
+  },
+  {
+    "original_tile": 91,
+    "remake_tile": 90,
+    "cost": 0.004150390625
+  },
+  {
+    "original_tile": 92,
+    "remake_tile": 91,
+    "cost": 0.005615234375
+  },
+  {
+    "original_tile": 93,
+    "remake_tile": 92,
+    "cost": 0.00341796875
+  },
+  {
+    "original_tile": 94,
+    "remake_tile": 93,
+    "cost": 0.037109375
+  },
+  {
+    "original_tile": 95,
+    "remake_tile": 94,
+    "cost": 0.00146484375
+  },
+  {
+    "original_tile": 96,
+    "remake_tile": 95,
+    "cost": 0.03369140625
+  },
+  {
+    "original_tile": 97,
+    "remake_tile": 96,
+    "cost": 0.028564453125
+  },
+  {
+    "original_tile": 98,
+    "remake_tile": 97,
+    "cost": 0.0234375
+  },
+  {
+    "original_tile": 99,
+    "remake_tile": 98,
+    "cost": 0.021728515625
+  },
+  {
+    "original_tile": 100,
+    "remake_tile": 99,
+    "cost": 0.030029296875
+  },
+  {
+    "original_tile": 101,
+    "remake_tile": 100,
+    "cost": 0.034423828125
+  },
+  {
+    "original_tile": 102,
+    "remake_tile": 101,
+    "cost": 0.036376953125
+  },
+  {
+    "original_tile": 103,
+    "remake_tile": 102,
+    "cost": 0.02099609375
+  },
+  {
+    "original_tile": 104,
+    "remake_tile": 103,
+    "cost": 0.017822265625
+  },
+  {
+    "original_tile": 105,
+    "remake_tile": 104,
+    "cost": 0.0126953125
+  },
+  {
+    "original_tile": 106,
+    "remake_tile": 105,
+    "cost": 0.0146484375
+  },
+  {
+    "original_tile": 107,
+    "remake_tile": 106,
+    "cost": 0.010986328125
+  },
+  {
+    "original_tile": 108,
+    "remake_tile": 107,
+    "cost": 0.012451171875
+  },
+  {
+    "original_tile": 109,
+    "remake_tile": 108,
+    "cost": 0.001708984375
+  },
+  {
+    "original_tile": 110,
+    "remake_tile": 109,
+    "cost": 0.0009765625
+  },
+  {
+    "original_tile": 111,
+    "remake_tile": 110,
+    "cost": 0.031005859375
+  },
+  {
+    "original_tile": 112,
+    "remake_tile": 111,
+    "cost": 0.032958984375
+  },
+  {
+    "original_tile": 113,
+    "remake_tile": 112,
+    "cost": 0.049560546875
+  },
+  {
+    "original_tile": 114,
+    "remake_tile": 113,
+    "cost": 0.050537109375
+  },
+  {
+    "original_tile": 115,
+    "remake_tile": 114,
+    "cost": 0.092041015625
+  },
+  {
+    "original_tile": 116,
+    "remake_tile": 115,
+    "cost": 0.1044921875
+  },
+  {
+    "original_tile": 117,
+    "remake_tile": 116,
+    "cost": 0.107177734375
+  },
+  {
+    "original_tile": 118,
+    "remake_tile": 117,
+    "cost": 0.041015625
+  },
+  {
+    "original_tile": 119,
+    "remake_tile": 118,
+    "cost": 0.04052734375
+  },
+  {
+    "original_tile": 120,
+    "remake_tile": 119,
+    "cost": 0.04248046875
+  },
+  {
+    "original_tile": 121,
+    "remake_tile": 120,
+    "cost": 0.0
+  },
+  {
+    "original_tile": 122,
+    "remake_tile": 121,
+    "cost": 0.0029296875
+  },
+  {
+    "original_tile": 123,
+    "remake_tile": 122,
+    "cost": 0.001708984375
+  },
+  {
+    "original_tile": 124,
+    "remake_tile": 123,
+    "cost": 0.00390625
+  },
+  {
+    "original_tile": 125,
+    "remake_tile": 124,
+    "cost": 0.001220703125
+  },
+  {
+    "original_tile": 126,
+    "remake_tile": 125,
+    "cost": 0.001220703125
+  },
+  {
+    "original_tile": 127,
+    "remake_tile": 126,
+    "cost": 0.0009765625
+  },
+  {
+    "original_tile": 128,
+    "remake_tile": 127,
+    "cost": 0.001220703125
+  },
+  {
+    "original_tile": 129,
+    "remake_tile": 128,
+    "cost": 0.0009765625
+  },
+  {
+    "original_tile": 130,
+    "remake_tile": 129,
+    "cost": 0.049072265625
+  },
+  {
+    "original_tile": 131,
+    "remake_tile": 130,
+    "cost": 0.057373046875
+  },
+  {
+    "original_tile": 132,
+    "remake_tile": 131,
+    "cost": 0.07275390625
+  },
+  {
+    "original_tile": 133,
+    "remake_tile": 132,
+    "cost": 0.087158203125
+  },
+  {
+    "original_tile": 134,
+    "remake_tile": 133,
+    "cost": 0.083984375
+  },
+  {
+    "original_tile": 135,
+    "remake_tile": 134,
+    "cost": 0.091552734375
+  },
+  {
+    "original_tile": 136,
+    "remake_tile": 135,
+    "cost": 0.0830078125
+  },
+  {
+    "original_tile": 137,
+    "remake_tile": 136,
+    "cost": 0.098876953125
+  },
+  {
+    "original_tile": 138,
+    "remake_tile": 137,
+    "cost": 0.084716796875
+  },
+  {
+    "original_tile": 139,
+    "remake_tile": 138,
+    "cost": 0.076904296875
+  },
+  {
+    "original_tile": 140,
+    "remake_tile": 139,
+    "cost": 0.07666015625
+  },
+  {
+    "original_tile": 141,
+    "remake_tile": 140,
+    "cost": 0.021728515625
+  },
+  {
+    "original_tile": 142,
+    "remake_tile": 141,
+    "cost": 0.01025390625
+  },
+  {
+    "original_tile": 143,
+    "remake_tile": 142,
+    "cost": 0.0146484375
+  },
+  {
+    "original_tile": 144,
+    "remake_tile": 143,
+    "cost": 0.008056640625
+  },
+  {
+    "original_tile": 145,
+    "remake_tile": 144,
+    "cost": 0.01708984375
+  },
+  {
+    "original_tile": 146,
+    "remake_tile": 145,
+    "cost": 0.010498046875
+  },
+  {
+    "original_tile": 147,
+    "remake_tile": 146,
+    "cost": 0.01708984375
+  },
+  {
+    "original_tile": 148,
+    "remake_tile": 147,
+    "cost": 0.00830078125
+  },
+  {
+    "original_tile": 149,
+    "remake_tile": 148,
+    "cost": 0.0009765625
+  },
+  {
+    "original_tile": 150,
+    "remake_tile": 149,
+    "cost": 0.02001953125
+  },
+  {
+    "original_tile": 151,
+    "remake_tile": 198,
+    "cost": 153.601806640625
+  },
+  {
+    "original_tile": 152,
+    "remake_tile": 204,
+    "cost": 102.377685546875
+  },
+  {
+    "original_tile": 153,
+    "remake_tile": 197,
+    "cost": 80.364013671875
+  },
+  {
+    "original_tile": 154,
+    "remake_tile": 203,
+    "cost": 231.1435546875
+  },
+  {
+    "original_tile": 155,
+    "remake_tile": 35,
+    "cost": 0.048583984375
+  },
+  {
+    "original_tile": 156,
+    "remake_tile": 36,
+    "cost": 0.039794921875
+  },
+  {
+    "original_tile": 157,
+    "remake_tile": 150,
+    "cost": 0.07275390625
+  },
+  {
+    "original_tile": 158,
+    "remake_tile": 151,
+    "cost": 0.064453125
+  },
+  {
+    "original_tile": 159,
+    "remake_tile": 152,
+    "cost": 0.0458984375
+  },
+  {
+    "original_tile": 160,
+    "remake_tile": 153,
+    "cost": 0.038330078125
+  },
+  {
+    "original_tile": 161,
+    "remake_tile": 154,
+    "cost": 0.000732421875
+  },
+  {
+    "original_tile": 162,
+    "remake_tile": 155,
+    "cost": 0.005126953125
+  },
+  {
+    "original_tile": 163,
+    "remake_tile": 156,
+    "cost": 0.00244140625
+  },
+  {
+    "original_tile": 164,
+    "remake_tile": 157,
+    "cost": 0.00537109375
+  },
+  {
+    "original_tile": 165,
+    "remake_tile": 158,
+    "cost": 0.001220703125
+  },
+  {
+    "original_tile": 166,
+    "remake_tile": 159,
+    "cost": 0.000732421875
+  },
+  {
+    "original_tile": 167,
+    "remake_tile": 160,
+    "cost": 0.001708984375
+  },
+  {
+    "original_tile": 168,
+    "remake_tile": null,
+    "cost": 6308.477783203125
+  },
+  {
+    "original_tile": 169,
+    "remake_tile": 163,
+    "cost": 0.00146484375
+  },
+  {
+    "original_tile": 170,
+    "remake_tile": 164,
+    "cost": 0.008056640625
+  },
+  {
+    "original_tile": 171,
+    "remake_tile": 165,
+    "cost": 0.0615234375
+  },
+  {
+    "original_tile": 172,
+    "remake_tile": 166,
+    "cost": 0.097900390625
+  },
+  {
+    "original_tile": 173,
+    "remake_tile": 167,
+    "cost": 0.09228515625
+  },
+  {
+    "original_tile": 174,
+    "remake_tile": 168,
+    "cost": 0.083251953125
+  },
+  {
+    "original_tile": 175,
+    "remake_tile": 169,
+    "cost": 0.092041015625
+  },
+  {
+    "original_tile": 176,
+    "remake_tile": 170,
+    "cost": 0.1083984375
+  },
+  {
+    "original_tile": 177,
+    "remake_tile": 171,
+    "cost": 0.067138671875
+  },
+  {
+    "original_tile": 178,
+    "remake_tile": 172,
+    "cost": 0.065673828125
+  },
+  {
+    "original_tile": 179,
+    "remake_tile": 173,
+    "cost": 0.111572265625
+  },
+  {
+    "original_tile": 180,
+    "remake_tile": 174,
+    "cost": 0.03662109375
+  },
+  {
+    "original_tile": 181,
+    "remake_tile": 175,
+    "cost": 0.001708984375
+  },
+  {
+    "original_tile": 182,
+    "remake_tile": 176,
+    "cost": 0.001953125
+  },
+  {
+    "original_tile": 183,
+    "remake_tile": 177,
+    "cost": 0.002685546875
+  },
+  {
+    "original_tile": 184,
+    "remake_tile": 178,
+    "cost": 0.001953125
+  },
+  {
+    "original_tile": 185,
+    "remake_tile": 179,
+    "cost": 0.03515625
+  },
+  {
+    "original_tile": 186,
+    "remake_tile": 180,
+    "cost": 0.009521484375
+  },
+  {
+    "original_tile": 187,
+    "remake_tile": 181,
+    "cost": 0.010498046875
+  },
+  {
+    "original_tile": 188,
+    "remake_tile": 182,
+    "cost": 0.0322265625
+  },
+  {
+    "original_tile": 189,
+    "remake_tile": 183,
+    "cost": 0.012451171875
+  },
+  {
+    "original_tile": 190,
+    "remake_tile": 184,
+    "cost": 0.0205078125
+  },
+  {
+    "original_tile": 191,
+    "remake_tile": 185,
+    "cost": 0.0693359375
+  },
+  {
+    "original_tile": 192,
+    "remake_tile": 186,
+    "cost": 0.121826171875
+  },
+  {
+    "original_tile": 193,
+    "remake_tile": 187,
+    "cost": 0.08837890625
+  },
+  {
+    "original_tile": 194,
+    "remake_tile": 188,
+    "cost": 0.071044921875
+  },
+  {
+    "original_tile": 195,
+    "remake_tile": 189,
+    "cost": 0.074462890625
+  },
+  {
+    "original_tile": 196,
+    "remake_tile": 190,
+    "cost": 0.107177734375
+  },
+  {
+    "original_tile": 197,
+    "remake_tile": 191,
+    "cost": 0.14013671875
+  },
+  {
+    "original_tile": 198,
+    "remake_tile": 192,
+    "cost": 0.141357421875
+  },
+  {
+    "original_tile": 199,
+    "remake_tile": 193,
+    "cost": 0.15087890625
+  },
+  {
+    "original_tile": 200,
+    "remake_tile": 194,
+    "cost": 0.090087890625
+  }
+]
