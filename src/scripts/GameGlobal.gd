@@ -104,13 +104,13 @@ signal battle_end
 
 func _ready():
 	map = NodeAccess.__Map()
-	
+
 # UI start ------------------- #
 
 # Hide all UI elements #
 func hideAllUI():
 	NodeAccess.Get.__UI().__hide()
-	
+
 func show_menu(menu : CanvasItem) :
 	UI.show_only(menu)
 
@@ -119,24 +119,24 @@ func show_menu(menu : CanvasItem) :
 
 func create_new_profile(newprofilename : String , new_honest_mode : bool) -> bool :
 	var profilesfolderpath = Paths.profilesfolderpath
-	
+
 
 	# http://docs.godotengine.org/en/latest/classes/class_lineedit.html#class-lineedit
 #	var dir = Directory.new()
 #	var dir = DirAccess.open(path)
-#	
+#
 	var dir_exists : bool = DirAccess.dir_exists_absolute(profilesfolderpath+"/" + newprofilename)
 	print("dir exists ? ",  dir_exists )
 	if not dir_exists :
 		DirAccess.make_dir_recursive_absolute(profilesfolderpath+"/" + newprofilename)
 		DirAccess.make_dir_recursive_absolute(profilesfolderpath+"/" + newprofilename + "/Characters/")
 		DirAccess.make_dir_recursive_absolute(profilesfolderpath+"/" + newprofilename + "/Saves/")
-		
+
 		var path = Paths.profilesfolderpath+newprofilename
 		print("new char path : ", path)
 		DirAccess.make_dir_recursive_absolute(path)
 		var _settingscfgFile : FileAccess = FileAccess.open( path+'/profile_settings.cfg' , FileAccess.ModeFlags.WRITE)
-		
+
 		_settingscfgFile = null
 		Utils.FileHandler.set_cfg_setting(path+'/profile_settings.cfg', "SET_IN_STONE", "honest_mode", int(new_honest_mode))
 		Utils.FileHandler.set_cfg_setting(path+'/profile_settings.cfg', "VOLUME", "volume_sound", 50)
@@ -220,15 +220,15 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	map_boats_dict = data_dict["map_boats_dict"]
 	is_sailing_boat = bool(data_dict["is_sailing_boat"])
 	boat_sailed_image_name = data_dict["boat_image"]
-	
+
 	set_current_campaign(data_dict["campaign"])
 	currentmap_name = data_dict["currentmap_name"]
 	shops_dict = data_dict["shops_dict"]
-	
+
 	global_effects = data_dict["GlobalEffects"]
-	
+
 	minimaps = data_dict["minimaps"]
-	
+
 	allow_next_battle_loot = true
 	prev_simple_enc_name = ''
 
@@ -237,19 +237,20 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	fatigue+= fatiguemultiplier * seconds *0.25 *time_scale
 	fatigue = clampf(fatigue, 0.0, 172800.0)
 	UI.ow_hud.update_fatigue_bar()
-	
+
 	if campaign_global_script.has_on_time_pass and ( not StateMachine.is_combat_state() ):
 		campaign_global_script._on_time_pass(seconds)
-	
+
 	if not StateMachine.is_combat_state() :   #check timed   encounters
 		if stuff_done.has("Timed_Encounters") :
 			#var campaign_script_methods_dicts : Array = campaign_global_script.get_script_method_list()
 			for t_enc_name : String in stuff_done["Timed_Encounters"] :
 
 				var t_enc_dict = stuff_done["Timed_Encounters"][t_enc_name]
-				#if t_enc_name == "Time_Enc_1" :
-					#print("GameGlobal check time event ", time,' , ', t_enc_dict["before"], ',',t_enc_dict["after"])
-				
+
+				if t_enc_name == "Time_Enc_1" :
+					print(time,' , ', t_enc_dict["before"], ',',t_enc_dict["after"])
+
 				#t_encs["Time_Enc_1"] = { "called_func" = "Time_Enc_1", "after" : 3*86400 , "before" : -1, "chance_prct" : 100,"increment" : 0, "req_map" : "", "req_rect" : [] , "req_quest" : "quest_0"}
 				if not (t_enc_dict["req_map"].is_empty() or t_enc_dict["req_map"]==currentmap_name) :
 					continue
@@ -289,10 +290,10 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 		character._on_time_pass(seconds)
 	for character in player_allies :
 		character._on_time_pass(seconds)
-	
+
 	for effect in global_effects.keys() :
 		global_effects[effect]["Duration"] = max(0, global_effects[effect]["Duration"] - seconds)
-	
+
 #	player_characters[0].stats["curHP"] = seconds
 	UI.ow_hud.updateTimeDisplay()
 	UI.ow_hud.updateGlobalEffectsDisplay()
@@ -340,14 +341,14 @@ func refresh_OW_HUD() :
 	UI.ow_hud.updateCharPanelDisplay()
 	UI.ow_hud.updateTimeDisplay()
 	UI.ow_hud.updateGlobalEffectsDisplay()
-	
+
 	var invrect = UI.ow_hud.inventoryRect
 	if invrect.visible :
 #		invrect.when_Items_Button_pressed()
 		invrect.fill_inventory_Vbox(invrect.inventoryBoxRight, UI.ow_hud.selected_character)
 		if invrect.traderect.visible :
 			invrect.fill_inventory_Vbox(invrect.inventoryBoxLeft, invrect.selectedTradeCharacter)
-	
+
 func show_loot_menu(items:Array, money : Array, experience : int) :
 	await UI.ow_hud.show_loot_menu(items,money,experience)
 
@@ -397,7 +398,7 @@ func allow_money_change(yes : bool) :
 
 func allow_banking(yes : bool) :
 	UI.ow_hud.set_banking_availlable(yes)
-	
+
 func allow_temple(yes : bool) :
 	UI.ow_hud.set_temple_availlable(yes)
 
@@ -406,7 +407,10 @@ func allow_honest_storage(yes : bool) :
 
 func change_map(mapname : String, x : int, y : int) :
 	print("change_map : "+mapname+" ; "+ str(Vector2(x,y)))
+	if mapname == 'temporary_zoomed_map':
+		map.generate_zoomed_map(currentmap_name)
 	currentmap_name = mapname
+
 	map.load_map(currentcampaign, currentmap_name)
 	MusicStreamPlayer.play_music_map()
 	map.set_ow_character_icon(GameGlobal.player_characters[0].icon)
@@ -481,16 +485,16 @@ func end_battle( wonfledlost : String ) :
 	StateMachine.combat_state.action_queue.clear()
 	map.focuscharacter.tile_position_x = pos_when_battle_started.x
 	map.focuscharacter.tile_position_y = pos_when_battle_started.y
-	
+
 #
 	#for cb in GameState.map.creatures_node.get_children() :
 		#cb.queue_free()   #done in MAp.load map now
 	#print("GameGlobal end_battle pos_when_battle_started : ", pos_when_battle_started)
-	
+
 	if not (wonfledlost == 'lost' and (not StateMachine.combat_state.cur_battle_data["allow_loss"])) :
 		#if not game over...
 		change_map(last_exploration_map_name,pos_when_battle_started.x,pos_when_battle_started.y)
-	
+
 	UI.ow_hud.exit_battle_mode()
 
 	match wonfledlost :
@@ -513,23 +517,25 @@ func end_battle( wonfledlost : String ) :
 					for i in c.inventory :
 						treasureitems.append(i)
 			allow_next_battle_loot = true
-			
+
 			#this won't show the allies  screen
 			#await UI.ow_hud.show_loot_menu(treasureitems,money_drop,experience)
-			
+
 			StateMachine.combat_state.all_battle_creatures_btns.clear()
 			StateMachine.combat_state.battle_dead_enemies.clear()
 			StateMachine.combat_state.battle_dead_party_members.clear()
-			
+
+
+
 			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : treasureitems, "money" : money_drop, "exp" : experience, "prev_state" : "Exploration"})
 			await UI.ow_hud.treasureControl.done_looting
 			print("done looting")
 			GameGlobal.show_allies_menu()
 			await UI.ow_hud.alliesCtrl.done_allying
 			print("done allying")
-			
-			
-			
+
+
+
 			#show_allies_menu()
 			#await UI.ow_hud.alliesCtrl.done_allying
 			##GameState._combat_state = eCombatStates.unchecked
@@ -576,7 +582,7 @@ func end_battle( wonfledlost : String ) :
 			#print("GameGlobal end_battle, INVALID wonfledlost :")
 	#
 	#cur_battle_data = {}
-	#cur_battle_data.clear() CLEARED THE RESOURCE DICT  LOL  
+	#cur_battle_data.clear() CLEARED THE RESOURCE DICT  LOL
 	allow_next_battle_loot = true
 	print("GAMEGLOBAL emit_signal('battle_end', wonfledlost)")
 	emit_signal("battle_end", wonfledlost)
@@ -625,7 +631,7 @@ const dmg_type_def_stats_dict : Dictionary = {
 
 #returns a float  between 0.0 and 1.0, to use as a chance
 func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon : Dictionary, should_check_script : bool = true) -> float :
-	#var weapon : Dictionary = attacker.current_melee_weapons[weapon_index] 
+	#var weapon : Dictionary = attacker.current_melee_weapons[weapon_index]
 	var accuracy : float = 0.0
 	var evasion : float = 0.0
 	if weapon.has("_calculate_melee_accuracy_source") and should_check_script :
@@ -693,10 +699,10 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 
 func calculate_spell_damage(attacker : Creature, defender : Creature, spell, spellpower : int, _should_check_script : bool = true) -> int :
 	#print("Gameglobal calculate_spell_damage : atker", attacker.name, ", defer", defender.name,", spell:", spell.name)
-	
+
 	var res : int = spell.resist==0
 	var ignoreres : bool = res==0 or res==1
-	
+
 	var spell_attributes : Array= spell.attributes
 #	var hits : int = spell.get_hits(spellpower, attacker)  #for ninja stars  arrowstorm etc.. TBI  #TODO
 	var spell_damage : float = 0
@@ -723,7 +729,7 @@ func calculate_spell_damage(attacker : Creature, defender : Creature, spell, spe
 		var mul_name : String = dmg_type_def_stats_dict[a][1]
 		var mul_stat : float = defender.get_stat(mul_name)
 		spell_damage = max(0,spell_damage - res_stat)*mul_stat
-	
+
 #	var spell_effect : Dictionary = {"attributes" : spell_attributes, "status_inflicted" : {}, "status_given" : {}}
 	#  status infliction ! Done in CbAnimState
 #	for h in range(hits)
@@ -775,7 +781,7 @@ func calculate_spell_accuracy(caster : Creature, defender : Creature, spell, spe
 			evasionstat = defender.get_stat("EvasionMelee")
 		#print(a, ' accuracystat : ',accuracystat,', evasionstat  ', evasionstat )
 		base_accuracy = base_accuracy * (1.0+(accuracy-evasion) )
-	
+
 	#print("GameGlobal calculate_spell_accuracy : calculated ",base_accuracy)
 	#  [continue_action : bool, added_to_action_queue : Array]
 
@@ -823,7 +829,7 @@ func give_exp_to_pcs(experience : int, pcs : Array) -> bool:
 #	emit_signal("done_giving_exp")
 	return leveledup
 
-#returns [boolean, character with item, item itself  or emptydict] 
+#returns [boolean, character with item, item itself  or emptydict]
 func does_party_have_same_item(item : Dictionary)->Array :
 	for pc in player_characters :
 		var got_dict : Dictionary = pc.get_item(item)
@@ -880,7 +886,7 @@ func check_flags_for_current_map_script_name() -> bool:
 		if randf()>stuff_done[chanceflagname] :
 			return false
 	return true
-	
+
 	#var script_name = "script_"+str(_apname)
 	#var flag_name : String = _mapname+'.'+script_name+'.chance'
 	#GameGlobal.stuff_done[flag_name] = _chance
