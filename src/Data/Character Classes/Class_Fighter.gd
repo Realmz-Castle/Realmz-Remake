@@ -1,4 +1,4 @@
-#extends 'res:#Creature/classrace_base.gd' # Weird, right? not used anymore
+#extends 'res://Creature/classrace_base.gd' # Weird, right? not used anymore
 
 const classrace_name  : String = "Fighter"
 const classrace_types : Array = ["Warrior Classes"]  #og caste_category 1
@@ -268,10 +268,10 @@ static func get_ablty_res_cost_mod(_character, _spell, _plvl : int, _cost ) :
 	return 0
 
 static func get_parrying_trait_name(_character) -> String :
-	return "res:#shared_assets/traits/"+'parrying.gd'
+	return "res://shared_assets/traits/"+'parrying.gd'
 
 static func get_guarding_trait_name(_character) -> String :
-	return "res:#shared_assets/traits/"+'guarding.gd'
+	return "res://shared_assets/traits/"+'guarding.gd'
 
 static func get_preparing_trait_name(_character) -> String :
-	return "res:#shared_assets/traits/"+'preparing.gd'
+	return "res://shared_assets/traits/"+'preparing.gd'
