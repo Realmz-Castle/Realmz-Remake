@@ -13,13 +13,13 @@ func build_shops(_items_book : Dictionary) :
 	var _limbs_1 = shop_1["Limbs"]
 	_limbs_1.append(["Leather Cap", 5,-1])
 	_limbs_1.append(["Iron Cap", 5,-1])
-	_limbs_1.append(["Buckler", 4,-1])
-	_limbs_1.append(["Shield of the Blue Oxen", 1,-1])
-	_limbs_1.append(["Ring of Regeneration", 1,-1])
+	_limbs_1.append(["Shield", 4,-1])
+	_limbs_1.append(["Shield of the Blue Oxen +4", 1,-1])
+	_limbs_1.append(["Ring of Healing", 1,-1])
 	var _supplies_1 = shop_1["Supplies"]
-	_supplies_1.append(["Health Potion", 10,-1])
+	_supplies_1.append(["Lip Balm Salve", 10,-1])
 	_supplies_1.append(["Lantern", 20,-1])
-	shops = {"shop_1" : shop_1}
+	shops = {"shop_0" : shop_1.duplicate(true), "shop_1" : shop_1}
 	return shops
 
 func get_shop(_shopname : String, _shopdict : Dictionary) :

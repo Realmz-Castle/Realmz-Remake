@@ -2046,7 +2046,7 @@
 	"description": "This strange looking but awesome helm gives the wearer resistance to chemical damage.",
 	"weight": 50,
 	"price": 100,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -3940,7 +3940,7 @@
 	"description": "Protection yes, but it feels like a steel vise.",
 	"weight": 40,
 	"price": 15,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Iron_cap",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -7121,7 +7121,7 @@
 	"description": "Created by an evil elven god to aid him in battle, it was turned aginst him in a battle with rivals.  It now aids any who can claim it.",
 	"weight": 37,
 	"price": 4500,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -7587,7 +7587,7 @@
 	"description": "Strong magicks will come to the aid of the wearer of this fine helm.",
 	"weight": 45,
 	"price": 500,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -7608,7 +7608,7 @@
 	"description": "Strong magicks will come to the aid of the wearer of this fine helm.",
 	"weight": 40,
 	"price": 500,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -9360,7 +9360,7 @@
 	"description": "A gift from the people of Sneflinbing for having saved the life of Flibli.  A cherished gnomish priest of Snelflinbig.",
 	"weight": 20,
 	"price": 21000,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -10357,7 +10357,7 @@
 	"description": "This strange looking but awesome helm gives the wearer resistance to chemical damage.",
 	"weight": 55,
 	"price": 4000,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -11663,7 +11663,7 @@
 	"description": "This is a tortuous rendition of finer helms.  A true delight to remove.",
 	"weight": 40,
 	"price": 15,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [
@@ -13011,7 +13011,7 @@
 	"description": "This mighty artifact is capable of many wondrous things, the least of which is to ferret out hidden passages and illusions.",
 	"weight": 35,
 	"price": 13500,
-	"type": "Small Helm",
+	"type": "Light Helmet",
 	"img_ptr": "ITEM_Helm_Of_Kranack",
 	"sound": "metal armor.wav",
 	"slots": [

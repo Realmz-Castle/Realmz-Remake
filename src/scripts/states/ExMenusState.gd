@@ -46,6 +46,7 @@ func enter(_msg : Dictionary = {} ) ->void :
 			GameGlobal.map.hide()
 			UI.ow_hud.textRect.show()
 			UI.ow_hud.creatureRect.hide()
+			UI.ow_hud.inventoryRect.shopButtonsRect.hide()
 			UI.ow_hud.combatBRPanel.hide()
 			UI.ow_hud.combatBRPanel.set_buttons_enabled(false)
 			UI.ow_hud.botrightpanel.disable_all_except('InventoryButton', _msg["selected_character"])
