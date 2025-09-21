@@ -1036,10 +1036,17 @@ static func branch_NPC_in_party_Divinity(creature_name : String, ifpresenttype :
 				assert(false)
 	else :
 		match ifabsenttype :
-			0 : #XAP
-				return 'XAP'+str(ifabsentto)
-			1 : #SEXAP
-				return GameGlobal.prev_simple_enc_name+str(ifabsentto)
+			0 : #like in item 2 if present
+				match ifpresenttype :
+					0 : #XAP
+						return 'XAP'+str(ifabsentto)
+					1 : #SEXAP
+						return GameGlobal.prev_simple_enc_name+str(ifabsentto)
+					2: #complex :
+						printerr("ScriptHelperFuncs branch_NPC_in_party_Divinity : cant  handle  special encounter "+str(ifabsentto)+", fix manually")
+						assert(false)
+			1 : #continue
+				return ''#GameGlobal.prev_simple_enc_name+str(ifabsentto)
 			2: #complex :
 				printerr("ScriptHelperFuncs branch_NPC_in_party_Divinity : cant  handle  special encounter "+str(ifabsentto)+", fix manually")
 				assert(false)

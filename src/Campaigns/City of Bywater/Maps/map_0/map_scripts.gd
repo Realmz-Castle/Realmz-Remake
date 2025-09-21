@@ -24,7 +24,7 @@ static func AP2x6y16() : #2 at 6,16
 	if not ScriptHelperFuncsClass.does_party_have_item_named("Invitation") :
 		return "XAP4"
 	await ScriptHelperFuncsClass.display_text_wait_noise('Before you catch too much of the argument, the barracks falls silent as all heads turn to you.  Thurfur comes over and demands to know your business for being there.  Not satisfied with your answer, he orders you to leave.  Do you leave?', 'message nod.wav')
-	branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 5, "", "")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 5, "", "")
 	if not branch.is_empty(): return branch
 	return
 

@@ -893,3 +893,7 @@ func check_flags_for_current_map_script_name() -> bool:
 	#var script_name = "script_"+str(_apname)
 	#var flag_name : String = _mapname+'.'+script_name+'.chance'
 	#GameGlobal.stuff_done[flag_name] = _chance
+
+
+func get_rogue_skill_success(stat, difficulty) :
+	return float(stat)+float(difficulty) >= float(randi()%100)
