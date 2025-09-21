@@ -691,7 +691,7 @@
 	"description": "A mystic weapon of great power.  Its benefits are many, but it does have one negative.  It makes the wielder easier to hit.",
 	"weight": 105,
 	"price": 31000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Blade_Of_Blackpool",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -1863,7 +1863,7 @@
 	"description": "A cumbersome weapon that looks far better at a distance.",
 	"weight": 180,
 	"price": 50,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Broadsword",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -2576,7 +2576,7 @@
 	"description": "This heavy and crude weapon is preferred by none but the common thug.",
 	"weight": 120,
 	"price": 60,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
@@ -3337,7 +3337,7 @@
 	"description": "A fine blade for the experienced adventurer.",
 	"weight": 60,
 	"price": 1000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
@@ -3366,7 +3366,7 @@
 	"description": "A beautiful weapon that is a rare find even in the tales of legends.",
 	"weight": 70,
 	"price": 2000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
@@ -3427,7 +3427,7 @@
 	"description": "Easily the most beautiful weapon of its kind.  This blade speaks of lost kingdoms and battles won.",
 	"weight": 75,
 	"price": 3000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
@@ -4452,7 +4452,7 @@
 	"description": "Heavy but cheap, this is the weapon preferred by the common man-at-arms.",
 	"weight": 170,
 	"price": 150,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -4857,7 +4857,7 @@
 	"description": "As if with a mind of its own this sword fends off attacks against its master.",
 	"weight": 70,
 	"price": 3200,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Longsword",
 	"sound": "clash.wav",
 	"slots": [
@@ -5047,7 +5047,7 @@
 	"description": "A fiery blade, able to inflict damage on creatures normally untouched but by the most powerful of weapons.",
 	"weight": 80,
 	"price": 7500,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Flameheart",
 	"sound": "clash.wav",
 	"slots": [
@@ -5403,7 +5403,7 @@
 	"description": "Truly a gift from the gods, for this weapon can freeze any being it strikes.",
 	"weight": 80,
 	"price": 8000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Frostblade",
 	"sound": "clash.wav",
 	"slots": [
@@ -5678,7 +5678,7 @@
 	"description": "Forged by Agadordan himself, this evil tyrant of the Abyss has given his weapon such powers as to increase his already mighty powers.",
 	"weight": 230,
 	"price": 32000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Broadsword_1",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -5964,7 +5964,7 @@
 	"description": "A mighty weapon! He who can brag ownership of this weapon is a hard man.",
 	"weight": 170,
 	"price": 750,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -7805,7 +7805,7 @@
 	"description": "The mightiest weapon ever forged by the gods.  Even among the gods it is known as \"The Hand of Justice\"",
 	"weight": 120,
 	"price": 32000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Excalibur",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -7843,7 +7843,7 @@
 	"description": "",
 	"weight": 10,
 	"price": 32000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Steel_Shod_Boots",
 	"sound": "clash.wav",
 	"slots": [
@@ -7897,7 +7897,7 @@
 	"description": "A heavy weapon, but of fine make to be sure.",
 	"weight": 140,
 	"price": 1000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -7926,7 +7926,7 @@
 	"description": "Might on the hoof.  Nobody dares cross the path of he who wields this mighty weapon.",
 	"weight": 170,
 	"price": 3000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -8964,7 +8964,7 @@
 	"description": "A gift from an old goblin shaman for helping unite Shalutie with his lost tribe.",
 	"weight": 125,
 	"price": 29000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -8998,7 +8998,7 @@
 	"description": "As if with a mind of its own this sword fends off attacks against its master.",
 	"weight": 90,
 	"price": 350,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "clash.wav",
 	"slots": [
@@ -9383,7 +9383,7 @@
 	"description": "",
 	"weight": 60,
 	"price": 32000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Flameheart",
 	"sound": "clash.wav",
 	"slots": [
@@ -9523,7 +9523,7 @@
 	"description": "Once thought to be buried with Drahkma the Merciless, this powerful weapon's true location will now spread like wildfire.  ",
 	"weight": 120,
 	"price": 3000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Broadsword_1",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -9867,7 +9867,7 @@
 	"description": "A beautiful weapon, it is commonly found with officers of the Comair infantry.",
 	"weight": 165,
 	"price": 24600,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -10543,7 +10543,7 @@
 	"description": "A mystic weapon of great power.  Its benefits are many, but it does have one negative.  It makes the wielder easier to hit.",
 	"weight": 100,
 	"price": 1000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "clash.wav",
 	"slots": [
@@ -11384,7 +11384,7 @@
 	"description": "A weapon fit for a lord. This weapon will bring many a jealous stare.",
 	"weight": 130,
 	"price": 1600,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Broadsword",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -11413,7 +11413,7 @@
 	"description": "A gleaming weapon of superior craftsmanship.",
 	"weight": 140,
 	"price": 800,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Broadsword",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -11605,7 +11605,7 @@
 	"description": "A mystic blade of divine origin.  Its wrath blasts evil from the earth, annihilating any fell creature that dares stand before it.",
 	"weight": 90,
 	"price": 30000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Broadsword_1",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -11832,7 +11832,7 @@
 	"description": "The warrior behind this sword need fear no sorcery.",
 	"weight": 69,
 	"price": 2800,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Sword_of_the_voltar",
 	"sound": "clash.wav",
 	"slots": [
@@ -12491,7 +12491,7 @@
 	"description": "A wondrous axe you captured from an astral vault.  Without doubt its former owner thought it safe at the time.",
 	"weight": 5,
 	"price": 31000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Deaths_Head_Axe",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -13330,7 +13330,7 @@
 	"description": "A mighty weapon! He who can brag ownership of this weapon is a hard man.",
 	"weight": 190,
 	"price": 13000,
-	"type": "Large Bladed Weapon",
+	"type": "Arming Sword",
 	"img_ptr": "ITEM_Battleaxe",
 	"sound": "attack hit.wav",
 	"slots": [
