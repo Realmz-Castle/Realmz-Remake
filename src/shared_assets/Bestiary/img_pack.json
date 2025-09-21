@@ -705,8 +705,8 @@
    },
    "CREA_huge_slime" :
    {
-      "0_ref_x" : 10,
-      "0_ref_y" : 27,
+      "0_ref_x" : 6,
+      "0_ref_y" : 28,
       "size" : "64x64"
    }
 }
