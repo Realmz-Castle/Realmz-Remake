@@ -406,11 +406,11 @@ func allow_honest_storage(yes : bool) :
 	UI.ow_hud.set_allow_honest_storage(honest_mode and yes)
 
 func change_map(mapname : String, x : int, y : int) :
-	print("change_map : "+mapname+" ; "+ str(Vector2(x,y)))
+	print("GameGlobal change_map : "+mapname+" ; "+ str(Vector2(x,y)))
 	if mapname == 'temporary_zoomed_map':
 		map.generate_zoomed_map(currentmap_name)
 	else :
-		map.load_map(currentcampaign, currentmap_name)
+		map.load_map(currentcampaign, mapname)
 	currentmap_name = mapname
 
 	
@@ -496,6 +496,7 @@ func end_battle( wonfledlost : String ) :
 
 	if not (wonfledlost == 'lost' and (not StateMachine.combat_state.cur_battle_data["allow_loss"])) :
 		#if not game over...
+		print("GameGlobal end battle : last_exploration_map_name : "+last_exploration_map_name)
 		change_map(last_exploration_map_name,pos_when_battle_started.x,pos_when_battle_started.y)
 
 	UI.ow_hud.exit_battle_mode()

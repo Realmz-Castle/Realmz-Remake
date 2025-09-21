@@ -39,13 +39,14 @@ func _on_campaign_selected(idx : int) -> void :
 	if selectedCampaign.ends_with(" (busy)") :
 		selectedCampaignDescrLabel.text = selectedCampaign+"\nThis campaign is already in use by another party.\nDelete that game first."
 		return
-	GameGlobal.set_current_campaign(selectedCampaign)
+	
 	selectedCampaignNameLabel.text = selectedCampaign
 	selectedCampaignDescrLabel.text = GameGlobal.get_currentcampaign_description()
 	#reset the character picking panel
 	charPickRect.fill()
 
 func _on_StartButton_pressed() -> void :
+	GameGlobal.set_current_campaign(selectedCampaign)
 	var data_dict : Dictionary = {
 		"fatigue" = 0.0,
 		"position" = Vector2.ZERO,

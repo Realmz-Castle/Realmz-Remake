@@ -212,7 +212,6 @@ func load_map( _campaign : String, mapname : String) -> void:
 	var resources = NodeAccess.__Resources()
 	mapdata = resources.maps_book[mapname][0]
 	mapscriptareas = resources.maps_book[mapname][1]["ScriptRects"]
-	print("MAP load map, name : ",mapname,", mapscriptareas: ", mapscriptareas)
 	mapsecretpaths.clear()
 	for p in resources.maps_book[mapname][1]["Paths"] :
 		mapsecretpaths[Vector2i(p[0],p[1])] = p[2]
@@ -413,7 +412,7 @@ func _process(_delta):
 	pass
 	var newtext : String = "Map Debug Label : GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(StateMachine.combat_state.cbanimstate.timer)+'\n'
 	debuglabel.text = newtext + '\n teamsize : '+str(GameGlobal.player_characters.size())+ "\n TectRectChoiceContainer visible ?"+str(UI.ow_hud.textRect.choicesContainer.visible)
-
+	debuglabel.text +=  "\nGameGlobal.currentmap_name : "+GameGlobal.currentmap_name
 
 func set_secret_seen(pos : Vector2i) :
 	if mapsecrets.has(pos) :
@@ -557,7 +556,7 @@ func generate_zoomed_map(mapname : String) -> void:
 	zoomed_map[4] = "Battle" # Set mapmusictype to "Battle"
 	resources.maps_book["temporary_zoomed_map"] = zoomed_map
 	print("MAP Generated temporary zoomed map from: ", mapname, " with music type set to Battle and expanded tiles")
-	load_map(GameGlobal.currentcampaign,"temporary_zoomed_map" )
+	load_map(GameGlobal.currentcampaign, "temporary_zoomed_map" )
 	print("MAP loaded  temporary_zoomed_map")
 
 func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, big : bool, crea : Creature, melee_enemies_on_the_way : bool) -> Array :

@@ -125,8 +125,8 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	UI.ow_hud.enter_battle_mode()
 	map.owcharacter.hide()
 	var ow_character =  map.owcharacter  #SO WE reset map.focuscharacter LATER ???
-	var pos_when_battle_started = Vector2(ow_character.tile_position_x,ow_character.tile_position_y)
-	print("State CbDecideAction start_battle pos_when_battle_started : ", pos_when_battle_started)
+	GameGlobal.pos_when_battle_started = Vector2(ow_character.tile_position_x,ow_character.tile_position_y)
+	print("State CbDecideAction start_battle pos_when_battle_started : ", GameGlobal.pos_when_battle_started)
 	GameGlobal.last_exploration_map_name = _msg["end_in_map_name"]
 	print("State CbDecideAction start_battle , battlename : ",_msg["battlename"],", battle_data : ",  _msg)
 	var map_name : String = _msg["Map"]
@@ -140,12 +140,16 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.all_battle_creatures_btns.clear()
 
 	var battle_position_offset : Vector2 = Vector2.ZERO
-	var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1])
+	#var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1])
 	if  bool(_msg["is_relative_coords"]) :
 		var map_focus_char = map.focuscharacter
-		battle_position_offset = Vector2(map_focus_char.tile_position_x,map_focus_char.tile_position_y)
-		init_pos = Vector2.ZERO#(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
-		print("CbDecidAction init batle battle_position_offset : ", battle_position_offset, " , init pos : ", init_pos )
+		
+		#init_pos = Vector2.ZERO#(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
+		if map_name == "temporary_zoomed_map" :
+			battle_position_offset = 3*GameGlobal.pos_when_battle_started
+		else :
+			battle_position_offset = Vector2(map_focus_char.tile_position_x,map_focus_char.tile_position_y)
+		print("CbDecidAction init batle battle_position_offset : ", battle_position_offset, " , init pos : ", battle_position_offset )
 
 	for creaArray in _msg["Creatures"] :
 		print(" creaArray : ", creaArray)
@@ -181,10 +185,10 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 
 
 	for pc in pc_joining :
-		combat_state.add_pc_or_npc_ally_to_battle_map(pc, init_pos+battle_position_offset)
+		combat_state.add_pc_or_npc_ally_to_battle_map(pc, battle_position_offset)
 	if _msg["npcs_allowed"] :
 		for npc in GameGlobal.player_allies :
-			combat_state.add_pc_or_npc_ally_to_battle_map(npc, init_pos+battle_position_offset)
+			combat_state.add_pc_or_npc_ally_to_battle_map(npc, battle_position_offset)
 
 	# order Ambush ?
 #	print(" all_battle_creatures ",all_battle_creatures,' ',all_battle_creatures[0].name,all_battle_creatures[1].name,all_battle_creatures[2].name,all_battle_creatures[3].name)

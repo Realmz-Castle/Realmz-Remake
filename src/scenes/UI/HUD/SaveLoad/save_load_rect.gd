@@ -290,7 +290,7 @@ func load_game(campaignname : String, savename : String) :
 	#reload resources for this scenario if  different
 	print("campaignname currentcampaign : ", campaignname, '!=',prevCampaign+"? ",campaignname != prevCampaign )
 	if campaignname != prevCampaign :
-		NodeAccess.__Resources().load_campaign_ressources(campaignname)
+		await NodeAccess.__Resources().load_campaign_ressources(campaignname)
 #	GameState._state = GameGlobal.eGameStates.startGame  #to do  GameState.DoStartGame
 	#StateMachine.transition_to("Exploration/ExWalking", {"load_campaign_msg" : {"initialize_campaign" : false}} )
 	#map exploration, done after loading resources
