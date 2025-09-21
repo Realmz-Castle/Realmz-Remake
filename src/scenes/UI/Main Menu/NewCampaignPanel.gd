@@ -4,6 +4,8 @@ extends NinePatchRect
 @onready var selectedCampaignNameLabel : Label = $VBoxContainer/HBoxContainertT/ScenDescrVBox/SelectedCampaignNameLabel
 @onready var selectedCampaignDescrLabel: Label = $VBoxContainer/HBoxContainertT/ScenDescrVBox/SelectedCampaignDescrLabel
 
+var selectedcampaign_onselect
+
 @onready var startButton : Button = $VBoxContainer/HBoxContainerB/StartControl/StartButton
 
 @onready var charPickRect : Control = $VBoxContainer/HBoxContainertT/PartyControl/CharPickRect
@@ -36,12 +38,13 @@ func _on_CancelButton_pressed() -> void :
 func _on_campaign_selected(idx : int) -> void :
 #	print(idx, campaignsItemList.get_item_text(idx))
 	selectedCampaign = campaignsItemList.get_item_text(idx)
-	if selectedCampaign.ends_with(" (busy)") :
+	if GameGlobal.honest_mode and selectedCampaign.ends_with(" (busy)") :
 		selectedCampaignDescrLabel.text = selectedCampaign+"\nThis campaign is already in use by another party.\nDelete that game first."
 		return
 	
 	selectedCampaignNameLabel.text = selectedCampaign
-	selectedCampaignDescrLabel.text = GameGlobal.get_currentcampaign_description()
+	selectedcampaign_onselect = load(Paths.campaignsfolderpath + selectedCampaign + "/on_select.gd" )
+	selectedCampaignDescrLabel.text = GameGlobal.get_campaign_description(selectedCampaign)
 	#reset the character picking panel
 	charPickRect.fill()
 

@@ -22,7 +22,7 @@ func _can_drop_data(_pos, data):
 	# [character, button ]
 	var buttonsList = data[1].get_parent().get_parent().get_parent()
 	if name == "TeamListRect" :
-		if GameGlobal.get_currentcampaign_max_party_size() <= $"TeamScrollContainer/TeamVBoxContainer".get_child_count() :
+		if GameGlobal.get_campaign_max_party_size(my_menu.my_menu.selectedcampaign_onselect) <= $"TeamScrollContainer/TeamVBoxContainer".get_child_count() :
 			return false
 	return buttonsList.name != name
 

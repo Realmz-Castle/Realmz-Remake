@@ -360,32 +360,35 @@ func set_current_campaign(campname : String) :
 	currentcampaign_onload_script = load(Paths.campaignsfolderpath + currentcampaign + "/on_select.gd" )
 
 
-func get_currentcampaign_description() -> String:
-	if currentcampaign_onload_script==null :
+func get_campaign_description(campaign_name : String) -> String:
+	var campaign_onload_script = load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd" )
+	if campaign_onload_script==null :
 		print("NO currentcampaign_onload_script loaded !!!")
 		return "NO currentcampaign_onload_script loaded !!!"
-	return currentcampaign_onload_script.description
+	return campaign_onload_script.description
 
-func get_currentcampaign_restrictions_description() -> String:
-	if currentcampaign_onload_script==null :
-		print("NO currentcampaign_onload_script loaded !!!")
+func get_campaign_restrictions_description(campaign_name : String, campaign_onload_script) -> String:
+	#var campaign_onload_script = load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd" )
+	if campaign_onload_script==null :
+		print("campaign_onload_script loaded !!!")
 		return "Pick a campaign first !"
-	return currentcampaign_onload_script.restrictions_description
+	return campaign_onload_script.restrictions_description
 
-func can_character_enter_currentcampaign(chara) -> bool :
-	if currentcampaign_onload_script==null :
-		print("NO currentcampaign_onload_script loaded !!!")
+func can_character_enter_campaign(chara, campaign_name : String,campaign_onload_script ) -> bool :
+	#var campaign_onload_script = load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd" )
+	if campaign_onload_script==null :
+		print("NO campaign_onload_script loaded !!!")
 		return false
 	var honesty : bool = true
-	honesty = GameGlobal.currentcampaign == chara.cur_campaign or chara.cur_campaign=="Free"
+	honesty = campaign_name == chara.cur_campaign or chara.cur_campaign=="Free"
 	honesty = honesty or (not honest_mode)
-	return honesty and currentcampaign_onload_script.can_character_enter(chara)
+	return honesty and campaign_onload_script.can_character_enter(chara)
 
-func get_currentcampaign_max_party_size() -> int :
-	if currentcampaign_onload_script==null :
+func get_campaign_max_party_size(campaign_onselect) -> int :
+	if campaign_onselect==null :
 		print("NO currentcampaign_onload_script loaded !!!")
 		return 0
-	return currentcampaign_onload_script.characters_limit
+	return campaign_onselect.characters_limit
 
 
 func allow_character_swap(yes : bool) :

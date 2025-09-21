@@ -36,7 +36,7 @@ func _ready():
 
 func fill() :
 	pick_party_label.text = "Pick a party for "+GameGlobal.currentcampaign
-	$RestrictionsLabel.text = GameGlobal.get_currentcampaign_restrictions_description()
+	$RestrictionsLabel.text = GameGlobal.get_campaign_restrictions_description(my_menu.selectedCampaign, my_menu.selectedcampaign_onselect)
 #	print("charpickretct fill()  :")
 #	characterslist = []
 #	charactersdict = {}
@@ -64,7 +64,7 @@ func fill() :
 #		print("charîckrect  adding panel for ", c.name)
 		var charpickpanel = charpickbuttonTSCN.instantiate()
 #		charpickpanel.set_text(c.name)
-		var allowed = GameGlobal.can_character_enter_currentcampaign(c)
+		var allowed = GameGlobal.can_character_enter_campaign(c, my_menu.selectedCampaign, my_menu.selectedcampaign_onselect)
 		charpickpanel.set_character(c, allowed)
 		charpickpanel.my_menu = self
 		charpickpanel.connect("pressed",Callable(self,"_on_char_button_pressed").bind(charpickpanel))
@@ -101,7 +101,7 @@ func _on_AddButton_pressed():
 		print("CharPickRect : seklectedcharbvutton dsabled")
 		return
 	var partysize = teamContainer.get_child_count()
-	if GameGlobal.get_currentcampaign_max_party_size() <= partysize :
+	if GameGlobal.get_campaign_max_party_size(my_menu.selectedcampaign_onselect) <= partysize :
 		print("CharPickRect : TOO MANY  IN PARTY")
 		return
 #	selectedcharbutton.character.cur_campaign = GameGlobal.currentcampaign
@@ -127,7 +127,7 @@ func check_party_ok() :
 	var party : Array = []
 	for cp in teamContainer.get_children() :
 		party.append(cp.character)
-	if party.size() <= GameGlobal.get_currentcampaign_max_party_size() and party.size()>0 :
+	if party.size() <= GameGlobal.get_campaign_max_party_size(my_menu.selectedcampaign_onselect) and party.size()>0 :
 		my_menu.set_ready(true, party)
 	else :
 		my_menu.set_ready(false, party)
