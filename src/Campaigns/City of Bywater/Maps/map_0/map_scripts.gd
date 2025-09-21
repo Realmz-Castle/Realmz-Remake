@@ -20,9 +20,9 @@ static func AP1x8y16() : #1 at 8,16
 static func AP2x6y16() : #2 at 6,16
 	var textRect = UI.ow_hud.textRect
 	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the barracks of the town guard.', 'message nod.wav')
-	await ScriptHelperFuncsClass.display_text_wait_noise('As you enter, you hear sharp words being exchanged from two high-ranking men.  It would seem the guardsmen are split into two factions.  One faction appears to be headed by a man by the name of Haikur, the other by a man named Thurfur.                    ', 'message nod.wav')
-	var branch = await ScriptHelperFuncsClass.branch_item_possession_divinity(991, 1, 1, 4, 0)
-	if not branch.is_empty(): return branch
+	await ScriptHelperFuncsClass.display_text_wait_noise('As you enter, you hear sharp words being exchanged from two high-ranking men.  It would seem the guardsmen are split into two factions.  One faction appears to be headed by a man by the name of Haikur, the other by a man named Thurfur.', 'message nod.wav')
+	if not ScriptHelperFuncsClass.does_party_have_item_named("Invitation") :
+		return "XAP4"
 	await ScriptHelperFuncsClass.display_text_wait_noise('Before you catch too much of the argument, the barracks falls silent as all heads turn to you.  Thurfur comes over and demands to know your business for being there.  Not satisfied with your answer, he orders you to leave.  Do you leave?', 'message nod.wav')
 	branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 5, "", "")
 	if not branch.is_empty(): return branch

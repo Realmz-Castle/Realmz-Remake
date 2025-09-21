@@ -72,7 +72,7 @@ static func yesno_branch_Divinity(continue_on_yes : bool, tg_type : int, tg_id :
 	else :
 		textRect.display_multiple_choices([lefttxt, righttxt],["YES", "NO"])
 	var answer = await textRect.choice_pressed
-	if (continue_on_yes and answer=='NO') or (not continue_on_yes and answer=='YES') :
+	if (continue_on_yes and answer=='YES') or (not continue_on_yes and answer=='NO') :
 		return ''
 	else:
 		var apname : String = ''
