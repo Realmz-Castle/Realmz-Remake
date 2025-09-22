@@ -129,6 +129,7 @@ const levelup_bonuses : Dictionary = {
 
 static func _mod_equippable(_character) :
 	var mod_equippable_types : Dictionary = {
+"Ion Stone" : 1,
 		"Mace" : 0,
 		"Club" : 1,
 		"Hammer" : 0,

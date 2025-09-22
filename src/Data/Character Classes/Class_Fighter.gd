@@ -149,6 +149,7 @@ static func _mod_equippable(_character) :
 	# 0 = wont prevent from wearing but  wont help if  race gives a penalty
 	# if  rce+class mods>0, can wear item type
 	var mod_equippable_types : Dictionary = {
+"Ion Stone" : 1,
 		"Mace" : 2,
 		"Club" : 2,
 		"Hammer" : 1,
