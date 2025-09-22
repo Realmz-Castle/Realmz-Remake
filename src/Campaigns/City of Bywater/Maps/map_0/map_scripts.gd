@@ -75,7 +75,7 @@ static func AP7x10y15() : #7 at 10,15
 static func AP8x9y13() : #8 at 9,13
 	var textRect = UI.ow_hud.textRect
 	await ScriptHelperFuncsClass.display_text_wait_noise('You have entered a rather fine tavern filled with only the best citizens of Bywater.  Most of the tables are filled with patrons eating spiced potatoes and engaged in interesting discussions.  You find yourself a table near the back.', 'message nod.wav')
-	await ScriptHelperFuncsClass.display_simple_encounter_Divinity(0)
+	await ScriptHelperFuncsClass.display_simple_encounter_Divinity(3)
 	return
 
 static func AP9x7y11() : #9 at 7,11
