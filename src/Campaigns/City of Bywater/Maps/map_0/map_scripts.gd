@@ -60,7 +60,7 @@ static func AP4x23y12() : #4 at 23,12
 
 static func AP5x10y14() : #5 at 10,14
 	var textRect = UI.ow_hud.textRect
-	return ScriptHelperFuncs.get_ap_name_starting_with('AP'+str(2))
+	return ScriptHelperFuncs.get_ap_name_starting_with('AP'+str(4))
 
 static func AP6x41y7() : #6 at 41,7
 	var textRect = UI.ow_hud.textRect
