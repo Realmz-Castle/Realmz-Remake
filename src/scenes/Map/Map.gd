@@ -381,8 +381,14 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 			var camoffset : Vector2 = Vector2(32*cam_x, 32*cam_y)
 			var rect : Rect2 = Rect2(tl-camoffset, sz)
 			draw_rect(rect,Color(1,0,0.8, 1),false,2.0)# false) TODOGODOT4 Antialiasing argument is missing
-#			draw_string(font: Font, rect.position, s, Color( 1, 0, 0.8, 1 ), -1)
+			#draw_string(font: Font, rect.position, s, Color( 1, 0, 0.8, 1 ), -1)
+			#Draws text using the specified font at the pos (bottom-left corner using the baseline of the font). The text will have its color multiplied by modulate. If width is greater than or equal to 0, the text will be clipped if it exceeds the specified width.
 
+			#var default_font = ThemeDB.fallback_font
+			#var default_font_size = ThemeDB.fallback_font_size
+			#draw_string(default_font, Vector2(64, 64), "Hello world", HORIZONTAL_ALIGNMENT_LEFT, -1, default_font_size)
+
+			draw_string(ThemeDB.fallback_font, tl-camoffset, s, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(pow(randf(), 4), pow(randf(), 4), pow(randf(), 4)))
 	return
 
 
