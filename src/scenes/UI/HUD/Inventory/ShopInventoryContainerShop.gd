@@ -137,5 +137,3 @@ func _drop_data(_pos, data):
 	shoprect.goldLabel.text = str( hudselectedchar.money[0] )
 	shoprect.poolLabel.text = str( GameGlobal.money_pool[0] )	
 		
-
-

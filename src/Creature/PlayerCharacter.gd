@@ -64,7 +64,8 @@ var equippable_types : Dictionary = {
 	"Plate Armor" : 1,
 	"Soft Boots" : 1,
 	"Hard Boots" : 1,
-	"Scroll Case" : 1
+	"Scroll Case" : 1,
+	"Ion Stone" : 1
 }
 
 

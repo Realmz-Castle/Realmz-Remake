@@ -414,7 +414,7 @@
 	"description": "A combat-specialized weapon with an armor piercing tip.",
 	"weight": 120,
 	"price": 80,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Tip_sword",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -439,7 +439,7 @@
 	"description": "A one-of-a-kind weapon, it is far more powerful than it looks.  It can penetrate any armor.",
 	"weight": 100,
 	"price": 500,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Tip_sword",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -644,7 +644,7 @@
 	"description": "An awesome weapon preferred by the skilled.  It is quite a rare find.",
 	"weight": 65,
 	"price": 2500,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
@@ -726,7 +726,7 @@
 	"description": "It appears to be but an ordinary sword of superior craftsmanship.  Appearances can be deceiving.",
 	"weight": 105,
 	"price": 32000,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Shadowhawk",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -831,7 +831,7 @@
 	"description": "A magical feel permeates this blade's fine lines.",
 	"weight": 45,
 	"price": 750,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
@@ -982,7 +982,7 @@
 	"description": "The preferred weapon of the rouge. This weapon will please the pickiest of pickpockets.",
 	"weight": 85,
 	"price": 250,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
@@ -1256,7 +1256,7 @@
 	"description": "Preferred by the crafty, this weapon is true only to a brave master.",
 	"weight": 90,
 	"price": 40,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
@@ -1913,7 +1913,7 @@
 	"description": "This amazing device consists of a ball and chain which, aside from being a powerful weapon, is somehow capable of deflecting your opponent's attacks.",
 	"weight": 85,
 	"price": 1800,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -2152,7 +2152,7 @@
 	"description": "A large and cumbersome weapon. It does great damage if used correctly.",
 	"weight": 60,
 	"price": 500,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
@@ -2339,7 +2339,7 @@
 	"description": "A crude, iron ball with spikes. This weapon is as difficult to wield as it is to gaze upon.",
 	"weight": 170,
 	"price": 50,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "clash.wav",
 	"slots": [
@@ -2415,7 +2415,7 @@
 	"description": "A hammer of such might can rend the stone of mountains and shake the foundations of the earth.",
 	"weight": 120,
 	"price": 22500,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
@@ -2445,7 +2445,7 @@
 	"description": "The metal of this weapon vibrates with energy.  Its power will stagger the recipient of its blow.",
 	"weight": 145,
 	"price": 1250,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
@@ -2498,7 +2498,7 @@
 	"description": "A tribute to the skill of the smith behind its creation.  It will not fail the warrior who takes it into battle. ",
 	"weight": 120,
 	"price": 750,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
@@ -2709,7 +2709,7 @@
 	"description": "Prized by the most noble of priests, this weapon is a great prize.",
 	"weight": 150,
 	"price": 1200,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
@@ -2759,7 +2759,7 @@
 	"description": "The gods have smiled on this beautiful dealer of mortal death.",
 	"weight": 140,
 	"price": 600,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
@@ -2788,7 +2788,7 @@
 	"description": "This amazing device consists of a ball and chain which, aside from being a powerful weapon, is somehow capable of deflecting your opponent's attacks.",
 	"weight": 125,
 	"price": 1100,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -3105,7 +3105,7 @@
 	"description": "Few are the foes that will stand against this mighty weapon.  It is capable of casting powerful spells.",
 	"weight": 95,
 	"price": 32000,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Stormbringer",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -3141,7 +3141,7 @@
 	"description": "Heavy and cumbersome.  This is the preferred weapon of those that rely on brute force.",
 	"weight": 180,
 	"price": 5,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Club",
 	"sound": "pummel.wav",
 	"slots": [
@@ -3759,7 +3759,7 @@
 	"description": "Heavy but effective, this weapon is preferred by the holy warrior.",
 	"weight": 200,
 	"price": 30,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
@@ -4390,7 +4390,7 @@
 	"description": "A treasure of unparalleled beauty and potency.  Handle it with care.",
 	"weight": 90,
 	"price": 24500,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Sword_of_the_powers",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -4427,7 +4427,7 @@
 	"description": "An effective weapon for dealing a might-crushing blow.",
 	"weight": 60,
 	"price": 20,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
@@ -5456,7 +5456,7 @@
 	"description": "A bane to all those of a less than earthly origin.",
 	"weight": 170,
 	"price": 28800,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
@@ -5905,7 +5905,7 @@
 	"description": "A heavy iron head for delivering an even heavier blow.",
 	"weight": 150,
 	"price": 100,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Stone_Hammer",
 	"sound": "pummel.wav",
 	"slots": [
@@ -6740,7 +6740,7 @@
 	"description": "The preferred weapon of the rouge. This weapon will please the pickiest of pickpockets.",
 	"weight": 60,
 	"price": 4350,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
@@ -8643,7 +8643,7 @@
 	"description": "Though it is disgusting to look upon, it is a mighty weapon in battle.",
 	"weight": 80,
 	"price": 27500,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Cobrastrike",
 	"sound": "slimed.wav",
 	"slots": [
@@ -8781,7 +8781,7 @@
 	"description": "Giving the wielder incredible speed is but one advantage of this beautiful sword.",
 	"weight": 120,
 	"price": 32000,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Shadowhawk",
 	"sound": "attack hit.wav",
 	"slots": [
@@ -8872,7 +8872,7 @@
 	"description": "A one-of-a-kind weapon, it is far more powerful than it looks.  It can penetrate any armor.",
 	"weight": 100,
 	"price": 2800,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Tip_sword",
 	"sound": "metal hit.wav",
 	"slots": [
@@ -8901,7 +8901,7 @@
 	"description": "This weapon is extremly powerful and has always been in the hands of evil.  Until now!",
 	"weight": 160,
 	"price": 20000,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
@@ -9116,7 +9116,7 @@
 	"description": "A bane to all those of a less than earthly origin.",
 	"weight": 140,
 	"price": 350,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
@@ -9706,7 +9706,7 @@
 	"description": "The muscles of this weapon's owner bulge with the forces of stone and the power of earth.",
 	"weight": 90,
 	"price": 500,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
@@ -9834,7 +9834,7 @@
 	"description": "This mystic weapon gives total protection from normal missile weapons.",
 	"weight": 45,
 	"price": 4300,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Scimitar",
 	"sound": "clash.wav",
 	"slots": [
@@ -11084,7 +11084,7 @@
 	"description": "A mighty weapon that does double normal club damage in addition to its magical damage.",
 	"weight": 120,
 	"price": 19000,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Club",
 	"sound": "pummel.wav",
 	"slots": [
@@ -11187,7 +11187,7 @@
 	"description": "Light in the hand, this weapon can deal a powerful blow.",
 	"weight": 125,
 	"price": 1150,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "clash.wav",
 	"slots": [
@@ -11248,7 +11248,7 @@
 	"description": "Feared by all, this is a very deadly weapon.  Legend says that it was created by a god as a gift to his mortal son.",
 	"weight": 145,
 	"price": 6000,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Morning_star",
 	"sound": "clash.wav",
 	"slots": [
@@ -11331,7 +11331,7 @@
 	"description": "The innate power of this weapon will dispel the power of magiks hurled against its master.",
 	"weight": 150,
 	"price": 1600,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Mace",
 	"sound": "club.wav",
 	"slots": [
@@ -11572,7 +11572,7 @@
 	"description": "The muscles of this weapon's owner bulge with the forces of stone and the power of earth.",
 	"weight": 95,
 	"price": 13500,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
@@ -11862,7 +11862,7 @@
 	"description": "Preferred by stout fighters, this heavy and clumsy weapon is most effective -- if you can hit your foe.",
 	"weight": 110,
 	"price": 45,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
@@ -11999,7 +11999,7 @@
 	"description": "A rare find indeed, this weapon is a most powerful friend.",
 	"weight": 85,
 	"price": 1600,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
@@ -12028,7 +12028,7 @@
 	"description": "A well-balanced axe, this weapon is of obvious magical origin.",
 	"weight": 90,
 	"price": 800,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
@@ -12113,7 +12113,7 @@
 	"description": "From the treasure chambers of a god, this mighty axe is capable of hewing down the most mighty of foes.",
 	"weight": 80,
 	"price": 2500,
-	"type": "Medium Bladed Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_War_axe",
 	"sound": "clash.wav",
 	"slots": [
@@ -13114,7 +13114,7 @@
 	"description": "This magically-enhanced club is a delight to wield, even for those that normally shun such weapons.",
 	"weight": 130,
 	"price": 750,
-	"type": "Medium Blunt Weapon",
+	"type": "Shortsword",
 	"img_ptr": "ITEM_Club",
 	"sound": "pummel.wav",
 	"slots": [
@@ -13594,5 +13594,130 @@
 	  "EvasionRanged": 14
 	},
 	"unique": 1
-  }
+  },
+  
+  
+  
+  
+  
+  
+  "Torch": {
+	"name": "Torch",
+	"unidentified_name": "Torch",
+	"is_magical": 1,
+	"description": "A stout stick covered in pitch.",
+	"weight": 12,
+	"price": 1,
+	"type": "Supplies",
+	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
+	"sound": "cloth armor.wav",
+	"slots": [],
+	"hands": 0,
+	"equippable": 0,
+	"stats_mini": "WTF",
+	"stats": {},
+	"unique": 0
+  },
+	"Parchment": {
+	"name": "Parchment",
+	"unidentified_name": "Parchment",
+	"is_magical": 1,
+	"description": "A stout Parchment covered in pitch.",
+	"weight": 12,
+	"price": 1,
+	"type": "Supplies",
+	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
+	"sound": "cloth armor.wav",
+	"slots": [],
+	"hands": 0,
+	"equippable": 0,
+	"stats_mini": "WTF",
+	"stats": {},
+	"unique": 0
+  },
+	"Iron Rations": {
+	"name": "Iron Rations",
+	"unidentified_name": "Iron Rations",
+	"is_magical": 1,
+	"description": "A stout Iron Rations covered in pitch.",
+	"weight": 12,
+	"price": 1,
+	"type": "Supplies",
+	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
+	"sound": "cloth armor.wav",
+	"slots": [],
+	"hands": 0,
+	"equippable": 0,
+	"stats_mini": "WTF",
+	"stats": {},
+	"unique": 0
+  },
+	"Rope": {
+	"name": "Rope",
+	"unidentified_name": "Rope",
+	"is_magical": 1,
+	"description": "A stout Rope covered in pitch.",
+	"weight": 12,
+	"price": 1,
+	"type": "Supplies",
+	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
+	"sound": "cloth armor.wav",
+	"slots": [],
+	"hands": 0,
+	"equippable": 0,
+	"stats_mini": "WTF",
+	"stats": {},
+	"unique": 0
+  },
+	"Mirror": {
+	"name": "Mirror",
+	"unidentified_name": "Mirror",
+	"is_magical": 1,
+	"description": "A stout Mirror covered in pitch.",
+	"weight": 12,
+	"price": 1,
+	"type": "Supplies",
+	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
+	"sound": "cloth armor.wav",
+	"slots": [],
+	"hands": 0,
+	"equippable": 0,
+	"stats_mini": "WTF",
+	"stats": {},
+	"unique": 0
+  },
+	"Iron Spikes": {
+	"name": "Iron Spikes",
+	"unidentified_name": "Iron Spikes",
+	"is_magical": 1,
+	"description": "A stout Iron Spikes covered in pitch.",
+	"weight": 12,
+	"price": 1,
+	"type": "Supplies",
+	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
+	"sound": "cloth armor.wav",
+	"slots": [],
+	"hands": 0,
+	"equippable": 0,
+	"stats_mini": "WTF",
+	"stats": {},
+	"unique": 0
+  },
+	"Flask of Oil": {
+	"name": "Flask of Oil",
+	"unidentified_name": "Flask of Oil",
+	"is_magical": 1,
+	"description": "A stout Flask of Oil covered in pitch.",
+	"weight": 12,
+	"price": 1,
+	"type": "Supplies",
+	"img_ptr": "ITEM_Cloak_Of_Small_Folk",
+	"sound": "cloth armor.wav",
+	"slots": [],
+	"hands": 0,
+	"equippable": 0,
+	"stats_mini": "WTF",
+	"stats": {},
+	"unique": 0
+  },
 }

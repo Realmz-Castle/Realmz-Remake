@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3 uid="uid://b5341ljf605d7"]
+[gd_scene load_steps=43 format=3 uid="uid://b5341ljf605d7"]
 
 [ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ci4xc"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/InventoryRect.gd" id="2_vmm2o"]
@@ -18,10 +18,11 @@
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="14_5juv1"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="15_gerk8"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="16_30rcg"]
+[ext_resource type="Texture2D" uid="uid://cj2oflkrhoj5x" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmorS.png" id="16_rgtrq"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="17_3h1a5"]
+[ext_resource type="Texture2D" uid="uid://b5meu8gpc2702" path="res://scenes/UI/HUD/Inventory/ButtonMagic.png" id="17_r02p5"]
 [ext_resource type="Texture2D" uid="uid://b4mjxed28syit" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="18_vqq75"]
 [ext_resource type="Texture2D" uid="uid://doe7digdoowq8" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="19_f3a2p"]
-[ext_resource type="Texture2D" uid="uid://cwmjgbrk577bn" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="20_xluxo"]
 [ext_resource type="Texture2D" uid="uid://cxo553atsg0gv" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="21_a5wiv"]
 [ext_resource type="Texture2D" uid="uid://xcp30yhgjs07" path="res://scenes/UI/HUD/Inventory/ButtonBuyBack.png" id="22_brh2y"]
 [ext_resource type="Texture2D" uid="uid://sh06x4jxu2qd" path="res://scenes/UI/HUD/Inventory/ButtonJoin.png" id="23_j6psa"]
@@ -340,7 +341,6 @@ layout_mode = 2
 mouse_filter = 2
 
 [node name="ShopButtonsRect" type="NinePatchRect" parent="VBoxContainer/TopHBox/MiddleColumn"]
-visible = false
 clip_contents = true
 custom_minimum_size = Vector2(58, 0)
 layout_mode = 2
@@ -390,7 +390,17 @@ theme_override_styles/disabled = ExtResource("17_3h1a5")
 theme_override_styles/hover = ExtResource("15_gerk8")
 theme_override_styles/pressed = ExtResource("16_30rcg")
 theme_override_styles/normal = ExtResource("14_5juv1")
-icon = ExtResource("20_xluxo")
+icon = ExtResource("16_rgtrq")
+
+[node name="MagicButton2" type="Button" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+theme_override_styles/focus = ExtResource("14_5juv1")
+theme_override_styles/disabled = ExtResource("17_3h1a5")
+theme_override_styles/hover = ExtResource("15_gerk8")
+theme_override_styles/pressed = ExtResource("16_30rcg")
+theme_override_styles/normal = ExtResource("14_5juv1")
+icon = ExtResource("17_r02p5")
 
 [node name="SuppliesButton" type="Button" parent="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer"]
 custom_minimum_size = Vector2(58, 58)
@@ -577,6 +587,7 @@ text = "EQUIP"
 [connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/WeaponsButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Weapons"]]
 [connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/BArmorButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Armor"]]
 [connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/LArmorButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Limbs"]]
+[connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/MagicButton2" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Magic"]]
 [connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/SuppliesButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["Supplies"]]
 [connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/ShopButtonsRect/VBoxContainer/BuyBackButton" to="VBoxContainer/TopHBox/LeftPage/ShopRect" method="_on_ShopButton_pressed" binds= ["BuyBack"]]
 [connection signal="pressed" from="VBoxContainer/TopHBox/MiddleColumn/VBoxJoinSplit/ButtonJoin" to="." method="_on_ButtonJoin_pressed"]

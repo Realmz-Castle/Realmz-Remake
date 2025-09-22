@@ -17,9 +17,10 @@ var sell_rate : float = 1.0
 var weapons : Array = []	# arrays of itemshopbuttons
 var armor : Array = []
 var limbs : Array = []
+var magic : Array = []
 var supplies : Array = []
 var buyback : Array = []
-var types = {"Weapons":weapons, "Armor":armor, "Limbs":limbs, "Supplies":supplies, "BuyBack":buyback}
+var types = {"Weapons":weapons, "Armor":armor, "Limbs":limbs,"Magic" : magic,  "Supplies":supplies, "BuyBack":buyback}
 var current_shop_category : String = "Weapons"
 
 # Called when the node enters the scene tree for the first time.
@@ -36,6 +37,7 @@ func initialize() :
 	weapons.clear()
 	armor.clear()
 	limbs.clear()
+	magic.clear()
 	supplies.clear()
 	buyback.clear()
 	
@@ -45,6 +47,7 @@ func initialize() :
 	if curshopname == '' :
 		return
 	var curShop = GameGlobal.get_shop(curshopname)
+	print(curShop)
 	buy_rate = curShop["buy_rate"]
 	sell_rate = curShop["sell_rate"]
 #	print(curShop)
@@ -56,6 +59,9 @@ func initialize() :
 				newitemdict = resources.items_book[i[0]].duplicate()
 			else :
 				newitemdict = i[0]
+			if t != "BuyBack" :
+				if newitemdict.has("charges_max") :
+					newitemdict["charges"] = newitemdict["charges_max"]
 			
 			
 #			var newitem = resources.generate_item_from_json_dict(newitemdict)
@@ -81,6 +87,7 @@ func _on_LeaveShopButton_pressed():
 		weapons.clear()
 		armor.clear()
 		limbs.clear()
+		magic.clear()
 		supplies.clear()
 		buyback.clear()
 		inventoryrect.hud.set_charactersRect_type(0)

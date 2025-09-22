@@ -315,7 +315,7 @@ func load_shops_script(campaign : String) :
 func campaign_start_load_shops_data(itemsbook : Dictionary) :
 	# only checked starting new campaign, not loading
 	if shops_dict.is_empty() :
-		shops_dict = shopScript.build_shops(itemsbook)
+		shops_dict = shopScript.build_shops()
 		return
 	# else, rebuild the image textures of the items in  buyback :
 	#"imgdatasize": 236, "imgdata": "H4
@@ -334,7 +334,8 @@ func campaign_start_load_shops_data(itemsbook : Dictionary) :
 #			texture.create_from_image(image) #,0 # no flags, no filter
 #			arr[0]["texture"] = texture
 func get_shop(shopname : String) :
-	return shopScript.get_shop(shopname, shops_dict[shopname])
+	return shops_dict[shopname]
+	#return shopScript.get_shop(shopname, shops_dict[shopname])
 
 func refresh_OW_HUD() :
 	UI.ow_hud.update_fatigue_bar()

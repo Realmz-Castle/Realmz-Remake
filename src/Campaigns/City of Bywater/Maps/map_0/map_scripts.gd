@@ -82,7 +82,7 @@ static func AP9x7y11() : #9 at 7,11
 	var textRect = UI.ow_hud.textRect
 	await ScriptHelperFuncsClass.display_text_wait_noise('You enter a pleasant little shop that seems well stocked.  The shopkeeper smiles and asks you to look around at his fine wares. ', 'message nod.wav')
 	GameGlobal.allow_banking(true)
-	GameGlobal.currentShop = 'shop_0'
+	GameGlobal.currentShop = 'shop_1'
 	GameGlobal.allow_money_change(true)
 	return
 
