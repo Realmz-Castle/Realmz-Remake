@@ -11664,7 +11664,7 @@
 	"weight": 40,
 	"price": 15,
 	"type": "Light Helmet",
-	"img_ptr": "ITEM_Helm_Of_Kranack",
+	"img_ptr": "ITEM_Iron_cap",
 	"sound": "metal armor.wav",
 	"slots": [
 	  "Head"
