@@ -753,10 +753,10 @@ static func XAP6() : #6
 	var textRect = UI.ow_hud.textRect
 	# RANDOM RECTANGLE REFERENCE land_level=0 rect_num=0 start_coord=0,0 end_coord=41,18 [LRR0/0]
 	await ScriptHelperFuncsClass.display_text_wait_noise('You come upon a shocking scene.  You spy a small group of town bullies attacking an old woman.  It would seem they are after a dagger she is clutching to her chest.  Do you wish to intervene on her behalf?', 'message nod.wav')
-	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "Your inspection has detected a trap!", "Who will attempt to break the door down?")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "Rescue the woman", "Back away")
 	if not branch.is_empty(): return branch
 	await ScriptHelperFuncsClass.display_text_wait_noise('The bullies do not have the stomach to fight and flee at your approach.  The old hag scowls at you, "Stay away!  You can\'t have it!"  The dagger she is clutching is rather ornate and seems very likely to be magical in nature.  What do you do?', 'message nod.wav')
-	branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 7, "This gate is locked.", "You could easily barricade this door and rest in this room undisturbed.")
+	branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 7, "Take the dagger", "Bid her goodday")
 	if not branch.is_empty(): return branch
 	await ScriptHelperFuncsClass.display_text_wait_noise('"You young whelps!  You shall rot in hell for your evil ways!"  Having lost the dagger she shuffles away.', 'message nod.wav')
 	await ScriptHelperFuncsClass.give_treasure_with_id(3)
@@ -781,7 +781,7 @@ static func XAP9() : #9
 	# RANDOM RECTANGLE REFERENCE land_level=0 rect_num=0 start_coord=0,0 end_coord=41,18 [LRR0/0]
 	await ScriptHelperFuncsClass.display_text_wait_noise('A wretched young gutter snipe runs up to you and begins crying so loud you can barely make out what he is saying.  "Oh, please help me, please, please!  My dog has fallen into the old well and I can\'t get him out.  Please help!"  What do you do?', 'message nod.wav')
 	ScriptHelperFuncsClass.play_sound('angry mob.wav', false)
-	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "Go with him and see what you can do", "Shoo him away")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "Go with and help", "Shoo him away")
 	if not branch.is_empty(): return branch
 	ScriptHelperFuncsClass.play_sound('teleport.wav', true)
 	await ScriptHelperFuncsClass.teleport_to_map_and_pos_divinity(0, 27, 5, 0)
@@ -900,7 +900,7 @@ static func XAP21() : #21
 	var textRect = UI.ow_hud.textRect
 	# RANDOM RECTANGLE REFERENCE land_level=3 rect_num=0 start_coord=0,0 end_coord=27,48 [LRR3/0]
 	await ScriptHelperFuncsClass.display_text_wait_noise('You hear growls.  Suddenly, there appears an ogre.  It is being chased by a beast even more fierce-a giant troll.  Do you wish to attempt to save the ogre from its obvious fate or do you stand back and enjoy evil destroying evil?', 'message nod.wav')
-	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "This cave continues off into the distance.  There is a pretty strong breeze of less than fresh air.", "You see a small band of ogres in the distance.  Do you wish to attack them?")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "Attack the troll", "Leave them be")
 	if not branch.is_empty(): return branch
 	GameGlobal.start_battle("Battle_51","map_0", true,false, true,true,true,[])
 	var battle_outcome = await GameGlobal.battle_end
@@ -948,7 +948,7 @@ static func XAP27() : #27
 	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 137, "", "")
 	if not branch.is_empty(): return branch
 	await ScriptHelperFuncsClass.display_text_wait_noise('You are successful at delivering the baby.  The mother only has time to see the face of her healthy newborn boy, before she slips into a coma and dies.  It would seem you have become parents by default.  What do you do?', 'message nod.wav')
-	branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "You see the corpses of over 3 dozen Dogre.  Many are nothing but armor stretched over withered bones but several are considerably more fresh.  Even though, the flesh on some seems to be withered as if aged hundreds of years in just moments.", "You see a group of Dogre in the distance.  Do you want to attack them?")
+	branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "Take the child", "Leave the child")
 	if not branch.is_empty(): return branch
 	await ScriptHelperFuncsClass.display_text_wait_noise('You wrap the babe in a blanket and secure him to your back.', 'message nod.wav')
 	await ScriptHelperFuncsClass.give_treasure_with_id(15)
@@ -972,7 +972,7 @@ static func XAP29() : #29
 	var textRect = UI.ow_hud.textRect
 	# RANDOM RECTANGLE REFERENCE land_level=0 rect_num=2 start_coord=50,5 end_coord=89,34 [LRR0/2]
 	await ScriptHelperFuncsClass.display_text_wait_noise('You hear the sound of battle in the distance.  You see a band of orcs being attacked by a large group of goblins.  The orcs appear doomed unless you help.  The battle spreads out to engulf you.  Do you stand with the orcs or attack both parties?', 'message nod.wav')
-	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(false, 1, 30, "", "")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(false, 1, 30, "Side with the orcs", "Attack both parties")
 	if not branch.is_empty(): return branch
 	GameGlobal.start_battle("Battle_53","map_0", true,false, true,true,true,[])
 	var battle_outcome = await GameGlobal.battle_end
@@ -1028,7 +1028,7 @@ static func XAP36() : #36
 	ScriptHelperFuncsClass.play_sound('earth shake.wav', false)
 	await ScriptHelperFuncsClass.display_text_wait_noise('You land in the bottom with a loud thump.  Whatever is in the pit must be foul indeed, for they did not even bother to disarm you.', 'message nod.wav')
 	await ScriptHelperFuncsClass.display_text_wait_noise('The pit has only two exits.  Both disappear into the blackness of the underworld.  Do you choose the left pit or the right?', 'message nod.wav')
-	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 37, "", "")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 37, "Left", "Right")
 	if not branch.is_empty(): return branch
 	await ScriptHelperFuncsClass.display_text_wait_noise('The reason no one has ever returned from this pit is that this tunnel leads to the surface!  The krise must have been so afraid of whatever dwells in the other tunnel, they never investigated this one!', 'message nod.wav')
 	await ScriptHelperFuncsClass.teleport_to_map_and_pos_divinity(1, 2, 48, 0)
@@ -1143,7 +1143,7 @@ static func XAP50() : #50
 	var textRect = UI.ow_hud.textRect
 	# RANDOM RECTANGLE REFERENCE land_level=0 rect_num=4 start_coord=67,46 end_coord=89,89 [LRR0/4]
 	await ScriptHelperFuncsClass.display_text_wait_noise('You see a hill giant slumped against a tree.  He is wounded and is nearly dead.  He speaks, "Ranthog fight big bear.  Ranthog hurt.  You help Ranthog?"      What do you do?', 'message nod.wav')
-	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 51, "", "")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 1, 51, "Bind his wounds", "Slay him")
 	if not branch.is_empty(): return branch
 	await ScriptHelperFuncsClass.display_text_wait_noise('"Ranthog thank you.  Ranthog give you big treasure."  He sketches a map on a piece of papyrus showing the location of a large, hollowed out tree.  He says the treasure is hidden inside the tree.  "Ranthog go home.  Ranthog tired."  He limps away.', 'message nod.wav')
 	GameGlobal.minimaps[6] = 1
