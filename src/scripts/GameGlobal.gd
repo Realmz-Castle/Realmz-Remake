@@ -55,7 +55,7 @@ var currentTemple : Array = [] # [ [spellname, price] ]
 var prev_simple_enc_name : String = ''  #not saved, only for use inside that simple encounter
 var currentSpecialEncounterName : String = "default.gd"
 
-var can_show_ability_list : bool = false
+var can_show_ability_list : bool = true
 
 var last_picked_characters : Array = [] #set by ScriptHelperFuncs, not owh_hud.request_pick
 
@@ -194,7 +194,17 @@ func load_character_to_profile(c : String) :
 
 func set_hd_mode(new_hd_mode: bool) -> void:
 	hd_mode = new_hd_mode
-
+	#DisplayServer.window_set_position(Vector2i(0,64))
+	#if new_hd_mode :
+		#DisplayServer.window_set_size(Vector2i(DisplayServer.window_get_size()/2))
+		#var winpos : Vector2i = DisplayServer.window_get_position()
+		##DisplayServer.window_set_position(Vector2i(0,64))
+	#else :
+		#DisplayServer.window_set_size(Vector2i(DisplayServer.window_get_size()*2))
+	#if new_hd_mode :
+		#DisplayServer.window_set_max_size( Vector2i(DisplayServer.screen_get_size() *0.2) )
+	#else :
+		#DisplayServer.window_set_max_size( DisplayServer.screen_get_size() )
 
 func save_hd_mode(new_hd_mode: bool) -> void:
 	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", new_hd_mode)
