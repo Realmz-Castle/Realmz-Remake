@@ -93,7 +93,7 @@ func fillLevelMenuButton(levels : Array) :
 
 func _on_level_picked(ID):
 	newchar_level = ID
-	levelMenuButton.set_text(String(ID))
+	levelMenuButton.set_text(str(ID))
 	characterstatrect.set_character_level(newchar_level)
 	if new_character :
 		try_create_character()
