@@ -1052,6 +1052,15 @@ static func branch_NPC_in_party_Divinity(creature_name : String, ifpresenttype :
 				assert(false)
 	return ''
 
+static func is_NPC_in_party(npc_name : String) :
+	var present : bool = false
+	for c in GameGlobal.player_allies :
+		if c.name == npc_name :
+			present = true
+			break
+	return present
+
+
 #Divinity Code 150 destroy_related_monsters
 static func destroy_related_monsters(cname : String, number : int,  allies_too : bool) :
 	for cb in StateMachine.combat_state.all_battle_creatures_btns :
