@@ -122,7 +122,10 @@ class FileHandler:
 #		print(Paths.realmzfolderpath+"settings.cfg")
 		var err = config.load(path)
 		if err == OK: # if not, something went wrong with the file loading
-			return config.get_value(section, key, default)	
+			print("Utils get cfg : returs" , config.get_value(section, key, default))
+			var returned = config.get_value(section, key, default)
+			return returned
+			
 	#	if not config.has_section_key(section, key):
 	#			print(section, key)
 		else :
@@ -137,11 +140,14 @@ class FileHandler:
 			# Store a variable if and only if it hasn't been defined yet
 	#		if not config.has_section_key("audio", "mute"):
 			config.set_value(section, key, value)
-			print('    ',key, value)
+			
 		else :
 			print("ERROR",err, " set_cfg_setting ",path)
+			return
 		# Save the changes by overwriting the previous file
 		config.save(path)
+		#config.load(path)
+		#print('Utils set_cfg_setting    ',key, value,"set to ",config.get_value(section, key, null) )
 	
 	static func load_character(path)-> PlayerCharacter :		
 		

@@ -19,12 +19,14 @@ var profileslist : Array =  []
 func _ready():
 	newprofileVBox.my_menu = self
 	build_profiles_list()
-	var config = FileAccess.open(Paths.realmzfolderpath+"settings.cfg", FileAccess.ModeFlags.WRITE_READ)
-	if config:
-		config.close()
+	#var config = FileAccess.open(Paths.realmzfolderpath+"settings.cfg", FileAccess.ModeFlags.WRITE_READ)
+	#if config:
+		#config.close()
 
 	var profilefromcfg = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
+	pass
 	var hd_mode_from_config = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", GameGlobal.hd_mode)
+	
 	GameGlobal.set_hd_mode(hd_mode_from_config)
 #	var dir = Directory.new()
 	if DirAccess.dir_exists_absolute(Paths.profilesfolderpath+"/" + profilefromcfg) :

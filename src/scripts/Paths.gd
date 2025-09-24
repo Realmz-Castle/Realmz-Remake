@@ -30,4 +30,4 @@ func _ready():
 	profilesfolderpath = realmzfolderpath + "Profiles/"
 	campaignsfolderpath = realmzfolderpath + "Campaigns/"
 	datafolderpath = realmzfolderpath + "Data/"
-	currentProfileFolderName = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
+	currentProfileFolderName = Utils.FileHandler.get_cfg_setting(Paths.profilesfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")

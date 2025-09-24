@@ -11,7 +11,28 @@ func _ready():
 	var _err1 = get_tree().root.connect("size_changed",Callable(NodeAccess.__Map(),"_on_viewport_size_changed"))
 	var _err2 = get_tree().root.connect("size_changed",Callable(UI.ow_hud,"_on_viewport_size_changed"))
 	#get_tree().root.max_size = Window.MODE_FULLSCREEN
+	
+	#var config = FileAccess.open(Paths.realmzfolderpath+"settings.cfg", FileAccess.ModeFlags.WRITE_READ)
+	#if config:
+		#printerr("MAIN : settings.cfg  EXISTS")
+		#config.close()
+	
+	
+	var def_screen_size : Vector2 = Vector2(ProjectSettings.get_setting("display/window/size/viewport_width"), ProjectSettings.get_setting("display/window/size/viewport_height"))
+	var setting_screen_size_x : float = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","screen_size_x", def_screen_size.x)
+	
+	var setting_screen_size_y : float = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","screen_size_y", def_screen_size.y)
+	printerr(setting_screen_size_x, ' ', setting_screen_size_y)
+	#setting_screen_size_x = 300
+	DisplayServer.window_set_size(Vector2(setting_screen_size_x,setting_screen_size_y))
+	
+	
+	
 	DisplayServer.window_set_max_size( DisplayServer.screen_get_size()-Vector2i(16,96) )
+	
+
+
+
 
 	NodeAccess.__Map()._on_viewport_size_changed()
 	UI.show_only(UI.main_menu)
@@ -26,6 +47,6 @@ func _ready():
 	#pass
 
 func _exit_tree():
-#	_combatSystem.save("configs/combatConfigs.json")
-#	GameState.save("configs/gameState.json")
+	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg", "SETTINGS","screen_size_x", DisplayServer.window_get_size().x)
+	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg", "SETTINGS","screen_size_y", DisplayServer.window_get_size().y)
 	pass
