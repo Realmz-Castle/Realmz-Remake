@@ -186,12 +186,12 @@ func load_item_resources( path : String ) -> void:
 	# load the item data at the "path" location
 	var n_item_img_pack : Dictionary = {}
 	n_item_img_pack = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path + "img_pack.json"))
-	var texture_atlas : Image
+	var texture_atlas : Image = Image.new()
 	var texture_atlas_path: String = path+"textureAtlas.png"
-	if texture_atlas_path.begins_with("res://") :
-		texture_atlas = load(texture_atlas_path)
-	else :
-		texture_atlas = Image.new()
+	if texture_atlas_path.begins_with("res://") :  #loaded from inside
+		#texture_atlas = load(texture_atlas_path)
+		var _err = texture_atlas.load(texture_atlas_path)
+	else :	#loaded from campaign data
 		var _err = texture_atlas.load(texture_atlas_path)
 
 	for i in n_item_img_pack :

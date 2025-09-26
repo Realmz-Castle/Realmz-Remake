@@ -1,7 +1,13 @@
 {
-   "ITEM_CityBywater_dagger" : 
+   "ITEM_Orc_Babe" : 
    {
       "0_ref_x" : 0,
+      "0_ref_y" : 0,
+      "size" : "32x32"
+   },
+   "ITEM_Rat_Figures" : 
+   {
+      "0_ref_x" : 1,
       "0_ref_y" : 0,
       "size" : "32x32"
    }
