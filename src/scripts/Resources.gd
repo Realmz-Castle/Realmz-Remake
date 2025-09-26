@@ -190,8 +190,13 @@ func load_item_resources( path : String ) -> void:
 	var texture_atlas_path: String = path+"textureAtlas.png"
 	if texture_atlas_path.begins_with("res://") :  #loaded from inside
 		#texture_atlas = load(texture_atlas_path)
+		print("load_item_resources texture_atlas_pathw  res://  :  ", texture_atlas_path)
 		var _err = texture_atlas.load(texture_atlas_path)
 	else :	#loaded from campaign data
+		if texture_atlas_path.contains("shared_assets") : 
+			texture_atlas_path = "res://"+texture_atlas_path
+		print("load_item_resources texture_atlas_path no res://  :  ", texture_atlas_path)
+		
 		var _err = texture_atlas.load(texture_atlas_path)
 
 	for i in n_item_img_pack :
