@@ -27,7 +27,7 @@ func _ready():
 	var setting_screen_size_y : float = Utils.FileHandler.get_cfg_setting(Paths.settingspath,"SETTINGS","screen_size_y", def_screen_size.y)
 	printerr(setting_screen_size_x, ' ', setting_screen_size_y)
 	#setting_screen_size_x = 300
-	#DisplayServer.window_set_size(Vector2(setting_screen_size_x,setting_screen_size_y))
+	DisplayServer.window_set_size(Vector2(setting_screen_size_x,setting_screen_size_y))
 	
 	
 	

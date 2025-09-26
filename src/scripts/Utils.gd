@@ -129,7 +129,8 @@ class FileHandler:
 	#	if not config.has_section_key(section, key):
 	#			print(section, key)
 		else :
-			print("err",err)
+			print("Utils get cfg : err",err, "return default : ", default)
+			return default
 				
 	static func set_cfg_setting(path, section, key, value) :
 		var config = ConfigFile.new()
