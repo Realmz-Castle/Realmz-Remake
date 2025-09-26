@@ -153,7 +153,7 @@ func set_current_profile(profilename : String) -> void :
 	currentprofile = profilename
 	Paths.currentProfileFolderName = profilename
 	#save this profile as the current one to the game wide cfg
-	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", profilename)
+	Utils.FileHandler.set_cfg_setting(Paths.settingspath,"SETTINGS","current_profile", profilename)
 	#load the settings from this profile
 	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
 	#get_cfg_setting(path, section, key, default) :
@@ -207,7 +207,7 @@ func set_hd_mode(new_hd_mode: bool) -> void:
 		#DisplayServer.window_set_max_size( DisplayServer.screen_get_size() )
 
 func save_hd_mode(new_hd_mode: bool) -> void:
-	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", new_hd_mode)
+	Utils.FileHandler.set_cfg_setting(Paths.settingspath,"SETTINGS","hd_mode", new_hd_mode)
 
 func init_globals_before_game_start(data_dict : Dictionary) :
 	# used in  load_game() and new_campain_panel  _on_StartButton_pressed

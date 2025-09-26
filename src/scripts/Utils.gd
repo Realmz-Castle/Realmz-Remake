@@ -142,8 +142,9 @@ class FileHandler:
 			config.set_value(section, key, value)
 			
 		else :
-			print("ERROR",err, " set_cfg_setting ",path)
-			return
+			print("ERROR opening ",err, " set_cfg_setting ",path)
+			config = ConfigFile.new()
+			config.set_value(section, key, value)
 		# Save the changes by overwriting the previous file
 		config.save(path)
 		#config.load(path)

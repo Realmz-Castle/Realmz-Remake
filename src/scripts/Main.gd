@@ -19,12 +19,15 @@ func _ready():
 	
 	
 	var def_screen_size : Vector2 = Vector2(ProjectSettings.get_setting("display/window/size/viewport_width"), ProjectSettings.get_setting("display/window/size/viewport_height"))
-	var setting_screen_size_x : float = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","screen_size_x", def_screen_size.x)
+	print("Main.gd def_screen_size :  ", def_screen_size,  "isinstancevalid checkworks ?", not is_instance_valid(null) )
+	if not is_instance_valid(def_screen_size) :
+		def_screen_size = Vector2(1152, 648)
+	var setting_screen_size_x : float = Utils.FileHandler.get_cfg_setting(Paths.settingspath,"SETTINGS","screen_size_x", def_screen_size.x)
 	
-	var setting_screen_size_y : float = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","screen_size_y", def_screen_size.y)
+	var setting_screen_size_y : float = Utils.FileHandler.get_cfg_setting(Paths.settingspath,"SETTINGS","screen_size_y", def_screen_size.y)
 	printerr(setting_screen_size_x, ' ', setting_screen_size_y)
 	#setting_screen_size_x = 300
-	DisplayServer.window_set_size(Vector2(setting_screen_size_x,setting_screen_size_y))
+	#DisplayServer.window_set_size(Vector2(setting_screen_size_x,setting_screen_size_y))
 	
 	
 	
@@ -47,6 +50,6 @@ func _ready():
 	#pass
 
 func _exit_tree():
-	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg", "SETTINGS","screen_size_x", DisplayServer.window_get_size().x)
-	Utils.FileHandler.set_cfg_setting(Paths.realmzfolderpath+"settings.cfg", "SETTINGS","screen_size_y", DisplayServer.window_get_size().y)
+	Utils.FileHandler.set_cfg_setting(Paths.settingspath, "SETTINGS","screen_size_x", DisplayServer.window_get_size().x)
+	Utils.FileHandler.set_cfg_setting(Paths.settingspath, "SETTINGS","screen_size_y", DisplayServer.window_get_size().y)
 	pass

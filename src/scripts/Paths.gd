@@ -14,10 +14,12 @@ var profilesfolderpath : String = ''
 var realmzfolderpath : String = ''
 var campaignsfolderpath : String = ''
 var datafolderpath : String = ''
+var settingspath : String = ''
 
 var currentProfileFolderName : String = "Default Profile"
 
 func _ready():
+	print("Paths._ready() :")
 	if OS.has_feature("editor"):
 		realmzfolderpath = ProjectSettings.globalize_path("res://")
 	else:
@@ -25,9 +27,18 @@ func _ready():
 		if OS.get_name() == "macOS":
 			realmzfolderpath = "/Applications/Realmz-Remake/"
 	realmzfolderpath = realmzfolderpath.rstrip("/") + "/"
-	print(" realmzfolderpath : ", realmzfolderpath)
+	print("   realmzfolderpath : ", realmzfolderpath)
 
 	profilesfolderpath = realmzfolderpath + "Profiles/"
+	print("   profilesfolderpath : ", profilesfolderpath)
+	
 	campaignsfolderpath = realmzfolderpath + "Campaigns/"
+	print("   campaignsfolderpath : ", campaignsfolderpath)
+	
 	datafolderpath = realmzfolderpath + "Data/"
-	currentProfileFolderName = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
+	print("   datafolderpath : ", datafolderpath)
+	
+	settingspath =  realmzfolderpath + "override.cfg"
+	print("   settingspath : ", settingspath)
+	
+	currentProfileFolderName = Utils.FileHandler.get_cfg_setting(settingspath,"SETTINGS","current_profile", "Default Profile")

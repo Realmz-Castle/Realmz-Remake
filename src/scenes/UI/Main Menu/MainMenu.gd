@@ -23,9 +23,9 @@ func _ready():
 	#if config:
 		#config.close()
 
-	var profilefromcfg = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","current_profile", "Default Profile")
+	var profilefromcfg = Utils.FileHandler.get_cfg_setting(Paths.settingspath,"SETTINGS","current_profile", "Default Profile")
 	pass
-	var hd_mode_from_config = Utils.FileHandler.get_cfg_setting(Paths.realmzfolderpath+"settings.cfg","SETTINGS","hd_mode", GameGlobal.hd_mode)
+	var hd_mode_from_config = Utils.FileHandler.get_cfg_setting(Paths.settingspath,"SETTINGS","hd_mode", false)
 	
 	GameGlobal.set_hd_mode(hd_mode_from_config)
 #	var dir = Directory.new()
