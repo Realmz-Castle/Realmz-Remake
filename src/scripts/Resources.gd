@@ -197,7 +197,7 @@ func load_item_resources( path : String ) -> void:
 			texture_atlas_path = "res://"+texture_atlas_path
 		print("load_item_resources texture_atlas_path no res://  :  ", texture_atlas_path)
 		
-		var _err = texture_atlas.load(texture_atlas_path)
+		texture_atlas = load(texture_atlas_path)
 
 	for i in n_item_img_pack :
 		# Get position inside  texture atlas #
