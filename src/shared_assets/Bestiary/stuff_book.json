@@ -2950,11 +2950,11 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur 26" : {
 		"data" : {
-			"id" : 51,
+			"id" : 26,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_dinosaur1",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -3855,11 +3855,11 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur 34" : {
 		"data" : {
-			"id" : 51,
+			"id" : 34,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_dinosaur2",
 			"size" : [2,1],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6146,11 +6146,11 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur 54" : {
 		"data" : {
-			"id" : 51,
+			"id" : 54,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_dinosaur4",
 			"size" : [2,1],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6455,11 +6455,11 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur 57" : {
 		"data" : {
-			"id" : 51,
+			"id" : 57,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_dinosaur5",
 			"size" : [1,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -6838,11 +6838,11 @@
 	
 },
 
-	"Dinosaur 51" : {
+	"Dinosaur 60" : {
 		"data" : {
-			"id" : 51,
+			"id" : 60,
 			"name" : "Dinosaur",
-			"image" : "CREA_dinosaur3",
+			"image" : "CREA_dinosaur6",
 			"size" : [2,2],
 			"tags" : ["Reptilian", "Non-Humanoid"],
 			"in_bestiary" : 1,
