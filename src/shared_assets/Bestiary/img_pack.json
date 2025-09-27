@@ -681,14 +681,14 @@
    },
    "CREA_dwarfwarrior" :
    {
-      "0_ref_x" : 2,
-      "0_ref_y" : 14,
+      "0_ref_x" : 3,
+      "0_ref_y" : 0,
       "size" : "32x32"
    },
    "CREA_greenmagistrate":
    {
-      "0_ref_x" : 3,
-      "0_ref_y" : 14,
+      "0_ref_x" : 17,
+      "0_ref_y" : 18,
       "size" : "32x32"
    },
       "CREA_ghost":
