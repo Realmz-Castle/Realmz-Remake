@@ -1581,9 +1581,9 @@
 	
 },
 
-	"Minotaur 15" : {
+	"Minotaur 14" : {
 		"data" : {
-			"id" : 15,
+			"id" : 14,
 			"name" : "Minotaur",
 			"image" : "CREA_minotaur2",
 			"size" : [2,2],
@@ -1688,7 +1688,7 @@
 		"data" : {
 			"id" : 15,
 			"name" : "Minotaur",
-			"image" : "CREA_minotaur2",
+			"image" : "CREA_minotaur1",
 			"size" : [2,2],
 			"tags" : ["Intelligent", "Giant"],
 			"in_bestiary" : 1,
@@ -3958,9 +3958,9 @@
 	
 },
 
-	"Mush Mound 43" : {
+	"Mush Mound 35" : {
 		"data" : {
-			"id" : 43,
+			"id" : 35,
 			"name" : "Mush Mound",
 			"image" : "CREA_mush_mound",
 			"size" : [1,2],
@@ -4186,9 +4186,9 @@
 	
 },
 
-	"Podling 42" : {
+	"Podling 37" : {
 		"data" : {
-			"id" : 42,
+			"id" : 37,
 			"name" : "Podling",
 			"image" : "CREA_podling",
 			"size" : [1,1],
@@ -4892,9 +4892,9 @@
 	
 },
 
-	"Mush Mound 43" : {
+	"Mush Mound 41" : {
 		"data" : {
-			"id" : 43,
+			"id" : 41,
 			"name" : "Mush Mound",
 			"image" : "CREA_mush_mound",
 			"size" : [1,2],
@@ -4995,9 +4995,9 @@
 	
 },
 
-	"Podling 42" : {
+	"Podling 44" : {
 		"data" : {
-			"id" : 42,
+			"id" : 44,
 			"name" : "Podling",
 			"image" : "CREA_podling",
 			"size" : [1,1],
@@ -8160,11 +8160,11 @@
 	
 },
 
-	"Slime 73" : {
+	"Slime 72" : {
 		"data" : {
-			"id" : 73,
+			"id" : 72,
 			"name" : "Slime",
-			"image" : "CREA_slime1",
+			"image" : "CREA_slimeY",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -8267,7 +8267,7 @@
 		"data" : {
 			"id" : 73,
 			"name" : "Slime",
-			"image" : "CREA_slime1",
+			"image" : "CREA_slimeG",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -10298,7 +10298,7 @@
 
 	"Orc Warrior 91" : {
 		"data" : {
-			"id" : 122,
+			"id" : 91,
 			"name" : "Orc Warrior",
 			"image" : "CREA_orc_warrior",
 			"size" : [1,1],
@@ -13454,7 +13454,7 @@
 		"data" : {
 			"id" : 122,
 			"name" : "Orc Warrior",
-			"image" : "CREA_orc_warrior",
+			"image" : "CREA_orc_warrior2",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
