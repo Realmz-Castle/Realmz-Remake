@@ -3958,9 +3958,9 @@
 	
 },
 
-	"Mush Mound 43" : {
+	"Mush Mound 35" : {
 		"data" : {
-			"id" : 43,
+			"id" : 35,
 			"name" : "Mush Mound",
 			"image" : "CREA_mush_mound",
 			"size" : [1,2],
@@ -4186,9 +4186,9 @@
 	
 },
 
-	"Podling 42" : {
+	"Podling 37" : {
 		"data" : {
-			"id" : 42,
+			"id" : 37,
 			"name" : "Podling",
 			"image" : "CREA_podling",
 			"size" : [1,1],
@@ -4892,9 +4892,9 @@
 	
 },
 
-	"Mush Mound 43" : {
+	"Mush Mound 41" : {
 		"data" : {
-			"id" : 43,
+			"id" : 41,
 			"name" : "Mush Mound",
 			"image" : "CREA_mush_mound",
 			"size" : [1,2],
@@ -4995,9 +4995,9 @@
 	
 },
 
-	"Podling 42" : {
+	"Podling 44" : {
 		"data" : {
-			"id" : 42,
+			"id" : 44,
 			"name" : "Podling",
 			"image" : "CREA_podling",
 			"size" : [1,1],
