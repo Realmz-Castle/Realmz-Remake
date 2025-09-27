@@ -213,8 +213,8 @@
    }, 
    "CREA_giant_troll" :
    {
-      "0_ref_x" : 5,
-      "0_ref_y" : 17,
+      "0_ref_x" : 4,
+      "0_ref_y" : 15,
       "size" : "64x64"
    }, 
    "CREA_giant_wasp" :
@@ -375,7 +375,7 @@
    },   
    "CREA_minotaur1" :
    {
-      "0_ref_x" : 16,
+      "0_ref_x" : 2,
       "0_ref_y" : 15,
       "size" : "64x64"
    },   
