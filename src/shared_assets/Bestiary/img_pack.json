@@ -565,13 +565,13 @@
       "0_ref_y" : 0,
       "size" : "32x32"
    },   
-   "CREA_slime1" :
+   "CREA_slimeY" :
    {
       "0_ref_x" : 1,
       "0_ref_y" : 27,
       "size" : "32x32"
    },   
-   "CREA_slime2" :
+   "CREA_slimeG" :
    {
       "0_ref_x" : 3,
       "0_ref_y" : 27,
