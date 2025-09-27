@@ -8160,11 +8160,11 @@
 	
 },
 
-	"Slime 73" : {
+	"Slime 72" : {
 		"data" : {
-			"id" : 73,
+			"id" : 72,
 			"name" : "Slime",
-			"image" : "CREA_slime1",
+			"image" : "CREA_slimeY",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -8267,7 +8267,7 @@
 		"data" : {
 			"id" : 73,
 			"name" : "Slime",
-			"image" : "CREA_slime1",
+			"image" : "CREA_slimeG",
 			"size" : [1,1],
 			"tags" : ["Non-Humanoid"],
 			"in_bestiary" : 1,
@@ -10298,7 +10298,7 @@
 
 	"Orc Warrior 91" : {
 		"data" : {
-			"id" : 122,
+			"id" : 91,
 			"name" : "Orc Warrior",
 			"image" : "CREA_orc_warrior",
 			"size" : [1,1],
@@ -13454,7 +13454,7 @@
 		"data" : {
 			"id" : 122,
 			"name" : "Orc Warrior",
-			"image" : "CREA_orc_warrior",
+			"image" : "CREA_orc_warrior2",
 			"size" : [1,1],
 			"tags" : ["Intelligent"],
 			"in_bestiary" : 1,
