@@ -1581,9 +1581,9 @@
 	
 },
 
-	"Minotaur 15" : {
+	"Minotaur 14" : {
 		"data" : {
-			"id" : 15,
+			"id" : 14,
 			"name" : "Minotaur",
 			"image" : "CREA_minotaur2",
 			"size" : [2,2],
@@ -1688,7 +1688,7 @@
 		"data" : {
 			"id" : 15,
 			"name" : "Minotaur",
-			"image" : "CREA_minotaur2",
+			"image" : "CREA_minotaur1",
 			"size" : [2,2],
 			"tags" : ["Intelligent", "Giant"],
 			"in_bestiary" : 1,
