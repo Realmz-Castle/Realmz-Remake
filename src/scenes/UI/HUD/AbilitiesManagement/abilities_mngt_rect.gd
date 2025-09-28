@@ -79,6 +79,7 @@ func build_avail_dict() :
 	var _canlearnfromextras : Array = []
 	#returns an array of  arrays  [spellname:String, level:int]
 	for sa : Array in character.get_abilities_pc_can_learn()+ extra_abs :
+		#printerr("AbilitiesMgnt sa : ", sa, "maxlvl is ", maxlevel)
 		var slvl : int = sa[1]
 		var sn : String = sa[0]
 		if slvl <= maxlevel :
@@ -86,9 +87,11 @@ func build_avail_dict() :
 			for s_dict : Dictionary in known[slvl] :
 				if s_dict['name'] == sn :
 					is_known = true
-					print("ABLITYMANAGEMEBT WOOOO "+sn)
+					#print("ABLITYMANAGEMEBT WOOOO "+sn)
 					break
-			if not is_known : avail[slvl].append(spells_book[sn])
+			if not is_known : 
+				#print("MAKE AVAIABUBBLE ", sn)
+				avail[slvl].append(spells_book[sn])
 			#if  character.can_learn_spell_at_level(spells_book[sn]["script"])>0 and (not is_known) :
 				
 

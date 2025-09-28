@@ -203,7 +203,7 @@ static func _mod_equippable(_character) :
 		"Scroll Case" : -999 #no way a Fighter can equip this
 	}
 
-	for t in _character.equippable_types :
+	for t in mod_equippable_types :
 		_character.equippable_types[t] += mod_equippable_types[t]
 
 

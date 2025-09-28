@@ -183,7 +183,7 @@ static func _mod_equippable(_character) :
 		"Scroll Case" : 1
 	}
 
-	for t in _character.equippable_types :
+	for t in mod_equippable_types :
 		_character.equippable_types[t] += mod_equippable_types[t]
 
 
@@ -226,16 +226,16 @@ static func can_learn_spell(_character, _spell) -> int :
 	# Check school_levels dictionary first
 	if _character.level < 15:
 		return 10  # Can't learn spells below level 15
-	if _spell.has("school_levels") and not _spell.school_levels.is_empty():
-		# Only care about Sorcerer school
-		if _spell.school_levels.has("Sorcerer"):
-			if _spell.school_levels["Sorcerer"] <= 3:
-				return _spell.school_levels["Sorcerer"]
-			else:
-				return 10  # Can't learn Sorcerer spells above level 2
+	if _spell.get("school_levels") :
+		if not _spell.school_levels.is_empty():
+			# Only care about Sorcerer school
+			if _spell.school_levels.has("Sorcerer"):
+				var level : int = _spell.school_levels["Sorcerer"]
+				if (level>0) and (level <= 2):
+					return level
+				else:
+					return 10  # Can't learn Sorcerer spells above level 2
 		return 10  # Can't learn non-Sorcerer spells
-
-	return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()

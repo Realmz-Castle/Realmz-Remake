@@ -324,11 +324,13 @@ static func get_exp_req_for_lvl(lvl : int) -> int :
 ## should return a value in [0,7]
 func can_learn_spell_at_level(spell) -> int :
 	var spell_level : int = classgd.can_learn_spell(self,spell) + racegd.can_learn_spell(self,spell)
+	#printerr("PlayerCharacter.gd can_learn_spell_at_level ", name, ' ',spell.name, ' lv? ', spell_level )
 	if spell_level > 7 : return 0
 	return max(1, spell_level)
 
 ##returns an array of  arrays  [spellname:String, level:int]
 func get_abilities_pc_can_learn() ->Array : #only  Strings  as spell names
+	#printerr("PlayerCharacter.gd get_abilities_pc_can_learn for "+name)
 	var spells_book = NodeAccess.__Resources().spells_book
 	var returned = []
 	for sn in spells_book :#classgd.get_abilities_pc_can_learn(self) :

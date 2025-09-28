@@ -180,6 +180,8 @@ static func _mod_equippable(_character) :
 		"Hard Boots" : 0,
 		"Scroll Case" : 0,
 	}
+	for t in mod_equippable_types :
+		_character.equippable_types[t] += mod_equippable_types[t]
 
 static func _add_base_stats(character) :
 	for s in base_stat_bonuses :

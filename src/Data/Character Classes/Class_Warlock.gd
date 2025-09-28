@@ -183,7 +183,7 @@ static func _mod_equippable(_character) :
 		"Scroll Case" : 1, 
 	}
 
-	for t in _character.equippable_types :
+	for t in mod_equippable_types :
 		_character.equippable_types[t] += mod_equippable_types[t]
 
 
@@ -224,11 +224,14 @@ static func _level_up(_character, _new_level : int) :
 ## >7 means  the character can't learn this spell (unless race changes it)
 static func can_learn_spell(_character, _spell) -> int :
 	# Check school_levels dictionary first
-	if _spell.has("school_levels") and not _spell.school_levels.is_empty():
-		# Only care about Enchanter school
-		if _spell.school_levels.has("Enchanter"):
-			return _spell.school_levels["Enchanter"]
-		return 10  # Can't learn non-Enchanter spells
+	if _spell.get("school_levels") :
+		if not _spell.school_levels.is_empty():
+			# Only care about Enchanter school
+			if _spell.school_levels.has("Enchanter"):
+				var level : int = _spell.school_levels["Enchanter"]
+				if (level>0) and (level <= 7) :
+					return level
+			return 10  # Can't learn non-Enchanter spells
 	return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :

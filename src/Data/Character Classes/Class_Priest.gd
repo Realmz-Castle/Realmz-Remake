@@ -183,7 +183,7 @@ static func _mod_equippable(_character) :
 		"Scroll Case" : 1
 	}
 
-	for t in _character.equippable_types :
+	for t in mod_equippable_types :
 		_character.equippable_types[t] += mod_equippable_types[t]
 
 
@@ -224,10 +224,15 @@ static func _level_up(_character, _new_level : int) :
 ## >7 means  the character can't learn this spell (unless race changes it)
 static func can_learn_spell(_character, _spell) -> int :
 	# Check school_levels dictionary first
-	if _spell.has("school_levels") and not _spell.school_levels.is_empty():
-		# Only care about Priest school
-		if _spell.school_levels.has("Priest"):
-			return _spell.school_levels["Priest"]
+	if _spell.get("school_levels") :
+		if not _spell.school_levels.is_empty():
+			# Only care about Priest school
+			if _spell.school_levels.has("Priest"):
+				var level : int = _spell.school_levels["Priest"]
+				if (level>0) and (level <= 7):
+					return level
+				else:
+					return 10  # Can't learn Priest spells above level 7
 		return 10  # Can't learn non-Priest spells
 
 	return 10  # Can't learn spells without school information

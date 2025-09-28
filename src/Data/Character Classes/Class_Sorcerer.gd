@@ -182,7 +182,7 @@ static func _mod_equippable(_character) :
 		"Hard Boots" : 0,
 		"Scroll Case" : 1
 	}
-	for t in _character.equippable_types :
+	for t in mod_equippable_types :
 		_character.equippable_types[t] += mod_equippable_types[t]
 
 
@@ -222,7 +222,16 @@ static func _level_up(_character, _new_level : int) :
 ## <=0 should be changed to 1 in PlayerCHaracter 's can_learn_spell
 ## >7 means  the character can't learn this spell (unless race changes it)
 static func can_learn_spell(_character, _spell) -> int :
-	return 10  #Fighter can't learn any spell
+	# Check school_levels dictionary first
+	if _spell.get("school_levels") :
+		if not _spell.school_levels.is_empty():
+			# Only care about Sorcerer school
+			if _spell.school_levels.has("Sorcerer"):
+				var level : int = _spell.school_levels["Sorcerer"]
+				if (level>0) and (level <= 7) :
+					return level
+			return 10  # Can't learn non-Sorcerer spells
+	return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()
