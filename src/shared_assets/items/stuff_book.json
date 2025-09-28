@@ -193,7 +193,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -536,7 +536,7 @@
     "weight": 0,
     "price": 400,
     "type": "Scroll",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -563,7 +563,7 @@
     "weight": 0,
     "price": 450,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -639,7 +639,7 @@
     "weight": 100,
     "price": 1000,
     "type": "Leather Armor",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Leather_Armor",
     "sound": "cloth armor.wav",
     "slots": [
       "Body"
@@ -950,7 +950,7 @@
     "weight": 4,
     "price": 45,
     "type": "Cloth Gloves",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Gloves_of_the_Huntsman",
     "sound": "cloth armor.wav",
     "slots": [
       "Hands"
@@ -1399,7 +1399,7 @@
     "weight": 0,
     "price": 50,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -1796,7 +1796,7 @@
     "weight": 0,
     "price": 900,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -1893,7 +1893,7 @@
     "weight": 0,
     "price": 100,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -2197,7 +2197,7 @@
     "weight": 65,
     "price": 12050,
     "type": "Whip",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Bull_Whip",
     "sound": "smack.wav",
     "slots": [
       "Melee Weapon"
@@ -2367,7 +2367,7 @@
     "weight": 20,
     "price": 400,
     "type": "Soft Boots",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Leather_Boots",
     "sound": "cloth armor.wav",
     "slots": [
       "Feet"
@@ -2441,7 +2441,7 @@
     "weight": 12,
     "price": 1200,
     "type": "Soft Boots",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Leather_Boots",
     "sound": "cloth armor.wav",
     "slots": [
       "Feet"
@@ -3040,7 +3040,7 @@
     "weight": 0,
     "price": 275,
     "type": "Bow",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Quiver",
     "sound": "arrow hit.wav",
     "slots": [
       "Ammunition"
@@ -3089,7 +3089,7 @@
     "weight": 0,
     "price": 400,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -3709,7 +3709,7 @@
     "weight": 0,
     "price": 1200,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -3736,7 +3736,7 @@
     "weight": 0,
     "price": 950,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -3834,7 +3834,7 @@
     "weight": 0,
     "price": 700,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -3886,7 +3886,7 @@
     "weight": 0,
     "price": 2000,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -3942,7 +3942,7 @@
     "weight": 0,
     "price": 100,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -4275,7 +4275,7 @@
     "weight": 0,
     "price": 300,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -4921,7 +4921,7 @@
     "weight": 0,
     "price": 600,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -5010,7 +5010,7 @@
     "weight": 0,
     "price": 275,
     "type": "Dart",
-    "img_ptr": "ITEM_Dagger_of_shielding",
+    "img_ptr": "ITEM_Darts_OTHER",
     "sound": "arrow hit.wav",
     "slots": [
       "Ranged Weapon"
@@ -5126,7 +5126,7 @@
     "weight": 0,
     "price": 300,
     "type": "Potion",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "slurpy.wav",
     "slots": [
       "magic item"
@@ -5878,7 +5878,7 @@
     "weight": 0,
     "price": 250,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -6455,7 +6455,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -6805,7 +6805,7 @@
     "weight": 0,
     "price": 250,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -7166,7 +7166,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -7828,7 +7828,7 @@
     "weight": 0,
     "price": 350,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -7877,7 +7877,7 @@
     "weight": 0,
     "price": 900,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -8134,7 +8134,7 @@
     "weight": 0,
     "price": 150,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -8189,7 +8189,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -8693,7 +8693,7 @@
     "weight": 0,
     "price": 340,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -10276,7 +10276,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -10303,7 +10303,7 @@
     "weight": 0,
     "price": 300,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -10431,7 +10431,7 @@
     "weight": 0,
     "price": 400,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -10749,7 +10749,7 @@
     "weight": 0,
     "price": 200,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -11109,7 +11109,7 @@
     "weight": 0,
     "price": 450,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -11291,7 +11291,7 @@
     "weight": 0,
     "price": 50,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -12722,7 +12722,7 @@
     "weight": 0,
     "price": 35,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -13745,7 +13745,7 @@
     "weight": 0,
     "price": 500,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
@@ -13820,7 +13820,7 @@
     "weight": 0,
     "price": 100,
     "type": "Scroll",
-    "img_ptr": "ITEM_Heal_Small_Wounds",
+    "img_ptr": "ITEM_Scroll",
     "sound": "special stats scroll.wav",
     "slots": [
       "scroll"
