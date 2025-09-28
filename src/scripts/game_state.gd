@@ -351,7 +351,9 @@ func check_map_script(position) ->bool :
 			GameGlobal.current_map_script_name = s
 			var script_returned = s
 			
-			if script_returned=='STOP' : break
+			if script_returned=='STOP' : 
+				script_returned = ''
+				break
 			
 			while script_returned != null and script_returned != '':
 				

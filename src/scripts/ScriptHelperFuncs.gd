@@ -79,6 +79,7 @@ static func yesno_branch_Divinity(continue_on_yes : bool, tg_type : int, tg_id :
 		if tg_type==0 :
 			GameGlobal.must_cancel_movement = true # that's  "cancel movement"
 			print("yesno_branch back a step")
+			return 'STOP'
 		if tg_type == 1 :
 			print("ScriptHelperFuncs returns "+'XAP'+str(tg_id))
 			return 'XAP'+str(tg_id)
