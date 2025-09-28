@@ -223,7 +223,6 @@ static func _level_up(_character, _new_level : int) :
 ## <=0 should be changed to 1 in PlayerCHaracter 's can_learn_spell
 ## >7 means  the character can't learn this spell (unless race changes it)
 static func can_learn_spell(_character, _spell) -> int :
-static func can_learn_spell(_character, _spell) -> int :
 	# Check school_levels dictionary first
 	if _character.level < 4:
 		return 10  # Can't learn spells below level 4
