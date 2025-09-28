@@ -235,7 +235,8 @@ static func can_learn_spell(_character, _spell) -> int :
 					return level
 				else:
 					return 10  # Can't learn Priest spells above level 4
-		return 10  # Can't learn non-Priest spells
+			return 10  # Can't learn non-Priest spells
+	return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()
