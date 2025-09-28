@@ -65,7 +65,10 @@ var equippable_types : Dictionary = {
 	"Soft Boots" : 1,
 	"Hard Boots" : 1,
 	"Scroll Case" : 1,
-	"Ion Stone" : 1
+	"Ion Stone" : 1,
+	"Misc. Magical Item" : -10000, #NOT EQUIPPABLE  EVER PLS
+	"Misc. Item" : -10000 #NOT EQUIPPABLE  EVER PLS
+	
 }
 
 

@@ -88,6 +88,7 @@ func set_item_info(item : Dictionary) :
 		if item["equippable"]>0 :
 			var canequiplist : Array = []
 			for pc in GameGlobal.player_characters :
+				#if item["type"].begins_with("Misc.") : continue
 				if pc.equippable_types[item["type"]]>0 :
 					canequiplist.append(pc.name)
 			text += "\nCan be equipped by : "
