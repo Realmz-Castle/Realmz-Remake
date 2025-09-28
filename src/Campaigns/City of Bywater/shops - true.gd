@@ -292,10 +292,7 @@ var shops_data_dict : Dictionary = {
 func build_shops() :
 	var built_shops : Dictionary = {}
 	for d in shops_data_dict.keys() :
-		if d == "1" :
-			built_shops["shop_"+d] = build_debug_shop()
-		else :
-			built_shops["shop_"+d] = build_shop_dict_from_data(shops_data_dict[d])
+		built_shops["shop_"+d] = build_shop_dict_from_data(shops_data_dict[d])
 	return built_shops
 
 func get_shop(_shopname : String, _shopdict : Dictionary) :
@@ -324,9 +321,3 @@ func build_shop_dict_from_data(data : Dictionary) -> Dictionary :
 			supplies.append([i[0], i[1], -1])
 	var inflation = data["inflation"] + 1.0
 	return {"buy_rate":1.0, "sell_rate":inflation, "Weapons" : weapons, "Armor" : body_armor, "Limbs" : limb_armor, "Magic" : magic_items, "Supplies" : supplies, "BuyBack" : []}
-	
-func build_debug_shop() -> Dictionary :
-	var weapons : Array = []
-	for i in ItemIdDivinity.mapping :
-		weapons.append([ItemIdDivinity.mapping[i], i, -1])
-	return {"buy_rate":0.1, "sell_rate":0.1, "Weapons" : weapons, "Armor" :  [], "Limbs" :  [], "Magic" :  [], "Supplies" :  [], "BuyBack" : []}
