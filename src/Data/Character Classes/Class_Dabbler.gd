@@ -222,20 +222,22 @@ static func _level_up(_character, _new_level : int) :
 ## returns  the  Spell Level at which a spell is learned.
 ## <=0 should be changed to 1 in PlayerCHaracter 's can_learn_spell
 ## >7 means  the character can't learn this spell (unless race changes it)
-static func can_learn_spell(_character, _spell) -> int :
+static func can_learn_spell(_character, _spell) -> int:
 	# Check school_levels dictionary first
 	if _character.level < 5:
 		return 10  # Can't learn spells below level 5
-	if _spell.get("school_levels") :
+	if _spell.get("school_levels"):
 		if not _spell.school_levels.is_empty():
 			# Only care about Enchanter school
 			if _spell.school_levels.has("Enchanter"):
 				var level : int = _spell.school_levels["Enchanter"]
-				if (level>0) and (level <= 5):
+				if (level > 0) and (level <= 5):
 					return level
 				else:
 					return 10  # Can't learn Enchanter spells above level 5
-		return 10  # Can't learn non-Enchanter spells
+			return 10  # Can't learn non-Enchanter spells
+		return 10  # Empty school_levels dictionary
+	return 10  # No school_levels dictionary
 
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()
