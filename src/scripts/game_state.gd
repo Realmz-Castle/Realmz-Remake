@@ -327,49 +327,54 @@ func check_map_script(position) ->bool :
 					scriptstocall[GameGlobal.map.mapsecrets[vpos][1]] = ''
 					GameGlobal.map.set_secret_seen(vpos)
 
-	for s in scriptstocall :
+	for s in scriptstocall:
 		#find the script
 		#print (" map.mapscriptareas : ",GameGlobal.map.mapscriptareas)
 		var mapscriptareas_still_has_s : bool = false
-		for sa in GameGlobal.map.mapscriptareas :
-#					print(sa)
+		for sa in GameGlobal.map.mapscriptareas:
 			var mapstlentry = GameGlobal.map.mapscriptareas[sa]["scriptToLoad"]
-			if mapstlentry is Array :
-				if mapstlentry.has(s) :
+			if mapstlentry is Array:
+				if mapstlentry.has(s):
 					mapscriptareas_still_has_s = true
 					break
-			else :
+			else:
 				if mapstlentry == s:
 					mapscriptareas_still_has_s = true
 					break
-		for secretpos in GameGlobal.map.mapsecrets.keys() :
-			if GameGlobal.map.mapsecrets[secretpos][1]==s :
+		
+		for secretpos in GameGlobal.map.mapsecrets.keys():
+			if GameGlobal.map.mapsecrets[secretpos][1] == s:
 				mapscriptareas_still_has_s = true
 				break
 		
-		if mapscriptareas_still_has_s :#map.mapscripts.has_method(s) :
+		if mapscriptareas_still_has_s:
 			GameGlobal.current_map_script_name = s
 			var script_returned = s
 			
-			if script_returned=='STOP' : 
+			if script_returned == 'STOP':
 				script_returned = ''
 				break
 			
 			while script_returned != null and script_returned != '':
-				
-				#check flags for if AP is disabled or replaced :
+				# Check flags for if AP is disabled or replaced
 				var shouldcontinue : bool = GameGlobal.check_flags_for_current_map_script_name()
-				if not shouldcontinue : break
+				if not shouldcontinue:
+					script_returned = ''
+					break
 				
-				script_returned = await GameGlobal.map.mapscripts.call (GameGlobal.current_map_script_name)
-				if script_returned != null :
+				# Dodatkowe sprawdzenie przed call()
+				if GameGlobal.current_map_script_name == 'STOP' or GameGlobal.current_map_script_name == '':
+					script_returned = ''
+					break
+				
+				script_returned = await GameGlobal.map.mapscripts.call(GameGlobal.current_map_script_name)
+				if script_returned != null:
 					print("StateMachine check_map_scripts : script_returned is "+str(script_returned))
 					GameGlobal.current_map_script_name = script_returned
 			
 			GameGlobal.current_map_script_name = ''
-
-		else :
-			print("StateMachine : mapscript doesnt have script "+s+", ok if it's mecause of a map change")
+		else:
+			print("StateMachine : mapscript doesnt have script "+s+", ok if it's because of a map change")
 	#print("StateMachine DONE await GameGlobal.map.mapscripts.call_deferred (s)")
 	GameGlobal.map.queue_redraw()
 	GameGlobal.refresh_OW_HUD()

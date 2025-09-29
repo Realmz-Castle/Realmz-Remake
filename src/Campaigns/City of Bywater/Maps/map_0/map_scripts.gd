@@ -781,7 +781,7 @@ static func XAP9() : #9
 	# RANDOM RECTANGLE REFERENCE land_level=0 rect_num=0 start_coord=0,0 end_coord=41,18 [LRR0/0]
 	await ScriptHelperFuncsClass.display_text_wait_noise('A wretched young gutter snipe runs up to you and begins crying so loud you can barely make out what he is saying.  "Oh, please help me, please, please!  My dog has fallen into the old well and I can\'t get him out.  Please help!"  What do you do?', 'message nod.wav')
 	ScriptHelperFuncsClass.play_sound('angry mob.wav', false)
-	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 0, 0, "Go with and help", "Shoo him away")
+	var branch = await ScriptHelperFuncsClass.yesno_branch_Divinity(true, 4, 0, "Go with and help", "Shoo him away")
 	if not branch.is_empty(): return branch
 	ScriptHelperFuncsClass.play_sound('teleport.wav', true)
 	await ScriptHelperFuncsClass.teleport_to_map_and_pos_divinity(0, 27, 5, 0)

@@ -888,21 +888,22 @@ func generate_item(itemname : String) -> Dictionary :
 #updates the current_map_script_name according to stuff done flags that disable or change the AP
 #returns false iff AP should not be executed due to chance  (or disabled if chance==0)
 func check_flags_for_current_map_script_name() -> bool:
-	#"quest_"+str(quest_id)
-
 	var chanceflagname : String = currentmap_name+'.'+"script_"+str(current_map_script_name)+'.chance'
 	var replaceflagname : String = currentmap_name+'.'+"script_"+str(current_map_script_name)+'.replaced'
-	if not current_map_script_name.begins_with('X') :
+	if not current_map_script_name.begins_with('X'):
 		printerr("GameGlobal check_flags_for_current_map_script_name "+current_map_script_name+ " "+replaceflagname)
-	#if not (stuff_done.has(chanceflagname) or stuff_done.has(replaceflagname)) :
-		#return true
-	var returned = current_map_script_name
-	if stuff_done.has(replaceflagname) :
+	
+	if stuff_done.has(replaceflagname):
 		printerr("found replaced ap flag :  ",replaceflagname,':',stuff_done[replaceflagname])
 		current_map_script_name = stuff_done[replaceflagname]
-	if stuff_done.has(chanceflagname) :
-		if randf()>stuff_done[chanceflagname] :
+		# Check STOP - if yes stop script
+		if current_map_script_name == "STOP" or current_map_script_name == "":
 			return false
+	
+	if stuff_done.has(chanceflagname):
+		if randf() > stuff_done[chanceflagname]:
+			return false
+	
 	return true
 
 	#var script_name = "script_"+str(_apname)
