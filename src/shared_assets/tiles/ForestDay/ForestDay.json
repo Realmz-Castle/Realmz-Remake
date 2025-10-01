@@ -1096,26 +1096,6 @@
         {
           "name": "name",
           "type": "string",
-          "value": "island_1"
-        },
-        {
-          "name": "template",
-          "type": "string",
-          "value": "shore"
-        },
-        {
-          "name": "expansion",
-          "type": "object",
-          "value": [54, 54, 54, 54, 54, 54, 54, 54, 54]
-        }
-      ]
-    },
-    {
-      "id": 55,
-      "properties": [
-        {
-          "name": "name",
-          "type": "string",
           "value": "bigroad"
         },
         {
@@ -1127,6 +1107,26 @@
           "name": "expansion",
           "type": "object",
           "value": [30, 31, 59, 28, 29, 57, 55, 59, 59]
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "island_1"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "shore"
+        },
+        {
+          "name": "expansion",
+          "type": "object",
+          "value": [54, 54, 54, 54, 54, 54, 54, 54, 54]
         }
       ]
     },
