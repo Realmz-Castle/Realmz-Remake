@@ -1,12 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://ci4cf1yx31p2n"]
+[gd_scene load_steps=7 format=3 uid="uid://ci4cf1yx31p2n"]
 
-[ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="1_fcejw"]
+[ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="1_fcejw"]
 [ext_resource type="Script" path="res://scenes/UI/Main Menu/NewCharacterPanel.gd" id="2_nga7k"]
-[ext_resource type="Texture2D" uid="uid://c4c11arsu4nmc" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_nona8"]
-[ext_resource type="Texture2D" uid="uid://c5lxpgshkujrm" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="4_k8qi4"]
+[ext_resource type="Texture2D" uid="uid://c7vufke0hme7f" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3_nona8"]
+[ext_resource type="Texture2D" uid="uid://dwynu5fv8qr2e" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="4_k8qi4"]
 [ext_resource type="PackedScene" uid="uid://bov2d346tediq" path="res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.tscn" id="5_pga5p"]
+[ext_resource type="PackedScene" uid="uid://biqyyjm2makqt" path="res://scenes/UI/HUD/AbilitiesManagement/abilities_mngt_rect.tscn" id="6_oel76"]
 
-[node name="NewCharacterPanel" type="NinePatchRect" node_paths=PackedStringArray("cancelButton", "okButton", "lineEdit", "nameLabel", "portraitContainer", "iconContainer", "portraitScroll", "iconScroll", "toggleButton", "classitemlist", "raceitemlist", "characterstatrect", "levelMenuButton", "portraitRect", "iconRect")]
+[node name="NewCharacterPanel" type="NinePatchRect" node_paths=PackedStringArray("cancelButton", "okButton", "lineEdit", "nameLabel", "portraitContainer", "iconContainer", "portraitScroll", "iconScroll", "toggleButton", "classitemlist", "raceitemlist", "characterstatrect", "levelMenuButton", "abilities_rect", "portraitRect", "iconRect")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -33,6 +34,7 @@ classitemlist = NodePath("BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox/Cl
 raceitemlist = NodePath("BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox/RaceItemList")
 characterstatrect = NodePath("BigVBox/TopHBox/CharacterStatsRect")
 levelMenuButton = NodePath("BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/LineEdit/LevelMenuButton")
+abilities_rect = NodePath("AbilitiesMngtRect")
 portraitRect = NodePath("BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/PortraitRect")
 iconRect = NodePath("BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/IconRect")
 
@@ -214,6 +216,10 @@ offset_top = -2.0
 offset_right = 95.0
 offset_bottom = 29.0
 text = "Cancel"
+
+[node name="AbilitiesMngtRect" parent="." instance=ExtResource("6_oel76")]
+visible = false
+layout_mode = 1
 
 [connection signal="pressed" from="BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/ToggleIcoPortButton" to="." method="_on_ToggleIcoPortButton_pressed"]
 [connection signal="item_selected" from="BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox/ClassItemList" to="." method="_on_class_select"]

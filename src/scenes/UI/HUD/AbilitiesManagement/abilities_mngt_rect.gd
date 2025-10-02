@@ -79,7 +79,7 @@ func build_avail_dict() :
 	var _canlearnfromextras : Array = []
 	#returns an array of  arrays  [spellname:String, level:int]
 	for sa : Array in character.get_abilities_pc_can_learn()+ extra_abs :
-		#printerr("AbilitiesMgnt sa : ", sa, "maxlvl is ", maxlevel)
+		printerr("AbilitiesMgnt sa : ", sa, "maxlvl is ", maxlevel)
 		var slvl : int = sa[1]
 		var sn : String = sa[0]
 		if slvl <= maxlevel :

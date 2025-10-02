@@ -18,6 +18,8 @@ extends NinePatchRect
 @export var levelMenuButton : MenuButton #= $"LevelMenuButton"
 
 
+@export var abilities_rect : AbilitiesManagementRect
+
 var iconsImages : Array = []
 var portraitsTextures: Array = []
 var iconsTextures : Array = []
@@ -202,15 +204,27 @@ func _on_OKButton_pressed() -> void :
 	new_character.name = new_char_name
 	new_character.exp_tnl = PlayerCharacter.get_exp_req_for_lvl(new_character.level +1)
 	new_character.level = newchar_level
-	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/Characters/'+new_char_name
-	print("new char path : ", path)
-	DirAccess.make_dir_recursive_absolute(path)
+	
+	NodeAccess.__Resources().load_spell_resources("res://shared_assets/spells/")
+	
 
 
+	#var max_spell_level = new_character.classgd.max_spell_lvl
+	#new_character.spells.clear()
+	#for i  in  range(max_spell_level) :
+		#new_character.spells.append([])
 
 	#let the character  get their free stuff
-	new_character.racegd._character_creation_gifts(new_character)
-	new_character.classgd._character_creation_gifts(new_character)
+	await new_character.racegd._character_creation_gifts(new_character)
+	await new_character.classgd._character_creation_gifts(new_character) #does _character.spells = [[],[],[],[],[],[],[]]
+	
+	
+	printerr("Newcharpanel before adding spells ;", new_character.spells)
+	abilities_rect.set_displayed_character(new_character, true, [])
+	abilities_rect.show()
+	await abilities_rect.on_closed
+	
+	
 #
 	# generate the stats modification  trait script source
 
@@ -241,6 +255,10 @@ func _on_OKButton_pressed() -> void :
 		"SP" :
 			new_character.stats["curSP"] = new_character.get_stat("maxSP")
 
+
+	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/Characters/'+new_char_name
+	print("new char path : ", path)
+	DirAccess.make_dir_recursive_absolute(path)
 
 	Utils.FileHandler.save_character(path, new_character)
 

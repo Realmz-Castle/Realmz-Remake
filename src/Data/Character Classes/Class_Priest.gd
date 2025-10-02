@@ -234,12 +234,14 @@ static func can_learn_spell(_character, _spell) -> int :
 					return level
 				else:
 					return 10  # Can't learn Priest spells above level 7
-		return 10  # Can't learn non-Priest spells
-
+			return 10  # Can't learn non-Priest spells
+	else :
+		printerr("Priest?gd can_learn_spell", _spell, " has no school_level")
 	return 10  # Can't learn spells without school information
 
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()
+	_character.spells = [[],[],[],[],[],[],[]]
 	resources.load_item_resources("shared_assets/items/")
 
 	for name in ["Mace","Chain Armor","Helm","Leather Gloves","Leather Boots","Shield"] :
@@ -253,7 +255,7 @@ static func get_max_perma_summons(_character) ->int :
 
 static func get_selection_cost(_character, _ability, _cost) :
 	# Only use Priest school cost if available
-	if _ability.has("selection_costs") and _ability.selection_costs.has("Priest"):
+	if _ability.get("selection_costs") and _ability.selection_costs.has("Priest"):
 		return _ability.selection_costs["Priest"]
 	return _cost  # Return base cost if no school cost available
 

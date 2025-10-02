@@ -323,6 +323,7 @@ static func get_exp_req_for_lvl(lvl : int) -> int :
 ## returns  the spell level at which the character can learn spell,  or  0 if it can't.
 ## should return a value in [0,7]
 func can_learn_spell_at_level(spell) -> int :
+	#print("PlayerCHararcter.gd can_learn_spell_at_level ", spell.get_script_property_list())
 	var spell_level : int = classgd.can_learn_spell(self,spell) + racegd.can_learn_spell(self,spell)
 	#printerr("PlayerCharacter.gd can_learn_spell_at_level ", name, ' ',spell.name, ' lv? ', spell_level )
 	if spell_level > 7 : return 0
@@ -334,6 +335,7 @@ func get_abilities_pc_can_learn() ->Array : #only  Strings  as spell names
 	var spells_book = NodeAccess.__Resources().spells_book
 	var returned = []
 	for sn in spells_book :#classgd.get_abilities_pc_can_learn(self) :
+		#printerr("PlayerCharacter.gd get_abilities_pc_can_learn "+sn)
 		var s_level : int = can_learn_spell_at_level(spells_book[sn]['script'])
 		if s_level>0 :
 			returned.append([sn, s_level])
@@ -341,6 +343,7 @@ func get_abilities_pc_can_learn() ->Array : #only  Strings  as spell names
 		#if can_learn_spell(spells_book[sn]) :
 			#if (not returned.has(sn)) :
 				#returned.append(sn)
+	#printerr("PlayerCharacter.gd get_abilities_pc_can_learn ", returned)
 	return returned
 
 #func can_manage_ablt_anywhere()->bool :

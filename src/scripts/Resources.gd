@@ -469,7 +469,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 #		print("resources.gd DONE set source code for "+sn+" , before reload()")
 
 		var _err_newscript_reload = custom_spellscript.reload()
-#		print(_err_newscript_reload)
+		printerr(_err_newscript_reload)
 		var newscript = custom_spellscript.new()
 		spells_book[custom_spellscript.name] = { "name" : custom_spellscript.name, "source" : custom_spell_source, "script" : custom_spellscript}
 
@@ -525,7 +525,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 	if json_dict.has("traits") :
 		new_item["traits"] = json_dict["traits"]
 		for traitarray in json_dict["traits"] :
-			print("item traitarray ",traitarray)
+			#print("item traitarray ",traitarray)
 			var traitname = traitarray[0]
 			var traitinit = traitarray[1]
 			var newscript : GDScript = GDScript.new()
@@ -714,7 +714,7 @@ func _is_tracker_format(filename: String) -> bool:
 	return false
 
 func load_spell_resources(path : String) :
-#	print("resources.gd load_spell_resources "+path)
+	print("resources.gd load_spell_resources "+path)
 #	print("load_spell_resources : "+ path +"spells_book.json")
 	var n_spells_book = Utils.FileHandler.read_json_dic_from_file(path +"spells_book.json")
 #	print("n_spells_book : ", n_spells_book)
@@ -727,11 +727,14 @@ func load_spell_resources(path : String) :
 #		print(spellsource)
 		spellscript.set_source_code(spellsource)
 #		print("resources.gd DONE set source code for "+sn+" , before reload()")
-
+		#printerr(sn+ " spell source : \n", spellsource)
 		var _err_newscript_reload = spellscript.reload()
-#		print(_err_newscript_reload)
+		if _err_newscript_reload>0 :
+			printerr("RESOURECE "+sn+" failed source reload ",_err_newscript_reload)
 		var newscript = spellscript.new()
 		spells_book[sn] = { "name" : sn, "source" : spellsource, "script" : newscript}
+		
+
 #		print("resources.gd DONE reload() for "+sn)
 
 #		print("LITTLE TEST, ", spells_book[sn]["script"].get_min_damage(7))

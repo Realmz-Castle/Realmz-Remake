@@ -857,8 +857,9 @@ func does_party_have_same_item(item : Dictionary)->Array :
 
 
 func play_sfx(sfx_name : String) ->void :
-	SfxPlayer.stream = NodeAccess.__Resources().sounds_book[sfx_name]
-	SfxPlayer.play()
+	if NodeAccess.__Resources().sounds_book.has(sfx_name):
+		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[sfx_name]
+		SfxPlayer.play()
 
 func get_mapsecret_detection_chance(pos : Vector2i) ->float :
 	return 1.0-GameGlobal.map.get_secret_fail_chance(pos)
