@@ -244,7 +244,7 @@ static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()
 	print("classgd gift : call resources.load_item_resources()")
 	resources.load_item_resources("shared_assets/items/")
-
+	_character.spells = [[],[]]
 	for name in ["Dagger","Bow","Quiver of Arrows","Leather Armor","Leather Cap","Leather Gloves","Leather Boots"] :
 		print("classgd  give gift : ", name)
 		var item = resources.items_book[name]

@@ -238,7 +238,7 @@ static func can_learn_spell(_character, _spell) -> int :
 static func _character_creation_gifts(_character) :
 	var resources = NodeAccess.__Resources()
 	resources.load_item_resources("shared_assets/items/")
-	
+	_character.spells = [[],[],[],[],[],[],[]]
 	for name in ["Dagger","Robe","Silk Gloves","Leather Boots"] :
 		var item = resources.items_book[name]
 		_character.inventory.append(item.duplicate(true))
