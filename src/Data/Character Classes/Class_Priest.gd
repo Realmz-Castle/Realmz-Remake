@@ -4,6 +4,7 @@ const classrace_definition : String = "Description will come soon" # leave it as
 const can_dual_wield : bool = false  #leave it as is
 const used_resource : String = "MP"  #changed to MP for magic class
 const can_manage_ablt_anywhere = false  #leave it as is
+const max_spell_lvl = 7
 
 #Applied once on character creation
 const base_stat_bonuses : Dictionary = {
@@ -229,7 +230,7 @@ static func can_learn_spell(_character, _spell) -> int :
 			# Only care about Priest school
 			if _spell.school_levels.has("Priest"):
 				var level : int = _spell.school_levels["Priest"]
-				if (level>0) and (level <= 7):
+				if (level>0) and (level <= max_spell_lvl):
 					return level
 				else:
 					return 10  # Can't learn Priest spells above level 7

@@ -4,6 +4,7 @@ const classrace_definition : String = "Description will come soon" # leave it as
 const can_dual_wield : bool = false  #leave it as is
 const used_resource : String = "SP"  #leave it as is
 const can_manage_ablt_anywhere = false  #leave it as is
+const max_spell_lvl = 4
 
 #Applied once on character creation
 const base_stat_bonuses : Dictionary = {
@@ -231,7 +232,7 @@ static func can_learn_spell(_character, _spell) -> int :
 			# Only care about Enchanter school
 			if _spell.school_levels.has("Enchanter"):
 				var level : int = _spell.school_levels["Enchanter"]
-				if (level>0) and (level <= 4):
+				if (level>0) and (level <= max_spell_lvl):
 					return level
 				else:
 					return 10  # Can't learn Enchanter spells above level 4

@@ -8,7 +8,7 @@ const can_dual_wield : bool = false  #not very well implemented  idk what to do 
 const used_resource : String = "RP"  #Rage Points, so maybe they will  have some Fighter spell abilities  later
 
 const can_manage_ablt_anywhere = true  #new, can  they reorganize their spell list anytime ?
-
+const max_spell_lvl = 0
 
 
 

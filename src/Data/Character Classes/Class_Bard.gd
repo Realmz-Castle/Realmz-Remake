@@ -4,6 +4,7 @@ const classrace_definition : String = "Description will come soon" # leave it as
 const can_dual_wield : bool = false  #leave it as is
 const used_resource : String = "SP"  #leave it as is
 const can_manage_ablt_anywhere = false  #leave it as is
+const max_spell_lvl = 0
 
 #Applied once on character creation
 const base_stat_bonuses : Dictionary = {
