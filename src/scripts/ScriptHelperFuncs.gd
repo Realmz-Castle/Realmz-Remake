@@ -94,9 +94,9 @@ static func yesno_branch_Divinity(continue_on_yes : bool, tg_type : int, tg_id :
 			flag_disabled_current_script()
 			return 'STOP'
 	return ''
-			
-	
-	
+
+
+
 ## Divinity Code 4, Simple Encounter  , simple_enc
 static func display_simple_encounter_Divinity(enc_id : int) :
 	await display_simple_encounter_from_data("SE"+str(enc_id))
@@ -125,7 +125,7 @@ static func play_sound_divinity(sfx_id : int) :
 
 ##Divinity Code 21: Branch on Possession of Specific Item, jmp_if_item
 static func branch_on_posession_of_item(item_name : String, tg_type : int, should_ignore_if_no : bool, exec_if_yes : String, exec_if_no : String) :
-#0 = X-AP, 1 = Simple Encounter, 2 = Complex Encounter 
+#0 = X-AP, 1 = Simple Encounter, 2 = Complex Encounter
 	var cur_script_name : String = GameGlobal.current_map_script_name
 	if does_party_have_item_named(item_name) :
 		if tg_type==0 :
@@ -161,7 +161,7 @@ static func flag_disabled_current_script() ->void :
 static func allow_temple_menu(price_mult : float) :
 	print("allow_temple_menu TBI when temple menu is done")
 
-## DivinityCode 38: Continue On Possession, Else Branch Within Encounters 
+## DivinityCode 38: Continue On Possession, Else Branch Within Encounters
 static func branch_item_pos_encounter(item_name : String, continue_on_pos : bool, target_type:int, target:String, code_index:int) :
 	print('branch_item_pos_encounter  TBI  when encounters are understood')
 
@@ -201,29 +201,32 @@ static func do_RR_battle(rr_dict : Dictionary) :
 
 ## Divinity Code 2 : battle
 static func start_battle_in_range(low : int, high : int, sfx_id : int, displaytext : String, give_treasure : int) :
-	#low=, high=, sound_id=, string_id=, treasure_mode= 
+	#low=, high=, sound_id=, string_id=, treasure_mode=
 	var sound_name_from_mapping : String = ''
 	if SfxIdDivinity.mapping.has(sfx_id) :
 		sound_name_from_mapping = SfxIdDivinity.mapping[sfx_id]
+	else:
+		if sfx_id != 0:  # Don't log for sfx_id 0 as it's mapped to empty string intentionally
+			print("Warning: SFX ID ", sfx_id, " not found in SfxIdDivinity mapping in start_battle_in_range")
 	if not displaytext.is_empty() :
 		await ScriptHelperFuncsClass.display_text_wait_noise(displaytext, sound_name_from_mapping)
-	
 	#var battles_id_name_dict = GameGlobal.campaign_global_script.battles_id_name_dict
-
+	else:
+		play_sound(sound_name_from_mapping, true)
 	var battle_name = 'Battle_'+str(randi_range(low, high))#battles_id_name_dict[randi_range(low, high)]
 	GameGlobal.allow_next_battle_loot = give_treasure!=5 # from divinity doc : A value of 5 here : no loot. 10 : no gameover.
-	play_sound(sound_name_from_mapping, true)
+
 	GameGlobal.start_battle(battle_name,"",true, false, give_treasure==10, true, true, [] ) # all party if pc_particiating is empty
 	var wonfledlost = await GameGlobal.battle_end
 	return wonfledlost
 
 #Divinity Code 26 : Branching Battle, jmp_battle
-#1) Battle Number: Low Battle Number for Range Battle 
-#2) High Battle Number for Range Battle 
-#3) If defeated branch to X-AP, Else -1 = Backstep 
-#4) Sound. (Optional) 
-#5) String ID to display prior to battle. (Optional) 
-#uUse : 
+#1) Battle Number: Low Battle Number for Range Battle
+#2) High Battle Number for Range Battle
+#3) If defeated branch to X-AP, Else -1 = Backstep
+#4) Sound. (Optional)
+#5) String ID to display prior to battle. (Optional)
+#uUse :
 #var branch = await ScriptHelperFuncs.branching_battle_Divinity()
 #if branch != "GO_ON" : return branch
 static func branching_battle_Divinity(low: int, high : int, xap_or_backstep : int, sfx_id : int, displaytext : String) :
@@ -235,7 +238,7 @@ static func branching_battle_Divinity(low: int, high : int, xap_or_backstep : in
 			return
 		return "XAP"+str(xap_or_backstep)
 	return "GO_ON"
-		
+
 
 ## DIVINITY : Random Rectangle battles with no actual AP :
 static func randomrect_battle(b : Array, o : int, s : String, t : String, battle_text : String) :
@@ -260,16 +263,16 @@ static func randomrect_battle(b : Array, o : int, s : String, t : String, battle
 
 
 
-#Code 7: Change Action Point Script 
-#ID: Extra Codes ID 
-#Use: Allows you to change the codes for an Action Point anywhere in the scenario. 
+#Code 7: Change Action Point Script
+#ID: Extra Codes ID
+#Use: Allows you to change the codes for an Action Point anywhere in the scenario.
 ## Divinity Code 7 : modify_ap    level=, id=, source_xap=, level_type=, result_code=
-#1) Land ID of Action Point codes to change. -2 = Replace Simple 
-#Encounter Script, -3 = Replace Complex Encounter Script 
-#2) AP/Simple Enc ID/Complex Enc ID To Modify 
-#3) Extra Action Point ID that contains the new codes 
-#4) For AP replacement: 0 = Default to same land type, 1 = Land Level, 2 = Dungeon Level 
-#5) For Encounter Script Replacement: Result Code to Replace 
+#1) Land ID of Action Point codes to change. -2 = Replace Simple
+#Encounter Script, -3 = Replace Complex Encounter Script
+#2) AP/Simple Enc ID/Complex Enc ID To Modify
+#3) Extra Action Point ID that contains the new codes
+#4) For AP replacement: 0 = Default to same land type, 1 = Land Level, 2 = Dungeon Level
+#5) For Encounter Script Replacement: Result Code to Replace
 static func add_Divinity_script_branch_flag( map_id : int, source_id : int, modified_script_id : int, thing, sexap_result_to_replace : int = 0) :
 	var aptype : String = "AP"
 
@@ -320,10 +323,10 @@ static func get_ap_name_starting_with(startstring : String) -> String :
 		if ap_name.begins_with(startstring) :
 			return ap_name
 	return ''
-	
 
-##Divinity Code 13: Enable/Disable Action Point  level=, id=, percent_chance=, low=, high= 
-#Use: Use this to enable or disable an Action Point or to alter the percent chance that you encounter it. 
+
+##Divinity Code 13: Enable/Disable Action Point  level=, id=, percent_chance=, low=, high=
+#Use: Use this to enable or disable an Action Point or to alter the percent chance that you encounter it.
 static func set_divinity_script_enabled_flag(map_id : int, ap_id : int, exec_chance : float, ap_downto_id : int, ap_upto_id : int) ->void :
 	printerr("ScripHelperFuncs set_divinity_script_enabled_flag("+str(map_id)+','+str(ap_id)+','+str(exec_chance)+','+str(ap_upto_id)+')')
 	var map_name = "map_"+str(map_id)
@@ -455,7 +458,7 @@ static func set_quest_id_flag_Divinity(quest_id : int) :
 		GameGlobal.stuff_done.erase("quest_"+str(abs(quest_id)))
 		return
 	GameGlobal.stuff_done["quest_"+str(abs(quest_id))] = 1
-	
+
 static func clear_quest_id_flag_Divinity(quest_id : int) :
 	GameGlobal.stuff_done.erase("quest_"+str(abs(quest_id)))
 
@@ -476,7 +479,7 @@ static func branch_on_quest_Divinity(quest_id : int, go_on_if_done : int, target
 			assert(false)
 	return next_ap_name
 
-## Divinity Code 12: Change Land Tile 
+## Divinity Code 12: Change Land Tile
 static func change_map_tile_Divinity(map_id : int, xcoord : int, ycoord : int, tileid : int, useless) :
 	var map_name = 'map_'+str(map_id)
 	if map_name==GameGlobal.currentmap_name :
@@ -488,7 +491,7 @@ static func change_map_tile_Divinity(map_id : int, xcoord : int, ycoord : int, t
 static func change_dark_los_Divinity(is_dark:int, skip_if_dark_same:int, los:int, skip_if_los_same: int) -> bool :
 	#if skip_if_dark_same or skip_if_los_same :
 		#printerr("Divinity Code 106: change_dark_los_Divinity causes brainching, make sure the script does!  return true=skip rest of AP")
-	
+
 	var map : Map = NodeAccess.__Map()
 	var new_dark = 7-7*is_dark  #0=darkest, 7 =  alwayslight
 	if new_dark==0 and map.darkness_level<=0 and skip_if_dark_same :
@@ -498,7 +501,7 @@ static func change_dark_los_Divinity(is_dark:int, skip_if_dark_same:int, los:int
 		return true
 	map.display_explored_only = los==1
 	return false
-	
+
 ## Divinity Code 26: Get Mouse Click
 static func request_click() :
 	UI.ow_hud.textRect.disablerButton.show()
@@ -513,7 +516,7 @@ static func request_click() :
 static func give_exp(exp : int) :
 	await StateMachine.enter_ex_menu_state({"menu_name" : "LootMenu", "treasure" : [] ,"money" : [0,0,0] ,"exp" : exp })
 
-## Divinity Code 30: Pick on Check Vs. Attribute • Special Abilities 
+## Divinity Code 30: Pick on Check Vs. Attribute • Special Abilities
 static func filter_PCs_ability_Divinity(ability_id:int, success_mod:int, who:int, what_type:int, previously_picked : Array = []) :
 	var ability_arr : Array =["Melee_Crit_Mult",'','','Melee_Crit_Rate', 'Detect_Secret', 'Acrobatics', "Detect_Trap", "Disable_Trap",'',"Force_Lock",'',"Pick_Lock", 'read lv1 scrolls', 'Turn_Undead' ]
 	var ability_name : String = ability_arr[ability_id]
@@ -538,7 +541,7 @@ static func castSpellOnPartyDivinity(spell_id, power, drv_modifier, can_drv) :
 	var spell_name : String = SpellsIdDivinity.mappings[spell_id]
 	CastSpellOnPickedCharacters(GameGlobal.player_characters, spell_name, power)
 
-#Divinity Code 17: Cast Spell on Picked 
+#Divinity Code 17: Cast Spell on Picked
 static func castSpellOnPickedDivinity(spell_id, power, drv_modifier, can_drv) :
 	var spell_name : String = SpellsIdDivinity.mappings[spell_id]
 	CastSpellOnPickedCharacters(GameGlobal.last_picked_characters, spell_name, power)
@@ -553,10 +556,10 @@ static func CastSpellOnPickedCharacters(characters : Array, spell_name : String,
 			if spell.get("proj_hit") :
 				UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
 			await GameGlobal.do_spell_field_effect(character, target, spell, power)
-			if spell.get("special_effect") : 
+			if spell.get("special_effect") :
 				var is_over : bool = await spell.special_effect(character, spell, power, Vector2.ZERO, [], [target], false)
-			
-# Divinity code : Code 32: Offer Temple 
+
+# Divinity code : Code 32: Offer Temple
 static func enable_default_temple(price_mult) :
 	GameGlobal.currentTemple = [
 		["Heal Small Wounds", 1, roundi(100*price_mult/10)*10 ],
@@ -597,7 +600,7 @@ static func change_tile_anymap_add_flag(map_name : String, x:int, y:int, tileset
 	var flagvalue : Array = [x,y,layer,tileset_name, tile_id]
 	if map_name==GameGlobal.currentmap_name :
 		change_currmap_tile(x,y,layer,tileset_name, tile_id )
-	if not GameGlobal.stuff_done.has(mapflagname) : 
+	if not GameGlobal.stuff_done.has(mapflagname) :
 		GameGlobal.stuff_done[mapflagname] = {}
 	GameGlobal.stuff_done[mapflagname][flagname]=flagvalue
 	return [mapflagname, flagname, flagvalue]
@@ -613,10 +616,10 @@ static func request_pc_pick(n : int) :
 	GameGlobal.last_picked_characters = await UI.ow_hud.pc_picked
 	return GameGlobal.last_picked_characters
 
-#Code 43: Give Condition 
+#Code 43: Give Condition
 #Use: Will allow you to give characters a specified condition.
-#Negative values will be permanent unless that character alreadysuffers from the specified condition in a permanent way. 
-#1) Affect Who: 0 = Party, 1 = Picked, 2 = Alive 
+#Negative values will be permanent unless that character alreadysuffers from the specified condition in a permanent way.
+#1) Affect Who: 0 = Party, 1 = Picked, 2 = Alive
 static func give_Divinity_condition(affect_who : int, condition_id : int, powerperm : int, sound_name_id ):
 	var affected_characters : Array = []
 	var permanent : bool =  powerperm<0
@@ -730,11 +733,11 @@ static func give_Divinity_condition(affect_who : int, condition_id : int, powerp
 		c.add_trait(traitscript, trait_array)
 		if sound_name_id is String :
 			await play_sound(sound_name_id, true)
-# Code 52: Pick on Miscellaneous 
+# Code 52: Pick on Miscellaneous
 # Use: Allows you to PICK characters on a number of conditions.
-#1) Type Of Check, 0 = Move, 1 = Position, 2 = Item Poss, 3 = % Chance, 4 = Save Vs Attr, 5 = Save Vs Spell Type, 6 = Pick Currently Selected PC, 7 8 = Pick Character In Specific 
-#2) < Move, < Pos, Item ID, % Chance, Attr No., Spell Type No., Item ID, Position (1-6) 
-#3) 0 = Check All, 1 = Alive Only, 2 = Check picked only. 
+#1) Type Of Check, 0 = Move, 1 = Position, 2 = Item Poss, 3 = % Chance, 4 = Save Vs Attr, 5 = Save Vs Spell Type, 6 = Pick Currently Selected PC, 7 8 = Pick Character In Specific
+#2) < Move, < Pos, Item ID, % Chance, Attr No., Spell Type No., Item ID, Position (1-6)
+#3) 0 = Check All, 1 = Alive Only, 2 = Check picked only.
 static func pick_chara_Divinity_misc(type:int, challenge : int, checkwho : int, item_poss_id : int) ->Array :
 	var tested_charas : Array = []
 	var picked_charas : Array = []
@@ -746,7 +749,7 @@ static func pick_chara_Divinity_misc(type:int, challenge : int, checkwho : int, 
 				if c.life_status <3 : tested_charas.append(c) #not dead
 		2:
 			tested_charas = GameGlobal.last_picked_characters
-			
+
 	match type :
 		0: #Move
 			for c : Creature in tested_charas :
@@ -789,22 +792,22 @@ static func pick_chara_Divinity_misc(type:int, challenge : int, checkwho : int, 
 
 
 
-#Code 30: Pick on Check Vs. Attribute • Special Abilities 
-#ID: Extra Codes ID 
+#Code 30: Pick on Check Vs. Attribute • Special Abilities
+#ID: Extra Codes ID
 #Use: This will allow you to PICK characters from the party according to the success
 #of a check vs. a speci ability.
-# Example: You could have each character who fails to perform an "Acrobatic Act" fall in a pit and take damage. 
-#Options: None 
-#E-Codes: 
-#1) What Attribute/Special Ability To Check (Negative = Set on Fail) 
-#2) +/- Modifer (Negative values hurt success odds) 
-#3) Who to check: 0 = Picked, 1 = Everyone, 2 = Alive 
-#4) 0 = Check Special Ability, 1 = Check Attribute 
+# Example: You could have each character who fails to perform an "Acrobatic Act" fall in a pit and take damage.
+#Options: None
+#E-Codes:
+#1) What Attribute/Special Ability To Check (Negative = Set on Fail)
+#2) +/- Modifer (Negative values hurt success odds)
+#3) Who to check: 0 = Picked, 1 = Everyone, 2 = Alive
+#4) 0 = Check Special Ability, 1 = Check Attribute
 #Note: The +/- Modifier for checks vs. special abilities is a percentage check.
-# Example: If the character has a 40% chance to perform an acrobatic act, they will be successful 40% of the time. If you have a Modifier of + 20 they will be successful 60% of the time. 
+# Example: If the character has a 40% chance to perform an acrobatic act, they will be successful 40% of the time. If you have a Modifier of + 20 they will be successful 60% of the time.
 #Checks on attributes is base 25. Example: If a character has a agility score of 16,
 #then 16 out of 25 times they will be successful on a check vs.. agility.
-#If you put a modifier of -5 then they will only be successful 9 out of 25 times. 
+#If you put a modifier of -5 then they will only be successful 9 out of 25 times.
 static func pick_chara_on_attribute_or_special_Divinity(what : int, modifier : int, checkwho : int, specorattr : int) -> Array :
 	var tested_charas : Array = []
 	var picked_charas : Array = []
@@ -837,7 +840,7 @@ static func pick_chara_on_attribute_or_special_Divinity(what : int, modifier : i
 
 
 #returns next AP name, check around l305 of StateMachine script.
-# use as 
+# use as
 # return await ScriptHelperFuncsClass.display_simple_encounter_from_data('SE0')
 static func display_simple_encounter_from_data(_enc_name : String) :
 	printerr("HELPER display_simple_encounter_from_data")
@@ -847,7 +850,7 @@ static func display_simple_encounter_from_data(_enc_name : String) :
 	var choices_data_arr : Array = se_data[1]
 	var sexap_arr : Array = se_data[2]
 	var canleave : bool = se_data[3]
-	
+
 	var choices : Array = [prompt]
 	var answers : Array = ["TEXT"]
 	for c in choices_data_arr :
@@ -864,17 +867,17 @@ static func display_simple_encounter_from_data(_enc_name : String) :
 	else : return sexap_arr[choices_data_arr[int(answer)][1]]
 
 
-#Divinity Code 38: Continue On Possession, Else Branch Within Encounters 
-#ID: Extra Codes ID 
-#Use: Allows you to check for a specific item and branch depending on whether or not someone in the party possess it. This is similar to CODE 21 which allows you to branch to different encounters/Action Points, however, this code lets you branch to different scripts within a specific encounter. 
-#Options: None 
-#E-Codes: 
-#1) Item ID to check for. 
-#2) 0 = Cont On Poss, 1 = Cont not Poss 
-#3) 0 = X-AP, 1 = Within simple, 2 = Within complex 
-#4) X-AP/Branch No. (0-3 if within encounter) 
-#5) Code No. (0 = top Code/ID) 
-#use : 
+#Divinity Code 38: Continue On Possession, Else Branch Within Encounters
+#ID: Extra Codes ID
+#Use: Allows you to check for a specific item and branch depending on whether or not someone in the party possess it. This is similar to CODE 21 which allows you to branch to different encounters/Action Points, however, this code lets you branch to different scripts within a specific encounter.
+#Options: None
+#E-Codes:
+#1) Item ID to check for.
+#2) 0 = Cont On Poss, 1 = Cont not Poss
+#3) 0 = X-AP, 1 = Within simple, 2 = Within complex
+#4) X-AP/Branch No. (0-3 if within encounter)
+#5) Code No. (0 = top Code/ID)
+#use :
 #var branch : String = branch_item_possession_divinity()
 #if not branch.is_empty() :
 	#return branch
@@ -892,14 +895,14 @@ static func branch_item_possession_divinity(item_id : int, cont_not_poss : int, 
 			return "CEXAP"+str(xap_id)
 		_:
 			return ''
-			
-#Code 41: Eliminate Other Encounter Choice 
-#ID: Extra Codes ID 
-#Use: Similar to CODE 35, this will eliminate one of the 4 possible choices for a Simple Encounter. However, will eliminate the choice of ANY encounter at any time. 
-#Options: None 
-#E-Codes: 
-#1) Simple Encounter No. 
-#2) Choice No. To Eliminate (1-4) 
+
+#Code 41: Eliminate Other Encounter Choice
+#ID: Extra Codes ID
+#Use: Similar to CODE 35, this will eliminate one of the 4 possible choices for a Simple Encounter. However, will eliminate the choice of ANY encounter at any time.
+#Options: None
+#E-Codes:
+#1) Simple Encounter No.
+#2) Choice No. To Eliminate (1-4)
 static func eliminate_se_option_divinity(enc_id : int, choice_id : int) :
 	var se_name : String = 'SE'+str(enc_id)
 	eliminate_se_option(se_name, choice_id )
@@ -921,12 +924,12 @@ static func display_random_text_from_array_wait(text_arr : Array) :
 	await textRect.interruption_over
 
 #Code 85: Branch on Random
-#1) Type:0 = X-AP, 1 = Simple, 2 = Complex 
-#2) Low Range Value. 
-#3) High Range Value. 
-#4) Sound --- Optional --- 
-#5) Message --- Optional --- 
-#for XAP use  with  
+#1) Type:0 = X-AP, 1 = Simple, 2 = Complex
+#2) Low Range Value.
+#3) High Range Value.
+#4) Sound --- Optional ---
+#5) Message --- Optional ---
+#for XAP use  with
 #var branch = ScriptHelperFuncs.branch_on_random_divinity()
 #if not branch.is_empty() :
 	#return branch
@@ -938,22 +941,22 @@ static func branch_on_random_divinity(type:int, low:int, high:int, sound_id:int,
 			return 'XAP'+str(rand_id)
 		1 :#SEeeee
 			return 'SE'+str(rand_id)
-	
 
-#Code 42: Branch on Percent Chance 
-#ID: Extra Codes ID 
+
+#Code 42: Branch on Percent Chance
+#ID: Extra Codes ID
 #Use: Allows you to specify a percent chance that an action of a specified type will happen.
-#Otherwise, the c will continue to be executed. 
+#Otherwise, the c will continue to be executed.
 #Options: Code -42 will add current script to the stack. The next Code 111 will return control
 #to the calling script where it left off.
-#See chapter "Action Points • Gosubs" for more info on the Stack and GOSUBS. 
-#E-Codes: 
-#1) Percent Chance of Happening, Else Continue Codes 
-#2) 1 = Branch, 2 = Exit & Save Codes, -2 = Exit & Erase Codes 
-#3) 0 = X-AP, 1 = Within Simple, 2 = Within Complex 
-#4) X-AP/Branch No. (0-3) 
-#5) Code No. (0 = Top Code/ID) 
-#use : 
+#See chapter "Action Points • Gosubs" for more info on the Stack and GOSUBS.
+#E-Codes:
+#1) Percent Chance of Happening, Else Continue Codes
+#2) 1 = Branch, 2 = Exit & Save Codes, -2 = Exit & Erase Codes
+#3) 0 = X-AP, 1 = Within Simple, 2 = Within Complex
+#4) X-AP/Branch No. (0-3)
+#5) Code No. (0 = Top Code/ID)
+#use :
 #var branch : String = branch_percent_chance_divinity()
 #if not branch.is_empty() :
 	#return branch
@@ -979,18 +982,18 @@ static func branch_percent_chance_divinity(percent : int, whatdo : int, type : i
 			return ''
 
 
-#Code 54: Alter Time Encounter 
-#ID: Extra Codes ID 
-#Use: Use this code to change a time based encounter. 
-#Options: None 
-#E-Codes: 
-#1) Time Encounter ID 
-#2) New % Chance Of Activation (-1 = No Change) 
-#3) New Day Increment (-1 = No Change) 
+#Code 54: Alter Time Encounter
+#ID: Extra Codes ID
+#Use: Use this code to change a time based encounter.
+#Options: None
+#E-Codes:
+#1) Time Encounter ID
+#2) New % Chance Of Activation (-1 = No Change)
+#3) New Day Increment (-1 = No Change)
 #4) 1 = Reset to current date  :  4) If you want the encounter to be activated 3 days from
 #	the present time, then place a 1 in this field. It will change the day of activation to
-#	the present day PLUS the value in 5). 
-#5) Days to add to next activation (-1 = No Change) 
+#	the present day PLUS the value in 5).
+#5) Days to add to next activation (-1 = No Change)
 #check campaign's campaign_global_script.gd and on_campaign_start.gd,   ===== TIME ENCOUNTER in dump
 static func alter_time_event_divinity(_tenc_id : int, _newchance_prct : int, _new_incr : int, _reset : int, _to_next_act : int ) :
 	var tenc_name : String = 'Time_Enc_'+str(_tenc_id)
@@ -1009,12 +1012,12 @@ static func alter_time_event_divinity(_tenc_id : int, _newchance_prct : int, _ne
 static func set_time_event_chance( _tenc_name : String, _newchance_prct : int) :
 	GameGlobal.stuff_done["Timed_Encounters"][_tenc_name]["chance_prct"] = _newchance_prct
 
-#Code 87: Branch on Special Character (NPC) Present 
-#1) Monster number to check for. 
-#2) If Present, Branch To: 0 = X-AP, 1 = Simple Encounter, 2 = Complex Encounter 
-#3) If Not Present, 0 = Branch as in Item 2, 1 = Continue Codes, 2 = Display String 
-#4) X-AP/Encounter No. If Present. 
-#5) X-AP/Encounter No./String ID If Not Present. 
+#Code 87: Branch on Special Character (NPC) Present
+#1) Monster number to check for.
+#2) If Present, Branch To: 0 = X-AP, 1 = Simple Encounter, 2 = Complex Encounter
+#3) If Not Present, 0 = Branch as in Item 2, 1 = Continue Codes, 2 = Display String
+#4) X-AP/Encounter No. If Present.
+#5) X-AP/Encounter No./String ID If Not Present.
 # use :
 #var branch : String = branch_NPC_in_party_Divinity()
 #if not branch.is_empty() :
@@ -1069,4 +1072,3 @@ static func destroy_related_monsters(cname : String, number : int,  allies_too :
 			if cb.creature.baseFaction == 0 and (not allies_too) :
 				continue
 			cb.creature.change_cur_hp(-999999999)
-	

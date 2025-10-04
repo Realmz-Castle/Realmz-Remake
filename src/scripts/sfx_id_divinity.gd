@@ -139,9 +139,9 @@ var mapping : Dictionary = {
 20004:"hallelujah.wav",
 20005:"song.wav",
 26260:"party loss.wav",
-30001:"growl 1.wav",
+30000:"growl 1.wav",
+30001:"growl 2.wav",
 30002:"glowl 3.wav",
 30003:"growl 4.wav",
 30005:"bamboo.wav"
-
 }
