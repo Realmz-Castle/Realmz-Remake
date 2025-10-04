@@ -427,7 +427,7 @@ func change_map(mapname : String, x : int, y : int) :
 		map.load_map(currentcampaign, mapname)
 	currentmap_name = mapname
 
-	
+
 	MusicStreamPlayer.play_music_map()
 	map.set_ow_character_icon(GameGlobal.player_characters[0].icon)
 #	GameState.map.focuscharacter.tile_position_x = x
@@ -572,6 +572,7 @@ func end_battle( wonfledlost : String ) :
 		"lost" :
 			#print("GameGlobal end_battle : battle lost !")
 			allow_next_battle_loot = true
+
 			if StateMachine.combat_state.cur_battle_data["allow_loss"] :
 				StateMachine.transition_to("Exploration",{})
 				##GameState._combat_state = eCombatStates.unchecked
@@ -583,6 +584,8 @@ func end_battle( wonfledlost : String ) :
 				#cur_battle_data["Scripts"]["lose"].lose()
 				#emit_signal("battle_end", "lost")
 			else :
+				# Stop music on game over
+				MusicStreamPlayer.stop()
 				print("GameGlobal end_battle : GAME OVER")
 				if cmp_resources.sounds_book.has("party loss.wav") :
 					SfxPlayer.stream = cmp_resources.sounds_book["party loss.wav"]
@@ -893,18 +896,18 @@ func check_flags_for_current_map_script_name() -> bool:
 	var replaceflagname : String = currentmap_name+'.'+"script_"+str(current_map_script_name)+'.replaced'
 	if not current_map_script_name.begins_with('X'):
 		printerr("GameGlobal check_flags_for_current_map_script_name "+current_map_script_name+ " "+replaceflagname)
-	
+
 	if stuff_done.has(replaceflagname):
 		printerr("found replaced ap flag :  ",replaceflagname,':',stuff_done[replaceflagname])
 		current_map_script_name = stuff_done[replaceflagname]
 		# Check STOP - if yes stop script
 		if current_map_script_name == "STOP" or current_map_script_name == "":
 			return false
-	
+
 	if stuff_done.has(chanceflagname):
 		if randf() > stuff_done[chanceflagname]:
 			return false
-	
+
 	return true
 
 	#var script_name = "script_"+str(_apname)
