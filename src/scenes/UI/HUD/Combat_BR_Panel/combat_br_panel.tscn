@@ -1,24 +1,26 @@
-[gd_scene load_steps=16 format=3 uid="uid://ceolb7qhukb47"]
+[gd_scene load_steps=17 format=3 uid="uid://ceolb7qhukb47"]
 
-[ext_resource type="Texture2D" uid="uid://dbt837usdrpiw" path="res://shared_assets/UI/stone_pattern.png" id="1_fwg6b"]
+[ext_resource type="Texture2D" uid="uid://uy47g5on76q5" path="res://shared_assets/UI/stone_pattern.png" id="1_fwg6b"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Combat_BR_Panel/combat_br_panel.gd" id="2_kfkt4"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_ss5ln"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="3_uqsbt"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="4_pr50w"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="5_j7pu4"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="6_4nwnf"]
-[ext_resource type="Texture2D" uid="uid://dwxmsdi3m1qmk" path="res://scenes/UI/HUD/Button_Spells.png" id="7_a7o8r"]
-[ext_resource type="Texture2D" uid="uid://cacrvqi6ph30m" path="res://scenes/UI/HUD/Button_Items.png" id="8_6riss"]
+[ext_resource type="Texture2D" uid="uid://cn4mablsvf7xc" path="res://scenes/UI/HUD/Button_Spells.png" id="7_a7o8r"]
+[ext_resource type="Texture2D" uid="uid://dflrj5emindhx" path="res://scenes/UI/HUD/Button_Items.png" id="8_6riss"]
 
 [sub_resource type="Shortcut" id="12"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0chsf"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vvtr3"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uclwc"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ii8mm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5r0f5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xpkq1"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_u3nr5"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_okqna"]
 
 [sub_resource type="Shortcut" id="6"]
 
@@ -42,24 +44,20 @@ theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="AutoLabel" type="Label" parent="AutoButton"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
-horizontal_alignment = 1
-vertical_alignment = 1
-mouse_filter = 2
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 16
 text = "Auto"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="FinishButton" type="Button" parent="."]
 layout_mode = 0
@@ -72,28 +70,23 @@ theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="FinishText" type="RichTextLabel" parent="FinishButton"]
+clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
 offset_top = 16.0
-offset_right = 0.0
-offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_ss5ln")
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
 text = "[center][color=yellow]F[/color][color=#00F5FF]inish[/color][/center]"
-fit_content = false
 scroll_active = false
 autowrap_mode = 0
-clip_contents = false
-text_direction = 0
-structured_text_bidi_override_options = []
 
 [node name="DelayButton" type="Button" parent="."]
 layout_mode = 0
@@ -106,28 +99,23 @@ theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="DelayText" type="RichTextLabel" parent="DelayButton"]
+clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
 offset_top = 16.0
-offset_right = 0.0
-offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_ss5ln")
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
 text = "[center][color=yellow]D[/color][color=#00F5FF]elay[/color][/center]"
-fit_content = false
 scroll_active = false
 autowrap_mode = 0
-clip_contents = false
-text_direction = 0
-structured_text_bidi_override_options = []
 
 [node name="GuardButton" type="Button" parent="."]
 layout_mode = 0
@@ -136,33 +124,29 @@ offset_top = 50.0
 offset_right = 100.0
 offset_bottom = 100.0
 focus_mode = 0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_vvtr3")
 theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="GuardText" type="RichTextLabel" parent="GuardButton"]
+clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
 offset_top = 16.0
-offset_right = 0.0
-offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_ss5ln")
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
 text = "[center][color=yellow]G[/color][color=#00F5FF]uard[/color][/center]"
-fit_content = false
 scroll_active = false
 autowrap_mode = 0
-clip_contents = false
-text_direction = 0
-structured_text_bidi_override_options = []
 
 [node name="PrepareButton" type="Button" parent="."]
 layout_mode = 0
@@ -171,33 +155,29 @@ offset_top = 100.0
 offset_right = 100.0
 offset_bottom = 150.0
 focus_mode = 0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ii8mm")
 theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="PrepareText" type="RichTextLabel" parent="PrepareButton"]
+clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
 offset_top = 16.0
-offset_right = 0.0
-offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_ss5ln")
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
 text = "[center][color=yellow]P[/color][color=#00F5FF]rep.[/color][/center]"
-fit_content = false
 scroll_active = false
 autowrap_mode = 0
-clip_contents = false
-text_direction = 0
-structured_text_bidi_override_options = []
 
 [node name="ParryButton" type="Button" parent="."]
 layout_mode = 0
@@ -206,33 +186,29 @@ offset_top = 50.0
 offset_right = 150.0
 offset_bottom = 100.0
 focus_mode = 0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_5r0f5")
 theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="ParryText" type="RichTextLabel" parent="ParryButton"]
+clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
 offset_top = 16.0
-offset_right = 0.0
-offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_ss5ln")
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
 text = "[center][color=yellow]P[/color][color=#00F5FF]arry[/color][/center]"
-fit_content = false
 scroll_active = false
 autowrap_mode = 0
-clip_contents = false
-text_direction = 0
-structured_text_bidi_override_options = []
 
 [node name="SpellButton" type="Button" parent="."]
 layout_mode = 0
@@ -240,6 +216,7 @@ offset_top = 100.784
 offset_right = 50.0
 offset_bottom = 150.784
 focus_mode = 0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_xpkq1")
 theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
@@ -253,14 +230,13 @@ offset_top = 50.0
 offset_right = 50.0
 offset_bottom = 100.0
 focus_mode = 0
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_0chsf")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_uclwc")
+theme_override_styles/disabled = ExtResource("6_4nwnf")
+theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_u3nr5")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_okqna")
+theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("6")
 shortcut_in_tooltip = false
 icon = ExtResource("8_6riss")
-flat = true
 
 [node name="EscapeButton" type="Button" parent="."]
 layout_mode = 0
@@ -274,24 +250,20 @@ theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="EscapeLabel" type="Label" parent="EscapeButton"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
-horizontal_alignment = 1
-vertical_alignment = 1
-mouse_filter = 2
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 16
 text = "Escape"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="BandageButton" type="Button" parent="."]
 layout_mode = 0
@@ -305,24 +277,20 @@ theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
-text = ""
 
 [node name="BandageLabel" type="Label" parent="BandageButton"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
-horizontal_alignment = 1
-vertical_alignment = 1
-mouse_filter = 2
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_fonts/font = ExtResource("2_ss5ln")
 theme_override_font_sizes/font_size = 16
 text = "Bandage"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="oterButton" type="Button" parent="."]
 layout_mode = 0
