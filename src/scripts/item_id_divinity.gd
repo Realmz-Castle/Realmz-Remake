@@ -106,7 +106,7 @@ var mapping : Dictionary = {
 102: "Quarter Staff",
 103: "Quarter Staff +3",
 104: "Bow",
-105: "Perrin's Eye +3",
+105: "Perrins Eye +3",
 106: "Bow of Thumbs -3",
 107: "Bow of Shalomar +2",
 108: "Bow +1",
