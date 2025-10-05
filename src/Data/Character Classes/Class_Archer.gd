@@ -184,7 +184,7 @@ static func _mod_equippable(_character) :
 		"Scroll Case" : 1
 	}
 
-	for t in _character.equippable_types :
+	for t in mod_equippable_types :
 		_character.equippable_types[t] += mod_equippable_types[t]
 
 
