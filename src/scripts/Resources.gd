@@ -221,12 +221,13 @@ func load_item_resources( path : String ) -> void:
 #	print("\nloaded n_item_stuff_book ?\n")
 #	print(n_item_stuff_book)
 
-	for item_name in n_item_stuff_book :
-		var new_item = generate_item_from_json_dict(n_item_stuff_book[item_name])
-		n_item_stuff_book[item_name] = new_item
+	for item_key in n_item_stuff_book :
+		var new_item = generate_item_from_json_dict(n_item_stuff_book[item_key])
+		new_item["KEY"] = item_key
+		n_item_stuff_book[item_key] = new_item
 #		print("done loading item "+new_item["name"]  )
-	for item_name in n_item_stuff_book :
-		items_book[item_name] = n_item_stuff_book[item_name]
+	for item_key in n_item_stuff_book :
+		items_book[item_key] = n_item_stuff_book[item_key]
 #	var folderpath : String = Paths.realmzfolderpath + "Campaigns"
 
 

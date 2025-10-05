@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://scenes/Map/TargetingLayer.gd" id="5_4df2b"]
 [ext_resource type="Script" path="res://scripts/Main.gd" id="6"]
 [ext_resource type="Shader" path="res://scenes/CRT.gdshader" id="7_5xixa"]
-[ext_resource type="Texture2D" uid="uid://dyhpk66yh2edp" path="res://scenes/CRT test image.png" id="7_8ms7i"]
+[ext_resource type="Texture2D" uid="uid://c4vihjukfpelr" path="res://scenes/CRT test image.png" id="7_8ms7i"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_12uap"]
 

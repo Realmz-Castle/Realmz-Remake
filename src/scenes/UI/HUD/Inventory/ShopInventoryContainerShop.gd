@@ -73,6 +73,7 @@ func _drop_data(_pos, data):
 	for s in shoprect.types[itemshoptype] :
 
 		if (s[0]["name"]==item["name"]
+		and s[0]["KEY"]==item["KEY"]
 		and s[0]["stats_mini"] == item["stats_mini"]
 		and s[0]["weight"] == item["weight"]
 		and s[0]["price"] == item["price"]
