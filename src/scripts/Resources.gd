@@ -875,13 +875,18 @@ func load_creature_ai_resources(path : String) :
 #	print("n_spells_book : ", n_spells_book)
 	for sn in scriptfilenames :
 		if sn.ends_with(".gd") :
-			print("adding " +sn)
-			var newcreascript : GDScript
-			if path.begins_with("res://") :
-				newcreascript = load(path+sn)
-			else :
-				newcreascript = GDScript.new()
-				var _err = newcreascript.load(path+sn)
+			print(" resources.gd load_creature_ai_resources adding " +path+sn)
+			#var newcreascript : GDScript
+			#if path.begins_with("res://") :
+				#newcreascript = load(path+sn)
+			#else :
+			#var newcreascript = GDScript.new()
+			var newcreascript : GDScript = load(path+sn)
+			print('resources.gd load_creature_ai_resources : ',newcreascript.get_script_method_list())
+			#var _err = #newcreascript.load(path+sn)
+			#if _err>0 :
+				#printerr("RESOURCE.GD load_creature_ai_resources ERROR : "+sn+ ','+str(_err))
+			
 			creascripts_book[sn] = newcreascript
 
 
