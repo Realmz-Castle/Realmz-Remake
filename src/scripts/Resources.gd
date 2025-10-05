@@ -875,17 +875,22 @@ func load_creature_ai_resources(path : String) :
 #	var n_creascripts_book = Utils.FileHandler.read_json_dic_from_file(path +"spells_book.json")
 #	print("n_spells_book : ", n_spells_book)
 	for sn : String in scriptfilenames :
-		if sn.ends_with(".gd") :
+		if sn.ends_with(".gd") or sn.ends_with(".gdc") :
 			print(" resources.gd load_creature_ai_resources adding " +path+sn)
 			var newcreascript : GDScript = load(path+sn)
-			print('resources.gd load_creature_ai_resources methods .GD : ',newcreascript.get_script_method_list())
-			creascripts_book[sn] = newcreascript
-		if sn.ends_with(".gdc") :
-			var sncut : String = sn.trim_suffix('c')
-			print(" resources.gd load_creature_ai_resources adding " +path+sn +' (removed .gdc)')
-			var newcreascript : GDScript = load(path+sncut)
-			print('resources.gd load_creature_ai_resources methods GDC: ',newcreascript.get_script_method_list())
-			creascripts_book[sn] = newcreascript
+			var key : String = sn.trim_suffix('.gdc')
+			key = key.trim_suffix('gde')
+			key = key.trim_suffix('gd')
+			key = key + '.gd'
+			print('resources.gd load_creature_ai_resources : key is '+key)
+			#print('resources.gd load_creature_ai_resources methods .GD : ',newcreascript.get_script_method_list())
+			creascripts_book[key] = newcreascript
+		#if sn.ends_with(".gdc") :
+			#var sncut : String = sn.trim_suffix('c')
+			#print(" resources.gd load_creature_ai_resources adding " +path+sn +' (removed .gdc)')
+			#var newcreascript : GDScript = load(path+sncut)
+			#print('resources.gd load_creature_ai_resources methods GDC: ',newcreascript.get_script_method_list())
+			#creascripts_book[sn] = newcreascript
 			#var newcreascript : GDScript
 			#if path.begins_with("res://") :
 				#newcreascript = load(path+sn)
