@@ -869,8 +869,9 @@ func sort_item_type(a : String, b : String):
 
 
 func load_creature_ai_resources(path : String) :
-	print("resources.gd load_creature_ai_resources "+path)
+	
 	var scriptfilenames : Array = Utils.FileHandler.list_files_in_directory(path)
+	print("resources.gd load_creature_ai_resources "+path, " scriptfilenames: :",scriptfilenames)
 #	var n_creascripts_book = Utils.FileHandler.read_json_dic_from_file(path +"spells_book.json")
 #	print("n_spells_book : ", n_spells_book)
 	for sn in scriptfilenames :
