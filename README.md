@@ -1,6 +1,6 @@
 # Realmz Remake Project
 
-Remake project of Fantasoft's classic 1994 RPG "Realmz"
+Remake project of Fantasoft's classic 1994 RPG "Realmz" created by Tim Philips
 
 [Project Site](https://realmz-castle.github.io)
 
@@ -49,4 +49,4 @@ See also the list of [contributors](https://github.com/Realmz-Castle/Realmz-Rema
 
 ## License
 
-This project has not yet been licensed. 
+This project has not yet been licensed.
