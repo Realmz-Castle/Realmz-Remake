@@ -49,4 +49,6 @@ See also the list of [contributors](https://github.com/Realmz-Castle/Realmz-Rema
 
 ## License
 
-This project has not yet been licensed.
+This project is licensed CC BY-NC-SA
+
+If you are a rights holder of any of the original game assets or derivatives thereof included in this project and you do not wish for your work to be included in this project, you may contact the project team and we will remove it promptly
