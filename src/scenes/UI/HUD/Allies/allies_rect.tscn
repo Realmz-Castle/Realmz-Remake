@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://37bdl7c76fpb"]
 
-[ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ogmno"]
+[ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ogmno"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Allies/allies_rect.gd" id="2_pi45d"]
 [ext_resource type="PackedScene" uid="uid://2w0rb8651ynm" path="res://scenes/UI/HUD/Allies/crea_v_box.tscn" id="3_4437a"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_g2gb7"]

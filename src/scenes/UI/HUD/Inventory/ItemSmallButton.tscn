@@ -1,9 +1,9 @@
 [gd_scene load_steps=6 format=3 uid="uid://bhthrfyy8yll3"]
 
 [ext_resource type="Script" path="res://scenes/UI/HUD/Inventory/ItemSmallButton.gd" id="2"]
-[ext_resource type="Texture2D" uid="uid://572rwgtjbc0x" path="res://shared_assets/Map Symbols/tileDark.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://bswlwj1nrmren" path="res://scenes/UI/HUD/Inventory/EquippedGray.png" id="4"]
-[ext_resource type="Texture2D" uid="uid://du5fc526fiqol" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOn.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://dnij4nyg34y6b" path="res://shared_assets/Map Symbols/tileDark.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://cifsomngkc61j" path="res://scenes/UI/HUD/Inventory/EquippedGray.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://b8kyt6vvl3whj" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOn.png" id="5"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="5_a3gnf"]
 
 [node name="ItemSmallButton" type="Button"]

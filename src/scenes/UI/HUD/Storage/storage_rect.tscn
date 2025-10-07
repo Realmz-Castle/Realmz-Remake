@@ -1,16 +1,16 @@
 [gd_scene load_steps=12 format=3 uid="uid://iiocvdyx6axc"]
 
-[ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ewvts"]
+[ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="1_ewvts"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Storage/storage_rect.gd" id="2_5axds"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_xd7xv"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_01glb"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="4_miylq"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_7c4vm"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_7kijc"]
-[ext_resource type="Texture2D" uid="uid://b4mjxed28syit" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="7_ej171"]
-[ext_resource type="Texture2D" uid="uid://doe7digdoowq8" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="8_5uqhq"]
-[ext_resource type="Texture2D" uid="uid://cwmjgbrk577bn" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="9_h6r0l"]
-[ext_resource type="Texture2D" uid="uid://cxo553atsg0gv" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="10_xokcx"]
+[ext_resource type="Texture2D" uid="uid://c1s74w3jn8noy" path="res://scenes/UI/HUD/Inventory/ButtonWeapon.png" id="7_ej171"]
+[ext_resource type="Texture2D" uid="uid://eb5hresm10yd" path="res://scenes/UI/HUD/Inventory/ButtonBodyArmor.png" id="8_5uqhq"]
+[ext_resource type="Texture2D" uid="uid://bjf4uam8uagrc" path="res://scenes/UI/HUD/Inventory/ButtonLimbArmor.png" id="9_h6r0l"]
+[ext_resource type="Texture2D" uid="uid://d3j8mdj7yqaup" path="res://scenes/UI/HUD/Inventory/ButtonSupplies.png" id="10_xokcx"]
 
 [node name="StorageRect" type="NinePatchRect" node_paths=PackedStringArray("profilenameLabel", "charanameLabel", "charaGrid", "storageGrid")]
 anchors_preset = 15

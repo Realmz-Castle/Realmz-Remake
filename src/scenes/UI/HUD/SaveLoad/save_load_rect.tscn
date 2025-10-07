@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://7v3a8w4rknyq"]
 
-[ext_resource type="Texture2D" uid="uid://sb2to4waf4ar" path="res://shared_assets/UI/StonePatternRect9.png" id="1_6h1d8"]
+[ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="1_6h1d8"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/save_load_rect.gd" id="2_0a2vs"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_oftxx"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_4rsef"]

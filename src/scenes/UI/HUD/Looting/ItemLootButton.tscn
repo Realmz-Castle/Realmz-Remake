@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://bbocdc7s2hxuv"]
 
-[ext_resource type="StyleBox" path="res://scenes/UI/HUD/Looting/lootselectionStyleBox.tres" id="1"]
-[ext_resource type="Texture2D" uid="uid://bjk80x6lc24yd" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://dwxa6cl084epe" path="res://scenes/UI/HUD/Looting/LootSelectionCircleDisabled.png" id="2_meav6"]
+[ext_resource type="StyleBox" uid="uid://6dtu21vmnpmu" path="res://scenes/UI/HUD/Looting/lootselectionStyleBox.tres" id="1"]
+[ext_resource type="Texture2D" uid="uid://ckpb2aopdjrcx" path="res://scenes/UI/HUD/Looting/ItemGlow.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://jqg1flwtwrgu" path="res://scenes/UI/HUD/Looting/LootSelectionCircleDisabled.png" id="2_meav6"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_moyov"]
 texture = ExtResource("2_meav6")
