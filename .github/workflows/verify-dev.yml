@@ -68,7 +68,7 @@ jobs:
 
   build-macos:
     needs: check-version-bump
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
