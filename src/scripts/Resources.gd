@@ -634,24 +634,17 @@ func load_music_resources(path : String) :
 		for sfmn in sfmusicnames :
 			var musicdict = {}
 			if sfmn.ends_with("ogg") :
-				print("RESOURCE L400 TODO : FIX OGG LOADER   SRSLY")
 				musicdict["type"] = 'ogg'
-				#just load .. NOTB ECAUSE IT S OUSTIDE res://
-#				musicdict["sound"] = load(sfpath+'/'+sfmn)
-
-#				var ogg_file : FileAccess = FileAccess.open(sfpath+'/'+sfmn, FileAccess.ModeFlags.READ)
-#				var bytes = ogg_file.get_buffer(ogg_file.get_length())
-#
-				var loadedsound = AudioStreamOggVorbis.new()
-				print("RESOURsE LOADER OGG MUSIC !!! "+sfmn, ", path is : "+sfpath+'/'+sfmn)
-				#SOMEHOW THIS CRASHES var loadedsound : AudioStreamOggVorbis = AudioStreamOggVorbis.load_from_file(sfpath+'/'+sfmn)
-				#loadedsound.load_from_file(sfpath+'/'+sfmn)
-
-##				loadedsound.data = bytes
-#				loadedsound.packet_sequence.packet_data = bytes
-#				ogg_file.close()
-
-				musicdict["sound"] = loadedsound
+				var ogg_file = FileAccess.open(sfpath+'/'+sfmn, FileAccess.READ)
+				if ogg_file:
+					var bytes = ogg_file.get_buffer(ogg_file.get_length())
+					var loadedsound = AudioStreamOggVorbis.load_from_buffer(bytes)
+					musicdict["sound"] = loadedsound
+					ogg_file.close()
+					print("Loaded OGG: ", sfmn, " (", bytes.size(), " bytes)")
+				else:
+					print("ERROR: Could not open OGG file: ", sfpath+'/'+sfmn)
+					continue
 
 			elif sfmn.ends_with("mp3") :
 				musicdict["type"] = 'mp3'
