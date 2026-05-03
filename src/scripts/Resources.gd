@@ -871,9 +871,12 @@ func load_creature_ai_resources(path : String) :
 		if sn.ends_with(".gd") or sn.ends_with(".gdc") :
 			print(" resources.gd load_creature_ai_resources adding " +path+sn)
 			var newcreascript : GDScript = load(path+sn)
-			var key : String = sn.trim_suffix('.gdc')
-			key = key.trim_suffix('gde')
-			key = key.trim_suffix('gd')
+			var key : String = sn
+			if key.ends_with('.gdc'):
+				key = key.trim_suffix('.gdc')
+			elif key.ends_with('.gd'):
+				key = key.trim_suffix('.gd')
+			
 			key = key + '.gd'
 			print('resources.gd load_creature_ai_resources : key is '+key)
 			#print('resources.gd load_creature_ai_resources methods .GD : ',newcreascript.get_script_method_list())
