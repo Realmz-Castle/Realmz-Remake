@@ -88,11 +88,11 @@ class FileHandler:
 #		print(txt)
 		var test_json_conv = JSON.new()
 		var err = test_json_conv.parse(txt)
-		var data_parsed : Dictionary = test_json_conv.data
 		if err != OK:
-				print("GLOBAL : read_json_dictionary_from_txt parse text ERROR "+ str(err) )
-				return {}
-		return data_parsed#.result
+			return {}
+		if not (test_json_conv.data is Dictionary):
+			return {}
+		return test_json_conv.data
 
 	static func read_txt_from_file(path) -> String:
 #		var data_file = File.new()
@@ -100,7 +100,8 @@ class FileHandler:
 #			return ""
 #		print("Utils read_txt_from_file : ", path)
 		var file : FileAccess = FileAccess.open(path, FileAccess.ModeFlags.READ)
-		
+		if file == null:
+			return ""
 		var data_text = file.get_as_text()
 		file = null #fileaccess is closed when it's  freed, no close() since godot4
 		return data_text
