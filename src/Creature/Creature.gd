@@ -507,6 +507,10 @@ func remove_trait_stack(traitscript : GDScript, trait_array : Array) :
 	#remove_trait(traitscript)
 
 func add_spell_from_source(spellname : String, spellsource : String, slevel : int) :
+	# Class-based spells save with empty source; re-resolve by name.
+	if spellsource == "" or spellsource.begins_with("<class:") :
+		add_spell_from_spells_book(spellname, slevel)
+		return
 	var spellscript  = GDScript.new()
 	spellscript.set_source_code(spellsource)
 	var _err_newscript_reload = spellscript.reload()

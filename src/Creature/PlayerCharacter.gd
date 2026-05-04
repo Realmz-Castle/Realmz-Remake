@@ -125,14 +125,30 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 
 	if data.has("spells") :
 		spells = data["spells"]
-		for slevel in spells :
-			for spelldict in slevel :
+		var sb : Dictionary = NodeAccess.__Resources().spells_book
+		for slevel : Array in spells :
+			var to_drop : Array = []
+			for spelldict : Dictionary in slevel :
+				var spellsource : String = spelldict.get("source", "")
+				# Class-based spell: re-resolve by name.
+				if spellsource == "" or spellsource.begins_with("<class:") :
+					if sb.has(spelldict["name"]) :
+						spelldict["script"] = sb[spelldict["name"]]["script"]
+						spelldict["source"] = ""
+					else :
+						printerr("PlayerCharacter ", name, ": missing class spell '", spelldict["name"], "', dropping")
+						to_drop.append(spelldict)
+					continue
 				var spellscript : GDScript = GDScript.new()
-				var spellsource = spelldict["source"]
 				spellscript.set_source_code(spellsource)
-				var _err_newscript_reload = spellscript.reload()
-				var newscript = spellscript.new()
-				spelldict["script"] = newscript
+				var err_newscript_reload : int = spellscript.reload()
+				if err_newscript_reload != OK :
+					printerr("PlayerCharacter ", name, ": spell '", spelldict["name"], "' failed to reload (err=", err_newscript_reload, "), dropping")
+					to_drop.append(spelldict)
+					continue
+				spelldict["script"] = spellscript.new()
+			for d in to_drop :
+				slevel.erase(d)
 	else :
 		spells = []
 
