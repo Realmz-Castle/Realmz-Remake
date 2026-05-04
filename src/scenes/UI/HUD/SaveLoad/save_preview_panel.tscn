@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bxnrqgijyfcwa"]
+[gd_scene load_steps=9 format=3 uid="uid://bxnrqgijyfcwa"]
 
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_mgwxa"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/save_preview_panel.gd" id="2_8732q"]
@@ -7,6 +7,18 @@
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="5_vihe7"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_qr38m"]
 [ext_resource type="PackedScene" uid="uid://c2put8ty4yst6" path="res://scenes/UI/HUD/SaveLoad/pc_micro_ctrl.tscn" id="7_gt5sp"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_descr"]
+bg_color = Color(0, 0, 0, 0.4)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.4, 0.6)
+content_margin_left = 6.0
+content_margin_top = 4.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
 
 [node name="PreviewPanel" type="Panel" node_paths=PackedStringArray("savename_label", "pc_micro_box", "notesTextEdit", "save_button", "load_button")]
 custom_minimum_size = Vector2(270, 64)
@@ -45,8 +57,7 @@ theme_override_styles/disabled = ExtResource("6_qr38m")
 theme_override_styles/hover = ExtResource("4_l1bhv")
 theme_override_styles/pressed = ExtResource("5_vihe7")
 theme_override_styles/normal = ExtResource("1_mgwxa")
-text = "Save
-"
+text = "Save"
 
 [node name="LoadButton" type="Button" parent="SaveLoadHBox"]
 layout_mode = 2
@@ -91,9 +102,9 @@ layout_mode = 2
 
 [node name="PCsMicroContainer" type="GridContainer" parent="PreviewVBox/PCsMicroPanel"]
 layout_mode = 2
-theme_override_constants/h_separation = 0
-theme_override_constants/v_separation = 0
-columns = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 1
 
 [node name="PCMicroCtrl" parent="PreviewVBox/PCsMicroPanel/PCsMicroContainer" instance=ExtResource("7_gt5sp")]
 layout_mode = 2
@@ -115,6 +126,7 @@ layout_mode = 2
 
 [node name="SaveDescrLabel" type="Label" parent="PreviewVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
@@ -127,6 +139,9 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_selected_color = Color(0, 1, 1, 1)
 theme_override_constants/line_spacing = 0
 theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_descr")
+theme_override_styles/focus = SubResource("StyleBoxFlat_descr")
+theme_override_styles/read_only = SubResource("StyleBoxFlat_descr")
 text = "If a strainer's holes are smaller than the noodles, then the strainer will let the water though but not the noodles. Conversely, if a strainer's holes are smaller than water, the strainer will let the noodles pass but not the water."
 wrap_mode = 1
 
