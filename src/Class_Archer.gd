@@ -226,7 +226,7 @@ static func can_learn_spell(_character, _spell) -> int :
 	# Check school_levels dictionary first
 	if _character.level < 15:
 		return 10  # Can't learn spells below level 15
-	if _spell.has("school_levels") and not _spell.school_levels.is_empty():
+	if "school_levels" in _spell and not _spell.school_levels.is_empty():
 		# Only care about Sorcerer school
 		if _spell.school_levels.has("Sorcerer"):
 			if _spell.school_levels["Sorcerer"] <= 2:
@@ -252,7 +252,7 @@ static func get_max_perma_summons(_character) ->int :
 
 static func get_selection_cost(_character, _ability, _cost) :
 	# Only use Sorcerer school cost if available
-	if _ability.has("selection_costs") and _ability.selection_costs.has("Sorcerer"):
+	if "selection_costs" in _ability and _ability.selection_costs.has("Sorcerer"):
 		return _cost + _ability.selection_costs["Sorcerer"]
 	return _cost
 
