@@ -92,6 +92,7 @@ func _on_new_campaign_button_pressed():
 
 func _on_load_button_pressed():
 	loadgameCtrl.fill('',false)
+	loadgameCtrl.show()
 	loadgameWindow.show()
 
 
