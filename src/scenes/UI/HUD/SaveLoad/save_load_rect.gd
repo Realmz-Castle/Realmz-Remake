@@ -291,6 +291,24 @@ func load_game(campaignname : String, savename : String) :
 	print("campaignname currentcampaign : ", campaignname, '!=',prevCampaign+"? ",campaignname != prevCampaign )
 	if campaignname != prevCampaign :
 		await NodeAccess.__Resources().load_campaign_ressources(campaignname)
+	# Refresh PC spell sources from the just-loaded spells_book — characters were
+	# loaded before resources, so their PlayerCharacter._init couldn't pick up edits
+	# to spells_book.json. Recompile here using the live source.
+	var live_spells : Dictionary = NodeAccess.__Resources().spells_book
+	for pc in GameGlobal.player_characters :
+		for slevel in pc.spells :
+			for spelldict in slevel :
+				var sname : String = spelldict.get("name", "")
+				if sname.is_empty() or not live_spells.has(sname) :
+					continue
+				var fresh_source : String = live_spells[sname]["source"]
+				if spelldict.get("source", "") == fresh_source :
+					continue
+				var newscript : GDScript = GDScript.new()
+				newscript.set_source_code(fresh_source)
+				var _err = newscript.reload()
+				spelldict["source"] = fresh_source
+				spelldict["script"] = newscript.new()
 #	GameState._state = GameGlobal.eGameStates.startGame  #to do  GameState.DoStartGame
 	#StateMachine.transition_to("Exploration/ExWalking", {"load_campaign_msg" : {"initialize_campaign" : false}} )
 	#map exploration, done after loading resources

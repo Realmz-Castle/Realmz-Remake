@@ -83,7 +83,7 @@ func _on_creabutton_toggled(summoner_name : String, is_pressed : bool) -> void :
 	var toomuch_name : String = ''
 	var enabled : bool = true
 	for sbox in summonsvbox.get_children() :
-		if sbox.cur > sbox.max :
+		if sbox.cur_s > sbox.max_s :
 			toomuch_name = sbox.character.name
 			enabled = false
 			break
