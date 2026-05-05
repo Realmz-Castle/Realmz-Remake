@@ -128,10 +128,10 @@ func play_music(musicdict: Dictionary) -> void:
 		if file:
 			var data = file.get_buffer(file.get_length())
 			file.close()
-			var stream = AudioStreamMPT.new()
-			stream.data = data
-			stream.loop_mode = 1  # Enable looping
-			set_stream(stream)
+			var mpt_stream = AudioStreamMPT.new()
+			mpt_stream.data = data
+			mpt_stream.loop_mode = 1  # Enable looping
+			set_stream(mpt_stream)
 			if musicdict["path"] == map_music_dict["path"]:
 				# TODO: Implement position saving for tracker files if needed
 				pass

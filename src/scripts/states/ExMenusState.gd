@@ -239,7 +239,7 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 			
 			if spell.get("special_effect") : 
 				print("FIELD SPECIAL EFFECT")
-				var is_over : bool = await spell.special_effect(character, spell, powerlevel, Vector2.ZERO, [], [target], false)
+				var _is_over : bool = await spell.special_effect(character, spell, powerlevel, Vector2.ZERO, [], [target], false)
 			
 			UI.ow_hud._on_spell_menu_closed()
 			UI.ow_hud.updateCharPanelDisplay()

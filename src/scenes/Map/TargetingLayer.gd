@@ -53,8 +53,6 @@ var max_range : int = 0
 
 const OBSTRUCTEDTEXT : String = "Obstructed !"
 
-signal player_spell_confirmed
-
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -265,6 +263,7 @@ func _draw() :
 	var mousepos : Vector2i = Vector2i(map.get_local_mouse_position() ) #+ map.focuscharacter.get_pixel_position()
 #	var screensize : Vector2 = get_window().get_size()
 #	mousepos = mousepos -screensize/2 +Vector2(160,90)#- Vector2(320,180)
+	@warning_ignore("integer_division")
 	mousepos = mousepos/32
 #	mousepos = Vector2i(mousepos)
 #	var aoecolor : Color
@@ -419,7 +418,7 @@ func start_targ(tspell, tspellpower : int, tcaster : CombatCreaButton, _used_ite
 
 
 
-static func bresenham_line(startpt : Vector2, endpt : Vector2, min_range : int, max_range : int) -> Array :
+static func bresenham_line(startpt : Vector2, endpt : Vector2, min_range : int, p_max_range : int) -> Array :
 	# returns an array of all the tiles on the line between startpt and endpt, starting from startpt.
 	var returned : Array = []
 	
@@ -442,10 +441,9 @@ static func bresenham_line(startpt : Vector2, endpt : Vector2, min_range : int, 
 #	returned = [startpt, endpt]
 	if min_range>0 :
 		returned.pop_front()  # remove the tile where the user is !
-		# warning-ignore:narrowing_conversion
-		returned.resize(min(returned.size(),max_range))
+		returned.resize(min(returned.size(),p_max_range))
 	else :
-		returned.resize(min(returned.size(),max_range+1))
+		returned.resize(min(returned.size(),p_max_range+1))
 	if returned.is_empty() :
 		print("RETUNRED EMPTY !")
 	return returned
@@ -454,10 +452,8 @@ static func bresenham_line(startpt : Vector2, endpt : Vector2, min_range : int, 
 static func plotLineLow(startpt : Vector2, endpt : Vector2, reverseorder : bool) -> Array :
 	# bresenham for  |slope| <1
 	var returned : Array = []
-	# warning-ignore:narrowing_conversion
-	var dx : int = endpt.x - startpt.x
-	# warning-ignore:narrowing_conversion
-	var dy : int = endpt.y - startpt.y
+	var dx : int = int(endpt.x - startpt.x)
+	var dy : int = int(endpt.y - startpt.y)
 	var yi : int = 1
 	if dy < 0 :
 		yi = -1
@@ -480,10 +476,8 @@ static func plotLineLow(startpt : Vector2, endpt : Vector2, reverseorder : bool)
 static func plotLineHigh(startpt : Vector2, endpt : Vector2, reverseorder : bool) -> Array :
 	# bresenham for  |slope| >1
 	var returned : Array = []
-	# warning-ignore:narrowing_conversion
-	var dx : int = endpt.x - startpt.x
-	# warning-ignore:narrowing_conversion
-	var dy : int = endpt.y - startpt.y
+	var dx : int = int(endpt.x - startpt.x)
+	var dy : int = int(endpt.y - startpt.y)
 	var xi : int = 1
 	if dx < 0 :
 		xi = -1
@@ -509,7 +503,7 @@ func get_tiles_under_cb(cb : CombatCreaButton) -> Array :
 			returned_array.append(Vector2i(crea.position)+Vector2i(x,y))
 	return returned_array
 
-func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_targeted_pos : Vector2, s_aoe_override = []) ->Array :
+func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_targeted_pos : Vector2, _s_aoe_override = []) ->Array :
 	var s_max_range : int = s_spell.get_range(s_power, s_caster.creature)
 	var s_aoe_los = s_spell.los
 	var s_aoe_ray : bool = s_spell.ray
@@ -587,8 +581,8 @@ func get_cbs_touching_tiles(effected_tiles : Array) -> Array:
 #old gameglobal execute : (caster : CombatCreaButton,spell,power : int ,clickedtile : Vector2i, aoe_shape : Array, picked_targets : Dictionary, picked_tiles:Dictionary, chain_start : bool, must_add_terrain : bool) :
 #msg frmat : {"type" : "Spell", "caster" : Crea, "Effected Tiles" : [], "Effected creas" : [], "targeted_tiles" : [], "spell":GDScript, "s_plvl" : 1, "used_item" : null , "add_terrain" : true}
 
-func execute_spell(caster : CombatCreaButton,spell,power : int, trgt_tiles : Array, spell_used_item : Dictionary, must_add_terrain : bool, override_aoe : Array) :
-	#print("TargetingLayer execute_spell : "+spell.name+" trgt_tiles : ", trgt_tiles)
+func execute_spell(_caster : CombatCreaButton, s_spell, s_power : int, trgt_tiles : Array, spell_used_item : Dictionary, must_add_terrain : bool, override_aoe : Array) :
+	#print("TargetingLayer execute_spell : "+s_spell.name+" trgt_tiles : ", trgt_tiles)
 	#print("TargetingLayer aoe_shape ", aoe_shape)
-	var msg : Dictionary = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : trgt_tiles, "used_item" : spell_used_item , "must_add_terrain" : must_add_terrain, "override_aoe" : override_aoe }
+	var msg : Dictionary = {"type" : "Spell", "spell" : s_spell, "s_plvl" : s_power, "targeted_tiles" : trgt_tiles, "used_item" : spell_used_item , "must_add_terrain" : must_add_terrain, "override_aoe" : override_aoe }
 	StateMachine.state.on_spellcast_confirmed(msg)

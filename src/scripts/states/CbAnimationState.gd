@@ -37,7 +37,7 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 
 
@@ -87,7 +87,7 @@ func enter(_msg : Dictionary = {}) -> void:
 						print("CbAnim onmove extra_actions : ", extra_actions)
 						var xdiff : float = abs(GameGlobal.map.focuscharacter.tile_position_x-movercb.creature.position.x)
 						var ydiff : float = abs(GameGlobal.map.focuscharacter.tile_position_y-movercb.creature.position.y)
-						if combat_state.is_cam_too_far(xdiff,ydiff) :
+						if combat_state.is_cam_too_far(int(xdiff), int(ydiff)) :
 							GameGlobal.map.focuscharacter.set_tile_position(movercb.creature.position)
 						UI.ow_hud.updateCharPanelDisplay()
 						UI.ow_hud.creatureRect.display_crea_info(movercb)
