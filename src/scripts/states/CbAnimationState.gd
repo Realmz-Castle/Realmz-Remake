@@ -82,7 +82,18 @@ func enter(_msg : Dictionary = {}) -> void:
 									var added_acts = extra_act_before_move + [cur_action]
 									combat_state.add_to_action_queue(added_acts)
 									continue
-						
+
+						if cur_action.get("check_guarding", true) :
+							var guarding_actions : Array = []
+							for creabtn : CombatCreaButton in combat_state.all_battle_creatures_btns :
+								for t in creabtn.creature.traits :
+									if t.has_method("_on_other_creature_walked") :
+										guarding_actions += t._on_other_creature_walked(movercb)
+							if not guarding_actions.is_empty() :
+								cur_action["check_guarding"] = false
+								combat_state.add_to_action_queue(guarding_actions + [cur_action])
+								continue
+
 						var extra_actions : Array = movercb.creature.move(dir)
 						print("CbAnim onmove extra_actions : ", extra_actions)
 						var xdiff : float = abs(GameGlobal.map.focuscharacter.tile_position_x-movercb.creature.position.x)
