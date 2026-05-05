@@ -1,7 +1,7 @@
 [gd_scene load_steps=60 format=3 uid="uid://b6pytyonlmi0h"]
 
-[ext_resource type="Texture2D" uid="uid://rv46k6n1ogx" path="res://scenes/UI/HUD/EffectsRect.png" id="1_7big5"]
-[ext_resource type="Texture2D" uid="uid://kabi0c8twvna" path="res://scenes/UI/HUD/EffectsAnimations.png" id="2_j0fo0"]
+[ext_resource type="Texture2D" uid="uid://bfkmsfw7a16xf" path="res://scenes/UI/HUD/EffectsRect.png" id="1_7big5"]
+[ext_resource type="Texture2D" uid="uid://meib7vx3ar3" path="res://scenes/UI/HUD/EffectsAnimations.png" id="2_j0fo0"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/GlobalEffectsRect/global_effects_rect.gd" id="2_vs2rj"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rklq0"]

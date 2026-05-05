@@ -1,14 +1,14 @@
 [gd_scene load_steps=17 format=3 uid="uid://ceolb7qhukb47"]
 
-[ext_resource type="Texture2D" uid="uid://bfwe4oc06eobk" path="res://shared_assets/UI/stone_pattern.png" id="1_fwg6b"]
+[ext_resource type="Texture2D" uid="uid://lfonk613cgwb" path="res://shared_assets/UI/stone_pattern.png" id="1_fwg6b"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/Combat_BR_Panel/combat_br_panel.gd" id="2_kfkt4"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="2_ss5ln"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="3_uqsbt"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="4_pr50w"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="5_j7pu4"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="6_4nwnf"]
-[ext_resource type="Texture2D" uid="uid://bvpg5sxwdb4b1" path="res://scenes/UI/HUD/Button_Spells.png" id="7_a7o8r"]
-[ext_resource type="Texture2D" uid="uid://hxwfg4ulk0ys" path="res://scenes/UI/HUD/Button_Items.png" id="8_6riss"]
+[ext_resource type="Texture2D" uid="uid://djcm65t4wb1nt" path="res://scenes/UI/HUD/Button_Spells.png" id="7_a7o8r"]
+[ext_resource type="Texture2D" uid="uid://dgpbgtruh0kw8" path="res://scenes/UI/HUD/Button_Items.png" id="8_6riss"]
 
 [sub_resource type="Shortcut" id="12"]
 

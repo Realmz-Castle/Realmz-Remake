@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://df0n7iov8urn3"]
 
 [ext_resource type="Script" path="res://scenes/Map/CombatCharacter.gd" id="1_6vrfh"]
-[ext_resource type="Texture2D" uid="uid://12g68igk5bdo" path="res://scenes/Map/CreaSelection11.png" id="2_c7n50"]
-[ext_resource type="Texture2D" uid="uid://dwynu5fv8qr2e" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="2_csw5h"]
+[ext_resource type="Texture2D" uid="uid://bomab3sjrghlx" path="res://scenes/Map/CreaSelection11.png" id="2_c7n50"]
+[ext_resource type="Texture2D" uid="uid://djft2r1qk03px" path="res://scenes/UI/Main Menu/DefaultIcon.png" id="2_csw5h"]
 
 [sub_resource type="Image" id="Image_xlilc"]
 data = {

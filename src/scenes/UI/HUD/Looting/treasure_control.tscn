@@ -2,16 +2,16 @@
 
 [ext_resource type="Script" path="res://scenes/UI/HUD/Looting/TreasureControl.gd" id="1_ipum1"]
 [ext_resource type="PackedScene" uid="uid://bbocdc7s2hxuv" path="res://scenes/UI/HUD/Looting/ItemLootButton.tscn" id="2_7u8km"]
-[ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="3_17gs7"]
+[ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="3_17gs7"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="3_mxj8x"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="4_vl2ad"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="5_2gofa"]
 [ext_resource type="StyleBox" uid="uid://wyv5spwx0hnb" path="res://shared_assets/UI/button50_pressed_styleboxtexture.tres" id="6_den0p"]
 [ext_resource type="StyleBox" uid="uid://dt34sx3lb526m" path="res://shared_assets/UI/button50_disabled_styleboxtexture.tres" id="7_365ag"]
-[ext_resource type="Texture2D" uid="uid://dmru2uaoowew0" path="res://scenes/UI/HUD/Button_Money.png" id="8_xknn3"]
+[ext_resource type="Texture2D" uid="uid://c1e4j0nsy54qy" path="res://scenes/UI/HUD/Button_Money.png" id="8_xknn3"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="9_bp3bw"]
-[ext_resource type="Texture2D" uid="uid://q72li5ukx1oe" path="res://shared_assets/UI/buttonDone.png" id="10_krfry"]
-[ext_resource type="Texture2D" uid="uid://djvhw3nwm2ysp" path="res://scenes/UI/HUD/Looting/button_Detect.png" id="12_2tonn"]
+[ext_resource type="Texture2D" uid="uid://lare2vr0eb8q" path="res://shared_assets/UI/buttonDone.png" id="10_krfry"]
+[ext_resource type="Texture2D" uid="uid://b70b2jmsoe03o" path="res://scenes/UI/HUD/Looting/button_Detect.png" id="12_2tonn"]
 
 [sub_resource type="Shortcut" id="46"]
 
