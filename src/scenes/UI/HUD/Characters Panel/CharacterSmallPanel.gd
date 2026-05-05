@@ -11,11 +11,10 @@ var paneltype : int = 0  #0=player character 1= NPC
 
 @onready var nameLabel : Label = $CharnameLabel
 @onready var faceButton : Button = $PortraitButton
-@onready var curHPLabel : Label= $"HPLabel/CurHPLabel"
-@onready var maxHPLabel : Label= $"HPLabel/MaxHPLabel"
-@onready var SPLabel : Label= $SPLabel
-@onready var curSPLabel : Label= $"SPLabel/CurSPLabel"
-@onready var maxSPLabel : Label= $"SPLabel/MaxSPLabel"
+@onready var HPLabel : Label = $HPLabel
+@onready var HPValueLabel : Label = $HPValueLabel
+@onready var SPLabel : Label = $SPLabel
+@onready var SPValueLabel : Label = $SPValueLabel
 
 @onready var selectButton : Button = $"SelectButton"
 @onready var selectedOffIcon : Texture2D = load("res://scenes/UI/HUD/Characters Panel/CharPanelSelectOff.png")
@@ -59,7 +58,6 @@ func set_character(chara : Creature) -> void :
 		faceButton.icon = chara.portrait
 	else :
 		faceButton.icon = chara.textureR
-	SPLabel.text = chara.used_resource 
 	bandead_sprite.frame = chara.life_status
 
 func set_type(t : int, showdropmenu : bool = true) :
@@ -100,21 +98,16 @@ func update_display() ->void :
 		faceButton.icon = character.portrait
 	else :
 		faceButton.icon = character.textureR
-	curHPLabel.text = str(character.get_stat("curHP"))
-	maxHPLabel.text = str(character.get_stat("maxHP"))
-	match character.used_resource :
-		"SP" :
-			curSPLabel.text = str( character.get_stat("curSP") )
-			maxSPLabel.text = str( character.get_stat("maxSP") )
-		"TP" :
-			curSPLabel.text = str( character.get_stat("curTP") )
-			maxSPLabel.text = str( character.get_stat("maxTP") )
-		"FP" :
-			curSPLabel.text = str( character.get_stat("curFP") )
-			maxSPLabel.text = str( character.get_stat("maxFP") )
-		"RP" :
-			curSPLabel.text = str( character.get_stat("curRP") )
-			maxSPLabel.text = str( character.get_stat("maxRP") )
+	HPValueLabel.text = "%d/%d" % [character.get_stat("curHP"), character.get_stat("maxHP")]
+	var resource_key : String = character.used_resource
+	var cur_key : String = "cur" + resource_key
+	var max_key : String = "max" + resource_key
+	if resource_key.is_empty() or not character.stats.has(cur_key) :
+		SPLabel.text = ""
+		SPValueLabel.text = ""
+	else :
+		SPLabel.text = resource_key
+		SPValueLabel.text = "%d/%d" % [character.get_stat(cur_key), character.get_stat(max_key)]
 	itemsnumberLabel.text = str(character.inventory.size())
 	curWeightLabel.text = str(character.get_inventory_weight())
 	maxWeightLabel.text = str(character.get_stat("Weight_Limit"))
