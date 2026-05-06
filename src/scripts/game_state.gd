@@ -19,11 +19,25 @@ var time_since_last_dir_input : float = 0
 #var last_dir_input : Vector2i = Vector2i.ZERO
 #var last_nonnull_dir_input : Vector2i = Vector2i.ZERO
 
+const MOVE_ACTIONS : Array[StringName] = [
+	&"move_up", &"move_down", &"move_left", &"move_right",
+	&"move_upleft", &"move_upright", &"move_downleft", &"move_downright",
+]
+
 func _init() -> void :
 	add_to_group("state_machine")
 
-#func _unhandled_input(event : InputEvent) -> void :
-#	state.unhandled_input(event)
+# Edge-triggered movement: fires one move on the just-pressed edge of any
+# movement action. Polling in _process still handles continuous walking when a
+# real keyboard key stays held. is_action_pressed(action) excludes echo events,
+# so keyboard auto-repeat doesn't double-fire here.
+func _input(event : InputEvent) -> void :
+	for action in MOVE_ACTIONS :
+		if event.is_action_pressed(action) :
+			var arr : Array = get_dir_input_from_kb()
+			if arr[1] :
+				send_dir_input(arr[0], true)
+			return
 
 
 

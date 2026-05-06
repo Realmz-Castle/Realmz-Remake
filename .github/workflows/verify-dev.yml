@@ -74,6 +74,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Git LFS
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
 
       - name: Checkout LFS
@@ -136,6 +137,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Git LFS
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
 
       - name: Checkout LFS
@@ -198,6 +200,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Git LFS
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
 
       - name: Checkout LFS
@@ -257,6 +260,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Git LFS
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
 
       - name: Checkout LFS
