@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://biqyyjm2makqt"]
+[gd_scene load_steps=11 format=3 uid="uid://biqyyjm2makqt"]
 
 [ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="1_58vil"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/AbilitiesManagement/abilities_mngt_rect.gd" id="2_2mr1u"]
@@ -8,12 +8,10 @@
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="4_jtjbq"]
 [ext_resource type="Texture2D" uid="uid://byjgkp23t5jp3" path="res://shared_assets/UI/buttonDISABLED.png" id="5_456hp"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="5_d4g05"]
-[ext_resource type="Texture2D" uid="uid://dj7rgnb3smke8" path="res://scenes/UI/HUD/Spells/SpellLevelText.png" id="6_1xote"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="6_x46li"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="7_pwkmh"]
-[ext_resource type="Script" path="res://scenes/UI/HUD/AbilitiesManagement/SpellsVBox.gd" id="12_rka11"]
 
-[node name="AbilitiesMngtRect" type="NinePatchRect" node_paths=PackedStringArray("nameLabel", "pointsLabel", "portraitRect", "knownCntnr", "availCntnr", "lvbuttonCntnr")]
+[node name="AbilitiesMngtRect" type="NinePatchRect" node_paths=PackedStringArray("nameLabel", "pointsLabel", "portraitRect", "spellListCntnr", "lvbuttonCntnr", "costColumnCntnr", "infoNameLabel", "infoStatsLabel", "doneButton")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -28,416 +26,213 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 script = ExtResource("2_2mr1u")
 abBtnTSCN = ExtResource("3_ac3rl")
-nameLabel = NodePath("MenuVBox/CharacterRect/CharaVBox/PortraitHBox/NameLabel")
-pointsLabel = NodePath("MenuVBox/CharacterRect/CharaVBox/PortraitHBox/PointsLabel")
-portraitRect = NodePath("MenuVBox/CharacterRect/CharaVBox/PortraitHBox/PortraitRect")
-knownCntnr = NodePath("MenuVBox/CharacterRect/CharaVBox/SpellsHBox/KnownRect/KnownColorRect/KnownScrollCtnr/KnownVBox")
-availCntnr = NodePath("MenuVBox/CharacterRect/CharaVBox/SpellsHBox/AvaillableRect/AvailColorRect/AvailScrollCtnr/AvailVBox")
-lvbuttonCntnr = NodePath("MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer")
+nameLabel = NodePath("MenuVBox/HeaderHBox/NameLabel")
+pointsLabel = NodePath("MenuVBox/PointsLabel")
+portraitRect = NodePath("MenuVBox/HeaderHBox/PortraitRect")
+spellListCntnr = NodePath("MenuVBox/BodyHBox/SpellsRect/SpellsScroll/SpellsList")
+lvbuttonCntnr = NodePath("MenuVBox/BodyHBox/LevelsHBox/LevelsRect/LevelsContainer")
+costColumnCntnr = NodePath("MenuVBox/BodyHBox/LevelsHBox/CostsRect/CostsContainer")
+infoNameLabel = NodePath("MenuVBox/InfoRect/InfoVBox/InfoNameLabel")
+infoStatsLabel = NodePath("MenuVBox/InfoRect/InfoVBox/InfoStatsLabel")
+doneButton = NodePath("MenuVBox/HeaderHBox/DoneButton")
 
 [node name="MenuVBox" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="MenuVBox"]
-custom_minimum_size = Vector2(0, 40)
+[node name="InfoRect" type="NinePatchRect" parent="MenuVBox"]
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 32
-text = "Manage Abilities"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="CharacterRect" type="NinePatchRect" parent="MenuVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-texture = ExtResource("1_58vil")
-region_rect = Rect2(10, 0, 50, 74)
-patch_margin_top = 10
+texture = ExtResource("5_456hp")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="CharaVBox" type="VBoxContainer" parent="MenuVBox/CharacterRect"]
+[node name="InfoVBox" type="VBoxContainer" parent="MenuVBox/InfoRect"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 10.0
-offset_bottom = -10.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="PortraitHBox" type="HBoxContainer" parent="MenuVBox/CharacterRect/CharaVBox"]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="MarginControl" type="Control" parent="MenuVBox/CharacterRect/CharaVBox/PortraitHBox"]
+[node name="InfoNameLabel" type="Label" parent="MenuVBox/InfoRect/InfoVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.27, 1)
+theme_override_fonts/font = ExtResource("3_ywreg")
+theme_override_font_sizes/font_size = 22
+text = "Select a spell to view details"
 
-[node name="PortraitRect" type="TextureRect" parent="MenuVBox/CharacterRect/CharaVBox/PortraitHBox"]
+[node name="InfoStatsLabel" type="Label" parent="MenuVBox/InfoRect/InfoVBox"]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 13
+text = ""
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MenuVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PortraitRect" type="TextureRect" parent="MenuVBox/HeaderHBox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 0
 size_flags_vertical = 4
 texture = ExtResource("4_4okjw")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="NameLabel" type="Label" parent="MenuVBox/CharacterRect/CharaVBox/PortraitHBox"]
-custom_minimum_size = Vector2(0, 40)
+[node name="NameLabel" type="Label" parent="MenuVBox/HeaderHBox"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_fonts/font = ExtResource("3_ywreg")
 theme_override_font_sizes/font_size = 24
 text = "Samuel"
-vertical_alignment = 2
+vertical_alignment = 1
 
-[node name="SpaceControl" type="Control" parent="MenuVBox/CharacterRect/CharaVBox/PortraitHBox"]
+[node name="DoneButton" type="Button" parent="MenuVBox/HeaderHBox"]
+custom_minimum_size = Vector2(96, 36)
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="PointsLabel" type="Label" parent="MenuVBox/CharacterRect/CharaVBox/PortraitHBox"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 24
-text = "999 Selection Points"
-vertical_alignment = 2
-
-[node name="SpellsHBox" type="HBoxContainer" parent="MenuVBox/CharacterRect/CharaVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 0
-
-[node name="MarginL" type="Control" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.5
-
-[node name="SpellLevelsRect" type="NinePatchRect" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox"]
-custom_minimum_size = Vector2(100, 20)
-layout_mode = 2
-texture = ExtResource("5_456hp")
-patch_margin_left = 3
-patch_margin_top = 3
-patch_margin_right = 3
-patch_margin_bottom = 3
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="SpellLevelsContainer" type="VBoxContainer" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect"]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 0
-
-[node name="TextureRect" type="TextureRect" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-layout_mode = 2
-texture = ExtResource("6_1xote")
-
-[node name="SLevelButton1" type="Button" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-custom_minimum_size = Vector2(90, 33)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(1, 1, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-toggle_mode = true
-text = "Level 1"
-
-[node name="SLevelButton2" type="Button" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-custom_minimum_size = Vector2(90, 33)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(1, 0.831373, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-toggle_mode = true
-text = "Level 2"
-
-[node name="SLevelButton3" type="Button" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-custom_minimum_size = Vector2(90, 33)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(1, 0.666667, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-toggle_mode = true
-text = "Level 3"
-
-[node name="SLevelButton4" type="Button" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-custom_minimum_size = Vector2(90, 33)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(1, 0.498039, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-toggle_mode = true
-text = "Level 4"
-
-[node name="SLevelButton5" type="Button" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-custom_minimum_size = Vector2(90, 33)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(1, 0.333333, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-toggle_mode = true
-text = "Level 5"
-
-[node name="SLevelButton6" type="Button" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-custom_minimum_size = Vector2(90, 33)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(1, 0.164706, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-toggle_mode = true
-text = "Level 6"
-
-[node name="SLevelButton7" type="Button" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer"]
-custom_minimum_size = Vector2(90, 33)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(1, 0, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-toggle_mode = true
-text = "Level 7"
-
-[node name="KnownRect" type="NinePatchRect" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox"]
-custom_minimum_size = Vector2(100, 20)
-layout_mode = 2
-size_flags_horizontal = 3
-texture = ExtResource("5_456hp")
-patch_margin_left = 3
-patch_margin_top = 3
-patch_margin_right = 3
-patch_margin_bottom = 3
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="KnownLabel" type="Label" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/KnownRect"]
-layout_mode = 1
-offset_right = 97.0
-offset_bottom = 18.0
-theme_override_colors/font_color = Color(1, 1, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 13
-text = "    Known Abilities :"
-vertical_alignment = 2
-
-[node name="KnownSPLabel" type="Label" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/KnownRect"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -97.0
-offset_bottom = 18.0
-grow_horizontal = 0
-theme_override_colors/font_color = Color(1, 1, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 13
-text = "SP    "
-horizontal_alignment = 2
-vertical_alignment = 2
-
-[node name="KnownColorRect" type="ColorRect" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/KnownRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 18.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.501961)
-
-[node name="KnownScrollCtnr" type="ScrollContainer" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/KnownRect/KnownColorRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="KnownVBox" type="VBoxContainer" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/KnownRect/KnownColorRect/KnownScrollCtnr" node_paths=PackedStringArray("otherbox")]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 0
-script = ExtResource("12_rka11")
-otherbox = NodePath("../../../../AvaillableRect/AvailColorRect/AvailScrollCtnr/AvailVBox")
-
-[node name="AvaillableRect" type="NinePatchRect" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox"]
-custom_minimum_size = Vector2(100, 20)
-layout_mode = 2
-size_flags_horizontal = 3
-texture = ExtResource("5_456hp")
-patch_margin_left = 3
-patch_margin_top = 3
-patch_margin_right = 3
-patch_margin_bottom = 3
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="AvaillableLabel" type="Label" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/AvaillableRect"]
-layout_mode = 1
-offset_right = 115.0
-offset_bottom = 17.0
-theme_override_colors/font_color = Color(1, 1, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 13
-text = "    Availlable Abilities :"
-vertical_alignment = 2
-
-[node name="AvailSPLabel" type="Label" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/AvaillableRect"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -97.0
-offset_bottom = 18.0
-grow_horizontal = 0
-theme_override_colors/font_color = Color(1, 1, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 13
-text = "SP    "
-horizontal_alignment = 2
-vertical_alignment = 2
-
-[node name="AvailColorRect" type="ColorRect" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/AvaillableRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 18.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.501961)
-
-[node name="AvailScrollCtnr" type="ScrollContainer" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/AvaillableRect/AvailColorRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="AvailVBox" type="VBoxContainer" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/AvaillableRect/AvailColorRect/AvailScrollCtnr" node_paths=PackedStringArray("otherbox")]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 0
-script = ExtResource("12_rka11")
-column = 1
-otherbox = NodePath("../../../../KnownRect/KnownColorRect/KnownScrollCtnr/KnownVBox")
-
-[node name="MarginR" type="Control" parent="MenuVBox/CharacterRect/CharaVBox/SpellsHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.5
-
-[node name="BotControl" type="Control" parent="MenuVBox"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-
-[node name="KeepButton" type="Button" parent="MenuVBox/BotControl"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -181.0
-offset_top = -18.0
-offset_right = -27.0
-offset_bottom = 16.0
-grow_horizontal = 2
-grow_vertical = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
 theme_override_colors/font_disabled_color = Color(0.501961, 0.501961, 0.376471, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
 theme_override_colors/font_pressed_color = Color(0.8, 0.784314, 0, 1)
 theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
 theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 theme_override_styles/disabled = ExtResource("7_pwkmh")
 theme_override_styles/hover = ExtResource("5_d4g05")
 theme_override_styles/pressed = ExtResource("6_x46li")
 theme_override_styles/normal = ExtResource("4_jtjbq")
-text = "Keep Changes
-"
+text = "Done"
 
-[node name="CloseButton" type="Button" parent="MenuVBox/BotControl"]
+[node name="PointsLabel" type="Label" parent="MenuVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.27, 1)
+theme_override_fonts/font = ExtResource("3_ywreg")
+theme_override_font_sizes/font_size = 18
+text = "0  Remaining Spell Selection Points"
+horizontal_alignment = 1
+
+[node name="BodyHBox" type="HBoxContainer" parent="MenuVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="LevelsHBox" type="HBoxContainer" parent="MenuVBox/BodyHBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="CostsRect" type="NinePatchRect" parent="MenuVBox/BodyHBox/LevelsHBox"]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+texture = ExtResource("5_456hp")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="CostsContainer" type="VBoxContainer" parent="MenuVBox/BodyHBox/LevelsHBox/CostsRect"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 186.0
-offset_top = -18.0
-offset_right = 266.0
-offset_bottom = 16.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_disabled_color = Color(0.501961, 0.501961, 0.376471, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 0, 1)
-theme_override_colors/font_pressed_color = Color(0.8, 0.784314, 0, 1)
-theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
-theme_override_fonts/font = ExtResource("3_ywreg")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/disabled = ExtResource("7_pwkmh")
-theme_override_styles/hover = ExtResource("5_d4g05")
-theme_override_styles/pressed = ExtResource("6_x46li")
-theme_override_styles/normal = ExtResource("4_jtjbq")
-text = "Close
-"
+theme_override_constants/separation = 0
 
-[connection signal="pressed" from="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer/SLevelButton1" to="." method="_on_s_level_button_pressed" binds= [1]]
-[connection signal="pressed" from="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer/SLevelButton2" to="." method="_on_s_level_button_pressed" binds= [2]]
-[connection signal="pressed" from="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer/SLevelButton3" to="." method="_on_s_level_button_pressed" binds= [3]]
-[connection signal="pressed" from="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer/SLevelButton4" to="." method="_on_s_level_button_pressed" binds= [4]]
-[connection signal="pressed" from="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer/SLevelButton5" to="." method="_on_s_level_button_pressed" binds= [5]]
-[connection signal="pressed" from="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer/SLevelButton6" to="." method="_on_s_level_button_pressed" binds= [6]]
-[connection signal="pressed" from="MenuVBox/CharacterRect/CharaVBox/SpellsHBox/SpellLevelsRect/SpellLevelsContainer/SLevelButton7" to="." method="_on_s_level_button_pressed" binds= [7]]
-[connection signal="pressed" from="MenuVBox/BotControl/KeepButton" to="." method="_on_keep_button_pressed"]
-[connection signal="pressed" from="MenuVBox/BotControl/CloseButton" to="." method="_on_ok_button_pressed"]
+[node name="CostsHeader" type="Label" parent="MenuVBox/BodyHBox/LevelsHBox/CostsRect/CostsContainer"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.27, 1)
+theme_override_fonts/font = ExtResource("3_ywreg")
+theme_override_font_sizes/font_size = 14
+text = "Cost"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LevelsRect" type="NinePatchRect" parent="MenuVBox/BodyHBox/LevelsHBox"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+texture = ExtResource("5_456hp")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="LevelsContainer" type="VBoxContainer" parent="MenuVBox/BodyHBox/LevelsHBox/LevelsRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="LevelsHeader" type="Label" parent="MenuVBox/BodyHBox/LevelsHBox/LevelsRect/LevelsContainer"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.27, 1)
+theme_override_fonts/font = ExtResource("3_ywreg")
+theme_override_font_sizes/font_size = 14
+text = "Spell Level"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpellsRect" type="NinePatchRect" parent="MenuVBox/BodyHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("5_456hp")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="SpellsScroll" type="ScrollContainer" parent="MenuVBox/BodyHBox/SpellsRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="SpellsList" type="VBoxContainer" parent="MenuVBox/BodyHBox/SpellsRect/SpellsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[connection signal="pressed" from="MenuVBox/HeaderHBox/DoneButton" to="." method="_on_done_button_pressed"]
