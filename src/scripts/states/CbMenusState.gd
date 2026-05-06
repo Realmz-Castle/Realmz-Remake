@@ -7,8 +7,6 @@ var cur_menu_name : String = ''
 var picked_charapanels : Array = []
 var need_to_pick_n : int = 0
 
-signal characters_picked
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass

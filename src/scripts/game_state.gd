@@ -302,7 +302,7 @@ func check_map_script(position) ->bool :
 						num_of_poss_outcomes +=1
 					do_rr_fight = randi()%num_of_poss_outcomes==0
 					if do_rr_fight :
-						var battle_result = await ScriptHelperFuncs.do_RR_battle(sr["RR_Battle"])
+						var _battle_result = await ScriptHelperFuncsClass.do_RR_battle(sr["RR_Battle"])
 						if state==ex_menu_state :
 							print("StateMachine escape out of MenuState")
 							exit_ex_menu_state()
