@@ -7,18 +7,49 @@ on:
 env:
   GODOT_VERSION: 4.3.0
   GODOT_VERSION_MAC_PI: 4.3
-  PROJECT_FILE: src/project.godot
-  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
   LFS_USERNAME: ${{secrets.LFS_USERNAME}}
   LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
   OPENMPT_VERSION: v1.3.2
 
 jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      new-version: ${{ steps.bump.outputs.new-version }}
+      new-sha: ${{ steps.bump.outputs.new-sha }}
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Bump patch version and push
+        id: bump
+        run: |
+          set -euo pipefail
+          OLD=$(grep -oP '^config/version="\K[^"]+' src/project.godot)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD"
+          NEW="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          echo "Bumping ${OLD} -> ${NEW}"
+          sed -i "s|^config/version=\"${OLD}\"|config/version=\"${NEW}\"|" src/project.godot
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/project.godot
+          git commit -m "chore: bump version to ${NEW} [skip ci]"
+          git push origin dev
+          echo "new-version=${NEW}" >> "$GITHUB_OUTPUT"
+          echo "new-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   build-macos:
+    needs: bump-version
     runs-on: macos-15-intel
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.new-sha }}
 
       - name: Configure Git LFS
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
@@ -76,10 +107,13 @@ jobs:
           project-dir: "./src"
 
   build-linux:
+    needs: bump-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.new-sha }}
 
       - name: Configure Git LFS
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
@@ -137,10 +171,13 @@ jobs:
           project-dir: "./src"
 
   build-raspberry-pi:
+    needs: bump-version
     runs-on: ubuntu-22.04-arm
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.new-sha }}
 
       - name: Configure Git LFS
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
@@ -195,10 +232,13 @@ jobs:
           project-dir: "./src"
 
   build-windows:
+    needs: bump-version
     runs-on: windows-latest
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.new-sha }}
 
       - name: Configure Git LFS
         run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
@@ -256,20 +296,15 @@ jobs:
           project-dir: "./src"
 
   generate-release:
-    needs: [build-windows, build-raspberry-pi, build-linux, build-macos]
+    needs: [bump-version, build-windows, build-raspberry-pi, build-linux, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
-
-      - name: Extract version
-        uses: CapsCollective/version-actions/extract-version@v1.0
         with:
-          version-file: ${{ env.PROJECT_FILE }}
-          version-regex: ${{ env.VERSION_REGEX }}
-        id: extract-version
+          ref: ${{ needs.bump-version.outputs.new-sha }}
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
@@ -298,8 +333,8 @@ jobs:
       - name: Tag and upload artifacts to release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.extract-version.outputs.version-string }}
-          commit: ${{ github.sha }}
+          tag: ${{ needs.bump-version.outputs.new-version }}
+          commit: ${{ needs.bump-version.outputs.new-sha }}
           allowUpdates: false
           artifactErrorsFailBuild: true
           prerelease: true

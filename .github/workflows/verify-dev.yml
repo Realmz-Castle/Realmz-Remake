@@ -7,46 +7,12 @@ on:
 env:
   GODOT_VERSION: 4.3.0
   GODOT_VERSION_MAC_PI: 4.3
-  PROJECT_FILE: src/project.godot
-  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
   LFS_USERNAME: ${{secrets.LFS_USERNAME}}
   LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
   OPENMPT_VERSION: v1.3.2
 
 jobs:
-  check-version-bump:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout current branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.base_ref }}
-
-      - name: Extract old version string
-        uses: CapsCollective/version-actions/extract-version@v1.0
-        with:
-          version-file: ${{ env.PROJECT_FILE }}
-          version-regex: ${{ env.VERSION_REGEX }}
-        id: extract-version-old
-
-      - name: Checkout current branch
-        uses: actions/checkout@v4
-
-      - name: Extract new version string
-        uses: CapsCollective/version-actions/extract-version@v1.0
-        with:
-          version-file: ${{ env.PROJECT_FILE }}
-          version-regex: ${{ env.VERSION_REGEX }}
-        id: extract-version-new
-
-      - name: Check semantic version bump
-        uses: CapsCollective/version-actions/check-version-bump@v1.0
-        with:
-          new-version: ${{ steps.extract-version-new.outputs.version-string }}
-          old-version: ${{ steps.extract-version-old.outputs.version-string }}
-
   # run-project-validation:
-  #   needs: check-version-bump
   #   runs-on: macos-13
   #   steps:
   #     - name: Checkout current branch
@@ -67,7 +33,6 @@ jobs:
   #       run: ${{ steps.install-godot.outputs.godot-executable }} --script scripts/run_validations.gd --headless
 
   build-macos:
-    needs: check-version-bump
     runs-on: macos-15-intel
     steps:
       - name: Checkout current branch
@@ -130,7 +95,6 @@ jobs:
           project-dir: "./src"
 
   build-linux:
-    needs: check-version-bump
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current branch
@@ -193,7 +157,6 @@ jobs:
           project-dir: "./src"
 
   build-raspberry-pi:
-    needs: check-version-bump
     runs-on: ubuntu-22.04-arm
     steps:
       - name: Checkout current branch
@@ -253,7 +216,6 @@ jobs:
           project-dir: "./src"
 
   build-windows:
-    needs: check-version-bump
     runs-on: windows-latest
     steps:
       - name: Checkout current branch
