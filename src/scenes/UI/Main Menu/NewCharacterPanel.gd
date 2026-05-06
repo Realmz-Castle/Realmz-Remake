@@ -6,7 +6,6 @@ extends NinePatchRect
 @export var cancelButton : Button# = $CancelButton
 @export var okButton : Button# = $OKButton
 @export var lineEdit : LineEdit# = $LineEdit
-@export var nameLabel : Label# = $NameLabel
 @export var portraitContainer : GridContainer# = $"PortraitScrollContainer/PortraitContainer"
 @export var iconContainer : GridContainer# = $"IconScrollContainer/IconContainer"
 @export var portraitScroll : ScrollContainer# = $"PortraitScrollContainer"
@@ -29,7 +28,7 @@ var racesgd : Array = []
 var newchar_level = 1
 #var onlyportrait : Texture2D = preload("res://Main Menu/onlyportrait.png")
 
-var new_char_name = "[NO NAME]"
+var new_char_name = ""
 @onready var new_char_portrait : Texture2D = load("res://scenes/UI/Main Menu/DefaultPortrait.png")
 @onready var new_char_icon : Texture2D = load("res://scenes/UI/Main Menu/DefaultIcon.png")
 var new_char_class : GDScript = null
@@ -163,20 +162,14 @@ func fillClassesRacesMenus() :
 
 func _on_class_select(i : int) :
 	new_char_class = classesgd[i]
-	print("new_char_class : ", new_char_class)
-	if new_char_name != "[NO NAME]" and new_char_name == "" and new_char_class!=null and new_char_race!=null :
-		okButton.disabled = false
 	_on_LineEdit_changed(lineEdit.text)
-#	characterstatrect.display_raceclass(new_char_race,new_char_class)
+	characterstatrect.display_partial_selection(new_char_race, new_char_class)
 	try_create_character()
 
 func _on_race_select(i : int) :
 	new_char_race = racesgd[i]
-	print("new_char_race : ", new_char_race)
-	if new_char_name != "[NO NAME]" and new_char_name == "" and new_char_class!=null and new_char_race!=null :
-		okButton.disabled = false
 	_on_LineEdit_changed(lineEdit.text)
-#	characterstatrect.display_raceclass(new_char_race,new_char_class)
+	characterstatrect.display_partial_selection(new_char_race, new_char_class)
 	try_create_character()
 
 func _on_portrait_button_pressed(i : int) :
@@ -194,11 +187,12 @@ func _on_icon_button_pressed(i : int) :
 		new_character.icon = iconsTextures[i]
 
 func _on_CancelButton_pressed() -> void :
+	fill()
 	self.hide()
 #	self.get_parent().get_parent().newCampaignButton.show()
 
 func _on_OKButton_pressed() -> void :
-	if new_character==null or new_char_name == "[NO NAME]" or new_char_name == "" or new_char_class==null or new_char_race==null :
+	if new_character==null or new_char_name == "" or new_char_class==null or new_char_race==null :
 		okButton.disabled = true
 		return
 	new_character.name = new_char_name
@@ -285,39 +279,40 @@ func _on_OKButton_pressed() -> void :
 	_on_CancelButton_pressed()
 
 func _on_LineEdit_changed(newtext : String) -> void :
-	print("on_LineEdit")
 	new_char_name = newtext
-	nameLabel.text = new_char_name
-#	print(Autoloaded.profilesfolderpath+"/"+Autoloaded.currentProfileFolderName+"/Characters/"+new_char_name)
-#	if dir.dir_exists(Paths.profilesfolderpath+"/"+Paths.currentProfileFolderName+"/Characters/"+new_char_name) :
+	if new_char_name == "" :
+		okButton.disabled = true
+		characterstatrect.display_name("")
+		return
 	var is_valid_filename : Array = Utils.FileHandler.is_valid_file_name(new_char_name)
 	if is_valid_filename[0]!=1 :
-		nameLabel.set('custom_colors/font_color' , Color(1,0,0,1) )
 		okButton.disabled = true
 		characterstatrect.display_name(is_valid_filename[1])
 		return
-	print("NEWCAMPAIGNPANEL.GD CHECK")
-	print(Paths.profilesfolderpath+Paths.currentProfileFolderName+"/Characters/"+new_char_name)
-	print("DirAccess.dir_exists_absolute ? ", DirAccess.dir_exists_absolute(Paths.profilesfolderpath+Paths.currentProfileFolderName+"/Characters/"+new_char_name))
 	if DirAccess.dir_exists_absolute(Paths.profilesfolderpath+Paths.currentProfileFolderName+"/Characters/"+new_char_name) :
-		nameLabel.set('custom_colors/font_color' , Color(1,0,0,1) )
 		okButton.disabled = true
 		characterstatrect.display_name("NAME ALREADY USED")
 	else :
-		nameLabel.set('custom_colors/font_color' , Color(0,1,0,1) )
 		okButton.disabled = false
 		characterstatrect.display_name(new_char_name)
 
 func fill() -> void :
-	lineEdit.text = "[NO NAME]"
-	new_char_name = "[NO NAME]"
+	lineEdit.text = ""
+	new_char_name = ""
 	classitemlist.deselect_all()
 	raceitemlist.deselect_all()
 	new_char_race = null
 	new_char_class = null
-	characterstatrect.display_name(new_char_name)
+	new_char_portrait = default_portrait
+	new_char_icon = default_icon
+	portraitRect.texture = default_portrait
+	iconRect.texture = default_icon
+	new_character = null
 	newchar_level = 1
 	levelMenuButton.set_text('1')
+	okButton.disabled = true
+	characterstatrect.clear()
+	characterstatrect.display_portrait(default_portrait)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass

@@ -37,7 +37,7 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 
 
@@ -82,12 +82,23 @@ func enter(_msg : Dictionary = {}) -> void:
 									var added_acts = extra_act_before_move + [cur_action]
 									combat_state.add_to_action_queue(added_acts)
 									continue
-						
+
+						if cur_action.get("check_guarding", true) :
+							var guarding_actions : Array = []
+							for creabtn : CombatCreaButton in combat_state.all_battle_creatures_btns :
+								for t in creabtn.creature.traits :
+									if t.has_method("_on_other_creature_walked") :
+										guarding_actions += t._on_other_creature_walked(movercb)
+							if not guarding_actions.is_empty() :
+								cur_action["check_guarding"] = false
+								combat_state.add_to_action_queue(guarding_actions + [cur_action])
+								continue
+
 						var extra_actions : Array = movercb.creature.move(dir)
 						print("CbAnim onmove extra_actions : ", extra_actions)
 						var xdiff : float = abs(GameGlobal.map.focuscharacter.tile_position_x-movercb.creature.position.x)
 						var ydiff : float = abs(GameGlobal.map.focuscharacter.tile_position_y-movercb.creature.position.y)
-						if combat_state.is_cam_too_far(xdiff,ydiff) :
+						if combat_state.is_cam_too_far(int(xdiff), int(ydiff)) :
 							GameGlobal.map.focuscharacter.set_tile_position(movercb.creature.position)
 						UI.ow_hud.updateCharPanelDisplay()
 						UI.ow_hud.creatureRect.display_crea_info(movercb)

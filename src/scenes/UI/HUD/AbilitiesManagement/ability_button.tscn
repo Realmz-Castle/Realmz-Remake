@@ -1,60 +1,43 @@
-[gd_scene load_steps=5 format=3 uid="uid://b3yxcx338d8a3"]
+[gd_scene load_steps=4 format=3 uid="uid://b3yxcx338d8a3"]
 
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_dw1ma"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="2_qmje4"]
-[ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="3_u4rv7"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/AbilitiesManagement/ability_button.gd" id="4_5f3v5"]
 
 [node name="AbilityButton" type="Button"]
-self_modulate = Color(0.8, 0.8, 0.8, 1)
-custom_minimum_size = Vector2(32, 32)
-offset_right = 336.0
-offset_bottom = 31.0
+self_modulate = Color(0.85, 0.85, 0.85, 1)
+custom_minimum_size = Vector2(0, 24)
+offset_right = 320.0
+offset_bottom = 24.0
 focus_mode = 0
-theme_override_styles/disabled = ExtResource("3_u4rv7")
 theme_override_styles/hover = ExtResource("2_qmje4")
 theme_override_styles/pressed = ExtResource("2_qmje4")
 theme_override_styles/normal = ExtResource("1_dw1ma")
 alignment = 0
 script = ExtResource("4_5f3v5")
 
-[node name="LabelsControl" type="Control" parent="."]
+[node name="StateDot" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 8.0
+offset_top = -5.0
+offset_right = 18.0
+offset_bottom = 5.0
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="NameLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 28.0
+offset_right = -8.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-
-[node name="NameLabel" type="Label" parent="LabelsControl"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 31.0
-offset_right = -4.0
-grow_horizontal = 2
-grow_vertical = 2
 text = "Spell Name"
 vertical_alignment = 1
-
-[node name="PointsLabel" type="Label" parent="LabelsControl"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_right = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "XXX Selection  Points"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="ColorRect" type="ColorRect" parent="LabelsControl"]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 24.0
-offset_bottom = 24.0

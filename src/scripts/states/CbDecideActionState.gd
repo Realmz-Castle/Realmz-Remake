@@ -119,9 +119,9 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.cur_battle_round = 0
 	combat_state.cur_battle_data = _msg
 	is_bandaging = false
-	var battle_pos : Array = [map.focuscharacter.tile_position_x, map.focuscharacter.tile_position_y]
+	var _battle_pos : Array = [map.focuscharacter.tile_position_x, map.focuscharacter.tile_position_y]
 	if _msg.has("Position") :
-		battle_pos = _msg["Position"]
+		_battle_pos = _msg["Position"]
 	UI.ow_hud.enter_battle_mode()
 	map.owcharacter.hide()
 	var ow_character =  map.owcharacter  #SO WE reset map.focuscharacter LATER ???

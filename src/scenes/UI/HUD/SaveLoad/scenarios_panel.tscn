@@ -1,7 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://7ikg7txigh"]
+[gd_scene load_steps=4 format=3 uid="uid://7ikg7txigh"]
 
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="1_vq8jo"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/scenarios_panel.gd" id="2_cwufw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_selected"]
+bg_color = Color(0.55, 0.45, 0, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.85, 0, 0.7)
 
 [node name="ScenariosPanel" type="Panel" node_paths=PackedStringArray("scenarios_itemlist")]
 size_flags_horizontal = 3
@@ -50,5 +58,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 focus_mode = 0
+theme_override_styles/selected = SubResource("StyleBoxFlat_selected")
+theme_override_styles/hovered = SubResource("StyleBoxFlat_selected")
+theme_override_colors/font_selected_color = Color(1, 1, 1, 1)
 
 [connection signal="item_selected" from="ScenariosColorRect/ScenariosScroll/ScenariosItemList" to="." method="_on_scenarios_item_list_item_selected"]

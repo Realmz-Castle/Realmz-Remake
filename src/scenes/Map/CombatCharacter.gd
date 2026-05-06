@@ -121,20 +121,10 @@ func move(dir : Vector2) -> Array :  #returned is a list of new actions for the 
 	print(creature.used_movepoints)
 	#UI.ow_hud
 	
-	var returned_action_queue : Array = []
-	for creabuton : CombatCreaButton in StateMachine.combat_state.all_battle_creatures_btns :
-		var traits = creabuton.creature.traits
-		for t in traits :
-			if t.has_method("_on_other_creature_walked") :
-				var msg_array : Array = t._on_other_creature_walked(self)
-				#print("cbcreabutton msg : ", msg_array)
-				for m in msg_array :
-					returned_action_queue.append( m )
-	
 	if self== map.focuscharacter :
 		map.queue_redraw()
-	
-	return returned_action_queue
+
+	return []
 	
 #func _process(delta):
 #	pass

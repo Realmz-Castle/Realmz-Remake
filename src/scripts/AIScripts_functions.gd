@@ -20,7 +20,7 @@ static func get_closest_creas_not_of_side(crea : Creature, notside : int) -> Arr
 	var found_range : int = 9999
 	for cb in StateMachine.combat_state.all_battle_creatures_btns :
 		if cb.creature.curFaction != notside :
-			var r : int = AiFunctions.get_range_between_creas(crea, cb.creature)
+			var r : int = get_range_between_creas(crea, cb.creature)
 			if r < found_range :
 				found_creas.clear()
 				found_range = r
