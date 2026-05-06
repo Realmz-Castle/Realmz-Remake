@@ -12,9 +12,9 @@ func _ready():
 
 
 func fill(campaignname : String) :
+	saves_itemlist.clear()
 	if campaignname.is_empty() :
 		return
-	saves_itemlist.clear()
 	var campsavespath : String = Paths.profilesfolderpath +"/" + GameGlobal.currentprofile + "/Saves/" + campaignname + "/"
 	if not DirAccess.dir_exists_absolute(campsavespath) :
 		DirAccess.make_dir_recursive_absolute(campsavespath)

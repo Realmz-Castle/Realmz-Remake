@@ -27,5 +27,29 @@ func _on_ButtonDone_pressed():
 	hide()
 
 
+func _on_MainMenuButton_pressed():
+	$ConfirmRect.show()
+
+
+func _on_CancelButton_pressed():
+	$ConfirmRect.hide()
+
+
+func _on_YesButton_pressed():
+	$ConfirmRect.hide()
+	_return_to_main_menu()
+
+
+func _return_to_main_menu():
+	StateMachine.transition_to("Inactive", {})
+	GameGlobal.player_characters.clear()
+	MusicStreamPlayer.stop()
+	Input.set_custom_mouse_cursor(null)
+	NodeAccess.__Map().hide()
+	hide()
+	UI.show_only(UI.main_menu)
+	UI.main_menu.newCampaignPanel.hide()
+
+
 func on_viewport_size_changed(screensize) :
 	set_size(screensize)
