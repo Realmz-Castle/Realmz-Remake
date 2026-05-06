@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://5lpomncnwc17"]
+[gd_scene load_steps=15 format=3 uid="uid://5lpomncnwc17"]
 
 [ext_resource type="Texture2D" uid="uid://c7vufke0hme7f" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="10_sywfy"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="11_g8sol"]
 [ext_resource type="PackedScene" uid="uid://b64nks77qjjwx" path="res://scenes/UI/HUD/Characters Panel/DropItemButton.tscn" id="12"]
+[ext_resource type="FontFile" path="res://Fonts/theldrowremake.ttf" id="13_theld"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e33li"]
 
@@ -72,10 +73,11 @@ wait_time = 0.05
 
 [node name="CharnameLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 67.2006
+offset_left = 67.0
 offset_top = 11.4013
-offset_right = 205.201
+offset_right = 197.0
 offset_bottom = 37.4013
+clip_text = true
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_fonts/font = ExtResource("7_7ai5k")
 theme_override_font_sizes/font_size = 20
@@ -85,67 +87,45 @@ text = "Name"
 layout_mode = 0
 offset_left = 67.0
 offset_top = 37.0
-offset_right = 107.0
+offset_right = 87.0
 offset_bottom = 57.0
+theme_override_colors/font_color = Color(0.36, 0.84, 1, 1)
+theme_override_fonts/font = ExtResource("13_theld")
 theme_override_font_sizes/font_size = 12
-text = "HP :"
+text = "HP"
 
-[node name="CurHPLabel" type="Label" parent="HPLabel"]
+[node name="HPValueLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 25.0
-offset_top = -4.0
-offset_right = 65.0
-offset_bottom = 22.0
-text = "9999"
-
-[node name="HPSlashLabel" type="Label" parent="HPLabel"]
-layout_mode = 0
-offset_left = 63.0
-offset_top = -4.0
-offset_right = 103.0
-offset_bottom = 22.0
-text = "/"
-
-[node name="MaxHPLabel" type="Label" parent="HPLabel"]
-layout_mode = 0
-offset_left = 71.0
-offset_top = -4.0
-offset_right = 111.0
-offset_bottom = 22.0
-text = "9999"
+offset_left = 87.0
+offset_top = 37.0
+offset_right = 132.0
+offset_bottom = 57.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("13_theld")
+theme_override_font_sizes/font_size = 12
+text = "9999/9999"
 
 [node name="SPLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 189.0
+offset_left = 135.0
 offset_top = 37.0
-offset_right = 229.0
+offset_right = 154.0
 offset_bottom = 57.0
+theme_override_colors/font_color = Color(0.36, 0.84, 1, 1)
+theme_override_fonts/font = ExtResource("13_theld")
 theme_override_font_sizes/font_size = 12
-text = "SP :"
+text = "SP"
 
-[node name="CurSPLabel" type="Label" parent="SPLabel"]
+[node name="SPValueLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 24.0
-offset_top = -3.0
-offset_right = 64.0
-offset_bottom = 23.0
-text = "9999"
-
-[node name="SPSlashLabel" type="Label" parent="SPLabel"]
-layout_mode = 0
-offset_left = 68.0
-offset_top = -3.0
-offset_right = 108.0
-offset_bottom = 23.0
-text = "/"
-
-[node name="MaxSPLabel" type="Label" parent="SPLabel"]
-layout_mode = 0
-offset_left = 80.0
-offset_top = -3.0
-offset_right = 120.0
-offset_bottom = 23.0
-text = "9999"
+offset_left = 154.0
+offset_top = 37.0
+offset_right = 197.0
+offset_bottom = 57.0
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("13_theld")
+theme_override_font_sizes/font_size = 12
+text = "9999/9999"
 
 [node name="SelectButton" type="Button" parent="."]
 layout_mode = 0
