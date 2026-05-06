@@ -243,50 +243,52 @@ func _on_EffectSprite_Timer_timeout():
 
 
 func _on_portrait_button_pressed():
-	UI.ow_hud._on_bestiary_button_pressed()
-	if UI.ow_hud.visible :
-		var cdata : Dictionary = {"data": {}, "stats":{},"tools":{"spells" : []}}
-		cdata["data"]["name"] = character.name
-		var descrString : String = ''
-		match character.is_npc_ally :
-			true :
-				descrString = "One of you allies. "
-			false :
-				match character.is_summoned :
-					true :
-						descrString = "A creature summoned by "+character.summoner_name+". "
-					false :
-						descrString = "One of your characters. A "+ character.racegd.classrace_name+" "+character.classgd.classrace_name+". "
-		
-		var spelcialString :String = ''
-		var specialskillsPercent : Array = ["Melee_Crit_Rate","Melee_Crit_Mult","Ranged_Crit_Rate","Ranged_Crit_Mult"]
-		var specialskillsAbsolute : Array = ["Detect_Secret","Acrobatics","Detect_Trap","Disable_Trap","Force_Lock","Pick_Lock","Turn_Undead"]
-		for s in specialskillsPercent :
-			var stat : float = character.get_stat(s)
-			#print("CharacterSmallPanel specialskillsPercent base_stat: ",s,' ',character.base_stats[s], ", cur stat : ",character.get_stat(s))
-			if stat != 0.0 :
-				spelcialString += s.replace("_"," ") + ' : ' + str(100*stat) + "%, "
-		for s in specialskillsAbsolute :
-			var stat : float = character.get_stat(s)
-			if stat != 0.0 :
-				spelcialString += s.replace("_"," ") + ' : ' + str(stat) + ", "
-		if not spelcialString.is_empty() :
-			descrString += '\n'+spelcialString.trim_suffix(", ")
-		
-		if character.get("selection_pts") :
-			descrString += '\nThis Character has '+ str(character.selection_pts) + ' unused Ability Selection Points.'
-		if character.get("exp_tnl") :
-			descrString += '\nExperience required to level up : '+str(character.exp_tnl)
-		
-		cdata["data"]["description"] = descrString
-		cdata["data"]["level"] = character.level
-		if character.get("icon") :
-			cdata["data"]["image"] = character.icon
-		else :
-			cdata["data"]["image"] = character.textureL
-		cdata["data"]["tags"] = character.tags
-		#printerr("CharacterSmallPanel _on_portrait_button_pressed stats  : \n", str(character.stats))
-		for s in character.stats :
-			printerr("CharacterSmallPanel _on_portrait_button_pressed stats "+s)
-			cdata["stats"][s] = character.get_stat(s)
-		UI.ow_hud.bestiaryRect._on_entry_pressed(cdata)
+	var cdata : Dictionary = {"data": {}, "stats":{},"tools":{"spells" : []}}
+	cdata["data"]["name"] = character.name
+	cdata["data"]["level"] = character.level
+	cdata["data"]["tags"] = character.tags
+	if character.get("icon") :
+		cdata["data"]["image"] = character.icon
+	else :
+		cdata["data"]["image"] = character.textureL
+
+	# Subtitle: "Race · Class" for player chars; allies/summons get a descriptor
+	if character.is_npc_ally :
+		cdata["data"]["subtitle"] = "Ally"
+	elif character.is_summoned :
+		cdata["data"]["subtitle"] = "Summoned by " + character.summoner_name
+	elif character.classgd != null and character.racegd != null :
+		cdata["data"]["subtitle"] = character.racegd.classrace_name + " · " + character.classgd.classrace_name
+
+	# Description: short flavor + progression info. The special-skill stats live
+	# in their own panel via cdata["special_skills"], not here.
+	var descr_parts : Array = []
+	if character.is_npc_ally :
+		descr_parts.append("One of your allies.")
+	elif character.is_summoned :
+		descr_parts.append("A creature summoned by " + character.summoner_name + ".")
+	else :
+		descr_parts.append("One of your characters.")
+	if character.get("selection_pts") and character.selection_pts != 0 :
+		descr_parts.append("%d unused Ability Selection Points." % character.selection_pts)
+	if character.get("exp_tnl") :
+		descr_parts.append("Experience to next level: %d" % character.exp_tnl)
+	cdata["data"]["description"] = "\n".join(descr_parts)
+
+	# Special skills as [name, formatted_value] pairs — only non-zero entries.
+	var special_skills : Array = []
+	var skills_pct : Array = ["Melee_Crit_Rate", "Melee_Crit_Mult", "Ranged_Crit_Rate", "Ranged_Crit_Mult"]
+	var skills_abs : Array = ["Detect_Secret", "Acrobatics", "Detect_Trap", "Disable_Trap", "Force_Lock", "Pick_Lock", "Turn_Undead"]
+	for s in skills_pct :
+		var v : float = character.get_stat(s)
+		if v != 0.0 :
+			special_skills.append([s.replace("_", " "), "%+.1f%%" % (100.0 * v)])
+	for s in skills_abs :
+		var v : float = character.get_stat(s)
+		if v != 0.0 :
+			special_skills.append([s.replace("_", " "), "%+g" % v])
+	cdata["special_skills"] = special_skills
+
+	for s in character.stats :
+		cdata["stats"][s] = character.get_stat(s)
+	UI.ow_hud.bestiaryRect.show_for_character(cdata)

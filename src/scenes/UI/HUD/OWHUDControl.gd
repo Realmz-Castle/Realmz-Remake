@@ -555,14 +555,12 @@ func show_spell_effect_on_char_menu(chara, graphic_name : String) :
 
 
 func _on_bestiary_button_pressed():
-	#if not bestiaryRect.visible:
-		#return
 	if bestiaryRect.visible :
+		bestiaryRect.set_character_mode(false)
 		bestiaryRect.hide()
-		#GameState.set_paused(false)
 	else :
+		bestiaryRect.set_character_mode(false)
 		bestiaryRect.show()
-		#GameState.set_paused(true)
 
 func enter_battle_mode() :
 	textRect.hide()

@@ -189,6 +189,12 @@ func send_dir_input(input : Vector2, is_keyboard : bool) :
 		state._on_dir_input_received(input,is_keyboard )
 
 func set_arrow_mouse_cursor(_delta : float) :
+	# When a full-screen overlay panel (bestiary/char-stats, inventory, etc.) is
+	# up, the directional arrow cursor isn't meaningful — we're not navigating
+	# the map. Use the default sword cursor over the panel instead.
+	if _is_overlay_panel_visible() :
+		Input.set_custom_mouse_cursor(UI.cursor_sword)
+		return
 	var mousepos : Vector2 = UI.ow_hud.get_local_mouse_position()
 	var wsize : Vector2 = ScreenUtils.get_logical_window_size(self)
 	if mousepos.x+320<wsize.x and mousepos.y+200<wsize.y :
@@ -198,6 +204,16 @@ func set_arrow_mouse_cursor(_delta : float) :
 		Input.set_custom_mouse_cursor(UI.cursor_map_dict[cursordir])
 	else :
 		Input.set_custom_mouse_cursor((UI.cursor_sword))
+
+
+func _is_overlay_panel_visible() -> bool :
+	var hud = UI.ow_hud
+	if hud == null :
+		return false
+	for n in [hud.bestiaryRect, hud.inventoryRect, hud.minimapRect, hud.abilitesmngtMenu] :
+		if n != null and n.visible :
+			return true
+	return false
 
 #
 #func on_trying_to_move_to_tile_stack(crea : Creature, stack : Array, position : Vector2) : #exporation mode
