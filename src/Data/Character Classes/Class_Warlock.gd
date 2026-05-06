@@ -250,7 +250,7 @@ static func get_max_perma_summons(_character) ->int :
 
 static func get_selection_cost(_character, _ability, _cost) :
 	# Only use Enchanter school cost if available
-	if _ability.has("selection_costs") and _ability.selection_costs.has("Enchanter"):
+	if "selection_costs" in _ability and _ability.selection_costs.has("Enchanter"):
 		return _ability.selection_costs["Enchanter"]
 	return _cost
 

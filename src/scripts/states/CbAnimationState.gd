@@ -184,14 +184,10 @@ func enter(_msg : Dictionary = {}) -> void:
 				
 				
 				if a_spell.get("proj_tex") and (not a_from_terrain) :
-					if not a_spell.sounds[0].is_empty() :
-						SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[ a_spell.sounds[0] ]
-						SfxPlayer.play()
+					_play_spell_sound(a_spell, 0)
 					await play_projectile_animation(a_spell.proj_tex, a_castercrea, a_main_targeted_tile)
 					#call_deferred("play_projectile_animation", a_spell.proj_tex, a_caster, a_main_targeted_tile)
-				if not a_spell.sounds[1].is_empty() :
-						SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[ a_spell.sounds[1] ]
-						SfxPlayer.play()
+				_play_spell_sound(a_spell, 1)
 				await play_spell_resolution(a_spell.proj_hit, a_castercrea, a_effected_tiles, a_effected_creas)
 				print("CbAnim l 196 just played anim for spell "+a_spell.name)
 				##DEBUG
@@ -470,3 +466,20 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 			attackercb.creature.please_remove_from_combat = true
 	
 	return [continue_action, returned_action_queue]
+
+
+# Some spells in spells_book.json reference sound files that don't exist
+# (e.g. Magic Darts has "boink.wav" — should be "bonk.wav"). Skip + warn
+# instead of crashing combat.
+func _play_spell_sound(a_spell, idx : int) -> void :
+	if idx >= a_spell.sounds.size() :
+		return
+	var sname : String = a_spell.sounds[idx]
+	if sname.is_empty() :
+		return
+	var sb : Dictionary = GameGlobal.cmp_resources.sounds_book
+	if not sb.has(sname) :
+		printerr("CbAnimationState: spell '", a_spell.name, "' references missing sound '", sname, "'")
+		return
+	SfxPlayer.stream = sb[sname]
+	SfxPlayer.play()

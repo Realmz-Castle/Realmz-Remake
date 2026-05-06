@@ -1,0 +1,59 @@
+extends Spell
+
+func _init() -> void :
+	name = "Discover Magic"
+	attributes = ["Magical", "Misc"]
+	tags = ["Magical"]
+	schools = ["Sorcerer", "Priest", "Enchanter"]
+	targettile = TargetTile.CREATURE
+	school_levels = {"Sorcerer": 1, "Priest": 1, "Enchanter": 1}
+	selection_costs = {"Sorcerer": 1, "Priest": 1, "Enchanter": 1}
+	in_field = true
+	in_combat = true
+	description = "Discover Magic:  This spell will reveal all items that have magical properties.  It can be cast during combat or while collecting treasure.  It will not give specific information about magical items."
+	los = false
+	proj_hit = "Whirl"
+	sounds = ["spell launch 6.wav", "boing.wav"]
+
+
+static func get_min_duration(_power : int, _caster) -> int :
+	return 3
+
+static func get_duration_roll(_power : int, _caster) -> int :
+	return randi_range(3, 7)
+
+static func get_max_duration(_power : int, _caster) -> int :
+	return 7
+
+static func get_range(_power : int, _caster) -> int :
+	return 15
+
+static func get_sp_cost(_power : int, _caster) -> int :
+	return _power * 1
+
+
+static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
+	var text : String = ""
+	for c : Creature in _effected_creas :
+		var c_magic_items : Array = []
+		for i : Dictionary in c.inventory :
+			if i["is_magical"] : c_magic_items.append(i["name"])
+		if c_magic_items.is_empty() :
+			text += c.name + " carries no magic item.\n"
+		else :
+			text += c.name + " carries magic items :\n"
+			for i : int in range(c_magic_items.size()) :
+				if i < c_magic_items.size() :
+					text += c_magic_items[i] + ", "
+				else :
+					text += c_magic_items[i] + "\n"
+	var textRect = UI.ow_hud.textRect
+	if StateMachine.is_combat_state() :
+		textRect.show()
+		UI.ow_hud.creatureRect.hide()
+	textRect.set_text(text, true)
+	await textRect.interruption_over
+	if StateMachine.is_combat_state() :
+		textRect.hide()
+		UI.ow_hud.creatureRect.show()
+	return true
