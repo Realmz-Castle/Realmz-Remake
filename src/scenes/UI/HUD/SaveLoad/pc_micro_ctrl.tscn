@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://c2put8ty4yst6"]
 
-[ext_resource type="Texture2D" uid="uid://1djrqy671dxa" path="res://scenes/UI/Party Selection/DefaultPortrait.png" id="1_404jt"]
+[ext_resource type="Texture2D" uid="uid://r53bs87pmyx2" path="res://scenes/UI/Party Selection/DefaultPortrait.png" id="1_404jt"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/SaveLoad/pc_micro_ctrl.gd" id="1_yx3b2"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_name_font"]
 

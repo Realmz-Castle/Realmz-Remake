@@ -1,9 +1,9 @@
 [gd_scene load_steps=10 format=3 uid="uid://vd2sjsgfcp04"]
 
-[ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="1_i8cbn"]
+[ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="1_i8cbn"]
 [ext_resource type="Script" path="res://scenes/UI/HUD/MiniMapsRect/minimaps_rect.gd" id="1_s1r14"]
-[ext_resource type="Texture2D" uid="uid://brsdtu5dlxogo" path="res://scenes/UI/Main Menu/Splash Screen.png" id="2_mo2li"]
-[ext_resource type="Texture2D" uid="uid://42672sduw6hj" path="res://scenes/UI/HUD/MiniMapsRect/YouAreHere.png" id="3_dhq2w"]
+[ext_resource type="Texture2D" uid="uid://bd7dienxyedsv" path="res://scenes/UI/Main Menu/Splash Screen.png" id="2_mo2li"]
+[ext_resource type="Texture2D" uid="uid://ceb855h31bb7g" path="res://scenes/UI/HUD/MiniMapsRect/YouAreHere.png" id="3_dhq2w"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="5_oviaw"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="6_8i1ev"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="7_76jhg"]

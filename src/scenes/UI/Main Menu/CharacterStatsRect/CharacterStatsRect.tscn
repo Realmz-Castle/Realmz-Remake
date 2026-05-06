@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bov2d346tediq"]
 
-[ext_resource type="Texture2D" uid="uid://v6m7qkubvu1x" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://c7vufke0hme7f" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bvyrbf7dsq0da" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="3"]
 [ext_resource type="Script" path="res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.gd" id="4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tooltip"]
