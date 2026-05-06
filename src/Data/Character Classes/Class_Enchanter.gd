@@ -247,7 +247,7 @@ static func _character_creation_gifts(_character) :
 	resources.items_book.clear()
 
 static func get_max_perma_summons(_character) ->int :
-	return 0
+	return 4
 
 static func get_selection_cost(_character, _spell, _cost) :
 	return _spell.selection_costs.get("Enchanter", _cost)
