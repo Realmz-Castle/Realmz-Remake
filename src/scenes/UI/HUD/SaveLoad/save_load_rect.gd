@@ -25,6 +25,7 @@ func fill(campaignname : String, cansave : bool) :
 	can_save = cansave
 	new_save_panel.visible = cansave
 	preview_panel.save_button.visible = can_save
+	preview_panel.notesTextEdit.editable = can_save
 	preview_panel.load_button.disabled = true
 	new_save_name = ""
 	new_save_err_label.hide()
@@ -67,8 +68,9 @@ func on_save_selected(save_name : String) :
 func _on_close_button_pressed():
 	if is_instance_of(get_parent(), Window) :
 		get_parent().hide()
-	hide()
-	StateMachine.transition_to("Exploration")
+	else :
+		hide()
+		StateMachine.transition_to("Exploration")
 
 
 func _on_newsavelineedit_text_changed(new_text):

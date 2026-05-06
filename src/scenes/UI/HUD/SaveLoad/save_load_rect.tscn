@@ -41,13 +41,13 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
+offset_left = 14.0
 offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_right = -14.0
+offset_bottom = -14.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 6
 
 [node name="SLLabel" type="Label" parent="SLVBox"]
 layout_mode = 2
@@ -65,7 +65,7 @@ vertical_alignment = 1
 [node name="SLHBox" type="HBoxContainer" parent="SLVBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 0
+theme_override_constants/separation = 8
 
 [node name="ScenariosPanel" parent="SLVBox/SLHBox" instance=ExtResource("4_kkei5")]
 layout_mode = 2
@@ -80,7 +80,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 64)
 layout_direction = 3
 layout_mode = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 8
 
 [node name="CloseButton" type="Button" parent="SLVBox/BotHBox"]
 custom_minimum_size = Vector2(64, 64)
@@ -99,7 +99,6 @@ custom_minimum_size = Vector2(0, 64)
 layout_direction = 3
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = ExtResource("3_4rsef")
 
 [node name="NewSaveHBox" type="HBoxContainer" parent="SLVBox/BotHBox/NewSavePanel"]
 layout_direction = 2
@@ -107,13 +106,13 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 5.0
+offset_left = 8.0
 offset_top = 5.0
-offset_right = -5.0
+offset_right = -8.0
 offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 8
 
 [node name="NewSaveLabel" type="Label" parent="SLVBox/BotHBox/NewSavePanel/NewSaveHBox"]
 layout_mode = 2
