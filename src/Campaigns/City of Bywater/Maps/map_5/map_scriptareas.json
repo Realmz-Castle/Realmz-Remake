@@ -34,6 +34,11 @@
       "scriptRectangle" : [ [2,2] , [2,2] ],
       "scriptToLoad" : "Take_Stairs_D"
    },
+   "Stairs Up" :
+   {
+      "scriptRectangle" : [ [21,4] , [21,4] ],
+      "scriptToLoad" : "Take_Stairs_U"
+   },
    "Start Battle" :
    {
       "scriptRectangle" : [ [6,6] , [6,6] ],

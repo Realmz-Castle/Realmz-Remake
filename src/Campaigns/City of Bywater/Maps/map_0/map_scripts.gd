@@ -157,8 +157,8 @@ static func AP24x22y14() : #24 at 22,14
 	return
 
 static func AP25x16y17() : #25 at 16,17
-	# This AP teleports to level 5 at 21,5
-	ScriptHelperFuncsClass.teleport_to_map_and_pos_divinity(5, 21, 5, 0)
+	# This AP teleports to level 5 at 21,4 (the staircase tile)
+	ScriptHelperFuncsClass.teleport_to_map_and_pos_divinity(5, 21, 4, 0)
 	await ScriptHelperFuncsClass.display_text_wait_noise('The doors on this crypt are broken as are most in the graveyard.  As you peer in, you happen to see a small crack in the floor.  Your investigation reveals that it is a trap door that leads to a subterranean crypt.', 'message nod.wav')
 	return
 
