@@ -11,6 +11,9 @@ extends NinePatchRect
 @export var search_lineedit : LineEdit
 @export var info_panel : CreatureInfoPanel
 
+const SELECTED_MODULATE : Color = Color(1.2, 1.15, 0.7, 1)
+const UNSELECTED_MODULATE : Color = Color(1, 1, 1, 1)
+
 var _list_seeded : bool = false
 var _selected_button : Button = null
 
@@ -44,7 +47,10 @@ func _on_entry_pressed(button : Button) -> void :
 
 
 func _select_button(button : Button) -> void :
+	if _selected_button != null and is_instance_valid(_selected_button) :
+		_selected_button.modulate = UNSELECTED_MODULATE
 	_selected_button = button
+	button.modulate = SELECTED_MODULATE
 	if info_panel != null :
 		info_panel.populate(button.cdata)
 
