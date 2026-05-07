@@ -1,47 +1,26 @@
-[gd_scene load_steps=7 format=3 uid="uid://cjpb8ppwrbrtl"]
+[gd_scene load_steps=5 format=3 uid="uid://cjpb8ppwrbrtl"]
 
-[ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="1_3d0g0"]
-[ext_resource type="Script" path="res://scenes/UI/HUD/Bestiary/bestiary_rect.gd" id="2_l1a6x"]
-[ext_resource type="PackedScene" uid="uid://cy33c86e0nsoa" path="res://scenes/UI/HUD/Bestiary/bestiary_button.tscn" id="3_o15vd"]
-[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_ev21x"]
-[ext_resource type="StyleBox" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="5_btn_n"]
-[ext_resource type="StyleBox" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="6_btn_h"]
-[ext_resource type="StyleBox" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="7_btn_p"]
+[ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="1_stone"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Bestiary/bestiary_rect.gd" id="2_script"]
+[ext_resource type="PackedScene" uid="uid://cy33c86e0nsoa" path="res://scenes/UI/HUD/Bestiary/bestiary_button.tscn" id="3_btn"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="4_font"]
+[ext_resource type="PackedScene" uid="uid://b2x4kchstat01" path="res://scenes/UI/HUD/Characters Panel/creature_info_panel.tscn" id="5_info"]
 
-[node name="BestiaryRect" type="NinePatchRect" node_paths=PackedStringArray("listrect", "entrycontainer", "search_lineedit", "portrait_texrect", "portrait_lvl_label", "name_label", "subtitle_label", "hp_label", "sp_label", "stats_grid", "resists_grid", "tags_header", "tags_label", "special_grid", "abil_spacer", "abilities_header", "abilities_label", "descr_label", "close_button")]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("1_3d0g0")
+[node name="BestiaryRect" type="NinePatchRect" node_paths=PackedStringArray("entrycontainer", "search_lineedit", "info_panel")]
+offset_right = 832.0
+offset_bottom = 648.0
+texture = ExtResource("1_stone")
 patch_margin_left = 11
 patch_margin_top = 11
 patch_margin_right = 11
 patch_margin_bottom = 11
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-script = ExtResource("2_l1a6x")
-button_tscn = ExtResource("3_o15vd")
-listrect = NodePath("OuterMargin/HBox/ListRect")
+script = ExtResource("2_script")
+button_tscn = ExtResource("3_btn")
 entrycontainer = NodePath("OuterMargin/HBox/ListRect/ListMargin/ListVBox/ListScroll/EntryContainer")
 search_lineedit = NodePath("OuterMargin/HBox/ListRect/ListMargin/ListVBox/SearchLineEdit")
-portrait_texrect = NodePath("OuterMargin/HBox/InfoVBox/HeaderRow/PortraitFrame/PortraitTexture")
-portrait_lvl_label = NodePath("OuterMargin/HBox/InfoVBox/HeaderRow/PortraitFrame/LvlLabel")
-name_label = NodePath("OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo/NameLabel")
-subtitle_label = NodePath("OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo/SubtitleLabel")
-hp_label = NodePath("OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo/BarsRow/HPLabel")
-sp_label = NodePath("OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo/BarsRow/SPLabel")
-stats_grid = NodePath("OuterMargin/HBox/InfoVBox/BodyRow/StatsPanel/StatsMargin/StatsVBox/StatsGrid")
-resists_grid = NodePath("OuterMargin/HBox/InfoVBox/BodyRow/ResistPanel/ResistMargin/ResistVBox/ResistsGrid")
-tags_header = NodePath("OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/TagsHeader")
-tags_label = NodePath("OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/TagsValue")
-special_grid = NodePath("OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/SpecialGrid")
-abil_spacer = NodePath("OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/AbilSpacer")
-abilities_header = NodePath("OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/AbilitiesHeader")
-abilities_label = NodePath("OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/AbilitiesValue")
-descr_label = NodePath("OuterMargin/HBox/InfoVBox/BottomRow/LorePanel/LoreMargin/LoreVBox/DescrLabel")
-close_button = NodePath("OuterMargin/HBox/InfoVBox/HeaderRow/CloseButton")
+info_panel = NodePath("OuterMargin/HBox/InfoPanel")
 
 [node name="OuterMargin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -50,19 +29,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
 [node name="HBox" type="HBoxContainer" parent="OuterMargin"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="ListRect" type="NinePatchRect" parent="OuterMargin/HBox"]
-custom_minimum_size = Vector2(208, 0)
+custom_minimum_size = Vector2(288, 0)
 layout_mode = 2
-texture = ExtResource("1_3d0g0")
+texture = ExtResource("1_stone")
 patch_margin_left = 11
 patch_margin_top = 11
 patch_margin_right = 11
@@ -77,10 +56,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
 
 [node name="ListVBox" type="VBoxContainer" parent="OuterMargin/HBox/ListRect/ListMargin"]
 layout_mode = 2
@@ -89,8 +68,8 @@ theme_override_constants/separation = 6
 [node name="SearchHeader" type="Label" parent="OuterMargin/HBox/ListRect/ListMargin/ListVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 18
 text = "Bestiary"
 
 [node name="SearchLineEdit" type="LineEdit" parent="OuterMargin/HBox/ListRect/ListMargin/ListVBox"]
@@ -102,6 +81,7 @@ placeholder_text = "Search..."
 layout_mode = 2
 size_flags_vertical = 3
 follow_focus = true
+horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
 [node name="EntryContainer" type="VBoxContainer" parent="OuterMargin/HBox/ListRect/ListMargin/ListVBox/ListScroll"]
@@ -109,320 +89,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="InfoVBox" type="VBoxContainer" parent="OuterMargin/HBox"]
+[node name="InfoPanel" parent="OuterMargin/HBox" instance=ExtResource("5_info")]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
-
-[node name="HeaderRow" type="HBoxContainer" parent="OuterMargin/HBox/InfoVBox"]
-custom_minimum_size = Vector2(0, 72)
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="PortraitFrame" type="NinePatchRect" parent="OuterMargin/HBox/InfoVBox/HeaderRow"]
-custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
-texture = ExtResource("1_3d0g0")
-patch_margin_left = 11
-patch_margin_top = 11
-patch_margin_right = 11
-patch_margin_bottom = 11
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="PortraitTexture" type="TextureRect" parent="OuterMargin/HBox/InfoVBox/HeaderRow/PortraitFrame"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -28.0
-offset_top = -28.0
-offset_right = 28.0
-offset_bottom = 28.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LvlLabel" type="Label" parent="OuterMargin/HBox/InfoVBox/HeaderRow/PortraitFrame"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -28.0
-offset_top = -18.0
-offset_right = 28.0
-offset_bottom = -2.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_font_sizes/font_size = 12
-text = "Lv 1"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="HeroInfo" type="VBoxContainer" parent="OuterMargin/HBox/InfoVBox/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 4
-
-[node name="NameLabel" type="Label" parent="OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 22
-text = "Creature Name"
-clip_text = true
-
-[node name="SubtitleLabel" type="Label" parent="OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.82, 0.82, 1)
-theme_override_font_sizes/font_size = 13
-text = "Subtitle"
-clip_text = true
-
-[node name="BarsRow" type="HBoxContainer" parent="OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="HPLabel" type="Label" parent="OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo/BarsRow"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.55, 0.55, 1)
-theme_override_font_sizes/font_size = 14
-text = "HP 100"
-
-[node name="SPLabel" type="Label" parent="OuterMargin/HBox/InfoVBox/HeaderRow/HeroInfo/BarsRow"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.75, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "SP 100"
-
-[node name="CloseButton" type="Button" parent="OuterMargin/HBox/InfoVBox/HeaderRow"]
-custom_minimum_size = Vector2(64, 28)
-layout_mode = 2
-size_flags_vertical = 0
-theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
-theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
-theme_override_colors/font_pressed_color = Color(0.9, 0.2, 0.2, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = ExtResource("5_btn_n")
-theme_override_styles/hover = ExtResource("6_btn_h")
-theme_override_styles/pressed = ExtResource("7_btn_p")
-text = "Close"
-
-[node name="BodyRow" type="HBoxContainer" parent="OuterMargin/HBox/InfoVBox"]
-custom_minimum_size = Vector2(0, 272)
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="StatsPanel" type="NinePatchRect" parent="OuterMargin/HBox/InfoVBox/BodyRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.1
-texture = ExtResource("1_3d0g0")
-patch_margin_left = 11
-patch_margin_top = 11
-patch_margin_right = 11
-patch_margin_bottom = 11
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="StatsMargin" type="MarginContainer" parent="OuterMargin/HBox/InfoVBox/BodyRow/StatsPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
-
-[node name="StatsVBox" type="VBoxContainer" parent="OuterMargin/HBox/InfoVBox/BodyRow/StatsPanel/StatsMargin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="StatsHeader" type="Label" parent="OuterMargin/HBox/InfoVBox/BodyRow/StatsPanel/StatsMargin/StatsVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 14
-text = "STATS"
-
-[node name="StatsGrid" type="GridContainer" parent="OuterMargin/HBox/InfoVBox/BodyRow/StatsPanel/StatsMargin/StatsVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 2
-columns = 4
-
-[node name="ResistPanel" type="NinePatchRect" parent="OuterMargin/HBox/InfoVBox/BodyRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
-texture = ExtResource("1_3d0g0")
-patch_margin_left = 11
-patch_margin_top = 11
-patch_margin_right = 11
-patch_margin_bottom = 11
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="ResistMargin" type="MarginContainer" parent="OuterMargin/HBox/InfoVBox/BodyRow/ResistPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
-
-[node name="ResistVBox" type="VBoxContainer" parent="OuterMargin/HBox/InfoVBox/BodyRow/ResistPanel/ResistMargin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="ResistHeader" type="Label" parent="OuterMargin/HBox/InfoVBox/BodyRow/ResistPanel/ResistMargin/ResistVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 14
-text = "RESISTANCES"
-
-[node name="ResistsGrid" type="GridContainer" parent="OuterMargin/HBox/InfoVBox/BodyRow/ResistPanel/ResistMargin/ResistVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 2
-columns = 3
-
-[node name="BottomRow" type="HBoxContainer" parent="OuterMargin/HBox/InfoVBox"]
-custom_minimum_size = Vector2(0, 92)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="TagsAbilPanel" type="NinePatchRect" parent="OuterMargin/HBox/InfoVBox/BottomRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-texture = ExtResource("1_3d0g0")
-patch_margin_left = 11
-patch_margin_top = 11
-patch_margin_right = 11
-patch_margin_bottom = 11
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="TAMargin" type="MarginContainer" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
-
-[node name="TAVBox" type="VBoxContainer" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin"]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="TagsHeader" type="Label" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 14
-text = "TAGS"
-
-[node name="TagsValue" type="Label" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
-theme_override_font_sizes/font_size = 12
-text = "—"
-autowrap_mode = 3
-
-[node name="SpecialGrid" type="GridContainer" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
-visible = false
-layout_mode = 2
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 2
-columns = 2
-
-[node name="AbilSpacer" type="Control" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-
-[node name="AbilitiesHeader" type="Label" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 14
-text = "ABILITIES"
-
-[node name="AbilitiesValue" type="Label" parent="OuterMargin/HBox/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
-theme_override_font_sizes/font_size = 12
-text = "—"
-autowrap_mode = 3
-
-[node name="LorePanel" type="NinePatchRect" parent="OuterMargin/HBox/InfoVBox/BottomRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-texture = ExtResource("1_3d0g0")
-patch_margin_left = 11
-patch_margin_top = 11
-patch_margin_right = 11
-patch_margin_bottom = 11
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-
-[node name="LoreMargin" type="MarginContainer" parent="OuterMargin/HBox/InfoVBox/BottomRow/LorePanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
-
-[node name="LoreVBox" type="VBoxContainer" parent="OuterMargin/HBox/InfoVBox/BottomRow/LorePanel/LoreMargin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="LoreHeader" type="Label" parent="OuterMargin/HBox/InfoVBox/BottomRow/LorePanel/LoreMargin/LoreVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.96, 0, 1)
-theme_override_fonts/font = ExtResource("4_ev21x")
-theme_override_font_sizes/font_size = 14
-text = "LORE"
-
-[node name="DescrLabel" type="Label" parent="OuterMargin/HBox/InfoVBox/BottomRow/LorePanel/LoreMargin/LoreVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
-theme_override_font_sizes/font_size = 13
-text = "—"
-autowrap_mode = 3
+stats_columns = 2
+skip_zero_stats = true
+hidden_stat_keys = Array[String](["Weight_Limit", "SP_regen_base", "maxHP", "maxSP"])
+show_outer_bg = false
 
 [connection signal="text_changed" from="OuterMargin/HBox/ListRect/ListMargin/ListVBox/SearchLineEdit" to="." method="_on_line_edit_text_changed"]
-[connection signal="pressed" from="OuterMargin/HBox/InfoVBox/HeaderRow/CloseButton" to="." method="_on_close_button_pressed"]

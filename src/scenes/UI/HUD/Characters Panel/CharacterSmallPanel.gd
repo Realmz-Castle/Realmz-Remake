@@ -291,4 +291,7 @@ func _on_portrait_button_pressed():
 
 	for s in character.stats :
 		cdata["stats"][s] = character.get_stat(s)
-	UI.ow_hud.bestiaryRect.show_for_character(cdata)
+	# Mutually exclusive with the bestiary — never overlap.
+	if UI.ow_hud.bestiaryRect.visible :
+		UI.ow_hud.bestiaryRect.hide()
+	UI.ow_hud.characterStatRect.show_for_character(cdata)

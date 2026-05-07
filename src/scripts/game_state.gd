@@ -210,7 +210,7 @@ func _is_overlay_panel_visible() -> bool :
 	var hud = UI.ow_hud
 	if hud == null :
 		return false
-	for n in [hud.bestiaryRect, hud.inventoryRect, hud.minimapRect, hud.abilitesmngtMenu] :
+	for n in [hud.bestiaryRect, hud.characterStatRect, hud.inventoryRect, hud.minimapRect, hud.abilitesmngtMenu] :
 		if n != null and n.visible :
 			return true
 	return false

@@ -1,8 +1,9 @@
-[gd_scene load_steps=78 format=3 uid="uid://bcm4yk3e2uv7"]
+[gd_scene load_steps=79 format=3 uid="uid://bcm4yk3e2uv7"]
 
 [ext_resource type="PackedScene" uid="uid://y2mh6jttjyop" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButton.tscn" id="1"]
 [ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
 [ext_resource type="PackedScene" uid="uid://cjpb8ppwrbrtl" path="res://scenes/UI/HUD/Bestiary/bestiary_rect.tscn" id="3_j1454"]
+[ext_resource type="PackedScene" uid="uid://b2x4kchstat01" path="res://scenes/UI/HUD/Characters Panel/creature_info_panel.tscn" id="3_chstat"]
 [ext_resource type="Texture2D" uid="uid://dgpbgtruh0kw8" path="res://scenes/UI/HUD/Button_Items.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://lfonk613cgwb" path="res://shared_assets/UI/stone_pattern.png" id="6"]
 [ext_resource type="PackedScene" uid="uid://biqyyjm2makqt" path="res://scenes/UI/HUD/AbilitiesManagement/abilities_mngt_rect.tscn" id="9_240h7"]
@@ -167,10 +168,6 @@ offset_right = 0.0
 offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="BestiaryRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("3_j1454")]
-visible = false
-layout_mode = 1
 
 [node name="AbilitiesMngtRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("9_240h7")]
 visible = false
@@ -779,6 +776,18 @@ grow_vertical = 2
 [node name="SaveLoadRect" parent="." instance=ExtResource("10_fxj6e")]
 visible = false
 layout_mode = 1
+
+[node name="BestiaryRect" parent="." instance=ExtResource("3_j1454")]
+visible = false
+layout_mode = 1
+
+[node name="CharacterStatRect" parent="." instance=ExtResource("3_chstat")]
+visible = false
+layout_mode = 1
+offset_right = 832.0
+offset_bottom = 648.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
 
 [node name="Canvaslayer" type="CanvasLayer" parent="."]
 
