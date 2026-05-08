@@ -45,7 +45,7 @@ export/convert_text_resources_to_binary=false
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot-openmpt/plugin.cfg", "res://addons/realmz_export_plugin/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot-openmpt/plugin.cfg", "res://addons/realmz_dump_importer/plugin.cfg", "res://addons/realmz_export_plugin/plugin.cfg")
 
 [filesystem]
 
