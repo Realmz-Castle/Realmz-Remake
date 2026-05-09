@@ -1,138 +1,79 @@
 extends NinePatchRect
-#BestiaryRect
 
-@export var button_tscn : PackedScene  #"res://scenes/UI/HUD/Bestiary/bestiary_button.tscn"
+# Creature browser. Hosts the creature list (left) plus a CreatureInfoPanel
+# (right) that handles the actual stat/resist/abilities/lore display. Selecting
+# a creature button calls info_panel.populate(cdata). Closing the panel hides
+# the bestiary entirely.
 
-@onready var entrycontainer = $HBoxContainer/ListRect/VBoxContainer/ListControl/ScrollContainer/EntryContainer
+@export var button_tscn : PackedScene  # res://scenes/UI/HUD/Bestiary/bestiary_button.tscn
 
-@onready var nameLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect/NameLabel
-@onready var descrLabel : Label =$HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect/DescrLabel
-@onready var texRect : TextureRect = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect/NinePatchRect/TextureRect
-@onready var lvlLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/LoreRect/NinePatchRect/LvlLabel
-@onready var tagsLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/AbilitiesRect/TagsLabel2
-@onready var abilitiesLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/AbilitiesRect/AbilitiesLabel2
+@export var entrycontainer : VBoxContainer
+@export var search_lineedit : LineEdit
+@export var info_panel : CreatureInfoPanel
 
-@onready var physresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1/PhysResnLabel
-@onready var physmultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1/PhysMultnLabel
-@onready var magiresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1/MagiResnLabel
-@onready var magimultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1/MagiMultnLabel
-@onready var healresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1/HealResnLabel
-@onready var healmultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1/HealMultLabel
-@onready var mentresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN1/MentResnLabel
-@onready var mentmultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM1/MentMultLabel
-@onready var fireresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN2/FireResnLabel
-@onready var firemultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM2/FireMultnLabel 
-@onready var iceresLabel  : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN2/IceResnLabel
-@onready var icemultLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM2/IceMultnLabel
-@onready var elecresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN2/ElecResnLabel
-@onready var elecmultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM2/ElecMultLabel
-@onready var poisresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN3/PosnResnLabel
-@onready var poismultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM3/PoisMultnLabel
-@onready var dissresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN3/DissResnLabel
-@onready var dissmultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM3/DissMultnLabel
-@onready var chemresLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxN3/ChemResnLabel
-@onready var chemmultLabel: Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/ResistRect/ResistHBox/ResistVBoxM3/ChemMultnLabel
+const SELECTED_MODULATE : Color = Color(1.2, 1.15, 0.7, 1)
+const UNSELECTED_MODULATE : Color = Color(1, 1, 1, 1)
 
-@onready var moveLabel : Label = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox2/MovementnLabel
-@onready var APRLabel : Label  = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox2/APRnLabel
-@onready var dmgLabel : Label  = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox2/DamagenLabel
-@onready var HPLabel : Label   = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4/HPnLabel
-@onready var SPLabel : Label   = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4/SPnLabel
-@onready var HPrLabel : Label   = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4/HPrnLabel
-@onready var SPrLabel : Label   = $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox4/SPrnLabel
-@onready var accmeleeLabel : Label =  $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox6/AccMeleenLabel
-@onready var accrangeLabel : Label =  $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox6/AccRangenLabel
-@onready var accmagicLabel : Label =  $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox6/AccMagicnLabel
-@onready var evameleeLabel : Label =  $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox8/EvaMeleenLabel
-@onready var evarangeLabel : Label =  $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox8/EvaRangenLabel
-@onready var evamagicLabel : Label =  $HBoxContainer/InfoControl/ScrollContainer/VBoxContainer/StatsRect/StatsHBox/StatsVBox8/EvaMagicnLabel
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
+var _list_seeded : bool = false
+var _selected_button : Button = null
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func _ready() :
+	if info_panel != null :
+		info_panel.close_requested.connect(_on_close_requested)
+	visibility_changed.connect(_on_visibility_changed)
+
 
 func _initialize() :
+	if _list_seeded :
+		return
 	var book = NodeAccess.__Resources().crea_book
+	var first_button : Button = null
 	for c in book :
-		if book[c]["data"]["in_bestiary"]>0 :
+		if book[c]["data"]["in_bestiary"] > 0 :
 			var nb = button_tscn.instantiate()
 			nb.set_creature(book[c])
 			entrycontainer.add_child(nb)
-			nb.connect("pressed", Callable(self,"_on_entry_pressed").bind(nb.cdata))
+			nb.connect("pressed", Callable(self, "_on_entry_pressed").bind(nb))
+			if first_button == null :
+				first_button = nb
+	_list_seeded = true
+	if first_button != null :
+		_select_button(first_button)
 
-func _on_entry_pressed(cdata) :
-#	print(cdata)
-	nameLabel.text = str( cdata["data"]["name"] )
-	descrLabel.text = str( cdata["data"]["description"] )
-	lvlLabel.text = "Level "+str( cdata["data"]["level"] )
-	texRect.texture = cdata["data"]["image"]
-	var sizev = cdata["data"]["image"].get_image().get_size()
-	texRect.size = sizev
-	texRect.position.x = 35-sizev.x/2
-	texRect.position.y = 35-sizev.y/2
-	
-	var tags : Array = cdata["data"]["tags"]
-	var tagstext : String = ''
-	for t in tags :
-		tagstext += t + ', '
-	tagstext.trim_suffix(', ')
-	tagsLabel.text = tagstext
-	var abilities : Array = cdata["tools"]["spells"]
-	var abilitiestext : String = ''
-	for s in abilities :
-		abilitiestext += s[0] + ' lvl'+str(s[1])+', '
-	abilitiestext.trim_suffix(', ')
-	abilitiesLabel.text = abilitiestext
-	
-	physresLabel.text = str( cdata["stats"]["ResistancePhysical"] )
-	physmultLabel.text = str( cdata["stats"]["MultiplierPhysical"] )
-	magiresLabel.text = str( cdata["stats"]["ResistanceMagic" ] )
-	magimultLabel.text = str( cdata["stats"]["MultiplierMagic" ] )
-	healresLabel.text = str( cdata["stats"]["ResistanceHealing" ] )
-	healmultLabel.text = str( cdata["stats"]["MultiplierHealing" ] )
-	mentresLabel.text = str( cdata["stats"]["ResistanceMental" ] )
-	mentmultLabel.text = str( cdata["stats"]["MultiplierMental"] )
 
-	fireresLabel.text = str( cdata["stats"]["ResistanceFire"] )
-	firemultLabel.text= str( cdata["stats"]["MultiplierFire"] )
-	iceresLabel.text = str( cdata["stats"]["ResistanceIce"] )
-	icemultLabel.text= str( cdata["stats"]["MultiplierIce"] )
-	elecresLabel.text = str( cdata["stats"]["ResistanceElect"] )
-	elecmultLabel.text= str( cdata["stats"]["MultiplierElect"] )
+func _on_entry_pressed(button : Button) -> void :
+	_select_button(button)
 
-	poisresLabel.text = str( cdata["stats"]["ResistancePoison"] )
-	poismultLabel.text= str( cdata["stats"]["MultiplierPoison"] )
-	dissresLabel.text = str( cdata["stats"]["ResistanceDisease" ] )
-	dissmultLabel.text= str( cdata["stats"]["MultiplierDisease"] )
-	chemresLabel.text = str( cdata["stats"]["ResistanceChemical"] )
-	chemmultLabel.text= str( cdata["stats"]["MultiplierChemical"] )
 
-	moveLabel.text= str( cdata["stats"]["MaxMovement" ] )
-	APRLabel.text= str( cdata["stats"]["MaxActions"] )
-	dmgLabel.text= "NA"
-	HPLabel.text= str( cdata["stats"]["maxHP"] )
-	SPLabel.text= str( cdata["stats"]["maxSP"] )
-	HPrLabel.text= str( cdata["stats"]["HP_regen_base" ] )
-	SPrLabel.text= str( cdata["stats"]["SP_regen_base" ] )
-	accmeleeLabel.text= str( cdata["stats"]["AccuracyMelee" ] )
-	accrangeLabel.text= str( cdata["stats"]["AccuracyRanged" ] )
-	accmagicLabel.text= str( cdata["stats"]["AccuracyMagic" ] )
-	evameleeLabel.text= str( cdata["stats"]["EvasionMelee"] )
-	evarangeLabel.text= str( cdata["stats"]["EvasionRanged" ] )
-	evamagicLabel.text= str( cdata["stats"]["EvasionMagic" ] )
+func _select_button(button : Button) -> void :
+	if _selected_button != null and is_instance_valid(_selected_button) :
+		_selected_button.modulate = UNSELECTED_MODULATE
+	_selected_button = button
+	button.modulate = SELECTED_MODULATE
+	if info_panel != null :
+		info_panel.populate(button.cdata)
 
-func _on_close_button_pressed():
-	print("BestiaryRect._on_close_button_pressed")
+
+func _on_visibility_changed() -> void :
+	if not visible :
+		return
+	if _selected_button == null or not is_instance_valid(_selected_button) :
+		return
+	# Wait a frame for layout to settle (especially when the bestiary was just
+	# made visible — ScrollContainer needs valid sizes to scroll correctly).
+	var scroll = entrycontainer.get_parent()
+	if scroll is ScrollContainer :
+		await get_tree().process_frame
+		scroll.ensure_control_visible(_selected_button)
+
+
+func _on_close_requested() -> void :
 	hide()
 	StateMachine.transition_to("Exploration/ExWalking")
 
 
-func _on_line_edit_text_changed(new_text: String):
+func _on_line_edit_text_changed(new_text : String) -> void :
 	if new_text.is_empty() :
 		for b in entrycontainer.get_children() :
 			b.show()

@@ -1,0 +1,341 @@
+[gd_scene format=3 uid="uid://b2x4kchstat01"]
+
+[ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="1_stone"]
+[ext_resource type="Script" path="res://scenes/UI/HUD/Characters Panel/creature_info_panel.gd" id="2_script"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_font"]
+[ext_resource type="StyleBox" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="4_btn_n"]
+[ext_resource type="StyleBox" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="5_btn_h"]
+[ext_resource type="StyleBox" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="6_btn_p"]
+
+[node name="CreatureInfoPanel" type="NinePatchRect" node_paths=PackedStringArray("portrait_texrect", "name_label", "subtitle_label", "hp_label", "sp_label", "stats_grid", "resists_grid", "tags_header", "tags_label", "special_grid", "abil_spacer", "abilities_header", "abilities_label", "descr_label", "close_button")]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource("1_stone")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+script = ExtResource("2_script")
+portrait_texrect = NodePath("OuterMargin/InfoVBox/HeaderRow/PortraitFrame/PortraitTexture")
+name_label = NodePath("OuterMargin/InfoVBox/HeaderRow/HeroInfo/NameLabel")
+subtitle_label = NodePath("OuterMargin/InfoVBox/HeaderRow/HeroInfo/SubtitleLabel")
+hp_label = NodePath("OuterMargin/InfoVBox/HeaderRow/HeroInfo/BarsRow/HPLabel")
+sp_label = NodePath("OuterMargin/InfoVBox/HeaderRow/HeroInfo/BarsRow/SPLabel")
+stats_grid = NodePath("OuterMargin/InfoVBox/BodyRow/StatsPanel/StatsMargin/StatsVBox/StatsGrid")
+resists_grid = NodePath("OuterMargin/InfoVBox/BodyRow/ResistPanel/ResistMargin/ResistVBox/ResistsGrid")
+tags_header = NodePath("OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/TagsHeader")
+tags_label = NodePath("OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/TagsValue")
+special_grid = NodePath("OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/SpecialGrid")
+abil_spacer = NodePath("OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/AbilSpacer")
+abilities_header = NodePath("OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/AbilitiesHeader")
+abilities_label = NodePath("OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox/AbilitiesValue")
+descr_label = NodePath("OuterMargin/InfoVBox/BottomRow/LorePanel/LoreMargin/LoreVBox/DescrLabel")
+close_button = NodePath("OuterMargin/InfoVBox/HeaderRow/CloseButton")
+
+[node name="OuterMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="InfoVBox" type="VBoxContainer" parent="OuterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="OuterMargin/InfoVBox"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PortraitFrame" type="NinePatchRect" parent="OuterMargin/InfoVBox/HeaderRow"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+texture = ExtResource("1_stone")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="PortraitTexture" type="TextureRect" parent="OuterMargin/InfoVBox/HeaderRow/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HeroInfo" type="VBoxContainer" parent="OuterMargin/InfoVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="OuterMargin/InfoVBox/HeaderRow/HeroInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.96, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 22
+text = "Character Name"
+clip_text = true
+
+[node name="SubtitleLabel" type="Label" parent="OuterMargin/InfoVBox/HeaderRow/HeroInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.96, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 14
+text = "Subtitle"
+clip_text = true
+
+[node name="BarsRow" type="HBoxContainer" parent="OuterMargin/InfoVBox/HeaderRow/HeroInfo"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HPLabel" type="Label" parent="OuterMargin/InfoVBox/HeaderRow/HeroInfo/BarsRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.55, 1)
+theme_override_font_sizes/font_size = 14
+text = "HP 100"
+
+[node name="SPLabel" type="Label" parent="OuterMargin/InfoVBox/HeaderRow/HeroInfo/BarsRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "SP 100"
+
+[node name="CloseButton" type="Button" parent="OuterMargin/InfoVBox/HeaderRow"]
+custom_minimum_size = Vector2(64, 28)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
+theme_override_colors/font_pressed_color = Color(0.9, 0.2, 0.2, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = ExtResource("4_btn_n")
+theme_override_styles/hover = ExtResource("5_btn_h")
+theme_override_styles/pressed = ExtResource("6_btn_p")
+text = "Close"
+
+[node name="BodyRow" type="HBoxContainer" parent="OuterMargin/InfoVBox"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="StatsPanel" type="NinePatchRect" parent="OuterMargin/InfoVBox/BodyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_stone")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="StatsMargin" type="MarginContainer" parent="OuterMargin/InfoVBox/BodyRow/StatsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="StatsVBox" type="VBoxContainer" parent="OuterMargin/InfoVBox/BodyRow/StatsPanel/StatsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StatsHeader" type="Label" parent="OuterMargin/InfoVBox/BodyRow/StatsPanel/StatsMargin/StatsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.96, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 18
+text = "Stats"
+
+[node name="StatsGrid" type="GridContainer" parent="OuterMargin/InfoVBox/BodyRow/StatsPanel/StatsMargin/StatsVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 2
+columns = 4
+
+[node name="ResistPanel" type="NinePatchRect" parent="OuterMargin/InfoVBox/BodyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_stone")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="ResistMargin" type="MarginContainer" parent="OuterMargin/InfoVBox/BodyRow/ResistPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ResistVBox" type="VBoxContainer" parent="OuterMargin/InfoVBox/BodyRow/ResistPanel/ResistMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ResistHeader" type="Label" parent="OuterMargin/InfoVBox/BodyRow/ResistPanel/ResistMargin/ResistVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.96, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 18
+text = "Resistances"
+
+[node name="ResistsGrid" type="GridContainer" parent="OuterMargin/InfoVBox/BodyRow/ResistPanel/ResistMargin/ResistVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 2
+columns = 3
+
+[node name="BottomRow" type="HBoxContainer" parent="OuterMargin/InfoVBox"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="TagsAbilPanel" type="NinePatchRect" parent="OuterMargin/InfoVBox/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_stone")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="TAMargin" type="MarginContainer" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="TAVBox" type="VBoxContainer" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TagsHeader" type="Label" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.96, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 18
+text = "Tags"
+
+[node name="TagsValue" type="Label" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+autowrap_mode = 3
+
+[node name="SpecialGrid" type="GridContainer" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 2
+columns = 2
+
+[node name="AbilSpacer" type="Control" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="AbilitiesHeader" type="Label" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.96, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 18
+text = "Abilities"
+
+[node name="AbilitiesValue" type="Label" parent="OuterMargin/InfoVBox/BottomRow/TagsAbilPanel/TAMargin/TAVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+autowrap_mode = 3
+
+[node name="LorePanel" type="NinePatchRect" parent="OuterMargin/InfoVBox/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_stone")
+patch_margin_left = 11
+patch_margin_top = 11
+patch_margin_right = 11
+patch_margin_bottom = 11
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="LoreMargin" type="MarginContainer" parent="OuterMargin/InfoVBox/BottomRow/LorePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="LoreVBox" type="VBoxContainer" parent="OuterMargin/InfoVBox/BottomRow/LorePanel/LoreMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LoreHeader" type="Label" parent="OuterMargin/InfoVBox/BottomRow/LorePanel/LoreMargin/LoreVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.96, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 18
+text = "Lore"
+
+[node name="DescrLabel" type="Label" parent="OuterMargin/InfoVBox/BottomRow/LorePanel/LoreMargin/LoreVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+autowrap_mode = 3
+
+[connection signal="pressed" from="OuterMargin/InfoVBox/HeaderRow/CloseButton" to="." method="_on_close_button_pressed"]
