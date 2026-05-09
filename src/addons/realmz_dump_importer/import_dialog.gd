@@ -20,6 +20,7 @@ var _log : TextEdit
 var _file_dialog : FileDialog
 
 var _last_emitter
+var _run_count : int = 0
 
 func _init() -> void:
 	title = "Realmz: Import Scenario Dump"
@@ -109,6 +110,9 @@ func _on_dump_picked(path : String) -> void:
 	_log_line("Selected dump: %s" % path)
 
 func _on_confirmed() -> void:
+	# Clear and stamp every run so subsequent clicks produce a visible change.
+	_run_count += 1
+	_log.text = "=== Run #%d @ %s ===" % [_run_count, Time.get_time_string_from_system()]
 	var dump_path := _dump_path_label.text
 	if not FileAccess.file_exists(dump_path):
 		_log_line("ERROR: dump path is not a file: %s" % dump_path)
@@ -171,4 +175,6 @@ func _write_file(path : String, content : String) -> bool:
 
 func _log_line(s : String) -> void:
 	_log.text += "\n" + s
-	_log.scroll_vertical = _log.get_line_count()
+	# scroll_vertical is in pixels in Godot 4; set the caret to the last line
+	# and TextEdit will scroll that line into view automatically.
+	_log.set_caret_line(_log.get_line_count() - 1)
