@@ -21,7 +21,8 @@ var selected_character = null
 
 @onready var mapAreaControl : Control = $VBoxScreen/HBoxTop/MapArea
 @onready var inventoryRect = $VBoxScreen/HBoxTop/MapArea/InventoryRect#$InventoryRect
-@onready var bestiaryRect = $VBoxScreen/HBoxTop/MapArea/BestiaryRect
+@onready var bestiaryRect = $BestiaryRect
+@onready var characterStatRect = $CharacterStatRect
 @onready var minimapRect = $VBoxScreen/HBoxTop/MapArea/MinimapsRect
 @onready var pictureRect = $VBoxScreen/HBoxTop/MapArea/PictureRect
 
@@ -96,6 +97,7 @@ func initialize() : # takes an array of Characters GD class objects !
 	set_party_swap_enabled(false)
 	settingsControl._initialize()
 	bestiaryRect._initialize()
+	characterStatRect.close_requested.connect(_on_character_stat_close_requested)
 	if GameGlobal.allow_character_swap_anywhere :
 		set_party_swap_enabled(true)
 #	spellcastMenu.connect("spell_picked", self,"_on_spell_picked"
@@ -555,14 +557,17 @@ func show_spell_effect_on_char_menu(chara, graphic_name : String) :
 
 
 func _on_bestiary_button_pressed():
-	#if not bestiaryRect.visible:
-		#return
 	if bestiaryRect.visible :
 		bestiaryRect.hide()
-		#GameState.set_paused(false)
 	else :
+		if characterStatRect.visible :
+			characterStatRect.hide()
 		bestiaryRect.show()
-		#GameState.set_paused(true)
+
+
+func _on_character_stat_close_requested() -> void :
+	characterStatRect.hide()
+	StateMachine.transition_to("Exploration/ExWalking")
 
 func enter_battle_mode() :
 	textRect.hide()
