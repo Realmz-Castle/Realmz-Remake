@@ -179,3 +179,37 @@ func dungeon_aps_for_level(level : int) -> Array:
 		if s["kind"] == "DUNGEON_AP" and int(s["fields"].get("level", "-1")) == level:
 			out.append(s)
 	return out
+
+# Enumerate every (kind, level) pair that has at least one AP in the dump.
+# Used by the dialog's "Import All" path to drive a one-click bulk import
+# without making the user remember which levels exist.
+#
+# Returns an Array of dictionaries:
+#   [{"kind": "LAND_AP" | "DUNGEON_AP", "level": int, "ap_count": int}, ...]
+# Sorted by kind (LAND first, DUNGEON second) then by ascending level so the
+# log output reads top-to-bottom in a predictable order.
+func discover_ap_levels() -> Array:
+	# Bucket APs into kind -> level -> count using a nested dict so we can
+	# report the AP count per map alongside the (kind, level) tuple.
+	var counts : Dictionary = {"LAND_AP": {}, "DUNGEON_AP": {}}
+	for s in sections:
+		var kind : String = s["kind"]
+		if not counts.has(kind):
+			continue  # XAP / encounters / monsters / etc. don't drive map files.
+		var level := int(s["fields"].get("level", "-1"))
+		if level < 0:
+			continue  # Defensive — every AP in the dump has a level field.
+		counts[kind][level] = int(counts[kind].get(level, 0)) + 1
+	var out : Array = []
+	# LAND first, then DUNGEON — matches the natural reading order (overworld
+	# before dungeons) and groups results visually in the log.
+	for kind in ["LAND_AP", "DUNGEON_AP"]:
+		var levels : Array = counts[kind].keys()
+		levels.sort()
+		for lvl in levels:
+			out.append({
+				"kind": kind,
+				"level": lvl,
+				"ap_count": counts[kind][lvl],
+			})
+	return out
