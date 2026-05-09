@@ -267,19 +267,27 @@ func _process_one(parser, target : Dictionary, camp_dir : String, force : bool, 
 	# Skip-if-already-ported gate. Reads the existing map_scripts.gd and counts
 	# `static func` defs; if it's well past the scaffolding count, assume the
 	# map has been hand-ported (or generated previously) and don't clobber.
-	if not force and not dry_run:
-		var existing_funcs : int = _count_existing_funcs(gd_path)
-		if existing_funcs >= ALREADY_PORTED_FUNC_THRESHOLD:
-			_log_line("%s SKIPPED (already ported: %d funcs — use Force overwrite to regenerate)" % [label, existing_funcs])
-			return
+	# We evaluate this in dry-run too so the user can see exactly which maps
+	# *would* be skipped on a real run — making the dry-run output predictive
+	# rather than just a size dump.
+	var existing_funcs : int = _count_existing_funcs(gd_path)
+	var would_skip : bool = (not force) and existing_funcs >= ALREADY_PORTED_FUNC_THRESHOLD
 
 	if dry_run:
 		# Per-target dry-run line — no file is touched, but we report the size
-		# of what would have been written so the user can spot suspiciously
-		# small or empty outputs.
-		_log_line("%s DRY-RUN (json %d B, gd %d B; %d unhandled opcodes)" % [
-			label, emitter.json_text.length(), emitter.gd_text.length(), emitter.unhandled_opcodes.size()
-		])
+		# of what would have been written and whether the skip gate would have
+		# prevented the write so the user can spot suspiciously small outputs
+		# AND know which maps the real run will leave alone.
+		if would_skip:
+			_log_line("%s WOULD-SKIP (already ported: %d funcs)" % [label, existing_funcs])
+		else:
+			_log_line("%s DRY-RUN (json %d B, gd %d B; %d unhandled opcodes)" % [
+				label, emitter.json_text.length(), emitter.gd_text.length(), emitter.unhandled_opcodes.size()
+			])
+		return
+
+	if would_skip:
+		_log_line("%s SKIPPED (already ported: %d funcs — use Force overwrite to regenerate)" % [label, existing_funcs])
 		return
 
 	# Make sure the target map folder exists. We don't auto-create it: if the
