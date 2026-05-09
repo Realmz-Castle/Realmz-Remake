@@ -635,7 +635,23 @@ func add_pc_or_npcally_to_battle_map(crea : Creature, init_pos : Vector2) -> boo
 func remove_creab_from_battle_map(cb : CombatCreaButton) :
 	StateMachine.combat_state.remove_cb_from_battle(cb)
 
-#  name : [resistance, multiplier], resistance is +- reduction
+enum ELEMENTS {FIRE = 0, ICE = 1, ELECTRIC = 2, POISON = 3, CHEMICAL = 4, DISEASE = 5, HEALING = 6, MENTAL = 7, PHYSICAL = 8, MAGICAL =9}
+
+const elements_ColorDict : Dictionary = {ELEMENTS.FIRE : Color.ORANGE, ELEMENTS.ICE : Color.CYAN,
+				 ELEMENTS.ELECTRIC : Color.MEDIUM_SLATE_BLUE, ELEMENTS.POISON : Color.FOREST_GREEN,
+				 ELEMENTS.CHEMICAL : Color.GREEN_YELLOW, ELEMENTS.DISEASE : Color.YELLOW,
+				ELEMENTS.HEALING : Color.WHITE, ELEMENTS.MENTAL : Color.DEEP_PINK, 
+				ELEMENTS.PHYSICAL : Color.LIGHT_CYAN, ELEMENTS.MAGICAL: Color.CORNFLOWER_BLUE}
+
+var elements_names : Dictionary = {ELEMENTS.FIRE : "Fire", ELEMENTS.ICE :"Ice", ELEMENTS.ELECTRIC : "Electric", ELEMENTS.POISON : "Poison",
+									ELEMENTS.CHEMICAL : "Chemical", ELEMENTS.DISEASE : "Disease", ELEMENTS.HEALING : "Healing",
+									ELEMENTS.MENTAL : "Mental", ELEMENTS.PHYSICAL : "Physical", ELEMENTS.MAGICAL :"Magical"}
+func get_element_name(elem : ELEMENTS) :
+	print("GameGlobal elements_names : ", elements_names, ", has ", elem, " ? ", elements_names.has(elem))
+	return elements_names[elem]
+
+
+#still used for non-spells, ##TODO
 const dmg_type_def_stats_dict : Dictionary = {
 	"Fire"    : ["ResistanceFire","MultiplierFire"],
 	"Ice"     : ["ResistanceIce","MultiplierIce"],
@@ -647,6 +663,21 @@ const dmg_type_def_stats_dict : Dictionary = {
 	"Mental"  : ["ResistanceMental","MultiplierMental"],
 	"Physical": ["ResistancePhysical","MultiplierPhysical"],
 	"Magical" : ["ResistanceMagic","MultiplierMagic"]
+	}
+
+
+#  name : [resistance, multiplier], resistance is +- reduction
+const dmg_spell_elem_def_stats_dict : Dictionary = {
+	ELEMENTS.FIRE    : ["ResistanceFire","MultiplierFire"],
+	ELEMENTS.ICE     : ["ResistanceIce","MultiplierIce"],
+	ELEMENTS.ELECTRIC: ["ResistanceElect","MultiplierElect"],
+	ELEMENTS.POISON  : ["ResistancePoison","MultiplierPoison"],
+	ELEMENTS.CHEMICAL: ["ResistanceChemical","MultiplierChemical"],
+	ELEMENTS.DISEASE : ["ResistanceDisease","MultiplierDisease"],
+	ELEMENTS.HEALING : ["ResistanceHealing","MultiplierHealing"],
+	ELEMENTS.MENTAL  : ["ResistanceMental","MultiplierMental"],
+	ELEMENTS.PHYSICAL: ["ResistancePhysical","MultiplierPhysical"],
+	ELEMENTS.MAGICAL : ["ResistanceMagic","MultiplierMagic"]
 	}
 
 
@@ -718,13 +749,12 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 	damage_detail["crit_mult"] = crit_mult
 	return damage_detail
 
-func calculate_spell_damage(attacker : Creature, defender : Creature, spell, spellpower : int, _should_check_script : bool = true) -> int :
+func calculate_spell_damage(attacker : Creature, defender : Creature, spell : Spell, spellpower : int, _should_check_script : bool = true) -> int :
 	#print("Gameglobal calculate_spell_damage : atker", attacker.name, ", defer", defender.name,", spell:", spell.name)
 
-	var res : int = spell.resist==0
-	var ignoreres : bool = res==0 or res==1
+	var ignoreres : bool = spell.resist==Spell.RESIST_TYPE.IGNORE_MRES_DODGE or spell.resist==Spell.RESIST_TYPE.IGNORE_MRES
 
-	var spell_attributes : Array= spell.attributes
+	var spell_attributes : Array= spell.elements
 #	var hits : int = spell.get_hits(spellpower, attacker)  #for ninja stars  arrowstorm etc.. TBI  #TODO
 	var spell_damage : float = 0
 	if spell.has_method("get_damage_total") :
@@ -741,13 +771,13 @@ func calculate_spell_damage(attacker : Creature, defender : Creature, spell, spe
 #	print("gamestate spell_damage : ",spell.name, ' ',spell_damage)
 #	var def_stats : Dictionary = defender.stats
 	for a in spell_attributes :
-		if not dmg_type_def_stats_dict.has(a) :
+		if not dmg_spell_elem_def_stats_dict.has(a) :
 			continue
-		var res_name : String = dmg_type_def_stats_dict[a][0]
+		var res_name : String = dmg_spell_elem_def_stats_dict[a][0]
 		var res_stat : float = defender.get_stat(res_name)
 		if ignoreres :
 			res_stat = signi(res_stat)
-		var mul_name : String = dmg_type_def_stats_dict[a][1]
+		var mul_name : String = dmg_spell_elem_def_stats_dict[a][1]
 		var mul_stat : float = defender.get_stat(mul_name)
 		spell_damage = max(0,spell_damage - res_stat)*mul_stat
 
@@ -813,8 +843,8 @@ func calculate_spell_accuracy(caster : Creature, defender : Creature, spell, spe
 func do_spell_field_effect(caster : Creature, target : Creature, spell, plvl : int) :
 	var spell_dmg : int =  calculate_spell_damage(caster,target, spell, plvl, false)
 	target.change_cur_hp(-spell_dmg)
-	if spell.has_method("add_traits_to_target") :
-		spell.add_traits_to_target(caster, target, plvl)
+	if spell.has_method("add_traits_to_creature") :
+		spell.add_traits_to_creature(caster, target, plvl)
 	if spell.get("special_effect") :
 		await spell.special_effect(caster, spell, plvl, Vector2.ZERO, [], [target], false)
 

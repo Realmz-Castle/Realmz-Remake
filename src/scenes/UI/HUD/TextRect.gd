@@ -181,19 +181,24 @@ func display_multiple_choices(choices : Array, scripts : Array = []) :
 #	print(picked_choice_script)
 	
 
-var attrColorDict : Dictionary = {"Fire" : Color.ORANGE, "Ice" : Color.CYAN, "Electric" : Color.MEDIUM_SLATE_BLUE,
+#TODO  remove this once not needed
+const attrColorDict : Dictionary = {"Fire" : Color.ORANGE, "Ice" : Color.CYAN, "Electric" : Color.MEDIUM_SLATE_BLUE,
 	"Poison" : Color.FOREST_GREEN, "Chemical" : Color.GREEN_YELLOW, "Disease" : Color.YELLOW, "Healing" : Color.WHITE, "Mental" : Color.DEEP_PINK, 
 	"Physical" : Color.LIGHT_CYAN, "Magical" : Color.CORNFLOWER_BLUE}
 
 
-func set_spell_info(spelldict : Dictionary, crea : Creature) :
+
+
+func set_spell_info(spelldict : Dictionary, crea : Creature, plvl : int) :
 	itemtex.hide()
 	var spellscript = spelldict["script"]
 	var spell_info_txt : String = spelldict["name"]+", level "+ str(spellscript.schools) +" ability.\nAttributes : "
 	
-	for attr in spellscript.attributes :
-		var colorcode : String = '#'+get_attribute_color(attr).to_html()
-		spell_info_txt += "[color="+colorcode+"]"+attr+"[/color] "
+	for attr in spellscript.elements :
+		var colorcode : String = '#'+spellscript.get_element_color(attr).to_html()
+		
+		print("TextRect set_spell_info : elem attr ", attr, " for GameGlobal.get_element_name")
+		spell_info_txt += "[color="+colorcode+"]"+GameGlobal.get_element_name(attr)+"[/color] "
 		
 	if spellscript.in_field and  spellscript.in_combat :
 		spell_info_txt += "\nCan be used both in and out of combat."
@@ -219,20 +224,19 @@ func set_spell_info(spelldict : Dictionary, crea : Creature) :
 	spell_info_txt += spellscript.description +"\n"
 	spell_info_txt += "Usage cost with changes from traits : " + str(crea.get_spell_resource_cost(spelldict["script"],1)) +" "+crea.used_resource+" at Power Level 1"
 	set_text(spell_info_txt, false, "")
-	
-	var aoe_name : String = spellscript.get_aoe(3, crea)
-	var aoenametotex_dict : Dictionary = UI.ow_hud.spellcastMenu.aoenametotex_dict
-	if aoenametotex_dict.has(aoe_name):
-		aoetex.texture = aoenametotex_dict[aoe_name]
-	else :
-		aoetex.texture = UI.ow_hud.spellcastMenu.aoe_sp_tex
+
+	aoetex.texture = UI.ow_hud.spellcastMenu.get_aoe_image(spellscript, crea , plvl)
 	aoetex.show()
 
 
+#TODO delete this once not needed
 func get_attribute_color(attr : String)->Color :
+	push_error("TextRect get_attribute_color should be DEPRECATED soon ! change use to get_attribute_color_Global")
 	if attrColorDict.has(attr) :
 		return attrColorDict[attr]
 	return Color.GRAY
+#OTHER GLOBAL ONE FOR SPELLS MOVED TO Spells CLASS
+
 #func _on_ChoicesVBoxContainer_choice_pressed(script):
 #	picked_choice_script = script
 #	print("pciked script : ", script)

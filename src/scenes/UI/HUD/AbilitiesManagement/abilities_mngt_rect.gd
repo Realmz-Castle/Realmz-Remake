@@ -195,7 +195,7 @@ func _clear_vbox(vbox : VBoxContainer) -> void :
 func on_abltbutton_pressed(btn : AbilityButton) -> void :
 	_show_info(btn.spell_dict)
 	if UI and UI.ow_hud and UI.ow_hud.textRect :
-		UI.ow_hud.textRect.set_spell_info(btn.spell_dict, character)
+		UI.ow_hud.textRect.set_spell_info(btn.spell_dict, character, 1)
 
 
 # Single-click toggle: learn or forget. Spells of the same level always cost

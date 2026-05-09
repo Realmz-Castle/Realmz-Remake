@@ -1,30 +1,93 @@
-[gd_scene load_steps=15 format=3 uid="uid://5lpomncnwc17"]
+[gd_scene format=3 uid="uid://5lpomncnwc17"]
 
-[ext_resource type="Texture2D" uid="uid://bvyrbf7dsq0da" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://dtrnmg07tnysq" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOff.png" id="3"]
-[ext_resource type="Script" path="res://scenes/UI/HUD/Characters Panel/CharacterSmallPanel.gd" id="6"]
-[ext_resource type="FontFile" uid="uid://b8k78p6u256of" path="res://Fonts/BlackChancery.ttf" id="7_7ai5k"]
+[ext_resource type="Texture2D" uid="uid://3sw04yvkq0xh" path="res://scenes/UI/Main Menu/DefaultPortrait.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://d4bw02w60ropk" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://b6hcyu3vp38ln" path="res://scenes/UI/HUD/Characters Panel/CharPanelSelectOff.png" id="3"]
+[ext_resource type="Script" uid="uid://b4w5nbpxay5u1" path="res://scenes/UI/HUD/Characters Panel/CharacterSmallPanel.gd" id="6"]
+[ext_resource type="FontFile" uid="uid://6m32jmxu4i06" path="res://Fonts/BlackChancery.ttf" id="7_7ai5k"]
 [ext_resource type="StyleBox" uid="uid://bn77hwn55wtsk" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="8_ottph"]
-[ext_resource type="Texture2D" uid="uid://cf3b8mt7kfp30" path="res://scenes/UI/HUD/Characters Panel/BanDead.png" id="9_i0x8r"]
+[ext_resource type="Texture2D" uid="uid://bhagtlb4u6hmr" path="res://scenes/UI/HUD/Characters Panel/BanDead.png" id="9_i0x8r"]
 [ext_resource type="StyleBox" uid="uid://8eudfxoe8j40" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="9_tfwx5"]
-[ext_resource type="Texture2D" uid="uid://c37hdfpamfch5" path="res://shared_assets/UI/buttonPRESSED.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://bewdeslweswmh" path="res://shared_assets/UI/buttonPRESSED.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://dxslsuj431nnj" path="res://shared_assets/BattleEffects/BattleEffectsAnim.png" id="10_e74yx"]
 [ext_resource type="StyleBox" uid="uid://wrrfixqq8c4o" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="10_sywfy"]
 [ext_resource type="StyleBox" uid="uid://c5gq8lv8robgu" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="11_g8sol"]
 [ext_resource type="PackedScene" uid="uid://b64nks77qjjwx" path="res://scenes/UI/HUD/Characters Panel/DropItemButton.tscn" id="12"]
-[ext_resource type="FontFile" path="res://Fonts/theldrowremake.ttf" id="13_theld"]
+[ext_resource type="FontFile" uid="uid://b07jvofccurxu" path="res://Fonts/theldrowremake.ttf" id="13_theld"]
+
+[sub_resource type="Animation" id="Animation_ti00a"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("EffectSprite:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("..:effect_sprite_frame_counter")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_e74yx"]
+resource_name = "effect"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("..:effect_sprite_frame_counter")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("EffectSprite:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_wrcnm"]
+_data = {
+&"RESET": SubResource("Animation_ti00a"),
+&"effect": SubResource("Animation_e74yx")
+}
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e33li"]
 
-[node name="CharacterSmallPanel" type="Panel"]
+[node name="CharacterSmallPanel" type="Panel" unique_id=1046115956 node_paths=PackedStringArray("effect_sprite_animationplayer")]
 texture_filter = 1
 custom_minimum_size = Vector2(200, 60)
 offset_right = 320.0
 offset_bottom = 60.0
 script = ExtResource("6")
 dropItemEntryTSCN = ExtResource("12")
+effect_sprite_animationplayer = NodePath("PortraitButton/EffectAnimationPlayer")
 
-[node name="NinePatchRect" type="NinePatchRect" parent="."]
+[node name="NinePatchRect" type="NinePatchRect" parent="." unique_id=722122216]
 layout_mode = 0
 offset_right = 320.0
 offset_bottom = 60.0
@@ -37,53 +100,54 @@ patch_margin_bottom = 11
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="PortraitButton" type="Button" parent="."]
+[node name="PortraitButton" type="Button" parent="." unique_id=1480490255]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 4.0
 offset_right = 64.0
 offset_bottom = 56.0
 mouse_filter = 1
-theme_override_styles/disabled = ExtResource("11_g8sol")
-theme_override_styles/hover = ExtResource("9_tfwx5")
-theme_override_styles/pressed = ExtResource("10_sywfy")
 theme_override_styles/normal = ExtResource("8_ottph")
+theme_override_styles/pressed = ExtResource("10_sywfy")
+theme_override_styles/hover = ExtResource("9_tfwx5")
+theme_override_styles/disabled = ExtResource("11_g8sol")
 icon = ExtResource("1")
 
-[node name="NumberLabel" type="Label" parent="PortraitButton"]
+[node name="NumberLabel" type="Label" parent="PortraitButton" unique_id=1069735684]
 layout_mode = 0
 offset_right = 44.0
 offset_bottom = 44.0
 
-[node name="BanDeadSprite" type="Sprite2D" parent="PortraitButton"]
+[node name="BanDeadSprite" type="Sprite2D" parent="PortraitButton" unique_id=1343222196]
 position = Vector2(1, 1)
 texture = ExtResource("9_i0x8r")
 centered = false
 hframes = 4
 
-[node name="EffectSprite" type="Sprite2D" parent="PortraitButton"]
+[node name="EffectSprite" type="Sprite2D" parent="PortraitButton" unique_id=1841369149]
 visible = false
 position = Vector2(10, 11)
+texture = ExtResource("10_e74yx")
 centered = false
 hframes = 8
 vframes = 16
 
-[node name="Timer" type="Timer" parent="PortraitButton/EffectSprite"]
-wait_time = 0.05
+[node name="EffectAnimationPlayer" type="AnimationPlayer" parent="PortraitButton" unique_id=920353]
+libraries/ = SubResource("AnimationLibrary_wrcnm")
 
-[node name="CharnameLabel" type="Label" parent="."]
+[node name="CharnameLabel" type="Label" parent="." unique_id=2046757859]
 layout_mode = 0
 offset_left = 67.0
 offset_top = 11.4013
 offset_right = 197.0
 offset_bottom = 37.4013
-clip_text = true
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_fonts/font = ExtResource("7_7ai5k")
 theme_override_font_sizes/font_size = 20
 text = "Name"
+clip_text = true
 
-[node name="HPLabel" type="Label" parent="."]
+[node name="HPLabel" type="Label" parent="." unique_id=2110703582]
 layout_mode = 0
 offset_left = 67.0
 offset_top = 37.0
@@ -94,7 +158,7 @@ theme_override_fonts/font = ExtResource("13_theld")
 theme_override_font_sizes/font_size = 12
 text = "HP"
 
-[node name="HPValueLabel" type="Label" parent="."]
+[node name="HPValueLabel" type="Label" parent="." unique_id=811761846]
 layout_mode = 0
 offset_left = 87.0
 offset_top = 37.0
@@ -105,7 +169,7 @@ theme_override_fonts/font = ExtResource("13_theld")
 theme_override_font_sizes/font_size = 12
 text = "9999/9999"
 
-[node name="SPLabel" type="Label" parent="."]
+[node name="SPLabel" type="Label" parent="." unique_id=2024526904]
 layout_mode = 0
 offset_left = 135.0
 offset_top = 37.0
@@ -116,7 +180,7 @@ theme_override_fonts/font = ExtResource("13_theld")
 theme_override_font_sizes/font_size = 12
 text = "SP"
 
-[node name="SPValueLabel" type="Label" parent="."]
+[node name="SPValueLabel" type="Label" parent="." unique_id=380890456]
 layout_mode = 0
 offset_left = 154.0
 offset_top = 37.0
@@ -127,7 +191,7 @@ theme_override_fonts/font = ExtResource("13_theld")
 theme_override_font_sizes/font_size = 12
 text = "9999/9999"
 
-[node name="SelectButton" type="Button" parent="."]
+[node name="SelectButton" type="Button" parent="." unique_id=912682629]
 layout_mode = 0
 offset_left = -6.0
 offset_top = 5.0
@@ -137,7 +201,7 @@ focus_mode = 0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e33li")
 icon = ExtResource("3")
 
-[node name="lootRect" type="NinePatchRect" parent="."]
+[node name="lootRect" type="NinePatchRect" parent="." unique_id=351916617]
 visible = false
 layout_mode = 0
 offset_left = 61.0
@@ -152,7 +216,7 @@ patch_margin_bottom = 10
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="lootRect2" type="NinePatchRect" parent="lootRect"]
+[node name="lootRect2" type="NinePatchRect" parent="lootRect" unique_id=682953135]
 layout_mode = 0
 offset_left = 145.0
 offset_top = -20.0
@@ -166,7 +230,7 @@ patch_margin_bottom = 10
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="ItemsLabel" type="Label" parent="lootRect/lootRect2"]
+[node name="ItemsLabel" type="Label" parent="lootRect/lootRect2" unique_id=1767122970]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 2.0
@@ -175,7 +239,7 @@ offset_bottom = 22.0
 theme_override_font_sizes/font_size = 12
 text = "Items :"
 
-[node name="ItemsNLabel" type="Label" parent="lootRect/lootRect2"]
+[node name="ItemsNLabel" type="Label" parent="lootRect/lootRect2" unique_id=1699392670]
 layout_mode = 0
 offset_left = 55.0
 offset_top = -1.0
@@ -183,7 +247,7 @@ offset_right = 101.0
 offset_bottom = 25.0
 text = "10000"
 
-[node name="DropItemButton" type="Button" parent="lootRect"]
+[node name="DropItemButton" type="Button" parent="lootRect" unique_id=776744790]
 layout_mode = 0
 offset_left = 2.0
 offset_top = 4.0
@@ -191,15 +255,15 @@ offset_right = 47.0
 offset_bottom = 29.0
 theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
 theme_override_fonts/font = ExtResource("7_7ai5k")
-theme_override_styles/disabled = ExtResource("11_g8sol")
-theme_override_styles/hover = ExtResource("9_tfwx5")
-theme_override_styles/pressed = ExtResource("10_sywfy")
 theme_override_styles/normal = ExtResource("8_ottph")
+theme_override_styles/pressed = ExtResource("10_sywfy")
+theme_override_styles/hover = ExtResource("9_tfwx5")
+theme_override_styles/disabled = ExtResource("11_g8sol")
 text = "Drop"
 
-[node name="DropPopup" type="PopupPanel" parent="lootRect/DropItemButton"]
+[node name="DropPopup" type="PopupPanel" parent="lootRect/DropItemButton" unique_id=953151127]
 
-[node name="DropScroll" type="ScrollContainer" parent="lootRect/DropItemButton/DropPopup"]
+[node name="DropScroll" type="ScrollContainer" parent="lootRect/DropItemButton/DropPopup" unique_id=647249425]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -208,10 +272,10 @@ offset_top = 4.0
 offset_right = 96.0
 offset_bottom = 96.0
 
-[node name="DropVBox" type="VBoxContainer" parent="lootRect/DropItemButton/DropPopup/DropScroll"]
+[node name="DropVBox" type="VBoxContainer" parent="lootRect/DropItemButton/DropPopup/DropScroll" unique_id=616586322]
 layout_mode = 2
 
-[node name="DropRect" type="NinePatchRect" parent="lootRect/DropItemButton"]
+[node name="DropRect" type="NinePatchRect" parent="lootRect/DropItemButton" unique_id=168636179]
 visible = false
 layout_mode = 0
 offset_right = 80.0
@@ -224,7 +288,7 @@ patch_margin_bottom = 5
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="MoveLabel" type="Label" parent="lootRect"]
+[node name="MoveLabel" type="Label" parent="lootRect" unique_id=542783924]
 layout_mode = 0
 offset_left = 47.9744
 offset_top = 6.19025
@@ -233,7 +297,7 @@ offset_bottom = 23.1902
 theme_override_font_sizes/font_size = 12
 text = "Move:"
 
-[node name="MoveNLabel" type="Label" parent="lootRect"]
+[node name="MoveNLabel" type="Label" parent="lootRect" unique_id=1911935472]
 layout_mode = 0
 offset_left = 83.0
 offset_top = 3.0
@@ -241,7 +305,7 @@ offset_right = 123.0
 offset_bottom = 29.0
 text = "12"
 
-[node name="LoadLabel" type="Label" parent="lootRect"]
+[node name="LoadLabel" type="Label" parent="lootRect" unique_id=2009208648]
 layout_mode = 0
 offset_left = 117.484
 offset_top = 5.96402
@@ -250,7 +314,7 @@ offset_bottom = 31.964
 theme_override_font_sizes/font_size = 12
 text = "Load:"
 
-[node name="LoadCNLabel" type="Label" parent="lootRect"]
+[node name="LoadCNLabel" type="Label" parent="lootRect" unique_id=752544161]
 layout_mode = 0
 offset_left = 150.0
 offset_top = 3.0
@@ -258,7 +322,7 @@ offset_right = 196.0
 offset_bottom = 29.0
 text = "10000"
 
-[node name="LoadMNLabel" type="Label" parent="lootRect"]
+[node name="LoadMNLabel" type="Label" parent="lootRect" unique_id=1130327388]
 layout_mode = 0
 offset_left = 203.391
 offset_top = 3.00005
@@ -266,7 +330,7 @@ offset_right = 249.391
 offset_bottom = 29.0
 text = "20000"
 
-[node name="LoadSLabel" type="Label" parent="lootRect"]
+[node name="LoadSLabel" type="Label" parent="lootRect" unique_id=517153702]
 layout_mode = 0
 offset_left = 193.645
 offset_top = 4.00002
@@ -274,7 +338,7 @@ offset_right = 201.645
 offset_bottom = 30.0
 text = "/"
 
-[node name="combatControl" type="Control" parent="."]
+[node name="combatControl" type="Control" parent="." unique_id=1149468882]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -285,7 +349,7 @@ offset_right = 110.0
 offset_bottom = 25.0
 grow_horizontal = 0
 
-[node name="MvLabel" type="Label" parent="combatControl"]
+[node name="MvLabel" type="Label" parent="combatControl" unique_id=108660908]
 layout_mode = 0
 offset_left = 18.0
 offset_top = 3.0
@@ -294,7 +358,7 @@ offset_bottom = 29.0
 theme_override_font_sizes/font_size = 12
 text = "Mv :"
 
-[node name="APRLabel" type="Label" parent="combatControl"]
+[node name="APRLabel" type="Label" parent="combatControl" unique_id=1088791950]
 layout_mode = 0
 offset_left = 69.0
 offset_top = 4.0
@@ -303,7 +367,7 @@ offset_bottom = 30.0
 theme_override_font_sizes/font_size = 12
 text = "APR :"
 
-[node name="MvnLabel" type="Label" parent="combatControl"]
+[node name="MvnLabel" type="Label" parent="combatControl" unique_id=995374046]
 layout_mode = 0
 offset_left = 43.0
 offset_top = 4.0
@@ -312,7 +376,7 @@ offset_bottom = 24.0
 theme_override_font_sizes/font_size = 12
 text = "99"
 
-[node name="APRnLabel" type="Label" parent="combatControl"]
+[node name="APRnLabel" type="Label" parent="combatControl" unique_id=83957256]
 layout_mode = 0
 offset_left = 104.0
 offset_top = 4.0
@@ -322,6 +386,5 @@ theme_override_font_sizes/font_size = 12
 text = "99"
 
 [connection signal="pressed" from="PortraitButton" to="." method="_on_portrait_button_pressed"]
-[connection signal="timeout" from="PortraitButton/EffectSprite/Timer" to="." method="_on_EffectSprite_Timer_timeout"]
 [connection signal="pressed" from="SelectButton" to="." method="_on_SelectButton_pressed"]
 [connection signal="pressed" from="lootRect/DropItemButton" to="." method="_on_DropItemButton_pressed"]

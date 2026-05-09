@@ -53,6 +53,6 @@ static func get_target_number(_power : int, _casterchar) :
 static func get_aoe(_power : int, _casterchar) :
 	return 'sf' #self
 
-static func add_traits_to_target(_castercrea, c,_power) :
+static func add_traits_to_creature(_castercrea, c,_power) :
 	var traitscript = load('res://shared_assets/traits/'+'t_reflect_melee.gd')
 	c.add_trait(traitscript,[_power])

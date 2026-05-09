@@ -507,7 +507,7 @@ func set_spell_targeting_mode(onoff : bool, msg : Dictionary) :
 		is_spell_targeting = false
 		is_picking_menu_chara = false
 		emit_signal("cbdecide_picked_characters_done", [])
-		targlayer.aoe_type = 0
+		targlayer.spell = null
 		targlayer.hide()
 		return
 	else :
@@ -532,7 +532,7 @@ func on_spellcast_confirmed(msg : Dictionary) :
 		var spells_book : Dictionary = GameGlobal.cmp_resources.spells_book
 		for c in chain :
 			var s_name : String = c[0]
-			c[0] = spells_book[s_name]["script"]
+			c[0] = spells_book[s_name]
 	else :
 		chain = [ [ spell, power ] ]
 	# chains are [  [spell1, power1] , [spell2, power2] , ... ]

@@ -311,7 +311,11 @@ func request_pc_pick(n : int) :
 		pass
 	else :
 		for cp : CharaSmallPanel in charsVContainer.get_children() :
-			cp.chara_small_panel_selected.connect(StateMachine.ex_menu_state._on_chara_panel_selected_for_picking.bind(cp))
+			#var cp_connections_arr : Array[Dictionary] = cp.get_signal_connection_list(&"chara_small_panel_selected")
+			#printerr("request_pc_pick cp is coonnected??? : " ,  cp.is_connected(&"chara_small_panel_selected", StateMachine.ex_menu_state._on_chara_panel_selected_for_picking))
+			#for c_dict : Dictionary in cp_connections_arr :
+			if not cp.is_connected(&"chara_small_panel_selected", StateMachine.ex_menu_state._on_chara_panel_selected_for_picking) :
+				cp.chara_small_panel_selected.connect(StateMachine.ex_menu_state._on_chara_panel_selected_for_picking.bind(cp))
 		
 		StateMachine.enter_ex_menu_state({"PC_Pick" : n, "menu_name" : "PC_Pick" })
 		
@@ -531,8 +535,8 @@ func _on_SpellButton_pressed():
 #	await spellcastMenu.spell_picked
 
 func _on_spell_picked(character, spell, powerlevel, item : Dictionary) :
-	if typeof(spell) == TYPE_STRING :
-		printerr("OW HUD ERROR : spell from spells menu was a STRING not a  gdscript ! "+spell)
+	if spell==null :
+		printerr("OW HUD ERROR : spell from spells menu was a NULL  not a  gdscript ! "+spell)
 		return
 	StateMachine.state.on_spell_picked(character, spell, powerlevel, item)
 	#GameState.set_paused(false)
@@ -547,11 +551,12 @@ func _on_spell_menu_closed() :
 	#GameState.set_paused(false)
 
 
-func show_spell_effect_on_char_menu(chara, graphic_name : String) :
-	var effect_texture_frame : int = SpellAnimation.name_to_frame_dict[graphic_name]*8
+func show_spell_effect_on_char_menu(chara, gfx : Spell.GFX) :
+	var effect_texture_frame : int = SpellAnimation.gfx_to_frame_dict[gfx]*8
 	for p in charsVContainer.get_children() :
 		if p.character == chara :
-			p.show_spell_effect(effect_texture_frame)
+			await p.show_spell_effect(effect_texture_frame)
+			
 
 
 func _on_bestiary_button_pressed():

@@ -45,6 +45,7 @@ func _input(event : InputEvent) -> void :
 func transition_to(target_state_path : String, msg : Dictionary = {} ) -> void :
 #	print("STATEMACHINE transtioon from ",state.name," to "+target_state_path)
 	if not has_node(target_state_path) :
+		push_error("GameStateMachine does not have this state path : "+target_state_path)
 		return
 	var target_state :=get_node(target_state_path)
 	state.exit()
@@ -70,7 +71,8 @@ func is_combat_state() :
 	return ["CbDecideAction","CbAnimation", "CbMenus"].has(_state_name)
 
 func is_exploration_state() :
-	return ["ExWalking","ExMenus"].has(_state_name)
+	#printerr("GameStateMachine.is_combat_state() needs to be updated. ExWalking is not a valid state name anymore.")
+	return ["Exploration","ExAnim","ExMenus"].has(_state_name)
 
 
 
@@ -404,7 +406,7 @@ func check_map_script(position) ->bool :
 
 
 func enter_ex_menu_state(msg_dict : Dictionary) :
-	if _state_name!="ExMenus" :
+	#if _state_name!="ExMenus" :
 		msg_dict["prev_state"] = _state_name
 		transition_to("Exploration/ExMenus", msg_dict)
 

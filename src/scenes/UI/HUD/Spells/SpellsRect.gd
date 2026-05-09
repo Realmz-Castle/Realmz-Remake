@@ -51,10 +51,6 @@ const aoe_ae_tex : Texture = preload("res://scenes/UI/HUD/Spells/TargetImages/Al
 const aoe_eo_tex : Texture = preload("res://scenes/UI/HUD/Spells/TargetImages/Everyone.png")
 const aoe_sp_tex : Texture = preload("res://scenes/UI/HUD/Spells/TargetImages/Special.png")
 
-const aoenametotex_dict : Dictionary = {'b1':aoe_b1_tex,'b2':aoe_b2_tex,'b3':aoe_b3_tex,'b4':aoe_b4_tex,'b5':aoe_b5_tex,'b6':aoe_b6_tex,'b7':aoe_b7_tex,
-	'wh':aoe_wh_tex, 'ry':aoe_ry_tex, 'sf':aoe_sf_tex, 'pb':aoe_pb_tex, 'cw':aoe_cw_tex, '2v':aoe_2v_tex,
-	'pt':aoe_pt_tex,'af':aoe_af_tex, 'ae':aoe_ae_tex,'eo':aoe_eo_tex, 'sp':aoe_sp_tex }
-
 @onready var dmgminLabel : Label = $"VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect/DamageMinLabel"
 @onready var dmgmaxLabel : Label = $"VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect/DamageMaxLabel"
 @onready var durminLabel : Label = $"VBoxContainer/MiddleContainer/SpellInfoRect/StatsRect/DurationMinLabel"
@@ -75,7 +71,7 @@ const aoenametotex_dict : Dictionary = {'b1':aoe_b1_tex,'b2':aoe_b2_tex,'b3':aoe
 
 var picked_character = null
 var picked_level = 1
-var picked_spell = null
+var picked_spell : Spell = null
 var picked_power : int = 1
 
 @onready var plevelbutton1 = $"VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton1"
@@ -158,7 +154,8 @@ func _on_CastButton_pressed():
 func _on_AbortButton_pressed():
 	print("SpellsRect AbortButton_pressed")
 	hide()
-	picked_spell = "abort"
+	picked_spell = null
+	#push_error("Spells Menu : ABORT BUTTON PRESSED : behavior has changed, spell is null, not string 'abort'  anymore !")
 	if StateMachine.is_combat_state() :
 		StateMachine.exit_cb_menu_state()
 		textRect.hide()
@@ -266,7 +263,7 @@ func _on_spell_selected(spelldict : Dictionary, button) :
 	# ow_hud.selecting_several_characters : bool
 	print("selected "+spelldict["name"])
 	picked_spell = spelldict["script"]
-	print(spelldict.keys())
+	#print(spelldict.keys())
 	for b in spelllistContainer.get_children() :
 		if b == button :
 			b.set_button_icon(spellButtonIconGreen)
@@ -286,6 +283,28 @@ func _on_spell_selected(spelldict : Dictionary, button) :
 	else :
 		for b in plevelbuttons :
 			b.set_disabled(false)
+
+
+const aoetotex_dict : Dictionary = {
+		Spell.AoE_b1:aoe_b1_tex,Spell.AoE_b2:aoe_b2_tex,Spell.AoE_b3:aoe_b3_tex,Spell.AoE_b4:aoe_b4_tex,
+		Spell.AoE_b5:aoe_b5_tex,Spell.AoE_b6:aoe_b6_tex,Spell.AoE_b7:aoe_b7_tex,
+		Spell.AoE_WALL_H:aoe_wh_tex, Spell.AoE_WALL_V:aoe_wh_tex, Spell.AoE_WALL_L:aoe_wh_tex, Spell.AoE_WALL_J:aoe_wh_tex, 
+		Spell.AoE_RADIANT : aoe_pb_tex, Spell.AoE_CROWN : aoe_cw_tex, Spell.AoE_2v : aoe_2v_tex
+	}
+func get_aoe_image(spell : Spell, crea : Creature, plvl : int) -> Texture:
+	var aoe : Array[Vector2i] = spell.get_aoe(plvl, crea)
+	if aoetotex_dict.has(aoe) :
+		return aoetotex_dict[aoe]
+	else :
+		if aoe == spell.AoE_ROUND : return aoe_b5_tex
+		if spell.ray : return aoe_ry_tex
+		elif spell.autotarget_type == Spell.AUTOTARGET_TYPE.SELF : return aoe_sf_tex
+		elif spell.AUTOTARGET_TYPE.ALL_ALLIES : return aoe_af_tex
+		elif spell.AUTOTARGET_TYPE.ALL_ENEMIES : return aoe_ae_tex
+		elif spell.AUTOTARGET_TYPE.EVERYONE : return aoe_eo_tex
+		elif spell.AUTOTARGET_TYPE.PARTY : return aoe_pt_tex
+	return aoe_sp_tex
+
 
 func display_spell_info() :
 	if picked_spell == null :
@@ -318,11 +337,7 @@ func display_spell_info() :
 	rngLabel.text = str(  picked_spell.get_range(picked_power, picked_character)   )
 	trgLabel.text = str(  picked_spell.get_target_number(picked_power, picked_character) )
 	
-	var aoe = picked_spell.get_aoe(picked_power,picked_character)
-	if aoe is String and aoenametotex_dict.has(aoe):
-		aoeTextureRect.texture = aoenametotex_dict[aoe]
-	else :
-		aoeTextureRect.texture = aoe_sp_tex
+	aoeTextureRect.texture = get_aoe_image(picked_spell,picked_character,picked_power)
 	
 	if picked_spell.los :
 		losLabel.text = "Yes"
@@ -333,7 +348,10 @@ func display_spell_info() :
 	else :
 		rotLabel.text = "No"
 	powerLabel.text = str(picked_power)
-	attributesLabel.text =  str(  picked_spell.attributes  )+"\n"+picked_spell.description
+	var attributes_string : String = ''
+	for e : GameGlobal.ELEMENTS in picked_spell.elements :
+		attributes_string = attributes_string + GameGlobal.elements_names[e]+' '
+	attributesLabel.text =  attributes_string+"\n"+picked_spell.description
 	spcostLabel.text = str(picked_character.get_spell_resource_cost(picked_spell, picked_power))#String(  picked_spell.get_sp_cost(picked_power, picked_character)   )
 	charaspLabel.text = str(  picked_character.get_stat("curSP")  )
 	textRect.textLabel.parse_bbcode(picked_spell.description)

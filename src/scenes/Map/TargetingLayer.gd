@@ -2,6 +2,8 @@ extends Node2D
 class_name TargetingLayer
 
 
+const tilepixelsize : Vector2 = Vector2(32,32)
+
 var targetTexture = preload("res://scenes/Map/MapTarget.png")
 
 var map
@@ -14,45 +16,32 @@ var power : int = 0
 var caster : CombatCreaButton
 var used_item : Dictionary = {}
 
-var max_targets : int = 0
-
+var spell_max_targets : int = 0
+var spell_targettile : Spell.TARGET_TILE = Spell.TARGET_TILE.ANY
 var picked_targets : Dictionary = {}  #dict of  CombatCreaBUttons : number
 var picked_tiles : Dictionary = {}  # dict of  vector2i : number
-var spell_aoe_name : String = 'b1'
-var b1 : Array = [Vector2i(0,0)]
-var b2 : Array = b1 + [Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0)]
-var b3 : Array = b2 + [Vector2i(1,-1),Vector2i(1,1),Vector2i(-1,1),Vector2i(-1,-1)]
-var b4 : Array = b3 + [Vector2i(0,-2),Vector2i(2,0),Vector2i(0,2),Vector2i(-2,0)]
-var b5 : Array = b4 + [Vector2i(1,-2),Vector2i(2,-1),Vector2i(2,1),Vector2i(1,2), Vector2i(-1,2),Vector2i(-2,1),Vector2i(-2,-1),Vector2i(-1,-2)]
-var b6 : Array = b5 + [Vector2i(0,-3),Vector2i(3,0),Vector2i(0,3),Vector2i(-3,0)]
-var b7 : Array = b6 + [Vector2i(1,-3),Vector2i(2,-2),Vector2i(3,-1), Vector2i(3,1),Vector2i(2,2),Vector2i(1,3), Vector2i(-1,3),Vector2(-2,2),Vector2(-3,1), Vector2(-3,-1),Vector2(-2,-2),Vector2(-1,-3)]
-var wh : Array = [Vector2i(0,0),Vector2i(-1,0),Vector2i(1,0),Vector2i(-2,0),Vector2i(2,0),Vector2i(-3,0),Vector2i(3,0),
-				Vector2i(0,-1),Vector2i(-1,-1),Vector2i(1,-1),Vector2i(-2,-1),Vector2i(2,-1),Vector2i(-3,-1),Vector2i(3,-1)]
-var wv : Array = [Vector2i(0,0),Vector2i(0,-1),Vector2i(0,1),Vector2i(0,-2),Vector2i(0,2),Vector2i(0,-3),Vector2i(0,3),
-				Vector2i(1,0),Vector2i(1,-1),Vector2i(1,1),Vector2i(1,-2),Vector2i(1,2),Vector2i(1,-3),Vector2i(1,3) ]
-var wj : Array = [Vector2i(0,0),Vector2i(-1,-1),Vector2i(1,1),Vector2i(-2,-2),Vector2i(2,2),Vector2i(-3,-3),Vector2i(3,3),
-					Vector2i(0,1),Vector2i(-1,-0),Vector2i(1,2),Vector2i(-2,-1),Vector2i(2,3),Vector2i(-3,-2)]
-var wl : Array = [Vector2i(0,0),Vector2i(1,-1),Vector2i(-1,1),Vector2i(2,-2),Vector2i(-2,2),Vector2i(3,-3),Vector2i(-3,3),
-					Vector2i(0,1),Vector2i(1,-0),Vector2i(-1,2),Vector2i(2,-1),Vector2i(-2,3),Vector2i(3,-2)]
-var cr : Array = [Vector2i(1,-1),Vector2i(1,1),Vector2i(-1,1),Vector2i(-1,-1) , Vector2i(0,-2),Vector2i(2,0),Vector2i(0,2),Vector2i(-2,0)]#b3+b4
-var rd : Array = [Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0) , Vector2i(1,-1),Vector2i(1,1),Vector2i(-1,1),Vector2i(-1,-1)]
-var bdict : Dictionary = {"b1":b1, "b2":b2,"b3":b3,"b4":b4,"b5":b5,"b6":b6,"b7":b7,"wh":wh,"wv":wv,"wj":wj,"wl":wl , 'cr':cr,  'rd' : rd}
+var spell_aoe : Array[Vector2i] 
 
-var attrColorDict : Dictionary = {"Fire" : Color.ORANGE, "Ice" : Color.CYAN, "Electric" : Color.MEDIUM_SLATE_BLUE,
-	"Poison" : Color.FOREST_GREEN, "Chemical" : Color.GREEN_YELLOW, "Disease" : Color.YELLOW, "Healing" : Color.WHITE, "Mental" : Color.DEEP_PINK, 
-	"Physical" : Color.LIGHT_CYAN, "Magical" : Color.CORNFLOWER_BLUE}
+#var attrColorDict : Dictionary = {"Fire" : Color.ORANGE, "Ice" : Color.CYAN, "Electric" : Color.MEDIUM_SLATE_BLUE,
+	#"Poison" : Color.FOREST_GREEN, "Chemical" : Color.GREEN_YELLOW, "Disease" : Color.YELLOW, "Healing" : Color.WHITE, "Mental" : Color.DEEP_PINK, 
+	#"Physical" : Color.LIGHT_CYAN, "Magical" : Color.CORNFLOWER_BLUE}
 
 var aoe_color : Color = Color.LIGHT_GRAY
-var aoe_type : int = 0  #0=no targeting 1=ballb1etc 2=ray 3=wall
-var aoe_shape : Array = [] # for bi shapes
-var aoe_los : bool = false
-var aoe_ray : bool = false # if true, add spell's ray to the aoe
-var allow_rotation : bool = false
+#var aoe_type : int = 0  #0=no targeting 1=ballb1etc 2=ray 3=wall
+var spell_autotarget_type : Spell.AUTOTARGET_TYPE = Spell.AUTOTARGET_TYPE.NONE
+var spell_skip_targeting : bool = false
+var spell_aoe_los : bool = false
+var spell_aoe_ray : bool = false # if true, add spell's ray to the aoe
+var spell_allow_rotation : bool = false
 
-var max_range : int = 0
+var spell_max_range : int = 0
+
+var built_aoe : Array[Vector2i] = [] #the array of all tile positions that are part of the AoE
 
 const OBSTRUCTEDTEXT : String = "Obstructed !"
 
+var mousepos_local : Vector2i = Vector2i.ZERO
+var mousepos_world : Vector2i = Vector2i.ZERO
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -80,7 +69,7 @@ func is_tile_empty(pos : Vector2i) ->bool :	#checks walls
 			return false
 	return true
 
-func is_aoe_empty(pos : Vector2i, aoe : Array) :	#checks walls
+func is_aoe_empty(pos : Vector2i, aoe : Array[Vector2i]) :	#checks walls
 #	print("Targeting is_aoe_empty : ", pos,' ',aoe)
 	for a in aoe :
 		if not is_tile_empty(pos+a) :
@@ -89,91 +78,94 @@ func is_aoe_empty(pos : Vector2i, aoe : Array) :	#checks walls
 
 #called every frame by targeting cb state
 func update_targeting()->void:
-	
+	#print("TargetingLayer.update_targeting, spell_max_targets", spell_max_targets)
+	built_aoe.clear()
 	#print("TargetingLayer _process, gamestate is ", StateMachine._state_name)
 	
 #	if GameState._combat_state == GameGlobal.eCombatStates.unchecked :
 #		set_process(false)
 #		return
-	if aoe_type==0 : #skip targeting 
-		print("TargetIng Layer aoe_type 0 , skip targeting")
-		if spell_aoe_name == "sf" : #self
+	if spell_skip_targeting : #skip targeting 
+		print("spell.spell_skip_targeting is true , skip targeting")
+		if spell.autotarget_type == Spell.AUTOTARGET_TYPE.SELF : #self
 			#GameGlobal.execute_spell(caster,spell,power,caster.creature.position, b1, {caster : 0}, {}, true, true)
 			#var msg : Dictionary = {"type" : "Spell", "caster" : caster, "Effected Tiles" : [], "Effected Creas" : [caster], "targeted_tiles" : [], "spell": spell, "s_plvl" : power, "used_item" : used_item , "add_terrain" : true}
-			execute_spell(caster,spell,power,[caster.creature.position], used_item, true, [])
+			built_aoe = get_tiles_affected_by_aoe_targeted_at_pos(spell_aoe, caster.creature.position)
+			execute_spell(caster,spell,power,built_aoe, used_item, true, [])
 			return
-		if spell_aoe_name=="af" or spell_aoe_name=="ae" or spell_aoe_name=="eo":
-			aoe_shape=get_aoe_from_name('b1')
-			var  targ_factions = []
-			if spell_aoe_name=="af" or spell_aoe_name=="eo":
-				targ_factions.append(0)
-			if spell_aoe_name=="ae" or spell_aoe_name=="eo":
-				targ_factions.append(1)
-			var notarg_picked_tiles : Array = []
-			for cb in StateMachine.combat_state.all_battle_creatures_btns :
-				if targ_factions.has(cb.creature.curFaction) :
-					notarg_picked_tiles.append(cb.creature.position)
+		if spell_autotarget_type==Spell.AUTOTARGET_TYPE.ALL_ALLIES or spell_autotarget_type==Spell.AUTOTARGET_TYPE.ALL_ENEMIES or spell_autotarget_type==Spell.AUTOTARGET_TYPE.EVERYONE:
+			var caster_faction : int = caster.creature.curFaction
+			var targ_faction_picked_tileposes : Array[Vector2i] = []
+			match spell_autotarget_type :
+				Spell.AUTOTARGET_TYPE.EVERYONE :
+					for cb in StateMachine.combat_state.all_battle_creatures_btns :
+						targ_faction_picked_tileposes.append(cb.creature.position)
+				Spell.AUTOTARGET_TYPE.ALL_ALLIES :
+					for cb in StateMachine.combat_state.all_battle_creatures_btns :
+						if cb.creature.curFaction == caster_faction : targ_faction_picked_tileposes.append(cb.creature.position)
+				Spell.AUTOTARGET_TYPE.ALL_ENEMIES :
+					for cb in StateMachine.combat_state.all_battle_creatures_btns :
+						if cb.creature.curFaction != caster_faction : targ_faction_picked_tileposes.append(cb.creature.position)
+
+			for t:Vector2i in targ_faction_picked_tileposes :
+				built_aoe = merge_aoes(get_tiles_affected_by_aoe_targeted_at_pos(spell_aoe, t), built_aoe)
 			print("TargetingLayer  calls execute_spell !")
-			#execute_spell(caster : CombatCreaButton,spell,power : int, trgt_tiles : Array, used_item : Dictionary, must_add_terrain : bool)
-			#execute_spell(caster,spell,power,notarg_picked_tiles, used_item, true, [])
-			execute_spell(caster,spell,power,notarg_picked_tiles, used_item, true, [Vector2i.ZERO]) 
-			##IMPORTANT keping notarg_picked_tiles and adding the [Vector2i.ZERO] increases the length of the queue, 1 queue element per target
-			###execute_spell(caster,spell,power,[notarg_picked_tiles[0], used_item, true, []) would keep queue length at 1 and do all in one AoE
-			
+			execute_spell(caster,spell,power,built_aoe, used_item, true, [Vector2i.ZERO]) 
 			return
-		
+	
+	mousepos_world = get_world_mousepos()
+	built_aoe = merge_aoes(get_tiles_affected_by_aoe_targeted_at_pos(spell_aoe, mousepos_world), built_aoe)
+	#print("targetinglayer mousepos : ", mousepos, ", caster pos:", caster.creature.position, ", built aoe:", built_aoe)
+	
 	if StateMachine.state == StateMachine.cb_decide_state :
 		if StateMachine.cb_decide_state.is_spell_targeting :
 			queue_redraw()
-	var targettile_type : int = 0
-	if spell.get("targettile")  : #0=anywhere 1=creature 2=empty 3=nowall 
-		targettile_type = spell.targettile
-	
+
 	if Input.is_action_just_pressed("escape") :
-		aoe_type = 0
+		built_aoe.clear()
 		StateMachine.cb_decide_state.set_spell_targeting_mode(false, {})
 		hide()
 		return
 	
-	if allow_rotation :
+	if spell_allow_rotation :
 		if Input.is_action_just_pressed("RotateAoE") :
-			if aoe_shape==wh :
-				aoe_shape=wl
-			elif aoe_shape==wl :
-				aoe_shape=wv
-			elif aoe_shape==wv :
-				aoe_shape=wj
-			elif aoe_shape==wj :
-				aoe_shape=wh
+			if spell_aoe==Spell.AoE_WALL_H :
+				spell_aoe=Spell.AoE_WALL_L
+			if spell_aoe==Spell.AoE_WALL_L :
+				spell_aoe=Spell.AoE_WALL_V
+			if spell_aoe==Spell.AoE_WALL_V :
+				spell_aoe=Spell.AoE_WALL_J
+			if spell_aoe==Spell.AoE_WALL_J :
+				spell_aoe=Spell.AoE_WALL_H
 	
 	if Input.is_action_just_pressed("LeftClick") :
-		var mousepos : Vector2i = get_world_mousepos()
-		var who = GameGlobal.who_is_at_tile(mousepos)
-		var range_mouse : int = GameGlobal.calculate_range_vi( mousepos - Vector2i(caster.creature.position) )
+		#var mousepos : Vector2i = get_world_mousepos()
+		var who = GameGlobal.who_is_at_tile(mousepos_world)
+		var range_mouse : int = GameGlobal.calculate_range_vi( mousepos_world - Vector2i(caster.creature.position) )
 #		var mousepos : Vector2i = Vector2i(map.get_local_mouse_position() )
 		# targettile_type #0=anywhere 1=creature 2=empty 3=nowall
-		print("Targeting mousepos ",mousepos )
-		if range_mouse>max_range or (aoe_los and is_obstructed) or ((targettile_type==2 or targettile_type==3) and is_aoe_empty(mousepos, aoe_shape)==false):
+		print("Targeting mousepos ",mousepos_world )
+		if range_mouse>spell_max_range or (spell_aoe_los and is_obstructed) or ((spell_targettile==Spell.TARGET_TILE.EMPTY or spell_targettile==Spell.TARGET_TILE.NOWALL) and is_aoe_empty(mousepos_world, spell_aoe)==false):
 			SfxPlayer.stream = NodeAccess.__Resources().sounds_book["target error.wav"]
 			SfxPlayer.play()
 			return
-		if targettile_type==2 and who!=null :
+		if spell_targettile==Spell.TARGET_TILE.EMPTY and who!=null :
 			SfxPlayer.stream = NodeAccess.__Resources().sounds_book["target error.wav"]
 			SfxPlayer.play()
 			return
 		#pick a target !
-		if max_targets > 0 :
+		if spell_max_targets > 0 :
 			
 			
 			
-			if who != null and targettile_type!=2 :
+			if who != null and spell_targettile!=Spell.TARGET_TILE.EMPTY :
 				print("TargetingLayer target ? ",who.creature.name)
 				if picked_targets.has(who) :
 					picked_targets.erase(who)
 					SfxPlayer.stream = NodeAccess.__Resources().sounds_book["Target Off.wav"]
 					SfxPlayer.play()
 				else :
-					if picked_targets.keys().size() < max_targets :
+					if picked_targets.keys().size() < spell_max_targets :
 						picked_targets[who] = picked_targets.keys().size()
 						SfxPlayer.stream = NodeAccess.__Resources().sounds_book["Target On.wav"]
 						SfxPlayer.play()
@@ -181,21 +173,21 @@ func update_targeting()->void:
 						SfxPlayer.stream = NodeAccess.__Resources().sounds_book["target error.wav"]
 						SfxPlayer.play()
 			else :
-				if targettile_type!=1 :  #can target unoccipied tiles
-					if picked_tiles.has(mousepos) :
-						picked_tiles.erase(mousepos)
+				if spell_targettile!=Spell.TARGET_TILE.CREATURE :  #can target unoccipied tiles
+					if picked_tiles.has(mousepos_world) :
+						picked_tiles.erase(mousepos_world)
 						SfxPlayer.stream = NodeAccess.__Resources().sounds_book["Target Off.wav"]
 						SfxPlayer.play()
 					else :
-						if picked_tiles.keys().size()+picked_targets.keys().size() + StateMachine.cb_decide_state.picked_charas.size() < max_targets :
-							picked_tiles[mousepos] = picked_tiles.keys().size()
+						if picked_tiles.keys().size()+picked_targets.keys().size() + StateMachine.cb_decide_state.picked_charas.size() < spell_max_targets :
+							picked_tiles[mousepos_world] = picked_tiles.keys().size()
 						else :
 							SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book["target error.wav"]
 							SfxPlayer.play()
-#		if max_targets==0  or false :
-#			pass
+
+
 	
-	if ( StateMachine.cb_decide_state.pleaseconfirmspell or (Input.is_action_just_pressed("LeftClick") and max_targets==0) or (Input.is_action_just_pressed("ValidateTargeting") ) and picked_targets.keys().size()+picked_tiles.keys().size()+ StateMachine.cb_decide_state.picked_charas.size() >0 ) :
+	if ( StateMachine.cb_decide_state.pleaseconfirmspell or (Input.is_action_just_pressed("LeftClick") and spell_max_targets==0) or (Input.is_action_just_pressed("ValidateTargeting") ) and picked_targets.keys().size()+picked_tiles.keys().size()+ StateMachine.cb_decide_state.picked_charas.size() >0 ) :
 		StateMachine.cb_decide_state.pleaseconfirmspell = false
 #		print("targetibng blah")
 #		if aoe_los and is_obstructed :
@@ -213,7 +205,9 @@ func update_targeting()->void:
 		for t in picked_tiles :
 			all_picked_tiles.append(t)
 		#all_picked_tiles.append(clickedtile)
-		var aoe_override : Array = aoe_shape if allow_rotation else []
+		#spell_aoe was modified by rotating here.
+		var aoe_override : Array = spell_aoe if spell_allow_rotation else []
+		#execute_spell(_caster : CombatCreaButton, s_spell, s_power : int, trgt_tiles : Array, spell_used_item : Dictionary, must_add_terrain : bool, override_aoe : Array)
 		execute_spell(caster,spell,power,all_picked_tiles, used_item, true, aoe_override)
 		return
 	return
@@ -260,11 +254,11 @@ func _draw() :
 		draw_texture(targetTexture, Vector2(((tpos-campos)*32)+Vector2i(6,6) ) )
 	
 	
-	var mousepos : Vector2i = Vector2i(map.get_local_mouse_position() ) #+ map.focuscharacter.get_pixel_position()
+	mousepos_local= Vector2i(map.get_local_mouse_position() ) #+ map.focuscharacter.get_pixel_position()
 #	var screensize : Vector2 = get_window().get_size()
 #	mousepos = mousepos -screensize/2 +Vector2(160,90)#- Vector2(320,180)
 	@warning_ignore("integer_division")
-	mousepos = mousepos/32
+	mousepos_local = mousepos_local/32
 #	mousepos = Vector2i(mousepos)
 #	var aoecolor : Color
 
@@ -274,35 +268,38 @@ func _draw() :
 	var obstructed_at : Vector2 = Vector2.ZERO
 	
 	var tiles_line_array : Array = []
-	if aoe_los or aoe_ray :
-		tiles_line_array = TargetingLayer.bresenham_line(caster.creature.position, get_world_mousepos(), 0, max_range)
+	if spell_aoe_los or spell_aoe_ray :
+		tiles_line_array = TargetingLayer.bresenham_line(caster.creature.position, get_world_mousepos(), 0, spell_max_range)
 
 	#var tilev : Vector2 = Vector2(32,32)
 	#var aoe_modified_shape = aoe_shape.duplicate()
-	if aoe_type==1 or aoe_type==3:
-		var tilev : Vector2 = Vector2(32,32)
-		var aoe_modified_shape = aoe_shape.duplicate()
-		#print("tiles_line_array", tiles_line_array, ", caster at : ", caster.creature.position)
-		if aoe_ray :
-			for t in tiles_line_array :
-				
-				#aoe_modified_shape = GameGlobal.add_ray_to_spell_aoe(aoe_modified_shape, caster, )
-				
-				var c = Vector2i(t)  - get_world_mousepos()
-				var overlaps_caster : bool = false
-				for x in range(caster.creature.size.x) :
-					for y in range(caster.creature.size.y) :
-						if t+Vector2(x,y)== caster.creature.position :
-							overlaps_caster = true
-				if not aoe_modified_shape.has(c) and (not overlaps_caster ) :
-					aoe_modified_shape.append(c)
-					#print('added c : ' , c)
-		for t in aoe_modified_shape :
-			var posv : Vector2 = mousepos + t
-			draw_rect(Rect2(32*posv,tilev), aoe_color ,false, 2)
+	#var aoe_type : int = 0  #0=no targeting 1=ballb1etc 2=ray 3=wall
+	#if aoe_type==1 or aoe_type==3:
+	built_aoe = merge_aoes(built_aoe, spell_aoe)
+
+	if spell_aoe_ray :
+		for t in tiles_line_array :
+			
+			#aoe_modified_shape = GameGlobal.add_ray_to_spell_aoe(aoe_modified_shape, caster, )
+			
+			var c = Vector2i(t)  - get_world_mousepos()
+			var overlaps_caster : bool = false
+			for x in range(caster.creature.size.x) :
+				for y in range(caster.creature.size.y) :
+					if t+Vector2(x,y)== caster.creature.position :
+						overlaps_caster = true
+			if not built_aoe.has(c) and (not overlaps_caster ) :
+				built_aoe.append(c)
+				#print('added c : ' , c)
+	print("TargetingLayer _draw DBUG  built_aoe ", built_aoe, ", aoe_color:",aoe_color)
+	for t in built_aoe :
+		var posv : Vector2 =  t - mousepos_world+mousepos_local
+		print("mousepos_local : ", mousepos_local, ", mousepos world : ",mousepos_world)
+		#posv = Vector2i(10,10)
+		draw_rect(Rect2(32*posv,tilepixelsize), aoe_color ,false, 2)
 
 
-	if aoe_los :
+	if spell_aoe_los :
 		#● void draw_line(from: Vector2, to: Vector2, color: Color, width: float = -1.0, antialiased: bool = false)
 #		var aoecolor = Color.RED if TODO
 		#var tiles_line_array : Array = bresenham_line(caster.creature.position, get_world_mousepos(), 0, max_range)
@@ -318,25 +315,20 @@ func _draw() :
 				break
 		is_obstructed = temp_is_obstructed
 		
-
-		
 		var line_color : Color = Color.DARK_RED if is_obstructed else Color.WHITE
-		draw_line(caster.global_position+0.5*caster.size, mousepos*32+Vector2i(16,16), line_color, 1, true )
+		draw_line(caster.global_position+0.5*caster.size, mousepos_local*32+Vector2i(16,16), line_color, 1, true )
 
 	else :
-		var targettile_type : int = 0
 		var wmousepos = get_world_mousepos()
-		if spell.get("targettile")  : #0=anywhere 1=creature 2=empty 3=nowall 
-			targettile_type = spell.targettile
-
-		if ((targettile_type==2 or targettile_type==3) ) :
+		# targettile_type #0=anywhere 1=creature 2=empty 3=nowall
+		if ((spell_targettile!=Spell.TARGET_TILE.EMPTY or spell_targettile!=Spell.TARGET_TILE.NOWALL) ) :
 			var aoe_modified_shape = []
 			#var mouseworldpos : Vector2i = get_world_mousepos()
-			for t in aoe_shape :
+			for t in spell_aoe :
 				aoe_modified_shape.append( wmousepos + t)
 			var cbs_touching : Array = get_cbs_touching_tiles(aoe_modified_shape)
 			#print("targetinglayer cbs_touching ", cbs_touching)
-			if is_aoe_empty(wmousepos, aoe_shape)==false or (targettile_type==2 and cbs_touching.size()>0 ) :
+			if is_aoe_empty(wmousepos, spell_aoe)==false or (spell_targettile!=Spell.TARGET_TILE.EMPTY and cbs_touching.size()>0 ) :
 				is_obstructed = true
 				obstructed_at = wmousepos
 #			get_parent().debuglabel.text+=str(obstructed_at)
@@ -352,64 +344,48 @@ func _draw() :
 #			draw_line(obstextpos+Vector2(16,16),mousepos*32+Vector2i(16,16) , Color.RED, 3, true )
 		draw_string_outline(ThemeDB.fallback_font, obstextpos-Vector2(16,0), OBSTRUCTEDTEXT, HORIZONTAL_ALIGNMENT_CENTER, -1, ThemeDB.fallback_font_size ,4, Color.BLACK )
 		draw_string(ThemeDB.fallback_font, obstextpos-Vector2(16,0), OBSTRUCTEDTEXT, HORIZONTAL_ALIGNMENT_CENTER, -1, ThemeDB.fallback_font_size , Color.RED )
-		
-		
-	
+
 	var range_mouse : int = GameGlobal.calculate_range_vi( get_world_mousepos() - Vector2i(caster.creature.position) )
-	var rangetext : String = str(range_mouse)+'/'+str(max_range)
-	var rangecolor = Color.WHITE if range_mouse<=max_range else Color.RED
-	var rangetextpos : Vector2 = 32*mousepos - Vector2i(8,0)
+	var rangetext : String = str(range_mouse)+'/'+str(spell_max_range)
+	var rangecolor = Color.WHITE if range_mouse<=spell_max_range else Color.RED
+	var rangetextpos : Vector2 = 32*mousepos_local - Vector2i(8,0)
 #	draw_string(font: Font, pos: Vector2, text: String, alignment: HorizontalAlignment = 0, width: float = -1, font_size: int = 16, modulate: Color = Color(1, 1, 1, 1), jst_flags: JustificationFlag = 3, direction: Direction = 0, orientation: Orientation = 0) const
 	#draw_string_outline(font: Font, pos: Vector2, text: String, alignment: HorizontalAlignment = 0, width: float = -1, font_size: int = 16, size: int = 1, modulate: Color = Color(1, 1, 1, 1), jst_flags: JustificationFlag = 3, direction: Direction = 0, orientation: Orientation = 0) const
 	draw_string_outline(ThemeDB.fallback_font, rangetextpos, rangetext, HORIZONTAL_ALIGNMENT_CENTER, -1, ThemeDB.fallback_font_size ,4, Color.BLACK )
 	draw_string(ThemeDB.fallback_font, rangetextpos, rangetext, HORIZONTAL_ALIGNMENT_CENTER, -1, ThemeDB.fallback_font_size , rangecolor )
 
-func get_aoe_from_name(aoename) -> Array :
-	if typeof(aoename) == TYPE_ARRAY:
-		return aoename
-	match aoename :
-		"b1","b2","b3","b4","b5","b6","b7","wh","wl","wv","wj" , "cr" , "rd":
-			return bdict[aoename]
-	return [aoename]
 
-func start_targ(tspell, tspellpower : int, tcaster : CombatCreaButton, _used_item : Dictionary) :
+func get_tiles_affected_by_aoe_targeted_at_pos(aoe : Array[Vector2i], pos : Vector2i) -> Array[Vector2i] :
+	var returned_aoe : Array[Vector2i] = []
+	for p : Vector2i in aoe :
+		returned_aoe.append(p+pos)
+	return returned_aoe
+
+func merge_aoes(aoe_1:Array[Vector2i], aoe_2:Array[Vector2i] ) -> Array[Vector2i] :
+	var returned_aoe : Array[Vector2i] = []
+	for t1 : Vector2i in aoe_1 :
+		if not aoe_2.has(t1) :
+			returned_aoe.append(t1)
+	return returned_aoe
+
+
+func start_targ(tspell : Spell, tspellpower : int, tcaster : CombatCreaButton, _used_item : Dictionary) :
 	print("TargetingLayer start_targ ", tspell.name)
 	picked_targets.clear()
 	picked_tiles.clear()
+	built_aoe.clear()
 	spell = tspell
 	caster = tcaster #is a CombatCreaButton
 	power = tspellpower
-	max_range = spell.get_range(power, caster.creature)
-	aoe_los = spell.los
-	aoe_ray = spell.ray
-	allow_rotation = spell.rot
-	max_targets = spell.get_target_number(power, caster.creature)
-	var spell_aoe_from_script = spell.get_aoe(power, caster.creature)
-	if typeof(spell_aoe_from_script) == TYPE_STRING :
-		spell_aoe_name = spell.get_aoe(power, caster.creature)
-		aoe_shape = get_aoe_from_name(spell_aoe_name)
-	else :
-		spell_aoe_name = "b1"
-		aoe_shape = spell_aoe_from_script
-	print("TARGETINGLAYER spell_aoe_name :",spell_aoe_name)
-
-	print("AoEshape : ", aoe_shape, "max range : ", max_range)
-	match spell_aoe_name :
-		"b1","b2","b3","b4","b5","b6","b7", "r" , "cr" , "rd" :
-			aoe_type = 1
-		"wh","wv","wj","wl" :
-			aoe_type = 3
-		"pt","sf","af","ae", "eo" :
-			aoe_type = 0
-			print("TargetingLayer : spellwith aoe_name "+spell_aoe_name+" is aoe_type 0 and should skip targeting")
-	var foundcolor : bool = false
-	for attr in spell.attributes :
-		if attrColorDict.has(attr) :
-			aoe_color = attrColorDict[attr]
-			foundcolor = true
-			break
-	if not foundcolor :
-		aoe_color = Color.GRAY
+	spell_max_range = spell.get_range(power, caster.creature)
+	spell_targettile = spell.targettile
+	spell_aoe_los = spell.los
+	spell_aoe_ray = spell.ray
+	spell_allow_rotation = spell.rot
+	spell_autotarget_type = spell.autotarget_type
+	spell_max_targets = spell.get_target_number(power, caster.creature)
+	spell_aoe = spell.get_aoe(power, caster.creature)
+	aoe_color = spell.get_spell_dominant_color()
 	show()
 	set_process(true)
 #	var mousepos : Vector2 = map.get_local_mouse_position()
@@ -495,7 +471,7 @@ static func plotLineHigh(startpt : Vector2, endpt : Vector2, reverseorder : bool
 		returned.reverse()
 	return returned
 
-func get_tiles_under_cb(cb : CombatCreaButton) -> Array :
+func get_tiles_under_cb(cb : CombatCreaButton) -> Array[Vector2i] :
 	var returned_array : Array = []
 	var crea = cb.creature
 	for x in range(crea.size.x) :
@@ -503,7 +479,9 @@ func get_tiles_under_cb(cb : CombatCreaButton) -> Array :
 			returned_array.append(Vector2i(crea.position)+Vector2i(x,y))
 	return returned_array
 
-func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_targeted_pos : Vector2, _s_aoe_override = []) ->Array :
+func get_affected_tiles(s_spell : Spell, s_power : int, s_caster : CombatCreaButton, s_targeted_pos : Vector2, _s_aoe_override = []) ->Array :
+	#FOR USE BY CbAnimationState !
+	
 	var s_max_range : int = s_spell.get_range(s_power, s_caster.creature)
 	var s_aoe_los = s_spell.los
 	var s_aoe_ray : bool = s_spell.ray
@@ -519,45 +497,45 @@ func get_affected_tiles(s_spell, s_power : int, s_caster : CombatCreaButton, s_t
 #				print(tiledict)
 				if tiledict["blkproj"]==1 :
 					return []
-	var s_spell_aoe_name = s_spell.get_aoe(s_power, s_caster.creature)
-	if rotation >= 0 and s_spell.rot :
-		s_spell_aoe_name = ["wh", "wl", "wv", "wj"][rotation]
-	var s_aoe_type : int = 9999 #0=no targeting 1=ballb1etc 2=ray 3=wall
-	match s_spell_aoe_name :
-		"b1","b2","b3","b4","b5","b6","b7", 'rd', 'cr' :
-			s_aoe_type = 1
-		"wh","wv","wj","wl" :
-			s_aoe_type = 1
-		"pt","sf","af","ae", "eo" :
-			s_aoe_type = 0
+	var s_spell_aoe : Array[Vector2i] = s_spell.get_aoe(s_power, s_caster.creature)
+	#if rotation >= 0 and s_spell.rot :		#TODO  doesn't rotate walls for AI casts yet
+		#s_spell_aoe_name = ["wh", "wl", "wv", "wj"][rotation]
+	#var s_aoe_type : int = 9999 #0=no targeting 1=ballb1etc 2=ray 3=wall
 
-	var returned_array : Array = []
 
-	if s_aoe_type==0 :
-		if spell_aoe_name == "sf" : #self
+	var returned_array : Array[Vector2i] = []
+
+	if s_spell.skip_targeting :
+		if s_spell.autotarget_type == Spell.AUTOTARGET_TYPE.SELF : #self
 			return get_tiles_under_cb(s_caster)
-	if spell_aoe_name=="af" or spell_aoe_name=="ae" or spell_aoe_name=="eo":
-		var  targ_factions = [] #[0,1,2,3]
-		if spell_aoe_name=="eo":
-			targ_factions = [0,1,2,3]
-		if spell_aoe_name=="af" :
-			targ_factions = [s_caster.creature.curFaction]
-		if spell_aoe_name=="ae" :
-			targ_factions = [0,1,2,3]
-			targ_factions.erase(s_caster.creature.curFaction)
-		for cb in StateMachine.combat_state.all_battle_creatures_btns :
-			if targ_factions.has(cb.creature.curFaction):
-				returned_array = returned_array + get_tiles_under_cb(cb)
+	
+	var s_spell_autotarget_type = s_spell.autotarget_type
+	
+	if s_spell_autotarget_type==Spell.AUTOTARGET_TYPE.ALL_ALLIES or s_spell_autotarget_type==Spell.AUTOTARGET_TYPE.ALL_ENEMIES or s_spell_autotarget_type==Spell.AUTOTARGET_TYPE.EVERYONE:
+		var caster_faction : int = s_caster.creature.curFaction
+		var targ_faction_picked_tileposes : Array[Vector2i] = []
+		match spell_autotarget_type :
+			Spell.AUTOTARGET_TYPE.EVERYONE :
+				for cb in StateMachine.combat_state.all_battle_creatures_btns :
+					targ_faction_picked_tileposes.append(cb.creature.position)
+			Spell.AUTOTARGET_TYPE.ALL_ALLIES :
+				for cb in StateMachine.combat_state.all_battle_creatures_btns :
+					if cb.creature.curFaction == caster_faction : targ_faction_picked_tileposes.append(cb.creature.position)
+			Spell.AUTOTARGET_TYPE.ALL_ENEMIES :
+				for cb in StateMachine.combat_state.all_battle_creatures_btns :
+					if cb.creature.curFaction != caster_faction : targ_faction_picked_tileposes.append(cb.creature.position)
+
+		for t:Vector2i in targ_faction_picked_tileposes :
+			returned_array = merge_aoes(get_tiles_affected_by_aoe_targeted_at_pos(s_spell_aoe, t), returned_array)
 		return returned_array
 	
-	if s_aoe_type==1 :
-		var s_aoe_shape=get_aoe_from_name(s_spell_aoe_name)  #single tile
-
+	else :
+	#if s_aoe_type==1 :
 		if s_aoe_ray :
 			for c in tiles_line_array :
 				returned_array.append(c)
 	
-		for c in s_aoe_shape :
+		for c in s_spell_aoe :
 			var pos : Vector2 = s_targeted_pos+Vector2(c)
 			if not returned_array.has(pos) :
 				returned_array.append(pos)
@@ -582,6 +560,7 @@ func get_cbs_touching_tiles(effected_tiles : Array) -> Array:
 #msg frmat : {"type" : "Spell", "caster" : Crea, "Effected Tiles" : [], "Effected creas" : [], "targeted_tiles" : [], "spell":GDScript, "s_plvl" : 1, "used_item" : null , "add_terrain" : true}
 
 func execute_spell(_caster : CombatCreaButton, s_spell, s_power : int, trgt_tiles : Array, spell_used_item : Dictionary, must_add_terrain : bool, override_aoe : Array) :
+	#"Override AoE is for wall rotations
 	#print("TargetingLayer execute_spell : "+s_spell.name+" trgt_tiles : ", trgt_tiles)
 	#print("TargetingLayer aoe_shape ", aoe_shape)
 	var msg : Dictionary = {"type" : "Spell", "spell" : s_spell, "s_plvl" : s_power, "targeted_tiles" : trgt_tiles, "used_item" : spell_used_item , "must_add_terrain" : must_add_terrain, "override_aoe" : override_aoe }

@@ -25,7 +25,7 @@ func enter(_msg : Dictionary = {} ) ->void :
 	Input.set_custom_mouse_cursor(UI.cursor_sword)
 	#some menus cant be left so easily !
 	if ["PC_Pick"].has(cur_menu_name) :
-		print("MenuState : you can t pcik charcaters whilepicking characters")
+		printerr("ExMenuState : you can t pcik charcaters whilepicking characters")
 		#emit_signal("pcs_picked", [])
 		return
 	
@@ -54,6 +54,7 @@ func enter(_msg : Dictionary = {} ) ->void :
 			UI.ow_hud.inventoryRect.when_Items_Button_pressed()
 			MusicStreamPlayer.play_music_type("Items")
 		"SpellsMenu" :
+			cur_menu_name = menu_name
 			UI.ow_hud.spellcastMenu.initialize(_msg["selected_character"])
 			UI.ow_hud.spellcastMenu.show()
 		"LootMenu" :
@@ -61,12 +62,14 @@ func enter(_msg : Dictionary = {} ) ->void :
 			await GameGlobal.show_loot_menu(_msg["treasure"],_msg["money"],_msg["exp"])
 			#if not GameGlobal.player_allies.is_empty() :
 		"MiniMapsMenu" :
+			cur_menu_name = menu_name
 			UI.ow_hud.minimapRect.show()
 			UI.ow_hud.minimapRect.on_display()
-			cur_menu_name = menu_name
 		"SpecEncounter_menu" :
+			cur_menu_name = menu_name
 			UI.ow_hud.encounterControl.disablerButton.hide()
 		"TempleMenu" :
+			cur_menu_name = menu_name
 			UI.ow_hud.temple_rect.show_temple_window()
 	pass
 
@@ -99,7 +102,7 @@ func exit() :
 
 
 func _state_process(_delta : float) -> void :
-	#print("cur_menu_name : "+ cur_menu_name)
+	#print("ExMenusState cur_menu_name : " , cur_menu_name)
 	if cur_menu_name== "PC_Pick" :
 		var cursorid : int = min(8, need_to_pick_n - picked_charapanels.size() )
 		#print(cursorid)
@@ -175,15 +178,15 @@ func use_inventory_item(item : Dictionary, user : Creature) :  #from inventory m
 
 
 #-1 = everyone  -2=self only
-func get_num_of_targs_of_spell_in_field(spell, spellpower, user : Creature) -> int :
-	var s_spell_aoe_name = spell.get_aoe(spellpower, user)
-	if s_spell_aoe_name=="sf" :
+func get_num_of_targs_of_spell_in_field(spell : Spell, spellpower, user : Creature) -> int :
+	var s_spell_aoe : Array[Vector2i] = spell.get_aoe(spellpower, user)
+	if spell.autotarget_type==Spell.AUTOTARGET_TYPE.SELF :
 		return -2
-	if ["pt","af","ae", "eo"].has(s_spell_aoe_name) :
+	if [Spell.AUTOTARGET_TYPE.PARTY,Spell.AUTOTARGET_TYPE.ALL_ALLIES,Spell.AUTOTARGET_TYPE.ALL_ENEMIES, Spell.AUTOTARGET_TYPE.EVERYONE].has(spell.autotarget_type) :
 		return -1
 	var how_many_targets = spell.get_targets(spellpower, user)
-	var aoe : Array = GameGlobal.map.targetingLayer.get_aoe_from_name(s_spell_aoe_name)
-	how_many_targets = max(how_many_targets, aoe.size()) 
+	#var aoe : Array = GameGlobal.map.targetingLayer.get_aoe_from_name(s_spell_aoe_name)
+	how_many_targets = max(how_many_targets, s_spell_aoe.size()) * spell.get_target_number(spellpower, user)
 	how_many_targets = min(how_many_targets, GameGlobal.player_allies.size()+GameGlobal.player_characters.size())
 	return how_many_targets
 
@@ -234,7 +237,7 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 			
 			if spell.get("proj_hit") :
 				print("ExMenusState : OW HUD display spell effect ",spell.proj_hit)
-				UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
+				await UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
 			await GameGlobal.do_spell_field_effect(character, target, spell, powerlevel)
 			
 			if spell.get("special_effect") : 

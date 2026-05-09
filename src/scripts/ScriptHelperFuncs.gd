@@ -507,7 +507,7 @@ static func request_click() :
 	UI.ow_hud.textRect.disablerButton.show()
 	Input.set_custom_mouse_cursor(UI.cursor_click)
 	await UI.ow_hud.textRect.disablerButton.pressed
-	print('""disablerButton, "pressed"')
+	print('""ScriptHelperFuncs request_click() disablerButton, "pressed"')
 	Input.set_custom_mouse_cursor(UI.cursor_sword)
 	UI.ow_hud.textRect.disablerButton.hide()
 
@@ -554,7 +554,7 @@ static func CastSpellOnPickedCharacters(characters : Array, spell_name : String,
 			SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
 			SfxPlayer.play()
 			if spell.get("proj_hit") :
-				UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
+				await UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
 			await GameGlobal.do_spell_field_effect(character, target, spell, power)
 			if spell.get("special_effect") :
 				var is_over : bool = await spell.special_effect(character, spell, power, Vector2.ZERO, [], [target], false)

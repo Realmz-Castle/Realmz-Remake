@@ -23,7 +23,7 @@ const base_stat_bonuses : Dictionary = {
 	"curFP" : 0,		
 	"curRP" : 0,		
 	"maxHP" : 4,		
-	"maxSP" : 0,		
+	"maxSP" : 20,		
 	"maxTP" : 0,		
 	"maxFP" : 0,		
 	"maxRP" : 100, 		

@@ -709,29 +709,27 @@ func _is_tracker_format(filename: String) -> bool:
 
 func load_spell_resources(path : String) :
 	print("resources.gd load_spell_resources "+path)
-#	print("load_spell_resources : "+ path +"spells_book.json")
-	var n_spells_book = Utils.FileHandler.read_json_dic_from_file(path +"spells_book.json")
-#	print("n_spells_book : ", n_spells_book)
-	for sn in n_spells_book :
-#		print("adding " +sn)
-
-		var spellscript : GDScript = GDScript.new()
-		var spellsource = n_spells_book[sn]
-#		print("resources.gd before setting spell source code for "+sn)
-#		print(spellsource)
-		spellscript.set_source_code(spellsource)
-#		print("resources.gd DONE set source code for "+sn+" , before reload()")
-		#printerr(sn+ " spell source : \n", spellsource)
-		var _err_newscript_reload = spellscript.reload()
-		if _err_newscript_reload>0 :
-			printerr("RESOURECE "+sn+" failed source reload ",_err_newscript_reload)
-		var newscript = spellscript.new()
-		spells_book[sn] = { "name" : sn, "source" : spellsource, "script" : newscript}
-		
-
-#		print("resources.gd DONE reload() for "+sn)
-
-#		print("LITTLE TEST, ", spells_book[sn]["script"].get_min_damage(7))
+	if not DirAccess.dir_exists_absolute(path) :
+		return
+	for filename : String in Utils.FileHandler.list_files_in_directory(path) :
+		if not filename.ends_with(".gd") :
+			continue
+		var script : GDScript = load(path + filename)
+		if script == null :
+			printerr("Resources _load_spell_classes failed to load ", path + filename)
+			continue
+		var instance = script.new()
+		if not (instance is Spell) :
+			printerr("Resources _load_spell_classes ", filename, " is not a Spell subclass; skipping")
+			continue
+		if instance.name == "" :
+			printerr("Resources _load_spell_classes ", filename, " has empty name; skipping")
+			continue
+		# Bake the script's source into the dict the same way JSON spells do, so
+		# character saves can include the full text and stay self-contained
+		# even if the class file later moves or disappears.
+		spells_book[instance.name] = { "name" : instance.name, "source" : instance.generate_json_string(), "script" : instance}
+		print("  loaded spell class ", filename, " as '", instance.name, "'")
 
 # load map data, convert to an array, added to the maps_book ressource dictionary
 func load_map_ressources( path : String , _name : String) -> void :

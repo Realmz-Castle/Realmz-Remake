@@ -99,12 +99,12 @@ func log_spell_cast(castercrea : Creature, spell , power : int, extratext : Stri
 	newlabel.bbcode_enabled = true
 	var caster_color := "green" if castercrea.curFaction==0 else ("red" if castercrea.curFaction==1 else "blue")
 	var spell_color : String ="white"
-	spell_color = get_spell_color_code(spell.attributes)
+	spell_color = spell.get_spell_dominant_color().to_html()
 	var labeltext : String = "[color="+caster_color+"]"+castercrea.name+"[/color][color=gray] uses [/color][color="+spell_color+"]"+spell.name+"[/color][color=gray] lv.[/color][color=white]"+str(power)+"[/color]"+"!"
 	newlabel.parse_bbcode(labeltext+ extratext)
 	logbox.add_child(newlabel)
 
-func log_spell_damage(castercrea : Creature, defender : CombatCreaButton, spell , power : int, damage_detail : Dictionary, accuracy : float) :
+func log_spell_damage(castercrea : Creature, defender : CombatCreaButton, spell : Spell , power : int, damage_detail : Dictionary, accuracy : float) :
 	#print("log_spell_damage")
 	if damage_detail["total"]==0 and spell.get_max_damage(power,castercrea)==0 :
 		return
@@ -113,11 +113,11 @@ func log_spell_damage(castercrea : Creature, defender : CombatCreaButton, spell 
 	newlabel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	newlabel.size_flags_vertical = Control.SIZE_SHRINK_END
 	newlabel.bbcode_enabled = true
-	var spell_color : String ="white"
+	#var spell_color : String ="white"
 	#for a in spell.attributes :
 		#if attrColorDict.has(a) :
 			#spell_color = '#'+attrColorDict[a].to_html()
-	spell_color = get_spell_color_code(spell.attributes)
+	var spell_color : String = spell.get_spell_dominant_color().to_html()
 	var _caster_color := "green" if castercrea.curFaction==0 else ("red" if castercrea.curFaction==1 else "blue")
 	var defender_color = "green" if defender.creature.curFaction==0 else ("red" if defender.creature.curFaction==1 else "blue")
 	var labeltext = "    [color="+defender_color+"]"+defender.creature.name+"[/color][color=gray] takes "+"[color=white]"+str(damage_detail["total"])+"[/color][color=gray] damage from [/color][color="+spell_color+"]"+spell.name+"[/color] [color=white]("+str(100*accuracy)+"%)[/color]"

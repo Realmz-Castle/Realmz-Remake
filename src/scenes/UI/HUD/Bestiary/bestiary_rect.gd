@@ -127,6 +127,7 @@ func _on_entry_pressed(cdata) :
 	evamagicLabel.text= str( cdata["stats"]["EvasionMagic" ] )
 
 func _on_close_button_pressed():
+	print("BestiaryRect._on_close_button_pressed")
 	hide()
 	StateMachine.transition_to("Exploration/ExWalking")
 

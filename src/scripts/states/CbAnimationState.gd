@@ -113,10 +113,12 @@ func enter(_msg : Dictionary = {}) -> void:
 				else :
 					print("CBAnimationState : Move :"+movercb.creature.name+"'s cant walk to this tile, so its APR left is  set negative")
 					movercb.creature.used_apr+=999999
-				
+				timer = 0.2
+				await timer_over
 			"Swap" :
 				perform_swap(cur_action)
-				
+				timer = 0.2
+				await timer_over
 			"MeleeAttack" :
 				if not (is_instance_valid(cur_action["attacker"]) and is_instance_valid(cur_action["defender"])) :
 					continue
@@ -129,6 +131,8 @@ func enter(_msg : Dictionary = {}) -> void:
 				if not extra_actions.is_empty() :
 					combat_state.add_to_action_queue(extra_actions)
 				if not continue_action :
+					timer = 0.5
+					await timer_over
 					continue
 				
 				timer = 1.0 *2
@@ -287,8 +291,8 @@ func _on_timer_over() :
 	print("CbAnilState signal timer_over")
 	emit_signal("timer_over")
 
-func play_projectile_animation(gfxname : String, castercrea : Creature, targ_tpos : Vector2) :
-	print("CbAnim play_projectile_animation "+gfxname+" start")
+func play_projectile_animation(gfx : Spell.GFX, castercrea : Creature, targ_tpos : Vector2) :
+	print("CbAnim play_projectile_animation gfx ",gfx,", ... start")
 	var who_there : CombatCreaButton = GameGlobal.who_is_at_tile(targ_tpos)
 	var origin : Vector2 = 32*castercrea.position + 16*(castercrea.size-Vector2.ONE)
 	var dest : Vector2 = 32*targ_tpos
@@ -296,27 +300,29 @@ func play_projectile_animation(gfxname : String, castercrea : Creature, targ_tpo
 		dest = who_there.position + 16*(who_there.creature.size-Vector2.ONE)
 	var s_anim : SpellAnimation = SPELL_ANIMATION_TSCN.instantiate()
 	GameGlobal.map.gfx_node.add_child(s_anim)
-	s_anim.init(gfxname,origin,dest, true)
+	#print("SpellAimation in CbANimState : GameGlobal.map.gfx_node position;", GameGlobal.map.gfx_node.position)
+	s_anim.init(gfx,origin,dest, true)
+	print("CbAnim play_projectile_animation gfx,origin,dest: ",gfx,origin, dest,  ",  position:", s_anim.position, ", globalposiiton:",s_anim.global_position)
 	timer = 1.0 *2
 	await timer_over
-	print("CbAnim play_projectile_animation "+gfxname+" over")
+	print("CbAnim play_projectile_animation gfx ",gfx," over")
 
-func play_spell_resolution(gfxname : String, _castercrea : Creature, effected_tiles : Array, effected_creas: Array) :
-	print("CbAnim play_spell_resolution "+gfxname+" start", effected_tiles)
+func play_spell_resolution(gfx : Spell.GFX, _castercrea : Creature, effected_tiles : Array, effected_creas: Array) :
+	print("CbAnim play_spell_resolution gfx ",gfx," start", effected_tiles)
 	var gfx_node : Node2D = GameGlobal.map.gfx_node
 	#print(effected_tiles)
 	for t in effected_tiles :
 		var s_anim : SpellAnimation = SPELL_ANIMATION_TSCN.instantiate()
 		gfx_node.add_child(s_anim)
-		s_anim.init(gfxname,t*32,t*32, false)
-	for cb in effected_creas :
+		s_anim.init(gfx,t*32,t*32, false)
+	for cb : CombatCreaButton in effected_creas :
 		var s_anim : SpellAnimation = SPELL_ANIMATION_TSCN.instantiate()
 		var anim_pos = cb.position+16*(cb.creature.size-Vector2.ONE)
 		gfx_node.add_child(s_anim)
-		s_anim.init(gfxname,anim_pos,anim_pos, false)
+		s_anim.init(gfx,anim_pos,anim_pos, false)
 	timer = 1.0 *2
 	await timer_over
-	print("CbAnim play_spell_resolution "+gfxname+" over")
+	print("CbAnim play_spell_resolution gfx ",gfx," over")
 
 func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_targeted_tile : Vector2, effected_tiles : Array, effected_creas : Array, add_terrain : bool) :
 	print("CbAnimState after_spell_anim_finished : "+castercrea.name+'s '+spell.name)
@@ -324,11 +330,11 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 		var is_over : bool = await spell.special_effect(castercrea, spell, power, main_targeted_tile, effected_tiles, effected_creas, add_terrain)
 		if is_over :
 			return
-	for c in effected_creas :
-		var accuracy_array : Array = GameGlobal.calculate_spell_accuracy(castercrea, c.creature, spell, power)
+	for cb : CombatCreaButton in effected_creas :
+		var accuracy_array : Array = GameGlobal.calculate_spell_accuracy(castercrea, cb.creature, spell, power)
 		var accuracy = accuracy_array[0]
 		var evasion_stats_used : Array = accuracy_array[1]
-		var  returned_evasion_array : Array = c.creature.on_evasion_check(evasion_stats_used, castercrea, spell, power)
+		var  returned_evasion_array : Array = cb.creature.on_evasion_check(evasion_stats_used, castercrea, spell, power)
 		var continue_action : bool = returned_evasion_array[0]
 		var extra_actions : Array = returned_evasion_array[1]
 		if not extra_actions.is_empty() :
@@ -337,20 +343,20 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			continue
 		
 		if accuracy < randf() :
-			UI.ow_hud.creatureRect.logrect.log_spell_miss(castercrea, c, spell , power, accuracy)
+			UI.ow_hud.creatureRect.logrect.log_spell_miss(castercrea, cb, spell , power, accuracy)
 			continue
-		var spell_damage : int = GameGlobal.calculate_spell_damage(castercrea, c.creature, spell, power, true)
+		var spell_damage : int = GameGlobal.calculate_spell_damage(castercrea, cb.creature, spell, power, true)
 		
 		
-		var spell_effect_array : Array = c.creature.on_hit_by_spell(castercrea,spell,power, -spell_damage)
+		var spell_effect_array : Array = cb.creature.on_hit_by_spell(castercrea,spell,power, -spell_damage)
 		if spell_effect_array[0] :
-			c.display_effect("ATK_NUL", spell_damage, 2.0)  # the spells animation plays behind the text
-			c.creature.change_cur_hp(spell_effect_array[1])
-			UI.ow_hud.creatureRect.logrect.log_spell_damage(castercrea, c, spell , power, {"total":spell_damage}, accuracy)
+			cb.display_effect("ATK_NUL", spell_damage, 2.0)  # the spells animation plays behind the text
+			cb.creature.change_cur_hp(spell_effect_array[1])
+			UI.ow_hud.creatureRect.logrect.log_spell_damage(castercrea, cb, spell , power, {"total":spell_damage}, accuracy)
 			if spell.has_method("add_traits_to_target") :
-				spell.add_traits_to_target(castercrea, c, power)
+				spell.add_traits_to_creature(castercrea, cb.creature, power)
 		else :
-			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea,c,spell)
+			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea,cb,spell)
 		combat_state.add_to_action_queue(spell_effect_array[2])
 
 	if spell.get("terrain_tex") and spell_must_add_terrain :

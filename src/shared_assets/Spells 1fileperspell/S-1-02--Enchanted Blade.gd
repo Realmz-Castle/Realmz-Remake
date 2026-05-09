@@ -60,7 +60,7 @@ static func get_target_number(_power : int, _casterchar) :
 static func get_aoe(_power : int, _casterchar) :
 	return 'b1'
 
-static func add_traits_to_target(_casterchar : Creature, _targetcbbutton : CombatCreaButton, _power : int) :
+static func add_traits_to_creature(_casterchar : Creature, _target : Creature, _power : int) :
 	var traitscript = load('res://shared_assets/traits/'+'t_phys_dmg_bonus.gd')
 	var trait_array : Array = [_power]  #no need to add teh character at index 0, done in creaure.gd add_trait
-	_targetcbbutton.creature.add_trait(traitscript , trait_array)
+	_target.add_trait(traitscript , trait_array)

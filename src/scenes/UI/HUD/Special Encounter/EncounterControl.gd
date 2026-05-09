@@ -181,8 +181,8 @@ func _on_spell_button_pressed() -> void:
 	var picked_character = spells_menu.picked_character
 	var picked_spell = spells_menu.picked_spell
 	var picked_power : int = spells_menu.picked_power
-	if typeof(picked_spell) == TYPE_STRING :
-		print("EncounterControl spell_picked : STRING. abort.")
+	if (picked_spell == null) :
+		print("EncounterControl spell_picked : null. abort.")
 		return
 	print("EncounterControl spell_picked : ",picked_spell.name,' lv'+str(picked_power)+" by ", picked_character.name)
 	encounter_script._on_spell_used(picked_character, picked_spell, picked_power)

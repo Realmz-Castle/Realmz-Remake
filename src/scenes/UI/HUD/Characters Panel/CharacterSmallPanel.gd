@@ -40,12 +40,23 @@ var paneltype : int = 0  #0=player character 1= NPC
 @onready var aprnLabel : Label = $combatControl/APRnLabel
 
 @onready var effect_sprite : Sprite2D = $"PortraitButton/EffectSprite"
-var effect_sprite_frame_counter : int = 0
+
 @onready var effect_sprite_timer : Timer = $"PortraitButton/EffectSprite/Timer"
 
 @onready var bandead_sprite : Sprite2D = $PortraitButton/BanDeadSprite
 
+var effect_sprite_base_frame : int = 0
+@export var effect_sprite_frame_counter : int = 0 :
+	set(_new_effect_frame) :
+		effect_sprite_frame_counter = _new_effect_frame
+		effect_sprite.frame = effect_sprite_base_frame+_new_effect_frame
+		print("CharaSmallPanel show_spell_effect : frame:", effect_sprite.frame)
+
+@export var effect_sprite_animationplayer : AnimationPlayer
+
 signal chara_small_panel_selected
+
+#signal spell_effect_over
 
 func _ready():
 	pass
@@ -206,24 +217,25 @@ func _on_dropentry_pressed(i : Dictionary) :
 	dropPopup.hide()
 
 func show_spell_effect(effect_texture_frame) :
+	print("CharaSmallPanel show_spell_effect : frame:", effect_texture_frame)
 	effect_sprite.show()
-	effect_sprite_frame_counter = 0
-	effect_sprite.frame = effect_texture_frame
-	effect_sprite_timer.start(0.1)
-
-
-func _on_EffectSprite_Timer_timeout():
-	effect_sprite_frame_counter+=1
-	if effect_sprite_frame_counter >7 :
-		effect_sprite_frame_counter = 0
-		effect_sprite_timer.stop()
-		effect_sprite.hide()
-	else :
-		effect_sprite_timer.start(0.1)
-	effect_sprite.frame+=1
-	pass # Replace with function body.
-#func _on_dropentry_focused(pos, n ) :
-#	print(pos,n)
+	effect_sprite_base_frame = effect_texture_frame
+	effect_sprite_animationplayer.play(&'effect', -1, 2.0, false)
+	await effect_sprite_animationplayer.animation_finished
+	effect_sprite.hide()
+#
+#func _on_EffectSprite_Timer_timeout():
+	#effect_sprite_frame_counter+=1
+	#if effect_sprite_frame_counter >7 :
+		#effect_sprite_frame_counter = 0
+		#effect_sprite_timer.stop()
+		#effect_sprite.hide()
+	#else :
+		#effect_sprite_timer.start(0.1)
+	#effect_sprite.frame+=1
+	#pass # Replace with function body.
+##func _on_dropentry_focused(pos, n ) :
+##	print(pos,n)
 
 #func _on_dropentry_gui_input(event : InputEvent):
 ##	print("_on_dropentry_gui_input")

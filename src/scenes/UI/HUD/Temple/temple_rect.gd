@@ -81,7 +81,7 @@ func _on_spell_button_pressed(namepowercost : Array) :
 	SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
 	SfxPlayer.play()
 	if spell.get("proj_hit") :
-		UI.ow_hud.show_spell_effect_on_char_menu( displayed_chara, spell.proj_hit)
+		await UI.ow_hud.show_spell_effect_on_char_menu( displayed_chara, spell.proj_hit)
 	await GameGlobal.do_spell_field_effect(temple_caster, displayed_chara, spell, namepowercost[1])
 	if spell.get("special_effect") : 
 		print("TEMPLE FIELD SPECIAL EFFECT")
