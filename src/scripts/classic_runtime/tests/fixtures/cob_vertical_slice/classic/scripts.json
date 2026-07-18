@@ -268,6 +268,12 @@
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 50, "byteOffset": 12800, "byteLength": 256, "confidence": "source-backed"}
     },
     {
+      "id": 51,
+      "text": "Judging by the man's large girth, robes are not all he fancies.  You approach his fine oak desk.  \"Present your invitation so I may validate it for passage to yon castle.\"",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 51, "byteOffset": 13056, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
       "id": 620,
       "text": "You enter the slave prison.  A potbellied Corporal Sampson is slumped over a shaky table.  He's slept through the entire ordeal that just took place outside.  The smell of elderberry wine permeates his clothes.  You try to rouse him to collect your fee.",
       "authored": false,

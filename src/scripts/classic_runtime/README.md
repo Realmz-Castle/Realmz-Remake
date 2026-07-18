@@ -2,7 +2,7 @@
 
 This directory contains a data-driven runtime proof of concept for Providence-compiled classic Realmz campaigns.
 
-`ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicRuntimeState` owns classic quest flags, map position, tile overrides, and trigger-percentage overrides. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the Godot `Node` facade: map code activates a trigger, then native adapters consume `command_requested` and resume execution through `continue_after_command`, `answer_choice`, `finish_encounter`, or `finish_battle`.
+`ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicRuntimeState` owns classic quest flags, map position, tile overrides, and trigger-percentage overrides. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the low-level Godot `Node` facade. `ClassicRuntimeHost` drives that facade through an injected command adapter, and `ClassicGodotCommandAdapter` is the first Remake-facing adapter.
 
 Implemented opcodes in this slice:
 
@@ -29,6 +29,32 @@ Encounter result values select the corresponding eight-action block from `Data E
 Against the current Providence export of City of Bywater, these handlers cover 2,013 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,483 slots, or 90.8% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters and 251 action slots across 49 additional opcodes remain.
 
 The interpreter does not yet reproduce encounter repetition limits or encounter-option mutation, and it will still stop explicitly when a selected encounter result contains an unsupported opcode. This keeps the compatibility boundary visible while more handlers are added.
+
+## Godot guard-house playtest
+
+The first in-engine vertical slice loads the CoB fixture, displays `Data DD:0:0` through Remake's existing `TextRect`, presents the four source-backed `Data ED` choices, feeds the selected result back to the interpreter, and runs that eight-action encounter result block.
+
+Run the standalone scene from the repository root:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn
+```
+
+Pass a compiled campaign directory after `--` to use the full converter output instead of the checked-in fixture:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
+```
+
+This adapter intentionally handles only text, yes/no prompts, simple-encounter choices, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, item, encounter, or battle resource adapters exist.
+
+This remains a compatibility playtest rather than an installed Remake campaign. Classic bundles are not yet discovered through `src/Campaigns`, selected from the campaign UI, or persisted through the native profile/save system. `ClassicRuntimeState` snapshots are currently standalone; a shipping integration must bridge classic quest, tile, trigger, and position state into Remake's save lifecycle.
+
+For a non-interactive smoke of the real HUD flow, add `--smoke`. The scene verifies the displayed intro, four encounter choices, selected outcome text, and completed host state, then exits:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- --smoke
+```
 
 Run the headless proof from the repository root:
 

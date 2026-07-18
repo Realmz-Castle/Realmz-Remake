@@ -273,16 +273,20 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 		"actionIndex": current_action_index,
 		"callStack": call_stack.duplicate(true),
 	})
+	var prompt_id := int(encounter.get("prompt", 0))
+	var prompt_message := bundle.get_message(prompt_id)
 	pending_encounter = {
 		"encounterKind": encounter_kind,
 		"encounterId": encounter_id,
 		"encounter": encounter,
+		"promptMessage": prompt_message,
 		"startSlot": start_slot,
 	}
 	return _yield_result("start_encounter", {
 		"encounterKind": encounter_kind,
 		"encounterId": encounter_id,
 		"encounter": encounter,
+		"promptMessage": prompt_message,
 		"startSlot": start_slot,
 	})
 

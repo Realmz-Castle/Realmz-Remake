@@ -4,9 +4,32 @@ const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bun
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
+const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
+const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 
 var failures := 0
+
+
+class GuardHouseAdapter:
+	extends RefCounted
+	var commands: Array = []
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		if command == "start_encounter":
+			return {"outcome": 4}
+		return {}
+
+
+class RejectingAdapter:
+	extends RefCounted
+
+	func execute_command(command: String, _payload: Dictionary) -> Dictionary:
+		return {
+			"status": "error",
+			"message": "Rejected %s for test" % command,
+		}
 
 
 func _init() -> void:
@@ -29,6 +52,7 @@ func _init() -> void:
 	_test_battle_outcome(bundle)
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
+	_test_runtime_host()
 	var user_arguments := OS.get_cmdline_user_args()
 	if not user_arguments.is_empty():
 		_test_full_bundle(str(user_arguments[0]))
@@ -59,6 +83,11 @@ func _test_text_and_encounter(bundle) -> void:
 	var encounter_result: Dictionary = interpreter.run_until_yield()
 	_expect_equal(encounter_result.get("command"), "start_encounter", "simple encounter command")
 	_expect_equal(encounter_result.get("payload", {}).get("encounterId"), 0, "simple encounter id")
+	_expect_equal(
+		encounter_result.get("payload", {}).get("promptMessage", {}).get("id"),
+		51,
+		"simple encounter prompt resolves"
+	)
 	var outcome_result: Dictionary = interpreter.resume_encounter(4)
 	_expect_equal(outcome_result.get("command"), "show_text", "encounter outcome runs selected code block")
 	_expect_equal(outcome_result.get("payload", {}).get("messageId"), 61, "fourth outcome starts at slot 24")
@@ -300,6 +329,45 @@ func _test_godot_runtime_facade() -> void:
 	runtime.continue_after_command()
 	_expect_equal(completions.size(), 1, "facade completes encounter result")
 	_expect_equal(stops.size(), 0, "facade stays within implemented slice")
+
+
+func _test_runtime_host() -> void:
+	var host = HostScript.new()
+	get_root().add_child(host)
+	var adapter = GuardHouseAdapter.new()
+	var completions: Array = []
+	var stops: Array = []
+	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
+	host.playthrough_stopped.connect(func(result: Dictionary) -> void: stops.append(result))
+	host.configure(adapter)
+	_expect(host.load_campaign(FIXTURE), "runtime host loads CoB fixture")
+	_expect(host.start_trigger("Data DD:0:0"), "runtime host starts guard-house trigger")
+	_expect_equal(adapter.commands.size(), 3, "runtime host drives complete guard-house command flow")
+	_expect_equal(adapter.commands[0].get("command"), "show_text", "host starts with guard-house text")
+	_expect_equal(adapter.commands[1].get("command"), "start_encounter", "host requests simple encounter")
+	_expect_equal(adapter.commands[2].get("payload", {}).get("messageId"), 61, "host runs selected outcome")
+	_expect_equal(completions.size(), 1, "runtime host publishes completion")
+	_expect_equal(completions[0].get("reason"), "keep-codes", "runtime host completion reason")
+	_expect_equal(stops.size(), 0, "runtime host guard-house flow has no stop")
+	var godot_adapter = GodotAdapterScript.new()
+	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
+	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(
+		host.runtime.bundle.get_encounter("simple", 0)
+	)
+	_expect_equal(encounter_choices.get("choices", []).size(), 4, "Godot adapter exposes four guard-house choices")
+	_expect_equal(encounter_choices.get("outcomes"), ["1", "2", "3", "4"], "Godot adapter preserves Classic outcomes")
+	host.queue_free()
+
+	var rejecting_host = HostScript.new()
+	get_root().add_child(rejecting_host)
+	var rejected: Array = []
+	rejecting_host.playthrough_stopped.connect(func(result: Dictionary) -> void: rejected.append(result))
+	rejecting_host.configure(RejectingAdapter.new())
+	rejecting_host.load_campaign(FIXTURE)
+	rejecting_host.start_trigger("Data DD:0:0")
+	_expect_equal(rejected.size(), 1, "runtime host publishes adapter failure")
+	_expect_equal(rejected[0].get("command"), "show_text", "runtime host identifies failed command")
+	rejecting_host.queue_free()
 
 
 func _interpreter(bundle):
