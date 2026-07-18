@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "City of Bywater Providence export",
+  "fixtureNote": "Includes source-backed tavern encounters for persistent simple-option mutation coverage.",
   "validation": {"ok": true, "errors": []},
   "semanticDecoding": {
     "dispatcherNoops": [

@@ -248,10 +248,18 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _remove_current_action_point()
 		29:
 			return _execute_player_map(record_id)
+		34:
+			return _break_encounter()
+		35:
+			return _eliminate_current_simple_option(record_id)
 		39:
 			# Classic's Extend Door Codes replaces the active AP without pushing,
 			# even when its raw opcode is negative.
 			return _branch_to_extra_action_point(record_id, false, 0)
+		41:
+			return _eliminate_simple_option_from_extra_code(record_id)
+		44:
+			return _eliminate_complex_result(record_id)
 		56:
 			return _execute_battle_outcome(record_id, gosub_active)
 		46:
@@ -271,10 +279,6 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			if not call_stack.is_empty():
 				call_stack.pop_back()
 			return _continue_result()
-		44:
-			return _eliminate_complex_result(record_id)
-		34:
-			return _break_encounter()
 		_:
 			if bundle.is_dispatcher_noop(current_trigger, action):
 				return _continue_result()
@@ -311,7 +315,9 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 		return _halt_with_error(
 			"Missing %s encounter record %d" % [encounter_kind, encounter_id]
 		)
-	if encounter_kind == "complex":
+	if encounter_kind == "simple":
+		encounter = runtime_state.get_effective_simple_encounter(encounter)
+	elif encounter_kind == "complex":
 		encounter = runtime_state.get_effective_complex_encounter(encounter)
 	var max_attempts := maxi(1, int(encounter.get("maxTimes", 1)))
 	encounter_origins.append({
@@ -329,7 +335,9 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 
 func _yield_encounter(encounter_kind: String, encounter_id: int, start_slot: int) -> Dictionary:
 	var encounter := bundle.get_encounter(encounter_kind, encounter_id)
-	if encounter_kind == "complex":
+	if encounter_kind == "simple":
+		encounter = runtime_state.get_effective_simple_encounter(encounter)
+	elif encounter_kind == "complex":
 		encounter = runtime_state.get_effective_complex_encounter(encounter)
 	var prompt_id := int(encounter.get("prompt", 0))
 	var prompt_message := bundle.get_message(prompt_id)
@@ -410,6 +418,53 @@ func _thief_messages(thief_encounter: Dictionary) -> Array:
 		if prompt_id != 0 and not included_ids.has(prompt_id):
 			messages.append(bundle.get_message(prompt_id))
 	return messages
+
+
+func _eliminate_current_simple_option(option_index: int) -> Dictionary:
+	if encounter_origins.is_empty():
+		return _halt_with_error("Simple option mutation has no active encounter")
+	var encounter_loop: Dictionary = encounter_origins[-1]
+	if str(encounter_loop.get("encounterKind", "")) != "simple":
+		return _halt_with_error("Simple option mutation is outside a simple encounter")
+	var encounter_id := int(encounter_loop.get("encounterId", -1))
+	var mutation_result := _eliminate_simple_encounter_option(encounter_id, option_index)
+	if not mutation_result.is_empty():
+		return mutation_result
+	# Opcode 35 reopens the current encounter immediately without using an attempt.
+	return _yield_encounter("simple", encounter_id, 0)
+
+
+func _eliminate_simple_option_from_extra_code(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 2:
+		return _halt_with_error(
+			"Simple option mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var mutation_result := _eliminate_simple_encounter_option(
+		int(values[0]),
+		int(values[1])
+	)
+	return _continue_result() if mutation_result.is_empty() else mutation_result
+
+
+func _eliminate_simple_encounter_option(encounter_id: int, option_index: int) -> Dictionary:
+	if option_index < 1 or option_index > 4:
+		return _halt_with_error("Simple encounter option index must be between 1 and 4")
+	var encounter := bundle.get_encounter("simple", encounter_id)
+	if encounter.is_empty():
+		return _halt_with_error("Missing simple encounter record %d" % encounter_id)
+	encounter = runtime_state.get_effective_simple_encounter(encounter)
+	var choice_results: Variant = encounter.get("choiceResults", [])
+	if not (choice_results is Array) or choice_results.size() < option_index:
+		return _halt_with_error("Simple encounter %d has no option %d" % [
+			encounter_id,
+			option_index,
+		])
+	var updated_results: Array = choice_results.duplicate()
+	updated_results[option_index - 1] = 0
+	encounter["choiceResults"] = updated_results
+	runtime_state.set_simple_encounter_override(encounter_id, encounter)
+	return {}
 
 
 func _eliminate_complex_result(result_index: int) -> Dictionary:

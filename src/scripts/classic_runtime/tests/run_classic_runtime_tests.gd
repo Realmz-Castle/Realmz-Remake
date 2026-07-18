@@ -85,6 +85,7 @@ func _init() -> void:
 	_test_complex_action_choices(bundle)
 	_test_complex_word_results()
 	_test_encounter_lifecycle()
+	_test_simple_encounter_mutation()
 	_test_spoken_word_archive()
 	_test_complex_spell_results(bundle)
 	_test_complex_item_results(bundle)
@@ -694,6 +695,88 @@ func _test_encounter_lifecycle() -> void:
 	_expect_equal(completed.get("status"), "completed", "final encounter attempt completes")
 
 
+func _test_simple_encounter_mutation() -> void:
+	var bundle = BundleScript.new()
+	_expect(bundle.load_from_directory(FIXTURE), "CoB simple-option fixture loads: %s" % bundle.last_error)
+	if not bundle.last_error.is_empty():
+		return
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:8"), "begin CoB tavern encounter")
+	var tavern_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(tavern_text.get("payload", {}).get("messageId"), 75, "tavern intro message")
+	var tavern: Dictionary = interpreter.run_until_yield()
+	_expect_equal(tavern.get("payload", {}).get("encounterId"), 3, "tavern simple encounter")
+	var barmaid: Dictionary = interpreter.resume_encounter(4)
+	_expect_equal(barmaid.get("payload", {}).get("messageId"), 86, "barmaid response begins")
+	var reopened: Dictionary = interpreter.run_until_yield()
+	_expect_equal(reopened.get("command"), "start_encounter", "opcode 35 reopens the encounter")
+	_expect_equal(
+		reopened.get("payload", {}).get("remainingAttempts"),
+		99,
+		"opcode 35 does not consume an encounter attempt"
+	)
+	var effective_tavern: Dictionary = interpreter.runtime_state.get_effective_simple_encounter(
+		bundle.get_encounter("simple", 3)
+	)
+	_expect_equal(
+		effective_tavern.get("choiceResults", []).map(
+			func(value: Variant) -> int: return int(value)
+		),
+		[1, 2, 3, 0],
+		"opcode 35 removes its source choice"
+	)
+	_expect_equal(
+		bundle.get_encounter("simple", 3).get("choiceResults", []).map(
+			func(value: Variant) -> int: return int(value)
+		),
+		[1, 2, 3, 4],
+		"opcode 35 leaves the compiled encounter immutable"
+	)
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect_equal(
+		restored.get_effective_simple_encounter(bundle.get_encounter("simple", 3))
+			.get("choiceResults", []).map(
+				func(value: Variant) -> int: return int(value)
+			),
+		[1, 2, 3, 0],
+		"simple option removal survives snapshot restore"
+	)
+	var cancelled: Dictionary = interpreter.resume_encounter(0)
+	_expect_equal(cancelled.get("reason"), "encounter-cancelled", "party can leave the reopened tavern")
+
+	bundle.triggers_by_id["simple-option:remote"] = {
+		"id": "simple-option:remote",
+		"source": "Data DD",
+		"actions": [{"slot": 0, "rawCode": 4, "code": 4, "id": 4}],
+	}
+	var remote_interpreter = _interpreter(bundle)
+	_expect(remote_interpreter.begin_trigger("simple-option:remote"), "begin remote option fixture")
+	remote_interpreter.run_until_yield()
+	var guards: Dictionary = remote_interpreter.resume_encounter(2)
+	_expect_equal(guards.get("payload", {}).get("messageId"), 94, "remote mutation result begins")
+	var crypt_map: Dictionary = remote_interpreter.run_until_yield()
+	_expect_equal(crypt_map.get("payload", {}).get("messageId"), 95, "remote mutation result continues")
+	var completed: Dictionary = remote_interpreter.run_until_yield()
+	_expect_equal(completed.get("reason"), "keep-codes", "remote mutation result completes")
+	_expect_equal(
+		remote_interpreter.runtime_state.get_effective_simple_encounter(
+			bundle.get_encounter("simple", 3)
+		).get("choiceResults", []).map(
+			func(value: Variant) -> int: return int(value)
+		),
+		[1, 2, 0, 0],
+		"opcode 41 removes both Extra Code-selected choices"
+	)
+	_expect_equal(
+		bundle.get_encounter("simple", 3).get("choiceResults", []).map(
+			func(value: Variant) -> int: return int(value)
+		),
+		[1, 2, 3, 4],
+		"opcode 41 leaves the compiled target immutable"
+	)
+
+
 func _test_spoken_word_archive() -> void:
 	var bundle = BundleScript.new()
 	_expect(
@@ -1092,8 +1175,8 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 39, 44,
-		45, 46, 47, 56, 111, 112,
+		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 39,
+		41, 44, 45, 46, 47, 56, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -1105,8 +1188,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2044, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2514, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2045, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2515, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1167,8 +1250,12 @@ func _test_runtime_host() -> void:
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(
 		host.runtime.bundle.get_encounter("simple", 0)
 	)
-	_expect_equal(encounter_choices.get("choices", []).size(), 4, "Godot adapter exposes four guard-house choices")
-	_expect_equal(encounter_choices.get("outcomes"), ["1", "2", "3", "4"], "Godot adapter preserves Classic outcomes")
+	_expect_equal(encounter_choices.get("choices", []).size(), 5, "Godot adapter exposes simple back-out")
+	_expect_equal(
+		encounter_choices.get("outcomes"),
+		["1", "2", "3", "4", "0"],
+		"Godot adapter preserves Classic outcomes and back-out"
+	)
 	host.queue_free()
 
 	var rejecting_host = HostScript.new()

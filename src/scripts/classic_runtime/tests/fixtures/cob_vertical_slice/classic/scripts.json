@@ -41,6 +41,26 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 3, "byteOffset": 120, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:0:8",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 8,
+      "active": true,
+      "doorid": 1309,
+      "landid": 0,
+      "targetX": 9,
+      "targetY": 13,
+      "percent": 100,
+      "coordinate": {"x": 9, "y": 13},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 75, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 4, "code": 4, "id": 3, "label": "Simple encounter", "category": "encounter", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 8, "byteOffset": 320, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data DD:0:10",
       "source": "Data DD",
       "levelType": "land",
@@ -285,6 +305,8 @@
   ],
   "extraCodes": [
 	{"id": 2, "values": [1, 0, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 2, "byteOffset": 20, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 20, "values": [3, 3, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 20, "byteOffset": 200, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 21, "values": [3, 4, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 21, "byteOffset": 210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 70, "values": [38, 0, 30000, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 70, "byteOffset": 700, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 127, "values": [0, 17, 100, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 127, "byteOffset": 1270, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 269, "values": [0, 3, 28, 193, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 269, "byteOffset": 2690, "byteLength": 10, "confidence": "source-backed"}},
@@ -376,6 +398,42 @@
       "text": "Judging by the man's large girth, robes are not all he fancies.  You approach his fine oak desk.  \"Present your invitation so I may validate it for passage to yon castle.\"",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 51, "byteOffset": 13056, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 75,
+      "text": "You have entered a rather fine tavern filled with only the best citizens of Bywater.  Most of the tables are filled with patrons eating spiced potatoes and engaged in interesting discussions.  You find yourself a table near the back.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 75, "byteOffset": 19200, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 76,
+      "text": "You are standing in a tavern.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 76, "byteOffset": 19456, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 86,
+      "text": "\"Oh, I don't really know much.\"  She smiles and points to the seedy looking man.  \"Ask him, he's been telling me all kinds of stories all day.\"",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 86, "byteOffset": 22016, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 91,
+      "text": "They make for the door in haste, yelling, \"Targ the thief has gotten his due! Any man who follows us shall join him in Hades!\"  Apparently, they did not see the slip of paper Targ gave you.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 91, "byteOffset": 23296, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 94,
+      "text": "You are at your table when the town guards show up.  Luckily, nobody wants to get so involved as to implicate you in any manner.  The guards bind Targ's arms to his chest and drag him from the inn.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 94, "byteOffset": 24064, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 95,
+      "text": "As you examine the slip of paper, you see that it's a map describing the location of an old crypt in the graveyard.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 95, "byteOffset": 24320, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 620,

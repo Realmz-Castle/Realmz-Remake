@@ -107,6 +107,9 @@ func _run_automated_smoke() -> void:
 	if trigger_id == "Data DD:6:28":
 		await _run_complex_word_smoke()
 		return
+	if trigger_id == "Data DD:0:8":
+		await _run_simple_option_smoke()
+		return
 	if not test_spell_name.is_empty():
 		await _run_complex_spell_smoke()
 		return
@@ -133,9 +136,9 @@ func _run_automated_smoke() -> void:
 	_verify_smoke_stage(
 		"02_simple_encounter_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 10
 			and _choice_menu_fits_map_area(),
-		"four classic choices are visible within the map area"
+		"four classic choices and back-out are visible within the map area"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -153,6 +156,68 @@ func _run_automated_smoke() -> void:
 		"04_playthrough_complete",
 		"Classic guard-house playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host reports completed playthrough"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_simple_option_smoke() -> void:
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"01_tavern_text",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"You have entered a rather fine tavern"
+		),
+		"source-backed tavern introduction is visible"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var choices_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"02_tavern_choices",
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 10
+			and _choice_menu_fits_map_area(),
+		"four tavern choices and back-out are visible"
+	)
+	if not choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("4")
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"03_barmaid_response",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"\"Oh, I don't really know much.\""
+		),
+		"the selected source result is visible"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var reopened_choices_ready := await _wait_for_choices()
+	var effective_tavern: Dictionary = \
+		host.runtime.interpreter.runtime_state.get_effective_simple_encounter(
+			host.runtime.bundle.get_encounter("simple", 3)
+		)
+	_verify_smoke_stage(
+		"04_tavern_reopens",
+		reopened_choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and effective_tavern.get("choiceResults", []).map(
+				func(value: Variant) -> int: return int(value)
+			) == [1, 2, 3, 0]
+			and int(host.runtime.interpreter.encounter_origins[-1].get(
+				"remainingAttempts", 0
+			)) == 99,
+		"the barmaid choice is removed without consuming an attempt"
+	)
+	if not reopened_choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("0")
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"05_tavern_complete",
+		"Classic tavern-option playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"host completes after backing out of the reopened tavern"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 

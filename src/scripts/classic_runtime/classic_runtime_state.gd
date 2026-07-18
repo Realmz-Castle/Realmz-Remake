@@ -6,6 +6,7 @@ var tile_overrides: Dictionary = {}
 var trigger_percent_overrides: Dictionary = {}
 var action_point_overrides: Dictionary = {}
 var thief_encounter_overrides: Dictionary = {}
+var simple_encounter_overrides: Dictionary = {}
 var complex_encounter_overrides: Dictionary = {}
 var owned_maps: Dictionary = {}
 var level_type := "land"
@@ -20,6 +21,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
 	thief_encounter_overrides.clear()
+	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	owned_maps.clear()
 	var start := bundle.get_start()
@@ -119,6 +121,19 @@ func get_effective_thief_encounter(encounter: Dictionary) -> Dictionary:
 		else encounter.duplicate(true)
 
 
+func set_simple_encounter_override(encounter_id: int, encounter: Dictionary) -> void:
+	if encounter_id < 0:
+		return
+	simple_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+
+
+func get_effective_simple_encounter(encounter: Dictionary) -> Dictionary:
+	var encounter_id := int(encounter.get("id", -1))
+	var override: Variant = simple_encounter_overrides.get(str(encounter_id), {})
+	return override.duplicate(true) if override is Dictionary and not override.is_empty() \
+		else encounter.duplicate(true)
+
+
 func set_complex_encounter_override(encounter_id: int, encounter: Dictionary) -> void:
 	if encounter_id < 0:
 		return
@@ -148,6 +163,7 @@ func snapshot() -> Dictionary:
 		"triggerPercentOverrides": trigger_percent_overrides.duplicate(true),
 		"actionPointOverrides": action_point_overrides.duplicate(true),
 		"thiefEncounterOverrides": thief_encounter_overrides.duplicate(true),
+		"simpleEncounterOverrides": simple_encounter_overrides.duplicate(true),
 		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
 		"ownedMaps": owned_maps.duplicate(true),
 		"position": {
@@ -165,6 +181,7 @@ func restore(saved_state: Dictionary) -> void:
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
 	thief_encounter_overrides.clear()
+	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	owned_maps.clear()
 	var saved_flags: Variant = saved_state.get("questFlags", {})
@@ -185,6 +202,12 @@ func restore(saved_state: Dictionary) -> void:
 			var encounter: Variant = saved_thief_encounters[encounter_id]
 			if encounter is Dictionary:
 				thief_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+	var saved_simple_encounters: Variant = saved_state.get("simpleEncounterOverrides", {})
+	if saved_simple_encounters is Dictionary:
+		for encounter_id: Variant in saved_simple_encounters:
+			var encounter: Variant = saved_simple_encounters[encounter_id]
+			if encounter is Dictionary:
+				simple_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
 	var saved_complex_encounters: Variant = saved_state.get("complexEncounterOverrides", {})
 	if saved_complex_encounters is Dictionary:
 		for encounter_id: Variant in saved_complex_encounters:

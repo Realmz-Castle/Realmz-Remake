@@ -744,6 +744,9 @@ func build_simple_encounter_choices(encounter: Dictionary) -> Dictionary:
 			continue
 		choices.append(choice_text)
 		choice_tokens.append(str(outcome))
+	if bool(encounter.get("canBackOut", false)):
+		choices.append("Back out")
+		choice_tokens.append("0")
 	return {"choices": choices, "outcomes": choice_tokens}
 
 

@@ -82,6 +82,82 @@
       ],
       "authored": false,
       "provenance": {"sourceFile": "Data ED", "recordIndex": 0, "byteOffset": 0, "byteLength": 426, "confidence": "source-backed"}
+    },
+    {
+      "id": 3,
+      "actions": [
+        {"id": 200, "rawCode": 33, "slot": 0},
+        {"id": 12, "rawCode": 19, "slot": 1},
+        {"id": 1100, "rawCode": 9, "slot": 8},
+        {"id": 14, "rawCode": 33, "slot": 9},
+        {"id": 85, "rawCode": 1, "slot": 10},
+        {"id": -1101, "rawCode": 9, "slot": 16},
+        {"id": 1103, "rawCode": 9, "slot": 17},
+        {"id": 88, "rawCode": 1, "slot": 18},
+        {"id": 89, "rawCode": 1, "slot": 19},
+        {"id": 90, "rawCode": 1, "slot": 20},
+        {"id": 5, "rawCode": 29, "slot": 21},
+        {"id": 4, "rawCode": 4, "slot": 22},
+        {"id": 0, "rawCode": 24, "slot": 23},
+        {"id": 86, "rawCode": 1, "slot": 24},
+        {"id": 4, "rawCode": 35, "slot": 25}
+      ],
+      "choiceResults": [1, 2, 3, 4],
+      "canBackOut": true,
+      "maxTimes": 99,
+      "casteSuccess": 0,
+      "prompt": 76,
+      "texts": [
+        "Buy a round of drinks and listen to rumors.",
+        "Slip the barkeep some gold and hope he will tell you some news.",
+        "Approach the table of a seedy-looking character who is watching you.",
+        "Ask the barmaid to tell you of any local news."
+      ],
+      "authored": false,
+      "provenance": {"sourceFile": "Data ED", "recordIndex": 3, "byteOffset": 1278, "byteLength": 426, "confidence": "source-backed"}
+    },
+    {
+      "id": 4,
+      "actions": [
+        {"id": -92, "rawCode": 1, "slot": 0},
+        {"id": -619, "rawCode": 9, "slot": 1},
+        {"id": -619, "rawCode": 9, "slot": 2},
+        {"id": 619, "rawCode": 9, "slot": 3},
+        {"id": 17, "rawCode": 16, "slot": 4},
+        {"id": 0, "rawCode": 26, "slot": 5},
+        {"id": 1, "rawCode": 35, "slot": 6},
+        {"id": 94, "rawCode": 1, "slot": 8},
+        {"id": 95, "rawCode": 1, "slot": 9},
+        {"id": 20, "rawCode": 41, "slot": 10},
+        {"id": 21, "rawCode": 41, "slot": 11},
+        {"id": 0, "rawCode": 24, "slot": 15},
+        {"id": -98, "rawCode": 1, "slot": 16},
+        {"id": 1, "rawCode": 14, "slot": 17},
+        {"id": 18, "rawCode": 30, "slot": 18},
+        {"id": 19, "rawCode": 15, "slot": 19},
+        {"id": 53, "rawCode": 43, "slot": 20},
+        {"id": 3, "rawCode": 35, "slot": 22},
+        {"id": 1, "rawCode": 35, "slot": 23},
+        {"id": 96, "rawCode": 1, "slot": 24},
+        {"id": 97, "rawCode": 1, "slot": 25},
+        {"id": 2, "rawCode": 10, "slot": 26},
+        {"id": 20, "rawCode": 41, "slot": 27},
+        {"id": 21, "rawCode": 41, "slot": 28},
+        {"id": 0, "rawCode": 24, "slot": 31}
+      ],
+      "choiceResults": [1, 2, 3, 4],
+      "canBackOut": false,
+      "maxTimes": 99,
+      "casteSuccess": 0,
+      "prompt": 91,
+      "texts": [
+        "Chase the orcs in spite of their warning.",
+        "Play dumb and examine the map back at your table to avoid getting involved.",
+        "Search Targ's body quickly.",
+        "Wait around for the town guard to show up and explain what happened."
+      ],
+      "authored": false,
+      "provenance": {"sourceFile": "Data ED", "recordIndex": 4, "byteOffset": 1704, "byteLength": 426, "confidence": "source-backed"}
     }
   ],
   "complexEncounters": [
