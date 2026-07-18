@@ -10,12 +10,101 @@
       "grid": [0, 76, 21, 11, 10, 22],
       "authored": false,
       "provenance": {"sourceFile": "Data BD", "recordIndex": 38, "byteOffset": 13148, "byteLength": 346, "confidence": "source-backed"}
+    },
+    {
+      "id": 250,
+      "dist": 0,
+      "messageBefore": 0,
+      "messageAfter": 0,
+      "battleMacro": 0,
+      "grid": [0, 133, 125],
+      "authored": false,
+      "provenance": {"sourceFile": "Data BD", "recordIndex": 250, "byteOffset": 86500, "byteLength": 346, "confidence": "source-backed"}
     }
   ],
-  "treasures": [],
+  "treasures": [
+    {
+      "id": 11,
+      "itemIds": [807, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "exp": 1200,
+      "gold": 0,
+      "gems": 0,
+      "jewelry": 0,
+      "authored": false,
+      "provenance": {"sourceFile": "Data TD", "recordIndex": 11, "byteOffset": 528, "byteLength": 48, "confidence": "source-backed"}
+    }
+  ],
   "shops": [],
-  "simpleEncounters": [],
-  "complexEncounters": [],
+  "simpleEncounters": [
+    {
+      "id": 0,
+      "actions": [
+        {"id": -52, "rawCode": 1, "slot": 0},
+        {"id": 227, "rawCode": 3, "slot": 1},
+        {"id": 5, "rawCode": 33, "slot": 2},
+        {"id": 60, "rawCode": 1, "slot": 3},
+        {"id": 0, "rawCode": 10, "slot": 4},
+        {"id": 53, "rawCode": 1, "slot": 5},
+        {"id": 0, "rawCode": 24, "slot": 7},
+        {"id": 634, "rawCode": 38, "slot": 8},
+        {"id": 63, "rawCode": 1, "slot": 9},
+        {"id": -62, "rawCode": 1, "slot": 10},
+        {"id": 636, "rawCode": 3, "slot": 11},
+        {"id": 635, "rawCode": 33, "slot": 12},
+        {"id": 0, "rawCode": 10, "slot": 13},
+        {"id": 53, "rawCode": 1, "slot": 14},
+        {"id": 0, "rawCode": 24, "slot": 15},
+        {"id": 1, "rawCode": 4, "slot": 16},
+        {"id": 0, "rawCode": 24, "slot": 23},
+        {"id": 61, "rawCode": 1, "slot": 24},
+        {"id": 0, "rawCode": 24, "slot": 31}
+      ],
+      "choiceResults": [1, 2, 3, 4],
+      "canBackOut": true,
+      "maxTimes": 1,
+      "casteSuccess": 0,
+      "prompt": 51,
+      "texts": [
+        "Attempt to bribe your way into the castle.",
+        "Show him an invitation to the castle.",
+        "Show him a forged invitation.",
+        "Kindly bid him farewell and leave the guardhouse."
+      ],
+      "authored": false,
+      "provenance": {"sourceFile": "Data ED", "recordIndex": 0, "byteOffset": 0, "byteLength": 426, "confidence": "source-backed"}
+    }
+  ],
+  "complexEncounters": [
+    {
+      "id": 2,
+      "actions": [
+        {"id": 183, "rawCode": 1, "slot": 0},
+        {"id": 185, "rawCode": 1, "slot": 1},
+        {"id": 0, "rawCode": 25, "slot": 7},
+        {"id": 182, "rawCode": 1, "slot": 8},
+        {"id": -184, "rawCode": 1, "slot": 16},
+        {"id": 52, "rawCode": 20, "slot": 17},
+        {"id": 51, "rawCode": 16, "slot": 18},
+        {"id": 0, "rawCode": 26, "slot": 19},
+        {"id": 0, "rawCode": 25, "slot": 23},
+        {"id": -181, "rawCode": 1, "slot": 24},
+        {"id": 51, "rawCode": 16, "slot": 25},
+        {"id": 0, "rawCode": 26, "slot": 26}
+      ],
+      "choiceResults": [1, 0, 0, 0],
+      "wordResults": [0, 0, 0, 0],
+      "actionResult": 1,
+      "wordResult": 0,
+      "itemResults": [0, 0, 0, 0, 0],
+      "spellResults": [1, 1, 4, 4, 2, 1, 2, 0, 0, 0],
+      "canBackOut": true,
+      "maxTimes": 4,
+      "prompt": 180,
+      "texts": ["Dig", "Throw stones at mountain", "Attempt to climb slope", "", "", "", "", "", ""],
+      "authored": false,
+      "provenance": {"sourceFile": "Data ED2", "recordIndex": 2, "byteOffset": 1040, "byteLength": 520, "confidence": "source-backed"}
+    }
+  ],
   "thiefEncounters": [],
   "timedEncounters": []
 }

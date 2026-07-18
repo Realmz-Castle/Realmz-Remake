@@ -41,6 +41,47 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 3, "byteOffset": 120, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:0:10",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 10,
+      "active": true,
+      "doorid": 316,
+      "landid": 0,
+      "targetX": 16,
+      "targetY": 3,
+      "percent": 100,
+      "coordinate": {"x": 16, "y": 3},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": -114, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 49, "code": 49, "id": 0, "label": "Bank", "category": "item_shop", "gosub": false},
+        {"slot": 2, "rawCode": 32, "code": 32, "id": 100, "label": "Offer temple", "category": "item_shop", "gosub": false},
+        {"slot": 3, "rawCode": 9, "code": 9, "id": 10105, "label": "Play sound", "category": "ui_text", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 10, "byteOffset": 400, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:19",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 19,
+      "active": true,
+      "doorid": 4802,
+      "landid": 0,
+      "targetX": 2,
+      "targetY": 48,
+      "percent": 100,
+      "coordinate": {"x": 2, "y": 48},
+      "actions": [
+        {"slot": 0, "rawCode": 5, "code": 5, "id": 2, "label": "Complex encounter", "category": "encounter", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 19, "byteOffset": 760, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data DD:0:27",
       "source": "Data DD",
       "levelType": "land",
@@ -58,6 +99,50 @@
         {"slot": 2, "rawCode": 2, "code": 2, "id": 70, "label": "Battle", "category": "combat", "gosub": false}
       ],
       "provenance": {"sourceFile": "Data DD", "recordIndex": 27, "byteOffset": 1080, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:30",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 30,
+      "active": true,
+      "doorid": 4402,
+      "landid": 0,
+      "targetX": 2,
+      "targetY": 44,
+      "percent": 100,
+      "coordinate": {"x": 2, "y": 44},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 251, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 1, "code": 1, "id": 252, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 2, "rawCode": 29, "code": 29, "id": 4, "label": "Give or display map", "category": "map", "gosub": false},
+        {"slot": 3, "rawCode": 2, "code": 2, "id": 85, "label": "Battle", "category": "combat", "gosub": false},
+        {"slot": 4, "rawCode": 1, "code": 1, "id": 253, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 5, "rawCode": 10, "code": 10, "id": 11, "label": "Give treasure", "category": "item_shop", "gosub": false},
+        {"slot": 6, "rawCode": 13, "code": 13, "id": 127, "label": "Enable or disable door", "category": "map", "gosub": false},
+        {"slot": 7, "rawCode": 7, "code": 7, "id": 128, "label": "Action data patch", "category": "map", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 30, "byteOffset": 1200, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:69",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 69,
+      "active": true,
+      "doorid": 2705,
+      "landid": 0,
+      "targetX": 5,
+      "targetY": 27,
+      "percent": 100,
+      "coordinate": {"x": 5, "y": 27},
+      "actions": [
+        {"slot": 0, "rawCode": 12, "code": 12, "id": 269, "label": "New land icon", "category": "map", "gosub": false},
+        {"slot": 1, "rawCode": 1, "code": 1, "id": 547, "label": "Text", "category": "ui_text", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 69, "byteOffset": 2760, "byteLength": 40, "confidence": "source-backed"}
     },
     {
       "id": "Data DD:0:78",
@@ -133,13 +218,41 @@
         {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
       ],
       "provenance": {"sourceFile": "Data ED3", "recordIndex": 100, "byteOffset": 4000, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:4:44",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 4,
+      "recordIndex": 44,
+      "active": true,
+      "doorid": 44963,
+      "landid": 4,
+      "targetX": 63,
+      "targetY": 49,
+      "percent": 100,
+      "coordinate": {"x": 63, "y": 49},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 850, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 1, "code": 1, "id": 851, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 2, "rawCode": 1, "code": 1, "id": 852, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 3, "rawCode": 1, "code": 1, "id": 853, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 4, "rawCode": 56, "code": 56, "id": 645, "label": "Branch battle outcome", "category": "branch", "gosub": false},
+        {"slot": 5, "rawCode": 2, "code": 2, "id": 646, "label": "Battle", "category": "combat", "gosub": false},
+        {"slot": 6, "rawCode": 13, "code": 13, "id": 654, "label": "Enable or disable door", "category": "map", "gosub": false},
+        {"slot": 7, "rawCode": 39, "code": 39, "id": 95, "label": "Extend door codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 44, "byteOffset": 17760, "byteLength": 40, "confidence": "source-backed"}
     }
   ],
   "extraCodes": [
 	{"id": 2, "values": [1, 0, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 2, "byteOffset": 20, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 70, "values": [38, 0, 30000, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 70, "byteOffset": 700, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 127, "values": [0, 17, 100, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 127, "byteOffset": 1270, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 269, "values": [0, 3, 28, 193, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 269, "byteOffset": 2690, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
-    {"id": 639, "values": [5, 6, 83, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 639, "byteOffset": 6390, "byteLength": 10, "confidence": "source-backed"}}
+    {"id": 639, "values": [5, 6, 83, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 639, "byteOffset": 6390, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 645, "values": [250, 0, -1, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 645, "byteOffset": 6450, "byteLength": 10, "confidence": "source-backed"}}
   ],
   "messages": [
 	{
@@ -159,6 +272,18 @@
       "text": "You enter the slave prison.  A potbellied Corporal Sampson is slumped over a shaky table.  He's slept through the entire ordeal that just took place outside.  The smell of elderberry wine permeates his clothes.  You try to rouse him to collect your fee.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 620, "byteOffset": 158720, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 61,
+      "text": "He bids you farewell as you make your way from the gate house.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 61, "byteOffset": 15616, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 183,
+      "text": "You have succeeded in uncovering the passage behind the cave-in.  It is now  possible to traverse the passage to wherever it may take you.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 183, "byteOffset": 46848, "byteLength": 256, "confidence": "source-backed"}
     }
   ],
   "randomLevels": [],

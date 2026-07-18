@@ -1,27 +1,34 @@
 # Classic scenario runtime proof of concept
 
-This directory contains the first data-driven runtime slice for Providence-compiled classic Realmz campaigns.
+This directory contains a data-driven runtime proof of concept for Providence-compiled classic Realmz campaigns.
 
-`ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicRuntimeState` owns classic quest flags and map position. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, or combat code. `ClassicRuntime` is the Godot `Node` facade: map code activates a trigger, then UI/map/combat adapters consume `command_requested` and call `continue_after_command` when finished.
+`ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicRuntimeState` owns classic quest flags, map position, tile overrides, and trigger-percentage overrides. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the Godot `Node` facade: map code activates a trigger, then native adapters consume `command_requested` and resume execution through `continue_after_command`, `answer_choice`, `finish_encounter`, or `finish_battle`.
 
 Implemented opcodes in this slice:
 
 - `1` Text
 - `2` Battle request
 - `3` Choice and choice continuation
+- `4` Simple encounter request and result-block continuation
+- `5` Complex encounter request and result-block continuation
+- `9` Play sound
+- `10` Give fixed treasure
+- `12` Mutate a land or dungeon tile
+- `13` Enable or disable one or more map triggers
 - `20` Teleport and destination recheck
 - `24` Keep codes / script completion
 - `39` Extend actions through a Data ED3 AP
 - `45` Teleport only
 - `46` Branch on quest flag
 - `47` Set or clear quest flag
+- `56` Battle request with victory, coward-branch, and coward-penalty continuation
 - `111` Return from GOSUB
 
-Branch modes that enter simple or complex encounters yield a typed `start_encounter` command. Native Godot adapters and encounter execution are intentionally a later layer.
+Encounter result values select the corresponding eight-action block from `Data ED` or `Data ED2`. Battle outcome branches remain suspended until the host reports victory or cowardice. Persistent tile and trigger mutations are included in runtime snapshots; the bundle records themselves remain immutable.
 
-Against the current Providence export of City of Bywater, these handlers cover 1,510 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the first slice has defined behavior for 72.4% of active slots; this is a semantic coverage measurement, not a playability percentage. Native command adapters and 754 action slots across 56 additional opcodes remain.
+Against the current Providence export of City of Bywater, these handlers cover 2,013 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,483 slots, or 90.8% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters and 251 action slots across 49 additional opcodes remain.
 
-The highest-value next handlers by CoB frequency are Play Sound (`9`), New Land Icon (`12`), Give Treasure (`10`), Branch Battle Outcome (`56`), Enable/Disable Door (`13`), and the simple/complex encounter opcodes (`4` and `5`).
+The interpreter does not yet reproduce encounter repetition limits or encounter-option mutation, and it will still stop explicitly when a selected encounter result contains an unsupported opcode. This keeps the compatibility boundary visible while more handlers are added.
 
 Run the headless proof from the repository root:
 

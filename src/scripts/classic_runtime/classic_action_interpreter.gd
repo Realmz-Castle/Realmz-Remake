@@ -9,6 +9,9 @@ var current_trigger: Dictionary = {}
 var current_action_index := 0
 var call_stack: Array = []
 var pending_choice: Dictionary = {}
+var pending_encounter: Dictionary = {}
+var pending_battle: Dictionary = {}
+var encounter_origins: Array = []
 var trace: Array = []
 var last_error := ""
 var halted := false
@@ -25,6 +28,9 @@ func reset_execution() -> void:
 	current_action_index = 0
 	call_stack.clear()
 	pending_choice.clear()
+	pending_encounter.clear()
+	pending_battle.clear()
+	encounter_origins.clear()
 	trace.clear()
 	last_error = ""
 	halted = false
@@ -48,6 +54,10 @@ func run_until_yield() -> Dictionary:
 		return _error_result(last_error if not last_error.is_empty() else "Interpreter is halted")
 	if not pending_choice.is_empty():
 		return _error_result("A classic choice must be resumed before execution can continue")
+	if not pending_encounter.is_empty():
+		return _error_result("A classic encounter must be resumed before execution can continue")
+	if not pending_battle.is_empty():
+		return _error_result("A classic battle outcome must be resumed before execution can continue")
 
 	for _step: int in MAX_INTERNAL_STEPS:
 		if current_trigger.is_empty():
@@ -105,15 +115,71 @@ func resume_choice(accepted: bool) -> Dictionary:
 				return branch_result
 			return run_until_yield()
 		2, 3:
-			return _yield_result("start_encounter", {
-				"encounterKind": "simple" if int(values[1]) == 2 else "complex",
-				"encounterId": int(values[2]),
-				"startSlot": 0,
-			})
+			return _execute_encounter(
+				"simple" if int(values[1]) == 2 else "complex",
+				int(values[2])
+			)
 		4:
 			return _yield_result("eliminate_encounter_option", {})
 		_:
 			return _halt_with_error("Choice references unsupported branch mode %d" % int(values[1]))
+
+
+func resume_encounter(outcome: int) -> Dictionary:
+	if pending_encounter.is_empty():
+		return _error_result("No classic encounter is waiting for a result")
+	var encounter_context := pending_encounter
+	pending_encounter = {}
+	if outcome == 0:
+		current_trigger = {}
+		call_stack.clear()
+		encounter_origins.clear()
+		return _completed_result("encounter-cancelled")
+	if outcome < 1 or outcome > 4:
+		return _halt_with_error("Classic encounter outcome must be between 0 and 4")
+
+	var encounter: Dictionary = encounter_context["encounter"]
+	var outcome_trigger := _encounter_outcome_trigger(
+		str(encounter_context["encounterKind"]),
+		int(encounter_context["encounterId"]),
+		encounter,
+		outcome
+	)
+	if outcome_trigger.is_empty():
+		return _halt_with_error("Classic encounter has no action array")
+	_set_cursor(outcome_trigger, 0)
+	return run_until_yield()
+
+
+func resume_battle(coward: bool) -> Dictionary:
+	if pending_battle.is_empty():
+		return _error_result("No classic battle is waiting for an outcome")
+	var battle_context := pending_battle
+	pending_battle = {}
+	if not coward:
+		return _yield_result("give_battle_loot", {
+			"extraCodeId": int(battle_context["extraCodeId"]),
+			"lootMode": 0,
+		})
+
+	var coward_macro_id := int(battle_context["cowardMacroId"])
+	if coward_macro_id == -1:
+		current_trigger = {}
+		call_stack.clear()
+		return _yield_result("apply_coward_penalty", {
+			"experiencePerLevel": 2000,
+			"soundId": 26260,
+			"warningIds": [118, 124],
+			"backUpParty": true,
+		})
+	var branch_result := _branch_to_extra_action_point(
+		coward_macro_id,
+		bool(battle_context.get("gosub", false)),
+		0
+	)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
 
 
 func _execute_action(action: Dictionary) -> Dictionary:
@@ -131,6 +197,18 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_battle(record_id)
 		3:
 			return _execute_choice(record_id, bool(action.get("gosub", false)))
+		4:
+			return _execute_encounter("simple", record_id)
+		5:
+			return _execute_encounter("complex", record_id)
+		9:
+			return _yield_result("play_sound", {"soundId": record_id})
+		10:
+			return _execute_treasure(record_id)
+		12:
+			return _execute_tile_mutation(record_id)
+		13:
+			return _execute_trigger_mutation(record_id)
 		20, 45:
 			return _execute_teleport(record_id, code == 20)
 		24:
@@ -139,6 +217,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _completed_result("keep-codes")
 		39:
 			return _branch_to_extra_action_point(record_id, bool(action.get("gosub", false)), 0)
+		56:
+			return _execute_battle_outcome(record_id, bool(action.get("gosub", false)))
 		46:
 			return _execute_quest_branch(record_id, bool(action.get("gosub", false)))
 		47:
@@ -150,6 +230,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				return _completed_result("return-with-empty-stack")
 			_restore_call_frame()
 			return _continue_result()
+		34:
+			return _break_encounter()
 		_:
 			if bundle.is_dispatcher_noop(current_trigger, action):
 				return _continue_result()
@@ -177,6 +259,123 @@ func _execute_battle(extra_code_id: int) -> Dictionary:
 		"message": bundle.get_message(int(values[3])),
 		"lootMode": int(values[4]),
 		"battle": bundle.get_battle(first_battle_id),
+	})
+
+
+func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot := 0) -> Dictionary:
+	var encounter := bundle.get_encounter(encounter_kind, encounter_id)
+	if encounter.is_empty():
+		return _halt_with_error(
+			"Missing %s encounter record %d" % [encounter_kind, encounter_id]
+		)
+	encounter_origins.append({
+		"trigger": current_trigger,
+		"actionIndex": current_action_index,
+		"callStack": call_stack.duplicate(true),
+	})
+	pending_encounter = {
+		"encounterKind": encounter_kind,
+		"encounterId": encounter_id,
+		"encounter": encounter,
+		"startSlot": start_slot,
+	}
+	return _yield_result("start_encounter", {
+		"encounterKind": encounter_kind,
+		"encounterId": encounter_id,
+		"encounter": encounter,
+		"startSlot": start_slot,
+	})
+
+
+func _execute_treasure(treasure_id: int) -> Dictionary:
+	var treasure := bundle.get_treasure(treasure_id)
+	if treasure.is_empty():
+		return _halt_with_error("Missing treasure record %d" % treasure_id)
+	return _yield_result("give_treasure", {
+		"treasureId": treasure_id,
+		"treasure": treasure,
+		"lootMode": 1,
+	})
+
+
+func _execute_tile_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error("Tile mutation references missing Extra Code row %d" % extra_code_id)
+	var level_kind := "dungeon" if int(values[4]) != 0 else "land"
+	var tile_x := int(values[2]) if level_kind == "dungeon" else int(values[1])
+	var tile_y := int(values[1]) if level_kind == "dungeon" else int(values[2])
+	var map_level := int(values[0])
+	var tile_value := int(values[3])
+	runtime_state.set_tile(level_kind, map_level, tile_x, tile_y, tile_value)
+	return _yield_result("set_map_tile", {
+		"extraCodeId": extra_code_id,
+		"levelType": level_kind,
+		"levelIndex": map_level,
+		"x": tile_x,
+		"y": tile_y,
+		"tileValue": tile_value,
+	})
+
+
+func _execute_trigger_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Trigger mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var range_start_with_sign := int(values[3])
+	var level_kind := runtime_state.level_type
+	if range_start_with_sign < 0:
+		level_kind = "dungeon"
+	elif range_start_with_sign > 0:
+		level_kind = "land"
+	var map_level := int(values[0])
+	var percent := int(values[2])
+	var trigger_ids: Array = []
+	var single_trigger_id := int(values[1])
+	if single_trigger_id != 0:
+		trigger_ids.append(single_trigger_id)
+	if range_start_with_sign != 0:
+		var range_start: int = abs(range_start_with_sign)
+		var range_end: int = abs(int(values[4]))
+		for trigger_id: int in range(range_start, range_end + 1):
+			if not trigger_ids.has(trigger_id):
+				trigger_ids.append(trigger_id)
+	for trigger_id: int in trigger_ids:
+		runtime_state.set_trigger_percent(level_kind, map_level, trigger_id, percent)
+	return _yield_result("set_trigger_percent", {
+		"extraCodeId": extra_code_id,
+		"levelType": level_kind,
+		"levelIndex": map_level,
+		"triggerIds": trigger_ids,
+		"percent": percent,
+	})
+
+
+func _execute_battle_outcome(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Battle outcome branch references missing Extra Code row %d" % extra_code_id
+		)
+	var first_battle_id := int(values[0])
+	var last_battle_id := int(values[1]) if int(values[1]) != 0 else first_battle_id
+	pending_battle = {
+		"extraCodeId": extra_code_id,
+		"cowardMacroId": int(values[2]),
+		"gosub": gosub,
+	}
+	return _yield_result("start_battle", {
+		"extraCodeId": extra_code_id,
+		"battleIdRange": [abs(first_battle_id), abs(last_battle_id)],
+		"soundId": int(values[3]),
+		"messageId": int(values[4]),
+		"message": bundle.get_message(int(values[4])),
+		"lootMode": 0,
+		"battle": bundle.get_battle(first_battle_id),
+		"outcomeBranch": true,
+		"cowardMacroId": int(values[2]),
 	})
 
 
@@ -235,11 +434,11 @@ func _branch_from_extra_code(values: Array, gosub: bool) -> Dictionary:
 		0:
 			return _branch_to_extra_action_point(int(values[3]), gosub, 0)
 		1, 2:
-			return _yield_result("start_encounter", {
-				"encounterKind": "simple" if int(values[2]) == 1 else "complex",
-				"encounterId": int(values[3]),
-				"startSlot": int(values[4]),
-			})
+			return _execute_encounter(
+				"simple" if int(values[2]) == 1 else "complex",
+				int(values[3]),
+				int(values[4])
+			)
 		3:
 			current_trigger = {}
 			call_stack.clear()
@@ -272,6 +471,47 @@ func _set_cursor(trigger: Dictionary, start_slot: int) -> void:
 		if action is Dictionary and int(action.get("slot", -1)) >= start_slot:
 			break
 		current_action_index += 1
+
+
+func _encounter_outcome_trigger(
+	encounter_kind: String,
+	encounter_id: int,
+	encounter: Dictionary,
+	outcome: int
+) -> Dictionary:
+	var encounter_actions: Variant = encounter.get("actions", [])
+	if not (encounter_actions is Array):
+		return {}
+	var first_slot := (outcome - 1) * 8
+	var actions: Array = []
+	for action_value: Variant in encounter_actions:
+		if not (action_value is Dictionary):
+			continue
+		var slot := int(action_value.get("slot", -1))
+		if slot < first_slot or slot >= first_slot + 8:
+			continue
+		var action: Dictionary = action_value.duplicate(true)
+		var raw_code := int(action.get("rawCode", 0))
+		action["code"] = abs(raw_code) if raw_code < 0 and raw_code not in [-14, -23] else raw_code
+		action["gosub"] = raw_code < 0 and raw_code not in [-14, -23]
+		action["slot"] = slot - first_slot
+		actions.append(action)
+	return {
+		"id": "%s encounter:%d:outcome:%d" % [encounter_kind, encounter_id, outcome],
+		"source": "Data ED" if encounter_kind == "simple" else "Data ED2",
+		"recordIndex": encounter_id,
+		"actions": actions,
+	}
+
+
+func _break_encounter() -> Dictionary:
+	if encounter_origins.is_empty():
+		return _halt_with_error("Break encounter loop has no active encounter")
+	var origin: Dictionary = encounter_origins.pop_back()
+	current_trigger = origin["trigger"]
+	current_action_index = int(origin["actionIndex"])
+	call_stack = origin["callStack"]
+	return _continue_result()
 
 
 func _restore_call_frame() -> void:

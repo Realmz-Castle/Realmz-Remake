@@ -50,6 +50,14 @@ func answer_choice(accepted: bool) -> void:
 	_publish(interpreter.resume_choice(accepted))
 
 
+func finish_encounter(outcome: int) -> void:
+	_publish(interpreter.resume_encounter(outcome))
+
+
+func finish_battle(coward: bool) -> void:
+	_publish(interpreter.resume_battle(coward))
+
+
 func snapshot() -> Dictionary:
 	return runtime_state.snapshot()
 
