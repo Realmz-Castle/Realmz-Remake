@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "battles": [],
+  "treasures": [],
+  "shops": [],
+  "simpleEncounters": [],
+  "complexEncounters": [
+    {
+      "id": 1,
+      "actions": [
+        {"id": 139, "rawCode": 1, "slot": 0},
+        {"id": 153, "rawCode": 1, "slot": 1}
+      ],
+      "actionResult": 2,
+      "wordResult": 1,
+      "groups": [1, 0, 0, 0, 0, 0, 0, 0],
+      "spellIds": [1501, 1607, 2201, 2507, 3603, 0, 0, 0, 0, 0],
+      "spellResults": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+      "itemIds": [403, 0, 0, 0, 0],
+      "itemResults": [3, 0, 0, 0, 0],
+      "choiceResults": [2, 0, 0, 0],
+      "wordResults": [1, 0, 0, 0],
+      "canBackOut": true,
+      "thief": false,
+      "maxTimes": 125,
+      "casteSuccess": 0,
+      "thiefSuccess": 0,
+      "thiefFail": 0,
+      "prompt": 142,
+      "texts": [
+        "Examine some books.",
+        "Study quietly at a table.",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "waterford"
+      ],
+      "authored": false,
+      "provenance": {"sourceFile": "Data ED2", "recordIndex": 1, "byteOffset": 520, "byteLength": 520, "confidence": "source-backed"}
+    }
+  ],
+  "thiefEncounters": [],
+  "timedEncounters": []
+}

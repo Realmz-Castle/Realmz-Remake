@@ -81,6 +81,7 @@ func _init() -> void:
 	_test_map_mutations(bundle)
 	_test_complex_encounter(bundle)
 	_test_complex_action_choices(bundle)
+	_test_complex_word_results()
 	_test_complex_spell_results(bundle)
 	_test_complex_item_results(bundle)
 	_test_shipped_lock_encounter(bundle)
@@ -567,6 +568,75 @@ func _test_complex_action_choices(bundle) -> void:
 		library.get("choices"),
 		["Examine some books.", "Study quietly at a table."],
 		"complex action choices exclude the separate spoken-word field"
+	)
+
+
+func _test_complex_word_results() -> void:
+	var adapter = GodotAdapterScript.new()
+	var archive := {
+		"texts": [
+			"Examine some books.",
+			"Study quietly at a table.",
+			"", "", "", "", "", "",
+			"waterford",
+		],
+		"wordResult": 1,
+	}
+	var choices: Array = []
+	var tokens: Array = []
+	adapter._append_complex_word_choice(archive, choices, tokens)
+	_expect_equal(choices, ["Speak"], "complex word response exposes the speech control")
+	_expect_equal(tokens, ["word"], "complex word response uses its own selection token")
+	choices.clear()
+	tokens.clear()
+	adapter._append_complex_word_choice({"wordResult": 0}, choices, tokens)
+	_expect_equal(choices, [], "encounters without a word result omit the speech control")
+	_expect_equal(
+		adapter.resolve_complex_word_result(archive, "waterford"),
+		1,
+		"exact spoken word selects its authored result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_word_result(archive, "WATERFORD"),
+		1,
+		"spoken-word matching is case-insensitive"
+	)
+	_expect_equal(
+		adapter.resolve_complex_word_result(archive, "waterford cellar"),
+		1,
+		"Classic accepts entered text beyond the matching word prefix"
+	)
+	_expect_equal(
+		adapter.resolve_complex_word_result(archive, "water"),
+		4,
+		"short spoken-word prefixes use Classic's result 4 fallback"
+	)
+	_expect_equal(
+		adapter.resolve_complex_word_result(archive, ""),
+		4,
+		"empty text cannot resolve a spoken-word result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_word_result(
+			{
+				"texts": ["", "", "", "", "", "", "", "", "magic phrase"],
+				"wordResult": 3,
+			},
+			"MAGIC lantern"
+		),
+		3,
+		"Classic stops the stored response at its first space"
+	)
+	var forty_character_response: Dictionary = archive.duplicate(true)
+	forty_character_response["texts"][8] = "a".repeat(40) + "x"
+	forty_character_response["wordResult"] = 2
+	_expect_equal(
+		adapter.resolve_complex_word_result(
+			forty_character_response,
+			"A".repeat(40) + "y"
+		),
+		2,
+		"Classic compares no more than forty characters"
 	)
 
 

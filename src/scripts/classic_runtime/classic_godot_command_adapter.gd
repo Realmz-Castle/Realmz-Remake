@@ -5,6 +5,8 @@ const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
 const COMPLEX_ACTION_TEXT_COUNT := 8
+const COMPLEX_WORD_TEXT_INDEX := 8
+const COMPLEX_WORD_TEXT_LIMIT := 40
 
 
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
@@ -81,6 +83,7 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			)
 			var choices: Array = choice_model["choices"]
 			var choice_tokens: Array = choice_model["tokens"]
+			_append_complex_word_choice(encounter, choices, choice_tokens)
 			_append_complex_spell_choice(encounter, choices, choice_tokens)
 			_append_complex_item_choice(encounter, choices, choice_tokens)
 			if bool(encounter.get("canBackOut", false)):
@@ -95,6 +98,11 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			))
 			if selected == "back":
 				return {"outcome": 0}
+			if selected == "word":
+				var word_result := await _select_complex_word(encounter)
+				if str(word_result.get("status", "")) == "cancelled":
+					continue
+				return word_result
 			if selected == "spell":
 				var spell_result := await _select_complex_spell(encounter)
 				if str(spell_result.get("status", "")) == "cancelled":
@@ -138,6 +146,7 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		var action_choices := build_complex_action_choices(encounter, false)
 		choices.append_array(action_choices["choices"])
 		choice_tokens.append_array(action_choices["tokens"])
+		_append_complex_word_choice(encounter, choices, choice_tokens)
 		_append_complex_spell_choice(encounter, choices, choice_tokens)
 		_append_complex_item_choice(encounter, choices, choice_tokens)
 		if bool(encounter.get("canBackOut", false)):
@@ -151,6 +160,12 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				"outcome": 0,
 				"thiefEncounter": resolver.rogue_encounter.duplicate(true),
 			}
+		if selected == "word":
+			var word_result := await _select_complex_word(encounter)
+			if str(word_result.get("status", "")) == "cancelled":
+				continue
+			word_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			return word_result
 		if selected == "spell":
 			var spell_result := await _select_complex_spell(encounter)
 			if str(spell_result.get("status", "")) == "cancelled":
@@ -221,6 +236,22 @@ func build_complex_action_choices(encounter: Dictionary, can_back_out: bool) -> 
 	return {"choices": choices, "tokens": tokens}
 
 
+func resolve_complex_word_result(encounter: Dictionary, entered_text: String) -> int:
+	var outcome := int(encounter.get("wordResult", 0))
+	if outcome == 0 or entered_text.is_empty():
+		return 4
+	var texts: Variant = encounter.get("texts", [])
+	var expected := str(texts[COMPLEX_WORD_TEXT_INDEX]) \
+		if texts is Array and texts.size() > COMPLEX_WORD_TEXT_INDEX else ""
+	expected = expected.left(COMPLEX_WORD_TEXT_LIMIT)
+	var first_space := expected.find(" ")
+	if first_space >= 0:
+		expected = expected.left(first_space)
+	# Classic lowercases entered text, stops at the stored word's first space,
+	# and never requires the entered text to end after the matching prefix.
+	return outcome if entered_text.to_lower().begins_with(expected) else 4
+
+
 func resolve_complex_spell_result(
 	encounter: Dictionary,
 	spell_name: String,
@@ -281,6 +312,17 @@ func resolve_complex_item_result(
 	return 4
 
 
+func _append_complex_word_choice(
+	encounter: Dictionary,
+	choices: Array,
+	tokens: Array
+) -> void:
+	if int(encounter.get("wordResult", 0)) == 0:
+		return
+	choices.append("Speak")
+	tokens.append("word")
+
+
 func _append_complex_spell_choice(
 	encounter: Dictionary,
 	choices: Array,
@@ -311,6 +353,26 @@ func _append_complex_item_choice(
 func _has_complex_item_responses(encounter: Dictionary) -> bool:
 	var item_ids: Variant = encounter.get("itemIds", [])
 	return item_ids is Array and not item_ids.is_empty() and int(item_ids[0]) != 0
+
+
+func _select_complex_word(encounter: Dictionary) -> Dictionary:
+	var ui: Object = _autoload("UI")
+	if ui == null or ui.ow_hud == null:
+		return _error("Realmz HUD is unavailable for Classic spoken-word selection")
+	var encounter_control: Object = ui.ow_hud.encounterControl
+	if encounter_control == null \
+			or not encounter_control.has_method("initialize_phrase_for_encounter"):
+		return _error("Realmz encounter speech panel does not support compatibility selection")
+	encounter_control.initialize_phrase_for_encounter()
+	await encounter_control.encounter_phrase_submitted
+	encounter_control.hide()
+	var entered_text := str(encounter_control.encounter_phrase)
+	if entered_text.is_empty():
+		return {"status": "cancelled"}
+	return {
+		"outcome": resolve_complex_word_result(encounter, entered_text),
+		"spokenText": entered_text,
+	}
 
 
 func _select_complex_spell(encounter: Dictionary) -> Dictionary:

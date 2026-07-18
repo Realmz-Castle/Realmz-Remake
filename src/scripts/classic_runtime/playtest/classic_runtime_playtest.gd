@@ -104,6 +104,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if trigger_id == "Data DD:6:28":
+		await _run_complex_word_smoke()
+		return
 	if not test_spell_name.is_empty():
 		await _run_complex_spell_smoke()
 		return
@@ -150,6 +153,89 @@ func _run_automated_smoke() -> void:
 		"04_playthrough_complete",
 		"Classic guard-house playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host reports completed playthrough"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_complex_word_smoke() -> void:
+	var choices_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"01_complex_word_prompt",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"You are standing in the town archives"
+		),
+		"source-backed archive prompt is visible"
+	)
+	_verify_smoke_stage(
+		"02_complex_word_choice",
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and _choice_menu_fits_map_area(),
+		"speak appears beside the two archive actions and back-out"
+	)
+	if not choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("word")
+	var speech_panel_ready := await _wait_for_speech_panel()
+	_verify_smoke_stage(
+		"03_native_speech_panel",
+		speech_panel_ready and not UI.ow_hud.textRect.choicesContainer.visible,
+		"Remake's encounter speech input opens in place of the choices"
+	)
+	if not speech_panel_ready:
+		get_tree().quit(1)
+		return
+	var encounter_control: Control = UI.ow_hud.encounterControl
+	var done_button: Button = encounter_control.speakButton.get_child(0).find_child(
+		"SpeakDoneButton"
+	)
+	done_button.pressed.emit()
+	var retry_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"04_empty_phrase_returns",
+		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8,
+		"an empty phrase returns to the encounter choices"
+	)
+	if not retry_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("word")
+	speech_panel_ready = await _wait_for_speech_panel()
+	_verify_smoke_stage(
+		"05_speech_panel_reopens",
+		speech_panel_ready,
+		"the speech input can be reopened after cancellation"
+	)
+	if not speech_panel_ready:
+		get_tree().quit(1)
+		return
+	encounter_control.speakField.text = "WATERFORD"
+	done_button.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"06_complex_word_result",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"\"Waterford was supposed to be but a legend"
+		),
+		"case-insensitive speech selects the authored result"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"07_complex_word_continuation",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"\"I sought it out many years ago"
+		),
+		"the spoken-word result continues through its second source message"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"08_complex_word_complete",
+		"Classic spoken-word playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"host completes after the spoken-word result"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
@@ -560,6 +646,18 @@ func _wait_for_item_menu() -> bool:
 				and item_menu.itemsContainer.get_child_count() > 0:
 			return true
 	push_error("Classic item smoke timed out waiting for Remake's encounter item picker")
+	return false
+
+
+func _wait_for_speech_panel() -> bool:
+	for _frame: int in 120:
+		await get_tree().process_frame
+		var encounter_control: Control = UI.ow_hud.encounterControl
+		if encounter_control.visible \
+				and encounter_control.speakButton.visible \
+				and encounter_control.speakButton.get_child(0).visible:
+			return true
+	push_error("Classic word smoke timed out waiting for Remake's speech input")
 	return false
 
 

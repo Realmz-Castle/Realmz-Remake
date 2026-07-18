@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "fixture": "City of Bywater Providence export",
+  "fixtureNote": "Source-backed town archive prompt, waterford response, and first two result messages; later result actions are outside this isolated speech-adapter fixture.",
+  "validation": {"ok": true, "errors": []},
+  "semanticDecoding": {"dispatcherNoops": []}
+}

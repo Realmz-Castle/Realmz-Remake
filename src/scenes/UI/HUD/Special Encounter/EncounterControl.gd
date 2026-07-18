@@ -5,6 +5,8 @@ extends Control
 # var a = 2
 # var b = "text"
 var encounter_script = null  #GDScript instanced, so justa  RefCounted
+var encounter_phrase_selection_mode := false
+var encounter_phrase := ""
 
 @onready var disablerButton : Button = get_parent().find_child("DisablerButton")
 @onready var boxContainer : HBoxContainer = $HBoxContainer
@@ -22,6 +24,7 @@ var encounter_script = null  #GDScript instanced, so justa  RefCounted
 @onready var choiceContainer = $"../VBoxScreen/HBoxTop/MapArea/ChoicesVBoxContainer"
 
 signal encounter_over
+signal encounter_phrase_submitted
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -31,6 +34,8 @@ func _ready():
 
 func initialize(scriptname : String) :
 	print("encountercontrol initialize : "+scriptname)
+	encounter_phrase_selection_mode = false
+	encounter_phrase = ""
 	#GameGlobal.currentSpecialEncounterName = scriptname
 #	for b in boxContainer.get_children() :
 #		b.show()
@@ -74,6 +79,21 @@ func initialize(scriptname : String) :
 	await self.encounter_over
 	print('encounter_over')
 	close()
+
+
+func initialize_phrase_for_encounter() -> void:
+	encounter_phrase_selection_mode = true
+	encounter_phrase = ""
+	close_spell_menu()
+	choiceContainer.hide()
+	useitemRect.hide()
+	for button: Node in boxContainer.get_children():
+		button.hide()
+	speakButton.show()
+	speakField.set_text("")
+	speakButton.get_child(0).show()
+	show()
+	speakField.grab_focus()
 
 func close(returnedbyencounter=null) :
 	#GameState.set_paused(false)
@@ -153,7 +173,14 @@ func _on_SpeakDoneButton_pressed():
 	close_spell_menu()
 	choiceContainer.hide()
 	speakButton.get_child(0).hide()
-	await encounter_script._on_speaking(speakField.get_text())
+	var entered_text := speakField.get_text()
+	if encounter_phrase_selection_mode:
+		encounter_phrase_selection_mode = false
+		encounter_phrase = entered_text
+		speakField.set_text('')
+		encounter_phrase_submitted.emit()
+		return
+	await encounter_script._on_speaking(entered_text)
 	speakField.set_text('')
 
 func _on_StopButton_pressed():
