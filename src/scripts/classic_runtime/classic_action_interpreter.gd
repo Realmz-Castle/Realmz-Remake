@@ -2,12 +2,14 @@ class_name ClassicActionInterpreter
 extends RefCounted
 
 const MAX_INTERNAL_STEPS := 256
+const MAX_CALL_STACK_DEPTH := 20
 
 var bundle: ClassicCampaignBundle
 var runtime_state: ClassicRuntimeState
 var current_trigger: Dictionary = {}
 var current_action_index := 0
 var call_stack: Array = []
+var gosub_active := false
 var pending_choice: Dictionary = {}
 var pending_encounter: Dictionary = {}
 var pending_battle: Dictionary = {}
@@ -27,6 +29,7 @@ func reset_execution() -> void:
 	current_trigger = {}
 	current_action_index = 0
 	call_stack.clear()
+	gosub_active = false
 	pending_choice.clear()
 	pending_encounter.clear()
 	pending_battle.clear()
@@ -61,21 +64,20 @@ func run_until_yield() -> Dictionary:
 
 	for _step: int in MAX_INTERNAL_STEPS:
 		if current_trigger.is_empty():
-			if call_stack.is_empty():
-				return _completed_result("action-point-ended")
-			_restore_call_frame()
+			return _completed_result("action-point-ended")
 
 		var actions: Variant = current_trigger.get("actions", [])
 		if not (actions is Array):
 			return _halt_with_error("Trigger %s has no action array" % _current_trigger_id())
 		if current_action_index >= actions.size():
-			current_trigger = {}
-			continue
+			_clear_control_flow()
+			return _completed_result("action-point-ended")
 
 		var action: Variant = actions[current_action_index]
 		current_action_index += 1
 		if not (action is Dictionary):
 			return _halt_with_error("Trigger %s contains a non-object action" % _current_trigger_id())
+		_update_gosub_state(action)
 		trace.append({
 			"triggerId": _current_trigger_id(),
 			"slot": int(action.get("slot", -1)),
@@ -102,8 +104,7 @@ func resume_choice(accepted: bool) -> Dictionary:
 
 	match int(values[1]):
 		0:
-			current_trigger = {}
-			call_stack.clear()
+			_clear_control_flow()
 			return _completed_result("choice-exit")
 		1:
 			var branch_result := _branch_to_extra_action_point(
@@ -131,8 +132,7 @@ func resume_encounter(outcome: int) -> Dictionary:
 	var encounter_context := pending_encounter
 	pending_encounter = {}
 	if outcome == 0:
-		current_trigger = {}
-		call_stack.clear()
+		_clear_control_flow()
 		encounter_origins.clear()
 		return _completed_result("encounter-cancelled")
 	if outcome < 1 or outcome > 4:
@@ -164,8 +164,7 @@ func resume_battle(coward: bool) -> Dictionary:
 
 	var coward_macro_id := int(battle_context["cowardMacroId"])
 	if coward_macro_id == -1:
-		current_trigger = {}
-		call_stack.clear()
+		_clear_control_flow()
 		return _yield_result("apply_coward_penalty", {
 			"experiencePerLevel": 2000,
 			"soundId": 26260,
@@ -196,7 +195,7 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		2:
 			return _execute_battle(record_id)
 		3:
-			return _execute_choice(record_id, bool(action.get("gosub", false)))
+			return _execute_choice(record_id, gosub_active)
 		4:
 			return _execute_encounter("simple", record_id)
 		5:
@@ -212,23 +211,28 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		20, 45:
 			return _execute_teleport(record_id, code == 20)
 		24:
-			current_trigger = {}
-			call_stack.clear()
+			_clear_control_flow()
 			return _completed_result("keep-codes")
 		39:
-			return _branch_to_extra_action_point(record_id, bool(action.get("gosub", false)), 0)
+			# Classic's Extend Door Codes replaces the active AP without pushing,
+			# even when its raw opcode is negative.
+			return _branch_to_extra_action_point(record_id, false, 0)
 		56:
-			return _execute_battle_outcome(record_id, bool(action.get("gosub", false)))
+			return _execute_battle_outcome(record_id, gosub_active)
 		46:
-			return _execute_quest_branch(record_id, bool(action.get("gosub", false)))
+			return _execute_quest_branch(record_id, gosub_active)
 		47:
 			runtime_state.set_quest_flag(record_id)
 			return _continue_result()
 		111:
 			if call_stack.is_empty():
-				current_trigger = {}
+				_clear_control_flow()
 				return _completed_result("return-with-empty-stack")
 			_restore_call_frame()
+			return _continue_result()
+		112:
+			if not call_stack.is_empty():
+				call_stack.pop_back()
 			return _continue_result()
 		34:
 			return _break_encounter()
@@ -431,12 +435,16 @@ func _execute_quest_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 
 
 func _branch_from_extra_code(values: Array, gosub: bool) -> Dictionary:
+	if gosub:
+		var push_result := _push_call_frame()
+		if str(push_result.get("status", "")) != "continue":
+			return push_result
 	match int(values[2]):
 		-1:
 			current_trigger = {}
 			return _completed_result("dropout")
 		0:
-			return _branch_to_extra_action_point(int(values[3]), gosub, 0)
+			return _branch_to_extra_action_point(int(values[3]), false, 0)
 		1, 2:
 			return _execute_encounter(
 				"simple" if int(values[2]) == 1 else "complex",
@@ -444,8 +452,7 @@ func _branch_from_extra_code(values: Array, gosub: bool) -> Dictionary:
 				int(values[4])
 			)
 		3:
-			current_trigger = {}
-			call_stack.clear()
+			_clear_control_flow()
 			return _completed_result("keep-codes")
 		_:
 			return _halt_with_error("Unsupported classic branch mode %d" % int(values[2]))
@@ -456,11 +463,22 @@ func _branch_to_extra_action_point(record_id: int, gosub: bool, start_slot: int)
 	if target.is_empty():
 		return _halt_with_error("Missing Data ED3 action point %d" % record_id)
 	if gosub:
-		call_stack.append({
-			"trigger": current_trigger,
-			"actionIndex": current_action_index,
-		})
+		var push_result := _push_call_frame()
+		if str(push_result.get("status", "")) != "continue":
+			return push_result
 	_set_cursor(target, start_slot)
+	return _continue_result()
+
+
+func _push_call_frame() -> Dictionary:
+	if call_stack.size() >= MAX_CALL_STACK_DEPTH:
+		return _halt_with_error(
+			"Classic GOSUB stack exceeded %d frames" % MAX_CALL_STACK_DEPTH
+		)
+	call_stack.append({
+		"trigger": current_trigger,
+		"actionIndex": current_action_index,
+	})
 	return _continue_result()
 
 
@@ -522,6 +540,20 @@ func _restore_call_frame() -> void:
 	var frame: Dictionary = call_stack.pop_back()
 	current_trigger = frame["trigger"]
 	current_action_index = int(frame["actionIndex"])
+
+
+func _update_gosub_state(action: Dictionary) -> void:
+	if bool(action.get("gosub", false)):
+		gosub_active = true
+	elif call_stack.is_empty():
+		gosub_active = false
+
+
+func _clear_control_flow() -> void:
+	current_trigger = {}
+	current_action_index = 0
+	call_stack.clear()
+	gosub_active = false
 
 
 func _extra_code_values(record_id: int) -> Array:

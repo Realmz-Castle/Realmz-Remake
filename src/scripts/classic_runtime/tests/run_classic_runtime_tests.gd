@@ -44,6 +44,7 @@ func _init() -> void:
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
 	_test_quest_state_and_branch(bundle)
+	_test_classic_stack_semantics()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
 	_test_sound_and_treasure(bundle)
@@ -140,6 +141,60 @@ func _test_quest_state_and_branch(bundle) -> void:
 	var true_branch: Dictionary = interpreter.run_until_yield()
 	_expect_equal(true_branch.get("command"), "show_text", "set quest continues within current AP")
 	_expect_equal(true_branch.get("payload", {}).get("messageId"), 620, "continued AP reaches CoB message 620")
+
+
+func _test_classic_stack_semantics() -> void:
+	var bundle = _stack_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("stack:sticky"), "begin sticky GOSUB stack fixture")
+	var nested_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(nested_result.get("payload", {}).get("messageId"), 902, "nested positive branch inherits GOSUB mode")
+	_expect_equal(interpreter.call_stack.size(), 2, "sticky GOSUB pushes nested positive branch")
+	_expect(interpreter.gosub_active, "GOSUB mode remains active while nested")
+	var middle_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(middle_result.get("payload", {}).get("messageId"), 901, "first return resumes middle AP")
+	_expect_equal(interpreter.call_stack.size(), 1, "first return pops one frame")
+	var root_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(root_result.get("payload", {}).get("messageId"), 900, "second return resumes root AP")
+	_expect_equal(interpreter.call_stack.size(), 0, "second return empties stack")
+	_expect(not interpreter.gosub_active, "positive root action clears GOSUB mode on empty stack")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("stack:pop"), "begin POP stack fixture")
+	var pop_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(pop_result.get("payload", {}).get("messageId"), 910, "POP discards middle frame before return")
+	_expect_equal(interpreter.call_stack.size(), 0, "POP and return consume both frames")
+	_expect(
+		not _trace_has_action(interpreter.trace, "Data ED3:macro:200", 1),
+		"discarded frame does not resume"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("stack:empty-pop"), "begin empty POP stack fixture")
+	var empty_pop_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(empty_pop_result.get("payload", {}).get("messageId"), 912, "POP on an empty stack is a no-op")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("stack:no-implicit-return"), "begin explicit-return fixture")
+	var leaf_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(leaf_result.get("payload", {}).get("messageId"), 921, "GOSUB leaf executes")
+	var ended_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(ended_result.get("reason"), "action-point-ended", "AP end does not implicitly return")
+	_expect_equal(interpreter.call_stack.size(), 0, "unfinished frames are discarded when execution ends")
+	_expect(
+		not _trace_has_action(interpreter.trace, "stack:no-implicit-return", 1),
+		"root AP remains suspended without opcode 111"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("stack:overflow"), "begin stack depth fixture")
+	var overflow_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(overflow_result.get("status"), "error", "twenty-first GOSUB frame stops safely")
+	_expect_equal(interpreter.call_stack.size(), 20, "GOSUB stack matches Classic's twenty-frame capacity")
+	_expect(
+		str(overflow_result.get("message", "")).contains("exceeded 20 frames"),
+		"stack overflow reports Classic frame limit"
+	)
 
 
 func _test_battle_request(bundle) -> void:
@@ -281,7 +336,7 @@ func _test_full_bundle(path: String) -> void:
 	for coordinate: Variant in bundle.triggers_by_coordinate:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
-	var handled_codes := [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 20, 24, 39, 45, 46, 47, 56, 111]
+	var handled_codes := [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 20, 24, 39, 45, 46, 47, 56, 111, 112]
 	var active_slots := 0
 	var handled_slots := 0
 	for trigger_value: Variant in bundle.triggers_by_id.values():
@@ -376,6 +431,118 @@ func _interpreter(bundle):
 	var interpreter = InterpreterScript.new()
 	interpreter.configure(bundle, state)
 	return interpreter
+
+
+func _stack_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+
+	_add_stack_trigger(bundle, "stack:sticky", -1, [
+		_classic_action(0, -46, 1),
+		_classic_action(1, 1, 900),
+		_classic_action(2, 24, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:100", 100, [
+		_classic_action(0, 46, 2),
+		_classic_action(1, 1, 901),
+		_classic_action(2, 111, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:101", 101, [
+		_classic_action(0, 1, 902),
+		_classic_action(1, 111, 0),
+	])
+	_add_stack_branch(bundle, 1, 100)
+	_add_stack_branch(bundle, 2, 101)
+
+	_add_stack_trigger(bundle, "stack:pop", -1, [
+		_classic_action(0, -46, 3),
+		_classic_action(1, 1, 910),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:200", 200, [
+		_classic_action(0, 46, 4),
+		_classic_action(1, 1, 911),
+		_classic_action(2, 111, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:201", 201, [
+		_classic_action(0, 112, 0),
+		_classic_action(1, 111, 0),
+	])
+	_add_stack_branch(bundle, 3, 200)
+	_add_stack_branch(bundle, 4, 201)
+
+	_add_stack_trigger(bundle, "stack:empty-pop", -1, [
+		_classic_action(0, 112, 0),
+		_classic_action(1, 1, 912),
+	])
+
+	_add_stack_trigger(bundle, "stack:no-implicit-return", -1, [
+		_classic_action(0, -46, 5),
+		_classic_action(1, 1, 920),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:300", 300, [
+		_classic_action(0, 1, 921),
+	])
+	_add_stack_branch(bundle, 5, 300)
+
+	_add_stack_trigger(bundle, "stack:overflow", -1, [
+		_classic_action(0, -46, 1000),
+	])
+	for index: int in range(21):
+		var record_id := 400 + index
+		var actions: Array = []
+		if index < 20:
+			actions.append(_classic_action(0, 46, 1001 + index))
+		else:
+			actions.append(_classic_action(0, 111, 0))
+		_add_stack_trigger(bundle, "Data ED3:macro:%d" % record_id, record_id, actions)
+	_add_stack_branch(bundle, 1000, 400)
+	for index: int in range(20):
+		_add_stack_branch(bundle, 1001 + index, 401 + index)
+
+	return bundle
+
+
+func _add_stack_trigger(
+	bundle,
+	trigger_id: String,
+	record_id: int,
+	actions: Array
+) -> void:
+	var trigger := {
+		"id": trigger_id,
+		"source": "Data ED3" if record_id >= 0 else "Stack test",
+		"recordIndex": record_id,
+		"active": true,
+		"actions": actions,
+	}
+	bundle.triggers_by_id[trigger_id] = trigger
+	if record_id >= 0:
+		bundle.extra_action_points_by_id[record_id] = trigger
+
+
+func _add_stack_branch(bundle, extra_code_id: int, target_record_id: int) -> void:
+	bundle.extra_codes_by_id[extra_code_id] = {
+		"id": extra_code_id,
+		"values": [0, 2, 0, target_record_id, 0],
+	}
+
+
+func _classic_action(slot: int, raw_code: int, record_id: int) -> Dictionary:
+	var starts_gosub := raw_code < 0 and raw_code not in [-14, -23]
+	return {
+		"slot": slot,
+		"rawCode": raw_code,
+		"code": abs(raw_code) if starts_gosub else raw_code,
+		"id": record_id,
+		"gosub": starts_gosub,
+	}
+
+
+func _trace_has_action(entries: Array, trigger_id: String, slot: int) -> bool:
+	for entry: Variant in entries:
+		if entry is Dictionary and entry.get("triggerId") == trigger_id and int(entry.get("slot", -1)) == slot:
+			return true
+	return false
 
 
 func _expect(condition: bool, label: String) -> void:

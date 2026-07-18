@@ -23,6 +23,9 @@ Implemented opcodes in this slice:
 - `47` Set or clear quest flag
 - `56` Battle request with victory, coward-branch, and coward-penalty continuation
 - `111` Return from GOSUB
+- `112` Pop one GOSUB frame without returning
+
+The interpreter preserves Classic's unusual stack semantics: a negative action enables a sticky GOSUB mode, positive actions only clear that mode when the stack is empty, and branch opcodes may therefore push even when their own action code is positive. Returns are explicit through opcode `111`; merely reaching the end of an action point does not unwind the stack. Stack depth is capped at Classic's 20 frames with a safe runtime error instead of writing past the original fixed-size arrays.
 
 Encounter result values select the corresponding eight-action block from `Data ED` or `Data ED2`. Battle outcome branches remain suspended until the host reports victory or cowardice. Persistent tile and trigger mutations are included in runtime snapshots; the bundle records themselves remain immutable.
 
