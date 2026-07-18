@@ -121,7 +121,7 @@ func _trap_result(type_flags: Array) -> Dictionary:
 			"damageHigh": int(rogue_encounter.get("highDamage", 0)),
 			"spellId": int(rogue_encounter.get("spell", 0)),
 			"spellPower": _array_int("prompts", 2),
-			"soundId": _array_int("promptSounds", 1),
+			"soundId": _array_int("prompts", 1),
 			"rogueOnly": bool(type_flags[8]),
 		},
 		"thiefEncounter": rogue_encounter.duplicate(true),

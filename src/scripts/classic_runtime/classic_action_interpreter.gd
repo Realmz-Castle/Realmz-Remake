@@ -345,7 +345,7 @@ func _apply_encounter_state(encounter_context: Dictionary, encounter_state: Dict
 func _thief_messages(thief_encounter: Dictionary) -> Array:
 	var messages: Array = []
 	var included_ids: Dictionary = {}
-	for field_name: String in ["successText", "failureText", "prompts"]:
+	for field_name: String in ["successText", "failureText"]:
 		var ids: Variant = thief_encounter.get(field_name, [])
 		if not (ids is Array):
 			continue
@@ -355,6 +355,11 @@ func _thief_messages(thief_encounter: Dictionary) -> Array:
 				continue
 			included_ids[message_id] = true
 			messages.append(bundle.get_message(message_id))
+	var prompts: Variant = thief_encounter.get("prompts", [])
+	if prompts is Array and not prompts.is_empty():
+		var prompt_id: int = abs(int(prompts[0]))
+		if prompt_id != 0 and not included_ids.has(prompt_id):
+			messages.append(bundle.get_message(prompt_id))
 	return messages
 
 

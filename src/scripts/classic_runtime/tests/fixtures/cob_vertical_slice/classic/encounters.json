@@ -24,6 +24,16 @@
   ],
   "treasures": [
     {
+      "id": 8,
+      "itemIds": [600, 601, 617, 801, 806, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "exp": 600,
+      "gold": 0,
+      "gems": 5,
+      "jewelry": 2,
+      "authored": false,
+      "provenance": {"sourceFile": "Data TD", "recordIndex": 8, "byteOffset": 384, "byteLength": 48, "confidence": "source-backed"}
+    },
+    {
       "id": 11,
       "itemIds": [807, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       "exp": 1200,
@@ -105,6 +115,44 @@
       "provenance": {"sourceFile": "Data ED2", "recordIndex": 2, "byteOffset": 1040, "byteLength": 520, "confidence": "source-backed"}
     },
     {
+      "id": 3,
+      "actions": [
+        {"id": 209, "rawCode": 1, "slot": 0},
+        {"id": 8, "rawCode": 10, "slot": 1},
+        {"id": 0, "rawCode": 25, "slot": 7},
+        {"id": 210, "rawCode": 1, "slot": 8},
+        {"id": 8, "rawCode": 10, "slot": 9},
+        {"id": 0, "rawCode": 25, "slot": 15},
+        {"id": -98, "rawCode": 1, "slot": 16},
+        {"id": 1, "rawCode": 14, "slot": 17},
+        {"id": 208, "rawCode": 1, "slot": 18},
+        {"id": 60, "rawCode": 15, "slot": 19},
+        {"id": 209, "rawCode": 1, "slot": 20},
+        {"id": 8, "rawCode": 10, "slot": 21},
+        {"id": 0, "rawCode": 25, "slot": 23},
+        {"id": 211, "rawCode": 1, "slot": 24}
+      ],
+      "actionResult": 3,
+      "wordResult": 0,
+      "groups": [1, 0, 0, 0, 0, 0, 0, 0],
+      "spellIds": [1109, 3605, 0, 0, 0, 0, 0, 0, 0, 0],
+      "spellResults": [2, 2, 0, 0, 0, 0, 0, 0, 0, 0],
+      "itemIds": [654, 641, 0, 0, 0],
+      "itemResults": [2, 2, 0, 0, 0],
+      "choiceResults": [3, 0, 0, 0],
+      "wordResults": [0, 0, 0, 0],
+      "canBackOut": true,
+      "thief": true,
+      "maxTimes": 125,
+      "casteSuccess": 0,
+      "thiefSuccess": 1,
+      "thiefFail": 1,
+      "prompt": 207,
+      "texts": ["Try and pull box from wall", "", "", "", "", "", "", "", ""],
+      "authored": false,
+      "provenance": {"sourceFile": "Data ED2", "recordIndex": 3, "byteOffset": 1560, "byteLength": 520, "confidence": "source-backed"}
+    },
+    {
       "id": 4,
       "actions": [
         {"id": 141, "rawCode": 9, "slot": 0},
@@ -139,6 +187,25 @@
     }
   ],
   "thiefEncounters": [
+    {
+      "id": 1,
+      "typeFlags": [false, true, false, false, false, false, true, false, true, true],
+      "modifiers": [0, 20, 10, 0, 0, 0, 10, 0],
+      "successCodes": [0, 0, 0, 0, 0, 0, 2, 0],
+      "failureCodes": [0, 0, 0, 0, 0, 0, 0, 0],
+      "successText": [0, 7, 5, 0, 0, 0, 4, 0],
+      "failureText": [0, 1, 6, 0, 0, 0, 3, 0],
+      "successSounds": [0, 678, 677, 0, 0, 0, 141, 0],
+      "failureSounds": [0, 676, 679, 0, 0, 0, 696, 0],
+      "spell": 0,
+      "lowDamage": 4,
+      "highDamage": 12,
+      "tumblers": 3,
+      "prompts": [0, 692, 0],
+      "promptSounds": [0, 0, 0],
+      "authored": false,
+      "provenance": {"sourceFile": "Data TD2", "recordIndex": 1, "byteOffset": 118, "byteLength": 118, "confidence": "source-backed"}
+    },
     {
       "id": 4,
       "typeFlags": [false, true, false, false, true, false, true, false, false, false],

@@ -78,6 +78,9 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		return _error("Classic rogue encounters require a selected party member")
 
 	while true:
+		character = _living_rogue_character(character)
+		if character == null:
+			return _error("Classic rogue encounter has no conscious party member")
 		_show_encounter_prompt(text_rect, payload)
 		var choice_model := build_rogue_encounter_choices(
 			resolver,
@@ -110,7 +113,9 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			"error":
 				return _error(str(resolution.get("message", "Classic rogue action failed")))
 			"trap":
-				return _error("Classic armed-trap effects are not implemented yet")
+				var trap_result := await _show_rogue_trap(resolution, character)
+				if str(trap_result.get("status", "")) == "error":
+					return trap_result
 			"resolved":
 				await _show_rogue_feedback(payload, resolution)
 				var outcome := int(resolution.get("outcome", 0))
@@ -174,6 +179,67 @@ func _show_rogue_feedback(payload: Dictionary, resolution: Dictionary) -> void:
 		await _show_text({"message": message})
 
 
+func _show_rogue_trap(resolution: Dictionary, character: Object) -> Dictionary:
+	var trap_value: Variant = resolution.get("trap", {})
+	if not (trap_value is Dictionary):
+		return _error("Classic rogue trap payload is missing")
+	var trap: Dictionary = trap_value
+	if int(trap.get("spellId", 0)) != 0:
+		return _error("Classic trap spell effects are not implemented yet")
+	var damage_result := apply_rogue_trap_damage(
+		trap,
+		character,
+		_party_characters()
+	)
+	if str(damage_result.get("status", "")) == "error":
+		return damage_result
+	_play_sound({"soundId": int(trap.get("soundId", 0))})
+	var feedback: Array[String] = ["A trap is sprung!"]
+	for hit_value: Variant in damage_result.get("hits", []):
+		if not (hit_value is Dictionary):
+			continue
+		feedback.append("%s takes %d damage." % [
+			str(hit_value.get("name", "Party member")),
+			int(hit_value.get("damage", 0)),
+		])
+		_refresh_character_panel(hit_value.get("character"))
+	await _show_text({"message": {"text": "\n".join(feedback)}})
+	return {}
+
+
+func apply_rogue_trap_damage(
+	trap: Dictionary,
+	selected_character: Object,
+	party: Array
+) -> Dictionary:
+	var low_damage := int(trap.get("damageLow", 0))
+	var high_damage := int(trap.get("damageHigh", 0))
+	if low_damage < 0 or high_damage < low_damage:
+		return _error("Classic rogue trap has an invalid damage range")
+	# Classic treats a zero lower bound as a trap without direct HP damage.
+	if low_damage == 0:
+		return {"hits": []}
+
+	var targets: Array = [selected_character] if bool(trap.get("rogueOnly", false)) \
+		else party.duplicate()
+	if targets.is_empty():
+		return _error("Classic rogue trap has no damage target")
+	for target_value: Variant in targets:
+		if not (target_value is Object) or not target_value.has_method("change_cur_hp"):
+			return _error("Classic rogue trap target cannot receive damage")
+
+	var hits: Array = []
+	for target_value: Variant in targets:
+		var damage := randi_range(low_damage, high_damage)
+		target_value.change_cur_hp(-damage)
+		hits.append({
+			"character": target_value,
+			"name": str(target_value.get("name")),
+			"damage": damage,
+		})
+	return {"hits": hits}
+
+
 func _find_message(messages_value: Variant, message_id: int) -> Dictionary:
 	if not (messages_value is Array):
 		return {}
@@ -193,6 +259,35 @@ func _selected_character() -> Object:
 		if party is Array and not party.is_empty():
 			return party[0]
 	return null
+
+
+func _living_rogue_character(preferred: Object) -> Object:
+	if preferred != null and preferred.has_method("get_stat") \
+		and float(preferred.get_stat("curHP")) > 0.0:
+		return preferred
+	for character_value: Variant in _party_characters():
+		if character_value is Object and character_value.has_method("get_stat") \
+			and float(character_value.get_stat("curHP")) > 0.0:
+			return character_value
+	return null
+
+
+func _party_characters() -> Array:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return []
+	var party: Variant = game_global.player_characters
+	return party if party is Array else []
+
+
+func _refresh_character_panel(character: Variant) -> void:
+	var ui: Object = _autoload("UI")
+	if ui == null or ui.ow_hud == null:
+		return
+	for panel: Node in ui.ow_hud.charsVContainer.get_children():
+		if panel.get("character") == character and panel.has_method("update_display"):
+			panel.update_display()
+			return
 
 
 func _show_choices(text_rect: Object, choices: Array, choice_tokens: Array) -> Variant:

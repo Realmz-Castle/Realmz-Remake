@@ -40,9 +40,20 @@ class RejectingAdapter:
 class RogueTestCharacter:
 	extends RefCounted
 	var name := "Test Rogue"
+	var stat_value := 35.0
+	var current_hp := 30
 
-	func get_stat(_stat_name: String) -> float:
-		return 35.0
+	func get_stat(stat_name: String) -> float:
+		match stat_name:
+			"curHP":
+				return current_hp
+			"maxHP":
+				return 30.0
+			_:
+				return stat_value
+
+	func change_cur_hp(change: int) -> void:
+		current_hp += change
 
 
 func _init() -> void:
@@ -67,6 +78,7 @@ func _init() -> void:
 	_test_map_mutations(bundle)
 	_test_complex_encounter(bundle)
 	_test_shipped_lock_encounter(bundle)
+	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
@@ -86,6 +98,7 @@ func _test_bundle_indexes(bundle) -> void:
 	_expect_equal(bundle.get_encounter("simple", 0).get("prompt"), 51, "simple encounter index")
 	_expect_equal(bundle.get_encounter("complex", 2).get("prompt"), 180, "complex encounter index")
 	_expect_equal(bundle.get_thief_encounter(4).get("tumblers"), 2, "rogue encounter index")
+	_expect_equal(bundle.get_thief_encounter(1).get("highDamage"), 12, "rogue trap index")
 
 
 func _test_text_and_encounter(bundle) -> void:
@@ -545,6 +558,97 @@ func _test_shipped_lock_encounter(bundle) -> void:
 	var text_result: Dictionary = interpreter.run_until_yield()
 	_expect_equal(text_result.get("command"), "show_text", "lock result continues to shipped text")
 	_expect_equal(text_result.get("payload", {}).get("messageId"), 4, "successful lock text id")
+
+
+func _test_shipped_trap_encounter(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:5:3"), "begin shipped CoB trapped chest")
+	var encounter_result: Dictionary = interpreter.run_until_yield()
+	var payload: Dictionary = encounter_result.get("payload", {})
+	_expect_equal(payload.get("encounterId"), 3, "trapped chest resolves Data ED2 record 3")
+	_expect_equal(payload.get("thiefEncounter", {}).get("id"), 1, "trapped chest resolves Data TD2 record 1")
+	_expect_equal(
+		payload.get("thiefMessages", []).map(func(message: Dictionary) -> int: return int(message["id"])),
+		[7, 5, 4, 1, 6, 3],
+		"rogue payload excludes trap parameters from text messages"
+	)
+
+	var resolver = RogueResolverScript.new()
+	_expect(
+		resolver.configure(payload.get("encounter", {}), payload.get("thiefEncounter", {})),
+		"configure shipped trapped chest"
+	)
+	_expect_equal(
+		resolver.available_actions().map(func(action: Dictionary) -> int: return int(action["index"])),
+		[1, 6],
+		"armed chest exposes Detect Trap and Pick Lock"
+	)
+	var detected: Dictionary = resolver.resolve_action(1, true)
+	_expect_equal(detected.get("messageId"), 7, "Detect Trap uses shipped success text")
+	_expect(
+		bool(detected.get("thiefEncounter", {}).get("typeFlags", [])[2]),
+		"Detect Trap enables Disarm Trap"
+	)
+	_expect(
+		bool(detected.get("thiefEncounter", {}).get("typeFlags", [])[9]),
+		"Detect Trap leaves the trap armed"
+	)
+	var disarmed: Dictionary = resolver.resolve_action(2, true)
+	_expect_equal(disarmed.get("messageId"), 5, "Disarm Trap uses shipped success text")
+	_expect(
+		not bool(disarmed.get("thiefEncounter", {}).get("typeFlags", [])[9]),
+		"successful Disarm Trap clears armed state"
+	)
+
+	resolver = RogueResolverScript.new()
+	resolver.configure(payload.get("encounter", {}), payload.get("thiefEncounter", {}))
+	var sprung_trap: Dictionary = resolver.resolve_action(6, true)
+	_expect_equal(sprung_trap.get("status"), "trap", "armed chest springs before lock roll")
+	_expect_equal(sprung_trap.get("trap", {}).get("damageLow"), 4, "shipped trap minimum damage")
+	_expect_equal(sprung_trap.get("trap", {}).get("damageHigh"), 12, "shipped trap maximum damage")
+	_expect_equal(sprung_trap.get("trap", {}).get("soundId"), 692, "shipped trap sound id")
+	_expect(bool(sprung_trap.get("trap", {}).get("rogueOnly")), "shipped trap targets selected rogue")
+	var sprung_flags: Array = sprung_trap.get("thiefEncounter", {}).get("typeFlags", [])
+	_expect(not bool(sprung_flags[9]), "sprung trap clears armed state")
+	_expect(not bool(sprung_flags[1]), "sprung trap consumes Detect Trap")
+	_expect(bool(sprung_flags[6]), "sprung trap leaves Pick Lock available")
+
+	var rogue := RogueTestCharacter.new()
+	var damage_result: Dictionary = GodotAdapterScript.new().apply_rogue_trap_damage(
+		sprung_trap.get("trap", {}),
+		rogue,
+		[rogue]
+	)
+	_expect_equal(damage_result.get("hits", []).size(), 1, "trap damages only selected rogue")
+	_expect(rogue.current_hp >= 18 and rogue.current_hp <= 26, "trap applies shipped 4-12 damage range")
+
+	var cancelled: Dictionary = interpreter.resume_encounter(0, sprung_trap)
+	_expect_equal(cancelled.get("reason"), "encounter-cancelled", "party can regroup after sprung trap")
+	var persisted: Dictionary = interpreter.runtime_state.get_effective_thief_encounter(
+		bundle.get_thief_encounter(1)
+	)
+	_expect(not bool(persisted.get("typeFlags", [])[9]), "sprung trap state persists")
+	_expect(bool(bundle.get_thief_encounter(1).get("typeFlags", [])[9]), "trap leaves bundle record immutable")
+
+	_expect(interpreter.begin_trigger("Data DD:5:3"), "restart sprung CoB chest")
+	payload = interpreter.run_until_yield().get("payload", {})
+	resolver = RogueResolverScript.new()
+	resolver.configure(payload.get("encounter", {}), payload.get("thiefEncounter", {}))
+	var successful_pick: Dictionary = resolver.resolve_action(6, true)
+	_expect_equal(successful_pick.get("outcome"), 2, "sprung chest lock selects result 2")
+	var text_result: Dictionary = interpreter.resume_encounter(2, successful_pick)
+	_expect_equal(text_result.get("command"), "show_text", "sprung chest result starts with source text")
+	_expect_equal(text_result.get("payload", {}).get("messageId"), 210, "sprung chest result text id")
+	var treasure_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(treasure_result.get("command"), "give_treasure", "sprung chest result gives treasure")
+	_expect_equal(treasure_result.get("payload", {}).get("treasureId"), 8, "sprung chest treasure id")
+	var completed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(completed.get("status"), "completed", "sprung chest result completes")
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 5, 3, 100),
+		-1,
+		"sprung chest action point is consumed"
+	)
 
 
 func _test_battle_outcome(bundle) -> void:

@@ -8,6 +8,7 @@ const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_comma
 @export var trigger_id := "Data DD:0:0"
 @export var playtest_label := "guard-house"
 @export var test_rogue_stat := -1.0
+@export var test_rogue_hp := 30
 
 var host: Node
 var automated_smoke := false
@@ -18,9 +19,19 @@ class PlaytestRogue:
 	extends RefCounted
 	var name := "Test Rogue"
 	var stat_value := 35.0
+	var current_hp := 30
 
-	func get_stat(_stat_name: String) -> float:
-		return stat_value
+	func get_stat(stat_name: String) -> float:
+		match stat_name:
+			"curHP":
+				return current_hp
+			"maxHP":
+				return 30.0
+			_:
+				return stat_value
+
+	func change_cur_hp(change: int) -> void:
+		current_hp += change
 
 
 func _ready() -> void:
@@ -40,6 +51,7 @@ func _start_playtest() -> void:
 	if test_rogue_stat >= 0.0 and GameGlobal.player_characters.is_empty():
 		var rogue := PlaytestRogue.new()
 		rogue.stat_value = test_rogue_stat
+		rogue.current_hp = test_rogue_hp
 		GameGlobal.player_characters.append(rogue)
 	host = HostScript.new()
 	add_child(host)
@@ -76,6 +88,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if trigger_id == "Data DD:5:3":
+		await _run_trap_smoke()
+		return
 	if trigger_id == "Data DD:5:12":
 		await _run_lock_smoke()
 		return
@@ -139,6 +154,65 @@ func _run_lock_smoke() -> void:
 		"03_lock_playthrough_complete",
 		"Classic lock playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host completes after leaving the complex encounter"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_trap_smoke() -> void:
+	var choices_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"01_trap_prompt",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"You see a small notch carved into the wall"
+		),
+		"source-backed trapped chest prompt is visible"
+	)
+	_verify_smoke_stage(
+		"02_armed_trap_choices",
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 6
+			and _choice_menu_fits_map_area(),
+		"Detect Trap, Pick Lock, and back-out are visible"
+	)
+	if not choices_ready:
+		get_tree().quit(1)
+		return
+	var rogue: Object = GameGlobal.player_characters[0]
+	var hp_before := int(rogue.get_stat("curHP"))
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("rogue:6")
+	await _wait_frames(3)
+	var hp_after := int(rogue.get_stat("curHP"))
+	_verify_smoke_stage(
+		"03_trap_damage",
+		hp_before - hp_after >= 4
+			and hp_before - hp_after <= 12
+			and UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+				"A trap is sprung!"
+			),
+		"Pick Lock springs the trap and damages the selected rogue"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var retry_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"04_sprung_trap_choices",
+		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 4,
+		"sprung trap leaves Pick Lock and back-out available"
+	)
+	if not retry_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("back")
+	await _wait_frames(3)
+	var persisted_trap: Dictionary = \
+		host.runtime.interpreter.runtime_state.get_effective_thief_encounter(
+			host.runtime.bundle.get_thief_encounter(1)
+		)
+	_verify_smoke_stage(
+		"05_trap_playthrough_complete",
+		"Classic trapped-chest playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text()
+			and not bool(persisted_trap.get("typeFlags", [])[9]),
+		"host completes after persisting the sprung trap"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 

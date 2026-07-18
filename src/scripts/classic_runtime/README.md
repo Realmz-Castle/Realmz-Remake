@@ -1,6 +1,6 @@
 # Classic scenario runtime proof of concept
 
-This directory contains a data-driven runtime proof of concept for Providence-compiled classic Realmz campaigns.
+This directory contains a data-driven runtime proof of concept for normalized classic Realmz bundles produced by a separate Providence-based converter.
 
 `ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicRuntimeState` owns classic quest flags, map position, tile overrides, trigger-percentage overrides, and persistent action-point replacements. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the low-level Godot `Node` facade. `ClassicRuntimeHost` drives that facade through an injected command adapter, and `ClassicGodotCommandAdapter` is the first Remake-facing adapter. That boundary can reuse existing Remake helpers wherever their behavior matches Classic while keeping compatibility-specific control flow inside the interpreter.
 
@@ -33,11 +33,11 @@ Opcode `25` follows Classic's deferred door rewrite. It clears the GOSUB stack, 
 
 Encounter result values select the corresponding eight-action block from `Data ED` or `Data ED2`. Battle outcome branches remain suspended until the host reports victory or cowardice. Persistent tile, trigger, and action-point mutations are included in runtime snapshots; the bundle records themselves remain immutable.
 
-The first complex-encounter slice indexes `Data TD2` rogue records and exposes their enabled actions through Remake's existing HUD choice control. It resolves the selected character's Remake stat plus the Classic modifier, preserves Classic's 90-percent cap for interactive lock/trap actions, and routes success or failure into the four `Data ED2` result rows. Consumed rogue actions persist in runtime snapshots while the compiled record remains immutable. The source-backed CoB lock at `Data DD:5:12` exercises Detect Trap, Force Lock, and Pick Lock.
+The first complex-encounter slice indexes `Data TD2` rogue records and exposes their enabled actions through Remake's existing HUD choice control. It resolves the selected character's Remake stat plus the Classic modifier, preserves Classic's 90-percent cap for interactive lock/trap actions, and routes success or failure into the four `Data ED2` result rows. Consumed rogue actions persist in runtime snapshots while the compiled record remains immutable. The source-backed CoB lock at `Data DD:5:12` exercises Detect Trap, Force Lock, and Pick Lock. The trapped chest at `Data DD:5:3` applies its shipped 4-12 damage to the selected rogue, clears the armed state, and leaves Pick Lock available before continuing through result 2.
 
 Against the current Providence export of City of Bywater, these handlers cover 2,032 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,502 slots, or 91.5% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters and 232 action slots across 48 additional opcodes remain.
 
-The interpreter does not yet reproduce encounter repetition limits or encounter-option mutation, and it will still stop explicitly when a selected encounter result contains an unsupported opcode. Armed-trap damage and spells, other complex response families, and Classic's timed tumbler minigame also remain explicit boundaries. This keeps the compatibility boundary visible while more handlers are added.
+The interpreter does not yet reproduce encounter repetition limits or encounter-option mutation, and it will still stop explicitly when a selected encounter result contains an unsupported opcode. Trap spells, other complex response families, and Classic's timed tumbler minigame also remain explicit boundaries. This keeps the compatibility boundary visible while more handlers are added.
 
 ## Godot guard-house playtest
 
@@ -55,7 +55,7 @@ Pass a compiled campaign directory after `--` to use the full converter output i
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
 ```
 
-This adapter intentionally handles text, yes/no prompts, simple-encounter choices, the first data-driven rogue encounter, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, item, encounter, or battle resource adapters exist.
+This adapter intentionally handles text, yes/no prompts, simple-encounter choices, data-driven rogue encounters, trap damage, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, item, encounter, or battle resource adapters exist.
 
 This remains a compatibility playtest rather than an installed Remake campaign. Classic bundles are not yet discovered through `src/Campaigns`, selected from the campaign UI, or persisted through the native profile/save system. `ClassicRuntimeState` snapshots are currently standalone; a shipping integration must bridge classic quest, tile, trigger, and position state into Remake's save lifecycle.
 
@@ -75,6 +75,13 @@ Its HUD smoke verifies the complex prompt, three available rogue actions, back-o
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_lock_playtest.tscn -- --smoke
+```
+
+The trapped-chest playtest loads CoB's source-backed `Data ED2:3` and `Data TD2:1` records. Picking the armed lock springs its rogue-only damage trap; the smoke verifies the 4-12 HP loss, changed choices, persistent state, and host completion:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_trap_playtest.tscn
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_trap_playtest.tscn -- --smoke
 ```
 
 The HUD smoke intentionally uses the normal display driver because the project's shutdown handler persists the active window size to `src/override.cfg`; a headless HUD run would save `0x0` and dirty the worktree.

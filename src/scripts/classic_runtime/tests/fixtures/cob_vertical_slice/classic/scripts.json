@@ -82,6 +82,25 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 19, "byteOffset": 760, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:5:3",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 5,
+      "recordIndex": 3,
+      "active": true,
+      "doorid": 52742,
+      "landid": 5,
+      "targetX": 42,
+      "targetY": 27,
+      "percent": 100,
+      "coordinate": {"x": 42, "y": 27},
+      "actions": [
+        {"slot": 0, "rawCode": 5, "code": 5, "id": 3, "label": "Complex encounter", "category": "encounter", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 3, "byteOffset": 20120, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data DD:5:12",
       "source": "Data DD",
       "levelType": "land",
@@ -303,6 +322,42 @@
       "text": "The lock is now open.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 4, "byteOffset": 1024, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 5,
+      "text": "You have been successful at disarming the trap.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 5, "byteOffset": 1280, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 6,
+      "text": "You have failed to disarm the trap.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 6, "byteOffset": 1536, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 7,
+      "text": "Your inspection has detected a trap!",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 7, "byteOffset": 1792, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 207,
+      "text": "You see a small notch carved into the wall.  It holds an iron chest bolted to the wall.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 207, "byteOffset": 52992, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 209,
+      "text": "With the trap triggered, the lock is quickly defeated.  Inside, you find treasure.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 209, "byteOffset": 53504, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 210,
+      "text": "You hear a click as a trap disarms and the lock opens.  Inside you find treasure.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 210, "byteOffset": 53760, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 218,
