@@ -1,0 +1,24 @@
+{
+  "format": "realmz-remake-classic-campaign",
+  "formatVersion": 1,
+  "campaignKind": "classic-compiled",
+  "compatibilityProfile": "realmz-7.1",
+  "id": "scenario-city-of-bywater",
+  "name": "City of Bywater",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 2,
+    "y": 1
+  },
+  "files": {
+    "assets": "classic/assets.json",
+    "content": "classic/content.json",
+    "encounters": "classic/encounters.json",
+    "evidence": "classic/evidence.json",
+    "maps": "classic/maps.json",
+    "rules": "classic/rules.json",
+    "scenario": "classic/scenario.json",
+    "scripts": "classic/scripts.json"
+  }
+}

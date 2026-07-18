@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "fixtureNote": "Selected unmodified semantic records from the Providence City of Bywater export.",
+  "triggers": [
+    {
+      "id": "Data DD:0:0",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 0,
+      "active": true,
+      "doorid": 1709,
+      "landid": 0,
+      "targetX": 9,
+      "targetY": 17,
+      "percent": 100,
+      "coordinate": {"x": 9, "y": 17},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 50, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 2, "rawCode": 4, "code": 4, "id": 0, "label": "Simple encounter", "category": "encounter", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 0, "byteOffset": 0, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:3",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 3,
+      "active": true,
+      "doorid": 1704,
+      "landid": 5,
+      "targetX": 29,
+      "targetY": 88,
+      "percent": 100,
+      "coordinate": {"x": 4, "y": 17},
+      "actions": [
+        {"slot": 0, "rawCode": 45, "code": 45, "id": 639, "label": "Teleport only", "category": "map", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 3, "byteOffset": 120, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:27",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 27,
+      "active": true,
+      "doorid": 547,
+      "landid": 0,
+      "targetX": 47,
+      "targetY": 5,
+      "percent": 100,
+      "coordinate": {"x": 47, "y": 5},
+      "actions": [
+		{"slot": 1, "rawCode": 3, "code": 3, "id": 2, "label": "Choice", "category": "branch", "gosub": false},
+        {"slot": 2, "rawCode": 2, "code": 2, "id": 70, "label": "Battle", "category": "combat", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 27, "byteOffset": 1080, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:78",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 78,
+      "active": true,
+      "doorid": 2802,
+      "landid": 0,
+      "targetX": 2,
+      "targetY": 28,
+      "percent": 100,
+      "coordinate": {"x": 2, "y": 28},
+      "actions": [
+        {"slot": 0, "rawCode": 46, "code": 46, "id": 321, "label": "Branch quest flag", "category": "branch", "gosub": false},
+        {"slot": 1, "rawCode": 1, "code": 1, "id": 620, "label": "Text", "category": "ui_text", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 78, "byteOffset": 3120, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:80",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 80,
+      "active": true,
+      "doorid": 2107,
+      "landid": 0,
+      "targetX": 7,
+      "targetY": 21,
+      "percent": 100,
+      "coordinate": {"x": 7, "y": 21},
+      "actions": [
+        {"slot": 5, "rawCode": 47, "code": 47, "id": 33, "label": "Set quest flag", "category": "state", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 80, "byteOffset": 3200, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:73",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 73,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 567, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 28, "code": 28, "id": 0, "label": "Center screen", "category": "map", "gosub": false},
+        {"slot": 2, "rawCode": 200, "code": 200, "id": 0, "label": "Unknown opcode", "category": "unknown", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 73, "byteOffset": 2920, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:100",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 100,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 100, "byteOffset": 4000, "byteLength": 40, "confidence": "source-backed"}
+    }
+  ],
+  "extraCodes": [
+	{"id": 2, "values": [1, 0, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 2, "byteOffset": 20, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 70, "values": [38, 0, 30000, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 70, "byteOffset": 700, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 639, "values": [5, 6, 83, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 639, "byteOffset": 6390, "byteLength": 10, "confidence": "source-backed"}}
+  ],
+  "messages": [
+	{
+	  "id": 0,
+	  "text": "Do Not Use",
+	  "authored": false,
+	  "provenance": {"sourceFile": "Data SD2", "recordIndex": 0, "byteOffset": 0, "byteLength": 256, "confidence": "source-backed"}
+	},
+    {
+      "id": 50,
+      "text": "You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 50, "byteOffset": 12800, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 620,
+      "text": "You enter the slave prison.  A potbellied Corporal Sampson is slumped over a shaky table.  He's slept through the entire ordeal that just took place outside.  The smell of elderberry wine permeates his clothes.  You try to rouse him to collect your fee.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 620, "byteOffset": 158720, "byteLength": 256, "confidence": "source-backed"}
+    }
+  ],
+  "randomLevels": [],
+  "optionLabels": []
+}

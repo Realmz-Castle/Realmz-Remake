@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "battles": [
+    {
+      "id": 38,
+      "dist": 0,
+      "messageBefore": 239,
+      "messageAfter": 0,
+      "battleMacro": 0,
+      "grid": [0, 76, 21, 11, 10, 22],
+      "authored": false,
+      "provenance": {"sourceFile": "Data BD", "recordIndex": 38, "byteOffset": 13148, "byteLength": 346, "confidence": "source-backed"}
+    }
+  ],
+  "treasures": [],
+  "shops": [],
+  "simpleEncounters": [],
+  "complexEncounters": [],
+  "thiefEncounters": [],
+  "timedEncounters": []
+}

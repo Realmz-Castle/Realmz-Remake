@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "scenario-city-of-bywater",
+    "name": "City of Bywater"
+  },
+  "shell": {
+    "sourceFile": "City of Bywater",
+    "recLevel": 6,
+    "maxLevel": 18,
+    "landLevel": 0,
+    "lookX": 2,
+    "lookY": 1,
+    "creatorUser": "Fantasoft LLC"
+  }
+}

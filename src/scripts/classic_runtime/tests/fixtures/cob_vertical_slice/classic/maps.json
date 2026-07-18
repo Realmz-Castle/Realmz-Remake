@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "maps": [
+    {
+      "id": "land:0",
+      "levelType": "land",
+      "index": 0,
+      "name": "Land level 0",
+      "width": 90,
+      "height": 90,
+      "render": {
+        "landlook": 0,
+        "mode": "outdoor-landlook",
+        "tilesetId": "landlook-0"
+      },
+      "provenance": {
+        "sourceFile": "Data LD",
+        "recordIndex": 0,
+        "byteOffset": 0,
+        "byteLength": 16200,
+        "confidence": "confirmed"
+      }
+    }
+  ]
+}
