@@ -22,13 +22,31 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 28, "byteOffset": 25120, "byteLength": 40, "confidence": "source-backed"}
     }
   ],
-  "extraCodes": [],
+  "extraCodes": [
+    {
+      "id": 37,
+      "values": [25, 1, 2, 2, 0],
+      "provenance": {"sourceFile": "Data EDCD", "recordIndex": 37, "byteOffset": 370, "byteLength": 10, "confidence": "source-backed"}
+    }
+  ],
   "messages": [
+    {
+      "id": 10,
+      "text": "Nothing happens.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 10, "byteOffset": 2560, "byteLength": 256, "confidence": "source-backed"}
+    },
     {
       "id": 139,
       "text": "\"Waterford was supposed to be but a legend.  I have discovered in my days of research through volumes of forgotten lore that it did exist.  In fact, it lies through a secret cave in the mountains east of here.  Only the best of wines were made there.\"",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 139, "byteOffset": 35584, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 141,
+      "text": "You browse through many volumes of text.  If nothing else, you feel more enlightened.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 141, "byteOffset": 36096, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 142,

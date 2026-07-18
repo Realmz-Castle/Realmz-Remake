@@ -9,7 +9,12 @@
       "id": 1,
       "actions": [
         {"id": 139, "rawCode": 1, "slot": 0},
-        {"id": 153, "rawCode": 1, "slot": 1}
+        {"id": 153, "rawCode": 1, "slot": 1},
+        {"id": 2, "rawCode": 29, "slot": 2},
+        {"id": 1, "rawCode": 44, "slot": 7},
+        {"id": 141, "rawCode": 1, "slot": 8},
+        {"id": 37, "rawCode": 42, "slot": 9},
+        {"id": 10, "rawCode": 1, "slot": 24}
       ],
       "actionResult": 2,
       "wordResult": 1,

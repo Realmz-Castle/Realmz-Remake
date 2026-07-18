@@ -74,7 +74,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				runtime.finish_battle(bool(response["coward"]))
 			else:
 				runtime.continue_after_command()
-		"show_text", "play_sound", "give_treasure", "set_map_tile", \
+		"show_text", "play_sound", "give_treasure", "give_map", "set_map_tile", \
 		"set_trigger_percent", "teleport", "give_battle_loot", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()

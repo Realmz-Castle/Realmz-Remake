@@ -7,6 +7,8 @@ const CHOICE_MENU_MARGIN := 20.0
 const COMPLEX_ACTION_TEXT_COUNT := 8
 const COMPLEX_WORD_TEXT_INDEX := 8
 const COMPLEX_WORD_TEXT_LIMIT := 40
+const MAP_GAINED_MESSAGE := \
+	"You gain a map, to view the map use Maps/Notes in the Menu."
 
 
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
@@ -21,6 +23,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _play_sound(payload)
 		"give_treasure":
 			return await _give_treasure(payload)
+		"give_map":
+			return await _give_player_map(payload)
 		_:
 			return _error("The Godot classic adapter does not yet handle '%s'" % command)
 
@@ -816,6 +820,52 @@ func _give_treasure(payload: Dictionary) -> Dictionary:
 		int(delivery.get("experience", 0))
 	)
 	return {}
+
+
+func _give_player_map(payload: Dictionary) -> Dictionary:
+	var map_id := int(payload.get("mapId", -1))
+	if map_id < 0:
+		return _error("Classic map command is missing its map ID")
+	var game_global: Object = _autoload("GameGlobal")
+	var native_map: Array = []
+	if game_global != null and game_global.minimaps is Array \
+			and map_id < game_global.minimaps.size():
+		var map_value: Variant = game_global.minimaps[map_id]
+		if map_value is Array and map_value.size() >= 7:
+			native_map = map_value
+			native_map[6] = 1
+
+	_play_sound({"soundId": 30005})
+	if bool(payload.get("display", false)) and _can_display_native_map(native_map):
+		var ui: Object = _autoload("UI")
+		if ui == null or ui.ow_hud == null or ui.ow_hud.minimapRect == null:
+			return _error("Realmz minimap UI is unavailable")
+		var minimap_rect: Object = ui.ow_hud.minimapRect
+		minimap_rect.cur_map = native_map
+		minimap_rect.show()
+		minimap_rect.on_display()
+		var state_machine: Object = _autoload("StateMachine")
+		if state_machine != null:
+			state_machine.enter_ex_menu_state({"menu_name": "MiniMapsMenu"})
+		await minimap_rect.visibility_changed
+		return {}
+
+	var text_rect: Object = _text_rect()
+	if text_rect == null:
+		return _error("Realmz HUD TextRect is unavailable for the Classic map notice")
+	var message := MAP_GAINED_MESSAGE
+	if bool(payload.get("display", false)):
+		var map_record: Variant = payload.get("mapRecord", {})
+		if map_record is Dictionary:
+			var map_note := str(map_record.get("note", "")).strip_edges()
+			if not map_note.is_empty():
+				message = map_note
+	await text_rect.set_text(message, true)
+	return {}
+
+
+func _can_display_native_map(native_map: Array) -> bool:
+	return native_map.size() >= 7 and native_map[2] is String
 
 
 func _play_sound(payload: Dictionary) -> Dictionary:

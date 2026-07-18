@@ -156,8 +156,17 @@ func resume_encounter(outcome: int, encounter_state := {}) -> Dictionary:
 		return state_result
 	if outcome == 0:
 		_clear_control_flow()
-		encounter_origins.clear()
 		return _completed_result("encounter-cancelled")
+	# Classic sends Result 4 through Result 3 on a complex encounter's final try.
+	if not encounter_origins.is_empty():
+		var encounter_loop: Dictionary = encounter_origins[-1]
+		if (
+			str(encounter_context.get("encounterKind", "")) == "complex"
+			and outcome == 4
+			and int(encounter_loop.get("remainingAttempts", 1)) == 1
+			and int(encounter_loop.get("maxAttempts", 1)) > 1
+		):
+			outcome = 3
 
 	var encounter: Dictionary = encounter_context["encounter"]
 	var outcome_trigger := _encounter_outcome_trigger(
@@ -237,6 +246,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _finish_action_point("keep-codes", false)
 		25:
 			return _remove_current_action_point()
+		29:
+			return _execute_player_map(record_id)
 		39:
 			# Classic's Extend Door Codes replaces the active AP without pushing,
 			# even when its raw opcode is negative.
@@ -260,6 +271,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			if not call_stack.is_empty():
 				call_stack.pop_back()
 			return _continue_result()
+		44:
+			return _eliminate_complex_result(record_id)
 		34:
 			return _break_encounter()
 		_:
@@ -298,12 +311,26 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 		return _halt_with_error(
 			"Missing %s encounter record %d" % [encounter_kind, encounter_id]
 		)
+	if encounter_kind == "complex":
+		encounter = runtime_state.get_effective_complex_encounter(encounter)
+	var max_attempts := maxi(1, int(encounter.get("maxTimes", 1)))
 	encounter_origins.append({
 		"trigger": current_trigger,
 		"actionIndex": current_action_index,
 		"callStack": call_stack.duplicate(true),
 		"actionPointHeader": active_action_point_header.duplicate(true),
+		"encounterKind": encounter_kind,
+		"encounterId": encounter_id,
+		"maxAttempts": max_attempts,
+		"remainingAttempts": max_attempts,
 	})
+	return _yield_encounter(encounter_kind, encounter_id, start_slot)
+
+
+func _yield_encounter(encounter_kind: String, encounter_id: int, start_slot: int) -> Dictionary:
+	var encounter := bundle.get_encounter(encounter_kind, encounter_id)
+	if encounter_kind == "complex":
+		encounter = runtime_state.get_effective_complex_encounter(encounter)
 	var prompt_id := int(encounter.get("prompt", 0))
 	var prompt_message := bundle.get_message(prompt_id)
 	var encounter_payload := {
@@ -313,6 +340,11 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 		"promptMessage": prompt_message,
 		"startSlot": start_slot,
 	}
+	if not encounter_origins.is_empty():
+		encounter_payload["maxAttempts"] = int(encounter_origins[-1].get("maxAttempts", 1))
+		encounter_payload["remainingAttempts"] = int(
+			encounter_origins[-1].get("remainingAttempts", 1)
+		)
 	if encounter_kind == "complex":
 		encounter_payload["itemTexts"] = _encounter_item_texts(encounter)
 	if encounter_kind == "complex" and bool(encounter.get("thief", false)):
@@ -380,6 +412,38 @@ func _thief_messages(thief_encounter: Dictionary) -> Array:
 	return messages
 
 
+func _eliminate_complex_result(result_index: int) -> Dictionary:
+	if encounter_origins.is_empty():
+		return _halt_with_error("Complex result mutation has no active encounter")
+	var encounter_loop: Dictionary = encounter_origins[-1]
+	if str(encounter_loop.get("encounterKind", "")) != "complex":
+		return _halt_with_error("Complex result mutation is outside a complex encounter")
+	if result_index < 1 or result_index > 4:
+		return _halt_with_error("Complex result mutation index must be between 1 and 4")
+	var encounter_id := int(encounter_loop.get("encounterId", -1))
+	var encounter := runtime_state.get_effective_complex_encounter(
+		bundle.get_encounter("complex", encounter_id)
+	)
+	var source_actions: Variant = encounter.get("actions", [])
+	if not (source_actions is Array):
+		return _halt_with_error("Complex encounter has no action array to mutate")
+	var first_slot := (result_index - 1) * 8
+	var actions: Array = []
+	for action_value: Variant in source_actions:
+		if not (action_value is Dictionary):
+			continue
+		var slot := int(action_value.get("slot", -1))
+		if slot < first_slot or slot >= first_slot + 8:
+			actions.append(action_value.duplicate(true))
+	actions.append({"id": 0, "rawCode": 24, "slot": first_slot + 7})
+	actions.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("slot", -1)) < int(b.get("slot", -1))
+	)
+	encounter["actions"] = actions
+	runtime_state.set_complex_encounter_override(encounter_id, encounter)
+	return _continue_result()
+
+
 func _execute_treasure(treasure_id: int) -> Dictionary:
 	var treasure := bundle.get_treasure(treasure_id)
 	if treasure.is_empty():
@@ -399,6 +463,19 @@ func _execute_treasure(treasure_id: int) -> Dictionary:
 		"treasure": treasure,
 		"itemTexts": item_texts,
 		"lootMode": 1,
+	})
+
+
+func _execute_player_map(signed_map_id: int) -> Dictionary:
+	var map_id: int = abs(signed_map_id)
+	var map_record: Dictionary = bundle.get_player_map(map_id)
+	if map_record.is_empty():
+		return _halt_with_error("Missing player map record %d" % map_id)
+	runtime_state.set_map_owned(map_id)
+	return _yield_result("give_map", {
+		"mapId": map_id,
+		"display": signed_map_id < 0,
+		"mapRecord": map_record,
 	})
 
 
@@ -547,10 +624,33 @@ func _remove_current_action_point() -> Dictionary:
 
 
 func _finish_action_point(reason: String, consume_codes: bool) -> Dictionary:
+	if reason == "action-point-ended" and not remove_action_point:
+		var repeated_encounter := _repeat_encounter_after_fallthrough()
+		if not repeated_encounter.is_empty():
+			return repeated_encounter
 	if remove_action_point and not origin_action_point.is_empty():
 		_persist_removed_action_point(consume_codes)
 	_clear_control_flow()
 	return _completed_result(reason)
+
+
+func _repeat_encounter_after_fallthrough() -> Dictionary:
+	if encounter_origins.is_empty():
+		return {}
+	var encounter_loop: Dictionary = encounter_origins[-1]
+	encounter_loop["remainingAttempts"] = int(
+		encounter_loop.get("remainingAttempts", 1)
+	) - 1
+	encounter_origins[-1] = encounter_loop
+	if int(encounter_loop["remainingAttempts"]) <= 0:
+		return {}
+	# Classic repeats only when a result block falls through. Opcodes 24 and 25
+	# clear the encounter flag before reaching this point and therefore terminate.
+	return _yield_encounter(
+		str(encounter_loop.get("encounterKind", "")),
+		int(encounter_loop.get("encounterId", -1)),
+		0
+	)
 
 
 func _persist_removed_action_point(consume_codes: bool) -> void:
@@ -756,6 +856,7 @@ func _clear_control_flow() -> void:
 	removal_y = 0
 	call_stack.clear()
 	gosub_active = false
+	encounter_origins.clear()
 
 
 func _extra_code_values(record_id: int) -> Array:

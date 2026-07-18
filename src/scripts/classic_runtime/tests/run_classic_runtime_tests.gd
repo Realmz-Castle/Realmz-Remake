@@ -14,6 +14,8 @@ const WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub"
 const TWIN_SANDS_OPCODE_25_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/twin_sands_opcode_25"
+const COB_SPOKEN_WORD_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/cob_spoken_word"
 
 var failures := 0
 
@@ -82,6 +84,8 @@ func _init() -> void:
 	_test_complex_encounter(bundle)
 	_test_complex_action_choices(bundle)
 	_test_complex_word_results()
+	_test_encounter_lifecycle()
+	_test_spoken_word_archive()
 	_test_complex_spell_results(bundle)
 	_test_complex_item_results(bundle)
 	_test_shipped_lock_encounter(bundle)
@@ -640,6 +644,124 @@ func _test_complex_word_results() -> void:
 	)
 
 
+func _test_encounter_lifecycle() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.triggers_by_id["lifecycle:test"] = {
+		"id": "lifecycle:test",
+		"source": "Data DD",
+		"actions": [{"slot": 0, "rawCode": 5, "code": 5, "id": 1}],
+	}
+	bundle.complex_encounters_by_id[1] = {
+		"id": 1,
+		"actions": [
+			{"slot": 16, "rawCode": 1, "id": 303},
+			{"slot": 24, "rawCode": 1, "id": 404},
+		],
+		"maxTimes": 2,
+		"prompt": 0,
+	}
+	bundle.messages_by_id[303] = {"id": 303, "text": "Timed out"}
+	bundle.messages_by_id[404] = {"id": 404, "text": "Try again"}
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("lifecycle:test"), "begin encounter lifecycle fixture")
+	var encounter_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		encounter_result.get("payload", {}).get("remainingAttempts"),
+		2,
+		"encounter starts with its authored attempt count"
+	)
+	var first_failure: Dictionary = interpreter.resume_encounter(4)
+	_expect_equal(
+		first_failure.get("payload", {}).get("messageId"),
+		404,
+		"result 4 is unchanged before the final attempt"
+	)
+	var repeated: Dictionary = interpreter.run_until_yield()
+	_expect_equal(repeated.get("command"), "start_encounter", "fallthrough repeats encounter")
+	_expect_equal(
+		repeated.get("payload", {}).get("remainingAttempts"),
+		1,
+		"encounter repetition decrements remaining attempts"
+	)
+	var timeout: Dictionary = interpreter.resume_encounter(4)
+	_expect_equal(
+		timeout.get("payload", {}).get("messageId"),
+		303,
+		"final complex result 4 uses Classic's result 3 timeout block"
+	)
+	var completed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(completed.get("status"), "completed", "final encounter attempt completes")
+
+
+func _test_spoken_word_archive() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(COB_SPOKEN_WORD_FIXTURE),
+		"CoB spoken-word fixture loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+	_expect_equal(bundle.get_player_map(2).get("level"), 0, "Waterford player map index")
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:6:28"), "begin CoB town archive")
+	var encounter_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(encounter_result.get("command"), "start_encounter", "archive starts encounter")
+	var first_message: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(first_message.get("payload", {}).get("messageId"), 139, "archive result begins")
+	var second_message: Dictionary = interpreter.run_until_yield()
+	_expect_equal(second_message.get("payload", {}).get("messageId"), 153, "archive result continues")
+	var map_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(map_result.get("command"), "give_map", "archive grants the Waterford map")
+	_expect_equal(map_result.get("payload", {}).get("mapId"), 2, "archive map ID")
+	_expect(not bool(map_result.get("payload", {}).get("display")), "positive map ID does not display")
+	_expect(interpreter.runtime_state.is_map_owned(2), "archive map ownership persists")
+	var repeated: Dictionary = interpreter.run_until_yield()
+	_expect_equal(repeated.get("command"), "start_encounter", "archive reopens after result fallthrough")
+	_expect_equal(
+		repeated.get("payload", {}).get("remainingAttempts"),
+		124,
+		"archive decrements its source attempt count"
+	)
+	var effective: Dictionary = interpreter.runtime_state.get_effective_complex_encounter(
+		bundle.get_encounter("complex", 1)
+	)
+	var first_result_actions: Array = effective.get("actions", []).filter(
+		func(action: Dictionary) -> bool: return int(action.get("slot", -1)) < 8
+	)
+	_expect_equal(first_result_actions.size(), 1, "opcode 44 replaces the first result row")
+	_expect_equal(first_result_actions[0].get("rawCode"), 24, "mutated result exits the encounter")
+	_expect(
+		bundle.get_encounter("complex", 1).get("actions", []).any(
+			func(action: Dictionary) -> bool: return int(action.get("rawCode", 0)) == 44
+		),
+		"complex result mutation leaves the compiled bundle immutable"
+	)
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect(restored.is_map_owned(2), "map ownership survives snapshot restore")
+	_expect_equal(
+		restored.get_effective_complex_encounter(bundle.get_encounter("complex", 1))
+			.get("actions", []).filter(
+				func(action: Dictionary) -> bool: return int(action.get("slot", -1)) < 8
+			).size(),
+		1,
+		"complex result mutation survives snapshot restore"
+	)
+	var cancelled: Dictionary = interpreter.resume_encounter(0)
+	_expect_equal(cancelled.get("reason"), "encounter-cancelled", "party can leave reopened archive")
+	bundle.triggers_by_id["map:display"] = {
+		"id": "map:display",
+		"source": "Data DD",
+		"actions": [{"slot": 0, "rawCode": 29, "code": 29, "id": -2}],
+	}
+	var display_interpreter = _interpreter(bundle)
+	_expect(display_interpreter.begin_trigger("map:display"), "begin display-map fixture")
+	var display_map: Dictionary = display_interpreter.run_until_yield()
+	_expect(bool(display_map.get("payload", {}).get("display")), "negative map ID requests display")
+	_expect(display_interpreter.runtime_state.is_map_owned(2), "displayed map is also acquired")
+
+
 func _test_complex_spell_results(bundle) -> void:
 	var adapter = GodotAdapterScript.new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
@@ -963,12 +1085,16 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.complex_encounters_by_id.size(), 14, "full CoB complex encounter index")
 	_expect_equal(bundle.thief_encounters_by_id.size(), 8, "full CoB rogue encounter index")
 	_expect_equal(bundle.maps_by_id.size(), 11, "full CoB map index")
+	_expect_equal(bundle.player_maps_by_id.size(), 20, "full CoB player map index")
 	_expect_equal(bundle.dispatcher_noop_keys.size(), 470, "full CoB dispatcher no-op evidence index")
 	var coordinate_trigger_count := 0
 	for coordinate: Variant in bundle.triggers_by_coordinate:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
-	var handled_codes := [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 39, 45, 46, 47, 56, 111, 112]
+	var handled_codes := [
+		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 39, 44,
+		45, 46, 47, 56, 111, 112,
+	]
 	var active_slots := 0
 	var handled_slots := 0
 	for trigger_value: Variant in bundle.triggers_by_id.values():
@@ -979,8 +1105,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2032, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2502, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2044, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2514, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")

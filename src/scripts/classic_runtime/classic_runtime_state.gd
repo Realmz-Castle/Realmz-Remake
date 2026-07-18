@@ -6,6 +6,8 @@ var tile_overrides: Dictionary = {}
 var trigger_percent_overrides: Dictionary = {}
 var action_point_overrides: Dictionary = {}
 var thief_encounter_overrides: Dictionary = {}
+var complex_encounter_overrides: Dictionary = {}
+var owned_maps: Dictionary = {}
 var level_type := "land"
 var level_index := 0
 var x := 0
@@ -18,6 +20,8 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
 	thief_encounter_overrides.clear()
+	complex_encounter_overrides.clear()
+	owned_maps.clear()
 	var start := bundle.get_start()
 	level_type = str(start.get("levelType", "land"))
 	level_index = int(start.get("levelIndex", 0))
@@ -115,6 +119,28 @@ func get_effective_thief_encounter(encounter: Dictionary) -> Dictionary:
 		else encounter.duplicate(true)
 
 
+func set_complex_encounter_override(encounter_id: int, encounter: Dictionary) -> void:
+	if encounter_id < 0:
+		return
+	complex_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+
+
+func get_effective_complex_encounter(encounter: Dictionary) -> Dictionary:
+	var encounter_id := int(encounter.get("id", -1))
+	var override: Variant = complex_encounter_overrides.get(str(encounter_id), {})
+	return override.duplicate(true) if override is Dictionary and not override.is_empty() \
+		else encounter.duplicate(true)
+
+
+func set_map_owned(map_id: int) -> void:
+	if map_id >= 0:
+		owned_maps[str(map_id)] = true
+
+
+func is_map_owned(map_id: int) -> bool:
+	return bool(owned_maps.get(str(abs(map_id)), false))
+
+
 func snapshot() -> Dictionary:
 	return {
 		"questFlags": quest_flags.duplicate(true),
@@ -122,6 +148,8 @@ func snapshot() -> Dictionary:
 		"triggerPercentOverrides": trigger_percent_overrides.duplicate(true),
 		"actionPointOverrides": action_point_overrides.duplicate(true),
 		"thiefEncounterOverrides": thief_encounter_overrides.duplicate(true),
+		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
+		"ownedMaps": owned_maps.duplicate(true),
 		"position": {
 			"levelType": level_type,
 			"levelIndex": level_index,
@@ -137,6 +165,8 @@ func restore(saved_state: Dictionary) -> void:
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
 	thief_encounter_overrides.clear()
+	complex_encounter_overrides.clear()
+	owned_maps.clear()
 	var saved_flags: Variant = saved_state.get("questFlags", {})
 	if saved_flags is Dictionary:
 		for quest_id: Variant in saved_flags:
@@ -155,6 +185,16 @@ func restore(saved_state: Dictionary) -> void:
 			var encounter: Variant = saved_thief_encounters[encounter_id]
 			if encounter is Dictionary:
 				thief_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+	var saved_complex_encounters: Variant = saved_state.get("complexEncounterOverrides", {})
+	if saved_complex_encounters is Dictionary:
+		for encounter_id: Variant in saved_complex_encounters:
+			var encounter: Variant = saved_complex_encounters[encounter_id]
+			if encounter is Dictionary:
+				complex_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+	var saved_maps: Variant = saved_state.get("ownedMaps", {})
+	if saved_maps is Dictionary:
+		for map_id: Variant in saved_maps:
+			owned_maps[str(map_id)] = bool(saved_maps[map_id])
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
 		level_type = str(position.get("levelType", "land"))

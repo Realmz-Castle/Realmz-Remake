@@ -31,6 +31,7 @@ var simple_encounters_by_id: Dictionary = {}
 var complex_encounters_by_id: Dictionary = {}
 var thief_encounters_by_id: Dictionary = {}
 var maps_by_id: Dictionary = {}
+var player_maps_by_id: Dictionary = {}
 var dispatcher_noop_keys: Dictionary = {}
 
 
@@ -115,6 +116,10 @@ func get_map(map_id: String) -> Dictionary:
 	return maps_by_id.get(map_id, {})
 
 
+func get_player_map(map_id: int) -> Dictionary:
+	return player_maps_by_id.get(abs(map_id), {})
+
+
 func get_start() -> Dictionary:
 	var start: Variant = manifest.get("start", {})
 	return start if start is Dictionary else {}
@@ -146,6 +151,7 @@ func _reset() -> void:
 	complex_encounters_by_id.clear()
 	thief_encounters_by_id.clear()
 	maps_by_id.clear()
+	player_maps_by_id.clear()
 	dispatcher_noop_keys.clear()
 
 
@@ -209,6 +215,9 @@ func _build_indexes() -> void:
 	for map: Variant in _array_value(map_document, "maps"):
 		if map is Dictionary:
 			maps_by_id[str(map.get("id", ""))] = map
+	for map_record: Variant in _array_value(map_document, "mapRecords"):
+		if map_record is Dictionary:
+			player_maps_by_id[int(map_record.get("id", -1))] = map_record
 
 	var evidence_document: Dictionary = documents["evidence"]
 	var semantic_decoding: Variant = evidence_document.get("semanticDecoding", {})

@@ -232,10 +232,40 @@ func _run_complex_word_smoke() -> void:
 	UI.ow_hud.textRect.disablerButton.pressed.emit()
 	await _wait_frames(3)
 	_verify_smoke_stage(
-		"08_complex_word_complete",
+		"08_archive_map_notice",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"You gain a map, to view the map use Maps/Notes"
+		)
+			and host.runtime.interpreter.runtime_state.is_map_owned(2),
+		"the result grants the source-backed Waterford map"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var repeated_choices_ready := await _wait_for_choices()
+	var effective_encounter: Dictionary = \
+		host.runtime.interpreter.runtime_state.get_effective_complex_encounter(
+			host.runtime.bundle.get_encounter("complex", 1)
+		)
+	var first_result_actions: Array = effective_encounter.get("actions", []).filter(
+		func(action: Dictionary) -> bool: return int(action.get("slot", -1)) < 8
+	)
+	_verify_smoke_stage(
+		"09_archive_reopens",
+		repeated_choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and first_result_actions.size() == 1
+			and int(first_result_actions[0].get("rawCode", 0)) == 24,
+		"the archive reopens with Result 1 replaced by Keep Codes"
+	)
+	if not repeated_choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("back")
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"10_complex_word_complete",
 		"Classic spoken-word playtest complete" \
 			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
-		"host completes after the spoken-word result"
+		"host completes after leaving the reopened archive"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 

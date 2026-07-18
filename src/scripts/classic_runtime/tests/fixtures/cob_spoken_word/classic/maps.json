@@ -1,1 +1,37 @@
-{"schemaVersion": 1, "maps": []}
+{
+  "schemaVersion": 1,
+  "maps": [],
+  "mapRecords": [
+    {
+      "authored": false,
+      "iconSize": 8,
+      "id": 2,
+      "isDungeon": false,
+      "level": 0,
+      "mapNameAuthored": false,
+      "markers": [
+        {"iconId": 137, "x": 29, "y": 22},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0},
+        {"iconId": 0, "x": 0, "y": 0}
+      ],
+      "name": null,
+      "nameSource": null,
+      "note": "This map shows the location of the cave that leeds to the sunken city of Waterford.",
+      "pictId": 0,
+      "primaryName": null,
+      "provenance": {"sourceFile": "Data MD2", "recordIndex": 2, "byteOffset": 680, "byteLength": 340, "confidence": "source-backed"},
+      "rect": {"bottom": 0, "left": 0, "right": 0, "top": 0},
+      "secondaryName": null,
+      "show": 1,
+      "startX": 48,
+      "startY": 15
+    }
+  ]
+}
