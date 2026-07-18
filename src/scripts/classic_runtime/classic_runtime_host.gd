@@ -65,7 +65,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 			if not response.has("outcome"):
 				_stop_with_error("Encounter adapter response is missing 'outcome'", command)
 				return
-			runtime.finish_encounter(int(response["outcome"]))
+			runtime.finish_encounter(int(response["outcome"]), response)
 		"start_battle":
 			if bool(payload.get("outcomeBranch", false)):
 				if not response.has("coward"):

@@ -5,5 +5,8 @@
 
 [node name="Main" instance=ExtResource("1_main")]
 
-[node name="ClassicGuardHousePlaytest" type="Node" parent="."]
+[node name="ClassicLockPlaytest" type="Node" parent="."]
 script = ExtResource("2_playtest")
+trigger_id = "Data DD:5:12"
+playtest_label = "lock"
+test_rogue_stat = 35.0

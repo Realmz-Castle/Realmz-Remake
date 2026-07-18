@@ -28,6 +28,7 @@ var battles_by_id: Dictionary = {}
 var treasures_by_id: Dictionary = {}
 var simple_encounters_by_id: Dictionary = {}
 var complex_encounters_by_id: Dictionary = {}
+var thief_encounters_by_id: Dictionary = {}
 var maps_by_id: Dictionary = {}
 var dispatcher_noop_keys: Dictionary = {}
 
@@ -101,6 +102,10 @@ func get_encounter(encounter_kind: String, encounter_id: int) -> Dictionary:
 			return {}
 
 
+func get_thief_encounter(encounter_id: int) -> Dictionary:
+	return thief_encounters_by_id.get(encounter_id, {})
+
+
 func get_map(map_id: String) -> Dictionary:
 	return maps_by_id.get(map_id, {})
 
@@ -133,6 +138,7 @@ func _reset() -> void:
 	treasures_by_id.clear()
 	simple_encounters_by_id.clear()
 	complex_encounters_by_id.clear()
+	thief_encounters_by_id.clear()
 	maps_by_id.clear()
 	dispatcher_noop_keys.clear()
 
@@ -184,6 +190,9 @@ func _build_indexes() -> void:
 	for encounter: Variant in _array_value(encounter_document, "complexEncounters"):
 		if encounter is Dictionary:
 			complex_encounters_by_id[int(encounter.get("id", -1))] = encounter
+	for encounter: Variant in _array_value(encounter_document, "thiefEncounters"):
+		if encounter is Dictionary:
+			thief_encounters_by_id[int(encounter.get("id", -1))] = encounter
 
 	var map_document: Dictionary = documents["maps"]
 	for map: Variant in _array_value(map_document, "maps"):

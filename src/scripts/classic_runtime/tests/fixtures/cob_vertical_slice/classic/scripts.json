@@ -82,6 +82,25 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 19, "byteOffset": 760, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:5:12",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 5,
+      "recordIndex": 12,
+      "active": true,
+      "doorid": 51514,
+      "landid": 5,
+      "targetX": 14,
+      "targetY": 15,
+      "percent": 100,
+      "coordinate": {"x": 14, "y": 15},
+      "actions": [
+        {"slot": 0, "rawCode": 5, "code": 5, "id": 4, "label": "Complex encounter", "category": "encounter", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 12, "byteOffset": 20480, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data DD:0:27",
       "source": "Data DD",
       "levelType": "land",
@@ -261,6 +280,36 @@
 	  "authored": false,
 	  "provenance": {"sourceFile": "Data SD2", "recordIndex": 0, "byteOffset": 0, "byteLength": 256, "confidence": "source-backed"}
 	},
+    {
+      "id": 1,
+      "text": "You detect no signs of a trap.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 1, "byteOffset": 256, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 2,
+      "text": "You have checked the lock and are sure that it is not trapped.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 2, "byteOffset": 512, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 3,
+      "text": "You have failed to pick the lock.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 3, "byteOffset": 768, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 4,
+      "text": "The lock is now open.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 4, "byteOffset": 1024, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 218,
+      "text": "The door to this chamber is locked.  It is made of quite solid oak.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 218, "byteOffset": 55808, "byteLength": 256, "confidence": "source-backed"}
+    },
     {
       "id": 50,
       "text": "You enter the guard house outside the main gate to Castle Anthrax.  Several guards keep a wary eye on you as you approach the head Magistrate.  He is a stately looking man in fine robes.",

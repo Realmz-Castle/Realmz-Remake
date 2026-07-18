@@ -5,6 +5,7 @@ var quest_flags: Dictionary = {}
 var tile_overrides: Dictionary = {}
 var trigger_percent_overrides: Dictionary = {}
 var action_point_overrides: Dictionary = {}
+var thief_encounter_overrides: Dictionary = {}
 var level_type := "land"
 var level_index := 0
 var x := 0
@@ -16,6 +17,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	tile_overrides.clear()
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
+	thief_encounter_overrides.clear()
 	var start := bundle.get_start()
 	level_type = str(start.get("levelType", "land"))
 	level_index = int(start.get("levelIndex", 0))
@@ -99,12 +101,27 @@ func get_effective_action_point(action_point: Dictionary) -> Dictionary:
 	return effective
 
 
+func set_thief_encounter_override(encounter_id: int, encounter: Dictionary) -> void:
+	# Classic only writes a changed CT record when the linked Data TD2 id is nonzero.
+	if encounter_id <= 0:
+		return
+	thief_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+
+
+func get_effective_thief_encounter(encounter: Dictionary) -> Dictionary:
+	var encounter_id := int(encounter.get("id", -1))
+	var override: Variant = thief_encounter_overrides.get(str(encounter_id), {})
+	return override.duplicate(true) if override is Dictionary and not override.is_empty() \
+		else encounter.duplicate(true)
+
+
 func snapshot() -> Dictionary:
 	return {
 		"questFlags": quest_flags.duplicate(true),
 		"tileOverrides": tile_overrides.duplicate(true),
 		"triggerPercentOverrides": trigger_percent_overrides.duplicate(true),
 		"actionPointOverrides": action_point_overrides.duplicate(true),
+		"thiefEncounterOverrides": thief_encounter_overrides.duplicate(true),
 		"position": {
 			"levelType": level_type,
 			"levelIndex": level_index,
@@ -119,6 +136,7 @@ func restore(saved_state: Dictionary) -> void:
 	tile_overrides.clear()
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
+	thief_encounter_overrides.clear()
 	var saved_flags: Variant = saved_state.get("questFlags", {})
 	if saved_flags is Dictionary:
 		for quest_id: Variant in saved_flags:
@@ -131,6 +149,12 @@ func restore(saved_state: Dictionary) -> void:
 			var action_point: Variant = saved_action_points[trigger_id]
 			if action_point is Dictionary:
 				action_point_overrides[str(trigger_id)] = action_point.duplicate(true)
+	var saved_thief_encounters: Variant = saved_state.get("thiefEncounterOverrides", {})
+	if saved_thief_encounters is Dictionary:
+		for encounter_id: Variant in saved_thief_encounters:
+			var encounter: Variant = saved_thief_encounters[encounter_id]
+			if encounter is Dictionary:
+				thief_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
 		level_type = str(position.get("levelType", "land"))

@@ -3,6 +3,7 @@ extends SceneTree
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
+const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
@@ -36,6 +37,14 @@ class RejectingAdapter:
 		}
 
 
+class RogueTestCharacter:
+	extends RefCounted
+	var name := "Test Rogue"
+
+	func get_stat(_stat_name: String) -> float:
+		return 35.0
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -57,6 +66,7 @@ func _init() -> void:
 	_test_sound_and_treasure(bundle)
 	_test_map_mutations(bundle)
 	_test_complex_encounter(bundle)
+	_test_shipped_lock_encounter(bundle)
 	_test_battle_outcome(bundle)
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
@@ -75,6 +85,7 @@ func _test_bundle_indexes(bundle) -> void:
 	_expect_equal(bundle.get_treasure(11).get("itemIds", [])[0], 807, "treasure index")
 	_expect_equal(bundle.get_encounter("simple", 0).get("prompt"), 51, "simple encounter index")
 	_expect_equal(bundle.get_encounter("complex", 2).get("prompt"), 180, "complex encounter index")
+	_expect_equal(bundle.get_thief_encounter(4).get("tumblers"), 2, "rogue encounter index")
 
 
 func _test_text_and_encounter(bundle) -> void:
@@ -460,6 +471,82 @@ func _test_complex_encounter(bundle) -> void:
 	_expect_equal(outcome_result.get("payload", {}).get("messageId"), 183, "complex result slot resolves")
 
 
+func _test_shipped_lock_encounter(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:5:12"), "begin shipped CoB lock encounter")
+	var encounter_result: Dictionary = interpreter.run_until_yield()
+	var payload: Dictionary = encounter_result.get("payload", {})
+	_expect_equal(encounter_result.get("command"), "start_encounter", "lock starts complex encounter")
+	_expect_equal(payload.get("encounterId"), 4, "lock resolves Data ED2 record 4")
+	_expect_equal(payload.get("thiefEncounter", {}).get("id"), 4, "lock resolves Data TD2 record 4")
+
+	var resolver = RogueResolverScript.new()
+	_expect(
+		resolver.configure(payload.get("encounter", {}), payload.get("thiefEncounter", {})),
+		"configure shipped rogue encounter"
+	)
+	_expect_equal(
+		resolver.available_actions().map(func(action: Dictionary) -> int: return int(action["index"])),
+		[1, 4, 6],
+		"shipped lock exposes Detect Trap, Force Lock, and Pick Lock"
+	)
+	_expect_equal(resolver.success_percent(6, 35.0), 45, "Pick Lock applies Data TD2 modifier")
+	var choice_model: Dictionary = GodotAdapterScript.new().build_rogue_encounter_choices(
+		resolver,
+		RogueTestCharacter.new(),
+		true
+	)
+	_expect_equal(
+		choice_model.get("tokens"),
+		["rogue:1", "rogue:4", "rogue:6", "back"],
+		"Godot adapter exposes shipped rogue actions and back-out"
+	)
+	var failed_pick: Dictionary = resolver.resolve_action(6, false)
+	_expect_equal(failed_pick.get("outcome"), 0, "failed lockpick remains in complex encounter")
+	_expect_equal(failed_pick.get("messageId"), 3, "failed lockpick resolves shipped text")
+	_expect_equal(failed_pick.get("soundId"), 696, "failed lockpick resolves shipped sound")
+	_expect(
+		not bool(failed_pick.get("thiefEncounter", {}).get("typeFlags", [])[6]),
+		"failed lockpick consumes the Pick Lock action"
+	)
+	var cancelled: Dictionary = interpreter.resume_encounter(0, failed_pick)
+	_expect_equal(cancelled.get("reason"), "encounter-cancelled", "party can leave failed lock encounter")
+	_expect(
+		bool(bundle.get_thief_encounter(4).get("typeFlags", [])[6]),
+		"rogue encounter mutation leaves bundle immutable"
+	)
+	_expect(
+		not bool(interpreter.runtime_state.get_effective_thief_encounter(
+			bundle.get_thief_encounter(4)
+		).get("typeFlags", [])[6]),
+		"failed lockpick persists in runtime state"
+	)
+
+	var restored = StateScript.new()
+	restored.configure_from_bundle(bundle)
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect(
+		not bool(restored.get_effective_thief_encounter(
+			bundle.get_thief_encounter(4)
+		).get("typeFlags", [])[6]),
+		"failed lockpick survives snapshot restore"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("Data DD:5:12")
+	payload = interpreter.run_until_yield().get("payload", {})
+	resolver = RogueResolverScript.new()
+	resolver.configure(payload.get("encounter", {}), payload.get("thiefEncounter", {}))
+	var successful_pick: Dictionary = resolver.resolve_action(6, true)
+	_expect_equal(successful_pick.get("outcome"), 1, "successful lockpick selects result 1")
+	var sound_result: Dictionary = interpreter.resume_encounter(1, successful_pick)
+	_expect_equal(sound_result.get("command"), "play_sound", "lock result begins with shipped sound")
+	_expect_equal(sound_result.get("payload", {}).get("soundId"), 141, "lock result sound id")
+	var text_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(text_result.get("command"), "show_text", "lock result continues to shipped text")
+	_expect_equal(text_result.get("payload", {}).get("messageId"), 4, "successful lock text id")
+
+
 func _test_battle_outcome(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:4:44", 4), "begin CoB battle-outcome action")
@@ -512,6 +599,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.treasures_by_id.size(), 76, "full CoB treasure index")
 	_expect_equal(bundle.simple_encounters_by_id.size(), 20, "full CoB simple encounter index")
 	_expect_equal(bundle.complex_encounters_by_id.size(), 14, "full CoB complex encounter index")
+	_expect_equal(bundle.thief_encounters_by_id.size(), 8, "full CoB rogue encounter index")
 	_expect_equal(bundle.maps_by_id.size(), 11, "full CoB map index")
 	_expect_equal(bundle.dispatcher_noop_keys.size(), 470, "full CoB dispatcher no-op evidence index")
 	var coordinate_trigger_count := 0

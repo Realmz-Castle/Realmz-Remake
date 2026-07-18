@@ -6,10 +6,21 @@ const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_comma
 @export_dir var campaign_directory := \
 	"res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 @export var trigger_id := "Data DD:0:0"
+@export var playtest_label := "guard-house"
+@export var test_rogue_stat := -1.0
 
 var host: Node
 var automated_smoke := false
 var smoke_failures: Array[String] = []
+
+
+class PlaytestRogue:
+	extends RefCounted
+	var name := "Test Rogue"
+	var stat_value := 35.0
+
+	func get_stat(_stat_name: String) -> float:
+		return stat_value
 
 
 func _ready() -> void:
@@ -26,6 +37,10 @@ func _start_playtest() -> void:
 
 	UI.show_only(UI.ow_hud)
 	UI.ow_hud.textRect.show()
+	if test_rogue_stat >= 0.0 and GameGlobal.player_characters.is_empty():
+		var rogue := PlaytestRogue.new()
+		rogue.stat_value = test_rogue_stat
+		GameGlobal.player_characters.append(rogue)
 	host = HostScript.new()
 	add_child(host)
 	host.configure(AdapterScript.new())
@@ -43,7 +58,10 @@ func _start_playtest() -> void:
 
 func _on_playthrough_completed(result: Dictionary) -> void:
 	_show_status(
-		"Classic guard-house playtest complete.\nReason: %s" % result.get("reason", "completed"),
+		"Classic %s playtest complete.\nReason: %s" % [
+			playtest_label,
+			result.get("reason", "completed"),
+		],
 		false
 	)
 
@@ -58,6 +76,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if trigger_id == "Data DD:5:12":
+		await _run_lock_smoke()
+		return
 	await _wait_frames(3)
 	_verify_smoke_stage(
 		"01_guard_house_text",
@@ -68,8 +89,10 @@ func _run_automated_smoke() -> void:
 	var choices_ready := await _wait_for_choices()
 	_verify_smoke_stage(
 		"02_simple_encounter_choices",
-		choices_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8,
-		"four classic choices are visible"
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and _choice_menu_fits_map_area(),
+		"four classic choices are visible within the map area"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -91,6 +114,35 @@ func _run_automated_smoke() -> void:
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
 
+func _run_lock_smoke() -> void:
+	var choices_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"01_lock_prompt",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"The door to this chamber is locked"
+		),
+		"source-backed complex encounter prompt is visible"
+	)
+	_verify_smoke_stage(
+		"02_rogue_choices",
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and _choice_menu_fits_map_area(),
+		"three Data TD2 actions and back-out are visible within the map area"
+	)
+	if not choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("back")
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"03_lock_playthrough_complete",
+		"Classic lock playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"host completes after leaving the complex encounter"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
 func _wait_frames(frame_count: int) -> void:
 	for _frame: int in frame_count:
 		await get_tree().process_frame
@@ -102,8 +154,32 @@ func _wait_for_choices() -> bool:
 		var choices: Control = UI.ow_hud.textRect.choicesContainer
 		if choices.visible and choices.get_child_count() > 0:
 			return true
-	push_error("Classic guard-house smoke timed out waiting for encounter choices")
+	push_error("Classic %s smoke timed out waiting for encounter choices" % playtest_label)
 	return false
+
+
+func _choice_menu_fits_map_area() -> bool:
+	var choices: Control = UI.ow_hud.textRect.choicesContainer
+	var map_area := choices.get_parent() as Control
+	if map_area == null:
+		return false
+	var fits := choices.position.x >= 0.0 \
+		and choices.position.y >= 0.0 \
+		and choices.position.x + choices.size.x <= map_area.size.x \
+		and choices.position.y + choices.size.y <= map_area.size.y
+	if not fits:
+		push_error(
+			"Classic choice menu rect %s, anchors %s/%s/%s/%s, minimum %s does not fit map area %s" % [
+				Rect2(choices.position, choices.size),
+				choices.anchor_left,
+				choices.anchor_top,
+				choices.anchor_right,
+				choices.anchor_bottom,
+				choices.get_combined_minimum_size(),
+				map_area.size,
+			]
+		)
+	return fits
 
 
 func _verify_smoke_stage(stage_name: String, passed: bool, detail: String) -> void:

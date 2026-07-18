@@ -142,17 +142,22 @@ func resume_choice(accepted: bool) -> Dictionary:
 			return _halt_with_error("Choice references unsupported branch mode %d" % int(values[1]))
 
 
-func resume_encounter(outcome: int) -> Dictionary:
+func resume_encounter(outcome: int, encounter_state := {}) -> Dictionary:
 	if pending_encounter.is_empty():
 		return _error_result("No classic encounter is waiting for a result")
 	var encounter_context := pending_encounter
 	pending_encounter = {}
+	if not (encounter_state is Dictionary):
+		return _halt_with_error("Classic encounter state must be a dictionary")
+	if outcome < 0 or outcome > 4:
+		return _halt_with_error("Classic encounter outcome must be between 0 and 4")
+	var state_result := _apply_encounter_state(encounter_context, encounter_state)
+	if not state_result.is_empty():
+		return state_result
 	if outcome == 0:
 		_clear_control_flow()
 		encounter_origins.clear()
 		return _completed_result("encounter-cancelled")
-	if outcome < 1 or outcome > 4:
-		return _halt_with_error("Classic encounter outcome must be between 0 and 4")
 
 	var encounter: Dictionary = encounter_context["encounter"]
 	var outcome_trigger := _encounter_outcome_trigger(
@@ -301,20 +306,56 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 	})
 	var prompt_id := int(encounter.get("prompt", 0))
 	var prompt_message := bundle.get_message(prompt_id)
-	pending_encounter = {
+	var encounter_payload := {
 		"encounterKind": encounter_kind,
 		"encounterId": encounter_id,
 		"encounter": encounter,
 		"promptMessage": prompt_message,
 		"startSlot": start_slot,
 	}
-	return _yield_result("start_encounter", {
-		"encounterKind": encounter_kind,
-		"encounterId": encounter_id,
-		"encounter": encounter,
-		"promptMessage": prompt_message,
-		"startSlot": start_slot,
-	})
+	if encounter_kind == "complex" and bool(encounter.get("thief", false)):
+		var thief_encounter_id := int(encounter.get("thiefSuccess", 0))
+		var thief_encounter := bundle.get_thief_encounter(thief_encounter_id)
+		if thief_encounter.is_empty():
+			return _halt_with_error(
+				"Missing Data TD2 rogue encounter %d" % thief_encounter_id
+			)
+		var effective_thief_encounter := \
+			runtime_state.get_effective_thief_encounter(thief_encounter)
+		encounter_payload["thiefEncounter"] = effective_thief_encounter
+		encounter_payload["thiefMessages"] = _thief_messages(effective_thief_encounter)
+	pending_encounter = encounter_payload.duplicate(true)
+	return _yield_result("start_encounter", encounter_payload)
+
+
+func _apply_encounter_state(encounter_context: Dictionary, encounter_state: Dictionary) -> Dictionary:
+	if str(encounter_context.get("encounterKind", "")) != "complex":
+		return {}
+	var thief_value: Variant = encounter_state.get("thiefEncounter", {})
+	if not (thief_value is Dictionary) or thief_value.is_empty():
+		return {}
+	var encounter: Dictionary = encounter_context["encounter"]
+	var expected_id := int(encounter.get("thiefSuccess", 0))
+	if int(thief_value.get("id", -1)) != expected_id:
+		return _halt_with_error("Classic encounter returned the wrong Data TD2 record")
+	runtime_state.set_thief_encounter_override(expected_id, thief_value)
+	return {}
+
+
+func _thief_messages(thief_encounter: Dictionary) -> Array:
+	var messages: Array = []
+	var included_ids: Dictionary = {}
+	for field_name: String in ["successText", "failureText", "prompts"]:
+		var ids: Variant = thief_encounter.get(field_name, [])
+		if not (ids is Array):
+			continue
+		for id_value: Variant in ids:
+			var message_id: int = abs(int(id_value))
+			if message_id == 0 or included_ids.has(message_id):
+				continue
+			included_ids[message_id] = true
+			messages.append(bundle.get_message(message_id))
+	return messages
 
 
 func _execute_treasure(treasure_id: int) -> Dictionary:
