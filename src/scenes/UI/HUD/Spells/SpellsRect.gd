@@ -73,6 +73,7 @@ var picked_character = null
 var picked_level = 1
 var picked_spell : Spell = null
 var picked_power : int = 1
+var encounter_selection_mode := false
 
 @onready var plevelbutton1 = $"VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton1"
 @onready var plevelbutton2 = $"VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer/PLevelButton2"
@@ -84,6 +85,7 @@ var picked_power : int = 1
 @onready var plevelbuttons : Array = [plevelbutton1,plevelbutton2,plevelbutton3,plevelbutton4,plevelbutton5,plevelbutton6,plevelbutton7]
 
 signal spell_picked
+signal encounter_spell_picked
 
 
 # Called when the node enters the scene tree for the first time.
@@ -113,6 +115,7 @@ func on_viewport_size_changed(screensize) :
 
 
 func initialize(character) :
+	encounter_selection_mode = false
 	picked_spell = null
 	castButton.disabled = true
 #	print("initialize spell menu for "+character.name)
@@ -136,6 +139,11 @@ func initialize(character) :
 	_on_SLevelButton_pressed(0)
 	_on_PLevelButton_pressed(1)
 
+
+func initialize_for_encounter(character) -> void:
+	initialize(character)
+	encounter_selection_mode = true
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
@@ -143,6 +151,11 @@ func initialize(character) :
 
 func _on_CastButton_pressed():
 	print("_on_CastButton_pressed")
+	if encounter_selection_mode:
+		encounter_selection_mode = false
+		hide()
+		encounter_spell_picked.emit()
+		return
 #	hide()
 #	picked_spell = "some spell "+String(randi()%1000)
 	emit_signal("spell_picked", picked_character, picked_spell, picked_power, {} ) #item is {}
@@ -155,6 +168,10 @@ func _on_AbortButton_pressed():
 	print("SpellsRect AbortButton_pressed")
 	hide()
 	picked_spell = null
+	if encounter_selection_mode:
+		encounter_selection_mode = false
+		encounter_spell_picked.emit()
+		return
 	#push_error("Spells Menu : ABORT BUTTON PRESSED : behavior has changed, spell is null, not string 'abort'  anymore !")
 	if StateMachine.is_combat_state() :
 		StateMachine.exit_cb_menu_state()

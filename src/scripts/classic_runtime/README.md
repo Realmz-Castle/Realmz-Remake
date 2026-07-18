@@ -33,11 +33,11 @@ Opcode `25` follows Classic's deferred door rewrite. It clears the GOSUB stack, 
 
 Encounter result values select the corresponding eight-action block from `Data ED` or `Data ED2`. Battle outcome branches remain suspended until the host reports victory or cowardice. Persistent tile, trigger, and action-point mutations are included in runtime snapshots; the bundle records themselves remain immutable.
 
-The complex-encounter adapter exposes the eight Classic action-text fields through Remake's existing HUD choice control and routes each selection to the record's shared action result. This covers the active non-rogue library, cave-in, and pool encounters in City of Bywater. Mixed rogue encounters keep those action choices beside their `Data TD2` controls. The rogue resolver uses the selected character's Remake stat plus the Classic modifier, preserves Classic's 90-percent cap for interactive lock/trap actions, and routes success or failure into the four `Data ED2` result rows. Consumed rogue actions persist in runtime snapshots while the compiled record remains immutable. The source-backed CoB lock at `Data DD:5:12` exercises Detect Trap, Force Lock, and Pick Lock. The trapped chest at `Data DD:5:3` applies its shipped 4-12 damage to the selected rogue, clears the armed state, and leaves Pick Lock available before continuing through result 2.
+The complex-encounter adapter exposes the eight Classic action-text fields through Remake's existing HUD choice control and routes each selection to the record's shared action result. This covers the active non-rogue library, cave-in, and pool encounters in City of Bywater. Encounters with magic responses can open Remake's native spell picker, match the selected spell against the packed Classic IDs, consume its normal spell-point cost, and continue through the paired result block. Unmatched spells use Classic's Result 4 fallback. Low IDs `1` through `6` remain supported when a Remake spell supplies explicit Classic spell-class metadata; current shared spell resources do not yet preserve that field. Mixed rogue encounters keep action and spell choices beside their `Data TD2` controls. The rogue resolver uses the selected character's Remake stat plus the Classic modifier, preserves Classic's 90-percent cap for interactive lock/trap actions, and routes success or failure into the four `Data ED2` result rows. Consumed rogue actions persist in runtime snapshots while the compiled record remains immutable. The source-backed CoB lock at `Data DD:5:12` exercises Detect Trap, Force Lock, and Pick Lock. The trapped chest at `Data DD:5:3` applies its shipped 4-12 damage to the selected rogue, clears the armed state, and leaves Pick Lock available before continuing through result 2.
 
 Against the current Providence export of City of Bywater, these handlers cover 2,032 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,502 slots, or 91.5% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters and 232 action slots across 48 additional opcodes remain.
 
-The interpreter does not yet reproduce encounter repetition limits or encounter-option mutation, and it will still stop explicitly when a selected encounter result contains an unsupported opcode. Trap spells, other complex response families, and Classic's timed tumbler minigame also remain explicit boundaries. This keeps the compatibility boundary visible while more handlers are added.
+The interpreter does not yet reproduce encounter repetition limits or encounter-option mutation, and it will still stop explicitly when a selected encounter result contains an unsupported opcode. Trap spells, complex item and spoken-word responses, imported spell-class metadata, party-target spell side effects, and Classic's timed tumbler minigame also remain explicit boundaries. This keeps the compatibility boundary visible while more handlers are added.
 
 ## Godot guard-house playtest
 
@@ -55,7 +55,7 @@ Pass a compiled campaign directory after `--` to use the full converter output i
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
 ```
 
-This adapter intentionally handles text, yes/no prompts, simple-encounter choices, complex action choices, data-driven rogue encounters, trap damage, fixed treasure through Remake's loot UI, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, encounter, or battle resource adapters exist.
+This adapter intentionally handles text, yes/no prompts, simple-encounter choices, complex action and spell responses, data-driven rogue encounters, trap damage, fixed treasure through Remake's loot UI, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, encounter, or battle resource adapters exist.
 
 This remains a compatibility playtest rather than an installed Remake campaign. Classic bundles are not yet discovered through `src/Campaigns`, selected from the campaign UI, or persisted through the native profile/save system. `ClassicRuntimeState` snapshots are currently standalone; a shipping integration must bridge classic quest, tile, trigger, and position state into Remake's save lifecycle.
 
@@ -89,6 +89,13 @@ The cave-in playtest exercises a non-rogue complex encounter from its three auth
 ```powershell
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_action_playtest.tscn
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_action_playtest.tscn -- --smoke
+```
+
+The spell variant supplies a playtest caster with Dig Hole, selects it through Remake's native spell menu, and verifies the packed `1201` response, spell-point cost, and Result 1 continuation:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_spell_playtest.tscn
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_spell_playtest.tscn -- --smoke
 ```
 
 The HUD smoke intentionally uses the normal display driver because the project's shutdown handler persists the active window size to `src/override.cfg`; a headless HUD run would save `0x0` and dirty the worktree.

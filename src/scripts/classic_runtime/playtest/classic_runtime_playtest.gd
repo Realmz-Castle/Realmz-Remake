@@ -3,7 +3,27 @@ extends Node
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
+const SorcererClass = preload("res://Data/Character Classes/Class_Sorcerer.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
+
+
+class CaveInSpell:
+	extends Spell
+
+	var classic_spell_class := 6
+
+	func _init() -> void:
+		name = "Dig Hole"
+		description = "Opens earth and debris by magical means."
+		elements = [GameGlobal.ELEMENTS.MAGICAL]
+		schools = ["Sorcerer"]
+		school_levels = {"Sorcerer": 1}
+		selection_costs = {"Sorcerer": 1}
+		in_field = true
+		max_plevel = 1
+
+	func get_sp_cost(_power: int, _caster) -> int:
+		return 5
 
 @export_dir var campaign_directory := \
 	"res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
@@ -11,6 +31,7 @@ const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
 @export var playtest_label := "guard-house"
 @export var test_rogue_stat := -1.0
 @export var test_rogue_hp := 30
+@export var test_spell_name := ""
 
 var host: Node
 var automated_smoke := false
@@ -34,14 +55,15 @@ func _start_playtest() -> void:
 	UI.show_only(UI.ow_hud)
 	UI.ow_hud.textRect.show()
 	await _wait_frames(2)
-	if test_rogue_stat >= 0.0:
+	if test_rogue_stat >= 0.0 or not test_spell_name.is_empty():
 		var resources: CampaignResources = NodeAccess.__Resources()
-		if resources.items_book.is_empty():
+		if test_rogue_stat >= 0.0 and resources.items_book.is_empty():
 			resources.load_item_resources("res://shared_assets/items/")
 		GameGlobal.player_characters.clear()
-		var rogue := _make_playtest_rogue()
-		GameGlobal.player_characters.append(rogue)
-		UI.ow_hud.selected_character = rogue
+		var character: PlayerCharacter = _make_playtest_rogue() \
+			if test_rogue_stat >= 0.0 else _make_playtest_spellcaster()
+		GameGlobal.player_characters.append(character)
+		UI.ow_hud.selected_character = character
 	host = HostScript.new()
 	add_child(host)
 	host.configure(AdapterScript.new())
@@ -79,6 +101,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if not test_spell_name.is_empty():
+		await _run_complex_spell_smoke()
+		return
 	if trigger_id == "Data DD:5:3":
 		await _run_trap_smoke()
 		return
@@ -196,6 +221,78 @@ func _run_complex_action_smoke() -> void:
 		"Classic cave-in playtest complete" \
 			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host completes after the complex action result"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_complex_spell_smoke() -> void:
+	var caster: PlayerCharacter = GameGlobal.player_characters[0]
+	var spell_points_before := int(caster.get_stat("curSP"))
+	var choices_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"01_complex_spell_prompt",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"This appears to be the site of a rather large cavern"
+		),
+		"source-backed cave-in prompt is visible"
+	)
+	_verify_smoke_stage(
+		"02_complex_spell_choice",
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 10
+			and _choice_menu_fits_map_area(),
+		"cast spell appears beside the three actions and back-out"
+	)
+	if not choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("spell")
+	var spell_menu_ready := await _wait_for_spell_menu()
+	_verify_smoke_stage(
+		"03_native_spell_menu",
+		spell_menu_ready,
+		"Remake's spell picker opens with the playtest caster's known spell"
+	)
+	if not spell_menu_ready:
+		get_tree().quit(1)
+		return
+	var spell_menu: SpellsMenu = UI.ow_hud.spellcastMenu
+	var spell_button: Button = spell_menu.spelllistContainer.get_child(0)
+	spell_button.pressed.emit()
+	await _wait_frames(2)
+	_verify_smoke_stage(
+		"04_spell_selected",
+		spell_menu.picked_spell != null
+			and spell_menu.picked_spell.name == test_spell_name
+			and not spell_menu.castButton.disabled,
+		"the shipped response spell can be selected and cast"
+	)
+	spell_menu.castButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"05_complex_spell_result",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"You have succeeded in uncovering the passage"
+		)
+			and int(caster.get_stat("curSP")) == spell_points_before - 5,
+		"the packed spell ID selects result 1 and consumes spell points"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"06_complex_spell_continuation",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"The tunnel continues west"
+		),
+		"the spell result continues through its Data ED2 block"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"07_complex_spell_complete",
+		"Classic cave-in-spell playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"host completes after the complex spell result"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
@@ -332,6 +429,29 @@ func _make_playtest_rogue() -> PlayerCharacter:
 	return rogue
 
 
+func _make_playtest_spellcaster() -> PlayerCharacter:
+	var caster: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+		{
+			"name": "Test Sorcerer",
+			"level": 1,
+			"exp_tnl": 10000,
+		},
+		null,
+		null,
+		SorcererClass,
+		HumanRace
+	)
+	var spell := CaveInSpell.new()
+	caster.spells = [[{
+		"name": spell.name,
+		"source": "",
+		"script": spell,
+	}]]
+	caster.stats["maxSP"] = 20
+	caster.stats["curSP"] = 20
+	return caster
+
+
 func _wait_frames(frame_count: int) -> void:
 	for _frame: int in frame_count:
 		await get_tree().process_frame
@@ -356,6 +476,16 @@ func _wait_for_treasure() -> bool:
 		"Classic trapped-chest smoke timed out waiting for the treasure UI; HUD text: %s" %
 		UI.ow_hud.textRect.textLabel.get_parsed_text()
 	)
+	return false
+
+
+func _wait_for_spell_menu() -> bool:
+	for _frame: int in 120:
+		await get_tree().process_frame
+		var spell_menu: SpellsMenu = UI.ow_hud.spellcastMenu
+		if spell_menu.visible and spell_menu.spelllistContainer.get_child_count() > 0:
+			return true
+	push_error("Classic spell smoke timed out waiting for Remake's spell picker")
 	return false
 
 

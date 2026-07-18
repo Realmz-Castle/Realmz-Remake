@@ -7,6 +7,7 @@ const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 const WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub"
@@ -79,6 +80,7 @@ func _init() -> void:
 	_test_map_mutations(bundle)
 	_test_complex_encounter(bundle)
 	_test_complex_action_choices(bundle)
+	_test_complex_spell_results(bundle)
 	_test_shipped_lock_encounter(bundle)
 	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
@@ -563,6 +565,57 @@ func _test_complex_action_choices(bundle) -> void:
 		library.get("choices"),
 		["Examine some books.", "Study quietly at a table."],
 		"complex action choices exclude the separate spoken-word field"
+	)
+
+
+func _test_complex_spell_results(bundle) -> void:
+	var adapter = GodotAdapterScript.new()
+	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
+	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
+	_expect_equal(
+		adapter.classic_spell_mapping_key(1201),
+		"10010",
+		"packed Dig Hole ID resolves to Remake's spell-table key"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(cave_in, "Dig Hole", 0, spell_mapping),
+		1,
+		"exact complex spell selects its shipped result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(cave_in, "Flesh", 0, spell_mapping),
+		2,
+		"duplicate caster-school spell names share their authored result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(cave_in, "Hands to Clay", 0, spell_mapping),
+		4,
+		"explicit spell can select Classic's failure result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(cave_in, "Magic Darts", 0, spell_mapping),
+		4,
+		"unmatched complex spell defaults to result 4"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			{"spellIds": [1], "spellResults": [3]},
+			"Flame Hands",
+			1,
+			spell_mapping
+		),
+		3,
+		"explicit Classic spell-class metadata selects a class shortcut"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			{"spellIds": [1101], "spellResults": [1]},
+			"Discover Magic",
+			0,
+			spell_mapping
+		),
+		1,
+		"Remake's Discover Magic name matches the legacy Sorcerer alias"
 	)
 
 

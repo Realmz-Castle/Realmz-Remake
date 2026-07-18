@@ -73,24 +73,36 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 	if text_rect == null:
 		return _error("Realmz HUD TextRect is unavailable")
 	if not bool(encounter.get("thief", false)):
-		_show_encounter_prompt(text_rect, payload)
-		var action_choices := build_complex_action_choices(
-			encounter,
-			bool(encounter.get("canBackOut", false))
-		)
-		if action_choices["choices"].is_empty():
-			return _error("Classic complex encounter has no available actions")
-		var selected: String = str(await _show_choices(
-			text_rect,
-			action_choices["choices"],
-			action_choices["tokens"]
-		))
-		if selected == "back":
-			return {"outcome": 0}
-		var token_parts: PackedStringArray = selected.split(":", false, 1)
-		if token_parts.size() != 2 or token_parts[0] != "action":
-			return _error("Classic complex encounter returned an invalid action")
-		return {"outcome": int(token_parts[1])}
+		while true:
+			_show_encounter_prompt(text_rect, payload)
+			var choice_model := build_complex_action_choices(
+				encounter,
+				false
+			)
+			var choices: Array = choice_model["choices"]
+			var choice_tokens: Array = choice_model["tokens"]
+			_append_complex_spell_choice(encounter, choices, choice_tokens)
+			if bool(encounter.get("canBackOut", false)):
+				choices.append("Back out")
+				choice_tokens.append("back")
+			if choices.is_empty():
+				return _error("Classic complex encounter has no available actions")
+			var selected: String = str(await _show_choices(
+				text_rect,
+				choices,
+				choice_tokens
+			))
+			if selected == "back":
+				return {"outcome": 0}
+			if selected == "spell":
+				var spell_result := await _select_complex_spell(encounter)
+				if str(spell_result.get("status", "")) == "cancelled":
+					continue
+				return spell_result
+			var token_parts: PackedStringArray = selected.split(":", false, 1)
+			if token_parts.size() != 2 or token_parts[0] != "action":
+				return _error("Classic complex encounter returned an invalid action")
+			return {"outcome": int(token_parts[1])}
 
 	var thief_encounter: Variant = payload.get("thiefEncounter", {})
 	if not (thief_encounter is Dictionary) or thief_encounter.is_empty():
@@ -117,6 +129,7 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		var action_choices := build_complex_action_choices(encounter, false)
 		choices.append_array(action_choices["choices"])
 		choice_tokens.append_array(action_choices["tokens"])
+		_append_complex_spell_choice(encounter, choices, choice_tokens)
 		if bool(encounter.get("canBackOut", false)):
 			choices.append("Back out")
 			choice_tokens.append("back")
@@ -128,6 +141,12 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				"outcome": 0,
 				"thiefEncounter": resolver.rogue_encounter.duplicate(true),
 			}
+		if selected == "spell":
+			var spell_result := await _select_complex_spell(encounter)
+			if str(spell_result.get("status", "")) == "cancelled":
+				continue
+			spell_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			return spell_result
 		var token_parts: PackedStringArray = selected.split(":", false, 1)
 		if token_parts.size() == 2 and token_parts[0] == "action":
 			return {
@@ -181,6 +200,129 @@ func build_complex_action_choices(encounter: Dictionary, can_back_out: bool) -> 
 		choices.append("Back out")
 		tokens.append("back")
 	return {"choices": choices, "tokens": tokens}
+
+
+func resolve_complex_spell_result(
+	encounter: Dictionary,
+	spell_name: String,
+	spell_class: int,
+	spell_id_mapping: Dictionary
+) -> int:
+	var spell_ids: Variant = encounter.get("spellIds", [])
+	var spell_results: Variant = encounter.get("spellResults", [])
+	if not (spell_ids is Array) or not (spell_results is Array):
+		return 4
+	for index: int in range(min(spell_ids.size(), spell_results.size())):
+		var spell_id := int(spell_ids[index])
+		if spell_id > 0 and spell_id < 7 and spell_class == spell_id:
+			return int(spell_results[index])
+		if spell_id >= 1101:
+			var mapped_name := _mapped_spell_name(spell_id, spell_id_mapping)
+			# Remake shares a spell resource by name across Classic caster schools.
+			if _normalized_spell_name(mapped_name) == _normalized_spell_name(spell_name):
+				return int(spell_results[index])
+	return 4
+
+
+func classic_spell_mapping_key(spell_id: int) -> String:
+	if spell_id < 1101:
+		return ""
+	# Classic packs zero-based caster class, level, and slot above the 1101 base.
+	# Remake's existing table uses those same parts as a concatenated string key.
+	var packed := spell_id - 1101
+	var caster_class := int(packed / 1000) + 1
+	var remainder := packed % 1000
+	var spell_level := int(remainder / 100)
+	var spell_slot := remainder % 100
+	return "%d%d%d" % [caster_class * 100, spell_level, spell_slot]
+
+
+func _append_complex_spell_choice(
+	encounter: Dictionary,
+	choices: Array,
+	tokens: Array
+) -> void:
+	if _first_spellcaster() == null or not _has_complex_spell_responses(encounter):
+		return
+	choices.append("Cast a spell")
+	tokens.append("spell")
+
+
+func _has_complex_spell_responses(encounter: Dictionary) -> bool:
+	var spell_ids: Variant = encounter.get("spellIds", [])
+	return spell_ids is Array and not spell_ids.is_empty() and int(spell_ids[0]) != 0
+
+
+func _select_complex_spell(encounter: Dictionary) -> Dictionary:
+	var caster := _first_spellcaster()
+	if caster == null:
+		return _error("Classic complex encounter has no conscious spellcaster")
+	var ui: Object = _autoload("UI")
+	if ui == null or ui.ow_hud == null:
+		return _error("Realmz HUD is unavailable for Classic spell selection")
+	var spell_menu: Object = ui.ow_hud.spellcastMenu
+	if spell_menu == null or not spell_menu.has_method("initialize_for_encounter"):
+		return _error("Realmz spell menu does not support encounter selection")
+	spell_menu.initialize_for_encounter(caster)
+	spell_menu.show()
+	await spell_menu.encounter_spell_picked
+	var spell: Variant = spell_menu.picked_spell
+	if spell == null:
+		return {"status": "cancelled"}
+	var picked_character: Variant = spell_menu.picked_character
+	var power := int(spell_menu.picked_power)
+	if picked_character is Object and picked_character.has_method("on_ability_use"):
+		picked_character.on_ability_use(spell, power)
+	var spell_ids: Object = _autoload("SpellsIdDivinity")
+	var spell_mapping: Dictionary = spell_ids.mappings if spell_ids != null else {}
+	var spell_class := int(spell.get("classic_spell_class")) \
+		if spell.get("classic_spell_class") != null else 0
+	return {
+		"outcome": resolve_complex_spell_result(
+			encounter,
+			str(spell.get("name")),
+			spell_class,
+			spell_mapping
+		),
+		"spellName": str(spell.get("name")),
+		"spellPower": power,
+	}
+
+
+func _first_spellcaster() -> Object:
+	var preferred := _selected_character()
+	if _can_select_spell(preferred):
+		return preferred
+	for character_value: Variant in _party_characters():
+		if _can_select_spell(character_value):
+			return character_value
+	return null
+
+
+func _can_select_spell(character: Variant) -> bool:
+	if not (character is Object) or not character.has_method("get_stat"):
+		return false
+	if float(character.get_stat("curHP")) <= 0.0:
+		return false
+	var spell_levels: Variant = character.get("spells")
+	if not (spell_levels is Array):
+		return false
+	for level_value: Variant in spell_levels:
+		if level_value is Array and not level_value.is_empty():
+			return true
+	return false
+
+
+func _mapped_spell_name(spell_id: int, spell_id_mapping: Dictionary) -> String:
+	var key := classic_spell_mapping_key(spell_id)
+	return str(spell_id_mapping.get(key, spell_id_mapping.get(spell_id, "")))
+
+
+func _normalized_spell_name(spell_name: String) -> String:
+	var normalized := spell_name.strip_edges().to_lower()
+	if normalized == "discover magic i":
+		return "discover magic"
+	return normalized
 
 
 func build_rogue_encounter_choices(

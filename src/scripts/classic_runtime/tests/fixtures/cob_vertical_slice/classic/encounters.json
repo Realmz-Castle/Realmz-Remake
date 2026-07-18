@@ -106,6 +106,7 @@
       "actionResult": 1,
       "wordResult": 0,
       "itemResults": [0, 0, 0, 0, 0],
+      "spellIds": [1201, 1609, 2504, 3306, 3405, 3709, 2602, 0, 0, 0],
       "spellResults": [1, 1, 4, 4, 2, 1, 2, 0, 0, 0],
       "canBackOut": true,
       "maxTimes": 4,
