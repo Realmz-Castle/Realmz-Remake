@@ -32,6 +32,7 @@ class CaveInSpell:
 @export var test_rogue_stat := -1.0
 @export var test_rogue_hp := 30
 @export var test_spell_name := ""
+@export var test_item_name := ""
 
 var host: Node
 var automated_smoke := false
@@ -55,7 +56,9 @@ func _start_playtest() -> void:
 	UI.show_only(UI.ow_hud)
 	UI.ow_hud.textRect.show()
 	await _wait_frames(2)
-	if test_rogue_stat >= 0.0 or not test_spell_name.is_empty():
+	if test_rogue_stat >= 0.0 \
+			or not test_spell_name.is_empty() \
+			or not test_item_name.is_empty():
 		var resources: CampaignResources = NodeAccess.__Resources()
 		if test_rogue_stat >= 0.0 and resources.items_book.is_empty():
 			resources.load_item_resources("res://shared_assets/items/")
@@ -103,6 +106,9 @@ func _show_status(message: String, is_error: bool) -> void:
 func _run_automated_smoke() -> void:
 	if not test_spell_name.is_empty():
 		await _run_complex_spell_smoke()
+		return
+	if not test_item_name.is_empty():
+		await _run_complex_item_smoke()
 		return
 	if trigger_id == "Data DD:5:3":
 		await _run_trap_smoke()
@@ -297,6 +303,59 @@ func _run_complex_spell_smoke() -> void:
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
 
+func _run_complex_item_smoke() -> void:
+	var holder: PlayerCharacter = GameGlobal.player_characters[0]
+	var choices_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"01_complex_item_prompt",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"The door to this chamber is locked"
+		),
+		"source-backed locked-door prompt is visible"
+	)
+	_verify_smoke_stage(
+		"02_complex_item_choice",
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 14
+			and _choice_menu_fits_map_area(),
+		"use item appears beside the rogue controls, actions, and back-out"
+	)
+	if not choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("item")
+	var item_menu_ready := await _wait_for_item_menu()
+	_verify_smoke_stage(
+		"03_native_item_menu",
+		item_menu_ready,
+		"Remake's encounter item picker opens with the carried key"
+	)
+	if not item_menu_ready:
+		get_tree().quit(1)
+		return
+	var item_menu: Control = UI.ow_hud.encounterControl.useitemRect
+	var item_button: Button = item_menu.itemsContainer.get_child(0)
+	item_button.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"04_complex_item_result",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"The lock is now open"
+		)
+			and holder.inventory.size() == 1,
+		"the Necklace of Keys selects result 1 without consuming the key"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"05_complex_item_complete",
+		"Classic complex-item playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"host completes after the complex item result"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
 func _run_trap_smoke() -> void:
 	var money_before: Array = GameGlobal.money_pool.duplicate()
 	var choices_ready := await _wait_for_choices()
@@ -426,6 +485,8 @@ func _make_playtest_rogue() -> PlayerCharacter:
 		rogue.stats[stat_name] = test_rogue_stat
 	rogue.stats["maxHP"] = test_rogue_hp
 	rogue.stats["curHP"] = test_rogue_hp
+	if not test_item_name.is_empty():
+		rogue.inventory.append(GameGlobal.generate_item(test_item_name))
 	return rogue
 
 
@@ -486,6 +547,19 @@ func _wait_for_spell_menu() -> bool:
 		if spell_menu.visible and spell_menu.spelllistContainer.get_child_count() > 0:
 			return true
 	push_error("Classic spell smoke timed out waiting for Remake's spell picker")
+	return false
+
+
+func _wait_for_item_menu() -> bool:
+	for _frame: int in 120:
+		await get_tree().process_frame
+		var encounter_control: Control = UI.ow_hud.encounterControl
+		var item_menu: Control = encounter_control.useitemRect
+		if encounter_control.visible \
+				and item_menu.visible \
+				and item_menu.itemsContainer.get_child_count() > 0:
+			return true
+	push_error("Classic item smoke timed out waiting for Remake's encounter item picker")
 	return false
 
 

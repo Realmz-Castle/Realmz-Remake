@@ -13,8 +13,12 @@ extends NinePatchRect
 var character = null
 enum  {ALL,FIELD,BATTLE}
 var itemkind : int = ALL
+var encounter_selection_mode := false
+var picked_item: Dictionary = {}
+var picked_character = null
 
 signal item_picked
+signal encounter_item_picked
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -56,6 +60,15 @@ func display_character_inventory() :
 			#ibutton.connect("pressed",Callable(self,"_on_dropentry_pressed").bind(i))
 			itemsContainer.add_child(newButton)
 
+
+func initialize_for_encounter(chara) -> void:
+	encounter_selection_mode = true
+	picked_item = {}
+	picked_character = null
+	character = chara
+	itemkind = ALL
+	display_character_inventory()
+
 func _on_LeftButton_pressed():
 	var charindex = GameGlobal.player_characters.find(character)
 	var indexminus = charindex-1
@@ -83,8 +96,20 @@ func _on_itemlootbutton_mouse_exited() :
 	
 
 func _on_itembutton_pressed(item : Dictionary, chara) :
+	if encounter_selection_mode:
+		encounter_selection_mode = false
+		picked_item = item
+		picked_character = chara
+		hide()
+		encounter_item_picked.emit()
+		return
 	emit_signal("item_picked", item, chara)
 
 
 func _on_CancelButton_pressed():
 	hide()
+	if encounter_selection_mode:
+		encounter_selection_mode = false
+		picked_item = {}
+		picked_character = null
+		encounter_item_picked.emit()

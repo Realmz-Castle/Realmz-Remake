@@ -8,6 +8,7 @@ const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd"
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
+const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 const WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub"
@@ -81,6 +82,7 @@ func _init() -> void:
 	_test_complex_encounter(bundle)
 	_test_complex_action_choices(bundle)
 	_test_complex_spell_results(bundle)
+	_test_complex_item_results(bundle)
 	_test_shipped_lock_encounter(bundle)
 	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
@@ -616,6 +618,57 @@ func _test_complex_spell_results(bundle) -> void:
 		),
 		1,
 		"Remake's Discover Magic name matches the legacy Sorcerer alias"
+	)
+
+
+func _test_complex_item_results(bundle) -> void:
+	var adapter = GodotAdapterScript.new()
+	var item_mapping: Dictionary = ItemIdsScript.new().mapping
+	var trapped_chest: Dictionary = bundle.get_encounter("complex", 3)
+	var locked_door: Dictionary = bundle.get_encounter("complex", 4)
+	_expect_equal(
+		adapter.resolve_complex_item_result(
+			trapped_chest,
+			"Iron Key",
+			item_mapping,
+			[]
+		),
+		2,
+		"exact complex item selects its shipped result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_item_result(
+			trapped_chest,
+			"Necklace of Keys",
+			item_mapping,
+			[]
+		),
+		2,
+		"second authored item can share an encounter result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_item_result(
+			locked_door,
+			"Iron Key",
+			item_mapping,
+			[]
+		),
+		4,
+		"unmatched complex item defaults to result 4"
+	)
+	_expect_equal(
+		adapter.resolve_complex_item_result(
+			{"itemIds": [900], "itemResults": [3]},
+			"Scenario Seal",
+			{},
+			[{
+				"itemId": 900,
+				"identifiedName": "Scenario Seal",
+				"unidentifiedName": "Wax Seal",
+			}]
+		),
+		3,
+		"scenario item text can identify a complex response item"
 	)
 
 

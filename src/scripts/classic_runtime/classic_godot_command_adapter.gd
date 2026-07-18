@@ -82,6 +82,7 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			var choices: Array = choice_model["choices"]
 			var choice_tokens: Array = choice_model["tokens"]
 			_append_complex_spell_choice(encounter, choices, choice_tokens)
+			_append_complex_item_choice(encounter, choices, choice_tokens)
 			if bool(encounter.get("canBackOut", false)):
 				choices.append("Back out")
 				choice_tokens.append("back")
@@ -99,6 +100,14 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				if str(spell_result.get("status", "")) == "cancelled":
 					continue
 				return spell_result
+			if selected == "item":
+				var item_result := await _select_complex_item(
+					encounter,
+					payload.get("itemTexts", [])
+				)
+				if str(item_result.get("status", "")) == "cancelled":
+					continue
+				return item_result
 			var token_parts: PackedStringArray = selected.split(":", false, 1)
 			if token_parts.size() != 2 or token_parts[0] != "action":
 				return _error("Classic complex encounter returned an invalid action")
@@ -130,6 +139,7 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		choices.append_array(action_choices["choices"])
 		choice_tokens.append_array(action_choices["tokens"])
 		_append_complex_spell_choice(encounter, choices, choice_tokens)
+		_append_complex_item_choice(encounter, choices, choice_tokens)
 		if bool(encounter.get("canBackOut", false)):
 			choices.append("Back out")
 			choice_tokens.append("back")
@@ -147,6 +157,15 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				continue
 			spell_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
 			return spell_result
+		if selected == "item":
+			var item_result := await _select_complex_item(
+				encounter,
+				payload.get("itemTexts", [])
+			)
+			if str(item_result.get("status", "")) == "cancelled":
+				continue
+			item_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			return item_result
 		var token_parts: PackedStringArray = selected.split(":", false, 1)
 		if token_parts.size() == 2 and token_parts[0] == "action":
 			return {
@@ -237,6 +256,31 @@ func classic_spell_mapping_key(spell_id: int) -> String:
 	return "%d%d%d" % [caster_class * 100, spell_level, spell_slot]
 
 
+func resolve_complex_item_result(
+	encounter: Dictionary,
+	item_name: String,
+	item_id_mapping: Dictionary,
+	item_texts: Array
+) -> int:
+	var item_ids: Variant = encounter.get("itemIds", [])
+	var item_results: Variant = encounter.get("itemResults", [])
+	if not (item_ids is Array) or not (item_results is Array):
+		return 4
+	var normalized_item_name := _normalized_item_name(item_name)
+	for index: int in range(min(item_ids.size(), item_results.size())):
+		var item_id: int = abs(int(item_ids[index]))
+		if item_id == 0:
+			continue
+		for candidate_name: String in _classic_item_names(
+			item_id,
+			item_id_mapping,
+			item_texts
+		):
+			if _normalized_item_name(candidate_name) == normalized_item_name:
+				return int(item_results[index])
+	return 4
+
+
 func _append_complex_spell_choice(
 	encounter: Dictionary,
 	choices: Array,
@@ -251,6 +295,22 @@ func _append_complex_spell_choice(
 func _has_complex_spell_responses(encounter: Dictionary) -> bool:
 	var spell_ids: Variant = encounter.get("spellIds", [])
 	return spell_ids is Array and not spell_ids.is_empty() and int(spell_ids[0]) != 0
+
+
+func _append_complex_item_choice(
+	encounter: Dictionary,
+	choices: Array,
+	tokens: Array
+) -> void:
+	if _first_item_holder() == null or not _has_complex_item_responses(encounter):
+		return
+	choices.append("Use an item")
+	tokens.append("item")
+
+
+func _has_complex_item_responses(encounter: Dictionary) -> bool:
+	var item_ids: Variant = encounter.get("itemIds", [])
+	return item_ids is Array and not item_ids.is_empty() and int(item_ids[0]) != 0
 
 
 func _select_complex_spell(encounter: Dictionary) -> Dictionary:
@@ -289,12 +349,59 @@ func _select_complex_spell(encounter: Dictionary) -> Dictionary:
 	}
 
 
+func _select_complex_item(encounter: Dictionary, item_texts: Variant) -> Dictionary:
+	var holder := _first_item_holder()
+	if holder == null:
+		return _error("Classic complex encounter has no conscious item holder")
+	var ui: Object = _autoload("UI")
+	if ui == null or ui.ow_hud == null:
+		return _error("Realmz HUD is unavailable for Classic item selection")
+	var encounter_control: Object = ui.ow_hud.encounterControl
+	var item_menu: Object = encounter_control.useitemRect if encounter_control != null else null
+	if item_menu == null or not item_menu.has_method("initialize_for_encounter"):
+		return _error("Realmz encounter item picker does not support compatibility selection")
+	for button: Node in encounter_control.boxContainer.get_children():
+		button.hide()
+	encounter_control.itemButton.show()
+	encounter_control.show()
+	item_menu.initialize_for_encounter(holder)
+	item_menu.show()
+	await item_menu.encounter_item_picked
+	encounter_control.hide()
+	var item: Variant = item_menu.picked_item
+	if not (item is Dictionary) or item.is_empty():
+		return {"status": "cancelled"}
+	var item_ids: Object = _autoload("ItemIdDivinity")
+	var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
+	var response_item_texts: Array = item_texts if item_texts is Array else []
+	# Classic's encounter path selects ordinary items without consuming them.
+	return {
+		"outcome": resolve_complex_item_result(
+			encounter,
+			str(item.get("name", "")),
+			item_mapping,
+			response_item_texts
+		),
+		"itemName": str(item.get("name", "")),
+	}
+
+
 func _first_spellcaster() -> Object:
 	var preferred := _selected_character()
 	if _can_select_spell(preferred):
 		return preferred
 	for character_value: Variant in _party_characters():
 		if _can_select_spell(character_value):
+			return character_value
+	return null
+
+
+func _first_item_holder() -> Object:
+	var preferred := _selected_character()
+	if _can_select_item(preferred):
+		return preferred
+	for character_value: Variant in _party_characters():
+		if _can_select_item(character_value):
 			return character_value
 	return null
 
@@ -313,6 +420,15 @@ func _can_select_spell(character: Variant) -> bool:
 	return false
 
 
+func _can_select_item(character: Variant) -> bool:
+	if not (character is Object) or not character.has_method("get_stat"):
+		return false
+	if float(character.get_stat("curHP")) <= 0.0:
+		return false
+	var inventory: Variant = character.get("inventory")
+	return inventory is Array and not inventory.is_empty()
+
+
 func _mapped_spell_name(spell_id: int, spell_id_mapping: Dictionary) -> String:
 	var key := classic_spell_mapping_key(spell_id)
 	return str(spell_id_mapping.get(key, spell_id_mapping.get(spell_id, "")))
@@ -323,6 +439,34 @@ func _normalized_spell_name(spell_name: String) -> String:
 	if normalized == "discover magic i":
 		return "discover magic"
 	return normalized
+
+
+func _classic_item_names(
+	item_id: int,
+	item_id_mapping: Dictionary,
+	item_texts: Array
+) -> Array[String]:
+	var names: Array[String] = []
+	var mapped_name := str(item_id_mapping.get(
+		item_id,
+		item_id_mapping.get(str(item_id), "")
+	))
+	if not mapped_name.is_empty():
+		names.append(mapped_name)
+	for item_text_value: Variant in item_texts:
+		if not (item_text_value is Dictionary):
+			continue
+		if abs(int(item_text_value.get("itemId", 0))) != item_id:
+			continue
+		for field_name: String in ["identifiedName", "unidentifiedName"]:
+			var item_text_name := str(item_text_value.get(field_name, "")).strip_edges()
+			if not item_text_name.is_empty() and not names.has(item_text_name):
+				names.append(item_text_name)
+	return names
+
+
+func _normalized_item_name(item_name: String) -> String:
+	return item_name.strip_edges().to_lower()
 
 
 func build_rogue_encounter_choices(

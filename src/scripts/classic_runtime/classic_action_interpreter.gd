@@ -313,6 +313,8 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 		"promptMessage": prompt_message,
 		"startSlot": start_slot,
 	}
+	if encounter_kind == "complex":
+		encounter_payload["itemTexts"] = _encounter_item_texts(encounter)
 	if encounter_kind == "complex" and bool(encounter.get("thief", false)):
 		var thief_encounter_id := int(encounter.get("thiefSuccess", 0))
 		var thief_encounter := bundle.get_thief_encounter(thief_encounter_id)
@@ -326,6 +328,21 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 		encounter_payload["thiefMessages"] = _thief_messages(effective_thief_encounter)
 	pending_encounter = encounter_payload.duplicate(true)
 	return _yield_result("start_encounter", encounter_payload)
+
+
+func _encounter_item_texts(encounter: Dictionary) -> Array:
+	var item_texts: Array = []
+	var item_ids: Variant = encounter.get("itemIds", [])
+	if not (item_ids is Array):
+		return item_texts
+	for item_id_value: Variant in item_ids:
+		var item_id: int = abs(int(item_id_value))
+		if item_id == 0:
+			continue
+		var item_text := bundle.get_item_text(item_id)
+		if not item_text.is_empty():
+			item_texts.append(item_text)
+	return item_texts
 
 
 func _apply_encounter_state(encounter_context: Dictionary, encounter_state: Dictionary) -> Dictionary:
