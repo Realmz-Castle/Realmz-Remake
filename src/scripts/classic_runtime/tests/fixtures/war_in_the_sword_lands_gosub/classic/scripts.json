@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "fixtureNote": "Selected unmodified semantic records from the Providence War in the Sword Lands export.",
+  "triggers": [
+    {
+      "id": "Data DD:9:48",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 9,
+      "recordIndex": 48,
+      "active": true,
+      "doorid": 92231,
+      "landid": 9,
+      "targetX": 31,
+      "targetY": 22,
+      "percent": 100,
+      "coordinate": {"x": 31, "y": 22},
+      "actions": [
+        {"slot": 0, "rawCode": 46, "code": 46, "id": 1237, "label": "Branch quest flag", "category": "branch", "gosub": false},
+        {"slot": 1, "rawCode": 9, "code": 9, "id": 208, "label": "Play sound", "category": "ui_text", "gosub": false},
+        {"slot": 2, "rawCode": 19, "code": 19, "id": 1236, "label": "Display random string", "category": "ui_text", "gosub": false},
+        {"slot": 3, "rawCode": -46, "code": 46, "id": 1508, "label": "Branch quest flag", "category": "branch", "gosub": true},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 48, "byteOffset": 37920, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:1026",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 1026,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 19, "code": 19, "id": 1509, "label": "Display random string", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": -46, "code": 46, "id": 1510, "label": "Branch quest flag", "category": "branch", "gosub": true},
+        {"slot": 2, "rawCode": 111, "code": 111, "id": 0, "label": "Return from GOSUB", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 1026, "byteOffset": 41040, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:1027",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 1027,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 1110, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": -46, "code": 46, "id": 1824, "label": "Branch quest flag", "category": "branch", "gosub": true},
+        {"slot": 2, "rawCode": 111, "code": 111, "id": 0, "label": "Return from GOSUB", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 1027, "byteOffset": 41080, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:1196",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 1196,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 1246, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 111, "code": 111, "id": 0, "label": "Return from GOSUB", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 1196, "byteOffset": 47840, "byteLength": 40, "confidence": "source-backed"}
+    }
+  ],
+  "extraCodes": [
+    {"id": 1236, "values": [760, 762, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 1236, "byteOffset": 12360, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 1237, "values": [48, 1, 0, 830, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 1237, "byteOffset": 12370, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 1508, "values": [29, 1, 0, 1026, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 1508, "byteOffset": 15080, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 1509, "values": [1107, 1109, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 1509, "byteOffset": 15090, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 1510, "values": [2, 0, 0, 1027, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 1510, "byteOffset": 15100, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 1824, "values": [64, 1, 0, 1196, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 1824, "byteOffset": 18240, "byteLength": 10, "confidence": "source-backed"}}
+  ],
+  "messages": [
+    {"id": 1107, "text": "You overhear a conversation: \"I can't believe that Wailsrond has fallen!\" A merchant exclaims. \"Aye!\" Another one adds. \"I fear trade will suffer very much, and we will live through hard economic times.\"", "authored": false, "provenance": {"sourceFile": "Data SD2", "recordIndex": 1107, "byteOffset": 283392, "byteLength": 256, "confidence": "source-backed"}},
+    {"id": 1108, "text": "You overhear a conversation: \"Did you hear? Wailsrond has fallen!\" A woman exclaims. \"Aye!\" Another one adds. \"I fear that Sharranth cannot be stopped, and soon the Warlord will attack us as well!\"", "authored": false, "provenance": {"sourceFile": "Data SD2", "recordIndex": 1108, "byteOffset": 283648, "byteLength": 256, "confidence": "source-backed"}},
+    {"id": 1109, "text": "You overhear a conversation: \"Me cain't believe that Wailsrond has fallen!\" A sailor exclaims. \"Oy!\" A miner adds. \"An' ye cain be sure that Sharranth will come fer us next! These be dark times acomin', friend, even darker than six moons past.\"", "authored": false, "provenance": {"sourceFile": "Data SD2", "recordIndex": 1109, "byteOffset": 283904, "byteLength": 256, "confidence": "source-backed"}},
+    {"id": 1110, "text": "\"Were are the Heroes of the Sword Lands? Why aren't they doing anything to stop this?\"", "authored": false, "provenance": {"sourceFile": "Data SD2", "recordIndex": 1110, "byteOffset": 284160, "byteLength": 256, "confidence": "source-backed"}},
+    {"id": 1246, "text": "\"Bah!\" Someone else replies. \"Don't count on them! I heard that they got a better offer from the Warlord of Sharranth, and took it!\" A woman shakes her head, sadly: \"Then we may be doomed ...\"", "authored": false, "provenance": {"sourceFile": "Data SD2", "recordIndex": 1246, "byteOffset": 318976, "byteLength": 256, "confidence": "source-backed"}}
+  ],
+  "randomLevels": [],
+  "optionLabels": []
+}

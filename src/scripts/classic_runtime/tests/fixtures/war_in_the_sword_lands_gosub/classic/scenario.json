@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "scenario-war-in-the-sword-lands",
+    "name": "War in the Sword Lands"
+  },
+  "shell": {
+    "sourceFile": "War in the Sword Lands",
+    "recLevel": 72,
+    "maxLevel": 84,
+    "landLevel": 0,
+    "lookX": 1,
+    "lookY": 72,
+    "creatorUser": "Fantasoft LLC",
+    "provenance": {
+      "sourceFile": "War in the Sword Lands",
+      "recordIndex": 0,
+      "byteOffset": 0,
+      "byteLength": 316,
+      "confidence": "source-backed"
+    }
+  }
+}

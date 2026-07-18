@@ -15,6 +15,7 @@ Implemented opcodes in this slice:
 - `10` Give fixed treasure
 - `12` Mutate a land or dungeon tile
 - `13` Enable or disable one or more map triggers
+- `19` Display a random string from an inclusive message range
 - `20` Teleport and destination recheck
 - `24` Keep codes / script completion
 - `39` Extend actions through a Data ED3 AP
@@ -25,7 +26,7 @@ Implemented opcodes in this slice:
 - `111` Return from GOSUB
 - `112` Pop one GOSUB frame without returning
 
-The interpreter preserves Classic's unusual stack semantics: a negative action enables a sticky GOSUB mode, positive actions only clear that mode when the stack is empty, and branch opcodes may therefore push even when their own action code is positive. Returns are explicit through opcode `111`; merely reaching the end of an action point does not unwind the stack. Stack depth is capped at Classic's 20 frames with a safe runtime error instead of writing past the original fixed-size arrays.
+The interpreter preserves Classic's unusual stack semantics: a negative action enables a sticky GOSUB mode, positive actions only clear that mode when the stack is empty, and branch opcodes may therefore push even when their own action code is positive. Returns are explicit through opcode `111`; merely reaching the end of an action point does not unwind the stack. Stack depth is capped at Classic's 20 frames with a safe runtime error instead of writing past the original fixed-size arrays. A focused War in the Sword Lands fixture exercises a shipped three-frame GOSUB chain and verifies the exact XAP return order.
 
 Encounter result values select the corresponding eight-action block from `Data ED` or `Data ED2`. Battle outcome branches remain suspended until the host reports victory or cowardice. Persistent tile and trigger mutations are included in runtime snapshots; the bundle records themselves remain immutable.
 

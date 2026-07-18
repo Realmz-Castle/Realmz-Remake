@@ -7,6 +7,8 @@ const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd"
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
+const WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub"
 
 var failures := 0
 
@@ -45,6 +47,7 @@ func _init() -> void:
 	_test_teleport(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
+	_test_shipped_gosub_chain()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
 	_test_sound_and_treasure(bundle)
@@ -205,6 +208,71 @@ func _test_classic_stack_semantics() -> void:
 	)
 
 
+func _test_shipped_gosub_chain() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE),
+		"War in the Sword Lands GOSUB fixture loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+
+	var interpreter = _interpreter(bundle)
+	# EDCD rows 1508 and 1824 require set flags; row 1510 requires quest 2 to remain unset.
+	interpreter.runtime_state.set_quest_flag(29)
+	interpreter.runtime_state.set_quest_flag(64)
+	_expect(
+		interpreter.begin_trigger("Data DD:9:48", 3),
+		"begin shipped War in the Sword Lands GOSUB chain"
+	)
+
+	var random_text: Dictionary = interpreter.run_until_yield()
+	var random_message_id := int(random_text.get("payload", {}).get("messageId", -1))
+	_expect_equal(random_text.get("command"), "show_text", "shipped chain displays random text")
+	_expect(
+		random_message_id >= 1107 and random_message_id <= 1109,
+		"random text stays within source EDCD message range"
+	)
+	_expect_equal(
+		random_text.get("payload", {}).get("message", {}).get("id"),
+		random_message_id,
+		"random text resolves the selected source message"
+	)
+	_expect_equal(interpreter.call_stack.size(), 1, "first shipped GOSUB pushes the map AP")
+
+	var first_nested_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		first_nested_text.get("payload", {}).get("messageId"),
+		1110,
+		"first nested XAP displays source message 1110"
+	)
+	_expect_equal(interpreter.call_stack.size(), 2, "second shipped GOSUB pushes its XAP")
+
+	var second_nested_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		second_nested_text.get("payload", {}).get("messageId"),
+		1246,
+		"second nested XAP displays source message 1246"
+	)
+	_expect_equal(interpreter.call_stack.size(), 3, "third shipped GOSUB pushes its XAP")
+
+	var completed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(completed.get("reason"), "keep-codes", "three opcode 111 returns resume the map AP")
+	_expect_equal(interpreter.call_stack.size(), 0, "shipped GOSUB chain unwinds every frame")
+	_expect_equal(interpreter.trace, [
+		{"triggerId": "Data DD:9:48", "slot": 3, "code": 46},
+		{"triggerId": "Data ED3:macro:1026", "slot": 0, "code": 19},
+		{"triggerId": "Data ED3:macro:1026", "slot": 1, "code": 46},
+		{"triggerId": "Data ED3:macro:1027", "slot": 0, "code": 1},
+		{"triggerId": "Data ED3:macro:1027", "slot": 1, "code": 46},
+		{"triggerId": "Data ED3:macro:1196", "slot": 0, "code": 1},
+		{"triggerId": "Data ED3:macro:1196", "slot": 1, "code": 111},
+		{"triggerId": "Data ED3:macro:1027", "slot": 2, "code": 111},
+		{"triggerId": "Data ED3:macro:1026", "slot": 2, "code": 111},
+		{"triggerId": "Data DD:9:48", "slot": 7, "code": 24},
+	], "shipped GOSUB trace matches Classic return order")
+
+
 func _test_battle_request(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:27", 2), "begin CoB battle action")
@@ -344,7 +412,7 @@ func _test_full_bundle(path: String) -> void:
 	for coordinate: Variant in bundle.triggers_by_coordinate:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
-	var handled_codes := [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 20, 24, 39, 45, 46, 47, 56, 111, 112]
+	var handled_codes := [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 39, 45, 46, 47, 56, 111, 112]
 	var active_slots := 0
 	var handled_slots := 0
 	for trigger_value: Variant in bundle.triggers_by_id.values():

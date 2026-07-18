@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "fixture": "War in the Sword Lands Providence export",
+  "fixtureNote": "Selected source-backed records for the Data DD:9:48 nested GOSUB chain.",
+  "validation": {"ok": true, "errors": []},
+  "semanticDecoding": {"dispatcherNoops": []}
+}

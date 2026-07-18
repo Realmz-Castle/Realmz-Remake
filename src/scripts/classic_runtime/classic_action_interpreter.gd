@@ -208,6 +208,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_tile_mutation(record_id)
 		13:
 			return _execute_trigger_mutation(record_id)
+		19:
+			return _execute_random_text(record_id)
 		20, 45:
 			return _execute_teleport(record_id, code == 20)
 		24:
@@ -358,6 +360,21 @@ func _execute_trigger_mutation(extra_code_id: int) -> Dictionary:
 		"levelIndex": map_level,
 		"triggerIds": trigger_ids,
 		"percent": percent,
+	})
+
+
+func _execute_random_text(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error("Random text action references missing Extra Code row %d" % extra_code_id)
+	var first_message_id := int(values[0])
+	var last_message_id := int(values[1])
+	var message_id := randi_range(first_message_id, last_message_id)
+	return _yield_result("show_text", {
+		"extraCodeId": extra_code_id,
+		"messageRange": [first_message_id, last_message_id],
+		"messageId": message_id,
+		"message": bundle.get_message(message_id),
 	})
 
 
