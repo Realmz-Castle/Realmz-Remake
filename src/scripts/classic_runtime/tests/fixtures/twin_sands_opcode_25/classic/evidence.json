@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "fixture": "Twin Sands of Time Providence export",
+  "fixtureNote": "Selected source-backed records for the Data DDD:0:32 opcode 25 exit mutation.",
+  "validation": {"ok": true, "errors": []},
+  "semanticDecoding": {"dispatcherNoops": []}
+}

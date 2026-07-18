@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "scenario-twin-sands-of-time",
+    "name": "Twin Sands of Time"
+  },
+  "shell": {
+    "sourceFile": "Twin Sands of Time",
+    "recLevel": 18,
+    "maxLevel": 36,
+    "landLevel": 1,
+    "lookX": 52,
+    "lookY": 34,
+    "creatorUser": "",
+    "provenance": {
+      "sourceFile": "Twin Sands of Time",
+      "recordIndex": 0,
+      "byteOffset": 0,
+      "byteLength": 316,
+      "confidence": "source-backed"
+    }
+  }
+}

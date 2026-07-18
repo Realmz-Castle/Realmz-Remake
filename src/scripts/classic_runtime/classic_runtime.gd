@@ -27,7 +27,29 @@ func load_campaign(directory: String) -> bool:
 
 
 func triggers_at(level_type: String, level_index: int, x: int, y: int) -> Array:
-	return bundle.get_triggers_at(level_type, level_index, x, y)
+	var triggers: Array = []
+	var included_ids: Dictionary = {}
+	for trigger_value: Variant in bundle.get_triggers_at(level_type, level_index, x, y):
+		if not (trigger_value is Dictionary):
+			continue
+		var trigger := runtime_state.get_effective_action_point(trigger_value)
+		triggers.append(trigger)
+		included_ids[str(trigger.get("id", ""))] = true
+	for override_value: Variant in runtime_state.action_point_overrides.values():
+		if not (override_value is Dictionary):
+			continue
+		var trigger_id := str(override_value.get("id", ""))
+		var coordinate: Variant = override_value.get("coordinate")
+		if included_ids.has(trigger_id) or not (coordinate is Dictionary):
+			continue
+		if (
+			str(override_value.get("levelType", "")) == level_type
+			and int(override_value.get("levelIndex", -1)) == level_index
+			and int(coordinate.get("x", -1)) == x
+			and int(coordinate.get("y", -1)) == y
+		):
+			triggers.append(runtime_state.get_effective_action_point(override_value))
+	return triggers
 
 
 func activate_trigger(trigger_id: String, start_slot := 0) -> bool:

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "fixtureNote": "Selected unmodified semantic records from the Providence Twin Sands of Time export.",
+  "triggers": [
+    {
+      "id": "Data DDD:0:32",
+      "source": "Data DDD",
+      "levelType": "dungeon",
+      "levelIndex": 0,
+      "recordIndex": 32,
+      "active": true,
+      "doorid": 8143,
+      "landid": 0,
+      "targetX": 77,
+      "targetY": 16,
+      "percent": 100,
+      "coordinate": {"x": 43, "y": 81},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 173, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 2, "code": 2, "id": 149, "label": "Battle", "category": "combat", "gosub": false},
+        {"slot": 7, "rawCode": 25, "code": 25, "id": 0, "label": "Remove door x-y", "category": "map", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DDD", "recordIndex": 32, "byteOffset": 1280, "byteLength": 40, "confidence": "source-backed"}
+    }
+  ],
+  "extraCodes": [
+    {"id": 149, "values": [21, 0, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 149, "byteOffset": 1490, "byteLength": 10, "confidence": "source-backed"}}
+  ],
+  "messages": [
+    {"id": 173, "text": "Some bizarre looking creatures slither toward you and attack.", "authored": false, "provenance": {"sourceFile": "Data SD2", "recordIndex": 173, "byteOffset": 44288, "byteLength": 256, "confidence": "source-backed"}}
+  ],
+  "randomLevels": [],
+  "optionLabels": []
+}

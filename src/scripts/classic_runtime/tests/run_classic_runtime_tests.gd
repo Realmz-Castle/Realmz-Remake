@@ -9,6 +9,8 @@ const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 const WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub"
+const TWIN_SANDS_OPCODE_25_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/twin_sands_opcode_25"
 
 var failures := 0
 
@@ -48,6 +50,8 @@ func _init() -> void:
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
+	_test_shipped_opcode_25_mutation()
+	_test_opcode_25_xap_copy()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
 	_test_sound_and_treasure(bundle)
@@ -273,6 +277,108 @@ func _test_shipped_gosub_chain() -> void:
 	], "shipped GOSUB trace matches Classic return order")
 
 
+func _test_shipped_opcode_25_mutation() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(TWIN_SANDS_OPCODE_25_FIXTURE),
+		"Twin Sands opcode 25 fixture loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+
+	var state = StateScript.new()
+	state.configure_from_bundle(bundle)
+	state.level_type = "dungeon"
+	state.set_position(0, 43, 81)
+	var interpreter = InterpreterScript.new()
+	interpreter.configure(bundle, state)
+	_expect(
+		interpreter.begin_trigger("Data DDD:0:32", 7),
+		"begin shipped Twin Sands opcode 25"
+	)
+	var completed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(completed.get("reason"), "action-point-ended", "opcode 25 finishes the AP")
+	_expect_equal(state.x, 77, "opcode 25 exit reaches the source door destination x")
+	_expect_equal(state.y, 16, "opcode 25 exit reaches the source door destination y")
+	_expect_equal(
+		state.get_trigger_percent("dungeon", 0, 32, 100),
+		-1,
+		"opcode 25 consumes the source door"
+	)
+	var replacement := state.get_action_point_override("Data DDD:0:32")
+	_expect_equal(replacement.get("targetX"), 43, "replacement door points back to activation x")
+	_expect_equal(replacement.get("targetY"), 81, "replacement door points back to activation y")
+	_expect_equal(replacement.get("coordinate"), {"x": 43, "y": 81}, "replacement keeps its door coordinate")
+	_expect_equal(replacement.get("actions", []).size(), 3, "replacement keeps the active AP actions")
+	_expect_equal(
+		bundle.get_trigger("Data DDD:0:32").get("targetX"),
+		77,
+		"opcode 25 leaves imported bundle records immutable"
+	)
+
+	var restored = StateScript.new()
+	restored.restore(state.snapshot())
+	var restored_replacement := restored.get_action_point_override("Data DDD:0:32")
+	_expect_equal(restored_replacement.get("targetX"), 43, "replacement door survives snapshot")
+	_expect_equal(
+		restored.get_trigger_percent("dungeon", 0, 32, 100),
+		-1,
+		"replacement percent survives snapshot"
+	)
+
+	var runtime = RuntimeScript.new()
+	_expect(runtime.load_campaign(TWIN_SANDS_OPCODE_25_FIXTURE), "runtime loads opcode 25 fixture")
+	runtime.restore(state.snapshot())
+	var triggers := runtime.triggers_at("dungeon", 0, 43, 81)
+	_expect_equal(triggers.size(), 1, "runtime lookup exposes the persisted door record")
+	_expect_equal(triggers[0].get("targetX"), 43, "runtime lookup applies the persisted target")
+
+
+func _test_opcode_25_xap_copy() -> void:
+	var bundle = _opcode_25_test_bundle()
+	var state = StateScript.new()
+	state.configure_from_bundle(bundle)
+	state.set_position(0, 2, 3)
+	var interpreter = InterpreterScript.new()
+	interpreter.configure(bundle, state)
+	_expect(interpreter.begin_trigger("Data DD:0:7"), "begin opcode 25 XAP copy fixture")
+
+	var first_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(first_text.get("payload", {}).get("messageId"), 900, "GOSUB enters replacement XAP")
+	_expect_equal(interpreter.call_stack.size(), 1, "XAP starts with a saved caller frame")
+	var second_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(second_text.get("payload", {}).get("messageId"), 901, "execution continues after opcode 25")
+	_expect_equal(interpreter.call_stack.size(), 0, "opcode 25 clears the GOSUB stack immediately")
+	_expect_equal(interpreter.trace[3].get("code"), 111, "cleared-stack return is a no-op after opcode 25")
+	var completed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(completed.get("status"), "completed", "replacement XAP completes")
+	_expect_equal(completed.get("reason"), "keep-codes", "replacement XAP honors Keep Codes")
+
+	var replacement := state.get_action_point_override("Data DD:0:7")
+	_expect_equal(replacement.get("targetX"), 2, "XAP replacement captures activation x")
+	_expect_equal(replacement.get("targetY"), 3, "XAP replacement captures activation y")
+	_expect_equal(replacement.get("actions", []).size(), 5, "XAP actions replace the map AP actions")
+	_expect_equal(replacement.get("actions", [])[1].get("code"), 25, "replacement contains opcode 25")
+	_expect_equal(
+		state.get_trigger_percent("land", 0, 7, 100),
+		100,
+		"Keep Codes preserves the replacement trigger percent"
+	)
+	_expect_equal(
+		bundle.get_trigger("Data DD:0:7").get("actions", []).size(),
+		1,
+		"XAP replacement does not edit the bundle map AP"
+	)
+
+	var replay = InterpreterScript.new()
+	replay.configure(bundle, state)
+	_expect(replay.begin_trigger("Data DD:0:7"), "restart persisted XAP replacement")
+	var replay_text: Dictionary = replay.run_until_yield()
+	_expect_equal(replay_text.get("payload", {}).get("messageId"), 900, "persisted XAP actions run on reactivation")
+	_expect_equal(replay.trace[0].get("code"), 1, "reactivation starts with the copied action list")
+	_expect_equal(replay.call_stack.size(), 0, "reactivation no longer enters the original GOSUB")
+
+
 func _test_battle_request(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:27", 2), "begin CoB battle action")
@@ -412,7 +518,7 @@ func _test_full_bundle(path: String) -> void:
 	for coordinate: Variant in bundle.triggers_by_coordinate:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
-	var handled_codes := [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 39, 45, 46, 47, 56, 111, 112]
+	var handled_codes := [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 39, 45, 46, 47, 56, 111, 112]
 	var active_slots := 0
 	var handled_slots := 0
 	for trigger_value: Variant in bundle.triggers_by_id.values():
@@ -423,8 +529,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2013, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2483, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2032, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2502, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -507,6 +613,40 @@ func _interpreter(bundle):
 	var interpreter = InterpreterScript.new()
 	interpreter.configure(bundle, state)
 	return interpreter
+
+
+func _opcode_25_test_bundle():
+	# This pairs the source-backed XAP header-preservation and opcode 25 rules in
+	# one small record so the copied action list is observable without a battle.
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 2, "y": 3}}
+	var root := {
+		"id": "Data DD:0:7",
+		"source": "Data DD",
+		"levelType": "land",
+		"levelIndex": 0,
+		"recordIndex": 7,
+		"active": true,
+		"doorid": 302,
+		"landid": 0,
+		"targetX": 8,
+		"targetY": 9,
+		"percent": 100,
+		"coordinate": {"x": 2, "y": 3},
+		"actions": [_classic_action(0, -46, 700)],
+	}
+	bundle.triggers_by_id[root["id"]] = root
+	_add_stack_trigger(bundle, "Data ED3:macro:700", 700, [
+		_classic_action(0, 1, 900),
+		_classic_action(1, 25, 0),
+		_classic_action(2, 111, 0),
+		_classic_action(3, 1, 901),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_branch(bundle, 700, 700)
+	bundle.messages_by_id[900] = {"id": 900, "text": "Before removal"}
+	bundle.messages_by_id[901] = {"id": 901, "text": "After removal"}
+	return bundle
 
 
 func _stack_test_bundle():

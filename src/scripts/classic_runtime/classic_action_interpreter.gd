@@ -8,6 +8,11 @@ var bundle: ClassicCampaignBundle
 var runtime_state: ClassicRuntimeState
 var current_trigger: Dictionary = {}
 var current_action_index := 0
+var origin_action_point: Dictionary = {}
+var active_action_point_header: Dictionary = {}
+var remove_action_point := false
+var removal_x := 0
+var removal_y := 0
 var call_stack: Array = []
 var gosub_active := false
 var pending_choice: Dictionary = {}
@@ -28,6 +33,11 @@ func configure(campaign_bundle: ClassicCampaignBundle, state: ClassicRuntimeStat
 func reset_execution() -> void:
 	current_trigger = {}
 	current_action_index = 0
+	origin_action_point.clear()
+	active_action_point_header.clear()
+	remove_action_point = false
+	removal_x = 0
+	removal_y = 0
 	call_stack.clear()
 	gosub_active = false
 	pending_choice.clear()
@@ -44,10 +54,17 @@ func begin_trigger(trigger_id: String, start_slot := 0) -> bool:
 	if bundle == null or runtime_state == null:
 		last_error = "ClassicActionInterpreter must be configured before execution"
 		return false
-	var trigger := bundle.get_trigger(trigger_id)
+	var trigger := runtime_state.get_action_point_override(trigger_id)
+	if trigger.is_empty():
+		trigger = bundle.get_trigger(trigger_id)
 	if trigger.is_empty():
 		last_error = "Unknown classic trigger: %s" % trigger_id
 		return false
+	trigger = runtime_state.get_effective_action_point(trigger)
+	if _is_map_action_point(trigger):
+		origin_action_point = trigger.duplicate(true)
+	active_action_point_header = trigger.duplicate(true)
+	active_action_point_header.erase("actions")
 	_set_cursor(trigger, start_slot)
 	return true
 
@@ -70,8 +87,7 @@ func run_until_yield() -> Dictionary:
 		if not (actions is Array):
 			return _halt_with_error("Trigger %s has no action array" % _current_trigger_id())
 		if current_action_index >= actions.size():
-			_clear_control_flow()
-			return _completed_result("action-point-ended")
+			return _finish_action_point("action-point-ended", true)
 
 		var action: Variant = actions[current_action_index]
 		current_action_index += 1
@@ -213,8 +229,9 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		20, 45:
 			return _execute_teleport(record_id, code == 20)
 		24:
-			_clear_control_flow()
-			return _completed_result("keep-codes")
+			return _finish_action_point("keep-codes", false)
+		25:
+			return _remove_current_action_point()
 		39:
 			# Classic's Extend Door Codes replaces the active AP without pushing,
 			# even when its raw opcode is negative.
@@ -228,6 +245,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _continue_result()
 		111:
 			if call_stack.is_empty():
+				if remove_action_point:
+					return _continue_result()
 				_clear_control_flow()
 				return _completed_result("return-with-empty-stack")
 			_restore_call_frame()
@@ -278,6 +297,7 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 		"trigger": current_trigger,
 		"actionIndex": current_action_index,
 		"callStack": call_stack.duplicate(true),
+		"actionPointHeader": active_action_point_header.duplicate(true),
 	})
 	var prompt_id := int(encounter.get("prompt", 0))
 	var prompt_message := bundle.get_message(prompt_id)
@@ -426,6 +446,9 @@ func _execute_teleport(extra_code_id: int, recheck_destination: bool) -> Diction
 	if values.is_empty():
 		return _halt_with_error("Teleport action references missing Extra Code row %d" % extra_code_id)
 	runtime_state.set_position(int(values[0]), int(values[1]), int(values[2]))
+	active_action_point_header["landid"] = runtime_state.level_index
+	active_action_point_header["targetX"] = runtime_state.x
+	active_action_point_header["targetY"] = runtime_state.y
 	return _yield_result("teleport", {
 		"extraCodeId": extra_code_id,
 		"levelType": runtime_state.level_type,
@@ -437,6 +460,86 @@ func _execute_teleport(extra_code_id: int, recheck_destination: bool) -> Diction
 		"message": bundle.get_message(int(values[4])),
 		"recheckDestination": recheck_destination,
 	})
+
+
+func _remove_current_action_point() -> Dictionary:
+	remove_action_point = true
+	removal_x = runtime_state.x
+	removal_y = runtime_state.y
+	call_stack.clear()
+	gosub_active = false
+	encounter_origins.clear()
+	return _continue_result()
+
+
+func _finish_action_point(reason: String, consume_codes: bool) -> Dictionary:
+	if remove_action_point and not origin_action_point.is_empty():
+		_persist_removed_action_point(consume_codes)
+	_clear_control_flow()
+	return _completed_result(reason)
+
+
+func _persist_removed_action_point(consume_codes: bool) -> void:
+	var level_kind := str(origin_action_point.get("levelType", runtime_state.level_type))
+	var source_level := int(origin_action_point.get("levelIndex", runtime_state.level_index))
+	var record_index := int(origin_action_point.get("recordIndex", -1))
+	if consume_codes and record_index >= 0:
+		runtime_state.set_trigger_percent(level_kind, source_level, record_index, -1)
+		active_action_point_header["percent"] = -1
+
+	var destination_level := int(active_action_point_header.get("landid", runtime_state.level_index))
+	var destination_x := int(active_action_point_header.get("targetX", runtime_state.x))
+	var destination_y := int(active_action_point_header.get("targetY", runtime_state.y))
+	var changes_position := (
+		destination_level != runtime_state.level_index
+		or destination_x != runtime_state.x
+		or destination_y != runtime_state.y
+	)
+	if not changes_position or record_index < 0:
+		return
+
+	# Classic loads the destination map before writing door[doornum], so a
+	# cross-level removal replaces the same record slot on that map.
+	runtime_state.set_position(destination_level, destination_x, destination_y)
+	var replacement := active_action_point_header.duplicate(true)
+	replacement["actions"] = current_trigger.get("actions", []).duplicate(true)
+	replacement["targetX"] = removal_x
+	replacement["targetY"] = removal_y
+	replacement["source"] = "Data DDD" if level_kind == "dungeon" else "Data DD"
+	replacement["levelType"] = level_kind
+	replacement["levelIndex"] = destination_level
+	replacement["recordIndex"] = record_index
+	replacement["id"] = _map_action_point_id(level_kind, destination_level, record_index)
+	replacement["coordinate"] = _coordinate_from_door_id(
+		int(replacement.get("doorid", 0)),
+		destination_level
+	)
+	replacement["active"] = (
+		int(replacement.get("percent", 0)) >= 1
+		and replacement.get("coordinate") is Dictionary
+	)
+	if consume_codes:
+		runtime_state.set_trigger_percent(level_kind, destination_level, record_index, -1)
+	runtime_state.set_action_point_override(str(replacement["id"]), replacement)
+
+
+func _map_action_point_id(level_kind: String, level: int, record_index: int) -> String:
+	var source := "Data DDD" if level_kind == "dungeon" else "Data DD"
+	return "%s:%d:%d" % [source, level, record_index]
+
+
+func _coordinate_from_door_id(door_id: int, level: int) -> Variant:
+	if door_id <= 0 or floori(float(door_id) / 10000.0) != level:
+		return null
+	var packed_position := door_id % 10000
+	return {
+		"x": packed_position % 100,
+		"y": floori(float(packed_position) / 100.0),
+	}
+
+
+func _is_map_action_point(action_point: Dictionary) -> bool:
+	return str(action_point.get("source", "")) in ["Data DD", "Data DDD"]
 
 
 func _execute_quest_branch(extra_code_id: int, gosub: bool) -> Dictionary:
@@ -469,8 +572,7 @@ func _branch_from_extra_code(values: Array, gosub: bool) -> Dictionary:
 				int(values[4])
 			)
 		3:
-			_clear_control_flow()
-			return _completed_result("keep-codes")
+			return _finish_action_point("keep-codes", false)
 		_:
 			return _halt_with_error("Unsupported classic branch mode %d" % int(values[2]))
 
@@ -495,6 +597,7 @@ func _push_call_frame() -> Dictionary:
 	call_stack.append({
 		"trigger": current_trigger,
 		"actionIndex": current_action_index,
+		"actionPointHeader": active_action_point_header.duplicate(true),
 	})
 	return _continue_result()
 
@@ -550,6 +653,7 @@ func _break_encounter() -> Dictionary:
 	current_trigger = origin["trigger"]
 	current_action_index = int(origin["actionIndex"])
 	call_stack = origin["callStack"]
+	active_action_point_header = origin["actionPointHeader"]
 	return _continue_result()
 
 
@@ -557,6 +661,7 @@ func _restore_call_frame() -> void:
 	var frame: Dictionary = call_stack.pop_back()
 	current_trigger = frame["trigger"]
 	current_action_index = int(frame["actionIndex"])
+	active_action_point_header = frame["actionPointHeader"]
 
 
 func _update_gosub_state(action: Dictionary) -> void:
@@ -570,6 +675,11 @@ func _update_gosub_state(action: Dictionary) -> void:
 func _clear_control_flow() -> void:
 	current_trigger = {}
 	current_action_index = 0
+	origin_action_point.clear()
+	active_action_point_header.clear()
+	remove_action_point = false
+	removal_x = 0
+	removal_y = 0
 	call_stack.clear()
 	gosub_active = false
 
