@@ -175,6 +175,14 @@ func _test_classic_stack_semantics() -> void:
 	_expect_equal(empty_pop_result.get("payload", {}).get("messageId"), 912, "POP on an empty stack is a no-op")
 
 	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("stack:extend"), "begin Extend Door Codes fixture")
+	var extend_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(extend_result.get("payload", {}).get("messageId"), 931, "Extend Door Codes enters its target AP")
+	_expect_equal(interpreter.call_stack.size(), 0, "negative Extend Door Codes does not push a frame")
+	var extend_end: Dictionary = interpreter.run_until_yield()
+	_expect_equal(extend_end.get("reason"), "return-with-empty-stack", "Extend Door Codes target cannot return to its source")
+
+	interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("stack:no-implicit-return"), "begin explicit-return fixture")
 	var leaf_result: Dictionary = interpreter.run_until_yield()
 	_expect_equal(leaf_result.get("payload", {}).get("messageId"), 921, "GOSUB leaf executes")
@@ -434,6 +442,8 @@ func _interpreter(bundle):
 
 
 func _stack_test_bundle():
+	# CoB does not contain GOSUB opcodes, so these synthetic APs isolate the
+	# source-backed stack rules without presenting them as scenario fixtures.
 	var bundle = BundleScript.new()
 	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
 
@@ -473,6 +483,15 @@ func _stack_test_bundle():
 	_add_stack_trigger(bundle, "stack:empty-pop", -1, [
 		_classic_action(0, 112, 0),
 		_classic_action(1, 1, 912),
+	])
+
+	_add_stack_trigger(bundle, "stack:extend", -1, [
+		_classic_action(0, -39, 600),
+		_classic_action(1, 1, 930),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:600", 600, [
+		_classic_action(0, 1, 931),
+		_classic_action(1, 111, 0),
 	])
 
 	_add_stack_trigger(bundle, "stack:no-implicit-return", -1, [

@@ -543,6 +543,7 @@ func _restore_call_frame() -> void:
 
 
 func _update_gosub_state(action: Dictionary) -> void:
+	# Classic keeps GOSUB active across positive actions while a call frame exists.
 	if bool(action.get("gosub", false)):
 		gosub_active = true
 	elif call_stack.is_empty():
