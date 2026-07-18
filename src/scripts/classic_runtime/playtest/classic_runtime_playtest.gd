@@ -85,6 +85,9 @@ func _run_automated_smoke() -> void:
 	if trigger_id == "Data DD:5:12":
 		await _run_lock_smoke()
 		return
+	if trigger_id == "Data DD:0:19":
+		await _run_complex_action_smoke()
+		return
 	await _wait_frames(3)
 	_verify_smoke_stage(
 		"01_guard_house_text",
@@ -132,9 +135,9 @@ func _run_lock_smoke() -> void:
 	_verify_smoke_stage(
 		"02_rogue_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 12
 			and _choice_menu_fits_map_area(),
-		"three Data TD2 actions and back-out are visible within the map area"
+		"rogue controls, encounter actions, and back-out are visible within the map area"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -145,6 +148,54 @@ func _run_lock_smoke() -> void:
 		"03_lock_playthrough_complete",
 		"Classic lock playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host completes after leaving the complex encounter"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_complex_action_smoke() -> void:
+	var choices_ready := await _wait_for_choices()
+	_verify_smoke_stage(
+		"01_complex_action_prompt",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"This appears to be the site of a rather large cavern"
+		),
+		"source-backed cave-in prompt is visible"
+	)
+	_verify_smoke_stage(
+		"02_complex_action_choices",
+		choices_ready
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and _choice_menu_fits_map_area(),
+		"three classic actions and back-out are visible within the map area"
+	)
+	if not choices_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("action:1")
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"03_complex_action_result",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"You have succeeded in uncovering the passage"
+		),
+		"selected action enters its Data ED2 result block"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"04_complex_action_continuation",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"The tunnel continues west"
+		),
+		"the result block continues to its second source message"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"05_complex_action_complete",
+		"Classic cave-in playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"host completes after the complex action result"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
@@ -162,9 +213,9 @@ func _run_trap_smoke() -> void:
 	_verify_smoke_stage(
 		"02_armed_trap_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 6
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
 			and _choice_menu_fits_map_area(),
-		"Detect Trap, Pick Lock, and back-out are visible"
+		"rogue controls, the chest action, and back-out are visible"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -187,8 +238,8 @@ func _run_trap_smoke() -> void:
 	var retry_ready := await _wait_for_choices()
 	_verify_smoke_stage(
 		"04_sprung_trap_choices",
-		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 4,
-		"sprung trap leaves Pick Lock and back-out available"
+		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 6,
+		"sprung trap leaves Pick Lock, the chest action, and back-out available"
 	)
 	if not retry_ready:
 		get_tree().quit(1)

@@ -4,6 +4,7 @@ extends RefCounted
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
+const COMPLEX_ACTION_TEXT_COUNT := 8
 
 
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
@@ -66,15 +67,37 @@ func _show_encounter(payload: Dictionary) -> Dictionary:
 
 func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 	var encounter: Variant = payload.get("encounter", {})
-	var thief_encounter: Variant = payload.get("thiefEncounter", {})
-	if not (encounter is Dictionary) or not (thief_encounter is Dictionary):
-		return _error("The first complex encounter slice requires a Data TD2 rogue branch")
-	var resolver: Object = RogueResolverScript.new()
-	if not resolver.configure(encounter, thief_encounter):
-		return _error(resolver.last_error)
+	if not (encounter is Dictionary):
+		return _error("Classic complex encounter payload is missing its record")
 	var text_rect: Object = _text_rect()
 	if text_rect == null:
 		return _error("Realmz HUD TextRect is unavailable")
+	if not bool(encounter.get("thief", false)):
+		_show_encounter_prompt(text_rect, payload)
+		var action_choices := build_complex_action_choices(
+			encounter,
+			bool(encounter.get("canBackOut", false))
+		)
+		if action_choices["choices"].is_empty():
+			return _error("Classic complex encounter has no available actions")
+		var selected: String = str(await _show_choices(
+			text_rect,
+			action_choices["choices"],
+			action_choices["tokens"]
+		))
+		if selected == "back":
+			return {"outcome": 0}
+		var token_parts: PackedStringArray = selected.split(":", false, 1)
+		if token_parts.size() != 2 or token_parts[0] != "action":
+			return _error("Classic complex encounter returned an invalid action")
+		return {"outcome": int(token_parts[1])}
+
+	var thief_encounter: Variant = payload.get("thiefEncounter", {})
+	if not (thief_encounter is Dictionary) or thief_encounter.is_empty():
+		return _error("Classic rogue encounter payload is missing its Data TD2 record")
+	var resolver: Object = RogueResolverScript.new()
+	if not resolver.configure(encounter, thief_encounter):
+		return _error(resolver.last_error)
 	var character: Object = _selected_character()
 	if character == null or not character.has_method("get_stat"):
 		return _error("Classic rogue encounters require a selected party member")
@@ -87,12 +110,18 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		var choice_model := build_rogue_encounter_choices(
 			resolver,
 			character,
-			bool(encounter.get("canBackOut", false))
+			false
 		)
 		var choices: Array = choice_model["choices"]
 		var choice_tokens: Array = choice_model["tokens"]
+		var action_choices := build_complex_action_choices(encounter, false)
+		choices.append_array(action_choices["choices"])
+		choice_tokens.append_array(action_choices["tokens"])
+		if bool(encounter.get("canBackOut", false)):
+			choices.append("Back out")
+			choice_tokens.append("back")
 		if choices.is_empty():
-			return _error("Classic rogue encounter has no available actions")
+			return _error("Classic complex encounter has no available actions")
 		var selected: String = str(await _show_choices(text_rect, choices, choice_tokens))
 		if selected == "back":
 			return {
@@ -100,6 +129,11 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				"thiefEncounter": resolver.rogue_encounter.duplicate(true),
 			}
 		var token_parts: PackedStringArray = selected.split(":", false, 1)
+		if token_parts.size() == 2 and token_parts[0] == "action":
+			return {
+				"outcome": int(token_parts[1]),
+				"thiefEncounter": resolver.rogue_encounter.duplicate(true),
+			}
 		if token_parts.size() != 2 or token_parts[0] != "rogue":
 			return _error("Classic complex encounter returned an invalid action")
 		var action_index: int = int(token_parts[1])
@@ -129,6 +163,24 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			_:
 				return _error("Classic rogue action returned an invalid result")
 	return _error("Classic rogue encounter ended unexpectedly")
+
+
+func build_complex_action_choices(encounter: Dictionary, can_back_out: bool) -> Dictionary:
+	var choices: Array = []
+	var tokens: Array = []
+	var texts: Variant = encounter.get("texts", [])
+	var outcome := int(encounter.get("actionResult", 0))
+	if texts is Array and outcome > 0:
+		for index: int in range(min(texts.size(), COMPLEX_ACTION_TEXT_COUNT)):
+			var choice_text := str(texts[index]).strip_edges()
+			if choice_text.is_empty() or choice_text == "*":
+				continue
+			choices.append(choice_text)
+			tokens.append("action:%d" % outcome)
+	if can_back_out:
+		choices.append("Back out")
+		tokens.append("back")
+	return {"choices": choices, "tokens": tokens}
 
 
 func build_rogue_encounter_choices(

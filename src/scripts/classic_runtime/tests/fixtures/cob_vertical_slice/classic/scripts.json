@@ -390,10 +390,22 @@
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 61, "byteOffset": 15616, "byteLength": 256, "confidence": "source-backed"}
     },
     {
+      "id": 180,
+      "text": "This appears to be the site of a rather large cavern that has recently caved in.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 180, "byteOffset": 46080, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
       "id": 183,
       "text": "You have succeeded in uncovering the passage behind the cave-in.  It is now  possible to traverse the passage to wherever it may take you.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 183, "byteOffset": 46848, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 185,
+      "text": "The tunnel continues west.  You smell decaying flesh.  The odor is almost overwhelming.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 185, "byteOffset": 47360, "byteLength": 256, "confidence": "source-backed"}
     }
   ],
   "randomLevels": [],

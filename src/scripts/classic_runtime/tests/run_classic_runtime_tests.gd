@@ -78,6 +78,7 @@ func _init() -> void:
 	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
 	_test_complex_encounter(bundle)
+	_test_complex_action_choices(bundle)
 	_test_shipped_lock_encounter(bundle)
 	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
@@ -528,6 +529,41 @@ func _test_complex_encounter(bundle) -> void:
 	var outcome_result: Dictionary = interpreter.resume_encounter(1)
 	_expect_equal(outcome_result.get("command"), "show_text", "complex outcome executes first result block")
 	_expect_equal(outcome_result.get("payload", {}).get("messageId"), 183, "complex result slot resolves")
+
+
+func _test_complex_action_choices(bundle) -> void:
+	var adapter = GodotAdapterScript.new()
+	var cave_in: Dictionary = adapter.build_complex_action_choices(
+		bundle.get_encounter("complex", 2),
+		true
+	)
+	_expect_equal(
+		cave_in.get("choices"),
+		["Dig", "Throw stones at mountain", "Attempt to climb slope", "Back out"],
+		"complex action choices expose shipped labels"
+	)
+	_expect_equal(
+		cave_in.get("tokens"),
+		["action:1", "action:1", "action:1", "back"],
+		"complex actions share the source-backed result block"
+	)
+	var library: Dictionary = adapter.build_complex_action_choices(
+		{
+			"texts": [
+				"Examine some books.",
+				"Study quietly at a table.",
+				"", "", "", "", "", "",
+				"waterford",
+			],
+			"actionResult": 2,
+		},
+		false
+	)
+	_expect_equal(
+		library.get("choices"),
+		["Examine some books.", "Study quietly at a table."],
+		"complex action choices exclude the separate spoken-word field"
+	)
 
 
 func _test_shipped_lock_encounter(bundle) -> void:
