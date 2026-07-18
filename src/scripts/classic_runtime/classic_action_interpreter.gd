@@ -367,9 +367,20 @@ func _execute_treasure(treasure_id: int) -> Dictionary:
 	var treasure := bundle.get_treasure(treasure_id)
 	if treasure.is_empty():
 		return _halt_with_error("Missing treasure record %d" % treasure_id)
+	var item_texts: Array = []
+	var item_ids: Variant = treasure.get("itemIds", [])
+	if item_ids is Array:
+		for item_id_value: Variant in item_ids:
+			var item_id: int = abs(int(item_id_value))
+			if item_id == 0:
+				continue
+			var item_text := bundle.get_item_text(item_id)
+			if not item_text.is_empty():
+				item_texts.append(item_text)
 	return _yield_result("give_treasure", {
 		"treasureId": treasure_id,
 		"treasure": treasure,
+		"itemTexts": item_texts,
 		"lootMode": 1,
 	})
 

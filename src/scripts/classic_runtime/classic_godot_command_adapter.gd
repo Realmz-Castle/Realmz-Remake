@@ -16,6 +16,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _show_encounter(payload)
 		"play_sound":
 			return _play_sound(payload)
+		"give_treasure":
+			return await _give_treasure(payload)
 		_:
 			return _error("The Godot classic adapter does not yet handle '%s'" % command)
 
@@ -339,6 +341,81 @@ func build_simple_encounter_choices(encounter: Dictionary) -> Dictionary:
 		choices.append(choice_text)
 		choice_tokens.append(str(outcome))
 	return {"choices": choices, "outcomes": choice_tokens}
+
+
+func build_treasure_delivery(
+	payload: Dictionary,
+	item_id_mapping: Dictionary,
+	available_items: Dictionary
+) -> Dictionary:
+	var treasure_value: Variant = payload.get("treasure", {})
+	if not (treasure_value is Dictionary):
+		return _error("Classic treasure payload is missing its record")
+	var treasure: Dictionary = treasure_value
+	var item_ids: Variant = treasure.get("itemIds", [])
+	if not (item_ids is Array):
+		return _error("Classic treasure item IDs must be an array")
+
+	var item_texts_by_id: Dictionary = {}
+	var item_texts: Variant = payload.get("itemTexts", [])
+	if item_texts is Array:
+		for item_text_value: Variant in item_texts:
+			if item_text_value is Dictionary:
+				var item_id: int = abs(int(item_text_value.get("itemId", 0)))
+				if item_id != 0:
+					item_texts_by_id[item_id] = item_text_value
+
+	var item_names: Array[String] = []
+	for item_id_value: Variant in item_ids:
+		var item_id: int = abs(int(item_id_value))
+		if item_id == 0:
+			continue
+		var item_name := str(item_id_mapping.get(item_id, ""))
+		if item_name.is_empty() or not available_items.has(item_name):
+			var item_text: Variant = item_texts_by_id.get(item_id, {})
+			if item_text is Dictionary:
+				for key: String in ["identifiedName", "unidentifiedName"]:
+					var candidate := str(item_text.get(key, "")).strip_edges()
+					if available_items.has(candidate):
+						item_name = candidate
+						break
+		if item_name.is_empty() or not available_items.has(item_name):
+			return _error("Classic item %d has no loaded Remake item mapping" % item_id)
+		item_names.append(item_name)
+
+	return {
+		"itemNames": item_names,
+		"money": [
+			int(treasure.get("gold", 0)),
+			int(treasure.get("gems", 0)),
+			int(treasure.get("jewelry", 0)),
+		],
+		"experience": int(treasure.get("exp", 0)),
+	}
+
+
+func _give_treasure(payload: Dictionary) -> Dictionary:
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	if resources == null:
+		return _error("Realmz item resources are unavailable")
+	var item_ids: Object = _autoload("ItemIdDivinity")
+	var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
+	var delivery := build_treasure_delivery(payload, item_mapping, resources.items_book)
+	if str(delivery.get("status", "")) == "error":
+		return delivery
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	var items: Array = []
+	for item_name: String in delivery.get("itemNames", []):
+		items.append(game_global.generate_item(item_name))
+	await game_global.show_loot_menu(
+		items,
+		delivery.get("money", [0, 0, 0]),
+		int(delivery.get("experience", 0))
+	)
+	return {}
 
 
 func _play_sound(payload: Dictionary) -> Dictionary:

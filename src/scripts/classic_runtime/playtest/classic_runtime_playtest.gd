@@ -2,6 +2,8 @@ extends Node
 
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
+const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
 
 @export_dir var campaign_directory := \
 	"res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
@@ -15,25 +17,6 @@ var automated_smoke := false
 var smoke_failures: Array[String] = []
 
 
-class PlaytestRogue:
-	extends RefCounted
-	var name := "Test Rogue"
-	var stat_value := 35.0
-	var current_hp := 30
-
-	func get_stat(stat_name: String) -> float:
-		match stat_name:
-			"curHP":
-				return current_hp
-			"maxHP":
-				return 30.0
-			_:
-				return stat_value
-
-	func change_cur_hp(change: int) -> void:
-		current_hp += change
-
-
 func _ready() -> void:
 	call_deferred("_start_playtest")
 
@@ -45,14 +28,20 @@ func _start_playtest() -> void:
 			automated_smoke = true
 		else:
 			campaign_directory = argument
+	if automated_smoke:
+		get_window().size = Vector2i(1152, 648)
 
 	UI.show_only(UI.ow_hud)
 	UI.ow_hud.textRect.show()
-	if test_rogue_stat >= 0.0 and GameGlobal.player_characters.is_empty():
-		var rogue := PlaytestRogue.new()
-		rogue.stat_value = test_rogue_stat
-		rogue.current_hp = test_rogue_hp
+	await _wait_frames(2)
+	if test_rogue_stat >= 0.0:
+		var resources: CampaignResources = NodeAccess.__Resources()
+		if resources.items_book.is_empty():
+			resources.load_item_resources("res://shared_assets/items/")
+		GameGlobal.player_characters.clear()
+		var rogue := _make_playtest_rogue()
 		GameGlobal.player_characters.append(rogue)
+		UI.ow_hud.selected_character = rogue
 	host = HostScript.new()
 	add_child(host)
 	host.configure(AdapterScript.new())
@@ -79,7 +68,9 @@ func _on_playthrough_completed(result: Dictionary) -> void:
 
 
 func _on_playthrough_stopped(result: Dictionary) -> void:
-	_show_status("Classic playtest stopped: %s" % result.get("message", result), true)
+	var message := "Classic playtest stopped: %s" % result.get("message", result)
+	push_error(message)
+	_show_status(message, true)
 
 
 func _show_status(message: String, is_error: bool) -> void:
@@ -159,6 +150,7 @@ func _run_lock_smoke() -> void:
 
 
 func _run_trap_smoke() -> void:
+	var money_before: Array = GameGlobal.money_pool.duplicate()
 	var choices_ready := await _wait_for_choices()
 	_verify_smoke_stage(
 		"01_trap_prompt",
@@ -201,20 +193,92 @@ func _run_trap_smoke() -> void:
 	if not retry_ready:
 		get_tree().quit(1)
 		return
-	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("back")
+	rogue.stats["Pick_Lock"] = 100.0
+	var successful_seed := 0
+	for candidate_seed: int in 100:
+		seed(candidate_seed)
+		if randi_range(1, 100) <= 90:
+			successful_seed = candidate_seed
+			break
+	seed(successful_seed)
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("rogue:6")
 	await _wait_frames(3)
+	_verify_smoke_stage(
+		"05_lock_open_feedback",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with("The lock is now open"),
+		"the sprung chest can be unlocked"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"06_treasure_result_text",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"You hear a click as a trap disarms"
+		),
+		"the source-backed treasure result text is visible"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var treasure_ready := await _wait_for_treasure()
+	var money_after: Array = GameGlobal.money_pool.duplicate()
+	var money_delta := [
+		int(money_after[0]) - int(money_before[0]),
+		int(money_after[1]) - int(money_before[1]),
+		int(money_after[2]) - int(money_before[2]),
+	]
+	_verify_smoke_stage(
+		"07_native_treasure_ui",
+		treasure_ready
+			and UI.ow_hud.treasureControl.itemsContainer.get_child_count() == 5
+			and money_delta == [0, 5, 2],
+		"five classic items and the treasure money reach Remake's loot UI"
+	)
+	if not treasure_ready:
+		get_tree().quit(1)
+		return
+	var exp_before: int = rogue.exp_tnl
+	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+	await _wait_frames(5)
 	var persisted_trap: Dictionary = \
 		host.runtime.interpreter.runtime_state.get_effective_thief_encounter(
 			host.runtime.bundle.get_thief_encounter(1)
 		)
 	_verify_smoke_stage(
-		"05_trap_playthrough_complete",
+		"08_trap_playthrough_complete",
 		"Classic trapped-chest playtest complete" \
 			in UI.ow_hud.textRect.textLabel.get_parsed_text()
-			and not bool(persisted_trap.get("typeFlags", [])[9]),
-		"host completes after persisting the sprung trap"
+			and not bool(persisted_trap.get("typeFlags", [])[9])
+			and rogue.exp_tnl == exp_before - 600
+			and host.runtime.interpreter.runtime_state.get_trigger_percent(
+				"land", 5, 3, 100
+			) == -1,
+		"loot closes after applying experience and consuming the action point"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _make_playtest_rogue() -> PlayerCharacter:
+	var rogue: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+		{
+			"name": "Test Rogue",
+			"level": 1,
+			"exp_tnl": 10000,
+		},
+		null,
+		null,
+		RogueClass,
+		HumanRace
+	)
+	for stat_name: String in [
+		"Acrobatics",
+		"Detect_Trap",
+		"Disable_Trap",
+		"Force_Lock",
+		"Pick_Lock",
+	]:
+		rogue.stats[stat_name] = test_rogue_stat
+	rogue.stats["maxHP"] = test_rogue_hp
+	rogue.stats["curHP"] = test_rogue_hp
+	return rogue
 
 
 func _wait_frames(frame_count: int) -> void:
@@ -229,6 +293,18 @@ func _wait_for_choices() -> bool:
 		if choices.visible and choices.get_child_count() > 0:
 			return true
 	push_error("Classic %s smoke timed out waiting for encounter choices" % playtest_label)
+	return false
+
+
+func _wait_for_treasure() -> bool:
+	for _frame: int in 180:
+		await get_tree().process_frame
+		if UI.ow_hud.treasureControl.visible:
+			return true
+	push_error(
+		"Classic trapped-chest smoke timed out waiting for the treasure UI; HUD text: %s" %
+		UI.ow_hud.textRect.textLabel.get_parsed_text()
+	)
 	return false
 
 

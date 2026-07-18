@@ -335,6 +335,7 @@ var mapping : Dictionary = {
 472: "Helm of Feona +7",
 473: "Razor Claws +4",
 600: "Invisible Skin",
+601: "Adrenalin",
 602: "Heal Poison",
 603: "Heat Resistance",
 604: "Cold Resistance",

@@ -75,6 +75,7 @@ func _init() -> void:
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
 	_test_sound_and_treasure(bundle)
+	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
 	_test_complex_encounter(bundle)
 	_test_shipped_lock_encounter(bundle)
@@ -95,6 +96,7 @@ func _test_bundle_indexes(bundle) -> void:
 	_expect_equal(bundle.get_extra_action_point(100).get("source"), "Data ED3", "ED3 AP index")
 	_expect_equal(bundle.get_triggers_at("land", 0, 9, 17).size(), 1, "coordinate trigger index")
 	_expect_equal(bundle.get_treasure(11).get("itemIds", [])[0], 807, "treasure index")
+	_expect_equal(bundle.get_item_text(801).get("identifiedName"), "Priest Scroll Case", "item text index")
 	_expect_equal(bundle.get_encounter("simple", 0).get("prompt"), 51, "simple encounter index")
 	_expect_equal(bundle.get_encounter("complex", 2).get("prompt"), 180, "complex encounter index")
 	_expect_equal(bundle.get_thief_encounter(4).get("tumblers"), 2, "rogue encounter index")
@@ -445,6 +447,50 @@ func _test_sound_and_treasure(bundle) -> void:
 	_expect_equal(payload.get("treasureId"), 11, "treasure record id")
 	_expect_equal(payload.get("treasure", {}).get("exp"), 1200, "treasure record resolves")
 	_expect_equal(payload.get("lootMode"), 1, "fixed treasure uses Classic loot mode 1")
+
+
+func _test_treasure_delivery(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:5:3"), "begin CoB treasure delivery path")
+	interpreter.run_until_yield()
+	interpreter.resume_encounter(2)
+	var treasure_result: Dictionary = interpreter.run_until_yield()
+	var payload: Dictionary = treasure_result.get("payload", {})
+	_expect_equal(
+		payload.get("itemTexts", []).map(
+			func(item_text: Dictionary) -> int: return int(item_text.get("itemId", 0))
+		),
+		[600, 601, 617, 801, 806],
+		"treasure payload carries exported item text records"
+	)
+	var delivery: Dictionary = GodotAdapterScript.new().build_treasure_delivery(
+		payload,
+		{
+			600: "Invisible Skin",
+			601: "Adrenalin",
+			617: "Yellow Luck Stone +3",
+		},
+		{
+			"Invisible Skin": {},
+			"Adrenalin": {},
+			"Yellow Luck Stone +3": {},
+			"Priest Scroll Case": {},
+			"Parchment": {},
+		}
+	)
+	_expect_equal(
+		delivery.get("itemNames"),
+		[
+			"Invisible Skin",
+			"Adrenalin",
+			"Yellow Luck Stone +3",
+			"Priest Scroll Case",
+			"Parchment",
+		],
+		"treasure IDs resolve through shared mappings and scenario item text"
+	)
+	_expect_equal(delivery.get("money"), [0, 5, 2], "treasure preserves classic money")
+	_expect_equal(delivery.get("experience"), 600, "treasure preserves classic experience")
 
 
 func _test_map_mutations(bundle) -> void:

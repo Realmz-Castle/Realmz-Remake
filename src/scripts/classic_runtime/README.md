@@ -55,7 +55,7 @@ Pass a compiled campaign directory after `--` to use the full converter output i
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
 ```
 
-This adapter intentionally handles text, yes/no prompts, simple-encounter choices, data-driven rogue encounters, trap damage, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, item, encounter, or battle resource adapters exist.
+This adapter intentionally handles text, yes/no prompts, simple-encounter choices, data-driven rogue encounters, trap damage, fixed treasure through Remake's loot UI, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, encounter, or battle resource adapters exist.
 
 This remains a compatibility playtest rather than an installed Remake campaign. Classic bundles are not yet discovered through `src/Campaigns`, selected from the campaign UI, or persisted through the native profile/save system. `ClassicRuntimeState` snapshots are currently standalone; a shipping integration must bridge classic quest, tile, trigger, and position state into Remake's save lifecycle.
 

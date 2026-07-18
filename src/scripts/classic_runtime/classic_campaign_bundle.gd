@@ -26,6 +26,7 @@ var extra_codes_by_id: Dictionary = {}
 var messages_by_id: Dictionary = {}
 var battles_by_id: Dictionary = {}
 var treasures_by_id: Dictionary = {}
+var item_texts_by_id: Dictionary = {}
 var simple_encounters_by_id: Dictionary = {}
 var complex_encounters_by_id: Dictionary = {}
 var thief_encounters_by_id: Dictionary = {}
@@ -92,6 +93,10 @@ func get_treasure(treasure_id: int) -> Dictionary:
 	return treasures_by_id.get(treasure_id, {})
 
 
+func get_item_text(item_id: int) -> Dictionary:
+	return item_texts_by_id.get(abs(item_id), {})
+
+
 func get_encounter(encounter_kind: String, encounter_id: int) -> Dictionary:
 	match encounter_kind:
 		"simple":
@@ -136,6 +141,7 @@ func _reset() -> void:
 	messages_by_id.clear()
 	battles_by_id.clear()
 	treasures_by_id.clear()
+	item_texts_by_id.clear()
 	simple_encounters_by_id.clear()
 	complex_encounters_by_id.clear()
 	thief_encounters_by_id.clear()
@@ -184,6 +190,11 @@ func _build_indexes() -> void:
 	for treasure: Variant in _array_value(encounter_document, "treasures"):
 		if treasure is Dictionary:
 			treasures_by_id[int(treasure.get("id", -1))] = treasure
+
+	var content_document: Dictionary = documents["content"]
+	for item_text: Variant in _array_value(content_document, "itemTexts"):
+		if item_text is Dictionary:
+			item_texts_by_id[int(item_text.get("itemId", -1))] = item_text
 	for encounter: Variant in _array_value(encounter_document, "simpleEncounters"):
 		if encounter is Dictionary:
 			simple_encounters_by_id[int(encounter.get("id", -1))] = encounter
