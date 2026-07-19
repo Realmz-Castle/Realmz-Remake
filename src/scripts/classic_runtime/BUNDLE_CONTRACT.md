@@ -133,6 +133,16 @@ example `scripts.triggers[4] is missing stable field 'id'`. Missing files and JS
 parse errors retain their path and parse line. A failed bundle remains unloaded and
 must not partially populate runtime indexes.
 
+Producers can validate any generated version 1 bundle without starting the game:
+
+```powershell
+godot --headless --path src --script res://scripts/classic_runtime/tests/validate_classic_bundle.gd -- "F:\path\to\bundle"
+```
+
+The command exits with status 0 only after every required document has passed the
+consumer contract and its runtime indexes have been built. Status 1 identifies an
+invalid bundle; status 2 identifies incorrect command-line usage.
+
 The current Remake contract tests load the checked City of Bywater, War in the
 Sword Lands, and Twin Sands of Time fixtures. They also load a fixture through an
 absolute bundle-root path to prove that only the paths inside the artifact are
