@@ -17,6 +17,9 @@ var level_type := "land"
 var level_index := 0
 var x := 0
 var y := 0
+var heading := 0
+var multi_view := true
+var view_type := false
 
 
 func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
@@ -34,6 +37,9 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	level_index = int(start.get("levelIndex", 0))
 	x = int(start.get("x", 0))
 	y = int(start.get("y", 0))
+	heading = 0
+	multi_view = true
+	view_type = false
 
 
 func set_quest_flag(signed_quest_id: int) -> void:
@@ -57,6 +63,19 @@ func set_position(new_level_index: int, new_x: int, new_y: int) -> void:
 		x = new_x
 	if new_y >= 0:
 		y = new_y
+
+
+func set_location(new_level_type: String, new_level_index: int, new_x: int, new_y: int) -> void:
+	if new_level_type in ["land", "dungeon"]:
+		level_type = new_level_type
+	set_position(new_level_index, new_x, new_y)
+
+
+func set_dungeon_view(new_heading: int, new_multi_view: bool) -> void:
+	heading = abs(new_heading)
+	multi_view = new_multi_view
+	if not multi_view:
+		view_type = true
 
 
 func set_tile(level_kind: String, map_level: int, tile_x: int, tile_y: int, tile_value: int) -> void:
@@ -181,6 +200,9 @@ func snapshot() -> Dictionary:
 			"levelIndex": level_index,
 			"x": x,
 			"y": y,
+			"heading": heading,
+			"multiView": multi_view,
+			"viewType": view_type,
 		},
 	}
 
@@ -235,6 +257,9 @@ func restore(saved_state: Dictionary) -> void:
 		level_index = int(position.get("levelIndex", 0))
 		x = int(position.get("x", 0))
 		y = int(position.get("y", 0))
+		heading = int(position.get("heading", 0))
+		multi_view = bool(position.get("multiView", true))
+		view_type = bool(position.get("viewType", false))
 
 
 func _restore_dictionary(saved_value: Variant, target: Dictionary) -> void:

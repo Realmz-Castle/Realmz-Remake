@@ -71,6 +71,7 @@ func _init() -> void:
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
+	_test_dungeon_move(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -153,6 +154,43 @@ func _test_teleport(bundle) -> void:
 	_expect_equal(payload.get("y"), 83, "teleport y")
 	_expect_equal(payload.get("recheckDestination"), false, "opcode 45 skips destination AP recheck")
 	_expect_equal(interpreter.runtime_state.level_index, 5, "runtime position level updated")
+
+
+func _test_dungeon_move(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:83"), "begin CoB dungeon entrance")
+	var enter_result: Dictionary = interpreter.run_until_yield()
+	var enter_payload: Dictionary = enter_result.get("payload", {})
+	_expect_equal(enter_result.get("command"), "teleport", "dungeon move command")
+	_expect_equal(enter_payload.get("levelType"), "dungeon", "dungeon move changes map family")
+	_expect_equal(enter_payload.get("levelIndex"), 0, "dungeon entrance level")
+	_expect_equal(enter_payload.get("x"), 33, "dungeon entrance x")
+	_expect_equal(enter_payload.get("y"), 72, "dungeon entrance y")
+	_expect_equal(enter_payload.get("heading"), 2, "dungeon entrance heading")
+	_expect_equal(enter_payload.get("multiView"), true, "positive heading enables multiview")
+	_expect_equal(interpreter.trace.size(), 1, "dungeon move stops before later AP slots")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "action-point-ended", "dungeon move ends AP")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:8:72"), "begin CoB single-view dungeon entrance")
+	var single_view: Dictionary = interpreter.run_until_yield().get("payload", {})
+	_expect_equal(single_view.get("levelType"), "dungeon", "single-view move enters dungeon")
+	_expect_equal(single_view.get("levelIndex"), 1, "single-view dungeon level")
+	_expect_equal(single_view.get("heading"), 4, "negative heading is stored as absolute")
+	_expect_equal(single_view.get("multiView"), false, "negative heading disables multiview")
+	_expect_equal(single_view.get("viewType"), true, "negative heading selects fixed view")
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("dungeon", 0, 32, 72)
+	interpreter.runtime_state.set_dungeon_view(3, false)
+	_expect(interpreter.begin_trigger("Data DDD:0:1"), "begin CoB dungeon exit")
+	var exit_payload: Dictionary = interpreter.run_until_yield().get("payload", {})
+	_expect_equal(exit_payload.get("levelType"), "land", "dungeon exit changes map family")
+	_expect_equal(exit_payload.get("levelIndex"), 0, "dungeon exit land level")
+	_expect_equal(exit_payload.get("x"), 88, "dungeon exit x")
+	_expect_equal(exit_payload.get("y"), 48, "dungeon exit y")
+	_expect(not exit_payload.has("heading"), "land transfer omits dungeon view metadata")
+	_expect_equal(interpreter.runtime_state.heading, 3, "land transfer preserves dormant dungeon heading")
 
 
 func _test_evidence_backed_dispatcher_noop(bundle) -> void:
@@ -1308,16 +1346,21 @@ func _test_state_snapshot(bundle) -> void:
 	var state = StateScript.new()
 	state.configure_from_bundle(bundle)
 	state.set_quest_flag(20)
-	state.set_position(5, 6, 83)
+	state.set_location("dungeon", 5, 6, 83)
+	state.set_dungeon_view(4, false)
 	state.set_tile("land", 0, 3, 28, 193)
 	state.set_trigger_percent("land", 0, 17, 100)
 	state.set_difficulty(1)
 	var restored = StateScript.new()
 	restored.restore(state.snapshot())
 	_expect(restored.is_quest_set(20), "quest flag survives snapshot")
+	_expect_equal(restored.level_type, "dungeon", "map family survives snapshot")
 	_expect_equal(restored.level_index, 5, "position survives snapshot")
 	_expect_equal(restored.x, 6, "snapshot x")
 	_expect_equal(restored.y, 83, "snapshot y")
+	_expect_equal(restored.heading, 4, "dungeon heading survives snapshot")
+	_expect_equal(restored.multi_view, false, "dungeon multiview survives snapshot")
+	_expect_equal(restored.view_type, true, "dungeon view type survives snapshot")
 	_expect_equal(restored.get_tile("land", 0, 3, 28, -1), 193, "tile override survives snapshot")
 	_expect_equal(restored.get_trigger_percent("land", 0, 17, -1), 100, "trigger override survives snapshot")
 	_expect_equal(restored.difficulty, 1, "difficulty survives snapshot")
@@ -1349,7 +1392,7 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 39,
+		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 37, 39,
 		41, 42, 44, 45, 46, 47, 56, 58, 111, 112,
 	]
 	var active_slots := 0
@@ -1362,8 +1405,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2056, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2526, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2074, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2544, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1421,6 +1464,15 @@ func _test_runtime_host() -> void:
 	_expect_equal(completions.size(), 1, "runtime host publishes completion")
 	_expect_equal(completions[0].get("reason"), "keep-codes", "runtime host completion reason")
 	_expect_equal(stops.size(), 0, "runtime host guard-house flow has no stop")
+	_expect(host.start_trigger("Data DD:0:83"), "runtime host starts dungeon move")
+	_expect_equal(adapter.commands[-1].get("command"), "teleport", "host dispatches dungeon move")
+	_expect_equal(
+		host.runtime.runtime_state.level_type,
+		"dungeon",
+		"host retains dungeon destination state"
+	)
+	_expect_equal(completions.size(), 2, "host completes dungeon move after adapter response")
+	_expect_equal(completions[-1].get("reason"), "action-point-ended", "host does not resume moved AP")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(

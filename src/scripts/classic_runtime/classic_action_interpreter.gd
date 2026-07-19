@@ -251,6 +251,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_random_text(record_id)
 		20, 45:
 			return _execute_teleport(record_id, code == 20)
+		37:
+			return _execute_dungeon_move(record_id)
 		24:
 			return _finish_action_point("keep-codes", false)
 		25:
@@ -681,6 +683,39 @@ func _execute_teleport(extra_code_id: int, recheck_destination: bool) -> Diction
 		"message": bundle.get_message(int(values[4])),
 		"recheckDestination": recheck_destination,
 	})
+
+
+func _execute_dungeon_move(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error("Dungeon Move action references missing Extra Code row %d" % extra_code_id)
+	var destination_type := "dungeon" if int(values[0]) == 0 else "land"
+	runtime_state.set_location(
+		destination_type,
+		int(values[1]),
+		int(values[2]),
+		int(values[3])
+	)
+	var payload := {
+		"extraCodeId": extra_code_id,
+		"levelType": runtime_state.level_type,
+		"levelIndex": runtime_state.level_index,
+		"x": runtime_state.x,
+		"y": runtime_state.y,
+		"recheckDestination": false,
+		"dungeonMove": true,
+	}
+	if destination_type == "dungeon":
+		runtime_state.set_dungeon_view(int(values[4]), int(values[4]) >= 0)
+		payload["heading"] = runtime_state.heading
+		payload["multiView"] = runtime_state.multi_view
+		payload["viewType"] = runtime_state.view_type
+
+	# Loading another map returns from newland immediately; later AP slots and
+	# any saved GOSUB frames do not resume after the host completes the transfer.
+	var result := _yield_result("teleport", payload)
+	_clear_control_flow()
+	return result
 
 
 func _remove_current_action_point() -> Dictionary:
