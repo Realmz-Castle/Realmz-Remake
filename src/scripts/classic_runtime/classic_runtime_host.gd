@@ -77,7 +77,12 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				return
 			runtime.finish_encounter(int(response["outcome"]), response)
 		"start_battle":
-			if bool(payload.get("outcomeBranch", false)):
+			if str(payload.get("participantMode", "party")) == "selected":
+				if not response.has("survivorCount"):
+					_stop_with_error("Selective battle adapter response is missing 'survivorCount'", command)
+					return
+				runtime.finish_selective_battle(int(response["survivorCount"]))
+			elif bool(payload.get("outcomeBranch", false)):
 				if not response.has("coward"):
 					_stop_with_error("Battle adapter response is missing 'coward'", command)
 					return

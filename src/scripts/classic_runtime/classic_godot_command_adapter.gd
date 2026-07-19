@@ -103,6 +103,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _show_yes_no_choice()
 		"start_encounter":
 			return await _show_encounter(payload)
+		"start_battle":
+			return await _start_classic_battle(payload)
 		"play_sound":
 			return _play_sound(payload)
 		"wait_for_click":
@@ -137,6 +139,9 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _present_priest_turning(payload)
 		"give_treasure":
 			return await _give_treasure(payload)
+		"give_battle_loot":
+			# Native battle cleanup has already presented defeated-enemy rewards.
+			return {}
 		"give_experience":
 			return await _give_experience(payload)
 		"give_character_condition":
@@ -559,6 +564,111 @@ func _end_classic_battle(payload: Dictionary) -> Dictionary:
 	var reward_mode := str(payload.get("rewardMode", "normal"))
 	await game_global.call("end_battle", outcome, reward_mode)
 	return {"outcome": outcome}
+
+
+func _start_classic_battle(payload: Dictionary) -> Dictionary:
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	var game_global: Object = _autoload("GameGlobal")
+	if resources == null or game_global == null:
+		return _error("Realmz battle resources are unavailable")
+	var request := build_classic_battle_request(
+		payload,
+		resources.battles_book,
+		_party_characters(),
+		_current_selected_characters()
+	)
+	if str(request.get("status", "")) == "error":
+		return request
+
+	_play_sound(payload)
+	var message: Variant = payload.get("message", {})
+	if message is Dictionary and not str(message.get("text", "")).is_empty():
+		var text_result := await _show_text(payload)
+		if str(text_result.get("status", "")) == "error":
+			return text_result
+	if bool(request.get("noBattle", false)):
+		return {
+			"battleId": int(request.get("battleId", 0)),
+			"battleStarted": false,
+			"outcome": "lost",
+			"coward": true,
+			"survivorCount": 0,
+		}
+
+	game_global.allow_next_battle_loot = bool(request["allowLoot"])
+	game_global.start_battle(
+		str(request["battleName"]),
+		"",
+		true,
+		bool(request["surprise"]),
+		bool(request["allowLoss"]),
+		true,
+		true,
+		request["participants"]
+	)
+	var outcome_value: Variant = await game_global.battle_end
+	var outcome := str(outcome_value)
+	var survivor_count := 0
+	for character_value: Variant in request["participants"]:
+		if _is_living_character(character_value):
+			survivor_count += 1
+	return {
+		"battleId": int(request["battleId"]),
+		"battleStarted": true,
+		"outcome": outcome,
+		"coward": outcome != "won",
+		"survivorCount": survivor_count,
+	}
+
+
+func build_classic_battle_request(
+	payload: Dictionary,
+	battles_book: Dictionary,
+	party: Array,
+	selected: Array,
+	resolved_battle_id := -1
+) -> Dictionary:
+	var battle_range: Variant = payload.get("battleIdRange", [])
+	if not (battle_range is Array) or battle_range.size() < 2:
+		return _error("Classic battle command has no battle range")
+	var first_battle_id := int(battle_range[0])
+	var last_battle_id := int(battle_range[1])
+	if first_battle_id < 1 or last_battle_id < first_battle_id:
+		return _error("Classic battle command has an invalid battle range")
+	var battle_id := int(resolved_battle_id)
+	if battle_id < 0:
+		battle_id = randi_range(first_battle_id, last_battle_id)
+	if battle_id < first_battle_id or battle_id > last_battle_id:
+		return _error("Resolved Classic battle is outside its authored range")
+	var battle_name := "Battle_%d" % battle_id
+	if not battles_book.has(battle_name):
+		return _error("Classic battle %d has no native Remake resource" % battle_id)
+
+	var selective := str(payload.get("participantMode", "party")) == "selected"
+	var participants: Array = []
+	if selective:
+		for character_value: Variant in selected:
+			if not party.has(character_value):
+				return _error("Classic battle selection contains a non-party character")
+			if _is_living_character(character_value):
+				participants.append(character_value)
+	else:
+		participants = party.duplicate()
+		if participants.is_empty():
+			return _error("Classic battle has no party members")
+
+	return {
+		"battleId": battle_id,
+		"battleName": battle_name,
+		"participants": participants,
+		"noBattle": participants.is_empty(),
+		"surprise": bool(payload.get("surprise", false)),
+		"allowLoss": selective
+			or bool(payload.get("outcomeBranch", false))
+			or int(payload.get("lootMode", 0)) == 10,
+		"allowLoot": int(payload.get("lootMode", 0)) != 5,
+	}
 
 
 func _combat_context() -> Dictionary:

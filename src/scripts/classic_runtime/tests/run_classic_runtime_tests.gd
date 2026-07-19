@@ -57,6 +57,22 @@ class RejectingAdapter:
 		}
 
 
+class SelectiveBattleAdapter:
+	extends RefCounted
+	var commands: Array = []
+	var survivor_count := 1
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		if command == "start_battle":
+			return {
+				"outcome": "won" if survivor_count > 0 else "lost",
+				"coward": survivor_count == 0,
+				"survivorCount": survivor_count,
+			}
+		return {}
+
+
 class WealthTestAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -314,6 +330,9 @@ func _init() -> void:
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
+	_test_selective_battle_action()
+	_test_selective_battle_request()
+	_test_selective_battle_host()
 	_test_shop_actions()
 	_test_service_actions()
 	_test_sound_and_treasure(bundle)
@@ -2953,6 +2972,181 @@ func _test_battle_request(bundle) -> void:
 	_expect_equal(payload.get("battle", {}).get("id"), 38, "battle record resolves")
 
 
+func _test_selective_battle_action() -> void:
+	var bundle = _selective_battle_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("selective:battle"), "begin selective battle")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"pick_characters",
+		"selective battle starts with character pick"
+	)
+	var battle: Dictionary = interpreter.run_until_yield()
+	var payload: Dictionary = battle.get("payload", {})
+	_expect_equal(battle.get("command"), "start_battle", "opcode 48 yields a battle request")
+	_expect_equal(payload.get("battleIdRange"), [115, 119], "selective battle preserves inclusive range")
+	_expect_equal(payload.get("participantMode"), "selected", "selective battle uses picked characters")
+	_expect_equal(payload.get("soundId"), 30000, "selective battle preserves optional sound")
+	_expect_equal(payload.get("messageId"), 900, "selective battle preserves optional text")
+	_expect_equal(payload.get("treasureId"), 38, "selective battle preserves fixed treasure")
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"error",
+		"selective battle requires an outcome"
+	)
+	var treasure: Dictionary = interpreter.resume_selective_battle(1)
+	_expect_equal(
+		treasure.get("command"),
+		"give_treasure",
+		"surviving participants receive fixed treasure"
+	)
+	_expect_equal(
+		treasure.get("payload", {}).get("treasureId"),
+		38,
+		"selective battle resolves treasure record"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"selective battle resumes its encounter result"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selective:battle")
+	interpreter.run_until_yield()
+	interpreter.run_until_yield()
+	var no_survivors: Dictionary = interpreter.resume_selective_battle(0)
+	_expect_equal(
+		no_survivors.get("command"),
+		"show_text",
+		"no selected survivors presents Classic warning"
+	)
+	_expect_equal(
+		no_survivors.get("payload", {}).get("message", {}).get("text"),
+		"There is nobody left to collect any treasure.",
+		"no selected survivors preserves Classic no-treasure text"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"no selected survivors still resumes encounter flow"
+	)
+
+
+func _test_selective_battle_request() -> void:
+	var payload: Dictionary = _selective_battle_payload()
+	var first := RogueTestCharacter.new()
+	var second := RogueTestCharacter.new()
+	var adapter = GodotAdapterScript.new()
+	var request: Dictionary = adapter.build_classic_battle_request(
+		payload,
+		{"Battle_115": {}},
+		[first, second],
+		[second],
+		115
+	)
+	_expect_equal(
+		request.get("battleName"),
+		"Battle_115",
+		"battle adapter resolves native battle name"
+	)
+	_expect_equal(
+		request.get("participants"),
+		[second],
+		"battle adapter passes only selected participants"
+	)
+	_expect(bool(request.get("allowLoss")), "selective battle cannot trigger a whole-party game over")
+	_expect(bool(request.get("allowLoot")), "selective battle retains native defeated-enemy loot")
+
+	second.current_hp = 0
+	var empty_request: Dictionary = adapter.build_classic_battle_request(
+		payload,
+		{"Battle_115": {}},
+		[first, second],
+		[second],
+		115
+	)
+	_expect(bool(empty_request.get("noBattle")), "dead selection skips an invalid native battle")
+
+	var normal_payload := payload.duplicate(true)
+	normal_payload.erase("participantMode")
+	normal_payload["lootMode"] = 5
+	var normal_request: Dictionary = adapter.build_classic_battle_request(
+		normal_payload,
+		{"Battle_115": {}},
+		[first, second],
+		[],
+		115
+	)
+	_expect_equal(normal_request.get("participants"), [first, second], "normal battle uses whole party")
+	_expect(not bool(normal_request.get("allowLoss")), "normal battle retains game-over behavior")
+	_expect(not bool(normal_request.get("allowLoot")), "loot mode 5 suppresses native rewards")
+
+	normal_payload["lootMode"] = 0
+	normal_payload["outcomeBranch"] = true
+	var branching_request: Dictionary = adapter.build_classic_battle_request(
+		normal_payload,
+		{"Battle_115": {}},
+		[first, second],
+		[],
+		115
+	)
+	_expect(bool(branching_request.get("allowLoss")), "branching battle returns its defeat outcome")
+
+	var native_battles_value: Variant = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://Campaigns/City of Bywater/Battles/battles.json"
+	))
+	var native_battles: Dictionary = native_battles_value \
+		if native_battles_value is Dictionary else {}
+	for battle_id: int in range(115, 135):
+		_expect(
+			native_battles.has("Battle_%d" % battle_id),
+			"native campaign contains selective battle %d" % battle_id
+		)
+
+
+func _test_selective_battle_host() -> void:
+	var bundle = _selective_battle_test_bundle()
+	var host = HostScript.new()
+	get_root().add_child(host)
+	var host_adapter = SelectiveBattleAdapter.new()
+	var completions: Array = []
+	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
+	host.configure(host_adapter)
+	host.runtime.runtime_state.configure_from_bundle(bundle)
+	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
+	_expect(host.start_trigger("selective:battle"), "host starts selective battle fixture")
+	_expect_equal(
+		host_adapter.commands.map(
+			func(entry: Dictionary) -> String: return entry["command"]
+		),
+		["pick_characters", "start_battle", "give_treasure"],
+		"host resumes surviving selective battle through treasure"
+	)
+	_expect_equal(completions.size(), 1, "host completes surviving selective battle")
+	host.queue_free()
+
+	host = HostScript.new()
+	get_root().add_child(host)
+	host_adapter = SelectiveBattleAdapter.new()
+	host_adapter.survivor_count = 0
+	completions = []
+	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
+	host.configure(host_adapter)
+	host.runtime.runtime_state.configure_from_bundle(bundle)
+	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
+	_expect(host.start_trigger("selective:battle"), "host starts no-survivor selective battle")
+	_expect_equal(
+		host_adapter.commands.map(
+			func(entry: Dictionary) -> String: return entry["command"]
+		),
+		["pick_characters", "start_battle", "show_text"],
+		"host skips fixed treasure when nobody survives"
+	)
+	_expect_equal(completions.size(), 1, "host completes no-survivor selective battle")
+	host.queue_free()
+
+
 func _test_choice_continuation(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:27", 1), "begin CoB inverted choice")
@@ -4212,7 +4406,7 @@ func _test_full_bundle(path: String) -> void:
 	)
 	_expect_equal(
 		execution_totals.get("unknownExecutable"),
-		6,
+		2,
 		"full CoB audit inventories every unsupported encounter-result action"
 	)
 
@@ -4933,7 +5127,7 @@ func _execution_audit_test_bundle():
 	bundle.complex_encounters_by_id[2] = {
 		"id": 2,
 		"actions": [
-			{"slot": 0, "rawCode": 48, "id": 20},
+			{"slot": 0, "rawCode": 54, "id": 20},
 			{"slot": 1, "rawCode": 200, "id": 0},
 		],
 		"actionResult": 1,
@@ -4942,6 +5136,37 @@ func _execution_audit_test_bundle():
 	}
 	bundle.dispatcher_noop_keys["Data ED2:2:1:200"] = true
 	return bundle
+
+
+func _selective_battle_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.messages_by_id[900] = {"id": 900, "text": "Selective battle test"}
+	bundle.extra_codes_by_id[234] = {
+		"id": 234,
+		"values": [115, 119, 30000, 900, 38],
+	}
+	bundle.battles_by_id[115] = {"id": 115}
+	bundle.treasures_by_id[38] = {
+		"id": 38,
+		"exp": 100,
+		"money": [0, 0, 0],
+		"itemIds": [],
+	}
+	_add_stack_trigger(bundle, "selective:battle", -1, [
+		_classic_action(0, 14, 1),
+		_classic_action(1, 48, 234),
+		_classic_action(7, 24, 0),
+	])
+	return bundle
+
+
+func _selective_battle_payload() -> Dictionary:
+	return {
+		"battleIdRange": [115, 119],
+		"lootMode": 0,
+		"participantMode": "selected",
+	}
 
 
 func _give_condition_test_bundle():

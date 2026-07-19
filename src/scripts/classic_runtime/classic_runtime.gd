@@ -84,6 +84,10 @@ func finish_battle(coward: bool) -> void:
 	_publish(interpreter.resume_battle(coward))
 
 
+func finish_selective_battle(survivor_count: int) -> void:
+	_publish(interpreter.resume_selective_battle(survivor_count))
+
+
 func finish_forced_battle_end() -> void:
 	_publish(interpreter.resume_forced_battle_end())
 

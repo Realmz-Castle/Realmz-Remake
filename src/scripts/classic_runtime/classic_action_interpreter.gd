@@ -10,7 +10,7 @@ const HANDLED_OPCODES := [
 	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
-	40, 41, 42, 43, 44, 45, 46, 47, 49,
+	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	52, 56, 57, 58,
 	73, 82, 83, 85, 87, 89,
 	93, 94, 95, 96, 97, 98,
@@ -21,6 +21,8 @@ const PRIEST_TURNING_ENABLED_MESSAGE := \
 	"You regain your ability to turn undead and nether spawn."
 const PRIEST_TURNING_DISABLED_MESSAGE := \
 	"You may not use your ability to turn undead or nether spawn."
+const NO_SELECTIVE_BATTLE_SURVIVORS_MESSAGE := \
+	"There is nobody left to collect any treasure."
 const PARTY_CONDITION_NAMES := [
 	"Torch Lit",
 	"Waterworld",
@@ -48,6 +50,7 @@ var gosub_active := false
 var pending_choice: Dictionary = {}
 var pending_encounter: Dictionary = {}
 var pending_battle: Dictionary = {}
+var pending_selective_battle: Dictionary = {}
 var pending_item_check: Dictionary = {}
 var pending_wealth_payment: Dictionary = {}
 var pending_party_condition_check: Dictionary = {}
@@ -98,6 +101,7 @@ func reset_execution() -> void:
 	pending_choice.clear()
 	pending_encounter.clear()
 	pending_battle.clear()
+	pending_selective_battle.clear()
 	pending_item_check.clear()
 	pending_wealth_payment.clear()
 	pending_party_condition_check.clear()
@@ -145,6 +149,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic encounter must be resumed before execution can continue")
 	if not pending_battle.is_empty():
 		return _error_result("A classic battle outcome must be resumed before execution can continue")
+	if not pending_selective_battle.is_empty():
+		return _error_result("A classic selective battle must be resumed before execution can continue")
 	if not pending_item_check.is_empty():
 		return _error_result("A classic item check must be resumed before execution can continue")
 	if not pending_wealth_payment.is_empty():
@@ -289,6 +295,27 @@ func resume_battle(coward: bool) -> Dictionary:
 	)
 	if str(branch_result.get("status", "")) != "continue":
 		return branch_result
+	return run_until_yield()
+
+
+func resume_selective_battle(survivor_count: int) -> Dictionary:
+	if pending_selective_battle.is_empty():
+		return _error_result("No classic selective battle is waiting for an outcome")
+	if survivor_count < 0:
+		return _error_result("Classic selective battle returned an invalid survivor count")
+	var battle_context := pending_selective_battle
+	pending_selective_battle = {}
+	if survivor_count == 0:
+		return _yield_result("show_text", {
+			"messageId": 0,
+			"message": {
+				"id": 0,
+				"text": NO_SELECTIVE_BATTLE_SURVIVORS_MESSAGE,
+			},
+		})
+	var treasure_id := int(battle_context.get("treasureId", 0))
+	if treasure_id != 0:
+		return _execute_treasure(treasure_id)
 	return run_until_yield()
 
 
@@ -567,6 +594,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		47:
 			runtime_state.set_quest_flag(record_id)
 			return _continue_result()
+		48:
+			return _execute_selective_battle(record_id)
 		49:
 			return _yield_result("enable_banking", {
 				"soundId": 128,
@@ -1004,6 +1033,33 @@ func _execute_battle(extra_code_id: int) -> Dictionary:
 		"lootMode": int(values[4]),
 		"battle": bundle.get_battle(first_battle_id),
 		"priestTurningEnabled": runtime_state.priest_turning_enabled,
+	})
+
+
+func _execute_selective_battle(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Selective battle action references missing Extra Code row %d" % extra_code_id
+		)
+	var first_battle_id := int(values[0])
+	var last_battle_id := int(values[1]) if int(values[1]) != 0 else first_battle_id
+	pending_selective_battle = {
+		"extraCodeId": extra_code_id,
+		"treasureId": int(values[4]),
+	}
+	return _yield_result("start_battle", {
+		"extraCodeId": extra_code_id,
+		"battleIdRange": [abs(first_battle_id), abs(last_battle_id)],
+		"surprise": first_battle_id < 0,
+		"soundId": int(values[2]),
+		"messageId": int(values[3]),
+		"message": bundle.get_message(int(values[3])),
+		"lootMode": 0,
+		"treasureId": int(values[4]),
+		"battle": bundle.get_battle(first_battle_id),
+		"priestTurningEnabled": runtime_state.priest_turning_enabled,
+		"participantMode": "selected",
 	})
 
 
