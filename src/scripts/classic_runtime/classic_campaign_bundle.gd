@@ -34,6 +34,7 @@ var thief_encounters_by_id: Dictionary = {}
 var maps_by_id: Dictionary = {}
 var player_maps_by_id: Dictionary = {}
 var random_levels_by_id: Dictionary = {}
+var pictures_by_id: Dictionary = {}
 var dispatcher_noop_keys: Dictionary = {}
 
 
@@ -130,6 +131,10 @@ func get_random_level(level_type: String, level_index: int) -> Dictionary:
 	return random_levels_by_id.get("%s:%d:randlevel" % [level_type, level_index], {})
 
 
+func get_picture(picture_id: int) -> Dictionary:
+	return pictures_by_id.get(abs(picture_id), {})
+
+
 func get_random_rectangle(level_type: String, level_index: int, rect_index: int) -> Dictionary:
 	var random_level := get_random_level(level_type, level_index)
 	var rectangles: Variant = random_level.get("rects", [])
@@ -175,6 +180,7 @@ func _reset() -> void:
 	maps_by_id.clear()
 	player_maps_by_id.clear()
 	random_levels_by_id.clear()
+	pictures_by_id.clear()
 	dispatcher_noop_keys.clear()
 
 
@@ -250,6 +256,13 @@ func _build_indexes() -> void:
 	for map_record: Variant in _array_value(map_document, "mapRecords"):
 		if map_record is Dictionary:
 			player_maps_by_id[int(map_record.get("id", -1))] = map_record
+
+	var asset_document: Dictionary = documents["assets"]
+	var asset_catalog: Variant = asset_document.get("catalog", {})
+	if asset_catalog is Dictionary:
+		for picture: Variant in _array_value(asset_catalog, "pictures"):
+			if picture is Dictionary:
+				pictures_by_id[int(picture.get("resourceId", -1))] = picture
 
 	var evidence_document: Dictionary = documents["evidence"]
 	var semantic_decoding: Variant = evidence_document.get("semanticDecoding", {})

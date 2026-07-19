@@ -79,7 +79,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Item-check adapter response is missing 'possessed'", command)
 				return
 			runtime.finish_item_check(bool(response["possessed"]))
-		"show_text", "play_sound", "give_treasure", "give_experience", \
+		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
+		"give_treasure", "give_experience", \
 		"pick_characters", "filter_selected_characters", "select_characters_by_misc", \
 		"change_selected_health", "change_party_health", "cast_classic_spell", \
 		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \

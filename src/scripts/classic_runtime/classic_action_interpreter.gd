@@ -339,6 +339,18 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _finish_action_point("keep-codes", false)
 		25:
 			return _remove_current_action_point()
+		26:
+			return _yield_result("wait_for_click", {
+				"prompt": "Click Mouse",
+				"soundId": 30005,
+			})
+		27:
+			return _yield_result("show_picture", {
+				"pictureId": abs(record_id),
+				"picture": bundle.get_picture(record_id),
+			})
+		28:
+			return _yield_result("redraw_map", {})
 		29:
 			return _execute_player_map(record_id)
 		30:

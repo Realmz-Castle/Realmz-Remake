@@ -118,6 +118,7 @@ func _init() -> void:
 	_test_shipped_gosub_chain()
 	_test_shipped_opcode_25_mutation()
 	_test_opcode_25_xap_copy()
+	_test_modal_picture_actions()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -160,6 +161,7 @@ func _test_bundle_indexes(bundle) -> void:
 	_expect_equal(bundle.get_encounter("complex", 2).get("prompt"), 180, "complex encounter index")
 	_expect_equal(bundle.get_thief_encounter(4).get("tumblers"), 2, "rogue encounter index")
 	_expect_equal(bundle.get_thief_encounter(1).get("highDamage"), 12, "rogue trap index")
+	_expect_equal(bundle.get_picture(32128), {}, "missing picture index")
 
 
 func _test_text_and_encounter(bundle) -> void:
@@ -1439,6 +1441,66 @@ func _test_opcode_25_xap_copy() -> void:
 	_expect_equal(replay_text.get("payload", {}).get("messageId"), 900, "persisted XAP actions run on reactivation")
 	_expect_equal(replay.trace[0].get("code"), 1, "reactivation starts with the copied action list")
 	_expect_equal(replay.call_stack.size(), 0, "reactivation no longer enters the original GOSUB")
+
+
+func _test_modal_picture_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.pictures_by_id[32128] = {
+		"resourceId": 32128,
+		"resourceType": "PICT",
+		"relativePath": "Splash Images/32128.png",
+	}
+	bundle.messages_by_id[900] = {"id": 900, "text": "After the click."}
+	bundle.messages_by_id[901] = {"id": 901, "text": "After the picture."}
+	_add_stack_trigger(bundle, "modal:click", -1, [
+		_classic_action(0, 26, 0),
+		_classic_action(1, 1, 900),
+	])
+	_add_stack_trigger(bundle, "modal:picture", -1, [
+		_classic_action(0, 27, 32128),
+		_classic_action(1, 1, 901),
+	])
+	_add_stack_trigger(bundle, "modal:redraw", -1, [_classic_action(0, 28, 0)])
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("modal:click"), "begin click acknowledgement fixture")
+	var click_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(click_result.get("command"), "wait_for_click", "get-click command")
+	_expect_equal(click_result.get("payload", {}).get("prompt"), "Click Mouse", "get-click prompt")
+	_expect_equal(click_result.get("payload", {}).get("soundId"), 30005, "get-click sound")
+	_expect_equal(interpreter.run_until_yield().get("command"), "show_text", "click resumes action list")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("modal:picture"), "begin picture fixture")
+	var picture_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(picture_result.get("command"), "show_picture", "show-picture command")
+	_expect_equal(picture_result.get("payload", {}).get("pictureId"), 32128, "show-picture ID")
+	_expect_equal(
+		picture_result.get("payload", {}).get("picture", {}).get("resourceType"),
+		"PICT",
+		"show-picture catalog record"
+	)
+	_expect_equal(interpreter.run_until_yield().get("command"), "show_text", "picture resumes action list")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("modal:redraw"), "begin map redraw fixture")
+	_expect_equal(interpreter.run_until_yield().get("command"), "redraw_map", "map redraw command")
+
+	var adapter = GodotAdapterScript.new()
+	_expect_equal(
+		adapter.picture_file_candidates({
+			"pictureId": 32128,
+			"picture": {
+				"fileName": "../outside.png",
+				"relativePath": "Splash Images/32128.png",
+				"path": "C:/outside.png",
+				"name": "portraits/mayor.png",
+			},
+		}),
+		["32128.png", "portraits/mayor.png"],
+		"picture candidates stay inside the campaign splash directory"
+	)
 
 
 func _test_action_point_copy_mutations(bundle) -> void:
@@ -2778,6 +2840,8 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.maps_by_id.size(), 11, "full CoB map index")
 	_expect_equal(bundle.player_maps_by_id.size(), 20, "full CoB player map index")
 	_expect_equal(bundle.random_levels_by_id.size(), 11, "full CoB random-level index")
+	_expect_equal(bundle.pictures_by_id.size(), 1, "full CoB picture index")
+	_expect_equal(bundle.get_picture(32128).get("resourceType"), "PICT", "full CoB picture metadata")
 	_expect_equal(bundle.dispatcher_noop_keys.size(), 470, "full CoB dispatcher no-op evidence index")
 	var coordinate_trigger_count := 0
 	for coordinate: Variant in bundle.triggers_by_coordinate:
@@ -2785,7 +2849,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
 		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-		22, 23, 24, 25, 29, 30, 32, 35, 36, 37, 38,
+		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
@@ -2798,8 +2862,51 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2209, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2679, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2215, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2685, "full CoB defined-behavior slots")
+
+	for shipped_click: Array in [
+		["Data DD:7:55", 6],
+		["Data DD:8:55", 6],
+		["Data DDD:1:55", 6],
+	]:
+		var click_interpreter = _interpreter(bundle)
+		_expect(
+			click_interpreter.begin_trigger(shipped_click[0], shipped_click[1]),
+			"begin shipped CoB click acknowledgement %s" % shipped_click[0]
+		)
+		var click_result: Dictionary = click_interpreter.run_until_yield()
+		_expect_equal(click_result.get("command"), "wait_for_click", "shipped click yields typed command")
+		_expect_equal(click_result.get("payload", {}).get("soundId"), 30005, "shipped click preserves sound")
+
+	for shipped_picture: Array in [
+		["Data DD:0:76", 0],
+		["Data ED3:macro:162", 0],
+	]:
+		var picture_interpreter = _interpreter(bundle)
+		_expect(
+			picture_interpreter.begin_trigger(shipped_picture[0], shipped_picture[1]),
+			"begin shipped CoB picture %s" % shipped_picture[0]
+		)
+		var picture_result: Dictionary = picture_interpreter.run_until_yield()
+		_expect_equal(picture_result.get("command"), "show_picture", "shipped picture yields typed command")
+		_expect_equal(picture_result.get("payload", {}).get("pictureId"), 32128, "shipped picture preserves ID")
+		_expect_equal(
+			picture_result.get("payload", {}).get("picture", {}).get("resourceType"),
+			"PICT",
+			"shipped picture resolves catalog metadata"
+		)
+
+	var redraw_interpreter = _interpreter(bundle)
+	_expect(
+		redraw_interpreter.begin_trigger("Data ED3:macro:73", 1),
+		"begin shipped CoB map redraw"
+	)
+	_expect_equal(
+		redraw_interpreter.run_until_yield().get("command"),
+		"redraw_map",
+		"shipped map redraw yields typed command"
+	)
 
 	for shipped_item_check: Array in [
 		["Data DD:0:1", 1, 21, 990],

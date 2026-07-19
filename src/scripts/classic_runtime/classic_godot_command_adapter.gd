@@ -87,6 +87,12 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _show_encounter(payload)
 		"play_sound":
 			return _play_sound(payload)
+		"wait_for_click":
+			return await _wait_for_click(payload)
+		"show_picture":
+			return _show_classic_picture(payload)
+		"redraw_map":
+			return _redraw_map()
 		"give_treasure":
 			return await _give_treasure(payload)
 		"give_experience":
@@ -137,6 +143,79 @@ func _show_yes_no_choice() -> Dictionary:
 		return _error("Realmz HUD TextRect is unavailable")
 	var answer: Variant = await _show_choices(text_rect, ["Yes", "No"], ["YES", "NO"])
 	return {"accepted": str(answer) == "YES"}
+
+
+func _wait_for_click(payload: Dictionary) -> Dictionary:
+	var text_rect: Object = _text_rect()
+	if text_rect == null:
+		return _error("Realmz HUD TextRect is unavailable")
+	_play_sound(payload)
+	await text_rect.set_text(str(payload.get("prompt", "Click Mouse")), true)
+	return {}
+
+
+func _show_classic_picture(payload: Dictionary) -> Dictionary:
+	var picture_rect: Object = _picture_rect()
+	if picture_rect == null:
+		return {"status": "skipped", "message": "Realmz HUD PictureRect is unavailable"}
+	var paths: Object = _autoload("Paths")
+	var game_global: Object = _autoload("GameGlobal")
+	if paths == null or game_global == null:
+		return {"status": "skipped", "message": "Realmz campaign paths are unavailable"}
+	var splash_directory := str(paths.campaignsfolderpath)
+	splash_directory = splash_directory.path_join(str(game_global.currentcampaign))
+	splash_directory = splash_directory.path_join("Splash Images")
+	for file_name: String in picture_file_candidates(payload):
+		if FileAccess.file_exists(splash_directory.path_join(file_name)):
+			picture_rect.display_image(file_name)
+			return {"fileName": file_name}
+	return {
+		"status": "skipped",
+		"message": "Classic picture %d has no exported Remake image" \
+			% int(payload.get("pictureId", 0)),
+	}
+
+
+func picture_file_candidates(payload: Dictionary) -> Array:
+	var candidates: Array = []
+	var picture: Variant = payload.get("picture", {})
+	if picture is Dictionary:
+		for field_name: String in ["fileName", "relativePath", "path", "name"]:
+			var field_value: Variant = picture.get(field_name)
+			if field_value is String:
+				_append_picture_candidate(candidates, field_value)
+	var picture_id := int(payload.get("pictureId", 0))
+	if picture_id != 0:
+		_append_picture_candidate(candidates, "%d.png" % abs(picture_id))
+	return candidates
+
+
+func _append_picture_candidate(candidates: Array, value: String) -> void:
+	var file_name := value.strip_edges().replace("\\", "/")
+	if file_name.begins_with("Splash Images/"):
+		file_name = file_name.trim_prefix("Splash Images/")
+	if file_name.is_empty() or file_name.is_absolute_path():
+		return
+	var path_parts := file_name.split("/", false)
+	if path_parts.has("..") or candidates.has(file_name):
+		return
+	candidates.append(file_name)
+
+
+func _redraw_map() -> Dictionary:
+	var changed := false
+	var picture_rect: Object = _picture_rect()
+	if picture_rect != null:
+		picture_rect.hide()
+		changed = true
+	var game_global: Object = _autoload("GameGlobal")
+	var current_map: Variant = game_global.get("map") if game_global != null else null
+	if current_map is Object and current_map.has_method("queue_redraw"):
+		current_map.queue_redraw()
+		changed = true
+	if not changed:
+		return {"status": "skipped", "message": "Realmz map display is unavailable"}
+	return {}
 
 
 func _show_encounter(payload: Dictionary) -> Dictionary:
@@ -1766,6 +1845,13 @@ func _text_rect() -> Object:
 	if ui == null or ui.ow_hud == null:
 		return null
 	return ui.ow_hud.textRect
+
+
+func _picture_rect() -> Object:
+	var ui: Object = _autoload("UI")
+	if ui == null or ui.ow_hud == null:
+		return null
+	return ui.ow_hud.pictureRect
 
 
 func _autoload(autoload_name: String) -> Node:
