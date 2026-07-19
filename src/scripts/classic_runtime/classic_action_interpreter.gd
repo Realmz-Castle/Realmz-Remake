@@ -282,6 +282,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _continue_result()
 		58:
 			return _execute_difficulty_branch(record_id)
+		95:
+			return _execute_look_direction(record_id)
 		111:
 			if call_stack.is_empty():
 				if remove_action_point:
@@ -716,6 +718,17 @@ func _execute_dungeon_move(extra_code_id: int) -> Dictionary:
 	var result := _yield_result("teleport", payload)
 	_clear_control_flow()
 	return result
+
+
+func _execute_look_direction(requested_heading: int) -> Dictionary:
+	var randomized := requested_heading < 1 or requested_heading > 4
+	var new_heading := randi_range(1, 4) if randomized else requested_heading
+	runtime_state.set_heading(new_heading)
+	return _yield_result("set_view_direction", {
+		"heading": runtime_state.heading,
+		"requestedHeading": requested_heading,
+		"randomized": randomized,
+	})
 
 
 func _remove_current_action_point() -> Dictionary:

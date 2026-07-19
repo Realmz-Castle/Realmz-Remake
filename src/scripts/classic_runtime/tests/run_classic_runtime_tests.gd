@@ -72,6 +72,7 @@ func _init() -> void:
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
 	_test_dungeon_move(bundle)
+	_test_look_direction(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -191,6 +192,37 @@ func _test_dungeon_move(bundle) -> void:
 	_expect_equal(exit_payload.get("y"), 48, "dungeon exit y")
 	_expect(not exit_payload.has("heading"), "land transfer omits dungeon view metadata")
 	_expect_equal(interpreter.runtime_state.heading, 3, "land transfer preserves dormant dungeon heading")
+
+
+func _test_look_direction(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("dungeon", 1, 20, 75)
+	_expect(interpreter.begin_trigger("Data DDD:1:75"), "begin CoB fixed look direction")
+	var fixed_result: Dictionary = interpreter.run_until_yield()
+	var fixed_payload: Dictionary = fixed_result.get("payload", {})
+	_expect_equal(fixed_result.get("command"), "set_view_direction", "look direction command")
+	_expect_equal(fixed_payload.get("requestedHeading"), 1, "authored look direction")
+	_expect_equal(fixed_payload.get("heading"), 1, "fixed look direction result")
+	_expect_equal(fixed_payload.get("randomized"), false, "valid look direction is not randomized")
+	_expect_equal(interpreter.runtime_state.heading, 1, "look direction updates runtime heading")
+	var teleport_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(teleport_result.get("command"), "teleport", "look direction continues to next action")
+	_expect_equal(interpreter.runtime_state.heading, 1, "teleport preserves selected heading")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:7:79"), "begin CoB south look direction")
+	var south_payload: Dictionary = interpreter.run_until_yield().get("payload", {})
+	_expect_equal(south_payload.get("heading"), 3, "second authored look direction")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:7:76"), "begin CoB random look direction")
+	var random_payload: Dictionary = interpreter.run_until_yield().get("payload", {})
+	_expect_equal(random_payload.get("requestedHeading"), -1, "random look direction sentinel")
+	_expect_equal(random_payload.get("randomized"), true, "invalid direction requests random heading")
+	_expect(
+		int(random_payload.get("heading", 0)) >= 1 and int(random_payload.get("heading", 0)) <= 4,
+		"random look direction stays within Classic's four headings"
+	)
 
 
 func _test_evidence_backed_dispatcher_noop(bundle) -> void:
@@ -1393,7 +1425,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
 		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 37, 39,
-		41, 42, 44, 45, 46, 47, 56, 58, 111, 112,
+		41, 42, 44, 45, 46, 47, 56, 58, 95, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -1405,8 +1437,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2074, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2544, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2091, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2561, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1473,6 +1505,11 @@ func _test_runtime_host() -> void:
 	)
 	_expect_equal(completions.size(), 2, "host completes dungeon move after adapter response")
 	_expect_equal(completions[-1].get("reason"), "action-point-ended", "host does not resume moved AP")
+	_expect(host.start_trigger("Data DDD:1:75"), "runtime host starts look direction")
+	_expect_equal(adapter.commands[-2].get("command"), "set_view_direction", "host updates view direction")
+	_expect_equal(adapter.commands[-1].get("command"), "teleport", "host continues after view update")
+	_expect_equal(host.runtime.runtime_state.heading, 1, "host retains updated heading")
+	_expect_equal(completions.size(), 3, "host completes look-direction action point")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(

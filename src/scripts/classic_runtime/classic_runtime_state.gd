@@ -71,8 +71,12 @@ func set_location(new_level_type: String, new_level_index: int, new_x: int, new_
 	set_position(new_level_index, new_x, new_y)
 
 
+func set_heading(new_heading: int) -> void:
+	heading = new_heading
+
+
 func set_dungeon_view(new_heading: int, new_multi_view: bool) -> void:
-	heading = abs(new_heading)
+	set_heading(abs(new_heading))
 	multi_view = new_multi_view
 	if not multi_view:
 		view_type = true
