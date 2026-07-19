@@ -25,6 +25,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _give_treasure(payload)
 		"give_experience":
 			return await _give_experience(payload)
+		"change_party_health":
+			return await _change_party_health(payload)
 		"give_map":
 			return await _give_player_map(payload)
 		_:
@@ -837,6 +839,52 @@ func _give_experience(payload: Dictionary) -> Dictionary:
 		int(payload.get("experience", 0))
 	)
 	return {}
+
+
+func _change_party_health(payload: Dictionary) -> Dictionary:
+	var result := apply_party_health_effect(payload, _party_characters())
+	if str(result.get("status", "")) == "error":
+		return result
+	_play_sound({"soundId": int(payload.get("soundId", 0))})
+	for hit_value: Variant in result.get("hits", []):
+		if hit_value is Dictionary:
+			_refresh_character_panel(hit_value.get("character"))
+	var message: Variant = payload.get("message", {})
+	if message is Dictionary and not message.is_empty():
+		var text_result := await _show_text({"message": message})
+		if str(text_result.get("status", "")) == "error":
+			return text_result
+	return {}
+
+
+func apply_party_health_effect(payload: Dictionary, party: Array) -> Dictionary:
+	var roll_range: Variant = payload.get("rollRange", [])
+	if not (roll_range is Array) or roll_range.size() < 2:
+		return _error("Classic party health command is missing its roll range")
+	var low_roll := int(roll_range[0])
+	var high_roll := int(roll_range[1])
+	if high_roll < low_roll:
+		return _error("Classic party health command has an invalid roll range")
+	if party.is_empty():
+		return _error("Classic party health command has no party members")
+	for character_value: Variant in party:
+		if not (character_value is Object) \
+			or not character_value.has_method("change_cur_hp"):
+			return _error("Classic party member cannot receive a health change")
+
+	var multiplier := int(payload.get("multiplier", 0))
+	var hits: Array = []
+	for character_value: Variant in party:
+		var roll := randi_range(low_roll, high_roll)
+		var health_change := multiplier * roll
+		character_value.change_cur_hp(health_change)
+		hits.append({
+			"character": character_value,
+			"name": str(character_value.get("name")),
+			"roll": roll,
+			"change": health_change,
+		})
+	return {"hits": hits}
 
 
 func _give_player_map(payload: Dictionary) -> Dictionary:

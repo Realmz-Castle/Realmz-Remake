@@ -658,6 +658,24 @@
       "provenance": {"sourceFile": "Data ED3", "recordIndex": 70, "byteOffset": 2800, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data ED3:macro:142",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 142,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 16, "code": 16, "id": 462, "label": "Damage or heal party", "category": "state", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 142, "byteOffset": 5680, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data ED3:macro:163",
       "source": "Data ED3",
       "levelType": null,
@@ -691,6 +709,7 @@
     {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 364, "values": [1, 22, 73, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 364, "byteOffset": 3640, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 365, "values": [1, 24, 75, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 365, "byteOffset": 3650, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 462, "values": [-1, 1, 1, 699, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 462, "byteOffset": 4620, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 607, "values": [0, 1, 36, 74, -4], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 607, "byteOffset": 6070, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 639, "values": [5, 6, 83, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 639, "byteOffset": 6390, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 643, "values": [1, 1, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 643, "byteOffset": 6430, "byteLength": 10, "confidence": "source-backed"}},

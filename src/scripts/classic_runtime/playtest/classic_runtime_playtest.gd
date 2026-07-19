@@ -105,6 +105,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if playtest_label == "party-health":
+		await _run_party_health_smoke()
+		return
 	if playtest_label == "experience":
 		await _run_experience_smoke()
 		return
@@ -191,6 +194,23 @@ func _run_experience_smoke() -> void:
 			and not patched_actions.is_empty()
 			and int(patched_actions[0].get("id", 0)) == 522,
 		"closing loot applies experience and completes the remaining action-point mutation"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_party_health_smoke() -> void:
+	await _wait_frames(3)
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	_verify_smoke_stage(
+		"01_party_damage",
+		int(character.get_stat("curHP")) == test_rogue_hp - 1,
+		"the source-backed fixed roll damages the playtest party member"
+	)
+	var completion_text: String = UI.ow_hud.textRect.textLabel.get_parsed_text()
+	_verify_smoke_stage(
+		"02_party_health_complete",
+		"Classic party-health playtest complete" in completion_text,
+		"the host completes after applying the party health change"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 

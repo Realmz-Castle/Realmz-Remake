@@ -76,6 +76,7 @@ func _init() -> void:
 	_test_view_modes_and_darkland(bundle)
 	_test_random_level_mutations(bundle)
 	_test_experience_award(bundle)
+	_test_party_health_effect(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -409,6 +410,52 @@ func _test_experience_award(bundle) -> void:
 		24,
 		"experience sequence leaves the compiled target immutable"
 	)
+
+
+func _test_party_health_effect(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data ED3:macro:142"), "begin CoB party damage action")
+	var damage_result: Dictionary = interpreter.run_until_yield()
+	var payload: Dictionary = damage_result.get("payload", {})
+	_expect_equal(damage_result.get("command"), "change_party_health", "party health command")
+	_expect_equal(payload.get("multiplier"), -1, "party damage multiplier")
+	_expect_equal(payload.get("rollRange"), [1, 1], "party damage roll range")
+	_expect_equal(payload.get("soundId"), 699, "party damage sound")
+	_expect_equal(payload.get("messageId"), 0, "party damage optional message")
+	_expect_equal(payload.get("message"), {}, "zero party-health message id is a sentinel")
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"action-point-ended",
+		"party damage action point completes"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var first_target := RogueTestCharacter.new()
+	var second_target := RogueTestCharacter.new()
+	var fixed_result: Dictionary = adapter.apply_party_health_effect(
+		payload,
+		[first_target, second_target]
+	)
+	_expect_equal(fixed_result.get("hits", []).size(), 2, "party damage affects every member")
+	_expect_equal(first_target.current_hp, 29, "fixed party damage affects first member")
+	_expect_equal(second_target.current_hp, 29, "fixed party damage affects second member")
+
+	var variable_target := RogueTestCharacter.new()
+	adapter.apply_party_health_effect(
+		{"multiplier": -2, "rollRange": [1, 3]},
+		[variable_target]
+	)
+	_expect(
+		variable_target.current_hp >= 24 and variable_target.current_hp <= 28,
+		"party damage uses an inclusive per-character roll"
+	)
+	var healing_target := RogueTestCharacter.new()
+	healing_target.current_hp = 10
+	adapter.apply_party_health_effect(
+		{"multiplier": 2, "rollRange": [3, 3]},
+		[healing_target]
+	)
+	_expect_equal(healing_target.current_hp, 16, "positive multiplier heals party members")
 
 
 func _test_evidence_backed_dispatcher_noop(bundle) -> void:
@@ -1737,7 +1784,7 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 19, 20, 23, 24, 25, 29, 35, 37,
+		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 16, 19, 20, 23, 24, 25, 29, 35, 37,
 		39, 41, 42, 44, 45, 46, 47, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
@@ -1750,8 +1797,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2151, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2621, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2156, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2626, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1848,6 +1895,10 @@ func _test_runtime_host() -> void:
 		522,
 		"host continues through the following action-point patch"
 	)
+	_expect(host.start_trigger("Data ED3:macro:142"), "runtime host starts party damage action")
+	_expect_equal(adapter.commands[-1].get("command"), "change_party_health", "host dispatches party health change")
+	_expect_equal(adapter.commands[-1].get("payload", {}).get("rollRange"), [1, 1], "host preserves party damage range")
+	_expect_equal(completions.size(), 8, "host completes party damage action point")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(

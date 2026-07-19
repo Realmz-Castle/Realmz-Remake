@@ -254,6 +254,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_tile_mutation(record_id)
 		13:
 			return _execute_trigger_mutation(record_id)
+		16:
+			return _execute_party_health_effect(record_id)
 		19:
 			return _execute_random_text(record_id)
 		20, 45:
@@ -554,6 +556,27 @@ func _execute_treasure(treasure_id: int) -> Dictionary:
 		"treasure": treasure,
 		"itemTexts": item_texts,
 		"lootMode": 1,
+	})
+
+
+func _execute_party_health_effect(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Party health action references missing Extra Code row %d" % extra_code_id
+		)
+	var low_roll := int(values[1])
+	var high_roll := int(values[2])
+	if high_roll < low_roll:
+		return _halt_with_error("Party health action has an invalid roll range")
+	var message_id := int(values[4])
+	return _yield_result("change_party_health", {
+		"extraCodeId": extra_code_id,
+		"multiplier": int(values[0]),
+		"rollRange": [low_roll, high_roll],
+		"soundId": int(values[3]),
+		"messageId": message_id,
+		"message": bundle.get_message(message_id) if message_id != 0 else {},
 	})
 
 
