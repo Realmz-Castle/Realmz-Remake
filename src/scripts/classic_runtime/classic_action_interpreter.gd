@@ -11,7 +11,7 @@ const HANDLED_OPCODES := [
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-	52, 56, 57, 58,
+	52, 54, 56, 57, 58,
 	73, 82, 83, 85, 87, 89,
 	93, 94, 95, 96, 97, 98,
 	100, 106, 111, 112,
@@ -603,6 +603,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			})
 		52:
 			return _execute_misc_character_selection(record_id)
+		54:
+			return _execute_timed_encounter_mutation(record_id)
 		57:
 			return _execute_landlook(record_id)
 		58:
@@ -1499,6 +1501,38 @@ func _execute_action_data_patch(extra_code_id: int) -> Dictionary:
 			return _patch_encounter_result("complex", int(values[1]), int(values[4]), source)
 		_:
 			return _patch_map_action_point(values, source)
+
+
+func _execute_timed_encounter_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Timed encounter mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var encounter_id := int(values[0])
+	var encounter := bundle.get_timed_encounter(encounter_id)
+	if encounter.is_empty():
+		return _halt_with_error(
+			"Timed encounter mutation references missing encounter %d" % encounter_id
+		)
+	encounter = runtime_state.get_effective_timed_encounter(encounter)
+	if int(values[1]) > -1:
+		encounter["percent"] = int(values[1])
+	if int(values[2]) > -1:
+		encounter["increment"] = int(values[2])
+	if int(values[3]) != 0:
+		var scenario_day: Variant = execution_context.get("scenarioDay")
+		if not (scenario_day is int or scenario_day is float) \
+			or not is_equal_approx(float(scenario_day), float(int(scenario_day))) \
+			or int(scenario_day) < 0:
+			return _halt_with_error(
+				"Timed encounter reset requires a non-negative scenarioDay execution context"
+			)
+		encounter["day"] = int(scenario_day)
+	if int(values[4]) > -1:
+		encounter["day"] = int(encounter.get("day", 0)) + int(values[4])
+	runtime_state.set_timed_encounter_override(encounter_id, encounter)
+	return _continue_result()
 
 
 func _patch_map_action_point(values: Array, source: Dictionary) -> Dictionary:

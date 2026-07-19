@@ -35,6 +35,7 @@ var monsters_by_id: Dictionary = {}
 var simple_encounters_by_id: Dictionary = {}
 var complex_encounters_by_id: Dictionary = {}
 var thief_encounters_by_id: Dictionary = {}
+var timed_encounters_by_id: Dictionary = {}
 var maps_by_id: Dictionary = {}
 var player_maps_by_id: Dictionary = {}
 var random_levels_by_id: Dictionary = {}
@@ -152,6 +153,7 @@ func _validate_document_contract() -> bool:
 		["encounters", "simpleEncounters", "id", false],
 		["encounters", "complexEncounters", "id", false],
 		["encounters", "thiefEncounters", "id", false],
+		["encounters", "timedEncounters", "id", false],
 		["content", "monsters", "id", false],
 		["content", "scenarioItems", "id", false],
 		["content", "itemTexts", "itemId", false],
@@ -425,6 +427,10 @@ func get_thief_encounter(encounter_id: int) -> Dictionary:
 	return thief_encounters_by_id.get(encounter_id, {})
 
 
+func get_timed_encounter(encounter_id: int) -> Dictionary:
+	return timed_encounters_by_id.get(encounter_id, {})
+
+
 func get_map(map_id: String) -> Dictionary:
 	return maps_by_id.get(map_id, {})
 
@@ -484,6 +490,7 @@ func _reset() -> void:
 	simple_encounters_by_id.clear()
 	complex_encounters_by_id.clear()
 	thief_encounters_by_id.clear()
+	timed_encounters_by_id.clear()
 	maps_by_id.clear()
 	player_maps_by_id.clear()
 	random_levels_by_id.clear()
@@ -558,6 +565,9 @@ func _build_indexes() -> void:
 	for encounter: Variant in _array_value(encounter_document, "thiefEncounters"):
 		if encounter is Dictionary:
 			thief_encounters_by_id[int(encounter.get("id", -1))] = encounter
+	for encounter: Variant in _array_value(encounter_document, "timedEncounters"):
+		if encounter is Dictionary:
+			timed_encounters_by_id[int(encounter.get("id", -1))] = encounter
 
 	var map_document: Dictionary = documents["maps"]
 	for map: Variant in _array_value(map_document, "maps"):

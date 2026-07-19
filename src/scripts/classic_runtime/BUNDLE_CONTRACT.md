@@ -65,7 +65,7 @@ Adding optional evidence or provenance fields does not.
 | `scenario` | Scenario identity and original shell metadata | `identity.id`, equal to `campaign.json.id` |
 | `maps` | `maps`, optional `mapRecords` player maps | String map ID; numeric player-map `id` |
 | `scripts` | `triggers`, `extraCodes`, `messages`, `randomLevels` | String trigger/random-level ID; numeric source record ID for Extra Code and messages |
-| `encounters` | `battles`, `treasures`, `shops`, `simpleEncounters`, `complexEncounters`, `thiefEncounters` | Numeric Classic record ID within each collection |
+| `encounters` | `battles`, `treasures`, `shops`, `simpleEncounters`, `complexEncounters`, `thiefEncounters`, `timedEncounters` | Numeric Classic record ID within each collection |
 | `content` | `monsters`, `scenarioItems`, `itemTexts` | Numeric Classic record ID; item text uses `itemId` |
 | `rules` | Spell, race, and caste overrides plus rule names | Numeric Classic rule ID within its collection |
 | `assets` | Managed assets and the tileset, picture, icon, and sound catalogs | Namespaced string `id` for tilesets; numeric Classic `resourceId` for pictures, icons, and sounds |

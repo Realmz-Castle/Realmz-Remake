@@ -95,6 +95,16 @@ var classic_selected_characters: Array = []
 var stored_party_equipment: Dictionary = {}
 
 
+func get_classic_execution_context() -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return {}
+	var current_time := int(game_global.get("time"))
+	if current_time < 0:
+		return {}
+	return {"scenarioDay": floori(float(current_time) / 86400.0)}
+
+
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
 	match command:
 		"show_text":

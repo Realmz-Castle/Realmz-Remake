@@ -13,6 +13,7 @@ var action_point_overrides: Dictionary = {}
 var thief_encounter_overrides: Dictionary = {}
 var simple_encounter_overrides: Dictionary = {}
 var complex_encounter_overrides: Dictionary = {}
+var timed_encounter_overrides: Dictionary = {}
 var owned_maps: Dictionary = {}
 var darkland_overrides: Dictionary = {}
 var landlook_overrides: Dictionary = {}
@@ -37,6 +38,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	thief_encounter_overrides.clear()
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
+	timed_encounter_overrides.clear()
 	owned_maps.clear()
 	darkland_overrides.clear()
 	landlook_overrides.clear()
@@ -247,6 +249,19 @@ func get_effective_complex_encounter(encounter: Dictionary) -> Dictionary:
 		else encounter.duplicate(true)
 
 
+func set_timed_encounter_override(encounter_id: int, encounter: Dictionary) -> void:
+	if encounter_id < 0:
+		return
+	timed_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+
+
+func get_effective_timed_encounter(encounter: Dictionary) -> Dictionary:
+	var encounter_id := int(encounter.get("id", -1))
+	var override: Variant = timed_encounter_overrides.get(str(encounter_id), {})
+	return override.duplicate(true) if override is Dictionary and not override.is_empty() \
+		else encounter.duplicate(true)
+
+
 func set_map_owned(map_id: int) -> void:
 	if map_id >= 0:
 		owned_maps[str(map_id)] = true
@@ -265,6 +280,7 @@ func snapshot() -> Dictionary:
 		"thiefEncounterOverrides": thief_encounter_overrides.duplicate(true),
 		"simpleEncounterOverrides": simple_encounter_overrides.duplicate(true),
 		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
+		"timedEncounterOverrides": timed_encounter_overrides.duplicate(true),
 		"ownedMaps": owned_maps.duplicate(true),
 		"darklandOverrides": darkland_overrides.duplicate(true),
 		"landlookOverrides": landlook_overrides.duplicate(true),
@@ -292,6 +308,7 @@ func restore(saved_state: Dictionary) -> void:
 	thief_encounter_overrides.clear()
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
+	timed_encounter_overrides.clear()
 	owned_maps.clear()
 	darkland_overrides.clear()
 	landlook_overrides.clear()
@@ -326,6 +343,12 @@ func restore(saved_state: Dictionary) -> void:
 			var encounter: Variant = saved_complex_encounters[encounter_id]
 			if encounter is Dictionary:
 				complex_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+	var saved_timed_encounters: Variant = saved_state.get("timedEncounterOverrides", {})
+	if saved_timed_encounters is Dictionary:
+		for encounter_id: Variant in saved_timed_encounters:
+			var encounter: Variant = saved_timed_encounters[encounter_id]
+			if encounter is Dictionary:
+				timed_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
 	var saved_maps: Variant = saved_state.get("ownedMaps", {})
 	if saved_maps is Dictionary:
 		for map_id: Variant in saved_maps:

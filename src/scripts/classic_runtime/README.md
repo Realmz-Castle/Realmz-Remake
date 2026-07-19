@@ -7,7 +7,7 @@ compatibility runtime, Realmz Remake's native systems, and the optional dump
 importer path. [BUNDLE_CONTRACT.md](BUNDLE_CONTRACT.md) defines the versioned
 Providence-to-Remake runtime artifact.
 
-`ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicExecutionAudit` inventories executable map, Data ED, Data ED2, Data ED3, battle-round, and immediate or queued death-macro actions without turning those counts into a playability percentage. `ClassicRuntimeState` owns classic quest flags, map position, view mode, priest-turning availability, per-map random-level settings, tile overrides, trigger-percentage overrides, acquired player maps, and persistent encounter and action-point replacements. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the low-level Godot `Node` facade. `ClassicRuntimeHost` drives that facade through an injected command adapter, and `ClassicGodotCommandAdapter` is the first Remake-facing adapter. That boundary can reuse existing Remake helpers wherever their behavior matches Classic while keeping compatibility-specific control flow inside the interpreter.
+`ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicExecutionAudit` inventories executable map, Data ED, Data ED2, Data ED3, battle-round, and immediate or queued death-macro actions without turning those counts into a playability percentage. `ClassicRuntimeState` owns classic quest flags, map position, view mode, priest-turning availability, per-map random-level settings, tile overrides, trigger-percentage overrides, acquired player maps, and persistent encounter, timed-encounter, and action-point replacements. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the low-level Godot `Node` facade. `ClassicRuntimeHost` drives that facade through an injected command adapter, and `ClassicGodotCommandAdapter` is the first Remake-facing adapter. That boundary can reuse existing Remake helpers wherever their behavior matches Classic while keeping compatibility-specific control flow inside the interpreter.
 
 Implemented opcodes in this slice:
 
@@ -55,6 +55,7 @@ Implemented opcodes in this slice:
 - `47` Set or clear quest flag
 - `49` Enable Remake's native banking controls
 - `52` Pick characters by movement, position, item, chance, save, or current selection
+- `54` Alter a persistent timed-encounter schedule
 - `56` Battle request with victory, coward-branch, and coward-penalty continuation
 - `57` Change a land level's visual set and darkness
 - `58` Branch on Classic difficulty level
@@ -124,6 +125,8 @@ Opcodes `82` and `83` persist Classic's global permission to turn undead and net
 
 Opcode `48` starts its inclusive battle range through Remake's native combat lifecycle with only the currently picked living characters. Selective losses are allowed to return to exploration so the unselected party is not treated as a whole-party game over. Native battle cleanup presents the normal defeated-enemy rewards; surviving participants then receive the action's optional fixed treasure through the existing loot UI. If nobody survives, the fixed treasure is skipped, Classic's warning is shown, and the active encounter result resumes. The same adapter now services ordinary and branching Classic battle requests, preserving pre-battle sound and text, loot suppression, surprise, and outcome responses.
 
+Opcode `54` copies a compiled timed encounter into compatibility-owned state before changing its chance, increment, or next day. Negative chance, increment, and day-offset values leave the effective value unchanged; a nonzero reset flag starts the day calculation from Remake's current scenario day. Later mutations and timed-encounter lookups use the effective override, and snapshots preserve it without changing the compiled bundle. The Godot adapter derives the Classic day from the native clock when a host starts a trigger. Invoking the scheduled action point from Remake's time-passage loop remains part of the timed-encounter bridge.
+
 Combat opcodes `121`, `123`, `125`, and `127` use the live native roster and preserve converted monster identity through explicit metadata or the numeric suffixes already present in City of Bywater's bestiary names. Presence checks ignore defeated creatures. Monster destruction and lower-undead deanimation remove combatants through Remake's normal combat-state method, and hostile removals remain eligible for battle rewards. Rout filters its five compiled monster IDs to the acting creature's faction and applies Remake's permanent fleeing trait, which switches each match to the native retreat AI. An explicit actor faction can be supplied for queued and on-death macros; otherwise the adapter uses the active native combatant. Remake's current retreat AI changes movement but does not yet remove an enemy at the battlefield edge, so complete rout resolution remains a battle-bridge gap. Opcode `100` ends its combat macro as a forced victory through Remake's normal battle cleanup, using an experience-only reward mode that omits defeated-enemy money and items. Its Classic resume slot is preserved in the command payload for the still-unwired outer battle action-list bridge.
 
 Opcode `124` resolves its compiled monster and fixed or inclusive-random count, then creates native combatants near the macro actor and adds them to the live roster and initiative order. It preserves Classic's 100-monster ceiling, explicit faction override, actor-faction inheritance for direct and queued macros, and template faction for battle-round macros. Spawn sounds repeat once per successfully created monster. Queued and on-death macro entry points must still supply the correct actor position and faction when the battle bridge invokes them; otherwise the adapter falls back to the active combatant. The native placement is functional, but does not reproduce Classic's conjuration animation.
@@ -143,12 +146,10 @@ Against the checked City of Bywater compatibility baseline, these handlers cover
 The execution audit deliberately reports result rows and combat macro roots
 separately from that trigger baseline. Its initial full City of Bywater inventory
 found 15 actions in four missing result handlers. Opcodes `33`, `43`, and `48`
-now cover all seven Take Gold uses, both Give Condition uses, and all four
-Selective Combat uses, leaving two executable unknowns for Alter Time Encounter
-(`54`). The checked vertical fixture has no executable unknowns. Each remaining unknown
-produces a record-and-slot readiness diagnostic, and selecting one stops the interpreter with
-the same context instead of silently skipping it. This result-path inventory does
-not revise the 2,734-trigger claim.
+cover all seven Take Gold uses, both Give Condition uses, and all four Selective
+Combat uses. Opcode `54` covers the final two Alter Time Encounter uses, leaving
+no executable unknowns in the full bundle or the checked vertical fixture. This
+result-path inventory does not revise the 2,734-trigger claim.
 
 The [compatibility gap register](COMPATIBILITY_GAPS.md) tracks required integration work and recommended fidelity improvements separately from opcode coverage.
 

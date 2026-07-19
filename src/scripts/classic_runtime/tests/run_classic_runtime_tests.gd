@@ -32,6 +32,9 @@ class GuardHouseAdapter:
 	extends RefCounted
 	var commands: Array = []
 
+	func get_classic_execution_context() -> Dictionary:
+		return {"scenarioDay": 11, "actorFaction": 9}
+
 	func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		commands.append({"command": command, "payload": payload})
 		if command == "start_encounter":
@@ -338,6 +341,7 @@ func _init() -> void:
 	_test_sound_and_treasure(bundle)
 	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
+	_test_timed_encounter_mutation()
 	_test_complex_encounter(bundle)
 	_test_complex_action_choices(bundle)
 	_test_complex_word_results()
@@ -493,6 +497,7 @@ func _minimal_contract_documents() -> Dictionary:
 			"simpleEncounters": [],
 			"complexEncounters": [],
 			"thiefEncounters": [],
+			"timedEncounters": [],
 		},
 		"content": {
 			"schemaVersion": 1,
@@ -3529,6 +3534,71 @@ func _test_map_mutations(bundle) -> void:
 	)
 
 
+func _test_timed_encounter_mutation() -> void:
+	var bundle = _timed_encounter_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger("timed:reset", 0, {"scenarioDay": 41}),
+		"begin timed encounter reset"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"timed encounter mutation continues through its action list"
+	)
+	var effective: Dictionary = interpreter.runtime_state.get_effective_timed_encounter(
+		bundle.get_timed_encounter(0)
+	)
+	_expect_equal(effective.get("percent"), 100, "timed encounter mutation replaces chance")
+	_expect_equal(effective.get("increment"), 0, "timed encounter mutation replaces increment")
+	_expect_equal(effective.get("day"), 48, "timed encounter reset adds offset to current day")
+	_expect_equal(bundle.get_timed_encounter(0).get("day"), 3, "compiled timed encounter stays immutable")
+
+	_expect(interpreter.begin_trigger("timed:offset"), "begin timed encounter offset")
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"timed encounter offset completes"
+	)
+	effective = interpreter.runtime_state.get_effective_timed_encounter(
+		bundle.get_timed_encounter(0)
+	)
+	_expect_equal(effective.get("day"), 50, "later mutation reads the effective timed encounter")
+	_expect_equal(effective.get("percent"), 100, "unchanged chance sentinel preserves override")
+	_expect_equal(effective.get("increment"), 0, "unchanged increment sentinel preserves override")
+
+	_expect(interpreter.begin_trigger("timed:unchanged"), "begin unchanged timed encounter mutation")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "keep-codes", "sentinel mutation completes")
+	_expect_equal(
+		interpreter.runtime_state.get_effective_timed_encounter(
+			bundle.get_timed_encounter(0)
+		),
+		effective,
+		"negative sentinels leave the effective timed encounter unchanged"
+	)
+
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect_equal(
+		restored.get_effective_timed_encounter(bundle.get_timed_encounter(0)).get("day"),
+		50,
+		"timed encounter mutation survives snapshot restore"
+	)
+	var runtime = RuntimeScript.new()
+	runtime.bundle = bundle
+	runtime.runtime_state = restored
+	_expect_equal(runtime.get_timed_encounter(0).get("day"), 50, "facade reads effective timed encounter")
+	_expect_equal(runtime.timed_encounters()[0].get("day"), 50, "timed encounter scan reads overrides")
+
+	var missing_day = _interpreter(bundle)
+	_expect(missing_day.begin_trigger("timed:reset"), "begin timed reset without clock context")
+	_expect_equal(
+		missing_day.run_until_yield().get("status"),
+		"error",
+		"timed reset rejects a missing scenario day"
+	)
+
+
 func _test_complex_encounter(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:19"), "begin CoB complex encounter")
@@ -4367,6 +4437,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.simple_encounters_by_id.size(), 20, "full CoB simple encounter index")
 	_expect_equal(bundle.complex_encounters_by_id.size(), 14, "full CoB complex encounter index")
 	_expect_equal(bundle.thief_encounters_by_id.size(), 8, "full CoB rogue encounter index")
+	_expect_equal(bundle.timed_encounters_by_id.size(), 3, "full CoB timed encounter index")
 	_expect_equal(bundle.maps_by_id.size(), 11, "full CoB map index")
 	_expect_equal(bundle.player_maps_by_id.size(), 20, "full CoB player map index")
 	_expect_equal(bundle.random_levels_by_id.size(), 11, "full CoB random-level index")
@@ -4406,8 +4477,8 @@ func _test_full_bundle(path: String) -> void:
 	)
 	_expect_equal(
 		execution_totals.get("unknownExecutable"),
-		2,
-		"full CoB audit inventories every unsupported encounter-result action"
+		0,
+		"full CoB audit has no executable unknown actions"
 	)
 
 	var battle_end_interpreter = _interpreter(bundle)
@@ -5018,6 +5089,11 @@ func _test_runtime_host() -> void:
 		2,
 		"host forwards macro actor context to commands"
 	)
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("scenarioDay"),
+		11,
+		"host supplies adapter-owned scenario time to the interpreter"
+	)
 	_expect_equal(adapter.commands[1].get("command"), "start_encounter", "host requests simple encounter")
 	_expect_equal(adapter.commands[2].get("payload", {}).get("messageId"), 61, "host runs selected outcome")
 	_expect_equal(completions.size(), 1, "runtime host publishes completion")
@@ -5127,7 +5203,7 @@ func _execution_audit_test_bundle():
 	bundle.complex_encounters_by_id[2] = {
 		"id": 2,
 		"actions": [
-			{"slot": 0, "rawCode": 54, "id": 20},
+			{"slot": 0, "rawCode": 201, "id": 20},
 			{"slot": 1, "rawCode": 200, "id": 0},
 		],
 		"actionResult": 1,
@@ -5135,6 +5211,34 @@ func _execution_audit_test_bundle():
 		"prompt": 0,
 	}
 	bundle.dispatcher_noop_keys["Data ED2:2:1:200"] = true
+	return bundle
+
+
+func _timed_encounter_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.timed_encounters_by_id[0] = {
+		"id": 0,
+		"day": 3,
+		"increment": 4,
+		"percent": 25,
+		"door": 83,
+	}
+	bundle.extra_codes_by_id[312] = {"id": 312, "values": [0, 100, 0, 1, 7]}
+	bundle.extra_codes_by_id[313] = {"id": 313, "values": [0, -1, -1, 0, 2]}
+	bundle.extra_codes_by_id[314] = {"id": 314, "values": [0, -1, -1, 0, -1]}
+	_add_stack_trigger(bundle, "timed:reset", -1, [
+		_classic_action(0, 54, 312),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "timed:offset", -1, [
+		_classic_action(0, 54, 313),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "timed:unchanged", -1, [
+		_classic_action(0, 54, 314),
+		_classic_action(7, 24, 0),
+	])
 	return bundle
 
 

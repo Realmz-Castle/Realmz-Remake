@@ -52,6 +52,21 @@ func triggers_at(level_type: String, level_index: int, x: int, y: int) -> Array:
 	return triggers
 
 
+func timed_encounters() -> Array:
+	var encounters: Array = []
+	var encounter_ids: Array = bundle.timed_encounters_by_id.keys()
+	encounter_ids.sort()
+	for encounter_id: Variant in encounter_ids:
+		encounters.append(runtime_state.get_effective_timed_encounter(
+			bundle.get_timed_encounter(int(encounter_id))
+		))
+	return encounters
+
+
+func get_timed_encounter(encounter_id: int) -> Dictionary:
+	return runtime_state.get_effective_timed_encounter(bundle.get_timed_encounter(encounter_id))
+
+
 func set_difficulty(difficulty: int) -> void:
 	runtime_state.set_difficulty(difficulty)
 

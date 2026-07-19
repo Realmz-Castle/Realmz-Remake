@@ -37,7 +37,13 @@ func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 	if not (context is Dictionary):
 		_stop_with_error("ClassicRuntimeHost command context must be a dictionary")
 		return false
-	command_context = context.duplicate(true)
+	command_context.clear()
+	if command_adapter.has_method("get_classic_execution_context"):
+		var adapter_context: Variant = command_adapter.call("get_classic_execution_context")
+		if adapter_context is Dictionary:
+			command_context = adapter_context.duplicate(true)
+	for context_key: Variant in context:
+		command_context[context_key] = context[context_key]
 	active = true
 	if not runtime.activate_trigger(trigger_id, start_slot, command_context):
 		active = false
