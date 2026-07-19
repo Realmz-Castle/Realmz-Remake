@@ -12,6 +12,9 @@ extends Node
 
 const UDLR : Array = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
 const ShopRules = preload("res://scripts/shop_rules.gd")
+const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
+const BATTLE_REWARD_NORMAL := "normal"
+const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
 @onready var cmp_resources : CampaignResources = NodeAccess.__Resources()
 
@@ -501,7 +504,10 @@ func start_battle(battlename : String, mapname : String, is_pos_relative : bool,
 
 
 
-func end_battle( wonfledlost : String ) :
+func end_battle(
+	wonfledlost: String,
+	reward_mode := BATTLE_REWARD_NORMAL
+) :
 	print("GameGlobal end_battle", last_exploration_map_name,wonfledlost)
 	StateMachine.combat_state.battle_creatures_yet_to_act_btns.clear()
 	StateMachine.combat_state.all_battle_creatures_btns.clear()
@@ -529,17 +535,16 @@ func end_battle( wonfledlost : String ) :
 			#var textRect = UI.ow_hud.textRect
 			var treasureControl = UI.ow_hud.treasureControl
 ##	var healpottemplate = NodeAccess.__Resources().items_book["Health Potion"]
-			var treasureitems = []
-			var experience : int = 0
-			var money_drop : Array = [0,0,0]
+			var rewards := {
+				"treasure": [],
+				"experience": 0,
+				"money": [0, 0, 0],
+			}
 			if allow_next_battle_loot :
-				for c  in StateMachine.combat_state.battle_dead_enemies :
-					#print("dead : "+c.name)
-					experience += c.experience
-					for g in  range(money_drop.size()) :
-						money_drop[g] += c.money[g]
-					for i in c.inventory :
-						treasureitems.append(i)
+				rewards = BattleRewardRulesScript.collect(
+					StateMachine.combat_state.battle_dead_enemies,
+					str(reward_mode) == BATTLE_REWARD_EXPERIENCE_ONLY
+				)
 			allow_next_battle_loot = true
 
 			#this won't show the allies  screen
@@ -551,7 +556,7 @@ func end_battle( wonfledlost : String ) :
 
 
 
-			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : treasureitems, "money" : money_drop, "exp" : experience, "prev_state" : "Exploration"})
+			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : rewards["treasure"], "money" : rewards["money"], "exp" : rewards["experience"], "prev_state" : "Exploration"})
 			await UI.ow_hud.treasureControl.done_looting
 			print("done looting")
 			GameGlobal.show_allies_menu()

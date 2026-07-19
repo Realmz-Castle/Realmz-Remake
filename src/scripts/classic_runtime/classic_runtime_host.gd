@@ -74,6 +74,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				runtime.finish_battle(bool(response["coward"]))
 			else:
 				runtime.continue_after_command()
+		"end_classic_battle":
+			runtime.finish_forced_battle_end()
 		"check_party_item":
 			if not response.has("possessed"):
 				_stop_with_error("Item-check adapter response is missing 'possessed'", command)

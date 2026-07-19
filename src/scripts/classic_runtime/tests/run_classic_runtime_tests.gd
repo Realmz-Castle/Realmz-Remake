@@ -8,6 +8,7 @@ const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inve
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
 const ShopRulesScript = preload("res://scripts/shop_rules.gd")
 const TemplePaymentScript = preload("res://scenes/UI/HUD/Temple/temple_payment.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
@@ -173,6 +174,7 @@ func _init() -> void:
 	_test_combat_monster_presence_action()
 	_test_combat_monster_destruction_action()
 	_test_lower_undead_deanimation_action()
+	_test_forced_battle_end_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -1910,6 +1912,42 @@ func _test_lower_undead_deanimation_action() -> void:
 	_expect_equal(combat_state.battle_dead_enemies, [lower_enemy.creature], "only hostile undead enter rewards")
 
 
+func _test_forced_battle_end_action() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("combat:end"), "begin forced battle-end fixture")
+	var command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(command.get("command"), "end_classic_battle", "opcode 100 yields typed battle end")
+	_expect_equal(command.get("payload", {}).get("outcome"), "won", "forced battle end reports victory")
+	_expect_equal(command.get("payload", {}).get("lootMode"), 5, "forced battle end preserves loot mode")
+	_expect_equal(
+		command.get("payload", {}).get("rewardMode"),
+		"experience_only",
+		"forced battle end requests experience-only rewards"
+	)
+	_expect_equal(command.get("payload", {}).get("resumeSlot"), 8, "forced battle end preserves resume slot")
+	var completed: Dictionary = interpreter.resume_forced_battle_end()
+	_expect_equal(completed.get("status"), "completed", "forced battle end completes the combat macro")
+	_expect_equal(completed.get("reason"), "battle-ended", "forced battle completion is explicit")
+
+	var defeated := [
+		{"experience": 40, "money": [3, 2, 1], "inventory": ["Test blade"]},
+		{"experience": 15, "money": [4, 0, 0], "inventory": ["Test shield"]},
+	]
+	var normal_rewards: Dictionary = BattleRewardRulesScript.collect(defeated)
+	_expect_equal(normal_rewards.get("experience"), 55, "normal battle rewards retain experience")
+	_expect_equal(normal_rewards.get("money"), [7, 2, 1], "normal battle rewards retain money")
+	_expect_equal(
+		normal_rewards.get("treasure"),
+		["Test blade", "Test shield"],
+		"normal battle rewards retain inventory"
+	)
+	var experience_rewards: Dictionary = BattleRewardRulesScript.collect(defeated, true)
+	_expect_equal(experience_rewards.get("experience"), 55, "experience-only rewards retain experience")
+	_expect_equal(experience_rewards.get("money"), [0, 0, 0], "experience-only rewards omit money")
+	_expect_equal(experience_rewards.get("treasure"), [], "experience-only rewards omit inventory")
+
+
 func _test_action_point_copy_mutations(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin CoB same-door action")
@@ -3262,7 +3300,7 @@ func _test_full_bundle(path: String) -> void:
 		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
-		93, 94, 95, 96, 97, 98, 106, 111, 112,
+		93, 94, 95, 96, 97, 98, 100, 106, 111, 112,
 		121, 125, 127,
 	]
 	var active_slots := 0
@@ -3275,8 +3313,22 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2234, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2704, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2235, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2705, "full CoB defined-behavior slots")
+
+	var battle_end_interpreter = _interpreter(bundle)
+	_expect(
+		battle_end_interpreter.begin_trigger("Data ED3:macro:153", 5),
+		"begin shipped CoB forced battle end"
+	)
+	var battle_end: Dictionary = battle_end_interpreter.run_until_yield()
+	_expect_equal(battle_end.get("command"), "end_classic_battle", "shipped opcode 100 yields battle end")
+	_expect_equal(battle_end.get("payload", {}).get("lootMode"), 5, "shipped battle end keeps loot mode")
+	_expect_equal(
+		battle_end.get("payload", {}).get("rewardMode"),
+		"experience_only",
+		"shipped battle end requests experience-only rewards"
+	)
 
 	var deanimate_interpreter = _interpreter(bundle)
 	_expect(
@@ -3917,6 +3969,7 @@ func _combat_monster_test_bundle():
 	bundle.messages_by_id[920] = {"id": 920, "text": "The fight continues."}
 	bundle.messages_by_id[921] = {"id": 921, "text": "The remaining enemies recoil."}
 	bundle.messages_by_id[922] = {"id": 922, "text": "The lower undead collapse."}
+	bundle.messages_by_id[923] = {"id": 923, "text": "This action must not run after battle."}
 	bundle.extra_codes_by_id[1] = {"id": 1, "values": [134, 0, 0, 0, 0]}
 	_add_stack_trigger(bundle, "combat:present", -1, [
 		_classic_action(0, 127, 134),
@@ -3929,6 +3982,10 @@ func _combat_monster_test_bundle():
 	_add_stack_trigger(bundle, "combat:deanimate", -1, [
 		_classic_action(0, 121, 0),
 		_classic_action(1, 1, 922),
+	])
+	_add_stack_trigger(bundle, "combat:end", -1, [
+		_classic_action(0, 100, 0),
+		_classic_action(1, 1, 923),
 	])
 	return bundle
 

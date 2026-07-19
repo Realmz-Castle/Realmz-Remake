@@ -257,6 +257,11 @@ func resume_battle(coward: bool) -> Dictionary:
 	return run_until_yield()
 
 
+func resume_forced_battle_end() -> Dictionary:
+	_clear_control_flow()
+	return _completed_result("battle-ended")
+
+
 func resume_item_check(possessed: bool) -> Dictionary:
 	if pending_item_check.is_empty():
 		return _error_result("No classic item check is waiting for a response")
@@ -521,6 +526,13 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		98:
 			# Registration gates have no effect in the open-source Classic runtime.
 			return _continue_result()
+		100:
+			return _yield_result("end_classic_battle", {
+				"outcome": "won",
+				"lootMode": 5,
+				"rewardMode": "experience_only",
+				"resumeSlot": 8,
+			})
 		106:
 			return _execute_darkland(record_id)
 		111:

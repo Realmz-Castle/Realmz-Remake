@@ -84,6 +84,10 @@ func finish_battle(coward: bool) -> void:
 	_publish(interpreter.resume_battle(coward))
 
 
+func finish_forced_battle_end() -> void:
+	_publish(interpreter.resume_forced_battle_end())
+
+
 func finish_item_check(possessed: bool) -> void:
 	_publish(interpreter.resume_item_check(possessed))
 

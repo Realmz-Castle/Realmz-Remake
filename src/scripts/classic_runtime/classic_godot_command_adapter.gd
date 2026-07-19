@@ -114,6 +114,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _destroy_combat_monsters(payload)
 		"deanimate_lower_undead":
 			return _deanimate_lower_undead(payload)
+		"end_classic_battle":
+			return await _end_classic_battle(payload)
 		"add_party_ally":
 			return _add_classic_ally(payload)
 		"present_random_branch":
@@ -344,6 +346,19 @@ func _deanimate_lower_undead(payload: Dictionary) -> Dictionary:
 	if removed < 0:
 		return _error("Realmz combat removal API is unavailable")
 	return {"removed": removed}
+
+
+func _end_classic_battle(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null or not game_global.has_method("end_battle"):
+		return _error("Realmz battle completion API is unavailable")
+	var outcome := str(payload.get("outcome", "won"))
+	var reward_mode := str(payload.get("rewardMode", "normal"))
+	await game_global.call("end_battle", outcome, reward_mode)
+	return {"outcome": outcome}
 
 
 func _combat_context() -> Dictionary:
