@@ -64,6 +64,9 @@ var schools : Array = []
 # Classic spells also carry an effect class. Complex encounters can match
 # classes 1-6 instead of a packed spell-table ID.
 var classic_spell_class : int = 0
+# A non-empty list limits this resource to Classic table entries whose
+# mechanics it represents. Empty lists retain the existing name-based fallback.
+var classic_spell_ids : Array[int] = []
 
 var targettile : TARGET_TILE = TARGET_TILE.NOWALL
 var school_levels : Dictionary = {"Sorcerer": 0, "Priest": 0, "Enchanter": 0}
@@ -132,6 +135,9 @@ func get_aoe(_power : int, _caster) -> Array[Vector2i] :
 
 func add_traits_to_creature(_caster : Creature, _target : Creature, _power : int) -> void :
 	pass
+
+func supports_classic_spell_id(spell_id : int) -> bool :
+	return classic_spell_ids.is_empty() or spell_id in classic_spell_ids
 
 
 # Returns this spell's source code as a string, suitable for storing in a

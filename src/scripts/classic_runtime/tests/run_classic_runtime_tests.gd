@@ -201,6 +201,20 @@ class CombatTestCreature:
 		return null
 
 
+class SpellPointTestCreature:
+	extends RefCounted
+	var current_sp: int
+
+	func _init(spell_points: int) -> void:
+		current_sp = spell_points
+
+	func get_stat(stat_name: String) -> int:
+		return current_sp if stat_name == "curSP" else 0
+
+	func change_cur_sp(change: int) -> void:
+		current_sp += change
+
+
 class CombatTestButton:
 	extends RefCounted
 	var creature: Variant
@@ -669,11 +683,13 @@ func _test_campaign_readiness_report() -> void:
 	bundle.documents["maps"]["maps"] = [{"id": "land:0"}]
 	bundle.documents["scripts"]["triggers"] = [
 		_readiness_action_point("Data DD", 76, 27, 32128),
+		_readiness_action_point("Data DD", 89, 18, 375),
 		_readiness_action_point("Data ED3", 128, 17, 428),
 		_readiness_action_point("Data ED3", 103, 89, 71),
 		_readiness_action_point("Data ED3", 197, -85, -1700),
 	]
 	bundle.documents["scripts"]["extraCodes"] = [
+		{"id": 375, "values": [1408, 3, 0, 0, 0]},
 		{"id": 428, "values": [4606, 3, 30, 0, 0]},
 		# The positive record exists, but Classic's signed lookup is exact.
 		{"id": 1700, "values": [40, 40, 40, 40, 40]},
@@ -764,6 +780,10 @@ func _test_campaign_readiness_report() -> void:
 		"readiness reports a mapped spell without a native resource"
 	)
 	_expect(
+		_readiness_has_reference_diagnostic(report, "missing-native-spell", 1408),
+		"readiness reports a missing Power Drain resource"
+	)
+	_expect(
 		_readiness_has_diagnostic(
 			report, "unresolved-item-identity", "Data ED2", 9, -1, "progression-blocker"
 		),
@@ -806,6 +826,7 @@ func _test_campaign_readiness_report() -> void:
 		},
 		"spells": {
 			"Discover Magic": {"classicSpellClass": 1},
+			"Power Drain": {"classicSpellIds": [1408, 3311]},
 		},
 		"items": {
 			"Campaign Rope": {"classicItemId": 878},
@@ -827,6 +848,30 @@ func _test_campaign_readiness_report() -> void:
 			"progression-blocker"
 		),
 		"explicit spell-class metadata resolves a low-ID encounter response"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "missing-native-spell", 1408
+		),
+		"explicit spell-ID metadata resolves a supported field-spell variant"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "unsupported-native-spell-variant", 1408
+		),
+		"supported spell-ID metadata does not produce a variant blocker"
+	)
+
+	var unsupported_variant_report: Dictionary = ReadinessScript.new().inspect(bundle, {
+		"spells": {
+			"Power Drain": {"classicSpellIds": [2708]},
+		},
+	})
+	_expect(
+		_readiness_has_reference_diagnostic(
+			unsupported_variant_report, "unsupported-native-spell-variant", 1408
+		),
+		"readiness blocks a same-name spell resource with different mechanics"
 	)
 
 	var malformed: Dictionary = ReadinessScript.new().inspect_directory(
@@ -4417,6 +4462,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
 	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
 	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
 	_expect_equal(flame_hands.classic_spell_class, 1, "Flame Hands exports its Classic class")
 	_expect_equal(flame_hands.get_range(7, null), 1, "Flame Hands keeps its touch range")
 	_expect_equal(flame_hands.get_min_damage(3, null), 3, "Flame Hands minimum scales by power")
@@ -4428,6 +4474,72 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(fireball.get_max_damage(7, null), 16, "Fireball keeps its fixed maximum damage")
 	_expect_equal(fireball.get_sp_cost(3, null), 27, "Fireball cost scales by power")
 	_expect_equal(fireball.get_aoe(3, null), Spell.AoE_b3, "Fireball area scales by power")
+	_expect(power_drain.supports_classic_spell_id(1408), "Power Drain supports CoB's spell ID")
+	_expect(
+		adapter.classic_spell_resource_supports_id(power_drain, 1408),
+		"field-spell adapter accepts a supported Power Drain ID"
+	)
+	_expect(
+		not power_drain.supports_classic_spell_id(2708),
+		"Power Drain rejects the mechanically distinct priest spell ID"
+	)
+	_expect(
+		not adapter.classic_spell_resource_supports_id(power_drain, 2708),
+		"field-spell adapter rejects an unsupported Power Drain ID"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			{"spellIds": [1408], "spellResults": [2]},
+			"Power Drain",
+			7,
+			spell_mapping,
+			power_drain.classic_spell_ids
+		),
+		2,
+		"complex encounters accept a supported Power Drain ID"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			{"spellIds": [2708], "spellResults": [2]},
+			"Power Drain",
+			7,
+			spell_mapping,
+			power_drain.classic_spell_ids
+		),
+		4,
+		"complex encounters reject a same-name Power Drain variant"
+	)
+	_expect_equal(power_drain.classic_spell_class, 7, "Power Drain exports its Classic class")
+	_expect_equal(power_drain.get_range(7, null), 1, "Power Drain keeps its touch range")
+	_expect_equal(power_drain.get_sp_cost(3, null), 30, "Power Drain cost scales by power")
+	_expect_equal(
+		power_drain.get_min_spell_point_drain(3),
+		15,
+		"Power Drain minimum scales by power"
+	)
+	_expect_equal(
+		power_drain.get_max_spell_point_drain(3),
+		24,
+		"Power Drain maximum scales by power"
+	)
+	var spell_point_target := SpellPointTestCreature.new(100)
+	var drained_spell_points: int = power_drain.apply_power_drain(spell_point_target, 2)
+	_expect(
+		drained_spell_points >= 10 and drained_spell_points <= 16,
+		"Power Drain rolls once per power level"
+	)
+	_expect_equal(
+		spell_point_target.current_sp,
+		100 - drained_spell_points,
+		"Power Drain changes current spell points instead of health"
+	)
+	var nearly_empty_target := SpellPointTestCreature.new(3)
+	_expect_equal(
+		power_drain.apply_power_drain(nearly_empty_target, 7),
+		3,
+		"Power Drain cannot remove more spell points than remain"
+	)
+	_expect_equal(nearly_empty_target.current_sp, 0, "Power Drain clamps spell points at zero")
 	_expect(
 		FileAccess.get_file_as_string("res://shared_assets/spells/discover_magic.gd").contains(
 			"classic_spell_class = 8"

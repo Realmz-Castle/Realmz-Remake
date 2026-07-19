@@ -340,13 +340,29 @@ func _check_field_spell(action: Dictionary, extra_code: Dictionary) -> void:
 		)
 	else:
 		var spells: Variant = _native_context.get("spells", {})
-		if spells is Dictionary and not spells.is_empty() and not spells.has(spell_name):
-			_add_blocker_for_action(
-				action,
-				"missing-native-spell",
-				"Mapped spell '%s' has no executable Remake resource" % spell_name,
-				{"referenceId": spell_id, "nativeName": spell_name}
-			)
+		if spells is Dictionary and not spells.is_empty():
+			if not spells.has(spell_name):
+				_add_blocker_for_action(
+					action,
+					"missing-native-spell",
+					"Mapped spell '%s' has no executable Remake resource" % spell_name,
+					{"referenceId": spell_id, "nativeName": spell_name}
+				)
+			else:
+				var spell_metadata: Variant = spells.get(spell_name, {})
+				var supported_ids: Variant = spell_metadata.get("classicSpellIds", []) \
+					if spell_metadata is Dictionary else []
+				if supported_ids is Array \
+						and not supported_ids.is_empty() \
+						and spell_id not in supported_ids:
+					_add_blocker_for_action(
+						action,
+						"unsupported-native-spell-variant",
+						"Mapped spell '%s' does not represent Classic spell %d" % [
+							spell_name, spell_id,
+						],
+						{"referenceId": spell_id, "nativeName": spell_name}
+					)
 	if int(values[2]) != 0 or int(values[3]) != 0:
 		_add_blocker_for_action(
 			action,

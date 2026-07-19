@@ -1194,7 +1194,8 @@ func resolve_complex_spell_result(
 	encounter: Dictionary,
 	spell_name: String,
 	spell_class: int,
-	spell_id_mapping: Dictionary
+	spell_id_mapping: Dictionary,
+	supported_spell_ids: Array = []
 ) -> int:
 	var spell_ids: Variant = encounter.get("spellIds", [])
 	var spell_results: Variant = encounter.get("spellResults", [])
@@ -1206,8 +1207,8 @@ func resolve_complex_spell_result(
 			return int(spell_results[index])
 		if spell_id >= 1101:
 			var mapped_name := _mapped_spell_name(spell_id, spell_id_mapping)
-			# Remake shares a spell resource by name across Classic caster schools.
-			if _normalized_spell_name(mapped_name) == _normalized_spell_name(spell_name):
+			if _normalized_spell_name(mapped_name) == _normalized_spell_name(spell_name) \
+					and (supported_spell_ids.is_empty() or spell_id in supported_spell_ids):
 				return int(spell_results[index])
 	return 4
 
@@ -1223,6 +1224,12 @@ func classic_spell_mapping_key(spell_id: int) -> String:
 	var spell_level := int(remainder / 100)
 	var spell_slot := remainder % 100
 	return "%d%d%d" % [caster_class * 100, spell_level, spell_slot]
+
+
+func classic_spell_resource_supports_id(spell: Variant, spell_id: int) -> bool:
+	if not (spell is Object) or not spell.has_method("supports_classic_spell_id"):
+		return true
+	return bool(spell.supports_classic_spell_id(spell_id))
 
 
 func spell_effect_targets(target_mode: String, party: Array, selected: Array) -> Array:
@@ -1365,12 +1372,15 @@ func _select_complex_spell(encounter: Dictionary) -> Dictionary:
 	var spell_mapping: Dictionary = spell_ids.mappings if spell_ids != null else {}
 	var spell_class := int(spell.get("classic_spell_class")) \
 		if spell.get("classic_spell_class") != null else 0
+	var supported_spell_ids: Array = spell.get("classic_spell_ids") \
+		if spell.get("classic_spell_ids") is Array else []
 	return {
 		"outcome": resolve_complex_spell_result(
 			encounter,
 			str(spell.get("name")),
 			spell_class,
-			spell_mapping
+			spell_mapping,
+			supported_spell_ids
 		),
 		"spellName": str(spell.get("name")),
 		"spellPower": power,
@@ -2542,6 +2552,12 @@ func _cast_classic_spell(payload: Dictionary) -> Dictionary:
 			not spell_entry.has("script") or spell_entry.get("script") == null
 	):
 		return _error("Mapped spell '%s' has no executable resource" % spell_name)
+	var spell: Variant = spell_entry.get("script") \
+		if spell_entry is Dictionary else spell_entry
+	if not classic_spell_resource_supports_id(spell, spell_id):
+		return _error(
+			"Mapped spell '%s' does not support Classic spell %d" % [spell_name, spell_id]
+		)
 
 	var script_helper: Object = _autoload("ScriptHelperFuncs")
 	if script_helper == null:
