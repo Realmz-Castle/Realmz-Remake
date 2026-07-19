@@ -218,6 +218,7 @@ func _init() -> void:
 		_finish()
 		return
 
+	_test_bundle_contract_validation()
 	_test_bundle_indexes(bundle)
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
@@ -278,6 +279,130 @@ func _init() -> void:
 	if not user_arguments.is_empty():
 		_test_full_bundle(str(user_arguments[0]))
 	_finish()
+
+
+func _test_bundle_contract_validation() -> void:
+	var absolute_bundle = BundleScript.new()
+	var absolute_path := ProjectSettings.globalize_path(FIXTURE)
+	_expect(
+		absolute_bundle.load_from_directory(absolute_path),
+		"bundle loads from an absolute root with relative document paths: %s" % \
+		absolute_bundle.last_error
+	)
+
+	var unsafe_path_bundle = BundleScript.new()
+	unsafe_path_bundle.manifest = _minimal_contract_manifest()
+	unsafe_path_bundle.manifest["files"]["scripts"] = "../classic/scripts.json"
+	_expect(
+		not unsafe_path_bundle._validate_manifest_contract(),
+		"bundle contract rejects a parent-relative document path"
+	)
+	_expect(
+		unsafe_path_bundle.last_error.contains("files.scripts"),
+		"unsafe path error identifies the manifest field"
+	)
+
+	var version_bundle = BundleScript.new()
+	version_bundle.manifest = _minimal_contract_manifest()
+	version_bundle.documents = _minimal_contract_documents()
+	version_bundle.documents["rules"]["schemaVersion"] = 2
+	_expect(
+		not version_bundle._validate_document_contract(),
+		"bundle contract rejects an unsupported document schema"
+	)
+	_expect(
+		version_bundle.last_error.contains("rules.schemaVersion"),
+		"document version error identifies the document"
+	)
+
+	var missing_id_bundle = BundleScript.new()
+	missing_id_bundle.manifest = _minimal_contract_manifest()
+	missing_id_bundle.documents = _minimal_contract_documents()
+	missing_id_bundle.documents["scripts"]["triggers"] = [{
+		"source": "Data DD",
+		"recordIndex": 0,
+	}]
+	_expect(
+		not missing_id_bundle._validate_document_contract(),
+		"bundle contract rejects a record without its stable identity"
+	)
+	_expect(
+		missing_id_bundle.last_error.contains("scripts.triggers[0]"),
+		"missing identity error includes record-level context"
+	)
+
+	var duplicate_id_bundle = BundleScript.new()
+	duplicate_id_bundle.manifest = _minimal_contract_manifest()
+	duplicate_id_bundle.documents = _minimal_contract_documents()
+	duplicate_id_bundle.documents["scripts"]["extraCodes"] = [{"id": 4}, {"id": 4}]
+	_expect(
+		not duplicate_id_bundle._validate_document_contract(),
+		"bundle contract rejects duplicate stable identities"
+	)
+	_expect(
+		duplicate_id_bundle.last_error.contains("scripts.extraCodes[1]"),
+		"duplicate identity error includes record-level context"
+	)
+
+
+func _minimal_contract_manifest() -> Dictionary:
+	return {
+		"format": BundleScript.FORMAT,
+		"formatVersion": BundleScript.FORMAT_VERSION,
+		"campaignKind": BundleScript.CAMPAIGN_KIND,
+		"compatibilityProfile": BundleScript.COMPATIBILITY_PROFILE,
+		"id": "scenario-contract-test",
+		"name": "Contract Test",
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+		"files": {
+			"scenario": "classic/scenario.json",
+			"maps": "classic/maps.json",
+			"scripts": "classic/scripts.json",
+			"encounters": "classic/encounters.json",
+			"content": "classic/content.json",
+			"rules": "classic/rules.json",
+			"assets": "classic/assets.json",
+			"evidence": "classic/evidence.json",
+		},
+	}
+
+
+func _minimal_contract_documents() -> Dictionary:
+	return {
+		"scenario": {
+			"schemaVersion": BundleScript.DOCUMENT_SCHEMA_VERSION,
+			"identity": {"id": "scenario-contract-test", "name": "Contract Test"},
+		},
+		"maps": {"schemaVersion": 1, "maps": []},
+		"scripts": {
+			"schemaVersion": 1,
+			"triggers": [],
+			"extraCodes": [],
+			"messages": [],
+			"randomLevels": [],
+		},
+		"encounters": {
+			"schemaVersion": 1,
+			"battles": [],
+			"treasures": [],
+			"shops": [],
+			"simpleEncounters": [],
+			"complexEncounters": [],
+			"thiefEncounters": [],
+		},
+		"content": {
+			"schemaVersion": 1,
+			"monsters": [],
+			"scenarioItems": [],
+			"itemTexts": [],
+		},
+		"rules": {"schemaVersion": 1},
+		"assets": {
+			"schemaVersion": 1,
+			"catalog": {"pictures": [], "sounds": []},
+		},
+		"evidence": {"schemaVersion": 1, "semanticDecoding": {}},
+	}
 
 
 func _test_bundle_indexes(bundle) -> void:

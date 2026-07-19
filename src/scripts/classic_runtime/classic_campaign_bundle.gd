@@ -3,6 +3,9 @@ extends RefCounted
 
 const FORMAT := "realmz-remake-classic-campaign"
 const FORMAT_VERSION := 1
+const CAMPAIGN_KIND := "classic-compiled"
+const COMPATIBILITY_PROFILE := "realmz-7.1"
+const DOCUMENT_SCHEMA_VERSION := 1
 const REQUIRED_DOCUMENTS := [
 	"scenario",
 	"maps",
@@ -48,17 +51,16 @@ func load_from_directory(directory: String) -> bool:
 	manifest = manifest_value
 	if str(manifest.get("format", "")) != FORMAT:
 		return _fail("Unsupported classic campaign format: %s" % manifest.get("format", "<missing>"))
-	if int(manifest.get("formatVersion", 0)) != FORMAT_VERSION:
+	var format_version: Variant = manifest.get("formatVersion")
+	if not _is_integer(format_version) or int(format_version) != FORMAT_VERSION:
 		return _fail(
 			"Unsupported classic campaign format version: %s" % manifest.get("formatVersion", "<missing>")
 		)
+	if not _validate_manifest_contract():
+		return false
 
 	var file_map: Variant = manifest.get("files", {})
-	if not (file_map is Dictionary):
-		return _fail("campaign.json files must be a JSON object")
 	for document_name: String in REQUIRED_DOCUMENTS:
-		if not file_map.has(document_name):
-			return _fail("campaign.json is missing the '%s' document path" % document_name)
 		var document_value: Variant = _read_json(
 			root_directory.path_join(str(file_map[document_name]))
 		)
@@ -66,8 +68,277 @@ func load_from_directory(directory: String) -> bool:
 			return _fail("The '%s' classic document must contain a JSON object" % document_name)
 		documents[document_name] = document_value
 
+	if not _validate_document_contract():
+		return false
 	_build_indexes()
 	return true
+
+
+func _validate_manifest_contract() -> bool:
+	if str(manifest.get("campaignKind", "")) != CAMPAIGN_KIND:
+		return _fail("campaign.json campaignKind must be '%s'" % CAMPAIGN_KIND)
+	if str(manifest.get("compatibilityProfile", "")) != COMPATIBILITY_PROFILE:
+		return _fail(
+			"Unsupported classic compatibility profile: %s" % \
+			manifest.get("compatibilityProfile", "<missing>")
+		)
+	for field_name: String in ["id", "name"]:
+		var identity_value: Variant = manifest.get(field_name)
+		if not (identity_value is String) or identity_value.strip_edges().is_empty():
+			return _fail("campaign.json is missing the '%s' identity field" % field_name)
+
+	var start: Variant = manifest.get("start", {})
+	if not (start is Dictionary):
+		return _fail("campaign.json start must be a JSON object")
+	if str(start.get("levelType", "")) not in ["land", "dungeon"]:
+		return _fail("campaign.json start.levelType must be 'land' or 'dungeon'")
+	for field_name: String in ["levelIndex", "x", "y"]:
+		if not _is_nonnegative_integer(start.get(field_name)):
+			return _fail("campaign.json start.%s must be a non-negative integer" % field_name)
+
+	var file_map: Variant = manifest.get("files", {})
+	if not (file_map is Dictionary):
+		return _fail("campaign.json files must be a JSON object")
+	var seen_paths: Dictionary = {}
+	for document_name: String in REQUIRED_DOCUMENTS:
+		if not file_map.has(document_name):
+			return _fail("campaign.json is missing the '%s' document path" % document_name)
+		var path_value: Variant = file_map[document_name]
+		if not (path_value is String):
+			return _fail("campaign.json files.%s must be a string" % document_name)
+		var document_path: String = path_value
+		if not _is_safe_document_path(document_path):
+			return _fail(
+				"campaign.json files.%s must be a campaign-relative JSON path" % document_name
+			)
+		var normalized_path := document_path.replace("\\", "/")
+		var path_key := normalized_path.to_lower()
+		if seen_paths.has(path_key):
+			return _fail(
+				"campaign.json files.%s duplicates the path used by '%s'" % [
+					document_name,
+					seen_paths[path_key],
+				]
+			)
+		seen_paths[path_key] = document_name
+	return true
+
+
+func _validate_document_contract() -> bool:
+	for document_name: String in REQUIRED_DOCUMENTS:
+		var document: Variant = documents.get(document_name, {})
+		if not (document is Dictionary):
+			return _fail("The '%s' classic document must contain a JSON object" % document_name)
+		var schema_version: Variant = document.get("schemaVersion")
+		if not _is_integer(schema_version) or int(schema_version) != DOCUMENT_SCHEMA_VERSION:
+			return _fail(
+				"%s.schemaVersion must be %d, got %s" % [
+					document_name,
+					DOCUMENT_SCHEMA_VERSION,
+					document.get("schemaVersion", "<missing>"),
+				]
+			)
+
+	if not _validate_scenario_identity():
+		return false
+	for specification: Array in [
+		["scripts", "triggers", "id", true],
+		["scripts", "extraCodes", "id", false],
+		["scripts", "messages", "id", false],
+		["scripts", "randomLevels", "id", true],
+		["encounters", "battles", "id", false],
+		["encounters", "treasures", "id", false],
+		["encounters", "shops", "id", false],
+		["encounters", "simpleEncounters", "id", false],
+		["encounters", "complexEncounters", "id", false],
+		["encounters", "thiefEncounters", "id", false],
+		["content", "monsters", "id", false],
+		["content", "scenarioItems", "id", false],
+		["content", "itemTexts", "itemId", false],
+		["rules", "spellOverrides", "id", false],
+		["rules", "raceOverrides", "id", false],
+		["rules", "casteOverrides", "id", false],
+		["maps", "maps", "id", true],
+	]:
+		if not _validate_record_collection(
+			str(specification[0]),
+			str(specification[1]),
+			str(specification[2]),
+			bool(specification[3])
+		):
+			return false
+	if not _validate_trigger_actions():
+		return false
+	if documents["maps"].has("mapRecords") and not _validate_record_collection(
+		"maps", "mapRecords", "id", false
+	):
+		return false
+
+	var catalog: Variant = documents["assets"].get("catalog", {})
+	if not (catalog is Dictionary):
+		return _fail("assets.catalog must be a JSON object")
+	for specification: Array in [
+		["tilesets", "resourceId"],
+		["pictures", "resourceId"],
+		["icons", "resourceId"],
+		["sounds", "resourceId"],
+	]:
+		if not _validate_nested_record_collection(
+			"assets.catalog",
+			catalog,
+			str(specification[0]),
+			str(specification[1]),
+			false
+		):
+			return false
+
+	var semantic_decoding: Variant = documents["evidence"].get("semanticDecoding", {})
+	if semantic_decoding is Dictionary and semantic_decoding.has("dispatcherNoops"):
+		if not _validate_dispatcher_noops(semantic_decoding):
+			return false
+	return true
+
+
+func _validate_scenario_identity() -> bool:
+	var identity: Variant = documents["scenario"].get("identity", {})
+	if not (identity is Dictionary):
+		return _fail("scenario.identity must be a JSON object")
+	for field_name: String in ["id", "name"]:
+		var identity_value: Variant = identity.get(field_name)
+		if not (identity_value is String) or identity_value.strip_edges().is_empty():
+			return _fail("scenario.identity.%s must not be empty" % field_name)
+		if identity_value.strip_edges() != str(manifest[field_name]).strip_edges():
+			return _fail(
+				"scenario.identity.%s must match campaign.json %s" % [field_name, field_name]
+			)
+	return true
+
+
+func _validate_trigger_actions() -> bool:
+	var triggers: Variant = documents["scripts"].get("triggers", [])
+	if not (triggers is Array):
+		return false
+	for trigger_index: int in range(triggers.size()):
+		var trigger: Dictionary = triggers[trigger_index]
+		var trigger_context := "scripts.triggers[%d]" % trigger_index
+		if str(trigger.get("source", "")).strip_edges().is_empty():
+			return _fail("%s is missing source record context" % trigger_context)
+		if not _is_nonnegative_integer(trigger.get("recordIndex")):
+			return _fail("%s.recordIndex must be a non-negative integer" % trigger_context)
+		var actions: Variant = trigger.get("actions")
+		if not (actions is Array):
+			return _fail("%s.actions must be a JSON array" % trigger_context)
+		var seen_slots: Dictionary = {}
+		for action_index: int in range(actions.size()):
+			var action: Variant = actions[action_index]
+			var action_context := "%s.actions[%d]" % [trigger_context, action_index]
+			if not (action is Dictionary):
+				return _fail("%s must be a JSON object" % action_context)
+			if not _is_nonnegative_integer(action.get("slot")):
+				return _fail("%s.slot must be a non-negative integer" % action_context)
+			var slot := int(action["slot"])
+			if seen_slots.has(slot):
+				return _fail("%s duplicates action slot %d" % [action_context, slot])
+			seen_slots[slot] = action_index
+			for field_name: String in ["code", "rawCode", "id"]:
+				if not _is_integer(action.get(field_name)):
+					return _fail("%s.%s must be an integer" % [action_context, field_name])
+	return true
+
+
+func _validate_record_collection(
+	document_name: String,
+	collection_name: String,
+	identity_field: String,
+	string_identity: bool
+) -> bool:
+	return _validate_nested_record_collection(
+		document_name,
+		documents[document_name],
+		collection_name,
+		identity_field,
+		string_identity
+	)
+
+
+func _validate_nested_record_collection(
+	context: String,
+	container: Dictionary,
+	collection_name: String,
+	identity_field: String,
+	string_identity: bool
+) -> bool:
+	if not container.has(collection_name):
+		return true
+	var collection: Variant = container.get(collection_name)
+	if not (collection is Array):
+		return _fail("%s.%s must be a JSON array" % [context, collection_name])
+	var seen_identities: Dictionary = {}
+	for index: int in range(collection.size()):
+		var record: Variant = collection[index]
+		var record_context := "%s.%s[%d]" % [context, collection_name, index]
+		if not (record is Dictionary):
+			return _fail("%s must be a JSON object" % record_context)
+		var identity: Variant = record.get(identity_field)
+		if string_identity:
+			if not (identity is String) or identity.strip_edges().is_empty():
+				return _fail("%s is missing stable field '%s'" % [record_context, identity_field])
+		else:
+			if not _is_nonnegative_integer(identity):
+				return _fail(
+					"%s.%s must be a non-negative integer" % [record_context, identity_field]
+				)
+		var identity_key := str(identity)
+		if seen_identities.has(identity_key):
+			return _fail(
+				"%s duplicates %s '%s' from index %d" % [
+					record_context,
+					identity_field,
+					identity_key,
+					seen_identities[identity_key],
+				]
+			)
+		seen_identities[identity_key] = index
+	return true
+
+
+func _validate_dispatcher_noops(semantic_decoding: Dictionary) -> bool:
+	var rows: Variant = semantic_decoding.get("dispatcherNoops")
+	if not (rows is Array):
+		return _fail("evidence.semanticDecoding.dispatcherNoops must be a JSON array")
+	for index: int in range(rows.size()):
+		var row: Variant = rows[index]
+		var context := "evidence.semanticDecoding.dispatcherNoops[%d]" % index
+		if not (row is Dictionary):
+			return _fail("%s must be a JSON object" % context)
+		if str(row.get("source", "")).strip_edges().is_empty():
+			return _fail("%s is missing source record context" % context)
+		for field_name: String in ["recordIndex", "slot"]:
+			if not _is_nonnegative_integer(row.get(field_name)):
+				return _fail("%s.%s must be a non-negative integer" % [context, field_name])
+		if not _is_integer(row.get("rawCode")):
+			return _fail("%s.rawCode must be an integer" % context)
+	return true
+
+
+func _is_safe_document_path(path: String) -> bool:
+	var normalized := path.strip_edges().replace("\\", "/")
+	if normalized.is_empty() or normalized.is_absolute_path() or normalized.contains(":"):
+		return false
+	if normalized.get_extension().to_lower() != "json":
+		return false
+	for component: String in normalized.split("/", false):
+		if component in [".", ".."]:
+			return false
+	return true
+
+
+func _is_nonnegative_integer(value: Variant) -> bool:
+	return _is_integer(value) and int(value) >= 0
+
+
+func _is_integer(value: Variant) -> bool:
+	return (value is int or value is float) and is_equal_approx(float(value), float(int(value)))
 
 
 func get_trigger(trigger_id: String) -> Dictionary:

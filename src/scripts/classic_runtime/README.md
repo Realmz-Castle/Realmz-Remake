@@ -4,7 +4,8 @@ This directory contains a data-driven runtime proof of concept for normalized cl
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the ownership boundary between the
 compatibility runtime, Realmz Remake's native systems, and the optional dump
-importer path.
+importer path. [BUNDLE_CONTRACT.md](BUNDLE_CONTRACT.md) defines the versioned
+Providence-to-Remake runtime artifact.
 
 `ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicRuntimeState` owns classic quest flags, map position, view mode, priest-turning availability, per-map random-level settings, tile overrides, trigger-percentage overrides, acquired player maps, and persistent encounter and action-point replacements. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the low-level Godot `Node` facade. `ClassicRuntimeHost` drives that facade through an injected command adapter, and `ClassicGodotCommandAdapter` is the first Remake-facing adapter. That boundary can reuse existing Remake helpers wherever their behavior matches Classic while keeping compatibility-specific control flow inside the interpreter.
 
