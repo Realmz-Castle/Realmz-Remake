@@ -172,6 +172,7 @@ func _init() -> void:
 	_test_priest_turning_actions()
 	_test_combat_monster_presence_action()
 	_test_combat_monster_destruction_action()
+	_test_lower_undead_deanimation_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -1877,6 +1878,38 @@ func _test_combat_monster_destruction_action() -> void:
 	_expect_equal(combat_state.battle_dead_enemies.size(), 2, "only hostile removals enter battle rewards")
 
 
+func _test_lower_undead_deanimation_action() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("combat:deanimate"), "begin lower-undead deanimation fixture")
+	var command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(command.get("command"), "deanimate_lower_undead", "opcode 121 yields typed mutation")
+	_expect_equal(command.get("payload", {}).get("extraCodeId"), 0, "deanimation preserves Extra Code ID")
+	_expect_equal(command.get("payload", {}).get("monsterIds"), [17, 78], "deanimation selects lower undead IDs")
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		922,
+		"deanimation command continues to the next combat action"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var lower_enemy := CombatTestButton.new(CombatTestCreature.new("Skeletal Beast 17", 10))
+	var lower_ally := CombatTestButton.new(CombatTestCreature.new("Zombie 78", 10, 0))
+	var higher_undead := CombatTestButton.new(CombatTestCreature.new("Skeletal Giant 19", 10))
+	var living_creature := CombatTestButton.new(CombatTestCreature.new("Podling 42", 10))
+	var defeated_lower := CombatTestButton.new(CombatTestCreature.new("Skeletal Beast 17", 0))
+	var roster := [lower_enemy, lower_ally, higher_undead, living_creature, defeated_lower]
+	var selected: Array = adapter.select_classic_combatants_by_ids([17, 78], roster)
+	_expect_equal(selected, [lower_enemy, lower_ally], "deanimation ignores higher and defeated undead")
+	var combat_state := CombatTestState.new(roster)
+	_expect_equal(
+		adapter.remove_classic_combatants(combat_state, selected),
+		2,
+		"deanimation removes lower undead from every faction"
+	)
+	_expect_equal(combat_state.battle_dead_enemies, [lower_enemy.creature], "only hostile undead enter rewards")
+
+
 func _test_action_point_copy_mutations(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin CoB same-door action")
@@ -3230,7 +3263,7 @@ func _test_full_bundle(path: String) -> void:
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
 		93, 94, 95, 96, 97, 98, 106, 111, 112,
-		125, 127,
+		121, 125, 127,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -3242,8 +3275,21 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2233, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2703, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2234, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2704, "full CoB defined-behavior slots")
+
+	var deanimate_interpreter = _interpreter(bundle)
+	_expect(
+		deanimate_interpreter.begin_trigger("Data ED3:macro:107", 2),
+		"begin shipped CoB lower-undead deanimation"
+	)
+	var deanimate: Dictionary = deanimate_interpreter.run_until_yield()
+	_expect_equal(deanimate.get("command"), "deanimate_lower_undead", "shipped opcode 121 yields typed mutation")
+	var lower_undead_ids: Array = deanimate.get("payload", {}).get("monsterIds", [])
+	for lower_undead_id: int in [17, 65, 70, 75, 78, 84, 85, 86]:
+		_expect(lower_undead_ids.has(lower_undead_id), "shipped deanimation includes lower undead %d" % lower_undead_id)
+	for higher_undead_id: int in [19, 100, 135]:
+		_expect(not lower_undead_ids.has(higher_undead_id), "shipped deanimation protects higher undead %d" % higher_undead_id)
 
 	for shipped_destruction: Array in [
 		["Data ED3:macro:110", 2, 389, 37, 8],
@@ -3848,9 +3894,29 @@ func _party_state_test_bundle():
 func _combat_monster_test_bundle():
 	var bundle = BundleScript.new()
 	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
-	bundle.monsters_by_id[134] = {"id": 134, "displayName": "Rat Demi-Lord"}
+	bundle.monsters_by_id[17] = {
+		"id": 17,
+		"displayName": "Skeletal Beast",
+		"typeFlags": [0, 1, 0, 0, 0, 0, 0, 0],
+	}
+	bundle.monsters_by_id[19] = {
+		"id": 19,
+		"displayName": "Skeletal Giant",
+		"typeFlags": [0, 1, 0, 0, 0, 1, 0, 0],
+	}
+	bundle.monsters_by_id[78] = {
+		"id": 78,
+		"displayName": "Zombie",
+		"typeFlags": [0, 1, 0, 0, 0, 0, 0, 0],
+	}
+	bundle.monsters_by_id[134] = {
+		"id": 134,
+		"displayName": "Rat Demi-Lord",
+		"typeFlags": [0, 0, 0, 0, 0, 0, 0, 0],
+	}
 	bundle.messages_by_id[920] = {"id": 920, "text": "The fight continues."}
 	bundle.messages_by_id[921] = {"id": 921, "text": "The remaining enemies recoil."}
+	bundle.messages_by_id[922] = {"id": 922, "text": "The lower undead collapse."}
 	bundle.extra_codes_by_id[1] = {"id": 1, "values": [134, 0, 0, 0, 0]}
 	_add_stack_trigger(bundle, "combat:present", -1, [
 		_classic_action(0, 127, 134),
@@ -3859,6 +3925,10 @@ func _combat_monster_test_bundle():
 	_add_stack_trigger(bundle, "combat:destroy", -1, [
 		_classic_action(0, 125, 1),
 		_classic_action(1, 1, 921),
+	])
+	_add_stack_trigger(bundle, "combat:deanimate", -1, [
+		_classic_action(0, 121, 0),
+		_classic_action(1, 1, 922),
 	])
 	return bundle
 

@@ -112,6 +112,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _check_combat_monster(payload)
 		"destroy_combat_monsters":
 			return _destroy_combat_monsters(payload)
+		"deanimate_lower_undead":
+			return _deanimate_lower_undead(payload)
 		"add_party_ally":
 			return _add_classic_ally(payload)
 		"present_random_branch":
@@ -302,17 +304,10 @@ func party_has_classic_ally(payload: Dictionary, allies: Array) -> bool:
 
 
 func _check_combat_monster(payload: Dictionary) -> Dictionary:
-	var state_machine: Object = _autoload("StateMachine")
-	if state_machine == null or not state_machine.has_method("is_combat_state"):
-		return _error("Realmz combat state is unavailable")
-	if not bool(state_machine.is_combat_state()):
-		return _error("Classic combat-monster check ran outside a battle")
-	var combat_state: Variant = state_machine.get("combat_state")
-	var combatants: Variant = combat_state.get("all_battle_creatures_btns") \
-		if combat_state is Object else null
-	if not (combatants is Array):
-		return _error("Realmz combat roster is unavailable")
-	return {"present": combat_has_classic_monster(payload, combatants)}
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	return {"present": combat_has_classic_monster(payload, context["combatants"])}
 
 
 func combat_has_classic_monster(payload: Dictionary, combatants: Array) -> bool:
@@ -327,21 +322,42 @@ func combat_has_classic_monster(payload: Dictionary, combatants: Array) -> bool:
 
 
 func _destroy_combat_monsters(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var selected: Array = select_classic_combatants(payload, context["combatants"])
+	var removed: int = remove_classic_combatants(context["state"], selected)
+	if removed < 0:
+		return _error("Realmz combat removal API is unavailable")
+	return {"removed": removed}
+
+
+func _deanimate_lower_undead(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var monster_ids: Variant = payload.get("monsterIds", [])
+	if not (monster_ids is Array):
+		return _error("Classic lower-undead command has an invalid monster list")
+	var selected: Array = select_classic_combatants_by_ids(monster_ids, context["combatants"])
+	var removed: int = remove_classic_combatants(context["state"], selected)
+	if removed < 0:
+		return _error("Realmz combat removal API is unavailable")
+	return {"removed": removed}
+
+
+func _combat_context() -> Dictionary:
 	var state_machine: Object = _autoload("StateMachine")
 	if state_machine == null or not state_machine.has_method("is_combat_state"):
-		return _error("Realmz combat state is unavailable")
+		return {"error": "Realmz combat state is unavailable"}
 	if not bool(state_machine.is_combat_state()):
-		return _error("Classic combat destruction ran outside a battle")
+		return {"error": "Classic combat command ran outside a battle"}
 	var combat_state: Variant = state_machine.get("combat_state")
 	var combatants: Variant = combat_state.get("all_battle_creatures_btns") \
 		if combat_state is Object else null
 	if not (combatants is Array):
-		return _error("Realmz combat roster is unavailable")
-	var selected: Array = select_classic_combatants(payload, combatants)
-	var removed: int = remove_classic_combatants(combat_state, selected)
-	if removed < 0:
-		return _error("Realmz combat removal API is unavailable")
-	return {"removed": removed}
+		return {"error": "Realmz combat roster is unavailable"}
+	return {"state": combat_state, "combatants": combatants}
 
 
 func select_classic_combatants(payload: Dictionary, combatants: Array) -> Array:
@@ -362,6 +378,17 @@ func select_classic_combatants(payload: Dictionary, combatants: Array) -> Array:
 		selected.append(combatant_value)
 		if selected.size() >= max_matches:
 			break
+	return selected
+
+
+func select_classic_combatants_by_ids(monster_ids: Array, combatants: Array) -> Array:
+	var selected: Array = []
+	for combatant_value: Variant in combatants:
+		var creature: Variant = _combatant_creature(combatant_value)
+		if creature == null or not _is_living_combat_creature(creature):
+			continue
+		if monster_ids.has(_classic_monster_id(creature)):
+			selected.append(combatant_value)
 	return selected
 
 

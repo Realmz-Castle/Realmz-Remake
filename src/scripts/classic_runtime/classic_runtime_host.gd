@@ -105,7 +105,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
 		"set_priest_turning", \
 		"set_land_look", "give_battle_loot", "alter_party_items", \
-		"store_party_equipment", "add_party_ally", "destroy_combat_monsters", \
+		"store_party_equipment", "add_party_ally", \
+		"destroy_combat_monsters", "deanimate_lower_undead", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
 		_:

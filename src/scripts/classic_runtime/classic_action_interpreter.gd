@@ -535,6 +535,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			if not call_stack.is_empty():
 				call_stack.pop_back()
 			return _continue_result()
+		121:
+			return _execute_deanimate_lower_undead(record_id)
 		125:
 			return _execute_destroy_combat_monsters(record_id)
 		127:
@@ -577,6 +579,24 @@ func _execute_destroy_combat_monsters(extra_code_id: int) -> Dictionary:
 		"monster": bundle.get_monster(monster_id),
 		"maxMatches": max_matches,
 		"includeAllFactions": int(values[4]) != 0,
+	})
+
+
+func _execute_deanimate_lower_undead(extra_code_id: int) -> Dictionary:
+	var monster_ids: Array = []
+	for monster_value: Variant in bundle.monsters_by_id.values():
+		if not (monster_value is Dictionary):
+			continue
+		var type_flags: Variant = monster_value.get("typeFlags", [])
+		if not (type_flags is Array) or type_flags.size() <= 5:
+			continue
+		if int(type_flags[1]) == 0 or int(type_flags[5]) != 0:
+			continue
+		monster_ids.append(int(monster_value.get("id", -1)))
+	monster_ids.sort()
+	return _yield_result("deanimate_lower_undead", {
+		"extraCodeId": extra_code_id,
+		"monsterIds": monster_ids,
 	})
 
 
