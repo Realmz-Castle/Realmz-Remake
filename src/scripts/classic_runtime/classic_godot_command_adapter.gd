@@ -118,6 +118,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _deanimate_lower_undead(payload)
 		"rout_combat_monsters":
 			return _rout_combat_monsters(payload)
+		"activate_battle_round_macro":
+			return _activate_battle_round_macro(payload)
 		"end_classic_battle":
 			return await _end_classic_battle(payload)
 		"add_party_ally":
@@ -376,6 +378,27 @@ func _rout_combat_monsters(payload: Dictionary) -> Dictionary:
 	if routed < 0:
 		return _error("Realmz permanent fleeing trait is unavailable")
 	return {"routed": routed}
+
+
+func _activate_battle_round_macro(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var battle_data: Variant = context["state"].get("cur_battle_data")
+	if not apply_battle_round_macro_schedule(
+		battle_data,
+		bool(payload.get("disableSchedule", false))
+	):
+		return _error("Realmz battle-round schedule is unavailable")
+	return {"targetMacroId": int(payload.get("targetMacroId", -1))}
+
+
+func apply_battle_round_macro_schedule(battle_data: Variant, disable_schedule: bool) -> bool:
+	if not (battle_data is Dictionary):
+		return false
+	if disable_schedule:
+		battle_data["battleMacro"] = 0
+	return true
 
 
 func _end_classic_battle(payload: Dictionary) -> Dictionary:

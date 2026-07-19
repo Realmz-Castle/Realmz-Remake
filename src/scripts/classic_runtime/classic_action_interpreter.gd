@@ -39,7 +39,9 @@ var pending_item_check: Dictionary = {}
 var pending_party_condition_check: Dictionary = {}
 var pending_ally_check: Dictionary = {}
 var pending_combat_monster_check: Dictionary = {}
+var pending_battle_round_macro: Dictionary = {}
 var pending_random_branch: Dictionary = {}
+var execution_context: Dictionary = {}
 var encounter_origins: Array = []
 var loaded_simple_encounter_id := -1
 var loaded_complex_encounter_id := -1
@@ -78,18 +80,24 @@ func reset_execution() -> void:
 	pending_party_condition_check.clear()
 	pending_ally_check.clear()
 	pending_combat_monster_check.clear()
+	pending_battle_round_macro.clear()
 	pending_random_branch.clear()
+	execution_context.clear()
 	encounter_origins.clear()
 	trace.clear()
 	last_error = ""
 	halted = false
 
 
-func begin_trigger(trigger_id: String, start_slot := 0) -> bool:
+func begin_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 	reset_execution()
 	if bundle == null or runtime_state == null:
 		last_error = "ClassicActionInterpreter must be configured before execution"
 		return false
+	if not (context is Dictionary):
+		last_error = "Classic action execution context must be a dictionary"
+		return false
+	execution_context = context.duplicate(true)
 	var trigger := runtime_state.get_action_point_override(trigger_id)
 	if trigger.is_empty():
 		trigger = bundle.get_trigger(trigger_id)
@@ -122,6 +130,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic ally check must be resumed before execution can continue")
 	if not pending_combat_monster_check.is_empty():
 		return _error_result("A classic combat-monster check must be resumed before execution can continue")
+	if not pending_battle_round_macro.is_empty():
+		return _error_result("A classic battle-round macro must be resumed before execution can continue")
 	if not pending_random_branch.is_empty():
 		return _error_result("A classic random branch presentation must finish before execution can continue")
 
@@ -378,6 +388,17 @@ func resume_combat_monster_check(present: bool) -> Dictionary:
 	return _completed_result("required-combat-monster-absent")
 
 
+func resume_battle_round_macro() -> Dictionary:
+	if pending_battle_round_macro.is_empty():
+		return _error_result("No classic battle-round macro is waiting for activation")
+	var target_macro_id := int(pending_battle_round_macro["targetMacroId"])
+	pending_battle_round_macro.clear()
+	var branch_result := _branch_to_extra_action_point(target_macro_id, false, 0)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
+
+
 func resume_random_branch() -> Dictionary:
 	if pending_random_branch.is_empty():
 		return _error_result("No classic random branch is waiting for presentation")
@@ -553,6 +574,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_combat_rout(record_id)
 		125:
 			return _execute_destroy_combat_monsters(record_id)
+		126:
+			return _execute_battle_round_macro(record_id)
 		127:
 			return _execute_combat_monster_check(record_id)
 		_:
@@ -635,6 +658,61 @@ func _execute_combat_rout(extra_code_id: int) -> Dictionary:
 		"sameFactionAsActor": true,
 		"permanent": true,
 		"surrenderPercent": 50,
+	})
+
+
+func _execute_battle_round_macro(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Battle-round macro action references missing Extra Code row %d" % extra_code_id
+		)
+	if int(execution_context.get("battleMacro", -1)) > 0:
+		_clear_control_flow()
+		return _completed_result("legacy-battle-macro-disabled")
+	if not execution_context.has("combatRound"):
+		return _halt_with_error("Battle-round macro requires the current combat round")
+	var combat_round := int(execution_context["combatRound"])
+	if combat_round < 1:
+		return _halt_with_error("Battle-round macro requires a one-based combat round")
+	# Classic tests the number of completed rounds, not its one-based combat round.
+	var round_index := combat_round - 1
+	var trigger_mode := int(values[0])
+	var trigger_value := int(values[1])
+	var chance_roll := -1
+	var activates := true
+	if trigger_mode == 1:
+		chance_roll = _roll_percent()
+		activates = chance_roll <= trigger_value
+	elif trigger_mode == 0:
+		activates = round_index == trigger_value
+	if not activates:
+		_clear_control_flow()
+		return _completed_result("battle-round-macro-skipped")
+
+	var target_mode := int(values[2])
+	var first_target := int(values[3])
+	var last_target := int(values[4]) if target_mode == 2 else first_target
+	if last_target < first_target:
+		return _halt_with_error(
+			"Battle-round macro target range %d-%d is reversed" % [first_target, last_target]
+		)
+	var target_macro_id := randi_range(first_target, last_target)
+	if bundle.get_extra_action_point(target_macro_id).is_empty():
+		return _halt_with_error("Missing battle-round target macro %d" % target_macro_id)
+	pending_battle_round_macro = {"targetMacroId": target_macro_id}
+	return _yield_result("activate_battle_round_macro", {
+		"extraCodeId": extra_code_id,
+		"combatRound": combat_round,
+		"roundIndex": round_index,
+		"triggerMode": trigger_mode,
+		"triggerValue": trigger_value,
+		"chanceRoll": chance_roll,
+		"repeat": target_mode == 1,
+		"randomTarget": target_mode == 2,
+		"targetRange": [first_target, last_target],
+		"targetMacroId": target_macro_id,
+		"disableSchedule": target_mode != 1,
 	})
 
 

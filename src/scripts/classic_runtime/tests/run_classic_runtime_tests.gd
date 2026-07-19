@@ -135,6 +135,7 @@ class CombatTestState:
 	var all_battle_creatures_btns: Array
 	var battle_creatures_yet_to_act_btns: Array
 	var battle_dead_enemies: Array = []
+	var cur_battle_data: Dictionary = {"battleMacro": -1}
 
 	func _init(combatants: Array) -> void:
 		all_battle_creatures_btns = combatants.duplicate()
@@ -180,6 +181,7 @@ func _init() -> void:
 	_test_combat_monster_destruction_action()
 	_test_lower_undead_deanimation_action()
 	_test_combat_monster_rout_action()
+	_test_battle_round_macro_action()
 	_test_forced_battle_end_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
@@ -1963,6 +1965,98 @@ func _test_combat_monster_rout_action() -> void:
 		)
 
 
+func _test_battle_round_macro_action() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger("combat:round", 0, {"combatRound": 3, "battleMacro": -118}),
+		"begin exact-round battle macro fixture"
+	)
+	var activation: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		activation.get("command"),
+		"activate_battle_round_macro",
+		"opcode 126 yields typed activation"
+	)
+	_expect_equal(activation.get("payload", {}).get("roundIndex"), 2, "battle macro uses elapsed rounds")
+	_expect_equal(activation.get("payload", {}).get("targetMacroId"), 950, "battle macro selects target")
+	_expect(bool(activation.get("payload", {}).get("disableSchedule")), "one-shot macro disables schedule")
+	var target_result: Dictionary = interpreter.resume_battle_round_macro()
+	_expect_equal(target_result.get("command"), "show_text", "battle macro enters its target action point")
+	_expect_equal(target_result.get("payload", {}).get("messageId"), 925, "battle macro runs selected target")
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:round", 0, {"combatRound": 2, "battleMacro": -118})
+	var wrong_round: Dictionary = interpreter.run_until_yield()
+	_expect_equal(wrong_round.get("status"), "completed", "exact-round macro skips other rounds")
+	_expect_equal(wrong_round.get("reason"), "battle-round-macro-skipped", "round skip is explicit")
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 25)
+	interpreter.begin_trigger("combat:chance", 0, {"combatRound": 4, "battleMacro": -119})
+	var chance_activation: Dictionary = interpreter.run_until_yield()
+	_expect_equal(chance_activation.get("payload", {}).get("chanceRoll"), 25, "chance macro uses inclusive roll")
+	_expect(bool(chance_activation.get("payload", {}).get("repeat")), "repeating chance macro stays scheduled")
+	_expect(
+		not bool(chance_activation.get("payload", {}).get("disableSchedule")),
+		"repeating macro preserves schedule"
+	)
+	_expect_equal(
+		interpreter.resume_battle_round_macro().get("payload", {}).get("messageId"),
+		926,
+		"successful chance macro runs its target"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 26)
+	interpreter.begin_trigger("combat:chance", 0, {"combatRound": 4, "battleMacro": -119})
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"battle-round-macro-skipped",
+		"chance macro skips rolls above its threshold"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:random", 0, {"combatRound": 2, "battleMacro": -120})
+	var random_activation: Dictionary = interpreter.run_until_yield()
+	_expect(bool(random_activation.get("payload", {}).get("randomTarget")), "mode two selects a random macro")
+	_expect_equal(random_activation.get("payload", {}).get("targetMacroId"), 952, "singleton range is stable")
+	_expect_equal(
+		interpreter.resume_battle_round_macro().get("payload", {}).get("messageId"),
+		927,
+		"random battle macro runs its selected target"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:round", 0, {"combatRound": 3, "battleMacro": 118})
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"legacy-battle-macro-disabled",
+		"positive legacy battle macro is ignored"
+	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:round")
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"error",
+		"battle macro stops without round context"
+	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:round", 0, {"combatRound": 0})
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"error",
+		"battle macro rejects a zero-based round context"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var battle_data := {"battleMacro": -119}
+	_expect(adapter.apply_battle_round_macro_schedule(battle_data, false), "repeat schedule is accepted")
+	_expect_equal(battle_data.get("battleMacro"), -119, "repeat schedule remains active")
+	_expect(adapter.apply_battle_round_macro_schedule(battle_data, true), "one-shot schedule is accepted")
+	_expect_equal(battle_data.get("battleMacro"), 0, "one-shot schedule is disabled")
+
+
 func _test_forced_battle_end_action() -> void:
 	var bundle = _combat_monster_test_bundle()
 	var interpreter = _interpreter(bundle)
@@ -3352,7 +3446,7 @@ func _test_full_bundle(path: String) -> void:
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
 		93, 94, 95, 96, 97, 98, 100, 106, 111, 112,
-		121, 123, 125, 127,
+		121, 123, 125, 126, 127,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -3364,8 +3458,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2238, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2708, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2245, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2715, "full CoB defined-behavior slots")
 
 	var battle_end_interpreter = _interpreter(bundle)
 	_expect(
@@ -3402,6 +3496,47 @@ func _test_full_bundle(path: String) -> void:
 			rout.get("payload", {}).get("monsterIds"),
 			shipped_rout[3],
 			"shipped rout preserves monster IDs"
+		)
+
+	for shipped_round_macro: Array in [
+		["Data ED3:macro:117", 1, 415, 3, 118, false],
+		["Data ED3:macro:119", 0, 421, 2, 120, true],
+		["Data ED3:macro:121", 1, 430, 2, 122, true],
+		["Data ED3:macro:123", 0, 431, 2, 124, true],
+		["Data ED3:macro:126", 0, 426, 2, 127, true],
+		["Data ED3:macro:131", 1, 434, 2, 132, true],
+		["Data ED3:macro:134", 0, 438, 2, 130, false],
+	]:
+		var round_interpreter = _interpreter(bundle)
+		round_interpreter.set_percent_roll_provider(func() -> int: return 1)
+		_expect(
+			round_interpreter.begin_trigger(
+				shipped_round_macro[0],
+				shipped_round_macro[1],
+				{"combatRound": shipped_round_macro[3], "battleMacro": -1}
+			),
+			"begin shipped CoB battle-round macro %s" % shipped_round_macro[0]
+		)
+		var round_activation: Dictionary = round_interpreter.run_until_yield()
+		_expect_equal(
+			round_activation.get("command"),
+			"activate_battle_round_macro",
+			"shipped opcode 126 yields typed activation"
+		)
+		_expect_equal(
+			round_activation.get("payload", {}).get("extraCodeId"),
+			shipped_round_macro[2],
+			"shipped round macro preserves Extra Code ID"
+		)
+		_expect_equal(
+			round_activation.get("payload", {}).get("targetMacroId"),
+			shipped_round_macro[4],
+			"shipped round macro preserves target"
+		)
+		_expect_equal(
+			round_activation.get("payload", {}).get("repeat"),
+			shipped_round_macro[5],
+			"shipped round macro preserves repeat mode"
 		)
 
 	var deanimate_interpreter = _interpreter(bundle)
@@ -4058,8 +4193,14 @@ func _combat_monster_test_bundle():
 	bundle.messages_by_id[922] = {"id": 922, "text": "The lower undead collapse."}
 	bundle.messages_by_id[923] = {"id": 923, "text": "This action must not run after battle."}
 	bundle.messages_by_id[924] = {"id": 924, "text": "The routed creatures scatter."}
+	bundle.messages_by_id[925] = {"id": 925, "text": "The scheduled event begins."}
+	bundle.messages_by_id[926] = {"id": 926, "text": "The repeating event begins."}
+	bundle.messages_by_id[927] = {"id": 927, "text": "The random event begins."}
 	bundle.extra_codes_by_id[1] = {"id": 1, "values": [134, 0, 0, 0, 0]}
 	bundle.extra_codes_by_id[2] = {"id": 2, "values": [134, 42, 0, 0, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [0, 2, 0, 950, 0]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [1, 25, 1, 951, 0]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [2, 0, 2, 952, 952]}
 	_add_stack_trigger(bundle, "combat:present", -1, [
 		_classic_action(0, 127, 134),
 		_classic_action(1, 1, 920),
@@ -4076,6 +4217,12 @@ func _combat_monster_test_bundle():
 		_classic_action(0, 123, 2),
 		_classic_action(1, 1, 924),
 	])
+	_add_stack_trigger(bundle, "combat:round", -1, [_classic_action(0, 126, 3)])
+	_add_stack_trigger(bundle, "combat:chance", -1, [_classic_action(0, 126, 4)])
+	_add_stack_trigger(bundle, "combat:random", -1, [_classic_action(0, 126, 5)])
+	_add_stack_trigger(bundle, "Data ED3:macro:950", 950, [_classic_action(0, 1, 925)])
+	_add_stack_trigger(bundle, "Data ED3:macro:951", 951, [_classic_action(0, 1, 926)])
+	_add_stack_trigger(bundle, "Data ED3:macro:952", 952, [_classic_action(0, 1, 927)])
 	_add_stack_trigger(bundle, "combat:end", -1, [
 		_classic_action(0, 100, 0),
 		_classic_action(1, 1, 923),

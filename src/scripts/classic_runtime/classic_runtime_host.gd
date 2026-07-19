@@ -39,7 +39,7 @@ func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 		return false
 	command_context = context.duplicate(true)
 	active = true
-	if not runtime.activate_trigger(trigger_id, start_slot):
+	if not runtime.activate_trigger(trigger_id, start_slot, command_context):
 		active = false
 		return false
 	return true
@@ -106,6 +106,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Combat-monster adapter response is missing 'present'", command)
 				return
 			runtime.finish_combat_monster_check(bool(response["present"]))
+		"activate_battle_round_macro":
+			runtime.finish_battle_round_macro()
 		"present_random_branch":
 			runtime.finish_random_branch_presentation()
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \

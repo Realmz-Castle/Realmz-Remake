@@ -56,8 +56,8 @@ func set_difficulty(difficulty: int) -> void:
 	runtime_state.set_difficulty(difficulty)
 
 
-func activate_trigger(trigger_id: String, start_slot := 0) -> bool:
-	if not interpreter.begin_trigger(trigger_id, start_slot):
+func activate_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
+	if not interpreter.begin_trigger(trigger_id, start_slot, context):
 		last_result = {
 			"status": "error",
 			"message": interpreter.last_error,
@@ -102,6 +102,10 @@ func finish_ally_check(present: bool) -> void:
 
 func finish_combat_monster_check(present: bool) -> void:
 	_publish(interpreter.resume_combat_monster_check(present))
+
+
+func finish_battle_round_macro() -> void:
+	_publish(interpreter.resume_battle_round_macro())
 
 
 func finish_random_branch_presentation() -> void:
