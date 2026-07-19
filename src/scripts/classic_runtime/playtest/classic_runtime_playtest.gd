@@ -28,6 +28,7 @@ class CaveInSpell:
 @export_dir var campaign_directory := \
 	"res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 @export var trigger_id := "Data DD:0:0"
+@export var start_slot := 0
 @export var playtest_label := "guard-house"
 @export var test_rogue_stat := -1.0
 @export var test_rogue_hp := 30
@@ -75,7 +76,7 @@ func _start_playtest() -> void:
 	if not host.load_campaign(campaign_directory):
 		_show_status("Classic campaign load failed: %s" % host.runtime.bundle.last_error, true)
 		return
-	if not host.start_trigger(trigger_id):
+	if not host.start_trigger(trigger_id, start_slot):
 		_show_status("Classic trigger failed to start: %s" % trigger_id, true)
 		return
 	if automated_smoke:
@@ -104,6 +105,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if playtest_label == "experience":
+		await _run_experience_smoke()
+		return
 	if trigger_id == "Data DD:6:28":
 		await _run_complex_word_smoke()
 		return
@@ -156,6 +160,37 @@ func _run_automated_smoke() -> void:
 		"04_playthrough_complete",
 		"Classic guard-house playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host reports completed playthrough"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_experience_smoke() -> void:
+	var treasure_ready := await _wait_for_treasure()
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	var experience_before := character.exp_tnl
+	_verify_smoke_stage(
+		"01_experience_ui",
+		treasure_ready
+			and UI.ow_hud.treasureControl.exp_gain == 1500
+			and UI.ow_hud.treasureControl.itemsContainer.get_child_count() == 0,
+		"the source-backed experience total reaches Remake's loot UI"
+	)
+	if not treasure_ready:
+		get_tree().quit(1)
+		return
+	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+	await _wait_frames(5)
+	var patched_target: Dictionary = \
+		host.runtime.interpreter.runtime_state.get_action_point_override("Data DD:1:31")
+	var patched_actions: Array = patched_target.get("actions", [])
+	_verify_smoke_stage(
+		"02_experience_applied",
+		character.exp_tnl == experience_before - 1500
+			and "Classic experience playtest complete" \
+				in UI.ow_hud.textRect.textLabel.get_parsed_text()
+			and not patched_actions.is_empty()
+			and int(patched_actions[0].get("id", 0)) == 522,
+		"closing loot applies experience and completes the remaining action-point mutation"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 

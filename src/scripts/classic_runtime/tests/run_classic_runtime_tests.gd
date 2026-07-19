@@ -75,6 +75,7 @@ func _init() -> void:
 	_test_look_direction(bundle)
 	_test_view_modes_and_darkland(bundle)
 	_test_random_level_mutations(bundle)
+	_test_experience_award(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -382,6 +383,32 @@ func _test_random_level_mutations(bundle) -> void:
 	_expect_equal(missing_payload.get("rectIndex"), 18, "unused fixed rectangle index")
 	_expect_equal(missing_payload.get("previousRectangle", {}).get("percent"), 0, "unused rectangle baseline percent")
 	_expect_equal(missing_payload.get("rectangle", {}).get("battleRange"), [0, 0], "unused rectangle baseline range")
+
+
+func _test_experience_award(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:1:30", 4), "begin CoB experience award")
+	var experience_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(experience_result.get("command"), "give_experience", "experience command")
+	_expect_equal(
+		experience_result.get("payload", {}).get("experience"),
+		1500,
+		"experience command preserves the authored total"
+	)
+	var completed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(completed.get("status"), "completed", "experience sequence completes")
+	_expect_equal(completed.get("reason"), "action-point-ended", "experience sequence falls through")
+	var patched_target: Dictionary = interpreter.runtime_state.get_action_point_override("Data DD:1:31")
+	_expect_equal(
+		patched_target.get("actions", [])[0].get("id"),
+		522,
+		"experience sequence continues to its source-backed action-point patch"
+	)
+	_expect_equal(
+		bundle.get_trigger("Data DD:1:31").get("actions", [])[0].get("code"),
+		24,
+		"experience sequence leaves the compiled target immutable"
+	)
 
 
 func _test_evidence_backed_dispatcher_noop(bundle) -> void:
@@ -1710,7 +1737,7 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 19, 20, 23, 24, 25, 29, 35, 37,
+		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 19, 20, 23, 24, 25, 29, 35, 37,
 		39, 41, 42, 44, 45, 46, 47, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
@@ -1723,8 +1750,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2148, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2618, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2151, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2621, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1812,6 +1839,15 @@ func _test_runtime_host() -> void:
 	_expect_equal(adapter.commands[-1].get("payload", {}).get("messageId"), 867, "host continues after land-look change")
 	_expect_equal(host.runtime.runtime_state.get_landlook("land", 0, 0), 10, "host retains land-look override")
 	_expect_equal(completions.size(), 6, "host completes land-look action point")
+	_expect(host.start_trigger("Data DD:1:30", 4), "runtime host starts experience award")
+	_expect_equal(adapter.commands[-1].get("command"), "give_experience", "host dispatches experience award")
+	_expect_equal(adapter.commands[-1].get("payload", {}).get("experience"), 1500, "host preserves experience total")
+	_expect_equal(completions.size(), 7, "host completes experience action point")
+	_expect_equal(
+		host.runtime.runtime_state.get_action_point_override("Data DD:1:31").get("actions", [])[0].get("id"),
+		522,
+		"host continues through the following action-point patch"
+	)
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(

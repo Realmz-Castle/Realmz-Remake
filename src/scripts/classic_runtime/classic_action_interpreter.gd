@@ -248,6 +248,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _yield_result("play_sound", {"soundId": record_id})
 		10:
 			return _execute_treasure(record_id)
+		11:
+			return _yield_result("give_experience", {"experience": record_id})
 		12:
 			return _execute_tile_mutation(record_id)
 		13:

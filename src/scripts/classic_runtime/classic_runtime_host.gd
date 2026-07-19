@@ -74,7 +74,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				runtime.finish_battle(bool(response["coward"]))
 			else:
 				runtime.continue_after_command()
-		"show_text", "play_sound", "give_treasure", "give_map", "set_map_tile", \
+		"show_text", "play_sound", "give_treasure", "give_experience", \
+		"give_map", "set_map_tile", \
 		"set_trigger_percent", "teleport", "set_view_direction", \
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
 		"set_land_look", "give_battle_loot", \

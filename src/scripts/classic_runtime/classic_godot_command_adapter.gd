@@ -23,6 +23,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _play_sound(payload)
 		"give_treasure":
 			return await _give_treasure(payload)
+		"give_experience":
+			return await _give_experience(payload)
 		"give_map":
 			return await _give_player_map(payload)
 		_:
@@ -821,6 +823,18 @@ func _give_treasure(payload: Dictionary) -> Dictionary:
 		items,
 		delivery.get("money", [0, 0, 0]),
 		int(delivery.get("experience", 0))
+	)
+	return {}
+
+
+func _give_experience(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	await game_global.show_loot_menu(
+		[],
+		[0, 0, 0],
+		int(payload.get("experience", 0))
 	)
 	return {}
 

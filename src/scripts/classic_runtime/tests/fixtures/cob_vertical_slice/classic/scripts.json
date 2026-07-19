@@ -621,6 +621,43 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 30, "byteOffset": 5200, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:1:31",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 1,
+      "recordIndex": 31,
+      "active": true,
+      "doorid": 18234,
+      "landid": 1,
+      "targetX": 34,
+      "targetY": 82,
+      "percent": 100,
+      "coordinate": {"x": 34, "y": 82},
+      "actions": [
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 31, "byteOffset": 5240, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:70",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 70,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 522, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 2, "code": 2, "id": 257, "label": "Battle", "category": "combat", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 70, "byteOffset": 2800, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data ED3:macro:163",
       "source": "Data ED3",
       "levelType": null,
@@ -649,6 +686,7 @@
     {"id": 73, "values": [0, 27, 18, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 73, "byteOffset": 730, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 127, "values": [0, 17, 100, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 127, "byteOffset": 1270, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 255, "values": [1, 17, 900, 158, 163], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 255, "byteOffset": 2550, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 256, "values": [1, 31, 70, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 256, "byteOffset": 2560, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 269, "values": [0, 3, 28, 193, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 269, "byteOffset": 2690, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 364, "values": [1, 22, 73, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 364, "byteOffset": 3640, "byteLength": 10, "confidence": "source-backed"}},
@@ -866,6 +904,12 @@
       "text": "That will be one foul meal that shall go untasted.  Whatever could prey on helpless farmers and small children deserves this grave far more than this poor child.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 521, "byteOffset": 133376, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 522,
+      "text": "As you are leaving the cave you hear a loud roar behind you.  It comes from where you found the small child.  As you attempt to determine the identity of the creatures you see a group of large trolls running in your direction on flapping feet.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 522, "byteOffset": 133632, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 867,
