@@ -33,6 +33,10 @@ class GuardHouseAdapter:
 			return {"outcome": 4}
 		if command == "check_party_item":
 			return {"possessed": true}
+		if command == "check_party_condition":
+			return {"active": true}
+		if command == "check_party_ally":
+			return {"present": true}
 		return {}
 
 
@@ -90,6 +94,11 @@ class InventoryTestCharacter:
 		return true
 
 
+class AllyTestCharacter:
+	extends RefCounted
+	var name := "Vodalian"
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -119,6 +128,7 @@ func _init() -> void:
 	_test_shipped_opcode_25_mutation()
 	_test_opcode_25_xap_copy()
 	_test_modal_picture_actions()
+	_test_party_state_actions()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -162,6 +172,7 @@ func _test_bundle_indexes(bundle) -> void:
 	_expect_equal(bundle.get_thief_encounter(4).get("tumblers"), 2, "rogue encounter index")
 	_expect_equal(bundle.get_thief_encounter(1).get("highDamage"), 12, "rogue trap index")
 	_expect_equal(bundle.get_picture(32128), {}, "missing picture index")
+	_expect_equal(bundle.get_monster(71), {}, "missing monster index")
 
 
 func _test_text_and_encounter(bundle) -> void:
@@ -1503,6 +1514,153 @@ func _test_modal_picture_actions() -> void:
 	)
 
 
+func _test_party_state_actions() -> void:
+	var bundle = _party_state_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:condition"), "begin party-condition fixture")
+	var condition_check: Dictionary = interpreter.run_until_yield()
+	_expect_equal(condition_check.get("command"), "check_party_condition", "condition yields typed check")
+	_expect_equal(condition_check.get("payload", {}).get("conditionIndex"), 1, "condition preserves Waterworld index")
+	_expect(bool(condition_check.get("payload", {}).get("requiredActive")), "condition requests active state")
+	var condition_branch: Dictionary = interpreter.resume_party_condition_check(true)
+	_expect_equal(condition_branch.get("command"), "start_encounter", "active condition follows its branch")
+	_expect_equal(condition_branch.get("payload", {}).get("encounterKind"), "complex", "condition selects complex encounter")
+	_expect_equal(condition_branch.get("payload", {}).get("encounterId"), 8, "condition preserves encounter ID")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:condition"), "restart party-condition fixture")
+	interpreter.run_until_yield()
+	var condition_fallthrough: Dictionary = interpreter.resume_party_condition_check(false)
+	_expect_equal(condition_fallthrough.get("payload", {}).get("messageId"), 901, "inactive condition falls through")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:ally"), "begin ally-check fixture")
+	var ally_check: Dictionary = interpreter.run_until_yield()
+	_expect_equal(ally_check.get("command"), "check_party_ally", "ally action yields typed check")
+	_expect_equal(ally_check.get("payload", {}).get("monsterId"), 71, "ally check preserves monster ID")
+	_expect_equal(
+		ally_check.get("payload", {}).get("monster", {}).get("displayName"),
+		"Vodalian",
+		"ally check resolves compiled monster"
+	)
+	var ally_branch: Dictionary = interpreter.resume_ally_check(true)
+	_expect_equal(ally_branch.get("payload", {}).get("messageId"), 910, "present ally follows XAP branch")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:ally"), "restart ally-check fixture")
+	interpreter.run_until_yield()
+	var ally_fallthrough: Dictionary = interpreter.resume_ally_check(false)
+	_expect_equal(ally_fallthrough.get("payload", {}).get("messageId"), 902, "absent ally continues when requested")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:ally-message"), "begin absent-ally message fixture")
+	interpreter.run_until_yield()
+	var ally_message: Dictionary = interpreter.resume_ally_check(false)
+	_expect_equal(ally_message.get("payload", {}).get("messageId"), 903, "absent ally can show text and exit")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:add-ally"), "begin add-ally fixture")
+	var add_ally: Dictionary = interpreter.run_until_yield()
+	_expect_equal(add_ally.get("command"), "add_party_ally", "add ally yields typed mutation")
+	_expect_equal(add_ally.get("payload", {}).get("monsterId"), 71, "add ally preserves monster ID")
+	_expect_equal(add_ally.get("payload", {}).get("monster", {}).get("displayName"), "Vodalian", "add ally resolves monster")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:registration"), "begin registration fixture")
+	var registration_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(registration_result.get("payload", {}).get("messageId"), 904, "registration gate is a no-op")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:random-xap"), "begin random XAP fixture")
+	var random_presentation: Dictionary = interpreter.run_until_yield()
+	_expect_equal(random_presentation.get("command"), "present_random_branch", "random branch presents message and sound")
+	_expect_equal(random_presentation.get("payload", {}).get("targetId"), 500, "fixed random range selects its target")
+	_expect_equal(random_presentation.get("payload", {}).get("soundId"), 10105, "random branch preserves sound")
+	_expect_equal(random_presentation.get("payload", {}).get("messageId"), 905, "random branch preserves message")
+	var random_xap: Dictionary = interpreter.resume_random_branch()
+	_expect_equal(random_xap.get("payload", {}).get("messageId"), 910, "random branch resumes into XAP")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:random-gosub"), "begin random GOSUB fixture")
+	var random_gosub: Dictionary = interpreter.run_until_yield()
+	_expect_equal(random_gosub.get("payload", {}).get("messageId"), 912, "random GOSUB enters its XAP")
+	_expect_equal(interpreter.call_stack.size(), 1, "random GOSUB retains its return frame")
+	var random_return: Dictionary = interpreter.run_until_yield()
+	_expect_equal(random_return.get("payload", {}).get("messageId"), 911, "random GOSUB returns to its next action")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:random-simple"), "begin random simple fixture")
+	var random_simple: Dictionary = interpreter.run_until_yield()
+	_expect_equal(random_simple.get("payload", {}).get("encounterKind"), "simple", "random branch starts simple encounter")
+	_expect_equal(random_simple.get("payload", {}).get("encounterId"), 3, "random simple target is inclusive")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:random-complex"), "begin random complex fixture")
+	var random_complex: Dictionary = interpreter.run_until_yield()
+	_expect_equal(random_complex.get("payload", {}).get("encounterKind"), "complex", "random branch starts complex encounter")
+	_expect_equal(random_complex.get("payload", {}).get("encounterId"), 8, "random complex target is inclusive")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:random-missing"), "begin malformed random fixture")
+	var random_missing: Dictionary = interpreter.run_until_yield()
+	_expect_equal(random_missing.get("status"), "error", "missing random Extra Code is explicit")
+	_expect("-1700" in str(random_missing.get("message", "")), "missing random row retains signed ID")
+
+	var adapter = GodotAdapterScript.new()
+	_expect_equal(
+		adapter.party_condition_status(1, {"WaterBreath": {"Duration": 10}}, 0),
+		{"supported": true, "active": true},
+		"Waterworld maps to active WaterBreath"
+	)
+	_expect_equal(
+		adapter.party_condition_status(1, {"WaterBreath": {"Duration": 0}}, 0),
+		{"supported": true, "active": false},
+		"expired WaterBreath is inactive"
+	)
+	_expect_equal(
+		adapter.party_condition_status(0, {}, 5),
+		{"supported": true, "active": true},
+		"torch condition uses remaining light time"
+	)
+	_expect_equal(
+		adapter.party_condition_status(5, {}, 0),
+		{"supported": false, "active": false},
+		"Search remains an explicit unmapped condition"
+	)
+	var ally = AllyTestCharacter.new()
+	_expect(
+		adapter.party_has_classic_ally({"monsterId": 71, "monster": {"displayName": "Vodalian"}}, [ally]),
+		"native ally name can satisfy a Classic check"
+	)
+	ally.name = "Renamed Ally"
+	ally.set_meta("classic_monster_id", 71)
+	_expect(
+		adapter.party_has_classic_ally({"monsterId": 71, "monster": {"displayName": "Vodalian"}}, [ally]),
+		"imported Classic monster ID survives ally renaming"
+	)
+	_expect_equal(
+		adapter.resolve_classic_ally_bestiary_name(
+			71,
+			{"displayName": "Vodalian"},
+			{"Vodalian": {"data": {"name": "Vodalian"}}}
+		),
+		"Vodalian",
+		"ally resource resolves by exact display name"
+	)
+	_expect_equal(
+		adapter.resolve_classic_ally_bestiary_name(
+			71,
+			{"displayName": "Vodalian"},
+			{
+				"Vodalian": {"data": {"name": "Vodalian"}},
+				"Imported ally": {"data": {"name": "Other", "classicMonsterId": 71}},
+			}
+		),
+		"Imported ally",
+		"ally resource prefers explicit Classic monster ID"
+	)
+
+
 func _test_action_point_copy_mutations(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin CoB same-door action")
@@ -2834,6 +2992,8 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.battles_by_id.size(), 257, "full CoB battle index")
 	_expect_equal(bundle.treasures_by_id.size(), 76, "full CoB treasure index")
 	_expect_equal(bundle.shops_by_id.size(), 16, "full CoB shop index")
+	_expect_equal(bundle.monsters_by_id.size(), 155, "full CoB monster index")
+	_expect_equal(bundle.get_monster(71).get("displayName"), "Vodalian", "full CoB ally monster index")
 	_expect_equal(bundle.simple_encounters_by_id.size(), 20, "full CoB simple encounter index")
 	_expect_equal(bundle.complex_encounters_by_id.size(), 14, "full CoB complex encounter index")
 	_expect_equal(bundle.thief_encounters_by_id.size(), 8, "full CoB rogue encounter index")
@@ -2850,7 +3010,8 @@ func _test_full_bundle(path: String) -> void:
 	var handled_codes := [
 		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
-		39, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 93, 94, 95, 96, 97, 106, 111, 112,
+		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 85, 87, 89,
+		93, 94, 95, 96, 97, 98, 106, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -2862,8 +3023,81 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2215, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2685, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2222, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2692, "full CoB defined-behavior slots")
+
+	var condition_interpreter = _interpreter(bundle)
+	_expect(
+		condition_interpreter.begin_trigger("Data DD:3:15", 2),
+		"begin shipped CoB Waterworld branch"
+	)
+	var condition_check: Dictionary = condition_interpreter.run_until_yield()
+	_expect_equal(condition_check.get("command"), "check_party_condition", "shipped condition yields typed check")
+	_expect_equal(condition_check.get("payload", {}).get("conditionIndex"), 1, "shipped condition checks Waterworld")
+	var waterworld_branch: Dictionary = condition_interpreter.resume_party_condition_check(true)
+	_expect_equal(waterworld_branch.get("command"), "start_encounter", "active Waterworld follows shipped branch")
+	_expect_equal(waterworld_branch.get("payload", {}).get("encounterKind"), "complex", "Waterworld branch is complex")
+	_expect_equal(waterworld_branch.get("payload", {}).get("encounterId"), 8, "Waterworld branch preserves encounter ID")
+	condition_interpreter = _interpreter(bundle)
+	condition_interpreter.begin_trigger("Data DD:3:15", 2)
+	condition_interpreter.run_until_yield()
+	_expect_equal(
+		condition_interpreter.resume_party_condition_check(false).get("command"),
+		"set_trigger_percent",
+		"inactive Waterworld continues the shipped action point"
+	)
+
+	for shipped_ally_check: Array in [
+		["Data DD:0:82", 2, 71],
+		["Data ED3:macro:104", 7, 77],
+	]:
+		var ally_interpreter = _interpreter(bundle)
+		_expect(
+			ally_interpreter.begin_trigger(shipped_ally_check[0], shipped_ally_check[1]),
+			"begin shipped CoB ally check %s" % shipped_ally_check[0]
+		)
+		var ally_check: Dictionary = ally_interpreter.run_until_yield()
+		_expect_equal(ally_check.get("command"), "check_party_ally", "shipped ally yields typed check")
+		_expect_equal(
+			ally_check.get("payload", {}).get("monsterId"),
+			shipped_ally_check[2],
+			"shipped ally check preserves monster ID"
+		)
+
+	var add_ally_interpreter = _interpreter(bundle)
+	_expect(
+		add_ally_interpreter.begin_trigger("Data ED3:macro:103", 5),
+		"begin shipped CoB add-ally action"
+	)
+	var add_ally: Dictionary = add_ally_interpreter.run_until_yield()
+	_expect_equal(add_ally.get("command"), "add_party_ally", "shipped add ally yields typed mutation")
+	_expect_equal(add_ally.get("payload", {}).get("monsterId"), 71, "shipped add ally preserves Vodalian ID")
+
+	for shipped_registration: Array in [
+		["Data DD:0:37", 1, "keep-codes"],
+		["Data ED3:macro:106", 0, "action-point-ended"],
+	]:
+		var registration_interpreter = _interpreter(bundle)
+		_expect(
+			registration_interpreter.begin_trigger(shipped_registration[0], shipped_registration[1]),
+			"begin shipped CoB registration action %s" % shipped_registration[0]
+		)
+		var registration_result: Dictionary = registration_interpreter.run_until_yield()
+		_expect_equal(registration_result.get("status"), "completed", "registration action continues")
+		_expect_equal(
+			registration_result.get("reason"),
+			shipped_registration[2],
+			"registration action preserves surrounding flow"
+		)
+
+	var malformed_random_interpreter = _interpreter(bundle)
+	_expect(
+		malformed_random_interpreter.begin_trigger("Data ED3:macro:197", 7),
+		"begin malformed shipped CoB random branch"
+	)
+	var malformed_random: Dictionary = malformed_random_interpreter.run_until_yield()
+	_expect_equal(malformed_random.get("status"), "error", "malformed shipped random branch remains explicit")
+	_expect("-1700" in str(malformed_random.get("message", "")), "malformed random branch retains signed row ID")
 
 	for shipped_click: Array in [
 		["Data DD:7:55", 6],
@@ -3232,6 +3466,63 @@ func _interpreter(bundle):
 	var interpreter = InterpreterScript.new()
 	interpreter.configure(bundle, state)
 	return interpreter
+
+
+func _party_state_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.monsters_by_id[71] = {"id": 71, "displayName": "Vodalian"}
+	_add_stack_trigger(bundle, "party:condition", -1, [
+		_classic_action(0, 40, 1),
+		_classic_action(1, 1, 901),
+	])
+	_add_stack_trigger(bundle, "party:ally", -1, [
+		_classic_action(0, 87, 2),
+		_classic_action(1, 1, 902),
+	])
+	_add_stack_trigger(bundle, "party:ally-message", -1, [_classic_action(0, 87, 6)])
+	_add_stack_trigger(bundle, "party:add-ally", -1, [_classic_action(0, 89, 71)])
+	_add_stack_trigger(bundle, "party:registration", -1, [
+		_classic_action(0, 98, 0),
+		_classic_action(1, 1, 904),
+	])
+	_add_stack_trigger(bundle, "party:random-xap", -1, [_classic_action(0, 85, 3)])
+	_add_stack_trigger(bundle, "party:random-gosub", -1, [
+		_classic_action(0, -85, 7),
+		_classic_action(1, 1, 911),
+	])
+	_add_stack_trigger(bundle, "party:random-simple", -1, [_classic_action(0, 85, 4)])
+	_add_stack_trigger(bundle, "party:random-complex", -1, [_classic_action(0, 85, 5)])
+	_add_stack_trigger(bundle, "party:random-missing", -1, [_classic_action(0, 85, -1700)])
+	_add_stack_trigger(bundle, "Data ED3:macro:500", 500, [_classic_action(0, 1, 910)])
+	_add_stack_trigger(bundle, "Data ED3:macro:501", 501, [
+		_classic_action(0, 1, 912),
+		_classic_action(1, 111, 0),
+	])
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 3, 8, 1, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [71, 0, 1, 500, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [0, 500, 500, 10105, 905]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [1, 3, 3, 0, 0]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [2, 8, 8, 0, 0]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [71, 0, 2, 500, 903]}
+	bundle.extra_codes_by_id[7] = {"id": 7, "values": [0, 501, 501, 0, 0]}
+	bundle.simple_encounters_by_id[3] = {
+		"id": 3,
+		"actions": [],
+		"choiceResults": [1, 0, 0, 0],
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	bundle.complex_encounters_by_id[8] = {
+		"id": 8,
+		"actions": [],
+		"choiceResults": [1, 0, 0, 0],
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	for message_id: int in [901, 902, 903, 904, 905, 910, 911, 912]:
+		bundle.messages_by_id[message_id] = {"id": message_id, "text": "Message %d" % message_id}
+	return bundle
 
 
 func _random_level_mutation_test_bundle():

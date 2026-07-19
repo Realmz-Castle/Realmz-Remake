@@ -4,6 +4,18 @@ extends RefCounted
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
+const PARTY_CONDITION_NAMES := [
+	"Torch Lit",
+	"Waterworld",
+	"Dragon Hide",
+	"Discover Secret",
+	"Wizard Eye",
+	"Search",
+	"Free Fall",
+	"Sentry",
+	"Charm Resistance",
+	"Unused",
+]
 
 var bundle: ClassicCampaignBundle
 var runtime_state: ClassicRuntimeState
@@ -20,6 +32,9 @@ var pending_choice: Dictionary = {}
 var pending_encounter: Dictionary = {}
 var pending_battle: Dictionary = {}
 var pending_item_check: Dictionary = {}
+var pending_party_condition_check: Dictionary = {}
+var pending_ally_check: Dictionary = {}
+var pending_random_branch: Dictionary = {}
 var encounter_origins: Array = []
 var loaded_simple_encounter_id := -1
 var loaded_complex_encounter_id := -1
@@ -55,6 +70,9 @@ func reset_execution() -> void:
 	pending_encounter.clear()
 	pending_battle.clear()
 	pending_item_check.clear()
+	pending_party_condition_check.clear()
+	pending_ally_check.clear()
+	pending_random_branch.clear()
 	encounter_origins.clear()
 	trace.clear()
 	last_error = ""
@@ -92,6 +110,12 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic battle outcome must be resumed before execution can continue")
 	if not pending_item_check.is_empty():
 		return _error_result("A classic item check must be resumed before execution can continue")
+	if not pending_party_condition_check.is_empty():
+		return _error_result("A classic party-condition check must be resumed before execution can continue")
+	if not pending_ally_check.is_empty():
+		return _error_result("A classic ally check must be resumed before execution can continue")
+	if not pending_random_branch.is_empty():
+		return _error_result("A classic random branch presentation must finish before execution can continue")
 
 	for _step: int in MAX_INTERNAL_STEPS:
 		if current_trigger.is_empty():
@@ -282,6 +306,63 @@ func resume_item_check(possessed: bool) -> Dictionary:
 			return _halt_with_error("Classic item check has an invalid continuation")
 
 
+func resume_party_condition_check(active: bool) -> Dictionary:
+	if pending_party_condition_check.is_empty():
+		return _error_result("No classic party-condition check is waiting for a response")
+	var condition_check := pending_party_condition_check
+	pending_party_condition_check = {}
+	var values: Array = condition_check["values"]
+	var required_state := int(values[0])
+	var should_branch := (required_state == 1 and active) or (required_state == 2 and not active)
+	if not should_branch:
+		return run_until_yield()
+	var branch_mode := int(values[1])
+	if branch_mode < 1 or branch_mode > 3:
+		_set_cursor(current_trigger, 8)
+		return run_until_yield()
+	var branch_result := _branch_to_action_or_encounter(
+		branch_mode - 1,
+		int(values[2]),
+		bool(condition_check.get("gosub", false))
+	)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
+
+
+func resume_ally_check(present: bool) -> Dictionary:
+	if pending_ally_check.is_empty():
+		return _error_result("No classic ally check is waiting for a response")
+	var ally_check := pending_ally_check
+	pending_ally_check = {}
+	var values: Array = ally_check["values"]
+	if present:
+		return _resume_ally_branch(values, int(values[3]), ally_check)
+	match int(values[2]):
+		0:
+			return _resume_ally_branch(values, int(values[4]), ally_check)
+		1:
+			return run_until_yield()
+		2:
+			_clear_control_flow()
+			return _yield_result("show_text", {
+				"messageId": int(values[4]),
+				"message": bundle.get_message(int(values[4])),
+			})
+		_:
+			return _halt_with_error(
+				"Ally branch has invalid absent mode %d" % int(values[2])
+			)
+
+
+func resume_random_branch() -> Dictionary:
+	if pending_random_branch.is_empty():
+		return _error_result("No classic random branch is waiting for presentation")
+	var random_branch := pending_random_branch
+	pending_random_branch = {}
+	return _apply_random_branch(random_branch)
+
+
 func _execute_action(action: Dictionary) -> Dictionary:
 	var code := int(action.get("code", 0))
 	var record_id := int(action.get("id", 0))
@@ -377,6 +458,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			# Classic's Extend Door Codes replaces the active AP without pushing,
 			# even when its raw opcode is negative.
 			return _branch_to_extra_action_point(record_id, false, 0)
+		40:
+			return _execute_party_condition_branch(record_id, gosub_active)
 		41:
 			return _eliminate_simple_option_from_extra_code(record_id)
 		42:
@@ -403,12 +486,21 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_difficulty_branch(record_id)
 		73:
 			return _execute_restricted_shop(record_id)
+		85:
+			return _execute_random_branch(record_id, gosub_active)
+		87:
+			return _execute_ally_branch(record_id, gosub_active)
+		89:
+			return _execute_add_ally(record_id)
 		93, 94:
 			return _execute_compass(code == 93)
 		95:
 			return _execute_look_direction(record_id)
 		96, 97:
 			return _execute_map_view_mode(code == 97)
+		98:
+			# Registration gates have no effect in the open-source Classic runtime.
+			return _continue_result()
 		106:
 			return _execute_darkland(record_id)
 		111:
@@ -1526,6 +1618,137 @@ func _coordinate_from_door_id(door_id: int, level: int) -> Variant:
 
 func _is_map_action_point(action_point: Dictionary) -> bool:
 	return str(action_point.get("source", "")) in ["Data DD", "Data DDD"]
+
+
+func _execute_party_condition_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Party-condition branch references missing Extra Code row %d" % extra_code_id
+		)
+	var required_state := int(values[0])
+	if required_state not in [1, 2]:
+		return _halt_with_error(
+			"Party-condition branch has invalid state test %d" % required_state
+		)
+	var condition_index := int(values[3])
+	if condition_index < 0 or condition_index >= PARTY_CONDITION_NAMES.size():
+		return _halt_with_error(
+			"Party-condition branch has invalid condition index %d" % condition_index
+		)
+	pending_party_condition_check = {
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_party_condition", {
+		"extraCodeId": extra_code_id,
+		"conditionIndex": condition_index,
+		"conditionName": PARTY_CONDITION_NAMES[condition_index],
+		"requiredActive": required_state == 1,
+		"branchMode": int(values[1]),
+		"targetId": int(values[2]),
+	})
+
+
+func _execute_ally_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error("Ally branch references missing Extra Code row %d" % extra_code_id)
+	var monster_id := int(values[0])
+	var monster := bundle.get_monster(monster_id)
+	if monster.is_empty():
+		return _halt_with_error("Ally branch references missing monster %d" % monster_id)
+	pending_ally_check = {
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_party_ally", {
+		"extraCodeId": extra_code_id,
+		"monsterId": monster_id,
+		"monster": monster,
+	})
+
+
+func _execute_add_ally(monster_id: int) -> Dictionary:
+	var monster := bundle.get_monster(monster_id)
+	if monster.is_empty():
+		return _halt_with_error("Add-ally action references missing monster %d" % monster_id)
+	return _yield_result("add_party_ally", {
+		"monsterId": abs(monster_id),
+		"monster": monster,
+	})
+
+
+func _resume_ally_branch(values: Array, target_id: int, ally_check: Dictionary) -> Dictionary:
+	var branch_result := _branch_to_action_or_encounter(
+		int(values[1]),
+		target_id,
+		bool(ally_check.get("gosub", false))
+	)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
+
+
+func _execute_random_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Random branch references missing Extra Code row %d" % extra_code_id
+		)
+	var target_mode := int(values[0])
+	if target_mode < 0 or target_mode > 2:
+		return _halt_with_error("Random branch has invalid target mode %d" % target_mode)
+	var first_target := int(values[1])
+	var last_target := int(values[2])
+	if last_target < first_target:
+		return _halt_with_error(
+			"Random branch target range %d-%d is reversed" % [first_target, last_target]
+		)
+	var random_branch := {
+		"targetMode": target_mode,
+		"targetId": randi_range(first_target, last_target),
+		"gosub": gosub,
+	}
+	var sound_id := int(values[3])
+	var message_id := int(values[4])
+	if sound_id == 0 and message_id == 0:
+		return _apply_random_branch(random_branch)
+	pending_random_branch = random_branch
+	return _yield_result("present_random_branch", {
+		"extraCodeId": extra_code_id,
+		"targetMode": target_mode,
+		"targetRange": [first_target, last_target],
+		"targetId": int(random_branch["targetId"]),
+		"soundId": sound_id,
+		"messageId": message_id,
+		"message": bundle.get_message(message_id),
+	})
+
+
+func _apply_random_branch(random_branch: Dictionary) -> Dictionary:
+	var branch_result := _branch_to_action_or_encounter(
+		int(random_branch["targetMode"]),
+		int(random_branch["targetId"]),
+		bool(random_branch.get("gosub", false))
+	)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
+
+
+func _branch_to_action_or_encounter(target_mode: int, target_id: int, gosub: bool) -> Dictionary:
+	match target_mode:
+		0:
+			return _branch_to_extra_action_point(target_id, gosub, 0)
+		1, 2:
+			if gosub:
+				var push_result := _push_call_frame()
+				if str(push_result.get("status", "")) != "continue":
+					return push_result
+			return _execute_encounter("simple" if target_mode == 1 else "complex", target_id)
+		_:
+			return _halt_with_error("Unsupported classic branch target mode %d" % target_mode)
 
 
 func _execute_quest_branch(extra_code_id: int, gosub: bool) -> Dictionary:

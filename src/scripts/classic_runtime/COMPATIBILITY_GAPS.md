@@ -42,7 +42,7 @@ covered by a focused fixture or playtest.
 | Classic item identity | Resource gap | Fixture-proven | Shared ID mappings cover most stock, but authoritative bundles may not contain names for scenario-specific items. The adapter stops rather than dropping unresolved merchandise. | Every carried, awarded, required, and stocked item has an exported identity that resolves to a bundled or shared Remake resource. |
 | Equipment and item-state actions | Partial | Fixture-proven | Opcodes `21`, `22`, `36`, and `38` use native inventories and preserve carried, worn, charge, replacement, stored-equipment, and interim-loot behavior. Scenario-local item IDs still depend on exported names, and captured equipment is adapter-local rather than saved. | Every compiled item resolves to a native resource, and a normal save round trip preserves an active equipment capture. |
 | Modal map input and presentation | Partial | Source-backed | Get Click and Redraw Screen use the native HUD and map redraw path. Show Picture resolves exported files through the compiled PICT catalog, but the checked City of Bywater bundle does not include its decoded PICT 32128 image. Missing images produce a diagnostic and preserve progression. | The compiler exports every referenced picture, and a native playtest verifies click acknowledgement, persistent display, redraw, and continuation. |
-| Party, door, ally, and registration branches | Partial | Source-backed | Opcodes `40`, `85`, `87`, `89`, and `98` depend on state that is not yet exposed through the compatibility boundary. | Each branch or mutation reads and writes the matching live Remake state and has a shipped fixture covering both outcomes where applicable. |
+| Party conditions, random branches, allies, and registration | Partial | Fixture-proven | Opcode `40` reads mapped native effect state, and City of Bywater's Waterworld branch is covered. Opcode `85` implements valid random ranges, but its only City of Bywater record is malformed and remains diagnostic. Opcode `87` reads the live ally list; opcode `89` requires an exact compiled-to-native bestiary identity, which the shipped Vodalian does not yet have. Opcode `98` is a source-backed no-op. | Converted ally resources preserve Classic monster IDs through creation and a normal save round trip; malformed random records are reported at import; supported condition mappings and both ally outcomes have native playtests. |
 | Classic field-spell data | Resource gap | Fixture-proven | Field-spell actions work only when a mapped spell exists; Classic save adjustment and force-affect fields are preserved but unapplied. | Converted spell metadata and active Remake resources cover shipped spell IDs, including save adjustment, force-affect, and low-ID class distinctions. |
 | Complex-encounter special responses | Partial | Source-backed | Action, spoken, spell, item, lock, and trap responses work. Trap spells, scroll-as-spell items, and door-activation items remain unsupported. | Every response mode in the compiled complex-encounter schema selects, consumes, and persists its authored result correctly. |
 
@@ -61,14 +61,13 @@ presentation contains information needed for progression.
 
 ## Remaining City of Bywater opcode queue
 
-The checked City of Bywater bundle currently has 49 active action slots without
+The checked City of Bywater bundle currently has 42 active action slots without
 interpreter behavior. This is a prioritization queue, not a list of absent
 Remake features.
 
 | Area | Opcodes | Active slots | Likely integration boundary |
 | --- | --- | ---: | --- |
 | Combat and battle macros | `100`, `121`, `123`-`127` | 40 | Native combat and Classic battle context |
-| Party, door, ally, and registration state | `40`, `85`, `87`, `89`, `98` | 7 | Runtime state adapters |
 | Priest turning mode | `82`, `83` | 2 | Native combat state |
 
 Update this file when a boundary is discovered, reclassified, or completed.

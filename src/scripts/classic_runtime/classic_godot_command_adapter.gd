@@ -72,6 +72,17 @@ const CLASSIC_SPECIAL_STATS := {
 	11: "Pick_Lock",
 	13: "Turn_Undead",
 }
+# Classic's party-condition indexes use different names from Remake's saved
+# global effects. Search and the unused final slot have no native state yet.
+const CLASSIC_PARTY_EFFECTS := {
+	1: "WaterBreath",
+	2: "Shielded",
+	3: "Awareness",
+	4: "Scrying",
+	6: "FeatherFall",
+	7: "Sentry",
+	8: "CharmProt",
+}
 
 var classic_selected_characters: Array = []
 var stored_party_equipment: Dictionary = {}
@@ -93,6 +104,14 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _show_classic_picture(payload)
 		"redraw_map":
 			return _redraw_map()
+		"check_party_condition":
+			return _check_party_condition(payload)
+		"check_party_ally":
+			return _check_party_ally(payload)
+		"add_party_ally":
+			return _add_classic_ally(payload)
+		"present_random_branch":
+			return await _present_random_branch(payload)
 		"give_treasure":
 			return await _give_treasure(payload)
 		"give_experience":
@@ -216,6 +235,127 @@ func _redraw_map() -> Dictionary:
 	if not changed:
 		return {"status": "skipped", "message": "Realmz map display is unavailable"}
 	return {}
+
+
+func _check_party_condition(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz party state is unavailable")
+	var global_effects: Variant = game_global.get("global_effects")
+	if not (global_effects is Dictionary):
+		return _error("Realmz global-effect state is unavailable")
+	var result := party_condition_status(
+		int(payload.get("conditionIndex", -1)),
+		global_effects,
+		int(game_global.get("light_time"))
+	)
+	if not bool(result.get("supported", false)):
+		return _error(
+			"Classic party condition %d has no Remake state mapping" \
+				% int(payload.get("conditionIndex", -1))
+		)
+	return {"active": bool(result.get("active", false))}
+
+
+func party_condition_status(condition_index: int, global_effects: Dictionary, light_time: int) -> Dictionary:
+	if condition_index == 0:
+		return {"supported": true, "active": light_time > 0}
+	if not CLASSIC_PARTY_EFFECTS.has(condition_index):
+		return {"supported": false, "active": false}
+	var effect: Variant = global_effects.get(CLASSIC_PARTY_EFFECTS[condition_index], {})
+	var duration := int(effect.get("Duration", 0)) if effect is Dictionary else 0
+	return {"supported": true, "active": duration > 0}
+
+
+func _check_party_ally(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	var player_allies: Variant = game_global.get("player_allies") if game_global != null else null
+	if not (player_allies is Array):
+		return _error("Realmz ally state is unavailable")
+	return {"present": party_has_classic_ally(payload, player_allies)}
+
+
+func party_has_classic_ally(payload: Dictionary, allies: Array) -> bool:
+	var monster_id := int(payload.get("monsterId", -1))
+	var monster: Variant = payload.get("monster", {})
+	var display_name := str(monster.get("displayName", "")) if monster is Dictionary else ""
+	for ally_value: Variant in allies:
+		var ally_id := -1
+		var ally_name := ""
+		if ally_value is Object:
+			ally_id = int(ally_value.get_meta("classic_monster_id", -1))
+			ally_name = str(ally_value.get("name"))
+		elif ally_value is Dictionary:
+			ally_id = int(ally_value.get("classicMonsterId", -1))
+			ally_name = str(ally_value.get("name", ""))
+		if ally_id == monster_id:
+			return true
+		if not display_name.is_empty() and ally_name.to_lower() == display_name.to_lower():
+			return true
+	return false
+
+
+func _add_classic_ally(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	var player_allies: Variant = game_global.get("player_allies") if game_global != null else null
+	if not (player_allies is Array):
+		return _error("Realmz ally state is unavailable")
+	if player_allies.size() >= 20:
+		return {"status": "skipped", "message": "Classic ally limit of 20 has been reached"}
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	var creature_book: Variant = resources.get("crea_book") if resources != null else null
+	if not (creature_book is Dictionary):
+		return _error("Realmz bestiary resources are unavailable")
+	var monster: Variant = payload.get("monster", {})
+	if not (monster is Dictionary):
+		return _error("Classic ally command is missing its monster record")
+	var monster_id := int(payload.get("monsterId", -1))
+	var bestiary_name := resolve_classic_ally_bestiary_name(monster_id, monster, creature_book)
+	if bestiary_name.is_empty():
+		return _error("Classic ally %d (%s) has no matching Remake bestiary entry" % [
+			monster_id,
+			monster.get("displayName", "unnamed"),
+		])
+	var creature_script: Variant = game_global.get("combatCreatureGD")
+	if not (creature_script is Script):
+		return _error("Realmz creature script is unavailable")
+	var ally: Object = creature_script.new()
+	if not ally.has_method("initialize_from_bestiary_dict"):
+		return _error("Realmz creature cannot load a bestiary entry")
+	ally.initialize_from_bestiary_dict(bestiary_name)
+	ally.set_meta("classic_monster_id", monster_id)
+	game_global.add_npc_ally(ally)
+	return {"name": str(ally.get("name")), "monsterId": monster_id}
+
+
+func resolve_classic_ally_bestiary_name(
+	monster_id: int,
+	monster: Dictionary,
+	creature_book: Dictionary
+) -> String:
+	var display_name := str(monster.get("displayName", ""))
+	var name_match := ""
+	for bestiary_key: Variant in creature_book:
+		var entry: Variant = creature_book[bestiary_key]
+		if not (entry is Dictionary):
+			continue
+		var data: Variant = entry.get("data", {})
+		if not (data is Dictionary):
+			continue
+		if int(data.get("classicMonsterId", entry.get("classicMonsterId", -1))) == monster_id:
+			return str(bestiary_key)
+		var native_name := str(data.get("name", bestiary_key))
+		if not display_name.is_empty() and native_name.to_lower() == display_name.to_lower():
+			name_match = str(bestiary_key)
+	return name_match
+
+
+func _present_random_branch(payload: Dictionary) -> Dictionary:
+	_play_sound(payload)
+	if int(payload.get("messageId", 0)) == 0:
+		return {}
+	return await _show_text(payload)
 
 
 func _show_encounter(payload: Dictionary) -> Dictionary:

@@ -40,6 +40,7 @@ Implemented opcodes in this slice:
 - `37` Move between land and dungeon maps with Classic heading/view state
 - `38` Branch on an item-possession result
 - `39` Extend actions through a Data ED3 AP
+- `40` Branch on a live party condition
 - `41` Eliminate and persist an option in any simple encounter
 - `42` Branch on percent chance
 - `44` Eliminate and persist one complex-encounter result
@@ -52,11 +53,15 @@ Implemented opcodes in this slice:
 - `57` Change a land level's visual set and darkness
 - `58` Branch on Classic difficulty level
 - `73` Load a Classic shop with two item-acceptance ranges
+- `85` Branch to a random AP or encounter in an inclusive range
+- `87` Branch on whether a compiled monster is a party ally
+- `89` Add a compiled monster as a party ally
 - `93` Enable compass updates
 - `94` Disable compass updates
 - `95` Set or randomize the current view direction
 - `96` Require the 3D view
 - `97` Allow the full map view
+- `98` Continue past the open-source runtime's disabled registration gate
 - `106` Set per-map darkness
 - `111` Return from GOSUB
 - `112` Pop one GOSUB frame without returning
@@ -91,6 +96,8 @@ Percent branches use Classic's inclusive 1-100 roll. Their success action can re
 
 Difficulty branches compare their threshold with Classic's saved five-step difficulty setting, represented internally from `-2` (easiest) through `2` (hardest), with `0` as the default. They use the same success outcomes as percent branches. City of Bywater does not author opcode `58`, so this handler does not change its compatibility coverage count.
 
+Opcode `40` reads Classic party conditions through a small native-state mapping; City of Bywater's shipped use checks Waterworld against Remake's active WaterBreath effect before branching to complex encounter 8. Opcode `85` selects an inclusive random AP, simple encounter, or complex encounter and preserves its optional sound and message before branching. The only City of Bywater slot is inside malformed `Data ED3:macro:197` data and remains a signed missing-row diagnostic rather than being guessed into valid scenario logic. Opcodes `87` and `89` resolve compiled monster identities through the native ally list and bestiary. Existing allies can match an imported Classic monster ID or exact display name; adding one requires an exact native bestiary identity and records the Classic ID on the created ally. City of Bywater's Vodalian currently has no exact native bestiary entry, so that mutation stops at a visible resource boundary. Opcode `98` is intentionally a no-op because the open-source Classic dispatcher disables its registration check.
+
 Dungeon moves change the runtime's map family as well as its level and coordinates. Entering a dungeon preserves Classic's heading, multiview, and fixed-view fields; leaving for land keeps that dungeon view state dormant. The transfer ends the active action point immediately, matching the original map loader. The command is emitted through the existing typed teleport boundary, and remains an explicit adapter stop until compiled Classic maps have a native Remake map resource bridge.
 
 Look Direction updates that persisted heading and requests a native view refresh before the action point continues. Authored directions `1` through `4` are used directly; other values select one of those four directions at random, matching Classic. The Godot adapter leaves this command explicit until the same compiled-map bridge can redraw the party's view.
@@ -99,11 +106,11 @@ Compass and map-view actions preserve Classic's separate compass, multiview, and
 
 The complex-encounter adapter exposes the eight Classic action-text fields through Remake's existing HUD choice control and routes each selection to the record's shared action result. This covers the active non-rogue library, cave-in, and pool encounters in City of Bywater. Spoken responses reuse Remake's speech input and preserve Classic's case-insensitive, first-space-terminated prefix comparison; a mismatch selects Result 4. The City of Bywater archive at `Data DD:6:28` exercises its `waterford` response, grants player map 2, removes the successful response through opcode `44`, and reopens with its remaining choices. Positive map IDs use Classic's acquisition notice. Negative IDs display a compatible native Remake minimap when one exists, with the compiled map note as a fallback. Encounters with magic responses can open Remake's native spell picker, match the selected spell against the packed Classic IDs, consume its normal spell-point cost, and continue through the paired result block. Item responses similarly use Remake's encounter inventory picker and match the selected item's shared mapping or scenario item text against the five Classic response slots. Unmatched spells and items use Classic's Result 4 fallback. Low spell IDs `1` through `6` remain supported when a Remake spell supplies explicit Classic spell-class metadata; current shared spell resources do not yet preserve that field. Mixed rogue encounters keep action, spell, and item choices beside their `Data TD2` controls. The rogue resolver uses the selected character's Remake stat plus the Classic modifier, preserves Classic's 90-percent cap for interactive lock/trap actions, and routes success or failure into the four `Data ED2` result rows. Consumed rogue actions persist in runtime snapshots while the compiled record remains immutable. The source-backed CoB lock at `Data DD:5:12` exercises Detect Trap, Force Lock, Pick Lock, and the Necklace of Keys response. The trapped chest at `Data DD:5:3` applies its shipped 4-12 damage to the selected rogue, clears the armed state, and leaves Pick Lock available before continuing through result 2.
 
-Against the checked City of Bywater compatibility baseline, these handlers cover 2,215 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,685 slots, or 98.2% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters, resource bridges, and 49 action slots across additional opcodes remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
+Against the checked City of Bywater compatibility baseline, these handlers cover 2,222 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,692 slots, or 98.5% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters, resource bridges, and 42 action slots across additional opcodes remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
 
 The [compatibility gap register](COMPATIBILITY_GAPS.md) tracks required integration work and recommended fidelity improvements separately from opcode coverage.
 
-The interpreter will still stop explicitly when a selected encounter result contains an unsupported opcode. Compiled player-map records do not yet have a standalone Remake renderer, so display requests without compatible native minimap art fall back to the map note. Decoded scenario PICT files, trap spells, scroll-as-spell and door-activation encounter items, imported spell-class metadata, unmigrated field-spell resources, Classic spell save and force-affect modifiers, and the timed tumbler minigame also remain explicit boundaries. The original runtime's hidden developer command words are intentionally not exposed through scenario speech input. This keeps the compatibility boundary visible while more handlers are added.
+The interpreter will still stop explicitly when a selected encounter result contains an unsupported opcode. Compiled player-map records do not yet have a standalone Remake renderer, so display requests without compatible native minimap art fall back to the map note. Decoded scenario PICT files, trap spells, scroll-as-spell and door-activation encounter items, imported spell-class metadata, exact native identities for scenario allies, unmigrated field-spell resources, Classic spell save and force-affect modifiers, and the timed tumbler minigame also remain explicit boundaries. The original runtime's hidden developer command words are intentionally not exposed through scenario speech input. This keeps the compatibility boundary visible while more handlers are added.
 
 ## Godot guard-house playtest
 
@@ -121,7 +128,7 @@ Pass a compiled campaign directory after `--` to use the full converter output i
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
 ```
 
-This adapter intentionally handles text, yes/no prompts, character-panel selection, simple-encounter choices, complex action and spell responses, data-driven rogue encounters, selected and party health changes, Classic field-spell effects, Classic shops with resolved item resources, temple and banking availability, fixed treasure and standalone experience through Remake's loot UI, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, encounter, or battle resource adapters exist.
+This adapter intentionally handles text, yes/no prompts, character-panel selection, simple-encounter choices, complex action and spell responses, data-driven rogue encounters, selected and party health changes, party-condition and ally checks, Classic ally creation when an exact bestiary resource exists, Classic field-spell effects, Classic shops with resolved item resources, temple and banking availability, fixed treasure and standalone experience through Remake's loot UI, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, encounter, or battle resource adapters exist.
 
 This remains a compatibility playtest rather than an installed Remake campaign. Classic bundles are not yet discovered through `src/Campaigns`, selected from the campaign UI, or persisted through the native profile/save system. `ClassicRuntimeState` snapshots are currently standalone; a shipping integration must bridge classic quest, tile, trigger, and position state into Remake's save lifecycle.
 

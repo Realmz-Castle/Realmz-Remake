@@ -79,6 +79,18 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Item-check adapter response is missing 'possessed'", command)
 				return
 			runtime.finish_item_check(bool(response["possessed"]))
+		"check_party_condition":
+			if not response.has("active"):
+				_stop_with_error("Party-condition adapter response is missing 'active'", command)
+				return
+			runtime.finish_party_condition_check(bool(response["active"]))
+		"check_party_ally":
+			if not response.has("present"):
+				_stop_with_error("Ally-check adapter response is missing 'present'", command)
+				return
+			runtime.finish_ally_check(bool(response["present"]))
+		"present_random_branch":
+			runtime.finish_random_branch_presentation()
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
 		"pick_characters", "filter_selected_characters", "select_characters_by_misc", \
@@ -87,7 +99,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"set_trigger_percent", "teleport", "set_view_direction", \
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
 		"set_land_look", "give_battle_loot", "alter_party_items", \
-		"store_party_equipment", \
+		"store_party_equipment", "add_party_ally", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
 		_:
