@@ -87,6 +87,7 @@ func _init() -> void:
 	_test_encounter_lifecycle()
 	_test_simple_encounter_mutation()
 	_test_spoken_word_archive()
+	_test_percent_branching()
 	_test_complex_spell_results(bundle)
 	_test_complex_item_results(bundle)
 	_test_shipped_lock_encounter(bundle)
@@ -845,6 +846,118 @@ func _test_spoken_word_archive() -> void:
 	_expect(display_interpreter.runtime_state.is_map_owned(2), "displayed map is also acquired")
 
 
+func _test_percent_branching() -> void:
+	var archive_bundle = BundleScript.new()
+	_expect(
+		archive_bundle.load_from_directory(COB_SPOKEN_WORD_FIXTURE),
+		"CoB percent-branch fixture loads: %s" % archive_bundle.last_error
+	)
+	if not archive_bundle.last_error.is_empty():
+		return
+
+	var miss_interpreter = _interpreter(archive_bundle)
+	miss_interpreter.set_percent_roll_provider(func() -> int: return 100)
+	_expect(miss_interpreter.begin_trigger("Data DD:6:28"), "begin archive chance miss")
+	miss_interpreter.run_until_yield()
+	var study_message: Dictionary = miss_interpreter.resume_encounter(2)
+	_expect_equal(study_message.get("payload", {}).get("messageId"), 141, "chance path begins")
+	var missed: Dictionary = miss_interpreter.run_until_yield()
+	_expect_equal(missed.get("command"), "start_encounter", "failed chance falls through")
+	_expect_equal(
+		missed.get("payload", {}).get("remainingAttempts"),
+		124,
+		"failed chance uses the active encounter loop"
+	)
+
+	var hit_interpreter = _interpreter(archive_bundle)
+	hit_interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(hit_interpreter.begin_trigger("Data DD:6:28"), "begin archive chance hit")
+	hit_interpreter.run_until_yield()
+	hit_interpreter.resume_encounter(2)
+	var redirected: Dictionary = hit_interpreter.run_until_yield()
+	_expect_equal(
+		redirected.get("command"),
+		"start_encounter",
+		"successful chance follows the selected empty result row"
+	)
+	_expect_equal(
+		redirected.get("triggerId"),
+		"complex encounter:1:outcome:3",
+		"result redirection does not start another encounter"
+	)
+
+	var bundle = _percent_branch_test_bundle()
+	var interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger("chance:ed3"), "begin percent ED3 branch")
+	var ed3_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(ed3_result.get("payload", {}).get("messageId"), 500, "chance branches to ED3")
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger("Data DD:0:1"), "begin percent keep branch")
+	var kept: Dictionary = interpreter.run_until_yield()
+	_expect_equal(kept.get("reason"), "keep-codes", "chance keeps source action point")
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 1, 100),
+		100,
+		"kept chance branch remains active"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger("Data DD:0:2"), "begin percent consume branch")
+	var consumed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(consumed.get("reason"), "dropout-and-erase", "chance consumes source action point")
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 2, 100),
+		-1,
+		"consumed chance branch persists its disabled percent"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger("chance:slot-seven"), "begin percent dropout branch")
+	var slot_seven: Dictionary = interpreter.run_until_yield()
+	_expect_equal(slot_seven.get("payload", {}).get("messageId"), 501, "dropout executes slot seven")
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger("chance:simple"), "begin simple result redirect")
+	interpreter.run_until_yield()
+	var simple_redirect: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(
+		simple_redirect.get("payload", {}).get("messageId"),
+		502,
+		"chance selects the loaded simple result row"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger("chance:nested"), "begin nested result redirect")
+	interpreter.run_until_yield()
+	var nested_complex: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(nested_complex.get("payload", {}).get("encounterId"), 3, "simple result starts nested complex encounter")
+	var enclosing_simple: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(
+		enclosing_simple.get("payload", {}).get("messageId"),
+		503,
+		"nested complex result can select its loaded simple row"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger("Data DD:0:3"), "begin encounter chance consume")
+	interpreter.run_until_yield()
+	var repeated: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(repeated.get("command"), "start_encounter", "encounter chance dropout repeats")
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 3, 100),
+		100,
+		"encounter chance dropout does not consume the map action point"
+	)
+
+
 func _test_complex_spell_results(bundle) -> void:
 	var adapter = GodotAdapterScript.new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
@@ -1176,7 +1289,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
 		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 39,
-		41, 44, 45, 46, 47, 56, 111, 112,
+		41, 42, 44, 45, 46, 47, 56, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -1188,8 +1301,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2045, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2515, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2056, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2526, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1276,6 +1389,82 @@ func _interpreter(bundle):
 	var interpreter = InterpreterScript.new()
 	interpreter.configure(bundle, state)
 	return interpreter
+
+
+func _percent_branch_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "chance:ed3", -1, [_classic_action(0, 42, 1)])
+	_add_stack_trigger(bundle, "Data ED3:macro:50", 50, [_classic_action(0, 1, 500)])
+	_add_stack_trigger(bundle, "chance:slot-seven", -1, [
+		_classic_action(0, 42, 4),
+		_classic_action(7, 1, 501),
+	])
+	_add_stack_trigger(bundle, "chance:simple", -1, [_classic_action(0, 4, 1)])
+	_add_stack_trigger(bundle, "chance:nested", -1, [_classic_action(0, 4, 2)])
+	_add_percent_map_trigger(bundle, 1, [_classic_action(0, 42, 2)])
+	_add_percent_map_trigger(bundle, 2, [_classic_action(0, 42, 3)])
+	_add_percent_map_trigger(bundle, 3, [_classic_action(0, 5, 2)])
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [100, 1, 0, 50, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [100, 2, 0, 0, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [100, -2, 0, 0, 0]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [100, 1, -1, 0, 0]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [100, 1, 1, 1, 0]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [100, -2, 0, 0, 0]}
+	bundle.extra_codes_by_id[7] = {"id": 7, "values": [100, 1, 1, 1, 0]}
+	bundle.simple_encounters_by_id[1] = {
+		"id": 1,
+		"actions": [
+			_classic_action(0, 42, 5),
+			_classic_action(8, 1, 502),
+		],
+		"choiceResults": [1, 0, 0, 0],
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	bundle.simple_encounters_by_id[2] = {
+		"id": 2,
+		"actions": [
+			_classic_action(0, 5, 3),
+			_classic_action(8, 1, 503),
+		],
+		"choiceResults": [1, 0, 0, 0],
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	bundle.complex_encounters_by_id[2] = {
+		"id": 2,
+		"actions": [_classic_action(0, 42, 6)],
+		"choiceResults": [1, 0, 0, 0],
+		"maxTimes": 2,
+		"prompt": 0,
+	}
+	bundle.complex_encounters_by_id[3] = {
+		"id": 3,
+		"actions": [_classic_action(0, 42, 7)],
+		"choiceResults": [1, 0, 0, 0],
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	bundle.messages_by_id[500] = {"id": 500, "text": "ED3 branch"}
+	bundle.messages_by_id[501] = {"id": 501, "text": "Slot seven"}
+	bundle.messages_by_id[502] = {"id": 502, "text": "Simple result two"}
+	bundle.messages_by_id[503] = {"id": 503, "text": "Enclosing simple result"}
+	return bundle
+
+
+func _add_percent_map_trigger(bundle, record_index: int, actions: Array) -> void:
+	var trigger := {
+		"id": "Data DD:0:%d" % record_index,
+		"source": "Data DD",
+		"levelType": "land",
+		"levelIndex": 0,
+		"recordIndex": record_index,
+		"active": true,
+		"percent": 100,
+		"actions": actions,
+	}
+	bundle.triggers_by_id[trigger["id"]] = trigger
 
 
 func _opcode_25_test_bundle():

@@ -19,6 +19,9 @@ var pending_choice: Dictionary = {}
 var pending_encounter: Dictionary = {}
 var pending_battle: Dictionary = {}
 var encounter_origins: Array = []
+var loaded_simple_encounter_id := -1
+var loaded_complex_encounter_id := -1
+var percent_roll_provider: Callable
 var trace: Array = []
 var last_error := ""
 var halted := false
@@ -27,7 +30,13 @@ var halted := false
 func configure(campaign_bundle: ClassicCampaignBundle, state: ClassicRuntimeState) -> void:
 	bundle = campaign_bundle
 	runtime_state = state
+	loaded_simple_encounter_id = -1
+	loaded_complex_encounter_id = -1
 	reset_execution()
+
+
+func set_percent_roll_provider(provider: Callable) -> void:
+	percent_roll_provider = provider
 
 
 func reset_execution() -> void:
@@ -258,6 +267,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _branch_to_extra_action_point(record_id, false, 0)
 		41:
 			return _eliminate_simple_option_from_extra_code(record_id)
+		42:
+			return _execute_percent_branch(record_id)
 		44:
 			return _eliminate_complex_result(record_id)
 		56:
@@ -316,8 +327,10 @@ func _execute_encounter(encounter_kind: String, encounter_id: int, start_slot :=
 			"Missing %s encounter record %d" % [encounter_kind, encounter_id]
 		)
 	if encounter_kind == "simple":
+		loaded_simple_encounter_id = encounter_id
 		encounter = runtime_state.get_effective_simple_encounter(encounter)
 	elif encounter_kind == "complex":
+		loaded_complex_encounter_id = encounter_id
 		encounter = runtime_state.get_effective_complex_encounter(encounter)
 	var max_attempts := maxi(1, int(encounter.get("maxTimes", 1)))
 	encounter_origins.append({
@@ -710,11 +723,9 @@ func _repeat_encounter_after_fallthrough() -> Dictionary:
 
 func _persist_removed_action_point(consume_codes: bool) -> void:
 	var level_kind := str(origin_action_point.get("levelType", runtime_state.level_type))
-	var source_level := int(origin_action_point.get("levelIndex", runtime_state.level_index))
 	var record_index := int(origin_action_point.get("recordIndex", -1))
 	if consume_codes and record_index >= 0:
-		runtime_state.set_trigger_percent(level_kind, source_level, record_index, -1)
-		active_action_point_header["percent"] = -1
+		_set_origin_action_point_percent(-1)
 
 	var destination_level := int(active_action_point_header.get("landid", runtime_state.level_index))
 	var destination_x := int(active_action_point_header.get("targetX", runtime_state.x))
@@ -752,6 +763,18 @@ func _persist_removed_action_point(consume_codes: bool) -> void:
 	runtime_state.set_action_point_override(str(replacement["id"]), replacement)
 
 
+func _set_origin_action_point_percent(percent: int) -> void:
+	if origin_action_point.is_empty():
+		return
+	var record_index := int(origin_action_point.get("recordIndex", -1))
+	if record_index < 0:
+		return
+	var level_kind := str(origin_action_point.get("levelType", runtime_state.level_type))
+	var source_level := int(origin_action_point.get("levelIndex", runtime_state.level_index))
+	runtime_state.set_trigger_percent(level_kind, source_level, record_index, percent)
+	active_action_point_header["percent"] = percent
+
+
 func _map_action_point_id(level_kind: String, level: int, record_index: int) -> String:
 	var source := "Data DDD" if level_kind == "dungeon" else "Data DD"
 	return "%s:%d:%d" % [source, level, record_index]
@@ -783,6 +806,47 @@ func _execute_quest_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 	return _branch_from_extra_code(values, gosub)
 
 
+func _execute_percent_branch(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Percent branch references missing Extra Code row %d" % extra_code_id
+		)
+	var roll := _roll_percent()
+	if roll < 1 or roll > 100:
+		return _halt_with_error("Percent roll provider returned %d; expected 1 through 100" % roll)
+	if roll > int(values[0]):
+		return _continue_result()
+	match int(values[1]):
+		-2:
+			return _finish_percent_branch("dropout-and-erase", true)
+		1:
+			# Unlike quest branching, Classic does not push GOSUB here.
+			return _branch_from_extra_code(values, false)
+		2:
+			return _finish_percent_branch("keep-codes", false)
+		_:
+			return _continue_result()
+
+
+func _roll_percent() -> int:
+	if percent_roll_provider.is_valid():
+		return int(percent_roll_provider.call())
+	return randi_range(1, 100)
+
+
+func _finish_percent_branch(reason: String, consume_codes: bool) -> Dictionary:
+	var in_encounter := not encounter_origins.is_empty()
+	if consume_codes and not in_encounter:
+		_set_origin_action_point_percent(-1)
+	if in_encounter:
+		var repeated_encounter := _repeat_encounter_after_fallthrough()
+		if not repeated_encounter.is_empty():
+			return repeated_encounter
+	_clear_control_flow()
+	return _completed_result(reason)
+
+
 func _branch_from_extra_code(values: Array, gosub: bool) -> Dictionary:
 	if gosub:
 		var push_result := _push_call_frame()
@@ -790,12 +854,12 @@ func _branch_from_extra_code(values: Array, gosub: bool) -> Dictionary:
 			return push_result
 	match int(values[2]):
 		-1:
-			current_trigger = {}
-			return _completed_result("dropout")
+			_set_cursor(current_trigger, 7)
+			return _continue_result()
 		0:
 			return _branch_to_extra_action_point(int(values[3]), false, 0)
 		1, 2:
-			return _execute_encounter(
+			return _branch_to_loaded_encounter_result(
 				"simple" if int(values[2]) == 1 else "complex",
 				int(values[3]),
 				int(values[4])
@@ -804,6 +868,49 @@ func _branch_from_extra_code(values: Array, gosub: bool) -> Dictionary:
 			return _finish_action_point("keep-codes", false)
 		_:
 			return _halt_with_error("Unsupported classic branch mode %d" % int(values[2]))
+
+
+func _branch_to_loaded_encounter_result(
+	encounter_kind: String,
+	result_index: int,
+	start_slot: int
+) -> Dictionary:
+	if result_index < 0 or result_index > 3:
+		return _halt_with_error("Classic encounter result index must be between 0 and 3")
+	# Classic keeps the most recently loaded simple and complex records in
+	# separate buffers. A nested encounter can therefore branch back into its
+	# enclosing record without starting another encounter.
+	var encounter_id := (
+		loaded_simple_encounter_id
+		if encounter_kind == "simple"
+		else loaded_complex_encounter_id
+	)
+	if encounter_id < 0:
+		# Both Classic buffers are zeroed before their first load.
+		_set_cursor({
+			"id": "%s encounter:unloaded:outcome:%d" % [encounter_kind, result_index + 1],
+			"actions": [],
+		}, start_slot)
+		return _continue_result()
+	var encounter := bundle.get_encounter(encounter_kind, encounter_id)
+	if encounter.is_empty():
+		return _halt_with_error(
+			"Missing loaded %s encounter record %d" % [encounter_kind, encounter_id]
+		)
+	if encounter_kind == "simple":
+		encounter = runtime_state.get_effective_simple_encounter(encounter)
+	else:
+		encounter = runtime_state.get_effective_complex_encounter(encounter)
+	var target := _encounter_outcome_trigger(
+		encounter_kind,
+		encounter_id,
+		encounter,
+		result_index + 1
+	)
+	if target.is_empty():
+		return _halt_with_error("Classic encounter has no action array")
+	_set_cursor(target, start_slot)
+	return _continue_result()
 
 
 func _branch_to_extra_action_point(record_id: int, gosub: bool, start_slot: int) -> Dictionary:
