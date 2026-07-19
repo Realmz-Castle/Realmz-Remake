@@ -282,8 +282,14 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _continue_result()
 		58:
 			return _execute_difficulty_branch(record_id)
+		93, 94:
+			return _execute_compass(code == 93)
 		95:
 			return _execute_look_direction(record_id)
+		96, 97:
+			return _execute_map_view_mode(code == 97)
+		106:
+			return _execute_darkland(record_id)
 		111:
 			if call_stack.is_empty():
 				if remove_action_point:
@@ -728,6 +734,74 @@ func _execute_look_direction(requested_heading: int) -> Dictionary:
 		"heading": runtime_state.heading,
 		"requestedHeading": requested_heading,
 		"randomized": randomized,
+	})
+
+
+func _execute_compass(enabled: bool) -> Dictionary:
+	var previous := runtime_state.compass_enabled
+	runtime_state.set_compass_enabled(enabled)
+	return _yield_result("set_view_mode", {
+		"compassEnabled": enabled,
+		"multiView": runtime_state.multi_view,
+		"viewType": runtime_state.view_type,
+		"warningId": (98 if enabled else 99) if previous != enabled else 0,
+		"redraw": "walls",
+	})
+
+
+func _execute_map_view_mode(allow_map: bool) -> Dictionary:
+	var previous_multi_view := runtime_state.multi_view
+	var previous_view_type := runtime_state.view_type
+	if allow_map:
+		runtime_state.allow_full_map()
+	else:
+		runtime_state.require_3d_view()
+	return _yield_result("set_view_mode", {
+		"compassEnabled": runtime_state.compass_enabled,
+		"multiView": runtime_state.multi_view,
+		"viewType": runtime_state.view_type,
+		"previousViewType": previous_view_type,
+		"warningId": (
+			96 if allow_map and not previous_multi_view
+			else 97 if not allow_map and previous_multi_view
+			else 0
+		),
+		"redraw": "window" if not allow_map or runtime_state.view_type == 1 else "none",
+	})
+
+
+func _execute_darkland(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Set Darkland action references missing Extra Code row %d" % extra_code_id
+		)
+	var random_level := bundle.get_random_level(
+		runtime_state.level_type,
+		runtime_state.level_index
+	)
+	var fallback := 1 if bool(random_level.get("isDark", false)) else 0
+	var previous := runtime_state.get_darkland(
+		runtime_state.level_type,
+		runtime_state.level_index,
+		fallback
+	)
+	var darkness := int(values[0]) - 1
+	if int(values[1]) != 0 and previous == darkness:
+		_clear_control_flow()
+		return _completed_result("darkland-unchanged")
+	runtime_state.set_darkland(
+		runtime_state.level_type,
+		runtime_state.level_index,
+		darkness
+	)
+	return _yield_result("set_map_darkness", {
+		"extraCodeId": extra_code_id,
+		"levelType": runtime_state.level_type,
+		"levelIndex": runtime_state.level_index,
+		"previousDarkness": previous,
+		"darkness": darkness,
+		"dark": darkness != 0,
 	})
 
 

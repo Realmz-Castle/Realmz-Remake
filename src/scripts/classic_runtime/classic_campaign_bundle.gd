@@ -32,6 +32,7 @@ var complex_encounters_by_id: Dictionary = {}
 var thief_encounters_by_id: Dictionary = {}
 var maps_by_id: Dictionary = {}
 var player_maps_by_id: Dictionary = {}
+var random_levels_by_id: Dictionary = {}
 var dispatcher_noop_keys: Dictionary = {}
 
 
@@ -120,6 +121,10 @@ func get_player_map(map_id: int) -> Dictionary:
 	return player_maps_by_id.get(abs(map_id), {})
 
 
+func get_random_level(level_type: String, level_index: int) -> Dictionary:
+	return random_levels_by_id.get("%s:%d:randlevel" % [level_type, level_index], {})
+
+
 func get_start() -> Dictionary:
 	var start: Variant = manifest.get("start", {})
 	return start if start is Dictionary else {}
@@ -152,6 +157,7 @@ func _reset() -> void:
 	thief_encounters_by_id.clear()
 	maps_by_id.clear()
 	player_maps_by_id.clear()
+	random_levels_by_id.clear()
 	dispatcher_noop_keys.clear()
 
 
@@ -188,6 +194,12 @@ func _build_indexes() -> void:
 	for message: Variant in _array_value(script_document, "messages"):
 		if message is Dictionary:
 			messages_by_id[int(message.get("id", -1))] = message
+	for random_level: Variant in _array_value(script_document, "randomLevels"):
+		if not (random_level is Dictionary):
+			continue
+		var random_level_id := str(random_level.get("id", ""))
+		if not random_level_id.is_empty():
+			random_levels_by_id[random_level_id] = random_level
 
 	var encounter_document: Dictionary = documents["encounters"]
 	for battle: Variant in _array_value(encounter_document, "battles"):

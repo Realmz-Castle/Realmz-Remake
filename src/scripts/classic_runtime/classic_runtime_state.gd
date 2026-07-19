@@ -3,6 +3,8 @@ extends RefCounted
 
 const MIN_DIFFICULTY := -2
 const MAX_DIFFICULTY := 2
+const VIEW_MAP := -1
+const VIEW_3D := 1
 
 var quest_flags: Dictionary = {}
 var tile_overrides: Dictionary = {}
@@ -12,14 +14,16 @@ var thief_encounter_overrides: Dictionary = {}
 var simple_encounter_overrides: Dictionary = {}
 var complex_encounter_overrides: Dictionary = {}
 var owned_maps: Dictionary = {}
+var darkland_overrides: Dictionary = {}
 var difficulty := 0
 var level_type := "land"
 var level_index := 0
 var x := 0
 var y := 0
 var heading := 0
-var multi_view := true
-var view_type := false
+var multi_view := false
+var view_type := VIEW_3D
+var compass_enabled := true
 
 
 func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
@@ -31,6 +35,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	owned_maps.clear()
+	darkland_overrides.clear()
 	difficulty = 0
 	var start := bundle.get_start()
 	level_type = str(start.get("levelType", "land"))
@@ -38,8 +43,9 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	x = int(start.get("x", 0))
 	y = int(start.get("y", 0))
 	heading = 0
-	multi_view = true
-	view_type = false
+	multi_view = false
+	view_type = VIEW_3D
+	compass_enabled = true
 
 
 func set_quest_flag(signed_quest_id: int) -> void:
@@ -75,11 +81,32 @@ func set_heading(new_heading: int) -> void:
 	heading = new_heading
 
 
+func set_compass_enabled(enabled: bool) -> void:
+	compass_enabled = enabled
+
+
+func require_3d_view() -> void:
+	multi_view = false
+	view_type = VIEW_3D
+
+
+func allow_full_map() -> void:
+	multi_view = true
+
+
 func set_dungeon_view(new_heading: int, new_multi_view: bool) -> void:
 	set_heading(abs(new_heading))
 	multi_view = new_multi_view
 	if not multi_view:
-		view_type = true
+		view_type = VIEW_3D
+
+
+func set_darkland(level_kind: String, map_level: int, darkness: int) -> void:
+	darkland_overrides[_map_key(level_kind, map_level)] = darkness
+
+
+func get_darkland(level_kind: String, map_level: int, fallback: int) -> int:
+	return int(darkland_overrides.get(_map_key(level_kind, map_level), fallback))
 
 
 func set_tile(level_kind: String, map_level: int, tile_x: int, tile_y: int, tile_value: int) -> void:
@@ -198,6 +225,7 @@ func snapshot() -> Dictionary:
 		"simpleEncounterOverrides": simple_encounter_overrides.duplicate(true),
 		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
 		"ownedMaps": owned_maps.duplicate(true),
+		"darklandOverrides": darkland_overrides.duplicate(true),
 		"difficulty": difficulty,
 		"position": {
 			"levelType": level_type,
@@ -207,6 +235,7 @@ func snapshot() -> Dictionary:
 			"heading": heading,
 			"multiView": multi_view,
 			"viewType": view_type,
+			"compassEnabled": compass_enabled,
 		},
 	}
 
@@ -220,6 +249,7 @@ func restore(saved_state: Dictionary) -> void:
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	owned_maps.clear()
+	darkland_overrides.clear()
 	var saved_flags: Variant = saved_state.get("questFlags", {})
 	if saved_flags is Dictionary:
 		for quest_id: Variant in saved_flags:
@@ -254,6 +284,7 @@ func restore(saved_state: Dictionary) -> void:
 	if saved_maps is Dictionary:
 		for map_id: Variant in saved_maps:
 			owned_maps[str(map_id)] = bool(saved_maps[map_id])
+	_restore_dictionary(saved_state.get("darklandOverrides", {}), darkland_overrides)
 	set_difficulty(int(saved_state.get("difficulty", 0)))
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
@@ -262,8 +293,9 @@ func restore(saved_state: Dictionary) -> void:
 		x = int(position.get("x", 0))
 		y = int(position.get("y", 0))
 		heading = int(position.get("heading", 0))
-		multi_view = bool(position.get("multiView", true))
-		view_type = bool(position.get("viewType", false))
+		multi_view = bool(position.get("multiView", false))
+		view_type = int(position.get("viewType", VIEW_3D))
+		compass_enabled = bool(position.get("compassEnabled", true))
 
 
 func _restore_dictionary(saved_value: Variant, target: Dictionary) -> void:
@@ -279,3 +311,7 @@ func _tile_key(level_kind: String, map_level: int, tile_x: int, tile_y: int) -> 
 
 func _trigger_key(level_kind: String, map_level: int, trigger_id: int) -> String:
 	return "%s:%d:%d" % [level_kind, map_level, trigger_id]
+
+
+func _map_key(level_kind: String, map_level: int) -> String:
+	return "%s:%d" % [level_kind, map_level]

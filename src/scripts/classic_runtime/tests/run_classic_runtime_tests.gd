@@ -73,6 +73,7 @@ func _init() -> void:
 	_test_teleport(bundle)
 	_test_dungeon_move(bundle)
 	_test_look_direction(bundle)
+	_test_view_modes_and_darkland(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -179,7 +180,7 @@ func _test_dungeon_move(bundle) -> void:
 	_expect_equal(single_view.get("levelIndex"), 1, "single-view dungeon level")
 	_expect_equal(single_view.get("heading"), 4, "negative heading is stored as absolute")
 	_expect_equal(single_view.get("multiView"), false, "negative heading disables multiview")
-	_expect_equal(single_view.get("viewType"), true, "negative heading selects fixed view")
+	_expect_equal(single_view.get("viewType"), StateScript.VIEW_3D, "negative heading selects fixed view")
 
 	interpreter = _interpreter(bundle)
 	interpreter.runtime_state.set_location("dungeon", 0, 32, 72)
@@ -223,6 +224,71 @@ func _test_look_direction(bundle) -> void:
 		int(random_payload.get("heading", 0)) >= 1 and int(random_payload.get("heading", 0)) <= 4,
 		"random look direction stays within Classic's four headings"
 	)
+
+
+func _test_view_modes_and_darkland(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:7:72", 1), "begin CoB compass-off action")
+	var compass_off: Dictionary = interpreter.run_until_yield()
+	_expect_equal(compass_off.get("command"), "set_view_mode", "compass-off command")
+	_expect_equal(compass_off.get("payload", {}).get("compassEnabled"), false, "compass disabled")
+	_expect_equal(compass_off.get("payload", {}).get("warningId"), 99, "compass-off warning")
+	_expect_equal(compass_off.get("payload", {}).get("redraw"), "walls", "compass redraws walls")
+	_expect_equal(interpreter.runtime_state.compass_enabled, false, "compass state updated")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "keep-codes", "compass action continues")
+
+	_expect(interpreter.begin_trigger("Data DD:7:73"), "begin CoB compass-on action")
+	var compass_on: Dictionary = interpreter.run_until_yield()
+	_expect_equal(compass_on.get("payload", {}).get("compassEnabled"), true, "compass enabled")
+	_expect_equal(compass_on.get("payload", {}).get("warningId"), 98, "compass-on warning")
+	_expect_equal(interpreter.runtime_state.compass_enabled, true, "enabled compass persists")
+
+	_expect(interpreter.begin_trigger("Data DD:7:85"), "begin CoB allow-map action")
+	var allow_map: Dictionary = interpreter.run_until_yield()
+	_expect_equal(allow_map.get("command"), "set_view_mode", "allow-map command")
+	_expect_equal(allow_map.get("payload", {}).get("multiView"), true, "allow map enables multiview")
+	_expect_equal(allow_map.get("payload", {}).get("viewType"), StateScript.VIEW_3D, "allow map preserves current view")
+	_expect_equal(allow_map.get("payload", {}).get("warningId"), 96, "allow-map warning")
+
+	_expect(interpreter.begin_trigger("Data DD:7:84"), "begin CoB require-3D action")
+	var require_3d: Dictionary = interpreter.run_until_yield()
+	_expect_equal(require_3d.get("payload", {}).get("multiView"), false, "require 3D disables multiview")
+	_expect_equal(require_3d.get("payload", {}).get("viewType"), StateScript.VIEW_3D, "require 3D selects 3D view")
+	_expect_equal(require_3d.get("payload", {}).get("warningId"), 97, "require-3D warning")
+
+	interpreter.runtime_state.view_type = StateScript.VIEW_MAP
+	_expect(interpreter.begin_trigger("Data DD:7:84"), "begin require-3D from map view")
+	var leave_map: Dictionary = interpreter.run_until_yield()
+	_expect_equal(leave_map.get("payload", {}).get("previousViewType"), StateScript.VIEW_MAP, "map view uses signed Classic state")
+	_expect_equal(leave_map.get("payload", {}).get("viewType"), StateScript.VIEW_3D, "map view returns to 3D")
+	_expect_equal(leave_map.get("payload", {}).get("warningId"), 0, "unchanged multiview has no warning")
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("land", 4, 87, 27)
+	_expect_equal(bundle.get_random_level("land", 4).get("isDark"), false, "fixture random-level baseline")
+	_expect(interpreter.begin_trigger("Data DD:4:43", 1), "begin unchanged CoB darkland action")
+	var unchanged_darkland: Dictionary = interpreter.run_until_yield()
+	_expect_equal(unchanged_darkland.get("status"), "completed", "unchanged darkland completes")
+	_expect_equal(unchanged_darkland.get("reason"), "darkland-unchanged", "unchanged darkland stops action point")
+	_expect_equal(interpreter.trace.size(), 1, "unchanged darkland skips later text")
+
+	_expect(interpreter.begin_trigger("Data DD:4:46", 2), "begin CoB darken-land action")
+	var darken: Dictionary = interpreter.run_until_yield()
+	_expect_equal(darken.get("command"), "set_map_darkness", "darkland command")
+	_expect_equal(darken.get("payload", {}).get("previousDarkness"), 0, "darkland uses random-level baseline")
+	_expect_equal(darken.get("payload", {}).get("darkness"), 1, "darkland stores authored value")
+	_expect_equal(darken.get("payload", {}).get("dark"), true, "darkland adapter flag")
+	_expect_equal(interpreter.runtime_state.get_darkland("land", 4, 0), 1, "darkness persists by map")
+	var dark_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(dark_text.get("payload", {}).get("messageId"), 849, "darkland continues to authored text")
+
+	_expect(interpreter.begin_trigger("Data DD:4:43", 1), "begin CoB lighten-land action")
+	var lighten: Dictionary = interpreter.run_until_yield()
+	_expect_equal(lighten.get("payload", {}).get("previousDarkness"), 1, "lightland sees runtime override")
+	_expect_equal(lighten.get("payload", {}).get("darkness"), 0, "lightland clears darkness")
+	var light_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(light_text.get("payload", {}).get("messageId"), -848, "lightland keeps authored text mode")
+	_expect_equal(light_text.get("payload", {}).get("message", {}).get("id"), 848, "lightland resolves authored text")
 
 
 func _test_evidence_backed_dispatcher_noop(bundle) -> void:
@@ -1380,6 +1446,10 @@ func _test_state_snapshot(bundle) -> void:
 	state.set_quest_flag(20)
 	state.set_location("dungeon", 5, 6, 83)
 	state.set_dungeon_view(4, false)
+	state.set_compass_enabled(false)
+	state.view_type = StateScript.VIEW_MAP
+	state.set_darkland("land", 4, 1)
+	state.set_darkland("dungeon", 0, -1)
 	state.set_tile("land", 0, 3, 28, 193)
 	state.set_trigger_percent("land", 0, 17, 100)
 	state.set_difficulty(1)
@@ -1392,7 +1462,10 @@ func _test_state_snapshot(bundle) -> void:
 	_expect_equal(restored.y, 83, "snapshot y")
 	_expect_equal(restored.heading, 4, "dungeon heading survives snapshot")
 	_expect_equal(restored.multi_view, false, "dungeon multiview survives snapshot")
-	_expect_equal(restored.view_type, true, "dungeon view type survives snapshot")
+	_expect_equal(restored.view_type, StateScript.VIEW_MAP, "signed dungeon view type survives snapshot")
+	_expect_equal(restored.compass_enabled, false, "compass state survives snapshot")
+	_expect_equal(restored.get_darkland("land", 4, 0), 1, "land darkness survives snapshot")
+	_expect_equal(restored.get_darkland("dungeon", 0, 0), -1, "dungeon darkness is map-specific")
 	_expect_equal(restored.get_tile("land", 0, 3, 28, -1), 193, "tile override survives snapshot")
 	_expect_equal(restored.get_trigger_percent("land", 0, 17, -1), 100, "trigger override survives snapshot")
 	_expect_equal(restored.difficulty, 1, "difficulty survives snapshot")
@@ -1418,6 +1491,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.thief_encounters_by_id.size(), 8, "full CoB rogue encounter index")
 	_expect_equal(bundle.maps_by_id.size(), 11, "full CoB map index")
 	_expect_equal(bundle.player_maps_by_id.size(), 20, "full CoB player map index")
+	_expect_equal(bundle.random_levels_by_id.size(), 11, "full CoB random-level index")
 	_expect_equal(bundle.dispatcher_noop_keys.size(), 470, "full CoB dispatcher no-op evidence index")
 	var coordinate_trigger_count := 0
 	for coordinate: Variant in bundle.triggers_by_coordinate:
@@ -1425,7 +1499,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
 		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 37, 39,
-		41, 42, 44, 45, 46, 47, 56, 58, 95, 111, 112,
+		41, 42, 44, 45, 46, 47, 56, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -1437,8 +1511,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2091, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2561, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2106, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2576, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1510,6 +1584,16 @@ func _test_runtime_host() -> void:
 	_expect_equal(adapter.commands[-1].get("command"), "teleport", "host continues after view update")
 	_expect_equal(host.runtime.runtime_state.heading, 1, "host retains updated heading")
 	_expect_equal(completions.size(), 3, "host completes look-direction action point")
+	_expect(host.start_trigger("Data DD:7:85"), "runtime host starts allow-map action")
+	_expect_equal(adapter.commands[-1].get("command"), "set_view_mode", "host dispatches view-mode change")
+	_expect_equal(host.runtime.runtime_state.multi_view, true, "host retains updated map mode")
+	_expect_equal(completions.size(), 4, "host completes view-mode action point")
+	host.runtime.runtime_state.set_location("land", 4, 87, 28)
+	_expect(host.start_trigger("Data DD:4:46", 2), "runtime host starts darkland action")
+	_expect_equal(adapter.commands[-2].get("command"), "set_map_darkness", "host dispatches map darkness")
+	_expect_equal(adapter.commands[-1].get("payload", {}).get("messageId"), 849, "host continues after darkness change")
+	_expect_equal(host.runtime.runtime_state.get_darkland("land", 4, 0), 1, "host retains darkness override")
+	_expect_equal(completions.size(), 5, "host completes darkland action point")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(

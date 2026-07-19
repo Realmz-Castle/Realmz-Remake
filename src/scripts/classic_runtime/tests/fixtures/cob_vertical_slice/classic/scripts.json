@@ -417,6 +417,123 @@
         {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
       ],
       "provenance": {"sourceFile": "Data DDD", "recordIndex": 75, "byteOffset": 7000, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:7:72",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 7,
+      "recordIndex": 72,
+      "active": true,
+      "doorid": 77430,
+      "landid": 7,
+      "targetX": 30,
+      "targetY": 74,
+      "percent": 100,
+      "coordinate": {"x": 30, "y": 74},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 678, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 94, "code": 94, "id": 0, "label": "Compass off", "category": "map", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 72, "byteOffset": 30880, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:7:73",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 7,
+      "recordIndex": 73,
+      "active": true,
+      "doorid": 77432,
+      "landid": 7,
+      "targetX": 32,
+      "targetY": 74,
+      "percent": 100,
+      "coordinate": {"x": 32, "y": 74},
+      "actions": [
+        {"slot": 0, "rawCode": 93, "code": 93, "id": 0, "label": "Compass on", "category": "map", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 73, "byteOffset": 30920, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:7:84",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 7,
+      "recordIndex": 84,
+      "active": true,
+      "doorid": 76747,
+      "landid": 7,
+      "targetX": 47,
+      "targetY": 67,
+      "percent": 100,
+      "coordinate": {"x": 47, "y": 67},
+      "actions": [
+        {"slot": 0, "rawCode": 96, "code": 96, "id": 0, "label": "Require 3D map", "category": "map", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 84, "byteOffset": 31360, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:7:85",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 7,
+      "recordIndex": 85,
+      "active": true,
+      "doorid": 76847,
+      "landid": 7,
+      "targetX": 47,
+      "targetY": 68,
+      "percent": 100,
+      "coordinate": {"x": 47, "y": 68},
+      "actions": [
+        {"slot": 0, "rawCode": 97, "code": 97, "id": 0, "label": "Allow full map", "category": "map", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 85, "byteOffset": 31400, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:4:43",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 4,
+      "recordIndex": 43,
+      "active": true,
+      "doorid": 42787,
+      "landid": 4,
+      "targetX": 87,
+      "targetY": 27,
+      "percent": 100,
+      "coordinate": {"x": 87, "y": 27},
+      "actions": [
+        {"slot": 1, "rawCode": 106, "code": 106, "id": 643, "label": "Set darkland", "category": "map", "gosub": false},
+        {"slot": 2, "rawCode": 1, "code": 1, "id": -848, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 43, "byteOffset": 17720, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:4:46",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 4,
+      "recordIndex": 46,
+      "active": true,
+      "doorid": 42887,
+      "landid": 4,
+      "targetX": 87,
+      "targetY": 28,
+      "percent": 100,
+      "coordinate": {"x": 87, "y": 28},
+      "actions": [
+        {"slot": 2, "rawCode": 106, "code": 106, "id": 655, "label": "Set darkland", "category": "map", "gosub": false},
+        {"slot": 3, "rawCode": 1, "code": 1, "id": 849, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 46, "byteOffset": 17840, "byteLength": 40, "confidence": "source-backed"}
     }
   ],
   "extraCodes": [
@@ -431,7 +548,9 @@
     {"id": 365, "values": [1, 24, 75, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 365, "byteOffset": 3650, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 607, "values": [0, 1, 36, 74, -4], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 607, "byteOffset": 6070, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 639, "values": [5, 6, 83, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 639, "byteOffset": 6390, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 643, "values": [1, 1, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 643, "byteOffset": 6430, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 645, "values": [250, 0, -1, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 645, "byteOffset": 6450, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 655, "values": [2, 1, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 655, "byteOffset": 6550, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 660, "values": [0, 0, 33, 72, 2], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 660, "byteOffset": 6600, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 661, "values": [1, 0, 88, 48, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 661, "byteOffset": 6610, "byteLength": 10, "confidence": "source-backed"}}
   ],
@@ -585,8 +704,37 @@
       "text": "The tunnel continues west.  You smell decaying flesh.  The odor is almost overwhelming.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 185, "byteOffset": 47360, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 678,
+      "text": "You are overcome by a bout of dizziness.  For some inexplicable reason, your compass appears unable to provide you with an accurate reading.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 678, "byteOffset": 173568, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 848,
+      "text": "You can now see in the dim light.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 848, "byteOffset": 217088, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 849,
+      "text": "The light fades leaving you in darkness.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 849, "byteOffset": 217344, "byteLength": 256, "confidence": "source-backed"}
     }
   ],
-  "randomLevels": [],
+  "randomLevels": [
+    {
+      "id": "land:4:randlevel",
+      "isDark": false,
+      "landlook": 4,
+      "levelIndex": 4,
+      "levelType": "land",
+      "source": "Data RD",
+      "useLos": true,
+      "provenance": {"sourceFile": "Data RD", "recordIndex": 4, "byteOffset": 2576, "byteLength": 644, "confidence": "source-backed"}
+    }
+  ],
   "optionLabels": []
 }
