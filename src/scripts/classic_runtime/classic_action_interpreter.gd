@@ -240,6 +240,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_encounter("simple", record_id)
 		5:
 			return _execute_encounter("complex", record_id)
+		6:
+			return _execute_load_shop(record_id)
 		7:
 			return _execute_action_data_patch(record_id)
 		8:
@@ -335,6 +337,30 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"action": action,
 				"triggerId": _current_trigger_id(),
 			}
+
+
+func _execute_load_shop(signed_shop_id: int) -> Dictionary:
+	var shop_id: int = abs(signed_shop_id)
+	var shop: Dictionary = bundle.get_shop(shop_id)
+	if shop.is_empty():
+		return _halt_with_error("Shop action references missing shop %d" % shop_id)
+	var item_texts: Array = []
+	var seen_item_ids: Dictionary = {}
+	for item_id_value: Variant in shop.get("itemIds", []):
+		var item_id: int = abs(int(item_id_value))
+		if item_id == 0 or seen_item_ids.has(item_id):
+			continue
+		seen_item_ids[item_id] = true
+		var item_text: Dictionary = bundle.get_item_text(item_id)
+		if not item_text.is_empty():
+			item_texts.append(item_text)
+	return _yield_result("load_shop", {
+		"shopId": shop_id,
+		"shop": shop,
+		"itemTexts": item_texts,
+		"openImmediately": signed_shop_id < 0,
+		"acceptRanges": [0, 0, 0, 0],
+	})
 
 
 func _execute_battle(extra_code_id: int) -> Dictionary:

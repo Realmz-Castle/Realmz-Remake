@@ -93,6 +93,7 @@ func _init() -> void:
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
+	_test_shop_actions()
 	_test_sound_and_treasure(bundle)
 	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
@@ -1305,6 +1306,126 @@ func _test_sound_and_treasure(bundle) -> void:
 	_expect_equal(payload.get("lootMode"), 1, "fixed treasure uses Classic loot mode 1")
 
 
+func _test_shop_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	var item_ids: Array = []
+	var quantities: Array = []
+	item_ids.resize(1000)
+	quantities.resize(1000)
+	item_ids.fill(0)
+	quantities.fill(0)
+	for stock: Array in [
+		[0, 1, 3],
+		[200, 209, 2],
+		[400, 418, 1],
+		[600, 675, 1],
+		[800, 803, 4],
+	]:
+		item_ids[stock[0]] = stock[1]
+		quantities[stock[0]] = stock[2]
+	bundle.shops_by_id[2] = {
+		"id": 2,
+		"inflation": 95,
+		"itemIds": item_ids,
+		"quantities": quantities,
+	}
+	bundle.item_texts_by_id[675] = {
+		"itemId": 675,
+		"identifiedName": "Quiver of Protection +2",
+	}
+	_add_stack_trigger(bundle, "shop:available", -1, [
+		_classic_action(0, 6, 2),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "shop:immediate", -1, [
+		_classic_action(0, 6, -2),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "shop:missing", -1, [_classic_action(0, 6, 3)])
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("shop:available"), "begin available-shop action")
+	var available_result: Dictionary = interpreter.run_until_yield()
+	var available_payload: Dictionary = available_result.get("payload", {})
+	_expect_equal(available_result.get("command"), "load_shop", "shop yields typed command")
+	_expect_equal(available_payload.get("shopId"), 2, "shop ID is absolute")
+	_expect_equal(available_payload.get("openImmediately"), false, "positive shop stays available")
+	_expect_equal(available_payload.get("acceptRanges"), [0, 0, 0, 0], "plain shop clears restrictions")
+	_expect_equal(available_payload.get("itemTexts", []).size(), 1, "shop carries scenario item text")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "keep-codes", "shop command resumes")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("shop:immediate"), "begin immediate-shop action")
+	var immediate_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		immediate_result.get("payload", {}).get("openImmediately"),
+		true,
+		"negative shop opens immediately"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("shop:missing"), "begin missing-shop action")
+	_expect_equal(interpreter.run_until_yield().get("status"), "error", "missing shop stops safely")
+
+	var built: Dictionary = GodotAdapterScript.new().build_shop_inventory(
+		available_payload,
+		{
+			1: "Dagger",
+			209: "Leather Armor",
+			418: "Leather Cap",
+			803: "Quiver of Arrows",
+		},
+		{
+			"Dagger": {},
+			"Leather Armor": {},
+			"Leather Cap": {},
+			"Quiver of Protection +2": {},
+			"Quiver of Arrows": {},
+		}
+	)
+	var native_shop: Dictionary = built.get("shop", {})
+	_expect_equal(native_shop.get("sell_rate"), 0.95, "shop inflation sets purchase rate")
+	_expect_equal(native_shop.get("buy_rate"), 0.95, "shop inflation sets resale rate")
+	_expect_equal(native_shop.get("Weapons"), [["Dagger", 3, -1]], "weapon slots map to Weapons")
+	_expect_equal(native_shop.get("Armor"), [["Leather Armor", 2, -1]], "body armor maps to Armor")
+	_expect_equal(native_shop.get("Limbs"), [["Leather Cap", 1, -1]], "limb armor maps to Limbs")
+	_expect_equal(
+		native_shop.get("Magic"),
+		[["Quiver of Protection +2", 1, -1]],
+		"scenario item text can resolve magic stock"
+	)
+	_expect_equal(native_shop.get("Supplies"), [["Quiver of Arrows", 4, -1]], "supplies map by slot")
+	_expect_equal(built.get("itemCount"), 11, "shop reports total stock quantity")
+	var alias_items: Array = []
+	var alias_quantities: Array = []
+	alias_items.resize(612)
+	alias_quantities.resize(612)
+	alias_items.fill(0)
+	alias_quantities.fill(0)
+	alias_items[98] = 98
+	alias_quantities[98] = 1
+	alias_items[610] = 610
+	alias_quantities[610] = 1
+	alias_items[611] = 611
+	alias_quantities[611] = 2
+	var aliases: Dictionary = GodotAdapterScript.new().build_shop_inventory(
+		{"shop": {"itemIds": alias_items, "quantities": alias_quantities}},
+		{},
+		{"Quarter Staff": {}, "Waterworld": {}, "Heal Small Wounds": {}}
+	)
+	_expect_equal(
+		aliases.get("shop", {}).get("Weapons"),
+		[["Quarter Staff", 1, -1]],
+		"duplicate shared weapon ID resolves"
+	)
+	_expect_equal(
+		aliases.get("shop", {}).get("Magic"),
+		[["Waterworld", 1, -1], ["Heal Small Wounds", 2, -1]],
+		"duplicate shared magic IDs resolve"
+	)
+
+
 func _test_treasure_delivery(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:5:3"), "begin CoB treasure delivery path")
@@ -2205,6 +2326,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.messages_by_id.size(), 881, "full CoB message index")
 	_expect_equal(bundle.battles_by_id.size(), 257, "full CoB battle index")
 	_expect_equal(bundle.treasures_by_id.size(), 76, "full CoB treasure index")
+	_expect_equal(bundle.shops_by_id.size(), 16, "full CoB shop index")
 	_expect_equal(bundle.simple_encounters_by_id.size(), 20, "full CoB simple encounter index")
 	_expect_equal(bundle.complex_encounters_by_id.size(), 14, "full CoB complex encounter index")
 	_expect_equal(bundle.thief_encounters_by_id.size(), 8, "full CoB rogue encounter index")
@@ -2217,7 +2339,7 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		-14, 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
+		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
 		24, 25, 29, 30, 35, 37,
 		39, 41, 42, 44, 45, 46, 47, 52, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
@@ -2231,8 +2353,68 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2189, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2659, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2194, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2664, "full CoB defined-behavior slots")
+
+	for shipped_shop: Array in [
+		["Data DD:0:9", 2, 1],
+		["Data DD:0:29", 2, 4],
+		["Data DD:0:94", 1, 10],
+		["Data DD:5:91", 1, 3],
+		["Data ED3:macro:8", 1, 2],
+	]:
+		var shop_interpreter = _interpreter(bundle)
+		_expect(
+			shop_interpreter.begin_trigger(shipped_shop[0], shipped_shop[1]),
+			"begin shipped CoB shop action %s" % shipped_shop[0]
+		)
+		var shop_result: Dictionary = shop_interpreter.run_until_yield()
+		_expect_equal(shop_result.get("command"), "load_shop", "shipped shop yields typed command")
+		_expect_equal(
+			shop_result.get("payload", {}).get("shopId"),
+			shipped_shop[2],
+			"shipped shop record resolves"
+		)
+	var first_shop: Dictionary = bundle.get_shop(1)
+	_expect_equal(
+		first_shop.get("quantities", [])[0],
+		3,
+		"shipped Dagger stock quantity resolves"
+	)
+	var available_items_value: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string("res://shared_assets/items/stuff_book.json")
+	)
+	var available_items: Dictionary = available_items_value \
+		if available_items_value is Dictionary else {}
+	var shop_adapter = GodotAdapterScript.new()
+	var built_shop_count := 0
+	var resource_gap_count := 0
+	for shop_value: Variant in bundle.shops_by_id.values():
+		if not (shop_value is Dictionary):
+			continue
+		var built_shop: Dictionary = shop_adapter.build_shop_inventory(
+			{
+				"shop": shop_value,
+				"itemTexts": bundle.item_texts_by_id.values(),
+			},
+			ItemIdsScript.new().mapping,
+			available_items
+		)
+		var shop_id := int(shop_value.get("id", -1))
+		if str(built_shop.get("status", "")).is_empty():
+			built_shop_count += 1
+		else:
+			resource_gap_count += 1
+			_expect(
+				str(built_shop.get("message", "")).begins_with("Classic shop item "),
+				"full CoB shop %d stops explicitly for unavailable item resources" % shop_id
+			)
+	_expect(built_shop_count >= 11, "all empty full CoB shops build for the native UI")
+	_expect_equal(
+		built_shop_count + resource_gap_count,
+		16,
+		"every full CoB shop either builds or reports its resource gap"
+	)
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")

@@ -26,6 +26,7 @@ var extra_codes_by_id: Dictionary = {}
 var messages_by_id: Dictionary = {}
 var battles_by_id: Dictionary = {}
 var treasures_by_id: Dictionary = {}
+var shops_by_id: Dictionary = {}
 var item_texts_by_id: Dictionary = {}
 var simple_encounters_by_id: Dictionary = {}
 var complex_encounters_by_id: Dictionary = {}
@@ -95,6 +96,10 @@ func get_treasure(treasure_id: int) -> Dictionary:
 	return treasures_by_id.get(treasure_id, {})
 
 
+func get_shop(shop_id: int) -> Dictionary:
+	return shops_by_id.get(abs(shop_id), {})
+
+
 func get_item_text(item_id: int) -> Dictionary:
 	return item_texts_by_id.get(abs(item_id), {})
 
@@ -162,6 +167,7 @@ func _reset() -> void:
 	messages_by_id.clear()
 	battles_by_id.clear()
 	treasures_by_id.clear()
+	shops_by_id.clear()
 	item_texts_by_id.clear()
 	simple_encounters_by_id.clear()
 	complex_encounters_by_id.clear()
@@ -219,6 +225,9 @@ func _build_indexes() -> void:
 	for treasure: Variant in _array_value(encounter_document, "treasures"):
 		if treasure is Dictionary:
 			treasures_by_id[int(treasure.get("id", -1))] = treasure
+	for shop: Variant in _array_value(encounter_document, "shops"):
+		if shop is Dictionary:
+			shops_by_id[int(shop.get("id", -1))] = shop
 
 	var content_document: Dictionary = documents["content"]
 	for item_text: Variant in _array_value(content_document, "itemTexts"):

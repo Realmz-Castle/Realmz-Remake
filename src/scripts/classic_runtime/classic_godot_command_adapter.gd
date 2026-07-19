@@ -7,6 +7,16 @@ const CHOICE_MENU_MARGIN := 20.0
 const COMPLEX_ACTION_TEXT_COUNT := 8
 const COMPLEX_WORD_TEXT_INDEX := 8
 const COMPLEX_WORD_TEXT_LIMIT := 40
+# Classic stores five contiguous 200-slot inventory categories.
+const SHOP_CATEGORY_SIZE := 200
+const SHOP_CATEGORIES := ["Weapons", "Armor", "Limbs", "Magic", "Supplies"]
+# These duplicate shared definitions are stocked by Classic shops but omitted
+# from Remake's Divinity ID table in favor of their equivalent item records.
+const CLASSIC_SHARED_ITEM_ALIASES := {
+	98: "Quarter Staff",
+	610: "Waterworld",
+	611: "Heal Small Wounds",
+}
 const MAP_GAINED_MESSAGE := \
 	"You gain a map, to view the map use Maps/Notes in the Menu."
 const CLASSIC_ATTRIBUTE_STATS := {
@@ -81,6 +91,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _cast_classic_spell(payload)
 		"give_map":
 			return await _give_player_map(payload)
+		"load_shop":
+			return await _load_shop(payload)
 		_:
 			return _error("The Godot classic adapter does not yet handle '%s'" % command)
 
@@ -583,6 +595,9 @@ func _classic_item_names(
 	))
 	if not mapped_name.is_empty():
 		names.append(mapped_name)
+	var alias_name := str(CLASSIC_SHARED_ITEM_ALIASES.get(item_id, ""))
+	if not alias_name.is_empty() and not names.has(alias_name):
+		names.append(alias_name)
 	for item_text_value: Variant in item_texts:
 		if not (item_text_value is Dictionary):
 			continue
@@ -862,6 +877,114 @@ func build_treasure_delivery(
 			int(treasure.get("jewelry", 0)),
 		],
 		"experience": int(treasure.get("exp", 0)),
+	}
+
+
+func build_shop_inventory(
+	payload: Dictionary,
+	item_id_mapping: Dictionary,
+	available_items: Dictionary
+) -> Dictionary:
+	var shop_value: Variant = payload.get("shop", {})
+	if not (shop_value is Dictionary):
+		return _error("Classic shop payload is missing its record")
+	var shop: Dictionary = shop_value
+	var item_ids: Variant = shop.get("itemIds", [])
+	var quantities: Variant = shop.get("quantities", [])
+	if not (item_ids is Array) or not (quantities is Array):
+		return _error("Classic shop stock must use item and quantity arrays")
+	if item_ids.size() != quantities.size():
+		return _error("Classic shop item and quantity arrays have different lengths")
+
+	var item_texts_value: Variant = payload.get("itemTexts", [])
+	var item_texts: Array = item_texts_value if item_texts_value is Array else []
+	var categories := {
+		"Weapons": [],
+		"Armor": [],
+		"Limbs": [],
+		"Magic": [],
+		"Supplies": [],
+		"BuyBack": [],
+	}
+	var item_count := 0
+	for slot: int in item_ids.size():
+		var item_id: int = abs(int(item_ids[slot]))
+		var quantity := int(quantities[slot])
+		if item_id == 0 and quantity == 0:
+			continue
+		if item_id == 0 or quantity < 1:
+			return _error("Classic shop has invalid stock in slot %d" % slot)
+		var category_index := slot / SHOP_CATEGORY_SIZE
+		if category_index >= SHOP_CATEGORIES.size():
+			return _error("Classic shop stock slot %d is outside its fixed categories" % slot)
+		var item_name := ""
+		for candidate: String in _classic_item_names(item_id, item_id_mapping, item_texts):
+			if available_items.has(candidate):
+				item_name = candidate
+				break
+		if item_name.is_empty():
+			return _error("Classic shop item %d has no loaded Remake item mapping" % item_id)
+		categories[SHOP_CATEGORIES[category_index]].append([item_name, quantity, -1])
+		item_count += quantity
+
+	var inflation := int(shop.get("inflation", 100))
+	if inflation < 0:
+		return _error("Classic shop inflation cannot be negative")
+	return {
+		"shop": {
+			"buy_rate": minf(float(inflation), 100.0) / 100.0,
+			"sell_rate": float(inflation) / 100.0,
+			"Weapons": categories["Weapons"],
+			"Armor": categories["Armor"],
+			"Limbs": categories["Limbs"],
+			"Magic": categories["Magic"],
+			"Supplies": categories["Supplies"],
+			"BuyBack": categories["BuyBack"],
+		},
+		"itemCount": item_count,
+	}
+
+
+func _load_shop(payload: Dictionary) -> Dictionary:
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	if resources == null:
+		return _error("Realmz item resources are unavailable")
+	var item_ids: Object = _autoload("ItemIdDivinity")
+	var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
+	var built := build_shop_inventory(payload, item_mapping, resources.items_book)
+	if str(built.get("status", "")) == "error":
+		return built
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	var shop_name := "classic_shop_%d" % int(payload.get("shopId", 0))
+	if not game_global.shops_dict.has(shop_name):
+		game_global.shops_dict[shop_name] = built["shop"]
+	game_global.currentShop = shop_name
+	game_global.allow_banking(true)
+	game_global.allow_money_change(true)
+
+	if bool(payload.get("openImmediately", false)):
+		var ui: Object = _autoload("UI")
+		if ui == null or ui.ow_hud == null or ui.ow_hud.inventoryRect == null:
+			return _error("Realmz shop UI is unavailable")
+		if _selected_character() == null:
+			return _error("Classic shop has no selected party member")
+		ui.ow_hud._on_InventoryButton_pressed()
+		var main_loop := Engine.get_main_loop()
+		if main_loop is SceneTree:
+			await main_loop.process_frame
+		var inventory_rect: Object = ui.ow_hud.inventoryRect
+		if not inventory_rect.visible:
+			return _error("Realmz inventory did not open for the Classic shop")
+		inventory_rect._on_ButtonShop_pressed()
+		if not inventory_rect.shopRect.visible:
+			return _error("Realmz shop did not open")
+		await inventory_rect.shopRect.visibility_changed
+	return {
+		"shopName": shop_name,
+		"itemCount": int(built.get("itemCount", 0)),
 	}
 
 
