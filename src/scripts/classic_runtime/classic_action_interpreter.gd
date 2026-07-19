@@ -241,6 +241,17 @@ func resume_encounter(outcome: int, encounter_state := {}) -> Dictionary:
 	var state_result := _apply_encounter_state(encounter_context, encounter_state)
 	if not state_result.is_empty():
 		return state_result
+	var door_action_point_id := int(encounter_state.get("doorActivationActionPointId", 0))
+	if door_action_point_id != 0:
+		if door_action_point_id < 0:
+			return _halt_with_error("Classic door item returned an invalid action point")
+		# Door items leave the encounter and enter their Data ED3 record as a
+		# fresh action point, just as Classic's newland() handoff does.
+		_clear_control_flow()
+		var door_result := _branch_to_extra_action_point(door_action_point_id, false, 0)
+		if str(door_result.get("status", "")) != "continue":
+			return door_result
+		return run_until_yield()
 	if outcome == 0:
 		_clear_control_flow()
 		return _completed_result("encounter-cancelled")
@@ -1110,6 +1121,7 @@ func _yield_encounter(encounter_kind: String, encounter_id: int, start_slot: int
 		)
 	if encounter_kind == "complex":
 		encounter_payload["itemTexts"] = _encounter_item_texts(encounter)
+		encounter_payload["scenarioItems"] = _scenario_items()
 	if encounter_kind == "complex" and bool(encounter.get("thief", false)):
 		var thief_encounter_id := int(encounter.get("thiefSuccess", 0))
 		var thief_encounter := bundle.get_thief_encounter(thief_encounter_id)
@@ -1138,6 +1150,15 @@ func _encounter_item_texts(encounter: Dictionary) -> Array:
 		if not item_text.is_empty():
 			item_texts.append(item_text)
 	return item_texts
+
+
+func _scenario_items() -> Array:
+	var scenario_items: Array = []
+	var item_ids: Array = bundle.scenario_items_by_id.keys()
+	item_ids.sort()
+	for item_id_value: Variant in item_ids:
+		scenario_items.append(bundle.scenario_items_by_id[item_id_value])
+	return scenario_items
 
 
 func _apply_encounter_state(encounter_context: Dictionary, encounter_state: Dictionary) -> Dictionary:

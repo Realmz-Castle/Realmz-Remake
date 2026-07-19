@@ -1024,6 +1024,12 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			var choice_tokens: Array = choice_model["tokens"]
 			_append_complex_word_choice(encounter, choices, choice_tokens)
 			_append_complex_spell_choice(encounter, choices, choice_tokens)
+			_append_complex_scroll_choice(
+				encounter,
+				payload.get("scenarioItems", []),
+				choices,
+				choice_tokens
+			)
 			_append_complex_item_choice(encounter, choices, choice_tokens)
 			if bool(encounter.get("canBackOut", false)):
 				choices.append("Back out")
@@ -1047,10 +1053,21 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				if str(spell_result.get("status", "")) == "cancelled":
 					continue
 				return spell_result
+			if selected == "scroll":
+				var scroll_result := await _select_complex_item(
+					encounter,
+					payload.get("itemTexts", []),
+					payload.get("scenarioItems", []),
+					"scroll"
+				)
+				if str(scroll_result.get("status", "")) == "cancelled":
+					continue
+				return scroll_result
 			if selected == "item":
 				var item_result := await _select_complex_item(
 					encounter,
-					payload.get("itemTexts", [])
+					payload.get("itemTexts", []),
+					payload.get("scenarioItems", [])
 				)
 				if str(item_result.get("status", "")) == "cancelled":
 					continue
@@ -1087,6 +1104,12 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		choice_tokens.append_array(action_choices["tokens"])
 		_append_complex_word_choice(encounter, choices, choice_tokens)
 		_append_complex_spell_choice(encounter, choices, choice_tokens)
+		_append_complex_scroll_choice(
+			encounter,
+			payload.get("scenarioItems", []),
+			choices,
+			choice_tokens
+		)
 		_append_complex_item_choice(encounter, choices, choice_tokens)
 		if bool(encounter.get("canBackOut", false)):
 			choices.append("Back out")
@@ -1111,10 +1134,22 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				continue
 			spell_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
 			return spell_result
+		if selected == "scroll":
+			var scroll_result := await _select_complex_item(
+				encounter,
+				payload.get("itemTexts", []),
+				payload.get("scenarioItems", []),
+				"scroll"
+			)
+			if str(scroll_result.get("status", "")) == "cancelled":
+				continue
+			scroll_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			return scroll_result
 		if selected == "item":
 			var item_result := await _select_complex_item(
 				encounter,
-				payload.get("itemTexts", [])
+				payload.get("itemTexts", []),
+				payload.get("scenarioItems", [])
 			)
 			if str(item_result.get("status", "")) == "cancelled":
 				continue
@@ -1318,6 +1353,174 @@ func resolve_complex_item_result(
 	return 4
 
 
+func resolve_complex_item_selection(
+	encounter: Dictionary,
+	item: Dictionary,
+	item_id_mapping: Dictionary,
+	item_texts: Array,
+	scenario_items: Array
+) -> Dictionary:
+	var selection := classify_complex_item(item, scenario_items)
+	if str(selection.get("status", "")) == "error":
+		return selection
+	selection["itemName"] = str(item.get("name", ""))
+	match str(selection.get("mode", "item")):
+		"item":
+			# Ordinary encounter-response items are inspected, not consumed.
+			selection["outcome"] = resolve_complex_item_result(
+				encounter,
+				str(item.get("name", "")),
+				item_id_mapping,
+				item_texts,
+				_classic_item_ids(item)
+			)
+		"spell-item":
+			var spell_response := _complex_spell_item_response(encounter, selection)
+			if str(spell_response.get("status", "")) == "error":
+				return spell_response
+			selection.merge(spell_response, true)
+			selection["consumeItem"] = true
+		"door-activation":
+			selection["outcome"] = 0
+			selection["consumeItem"] = true
+		_:
+			return _error("Classic encounter item has an invalid response mode")
+	return selection
+
+
+func classify_complex_item(item: Dictionary, scenario_items: Array) -> Dictionary:
+	var scenario_item := _matching_scenario_item(item, scenario_items)
+	if not scenario_item.is_empty():
+		var item_type := int(scenario_item.get("type", 0))
+		var special1 := int(scenario_item.get("special1", 0))
+		if item_type == 20:
+			var spell_id: int = abs(int(scenario_item.get("special2", 0)))
+			if spell_id == 0:
+				return _error("Classic spell item has no spell ID")
+			return {
+				"mode": "spell-item",
+				"spellId": spell_id,
+				"spellPower": _classic_item_spell_power(special1),
+			}
+		if abs(item_type) == 23 or special1 == -23:
+			var action_point_id: int = abs(int(scenario_item.get("special5", 0)))
+			if action_point_id == 0:
+				return _error("Classic door item has no Data ED3 action point")
+			return {
+				"mode": "door-activation",
+				"doorActivationActionPointId": action_point_id,
+			}
+
+	for spell_field: String in ["_on_field_use_spell", "_on_combat_use_spell"]:
+		var spell_value: Variant = item.get(spell_field, [])
+		if not (spell_value is Array) or spell_value.size() < 2:
+			continue
+		var spell_identity := _native_item_spell_identity(str(spell_value[0]))
+		if str(spell_identity.get("spellName", "")).is_empty():
+			return _error("Encounter spell item has no native spell name")
+		var response := {
+			"mode": "spell-item",
+			"spellName": str(spell_identity.get("spellName", "")),
+			"spellPower": int(spell_value[1]),
+		}
+		var native_spell_id := int(spell_identity.get("spellId", 0))
+		if native_spell_id != 0:
+			response["spellId"] = native_spell_id
+		return response
+
+	return {"mode": "item"}
+
+
+func is_complex_scroll_item(item: Dictionary, scenario_items: Array) -> bool:
+	return str(item.get("type", "")).to_lower() == "scroll" \
+		and str(classify_complex_item(item, scenario_items).get("mode", "")) == "spell-item"
+
+
+func consume_complex_item(holder: Object, item: Dictionary) -> Dictionary:
+	if holder == null:
+		return _error("Classic encounter item has no owning character")
+	var inventory: Variant = holder.get("inventory")
+	if not (inventory is Array) or not inventory.has(item):
+		return _error("Classic encounter item is no longer in its owner's inventory")
+	var maximum_charges := int(item.get("charges_max", 0))
+	if maximum_charges <= 0:
+		return {"consumed": false, "remainingCharges": int(item.get("charges", 0))}
+	var remaining_charges := int(item.get("charges", 0))
+	if remaining_charges <= 0:
+		return _error("Classic encounter item has no charges remaining")
+	remaining_charges -= 1
+	item["charges"] = remaining_charges
+	var removed := remaining_charges == 0 and bool(item.get("delete_on_empty", false))
+	if removed:
+		inventory.erase(item)
+	return {
+		"consumed": true,
+		"remainingCharges": remaining_charges,
+		"removed": removed,
+	}
+
+
+func _matching_scenario_item(item: Dictionary, scenario_items: Array) -> Dictionary:
+	var carried_ids := _classic_item_ids(item)
+	if carried_ids.is_empty():
+		return {}
+	for scenario_item_value: Variant in scenario_items:
+		if not (scenario_item_value is Dictionary):
+			continue
+		var item_id: int = abs(int(scenario_item_value.get("itemId", -1)))
+		if item_id in carried_ids:
+			return scenario_item_value
+	return {}
+
+
+func _classic_item_spell_power(raw_power: int) -> int:
+	# Classic uses 8 as the sentinel for a random power from 1 through 7.
+	return randi_range(1, 7) if abs(raw_power) == 8 else abs(raw_power)
+
+
+func _native_item_spell_identity(label: String) -> Dictionary:
+	var spell_name := label.strip_edges()
+	var spell_id := 0
+	var marker := spell_name.rfind(" (")
+	if marker >= 0 and spell_name.ends_with(")"):
+		var id_text := spell_name.substr(marker + 2, spell_name.length() - marker - 3)
+		if id_text.is_valid_int():
+			spell_id = abs(int(id_text))
+			spell_name = spell_name.left(marker).strip_edges()
+	return {"spellName": spell_name, "spellId": spell_id}
+
+
+func _complex_spell_item_response(encounter: Dictionary, selection: Dictionary) -> Dictionary:
+	var spell_id := int(selection.get("spellId", 0))
+	var spell_name := str(selection.get("spellName", ""))
+	var spell_mapping: Dictionary = {}
+	var spell_ids: Object = _autoload("SpellsIdDivinity")
+	if spell_ids != null and spell_ids.mappings is Dictionary:
+		spell_mapping = spell_ids.mappings
+	if spell_name.is_empty() and spell_id != 0:
+		spell_name = _mapped_spell_name(spell_id, spell_mapping)
+	if spell_name.is_empty():
+		return _error("Classic spell item has no Remake spell mapping")
+	var spell: Variant = _loaded_spell(spell_name)
+	if spell == null:
+		return _error("Mapped spell '%s' is not loaded" % spell_name)
+	var spell_class := int(spell.get("classic_spell_class")) \
+		if spell.get("classic_spell_class") != null else 0
+	var supported_spell_ids: Array = spell.get("classic_spell_ids") \
+		if spell.get("classic_spell_ids") is Array else []
+	return {
+		"outcome": resolve_complex_spell_result(
+			encounter,
+			spell_name,
+			spell_class,
+			spell_mapping,
+			supported_spell_ids
+		),
+		"spellName": spell_name,
+		"spellId": spell_id,
+	}
+
+
 func _classic_item_ids(item: Dictionary) -> Array[int]:
 	var ids := _classic_resource_ids(item, "classicItemId", "classicItemIds")
 	if ids.is_empty() and item.has("classic_item_id"):
@@ -1347,6 +1550,21 @@ func _append_complex_spell_choice(
 	tokens.append("spell")
 
 
+func _append_complex_scroll_choice(
+	encounter: Dictionary,
+	scenario_items: Variant,
+	choices: Array,
+	tokens: Array
+) -> void:
+	if not _has_complex_spell_responses(encounter):
+		return
+	var available_scenario_items: Array = scenario_items if scenario_items is Array else []
+	if not _party_has_complex_scroll(available_scenario_items):
+		return
+	choices.append("Use a scroll")
+	tokens.append("scroll")
+
+
 func _has_complex_spell_responses(encounter: Dictionary) -> bool:
 	var spell_ids: Variant = encounter.get("spellIds", [])
 	return spell_ids is Array and not spell_ids.is_empty() and int(spell_ids[0]) != 0
@@ -1366,6 +1584,19 @@ func _append_complex_item_choice(
 func _has_complex_item_responses(encounter: Dictionary) -> bool:
 	var item_ids: Variant = encounter.get("itemIds", [])
 	return item_ids is Array and not item_ids.is_empty() and int(item_ids[0]) != 0
+
+
+func _party_has_complex_scroll(scenario_items: Array) -> bool:
+	for character_value: Variant in _party_characters():
+		if not _can_select_item(character_value):
+			continue
+		var inventory: Variant = character_value.get("inventory")
+		for item_value: Variant in inventory:
+			if not (item_value is Dictionary):
+				continue
+			if is_complex_scroll_item(item_value, scenario_items):
+				return true
+	return false
 
 
 func _select_complex_word(encounter: Dictionary) -> Dictionary:
@@ -1427,7 +1658,12 @@ func _select_complex_spell(encounter: Dictionary) -> Dictionary:
 	}
 
 
-func _select_complex_item(encounter: Dictionary, item_texts: Variant) -> Dictionary:
+func _select_complex_item(
+	encounter: Dictionary,
+	item_texts: Variant,
+	scenario_items: Variant,
+	required_mode := ""
+) -> Dictionary:
 	var holder := _first_item_holder()
 	if holder == null:
 		return _error("Classic complex encounter has no conscious item holder")
@@ -1449,20 +1685,30 @@ func _select_complex_item(encounter: Dictionary, item_texts: Variant) -> Diction
 	var item: Variant = item_menu.picked_item
 	if not (item is Dictionary) or item.is_empty():
 		return {"status": "cancelled"}
+	var picked_holder: Variant = item_menu.picked_character
+	if not (picked_holder is Object):
+		picked_holder = holder
 	var item_ids: Object = _autoload("ItemIdDivinity")
 	var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
 	var response_item_texts: Array = item_texts if item_texts is Array else []
-	# Classic's encounter path selects ordinary items without consuming them.
-	return {
-		"outcome": resolve_complex_item_result(
-			encounter,
-			str(item.get("name", "")),
-			item_mapping,
-			response_item_texts,
-			_classic_item_ids(item)
-		),
-		"itemName": str(item.get("name", "")),
-	}
+	var available_scenario_items: Array = scenario_items if scenario_items is Array else []
+	var response := resolve_complex_item_selection(
+		encounter,
+		item,
+		item_mapping,
+		response_item_texts,
+		available_scenario_items
+	)
+	if str(response.get("status", "")) == "error":
+		return response
+	if required_mode == "scroll" and not is_complex_scroll_item(item, available_scenario_items):
+		return {"status": "cancelled"}
+	if bool(response.get("consumeItem", false)):
+		var consumption := consume_complex_item(picked_holder, item)
+		if str(consumption.get("status", "")) == "error":
+			return consumption
+		response["itemConsumption"] = consumption
+	return response
 
 
 func _first_spellcaster() -> Object:
@@ -1511,6 +1757,17 @@ func _can_select_item(character: Variant) -> bool:
 func _mapped_spell_name(spell_id: int, spell_id_mapping: Dictionary) -> String:
 	var key := classic_spell_mapping_key(spell_id)
 	return str(spell_id_mapping.get(key, spell_id_mapping.get(spell_id, "")))
+
+
+func _loaded_spell(spell_name: String) -> Variant:
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	if resources == null or not resources.spells_book.has(spell_name):
+		return null
+	var spell_entry: Variant = resources.spells_book[spell_name]
+	if spell_entry is Dictionary:
+		return spell_entry.get("script")
+	return spell_entry
 
 
 func _normalized_spell_name(spell_name: String) -> String:
@@ -1630,15 +1887,23 @@ func _show_rogue_trap(resolution: Dictionary, character: Object) -> Dictionary:
 	if not (trap_value is Dictionary):
 		return _error("Classic rogue trap payload is missing")
 	var trap: Dictionary = trap_value
-	if int(trap.get("spellId", 0)) != 0:
-		return _error("Classic trap spell effects are not implemented yet")
+	var party := _party_characters()
 	var damage_result := apply_rogue_trap_damage(
 		trap,
 		character,
-		_party_characters()
+		party
 	)
 	if str(damage_result.get("status", "")) == "error":
 		return damage_result
+	var spell_result: Dictionary = {}
+	var spell_request := rogue_trap_spell_request(trap, character, party)
+	if not spell_request.is_empty():
+		spell_result = await _apply_classic_spell_to_targets(
+			spell_request.get("payload", {}),
+			spell_request.get("targets", [])
+		)
+		if str(spell_result.get("status", "")) == "error":
+			return spell_result
 	_play_sound({"soundId": int(trap.get("soundId", 0))})
 	var feedback: Array[String] = ["A trap is sprung!"]
 	for hit_value: Variant in damage_result.get("hits", []):
@@ -1650,7 +1915,7 @@ func _show_rogue_trap(resolution: Dictionary, character: Object) -> Dictionary:
 		])
 		_refresh_character_panel(hit_value.get("character"))
 	await _show_text({"message": {"text": "\n".join(feedback)}})
-	return {}
+	return {"spellResult": spell_result}
 
 
 func apply_rogue_trap_damage(
@@ -1684,6 +1949,26 @@ func apply_rogue_trap_damage(
 			"damage": damage,
 		})
 	return {"hits": hits}
+
+
+func rogue_trap_spell_request(
+	trap: Dictionary,
+	selected_character: Object,
+	party: Array
+) -> Dictionary:
+	var spell_id := int(trap.get("spellId", 0))
+	if spell_id == 0:
+		return {}
+	return {
+		"payload": {
+			"spellId": spell_id,
+			"power": int(trap.get("spellPower", 0)),
+			"saveAdjustment": 0,
+			"forceAffect": false,
+		},
+		"targets": [selected_character] if bool(trap.get("rogueOnly", false)) \
+			else party.duplicate(),
+	}
 
 
 func _find_message(messages_value: Variant, message_id: int) -> Dictionary:
@@ -2575,6 +2860,12 @@ func _cast_classic_spell(payload: Dictionary) -> Dictionary:
 		if target_mode == "selected":
 			return {"targetCount": 0}
 		return _error("Classic party spell command has no party members")
+	return await _apply_classic_spell_to_targets(payload, targets)
+
+
+func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dictionary:
+	if targets.is_empty():
+		return _error("Classic spell command has no targets")
 
 	var spell_ids: Object = _autoload("SpellsIdDivinity")
 	var spell_id_mapping: Dictionary = spell_ids.mappings \
@@ -2583,17 +2874,9 @@ func _cast_classic_spell(payload: Dictionary) -> Dictionary:
 	var spell_name := _mapped_spell_name(spell_id, spell_id_mapping)
 	if spell_name.is_empty():
 		return _error("Classic spell %d has no Remake mapping" % spell_id)
-	var node_access: Object = _autoload("NodeAccess")
-	var resources: Object = node_access.__Resources() if node_access != null else null
-	if resources == null or not resources.spells_book.has(spell_name):
-		return _error("Mapped spell '%s' is not loaded" % spell_name)
-	var spell_entry: Variant = resources.spells_book[spell_name]
-	if spell_entry is Dictionary and (
-			not spell_entry.has("script") or spell_entry.get("script") == null
-	):
+	var spell: Variant = _loaded_spell(spell_name)
+	if spell == null:
 		return _error("Mapped spell '%s' has no executable resource" % spell_name)
-	var spell: Variant = spell_entry.get("script") \
-		if spell_entry is Dictionary else spell_entry
 	if not classic_spell_resource_supports_id(spell, spell_id):
 		return _error(
 			"Mapped spell '%s' does not support Classic spell %d" % [spell_name, spell_id]

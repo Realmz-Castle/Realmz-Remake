@@ -442,6 +442,8 @@ func _check_encounter_identities(bundle: ClassicCampaignBundle) -> void:
 		var encounter: Dictionary = bundle.complex_encounters_by_id[encounter_id_value]
 		_check_item_ids(bundle, encounter, encounter_id)
 		_check_spell_ids(encounter, encounter_id)
+		_check_rogue_trap_spell(bundle, encounter, encounter_id)
+	_check_special_scenario_items(bundle)
 
 
 func _check_item_ids(
@@ -536,6 +538,118 @@ func _check_spell_class(spell_class: int, encounter_id: int) -> void:
 		"Complex encounter spell class %d has no native Remake resource" % spell_class,
 		{"referenceId": spell_class}
 	)
+
+
+func _check_rogue_trap_spell(
+	bundle: ClassicCampaignBundle,
+	encounter: Dictionary,
+	encounter_id: int
+) -> void:
+	if not bool(encounter.get("thief", false)):
+		return
+	var thief_id := int(encounter.get("thiefSuccess", -1))
+	var thief_encounter := bundle.get_thief_encounter(thief_id)
+	if thief_encounter.is_empty():
+		return
+	var spell_id := int(thief_encounter.get("spell", 0))
+	if spell_id != 0:
+		_check_native_effect_spell(spell_id, "Data TD2", thief_id, encounter_id)
+
+
+func _check_special_scenario_items(bundle: ClassicCampaignBundle) -> void:
+	var scenario_item_ids: Array = bundle.scenario_items_by_id.keys()
+	scenario_item_ids.sort()
+	for item_id_value: Variant in scenario_item_ids:
+		var item_id := int(item_id_value)
+		var item: Dictionary = bundle.scenario_items_by_id[item_id_value]
+		var item_type := int(item.get("type", 0))
+		var special1 := int(item.get("special1", 0))
+		if item_type == 20:
+			var spell_id: int = abs(int(item.get("special2", 0)))
+			if spell_id == 0:
+				_add_blocker(
+					"invalid-scenario-spell-item",
+					"Data NI",
+					item_id,
+					-1,
+					"Scenario spell item %d has no spell ID" % item_id,
+					{"referenceId": item_id}
+				)
+			else:
+				_check_native_effect_spell(spell_id, "Data NI", item_id, item_id)
+		if abs(item_type) == 23 or special1 == -23:
+			var action_point_id: int = abs(int(item.get("special5", 0)))
+			if action_point_id == 0 or bundle.get_extra_action_point(action_point_id).is_empty():
+				_add_blocker(
+					"missing-door-action-point",
+					"Data NI",
+					item_id,
+					-1,
+					"Scenario door item %d references missing Data ED3 action point %d" % [
+						item_id, action_point_id,
+					],
+					{"referenceId": action_point_id}
+				)
+
+
+func _check_native_effect_spell(
+	spell_id: int,
+	source: String,
+	record_index: int,
+	owner_id: int
+) -> void:
+	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
+	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
+	if spell_name.is_empty():
+		_add_blocker(
+			"unresolved-spell-identity",
+			source,
+			record_index,
+			-1,
+			"Classic spell %d has no Remake mapping" % spell_id,
+			{"referenceId": spell_id, "ownerId": owner_id}
+		)
+		return
+	var spells: Variant = _native_context.get("spells", {})
+	if not (spells is Dictionary) or spells.is_empty():
+		return
+	if not spells.has(spell_name):
+		_add_blocker(
+			"missing-native-spell",
+			source,
+			record_index,
+			-1,
+			"Mapped spell '%s' has no executable Remake resource" % spell_name,
+			{"referenceId": spell_id, "nativeName": spell_name, "ownerId": owner_id}
+		)
+		return
+	var metadata: Variant = spells.get(spell_name, {})
+	var supported_ids: Variant = metadata.get("classicSpellIds", []) \
+		if metadata is Dictionary else []
+	if supported_ids is Array and not supported_ids.is_empty() and spell_id not in supported_ids:
+		_add_blocker(
+			"unsupported-native-spell-variant",
+			source,
+			record_index,
+			-1,
+			"Mapped spell '%s' does not represent Classic spell %d" % [spell_name, spell_id],
+			{"referenceId": spell_id, "nativeName": spell_name, "ownerId": owner_id}
+		)
+		return
+	var save_index := int(metadata.get("classicSpellSaveIndex", -2)) \
+		if metadata is Dictionary else -2
+	var save_mode := str(metadata.get("classicSpellSaveMode", "")) \
+		if metadata is Dictionary else ""
+	if save_mode not in ["none", "negate", "half_damage"] \
+			or (save_mode != "none" and (save_index < 0 or save_index > 7)):
+		_add_blocker(
+			"missing-native-spell-save-metadata",
+			source,
+			record_index,
+			-1,
+			"Mapped spell '%s' has no executable Classic save behavior" % spell_name,
+			{"referenceId": spell_id, "nativeName": spell_name, "ownerId": owner_id}
+		)
 
 
 func _is_empty_scenario_item_response(bundle: ClassicCampaignBundle, item_id: int) -> bool:

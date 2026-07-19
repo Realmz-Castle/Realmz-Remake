@@ -18,6 +18,7 @@ const ShopRulesScript = preload("res://scripts/shop_rules.gd")
 const TemplePaymentScript = preload("res://scenes/UI/HUD/Temple/temple_payment.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const ShineScript = preload("res://shared_assets/spells/shine.gd")
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 const WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub"
@@ -25,6 +26,8 @@ const TWIN_SANDS_OPCODE_25_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/twin_sands_opcode_25"
 const COB_SPOKEN_WORD_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/cob_spoken_word"
+const COMPLEX_RESPONSE_MODES_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/complex_response_modes"
 
 var failures := 0
 
@@ -372,6 +375,7 @@ func _init() -> void:
 	_test_difficulty_branching()
 	_test_complex_spell_results(bundle)
 	_test_complex_item_results(bundle)
+	_test_complex_response_modes()
 	_test_shipped_lock_encounter(bundle)
 	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
@@ -4982,6 +4986,215 @@ func _test_complex_item_results(bundle) -> void:
 		),
 		["Campaign Rope"],
 		"scenario-local item metadata resolves without display-name guessing"
+	)
+
+
+func _test_complex_response_modes() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(COMPLEX_RESPONSE_MODES_FIXTURE),
+		"complex response fixture loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:0"), "begin complex response fixture")
+	var encounter_result: Dictionary = interpreter.run_until_yield()
+	var payload: Dictionary = encounter_result.get("payload", {})
+	_expect_equal(encounter_result.get("command"), "start_encounter", "fixture starts encounter")
+	_expect_equal(
+		payload.get("scenarioItems", []).size(),
+		3,
+		"complex payload includes compiled scenario items"
+	)
+
+	var encounter: Dictionary = payload.get("encounter", {})
+	var scenario_items: Array = payload.get("scenarioItems", [])
+	var adapter = GodotAdapterScript.new()
+	var scroll := {
+		"name": "Renamed Fireball Scroll",
+		"classicItemId": 900,
+		"charges": 1,
+		"charges_max": 1,
+		"delete_on_empty": 1,
+	}
+	var door_sigil := {
+		"name": "Door Sigil",
+		"classicItemId": 901,
+		"charges": 2,
+		"charges_max": 2,
+		"delete_on_empty": 0,
+	}
+	var ordinary_item := {
+		"name": "Renamed Brass Key",
+		"classicItemId": 902,
+		"charges": 1,
+		"charges_max": 1,
+	}
+	var scroll_mode: Dictionary = adapter.classify_complex_item(scroll, scenario_items)
+	_expect_equal(scroll_mode.get("mode"), "spell-item", "type-20 item enters spell response")
+	_expect_equal(scroll_mode.get("spellId"), 1306, "compiled scroll preserves spell ID")
+	_expect_equal(scroll_mode.get("spellPower"), 2, "compiled scroll preserves spell power")
+	var native_scroll := {
+		"name": "Fireball",
+		"type": "Scroll",
+		"_on_combat_use_spell": ["Fireball (1306)", 1],
+	}
+	var native_scroll_mode: Dictionary = adapter.classify_complex_item(
+		native_scroll,
+		scenario_items
+	)
+	_expect_equal(native_scroll_mode.get("spellName"), "Fireball", "native scroll label is normalized")
+	_expect_equal(native_scroll_mode.get("spellId"), 1306, "native scroll retains embedded Classic ID")
+	_expect(
+		adapter.is_complex_scroll_item(native_scroll, scenario_items),
+		"native scroll can use Classic's separate scroll response"
+	)
+	var spell_staff := native_scroll.duplicate(true)
+	spell_staff["type"] = "Staff"
+	_expect(
+		not adapter.is_complex_scroll_item(spell_staff, scenario_items),
+		"spell-bearing staves remain on Classic's item-response path"
+	)
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			encounter,
+			fireball.name,
+			fireball.classic_spell_class,
+			spell_mapping,
+			fireball.classic_spell_ids
+		),
+		2,
+		"compiled scroll spell selects the authored exact-ID result"
+	)
+	var class_encounter := encounter.duplicate(true)
+	class_encounter["spellIds"] = [1]
+	class_encounter["spellResults"] = [3]
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			class_encounter,
+			fireball.name,
+			fireball.classic_spell_class,
+			spell_mapping,
+			fireball.classic_spell_ids
+		),
+		3,
+		"compiled low-ID spell class remains a valid response"
+	)
+
+	var scroll_holder := InventoryTestCharacter.new()
+	scroll_holder.inventory = [scroll]
+	var scroll_use: Dictionary = adapter.consume_complex_item(scroll_holder, scroll)
+	_expect_equal(scroll_use.get("remainingCharges"), 0, "scroll response consumes a charge")
+	_expect(bool(scroll_use.get("removed", false)), "empty disposable scroll is removed")
+	_expect(scroll_holder.inventory.is_empty(), "consumed scroll leaves its owner's inventory")
+
+	var door_mode: Dictionary = adapter.classify_complex_item(door_sigil, scenario_items)
+	_expect_equal(door_mode.get("mode"), "door-activation", "type-23 item activates a door")
+	_expect_equal(
+		door_mode.get("doorActivationActionPointId"),
+		7,
+		"compiled door item preserves its Data ED3 target"
+	)
+	var door_holder := InventoryTestCharacter.new()
+	door_holder.inventory = [door_sigil]
+	var door_use: Dictionary = adapter.consume_complex_item(door_holder, door_sigil)
+	_expect_equal(door_use.get("remainingCharges"), 1, "door activation consumes one charge")
+	_expect_equal(door_holder.inventory.size(), 1, "charged door item remains in inventory")
+	var door_result: Dictionary = interpreter.resume_encounter(0, {
+		"doorActivationActionPointId": 7,
+	})
+	_expect_equal(door_result.get("status"), "completed", "door Data ED3 action completes")
+	_expect(interpreter.runtime_state.is_quest_set(42), "door Data ED3 mutation persists")
+	var restored = StateScript.new()
+	restored.configure_from_bundle(bundle)
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect(restored.is_quest_set(42), "door mutation survives snapshot restore")
+
+	var ordinary_mode: Dictionary = adapter.classify_complex_item(ordinary_item, scenario_items)
+	_expect_equal(ordinary_mode.get("mode"), "item", "ordinary item keeps item-response mode")
+	_expect_equal(
+		adapter.resolve_complex_item_result(
+			encounter,
+			str(ordinary_item["name"]),
+			{},
+			payload.get("itemTexts", []),
+			adapter._classic_item_ids(ordinary_item)
+		),
+		3,
+		"ordinary compiled item selects its authored result"
+	)
+	_expect_equal(
+		adapter.resolve_complex_item_selection(
+			encounter,
+			{"name": "Unmatched Token"},
+			{},
+			payload.get("itemTexts", []),
+			scenario_items
+		).get("outcome"),
+		4,
+		"unmatched item keeps Classic's result-4 fallback"
+	)
+
+	var resolver = RogueResolverScript.new()
+	_expect(
+		resolver.configure(encounter, payload.get("thiefEncounter", {})),
+		"configure compiled trap-spell fixture"
+	)
+	var sprung_trap: Dictionary = resolver.resolve_action(6, true)
+	_expect_equal(sprung_trap.get("status"), "trap", "armed fixture trap springs")
+	_expect_equal(sprung_trap.get("trap", {}).get("spellId"), 1110, "trap preserves spell ID")
+	_expect_equal(sprung_trap.get("trap", {}).get("spellPower"), 2, "trap preserves spell power")
+	var rogue := RogueTestCharacter.new()
+	var companion := RogueTestCharacter.new()
+	companion.name = "Companion"
+	var spell_request: Dictionary = adapter.rogue_trap_spell_request(
+		sprung_trap.get("trap", {}),
+		rogue,
+		[rogue, companion]
+	)
+	_expect_equal(spell_request.get("targets", []).size(), 1, "rogue-only trap selects one target")
+	_expect_equal(spell_request.get("targets", [])[0], rogue, "trap spell targets selected rogue")
+	_expect_equal(spell_request.get("payload", {}).get("spellId"), 1110, "trap uses field-spell payload")
+	var shine = ShineScript.new()
+	_expect(shine.supports_classic_spell_id(1110), "Shine exposes its exact Classic identity")
+	_expect_equal(shine.classic_spell_save_mode, "none", "Shine uses the no-save field flow")
+	var readiness_context := {"spells": {
+		"Fireball": {
+			"classicSpellClass": fireball.classic_spell_class,
+			"classicSpellIds": fireball.classic_spell_ids,
+			"classicSpellSaveIndex": fireball.classic_spell_save_index,
+			"classicSpellSaveMode": fireball.classic_spell_save_mode,
+		},
+		"Shine": {
+			"classicSpellClass": shine.classic_spell_class,
+			"classicSpellIds": shine.classic_spell_ids,
+			"classicSpellSaveIndex": shine.classic_spell_save_index,
+			"classicSpellSaveMode": shine.classic_spell_save_mode,
+		},
+	}}
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle, readiness_context)
+	var readiness_codes: Array = readiness.get("diagnostics", []).map(
+		func(diagnostic: Dictionary) -> String: return str(diagnostic.get("code", ""))
+	)
+	_expect(
+		not readiness_codes.has("missing-native-spell"),
+		"compiled trap and item spells have native resources"
+	)
+	_expect(
+		not readiness_codes.has("missing-door-action-point"),
+		"compiled door item resolves its Data ED3 target"
+	)
+	bundle.extra_action_points_by_id.erase(7)
+	readiness = ReadinessScript.new().inspect(bundle, readiness_context)
+	readiness_codes = readiness.get("diagnostics", []).map(
+		func(diagnostic: Dictionary) -> String: return str(diagnostic.get("code", ""))
+	)
+	_expect(
+		"missing-door-action-point" in readiness_codes,
+		"readiness blocks a door item whose Data ED3 target is absent"
 	)
 
 

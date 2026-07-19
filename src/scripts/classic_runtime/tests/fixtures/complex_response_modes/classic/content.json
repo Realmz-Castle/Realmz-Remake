@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "monsters": [],
+  "monsterSets": [],
+  "monsterDescriptions": [],
+  "scenarioItems": [
+    {"id":0,"itemId":900,"type":20,"special1":2,"special2":1306,"special3":0,"special4":0,"special5":0,"charge":1,"dropOnEmpty":1,"authored":false},
+    {"id":1,"itemId":901,"type":23,"special1":0,"special2":0,"special3":0,"special4":0,"special5":7,"charge":2,"dropOnEmpty":0,"authored":false},
+    {"id":2,"itemId":902,"type":13,"special1":0,"special2":0,"special3":0,"special4":0,"special5":0,"charge":-1,"dropOnEmpty":0,"authored":false}
+  ],
+  "itemTexts": [
+    {"itemId":900,"identifiedName":"Fireball Scroll","unidentifiedName":"Marked Scroll"},
+    {"itemId":901,"identifiedName":"Door Sigil","unidentifiedName":"Stone Sigil"},
+    {"itemId":902,"identifiedName":"Brass Key","unidentifiedName":"Small Key"}
+  ],
+  "questLabels": []
+}
