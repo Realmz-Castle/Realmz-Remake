@@ -17,6 +17,27 @@ const CLASSIC_ATTRIBUTE_STATS := {
 	4: "Vitality",
 	6: "Luck",
 }
+# CoB's rockfall uses attribute value 5 for a quickness save, although Classic
+# omits that case from savevsattr. Keep it meaningful without changing opcode 30.
+const CLASSIC_MISC_ATTRIBUTE_STATS := {
+	0: "Strength",
+	1: "Intellect",
+	2: "Wisdom",
+	3: "Dexterity",
+	4: "Vitality",
+	5: "Dexterity",
+	6: "Luck",
+}
+const CLASSIC_SPELL_SAVE_STATS := {
+	0: ["MultiplierMental", "ResistanceMental"],
+	1: ["MultiplierFire", "ResistanceFire"],
+	2: ["MultiplierIce", "ResistanceIce"],
+	3: ["MultiplierElect", "ResistanceElect"],
+	4: ["MultiplierChemical", "ResistanceChemical"],
+	5: ["MultiplierMental", "ResistanceMental"],
+	6: ["MultiplierMagic", "ResistanceMagic"],
+	7: ["MultiplierHealing", "ResistanceHealing"],
+}
 const CLASSIC_SPECIAL_STATS := {
 	0: "Melee_Crit_Mult",
 	3: "Melee_Crit_Rate",
@@ -50,6 +71,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _pick_characters(payload)
 		"filter_selected_characters":
 			return _filter_selected_characters(payload)
+		"select_characters_by_misc":
+			return _select_characters_by_misc(payload)
 		"change_selected_health":
 			return await _change_selected_health(payload)
 		"change_party_health":
@@ -927,6 +950,125 @@ func _filter_selected_characters(payload: Dictionary) -> Dictionary:
 	}
 
 
+func _select_characters_by_misc(payload: Dictionary) -> Dictionary:
+	var resolved_payload := payload.duplicate(true)
+	var selector := str(payload.get("selector", ""))
+	if selector == "has_item" or selector == "wearing_item":
+		var item_ids: Object = _autoload("ItemIdDivinity")
+		var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
+		var item_texts: Variant = payload.get("itemTexts", [])
+		var names := _classic_item_names(
+			abs(int(payload.get("value", 0))),
+			item_mapping,
+			item_texts if item_texts is Array else []
+		)
+		if names.is_empty():
+			return _error(
+				"Classic item selector %d has no Remake item mapping" \
+				% abs(int(payload.get("value", 0)))
+			)
+		resolved_payload["itemNames"] = names
+	var result := select_characters_by_misc(
+		resolved_payload,
+		_party_characters(),
+		_current_selected_characters(),
+		_selected_character()
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	var selected: Array = result.get("selected", [])
+	_store_selected_characters(selected)
+	return {
+		"selectedCount": selected.size(),
+		"checks": result.get("checks", []),
+	}
+
+
+func select_characters_by_misc(
+	payload: Dictionary,
+	party: Array,
+	previously_selected: Array,
+	focused_character: Variant
+) -> Dictionary:
+	var selector := str(payload.get("selector", ""))
+	var supported_selectors := [
+		"movement_below",
+		"position_before",
+		"has_item",
+		"percent",
+		"attribute_save_failure",
+		"spell_save_failure",
+		"focused_character",
+		"wearing_item",
+		"exact_position",
+	]
+	if not supported_selectors.has(selector):
+		return _error("Classic miscellaneous character selector is invalid")
+	var candidate_mode := str(payload.get("candidateMode", "party"))
+	if not ["selected", "party", "alive"].has(candidate_mode):
+		return _error("Classic miscellaneous character selector has an invalid source set")
+	var candidates := _selection_candidates(candidate_mode, party, previously_selected)
+	var value := int(payload.get("value", 0))
+	var item_names: Array = payload.get("itemNames", [])
+	if (selector == "has_item" or selector == "wearing_item") and item_names.is_empty():
+		return _error("Classic item selector has no item names")
+	if selector == "attribute_save_failure" and not CLASSIC_MISC_ATTRIBUTE_STATS.has(value):
+		return _error("Classic attribute save %d has no Remake stat mapping" % value)
+	if selector == "spell_save_failure" and not CLASSIC_SPELL_SAVE_STATS.has(value):
+		return _error("Classic spell save %d has no Remake stat mapping" % value)
+
+	var selected: Array = []
+	var checks: Array = []
+	for character_value: Variant in candidates:
+		if not (character_value is Object):
+			return _error("Classic miscellaneous selector target is not a character")
+		var party_position := party.find(character_value) + 1
+		var matched := false
+		var roll := 0
+		match selector:
+			"movement_below":
+				if not character_value.has_method("get_stat"):
+					return _error("Classic movement selector target has no readable stats")
+				matched = float(character_value.get_stat("MaxMovement")) < value
+			"position_before":
+				matched = party_position > 0 and party_position < value
+			"has_item":
+				matched = _character_has_named_item(character_value, item_names, false)
+			"percent":
+				roll = randi_range(1, 100)
+				matched = roll <= value
+			"attribute_save_failure":
+				if not character_value.has_method("get_stat"):
+					return _error("Classic attribute-save target has no readable stats")
+				roll = randi_range(1, 100)
+				matched = roll >= 4.0 * float(
+					character_value.get_stat(CLASSIC_MISC_ATTRIBUTE_STATS[value])
+				)
+			"spell_save_failure":
+				if not character_value.has_method("get_stat"):
+					return _error("Classic spell-save target has no readable stats")
+				roll = randi_range(1, 100)
+				matched = roll > _classic_spell_save_chance(character_value, value)
+			"focused_character":
+				matched = character_value == focused_character
+			"wearing_item":
+				matched = _character_has_named_item(character_value, item_names, true)
+			"exact_position":
+				matched = party_position == value
+		if matched:
+			selected.append(character_value)
+		checks.append({
+			"character": character_value,
+			"name": str(character_value.get("name")),
+			"roll": roll,
+			"matched": matched,
+		})
+	return {
+		"selected": selected,
+		"checks": checks,
+	}
+
+
 func filter_characters_by_check(
 	payload: Dictionary,
 	party: Array,
@@ -949,20 +1091,10 @@ func filter_characters_by_check(
 			"Classic %s check %d has no Remake stat mapping" % [check_type, check_index]
 		)
 
-	var candidates: Array = []
-	match str(payload.get("candidateMode", "selected")):
-		"selected":
-			for character_value: Variant in party:
-				if previously_selected.has(character_value):
-					candidates.append(character_value)
-		"party":
-			candidates = party.duplicate()
-		"alive":
-			for character_value: Variant in party:
-				if _is_living_character(character_value):
-					candidates.append(character_value)
-		_:
-			return _error("Classic character check has an invalid candidate mode")
+	var candidate_mode := str(payload.get("candidateMode", "selected"))
+	if not ["selected", "party", "alive"].has(candidate_mode):
+		return _error("Classic character check has an invalid candidate mode")
+	var candidates := _selection_candidates(candidate_mode, party, previously_selected)
 
 	var modifier := int(payload.get("modifier", 0))
 	var select_on_failure := bool(payload.get("selectOnFailure", false))
@@ -989,6 +1121,45 @@ func filter_characters_by_check(
 		"selected": selected,
 		"checks": checks,
 	}
+
+
+func _selection_candidates(mode: String, party: Array, previously_selected: Array) -> Array:
+	var candidates: Array = []
+	for character_value: Variant in party:
+		if mode == "party" \
+		or (mode == "alive" and _is_living_character(character_value)) \
+		or (mode == "selected" and previously_selected.has(character_value)):
+			candidates.append(character_value)
+	return candidates
+
+
+func _character_has_named_item(
+	character: Object,
+	item_names: Array,
+	equipped_only: bool
+) -> bool:
+	var inventory: Variant = character.get("inventory")
+	if not (inventory is Array):
+		return false
+	var normalized_names: Array[String] = []
+	for item_name_value: Variant in item_names:
+		normalized_names.append(_normalized_item_name(str(item_name_value)))
+	for item_value: Variant in inventory:
+		if not (item_value is Dictionary):
+			continue
+		if not normalized_names.has(_normalized_item_name(str(item_value.get("name", "")))):
+			continue
+		if not equipped_only or int(item_value.get("equipped", 0)) == 1:
+			return true
+	return false
+
+
+func _classic_spell_save_chance(character: Object, save_index: int) -> float:
+	var stat_names: Array = CLASSIC_SPELL_SAVE_STATS[save_index]
+	var multiplier := float(character.get_stat(stat_names[0]))
+	var resistance := float(character.get_stat(stat_names[1]))
+	# Remake stores elemental defense as damage modifiers rather than Classic DRVs.
+	return clampf((2.0 * (1.0 - multiplier) + 0.1 * resistance) * 100.0, 0.0, 100.0)
 
 
 func _change_selected_health(payload: Dictionary) -> Dictionary:

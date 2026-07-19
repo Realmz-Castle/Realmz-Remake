@@ -32,6 +32,7 @@ class CaveInSpell:
 @export var playtest_label := "guard-house"
 @export var test_rogue_stat := -1.0
 @export var test_rogue_hp := 30
+@export var test_max_movement := -1.0
 @export var test_party_size := 1
 @export var test_spell_name := ""
 @export var test_item_name := ""
@@ -59,6 +60,7 @@ func _start_playtest() -> void:
 	UI.ow_hud.textRect.show()
 	await _wait_frames(2)
 	if test_rogue_stat >= 0.0 \
+			or test_max_movement >= 0.0 \
 			or not test_spell_name.is_empty() \
 			or not test_item_name.is_empty():
 		var resources: CampaignResources = NodeAccess.__Resources()
@@ -121,6 +123,9 @@ func _show_status(message: String, is_error: bool) -> void:
 func _run_automated_smoke() -> void:
 	if playtest_label == "character-pick":
 		await _run_character_pick_smoke()
+		return
+	if playtest_label == "misc-selection":
+		await _run_misc_selection_smoke()
 		return
 	if playtest_label == "party-health":
 		await _run_party_health_smoke()
@@ -270,6 +275,36 @@ func _run_character_pick_smoke() -> void:
 		choices_ready and "Classic character-pick playtest complete" \
 			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"declining the follow-up choice completes the source action point"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_misc_selection_smoke() -> void:
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"01_rockfall_warning",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"Large rocks break loose from the ceiling"
+		),
+		"the source-backed rockfall warning is visible"
+	)
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	var hp_before := int(character.get_stat("curHP"))
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(5)
+	var hp_after := int(character.get_stat("curHP"))
+	_verify_smoke_stage(
+		"02_movement_selection_damage",
+		GameGlobal.last_picked_characters == [character]
+			and hp_before - hp_after >= 1
+			and hp_before - hp_after <= 3,
+		"the movement threshold selects and damages the slow party member"
+	)
+	_verify_smoke_stage(
+		"03_misc_selection_complete",
+		"Classic misc-selection playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"the host completes after applying selected damage"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
@@ -780,6 +815,9 @@ func _make_playtest_rogue() -> PlayerCharacter:
 		rogue.stats[stat_name] = test_rogue_stat
 	rogue.stats["maxHP"] = test_rogue_hp
 	rogue.stats["curHP"] = test_rogue_hp
+	if test_max_movement >= 0.0:
+		rogue.base_stats["MaxMovement"] = test_max_movement
+		rogue.stats["MaxMovement"] = test_max_movement
 	if not test_item_name.is_empty():
 		rogue.inventory.append(GameGlobal.generate_item(test_item_name))
 	return rogue

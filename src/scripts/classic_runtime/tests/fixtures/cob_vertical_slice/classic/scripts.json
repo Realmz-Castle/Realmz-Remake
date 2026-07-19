@@ -140,6 +140,30 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 12, "byteOffset": 20480, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:2:12",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 2,
+      "recordIndex": 12,
+      "active": true,
+      "doorid": 20552,
+      "landid": 2,
+      "targetX": 52,
+      "targetY": 5,
+      "percent": 33,
+      "coordinate": {"x": 52, "y": 5},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 560, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 52, "code": 52, "id": 277, "label": "Pick position movement item percent", "category": "state", "gosub": false},
+        {"slot": 2, "rawCode": 15, "code": 15, "id": 278, "label": "Damage or heal picked", "category": "state", "gosub": false},
+        {"slot": 3, "rawCode": 1, "code": 1, "id": 561, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 4, "rawCode": 2, "code": 2, "id": 279, "label": "Battle", "category": "combat", "gosub": false},
+        {"slot": 5, "rawCode": 1, "code": 1, "id": 562, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 12, "byteOffset": 8480, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data DD:6:12",
       "source": "Data DD",
       "levelType": "land",
@@ -729,6 +753,27 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 31, "byteOffset": 5240, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data ED3:macro:67",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 67,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": -508, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 52, "code": 52, "id": 249, "label": "Pick position movement item percent", "category": "state", "gosub": false},
+        {"slot": 2, "rawCode": 15, "code": 15, "id": 250, "label": "Damage or heal picked", "category": "state", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 67, "byteOffset": 2680, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data ED3:macro:70",
       "source": "Data ED3",
       "levelType": null,
@@ -797,9 +842,14 @@
     {"id": 158, "values": [5, 30, 1, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 158, "byteOffset": 1580, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 159, "values": [-2, 1, 6, 655, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 159, "byteOffset": 1590, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 188, "values": [-6, 1, 4, 659, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 188, "byteOffset": 1880, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 249, "values": [0, 10, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 249, "byteOffset": 2490, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 250, "values": [-1, 1, 3, 10090, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 250, "byteOffset": 2500, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 255, "values": [1, 17, 900, 158, 163], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 255, "byteOffset": 2550, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 256, "values": [1, 31, 70, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 256, "byteOffset": 2560, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 269, "values": [0, 3, 28, 193, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 269, "byteOffset": 2690, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 277, "values": [4, 5, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 277, "byteOffset": 2770, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 278, "values": [-3, 2, 8, 632, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 278, "byteOffset": 2780, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 279, "values": [186, 0, 10049, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 279, "byteOffset": 2790, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 364, "values": [1, 22, 73, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 364, "byteOffset": 3640, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 365, "values": [1, 24, 75, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 365, "byteOffset": 3650, "byteLength": 10, "confidence": "source-backed"}},
@@ -1059,6 +1109,30 @@
       "text": "At the bottom of the shaft is a large pile of gold coins.  Do you wish to take them?",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 506, "byteOffset": 129536, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 508,
+      "text": "Large rocks break loose from the ceiling.  Those who are not quick enough fail to get out of the way and take damage.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 508, "byteOffset": 130048, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 560,
+      "text": "Large boulders careen downwards from a ridge above.  Those not fast enough to avoid the rocks are crushed beneath a hail of missiles.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 560, "byteOffset": 143360, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 561,
+      "text": "The hail of boulders forces you to take up a defensive position.  Gnath seize the opportunity to close ranks and attack.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 561, "byteOffset": 143616, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 562,
+      "text": "They carried little of value.  This was a perfect position for setting up an ambush.  Be careful of similar attacks in the future.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 562, "byteOffset": 143872, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 867,

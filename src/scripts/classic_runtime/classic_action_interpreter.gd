@@ -297,6 +297,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		47:
 			runtime_state.set_quest_flag(record_id)
 			return _continue_result()
+		52:
+			return _execute_misc_character_selection(record_id)
 		57:
 			return _execute_landlook(record_id)
 		58:
@@ -594,6 +596,66 @@ func _execute_character_check_selection(extra_code_id: int) -> Dictionary:
 		"candidateMode": candidate_mode,
 		"checkType": "attribute" if int(values[3]) != 0 else "special",
 		"selectOnFailure": int(values[0]) < 0,
+	})
+
+
+func _execute_misc_character_selection(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Miscellaneous character selector references missing Extra Code row %d" \
+			% extra_code_id
+		)
+	var selector_index := int(values[0])
+	var selector := ""
+	match selector_index:
+		0:
+			selector = "movement_below"
+		1:
+			selector = "position_before"
+		2:
+			selector = "has_item"
+		3:
+			selector = "percent"
+		4:
+			selector = "attribute_save_failure"
+		5:
+			selector = "spell_save_failure"
+		6:
+			selector = "focused_character"
+		7:
+			selector = "wearing_item"
+		8:
+			selector = "exact_position"
+		_:
+			return _halt_with_error(
+				"Miscellaneous character selector %d is not supported" % selector_index
+			)
+	var candidate_mode := "party"
+	match int(values[2]):
+		0:
+			pass
+		1:
+			candidate_mode = "alive"
+		2:
+			candidate_mode = "selected"
+		_:
+			return _halt_with_error(
+				"Miscellaneous character selector has invalid source set %d" % int(values[2])
+			)
+	var value := int(values[1])
+	var item_texts: Array = []
+	if selector == "has_item" or selector == "wearing_item":
+		var item_text := bundle.get_item_text(abs(value))
+		if not item_text.is_empty():
+			item_texts.append(item_text)
+	return _yield_result("select_characters_by_misc", {
+		"extraCodeId": extra_code_id,
+		"selector": selector,
+		"selectorIndex": selector_index,
+		"value": value,
+		"candidateMode": candidate_mode,
+		"itemTexts": item_texts,
 	})
 
 

@@ -45,9 +45,13 @@ class RogueTestCharacter:
 	extends RefCounted
 	var name := "Test Rogue"
 	var stat_value := 35.0
+	var stat_values: Dictionary = {}
 	var current_hp := 30
+	var inventory: Array = []
 
 	func get_stat(stat_name: String) -> float:
+		if stat_values.has(stat_name):
+			return float(stat_values[stat_name])
 		match stat_name:
 			"curHP":
 				return current_hp
@@ -78,6 +82,7 @@ func _init() -> void:
 	_test_experience_award(bundle)
 	_test_party_health_effect(bundle)
 	_test_selected_character_pipeline(bundle)
+	_test_misc_character_selection(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -605,6 +610,190 @@ func _test_selected_character_pipeline(bundle) -> void:
 		).get("hits", []).size(),
 		0,
 		"empty selected set is a valid no-op"
+	)
+
+
+func _test_misc_character_selection(bundle) -> void:
+	var movement_interpreter = _interpreter(bundle)
+	_expect(
+		movement_interpreter.begin_trigger("Data ED3:macro:67"),
+		"begin CoB movement-based rockfall"
+	)
+	_expect_equal(
+		movement_interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		-508,
+		"movement rockfall starts with its source warning"
+	)
+	var movement_result: Dictionary = movement_interpreter.run_until_yield()
+	var movement_payload: Dictionary = movement_result.get("payload", {})
+	_expect_equal(
+		movement_result.get("command"),
+		"select_characters_by_misc",
+		"movement selector command"
+	)
+	_expect_equal(movement_payload.get("selector"), "movement_below", "movement selector type")
+	_expect_equal(movement_payload.get("value"), 10, "movement selector threshold")
+	_expect_equal(movement_payload.get("candidateMode"), "party", "movement selector checks party")
+	_expect_equal(
+		movement_interpreter.run_until_yield().get("command"),
+		"change_selected_health",
+		"movement-selected characters receive rockfall damage"
+	)
+
+	var attribute_interpreter = _interpreter(bundle)
+	_expect(
+		attribute_interpreter.begin_trigger("Data DD:2:12"),
+		"begin CoB attribute-save rockfall"
+	)
+	_expect_equal(
+		attribute_interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		560,
+		"attribute rockfall starts with its source warning"
+	)
+	var attribute_result: Dictionary = attribute_interpreter.run_until_yield()
+	var attribute_payload: Dictionary = attribute_result.get("payload", {})
+	_expect_equal(
+		attribute_result.get("command"),
+		"select_characters_by_misc",
+		"attribute-save selector command"
+	)
+	_expect_equal(
+		attribute_payload.get("selector"),
+		"attribute_save_failure",
+		"attribute-save selector type"
+	)
+	_expect_equal(attribute_payload.get("value"), 5, "CoB rockfall preserves selector 5")
+	_expect_equal(
+		attribute_interpreter.run_until_yield().get("payload", {}).get("rollRange"),
+		[2, 8],
+		"attribute-save rockfall preserves damage range"
+	)
+
+	var first_target := RogueTestCharacter.new()
+	first_target.name = "Slow"
+	first_target.stat_values = {
+		"MaxMovement": 8,
+		"Dexterity": 0,
+		"MultiplierMental": 1.0,
+		"ResistanceMental": 0,
+	}
+	first_target.inventory = [{"name": "Dagger", "equipped": 0}]
+	var second_target := RogueTestCharacter.new()
+	second_target.name = "Fast"
+	second_target.stat_values = {
+		"MaxMovement": 12,
+		"Dexterity": 100,
+		"MultiplierMental": 0.0,
+		"ResistanceMental": 0,
+	}
+	second_target.inventory = [{"name": "Dagger", "equipped": 1}]
+	var third_target := RogueTestCharacter.new()
+	third_target.name = "Dead"
+	third_target.current_hp = 0
+	var party := [first_target, second_target, third_target]
+	var adapter = GodotAdapterScript.new()
+
+	var movement_selected: Dictionary = adapter.select_characters_by_misc(
+		{"selector": "movement_below", "value": 10, "candidateMode": "party"},
+		party,
+		[],
+		null
+	)
+	_expect_equal(
+		movement_selected.get("selected"),
+		[first_target],
+		"movement selector picks characters below the authored maximum"
+	)
+	var attribute_failed: Dictionary = adapter.select_characters_by_misc(
+		{"selector": "attribute_save_failure", "value": 5, "candidateMode": "party"},
+		[first_target, second_target],
+		[],
+		null
+	)
+	_expect_equal(
+		attribute_failed.get("selected"),
+		[first_target],
+		"misc attribute selector picks failed saves"
+	)
+	var spell_failed: Dictionary = adapter.select_characters_by_misc(
+		{"selector": "spell_save_failure", "value": 5, "candidateMode": "party"},
+		[first_target, second_target],
+		[],
+		null
+	)
+	_expect_equal(
+		spell_failed.get("selected"),
+		[first_target],
+		"misc spell selector picks failed saves"
+	)
+	var selected_only: Dictionary = adapter.select_characters_by_misc(
+		{"selector": "percent", "value": 100, "candidateMode": "selected"},
+		party,
+		[second_target],
+		null
+	)
+	_expect_equal(
+		selected_only.get("selected"),
+		[second_target],
+		"misc selector can filter the previous selection"
+	)
+	var alive_only: Dictionary = adapter.select_characters_by_misc(
+		{"selector": "percent", "value": 100, "candidateMode": "alive"},
+		party,
+		[],
+		null
+	)
+	_expect_equal(
+		alive_only.get("selected"),
+		[first_target, second_target],
+		"misc selector can restrict candidates to living characters"
+	)
+	_expect_equal(
+		adapter.select_characters_by_misc(
+			{"selector": "position_before", "value": 3, "candidateMode": "party"},
+			party,
+			[],
+			null
+		).get("selected"),
+		[first_target, second_target],
+		"position selector uses Classic's one-based before threshold"
+	)
+	_expect_equal(
+		adapter.select_characters_by_misc(
+			{"selector": "exact_position", "value": 3, "candidateMode": "party"},
+			party,
+			[],
+			null
+		).get("selected"),
+		[third_target],
+		"exact-position extension selects one-based party slot"
+	)
+	_expect_equal(
+		adapter.select_characters_by_misc(
+			{"selector": "focused_character", "value": 0, "candidateMode": "party"},
+			party,
+			[],
+			second_target
+		).get("selected"),
+		[second_target],
+		"focused-character extension uses the native HUD selection"
+	)
+	var item_payload := {
+		"selector": "has_item",
+		"value": 1,
+		"candidateMode": "party",
+		"itemNames": ["Dagger"],
+	}
+	_expect_equal(
+		adapter.select_characters_by_misc(item_payload, party, [], null).get("selected"),
+		[first_target, second_target],
+		"item selector matches carried and worn items"
+	)
+	item_payload["selector"] = "wearing_item"
+	_expect_equal(
+		adapter.select_characters_by_misc(item_payload, party, [], null).get("selected"),
+		[second_target],
+		"worn-item extension requires equipped state"
 	)
 
 
@@ -1936,7 +2125,7 @@ func _test_full_bundle(path: String) -> void:
 	var handled_codes := [
 		-14, 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 23,
 		24, 25, 29, 30, 35, 37,
-		39, 41, 42, 44, 45, 46, 47, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
+		39, 41, 42, 44, 45, 46, 47, 52, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -1948,8 +2137,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2180, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2650, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2182, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2652, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -2055,6 +2244,10 @@ func _test_runtime_host() -> void:
 	_expect_equal(adapter.commands[-2].get("command"), "change_selected_health", "host dispatches selected damage")
 	_expect_equal(adapter.commands[-1].get("payload", {}).get("messageId"), 377, "host continues after selected damage")
 	_expect_equal(completions.size(), 9, "host completes checked-character damage")
+	_expect(host.start_trigger("Data ED3:macro:67"), "runtime host starts movement-based selection")
+	_expect_equal(adapter.commands[-2].get("command"), "select_characters_by_misc", "host dispatches misc selector")
+	_expect_equal(adapter.commands[-1].get("command"), "change_selected_health", "host continues to selected damage")
+	_expect_equal(completions.size(), 10, "host completes movement-selected damage")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(
