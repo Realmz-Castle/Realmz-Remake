@@ -10,7 +10,7 @@ const HANDLED_OPCODES := [
 	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
-	40, 41, 42, 44, 45, 46, 47, 49,
+	40, 41, 42, 43, 44, 45, 46, 47, 49,
 	52, 56, 57, 58,
 	73, 82, 83, 85, 87, 89,
 	93, 94, 95, 96, 97, 98,
@@ -556,6 +556,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _eliminate_simple_option_from_extra_code(record_id)
 		42:
 			return _execute_percent_branch(record_id)
+		43:
+			return _execute_give_condition(record_id)
 		44:
 			return _eliminate_complex_result(record_id)
 		56:
@@ -672,6 +674,31 @@ func _execute_take_gold(extra_code_id: int) -> Dictionary:
 		"currency": 0 if authored_amount > 0 else 1,
 		"amount": abs(authored_amount),
 		"warningId": 50,
+	})
+
+
+func _execute_give_condition(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Give Condition action references missing Extra Code row %d" % extra_code_id
+		)
+	var target_mode := int(values[0])
+	if target_mode < 0 or target_mode > 2:
+		return _halt_with_error(
+			"Give Condition action has invalid target mode %d" % target_mode
+		)
+	var condition_index := int(values[1])
+	if condition_index < 0 or condition_index >= 40:
+		return _halt_with_error(
+			"Give Condition action has invalid condition index %d" % condition_index
+		)
+	return _yield_result("give_character_condition", {
+		"extraCodeId": extra_code_id,
+		"targetMode": ["party", "selected", "living"][target_mode],
+		"conditionIndex": condition_index,
+		"duration": int(values[2]),
+		"soundId": int(values[3]),
 	})
 
 

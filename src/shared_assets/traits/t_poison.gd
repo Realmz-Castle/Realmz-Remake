@@ -10,7 +10,14 @@ func _init(args : Array):
 	#[chara, duration]
 	chara = args[0]
 	power = args[1]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is Poisoned !', null,'')
+	_log_condition(' is Poisoned !')
+
+
+func _log_condition(message: String) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var ui: Node = tree.root.get_node_or_null("UI") if tree != null else null
+	if ui != null and ui.get("ow_hud") != null:
+		ui.get("ow_hud").creatureRect.logrect.log_other_text(chara, message, null, '')
 
 func stack(args : Array) :
 	power += args[0]
@@ -23,7 +30,7 @@ func unstack(args : Array) :
 func get_saved_variables() :
 	return [power]
 
-func _on_new_round(_character : Creature) :
+func _on_new_round(_character) :
 	chara.change_cur_hp(-power)
 	power -= 1
 	if power <= 0 :
@@ -36,7 +43,7 @@ func _on_time_pass(_character, seconds) :
 		if power <= 0 :
 			chara.remove_trait(self)
 			return
-		chara.change_cur_hp(power)
+		chara.change_cur_hp(-power)
 		power -= 1
 		if power <= 0 :
 			chara.remove_trait(self)

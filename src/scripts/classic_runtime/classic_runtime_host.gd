@@ -117,6 +117,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 			runtime.finish_random_branch_presentation()
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
+		"give_character_condition", \
 		"pick_characters", "filter_selected_characters", "select_characters_by_misc", \
 		"change_selected_health", "change_party_health", "cast_classic_spell", \
 		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \

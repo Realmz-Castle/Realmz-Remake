@@ -10,14 +10,21 @@ func _init(args : Array):
 	#[chara, duration, permanent]
 	chara = args[0]
 	power = args[1]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is Dumbfounded !', null,'')
+	_log_condition(' is Diseased !')
+
+
+func _log_condition(message: String) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var ui: Node = tree.root.get_node_or_null("UI") if tree != null else null
+	if ui != null and ui.get("ow_hud") != null:
+		ui.get("ow_hud").creatureRect.logrect.log_other_text(chara, message, null, '')
 
 
 func get_saved_variables() :
 	return [power]
 
-func _on_new_round(_character : Creature) :
-	chara.change_cur_hp(power)
+func _on_new_round(_character) :
+	chara.change_cur_hp(-power)
 	if power <= 0 :
 		chara.remove_trait(self)
 
@@ -25,7 +32,7 @@ func _on_new_round(_character : Creature) :
 func _on_time_pass(_character, seconds) :
 	var s : int = seconds
 	while s > 0 :
-		chara.change_cur_hp(power)
+		chara.change_cur_hp(-power)
 		if power <= 0 :
 			chara.remove_trait(self)
 		s -= 5

@@ -6,6 +6,9 @@ const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
+const CharacterConditionRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
@@ -110,6 +113,45 @@ class InventoryTestCharacter:
 	func equip_item(item: Dictionary) -> bool:
 		item["equipped"] = 1
 		return true
+
+
+class ConditionTestTrait:
+	extends RefCounted
+	var name: String
+	var power: int
+
+	func _init(trait_name: String, trait_power: int) -> void:
+		name = trait_name
+		power = trait_power
+
+	func get_saved_variables() -> Array:
+		return [power]
+
+
+class ConditionTestCharacter:
+	extends RefCounted
+	var name: String
+	var life_status: int
+	var current_hp := 20
+	var traits: Array = []
+
+	func _init(character_name: String, status := 0) -> void:
+		name = character_name
+		life_status = status
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		var condition_trait := ConditionTestTrait.new(
+			str(trait_script.resource_path).get_file(),
+			int(args[0])
+		)
+		traits.append(condition_trait)
+		return condition_trait
+
+	func remove_trait(condition_trait: Variant) -> void:
+		traits.erase(condition_trait)
+
+	func change_cur_hp(change: int) -> void:
+		current_hp += change
 
 
 class AllyTestCharacter:
@@ -250,6 +292,7 @@ func _init() -> void:
 	_test_spell_effect_actions(bundle)
 	_test_item_actions()
 	_test_take_gold_action()
+	_test_give_condition_action()
 	_test_item_mutation_rules()
 	_test_equipment_storage_rules()
 	_test_quest_state_and_branch(bundle)
@@ -484,8 +527,8 @@ func _test_execution_coverage_audit(bundle) -> void:
 			and diagnostic_value.get("code") == "unsupported-action"
 		):
 			unsupported_opcodes.append(int(diagnostic_value.get("opcode", 0)))
-	_expect_equal(unsupported_opcodes.count(43), 1, "execution audit exposes CoB Give Condition use")
-	_expect_equal(unsupported_opcodes.size(), 1, "checked fixture has one executable unknown")
+	_expect_equal(unsupported_opcodes.count(43), 0, "execution audit recognizes CoB Give Condition")
+	_expect_equal(unsupported_opcodes.size(), 0, "checked fixture has no executable unknowns")
 	_expect_equal(
 		unsupported_opcodes.size(),
 		report.get("totals", {}).get("unknownExecutable"),
@@ -1557,6 +1600,129 @@ func _test_take_gold_action() -> void:
 	_expect_equal(adapter.commands[2].get("payload", {}).get("messageId"), 901, "host resumes payment branch")
 	_expect_equal(host_completions.size(), 1, "host completes Take Gold branch")
 	host.queue_free()
+
+
+func _test_give_condition_action() -> void:
+	var first := ConditionTestCharacter.new("Selected")
+	var second := ConditionTestCharacter.new("Unselected", 2)
+	var dead := ConditionTestCharacter.new("Dead", 3)
+	var temporary_poison: GDScript = load("res://shared_assets/traits/t_poison.gd")
+	var permanent_poison: GDScript = load("res://shared_assets/traits/p_poison.gd")
+	first.add_trait(temporary_poison, [4])
+	second.add_trait(temporary_poison, [2])
+	dead.add_trait(permanent_poison, [1])
+	var party := [first, second, dead]
+
+	var selected_result: Dictionary = CharacterConditionRulesScript.apply_condition(
+		party,
+		[first],
+		"selected",
+		9,
+		-1
+	)
+	_expect_equal(selected_result.get("affectedCount"), 1, "Give Condition targets picked characters")
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(first, 9),
+		-1,
+		"Give Condition applies a permanent signed poison value"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(second, 9),
+		0,
+		"Give Condition clears positive values outside the picked set"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(dead, 9),
+		-1,
+		"Give Condition preserves permanent values outside the picked set"
+	)
+	CharacterConditionRulesScript.apply_condition(party, [first], "selected", 9, -1)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(first, 9),
+		-2,
+		"repeated permanent conditions accumulate their signed value"
+	)
+	CharacterConditionRulesScript.apply_condition(party, [first], "selected", 9, 3)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(first, 9),
+		1,
+		"positive duration combines with an existing permanent value"
+	)
+	var living_result: Dictionary = CharacterConditionRulesScript.apply_condition(
+		party,
+		[],
+		"living",
+		28,
+		-1
+	)
+	_expect_equal(living_result.get("affectedCount"), 2, "living mode excludes only dead characters")
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(second, 28),
+		-1,
+		"living mode includes an incapacitated character"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(dead, 28),
+		0,
+		"living mode excludes a dead character"
+	)
+	var party_result: Dictionary = CharacterConditionRulesScript.apply_condition(
+		party,
+		[],
+		"party",
+		28,
+		-1
+	)
+	_expect_equal(party_result.get("affectedCount"), 3, "party mode includes every character")
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(dead, 28),
+		-1,
+		"party mode can affect a dead character"
+	)
+	var effect_target := ConditionTestCharacter.new("Effect target")
+	var poison_effect: Variant = permanent_poison.new([effect_target, 2])
+	_expect_equal(
+		poison_effect.get_saved_variables(),
+		[2],
+		"the native trait exposes the value used by character saves"
+	)
+	poison_effect._on_time_pass(effect_target, 5)
+	_expect_equal(effect_target.current_hp, 18, "native permanent poison deals periodic damage")
+	var permanent_disease: GDScript = load("res://shared_assets/traits/p_disease.gd")
+	var disease_effect: Variant = permanent_disease.new([effect_target, 3])
+	disease_effect._on_time_pass(effect_target, 5)
+	_expect_equal(effect_target.current_hp, 15, "native permanent disease deals periodic damage")
+	var temporary_poison_effect: Variant = temporary_poison.new([effect_target, 2])
+	temporary_poison_effect._on_time_pass(effect_target, 5)
+	_expect_equal(effect_target.current_hp, 13, "native temporary poison deals periodic damage")
+	var temporary_disease: GDScript = load("res://shared_assets/traits/t_disease.gd")
+	var temporary_disease_effect: Variant = temporary_disease.new([effect_target, 3])
+	temporary_disease_effect._on_time_pass(effect_target, 5)
+	_expect_equal(effect_target.current_hp, 10, "native temporary disease deals periodic damage")
+
+	var bundle = _give_condition_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("condition:poison"), "begin Give Condition fixture")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"start_encounter",
+		"condition fixture starts encounter"
+	)
+	var command: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(
+		command.get("command"),
+		"give_character_condition",
+		"opcode 43 requests native condition mutation"
+	)
+	_expect_equal(command.get("payload", {}).get("targetMode"), "selected", "opcode 43 preserves picked mode")
+	_expect_equal(command.get("payload", {}).get("conditionIndex"), 9, "opcode 43 preserves condition index")
+	_expect_equal(command.get("payload", {}).get("duration"), -1, "opcode 43 preserves signed duration")
+	_expect_equal(command.get("payload", {}).get("soundId"), 0, "opcode 43 preserves sound ID")
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"opcode 43 continues its result row"
+	)
 
 
 func _test_item_mutation_rules() -> void:
@@ -4046,7 +4212,7 @@ func _test_full_bundle(path: String) -> void:
 	)
 	_expect_equal(
 		execution_totals.get("unknownExecutable"),
-		8,
+		6,
 		"full CoB audit inventories every unsupported encounter-result action"
 	)
 
@@ -4767,7 +4933,7 @@ func _execution_audit_test_bundle():
 	bundle.complex_encounters_by_id[2] = {
 		"id": 2,
 		"actions": [
-			{"slot": 0, "rawCode": 43, "id": 20},
+			{"slot": 0, "rawCode": 48, "id": 20},
 			{"slot": 1, "rawCode": 200, "id": 0},
 		],
 		"actionResult": 1,
@@ -4775,6 +4941,26 @@ func _execution_audit_test_bundle():
 		"prompt": 0,
 	}
 	bundle.dispatcher_noop_keys["Data ED2:2:1:200"] = true
+	return bundle
+
+
+func _give_condition_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.extra_codes_by_id[53] = {
+		"id": 53,
+		"values": [1, 9, -1, 0, 0],
+	}
+	bundle.simple_encounters_by_id[4] = {
+		"id": 4,
+		"prompt": 0,
+		"maxTimes": 1,
+		"actions": [
+			_classic_action(0, 43, 53),
+			_classic_action(7, 24, 0),
+		],
+	}
+	_add_stack_trigger(bundle, "condition:poison", -1, [_classic_action(0, 4, 4)])
 	return bundle
 
 

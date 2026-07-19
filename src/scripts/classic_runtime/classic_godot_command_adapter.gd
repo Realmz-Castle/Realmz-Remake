@@ -3,6 +3,9 @@ extends RefCounted
 
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
+const CharacterConditionRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
+)
 const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
 const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
@@ -136,6 +139,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _give_treasure(payload)
 		"give_experience":
 			return await _give_experience(payload)
+		"give_character_condition":
+			return _give_character_condition(payload)
 		"pick_characters":
 			return await _pick_characters(payload)
 		"filter_selected_characters":
@@ -2234,6 +2239,24 @@ func _classic_spell_save_chance(character: Object, save_index: int) -> float:
 func _change_selected_health(payload: Dictionary) -> Dictionary:
 	var result := apply_selected_health_effect(payload, _current_selected_characters())
 	return await _finish_health_effect(payload, result)
+
+
+func _give_character_condition(payload: Dictionary) -> Dictionary:
+	var result: Dictionary = CharacterConditionRulesScript.apply_condition(
+		_party_characters(),
+		_current_selected_characters(),
+		str(payload.get("targetMode", "")),
+		int(payload.get("conditionIndex", -1)),
+		int(payload.get("duration", 0))
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	var affected_characters: Array = result.get("affectedCharacters", [])
+	for character_value: Variant in affected_characters:
+		_play_sound({"soundId": int(payload.get("soundId", 0))})
+		_refresh_character_panel(character_value)
+	result.erase("affectedCharacters")
+	return result
 
 
 func _change_party_health(payload: Dictionary) -> Dictionary:

@@ -118,7 +118,7 @@ Percent branches use Classic's inclusive 1-100 roll. Their success action can re
 
 Difficulty branches compare their threshold with Classic's saved five-step difficulty setting, represented internally from `-2` (easiest) through `2` (hardest), with `0` as the default. They use the same success outcomes as percent branches. City of Bywater does not author opcode `58`, so this handler does not change its compatibility coverage count.
 
-Opcode `40` reads Classic party conditions through a small native-state mapping; City of Bywater's shipped use checks Waterworld against Remake's active WaterBreath effect before branching to complex encounter 8. Opcode `85` selects an inclusive random AP, simple encounter, or complex encounter and preserves its optional sound and message before branching. The only City of Bywater slot is inside malformed `Data ED3:macro:197` data and remains a signed missing-row diagnostic rather than being guessed into valid scenario logic. Opcodes `87` and `89` resolve compiled monster identities through the native ally list and bestiary. Existing allies can match an imported Classic monster ID or exact display name; adding one requires an exact native bestiary identity and records the Classic ID on the created ally. City of Bywater's Vodalian currently has no exact native bestiary entry, so that mutation stops at a visible resource boundary. Opcode `98` is intentionally a no-op because the open-source Classic dispatcher disables its registration check.
+Opcode `40` reads Classic party conditions through a small native-state mapping; City of Bywater's shipped use checks Waterworld against Remake's active WaterBreath effect before branching to complex encounter 8. Opcode `43` applies its signed condition value to the whole party, the current picked set, or every living character. City of Bywater's two uses permanently poison or disease picked characters, so those conditions map to Remake's existing saved traits. The rules preserve Classic's pre-target clearing of positive durations and accumulation of permanent values; other condition indexes remain an explicit native-mapping boundary. Opcode `85` selects an inclusive random AP, simple encounter, or complex encounter and preserves its optional sound and message before branching. The only City of Bywater slot is inside malformed `Data ED3:macro:197` data and remains a signed missing-row diagnostic rather than being guessed into valid scenario logic. Opcodes `87` and `89` resolve compiled monster identities through the native ally list and bestiary. Existing allies can match an imported Classic monster ID or exact display name; adding one requires an exact native bestiary identity and records the Classic ID on the created ally. City of Bywater's Vodalian currently has no exact native bestiary entry, so that mutation stops at a visible resource boundary. Opcode `98` is intentionally a no-op because the open-source Classic dispatcher disables its registration check.
 
 Opcodes `82` and `83` persist Classic's global permission to turn undead and nether spawn, then present their fixed message and sound through the native HUD. New campaigns start with turning enabled, and older snapshots use the same default. Battle requests carry the current value for the future combat adapter. Remake defines a `Turn_Undead` character stat but does not yet implement the corresponding combat action, so consuming this permission remains part of the combat bridge rather than being approximated here.
 
@@ -140,11 +140,11 @@ Against the checked City of Bywater compatibility baseline, these handlers cover
 
 The execution audit deliberately reports result rows and combat macro roots
 separately from that trigger baseline. Its initial full City of Bywater inventory
-found 15 actions in four missing result handlers. Opcode `33` now covers all seven
-Take Gold uses, leaving eight executable unknowns: two Give Condition (`43`), four
-Selective Combat (`48`), and two Alter Time Encounter (`54`). The checked vertical
-fixture now has only its one Give Condition use. Each remaining unknown produces a
-record-and-slot readiness diagnostic, and selecting one stops the interpreter with
+found 15 actions in four missing result handlers. Opcodes `33` and `43` now cover
+all seven Take Gold uses and both Give Condition uses, leaving six executable
+unknowns: four Selective Combat (`48`) and two Alter Time Encounter (`54`). The
+checked vertical fixture has no executable unknowns. Each remaining unknown
+produces a record-and-slot readiness diagnostic, and selecting one stops the interpreter with
 the same context instead of silently skipping it. This result-path inventory does
 not revise the 2,734-trigger claim.
 
