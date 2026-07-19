@@ -26,6 +26,7 @@ var heading := 0
 var multi_view := false
 var view_type := VIEW_3D
 var compass_enabled := true
+var priest_turning_enabled := true
 
 
 func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
@@ -50,6 +51,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	multi_view = false
 	view_type = VIEW_3D
 	compass_enabled = true
+	priest_turning_enabled = true
 
 
 func set_quest_flag(signed_quest_id: int) -> void:
@@ -87,6 +89,10 @@ func set_heading(new_heading: int) -> void:
 
 func set_compass_enabled(enabled: bool) -> void:
 	compass_enabled = enabled
+
+
+func set_priest_turning_enabled(enabled: bool) -> void:
+	priest_turning_enabled = enabled
 
 
 func require_3d_view() -> void:
@@ -264,6 +270,7 @@ func snapshot() -> Dictionary:
 		"landlookOverrides": landlook_overrides.duplicate(true),
 		"randomRectangleOverrides": random_rectangle_overrides.duplicate(true),
 		"difficulty": difficulty,
+		"priestTurningEnabled": priest_turning_enabled,
 		"position": {
 			"levelType": level_type,
 			"levelIndex": level_index,
@@ -332,6 +339,7 @@ func restore(saved_state: Dictionary) -> void:
 			if rectangle is Dictionary:
 				random_rectangle_overrides[str(rectangle_key)] = rectangle.duplicate(true)
 	set_difficulty(int(saved_state.get("difficulty", 0)))
+	priest_turning_enabled = bool(saved_state.get("priestTurningEnabled", true))
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
 		level_type = str(position.get("levelType", "land"))

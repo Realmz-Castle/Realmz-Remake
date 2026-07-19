@@ -98,6 +98,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \
 		"set_trigger_percent", "teleport", "set_view_direction", \
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
+		"set_priest_turning", \
 		"set_land_look", "give_battle_loot", "alter_party_items", \
 		"store_party_equipment", "add_party_ally", \
 		"apply_coward_penalty", "eliminate_encounter_option":

@@ -4,6 +4,10 @@ extends RefCounted
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
+const PRIEST_TURNING_ENABLED_MESSAGE := \
+	"You regain your ability to turn undead and nether spawn."
+const PRIEST_TURNING_DISABLED_MESSAGE := \
+	"You may not use your ability to turn undead or nether spawn."
 const PARTY_CONDITION_NAMES := [
 	"Torch Lit",
 	"Waterworld",
@@ -486,6 +490,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_difficulty_branch(record_id)
 		73:
 			return _execute_restricted_shop(record_id)
+		82, 83:
+			return _execute_priest_turning(code == 83)
 		85:
 			return _execute_random_branch(record_id, gosub_active)
 		87:
@@ -674,6 +680,7 @@ func _execute_battle(extra_code_id: int) -> Dictionary:
 		"message": bundle.get_message(int(values[3])),
 		"lootMode": int(values[4]),
 		"battle": bundle.get_battle(first_battle_id),
+		"priestTurningEnabled": runtime_state.priest_turning_enabled,
 	})
 
 
@@ -1286,6 +1293,18 @@ func _execute_random_text(extra_code_id: int) -> Dictionary:
 	})
 
 
+func _execute_priest_turning(enabled: bool) -> Dictionary:
+	runtime_state.set_priest_turning_enabled(enabled)
+	var message := PRIEST_TURNING_ENABLED_MESSAGE if enabled \
+		else PRIEST_TURNING_DISABLED_MESSAGE
+	return _yield_result("set_priest_turning", {
+		"enabled": enabled,
+		"soundId": 20004 if enabled else 10105,
+		"messageId": 0,
+		"message": {"id": 0, "text": message},
+	})
+
+
 func _execute_battle_outcome(extra_code_id: int, gosub: bool) -> Dictionary:
 	var values := _extra_code_values(extra_code_id)
 	if values.is_empty():
@@ -1307,6 +1326,7 @@ func _execute_battle_outcome(extra_code_id: int, gosub: bool) -> Dictionary:
 		"message": bundle.get_message(int(values[4])),
 		"lootMode": 0,
 		"battle": bundle.get_battle(first_battle_id),
+		"priestTurningEnabled": runtime_state.priest_turning_enabled,
 		"outcomeBranch": true,
 		"cowardMacroId": int(values[2]),
 	})

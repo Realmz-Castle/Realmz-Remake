@@ -129,6 +129,7 @@ func _init() -> void:
 	_test_opcode_25_xap_copy()
 	_test_modal_picture_actions()
 	_test_party_state_actions()
+	_test_priest_turning_actions()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -1661,6 +1662,66 @@ func _test_party_state_actions() -> void:
 	)
 
 
+func _test_priest_turning_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [5, 0, 0, 0, 0]}
+	bundle.battles_by_id[5] = {"id": 5}
+	_add_stack_trigger(bundle, "priest:disable", -1, [
+		_classic_action(0, 82, 0),
+		_classic_action(1, 2, 1),
+	])
+	_add_stack_trigger(bundle, "priest:enable", -1, [
+		_classic_action(0, 83, 0),
+		_classic_action(1, 2, 1),
+	])
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.runtime_state.priest_turning_enabled, "priest turning starts enabled")
+	_expect(interpreter.begin_trigger("priest:disable"), "begin priest-turning disable fixture")
+	var disabled: Dictionary = interpreter.run_until_yield()
+	_expect_equal(disabled.get("command"), "set_priest_turning", "disable yields typed state command")
+	_expect(not bool(disabled.get("payload", {}).get("enabled")), "opcode 82 disables priest turning")
+	_expect_equal(disabled.get("payload", {}).get("soundId"), 10105, "disable preserves Classic sound")
+	_expect_equal(
+		disabled.get("payload", {}).get("message", {}).get("text"),
+		"You may not use your ability to turn undead or nether spawn.",
+		"disable preserves Classic feedback"
+	)
+	_expect(not interpreter.runtime_state.priest_turning_enabled, "disabled state is authoritative")
+	var disabled_battle: Dictionary = interpreter.run_until_yield()
+	_expect_equal(disabled_battle.get("command"), "start_battle", "disable action continues to battle")
+	_expect(
+		not bool(disabled_battle.get("payload", {}).get("priestTurningEnabled")),
+		"battle request carries disabled turning state"
+	)
+
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect(not restored.priest_turning_enabled, "priest-turning gate survives snapshot")
+	interpreter = InterpreterScript.new()
+	interpreter.configure(bundle, restored)
+	_expect(interpreter.begin_trigger("priest:enable"), "begin priest-turning enable fixture")
+	var enabled: Dictionary = interpreter.run_until_yield()
+	_expect(bool(enabled.get("payload", {}).get("enabled")), "opcode 83 enables priest turning")
+	_expect_equal(enabled.get("payload", {}).get("soundId"), 20004, "enable preserves Classic sound")
+	_expect_equal(
+		enabled.get("payload", {}).get("message", {}).get("text"),
+		"You regain your ability to turn undead and nether spawn.",
+		"enable preserves Classic feedback"
+	)
+	_expect(restored.priest_turning_enabled, "enabled state is authoritative")
+	var enabled_battle: Dictionary = interpreter.run_until_yield()
+	_expect(
+		bool(enabled_battle.get("payload", {}).get("priestTurningEnabled")),
+		"battle request carries enabled turning state"
+	)
+
+	var legacy_state = StateScript.new()
+	legacy_state.restore({})
+	_expect(legacy_state.priest_turning_enabled, "older snapshots default priest turning to enabled")
+
+
 func _test_action_point_copy_mutations(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin CoB same-door action")
@@ -2952,6 +3013,7 @@ func _test_state_snapshot(bundle) -> void:
 	state.set_tile("land", 0, 3, 28, 193)
 	state.set_trigger_percent("land", 0, 17, 100)
 	state.set_difficulty(1)
+	state.set_priest_turning_enabled(false)
 	var restored = StateScript.new()
 	restored.restore(state.snapshot())
 	_expect(restored.is_quest_set(20), "quest flag survives snapshot")
@@ -2974,6 +3036,7 @@ func _test_state_snapshot(bundle) -> void:
 	_expect_equal(restored.get_tile("land", 0, 3, 28, -1), 193, "tile override survives snapshot")
 	_expect_equal(restored.get_trigger_percent("land", 0, 17, -1), 100, "trigger override survives snapshot")
 	_expect_equal(restored.difficulty, 1, "difficulty survives snapshot")
+	_expect_equal(restored.priest_turning_enabled, false, "priest-turning gate survives snapshot")
 	restored.set_difficulty(10)
 	_expect_equal(restored.difficulty, 2, "difficulty is capped at Classic's hardest setting")
 	restored.set_difficulty(-10)
@@ -3010,7 +3073,7 @@ func _test_full_bundle(path: String) -> void:
 	var handled_codes := [
 		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
-		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 85, 87, 89,
+		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
 		93, 94, 95, 96, 97, 98, 106, 111, 112,
 	]
 	var active_slots := 0
@@ -3023,8 +3086,52 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2222, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2692, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2224, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2694, "full CoB defined-behavior slots")
+
+	for shipped_priest_turning: Array in [
+		[
+			"Data DD:6:9",
+			0,
+			true,
+			20004,
+			"You regain your ability to turn undead and nether spawn.",
+		],
+		[
+			"Data DD:6:10",
+			2,
+			false,
+			10105,
+			"You may not use your ability to turn undead or nether spawn.",
+		],
+	]:
+		var priest_interpreter = _interpreter(bundle)
+		_expect(
+			priest_interpreter.begin_trigger(shipped_priest_turning[0], shipped_priest_turning[1]),
+			"begin shipped CoB priest-turning action %s" % shipped_priest_turning[0]
+		)
+		var priest_result: Dictionary = priest_interpreter.run_until_yield()
+		_expect_equal(priest_result.get("command"), "set_priest_turning", "shipped turning yields typed command")
+		_expect_equal(
+			priest_result.get("payload", {}).get("enabled"),
+			shipped_priest_turning[2],
+			"shipped turning preserves enabled state"
+		)
+		_expect_equal(
+			priest_result.get("payload", {}).get("soundId"),
+			shipped_priest_turning[3],
+			"shipped turning preserves sound"
+		)
+		_expect_equal(
+			priest_result.get("payload", {}).get("message", {}).get("text"),
+			shipped_priest_turning[4],
+			"shipped turning preserves feedback"
+		)
+		_expect_equal(
+			priest_interpreter.runtime_state.priest_turning_enabled,
+			shipped_priest_turning[2],
+			"shipped turning updates runtime state"
+		)
 
 	var condition_interpreter = _interpreter(bundle)
 	_expect(

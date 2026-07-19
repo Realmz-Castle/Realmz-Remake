@@ -112,6 +112,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _add_classic_ally(payload)
 		"present_random_branch":
 			return await _present_random_branch(payload)
+		"set_priest_turning":
+			return await _present_priest_turning(payload)
 		"give_treasure":
 			return await _give_treasure(payload)
 		"give_experience":
@@ -355,6 +357,11 @@ func _present_random_branch(payload: Dictionary) -> Dictionary:
 	_play_sound(payload)
 	if int(payload.get("messageId", 0)) == 0:
 		return {}
+	return await _show_text(payload)
+
+
+func _present_priest_turning(payload: Dictionary) -> Dictionary:
+	_play_sound(payload)
 	return await _show_text(payload)
 
 
