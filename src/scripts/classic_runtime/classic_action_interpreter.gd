@@ -260,6 +260,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_selected_health_effect(record_id)
 		16:
 			return _execute_party_health_effect(record_id)
+		17, 18:
+			return _execute_spell_effect(record_id, code == 18)
 		19:
 			return _execute_random_text(record_id)
 		20, 45:
@@ -665,6 +667,22 @@ func _execute_selected_health_effect(extra_code_id: int) -> Dictionary:
 
 func _execute_party_health_effect(extra_code_id: int) -> Dictionary:
 	return _execute_health_effect(extra_code_id, "change_party_health")
+
+
+func _execute_spell_effect(extra_code_id: int, target_party: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Spell action references missing Extra Code row %d" % extra_code_id
+		)
+	return _yield_result("cast_classic_spell", {
+		"extraCodeId": extra_code_id,
+		"spellId": int(values[0]),
+		"power": int(values[1]),
+		"saveAdjustment": int(values[2]),
+		"forceAffect": int(values[3]) != 0,
+		"targetMode": "party" if target_party else "selected",
+	})
 
 
 func _execute_health_effect(extra_code_id: int, command: String) -> Dictionary:

@@ -76,7 +76,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				runtime.continue_after_command()
 		"show_text", "play_sound", "give_treasure", "give_experience", \
 		"pick_characters", "filter_selected_characters", "select_characters_by_misc", \
-		"change_selected_health", "change_party_health", \
+		"change_selected_health", "change_party_health", "cast_classic_spell", \
 		"give_map", "set_map_tile", \
 		"set_trigger_percent", "teleport", "set_view_direction", \
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \

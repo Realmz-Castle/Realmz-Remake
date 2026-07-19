@@ -77,6 +77,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _change_selected_health(payload)
 		"change_party_health":
 			return await _change_party_health(payload)
+		"cast_classic_spell":
+			return await _cast_classic_spell(payload)
 		"give_map":
 			return await _give_player_map(payload)
 		_:
@@ -343,6 +345,14 @@ func classic_spell_mapping_key(spell_id: int) -> String:
 	var spell_level := int(remainder / 100)
 	var spell_slot := remainder % 100
 	return "%d%d%d" % [caster_class * 100, spell_level, spell_slot]
+
+
+func spell_effect_targets(target_mode: String, party: Array, selected: Array) -> Array:
+	if target_mode == "party":
+		return party.duplicate()
+	if target_mode == "selected":
+		return selected.duplicate()
+	return []
 
 
 func resolve_complex_item_result(
@@ -1170,6 +1180,56 @@ func _change_selected_health(payload: Dictionary) -> Dictionary:
 func _change_party_health(payload: Dictionary) -> Dictionary:
 	var result := apply_party_health_effect(payload, _party_characters())
 	return await _finish_health_effect(payload, result)
+
+
+func _cast_classic_spell(payload: Dictionary) -> Dictionary:
+	var target_mode := str(payload.get("targetMode", ""))
+	if target_mode != "party" and target_mode != "selected":
+		return _error("Classic spell command has an invalid target mode")
+	var targets := spell_effect_targets(
+		target_mode,
+		_party_characters(),
+		_current_selected_characters()
+	)
+	if target_mode == "party":
+		# Opcode 18 replaces Classic's transient picked set with the whole party.
+		_store_selected_characters(targets)
+	if targets.is_empty():
+		if target_mode == "selected":
+			return {"targetCount": 0}
+		return _error("Classic party spell command has no party members")
+
+	var spell_ids: Object = _autoload("SpellsIdDivinity")
+	var spell_id_mapping: Dictionary = spell_ids.mappings \
+		if spell_ids != null and spell_ids.mappings is Dictionary else {}
+	var spell_id := int(payload.get("spellId", 0))
+	var spell_name := _mapped_spell_name(spell_id, spell_id_mapping)
+	if spell_name.is_empty():
+		return _error("Classic spell %d has no Remake mapping" % spell_id)
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	if resources == null or not resources.spells_book.has(spell_name):
+		return _error("Mapped spell '%s' is not loaded" % spell_name)
+	var spell_entry: Variant = resources.spells_book[spell_name]
+	if spell_entry is Dictionary and (
+			not spell_entry.has("script") or spell_entry.get("script") == null
+	):
+		return _error("Mapped spell '%s' has no executable resource" % spell_name)
+
+	var script_helper: Object = _autoload("ScriptHelperFuncs")
+	if script_helper == null:
+		return _error("Realmz spell helper is unavailable")
+	await script_helper.CastSpellOnPickedCharacters(
+		targets,
+		spell_name,
+		int(payload.get("power", 0))
+	)
+	for target: Variant in targets:
+		_refresh_character_panel(target)
+	return {
+		"spellName": spell_name,
+		"targetCount": targets.size(),
+	}
 
 
 func _finish_health_effect(payload: Dictionary, result: Dictionary) -> Dictionary:

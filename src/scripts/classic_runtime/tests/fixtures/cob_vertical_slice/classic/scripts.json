@@ -811,6 +811,64 @@
       "provenance": {"sourceFile": "Data ED3", "recordIndex": 142, "byteOffset": 5680, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:8:89",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 8,
+      "recordIndex": 89,
+      "active": true,
+      "doorid": 84650,
+      "landid": 8,
+      "targetX": 50,
+      "targetY": 46,
+      "percent": 100,
+      "coordinate": {"x": 50, "y": 46},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 698, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 18, "code": 18, "id": 375, "label": "Cast spell on party", "category": "state", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 89, "byteOffset": 35560, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:108",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 108,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 9, "code": 9, "id": -692, "label": "Play sound", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 9, "code": 9, "id": 699, "label": "Play sound", "category": "ui_text", "gosub": false},
+        {"slot": 3, "rawCode": 17, "code": 17, "id": 388, "label": "Cast spell on picked", "category": "state", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 108, "byteOffset": 4320, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:128",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 128,
+      "active": true,
+      "doorid": 717034,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 5,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 17, "code": 17, "id": 428, "label": "Cast spell on picked", "category": "state", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 128, "byteOffset": 5120, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data ED3:macro:163",
       "source": "Data ED3",
       "levelType": null,
@@ -853,6 +911,9 @@
     {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 364, "values": [1, 22, 73, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 364, "byteOffset": 3640, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 365, "values": [1, 24, 75, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 365, "byteOffset": 3650, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 375, "values": [1408, 3, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 375, "byteOffset": 3750, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 388, "values": [2301, 1, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 388, "byteOffset": 3880, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 428, "values": [4606, 3, 30, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 428, "byteOffset": 4280, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 462, "values": [-1, 1, 1, 699, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 462, "byteOffset": 4620, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 607, "values": [0, 1, 36, 74, -4], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 607, "byteOffset": 6070, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 639, "values": [5, 6, 83, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 639, "byteOffset": 6390, "byteLength": 10, "confidence": "source-backed"}},
@@ -1133,6 +1194,12 @@
       "text": "They carried little of value.  This was a perfect position for setting up an ambush.  Be careful of similar attacks in the future.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 562, "byteOffset": 143872, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 698,
+      "text": "As soon as you step into the hidden passage, you are assaulted by a mental attack.  It is a psychic barrier used to prevent weak-minded Dogre from entering this area of the fortress.  Your magical energy drains from your body.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 698, "byteOffset": 178688, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 867,

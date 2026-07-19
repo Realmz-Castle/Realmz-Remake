@@ -83,6 +83,7 @@ func _init() -> void:
 	_test_party_health_effect(bundle)
 	_test_selected_character_pipeline(bundle)
 	_test_misc_character_selection(bundle)
+	_test_spell_effect_actions(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -794,6 +795,99 @@ func _test_misc_character_selection(bundle) -> void:
 		adapter.select_characters_by_misc(item_payload, party, [], null).get("selected"),
 		[second_target],
 		"worn-item extension requires equipped state"
+	)
+
+
+func _test_spell_effect_actions(bundle) -> void:
+	var party_interpreter = _interpreter(bundle)
+	_expect(
+		party_interpreter.begin_trigger("Data DD:8:89"),
+		"begin CoB party spell action"
+	)
+	_expect_equal(
+		party_interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		698,
+		"party spell starts with its source warning"
+	)
+	var party_result: Dictionary = party_interpreter.run_until_yield()
+	var party_payload: Dictionary = party_result.get("payload", {})
+	_expect_equal(party_result.get("command"), "cast_classic_spell", "party spell command")
+	_expect_equal(party_payload.get("spellId"), 1408, "party spell ID")
+	_expect_equal(party_payload.get("power"), 3, "party spell power")
+	_expect_equal(party_payload.get("saveAdjustment"), 0, "party spell save adjustment")
+	_expect_equal(party_payload.get("forceAffect"), false, "party spell force flag")
+	_expect_equal(party_payload.get("targetMode"), "party", "party spell target mode")
+	_expect_equal(
+		party_interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"party spell keeps its source action point"
+	)
+
+	var selected_interpreter = _interpreter(bundle)
+	_expect(
+		selected_interpreter.begin_trigger("Data ED3:macro:108"),
+		"begin CoB selected-character spell"
+	)
+	_expect_equal(
+		selected_interpreter.run_until_yield().get("payload", {}).get("soundId"),
+		-692,
+		"selected spell preserves its first source sound"
+	)
+	_expect_equal(
+		selected_interpreter.run_until_yield().get("payload", {}).get("soundId"),
+		699,
+		"selected spell preserves its second source sound"
+	)
+	var selected_result: Dictionary = selected_interpreter.run_until_yield()
+	var selected_payload: Dictionary = selected_result.get("payload", {})
+	_expect_equal(
+		selected_result.get("command"),
+		"cast_classic_spell",
+		"selected-character spell command"
+	)
+	_expect_equal(selected_payload.get("spellId"), 2301, "selected spell ID")
+	_expect_equal(selected_payload.get("power"), 1, "selected spell power")
+	_expect_equal(selected_payload.get("targetMode"), "selected", "selected spell target mode")
+
+	var adjusted_interpreter = _interpreter(bundle)
+	_expect(
+		adjusted_interpreter.begin_trigger("Data ED3:macro:128"),
+		"begin CoB adjusted selected-character spell"
+	)
+	var adjusted_payload: Dictionary = \
+		adjusted_interpreter.run_until_yield().get("payload", {})
+	_expect_equal(adjusted_payload.get("spellId"), 4606, "adjusted spell ID")
+	_expect_equal(adjusted_payload.get("power"), 3, "adjusted spell power")
+	_expect_equal(adjusted_payload.get("saveAdjustment"), 30, "adjusted spell save modifier")
+	_expect_equal(adjusted_payload.get("forceAffect"), false, "adjusted spell force flag")
+
+	var adapter = GodotAdapterScript.new()
+	var first_target := RogueTestCharacter.new()
+	var second_target := RogueTestCharacter.new()
+	_expect_equal(
+		adapter.spell_effect_targets("party", [first_target, second_target], [second_target]),
+		[first_target, second_target],
+		"party spell selects every party member"
+	)
+	_expect_equal(
+		adapter.spell_effect_targets("selected", [first_target, second_target], [second_target]),
+		[second_target],
+		"selected spell retains the transient picked set"
+	)
+	_expect_equal(
+		adapter.classic_spell_mapping_key(1408),
+		"10037",
+		"Power Drain ID resolves to Remake's spell-table key"
+	)
+	_expect_equal(
+		adapter.classic_spell_mapping_key(2301),
+		"20020",
+		"Confuse ID resolves to Remake's spell-table key"
+	)
+	_expect_equal(
+		adapter.classic_spell_mapping_key(4606),
+		"40055",
+		"Fire Flare ID resolves to Remake's spell-table key"
 	)
 
 
@@ -2123,7 +2217,7 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		-14, 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 23,
+		-14, 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
 		24, 25, 29, 30, 35, 37,
 		39, 41, 42, 44, 45, 46, 47, 52, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
@@ -2137,8 +2231,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2182, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2652, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2189, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2659, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -2248,6 +2342,10 @@ func _test_runtime_host() -> void:
 	_expect_equal(adapter.commands[-2].get("command"), "select_characters_by_misc", "host dispatches misc selector")
 	_expect_equal(adapter.commands[-1].get("command"), "change_selected_health", "host continues to selected damage")
 	_expect_equal(completions.size(), 10, "host completes movement-selected damage")
+	_expect(host.start_trigger("Data DD:8:89", 1), "runtime host starts party spell action")
+	_expect_equal(adapter.commands[-1].get("command"), "cast_classic_spell", "host dispatches party spell")
+	_expect_equal(adapter.commands[-1].get("payload", {}).get("spellId"), 1408, "host preserves party spell ID")
+	_expect_equal(completions.size(), 11, "host completes party spell action point")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(

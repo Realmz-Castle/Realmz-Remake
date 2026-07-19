@@ -25,6 +25,23 @@ class CaveInSpell:
 	func get_sp_cost(_power: int, _caster) -> int:
 		return 5
 
+
+class PowerDrainSpell:
+	extends Spell
+
+	func _init() -> void:
+		name = "Power Drain"
+		elements = [GameGlobal.ELEMENTS.MAGICAL]
+		resist = RESIST_TYPE.IGNORE_MRES_DODGE
+		proj_hit = GFX.SPHERE
+		sounds = ["boing.wav", "electric energize.wav"]
+
+	func get_damage_roll(power: int, _caster) -> int:
+		var damage := 0
+		for _roll: int in power:
+			damage += randi_range(5, 8)
+		return damage
+
 @export_dir var campaign_directory := \
 	"res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 @export var trigger_id := "Data DD:0:0"
@@ -35,6 +52,7 @@ class CaveInSpell:
 @export var test_max_movement := -1.0
 @export var test_party_size := 1
 @export var test_spell_name := ""
+@export var test_effect_spell_name := ""
 @export var test_item_name := ""
 
 var host: Node
@@ -62,10 +80,20 @@ func _start_playtest() -> void:
 	if test_rogue_stat >= 0.0 \
 			or test_max_movement >= 0.0 \
 			or not test_spell_name.is_empty() \
+			or not test_effect_spell_name.is_empty() \
 			or not test_item_name.is_empty():
 		var resources: CampaignResources = NodeAccess.__Resources()
 		if test_rogue_stat >= 0.0 and resources.items_book.is_empty():
 			resources.load_item_resources("res://shared_assets/items/")
+		if not test_effect_spell_name.is_empty():
+			if resources.sounds_book.is_empty():
+				resources.load_sound_ressources("res://shared_assets/sounds/")
+			var effect_spell := PowerDrainSpell.new()
+			resources.spells_book[effect_spell.name] = {
+				"name": effect_spell.name,
+				"source": "",
+				"script": effect_spell,
+			}
 		GameGlobal.player_characters.clear()
 		var first_character: PlayerCharacter
 		for index: int in max(1, test_party_size):
@@ -129,6 +157,9 @@ func _run_automated_smoke() -> void:
 		return
 	if playtest_label == "party-health":
 		await _run_party_health_smoke()
+		return
+	if playtest_label == "party-spell":
+		await _run_party_spell_smoke()
 		return
 	if playtest_label == "experience":
 		await _run_experience_smoke()
@@ -233,6 +264,45 @@ func _run_party_health_smoke() -> void:
 		"02_party_health_complete",
 		"Classic party-health playtest complete" in completion_text,
 		"the host completes after applying the party health change"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_party_spell_smoke() -> void:
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"01_party_spell_warning",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+			"As soon as you step into the hidden passage"
+		),
+		"the source-backed mental-attack warning is visible"
+	)
+	var hp_before: Array[int] = []
+	for character: PlayerCharacter in GameGlobal.player_characters:
+		hp_before.append(int(character.get_stat("curHP")))
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var completed := false
+	for _frame: int in 360:
+		await get_tree().process_frame
+		if "Classic party-spell playtest complete" \
+				in UI.ow_hud.textRect.textLabel.get_parsed_text():
+			completed = true
+			break
+	var damage_in_range := completed
+	for index: int in GameGlobal.player_characters.size():
+		var damage := hp_before[index] - int(
+			GameGlobal.player_characters[index].get_stat("curHP")
+		)
+		damage_in_range = damage_in_range and damage >= 15 and damage <= 24
+	_verify_smoke_stage(
+		"02_party_spell_effect",
+		damage_in_range,
+		"Remake's spell animation completes and Power Drain affects every party member"
+	)
+	_verify_smoke_stage(
+		"03_party_spell_selection",
+		GameGlobal.last_picked_characters == GameGlobal.player_characters,
+		"the party spell replaces Classic's transient selected set"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
