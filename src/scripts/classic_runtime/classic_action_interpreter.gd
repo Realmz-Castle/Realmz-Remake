@@ -572,6 +572,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_deanimate_lower_undead(record_id)
 		123:
 			return _execute_combat_rout(record_id)
+		124:
+			return _execute_spawn_combat_monsters(record_id)
 		125:
 			return _execute_destroy_combat_monsters(record_id)
 		126:
@@ -651,14 +653,51 @@ func _execute_combat_rout(extra_code_id: int) -> Dictionary:
 			continue
 		monster_ids.append(monster_id)
 		monsters.append(bundle.get_monster(monster_id))
-	return _yield_result("rout_combat_monsters", {
+	var payload := {
 		"extraCodeId": extra_code_id,
 		"monsterIds": monster_ids,
 		"monsters": monsters,
 		"sameFactionAsActor": true,
 		"permanent": true,
 		"surrenderPercent": 50,
-	})
+	}
+	if execution_context.has("actorFaction"):
+		payload["actorFaction"] = execution_context["actorFaction"]
+	return _yield_result("rout_combat_monsters", payload)
+
+
+func _execute_spawn_combat_monsters(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Combat spawn action references missing Extra Code row %d" % extra_code_id
+		)
+	var authored_count := int(values[2])
+	var spawn_count := randi_range(1, abs(authored_count)) \
+		if authored_count < 0 else authored_count
+	if spawn_count <= 0:
+		return _continue_result()
+	var monster_id := int(values[1])
+	var monster := bundle.get_monster(monster_id)
+	if monster.is_empty():
+		return _halt_with_error("Missing combat spawn monster %d" % monster_id)
+	var faction_override := int(values[4])
+	var queued_macro := bool(execution_context.get("queuedMacro", false))
+	var battle_macro := int(execution_context.get("battleMacro", 0))
+	var payload := {
+		"extraCodeId": extra_code_id,
+		"monsterId": monster_id,
+		"monster": monster,
+		"authoredCount": authored_count,
+		"spawnCount": spawn_count,
+		"soundId": int(values[3]),
+		"factionOverride": faction_override,
+		"inheritActorFaction": faction_override == 0 and (queued_macro or battle_macro == 0),
+	}
+	for context_key: String in ["actorPosition", "actorFaction"]:
+		if execution_context.has(context_key):
+			payload[context_key] = execution_context[context_key]
+	return _yield_result("spawn_combat_monsters", payload)
 
 
 func _execute_battle_round_macro(extra_code_id: int) -> Dictionary:

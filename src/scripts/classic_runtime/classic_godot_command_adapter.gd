@@ -3,8 +3,10 @@ extends RefCounted
 
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
+const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
 const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
+const CLASSIC_MAX_MONSTERS := 100
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
 const COMPLEX_ACTION_TEXT_COUNT := 8
@@ -118,6 +120,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _deanimate_lower_undead(payload)
 		"rout_combat_monsters":
 			return _rout_combat_monsters(payload)
+		"spawn_combat_monsters":
+			return _spawn_combat_monsters(payload)
 		"activate_battle_round_macro":
 			return _activate_battle_round_macro(payload)
 		"end_classic_battle":
@@ -380,6 +384,142 @@ func _rout_combat_monsters(payload: Dictionary) -> Dictionary:
 	return {"routed": routed}
 
 
+func _spawn_combat_monsters(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var game_global: Object = _autoload("GameGlobal")
+	var node_access: Object = _autoload("NodeAccess")
+	if game_global == null or node_access == null:
+		return _error("Realmz combat spawn dependencies are unavailable")
+	var resources: Object = node_access.__Resources()
+	var map: Object = node_access.__Map()
+	var creature_book: Variant = resources.get("crea_book") if resources != null else null
+	var creature_script: Variant = game_global.get("combatCreatureGD")
+	var combatant_scene: Variant = load(COMBATANT_SCENE_PATH)
+	if not (creature_book is Dictionary):
+		return _error("Realmz bestiary resources are unavailable")
+	var origin: Variant = _classic_spawn_origin(payload, context["stateMachine"])
+	if not (origin is Vector2):
+		return _error("Realmz combat spawn actor position is unavailable")
+	var actor_faction: Variant = payload.get("actorFaction")
+	if bool(payload.get("inheritActorFaction", false)) and actor_faction == null:
+		actor_faction = _active_combat_faction(context["stateMachine"])
+	if bool(payload.get("inheritActorFaction", false)) and actor_faction == null:
+		return _error("Realmz combat spawn actor faction is unavailable")
+	var result := spawn_classic_combatants(
+		payload,
+		context["state"],
+		map,
+		creature_book,
+		creature_script,
+		combatant_scene,
+		origin,
+		actor_faction
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	for _spawn_index: int in range(int(result.get("spawned", 0))):
+		_play_sound({"soundId": int(payload.get("soundId", 0))})
+	return result
+
+
+func spawn_classic_combatants(
+	payload: Dictionary,
+	combat_state: Variant,
+	map: Variant,
+	creature_book: Dictionary,
+	creature_script: Variant,
+	combatant_scene: Variant,
+	origin: Vector2,
+	actor_faction: Variant = null
+) -> Dictionary:
+	if not (combat_state is Object) or not combat_state.has_method("find_pos_for_crea_on_battlefield"):
+		return _error("Realmz combat placement API is unavailable")
+	var combatants: Variant = combat_state.get("all_battle_creatures_btns")
+	var initiative: Variant = combat_state.get("battle_creatures_yet_to_act_btns")
+	var creatures_node: Variant = map.get("creatures_node") if map is Object else null
+	if not (combatants is Array) or not (initiative is Array) or creatures_node == null:
+		return _error("Realmz combat roster is unavailable")
+	if creature_script == null or combatant_scene == null:
+		return _error("Realmz combat creature resources are unavailable")
+	var monster: Variant = payload.get("monster", {})
+	if not (monster is Dictionary):
+		return _error("Classic combat spawn is missing its monster record")
+	var monster_id := int(payload.get("monsterId", -1))
+	var bestiary_name := resolve_classic_monster_bestiary_name(
+		monster_id,
+		monster,
+		creature_book
+	)
+	if bestiary_name.is_empty():
+		return _error("Classic combat spawn %d (%s) has no matching Remake bestiary entry" % [
+			monster_id,
+			monster.get("displayName", "unnamed"),
+		])
+	var requested := maxi(0, int(payload.get("spawnCount", 0)))
+	var available := maxi(0, CLASSIC_MAX_MONSTERS - classic_combat_monster_count(combatants))
+	var spawn_count := mini(requested, available)
+	var faction_override := int(payload.get("factionOverride", 0))
+	var inherit_faction := bool(payload.get("inheritActorFaction", false))
+	if inherit_faction and actor_faction == null:
+		return _error("Classic combat spawn requires its actor faction")
+	var resolved_faction: Variant = null
+	if faction_override != 0:
+		resolved_faction = faction_override
+	elif inherit_faction:
+		resolved_faction = int(actor_faction)
+	elif monster.has("traitor"):
+		resolved_faction = int(monster["traitor"])
+	var spawned: Array = []
+	for _spawn_index: int in range(spawn_count):
+		var creature: Variant = creature_script.new()
+		if not (creature is Object) or not creature.has_method("initialize_from_bestiary_dict"):
+			return _error("Realmz creature cannot load a bestiary entry")
+		creature.initialize_from_bestiary_dict(bestiary_name)
+		creature.set_meta("classic_monster_id", monster_id)
+		if resolved_faction != null:
+			creature.set("baseFaction", int(resolved_faction))
+			creature.set("curFaction", int(resolved_faction))
+		creature.position = combat_state.find_pos_for_crea_on_battlefield(
+			creature,
+			origin,
+			true,
+			15,
+			10
+		)
+		var combatant: Variant = combatant_scene.instantiate()
+		if not (combatant is Object) or not combatant.has_method("set_creature_represented"):
+			return _error("Realmz combat creature scene is unavailable")
+		creatures_node.add_child(combatant)
+		combatant.set_creature_represented(creature)
+		creature.set("combat_button", combatant)
+		var background: Variant = combatant.get("bgsprite")
+		if background is Object and background.has_method("hide"):
+			background.hide()
+		combatants.append(combatant)
+		initiative.append(combatant)
+		spawned.append(combatant)
+	return {
+		"requested": requested,
+		"spawned": spawned.size(),
+		"capacityLimited": spawn_count < requested,
+		"bestiaryName": bestiary_name,
+		"combatants": spawned,
+	}
+
+
+func classic_combat_monster_count(combatants: Array) -> int:
+	var count := 0
+	for combatant_value: Variant in combatants:
+		var creature: Variant = _combatant_creature(combatant_value)
+		if creature is Object and not bool(creature.get("is_player_controlled")):
+			count += 1
+		elif creature is Dictionary and not bool(creature.get("isPlayerControlled", false)):
+			count += 1
+	return count
+
+
 func _activate_battle_round_macro(payload: Dictionary) -> Dictionary:
 	var context := _combat_context()
 	if context.has("error"):
@@ -541,6 +681,21 @@ func _active_combat_faction(state_machine: Object) -> Variant:
 	return _combat_creature_faction(active_creature)
 
 
+func _classic_spawn_origin(payload: Dictionary, state_machine: Object) -> Variant:
+	var supplied: Variant = payload.get("actorPosition")
+	if supplied is Vector2:
+		return supplied
+	if supplied is Vector2i:
+		return Vector2(supplied)
+	if supplied is Array and supplied.size() >= 2:
+		return Vector2(float(supplied[0]), float(supplied[1]))
+	var decide_state: Variant = state_machine.get("cb_decide_state")
+	var active_combatant: Variant = decide_state.get("current_active_creabutton") \
+		if decide_state is Object else null
+	var active_creature: Variant = _combatant_creature(active_combatant)
+	return active_creature.get("position") if active_creature is Object else null
+
+
 func _classic_monster_id(creature: Variant) -> int:
 	if creature is Object:
 		if creature.has_meta("classic_monster_id"):
@@ -580,7 +735,7 @@ func _add_classic_ally(payload: Dictionary) -> Dictionary:
 	if not (monster is Dictionary):
 		return _error("Classic ally command is missing its monster record")
 	var monster_id := int(payload.get("monsterId", -1))
-	var bestiary_name := resolve_classic_ally_bestiary_name(monster_id, monster, creature_book)
+	var bestiary_name := resolve_classic_monster_bestiary_name(monster_id, monster, creature_book)
 	if bestiary_name.is_empty():
 		return _error("Classic ally %d (%s) has no matching Remake bestiary entry" % [
 			monster_id,
@@ -598,7 +753,7 @@ func _add_classic_ally(payload: Dictionary) -> Dictionary:
 	return {"name": str(ally.get("name")), "monsterId": monster_id}
 
 
-func resolve_classic_ally_bestiary_name(
+func resolve_classic_monster_bestiary_name(
 	monster_id: int,
 	monster: Dictionary,
 	creature_book: Dictionary

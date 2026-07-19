@@ -136,6 +136,7 @@ class CombatTestState:
 	var battle_creatures_yet_to_act_btns: Array
 	var battle_dead_enemies: Array = []
 	var cur_battle_data: Dictionary = {"battleMacro": -1}
+	var placement_origins: Array = []
 
 	func _init(combatants: Array) -> void:
 		all_battle_creatures_btns = combatants.duplicate()
@@ -144,6 +145,70 @@ class CombatTestState:
 	func remove_cb_from_battle(combatant: Variant) -> void:
 		all_battle_creatures_btns.erase(combatant)
 		battle_creatures_yet_to_act_btns.erase(combatant)
+
+	func find_pos_for_crea_on_battlefield(
+		_creature: Variant,
+		origin: Vector2,
+		_failure_ok: bool,
+		_max_move_attempts: int,
+		_max_los_attempts: int
+	) -> Vector2:
+		placement_origins.append(origin)
+		return origin + Vector2(placement_origins.size(), 0)
+
+
+class SpawnTestCreature:
+	extends RefCounted
+	var name := "Spawned creature"
+	var position := Vector2.ZERO
+	var baseFaction := 5
+	var curFaction := 5
+	var is_player_controlled := false
+	var combat_button: Variant
+	var initialized_name := ""
+
+	func initialize_from_bestiary_dict(bestiary_name: String) -> void:
+		initialized_name = bestiary_name
+
+	func get_stat(stat_name: String) -> int:
+		return 1 if stat_name == "curHP" else 0
+
+
+class SpawnTestBackground:
+	extends RefCounted
+	var visible := true
+
+	func hide() -> void:
+		visible = false
+
+
+class SpawnTestButton:
+	extends RefCounted
+	var creature: Variant
+	var bgsprite = SpawnTestBackground.new()
+
+	func set_creature_represented(value: Variant) -> void:
+		creature = value
+
+
+class SpawnTestScene:
+	extends RefCounted
+
+	func instantiate() -> Variant:
+		return SpawnTestButton.new()
+
+
+class SpawnTestNode:
+	extends RefCounted
+	var children: Array = []
+
+	func add_child(child: Variant) -> void:
+		children.append(child)
+
+
+class SpawnTestMap:
+	extends RefCounted
+	var creatures_node = SpawnTestNode.new()
 
 
 func _init() -> void:
@@ -181,6 +246,7 @@ func _init() -> void:
 	_test_combat_monster_destruction_action()
 	_test_lower_undead_deanimation_action()
 	_test_combat_monster_rout_action()
+	_test_combat_monster_spawn_action()
 	_test_battle_round_macro_action()
 	_test_forced_battle_end_action()
 	_test_action_point_copy_mutations(bundle)
@@ -1693,7 +1759,7 @@ func _test_party_state_actions() -> void:
 		"imported Classic monster ID survives ally renaming"
 	)
 	_expect_equal(
-		adapter.resolve_classic_ally_bestiary_name(
+		adapter.resolve_classic_monster_bestiary_name(
 			71,
 			{"displayName": "Vodalian"},
 			{"Vodalian": {"data": {"name": "Vodalian"}}}
@@ -1702,7 +1768,7 @@ func _test_party_state_actions() -> void:
 		"ally resource resolves by exact display name"
 	)
 	_expect_equal(
-		adapter.resolve_classic_ally_bestiary_name(
+		adapter.resolve_classic_monster_bestiary_name(
 			71,
 			{"displayName": "Vodalian"},
 			{
@@ -1923,7 +1989,10 @@ func _test_lower_undead_deanimation_action() -> void:
 func _test_combat_monster_rout_action() -> void:
 	var bundle = _combat_monster_test_bundle()
 	var interpreter = _interpreter(bundle)
-	_expect(interpreter.begin_trigger("combat:rout"), "begin combat-monster rout fixture")
+	_expect(
+		interpreter.begin_trigger("combat:rout", 0, {"actorFaction": 1}),
+		"begin combat-monster rout fixture"
+	)
 	var command: Dictionary = interpreter.run_until_yield()
 	_expect_equal(command.get("command"), "rout_combat_monsters", "opcode 123 yields typed mutation")
 	_expect_equal(command.get("payload", {}).get("extraCodeId"), 2, "rout preserves Extra Code ID")
@@ -1931,6 +2000,7 @@ func _test_combat_monster_rout_action() -> void:
 	_expect(bool(command.get("payload", {}).get("sameFactionAsActor")), "rout preserves faction rule")
 	_expect(bool(command.get("payload", {}).get("permanent")), "rout preserves permanent duration")
 	_expect_equal(command.get("payload", {}).get("surrenderPercent"), 50, "rout preserves surrender value")
+	_expect_equal(command.get("payload", {}).get("actorFaction"), 1, "rout relays queued actor faction")
 	_expect_equal(
 		interpreter.run_until_yield().get("payload", {}).get("messageId"),
 		924,
@@ -1963,6 +2033,144 @@ func _test_combat_monster_rout_action() -> void:
 			"res://scripts/classic_runtime/classic_godot_command_adapter.gd",
 			"rout applies the supplied trait script"
 		)
+
+
+func _test_combat_monster_spawn_action() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger(
+			"combat:spawn",
+			0,
+			{"actorFaction": 3, "actorPosition": Vector2(8, 9), "battleMacro": 0}
+		),
+		"begin combat-monster spawn fixture"
+	)
+	var command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(command.get("command"), "spawn_combat_monsters", "opcode 124 yields typed spawn")
+	var payload: Dictionary = command.get("payload", {})
+	_expect_equal(payload.get("monsterId"), 92, "spawn preserves monster ID")
+	_expect_equal(payload.get("spawnCount"), 2, "positive spawn count is exact")
+	_expect_equal(payload.get("soundId"), 640, "spawn preserves per-creature sound")
+	_expect(bool(payload.get("inheritActorFaction")), "direct combat macro inherits actor faction")
+	_expect_equal(payload.get("actorFaction"), 3, "spawn relays queued actor faction")
+	_expect_equal(payload.get("actorPosition"), Vector2(8, 9), "spawn relays queued actor position")
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		928,
+		"spawn command continues to the next combat action"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:spawn-random", 0, {"battleMacro": -118})
+	var random_spawn: Dictionary = interpreter.run_until_yield()
+	_expect_equal(random_spawn.get("payload", {}).get("authoredCount"), -1, "random spawn keeps signed count")
+	_expect_equal(random_spawn.get("payload", {}).get("spawnCount"), 1, "singleton random spawn is stable")
+	_expect(
+		not bool(random_spawn.get("payload", {}).get("inheritActorFaction")),
+		"battle-round spawn keeps its monster template faction"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:spawn-explicit")
+	var explicit_spawn: Dictionary = interpreter.run_until_yield()
+	_expect_equal(explicit_spawn.get("payload", {}).get("factionOverride"), 2, "spawn keeps explicit faction")
+	_expect(
+		not bool(explicit_spawn.get("payload", {}).get("inheritActorFaction")),
+		"explicit spawn faction takes precedence"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:spawn-zero")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"show_text",
+		"zero-count spawn continues without requiring a monster record"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var creature_book := {"Goblin 92": {"data": {"name": "Goblin"}}}
+	var combat_state := CombatTestState.new([])
+	var map := SpawnTestMap.new()
+	var spawn_result: Dictionary = adapter.spawn_classic_combatants(
+		payload,
+		combat_state,
+		map,
+		creature_book,
+		SpawnTestCreature,
+		SpawnTestScene.new(),
+		Vector2(8, 9),
+		3
+	)
+	_expect_equal(spawn_result.get("spawned"), 2, "combat adapter creates requested monsters")
+	_expect_equal(combat_state.all_battle_creatures_btns.size(), 2, "spawn extends live roster")
+	_expect_equal(combat_state.battle_creatures_yet_to_act_btns.size(), 2, "spawn extends initiative")
+	_expect_equal(map.creatures_node.children.size(), 2, "spawn adds native combat buttons to map")
+	for spawned_value: Variant in spawn_result.get("combatants", []):
+		var spawned: Variant = spawned_value.creature
+		_expect_equal(spawned.initialized_name, "Goblin 92", "spawn resolves native bestiary entry")
+		_expect_equal(spawned.get_meta("classic_monster_id"), 92, "spawn records Classic identity")
+		_expect_equal(spawned.curFaction, 3, "spawn inherits actor faction")
+		_expect(not spawned_value.bgsprite.visible, "spawn hides native selection background")
+	_expect_equal(
+		combat_state.placement_origins,
+		[Vector2(8, 9), Vector2(8, 9)],
+		"each spawn searches outward from the macro actor"
+	)
+
+	var template_payload := payload.duplicate(true)
+	template_payload["spawnCount"] = 1
+	template_payload["inheritActorFaction"] = false
+	var template_state := CombatTestState.new([])
+	var template_result: Dictionary = adapter.spawn_classic_combatants(
+		template_payload,
+		template_state,
+		SpawnTestMap.new(),
+		creature_book,
+		SpawnTestCreature,
+		SpawnTestScene.new(),
+		Vector2.ZERO
+	)
+	_expect_equal(
+		template_result.get("combatants", [])[0].creature.curFaction,
+		4,
+		"battle macro preserves template faction"
+	)
+
+	var explicit_payload := template_payload.duplicate(true)
+	explicit_payload["factionOverride"] = 2
+	var explicit_result: Dictionary = adapter.spawn_classic_combatants(
+		explicit_payload,
+		CombatTestState.new([]),
+		SpawnTestMap.new(),
+		creature_book,
+		SpawnTestCreature,
+		SpawnTestScene.new(),
+		Vector2.ZERO
+	)
+	_expect_equal(
+		explicit_result.get("combatants", [])[0].creature.curFaction,
+		2,
+		"explicit spawn faction replaces template faction"
+	)
+
+	var crowded: Array = []
+	for existing_index: int in range(99):
+		crowded.append(SpawnTestButton.new())
+		crowded[-1].set_creature_represented(SpawnTestCreature.new())
+	var crowded_state := CombatTestState.new(crowded)
+	var limited_result: Dictionary = adapter.spawn_classic_combatants(
+		payload,
+		crowded_state,
+		SpawnTestMap.new(),
+		creature_book,
+		SpawnTestCreature,
+		SpawnTestScene.new(),
+		Vector2.ZERO,
+		1
+	)
+	_expect_equal(limited_result.get("spawned"), 1, "spawn respects Classic's 100-monster limit")
+	_expect(bool(limited_result.get("capacityLimited")), "spawn reports capacity truncation")
 
 
 func _test_battle_round_macro_action() -> void:
@@ -3446,7 +3654,7 @@ func _test_full_bundle(path: String) -> void:
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
 		93, 94, 95, 96, 97, 98, 100, 106, 111, 112,
-		121, 123, 125, 126, 127,
+		121, 123, 124, 125, 126, 127,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -3458,8 +3666,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2245, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2715, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2264, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2734, "full CoB defined-behavior slots")
 
 	var battle_end_interpreter = _interpreter(bundle)
 	_expect(
@@ -3496,6 +3704,66 @@ func _test_full_bundle(path: String) -> void:
 			rout.get("payload", {}).get("monsterIds"),
 			shipped_rout[3],
 			"shipped rout preserves monster IDs"
+		)
+
+	for shipped_spawn: Array in [
+		["Data ED3:macro:94", 4, 647, 133, 6, 30000],
+		["Data ED3:macro:94", 5, 649, 125, 3, 30000],
+		["Data ED3:macro:110", 5, 405, 0, 0, 640],
+		["Data ED3:macro:112", 5, 405, 0, 0, 640],
+		["Data ED3:macro:113", 3, 402, 62, 6, 640],
+		["Data ED3:macro:114", 2, 411, 73, 2, 640],
+		["Data ED3:macro:115", 2, 412, 72, 2, 640],
+		["Data ED3:macro:116", 1, 406, 83, -3, 640],
+		["Data ED3:macro:118", 2, 420, 78, -10, 30002],
+		["Data ED3:macro:120", 2, 422, 80, -8, 30001],
+		["Data ED3:macro:122", 2, 424, 92, -4, 10136],
+		["Data ED3:macro:122", 3, 425, 130, -2, 10136],
+		["Data ED3:macro:124", 2, 432, 80, -10, 0],
+		["Data ED3:macro:127", 2, 427, 4, 1, 605],
+		["Data ED3:macro:130", 2, 433, 1, 12, 626],
+		["Data ED3:macro:132", 1, 435, 76, -3, 626],
+		["Data ED3:macro:132", 2, 436, 21, -2, 626],
+		["Data ED3:macro:138", 4, 385, 91, -4, 30000],
+		["Data ED3:macro:161", 5, 405, 0, 0, 640],
+	]:
+		var spawn_interpreter = _interpreter(bundle)
+		var is_round_macro: bool = [118, 120, 122, 124, 127, 130, 132].has(
+			int(str(shipped_spawn[0]).get_slice(":", 2))
+		)
+		_expect(
+			spawn_interpreter.begin_trigger(
+				shipped_spawn[0],
+				shipped_spawn[1],
+				{"battleMacro": -1 if is_round_macro else 0}
+			),
+			"begin shipped CoB combat spawn %s slot %d" % [shipped_spawn[0], shipped_spawn[1]]
+		)
+		var spawn: Dictionary = spawn_interpreter.run_until_yield()
+		if int(shipped_spawn[4]) == 0:
+			_expect(
+				spawn.get("command") != "spawn_combat_monsters",
+				"shipped zero-count spawn remains a no-op"
+			)
+			continue
+		_expect_equal(spawn.get("command"), "spawn_combat_monsters", "shipped opcode 124 yields spawn")
+		var spawn_payload: Dictionary = spawn.get("payload", {})
+		_expect_equal(spawn_payload.get("extraCodeId"), shipped_spawn[2], "shipped spawn preserves Extra Code ID")
+		_expect_equal(spawn_payload.get("monsterId"), shipped_spawn[3], "shipped spawn preserves monster ID")
+		_expect_equal(spawn_payload.get("authoredCount"), shipped_spawn[4], "shipped spawn preserves signed count")
+		_expect_equal(spawn_payload.get("soundId"), shipped_spawn[5], "shipped spawn preserves sound")
+		var resolved_count := int(spawn_payload.get("spawnCount", 0))
+		if int(shipped_spawn[4]) < 0:
+			_expect(
+				resolved_count >= 1 and resolved_count <= abs(int(shipped_spawn[4])),
+				"shipped random spawn resolves inside its inclusive range"
+			)
+		else:
+			_expect_equal(resolved_count, shipped_spawn[4], "shipped fixed spawn count is exact")
+		_expect_equal(
+			spawn_payload.get("inheritActorFaction"),
+			not is_round_macro,
+			"shipped spawn preserves actor/template faction rule"
 		)
 
 	for shipped_round_macro: Array in [
@@ -4183,6 +4451,12 @@ func _combat_monster_test_bundle():
 		"displayName": "Zombie",
 		"typeFlags": [0, 1, 0, 0, 0, 0, 0, 0],
 	}
+	bundle.monsters_by_id[92] = {
+		"id": 92,
+		"displayName": "Goblin",
+		"traitor": 4,
+		"typeFlags": [0, 0, 0, 0, 0, 0, 0, 0],
+	}
 	bundle.monsters_by_id[134] = {
 		"id": 134,
 		"displayName": "Rat Demi-Lord",
@@ -4196,11 +4470,16 @@ func _combat_monster_test_bundle():
 	bundle.messages_by_id[925] = {"id": 925, "text": "The scheduled event begins."}
 	bundle.messages_by_id[926] = {"id": 926, "text": "The repeating event begins."}
 	bundle.messages_by_id[927] = {"id": 927, "text": "The random event begins."}
+	bundle.messages_by_id[928] = {"id": 928, "text": "More enemies appear."}
 	bundle.extra_codes_by_id[1] = {"id": 1, "values": [134, 0, 0, 0, 0]}
 	bundle.extra_codes_by_id[2] = {"id": 2, "values": [134, 42, 0, 0, 0]}
 	bundle.extra_codes_by_id[3] = {"id": 3, "values": [0, 2, 0, 950, 0]}
 	bundle.extra_codes_by_id[4] = {"id": 4, "values": [1, 25, 1, 951, 0]}
 	bundle.extra_codes_by_id[5] = {"id": 5, "values": [2, 0, 2, 952, 952]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [0, 92, 2, 640, 0]}
+	bundle.extra_codes_by_id[7] = {"id": 7, "values": [0, 92, -1, 0, 0]}
+	bundle.extra_codes_by_id[8] = {"id": 8, "values": [0, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[9] = {"id": 9, "values": [0, 92, 1, 0, 2]}
 	_add_stack_trigger(bundle, "combat:present", -1, [
 		_classic_action(0, 127, 134),
 		_classic_action(1, 1, 920),
@@ -4217,6 +4496,16 @@ func _combat_monster_test_bundle():
 		_classic_action(0, 123, 2),
 		_classic_action(1, 1, 924),
 	])
+	_add_stack_trigger(bundle, "combat:spawn", -1, [
+		_classic_action(0, 124, 6),
+		_classic_action(1, 1, 928),
+	])
+	_add_stack_trigger(bundle, "combat:spawn-random", -1, [_classic_action(0, 124, 7)])
+	_add_stack_trigger(bundle, "combat:spawn-zero", -1, [
+		_classic_action(0, 124, 8),
+		_classic_action(1, 1, 928),
+	])
+	_add_stack_trigger(bundle, "combat:spawn-explicit", -1, [_classic_action(0, 124, 9)])
 	_add_stack_trigger(bundle, "combat:round", -1, [_classic_action(0, 126, 3)])
 	_add_stack_trigger(bundle, "combat:chance", -1, [_classic_action(0, 126, 4)])
 	_add_stack_trigger(bundle, "combat:random", -1, [_classic_action(0, 126, 5)])
