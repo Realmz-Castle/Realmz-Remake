@@ -161,6 +161,7 @@ func _validate_document_contract() -> bool:
 		["rules", "raceOverrides", "id", false],
 		["rules", "casteOverrides", "id", false],
 		["maps", "maps", "id", true],
+		["assets", "managedAssets", "id", true],
 	]:
 		if not _validate_record_collection(
 			str(specification[0]),
@@ -195,6 +196,11 @@ func _validate_document_contract() -> bool:
 			str(specification[1]),
 			bool(specification[2])
 		):
+			return false
+	if not _validate_payload_paths_in_collection("assets", documents["assets"], "managedAssets"):
+		return false
+	for collection_name: String in ["tilesets", "pictures", "icons", "sounds"]:
+		if not _validate_payload_paths_in_collection("assets.catalog", catalog, collection_name):
 			return false
 
 	var semantic_decoding: Variant = documents["evidence"].get("semanticDecoding", {})
@@ -353,11 +359,42 @@ func _validate_dispatcher_noops(semantic_decoding: Dictionary) -> bool:
 	return true
 
 
+func _validate_payload_paths_in_collection(
+	context: String,
+	container: Dictionary,
+	collection_name: String
+) -> bool:
+	if not container.has(collection_name):
+		return true
+	var records: Array = container[collection_name]
+	for index: int in range(records.size()):
+		var record: Dictionary = records[index]
+		if not record.has("payloadPath"):
+			continue
+		var path_value: Variant = record["payloadPath"]
+		if not (path_value is String) or not _is_safe_campaign_path(path_value):
+			return _fail(
+				"%s.%s[%d].payloadPath must be a campaign-relative path" % [
+					context,
+					collection_name,
+					index,
+				]
+			)
+	return true
+
+
 func _is_safe_document_path(path: String) -> bool:
+	return _is_safe_campaign_path(path) and path.get_extension().to_lower() == "json"
+
+
+func _is_safe_campaign_path(path: String) -> bool:
 	var normalized := path.strip_edges().replace("\\", "/")
-	if normalized.is_empty() or normalized.is_absolute_path() or normalized.contains(":"):
-		return false
-	if normalized.get_extension().to_lower() != "json":
+	if (
+		normalized.is_empty()
+		or normalized.ends_with("/")
+		or normalized.is_absolute_path()
+		or normalized.contains(":")
+	):
 		return false
 	for component: String in normalized.split("/", false):
 		if component in [".", ".."]:

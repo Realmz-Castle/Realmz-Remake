@@ -431,10 +431,55 @@ func _test_bundle_contract_validation() -> void:
 	tileset_bundle.manifest = _minimal_contract_manifest()
 	tileset_bundle.documents = _minimal_contract_documents()
 	var asset_catalog: Dictionary = tileset_bundle.documents["assets"]["catalog"]
-	asset_catalog["tilesets"] = [{"id": "landlook-0", "pictId": 300}]
+	asset_catalog["tilesets"] = [{
+		"id": "landlook-0",
+		"pictId": 300,
+		"payloadPath": "classic/assets/landlook-0.png",
+	}]
 	_expect(
 		tileset_bundle._validate_document_contract(),
-		"bundle contract accepts stable string tileset identities"
+		"bundle contract accepts stable tileset identities and relative payload paths"
+	)
+
+	var missing_asset_id_bundle = BundleScript.new()
+	missing_asset_id_bundle.manifest = _minimal_contract_manifest()
+	missing_asset_id_bundle.documents = _minimal_contract_documents()
+	missing_asset_id_bundle.documents["assets"]["managedAssets"] = [{"label": "Guard portrait"}]
+	_expect(
+		not missing_asset_id_bundle._validate_document_contract(),
+		"bundle contract rejects a managed asset without its stable identity"
+	)
+	_expect(
+		missing_asset_id_bundle.last_error.contains("assets.managedAssets[0]"),
+		"managed asset identity error includes record-level context"
+	)
+
+	var unsafe_asset_path_bundle = BundleScript.new()
+	unsafe_asset_path_bundle.manifest = _minimal_contract_manifest()
+	unsafe_asset_path_bundle.documents = _minimal_contract_documents()
+	unsafe_asset_path_bundle.documents["assets"]["catalog"]["pictures"] = [{
+		"resourceId": 32128,
+		"payloadPath": "C:/decoded/picture.png",
+	}]
+	_expect(
+		not unsafe_asset_path_bundle._validate_document_contract(),
+		"bundle contract rejects an absolute asset payload path"
+	)
+	_expect(
+		unsafe_asset_path_bundle.last_error.contains("assets.catalog.pictures[0].payloadPath"),
+		"asset payload path error includes record-level context"
+	)
+
+	var forward_compatible_bundle = BundleScript.new()
+	forward_compatible_bundle.manifest = _minimal_contract_manifest()
+	forward_compatible_bundle.documents = _minimal_contract_documents()
+	forward_compatible_bundle.documents["scenario"]["preservedCompilerEvidence"] = {
+		"status": "unknown",
+		"bytes": [17, 34],
+	}
+	_expect(
+		forward_compatible_bundle._validate_document_contract(),
+		"bundle contract accepts unknown preserved evidence fields"
 	)
 
 	var encounter_action_bundle = BundleScript.new()

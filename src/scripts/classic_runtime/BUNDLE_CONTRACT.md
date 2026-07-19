@@ -68,14 +68,16 @@ Adding optional evidence or provenance fields does not.
 | `encounters` | `battles`, `treasures`, `shops`, `simpleEncounters`, `complexEncounters`, `thiefEncounters`, `timedEncounters` | Numeric Classic record ID within each collection |
 | `content` | `monsters`, `scenarioItems`, `itemTexts` | Numeric Classic record ID; item text uses `itemId` |
 | `rules` | Spell, race, and caste overrides plus rule names | Numeric Classic rule ID within its collection |
-| `assets` | Managed assets and the tileset, picture, icon, and sound catalogs | Namespaced string `id` for tilesets; numeric Classic `resourceId` for pictures, icons, and sounds |
+| `assets` | Managed assets and the tileset, picture, icon, and sound catalogs | String `id` for managed assets and tilesets; numeric Classic `resourceId` for pictures, icons, and sounds |
 | `evidence` | Validation results, dispatcher no-ops, and source evidence | Source file, record index, slot, and raw action code together identify an action observation |
 
 Stable identities come from the compiled Classic record namespace; array position
 is never an identity. Action slots are addressed by their owning trigger ID plus
 their zero-based `slot`. Duplicate identities within one collection are invalid.
 References retain their Classic numeric ID even when a later native adapter also
-needs a Remake resource name.
+needs a Remake resource name. When an asset record includes `payloadPath`, the path
+is relative to the campaign root and follows the same traversal and absolute-path
+restrictions as the document paths.
 
 A document may omit a collection when that collection is empty. If the collection
 is present, it must be an array and every row must satisfy its identity contract.
@@ -143,7 +145,21 @@ The command exits with status 0 only after every required document has passed th
 consumer contract and its runtime indexes have been built. Status 1 identifies an
 invalid bundle; status 2 identifies incorrect command-line usage.
 
-The current Remake contract tests load the checked City of Bywater, War in the
-Sword Lands, and Twin Sands of Time fixtures. They also load a fixture through an
-absolute bundle-root path to prove that only the paths inside the artifact are
-portable and relative.
+## Independent fixture proof
+
+Remake's consumer tests load the checked City of Bywater, War in the Sword Lands,
+and Twin Sands of Time fixtures without a Providence checkout. They also load a
+fixture through an absolute bundle-root path to prove that paths inside the
+artifact remain portable and relative:
+
+```powershell
+godot --headless --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
+```
+
+Providence independently compiles its checked
+`fixtures/scenario-seeds/authoritative-ownership-proof.seed.json` input twice and
+compares every generated document byte. Its
+`scripts/verify_remake_classic_export.ps1` gate then passes one generated artifact
+to the generic validator command in the preceding section. This separates
+producer determinism, consumer fixture coverage, and cross-repository interchange
+into three explicit checks.
