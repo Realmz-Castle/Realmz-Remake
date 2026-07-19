@@ -685,6 +685,7 @@ func _test_campaign_readiness_report() -> void:
 		_readiness_action_point("Data DD", 76, 27, 32128),
 		_readiness_action_point("Data DD", 89, 18, 375),
 		_readiness_action_point("Data ED3", 108, 17, 388),
+		_readiness_action_point("Data ED3", 114, 17, 389),
 		_readiness_action_point("Data ED3", 128, 17, 428),
 		_readiness_action_point("Data ED3", 103, 89, 71),
 		_readiness_action_point("Data ED3", 197, -85, -1700),
@@ -692,6 +693,7 @@ func _test_campaign_readiness_report() -> void:
 	bundle.documents["scripts"]["extraCodes"] = [
 		{"id": 375, "values": [1408, 3, 0, 0, 0]},
 		{"id": 388, "values": [2301, 1, 0, 0, 0]},
+		{"id": 389, "values": [3202, 1, 0, 0, 0]},
 		{"id": 428, "values": [4606, 3, 30, 0, 0]},
 		# The positive record exists, but Classic's signed lookup is exact.
 		{"id": 1700, "values": [40, 40, 40, 40, 40]},
@@ -790,6 +792,10 @@ func _test_campaign_readiness_report() -> void:
 		"readiness reports a missing Confuse resource"
 	)
 	_expect(
+		_readiness_has_reference_diagnostic(report, "missing-native-spell", 3202),
+		"readiness reports a missing Daze resource"
+	)
+	_expect(
 		_readiness_has_diagnostic(
 			report, "unresolved-item-identity", "Data ED2", 9, -1, "progression-blocker"
 		),
@@ -832,6 +838,7 @@ func _test_campaign_readiness_report() -> void:
 		},
 		"spells": {
 			"Confuse": {"classicSpellIds": [2301]},
+			"Daze": {"classicSpellIds": [3202]},
 			"Discover Magic": {"classicSpellClass": 1},
 			"Power Drain": {"classicSpellIds": [1408, 3311]},
 		},
@@ -873,6 +880,12 @@ func _test_campaign_readiness_report() -> void:
 			resolved_report, "missing-native-spell", 2301
 		),
 		"explicit Confuse identity resolves its field-spell reference"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "missing-native-spell", 3202
+		),
+		"explicit Daze identity resolves its field-spell reference"
 	)
 
 	var unsupported_variant_report: Dictionary = ReadinessScript.new().inspect(bundle, {
@@ -1705,6 +1718,11 @@ func _test_spell_effect_actions(bundle) -> void:
 		adapter.classic_spell_mapping_key(2301),
 		"20020",
 		"Confuse ID resolves to Remake's spell-table key"
+	)
+	_expect_equal(
+		adapter.classic_spell_mapping_key(3202),
+		"30011",
+		"Daze ID resolves to Remake's spell-table key"
 	)
 	_expect_equal(
 		adapter.classic_spell_mapping_key(4606),
@@ -4477,6 +4495,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
 	var confuse = load("res://shared_assets/spells/confuse.gd").new()
+	var daze = load("res://shared_assets/spells/daze.gd").new()
 	_expect_equal(flame_hands.classic_spell_class, 1, "Flame Hands exports its Classic class")
 	_expect_equal(flame_hands.get_range(7, null), 1, "Flame Hands keeps its touch range")
 	_expect_equal(flame_hands.get_min_damage(3, null), 3, "Flame Hands minimum scales by power")
@@ -4575,6 +4594,34 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(confused_trait.get_saved_variables(), [3], "Confuse lasts three rounds")
 	confused_trait.stack([2])
 	_expect_equal(confused_trait.get_saved_variables(), [5], "Confuse durations stack")
+	_expect(daze.supports_classic_spell_id(3202), "Daze exports its exact Classic ID")
+	_expect_equal(daze.classic_spell_class, 0, "Daze exports its Classic class")
+	_expect_equal(daze.get_range(3, null), 9, "Daze range scales by power")
+	_expect_equal(daze.get_min_duration(7, null), 1, "Daze keeps its minimum duration")
+	_expect_equal(daze.get_max_duration(1, null), 4, "Daze keeps its maximum duration")
+	var daze_duration: int = daze.get_duration_roll(7, null)
+	_expect(daze_duration >= 1 and daze_duration <= 4, "Daze rolls a 1-4 round duration")
+	_expect_equal(daze.get_sp_cost(3, null), 21, "Daze cost scales by power")
+	_expect_equal(daze.get_aoe(7, null), Spell.AoE_b1, "Daze ray has a one-tile base area")
+	_expect(daze.ray, "Daze includes every creature along its ray")
+	_expect(not daze.los, "Daze's negative range coefficient disables LOS blocking")
+	_expect_equal(
+		daze.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Daze checks resistance without a projectile dodge"
+	)
+	_expect_equal(daze.get_damage_roll(7, null), 0, "Daze does not deal health damage")
+	var dazed_target := ConditionTestCharacter.new("Dazed target")
+	daze.add_traits_to_creature(null, dazed_target, 7)
+	_expect_equal(dazed_target.traits.size(), 1, "Daze applies one condition trait")
+	_expect(
+		str(dazed_target.traits[0].name).ends_with("t_confused.gd"),
+		"Daze reuses Remake's temporary confusion trait"
+	)
+	_expect(
+		dazed_target.traits[0].power >= 1 and dazed_target.traits[0].power <= 4,
+		"Daze passes its rolled duration to the confusion trait"
+	)
 	_expect(
 		FileAccess.get_file_as_string("res://shared_assets/spells/discover_magic.gd").contains(
 			"classic_spell_class = 8"
