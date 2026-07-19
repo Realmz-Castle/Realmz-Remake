@@ -15,6 +15,8 @@ var simple_encounter_overrides: Dictionary = {}
 var complex_encounter_overrides: Dictionary = {}
 var owned_maps: Dictionary = {}
 var darkland_overrides: Dictionary = {}
+var landlook_overrides: Dictionary = {}
+var random_rectangle_overrides: Dictionary = {}
 var difficulty := 0
 var level_type := "land"
 var level_index := 0
@@ -36,6 +38,8 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	complex_encounter_overrides.clear()
 	owned_maps.clear()
 	darkland_overrides.clear()
+	landlook_overrides.clear()
+	random_rectangle_overrides.clear()
 	difficulty = 0
 	var start := bundle.get_start()
 	level_type = str(start.get("levelType", "land"))
@@ -107,6 +111,37 @@ func set_darkland(level_kind: String, map_level: int, darkness: int) -> void:
 
 func get_darkland(level_kind: String, map_level: int, fallback: int) -> int:
 	return int(darkland_overrides.get(_map_key(level_kind, map_level), fallback))
+
+
+func set_landlook(level_kind: String, map_level: int, landlook: int) -> void:
+	landlook_overrides[_map_key(level_kind, map_level)] = landlook
+
+
+func get_landlook(level_kind: String, map_level: int, fallback: int) -> int:
+	return int(landlook_overrides.get(_map_key(level_kind, map_level), fallback))
+
+
+func set_random_rectangle(
+	level_kind: String,
+	map_level: int,
+	rect_index: int,
+	rectangle: Dictionary
+) -> void:
+	var key := _random_rectangle_key(level_kind, map_level, rect_index)
+	random_rectangle_overrides[key] = rectangle.duplicate(true)
+
+
+func get_random_rectangle(
+	level_kind: String,
+	map_level: int,
+	rect_index: int,
+	fallback: Dictionary
+) -> Dictionary:
+	var rectangle: Variant = random_rectangle_overrides.get(
+		_random_rectangle_key(level_kind, map_level, rect_index),
+		fallback
+	)
+	return rectangle.duplicate(true) if rectangle is Dictionary else {}
 
 
 func set_tile(level_kind: String, map_level: int, tile_x: int, tile_y: int, tile_value: int) -> void:
@@ -226,6 +261,8 @@ func snapshot() -> Dictionary:
 		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
 		"ownedMaps": owned_maps.duplicate(true),
 		"darklandOverrides": darkland_overrides.duplicate(true),
+		"landlookOverrides": landlook_overrides.duplicate(true),
+		"randomRectangleOverrides": random_rectangle_overrides.duplicate(true),
 		"difficulty": difficulty,
 		"position": {
 			"levelType": level_type,
@@ -250,6 +287,8 @@ func restore(saved_state: Dictionary) -> void:
 	complex_encounter_overrides.clear()
 	owned_maps.clear()
 	darkland_overrides.clear()
+	landlook_overrides.clear()
+	random_rectangle_overrides.clear()
 	var saved_flags: Variant = saved_state.get("questFlags", {})
 	if saved_flags is Dictionary:
 		for quest_id: Variant in saved_flags:
@@ -285,6 +324,13 @@ func restore(saved_state: Dictionary) -> void:
 		for map_id: Variant in saved_maps:
 			owned_maps[str(map_id)] = bool(saved_maps[map_id])
 	_restore_dictionary(saved_state.get("darklandOverrides", {}), darkland_overrides)
+	_restore_dictionary(saved_state.get("landlookOverrides", {}), landlook_overrides)
+	var saved_random_rectangles: Variant = saved_state.get("randomRectangleOverrides", {})
+	if saved_random_rectangles is Dictionary:
+		for rectangle_key: Variant in saved_random_rectangles:
+			var rectangle: Variant = saved_random_rectangles[rectangle_key]
+			if rectangle is Dictionary:
+				random_rectangle_overrides[str(rectangle_key)] = rectangle.duplicate(true)
 	set_difficulty(int(saved_state.get("difficulty", 0)))
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
@@ -315,3 +361,7 @@ func _trigger_key(level_kind: String, map_level: int, trigger_id: int) -> String
 
 func _map_key(level_kind: String, map_level: int) -> String:
 	return "%s:%d" % [level_kind, map_level]
+
+
+func _random_rectangle_key(level_kind: String, map_level: int, rect_index: int) -> String:
+	return "%s:%d:%d" % [level_kind, map_level, rect_index]

@@ -3,6 +3,7 @@ extends RefCounted
 
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
+const MAX_RANDOM_RECTANGLES := 20
 
 var bundle: ClassicCampaignBundle
 var runtime_state: ClassicRuntimeState
@@ -255,6 +256,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_random_text(record_id)
 		20, 45:
 			return _execute_teleport(record_id, code == 20)
+		-23, 23:
+			return _execute_random_rectangle_mutation(record_id, code == -23)
 		37:
 			return _execute_dungeon_move(record_id)
 		24:
@@ -284,6 +287,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		47:
 			runtime_state.set_quest_flag(record_id)
 			return _continue_result()
+		57:
+			return _execute_landlook(record_id)
 		58:
 			return _execute_difficulty_branch(record_id)
 		93, 94:
@@ -560,6 +565,61 @@ func _execute_player_map(signed_map_id: int) -> Dictionary:
 		"mapId": map_id,
 		"display": signed_map_id < 0,
 		"mapRecord": map_record,
+	})
+
+
+func _execute_random_rectangle_mutation(extra_code_id: int, dungeon: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Random rectangle mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var level_kind := "dungeon" if dungeon else "land"
+	var map_level := int(values[0])
+	var rect_index := int(values[1])
+	if rect_index < 0 or rect_index >= MAX_RANDOM_RECTANGLES:
+		return _halt_with_error("Random rectangle index must be between 0 and 19")
+	if bundle.get_random_level(level_kind, map_level).is_empty():
+		return _halt_with_error("Missing %s random-level record %d" % [
+			level_kind,
+			map_level,
+		])
+	var baseline := bundle.get_random_rectangle(level_kind, map_level, rect_index)
+	if baseline.is_empty():
+		baseline = {
+			"rectIndex": rect_index,
+			"percent": 0,
+			"battleRange": [0, 0],
+		}
+	var previous := runtime_state.get_random_rectangle(
+		level_kind,
+		map_level,
+		rect_index,
+		baseline
+	)
+	var rectangle: Dictionary = previous.duplicate(true)
+	rectangle["rectIndex"] = rect_index
+	rectangle["percent"] = int(values[2])
+	var battle_range := [0, 0]
+	var previous_range: Variant = previous.get("battleRange", [])
+	if previous_range is Array:
+		if previous_range.size() > 0:
+			battle_range[0] = int(previous_range[0])
+		if previous_range.size() > 1:
+			battle_range[1] = int(previous_range[1])
+	if int(values[3]) > -1:
+		battle_range[0] = int(values[3])
+	if int(values[4]) > -1:
+		battle_range[1] = int(values[4])
+	rectangle["battleRange"] = battle_range
+	runtime_state.set_random_rectangle(level_kind, map_level, rect_index, rectangle)
+	return _yield_result("set_random_encounter_rect", {
+		"extraCodeId": extra_code_id,
+		"levelType": level_kind,
+		"levelIndex": map_level,
+		"rectIndex": rect_index,
+		"previousRectangle": previous,
+		"rectangle": rectangle,
 	})
 
 
@@ -926,6 +986,43 @@ func _execute_darkland(extra_code_id: int) -> Dictionary:
 		"previousDarkness": previous,
 		"darkness": darkness,
 		"dark": darkness != 0,
+	})
+
+
+func _execute_landlook(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Change Land Look action references missing Extra Code row %d" % extra_code_id
+		)
+	var map_level := int(values[2])
+	var random_level := bundle.get_random_level("land", map_level)
+	if random_level.is_empty():
+		return _halt_with_error("Missing land random-level record %d" % map_level)
+	var previous_landlook := runtime_state.get_landlook(
+		"land",
+		map_level,
+		int(random_level.get("landlook", 0))
+	)
+	var previous_darkness := runtime_state.get_darkland(
+		"land",
+		map_level,
+		1 if bool(random_level.get("isDark", false)) else 0
+	)
+	var landlook := int(values[0])
+	var darkness := int(values[1])
+	runtime_state.set_landlook("land", map_level, landlook)
+	runtime_state.set_darkland("land", map_level, darkness)
+	return _yield_result("set_land_look", {
+		"extraCodeId": extra_code_id,
+		"levelType": "land",
+		"levelIndex": map_level,
+		"previousLandlook": previous_landlook,
+		"landlook": landlook,
+		"previousDarkness": previous_darkness,
+		"darkness": darkness,
+		"dark": darkness != 0,
+		"redraw": "center" if runtime_state.level_type == "land" else "none",
 	})
 
 

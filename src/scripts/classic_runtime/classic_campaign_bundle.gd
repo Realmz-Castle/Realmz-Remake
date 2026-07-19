@@ -125,6 +125,17 @@ func get_random_level(level_type: String, level_index: int) -> Dictionary:
 	return random_levels_by_id.get("%s:%d:randlevel" % [level_type, level_index], {})
 
 
+func get_random_rectangle(level_type: String, level_index: int, rect_index: int) -> Dictionary:
+	var random_level := get_random_level(level_type, level_index)
+	var rectangles: Variant = random_level.get("rects", [])
+	if not (rectangles is Array):
+		return {}
+	for rectangle: Variant in rectangles:
+		if rectangle is Dictionary and int(rectangle.get("rectIndex", -1)) == rect_index:
+			return rectangle
+	return {}
+
+
 func get_start() -> Dictionary:
 	var start: Variant = manifest.get("start", {})
 	return start if start is Dictionary else {}

@@ -596,6 +596,49 @@
         {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
       ],
       "provenance": {"sourceFile": "Data ED3", "recordIndex": 18, "byteOffset": 720, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:1:30",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 1,
+      "recordIndex": 30,
+      "active": true,
+      "doorid": 18249,
+      "landid": 1,
+      "targetX": 49,
+      "targetY": 82,
+      "percent": 100,
+      "coordinate": {"x": 49, "y": 82},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": -520, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 3, "code": 3, "id": 11, "label": "Choice", "category": "branch", "gosub": false},
+        {"slot": 2, "rawCode": 1, "code": 1, "id": 521, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 3, "rawCode": 23, "code": 23, "id": 255, "label": "Alter land random rectangle", "category": "map", "gosub": false},
+        {"slot": 4, "rawCode": 11, "code": 11, "id": 1500, "label": "Give experience", "category": "combat", "gosub": false},
+        {"slot": 5, "rawCode": 7, "code": 7, "id": 256, "label": "Action data patch", "category": "map", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 30, "byteOffset": 5200, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:163",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 163,
+      "active": true,
+      "doorid": 30000,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 9, "code": 9, "id": 699, "label": "Play sound", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 57, "code": 57, "id": 659, "label": "Change land look", "category": "map", "gosub": false},
+        {"slot": 2, "rawCode": 1, "code": 1, "id": 867, "label": "Text", "category": "ui_text", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 163, "byteOffset": 6520, "byteLength": 40, "confidence": "source-backed"}
     }
   ],
   "extraCodes": [
@@ -605,6 +648,7 @@
     {"id": 70, "values": [38, 0, 30000, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 70, "byteOffset": 700, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 73, "values": [0, 27, 18, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 73, "byteOffset": 730, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 127, "values": [0, 17, 100, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 127, "byteOffset": 1270, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 255, "values": [1, 17, 900, 158, 163], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 255, "byteOffset": 2550, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 269, "values": [0, 3, 28, 193, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 269, "byteOffset": 2690, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 364, "values": [1, 22, 73, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 364, "byteOffset": 3640, "byteLength": 10, "confidence": "source-backed"}},
@@ -614,6 +658,7 @@
     {"id": 643, "values": [1, 1, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 643, "byteOffset": 6430, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 645, "values": [250, 0, -1, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 645, "byteOffset": 6450, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 655, "values": [2, 1, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 655, "byteOffset": 6550, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 659, "values": [10, 0, 0, 0, 1], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 659, "byteOffset": 6590, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 660, "values": [0, 0, 33, 72, 2], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 660, "byteOffset": 6600, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 661, "values": [1, 0, 88, 48, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 661, "byteOffset": 6610, "byteLength": 10, "confidence": "source-backed"}}
   ],
@@ -809,9 +854,65 @@
       "text": "The light fades leaving you in darkness.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 849, "byteOffset": 217344, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 520,
+      "text": "You see the remains of yet another small child.  Blood still trickles from a jugular  recently opened to let this innocent child's life leak away.  Do you wish to dig the child a grave.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 520, "byteOffset": 133120, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 521,
+      "text": "That will be one foul meal that shall go untasted.  Whatever could prey on helpless farmers and small children deserves this grave far more than this poor child.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 521, "byteOffset": 133376, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 867,
+      "text": "You arrived in Bywater just in time as a winter storm has just covered the entire region in a thick blanket of snow.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 867, "byteOffset": 221952, "byteLength": 256, "confidence": "source-backed"}
     }
   ],
   "randomLevels": [
+    {
+      "id": "land:0:randlevel",
+      "isDark": false,
+      "landlook": 0,
+      "levelIndex": 0,
+      "levelType": "land",
+      "source": "Data RD",
+      "useLos": false,
+      "rects": [],
+      "provenance": {"sourceFile": "Data RD", "recordIndex": 0, "byteOffset": 0, "byteLength": 644, "confidence": "source-backed"}
+    },
+    {
+      "id": "land:1:randlevel",
+      "isDark": true,
+      "landlook": 3,
+      "levelIndex": 1,
+      "levelType": "land",
+      "source": "Data RD",
+      "useLos": true,
+      "rects": [
+        {
+          "battleRange": [158, 162],
+          "bottom": 90,
+          "left": 4,
+          "only": false,
+          "option": 0,
+          "percent": 0,
+          "randomDoorPercent": [0, 0, 0],
+          "randomDoors": [0, 0, 0],
+          "rectIndex": 17,
+          "right": 29,
+          "sound": 117,
+          "text": 0,
+          "top": 60
+        }
+      ],
+      "provenance": {"sourceFile": "Data RD", "recordIndex": 1, "byteOffset": 644, "byteLength": 644, "confidence": "source-backed"}
+    },
     {
       "id": "land:4:randlevel",
       "isDark": false,
@@ -820,6 +921,7 @@
       "levelType": "land",
       "source": "Data RD",
       "useLos": true,
+      "rects": [],
       "provenance": {"sourceFile": "Data RD", "recordIndex": 4, "byteOffset": 2576, "byteLength": 644, "confidence": "source-backed"}
     }
   ],

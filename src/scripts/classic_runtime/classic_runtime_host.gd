@@ -76,7 +76,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				runtime.continue_after_command()
 		"show_text", "play_sound", "give_treasure", "give_map", "set_map_tile", \
 		"set_trigger_percent", "teleport", "set_view_direction", \
-		"set_view_mode", "set_map_darkness", "give_battle_loot", \
+		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
+		"set_land_look", "give_battle_loot", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
 		_:

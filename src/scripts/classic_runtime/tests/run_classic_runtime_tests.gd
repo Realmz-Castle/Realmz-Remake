@@ -74,6 +74,7 @@ func _init() -> void:
 	_test_dungeon_move(bundle)
 	_test_look_direction(bundle)
 	_test_view_modes_and_darkland(bundle)
+	_test_random_level_mutations(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -291,6 +292,96 @@ func _test_view_modes_and_darkland(bundle) -> void:
 	var light_text: Dictionary = interpreter.run_until_yield()
 	_expect_equal(light_text.get("payload", {}).get("messageId"), -848, "lightland keeps authored text mode")
 	_expect_equal(light_text.get("payload", {}).get("message", {}).get("id"), 848, "lightland resolves authored text")
+
+
+func _test_random_level_mutations(bundle) -> void:
+	var baseline: Dictionary = bundle.get_random_rectangle("land", 1, 17)
+	_expect_equal(baseline.get("percent"), 0, "random rectangle fixture baseline percent")
+	_expect_equal(
+		baseline.get("battleRange", []).map(func(value: Variant) -> int: return int(value)),
+		[158, 162],
+		"random rectangle fixture battle range"
+	)
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:1:30", 3), "begin CoB random rectangle action")
+	var rectangle_result: Dictionary = interpreter.run_until_yield()
+	var rectangle_payload: Dictionary = rectangle_result.get("payload", {})
+	_expect_equal(rectangle_result.get("command"), "set_random_encounter_rect", "random rectangle command")
+	_expect_equal(rectangle_payload.get("levelType"), "land", "land rectangle target type")
+	_expect_equal(rectangle_payload.get("levelIndex"), 1, "land rectangle target level")
+	_expect_equal(rectangle_payload.get("rectIndex"), 17, "land rectangle target index")
+	_expect_equal(
+		rectangle_payload.get("previousRectangle", {}).get("battleRange", []).map(
+			func(value: Variant) -> int: return int(value)
+		),
+		[158, 162],
+		"random rectangle reports previous battle range"
+	)
+	_expect_equal(rectangle_payload.get("rectangle", {}).get("percent"), 900, "random rectangle percent")
+	_expect_equal(
+		rectangle_payload.get("rectangle", {}).get("battleRange"),
+		[158, 163],
+		"random rectangle updates authored battle high"
+	)
+	_expect_equal(
+		interpreter.runtime_state.get_random_rectangle("land", 1, 17, {}).get("percent"),
+		900,
+		"random rectangle persists by map and index"
+	)
+	_expect_equal(
+		bundle.get_random_rectangle("land", 1, 17),
+		baseline,
+		"random rectangle leaves bundle immutable"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("land", 0, 0, 0)
+	interpreter.runtime_state.set_darkland("land", 0, 1)
+	_expect(interpreter.begin_trigger("Data ED3:macro:163", 1), "begin CoB land-look action")
+	var landlook_result: Dictionary = interpreter.run_until_yield()
+	var landlook_payload: Dictionary = landlook_result.get("payload", {})
+	_expect_equal(landlook_result.get("command"), "set_land_look", "land-look command")
+	_expect_equal(landlook_payload.get("previousLandlook"), 0, "land-look uses random-level baseline")
+	_expect_equal(landlook_payload.get("landlook"), 10, "land-look stores authored visual set")
+	_expect_equal(landlook_payload.get("previousDarkness"), 1, "land-look reports previous darkness")
+	_expect_equal(landlook_payload.get("darkness"), 0, "land-look stores authored darkness")
+	_expect_equal(landlook_payload.get("redraw"), "center", "land context redraws center view")
+	_expect_equal(interpreter.runtime_state.get_landlook("land", 0, -1), 10, "land-look persists by map")
+	_expect_equal(interpreter.runtime_state.get_darkland("land", 0, -1), 0, "land-look persists darkness")
+	var winter_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(winter_text.get("payload", {}).get("messageId"), 867, "land-look continues to authored text")
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("dungeon", 0, 0, 0)
+	interpreter.begin_trigger("Data ED3:macro:163", 1)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("redraw"),
+		"none",
+		"dungeon context defers land redraw"
+	)
+
+	var synthetic_bundle = _random_level_mutation_test_bundle()
+	interpreter = _interpreter(synthetic_bundle)
+	_expect(interpreter.begin_trigger("random:dungeon"), "begin dungeon random rectangle action")
+	var dungeon_result: Dictionary = interpreter.run_until_yield()
+	var dungeon_payload: Dictionary = dungeon_result.get("payload", {})
+	_expect_equal(dungeon_payload.get("levelType"), "dungeon", "negative opcode selects dungeon data")
+	_expect_equal(dungeon_payload.get("rectangle", {}).get("percent"), 250, "dungeon rectangle percent")
+	_expect_equal(
+		dungeon_payload.get("rectangle", {}).get("battleRange"),
+		[10, 20],
+		"negative battle ids preserve existing range"
+	)
+	_expect_equal(interpreter.trace[0].get("code"), -23, "dungeon opcode remains signed in trace")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "keep-codes", "dungeon mutation continues")
+
+	interpreter = _interpreter(synthetic_bundle)
+	_expect(interpreter.begin_trigger("random:missing"), "begin unused random rectangle action")
+	var missing_payload: Dictionary = interpreter.run_until_yield().get("payload", {})
+	_expect_equal(missing_payload.get("rectIndex"), 18, "unused fixed rectangle index")
+	_expect_equal(missing_payload.get("previousRectangle", {}).get("percent"), 0, "unused rectangle baseline percent")
+	_expect_equal(missing_payload.get("rectangle", {}).get("battleRange"), [0, 0], "unused rectangle baseline range")
 
 
 func _test_evidence_backed_dispatcher_noop(bundle) -> void:
@@ -1559,6 +1650,12 @@ func _test_state_snapshot(bundle) -> void:
 	state.view_type = StateScript.VIEW_MAP
 	state.set_darkland("land", 4, 1)
 	state.set_darkland("dungeon", 0, -1)
+	state.set_landlook("land", 4, 10)
+	state.set_random_rectangle("land", 4, 2, {
+		"rectIndex": 2,
+		"percent": 900,
+		"battleRange": [1, 2],
+	})
 	state.set_tile("land", 0, 3, 28, 193)
 	state.set_trigger_percent("land", 0, 17, 100)
 	state.set_difficulty(1)
@@ -1575,6 +1672,12 @@ func _test_state_snapshot(bundle) -> void:
 	_expect_equal(restored.compass_enabled, false, "compass state survives snapshot")
 	_expect_equal(restored.get_darkland("land", 4, 0), 1, "land darkness survives snapshot")
 	_expect_equal(restored.get_darkland("dungeon", 0, 0), -1, "dungeon darkness is map-specific")
+	_expect_equal(restored.get_landlook("land", 4, 0), 10, "land-look survives snapshot")
+	_expect_equal(
+		restored.get_random_rectangle("land", 4, 2, {}).get("battleRange"),
+		[1, 2],
+		"random rectangle survives snapshot"
+	)
 	_expect_equal(restored.get_tile("land", 0, 3, 28, -1), 193, "tile override survives snapshot")
 	_expect_equal(restored.get_trigger_percent("land", 0, 17, -1), 100, "trigger override survives snapshot")
 	_expect_equal(restored.difficulty, 1, "difficulty survives snapshot")
@@ -1607,8 +1710,8 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 37, 39,
-		41, 42, 44, 45, 46, 47, 56, 58, 93, 94, 95, 96, 97, 106, 111, 112,
+		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 19, 20, 23, 24, 25, 29, 35, 37,
+		39, 41, 42, 44, 45, 46, 47, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -1620,8 +1723,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2138, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2608, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2148, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2618, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1703,6 +1806,12 @@ func _test_runtime_host() -> void:
 	_expect_equal(adapter.commands[-1].get("payload", {}).get("messageId"), 849, "host continues after darkness change")
 	_expect_equal(host.runtime.runtime_state.get_darkland("land", 4, 0), 1, "host retains darkness override")
 	_expect_equal(completions.size(), 5, "host completes darkland action point")
+	host.runtime.runtime_state.set_location("land", 0, 0, 0)
+	_expect(host.start_trigger("Data ED3:macro:163", 1), "runtime host starts land-look action")
+	_expect_equal(adapter.commands[-2].get("command"), "set_land_look", "host dispatches land-look change")
+	_expect_equal(adapter.commands[-1].get("payload", {}).get("messageId"), 867, "host continues after land-look change")
+	_expect_equal(host.runtime.runtime_state.get_landlook("land", 0, 0), 10, "host retains land-look override")
+	_expect_equal(completions.size(), 6, "host completes land-look action point")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(
@@ -1734,6 +1843,35 @@ func _interpreter(bundle):
 	var interpreter = InterpreterScript.new()
 	interpreter.configure(bundle, state)
 	return interpreter
+
+
+func _random_level_mutation_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "random:dungeon", -1, [
+		_classic_action(0, -23, 1),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "random:missing", -1, [
+		_classic_action(0, 23, 2),
+		_classic_action(7, 24, 0),
+	])
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [0, 2, 250, -1, -1]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [7, 18, 0, 0, 0]}
+	bundle.random_levels_by_id["dungeon:0:randlevel"] = {
+		"id": "dungeon:0:randlevel",
+		"levelType": "dungeon",
+		"levelIndex": 0,
+		"rects": [{"rectIndex": 2, "percent": 100, "battleRange": [10, 20]}],
+	}
+	# Classic stores 20 fixed rectangle slots even when the compiler omits empty rows.
+	bundle.random_levels_by_id["land:7:randlevel"] = {
+		"id": "land:7:randlevel",
+		"levelType": "land",
+		"levelIndex": 7,
+		"rects": [],
+	}
+	return bundle
 
 
 func _percent_branch_test_bundle():
