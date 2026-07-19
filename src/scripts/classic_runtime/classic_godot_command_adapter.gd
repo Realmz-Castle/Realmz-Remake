@@ -3,6 +3,8 @@ extends RefCounted
 
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
+# Classic's negative runs-away condition is permanent and maps to this native AI trait.
+const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
 const COMPLEX_ACTION_TEXT_COUNT := 8
@@ -114,6 +116,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _destroy_combat_monsters(payload)
 		"deanimate_lower_undead":
 			return _deanimate_lower_undead(payload)
+		"rout_combat_monsters":
+			return _rout_combat_monsters(payload)
 		"end_classic_battle":
 			return await _end_classic_battle(payload)
 		"add_party_ally":
@@ -348,6 +352,32 @@ func _deanimate_lower_undead(payload: Dictionary) -> Dictionary:
 	return {"removed": removed}
 
 
+func _rout_combat_monsters(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var actor_faction: Variant = payload.get("actorFaction")
+	if actor_faction == null:
+		actor_faction = _active_combat_faction(context["stateMachine"])
+	if actor_faction == null:
+		return _error("Realmz active combat actor is unavailable")
+	var monster_ids: Variant = payload.get("monsterIds", [])
+	if not (monster_ids is Array):
+		return _error("Classic combat-rout command has an invalid monster list")
+	var selected := select_classic_combatants_by_ids_and_faction(
+		monster_ids,
+		int(actor_faction),
+		context["combatants"]
+	)
+	var fleeing_trait: Variant = load(PERMANENT_FLEEING_TRAIT_PATH)
+	if not (fleeing_trait is Script):
+		return _error("Realmz permanent fleeing trait is unavailable")
+	var routed := apply_classic_rout(selected, fleeing_trait)
+	if routed < 0:
+		return _error("Realmz permanent fleeing trait is unavailable")
+	return {"routed": routed}
+
+
 func _end_classic_battle(payload: Dictionary) -> Dictionary:
 	var context := _combat_context()
 	if context.has("error"):
@@ -372,7 +402,11 @@ func _combat_context() -> Dictionary:
 		if combat_state is Object else null
 	if not (combatants is Array):
 		return {"error": "Realmz combat roster is unavailable"}
-	return {"state": combat_state, "combatants": combatants}
+	return {
+		"stateMachine": state_machine,
+		"state": combat_state,
+		"combatants": combatants,
+	}
 
 
 func select_classic_combatants(payload: Dictionary, combatants: Array) -> Array:
@@ -405,6 +439,34 @@ func select_classic_combatants_by_ids(monster_ids: Array, combatants: Array) -> 
 		if monster_ids.has(_classic_monster_id(creature)):
 			selected.append(combatant_value)
 	return selected
+
+
+func select_classic_combatants_by_ids_and_faction(
+	monster_ids: Array,
+	faction: int,
+	combatants: Array
+) -> Array:
+	var selected: Array = []
+	for combatant_value: Variant in combatants:
+		var creature: Variant = _combatant_creature(combatant_value)
+		if creature == null or not _is_living_combat_creature(creature):
+			continue
+		if _combat_creature_faction(creature) != faction:
+			continue
+		if monster_ids.has(_classic_monster_id(creature)):
+			selected.append(combatant_value)
+	return selected
+
+
+func apply_classic_rout(combatants: Array, fleeing_trait: Script) -> int:
+	for combatant_value: Variant in combatants:
+		var creature: Variant = _combatant_creature(combatant_value)
+		if not (creature is Object) or not creature.has_method("add_trait"):
+			return -1
+	for combatant_value: Variant in combatants:
+		var creature: Object = _combatant_creature(combatant_value)
+		creature.add_trait(fleeing_trait, [])
+	return combatants.size()
 
 
 func remove_classic_combatants(combat_state: Variant, combatants: Array) -> int:
@@ -444,6 +506,16 @@ func _combat_creature_faction(creature: Variant) -> int:
 	if creature is Dictionary:
 		return int(creature.get("curFaction", creature.get("faction", 0)))
 	return 0
+
+
+func _active_combat_faction(state_machine: Object) -> Variant:
+	var decide_state: Variant = state_machine.get("cb_decide_state")
+	var active_combatant: Variant = decide_state.get("current_active_creabutton") \
+		if decide_state is Object else null
+	var active_creature: Variant = _combatant_creature(active_combatant)
+	if active_creature == null:
+		return null
+	return _combat_creature_faction(active_creature)
 
 
 func _classic_monster_id(creature: Variant) -> int:

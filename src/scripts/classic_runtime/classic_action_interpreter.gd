@@ -549,6 +549,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _continue_result()
 		121:
 			return _execute_deanimate_lower_undead(record_id)
+		123:
+			return _execute_combat_rout(record_id)
 		125:
 			return _execute_destroy_combat_monsters(record_id)
 		127:
@@ -609,6 +611,30 @@ func _execute_deanimate_lower_undead(extra_code_id: int) -> Dictionary:
 	return _yield_result("deanimate_lower_undead", {
 		"extraCodeId": extra_code_id,
 		"monsterIds": monster_ids,
+	})
+
+
+func _execute_combat_rout(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Combat-rout action references missing Extra Code row %d" % extra_code_id
+		)
+	var monster_ids: Array = []
+	var monsters: Array = []
+	for value: Variant in values:
+		var monster_id := int(value)
+		if monster_id == 0 or monster_ids.has(monster_id):
+			continue
+		monster_ids.append(monster_id)
+		monsters.append(bundle.get_monster(monster_id))
+	return _yield_result("rout_combat_monsters", {
+		"extraCodeId": extra_code_id,
+		"monsterIds": monster_ids,
+		"monsters": monsters,
+		"sameFactionAsActor": true,
+		"permanent": true,
+		"surrenderPercent": 50,
 	})
 
 

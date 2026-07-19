@@ -107,6 +107,7 @@ class CombatTestCreature:
 	var name: String
 	var current_hp: int
 	var curFaction: int
+	var applied_traits: Array = []
 
 	func _init(creature_name: String, hp: int, faction := 1) -> void:
 		name = creature_name
@@ -115,6 +116,10 @@ class CombatTestCreature:
 
 	func get_stat(stat_name: String) -> int:
 		return current_hp if stat_name == "curHP" else 0
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		applied_traits.append({"script": trait_script, "args": args})
+		return null
 
 
 class CombatTestButton:
@@ -174,6 +179,7 @@ func _init() -> void:
 	_test_combat_monster_presence_action()
 	_test_combat_monster_destruction_action()
 	_test_lower_undead_deanimation_action()
+	_test_combat_monster_rout_action()
 	_test_forced_battle_end_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
@@ -1912,6 +1918,51 @@ func _test_lower_undead_deanimation_action() -> void:
 	_expect_equal(combat_state.battle_dead_enemies, [lower_enemy.creature], "only hostile undead enter rewards")
 
 
+func _test_combat_monster_rout_action() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("combat:rout"), "begin combat-monster rout fixture")
+	var command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(command.get("command"), "rout_combat_monsters", "opcode 123 yields typed mutation")
+	_expect_equal(command.get("payload", {}).get("extraCodeId"), 2, "rout preserves Extra Code ID")
+	_expect_equal(command.get("payload", {}).get("monsterIds"), [134, 42], "rout preserves monster IDs")
+	_expect(bool(command.get("payload", {}).get("sameFactionAsActor")), "rout preserves faction rule")
+	_expect(bool(command.get("payload", {}).get("permanent")), "rout preserves permanent duration")
+	_expect_equal(command.get("payload", {}).get("surrenderPercent"), 50, "rout preserves surrender value")
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		924,
+		"rout command continues to the next combat action"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var matching_enemy := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10, 1))
+	var second_enemy := CombatTestButton.new(CombatTestCreature.new("Podling 42", 10, 1))
+	var matching_ally := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10, 0))
+	var defeated_enemy := CombatTestButton.new(CombatTestCreature.new("Podling 42", 0, 1))
+	var other_enemy := CombatTestButton.new(CombatTestCreature.new("Skeletal Beast 17", 10, 1))
+	var roster := [matching_enemy, second_enemy, matching_ally, defeated_enemy, other_enemy]
+	var selected: Array = adapter.select_classic_combatants_by_ids_and_faction([134, 42], 1, roster)
+	_expect_equal(selected, [matching_enemy, second_enemy], "rout selects living IDs on the actor faction")
+	_expect_equal(
+		adapter.PERMANENT_FLEEING_TRAIT_PATH,
+		"res://shared_assets/traits/p_fleeing.gd",
+		"rout maps to Remake's permanent fleeing trait"
+	)
+	_expect_equal(
+		adapter.apply_classic_rout(selected, GodotAdapterScript),
+		2,
+		"rout applies native fleeing to every match"
+	)
+	for combatant: Variant in selected:
+		_expect_equal(combatant.creature.applied_traits.size(), 1, "routed creature receives one trait")
+		_expect_equal(
+			str(combatant.creature.applied_traits[0]["script"].resource_path),
+			"res://scripts/classic_runtime/classic_godot_command_adapter.gd",
+			"rout applies the supplied trait script"
+		)
+
+
 func _test_forced_battle_end_action() -> void:
 	var bundle = _combat_monster_test_bundle()
 	var interpreter = _interpreter(bundle)
@@ -3301,7 +3352,7 @@ func _test_full_bundle(path: String) -> void:
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
 		93, 94, 95, 96, 97, 98, 100, 106, 111, 112,
-		121, 125, 127,
+		121, 123, 125, 127,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -3313,8 +3364,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2235, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2705, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2238, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2708, "full CoB defined-behavior slots")
 
 	var battle_end_interpreter = _interpreter(bundle)
 	_expect(
@@ -3329,6 +3380,29 @@ func _test_full_bundle(path: String) -> void:
 		"experience_only",
 		"shipped battle end requests experience-only rewards"
 	)
+
+	for shipped_rout: Array in [
+		["Data ED3:macro:109", 2, 387, [92, 129, 130, 116]],
+		["Data ED3:macro:133", 1, 437, [49]],
+		["Data ED3:macro:135", 2, 440, [92, 93, 129, 130]],
+	]:
+		var rout_interpreter = _interpreter(bundle)
+		_expect(
+			rout_interpreter.begin_trigger(shipped_rout[0], shipped_rout[1]),
+			"begin shipped CoB combat rout %s" % shipped_rout[0]
+		)
+		var rout: Dictionary = rout_interpreter.run_until_yield()
+		_expect_equal(rout.get("command"), "rout_combat_monsters", "shipped opcode 123 yields rout")
+		_expect_equal(
+			rout.get("payload", {}).get("extraCodeId"),
+			shipped_rout[2],
+			"shipped rout preserves Extra Code ID"
+		)
+		_expect_equal(
+			rout.get("payload", {}).get("monsterIds"),
+			shipped_rout[3],
+			"shipped rout preserves monster IDs"
+		)
 
 	var deanimate_interpreter = _interpreter(bundle)
 	_expect(
@@ -3789,9 +3863,17 @@ func _test_runtime_host() -> void:
 	host.playthrough_stopped.connect(func(result: Dictionary) -> void: stops.append(result))
 	host.configure(adapter)
 	_expect(host.load_campaign(FIXTURE), "runtime host loads CoB fixture")
-	_expect(host.start_trigger("Data DD:0:0"), "runtime host starts guard-house trigger")
+	_expect(
+		host.start_trigger("Data DD:0:0", 0, {"actorFaction": 2}),
+		"runtime host starts guard-house trigger"
+	)
 	_expect_equal(adapter.commands.size(), 3, "runtime host drives complete guard-house command flow")
 	_expect_equal(adapter.commands[0].get("command"), "show_text", "host starts with guard-house text")
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("actorFaction"),
+		2,
+		"host forwards macro actor context to commands"
+	)
 	_expect_equal(adapter.commands[1].get("command"), "start_encounter", "host requests simple encounter")
 	_expect_equal(adapter.commands[2].get("payload", {}).get("messageId"), 61, "host runs selected outcome")
 	_expect_equal(completions.size(), 1, "runtime host publishes completion")
@@ -3956,6 +4038,11 @@ func _combat_monster_test_bundle():
 		"displayName": "Skeletal Giant",
 		"typeFlags": [0, 1, 0, 0, 0, 1, 0, 0],
 	}
+	bundle.monsters_by_id[42] = {
+		"id": 42,
+		"displayName": "Podling",
+		"typeFlags": [0, 0, 0, 0, 0, 0, 0, 0],
+	}
 	bundle.monsters_by_id[78] = {
 		"id": 78,
 		"displayName": "Zombie",
@@ -3970,7 +4057,9 @@ func _combat_monster_test_bundle():
 	bundle.messages_by_id[921] = {"id": 921, "text": "The remaining enemies recoil."}
 	bundle.messages_by_id[922] = {"id": 922, "text": "The lower undead collapse."}
 	bundle.messages_by_id[923] = {"id": 923, "text": "This action must not run after battle."}
+	bundle.messages_by_id[924] = {"id": 924, "text": "The routed creatures scatter."}
 	bundle.extra_codes_by_id[1] = {"id": 1, "values": [134, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [134, 42, 0, 0, 0]}
 	_add_stack_trigger(bundle, "combat:present", -1, [
 		_classic_action(0, 127, 134),
 		_classic_action(1, 1, 920),
@@ -3982,6 +4071,10 @@ func _combat_monster_test_bundle():
 	_add_stack_trigger(bundle, "combat:deanimate", -1, [
 		_classic_action(0, 121, 0),
 		_classic_action(1, 1, 922),
+	])
+	_add_stack_trigger(bundle, "combat:rout", -1, [
+		_classic_action(0, 123, 2),
+		_classic_action(1, 1, 924),
 	])
 	_add_stack_trigger(bundle, "combat:end", -1, [
 		_classic_action(0, 100, 0),

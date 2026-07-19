@@ -9,6 +9,7 @@ signal playthrough_stopped(result: Dictionary)
 var runtime: ClassicRuntime
 var command_adapter: Object
 var active := false
+var command_context: Dictionary = {}
 
 
 func _init() -> void:
@@ -25,13 +26,18 @@ func configure(adapter: Object) -> void:
 
 func load_campaign(directory: String) -> bool:
 	active = false
+	command_context.clear()
 	return runtime.load_campaign(directory)
 
 
-func start_trigger(trigger_id: String, start_slot := 0) -> bool:
+func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 	if command_adapter == null or not command_adapter.has_method("execute_command"):
 		_stop_with_error("ClassicRuntimeHost requires an execute_command adapter")
 		return false
+	if not (context is Dictionary):
+		_stop_with_error("ClassicRuntimeHost command context must be a dictionary")
+		return false
+	command_context = context.duplicate(true)
 	active = true
 	if not runtime.activate_trigger(trigger_id, start_slot):
 		active = false
@@ -42,8 +48,12 @@ func start_trigger(trigger_id: String, start_slot := 0) -> bool:
 func _on_command_requested(command: String, payload: Dictionary) -> void:
 	if not active:
 		return
-	command_started.emit(command, payload)
-	var response_value: Variant = await command_adapter.execute_command(command, payload)
+	var command_payload := payload.duplicate(true)
+	for context_key: Variant in command_context:
+		if not command_payload.has(context_key):
+			command_payload[context_key] = command_context[context_key]
+	command_started.emit(command, command_payload)
+	var response_value: Variant = await command_adapter.execute_command(command, command_payload)
 	if not active:
 		return
 	var response: Dictionary = response_value if response_value is Dictionary else {}
@@ -51,7 +61,7 @@ func _on_command_requested(command: String, payload: Dictionary) -> void:
 	if str(response.get("status", "")) == "error":
 		_stop_with_error(str(response.get("message", "Classic command adapter failed")), command)
 		return
-	_resume_after_command(command, payload, response)
+	_resume_after_command(command, command_payload, response)
 
 
 func _resume_after_command(command: String, payload: Dictionary, response: Dictionary) -> void:
@@ -108,7 +118,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"set_priest_turning", \
 		"set_land_look", "give_battle_loot", "alter_party_items", \
 		"store_party_equipment", "add_party_ally", \
-		"destroy_combat_monsters", "deanimate_lower_undead", \
+		"destroy_combat_monsters", "deanimate_lower_undead", "rout_combat_monsters", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
 		_:
@@ -119,6 +129,7 @@ func _on_trigger_completed(result: Dictionary) -> void:
 	if not active:
 		return
 	active = false
+	command_context.clear()
 	playthrough_completed.emit(result)
 
 
@@ -126,11 +137,13 @@ func _on_runtime_stopped(result: Dictionary) -> void:
 	if not active:
 		return
 	active = false
+	command_context.clear()
 	playthrough_stopped.emit(result)
 
 
 func _stop_with_error(message: String, command := "") -> void:
 	active = false
+	command_context.clear()
 	var result := {
 		"status": "error",
 		"message": message,
