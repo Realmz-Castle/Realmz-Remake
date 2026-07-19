@@ -82,6 +82,8 @@ The complex-encounter adapter exposes the eight Classic action-text fields throu
 
 Against the checked City of Bywater compatibility baseline, these handlers cover 2,189 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,659 slots, or 97.3% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters and 75 action slots across additional opcodes remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
 
+The [compatibility gap register](COMPATIBILITY_GAPS.md) tracks required integration work and recommended fidelity improvements separately from opcode coverage.
+
 The interpreter will still stop explicitly when a selected encounter result contains an unsupported opcode. Compiled player-map records do not yet have a standalone Remake renderer, so display requests without compatible native minimap art fall back to the map note. Trap spells, scroll-as-spell and door-activation encounter items, imported spell-class metadata, unmigrated field-spell resources, Classic spell save and force-affect modifiers, and the timed tumbler minigame also remain explicit boundaries. The original runtime's hidden developer command words are intentionally not exposed through scenario speech input. This keeps the compatibility boundary visible while more handlers are added.
 
 ## Godot guard-house playtest
