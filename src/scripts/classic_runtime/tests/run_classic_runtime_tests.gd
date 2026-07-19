@@ -840,6 +840,7 @@ func _test_campaign_readiness_report() -> void:
 			"Confuse": {"classicSpellIds": [2301]},
 			"Daze": {"classicSpellIds": [3202]},
 			"Discover Magic": {"classicSpellClass": 1},
+			"Fire Flare": {"classicSpellIds": [4606]},
 			"Power Drain": {"classicSpellIds": [1408, 3311]},
 		},
 		"items": {
@@ -886,6 +887,18 @@ func _test_campaign_readiness_report() -> void:
 			resolved_report, "missing-native-spell", 3202
 		),
 		"explicit Daze identity resolves its field-spell reference"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "missing-native-spell", 4606
+		),
+		"explicit Fire Flare identity resolves its field-spell reference"
+	)
+	_expect(
+		_readiness_has_reference_diagnostic(
+			resolved_report, "unsupported-field-spell-metadata", 4606
+		),
+		"Fire Flare's authored save adjustment remains a separate blocker"
 	)
 
 	var unsupported_variant_report: Dictionary = ReadinessScript.new().inspect(bundle, {
@@ -4493,6 +4506,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
 	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
 	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
 	var confuse = load("res://shared_assets/spells/confuse.gd").new()
 	var daze = load("res://shared_assets/spells/daze.gd").new()
@@ -4507,6 +4521,39 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(fireball.get_max_damage(7, null), 16, "Fireball keeps its fixed maximum damage")
 	_expect_equal(fireball.get_sp_cost(3, null), 27, "Fireball cost scales by power")
 	_expect_equal(fireball.get_aoe(3, null), Spell.AoE_b3, "Fireball area scales by power")
+	_expect(
+		fire_flare.supports_classic_spell_id(4606),
+		"Fire Flare exports its exact Classic ID"
+	)
+	_expect_equal(fire_flare.classic_spell_class, 1, "Fire Flare exports its Classic class")
+	_expect_equal(fire_flare.get_range(7, null), 6, "Fire Flare keeps its fixed range")
+	_expect_equal(fire_flare.get_min_damage(7, null), 1, "Fire Flare keeps its minimum damage")
+	_expect_equal(fire_flare.get_max_damage(1, null), 10, "Fire Flare keeps its maximum damage")
+	var fire_flare_damage: int = fire_flare.get_damage_roll(7, null)
+	_expect(
+		fire_flare_damage >= 1 and fire_flare_damage <= 10,
+		"Fire Flare rolls its fixed damage range"
+	)
+	_expect_equal(
+		fire_flare.get_duration_roll(3, null),
+		3,
+		"Fire Flare duration scales by power"
+	)
+	_expect_equal(fire_flare.get_sp_cost(3, null), 45, "Fire Flare cost scales by power")
+	_expect_equal(
+		fire_flare.get_aoe(7, null),
+		Spell.AoE_b4,
+		"Fire Flare keeps its fixed size-4 area"
+	)
+	_expect_equal(
+		fire_flare.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Fire Flare checks fire resistance without a projectile dodge"
+	)
+	_expect(
+		not fire_flare.in_combat and not fire_flare.in_field,
+		"Fire Flare remains available only through scripted actions"
+	)
 	_expect(power_drain.supports_classic_spell_id(1408), "Power Drain supports CoB's spell ID")
 	_expect(
 		adapter.classic_spell_resource_supports_id(power_drain, 1408),
