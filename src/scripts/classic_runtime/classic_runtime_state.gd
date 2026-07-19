@@ -1,6 +1,9 @@
 class_name ClassicRuntimeState
 extends RefCounted
 
+const MIN_DIFFICULTY := -2
+const MAX_DIFFICULTY := 2
+
 var quest_flags: Dictionary = {}
 var tile_overrides: Dictionary = {}
 var trigger_percent_overrides: Dictionary = {}
@@ -9,6 +12,7 @@ var thief_encounter_overrides: Dictionary = {}
 var simple_encounter_overrides: Dictionary = {}
 var complex_encounter_overrides: Dictionary = {}
 var owned_maps: Dictionary = {}
+var difficulty := 0
 var level_type := "land"
 var level_index := 0
 var x := 0
@@ -24,6 +28,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	owned_maps.clear()
+	difficulty = 0
 	var start := bundle.get_start()
 	level_type = str(start.get("levelType", "land"))
 	level_index = int(start.get("levelIndex", 0))
@@ -39,6 +44,10 @@ func set_quest_flag(signed_quest_id: int) -> void:
 
 func is_quest_set(quest_id: int) -> bool:
 	return bool(quest_flags.get(abs(quest_id), false))
+
+
+func set_difficulty(new_difficulty: int) -> void:
+	difficulty = clampi(new_difficulty, MIN_DIFFICULTY, MAX_DIFFICULTY)
 
 
 func set_position(new_level_index: int, new_x: int, new_y: int) -> void:
@@ -166,6 +175,7 @@ func snapshot() -> Dictionary:
 		"simpleEncounterOverrides": simple_encounter_overrides.duplicate(true),
 		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
 		"ownedMaps": owned_maps.duplicate(true),
+		"difficulty": difficulty,
 		"position": {
 			"levelType": level_type,
 			"levelIndex": level_index,
@@ -218,6 +228,7 @@ func restore(saved_state: Dictionary) -> void:
 	if saved_maps is Dictionary:
 		for map_id: Variant in saved_maps:
 			owned_maps[str(map_id)] = bool(saved_maps[map_id])
+	set_difficulty(int(saved_state.get("difficulty", 0)))
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
 		level_type = str(position.get("levelType", "land"))

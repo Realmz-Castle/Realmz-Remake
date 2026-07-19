@@ -88,6 +88,7 @@ func _init() -> void:
 	_test_simple_encounter_mutation()
 	_test_spoken_word_archive()
 	_test_percent_branching()
+	_test_difficulty_branching()
 	_test_complex_spell_results(bundle)
 	_test_complex_item_results(bundle)
 	_test_shipped_lock_encounter(bundle)
@@ -958,6 +959,60 @@ func _test_percent_branching() -> void:
 	)
 
 
+func _test_difficulty_branching() -> void:
+	var bundle = _difficulty_branch_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("difficulty:threshold"), "begin difficulty miss")
+	var missed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		missed.get("payload", {}).get("messageId"),
+		701,
+		"difficulty below threshold continues the current action point"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_difficulty(1)
+	_expect(interpreter.begin_trigger("difficulty:threshold"), "begin difficulty boundary hit")
+	var matched: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		matched.get("payload", {}).get("messageId"),
+		700,
+		"difficulty equal to threshold follows its ED3 branch"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_difficulty(2)
+	_expect(interpreter.begin_trigger("difficulty:unused-mode"), "begin unused difficulty mode")
+	var unused_mode: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		unused_mode.get("payload", {}).get("messageId"),
+		702,
+		"unrecognized difficulty success mode continues like Classic"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_difficulty(2)
+	_expect(interpreter.begin_trigger("Data DD:0:4"), "begin difficulty consume branch")
+	var consumed: Dictionary = interpreter.run_until_yield()
+	_expect_equal(consumed.get("reason"), "dropout-and-erase", "difficulty branch consumes source")
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 4, 100),
+		-1,
+		"difficulty consume persists the disabled action point"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_difficulty(1)
+	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin difficulty keep branch")
+	var kept: Dictionary = interpreter.run_until_yield()
+	_expect_equal(kept.get("reason"), "keep-codes", "difficulty branch keeps source")
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 5, 100),
+		100,
+		"difficulty keep leaves the action point active"
+	)
+
+
 func _test_complex_spell_results(bundle) -> void:
 	var adapter = GodotAdapterScript.new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
@@ -1256,6 +1311,7 @@ func _test_state_snapshot(bundle) -> void:
 	state.set_position(5, 6, 83)
 	state.set_tile("land", 0, 3, 28, 193)
 	state.set_trigger_percent("land", 0, 17, 100)
+	state.set_difficulty(1)
 	var restored = StateScript.new()
 	restored.restore(state.snapshot())
 	_expect(restored.is_quest_set(20), "quest flag survives snapshot")
@@ -1264,6 +1320,11 @@ func _test_state_snapshot(bundle) -> void:
 	_expect_equal(restored.y, 83, "snapshot y")
 	_expect_equal(restored.get_tile("land", 0, 3, 28, -1), 193, "tile override survives snapshot")
 	_expect_equal(restored.get_trigger_percent("land", 0, 17, -1), 100, "trigger override survives snapshot")
+	_expect_equal(restored.difficulty, 1, "difficulty survives snapshot")
+	restored.set_difficulty(10)
+	_expect_equal(restored.difficulty, 2, "difficulty is capped at Classic's hardest setting")
+	restored.set_difficulty(-10)
+	_expect_equal(restored.difficulty, -2, "difficulty is capped at Classic's easiest setting")
 
 
 func _test_full_bundle(path: String) -> void:
@@ -1289,7 +1350,7 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
 		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 39,
-		41, 42, 44, 45, 46, 47, 56, 111, 112,
+		41, 42, 44, 45, 46, 47, 56, 58, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -1325,6 +1386,8 @@ func _test_godot_runtime_facade() -> void:
 	runtime.runtime_stopped.connect(func(result: Dictionary) -> void: stops.append(result))
 	runtime.trigger_completed.connect(func(result: Dictionary) -> void: completions.append(result))
 	_expect(runtime.load_campaign(FIXTURE), "Godot runtime facade loads CoB fixture")
+	runtime.set_difficulty(10)
+	_expect_equal(runtime.runtime_state.difficulty, 2, "facade sets Classic difficulty")
 	_expect_equal(runtime.triggers_at("land", 0, 9, 17).size(), 1, "facade exposes map trigger lookup")
 	_expect(runtime.activate_trigger("Data DD:0:0"), "facade activates CoB trigger")
 	_expect_equal(commands.size(), 1, "facade emits native command signal")
@@ -1402,9 +1465,9 @@ func _percent_branch_test_bundle():
 	])
 	_add_stack_trigger(bundle, "chance:simple", -1, [_classic_action(0, 4, 1)])
 	_add_stack_trigger(bundle, "chance:nested", -1, [_classic_action(0, 4, 2)])
-	_add_percent_map_trigger(bundle, 1, [_classic_action(0, 42, 2)])
-	_add_percent_map_trigger(bundle, 2, [_classic_action(0, 42, 3)])
-	_add_percent_map_trigger(bundle, 3, [_classic_action(0, 5, 2)])
+	_add_branch_map_trigger(bundle, 1, [_classic_action(0, 42, 2)])
+	_add_branch_map_trigger(bundle, 2, [_classic_action(0, 42, 3)])
+	_add_branch_map_trigger(bundle, 3, [_classic_action(0, 5, 2)])
 	bundle.extra_codes_by_id[1] = {"id": 1, "values": [100, 1, 0, 50, 0]}
 	bundle.extra_codes_by_id[2] = {"id": 2, "values": [100, 2, 0, 0, 0]}
 	bundle.extra_codes_by_id[3] = {"id": 3, "values": [100, -2, 0, 0, 0]}
@@ -1453,7 +1516,33 @@ func _percent_branch_test_bundle():
 	return bundle
 
 
-func _add_percent_map_trigger(bundle, record_index: int, actions: Array) -> void:
+func _difficulty_branch_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "difficulty:threshold", -1, [
+		_classic_action(0, 58, 10),
+		_classic_action(1, 1, 701),
+	])
+	_add_stack_trigger(bundle, "difficulty:unused-mode", -1, [
+		_classic_action(0, 58, 13),
+		_classic_action(1, 1, 702),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:60", 60, [_classic_action(0, 1, 700)])
+	_add_branch_map_trigger(bundle, 4, [_classic_action(0, 58, 11)])
+	_add_branch_map_trigger(bundle, 5, [_classic_action(0, 58, 12)])
+	bundle.extra_codes_by_id[10] = {"id": 10, "values": [1, 1, 0, 60, 0]}
+	bundle.extra_codes_by_id[11] = {"id": 11, "values": [2, -2, 0, 0, 0]}
+	bundle.extra_codes_by_id[12] = {"id": 12, "values": [1, 2, 0, 0, 0]}
+	# Tutorial contains difficulty rows with other success-mode values; Classic
+	# simply continues when one of those rows meets its threshold.
+	bundle.extra_codes_by_id[13] = {"id": 13, "values": [2, 3, 2, 25, 0]}
+	bundle.messages_by_id[700] = {"id": 700, "text": "Hard route"}
+	bundle.messages_by_id[701] = {"id": 701, "text": "Normal route"}
+	bundle.messages_by_id[702] = {"id": 702, "text": "Unused mode continues"}
+	return bundle
+
+
+func _add_branch_map_trigger(bundle, record_index: int, actions: Array) -> void:
 	var trigger := {
 		"id": "Data DD:0:%d" % record_index,
 		"source": "Data DD",

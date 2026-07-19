@@ -52,6 +52,10 @@ func triggers_at(level_type: String, level_index: int, x: int, y: int) -> Array:
 	return triggers
 
 
+func set_difficulty(difficulty: int) -> void:
+	runtime_state.set_difficulty(difficulty)
+
+
 func activate_trigger(trigger_id: String, start_slot := 0) -> bool:
 	if not interpreter.begin_trigger(trigger_id, start_slot):
 		last_result = {

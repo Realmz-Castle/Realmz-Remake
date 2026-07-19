@@ -278,6 +278,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		47:
 			runtime_state.set_quest_flag(record_id)
 			return _continue_result()
+		58:
+			return _execute_difficulty_branch(record_id)
 		111:
 			if call_stack.is_empty():
 				if remove_action_point:
@@ -817,14 +819,29 @@ func _execute_percent_branch(extra_code_id: int) -> Dictionary:
 		return _halt_with_error("Percent roll provider returned %d; expected 1 through 100" % roll)
 	if roll > int(values[0]):
 		return _continue_result()
+	return _apply_force_branch_success(values)
+
+
+func _execute_difficulty_branch(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Difficulty branch references missing Extra Code row %d" % extra_code_id
+		)
+	if runtime_state.difficulty < int(values[0]):
+		return _continue_result()
+	return _apply_force_branch_success(values)
+
+
+func _apply_force_branch_success(values: Array) -> Dictionary:
 	match int(values[1]):
 		-2:
-			return _finish_percent_branch("dropout-and-erase", true)
+			return _finish_conditional_branch("dropout-and-erase", true)
 		1:
-			# Unlike quest branching, Classic does not push GOSUB here.
+			# Percent and difficulty branches do not push GOSUB in Classic.
 			return _branch_from_extra_code(values, false)
 		2:
-			return _finish_percent_branch("keep-codes", false)
+			return _finish_conditional_branch("keep-codes", false)
 		_:
 			return _continue_result()
 
@@ -835,7 +852,7 @@ func _roll_percent() -> int:
 	return randi_range(1, 100)
 
 
-func _finish_percent_branch(reason: String, consume_codes: bool) -> Dictionary:
+func _finish_conditional_branch(reason: String, consume_codes: bool) -> Dictionary:
 	var in_encounter := not encounter_origins.is_empty()
 	if consume_codes and not in_encounter:
 		_set_origin_action_point_percent(-1)
