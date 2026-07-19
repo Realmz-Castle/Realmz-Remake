@@ -17,6 +17,18 @@ const CLASSIC_SHARED_ITEM_ALIASES := {
 	610: "Waterworld",
 	611: "Heal Small Wounds",
 }
+# Opcode 32 scales these temple.c base prices by its authored percentage.
+const CLASSIC_TEMPLE_SERVICES := [
+	["Heal Small Wounds", 1, 250],
+	["Heal Medium Wounds", 1, 350],
+	["Heal Large Wounds", 1, 850],
+	["Heal Disease", 1, 200],
+	["Flesh", 1, 750],
+	["Heal Poison", 1, 200],
+	["Heal Blindness", 1, 350],
+	["Remove Items", 1, 550],
+	["Revive Dead", 1, 1500],
+]
 const MAP_GAINED_MESSAGE := \
 	"You gain a map, to view the map use Maps/Notes in the Menu."
 const CLASSIC_ATTRIBUTE_STATS := {
@@ -93,6 +105,10 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _give_player_map(payload)
 		"load_shop":
 			return await _load_shop(payload)
+		"offer_temple":
+			return _offer_temple(payload)
+		"enable_banking":
+			return _enable_banking(payload)
 		_:
 			return _error("The Godot classic adapter does not yet handle '%s'" % command)
 
@@ -1003,6 +1019,44 @@ func _accepted_classic_shop_item_names(
 			if available_items.has(item_name):
 				accepted_names[item_name] = true
 	return accepted_names
+
+
+func build_temple_services(cost_percent: int) -> Dictionary:
+	if cost_percent < 0:
+		return _error("Classic temple cost percentage cannot be negative")
+	var services: Array = []
+	for service: Array in CLASSIC_TEMPLE_SERVICES:
+		services.append([
+			service[0],
+			service[1],
+			int(float(int(service[2]) * cost_percent) / 100.0),
+		])
+	return {"services": services}
+
+
+func _offer_temple(payload: Dictionary) -> Dictionary:
+	var built := build_temple_services(int(payload.get("costPercent", 100)))
+	if str(built.get("status", "")) == "error":
+		return built
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	game_global.currentTemple = built["services"]
+	game_global.allow_temple(true)
+	_play_sound(payload)
+	return {
+		"costPercent": int(payload.get("costPercent", 100)),
+		"serviceCount": built["services"].size(),
+	}
+
+
+func _enable_banking(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	game_global.allow_banking(true)
+	_play_sound(payload)
+	return {"warningId": int(payload.get("warningId", 0))}
 
 
 func _load_shop(payload: Dictionary) -> Dictionary:

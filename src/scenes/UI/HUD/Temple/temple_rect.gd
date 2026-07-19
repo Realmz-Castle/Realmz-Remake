@@ -3,6 +3,7 @@ class_name TempleMenu
 
 const SPELLBUTTON_TSCN : PackedScene = preload("res://scenes/UI/HUD/Temple/temple_spell_button.tscn")
 const PRICELABEL_TSCN : PackedScene = preload("res://scenes/UI/HUD/Temple/spell_price_label.tscn")
+const TemplePayment = preload("res://scenes/UI/HUD/Temple/temple_payment.gd")
 
 @export var spells_box : Container
 @export var prices_box : Container
@@ -43,7 +44,7 @@ func _display_services() :
 		print("Temple proot")
 		var newbutton : Button = SPELLBUTTON_TSCN.instantiate()
 		newbutton.text = e[0]
-		if displayed_chara.money[0]>= e[2] or GameGlobal.money_pool[0] >= e[2] :
+		if TemplePayment.can_afford_service(displayed_chara.money[0], GameGlobal.money_pool[0], e[2]) :
 			newbutton.pressed.connect(_on_spell_button_pressed.bind(e))
 		else :
 			newbutton.disabled = true
@@ -74,7 +75,16 @@ func display_character(chara : Creature) :
 
 func _on_spell_button_pressed(namepowercost : Array) :
 	var cost : int = round(namepowercost[2])
-	displayed_chara.money[0] = max(0, displayed_chara.money[0] - cost)
+	if not TemplePayment.can_afford_service(displayed_chara.money[0], GameGlobal.money_pool[0], cost) :
+		display_character(displayed_chara)
+		return
+	var balances := TemplePayment.balances_after_service(
+		displayed_chara.money[0],
+		GameGlobal.money_pool[0],
+		cost
+	)
+	displayed_chara.money[0] = balances[0]
+	GameGlobal.money_pool[0] = balances[1]
 	temple_caster.stats["curSP"] = 9999999999
 	var spell = NodeAccess.__Resources().spells_book[namepowercost[0]]["script"]
 	print(spell)

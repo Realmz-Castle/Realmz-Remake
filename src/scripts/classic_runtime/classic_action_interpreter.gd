@@ -280,6 +280,11 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_player_map(record_id)
 		30:
 			return _execute_character_check_selection(record_id)
+		32:
+			return _yield_result("offer_temple", {
+				"costPercent": record_id,
+				"soundId": 10105,
+			})
 		34:
 			return _break_encounter()
 		35:
@@ -301,6 +306,11 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		47:
 			runtime_state.set_quest_flag(record_id)
 			return _continue_result()
+		49:
+			return _yield_result("enable_banking", {
+				"soundId": 128,
+				"warningId": 106,
+			})
 		52:
 			return _execute_misc_character_selection(record_id)
 		57:

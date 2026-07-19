@@ -7,7 +7,8 @@ const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
-const GameGlobalScript = preload("res://scripts/GameGlobal.gd")
+const ShopRulesScript = preload("res://scripts/shop_rules.gd")
+const TemplePaymentScript = preload("res://scenes/UI/HUD/Temple/temple_payment.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
@@ -95,6 +96,7 @@ func _init() -> void:
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
 	_test_shop_actions()
+	_test_service_actions()
 	_test_sound_and_treasure(bundle)
 	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
@@ -1462,16 +1464,28 @@ func _test_shop_actions() -> void:
 		["Dagger", "Quiver of Protection +2", "Yellow Luck Stone +3"],
 		"native shop resolves both accepted ranges to available item identities"
 	)
-	var shop_rules = GameGlobalScript.new()
-	shop_rules.currentShop = "restricted"
-	shop_rules.shops_dict = {"restricted": restricted_shop}
-	_expect(shop_rules.current_shop_accepts_item({"name": "Dagger"}), "restricted shop accepts range-one item")
 	_expect(
-		shop_rules.current_shop_accepts_item({"name": "Yellow Luck Stone +3"}),
+		ShopRulesScript.accepts_item(
+			"restricted",
+			{"restricted": restricted_shop},
+			{"name": "Dagger"}
+		),
+		"restricted shop accepts range-one item"
+	)
+	_expect(
+		ShopRulesScript.accepts_item(
+			"restricted",
+			{"restricted": restricted_shop},
+			{"name": "Yellow Luck Stone +3"}
+		),
 		"restricted shop accepts scenario item in range two"
 	)
 	_expect(
-		not shop_rules.current_shop_accepts_item({"name": "Leather Armor"}),
+		not ShopRulesScript.accepts_item(
+			"restricted",
+			{"restricted": restricted_shop},
+			{"name": "Leather Armor"}
+		),
 		"restricted shop rejects item outside both ranges"
 	)
 	var single_range_built: Dictionary = GodotAdapterScript.new().build_shop_inventory(
@@ -1483,10 +1497,12 @@ func _test_shop_actions() -> void:
 		not single_range_built.get("shop", {}).has("accepted_item_names"),
 		"one populated range preserves Classic's unrestricted transfer result"
 	)
-	shop_rules.currentShop = "single"
-	shop_rules.shops_dict = {"single": single_range_built.get("shop", {})}
 	_expect(
-		shop_rules.current_shop_accepts_item({"name": "Leather Armor"}),
+		ShopRulesScript.accepts_item(
+			"single",
+			{"single": single_range_built.get("shop", {})},
+			{"name": "Leather Armor"}
+		),
 		"single-range Classic shop remains unrestricted"
 	)
 	var alias_items: Array = []
@@ -1515,6 +1531,60 @@ func _test_shop_actions() -> void:
 		aliases.get("shop", {}).get("Magic"),
 		[["Waterworld", 1, -1], ["Heal Small Wounds", 2, -1]],
 		"duplicate shared magic IDs resolve"
+	)
+
+
+func _test_service_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "services", -1, [
+		_classic_action(0, 49, 0),
+		_classic_action(1, 32, 150),
+		_classic_action(7, 24, 0),
+	])
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("services"), "begin banking and temple actions")
+	var bank_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(bank_result.get("command"), "enable_banking", "bank action yields typed command")
+	_expect_equal(bank_result.get("payload", {}).get("soundId"), 128, "bank action preserves sound")
+	_expect_equal(bank_result.get("payload", {}).get("warningId"), 106, "bank action preserves warning")
+	var temple_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(temple_result.get("command"), "offer_temple", "temple action yields typed command")
+	_expect_equal(temple_result.get("payload", {}).get("costPercent"), 150, "temple cost percentage")
+	_expect_equal(temple_result.get("payload", {}).get("soundId"), 10105, "temple action preserves sound")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "keep-codes", "service actions resume")
+
+	var adapter = GodotAdapterScript.new()
+	var standard: Dictionary = adapter.build_temple_services(100)
+	_expect_equal(
+		standard.get("services", []).map(func(service: Array) -> int: return int(service[2])),
+		[250, 350, 850, 200, 750, 200, 350, 550, 1500],
+		"standard temple uses Classic base prices"
+	)
+	var expensive: Dictionary = adapter.build_temple_services(300)
+	_expect_equal(expensive.get("services", [])[0][2], 750, "temple percentage scales prices")
+	_expect_equal(
+		adapter.build_temple_services(33).get("services", [])[0][2],
+		82,
+		"temple price scaling truncates fractional gold"
+	)
+	_expect_equal(
+		adapter.build_temple_services(-1).get("status"),
+		"error",
+		"negative temple percentage stops safely"
+	)
+	_expect(
+		TemplePaymentScript.can_afford_service(75, 100, 150),
+		"temple combines character and pooled gold for affordability"
+	)
+	_expect_equal(
+		TemplePaymentScript.balances_after_service(75, 100, 150),
+		[25, 0],
+		"temple spends pooled gold before character gold"
+	)
+	_expect(
+		not TemplePaymentScript.can_afford_service(40, 50, 100),
+		"temple rejects an unaffordable service"
 	)
 
 
@@ -2432,8 +2502,8 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
 		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
-		24, 25, 29, 30, 35, 37,
-		39, 41, 42, 44, 45, 46, 47, 52, 56, 57, 58, 73, 93, 94, 95, 96, 97, 106, 111, 112,
+		24, 25, 29, 30, 32, 35, 37,
+		39, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -2445,8 +2515,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2196, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2666, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2200, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2670, "full CoB defined-behavior slots")
 
 	for shipped_shop: Array in [
 		["Data DD:0:9", 2, 1],
@@ -2497,6 +2567,43 @@ func _test_full_bundle(path: String) -> void:
 		malformed_shop_interpreter.run_until_yield().get("status"),
 		"error",
 		"missing restricted-shop Extra Code remains an explicit data error"
+	)
+	var shop_bank_interpreter = _interpreter(bundle)
+	_expect(
+		shop_bank_interpreter.begin_trigger("Data DD:0:9", 1),
+		"begin shipped shop banking action"
+	)
+	_expect_equal(
+		shop_bank_interpreter.run_until_yield().get("command"),
+		"enable_banking",
+		"shop banking action yields typed command"
+	)
+	var temple_interpreter = _interpreter(bundle)
+	_expect(
+		temple_interpreter.begin_trigger("Data DD:0:10", 1),
+		"begin shipped temple service actions"
+	)
+	_expect_equal(
+		temple_interpreter.run_until_yield().get("command"),
+		"enable_banking",
+		"temple entry enables banking first"
+	)
+	var standard_temple: Dictionary = temple_interpreter.run_until_yield()
+	_expect_equal(standard_temple.get("command"), "offer_temple", "temple entry yields typed command")
+	_expect_equal(
+		standard_temple.get("payload", {}).get("costPercent"),
+		100,
+		"shipped temple uses standard prices"
+	)
+	var expensive_temple_interpreter = _interpreter(bundle)
+	_expect(
+		expensive_temple_interpreter.begin_trigger("Data ED3:macro:85", 1),
+		"begin shipped expensive temple action"
+	)
+	_expect_equal(
+		expensive_temple_interpreter.run_until_yield().get("payload", {}).get("costPercent"),
+		300,
+		"shipped expensive temple preserves its percentage"
 	)
 	var first_shop: Dictionary = bundle.get_shop(1)
 	_expect_equal(
