@@ -10,6 +10,7 @@ const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
 const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
 const CLASSIC_MAX_MONSTERS := 100
+const CLASSIC_FIELD_SPELL_SAVE_MODES := ["none", "negate", "half_damage"]
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
 const COMPLEX_ACTION_TEXT_COUNT := 8
@@ -1238,6 +1239,45 @@ func spell_effect_targets(target_mode: String, party: Array, selected: Array) ->
 	if target_mode == "selected":
 		return selected.duplicate()
 	return []
+
+
+func classic_field_spell_target_resolution(
+	payload: Dictionary,
+	character: Object,
+	spell: Object,
+	roll: int
+) -> Dictionary:
+	var save_index := int(spell.get("classic_spell_save_index"))
+	var save_mode := str(spell.get("classic_spell_save_mode"))
+	if not CLASSIC_FIELD_SPELL_SAVE_MODES.has(save_mode):
+		return _error("Native spell has invalid Classic save metadata")
+	if save_mode != "none" and not CLASSIC_SPELL_SAVE_STATS.has(save_index):
+		return _error("Native spell has no Classic save type")
+	if save_mode != "none" and not character.has_method("get_stat"):
+		return _error("Classic field-spell target has no readable stats")
+
+	var forced := bool(payload.get("forceAffect", false))
+	var save_chance := 0.0
+	if save_mode != "none":
+		save_chance = clampf(
+			_classic_spell_save_chance(character, save_index)
+				+ int(payload.get("power", 0)) * int(payload.get("saveAdjustment", 0)),
+			0.0,
+			100.0
+		)
+	var saved := not forced and save_mode != "none" and roll <= save_chance
+	var effect_scale := 1.0
+	if saved:
+		effect_scale = 0.5 if save_mode == "half_damage" else 0.0
+	return {
+		"character": character,
+		"name": str(character.get("name")),
+		"roll": roll,
+		"saveChance": save_chance,
+		"saved": saved,
+		"forced": forced,
+		"effectScale": effect_scale,
+	}
 
 
 func resolve_complex_item_result(
@@ -2562,16 +2602,37 @@ func _cast_classic_spell(payload: Dictionary) -> Dictionary:
 	var script_helper: Object = _autoload("ScriptHelperFuncs")
 	if script_helper == null:
 		return _error("Realmz spell helper is unavailable")
-	await script_helper.CastSpellOnPickedCharacters(
-		targets,
-		spell_name,
-		int(payload.get("power", 0))
-	)
+	var resolutions: Array = []
+	var affected_count := 0
+	for target: Variant in targets:
+		if not (target is Object):
+			return _error("Classic field-spell target is not a character")
+		var resolution := classic_field_spell_target_resolution(
+			payload,
+			target,
+			spell,
+			randi_range(1, 100)
+		)
+		if str(resolution.get("status", "")) == "error":
+			return resolution
+		resolutions.append(resolution)
+		var effect_scale := float(resolution.get("effectScale", 0.0))
+		if effect_scale <= 0.0:
+			continue
+		affected_count += 1
+		await script_helper.CastSpellOnPickedCharacters(
+			[target],
+			spell_name,
+			int(payload.get("power", 0)),
+			effect_scale
+		)
 	for target: Variant in targets:
 		_refresh_character_panel(target)
 	return {
 		"spellName": spell_name,
 		"targetCount": targets.size(),
+		"affectedCount": affected_count,
+		"resolutions": resolutions,
 	}
 
 

@@ -770,17 +770,6 @@ func _test_campaign_readiness_report() -> void:
 	)
 	_expect(
 		_readiness_has_diagnostic(
-			report,
-			"unsupported-field-spell-metadata",
-			"Data ED3",
-			128,
-			0,
-			"progression-blocker"
-		),
-		"readiness classifies unsupported field-spell saves as a blocker"
-	)
-	_expect(
-		_readiness_has_diagnostic(
 			report, "missing-native-spell", "Data ED3", 128, 0, "progression-blocker"
 		),
 		"readiness reports a mapped spell without a native resource"
@@ -843,12 +832,32 @@ func _test_campaign_readiness_report() -> void:
 			},
 		},
 		"spells": {
-			"Confuse": {"classicSpellIds": [2301]},
-			"Daze": {"classicSpellIds": [3202]},
+			"Confuse": {
+				"classicSpellIds": [2301],
+				"classicSpellSaveIndex": 5,
+				"classicSpellSaveMode": "negate",
+			},
+			"Daze": {
+				"classicSpellIds": [3202],
+				"classicSpellSaveIndex": -1,
+				"classicSpellSaveMode": "none",
+			},
 			"Discover Magic": {"classicSpellClass": 1},
-			"Fire Flare": {"classicSpellIds": [4606]},
-			"Festering Wounds": {"classicSpellIds": [2304]},
-			"Power Drain": {"classicSpellIds": [1408, 3311]},
+			"Fire Flare": {
+				"classicSpellIds": [4606],
+				"classicSpellSaveIndex": 1,
+				"classicSpellSaveMode": "half_damage",
+			},
+			"Festering Wounds": {
+				"classicSpellIds": [2304],
+				"classicSpellSaveIndex": 4,
+				"classicSpellSaveMode": "negate",
+			},
+			"Power Drain": {
+				"classicSpellIds": [1408, 3311],
+				"classicSpellSaveIndex": 7,
+				"classicSpellSaveMode": "negate",
+			},
 		},
 		"items": {
 			"Campaign Rope": {"classicItemId": 878},
@@ -902,10 +911,10 @@ func _test_campaign_readiness_report() -> void:
 		"explicit Fire Flare identity resolves its field-spell reference"
 	)
 	_expect(
-		_readiness_has_reference_diagnostic(
-			resolved_report, "unsupported-field-spell-metadata", 4606
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "missing-native-spell-save-metadata", 4606
 		),
-		"Fire Flare's authored save adjustment remains a separate blocker"
+		"Fire Flare's native resource supplies its Classic save behavior"
 	)
 	_expect(
 		not _readiness_has_reference_diagnostic(
@@ -914,10 +923,23 @@ func _test_campaign_readiness_report() -> void:
 		"explicit Festering Wounds identity resolves its field-spell reference"
 	)
 	_expect(
-		_readiness_has_reference_diagnostic(
-			resolved_report, "unsupported-field-spell-metadata", 2304
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "missing-native-spell-save-metadata", 2304
 		),
-		"Festering Wounds' authored save adjustment remains a separate blocker"
+		"Festering Wounds' native resource supplies its Classic save behavior"
+	)
+	var missing_save_metadata_report: Dictionary = ReadinessScript.new().inspect(bundle, {
+		"spells": {
+			"Fire Flare": {"classicSpellIds": [4606]},
+		},
+	})
+	_expect(
+		_readiness_has_reference_diagnostic(
+			missing_save_metadata_report,
+			"missing-native-spell-save-metadata",
+			4606
+		),
+		"readiness blocks a field spell without explicit Classic save behavior"
 	)
 
 	var unsupported_variant_report: Dictionary = ReadinessScript.new().inspect(bundle, {
@@ -1761,6 +1783,67 @@ func _test_spell_effect_actions(bundle) -> void:
 		"40055",
 		"Fire Flare ID resolves to Remake's spell-table key"
 	)
+	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
+	var confuse = load("res://shared_assets/spells/confuse.gd").new()
+	var daze = load("res://shared_assets/spells/daze.gd").new()
+	first_target.stat_values["MultiplierFire"] = 1.0
+	first_target.stat_values["ResistanceFire"] = 0.0
+	var adjusted_save: Dictionary = adapter.classic_field_spell_target_resolution(
+		{
+			"power": 3,
+			"saveAdjustment": 30,
+			"forceAffect": false,
+		},
+		first_target,
+		fire_flare,
+		90
+	)
+	_expect_equal(adjusted_save.get("saveChance"), 90.0, "spell save adjustment scales by power")
+	_expect(adjusted_save.get("saved"), "a roll at the adjusted chance saves")
+	_expect_equal(
+		adjusted_save.get("effectScale"),
+		0.5,
+		"a successful save halves damaging field spells"
+	)
+	var failed_save: Dictionary = adapter.classic_field_spell_target_resolution(
+		{"power": 3, "saveAdjustment": 0, "forceAffect": false},
+		first_target,
+		fire_flare,
+		1
+	)
+	_expect(not failed_save.get("saved"), "a roll above a zero save chance fails")
+	_expect_equal(failed_save.get("effectScale"), 1.0, "a failed save applies the full spell")
+	first_target.stat_values["MultiplierMental"] = 1.0
+	first_target.stat_values["ResistanceMental"] = 10.0
+	var negated_effect: Dictionary = adapter.classic_field_spell_target_resolution(
+		{"power": 1, "saveAdjustment": 0, "forceAffect": false},
+		first_target,
+		confuse,
+		50
+	)
+	_expect(negated_effect.get("saved"), "a target can save against a condition spell")
+	_expect_equal(
+		negated_effect.get("effectScale"),
+		0.0,
+		"a successful save negates a non-damaging field spell"
+	)
+	var forced_effect: Dictionary = adapter.classic_field_spell_target_resolution(
+		{"power": 1, "saveAdjustment": 0, "forceAffect": true},
+		first_target,
+		confuse,
+		1
+	)
+	_expect(not forced_effect.get("saved"), "force-affect bypasses a guaranteed save")
+	_expect(forced_effect.get("forced"), "force-affect remains visible in the resolution")
+	_expect_equal(forced_effect.get("effectScale"), 1.0, "force-affect applies the full spell")
+	var no_save_effect: Dictionary = adapter.classic_field_spell_target_resolution(
+		{"power": 7, "saveAdjustment": 100, "forceAffect": false},
+		first_target,
+		daze,
+		1
+	)
+	_expect(not no_save_effect.get("saved"), "a no-save spell ignores the adjustment field")
+	_expect_equal(no_save_effect.get("effectScale"), 1.0, "a no-save spell always applies")
 
 
 func _test_item_actions() -> void:
@@ -4536,6 +4619,8 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(flame_hands.get_max_damage(3, null), 9, "Flame Hands maximum scales by power")
 	_expect_equal(flame_hands.get_sp_cost(3, null), 6, "Flame Hands cost scales by power")
 	_expect_equal(fireball.classic_spell_class, 1, "Fireball exports its Classic class")
+	_expect_equal(fireball.classic_spell_save_index, 1, "Fireball uses the fire save")
+	_expect_equal(fireball.classic_spell_save_mode, "half_damage", "Fireball halves damage on a save")
 	_expect_equal(fireball.get_range(7, null), 15, "Fireball keeps its fixed range")
 	_expect_equal(fireball.get_min_damage(7, null), 1, "Fireball keeps its fixed minimum damage")
 	_expect_equal(fireball.get_max_damage(7, null), 16, "Fireball keeps its fixed maximum damage")

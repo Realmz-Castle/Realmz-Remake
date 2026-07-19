@@ -547,7 +547,12 @@ static func castSpellOnPickedDivinity(spell_id, power, drv_modifier, can_drv) :
 	CastSpellOnPickedCharacters(GameGlobal.last_picked_characters, spell_name, power)
 
 
-static func CastSpellOnPickedCharacters(characters : Array, spell_name : String, power : int) :
+static func CastSpellOnPickedCharacters(
+	characters : Array,
+	spell_name : String,
+	power : int,
+	damage_scale := 1.0
+) :
 	var spell_entry = NodeAccess.__Resources().spells_book[spell_name]
 	var spell = spell_entry.get("script") if spell_entry is Dictionary else spell_entry
 	var character = Creature.new()
@@ -556,7 +561,7 @@ static func CastSpellOnPickedCharacters(characters : Array, spell_name : String,
 		SfxPlayer.play()
 		if spell.get("proj_hit") :
 			await UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
-		await GameGlobal.do_spell_field_effect(character, target, spell, power)
+		await GameGlobal.do_spell_field_effect(character, target, spell, power, damage_scale)
 
 # Divinity code : Code 32: Offer Temple
 static func enable_default_temple(price_mult) :

@@ -363,19 +363,18 @@ func _check_field_spell(action: Dictionary, extra_code: Dictionary) -> void:
 						],
 						{"referenceId": spell_id, "nativeName": spell_name}
 					)
-	if int(values[2]) != 0 or int(values[3]) != 0:
-		_add_blocker_for_action(
-			action,
-			"unsupported-field-spell-metadata",
-			"Field spell %d requires save adjustment %d and force-affect %s" % [
-				spell_id, int(values[2]), str(int(values[3]) != 0),
-			],
-			{
-				"referenceId": spell_id,
-				"saveAdjustment": int(values[2]),
-				"forceAffect": int(values[3]) != 0,
-			}
-		)
+				var save_index := int(spell_metadata.get("classicSpellSaveIndex", -2)) \
+					if spell_metadata is Dictionary else -2
+				var save_mode := str(spell_metadata.get("classicSpellSaveMode", "")) \
+					if spell_metadata is Dictionary else ""
+				if not ["none", "negate", "half_damage"].has(save_mode) \
+						or (save_mode != "none" and (save_index < 0 or save_index > 7)):
+					_add_blocker_for_action(
+						action,
+						"missing-native-spell-save-metadata",
+						"Mapped spell '%s' has no executable Classic save behavior" % spell_name,
+						{"referenceId": spell_id, "nativeName": spell_name}
+					)
 
 
 func _check_random_branch(

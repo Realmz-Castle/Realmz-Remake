@@ -851,8 +851,14 @@ func calculate_spell_accuracy(caster : Creature, defender : Creature, spell, spe
 	return [clampf(base_accuracy, 0.0, 1.0), evasion_stats_used]
 
 
-func do_spell_field_effect(caster : Creature, target : Creature, spell, plvl : int) :
-	var spell_dmg : int =  calculate_spell_damage(caster,target, spell, plvl, false)
+func do_spell_field_effect(
+	caster : Creature,
+	target : Creature,
+	spell,
+	plvl : int,
+	damage_scale := 1.0
+) :
+	var spell_dmg := int(calculate_spell_damage(caster, target, spell, plvl, false) * damage_scale)
 	target.change_cur_hp(-spell_dmg)
 	if spell.has_method("add_traits_to_creature") :
 		spell.add_traits_to_creature(caster, target, plvl)

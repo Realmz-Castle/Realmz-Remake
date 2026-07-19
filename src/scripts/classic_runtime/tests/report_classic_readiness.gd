@@ -87,6 +87,12 @@ func _collect_spell_names(directory: String, destination: Dictionary) -> void:
 	class_expression.compile("(?m)^\\s*classic_spell_class\\s*=\\s*(-?\\d+)")
 	var ids_expression := RegEx.new()
 	ids_expression.compile("(?m)^\\s*classic_spell_ids\\s*=\\s*\\[([^\\]]*)\\]")
+	var save_index_expression := RegEx.new()
+	save_index_expression.compile("(?m)^\\s*classic_spell_save_index\\s*=\\s*(-?\\d+)")
+	var save_mode_expression := RegEx.new()
+	save_mode_expression.compile(
+		"(?m)^\\s*classic_spell_save_mode\\s*=\\s*[\"']([^\"']+)[\"']"
+	)
 	access.list_dir_begin()
 	var file_name := access.get_next()
 	while not file_name.is_empty():
@@ -106,6 +112,12 @@ func _collect_spell_names(directory: String, destination: Dictionary) -> void:
 						if trimmed_id.is_valid_int():
 							classic_spell_ids.append(int(trimmed_id))
 					metadata["classicSpellIds"] = classic_spell_ids
+				var save_index_match := save_index_expression.search(source)
+				if save_index_match != null:
+					metadata["classicSpellSaveIndex"] = int(save_index_match.get_string(1))
+				var save_mode_match := save_mode_expression.search(source)
+				if save_mode_match != null:
+					metadata["classicSpellSaveMode"] = save_mode_match.get_string(1)
 				destination[match_result.get_string(1)] = metadata
 		file_name = access.get_next()
 	access.list_dir_end()
