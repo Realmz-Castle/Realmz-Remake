@@ -687,6 +687,7 @@ func _test_campaign_readiness_report() -> void:
 		_readiness_action_point("Data ED3", 108, 17, 388),
 		_readiness_action_point("Data ED3", 114, 17, 389),
 		_readiness_action_point("Data ED3", 128, 17, 428),
+		_readiness_action_point("Data ED3", 129, 17, 429),
 		_readiness_action_point("Data ED3", 103, 89, 71),
 		_readiness_action_point("Data ED3", 197, -85, -1700),
 	]
@@ -695,6 +696,7 @@ func _test_campaign_readiness_report() -> void:
 		{"id": 388, "values": [2301, 1, 0, 0, 0]},
 		{"id": 389, "values": [3202, 1, 0, 0, 0]},
 		{"id": 428, "values": [4606, 3, 30, 0, 0]},
+		{"id": 429, "values": [2304, 7, -45, 0, 0]},
 		# The positive record exists, but Classic's signed lookup is exact.
 		{"id": 1700, "values": [40, 40, 40, 40, 40]},
 	]
@@ -796,6 +798,10 @@ func _test_campaign_readiness_report() -> void:
 		"readiness reports a missing Daze resource"
 	)
 	_expect(
+		_readiness_has_reference_diagnostic(report, "missing-native-spell", 2304),
+		"readiness reports a missing Festering Wounds resource"
+	)
+	_expect(
 		_readiness_has_diagnostic(
 			report, "unresolved-item-identity", "Data ED2", 9, -1, "progression-blocker"
 		),
@@ -841,6 +847,7 @@ func _test_campaign_readiness_report() -> void:
 			"Daze": {"classicSpellIds": [3202]},
 			"Discover Magic": {"classicSpellClass": 1},
 			"Fire Flare": {"classicSpellIds": [4606]},
+			"Festering Wounds": {"classicSpellIds": [2304]},
 			"Power Drain": {"classicSpellIds": [1408, 3311]},
 		},
 		"items": {
@@ -899,6 +906,18 @@ func _test_campaign_readiness_report() -> void:
 			resolved_report, "unsupported-field-spell-metadata", 4606
 		),
 		"Fire Flare's authored save adjustment remains a separate blocker"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "missing-native-spell", 2304
+		),
+		"explicit Festering Wounds identity resolves its field-spell reference"
+	)
+	_expect(
+		_readiness_has_reference_diagnostic(
+			resolved_report, "unsupported-field-spell-metadata", 2304
+		),
+		"Festering Wounds' authored save adjustment remains a separate blocker"
 	)
 
 	var unsupported_variant_report: Dictionary = ReadinessScript.new().inspect(bundle, {
@@ -4507,6 +4526,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
 	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
+	var festering_wounds = load("res://shared_assets/spells/festering_wounds.gd").new()
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
 	var confuse = load("res://shared_assets/spells/confuse.gd").new()
 	var daze = load("res://shared_assets/spells/daze.gd").new()
@@ -4554,6 +4574,69 @@ func _test_complex_spell_results(bundle) -> void:
 		not fire_flare.in_combat and not fire_flare.in_field,
 		"Fire Flare remains available only through scripted actions"
 	)
+	_expect(
+		festering_wounds.supports_classic_spell_id(2304),
+		"Festering Wounds exports its exact Classic ID"
+	)
+	_expect_equal(
+		festering_wounds.classic_spell_class,
+		4,
+		"Festering Wounds exports its Classic class"
+	)
+	_expect_equal(festering_wounds.get_range(7, null), 0, "Festering Wounds needs no range")
+	_expect_equal(
+		festering_wounds.get_min_duration(3, null),
+		3,
+		"Festering Wounds minimum duration scales by power"
+	)
+	_expect_equal(
+		festering_wounds.get_max_duration(3, null),
+		9,
+		"Festering Wounds maximum duration scales by power"
+	)
+	var disease_duration: int = festering_wounds.get_duration_roll(3, null)
+	_expect(
+		disease_duration >= 3 and disease_duration <= 9,
+		"Festering Wounds rolls 1-3 rounds per power"
+	)
+	_expect_equal(
+		festering_wounds.get_sp_cost(3, null),
+		36,
+		"Festering Wounds cost scales by power"
+	)
+	_expect_equal(
+		festering_wounds.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Festering Wounds targets every enemy"
+	)
+	_expect(festering_wounds.skip_targeting, "Festering Wounds needs no target selection")
+	_expect_equal(
+		festering_wounds.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Festering Wounds relies on its scripted save instead of native resistance"
+	)
+	_expect_equal(
+		festering_wounds.get_damage_roll(7, null),
+		0,
+		"Festering Wounds deals damage through disease rounds"
+	)
+	var diseased_target := ConditionTestCharacter.new("Diseased target")
+	festering_wounds.add_traits_to_creature(null, diseased_target, 3)
+	_expect_equal(diseased_target.traits.size(), 1, "Festering Wounds applies one condition trait")
+	_expect(
+		str(diseased_target.traits[0].name).ends_with("t_disease.gd"),
+		"Festering Wounds reuses Remake's temporary disease trait"
+	)
+	_expect(
+		diseased_target.traits[0].power >= 3 and diseased_target.traits[0].power <= 9,
+		"Festering Wounds passes its rolled duration to the disease trait"
+	)
+	var disease_trait = load("res://shared_assets/traits/t_disease.gd").new(
+		[diseased_target, 3]
+	)
+	disease_trait._on_new_round(diseased_target)
+	_expect_equal(diseased_target.current_hp, 17, "disease deals its current power each round")
+	_expect_equal(disease_trait.get_saved_variables(), [2], "disease power decays each round")
 	_expect(power_drain.supports_classic_spell_id(1408), "Power Drain supports CoB's spell ID")
 	_expect(
 		adapter.classic_spell_resource_supports_id(power_drain, 1408),
