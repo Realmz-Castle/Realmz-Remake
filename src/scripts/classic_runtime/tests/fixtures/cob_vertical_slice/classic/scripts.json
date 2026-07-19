@@ -140,6 +140,76 @@
       "provenance": {"sourceFile": "Data DD", "recordIndex": 12, "byteOffset": 20480, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data DD:6:12",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 6,
+      "recordIndex": 12,
+      "active": true,
+      "doorid": 65622,
+      "landid": 6,
+      "targetX": 22,
+      "targetY": 56,
+      "percent": 100,
+      "coordinate": {"x": 22, "y": 56},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 447, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 1, "code": 1, "id": 448, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 2, "rawCode": 1, "code": 1, "id": -449, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 3, "rawCode": 3, "code": 3, "id": 11, "label": "Choice", "category": "branch", "gosub": false},
+        {"slot": 4, "rawCode": 1, "code": 1, "id": -15, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 5, "rawCode": -14, "code": -14, "id": -4, "label": "Pick inverse characters", "category": "state", "gosub": false},
+        {"slot": 6, "rawCode": 1, "code": 1, "id": 450, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 7, "rawCode": 39, "code": 39, "id": 55, "label": "Extend door codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 12, "byteOffset": 24480, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:7:45",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 7,
+      "recordIndex": 45,
+      "active": true,
+      "doorid": 71468,
+      "landid": 7,
+      "targetX": 68,
+      "targetY": 14,
+      "percent": 100,
+      "coordinate": {"x": 68, "y": 14},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 376, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 30, "code": 30, "id": 158, "label": "Pick ability or attribute", "category": "state", "gosub": false},
+        {"slot": 2, "rawCode": 15, "code": 15, "id": 159, "label": "Damage or heal picked", "category": "state", "gosub": false},
+        {"slot": 3, "rawCode": 1, "code": 1, "id": 377, "label": "Text", "category": "ui_text", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 45, "byteOffset": 29800, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:7:54",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 7,
+      "recordIndex": 54,
+      "active": true,
+      "doorid": 72537,
+      "landid": 7,
+      "targetX": 37,
+      "targetY": 25,
+      "percent": 100,
+      "coordinate": {"x": 37, "y": 25},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": -505, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 3, "code": 3, "id": 11, "label": "Choice", "category": "branch", "gosub": false},
+        {"slot": 2, "rawCode": 1, "code": 1, "id": -15, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 3, "rawCode": 14, "code": 14, "id": 1, "label": "Pick characters", "category": "state", "gosub": false},
+        {"slot": 4, "rawCode": 1, "code": 1, "id": -506, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 5, "rawCode": 3, "code": 3, "id": 11, "label": "Choice", "category": "branch", "gosub": false},
+        {"slot": 6, "rawCode": 10, "code": 10, "id": 43, "label": "Give treasure", "category": "item_shop", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 54, "byteOffset": 30160, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data DD:0:27",
       "source": "Data DD",
       "levelType": "land",
@@ -598,6 +668,26 @@
       "provenance": {"sourceFile": "Data ED3", "recordIndex": 18, "byteOffset": 720, "byteLength": 40, "confidence": "source-backed"}
     },
     {
+      "id": "Data ED3:macro:55",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 55,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 15, "code": 15, "id": 188, "label": "Damage or heal picked", "category": "state", "gosub": false},
+        {"slot": 1, "rawCode": 1, "code": 1, "id": 451, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 2, "rawCode": 4, "code": 4, "id": 14, "label": "Simple encounter", "category": "encounter", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 55, "byteOffset": 2200, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
       "id": "Data DD:1:30",
       "source": "Data DD",
       "levelType": "land",
@@ -698,11 +788,15 @@
   ],
   "extraCodes": [
 	{"id": 2, "values": [1, 0, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 2, "byteOffset": 20, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 11, "values": [1, 0, 137, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 11, "byteOffset": 110, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 20, "values": [3, 3, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 20, "byteOffset": 200, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 21, "values": [3, 4, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 21, "byteOffset": 210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 70, "values": [38, 0, 30000, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 70, "byteOffset": 700, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 73, "values": [0, 27, 18, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 73, "byteOffset": 730, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 127, "values": [0, 17, 100, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 127, "byteOffset": 1270, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 158, "values": [5, 30, 1, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 158, "byteOffset": 1580, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 159, "values": [-2, 1, 6, 655, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 159, "byteOffset": 1590, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 188, "values": [-6, 1, 4, 659, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 188, "byteOffset": 1880, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 255, "values": [1, 17, 900, 158, 163], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 255, "byteOffset": 2550, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 256, "values": [1, 31, 70, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 256, "byteOffset": 2560, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 269, "values": [0, 3, 28, 193, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 269, "byteOffset": 2690, "byteLength": 10, "confidence": "source-backed"}},
@@ -929,6 +1023,42 @@
       "text": "As you are leaving the cave you hear a loud roar behind you.  It comes from where you found the small child.  As you attempt to determine the identity of the creatures you see a group of large trolls running in your direction on flapping feet.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 522, "byteOffset": 133632, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 15,
+      "text": "Who is so brave as to volunteer?",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 15, "byteOffset": 3840, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 376,
+      "text": "The floor opens up underneath you.  Those that do not perform an acrobatic act, fall in and take damage.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 376, "byteOffset": 96256, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 377,
+      "text": "You quickly scale the rough sides of the pit and get out.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 377, "byteOffset": 96512, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 450,
+      "text": "Upon kneeling on the symbols, a magical display of energy sweeps across the floor. Energy beams of light in a myriad of colors appear from all directions.  They strike all those not within the symbols.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 450, "byteOffset": 115200, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 451,
+      "text": "After the discharge of light beams, the protective energy field vanishes.  Inside the sphere, the vortex of mist forms the visage of a hideous beast.  It stares intently into your eyes and begins to communicate telepathically.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 451, "byteOffset": 115456, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 506,
+      "text": "At the bottom of the shaft is a large pile of gold coins.  Do you wish to take them?",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 506, "byteOffset": 129536, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 867,

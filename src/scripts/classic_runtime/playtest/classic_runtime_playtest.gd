@@ -32,6 +32,7 @@ class CaveInSpell:
 @export var playtest_label := "guard-house"
 @export var test_rogue_stat := -1.0
 @export var test_rogue_hp := 30
+@export var test_party_size := 1
 @export var test_spell_name := ""
 @export var test_item_name := ""
 
@@ -64,10 +65,23 @@ func _start_playtest() -> void:
 		if test_rogue_stat >= 0.0 and resources.items_book.is_empty():
 			resources.load_item_resources("res://shared_assets/items/")
 		GameGlobal.player_characters.clear()
-		var character: PlayerCharacter = _make_playtest_rogue() \
-			if test_rogue_stat >= 0.0 else _make_playtest_spellcaster()
-		GameGlobal.player_characters.append(character)
-		UI.ow_hud.selected_character = character
+		var first_character: PlayerCharacter
+		for index: int in max(1, test_party_size):
+			var character: PlayerCharacter = _make_playtest_rogue() \
+				if test_rogue_stat >= 0.0 else _make_playtest_spellcaster()
+			if test_party_size > 1:
+				character.name = "%s %d" % [character.name, index + 1]
+			GameGlobal.player_characters.append(character)
+			if first_character == null:
+				first_character = character
+		var character_panels: Array[Node] = UI.ow_hud.charsVContainer.get_children()
+		if character_panels.size() == GameGlobal.player_characters.size():
+			for index: int in character_panels.size():
+				character_panels[index].set_character(GameGlobal.player_characters[index])
+				character_panels[index].update_display()
+		else:
+			UI.ow_hud.fillCharactersRect()
+		UI.ow_hud.selected_character = first_character
 	host = HostScript.new()
 	add_child(host)
 	host.configure(AdapterScript.new())
@@ -105,6 +119,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if playtest_label == "character-pick":
+		await _run_character_pick_smoke()
+		return
 	if playtest_label == "party-health":
 		await _run_party_health_smoke()
 		return
@@ -211,6 +228,48 @@ func _run_party_health_smoke() -> void:
 		"02_party_health_complete",
 		"Classic party-health playtest complete" in completion_text,
 		"the host completes after applying the party health change"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_character_pick_smoke() -> void:
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"01_pick_prompt",
+		UI.ow_hud.textRect.textLabel.get_parsed_text() == "Who is so brave as to volunteer?",
+		"the source-backed volunteer prompt is visible"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var picker_ready := await _wait_for_character_picker()
+	_verify_smoke_stage(
+		"02_native_character_picker",
+		picker_ready and UI.ow_hud.charsVContainer.get_child_count() == test_party_size,
+		"Remake's character-panel picker opens for the requested party member"
+	)
+	if not picker_ready:
+		get_tree().quit(1)
+		return
+	var first_panel: Node = UI.ow_hud.charsVContainer.get_child(0)
+	first_panel.chara_small_panel_selected.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"03_character_selected",
+		GameGlobal.last_picked_characters == [GameGlobal.player_characters[0]]
+			and UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+				"At the bottom of the shaft"
+			),
+		"the picked panel becomes Classic's transient selected set"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	var choices_ready := await _wait_for_choices()
+	if choices_ready:
+		UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("NO")
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"04_character_pick_complete",
+		choices_ready and "Classic character-pick playtest complete" \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"declining the follow-up choice completes the source action point"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
@@ -761,6 +820,16 @@ func _wait_for_choices() -> bool:
 		if choices.visible and choices.get_child_count() > 0:
 			return true
 	push_error("Classic %s smoke timed out waiting for encounter choices" % playtest_label)
+	return false
+
+
+func _wait_for_character_picker() -> bool:
+	for _frame: int in 120:
+		await get_tree().process_frame
+		if StateMachine.ex_menu_state.cur_menu_name == "PC_Pick" \
+			and UI.ow_hud.charsVContainer.get_child_count() >= test_party_size:
+			return true
+	push_error("Classic character-pick smoke timed out waiting for Remake's party picker")
 	return false
 
 

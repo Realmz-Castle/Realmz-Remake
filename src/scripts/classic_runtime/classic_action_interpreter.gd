@@ -254,6 +254,10 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_tile_mutation(record_id)
 		13:
 			return _execute_trigger_mutation(record_id)
+		-14, 14:
+			return _execute_character_pick(record_id, code == -14)
+		15:
+			return _execute_selected_health_effect(record_id)
 		16:
 			return _execute_party_health_effect(record_id)
 		19:
@@ -270,6 +274,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _remove_current_action_point()
 		29:
 			return _execute_player_map(record_id)
+		30:
+			return _execute_character_check_selection(record_id)
 		34:
 			return _break_encounter()
 		35:
@@ -559,18 +565,58 @@ func _execute_treasure(treasure_id: int) -> Dictionary:
 	})
 
 
-func _execute_party_health_effect(extra_code_id: int) -> Dictionary:
+func _execute_character_pick(record_id: int, invert: bool) -> Dictionary:
+	var count: int = abs(record_id)
+	if count < 1:
+		return _halt_with_error("Character-pick action requests no characters")
+	return _yield_result("pick_characters", {
+		"count": count,
+		"allowDead": record_id < 0,
+		"invert": invert,
+	})
+
+
+func _execute_character_check_selection(extra_code_id: int) -> Dictionary:
 	var values := _extra_code_values(extra_code_id)
 	if values.is_empty():
 		return _halt_with_error(
-			"Party health action references missing Extra Code row %d" % extra_code_id
+			"Character-check action references missing Extra Code row %d" % extra_code_id
+		)
+	var candidate_mode := "selected"
+	if int(values[2]) == 1:
+		candidate_mode = "party"
+	elif int(values[2]) == 2:
+		candidate_mode = "alive"
+	return _yield_result("filter_selected_characters", {
+		"extraCodeId": extra_code_id,
+		"checkIndex": abs(int(values[0])),
+		"modifier": int(values[1]),
+		"candidateMode": candidate_mode,
+		"checkType": "attribute" if int(values[3]) != 0 else "special",
+		"selectOnFailure": int(values[0]) < 0,
+	})
+
+
+func _execute_selected_health_effect(extra_code_id: int) -> Dictionary:
+	return _execute_health_effect(extra_code_id, "change_selected_health")
+
+
+func _execute_party_health_effect(extra_code_id: int) -> Dictionary:
+	return _execute_health_effect(extra_code_id, "change_party_health")
+
+
+func _execute_health_effect(extra_code_id: int, command: String) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Health action references missing Extra Code row %d" % extra_code_id
 		)
 	var low_roll := int(values[1])
 	var high_roll := int(values[2])
 	if high_roll < low_roll:
-		return _halt_with_error("Party health action has an invalid roll range")
+		return _halt_with_error("Health action has an invalid roll range")
 	var message_id := int(values[4])
-	return _yield_result("change_party_health", {
+	return _yield_result(command, {
 		"extraCodeId": extra_code_id,
 		"multiplier": int(values[0]),
 		"rollRange": [low_roll, high_roll],

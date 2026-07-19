@@ -9,6 +9,27 @@ const COMPLEX_WORD_TEXT_INDEX := 8
 const COMPLEX_WORD_TEXT_LIMIT := 40
 const MAP_GAINED_MESSAGE := \
 	"You gain a map, to view the map use Maps/Notes in the Menu."
+const CLASSIC_ATTRIBUTE_STATS := {
+	0: "Strength",
+	1: "Intellect",
+	2: "Wisdom",
+	3: "Dexterity",
+	4: "Vitality",
+	6: "Luck",
+}
+const CLASSIC_SPECIAL_STATS := {
+	0: "Melee_Crit_Mult",
+	3: "Melee_Crit_Rate",
+	4: "Detect_Secret",
+	5: "Acrobatics",
+	6: "Detect_Trap",
+	7: "Disable_Trap",
+	9: "Force_Lock",
+	11: "Pick_Lock",
+	13: "Turn_Undead",
+}
+
+var classic_selected_characters: Array = []
 
 
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
@@ -25,6 +46,12 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _give_treasure(payload)
 		"give_experience":
 			return await _give_experience(payload)
+		"pick_characters":
+			return await _pick_characters(payload)
+		"filter_selected_characters":
+			return _filter_selected_characters(payload)
+		"change_selected_health":
+			return await _change_selected_health(payload)
 		"change_party_health":
 			return await _change_party_health(payload)
 		"give_map":
@@ -841,8 +868,140 @@ func _give_experience(payload: Dictionary) -> Dictionary:
 	return {}
 
 
+func _pick_characters(payload: Dictionary) -> Dictionary:
+	var party := _party_characters()
+	if party.is_empty():
+		return _error("Classic character pick has no party members")
+	var allow_dead := bool(payload.get("allowDead", false))
+	var eligible: Array = []
+	for character_value: Variant in party:
+		if allow_dead or _is_living_character(character_value):
+			eligible.append(character_value)
+	if eligible.is_empty():
+		return _error("Classic character pick has no eligible party members")
+	var count: int = min(int(payload.get("count", 0)), eligible.size())
+	if count < 1:
+		return _error("Classic character pick requests no characters")
+	var ui: Object = _autoload("UI")
+	if ui == null or ui.ow_hud == null:
+		return _error("Realmz character picker is unavailable")
+	ui.ow_hud.request_pc_pick(count)
+	var picked_value: Variant = await ui.ow_hud.pc_picked
+	if not (picked_value is Array):
+		return _error("Realmz character picker returned an invalid selection")
+	for character_value: Variant in picked_value:
+		if not party.has(character_value) \
+			or (not allow_dead and not _is_living_character(character_value)):
+			return _error("Realmz character picker returned an ineligible party member")
+	var selected := select_characters_after_pick(
+		picked_value,
+		party,
+		bool(payload.get("invert", false))
+	)
+	_store_selected_characters(selected)
+	return {"selectedCount": selected.size()}
+
+
+func select_characters_after_pick(picked: Array, party: Array, invert: bool) -> Array:
+	var selected: Array = []
+	for character_value: Variant in party:
+		var was_picked := picked.has(character_value)
+		if was_picked != invert:
+			selected.append(character_value)
+	return selected
+
+
+func _filter_selected_characters(payload: Dictionary) -> Dictionary:
+	var result := filter_characters_by_check(
+		payload,
+		_party_characters(),
+		_current_selected_characters()
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	var selected: Array = result.get("selected", [])
+	_store_selected_characters(selected)
+	return {
+		"selectedCount": selected.size(),
+		"checks": result.get("checks", []),
+	}
+
+
+func filter_characters_by_check(
+	payload: Dictionary,
+	party: Array,
+	previously_selected: Array
+) -> Dictionary:
+	var check_type := str(payload.get("checkType", ""))
+	var check_index := int(payload.get("checkIndex", -1))
+	var stat_mapping: Dictionary
+	var roll_high: int
+	if check_type == "attribute":
+		stat_mapping = CLASSIC_ATTRIBUTE_STATS
+		roll_high = 25
+	elif check_type == "special":
+		stat_mapping = CLASSIC_SPECIAL_STATS
+		roll_high = 100
+	else:
+		return _error("Classic character check has an invalid check type")
+	if not stat_mapping.has(check_index):
+		return _error(
+			"Classic %s check %d has no Remake stat mapping" % [check_type, check_index]
+		)
+
+	var candidates: Array = []
+	match str(payload.get("candidateMode", "selected")):
+		"selected":
+			for character_value: Variant in party:
+				if previously_selected.has(character_value):
+					candidates.append(character_value)
+		"party":
+			candidates = party.duplicate()
+		"alive":
+			for character_value: Variant in party:
+				if _is_living_character(character_value):
+					candidates.append(character_value)
+		_:
+			return _error("Classic character check has an invalid candidate mode")
+
+	var modifier := int(payload.get("modifier", 0))
+	var select_on_failure := bool(payload.get("selectOnFailure", false))
+	var stat_name := str(stat_mapping[check_index])
+	var selected: Array = []
+	var checks: Array = []
+	for character_value: Variant in candidates:
+		if not (character_value is Object) or not character_value.has_method("get_stat"):
+			return _error("Classic character check target has no readable stats")
+		var stat_value := float(character_value.get_stat(stat_name))
+		var roll := randi_range(1, roll_high)
+		# Classic's attribute comparison is strict; its percentage check is inclusive.
+		var passed := roll - modifier < stat_value if check_type == "attribute" \
+			else roll <= stat_value + modifier
+		if passed != select_on_failure:
+			selected.append(character_value)
+		checks.append({
+			"character": character_value,
+			"name": str(character_value.get("name")),
+			"roll": roll,
+			"passed": passed,
+		})
+	return {
+		"selected": selected,
+		"checks": checks,
+	}
+
+
+func _change_selected_health(payload: Dictionary) -> Dictionary:
+	var result := apply_selected_health_effect(payload, _current_selected_characters())
+	return await _finish_health_effect(payload, result)
+
+
 func _change_party_health(payload: Dictionary) -> Dictionary:
 	var result := apply_party_health_effect(payload, _party_characters())
+	return await _finish_health_effect(payload, result)
+
+
+func _finish_health_effect(payload: Dictionary, result: Dictionary) -> Dictionary:
 	if str(result.get("status", "")) == "error":
 		return result
 	_play_sound({"soundId": int(payload.get("soundId", 0))})
@@ -858,23 +1017,35 @@ func _change_party_health(payload: Dictionary) -> Dictionary:
 
 
 func apply_party_health_effect(payload: Dictionary, party: Array) -> Dictionary:
+	return _apply_health_effect(payload, party, false)
+
+
+func apply_selected_health_effect(payload: Dictionary, selected: Array) -> Dictionary:
+	return _apply_health_effect(payload, selected, true)
+
+
+func _apply_health_effect(
+	payload: Dictionary,
+	targets: Array,
+	allow_empty: bool
+) -> Dictionary:
 	var roll_range: Variant = payload.get("rollRange", [])
 	if not (roll_range is Array) or roll_range.size() < 2:
-		return _error("Classic party health command is missing its roll range")
+		return _error("Classic health command is missing its roll range")
 	var low_roll := int(roll_range[0])
 	var high_roll := int(roll_range[1])
 	if high_roll < low_roll:
-		return _error("Classic party health command has an invalid roll range")
-	if party.is_empty():
+		return _error("Classic health command has an invalid roll range")
+	if targets.is_empty() and not allow_empty:
 		return _error("Classic party health command has no party members")
-	for character_value: Variant in party:
+	for character_value: Variant in targets:
 		if not (character_value is Object) \
 			or not character_value.has_method("change_cur_hp"):
-			return _error("Classic party member cannot receive a health change")
+			return _error("Classic health target cannot receive a health change")
 
 	var multiplier := int(payload.get("multiplier", 0))
 	var hits: Array = []
-	for character_value: Variant in party:
+	for character_value: Variant in targets:
 		var roll := randi_range(low_roll, high_roll)
 		var health_change := multiplier * roll
 		character_value.change_cur_hp(health_change)
@@ -885,6 +1056,26 @@ func apply_party_health_effect(payload: Dictionary, party: Array) -> Dictionary:
 			"change": health_change,
 		})
 	return {"hits": hits}
+
+
+func _current_selected_characters() -> Array:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global != null and game_global.last_picked_characters is Array:
+		return game_global.last_picked_characters.duplicate()
+	return classic_selected_characters.duplicate()
+
+
+func _store_selected_characters(characters: Array) -> void:
+	classic_selected_characters = characters.duplicate()
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global != null:
+		game_global.last_picked_characters = characters.duplicate()
+
+
+func _is_living_character(character: Variant) -> bool:
+	return character is Object \
+		and character.has_method("get_stat") \
+		and float(character.get_stat("curHP")) > 0.0
 
 
 func _give_player_map(payload: Dictionary) -> Dictionary:

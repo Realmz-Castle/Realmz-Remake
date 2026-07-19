@@ -77,6 +77,7 @@ func _init() -> void:
 	_test_random_level_mutations(bundle)
 	_test_experience_award(bundle)
 	_test_party_health_effect(bundle)
+	_test_selected_character_pipeline(bundle)
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -456,6 +457,155 @@ func _test_party_health_effect(bundle) -> void:
 		[healing_target]
 	)
 	_expect_equal(healing_target.current_hp, 16, "positive multiplier heals party members")
+
+
+func _test_selected_character_pipeline(bundle) -> void:
+	var pick_interpreter = _interpreter(bundle)
+	_expect(
+		pick_interpreter.begin_trigger("Data DD:7:54", 3),
+		"begin CoB single-character pick"
+	)
+	var pick_result: Dictionary = pick_interpreter.run_until_yield()
+	var pick_payload: Dictionary = pick_result.get("payload", {})
+	_expect_equal(pick_result.get("command"), "pick_characters", "character-pick command")
+	_expect_equal(pick_payload.get("count"), 1, "character-pick count")
+	_expect_equal(pick_payload.get("allowDead"), false, "positive pick excludes dead characters")
+	_expect_equal(pick_payload.get("invert"), false, "positive pick keeps chosen characters")
+	_expect_equal(
+		pick_interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		-506,
+		"character pick continues to its source message"
+	)
+
+	var inverse_interpreter = _interpreter(bundle)
+	_expect(
+		inverse_interpreter.begin_trigger("Data DD:6:12", 5),
+		"begin CoB inverse-character pick"
+	)
+	var inverse_result: Dictionary = inverse_interpreter.run_until_yield()
+	var inverse_payload: Dictionary = inverse_result.get("payload", {})
+	_expect_equal(inverse_result.get("command"), "pick_characters", "inverse-pick command")
+	_expect_equal(inverse_payload.get("count"), 4, "inverse-pick count")
+	_expect_equal(inverse_payload.get("allowDead"), true, "negative pick id allows dead characters")
+	_expect_equal(inverse_payload.get("invert"), true, "negative opcode selects the complement")
+	_expect_equal(
+		inverse_interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		450,
+		"inverse pick continues to the energy discharge"
+	)
+	var inverse_damage: Dictionary = inverse_interpreter.run_until_yield()
+	var inverse_damage_payload: Dictionary = inverse_damage.get("payload", {})
+	_expect_equal(
+		inverse_damage.get("command"),
+		"change_selected_health",
+		"inverse-pick sequence damages its complement"
+	)
+	_expect_equal(inverse_damage_payload.get("multiplier"), -6, "inverse damage multiplier")
+	_expect_equal(inverse_damage_payload.get("rollRange"), [1, 4], "inverse damage range")
+	_expect_equal(inverse_damage_payload.get("soundId"), 659, "inverse damage sound")
+
+	var check_interpreter = _interpreter(bundle)
+	_expect(
+		check_interpreter.begin_trigger("Data DD:7:45", 1),
+		"begin CoB Acrobatics selection"
+	)
+	var check_result: Dictionary = check_interpreter.run_until_yield()
+	var check_payload: Dictionary = check_result.get("payload", {})
+	_expect_equal(
+		check_result.get("command"),
+		"filter_selected_characters",
+		"character-check command"
+	)
+	_expect_equal(check_payload.get("checkType"), "special", "Acrobatics check type")
+	_expect_equal(check_payload.get("checkIndex"), 5, "Acrobatics Classic index")
+	_expect_equal(check_payload.get("modifier"), 30, "Acrobatics modifier")
+	_expect_equal(check_payload.get("candidateMode"), "party", "Acrobatics checks party")
+	_expect_equal(check_payload.get("selectOnFailure"), false, "positive check selects success")
+	var checked_damage: Dictionary = check_interpreter.run_until_yield()
+	_expect_equal(
+		checked_damage.get("command"),
+		"change_selected_health",
+		"checked characters receive the following health effect"
+	)
+	_expect_equal(
+		checked_damage.get("payload", {}).get("rollRange"),
+		[1, 6],
+		"checked damage range"
+	)
+	_expect_equal(
+		check_interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		377,
+		"checked damage continues to its source message"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var first_target := RogueTestCharacter.new()
+	first_target.name = "First"
+	var second_target := RogueTestCharacter.new()
+	second_target.name = "Second"
+	var third_target := RogueTestCharacter.new()
+	third_target.name = "Third"
+	var party := [first_target, second_target, third_target]
+	_expect_equal(
+		adapter.select_characters_after_pick([first_target, second_target], party, false),
+		[first_target, second_target],
+		"normal pick keeps chosen party members"
+	)
+	_expect_equal(
+		adapter.select_characters_after_pick([first_target, second_target], party, true),
+		[third_target],
+		"inverse pick keeps the unchosen party members"
+	)
+
+	first_target.stat_value = 100.0
+	second_target.stat_value = -100.0
+	var checked: Dictionary = adapter.filter_characters_by_check(
+		check_payload,
+		[first_target, second_target],
+		[]
+	)
+	_expect_equal(checked.get("selected"), [first_target], "special check selects successes")
+	var failure_payload := check_payload.duplicate()
+	failure_payload["selectOnFailure"] = true
+	var failed: Dictionary = adapter.filter_characters_by_check(
+		failure_payload,
+		[first_target, second_target],
+		[]
+	)
+	_expect_equal(failed.get("selected"), [second_target], "negative check selects failures")
+	var attribute_payload := {
+		"checkType": "attribute",
+		"checkIndex": 1,
+		"modifier": 0,
+		"candidateMode": "party",
+		"selectOnFailure": false,
+	}
+	var attribute_result: Dictionary = adapter.filter_characters_by_check(
+		attribute_payload,
+		[first_target, second_target],
+		[]
+	)
+	_expect_equal(
+		attribute_result.get("selected"),
+		[first_target],
+		"attribute check uses the Remake stat mapping"
+	)
+
+	var selected_damage: Dictionary = adapter.apply_selected_health_effect(
+		{"multiplier": -2, "rollRange": [3, 3]},
+		[first_target]
+	)
+	_expect_equal(selected_damage.get("hits", []).size(), 1, "selected damage has one target")
+	_expect_equal(first_target.current_hp, 24, "selected damage changes picked character HP")
+	_expect_equal(second_target.current_hp, 30, "selected damage leaves unpicked character alone")
+	_expect_equal(
+		adapter.apply_selected_health_effect(
+			{"multiplier": -1, "rollRange": [1, 1]},
+			[]
+		).get("hits", []).size(),
+		0,
+		"empty selected set is a valid no-op"
+	)
 
 
 func _test_evidence_backed_dispatcher_noop(bundle) -> void:
@@ -1784,7 +1934,8 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 16, 19, 20, 23, 24, 25, 29, 35, 37,
+		-14, 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 23,
+		24, 25, 29, 30, 35, 37,
 		39, 41, 42, 44, 45, 46, 47, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
@@ -1797,8 +1948,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2156, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2626, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2180, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2650, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1899,6 +2050,11 @@ func _test_runtime_host() -> void:
 	_expect_equal(adapter.commands[-1].get("command"), "change_party_health", "host dispatches party health change")
 	_expect_equal(adapter.commands[-1].get("payload", {}).get("rollRange"), [1, 1], "host preserves party damage range")
 	_expect_equal(completions.size(), 8, "host completes party damage action point")
+	_expect(host.start_trigger("Data DD:7:45", 1), "runtime host starts checked-character damage")
+	_expect_equal(adapter.commands[-3].get("command"), "filter_selected_characters", "host dispatches character check")
+	_expect_equal(adapter.commands[-2].get("command"), "change_selected_health", "host dispatches selected damage")
+	_expect_equal(adapter.commands[-1].get("payload", {}).get("messageId"), 377, "host continues after selected damage")
+	_expect_equal(completions.size(), 9, "host completes checked-character damage")
 	var godot_adapter = GodotAdapterScript.new()
 	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(
