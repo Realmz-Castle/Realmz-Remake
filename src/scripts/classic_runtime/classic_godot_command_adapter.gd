@@ -158,6 +158,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _enable_banking(payload)
 		"check_party_item":
 			return _check_party_item(payload)
+		"take_party_wealth":
+			return _take_party_wealth(payload)
 		"alter_party_items":
 			return _alter_party_items(payload)
 		"store_party_equipment":
@@ -1732,6 +1734,29 @@ func _check_party_item(payload: Dictionary) -> Dictionary:
 			item_names
 		),
 	}
+
+
+func _take_party_wealth(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	var pooled_money: Variant = game_global.money_pool
+	if not (pooled_money is Array):
+		return _error("Realmz pooled wealth is unavailable")
+	var party := _party_characters()
+	var result: Dictionary = InventoryRulesScript.take_party_currency(
+		party,
+		pooled_money,
+		int(payload.get("currency", -1)),
+		int(payload.get("amount", -1))
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	if bool(result.get("paid", false)):
+		_refresh_party_panels(party)
+	else:
+		result["warningId"] = int(payload.get("warningId", 0))
+	return result
 
 
 func _alter_party_items(payload: Dictionary) -> Dictionary:

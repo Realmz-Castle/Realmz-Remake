@@ -92,6 +92,10 @@ func finish_item_check(possessed: bool) -> void:
 	_publish(interpreter.resume_item_check(possessed))
 
 
+func finish_wealth_payment(paid: bool) -> void:
+	_publish(interpreter.resume_wealth_payment(paid))
+
+
 func finish_party_condition_check(active: bool) -> void:
 	_publish(interpreter.resume_party_condition_check(active))
 

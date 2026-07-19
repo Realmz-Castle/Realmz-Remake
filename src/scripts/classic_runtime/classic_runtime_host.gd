@@ -91,6 +91,11 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Item-check adapter response is missing 'possessed'", command)
 				return
 			runtime.finish_item_check(bool(response["possessed"]))
+		"take_party_wealth":
+			if not response.has("paid"):
+				_stop_with_error("Wealth-payment adapter response is missing 'paid'", command)
+				return
+			runtime.finish_wealth_payment(bool(response["paid"]))
 		"check_party_condition":
 			if not response.has("active"):
 				_stop_with_error("Party-condition adapter response is missing 'active'", command)

@@ -54,6 +54,20 @@ class RejectingAdapter:
 		}
 
 
+class WealthTestAdapter:
+	extends RefCounted
+	var commands: Array = []
+	var paid := true
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		if command == "start_encounter":
+			return {"outcome": 1}
+		if command == "take_party_wealth":
+			return {"paid": paid}
+		return {}
+
+
 class RogueTestCharacter:
 	extends RefCounted
 	var name := "Test Rogue"
@@ -235,6 +249,7 @@ func _init() -> void:
 	_test_misc_character_selection(bundle)
 	_test_spell_effect_actions(bundle)
 	_test_item_actions()
+	_test_take_gold_action()
 	_test_item_mutation_rules()
 	_test_equipment_storage_rules()
 	_test_quest_state_and_branch(bundle)
@@ -469,8 +484,8 @@ func _test_execution_coverage_audit(bundle) -> void:
 			and diagnostic_value.get("code") == "unsupported-action"
 		):
 			unsupported_opcodes.append(int(diagnostic_value.get("opcode", 0)))
-	_expect_equal(unsupported_opcodes.count(33), 4, "execution audit exposes CoB Take Gold uses")
 	_expect_equal(unsupported_opcodes.count(43), 1, "execution audit exposes CoB Give Condition use")
+	_expect_equal(unsupported_opcodes.size(), 1, "checked fixture has one executable unknown")
 	_expect_equal(
 		unsupported_opcodes.size(),
 		report.get("totals", {}).get("unknownExecutable"),
@@ -1416,6 +1431,131 @@ func _test_item_actions() -> void:
 	_expect_equal(host_adapter.commands[0].get("command"), "check_party_item", "host dispatches item check")
 	_expect_equal(host_adapter.commands[1].get("payload", {}).get("messageId"), 900, "host resumes item branch")
 	_expect_equal(host_completions.size(), 1, "host completes item possession branch")
+	host.queue_free()
+
+
+func _test_take_gold_action() -> void:
+	var first = InventoryTestCharacter.new()
+	first.money = [3, 2, 0]
+	var second = InventoryTestCharacter.new()
+	second.money = [3, 2, 0]
+	var pooled_money := [3, 1, 0]
+	var gold_result: Dictionary = InventoryRulesScript.take_party_currency(
+		[first, second],
+		pooled_money,
+		0,
+		7
+	)
+	_expect(bool(gold_result.get("paid", false)), "Take Gold accepts sufficient party gold")
+	_expect_equal(gold_result.get("pooledSpent"), 3, "Take Gold spends pooled gold first")
+	_expect_equal(first.money[0], 1, "Take Gold round-robin reaches the first character")
+	_expect_equal(second.money[0], 1, "Take Gold round-robin reaches the second character")
+
+	var gem_result: Dictionary = InventoryRulesScript.take_party_currency(
+		[first, second],
+		pooled_money,
+		1,
+		4
+	)
+	_expect(bool(gem_result.get("paid", false)), "Take Gold accepts sufficient party gems")
+	_expect_equal(pooled_money[1], 0, "Take Gold spends pooled gems first")
+	_expect_equal(first.money[1], 0, "gem payment preserves round-robin party order")
+	_expect_equal(second.money[1], 1, "gem payment deducts only the requested amount")
+
+	var before_failure := [pooled_money.duplicate(), first.money.duplicate(), second.money.duplicate()]
+	var failed: Dictionary = InventoryRulesScript.take_party_currency(
+		[first, second],
+		pooled_money,
+		0,
+		99
+	)
+	_expect(not bool(failed.get("paid", true)), "Take Gold rejects insufficient wealth")
+	_expect_equal(
+		[pooled_money, first.money, second.money],
+		before_failure,
+		"failed Take Gold leaves all wealth unchanged"
+	)
+
+	var bundle = _take_gold_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("payment:success"), "begin successful Take Gold fixture")
+	interpreter.run_until_yield()
+	var command: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(command.get("command"), "take_party_wealth", "opcode 33 requests native payment")
+	_expect_equal(command.get("payload", {}).get("currency"), 0, "positive amount requests gold")
+	_expect_equal(command.get("payload", {}).get("amount"), 7, "payment preserves authored amount")
+	var success_branch: Dictionary = interpreter.resume_wealth_payment(true)
+	_expect_equal(
+		success_branch.get("payload", {}).get("messageId"),
+		901,
+		"successful payment follows its authored result branch"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("payment:success")
+	interpreter.run_until_yield()
+	interpreter.resume_encounter(1)
+	var success_fallthrough: Dictionary = interpreter.resume_wealth_payment(false)
+	_expect_equal(
+		success_fallthrough.get("payload", {}).get("messageId"),
+		900,
+		"failed payment falls through when success was required"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("payment:failure")
+	interpreter.run_until_yield()
+	interpreter.resume_encounter(1)
+	var failure_branch: Dictionary = interpreter.resume_wealth_payment(false)
+	_expect_equal(
+		failure_branch.get("payload", {}).get("messageId"),
+		911,
+		"failed payment follows its authored failure branch"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("payment:force")
+	interpreter.run_until_yield()
+	interpreter.resume_encounter(1)
+	var forced_branch: Dictionary = interpreter.resume_wealth_payment(false)
+	_expect_equal(
+		forced_branch.get("payload", {}).get("messageId"),
+		941,
+		"forced payment branch ignores the payment result"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("payment:skip")
+	interpreter.run_until_yield()
+	interpreter.resume_encounter(1)
+	var skipped: Dictionary = interpreter.resume_wealth_payment(false)
+	_expect_equal(
+		skipped.get("payload", {}).get("messageId"),
+		927,
+		"special payment failure resumes at the eighth action slot"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("payment:gems")
+	interpreter.run_until_yield()
+	var gem_command: Dictionary = interpreter.resume_encounter(1)
+	_expect_equal(gem_command.get("payload", {}).get("currency"), 1, "negative amount requests gems")
+	_expect_equal(gem_command.get("payload", {}).get("amount"), 4, "gem amount is normalized")
+
+	var host = HostScript.new()
+	get_root().add_child(host)
+	var adapter = WealthTestAdapter.new()
+	host.configure(adapter)
+	host.runtime.bundle = bundle
+	host.runtime.runtime_state = StateScript.new()
+	host.runtime.runtime_state.configure_from_bundle(bundle)
+	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
+	var host_completions: Array = []
+	host.playthrough_completed.connect(func(result: Dictionary) -> void: host_completions.append(result))
+	_expect(host.start_trigger("payment:success"), "runtime host starts Take Gold fixture")
+	_expect_equal(adapter.commands[1].get("command"), "take_party_wealth", "host dispatches payment")
+	_expect_equal(adapter.commands[2].get("payload", {}).get("messageId"), 901, "host resumes payment branch")
+	_expect_equal(host_completions.size(), 1, "host completes Take Gold branch")
 	host.queue_free()
 
 
@@ -3906,7 +4046,7 @@ func _test_full_bundle(path: String) -> void:
 	)
 	_expect_equal(
 		execution_totals.get("unknownExecutable"),
-		15,
+		8,
 		"full CoB audit inventories every unsupported encounter-result action"
 	)
 
@@ -4635,6 +4775,94 @@ func _execution_audit_test_bundle():
 		"prompt": 0,
 	}
 	bundle.dispatcher_noop_keys["Data ED2:2:1:200"] = true
+	return bundle
+
+
+func _take_gold_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	for message_id: int in [
+		900, 901, 907,
+		910, 911, 917,
+		920, 921, 927,
+		930, 931, 937,
+		940, 941, 947,
+	]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Payment test %d" % message_id,
+		}
+	var specifications := [
+		{
+			"triggerId": "payment:success",
+			"encounterId": 0,
+			"extraCodeId": 100,
+			"values": [7, 1, 1, 1, 0],
+			"fallthroughText": 900,
+			"branchText": 901,
+			"lastSlotText": 907,
+		},
+		{
+			"triggerId": "payment:failure",
+			"encounterId": 1,
+			"extraCodeId": 101,
+			"values": [7, 0, 1, 1, 0],
+			"fallthroughText": 910,
+			"branchText": 911,
+			"lastSlotText": 917,
+		},
+		{
+			"triggerId": "payment:skip",
+			"encounterId": 2,
+			"extraCodeId": 102,
+			"values": [7, -1, 0, 0, 0],
+			"fallthroughText": 920,
+			"branchText": 921,
+			"lastSlotText": 927,
+		},
+		{
+			"triggerId": "payment:gems",
+			"encounterId": 3,
+			"extraCodeId": 103,
+			"values": [-4, 1, 1, 1, 0],
+			"fallthroughText": 930,
+			"branchText": 931,
+			"lastSlotText": 937,
+		},
+		{
+			"triggerId": "payment:force",
+			"encounterId": 4,
+			"extraCodeId": 104,
+			"values": [7, 2, 1, 1, 0],
+			"fallthroughText": 940,
+			"branchText": 941,
+			"lastSlotText": 947,
+		},
+	]
+	for specification: Dictionary in specifications:
+		var encounter_id := int(specification["encounterId"])
+		var extra_code_id := int(specification["extraCodeId"])
+		bundle.extra_codes_by_id[extra_code_id] = {
+			"id": extra_code_id,
+			"values": specification["values"],
+		}
+		bundle.simple_encounters_by_id[encounter_id] = {
+			"id": encounter_id,
+			"prompt": 0,
+			"maxTimes": 1,
+			"actions": [
+				_classic_action(0, 33, extra_code_id),
+				_classic_action(1, 1, int(specification["fallthroughText"])),
+				_classic_action(7, 1, int(specification["lastSlotText"])),
+				_classic_action(8, 1, int(specification["branchText"])),
+			],
+		}
+		_add_stack_trigger(
+			bundle,
+			str(specification["triggerId"]),
+			-1,
+			[_classic_action(0, 4, encounter_id)]
+		)
 	return bundle
 
 

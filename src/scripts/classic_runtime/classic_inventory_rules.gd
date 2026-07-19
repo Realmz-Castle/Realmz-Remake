@@ -1,6 +1,56 @@
 extends RefCounted
 
 
+static func take_party_currency(
+	party: Array,
+	pooled_money: Array,
+	currency: int,
+	amount: int
+) -> Dictionary:
+	if not [0, 1].has(currency):
+		return _error("Classic payment currency %d is invalid" % currency)
+	if amount < 0:
+		return _error("Classic payment amount cannot be negative")
+	var validation := _validate_party_wealth(party, pooled_money)
+	if not validation.is_empty():
+		return validation
+	# Check affordability before changing any balance so failure stays atomic.
+	var available := int(pooled_money[currency])
+	for character_value: Variant in party:
+		var money: Array = character_value.get("money")
+		available += int(money[currency])
+	if available < amount:
+		return {
+			"paid": false,
+			"currency": currency,
+			"amount": amount,
+			"available": available,
+		}
+
+	var remaining := amount
+	var pooled_spent: int = min(int(pooled_money[currency]), remaining)
+	pooled_money[currency] -= pooled_spent
+	remaining -= pooled_spent
+	var carried_spent := 0
+	var character_index := 0
+	# Classic drains carried currency one unit at a time in party order.
+	while remaining > 0:
+		var character: Object = party[character_index]
+		var money: Array = character.get("money")
+		if int(money[currency]) > 0:
+			money[currency] -= 1
+			remaining -= 1
+			carried_spent += 1
+		character_index = (character_index + 1) % party.size()
+	return {
+		"paid": true,
+		"currency": currency,
+		"amount": amount,
+		"pooledSpent": pooled_spent,
+		"carriedSpent": carried_spent,
+	}
+
+
 static func party_has_named_item(party: Array, item_names: Array) -> bool:
 	var names := _normalized_names(item_names)
 	for character_value: Variant in party:
@@ -223,6 +273,20 @@ static func _validate_party_storage(party: Array, pooled_money: Array) -> Dictio
 			return _error("Classic equipment storage target has invalid wealth")
 		if not character_value.has_method("get_stat"):
 			return _error("Classic equipment storage target has no carrying limit")
+	return {}
+
+
+static func _validate_party_wealth(party: Array, pooled_money: Array) -> Dictionary:
+	if pooled_money.size() < 2:
+		return _error("Classic payment requires pooled gold and gems")
+	if party.is_empty():
+		return _error("Classic payment requires at least one party member")
+	for character_value: Variant in party:
+		if not (character_value is Object):
+			return _error("Classic payment target is not a character")
+		var money: Variant = character_value.get("money")
+		if not (money is Array) or money.size() < 2:
+			return _error("Classic payment target has invalid wealth")
 	return {}
 
 

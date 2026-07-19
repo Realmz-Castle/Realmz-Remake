@@ -40,6 +40,7 @@ Implemented opcodes in this slice:
 - `29` Acquire a player map and optionally display it
 - `30` Pick characters by an attribute or special-ability check
 - `32` Make Classic temple services available at the authored prices
+- `33` Take pooled and carried gold or gems, then follow the authored result branch
 - `35` Eliminate and persist an option in the current simple encounter
 - `36` Capture or restore party equipment and wealth
 - `37` Move between land and dungeon maps with Classic heading/view state
@@ -94,6 +95,13 @@ Opcodes `6` and `73` convert Classic's five fixed 200-slot stock categories into
 
 Opcode `32` exposes Classic's nine temple services through Remake's native temple menu. The authored value is a percentage applied to Classic's base prices, including City of Bywater's standard 100-percent temple and its 300-percent hostile temple. Service payments combine pooled and selected-character gold and spend the pool first, matching Classic. Opcode `49` enables the native bank until movement and preserves the source sound and built-in warning IDs. Remake does not yet reproduce Classic's automatic transfer of banked wealth into the temple pool while both services are available.
 
+Opcode `33` charges gold for a positive authored amount or gems for a negative
+amount. It spends the matching pooled currency first, then removes carried units
+round-robin in party order. An insufficient party total leaves every balance
+unchanged before the interpreter applies the authored failure branch. City of
+Bywater's seven uses all charge gold; focused fixtures also preserve the source's
+gem form and its special failure continuation at the eighth result slot.
+
 Opcodes `21` and `38` check all party inventories, including worn items, and resume the interpreter through their authored branch or fallthrough. Opcode `22` walks characters and inventory slots in party order, limits the number of matches, and can remove an item, add a signed charge value, or replace it from a fresh native template. Replacement resets identification and attempts to restore the prior worn state. Opcode `36` captures every inventory, worn state, and wealth type into adapter-local storage, then restores the original possessions and offers anything acquired in the interim through Remake's treasure UI. Repeated capture or restore actions are harmless when storage is already in the requested state. These commands stop explicitly when a scenario item ID has no shared mapping or exported item name; equipment captured by opcode `36` also needs save integration before it can survive a normal saved-game round trip.
 
 Opcode `16` rolls its inclusive Extra Code range separately for each party member, multiplies each result by the authored signed value, and applies the resulting damage or healing through Remake's normal character health method. Its optional sound and message use the existing adapter paths. The standalone City of Bywater macro at `Data ED3:macro:142` provides a deterministic one-point party-damage proof.
@@ -131,14 +139,14 @@ The complex-encounter adapter exposes the eight Classic action-text fields throu
 Against the checked City of Bywater compatibility baseline, these handlers cover 2,264 of 2,734 active action slots. The other 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined interpreter behavior for all 2,734 active trigger action slots. This is a semantic coverage measurement, not a playability percentage: native command adapters, resource bridges, campaign integration, and some encounter-result paths remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
 
 The execution audit deliberately reports result rows and combat macro roots
-separately from that trigger baseline. In the checked vertical fixture it exposes
-four Data ED uses of opcode `33` (Take Gold) and one Data ED use of opcode `43`
-(Give Condition) as executable unknowns. The full City of Bywater artifact expands
-that inventory to 15 actions: seven Take Gold, two Give Condition, four Selective
-Combat (`48`), and two Alter Time Encounter (`54`). Each produces a record-and-slot
-readiness diagnostic, and selecting one stops the interpreter with the same context
-instead of silently skipping it. Implementing their native effects is follow-up
-compatibility work; their discovery does not revise the 2,734-trigger claim.
+separately from that trigger baseline. Its initial full City of Bywater inventory
+found 15 actions in four missing result handlers. Opcode `33` now covers all seven
+Take Gold uses, leaving eight executable unknowns: two Give Condition (`43`), four
+Selective Combat (`48`), and two Alter Time Encounter (`54`). The checked vertical
+fixture now has only its one Give Condition use. Each remaining unknown produces a
+record-and-slot readiness diagnostic, and selecting one stops the interpreter with
+the same context instead of silently skipping it. This result-path inventory does
+not revise the 2,734-trigger claim.
 
 The [compatibility gap register](COMPATIBILITY_GAPS.md) tracks required integration work and recommended fidelity improvements separately from opcode coverage.
 

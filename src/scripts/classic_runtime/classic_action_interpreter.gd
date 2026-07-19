@@ -9,7 +9,7 @@ const HANDLED_OPCODES := [
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-	30, 32, 34, 35, 36, 37, 38, 39,
+	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 44, 45, 46, 47, 49,
 	52, 56, 57, 58,
 	73, 82, 83, 85, 87, 89,
@@ -49,6 +49,7 @@ var pending_choice: Dictionary = {}
 var pending_encounter: Dictionary = {}
 var pending_battle: Dictionary = {}
 var pending_item_check: Dictionary = {}
+var pending_wealth_payment: Dictionary = {}
 var pending_party_condition_check: Dictionary = {}
 var pending_ally_check: Dictionary = {}
 var pending_combat_monster_check: Dictionary = {}
@@ -98,6 +99,7 @@ func reset_execution() -> void:
 	pending_encounter.clear()
 	pending_battle.clear()
 	pending_item_check.clear()
+	pending_wealth_payment.clear()
 	pending_party_condition_check.clear()
 	pending_ally_check.clear()
 	pending_combat_monster_check.clear()
@@ -145,6 +147,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic battle outcome must be resumed before execution can continue")
 	if not pending_item_check.is_empty():
 		return _error_result("A classic item check must be resumed before execution can continue")
+	if not pending_wealth_payment.is_empty():
+		return _error_result("A classic wealth payment must be resumed before execution can continue")
 	if not pending_party_condition_check.is_empty():
 		return _error_result("A classic party-condition check must be resumed before execution can continue")
 	if not pending_ally_check.is_empty():
@@ -350,6 +354,27 @@ func resume_item_check(possessed: bool) -> Dictionary:
 			return _halt_with_error("Classic item check has an invalid continuation")
 
 
+func resume_wealth_payment(paid: bool) -> Dictionary:
+	if pending_wealth_payment.is_empty():
+		return _error_result("No classic wealth payment is waiting for a response")
+	var payment := pending_wealth_payment
+	pending_wealth_payment = {}
+	var values: Array = payment["values"]
+	if not paid and int(values[1]) == -1:
+		_set_cursor(current_trigger, 7)
+		return run_until_yield()
+	var test_mode := int(values[1])
+	var should_branch := test_mode == 2 \
+		or (test_mode == 0 and not paid) \
+		or (test_mode == 1 and paid)
+	if not should_branch:
+		return run_until_yield()
+	var branch_result := _branch_from_extra_code(values, false)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
+
+
 func resume_party_condition_check(active: bool) -> Dictionary:
 	if pending_party_condition_check.is_empty():
 		return _error_result("No classic party-condition check is waiting for a response")
@@ -506,6 +531,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"costPercent": record_id,
 				"soundId": 10105,
 			})
+		33:
+			return _execute_take_gold(record_id)
 		34:
 			return _break_encounter()
 		35:
@@ -626,6 +653,25 @@ func _execute_combat_monster_check(monster_id: int) -> Dictionary:
 	return _yield_result("check_combat_monster", {
 		"monsterId": abs(monster_id),
 		"monster": monster,
+	})
+
+
+func _execute_take_gold(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Take Gold action references missing Extra Code row %d" % extra_code_id
+		)
+	var authored_amount := int(values[0])
+	pending_wealth_payment = {
+		"extraCodeId": extra_code_id,
+		"values": values,
+	}
+	return _yield_result("take_party_wealth", {
+		"extraCodeId": extra_code_id,
+		"currency": 0 if authored_amount > 0 else 1,
+		"amount": abs(authored_amount),
+		"warningId": 50,
 	})
 
 
