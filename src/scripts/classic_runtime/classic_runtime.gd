@@ -96,6 +96,10 @@ func finish_ally_check(present: bool) -> void:
 	_publish(interpreter.resume_ally_check(present))
 
 
+func finish_combat_monster_check(present: bool) -> void:
+	_publish(interpreter.resume_combat_monster_check(present))
+
+
 func finish_random_branch_presentation() -> void:
 	_publish(interpreter.resume_random_branch())
 

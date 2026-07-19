@@ -89,6 +89,11 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Ally-check adapter response is missing 'present'", command)
 				return
 			runtime.finish_ally_check(bool(response["present"]))
+		"check_combat_monster":
+			if not response.has("present"):
+				_stop_with_error("Combat-monster adapter response is missing 'present'", command)
+				return
+			runtime.finish_combat_monster_check(bool(response["present"]))
 		"present_random_branch":
 			runtime.finish_random_branch_presentation()
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \

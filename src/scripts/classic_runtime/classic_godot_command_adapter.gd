@@ -108,6 +108,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _check_party_condition(payload)
 		"check_party_ally":
 			return _check_party_ally(payload)
+		"check_combat_monster":
+			return _check_combat_monster(payload)
 		"add_party_ally":
 			return _add_classic_ally(payload)
 		"present_random_branch":
@@ -295,6 +297,63 @@ func party_has_classic_ally(payload: Dictionary, allies: Array) -> bool:
 		if not display_name.is_empty() and ally_name.to_lower() == display_name.to_lower():
 			return true
 	return false
+
+
+func _check_combat_monster(payload: Dictionary) -> Dictionary:
+	var state_machine: Object = _autoload("StateMachine")
+	if state_machine == null or not state_machine.has_method("is_combat_state"):
+		return _error("Realmz combat state is unavailable")
+	if not bool(state_machine.is_combat_state()):
+		return _error("Classic combat-monster check ran outside a battle")
+	var combat_state: Variant = state_machine.get("combat_state")
+	var combatants: Variant = combat_state.get("all_battle_creatures_btns") \
+		if combat_state is Object else null
+	if not (combatants is Array):
+		return _error("Realmz combat roster is unavailable")
+	return {"present": combat_has_classic_monster(payload, combatants)}
+
+
+func combat_has_classic_monster(payload: Dictionary, combatants: Array) -> bool:
+	var monster_id: int = abs(int(payload.get("monsterId", -1)))
+	for combatant_value: Variant in combatants:
+		var creature: Variant = combatant_value.get("creature") \
+			if combatant_value is Object or combatant_value is Dictionary else null
+		if creature == null or not _is_living_combat_creature(creature):
+			continue
+		if _classic_monster_id(creature) == monster_id:
+			return true
+	return false
+
+
+func _is_living_combat_creature(creature: Variant) -> bool:
+	if creature is Object and creature.has_method("get_stat"):
+		return int(creature.get_stat("curHP")) > 0
+	if creature is Dictionary:
+		return int(creature.get("curHP", creature.get("currentHP", 0))) > 0
+	return false
+
+
+func _classic_monster_id(creature: Variant) -> int:
+	if creature is Object:
+		if creature.has_meta("classic_monster_id"):
+			return int(creature.get_meta("classic_monster_id"))
+		return _classic_monster_id_from_name(str(creature.get("name")))
+	if creature is Dictionary:
+		if creature.has("classicMonsterId"):
+			return int(creature["classicMonsterId"])
+		if creature.has("classic_monster_id"):
+			return int(creature["classic_monster_id"])
+		return _classic_monster_id_from_name(str(creature.get("name", "")))
+	return -1
+
+
+func _classic_monster_id_from_name(creature_name: String) -> int:
+	# The existing City of Bywater bestiary keeps the Classic ID as the final
+	# word of each converted creature name, such as "Royal Guard 95".
+	var words := creature_name.strip_edges().split(" ", false)
+	if words.is_empty() or not words[-1].is_valid_int():
+		return -1
+	return int(words[-1])
 
 
 func _add_classic_ally(payload: Dictionary) -> Dictionary:

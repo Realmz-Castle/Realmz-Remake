@@ -37,6 +37,8 @@ class GuardHouseAdapter:
 			return {"active": true}
 		if command == "check_party_ally":
 			return {"present": true}
+		if command == "check_combat_monster":
+			return {"present": true}
 		return {}
 
 
@@ -99,6 +101,27 @@ class AllyTestCharacter:
 	var name := "Vodalian"
 
 
+class CombatTestCreature:
+	extends RefCounted
+	var name: String
+	var current_hp: int
+
+	func _init(creature_name: String, hp: int) -> void:
+		name = creature_name
+		current_hp = hp
+
+	func get_stat(stat_name: String) -> int:
+		return current_hp if stat_name == "curHP" else 0
+
+
+class CombatTestButton:
+	extends RefCounted
+	var creature: Variant
+
+	func _init(represented_creature: Variant) -> void:
+		creature = represented_creature
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -130,6 +153,7 @@ func _init() -> void:
 	_test_modal_picture_actions()
 	_test_party_state_actions()
 	_test_priest_turning_actions()
+	_test_combat_monster_presence_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -1722,6 +1746,68 @@ func _test_priest_turning_actions() -> void:
 	_expect(legacy_state.priest_turning_enabled, "older snapshots default priest turning to enabled")
 
 
+func _test_combat_monster_presence_action() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("combat:present"), "begin combat-monster check fixture")
+	var check: Dictionary = interpreter.run_until_yield()
+	_expect_equal(check.get("command"), "check_combat_monster", "opcode 127 yields typed check")
+	_expect_equal(check.get("payload", {}).get("monsterId"), 134, "combat check preserves monster ID")
+	_expect_equal(
+		check.get("payload", {}).get("monster", {}).get("displayName"),
+		"Rat Demi-Lord",
+		"combat check carries compiled monster identity"
+	)
+	var continued: Dictionary = interpreter.resume_combat_monster_check(true)
+	_expect_equal(continued.get("command"), "show_text", "present monster continues combat macro")
+	_expect_equal(continued.get("payload", {}).get("messageId"), 920, "present monster reaches next action")
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:present")
+	interpreter.run_until_yield()
+	var stopped: Dictionary = interpreter.resume_combat_monster_check(false)
+	_expect_equal(stopped.get("status"), "completed", "absent monster stops combat macro")
+	_expect_equal(
+		stopped.get("reason"),
+		"required-combat-monster-absent",
+		"absent-monster completion is explicit"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var metadata_creature := CombatTestCreature.new("Imported enemy", 12)
+	metadata_creature.set_meta("classic_monster_id", 134)
+	var named_creature := CombatTestCreature.new("Rat Demi-Lord 134", 12)
+	var dead_creature := CombatTestCreature.new("Rat Demi-Lord 134", 0)
+	_expect(
+		adapter.combat_has_classic_monster(
+			{"monsterId": 134},
+			[CombatTestButton.new(metadata_creature)]
+		),
+		"combat roster resolves explicit Classic metadata"
+	)
+	_expect(
+		adapter.combat_has_classic_monster(
+			{"monsterId": 134},
+			[CombatTestButton.new(named_creature)]
+		),
+		"combat roster resolves current CoB bestiary suffixes"
+	)
+	_expect(
+		not adapter.combat_has_classic_monster(
+			{"monsterId": 134},
+			[CombatTestButton.new(dead_creature)]
+		),
+		"combat roster ignores defeated matching monsters"
+	)
+	_expect(
+		adapter.combat_has_classic_monster(
+			{"monsterId": 134},
+			[{"creature": {"classicMonsterId": 134, "curHP": 1}}]
+		),
+		"combat roster accepts converted dictionary metadata"
+	)
+
+
 func _test_action_point_copy_mutations(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin CoB same-door action")
@@ -3075,6 +3161,7 @@ func _test_full_bundle(path: String) -> void:
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
 		93, 94, 95, 96, 97, 98, 106, 111, 112,
+		127,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -3086,8 +3173,32 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2224, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2694, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2229, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2699, "full CoB defined-behavior slots")
+
+	for shipped_monster_check: Array in [
+		["Data ED3:macro:121", 441],
+		["Data ED3:macro:131", 31],
+		["Data ED3:macro:135", 439],
+		["Data ED3:macro:138", 400],
+		["Data ED3:macro:94", 134],
+	]:
+		var combat_interpreter = _interpreter(bundle)
+		_expect(
+			combat_interpreter.begin_trigger(shipped_monster_check[0]),
+			"begin shipped CoB combat-monster check %s" % shipped_monster_check[0]
+		)
+		var combat_check: Dictionary = combat_interpreter.run_until_yield()
+		_expect_equal(
+			combat_check.get("command"),
+			"check_combat_monster",
+			"shipped opcode 127 yields typed check"
+		)
+		_expect_equal(
+			combat_check.get("payload", {}).get("monsterId"),
+			shipped_monster_check[1],
+			"shipped combat check preserves monster ID"
+		)
 
 	for shipped_priest_turning: Array in [
 		[
@@ -3629,6 +3740,18 @@ func _party_state_test_bundle():
 	}
 	for message_id: int in [901, 902, 903, 904, 905, 910, 911, 912]:
 		bundle.messages_by_id[message_id] = {"id": message_id, "text": "Message %d" % message_id}
+	return bundle
+
+
+func _combat_monster_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.monsters_by_id[134] = {"id": 134, "displayName": "Rat Demi-Lord"}
+	bundle.messages_by_id[920] = {"id": 920, "text": "The fight continues."}
+	_add_stack_trigger(bundle, "combat:present", -1, [
+		_classic_action(0, 127, 134),
+		_classic_action(1, 1, 920),
+	])
 	return bundle
 
 

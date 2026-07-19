@@ -38,6 +38,7 @@ var pending_battle: Dictionary = {}
 var pending_item_check: Dictionary = {}
 var pending_party_condition_check: Dictionary = {}
 var pending_ally_check: Dictionary = {}
+var pending_combat_monster_check: Dictionary = {}
 var pending_random_branch: Dictionary = {}
 var encounter_origins: Array = []
 var loaded_simple_encounter_id := -1
@@ -76,6 +77,7 @@ func reset_execution() -> void:
 	pending_item_check.clear()
 	pending_party_condition_check.clear()
 	pending_ally_check.clear()
+	pending_combat_monster_check.clear()
 	pending_random_branch.clear()
 	encounter_origins.clear()
 	trace.clear()
@@ -118,6 +120,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic party-condition check must be resumed before execution can continue")
 	if not pending_ally_check.is_empty():
 		return _error_result("A classic ally check must be resumed before execution can continue")
+	if not pending_combat_monster_check.is_empty():
+		return _error_result("A classic combat-monster check must be resumed before execution can continue")
 	if not pending_random_branch.is_empty():
 		return _error_result("A classic random branch presentation must finish before execution can continue")
 
@@ -359,6 +363,16 @@ func resume_ally_check(present: bool) -> Dictionary:
 			)
 
 
+func resume_combat_monster_check(present: bool) -> Dictionary:
+	if pending_combat_monster_check.is_empty():
+		return _error_result("No classic combat-monster check is waiting for a response")
+	pending_combat_monster_check.clear()
+	if present:
+		return run_until_yield()
+	_clear_control_flow()
+	return _completed_result("required-combat-monster-absent")
+
+
 func resume_random_branch() -> Dictionary:
 	if pending_random_branch.is_empty():
 		return _error_result("No classic random branch is waiting for presentation")
@@ -521,6 +535,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			if not call_stack.is_empty():
 				call_stack.pop_back()
 			return _continue_result()
+		127:
+			return _execute_combat_monster_check(record_id)
 		_:
 			if bundle.is_dispatcher_noop(current_trigger, action):
 				return _continue_result()
@@ -531,6 +547,15 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"action": action,
 				"triggerId": _current_trigger_id(),
 			}
+
+
+func _execute_combat_monster_check(monster_id: int) -> Dictionary:
+	var monster := bundle.get_monster(monster_id)
+	pending_combat_monster_check = {"monsterId": abs(monster_id)}
+	return _yield_result("check_combat_monster", {
+		"monsterId": abs(monster_id),
+		"monster": monster,
+	})
 
 
 func _execute_load_shop(signed_shop_id: int, accept_ranges: Array = []) -> Dictionary:
