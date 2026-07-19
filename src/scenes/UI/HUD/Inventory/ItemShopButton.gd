@@ -87,6 +87,9 @@ func update_display() -> void :
 func _get_drag_data(_pos):
 	if inventoryrect==null :
 		return
+	if not GameGlobal.current_shop_accepts_item(item) :
+		GameGlobal.play_sfx("target error.wav")
+		return
 	var itemprice = int( item["price"] * GameGlobal.get_shop(GameGlobal.currentShop)["sell_rate"] )
 	var customer = inventoryrect.inventoryScrollRight.get_inventory_owner()
 	print(itemprice ,"<>", customer.money[0], '+', GameGlobal.money_pool[0])

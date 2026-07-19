@@ -7,6 +7,7 @@ const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const GameGlobalScript = preload("res://scripts/GameGlobal.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
@@ -1334,6 +1335,12 @@ func _test_shop_actions() -> void:
 		"itemId": 675,
 		"identifiedName": "Quiver of Protection +2",
 	}
+	bundle.item_texts_by_id[617] = {
+		"itemId": 617,
+		"identifiedName": "Yellow Luck Stone +3",
+	}
+	bundle.extra_codes_by_id[7] = {"values": [-2, 1, 10, 600, 700]}
+	bundle.extra_codes_by_id[8] = {"values": [2, 1, 100, 0, 0]}
 	_add_stack_trigger(bundle, "shop:available", -1, [
 		_classic_action(0, 6, 2),
 		_classic_action(7, 24, 0),
@@ -1343,6 +1350,12 @@ func _test_shop_actions() -> void:
 		_classic_action(7, 24, 0),
 	])
 	_add_stack_trigger(bundle, "shop:missing", -1, [_classic_action(0, 6, 3)])
+	_add_stack_trigger(bundle, "shop:restricted", -1, [
+		_classic_action(0, 73, 7),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "shop:single-range", -1, [_classic_action(0, 73, 8)])
+	_add_stack_trigger(bundle, "shop:missing-ranges", -1, [_classic_action(0, 73, 9)])
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("shop:available"), "begin available-shop action")
@@ -1368,21 +1381,54 @@ func _test_shop_actions() -> void:
 	_expect(interpreter.begin_trigger("shop:missing"), "begin missing-shop action")
 	_expect_equal(interpreter.run_until_yield().get("status"), "error", "missing shop stops safely")
 
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("shop:restricted"), "begin restricted-shop action")
+	var restricted_result: Dictionary = interpreter.run_until_yield()
+	var restricted_payload: Dictionary = restricted_result.get("payload", {})
+	_expect_equal(restricted_result.get("command"), "load_shop", "restricted shop uses shop command")
+	_expect_equal(restricted_payload.get("shopId"), 2, "restricted shop resolves Extra Code shop ID")
+	_expect_equal(restricted_payload.get("openImmediately"), true, "signed Extra Code shop ID opens")
+	_expect_equal(
+		restricted_payload.get("acceptRanges"),
+		[1, 10, 600, 700],
+		"restricted shop carries both inclusive ranges"
+	)
+	_expect_equal(
+		restricted_payload.get("itemTexts", []).size(),
+		2,
+		"restricted shop carries scenario item identities beyond its stock"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("shop:single-range"), "begin single-range shop action")
+	var single_range_payload: Dictionary = interpreter.run_until_yield().get("payload", {})
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("shop:missing-ranges"), "begin missing restricted-shop row")
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"error",
+		"missing restricted-shop Extra Code stops safely"
+	)
+
+	var item_mapping := {
+		1: "Dagger",
+		209: "Leather Armor",
+		418: "Leather Cap",
+		803: "Quiver of Arrows",
+	}
+	var available_items := {
+		"Dagger": {},
+		"Leather Armor": {},
+		"Leather Cap": {},
+		"Yellow Luck Stone +3": {},
+		"Quiver of Protection +2": {},
+		"Quiver of Arrows": {},
+	}
 	var built: Dictionary = GodotAdapterScript.new().build_shop_inventory(
 		available_payload,
-		{
-			1: "Dagger",
-			209: "Leather Armor",
-			418: "Leather Cap",
-			803: "Quiver of Arrows",
-		},
-		{
-			"Dagger": {},
-			"Leather Armor": {},
-			"Leather Cap": {},
-			"Quiver of Protection +2": {},
-			"Quiver of Arrows": {},
-		}
+		item_mapping,
+		available_items
 	)
 	var native_shop: Dictionary = built.get("shop", {})
 	_expect_equal(native_shop.get("sell_rate"), 0.95, "shop inflation sets purchase rate")
@@ -1397,6 +1443,52 @@ func _test_shop_actions() -> void:
 	)
 	_expect_equal(native_shop.get("Supplies"), [["Quiver of Arrows", 4, -1]], "supplies map by slot")
 	_expect_equal(built.get("itemCount"), 11, "shop reports total stock quantity")
+
+	var restricted_built: Dictionary = GodotAdapterScript.new().build_shop_inventory(
+		restricted_payload,
+		item_mapping,
+		available_items
+	)
+	var restricted_shop: Dictionary = restricted_built.get("shop", {})
+	_expect_equal(
+		restricted_shop.get("classic_accept_ranges"),
+		[1, 10, 600, 700],
+		"native shop retains Classic range evidence"
+	)
+	var accepted_item_names: Array = restricted_shop.get("accepted_item_names", {}).keys()
+	accepted_item_names.sort()
+	_expect_equal(
+		accepted_item_names,
+		["Dagger", "Quiver of Protection +2", "Yellow Luck Stone +3"],
+		"native shop resolves both accepted ranges to available item identities"
+	)
+	var shop_rules = GameGlobalScript.new()
+	shop_rules.currentShop = "restricted"
+	shop_rules.shops_dict = {"restricted": restricted_shop}
+	_expect(shop_rules.current_shop_accepts_item({"name": "Dagger"}), "restricted shop accepts range-one item")
+	_expect(
+		shop_rules.current_shop_accepts_item({"name": "Yellow Luck Stone +3"}),
+		"restricted shop accepts scenario item in range two"
+	)
+	_expect(
+		not shop_rules.current_shop_accepts_item({"name": "Leather Armor"}),
+		"restricted shop rejects item outside both ranges"
+	)
+	var single_range_built: Dictionary = GodotAdapterScript.new().build_shop_inventory(
+		single_range_payload,
+		item_mapping,
+		available_items
+	)
+	_expect(
+		not single_range_built.get("shop", {}).has("accepted_item_names"),
+		"one populated range preserves Classic's unrestricted transfer result"
+	)
+	shop_rules.currentShop = "single"
+	shop_rules.shops_dict = {"single": single_range_built.get("shop", {})}
+	_expect(
+		shop_rules.current_shop_accepts_item({"name": "Leather Armor"}),
+		"single-range Classic shop remains unrestricted"
+	)
 	var alias_items: Array = []
 	var alias_quantities: Array = []
 	alias_items.resize(612)
@@ -2341,7 +2433,7 @@ func _test_full_bundle(path: String) -> void:
 	var handled_codes := [
 		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
 		24, 25, 29, 30, 35, 37,
-		39, 41, 42, 44, 45, 46, 47, 52, 56, 57, 58, 93, 94, 95, 96, 97, 106, 111, 112,
+		39, 41, 42, 44, 45, 46, 47, 52, 56, 57, 58, 73, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -2353,8 +2445,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2194, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2664, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2196, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2666, "full CoB defined-behavior slots")
 
 	for shipped_shop: Array in [
 		["Data DD:0:9", 2, 1],
@@ -2375,6 +2467,37 @@ func _test_full_bundle(path: String) -> void:
 			shipped_shop[2],
 			"shipped shop record resolves"
 		)
+	var restricted_shop_interpreter = _interpreter(bundle)
+	_expect(
+		restricted_shop_interpreter.begin_trigger("Data ED3:macro:174", 5),
+		"begin shipped CoB restricted-shop data row"
+	)
+	var restricted_shop_result: Dictionary = restricted_shop_interpreter.run_until_yield()
+	_expect_equal(
+		restricted_shop_result.get("command"),
+		"load_shop",
+		"shipped restricted-shop row yields typed command"
+	)
+	_expect_equal(
+		restricted_shop_result.get("payload", {}).get("shopId"),
+		1,
+		"restricted shop resolves shop ID through Extra Code"
+	)
+	_expect_equal(
+		restricted_shop_result.get("payload", {}).get("acceptRanges"),
+		[1, 100, 0, 0],
+		"restricted shop preserves shipped acceptance ranges"
+	)
+	var malformed_shop_interpreter = _interpreter(bundle)
+	_expect(
+		malformed_shop_interpreter.begin_trigger("Data ED3:macro:174", 3),
+		"begin unresolved CoB restricted-shop row"
+	)
+	_expect_equal(
+		malformed_shop_interpreter.run_until_yield().get("status"),
+		"error",
+		"missing restricted-shop Extra Code remains an explicit data error"
+	)
 	var first_shop: Dictionary = bundle.get_shop(1)
 	_expect_equal(
 		first_shop.get("quantities", [])[0],

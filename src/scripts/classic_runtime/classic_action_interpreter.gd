@@ -307,6 +307,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_landlook(record_id)
 		58:
 			return _execute_difficulty_branch(record_id)
+		73:
+			return _execute_restricted_shop(record_id)
 		93, 94:
 			return _execute_compass(code == 93)
 		95:
@@ -339,28 +341,47 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			}
 
 
-func _execute_load_shop(signed_shop_id: int) -> Dictionary:
+func _execute_load_shop(signed_shop_id: int, accept_ranges: Array = []) -> Dictionary:
 	var shop_id: int = abs(signed_shop_id)
 	var shop: Dictionary = bundle.get_shop(shop_id)
 	if shop.is_empty():
 		return _halt_with_error("Shop action references missing shop %d" % shop_id)
 	var item_texts: Array = []
-	var seen_item_ids: Dictionary = {}
-	for item_id_value: Variant in shop.get("itemIds", []):
-		var item_id: int = abs(int(item_id_value))
-		if item_id == 0 or seen_item_ids.has(item_id):
-			continue
-		seen_item_ids[item_id] = true
-		var item_text: Dictionary = bundle.get_item_text(item_id)
-		if not item_text.is_empty():
-			item_texts.append(item_text)
+	if accept_ranges.is_empty():
+		var seen_item_ids: Dictionary = {}
+		for item_id_value: Variant in shop.get("itemIds", []):
+			var item_id: int = abs(int(item_id_value))
+			if item_id == 0 or seen_item_ids.has(item_id):
+				continue
+			seen_item_ids[item_id] = true
+			var item_text: Dictionary = bundle.get_item_text(item_id)
+			if not item_text.is_empty():
+				item_texts.append(item_text)
+	else:
+		item_texts.assign(bundle.item_texts_by_id.values())
+	var shop_accept_ranges := [0, 0, 0, 0] if accept_ranges.is_empty() \
+		else accept_ranges.duplicate()
 	return _yield_result("load_shop", {
 		"shopId": shop_id,
 		"shop": shop,
 		"itemTexts": item_texts,
 		"openImmediately": signed_shop_id < 0,
-		"acceptRanges": [0, 0, 0, 0],
+		"acceptRanges": shop_accept_ranges,
 	})
+
+
+func _execute_restricted_shop(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Restricted shop action references missing Extra Code row %d" % extra_code_id
+		)
+	return _execute_load_shop(int(values[0]), [
+		int(values[1]),
+		int(values[2]),
+		int(values[3]),
+		int(values[4]),
+	])
 
 
 func _execute_battle(extra_code_id: int) -> Dictionary:

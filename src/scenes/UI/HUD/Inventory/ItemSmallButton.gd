@@ -145,6 +145,8 @@ func _can_drop_data(_pos, data):
 #				return data[0]["tradeable"]==1
 		else : 
 			if characteritemcamefrom == "Shop" :
+				if not GameGlobal.current_shop_accepts_item(data[0]) :
+					return false
 				var shop = GameGlobal.get_shop(GameGlobal.currentShop)
 				var price = int(data[0]["price"]*shop["sell_rate"])
 				return mycharacter.can_add_inventory_item(data[0]) and  mycharacter.money[0]+GameGlobal.money_pool[0]>=price # check for money first

@@ -898,6 +898,12 @@ func build_shop_inventory(
 
 	var item_texts_value: Variant = payload.get("itemTexts", [])
 	var item_texts: Array = item_texts_value if item_texts_value is Array else []
+	var accept_ranges_value: Variant = payload.get("acceptRanges", [0, 0, 0, 0])
+	if not (accept_ranges_value is Array) or accept_ranges_value.size() != 4:
+		return _error("Classic shop acceptance ranges must contain four values")
+	var accept_ranges: Array[int] = []
+	for range_value: Variant in accept_ranges_value:
+		accept_ranges.append(int(range_value))
 	var categories := {
 		"Weapons": [],
 		"Armor": [],
@@ -930,19 +936,73 @@ func build_shop_inventory(
 	var inflation := int(shop.get("inflation", 100))
 	if inflation < 0:
 		return _error("Classic shop inflation cannot be negative")
+	var native_shop := {
+		"buy_rate": minf(float(inflation), 100.0) / 100.0,
+		"sell_rate": float(inflation) / 100.0,
+		"Weapons": categories["Weapons"],
+		"Armor": categories["Armor"],
+		"Limbs": categories["Limbs"],
+		"Magic": categories["Magic"],
+		"Supplies": categories["Supplies"],
+		"BuyBack": categories["BuyBack"],
+	}
+	if accept_ranges[0] != 0 or accept_ranges[2] != 0:
+		native_shop["classic_accept_ranges"] = accept_ranges
+	if _classic_shop_restriction_is_effective(accept_ranges):
+		native_shop["accepted_item_names"] = _accepted_classic_shop_item_names(
+			accept_ranges,
+			item_id_mapping,
+			item_texts,
+			available_items
+		)
 	return {
-		"shop": {
-			"buy_rate": minf(float(inflation), 100.0) / 100.0,
-			"sell_rate": float(inflation) / 100.0,
-			"Weapons": categories["Weapons"],
-			"Armor": categories["Armor"],
-			"Limbs": categories["Limbs"],
-			"Magic": categories["Magic"],
-			"Supplies": categories["Supplies"],
-			"BuyBack": categories["BuyBack"],
-		},
+		"shop": native_shop,
 		"itemCount": item_count,
 	}
+
+
+func _classic_shop_restriction_is_effective(accept_ranges: Array[int]) -> bool:
+	# Classic rejects an item only after it misses both configured ranges. A
+	# single populated range therefore retains the original unrestricted result.
+	return accept_ranges[0] != 0 and accept_ranges[2] != 0
+
+
+func classic_shop_accepts_item_id(item_id: int, accept_ranges: Array[int]) -> bool:
+	var rejected_ranges := 0
+	for range_index: int in [0, 2]:
+		var low := accept_ranges[range_index]
+		if low == 0:
+			continue
+		var high := accept_ranges[range_index + 1]
+		if item_id < low or item_id > high:
+			rejected_ranges += 1
+	return rejected_ranges != 2
+
+
+func _accepted_classic_shop_item_names(
+	accept_ranges: Array[int],
+	item_id_mapping: Dictionary,
+	item_texts: Array,
+	available_items: Dictionary
+) -> Dictionary:
+	var candidate_ids: Dictionary = {}
+	for item_id_value: Variant in item_id_mapping.keys():
+		candidate_ids[abs(int(item_id_value))] = true
+	for item_id_value: Variant in CLASSIC_SHARED_ITEM_ALIASES.keys():
+		candidate_ids[abs(int(item_id_value))] = true
+	for item_text_value: Variant in item_texts:
+		if item_text_value is Dictionary:
+			candidate_ids[abs(int(item_text_value.get("itemId", 0)))] = true
+
+	var accepted_names: Dictionary = {}
+	for item_id_value: Variant in candidate_ids.keys():
+		var item_id := int(item_id_value)
+		if item_id == 0 or not classic_shop_accepts_item_id(item_id, accept_ranges):
+			continue
+		for item_name: String in _classic_item_names(item_id, item_id_mapping, item_texts):
+			if available_items.has(item_name):
+				accepted_names[item_name] = true
+	return accepted_names
 
 
 func _load_shop(payload: Dictionary) -> Dictionary:
@@ -961,6 +1021,13 @@ func _load_shop(payload: Dictionary) -> Dictionary:
 	var shop_name := "classic_shop_%d" % int(payload.get("shopId", 0))
 	if not game_global.shops_dict.has(shop_name):
 		game_global.shops_dict[shop_name] = built["shop"]
+	else:
+		var loaded_shop: Dictionary = game_global.shops_dict[shop_name]
+		loaded_shop.erase("classic_accept_ranges")
+		loaded_shop.erase("accepted_item_names")
+		for rule_name: String in ["classic_accept_ranges", "accepted_item_names"]:
+			if built["shop"].has(rule_name):
+				loaded_shop[rule_name] = built["shop"][rule_name]
 	game_global.currentShop = shop_name
 	game_global.allow_banking(true)
 	game_global.allow_money_change(true)

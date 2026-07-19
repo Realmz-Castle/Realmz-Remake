@@ -347,6 +347,18 @@ func get_shop(shopname : String) :
 	return shops_dict[shopname]
 	#return shopScript.get_shop(shopname, shops_dict[shopname])
 
+
+func current_shop_accepts_item(item : Dictionary) -> bool :
+	if currentShop == '' or not shops_dict.has(currentShop) :
+		return true
+	var shop : Dictionary = shops_dict[currentShop]
+	# Shops without this optional rule keep the existing unrestricted behavior.
+	if not shop.has("accepted_item_names") :
+		return true
+	var accepted_names : Variant = shop["accepted_item_names"]
+	return accepted_names is Dictionary and accepted_names.has(str(item.get("name", "")))
+
+
 func refresh_OW_HUD() :
 	UI.ow_hud.update_fatigue_bar()
 	UI.ow_hud.updateCharPanelDisplay()

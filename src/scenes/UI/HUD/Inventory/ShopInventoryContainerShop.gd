@@ -39,7 +39,7 @@ func _can_drop_data(_pos, data) ->bool :
 		and item.has("imgdata") ) 
 		and typeof(itemowner) != TYPE_STRING) :
 		return false
-	return true
+	return GameGlobal.current_shop_accepts_item(item)
 
 func _drop_data(_pos, data):
 	print(" shop invscrollContainer _drop_data ", data[0]["name"])
