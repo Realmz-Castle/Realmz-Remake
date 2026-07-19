@@ -4,6 +4,7 @@ const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bun
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
+const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
@@ -30,6 +31,8 @@ class GuardHouseAdapter:
 		commands.append({"command": command, "payload": payload})
 		if command == "start_encounter":
 			return {"outcome": 4}
+		if command == "check_party_item":
+			return {"possessed": true}
 		return {}
 
 
@@ -66,6 +69,27 @@ class RogueTestCharacter:
 		current_hp += change
 
 
+class InventoryTestCharacter:
+	extends RefCounted
+	var name := "Inventory Test"
+	var inventory: Array = []
+	var money: Array = [0, 0, 0]
+	var weight_limit := 100
+	var unequip_count := 0
+
+	func get_stat(stat_name: String) -> int:
+		return weight_limit if stat_name == "Weight_Limit" else 0
+
+	func unequip_item(item: Dictionary, _check_script := true) -> bool:
+		unequip_count += 1
+		item["equipped"] = 0
+		return true
+
+	func equip_item(item: Dictionary) -> bool:
+		item["equipped"] = 1
+		return true
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -86,6 +110,9 @@ func _init() -> void:
 	_test_selected_character_pipeline(bundle)
 	_test_misc_character_selection(bundle)
 	_test_spell_effect_actions(bundle)
+	_test_item_actions()
+	_test_item_mutation_rules()
+	_test_equipment_storage_rules()
 	_test_quest_state_and_branch(bundle)
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -892,6 +919,262 @@ func _test_spell_effect_actions(bundle) -> void:
 		adapter.classic_spell_mapping_key(4606),
 		"40055",
 		"Fire Flare ID resolves to Remake's spell-table key"
+	)
+
+
+func _test_item_actions() -> void:
+	var bundle = _item_action_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:possession"), "begin item possession branch")
+	var item_check: Dictionary = interpreter.run_until_yield()
+	_expect_equal(item_check.get("command"), "check_party_item", "opcode 21 checks party inventory")
+	_expect_equal(item_check.get("payload", {}).get("itemId"), 100, "item check preserves item ID")
+	_expect_equal(
+		item_check.get("payload", {}).get("itemTexts", [])[0].get("identifiedName"),
+		"Test Key",
+		"item check supplies scenario item text"
+	)
+	var possessed: Dictionary = interpreter.resume_item_check(true)
+	_expect_equal(possessed.get("payload", {}).get("messageId"), 900, "possessed item takes success branch")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:possession"), "begin missing item continuation")
+	interpreter.run_until_yield()
+	var missing_continues: Dictionary = interpreter.resume_item_check(false)
+	_expect_equal(
+		missing_continues.get("payload", {}).get("messageId"),
+		910,
+		"missing item can continue the current action point"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:missing-branch"), "begin missing item branch")
+	interpreter.run_until_yield()
+	var missing_branch: Dictionary = interpreter.resume_item_check(false)
+	_expect_equal(
+		missing_branch.get("payload", {}).get("messageId"),
+		901,
+		"missing item can take its alternate branch"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:missing-text"), "begin missing item message")
+	interpreter.run_until_yield()
+	var missing_text: Dictionary = interpreter.resume_item_check(false)
+	_expect_equal(missing_text.get("payload", {}).get("messageId"), 902, "missing item can exit with text")
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"action-point-ended",
+		"missing-item text exits instead of falling through"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:gosub"), "begin GOSUB item branch")
+	interpreter.run_until_yield()
+	var subroutine: Dictionary = interpreter.resume_item_check(true)
+	_expect_equal(subroutine.get("payload", {}).get("messageId"), 911, "item branch enters GOSUB target")
+	var returned: Dictionary = interpreter.run_until_yield()
+	_expect_equal(returned.get("payload", {}).get("messageId"), 913, "item branch returns to caller")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:simple"), "begin item encounter branch")
+	interpreter.run_until_yield()
+	var item_encounter: Dictionary = interpreter.resume_item_check(true)
+	_expect_equal(item_encounter.get("command"), "start_encounter", "item branch can start an encounter")
+	_expect_equal(item_encounter.get("payload", {}).get("encounterId"), 2, "item branch selects encounter")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:result-present"), "begin present-item result branch")
+	interpreter.run_until_yield()
+	var present_result: Dictionary = interpreter.resume_item_check(true)
+	_expect_equal(present_result.get("payload", {}).get("messageId"), 921, "opcode 38 branches on possession")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:result-present"), "begin failed result item test")
+	interpreter.run_until_yield()
+	var present_fallthrough: Dictionary = interpreter.resume_item_check(false)
+	_expect_equal(
+		present_fallthrough.get("payload", {}).get("messageId"),
+		920,
+		"opcode 38 falls through when its test fails"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:result-absent"), "begin absent-item result branch")
+	interpreter.run_until_yield()
+	var absent_result: Dictionary = interpreter.resume_item_check(false)
+	_expect_equal(absent_result.get("payload", {}).get("messageId"), 922, "opcode 38 branches on absence")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:result-force"), "begin forced item result branch")
+	var forced_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(forced_result.get("payload", {}).get("messageId"), 923, "opcode 38 preserves forced branch mode")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:mutation"), "begin item mutation action")
+	var mutation: Dictionary = interpreter.run_until_yield()
+	_expect_equal(mutation.get("command"), "alter_party_items", "opcode 22 yields typed mutation")
+	_expect_equal(mutation.get("payload", {}).get("maxMatches"), 2, "item mutation preserves match limit")
+	_expect_equal(mutation.get("payload", {}).get("operation"), 3, "item mutation preserves operation")
+	_expect_equal(mutation.get("payload", {}).get("chargeDelta"), -4, "item mutation preserves charge delta")
+	_expect_equal(
+		mutation.get("payload", {}).get("replacementItemId"),
+		101,
+		"item mutation preserves replacement ID"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:capture"), "begin equipment capture action")
+	_expect(bool(interpreter.run_until_yield().get("payload", {}).get("capture")), "nonzero opcode 36 captures")
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("item:restore"), "begin equipment restore action")
+	_expect(not bool(interpreter.run_until_yield().get("payload", {}).get("capture")), "zero opcode 36 restores")
+	var adapter = GodotAdapterScript.new()
+	var unresolved_item: Dictionary = adapter._check_party_item({
+		"itemId": 990,
+		"itemTexts": [],
+	})
+	_expect_equal(
+		unresolved_item.get("status"),
+		"error",
+		"native item check stops when a scenario item has no exported identity"
+	)
+	var host = HostScript.new()
+	get_root().add_child(host)
+	var host_adapter = GuardHouseAdapter.new()
+	host.configure(host_adapter)
+	host.runtime.bundle = bundle
+	host.runtime.runtime_state = StateScript.new()
+	host.runtime.runtime_state.configure_from_bundle(bundle)
+	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
+	var host_completions: Array = []
+	host.playthrough_completed.connect(
+		func(result: Dictionary) -> void: host_completions.append(result)
+	)
+	_expect(host.start_trigger("item:possession"), "runtime host starts item possession branch")
+	_expect_equal(host_adapter.commands[0].get("command"), "check_party_item", "host dispatches item check")
+	_expect_equal(host_adapter.commands[1].get("payload", {}).get("messageId"), 900, "host resumes item branch")
+	_expect_equal(host_completions.size(), 1, "host completes item possession branch")
+	host.queue_free()
+
+
+func _test_item_mutation_rules() -> void:
+	var equipped_character = InventoryTestCharacter.new()
+	equipped_character.inventory = [_test_item("Test Key", 1, 5)]
+	var carried_character = InventoryTestCharacter.new()
+	carried_character.inventory = [_test_item("Spare Key")]
+	_expect(
+		InventoryRulesScript.party_has_named_item(
+			[equipped_character, carried_character],
+			["test key"]
+		),
+		"item possession includes equipped items"
+	)
+
+	var drop_result: Dictionary = InventoryRulesScript.alter_named_items(
+		[equipped_character, carried_character],
+		["Test Key", "Spare Key"],
+		1,
+		1,
+		0
+	)
+	_expect_equal(drop_result.get("changed"), 1, "item removal honors its match limit")
+	_expect(equipped_character.inventory.is_empty(), "item removal drops the first party match")
+	_expect_equal(carried_character.inventory.size(), 1, "item removal leaves later matches alone")
+
+	var charged_character = InventoryTestCharacter.new()
+	charged_character.inventory = [_test_item("Charged Wand", 1, 5)]
+	var charge_result: Dictionary = InventoryRulesScript.alter_named_items(
+		[charged_character],
+		["Charged Wand"],
+		1,
+		2,
+		-2
+	)
+	_expect_equal(charge_result.get("changed"), 1, "item charge mutation finds its target")
+	_expect_equal(charged_character.inventory[0].get("charges"), 3, "item charge mutation is signed")
+	_expect_equal(charged_character.unequip_count, 0, "charge mutation does not unequip the item")
+	_expect_equal(charged_character.inventory[0].get("equipped"), 1, "charged item remains equipped")
+
+	var replaced_character = InventoryTestCharacter.new()
+	replaced_character.inventory = [_test_item("Old Wand", 1, 2)]
+	var replacement := _test_item("New Wand", 0, 7)
+	var replace_result: Dictionary = InventoryRulesScript.alter_named_items(
+		[replaced_character],
+		["Old Wand"],
+		1,
+		3,
+		0,
+		replacement
+	)
+	_expect_equal(replace_result.get("changed"), 1, "item replacement finds its target")
+	_expect_equal(replaced_character.inventory[0].get("name"), "New Wand", "item replacement uses new template")
+	_expect_equal(replaced_character.inventory[0].get("charges"), 7, "item replacement resets charges")
+	_expect_equal(replaced_character.inventory[0].get("is_identified"), 0, "item replacement resets identification")
+	_expect_equal(replaced_character.inventory[0].get("equipped"), 1, "replacement retries prior equipment state")
+
+
+func _test_equipment_storage_rules() -> void:
+	var first_character = InventoryTestCharacter.new()
+	first_character.inventory = [_test_item("Sword", 1)]
+	first_character.money = [10, 1, 0]
+	var second_character = InventoryTestCharacter.new()
+	second_character.inventory = [_test_item("Ring")]
+	second_character.money = [0, 0, 1]
+	var pooled_money := [5, 2, 1]
+	var captured: Dictionary = InventoryRulesScript.capture_party_equipment(
+		[first_character, second_character],
+		pooled_money
+	)
+	_expect(bool(captured.get("active")), "equipment capture creates active storage")
+	_expect_equal(captured.get("wealth"), [15, 3, 2], "equipment capture pools all wealth")
+	_expect(first_character.inventory.is_empty(), "equipment capture clears first inventory")
+	_expect(second_character.inventory.is_empty(), "equipment capture clears second inventory")
+	first_character.inventory.append(_test_item("Interim Loot"))
+	var restored: Dictionary = InventoryRulesScript.restore_party_equipment(
+		[first_character, second_character],
+		pooled_money,
+		captured
+	)
+	_expect(bool(restored.get("restored")), "equipment restore consumes active storage")
+	_expect_equal(first_character.inventory[0].get("name"), "Sword", "equipment restore returns original item")
+	_expect_equal(first_character.inventory[0].get("equipped"), 1, "equipment restore reapplies worn state")
+	_expect_equal(second_character.inventory[0].get("name"), "Ring", "equipment restore returns party inventory")
+	_expect_equal(restored.get("extraItems", [])[0].get("name"), "Interim Loot", "interim items become loot")
+	for currency: int in 3:
+		_expect_equal(
+			int(first_character.money[currency]) + int(second_character.money[currency]) \
+				+ int(pooled_money[currency]),
+			int(captured.get("wealth", [])[currency]),
+			"equipment restore preserves wealth type %d" % currency
+		)
+	var limited_character = InventoryTestCharacter.new()
+	limited_character.weight_limit = 10
+	var limited_pool := [0, 0, 0]
+	InventoryRulesScript.restore_party_equipment(
+		[limited_character],
+		limited_pool,
+		{"active": true, "inventories": [[]], "wealth": [0, 0, 1]}
+	)
+	_expect_equal(
+		limited_character.money[2],
+		1,
+		"equipment restore preserves Classic's pre-award jewel weight check"
+	)
+	var loaded_character = InventoryTestCharacter.new()
+	loaded_character.weight_limit = 2
+	loaded_character.inventory = [_test_item("Interim Weight")]
+	loaded_character.inventory[0]["weight"] = 2
+	var loaded_pool := [0, 0, 0]
+	InventoryRulesScript.restore_party_equipment(
+		[loaded_character],
+		loaded_pool,
+		{"active": true, "inventories": [[]], "wealth": [1, 0, 0]}
+	)
+	_expect_equal(
+		loaded_pool[0],
+		1,
+		"equipment restore shares wealth before replacing interim items"
 	)
 
 
@@ -2501,8 +2784,8 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
-		24, 25, 29, 30, 32, 35, 37,
+		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+		22, 23, 24, 25, 29, 30, 32, 35, 36, 37, 38,
 		39, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
@@ -2515,8 +2798,61 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2200, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2670, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2209, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2679, "full CoB defined-behavior slots")
+
+	for shipped_item_check: Array in [
+		["Data DD:0:1", 1, 21, 990],
+		["Data DD:0:2", 3, 38, 991],
+		["Data ED3:macro:32", 1, 38, 808],
+	]:
+		var check_interpreter = _interpreter(bundle)
+		_expect(
+			check_interpreter.begin_trigger(shipped_item_check[0], shipped_item_check[1]),
+			"begin shipped CoB item check %s" % shipped_item_check[0]
+		)
+		var check_result: Dictionary = check_interpreter.run_until_yield()
+		_expect_equal(check_result.get("command"), "check_party_item", "shipped item check yields typed command")
+		_expect_equal(
+			check_result.get("payload", {}).get("itemId"),
+			shipped_item_check[3],
+			"shipped opcode %d preserves item ID" % shipped_item_check[2]
+		)
+
+	for shipped_item_mutation: Array in [
+		["Data ED3:macro:33", 2, 808],
+		["Data ED3:macro:39", 3, 807],
+	]:
+		var mutation_interpreter = _interpreter(bundle)
+		_expect(
+			mutation_interpreter.begin_trigger(shipped_item_mutation[0], shipped_item_mutation[1]),
+			"begin shipped CoB item mutation %s" % shipped_item_mutation[0]
+		)
+		var mutation_result: Dictionary = mutation_interpreter.run_until_yield()
+		_expect_equal(mutation_result.get("command"), "alter_party_items", "shipped item mutation yields typed command")
+		_expect_equal(
+			mutation_result.get("payload", {}).get("itemId"),
+			shipped_item_mutation[2],
+			"shipped item mutation preserves item ID"
+		)
+
+	for shipped_equipment_restore: Array in [
+		["Data DD:1:19", 5],
+		["Data DD:2:3", 4],
+		["Data DD:8:49", 3],
+		["Data DDD:1:49", 3],
+	]:
+		var restore_interpreter = _interpreter(bundle)
+		_expect(
+			restore_interpreter.begin_trigger(
+				shipped_equipment_restore[0],
+				shipped_equipment_restore[1]
+			),
+			"begin shipped CoB equipment restore %s" % shipped_equipment_restore[0]
+		)
+		var restore_result: Dictionary = restore_interpreter.run_until_yield()
+		_expect_equal(restore_result.get("command"), "store_party_equipment", "shipped equipment restore yields typed command")
+		_expect(not bool(restore_result.get("payload", {}).get("capture")), "shipped opcode 36 restores stored equipment")
 
 	for shipped_shop: Array in [
 		["Data DD:0:9", 2, 1],
@@ -3034,6 +3370,87 @@ func _action_data_patch_test_bundle():
 	for message_id: int in [800, 801, 802, 803, 810, 811, 812, 813, 820, 900, 901, 902]:
 		bundle.messages_by_id[message_id] = {"id": message_id, "text": "Message %d" % message_id}
 	return bundle
+
+
+func _item_action_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "item:possession", -1, [
+		_classic_action(0, 21, 1),
+		_classic_action(1, 1, 910),
+	])
+	_add_stack_trigger(bundle, "item:missing-branch", -1, [_classic_action(0, 21, 2)])
+	_add_stack_trigger(bundle, "item:missing-text", -1, [
+		_classic_action(0, 21, 3),
+		_classic_action(1, 1, 910),
+	])
+	_add_stack_trigger(bundle, "item:gosub", -1, [
+		_classic_action(0, -21, 4),
+		_classic_action(1, 1, 913),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "item:simple", -1, [_classic_action(0, 21, 8)])
+	_add_stack_trigger(bundle, "item:result-present", -1, [
+		_classic_action(0, 38, 5),
+		_classic_action(1, 1, 920),
+	])
+	_add_stack_trigger(bundle, "item:result-absent", -1, [_classic_action(0, 38, 6)])
+	_add_stack_trigger(bundle, "item:result-force", -1, [_classic_action(0, 38, 7)])
+	_add_stack_trigger(bundle, "item:mutation", -1, [_classic_action(0, 22, 9)])
+	_add_stack_trigger(bundle, "item:capture", -1, [_classic_action(0, 36, 44)])
+	_add_stack_trigger(bundle, "item:restore", -1, [_classic_action(0, 36, 0)])
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [_classic_action(0, 1, 900)])
+	_add_stack_trigger(bundle, "Data ED3:macro:11", 11, [_classic_action(0, 1, 901)])
+	_add_stack_trigger(bundle, "Data ED3:macro:12", 12, [
+		_classic_action(0, 1, 911),
+		_classic_action(1, 111, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:13", 13, [_classic_action(0, 1, 921)])
+	_add_stack_trigger(bundle, "Data ED3:macro:14", 14, [_classic_action(0, 1, 922)])
+	_add_stack_trigger(bundle, "Data ED3:macro:15", 15, [_classic_action(0, 1, 923)])
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [100, 0, 1, 10, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [100, 0, 0, 10, 11]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [100, 0, 2, 10, 902]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [100, 0, 1, 12, 0]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [100, 1, 0, 13, 0]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [100, 0, 0, 14, 0]}
+	bundle.extra_codes_by_id[7] = {"id": 7, "values": [100, 2, 0, 15, 0]}
+	bundle.extra_codes_by_id[8] = {"id": 8, "values": [100, 1, 1, 2, 0]}
+	bundle.extra_codes_by_id[9] = {"id": 9, "values": [100, 2, 3, -4, 101]}
+	bundle.item_texts_by_id[100] = {
+		"itemId": 100,
+		"identifiedName": "Test Key",
+		"unidentifiedName": "Unknown Key",
+	}
+	bundle.item_texts_by_id[101] = {
+		"itemId": 101,
+		"identifiedName": "Replacement Key",
+		"unidentifiedName": "Unknown Key",
+	}
+	for message_id: int in [900, 901, 902, 910, 911, 913, 920, 921, 922, 923]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Message %d" % message_id,
+		}
+	bundle.simple_encounters_by_id[2] = {
+		"id": 2,
+		"prompt": 0,
+		"maxTimes": 1,
+		"choiceResults": [1, 2, 3, 4],
+		"actions": [],
+	}
+	return bundle
+
+
+func _test_item(item_name: String, equipped := 0, charges := 0) -> Dictionary:
+	return {
+		"name": item_name,
+		"equipped": equipped,
+		"charges": charges,
+		"weight": 1,
+		"charges_weight": 0,
+		"is_identified": 1,
+	}
 
 
 func _stack_test_bundle():

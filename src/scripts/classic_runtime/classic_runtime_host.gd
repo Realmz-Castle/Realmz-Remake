@@ -74,13 +74,19 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				runtime.finish_battle(bool(response["coward"]))
 			else:
 				runtime.continue_after_command()
+		"check_party_item":
+			if not response.has("possessed"):
+				_stop_with_error("Item-check adapter response is missing 'possessed'", command)
+				return
+			runtime.finish_item_check(bool(response["possessed"]))
 		"show_text", "play_sound", "give_treasure", "give_experience", \
 		"pick_characters", "filter_selected_characters", "select_characters_by_misc", \
 		"change_selected_health", "change_party_health", "cast_classic_spell", \
 		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \
 		"set_trigger_percent", "teleport", "set_view_direction", \
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
-		"set_land_look", "give_battle_loot", \
+		"set_land_look", "give_battle_loot", "alter_party_items", \
+		"store_party_equipment", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
 		_:

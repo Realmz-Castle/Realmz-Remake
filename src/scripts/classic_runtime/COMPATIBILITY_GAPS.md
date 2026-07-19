@@ -40,7 +40,7 @@ covered by a focused fixture or playtest.
 | Shops and restricted shops | Partial | Fixture-proven | Opcodes `6` and `73` load compiled stock, prices, availability, and the source-authored two-range transfer rule through native shop state. Stocked and accepted items still depend on complete item-name mappings. | Compiled shop records open through the native UI, apply their restrictions and prices, and resume the correct action list. |
 | Temple and banking services | Partial | Fixture-proven | Opcodes `32` and `49` expose native temple and bank controls, including Classic temple prices and pooled payment. Automatic bank-to-temple pool transfer and the built-in banking warning remain native mismatches. | The native services preserve the authored costs, state changes, cancellation path, and continuation behavior. |
 | Classic item identity | Resource gap | Fixture-proven | Shared ID mappings cover most stock, but authoritative bundles may not contain names for scenario-specific items. The adapter stops rather than dropping unresolved merchandise. | Every carried, awarded, required, and stocked item has an exported identity that resolves to a bundled or shared Remake resource. |
-| Equipment and item-state actions | Partial | Source-backed | Fixed treasure works, but possession branches, item-status changes, and store-or-give equipment actions (`21`, `22`, `36`, and `38`) do not. | Each action uses Remake inventory state while preserving Classic carried, worn, stored, charge, and failure semantics. |
+| Equipment and item-state actions | Partial | Fixture-proven | Opcodes `21`, `22`, `36`, and `38` use native inventories and preserve carried, worn, charge, replacement, stored-equipment, and interim-loot behavior. Scenario-local item IDs still depend on exported names, and captured equipment is adapter-local rather than saved. | Every compiled item resolves to a native resource, and a normal save round trip preserves an active equipment capture. |
 | Modal map input and presentation | Partial | Source-backed | Get Click, Show Picture, and Center Screen (`26`, `27`, and `28`) have no adapter path. | The native UI supplies the authored click result and picture/viewport changes, then resumes execution without losing the current action context. |
 | Party, door, ally, and registration branches | Partial | Source-backed | Opcodes `40`, `85`, `87`, `89`, and `98` depend on state that is not yet exposed through the compatibility boundary. | Each branch or mutation reads and writes the matching live Remake state and has a shipped fixture covering both outcomes where applicable. |
 | Classic field-spell data | Resource gap | Fixture-proven | Field-spell actions work only when a mapped spell exists; Classic save adjustment and force-affect fields are preserved but unapplied. | Converted spell metadata and active Remake resources cover shipped spell IDs, including save adjustment, force-affect, and low-ID class distinctions. |
@@ -61,14 +61,13 @@ presentation contains information needed for progression.
 
 ## Remaining City of Bywater opcode queue
 
-The checked City of Bywater bundle currently has 64 active action slots without
+The checked City of Bywater bundle currently has 55 active action slots without
 interpreter behavior. This is a prioritization queue, not a list of absent
 Remake features.
 
 | Area | Opcodes | Active slots | Likely integration boundary |
 | --- | --- | ---: | --- |
 | Combat and battle macros | `100`, `121`, `123`-`127` | 40 | Native combat and Classic battle context |
-| Items and equipment | `21`, `22`, `36`, `38` | 9 | Native party inventory |
 | Modal UI and map input | `26`-`28` | 6 | HUD and compiled map bridge |
 | Party, door, ally, and registration state | `40`, `85`, `87`, `89`, `98` | 7 | Runtime state adapters |
 | Priest turning mode | `82`, `83` | 2 | Native combat state |

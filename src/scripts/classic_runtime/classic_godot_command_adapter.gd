@@ -2,6 +2,7 @@ class_name ClassicGodotCommandAdapter
 extends RefCounted
 
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
+const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
 const COMPLEX_ACTION_TEXT_COUNT := 8
@@ -73,6 +74,7 @@ const CLASSIC_SPECIAL_STATS := {
 }
 
 var classic_selected_characters: Array = []
+var stored_party_equipment: Dictionary = {}
 
 
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
@@ -109,6 +111,12 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _offer_temple(payload)
 		"enable_banking":
 			return _enable_banking(payload)
+		"check_party_item":
+			return _check_party_item(payload)
+		"alter_party_items":
+			return _alter_party_items(payload)
+		"store_party_equipment":
+			return await _store_party_equipment(payload)
 		_:
 			return _error("The Godot classic adapter does not yet handle '%s'" % command)
 
@@ -791,6 +799,11 @@ func _refresh_character_panel(character: Variant) -> void:
 			return
 
 
+func _refresh_party_panels(party: Array) -> void:
+	for character_value: Variant in party:
+		_refresh_character_panel(character_value)
+
+
 func _show_choices(text_rect: Object, choices: Array, choice_tokens: Array) -> Variant:
 	# TextRect's legacy helper transitions to a removed `MultipleChoices` state.
 	# Drive its existing choice container directly until Remake has a native
@@ -1057,6 +1070,135 @@ func _enable_banking(payload: Dictionary) -> Dictionary:
 	game_global.allow_banking(true)
 	_play_sound(payload)
 	return {"warningId": int(payload.get("warningId", 0))}
+
+
+func _check_party_item(payload: Dictionary) -> Dictionary:
+	var item_names := _mapped_item_names(payload)
+	if item_names.is_empty():
+		return _error(
+			"Classic item %d has no Remake item mapping" % int(payload.get("itemId", 0))
+		)
+	return {
+		"possessed": InventoryRulesScript.party_has_named_item(
+			_party_characters(),
+			item_names
+		),
+	}
+
+
+func _alter_party_items(payload: Dictionary) -> Dictionary:
+	var item_names := _mapped_item_names(payload)
+	if item_names.is_empty():
+		return _error(
+			"Classic item %d has no Remake item mapping" % int(payload.get("itemId", 0))
+		)
+	var replacement_item: Dictionary = {}
+	if int(payload.get("operation", 0)) == 3:
+		var replacement_payload := {
+			"itemId": int(payload.get("replacementItemId", 0)),
+			"itemTexts": payload.get("itemTexts", []),
+		}
+		var replacement_names := _mapped_item_names(replacement_payload)
+		if replacement_names.is_empty():
+			return _error(
+				"Classic replacement item %d has no Remake item mapping" \
+				% int(payload.get("replacementItemId", 0))
+			)
+		var node_access: Object = _autoload("NodeAccess")
+		var resources: Object = node_access.__Resources() if node_access != null else null
+		var game_global: Object = _autoload("GameGlobal")
+		if resources == null or game_global == null:
+			return _error("Realmz item resources are unavailable")
+		var replacement_name := ""
+		for candidate_name: String in replacement_names:
+			if resources.items_book.has(candidate_name):
+				replacement_name = candidate_name
+				break
+		if replacement_name.is_empty():
+			return _error(
+				"Classic replacement item %d is not loaded" \
+				% int(payload.get("replacementItemId", 0))
+			)
+		replacement_item = game_global.generate_item(replacement_name)
+
+	var party := _party_characters()
+	if party.is_empty():
+		return _error("Classic item mutation has no party members")
+	var result: Dictionary = InventoryRulesScript.alter_named_items(
+		party,
+		item_names,
+		int(payload.get("maxMatches", 0)),
+		int(payload.get("operation", 0)),
+		int(payload.get("chargeDelta", 0)),
+		replacement_item
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	_refresh_party_panels(party)
+	return result
+
+
+func _store_party_equipment(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	var party := _party_characters()
+	if party.is_empty():
+		return _error("Classic equipment storage has no party members")
+	var pooled_money: Variant = game_global.money_pool
+	if not (pooled_money is Array):
+		return _error("Realmz pooled wealth is unavailable")
+
+	if bool(payload.get("capture", false)):
+		if bool(stored_party_equipment.get("active", false)):
+			return {"captured": false, "active": true}
+		var captured: Dictionary = InventoryRulesScript.capture_party_equipment(
+			party,
+			pooled_money
+		)
+		if str(captured.get("status", "")) == "error":
+			return captured
+		stored_party_equipment = captured
+		_refresh_party_panels(party)
+		return {
+			"captured": true,
+			"active": true,
+			"itemCount": int(captured.get("itemCount", 0)),
+		}
+
+	if not bool(stored_party_equipment.get("active", false)):
+		return {"restored": false, "active": false}
+	var restored: Dictionary = InventoryRulesScript.restore_party_equipment(
+		party,
+		pooled_money,
+		stored_party_equipment
+	)
+	if str(restored.get("status", "")) == "error":
+		return restored
+	stored_party_equipment = {}
+	_refresh_party_panels(party)
+	var extra_items: Array = restored.get("extraItems", [])
+	if not extra_items.is_empty():
+		await game_global.show_loot_menu(extra_items, [0, 0, 0], 0)
+	return {
+		"restored": true,
+		"active": false,
+		"restoredCount": int(restored.get("restoredCount", 0)),
+		"extraItemCount": extra_items.size(),
+		"reequipFailures": int(restored.get("reequipFailures", 0)),
+	}
+
+
+func _mapped_item_names(payload: Dictionary) -> Array[String]:
+	var item_ids: Object = _autoload("ItemIdDivinity")
+	var item_mapping: Dictionary = item_ids.mapping \
+		if item_ids != null and item_ids.mapping is Dictionary else {}
+	var item_texts: Variant = payload.get("itemTexts", [])
+	return _classic_item_names(
+		abs(int(payload.get("itemId", 0))),
+		item_mapping,
+		item_texts if item_texts is Array else []
+	)
 
 
 func _load_shop(payload: Dictionary) -> Dictionary:

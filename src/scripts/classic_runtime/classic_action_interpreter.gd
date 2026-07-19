@@ -19,6 +19,7 @@ var gosub_active := false
 var pending_choice: Dictionary = {}
 var pending_encounter: Dictionary = {}
 var pending_battle: Dictionary = {}
+var pending_item_check: Dictionary = {}
 var encounter_origins: Array = []
 var loaded_simple_encounter_id := -1
 var loaded_complex_encounter_id := -1
@@ -53,6 +54,7 @@ func reset_execution() -> void:
 	pending_choice.clear()
 	pending_encounter.clear()
 	pending_battle.clear()
+	pending_item_check.clear()
 	encounter_origins.clear()
 	trace.clear()
 	last_error = ""
@@ -88,6 +90,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic encounter must be resumed before execution can continue")
 	if not pending_battle.is_empty():
 		return _error_result("A classic battle outcome must be resumed before execution can continue")
+	if not pending_item_check.is_empty():
+		return _error_result("A classic item check must be resumed before execution can continue")
 
 	for _step: int in MAX_INTERNAL_STEPS:
 		if current_trigger.is_empty():
@@ -221,6 +225,63 @@ func resume_battle(coward: bool) -> Dictionary:
 	return run_until_yield()
 
 
+func resume_item_check(possessed: bool) -> Dictionary:
+	if pending_item_check.is_empty():
+		return _error_result("No classic item check is waiting for a response")
+	var item_check := pending_item_check
+	pending_item_check = {}
+	var values: Array = item_check["values"]
+	match str(item_check.get("kind", "")):
+		"possession_branch":
+			if possessed:
+				var possessed_result := _branch_item_possession_target(
+					values,
+					int(values[3]),
+					bool(item_check.get("gosub", false))
+				)
+				if str(possessed_result.get("status", "")) != "continue":
+					return possessed_result
+				return run_until_yield()
+			match int(values[2]):
+				0:
+					var missing_result := _branch_item_possession_target(
+						values,
+						int(values[4]),
+						bool(item_check.get("gosub", false))
+					)
+					if str(missing_result.get("status", "")) != "continue":
+						return missing_result
+					return run_until_yield()
+				1:
+					return run_until_yield()
+				2:
+					_clear_control_flow()
+					return _yield_result("show_text", {
+						"messageId": int(values[4]),
+						"message": bundle.get_message(int(values[4])),
+					})
+				_:
+					return _halt_with_error(
+						"Item possession branch has invalid failure mode %d" % int(values[2])
+					)
+		"result_branch":
+			var test_mode := int(values[1])
+			if not [0, 1].has(test_mode):
+				return _halt_with_error(
+					"Item result branch has invalid test mode %d" % test_mode
+				)
+			var should_branch := (test_mode == 0 and not possessed) \
+				or (test_mode == 1 and possessed)
+			if not should_branch:
+				return run_until_yield()
+			var branch_result := _branch_from_extra_code(values, false)
+			if str(branch_result.get("status", "")) != "continue":
+				return branch_result
+			return run_until_yield()
+		_:
+			return _halt_with_error("Classic item check has an invalid continuation")
+
+
 func _execute_action(action: Dictionary) -> Dictionary:
 	var code := int(action.get("code", 0))
 	var record_id := int(action.get("id", 0))
@@ -268,10 +329,12 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_random_text(record_id)
 		20, 45:
 			return _execute_teleport(record_id, code == 20)
+		21:
+			return _execute_item_possession_branch(record_id, gosub_active)
+		22:
+			return _execute_item_mutation(record_id)
 		-23, 23:
 			return _execute_random_rectangle_mutation(record_id, code == -23)
-		37:
-			return _execute_dungeon_move(record_id)
 		24:
 			return _finish_action_point("keep-codes", false)
 		25:
@@ -289,6 +352,15 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _break_encounter()
 		35:
 			return _eliminate_current_simple_option(record_id)
+		36:
+			return _yield_result("store_party_equipment", {
+				"capture": record_id != 0,
+				"storageId": record_id,
+			})
+		37:
+			return _execute_dungeon_move(record_id)
+		38:
+			return _execute_item_result_branch(record_id)
 		39:
 			# Classic's Extend Door Codes replaces the active AP without pushing,
 			# even when its raw opcode is negative.
@@ -392,6 +464,95 @@ func _execute_restricted_shop(extra_code_id: int) -> Dictionary:
 		int(values[3]),
 		int(values[4]),
 	])
+
+
+func _execute_item_possession_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Item possession branch references missing Extra Code row %d" % extra_code_id
+		)
+	pending_item_check = {
+		"kind": "possession_branch",
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_party_item", {
+		"extraCodeId": extra_code_id,
+		"itemId": abs(int(values[0])),
+		"itemTexts": _item_texts_for_ids([values[0]]),
+	})
+
+
+func _execute_item_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Item mutation references missing Extra Code row %d" % extra_code_id
+		)
+	return _yield_result("alter_party_items", {
+		"extraCodeId": extra_code_id,
+		"itemId": abs(int(values[0])),
+		"maxMatches": int(values[1]),
+		"operation": int(values[2]),
+		"chargeDelta": int(values[3]),
+		"replacementItemId": abs(int(values[4])),
+		"itemTexts": _item_texts_for_ids([values[0], values[4]]),
+	})
+
+
+func _execute_item_result_branch(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Item result branch references missing Extra Code row %d" % extra_code_id
+		)
+	var test_mode := int(values[1])
+	if not [0, 1, 2].has(test_mode):
+		return _halt_with_error(
+			"Item result branch has invalid test mode %d" % test_mode
+		)
+	if test_mode == 2:
+		return _branch_from_extra_code(values, false)
+	pending_item_check = {
+		"kind": "result_branch",
+		"values": values,
+	}
+	return _yield_result("check_party_item", {
+		"extraCodeId": extra_code_id,
+		"itemId": abs(int(values[0])),
+		"itemTexts": _item_texts_for_ids([values[0]]),
+	})
+
+
+func _branch_item_possession_target(values: Array, target: int, gosub: bool) -> Dictionary:
+	match int(values[1]):
+		0:
+			return _branch_to_extra_action_point(target, gosub, 0)
+		1, 2:
+			if gosub:
+				var push_result := _push_call_frame()
+				if str(push_result.get("status", "")) != "continue":
+					return push_result
+			return _execute_encounter("simple" if int(values[1]) == 1 else "complex", target)
+		_:
+			return _halt_with_error(
+				"Item possession branch has invalid target mode %d" % int(values[1])
+			)
+
+
+func _item_texts_for_ids(item_ids: Array) -> Array:
+	var item_texts: Array = []
+	var included_ids: Dictionary = {}
+	for item_id_value: Variant in item_ids:
+		var item_id: int = abs(int(item_id_value))
+		if item_id == 0 or included_ids.has(item_id):
+			continue
+		included_ids[item_id] = true
+		var item_text := bundle.get_item_text(item_id)
+		if not item_text.is_empty():
+			item_texts.append(item_text)
+	return item_texts
 
 
 func _execute_battle(extra_code_id: int) -> Dictionary:

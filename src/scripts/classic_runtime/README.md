@@ -24,6 +24,8 @@ Implemented opcodes in this slice:
 - `16` Damage or heal the party
 - `19` Display a random string from an inclusive message range
 - `20` Teleport and destination recheck
+- `21` Branch on whether the party carries an item
+- `22` Remove, recharge, or replace matching party items
 - `23` Alter a land or dungeon random-encounter rectangle
 - `24` Keep codes / script completion
 - `25` Remove and persist the active action point at its destination
@@ -31,7 +33,9 @@ Implemented opcodes in this slice:
 - `30` Pick characters by an attribute or special-ability check
 - `32` Make Classic temple services available at the authored prices
 - `35` Eliminate and persist an option in the current simple encounter
+- `36` Capture or restore party equipment and wealth
 - `37` Move between land and dungeon maps with Classic heading/view state
+- `38` Branch on an item-possession result
 - `39` Extend actions through a Data ED3 AP
 - `41` Eliminate and persist an option in any simple encounter
 - `42` Branch on percent chance
@@ -66,6 +70,8 @@ Opcodes `6` and `73` convert Classic's five fixed 200-slot stock categories into
 
 Opcode `32` exposes Classic's nine temple services through Remake's native temple menu. The authored value is a percentage applied to Classic's base prices, including City of Bywater's standard 100-percent temple and its 300-percent hostile temple. Service payments combine pooled and selected-character gold and spend the pool first, matching Classic. Opcode `49` enables the native bank until movement and preserves the source sound and built-in warning IDs. Remake does not yet reproduce Classic's automatic transfer of banked wealth into the temple pool while both services are available.
 
+Opcodes `21` and `38` check all party inventories, including worn items, and resume the interpreter through their authored branch or fallthrough. Opcode `22` walks characters and inventory slots in party order, limits the number of matches, and can remove an item, add a signed charge value, or replace it from a fresh native template. Replacement resets identification and attempts to restore the prior worn state. Opcode `36` captures every inventory, worn state, and wealth type into adapter-local storage, then restores the original possessions and offers anything acquired in the interim through Remake's treasure UI. Repeated capture or restore actions are harmless when storage is already in the requested state. These commands stop explicitly when a scenario item ID has no shared mapping or exported item name; equipment captured by opcode `36` also needs save integration before it can survive a normal saved-game round trip.
+
 Opcode `16` rolls its inclusive Extra Code range separately for each party member, multiplies each result by the authored signed value, and applies the resulting damage or healing through Remake's normal character health method. Its optional sound and message use the existing adapter paths. The standalone City of Bywater macro at `Data ED3:macro:142` provides a deterministic one-point party-damage proof.
 
 Opcodes `14`, `-14`, `30`, and `15` share a transient selected-character set. Interactive picks use Remake's character panels; a negative pick ID allows dead characters, while opcode `-14` keeps the unchosen complement. Opcode `30` filters the current selection, whole party, or living party through the authored attribute or special-ability check. Opcode `15` then applies an independent signed health roll to each selected character. The City of Bywater shaft at `Data DD:7:54` exercises the native picker, while its temple sphere and pit records cover inverse and checked selections.
@@ -88,7 +94,7 @@ Compass and map-view actions preserve Classic's separate compass, multiview, and
 
 The complex-encounter adapter exposes the eight Classic action-text fields through Remake's existing HUD choice control and routes each selection to the record's shared action result. This covers the active non-rogue library, cave-in, and pool encounters in City of Bywater. Spoken responses reuse Remake's speech input and preserve Classic's case-insensitive, first-space-terminated prefix comparison; a mismatch selects Result 4. The City of Bywater archive at `Data DD:6:28` exercises its `waterford` response, grants player map 2, removes the successful response through opcode `44`, and reopens with its remaining choices. Positive map IDs use Classic's acquisition notice. Negative IDs display a compatible native Remake minimap when one exists, with the compiled map note as a fallback. Encounters with magic responses can open Remake's native spell picker, match the selected spell against the packed Classic IDs, consume its normal spell-point cost, and continue through the paired result block. Item responses similarly use Remake's encounter inventory picker and match the selected item's shared mapping or scenario item text against the five Classic response slots. Unmatched spells and items use Classic's Result 4 fallback. Low spell IDs `1` through `6` remain supported when a Remake spell supplies explicit Classic spell-class metadata; current shared spell resources do not yet preserve that field. Mixed rogue encounters keep action, spell, and item choices beside their `Data TD2` controls. The rogue resolver uses the selected character's Remake stat plus the Classic modifier, preserves Classic's 90-percent cap for interactive lock/trap actions, and routes success or failure into the four `Data ED2` result rows. Consumed rogue actions persist in runtime snapshots while the compiled record remains immutable. The source-backed CoB lock at `Data DD:5:12` exercises Detect Trap, Force Lock, Pick Lock, and the Necklace of Keys response. The trapped chest at `Data DD:5:3` applies its shipped 4-12 damage to the selected rogue, clears the armed state, and leaves Pick Lock available before continuing through result 2.
 
-Against the checked City of Bywater compatibility baseline, these handlers cover 2,200 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,670 slots, or 97.7% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters and 64 action slots across additional opcodes remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
+Against the checked City of Bywater compatibility baseline, these handlers cover 2,209 of 2,734 active action slots. Another 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined behavior for 2,679 slots, or 98.0% of active slots. This is a semantic coverage measurement, not a playability percentage. Native command adapters and 55 action slots across additional opcodes remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
 
 The [compatibility gap register](COMPATIBILITY_GAPS.md) tracks required integration work and recommended fidelity improvements separately from opcode coverage.
 
