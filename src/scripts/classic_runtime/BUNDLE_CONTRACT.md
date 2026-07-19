@@ -68,7 +68,7 @@ Adding optional evidence or provenance fields does not.
 | `encounters` | `battles`, `treasures`, `shops`, `simpleEncounters`, `complexEncounters`, `thiefEncounters` | Numeric Classic record ID within each collection |
 | `content` | `monsters`, `scenarioItems`, `itemTexts` | Numeric Classic record ID; item text uses `itemId` |
 | `rules` | Spell, race, and caste overrides plus rule names | Numeric Classic rule ID within its collection |
-| `assets` | Managed assets and the tileset, picture, icon, and sound catalogs | Numeric Classic `resourceId` within each catalog |
+| `assets` | Managed assets and the tileset, picture, icon, and sound catalogs | Namespaced string `id` for tilesets; numeric Classic `resourceId` for pictures, icons, and sounds |
 | `evidence` | Validation results, dispatcher no-ops, and source evidence | Source file, record index, slot, and raw action code together identify an action observation |
 
 Stable identities come from the compiled Classic record namespace; array position
@@ -84,6 +84,13 @@ Maps use namespaced string IDs such as `land:0` and `dungeon:3`. Random-level ID
 extend the same namespace, for example `land:0:randlevel`. Extra action points use
 their source-backed trigger ID, such as `Data ED3:macro:100`, while their numeric
 `recordIndex` remains available for opcode parameters.
+
+Trigger action arrays contain occupied slots `0` through `7`. Each action carries
+integer `slot`, `rawCode`, normalized `code`, and `id` fields. Simple and complex
+encounters contain four contiguous eight-slot result rows, addressed as slots
+`0` through `31`; those actions carry `slot`, `rawCode`, and `id`, and Remake
+normalizes the signed opcode when it selects a result. Duplicate or out-of-range
+slots and malformed action values fail bundle loading with record-level context.
 
 ## Authored data and preserved evidence
 

@@ -4,6 +4,19 @@ extends RefCounted
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
+const HANDLED_OPCODES := [
+	-23, -14,
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+	30, 32, 34, 35, 36, 37, 38, 39,
+	40, 41, 42, 44, 45, 46, 47, 49,
+	52, 56, 57, 58,
+	73, 82, 83, 85, 87, 89,
+	93, 94, 95, 96, 97, 98,
+	100, 106, 111, 112,
+	121, 123, 124, 125, 126, 127,
+]
 const PRIEST_TURNING_ENABLED_MESSAGE := \
 	"You regain your ability to turn undead and nether spawn."
 const PRIEST_TURNING_DISABLED_MESSAGE := \
@@ -61,6 +74,14 @@ func configure(campaign_bundle: ClassicCampaignBundle, state: ClassicRuntimeStat
 
 func set_percent_roll_provider(provider: Callable) -> void:
 	percent_roll_provider = provider
+
+
+static func normalize_opcode(raw_code: int) -> int:
+	return abs(raw_code) if raw_code < 0 and raw_code not in [-14, -23] else raw_code
+
+
+static func handles_opcode(code: int) -> bool:
+	return HANDLED_OPCODES.has(code)
 
 
 func reset_execution() -> void:
@@ -584,8 +605,15 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			if bundle.is_dispatcher_noop(current_trigger, action):
 				return _continue_result()
 			halted = true
+			last_error = "Unsupported Classic opcode %d at %s record %d slot %d" % [
+				code,
+				str(current_trigger.get("source", "unknown source")),
+				int(current_trigger.get("recordIndex", -1)),
+				int(action.get("slot", -1)),
+			]
 			return {
 				"status": "unsupported",
+				"message": last_error,
 				"opcode": code,
 				"action": action,
 				"triggerId": _current_trigger_id(),
@@ -2184,7 +2212,7 @@ func _encounter_outcome_trigger(
 			continue
 		var action: Dictionary = action_value.duplicate(true)
 		var raw_code := int(action.get("rawCode", 0))
-		action["code"] = abs(raw_code) if raw_code < 0 and raw_code not in [-14, -23] else raw_code
+		action["code"] = normalize_opcode(raw_code)
 		action["gosub"] = raw_code < 0 and raw_code not in [-14, -23]
 		action["slot"] = slot - first_slot
 		actions.append(action)

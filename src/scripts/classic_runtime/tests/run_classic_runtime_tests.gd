@@ -1,6 +1,7 @@
 extends SceneTree
 
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
+const ExecutionAuditScript = preload("res://scripts/classic_runtime/classic_execution_audit.gd")
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
@@ -220,6 +221,7 @@ func _init() -> void:
 
 	_test_bundle_contract_validation()
 	_test_bundle_indexes(bundle)
+	_test_execution_coverage_audit(bundle)
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -344,6 +346,31 @@ func _test_bundle_contract_validation() -> void:
 		"duplicate identity error includes record-level context"
 	)
 
+	var tileset_bundle = BundleScript.new()
+	tileset_bundle.manifest = _minimal_contract_manifest()
+	tileset_bundle.documents = _minimal_contract_documents()
+	var asset_catalog: Dictionary = tileset_bundle.documents["assets"]["catalog"]
+	asset_catalog["tilesets"] = [{"id": "landlook-0", "pictId": 300}]
+	_expect(
+		tileset_bundle._validate_document_contract(),
+		"bundle contract accepts stable string tileset identities"
+	)
+
+	var encounter_action_bundle = BundleScript.new()
+	encounter_action_bundle.manifest = _minimal_contract_manifest()
+	encounter_action_bundle.documents = _minimal_contract_documents()
+	encounter_action_bundle.documents["encounters"]["simpleEncounters"] = [{
+		"id": 4,
+		"actions": [{"slot": 32, "rawCode": 1, "id": 7}],
+	}]
+	_expect(
+		not encounter_action_bundle._validate_document_contract(),
+		"bundle contract rejects an out-of-range encounter-result slot"
+	)
+	_expect(
+		encounter_action_bundle.last_error.contains("simpleEncounters[0].actions[0].slot"),
+		"encounter action error includes record and slot context"
+	)
 
 func _minimal_contract_manifest() -> Dictionary:
 	return {
@@ -418,6 +445,82 @@ func _test_bundle_indexes(bundle) -> void:
 	_expect_equal(bundle.get_thief_encounter(1).get("highDamage"), 12, "rogue trap index")
 	_expect_equal(bundle.get_picture(32128), {}, "missing picture index")
 	_expect_equal(bundle.get_monster(71), {}, "missing monster index")
+
+
+func _test_execution_coverage_audit(bundle) -> void:
+	var report: Dictionary = ExecutionAuditScript.new().inspect(bundle)
+	var contexts: Dictionary = report.get("contexts", {})
+	_expect(
+		int(contexts.get("data-ed-result", {}).get("actions", 0)) > 0,
+		"execution audit inventories Data ED result actions"
+	)
+	_expect(
+		int(contexts.get("data-ed2-result", {}).get("actions", 0)) > 0,
+		"execution audit inventories Data ED2 result actions"
+	)
+	_expect(
+		int(contexts.get("data-ed3-xap", {}).get("actions", 0)) > 0,
+		"execution audit inventories Data ED3 actions"
+	)
+	var unsupported_opcodes: Array = []
+	for diagnostic_value: Variant in report.get("diagnostics", []):
+		if (
+			diagnostic_value is Dictionary
+			and diagnostic_value.get("code") == "unsupported-action"
+		):
+			unsupported_opcodes.append(int(diagnostic_value.get("opcode", 0)))
+	_expect_equal(unsupported_opcodes.count(33), 4, "execution audit exposes CoB Take Gold uses")
+	_expect_equal(unsupported_opcodes.count(43), 1, "execution audit exposes CoB Give Condition use")
+	_expect_equal(
+		unsupported_opcodes.size(),
+		report.get("totals", {}).get("unknownExecutable"),
+		"every executable unknown action has a readiness diagnostic"
+	)
+
+	var macro_bundle = _execution_audit_test_bundle()
+	var macro_report: Dictionary = ExecutionAuditScript.new().inspect(macro_bundle)
+	var macro_contexts: Dictionary = macro_report.get("contexts", {})
+	_expect_equal(
+		macro_contexts.get("battle-round-macro", {}).get("actions"),
+		2,
+		"execution audit expands battle-round macro roots"
+	)
+	_expect_equal(
+		macro_contexts.get("death-macro", {}).get("actions"),
+		2,
+		"execution audit expands immediate death macro roots"
+	)
+	_expect_equal(
+		macro_contexts.get("queued-death-macro", {}).get("actions"),
+		2,
+		"execution audit expands queued death macro roots"
+	)
+	_expect_equal(
+		macro_contexts.get("data-ed2-result", {}).get("sourceBackedNoops"),
+		1,
+		"execution audit recognizes evidence-backed result no-ops"
+	)
+	_expect(
+		_audit_has_diagnostic(macro_report, "missing-macro-target"),
+		"execution audit diagnoses a missing death macro"
+	)
+	_expect(
+		_audit_has_diagnostic(macro_report, "inactive-macro-target"),
+		"execution audit diagnoses an inactive but reachable macro"
+	)
+
+	var unsupported_interpreter = _interpreter(macro_bundle)
+	_expect(
+		unsupported_interpreter.begin_trigger("audit:complex"),
+		"begin unsupported encounter-result fixture"
+	)
+	unsupported_interpreter.run_until_yield()
+	var unsupported: Dictionary = unsupported_interpreter.resume_encounter(1)
+	_expect_equal(unsupported.get("status"), "unsupported", "unknown result action stops explicitly")
+	_expect(
+		str(unsupported.get("message", "")).contains("Data ED2 record 2 slot 0"),
+		"unsupported result identifies its source record and slot"
+	)
 
 
 func _test_text_and_encounter(bundle) -> void:
@@ -3774,13 +3877,6 @@ func _test_full_bundle(path: String) -> void:
 	for coordinate: Variant in bundle.triggers_by_coordinate:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
-	var handled_codes := [
-		-14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
-		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
-		93, 94, 95, 96, 97, 98, 100, 106, 111, 112,
-		121, 123, 124, 125, 126, 127,
-	]
 	var active_slots := 0
 	var handled_slots := 0
 	for trigger_value: Variant in bundle.triggers_by_id.values():
@@ -3788,11 +3884,31 @@ func _test_full_bundle(path: String) -> void:
 			continue
 		for action_value: Variant in trigger_value.get("actions", []):
 			active_slots += 1
-			if handled_codes.has(int(action_value.get("code", 0))):
+			if InterpreterScript.handles_opcode(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
 	_expect_equal(handled_slots, 2264, "full CoB directly handled action slots")
 	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2734, "full CoB defined-behavior slots")
+	var execution_report: Dictionary = ExecutionAuditScript.new().inspect(bundle)
+	var execution_totals: Dictionary = execution_report.get("totals", {})
+	_expect(
+		int(execution_report.get("contexts", {}).get("data-ed-result", {}).get("actions", 0)) > 0,
+		"full CoB audit includes Data ED result actions"
+	)
+	_expect(
+		int(execution_report.get("contexts", {}).get("data-ed2-result", {}).get("actions", 0)) > 0,
+		"full CoB audit includes Data ED2 result actions"
+	)
+	_expect_equal(
+		_audit_diagnostic_count(execution_report, "unsupported-action"),
+		execution_totals.get("unknownExecutable"),
+		"full CoB audit reports every executable unknown action"
+	)
+	_expect_equal(
+		execution_totals.get("unknownExecutable"),
+		15,
+		"full CoB audit inventories every unsupported encounter-result action"
+	)
 
 	var battle_end_interpreter = _interpreter(bundle)
 	_expect(
@@ -4494,6 +4610,44 @@ func _interpreter(bundle):
 	var interpreter = InterpreterScript.new()
 	interpreter.configure(bundle, state)
 	return interpreter
+
+
+func _execution_audit_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
+		_classic_action(0, 126, 1),
+		_classic_action(1, 124, 2),
+	])
+	bundle.extra_action_points_by_id[10]["active"] = false
+	bundle.battles_by_id[3] = {"id": 3, "battleMacro": -10}
+	bundle.monsters_by_id[4] = {"id": 4, "displayName": "Queued Beast", "deathMacro": 10}
+	bundle.monsters_by_id[5] = {"id": 5, "displayName": "Broken Beast", "deathMacro": 99}
+	_add_stack_trigger(bundle, "audit:complex", -1, [_classic_action(0, 5, 2)])
+	bundle.complex_encounters_by_id[2] = {
+		"id": 2,
+		"actions": [
+			{"slot": 0, "rawCode": 43, "id": 20},
+			{"slot": 1, "rawCode": 200, "id": 0},
+		],
+		"actionResult": 1,
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	bundle.dispatcher_noop_keys["Data ED2:2:1:200"] = true
+	return bundle
+
+
+func _audit_has_diagnostic(report: Dictionary, code: String) -> bool:
+	return _audit_diagnostic_count(report, code) > 0
+
+
+func _audit_diagnostic_count(report: Dictionary, code: String) -> int:
+	var count := 0
+	for diagnostic_value: Variant in report.get("diagnostics", []):
+		if diagnostic_value is Dictionary and diagnostic_value.get("code") == code:
+			count += 1
+	return count
 
 
 func _party_state_test_bundle():

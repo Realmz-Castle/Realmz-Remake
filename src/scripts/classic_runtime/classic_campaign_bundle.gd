@@ -169,6 +169,9 @@ func _validate_document_contract() -> bool:
 			return false
 	if not _validate_trigger_actions():
 		return false
+	for collection_name: String in ["simpleEncounters", "complexEncounters"]:
+		if not _validate_encounter_actions(collection_name):
+			return false
 	if documents["maps"].has("mapRecords") and not _validate_record_collection(
 		"maps", "mapRecords", "id", false
 	):
@@ -178,17 +181,17 @@ func _validate_document_contract() -> bool:
 	if not (catalog is Dictionary):
 		return _fail("assets.catalog must be a JSON object")
 	for specification: Array in [
-		["tilesets", "resourceId"],
-		["pictures", "resourceId"],
-		["icons", "resourceId"],
-		["sounds", "resourceId"],
+		["tilesets", "id", true],
+		["pictures", "resourceId", false],
+		["icons", "resourceId", false],
+		["sounds", "resourceId", false],
 	]:
 		if not _validate_nested_record_collection(
 			"assets.catalog",
 			catalog,
 			str(specification[0]),
 			str(specification[1]),
-			false
+			bool(specification[2])
 		):
 			return false
 
@@ -225,24 +228,51 @@ func _validate_trigger_actions() -> bool:
 			return _fail("%s is missing source record context" % trigger_context)
 		if not _is_nonnegative_integer(trigger.get("recordIndex")):
 			return _fail("%s.recordIndex must be a non-negative integer" % trigger_context)
-		var actions: Variant = trigger.get("actions")
-		if not (actions is Array):
-			return _fail("%s.actions must be a JSON array" % trigger_context)
-		var seen_slots: Dictionary = {}
-		for action_index: int in range(actions.size()):
-			var action: Variant = actions[action_index]
-			var action_context := "%s.actions[%d]" % [trigger_context, action_index]
-			if not (action is Dictionary):
-				return _fail("%s must be a JSON object" % action_context)
-			if not _is_nonnegative_integer(action.get("slot")):
-				return _fail("%s.slot must be a non-negative integer" % action_context)
-			var slot := int(action["slot"])
-			if seen_slots.has(slot):
-				return _fail("%s duplicates action slot %d" % [action_context, slot])
-			seen_slots[slot] = action_index
-			for field_name: String in ["code", "rawCode", "id"]:
-				if not _is_integer(action.get(field_name)):
-					return _fail("%s.%s must be an integer" % [action_context, field_name])
+		if not _validate_action_array(trigger.get("actions"), trigger_context, 7, true):
+			return false
+	return true
+
+
+func _validate_encounter_actions(collection_name: String) -> bool:
+	var encounters: Variant = documents["encounters"].get(collection_name, [])
+	if not (encounters is Array):
+		return false
+	for encounter_index: int in range(encounters.size()):
+		var encounter: Dictionary = encounters[encounter_index]
+		var encounter_context := "encounters.%s[%d]" % [collection_name, encounter_index]
+		if not _validate_action_array(encounter.get("actions"), encounter_context, 31, false):
+			return false
+	return true
+
+
+func _validate_action_array(
+	actions_value: Variant,
+	record_context: String,
+	max_slot: int,
+	require_normalized_code: bool
+) -> bool:
+	if not (actions_value is Array):
+		return _fail("%s.actions must be a JSON array" % record_context)
+	var actions: Array = actions_value
+	var seen_slots: Dictionary = {}
+	for action_index: int in range(actions.size()):
+		var action: Variant = actions[action_index]
+		var action_context := "%s.actions[%d]" % [record_context, action_index]
+		if not (action is Dictionary):
+			return _fail("%s must be a JSON object" % action_context)
+		if not _is_nonnegative_integer(action.get("slot")):
+			return _fail("%s.slot must be a non-negative integer" % action_context)
+		var slot := int(action["slot"])
+		if slot > max_slot:
+			return _fail("%s.slot must be between 0 and %d" % [action_context, max_slot])
+		if seen_slots.has(slot):
+			return _fail("%s duplicates action slot %d" % [action_context, slot])
+		seen_slots[slot] = action_index
+		for field_name: String in ["rawCode", "id"]:
+			if not _is_integer(action.get(field_name)):
+				return _fail("%s.%s must be an integer" % [action_context, field_name])
+		if require_normalized_code and not _is_integer(action.get("code")):
+			return _fail("%s.code must be an integer" % action_context)
 	return true
 
 
