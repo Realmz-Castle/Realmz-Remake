@@ -105,10 +105,12 @@ class CombatTestCreature:
 	extends RefCounted
 	var name: String
 	var current_hp: int
+	var curFaction: int
 
-	func _init(creature_name: String, hp: int) -> void:
+	func _init(creature_name: String, hp: int, faction := 1) -> void:
 		name = creature_name
 		current_hp = hp
+		curFaction = faction
 
 	func get_stat(stat_name: String) -> int:
 		return current_hp if stat_name == "curHP" else 0
@@ -120,6 +122,21 @@ class CombatTestButton:
 
 	func _init(represented_creature: Variant) -> void:
 		creature = represented_creature
+
+
+class CombatTestState:
+	extends RefCounted
+	var all_battle_creatures_btns: Array
+	var battle_creatures_yet_to_act_btns: Array
+	var battle_dead_enemies: Array = []
+
+	func _init(combatants: Array) -> void:
+		all_battle_creatures_btns = combatants.duplicate()
+		battle_creatures_yet_to_act_btns = combatants.duplicate()
+
+	func remove_cb_from_battle(combatant: Variant) -> void:
+		all_battle_creatures_btns.erase(combatant)
+		battle_creatures_yet_to_act_btns.erase(combatant)
 
 
 func _init() -> void:
@@ -154,6 +171,7 @@ func _init() -> void:
 	_test_party_state_actions()
 	_test_priest_turning_actions()
 	_test_combat_monster_presence_action()
+	_test_combat_monster_destruction_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -1808,6 +1826,57 @@ func _test_combat_monster_presence_action() -> void:
 	)
 
 
+func _test_combat_monster_destruction_action() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("combat:destroy"), "begin combat-monster destruction fixture")
+	var command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(command.get("command"), "destroy_combat_monsters", "opcode 125 yields typed mutation")
+	_expect_equal(command.get("payload", {}).get("monsterId"), 134, "destruction preserves monster ID")
+	_expect_equal(command.get("payload", {}).get("maxMatches"), 100, "zero destruction limit becomes 100")
+	_expect(
+		not bool(command.get("payload", {}).get("includeAllFactions")),
+		"default destruction targets hostile monsters"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		921,
+		"destruction command continues to the next combat action"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var enemy_one := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10))
+	var enemy_two := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10))
+	var ally := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10, 0))
+	var other := CombatTestButton.new(CombatTestCreature.new("Podling 42", 10))
+	var defeated := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 0))
+	var roster := [enemy_one, enemy_two, ally, other, defeated]
+	var limited: Array = adapter.select_classic_combatants(
+		{"monsterId": 134, "maxMatches": 1, "includeAllFactions": false},
+		roster
+	)
+	_expect_equal(limited, [enemy_one], "destruction honors its match limit")
+	var hostile_only: Array = adapter.select_classic_combatants(
+		{"monsterId": 134, "maxMatches": 100, "includeAllFactions": false},
+		roster
+	)
+	_expect_equal(hostile_only, [enemy_one, enemy_two], "destruction defaults to hostile matches")
+	var all_factions: Array = adapter.select_classic_combatants(
+		{"monsterId": 134, "maxMatches": 100, "includeAllFactions": true},
+		roster
+	)
+	_expect_equal(all_factions, [enemy_one, enemy_two, ally], "destruction can include allied matches")
+	var combat_state := CombatTestState.new(roster)
+	_expect_equal(
+		adapter.remove_classic_combatants(combat_state, all_factions),
+		3,
+		"combat adapter removes every selected match"
+	)
+	_expect_equal(combat_state.all_battle_creatures_btns.size(), 2, "removed matches leave the live roster")
+	_expect_equal(combat_state.battle_creatures_yet_to_act_btns.size(), 2, "removed matches leave initiative")
+	_expect_equal(combat_state.battle_dead_enemies.size(), 2, "only hostile removals enter battle rewards")
+
+
 func _test_action_point_copy_mutations(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin CoB same-door action")
@@ -3161,7 +3230,7 @@ func _test_full_bundle(path: String) -> void:
 		22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 36, 37, 38,
 		39, 40, 41, 42, 44, 45, 46, 47, 49, 52, 56, 57, 58, 73, 82, 83, 85, 87, 89,
 		93, 94, 95, 96, 97, 98, 106, 111, 112,
-		127,
+		125, 127,
 	]
 	var active_slots := 0
 	var handled_slots := 0
@@ -3173,8 +3242,41 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2229, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2699, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2233, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2703, "full CoB defined-behavior slots")
+
+	for shipped_destruction: Array in [
+		["Data ED3:macro:110", 2, 389, 37, 8],
+		["Data ED3:macro:112", 2, 399, 42, 100],
+		["Data ED3:macro:125", 4, 423, 4, 100],
+		["Data ED3:macro:161", 2, 656, 44, 100],
+	]:
+		var destruction_interpreter = _interpreter(bundle)
+		_expect(
+			destruction_interpreter.begin_trigger(shipped_destruction[0], shipped_destruction[1]),
+			"begin shipped CoB combat destruction %s" % shipped_destruction[0]
+		)
+		var destruction: Dictionary = destruction_interpreter.run_until_yield()
+		_expect_equal(
+			destruction.get("command"),
+			"destroy_combat_monsters",
+			"shipped opcode 125 yields typed mutation"
+		)
+		_expect_equal(
+			destruction.get("payload", {}).get("extraCodeId"),
+			shipped_destruction[2],
+			"shipped destruction preserves Extra Code ID"
+		)
+		_expect_equal(
+			destruction.get("payload", {}).get("monsterId"),
+			shipped_destruction[3],
+			"shipped destruction preserves monster ID"
+		)
+		_expect_equal(
+			destruction.get("payload", {}).get("maxMatches"),
+			shipped_destruction[4],
+			"shipped destruction preserves match limit"
+		)
 
 	for shipped_monster_check: Array in [
 		["Data ED3:macro:121", 441],
@@ -3748,9 +3850,15 @@ func _combat_monster_test_bundle():
 	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
 	bundle.monsters_by_id[134] = {"id": 134, "displayName": "Rat Demi-Lord"}
 	bundle.messages_by_id[920] = {"id": 920, "text": "The fight continues."}
+	bundle.messages_by_id[921] = {"id": 921, "text": "The remaining enemies recoil."}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [134, 0, 0, 0, 0]}
 	_add_stack_trigger(bundle, "combat:present", -1, [
 		_classic_action(0, 127, 134),
 		_classic_action(1, 1, 920),
+	])
+	_add_stack_trigger(bundle, "combat:destroy", -1, [
+		_classic_action(0, 125, 1),
+		_classic_action(1, 1, 921),
 	])
 	return bundle
 

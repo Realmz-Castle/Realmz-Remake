@@ -110,6 +110,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _check_party_ally(payload)
 		"check_combat_monster":
 			return _check_combat_monster(payload)
+		"destroy_combat_monsters":
+			return _destroy_combat_monsters(payload)
 		"add_party_ally":
 			return _add_classic_ally(payload)
 		"present_random_branch":
@@ -316,13 +318,74 @@ func _check_combat_monster(payload: Dictionary) -> Dictionary:
 func combat_has_classic_monster(payload: Dictionary, combatants: Array) -> bool:
 	var monster_id: int = abs(int(payload.get("monsterId", -1)))
 	for combatant_value: Variant in combatants:
-		var creature: Variant = combatant_value.get("creature") \
-			if combatant_value is Object or combatant_value is Dictionary else null
+		var creature: Variant = _combatant_creature(combatant_value)
 		if creature == null or not _is_living_combat_creature(creature):
 			continue
 		if _classic_monster_id(creature) == monster_id:
 			return true
 	return false
+
+
+func _destroy_combat_monsters(payload: Dictionary) -> Dictionary:
+	var state_machine: Object = _autoload("StateMachine")
+	if state_machine == null or not state_machine.has_method("is_combat_state"):
+		return _error("Realmz combat state is unavailable")
+	if not bool(state_machine.is_combat_state()):
+		return _error("Classic combat destruction ran outside a battle")
+	var combat_state: Variant = state_machine.get("combat_state")
+	var combatants: Variant = combat_state.get("all_battle_creatures_btns") \
+		if combat_state is Object else null
+	if not (combatants is Array):
+		return _error("Realmz combat roster is unavailable")
+	var selected: Array = select_classic_combatants(payload, combatants)
+	var removed: int = remove_classic_combatants(combat_state, selected)
+	if removed < 0:
+		return _error("Realmz combat removal API is unavailable")
+	return {"removed": removed}
+
+
+func select_classic_combatants(payload: Dictionary, combatants: Array) -> Array:
+	var selected: Array = []
+	var monster_id := int(payload.get("monsterId", -1))
+	var max_matches := int(payload.get("maxMatches", 0))
+	var include_all_factions := bool(payload.get("includeAllFactions", false))
+	if max_matches <= 0:
+		return selected
+	for combatant_value: Variant in combatants:
+		var creature: Variant = _combatant_creature(combatant_value)
+		if creature == null or not _is_living_combat_creature(creature):
+			continue
+		if _classic_monster_id(creature) != monster_id:
+			continue
+		if not include_all_factions and _combat_creature_faction(creature) == 0:
+			continue
+		selected.append(combatant_value)
+		if selected.size() >= max_matches:
+			break
+	return selected
+
+
+func remove_classic_combatants(combat_state: Variant, combatants: Array) -> int:
+	if not (combat_state is Object) or not combat_state.has_method("remove_cb_from_battle"):
+		return -1
+	var defeated: Variant = combat_state.get("battle_dead_enemies")
+	var removed := 0
+	for combatant_value: Variant in combatants:
+		var creature: Variant = _combatant_creature(combatant_value)
+		if creature == null:
+			continue
+		if defeated is Array and _combat_creature_faction(creature) != 0:
+			if not defeated.has(creature):
+				defeated.append(creature)
+		combat_state.remove_cb_from_battle(combatant_value)
+		removed += 1
+	return removed
+
+
+func _combatant_creature(combatant: Variant) -> Variant:
+	if combatant is Object or combatant is Dictionary:
+		return combatant.get("creature")
+	return null
 
 
 func _is_living_combat_creature(creature: Variant) -> bool:
@@ -331,6 +394,14 @@ func _is_living_combat_creature(creature: Variant) -> bool:
 	if creature is Dictionary:
 		return int(creature.get("curHP", creature.get("currentHP", 0))) > 0
 	return false
+
+
+func _combat_creature_faction(creature: Variant) -> int:
+	if creature is Object:
+		return int(creature.get("curFaction"))
+	if creature is Dictionary:
+		return int(creature.get("curFaction", creature.get("faction", 0)))
+	return 0
 
 
 func _classic_monster_id(creature: Variant) -> int:

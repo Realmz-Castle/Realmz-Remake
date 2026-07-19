@@ -535,6 +535,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			if not call_stack.is_empty():
 				call_stack.pop_back()
 			return _continue_result()
+		125:
+			return _execute_destroy_combat_monsters(record_id)
 		127:
 			return _execute_combat_monster_check(record_id)
 		_:
@@ -555,6 +557,26 @@ func _execute_combat_monster_check(monster_id: int) -> Dictionary:
 	return _yield_result("check_combat_monster", {
 		"monsterId": abs(monster_id),
 		"monster": monster,
+	})
+
+
+func _execute_destroy_combat_monsters(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Destroy-combat-monsters action references missing Extra Code row %d" \
+				% extra_code_id
+		)
+	var monster_id := int(values[0])
+	var max_matches := int(values[1])
+	if max_matches == 0:
+		max_matches = 100
+	return _yield_result("destroy_combat_monsters", {
+		"extraCodeId": extra_code_id,
+		"monsterId": monster_id,
+		"monster": bundle.get_monster(monster_id),
+		"maxMatches": max_matches,
+		"includeAllFactions": int(values[4]) != 0,
 	})
 
 
