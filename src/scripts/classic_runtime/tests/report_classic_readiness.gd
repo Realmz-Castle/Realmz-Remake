@@ -83,6 +83,8 @@ func _collect_spell_names(directory: String, destination: Dictionary) -> void:
 		return
 	var expression := RegEx.new()
 	expression.compile("(?m)^\\s*name\\s*=\\s*[\"']([^\"']+)[\"']")
+	var class_expression := RegEx.new()
+	class_expression.compile("(?m)^\\s*classic_spell_class\\s*=\\s*(-?\\d+)")
 	access.list_dir_begin()
 	var file_name := access.get_next()
 	while not file_name.is_empty():
@@ -90,7 +92,11 @@ func _collect_spell_names(directory: String, destination: Dictionary) -> void:
 			var source := FileAccess.get_file_as_string(directory.path_join(file_name))
 			var match_result := expression.search(source)
 			if match_result != null:
-				destination[match_result.get_string(1)] = true
+				var metadata := {}
+				var class_match := class_expression.search(source)
+				if class_match != null:
+					metadata["classicSpellClass"] = int(class_match.get_string(1))
+				destination[match_result.get_string(1)] = metadata
 		file_name = access.get_next()
 	access.list_dir_end()
 

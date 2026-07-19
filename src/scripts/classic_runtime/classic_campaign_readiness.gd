@@ -187,8 +187,6 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_player_map(bundle, action, reference_id)
 		89:
 			_check_ally(bundle, action, reference_id)
-		127:
-			_check_direct_record(bundle.get_monster(reference_id), action, "monster", reference_id)
 
 
 func _check_direct_record(
@@ -448,8 +446,12 @@ func _check_item_ids(
 		if raw_item_id in [0, -1]:
 			continue
 		var item_id: int = abs(raw_item_id)
+		if _is_empty_scenario_item_response(bundle, item_id):
+			continue
+		var native_items: Variant = _native_context.get("items", {})
+		var item_book: Dictionary = native_items if native_items is Dictionary else {}
 		var names: Array = _adapter._classic_item_names(
-			item_id, _item_mapping, item_texts
+			item_id, _item_mapping, item_texts, item_book
 		)
 		if names.is_empty():
 			_add_blocker(
@@ -461,7 +463,6 @@ func _check_item_ids(
 				{"referenceId": item_id}
 			)
 			continue
-		var native_items: Variant = _native_context.get("items", {})
 		if not (native_items is Dictionary) or native_items.is_empty():
 			continue
 		var has_native_item := false
@@ -486,7 +487,12 @@ func _check_spell_ids(encounter: Dictionary, encounter_id: int) -> void:
 		return
 	for spell_id_value: Variant in spell_ids:
 		var spell_id := int(spell_id_value)
-		if spell_id in [0, 9999] or spell_id < 1101:
+		if spell_id in [0, 9999]:
+			continue
+		if spell_id > 0 and spell_id < 7:
+			_check_spell_class(spell_id, encounter_id)
+			continue
+		if spell_id < 1101:
 			continue
 		var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
 		if str(_spell_mapping.get(mapping_key, "")).is_empty():
@@ -498,6 +504,55 @@ func _check_spell_ids(encounter: Dictionary, encounter_id: int) -> void:
 				"Complex encounter spell %d has no Remake identity" % spell_id,
 				{"referenceId": spell_id}
 			)
+
+
+func _check_spell_class(spell_class: int, encounter_id: int) -> void:
+	var spells: Variant = _native_context.get("spells", {})
+	if not (spells is Dictionary) or spells.is_empty():
+		return
+	for spell_value: Variant in spells.values():
+		if spell_value is Dictionary and int(spell_value.get("classicSpellClass", 0)) == spell_class:
+			return
+	_add_blocker(
+		"missing-native-spell-class",
+		"Data ED2",
+		encounter_id,
+		-1,
+		"Complex encounter spell class %d has no native Remake resource" % spell_class,
+		{"referenceId": spell_class}
+	)
+
+
+func _is_empty_scenario_item_response(bundle: ClassicCampaignBundle, item_id: int) -> bool:
+	var scenario_item := bundle.get_scenario_item(item_id)
+	if scenario_item.is_empty() or not bundle.get_item_text(item_id).is_empty():
+		return false
+	for key_value: Variant in scenario_item.keys():
+		var key := str(key_value)
+		if key in ["id", "itemId", "authored", "provenance", "rawBytes"]:
+			continue
+		if _identity_value_has_content(scenario_item[key_value]):
+			return false
+	return true
+
+
+func _identity_value_has_content(value: Variant) -> bool:
+	if value is bool:
+		return value
+	if value is int or value is float:
+		return value != 0
+	if value is String:
+		return not value.strip_edges().is_empty()
+	if value is Array:
+		for nested_value: Variant in value:
+			if _identity_value_has_content(nested_value):
+				return true
+		return false
+	if value is Dictionary:
+		for nested_value: Variant in value.values():
+			if _identity_value_has_content(nested_value):
+				return true
+	return false
 
 
 func _add_action_dependency(

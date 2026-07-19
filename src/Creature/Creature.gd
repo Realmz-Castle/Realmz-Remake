@@ -28,6 +28,10 @@ var fled_battle : bool = false
 
 var is_player_controlled : bool = false  #doesnt account for  status effects liek fear etc
 var is_npc_ally : bool = false
+# Compatibility identities are separate from the mutable display name. The
+# record ID selects Data MD; name ID is the byte used by several combat macros.
+var classic_monster_id : int = -1
+var classic_monster_name_id : int = -1
 var is_summoned : bool = false
 var summoner : Creature = null
 var summoner_name : String = ''
@@ -1145,6 +1149,8 @@ func get_save_string() -> String :
 
 	savestring += ('{"name":"'+name+'", "level" : '+ str(level)+', "money" : '+ str(money)+',')
 	savestring += ('\n"is_npc_ally" : '+ str(int(is_npc_ally))+',')
+	savestring += ('\n"classicMonsterId" : '+ str(classic_monster_id)+',')
+	savestring += ('\n"classicMonsterNameId" : '+ str(classic_monster_name_id)+',')
 	savestring += ('\n"is_summoned" : '+ str(int(is_summoned))+',')
 	savestring += ('\n"summoner_name" : "'+ str(summoner_name)+'",')
 	savestring += ('\n"joins_combat" : '+ str(int(joins_combat))+',')

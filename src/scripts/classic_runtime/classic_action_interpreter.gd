@@ -680,12 +680,10 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			}
 
 
-func _execute_combat_monster_check(monster_id: int) -> Dictionary:
-	var monster := bundle.get_monster(monster_id)
-	pending_combat_monster_check = {"monsterId": abs(monster_id)}
+func _execute_combat_monster_check(monster_name_id: int) -> Dictionary:
+	pending_combat_monster_check = {"monsterNameId": abs(monster_name_id)}
 	return _yield_result("check_combat_monster", {
-		"monsterId": abs(monster_id),
-		"monster": monster,
+		"monsterNameId": abs(monster_name_id),
 	})
 
 
@@ -740,14 +738,13 @@ func _execute_destroy_combat_monsters(extra_code_id: int) -> Dictionary:
 			"Destroy-combat-monsters action references missing Extra Code row %d" \
 				% extra_code_id
 		)
-	var monster_id := int(values[0])
+	var monster_name_id := int(values[0])
 	var max_matches := int(values[1])
 	if max_matches == 0:
 		max_matches = 100
 	return _yield_result("destroy_combat_monsters", {
 		"extraCodeId": extra_code_id,
-		"monsterId": monster_id,
-		"monster": bundle.get_monster(monster_id),
+		"monsterNameId": monster_name_id,
 		"maxMatches": max_matches,
 		"includeAllFactions": int(values[4]) != 0,
 	})
@@ -2087,17 +2084,16 @@ func _execute_ally_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 	var values := _extra_code_values(extra_code_id)
 	if values.is_empty():
 		return _halt_with_error("Ally branch references missing Extra Code row %d" % extra_code_id)
-	var monster_id := int(values[0])
-	var monster := bundle.get_monster(monster_id)
-	if monster.is_empty():
-		return _halt_with_error("Ally branch references missing monster %d" % monster_id)
+	var monster_name_id := int(values[0])
+	var matching_monsters: Array = bundle.get_monsters_by_name_id(monster_name_id)
+	var monster: Dictionary = matching_monsters[0] if not matching_monsters.is_empty() else {}
 	pending_ally_check = {
 		"values": values,
 		"gosub": gosub,
 	}
 	return _yield_result("check_party_ally", {
 		"extraCodeId": extra_code_id,
-		"monsterId": monster_id,
+		"monsterNameId": monster_name_id,
 		"monster": monster,
 	})
 

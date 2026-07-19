@@ -184,6 +184,8 @@ class CombatTestCreature:
 	var name: String
 	var current_hp: int
 	var curFaction: int
+	var classic_monster_id := -1
+	var classic_monster_name_id := -1
 	var applied_traits: Array = []
 
 	func _init(creature_name: String, hp: int, faction := 1) -> void:
@@ -240,6 +242,8 @@ class SpawnTestCreature:
 	var position := Vector2.ZERO
 	var baseFaction := 5
 	var curFaction := 5
+	var classic_monster_id := -1
+	var classic_monster_name_id := -1
 	var is_player_controlled := false
 	var combat_button: Variant
 	var initialized_name := ""
@@ -676,13 +680,30 @@ func _test_campaign_readiness_report() -> void:
 	]
 	bundle.documents["content"]["monsters"] = [{
 		"id": 71,
+		"nameId": 19,
 		"displayName": "Vodalian",
 	}]
+	bundle.documents["content"]["scenarioItems"] = [
+		{
+			"itemId": 878,
+			"iconId": 601,
+			"itemType": 24,
+			"cost": 10,
+			"weight": 100,
+		},
+		{
+			"itemId": 811,
+			"iconId": 0,
+			"itemType": 0,
+			"cost": 0,
+			"weight": 0,
+		},
+	]
 	bundle.documents["encounters"]["complexEncounters"] = [{
 		"id": 9,
 		"actions": [],
-		"itemIds": [878, 0, 0, 0, 0],
-		"spellIds": [9998, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		"itemIds": [878, 811, 0, 0, 0],
+		"spellIds": [1, 9998, 0, 0, 0, 0, 0, 0, 0, 0],
 	}]
 	bundle.documents["assets"]["catalog"]["pictures"] = [{
 		"id": "scenario-pict-32128",
@@ -690,6 +711,14 @@ func _test_campaign_readiness_report() -> void:
 		"resourceType": "PICT",
 	}]
 	bundle._build_indexes()
+	_expect_equal(bundle.get_scenario_item(878).get("itemId"), 878, "scenario-item index")
+	_expect_equal(
+		bundle.get_monsters_by_name_id(19).map(
+			func(monster: Dictionary) -> int: return int(monster.get("id", -1))
+		),
+		[71],
+		"monster name-ID index"
+	)
 
 	var report: Dictionary = ReadinessScript.new().inspect(bundle, {
 		"bestiary": {
@@ -741,6 +770,16 @@ func _test_campaign_readiness_report() -> void:
 		"readiness reports an unresolved complex-encounter item"
 	)
 	_expect(
+		not _readiness_has_reference_diagnostic(report, "unresolved-item-identity", 811),
+		"readiness ignores empty fixed-capacity scenario-item slots"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report, "missing-native-spell-class", "Data ED2", 9, -1, "progression-blocker"
+		),
+		"readiness requires explicit metadata for Classic spell-class shortcuts"
+	)
+	_expect(
 		_readiness_has_diagnostic(
 			report, "unresolved-spell-identity", "Data ED2", 9, -1, "progression-blocker"
 		),
@@ -757,6 +796,37 @@ func _test_campaign_readiness_report() -> void:
 		json_report.get("schemaVersion") if json_report is Dictionary else -1,
 		ReadinessScript.SCHEMA_VERSION,
 		"readiness JSON carries its schema version"
+	)
+
+	var resolved_report: Dictionary = ReadinessScript.new().inspect(bundle, {
+		"bestiary": {
+			"Imported Vodalian": {
+				"data": {"name": "Vodalian", "classicMonsterId": 71},
+			},
+		},
+		"spells": {
+			"Discover Magic": {"classicSpellClass": 1},
+		},
+		"items": {
+			"Campaign Rope": {"classicItemId": 878},
+		},
+	})
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "unresolved-item-identity", 878
+		),
+		"stable item metadata resolves a scenario-local encounter item"
+	)
+	_expect(
+		not _readiness_has_diagnostic(
+			resolved_report,
+			"missing-native-spell-class",
+			"Data ED2",
+			9,
+			-1,
+			"progression-blocker"
+		),
+		"explicit spell-class metadata resolves a low-ID encounter response"
 	)
 
 	var malformed: Dictionary = ReadinessScript.new().inspect_directory(
@@ -805,6 +875,21 @@ func _readiness_has_diagnostic(
 			and int(diagnostic_value.get("recordIndex", -1)) == record_index
 			and int(diagnostic_value.get("slot", -1)) == slot
 			and str(diagnostic_value.get("classification", "")) == classification
+		):
+			return true
+	return false
+
+
+func _readiness_has_reference_diagnostic(
+	report: Dictionary,
+	code: String,
+	reference_id: int
+) -> bool:
+	for diagnostic_value: Variant in report.get("diagnostics", []):
+		if (
+			diagnostic_value is Dictionary
+			and str(diagnostic_value.get("code", "")) == code
+			and int(diagnostic_value.get("referenceId", -1)) == reference_id
 		):
 			return true
 	return false
@@ -2420,7 +2505,7 @@ func _test_party_state_actions() -> void:
 	_expect(interpreter.begin_trigger("party:ally"), "begin ally-check fixture")
 	var ally_check: Dictionary = interpreter.run_until_yield()
 	_expect_equal(ally_check.get("command"), "check_party_ally", "ally action yields typed check")
-	_expect_equal(ally_check.get("payload", {}).get("monsterId"), 71, "ally check preserves monster ID")
+	_expect_equal(ally_check.get("payload", {}).get("monsterNameId"), 19, "ally check preserves name ID")
 	_expect_equal(
 		ally_check.get("payload", {}).get("monster", {}).get("displayName"),
 		"Vodalian",
@@ -2521,6 +2606,11 @@ func _test_party_state_actions() -> void:
 		adapter.party_has_classic_ally({"monsterId": 71, "monster": {"displayName": "Vodalian"}}, [ally]),
 		"imported Classic monster ID survives ally renaming"
 	)
+	ally.set_meta("classic_monster_name_id", 19)
+	_expect(
+		adapter.party_has_classic_ally({"monsterNameId": 19}, [ally]),
+		"Classic ally name identity survives ally renaming"
+	)
 	_expect_equal(
 		adapter.resolve_classic_monster_bestiary_name(
 			71,
@@ -2533,6 +2623,15 @@ func _test_party_state_actions() -> void:
 	_expect_equal(
 		adapter.resolve_classic_monster_bestiary_name(
 			71,
+			{"displayName": "Renamed Vodalian"},
+			{"Vodalian 71": {"data": {"id": 71, "name": "Vodalian"}}}
+		),
+		"Vodalian 71",
+		"native bestiary IDs resolve before display names"
+	)
+	_expect_equal(
+		adapter.resolve_classic_monster_bestiary_name(
+			71,
 			{"displayName": "Vodalian"},
 			{
 				"Vodalian": {"data": {"name": "Vodalian"}},
@@ -2541,6 +2640,18 @@ func _test_party_state_actions() -> void:
 		),
 		"Imported ally",
 		"ally resource prefers explicit Classic monster ID"
+	)
+	_expect_equal(
+		adapter.resolve_classic_monster_bestiary_name(
+			71,
+			{"displayName": "Vodalian"},
+			{
+				"First Vodalian": {"data": {"name": "Vodalian"}},
+				"Second Vodalian": {"data": {"name": "Vodalian"}},
+			}
+		),
+		"",
+		"ambiguous display names require explicit Classic monster metadata"
 	)
 
 
@@ -2610,11 +2721,10 @@ func _test_combat_monster_presence_action() -> void:
 	_expect(interpreter.begin_trigger("combat:present"), "begin combat-monster check fixture")
 	var check: Dictionary = interpreter.run_until_yield()
 	_expect_equal(check.get("command"), "check_combat_monster", "opcode 127 yields typed check")
-	_expect_equal(check.get("payload", {}).get("monsterId"), 134, "combat check preserves monster ID")
-	_expect_equal(
-		check.get("payload", {}).get("monster", {}).get("displayName"),
-		"Rat Demi-Lord",
-		"combat check carries compiled monster identity"
+	_expect_equal(check.get("payload", {}).get("monsterNameId"), 12, "combat check preserves name ID")
+	_expect(
+		not check.get("payload", {}).has("monsterId"),
+		"combat name checks do not pretend to reference a Data MD record"
 	)
 	var continued: Dictionary = interpreter.resume_combat_monster_check(true)
 	_expect_equal(continued.get("command"), "show_text", "present monster continues combat macro")
@@ -2633,36 +2743,42 @@ func _test_combat_monster_presence_action() -> void:
 
 	var adapter = GodotAdapterScript.new()
 	var metadata_creature := CombatTestCreature.new("Imported enemy", 12)
-	metadata_creature.set_meta("classic_monster_id", 134)
+	metadata_creature.classic_monster_id = 134
+	metadata_creature.classic_monster_name_id = 12
 	var named_creature := CombatTestCreature.new("Rat Demi-Lord 134", 12)
 	var dead_creature := CombatTestCreature.new("Rat Demi-Lord 134", 0)
+	dead_creature.classic_monster_name_id = 12
 	_expect(
 		adapter.combat_has_classic_monster(
-			{"monsterId": 134},
+			{"monsterNameId": 12},
 			[CombatTestButton.new(metadata_creature)]
 		),
-		"combat roster resolves explicit Classic metadata"
-	)
-	_expect(
-		adapter.combat_has_classic_monster(
-			{"monsterId": 134},
-			[CombatTestButton.new(named_creature)]
-		),
-		"combat roster resolves current CoB bestiary suffixes"
+		"combat roster resolves explicit Classic name metadata"
 	)
 	_expect(
 		not adapter.combat_has_classic_monster(
-			{"monsterId": 134},
+			{"monsterNameId": 12},
+			[CombatTestButton.new(named_creature)]
+		),
+		"record-ID name suffixes do not satisfy a distinct Classic name ID"
+	)
+	_expect(
+		not adapter.combat_has_classic_monster(
+			{"monsterNameId": 12},
 			[CombatTestButton.new(dead_creature)]
 		),
 		"combat roster ignores defeated matching monsters"
 	)
 	_expect(
 		adapter.combat_has_classic_monster(
-			{"monsterId": 134},
-			[{"creature": {"classicMonsterId": 134, "curHP": 1}}]
+			{"monsterNameId": 12},
+			[{"creature": {"classicMonsterNameId": 12, "curHP": 1}}]
 		),
 		"combat roster accepts converted dictionary metadata"
+	)
+	_expect(
+		not adapter.combat_has_classic_monster({}, [CombatTestButton.new(metadata_creature)]),
+		"combat name checks reject a missing identity"
 	)
 
 
@@ -2672,7 +2788,7 @@ func _test_combat_monster_destruction_action() -> void:
 	_expect(interpreter.begin_trigger("combat:destroy"), "begin combat-monster destruction fixture")
 	var command: Dictionary = interpreter.run_until_yield()
 	_expect_equal(command.get("command"), "destroy_combat_monsters", "opcode 125 yields typed mutation")
-	_expect_equal(command.get("payload", {}).get("monsterId"), 134, "destruction preserves monster ID")
+	_expect_equal(command.get("payload", {}).get("monsterNameId"), 12, "destruction preserves name ID")
 	_expect_equal(command.get("payload", {}).get("maxMatches"), 100, "zero destruction limit becomes 100")
 	_expect(
 		not bool(command.get("payload", {}).get("includeAllFactions")),
@@ -2685,24 +2801,32 @@ func _test_combat_monster_destruction_action() -> void:
 	)
 
 	var adapter = GodotAdapterScript.new()
-	var enemy_one := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10))
-	var enemy_two := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10))
-	var ally := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 10, 0))
+	var enemy_one_creature := CombatTestCreature.new("Rat Demi-Lord 134", 10)
+	enemy_one_creature.classic_monster_name_id = 12
+	var enemy_one := CombatTestButton.new(enemy_one_creature)
+	var enemy_two_creature := CombatTestCreature.new("Rat Demi-Lord 134", 10)
+	enemy_two_creature.classic_monster_name_id = 12
+	var enemy_two := CombatTestButton.new(enemy_two_creature)
+	var ally_creature := CombatTestCreature.new("Rat Demi-Lord 134", 10, 0)
+	ally_creature.classic_monster_name_id = 12
+	var ally := CombatTestButton.new(ally_creature)
 	var other := CombatTestButton.new(CombatTestCreature.new("Podling 42", 10))
-	var defeated := CombatTestButton.new(CombatTestCreature.new("Rat Demi-Lord 134", 0))
+	var defeated_creature := CombatTestCreature.new("Rat Demi-Lord 134", 0)
+	defeated_creature.classic_monster_name_id = 12
+	var defeated := CombatTestButton.new(defeated_creature)
 	var roster := [enemy_one, enemy_two, ally, other, defeated]
 	var limited: Array = adapter.select_classic_combatants(
-		{"monsterId": 134, "maxMatches": 1, "includeAllFactions": false},
+		{"monsterNameId": 12, "maxMatches": 1, "includeAllFactions": false},
 		roster
 	)
 	_expect_equal(limited, [enemy_one], "destruction honors its match limit")
 	var hostile_only: Array = adapter.select_classic_combatants(
-		{"monsterId": 134, "maxMatches": 100, "includeAllFactions": false},
+		{"monsterNameId": 12, "maxMatches": 100, "includeAllFactions": false},
 		roster
 	)
 	_expect_equal(hostile_only, [enemy_one, enemy_two], "destruction defaults to hostile matches")
 	var all_factions: Array = adapter.select_classic_combatants(
-		{"monsterId": 134, "maxMatches": 100, "includeAllFactions": true},
+		{"monsterNameId": 12, "maxMatches": 100, "includeAllFactions": true},
 		roster
 	)
 	_expect_equal(all_factions, [enemy_one, enemy_two, ally], "destruction can include allied matches")
@@ -2873,6 +2997,8 @@ func _test_combat_monster_spawn_action() -> void:
 		var spawned: Variant = spawned_value.creature
 		_expect_equal(spawned.initialized_name, "Goblin 92", "spawn resolves native bestiary entry")
 		_expect_equal(spawned.get_meta("classic_monster_id"), 92, "spawn records Classic identity")
+		_expect_equal(spawned.classic_monster_id, 92, "spawn preserves Classic record identity")
+		_expect_equal(spawned.classic_monster_name_id, 7, "spawn preserves Classic name identity")
 		_expect_equal(spawned.curFaction, 3, "spawn inherits actor faction")
 		_expect(not spawned_value.bgsprite.visible, "spawn hides native selection background")
 	_expect_equal(
@@ -4289,6 +4415,24 @@ func _test_complex_spell_results(bundle) -> void:
 	var adapter = GodotAdapterScript.new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
+	_expect(
+		FileAccess.get_file_as_string("res://shared_assets/spells/discover_magic.gd").contains(
+			"classic_spell_class = 8"
+		),
+		"Discover Magic exports its Classic class"
+	)
+	_expect(
+		FileAccess.get_file_as_string("res://shared_assets/spells/enchanted_blade.gd").contains(
+			"classic_spell_class = 8"
+		),
+		"Enchanted Blade exports its Classic class"
+	)
+	_expect(
+		FileAccess.get_file_as_string("res://shared_assets/spells/magic_darts.gd").contains(
+			"classic_spell_class = 6"
+		),
+		"Magic Darts exports its Classic class"
+	)
 	_expect_equal(
 		adapter.classic_spell_mapping_key(1201),
 		"10010",
@@ -4384,6 +4528,38 @@ func _test_complex_item_results(bundle) -> void:
 		),
 		3,
 		"scenario item text can identify a complex response item"
+	)
+	_expect_equal(
+		adapter.resolve_complex_item_result(
+			{"itemIds": [878], "itemResults": [2]},
+			"Renamed Rope",
+			{},
+			[],
+			878
+		),
+		2,
+		"stable Classic item metadata survives native item renaming"
+	)
+	_expect_equal(
+		adapter.resolve_complex_item_result(
+			{"itemIds": [878], "itemResults": [2]},
+			"Renamed Rope",
+			{},
+			[],
+			[801, 878]
+		),
+		2,
+		"an item with multiple Classic identities selects the matching response"
+	)
+	_expect_equal(
+		adapter._classic_item_names(
+			878,
+			{},
+			[],
+			{"Campaign Rope": {"classicItemId": 878}}
+		),
+		["Campaign Rope"],
+		"scenario-local item metadata resolves without display-name guessing"
 	)
 
 
@@ -4860,9 +5036,9 @@ func _test_full_bundle(path: String) -> void:
 			"shipped destruction preserves Extra Code ID"
 		)
 		_expect_equal(
-			destruction.get("payload", {}).get("monsterId"),
+			destruction.get("payload", {}).get("monsterNameId"),
 			shipped_destruction[3],
-			"shipped destruction preserves monster ID"
+			"shipped destruction preserves monster name ID"
 		)
 		_expect_equal(
 			destruction.get("payload", {}).get("maxMatches"),
@@ -4889,9 +5065,9 @@ func _test_full_bundle(path: String) -> void:
 			"shipped opcode 127 yields typed check"
 		)
 		_expect_equal(
-			combat_check.get("payload", {}).get("monsterId"),
+			combat_check.get("payload", {}).get("monsterNameId"),
 			shipped_monster_check[1],
-			"shipped combat check preserves monster ID"
+			"shipped combat check preserves monster name ID"
 		)
 
 	for shipped_priest_turning: Array in [
@@ -4971,9 +5147,9 @@ func _test_full_bundle(path: String) -> void:
 		var ally_check: Dictionary = ally_interpreter.run_until_yield()
 		_expect_equal(ally_check.get("command"), "check_party_ally", "shipped ally yields typed check")
 		_expect_equal(
-			ally_check.get("payload", {}).get("monsterId"),
+			ally_check.get("payload", {}).get("monsterNameId"),
 			shipped_ally_check[2],
-			"shipped ally check preserves monster ID"
+			"shipped ally check preserves monster name ID"
 		)
 
 	var add_ally_interpreter = _interpreter(bundle)
@@ -5601,7 +5777,8 @@ func _audit_diagnostic_count(report: Dictionary, code: String) -> int:
 func _party_state_test_bundle():
 	var bundle = BundleScript.new()
 	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
-	bundle.monsters_by_id[71] = {"id": 71, "displayName": "Vodalian"}
+	bundle.monsters_by_id[71] = {"id": 71, "nameId": 19, "displayName": "Vodalian"}
+	bundle.monsters_by_name_id[19] = [bundle.monsters_by_id[71]]
 	_add_stack_trigger(bundle, "party:condition", -1, [
 		_classic_action(0, 40, 1),
 		_classic_action(1, 1, 901),
@@ -5630,11 +5807,11 @@ func _party_state_test_bundle():
 		_classic_action(1, 111, 0),
 	])
 	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 3, 8, 1, 0]}
-	bundle.extra_codes_by_id[2] = {"id": 2, "values": [71, 0, 1, 500, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [19, 0, 1, 500, 0]}
 	bundle.extra_codes_by_id[3] = {"id": 3, "values": [0, 500, 500, 10105, 905]}
 	bundle.extra_codes_by_id[4] = {"id": 4, "values": [1, 3, 3, 0, 0]}
 	bundle.extra_codes_by_id[5] = {"id": 5, "values": [2, 8, 8, 0, 0]}
-	bundle.extra_codes_by_id[6] = {"id": 6, "values": [71, 0, 2, 500, 903]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [19, 0, 2, 500, 903]}
 	bundle.extra_codes_by_id[7] = {"id": 7, "values": [0, 501, 501, 0, 0]}
 	bundle.simple_encounters_by_id[3] = {
 		"id": 3,
@@ -5680,12 +5857,14 @@ func _combat_monster_test_bundle():
 	}
 	bundle.monsters_by_id[92] = {
 		"id": 92,
+		"nameId": 7,
 		"displayName": "Goblin",
 		"traitor": 4,
 		"typeFlags": [0, 0, 0, 0, 0, 0, 0, 0],
 	}
 	bundle.monsters_by_id[134] = {
 		"id": 134,
+		"nameId": 12,
 		"displayName": "Rat Demi-Lord",
 		"typeFlags": [0, 0, 0, 0, 0, 0, 0, 0],
 	}
@@ -5698,7 +5877,9 @@ func _combat_monster_test_bundle():
 	bundle.messages_by_id[926] = {"id": 926, "text": "The repeating event begins."}
 	bundle.messages_by_id[927] = {"id": 927, "text": "The random event begins."}
 	bundle.messages_by_id[928] = {"id": 928, "text": "More enemies appear."}
-	bundle.extra_codes_by_id[1] = {"id": 1, "values": [134, 0, 0, 0, 0]}
+	bundle.monsters_by_name_id[7] = [bundle.monsters_by_id[92]]
+	bundle.monsters_by_name_id[12] = [bundle.monsters_by_id[134]]
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [12, 0, 0, 0, 0]}
 	bundle.extra_codes_by_id[2] = {"id": 2, "values": [134, 42, 0, 0, 0]}
 	bundle.extra_codes_by_id[3] = {"id": 3, "values": [0, 2, 0, 950, 0]}
 	bundle.extra_codes_by_id[4] = {"id": 4, "values": [1, 25, 1, 951, 0]}
@@ -5708,7 +5889,7 @@ func _combat_monster_test_bundle():
 	bundle.extra_codes_by_id[8] = {"id": 8, "values": [0, 0, 0, 0, 0]}
 	bundle.extra_codes_by_id[9] = {"id": 9, "values": [0, 92, 1, 0, 2]}
 	_add_stack_trigger(bundle, "combat:present", -1, [
-		_classic_action(0, 127, 134),
+		_classic_action(0, 127, 12),
 		_classic_action(1, 1, 920),
 	])
 	_add_stack_trigger(bundle, "combat:destroy", -1, [

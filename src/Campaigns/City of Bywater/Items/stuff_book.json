@@ -71,6 +71,24 @@
     "charges_max": 12,
     "delete_on_empty": 1
   },
+  "Rope": {
+    "name": "Rope",
+    "unidentified_name": "Rope",
+    "classicItemId": 878,
+    "is_magical": 0,
+    "description": "A strong coil made of hemp and flax.",
+    "weight": 100,
+    "price": 10,
+    "type": "Supplies",
+    "img_ptr": "ITEM_Rope",
+    "sound": "cloth armor.wav",
+    "slots": [],
+    "hands": 0,
+    "equippable": 0,
+    "stats_mini": "",
+    "stats": {},
+    "unique": 0
+  },
 "Writ of entrance": {
     "name": "Writ of entrance",
     "unidentified_name": "Writ of entrance",

@@ -319,17 +319,25 @@ func _check_party_ally(payload: Dictionary) -> Dictionary:
 
 func party_has_classic_ally(payload: Dictionary, allies: Array) -> bool:
 	var monster_id := int(payload.get("monsterId", -1))
+	var monster_name_id := int(payload.get("monsterNameId", -1))
 	var monster: Variant = payload.get("monster", {})
 	var display_name := str(monster.get("displayName", "")) if monster is Dictionary else ""
 	for ally_value: Variant in allies:
 		var ally_id := -1
+		var ally_name_id := -1
 		var ally_name := ""
 		if ally_value is Object:
-			ally_id = int(ally_value.get_meta("classic_monster_id", -1))
+			ally_id = _classic_monster_id(ally_value)
+			ally_name_id = _classic_monster_name_id(ally_value)
 			ally_name = str(ally_value.get("name"))
 		elif ally_value is Dictionary:
-			ally_id = int(ally_value.get("classicMonsterId", -1))
+			ally_id = _classic_monster_id(ally_value)
+			ally_name_id = _classic_monster_name_id(ally_value)
 			ally_name = str(ally_value.get("name", ""))
+		if monster_name_id >= 0:
+			if ally_name_id == monster_name_id:
+				return true
+			continue
 		if ally_id == monster_id:
 			return true
 		if not display_name.is_empty() and ally_name.to_lower() == display_name.to_lower():
@@ -345,12 +353,15 @@ func _check_combat_monster(payload: Dictionary) -> Dictionary:
 
 
 func combat_has_classic_monster(payload: Dictionary, combatants: Array) -> bool:
-	var monster_id: int = abs(int(payload.get("monsterId", -1)))
+	var monster_name_id := int(payload.get("monsterNameId", -1))
+	if monster_name_id < 0:
+		return false
+	monster_name_id = abs(monster_name_id)
 	for combatant_value: Variant in combatants:
 		var creature: Variant = _combatant_creature(combatant_value)
 		if creature == null or not _is_living_combat_creature(creature):
 			continue
-		if _classic_monster_id(creature) == monster_id:
+		if _classic_monster_name_id(creature) == monster_name_id:
 			return true
 	return false
 
@@ -499,7 +510,7 @@ func spawn_classic_combatants(
 		if not (creature is Object) or not creature.has_method("initialize_from_bestiary_dict"):
 			return _error("Realmz creature cannot load a bestiary entry")
 		creature.initialize_from_bestiary_dict(bestiary_name)
-		creature.set_meta("classic_monster_id", monster_id)
+		_set_classic_monster_identity(creature, monster_id, monster)
 		if resolved_faction != null:
 			creature.set("baseFaction", int(resolved_faction))
 			creature.set("curFaction", int(resolved_faction))
@@ -702,6 +713,7 @@ func _combat_context() -> Dictionary:
 func select_classic_combatants(payload: Dictionary, combatants: Array) -> Array:
 	var selected: Array = []
 	var monster_id := int(payload.get("monsterId", -1))
+	var monster_name_id := int(payload.get("monsterNameId", -1))
 	var max_matches := int(payload.get("maxMatches", 0))
 	var include_all_factions := bool(payload.get("includeAllFactions", false))
 	if max_matches <= 0:
@@ -710,7 +722,9 @@ func select_classic_combatants(payload: Dictionary, combatants: Array) -> Array:
 		var creature: Variant = _combatant_creature(combatant_value)
 		if creature == null or not _is_living_combat_creature(creature):
 			continue
-		if _classic_monster_id(creature) != monster_id:
+		var identity_matches := _classic_monster_name_id(creature) == monster_name_id \
+			if monster_name_id >= 0 else _classic_monster_id(creature) == monster_id
+		if not identity_matches:
 			continue
 		if not include_all_factions and _combat_creature_faction(creature) == 0:
 			continue
@@ -825,6 +839,10 @@ func _classic_spawn_origin(payload: Dictionary, state_machine: Object) -> Varian
 
 func _classic_monster_id(creature: Variant) -> int:
 	if creature is Object:
+		if _object_has_property(creature, "classic_monster_id"):
+			var property_id := int(creature.get("classic_monster_id"))
+			if property_id >= 0:
+				return property_id
 		if creature.has_meta("classic_monster_id"):
 			return int(creature.get_meta("classic_monster_id"))
 		return _classic_monster_id_from_name(str(creature.get("name")))
@@ -835,6 +853,45 @@ func _classic_monster_id(creature: Variant) -> int:
 			return int(creature["classic_monster_id"])
 		return _classic_monster_id_from_name(str(creature.get("name", "")))
 	return -1
+
+
+func _classic_monster_name_id(creature: Variant) -> int:
+	if creature is Object:
+		if _object_has_property(creature, "classic_monster_name_id"):
+			var property_id := int(creature.get("classic_monster_name_id"))
+			if property_id >= 0:
+				return property_id
+		if creature.has_meta("classic_monster_name_id"):
+			return int(creature.get_meta("classic_monster_name_id"))
+		return -1
+	if creature is Dictionary:
+		if creature.has("classicMonsterNameId"):
+			return int(creature["classicMonsterNameId"])
+		if creature.has("classic_monster_name_id"):
+			return int(creature["classic_monster_name_id"])
+		return -1
+	return -1
+
+
+func _set_classic_monster_identity(
+	creature: Object,
+	monster_id: int,
+	monster: Dictionary
+) -> void:
+	var name_id := int(monster.get("nameId", -1))
+	creature.set_meta("classic_monster_id", monster_id)
+	creature.set_meta("classic_monster_name_id", name_id)
+	if _object_has_property(creature, "classic_monster_id"):
+		creature.set("classic_monster_id", monster_id)
+	if _object_has_property(creature, "classic_monster_name_id"):
+		creature.set("classic_monster_name_id", name_id)
+
+
+func _object_has_property(value: Object, property_name: String) -> bool:
+	for property_value: Dictionary in value.get_property_list():
+		if str(property_value.get("name", "")) == property_name:
+			return true
+	return false
 
 
 func _classic_monster_id_from_name(creature_name: String) -> int:
@@ -875,7 +932,7 @@ func _add_classic_ally(payload: Dictionary) -> Dictionary:
 	if not ally.has_method("initialize_from_bestiary_dict"):
 		return _error("Realmz creature cannot load a bestiary entry")
 	ally.initialize_from_bestiary_dict(bestiary_name)
-	ally.set_meta("classic_monster_id", monster_id)
+	_set_classic_monster_identity(ally, monster_id, monster)
 	game_global.add_npc_ally(ally)
 	return {"name": str(ally.get("name")), "monsterId": monster_id}
 
@@ -886,7 +943,7 @@ func resolve_classic_monster_bestiary_name(
 	creature_book: Dictionary
 ) -> String:
 	var display_name := str(monster.get("displayName", ""))
-	var name_match := ""
+	var name_matches: Array[String] = []
 	for bestiary_key: Variant in creature_book:
 		var entry: Variant = creature_book[bestiary_key]
 		if not (entry is Dictionary):
@@ -894,12 +951,22 @@ func resolve_classic_monster_bestiary_name(
 		var data: Variant = entry.get("data", {})
 		if not (data is Dictionary):
 			continue
-		if int(data.get("classicMonsterId", entry.get("classicMonsterId", -1))) == monster_id:
-			return str(bestiary_key)
+		var explicit_ids := _classic_resource_ids(entry, "classicMonsterId", "classicMonsterIds")
+		explicit_ids.append_array(
+			_classic_resource_ids(data, "classicMonsterId", "classicMonsterIds")
+		)
+		if not explicit_ids.is_empty():
+			if explicit_ids.has(monster_id):
+				return str(bestiary_key)
+			continue
+		var native_id: Variant = data.get("id")
+		if native_id is int or native_id is float:
+			if abs(int(native_id)) == monster_id:
+				return str(bestiary_key)
 		var native_name := str(data.get("name", bestiary_key))
 		if not display_name.is_empty() and native_name.to_lower() == display_name.to_lower():
-			name_match = str(bestiary_key)
-	return name_match
+			name_matches.append(str(bestiary_key))
+	return name_matches[0] if name_matches.size() == 1 else ""
 
 
 func _present_random_branch(payload: Dictionary) -> Dictionary:
@@ -1170,17 +1237,30 @@ func resolve_complex_item_result(
 	encounter: Dictionary,
 	item_name: String,
 	item_id_mapping: Dictionary,
-	item_texts: Array
+	item_texts: Array,
+	classic_item_identity: Variant = 0
 ) -> int:
 	var item_ids: Variant = encounter.get("itemIds", [])
 	var item_results: Variant = encounter.get("itemResults", [])
 	if not (item_ids is Array) or not (item_results is Array):
 		return 4
 	var normalized_item_name := _normalized_item_name(item_name)
+	var classic_item_ids: Array[int] = []
+	if classic_item_identity is Array:
+		for classic_id_value: Variant in classic_item_identity:
+			var classic_id: int = abs(int(classic_id_value))
+			if classic_id != 0 and not classic_item_ids.has(classic_id):
+				classic_item_ids.append(classic_id)
+	else:
+		var classic_id: int = abs(int(classic_item_identity))
+		if classic_id != 0:
+			classic_item_ids.append(classic_id)
 	for index: int in range(min(item_ids.size(), item_results.size())):
 		var item_id: int = abs(int(item_ids[index]))
 		if item_id == 0:
 			continue
+		if classic_item_ids.has(item_id):
+			return int(item_results[index])
 		for candidate_name: String in _classic_item_names(
 			item_id,
 			item_id_mapping,
@@ -1189,6 +1269,13 @@ func resolve_complex_item_result(
 			if _normalized_item_name(candidate_name) == normalized_item_name:
 				return int(item_results[index])
 	return 4
+
+
+func _classic_item_ids(item: Dictionary) -> Array[int]:
+	var ids := _classic_resource_ids(item, "classicItemId", "classicItemIds")
+	if ids.is_empty() and item.has("classic_item_id"):
+		ids.append(abs(int(item["classic_item_id"])))
+	return ids
 
 
 func _append_complex_word_choice(
@@ -1321,7 +1408,8 @@ func _select_complex_item(encounter: Dictionary, item_texts: Variant) -> Diction
 			encounter,
 			str(item.get("name", "")),
 			item_mapping,
-			response_item_texts
+			response_item_texts,
+			_classic_item_ids(item)
 		),
 		"itemName": str(item.get("name", "")),
 	}
@@ -1382,17 +1470,41 @@ func _normalized_spell_name(spell_name: String) -> String:
 	return normalized
 
 
+func _classic_resource_ids(
+	resource: Dictionary,
+	singular_field: String,
+	plural_field: String
+) -> Array[int]:
+	var ids: Array[int] = []
+	if resource.has(singular_field):
+		ids.append(abs(int(resource[singular_field])))
+	var plural_value: Variant = resource.get(plural_field, [])
+	if plural_value is Array:
+		for id_value: Variant in plural_value:
+			var resource_id: int = abs(int(id_value))
+			if not ids.has(resource_id):
+				ids.append(resource_id)
+	return ids
+
+
 func _classic_item_names(
 	item_id: int,
 	item_id_mapping: Dictionary,
-	item_texts: Array
+	item_texts: Array,
+	item_book: Dictionary = {}
 ) -> Array[String]:
 	var names: Array[String] = []
+	for item_key: Variant in item_book:
+		var item_value: Variant = item_book[item_key]
+		if not (item_value is Dictionary):
+			continue
+		if _classic_resource_ids(item_value, "classicItemId", "classicItemIds").has(item_id):
+			names.append(str(item_key))
 	var mapped_name := str(item_id_mapping.get(
 		item_id,
 		item_id_mapping.get(str(item_id), "")
 	))
-	if not mapped_name.is_empty():
+	if not mapped_name.is_empty() and not names.has(mapped_name):
 		names.append(mapped_name)
 	var alias_name := str(CLASSIC_SHARED_ITEM_ALIASES.get(item_id, ""))
 	if not alias_name.is_empty() and not names.has(alias_name):
@@ -1646,29 +1758,21 @@ func build_treasure_delivery(
 	if not (item_ids is Array):
 		return _error("Classic treasure item IDs must be an array")
 
-	var item_texts_by_id: Dictionary = {}
 	var item_texts: Variant = payload.get("itemTexts", [])
-	if item_texts is Array:
-		for item_text_value: Variant in item_texts:
-			if item_text_value is Dictionary:
-				var item_id: int = abs(int(item_text_value.get("itemId", 0)))
-				if item_id != 0:
-					item_texts_by_id[item_id] = item_text_value
+	var response_item_texts: Array = item_texts if item_texts is Array else []
 
 	var item_names: Array[String] = []
 	for item_id_value: Variant in item_ids:
 		var item_id: int = abs(int(item_id_value))
 		if item_id == 0:
 			continue
-		var item_name := str(item_id_mapping.get(item_id, ""))
-		if item_name.is_empty() or not available_items.has(item_name):
-			var item_text: Variant = item_texts_by_id.get(item_id, {})
-			if item_text is Dictionary:
-				for key: String in ["identifiedName", "unidentifiedName"]:
-					var candidate := str(item_text.get(key, "")).strip_edges()
-					if available_items.has(candidate):
-						item_name = candidate
-						break
+		var item_name := ""
+		for candidate: String in _classic_item_names(
+			item_id, item_id_mapping, response_item_texts, available_items
+		):
+			if available_items.has(candidate):
+				item_name = candidate
+				break
 		if item_name.is_empty() or not available_items.has(item_name):
 			return _error("Classic item %d has no loaded Remake item mapping" % item_id)
 		item_names.append(item_name)
@@ -1728,7 +1832,9 @@ func build_shop_inventory(
 		if category_index >= SHOP_CATEGORIES.size():
 			return _error("Classic shop stock slot %d is outside its fixed categories" % slot)
 		var item_name := ""
-		for candidate: String in _classic_item_names(item_id, item_id_mapping, item_texts):
+		for candidate: String in _classic_item_names(
+			item_id, item_id_mapping, item_texts, available_items
+		):
 			if available_items.has(candidate):
 				item_name = candidate
 				break
@@ -1794,6 +1900,13 @@ func _accepted_classic_shop_item_names(
 		candidate_ids[abs(int(item_id_value))] = true
 	for item_id_value: Variant in CLASSIC_SHARED_ITEM_ALIASES.keys():
 		candidate_ids[abs(int(item_id_value))] = true
+	for item_value: Variant in available_items.values():
+		if not (item_value is Dictionary):
+			continue
+		for item_id: int in _classic_resource_ids(
+			item_value, "classicItemId", "classicItemIds"
+		):
+			candidate_ids[item_id] = true
 	for item_text_value: Variant in item_texts:
 		if item_text_value is Dictionary:
 			candidate_ids[abs(int(item_text_value.get("itemId", 0)))] = true
@@ -1803,7 +1916,9 @@ func _accepted_classic_shop_item_names(
 		var item_id := int(item_id_value)
 		if item_id == 0 or not classic_shop_accepts_item_id(item_id, accept_ranges):
 			continue
-		for item_name: String in _classic_item_names(item_id, item_id_mapping, item_texts):
+		for item_name: String in _classic_item_names(
+			item_id, item_id_mapping, item_texts, available_items
+		):
 			if available_items.has(item_name):
 				accepted_names[item_name] = true
 	return accepted_names
@@ -1991,11 +2106,16 @@ func _mapped_item_names(payload: Dictionary) -> Array[String]:
 	var item_ids: Object = _autoload("ItemIdDivinity")
 	var item_mapping: Dictionary = item_ids.mapping \
 		if item_ids != null and item_ids.mapping is Dictionary else {}
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	var item_book: Dictionary = resources.items_book \
+		if resources != null and resources.items_book is Dictionary else {}
 	var item_texts: Variant = payload.get("itemTexts", [])
 	return _classic_item_names(
 		abs(int(payload.get("itemId", 0))),
 		item_mapping,
-		item_texts if item_texts is Array else []
+		item_texts if item_texts is Array else [],
+		item_book
 	)
 
 
@@ -2150,11 +2270,16 @@ func _select_characters_by_misc(payload: Dictionary) -> Dictionary:
 	if selector == "has_item" or selector == "wearing_item":
 		var item_ids: Object = _autoload("ItemIdDivinity")
 		var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
+		var node_access: Object = _autoload("NodeAccess")
+		var resources: Object = node_access.__Resources() if node_access != null else null
+		var item_book: Dictionary = resources.items_book \
+			if resources != null and resources.items_book is Dictionary else {}
 		var item_texts: Variant = payload.get("itemTexts", [])
 		var names := _classic_item_names(
 			abs(int(payload.get("value", 0))),
 			item_mapping,
-			item_texts if item_texts is Array else []
+			item_texts if item_texts is Array else [],
+			item_book
 		)
 		if names.is_empty():
 			return _error(

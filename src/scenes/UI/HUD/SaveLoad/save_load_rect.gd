@@ -332,6 +332,10 @@ func load_game(campaignname : String, savename : String) :
 		creascript.name = crea_dict["name"]
 		creascript.level = crea_dict["level"]
 		creascript.is_npc_ally = bool(crea_dict["is_npc_ally"])
+		creascript.classic_monster_id = int(crea_dict.get("classicMonsterId", -1))
+		creascript.classic_monster_name_id = int(
+			crea_dict.get("classicMonsterNameId", -1)
+		)
 		creascript.is_summoned = bool(crea_dict["is_summoned"])
 		creascript.summoner_name = crea_dict["summoner_name"]
 		creascript.joins_combat = bool(crea_dict["joins_combat"])

@@ -30,8 +30,10 @@ var messages_by_id: Dictionary = {}
 var battles_by_id: Dictionary = {}
 var treasures_by_id: Dictionary = {}
 var shops_by_id: Dictionary = {}
+var scenario_items_by_id: Dictionary = {}
 var item_texts_by_id: Dictionary = {}
 var monsters_by_id: Dictionary = {}
+var monsters_by_name_id: Dictionary = {}
 var simple_encounters_by_id: Dictionary = {}
 var complex_encounters_by_id: Dictionary = {}
 var thief_encounters_by_id: Dictionary = {}
@@ -446,8 +448,16 @@ func get_item_text(item_id: int) -> Dictionary:
 	return item_texts_by_id.get(abs(item_id), {})
 
 
+func get_scenario_item(item_id: int) -> Dictionary:
+	return scenario_items_by_id.get(abs(item_id), {})
+
+
 func get_monster(monster_id: int) -> Dictionary:
 	return monsters_by_id.get(abs(monster_id), {})
+
+
+func get_monsters_by_name_id(name_id: int) -> Array:
+	return monsters_by_name_id.get(name_id, [])
 
 
 func get_encounter(encounter_kind: String, encounter_id: int) -> Dictionary:
@@ -522,8 +532,10 @@ func _reset() -> void:
 	battles_by_id.clear()
 	treasures_by_id.clear()
 	shops_by_id.clear()
+	scenario_items_by_id.clear()
 	item_texts_by_id.clear()
 	monsters_by_id.clear()
+	monsters_by_name_id.clear()
 	simple_encounters_by_id.clear()
 	complex_encounters_by_id.clear()
 	thief_encounters_by_id.clear()
@@ -587,12 +599,22 @@ func _build_indexes() -> void:
 			shops_by_id[int(shop.get("id", -1))] = shop
 
 	var content_document: Dictionary = documents["content"]
+	for scenario_item: Variant in _array_value(content_document, "scenarioItems"):
+		if scenario_item is Dictionary:
+			var item_id := int(scenario_item.get("itemId", -1))
+			if item_id >= 0:
+				scenario_items_by_id[abs(item_id)] = scenario_item
 	for item_text: Variant in _array_value(content_document, "itemTexts"):
 		if item_text is Dictionary:
 			item_texts_by_id[int(item_text.get("itemId", -1))] = item_text
 	for monster: Variant in _array_value(content_document, "monsters"):
 		if monster is Dictionary:
 			monsters_by_id[int(monster.get("id", -1))] = monster
+			var name_id := int(monster.get("nameId", -1))
+			if name_id >= 0:
+				if not monsters_by_name_id.has(name_id):
+					monsters_by_name_id[name_id] = []
+				monsters_by_name_id[name_id].append(monster)
 	for encounter: Variant in _array_value(encounter_document, "simpleEncounters"):
 		if encounter is Dictionary:
 			simple_encounters_by_id[int(encounter.get("id", -1))] = encounter

@@ -79,6 +79,11 @@ needs a Remake resource name. When an asset record includes `payloadPath`, the p
 is relative to the campaign root and follows the same traversal and absolute-path
 restrictions as the document paths.
 
+Monster `id` selects a Data MD record. A monster's optional `nameId` is a separate
+Classic byte used by ally and combat comparisons and must not be treated as a
+record reference. Scenario-item records use `itemId`, including sparse fixed-size
+rows whose other authored fields may all be zero.
+
 A document may omit a collection when that collection is empty. If the collection
 is present, it must be an array and every row must satisfy its identity contract.
 

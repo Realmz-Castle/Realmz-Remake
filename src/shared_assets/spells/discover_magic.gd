@@ -5,6 +5,7 @@ func _init() -> void :
 	elements = [GameGlobal.ELEMENTS.MAGICAL]
 	tags = ["Magical", "Misc."]
 	schools = ["Sorcerer", "Priest", "Enchanter"]
+	classic_spell_class = 8
 	targettile = TARGET_TILE.CREATURE
 	school_levels = {"Sorcerer": 1, "Priest": 1, "Enchanter": 1}
 	selection_costs = {"Sorcerer": 1, "Priest": 1, "Enchanter": 1}

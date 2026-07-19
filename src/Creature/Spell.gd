@@ -61,6 +61,9 @@ var description : String = ""
 var elements : Array[GameGlobal.ELEMENTS] = []
 var tags : Array = []
 var schools : Array = []
+# Classic spells also carry an effect class. Complex encounters can match
+# classes 1-6 instead of a packed spell-table ID.
+var classic_spell_class : int = 0
 
 var targettile : TARGET_TILE = TARGET_TILE.NOWALL
 var school_levels : Dictionary = {"Sorcerer": 0, "Priest": 0, "Enchanter": 0}

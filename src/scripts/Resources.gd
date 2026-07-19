@@ -292,6 +292,16 @@ func load_bestiary_resources( path : String ) -> void:
 			new_crea_data["traits"] = n_crea_stuff_book[crea_name]["traits"]
 		new_crea_data["data"] = n_crea_stuff_book[crea_name] ["data"]
 		new_crea_data["data"]["image"] = images_book[ new_crea_data["data"]["image"] ]["tex"]
+		if n_crea_stuff_book[crea_name].has("classicMonsterId") :
+			new_crea_data["classicMonsterId"] = int(
+				n_crea_stuff_book[crea_name]["classicMonsterId"]
+			)
+		if (
+			n_crea_stuff_book[crea_name].has("classicMonsterIds")
+			and n_crea_stuff_book[crea_name]["classicMonsterIds"] is Array
+		) :
+			new_crea_data["classicMonsterIds"] = \
+				n_crea_stuff_book[crea_name]["classicMonsterIds"].duplicate()
 		new_crea_data["tools"] = n_crea_stuff_book[crea_name]["tools"]
 		new_crea_data["ai"] = n_crea_stuff_book[crea_name]["ai"]
 		if n_crea_stuff_book[crea_name].has("scripts"):
@@ -344,6 +354,10 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 	new_item["name"] = json_dict["name"]
 	new_item["type"] = json_dict["type"]
 	new_item["sound"] = json_dict["sound"]
+	if json_dict.has("classicItemId") :
+		new_item["classicItemId"] = int(json_dict["classicItemId"])
+	if json_dict.has("classicItemIds") and json_dict["classicItemIds"] is Array :
+		new_item["classicItemIds"] = json_dict["classicItemIds"].duplicate()
 
 	if json_dict.has("unique") :
 		new_item["unique"] = json_dict["unique"]
