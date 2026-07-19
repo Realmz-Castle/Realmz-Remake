@@ -54,11 +54,18 @@ func _on_get_player_controlled() :
 	return [true, false, false].pick_random()
 
 func _on_get_creature_script() :
-	#print(GameGlobal.cmp_resources.creascripts_book)
-	chara.curFaction = [0,0,1,2].pick_random()
-	var runing_script = GameGlobal.cmp_resources.creascripts_book['runningaway.gd']
-	var dumb_script = GameGlobal.cmp_resources.creascripts_book['dumb_melee.gd']
-	return [runing_script,dumb_script].pick_random()
+	chara.curFaction = [0, 0, 1, 2].pick_random()
+	var tree := Engine.get_main_loop() as SceneTree
+	var game_global: Node = tree.root.get_node_or_null("GameGlobal") if tree != null else null
+	if game_global == null:
+		return null
+	var resources = game_global.get("cmp_resources")
+	if resources == null:
+		return null
+	var creature_scripts: Dictionary = resources.get("creascripts_book")
+	var running_script = creature_scripts["runningaway.gd"]
+	var dumb_script = creature_scripts["dumb_melee.gd"]
+	return [running_script, dumb_script].pick_random()
 	
 func get_info_as_text() -> String :
 	return 'Confused for '+str(ceil(duration/5))+'rounds'

@@ -684,12 +684,14 @@ func _test_campaign_readiness_report() -> void:
 	bundle.documents["scripts"]["triggers"] = [
 		_readiness_action_point("Data DD", 76, 27, 32128),
 		_readiness_action_point("Data DD", 89, 18, 375),
+		_readiness_action_point("Data ED3", 108, 17, 388),
 		_readiness_action_point("Data ED3", 128, 17, 428),
 		_readiness_action_point("Data ED3", 103, 89, 71),
 		_readiness_action_point("Data ED3", 197, -85, -1700),
 	]
 	bundle.documents["scripts"]["extraCodes"] = [
 		{"id": 375, "values": [1408, 3, 0, 0, 0]},
+		{"id": 388, "values": [2301, 1, 0, 0, 0]},
 		{"id": 428, "values": [4606, 3, 30, 0, 0]},
 		# The positive record exists, but Classic's signed lookup is exact.
 		{"id": 1700, "values": [40, 40, 40, 40, 40]},
@@ -784,6 +786,10 @@ func _test_campaign_readiness_report() -> void:
 		"readiness reports a missing Power Drain resource"
 	)
 	_expect(
+		_readiness_has_reference_diagnostic(report, "missing-native-spell", 2301),
+		"readiness reports a missing Confuse resource"
+	)
+	_expect(
 		_readiness_has_diagnostic(
 			report, "unresolved-item-identity", "Data ED2", 9, -1, "progression-blocker"
 		),
@@ -825,6 +831,7 @@ func _test_campaign_readiness_report() -> void:
 			},
 		},
 		"spells": {
+			"Confuse": {"classicSpellIds": [2301]},
 			"Discover Magic": {"classicSpellClass": 1},
 			"Power Drain": {"classicSpellIds": [1408, 3311]},
 		},
@@ -860,6 +867,12 @@ func _test_campaign_readiness_report() -> void:
 			resolved_report, "unsupported-native-spell-variant", 1408
 		),
 		"supported spell-ID metadata does not produce a variant blocker"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			resolved_report, "missing-native-spell", 2301
+		),
+		"explicit Confuse identity resolves its field-spell reference"
 	)
 
 	var unsupported_variant_report: Dictionary = ReadinessScript.new().inspect(bundle, {
@@ -4463,6 +4476,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
 	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
+	var confuse = load("res://shared_assets/spells/confuse.gd").new()
 	_expect_equal(flame_hands.classic_spell_class, 1, "Flame Hands exports its Classic class")
 	_expect_equal(flame_hands.get_range(7, null), 1, "Flame Hands keeps its touch range")
 	_expect_equal(flame_hands.get_min_damage(3, null), 3, "Flame Hands minimum scales by power")
@@ -4540,6 +4554,27 @@ func _test_complex_spell_results(bundle) -> void:
 		"Power Drain cannot remove more spell points than remain"
 	)
 	_expect_equal(nearly_empty_target.current_sp, 0, "Power Drain clamps spell points at zero")
+	_expect(confuse.supports_classic_spell_id(2301), "Confuse exports its exact Classic ID")
+	_expect_equal(confuse.classic_spell_class, 5, "Confuse exports its Classic class")
+	_expect_equal(confuse.get_range(7, null), 9, "Confuse keeps its fixed range")
+	_expect_equal(confuse.get_duration_roll(3, null), 3, "Confuse lasts one round per power")
+	_expect_equal(confuse.get_sp_cost(3, null), 45, "Confuse cost scales by power")
+	_expect_equal(confuse.get_aoe(1, null), Spell.AoE_b7, "Confuse keeps its fixed size-7 area")
+	_expect_equal(confuse.get_damage_roll(7, null), 0, "Confuse does not deal health damage")
+	var confused_target := ConditionTestCharacter.new("Confused target")
+	confuse.add_traits_to_creature(null, confused_target, 3)
+	_expect_equal(confused_target.traits.size(), 1, "Confuse applies one condition trait")
+	_expect(
+		str(confused_target.traits[0].name).ends_with("t_confused.gd"),
+		"Confuse reuses Remake's temporary confusion trait"
+	)
+	_expect_equal(confused_target.traits[0].power, 3, "Confuse passes its Classic duration")
+	var confused_trait = load("res://shared_assets/traits/t_confused.gd").new(
+		[confused_target, 3]
+	)
+	_expect_equal(confused_trait.get_saved_variables(), [3], "Confuse lasts three rounds")
+	confused_trait.stack([2])
+	_expect_equal(confused_trait.get_saved_variables(), [5], "Confuse durations stack")
 	_expect(
 		FileAccess.get_file_as_string("res://shared_assets/spells/discover_magic.gd").contains(
 			"classic_spell_class = 8"
