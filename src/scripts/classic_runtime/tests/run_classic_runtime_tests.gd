@@ -4415,6 +4415,19 @@ func _test_complex_spell_results(bundle) -> void:
 	var adapter = GodotAdapterScript.new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
+	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	_expect_equal(flame_hands.classic_spell_class, 1, "Flame Hands exports its Classic class")
+	_expect_equal(flame_hands.get_range(7, null), 1, "Flame Hands keeps its touch range")
+	_expect_equal(flame_hands.get_min_damage(3, null), 3, "Flame Hands minimum scales by power")
+	_expect_equal(flame_hands.get_max_damage(3, null), 9, "Flame Hands maximum scales by power")
+	_expect_equal(flame_hands.get_sp_cost(3, null), 6, "Flame Hands cost scales by power")
+	_expect_equal(fireball.classic_spell_class, 1, "Fireball exports its Classic class")
+	_expect_equal(fireball.get_range(7, null), 15, "Fireball keeps its fixed range")
+	_expect_equal(fireball.get_min_damage(7, null), 1, "Fireball keeps its fixed minimum damage")
+	_expect_equal(fireball.get_max_damage(7, null), 16, "Fireball keeps its fixed maximum damage")
+	_expect_equal(fireball.get_sp_cost(3, null), 27, "Fireball cost scales by power")
+	_expect_equal(fireball.get_aoe(3, null), Spell.AoE_b3, "Fireball area scales by power")
 	_expect(
 		FileAccess.get_file_as_string("res://shared_assets/spells/discover_magic.gd").contains(
 			"classic_spell_class = 8"
