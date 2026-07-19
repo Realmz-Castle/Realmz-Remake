@@ -145,6 +145,17 @@ The command exits with status 0 only after every required document has passed th
 consumer contract and its runtime indexes have been built. Status 1 identifies an
 invalid bundle; status 2 identifies incorrect command-line usage.
 
+Contract validity does not imply playability. The readiness command adds
+executable-record, reference, identity, and native-resource checks and separates
+progression blockers from non-fatal fidelity fallbacks:
+
+```powershell
+godot --headless --path src --script res://scripts/classic_runtime/tests/report_classic_readiness.gd -- "F:\path\to\bundle" "F:\path\to\native-campaign" --json
+```
+
+The native campaign path is optional. When provided, the report also checks the
+shared and campaign resource names available to the Remake adapter.
+
 ## Independent fixture proof
 
 Remake's consumer tests load the checked City of Bywater, War in the Sword Lands,

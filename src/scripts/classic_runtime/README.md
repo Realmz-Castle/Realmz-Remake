@@ -119,7 +119,7 @@ Percent branches use Classic's inclusive 1-100 roll. Their success action can re
 
 Difficulty branches compare their threshold with Classic's saved five-step difficulty setting, represented internally from `-2` (easiest) through `2` (hardest), with `0` as the default. They use the same success outcomes as percent branches. City of Bywater does not author opcode `58`, so this handler does not change its compatibility coverage count.
 
-Opcode `40` reads Classic party conditions through a small native-state mapping; City of Bywater's shipped use checks Waterworld against Remake's active WaterBreath effect before branching to complex encounter 8. Opcode `43` applies its signed condition value to the whole party, the current picked set, or every living character. City of Bywater's two uses permanently poison or disease picked characters, so those conditions map to Remake's existing saved traits. The rules preserve Classic's pre-target clearing of positive durations and accumulation of permanent values; other condition indexes remain an explicit native-mapping boundary. Opcode `85` selects an inclusive random AP, simple encounter, or complex encounter and preserves its optional sound and message before branching. The only City of Bywater slot is inside malformed `Data ED3:macro:197` data and remains a signed missing-row diagnostic rather than being guessed into valid scenario logic. Opcodes `87` and `89` resolve compiled monster identities through the native ally list and bestiary. Existing allies can match an imported Classic monster ID or exact display name; adding one requires an exact native bestiary identity and records the Classic ID on the created ally. City of Bywater's Vodalian currently has no exact native bestiary entry, so that mutation stops at a visible resource boundary. Opcode `98` is intentionally a no-op because the open-source Classic dispatcher disables its registration check.
+Opcode `40` reads Classic party conditions through a small native-state mapping; City of Bywater's shipped use checks Waterworld against Remake's active WaterBreath effect before branching to complex encounter 8. Opcode `43` applies its signed condition value to the whole party, the current picked set, or every living character. City of Bywater's two uses permanently poison or disease picked characters, so those conditions map to Remake's existing saved traits. The rules preserve Classic's pre-target clearing of positive durations and accumulation of permanent values; other condition indexes remain an explicit native-mapping boundary. Opcode `85` selects an inclusive random AP, simple encounter, or complex encounter and preserves its optional sound and message before branching. The only City of Bywater slot is inside malformed `Data ED3:macro:197` data and remains a signed missing-row diagnostic rather than being guessed into valid scenario logic. Opcodes `87` and `89` resolve compiled monster identities through the native ally list and bestiary. Existing allies can match an imported Classic monster ID or exact display name; adding one requires an exact native bestiary identity and records the Classic ID on the created ally. City of Bywater's Vodalian resolves through the shared `Vodalian 71` entry; a scenario-local ally with no shared or campaign match remains a visible resource boundary. Opcode `98` is intentionally a no-op because the open-source Classic dispatcher disables its registration check.
 
 Opcodes `82` and `83` persist Classic's global permission to turn undead and nether spawn, then present their fixed message and sound through the native HUD. New campaigns start with turning enabled, and older snapshots use the same default. Battle requests carry the current value into the native combat adapter. Remake defines a `Turn_Undead` character stat but does not yet implement the corresponding combat action, so consuming this permission remains part of the combat bridge rather than being approximated here.
 
@@ -154,6 +154,34 @@ result-path inventory does not revise the 2,734-trigger claim.
 The [compatibility gap register](COMPATIBILITY_GAPS.md) tracks required integration work and recommended fidelity improvements separately from opcode coverage.
 
 The interpreter will still stop explicitly when a selected encounter result contains an unsupported opcode. Compiled player-map records do not yet have a standalone Remake renderer, so display requests without compatible native minimap art fall back to the map note. Decoded scenario PICT files, trap spells, scroll-as-spell and door-activation encounter items, imported spell-class metadata, exact native identities for scenario allies, unmigrated field-spell resources, Classic spell save and force-affect modifiers, the native turn-undead combat action, Classic combat-spawn animation, and the timed tumbler minigame also remain explicit boundaries. The original runtime's hidden developer command words are intentionally not exposed through scenario speech input. This keeps the compatibility boundary visible while more handlers are added.
+
+## Campaign readiness report
+
+`ClassicCampaignReadiness` combines the executable-action inventory with bundle,
+record, identity, and native-resource checks. Every result carries a source file,
+record index, slot when applicable, severity, and one of two player-facing
+classifications:
+
+- `progression-blocker` means the missing data or behavior can stop execution or
+  change an authored result.
+- `fidelity-fallback` means play can continue with missing or reduced
+  presentation.
+
+Run the report against any compiled bundle. Supplying the matching native
+campaign directory also checks shared and campaign bestiary, item, spell, and
+sound resources:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_readiness.gd -- "C:\path\to\compiled-bundle" "F:\Realmz Remake\src\Campaigns\City of Bywater"
+```
+
+Add `--json` for the versioned machine-readable report. Exit status 0 means no
+progression blockers were found, status 1 means the campaign is blocked, and
+status 2 means the command was used incorrectly. The current City of Bywater
+export identifies metadata-only PICT 32128 as a fidelity fallback and reports
+the signed `Data ED3` record 197 / Data EDCD `-1700` reference plus field-spell
+record 128 as progression blockers. Its Vodalian ally resolves through the
+shared bestiary and therefore correctly produces no ally diagnostic.
 
 ## Godot guard-house playtest
 

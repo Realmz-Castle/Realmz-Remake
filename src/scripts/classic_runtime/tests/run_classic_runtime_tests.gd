@@ -2,6 +2,7 @@ extends SceneTree
 
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
 const ExecutionAuditScript = preload("res://scripts/classic_runtime/classic_execution_audit.gd")
+const ReadinessScript = preload("res://scripts/classic_runtime/classic_campaign_readiness.gd")
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
@@ -297,6 +298,7 @@ func _init() -> void:
 	_test_bundle_contract_validation()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
+	_test_campaign_readiness_report()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -648,6 +650,164 @@ func _test_execution_coverage_audit(bundle) -> void:
 		str(unsupported.get("message", "")).contains("Data ED2 record 2 slot 0"),
 		"unsupported result identifies its source record and slot"
 	)
+
+
+func _test_campaign_readiness_report() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = _minimal_contract_manifest()
+	bundle.manifest["id"] = "scenario-city-of-bywater"
+	bundle.manifest["name"] = "City of Bywater"
+	bundle.documents = _minimal_contract_documents()
+	bundle.documents["scenario"]["identity"] = {
+		"id": bundle.manifest["id"],
+		"name": bundle.manifest["name"],
+	}
+	bundle.documents["maps"]["maps"] = [{"id": "land:0"}]
+	bundle.documents["scripts"]["triggers"] = [
+		_readiness_action_point("Data DD", 76, 27, 32128),
+		_readiness_action_point("Data ED3", 128, 17, 428),
+		_readiness_action_point("Data ED3", 103, 89, 71),
+		_readiness_action_point("Data ED3", 197, -85, -1700),
+	]
+	bundle.documents["scripts"]["extraCodes"] = [
+		{"id": 428, "values": [4606, 3, 30, 0, 0]},
+		# The positive record exists, but Classic's signed lookup is exact.
+		{"id": 1700, "values": [40, 40, 40, 40, 40]},
+	]
+	bundle.documents["content"]["monsters"] = [{
+		"id": 71,
+		"displayName": "Vodalian",
+	}]
+	bundle.documents["encounters"]["complexEncounters"] = [{
+		"id": 9,
+		"actions": [],
+		"itemIds": [878, 0, 0, 0, 0],
+		"spellIds": [9998, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	}]
+	bundle.documents["assets"]["catalog"]["pictures"] = [{
+		"id": "scenario-pict-32128",
+		"resourceId": 32128,
+		"resourceType": "PICT",
+	}]
+	bundle._build_indexes()
+
+	var report: Dictionary = ReadinessScript.new().inspect(bundle, {
+		"bestiary": {
+			"Vodada !": {"data": {"name": "Vodada !"}},
+		},
+		"spells": {"Discover Magic": true},
+		"items": {"Dagger": {}},
+	})
+	_expect(not report.get("ready", true), "readiness blocks progression-affecting gaps")
+	_expect(
+		_readiness_has_diagnostic(
+			report, "missing-picture-payload", "Data DD", 76, 0, "fidelity-fallback"
+		),
+		"readiness classifies missing PICT payload as a fidelity fallback"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report, "missing-extra-code", "Data ED3", 197, 0, "progression-blocker"
+		),
+		"readiness classifies the signed random-record gap as a blocker"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report, "unresolved-native-monster", "Data ED3", 103, 0, "progression-blocker"
+		),
+		"readiness classifies an unmatched compiled ally as a blocker"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report,
+			"unsupported-field-spell-metadata",
+			"Data ED3",
+			128,
+			0,
+			"progression-blocker"
+		),
+		"readiness classifies unsupported field-spell saves as a blocker"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report, "missing-native-spell", "Data ED3", 128, 0, "progression-blocker"
+		),
+		"readiness reports a mapped spell without a native resource"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report, "unresolved-item-identity", "Data ED2", 9, -1, "progression-blocker"
+		),
+		"readiness reports an unresolved complex-encounter item"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report, "unresolved-spell-identity", "Data ED2", 9, -1, "progression-blocker"
+		),
+		"readiness reports an unresolved complex-encounter spell"
+	)
+	_expect(
+		str(report.get("summary", "")).contains("progression blocker")
+		and str(report.get("summary", "")).contains("fidelity fallback"),
+		"readiness supplies a concise player-facing summary"
+	)
+	var json_report: Variant = JSON.parse_string(JSON.stringify(report))
+	_expect(json_report is Dictionary, "readiness report is machine-readable JSON")
+	_expect_equal(
+		json_report.get("schemaVersion") if json_report is Dictionary else -1,
+		ReadinessScript.SCHEMA_VERSION,
+		"readiness JSON carries its schema version"
+	)
+
+	var malformed: Dictionary = ReadinessScript.new().inspect_directory(
+		"res://scripts/classic_runtime/tests/fixtures/does-not-exist"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			malformed, "malformed-bundle", "campaign.json", -1, -1, "progression-blocker"
+		),
+		"readiness turns malformed bundle input into an actionable blocker"
+	)
+
+
+func _readiness_action_point(
+	source: String,
+	record_index: int,
+	raw_code: int,
+	reference_id: int
+) -> Dictionary:
+	return {
+		"id": "%s:%d" % [source, record_index],
+		"source": source,
+		"recordIndex": record_index,
+		"levelType": "land",
+		"levelIndex": 0,
+		"active": true,
+		"coordinate": {"x": record_index, "y": 0},
+		"actions": [{"slot": 0, "rawCode": raw_code, "id": reference_id}],
+	}
+
+
+func _readiness_has_diagnostic(
+	report: Dictionary,
+	code: String,
+	source: String,
+	record_index: int,
+	slot: int,
+	classification: String
+) -> bool:
+	for diagnostic_value: Variant in report.get("diagnostics", []):
+		if not (diagnostic_value is Dictionary):
+			continue
+		if (
+			str(diagnostic_value.get("code", "")) == code
+			and str(diagnostic_value.get("source", "")) == source
+			and int(diagnostic_value.get("recordIndex", -1)) == record_index
+			and int(diagnostic_value.get("slot", -1)) == slot
+			and str(diagnostic_value.get("classification", "")) == classification
+		):
+			return true
+	return false
 
 
 func _test_text_and_encounter(bundle) -> void:
