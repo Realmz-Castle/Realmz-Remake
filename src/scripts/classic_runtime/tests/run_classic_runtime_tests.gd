@@ -79,6 +79,8 @@ func _init() -> void:
 	_test_shipped_gosub_chain()
 	_test_shipped_opcode_25_mutation()
 	_test_opcode_25_xap_copy()
+	_test_action_point_copy_mutations(bundle)
+	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
 	_test_sound_and_treasure(bundle)
@@ -552,6 +554,113 @@ func _test_opcode_25_xap_copy() -> void:
 	_expect_equal(replay_text.get("payload", {}).get("messageId"), 900, "persisted XAP actions run on reactivation")
 	_expect_equal(replay.trace[0].get("code"), 1, "reactivation starts with the copied action list")
 	_expect_equal(replay.call_stack.size(), 0, "reactivation no longer enters the original GOSUB")
+
+
+func _test_action_point_copy_mutations(bundle) -> void:
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:5"), "begin CoB same-door action")
+	var copied_text: Dictionary = interpreter.run_until_yield()
+	_expect_equal(copied_text.get("command"), "show_text", "same-door copy executes borrowed actions")
+	_expect_equal(copied_text.get("payload", {}).get("messageId"), -69, "same-door copy reaches source-backed text")
+	_expect_equal(interpreter.trace[0].get("code"), 8, "same-door trace records copy action")
+	_expect_equal(interpreter.trace[1].get("triggerId"), "Data DD:0:5", "borrowed actions retain active AP identity")
+	_expect_equal(interpreter.active_action_point_header.get("recordIndex"), 5, "same-door copy preserves active header")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "keep-codes", "borrowed AP reaches its keep action")
+	_expect(
+		interpreter.runtime_state.get_action_point_override("Data DD:0:5").is_empty(),
+		"same-door copy remains transient"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:27", 5), "begin CoB action-data patch")
+	var patched_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(patched_result.get("reason"), "keep-codes", "action-data patch continues in source AP")
+	var patched: Dictionary = interpreter.runtime_state.get_action_point_override("Data DD:0:27")
+	_expect_equal(patched.get("recordIndex"), 27, "action-data patch preserves target record")
+	_expect_equal(patched.get("coordinate", {}).get("x"), 47, "action-data patch preserves target x")
+	_expect_equal(patched.get("coordinate", {}).get("y"), 5, "action-data patch preserves target y")
+	_expect_equal(patched.get("actions", []).size(), 3, "action-data patch copies all authored XAP actions")
+	_expect_equal(patched.get("actions", [])[0].get("id"), 241, "action-data patch copies source-backed XAP text")
+	_expect_equal(
+		bundle.get_trigger("Data DD:0:27").get("actions", [])[0].get("id"),
+		-238,
+		"action-data patch leaves compiled AP immutable"
+	)
+
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	var replay = InterpreterScript.new()
+	replay.configure(bundle, restored)
+	_expect(replay.begin_trigger("Data DD:0:27"), "restart patched CoB action point")
+	_expect_equal(
+		replay.run_until_yield().get("payload", {}).get("messageId"),
+		241,
+		"patched action point survives snapshot"
+	)
+
+	var borrowed_target: Dictionary = bundle.get_trigger("Data DD:0:4").duplicate(true)
+	borrowed_target["actions"] = bundle.get_extra_action_point(18).get("actions", []).duplicate(true)
+	restored.set_action_point_override("Data DD:0:4", borrowed_target)
+	replay = InterpreterScript.new()
+	replay.configure(bundle, restored)
+	_expect(replay.begin_trigger("Data DD:0:5"), "restart same-door action with patched target")
+	_expect_equal(
+		replay.run_until_yield().get("payload", {}).get("messageId"),
+		241,
+		"same-door copy reads the target's persistent override"
+	)
+
+	var miss_state = StateScript.new()
+	miss_state.configure_from_bundle(bundle)
+	var percent_door: Dictionary = bundle.get_trigger("Data DD:0:5").duplicate(true)
+	percent_door["percent"] = 50
+	miss_state.set_action_point_override("Data DD:0:5", percent_door)
+	var miss_interpreter = InterpreterScript.new()
+	miss_interpreter.configure(bundle, miss_state)
+	miss_interpreter.set_percent_roll_provider(func() -> int: return 100)
+	_expect(miss_interpreter.begin_trigger("Data DD:0:5"), "begin same-door percentage recheck")
+	var miss_result: Dictionary = miss_interpreter.run_until_yield()
+	_expect_equal(miss_result.get("reason"), "same-door-percent-miss", "same-door copy rechecks active percentage")
+	_expect_equal(miss_interpreter.trace.size(), 1, "failed same-door recheck skips borrowed actions")
+
+
+func _test_action_data_patch_variants() -> void:
+	var bundle = _action_data_patch_test_bundle()
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("patch:dungeon"), "begin explicit dungeon action-data patch")
+	_expect_equal(interpreter.run_until_yield().get("reason"), "keep-codes", "dungeon patch completes")
+	var dungeon_patch: Dictionary = interpreter.runtime_state.get_action_point_override("Data DDD:2:4")
+	_expect_equal(
+		dungeon_patch.get("actions", [])[0].get("id"),
+		902,
+		"action-data level selector targets a dungeon AP"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("patch:simple"), "begin simple-result action-data patch")
+	_expect_equal(interpreter.run_until_yield().get("command"), "start_encounter", "simple patch continues to encounter")
+	var simple_result: Dictionary = interpreter.resume_encounter(3)
+	_expect_equal(simple_result.get("payload", {}).get("messageId"), 900, "simple result uses copied XAP")
+	_expect_equal(
+		_action_id_at_slot(bundle.get_encounter("simple", 10).get("actions", []), 16),
+		802,
+		"simple patch leaves compiled encounter immutable"
+	)
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	var restored_simple := restored.get_effective_simple_encounter(bundle.get_encounter("simple", 10))
+	_expect_equal(_action_id_at_slot(restored_simple.get("actions", []), 16), 900, "simple result patch survives snapshot")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("patch:complex"), "begin complex-result action-data patch")
+	_expect_equal(interpreter.run_until_yield().get("command"), "start_encounter", "complex patch continues to encounter")
+	var complex_result: Dictionary = interpreter.resume_encounter(2)
+	_expect_equal(complex_result.get("payload", {}).get("messageId"), 901, "complex result uses copied XAP")
+	_expect_equal(
+		_action_id_at_slot(bundle.get_encounter("complex", 11).get("actions", []), 8),
+		811,
+		"complex patch leaves compiled encounter immutable"
+	)
 
 
 func _test_battle_request(bundle) -> void:
@@ -1498,7 +1607,7 @@ func _test_full_bundle(path: String) -> void:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
 	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
 	var handled_codes := [
-		0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 37, 39,
+		0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 19, 20, 24, 25, 29, 35, 37, 39,
 		41, 42, 44, 45, 46, 47, 56, 58, 93, 94, 95, 96, 97, 106, 111, 112,
 	]
 	var active_slots := 0
@@ -1511,8 +1620,8 @@ func _test_full_bundle(path: String) -> void:
 			if handled_codes.has(int(action_value.get("code", 0))):
 				handled_slots += 1
 	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2106, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2576, "full CoB defined-behavior slots")
+	_expect_equal(handled_slots, 2138, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2608, "full CoB defined-behavior slots")
 
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:58", 1), "begin CoB branching battle outcome")
@@ -1763,6 +1872,86 @@ func _opcode_25_test_bundle():
 	return bundle
 
 
+func _action_data_patch_test_bundle():
+	# CoB uses opcode 7 only for map APs. These small records exercise the two
+	# encounter-result destinations dispatched by the same source case.
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "patch:simple", -1, [
+		_classic_action(0, 7, 1),
+		_classic_action(1, 4, 10),
+	])
+	_add_stack_trigger(bundle, "patch:complex", -1, [
+		_classic_action(0, 7, 2),
+		_classic_action(1, 5, 11),
+	])
+	_add_stack_trigger(bundle, "patch:dungeon", -1, [
+		_classic_action(0, 7, 3),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:20", 20, [
+		_classic_action(0, 1, 900),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:21", 21, [
+		_classic_action(0, 1, 901),
+		_classic_action(7, 24, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:22", 22, [
+		_classic_action(0, 1, 902),
+		_classic_action(7, 24, 0),
+	])
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [-1, 10, 20, 0, 2]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [-2, 11, 21, 0, 1]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [2, 4, 22, 2, 0]}
+	var dungeon_target := {
+		"id": "Data DDD:2:4",
+		"source": "Data DDD",
+		"levelType": "dungeon",
+		"levelIndex": 2,
+		"recordIndex": 4,
+		"active": true,
+		"percent": 100,
+		"actions": [_classic_action(0, 1, 820)],
+	}
+	bundle.triggers_by_id[dungeon_target["id"]] = dungeon_target
+	bundle.simple_encounters_by_id[10] = {
+		"id": 10,
+		"actions": [
+			_classic_action(0, 1, 800),
+			_classic_action(7, 24, 0),
+			_classic_action(8, 1, 801),
+			_classic_action(15, 24, 0),
+			_classic_action(16, 1, 802),
+			_classic_action(23, 24, 0),
+			_classic_action(24, 1, 803),
+			_classic_action(31, 24, 0),
+		],
+		"choiceResults": [1, 2, 3, 4],
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	bundle.complex_encounters_by_id[11] = {
+		"id": 11,
+		"actions": [
+			_classic_action(0, 1, 810),
+			_classic_action(7, 24, 0),
+			_classic_action(8, 1, 811),
+			_classic_action(15, 24, 0),
+			_classic_action(16, 1, 812),
+			_classic_action(23, 24, 0),
+			_classic_action(24, 1, 813),
+			_classic_action(31, 24, 0),
+		],
+		"choiceResults": [1, 2, 3, 4],
+		"maxTimes": 1,
+		"prompt": 0,
+	}
+	for message_id: int in [800, 801, 802, 803, 810, 811, 812, 813, 820, 900, 901, 902]:
+		bundle.messages_by_id[message_id] = {"id": message_id, "text": "Message %d" % message_id}
+	return bundle
+
+
 func _stack_test_bundle():
 	# CoB does not contain GOSUB opcodes, so these synthetic APs isolate the
 	# source-backed stack rules without presenting them as scenario fixtures.
@@ -1884,6 +2073,13 @@ func _trace_has_action(entries: Array, trigger_id: String, slot: int) -> bool:
 		if entry is Dictionary and entry.get("triggerId") == trigger_id and int(entry.get("slot", -1)) == slot:
 			return true
 	return false
+
+
+func _action_id_at_slot(actions: Array, slot: int) -> int:
+	for action: Variant in actions:
+		if action is Dictionary and int(action.get("slot", -1)) == slot:
+			return int(action.get("id", 0))
+	return 0
 
 
 func _expect(condition: bool, label: String) -> void:

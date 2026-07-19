@@ -153,8 +153,12 @@
       "percent": 100,
       "coordinate": {"x": 47, "y": 5},
       "actions": [
+		{"slot": 0, "rawCode": 1, "code": 1, "id": -238, "label": "Text", "category": "ui_text", "gosub": false},
 		{"slot": 1, "rawCode": 3, "code": 3, "id": 2, "label": "Choice", "category": "branch", "gosub": false},
-        {"slot": 2, "rawCode": 2, "code": 2, "id": 70, "label": "Battle", "category": "combat", "gosub": false}
+        {"slot": 2, "rawCode": 2, "code": 2, "id": 70, "label": "Battle", "category": "combat", "gosub": false},
+		{"slot": 3, "rawCode": 1, "code": 1, "id": 240, "label": "Text", "category": "ui_text", "gosub": false},
+		{"slot": 5, "rawCode": 7, "code": 7, "id": 73, "label": "Action data patch", "category": "map", "gosub": false},
+		{"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
       ],
       "provenance": {"sourceFile": "Data DD", "recordIndex": 27, "byteOffset": 1080, "byteLength": 40, "confidence": "source-backed"}
     },
@@ -534,6 +538,64 @@
         {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
       ],
       "provenance": {"sourceFile": "Data DD", "recordIndex": 46, "byteOffset": 17840, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:4",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 4,
+      "active": true,
+      "doorid": 1223,
+      "landid": 0,
+      "targetX": 23,
+      "targetY": 12,
+      "percent": 100,
+      "coordinate": {"x": 23, "y": 12},
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": -69, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 4, "byteOffset": 160, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data DD:0:5",
+      "source": "Data DD",
+      "levelType": "land",
+      "levelIndex": 0,
+      "recordIndex": 5,
+      "active": true,
+      "doorid": 1410,
+      "landid": 0,
+      "targetX": 10,
+      "targetY": 14,
+      "percent": 100,
+      "coordinate": {"x": 10, "y": 14},
+      "actions": [
+        {"slot": 0, "rawCode": 8, "code": 8, "id": 4, "label": "Same as other door", "category": "branch", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data DD", "recordIndex": 5, "byteOffset": 200, "byteLength": 40, "confidence": "source-backed"}
+    },
+    {
+      "id": "Data ED3:macro:18",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 18,
+      "active": true,
+      "doorid": 0,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 1, "code": 1, "id": 241, "label": "Text", "category": "ui_text", "gosub": false},
+        {"slot": 1, "rawCode": 2, "code": 2, "id": 72, "label": "Battle", "category": "combat", "gosub": false},
+        {"slot": 7, "rawCode": 24, "code": 24, "id": 0, "label": "Keep codes", "category": "branch", "gosub": false}
+      ],
+      "provenance": {"sourceFile": "Data ED3", "recordIndex": 18, "byteOffset": 720, "byteLength": 40, "confidence": "source-backed"}
     }
   ],
   "extraCodes": [
@@ -541,6 +603,7 @@
     {"id": 20, "values": [3, 3, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 20, "byteOffset": 200, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 21, "values": [3, 4, 0, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 21, "byteOffset": 210, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 70, "values": [38, 0, 30000, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 70, "byteOffset": 700, "byteLength": 10, "confidence": "source-backed"}},
+    {"id": 73, "values": [0, 27, 18, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 73, "byteOffset": 730, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 127, "values": [0, 17, 100, 0, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 127, "byteOffset": 1270, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 269, "values": [0, 3, 28, 193, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 269, "byteOffset": 2690, "byteLength": 10, "confidence": "source-backed"}},
     {"id": 321, "values": [20, 0, 0, 100, 0], "provenance": {"sourceFile": "Data EDCD", "recordIndex": 321, "byteOffset": 3210, "byteLength": 10, "confidence": "source-backed"}},
@@ -688,6 +751,12 @@
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 61, "byteOffset": 15616, "byteLength": 256, "confidence": "source-backed"}
     },
     {
+      "id": 69,
+      "text": "The town patrol waves you through as they hand you a map showing where you can buy provisions.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 69, "byteOffset": 17664, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
       "id": 180,
       "text": "This appears to be the site of a rather large cavern that has recently caved in.",
       "authored": false,
@@ -704,6 +773,24 @@
       "text": "The tunnel continues west.  You smell decaying flesh.  The odor is almost overwhelming.",
       "authored": false,
       "provenance": {"sourceFile": "Data SD2", "recordIndex": 185, "byteOffset": 47360, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 241,
+      "text": "After the thrashing you gave the creatures at the gate before, the gate is now only lightly guarded.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 241, "byteOffset": 61696, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 238,
+      "text": "This is the gate to enter the Spider Tower.  Herein dwells an evil cult bent on total dominance of the world by arachnids and others of their ilk.  The gates are massive, and the walls are guarded by fierce creatures.  Do you wish to attack?",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 238, "byteOffset": 60928, "byteLength": 256, "confidence": "source-backed"}
+    },
+    {
+      "id": 240,
+      "text": "You have managed to battle your way past the gate.  Something tells you that the tough battles are yet to come.",
+      "authored": false,
+      "provenance": {"sourceFile": "Data SD2", "recordIndex": 240, "byteOffset": 61440, "byteLength": 256, "confidence": "source-backed"}
     },
     {
       "id": 678,
