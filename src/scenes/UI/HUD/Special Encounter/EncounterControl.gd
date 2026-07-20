@@ -51,6 +51,8 @@ func initialize(scriptname : String) :
 				and encounter_script.is_connected("encounter_changed", _configure_encounter_buttons):
 			encounter_script.disconnect("encounter_changed", _configure_encounter_buttons)
 	encounter_script = resources.special_encounters_book[encounter_name]
+	if encounter_script.has_method("begin"):
+		encounter_script.begin()
 	encounter_script.connect("encounter_over", _on_encounter_script_over)
 	if encounter_script.has_signal("encounter_changed"):
 		encounter_script.connect("encounter_changed", _configure_encounter_buttons)

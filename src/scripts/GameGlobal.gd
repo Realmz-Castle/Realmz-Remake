@@ -243,7 +243,7 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	currentShop = data_dict["curr_shop"]
 	currentTemple = data_dict["curr_temple"]
 	stuff_done = data_dict["stuff_done"]
-	native_encounter_state = data_dict.get("native_encounters", {})
+	restore_native_encounter_state(data_dict.get("native_encounters", {}))
 	map_boats_dict = data_dict["map_boats_dict"]
 	is_sailing_boat = bool(data_dict["is_sailing_boat"])
 	boat_sailed_image_name = data_dict["boat_image"]
@@ -258,6 +258,17 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 
 	allow_next_battle_loot = true
 	prev_simple_enc_name = ''
+
+
+func native_encounter_save_payload() -> Dictionary:
+	return native_encounter_state.duplicate(true)
+
+
+func restore_native_encounter_state(saved_state: Variant) -> void:
+	# Keep the dictionary identity stable for loaded encounter controllers.
+	native_encounter_state.clear()
+	if saved_state is Dictionary:
+		native_encounter_state.merge(saved_state, true)
 
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	time += seconds *time_scale

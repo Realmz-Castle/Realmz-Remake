@@ -168,7 +168,7 @@ func save_game(campaignname : String, savename : String) :
 		"curr_shop" : GameGlobal.currentShop,
 		"curr_temple" : GameGlobal.currentTemple,
 		"stuff_done" : GameGlobal.stuff_done,
-		"native_encounters" : GameGlobal.native_encounter_state,
+		"native_encounters" : GameGlobal.native_encounter_save_payload(),
 		"map_boats_dict" : GameGlobal.map_boats_dict,
 		"is_sailing_boat" : int(GameGlobal.is_sailing_boat),
 		"boat_image" : GameGlobal.boat_sailed_image_name,

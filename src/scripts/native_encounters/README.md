@@ -99,3 +99,12 @@ test from the Godot project directory with:
 ```text
 godot --headless --path . --script res://scripts/native_encounters/tests/run_native_encounter_tests.gd
 ```
+
+The live playtest uses `Main.tscn` and the normal HUD. Run it without extra
+arguments for manual interaction, or add `-- --smoke` for the automated
+back-out, nested-route, save-state, reopen, and stop checks:
+
+```text
+godot --path . res://scripts/native_encounters/playtest/native_encounter_playtest.tscn
+godot --headless --path . res://scripts/native_encounters/playtest/native_encounter_playtest.tscn -- --smoke
+```

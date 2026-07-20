@@ -23,10 +23,20 @@ var disabled_trap_success_flag_stuff_done := ""
 var picked_trap_flag_stuff_done := ""
 
 var _runtime: RefCounted
+var _entry_encounter_id := ""
 
 
 func configure(runtime: RefCounted) -> void:
 	_runtime = runtime
+	_entry_encounter_id = _runtime.get_current_encounter_id()
+	_refresh_configuration()
+
+
+func begin() -> void:
+	var entered: Dictionary = _runtime.enter_encounter(_entry_encounter_id)
+	if entered.get("status") != "ok":
+		push_error(str(entered.get("message", "Unable to enter native encounter")))
+		return
 	_refresh_configuration()
 
 
@@ -42,11 +52,20 @@ func _on_ActionButton_pressed() -> void:
 		values.append(str(choice.get("id", "")))
 	labels.append("STOP")
 	values.append("STOP")
-	UI.ow_hud.textRect.display_multiple_choices(labels, values)
-	var answer: Variant = await UI.ow_hud.textRect.choice_pressed
+	var answer: Variant = await _show_action_choices(labels, values)
 	if str(answer) == "STOP":
 		return
 	await _finish_response(_runtime.respond("action", answer, _context()))
+
+
+func _show_action_choices(labels: Array, values: Array) -> Variant:
+	# The legacy TextRect helper still targets the removed MultipleChoices state.
+	var choices = UI.ow_hud.textRect.choicesContainer
+	choices.show()
+	choices.display_multiple_choices(labels, values)
+	var answer: Variant = await choices.choice_pressed
+	choices.hide()
+	return answer
 
 
 func _on_speaking(spoken: String) -> void:
@@ -123,6 +142,9 @@ func _apply_effects(effects: Array, context: Dictionary) -> void:
 				var flag_name := str(effect.get("id", ""))
 				if not flag_name.is_empty():
 					GameGlobal.stuff_done[flag_name] = effect.get("value", true)
+			"setState":
+				# The runtime records this effect before the adapter presents it.
+				pass
 			"mapMutation":
 				_apply_map_mutation(effect)
 			"actionPointMutation":
