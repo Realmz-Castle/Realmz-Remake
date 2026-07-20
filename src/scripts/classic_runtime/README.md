@@ -260,6 +260,15 @@ The UI smoke instances the real `Main.tscn`, discovers a self-contained compiled
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_campaign_ui_smoke.tscn
 ```
 
+The generated-ally smoke installs the authoritative Providence fixture, loads
+its generated monster through the normal campaign Bestiary, adds it through
+the Classic adapter, and round-trips its mutable state and both Classic
+identities through the native ally serializer:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_generated_ally_smoke.tscn
+```
+
 Normal profile saves now include a versioned Classic envelope. It records the compiled campaign identity, `ClassicRuntimeState` snapshot, adapter-owned equipment capture, and a suspended interpreter continuation when the current command is safe to replay. The continuation contains plain data for the current action list and slot, GOSUB frames, encounter attempts, pending outcome state, and deferred action-point mutations. Load restores the native map and HUD before replaying the pending presentation, encounter, or battle request, so the existing host resumes the authored outer action list exactly once.
 
 Idle exploration, text and click presentation, yes/no choices, initial encounter response controls, random-branch presentation, and priest-turning feedback are legal save boundaries. A live native battle is not: Remake does not serialize its combat roster or round state, so the save panel asks the player to finish that battle. Rogue encounters also become temporarily unsavable after a rogue roll mutates the TD2 record or applies trap damage. This prevents a reload from duplicating damage or item/spell costs. Version-one Classic envelopes load as idle continuations, older saves without an envelope retain their native map and coordinates with fresh compatibility defaults, and a save from a newer unsupported schema is left untouched and reported in the save panel. Saving and restoring duplicate runtime state without modifying the compiled campaign bundle.

@@ -28,6 +28,7 @@ var fled_battle : bool = false
 
 var is_player_controlled : bool = false  #doesnt account for  status effects liek fear etc
 var is_npc_ally : bool = false
+var bestiary_key : String = ""
 # Compatibility identities are separate from the mutable display name. The
 # record ID selects Data MD; name ID is the byte used by several combat macros.
 var classic_monster_id : int = -1
@@ -648,6 +649,7 @@ func _ready():
 func initialize_from_bestiary_dict(creaname : String) :
 	var resources = NodeAccess.__Resources()
 	var cdata : Dictionary = resources.crea_book[creaname]
+	bestiary_key = creaname
 	classic_monster_id = int(cdata.get("classicMonsterId", -1))
 	classic_monster_name_id = int(cdata.get("classicMonsterNameId", -1))
 	for metadata_pair : Array in [
@@ -770,6 +772,88 @@ func initialize_from_bestiary_dict(creaname : String) :
 		
 	recalculate_stats()
 	#printerr("CREATURE initiaize from bestiary : sometimes has a traits array stat ? \n", stats)
+
+
+static func resolve_bestiary_key_from_save(
+	saved_data: Dictionary,
+	creature_book: Dictionary
+) -> String:
+	var saved_key := str(saved_data.get("bestiaryKey", ""))
+	if not saved_key.is_empty() and creature_book.has(saved_key):
+		return saved_key
+	var classic_id := int(saved_data.get("classicMonsterId", -1))
+	if classic_id >= 0:
+		for creature_key: Variant in creature_book:
+			var entry: Variant = creature_book[creature_key]
+			if entry is Dictionary and _bestiary_entry_has_classic_id(entry, classic_id):
+				return str(creature_key)
+	var saved_name := str(saved_data.get("name", ""))
+	if creature_book.has(saved_name):
+		return saved_name
+	var name_match := ""
+	for creature_key: Variant in creature_book:
+		var entry: Variant = creature_book[creature_key]
+		if not (entry is Dictionary):
+			continue
+		var data: Variant = entry.get("data", {})
+		if not (data is Dictionary) or str(data.get("name", "")) != saved_name:
+			continue
+		if not name_match.is_empty():
+			return ""
+		name_match = str(creature_key)
+	return name_match
+
+
+static func _bestiary_entry_has_classic_id(entry: Dictionary, classic_id: int) -> bool:
+	for container_value: Variant in [entry, entry.get("data", {})]:
+		if not (container_value is Dictionary):
+			continue
+		if container_value.has("classicMonsterId") \
+				and int(container_value["classicMonsterId"]) == classic_id:
+			return true
+		var ids: Variant = container_value.get("classicMonsterIds", [])
+		if ids is Array:
+			for id_value: Variant in ids:
+				if int(id_value) == classic_id:
+					return true
+	return false
+
+
+func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
+	var resources = NodeAccess.__Resources()
+	var saved_bestiary_key := resolve_bestiary_key_from_save(
+		saved_data,
+		resources.crea_book
+	)
+	if saved_bestiary_key.is_empty():
+		return false
+	initialize_from_bestiary_dict(saved_bestiary_key)
+	name = str(saved_data.get("name", name))
+	level = int(saved_data.get("level", level))
+	is_npc_ally = bool(saved_data.get("is_npc_ally", true))
+	classic_monster_id = int(saved_data.get("classicMonsterId", classic_monster_id))
+	classic_monster_name_id = int(
+		saved_data.get("classicMonsterNameId", classic_monster_name_id)
+	)
+	is_summoned = bool(saved_data.get("is_summoned", is_summoned))
+	summoner_name = str(saved_data.get("summoner_name", summoner_name))
+	joins_combat = bool(saved_data.get("joins_combat", joins_combat))
+	if saved_data.get("money") is Array:
+		money.clear()
+		for amount: Variant in saved_data["money"]:
+			money.append(int(amount))
+	if saved_data.get("base_stats") is Dictionary:
+		base_stats = saved_data["base_stats"].duplicate(true)
+	if saved_data.get("inventory") is Array:
+		inventory = saved_data["inventory"].duplicate(true)
+	if saved_data.get("spells") is Array:
+		spells = saved_data["spells"].duplicate(true)
+	if saved_data.get("traits") is Array:
+		traits = saved_data["traits"].duplicate(true)
+	recalculate_stats()
+	stats["curHP"] = int(saved_data.get("curHP", stats["curHP"]))
+	stats["curSP"] = int(saved_data.get("curSP", stats["curSP"]))
+	return true
 
 # called by CbDecideAction State
 func _on_new_round() :
@@ -1162,6 +1246,8 @@ func get_save_string() -> String :
 
 	savestring += ('{"name":"'+name+'", "level" : '+ str(level)+', "money" : '+ str(money)+',')
 	savestring += ('\n"is_npc_ally" : '+ str(int(is_npc_ally))+',')
+	if not bestiary_key.is_empty():
+		savestring += ('\n"bestiaryKey" : '+ JSON.stringify(bestiary_key)+',')
 	savestring += ('\n"classicMonsterId" : '+ str(classic_monster_id)+',')
 	savestring += ('\n"classicMonsterNameId" : '+ str(classic_monster_name_id)+',')
 	savestring += ('\n"is_summoned" : '+ str(int(is_summoned))+',')

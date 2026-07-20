@@ -354,29 +354,15 @@ func load_game(campaignname : String, savename : String) :
 	#load allies : must be done after  loading resources
 	var allies_data : Dictionary = Utils.FileHandler.read_json_dic_from_file(save_path+"/allies.json")
 	var CreatureGD : GDScript = load('res://Creature/Creature.gd')
+	GameGlobal.player_allies.clear()
 	for crea_dict in allies_data["allies"] :
 		var creascript : Creature = CreatureGD.new()
-		creascript.initialize_from_bestiary_dict(crea_dict["name"])
-		creascript.name = crea_dict["name"]
-		creascript.level = crea_dict["level"]
-		creascript.is_npc_ally = bool(crea_dict["is_npc_ally"])
-		creascript.classic_monster_id = int(crea_dict.get("classicMonsterId", -1))
-		creascript.classic_monster_name_id = int(
-			crea_dict.get("classicMonsterNameId", -1)
-		)
-		creascript.is_summoned = bool(crea_dict["is_summoned"])
-		creascript.summoner_name = crea_dict["summoner_name"]
-		creascript.joins_combat = bool(crea_dict["joins_combat"])
-		creascript.base_stats = crea_dict["base_stats"]
-		creascript.inventory = crea_dict["inventory"]
-		creascript.spells = crea_dict["spells"]
-		creascript.traits = crea_dict["traits"]
-		creascript.recalculate_stats()
-		creascript.stats["curHP"] = crea_dict["curHP"]
+		if not creascript.initialize_from_saved_ally_dict(crea_dict):
+			push_error("Could not restore ally from its saved Bestiary identity")
+			continue
 		if creascript.stats["curHP"]<0 :
 			#var life_status : int = 0  #0=fine  1=ko'd bleeding 2=ko'd bandaged 3=dead
 			creascript.life_status = 2
-		creascript.stats["curSP"] = crea_dict["curSP"]
 		GameGlobal.add_npc_ally(creascript)
 	GameGlobal.map.queue_redraw()
 	var transition_message := {"campaign_continue" = true}
