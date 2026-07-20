@@ -102,7 +102,7 @@ func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position :
 		if GameGlobal.is_sailing_boat :
 			if idef['water'] == 0 and idef['dock'] == 0 :
 				canwalk = false
-		canwalk = not ( idef['wall'] != 0 or idef['swall'] != 0 )
+		canwalk = canwalk and not ( idef['wall'] != 0 or idef['swall'] != 0 )
 		if not soundplayed and idef['sound'] != [] :
 			soundplayed = true
 			var soundslist : Array = idef['sound']

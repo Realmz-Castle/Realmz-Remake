@@ -104,7 +104,10 @@ ignore it; producers must not overload `payloadPath` with decoded media.
 
 Negative `cicn` IDs identify special land tiles and belong in the additive
 `assets.catalog.specialLandTiles` collection. Ordinary `assets.catalog.icons`
-retain their non-negative Classic resource identity.
+retain their non-negative Classic resource identity. Remake can materialize a
+referenced special land tile when that record provides a decoded 32 x 32 image
+through `runtimeMedia`; `payloadPath` continues to identify only the immutable
+Classic resource bytes.
 
 Monster `id` selects a Data MD record. A monster's optional `nameId` is a separate
 Classic byte used by ally and combat comparisons and must not be treated as a

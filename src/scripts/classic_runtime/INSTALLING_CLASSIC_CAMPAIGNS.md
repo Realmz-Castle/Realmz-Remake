@@ -89,10 +89,14 @@ Directional secret passages use their Classic north, east, south, and west entry
 bits; entering from a permitted direction reveals the passage in native map data
 and persistent Classic state, while other directions remain blocked. Stable
 Action Point IDs, trigger chances, and normalized random rectangles use the
-normal map files in both map families. An undecoded custom atlas, special
-negative land tile, incomplete tile array, unknown render mode, or
-atlas-capacity mismatch is reported instead of receiving lossy data. A package
-that is not ready to launch is not installed.
+normal map files in both map families. A special negative land field with decoded
+32 x 32 image media becomes a campaign-local overlay over the map's base terrain.
+The generated tile retains the raw field and normalized `cicn` identity; `Data
+Solids` supplies movement blocking for raw fields `-1` through `-998`. An
+undecoded custom atlas, special land tile without suitable decoded media,
+incomplete tile array, unknown render mode, or atlas-capacity mismatch is
+reported instead of receiving lossy data. A package that is not ready to launch
+is not installed.
 
 Pass `--replace` to update an existing campaign. The old package remains in
 place until the staged update passes validation, and the update replaces the

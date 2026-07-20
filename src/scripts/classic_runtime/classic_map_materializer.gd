@@ -9,6 +9,9 @@ const REQUIRED_MAP_FILES := [
 	"map_things.json",
 ]
 const MAP_SCRIPT_SOURCE := "static func _on_map_load(_map) -> void:\n\tpass\n"
+const LAND_OVERLAY_TILESET_NAME := "ClassicLandOverlay"
+const LAND_OVERLAY_TILE_SIZE := 32
+const LAND_OVERLAY_ATLAS_COLUMNS := 16
 const DUNGEON_TILESET_NAME := "ClassicDungeon"
 const DUNGEON_SOURCE_ATLAS := \
 	"res://shared_assets/tiles/The Family Jewels.rsf_PICT_302.png"
@@ -68,6 +71,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			"message",
 			"Compiled dungeon tileset could not be generated"
 		)))
+	var land_overlay_tileset := _build_land_overlay_tileset_plan(bundle, pending_maps, root)
+	if str(land_overlay_tileset.get("status", "skip")) == "error":
+		return _fail(str(land_overlay_tileset.get(
+			"message",
+			"Classic special land tileset could not be generated"
+		)))
 
 	var plans: Array[Dictionary] = []
 	for pending_map: Dictionary in pending_maps:
@@ -77,17 +86,26 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			pending_map["record"],
 			pending_map["name"],
 			pending_map["directory"],
-			dungeon_tileset
+			dungeon_tileset,
+			land_overlay_tileset
 		)
 		if plan.is_empty():
 			return {"status": "error", "message": last_error}
 		plans.append(plan)
 
 	if str(dungeon_tileset.get("status", "skip")) == "ok":
-		var tileset_error := _write_dungeon_tileset(dungeon_tileset)
+		var tileset_error := _write_generated_tileset(dungeon_tileset)
 		if tileset_error != OK:
 			return _fail(
 				"Could not write native dungeon tileset: %s" % error_string(tileset_error)
+			)
+	if str(land_overlay_tileset.get("status", "skip")) == "ok":
+		var overlay_error := _write_generated_tileset(land_overlay_tileset)
+		if overlay_error != OK:
+			return _fail(
+				"Could not write native special land tileset: %s" % error_string(
+					overlay_error
+				)
 			)
 
 	for plan: Dictionary in plans:
@@ -124,7 +142,8 @@ func _build_plan(
 	map_record: Dictionary,
 	map_name: String,
 	map_directory: String,
-	dungeon_tileset: Dictionary
+	dungeon_tileset: Dictionary,
+	land_overlay_tileset: Dictionary
 ) -> Dictionary:
 	var width := int(map_record.get("width", 0))
 	var height := int(map_record.get("height", 0))
@@ -148,6 +167,8 @@ func _build_plan(
 	if str(tileset_result.get("status", "")) != "ok":
 		return _plan_fail(str(tileset_result.get("message", "Compiled map tileset is unavailable")))
 	var native_tiles: Array = []
+	var overlay_tiles: Array = []
+	var has_land_overlays := false
 	var tile_capacity := int(tileset_result.get("tileCapacity", 0))
 	var dungeon_lookup: Variant = tileset_result.get("tileLookup")
 	for tile_index: int in range(tiles.size()):
@@ -163,18 +184,27 @@ func _build_plan(
 					]
 				)
 		elif classic_tile < 0:
-			return _plan_fail(
-				"Compiled map %s uses special tile %d at cell %d; a decoded native overlay is required" % [
-					map_name,
-					classic_tile,
-					tile_index,
-				]
+			var overlay_lookup: Variant = land_overlay_tileset.get("tileLookup", {})
+			if not (overlay_lookup is Dictionary) or not overlay_lookup.has(classic_tile):
+				return _plan_fail(
+					"Compiled map %s special tile %d at cell %d has no generated native overlay" % [
+						map_name,
+						classic_tile,
+						tile_index,
+					]
+				)
+			native_tile = int(tileset_result["baseTile"])
+			overlay_tiles.append(
+				tile_capacity + int(overlay_lookup[classic_tile])
 			)
+			has_land_overlays = true
 		else:
 			native_tile = _normalize_atlas_tile(
 				classic_tile,
 				int(tileset_result["baseTile"])
 			)
+		if classic_tile >= 0 or dungeon_lookup is Dictionary:
+			overlay_tiles.append(0)
 		if native_tile > tile_capacity:
 			return _plan_fail(
 				"Compiled map %s tile %d needs atlas slot %d, but %s provides only %d slots" % [
@@ -191,6 +221,17 @@ func _build_plan(
 	var level_index := int(map_record.get("index", -1))
 	var random_level: Dictionary = bundle.get_random_level(level_type, level_index)
 	var script_areas := _script_areas(bundle, level_type, level_index, random_level)
+	var layers: Array = [{"chunks": [{"data": native_tiles}]}]
+	var tilesets: Array = [{
+		"firstgid": 1,
+		"source": "%s.json" % tileset_result["name"],
+	}]
+	if has_land_overlays:
+		layers.append({"chunks": [{"data": overlay_tiles}]})
+		tilesets.append({
+			"firstgid": tile_capacity + 1,
+			"source": "%s.json" % LAND_OVERLAY_TILESET_NAME,
+		})
 	return {
 		"name": map_name,
 		"directory": map_directory,
@@ -208,11 +249,8 @@ func _build_plan(
 			"map_things.json": {
 				"height": height,
 				"width": width,
-				"layers": [{"chunks": [{"data": native_tiles}]}],
-				"tilesets": [{
-					"firstgid": 1,
-					"source": "%s.json" % tileset_result["name"],
-				}],
+				"layers": layers,
+				"tilesets": tilesets,
 			},
 		},
 	}
@@ -360,6 +398,228 @@ func _resolve_tileset(
 		"baseTile": base_tile,
 		"tileCapacity": int(tileset_value["tilecount"]),
 	}
+
+
+func _build_land_overlay_tileset_plan(
+	bundle: Object,
+	pending_maps: Array[Dictionary],
+	campaign_directory: String
+) -> Dictionary:
+	var raw_values: Dictionary = {}
+	for pending_map: Dictionary in pending_maps:
+		var map_record: Dictionary = pending_map["record"]
+		if str(map_record.get("levelType", "")) != "land":
+			continue
+		var tiles: Variant = map_record.get("tiles")
+		if not (tiles is Array):
+			continue
+		for tile_value: Variant in tiles:
+			var raw_value := int(tile_value)
+			if raw_value < 0:
+				raw_values[raw_value] = true
+	if raw_values.is_empty():
+		return {"status": "skip"}
+
+	var catalog: Variant = bundle.documents.get("assets", {}).get("catalog", {})
+	var special_tiles: Variant = catalog.get("specialLandTiles", []) \
+		if catalog is Dictionary else []
+	var records_by_id: Dictionary = {}
+	if special_tiles is Array:
+		for record_value: Variant in special_tiles:
+			if record_value is Dictionary:
+				records_by_id[int(record_value.get("resourceId", 0))] = record_value
+
+	var field_values: Array = raw_values.keys()
+	field_values.sort()
+	var images: Dictionary = {}
+	var resource_ids: Dictionary = {}
+	for field_value_variant: Variant in field_values:
+		var field_value := int(field_value_variant)
+		var resource_id := _special_land_resource_id(field_value)
+		if not records_by_id.has(resource_id):
+			return {
+				"status": "error",
+				"message": (
+					"Compiled special land tile %d resolves to cicn %d, " +
+					"but assets.catalog.specialLandTiles has no matching record"
+				) % [field_value, resource_id],
+			}
+		var record: Dictionary = records_by_id[resource_id]
+		var runtime_media: Variant = record.get("runtimeMedia")
+		if not (runtime_media is Dictionary):
+			return {
+				"status": "error",
+				"message": (
+					"Classic special land tile %d (cicn %d) requires a decoded " +
+					"32 x 32 runtimeMedia image"
+				) % [field_value, resource_id],
+			}
+		var relative_path := str(runtime_media.get("path", ""))
+		if not _is_safe_campaign_path(relative_path):
+			return {
+				"status": "error",
+				"message": "Classic special land tile %d has an unsafe runtimeMedia path" % (
+					field_value
+				),
+			}
+		var image_path := campaign_directory.path_join(relative_path)
+		if not FileAccess.file_exists(image_path):
+			return {
+				"status": "error",
+				"message": "Classic special land tile %d is missing runtimeMedia %s" % [
+					field_value,
+					relative_path,
+				],
+			}
+		var image := Image.load_from_file(image_path)
+		if image == null or image.is_empty():
+			return {
+				"status": "error",
+				"message": "Classic special land tile %d runtimeMedia is not a readable image" % (
+					field_value
+				),
+			}
+		if image.get_size() != Vector2i(LAND_OVERLAY_TILE_SIZE, LAND_OVERLAY_TILE_SIZE):
+			return {
+				"status": "error",
+				"message": (
+					"Classic special land tile %d runtimeMedia is %d x %d; " +
+					"Remake requires the source-backed 32 x 32 overlay"
+				) % [field_value, image.get_width(), image.get_height()],
+			}
+		image.convert(Image.FORMAT_RGBA8)
+		images[field_value] = image
+		resource_ids[field_value] = resource_id
+
+	var columns := mini(LAND_OVERLAY_ATLAS_COLUMNS, field_values.size())
+	var rows := ceili(float(field_values.size()) / float(columns))
+	var atlas := Image.create(
+		columns * LAND_OVERLAY_TILE_SIZE,
+		rows * LAND_OVERLAY_TILE_SIZE,
+		false,
+		Image.FORMAT_RGBA8
+	)
+	atlas.fill(Color(0, 0, 0, 0))
+	var lookup: Dictionary = {}
+	var tiles: Array = []
+	var templates: Dictionary = {}
+	for tile_index: int in range(field_values.size()):
+		var field_value := int(field_values[tile_index])
+		var tile_name := "classic_land_overlay_%s" % str(field_value).replace("-", "neg_")
+		var tile_image: Image = images[field_value]
+		atlas.blit_rect(
+			tile_image,
+			Rect2i(Vector2i.ZERO, tile_image.get_size()),
+			Vector2i(
+				(tile_index % columns) * LAND_OVERLAY_TILE_SIZE,
+				(tile_index / columns) * LAND_OVERLAY_TILE_SIZE
+			)
+		)
+		lookup[field_value] = tile_index + 1
+		tiles.append({
+			"id": tile_index,
+			"properties": [
+				{"name": "name", "type": "string", "value": tile_name},
+				{"name": "template", "type": "string", "value": tile_name},
+			],
+		})
+		templates[tile_name] = _land_overlay_template(
+			bundle,
+			field_value,
+			int(resource_ids[field_value])
+		)
+
+	return {
+		"status": "ok",
+		"name": LAND_OVERLAY_TILESET_NAME,
+		"directory": campaign_directory.path_join("Tilesets").path_join(
+			LAND_OVERLAY_TILESET_NAME
+		),
+		"image": atlas,
+		"tileCapacity": field_values.size(),
+		"tileLookup": lookup,
+		"tileset": {
+			"columns": columns,
+			"image": "%s.png" % LAND_OVERLAY_TILESET_NAME,
+			"imageheight": rows * LAND_OVERLAY_TILE_SIZE,
+			"imagewidth": columns * LAND_OVERLAY_TILE_SIZE,
+			"margin": 0,
+			"name": LAND_OVERLAY_TILESET_NAME,
+			"spacing": 0,
+			"tilecount": field_values.size(),
+			"tiledversion": "1.11.2",
+			"tileheight": LAND_OVERLAY_TILE_SIZE,
+			"tiles": tiles,
+			"tilewidth": LAND_OVERLAY_TILE_SIZE,
+			"type": "tileset",
+			"version": "1.10",
+		},
+		"templates": templates,
+	}
+
+
+func _special_land_resource_id(field_value: int) -> int:
+	# Realmz folds three 1000-wide land-field bands onto the same signed cicn IDs.
+	var resource_id := field_value
+	for _band: int in range(3):
+		if resource_id > -1000:
+			break
+		resource_id += 1000
+	return resource_id
+
+
+func _land_overlay_template(bundle: Object, field_value: int, resource_id: int) -> Dictionary:
+	var blocks_movement := false
+	# Data Solids only governs the first negative land-field band.
+	if field_value >= -998 and field_value <= -1:
+		var tile_attributes: Variant = bundle.documents.get("maps", {}).get(
+			"tileAttributes",
+			[]
+		)
+		if tile_attributes is Array:
+			for attribute_value: Variant in tile_attributes:
+				if not (attribute_value is Dictionary):
+					continue
+				var attribute: Dictionary = attribute_value
+				if (
+					str(attribute.get("sourceKind", "")) == "data-solids"
+					and int(attribute.get("tile", -1)) == abs(field_value)
+				):
+					blocks_movement = int(attribute.get("solidType", 0)) != 0
+					break
+	return {
+		"time": 0,
+		"wall": int(blocks_movement),
+		"swall": int(blocks_movement),
+		"blkproj": 0,
+		"blkview": 0,
+		"water": 0,
+		"dock": 0,
+		"sound": [],
+		"classicLandField": field_value,
+		"classicResourceId": resource_id,
+	}
+
+
+func _write_generated_tileset(plan: Dictionary) -> Error:
+	var directory := str(plan.get("directory", ""))
+	var make_error := DirAccess.make_dir_recursive_absolute(directory)
+	if make_error != OK:
+		return make_error
+	var image: Image = plan["image"]
+	var image_error := image.save_png(directory.path_join("%s.png" % plan["name"]))
+	if image_error != OK:
+		return image_error
+	for file_data: Dictionary in [
+		{"name": "%s.json" % plan["name"], "value": plan["tileset"]},
+		{"name": "tile_templates.json", "value": plan["templates"]},
+	]:
+		var file := FileAccess.open(directory.path_join(file_data["name"]), FileAccess.WRITE)
+		if file == null:
+			return FileAccess.get_open_error()
+		file.store_string(JSON.stringify(file_data["value"], "  ") + "\n")
+		file.close()
+	return OK
 
 
 func _build_dungeon_tileset_plan(
@@ -516,29 +776,6 @@ func _dungeon_tile_template(field: int) -> Dictionary:
 	}
 
 
-func _write_dungeon_tileset(plan: Dictionary) -> Error:
-	var directory := str(plan.get("directory", ""))
-	var make_error := DirAccess.make_dir_recursive_absolute(directory)
-	if make_error != OK:
-		return make_error
-	var image: Image = plan["image"]
-	var image_error := image.save_png(
-		directory.path_join("%s.png" % DUNGEON_TILESET_NAME)
-	)
-	if image_error != OK:
-		return image_error
-	for file_data: Dictionary in [
-		{"name": "%s.json" % DUNGEON_TILESET_NAME, "value": plan["tileset"]},
-		{"name": "tile_templates.json", "value": plan["templates"]},
-	]:
-		var file := FileAccess.open(directory.path_join(file_data["name"]), FileAccess.WRITE)
-		if file == null:
-			return FileAccess.get_open_error()
-		file.store_string(JSON.stringify(file_data["value"], "  ") + "\n")
-		file.close()
-	return OK
-
-
 func _catalog_base_tile(bundle: Object, tileset_id: String, fallback: int) -> int:
 	var catalog: Variant = bundle.documents.get("assets", {}).get("catalog", {})
 	if not (catalog is Dictionary):
@@ -600,6 +837,16 @@ func _is_safe_component(value: String) -> bool:
 		and not value.contains("\\")
 		and not value.contains(":")
 	)
+
+
+func _is_safe_campaign_path(value: String) -> bool:
+	var normalized := value.strip_edges().replace("\\", "/")
+	if normalized.is_empty() or normalized.is_absolute_path() or normalized.contains(":"):
+		return false
+	for component: String in normalized.split("/"):
+		if component.is_empty() or component in [".", ".."]:
+			return false
+	return true
 
 
 func _has_complete_native_map(map_directory: String) -> bool:

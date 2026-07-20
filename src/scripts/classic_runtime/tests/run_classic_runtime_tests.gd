@@ -1738,7 +1738,14 @@ func _test_classic_map_materializer() -> void:
 	tiles.resize(int(map_record["width"]) * int(map_record["height"]))
 	tiles.fill(156)
 	tiles[0] = 1156
+	tiles[1] = -100
 	map_record["tiles"] = tiles
+	bundle.documents["maps"]["tileAttributes"].append({
+		"solidType": 2,
+		"source": "Data Solids",
+		"sourceKind": "data-solids",
+		"tile": 100,
+	})
 	var random_level: Dictionary = bundle.get_random_level("land", 0)
 	random_level["isDark"] = true
 	random_level["useLos"] = true
@@ -1772,7 +1779,37 @@ func _test_classic_map_materializer() -> void:
 		"user://classic-map-materializer-%d" % Time.get_ticks_msec()
 	)
 	DirAccess.make_dir_recursive_absolute(test_root)
+	var media_directory := test_root.path_join("media")
+	DirAccess.make_dir_recursive_absolute(media_directory)
+	var special_tile_image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	special_tile_image.fill(Color(0, 0, 0, 0))
+	special_tile_image.fill_rect(Rect2i(6, 6, 20, 20), Color(0.8, 0.2, 0.6, 1.0))
+	var special_tile_path := media_directory.path_join("special-land-neg-100.png")
+	_expect_equal(
+		special_tile_image.save_png(special_tile_path),
+		OK,
+		"materializer fixture writes decoded special-land runtime media"
+	)
+	var special_land_tile: Dictionary = bundle.documents["assets"]["catalog"][
+		"specialLandTiles"
+	][0]
+	special_land_tile["runtimeMedia"] = {
+		"path": "media/special-land-neg-100.png",
+		"mediaType": "image/png",
+		"bytes": FileAccess.get_file_as_bytes(special_tile_path).size(),
+		"sha256": FileAccess.get_sha256(special_tile_path),
+	}
 	var materializer = MapMaterializerScript.new()
+	_expect_equal(
+		materializer._special_land_resource_id(-1100),
+		-100,
+		"second-band special land field resolves to its signed cicn identity"
+	)
+	_expect_equal(
+		materializer._special_land_resource_id(-2100),
+		-100,
+		"third-band special land field resolves to its signed cicn identity"
+	)
 	var result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(result.get("status"), "ok", "normalized map generates native artifacts")
 	_expect_equal(
@@ -1798,6 +1835,23 @@ func _test_classic_map_materializer() -> void:
 		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[0],
 		156,
 		"Classic tile flags normalize to the one-based native atlas slot"
+	)
+	_expect_equal(
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[1],
+		156,
+		"special land tile keeps the current landlook base terrain"
+	)
+	_expect_equal(map_things.get("layers", []).size(), 2, "special land tile adds an overlay layer")
+	var overlay_first_gid := int(map_things.get("tilesets", [])[1].get("firstgid", 0))
+	_expect_equal(
+		map_things.get("tilesets", [])[1].get("source"),
+		"ClassicLandOverlay.json",
+		"special land tile uses its generated native overlay tileset"
+	)
+	_expect_equal(
+		map_things.get("layers", [])[1].get("chunks", [])[0].get("data", [])[1],
+		overlay_first_gid,
+		"special land tile is layered over its source cell"
 	)
 	var map_info: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(map_directory.path_join("map_info.json"))
@@ -1839,6 +1893,34 @@ func _test_classic_map_materializer() -> void:
 		"native map resolves random battle text"
 	)
 	var dungeon_directory := test_root.path_join("Maps").path_join("mapd_0")
+	var land_overlay_directory := test_root.path_join("Tilesets").path_join(
+		"ClassicLandOverlay"
+	)
+	var land_overlay_templates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			land_overlay_directory.path_join("tile_templates.json")
+		)
+	)
+	_expect_equal(
+		land_overlay_templates.get("classic_land_overlay_neg_100", {}).get(
+			"classicResourceId"
+		),
+		-100,
+		"special land overlay retains its normalized cicn identity"
+	)
+	_expect_equal(
+		land_overlay_templates.get("classic_land_overlay_neg_100", {}).get("wall"),
+		1,
+		"Data Solids makes a raw special land tile block native movement"
+	)
+	var land_overlay_atlas := Image.load_from_file(
+		land_overlay_directory.path_join("ClassicLandOverlay.png")
+	)
+	_expect_equal(
+		land_overlay_atlas.get_size(),
+		Vector2i(32, 32),
+		"decoded special land art is preserved at the native tile size"
+	)
 	var dungeon_things: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(dungeon_directory.path_join("map_things.json"))
 	)
@@ -1906,6 +1988,7 @@ func _test_classic_map_materializer() -> void:
 		"hidden dungeon field suppresses its overhead sprite"
 	)
 	var native_resources = NativeResourcesScript.new()
+	native_resources.load_tile_resources("res://shared_assets/tiles")
 	native_resources.load_tile_resources(test_root.path_join("Tilesets"))
 	_expect_equal(
 		native_resources.tiles_book.get("ClassicDungeon.json", []).size(),
@@ -1916,6 +1999,18 @@ func _test_classic_map_materializer() -> void:
 	_expect(
 		native_resources.maps_book.has("mapd_0"),
 		"normal resource lifecycle loads the generated dungeon map"
+	)
+	native_resources.load_map_ressources(map_directory + "/", "map_0")
+	var special_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][1][0]
+	_expect_equal(
+		special_land_stack.size(),
+		2,
+		"normal resource lifecycle loads base terrain and special-land overlay"
+	)
+	_expect_equal(
+		special_land_stack[1].get("classicLandField"),
+		-100,
+		"loaded special-land overlay retains its raw field identity"
 	)
 	native_resources.free()
 	var first_artifacts := {}
@@ -1928,6 +2023,9 @@ func _test_classic_map_materializer() -> void:
 		"Maps/mapd_0/map_scriptareas.json",
 		"Maps/mapd_0/map_scripts.gd",
 		"Maps/mapd_0/map_things.json",
+		"Tilesets/ClassicLandOverlay/ClassicLandOverlay.json",
+		"Tilesets/ClassicLandOverlay/tile_templates.json",
+		"Tilesets/ClassicLandOverlay/ClassicLandOverlay.png",
 		"Tilesets/ClassicDungeon/ClassicDungeon.json",
 		"Tilesets/ClassicDungeon/tile_templates.json",
 		"Tilesets/ClassicDungeon/ClassicDungeon.png",
@@ -1972,8 +2070,41 @@ func _test_classic_map_materializer() -> void:
 		"special Classic map tile blocks lossy native materialization"
 	)
 	_expect(
-		str(unsupported_result.get("message", "")).contains("special tile -100"),
+		str(unsupported_result.get("message", "")).contains(
+			"special land tile -100 (cicn -100)"
+		),
 		"unsupported special tile reports its exact identity"
+	)
+	var invalid_media_directory := unsupported_directory.path_join("media")
+	DirAccess.make_dir_recursive_absolute(invalid_media_directory)
+	var invalid_media := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+	invalid_media.fill(Color.WHITE)
+	var invalid_media_path := invalid_media_directory.path_join("special-land-neg-100.png")
+	_expect_equal(
+		invalid_media.save_png(invalid_media_path),
+		OK,
+		"materializer fixture writes wrong-sized special-land media"
+	)
+	unsupported_bundle.documents["assets"]["catalog"]["specialLandTiles"][0][
+		"runtimeMedia"
+	] = {
+		"path": "media/special-land-neg-100.png",
+		"mediaType": "image/png",
+		"bytes": FileAccess.get_file_as_bytes(invalid_media_path).size(),
+		"sha256": FileAccess.get_sha256(invalid_media_path),
+	}
+	var invalid_media_result: Dictionary = MapMaterializerScript.new().materialize(
+		unsupported_bundle,
+		unsupported_directory
+	)
+	_expect_equal(
+		invalid_media_result.get("status"),
+		"error",
+		"wrong-sized special land media blocks native materialization"
+	)
+	_expect(
+		str(invalid_media_result.get("message", "")).contains("is 16 x 16"),
+		"wrong-sized special land media reports its decoded dimensions"
 	)
 
 	var directional_bundle = BundleScript.new()
@@ -1984,7 +2115,9 @@ func _test_classic_map_materializer() -> void:
 		"mode": "outdoor-landlook",
 		"tilesetId": "landlook-0",
 	}
-	directional_land["tiles"] = tiles.duplicate()
+	var directional_tiles := tiles.duplicate()
+	directional_tiles[1] = 156
+	directional_land["tiles"] = directional_tiles
 	directional_bundle.documents["maps"]["maps"].append({
 		"height": 1,
 		"id": "dungeon:0",
@@ -2227,8 +2360,10 @@ func _test_classic_campaign_package_installer() -> void:
 		"producer export without a native start map is not installed"
 	)
 	_expect(
-		str(blocked_result.get("message", "")).contains("decoded native file"),
-		"blocked producer export identifies its missing decoded tileset"
+		str(blocked_result.get("message", "")).contains(
+			"requires a decoded 32 x 32 runtimeMedia image"
+		),
+		"blocked producer export identifies its missing special-land runtime media"
 	)
 	_expect(
 		not DirAccess.dir_exists_absolute(
