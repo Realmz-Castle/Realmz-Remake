@@ -84,6 +84,7 @@ class StartLocationAdapter:
 	extends RefCounted
 	var configured_bundle: Variant
 	var start_location: Dictionary = {}
+	var reapplied_state: Variant
 
 	func configure_classic_bundle(bundle: Variant) -> void:
 		configured_bundle = bundle
@@ -97,6 +98,13 @@ class StartLocationAdapter:
 				int(location.get("y", -1))
 			),
 			"recheckDestination": bool(location.get("recheckDestination", false)),
+		}
+
+	func reapply_classic_map_state(runtime_state: Variant) -> Dictionary:
+		reapplied_state = runtime_state
+		return {
+			"status": "ok",
+			"applied": {"tiles": 0},
 		}
 
 	func execute_command(_command: String, _payload: Dictionary) -> Dictionary:
@@ -1989,6 +1997,113 @@ func _test_classic_map_bridge() -> void:
 		land_areas["LRR0.2"]["RR_Battle"]["battle_range"],
 		[10, 12],
 		"random rectangle applies native battle range"
+	)
+
+	var runtime_state = StateScript.new()
+	runtime_state.set_darkland("land", 0, 1)
+	runtime_state.set_landlook("land", 0, 10)
+	runtime_state.set_random_rectangle("land", 0, 2, {
+		"left": 0,
+		"top": 1,
+		"right": 1,
+		"bottom": 1,
+		"percent": 5000,
+		"battleRange": [20, 22],
+	})
+	runtime_state.set_action_point_override("Data DD:0:4", {
+		"id": "Data DD:0:4",
+		"levelType": "land",
+		"levelIndex": 0,
+		"recordIndex": 4,
+		"coordinate": {"x": 0, "y": 1},
+		"percent": 80,
+		"actions": [],
+	})
+	runtime_state.set_trigger_percent("land", 0, 4, 35)
+	runtime_state.set_tile("land", 0, 0, 0, 4)
+	land_areas = {
+		"AP4x1y1": {
+			"scriptRectangle": [[1, 1], [1, 1]],
+			"scriptToLoad": "AP4x1y1",
+		},
+		"LRR0.2": {
+			"scriptRectangle": [[0, 0], [1, 1]],
+			"chance": 0.1,
+			"scriptToLoad": [],
+			"RR_Battle": {"battle_range": [1, 2]},
+		},
+	}
+	resources.maps_book["map_0"] = [
+		[
+			[["grass"], ["wall"]],
+			[["water"], ["sand"]],
+		],
+		{"ScriptRects": land_areas, "Paths": [], "Secrets": []},
+		null,
+		"Outdoor",
+		"Forest",
+		true,
+		7,
+		false,
+		[],
+	]
+	var replay: Dictionary = bridge.reapply_persistent_state(
+		runtime_state,
+		game_global,
+		resources
+	)
+	_expect_equal(replay.get("status"), "ok", "persistent map replay succeeds")
+	_expect_equal(replay.get("errors"), [], "persistent map replay has no errors")
+	_expect_equal(
+		replay.get("applied"),
+		{
+			"darkness": 1,
+			"landLooks": 1,
+			"randomRectangles": 1,
+			"actionPoints": 1,
+			"triggerPercents": 1,
+			"tiles": 1,
+		},
+		"persistent map replay reports every mutation family"
+	)
+	_expect_equal(resources.maps_book["map_0"][6], 0, "replay restores map darkness")
+	_expect_equal(
+		resources.maps_book["map_0"][0][0][0],
+		["sand"],
+		"replay restores a changed tile after native resource reload"
+	)
+	_expect(not land_areas.has("AP4x1y1"), "replay removes the Action Point's old rectangle")
+	_expect(land_areas.has("AP4x0y1"), "replay projects the moved Action Point rectangle")
+	_expect_equal(
+		land_areas["AP4x0y1"]["scriptToLoad"],
+		"Data DD:0:4",
+		"replayed Action Point uses its stable Classic trigger ID"
+	)
+	_expect_equal(
+		land_areas["AP4x0y1"]["chance"],
+		0.35,
+		"replay applies the effective trigger percent after moving the area"
+	)
+	_expect_equal(land_areas["LRR0.2"]["chance"], 0.5, "replay restores random chance")
+	_expect_equal(
+		land_areas["LRR0.2"]["RR_Battle"]["battle_range"],
+		[20, 22],
+		"replay restores random battle range"
+	)
+	var repeated_replay: Dictionary = bridge.reapply_persistent_state(
+		runtime_state,
+		game_global,
+		resources
+	)
+	_expect_equal(repeated_replay.get("status"), "ok", "persistent map replay is repeatable")
+	var replayed_action_point_count := 0
+	for replayed_area_name: Variant in land_areas:
+		if str(replayed_area_name).begins_with("AP4"):
+			replayed_action_point_count += 1
+	_expect_equal(
+		replayed_action_point_count,
+		1,
+		"repeated replay keeps one effective Action Point area"
 	)
 
 	var missing: Dictionary = bridge.transition({
@@ -6919,6 +7034,16 @@ func _test_runtime_host() -> void:
 	_expect_equal(start_result.get("nativeMapName"), "map_0", "host resolves the Classic starting map")
 	_expect_equal(start_result.get("position"), Vector2i(2, 1), "host applies the authored start position")
 	_expect(bool(start_result.get("recheckDestination")), "campaign start requests native map-event entry")
+	_expect_equal(
+		start_adapter.reapplied_state,
+		start_host.runtime.runtime_state,
+		"campaign start reapplies persistent map state before entering the map"
+	)
+	_expect_equal(
+		start_result.get("persistentMapState", {}).get("status"),
+		"ok",
+		"campaign start reports its persistent map replay"
+	)
 	_expect_equal(
 		start_adapter.start_location.get("viewType"),
 		StateScript.VIEW_3D,

@@ -10,6 +10,105 @@ func configure(bundle: Object) -> void:
 	native_tile_stacks.clear()
 
 
+func reapply_persistent_state(
+	runtime_state: Object,
+	game_global: Object,
+	resources: Object
+) -> Dictionary:
+	if runtime_state == null or not runtime_state.has_method("persistent_map_mutations"):
+		return _error("Classic map state is unavailable for native replay")
+	var mutations_value: Variant = runtime_state.call("persistent_map_mutations")
+	if not (mutations_value is Dictionary):
+		return _error("Classic map state returned malformed persistent mutations")
+	var mutations: Dictionary = mutations_value
+	var report := {
+		"status": "ok",
+		"applied": {
+			"darkness": 0,
+			"landLooks": 0,
+			"randomRectangles": 0,
+			"actionPoints": 0,
+			"triggerPercents": 0,
+			"tiles": 0,
+		},
+		"skipped": [],
+		"errors": [],
+	}
+	var darkness_by_map: Dictionary = {}
+	for darkness_value: Variant in mutations.get("darkness", []):
+		if not (darkness_value is Dictionary):
+			continue
+		var darkness: Dictionary = darkness_value.duplicate(true)
+		darkness["dark"] = int(darkness.get("darkness", 0)) != 0
+		darkness_by_map[_payload_map_key(darkness)] = bool(darkness["dark"])
+		_record_replay_result(
+			"darkness",
+			set_darkness(darkness, game_global, resources),
+			report
+		)
+	for landlook_value: Variant in mutations.get("landLooks", []):
+		if not (landlook_value is Dictionary):
+			continue
+		var landlook: Dictionary = landlook_value.duplicate(true)
+		var landlook_map_key := _payload_map_key(landlook)
+		if darkness_by_map.has(landlook_map_key):
+			landlook["dark"] = bool(darkness_by_map[landlook_map_key])
+		else:
+			var landlook_map := _native_map_entry(
+				resources,
+				native_map_name(
+					str(landlook.get("levelType", "")),
+					int(landlook.get("levelIndex", -1))
+				)
+			)
+			landlook["dark"] = not landlook_map.is_empty() and int(landlook_map[6]) == 0
+		_record_replay_result(
+			"landLooks",
+			set_land_look(landlook, game_global, resources),
+			report
+		)
+	for rectangle_value: Variant in mutations.get("randomRectangles", []):
+		if not (rectangle_value is Dictionary):
+			continue
+		var rectangle: Dictionary = rectangle_value.duplicate(true)
+		rectangle["rectangle"] = rectangle.duplicate(true)
+		_record_replay_result(
+			"randomRectangles",
+			set_random_rectangle(rectangle, game_global, resources),
+			report
+		)
+	for action_point_value: Variant in mutations.get("actionPoints", []):
+		if action_point_value is Dictionary:
+			_record_replay_result(
+				"actionPoints",
+				set_action_point(action_point_value, game_global, resources),
+				report
+			)
+	for percent_value: Variant in mutations.get("triggerPercents", []):
+		if not (percent_value is Dictionary):
+			continue
+		var percent: Dictionary = percent_value.duplicate(true)
+		percent["triggerIds"] = [int(percent.get("triggerId", -1))]
+		_record_replay_result(
+			"triggerPercents",
+			set_trigger_percent(percent, game_global, resources),
+			report
+		)
+	# The palette deliberately outlives a maps_book reload. Reusing those deep
+	# copies keeps repeated replay independent of cells changed by earlier runs.
+	for tile_value: Variant in mutations.get("tiles", []):
+		if tile_value is Dictionary:
+			_record_replay_result(
+				"tiles",
+				set_tile(tile_value, game_global, resources),
+				report
+			)
+	if not report["errors"].is_empty():
+		report["status"] = "error"
+		report["message"] = "One or more Classic map mutations could not be reapplied"
+	return report
+
+
 func native_map_name(level_type: String, level_index: int) -> String:
 	match level_type:
 		"land":
@@ -150,9 +249,11 @@ func set_tile(payload: Dictionary, game_global: Object, resources: Object) -> Di
 
 
 func set_trigger_percent(payload: Dictionary, game_global: Object, resources: Object) -> Dictionary:
+	var level_type := str(payload.get("levelType", ""))
+	var level_index := int(payload.get("levelIndex", -1))
 	var map_name := native_map_name(
-		str(payload.get("levelType", "")),
-		int(payload.get("levelIndex", -1))
+		level_type,
+		level_index
 	)
 	var script_areas: Variant = _native_script_areas(resources, map_name)
 	if script_areas == null:
@@ -161,17 +262,80 @@ func set_trigger_percent(payload: Dictionary, game_global: Object, resources: Ob
 	var updated: Array = []
 	for trigger_id_value: Variant in payload.get("triggerIds", []):
 		var trigger_id := int(trigger_id_value)
+		var stable_id := _stable_trigger_id(level_type, level_index, trigger_id)
 		for area_name: Variant in script_areas:
 			var area: Variant = script_areas[area_name]
-			if area is Dictionary and _area_matches_trigger(str(area_name), area, trigger_id):
-				area["chance"] = float(payload.get("percent", 0)) / 100.0
+			if area is Dictionary and _area_matches_trigger(
+				str(area_name), area, trigger_id, stable_id
+			):
+				area["chance"] = maxf(0.0, float(payload.get("percent", 0)) / 100.0)
 				updated.append(str(area_name))
+	if updated.is_empty():
+		return _skipped("Classic trigger mutation has no matching native Action Point area")
 	var current_map: Variant = _current_map(game_global, map_name)
 	if current_map != null and current_map.has_method("queue_redraw"):
 		current_map.queue_redraw()
 	return {
 		"nativeMapName": map_name,
 		"updatedAreas": updated,
+	}
+
+
+func set_action_point(payload: Dictionary, game_global: Object, resources: Object) -> Dictionary:
+	var level_type := str(payload.get("levelType", ""))
+	var level_index := int(payload.get("levelIndex", -1))
+	var record_index := int(payload.get("recordIndex", -1))
+	var map_name := native_map_name(level_type, level_index)
+	var script_areas: Variant = _native_script_areas(resources, map_name)
+	if script_areas == null:
+		return _error("Classic map %s has no loaded native script areas" % map_name)
+	if record_index < 0:
+		return _error("Classic Action Point override has no record index")
+
+	var stable_id := str(payload.get(
+		"id",
+		_stable_trigger_id(level_type, level_index, record_index)
+	))
+	if stable_id.is_empty():
+		stable_id = _stable_trigger_id(level_type, level_index, record_index)
+	var projected_area: Dictionary = {}
+	var replaced_areas: Array = []
+	for area_name_value: Variant in script_areas.keys():
+		var area_name := str(area_name_value)
+		var area: Variant = script_areas[area_name_value]
+		if not (area is Dictionary) or not _area_matches_trigger(
+			area_name, area, record_index, stable_id
+		):
+			continue
+		if projected_area.is_empty():
+			projected_area = area.duplicate(true)
+		replaced_areas.append(area_name)
+		script_areas.erase(area_name_value)
+
+	var coordinate: Variant = payload.get("coordinate")
+	if not (coordinate is Dictionary):
+		return {
+			"nativeMapName": map_name,
+			"disabled": true,
+			"replacedAreas": replaced_areas,
+		}
+	var x := int(coordinate.get("x", -1))
+	var y := int(coordinate.get("y", -1))
+	if x < 0 or y < 0:
+		return _error("Classic Action Point override has invalid coordinates")
+	var area_name := "AP%dx%dy%d" % [record_index, x, y]
+	projected_area["scriptRectangle"] = [[x, y], [x, y]]
+	projected_area["scriptToLoad"] = stable_id
+	projected_area["chance"] = maxf(0.0, float(payload.get("percent", 0)) / 100.0)
+	script_areas[area_name] = projected_area
+	var current_map: Variant = _current_map(game_global, map_name)
+	if current_map != null and current_map.has_method("queue_redraw"):
+		current_map.queue_redraw()
+	return {
+		"nativeMapName": map_name,
+		"updatedArea": area_name,
+		"replacedAreas": replaced_areas,
+		"triggerId": stable_id,
 	}
 
 
@@ -290,12 +454,50 @@ func _native_tile_stack(
 	return native_tile_stacks[map_name].get(tile_value, {})
 
 
-func _area_matches_trigger(area_name: String, area: Dictionary, trigger_id: int) -> bool:
+func _area_matches_trigger(
+	area_name: String,
+	area: Dictionary,
+	trigger_id: int,
+	stable_id := ""
+) -> bool:
 	var prefix := "AP%d" % trigger_id
 	if area_name == prefix or area_name.begins_with(prefix + "x"):
 		return true
 	var script_name := str(area.get("scriptToLoad", ""))
-	return script_name == prefix or script_name.begins_with(prefix + "x")
+	return (
+		script_name == prefix
+		or script_name.begins_with(prefix + "x")
+		or (not stable_id.is_empty() and script_name == stable_id)
+	)
+
+
+func _stable_trigger_id(level_type: String, level_index: int, trigger_id: int) -> String:
+	var source := "Data DDD" if level_type == "dungeon" else "Data DD"
+	return "%s:%d:%d" % [source, level_index, trigger_id]
+
+
+func _payload_map_key(payload: Dictionary) -> String:
+	return "%s:%d" % [
+		str(payload.get("levelType", "")),
+		int(payload.get("levelIndex", -1)),
+	]
+
+
+func _record_replay_result(category: String, result: Dictionary, report: Dictionary) -> void:
+	match str(result.get("status", "")):
+		"error":
+			report["errors"].append({
+				"category": category,
+				"message": str(result.get("message", "Classic map replay failed")),
+			})
+		"skipped":
+			report["skipped"].append({
+				"category": category,
+				"message": str(result.get("message", "Classic map replay was skipped")),
+			})
+		_:
+			var applied: Dictionary = report["applied"]
+			applied[category] = int(applied.get(category, 0)) + 1
 
 
 func _error(message: String) -> Dictionary:

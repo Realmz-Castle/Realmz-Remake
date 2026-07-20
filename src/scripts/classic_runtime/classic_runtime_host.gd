@@ -59,6 +59,9 @@ func activate_start_location() -> Dictionary:
 			"status": "error",
 			"message": "ClassicRuntimeHost requires a start-location adapter",
 		}
+	var replay_result := reapply_map_state()
+	if str(replay_result.get("status", "")) == "error":
+		return replay_result
 	var state := runtime.runtime_state
 	var response: Variant = command_adapter.call("activate_classic_start", {
 		"levelType": state.level_type,
@@ -71,7 +74,26 @@ func activate_start_location() -> Dictionary:
 		"compassEnabled": state.compass_enabled,
 		"recheckDestination": true,
 	})
-	return response if response is Dictionary else {}
+	if response is Dictionary:
+		response["persistentMapState"] = replay_result
+		return response
+	return {}
+
+
+func reapply_map_state() -> Dictionary:
+	if command_adapter == null or not command_adapter.has_method("reapply_classic_map_state"):
+		return {
+			"status": "error",
+			"message": "ClassicRuntimeHost requires a persistent map-state adapter",
+		}
+	var response: Variant = command_adapter.call(
+		"reapply_classic_map_state",
+		runtime.runtime_state
+	)
+	return response if response is Dictionary else {
+		"status": "error",
+		"message": "Classic map-state adapter returned an invalid response",
+	}
 
 
 func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:

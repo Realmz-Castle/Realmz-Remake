@@ -66,3 +66,8 @@ New compatibility work should first identify the native owner and add the smalle
 adapter entry point that owner needs. Add behavior to the interpreter only when it
 is a Classic rule, and add state to `ClassicRuntimeState` only when no native owner
 already preserves the value.
+
+Native campaign resources remain the rendered map owner. After those resources
+are loaded or rebuilt, `ClassicRuntimeHost.reapply_map_state()` projects the
+effective compatibility-owned mutations into `maps_book`; it does not reload the
+map, change the compiled bundle, or become a second current-map owner.

@@ -130,6 +130,14 @@ func activate_classic_start(location: Dictionary) -> Dictionary:
 	return transition_result
 
 
+func reapply_classic_map_state(runtime_state: Object) -> Dictionary:
+	return classic_map_bridge.reapply_persistent_state(
+		runtime_state,
+		_autoload("GameGlobal"),
+		_classic_campaign_resources()
+	)
+
+
 func classic_spell_override(spell_id: int) -> Variant:
 	if classic_spell_overrides.has(spell_id):
 		return classic_spell_overrides[spell_id]

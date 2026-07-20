@@ -255,6 +255,36 @@ func get_effective_triggers_at(
 	return triggers
 
 
+func persistent_map_mutations() -> Dictionary:
+	return {
+		"darkness": _keyed_integer_mutations(
+			darkland_overrides,
+			[],
+			"darkness"
+		),
+		"landLooks": _keyed_integer_mutations(
+			landlook_overrides,
+			[],
+			"landlook"
+		),
+		"randomRectangles": _keyed_dictionary_mutations(
+			random_rectangle_overrides,
+			["rectIndex"]
+		),
+		"actionPoints": _dictionary_values(action_point_overrides),
+		"triggerPercents": _keyed_integer_mutations(
+			trigger_percent_overrides,
+			["triggerId"],
+			"percent"
+		),
+		"tiles": _keyed_integer_mutations(
+			tile_overrides,
+			["x", "y"],
+			"tileValue"
+		),
+	}
+
+
 func _trigger_matches_location(
 	trigger: Dictionary,
 	level_kind: String,
@@ -443,6 +473,64 @@ func _restore_dictionary(saved_value: Variant, target: Dictionary) -> void:
 		return
 	for key: Variant in saved_value:
 		target[str(key)] = int(saved_value[key])
+
+
+func _keyed_integer_mutations(
+	source: Dictionary,
+	index_fields: Array,
+	value_field: String
+) -> Array:
+	var mutations: Array = []
+	for key: Variant in _sorted_keys(source):
+		var mutation := _map_mutation_key(str(key), index_fields)
+		if mutation.is_empty():
+			continue
+		mutation[value_field] = int(source[key])
+		mutations.append(mutation)
+	return mutations
+
+
+func _keyed_dictionary_mutations(source: Dictionary, index_fields: Array) -> Array:
+	var mutations: Array = []
+	for key: Variant in _sorted_keys(source):
+		var value: Variant = source[key]
+		if not (value is Dictionary):
+			continue
+		var mutation := _map_mutation_key(str(key), index_fields)
+		if mutation.is_empty():
+			continue
+		for field: Variant in value:
+			mutation[field] = value[field]
+		mutations.append(mutation.duplicate(true))
+	return mutations
+
+
+func _dictionary_values(source: Dictionary) -> Array:
+	var values: Array = []
+	for key: Variant in _sorted_keys(source):
+		var value: Variant = source[key]
+		if value is Dictionary:
+			values.append(value.duplicate(true))
+	return values
+
+
+func _map_mutation_key(key: String, index_fields: Array) -> Dictionary:
+	var parts := key.split(":")
+	if parts.size() != index_fields.size() + 2:
+		return {}
+	var mutation := {
+		"levelType": parts[0],
+		"levelIndex": int(parts[1]),
+	}
+	for index: int in range(index_fields.size()):
+		mutation[str(index_fields[index])] = int(parts[index + 2])
+	return mutation
+
+
+func _sorted_keys(source: Dictionary) -> Array:
+	var keys := source.keys()
+	keys.sort()
+	return keys
 
 
 func _tile_key(level_kind: String, map_level: int, tile_x: int, tile_y: int) -> String:
