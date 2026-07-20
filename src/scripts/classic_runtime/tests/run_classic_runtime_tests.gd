@@ -2890,6 +2890,7 @@ func _test_campaign_readiness_report() -> void:
 	bundle.documents["scripts"]["triggers"] = [
 		_readiness_action_point("Data DD", 76, 27, 32128),
 		_readiness_action_point("Data DD", 89, 18, 375),
+		_readiness_action_point("Data DD", 90, 1, -30000),
 		_readiness_action_point("Data ED3", 108, 17, 388),
 		_readiness_action_point("Data ED3", 114, 17, 389),
 		_readiness_action_point("Data ED3", 128, 17, 428),
@@ -2961,6 +2962,12 @@ func _test_campaign_readiness_report() -> void:
 			report, "missing-picture-payload", "Data DD", 76, 0, "fidelity-fallback"
 		),
 		"readiness classifies missing PICT payload as a fidelity fallback"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report, "missing-message", "Data DD", 90, 0, "fidelity-fallback"
+		),
+		"readiness classifies missing message text as a fidelity fallback"
 	)
 	_expect(
 		_readiness_has_diagnostic(

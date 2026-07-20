@@ -157,7 +157,7 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 
 	match code:
 		1:
-			_check_direct_record(bundle.get_message(reference_id), action, "message", reference_id)
+			_check_message(bundle, action, reference_id)
 		4:
 			_check_direct_record(
 				bundle.get_encounter("simple", reference_id), action, "simple encounter", reference_id
@@ -187,6 +187,21 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_player_map(bundle, action, reference_id)
 		89:
 			_check_ally(bundle, action, reference_id)
+
+
+func _check_message(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	message_id: int
+) -> void:
+	if message_id == 0 or not bundle.get_message(message_id).is_empty():
+		return
+	_add_fallback_for_action(
+		action,
+		"missing-message",
+		"Action references missing message record %d" % message_id,
+		{"referenceId": message_id}
+	)
 
 
 func _check_direct_record(
