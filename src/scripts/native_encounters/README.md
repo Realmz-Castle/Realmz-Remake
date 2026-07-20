@@ -100,6 +100,13 @@ loaded encounter without closing the HUD. These adapters cover Remake's native
 campaign scripts; Classic stack behavior remains in the compatibility
 interpreter.
 
+Legacy GDScript encounters can also branch to the start of another result row
+through the active encounter control. This covers the shared top-of-result path
+used by converted Codes 3, 38, 42, and 46. A nonzero instruction offset remains
+an explicit conversion boundary because one-off `result1()` through `result4()`
+methods do not expose Classic's individual instruction slots. The Classic
+interpreter continues to support those offsets directly.
+
 The City of Bywater `native_nested_proof` fixture exercises all response modes,
 conditional and nested routing, and serialized mutation state. Run its focused
 test from the Godot project directory with:

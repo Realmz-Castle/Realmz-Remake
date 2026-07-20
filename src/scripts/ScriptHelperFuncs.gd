@@ -62,8 +62,13 @@ static func display_text_wait_noise(txt : String, sfxname : String) -> void :
 	await textRect.interruption_over
 
 static func display_multiple_choices(choices : Array, answers : Array = []) :
-	UI.ow_hud.textRect.display_multiple_choices(choices, answers)
-	var answer = await UI.ow_hud.textRect.choice_pressed
+	if answers.is_empty():
+		answers = range(choices.size())
+	var choices_container = UI.ow_hud.textRect.choicesContainer
+	choices_container.show()
+	choices_container.display_multiple_choices(choices, answers)
+	var answer = await choices_container.choice_pressed
+	choices_container.hide()
 	return answer
 
 ## Divinity Code 3 Player Option , option
@@ -71,12 +76,10 @@ static func yesno_branch_Divinity(continue_on_yes : bool, tg_type : int, tg_id :
 	#return true iff branching, if continuing return false does nothing
 	#continue_option=, target_type=, target=, left_prompt=, right_prompt=
 	# 0: back  a step, 1: continue normally,  2:simple enc, 3:complex_end ; 4 : exit  and disable script
-	var textRect : TextRect = UI.ow_hud.textRect
-	if lefttxt=='' and righttxt=='' :
-		textRect.display_multiple_choices(["YESNO"],["YESNO"])
-	else :
-		textRect.display_multiple_choices([lefttxt, righttxt],["YES", "NO"])
-	var answer = await textRect.choice_pressed
+	var answer = await display_multiple_choices(
+		["YESNO"] if lefttxt == '' and righttxt == '' else [lefttxt, righttxt],
+		["YESNO"] if lefttxt == '' and righttxt == '' else ["YES", "NO"]
+	)
 	if (continue_on_yes and answer=='YES') or (not continue_on_yes and answer=='NO') :
 		return ''
 	else:
@@ -92,8 +95,7 @@ static func yesno_branch_Divinity(continue_on_yes : bool, tg_type : int, tg_id :
 			print("ScriptHelperFuncs returns "+GameGlobal.prev_simple_enc_name+'XAP'+str(tg_id))
 			return GameGlobal.prev_simple_enc_name+'XAP'+str(tg_id)
 		if tg_type == 3 :
-			printerr("yesno_branch to complex encounter "+str(tg_id)+", pleae fix manually and set the 2nd parameter 3 (complex enc) to 1 (continue manually)")
-			assert(false)
+			return await run_complex_result_Divinity(tg_id)
 		if tg_type==4 :
 			printerr("yesno_branch flag script as disabled, make sure to add a check at script start")
 			flag_disabled_current_script()
@@ -128,6 +130,17 @@ static func is_complex_encounter_branch(branch: Variant) -> bool:
 
 static func transition_complex_encounter_Divinity(ce_id: int) -> bool:
 	return UI.ow_hud.encounterControl.transition_to("CE%d" % ce_id)
+
+
+static func run_complex_result_Divinity(result_index: int, code_index := 0) -> String:
+	if code_index != 0:
+		push_error(
+			"Native GDScript encounters cannot branch to instruction %d within result %d"
+			% [code_index, result_index]
+		)
+		return "STOP"
+	await UI.ow_hud.encounterControl.run_result(result_index)
+	return "STOP"
 
 
 static func play_sound(sfx_name : String, stop : bool) :
@@ -492,8 +505,7 @@ static func branch_on_quest_Divinity(quest_id : int, go_on_if_done : int, target
 			var cur_se = GameGlobal.prev_simple_enc_name
 			next_ap_name = cur_se+'XAP'+str(target)
 		2  : #Complex :
-			printerr("ScriptHelperFuncs branch_on_quest_Divinity : can twork in complex encounter, need manual fix")
-			assert(false)
+			return await run_complex_result_Divinity(target, code_index)
 	return next_ap_name
 
 ## Divinity Code 12: Change Land Tile
@@ -925,7 +937,7 @@ static func branch_item_possession_divinity(item_id : int, cont_not_poss : int, 
 		1 :
 			return "SEXAP"+str(xap_id)
 		2 :
-			return "CEXAP"+str(xap_id)
+			return await run_complex_result_Divinity(xap_id, code_no)
 		_:
 			return ''
 
@@ -996,10 +1008,8 @@ static func branch_on_random_divinity(type:int, low:int, high:int, sound_id:int,
 #if not branch.is_empty() :
 	#return branch
 static func branch_percent_chance_divinity(percent : int, whatdo : int, type : int, number : int, lineskip : int) :
-	if lineskip != 0 :
-		printerr("ScriptHelperFunc branch_percent_chance_divinity :"+GameGlobal.currentSpecialEncounterName+"\nLine skip is not supported,\nfix manually !")
-		assert(false)
-	if randf()<= float(percent)/100.0 : return ''
+	if randf() > float(percent) / 100.0:
+		return ''
 	match whatdo :
 		1 :
 			match type :
@@ -1008,13 +1018,13 @@ static func branch_percent_chance_divinity(percent : int, whatdo : int, type : i
 				1 : #SEXAP :
 					return GameGlobal.prev_simple_enc_name+'XAP'+str(number)
 				2 : #CEXAP :
-					printerr("ScriptHelperFunc branch_percent_chance_divinity :"+GameGlobal.currentSpecialEncounterName+"\nbranching in Special Encounter is not supported,\nfix manually !")
-					assert(false)
+					return await run_complex_result_Divinity(number, lineskip)
 		2 :
-			return ""
+			return "STOP"
 		-2 :
 			flag_disabled_current_script()
-			return ''
+			return "STOP"
+	return ''
 
 
 #Code 54: Alter Time Encounter

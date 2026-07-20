@@ -25,6 +25,31 @@ class OpenLockSpell:
 		return 0
 
 
+class ResultBranchEncounter:
+	extends RefCounted
+
+	signal encounter_over
+
+	var allow_spells := false
+	var allow_items := false
+	var allow_action := false
+	var allow_speak := false
+	var allow_stop := true
+	var result_calls: Array[int] = []
+
+	func result1() -> void:
+		result_calls.append(0)
+
+	func result2() -> void:
+		result_calls.append(1)
+
+	func result3() -> void:
+		result_calls.append(2)
+
+	func result4() -> void:
+		result_calls.append(3)
+
+
 var _automated_smoke := false
 var _failures: Array[String] = []
 
@@ -52,6 +77,7 @@ func _start_playtest() -> void:
 		resources.load_item_resources("res://shared_assets/items/")
 	resources.load_sound_ressources("res://shared_assets/sounds/")
 	resources.load_special_encounter_resources("City of Bywater")
+	resources.special_encounters_book["result_branch_test"] = ResultBranchEncounter.new()
 	_create_playtest_character()
 	if not resources.special_encounters_book.has("native_nested_proof"):
 		_finish_with_error("City of Bywater native encounter data did not load")
@@ -238,6 +264,56 @@ func _run_smoke() -> void:
 	encounter.stopButton.pressed.emit()
 	await _wait_frames(2)
 	_expect(not encounter.visible, "the transitioned legacy encounter closes normally")
+
+	encounter.initialize("result_branch_test")
+	await _wait_frames(2)
+	var result_fixture: ResultBranchEncounter = encounter.encounter_script
+	ScriptHelperFuncsClass.yesno_branch_Divinity(
+		true,
+		3,
+		0,
+		"Continue.",
+		"Branch."
+	)
+	if not await _wait_for_choices():
+		_finish()
+		return
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("NO")
+	await _wait_frames(2)
+	var percent_branch: String = await ScriptHelperFuncsClass.branch_percent_chance_divinity(
+		100,
+		1,
+		2,
+		1,
+		0
+	)
+	GameGlobal.stuff_done["quest_777"] = 0
+	var quest_branch: String = await ScriptHelperFuncsClass.branch_on_quest_Divinity(
+		777,
+		0,
+		2,
+		2,
+		0
+	)
+	var item_branch: String = await ScriptHelperFuncsClass.branch_item_possession_divinity(
+		641,
+		1,
+		2,
+		3,
+		0
+	)
+	var direct_branch: String = await ScriptHelperFuncsClass.run_complex_result_Divinity(0)
+	_expect(
+		result_fixture.result_calls == [0, 1, 2, 3, 0]
+			and percent_branch == "STOP"
+			and quest_branch == "STOP"
+			and item_branch == "STOP"
+			and direct_branch == "STOP",
+		"legacy branches execute the selected complex result row"
+	)
+	encounter.stopButton.pressed.emit()
+	await _wait_frames(2)
+	_expect(not encounter.visible, "the result-branch fixture closes normally")
 	_finish()
 
 

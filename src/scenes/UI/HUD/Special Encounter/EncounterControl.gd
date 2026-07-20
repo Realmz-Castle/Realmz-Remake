@@ -68,6 +68,15 @@ func transition_to(scriptname: String) -> bool:
 	return true
 
 
+func run_result(result_index: int) -> bool:
+	var method_name := "result%d" % (result_index + 1)
+	if encounter_script == null or not encounter_script.has_method(method_name):
+		push_error("Special encounter has no result row %d" % result_index)
+		return false
+	await encounter_script.call(method_name)
+	return true
+
+
 func _configure_encounter_buttons() -> void:
 	for b in boxContainer.get_children():
 		b.hide()
