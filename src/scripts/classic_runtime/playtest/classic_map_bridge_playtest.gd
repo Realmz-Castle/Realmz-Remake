@@ -84,6 +84,7 @@ func _start_playtest() -> void:
 		await _wait_frames(120)
 	var exit_result: Dictionary = await host.run_trigger(dungeon_to_land_trigger)
 	await _wait_for_view()
+	var returned_land_pixels := _capture_map_pixels()
 	_verify_stage(
 		"04_land_return",
 		str(exit_result.get("status", "")) != "error"
@@ -92,6 +93,28 @@ func _start_playtest() -> void:
 			and _native_map_is_visible("map_0", "Outdoor"),
 		"Data DDD:0:1 returns the party to visible native map_0"
 	)
+	if not automated_smoke:
+		await _wait_frames(90)
+	var landlook_result: Dictionary = await host.command_adapter.execute_command(
+		"set_land_look",
+		{
+			"levelType": "land",
+			"levelIndex": 0,
+			"landlook": 10,
+			"dark": false,
+		}
+	)
+	await _wait_for_view()
+	var snow_pixels := _capture_map_pixels()
+	_verify_stage(
+		"05_landlook",
+		str(landlook_result.get("status", "")) not in ["error", "skipped"]
+			and str(landlook_result.get("nativeTileset", "")) == "SnowDay"
+			and _native_map_uses_tileset("SnowDay")
+			and not returned_land_pixels.is_empty()
+			and returned_land_pixels != snow_pixels,
+		"Classic landlook 10 redraws map_0 with Remake's SnowDay tileset"
+	)
 
 	if automated_smoke:
 		_finish_smoke()
@@ -99,7 +122,7 @@ func _start_playtest() -> void:
 		UI.ow_hud.textRect.show()
 		UI.ow_hud.textRect.set_text(
 			"Classic land/dungeon map bridge playtest complete.\n"
-			+ "The party entered mapd_0 and returned to map_0 through native map loading."
+			+ "The party entered mapd_0, returned to map_0, and changed its native landlook."
 		)
 
 
@@ -132,6 +155,15 @@ func _native_map_is_visible(map_name: String, map_type: String) -> bool:
 		for cell: Array in column:
 			for tile: Dictionary in cell:
 				if tile.get("texture") is Texture2D:
+					return true
+	return false
+
+
+func _native_map_uses_tileset(tileset_name: String) -> bool:
+	for column: Array in NodeAccess.__Map().mapdata:
+		for cell: Array in column:
+			for tile: Dictionary in cell:
+				if str(tile.get("tileset_name", "")) == tileset_name:
 					return true
 	return false
 

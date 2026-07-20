@@ -382,6 +382,7 @@ class MapBridgeTestMap:
 class MapBridgeTestResources:
 	extends RefCounted
 	var maps_book: Dictionary = {}
+	var tiles_book: Dictionary = {}
 
 
 class MapBridgeTestGameGlobal:
@@ -1823,6 +1824,11 @@ func _test_random_level_mutations(bundle) -> void:
 
 func _test_classic_map_bridge() -> void:
 	var bundle = BundleScript.new()
+	bundle.documents["assets"] = {
+		"catalog": {
+			"tilesets": [{"id": "landlook-6", "landlook": 6}],
+		},
+	}
 	bundle.maps_by_id["land:0"] = {
 		"id": "land:0",
 		"levelType": "land",
@@ -1840,9 +1846,28 @@ func _test_classic_map_bridge() -> void:
 		"dungeon map uses native map naming"
 	)
 
+	var forest_tiles: Array = [
+		{"tileset_name": "ForestDay", "id": 0, "name": "grass"},
+		{"tileset_name": "ForestDay", "id": 1, "name": "wall"},
+		{"tileset_name": "ForestDay", "id": 2, "name": "water"},
+		{"tileset_name": "ForestDay", "id": 3, "name": "sand"},
+	]
+	var snow_tiles: Array = [
+		{"tileset_name": "SnowDay", "id": 0, "name": "snow grass"},
+		{"tileset_name": "SnowDay", "id": 1, "name": "snow wall"},
+		{"tileset_name": "SnowDay", "id": 2, "name": "ice"},
+		{"tileset_name": "SnowDay", "id": 3, "name": "snow sand"},
+	]
+	var custom_tiles: Array = [
+		{"tileset_name": "landlook-6", "id": 0, "name": "custom grass"},
+		{"tileset_name": "landlook-6", "id": 1, "name": "custom wall"},
+		{"tileset_name": "landlook-6", "id": 2, "name": "custom water"},
+		{"tileset_name": "landlook-6", "id": 3, "name": "custom sand"},
+	]
+	var overlay_tile := {"tileset_name": "Overlay", "id": 0, "name": "tree"}
 	var land_map: Array = [
-		[["grass"], ["wall"]],
-		[["water"], ["sand"]],
+		[[forest_tiles[0], overlay_tile], [forest_tiles[1]]],
+		[[forest_tiles[2]], [forest_tiles[3]]],
 	]
 	var land_areas: Dictionary = {
 		"AP4x1y1": {
@@ -1857,6 +1882,9 @@ func _test_classic_map_bridge() -> void:
 		},
 	}
 	var resources = MapBridgeTestResources.new()
+	resources.tiles_book["ForestDay.json"] = forest_tiles
+	resources.tiles_book["SnowDay.json"] = snow_tiles
+	resources.tiles_book["landlook-6.json"] = custom_tiles
 	resources.maps_book["map_0"] = [
 		land_map,
 		{"ScriptRects": land_areas, "Paths": [], "Secrets": []},
@@ -1948,7 +1976,7 @@ func _test_classic_map_bridge() -> void:
 	_expect_equal(tile_result.get("sourceCell"), Vector2i(1, 1), "tile bridge finds a native reference cell")
 	_expect_equal(
 		resources.maps_book["map_0"][0][0][0],
-		["sand"],
+		[forest_tiles[3]],
 		"tile mutation updates the native map resource"
 	)
 	bridge.set_tile({
@@ -1960,8 +1988,70 @@ func _test_classic_map_bridge() -> void:
 	}, game_global, resources)
 	_expect_equal(
 		resources.maps_book["map_0"][0][1][1],
-		["grass"],
+		[forest_tiles[0], overlay_tile],
 		"tile projection retains an immutable native reference palette"
+	)
+
+	var landlook_result: Dictionary = bridge.set_land_look({
+		"levelType": "land",
+		"levelIndex": 0,
+		"landlook": 10,
+		"dark": false,
+	}, game_global, resources)
+	_expect_equal(landlook_result.get("nativeTileset"), "SnowDay", "stock landlook resolves its native tileset")
+	_expect(bool(landlook_result.get("tilesetChanged")), "landlook changes native base tiles")
+	_expect_equal(landlook_result.get("changedTiles"), 4, "landlook changes every native land tile")
+	_expect_equal(
+		resources.maps_book["map_0"][0][1][1],
+		[snow_tiles[0], overlay_tile],
+		"landlook changes preserve non-landlook overlays"
+	)
+	bridge.set_tile({
+		"levelType": "land",
+		"levelIndex": 0,
+		"x": 0,
+		"y": 0,
+		"tileValue": 2,
+	}, game_global, resources)
+	_expect_equal(
+		resources.maps_book["map_0"][0][0][0],
+		[snow_tiles[2]],
+		"landlook changes update the immutable tile-mutation palette"
+	)
+	var custom_landlook: Dictionary = bridge.set_land_look({
+		"levelType": "land",
+		"levelIndex": 0,
+		"landlook": 6,
+		"dark": false,
+	}, game_global, resources)
+	_expect_equal(
+		custom_landlook.get("nativeTileset"),
+		"landlook-6",
+		"custom landlook resolves a producer-installed catalog tileset"
+	)
+	_expect_equal(
+		resources.maps_book["map_0"][0][0][0],
+		[custom_tiles[2]],
+		"custom landlook replaces the native base tile"
+	)
+	resources.tiles_book["Swamp.json"] = [
+		{"tileset_name": "Swamp", "id": 0, "name": "swamp grass"},
+	]
+	var incomplete_landlook: Dictionary = bridge.set_land_look({
+		"levelType": "land",
+		"levelIndex": 0,
+		"landlook": 9,
+		"dark": false,
+	}, game_global, resources)
+	_expect_equal(
+		incomplete_landlook.get("status"),
+		"skipped",
+		"landlook refuses an incomplete native tileset"
+	)
+	_expect_equal(
+		resources.maps_book["map_0"][0][0][0],
+		[custom_tiles[2]],
+		"incomplete landlook does not partially change the native map"
 	)
 
 	var trigger_result: Dictionary = bridge.set_trigger_percent({
@@ -2035,8 +2125,8 @@ func _test_classic_map_bridge() -> void:
 	}
 	resources.maps_book["map_0"] = [
 		[
-			[["grass"], ["wall"]],
-			[["water"], ["sand"]],
+			[[forest_tiles[0], overlay_tile], [forest_tiles[1]]],
+			[[forest_tiles[2]], [forest_tiles[3]]],
 		],
 		{"ScriptRects": land_areas, "Paths": [], "Secrets": []},
 		null,
@@ -2069,7 +2159,7 @@ func _test_classic_map_bridge() -> void:
 	_expect_equal(resources.maps_book["map_0"][6], 0, "replay restores map darkness")
 	_expect_equal(
 		resources.maps_book["map_0"][0][0][0],
-		["sand"],
+		[snow_tiles[3]],
 		"replay restores a changed tile after native resource reload"
 	)
 	_expect(not land_areas.has("AP4x1y1"), "replay removes the Action Point's old rectangle")

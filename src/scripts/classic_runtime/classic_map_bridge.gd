@@ -1,6 +1,27 @@
 class_name ClassicMapBridge
 extends RefCounted
 
+# Classic landlooks 1 and 2 are obsolete; custom looks 6-8 resolve through
+# producer-installed tilesets named by their catalog IDs.
+const STOCK_LANDLOOK_TILESETS := {
+	0: "ForestDay",
+	3: "Cave",
+	4: "Castle",
+	5: "DesertDay",
+	9: "Swamp",
+	10: "SnowDay",
+}
+const NATIVE_LANDLOOK_TILESETS := [
+	"ForestDay",
+	"ForestNight",
+	"Cave",
+	"Castle",
+	"DesertDay",
+	"Swamp",
+	"SnowDay",
+	"SnowNight",
+]
+
 var classic_bundle: Object
 var native_tile_stacks: Dictionary = {}
 
@@ -196,8 +217,60 @@ func set_land_look(payload: Dictionary, game_global: Object, resources: Object) 
 	var result := set_darkness(payload, game_global, resources)
 	if str(result.get("status", "")) == "error":
 		return result
-	result["landlook"] = int(payload.get("landlook", 0))
+	var landlook := int(payload.get("landlook", 0))
+	result["landlook"] = landlook
 	result["tilesetChanged"] = false
+	var target_tileset := _native_landlook_tileset(landlook, resources)
+	if target_tileset.is_empty():
+		return _merge_result(
+			result,
+			_skipped("Classic landlook %d has no loaded native tileset" % landlook)
+		)
+
+	var map_name := native_map_name(
+		str(payload.get("levelType", "")),
+		int(payload.get("levelIndex", -1))
+	)
+	var map_entry := _native_map_entry(resources, map_name)
+	var map_data: Variant = map_entry[0] if not map_entry.is_empty() else null
+	if not (map_data is Array):
+		return _merge_result(result, _error("Native map %s has malformed tile data" % map_name))
+
+	var source_tilesets := _native_landlook_tilesets(resources)
+	var target_tiles: Array = _native_tileset(resources, target_tileset)
+	var scan := _scan_landlook_tiles(map_data, source_tilesets, target_tiles)
+	if int(scan["matchedTiles"]) == 0:
+		return _merge_result(
+			result,
+			_skipped("Classic map %s has no recognized native landlook tiles" % map_name)
+		)
+	if not scan["missingTileIds"].is_empty():
+		return _merge_result(
+			result,
+			_skipped(
+				"Native tileset %s cannot represent tile IDs %s" % [
+					target_tileset,
+					str(scan["missingTileIds"]),
+				]
+			)
+		)
+
+	var changed_tiles := _replace_landlook_tiles(
+		map_data,
+		source_tilesets,
+		target_tileset,
+		target_tiles
+	)
+	_replace_cached_landlook_tiles(
+		map_name,
+		source_tilesets,
+		target_tileset,
+		target_tiles
+	)
+	result["nativeTileset"] = target_tileset
+	result["matchedTiles"] = int(scan["matchedTiles"])
+	result["changedTiles"] = changed_tiles
+	result["tilesetChanged"] = changed_tiles > 0
 	return result
 
 
@@ -375,6 +448,148 @@ func set_random_rectangle(payload: Dictionary, game_global: Object, resources: O
 	}
 
 
+func _native_landlook_tileset(landlook: int, resources: Object) -> String:
+	var stock_name := str(STOCK_LANDLOOK_TILESETS.get(landlook, ""))
+	if not stock_name.is_empty() and not _native_tileset(resources, stock_name).is_empty():
+		return stock_name
+	return str(_catalog_landlook_tilesets(resources).get(landlook, ""))
+
+
+func _native_landlook_tilesets(resources: Object) -> Dictionary:
+	var names: Dictionary = {}
+	for tileset_name: String in NATIVE_LANDLOOK_TILESETS:
+		names[tileset_name] = true
+	for tileset_name: Variant in _catalog_landlook_tilesets(resources).values():
+		names[str(tileset_name)] = true
+	return names
+
+
+func _catalog_landlook_tilesets(resources: Object) -> Dictionary:
+	var names: Dictionary = {}
+	if classic_bundle == null:
+		return names
+	var documents: Variant = classic_bundle.get("documents")
+	if not (documents is Dictionary):
+		return names
+	var assets: Variant = documents.get("assets", {})
+	if not (assets is Dictionary):
+		return names
+	var catalog: Variant = assets.get("catalog", {})
+	if not (catalog is Dictionary):
+		return names
+	var tilesets: Variant = catalog.get("tilesets", [])
+	if not (tilesets is Array):
+		return names
+	for tileset_value: Variant in tilesets:
+		if not (tileset_value is Dictionary):
+			continue
+		var tileset_name := str(tileset_value.get("id", ""))
+		if tileset_name.is_empty() or _native_tileset(resources, tileset_name).is_empty():
+			continue
+		names[int(tileset_value.get("landlook", -1))] = tileset_name
+	return names
+
+
+func _native_tileset(resources: Object, tileset_name: String) -> Array:
+	if resources == null or tileset_name.is_empty():
+		return []
+	var tiles_book: Variant = resources.get("tiles_book")
+	if not (tiles_book is Dictionary):
+		return []
+	var tiles: Variant = tiles_book.get(tileset_name + ".json", [])
+	return tiles if tiles is Array else []
+
+
+func _scan_landlook_tiles(
+	map_data: Array,
+	source_tilesets: Dictionary,
+	target_tiles: Array
+) -> Dictionary:
+	var matched_tiles := 0
+	var missing_tile_ids: Dictionary = {}
+	for column_value: Variant in map_data:
+		if not (column_value is Array):
+			continue
+		for stack_value: Variant in column_value:
+			if not (stack_value is Array):
+				continue
+			for tile_value: Variant in stack_value:
+				if not (tile_value is Dictionary):
+					continue
+				if not source_tilesets.has(str(tile_value.get("tileset_name", ""))):
+					continue
+				matched_tiles += 1
+				var tile_id := int(tile_value.get("id", -1))
+				if tile_id < 0 or tile_id >= target_tiles.size():
+					missing_tile_ids[tile_id] = true
+	var missing_ids: Array = missing_tile_ids.keys()
+	missing_ids.sort()
+	return {
+		"matchedTiles": matched_tiles,
+		"missingTileIds": missing_ids,
+	}
+
+
+func _replace_landlook_tiles(
+	map_data: Array,
+	source_tilesets: Dictionary,
+	target_tileset: String,
+	target_tiles: Array
+) -> int:
+	var changed_tiles := 0
+	for column_value: Variant in map_data:
+		if not (column_value is Array):
+			continue
+		for stack_value: Variant in column_value:
+			if stack_value is Array:
+				changed_tiles += _replace_landlook_stack(
+					stack_value,
+					source_tilesets,
+					target_tileset,
+					target_tiles
+				)
+	return changed_tiles
+
+
+func _replace_cached_landlook_tiles(
+	map_name: String,
+	source_tilesets: Dictionary,
+	target_tileset: String,
+	target_tiles: Array
+) -> void:
+	var palette: Variant = native_tile_stacks.get(map_name, {})
+	if not (palette is Dictionary):
+		return
+	for entry_value: Variant in palette.values():
+		if not (entry_value is Dictionary):
+			continue
+		var stack: Variant = entry_value.get("stack", [])
+		if stack is Array:
+			_replace_landlook_stack(stack, source_tilesets, target_tileset, target_tiles)
+
+
+func _replace_landlook_stack(
+	stack: Array,
+	source_tilesets: Dictionary,
+	target_tileset: String,
+	target_tiles: Array
+) -> int:
+	var changed_tiles := 0
+	for layer: int in range(stack.size()):
+		var tile: Variant = stack[layer]
+		if not (tile is Dictionary):
+			continue
+		var tileset_name := str(tile.get("tileset_name", ""))
+		if not source_tilesets.has(tileset_name) or tileset_name == target_tileset:
+			continue
+		var tile_id := int(tile.get("id", -1))
+		if tile_id < 0 or tile_id >= target_tiles.size():
+			continue
+		stack[layer] = target_tiles[tile_id]
+		changed_tiles += 1
+	return changed_tiles
+
+
 func _set_current_position(map: Variant, x: int, y: int) -> void:
 	if not (map is Object):
 		return
@@ -506,3 +721,9 @@ func _error(message: String) -> Dictionary:
 
 func _skipped(message: String) -> Dictionary:
 	return {"status": "skipped", "message": message}
+
+
+func _merge_result(base: Dictionary, addition: Dictionary) -> Dictionary:
+	for key: Variant in addition:
+		base[key] = addition[key]
+	return base

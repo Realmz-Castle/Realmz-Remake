@@ -191,16 +191,17 @@ shared bestiary and therefore correctly produces no ally diagnostic.
 
 The map bridge playtest loads Remake's existing City of Bywater map resources,
 activates the checked Classic fixture at `land:0`, follows `Data DD:0:83` into
-`dungeon:0`, and follows `Data DDD:0:1` back outside. The normal run leaves the
-final land map open after displaying both native maps:
+`dungeon:0`, follows `Data DDD:0:1` back outside, and changes the returned map
+to Classic landlook 10. The normal run leaves the SnowDay version of the land
+map open after displaying both native maps:
 
 ```powershell
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn
 ```
 
 Its automated smoke verifies the native map identities, map families, dungeon
-heading and multiview state, renderable tile textures, and distinct captured
-land and dungeon output:
+heading and multiview state, renderable tile textures, distinct captured land
+and dungeon output, and a visibly rendered SnowDay landlook change:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- --smoke
