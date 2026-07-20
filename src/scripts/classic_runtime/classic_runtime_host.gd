@@ -27,7 +27,11 @@ func configure(adapter: Object) -> void:
 func load_campaign(directory: String) -> bool:
 	active = false
 	command_context.clear()
-	return runtime.load_campaign(directory)
+	if not runtime.load_campaign(directory):
+		return false
+	if command_adapter != null and command_adapter.has_method("configure_classic_bundle"):
+		command_adapter.call("configure_classic_bundle", runtime.bundle)
+	return true
 
 
 func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:

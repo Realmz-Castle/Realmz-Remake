@@ -38,6 +38,7 @@ var simple_encounters_by_id: Dictionary = {}
 var complex_encounters_by_id: Dictionary = {}
 var thief_encounters_by_id: Dictionary = {}
 var timed_encounters_by_id: Dictionary = {}
+var spell_overrides_by_id: Dictionary = {}
 var maps_by_id: Dictionary = {}
 var player_maps_by_id: Dictionary = {}
 var random_levels_by_id: Dictionary = {}
@@ -487,6 +488,10 @@ func get_timed_encounter(encounter_id: int) -> Dictionary:
 	return timed_encounters_by_id.get(encounter_id, {})
 
 
+func get_spell_override(spell_id: int) -> Dictionary:
+	return spell_overrides_by_id.get(spell_id, {})
+
+
 func get_map(map_id: String) -> Dictionary:
 	return maps_by_id.get(map_id, {})
 
@@ -549,6 +554,7 @@ func _reset() -> void:
 	complex_encounters_by_id.clear()
 	thief_encounters_by_id.clear()
 	timed_encounters_by_id.clear()
+	spell_overrides_by_id.clear()
 	maps_by_id.clear()
 	player_maps_by_id.clear()
 	random_levels_by_id.clear()
@@ -636,6 +642,11 @@ func _build_indexes() -> void:
 	for encounter: Variant in _array_value(encounter_document, "timedEncounters"):
 		if encounter is Dictionary:
 			timed_encounters_by_id[int(encounter.get("id", -1))] = encounter
+
+	var rules_document: Dictionary = documents["rules"]
+	for spell_override: Variant in _array_value(rules_document, "spellOverrides"):
+		if spell_override is Dictionary:
+			spell_overrides_by_id[int(spell_override.get("id", -1))] = spell_override
 
 	var map_document: Dictionary = documents["maps"]
 	for map: Variant in _array_value(map_document, "maps"):

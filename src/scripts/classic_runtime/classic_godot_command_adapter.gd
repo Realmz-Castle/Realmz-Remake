@@ -6,6 +6,9 @@ const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inve
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
+const SpellOverrideScript = preload(
+	"res://scripts/classic_runtime/classic_spell_override.gd"
+)
 const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
 const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
@@ -94,6 +97,87 @@ const CLASSIC_PARTY_EFFECTS := {
 
 var classic_selected_characters: Array = []
 var stored_party_equipment: Dictionary = {}
+var classic_bundle: Object
+var classic_spell_overrides: Dictionary = {}
+var classic_registered_spells: Dictionary = {}
+
+
+func configure_classic_bundle(bundle: Object) -> void:
+	_unregister_classic_spell_overrides()
+	classic_bundle = bundle
+	classic_spell_overrides.clear()
+	_register_classic_spell_overrides()
+
+
+func classic_spell_override(spell_id: int) -> Variant:
+	if classic_spell_overrides.has(spell_id):
+		return classic_spell_overrides[spell_id]
+	if classic_bundle == null or not classic_bundle.has_method("get_spell_override"):
+		return null
+	var record: Variant = classic_bundle.get_spell_override(spell_id)
+	if not (record is Dictionary) or record.is_empty():
+		return null
+	var spell = SpellOverrideScript.new()
+	spell.configure(record)
+	classic_spell_overrides[spell_id] = spell
+	return spell
+
+
+func _register_classic_spell_overrides() -> void:
+	if classic_bundle == null:
+		return
+	var resources := _classic_campaign_resources()
+	if resources == null:
+		return
+	var spells_book: Variant = resources.get("spells_book")
+	var override_index: Variant = classic_bundle.get("spell_overrides_by_id")
+	if not (spells_book is Dictionary) or not (override_index is Dictionary):
+		return
+	var spell_ids: Array = override_index.keys()
+	spell_ids.sort()
+	for spell_id_value: Variant in spell_ids:
+		var spell: Variant = classic_spell_override(int(spell_id_value))
+		if spell == null or not spell.is_generically_executable():
+			continue
+		var had_previous: bool = spells_book.has(spell.name)
+		var previous_entry: Variant = spells_book.get(spell.name)
+		spells_book[spell.name] = {
+			"name": spell.name,
+			"source": "",
+			"script": spell,
+			"classicSpellId": int(spell_id_value),
+		}
+		classic_registered_spells[spell.name] = {
+			"spell": spell,
+			"hadPrevious": had_previous,
+			"previousEntry": previous_entry,
+		}
+
+
+func _unregister_classic_spell_overrides() -> void:
+	var resources := _classic_campaign_resources()
+	if resources != null:
+		var spells_book: Variant = resources.get("spells_book")
+		if spells_book is Dictionary:
+			for spell_name: String in classic_registered_spells:
+				var registration: Dictionary = classic_registered_spells[spell_name]
+				var entry: Variant = spells_book.get(spell_name)
+				var registered_spell: Variant = entry.get("script") \
+					if entry is Dictionary else entry
+				if registered_spell != registration.get("spell"):
+					continue
+				if bool(registration.get("hadPrevious", false)):
+					spells_book[spell_name] = registration.get("previousEntry")
+				else:
+					spells_book.erase(spell_name)
+	classic_registered_spells.clear()
+
+
+func _classic_campaign_resources() -> Node:
+	var main_loop: MainLoop = Engine.get_main_loop()
+	if not (main_loop is SceneTree):
+		return null
+	return main_loop.root.get_node_or_null("Main/Resources")
 
 
 func get_classic_execution_context() -> Dictionary:
@@ -1239,6 +1323,8 @@ func resolve_complex_spell_result(
 		return 4
 	for index: int in range(min(spell_ids.size(), spell_results.size())):
 		var spell_id := int(spell_ids[index])
+		if spell_id > 0 and spell_id in supported_spell_ids:
+			return int(spell_results[index])
 		if spell_id > 0 and spell_id < 7 and spell_class == spell_id:
 			return int(spell_results[index])
 		if spell_id >= 1101:
@@ -1308,6 +1394,74 @@ func classic_field_spell_target_resolution(
 		"character": character,
 		"name": str(character.get("name")),
 		"roll": roll,
+		"saveChance": save_chance,
+		"saved": saved,
+		"forced": forced,
+		"effectScale": effect_scale,
+	}
+
+
+func classic_custom_spell_target_resolution(
+	payload: Dictionary,
+	character: Object,
+	spell: Object,
+	resistance_roll: int,
+	save_roll: int
+) -> Dictionary:
+	if not spell.is_generically_executable():
+		return _error(
+			"Classic custom spell %d uses unsupported special %d" % [
+				int(spell.classic_spell_ids[0]),
+				int(spell.classic_special),
+			]
+		)
+	var save_index := int(spell.classic_spell_save_index)
+	var save_mode := str(spell.classic_spell_save_mode)
+	var check_resistance := bool(payload.get("checkResistance", false))
+	var can_resist := int(spell.classic_cannot) != 1 and int(spell.classic_cannot) <= 2
+	if (check_resistance and can_resist) or save_mode != "none":
+		if not character.has_method("get_stat"):
+			return _error("Classic custom-spell target has no readable stats")
+
+	var power := int(payload.get("power", 0))
+	var forced := bool(payload.get("forceAffect", false))
+	var resistance_chance := 0.0
+	if check_resistance and can_resist:
+		resistance_chance = clampf(
+			_classic_spell_save_chance(character, 6)
+				+ power * int(spell.classic_resist_adjust),
+			0.0,
+			100.0
+		)
+	var resisted := not forced and check_resistance and can_resist \
+		and resistance_roll <= resistance_chance
+
+	var save_chance := 0.0
+	if save_mode != "none":
+		if not CLASSIC_SPELL_SAVE_STATS.has(save_index):
+			return _error("Classic custom spell has no executable save type")
+		save_chance = clampf(
+			_classic_spell_save_chance(character, save_index)
+				+ int(spell.classic_save_bonus)
+				+ power * (
+					int(spell.classic_save_adjust)
+					+ int(payload.get("saveAdjustment", 0))
+				),
+			0.0,
+			100.0
+		)
+	var saved := not forced and not resisted and save_mode != "none" \
+		and save_roll <= save_chance
+	var effect_scale := 0.0 if resisted else 1.0
+	if saved:
+		effect_scale = 0.5 if save_mode == "half_damage" else 0.0
+	return {
+		"character": character,
+		"name": str(character.get("name")),
+		"resistanceRoll": resistance_roll,
+		"resistanceChance": resistance_chance,
+		"resisted": resisted,
+		"roll": save_roll,
 		"saveChance": save_chance,
 		"saved": saved,
 		"forced": forced,
@@ -1493,6 +1647,19 @@ func _native_item_spell_identity(label: String) -> Dictionary:
 func _complex_spell_item_response(encounter: Dictionary, selection: Dictionary) -> Dictionary:
 	var spell_id := int(selection.get("spellId", 0))
 	var spell_name := str(selection.get("spellName", ""))
+	var custom_spell: Variant = classic_spell_override(spell_id)
+	if custom_spell != null:
+		return {
+			"outcome": resolve_complex_spell_result(
+				encounter,
+				str(custom_spell.get("name")),
+				int(custom_spell.get("classic_spell_class")),
+				{},
+				custom_spell.get("classic_spell_ids")
+			),
+			"spellName": str(custom_spell.get("name")),
+			"spellId": spell_id,
+		}
 	var spell_mapping: Dictionary = {}
 	var spell_ids: Object = _autoload("SpellsIdDivinity")
 	if spell_ids != null and spell_ids.mappings is Dictionary:
@@ -2871,8 +3038,18 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 	var spell_id_mapping: Dictionary = spell_ids.mappings \
 		if spell_ids != null and spell_ids.mappings is Dictionary else {}
 	var spell_id := int(payload.get("spellId", 0))
+	var custom_spell: Variant = classic_spell_override(spell_id)
+	if custom_spell != null and custom_spell.is_generically_executable():
+		return await _apply_custom_spell_to_targets(payload, targets, custom_spell)
 	var spell_name := _mapped_spell_name(spell_id, spell_id_mapping)
 	if spell_name.is_empty():
+		if custom_spell != null:
+			return _error(
+				"Classic custom spell %d uses unsupported special %d" % [
+					spell_id,
+					int(custom_spell.classic_special),
+				]
+			)
 		return _error("Classic spell %d has no Remake mapping" % spell_id)
 	var spell: Variant = _loaded_spell(spell_name)
 	if spell == null:
@@ -2913,6 +3090,58 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 		_refresh_character_panel(target)
 	return {
 		"spellName": spell_name,
+		"targetCount": targets.size(),
+		"affectedCount": affected_count,
+		"resolutions": resolutions,
+	}
+
+
+func _apply_custom_spell_to_targets(
+	payload: Dictionary,
+	targets: Array,
+	spell: Object
+) -> Dictionary:
+	if not spell.is_generically_executable():
+		return _error(
+			"Classic custom spell %d uses unsupported special %d" % [
+				int(spell.classic_spell_ids[0]),
+				int(spell.classic_special),
+			]
+		)
+	var script_helper: Object = _autoload("ScriptHelperFuncs")
+	if script_helper == null:
+		return _error("Realmz spell helper is unavailable")
+	var resolutions: Array = []
+	var affected_count := 0
+	for target: Variant in targets:
+		if not (target is Object):
+			return _error("Classic custom-spell target is not a character")
+		var resolution := classic_custom_spell_target_resolution(
+			payload,
+			target,
+			spell,
+			randi_range(1, 100),
+			randi_range(1, 100)
+		)
+		if str(resolution.get("status", "")) == "error":
+			return resolution
+		resolutions.append(resolution)
+		var effect_scale := float(resolution.get("effectScale", 0.0))
+		if effect_scale <= 0.0:
+			continue
+		affected_count += 1
+		await script_helper.ApplySpellOnPickedCharacters(
+			[target],
+			spell,
+			int(payload.get("power", 0)),
+			effect_scale
+		)
+	for target: Variant in targets:
+		_refresh_character_panel(target)
+	return {
+		"spellName": str(spell.name),
+		"spellId": int(spell.classic_spell_ids[0]),
+		"custom": true,
 		"targetCount": targets.size(),
 		"affectedCount": affected_count,
 		"resolutions": resolutions,

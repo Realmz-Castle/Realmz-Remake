@@ -150,7 +150,7 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			)
 			return
 		if code in [17, 18]:
-			_check_field_spell(action, extra_code)
+			_check_field_spell(bundle, action, extra_code)
 		elif code == 85:
 			_check_random_branch(bundle, action, extra_code)
 		return
@@ -318,7 +318,11 @@ func _check_ally(bundle: ClassicCampaignBundle, action: Dictionary, monster_id: 
 		)
 
 
-func _check_field_spell(action: Dictionary, extra_code: Dictionary) -> void:
+func _check_field_spell(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
 	var values: Variant = extra_code.get("values", [])
 	if not (values is Array) or values.size() < 5:
 		_add_blocker_for_action(
@@ -329,6 +333,10 @@ func _check_field_spell(action: Dictionary, extra_code: Dictionary) -> void:
 		)
 		return
 	var spell_id := int(values[0])
+	if _check_custom_spell_override(
+		bundle, spell_id, str(action.get("source", "")), int(action.get("recordIndex", -1))
+	):
+		return
 	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
 	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
 	if spell_name.is_empty():
@@ -441,7 +449,7 @@ func _check_encounter_identities(bundle: ClassicCampaignBundle) -> void:
 		var encounter_id := int(encounter_id_value)
 		var encounter: Dictionary = bundle.complex_encounters_by_id[encounter_id_value]
 		_check_item_ids(bundle, encounter, encounter_id)
-		_check_spell_ids(encounter, encounter_id)
+		_check_spell_ids(bundle, encounter, encounter_id)
 		_check_rogue_trap_spell(bundle, encounter, encounter_id)
 	_check_special_scenario_items(bundle)
 
@@ -498,13 +506,19 @@ func _check_item_ids(
 			)
 
 
-func _check_spell_ids(encounter: Dictionary, encounter_id: int) -> void:
+func _check_spell_ids(
+	bundle: ClassicCampaignBundle,
+	encounter: Dictionary,
+	encounter_id: int
+) -> void:
 	var spell_ids: Variant = encounter.get("spellIds", [])
 	if not (spell_ids is Array):
 		return
 	for spell_id_value: Variant in spell_ids:
 		var spell_id := int(spell_id_value)
 		if spell_id in [0, 9999]:
+			continue
+		if _check_custom_spell_override(bundle, spell_id, "Data ED2", encounter_id):
 			continue
 		if spell_id > 0 and spell_id < 7:
 			_check_spell_class(spell_id, encounter_id)
@@ -553,7 +567,7 @@ func _check_rogue_trap_spell(
 		return
 	var spell_id := int(thief_encounter.get("spell", 0))
 	if spell_id != 0:
-		_check_native_effect_spell(spell_id, "Data TD2", thief_id, encounter_id)
+		_check_native_effect_spell(bundle, spell_id, "Data TD2", thief_id, encounter_id)
 
 
 func _check_special_scenario_items(bundle: ClassicCampaignBundle) -> void:
@@ -576,7 +590,7 @@ func _check_special_scenario_items(bundle: ClassicCampaignBundle) -> void:
 					{"referenceId": item_id}
 				)
 			else:
-				_check_native_effect_spell(spell_id, "Data NI", item_id, item_id)
+				_check_native_effect_spell(bundle, spell_id, "Data NI", item_id, item_id)
 		if abs(item_type) == 23 or special1 == -23:
 			var action_point_id: int = abs(int(item.get("special5", 0)))
 			if action_point_id == 0 or bundle.get_extra_action_point(action_point_id).is_empty():
@@ -592,12 +606,66 @@ func _check_special_scenario_items(bundle: ClassicCampaignBundle) -> void:
 				)
 
 
+func _check_custom_spell_override(
+	bundle: ClassicCampaignBundle,
+	spell_id: int,
+	usage_source: String,
+	usage_record: int,
+	owner_id := -1
+) -> bool:
+	var spell_override := bundle.get_spell_override(spell_id)
+	if spell_override.is_empty():
+		return false
+	var special: int = abs(int(spell_override.get("special", 0)))
+	if special == 0:
+		return true
+	if _has_exact_native_spell(spell_id):
+		return false
+	var provenance: Variant = spell_override.get("provenance", {})
+	var source := "rules.spellOverrides"
+	var record_index := spell_id
+	if provenance is Dictionary:
+		source = str(provenance.get("sourceFile", source))
+		record_index = int(provenance.get("recordIndex", record_index))
+	_add_blocker(
+		"unsupported-custom-spell-special",
+		source,
+		record_index,
+		-1,
+		"Custom spell %d uses unsupported special behavior %d" % [spell_id, special],
+		{
+			"referenceId": spell_id,
+			"special": special,
+			"usageSource": usage_source,
+			"usageRecordIndex": usage_record,
+			"ownerId": owner_id,
+		}
+	)
+	return true
+
+
+func _has_exact_native_spell(spell_id: int) -> bool:
+	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
+	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
+	var spells: Variant = _native_context.get("spells", {})
+	if spell_name.is_empty() or not (spells is Dictionary) or not spells.has(spell_name):
+		return false
+	var metadata: Variant = spells.get(spell_name, {})
+	if not (metadata is Dictionary):
+		return false
+	var supported_ids: Variant = metadata.get("classicSpellIds", [])
+	return supported_ids is Array and spell_id in supported_ids
+
+
 func _check_native_effect_spell(
+	bundle: ClassicCampaignBundle,
 	spell_id: int,
 	source: String,
 	record_index: int,
 	owner_id: int
 ) -> void:
+	if _check_custom_spell_override(bundle, spell_id, source, record_index, owner_id):
+		return
 	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
 	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
 	if spell_name.is_empty():

@@ -119,6 +119,15 @@ diagnostics and future contract versions, while `evidence.json` records source
 observations such as dispatcher no-ops that intentionally affect compatibility
 decisions.
 
+`rules.spellOverrides` uses its `id` as an exact scenario-local spell identity.
+The consumer checks that index before the shared spell table; it never guesses an
+adjacent or packed ID. Overrides with `special: 0` are exposed through Remake's
+ordinary spell interface using their compiled damage, duration, save, resistance,
+targeting, cost, and availability fields. A referenced nonzero `special` requires
+an exact native implementation or produces an
+`unsupported-custom-spell-special` readiness blocker at its `Data Spell` source
+record.
+
 ## Runtime entry context
 
 Map triggers start by stable trigger ID. Combat macro entry points additionally

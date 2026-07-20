@@ -68,6 +68,17 @@ class RejectingAdapter:
 		}
 
 
+class BundleAwareAdapter:
+	extends RefCounted
+	var configured_bundle: Variant
+
+	func configure_classic_bundle(bundle: Variant) -> void:
+		configured_bundle = bundle
+
+	func execute_command(_command: String, _payload: Dictionary) -> Dictionary:
+		return {}
+
+
 class SelectiveBattleAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -325,6 +336,7 @@ func _init() -> void:
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
 	_test_campaign_readiness_report()
+	_test_custom_spell_overrides()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -1130,6 +1142,185 @@ func _test_campaign_readiness_report() -> void:
 		),
 		"readiness turns malformed bundle input into an actionable blocker"
 	)
+
+
+func _test_custom_spell_overrides() -> void:
+	var producer_bundle = BundleScript.new()
+	_expect(
+		producer_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"producer fixture loads for custom-spell tests"
+	)
+	if not producer_bundle.last_error.is_empty():
+		return
+	_expect_equal(
+		producer_bundle.get_spell_override(16).get("displayName"),
+		"Providence Ward",
+		"bundle indexes a custom spell by its exact compiler ID"
+	)
+	_expect_equal(
+		producer_bundle.get_spell_override(17),
+		{},
+		"bundle does not infer an adjacent custom-spell ID"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(producer_bundle)
+	var ward: Variant = adapter.classic_spell_override(16)
+	_expect(ward != null, "adapter resolves the producer's exact custom spell ID")
+	_expect_equal(ward.classic_spell_class, 4, "custom spell preserves its class")
+	_expect_equal(ward.classic_target_type, 1, "custom spell preserves its target type")
+	_expect_equal(ward.get_min_duration(3, null), 3, "fixed custom duration remains finite")
+	_expect_equal(ward.get_max_duration(3, null), 3, "zero upper endpoint keeps fixed duration")
+	_expect_equal(ward.get_sp_cost(3, null), 12, "custom spell cost scales by power")
+	_expect(ward.in_combat and not ward.classic_in_camp, "custom spell preserves availability")
+	_expect_equal(adapter.classic_spell_override(17), null, "custom spell lookup stays exact")
+	var host = HostScript.new()
+	var host_adapter = BundleAwareAdapter.new()
+	host.configure(host_adapter)
+	_expect(
+		host.load_campaign(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"runtime host loads the producer fixture for custom-spell configuration"
+	)
+	_expect_equal(
+		host_adapter.configured_bundle,
+		host.runtime.bundle,
+		"runtime host supplies the loaded bundle to its adapter"
+	)
+	host.free()
+
+	var record := _custom_spell_record(4)
+	var bundle := _custom_spell_bundle(record)
+	adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(bundle)
+	var spell: Variant = adapter.classic_spell_override(4)
+	_expect_equal(spell.classic_spell_ids, [4], "low custom ID remains an exact identity")
+	_expect_equal(spell.classic_spell_class, 2, "low custom ID remains distinct from its class")
+	_expect_equal(spell.classic_fixed_target_num, 1, "custom spell preserves fixed-target metadata")
+	_expect_equal(spell.classic_resist_adjust, -3, "custom spell preserves resistance adjustment")
+	_expect_equal(spell.classic_save_bonus, 15, "custom spell preserves its base save bonus")
+	_expect_equal(spell.classic_sound_ids, [11, 12], "custom spell preserves Classic sound IDs")
+	_expect_equal(spell.get_min_damage(2, null), 4, "custom spell minimum damage includes power dice")
+	_expect_equal(spell.get_max_damage(2, null), 8, "custom spell maximum damage includes power dice")
+	_expect_equal(spell.get_min_duration(2, null), 7, "custom spell minimum duration includes power dice")
+	_expect_equal(spell.get_max_duration(2, null), 11, "custom spell maximum duration includes power dice")
+	_expect_equal(spell.get_range(2, null), 8, "custom spell range includes its power term")
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			{"spellIds": [4, 2], "spellResults": [8, 9]},
+			spell.name,
+			spell.classic_spell_class,
+			{},
+			spell.classic_spell_ids
+		),
+		8,
+		"exact custom ID wins before a low-ID class response"
+	)
+
+	var target := RogueTestCharacter.new()
+	target.stat_values["MultiplierFire"] = 1.0
+	target.stat_values["ResistanceFire"] = 0.0
+	var resolution: Dictionary = adapter.classic_custom_spell_target_resolution(
+		{
+			"power": 2,
+			"saveAdjustment": 10,
+			"forceAffect": false,
+			"checkResistance": true,
+		},
+		target,
+		spell,
+		1,
+		40
+	)
+	_expect_equal(resolution.get("resistanceChance"), 0.0, "cannot flag bypasses resistance")
+	_expect_equal(resolution.get("saveChance"), 45.0, "custom save metadata modifies the roll")
+	_expect(resolution.get("saved"), "custom damage spell can be saved against")
+	_expect_equal(resolution.get("effectScale"), 0.5, "custom damage save halves the effect")
+
+	var ready_report: Dictionary = ReadinessScript.new().inspect(bundle)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			ready_report, "unresolved-spell-identity", 4
+		),
+		"generic custom spell resolves without a native mapping"
+	)
+	var unsupported_record := _custom_spell_record(17)
+	unsupported_record["special"] = 25
+	var unsupported_report: Dictionary = ReadinessScript.new().inspect(
+		_custom_spell_bundle(unsupported_record)
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			unsupported_report,
+			"unsupported-custom-spell-special",
+			"Data Spell",
+			17,
+			-1,
+			"progression-blocker"
+		),
+		"unsupported custom special reports its source record"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			unsupported_report, "unresolved-spell-identity", 17
+		),
+		"unsupported custom special is not mislabeled as an identity gap"
+	)
+
+
+func _custom_spell_record(spell_id: int) -> Dictionary:
+	return {
+		"id": spell_id,
+		"displayName": "Test Ember Ward",
+		"description": "A compiled custom spell.",
+		"range1": 2,
+		"range2": 3,
+		"fixedTargetNum": 1,
+		"canRotate": 1,
+		"saveAdjust": 5,
+		"saveBonus": 15,
+		"cannot": 1,
+		"resistAdjust": -3,
+		"cost": 4,
+		"damage1": 2,
+		"damage2": 4,
+		"powerDamage1": 1,
+		"powerDamage2": 2,
+		"duration1": 3,
+		"duration2": 5,
+		"powerDuration1": 2,
+		"powerDuration2": 3,
+		"spellLook1": 7,
+		"spellLook2": 8,
+		"sound1": 11,
+		"sound2": 12,
+		"targetType": 1,
+		"size": 2,
+		"special": 0,
+		"damageType": 1,
+		"spellClass": 2,
+		"inCombat": true,
+		"inCamp": false,
+		"provenance": {
+			"sourceFile": "Data Spell",
+			"recordIndex": spell_id,
+		},
+	}
+
+
+func _custom_spell_bundle(record: Dictionary) -> ClassicCampaignBundle:
+	var bundle = BundleScript.new()
+	bundle.manifest = _minimal_contract_manifest()
+	bundle.documents = _minimal_contract_documents()
+	bundle.documents["maps"]["maps"] = [{"id": "land:0"}]
+	bundle.documents["rules"]["spellOverrides"] = [record]
+	bundle.documents["encounters"]["complexEncounters"] = [{
+		"id": 7,
+		"actions": [],
+		"spellIds": [int(record.get("id", -1))],
+		"spellResults": [3],
+	}]
+	bundle._build_indexes()
+	return bundle
 
 
 func _readiness_action_point(

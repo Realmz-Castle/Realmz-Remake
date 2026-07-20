@@ -555,12 +555,24 @@ static func CastSpellOnPickedCharacters(
 ) :
 	var spell_entry = NodeAccess.__Resources().spells_book[spell_name]
 	var spell = spell_entry.get("script") if spell_entry is Dictionary else spell_entry
+	await ApplySpellOnPickedCharacters(characters, spell, power, damage_scale)
+
+
+static func ApplySpellOnPickedCharacters(
+	characters : Array,
+	spell : Spell,
+	power : int,
+	damage_scale := 1.0
+) :
 	var character = Creature.new()
 	for target in characters :
-		SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
-		SfxPlayer.play()
-		if spell.get("proj_hit") :
-			await UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
+		if spell.sounds.size() > 1 \
+				and GameGlobal.cmp_resources.sounds_book.has(spell.sounds[1]) :
+			SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[spell.sounds[1]]
+			SfxPlayer.play()
+		var projectile_hit: Variant = spell.get("proj_hit")
+		if projectile_hit != null and int(projectile_hit) >= 0 :
+			await UI.ow_hud.show_spell_effect_on_char_menu(target, projectile_hit)
 		await GameGlobal.do_spell_field_effect(character, target, spell, power, damage_scale)
 
 # Divinity code : Code 32: Offer Temple
