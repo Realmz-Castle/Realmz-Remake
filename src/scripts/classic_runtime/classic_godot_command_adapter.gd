@@ -2932,10 +2932,16 @@ func _apply_coward_penalty(payload: Dictionary) -> Dictionary:
 	_refresh_party_panels(party)
 	result["warningIds"] = payload.get("warningIds", []).duplicate()
 	result["soundResult"] = sound_result
-	result["partyBackedUp"] = false
 	if bool(payload.get("backUpParty", false)):
-		result["backUpReason"] = \
-			"Remake does not retain the pre-battle movement delta"
+		var retreat_result := retreat_classic_party(
+			_autoload("GameGlobal"),
+			payload.get("entryMovement")
+		)
+		for retreat_key: Variant in retreat_result:
+			result[retreat_key] = retreat_result[retreat_key]
+	else:
+		result["partyBackedUp"] = false
+		result["backUpReason"] = "Classic does not retreat the party in dungeons"
 	return result
 
 
@@ -2963,6 +2969,72 @@ func apply_classic_coward_experience_penalty(
 		"experiencePerLevel": per_level,
 		"experienceRemoved": experience_removed,
 	}
+
+
+func retreat_classic_party(game_global: Object, movement_value: Variant) -> Dictionary:
+	if game_global == null:
+		return {
+			"partyBackedUp": false,
+			"backUpReason": "Realmz game state is unavailable",
+		}
+	var movement := _classic_overworld_movement(movement_value)
+	if movement == Vector2i.ZERO:
+		return {
+			"partyBackedUp": false,
+			"backUpReason": "Classic battle entry movement is unavailable",
+		}
+	var map: Variant = game_global.get("map")
+	if not (map is Object):
+		return {
+			"partyBackedUp": false,
+			"backUpReason": "Realmz overworld map is unavailable",
+		}
+	var overworld_character: Variant = map.get("owcharacter")
+	if not (overworld_character is Object) \
+		or not _object_has_property(overworld_character, "tile_position_x") \
+		or not _object_has_property(overworld_character, "tile_position_y"):
+		return {
+			"partyBackedUp": false,
+			"backUpReason": "Realmz overworld party position is unavailable",
+		}
+	var previous_position := Vector2i(
+		int(overworld_character.get("tile_position_x")),
+		int(overworld_character.get("tile_position_y"))
+	)
+	var target_position := previous_position - movement
+	var moved_characters: Array = []
+	for property_name: String in ["focuscharacter", "owcharacter"]:
+		var character: Variant = map.get(property_name)
+		if character is Object and character.has_method("set_tile_position") \
+			and not moved_characters.has(character):
+			character.set_tile_position(Vector2(target_position))
+			moved_characters.append(character)
+	if moved_characters.is_empty():
+		return {
+			"partyBackedUp": false,
+			"backUpReason": "Realmz overworld party cannot be repositioned",
+		}
+	if map.has_method("explore_tiles_from_tilepos"):
+		map.explore_tiles_from_tilepos(target_position)
+	return {
+		"partyBackedUp": true,
+		"entryMovement": movement,
+		"fromPosition": previous_position,
+		"position": target_position,
+	}
+
+
+func _classic_overworld_movement(value: Variant) -> Vector2i:
+	var movement := Vector2i.ZERO
+	if value is Vector2i:
+		movement = value
+	elif value is Vector2:
+		movement = Vector2i(value)
+	elif value is Array and value.size() >= 2:
+		movement = Vector2i(int(value[0]), int(value[1]))
+	if absi(movement.x) > 1 or absi(movement.y) > 1:
+		return Vector2i.ZERO
+	return movement
 
 
 func _pick_characters(payload: Dictionary) -> Dictionary:

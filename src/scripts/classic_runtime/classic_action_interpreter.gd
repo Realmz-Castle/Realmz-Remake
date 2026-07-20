@@ -301,7 +301,8 @@ func resume_battle(coward: bool) -> Dictionary:
 			"experiencePerLevel": 2000,
 			"soundId": 26260,
 			"warningIds": [118, 124],
-			"backUpParty": true,
+			"levelType": runtime_state.level_type,
+			"backUpParty": runtime_state.level_type == "land",
 		})
 	var branch_result := _branch_to_extra_action_point(
 		coward_macro_id,

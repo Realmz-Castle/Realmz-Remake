@@ -279,7 +279,7 @@ func _is_overlay_panel_visible() -> bool :
 
 			
 
-func check_map_script(position) ->bool :
+func check_map_script(position, context := {}) ->bool :
 	var canwalk = true
 #	print("GameState check_map_scripts : ")
 	
@@ -382,9 +382,12 @@ func check_map_script(position) ->bool :
 		if mapscriptareas_still_has_s:
 			GameGlobal.current_map_script_name = s
 			var script_returned = s
+			var classic_context: Dictionary = context.duplicate(true) \
+				if context is Dictionary else {}
+			classic_context["mapPosition"] = Vector2i(position)
 			var classic_dispatch: Dictionary = await GameGlobal.dispatch_classic_map_script(
 				s,
-				{"mapPosition": Vector2i(position)}
+				classic_context
 			)
 			if bool(classic_dispatch.get("handled", false)):
 				var classic_result: Variant = classic_dispatch.get("result", {})

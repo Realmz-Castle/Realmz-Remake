@@ -69,7 +69,10 @@ func enter(_msg : Dictionary = {}) -> void:
 						GameGlobal.map.dock_boat_at(Vector2i(playerposx,playerposy))
 				
 			mapfocuschar.move(input)
-			await StateMachine.check_map_script(attemptedpos)
+			await StateMachine.check_map_script(
+				attemptedpos,
+				{"entryMovement": Vector2i(input)}
+			)
 			GameGlobal.pass_time(canmoveandtime[1])
 			GameGlobal.map.explore_tiles_from_tilepos(Vector2i(attemptedpos))
 			

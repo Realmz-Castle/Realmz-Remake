@@ -424,6 +424,31 @@ class MapBridgeTestGameGlobal:
 		map.owcharacter.set_tile_position(Vector2(x, y))
 
 
+class CowardRetreatTestCharacter:
+	extends RefCounted
+	var tile_position_x := 12
+	var tile_position_y := 7
+
+	func set_tile_position(position: Vector2) -> void:
+		tile_position_x = int(position.x)
+		tile_position_y = int(position.y)
+
+
+class CowardRetreatTestMap:
+	extends RefCounted
+	var focuscharacter = CowardRetreatTestCharacter.new()
+	var owcharacter = CowardRetreatTestCharacter.new()
+	var explored_positions: Array = []
+
+	func explore_tiles_from_tilepos(position: Vector2i) -> void:
+		explored_positions.append(position)
+
+
+class CowardRetreatTestGameGlobal:
+	extends RefCounted
+	var map = CowardRetreatTestMap.new()
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -500,6 +525,7 @@ func _init() -> void:
 	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
 	_test_coward_experience_penalty()
+	_test_coward_party_retreat()
 	_test_battle_outcome_host()
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
@@ -6406,7 +6432,23 @@ func _test_battle_outcome(bundle) -> void:
 	_expect_equal(coward_payload.get("experiencePerLevel"), 2000, "Classic coward penalty")
 	_expect_equal(coward_payload.get("warningIds"), [118, 124], "Classic coward warnings")
 	_expect_equal(coward_payload.get("soundId"), 26260, "Classic coward sound")
+	_expect_equal(coward_payload.get("levelType"), "land", "Classic coward level family")
 	_expect(bool(coward_payload.get("backUpParty", false)), "Classic coward retreat request")
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("dungeon", 0, 4, 44)
+	_expect(interpreter.begin_trigger("Data DD:4:44", 4), "begin dungeon battle-outcome action")
+	interpreter.run_until_yield()
+	var dungeon_coward: Dictionary = interpreter.resume_battle(true)
+	_expect_equal(
+		dungeon_coward.get("payload", {}).get("levelType"),
+		"dungeon",
+		"dungeon coward outcome preserves its map family"
+	)
+	_expect(
+		not bool(dungeon_coward.get("payload", {}).get("backUpParty", true)),
+		"Classic dungeon coward outcome does not request a retreat"
+	)
 
 	interpreter = _interpreter(bundle)
 	interpreter.begin_trigger("Data DD:4:44", 4)
@@ -6428,6 +6470,52 @@ func _test_coward_experience_penalty() -> void:
 	_expect_equal(result.get("charactersAffected"), 2, "coward penalty counts compatible party members")
 	_expect_equal(result.get("experienceRemoved"), 14000, "coward penalty reports the total experience loss")
 	_expect_equal(result.get("experiencePerLevel"), 2000, "coward penalty reports its source rate")
+
+
+func _test_coward_party_retreat() -> void:
+	var adapter = GodotAdapterScript.new()
+	var game_global = CowardRetreatTestGameGlobal.new()
+	var result: Dictionary = adapter.retreat_classic_party(
+		game_global,
+		Vector2i(1, -1)
+	)
+	_expect(bool(result.get("partyBackedUp", false)), "coward retreat moves the party")
+	_expect_equal(result.get("fromPosition"), Vector2i(12, 7), "coward retreat reports origin")
+	_expect_equal(result.get("position"), Vector2i(11, 8), "coward retreat reverses entry movement")
+	_expect_equal(
+		Vector2i(
+			game_global.map.focuscharacter.tile_position_x,
+			game_global.map.focuscharacter.tile_position_y
+		),
+		Vector2i(11, 8),
+		"coward retreat moves the map focus"
+	)
+	_expect_equal(
+		Vector2i(
+			game_global.map.owcharacter.tile_position_x,
+			game_global.map.owcharacter.tile_position_y
+		),
+		Vector2i(11, 8),
+		"coward retreat moves the overworld character"
+	)
+	_expect_equal(
+		game_global.map.explored_positions,
+		[Vector2i(11, 8)],
+		"coward retreat refreshes exploration at the restored tile"
+	)
+
+	var missing_movement: Dictionary = adapter.retreat_classic_party(
+		game_global,
+		Vector2i.ZERO
+	)
+	_expect(
+		not bool(missing_movement.get("partyBackedUp", true)),
+		"coward retreat requires an entry movement"
+	)
+	_expect(
+		str(missing_movement.get("backUpReason", "")).contains("unavailable"),
+		"missing coward movement remains explicit"
+	)
 
 
 func _test_battle_outcome_host() -> void:
@@ -6465,13 +6553,25 @@ func _test_battle_outcome_host() -> void:
 	host.configure(host_adapter)
 	host.runtime.runtime_state.configure_from_bundle(bundle)
 	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
-	_expect(host.start_trigger("battle:outcome"), "host starts authored-loss battle outcome")
+	_expect(
+		host.start_trigger(
+			"battle:outcome",
+			0,
+			{"entryMovement": Vector2i(1, 0)}
+		),
+		"host starts authored-loss battle outcome"
+	)
 	_expect_equal(
 		host_adapter.commands.map(
 			func(entry: Dictionary) -> String: return entry["command"]
 		),
 		["start_battle", "apply_coward_penalty"],
 		"native loss resumes the suspended Classic penalty path once"
+	)
+	_expect_equal(
+		host_adapter.commands[-1].get("payload", {}).get("entryMovement"),
+		Vector2i(1, 0),
+		"battle entry movement reaches the coward penalty command"
 	)
 	_expect_equal(completions.size(), 1, "authored-loss battle outcome completes once")
 	host.queue_free()
