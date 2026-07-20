@@ -512,9 +512,11 @@ func rest() :
 
 
 #if pc_participating is empty, use all PC
-func start_battle(battlename : String, mapname : String, is_pos_relative : bool, is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pc_participating : Array) :
+func start_battle(battlename : String, mapname : String, is_pos_relative : bool, is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pc_participating : Array, battle_overrides := {}) :
 	print("GameGlobal start_battle " + battlename)
 	var battle_data : Dictionary = GameGlobal.cmp_resources.battles_book[battlename].duplicate()
+	for override_key: Variant in battle_overrides:
+		battle_data[override_key] = battle_overrides[override_key]
 	battle_data["battle_start"] = true
 	battle_data["battlename"] = battlename
 	if not mapname.is_empty() :

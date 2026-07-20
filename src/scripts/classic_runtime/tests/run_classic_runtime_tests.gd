@@ -127,6 +127,22 @@ class SelectiveBattleAdapter:
 		return {}
 
 
+class BattleOutcomeAdapter:
+	extends RefCounted
+	var commands: Array = []
+	var coward := false
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		if command == "start_battle":
+			return {
+				"outcome": "lost" if coward else "won",
+				"coward": coward,
+				"survivorCount": 0 if coward else 1,
+			}
+		return {}
+
+
 class WealthTestAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -449,6 +465,7 @@ func _init() -> void:
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
+	_test_compiled_battle_materialization()
 	_test_selective_battle_action()
 	_test_selective_battle_request()
 	_test_selective_battle_host()
@@ -472,6 +489,7 @@ func _init() -> void:
 	_test_shipped_lock_encounter(bundle)
 	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
+	_test_battle_outcome_host()
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
 	_test_runtime_host()
@@ -4422,6 +4440,82 @@ func _test_battle_request(bundle) -> void:
 	_expect_equal(payload.get("battle", {}).get("id"), 38, "battle record resolves")
 
 
+func _test_compiled_battle_materialization() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"producer battle fixture loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var battle: Dictionary = bundle.get_battle(0).duplicate(true)
+	battle["id"] = 12
+	battle["dist"] = 7
+	battle["messageBefore"] = 31
+	battle["messageAfter"] = 32
+	battle["battleMacro"] = -9
+	battle["grid"][84] = -1
+	var adapter = GodotAdapterScript.new()
+	var result: Dictionary = adapter.materialize_classic_battle(
+		battle,
+		bundle.monsters_by_id,
+		{
+			"Providence Sentinel": {
+				"data": {
+					"name": "Providence Sentinel",
+					"classicMonsterId": 1,
+				},
+			},
+		}
+	)
+	_expect_equal(result.get("creatureCount"), 1, "compiled battle materializes its monster grid")
+	var native_battle: Dictionary = result.get("battle", {})
+	_expect_equal(native_battle.get("bonus_distance"), 7, "compiled battle preserves distance")
+	_expect_equal(native_battle.get("battleMacro"), -9, "compiled battle preserves round macro")
+	_expect_equal(native_battle.get("classicMessageBefore"), 31, "compiled battle preserves before text")
+	_expect_equal(native_battle.get("classicMessageAfter"), 32, "compiled battle preserves after text")
+	var creature: Array = native_battle.get("Creatures", [])[0]
+	_expect_equal(creature[0], "Providence Sentinel", "compiled monster resolves native bestiary")
+	_expect_equal(creature[1], [1, 1], "compiled grid position uses Classic coordinates")
+	_expect_equal(
+		creature[2].get("classicMonsterId"),
+		1,
+		"compiled battle preserves monster identity"
+	)
+	_expect_equal(
+		creature[2].get("classicMonsterNameId"),
+		1,
+		"compiled battle preserves monster name identity"
+	)
+	_expect(bool(creature[2].get("classicForceFriend")), "negative grid entry flips side")
+
+	var existing_battle := {"Battle_0": {"nativeLayout": true}}
+	adapter.configure_classic_bundle(bundle)
+	var existing: Dictionary = adapter.ensure_classic_battle_resource(
+		0,
+		existing_battle,
+		{}
+	)
+	_expect(not bool(existing.get("created")), "existing native battle remains preferred")
+	_expect(
+		bool(existing_battle["Battle_0"].get("nativeLayout")),
+		"compiled battle generation does not replace a native layout"
+	)
+
+	var battle_book: Dictionary = {}
+	var ensured: Dictionary = adapter.ensure_classic_battle_resource(
+		0,
+		battle_book,
+		{
+			"Providence Sentinel": {
+				"data": {"name": "Providence Sentinel", "classicMonsterId": 1},
+			},
+		}
+	)
+	_expect(bool(ensured.get("created")), "missing native battle is generated from compiler data")
+	_expect(battle_book.has("Battle_0"), "generated battle is registered for GameGlobal")
+
+
 func _test_selective_battle_action() -> void:
 	var bundle = _selective_battle_test_bundle()
 	var interpreter = _interpreter(bundle)
@@ -6306,6 +6400,53 @@ func _test_battle_outcome(bundle) -> void:
 	_expect_equal(victory_result.get("command"), "give_battle_loot", "victory resumes through battle loot")
 
 
+func _test_battle_outcome_host() -> void:
+	var bundle = _battle_outcome_test_bundle()
+	var host = HostScript.new()
+	get_root().add_child(host)
+	var host_adapter = BattleOutcomeAdapter.new()
+	var completions: Array = []
+	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
+	host.configure(host_adapter)
+	host.runtime.runtime_state.configure_from_bundle(bundle)
+	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
+	_expect(host.start_trigger("battle:outcome"), "host starts victory battle outcome")
+	_expect_equal(
+		host_adapter.commands.map(
+			func(entry: Dictionary) -> String: return entry["command"]
+		),
+		["start_battle", "give_battle_loot"],
+		"native victory resumes the suspended Classic action list once"
+	)
+	_expect_equal(
+		host.runtime.last_result.get("status"),
+		"completed",
+		"victory battle outcome reaches a completed interpreter state"
+	)
+	_expect(not host.active, "victory battle outcome closes the runtime host")
+	host.queue_free()
+
+	host = HostScript.new()
+	get_root().add_child(host)
+	host_adapter = BattleOutcomeAdapter.new()
+	host_adapter.coward = true
+	completions = []
+	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
+	host.configure(host_adapter)
+	host.runtime.runtime_state.configure_from_bundle(bundle)
+	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
+	_expect(host.start_trigger("battle:outcome"), "host starts authored-loss battle outcome")
+	_expect_equal(
+		host_adapter.commands.map(
+			func(entry: Dictionary) -> String: return entry["command"]
+		),
+		["start_battle", "apply_coward_penalty"],
+		"native loss resumes the suspended Classic penalty path once"
+	)
+	_expect_equal(completions.size(), 1, "authored-loss battle outcome completes once")
+	host.queue_free()
+
+
 func _test_state_snapshot(bundle) -> void:
 	var state = StateScript.new()
 	state.configure_from_bundle(bundle)
@@ -7222,6 +7363,18 @@ func _selective_battle_test_bundle():
 	_add_stack_trigger(bundle, "selective:battle", -1, [
 		_classic_action(0, 14, 1),
 		_classic_action(1, 48, 234),
+		_classic_action(7, 24, 0),
+	])
+	return bundle
+
+
+func _battle_outcome_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 1, -1, 0, 0]}
+	bundle.battles_by_id[1] = {"id": 1}
+	_add_stack_trigger(bundle, "battle:outcome", -1, [
+		_classic_action(0, 56, 1),
 		_classic_action(7, 24, 0),
 	])
 	return bundle

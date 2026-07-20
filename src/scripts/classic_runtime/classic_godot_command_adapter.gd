@@ -14,6 +14,9 @@ const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
 const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
 const CLASSIC_MAX_MONSTERS := 100
+const CLASSIC_BATTLE_GRID_SIZE := 13
+const CLASSIC_BATTLE_GRID_CELLS := CLASSIC_BATTLE_GRID_SIZE * CLASSIC_BATTLE_GRID_SIZE
+const CLASSIC_BATTLE_ORIGIN_OFFSET := 5
 const CLASSIC_FIELD_SPELL_SAVE_MODES := ["none", "negate", "half_damage"]
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
@@ -745,11 +748,23 @@ func _start_classic_battle(payload: Dictionary) -> Dictionary:
 	var game_global: Object = _autoload("GameGlobal")
 	if resources == null or game_global == null:
 		return _error("Realmz battle resources are unavailable")
+	var battle_id_result := resolve_classic_battle_id(payload)
+	if str(battle_id_result.get("status", "")) == "error":
+		return battle_id_result
+	var battle_id := int(battle_id_result["battleId"])
+	var resource_result := ensure_classic_battle_resource(
+		battle_id,
+		resources.battles_book,
+		resources.crea_book
+	)
+	if str(resource_result.get("status", "")) == "error":
+		return resource_result
 	var request := build_classic_battle_request(
 		payload,
 		resources.battles_book,
 		_party_characters(),
-		_current_selected_characters()
+		_current_selected_characters(),
+		battle_id
 	)
 	if str(request.get("status", "")) == "error":
 		return request
@@ -778,7 +793,13 @@ func _start_classic_battle(payload: Dictionary) -> Dictionary:
 		bool(request["allowLoss"]),
 		true,
 		true,
-		request["participants"]
+		request["participants"],
+		{
+			"classicBattleId": battle_id,
+			"classicPriestTurningEnabled": bool(
+				payload.get("priestTurningEnabled", true)
+			),
+		}
 	)
 	var outcome_value: Variant = await game_global.battle_end
 	var outcome := str(outcome_value)
@@ -802,18 +823,10 @@ func build_classic_battle_request(
 	selected: Array,
 	resolved_battle_id := -1
 ) -> Dictionary:
-	var battle_range: Variant = payload.get("battleIdRange", [])
-	if not (battle_range is Array) or battle_range.size() < 2:
-		return _error("Classic battle command has no battle range")
-	var first_battle_id := int(battle_range[0])
-	var last_battle_id := int(battle_range[1])
-	if first_battle_id < 1 or last_battle_id < first_battle_id:
-		return _error("Classic battle command has an invalid battle range")
-	var battle_id := int(resolved_battle_id)
-	if battle_id < 0:
-		battle_id = randi_range(first_battle_id, last_battle_id)
-	if battle_id < first_battle_id or battle_id > last_battle_id:
-		return _error("Resolved Classic battle is outside its authored range")
+	var battle_id_result := resolve_classic_battle_id(payload, resolved_battle_id)
+	if str(battle_id_result.get("status", "")) == "error":
+		return battle_id_result
+	var battle_id := int(battle_id_result["battleId"])
 	var battle_name := "Battle_%d" % battle_id
 	if not battles_book.has(battle_name):
 		return _error("Classic battle %d has no native Remake resource" % battle_id)
@@ -841,6 +854,126 @@ func build_classic_battle_request(
 			or bool(payload.get("outcomeBranch", false))
 			or int(payload.get("lootMode", 0)) == 10,
 		"allowLoot": int(payload.get("lootMode", 0)) != 5,
+	}
+
+
+func resolve_classic_battle_id(payload: Dictionary, resolved_battle_id := -1) -> Dictionary:
+	var battle_range: Variant = payload.get("battleIdRange", [])
+	if not (battle_range is Array) or battle_range.size() < 2:
+		return _error("Classic battle command has no battle range")
+	var first_battle_id := int(battle_range[0])
+	var last_battle_id := int(battle_range[1])
+	if first_battle_id < 1 or last_battle_id < first_battle_id:
+		return _error("Classic battle command has an invalid battle range")
+	var battle_id := int(resolved_battle_id)
+	if battle_id < 0:
+		battle_id = randi_range(first_battle_id, last_battle_id)
+	if battle_id < first_battle_id or battle_id > last_battle_id:
+		return _error("Resolved Classic battle is outside its authored range")
+	return {"battleId": battle_id}
+
+
+func ensure_classic_battle_resource(
+	battle_id: int,
+	battles_book: Dictionary,
+	creature_book: Dictionary
+) -> Dictionary:
+	var battle_name := "Battle_%d" % battle_id
+	if battles_book.has(battle_name):
+		return {"battleName": battle_name, "created": false}
+	if classic_bundle == null or not classic_bundle.has_method("get_battle"):
+		return _error("Classic battle %d has no compiled battle record" % battle_id)
+	var battle_record: Variant = classic_bundle.get_battle(battle_id)
+	if not (battle_record is Dictionary) or battle_record.is_empty():
+		return _error("Classic battle %d has no compiled battle record" % battle_id)
+	var monsters: Variant = classic_bundle.get("monsters_by_id")
+	if not (monsters is Dictionary):
+		return _error("Classic campaign has no compiled monster index")
+	var materialized := materialize_classic_battle(
+		battle_record,
+		monsters,
+		creature_book
+	)
+	if str(materialized.get("status", "")) == "error":
+		return materialized
+	battles_book[battle_name] = materialized["battle"]
+	return {
+		"battleName": battle_name,
+		"created": true,
+		"creatureCount": int(materialized.get("creatureCount", 0)),
+	}
+
+
+func materialize_classic_battle(
+	battle_record: Dictionary,
+	monsters_by_id: Dictionary,
+	creature_book: Dictionary
+) -> Dictionary:
+	var battle_id := int(battle_record.get("id", -1))
+	if battle_id < 0:
+		return _error("Compiled Classic battle has no valid ID")
+	var grid: Variant = battle_record.get("grid", [])
+	if not (grid is Array) or grid.size() != CLASSIC_BATTLE_GRID_CELLS:
+		return _error(
+			"Classic battle %d must contain a %dx%d monster grid" % [
+				battle_id,
+				CLASSIC_BATTLE_GRID_SIZE,
+				CLASSIC_BATTLE_GRID_SIZE,
+			]
+		)
+	var creatures: Array = []
+	for cell_index: int in range(grid.size()):
+		var raw_monster_id := int(grid[cell_index])
+		if raw_monster_id == 0:
+			continue
+		if creatures.size() >= CLASSIC_MAX_MONSTERS:
+			return _error("Classic battle %d exceeds the 100-monster limit" % battle_id)
+		var monster_id: int = abs(raw_monster_id)
+		var monster: Variant = monsters_by_id.get(monster_id, {})
+		if not (monster is Dictionary) or monster.is_empty():
+			return _error(
+				"Classic battle %d references missing monster %d" % [battle_id, monster_id]
+			)
+		var bestiary_name := resolve_classic_monster_bestiary_name(
+			monster_id,
+			monster,
+			creature_book
+		)
+		if bestiary_name.is_empty():
+			return _error(
+				"Classic battle %d monster %d (%s) has no matching Remake bestiary entry" % [
+					battle_id,
+					monster_id,
+					monster.get("displayName", "unnamed"),
+				]
+			)
+		# Data BD stores cells in x-major order. Classic offsets the 13x13
+		# formation by five tiles before applying its randomized distance.
+		var x := floori(float(cell_index) / float(CLASSIC_BATTLE_GRID_SIZE))
+		var y := cell_index % CLASSIC_BATTLE_GRID_SIZE
+		creatures.append([
+			bestiary_name,
+			[x - CLASSIC_BATTLE_ORIGIN_OFFSET, y - CLASSIC_BATTLE_ORIGIN_OFFSET],
+			{
+				"classicMonsterId": monster_id,
+				"classicMonsterNameId": int(monster.get("nameId", -1)),
+				"classicForceFriend": raw_monster_id < 0,
+			},
+		])
+	return {
+		"battle": {
+			"Map": "temporary_zoomed_map",
+			"Position": [0, 0],
+			"is_relative_coords": 1,
+			"bonus_distance": int(battle_record.get("dist", 0)),
+			"Creatures": creatures,
+			"Scripts": {},
+			"battleMacro": int(battle_record.get("battleMacro", 0)),
+			"classicBattleId": battle_id,
+			"classicMessageBefore": int(battle_record.get("messageBefore", 0)),
+			"classicMessageAfter": int(battle_record.get("messageAfter", 0)),
+		},
+		"creatureCount": creatures.size(),
 	}
 
 

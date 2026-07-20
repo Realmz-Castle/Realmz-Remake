@@ -155,6 +155,8 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		print(" creaArray : ", creaArray)
 		var creascript = GameGlobal.combatCreatureGD.new()
 		creascript.initialize_from_bestiary_dict(creaArray[0])
+		if creaArray.size() > 2 and creaArray[2] is Dictionary:
+			_apply_classic_battle_metadata(creascript, creaArray[2])
 		if creascript.get_stat("curHP")<=0 :
 			continue
 		var posArray : Array = creaArray[1]
@@ -203,6 +205,20 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		#combat_state.cur_battle_data["Scripts"]["start"].start()
 
 	start_new_round()
+
+
+func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> void:
+	if metadata.has("classicMonsterId"):
+		creature.set_meta("classic_monster_id", int(metadata["classicMonsterId"]))
+	if metadata.has("classicMonsterNameId"):
+		creature.set_meta(
+			"classic_monster_name_id",
+			int(metadata["classicMonsterNameId"])
+		)
+	if bool(metadata.get("classicForceFriend", false)):
+		var flipped_faction := 1 if int(creature.curFaction) == 0 else 0
+		creature.baseFaction = flipped_faction
+		creature.curFaction = flipped_faction
 
 func start_new_round() :
 	print("CbDecideAction.start_new_round()")
