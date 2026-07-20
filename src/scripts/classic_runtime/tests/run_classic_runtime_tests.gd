@@ -1475,7 +1475,32 @@ func _test_installed_classic_campaign_layout() -> void:
 	saved_state.set_simple_encounter_override(2, {"id": 2, "maximumAttempts": 1})
 	saved_state.set_complex_encounter_override(3, {"id": 3, "maximumAttempts": 2})
 	saved_state.set_timed_encounter_override(1, {"id": 1, "chancePercent": 0})
+	session.install.bundle.player_maps_by_id[2] = {
+		"id": 2,
+		"primaryName": "Second Map",
+	}
+	session.install.bundle.player_maps_by_id[6] = {
+		"id": 6,
+		"primaryName": "Sixth Map",
+	}
 	saved_state.set_map_owned(6)
+	var acquired_maps: Array = session.acquired_player_map_entries()
+	_expect_equal(acquired_maps.size(), 1, "campaign session filters unacquired player maps")
+	_expect_equal(
+		acquired_maps[0]["record"].get("id"),
+		6,
+		"campaign session exposes the acquired player-map record"
+	)
+	saved_state.set_map_owned(2)
+	acquired_maps = session.acquired_player_map_entries()
+	_expect_equal(
+		[
+			acquired_maps[0]["record"].get("id"),
+			acquired_maps[1]["record"].get("id"),
+		],
+		[2, 6],
+		"campaign session orders acquired player maps by stable ID"
+	)
 	saved_state.set_random_rectangle("dungeon", 2, 1, {
 		"rectIndex": 1,
 		"percent": 42,
@@ -4754,12 +4779,19 @@ func _test_classic_player_map_renderer() -> void:
 	player_map_rect.map_texture_rect = player_map_rect.get_node(
 		"VBoxContainer/MapArea/MapTextureRect"
 	)
+	player_map_rect.missing_media_label = player_map_rect.get_node(
+		"VBoxContainer/MapArea/MissingMediaLabel"
+	)
 	player_map_rect.map_name_label = player_map_rect.get_node(
 		"VBoxContainer/Footer/MapNameLabel"
 	)
 	player_map_rect.map_note_label = player_map_rect.get_node(
 		"VBoxContainer/Footer/MapNoteLabel"
 	)
+	player_map_rect.previous_button = player_map_rect.get_node(
+		"VBoxContainer/Footer/PreviousButton"
+	)
+	player_map_rect.next_button = player_map_rect.get_node("VBoxContainer/Footer/NextButton")
 	player_map_rect.done_button = player_map_rect.get_node("VBoxContainer/Footer/DoneButton")
 	get_root().add_child(player_map_rect)
 	var map_record := {
@@ -4794,6 +4826,44 @@ func _test_classic_player_map_renderer() -> void:
 		ClassicPlayerMapScript.map_display_name({"id": 9}),
 		"Player Map 9",
 		"Classic player-map renderer supplies a stable unnamed-map label"
+	)
+	_expect(
+		player_map_rect.display_catalog([
+			{
+				"record": map_record,
+				"runtimeMediaPath": "res://Campaigns/City of Bywater/Splash Images/0.png",
+			},
+			{
+				"record": {
+					"id": 9,
+					"primaryName": "Map Without Art",
+					"note": "The note remains available.",
+				},
+				"runtimeMediaPath": "",
+			},
+		]),
+		"Classic player-map renderer opens an acquired-map catalog"
+	)
+	_expect(
+		not player_map_rect.previous_button.disabled and not player_map_rect.next_button.disabled,
+		"Classic player-map catalog enables navigation when multiple maps are acquired"
+	)
+	player_map_rect._on_next_button_pressed()
+	_expect_equal(
+		player_map_rect.current_map_record.get("id"),
+		9,
+		"Classic player-map catalog advances to the next acquired map"
+	)
+	_expect(
+		player_map_rect.missing_media_label.visible \
+			and not player_map_rect.map_texture_rect.visible,
+		"Classic player-map catalog keeps note-only records browseable"
+	)
+	player_map_rect._on_previous_button_pressed()
+	_expect_equal(
+		player_map_rect.current_map_record.get("id"),
+		7,
+		"Classic player-map catalog returns to the previous acquired map"
 	)
 	var close_state := {"didClose": false}
 	player_map_rect.closed.connect(func() -> void: close_state["didClose"] = true)

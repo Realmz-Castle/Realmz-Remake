@@ -722,8 +722,20 @@ func _on_turn_order_button_toggled(toggled_on : bool) :
 func _on_minimaps_button_pressed() -> void:
 	print("owhud _on_minimaps_button_pressed")
 	if StateMachine._state_name == "Exploration" :
+		var session: Object = GameGlobal.classic_campaign_session
+		if is_instance_valid(session) and session.has_method("acquired_player_map_entries"):
+			var entries: Variant = session.call("acquired_player_map_entries")
+			if entries is Array and classicPlayerMapRect.display_catalog(entries):
+				StateMachine.enter_ex_menu_state({"menu_name": "ClassicPlayerMapMenu"})
+				return
 		print("owhud show minimaps panel")
 		StateMachine.enter_ex_menu_state(({"menu_name" : "MiniMapsMenu"}))
+
+
+func _on_classic_player_map_closed() -> void:
+	if StateMachine._state_name == "ExMenus" \
+			and StateMachine.ex_menu_state.cur_menu_name == "ClassicPlayerMapMenu":
+		StateMachine.exit_ex_menu_state({})
 
 
 func _on_temple_button_pressed() -> void:

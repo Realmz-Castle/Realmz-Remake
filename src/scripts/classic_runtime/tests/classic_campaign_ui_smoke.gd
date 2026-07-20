@@ -107,6 +107,7 @@ func _run_smoke() -> void:
 		"normal HUD provides the standalone Classic player-map panel"
 	)
 	await _test_runtime_player_map_display()
+	await _test_acquired_player_map_browser()
 	_finish()
 
 
@@ -149,6 +150,74 @@ func _test_runtime_player_map_display() -> void:
 			and not UI.ow_hud.classicPlayerMapRect.visible,
 		"closing a Classic player map restores exploration"
 	)
+
+
+func _test_acquired_player_map_browser() -> void:
+	var session: Node = GameGlobal.classic_campaign_session
+	var bundle: Object = session.install.bundle
+	var runtime_state: Object = session.host.runtime.runtime_state
+	var original_root: String = bundle.root_directory
+	var original_player_maps: Dictionary = bundle.player_maps_by_id.duplicate(true)
+	UI.ow_hud._on_minimaps_button_pressed()
+	_expect(
+		StateMachine._state_name == "ExMenus" \
+			and StateMachine.ex_menu_state.cur_menu_name == "MiniMapsMenu",
+		"Maps/Notes keeps the native minimap fallback without acquired Classic records"
+	)
+	StateMachine.exit_ex_menu_state({})
+	await get_tree().process_frame
+	bundle.root_directory = "res://Campaigns/City of Bywater"
+	bundle.player_maps_by_id = {
+		3: {
+			"id": 3,
+			"primaryName": "The River Note",
+			"note": "Follow the river when no drawn map survives.",
+		},
+		7: {
+			"id": 7,
+			"primaryName": "The Old Road",
+			"note": "The old road crosses the river north of town.",
+			"runtimeMedia": {
+				"path": "Splash Images/0.png",
+				"mediaType": "image/png",
+			},
+		},
+		9: {
+			"id": 9,
+			"primaryName": "Unacquired Map",
+		},
+	}
+	runtime_state.set_map_owned(3)
+	runtime_state.set_map_owned(7)
+	UI.ow_hud._on_minimaps_button_pressed()
+	_expect(
+		StateMachine._state_name == "ExMenus" \
+			and StateMachine.ex_menu_state.cur_menu_name == "ClassicPlayerMapMenu",
+		"Maps/Notes opens acquired Classic maps through the standalone panel"
+	)
+	_expect(
+		UI.ow_hud.classicPlayerMapRect.current_map_record.get("id") == 3,
+		"Maps/Notes begins with the lowest acquired Classic map ID"
+	)
+	_expect(
+		UI.ow_hud.classicPlayerMapRect.missing_media_label.visible,
+		"Maps/Notes keeps an acquired note browseable without decoded art"
+	)
+	UI.ow_hud.classicPlayerMapRect._on_next_button_pressed()
+	_expect(
+		UI.ow_hud.classicPlayerMapRect.current_map_record.get("id") == 7 \
+			and UI.ow_hud.classicPlayerMapRect.map_texture_rect.visible,
+		"Maps/Notes advances to acquired decoded player-map art"
+	)
+	UI.ow_hud.classicPlayerMapRect._on_done_button_pressed()
+	await get_tree().process_frame
+	_expect(
+		StateMachine._state_name == "Exploration" \
+			and not UI.ow_hud.classicPlayerMapRect.visible,
+		"closing the Maps/Notes Classic catalog restores exploration"
+	)
+	bundle.root_directory = original_root
+	bundle.player_maps_by_id = original_player_maps
 
 
 func _find_campaign_index(item_list: ItemList, campaign_name: String) -> int:

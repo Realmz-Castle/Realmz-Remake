@@ -845,6 +845,7 @@ popup_window = true
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/TempleButton" to="." method="_on_temple_button_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/QSaveButton" to="." method="_on_q_save_button_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/MinimapsButton" to="." method="_on_minimaps_button_pressed"]
+[connection signal="closed" from="VBoxScreen/HBoxTop/MapArea/ClassicPlayerMapRect" to="." method="_on_classic_player_map_closed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/BestiaryButton" to="." method="_on_bestiary_button_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/AbiListButton" to="." method="_on_abi_list_button_pressed"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/MoneyButton" to="." method="_on_MoneyButton_pressed"]

@@ -44,6 +44,23 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="MissingMediaLabel" type="Label" parent="VBoxContainer/MapArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "No decoded map image is available."
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Footer" type="NinePatchRect" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
@@ -61,7 +78,7 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_left = 12.0
 offset_top = 8.0
-offset_right = -112.0
+offset_right = -312.0
 offset_bottom = 40.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 1, 0, 1)
@@ -77,7 +94,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 12.0
 offset_top = 42.0
-offset_right = -112.0
+offset_right = -312.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -86,6 +103,52 @@ theme_override_font_sizes/font_size = 16
 text = "Map note"
 autowrap_mode = 2
 vertical_alignment = 1
+
+[node name="PreviousButton" type="Button" parent="VBoxContainer/Footer"]
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -22.0
+offset_right = -210.0
+offset_bottom = 22.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/disabled = ExtResource("4_disabled")
+theme_override_styles/hover = ExtResource("5_hover")
+theme_override_styles/pressed = ExtResource("6_pressed")
+theme_override_styles/normal = ExtResource("7_normal")
+text = "Prev"
+
+[node name="NextButton" type="Button" parent="VBoxContainer/Footer"]
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -22.0
+offset_right = -110.0
+offset_bottom = 22.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/disabled = ExtResource("4_disabled")
+theme_override_styles/hover = ExtResource("5_hover")
+theme_override_styles/pressed = ExtResource("6_pressed")
+theme_override_styles/normal = ExtResource("7_normal")
+text = "Next"
 
 [node name="DoneButton" type="Button" parent="VBoxContainer/Footer"]
 custom_minimum_size = Vector2(90, 44)
@@ -111,3 +174,5 @@ theme_override_styles/normal = ExtResource("7_normal")
 text = "Done"
 
 [connection signal="pressed" from="VBoxContainer/Footer/DoneButton" to="." method="_on_done_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Footer/NextButton" to="." method="_on_next_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Footer/PreviousButton" to="." method="_on_previous_button_pressed"]

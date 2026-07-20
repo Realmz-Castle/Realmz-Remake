@@ -3878,7 +3878,7 @@ func _give_player_map(payload: Dictionary) -> Dictionary:
 			if state_machine != null:
 				state_machine.enter_ex_menu_state({"menu_name": "ClassicPlayerMapMenu"})
 			await player_map_rect.closed
-			if state_machine != null:
+			if state_machine != null and state_machine._state_name == "ExMenus":
 				state_machine.exit_ex_menu_state({})
 			return {"runtimeMediaPath": str(map_record["runtimeMedia"].get("path", ""))}
 	if bool(payload.get("display", false)) and _can_display_native_map(native_map):

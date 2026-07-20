@@ -189,6 +189,33 @@ func sync_native_location(location: Dictionary) -> Dictionary:
 	return {"status": "ok"}
 
 
+func acquired_player_map_entries() -> Array:
+	if not is_instance_valid(host) or host.runtime == null \
+			or install == null or install.bundle == null:
+		return []
+	var runtime_state: Object = host.runtime.runtime_state
+	if runtime_state == null or not runtime_state.has_method("is_map_owned"):
+		return []
+	var map_ids: Array = install.bundle.player_maps_by_id.keys()
+	map_ids.sort()
+	var entries: Array = []
+	for map_id_value: Variant in map_ids:
+		var map_id := int(map_id_value)
+		if not runtime_state.call("is_map_owned", map_id):
+			continue
+		var map_record: Dictionary = install.bundle.get_player_map(map_id)
+		if map_record.is_empty():
+			continue
+		var runtime_path := ""
+		if command_adapter != null and command_adapter.has_method("runtime_media_path"):
+			runtime_path = str(command_adapter.call("runtime_media_path", map_record, "image/"))
+		entries.append({
+			"record": map_record.duplicate(true),
+			"runtimeMediaPath": runtime_path,
+		})
+	return entries
+
+
 static func validate_save_payload(payload: Variant, expected_campaign_id := "") -> Dictionary:
 	if payload is Dictionary and payload.is_empty():
 		return {"status": "legacy"}
