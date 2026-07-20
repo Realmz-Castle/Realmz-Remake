@@ -294,6 +294,13 @@ Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_shop_playtest.tscn -- --smoke
 ```
 
+The equipment playtest captures worn and carried items plus party wealth, serializes that active capture through the Classic session envelope, reloads a fresh session, and restores the items through Remake's resource loader. Its smoke verifies worn state, charges, wealth, interim loot, native loot presentation, and continuation completion:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_equipment_playtest.tscn
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_equipment_playtest.tscn -- --smoke
+```
+
 The party-health playtest runs CoB's standalone fixed-damage macro and verifies the character HP change and completed host state:
 
 ```powershell

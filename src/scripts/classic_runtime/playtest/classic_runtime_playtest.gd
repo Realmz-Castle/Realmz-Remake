@@ -2,6 +2,9 @@ extends Node
 
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const CampaignSessionScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_session.gd"
+)
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
 const SorcererClass = preload("res://Data/Character Classes/Class_Sorcerer.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
@@ -55,6 +58,7 @@ class PowerDrainSpell:
 @export var test_item_name := ""
 
 var host: Node
+var campaign_session: Node
 var automated_smoke := false
 var smoke_failures: Array[String] = []
 
@@ -115,16 +119,34 @@ func _start_playtest() -> void:
 	if playtest_label == "services":
 		GameGlobal.money_pool = [100, 1, 0]
 		GameGlobal.money_banked = [800, 3, 2]
-	host = HostScript.new()
-	add_child(host)
-	host.configure(AdapterScript.new())
+	if playtest_label == "equipment":
+		campaign_session = CampaignSessionScript.new()
+		add_child(campaign_session)
+		var load_result: Dictionary = campaign_session.load_installed_campaign(
+			campaign_directory.get_base_dir(),
+			campaign_directory.get_file(),
+			AdapterScript.new()
+		)
+		if str(load_result.get("status", "")) != "ok":
+			_show_status(
+				"Classic campaign load failed: %s" % load_result.get("message", "unknown error"),
+				true
+			)
+			return
+		host = campaign_session.host
+	else:
+		host = HostScript.new()
+		add_child(host)
+		host.configure(AdapterScript.new())
+		if not host.load_campaign(campaign_directory):
+			_show_status("Classic campaign load failed: %s" % host.runtime.bundle.last_error, true)
+			return
 	host.playthrough_completed.connect(_on_playthrough_completed)
 	host.playthrough_stopped.connect(_on_playthrough_stopped)
-	if not host.load_campaign(campaign_directory):
-		_show_status("Classic campaign load failed: %s" % host.runtime.bundle.last_error, true)
-		return
 	if playtest_label == "shop":
 		_install_shop_playtest_data()
+	if playtest_label == "equipment":
+		_install_equipment_playtest_data()
 	if not host.start_trigger(trigger_id, start_slot):
 		_show_status("Classic trigger failed to start: %s" % trigger_id, true)
 		return
@@ -159,6 +181,9 @@ func _run_automated_smoke() -> void:
 		return
 	if playtest_label == "services":
 		await _run_services_smoke()
+		return
+	if playtest_label == "equipment":
+		await _run_equipment_smoke()
 		return
 	if playtest_label == "character-pick":
 		await _run_character_pick_smoke()
@@ -356,6 +381,131 @@ func _run_services_smoke() -> void:
 	)
 	UI.ow_hud._on_temple_button_pressed()
 	await _wait_frames(2)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_equipment_smoke() -> void:
+	await _wait_frames(3)
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	var captured: Dictionary = host.command_adapter.stored_party_equipment
+	_verify_smoke_stage(
+		"01_equipment_capture",
+		not host.active
+			and bool(captured.get("active", false))
+			and int(captured.get("itemCount", 0)) == 2
+			and captured.get("wealth", []) == [12, 3, 1]
+			and character.inventory.is_empty()
+			and character.money == [0, 0, 0]
+			and GameGlobal.money_pool == [0, 0, 0],
+		"opcode 36 captures native inventory, worn state, and pooled wealth"
+	)
+
+	var save_result: Dictionary = campaign_session.make_save_result()
+	var save_payload: Dictionary = save_result.get("payload", {})
+	var serialized_payload := str(save_payload)
+	var parsed_payload: Variant = JSON.parse_string(serialized_payload)
+	var saved_items: Variant = save_payload.get("adapterState", {}).get(
+		"storedPartyEquipment",
+		{}
+	).get("inventories", [])
+	_verify_smoke_stage(
+		"02_native_save_envelope",
+		str(save_result.get("status", "")) == "ok"
+			and parsed_payload is Dictionary
+			and saved_items is Array
+			and saved_items.size() == 1
+			and saved_items[0].size() == 2
+			and not saved_items[0][0].has("texture"),
+		"the active capture is serialized through the same plain-data envelope used by profile saves"
+	)
+	if not (parsed_payload is Dictionary):
+		get_tree().quit(1)
+		return
+
+	campaign_session.clear()
+	campaign_session.queue_free()
+	campaign_session = CampaignSessionScript.new()
+	add_child(campaign_session)
+	var load_result: Dictionary = campaign_session.load_installed_campaign(
+		campaign_directory.get_base_dir(),
+		campaign_directory.get_file(),
+		AdapterScript.new()
+	)
+	if str(load_result.get("status", "")) != "ok":
+		_verify_smoke_stage(
+			"03_session_reload",
+			false,
+			"a fresh Classic campaign session loads for restore"
+		)
+		get_tree().quit(1)
+		return
+	host = campaign_session.host
+	host.playthrough_completed.connect(_on_playthrough_completed)
+	host.playthrough_stopped.connect(_on_playthrough_stopped)
+	_install_equipment_playtest_triggers()
+	var restore_result: Dictionary = campaign_session.restore_save_payload(parsed_payload)
+	var restored_items: Variant = host.command_adapter.stored_party_equipment.get(
+		"inventories",
+		[]
+	)
+	_verify_smoke_stage(
+		"03_session_reload",
+		str(restore_result.get("status", "")) == "ok"
+			and restored_items is Array
+			and restored_items.size() == 1
+			and restored_items[0].size() == 2
+			and restored_items[0][0].get("texture") is Texture2D
+			and int(restored_items[0][0].get("equipped", 0)) == 1
+			and int(restored_items[0][1].get("charges", 0)) == 2,
+		"load rebuilds saved items through Remake's campaign resource loader"
+	)
+
+	character.inventory.append(GameGlobal.generate_item("Leather Boots"))
+	if not host.start_trigger("playtest:equipment-restore"):
+		_verify_smoke_stage(
+			"04_equipment_restore",
+			false,
+			"the restored session starts opcode 36's return path"
+		)
+		get_tree().quit(1)
+		return
+	var loot_ready := await _wait_for_treasure()
+	var dagger: Dictionary = character.inventory[0] if character.inventory.size() > 0 else {}
+	var ointment: Dictionary = character.inventory[1] if character.inventory.size() > 1 else {}
+	var total_wealth := GameGlobal.money_pool.duplicate()
+	for currency: int in 3:
+		total_wealth[currency] += int(character.money[currency])
+	_verify_smoke_stage(
+		"04_equipment_restore",
+		loot_ready
+			and character.inventory.size() == 2
+			and dagger.get("name") == "Dagger"
+			and int(dagger.get("equipped", 0)) == 1
+			and ointment.get("name") == "Corelian Ointment"
+			and int(ointment.get("charges", 0)) == 2
+			and total_wealth == [12, 3, 1]
+			and host.command_adapter.stored_party_equipment.is_empty(),
+		"the captured item state and wealth return without consuming interim loot"
+	)
+	_verify_smoke_stage(
+		"05_interim_loot_ui",
+		loot_ready and UI.ow_hud.treasureControl.itemsContainer.get_child_count() == 1,
+		"items acquired during capture reach Remake's native loot UI"
+	)
+	if loot_ready:
+		# This standalone scene has no native map loaded for the loot panel to reveal.
+		var native_map: Node = NodeAccess.__Map()
+		if native_map.get("mapdata") is Array and native_map.get("mapdata").is_empty():
+			native_map.set("map_size", Vector2.ZERO)
+		UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+		await _wait_frames(5)
+	_verify_smoke_stage(
+		"06_restore_continuation",
+		not host.active
+			and "Classic equipment playtest complete" \
+				in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"closing the loot panel completes the restored action list exactly once"
+	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
 
@@ -1095,6 +1245,45 @@ func _install_shop_playtest_data() -> void:
 	GameGlobal.player_characters[0].money[1] = 0
 	GameGlobal.player_characters[0].money[2] = 0
 	StateMachine.transition_to("Exploration")
+
+
+func _install_equipment_playtest_data() -> void:
+	_install_equipment_playtest_triggers()
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	character.inventory.clear()
+	var dagger: Dictionary = GameGlobal.generate_item("Dagger")
+	var ointment: Dictionary = GameGlobal.generate_item("Corelian Ointment")
+	ointment["charges"] = 2
+	character.inventory.append(dagger)
+	character.inventory.append(ointment)
+	character.equip_item(dagger)
+	character.money = [7, 1, 0]
+	GameGlobal.money_pool = [5, 2, 1]
+	StateMachine.transition_to("Exploration")
+
+
+func _install_equipment_playtest_triggers() -> void:
+	var bundle = host.runtime.bundle
+	bundle.triggers_by_id["playtest:equipment-capture"] = {
+		"id": "playtest:equipment-capture",
+		"source": "Equipment playtest",
+		"recordIndex": -1,
+		"active": true,
+		"actions": [
+			{"slot": 0, "rawCode": 36, "code": 36, "id": 1, "gosub": false},
+			{"slot": 7, "rawCode": 24, "code": 24, "id": 0, "gosub": false},
+		],
+	}
+	bundle.triggers_by_id["playtest:equipment-restore"] = {
+		"id": "playtest:equipment-restore",
+		"source": "Equipment playtest",
+		"recordIndex": -1,
+		"active": true,
+		"actions": [
+			{"slot": 0, "rawCode": 36, "code": 36, "id": 0, "gosub": false},
+			{"slot": 7, "rawCode": 24, "code": 24, "id": 0, "gosub": false},
+		],
+	}
 
 
 func _wait_frames(frame_count: int) -> void:
