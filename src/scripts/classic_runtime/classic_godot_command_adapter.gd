@@ -47,6 +47,12 @@ const CLASSIC_TEMPLE_SERVICES := [
 ]
 const MAP_GAINED_MESSAGE := \
 	"You gain a map, to view the map use Maps/Notes in the Menu."
+# These are core STR# 3 warnings 118 and 124, not scenario messages. Their
+# original spelling is preserved.
+const CLASSIC_COWARD_RETREAT_MESSAGE := \
+	"Having fled the battle, the enemy remains to challange you another time."
+const CLASSIC_COWARD_EXPERIENCE_MESSAGE := \
+	"You all loose victory points for this cowardly display."
 const CLASSIC_ATTRIBUTE_STATS := {
 	0: "Strength",
 	1: "Intellect",
@@ -293,6 +299,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		"give_battle_loot":
 			# Native battle cleanup has already presented defeated-enemy rewards.
 			return {}
+		"apply_coward_penalty":
+			return await _apply_coward_penalty(payload)
 		"give_experience":
 			return await _give_experience(payload)
 		"give_character_condition":
@@ -2905,6 +2913,56 @@ func _give_experience(payload: Dictionary) -> Dictionary:
 		int(payload.get("experience", 0))
 	)
 	return {}
+
+
+func _apply_coward_penalty(payload: Dictionary) -> Dictionary:
+	var text_rect: Object = _text_rect()
+	if text_rect == null:
+		return _error("Realmz HUD TextRect is unavailable for the Classic coward penalty")
+
+	await text_rect.set_text(CLASSIC_COWARD_RETREAT_MESSAGE, true)
+	var sound_result := _play_sound(payload)
+	await text_rect.set_text(CLASSIC_COWARD_EXPERIENCE_MESSAGE, true)
+
+	var party := _party_characters()
+	var result := apply_classic_coward_experience_penalty(
+		party,
+		int(payload.get("experiencePerLevel", 0))
+	)
+	_refresh_party_panels(party)
+	result["warningIds"] = payload.get("warningIds", []).duplicate()
+	result["soundResult"] = sound_result
+	result["partyBackedUp"] = false
+	if bool(payload.get("backUpParty", false)):
+		result["backUpReason"] = \
+			"Remake does not retain the pre-battle movement delta"
+	return result
+
+
+func apply_classic_coward_experience_penalty(
+	party: Array,
+	experience_per_level: int
+) -> Dictionary:
+	var per_level := maxi(0, experience_per_level)
+	var characters_affected := 0
+	var experience_removed := 0
+	for character_value: Variant in party:
+		if not (character_value is Object):
+			continue
+		if not _object_has_property(character_value, "level") \
+			or not _object_has_property(character_value, "exp_tnl"):
+			continue
+		var penalty := per_level * maxi(0, int(character_value.get("level")))
+		if penalty == 0:
+			continue
+		character_value.set("exp_tnl", int(character_value.get("exp_tnl")) + penalty)
+		characters_affected += 1
+		experience_removed += penalty
+	return {
+		"charactersAffected": characters_affected,
+		"experiencePerLevel": per_level,
+		"experienceRemoved": experience_removed,
+	}
 
 
 func _pick_characters(payload: Dictionary) -> Dictionary:

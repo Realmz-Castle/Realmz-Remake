@@ -143,6 +143,16 @@ class BattleOutcomeAdapter:
 		return {}
 
 
+class CowardPenaltyTestCharacter:
+	extends RefCounted
+	var level := 1
+	var exp_tnl := 0
+
+	func _init(character_level: int, experience_to_next_level: int) -> void:
+		level = character_level
+		exp_tnl = experience_to_next_level
+
+
 class WealthTestAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -489,6 +499,7 @@ func _init() -> void:
 	_test_shipped_lock_encounter(bundle)
 	_test_shipped_trap_encounter(bundle)
 	_test_battle_outcome(bundle)
+	_test_coward_experience_penalty()
 	_test_battle_outcome_host()
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
@@ -6391,13 +6402,32 @@ func _test_battle_outcome(bundle) -> void:
 	_expect_equal(blocked_result.get("status"), "error", "battle outcome requires explicit resume")
 	var coward_result: Dictionary = interpreter.resume_battle(true)
 	_expect_equal(coward_result.get("command"), "apply_coward_penalty", "coward sentinel command")
-	_expect_equal(coward_result.get("payload", {}).get("experiencePerLevel"), 2000, "Classic coward penalty")
+	var coward_payload: Dictionary = coward_result.get("payload", {})
+	_expect_equal(coward_payload.get("experiencePerLevel"), 2000, "Classic coward penalty")
+	_expect_equal(coward_payload.get("warningIds"), [118, 124], "Classic coward warnings")
+	_expect_equal(coward_payload.get("soundId"), 26260, "Classic coward sound")
+	_expect(bool(coward_payload.get("backUpParty", false)), "Classic coward retreat request")
 
 	interpreter = _interpreter(bundle)
 	interpreter.begin_trigger("Data DD:4:44", 4)
 	interpreter.run_until_yield()
 	var victory_result: Dictionary = interpreter.resume_battle(false)
 	_expect_equal(victory_result.get("command"), "give_battle_loot", "victory resumes through battle loot")
+
+
+func _test_coward_experience_penalty() -> void:
+	var adapter = GodotAdapterScript.new()
+	var second_level = CowardPenaltyTestCharacter.new(2, 1000)
+	var fifth_level = CowardPenaltyTestCharacter.new(5, 4000)
+	var result: Dictionary = adapter.apply_classic_coward_experience_penalty(
+		[second_level, fifth_level, {}],
+		2000
+	)
+	_expect_equal(second_level.exp_tnl, 5000, "coward penalty increases level-two exp to next level")
+	_expect_equal(fifth_level.exp_tnl, 14000, "coward penalty increases level-five exp to next level")
+	_expect_equal(result.get("charactersAffected"), 2, "coward penalty counts compatible party members")
+	_expect_equal(result.get("experienceRemoved"), 14000, "coward penalty reports the total experience loss")
+	_expect_equal(result.get("experiencePerLevel"), 2000, "coward penalty reports its source rate")
 
 
 func _test_battle_outcome_host() -> void:
