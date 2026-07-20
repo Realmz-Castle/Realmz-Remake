@@ -77,7 +77,7 @@ func _start_playtest() -> void:
 		resources.load_item_resources("res://shared_assets/items/")
 	resources.load_sound_ressources("res://shared_assets/sounds/")
 	resources.load_special_encounter_resources("City of Bywater")
-	resources.special_encounters_book["result_branch_test"] = ResultBranchEncounter.new()
+	resources.special_encounters_book["CE999"] = ResultBranchEncounter.new()
 	_create_playtest_character()
 	if not resources.special_encounters_book.has("native_nested_proof"):
 		_finish_with_error("City of Bywater native encounter data did not load")
@@ -265,7 +265,7 @@ func _run_smoke() -> void:
 	await _wait_frames(2)
 	_expect(not encounter.visible, "the transitioned legacy encounter closes normally")
 
-	encounter.initialize("result_branch_test")
+	encounter.initialize("CE999")
 	await _wait_frames(2)
 	var result_fixture: ResultBranchEncounter = encounter.encounter_script
 	ScriptHelperFuncsClass.yesno_branch_Divinity(
@@ -310,6 +310,47 @@ func _run_smoke() -> void:
 			and item_branch == "STOP"
 			and direct_branch == "STOP",
 		"legacy branches execute the selected complex result row"
+	)
+
+	var map_mutated := ScriptHelperFuncsClass.add_Divinity_script_branch_flag(0, 0, 25, 0)
+	var original_script_name := GameGlobal.current_map_script_name
+	GameGlobal.current_map_script_name = "AP0x9y17"
+	var map_replacement_applied := GameGlobal.check_flags_for_current_map_script_name()
+	var replaced_script_name := GameGlobal.current_map_script_name
+	GameGlobal.current_map_script_name = original_script_name
+	var simple_mutated := ScriptHelperFuncsClass.add_Divinity_script_branch_flag(
+		-2,
+		0,
+		25,
+		0,
+		0
+	)
+	var complex_mutated := ScriptHelperFuncsClass.add_Divinity_script_branch_flag(
+		-3,
+		999,
+		25,
+		0,
+		2
+	)
+	result_fixture.result_calls.clear()
+	var mutation_key := ScriptHelperFuncsClass.complex_result_replacement_flag("CE999", 2)
+	var saved_replacement: Variant = JSON.parse_string(JSON.stringify(
+		GameGlobal.stuff_done.get(mutation_key)
+	))
+	GameGlobal.stuff_done.erase(mutation_key)
+	GameGlobal.stuff_done[mutation_key] = saved_replacement
+	var replacement_result: Variant = await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(2)
+	_expect(
+		map_mutated
+			and map_replacement_applied
+			and replaced_script_name == "XAP25"
+			and simple_mutated
+			and GameGlobal.stuff_done["map_0.SEdata"]["SE0"][2][0] == "XAP25"
+			and complex_mutated
+			and GameGlobal.stuff_done.get(mutation_key) == "XAP25"
+			and result_fixture.result_calls.is_empty()
+			and replacement_result == null,
+		"Code 7 replacements persist across map, simple, and complex targets"
 	)
 	encounter.stopButton.pressed.emit()
 	await _wait_frames(2)

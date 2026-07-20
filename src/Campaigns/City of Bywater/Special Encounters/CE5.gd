@@ -26,9 +26,9 @@ func _on_spell_used(character, spell, power) :
 	if spell.name == "Destroy Trap" :
 		result = "1"
 	if result == "1":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 	else:
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_item_used(item, character) :
@@ -38,9 +38,9 @@ func _on_item_used(item, character) :
 	if item["name"] == "Iron Key" :
 		result = "1"
 	if result == "1":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 	else:
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_ActionButton_pressed() :
@@ -49,11 +49,11 @@ func _on_ActionButton_pressed() :
 	textRect.display_multiple_choices(["What do  you want to do?",action1, "STOP"], ["TEXT","2","STOP"])
 	var answer = await textRect.choice_pressed
 	if answer != "STOP":
-		await result2()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(1)
 		emit_signal("encounter_over")
 
 func _on_speaking(spoken : String) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func result1() :
@@ -112,10 +112,10 @@ func _on_disa_used(stat : float, character) :
 func _on_pick_used(stat : float, character) :
 	var chance : float = GameGlobal.get_rogue_skill_success(stat, pick_difficulty)
 	if randf() > chance :
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 		GameGlobal.stuff_done[picked_trap_flag_stuff_done] = 0
 	else :
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 		GameGlobal.stuff_done[picked_trap_flag_stuff_done] = 1
 		emit_signal("encounter_over")
 
@@ -124,7 +124,7 @@ func _on_forc_used(stat : float, character) :
 	if randf() > chance :
 		await ScriptHelperFuncsClass.display_text_wait_noise(character.name+" failed to force the lock.",'bleeding.wav')
 	else :
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 		emit_signal("encounter_over")
 
 #New function

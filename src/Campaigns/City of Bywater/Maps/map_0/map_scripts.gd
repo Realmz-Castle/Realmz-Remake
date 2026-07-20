@@ -11,7 +11,7 @@ static func AP0x9y17() : #0 at 9,17
 
 static func AP1x8y16() : #1 at 8,16
 	await ScriptHelperFuncsClass.display_text_wait_noise('You approach the main gate to Castle Anthrax.  As you near, the gate guard bars your path and asks to see your formal invitation.', 'message nod.wav')
-	var branch = ScriptHelperFuncsClass.branch_item_possession_divinity(990, 0, 0, 1, 2)
+	var branch = await ScriptHelperFuncsClass.branch_item_possession_divinity(990, 0, 0, 1, 2)
 	if not branch.is_empty(): return branch
 	return
 
@@ -486,7 +486,7 @@ static func AP77x18y9() : #77 at 18,9
 	return
 
 static func AP78x2y28() : #78 at 2,28
-	var nextap : String = ScriptHelperFuncsClass.branch_on_quest_Divinity(20, 0, 0, 100, 0)
+	var nextap : String = await ScriptHelperFuncsClass.branch_on_quest_Divinity(20, 0, 0, 100, 0)
 	if not nextap.is_empty() :
 		return nextap
 	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the slave prison.  A potbellied Corporal Sampson is slumped over a shaky table.  He\'s slept through the entire ordeal that just took place outside.  The smell of elderberry wine permeates his clothes.  You try to rouse him to collect your fee.', 'message nod.wav')
@@ -508,7 +508,7 @@ static func AP79x34y2() : #79 at 34,2
 
 static func AP80x7y21() : #80 at 7,21
 	await ScriptHelperFuncsClass.display_text_wait_noise('You are just about to enter the king\'s private gardens.  Someone has posted a message at the front gate.  \"Closed until further notice.  Do not enter under any circumstances.  You have been warned!\"', 'message nod.wav')
-	var nextap : String = ScriptHelperFuncsClass.branch_on_quest_Divinity(32, 0, 0, 100, 0)
+	var nextap : String = await ScriptHelperFuncsClass.branch_on_quest_Divinity(32, 0, 0, 100, 0)
 	if not nextap.is_empty() :
 		return nextap
 	await ScriptHelperFuncsClass.display_text_wait_noise('You enter the king\'s gardens and begin to stalk for signs of the rabid beast.  Several  plants have been uprooted or mutilated.  You hear something up ahead on your right.  There are indications that the beast may not be alone.  Do you wish to continue?', 'message nod.wav')
@@ -2270,7 +2270,7 @@ static func SE9XAP2():
 		await ScriptHelperFuncsClass.display_text_wait_noise('"Good! Good! Let us be off to mete out the king\'s justice. I have had my forces digging a tunnel under the Spider Tower for several weeks. Now all is ready to seal their doom. Ha! We shall arrive at their very doorstep."', 'message nod.wav')
 		#await ScriptHelperFuncsClass.change_tile(0, 47, 4, -16, "land")
 		await ScriptHelperFuncsClass.change_tile_anymap_add_flag("map_0",47,4,"ForestDay",16,0 )
-		#modify_ap                level=5, id=89, source_xap=19, level_type=same, result_code=0#add_AP_replaced_flag(_mapname : String, _ap_name : String, _newap_name : String)
+		#modify_ap                level=5, id=89, source_xap=19, level_type=same, result_code=0
 		await ScriptHelperFuncsClass.add_Divinity_script_branch_flag(5, 89, 19, 0, 0)
 		await ScriptHelperFuncsClass.teleport_to_map_and_pos("map_0", Vector2(47, 3), '')
 	else:

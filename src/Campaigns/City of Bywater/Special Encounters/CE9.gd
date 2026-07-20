@@ -24,9 +24,9 @@ func _on_spell_used(character, spell, power) :
 	if spell_names.has(spell.name) :
 		result = "1"
 	if result == "1":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 	else:
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_item_used(item, character) :
@@ -42,11 +42,11 @@ func _on_item_used(item, character) :
 	if item["id"] == 816 :
 		result = "4"
 	if result == "1":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 	elif result == "4":
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	else:
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_ActionButton_pressed() :
@@ -55,11 +55,11 @@ func _on_ActionButton_pressed() :
 	textRect.display_multiple_choices(["What do  you want to do?",action1, "STOP"], ["TEXT","3","STOP"])
 	var answer = await textRect.choice_pressed
 	if answer != "STOP":
-		await result3()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(2)
 		emit_signal("encounter_over")
 
 func _on_speaking(spoken : String) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func result1() :
@@ -94,9 +94,9 @@ func result4() :
 func _on_acro_used(stat : float, character) :
 	var chance : float = GameGlobal.get_rogue_skill_success(stat, acro_difficulty)
 	if randf() > chance :
-		await result2()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(1)
 	else :
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 		emit_signal("encounter_over")
 
 func _on_disa_used(stat : float, character) :

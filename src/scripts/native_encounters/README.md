@@ -107,6 +107,13 @@ an explicit conversion boundary because one-off `result1()` through `result4()`
 methods do not expose Classic's individual instruction slots. The Classic
 interpreter continues to support those offsets directly.
 
+Converted Code 7 mutations store their replacement in normal campaign save
+state. Map Action Points use a stable map-and-record key, simple encounters
+replace their saved result entry, and complex encounters resolve their result
+through the active encounter control. The native path redirects to the converted
+Extra Action Point method; the Classic interpreter remains responsible for exact
+eight-slot copying and stack behavior.
+
 The City of Bywater `native_nested_proof` fixture exercises all response modes,
 conditional and nested routing, and serialized mutation state. Run its focused
 test from the Godot project directory with:

@@ -21,17 +21,17 @@ func _on_spell_used(character, spell, power) :
 	if spell.name == "Flesh" :
 		result = "2"
 	if result == "1":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 	elif result == "2":
-		await result2()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(1)
 	elif result == "4":
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	else:
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_item_used(item, character) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_ActionButton_pressed() :
@@ -42,11 +42,11 @@ func _on_ActionButton_pressed() :
 	textRect.display_multiple_choices(["What do  you want to do?",action1, action2, action3, "STOP"], ["TEXT","1", "1", "1","STOP"])
 	var answer = await textRect.choice_pressed
 	if answer != "STOP":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 		emit_signal("encounter_over")
 
 func _on_speaking(spoken : String) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func result1() :

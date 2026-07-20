@@ -132,6 +132,10 @@ static func transition_complex_encounter_Divinity(ce_id: int) -> bool:
 	return UI.ow_hud.encounterControl.transition_to("CE%d" % ce_id)
 
 
+static func dispatch_complex_result_Divinity(result_index: int) -> Variant:
+	return await UI.ow_hud.encounterControl.run_result(result_index)
+
+
 static func run_complex_result_Divinity(result_index: int, code_index := 0) -> String:
 	if code_index != 0:
 		push_error(
@@ -139,8 +143,50 @@ static func run_complex_result_Divinity(result_index: int, code_index := 0) -> S
 			% [code_index, result_index]
 		)
 		return "STOP"
-	await UI.ow_hud.encounterControl.run_result(result_index)
+	await dispatch_complex_result_Divinity(result_index)
 	return "STOP"
+
+
+static func complex_result_replacement_flag(encounter_name: String, result_index: int) -> String:
+	return "complex_encounter.%s.result_%d.replaced" % [
+		encounter_name.trim_suffix(".gd"),
+		result_index,
+	]
+
+
+static func get_complex_result_replacement_Divinity(
+	encounter_name: String,
+	result_index: int
+) -> String:
+	return str(GameGlobal.stuff_done.get(
+		complex_result_replacement_flag(encounter_name, result_index),
+		""
+	))
+
+
+static func run_replacement_action_point_Divinity(script_name: String) -> Variant:
+	var map_scripts: Variant = get_current_map_scripts_Divinity()
+	if map_scripts == null:
+		push_error("Cannot run replacement action point %s without loaded map scripts" % script_name)
+		return null
+
+	var previous_script_name := GameGlobal.current_map_script_name
+	var next_script: Variant = script_name
+	var result: Variant = null
+	while next_script is String and not str(next_script).is_empty() and next_script != "STOP":
+		var method_name := str(next_script)
+		if not map_scripts.has_method(method_name):
+			push_error("Replacement action point %s was not found on the loaded map" % method_name)
+			break
+		GameGlobal.current_map_script_name = method_name
+		result = await map_scripts.call(method_name)
+		if is_complex_encounter_branch(result):
+			transition_complex_encounter_Divinity(int(result["encounter"]))
+			result = true
+			break
+		next_script = result
+	GameGlobal.current_map_script_name = previous_script_name
+	return result
 
 
 static func play_sound(sfx_name : String, stop : bool) :
@@ -303,29 +349,81 @@ static func randomrect_battle(b : Array, o : int, s : String, t : String, battle
 #3) Extra Action Point ID that contains the new codes
 #4) For AP replacement: 0 = Default to same land type, 1 = Land Level, 2 = Dungeon Level
 #5) For Encounter Script Replacement: Result Code to Replace
-static func add_Divinity_script_branch_flag( map_id : int, source_id : int, modified_script_id : int, thing, sexap_result_to_replace : int = 0) :
-	var aptype : String = "AP"
+static func add_Divinity_script_branch_flag(
+	map_id: int,
+	target_id: int,
+	replacement_xap_id: int,
+	level_type: int,
+	result_to_replace: int = 0
+) -> bool:
+	var new_ap_name := get_extra_ap_name(replacement_xap_id)
+	if new_ap_name.is_empty():
+		push_error("Code 7 replacement XAP%d was not found on the loaded map" % replacement_xap_id)
+		return false
 
-	if map_id == -3 :
-		printerr("ScriptHelperFuncs add_Divinity_script_branch_flag (Code 7) : can't handle  complex encounters, "+str(source_id)+","+str(modified_script_id))
-		assert(false)
-	if map_id== -2 :
-		var sourceapname = get_ap_name_starting_with("SE"+str(source_id)+'XAP'+str(sexap_result_to_replace))
-		var new_ap_name = get_ap_name_starting_with("AP"+str(modified_script_id)+'x')
-		#aptype = "SEXAP or CEXAP"
-		#printerr("USING SCRIPTHELPERFUNCS.add_Divinity_script_branch_flag to change a SIMPLE ENCUNTER or COMPLEX ENCOUNTER ",map_id,",  pls do it manually !!!!!",
-		#' source id : ',source_id,', replacement id : ', modified_script_id)
-		#assert(false)
-	else :
-		var sourceapname = get_ap_name_starting_with(aptype+str(source_id)+'x')
-		var new_ap_name = get_ap_name_starting_with("XAP"+str(modified_script_id)+'x')
-		add_AP_replaced_flag('map_'+str(map_id), sourceapname, new_ap_name )
+	if map_id == -3:
+		GameGlobal.stuff_done[
+			complex_result_replacement_flag("CE%d" % target_id, result_to_replace)
+		] = new_ap_name
+		return true
+	if map_id == -2:
+		var encounter_data_key := GameGlobal.currentmap_name + ".SEdata"
+		var encounter_name := "SE%d" % target_id
+		var encounter_book: Variant = GameGlobal.stuff_done.get(encounter_data_key)
+		if not encounter_book is Dictionary:
+			var encounter_path := Paths.campaignsfolderpath.path_join(
+				GameGlobal.currentcampaign
+			).path_join("Maps").path_join(GameGlobal.currentmap_name).path_join(
+				"map_SimpleEncounters.json"
+			)
+			encounter_book = Utils.FileHandler.read_json_dic_from_file(encounter_path)
+			GameGlobal.stuff_done[encounter_data_key] = encounter_book
+		if not encounter_book is Dictionary or not encounter_book.has(encounter_name):
+			push_error("Code 7 simple encounter %s was not found" % encounter_name)
+			return false
+		var result_scripts: Array = encounter_book[encounter_name][2]
+		if result_to_replace < 0 or result_to_replace >= result_scripts.size():
+			push_error(
+				"Code 7 result %d is outside simple encounter %s"
+				% [result_to_replace, encounter_name]
+			)
+			return false
+		result_scripts[result_to_replace] = new_ap_name
+		return true
 
-static func add_AP_replaced_flag(_mapname : String, _ap_name : String, _newap_name : String) :
-	var script_name = "script_"+str(_ap_name)
-	var flag_name : String = _mapname+'.'+script_name+'.replaced'
-	GameGlobal.stuff_done[flag_name] = _newap_name
-	printerr("\n   USED ScriptHelperFuncs add_AP_replaced_flag !!!\n    "+flag_name+':'+str(_newap_name))
+	var map_prefix := "mapd_" if level_type == 2 else "map_"
+	if level_type == 0 and GameGlobal.currentmap_name.begins_with("mapd_"):
+		map_prefix = "mapd_"
+	var map_name := map_prefix + str(map_id)
+	GameGlobal.stuff_done[
+		"%s.action_point_%d.replaced" % [map_name, target_id]
+	] = new_ap_name
+	return true
+
+
+static func get_extra_ap_name(ap_id: int) -> String:
+	var exact_name := "XAP%d" % ap_id
+	var coordinate_prefix := exact_name + "x"
+	var map_scripts: Variant = get_current_map_scripts_Divinity()
+	if map_scripts == null:
+		return ""
+	for method: Dictionary in map_scripts.get_script_method_list():
+		var method_name := str(method["name"])
+		if method_name == exact_name or method_name.begins_with(coordinate_prefix):
+			return method_name
+	return ""
+
+
+static func get_current_map_scripts_Divinity() -> Variant:
+	if GameGlobal.map != null and GameGlobal.map.mapscripts != null:
+		return GameGlobal.map.mapscripts
+	var script_path := "res://Campaigns/%s/Maps/%s/map_scripts.gd" % [
+		GameGlobal.currentcampaign,
+		GameGlobal.currentmap_name,
+	]
+	if ResourceLoader.exists(script_path):
+		return load(script_path)
+	return null
 
 ## Divinity Code 29: Give/Display Map  id:int , if negative, give |id| and also display
 static func give_minimap(id : int) :

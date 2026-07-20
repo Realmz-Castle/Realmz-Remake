@@ -19,9 +19,9 @@ func _on_spell_used(character, spell, power) :
 	if spell.name == "Watergate" :
 		result = "1"
 	if result == "1":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 	else:
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_item_used(item, character) :
@@ -29,9 +29,9 @@ func _on_item_used(item, character) :
 	if item["name"] == "Waterworld" :
 		result = "1"
 	if result == "1":
-		await result1()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)
 	else:
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_ActionButton_pressed() :
@@ -42,11 +42,11 @@ func _on_ActionButton_pressed() :
 	textRect.display_multiple_choices(["What do  you want to do?",action1, action2, action3, "STOP"], ["TEXT","2", "2", "2","STOP"])
 	var answer = await textRect.choice_pressed
 	if answer != "STOP":
-		await result2()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(1)
 		emit_signal("encounter_over")
 
 func _on_speaking(spoken : String) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func result1() :

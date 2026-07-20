@@ -1168,12 +1168,19 @@ func generate_item(itemname : String) -> Dictionary :
 func check_flags_for_current_map_script_name() -> bool:
 	var chanceflagname : String = currentmap_name+'.'+"script_"+str(current_map_script_name)+'.chance'
 	var replaceflagname : String = currentmap_name+'.'+"script_"+str(current_map_script_name)+'.replaced'
+	var replacement: Variant = stuff_done.get(replaceflagname)
+	if replacement == null and current_map_script_name.begins_with("AP"):
+		var action_point_text := current_map_script_name.trim_prefix("AP").get_slice("x", 0)
+		if action_point_text.is_valid_int():
+			replacement = stuff_done.get(
+				"%s.action_point_%d.replaced" % [currentmap_name, int(action_point_text)]
+			)
 	if not current_map_script_name.begins_with('X'):
 		printerr("GameGlobal check_flags_for_current_map_script_name "+current_map_script_name+ " "+replaceflagname)
 
-	if stuff_done.has(replaceflagname):
-		printerr("found replaced ap flag :  ",replaceflagname,':',stuff_done[replaceflagname])
-		current_map_script_name = stuff_done[replaceflagname]
+	if replacement != null:
+		printerr("found replaced ap flag :  ",replaceflagname,':',replacement)
+		current_map_script_name = str(replacement)
 		# Check STOP - if yes stop script
 		if current_map_script_name == "STOP" or current_map_script_name == "":
 			return false

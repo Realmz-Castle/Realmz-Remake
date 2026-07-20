@@ -21,11 +21,11 @@ func _ready() :
 	pass
 
 func _on_spell_used(character, spell, power) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_item_used(item, character) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func _on_ActionButton_pressed() :
@@ -36,11 +36,11 @@ func _on_ActionButton_pressed() :
 	textRect.display_multiple_choices(["What do  you want to do?",action1, action2, action3, "STOP"], ["TEXT","4", "4", "4","STOP"])
 	var answer = await textRect.choice_pressed
 	if answer != "STOP":
-		await result4()
+		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 		emit_signal("encounter_over")
 
 func _on_speaking(spoken : String) :
-	await result4()
+	await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(3)
 	emit_signal("encounter_over")
 
 func result4() :

@@ -5,6 +5,7 @@ extends Control
 # var a = 2
 # var b = "text"
 var encounter_script = null  #GDScript instanced, so justa  RefCounted
+var encounter_name := ""
 var encounter_phrase_selection_mode := false
 var encounter_phrase := ""
 
@@ -51,6 +52,7 @@ func transition_to(scriptname: String) -> bool:
 	if not resources.special_encounters_book.has(encounter_name):
 		push_error("Special encounter %s was not found" % scriptname)
 		return false
+	self.encounter_name = encounter_name
 	if encounter_script != null:
 		if encounter_script.is_connected("encounter_over", _on_encounter_script_over):
 			encounter_script.disconnect("encounter_over", _on_encounter_script_over)
@@ -68,7 +70,13 @@ func transition_to(scriptname: String) -> bool:
 	return true
 
 
-func run_result(result_index: int) -> bool:
+func run_result(result_index: int) -> Variant:
+	var replacement := ScriptHelperFuncsClass.get_complex_result_replacement_Divinity(
+		encounter_name,
+		result_index
+	)
+	if not replacement.is_empty():
+		return await ScriptHelperFuncsClass.run_replacement_action_point_Divinity(replacement)
 	var method_name := "result%d" % (result_index + 1)
 	if encounter_script == null or not encounter_script.has_method(method_name):
 		push_error("Special encounter has no result row %d" % result_index)
