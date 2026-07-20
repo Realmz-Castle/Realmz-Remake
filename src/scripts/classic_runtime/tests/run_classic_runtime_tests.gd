@@ -642,6 +642,7 @@ class MapBridgeTestMap:
 class MapBridgeTestResources:
 	extends RefCounted
 	var maps_book: Dictionary = {}
+	var map_info_book: Dictionary = {}
 	var tiles_book: Dictionary = {}
 
 
@@ -650,6 +651,7 @@ class MapBridgeTestGameGlobal:
 	var currentmap_name := "map_0"
 	var map = MapBridgeTestMap.new()
 	var transitions: Array = []
+	var map_boats_dict: Dictionary = {}
 
 	func change_map(map_name: String, x: int, y: int) -> void:
 		currentmap_name = map_name
@@ -694,6 +696,7 @@ func _init() -> void:
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
 	_test_classic_map_materializer()
+	_test_classic_boat_materialization()
 	_test_classic_map_sound_bridge()
 	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
@@ -2098,6 +2101,10 @@ func _test_classic_map_materializer() -> void:
 		"normal resource lifecycle loads the generated dungeon map"
 	)
 	native_resources.load_map_ressources(map_directory + "/", "map_0")
+	_expect(
+		native_resources.map_info_book.get("map_0", {}).has("classic_boats"),
+		"normal resource lifecycle retains generated Classic boat metadata"
+	)
 	var special_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][1][0]
 	_expect_equal(
 		special_land_stack.size(),
@@ -2324,6 +2331,74 @@ func _test_classic_map_materializer() -> void:
 		CampaignPackageInstallerScript.new()._remove_directory(test_root),
 		OK,
 		"materializer test cleans its workspace"
+	)
+
+
+func _test_classic_boat_materialization() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"producer fixture loads for Classic boat materialization"
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var map_record: Dictionary = bundle.documents["maps"]["maps"][0]
+	map_record["width"] = 3
+	map_record["height"] = 1
+	map_record["tiles"] = [147, 60, 1147]
+	map_record["render"] = {
+		"landlook": 0,
+		"mode": "outdoor-landlook",
+		"tilesetId": "landlook-0",
+	}
+
+	var test_root := ProjectSettings.globalize_path(
+		"user://classic-boat-materializer-%d" % Time.get_ticks_msec()
+	)
+	DirAccess.make_dir_recursive_absolute(test_root)
+	var materialize_result: Dictionary = MapMaterializerScript.new().materialize(bundle, test_root)
+	_expect_equal(materialize_result.get("status"), "ok", "Classic boats generate native maps")
+	var map_directory := test_root.path_join("Maps").path_join("map_0")
+	var map_things: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(map_directory.path_join("map_things.json"))
+	)
+	_expect_equal(
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", []),
+		[60.0, 60.0, 60.0],
+		"boat cells materialize their source-backed underlying water terrain"
+	)
+	var map_info: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(map_directory.path_join("map_info.json"))
+	)
+	_expect_equal(
+		map_info.get("classic_boats", {}),
+		{"0,0": "ForestDay146", "2,0": "ForestDay146"},
+		"generated map metadata preserves Classic boat placements and native art"
+	)
+
+	var resources = MapBridgeTestResources.new()
+	resources.map_info_book["map_0"] = map_info
+	var game_global = MapBridgeTestGameGlobal.new()
+	var bridge = MapBridgeScript.new()
+	bridge.configure(bundle)
+	var seed_result: Dictionary = bridge.seed_classic_boats(game_global, resources)
+	_expect_equal(seed_result.get("seededBoats"), 2, "Classic start seeds native boat state")
+	_expect_equal(
+		game_global.map_boats_dict.get("map_0", {}),
+		{"0,0": "ForestDay146", "2,0": "ForestDay146"},
+		"Classic boats use Remake's existing map boat dictionary"
+	)
+	game_global.map_boats_dict["map_0"].erase("0,0")
+	bridge.seed_classic_boats(game_global, resources)
+	_expect_equal(
+		game_global.map_boats_dict.get("map_0", {}),
+		{"2,0": "ForestDay146"},
+		"saved or moved native boat state is not reseeded"
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"boat materializer test cleans its workspace"
 	)
 
 

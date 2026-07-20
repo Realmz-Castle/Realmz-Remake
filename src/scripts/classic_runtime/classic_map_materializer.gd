@@ -197,8 +197,16 @@ func _build_plan(
 	var has_land_overlays := false
 	var tile_capacity := int(tileset_result.get("tileCapacity", 0))
 	var dungeon_lookup: Variant = tileset_result.get("tileLookup")
+	var map_bridge = MapBridgeScript.new()
+	map_bridge.configure(bundle)
+	var boat_plan := map_bridge.classic_boat_plan(map_record, str(tileset_result["name"]))
+	if str(boat_plan.get("status", "")) == "error":
+		return _plan_fail(str(boat_plan.get("message", "Classic boat placement is invalid")))
+	var boat_terrain: Dictionary = boat_plan.get("terrainByCell", {})
 	for tile_index: int in range(tiles.size()):
 		var classic_tile := int(tiles[tile_index])
+		if boat_terrain.has(tile_index):
+			classic_tile = int(boat_terrain[tile_index])
 		var native_tile := 0
 		if dungeon_lookup is Dictionary:
 			native_tile = int(dungeon_lookup.get(classic_tile & 0xffff, 0))
@@ -269,6 +277,7 @@ func _build_plan(
 				"outdoor_riding": level_type == "land",
 				"darkness_level": 0 if bool(random_level.get("isDark", false)) else 7,
 				"display_explored_only": int(bool(random_level.get("useLos", false))),
+				"classic_boats": boat_plan.get("placements", {}),
 			},
 			"map_scriptareas.json": script_areas,
 			"map_scripts.gd": MAP_SCRIPT_SOURCE,
@@ -1080,28 +1089,8 @@ func _catalog_base_tile(bundle: Object, tileset_id: String, fallback: int) -> in
 
 
 func _normalize_atlas_tile(value: int, base_tile: int) -> int:
-	# Classic combines high-bit flags and 1000-offsets with a one-based tile ID.
-	# Remake's Tiled input uses that normalized ID directly as its GID.
-	var tile := value
-	var fallback_tile := base_tile if base_tile > 0 else 1
-	if tile > 999:
-		tile = _clear_classic_short_bit(tile, 1)
-		tile = _clear_classic_short_bit(tile, 2)
-		for _attempt: int in range(3):
-			if tile <= 999:
-				break
-			tile -= 1000
-	if tile > 200:
-		tile = fallback_tile
-	while tile > 999:
-		tile -= 1000
-	return maxi(1, tile)
-
-
-func _clear_classic_short_bit(value: int, bit: int) -> int:
-	var unsigned := value & 0xffff
-	var cleared := unsigned & ~(1 << (15 - bit))
-	return cleared - 0x10000 if cleared >= 0x8000 else cleared
+	# Remake's Tiled input uses the normalized one-based tile ID directly as its GID.
+	return MapBridgeScript.normalize_land_tile(value, base_tile)
 
 
 func _native_map_name(map_record: Dictionary) -> String:

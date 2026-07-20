@@ -24,6 +24,7 @@ var crea_book: Dictionary = {}	# contains dicts defining creatures for combat.
 var battles_book : Dictionary = {}	# contains dicts defining battles.
 var creascripts_book : Dictionary = {}	#a  dict of  scriptname:creature ai gdscript
 var maps_book : Dictionary = {}	#contains maps
+var map_info_book : Dictionary = {}	#contains the source metadata for each map
 var thingtypes : Dictionary = {"ground" : 0, "ground_level" : 1, "furnitures" : 2, "creatures" : 3, "structures" : 4}
 var sounds_book : Dictionary = {}
 var spells_book : Dictionary = {}
@@ -53,6 +54,7 @@ func clear_ressources() -> void:
 	battles_book.clear()
 	crea_book.clear()
 	maps_book.clear()
+	map_info_book.clear()
 	items_book.clear()
 	sounds_book.clear()
 	musics_book.clear()
@@ -841,6 +843,7 @@ func load_map_ressources( path : String , _name : String) -> void :
 	#print(' , ')
 	#pass
 	maps_book[mapname] = [newmapdata, newmapscriptareas, newmapscripts, maptype,mapmusictype, outdoor_riding, darkness_level, display_explored_only, explored_tiles]
+	map_info_book[mapname] = newmapinfo
 	print("Resources done load map resources : ", _name)
 	return
 

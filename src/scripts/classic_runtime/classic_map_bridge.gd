@@ -21,6 +21,8 @@ const NATIVE_LANDLOOK_TILESETS := [
 	"SnowDay",
 	"SnowNight",
 ]
+# Boarding a boat replaces its map cell with this water tile in the Classic engine.
+const CLASSIC_BOAT_WATER_TILE := 60
 const DUNGEON_WALL_MASK := 0x0001
 const DUNGEON_DOOR_MASK := 0x0006
 const DUNGEON_NOTE_MASK := 0x0020
@@ -56,9 +58,109 @@ static func select_tile_stack_sound(stack: Array) -> Dictionary:
 	return {}
 
 
+static func normalize_land_tile(value: int, base_tile: int) -> int:
+	# Classic combines high-bit flags and 1000-offsets with a one-based tile ID.
+	var tile := value
+	var fallback_tile := base_tile if base_tile > 0 else 1
+	if tile > 999:
+		tile = _clear_classic_short_bit(tile, 1)
+		tile = _clear_classic_short_bit(tile, 2)
+		for _attempt: int in range(3):
+			if tile <= 999:
+				break
+			tile -= 1000
+	if tile > 200:
+		tile = fallback_tile
+	while tile > 999:
+		tile -= 1000
+	return maxi(1, tile)
+
+
 func configure(bundle: Object) -> void:
 	classic_bundle = bundle
 	native_tile_stacks.clear()
+
+
+func classic_boat_plan(map_record: Dictionary, tileset_name: String) -> Dictionary:
+	var empty_plan := {
+		"status": "ok",
+		"placements": {},
+		"terrainByCell": {},
+	}
+	if str(map_record.get("levelType", "")) != "land":
+		return empty_plan
+	var render: Variant = map_record.get("render", {})
+	if not (render is Dictionary) or str(render.get("mode", "")) != "outdoor-landlook":
+		return empty_plan
+	var width := int(map_record.get("width", 0))
+	var tiles: Variant = map_record.get("tiles", [])
+	if width <= 0 or not (tiles is Array):
+		return _error("Classic boat placement needs a complete land map")
+
+	var landlook := int(render.get("landlook", -1))
+	var attributes := _land_tile_attributes(landlook)
+	if attributes.is_empty():
+		return empty_plan
+	var placements: Dictionary = {}
+	var terrain_by_cell: Dictionary = {}
+	for cell_index: int in range(tiles.size()):
+		var tile_id := normalize_land_tile(int(tiles[cell_index]), 1)
+		var attribute: Variant = attributes.get(tile_id)
+		if not (attribute is Dictionary):
+			continue
+		var boat_requirement := int(attribute.get(
+			"boatRequirement",
+			attribute.get("needBoat", 0)
+		))
+		if boat_requirement != 1 or int(attribute.get("baseScale", 0)) != 0:
+			continue
+		var coordinate := "%d,%d" % [cell_index % width, int(cell_index / width)]
+		placements[coordinate] = "%s%d" % [tileset_name, tile_id - 1]
+		terrain_by_cell[cell_index] = CLASSIC_BOAT_WATER_TILE
+	return {
+		"status": "ok",
+		"placements": placements,
+		"terrainByCell": terrain_by_cell,
+	}
+
+
+func seed_classic_boats(game_global: Object, resources: Object) -> Dictionary:
+	if game_global == null or resources == null:
+		return _error("Classic boat state is unavailable")
+	var map_boats_value: Variant = game_global.get("map_boats_dict")
+	if not (map_boats_value is Dictionary):
+		return _error("Realmz boat state is unavailable")
+	var map_info_value: Variant = resources.get("map_info_book")
+	if not (map_info_value is Dictionary):
+		return _error("Realmz map metadata is unavailable")
+
+	var seeded_maps := 0
+	var seeded_boats := 0
+	for map_name_value: Variant in map_info_value:
+		var map_name := str(map_name_value)
+		var map_info: Variant = map_info_value[map_name_value]
+		if not (map_info is Dictionary):
+			continue
+		var map_info_record: Dictionary = map_info
+		if (
+			str(map_info_record.get("map_type", "")) != "Outdoor"
+			or not map_info_record.has("classic_boats")
+		):
+			continue
+		if map_boats_value.has(map_name):
+			continue
+		var placements_value: Variant = map_info_record.get("classic_boats", {})
+		if not (placements_value is Dictionary):
+			return _error("Classic map %s has malformed boat metadata" % map_name)
+		var placements: Dictionary = placements_value
+		map_boats_value[map_name] = placements.duplicate(true)
+		seeded_maps += 1
+		seeded_boats += placements.size()
+	return {
+		"status": "ok",
+		"seededMaps": seeded_maps,
+		"seededBoats": seeded_boats,
+	}
 
 
 func reapply_persistent_state(
@@ -598,6 +700,50 @@ func _native_landlook_tileset(landlook: int, resources: Object) -> String:
 	return str(_catalog_landlook_tilesets(resources).get(landlook, ""))
 
 
+func _land_tile_attributes(landlook: int) -> Dictionary:
+	var by_tile: Dictionary = {}
+	if classic_bundle == null:
+		return by_tile
+	var documents: Variant = classic_bundle.get("documents")
+	if not (documents is Dictionary):
+		return by_tile
+	var maps_document: Variant = documents.get("maps", {})
+	if not (maps_document is Dictionary):
+		return by_tile
+	var attributes: Variant = maps_document.get("tileAttributes", [])
+	if attributes is Array:
+		for attribute_value: Variant in attributes:
+			if typeof(attribute_value) != TYPE_DICTIONARY:
+				continue
+			var attribute: Dictionary = attribute_value
+			var attribute_landlook: Variant = attribute.get("landlook")
+			if attribute_landlook != null and int(attribute_landlook) == landlook:
+				by_tile[int(attribute.get("tile", 0))] = attribute
+	if not by_tile.is_empty():
+		return by_tile
+
+	var custom_landlooks: Variant = maps_document.get("customLandlooks", [])
+	if not (custom_landlooks is Array):
+		return by_tile
+	for custom_value: Variant in custom_landlooks:
+		if not (custom_value is Dictionary):
+			continue
+		var custom: Dictionary = custom_value
+		if int(custom.get("landlook", -1)) != landlook:
+			continue
+		var base_scale := int(custom.get("baseScale", 1))
+		var records: Variant = custom.get("records", [])
+		if records is Array:
+			for record_value: Variant in records:
+				if not (record_value is Dictionary):
+					continue
+				var record: Dictionary = record_value.duplicate(true)
+				record["baseScale"] = base_scale
+				by_tile[int(record.get("tile", 0))] = record
+		break
+	return by_tile
+
+
 func _native_landlook_tilesets(resources: Object) -> Dictionary:
 	var names: Dictionary = {}
 	for tileset_name: String in NATIVE_LANDLOOK_TILESETS:
@@ -855,6 +1001,12 @@ func _payload_map_key(payload: Dictionary) -> String:
 		str(payload.get("levelType", "")),
 		int(payload.get("levelIndex", -1)),
 	]
+
+
+static func _clear_classic_short_bit(value: int, bit: int) -> int:
+	var unsigned := value & 0xffff
+	var cleared := unsigned & ~(1 << (15 - bit))
+	return cleared - 0x10000 if cleared >= 0x8000 else cleared
 
 
 func _record_replay_result(category: String, result: Dictionary, report: Dictionary) -> void:

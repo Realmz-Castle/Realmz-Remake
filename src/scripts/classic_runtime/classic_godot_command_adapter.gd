@@ -210,6 +210,12 @@ func classic_continuation_save_policy(command: String) -> Dictionary:
 
 
 func activate_classic_start(location: Dictionary) -> Dictionary:
+	var boat_result := classic_map_bridge.seed_classic_boats(
+		_autoload("GameGlobal"),
+		_classic_campaign_resources()
+	)
+	if str(boat_result.get("status", "")) == "error":
+		return boat_result
 	var transition_result := classic_map_bridge.transition(
 		location,
 		_autoload("GameGlobal"),
@@ -224,6 +230,7 @@ func activate_classic_start(location: Dictionary) -> Dictionary:
 	if str(view_result.get("status", "")) == "error":
 		return view_result
 	transition_result["view"] = view_result
+	transition_result["boats"] = boat_result
 	return transition_result
 
 
