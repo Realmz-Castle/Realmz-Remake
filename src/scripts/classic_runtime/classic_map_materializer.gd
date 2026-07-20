@@ -2,6 +2,9 @@ class_name ClassicMapMaterializer
 extends RefCounted
 
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
+const QuickDrawImageDecoderScript = preload(
+	"res://scripts/classic_runtime/classic_quickdraw_image_decoder.gd"
+)
 const REQUIRED_MAP_FILES := [
 	"map_info.json",
 	"map_scriptareas.json",
@@ -687,14 +690,7 @@ func _load_runtime_image(
 ) -> Dictionary:
 	var runtime_media: Variant = record.get("runtimeMedia")
 	if not (runtime_media is Dictionary):
-		return {
-			"status": "error",
-			"message": "%s requires a decoded %d x %d runtimeMedia image" % [
-				subject,
-				expected_size.x,
-				expected_size.y,
-			],
-		}
+		return _load_classic_resource_image(record, campaign_directory, subject, expected_size)
 	var relative_path := str(runtime_media.get("path", ""))
 	if not _is_safe_campaign_path(relative_path):
 		return {
@@ -729,6 +725,60 @@ func _load_runtime_image(
 		}
 	image.convert(Image.FORMAT_RGBA8)
 	return {"status": "ok", "image": image}
+
+
+func _load_classic_resource_image(
+	record: Dictionary,
+	campaign_directory: String,
+	subject: String,
+	expected_size: Vector2i
+) -> Dictionary:
+	if str(record.get("payloadEncoding", "")) != "classic-resource-data":
+		return {
+			"status": "error",
+			"message": "%s requires a decoded %d x %d runtimeMedia image" % [
+				subject,
+				expected_size.x,
+				expected_size.y,
+			],
+		}
+	var relative_path := str(record.get("payloadPath", ""))
+	if not _is_safe_campaign_path(relative_path):
+		return {"status": "error", "message": "%s has an unsafe Classic payload path" % subject}
+	var payload_path := campaign_directory.path_join(relative_path)
+	if not FileAccess.file_exists(payload_path):
+		return {"status": "error", "message": "%s is missing Classic payload %s" % [subject, relative_path]}
+	var resource_type := str(record.get("resourceType", ""))
+	if resource_type.is_empty() and record.has("pictId"):
+		resource_type = "PICT"
+	var decoded: Dictionary = QuickDrawImageDecoderScript.decode(
+		resource_type,
+		FileAccess.get_file_as_bytes(payload_path)
+	)
+	if str(decoded.get("status", "error")) != "ok":
+		return {
+			"status": "error",
+			"message": "%s could not decode %s: %s" % [
+				subject,
+				resource_type,
+				str(decoded.get("message", "unsupported Classic image payload")),
+			],
+		}
+	var image: Image = decoded["image"]
+	if image.get_size() != expected_size:
+		return {
+			"status": "error",
+			"message": (
+				"%s decoded Classic payload is %d x %d; Remake requires %d x %d"
+			) % [
+				subject,
+				image.get_width(),
+				image.get_height(),
+				expected_size.x,
+				expected_size.y,
+			],
+		}
+	return {"status": "ok", "image": image, "decodedFormat": decoded.get("format", "")}
 
 
 func _build_land_overlay_tileset_plan(

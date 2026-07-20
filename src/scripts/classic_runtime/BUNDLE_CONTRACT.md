@@ -151,13 +151,15 @@ observations such as dispatcher no-ops that intentionally affect compatibility
 decisions.
 
 `rules.spellOverrides.id` is the zero-based `Data Spell` record index retained
-for authoring and provenance. `packedSpellId` is the exact Classic runtime
-identity used by encounter references. The consumer checks that explicit packed
-identity before the shared spell table; it never guesses from a record index or
-an adjacent ID. Overrides with `special: 0` are exposed through Remake's
-ordinary spell interface using their compiled damage, duration, save, resistance,
-targeting, cost, and availability fields. A referenced nonzero `special` requires
-an exact native implementation or produces an
+for authoring and provenance. Remake derives the exact Classic runtime identity
+used by encounter references from that fixed 7-by-15 record layout. Producers
+may also include `packedSpellId`; when present, it must equal the derived value.
+The consumer also accepts the one-based Data Spell row references stored by
+encounter records. It checks the resolved override before the shared spell
+table. Overrides with `special: 0` are exposed through Remake's ordinary spell
+interface using their compiled damage, duration, save, resistance, targeting,
+cost, and availability fields. A referenced nonzero `special` requires an exact
+native implementation or produces an
 `unsupported-custom-spell-special` readiness blocker at its `Data Spell` source
 record.
 

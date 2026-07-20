@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "producer": {
     "repository": "Realmz - Providence",
-    "commit": "9b5c7d94ff6a59a81acc91be9f600c797b63f269",
+    "commit": "1cd0da34941bb68db0559d3129b2a22e6b1a5d75",
     "sourceFixture": "fixtures/scenario-seeds/authoritative-ownership-proof.seed.json"
   },
   "bundleDirectory": "providence_authoritative_export",
@@ -40,7 +40,7 @@
     {
       "path": "campaign.json",
       "bytes": 2034,
-      "sha256": "a6259387408d3dbda91192fe499fb2ec40fa78c2e6246fb049d9d799f01b9bcb"
+      "sha256": "1ef695fc022d8faab36164e9564cd4ff5b561d69d749d8cbd806b2c8b0fb4079"
     },
     {
       "path": "classic/assets.json",
@@ -54,33 +54,33 @@
     },
     {
       "path": "classic/encounters.json",
-      "bytes": 29431,
-      "sha256": "86b4bb6c83f115695d7dbd281ff04e87d3cb40f0725eb5668cf242616ea53503"
+      "bytes": 29429,
+      "sha256": "3b5975128d7190ba2c586498e1ba70a60de0f7c76af6e574135ea3a8b29f0cf6"
     },
     {
       "path": "classic/evidence.json",
-      "bytes": 850,
-      "sha256": "8b0309228fa3a119942534d8bd12e5ae82d2f5cea6d7458fe0e700ca2d3c4559"
+      "bytes": 946,
+      "sha256": "d8c8328bc40693f535748f8a77e360b0a814f40dc70a069f619ce0cf823a4be9"
     },
     {
       "path": "classic/maps.json",
-      "bytes": 1187118,
-      "sha256": "39c03d2c4d9c9172968ce4eea1614be25153f369da2bb2cd3f219754cc576aeb"
+      "bytes": 1276721,
+      "sha256": "796f976d9f04a79fcccbc7b88bfedb41fdf0b5432085c36653acd96a3682c342"
     },
     {
       "path": "classic/rules.json",
-      "bytes": 9703,
-      "sha256": "7247c1c58f4f89f4d5cc2feaba17d66c382d0924053b17c322f6b8a499ec1bce"
+      "bytes": 9674,
+      "sha256": "ae6a376c4daab78a2a5365c925dda35444d23c670c78cbd8fb95360e0cbe0262"
     },
     {
       "path": "classic/scenario.json",
-      "bytes": 2128,
-      "sha256": "50cc6e25d4bf4e9aa07ad06751836cc1da980ccde9a093aa027ef2328bd3f5f2"
+      "bytes": 2375,
+      "sha256": "3b5fe395969caf9402ea43b51d1df236a58c9707cde994c3daf524e43516d9e7"
     },
     {
       "path": "classic/scripts.json",
-      "bytes": 3502,
-      "sha256": "c1ffb0cc3ac7da7c5578245742db5da7695c5fabf369f677c8718a854e9910e3"
+      "bytes": 4627,
+      "sha256": "26e7f9d238844187259798db1ecb01f92c9478249ff0734e95d48b737e4f80e2"
     }
   ]
 }

@@ -211,6 +211,20 @@ and dungeon output, and a visibly rendered SnowDay landlook change:
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- --smoke
 ```
 
+The Providence producer smoke installs the checked conformance export without
+modifying it, launches it through the normal campaign menu, and captures its
+materialized land, dungeon, and returned-land views:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/tests/providence_export_ui_smoke.tscn
+```
+
+The fixture does not yet author a map-transfer action, so this smoke performs
+the two transfers through the same compatibility adapter used by Classic
+Dungeon Move. It proves producer installation and native map lifecycle without
+claiming fixture-level transition semantics. The real display driver is
+required because the test waits for rendered frames and writes PNG evidence.
+
 The native battle bridge playtest starts from the same real City of Bywater
 map, applies a persistent SnowDay landlook, requests native `Battle_24`, and
 runs a compiled combat macro that removes its two Zombies from the live roster.

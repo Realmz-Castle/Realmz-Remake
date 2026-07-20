@@ -84,7 +84,21 @@
     "id": "providence-ownership-proof",
     "name": "Providence Ownership Proof"
   },
-  "restrictions": null,
+  "restrictions": {
+    "authored": true,
+    "bannedCastes": [
+      2,
+      29
+    ],
+    "bannedRaces": [
+      1,
+      30
+    ],
+    "description": "Four seasoned adventurers only.",
+    "maxPartyCharacters": 4,
+    "maxPartyLevel": 20,
+    "provenance": null
+  },
   "schemaVersion": 1,
   "shell": {
     "authored": true,

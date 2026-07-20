@@ -871,30 +871,19 @@ func _test_bundle_contract_validation() -> void:
 	missing_packed_spell_id_bundle.documents = _minimal_contract_documents()
 	missing_packed_spell_id_bundle.documents["rules"]["spellOverrides"] = [{"id": 16}]
 	_expect(
-		not missing_packed_spell_id_bundle._validate_document_contract(),
-		"bundle contract rejects a custom spell without its runtime identity"
+		missing_packed_spell_id_bundle._validate_document_contract(),
+		"bundle contract derives a custom spell's redundant runtime identity"
 	)
-	_expect(
-		missing_packed_spell_id_bundle.last_error.contains(
-			"rules.spellOverrides[0].packedSpellId"
-		),
-		"custom-spell identity error identifies the packed field"
+	missing_packed_spell_id_bundle._build_indexes()
+	_expect_equal(
+		missing_packed_spell_id_bundle.get_spell_override(5202).get("id"),
+		16,
+		"derived custom-spell identity is indexed for runtime references"
 	)
-
-	var duplicate_packed_spell_id_bundle = BundleScript.new()
-	duplicate_packed_spell_id_bundle.manifest = _minimal_contract_manifest()
-	duplicate_packed_spell_id_bundle.documents = _minimal_contract_documents()
-	duplicate_packed_spell_id_bundle.documents["rules"]["spellOverrides"] = [
-		{"id": 15, "packedSpellId": 5201},
-		{"id": 16, "packedSpellId": 5201},
-	]
-	_expect(
-		not duplicate_packed_spell_id_bundle._validate_document_contract(),
-		"bundle contract rejects duplicate packed custom-spell identities"
-	)
-	_expect(
-		duplicate_packed_spell_id_bundle.last_error.contains("rules.spellOverrides[1]"),
-		"duplicate packed custom-spell error includes record-level context"
+	_expect_equal(
+		missing_packed_spell_id_bundle.get_spell_override(17).get("id"),
+		16,
+		"one-based Data Spell references resolve the same custom spell"
 	)
 
 	var mismatched_spell_id_bundle = BundleScript.new()
@@ -1101,8 +1090,8 @@ func _test_providence_authoritative_export() -> void:
 		return
 
 	_expect_equal(bundle.manifest.get("id"), "providence-ownership-proof", "producer fixture identity")
-	_expect_equal(bundle.documents["maps"].get("maps", []).size(), 1, "producer fixture map count")
-	_expect_equal(bundle.documents["scripts"].get("triggers", []).size(), 2, "producer fixture trigger count")
+	_expect_equal(bundle.documents["maps"].get("maps", []).size(), 2, "producer fixture map count")
+	_expect_equal(bundle.documents["scripts"].get("triggers", []).size(), 3, "producer fixture trigger count")
 	_expect_equal(
 		bundle.documents["encounters"].get("simpleEncounters", []).size()
 		+ bundle.documents["encounters"].get("complexEncounters", []).size(),
@@ -1119,7 +1108,7 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"9b5c7d94ff6a59a81acc91be9f600c797b63f269",
+		"1cd0da34941bb68db0559d3129b2a22e6b1a5d75",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
@@ -1775,7 +1764,7 @@ func _test_classic_map_materializer() -> void:
 		"text": 1,
 		"top": 1,
 	}]
-	bundle.documents["maps"]["maps"].append({
+	bundle.documents["maps"]["maps"][1] = {
 		"height": 3,
 		"id": "dungeon:0",
 		"index": 0,
@@ -1787,56 +1776,30 @@ func _test_classic_map_materializer() -> void:
 		},
 		"tiles": [0, 1, 2, 4, 8, 16, 128, 4097, -32767],
 		"width": 3,
-	})
+	}
 
 	var test_root := ProjectSettings.globalize_path(
 		"user://classic-map-materializer-%d" % Time.get_ticks_msec()
 	)
 	DirAccess.make_dir_recursive_absolute(test_root)
-	var media_directory := test_root.path_join("media")
-	DirAccess.make_dir_recursive_absolute(media_directory)
-	var custom_land_image := Image.create(640, 320, false, Image.FORMAT_RGBA8)
-	for tile_index: int in range(200):
-		custom_land_image.fill_rect(
-			Rect2i((tile_index % 20) * 32, (tile_index / 20) * 32, 32, 32),
-			Color(
-				float(tile_index % 20) / 19.0,
-				float(tile_index / 20) / 9.0,
-				0.4,
-				1.0
-			)
+	var managed_directory := test_root.path_join("assets").path_join("managed")
+	DirAccess.make_dir_recursive_absolute(managed_directory)
+	for payload_name: String in [
+		"pict-306-d08dae63460f.pict",
+		"cicn-neg-100-363a140e3045.cicn",
+	]:
+		_expect_equal(
+			DirAccess.copy_absolute(
+				ProjectSettings.globalize_path(
+					PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(
+						"assets/managed/%s" % payload_name
+					)
+				),
+				managed_directory.path_join(payload_name)
+			),
+			OK,
+			"materializer fixture stages immutable %s" % payload_name
 		)
-	var custom_land_path := media_directory.path_join("landlook-6.png")
-	_expect_equal(
-		custom_land_image.save_png(custom_land_path),
-		OK,
-		"materializer fixture writes decoded custom-land runtime media"
-	)
-	var custom_tileset: Dictionary = bundle.documents["assets"]["catalog"]["tilesets"][1]
-	custom_tileset["runtimeMedia"] = {
-		"path": "media/landlook-6.png",
-		"mediaType": "image/png",
-		"bytes": FileAccess.get_file_as_bytes(custom_land_path).size(),
-		"sha256": FileAccess.get_sha256(custom_land_path),
-	}
-	var special_tile_image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
-	special_tile_image.fill(Color(0, 0, 0, 0))
-	special_tile_image.fill_rect(Rect2i(6, 6, 20, 20), Color(0.8, 0.2, 0.6, 1.0))
-	var special_tile_path := media_directory.path_join("special-land-neg-100.png")
-	_expect_equal(
-		special_tile_image.save_png(special_tile_path),
-		OK,
-		"materializer fixture writes decoded special-land runtime media"
-	)
-	var special_land_tile: Dictionary = bundle.documents["assets"]["catalog"][
-		"specialLandTiles"
-	][0]
-	special_land_tile["runtimeMedia"] = {
-		"path": "media/special-land-neg-100.png",
-		"mediaType": "image/png",
-		"bytes": FileAccess.get_file_as_bytes(special_tile_path).size(),
-		"sha256": FileAccess.get_sha256(special_tile_path),
-	}
 	var materializer = MapMaterializerScript.new()
 	_expect_equal(
 		materializer._special_land_resource_id(-1100),
@@ -1984,9 +1947,9 @@ func _test_classic_map_materializer() -> void:
 		"custom landlook keeps the source-backed atlas dimensions"
 	)
 	_expect_equal(
-		generated_custom_land_image.get_data(),
-		custom_land_image.get_data(),
-		"custom landlook keeps the decoded source pixels"
+		generated_custom_land_image.get_pixel(5 * 32 + 16, 16),
+		Color8((5 * 40) & 0xf8, (5 * 72) & 0xf8, (5 * 104) & 0xf8, 255),
+		"custom landlook decodes the producer's fifth atlas tile"
 	)
 	var land_overlay_directory := test_root.path_join("Tilesets").path_join(
 		"ClassicLandOverlay"
@@ -2015,6 +1978,11 @@ func _test_classic_map_materializer() -> void:
 		land_overlay_atlas.get_size(),
 		Vector2i(32, 32),
 		"decoded special land art is preserved at the native tile size"
+	)
+	_expect_equal(
+		land_overlay_atlas.get_pixel(16, 16),
+		Color8(0xe8, 0xa0, 0x30, 255),
+		"special land art decodes the producer's opaque cicn palette"
 	)
 	var dungeon_things: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(dungeon_directory.path_join("map_things.json"))
@@ -2493,7 +2461,7 @@ func _test_classic_campaign_package_installer() -> void:
 	for tile_index: int in range(producer_tiles.size()):
 		if int(producer_tiles[tile_index]) < 0:
 			producer_tiles[tile_index] = 156
-	producer_maps["maps"].append({
+	producer_maps["maps"][1] = {
 		"height": 2,
 		"id": "dungeon:0",
 		"index": 0,
@@ -2505,7 +2473,7 @@ func _test_classic_campaign_package_installer() -> void:
 		},
 		"tiles": [0, 1, 2, 8],
 		"width": 2,
-	})
+	}
 	var producer_maps_file := FileAccess.open(producer_maps_path, FileAccess.WRITE)
 	_expect(producer_maps_file != null, "installer test rewrites its disposable map document")
 	if producer_maps_file != null:
@@ -2622,26 +2590,42 @@ func _test_classic_campaign_package_installer() -> void:
 		"rejected identity change leaves the installed package untouched"
 	)
 
-	var blocked_result: Dictionary = installer.install_export(
+	var producer_result: Dictionary = installer.install_export(
 		PROVIDENCE_AUTHORITATIVE_FIXTURE,
 		campaigns_directory
 	)
 	_expect_equal(
-		blocked_result.get("status"),
-		"error",
-		"producer export without a native start map is not installed"
+		producer_result.get("status"),
+		"ok",
+		"unchanged producer export installs with derived native media"
+	)
+	_expect_equal(
+		producer_result.get("readinessState"),
+		"Ready",
+		"unchanged producer export is ready to launch"
+	)
+	var producer_destination := campaigns_directory.path_join(
+		PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file()
 	)
 	_expect(
-		str(blocked_result.get("message", "")).contains(
-			"requires a decoded 32 x 32 runtimeMedia image"
+		FileAccess.file_exists(
+			producer_destination.path_join("Tilesets/landlook-6/landlook-6.png")
 		),
-		"blocked producer export identifies its missing special-land runtime media"
+		"producer PICT payload becomes a native custom-land atlas"
 	)
 	_expect(
-		not DirAccess.dir_exists_absolute(
-			campaigns_directory.path_join(PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file())
+		FileAccess.file_exists(
+			producer_destination.path_join(
+				"Tilesets/ClassicLandOverlay/ClassicLandOverlay.png"
+			)
 		),
-		"failed package validation leaves Campaigns unchanged"
+		"producer cicn payload becomes a native special-land atlas"
+	)
+	_expect(
+		FileAccess.file_exists(
+			producer_destination.path_join("Maps/mapd_0/map_things.json")
+		),
+		"unchanged producer export materializes its authored dungeon"
 	)
 
 	var campaigns_access := DirAccess.open(campaigns_directory)

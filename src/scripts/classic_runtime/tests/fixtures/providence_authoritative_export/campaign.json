@@ -7,15 +7,15 @@
   },
   "compatibilityProfile": "realmz-7.1",
   "counts": {
-    "activeTriggers": 2,
+    "activeTriggers": 3,
     "battles": 1,
     "complexEncounters": 1,
-    "dungeonMaps": 0,
+    "dungeonMaps": 1,
     "extraCodes": 1,
     "itemTexts": 1,
     "landMaps": 1,
     "managedAssets": 5,
-    "maps": 1,
+    "maps": 2,
     "messages": 2,
     "monsters": 1,
     "packagedAssetPayloads": 5,
@@ -25,7 +25,7 @@
     "thiefEncounters": 1,
     "timedEncounters": 1,
     "treasures": 1,
-    "triggers": 2
+    "triggers": 3
   },
   "files": {
     "assets": "classic/assets.json",

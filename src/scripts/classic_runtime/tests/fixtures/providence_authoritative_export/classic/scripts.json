@@ -87,6 +87,23 @@
       "rects": [],
       "source": "Data RD",
       "useLos": false
+    },
+    {
+      "id": "dungeon:0:randlevel",
+      "isDark": true,
+      "landlook": 0,
+      "levelIndex": 0,
+      "levelType": "dungeon",
+      "provenance": {
+        "byteLength": 644,
+        "byteOffset": 0,
+        "confidence": "inferred",
+        "recordIndex": 0,
+        "sourceFile": "Data RDD"
+      },
+      "rects": [],
+      "source": "Data RDD",
+      "useLos": true
     }
   ],
   "schemaVersion": 1,
@@ -134,6 +151,41 @@
       "source": "Data DD",
       "targetX": 11,
       "targetY": 12
+    },
+    {
+      "actions": [
+        {
+          "category": "ui_text",
+          "code": 1,
+          "gosub": false,
+          "id": 0,
+          "label": "Display String",
+          "rawCode": 1,
+          "slot": 0
+        }
+      ],
+      "active": true,
+      "coordinate": {
+        "x": 4,
+        "y": 5
+      },
+      "doorid": 504,
+      "id": "dungeon:0:ap:1",
+      "landid": 0,
+      "levelIndex": 0,
+      "levelType": "dungeon",
+      "percent": 100,
+      "provenance": {
+        "byteLength": 40,
+        "byteOffset": 40,
+        "confidence": "inferred",
+        "recordIndex": 1,
+        "sourceFile": "Data DDD"
+      },
+      "recordIndex": 1,
+      "source": "Data DDD",
+      "targetX": 4,
+      "targetY": 5
     },
     {
       "actions": [

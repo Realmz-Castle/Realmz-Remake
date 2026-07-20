@@ -39,6 +39,7 @@ var complex_encounters_by_id: Dictionary = {}
 var thief_encounters_by_id: Dictionary = {}
 var timed_encounters_by_id: Dictionary = {}
 var spell_overrides_by_id: Dictionary = {}
+var spell_overrides_by_record_reference: Dictionary = {}
 var maps_by_id: Dictionary = {}
 var player_maps_by_id: Dictionary = {}
 var random_levels_by_id: Dictionary = {}
@@ -165,7 +166,6 @@ func _validate_document_contract() -> bool:
 		["content", "scenarioItems", "id", false],
 		["content", "itemTexts", "itemId", false],
 		["rules", "spellOverrides", "id", false],
-		["rules", "spellOverrides", "packedSpellId", false],
 		["rules", "raceOverrides", "id", false],
 		["rules", "casteOverrides", "id", false],
 		["maps", "maps", "id", true],
@@ -335,14 +335,15 @@ func _validate_spell_override_identities() -> bool:
 	for index: int in range(records.size()):
 		var record: Dictionary = records[index]
 		var record_id := int(record.get("id", -1))
-		var packed_spell_id := int(record.get("packedSpellId", -1))
 		if record_id > 104:
 			return _fail(
 				"rules.spellOverrides[%d].id must be between 0 and 104" % index
 			)
-		var expected_packed_id := 5101 + floori(float(record_id) / 15.0) * 100 \
-			+ record_id % 15
-		if packed_spell_id != expected_packed_id:
+		var expected_packed_id := packed_spell_id_for_record_id(record_id)
+		if record.has("packedSpellId") and (
+			not _is_integer(record["packedSpellId"])
+			or int(record["packedSpellId"]) != expected_packed_id
+		):
 			return _fail(
 				"rules.spellOverrides[%d].packedSpellId must be %d for Data Spell record %d" % [
 					index,
@@ -351,6 +352,10 @@ func _validate_spell_override_identities() -> bool:
 				]
 			)
 	return true
+
+
+static func packed_spell_id_for_record_id(record_id: int) -> int:
+	return 5101 + floori(float(record_id) / 15.0) * 100 + record_id % 15
 
 
 func _validate_nested_record_collection(
@@ -574,7 +579,9 @@ func get_timed_encounter(encounter_id: int) -> Dictionary:
 
 
 func get_spell_override(spell_id: int) -> Dictionary:
-	return spell_overrides_by_id.get(spell_id, {})
+	if spell_overrides_by_id.has(spell_id):
+		return spell_overrides_by_id[spell_id]
+	return spell_overrides_by_record_reference.get(spell_id, {})
 
 
 func get_map(map_id: String) -> Dictionary:
@@ -644,6 +651,7 @@ func _reset() -> void:
 	thief_encounters_by_id.clear()
 	timed_encounters_by_id.clear()
 	spell_overrides_by_id.clear()
+	spell_overrides_by_record_reference.clear()
 	maps_by_id.clear()
 	player_maps_by_id.clear()
 	random_levels_by_id.clear()
@@ -736,7 +744,10 @@ func _build_indexes() -> void:
 	var rules_document: Dictionary = documents["rules"]
 	for spell_override: Variant in _array_value(rules_document, "spellOverrides"):
 		if spell_override is Dictionary:
-			spell_overrides_by_id[int(spell_override.get("packedSpellId", -1))] = spell_override
+			var record_id := int(spell_override.get("id", -1))
+			spell_overrides_by_id[packed_spell_id_for_record_id(record_id)] = spell_override
+			# Encounter records store Data Spell references as one-based row numbers.
+			spell_overrides_by_record_reference[record_id + 1] = spell_override
 
 	var map_document: Dictionary = documents["maps"]
 	for map: Variant in _array_value(map_document, "maps"):

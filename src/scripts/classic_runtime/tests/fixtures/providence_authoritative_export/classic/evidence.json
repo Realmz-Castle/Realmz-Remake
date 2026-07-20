@@ -19,7 +19,8 @@
       "5 managed media asset(s) are present; desktop export writes them to the Scenario resource fork.",
       "Scrolling Text TEXT/styl export is runtime-suspect: recent Windows Realmz testing ignored styl formatting, and Mac Realmz 7.1.2 crashed after a Providence-authored Scrolling Text action step.",
       "Landlook 6 has no decoded mapstats; tile attributes will be shown as unknown metadata.",
-      "1 positive high map field value(s) carry Realmz state bands; edit them through AP/secret/path workflows or Raw/Advanced tile tools."
+      "Landlook 0 has no decoded mapstats; tile attributes will be shown as unknown metadata.",
+      "2 positive high map field value(s) carry Realmz state bands; edit them through AP/secret/path workflows or Raw/Advanced tile tools."
     ]
   }
 }
