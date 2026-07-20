@@ -58,6 +58,7 @@ var pending_ally_check: Dictionary = {}
 var pending_combat_monster_check: Dictionary = {}
 var pending_battle_round_macro: Dictionary = {}
 var pending_random_branch: Dictionary = {}
+var pending_teleport: Dictionary = {}
 var execution_context: Dictionary = {}
 var encounter_origins: Array = []
 var loaded_simple_encounter_id := -1
@@ -109,6 +110,7 @@ func reset_execution() -> void:
 	pending_combat_monster_check.clear()
 	pending_battle_round_macro.clear()
 	pending_random_branch.clear()
+	pending_teleport.clear()
 	execution_context.clear()
 	encounter_origins.clear()
 	trace.clear()
@@ -165,6 +167,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic battle-round macro must be resumed before execution can continue")
 	if not pending_random_branch.is_empty():
 		return _error_result("A classic random branch presentation must finish before execution can continue")
+	if not pending_teleport.is_empty():
+		return _error_result("A classic teleport must finish before execution can continue")
 
 	for _step: int in MAX_INTERNAL_STEPS:
 		if current_trigger.is_empty():
@@ -333,6 +337,40 @@ func resume_selective_battle(survivor_count: int) -> Dictionary:
 func resume_forced_battle_end() -> Dictionary:
 	_clear_control_flow()
 	return _completed_result("battle-ended")
+
+
+func resume_teleport() -> Dictionary:
+	if pending_teleport.is_empty():
+		return _error_result("No classic teleport is waiting to finish")
+	var teleport := pending_teleport
+	pending_teleport = {}
+	if not bool(teleport.get("recheckDestination", false)):
+		return run_until_yield()
+
+	var destination_triggers := runtime_state.get_effective_triggers_at(
+		bundle,
+		runtime_state.level_type,
+		runtime_state.level_index,
+		runtime_state.x,
+		runtime_state.y
+	)
+	if destination_triggers.is_empty():
+		return run_until_yield()
+	var destination: Variant = destination_triggers[0]
+	if not (destination is Dictionary):
+		return _halt_with_error("Classic teleport destination has an invalid action point")
+	var percent := int(destination.get("percent", 0))
+	if percent < 1 or _roll_percent() > percent:
+		_clear_control_flow()
+		return _completed_result("teleport-destination-percent-miss")
+
+	# newland() replaces the current door without pushing it. Existing GOSUB
+	# frames remain available if the destination explicitly returns to them.
+	origin_action_point = destination.duplicate(true)
+	active_action_point_header = destination.duplicate(true)
+	active_action_point_header.erase("actions")
+	_set_cursor(destination, 0)
+	return run_until_yield()
 
 
 func resume_item_check(possessed: bool) -> Dictionary:
@@ -1788,6 +1826,9 @@ func _execute_teleport(extra_code_id: int, recheck_destination: bool) -> Diction
 	active_action_point_header["landid"] = runtime_state.level_index
 	active_action_point_header["targetX"] = runtime_state.x
 	active_action_point_header["targetY"] = runtime_state.y
+	pending_teleport = {
+		"recheckDestination": recheck_destination,
+	}
 	return _yield_result("teleport", {
 		"extraCodeId": extra_code_id,
 		"levelType": runtime_state.level_type,

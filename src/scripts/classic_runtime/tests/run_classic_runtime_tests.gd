@@ -80,6 +80,29 @@ class BundleAwareAdapter:
 		return {}
 
 
+class StartLocationAdapter:
+	extends RefCounted
+	var configured_bundle: Variant
+	var start_location: Dictionary = {}
+
+	func configure_classic_bundle(bundle: Variant) -> void:
+		configured_bundle = bundle
+
+	func activate_classic_start(location: Dictionary) -> Dictionary:
+		start_location = location.duplicate(true)
+		return {
+			"nativeMapName": "map_%d" % int(location.get("levelIndex", -1)),
+			"position": Vector2i(
+				int(location.get("x", -1)),
+				int(location.get("y", -1))
+			),
+			"recheckDestination": bool(location.get("recheckDestination", false)),
+		}
+
+	func execute_command(_command: String, _payload: Dictionary) -> Dictionary:
+		return {}
+
+
 class SelectiveBattleAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -382,6 +405,7 @@ func _init() -> void:
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
+	_test_teleport_recheck()
 	_test_dungeon_move(bundle)
 	_test_look_direction(bundle)
 	_test_view_modes_and_darkland(bundle)
@@ -1458,6 +1482,112 @@ func _test_teleport(bundle) -> void:
 	_expect_equal(payload.get("y"), 83, "teleport y")
 	_expect_equal(payload.get("recheckDestination"), false, "opcode 45 skips destination AP recheck")
 	_expect_equal(interpreter.runtime_state.level_index, 5, "runtime position level updated")
+	_expect_equal(
+		interpreter.resume_teleport().get("reason"),
+		"action-point-ended",
+		"teleport-only continues the source action point"
+	)
+
+
+func _test_teleport_recheck() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [0, 5, 6, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [0, 2, 0, 10, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [0, 5, 6, 0, 0]}
+	bundle.messages_by_id[200] = {"id": 200, "text": "Destination"}
+	bundle.messages_by_id[201] = {"id": 201, "text": "Source tail"}
+	bundle.messages_by_id[202] = {"id": 202, "text": "Returned outer tail"}
+
+	var source := _map_trigger(0, 0, 0, [
+		_classic_action(0, 20, 1),
+		_classic_action(1, 1, 201),
+	])
+	var destination := _map_trigger(1, 5, 6, [
+		_classic_action(0, 1, 200),
+		_classic_action(7, 24, 0),
+	])
+	_add_map_trigger(bundle, source)
+	_add_map_trigger(bundle, destination)
+
+	var interpreter = _interpreter(bundle)
+	interpreter.set_percent_roll_provider(func() -> int: return 1)
+	_expect(interpreter.begin_trigger(str(source["id"])), "begin rechecking teleport")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"teleport",
+		"opcode 20 yields its native map transition"
+	)
+	var destination_result: Dictionary = interpreter.resume_teleport()
+	_expect_equal(
+		destination_result.get("payload", {}).get("messageId"),
+		200,
+		"opcode 20 enters the destination action point"
+	)
+	_expect(
+		not _trace_has_action(interpreter.trace, str(source["id"]), 1),
+		"destination recheck discards the source action-point tail"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"destination action point controls completion"
+	)
+
+	var miss = _interpreter(bundle)
+	miss.set_percent_roll_provider(func() -> int: return 100)
+	var reduced_destination: Dictionary = destination.duplicate(true)
+	reduced_destination["percent"] = 50
+	miss.runtime_state.set_action_point_override(str(destination["id"]), reduced_destination)
+	_expect(miss.begin_trigger(str(source["id"])), "begin destination percentage miss")
+	miss.run_until_yield()
+	_expect_equal(
+		miss.resume_teleport().get("reason"),
+		"teleport-destination-percent-miss",
+		"failed destination percentage ends the original action point"
+	)
+	var moved_destination: Dictionary = destination.duplicate(true)
+	moved_destination["coordinate"] = {"x": 7, "y": 8}
+	miss.runtime_state.set_action_point_override(str(destination["id"]), moved_destination)
+	_expect_equal(
+		miss.runtime_state.get_effective_triggers_at(bundle, "land", 0, 5, 6).size(),
+		0,
+		"a moved action-point override leaves its compiled coordinate"
+	)
+	_expect_equal(
+		miss.runtime_state.get_effective_triggers_at(bundle, "land", 0, 7, 8).size(),
+		1,
+		"a moved action-point override enters its effective coordinate"
+	)
+
+	var outer := _map_trigger(2, 1, 1, [
+		_classic_action(0, -46, 2),
+		_classic_action(1, 1, 202),
+	])
+	_add_map_trigger(bundle, outer)
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
+		_classic_action(0, 20, 3),
+	])
+	var returning_destination: Dictionary = destination.duplicate(true)
+	returning_destination["actions"] = [_classic_action(0, 111, 0)]
+	bundle.triggers_by_id[str(destination["id"])] = returning_destination
+	bundle.triggers_by_coordinate["land:0:5:6"] = [returning_destination]
+	var stacked = _interpreter(bundle)
+	stacked.set_percent_roll_provider(func() -> int: return 1)
+	_expect(stacked.begin_trigger(str(outer["id"])), "begin stacked destination recheck")
+	_expect_equal(
+		stacked.run_until_yield().get("command"),
+		"teleport",
+		"stacked branch reaches rechecking teleport"
+	)
+	_expect_equal(stacked.call_stack.size(), 1, "teleport begins with one saved GOSUB frame")
+	_expect_equal(
+		stacked.resume_teleport().get("payload", {}).get("messageId"),
+		202,
+		"destination return uses the pre-existing GOSUB frame"
+	)
 
 
 func _test_dungeon_move(bundle) -> void:
@@ -6678,6 +6808,7 @@ func _test_runtime_host() -> void:
 	host.playthrough_stopped.connect(func(result: Dictionary) -> void: stops.append(result))
 	host.configure(adapter)
 	_expect(host.load_campaign(FIXTURE), "runtime host loads CoB fixture")
+	_expect(host.has_trigger("Data DD:0:0"), "runtime host recognizes a compiled map trigger")
 	_expect(
 		host.start_trigger("Data DD:0:0", 0, {"actorFaction": 2}),
 		"runtime host starts guard-house trigger"
@@ -6778,6 +6909,22 @@ func _test_runtime_host() -> void:
 	_expect_equal(rejected.size(), 1, "runtime host publishes adapter failure")
 	_expect_equal(rejected[0].get("command"), "show_text", "runtime host identifies failed command")
 	rejecting_host.queue_free()
+
+	var start_host = HostScript.new()
+	get_root().add_child(start_host)
+	var start_adapter = StartLocationAdapter.new()
+	start_host.configure(start_adapter)
+	_expect(start_host.load_campaign(FIXTURE), "start-location host loads CoB fixture")
+	var start_result: Dictionary = start_host.activate_start_location()
+	_expect_equal(start_result.get("nativeMapName"), "map_0", "host resolves the Classic starting map")
+	_expect_equal(start_result.get("position"), Vector2i(2, 1), "host applies the authored start position")
+	_expect(bool(start_result.get("recheckDestination")), "campaign start requests native map-event entry")
+	_expect_equal(
+		start_adapter.start_location.get("viewType"),
+		StateScript.VIEW_3D,
+		"campaign start carries the Classic view state"
+	)
+	start_host.queue_free()
 
 
 func _interpreter(bundle):
@@ -7568,6 +7715,39 @@ func _add_stack_trigger(
 	bundle.triggers_by_id[trigger_id] = trigger
 	if record_id >= 0:
 		bundle.extra_action_points_by_id[record_id] = trigger
+
+
+func _map_trigger(
+	record_index: int,
+	tile_x: int,
+	tile_y: int,
+	actions: Array,
+	percent := 100
+) -> Dictionary:
+	return {
+		"id": "Data DD:0:%d" % record_index,
+		"source": "Data DD",
+		"levelType": "land",
+		"levelIndex": 0,
+		"recordIndex": record_index,
+		"active": percent > 0,
+		"percent": percent,
+		"coordinate": {"x": tile_x, "y": tile_y},
+		"actions": actions,
+	}
+
+
+func _add_map_trigger(bundle, trigger: Dictionary) -> void:
+	var trigger_id := str(trigger.get("id", ""))
+	bundle.triggers_by_id[trigger_id] = trigger
+	var coordinate: Dictionary = trigger.get("coordinate", {})
+	var key := "%s:%d:%d:%d" % [
+		trigger.get("levelType", "land"),
+		int(trigger.get("levelIndex", 0)),
+		int(coordinate.get("x", 0)),
+		int(coordinate.get("y", 0)),
+	]
+	bundle.triggers_by_coordinate[key] = [trigger]
 
 
 func _add_stack_branch(bundle, extra_code_id: int, target_record_id: int) -> void:

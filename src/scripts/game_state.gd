@@ -382,6 +382,22 @@ func check_map_script(position) ->bool :
 		if mapscriptareas_still_has_s:
 			GameGlobal.current_map_script_name = s
 			var script_returned = s
+			var classic_dispatch: Dictionary = await GameGlobal.dispatch_classic_map_script(
+				s,
+				{"mapPosition": Vector2i(position)}
+			)
+			if bool(classic_dispatch.get("handled", false)):
+				var classic_result: Variant = classic_dispatch.get("result", {})
+				if (
+					classic_result is Dictionary
+					and str(classic_result.get("status", "")) not in ["completed", ""]
+				):
+					printerr(
+						"Classic map action point stopped: ",
+						classic_result.get("message", classic_result)
+					)
+				GameGlobal.current_map_script_name = ''
+				continue
 			
 			if script_returned == 'STOP':
 				script_returned = ''

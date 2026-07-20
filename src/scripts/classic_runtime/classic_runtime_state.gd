@@ -209,6 +209,69 @@ func get_effective_action_point(action_point: Dictionary) -> Dictionary:
 	return effective
 
 
+func get_effective_triggers_at(
+	bundle: ClassicCampaignBundle,
+	level_kind: String,
+	map_level: int,
+	tile_x: int,
+	tile_y: int
+) -> Array:
+	var triggers: Array = []
+	var included_ids: Dictionary = {}
+	for trigger_value: Variant in bundle.get_triggers_at(
+		level_kind,
+		map_level,
+		tile_x,
+		tile_y
+	):
+		if not (trigger_value is Dictionary):
+			continue
+		var trigger := get_effective_action_point(trigger_value)
+		if not _trigger_matches_location(
+			trigger,
+			level_kind,
+			map_level,
+			tile_x,
+			tile_y
+		):
+			continue
+		triggers.append(trigger)
+		included_ids[str(trigger.get("id", ""))] = true
+	for override_value: Variant in action_point_overrides.values():
+		if not (override_value is Dictionary):
+			continue
+		var trigger_id := str(override_value.get("id", ""))
+		var coordinate: Variant = override_value.get("coordinate")
+		if included_ids.has(trigger_id) or not (coordinate is Dictionary):
+			continue
+		if _trigger_matches_location(
+			override_value,
+			level_kind,
+			map_level,
+			tile_x,
+			tile_y
+		):
+			triggers.append(get_effective_action_point(override_value))
+	return triggers
+
+
+func _trigger_matches_location(
+	trigger: Dictionary,
+	level_kind: String,
+	map_level: int,
+	tile_x: int,
+	tile_y: int
+) -> bool:
+	var coordinate: Variant = trigger.get("coordinate")
+	return (
+		coordinate is Dictionary
+		and str(trigger.get("levelType", "")) == level_kind
+		and int(trigger.get("levelIndex", -1)) == map_level
+		and int(coordinate.get("x", -1)) == tile_x
+		and int(coordinate.get("y", -1)) == tile_y
+	)
+
+
 func set_thief_encounter_override(encounter_id: int, encounter: Dictionary) -> void:
 	# Classic only writes a changed CT record when the linked Data TD2 id is nonzero.
 	if encounter_id <= 0:

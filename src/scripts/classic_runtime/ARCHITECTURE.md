@@ -13,7 +13,7 @@ and persistent mutations of the compiled records.
 | Campaign discovery and selection | `Paths.campaignsfolderpath`, `NewCampaignPanel`, and `GameGlobal.set_current_campaign()` | Detect the Classic manifest inside an otherwise normal campaign directory and create one runtime host for the selected campaign. The Classic runtime must not scan for campaigns or maintain a second current-campaign value. |
 | Campaign resources | `Resources.load_campaign_ressources()` and the books exposed by `NodeAccess.__Resources()` | Load compatible maps, items, monsters, spells, pictures, and sounds through the native resource lifecycle. `ClassicCampaignBundle` indexes normalized Classic documents that have no native resource representation; it does not replace the native books. |
 | Map loading and rendering | `Resources.load_map_ressources()`, `Map.load_map()`, and `GameGlobal.change_map()` | Resolve a compiled map identity to a native map and apply the effective `ClassicRuntimeState` overrides through the command adapter. The interpreter describes a transition or mutation but does not render or load maps itself. |
-| Map trigger dispatch | `game_state.check_map_script()` and the loaded map's `map_scriptareas.json` / `map_scripts.gd` | Classic campaigns need a narrow trigger entry point that starts the matching compiled action point. Static native map scripts and interpreted Classic action lists are two producers for the same map-event boundary. |
+| Map trigger dispatch | `game_state.check_map_script()` and the loaded map's `map_scriptareas.json` / `map_scripts.gd` | A native script area can name a compiled trigger by its stable ID. The map-event boundary retains coordinate and chance ownership, then delegates that ID to the registered `ClassicRuntimeHost`; unrecognized names continue through the native map script. |
 | Encounters, services, inventory, and presentation | `ScriptHelperFuncs`, `GameGlobal`, and the native HUD controls | `ClassicGodotCommandAdapter` translates yielded commands into existing helpers and controls where their behavior matches. Classic branching and result-loop semantics remain in the interpreter. |
 | Battle lifecycle | `GameGlobal.start_battle()`, `GameGlobal.end_battle()`, and `StateMachine` combat state | Convert a compiled battle request into native battle data, suspend the interpreter, and resume it once the native battle reports an outcome. Combat action points and macros enter from native battle events. |
 | Persistence | The profile save/load flow in `save_load_rect.gd` and `GameGlobal` | Store a versioned Classic snapshot inside the native campaign save. Do not create a parallel save file. The snapshot covers compatibility-owned mutations and suspended continuations only. |
@@ -36,6 +36,12 @@ These components are intentionally separate from the native owners:
   not.
 - The standalone playtest scenes are development fixtures. Normal campaigns will
   launch the same host through the standard campaign flow.
+
+`GameGlobal.register_classic_runtime_host()` stores a non-owning reference for the
+selected campaign. Campaign lifecycle code remains responsible for creating,
+configuring, attaching, and clearing that host. Once native resources are loaded,
+`ClassicRuntimeHost.activate_start_location()` applies the compiled starting map,
+position, and view state and requests entry through the same map-event boundary.
 
 The compiled bundle remains immutable while a game is running. Any mutable value
 must either live in an existing native owner or in `ClassicRuntimeState`, with one

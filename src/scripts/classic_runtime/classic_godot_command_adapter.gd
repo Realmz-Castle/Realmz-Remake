@@ -112,6 +112,24 @@ func configure_classic_bundle(bundle: Object) -> void:
 	_register_classic_spell_overrides()
 
 
+func activate_classic_start(location: Dictionary) -> Dictionary:
+	var transition_result := classic_map_bridge.transition(
+		location,
+		_autoload("GameGlobal"),
+		_classic_campaign_resources()
+	)
+	if str(transition_result.get("status", "")) == "error":
+		return transition_result
+	var view_result := classic_map_bridge.redraw_view(
+		location,
+		_autoload("GameGlobal")
+	)
+	if str(view_result.get("status", "")) == "error":
+		return view_result
+	transition_result["view"] = view_result
+	return transition_result
+
+
 func classic_spell_override(spell_id: int) -> Variant:
 	if classic_spell_overrides.has(spell_id):
 		return classic_spell_overrides[spell_id]

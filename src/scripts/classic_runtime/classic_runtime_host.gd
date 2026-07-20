@@ -5,6 +5,7 @@ signal command_started(command: String, payload: Dictionary)
 signal command_finished(command: String, response: Dictionary)
 signal playthrough_completed(result: Dictionary)
 signal playthrough_stopped(result: Dictionary)
+signal playthrough_finished(result: Dictionary)
 
 var runtime: ClassicRuntime
 var command_adapter: Object
@@ -32,6 +33,45 @@ func load_campaign(directory: String) -> bool:
 	if command_adapter != null and command_adapter.has_method("configure_classic_bundle"):
 		command_adapter.call("configure_classic_bundle", runtime.bundle)
 	return true
+
+
+func has_trigger(trigger_id: String) -> bool:
+	return runtime.has_trigger(trigger_id)
+
+
+func run_trigger(trigger_id: String, start_slot := 0, context := {}) -> Dictionary:
+	if active:
+		return {
+			"status": "error",
+			"message": "A Classic action point is already active",
+		}
+	if not start_trigger(trigger_id, start_slot, context):
+		return runtime.last_result
+	if not active:
+		return runtime.last_result
+	var result: Dictionary = await playthrough_finished
+	return result
+
+
+func activate_start_location() -> Dictionary:
+	if command_adapter == null or not command_adapter.has_method("activate_classic_start"):
+		return {
+			"status": "error",
+			"message": "ClassicRuntimeHost requires a start-location adapter",
+		}
+	var state := runtime.runtime_state
+	var response: Variant = command_adapter.call("activate_classic_start", {
+		"levelType": state.level_type,
+		"levelIndex": state.level_index,
+		"x": state.x,
+		"y": state.y,
+		"heading": state.heading,
+		"multiView": state.multi_view,
+		"viewType": state.view_type,
+		"compassEnabled": state.compass_enabled,
+		"recheckDestination": true,
+	})
+	return response if response is Dictionary else {}
 
 
 func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
@@ -136,7 +176,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"pick_characters", "filter_selected_characters", "select_characters_by_misc", \
 		"change_selected_health", "change_party_health", "cast_classic_spell", \
 		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \
-		"set_trigger_percent", "teleport", "set_view_direction", \
+		"set_trigger_percent", "set_view_direction", \
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
 		"set_priest_turning", \
 		"set_land_look", "give_battle_loot", "alter_party_items", \
@@ -145,6 +185,11 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"spawn_combat_monsters", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
+		"teleport":
+			if bool(payload.get("dungeonMove", false)):
+				runtime.continue_after_command()
+			else:
+				runtime.finish_teleport()
 		_:
 			_stop_with_error("No ClassicRuntimeHost continuation rule for '%s'" % command, command)
 
@@ -155,6 +200,7 @@ func _on_trigger_completed(result: Dictionary) -> void:
 	active = false
 	command_context.clear()
 	playthrough_completed.emit(result)
+	playthrough_finished.emit(result)
 
 
 func _on_runtime_stopped(result: Dictionary) -> void:
@@ -163,6 +209,7 @@ func _on_runtime_stopped(result: Dictionary) -> void:
 	active = false
 	command_context.clear()
 	playthrough_stopped.emit(result)
+	playthrough_finished.emit(result)
 
 
 func _stop_with_error(message: String, command := "") -> void:
@@ -175,3 +222,4 @@ func _stop_with_error(message: String, command := "") -> void:
 	if not command.is_empty():
 		result["command"] = command
 	playthrough_stopped.emit(result)
+	playthrough_finished.emit(result)

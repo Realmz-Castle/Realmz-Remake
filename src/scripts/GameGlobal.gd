@@ -20,6 +20,7 @@ const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
 var map : Map
 var current_map_script_name : String = ''
+var classic_runtime_host: Object
 
 var playerCharacterGD : GDScript = preload("res://Creature/PlayerCharacter.gd")
 var combatCreatureGD : GDScript = preload("res://Creature/Creature.gd")
@@ -368,6 +369,42 @@ func refresh_OW_HUD() :
 		invrect.fill_inventory_Vbox(invrect.inventoryBoxRight, UI.ow_hud.selected_character)
 		if invrect.traderect.visible :
 			invrect.fill_inventory_Vbox(invrect.inventoryBoxLeft, invrect.selectedTradeCharacter)
+
+
+func register_classic_runtime_host(host: Object) -> void:
+	classic_runtime_host = host
+
+
+func clear_classic_runtime_host(host: Object = null) -> void:
+	if host == null or classic_runtime_host == host:
+		classic_runtime_host = null
+
+
+func dispatch_classic_map_script(script_name: String, context := {}) -> Dictionary:
+	if (
+		not is_instance_valid(classic_runtime_host)
+		or not classic_runtime_host.has_method("has_trigger")
+		or not classic_runtime_host.call("has_trigger", script_name)
+	):
+		return {"handled": false}
+	if not classic_runtime_host.has_method("run_trigger"):
+		return {
+			"handled": true,
+			"result": {
+				"status": "error",
+				"message": "Registered Classic runtime host cannot run triggers",
+			},
+		}
+	var result: Variant = await classic_runtime_host.call(
+		"run_trigger",
+		script_name,
+		0,
+		context
+	)
+	return {
+		"handled": true,
+		"result": result if result is Dictionary else {},
+	}
 
 func show_loot_menu(items:Array, money : Array, experience : int) :
 	await UI.ow_hud.show_loot_menu(items,money,experience)
