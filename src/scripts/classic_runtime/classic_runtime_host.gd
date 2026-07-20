@@ -11,6 +11,7 @@ var runtime: ClassicRuntime
 var command_adapter: Object
 var active := false
 var command_context: Dictionary = {}
+var nested_trigger_active := false
 
 
 func _init() -> void:
@@ -27,6 +28,7 @@ func configure(adapter: Object) -> void:
 
 func load_campaign(directory: String) -> bool:
 	active = false
+	nested_trigger_active = false
 	command_context.clear()
 	if not runtime.load_campaign(directory):
 		return false
@@ -51,6 +53,56 @@ func run_trigger(trigger_id: String, start_slot := 0, context := {}) -> Dictiona
 		return runtime.last_result
 	var result: Dictionary = await playthrough_finished
 	return result
+
+
+func run_nested_trigger(trigger_id: String, start_slot := 0, context := {}) -> Dictionary:
+	if not active:
+		return await run_trigger(trigger_id, start_slot, context)
+	if nested_trigger_active:
+		return {
+			"status": "error",
+			"message": "A nested Classic action point is already active",
+		}
+	nested_trigger_active = true
+	# A map action point can remain suspended in start_battle while combat macros run.
+	# Share its campaign state without replacing that interpreter's execution stack.
+	var nested_host := ClassicRuntimeHost.new()
+	add_child(nested_host)
+	nested_host.configure(command_adapter)
+	nested_host.runtime.use_shared_campaign(runtime.bundle, runtime.runtime_state)
+	var result: Dictionary = await nested_host.run_trigger(trigger_id, start_slot, context)
+	nested_host.queue_free()
+	nested_trigger_active = false
+	return result
+
+
+func run_battle_round_macro(
+	battle_data: Dictionary,
+	combat_round: int,
+	context := {}
+) -> Dictionary:
+	var raw_macro := int(battle_data.get("battleMacro", 0))
+	if combat_round <= 1 or raw_macro >= 0:
+		return {"handled": false}
+	var trigger_id := "Data ED3:macro:%d" % abs(raw_macro)
+	if not has_trigger(trigger_id):
+		return {
+			"handled": true,
+			"triggerId": trigger_id,
+			"result": {
+				"status": "error",
+				"message": "Classic battle macro trigger '%s' is missing" % trigger_id,
+			},
+		}
+	var execution_context: Dictionary = context.duplicate(true) if context is Dictionary else {}
+	execution_context["combatRound"] = combat_round
+	execution_context["battleMacro"] = raw_macro
+	execution_context["queuedMacro"] = false
+	return {
+		"handled": true,
+		"triggerId": trigger_id,
+		"result": await run_nested_trigger(trigger_id, 0, execution_context),
+	}
 
 
 func activate_start_location() -> Dictionary:

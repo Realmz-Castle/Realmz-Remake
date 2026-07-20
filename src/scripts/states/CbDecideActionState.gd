@@ -65,7 +65,7 @@ func enter(_msg : Dictionary = {}) -> void:
 
 
 	if _msg.has("battle_start") :
-		initialize_battle(_msg, resources, map)
+		await initialize_battle(_msg, resources, map)
 		#printerr("CBDecideAction combat_state.all_battle_creatures_btns after  init : ", combat_state.all_battle_creatures_btns)
 		printerr("CBDecideAction combat_state.battle_creatures_yet_to_act_btns after  init : ", combat_state.battle_creatures_yet_to_act_btns)
 
@@ -85,16 +85,20 @@ func enter(_msg : Dictionary = {}) -> void:
 	if not is_instance_valid(current_active_creabutton) :
 		#current_active_creabutton = combat_state.get_selected_character_combatbutton()
 		#UI.ow_hud.set_selected_creature(current_active_creabutton.creature)
-		start_new_round()
+		await start_new_round()
+		if StateMachine.state != self or not is_instance_valid(current_active_creabutton):
+			return
 	var cur_act_crea : Creature = current_active_creabutton.creature
 	print("    CBDecideAction : cur_act_crea is "+cur_act_crea.name+", out of apr ? ", cur_act_crea.get_apr_left() <= 0)
 	while  cur_act_crea.get_apr_left() <= 0 :
-		end_active_creature_turn(true)
+		await end_active_creature_turn(true)
+		if StateMachine.state != self or not is_instance_valid(current_active_creabutton):
+			return
 		cur_act_crea = current_active_creabutton.creature
 
 	print("    CBDecideAction : cur_act_crea is "+cur_act_crea.name+", player controlled ? ", cur_act_crea.is_crea_player_controlled())
 	if cur_act_crea.get_apr_left() <=0 :
-		end_active_creature_turn(true)
+		await end_active_creature_turn(true)
 		StateMachine.transition_to("Combat/CbAnimation")
 		pass
 
@@ -204,7 +208,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	#if combat_state.cur_battle_data["Scripts"].has("Start") :
 		#combat_state.cur_battle_data["Scripts"]["start"].start()
 
-	start_new_round()
+	await start_new_round()
 
 
 func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> void:
@@ -224,6 +228,27 @@ func start_new_round() :
 	print("CbDecideAction.start_new_round()")
 	combat_state.cur_battle_round += 1
 	UI.ow_hud.creatureRect.logrect.log_new_round(combat_state.cur_battle_round)
+	var classic_dispatch: Dictionary = await _dispatch_classic_battle_round(
+		combat_state.cur_battle_data,
+		combat_state.cur_battle_round,
+		_classic_battle_round_context()
+	)
+	if bool(classic_dispatch.get("handled", false)):
+		var classic_result: Variant = classic_dispatch.get("result", {})
+		if (
+			classic_result is Dictionary
+			and str(classic_result.get("status", "")) not in ["completed", ""]
+		):
+			printerr(
+				"Classic battle-round action point stopped: ",
+				classic_result.get("message", classic_result)
+			)
+	if StateMachine.state != self:
+		return
+	var battle_end_str: String = combat_state.check_battle_end()
+	if not battle_end_str.is_empty():
+		GameGlobal.end_battle(battle_end_str)
+		return
 	GameGlobal.map._on_new_round()
 
 	for creab in combat_state.all_battle_creatures_btns :
@@ -262,6 +287,47 @@ func start_new_round() :
 	#enter()
 	if not current_active_creabutton.creature.is_player_controlled :
 		do_ai_creature_action(current_active_creabutton.creature)
+
+
+func _dispatch_classic_battle_round(
+	battle_data: Dictionary,
+	combat_round: int,
+	context: Dictionary
+) -> Dictionary:
+	var host: Variant = GameGlobal.classic_runtime_host
+	if not is_instance_valid(host) or not host.has_method("run_battle_round_macro"):
+		return {"handled": false}
+	var dispatch: Variant = await host.call(
+		"run_battle_round_macro",
+		battle_data,
+		combat_round,
+		context
+	)
+	return dispatch if dispatch is Dictionary else {
+		"handled": true,
+		"result": {
+			"status": "error",
+			"message": "Classic battle-round dispatcher returned an invalid result",
+		},
+	}
+
+
+func _classic_battle_round_context() -> Dictionary:
+	var actor_button: Variant = current_active_creabutton
+	if (
+		not is_instance_valid(actor_button)
+		and not combat_state.all_battle_creatures_btns.is_empty()
+	):
+		actor_button = combat_state.all_battle_creatures_btns[0]
+	if not is_instance_valid(actor_button):
+		return {}
+	var actor: Variant = actor_button.creature
+	if not is_instance_valid(actor):
+		return {}
+	return {
+		"actorPosition": actor.position,
+		"actorFaction": int(actor.curFaction),
+	}
 
 func check_camera_movement_command()->void :
 	if Input.is_action_just_pressed("MoveCamera") :
@@ -427,7 +493,7 @@ func end_active_creature_turn(set_apr_zero : bool)->void :
 	combat_state.battle_creatures_yet_to_act_btns.erase(current_active_creabutton)
 
 	if combat_state.battle_creatures_yet_to_act_btns.is_empty() :
-		start_new_round()
+		await start_new_round()
 		return
 	UI.ow_hud.set_selected_creature(combat_state.battle_creatures_yet_to_act_btns[0].creature)
 

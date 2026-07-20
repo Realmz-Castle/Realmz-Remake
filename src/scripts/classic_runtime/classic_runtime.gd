@@ -19,11 +19,20 @@ func load_campaign(directory: String) -> bool:
 		}
 		runtime_stopped.emit(last_result)
 		return false
-	runtime_state = ClassicRuntimeState.new()
-	runtime_state.configure_from_bundle(bundle)
+	var loaded_state := ClassicRuntimeState.new()
+	loaded_state.configure_from_bundle(bundle)
+	use_shared_campaign(bundle, loaded_state)
+	return true
+
+
+func use_shared_campaign(
+	campaign_bundle: ClassicCampaignBundle,
+	shared_state: ClassicRuntimeState
+) -> void:
+	bundle = campaign_bundle
+	runtime_state = shared_state
 	interpreter.configure(bundle, runtime_state)
 	last_result = {}
-	return true
 
 
 func triggers_at(level_type: String, level_index: int, x: int, y: int) -> Array:

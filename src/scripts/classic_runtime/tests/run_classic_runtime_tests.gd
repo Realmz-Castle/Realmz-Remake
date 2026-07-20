@@ -59,6 +59,20 @@ class GuardHouseAdapter:
 		return {}
 
 
+class BattleRoundHostAdapter:
+	extends RefCounted
+	var tree: SceneTree
+	var commands: Array = []
+
+	func _init(scene_tree: SceneTree) -> void:
+		tree = scene_tree
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		await tree.process_frame
+		return {}
+
+
 class RejectingAdapter:
 	extends RefCounted
 
@@ -495,6 +509,7 @@ func _init() -> void:
 	_test_combat_monster_rout_action()
 	_test_combat_monster_spawn_action()
 	_test_battle_round_macro_action()
+	await _test_native_battle_round_host()
 	_test_forced_battle_end_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
@@ -4321,6 +4336,98 @@ func _test_battle_round_macro_action() -> void:
 	_expect_equal(battle_data.get("battleMacro"), -119, "repeat schedule remains active")
 	_expect(adapter.apply_battle_round_macro_schedule(battle_data, true), "one-shot schedule is accepted")
 	_expect_equal(battle_data.get("battleMacro"), 0, "one-shot schedule is disabled")
+
+
+func _test_native_battle_round_host() -> void:
+	var bundle = _combat_monster_test_bundle()
+	_add_stack_trigger(bundle, "Data ED3:macro:118", 118, [
+		_classic_action(0, 126, 3),
+	])
+	var state = StateScript.new()
+	state.configure_from_bundle(bundle)
+	var adapter = BattleRoundHostAdapter.new(self)
+	var host = HostScript.new()
+	get_root().add_child(host)
+	host.configure(adapter)
+	host.runtime.use_shared_campaign(bundle, state)
+	host.active = true
+	host.command_context = {"outerMarker": "suspended-battle"}
+
+	var opening_round: Variant = await host.run_battle_round_macro(
+		{"battleMacro": -118},
+		1
+	)
+	_expect(opening_round is Dictionary, "opening-round dispatch returns immediately")
+	_expect(
+		not bool(opening_round.get("handled", true)),
+		"opening round does not run the schedule"
+	)
+	var disabled: Variant = await host.run_battle_round_macro({"battleMacro": 118}, 3)
+	_expect(disabled is Dictionary, "disabled battle macro dispatch returns immediately")
+	_expect(not bool(disabled.get("handled", true)), "positive battle macro remains disabled")
+
+	var dispatch: Variant = await host.run_battle_round_macro(
+		{"battleMacro": -118},
+		3,
+		{"actorPosition": Vector2(8, 9), "actorFaction": 3}
+	)
+	_expect(dispatch is Dictionary, "native battle-round dispatch completes")
+	_expect(bool(dispatch.get("handled", false)), "native battle-round schedule is handled")
+	_expect_equal(
+		dispatch.get("triggerId"),
+		"Data ED3:macro:118",
+		"battle schedule resolves ED3 trigger"
+	)
+	_expect_equal(
+		dispatch.get("result", {}).get("status"),
+		"completed",
+		"nested battle macro completes"
+	)
+	_expect_equal(
+		adapter.commands.size(),
+		2,
+		"nested battle macro drives its activation and target"
+	)
+	_expect_equal(
+		adapter.commands[0].get("command"),
+		"activate_battle_round_macro",
+		"host evaluates opcode 126"
+	)
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("combatRound"),
+		3,
+		"host supplies one-based round"
+	)
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("battleMacro"),
+		-118,
+		"host supplies schedule identity"
+	)
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("actorPosition"),
+		Vector2(8, 9),
+		"host supplies actor position"
+	)
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("actorFaction"),
+		3,
+		"host supplies actor faction"
+	)
+	_expect_equal(
+		adapter.commands[1].get("payload", {}).get("messageId"),
+		925,
+		"host runs scheduled target"
+	)
+	_expect(host.active, "nested battle macro preserves the suspended outer action point")
+	_expect_equal(
+		host.command_context.get("outerMarker"),
+		"suspended-battle",
+		"outer command context is preserved"
+	)
+	_expect(not host.nested_trigger_active, "nested battle macro releases its execution guard")
+	host.active = false
+	host.command_context.clear()
+	host.queue_free()
 
 
 func _test_forced_battle_end_action() -> void:
