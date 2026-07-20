@@ -703,6 +703,7 @@ func _init() -> void:
 	_test_native_battle_bridge_fixture()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
+	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
 	_test_custom_spell_overrides()
 	_test_text_and_encounter(bundle)
@@ -851,6 +852,26 @@ func _test_bundle_contract_validation() -> void:
 	_expect(
 		missing_id_bundle.last_error.contains("scripts.triggers[0]"),
 		"missing identity error includes record-level context"
+	)
+
+	var malformed_callable_bundle = BundleScript.new()
+	malformed_callable_bundle.manifest = _minimal_contract_manifest()
+	malformed_callable_bundle.documents = _minimal_contract_documents()
+	malformed_callable_bundle.documents["scripts"]["triggers"] = [{
+		"id": "Data ED3:macro:0",
+		"source": "Data ED3",
+		"recordIndex": 0,
+		"active": true,
+		"callable": "false",
+		"actions": [],
+	}]
+	_expect(
+		not malformed_callable_bundle._validate_document_contract(),
+		"bundle contract rejects a non-boolean Data ED3 callability marker"
+	)
+	_expect(
+		malformed_callable_bundle.last_error.contains("scripts.triggers[0].callable"),
+		"callability error includes record-level context"
 	)
 
 	var duplicate_id_bundle = BundleScript.new()
@@ -2801,6 +2822,57 @@ func _test_execution_coverage_audit(bundle) -> void:
 	_expect(
 		str(unsupported.get("message", "")).contains("Data ED2 record 2 slot 0"),
 		"unsupported result identifies its source record and slot"
+	)
+
+
+func _test_data_ed3_callability_contract() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [_classic_action(0, 256, 0)])
+	_add_stack_trigger(bundle, "Data ED3:macro:11", 11, [_classic_action(0, 257, 0)])
+	bundle.extra_action_points_by_id[11]["callable"] = false
+	_add_stack_trigger(bundle, "Data ED3:macro:12", 12, [_classic_action(0, 258, 0)])
+	bundle.extra_action_points_by_id[12]["active"] = false
+	bundle.extra_action_points_by_id[12]["callable"] = true
+	_add_stack_trigger(bundle, "Data ED3:macro:13", 13, [_classic_action(0, 259, 0)])
+	bundle.extra_action_points_by_id[13]["callable"] = false
+	bundle.battles_by_id[1] = {"id": 1, "battleMacro": -13}
+
+	var report: Dictionary = ExecutionAuditScript.new().inspect(bundle)
+	var actions_by_record: Dictionary = {}
+	for action_value: Variant in report.get("actions", []):
+		if action_value is Dictionary and action_value.get("source") == "Data ED3":
+			actions_by_record[int(action_value.get("recordIndex", -1))] = action_value
+	_expect_equal(actions_by_record.size(), 4, "execution audit preserves every Data ED3 row")
+	_expect(
+		bool(actions_by_record[10].get("executable")),
+		"legacy Data ED3 rows retain active-based audit behavior"
+	)
+	_expect(
+		not bool(actions_by_record[11].get("executable")),
+		"producer-marked uncallable Data ED3 rows do not block readiness"
+	)
+	_expect(
+		bool(actions_by_record[12].get("executable")),
+		"producer callability takes precedence over the legacy active marker"
+	)
+	_expect(
+		bool(actions_by_record[13].get("executable")),
+		"source-backed macro roots promote a producer-marked uncallable row"
+	)
+	_expect(
+		actions_by_record[13].get("executionContexts", []).has("battle-round-macro"),
+		"promoted rows retain their discovered execution context"
+	)
+	_expect_equal(
+		_audit_diagnostic_count(report, "unsupported-action"),
+		3,
+		"only callable or source-reachable unknown actions block readiness"
+	)
+	_expect_equal(
+		_audit_diagnostic_count(report, "inactive-action-record"),
+		1,
+		"uncallable rows remain visible as inactive evidence"
 	)
 
 

@@ -267,6 +267,8 @@ func _validate_trigger_actions() -> bool:
 			return _fail("%s is missing source record context" % trigger_context)
 		if not _is_nonnegative_integer(trigger.get("recordIndex")):
 			return _fail("%s.recordIndex must be a non-negative integer" % trigger_context)
+		if trigger.has("callable") and not (trigger["callable"] is bool):
+			return _fail("%s.callable must be a boolean" % trigger_context)
 		if not _validate_action_array(trigger.get("actions"), trigger_context, 7, true):
 			return false
 	return true

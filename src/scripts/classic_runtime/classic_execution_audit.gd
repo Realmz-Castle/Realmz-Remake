@@ -27,7 +27,7 @@ func inspect(bundle: ClassicCampaignBundle) -> Dictionary:
 			trigger,
 			storage_context,
 			trigger_contexts,
-			bool(trigger.get("active", true)) or trigger_contexts.size() > 1,
+			_trigger_is_executable(trigger, storage_context, trigger_contexts),
 			actions,
 			diagnostics
 		)
@@ -56,6 +56,24 @@ func inspect(bundle: ClassicCampaignBundle) -> Dictionary:
 		"diagnostics": diagnostics,
 		"totals": _summarize_totals(actions, diagnostics),
 	}
+
+
+func _trigger_is_executable(
+	trigger: Dictionary,
+	storage_context: String,
+	execution_contexts: Array
+) -> bool:
+	if storage_context != "data-ed3-xap":
+		return bool(trigger.get("active", true))
+	return _producer_marks_callable(trigger) or execution_contexts.size() > 1
+
+
+func _producer_marks_callable(trigger: Dictionary) -> bool:
+	if trigger.has("callable"):
+		return bool(trigger["callable"])
+	# Version 1 producers originally exposed only `active`. Keep those bundles
+	# conservative: a non-empty legacy row remains part of the readiness audit.
+	return bool(trigger.get("active", true))
 
 
 func _append_encounter_actions(
@@ -280,14 +298,14 @@ func _add_macro_root(
 	for context: Variant in execution_contexts:
 		if not contexts_by_target[target].has(context):
 			contexts_by_target[target].append(context)
-	if not bool(target_record.get("active", true)):
+	if not _producer_marks_callable(target_record):
 		diagnostics.append({
 			"severity": "warning",
 			"code": "inactive-macro-target",
 			"source": source,
 			"recordIndex": record_index,
 			"target": target,
-			"message": "%s record %d reaches inactive Data ED3 record %d" % [
+			"message": "%s record %d reaches Data ED3 record %d not marked callable" % [
 				source,
 				record_index,
 				target,
