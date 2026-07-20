@@ -16,6 +16,9 @@ const CharacterConditionRulesScript = preload(
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const CombatIntegrationAdapterScript = preload(
+	"res://scripts/classic_runtime/tests/classic_combat_integration_adapter.gd"
+)
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
 const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
 const ShopRulesScript = preload("res://scripts/shop_rules.gd")
@@ -296,6 +299,7 @@ class CombatTestCreature:
 	var position := Vector2.ZERO
 	var classic_monster_id := -1
 	var classic_monster_name_id := -1
+	var is_player_controlled := false
 	var applied_traits: Array = []
 
 	func _init(creature_name: String, hp: int, faction := 1) -> void:
@@ -425,6 +429,55 @@ class SpawnTestMap:
 	var creatures_node = SpawnTestNode.new()
 
 
+class CombatIntegrationResources:
+	extends Node
+	var crea_book: Dictionary
+
+	func _init(creatures: Dictionary) -> void:
+		crea_book = creatures
+
+
+class CombatIntegrationNodeAccess:
+	extends Node
+	var resources: Variant
+	var map: Variant
+
+	func _init(loaded_resources: Variant, loaded_map: Variant) -> void:
+		resources = loaded_resources
+		map = loaded_map
+
+	func __Resources() -> Variant:
+		return resources
+
+	func __Map() -> Variant:
+		return map
+
+
+class CombatIntegrationGameGlobal:
+	extends Node
+	var combatCreatureGD: Variant
+	var time := 0
+	var battle_end_calls: Array = []
+
+	func _init(creature_script: Variant) -> void:
+		combatCreatureGD = creature_script
+
+	func end_battle(outcome: String, reward_mode: String) -> void:
+		battle_end_calls.append({"outcome": outcome, "rewardMode": reward_mode})
+
+
+class CombatIntegrationStateMachine:
+	extends Node
+	var combat_state: Variant
+	var cb_decide_state: Variant
+
+	func _init(state: Variant) -> void:
+		combat_state = state
+
+	func is_combat_state() -> bool:
+		return true
+
+
 class MapBridgeTestCharacter:
 	extends RefCounted
 	var tile_position := Vector2.ZERO
@@ -537,6 +590,7 @@ func _init() -> void:
 	_test_lower_undead_deanimation_action()
 	_test_combat_monster_rout_action()
 	_test_combat_monster_spawn_action()
+	await _test_native_combat_command_host()
 	_test_battle_round_macro_action()
 	_test_classic_combat_macro_queue()
 	await _test_native_battle_round_host()
@@ -4287,6 +4341,145 @@ func _test_combat_monster_spawn_action() -> void:
 	_expect(bool(limited_result.get("capacityLimited")), "spawn reports capacity truncation")
 
 
+func _test_native_combat_command_host() -> void:
+	var rat := CombatTestCreature.new("Rat Demi-Lord 134", 10, 1)
+	rat.classic_monster_id = 134
+	rat.classic_monster_name_id = 12
+	rat.set_meta("classic_death_macro", 960)
+	var podling := CombatTestCreature.new("Podling 42", 10, 1)
+	podling.classic_monster_id = 42
+	var skeletal_beast := CombatTestCreature.new("Skeletal Beast 17", 10, 1)
+	skeletal_beast.classic_monster_id = 17
+	var zombie := CombatTestCreature.new("Zombie 78", 10, 0)
+	zombie.classic_monster_id = 78
+	var skeletal_giant := CombatTestCreature.new("Skeletal Giant 19", 10, 1)
+	skeletal_giant.classic_monster_id = 19
+	var roster := [
+		CombatTestButton.new(rat),
+		CombatTestButton.new(podling),
+		CombatTestButton.new(skeletal_beast),
+		CombatTestButton.new(zombie),
+		CombatTestButton.new(skeletal_giant),
+	]
+	var combat_state := CombatTestState.new(roster)
+	var state_machine := CombatIntegrationStateMachine.new(combat_state)
+	var native_map := SpawnTestMap.new()
+	var resources := CombatIntegrationResources.new({
+		"Goblin 92": {"data": {"name": "Goblin"}},
+	})
+	var node_access := CombatIntegrationNodeAccess.new(resources, native_map)
+	var game_global := CombatIntegrationGameGlobal.new(SpawnTestCreature)
+	var adapter = CombatIntegrationAdapterScript.new()
+	var bundle = _combat_monster_test_bundle()
+	adapter.configure_classic_bundle(bundle)
+	adapter.configure_test_dependencies(
+		{
+			"StateMachine": state_machine,
+			"NodeAccess": node_access,
+			"GameGlobal": game_global,
+		},
+		SpawnTestScene.new()
+	)
+	var host = HostScript.new()
+	get_root().add_child(host)
+	host.configure(adapter)
+	var runtime_state = StateScript.new()
+	runtime_state.configure_from_bundle(bundle)
+	host.runtime.use_shared_campaign(bundle, runtime_state)
+
+	var commands: Array = []
+	var responses: Array = []
+	host.command_started.connect(
+		func(command: String, payload: Dictionary) -> void:
+			commands.append({"command": command, "payload": payload})
+	)
+	host.command_finished.connect(
+		func(command: String, response: Dictionary) -> void:
+			responses.append({"command": command, "response": response})
+	)
+
+	var result: Dictionary = await host.run_trigger("combat:present")
+	_expect_equal(result.get("status"), "completed", "native presence macro completes through host")
+	_expect_equal(
+		commands.map(func(entry: Dictionary) -> String: return entry["command"]),
+		["check_combat_monster", "show_text"],
+		"native presence result resumes the combat macro"
+	)
+	_expect(bool(responses[0]["response"].get("present")), "native roster reports matching monster")
+
+	commands.clear()
+	responses.clear()
+	result = await host.run_trigger("combat:rout", 0, {"actorFaction": 1})
+	_expect_equal(result.get("status"), "completed", "native rout macro completes through host")
+	_expect_equal(responses[0]["response"].get("routed"), 2, "native rout affects matching faction")
+	_expect_equal(rat.applied_traits.size(), 1, "native rout marks first matching creature")
+	_expect_equal(podling.applied_traits.size(), 1, "native rout marks second matching creature")
+
+	commands.clear()
+	responses.clear()
+	result = await host.run_trigger(
+		"combat:spawn",
+		0,
+		{"actorFaction": 3, "actorPosition": Vector2(8, 9), "battleMacro": 0}
+	)
+	_expect_equal(result.get("status"), "completed", "native spawn macro completes through host")
+	_expect_equal(responses[0]["response"].get("spawned"), 2, "native spawn extends live roster")
+	_expect_equal(native_map.creatures_node.children.size(), 2, "native spawn adds combat buttons")
+	_expect_equal(adapter.played_sounds, [640, 640], "native spawn plays one sound per creature")
+	for spawned_button: Variant in responses[0]["response"].get("combatants", []):
+		_expect_equal(spawned_button.creature.curFaction, 3, "native spawn inherits macro actor faction")
+
+	commands.clear()
+	responses.clear()
+	result = await host.run_trigger("combat:destroy")
+	_expect_equal(result.get("status"), "completed", "native destruction macro completes through host")
+	_expect_equal(responses[0]["response"].get("removed"), 1, "native destruction removes matching enemy")
+	_expect_equal(combat_state.queued_death_creatures, [rat], "native destruction queues its death macro")
+
+	commands.clear()
+	responses.clear()
+	result = await host.run_trigger("combat:present")
+	_expect_equal(
+		result.get("reason"),
+		"required-combat-monster-absent",
+		"native absence stops the combat macro"
+	)
+	_expect_equal(
+		commands.map(func(entry: Dictionary) -> String: return entry["command"]),
+		["check_combat_monster"],
+		"native absence does not run the next combat action"
+	)
+
+	commands.clear()
+	responses.clear()
+	result = await host.run_trigger("combat:deanimate")
+	_expect_equal(result.get("status"), "completed", "native deanimation macro completes through host")
+	_expect_equal(responses[0]["response"].get("removed"), 2, "native deanimation removes lower undead")
+	_expect(combat_state.all_battle_creatures_btns.has(roster[4]), "native deanimation keeps higher undead")
+	_expect_equal(
+		adapter.shown_messages,
+		[920, 924, 928, 921, 922],
+		"native combat commands resume each authored follow-up once"
+	)
+
+	commands.clear()
+	responses.clear()
+	result = await host.run_trigger("combat:end")
+	_expect_equal(result.get("reason"), "battle-ended", "native forced victory completes its macro")
+	_expect_equal(
+		game_global.battle_end_calls,
+		[{"outcome": "won", "rewardMode": "experience_only"}],
+		"native forced victory requests experience-only battle cleanup"
+	)
+	_expect_equal(adapter._take_forced_battle_resume_slot(), 8, "native forced victory records slot 8")
+	_expect_equal(
+		commands.map(func(entry: Dictionary) -> String: return entry["command"]),
+		["end_classic_battle"],
+		"native forced victory runs no later macro action"
+	)
+	host.queue_free()
+
+
 func _test_battle_round_macro_action() -> void:
 	var bundle = _combat_monster_test_bundle()
 	var interpreter = _interpreter(bundle)
@@ -4497,6 +4690,17 @@ func _test_native_battle_round_host() -> void:
 
 func _test_queued_combat_macro_host() -> void:
 	var bundle = _combat_monster_test_bundle()
+	bundle.messages_by_id[929] = {"id": 929, "text": "The nested macro returns."}
+	bundle.messages_by_id[930] = {"id": 930, "text": "The nested macro runs."}
+	_add_stack_trigger(bundle, "Data ED3:macro:970", 970, [
+		_classic_action(0, -46, 10),
+		_classic_action(1, 1, 929),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:971", 971, [
+		_classic_action(0, 1, 930),
+		_classic_action(1, 111, 0),
+	])
+	_add_stack_branch(bundle, 10, 971)
 	var state = StateScript.new()
 	state.configure_from_bundle(bundle)
 	var adapter = BattleRoundHostAdapter.new(self)
@@ -4530,6 +4734,25 @@ func _test_queued_combat_macro_host() -> void:
 		"suspended-battle",
 		"queued macro preserves outer command context"
 	)
+
+	adapter.commands.clear()
+	var stack_dispatch: Dictionary = await host.run_queued_combat_macro(
+		{"triggerId": "Data ED3:macro:970", "context": {"queuedMacro": true}},
+		{"combatRound": 4, "battleMacro": -118}
+	)
+	_expect_equal(
+		stack_dispatch.get("result", {}).get("status"),
+		"completed",
+		"queued combat XAP chain completes"
+	)
+	_expect_equal(
+		adapter.commands.map(
+			func(entry: Dictionary) -> int: return int(entry.get("payload", {}).get("messageId", 0))
+		),
+		[930, 929],
+		"queued combat XAP returns to its caller"
+	)
+	_expect(host.active, "queued combat XAP leaves the suspended outer host active")
 	host.active = false
 	host.command_context.clear()
 	host.queue_free()

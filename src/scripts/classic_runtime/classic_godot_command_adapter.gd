@@ -596,7 +596,7 @@ func _spawn_combat_monsters(payload: Dictionary) -> Dictionary:
 	var map: Object = node_access.__Map()
 	var creature_book: Variant = resources.get("crea_book") if resources != null else null
 	var creature_script: Variant = game_global.get("combatCreatureGD")
-	var combatant_scene: Variant = load(COMBATANT_SCENE_PATH)
+	var combatant_scene: Variant = _combatant_scene_resource()
 	if not (creature_book is Dictionary):
 		return _error("Realmz bestiary resources are unavailable")
 	var origin: Variant = _classic_spawn_origin(payload, context["stateMachine"])
@@ -622,6 +622,10 @@ func _spawn_combat_monsters(payload: Dictionary) -> Dictionary:
 	for _spawn_index: int in range(int(result.get("spawned", 0))):
 		_play_sound({"soundId": int(payload.get("soundId", 0))})
 	return result
+
+
+func _combatant_scene_resource() -> Variant:
+	return load(COMBATANT_SCENE_PATH)
 
 
 func spawn_classic_combatants(
