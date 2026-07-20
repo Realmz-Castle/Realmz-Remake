@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "fixture": "Native map/battle bridge integration fixture",
+  "fixtureNote": "Purpose-built records exercise a native City of Bywater map and Battle_24 resource.",
+  "validation": {
+    "ok": true,
+    "errors": []
+  },
+  "semanticDecoding": {
+    "dispatcherNoops": []
+  }
+}

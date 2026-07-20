@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "battles": [
+    {
+      "id": 24,
+      "dist": 0,
+      "messageBefore": 0,
+      "messageAfter": 0,
+      "battleMacro": 0,
+      "grid": [],
+      "authored": true
+    }
+  ],
+  "treasures": [],
+  "shops": [],
+  "simpleEncounters": [],
+  "complexEncounters": [],
+  "thiefEncounters": [],
+  "timedEncounters": []
+}

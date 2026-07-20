@@ -44,6 +44,8 @@ const PROVIDENCE_AUTHORITATIVE_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export"
 const PROVIDENCE_AUTHORITATIVE_PROVENANCE := \
 	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export.provenance.json"
+const NATIVE_BATTLE_BRIDGE_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/native_battle_bridge"
 
 var failures := 0
 
@@ -599,6 +601,7 @@ func _init() -> void:
 
 	_test_bundle_contract_validation()
 	_test_providence_authoritative_export()
+	_test_native_battle_bridge_fixture()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
 	_test_campaign_readiness_report()
@@ -1034,6 +1037,35 @@ func _minimal_contract_documents() -> Dictionary:
 		},
 		"evidence": {"schemaVersion": 1, "semanticDecoding": {}},
 	}
+
+
+func _test_native_battle_bridge_fixture() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(NATIVE_BATTLE_BRIDGE_FIXTURE),
+		"native battle bridge fixture loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var outer_trigger: Dictionary = bundle.get_trigger("Data DD:0:200")
+	_expect_equal(
+		outer_trigger.get("actions", []).map(
+			func(action: Dictionary) -> int: return int(action.get("code", 0))
+		),
+		[57, 2, 1, 24],
+		"native battle fixture covers mutation, battle, resume text, and completion"
+	)
+	_expect_equal(
+		bundle.get_extra_action_point(900).get("actions", [])[0].get("code"),
+		121,
+		"native battle fixture provides its roster-mutation combat macro"
+	)
+	_expect_equal(bundle.get_battle(24).get("id"), 24, "native battle fixture requests Battle_24")
+	_expect_equal(
+		bundle.get_monster(78).get("displayName"),
+		"Zombie",
+		"native battle fixture identifies its lower-undead roster target"
+	)
 
 
 func _test_bundle_indexes(bundle) -> void:
@@ -5239,17 +5271,37 @@ func _test_compiled_battle_materialization() -> void:
 	_expect_equal(creature[2].get("classicCanSummon"), 1, "compiled battle preserves summon flag")
 	_expect(bool(creature[2].get("classicForceFriend")), "negative grid entry flips side")
 
-	var existing_battle := {"Battle_0": {"nativeLayout": true}}
+	var existing_battle := {
+		"Battle_0": {
+			"nativeLayout": true,
+			"Creatures": [["Providence Sentinel", [0, 0]]],
+		},
+	}
+	var existing_bestiary := {
+		"Providence Sentinel": {
+			"data": {"name": "Providence Sentinel", "classicMonsterId": 1},
+		},
+	}
 	adapter.configure_classic_bundle(bundle)
 	var existing: Dictionary = adapter.ensure_classic_battle_resource(
 		0,
 		existing_battle,
-		{}
+		existing_bestiary
 	)
 	_expect(not bool(existing.get("created")), "existing native battle remains preferred")
 	_expect(
 		bool(existing_battle["Battle_0"].get("nativeLayout")),
 		"compiled battle generation does not replace a native layout"
+	)
+	var existing_overrides: Dictionary = adapter.build_existing_classic_battle_overrides(
+		0,
+		existing_battle,
+		existing_bestiary
+	)
+	_expect_equal(
+		existing_overrides.get("Creatures", [])[0][2].get("classicMonsterId"),
+		1,
+		"native battle creatures receive compiled Classic identity"
 	)
 
 	var battle_book: Dictionary = {}

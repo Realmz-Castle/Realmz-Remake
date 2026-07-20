@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "monsters": [
+    {
+      "id": 78,
+      "nameId": 78,
+      "displayName": "Zombie",
+      "deathMacro": 0,
+      "traitor": 1,
+      "hitDice": 2,
+      "magicResistance": 0,
+      "canSummon": 0,
+      "typeFlags": [0, 1, 0, 0, 0, 0]
+    }
+  ],
+  "monsterSets": [],
+  "monsterDescriptions": [],
+  "scenarioItems": [],
+  "itemTexts": [],
+  "questLabels": []
+}

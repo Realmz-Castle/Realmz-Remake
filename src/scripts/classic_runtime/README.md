@@ -207,6 +207,17 @@ and dungeon output, and a visibly rendered SnowDay landlook change:
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- --smoke
 ```
 
+The native battle bridge playtest starts from the same real City of Bywater
+map, applies a persistent SnowDay landlook, requests native `Battle_24`, and
+runs a compiled combat macro that removes its two Zombies from the live roster.
+Victory continues through Remake's loot and allies cleanup, resumes the outer
+Classic action list, and returns the party to its original map tile. Its smoke
+mode drives that full UI lifecycle deterministically:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_battle_bridge_playtest.tscn -- --smoke
+```
+
 The first in-engine vertical slice loads the CoB fixture, displays `Data DD:0:0` through Remake's existing `TextRect`, presents the four source-backed `Data ED` choices and Classic's Back Out control, feeds the selected result back to the interpreter, and runs that eight-action encounter result block.
 
 Run the standalone scene from the repository root:

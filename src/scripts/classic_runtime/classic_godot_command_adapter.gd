@@ -828,6 +828,15 @@ func _start_classic_battle(payload: Dictionary) -> Dictionary:
 		}
 
 	game_global.allow_next_battle_loot = bool(request["allowLoot"])
+	var battle_overrides := build_existing_classic_battle_overrides(
+		battle_id,
+		resources.battles_book,
+		resources.crea_book
+	)
+	battle_overrides["classicBattleId"] = battle_id
+	battle_overrides["classicPriestTurningEnabled"] = bool(
+		payload.get("priestTurningEnabled", true)
+	)
 	game_global.start_battle(
 		str(request["battleName"]),
 		"",
@@ -837,12 +846,7 @@ func _start_classic_battle(payload: Dictionary) -> Dictionary:
 		true,
 		true,
 		request["participants"],
-		{
-			"classicBattleId": battle_id,
-			"classicPriestTurningEnabled": bool(
-				payload.get("priestTurningEnabled", true)
-			),
-		}
+		battle_overrides
 	)
 	var outcome_value: Variant = await game_global.battle_end
 	var outcome := str(outcome_value)
@@ -964,6 +968,96 @@ func ensure_classic_battle_resource(
 	}
 
 
+func build_existing_classic_battle_overrides(
+	battle_id: int,
+	battles_book: Dictionary,
+	creature_book: Dictionary
+) -> Dictionary:
+	if classic_bundle == null or not classic_bundle.has_method("get_monster"):
+		return {}
+	var battle_name := "Battle_%d" % battle_id
+	var battle: Variant = battles_book.get(battle_name, {})
+	if not (battle is Dictionary):
+		return {}
+	var source_creatures: Variant = battle.get("Creatures", [])
+	if not (source_creatures is Array):
+		return {}
+	var creatures: Array = source_creatures.duplicate(true)
+	var decorated := false
+	for creature_index: int in range(creatures.size()):
+		var creature_value: Variant = creatures[creature_index]
+		if not (creature_value is Array) or creature_value.is_empty():
+			continue
+		var bestiary_name := str(creature_value[0])
+		var compiled := _compiled_monster_for_bestiary_name(bestiary_name, creature_book)
+		if compiled.is_empty():
+			continue
+		var metadata := _classic_battle_monster_metadata(
+			int(compiled["monsterId"]),
+			compiled["monster"],
+			false
+		)
+		if creature_value.size() > 2 and creature_value[2] is Dictionary:
+			var existing_metadata: Dictionary = creature_value[2].duplicate(true)
+			for metadata_key: Variant in metadata:
+				if not existing_metadata.has(metadata_key):
+					existing_metadata[metadata_key] = metadata[metadata_key]
+			creature_value[2] = existing_metadata
+		else:
+			creature_value.append(metadata)
+		creatures[creature_index] = creature_value
+		decorated = true
+	return {"Creatures": creatures} if decorated else {}
+
+
+func _compiled_monster_for_bestiary_name(
+	bestiary_name: String,
+	creature_book: Dictionary
+) -> Dictionary:
+	var bestiary: Variant = creature_book.get(bestiary_name, {})
+	if not (bestiary is Dictionary):
+		return {}
+	var candidate_ids := _classic_resource_ids(
+		bestiary,
+		"classicMonsterId",
+		"classicMonsterIds"
+	)
+	var data: Variant = bestiary.get("data", {})
+	if data is Dictionary:
+		candidate_ids.append_array(_classic_resource_ids(
+			data,
+			"classicMonsterId",
+			"classicMonsterIds"
+		))
+		var native_id: Variant = data.get("id")
+		if native_id is int or native_id is float:
+			var normalized_id: int = abs(int(native_id))
+			if not candidate_ids.has(normalized_id):
+				candidate_ids.append(normalized_id)
+	for monster_id: int in candidate_ids:
+		var monster: Variant = classic_bundle.get_monster(monster_id)
+		if monster is Dictionary and not monster.is_empty():
+			return {"monsterId": monster_id, "monster": monster}
+	return {}
+
+
+func _classic_battle_monster_metadata(
+	monster_id: int,
+	monster: Dictionary,
+	force_friend: bool
+) -> Dictionary:
+	return {
+		"classicMonsterId": monster_id,
+		"classicMonsterNameId": int(monster.get("nameId", -1)),
+		"classicDeathMacro": int(monster.get("deathMacro", 0)),
+		"classicTurnUndeadEligible": _classic_monster_can_be_turned(monster),
+		"classicHitDice": int(monster.get("hitDice", 0)),
+		"classicMagicResistance": int(monster.get("magicResistance", 0)),
+		"classicCanSummon": int(monster.get("canSummon", 0)),
+		"classicForceFriend": force_friend,
+	}
+
+
 func materialize_classic_battle(
 	battle_record: Dictionary,
 	monsters_by_id: Dictionary,
@@ -1014,16 +1108,7 @@ func materialize_classic_battle(
 		creatures.append([
 			bestiary_name,
 			[x - CLASSIC_BATTLE_ORIGIN_OFFSET, y - CLASSIC_BATTLE_ORIGIN_OFFSET],
-			{
-				"classicMonsterId": monster_id,
-				"classicMonsterNameId": int(monster.get("nameId", -1)),
-				"classicDeathMacro": int(monster.get("deathMacro", 0)),
-				"classicTurnUndeadEligible": _classic_monster_can_be_turned(monster),
-				"classicHitDice": int(monster.get("hitDice", 0)),
-				"classicMagicResistance": int(monster.get("magicResistance", 0)),
-				"classicCanSummon": int(monster.get("canSummon", 0)),
-				"classicForceFriend": raw_monster_id < 0,
-			},
+			_classic_battle_monster_metadata(monster_id, monster, raw_monster_id < 0),
 		])
 	return {
 		"battle": {
