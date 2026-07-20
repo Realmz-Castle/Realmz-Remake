@@ -81,6 +81,7 @@ func _on_StartButton_pressed() -> void :
 		"curr_temple" = [],
 		"curr_shop" = '',
 		"stuff_done" = {},
+		"native_encounters" = {},
 		"map_boats_dict" = {},
 		"is_sailing_boat" = 0,
 		"boat_image" = 'no boat_image',

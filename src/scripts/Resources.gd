@@ -11,6 +11,10 @@ All resources are loaded and accessed through this module.
 extends Node
 class_name CampaignResources
 
+const NativeEncounterBookScript = preload(
+	"res://scripts/native_encounters/native_encounter_book.gd"
+)
+
 var g_scripts = {}
 
 var images_book : Dictionary = {}
@@ -846,11 +850,35 @@ func load_special_encounter_resources(campaign : String) :
 	var encounters_folder_path = Paths.campaignsfolderpath+ campaign + "/Special Encounters/"
 	var encounter_file_names : Array = Utils.FileHandler.list_files_in_directory(encounters_folder_path)
 	for fn in encounter_file_names :
+		if str(fn).get_extension().to_lower() != "gd":
+			continue
 #		print("encounter : ", fn)
 		var enc_name : String = fn.trim_suffix('.gd')
 		var enc = load(encounters_folder_path+fn).new()
 #		print("encounter enc : ", enc)
 		special_encounters_book[enc_name] = enc
+		special_encounters_book[str(fn)] = enc
+
+	var native_encounters_path := encounters_folder_path.path_join("encounters.json")
+	if FileAccess.file_exists(native_encounters_path):
+		var native_book := NativeEncounterBookScript.new()
+		var load_result: Dictionary = native_book.load_file(native_encounters_path)
+		if load_result.get("status") != "ok":
+			push_error(str(load_result.get("message", "Unable to load native encounter data")))
+		else:
+			for encounter_id_value: Variant in load_result.get("encounterIds", []):
+				var encounter_id := str(encounter_id_value)
+				var controller_result: Dictionary = native_book.create_controller(
+					encounter_id,
+					GameGlobal.native_encounter_state
+				)
+				if controller_result.get("status") != "ok":
+					push_error(str(controller_result.get(
+						"message",
+						"Unable to create native encounter %s" % encounter_id
+					)))
+					continue
+				special_encounters_book[encounter_id] = controller_result["controller"]
 	print("special encounters : ", special_encounters_book.keys())
 
 func load_battle_resources(campaign : String) :

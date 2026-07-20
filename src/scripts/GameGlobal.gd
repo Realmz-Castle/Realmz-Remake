@@ -69,6 +69,7 @@ var currentShop : String = ''
 var currentTemple : Array = [] # [ [spellname, price] ]
 var prev_simple_enc_name : String = ''  #not saved, only for use inside that simple encounter
 var currentSpecialEncounterName : String = "default.gd"
+var native_encounter_state : Dictionary = {}
 
 var can_show_ability_list : bool = true
 
@@ -242,6 +243,7 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	currentShop = data_dict["curr_shop"]
 	currentTemple = data_dict["curr_temple"]
 	stuff_done = data_dict["stuff_done"]
+	native_encounter_state = data_dict.get("native_encounters", {})
 	map_boats_dict = data_dict["map_boats_dict"]
 	is_sailing_boat = bool(data_dict["is_sailing_boat"])
 	boat_sailed_image_name = data_dict["boat_image"]

@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "encounters": {
+    "native_nested_proof": {
+      "allow": {
+        "action": true,
+        "spokenWord": true,
+        "spell": true,
+        "item": true,
+        "rogueSkill": true,
+        "stop": true
+      },
+      "responses": {
+        "action": [
+          {
+            "id": "inspect_door",
+            "label": "Inspect the sealed door.",
+            "result": "inspect"
+          }
+        ],
+        "spokenWord": [
+          {
+            "values": ["waterford", "open sesame"],
+            "result": "open"
+          }
+        ],
+        "spell": [
+          {
+            "values": ["Open Lock", "Destroy Trap"],
+            "result": "open"
+          }
+        ],
+        "item": [
+          {
+            "values": ["Necklace of Keys"],
+            "result": "open"
+          }
+        ],
+        "rogueSkill": [
+          {
+            "skill": "Pick_Lock",
+            "difficulty": 20,
+            "successResult": "open",
+            "failureResult": "locked"
+          }
+        ]
+      },
+      "fallbackResult": "nothing",
+      "results": {
+        "inspect": {
+          "branches": [
+            {
+              "condition": {
+                "source": "flag",
+                "key": "native_fixture_door_seen",
+                "equals": true
+              },
+              "result": "already_seen"
+            }
+          ],
+          "otherwise": "first_inspection"
+        },
+        "first_inspection": {
+          "effects": [
+            {
+              "type": "message",
+              "text": "The old lock is marked with the crest of Waterford."
+            },
+            {
+              "type": "setFlag",
+              "id": "native_fixture_door_seen",
+              "value": true
+            }
+          ],
+          "close": false
+        },
+        "already_seen": {
+          "effects": [
+            {
+              "type": "message",
+              "text": "The Waterford crest is still visible beneath the rust."
+            }
+          ],
+          "close": false
+        },
+        "open": {
+          "effects": [
+            {
+              "type": "message",
+              "text": "The lock yields and the door swings inward."
+            },
+            {
+              "type": "setState",
+              "id": "native_fixture_door_open",
+              "value": true
+            },
+            {
+              "type": "mapMutation",
+              "id": "waterford_door_open",
+              "map": "map_0",
+              "value": true
+            },
+            {
+              "type": "actionPointMutation",
+              "id": "waterford_door_action_point",
+              "map": "map_0",
+              "script": "X999",
+              "chance": 0.0,
+              "replacement": "STOP"
+            }
+          ],
+          "nextEncounter": "native_nested_followup",
+          "close": false
+        },
+        "locked": {
+          "effects": [
+            {
+              "type": "message",
+              "text": "The pick slips without moving the lock."
+            }
+          ],
+          "close": false
+        },
+        "nothing": {
+          "effects": [
+            {
+              "type": "message",
+              "text": "Nothing happens."
+            }
+          ],
+          "close": false
+        }
+      }
+    },
+    "native_nested_followup": {
+      "allow": {
+        "action": true,
+        "stop": true
+      },
+      "responses": {
+        "action": [
+          {
+            "id": "enter_passage",
+            "label": "Enter the passage.",
+            "result": "complete"
+          }
+        ]
+      },
+      "results": {
+        "complete": {
+          "effects": [
+            {
+              "type": "message",
+              "text": "The passage continues beyond the ruined doorway."
+            },
+            {
+              "type": "setState",
+              "id": "native_fixture_complete",
+              "value": true
+            }
+          ],
+          "close": true
+        }
+      }
+    }
+  }
+}

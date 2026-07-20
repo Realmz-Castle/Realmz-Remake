@@ -36,23 +36,38 @@ func initialize(scriptname : String) :
 	print("encountercontrol initialize : "+scriptname)
 	encounter_phrase_selection_mode = false
 	encounter_phrase = ""
-	#GameGlobal.currentSpecialEncounterName = scriptname
-#	for b in boxContainer.get_children() :
-#		b.show()
-#	return
 	var resources = NodeAccess.__Resources()
-	for b in boxContainer.get_children() :
+	var encounter_name := scriptname
+	if not resources.special_encounters_book.has(encounter_name):
+		encounter_name = encounter_name.trim_suffix(".gd")
+	if not resources.special_encounters_book.has(encounter_name):
+		push_error("Special encounter %s was not found" % scriptname)
+		close()
+		return
+	if encounter_script != null:
+		if encounter_script.is_connected("encounter_over", _on_encounter_script_over):
+			encounter_script.disconnect("encounter_over", _on_encounter_script_over)
+		if encounter_script.has_signal("encounter_changed") \
+				and encounter_script.is_connected("encounter_changed", _configure_encounter_buttons):
+			encounter_script.disconnect("encounter_changed", _configure_encounter_buttons)
+	encounter_script = resources.special_encounters_book[encounter_name]
+	encounter_script.connect("encounter_over", _on_encounter_script_over)
+	if encounter_script.has_signal("encounter_changed"):
+		encounter_script.connect("encounter_changed", _configure_encounter_buttons)
+	_configure_encounter_buttons()
+	show()
+	await self.encounter_over
+	close()
+
+
+func _configure_encounter_buttons() -> void:
+	for b in boxContainer.get_children():
 		b.hide()
 	speakField.set_text('')
 	speakButton.get_child(0).hide()
 	useitemRect.hide()
 	useSkillRect.hide()
-	
-	encounter_script = resources.special_encounters_book[scriptname]
-	if not encounter_script.is_connected("encounter_over",Callable(self,"close")) :
-		encounter_script.connect("encounter_over",Callable(self,"close"))
-#	print("encounter_script", encounter_script, encounter_script.allow_items)
-#	encounter_script.control = self
+
 	if encounter_script.allow_spells :
 		spellButton.show()
 	if encounter_script.allow_items :
@@ -67,18 +82,13 @@ func initialize(scriptname : String) :
 	if (encounter_script.get("acro_difficulty")!=null
 	or encounter_script.get("dete_difficulty")!=null
 	or encounter_script.get("disa_difficulty")!=null
-	or encounter_script.get("pick_difficulty")!=null) :
+	or encounter_script.get("pick_difficulty")!=null
+	or encounter_script.get("force_difficulty")!=null) :
 		skillbutton.show()
 
-	
-	show()
-#	disablerButton.show()
-	#GameState.set_paused(true)
-#	Input.set_custom_mouse_cursor(GameState.cursor_click)
-	#GDScriptFunctionState await object: Object = null.signal:String=
-	await self.encounter_over
-	print('encounter_over')
-	close()
+
+func _on_encounter_script_over(_result: Variant = null) -> void:
+	encounter_over.emit()
 
 
 func initialize_phrase_for_encounter() -> void:
@@ -137,11 +147,12 @@ func _on_item_used(item : Dictionary, character) :
 	await encounter_script._on_item_used(item, character)
 
 func _on_skill_used(skillname : String, character) :
+	if skillname == "abort":
+		useSkillRect.hide()
+		return
 	print("EncounterControl _on_skill_used : "+skillname+" by "+character.name)
 	var stat : float = character.get_stat(skillname)
 	match skillname :
-		"abort" :
-			useSkillRect.hide()
 		"Acrobatics" :
 			await encounter_script._on_acro_used(stat, character)
 		"Detect_Trap" :
@@ -152,7 +163,8 @@ func _on_skill_used(skillname : String, character) :
 			await encounter_script._on_pick_used(stat, character)
 		"Force_Lock" :
 			await encounter_script._on_forc_used(stat, character)
-	useSkillRect.display_character_skills(encounter_script)
+	if visible:
+		useSkillRect.display_character_skills(encounter_script)
 
 
 func _on_ActionButton_pressed():
@@ -212,7 +224,7 @@ func _on_spell_button_pressed() -> void:
 		print("EncounterControl spell_picked : null. abort.")
 		return
 	print("EncounterControl spell_picked : ",picked_spell.name,' lv'+str(picked_power)+" by ", picked_character.name)
-	encounter_script._on_spell_used(picked_character, picked_spell, picked_power)
+	await encounter_script._on_spell_used(picked_character, picked_spell, picked_power)
 	
 	#var picked_character = null
 #var picked_level = 1
