@@ -59,6 +59,8 @@ func enter(_msg : Dictionary = {}) -> void:
 		print("CBAnimState : cur action : "+str(cur_action)+" , left : "+str(combat_state.action_queue.size()))
 		pass
 		match cur_action["type"] :
+			"TurnUndead" :
+				await perform_turn_undead(cur_action)
 			"Move" :
 				if not is_instance_valid( cur_action["mover"]):
 					print("CBAnimationState : Move : MoverCb invalid. skipped.")
@@ -292,6 +294,40 @@ func enter(_msg : Dictionary = {}) -> void:
 func _on_timer_over() :
 	print("CbAnilState signal timer_over")
 	emit_signal("timer_over")
+
+
+func perform_turn_undead(msg: Dictionary) -> void:
+	var caster_button: Variant = msg.get("caster")
+	if not is_instance_valid(caster_button):
+		return
+	var caster: Creature = caster_button.creature
+	var result := combat_state.perform_turn_undead(caster_button)
+	if str(result.get("status", "")) != "ok":
+		return
+	var logrect = UI.ow_hud.creatureRect.logrect
+	logrect.log_other_text(caster, " attempts to turn the undead.", null, "")
+	for outcome_value: Variant in result.get("outcomes", []):
+		if not (outcome_value is Dictionary):
+			continue
+		var outcome: Dictionary = outcome_value
+		var target: Variant = outcome.get("creature")
+		var target_button: Variant = outcome.get("combatant")
+		if not (target is Creature):
+			continue
+		match str(outcome.get("outcome", "resisted")):
+			"destroyed":
+				logrect.log_other_text(target, " is destroyed.", null, "")
+			"turned":
+				logrect.log_other_text(target, " is turned.", null, "")
+				if is_instance_valid(target_button):
+					target_button.set_creature_represented(target)
+			_:
+				logrect.log_other_text(target, " resists.", null, "")
+	var bonus_experience := int(result.get("bonusExperience", 0))
+	if bonus_experience > 0:
+		await GameGlobal.give_exp_to_pcs(bonus_experience, [caster])
+	timer = 0.5
+	await timer_over
 
 func play_projectile_animation(gfx : Spell.GFX, castercrea : Creature, targ_tpos : Vector2) :
 	print("CbAnim play_projectile_animation gfx ",gfx,", ... start")

@@ -197,9 +197,11 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 
 
 	for pc in pc_joining :
+		pc.has_turned_undead = false
 		combat_state.add_pc_or_npc_ally_to_battle_map(pc, battle_position_offset)
 	if _msg["npcs_allowed"] :
 		for npc in GameGlobal.player_allies :
+			npc.has_turned_undead = false
 			combat_state.add_pc_or_npc_ally_to_battle_map(npc, battle_position_offset)
 
 	# order Ambush ?
@@ -227,6 +229,20 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 		)
 	if metadata.has("classicDeathMacro"):
 		creature.set_meta("classic_death_macro", int(metadata["classicDeathMacro"]))
+	if metadata.has("classicTurnUndeadEligible"):
+		creature.set_meta(
+			"classic_turn_undead_eligible",
+			bool(metadata["classicTurnUndeadEligible"])
+		)
+	if metadata.has("classicHitDice"):
+		creature.set_meta("classic_hit_dice", int(metadata["classicHitDice"]))
+	if metadata.has("classicMagicResistance"):
+		creature.set_meta(
+			"classic_magic_resistance",
+			int(metadata["classicMagicResistance"])
+		)
+	if metadata.has("classicCanSummon"):
+		creature.set_meta("classic_can_summon", int(metadata["classicCanSummon"]))
 	if bool(metadata.get("classicForceFriend", false)):
 		var flipped_faction := 1 if int(creature.curFaction) == 0 else 0
 		creature.baseFaction = flipped_faction

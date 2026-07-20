@@ -995,6 +995,10 @@ func materialize_classic_battle(
 				"classicMonsterId": monster_id,
 				"classicMonsterNameId": int(monster.get("nameId", -1)),
 				"classicDeathMacro": int(monster.get("deathMacro", 0)),
+				"classicTurnUndeadEligible": _classic_monster_can_be_turned(monster),
+				"classicHitDice": int(monster.get("hitDice", 0)),
+				"classicMagicResistance": int(monster.get("magicResistance", 0)),
+				"classicCanSummon": int(monster.get("canSummon", 0)),
 				"classicForceFriend": raw_monster_id < 0,
 			},
 		])
@@ -1013,6 +1017,14 @@ func materialize_classic_battle(
 		},
 		"creatureCount": creatures.size(),
 	}
+
+
+func _classic_monster_can_be_turned(monster: Dictionary) -> bool:
+	var type_flags: Variant = monster.get("typeFlags", [])
+	if not (type_flags is Array) or type_flags.size() < 3:
+		return false
+	# Data MD type slots 1 and 2 are undead and nether spawn respectively.
+	return bool(type_flags[1]) or bool(type_flags[2])
 
 
 func _combat_context() -> Dictionary:

@@ -6,7 +6,8 @@ var hud : OW_HUD
 
 @onready var finishbutton : Button = $FinishButton
 @onready var preparebutton : Button = $PrepareButton
-@onready var buttons : Array = [spellbutton,inventorybutton,finishbutton]
+@onready var turnundeadbutton : Button = $TurnUndeadButton
+@onready var buttons : Array = [spellbutton,inventorybutton,finishbutton,turnundeadbutton]
 
 var escape_allowed : bool = true
 
@@ -17,6 +18,7 @@ func _ready():
 
 func prepare_for_creab( creab : CombatCreaButton ) :
 	var controllable : bool =  creab.creature.curFaction == 0
+	turnundeadbutton.visible = controllable and StateMachine.combat_state.can_turn_undead(creab)
 	if controllable :
 		var already_prepared : bool = false
 		for t in creab.creature.traits :
@@ -30,6 +32,7 @@ func prepare_for_creab( creab : CombatCreaButton ) :
 	for b in buttons :
 		b.disabled = not controllable
 	spellbutton.disabled = creab.creature.spells.is_empty()
+	turnundeadbutton.disabled = not turnundeadbutton.visible
 	
 func set_buttons_enabled(enabled : bool) -> void :
 		for b in get_children() :
@@ -159,3 +162,17 @@ func _on_bandage_button_pressed():
 	else :
 		SfxPlayer.stream = sounds_book["target error.wav"]
 	SfxPlayer.play()
+
+
+func _on_turn_undead_button_pressed() -> void:
+	if StateMachine._state_name != "CbDecideAction":
+		return
+	var caster_button: CombatCreaButton = StateMachine.cb_decide_state.current_active_creabutton
+	if not StateMachine.combat_state.can_turn_undead(caster_button):
+		return
+	hud.creatureRect._on_mouse_entered()
+	StateMachine.combat_state.add_to_action_queue([{
+		"type": "TurnUndead",
+		"caster": caster_button,
+	}])
+	StateMachine.transition_to("Combat/CbAnimation")

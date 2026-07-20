@@ -50,6 +50,7 @@ var ai_variables : Dictionary = {}  #variables to be accessed by ai, normally  s
 var used_movepoints : int = 0 #used movement points THIS TURN
 var used_apr : int = 0 #used mactions per round THIS TURN
 var used_spr : int = 0 #used spells per round THIS TURN
+var has_turned_undead : bool = false
 
 
 #var attacked_this_turn : bool = false
@@ -785,6 +786,7 @@ func _on_new_round() :
 
 func on_battle_end() :
 	fled_battle = false
+	has_turned_undead = false
 	please_remove_from_combat = false
 	doing_on_death_action = false
 	if life_status==1 :

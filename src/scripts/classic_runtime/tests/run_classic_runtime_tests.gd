@@ -21,6 +21,7 @@ const CombatIntegrationAdapterScript = preload(
 )
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
 const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
+const TurnUndeadRulesScript = preload("res://scripts/turn_undead_rules.gd")
 const ShopRulesScript = preload("res://scripts/shop_rules.gd")
 const TemplePaymentScript = preload("res://scenes/UI/HUD/Temple/temple_payment.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
@@ -337,6 +338,43 @@ class CombatTestButton:
 		creature = represented_creature
 
 
+class TurnUndeadTestCreature:
+	extends RefCounted
+	var name: String
+	var curFaction: int
+	var used_apr := 0
+	var has_turned_undead := false
+	var tags: Array = []
+	var level := 0
+	var current_hp := 20
+	var turn_undead := 0
+	var max_actions := 3
+	var magic_resistance := 0
+
+	func _init(creature_name: String, faction: int) -> void:
+		name = creature_name
+		curFaction = faction
+
+	func get_stat(stat_name: String) -> int:
+		match stat_name:
+			"curHP":
+				return current_hp
+			"Turn_Undead":
+				return turn_undead
+			"MaxActions":
+				return max_actions
+			"ResistanceMagic":
+				return magic_resistance
+			_:
+				return 0
+
+	func get_apr_left() -> int:
+		return max_actions - used_apr
+
+	func change_cur_hp(change: int) -> void:
+		current_hp += change
+
+
 class CombatTestState:
 	extends RefCounted
 	var all_battle_creatures_btns: Array
@@ -585,6 +623,7 @@ func _init() -> void:
 	_test_modal_picture_actions()
 	_test_party_state_actions()
 	_test_priest_turning_actions()
+	_test_turn_undead_rules()
 	_test_combat_monster_presence_action()
 	_test_combat_monster_destruction_action()
 	_test_lower_undead_deanimation_action()
@@ -3985,6 +4024,88 @@ func _test_priest_turning_actions() -> void:
 	_expect(legacy_state.priest_turning_enabled, "older snapshots default priest turning to enabled")
 
 
+func _test_turn_undead_rules() -> void:
+	var caster := TurnUndeadTestCreature.new("Priest", 0)
+	caster.turn_undead = 100
+	var destroyed_target := TurnUndeadTestCreature.new("Skeleton", 1)
+	var turned_target := TurnUndeadTestCreature.new("Wraith", 1)
+	var resisted_target := TurnUndeadTestCreature.new("Lich", 1)
+	var living_target := TurnUndeadTestCreature.new("Bandit", 1)
+	var excluded_target := TurnUndeadTestCreature.new("Summoned shade", 1)
+	for target: TurnUndeadTestCreature in [
+		destroyed_target,
+		turned_target,
+		resisted_target,
+		excluded_target,
+	]:
+		target.set_meta("classic_turn_undead_eligible", true)
+		target.set_meta("classic_hit_dice", 2)
+		target.set_meta("classic_magic_resistance", 0)
+		target.set_meta("classic_can_summon", 0)
+	excluded_target.set_meta("classic_can_summon", 255)
+	living_target.set_meta("classic_turn_undead_eligible", false)
+	var combatants := [
+		CombatTestButton.new(caster),
+		CombatTestButton.new(destroyed_target),
+		CombatTestButton.new(turned_target),
+		CombatTestButton.new(resisted_target),
+		CombatTestButton.new(living_target),
+		CombatTestButton.new(excluded_target),
+	]
+
+	_expect(
+		not TurnUndeadRulesScript.can_attempt(
+			caster,
+			combatants,
+			{"classicPriestTurningEnabled": false}
+		),
+		"opcode 82 gate hides the native turn-undead action"
+	)
+	var disabled: Dictionary = TurnUndeadRulesScript.perform_attempt(
+		caster,
+		combatants,
+		{"classicPriestTurningEnabled": false},
+		[100, 100, 100]
+	)
+	_expect_equal(disabled.get("status"), "unavailable", "disabled turning cannot mutate combat")
+	_expect_equal(caster.used_apr, 0, "disabled turning consumes no actions")
+	_expect(
+		TurnUndeadRulesScript.can_attempt(
+			caster,
+			combatants,
+			{"classicPriestTurningEnabled": true}
+		),
+		"opcode 83 gate exposes the native turn-undead action"
+	)
+
+	var result: Dictionary = TurnUndeadRulesScript.perform_attempt(
+		caster,
+		combatants,
+		{"classicPriestTurningEnabled": true},
+		[50, 60, 25]
+	)
+	_expect_equal(result.get("status"), "ok", "enabled turning performs a native combat action")
+	_expect_equal(result.get("attempted"), 3, "turning checks each eligible hostile once")
+	_expect_equal(result.get("destroyed"), 1, "turning can destroy a lower-margin success")
+	_expect_equal(result.get("turned"), 1, "turning can convert a higher-margin success")
+	_expect_equal(result.get("resisted"), 1, "turning preserves failed targets")
+	_expect_equal(result.get("bonusExperience"), 150, "turning awards Classic caster experience")
+	_expect_equal(destroyed_target.current_hp, 0, "destroyed undead enter normal death handling")
+	_expect_equal(turned_target.curFaction, 0, "turned undead join the caster's faction")
+	_expect_equal(resisted_target.curFaction, 1, "resisted undead stay hostile")
+	_expect_equal(excluded_target.curFaction, 1, "Classic summon sentinel is not turnable")
+	_expect_equal(caster.used_apr, 1, "turning consumes one native action")
+	_expect(caster.has_turned_undead, "caster records its once-per-battle attempt")
+	_expect(
+		not TurnUndeadRulesScript.can_attempt(
+			caster,
+			combatants,
+			{"classicPriestTurningEnabled": true}
+		),
+		"a caster cannot turn undead twice in one battle"
+	)
+
+
 func _test_combat_monster_presence_action() -> void:
 	var bundle = _combat_monster_test_bundle()
 	var interpreter = _interpreter(bundle)
@@ -4970,6 +5091,10 @@ func _test_compiled_battle_materialization() -> void:
 	battle["battleMacro"] = -9
 	battle["grid"][84] = -1
 	bundle.monsters_by_id[1]["deathMacro"] = 42
+	bundle.monsters_by_id[1]["typeFlags"] = [false, false, true, false, false, false, false, false]
+	bundle.monsters_by_id[1]["hitDice"] = 7
+	bundle.monsters_by_id[1]["magicResistance"] = 12
+	bundle.monsters_by_id[1]["canSummon"] = 1
 	var adapter = GodotAdapterScript.new()
 	var result: Dictionary = adapter.materialize_classic_battle(
 		battle,
@@ -5007,6 +5132,17 @@ func _test_compiled_battle_materialization() -> void:
 		42,
 		"compiled battle preserves monster death macro"
 	)
+	_expect(
+		bool(creature[2].get("classicTurnUndeadEligible")),
+		"compiled battle preserves nether-spawn eligibility"
+	)
+	_expect_equal(creature[2].get("classicHitDice"), 7, "compiled battle preserves hit dice")
+	_expect_equal(
+		creature[2].get("classicMagicResistance"),
+		12,
+		"compiled battle preserves turning resistance"
+	)
+	_expect_equal(creature[2].get("classicCanSummon"), 1, "compiled battle preserves summon flag")
 	_expect(bool(creature[2].get("classicForceFriend")), "negative grid entry flips side")
 
 	var existing_battle := {"Battle_0": {"nativeLayout": true}}

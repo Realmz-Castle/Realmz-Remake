@@ -292,18 +292,34 @@ text = "Bandage"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="oterButton" type="Button" parent="."]
+[node name="TurnUndeadButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 150.0
 offset_top = 100.0
-offset_right = 200.0
+offset_right = 214.0
 offset_bottom = 150.0
 focus_mode = 0
+tooltip_text = "Turn undead"
 theme_override_styles/disabled = ExtResource("6_4nwnf")
 theme_override_styles/hover = ExtResource("4_pr50w")
 theme_override_styles/pressed = ExtResource("5_j7pu4")
 theme_override_styles/normal = ExtResource("3_uqsbt")
 shortcut = SubResource("12")
+
+[node name="TurnUndeadLabel" type="Label" parent="TurnUndeadButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.980392, 0, 1)
+theme_override_fonts/font = ExtResource("2_ss5ln")
+theme_override_font_sizes/font_size = 14
+text = "Turn\nUndead"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="debugFinish" type="Button" parent="."]
 layout_mode = 0
@@ -359,6 +375,7 @@ kill"
 [connection signal="pressed" from="InventoryButton" to="." method="_on_InventoryButton_pressed"]
 [connection signal="pressed" from="EscapeButton" to="." method="_on_escape_button_pressed"]
 [connection signal="pressed" from="BandageButton" to="." method="_on_bandage_button_pressed"]
+[connection signal="pressed" from="TurnUndeadButton" to="." method="_on_turn_undead_button_pressed"]
 [connection signal="pressed" from="debugFinish" to="." method="_on_finish_button_pressed"]
 [connection signal="pressed" from="debugWin" to="." method="_on_debug_win_pressed"]
 [connection signal="pressed" from="debugKill" to="." method="_on_debug_kill_pressed"]

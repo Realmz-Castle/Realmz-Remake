@@ -7,6 +7,7 @@ const combatcreaturemapobjectTSCN : PackedScene = preload("res://scenes/Map/Comb
 const ClassicCombatMacroQueueScript = preload(
 	"res://scripts/classic_runtime/classic_combat_macro_queue.gd"
 )
+const TurnUndeadRulesScript = preload("res://scripts/turn_undead_rules.gd")
 @export var cbanimstate : CbAnimationState
 
 
@@ -141,6 +142,27 @@ func add_to_action_queue(arr : Array) :
 	if not arr.is_empty() :
 		pass
 		action_queue = arr + action_queue
+
+
+func can_turn_undead(caster_button: CombatCreaButton) -> bool:
+	if not is_instance_valid(caster_button):
+		return false
+	return TurnUndeadRulesScript.can_attempt(
+		caster_button.creature,
+		all_battle_creatures_btns,
+		cur_battle_data
+	)
+
+
+func perform_turn_undead(caster_button: CombatCreaButton, rolls: Array = []) -> Dictionary:
+	if not is_instance_valid(caster_button):
+		return {"status": "unavailable", "outcomes": []}
+	return TurnUndeadRulesScript.perform_attempt(
+		caster_button.creature,
+		all_battle_creatures_btns,
+		cur_battle_data,
+		rolls
+	)
 
 
 func queue_classic_death_macro(creature: Variant) -> bool:
