@@ -45,7 +45,16 @@ func enter(_msg : Dictionary = {}) -> void:
 		if is_start and onstartGD != null:
 			onstartGD.after_loading_ressources()
 		if classic_campaign:
-			var classic_start: Dictionary = GameGlobal.start_current_classic_campaign()
+			var saved_payload_value: Variant = _msg.get("classic_save_payload", {})
+			var saved_payload: Dictionary = saved_payload_value \
+				if saved_payload_value is Dictionary else {}
+			var legacy_location_value: Variant = _msg.get("classic_legacy_location", {})
+			var legacy_location: Dictionary = legacy_location_value \
+				if legacy_location_value is Dictionary else {}
+			var classic_start: Dictionary = GameGlobal.start_current_classic_campaign(
+				saved_payload,
+				legacy_location
+			)
 			if str(classic_start.get("status", "")) == "error":
 				push_error("Classic campaign start failed: %s" % classic_start.get(
 					"message",

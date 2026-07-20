@@ -120,14 +120,17 @@ class StartLocationAdapter:
 	var configured_bundle: Variant
 	var start_location: Dictionary = {}
 	var reapplied_state: Variant
+	var compatibility_state := {"equipmentCapture": "sealed"}
 
 	func configure_classic_bundle(bundle: Variant) -> void:
 		configured_bundle = bundle
 
 	func activate_classic_start(location: Dictionary) -> Dictionary:
 		start_location = location.duplicate(true)
+		var map_prefix := "mapd_" if str(location.get("levelType", "land")) == "dungeon" \
+			else "map_"
 		return {
-			"nativeMapName": "map_%d" % int(location.get("levelIndex", -1)),
+			"nativeMapName": "%s%d" % [map_prefix, int(location.get("levelIndex", -1))],
 			"position": Vector2i(
 				int(location.get("x", -1)),
 				int(location.get("y", -1))
@@ -141,6 +144,13 @@ class StartLocationAdapter:
 			"status": "ok",
 			"applied": {"tiles": 0},
 		}
+
+	func classic_save_state() -> Dictionary:
+		return compatibility_state.duplicate(true)
+
+	func restore_classic_save_state(saved_state: Dictionary) -> Dictionary:
+		compatibility_state = saved_state.duplicate(true)
+		return {"status": "ok"}
 
 	func execute_command(_command: String, _payload: Dictionary) -> Dictionary:
 		return {}
@@ -1232,6 +1242,168 @@ func _test_installed_classic_campaign_layout() -> void:
 		"ok",
 		"installed campaign replays compatibility state before entry"
 	)
+	var original_documents: Dictionary = session.install.bundle.documents.duplicate(true)
+	var saved_state: Object = session.host.runtime.runtime_state
+	saved_state.set_quest_flag(37)
+	saved_state.set_location("dungeon", 2, 14, 29)
+	saved_state.set_dungeon_view(3, true)
+	saved_state.set_compass_enabled(false)
+	saved_state.set_difficulty(-1)
+	saved_state.set_priest_turning_enabled(false)
+	saved_state.set_tile("dungeon", 2, 14, 29, 118)
+	saved_state.set_trigger_percent("dungeon", 2, 7, 35)
+	saved_state.set_action_point_override("save:test", {"id": "save:test", "active": false})
+	saved_state.set_map_owned(6)
+	saved_state.set_random_rectangle("dungeon", 2, 1, {
+		"rectIndex": 1,
+		"percent": 42,
+		"battleRange": [3, 5],
+	})
+	adapter.compatibility_state = {
+		"storedPartyEquipment": {"active": true, "itemCount": 2},
+	}
+	var save_payload: Dictionary = session.make_save_payload()
+	_expect_equal(
+		save_payload.get("schemaVersion"),
+		CampaignSessionScript.SAVE_SCHEMA_VERSION,
+		"campaign save payload records its schema version"
+	)
+	_expect_equal(
+		save_payload.get("campaignId"),
+		"providence-ownership-proof",
+		"campaign save payload records the compiled campaign identity"
+	)
+	var serialized_payload := JSON.stringify(save_payload)
+	var parsed_payload: Variant = JSON.parse_string(serialized_payload)
+	_expect(parsed_payload is Dictionary, "campaign save payload is JSON serializable")
+
+	var restored_session = CampaignSessionScript.new()
+	get_root().add_child(restored_session)
+	var restored_adapter = StartLocationAdapter.new()
+	_expect_equal(
+		restored_session.load_installed_campaign(
+			campaigns_directory,
+			campaign_name,
+			restored_adapter
+		).get("status"),
+		"ok",
+		"saved campaign reload creates a fresh runtime host"
+	)
+	var restore_result: Dictionary = restored_session.restore_save_payload(parsed_payload)
+	_expect_equal(restore_result.get("status"), "ok", "campaign save payload restores")
+	var restored_state: Object = restored_session.host.runtime.runtime_state
+	_expect(restored_state.is_quest_set(37), "saved campaign restores quest flags")
+	_expect_equal(restored_state.level_type, "dungeon", "saved campaign restores map family")
+	_expect_equal(restored_state.level_index, 2, "saved campaign restores map level")
+	_expect_equal(restored_state.x, 14, "saved campaign restores x position")
+	_expect_equal(restored_state.y, 29, "saved campaign restores y position")
+	_expect_equal(restored_state.heading, 3, "saved campaign restores heading")
+	_expect(restored_state.multi_view, "saved campaign restores multi-view state")
+	_expect(not restored_state.compass_enabled, "saved campaign restores compass state")
+	_expect_equal(restored_state.difficulty, -1, "saved campaign restores difficulty")
+	_expect(not restored_state.priest_turning_enabled, "saved campaign restores priest turning")
+	_expect_equal(
+		restored_state.get_tile("dungeon", 2, 14, 29, -1),
+		118,
+		"saved campaign restores tile mutations"
+	)
+	_expect_equal(
+		restored_state.get_trigger_percent("dungeon", 2, 7, -1),
+		35,
+		"saved campaign restores trigger mutations"
+	)
+	_expect_equal(
+		restored_adapter.compatibility_state.get("storedPartyEquipment", {}).get("itemCount"),
+		2,
+		"saved campaign restores adapter-owned equipment capture"
+	)
+	var resumed_result: Dictionary = restored_session.activate_start_location(true)
+	_expect_equal(resumed_result.get("nativeMapName"), "mapd_2", "saved campaign enters its restored map")
+	_expect_equal(resumed_result.get("position"), Vector2i(14, 29), "saved campaign enters its restored position")
+	_expect(
+		bool(restored_adapter.start_location.get("forceReload", false)),
+		"saved campaign requests a fresh native map load"
+	)
+	_expect_equal(
+		session.install.bundle.documents,
+		original_documents,
+		"creating a save leaves the compiled bundle immutable"
+	)
+	_expect_equal(
+		restored_session.install.bundle.documents,
+		original_documents,
+		"restoring a save leaves the compiled bundle immutable"
+	)
+
+	var future_payload: Dictionary = save_payload.duplicate(true)
+	future_payload["schemaVersion"] = CampaignSessionScript.SAVE_SCHEMA_VERSION + 1
+	var future_result: Dictionary = CampaignSessionScript.validate_save_payload(
+		future_payload,
+		"providence-ownership-proof"
+	)
+	_expect_equal(future_result.get("status"), "error", "future save schema is rejected")
+	_expect(
+		str(future_result.get("message", "")).contains("newer than this build"),
+		"future save rejection is actionable"
+	)
+	var wrong_campaign_result: Dictionary = CampaignSessionScript.validate_save_payload(
+		save_payload,
+		"another-campaign"
+	)
+	_expect_equal(
+		wrong_campaign_result.get("status"),
+		"error",
+		"save payload cannot be restored into another campaign"
+	)
+	_expect_equal(
+		CampaignSessionScript.validate_save_payload({}).get("status"),
+		"legacy",
+		"save without a Classic envelope is recognized as legacy"
+	)
+	var legacy_result: Dictionary = restored_session.restore_legacy_native_location({
+		"mapName": "map_4",
+		"x": 8,
+		"y": 11,
+	})
+	_expect_equal(legacy_result.get("status"), "ok", "legacy save uses native location fallback")
+	_expect_equal(restored_state.level_type, "land", "legacy save infers its map family")
+	_expect_equal(restored_state.level_index, 4, "legacy save infers its map level")
+	_expect_equal(restored_state.x, 8, "legacy save restores x position")
+	_expect_equal(restored_state.y, 11, "legacy save restores y position")
+	var equipment_adapter = GodotAdapterScript.new()
+	equipment_adapter.stored_party_equipment = {
+		"active": true,
+		"inventories": [[{
+			"name": "Stored Blade",
+			"texture": "runtime-only",
+			"equipped": 1,
+		}]],
+		"wealth": [4, 3, 2],
+		"itemCount": 1,
+	}
+	var equipment_save: Dictionary = equipment_adapter.classic_save_state()
+	var saved_item: Dictionary = equipment_save.get("storedPartyEquipment", {}).get(
+		"inventories",
+		[]
+	)[0][0]
+	_expect(not saved_item.has("texture"), "equipment capture omits runtime-only textures")
+	_expect(
+		equipment_adapter.stored_party_equipment.get("inventories", [])[0][0].has("texture"),
+		"serializing equipment does not mutate the active capture"
+	)
+	var reloaded_equipment_adapter = GodotAdapterScript.new()
+	_expect_equal(
+		reloaded_equipment_adapter.restore_classic_save_state(equipment_save).get("status"),
+		"ok",
+		"adapter-owned equipment capture restores"
+	)
+	_expect_equal(
+		reloaded_equipment_adapter.stored_party_equipment.get("wealth"),
+		[4, 3, 2],
+		"adapter-owned captured wealth restores"
+	)
+	restored_session.clear()
+	restored_session.queue_free()
 	session.clear()
 	session.queue_free()
 
@@ -2331,6 +2503,20 @@ func _test_classic_map_bridge() -> void:
 	)
 	_expect(bool(same_map.get("recheckDestination")), "map bridge preserves destination recheck intent")
 	_expect_equal(game_global.map.redraw_count, 1, "same-map teleport redraws visible native output")
+	var reload_game_global = MapBridgeTestGameGlobal.new()
+	var forced_reload: Dictionary = bridge.transition({
+		"levelType": "land",
+		"levelIndex": 0,
+		"x": 1,
+		"y": 0,
+		"forceReload": true,
+	}, reload_game_global, resources)
+	_expect(bool(forced_reload.get("mapChanged")), "saved-map resume forces a native map reload")
+	_expect_equal(
+		reload_game_global.transitions,
+		[["map_0", 1, 0]],
+		"forced saved-map reload uses the normal native transition"
+	)
 
 	var dungeon_move: Dictionary = bridge.transition({
 		"levelType": "dungeon",

@@ -101,6 +101,12 @@ func _on_create_button_pressed():
 
 func save_game(campaignname : String, savename : String) :
 #	print("save_game  savename : ", savename)
+	var classic_runtime_payload: Dictionary = GameGlobal.classic_campaign_save_payload()
+	if GameGlobal.is_classic_campaign(campaignname) and classic_runtime_payload.is_empty():
+		var validation_message := "Classic campaign state is unavailable; the existing save was not changed"
+		preview_panel.notesTextEdit.text = validation_message
+		push_error(validation_message)
+		return
 	#is there already a save folder here ? If so, empty it
 	GameGlobal.cur_save_name = savename
 	var save_path : String = Paths.profilesfolderpath + GameGlobal.currentprofile + "/Saves/"+ campaignname + "/"+ savename
@@ -166,6 +172,8 @@ func save_game(campaignname : String, savename : String) :
 		"minimaps" : GameGlobal.minimaps,
 		"GlobalEffects" : GameGlobal.global_effects
 		}
+	if not classic_runtime_payload.is_empty():
+		dict_to_save["classic_runtime"] = classic_runtime_payload
 	print("SAVE RECT position : ", dict_to_save["position"])
 	if GameGlobal.honest_mode :
 		dict_to_save.erase("money_banked")
@@ -242,6 +250,18 @@ func load_game(campaignname : String, savename : String) :
 	var save_path : String = Paths.profilesfolderpath + GameGlobal.currentprofile + "/Saves/"+ campaignname + "/"+ savename
 	print("load_game save_path : ", save_path)
 	var data_dict : Dictionary = Utils.FileHandler.read_json_dic_from_file(save_path+"/data.json")
+	var classic_runtime_payload: Variant = data_dict.get("classic_runtime", {})
+	var classic_validation: Dictionary = GameGlobal.validate_classic_campaign_save(
+		campaignname,
+		classic_runtime_payload
+	)
+	if str(classic_validation.get("status", "")) == "error":
+		var validation_message := str(
+			classic_validation.get("message", "Classic save is incompatible with this build")
+		)
+		preview_panel.notesTextEdit.text = validation_message
+		push_error(validation_message)
+		return
 	var shop_data : Dictionary = Utils.FileHandler.read_json_dic_from_file(save_path+"/shops.json")
 	var money_banked : Array = []
 	if GameGlobal.honest_mode :
@@ -351,5 +371,13 @@ func load_game(campaignname : String, savename : String) :
 		creascript.stats["curSP"] = crea_dict["curSP"]
 		GameGlobal.add_npc_ally(creascript)
 	GameGlobal.map.queue_redraw()
-	StateMachine.transition_to("Exploration", {"campaign_continue" = true})
+	var transition_message := {"campaign_continue" = true}
+	if GameGlobal.is_classic_campaign(campaignname):
+		transition_message["classic_save_payload"] = classic_runtime_payload
+		transition_message["classic_legacy_location"] = {
+			"mapName": str(data_dict.get("currentmap_name", "")),
+			"x": int(data_dict.get("position", [0, 0])[0]),
+			"y": int(data_dict.get("position", [0, 0])[1]),
+		}
+	StateMachine.transition_to("Exploration", transition_message)
 	_on_close_button_pressed()

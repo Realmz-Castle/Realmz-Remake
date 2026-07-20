@@ -144,7 +144,7 @@ func run_queued_combat_macro(entry: Dictionary, combat_context := {}) -> Diction
 	}
 
 
-func activate_start_location() -> Dictionary:
+func activate_start_location(force_reload := false) -> Dictionary:
 	if command_adapter == null or not command_adapter.has_method("activate_classic_start"):
 		return {
 			"status": "error",
@@ -164,6 +164,7 @@ func activate_start_location() -> Dictionary:
 		"viewType": state.view_type,
 		"compassEnabled": state.compass_enabled,
 		"recheckDestination": true,
+		"forceReload": force_reload,
 	})
 	if response is Dictionary:
 		response["persistentMapState"] = replay_result

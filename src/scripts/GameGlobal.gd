@@ -398,7 +398,49 @@ func stop_classic_campaign_runtime() -> void:
 	classic_campaign_session = null
 
 
-func start_current_classic_campaign() -> Dictionary:
+func classic_campaign_save_payload() -> Dictionary:
+	if (
+		not is_classic_campaign(currentcampaign)
+		or not is_instance_valid(classic_campaign_session)
+		or not classic_campaign_session.has_method("make_save_payload")
+	):
+		return {}
+	if map != null and map.owcharacter != null:
+		var sync_result: Variant = classic_campaign_session.call("sync_native_location", {
+			"mapName": currentmap_name,
+			"x": int(map.owcharacter.tile_position_x),
+			"y": int(map.owcharacter.tile_position_y),
+		})
+		if sync_result is Dictionary and str(sync_result.get("status", "")) == "error":
+			push_error(str(sync_result.get("message", "Classic save location could not be recorded")))
+			return {}
+	var payload: Variant = classic_campaign_session.call("make_save_payload")
+	return payload if payload is Dictionary else {}
+
+
+func validate_classic_campaign_save(campaign_name: String, payload: Variant) -> Dictionary:
+	if not is_classic_campaign(campaign_name):
+		return {"status": "ok", "handled": false}
+	var envelope_validation: Dictionary = ClassicCampaignSessionScript.validate_save_payload(
+		payload
+	)
+	if str(envelope_validation.get("status", "")) == "legacy":
+		return {"status": "ok", "handled": true, "legacy": true}
+	if str(envelope_validation.get("status", "")) != "ok":
+		return envelope_validation
+	var install = ClassicCampaignInstallScript.new()
+	if not install.load_from_campaigns_directory(Paths.campaignsfolderpath, campaign_name):
+		return {"status": "error", "message": install.last_error}
+	return ClassicCampaignSessionScript.validate_save_payload(
+		payload,
+		str(install.bundle.manifest.get("id", ""))
+	)
+
+
+func start_current_classic_campaign(
+	saved_payload: Dictionary = {},
+	legacy_location: Dictionary = {}
+) -> Dictionary:
 	if not is_classic_campaign(currentcampaign):
 		return {"handled": false}
 	stop_classic_campaign_runtime()
@@ -418,8 +460,22 @@ func start_current_classic_campaign() -> Dictionary:
 		}
 	classic_campaign_session = session
 	register_classic_runtime_host(session.host)
-	var start_result: Dictionary = session.activate_start_location()
+	var restore_result := {"status": "ok"}
+	if not saved_payload.is_empty():
+		restore_result = session.restore_save_payload(saved_payload)
+	elif not legacy_location.is_empty():
+		restore_result = session.restore_legacy_native_location(legacy_location)
+	if str(restore_result.get("status", "")) == "error":
+		stop_classic_campaign_runtime()
+		return {
+			"handled": true,
+			"status": "error",
+			"message": str(restore_result.get("message", "Classic save could not be restored")),
+		}
+	var restored := not saved_payload.is_empty() or not legacy_location.is_empty()
+	var start_result: Dictionary = session.activate_start_location(restored)
 	start_result["handled"] = true
+	start_result["restored"] = restored
 	if str(start_result.get("status", "")) == "error":
 		stop_classic_campaign_runtime()
 	return start_result

@@ -156,7 +156,10 @@ func transition(payload: Dictionary, game_global: Object, resources: Object) -> 
 	if x < 0 or y < 0:
 		return _error("Classic map transition has invalid coordinates")
 
-	var changed_map := str(game_global.get("currentmap_name")) != map_name
+	var changed_map := (
+		bool(payload.get("forceReload", false))
+		or str(game_global.get("currentmap_name")) != map_name
+	)
 	if changed_map:
 		if not game_global.has_method("change_map"):
 			return _error("Realmz map transition helper is unavailable")
