@@ -1,9 +1,14 @@
 class_name ClassicBestiaryMaterializer
 extends RefCounted
 
+const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
+const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
 const BESTIARY_IMAGE_BOOK_PATH := "Bestiary/img_pack.json"
 const BESTIARY_ATLAS_PATH := "Bestiary/textureAtlas.png"
+const ITEM_BOOK_PATH := "Items/stuff_book.json"
+const SHARED_ITEM_BOOK_PATH := "res://shared_assets/items/stuff_book.json"
 const DEFAULT_IMAGE := "CREA_humanmage"
 const TYPE_TAGS := [
 	"Magic Using",
@@ -56,7 +61,6 @@ const UNSUPPORTED_SCALAR_FIELDS := [
 	"distance",
 	"runPercent",
 	"surrenderPercent",
-	"weapon",
 	"target",
 	"guarding",
 	"beenAttacked",
@@ -92,6 +96,14 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		return {"status": "error", "message": last_error}
 	var descriptions: Array = content.get("monsterDescriptions", []) \
 		if content.get("monsterDescriptions", []) is Array else []
+	var item_texts: Array = content.get("itemTexts", []) \
+		if content.get("itemTexts", []) is Array else []
+	var item_book := _read_item_context(root)
+	if not last_error.is_empty():
+		return {"status": "error", "message": last_error}
+	var item_ids: Object = ItemIdsScript.new()
+	var item_mapping: Dictionary = item_ids.mapping.duplicate()
+	item_ids.free()
 	var records: Array[Dictionary] = []
 	for monster_value: Variant in monsters:
 		if not (monster_value is Dictionary):
@@ -119,7 +131,10 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			continue
 		bestiary_book[_monster_key(bestiary_book, monster_id)] = _native_monster(
 			record,
-			descriptions
+			descriptions,
+			item_book,
+			item_texts,
+			item_mapping
 		)
 		generated += 1
 
@@ -149,14 +164,26 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	return {"status": "ok", "generated": generated, "skipped": skipped}
 
 
-func _native_monster(record: Dictionary, descriptions: Array) -> Dictionary:
+func _native_monster(
+	record: Dictionary,
+	descriptions: Array,
+	item_book: Dictionary,
+	item_texts: Array,
+	item_mapping: Dictionary
+) -> Dictionary:
 	var monster_id: int = abs(int(record.get("id", -1)))
 	var display_name := str(record.get("displayName", "")).strip_edges()
 	if display_name.is_empty():
 		display_name = "Classic Monster %d" % monster_id
 	var hit_dice := maxi(0, int(record.get("hitDice", 0)))
 	var stamina := _average_stamina(record)
-	var unsupported_fields := _unsupported_fields(record)
+	var native_inventory := _native_inventory(
+		record,
+		item_book,
+		item_texts,
+		item_mapping
+	)
+	var unsupported_fields := _unsupported_fields(record, native_inventory)
 	var fidelity_fallbacks: Array[String] = [
 		"iconId",
 		"randomizedStamina",
@@ -169,6 +196,9 @@ func _native_monster(record: Dictionary, descriptions: Array) -> Dictionary:
 		fidelity_fallbacks.append("randomizedMoney")
 	if _attack_sound_is_present(record):
 		fidelity_fallbacks.append("attackSounds")
+	for fallback: String in native_inventory.get("fidelityFallbacks", []):
+		if not fidelity_fallbacks.has(fallback):
+			fidelity_fallbacks.append(fallback)
 	var stats := _native_stats(record, stamina)
 	var attacks := _native_attacks(record)
 	return {
@@ -179,6 +209,7 @@ func _native_monster(record: Dictionary, descriptions: Array) -> Dictionary:
 		"classicHitDice": hit_dice,
 		"classicMagicResistance": int(record.get("magicResistance", 0)),
 		"classicCanSummon": int(record.get("canSummon", 0)),
+		"classicWeaponItemId": int(record.get("weapon", 0)),
 		"classicRecord": record.duplicate(true),
 		"classicMaterialization": {
 			"status": "blocked" if not unsupported_fields.is_empty() else "fallback",
@@ -207,13 +238,88 @@ func _native_monster(record: Dictionary, descriptions: Array) -> Dictionary:
 			"missile_chance": int(record.get("missilePercent", 0)),
 		},
 		"tools": {
-			"inventory": [],
+			"inventory": native_inventory.get("entries", []),
 			"money": _integer_array(record.get("money", []), 3),
 			"unarmed_melee_attacks": attacks,
 			"spells": [],
 		},
 		"scripts": {"default": "test_crea_script.gd"},
 	}
+
+
+func _native_inventory(
+	record: Dictionary,
+	item_book: Dictionary,
+	item_texts: Array,
+	item_mapping: Dictionary
+) -> Dictionary:
+	var entries: Array = []
+	var unsupported_fields: Array[String] = []
+	var fidelity_fallbacks: Array[String] = []
+	var item_ids := _integer_array(record.get("items", []), 6)
+	var weapon_id := int(record.get("weapon", 0))
+	var equipped_weapon := false
+	var carried_weapon := false
+	if weapon_id < 0:
+		unsupported_fields.append("weapon.randomSelector")
+	for item_index: int in range(item_ids.size()):
+		var raw_item_id: int = item_ids[item_index]
+		if raw_item_id == 0:
+			continue
+		var item_id: int = abs(raw_item_id)
+		if weapon_id > 0 and abs(weapon_id) == item_id:
+			carried_weapon = true
+		var item_key := _item_resource_key(
+			item_id,
+			item_book,
+			item_texts,
+			item_mapping
+		)
+		if item_key.is_empty():
+			unsupported_fields.append("items[%d]" % item_index)
+			continue
+		var should_equip: bool = (
+			weapon_id > 0
+			and not equipped_weapon
+			and abs(weapon_id) == item_id
+		)
+		var native_item: Dictionary = item_book.get(item_key, {})
+		var materialization: Variant = native_item.get("classicMaterialization", {})
+		if materialization is Dictionary \
+				and str(materialization.get("status", "")) == "blocked":
+			unsupported_fields.append("items[%d].nativeFields" % item_index)
+		if should_equip and int(native_item.get("equippable", 0)) == 0:
+			unsupported_fields.append("weapon.nonEquippable")
+		entries.append([item_key, 1 if should_equip else 0])
+		if should_equip:
+			equipped_weapon = true
+		if raw_item_id < 0 and not fidelity_fallbacks.has("itemDetectionMarkers"):
+			# Classic uses the sign bit to mark magic detected on a monster item.
+			# Remake can still carry and drop the item, but has no equivalent marker.
+			fidelity_fallbacks.append("itemDetectionMarkers")
+	if weapon_id > 0 and not carried_weapon:
+		unsupported_fields.append("weapon.notCarried")
+	elif weapon_id > 0 and not equipped_weapon:
+		unsupported_fields.append("weapon")
+	return {
+		"entries": entries,
+		"unsupportedFields": unsupported_fields,
+		"fidelityFallbacks": fidelity_fallbacks,
+	}
+
+
+func _item_resource_key(
+	item_id: int,
+	item_book: Dictionary,
+	item_texts: Array,
+	item_mapping: Dictionary
+) -> String:
+	return ItemIdentityScript.resource_key(
+		item_id,
+		item_mapping,
+		item_texts,
+		item_book
+	)
 
 
 func _native_stats(record: Dictionary, stamina: int) -> Dictionary:
@@ -324,13 +430,16 @@ func _native_attacks(record: Dictionary) -> Array:
 	return result
 
 
-func _unsupported_fields(record: Dictionary) -> Array[String]:
+func _unsupported_fields(record: Dictionary, native_inventory: Dictionary) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_SCALAR_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
 			fields.append(field_name)
-	for field_name: String in ["items", "spells", "conditions", "underneath"]:
+	for field_name: String in ["spells", "conditions", "underneath"]:
 		if _array_has_nonzero(record.get(field_name, [])):
+			fields.append(field_name)
+	for field_name: String in native_inventory.get("unsupportedFields", []):
+		if not fields.has(field_name):
 			fields.append(field_name)
 	var attacks: Variant = record.get("attacks", [])
 	if attacks is Array:
@@ -432,6 +541,30 @@ func _read_bestiary_book(path: String) -> Dictionary:
 	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not (value is Dictionary):
 		last_error = "Existing native bestiary book is not a JSON object"
+		return {}
+	return value
+
+
+func _read_item_context(campaign_root: String) -> Dictionary:
+	var item_book := _read_json_book(SHARED_ITEM_BOOK_PATH, "Shared native item book")
+	if not last_error.is_empty():
+		return {}
+	var campaign_book := _read_json_book(
+		campaign_root.path_join(ITEM_BOOK_PATH),
+		"Campaign native item book"
+	)
+	if not last_error.is_empty():
+		return {}
+	item_book.merge(campaign_book, true)
+	return item_book
+
+
+func _read_json_book(path: String, description: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (value is Dictionary):
+		last_error = "%s is not a JSON object: %s" % [description, path]
 		return {}
 	return value
 

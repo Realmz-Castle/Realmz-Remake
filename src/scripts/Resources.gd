@@ -315,6 +315,7 @@ func load_bestiary_resources( path : String ) -> void:
 			"classicHitDice",
 			"classicMagicResistance",
 			"classicCanSummon",
+			"classicWeaponItemId",
 		] :
 			if n_crea_stuff_book[crea_name].has(classic_field) :
 				new_crea_data[classic_field] = n_crea_stuff_book[crea_name][classic_field]

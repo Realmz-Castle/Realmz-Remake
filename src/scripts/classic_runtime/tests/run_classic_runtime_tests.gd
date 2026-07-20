@@ -2639,6 +2639,82 @@ func _test_classic_bestiary_materializer() -> void:
 		"bestiary materialization is byte-stable on rerun"
 	)
 
+	var inventory_root := test_root.path_join("inventory")
+	DirAccess.make_dir_recursive_absolute(inventory_root)
+	var inventory_bundle = BundleScript.new()
+	inventory_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	inventory_bundle.documents["content"]["monsters"][0]["items"] = [1, 901, 0, 0, 0, 0]
+	inventory_bundle.documents["content"]["monsters"][0]["weapon"] = 1
+	_expect_equal(
+		ItemMaterializerScript.new().materialize(inventory_bundle, inventory_root).get(
+			"status"
+		),
+		"ok",
+		"monster inventory test materializes its scenario-local item first"
+	)
+	_expect_equal(
+		materializer.materialize(inventory_bundle, inventory_root).get("status"),
+		"ok",
+		"Classic carried items generate native monster inventory"
+	)
+	var inventory_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(inventory_root.path_join("Bestiary/stuff_book.json"))
+	)
+	var inventory_monster: Dictionary = inventory_book.get("Classic Monster 1", {})
+	_expect_equal(
+		inventory_monster.get("tools", {}).get("inventory"),
+		[["Dagger", 1.0], ["Classic Item 901", 0.0]],
+		"monster inventory prefers stable campaign identity and equips its active weapon"
+	)
+	_expect_equal(
+		inventory_monster.get("classicWeaponItemId"),
+		1,
+		"native monster retains the source weapon identity"
+	)
+	_expect_equal(
+		inventory_monster.get("classicMaterialization", {}).get("unsupportedFields"),
+		[],
+		"resolved carried and equipped items do not block launch"
+	)
+	var inventory_readiness: Dictionary = ReadinessScript.new().inspect(
+		inventory_bundle,
+		{"bestiary": inventory_book}
+	)
+	_expect(
+		bool(inventory_readiness.get("ready", false)),
+		"resolved native monster inventory remains launchable"
+	)
+
+	var unresolved_inventory_root := test_root.path_join("unresolved-inventory")
+	DirAccess.make_dir_recursive_absolute(unresolved_inventory_root)
+	var unresolved_inventory_bundle = BundleScript.new()
+	unresolved_inventory_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	unresolved_inventory_bundle.documents["content"]["monsters"][0]["items"] = [
+		1999, 0, 0, 0, 0, 0
+	]
+	unresolved_inventory_bundle.documents["content"]["monsters"][0]["weapon"] = -1
+	_expect_equal(
+		materializer.materialize(
+			unresolved_inventory_bundle,
+			unresolved_inventory_root
+		).get("status"),
+		"ok",
+		"unresolved monster inventory remains inspectable"
+	)
+	var unresolved_inventory_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			unresolved_inventory_root.path_join("Bestiary/stuff_book.json")
+		)
+	)
+	var unresolved_fields: Array = unresolved_inventory_book.get(
+		"Classic Monster 1", {}
+	).get("classicMaterialization", {}).get("unsupportedFields", [])
+	_expect(
+		unresolved_fields.has("items[0]") \
+			and unresolved_fields.has("weapon.randomSelector"),
+		"unresolved item IDs and random weapon tables remain explicit blockers"
+	)
+
 	var unsupported_root := test_root.path_join("unsupported")
 	DirAccess.make_dir_recursive_absolute(unsupported_root)
 	var unsupported_bundle = BundleScript.new()

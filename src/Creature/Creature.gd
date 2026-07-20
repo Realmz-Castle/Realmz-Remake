@@ -698,13 +698,15 @@ func initialize_from_bestiary_dict(creaname : String) :
 	#inv/money
 	money = cdata["tools"]["money"]
 	for i_name_eq_arr in cdata["tools"]["inventory"] :  #[itemname, shouldequip01]
-		var item_added : Dictionary = resources.items_book[i_name_eq_arr[0]]
-		add_inventory_item(item_added.duplicate())
+		var item_added : Dictionary = resources.items_book[i_name_eq_arr[0]].duplicate()
+		if not add_inventory_item(item_added):
+			continue
+		var inventory_item: Dictionary = inventory.back()
 		if i_name_eq_arr[1]>0 :
-			print("Creature generation : "+name+" equips "+item_added["name"])
-			equip_item(item_added)
+			print("Creature generation : "+name+" equips "+inventory_item["name"])
+			equip_item(inventory_item)
 		else :
-			print("Creature generation : "+name+" does not equip "+item_added["name"])
+			print("Creature generation : "+name+" does not equip "+inventory_item["name"])
 	
 	#rotating_unarmed_melee_weapons
 	rotating_unarmed_melee_weapons.clear()
@@ -722,8 +724,13 @@ func initialize_from_bestiary_dict(creaname : String) :
 			wdata["name"] = 'NO_MELEE_WEAPON'
 			var item = resources.generate_item_from_json_dict(wdata)
 			rotating_unarmed_melee_weapons.append(item)
-	if rotating_unarmed_melee_weapons.size()>0 :
-		current_melee_weapons[0] = rotating_unarmed_melee_weapons[0]
+	if rotating_unarmed_melee_weapons.size()>0 \
+			and (current_melee_weapons.is_empty() \
+			or current_melee_weapons[0]["name"] == "NO_MELEE_WEAPON"):
+		if current_melee_weapons.is_empty():
+			current_melee_weapons.append(rotating_unarmed_melee_weapons[0])
+		else:
+			current_melee_weapons[0] = rotating_unarmed_melee_weapons[0]
 	
 	if cdata.has("traits") :
 		var cdata_traits_arrays_array : Array = cdata["traits"]
@@ -844,15 +851,40 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 			money.append(int(amount))
 	if saved_data.get("base_stats") is Dictionary:
 		base_stats = saved_data["base_stats"].duplicate(true)
-	if saved_data.get("inventory") is Array:
-		inventory = saved_data["inventory"].duplicate(true)
+	var saved_inventory: Variant = saved_data.get("inventory")
+	if saved_inventory is Array:
+		_clear_inventory_for_restore()
 	if saved_data.get("spells") is Array:
 		spells = saved_data["spells"].duplicate(true)
 	if saved_data.get("traits") is Array:
 		traits = saved_data["traits"].duplicate(true)
+	if saved_inventory is Array and not _restore_saved_inventory(saved_inventory, resources):
+		return false
 	recalculate_stats()
 	stats["curHP"] = int(saved_data.get("curHP", stats["curHP"]))
 	stats["curSP"] = int(saved_data.get("curSP", stats["curSP"]))
+	return true
+
+
+func _clear_inventory_for_restore() -> void:
+	for item_value: Variant in inventory.duplicate():
+		if item_value is Dictionary and int(item_value.get("equipped", 0)) > 0:
+			unequip_item(item_value, false)
+	inventory.clear()
+
+
+func _restore_saved_inventory(saved_inventory: Array, resources: Object) -> bool:
+	for item_value: Variant in saved_inventory:
+		if not (item_value is Dictionary):
+			return false
+		var should_equip := int(item_value.get("equipped", 0)) > 0
+		var restored_item: Dictionary = resources.generate_item_from_json_dict(item_value)
+		restored_item["equipped"] = 0
+		if not add_inventory_item(restored_item):
+			return false
+		var inventory_item: Dictionary = inventory.back()
+		if should_equip and not equip_item(inventory_item):
+			return false
 	return true
 
 # called by CbDecideAction State

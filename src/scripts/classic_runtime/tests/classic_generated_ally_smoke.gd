@@ -31,15 +31,27 @@ func _run_smoke() -> void:
 	)
 	var installer = InstallerScript.new()
 	installer._remove_directory(test_root)
-	var install_result: Dictionary = installer.install_export(PRODUCER_FIXTURE, test_root)
-	_expect_equal(install_result.get("status"), "ok", "producer fixture installs for ally smoke")
+	var fixture_directory := _prepare_inventory_fixture(installer)
+	if fixture_directory.is_empty():
+		_finish()
+		return
+	var campaigns_directory := test_root.path_join("Campaigns")
+	var install_result: Dictionary = installer.install_export(
+		fixture_directory,
+		campaigns_directory
+	)
+	_expect_equal(
+		install_result.get("status"),
+		"ok",
+		"producer-derived inventory fixture installs for ally smoke"
+	)
 	if str(install_result.get("status", "")) != "ok":
 		_finish()
 		return
 
-	var campaign_name := PRODUCER_FIXTURE.get_file()
-	var campaign_directory := test_root.path_join(campaign_name)
-	Paths.campaignsfolderpath = test_root.replace("\\", "/").trim_suffix("/") + "/"
+	var campaign_name := fixture_directory.get_file()
+	var campaign_directory := campaigns_directory.path_join(campaign_name)
+	Paths.campaignsfolderpath = campaigns_directory.replace("\\", "/").trim_suffix("/") + "/"
 	GameGlobal.set_current_campaign(campaign_name)
 	GameGlobal.player_allies.clear()
 	var resources: CampaignResources = NodeAccess.__Resources()
@@ -47,6 +59,10 @@ func _run_smoke() -> void:
 	_expect(
 		resources.crea_book.has("Classic Monster 1"),
 		"normal campaign resources load the generated Bestiary entry"
+	)
+	_expect(
+		resources.items_book.has("Classic Item 901"),
+		"normal campaign resources load the generated scenario item"
 	)
 
 	var bundle = BundleScript.new()
@@ -69,6 +85,24 @@ func _run_smoke() -> void:
 	_expect_equal(ally.bestiary_key, "Classic Monster 1", "ally retains its native resource key")
 	_expect_equal(ally.classic_monster_id, 1, "ally retains its Classic record identity")
 	_expect_equal(ally.classic_monster_name_id, 1, "ally retains its Classic name identity")
+	_expect_equal(ally.inventory.size(), 2, "ally receives both compiled monster items")
+	var equipped_dagger := _inventory_item(ally.inventory, "Dagger")
+	var carried_token := _inventory_item(ally.inventory, "Providence Token")
+	_expect_equal(
+		equipped_dagger.get("equipped"),
+		1,
+		"ally equips the concrete Classic weapon through native inventory"
+	)
+	_expect_equal(
+		ally.current_melee_weapons[0].get("name"),
+		"Dagger",
+		"equipped Classic weapon remains the ally's active melee weapon"
+	)
+	_expect_equal(
+		carried_token.get("classicItemId"),
+		901,
+		"ally carries the scenario-local item with stable Classic identity"
+	)
 	ally.name = "Sentinel Companion"
 	ally.stats["curHP"] = 17
 	ally.money = [23, 2, 1]
@@ -105,11 +139,62 @@ func _run_smoke() -> void:
 	_expect(not restored_ally.joins_combat, "ally combat preference survives save/load")
 	_expect_equal(restored_ally.classic_monster_id, 1, "record identity survives save/load")
 	_expect_equal(restored_ally.classic_monster_name_id, 1, "name identity survives save/load")
+	var restored_dagger := _inventory_item(restored_ally.inventory, "Dagger")
+	var restored_token := _inventory_item(restored_ally.inventory, "Providence Token")
+	_expect_equal(
+		restored_dagger.get("equipped"),
+		1,
+		"equipped monster weapon survives native ally save/load"
+	)
+	_expect_equal(
+		restored_ally.current_melee_weapons[0].get("name"),
+		"Dagger",
+		"restored Classic weapon remains active after ally save/load"
+	)
+	_expect_equal(
+		restored_token.get("classicItemId"),
+		901,
+		"scenario-local carried item identity survives native ally save/load"
+	)
 	_expect(
 		AdapterScript.new().party_has_classic_ally({"monsterNameId": 1}, [restored_ally]),
 		"restored producer ally satisfies a Classic name-identity check"
 	)
 	_finish()
+
+
+func _prepare_inventory_fixture(installer: Object) -> String:
+	var fixture_directory := test_root.path_join("source").path_join(
+		"producer-monster-inventory"
+	)
+	var copy_error: Error = installer._copy_directory(
+		ProjectSettings.globalize_path(PRODUCER_FIXTURE),
+		fixture_directory
+	)
+	_expect_equal(copy_error, OK, "ally smoke copies the producer fixture for derived coverage")
+	if copy_error != OK:
+		return ""
+	var content_path := fixture_directory.path_join("classic/content.json")
+	var content: Variant = JSON.parse_string(FileAccess.get_file_as_string(content_path))
+	_expect(content is Dictionary, "ally smoke reads the derived content document")
+	if not (content is Dictionary):
+		return ""
+	content["monsters"][0]["items"] = [1, 901, 0, 0, 0, 0]
+	content["monsters"][0]["weapon"] = 1
+	var content_file := FileAccess.open(content_path, FileAccess.WRITE)
+	_expect(content_file != null, "ally smoke writes the derived monster inventory")
+	if content_file == null:
+		return ""
+	content_file.store_string(JSON.stringify(content, "  ", true) + "\n")
+	content_file.close()
+	return fixture_directory
+
+
+func _inventory_item(inventory: Array, item_name: String) -> Dictionary:
+	for item_value: Variant in inventory:
+		if item_value is Dictionary and str(item_value.get("name", "")) == item_name:
+			return item_value
+	return {}
 
 
 func _expect(condition: bool, description: String) -> void:

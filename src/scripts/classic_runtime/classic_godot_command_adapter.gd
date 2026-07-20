@@ -3,6 +3,7 @@ extends RefCounted
 
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
+const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
@@ -29,13 +30,6 @@ const COMPLEX_WORD_TEXT_LIMIT := 40
 # Classic stores five contiguous 200-slot inventory categories.
 const SHOP_CATEGORY_SIZE := 200
 const SHOP_CATEGORIES := ["Weapons", "Armor", "Limbs", "Magic", "Supplies"]
-# These duplicate shared definitions are stocked by Classic shops but omitted
-# from Remake's Divinity ID table in favor of their equivalent item records.
-const CLASSIC_SHARED_ITEM_ALIASES := {
-	98: "Quarter Staff",
-	610: "Waterworld",
-	611: "Heal Small Wounds",
-}
 # Opcode 32 scales these temple.c base prices by its authored percentage.
 const CLASSIC_TEMPLE_SERVICES := [
 	["Heal Small Wounds", 1, 250],
@@ -2509,32 +2503,12 @@ func _classic_item_names(
 	item_texts: Array,
 	item_book: Dictionary = {}
 ) -> Array[String]:
-	var names: Array[String] = []
-	for item_key: Variant in item_book:
-		var item_value: Variant = item_book[item_key]
-		if not (item_value is Dictionary):
-			continue
-		if _classic_resource_ids(item_value, "classicItemId", "classicItemIds").has(item_id):
-			names.append(str(item_key))
-	var mapped_name := str(item_id_mapping.get(
+	return ItemIdentityScript.candidate_names(
 		item_id,
-		item_id_mapping.get(str(item_id), "")
-	))
-	if not mapped_name.is_empty() and not names.has(mapped_name):
-		names.append(mapped_name)
-	var alias_name := str(CLASSIC_SHARED_ITEM_ALIASES.get(item_id, ""))
-	if not alias_name.is_empty() and not names.has(alias_name):
-		names.append(alias_name)
-	for item_text_value: Variant in item_texts:
-		if not (item_text_value is Dictionary):
-			continue
-		if abs(int(item_text_value.get("itemId", 0))) != item_id:
-			continue
-		for field_name: String in ["identifiedName", "unidentifiedName"]:
-			var item_text_name := str(item_text_value.get(field_name, "")).strip_edges()
-			if not item_text_name.is_empty() and not names.has(item_text_name):
-				names.append(item_text_name)
-	return names
+		item_id_mapping,
+		item_texts,
+		item_book
+	)
 
 
 func _normalized_item_name(item_name: String) -> String:
@@ -2942,7 +2916,7 @@ func _accepted_classic_shop_item_names(
 	var candidate_ids: Dictionary = {}
 	for item_id_value: Variant in item_id_mapping.keys():
 		candidate_ids[abs(int(item_id_value))] = true
-	for item_id_value: Variant in CLASSIC_SHARED_ITEM_ALIASES.keys():
+	for item_id_value: Variant in ItemIdentityScript.SHARED_ITEM_ALIASES.keys():
 		candidate_ids[abs(int(item_id_value))] = true
 	for item_value: Variant in available_items.values():
 		if not (item_value is Dictionary):
