@@ -10,6 +10,9 @@ const SpellOverrideScript = preload(
 	"res://scripts/classic_runtime/classic_spell_override.gd"
 )
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
+const CombatRoutRulesScript = preload(
+	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
+)
 const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
 const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
@@ -1105,6 +1108,7 @@ func apply_classic_rout(combatants: Array, fleeing_trait: Script) -> int:
 	for combatant_value: Variant in combatants:
 		var creature: Object = _combatant_creature(combatant_value)
 		creature.add_trait(fleeing_trait, [])
+		CombatRoutRulesScript.mark_routed(creature)
 	return combatants.size()
 
 
@@ -1119,6 +1123,10 @@ func remove_classic_combatants(combat_state: Variant, combatants: Array) -> int:
 			continue
 		if combat_state.has_method("queue_classic_death_macro"):
 			combat_state.queue_classic_death_macro(creature)
+		if combat_state.has_method("remove_registered_combatant"):
+			combat_state.remove_registered_combatant(combatant_value)
+			removed += 1
+			continue
 		if defeated is Array and _combat_creature_faction(creature) != 0:
 			if not defeated.has(creature):
 				defeated.append(creature)

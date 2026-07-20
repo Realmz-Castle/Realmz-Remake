@@ -7,6 +7,10 @@ const combatcreaturemapobjectTSCN : PackedScene = preload("res://scenes/Map/Comb
 const ClassicCombatMacroQueueScript = preload(
 	"res://scripts/classic_runtime/classic_combat_macro_queue.gd"
 )
+const ClassicCombatRoutRulesScript = preload(
+	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
+)
+const BattleRemovalRulesScript = preload("res://scripts/battle_removal_rules.gd")
 const TurnUndeadRulesScript = preload("res://scripts/turn_undead_rules.gd")
 @export var cbanimstate : CbAnimationState
 
@@ -163,6 +167,17 @@ func perform_turn_undead(caster_button: CombatCreaButton, rolls: Array = []) -> 
 		cur_battle_data,
 		rolls
 	)
+
+
+func mark_classic_rout_exit_if_at_edge(
+	creature: Creature,
+	battlefield_size: Vector2i
+) -> bool:
+	return ClassicCombatRoutRulesScript.mark_exit_if_at_edge(creature, battlefield_size)
+
+
+func remove_registered_combatant(combatant: CombatCreaButton) -> String:
+	return BattleRemovalRulesScript.remove_combatant(self, combatant)
 
 
 func queue_classic_death_macro(creature: Variant) -> bool:

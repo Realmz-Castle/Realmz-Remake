@@ -19,7 +19,11 @@ const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_
 const CombatIntegrationAdapterScript = preload(
 	"res://scripts/classic_runtime/tests/classic_combat_integration_adapter.gd"
 )
+const CombatRoutRulesScript = preload(
+	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
+)
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
+const BattleRemovalRulesScript = preload("res://scripts/battle_removal_rules.gd")
 const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
 const TurnUndeadRulesScript = preload("res://scripts/turn_undead_rules.gd")
 const ShopRulesScript = preload("res://scripts/shop_rules.gd")
@@ -301,6 +305,7 @@ class CombatTestCreature:
 	var classic_monster_id := -1
 	var classic_monster_name_id := -1
 	var is_player_controlled := false
+	var please_remove_from_combat := false
 	var applied_traits: Array = []
 
 	func _init(creature_name: String, hp: int, faction := 1) -> void:
@@ -380,6 +385,7 @@ class CombatTestState:
 	var all_battle_creatures_btns: Array
 	var battle_creatures_yet_to_act_btns: Array
 	var battle_dead_enemies: Array = []
+	var battle_dead_party_members: Array = []
 	var cur_battle_data: Dictionary = {"battleMacro": -1}
 	var placement_origins: Array = []
 	var queued_death_creatures: Array = []
@@ -4314,11 +4320,66 @@ func _test_combat_monster_rout_action() -> void:
 	)
 	for combatant: Variant in selected:
 		_expect_equal(combatant.creature.applied_traits.size(), 1, "routed creature receives one trait")
+		_expect(CombatRoutRulesScript.is_routed(combatant.creature), "rout marks Classic exit behavior")
 		_expect_equal(
 			str(combatant.creature.applied_traits[0]["script"].resource_path),
 			"res://scripts/classic_runtime/classic_godot_command_adapter.gd",
 			"rout applies the supplied trait script"
 		)
+	matching_enemy.creature.position = Vector2(1, 45)
+	second_enemy.creature.position = Vector2(2, 45)
+	_expect(
+		CombatRoutRulesScript.mark_exit_if_at_edge(matching_enemy.creature, Vector2i(90, 90)),
+		"a routed enemy resolves at the Classic battlefield edge"
+	)
+	_expect(matching_enemy.creature.please_remove_from_combat, "routed edge exit queues native removal")
+	_expect(
+		not CombatRoutRulesScript.mark_exit_if_at_edge(second_enemy.creature, Vector2i(90, 90)),
+		"a routed enemy inside the edge remains in combat"
+	)
+	var routed_state := CombatTestState.new([matching_enemy, second_enemy, matching_ally])
+	_expect_equal(
+		BattleRemovalRulesScript.remove_combatant(routed_state, matching_enemy),
+		"enemy",
+		"a routed hostile remains eligible for battle rewards"
+	)
+	_expect(
+		not routed_state.all_battle_creatures_btns.has(matching_enemy),
+		"a routed edge exit leaves the live roster"
+	)
+	_expect(
+		not routed_state.battle_creatures_yet_to_act_btns.has(matching_enemy),
+		"a routed edge exit leaves initiative"
+	)
+	CombatRoutRulesScript.mark_routed(matching_ally.creature)
+	matching_ally.creature.position = Vector2(88, 45)
+	matching_ally.creature.set_meta("classic_can_summon", -1)
+	_expect(
+		not CombatRoutRulesScript.mark_exit_if_at_edge(
+			matching_ally.creature,
+			Vector2i(90, 90)
+		),
+		"Classic's ally sentinel prevents a routed battlefield exit"
+	)
+	matching_ally.creature.set_meta("classic_can_summon", 0)
+	_expect(
+		CombatRoutRulesScript.mark_exit_if_at_edge(matching_ally.creature, Vector2i(90, 90)),
+		"a routed ally also leaves the live roster at the edge"
+	)
+	_expect_equal(
+		BattleRemovalRulesScript.remove_combatant(routed_state, matching_ally),
+		"ally",
+		"a routed ally is not classified as a battle reward"
+	)
+	_expect_equal(
+		routed_state.battle_dead_enemies,
+		[matching_enemy.creature],
+		"only the routed hostile enters rewards"
+	)
+	_expect(
+		routed_state.battle_dead_party_members.is_empty(),
+		"a living routed ally is not a party defeat"
+	)
 
 
 func _test_combat_monster_spawn_action() -> void:

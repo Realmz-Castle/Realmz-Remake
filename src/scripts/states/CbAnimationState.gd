@@ -98,12 +98,24 @@ func enter(_msg : Dictionary = {}) -> void:
 
 						var extra_actions : Array = movercb.creature.move(dir)
 						print("CbAnim onmove extra_actions : ", extra_actions)
-						var xdiff : float = abs(GameGlobal.map.focuscharacter.tile_position_x-movercb.creature.position.x)
-						var ydiff : float = abs(GameGlobal.map.focuscharacter.tile_position_y-movercb.creature.position.y)
-						if combat_state.is_cam_too_far(int(xdiff), int(ydiff)) :
-							GameGlobal.map.focuscharacter.set_tile_position(movercb.creature.position)
-						UI.ow_hud.updateCharPanelDisplay()
-						UI.ow_hud.creatureRect.display_crea_info(movercb)
+						var routed_off_battlefield := combat_state.mark_classic_rout_exit_if_at_edge(
+							movercb.creature,
+							_battlefield_size()
+						)
+						if routed_off_battlefield:
+							UI.ow_hud.creatureRect.logrect.log_other_text(
+								movercb.creature,
+								" flees from battle.",
+								null,
+								""
+							)
+						else:
+							var xdiff : float = abs(GameGlobal.map.focuscharacter.tile_position_x-movercb.creature.position.x)
+							var ydiff : float = abs(GameGlobal.map.focuscharacter.tile_position_y-movercb.creature.position.y)
+							if combat_state.is_cam_too_far(int(xdiff), int(ydiff)) :
+								GameGlobal.map.focuscharacter.set_tile_position(movercb.creature.position)
+							UI.ow_hud.updateCharPanelDisplay()
+							UI.ow_hud.creatureRect.display_crea_info(movercb)
 
 						if not extra_actions.is_empty() :
 							#for ea in extra_actions :
@@ -273,8 +285,7 @@ func enter(_msg : Dictionary = {}) -> void:
 			to_be_removed.append(cb)
 	for cb in to_be_removed :
 		print("    cbanim remove cb "+cb.creature.name)
-		combat_state.battle_dead_enemies.append(cb.creature)
-		combat_state.remove_cb_from_battle(cb)
+		combat_state.remove_registered_combatant(cb)
 		cb.creature.please_remove_from_combat = false
 		cb.creature.doing_on_death_action = false
 		
@@ -294,6 +305,13 @@ func enter(_msg : Dictionary = {}) -> void:
 func _on_timer_over() :
 	print("CbAnilState signal timer_over")
 	emit_signal("timer_over")
+
+
+func _battlefield_size() -> Vector2i:
+	var mapdata: Variant = GameGlobal.map.mapdata
+	if not (mapdata is Array) or mapdata.is_empty() or not (mapdata[0] is Array):
+		return Vector2i.ZERO
+	return Vector2i(mapdata.size(), mapdata[0].size())
 
 
 func perform_turn_undead(msg: Dictionary) -> void:
