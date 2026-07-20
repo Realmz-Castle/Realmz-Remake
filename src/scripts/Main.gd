@@ -47,6 +47,8 @@ func _ready():
 	#pass
 
 func _exit_tree():
+	if DisplayServer.get_name() == "headless":
+		return
 	Utils.FileHandler.set_cfg_setting(Paths.settingspath, "SETTINGS","screen_size_x", DisplayServer.window_get_size().x)
 	Utils.FileHandler.set_cfg_setting(Paths.settingspath, "SETTINGS","screen_size_y", DisplayServer.window_get_size().y)
 	pass
