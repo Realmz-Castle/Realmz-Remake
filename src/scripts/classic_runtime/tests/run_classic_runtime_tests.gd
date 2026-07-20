@@ -154,6 +154,15 @@ class BundleAwareAdapter:
 		return {}
 
 
+class MapSoundAdapter:
+	extends RefCounted
+	var sound_ids: Array[int] = []
+
+	func play_classic_map_sound(sound_id: int) -> Dictionary:
+		sound_ids.append(sound_id)
+		return {"status": "ok"}
+
+
 class StartLocationAdapter:
 	extends RefCounted
 	var configured_bundle: Variant
@@ -685,6 +694,7 @@ func _init() -> void:
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
 	_test_classic_map_materializer()
+	_test_classic_map_sound_bridge()
 	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
 	_test_native_battle_bridge_fixture()
@@ -2315,6 +2325,40 @@ func _test_classic_map_materializer() -> void:
 		OK,
 		"materializer test cleans its workspace"
 	)
+
+
+func _test_classic_map_sound_bridge() -> void:
+	var classic_selection: Dictionary = MapBridgeScript.select_tile_stack_sound([
+		{"sound": [], "classicSoundId": 0},
+		{"sound": [], "classicSoundId": 321},
+	])
+	_expect_equal(
+		classic_selection.get("classicSoundId"),
+		321,
+		"exploration selects a generated tile's Classic sound"
+	)
+	var native_selection: Dictionary = MapBridgeScript.select_tile_stack_sound([
+		{"sound": ["walk road.wav"], "classicSoundId": 0},
+		{"sound": [], "classicSoundId": 321},
+	])
+	_expect_equal(
+		native_selection.get("nativeSounds"),
+		["walk road.wav"],
+		"native map sound remains authoritative over Classic tile metadata"
+	)
+	_expect_equal(
+		MapBridgeScript.select_tile_stack_sound([{"sound": []}]),
+		{},
+		"silent native tiles do not request Classic playback"
+	)
+
+	var adapter = MapSoundAdapter.new()
+	var host = HostScript.new()
+	host.configure(adapter)
+	var result: Dictionary = host.play_map_sound(321)
+	_expect_equal(adapter.sound_ids, [321], "map sound reaches the Classic command adapter")
+	_expect_equal(result.get("handled"), true, "Classic runtime host handles map sound playback")
+	host.free()
 
 
 func _test_classic_campaign_package_installer() -> void:

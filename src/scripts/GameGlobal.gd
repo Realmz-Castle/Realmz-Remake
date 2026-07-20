@@ -428,6 +428,22 @@ func resolve_classic_dungeon_movement(
 	}
 
 
+func play_classic_map_sound(sound_id: int) -> Dictionary:
+	if sound_id == 0:
+		return {"handled": false}
+	if (
+		not is_instance_valid(classic_runtime_host)
+		or not classic_runtime_host.has_method("play_map_sound")
+	):
+		return {"handled": false}
+	var result: Variant = classic_runtime_host.call("play_map_sound", sound_id)
+	return result if result is Dictionary else {
+		"status": "error",
+		"handled": true,
+		"message": "Registered Classic runtime host returned an invalid sound response",
+	}
+
+
 func stop_classic_campaign_runtime() -> void:
 	classic_runtime_host = null
 	if is_instance_valid(classic_campaign_session):

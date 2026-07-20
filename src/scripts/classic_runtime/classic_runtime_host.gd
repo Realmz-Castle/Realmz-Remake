@@ -209,6 +209,21 @@ func resolve_dungeon_movement(from_position: Vector2i, to_position: Vector2i) ->
 	}
 
 
+func play_map_sound(sound_id: int) -> Dictionary:
+	if command_adapter == null or not command_adapter.has_method("play_classic_map_sound"):
+		return {"handled": false}
+	var response: Variant = command_adapter.call("play_classic_map_sound", sound_id)
+	if not (response is Dictionary):
+		return {
+			"status": "error",
+			"handled": true,
+			"message": "Classic map-sound adapter returned an invalid response",
+		}
+	var result: Dictionary = response.duplicate()
+	result["handled"] = true
+	return result
+
+
 func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 	if command_adapter == null or not command_adapter.has_method("execute_command"):
 		_stop_with_error("ClassicRuntimeHost requires an execute_command adapter")

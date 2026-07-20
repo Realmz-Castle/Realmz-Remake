@@ -4,6 +4,7 @@ class_name ExplorationState
 const ClassicCampaignGlobalScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_global.gd"
 )
+const ClassicMapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
 
 
 var map : Map
@@ -88,7 +89,6 @@ func _on_dir_input_received(input : Vector2i, _is_keyboard : bool) -> void :
 
 func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position : Vector2) : #exporation mode
 	var canwalk : bool = true
-	var soundplayed : bool = false
 	var stacksize = stack.size()
 	var timetowalk : int = 0
 	for i  in range(stack.size()) :
@@ -103,12 +103,7 @@ func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position :
 			if idef['water'] == 0 and idef['dock'] == 0 :
 				canwalk = false
 		canwalk = canwalk and not ( idef['wall'] != 0 or idef['swall'] != 0 )
-		if not soundplayed and idef['sound'] != [] :
-			soundplayed = true
-			var soundslist : Array = idef['sound']
-			soundslist.shuffle()
-			SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[soundslist[0]]
-			SfxPlayer.play()
+	_play_tile_stack_sound(stack)
 			
 	# check for scripts checked the map :
 	var canwalk_path : bool = GameGlobal.map.mapsecretpaths.has(Vector2i(position))
@@ -143,3 +138,20 @@ func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position :
 		if canwalk_secret :
 			GameGlobal.map.set_secret_seen( Vector2i(position) )
 	return [canwalk, timetowalk ]
+
+
+func _play_tile_stack_sound(stack: Array) -> void:
+	var selection := ClassicMapBridgeScript.select_tile_stack_sound(stack)
+	var native_sounds: Variant = selection.get("nativeSounds", [])
+	if native_sounds is Array and not native_sounds.is_empty():
+		var sounds: Array = native_sounds.duplicate()
+		sounds.shuffle()
+		SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[sounds[0]]
+		SfxPlayer.play()
+		return
+	var classic_sound_id := int(selection.get("classicSoundId", 0))
+	if classic_sound_id == 0:
+		return
+	var result: Dictionary = GameGlobal.play_classic_map_sound(classic_sound_id)
+	if str(result.get("status", "")) == "error":
+		push_error(str(result.get("message", "Classic map sound playback failed")))

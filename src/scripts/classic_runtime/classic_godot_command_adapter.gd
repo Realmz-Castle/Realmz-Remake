@@ -257,6 +257,10 @@ func resolve_classic_dungeon_movement(
 	return result
 
 
+func play_classic_map_sound(sound_id: int) -> Dictionary:
+	return _play_sound({"soundId": sound_id})
+
+
 func classic_spell_override(spell_id: int) -> Variant:
 	if classic_spell_overrides.has(spell_id):
 		return classic_spell_overrides[spell_id]

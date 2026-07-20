@@ -40,6 +40,22 @@ var classic_bundle: Object
 var native_tile_stacks: Dictionary = {}
 
 
+static func select_tile_stack_sound(stack: Array) -> Dictionary:
+	var classic_sound_id := 0
+	for index in range(stack.size() - 1, -1, -1):
+		var tile: Variant = stack[index]
+		if not (tile is Dictionary):
+			continue
+		var native_sounds: Variant = tile.get("sound", [])
+		if native_sounds is Array and not native_sounds.is_empty():
+			return {"nativeSounds": native_sounds}
+		if classic_sound_id == 0:
+			classic_sound_id = int(tile.get("classicSoundId", 0))
+	if classic_sound_id != 0:
+		return {"classicSoundId": classic_sound_id}
+	return {}
+
+
 func configure(bundle: Object) -> void:
 	classic_bundle = bundle
 	native_tile_stacks.clear()
