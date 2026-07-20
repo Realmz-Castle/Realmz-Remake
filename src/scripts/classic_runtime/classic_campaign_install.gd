@@ -2,10 +2,22 @@ class_name ClassicCampaignInstall
 extends RefCounted
 
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
+const ReadinessScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_readiness.gd"
+)
+
+const REQUIRED_NATIVE_MAP_FILES := [
+	"map_info.json",
+	"map_scriptareas.json",
+	"map_scripts.gd",
+	"map_things.json",
+]
 
 var campaign_name := ""
 var campaign_directory := ""
 var bundle: ClassicCampaignBundle
+var readiness_report: Dictionary = {}
+var start_diagnostic := ""
 var last_error := ""
 
 
@@ -52,31 +64,72 @@ func load_from_campaigns_directory(
 		return _fail(bundle.last_error)
 	if not _validate_packaged_payloads():
 		return false
+	readiness_report = ReadinessScript.new().inspect(bundle)
+	start_diagnostic = _validate_native_start_map()
 	return true
 
 
 func selection_rules() -> Dictionary:
-	if bundle == null:
+	if bundle == null or not last_error.is_empty():
+		var invalid_title := campaign_name
+		if bundle != null:
+			var manifest_title := str(bundle.manifest.get("name", "")).strip_edges()
+			if not manifest_title.is_empty():
+				invalid_title = manifest_title
 		return {
+			"title": invalid_title,
 			"description": last_error,
 			"restrictionsDescription": last_error,
 			"charactersLimit": 0,
 			"classic": true,
 			"valid": false,
+			"readinessState": "Invalid",
+			"readinessSummary": "Invalid Classic campaign package.",
+			"diagnostic": last_error,
 		}
+	var title := str(bundle.manifest.get("name", campaign_name)).strip_edges()
+	if title.is_empty():
+		title = campaign_name
 	var description := str(bundle.manifest.get("description", "")).strip_edges()
 	if description.is_empty():
-		description = "%s (Classic compatibility campaign)" % bundle.manifest.get(
-			"name",
-			campaign_name
-		)
+		description = "%s (Classic compatibility campaign)" % title
+	var ready := bool(readiness_report.get("ready", false)) and start_diagnostic.is_empty()
+	var fallback_count := int(
+		readiness_report.get("totals", {}).get("fidelityFallbacks", 0)
+	)
+	var readiness_state := "Ready with fallbacks" if ready and fallback_count > 0 else "Ready"
+	var diagnostic := ""
+	if not start_diagnostic.is_empty():
+		readiness_state = "Blocked"
+		diagnostic = start_diagnostic
+	elif not bool(readiness_report.get("ready", false)):
+		readiness_state = "Blocked"
+		diagnostic = _first_progression_blocker()
+	var readiness_summary := str(readiness_report.get("summary", ""))
+	if not start_diagnostic.is_empty():
+		readiness_summary = "Blocked: required native start-map files are unavailable."
+	var format_version := int(bundle.manifest.get("formatVersion", 0))
+	var compatibility_profile := str(bundle.manifest.get("compatibilityProfile", ""))
+	var version_label := "Classic format v%d" % format_version
+	if not compatibility_profile.is_empty():
+		version_label += " (%s)" % compatibility_profile
 	return {
+		"title": title,
 		"description": description,
-		"restrictionsDescription": "No race or class restrictions; 6 characters maximum",
+		"restrictionsDescription": (
+			"No race or class restrictions; 6 characters maximum"
+			if ready
+			else "Cannot start: %s" % diagnostic
+		),
 		"charactersLimit": 6,
 		"classic": true,
-		"valid": true,
-		"formatVersion": int(bundle.manifest.get("formatVersion", 0)),
+		"valid": ready,
+		"formatVersion": format_version,
+		"compatibilityProfile": compatibility_profile,
+		"versionLabel": version_label,
+		"readinessState": readiness_state,
+		"readinessSummary": readiness_summary,
+		"diagnostic": diagnostic,
 	}
 
 
@@ -124,6 +177,8 @@ func _reset() -> void:
 	campaign_name = ""
 	campaign_directory = ""
 	bundle = null
+	readiness_report.clear()
+	start_diagnostic = ""
 	last_error = ""
 
 
@@ -134,3 +189,31 @@ func _fail(message: String) -> bool:
 
 func _normalized_directory(directory: String) -> String:
 	return directory.strip_edges().replace("\\", "/").trim_suffix("/")
+
+
+func _validate_native_start_map() -> String:
+	var start := bundle.get_start()
+	var level_type := str(start.get("levelType", ""))
+	var level_index := int(start.get("levelIndex", -1))
+	var map_name := ""
+	if level_type == "land":
+		map_name = "map_%d" % level_index
+	elif level_type == "dungeon":
+		map_name = "mapd_%d" % level_index
+	if map_name.is_empty() or level_index < 0:
+		return "Compiled campaign has an invalid start-map identity"
+	var map_directory := campaign_directory.path_join("Maps").path_join(map_name)
+	for file_name: String in REQUIRED_NATIVE_MAP_FILES:
+		if not FileAccess.file_exists(map_directory.path_join(file_name)):
+			return "Native start map %s is missing %s" % [map_name, file_name]
+	return ""
+
+
+func _first_progression_blocker() -> String:
+	for diagnostic_value: Variant in readiness_report.get("diagnostics", []):
+		if (
+			diagnostic_value is Dictionary
+			and str(diagnostic_value.get("classification", "")) == "progression-blocker"
+		):
+			return str(diagnostic_value.get("message", "Campaign readiness check failed"))
+	return "Campaign readiness check failed"

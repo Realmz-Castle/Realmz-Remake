@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "fixture": "Normal campaign UI launch smoke",
+  "fixtureNote": "Purpose-built compiled records exercise discovery, selection, and launch through the standard campaign panel.",
+  "validation": {
+    "ok": true,
+    "errors": []
+  },
+  "semanticDecoding": {
+    "dispatcherNoops": []
+  }
+}

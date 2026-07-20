@@ -52,6 +52,8 @@ const PROVIDENCE_AUTHORITATIVE_PROVENANCE := \
 	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export.provenance.json"
 const NATIVE_BATTLE_BRIDGE_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/native_battle_bridge"
+const CAMPAIGN_UI_SMOKE_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/installed_campaigns/campaign_ui_smoke"
 
 var failures := 0
 
@@ -1109,6 +1111,52 @@ func _test_installed_classic_campaign_layout() -> void:
 		BundleScript.FORMAT_VERSION,
 		"installed campaign reports its supported runtime version"
 	)
+	var producer_rules: Dictionary = install.selection_rules()
+	_expect_equal(
+		producer_rules.get("title"),
+		"Providence Ownership Proof",
+		"installed campaign selection uses its manifest title"
+	)
+	_expect_equal(
+		producer_rules.get("versionLabel"),
+		"Classic format v1 (realmz-7.1)",
+		"installed campaign selection identifies its compatibility contract"
+	)
+	_expect_equal(
+		producer_rules.get("readinessState"),
+		"Blocked",
+		"structurally valid campaign without native maps is blocked from launch"
+	)
+	_expect(
+		str(producer_rules.get("diagnostic", "")).contains("Native start map map_0"),
+		"blocked installed campaign explains its missing native start map"
+	)
+
+	var ready_campaigns_directory := CAMPAIGN_UI_SMOKE_FIXTURE.get_base_dir()
+	var ready_campaign_name := CAMPAIGN_UI_SMOKE_FIXTURE.get_file()
+	var ready_install = CampaignInstallScript.new()
+	_expect(
+		ready_install.load_from_campaigns_directory(
+			ready_campaigns_directory,
+			ready_campaign_name
+		),
+		"ready campaign UI fixture loads: %s" % ready_install.last_error
+	)
+	var ready_rules: Dictionary = ready_install.selection_rules()
+	_expect_equal(
+		ready_rules.get("title"),
+		"Classic Campaign UI Smoke",
+		"ready campaign selection exposes its manifest title"
+	)
+	_expect_equal(
+		ready_rules.get("readinessState"),
+		"Ready",
+		"compiled campaign with a complete native start map is ready"
+	)
+	_expect(
+		bool(ready_rules.get("valid", false)),
+		"ready compiled campaign may proceed through party selection"
+	)
 	var managed_assets: Array = install.bundle.documents.get("assets", {}).get(
 		"managedAssets",
 		[]
@@ -1148,6 +1196,18 @@ func _test_installed_classic_campaign_layout() -> void:
 	_expect(
 		invalid_install.last_error.contains("one installed campaign directory"),
 		"unsafe install path returns an actionable error"
+	)
+	var invalid_rules: Dictionary = invalid_install.selection_rules()
+	_expect_equal(
+		invalid_rules.get("readinessState"),
+		"Invalid",
+		"invalid installed campaign remains visible as invalid"
+	)
+	_expect(
+		str(invalid_rules.get("diagnostic", "")).contains(
+			"one installed campaign directory"
+		),
+		"invalid installed campaign preserves its actionable diagnostic"
 	)
 
 	var session = CampaignSessionScript.new()

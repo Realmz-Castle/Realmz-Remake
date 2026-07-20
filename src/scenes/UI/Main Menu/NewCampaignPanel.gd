@@ -36,19 +36,37 @@ func _on_CancelButton_pressed() -> void :
 #	self.get_parent().get_parent().newCharacterButton.show()
 
 func _on_campaign_selected(idx : int) -> void :
-#	print(idx, campaignsItemList.get_item_text(idx))
-	selectedCampaign = campaignsItemList.get_item_text(idx)
-	if GameGlobal.honest_mode and selectedCampaign.ends_with(" (busy)") :
-		selectedCampaignDescrLabel.text = selectedCampaign+"\nThis campaign is already in use by another party.\nDelete that game first."
+	set_ready(false, [])
+	var metadata: Variant = campaignsItemList.get_item_metadata(idx)
+	if not (metadata is Dictionary):
 		return
-	
-	selectedCampaignNameLabel.text = selectedCampaign
-	selectedcampaign_onselect = GameGlobal.get_campaign_selection_rules(selectedCampaign)
-	selectedCampaignDescrLabel.text = GameGlobal.get_campaign_description(selectedCampaign)
+	selectedCampaign = str(metadata.get("campaignName", ""))
+	selectedcampaign_onselect = metadata.get("selectionRules")
+	if bool(metadata.get("busy", false)):
+		selectedCampaignDescrLabel.text = (
+			selectedCampaign
+			+ "\nThis campaign is already in use by another party.\nDelete that game first."
+		)
+		return
+
+	if selectedcampaign_onselect is Dictionary:
+		selectedCampaignNameLabel.text = str(
+			selectedcampaign_onselect.get("title", selectedCampaign)
+		)
+		selectedCampaignDescrLabel.text = _classic_campaign_description(
+			selectedcampaign_onselect
+		)
+	else:
+		selectedCampaignNameLabel.text = selectedCampaign
+		selectedCampaignDescrLabel.text = GameGlobal.get_campaign_description(selectedCampaign)
 	#reset the character picking panel
 	charPickRect.fill()
 
 func _on_StartButton_pressed() -> void :
+	if selectedcampaign_onselect is Dictionary and not bool(
+		selectedcampaign_onselect.get("valid", false)
+	):
+		return
 	GameGlobal.set_current_campaign(selectedCampaign)
 	var data_dict : Dictionary = {
 		"fatigue" = 0.0,
@@ -109,21 +127,62 @@ func _on_StartButton_pressed() -> void :
 
 
 func fill() -> void :
-	charPickRect.fill()
+	selectedCampaign = ""
+	selectedcampaign_onselect = null
+	selectedCampaignNameLabel.text = ""
+	selectedCampaignDescrLabel.text = ""
+	set_ready(false, [])
 
 	campaignslist = Utils.FileHandler.list_dirs_in_directory(Paths.campaignsfolderpath)
 	campaignsItemList.clear()
-	for c in campaignslist :
-		var selectable : bool = true
+	for campaign_value: Variant in campaignslist:
+		var campaign_name := str(campaign_value)
+		var selection_rules: Variant = GameGlobal.get_campaign_selection_rules(campaign_name)
+		var display_name := campaign_name
+		if selection_rules is Dictionary:
+			display_name = "%s — %s" % [
+				selection_rules.get("title", campaign_name),
+				selection_rules.get("readinessState", "Invalid"),
+			]
+		var busy := false
 		if GameGlobal.honest_mode :
-			var savepath : String = Paths.profilesfolderpath + GameGlobal.currentprofile + "/Saves/"+ c + "/"
+			var savepath : String = (
+				Paths.profilesfolderpath
+				+ GameGlobal.currentprofile
+				+ "/Saves/"
+				+ campaign_name
+				+ "/"
+			)
 			if DirAccess.dir_exists_absolute(savepath) :
 				if Utils.FileHandler.list_dirs_in_directory(savepath).size()>0 :
-					selectable = false
-					c = c+ " (busy)"
-		campaignsItemList.add_item(c)#,null,selectable) BUG not selmectable still selectable...
+					busy = true
+					display_name += " (busy)"
+		var item_index := campaignsItemList.item_count
+		campaignsItemList.add_item(display_name)
+		campaignsItemList.set_item_metadata(item_index, {
+			"campaignName": campaign_name,
+			"selectionRules": selection_rules,
+			"busy": busy,
+		})
 
 	return
+
+
+func _classic_campaign_description(selection_rules: Dictionary) -> String:
+	var lines: Array[String] = [
+		str(selection_rules.get("description", "")),
+		str(selection_rules.get("versionLabel", "")),
+		"Status: %s" % selection_rules.get("readinessState", "Invalid"),
+		str(selection_rules.get("readinessSummary", "")),
+	]
+	var diagnostic := str(selection_rules.get("diagnostic", "")).strip_edges()
+	if not diagnostic.is_empty():
+		lines.append("Cannot start: %s" % diagnostic)
+	var visible_lines: Array[String] = []
+	for line: String in lines:
+		if not line.is_empty():
+			visible_lines.append(line)
+	return "\n".join(visible_lines)
 
 func set_ready(rdy : bool, party : Array) :
 	startButton.disabled = not rdy

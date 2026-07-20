@@ -41,8 +41,6 @@ var paneltype : int = 0  #0=player character 1= NPC
 
 @onready var effect_sprite : Sprite2D = $"PortraitButton/EffectSprite"
 
-@onready var effect_sprite_timer : Timer = $"PortraitButton/EffectSprite/Timer"
-
 @onready var bandead_sprite : Sprite2D = $PortraitButton/BanDeadSprite
 
 var effect_sprite_base_frame : int = 0
