@@ -119,9 +119,11 @@ diagnostics and future contract versions, while `evidence.json` records source
 observations such as dispatcher no-ops that intentionally affect compatibility
 decisions.
 
-`rules.spellOverrides` uses its `id` as an exact scenario-local spell identity.
-The consumer checks that index before the shared spell table; it never guesses an
-adjacent or packed ID. Overrides with `special: 0` are exposed through Remake's
+`rules.spellOverrides.id` is the zero-based `Data Spell` record index retained
+for authoring and provenance. `packedSpellId` is the exact Classic runtime
+identity used by encounter references. The consumer checks that explicit packed
+identity before the shared spell table; it never guesses from a record index or
+an adjacent ID. Overrides with `special: 0` are exposed through Remake's
 ordinary spell interface using their compiled damage, duration, save, resistance,
 targeting, cost, and availability fields. A referenced nonzero `special` requires
 an exact native implementation or produces an
@@ -186,11 +188,11 @@ godot --headless --path src --script res://scripts/classic_runtime/tests/run_cla
 ```
 
 The checked `providence_authoritative_export` fixture is the unchanged output of
-Providence commit `8e7eeccc50707d60a34b16dbfb378bc4897ddbaa`, generated from
+Providence commit `9b5c7d94ff6a59a81acc91be9f600c797b63f269`, generated from
 `fixtures/scenario-seeds/authoritative-ownership-proof.seed.json`. Its companion
 `providence_authoritative_export.provenance.json` records the byte count and
-SHA-256 hash of all 14 producer files, plus the expected readiness result: one
-progression blocker for unresolved custom spell 17 and no fidelity fallbacks.
+SHA-256 hash of all 14 producer files, plus the expected readiness result: no
+progression blockers or fidelity fallbacks.
 
 To regenerate the fixture, check out the recorded Providence commit and run its
 `scripts/verify_remake_classic_export.ps1` gate. That script compiles the seed

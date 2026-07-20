@@ -836,6 +836,52 @@ func _test_bundle_contract_validation() -> void:
 		"duplicate identity error includes record-level context"
 	)
 
+	var missing_packed_spell_id_bundle = BundleScript.new()
+	missing_packed_spell_id_bundle.manifest = _minimal_contract_manifest()
+	missing_packed_spell_id_bundle.documents = _minimal_contract_documents()
+	missing_packed_spell_id_bundle.documents["rules"]["spellOverrides"] = [{"id": 16}]
+	_expect(
+		not missing_packed_spell_id_bundle._validate_document_contract(),
+		"bundle contract rejects a custom spell without its runtime identity"
+	)
+	_expect(
+		missing_packed_spell_id_bundle.last_error.contains(
+			"rules.spellOverrides[0].packedSpellId"
+		),
+		"custom-spell identity error identifies the packed field"
+	)
+
+	var duplicate_packed_spell_id_bundle = BundleScript.new()
+	duplicate_packed_spell_id_bundle.manifest = _minimal_contract_manifest()
+	duplicate_packed_spell_id_bundle.documents = _minimal_contract_documents()
+	duplicate_packed_spell_id_bundle.documents["rules"]["spellOverrides"] = [
+		{"id": 15, "packedSpellId": 5201},
+		{"id": 16, "packedSpellId": 5201},
+	]
+	_expect(
+		not duplicate_packed_spell_id_bundle._validate_document_contract(),
+		"bundle contract rejects duplicate packed custom-spell identities"
+	)
+	_expect(
+		duplicate_packed_spell_id_bundle.last_error.contains("rules.spellOverrides[1]"),
+		"duplicate packed custom-spell error includes record-level context"
+	)
+
+	var mismatched_spell_id_bundle = BundleScript.new()
+	mismatched_spell_id_bundle.manifest = _minimal_contract_manifest()
+	mismatched_spell_id_bundle.documents = _minimal_contract_documents()
+	mismatched_spell_id_bundle.documents["rules"]["spellOverrides"] = [
+		{"id": 16, "packedSpellId": 5203},
+	]
+	_expect(
+		not mismatched_spell_id_bundle._validate_document_contract(),
+		"bundle contract rejects mismatched custom-spell identities"
+	)
+	_expect(
+		mismatched_spell_id_bundle.last_error.contains("must be 5202"),
+		"mismatched custom-spell identity reports the expected packed ID"
+	)
+
 	var tileset_bundle = BundleScript.new()
 	tileset_bundle.manifest = _minimal_contract_manifest()
 	tileset_bundle.documents = _minimal_contract_documents()
@@ -980,29 +1026,20 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"8e7eeccc50707d60a34b16dbfb378bc4897ddbaa",
+		"9b5c7d94ff6a59a81acc91be9f600c797b63f269",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
+	_expect(bool(expected_readiness.get("ready", false)), "producer fixture provenance is ready")
 	_expect_equal(
 		expected_readiness.get("progressionBlockers"),
-		1,
-		"producer fixture provenance records one progression blocker"
+		0,
+		"producer fixture provenance records no progression blockers"
 	)
 	_expect_equal(
 		expected_readiness.get("fidelityFallbacks"),
 		0,
 		"producer fixture provenance records no fidelity fallbacks"
-	)
-	_expect_equal(
-		expected_readiness.get("knownBlocker", {}).get("code"),
-		"unresolved-spell-identity",
-		"producer fixture provenance records the blocker kind"
-	)
-	_expect_equal(
-		expected_readiness.get("knownBlocker", {}).get("referenceId"),
-		17,
-		"producer fixture provenance records custom spell 17"
 	)
 	var expected_files: Array = provenance.get("files", [])
 	_expect_equal(expected_files.size(), 14, "producer fixture provenance covers every file")
@@ -1048,11 +1085,11 @@ func _test_providence_authoritative_export() -> void:
 		)
 
 	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
-	_expect(not bool(readiness.get("ready", true)), "producer fixture retains its known blocker")
+	_expect(bool(readiness.get("ready", false)), "producer fixture is runtime ready")
 	_expect_equal(
 		readiness.get("totals", {}).get("progressionBlockers"),
-		1,
-		"producer fixture has one progression blocker"
+		0,
+		"producer fixture has no progression blockers"
 	)
 	_expect_equal(
 		readiness.get("totals", {}).get("fidelityFallbacks"),
@@ -1060,8 +1097,8 @@ func _test_providence_authoritative_export() -> void:
 		"producer fixture has no fidelity fallbacks"
 	)
 	_expect(
-		_readiness_has_reference_diagnostic(readiness, "unresolved-spell-identity", 17),
-		"producer fixture blocker identifies custom spell 17"
+		not _readiness_has_reference_diagnostic(readiness, "unresolved-spell-identity", 5202),
+		"producer fixture resolves its packed custom-spell identity"
 	)
 
 
@@ -1987,27 +2024,28 @@ func _test_custom_spell_overrides() -> void:
 	if not producer_bundle.last_error.is_empty():
 		return
 	_expect_equal(
-		producer_bundle.get_spell_override(16).get("displayName"),
+		producer_bundle.get_spell_override(5202).get("displayName"),
 		"Providence Ward",
-		"bundle indexes a custom spell by its exact compiler ID"
+		"bundle indexes a custom spell by its exact packed runtime ID"
 	)
 	_expect_equal(
-		producer_bundle.get_spell_override(17),
+		producer_bundle.get_spell_override(16),
 		{},
-		"bundle does not infer an adjacent custom-spell ID"
+		"bundle does not use the source record index as a runtime ID"
 	)
 
 	var adapter = GodotAdapterScript.new()
 	adapter.configure_classic_bundle(producer_bundle)
-	var ward: Variant = adapter.classic_spell_override(16)
+	var ward: Variant = adapter.classic_spell_override(5202)
 	_expect(ward != null, "adapter resolves the producer's exact custom spell ID")
+	_expect_equal(ward.classic_spell_ids, [5202], "custom spell exposes its packed identity")
 	_expect_equal(ward.classic_spell_class, 4, "custom spell preserves its class")
 	_expect_equal(ward.classic_target_type, 1, "custom spell preserves its target type")
 	_expect_equal(ward.get_min_duration(3, null), 3, "fixed custom duration remains finite")
 	_expect_equal(ward.get_max_duration(3, null), 3, "zero upper endpoint keeps fixed duration")
 	_expect_equal(ward.get_sp_cost(3, null), 12, "custom spell cost scales by power")
 	_expect(ward.in_combat and not ward.classic_in_camp, "custom spell preserves availability")
-	_expect_equal(adapter.classic_spell_override(17), null, "custom spell lookup stays exact")
+	_expect_equal(adapter.classic_spell_override(16), null, "custom spell lookup stays exact")
 	var host = HostScript.new()
 	var host_adapter = BundleAwareAdapter.new()
 	host.configure(host_adapter)
@@ -2022,13 +2060,13 @@ func _test_custom_spell_overrides() -> void:
 	)
 	host.free()
 
-	var record := _custom_spell_record(4)
+	var record := _custom_spell_record(4, 5105)
 	var bundle := _custom_spell_bundle(record)
 	adapter = GodotAdapterScript.new()
 	adapter.configure_classic_bundle(bundle)
-	var spell: Variant = adapter.classic_spell_override(4)
-	_expect_equal(spell.classic_spell_ids, [4], "low custom ID remains an exact identity")
-	_expect_equal(spell.classic_spell_class, 2, "low custom ID remains distinct from its class")
+	var spell: Variant = adapter.classic_spell_override(5105)
+	_expect_equal(spell.classic_spell_ids, [5105], "packed custom ID remains an exact identity")
+	_expect_equal(spell.classic_spell_class, 2, "record index remains distinct from its class")
 	_expect_equal(spell.classic_fixed_target_num, 1, "custom spell preserves fixed-target metadata")
 	_expect_equal(spell.classic_resist_adjust, -3, "custom spell preserves resistance adjustment")
 	_expect_equal(spell.classic_save_bonus, 15, "custom spell preserves its base save bonus")
@@ -2040,14 +2078,14 @@ func _test_custom_spell_overrides() -> void:
 	_expect_equal(spell.get_range(2, null), 8, "custom spell range includes its power term")
 	_expect_equal(
 		adapter.resolve_complex_spell_result(
-			{"spellIds": [4, 2], "spellResults": [8, 9]},
+			{"spellIds": [5105, 2], "spellResults": [8, 9]},
 			spell.name,
 			spell.classic_spell_class,
 			{},
 			spell.classic_spell_ids
 		),
 		8,
-		"exact custom ID wins before a low-ID class response"
+		"exact packed ID wins before a low-ID class response"
 	)
 
 	var target := RogueTestCharacter.new()
@@ -2073,11 +2111,11 @@ func _test_custom_spell_overrides() -> void:
 	var ready_report: Dictionary = ReadinessScript.new().inspect(bundle)
 	_expect(
 		not _readiness_has_reference_diagnostic(
-			ready_report, "unresolved-spell-identity", 4
+			ready_report, "unresolved-spell-identity", 5105
 		),
 		"generic custom spell resolves without a native mapping"
 	)
-	var unsupported_record := _custom_spell_record(17)
+	var unsupported_record := _custom_spell_record(17, 5203)
 	unsupported_record["special"] = 25
 	var unsupported_report: Dictionary = ReadinessScript.new().inspect(
 		_custom_spell_bundle(unsupported_record)
@@ -2095,15 +2133,16 @@ func _test_custom_spell_overrides() -> void:
 	)
 	_expect(
 		not _readiness_has_reference_diagnostic(
-			unsupported_report, "unresolved-spell-identity", 17
+			unsupported_report, "unresolved-spell-identity", 5203
 		),
 		"unsupported custom special is not mislabeled as an identity gap"
 	)
 
 
-func _custom_spell_record(spell_id: int) -> Dictionary:
+func _custom_spell_record(record_id: int, packed_spell_id: int) -> Dictionary:
 	return {
-		"id": spell_id,
+		"id": record_id,
+		"packedSpellId": packed_spell_id,
 		"displayName": "Test Ember Ward",
 		"description": "A compiled custom spell.",
 		"range1": 2,
@@ -2136,7 +2175,7 @@ func _custom_spell_record(spell_id: int) -> Dictionary:
 		"inCamp": false,
 		"provenance": {
 			"sourceFile": "Data Spell",
-			"recordIndex": spell_id,
+			"recordIndex": record_id,
 		},
 	}
 
@@ -2150,7 +2189,7 @@ func _custom_spell_bundle(record: Dictionary) -> ClassicCampaignBundle:
 	bundle.documents["encounters"]["complexEncounters"] = [{
 		"id": 7,
 		"actions": [],
-		"spellIds": [int(record.get("id", -1))],
+		"spellIds": [int(record.get("packedSpellId", -1))],
 		"spellResults": [3],
 	}]
 	bundle._build_indexes()

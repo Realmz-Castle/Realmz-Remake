@@ -6238,7 +6238,90 @@
     "provenance": null,
     "rows": 8
   },
-  "mapRecords": [],
+  "mapRecords": [
+    {
+      "authored": true,
+      "iconSize": 32,
+      "id": 0,
+      "isDungeon": false,
+      "level": 0,
+      "mapNameAuthored": false,
+      "markers": [
+        {
+          "iconId": -100,
+          "x": 11,
+          "y": 12
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "name": "Providence Map",
+      "nameSource": null,
+      "note": "Providence owns this map record.",
+      "pictId": 306,
+      "primaryName": "Providence Map",
+      "provenance": {
+        "byteLength": 340,
+        "byteOffset": 0,
+        "confidence": "fixture-backed",
+        "recordIndex": 0,
+        "sourceFile": "Data MD2"
+      },
+      "rect": {
+        "bottom": 90,
+        "left": 0,
+        "right": 90,
+        "top": 0
+      },
+      "secondaryName": "Unknown Providence Map",
+      "show": 1,
+      "startX": 10,
+      "startY": 12
+    }
+  ],
   "maps": [
     {
       "height": 90,

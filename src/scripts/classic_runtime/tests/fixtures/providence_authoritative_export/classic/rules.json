@@ -650,6 +650,7 @@
       "id": 16,
       "inCamp": false,
       "inCombat": true,
+      "packedSpellId": 5202,
       "powerDamage1": 0,
       "powerDamage2": 0,
       "powerDuration1": 0,

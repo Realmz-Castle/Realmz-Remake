@@ -36,7 +36,7 @@ var _size := 0
 
 func configure(record: Dictionary) -> void:
 	source_record = record.duplicate(true)
-	var spell_id := int(record.get("id", -1))
+	var spell_id := int(record.get("packedSpellId", -1))
 	name = str(record.get("displayName", "")).strip_edges()
 	if name.is_empty():
 		name = "Classic spell %d" % spell_id

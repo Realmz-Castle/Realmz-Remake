@@ -164,6 +164,7 @@ func _validate_document_contract() -> bool:
 		["content", "scenarioItems", "id", false],
 		["content", "itemTexts", "itemId", false],
 		["rules", "spellOverrides", "id", false],
+		["rules", "spellOverrides", "packedSpellId", false],
 		["rules", "raceOverrides", "id", false],
 		["rules", "casteOverrides", "id", false],
 		["maps", "maps", "id", true],
@@ -176,6 +177,8 @@ func _validate_document_contract() -> bool:
 			bool(specification[3])
 		):
 			return false
+	if not _validate_spell_override_identities():
+		return false
 	if not _validate_trigger_actions():
 		return false
 	for collection_name: String in ["simpleEncounters", "complexEncounters"]:
@@ -309,6 +312,29 @@ func _validate_record_collection(
 		identity_field,
 		string_identity
 	)
+
+
+func _validate_spell_override_identities() -> bool:
+	var records: Array = _array_value(documents["rules"], "spellOverrides")
+	for index: int in range(records.size()):
+		var record: Dictionary = records[index]
+		var record_id := int(record.get("id", -1))
+		var packed_spell_id := int(record.get("packedSpellId", -1))
+		if record_id > 104:
+			return _fail(
+				"rules.spellOverrides[%d].id must be between 0 and 104" % index
+			)
+		var expected_packed_id := 5101 + floori(float(record_id) / 15.0) * 100 \
+			+ record_id % 15
+		if packed_spell_id != expected_packed_id:
+			return _fail(
+				"rules.spellOverrides[%d].packedSpellId must be %d for Data Spell record %d" % [
+					index,
+					expected_packed_id,
+					record_id,
+				]
+			)
+	return true
 
 
 func _validate_nested_record_collection(
@@ -649,7 +675,7 @@ func _build_indexes() -> void:
 	var rules_document: Dictionary = documents["rules"]
 	for spell_override: Variant in _array_value(rules_document, "spellOverrides"):
 		if spell_override is Dictionary:
-			spell_overrides_by_id[int(spell_override.get("id", -1))] = spell_override
+			spell_overrides_by_id[int(spell_override.get("packedSpellId", -1))] = spell_override
 
 	var map_document: Dictionary = documents["maps"]
 	for map: Variant in _array_value(map_document, "maps"):

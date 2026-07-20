@@ -30,7 +30,378 @@
       "text": "Compiled entirely from canonical Providence monster data."
     }
   ],
-  "monsterSets": [],
+  "monsterSets": [
+    {
+      "monsters": [
+        {
+          "agility": 201,
+          "armor": -4,
+          "attackCount": 1,
+          "attackNum": 0,
+          "attacks": [
+            [
+              1,
+              8,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "authored": true,
+          "beenAttacked": 0,
+          "bonusAttack": 0,
+          "canSummon": 0,
+          "castPercent": 0,
+          "conditions": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "damageBonus": 0,
+          "deathMacro": 0,
+          "displayName": "Providence Sentinel",
+          "distance": 0,
+          "exp": 29,
+          "guarding": 0,
+          "hitDice": 9,
+          "iconId": 0,
+          "id": 1,
+          "items": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "lr": 0,
+          "magicAttackCount": 0,
+          "magicResistance": 0,
+          "magicToHit": 0,
+          "maxSpellPoints": 0,
+          "missilePercent": 0,
+          "money": [
+            0,
+            0,
+            0
+          ],
+          "movement": 0,
+          "movementMax": 202,
+          "nameId": 1,
+          "notOnMenu": false,
+          "provenance": {
+            "byteLength": 210,
+            "byteOffset": 210,
+            "confidence": "inferred",
+            "recordIndex": 1,
+            "sourceFile": "Data MD-1"
+          },
+          "runPercent": 0,
+          "saves": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "size": 1,
+          "spellImmunities": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "spellPoints": 0,
+          "spells": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "stamina": 30,
+          "staminaBonus": 200,
+          "staminaMax": 31,
+          "surrenderPercent": 0,
+          "target": 0,
+          "traitor": 0,
+          "typeFlags": [
+            1,
+            -1,
+            2,
+            -2,
+            3,
+            -3,
+            4,
+            -4
+          ],
+          "underneath": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "up": 0,
+          "weapon": 0
+        }
+      ],
+      "setId": -1,
+      "sourceFile": "Data MD-1"
+    },
+    {
+      "monsters": [
+        {
+          "agility": 201,
+          "armor": -4,
+          "attackCount": 1,
+          "attackNum": 0,
+          "attacks": [
+            [
+              1,
+              8,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "authored": true,
+          "beenAttacked": 0,
+          "bonusAttack": 0,
+          "canSummon": 0,
+          "castPercent": 0,
+          "conditions": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "damageBonus": 0,
+          "deathMacro": 0,
+          "displayName": "Providence Sentinel",
+          "distance": 0,
+          "exp": 29,
+          "guarding": 0,
+          "hitDice": 9,
+          "iconId": 0,
+          "id": 1,
+          "items": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "lr": 0,
+          "magicAttackCount": 0,
+          "magicResistance": 0,
+          "magicToHit": 0,
+          "maxSpellPoints": 0,
+          "missilePercent": 0,
+          "money": [
+            0,
+            0,
+            0
+          ],
+          "movement": 0,
+          "movementMax": 202,
+          "nameId": 1,
+          "notOnMenu": false,
+          "provenance": {
+            "byteLength": 210,
+            "byteOffset": 210,
+            "confidence": "inferred",
+            "recordIndex": 1,
+            "sourceFile": "Data MD1"
+          },
+          "runPercent": 0,
+          "saves": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "size": 1,
+          "spellImmunities": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "spellPoints": 0,
+          "spells": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "stamina": 30,
+          "staminaBonus": 200,
+          "staminaMax": 31,
+          "surrenderPercent": 0,
+          "target": 0,
+          "traitor": 0,
+          "typeFlags": [
+            1,
+            -1,
+            2,
+            -2,
+            3,
+            -3,
+            4,
+            -4
+          ],
+          "underneath": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "up": 0,
+          "weapon": 0
+        }
+      ],
+      "setId": 1,
+      "sourceFile": "Data MD1"
+    }
+  ],
   "monsters": [
     {
       "agility": 201,
