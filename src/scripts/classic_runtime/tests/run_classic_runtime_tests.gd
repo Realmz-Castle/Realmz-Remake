@@ -13,6 +13,7 @@ const CharacterConditionRulesScript = preload(
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
 const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
 const ShopRulesScript = preload("res://scripts/shop_rules.gd")
 const TemplePaymentScript = preload("res://scenes/UI/HUD/Temple/temple_payment.gd")
@@ -324,6 +325,47 @@ class SpawnTestMap:
 	var creatures_node = SpawnTestNode.new()
 
 
+class MapBridgeTestCharacter:
+	extends RefCounted
+	var tile_position := Vector2.ZERO
+
+	func set_tile_position(position: Vector2) -> void:
+		tile_position = position
+
+
+class MapBridgeTestMap:
+	extends RefCounted
+	var focuscharacter = MapBridgeTestCharacter.new()
+	var owcharacter = MapBridgeTestCharacter.new()
+	var darkness_level := -1
+	var redraw_count := 0
+	var explored_position := Vector2(-1, -1)
+
+	func queue_redraw() -> void:
+		redraw_count += 1
+
+	func explore_tiles_from_tilepos(position: Vector2) -> void:
+		explored_position = position
+
+
+class MapBridgeTestResources:
+	extends RefCounted
+	var maps_book: Dictionary = {}
+
+
+class MapBridgeTestGameGlobal:
+	extends RefCounted
+	var currentmap_name := "map_0"
+	var map = MapBridgeTestMap.new()
+	var transitions: Array = []
+
+	func change_map(map_name: String, x: int, y: int) -> void:
+		currentmap_name = map_name
+		transitions.append([map_name, x, y])
+		map.focuscharacter.set_tile_position(Vector2(x, y))
+		map.owcharacter.set_tile_position(Vector2(x, y))
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -344,6 +386,7 @@ func _init() -> void:
 	_test_look_direction(bundle)
 	_test_view_modes_and_darkland(bundle)
 	_test_random_level_mutations(bundle)
+	_test_classic_map_bridge()
 	_test_experience_award(bundle)
 	_test_party_health_effect(bundle)
 	_test_selected_character_pipeline(bundle)
@@ -1638,6 +1681,193 @@ func _test_random_level_mutations(bundle) -> void:
 	_expect_equal(missing_payload.get("rectIndex"), 18, "unused fixed rectangle index")
 	_expect_equal(missing_payload.get("previousRectangle", {}).get("percent"), 0, "unused rectangle baseline percent")
 	_expect_equal(missing_payload.get("rectangle", {}).get("battleRange"), [0, 0], "unused rectangle baseline range")
+
+
+func _test_classic_map_bridge() -> void:
+	var bundle = BundleScript.new()
+	bundle.maps_by_id["land:0"] = {
+		"id": "land:0",
+		"levelType": "land",
+		"index": 0,
+		"width": 2,
+		"height": 2,
+		"tiles": [1, 2, 3, 4],
+	}
+	var bridge = MapBridgeScript.new()
+	bridge.configure(bundle)
+	_expect_equal(bridge.native_map_name("land", 3), "map_3", "land map uses native map naming")
+	_expect_equal(
+		bridge.native_map_name("dungeon", 2),
+		"mapd_2",
+		"dungeon map uses native map naming"
+	)
+
+	var land_map: Array = [
+		[["grass"], ["wall"]],
+		[["water"], ["sand"]],
+	]
+	var land_areas: Dictionary = {
+		"AP4x1y1": {
+			"scriptRectangle": [[1, 1], [1, 1]],
+			"scriptToLoad": "AP4x1y1",
+		},
+		"LRR0.2": {
+			"scriptRectangle": [[0, 0], [1, 1]],
+			"chance": 0.1,
+			"scriptToLoad": [],
+			"RR_Battle": {"battle_range": [1, 2]},
+		},
+	}
+	var resources = MapBridgeTestResources.new()
+	resources.maps_book["map_0"] = [
+		land_map,
+		{"ScriptRects": land_areas, "Paths": [], "Secrets": []},
+		null,
+		"Outdoor",
+		"Forest",
+		true,
+		7,
+		false,
+		[],
+	]
+	resources.maps_book["mapd_1"] = [
+		[[["floor"]]],
+		{"ScriptRects": {}, "Paths": [], "Secrets": []},
+		null,
+		"Indoor",
+		"Indoor",
+		false,
+		7,
+		true,
+		[],
+	]
+	var game_global = MapBridgeTestGameGlobal.new()
+	var same_map: Dictionary = bridge.transition({
+		"levelType": "land",
+		"levelIndex": 0,
+		"x": 1,
+		"y": 0,
+		"recheckDestination": true,
+	}, game_global, resources)
+	_expect_equal(same_map.get("nativeMapName"), "map_0", "map bridge resolves a land destination")
+	_expect(not bool(same_map.get("mapChanged")), "same-map teleport does not reload the native map")
+	_expect_equal(
+		game_global.map.focuscharacter.tile_position,
+		Vector2(1, 0),
+		"same-map teleport moves native map focus"
+	)
+	_expect_equal(
+		game_global.map.explored_position,
+		Vector2(1, 0),
+		"same-map teleport updates native exploration"
+	)
+	_expect(bool(same_map.get("recheckDestination")), "map bridge preserves destination recheck intent")
+	_expect_equal(game_global.map.redraw_count, 1, "same-map teleport redraws visible native output")
+
+	var dungeon_move: Dictionary = bridge.transition({
+		"levelType": "dungeon",
+		"levelIndex": 1,
+		"x": 0,
+		"y": 0,
+	}, game_global, resources)
+	_expect(bool(dungeon_move.get("mapChanged")), "land-to-dungeon transition changes native maps")
+	_expect_equal(
+		game_global.transitions,
+		[["mapd_1", 0, 0]],
+		"map bridge delegates transitions to GameGlobal.change_map"
+	)
+
+	var redraws_before: int = game_global.map.redraw_count
+	var view_result: Dictionary = bridge.redraw_view({
+		"heading": 3,
+		"multiView": true,
+		"viewType": StateScript.VIEW_MAP,
+		"compassEnabled": false,
+	}, game_global)
+	_expect_equal(view_result.get("heading"), 3, "native view refresh preserves Classic heading")
+	_expect_equal(
+		game_global.map.redraw_count,
+		redraws_before + 1,
+		"Classic view changes redraw the native map"
+	)
+
+	var darkness: Dictionary = bridge.set_darkness({
+		"levelType": "dungeon",
+		"levelIndex": 1,
+		"dark": true,
+	}, game_global, resources)
+	_expect_equal(darkness.get("nativeDarkness"), 0, "Classic darkness maps to native full darkness")
+	_expect_equal(game_global.map.darkness_level, 0, "current native map receives darkness change")
+	_expect_equal(resources.maps_book["mapd_1"][6], 0, "native darkness survives a map reload")
+
+	var tile_result: Dictionary = bridge.set_tile({
+		"levelType": "land",
+		"levelIndex": 0,
+		"x": 0,
+		"y": 0,
+		"tileValue": 4,
+	}, game_global, resources)
+	_expect_equal(tile_result.get("sourceCell"), Vector2i(1, 1), "tile bridge finds a native reference cell")
+	_expect_equal(
+		resources.maps_book["map_0"][0][0][0],
+		["sand"],
+		"tile mutation updates the native map resource"
+	)
+	bridge.set_tile({
+		"levelType": "land",
+		"levelIndex": 0,
+		"x": 1,
+		"y": 1,
+		"tileValue": 1,
+	}, game_global, resources)
+	_expect_equal(
+		resources.maps_book["map_0"][0][1][1],
+		["grass"],
+		"tile projection retains an immutable native reference palette"
+	)
+
+	var trigger_result: Dictionary = bridge.set_trigger_percent({
+		"levelType": "land",
+		"levelIndex": 0,
+		"triggerIds": [4],
+		"percent": 35,
+	}, game_global, resources)
+	_expect_equal(trigger_result.get("updatedAreas"), ["AP4x1y1"], "trigger bridge finds native AP areas")
+	_expect_equal(land_areas["AP4x1y1"]["chance"], 0.35, "trigger bridge applies authored percent")
+
+	var rectangle_result: Dictionary = bridge.set_random_rectangle({
+		"levelType": "land",
+		"levelIndex": 0,
+		"rectIndex": 2,
+		"rectangle": {
+			"left": 2,
+			"top": 3,
+			"right": 8,
+			"bottom": 9,
+			"percent": 2500,
+			"battleRange": [10, 12],
+		},
+	}, game_global, resources)
+	_expect_equal(rectangle_result.get("updatedArea"), "LRR0.2", "random rectangle resolves its native area")
+	_expect_equal(land_areas["LRR0.2"]["chance"], 0.25, "random rectangle applies native chance")
+	_expect_equal(
+		land_areas["LRR0.2"]["scriptRectangle"],
+		[[2, 3], [8, 9]],
+		"random rectangle applies native bounds"
+	)
+	_expect_equal(
+		land_areas["LRR0.2"]["RR_Battle"]["battle_range"],
+		[10, 12],
+		"random rectangle applies native battle range"
+	)
+
+	var missing: Dictionary = bridge.transition({
+		"levelType": "land",
+		"levelIndex": 9,
+		"x": 0,
+		"y": 0,
+	}, game_global, resources)
+	_expect_equal(missing.get("status"), "error", "map bridge rejects a missing native map")
 
 
 func _test_experience_award(bundle) -> void:

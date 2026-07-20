@@ -9,6 +9,7 @@ const CharacterConditionRulesScript = preload(
 const SpellOverrideScript = preload(
 	"res://scripts/classic_runtime/classic_spell_override.gd"
 )
+const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
 const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
 const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
@@ -100,11 +101,13 @@ var stored_party_equipment: Dictionary = {}
 var classic_bundle: Object
 var classic_spell_overrides: Dictionary = {}
 var classic_registered_spells: Dictionary = {}
+var classic_map_bridge = MapBridgeScript.new()
 
 
 func configure_classic_bundle(bundle: Object) -> void:
 	_unregister_classic_spell_overrides()
 	classic_bundle = bundle
+	classic_map_bridge.configure(bundle)
 	classic_spell_overrides.clear()
 	_register_classic_spell_overrides()
 
@@ -208,6 +211,30 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _show_classic_picture(payload)
 		"redraw_map":
 			return _redraw_map()
+		"set_map_tile":
+			return classic_map_bridge.set_tile(
+				payload, _autoload("GameGlobal"), _classic_campaign_resources()
+			)
+		"set_trigger_percent":
+			return classic_map_bridge.set_trigger_percent(
+				payload, _autoload("GameGlobal"), _classic_campaign_resources()
+			)
+		"teleport":
+			return await _teleport_classic_party(payload)
+		"set_view_direction", "set_view_mode":
+			return classic_map_bridge.redraw_view(payload, _autoload("GameGlobal"))
+		"set_map_darkness":
+			return classic_map_bridge.set_darkness(
+				payload, _autoload("GameGlobal"), _classic_campaign_resources()
+			)
+		"set_random_encounter_rect":
+			return classic_map_bridge.set_random_rectangle(
+				payload, _autoload("GameGlobal"), _classic_campaign_resources()
+			)
+		"set_land_look":
+			return classic_map_bridge.set_land_look(
+				payload, _autoload("GameGlobal"), _classic_campaign_resources()
+			)
 		"check_party_condition":
 			return _check_party_condition(payload)
 		"check_party_ally":
@@ -362,6 +389,20 @@ func _redraw_map() -> Dictionary:
 	if not changed:
 		return {"status": "skipped", "message": "Realmz map display is unavailable"}
 	return {}
+
+
+func _teleport_classic_party(payload: Dictionary) -> Dictionary:
+	_play_sound(payload)
+	var message: Variant = payload.get("message", {})
+	if message is Dictionary and not str(message.get("text", "")).strip_edges().is_empty():
+		var message_result := await _show_text(payload)
+		if str(message_result.get("status", "")) == "error":
+			return message_result
+	return classic_map_bridge.transition(
+		payload,
+		_autoload("GameGlobal"),
+		_classic_campaign_resources()
+	)
 
 
 func _check_party_condition(payload: Dictionary) -> Dictionary:
