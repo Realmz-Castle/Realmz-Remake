@@ -6260,6 +6260,11 @@ func _test_shop_actions() -> void:
 		),
 		"single-range Classic shop remains unrestricted"
 	)
+	_expect_equal(
+		ShopRulesScript.balances_after_purchase(10, 7, 10),
+		[7, 0],
+		"Classic shop purchases spend pooled gold before character gold"
+	)
 	var alias_items: Array = []
 	var alias_quantities: Array = []
 	alias_items.resize(612)

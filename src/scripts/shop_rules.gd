@@ -9,3 +9,12 @@ static func accepts_item(current_shop: String, shops: Dictionary, item: Dictiona
 		return true
 	var accepted_names: Variant = shop["accepted_item_names"]
 	return accepted_names is Dictionary and accepted_names.has(str(item.get("name", "")))
+
+
+static func balances_after_purchase(
+	character_gold: int,
+	pooled_gold: int,
+	cost: int
+) -> Array[int]:
+	var pooled_payment: int = min(pooled_gold, cost)
+	return [character_gold - (cost - pooled_payment), pooled_gold - pooled_payment]

@@ -123,6 +123,8 @@ func _start_playtest() -> void:
 	if not host.load_campaign(campaign_directory):
 		_show_status("Classic campaign load failed: %s" % host.runtime.bundle.last_error, true)
 		return
+	if playtest_label == "shop":
+		_install_shop_playtest_data()
 	if not host.start_trigger(trigger_id, start_slot):
 		_show_status("Classic trigger failed to start: %s" % trigger_id, true)
 		return
@@ -152,6 +154,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if playtest_label == "shop":
+		await _run_shop_smoke()
+		return
 	if playtest_label == "services":
 		await _run_services_smoke()
 		return
@@ -223,6 +228,80 @@ func _run_automated_smoke() -> void:
 		"Classic guard-house playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host reports completed playthrough"
 	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_shop_smoke() -> void:
+	await _wait_frames(5)
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	var inventory: InventoryControl = UI.ow_hud.inventoryRect
+	var shop: ShopRect = inventory.shopRect
+	var save_policy: Dictionary = host.command_adapter.classic_continuation_save_policy(
+		"load_shop"
+	)
+	_verify_smoke_stage(
+		"01_restricted_shop",
+		host.active
+			and inventory.visible
+			and shop.visible
+			and shop.weapons.size() == 1
+			and shop.armor.size() == 1
+			and shop.magic.size() == 1
+			and int(shop.weapons[0][2]) == 10,
+		"the compiled restricted shop opens with mapped stock and authored prices"
+	)
+	_verify_smoke_stage(
+		"02_accepted_ranges",
+		GameGlobal.current_shop_accepts_item(shop.weapons[0][0])
+			and not GameGlobal.current_shop_accepts_item(shop.armor[0][0])
+			and GameGlobal.current_shop_accepts_item(shop.magic[0][0]),
+		"the native shop applies both Classic item ranges"
+	)
+	_verify_smoke_stage(
+		"03_unsavable_purchase",
+		str(save_policy.get("status", "")) == "error",
+		"an open immediate shop cannot be replayed through a save"
+	)
+	var dagger: Dictionary = shop.weapons[0][0]
+	inventory.inventoryScrollRight._drop_data(Vector2.ZERO, [dagger, "Shop"])
+	await _wait_frames(2)
+	inventory.inventoryScrollRight._drop_data(Vector2.ZERO, [dagger, "Shop"])
+	await _wait_frames(2)
+	_verify_smoke_stage(
+		"04_native_purchase",
+		character.inventory.size() == 2
+			and character.inventory[0]["name"] == "Dagger"
+			and character.inventory[1]["name"] == "Dagger"
+			and character.money[0] == 2
+			and GameGlobal.money_pool[0] == 0
+			and shop.weapons[0][1] == 0
+			and shop.vbox.get_child_count() == 0
+			and GameGlobal.get_shop(GameGlobal.currentShop)["Weapons"][0][1] == 0,
+		"purchases spend pooled gold first and remove depleted stock"
+	)
+	shop._on_LeaveShopButton_pressed()
+	await _wait_frames(5)
+	_verify_smoke_stage(
+		"05_cancel_and_resume",
+		not host.active
+			and character.inventory.size() == 2
+			and character.money[0] == 1
+			and GameGlobal.money_pool[0] == 0,
+		"closing the shop resumes its one-gold continuation exactly once"
+	)
+	inventory._on_ButtonShop_pressed()
+	await _wait_frames(2)
+	_verify_smoke_stage(
+		"06_reopen_stock",
+		shop.visible
+			and shop.weapons[0][1] == 0
+			and shop.vbox.get_child_count() == 0
+			and character.inventory.size() == 2
+			and character.money[0] == 1,
+		"reopening the shop neither restores sold stock nor repeats the purchase"
+	)
+	shop._on_LeaveShopButton_pressed()
+	await _wait_frames(2)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
 
@@ -974,6 +1053,48 @@ func _make_playtest_spellcaster() -> PlayerCharacter:
 	caster.stats["maxSP"] = 20
 	caster.stats["curSP"] = 20
 	return caster
+
+
+func _install_shop_playtest_data() -> void:
+	var item_ids: Array = []
+	var quantities: Array = []
+	item_ids.resize(1000)
+	quantities.resize(1000)
+	item_ids.fill(0)
+	quantities.fill(0)
+	item_ids[0] = 1
+	quantities[0] = 2
+	item_ids[200] = 209
+	quantities[200] = 1
+	item_ids[600] = 617
+	quantities[600] = 1
+	var bundle = host.runtime.bundle
+	bundle.shops_by_id[2] = {
+		"id": 2,
+		"inflation": 200,
+		"itemIds": item_ids,
+		"quantities": quantities,
+	}
+	bundle.extra_codes_by_id[7] = {"id": 7, "values": [-2, 1, 10, 600, 700]}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 0, 0, 0, 0]}
+	bundle.triggers_by_id[trigger_id] = {
+		"id": trigger_id,
+		"source": "Shop playtest",
+		"recordIndex": -1,
+		"active": true,
+		"actions": [
+			{"slot": 0, "rawCode": 73, "code": 73, "id": 7, "gosub": false},
+			{"slot": 1, "rawCode": 33, "code": 33, "id": 1, "gosub": false},
+			{"slot": 7, "rawCode": 24, "code": 24, "id": 0, "gosub": false},
+		],
+	}
+	GameGlobal.shops_dict.erase("classic_shop_2")
+	GameGlobal.currentShop = ""
+	GameGlobal.money_pool = [12, 0, 0]
+	GameGlobal.player_characters[0].money[0] = 10
+	GameGlobal.player_characters[0].money[1] = 0
+	GameGlobal.player_characters[0].money[2] = 0
+	StateMachine.transition_to("Exploration")
 
 
 func _wait_frames(frame_count: int) -> void:

@@ -366,6 +366,9 @@ func get_shop(shopname : String) :
 func current_shop_accepts_item(item : Dictionary) -> bool :
 	return ShopRules.accepts_item(currentShop, shops_dict, item)
 
+func shop_purchase_balances(character_gold: int, pooled_gold: int, cost: int) -> Array[int]:
+	return ShopRules.balances_after_purchase(character_gold, pooled_gold, cost)
+
 
 func refresh_OW_HUD() :
 	UI.ow_hud.update_fatigue_bar()

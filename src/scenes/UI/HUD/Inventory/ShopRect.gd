@@ -123,6 +123,8 @@ func fillVbox(type : String) :
 		vbox.remove_child(child)
 		child.queue_free()
 	for itemshoparray in types[type] :
+		if int(itemshoparray[1]) <= 0:
+			continue
 		var newshopitembutton = itemShopButtonTSCN.instantiate()
 		vbox.add_child(newshopitembutton)
 		newshopitembutton.set_item(itemshoparray[0], itemshoparray[1], inventoryrect, itemshoparray[2])
@@ -130,14 +132,23 @@ func fillVbox(type : String) :
 #		itemcontrol.update_display()
 
 
-func remove_one_from_stock(item :  Dictionary) :
-	# find the first empty slot in category then buybackArray
-	for s in types[current_shop_category] :
-		if (s[0]["name"]==item["name"]
-		and s[0]["stats_mini"] == item["stats_mini"]
-		and s[0]["weight"] == item["weight"]
-		and s[0]["price"] == item["price"]
-		and s[0]["charges"] == item["charges"]
-		):  # lower quantity count by one
-			s[1] -= 1
-			break
+func remove_one_from_stock(item : Dictionary) -> bool:
+	var category_stock: Array = types[current_shop_category]
+	for stock_index: int in category_stock.size():
+		var stock: Array = category_stock[stock_index]
+		if (stock[0]["name"] == item["name"]
+		and stock[0]["stats_mini"] == item["stats_mini"]
+		and stock[0]["weight"] == item["weight"]
+		and stock[0]["price"] == item["price"]
+		and stock[0]["charges"] == item["charges"]
+		):
+			if int(stock[1]) <= 0:
+				return false
+			stock[1] -= 1
+			var saved_stock: Array = GameGlobal.get_shop(
+				GameGlobal.currentShop
+			)[current_shop_category]
+			if stock_index < saved_stock.size():
+				saved_stock[stock_index][1] = stock[1]
+			return true
+	return false

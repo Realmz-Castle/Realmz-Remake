@@ -94,7 +94,7 @@ Opcode `7` copies a Data ED3 action list into the selected map AP, simple result
 
 Opcode `11` sends its authored total through Remake's existing loot and experience flow, which splits the award among living party members that can receive experience and preserves the normal level-up UI. The City of Bywater child-grave sequence awards 1,500 experience and then continues into its persistent action-point replacement.
 
-Opcodes `6` and `73` convert Classic's five fixed 200-slot stock categories into Remake's native shop categories and apply the authored inflation to purchase and resale prices. A positive shop ID makes the Shop control available until movement; a negative ID opens it immediately. Opcode `73` resolves the shop ID and two inclusive item ranges from Extra Code, then applies the resulting transfer rule to both purchases and sales. It preserves Classic's original two-range test: an item is rejected only when it misses both populated ranges, so a record with only one populated range remains unrestricted. Existing native shop state is retained when the same shop is loaded again so purchased stock survives Remake's save lifecycle, while its active restriction is replaced or cleared by each load. Every stocked or accepted item must resolve to a loaded Remake resource. The current full City of Bywater bundle does not include names for its scenario-specific items, so affected shops remain an explicit resource boundary rather than silently omitting their merchandise.
+Opcodes `6` and `73` convert Classic's five fixed 200-slot stock categories into Remake's native shop categories and apply the authored inflation to purchase and resale prices. A positive shop ID makes the Shop control available until movement; a negative ID opens it immediately. Opcode `73` resolves the shop ID and two inclusive item ranges from Extra Code, then applies the resulting transfer rule to both purchases and sales. It preserves Classic's original two-range test: an item is rejected only when it misses both populated ranges, so a record with only one populated range remains unrestricted. Purchases spend pooled gold before character gold, remove depleted stock from the native UI, and retain the reduced quantity when the shop is reopened or loaded again. The active restriction is replaced or cleared by each load. Every stocked or accepted item must resolve to a loaded Remake resource. The current full City of Bywater bundle does not include names for its scenario-specific items, so affected shops remain an explicit resource boundary rather than silently omitting their merchandise.
 
 Opcode `32` exposes Classic's nine temple services through Remake's native temple menu. The authored value is a percentage applied to Classic's base prices, including City of Bywater's standard 100-percent temple and its 300-percent hostile temple. Service payments combine pooled and selected-character gold and spend the pool first, matching Classic. Opcode `49` enables the native bank until movement and preserves the source sound and built-in warning IDs. When both services are available, banked wealth moves into the temple pool on entry and the remaining pool returns to the bank on exit, matching Classic.
 
@@ -285,6 +285,13 @@ The services playtest runs CoB's compiled bank and temple actions through the na
 ```powershell
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn -- --smoke
+```
+
+The shop playtest installs a focused compiled restricted-shop record over the CoB fixture. Its smoke verifies mapped stock, inflation, both accepted-item ranges, pooled-first payment, cancellation continuation, and persistent depleted stock:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_shop_playtest.tscn
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_shop_playtest.tscn -- --smoke
 ```
 
 The party-health playtest runs CoB's standalone fixed-damage macro and verifies the character HP change and completed host state:
