@@ -399,12 +399,27 @@ func stop_classic_campaign_runtime() -> void:
 
 
 func classic_campaign_save_payload() -> Dictionary:
+	var result := classic_campaign_save_result()
+	return result.get("payload", {}) if str(result.get("status", "")) == "ok" else {}
+
+
+func classic_campaign_save_result() -> Dictionary:
+	if not is_classic_campaign(currentcampaign):
+		return {"status": "ok", "handled": false, "payload": {}}
+	if StateMachine.is_combat_state():
+		return {
+			"status": "error",
+			"message": "Finish the current battle before saving",
+		}
 	if (
-		not is_classic_campaign(currentcampaign)
-		or not is_instance_valid(classic_campaign_session)
-		or not classic_campaign_session.has_method("make_save_payload")
+		not is_instance_valid(classic_campaign_session)
+		or not classic_campaign_session.has_method("make_save_result")
 	):
-		return {}
+		return {"status": "error", "message": "Classic campaign state is unavailable"}
+	var save_point_result: Variant = classic_campaign_session.call("validate_save_point")
+	if save_point_result is Dictionary \
+			and str(save_point_result.get("status", "")) == "error":
+		return save_point_result
 	if map != null and map.owcharacter != null:
 		var sync_result: Variant = classic_campaign_session.call("sync_native_location", {
 			"mapName": currentmap_name,
@@ -412,10 +427,18 @@ func classic_campaign_save_payload() -> Dictionary:
 			"y": int(map.owcharacter.tile_position_y),
 		})
 		if sync_result is Dictionary and str(sync_result.get("status", "")) == "error":
-			push_error(str(sync_result.get("message", "Classic save location could not be recorded")))
-			return {}
-	var payload: Variant = classic_campaign_session.call("make_save_payload")
-	return payload if payload is Dictionary else {}
+			return {
+				"status": "error",
+				"message": str(sync_result.get(
+					"message",
+					"Classic save location could not be recorded"
+				)),
+			}
+	var save_result: Variant = classic_campaign_session.call("make_save_result")
+	return save_result if save_result is Dictionary else {
+		"status": "error",
+		"message": "Classic campaign state could not be serialized",
+	}
 
 
 func validate_classic_campaign_save(campaign_name: String, payload: Variant) -> Dictionary:
@@ -479,6 +502,19 @@ func start_current_classic_campaign(
 	if str(start_result.get("status", "")) == "error":
 		stop_classic_campaign_runtime()
 	return start_result
+
+
+func resume_current_classic_continuation() -> Dictionary:
+	if not is_instance_valid(classic_campaign_session) \
+			or not classic_campaign_session.has_method("resume_saved_continuation"):
+		return {"status": "ok", "handled": false}
+	var result: Variant = classic_campaign_session.call("resume_saved_continuation")
+	if result is Dictionary and str(result.get("status", "")) == "error":
+		push_error(str(result.get("message", "Classic continuation could not resume")))
+	return result if result is Dictionary else {
+		"status": "error",
+		"message": "Classic continuation returned an invalid result",
+	}
 
 
 func dispatch_classic_map_script(script_name: String, context := {}) -> Dictionary:

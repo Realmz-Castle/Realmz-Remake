@@ -5,6 +5,17 @@ signal command_requested(command: String, payload: Dictionary)
 signal trigger_completed(result: Dictionary)
 signal runtime_stopped(result: Dictionary)
 
+const CONTINUATION_SCHEMA_VERSION := 1
+const REPLAYABLE_COMMANDS := [
+	"show_text",
+	"choice",
+	"start_encounter",
+	"start_battle",
+	"wait_for_click",
+	"present_random_branch",
+	"set_priest_turning",
+]
+
 var bundle := ClassicCampaignBundle.new()
 var runtime_state := ClassicRuntimeState.new()
 var interpreter := ClassicActionInterpreter.new()
@@ -149,6 +160,115 @@ func snapshot() -> Dictionary:
 
 func restore(saved_state: Dictionary) -> void:
 	runtime_state.restore(saved_state)
+
+
+func make_continuation_snapshot() -> Dictionary:
+	if last_result.is_empty() or str(last_result.get("status", "")) == "completed":
+		return {
+			"status": "ok",
+			"snapshot": {
+				"schemaVersion": CONTINUATION_SCHEMA_VERSION,
+				"state": "idle",
+			},
+		}
+	if str(last_result.get("status", "")) != "yield":
+		return _continuation_error("A stopped Classic action point cannot be saved")
+	var command := str(last_result.get("command", ""))
+	if not REPLAYABLE_COMMANDS.has(command):
+		return _continuation_error(
+			"Finish the current Classic '%s' action before saving" % command
+		)
+	if not _pending_state_matches(command):
+		return _continuation_error(
+			"Classic '%s' continuation state is incomplete" % command
+		)
+	var execution_result := interpreter.make_execution_snapshot()
+	if str(execution_result.get("status", "")) != "ok":
+		return execution_result
+	return {
+		"status": "ok",
+		"snapshot": {
+			"schemaVersion": CONTINUATION_SCHEMA_VERSION,
+			"state": "suspended",
+			"yieldedResult": last_result.duplicate(true),
+			"executionState": execution_result["snapshot"],
+		},
+	}
+
+
+func restore_continuation(snapshot: Variant) -> Dictionary:
+	var validation := validate_continuation_snapshot(snapshot)
+	if str(validation.get("status", "")) != "ok":
+		return validation
+	var saved: Dictionary = snapshot
+	if str(saved.get("state", "")) == "idle":
+		interpreter.reset_execution()
+		last_result.clear()
+		return {"status": "ok"}
+	var execution_result := interpreter.restore_execution_snapshot(saved["executionState"])
+	if str(execution_result.get("status", "")) != "ok":
+		return execution_result
+	last_result = saved["yieldedResult"].duplicate(true)
+	if not _pending_state_matches(str(last_result.get("command", ""))):
+		interpreter.reset_execution()
+		last_result.clear()
+		return _continuation_error("Classic continuation does not match its pending action")
+	return {"status": "ok"}
+
+
+func replay_continuation() -> Dictionary:
+	if str(last_result.get("status", "")) != "yield":
+		return _continuation_error("No Classic action is waiting to resume")
+	_publish(last_result.duplicate(true))
+	return {"status": "ok"}
+
+
+static func validate_continuation_snapshot(snapshot: Variant) -> Dictionary:
+	if not (snapshot is Dictionary):
+		return _continuation_error("Classic continuation is not a dictionary")
+	if int(snapshot.get("schemaVersion", 0)) != CONTINUATION_SCHEMA_VERSION:
+		return _continuation_error("Classic continuation schema is not supported")
+	var state := str(snapshot.get("state", ""))
+	if state == "idle":
+		return {"status": "ok"}
+	if state != "suspended":
+		return _continuation_error("Classic continuation has an invalid state")
+	var yielded_result: Variant = snapshot.get("yieldedResult")
+	if not (yielded_result is Dictionary) \
+			or str(yielded_result.get("status", "")) != "yield":
+		return _continuation_error("Classic continuation has no yielded command")
+	var command := str(yielded_result.get("command", ""))
+	if not REPLAYABLE_COMMANDS.has(command):
+		return _continuation_error("Classic continuation command '%s' is not replayable" % command)
+	if not (yielded_result.get("payload", {}) is Dictionary):
+		return _continuation_error("Classic continuation command has an invalid payload")
+	var execution_result := ClassicActionInterpreter.validate_execution_snapshot(
+		snapshot.get("executionState")
+	)
+	if str(execution_result.get("status", "")) != "ok":
+		return execution_result
+	if snapshot["executionState"].get("currentTrigger", {}).is_empty():
+		return _continuation_error("Classic continuation has no active action list")
+	return {"status": "ok"}
+
+
+func _pending_state_matches(command: String) -> bool:
+	match command:
+		"choice":
+			return not interpreter.pending_choice.is_empty()
+		"start_encounter":
+			return not interpreter.pending_encounter.is_empty()
+		"start_battle":
+			return not interpreter.pending_battle.is_empty() \
+				or not interpreter.pending_selective_battle.is_empty()
+		"present_random_branch":
+			return not interpreter.pending_random_branch.is_empty()
+		_:
+			return true
+
+
+static func _continuation_error(message: String) -> Dictionary:
+	return {"status": "error", "message": message}
 
 
 func _publish(result: Dictionary) -> void:

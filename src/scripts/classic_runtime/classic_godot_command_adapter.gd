@@ -107,6 +107,14 @@ const CLASSIC_PARTY_EFFECTS := {
 	7: "Sentry",
 	8: "CharmProt",
 }
+const REPLAYABLE_PRESENTATION_COMMANDS := [
+	"show_text",
+	"choice",
+	"start_encounter",
+	"wait_for_click",
+	"present_random_branch",
+	"set_priest_turning",
+]
 
 var classic_selected_characters: Array = []
 var stored_party_equipment: Dictionary = {}
@@ -117,6 +125,8 @@ var classic_map_bridge = MapBridgeScript.new()
 # Opcode 100 runs in a nested host while start_battle waits on this adapter.
 # This one-shot carries its slot-8 result back to the suspended outer command.
 var _forced_battle_resume_slot := -1
+var _active_classic_command := ""
+var _active_command_save_safe := false
 
 
 func configure_classic_bundle(bundle: Object) -> void:
@@ -125,6 +135,8 @@ func configure_classic_bundle(bundle: Object) -> void:
 	classic_map_bridge.configure(bundle)
 	classic_spell_overrides.clear()
 	_forced_battle_resume_slot = -1
+	_active_classic_command = ""
+	_active_command_save_safe = false
 	_register_classic_spell_overrides()
 
 
@@ -165,6 +177,18 @@ func restore_classic_save_state(saved_state: Dictionary) -> Dictionary:
 			)
 		inventories[inventory_index] = restored_inventory
 	return {"status": "ok"}
+
+
+func classic_continuation_save_policy(command: String) -> Dictionary:
+	if command != _active_classic_command:
+		return _error("The current Classic action is changing; try saving again")
+	if _active_command_save_safe:
+		return {"status": "ok"}
+	if command == "start_battle":
+		return _error("Finish the current battle before saving")
+	if command == "start_encounter":
+		return _error("Finish the current encounter response before saving")
+	return _error("Finish the current Classic action before saving")
 
 
 func activate_classic_start(location: Dictionary) -> Dictionary:
@@ -275,6 +299,8 @@ func get_classic_execution_context() -> Dictionary:
 
 
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
+	_active_classic_command = command
+	_active_command_save_safe = REPLAYABLE_PRESENTATION_COMMANDS.has(command)
 	match command:
 		"show_text":
 			return await _show_text(payload)
@@ -283,6 +309,7 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		"start_encounter":
 			return await _show_encounter(payload)
 		"start_battle":
+			_active_command_save_safe = false
 			return await _start_classic_battle(payload)
 		"play_sound":
 			return _play_sound(payload)
@@ -1653,6 +1680,9 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		if token_parts.size() != 2 or token_parts[0] != "rogue":
 			return _error("Classic complex encounter returned an invalid action")
 		var action_index: int = int(token_parts[1])
+		# Rogue resolution mutates its TD2 state and may immediately damage the
+		# party. From here onward the encounter must finish before it is saved.
+		_active_command_save_safe = false
 		var chance: int = resolver.success_percent(
 			action_index,
 			float(character.get_stat(resolver.stat_name(action_index)))

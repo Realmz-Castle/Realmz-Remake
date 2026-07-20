@@ -3,7 +3,8 @@ extends Node
 
 const InstallScript = preload("res://scripts/classic_runtime/classic_campaign_install.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
-const SAVE_SCHEMA_VERSION := 1
+const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
+const SAVE_SCHEMA_VERSION := 2
 
 var install: Object
 var host: Object
@@ -43,21 +44,40 @@ func activate_start_location(force_reload := false) -> Dictionary:
 
 
 func make_save_payload() -> Dictionary:
+	var result := make_save_result()
+	return result.get("payload", {}) if str(result.get("status", "")) == "ok" else {}
+
+
+func validate_save_point() -> Dictionary:
 	if not is_instance_valid(host) or host.runtime == null:
-		return {}
+		return _error("Classic campaign runtime is not loaded")
+	var result: Dictionary = host.make_continuation_snapshot()
+	return {"status": "ok"} if str(result.get("status", "")) == "ok" else result
+
+
+func make_save_result() -> Dictionary:
+	if not is_instance_valid(host) or host.runtime == null:
+		return _error("Classic campaign runtime is not loaded")
 	var runtime_state: Object = host.runtime.runtime_state
 	if runtime_state == null or not runtime_state.has_method("snapshot"):
-		return {}
+		return _error("Classic campaign runtime state is unavailable")
+	var continuation_result: Dictionary = host.make_continuation_snapshot()
+	if str(continuation_result.get("status", "")) != "ok":
+		return continuation_result
 	var adapter_state := {}
 	if command_adapter != null and command_adapter.has_method("classic_save_state"):
 		var saved_adapter_state: Variant = command_adapter.call("classic_save_state")
 		if saved_adapter_state is Dictionary:
 			adapter_state = saved_adapter_state.duplicate(true)
 	return {
-		"schemaVersion": SAVE_SCHEMA_VERSION,
-		"campaignId": _campaign_id(),
-		"runtimeState": runtime_state.call("snapshot"),
-		"adapterState": adapter_state,
+		"status": "ok",
+		"payload": {
+			"schemaVersion": SAVE_SCHEMA_VERSION,
+			"campaignId": _campaign_id(),
+			"runtimeState": runtime_state.call("snapshot"),
+			"adapterState": adapter_state,
+			"continuationState": continuation_result["snapshot"],
+		},
 	}
 
 
@@ -76,7 +96,21 @@ func restore_save_payload(payload: Dictionary) -> Dictionary:
 		)
 		if adapter_result is Dictionary and str(adapter_result.get("status", "")) == "error":
 			return adapter_result
-	return {"status": "ok"}
+	var continuation_state: Dictionary = payload.get("continuationState", {
+		"schemaVersion": RuntimeScript.CONTINUATION_SCHEMA_VERSION,
+		"state": "idle",
+	})
+	return host.restore_continuation(continuation_state)
+
+
+func has_pending_continuation() -> bool:
+	return is_instance_valid(host) and host.has_restored_continuation()
+
+
+func resume_saved_continuation() -> Dictionary:
+	if not is_instance_valid(host):
+		return _error("Classic campaign runtime is not loaded")
+	return host.resume_restored_continuation()
 
 
 func restore_legacy_native_location(location: Dictionary) -> Dictionary:
@@ -124,7 +158,7 @@ static func validate_save_payload(payload: Variant, expected_campaign_id := "") 
 				SAVE_SCHEMA_VERSION,
 			]
 		)
-	if version != SAVE_SCHEMA_VERSION:
+	if version < 1:
 		return _error("Classic save schema %d is not supported" % version)
 	if not expected_campaign_id.is_empty():
 		var saved_campaign_id := str(payload.get("campaignId", ""))
@@ -139,6 +173,16 @@ static func validate_save_payload(payload: Variant, expected_campaign_id := "") 
 		return _error("Classic save data has no runtime state")
 	if not (payload.get("adapterState", {}) is Dictionary):
 		return _error("Classic save data has invalid adapter state")
+	if version >= 2:
+		var continuation_value: Variant = payload.get("continuationState")
+		var continuation_result: Dictionary = RuntimeScript.validate_continuation_snapshot(
+			continuation_value
+		)
+		if str(continuation_result.get("status", "")) != "ok":
+			return continuation_result
+		if str(continuation_value.get("state", "")) == "suspended" \
+				and not (continuation_value.get("commandContext", {}) is Dictionary):
+			return _error("Classic continuation has an invalid command context")
 	return {"status": "ok"}
 
 

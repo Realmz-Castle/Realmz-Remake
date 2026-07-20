@@ -94,6 +94,32 @@ class BattleRoundHostAdapter:
 		return {}
 
 
+class SuspendedCommandAdapter:
+	extends RefCounted
+	signal response_ready(response: Dictionary)
+	var commands: Array = []
+	var waiting := false
+	var save_safe := true
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload.duplicate(true)})
+		waiting = true
+		var response: Dictionary = await response_ready
+		waiting = false
+		return response
+
+	func classic_continuation_save_policy(_command: String) -> Dictionary:
+		if save_safe:
+			return {"status": "ok"}
+		return {
+			"status": "error",
+			"message": "Finish the current encounter response before saving",
+		}
+
+	func respond(response := {}) -> void:
+		response_ready.emit(response)
+
+
 class RejectingAdapter:
 	extends RefCounted
 
@@ -699,6 +725,11 @@ func _init() -> void:
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
 	_test_runtime_host()
+	await _test_encounter_continuation_restore()
+	await _test_gosub_continuation_restore()
+	await _test_deferred_action_point_continuation_restore()
+	await _test_battle_continuation_restore()
+	_test_unsafe_continuation_save_policy()
 	var user_arguments := OS.get_cmdline_user_args()
 	if not user_arguments.is_empty():
 		_test_full_bundle(str(user_arguments[0]))
@@ -1276,6 +1307,17 @@ func _test_installed_classic_campaign_layout() -> void:
 	var serialized_payload := JSON.stringify(save_payload)
 	var parsed_payload: Variant = JSON.parse_string(serialized_payload)
 	_expect(parsed_payload is Dictionary, "campaign save payload is JSON serializable")
+	var version_one_payload: Dictionary = parsed_payload.duplicate(true)
+	version_one_payload["schemaVersion"] = 1
+	version_one_payload.erase("continuationState")
+	_expect_equal(
+		CampaignSessionScript.validate_save_payload(
+			version_one_payload,
+			"providence-ownership-proof"
+		).get("status"),
+		"ok",
+		"version-one campaign save remains loadable as an idle continuation"
+	)
 
 	var restored_session = CampaignSessionScript.new()
 	get_root().add_child(restored_session)
@@ -8393,6 +8435,216 @@ func _test_godot_runtime_facade() -> void:
 	_expect_equal(stops.size(), 0, "facade stays within implemented slice")
 
 
+func _test_encounter_continuation_restore() -> void:
+	var bundle = _continuation_encounter_test_bundle()
+	var adapter = SuspendedCommandAdapter.new()
+	var host = _continuation_test_host(bundle, adapter)
+	_expect(
+		host.start_trigger("continuation:encounter", 0, {"actorFaction": 7}),
+		"encounter continuation fixture starts"
+	)
+	_expect_equal(adapter.commands[0].get("command"), "start_encounter", "encounter suspends at its prompt")
+	var saved_result: Dictionary = host.make_continuation_snapshot()
+	_expect_equal(saved_result.get("status"), "ok", "encounter continuation can be saved")
+	var saved: Dictionary = _json_round_trip(saved_result.get("snapshot", {}))
+	_expect(not saved.is_empty(), "encounter continuation is JSON serializable")
+	_release_suspended_host(host, adapter)
+
+	var restored_adapter = SuspendedCommandAdapter.new()
+	var restored_host = _continuation_test_host(bundle, restored_adapter)
+	_expect_equal(
+		restored_host.restore_continuation(saved).get("status"),
+		"ok",
+		"encounter continuation restores into a fresh host"
+	)
+	_expect(restored_host.has_restored_continuation(), "restored encounter waits for native map setup")
+	_expect_equal(
+		restored_host.resume_restored_continuation().get("status"),
+		"ok",
+		"restored encounter replays after map setup"
+	)
+	_expect_equal(restored_adapter.commands[0].get("command"), "start_encounter", "restored encounter reopens")
+	_expect_equal(
+		restored_adapter.commands[0].get("payload", {}).get("actorFaction"),
+		7,
+		"restored encounter retains its command context"
+	)
+	restored_adapter.respond({"outcome": 4})
+	await process_frame
+	_expect_equal(
+		restored_adapter.commands[-1].get("payload", {}).get("messageId"),
+		404,
+		"restored encounter enters its selected result block"
+	)
+	restored_adapter.respond()
+	await process_frame
+	_expect_equal(restored_adapter.commands[-1].get("command"), "start_encounter", "encounter repetition survives load")
+	_expect_equal(
+		restored_adapter.commands[-1].get("payload", {}).get("remainingAttempts"),
+		1,
+		"encounter attempt count survives load"
+	)
+	restored_adapter.respond({"outcome": 4})
+	await process_frame
+	_expect_equal(
+		restored_adapter.commands[-1].get("payload", {}).get("messageId"),
+		303,
+		"restored final attempt keeps Classic timeout routing"
+	)
+	restored_adapter.respond()
+	await process_frame
+	_expect(not restored_host.active, "restored encounter completes once")
+	restored_host.queue_free()
+
+
+func _test_gosub_continuation_restore() -> void:
+	var bundle = _stack_test_bundle()
+	var adapter = SuspendedCommandAdapter.new()
+	var host = _continuation_test_host(bundle, adapter)
+	_expect(host.start_trigger("stack:sticky"), "GOSUB continuation fixture starts")
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("messageId"),
+		902,
+		"GOSUB continuation suspends in its innermost XAP"
+	)
+	var saved_result: Dictionary = host.make_continuation_snapshot()
+	var saved: Dictionary = _json_round_trip(saved_result.get("snapshot", {}))
+	_expect_equal(
+		saved.get("executionState", {}).get("callStack", []).size(),
+		2,
+		"GOSUB continuation serializes every return frame"
+	)
+	_release_suspended_host(host, adapter)
+
+	var restored_adapter = SuspendedCommandAdapter.new()
+	var restored_host = _continuation_test_host(bundle, restored_adapter)
+	_expect_equal(restored_host.restore_continuation(saved).get("status"), "ok", "GOSUB continuation restores")
+	restored_host.resume_restored_continuation()
+	for expected_message_id: int in [902, 901, 900]:
+		_expect_equal(
+			restored_adapter.commands[-1].get("payload", {}).get("messageId"),
+			expected_message_id,
+			"restored GOSUB resumes message %d at its authored slot" % expected_message_id
+		)
+		restored_adapter.respond()
+		await process_frame
+	_expect(not restored_host.active, "restored GOSUB stack unwinds to completion")
+	_expect_equal(
+		restored_host.runtime.interpreter.call_stack.size(),
+		0,
+		"restored GOSUB consumes each saved return frame"
+	)
+	restored_host.queue_free()
+
+
+func _test_battle_continuation_restore() -> void:
+	var bundle = _battle_outcome_test_bundle()
+	var adapter = SuspendedCommandAdapter.new()
+	var host = _continuation_test_host(bundle, adapter)
+	_expect(host.start_trigger("battle:outcome"), "battle continuation fixture starts")
+	var saved_result: Dictionary = host.make_continuation_snapshot()
+	var saved: Dictionary = _json_round_trip(saved_result.get("snapshot", {}))
+	_expect_equal(
+		saved.get("yieldedResult", {}).get("command"),
+		"start_battle",
+		"battle continuation records the outer action-list suspension"
+	)
+	_release_suspended_host(host, adapter)
+
+	for coward: bool in [false, true]:
+		var restored_adapter = SuspendedCommandAdapter.new()
+		var restored_host = _continuation_test_host(bundle, restored_adapter)
+		_expect_equal(restored_host.restore_continuation(saved).get("status"), "ok", "battle continuation restores")
+		restored_host.resume_restored_continuation()
+		_expect_equal(restored_adapter.commands[-1].get("command"), "start_battle", "restored battle restarts natively")
+		restored_adapter.respond({"coward": coward})
+		await process_frame
+		_expect_equal(
+			restored_adapter.commands[-1].get("command"),
+			"apply_coward_penalty" if coward else "give_battle_loot",
+			"restored battle returns through its authored outcome"
+		)
+		restored_adapter.respond()
+		await process_frame
+		_expect(not restored_host.active, "restored battle outcome completes once")
+		restored_host.queue_free()
+
+
+func _test_deferred_action_point_continuation_restore() -> void:
+	var bundle = _opcode_25_test_bundle()
+	var adapter = SuspendedCommandAdapter.new()
+	var host = _continuation_test_host(bundle, adapter)
+	host.runtime.runtime_state.set_position(0, 2, 3)
+	_expect(host.start_trigger("Data DD:0:7"), "deferred action-point continuation starts")
+	adapter.respond()
+	await process_frame
+	_expect(host.runtime.interpreter.remove_action_point, "opcode 25 mutation is deferred at save time")
+	_expect_equal(
+		adapter.commands[-1].get("payload", {}).get("messageId"),
+		901,
+		"deferred mutation suspends before its final presentation"
+	)
+	var saved_result: Dictionary = host.make_continuation_snapshot()
+	var saved: Dictionary = _json_round_trip(saved_result.get("snapshot", {}))
+	_expect(
+		bool(saved.get("executionState", {}).get("removeActionPoint", false)),
+		"continuation serializes the deferred mutation flag"
+	)
+	_release_suspended_host(host, adapter)
+
+	var restored_adapter = SuspendedCommandAdapter.new()
+	var restored_host = _continuation_test_host(bundle, restored_adapter)
+	_expect_equal(
+		restored_host.restore_continuation(saved).get("status"),
+		"ok",
+		"deferred action-point continuation restores"
+	)
+	restored_host.resume_restored_continuation()
+	restored_adapter.respond()
+	await process_frame
+	var replacement: Dictionary = restored_host.runtime.runtime_state.get_action_point_override(
+		"Data DD:0:7"
+	)
+	_expect_equal(replacement.get("targetX"), 2, "restored deferred mutation captures activation x")
+	_expect_equal(replacement.get("targetY"), 3, "restored deferred mutation captures activation y")
+	_expect(not restored_host.active, "restored deferred mutation completes once")
+	restored_host.queue_free()
+
+
+func _test_unsafe_continuation_save_policy() -> void:
+	var adapter = SuspendedCommandAdapter.new()
+	adapter.save_safe = false
+	var host = _continuation_test_host(_continuation_encounter_test_bundle(), adapter)
+	host.start_trigger("continuation:encounter")
+	var result: Dictionary = host.make_continuation_snapshot()
+	_expect_equal(result.get("status"), "error", "unsafe mid-encounter save is rejected")
+	_expect(
+		str(result.get("message", "")).contains("Finish the current encounter response"),
+		"unsafe save rejection explains the legal boundary"
+	)
+	_release_suspended_host(host, adapter)
+
+
+func _continuation_test_host(bundle: Variant, adapter: Variant) -> Variant:
+	var host = HostScript.new()
+	get_root().add_child(host)
+	host.configure(adapter)
+	host.use_campaign(bundle)
+	return host
+
+
+func _release_suspended_host(host: Variant, adapter: Variant) -> void:
+	host.active = false
+	if adapter.waiting:
+		adapter.respond()
+	host.queue_free()
+
+
+func _json_round_trip(value: Variant) -> Dictionary:
+	var parsed: Variant = JSON.parse_string(JSON.stringify(value))
+	return parsed if parsed is Dictionary else {}
+
+
 func _test_runtime_host() -> void:
 	var host = HostScript.new()
 	get_root().add_child(host)
@@ -8614,6 +8866,27 @@ func _selective_battle_test_bundle():
 		_classic_action(1, 48, 234),
 		_classic_action(7, 24, 0),
 	])
+	return bundle
+
+
+func _continuation_encounter_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_stack_trigger(bundle, "continuation:encounter", -1, [
+		_classic_action(0, 5, 1),
+		_classic_action(7, 24, 0),
+	])
+	bundle.complex_encounters_by_id[1] = {
+		"id": 1,
+		"actions": [
+			_classic_action(16, 1, 303),
+			_classic_action(24, 1, 404),
+		],
+		"maxTimes": 2,
+		"prompt": 0,
+	}
+	bundle.messages_by_id[303] = {"id": 303, "text": "Timed out"}
+	bundle.messages_by_id[404] = {"id": 404, "text": "Try again"}
 	return bundle
 
 

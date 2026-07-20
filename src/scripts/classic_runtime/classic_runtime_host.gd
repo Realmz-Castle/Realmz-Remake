@@ -12,6 +12,7 @@ var command_adapter: Object
 var active := false
 var command_context: Dictionary = {}
 var nested_trigger_active := false
+var restored_continuation_pending := false
 
 
 func _init() -> void:
@@ -29,6 +30,7 @@ func configure(adapter: Object) -> void:
 func load_campaign(directory: String) -> bool:
 	active = false
 	nested_trigger_active = false
+	restored_continuation_pending = false
 	command_context.clear()
 	if not runtime.load_campaign(directory):
 		return false
@@ -39,6 +41,7 @@ func load_campaign(directory: String) -> bool:
 func use_campaign(campaign_bundle: ClassicCampaignBundle) -> void:
 	active = false
 	nested_trigger_active = false
+	restored_continuation_pending = false
 	command_context.clear()
 	var loaded_state := ClassicRuntimeState.new()
 	loaded_state.configure_from_bundle(campaign_bundle)
@@ -196,6 +199,7 @@ func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 		_stop_with_error("ClassicRuntimeHost command context must be a dictionary")
 		return false
 	command_context.clear()
+	restored_continuation_pending = false
 	if command_adapter.has_method("get_classic_execution_context"):
 		var adapter_context: Variant = command_adapter.call("get_classic_execution_context")
 		if adapter_context is Dictionary:
@@ -207,6 +211,67 @@ func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 		active = false
 		return false
 	return true
+
+
+func make_continuation_snapshot() -> Dictionary:
+	if nested_trigger_active:
+		return _continuation_error(
+			"Finish the current Classic combat macro before saving"
+		)
+	if not active:
+		return runtime.make_continuation_snapshot()
+	var command := str(runtime.last_result.get("command", ""))
+	if command_adapter != null \
+			and command_adapter.has_method("classic_continuation_save_policy"):
+		var policy: Variant = command_adapter.call(
+			"classic_continuation_save_policy",
+			command
+		)
+		if policy is Dictionary and str(policy.get("status", "")) == "error":
+			return policy
+	var runtime_result := runtime.make_continuation_snapshot()
+	if str(runtime_result.get("status", "")) != "ok":
+		return runtime_result
+	var snapshot: Dictionary = runtime_result["snapshot"]
+	snapshot["commandContext"] = command_context.duplicate(true)
+	return {"status": "ok", "snapshot": snapshot}
+
+
+func restore_continuation(snapshot: Variant) -> Dictionary:
+	active = false
+	nested_trigger_active = false
+	restored_continuation_pending = false
+	command_context.clear()
+	var runtime_result := runtime.restore_continuation(snapshot)
+	if str(runtime_result.get("status", "")) != "ok":
+		return runtime_result
+	if str(snapshot.get("state", "")) != "suspended":
+		return {"status": "ok"}
+	var context_value: Variant = snapshot.get("commandContext", {})
+	if not (context_value is Dictionary):
+		return _continuation_error("Classic continuation has an invalid command context")
+	command_context = context_value.duplicate(true)
+	restored_continuation_pending = true
+	return {"status": "ok"}
+
+
+func has_restored_continuation() -> bool:
+	return restored_continuation_pending
+
+
+func resume_restored_continuation() -> Dictionary:
+	if not restored_continuation_pending:
+		return {"status": "ok", "handled": false}
+	if command_adapter == null or not command_adapter.has_method("execute_command"):
+		return _continuation_error("ClassicRuntimeHost requires an execute_command adapter")
+	restored_continuation_pending = false
+	active = true
+	var replay_result := runtime.replay_continuation()
+	if str(replay_result.get("status", "")) == "error":
+		active = false
+		command_context.clear()
+		return replay_result
+	return {"status": "ok", "handled": true}
 
 
 func _on_command_requested(command: String, payload: Dictionary) -> void:
@@ -339,3 +404,7 @@ func _stop_with_error(message: String, command := "") -> void:
 		result["command"] = command
 	playthrough_stopped.emit(result)
 	playthrough_finished.emit(result)
+
+
+static func _continuation_error(message: String) -> Dictionary:
+	return {"status": "error", "message": message}

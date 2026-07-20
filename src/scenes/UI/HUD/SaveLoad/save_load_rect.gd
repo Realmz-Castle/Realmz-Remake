@@ -101,9 +101,14 @@ func _on_create_button_pressed():
 
 func save_game(campaignname : String, savename : String) :
 #	print("save_game  savename : ", savename)
-	var classic_runtime_payload: Dictionary = GameGlobal.classic_campaign_save_payload()
-	if GameGlobal.is_classic_campaign(campaignname) and classic_runtime_payload.is_empty():
-		var validation_message := "Classic campaign state is unavailable; the existing save was not changed"
+	var classic_save_result: Dictionary = GameGlobal.classic_campaign_save_result()
+	var classic_runtime_payload: Dictionary = classic_save_result.get("payload", {})
+	if GameGlobal.is_classic_campaign(campaignname) \
+			and str(classic_save_result.get("status", "")) != "ok":
+		var validation_message := str(classic_save_result.get(
+			"message",
+			"Classic campaign state is unavailable; the existing save was not changed"
+		))
 		preview_panel.notesTextEdit.text = validation_message
 		push_error(validation_message)
 		return

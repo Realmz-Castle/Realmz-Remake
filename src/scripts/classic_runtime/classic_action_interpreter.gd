@@ -4,6 +4,7 @@ extends RefCounted
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
+const EXECUTION_SNAPSHOT_SCHEMA_VERSION := 1
 const HANDLED_OPCODES := [
 	-23, -14,
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -116,6 +117,159 @@ func reset_execution() -> void:
 	trace.clear()
 	last_error = ""
 	halted = false
+
+
+func make_execution_snapshot() -> Dictionary:
+	if halted:
+		return _snapshot_error("A stopped Classic action point cannot be saved")
+	var snapshot := {
+		"schemaVersion": EXECUTION_SNAPSHOT_SCHEMA_VERSION,
+		"currentTrigger": current_trigger.duplicate(true),
+		"currentActionIndex": current_action_index,
+		"originActionPoint": origin_action_point.duplicate(true),
+		"activeActionPointHeader": active_action_point_header.duplicate(true),
+		"removeActionPoint": remove_action_point,
+		"removalX": removal_x,
+		"removalY": removal_y,
+		"callStack": call_stack.duplicate(true),
+		"gosubActive": gosub_active,
+		"pendingChoice": pending_choice.duplicate(true),
+		"pendingEncounter": pending_encounter.duplicate(true),
+		"pendingBattle": pending_battle.duplicate(true),
+		"pendingSelectiveBattle": pending_selective_battle.duplicate(true),
+		"pendingItemCheck": pending_item_check.duplicate(true),
+		"pendingWealthPayment": pending_wealth_payment.duplicate(true),
+		"pendingPartyConditionCheck": pending_party_condition_check.duplicate(true),
+		"pendingAllyCheck": pending_ally_check.duplicate(true),
+		"pendingCombatMonsterCheck": pending_combat_monster_check.duplicate(true),
+		"pendingBattleRoundMacro": pending_battle_round_macro.duplicate(true),
+		"pendingRandomBranch": pending_random_branch.duplicate(true),
+		"pendingTeleport": pending_teleport.duplicate(true),
+		"executionContext": execution_context.duplicate(true),
+		"encounterOrigins": encounter_origins.duplicate(true),
+		"loadedSimpleEncounterId": loaded_simple_encounter_id,
+		"loadedComplexEncounterId": loaded_complex_encounter_id,
+	}
+	if not _is_snapshot_value(snapshot):
+		return _snapshot_error(
+			"Classic continuation contains runtime-only values and cannot be saved"
+		)
+	return {"status": "ok", "snapshot": snapshot}
+
+
+func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
+	var validation := validate_execution_snapshot(snapshot)
+	if str(validation.get("status", "")) != "ok":
+		return validation
+	var saved: Dictionary = snapshot
+	reset_execution()
+	current_trigger = saved["currentTrigger"].duplicate(true)
+	current_action_index = int(saved["currentActionIndex"])
+	origin_action_point = saved["originActionPoint"].duplicate(true)
+	active_action_point_header = saved["activeActionPointHeader"].duplicate(true)
+	remove_action_point = bool(saved["removeActionPoint"])
+	removal_x = int(saved["removalX"])
+	removal_y = int(saved["removalY"])
+	call_stack = saved["callStack"].duplicate(true)
+	gosub_active = bool(saved["gosubActive"])
+	pending_choice = saved["pendingChoice"].duplicate(true)
+	pending_encounter = saved["pendingEncounter"].duplicate(true)
+	pending_battle = saved["pendingBattle"].duplicate(true)
+	pending_selective_battle = saved["pendingSelectiveBattle"].duplicate(true)
+	pending_item_check = saved["pendingItemCheck"].duplicate(true)
+	pending_wealth_payment = saved["pendingWealthPayment"].duplicate(true)
+	pending_party_condition_check = saved["pendingPartyConditionCheck"].duplicate(true)
+	pending_ally_check = saved["pendingAllyCheck"].duplicate(true)
+	pending_combat_monster_check = saved["pendingCombatMonsterCheck"].duplicate(true)
+	pending_battle_round_macro = saved["pendingBattleRoundMacro"].duplicate(true)
+	pending_random_branch = saved["pendingRandomBranch"].duplicate(true)
+	pending_teleport = saved["pendingTeleport"].duplicate(true)
+	execution_context = saved["executionContext"].duplicate(true)
+	encounter_origins = saved["encounterOrigins"].duplicate(true)
+	loaded_simple_encounter_id = int(saved["loadedSimpleEncounterId"])
+	loaded_complex_encounter_id = int(saved["loadedComplexEncounterId"])
+	return {"status": "ok"}
+
+
+static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
+	if not (snapshot is Dictionary):
+		return _snapshot_error("Classic continuation execution state is not a dictionary")
+	if int(snapshot.get("schemaVersion", 0)) != EXECUTION_SNAPSHOT_SCHEMA_VERSION:
+		return _snapshot_error("Classic continuation execution schema is not supported")
+	for field_name: String in [
+		"currentTrigger",
+		"originActionPoint",
+		"activeActionPointHeader",
+		"pendingChoice",
+		"pendingEncounter",
+		"pendingBattle",
+		"pendingSelectiveBattle",
+		"pendingItemCheck",
+		"pendingWealthPayment",
+		"pendingPartyConditionCheck",
+		"pendingAllyCheck",
+		"pendingCombatMonsterCheck",
+		"pendingBattleRoundMacro",
+		"pendingRandomBranch",
+		"pendingTeleport",
+		"executionContext",
+	]:
+		if not (snapshot.get(field_name) is Dictionary):
+			return _snapshot_error("Classic continuation has invalid %s" % field_name)
+	for field_name: String in ["callStack", "encounterOrigins"]:
+		if not (snapshot.get(field_name) is Array):
+			return _snapshot_error("Classic continuation has invalid %s" % field_name)
+	if int(snapshot.get("currentActionIndex", -1)) < 0:
+		return _snapshot_error("Classic continuation has an invalid action index")
+	if snapshot["callStack"].size() > MAX_CALL_STACK_DEPTH:
+		return _snapshot_error("Classic continuation exceeds the GOSUB stack limit")
+	for field_name: String in ["removeActionPoint", "gosubActive"]:
+		if not (snapshot.get(field_name) is bool):
+			return _snapshot_error("Classic continuation has invalid %s" % field_name)
+	for field_name: String in [
+		"removalX",
+		"removalY",
+		"loadedSimpleEncounterId",
+		"loadedComplexEncounterId",
+	]:
+		var field_value: Variant = snapshot.get(field_name)
+		if not (field_value is int or field_value is float):
+			return _snapshot_error("Classic continuation has invalid %s" % field_name)
+	for frame_value: Variant in snapshot["callStack"]:
+		if not (frame_value is Dictionary) \
+				or not (frame_value.get("trigger") is Dictionary) \
+				or not (frame_value.get("actionPointHeader") is Dictionary) \
+				or not (frame_value.get("actionIndex") is int or frame_value.get("actionIndex") is float):
+			return _snapshot_error("Classic continuation has an invalid GOSUB frame")
+	for origin_value: Variant in snapshot["encounterOrigins"]:
+		if not (origin_value is Dictionary) \
+				or not (origin_value.get("trigger") is Dictionary) \
+				or not (origin_value.get("callStack") is Array) \
+				or not (origin_value.get("actionPointHeader") is Dictionary):
+			return _snapshot_error("Classic continuation has an invalid encounter frame")
+	if not _is_snapshot_value(snapshot):
+		return _snapshot_error("Classic continuation contains invalid runtime values")
+	return {"status": "ok"}
+
+
+static func _is_snapshot_value(value: Variant) -> bool:
+	if value == null or value is bool or value is int or value is float or value is String:
+		return true
+	if value is Array:
+		for child_value: Variant in value:
+			if not _is_snapshot_value(child_value):
+				return false
+		return true
+	if value is Dictionary:
+		for key: Variant in value:
+			if not (key is String) or not _is_snapshot_value(value[key]):
+				return false
+		return true
+	return false
+
+
+static func _snapshot_error(message: String) -> Dictionary:
+	return {"status": "error", "message": message}
 
 
 func begin_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:

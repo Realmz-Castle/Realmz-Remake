@@ -68,6 +68,9 @@ func enter(_msg : Dictionary = {}) -> void:
 		map.visible = true
 		UI.show_only(UI.ow_hud)
 		UI.ow_hud.initialize()
+		if classic_campaign:
+			# A restored command is replayed only after its native map and HUD exist.
+			GameGlobal.call_deferred("resume_current_classic_continuation")
 		print("ExplorationState campaign_start or campaign_continue done")
 		for pc in GameGlobal.player_characters :
 			pc.cur_campaign = campaign
