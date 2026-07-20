@@ -80,13 +80,17 @@ files. Existing complete native maps remain available for hand-maintained native
 campaigns; when they are absent, Remake is the sole owner of compiled-map
 materialization.
 
-Materialization currently supports complete outdoor tile arrays that resolve to
-a shared Remake landlook or an already decoded campaign tileset. It preserves
-stable Action Point IDs and chances and emits the normalized random rectangles.
-An undecoded custom atlas, special negative tile, incomplete tile array, unknown
-render mode, or atlas-capacity mismatch blocks installation with the map and
-resource identity instead of substituting lossy data. A package that is not ready
-to launch is not installed.
+Materialization supports complete outdoor tile arrays that resolve to a shared
+Remake landlook or an already decoded campaign tileset. It also converts ordinary
+Classic dungeon fields into a campaign-local native tileset using Realmz's PICT
+302 overhead sprites. The generated tiles retain their signed field value and
+native movement behavior for walls, doors, note cells, and Action Point cells.
+Stable Action Point IDs, trigger chances, and normalized random rectangles use
+the normal map files in both map families. Directional secret passages still
+require direction-aware native movement and therefore block installation. An
+undecoded custom atlas, special negative land tile, incomplete tile array,
+unknown render mode, or atlas-capacity mismatch is likewise reported instead of
+receiving lossy data. A package that is not ready to launch is not installed.
 
 Pass `--replace` to update an existing campaign. The old package remains in
 place until the staged update passes validation, and the update replaces the

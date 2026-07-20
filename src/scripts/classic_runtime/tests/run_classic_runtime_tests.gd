@@ -24,6 +24,7 @@ const CampaignPackageInstallerScript = preload(
 const MapMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_map_materializer.gd"
 )
+const NativeResourcesScript = preload("res://scripts/Resources.gd")
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
@@ -1753,6 +1754,19 @@ func _test_classic_map_materializer() -> void:
 		"text": 1,
 		"top": 1,
 	}]
+	bundle.documents["maps"]["maps"].append({
+		"height": 3,
+		"id": "dungeon:0",
+		"index": 0,
+		"levelType": "dungeon",
+		"render": {
+			"landlook": null,
+			"mode": "dungeon-top-down",
+			"tilesetId": "dungeon-top-down-302",
+		},
+		"tiles": [0, 1, 2, 4, 8, 16, 128, 4097, -32767],
+		"width": 3,
+	})
 
 	var test_root := ProjectSettings.globalize_path(
 		"user://classic-map-materializer-%d" % Time.get_ticks_msec()
@@ -1761,7 +1775,11 @@ func _test_classic_map_materializer() -> void:
 	var materializer = MapMaterializerScript.new()
 	var result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(result.get("status"), "ok", "normalized map generates native artifacts")
-	_expect_equal(result.get("generatedMaps"), ["map_0"], "materializer reports generated map")
+	_expect_equal(
+		result.get("generatedMaps"),
+		["map_0", "mapd_0"],
+		"materializer reports generated land and dungeon maps"
+	)
 	var map_directory := test_root.path_join("Maps").path_join("map_0")
 	for file_name: String in MapMaterializerScript.REQUIRED_MAP_FILES:
 		_expect(
@@ -1820,26 +1838,119 @@ func _test_classic_map_materializer() -> void:
 		"Providence owns this rogue encounter.",
 		"native map resolves random battle text"
 	)
+	var dungeon_directory := test_root.path_join("Maps").path_join("mapd_0")
+	var dungeon_things: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(dungeon_directory.path_join("map_things.json"))
+	)
+	_expect_equal(
+		dungeon_things.get("tilesets", [])[0].get("source"),
+		"ClassicDungeon.json",
+		"Classic dungeon fields use their generated native tileset"
+	)
+	_expect_equal(
+		dungeon_things.get("layers", [])[0].get("chunks", [])[0].get("data"),
+		[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0],
+		"signed dungeon fields resolve to deterministic native GIDs"
+	)
+	var dungeon_tileset_directory := test_root.path_join("Tilesets").path_join(
+		"ClassicDungeon"
+	)
+	var dungeon_tileset: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			dungeon_tileset_directory.path_join("ClassicDungeon.json")
+		)
+	)
+	_expect_equal(dungeon_tileset.get("tilecount"), 9, "dungeon tileset covers used fields")
+	var dungeon_templates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			dungeon_tileset_directory.path_join("tile_templates.json")
+		)
+	)
+	_expect_equal(
+		dungeon_templates.get("classic_dungeon_0001", {}).get("wall"),
+		1,
+		"Classic dungeon wall bit blocks native movement"
+	)
+	_expect_equal(
+		dungeon_templates.get("classic_dungeon_0002", {}).get("wall"),
+		0,
+		"Classic dungeon door remains passable"
+	)
+	_expect_equal(
+		dungeon_templates.get("classic_dungeon_1001", {}).get("wall"),
+		0,
+		"Classic Action Point cells retain the source movement exception"
+	)
+	_expect_equal(
+		dungeon_templates.get("classic_dungeon_8001", {}).get("classicDungeonField"),
+		-32767,
+		"generated dungeon tiles retain their signed Classic field value"
+	)
+	var dungeon_atlas := Image.load_from_file(
+		dungeon_tileset_directory.path_join("ClassicDungeon.png")
+	)
+	_expect_equal(
+		dungeon_atlas.get_size(),
+		Vector2i(9 * 32, 32),
+		"PICT 302 dungeon sprites are materialized at Remake's tile size"
+	)
+	var floor_image := dungeon_atlas.get_region(Rect2i(0, 0, 32, 32))
+	var wall_image := dungeon_atlas.get_region(Rect2i(32, 0, 32, 32))
+	var hidden_image := dungeon_atlas.get_region(Rect2i(6 * 32, 0, 32, 32))
+	_expect(
+		floor_image.get_data() != wall_image.get_data(),
+		"generated dungeon wall is visibly distinct from open floor"
+	)
+	_expect(
+		floor_image.get_data() == hidden_image.get_data(),
+		"hidden dungeon field suppresses its overhead sprite"
+	)
+	var native_resources = NativeResourcesScript.new()
+	native_resources.load_tile_resources(test_root.path_join("Tilesets"))
+	_expect_equal(
+		native_resources.tiles_book.get("ClassicDungeon.json", []).size(),
+		9,
+		"normal resource lifecycle loads the generated dungeon tileset"
+	)
+	native_resources.load_map_ressources(dungeon_directory + "/", "mapd_0")
+	_expect(
+		native_resources.maps_book.has("mapd_0"),
+		"normal resource lifecycle loads the generated dungeon map"
+	)
+	native_resources.free()
 	var first_artifacts := {}
-	for file_name: String in MapMaterializerScript.REQUIRED_MAP_FILES:
-		first_artifacts[file_name] = FileAccess.get_file_as_string(
-			map_directory.path_join(file_name)
+	var deterministic_files := [
+		"Maps/map_0/map_info.json",
+		"Maps/map_0/map_scriptareas.json",
+		"Maps/map_0/map_scripts.gd",
+		"Maps/map_0/map_things.json",
+		"Maps/mapd_0/map_info.json",
+		"Maps/mapd_0/map_scriptareas.json",
+		"Maps/mapd_0/map_scripts.gd",
+		"Maps/mapd_0/map_things.json",
+		"Tilesets/ClassicDungeon/ClassicDungeon.json",
+		"Tilesets/ClassicDungeon/tile_templates.json",
+		"Tilesets/ClassicDungeon/ClassicDungeon.png",
+	]
+	for relative_path: String in deterministic_files:
+		first_artifacts[relative_path] = FileAccess.get_sha256(
+			test_root.path_join(relative_path)
 		)
 	_expect_equal(
-		CampaignPackageInstallerScript.new()._remove_directory(map_directory),
+		CampaignPackageInstallerScript.new()._remove_directory(test_root.path_join("Maps")),
 		OK,
-		"materializer test removes its first generated map"
+		"materializer test removes its first generated maps"
 	)
 	_expect_equal(
 		materializer.materialize(bundle, test_root).get("status"),
 		"ok",
 		"normalized map regenerates"
 	)
-	for file_name: String in MapMaterializerScript.REQUIRED_MAP_FILES:
+	for relative_path: String in deterministic_files:
 		_expect_equal(
-			FileAccess.get_file_as_string(map_directory.path_join(file_name)),
-			first_artifacts[file_name],
-			"materialized %s is deterministic" % file_name
+			FileAccess.get_sha256(test_root.path_join(relative_path)),
+			first_artifacts[relative_path],
+			"materialized %s is deterministic" % relative_path
 		)
 
 	var unsupported_bundle = BundleScript.new()
@@ -1863,6 +1974,44 @@ func _test_classic_map_materializer() -> void:
 	_expect(
 		str(unsupported_result.get("message", "")).contains("special tile -100"),
 		"unsupported special tile reports its exact identity"
+	)
+
+	var directional_bundle = BundleScript.new()
+	directional_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	var directional_land: Dictionary = directional_bundle.documents["maps"]["maps"][0]
+	directional_land["render"] = {
+		"landlook": 0,
+		"mode": "outdoor-landlook",
+		"tilesetId": "landlook-0",
+	}
+	directional_land["tiles"] = tiles.duplicate()
+	directional_bundle.documents["maps"]["maps"].append({
+		"height": 1,
+		"id": "dungeon:0",
+		"index": 0,
+		"levelType": "dungeon",
+		"render": {
+			"landlook": null,
+			"mode": "dungeon-top-down",
+			"tilesetId": "dungeon-top-down-302",
+		},
+		"tiles": [0x0101],
+		"width": 1,
+	})
+	var directional_directory := test_root.path_join("directional-secret")
+	DirAccess.make_dir_recursive_absolute(directional_directory)
+	var directional_result: Dictionary = MapMaterializerScript.new().materialize(
+		directional_bundle,
+		directional_directory
+	)
+	_expect_equal(
+		directional_result.get("status"),
+		"error",
+		"directional dungeon secret blocks lossy native movement"
+	)
+	_expect(
+		str(directional_result.get("message", "")).contains("direction-aware dungeon movement"),
+		"directional dungeon blocker identifies the missing native behavior"
 	)
 	_expect_equal(
 		CampaignPackageInstallerScript.new()._remove_directory(test_root),
@@ -1928,6 +2077,19 @@ func _test_classic_campaign_package_installer() -> void:
 	for tile_index: int in range(producer_tiles.size()):
 		if int(producer_tiles[tile_index]) < 0:
 			producer_tiles[tile_index] = 156
+	producer_maps["maps"].append({
+		"height": 2,
+		"id": "dungeon:0",
+		"index": 0,
+		"levelType": "dungeon",
+		"render": {
+			"landlook": null,
+			"mode": "dungeon-top-down",
+			"tilesetId": "dungeon-top-down-302",
+		},
+		"tiles": [0, 1, 2, 8],
+		"width": 2,
+	})
 	var producer_maps_file := FileAccess.open(producer_maps_path, FileAccess.WRITE)
 	_expect(producer_maps_file != null, "installer test rewrites its disposable map document")
 	if producer_maps_file != null:
@@ -1948,6 +2110,21 @@ func _test_classic_campaign_package_installer() -> void:
 	_expect(
 		FileAccess.file_exists(materialized_map_directory.path_join("map_things.json")),
 		"installed producer bundle contains its generated native map"
+	)
+	var materialized_dungeon_directory := campaigns_directory.path_join(
+		"producer-stock-map"
+	).path_join("Maps").path_join("mapd_0")
+	_expect(
+		FileAccess.file_exists(materialized_dungeon_directory.path_join("map_things.json")),
+		"installed producer bundle contains its generated native dungeon"
+	)
+	_expect(
+		FileAccess.file_exists(
+			campaigns_directory.path_join("producer-stock-map").path_join(
+				"Tilesets/ClassicDungeon/ClassicDungeon.png"
+			)
+		),
+		"installed producer bundle contains its generated dungeon atlas"
 	)
 	var materialized_areas: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(

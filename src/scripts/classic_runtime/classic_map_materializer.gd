@@ -9,6 +9,21 @@ const REQUIRED_MAP_FILES := [
 	"map_things.json",
 ]
 const MAP_SCRIPT_SOURCE := "static func _on_map_load(_map) -> void:\n\tpass\n"
+const DUNGEON_TILESET_NAME := "ClassicDungeon"
+const DUNGEON_SOURCE_ATLAS := \
+	"res://shared_assets/tiles/The Family Jewels.rsf_PICT_302.png"
+const DUNGEON_SOURCE_TILE_SIZE := 16
+const DUNGEON_TILE_SIZE := 32
+const DUNGEON_ATLAS_COLUMNS := 16
+const DUNGEON_SOURCE_X := 576
+const DUNGEON_SOURCE_Y := 320
+const DUNGEON_VISIBLE_BITS := 7
+const DUNGEON_HIDDEN_MASK := 0x0080
+const DUNGEON_SECRET_DIRECTION_MASK := 0x0f00
+const DUNGEON_ACTION_POINT_MASK := 0x1000
+const DUNGEON_DOOR_MASK := 0x0006
+const DUNGEON_NOTE_MASK := 0x0020
+const DUNGEON_WALL_MASK := 0x0001
 
 var last_error := ""
 
@@ -27,7 +42,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	if not (maps is Array) or maps.is_empty():
 		return _fail("Classic maps document does not contain any maps")
 
-	var plans: Array[Dictionary] = []
+	var pending_maps: Array[Dictionary] = []
 	var skipped: Array[String] = []
 	for map_value: Variant in maps:
 		if not (map_value is Dictionary):
@@ -40,10 +55,39 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		if _has_complete_native_map(map_directory):
 			skipped.append(map_name)
 			continue
-		var plan := _build_plan(bundle, root, map_record, map_name, map_directory)
+		pending_maps.append({
+			"record": map_record,
+			"name": map_name,
+			"directory": map_directory,
+		})
+
+	var dungeon_tileset := _build_dungeon_tileset_plan(pending_maps, root)
+	if str(dungeon_tileset.get("status", "skip")) == "error":
+		return _fail(str(dungeon_tileset.get(
+			"message",
+			"Compiled dungeon tileset could not be generated"
+		)))
+
+	var plans: Array[Dictionary] = []
+	for pending_map: Dictionary in pending_maps:
+		var plan := _build_plan(
+			bundle,
+			root,
+			pending_map["record"],
+			pending_map["name"],
+			pending_map["directory"],
+			dungeon_tileset
+		)
 		if plan.is_empty():
 			return {"status": "error", "message": last_error}
 		plans.append(plan)
+
+	if str(dungeon_tileset.get("status", "skip")) == "ok":
+		var tileset_error := _write_dungeon_tileset(dungeon_tileset)
+		if tileset_error != OK:
+			return _fail(
+				"Could not write native dungeon tileset: %s" % error_string(tileset_error)
+			)
 
 	for plan: Dictionary in plans:
 		var map_directory: String = plan["directory"]
@@ -78,7 +122,8 @@ func _build_plan(
 	campaign_directory: String,
 	map_record: Dictionary,
 	map_name: String,
-	map_directory: String
+	map_directory: String,
+	dungeon_tileset: Dictionary
 ) -> Dictionary:
 	var width := int(map_record.get("width", 0))
 	var height := int(map_record.get("height", 0))
@@ -93,14 +138,30 @@ func _build_plan(
 			]
 		)
 
-	var tileset_result := _resolve_tileset(bundle, campaign_directory, map_record)
+	var tileset_result := _resolve_tileset(
+		bundle,
+		campaign_directory,
+		map_record,
+		dungeon_tileset
+	)
 	if str(tileset_result.get("status", "")) != "ok":
 		return _plan_fail(str(tileset_result.get("message", "Compiled map tileset is unavailable")))
 	var native_tiles: Array = []
 	var tile_capacity := int(tileset_result.get("tileCapacity", 0))
+	var dungeon_lookup: Variant = tileset_result.get("tileLookup")
 	for tile_index: int in range(tiles.size()):
 		var classic_tile := int(tiles[tile_index])
-		if classic_tile < 0:
+		var native_tile := 0
+		if dungeon_lookup is Dictionary:
+			native_tile = int(dungeon_lookup.get(classic_tile & 0xffff, 0))
+			if native_tile <= 0:
+				return _plan_fail(
+					"Compiled map %s dungeon field %d has no generated native tile" % [
+						map_name,
+						classic_tile,
+					]
+				)
+		elif classic_tile < 0:
 			return _plan_fail(
 				"Compiled map %s uses special tile %d at cell %d; a decoded native overlay is required" % [
 					map_name,
@@ -108,7 +169,11 @@ func _build_plan(
 					tile_index,
 				]
 			)
-		var native_tile := _normalize_atlas_tile(classic_tile, int(tileset_result["baseTile"]))
+		else:
+			native_tile = _normalize_atlas_tile(
+				classic_tile,
+				int(tileset_result["baseTile"])
+			)
 		if native_tile > tile_capacity:
 			return _plan_fail(
 				"Compiled map %s tile %d needs atlas slot %d, but %s provides only %d slots" % [
@@ -218,7 +283,8 @@ func _script_areas(
 func _resolve_tileset(
 	bundle: Object,
 	campaign_directory: String,
-	map_record: Dictionary
+	map_record: Dictionary,
+	dungeon_tileset: Dictionary
 ) -> Dictionary:
 	var render: Variant = map_record.get("render", {})
 	if not (render is Dictionary):
@@ -255,6 +321,19 @@ func _resolve_tileset(
 						) % [tileset_name, tileset_name, file_name],
 					}
 			tileset_path = tileset_directory.path_join("%s.json" % tileset_name)
+	elif mode == "dungeon-top-down":
+		if str(dungeon_tileset.get("status", "")) != "ok":
+			return {
+				"status": "error",
+				"message": "Compiled dungeon tileset plan is unavailable",
+			}
+		return {
+			"status": "ok",
+			"name": DUNGEON_TILESET_NAME,
+			"baseTile": 1,
+			"tileCapacity": int(dungeon_tileset.get("tileCapacity", 0)),
+			"tileLookup": dungeon_tileset.get("tileLookup", {}),
+		}
 	else:
 		return {
 			"status": "error",
@@ -280,6 +359,187 @@ func _resolve_tileset(
 		"baseTile": base_tile,
 		"tileCapacity": int(tileset_value["tilecount"]),
 	}
+
+
+func _build_dungeon_tileset_plan(
+	pending_maps: Array[Dictionary],
+	campaign_directory: String
+) -> Dictionary:
+	var fields: Dictionary = {}
+	for pending_map: Dictionary in pending_maps:
+		var map_record: Dictionary = pending_map["record"]
+		if str(map_record.get("levelType", "")) != "dungeon":
+			continue
+		var tiles: Variant = map_record.get("tiles")
+		var width := int(map_record.get("width", 0))
+		var height := int(map_record.get("height", 0))
+		if not (tiles is Array) or width <= 0 or height <= 0 or tiles.size() != width * height:
+			return {
+				"status": "error",
+				"message": "Compiled map %s needs %d dungeon field values before Remake can generate it" % [
+					pending_map["name"],
+					maxi(0, width * height),
+				],
+			}
+		for tile_value: Variant in tiles:
+			var field := int(tile_value) & 0xffff
+			if field & DUNGEON_SECRET_DIRECTION_MASK:
+				return {
+					"status": "error",
+					"message": (
+						"Compiled map %s uses directional secret dungeon field 0x%04X; " +
+						"Remake needs direction-aware dungeon movement before it can be installed"
+					) % [pending_map["name"], field],
+				}
+			fields[field] = true
+	if fields.is_empty():
+		return {"status": "skip"}
+
+	# Data DL cells are bitfields. One tile per field value keeps the native atlas
+	# compact while retaining combinations that share the same visible sprites.
+	var source := Image.load_from_file(ProjectSettings.globalize_path(DUNGEON_SOURCE_ATLAS))
+	if source == null or source.is_empty():
+		return {
+			"status": "error",
+			"message": "Realmz PICT 302 dungeon atlas is unavailable",
+		}
+	source.convert(Image.FORMAT_RGBA8)
+	var field_values: Array = fields.keys()
+	field_values.sort()
+	var columns := mini(DUNGEON_ATLAS_COLUMNS, field_values.size())
+	var rows := ceili(float(field_values.size()) / float(columns))
+	var atlas := Image.create(
+		columns * DUNGEON_TILE_SIZE,
+		rows * DUNGEON_TILE_SIZE,
+		false,
+		Image.FORMAT_RGBA8
+	)
+	atlas.fill(Color(0, 0, 0, 0))
+	var lookup: Dictionary = {}
+	var tiles: Array = []
+	var templates: Dictionary = {}
+	for tile_index: int in range(field_values.size()):
+		var field := int(field_values[tile_index])
+		var tile_name := "classic_dungeon_%04x" % field
+		var tile_image := _render_dungeon_tile(source, field)
+		atlas.blit_rect(
+			tile_image,
+			Rect2i(Vector2i.ZERO, tile_image.get_size()),
+			Vector2i(
+				(tile_index % columns) * DUNGEON_TILE_SIZE,
+				(tile_index / columns) * DUNGEON_TILE_SIZE
+			)
+		)
+		lookup[field] = tile_index + 1
+		tiles.append({
+			"id": tile_index,
+			"properties": [
+				{"name": "name", "type": "string", "value": tile_name},
+				{"name": "template", "type": "string", "value": tile_name},
+			],
+		})
+		templates[tile_name] = _dungeon_tile_template(field)
+
+	return {
+		"status": "ok",
+		"name": DUNGEON_TILESET_NAME,
+		"directory": campaign_directory.path_join("Tilesets").path_join(
+			DUNGEON_TILESET_NAME
+		),
+		"image": atlas,
+		"tileCapacity": field_values.size(),
+		"tileLookup": lookup,
+		"tileset": {
+			"columns": columns,
+			"image": "%s.png" % DUNGEON_TILESET_NAME,
+			"imageheight": rows * DUNGEON_TILE_SIZE,
+			"imagewidth": columns * DUNGEON_TILE_SIZE,
+			"margin": 0,
+			"name": DUNGEON_TILESET_NAME,
+			"spacing": 0,
+			"tilecount": field_values.size(),
+			"tiledversion": "1.11.2",
+			"tileheight": DUNGEON_TILE_SIZE,
+			"tiles": tiles,
+			"tilewidth": DUNGEON_TILE_SIZE,
+			"type": "tileset",
+			"version": "1.10",
+		},
+		"templates": templates,
+	}
+
+
+func _render_dungeon_tile(source: Image, field: int) -> Image:
+	# Realmz layers tiny sprites 0 through 6 over tiny[15]. Bit 0x80 suppresses
+	# the whole overhead cell outside the editor.
+	var base_rect := Rect2i(
+		DUNGEON_SOURCE_X + 3 * DUNGEON_SOURCE_TILE_SIZE,
+		DUNGEON_SOURCE_Y + 3 * DUNGEON_SOURCE_TILE_SIZE,
+		DUNGEON_SOURCE_TILE_SIZE,
+		DUNGEON_SOURCE_TILE_SIZE
+	)
+	var tile := source.get_region(base_rect)
+	tile.convert(Image.FORMAT_RGBA8)
+	if not (field & DUNGEON_HIDDEN_MASK):
+		for sprite_index: int in range(DUNGEON_VISIBLE_BITS):
+			if not (field & (1 << sprite_index)):
+				continue
+			var sprite_rect := Rect2i(
+				DUNGEON_SOURCE_X + (sprite_index % 4) * DUNGEON_SOURCE_TILE_SIZE,
+				DUNGEON_SOURCE_Y + (sprite_index / 4) * DUNGEON_SOURCE_TILE_SIZE,
+				DUNGEON_SOURCE_TILE_SIZE,
+				DUNGEON_SOURCE_TILE_SIZE
+			)
+			var sprite := source.get_region(sprite_rect)
+			for y: int in range(DUNGEON_SOURCE_TILE_SIZE):
+				for x: int in range(DUNGEON_SOURCE_TILE_SIZE):
+					var color := sprite.get_pixel(x, y)
+					if color.r <= 0.96 or color.g <= 0.96 or color.b <= 0.96:
+						tile.set_pixel(x, y, color)
+	tile.resize(DUNGEON_TILE_SIZE, DUNGEON_TILE_SIZE, Image.INTERPOLATE_NEAREST)
+	return tile
+
+
+func _dungeon_tile_template(field: int) -> Dictionary:
+	# Classic's hard-wall check admits doors, note cells, and Action Point cells.
+	var passable_override := field & (
+		DUNGEON_DOOR_MASK | DUNGEON_NOTE_MASK | DUNGEON_ACTION_POINT_MASK
+	)
+	var blocks_movement := bool(field & DUNGEON_WALL_MASK) and not bool(passable_override)
+	return {
+		"time": 999 if blocks_movement else 5,
+		"wall": int(blocks_movement),
+		"swall": int(blocks_movement),
+		"blkproj": int(blocks_movement),
+		"blkview": int(blocks_movement),
+		"water": 0,
+		"dock": 0,
+		"sound": [],
+		"classicDungeonField": field - 0x10000 if field >= 0x8000 else field,
+	}
+
+
+func _write_dungeon_tileset(plan: Dictionary) -> Error:
+	var directory := str(plan.get("directory", ""))
+	var make_error := DirAccess.make_dir_recursive_absolute(directory)
+	if make_error != OK:
+		return make_error
+	var image: Image = plan["image"]
+	var image_error := image.save_png(
+		directory.path_join("%s.png" % DUNGEON_TILESET_NAME)
+	)
+	if image_error != OK:
+		return image_error
+	for file_data: Dictionary in [
+		{"name": "%s.json" % DUNGEON_TILESET_NAME, "value": plan["tileset"]},
+		{"name": "tile_templates.json", "value": plan["templates"]},
+	]:
+		var file := FileAccess.open(directory.path_join(file_data["name"]), FileAccess.WRITE)
+		if file == null:
+			return FileAccess.get_open_error()
+		file.store_string(JSON.stringify(file_data["value"], "  ") + "\n")
+		file.close()
+	return OK
 
 
 func _catalog_base_tile(bundle: Object, tileset_id: String, fallback: int) -> int:

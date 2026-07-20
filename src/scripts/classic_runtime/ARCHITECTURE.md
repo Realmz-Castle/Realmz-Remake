@@ -27,8 +27,11 @@ These components are intentionally separate from the native owners:
   normalized action, encounter, and evidence documents.
 - `ClassicMapMaterializer` is the single compiled-map-to-native-map boundary. The
   package installer runs it in staging, before the normal campaign resource
-  lifecycle sees the package. It writes only Remake's existing map format and
-  does not parse Classic files or add another map loader.
+  lifecycle sees the package. It writes only Remake's existing map and tileset
+  formats and does not parse Classic files or add another map loader. Dungeon
+  field values become campaign-local native tiles composed from the shared
+  PICT 302 overhead sprites, with the signed Classic field retained as tile
+  metadata.
 - `ClassicRuntimeState` holds Classic mutations that cannot be written back to the
   installed campaign. Its snapshot is payload for the native save system, not a
   competing save owner.
