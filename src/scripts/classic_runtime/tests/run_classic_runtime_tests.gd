@@ -2777,6 +2777,18 @@ func _test_execution_coverage_audit(bundle) -> void:
 		_audit_has_diagnostic(macro_report, "inactive-macro-target"),
 		"execution audit diagnoses an inactive but reachable macro"
 	)
+	var invalid_death_records: Array = []
+	for diagnostic_value: Variant in macro_report.get("diagnostics", []):
+		if (
+			diagnostic_value is Dictionary
+			and diagnostic_value.get("code") == "invalid-death-macro"
+		):
+			invalid_death_records.append(int(diagnostic_value.get("recordIndex", -1)))
+	_expect_equal(
+		invalid_death_records,
+		[3],
+		"execution audit rejects negative death macros before the catalog terminator only"
+	)
 
 	var unsupported_interpreter = _interpreter(macro_bundle)
 	_expect(
@@ -10387,8 +10399,11 @@ func _execution_audit_test_bundle():
 	])
 	bundle.extra_action_points_by_id[10]["active"] = false
 	bundle.battles_by_id[3] = {"id": 3, "battleMacro": -10}
+	bundle.monsters_by_id[3] = {"id": 3, "displayName": "Invalid Beast", "deathMacro": -10}
 	bundle.monsters_by_id[4] = {"id": 4, "displayName": "Queued Beast", "deathMacro": 10}
 	bundle.monsters_by_id[5] = {"id": 5, "displayName": "Broken Beast", "deathMacro": 99}
+	bundle.monsters_by_id[6] = {"id": 6, "displayName": "Catalog End", "hitDice": 255}
+	bundle.monsters_by_id[7] = {"id": 7, "displayName": "Trailing Bytes", "deathMacro": -62}
 	_add_stack_trigger(bundle, "audit:complex", -1, [_classic_action(0, 5, 2)])
 	bundle.complex_encounters_by_id[2] = {
 		"id": 2,

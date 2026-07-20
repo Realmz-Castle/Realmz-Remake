@@ -200,6 +200,10 @@ func _collect_macro_roots(
 	monster_ids.sort()
 	for monster_id_value: Variant in monster_ids:
 		var monster: Dictionary = bundle.monsters_by_id[monster_id_value]
+		# Data MD uses hit dice 255 as the end of its authored monster catalog.
+		# Imported files can retain unrelated trailing bytes after that marker.
+		if int(monster.get("hitDice", 0)) == 255:
+			break
 		var target := int(monster.get("deathMacro", 0))
 		if target == 0:
 			continue
