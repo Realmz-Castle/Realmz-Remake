@@ -18,6 +18,9 @@ const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.g
 const CampaignInstallScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
+const CampaignPackageInstallerScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
+)
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
@@ -671,6 +674,7 @@ func _init() -> void:
 	_test_bundle_contract_validation()
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
+	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
 	_test_native_battle_bridge_fixture()
 	_test_bundle_indexes(bundle)
@@ -1575,6 +1579,150 @@ func _test_installed_classic_campaign_layout() -> void:
 	restored_session.queue_free()
 	session.clear()
 	session.queue_free()
+
+
+func _test_classic_campaign_package_installer() -> void:
+	var test_root := ProjectSettings.globalize_path(
+		"user://classic-package-installer-%d" % Time.get_ticks_msec()
+	)
+	var campaigns_directory := test_root.path_join("Campaigns")
+	var profiles_directory := test_root.path_join("Profiles")
+	var profile_sentinel := profiles_directory.path_join("keep-save.txt")
+	DirAccess.make_dir_recursive_absolute(profiles_directory)
+	var sentinel_file := FileAccess.open(profile_sentinel, FileAccess.WRITE)
+	_expect(sentinel_file != null, "package installer test creates a save sentinel")
+	if sentinel_file != null:
+		sentinel_file.store_string("unchanged")
+		sentinel_file.close()
+
+	var installer = CampaignPackageInstallerScript.new()
+	var install_result: Dictionary = installer.install_export(
+		CAMPAIGN_UI_SMOKE_FIXTURE,
+		campaigns_directory
+	)
+	_expect_equal(install_result.get("status"), "ok", "complete Classic export installs")
+	_expect_equal(
+		install_result.get("campaignId"),
+		"fixture-classic-campaign-ui-smoke",
+		"installed package preserves its scenario identity"
+	)
+	_expect_equal(
+		install_result.get("readinessState"),
+		"Ready",
+		"installed package reports launch readiness"
+	)
+	var destination := campaigns_directory.path_join(CAMPAIGN_UI_SMOKE_FIXTURE.get_file())
+	_expect(
+		FileAccess.file_exists(destination.path_join("campaign.json")),
+		"installer copies the complete campaign directory"
+	)
+
+	var no_replace_result: Dictionary = installer.install_export(
+		CAMPAIGN_UI_SMOKE_FIXTURE,
+		campaigns_directory
+	)
+	_expect_equal(
+		no_replace_result.get("status"),
+		"error",
+		"installer requires an explicit package update"
+	)
+	_expect(
+		str(no_replace_result.get("message", "")).contains("--replace"),
+		"existing-package diagnostic explains how to update"
+	)
+
+	var stale_path := destination.path_join("stale-export-file.txt")
+	var stale_file := FileAccess.open(stale_path, FileAccess.WRITE)
+	if stale_file != null:
+		stale_file.store_string("remove on update")
+		stale_file.close()
+	var replace_result: Dictionary = installer.install_export(
+		CAMPAIGN_UI_SMOKE_FIXTURE,
+		campaigns_directory,
+		true
+	)
+	_expect_equal(replace_result.get("status"), "ok", "Classic package update succeeds")
+	_expect(bool(replace_result.get("replacedExisting", false)), "package update reports replacement")
+	_expect(
+		not FileAccess.file_exists(stale_path),
+		"package update does not mix files from different exports"
+	)
+	_expect_equal(
+		FileAccess.get_file_as_string(profile_sentinel),
+		"unchanged",
+		"package update leaves profile save data untouched"
+	)
+	var manifest_path := destination.path_join("campaign.json")
+	var installed_manifest: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(manifest_path)
+	)
+	installed_manifest["id"] = "different-campaign"
+	var manifest_file := FileAccess.open(manifest_path, FileAccess.WRITE)
+	if manifest_file != null:
+		manifest_file.store_string(JSON.stringify(installed_manifest, "  "))
+		manifest_file.close()
+	var identity_change_result: Dictionary = installer.install_export(
+		CAMPAIGN_UI_SMOKE_FIXTURE,
+		campaigns_directory,
+		true
+	)
+	_expect_equal(
+		identity_change_result.get("status"),
+		"error",
+		"package update preserves the installed campaign identity"
+	)
+	_expect(
+		str(identity_change_result.get("message", "")).contains("campaign ID"),
+		"campaign identity mismatch returns an actionable error"
+	)
+	var preserved_manifest: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(manifest_path)
+	)
+	_expect_equal(
+		preserved_manifest.get("id"),
+		"different-campaign",
+		"rejected identity change leaves the installed package untouched"
+	)
+
+	var blocked_result: Dictionary = installer.install_export(
+		PROVIDENCE_AUTHORITATIVE_FIXTURE,
+		campaigns_directory
+	)
+	_expect_equal(
+		blocked_result.get("status"),
+		"error",
+		"producer export without a native start map is not installed"
+	)
+	_expect(
+		str(blocked_result.get("message", "")).contains("Native start map map_0"),
+		"blocked producer export retains its actionable launch diagnostic"
+	)
+	_expect(
+		not DirAccess.dir_exists_absolute(
+			campaigns_directory.path_join(PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file())
+		),
+		"failed package validation leaves Campaigns unchanged"
+	)
+
+	var campaigns_access := DirAccess.open(campaigns_directory)
+	var temporary_entries: Array[String] = []
+	if campaigns_access != null:
+		campaigns_access.list_dir_begin()
+		var entry := campaigns_access.get_next()
+		while not entry.is_empty():
+			if entry.begins_with(".realmz-"):
+				temporary_entries.append(entry)
+			entry = campaigns_access.get_next()
+		campaigns_access.list_dir_end()
+	_expect(
+		temporary_entries.is_empty(),
+		"package installer cleans staging and backup directories"
+	)
+	_expect_equal(
+		installer._remove_directory(test_root),
+		OK,
+		"package installer test cleans its workspace"
+	)
 
 
 func _test_failed_save_restore_rolls_back() -> void:

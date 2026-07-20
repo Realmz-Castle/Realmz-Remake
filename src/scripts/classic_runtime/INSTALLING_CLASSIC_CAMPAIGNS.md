@@ -63,11 +63,28 @@ activates the compiled starting map and position.
 
 ## Installing and updating
 
-To install a campaign, close any running game and copy the complete exported
-directory below `Campaigns`. Do not copy only the `classic` directory. Keep the
-exported folder name and manifest `id` stable when updating an installed
-campaign. Player saves live below `Profiles`, outside the installed package, so
-an update does not overwrite them; compatibility with an older save still
-depends on the bundle and saved-state versions. Replace the complete campaign
-directory as one update rather than mixing files from different exports, and
-retain the previous package until the updated campaign has passed validation.
+Close any running game, then install a complete export with Godot:
+
+```powershell
+godot --headless --path src --script `
+  res://scripts/classic_runtime/tools/install_classic_campaign.gd -- `
+  "C:\path\to\exported-campaign"
+```
+
+The optional second positional argument selects a different `Campaigns`
+directory. The installer validates the source and its native start map, copies
+the complete package to a temporary directory below `Campaigns`, validates that
+copy, and then moves it into place. A package that is not ready to launch is not
+installed.
+
+Pass `--replace` to update an existing campaign. The old package remains in
+place until the staged update passes validation, and the update replaces the
+whole campaign directory rather than mixing files from different exports. Keep
+the exported folder name and manifest `id` stable across updates. Player saves
+live below `Profiles`, outside the installation target, so package replacement
+does not overwrite them; compatibility with an older save still depends on the
+bundle and saved-state versions. Use `--json` for a machine-readable result.
+
+The source directory must already contain the complete exported campaign. In
+particular, do not pass only its `classic` subdirectory, and do not treat raw
+Classic resource payloads as decoded Godot maps, images, or sounds.
