@@ -148,6 +148,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 
 	GameGlobal.change_map(map_name,map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
 	combat_state.all_battle_creatures_btns.clear()
+	combat_state.classic_monster_slots_used = 0
 
 	var battle_position_offset : Vector2 = Vector2.ZERO
 	#var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1])
@@ -183,6 +184,8 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 #		crea_mapb.tile_position_x = creascript.position.x
 #		crea_mapb.tile_position_y = creascript.position.y
 		combat_state.all_battle_creatures_btns.append(crea_mapb)
+		if not creascript.is_player_controlled:
+			combat_state.classic_monster_slots_used += 1
 		#print("all_battle_creatures_btns size : ", combat_state.all_battle_creatures_btns.size())
 		print("Gameglobal start_battle  : added a "+ creaArray[0] +" at ", creascript.position)
 	#spawn combatcharacters for the player s party  around battle_pos

@@ -665,7 +665,8 @@ func spawn_classic_combatants(
 			monster.get("displayName", "unnamed"),
 		])
 	var requested := maxi(0, int(payload.get("spawnCount", 0)))
-	var available := maxi(0, CLASSIC_MAX_MONSTERS - classic_combat_monster_count(combatants))
+	var slots_used := classic_combat_monster_slots_used(combat_state, combatants)
+	var available := maxi(0, CLASSIC_MAX_MONSTERS - slots_used)
 	var spawn_count := mini(requested, available)
 	var faction_override := int(payload.get("factionOverride", 0))
 	var inherit_faction := bool(payload.get("inheritActorFaction", false))
@@ -707,10 +708,13 @@ func spawn_classic_combatants(
 		combatants.append(combatant)
 		initiative.append(combatant)
 		spawned.append(combatant)
+		slots_used += 1
+		_set_classic_combat_monster_slots_used(combat_state, slots_used)
 	return {
 		"requested": requested,
 		"spawned": spawned.size(),
 		"capacityLimited": spawn_count < requested,
+		"slotsUsed": slots_used,
 		"bestiaryName": bestiary_name,
 		"combatants": spawned,
 	}
@@ -725,6 +729,22 @@ func classic_combat_monster_count(combatants: Array) -> int:
 		elif creature is Dictionary and not bool(creature.get("isPlayerControlled", false)):
 			count += 1
 	return count
+
+
+func classic_combat_monster_slots_used(combat_state: Variant, combatants: Array) -> int:
+	var live_count := classic_combat_monster_count(combatants)
+	if not (combat_state is Object):
+		return live_count
+	if _object_has_property(combat_state, "classic_monster_slots_used"):
+		return maxi(live_count, int(combat_state.get("classic_monster_slots_used")))
+	return live_count
+
+
+func _set_classic_combat_monster_slots_used(combat_state: Variant, count: int) -> void:
+	if not (combat_state is Object):
+		return
+	if _object_has_property(combat_state, "classic_monster_slots_used"):
+		combat_state.set("classic_monster_slots_used", count)
 
 
 func _activate_battle_round_macro(payload: Dictionary) -> Dictionary:

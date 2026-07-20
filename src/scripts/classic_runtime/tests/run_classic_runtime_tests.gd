@@ -387,6 +387,7 @@ class CombatTestState:
 	var battle_dead_enemies: Array = []
 	var battle_dead_party_members: Array = []
 	var cur_battle_data: Dictionary = {"battleMacro": -1}
+	var classic_monster_slots_used := 0
 	var placement_origins: Array = []
 	var queued_death_creatures: Array = []
 
@@ -4521,6 +4522,38 @@ func _test_combat_monster_spawn_action() -> void:
 	)
 	_expect_equal(limited_result.get("spawned"), 1, "spawn respects Classic's 100-monster limit")
 	_expect(bool(limited_result.get("capacityLimited")), "spawn reports capacity truncation")
+	_expect_equal(limited_result.get("slotsUsed"), 100, "spawn records the allocated Classic slots")
+
+	var party_member := SpawnTestCreature.new()
+	party_member.is_player_controlled = true
+	var party_button := SpawnTestButton.new()
+	party_button.set_creature_represented(party_member)
+	_expect_equal(
+		adapter.classic_combat_monster_count([party_button]),
+		0,
+		"party members do not consume Classic monster slots"
+	)
+	crowded_state.all_battle_creatures_btns = [party_button]
+	crowded_state.battle_creatures_yet_to_act_btns = [party_button]
+	var exhausted_result: Dictionary = adapter.spawn_classic_combatants(
+		template_payload,
+		crowded_state,
+		SpawnTestMap.new(),
+		creature_book,
+		SpawnTestCreature,
+		SpawnTestScene.new(),
+		Vector2.ZERO
+	)
+	_expect_equal(
+		exhausted_result.get("spawned"),
+		0,
+		"removed monsters do not reopen Classic spawn slots"
+	)
+	_expect_equal(
+		crowded_state.all_battle_creatures_btns,
+		[party_button],
+		"capacity rejection leaves the party roster unchanged"
+	)
 
 
 func _test_native_combat_command_host() -> void:

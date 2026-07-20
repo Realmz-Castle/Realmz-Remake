@@ -25,6 +25,8 @@ var battle_allows_loss : bool = false
 var battle_dead_enemies : Array = []
 var battle_dead_party_members : Array = []
 var classic_combat_macro_queue: Array = []
+# Classic allocates at most 100 monster slots and never reuses them during a battle.
+var classic_monster_slots_used: int = 0
 
 #var pcs_who_joined_battle : Array = []  #is in bartle data dict
 
