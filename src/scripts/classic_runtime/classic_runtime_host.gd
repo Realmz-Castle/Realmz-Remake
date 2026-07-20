@@ -226,7 +226,9 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				return
 			runtime.finish_encounter(int(response["outcome"]), response)
 		"start_battle":
-			if str(payload.get("participantMode", "party")) == "selected":
+			if response.has("forcedResumeSlot"):
+				runtime.finish_forced_battle_at_slot(int(response["forcedResumeSlot"]))
+			elif str(payload.get("participantMode", "party")) == "selected":
 				if not response.has("survivorCount"):
 					_stop_with_error("Selective battle adapter response is missing 'survivorCount'", command)
 					return

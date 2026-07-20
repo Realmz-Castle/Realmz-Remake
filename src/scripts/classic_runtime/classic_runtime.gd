@@ -111,6 +111,10 @@ func finish_forced_battle_end() -> void:
 	_publish(interpreter.resume_forced_battle_end())
 
 
+func finish_forced_battle_at_slot(resume_slot: int) -> void:
+	_publish(interpreter.resume_forced_battle_at_slot(resume_slot))
+
+
 func finish_item_check(possessed: bool) -> void:
 	_publish(interpreter.resume_item_check(possessed))
 

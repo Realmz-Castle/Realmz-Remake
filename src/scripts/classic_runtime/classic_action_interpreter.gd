@@ -340,6 +340,15 @@ func resume_forced_battle_end() -> Dictionary:
 	return _completed_result("battle-ended")
 
 
+func resume_forced_battle_at_slot(resume_slot: int) -> Dictionary:
+	if resume_slot != 8:
+		return _error_result("Classic forced battle resume slot must be 8")
+	pending_battle.clear()
+	pending_selective_battle.clear()
+	_set_cursor(current_trigger, resume_slot)
+	return run_until_yield()
+
+
 func resume_teleport() -> Dictionary:
 	if pending_teleport.is_empty():
 		return _error_result("No classic teleport is waiting to finish")

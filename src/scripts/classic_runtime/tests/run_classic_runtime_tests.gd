@@ -160,6 +160,22 @@ class BattleOutcomeAdapter:
 		return {}
 
 
+class ForcedBattleResumeAdapter:
+	extends RefCounted
+	var commands: Array = []
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		if command == "start_battle":
+			return {
+				"outcome": "won",
+				"coward": false,
+				"survivorCount": 1,
+				"forcedResumeSlot": 8,
+			}
+		return {}
+
+
 class CowardPenaltyTestCharacter:
 	extends RefCounted
 	var level := 1
@@ -526,6 +542,7 @@ func _init() -> void:
 	await _test_native_battle_round_host()
 	await _test_queued_combat_macro_host()
 	_test_forced_battle_end_action()
+	_test_forced_battle_resume_host()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
@@ -4552,6 +4569,48 @@ func _test_forced_battle_end_action() -> void:
 	_expect_equal(experience_rewards.get("experience"), 55, "experience-only rewards retain experience")
 	_expect_equal(experience_rewards.get("money"), [0, 0, 0], "experience-only rewards omit money")
 	_expect_equal(experience_rewards.get("treasure"), [], "experience-only rewards omit inventory")
+
+	var adapter = GodotAdapterScript.new()
+	_expect(
+		not adapter._record_forced_battle_resume_slot(7),
+		"forced battle rejects a nonterminal resume slot"
+	)
+	_expect(adapter._record_forced_battle_resume_slot(8), "forced battle records slot 8")
+	_expect_equal(adapter._take_forced_battle_resume_slot(), 8, "forced battle returns slot 8 once")
+	_expect_equal(adapter._take_forced_battle_resume_slot(), -1, "forced battle resume slot is consumed")
+
+
+func _test_forced_battle_resume_host() -> void:
+	var bundle = _battle_outcome_test_bundle()
+	var host = HostScript.new()
+	get_root().add_child(host)
+	var adapter = ForcedBattleResumeAdapter.new()
+	var completions: Array = []
+	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
+	host.configure(adapter)
+	host.runtime.runtime_state.configure_from_bundle(bundle)
+	host.runtime.interpreter.configure(bundle, host.runtime.runtime_state)
+	_expect(
+		host.start_trigger("battle:outcome"),
+		"host starts battle that ends from a Classic combat macro"
+	)
+	_expect_equal(
+		adapter.commands.map(
+			func(entry: Dictionary) -> String: return entry["command"]
+		),
+		["start_battle"],
+		"forced victory skips the outer battle outcome continuation"
+	)
+	_expect_equal(completions.size(), 1, "forced battle completes the outer action point once")
+	_expect_equal(
+		host.runtime.interpreter.trace.map(
+			func(entry: Dictionary) -> int: return int(entry.get("slot", -1))
+		),
+		[0],
+		"slot-8 resume runs no remaining outer actions"
+	)
+	_expect(not host.active, "forced battle closes the outer runtime host")
+	host.queue_free()
 
 
 func _test_action_point_copy_mutations(bundle) -> void:

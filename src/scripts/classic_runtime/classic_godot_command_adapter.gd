@@ -111,6 +111,9 @@ var classic_bundle: Object
 var classic_spell_overrides: Dictionary = {}
 var classic_registered_spells: Dictionary = {}
 var classic_map_bridge = MapBridgeScript.new()
+# Opcode 100 runs in a nested host while start_battle waits on this adapter.
+# This one-shot carries its slot-8 result back to the suspended outer command.
+var _forced_battle_resume_slot := -1
 
 
 func configure_classic_bundle(bundle: Object) -> void:
@@ -118,6 +121,7 @@ func configure_classic_bundle(bundle: Object) -> void:
 	classic_bundle = bundle
 	classic_map_bridge.configure(bundle)
 	classic_spell_overrides.clear()
+	_forced_battle_resume_slot = -1
 	_register_classic_spell_overrides()
 
 
@@ -744,13 +748,17 @@ func _end_classic_battle(payload: Dictionary) -> Dictionary:
 	var game_global: Object = _autoload("GameGlobal")
 	if game_global == null or not game_global.has_method("end_battle"):
 		return _error("Realmz battle completion API is unavailable")
+	var resume_slot := int(payload.get("resumeSlot", -1))
+	if not _record_forced_battle_resume_slot(resume_slot):
+		return _error("Classic forced battle resume slot must be 8")
 	var outcome := str(payload.get("outcome", "won"))
 	var reward_mode := str(payload.get("rewardMode", "normal"))
 	await game_global.call("end_battle", outcome, reward_mode)
-	return {"outcome": outcome}
+	return {"outcome": outcome, "resumeSlot": resume_slot}
 
 
 func _start_classic_battle(payload: Dictionary) -> Dictionary:
+	_forced_battle_resume_slot = -1
 	var node_access: Object = _autoload("NodeAccess")
 	var resources: Object = node_access.__Resources() if node_access != null else null
 	var game_global: Object = _autoload("GameGlobal")
@@ -815,13 +823,30 @@ func _start_classic_battle(payload: Dictionary) -> Dictionary:
 	for character_value: Variant in request["participants"]:
 		if _is_living_character(character_value):
 			survivor_count += 1
-	return {
+	var response := {
 		"battleId": int(request["battleId"]),
 		"battleStarted": true,
 		"outcome": outcome,
 		"coward": outcome != "won",
 		"survivorCount": survivor_count,
 	}
+	var forced_resume_slot := _take_forced_battle_resume_slot()
+	if forced_resume_slot >= 0:
+		response["forcedResumeSlot"] = forced_resume_slot
+	return response
+
+
+func _record_forced_battle_resume_slot(resume_slot: int) -> bool:
+	if resume_slot != 8:
+		return false
+	_forced_battle_resume_slot = resume_slot
+	return true
+
+
+func _take_forced_battle_resume_slot() -> int:
+	var resume_slot := _forced_battle_resume_slot
+	_forced_battle_resume_slot = -1
+	return resume_slot
 
 
 func build_classic_battle_request(
