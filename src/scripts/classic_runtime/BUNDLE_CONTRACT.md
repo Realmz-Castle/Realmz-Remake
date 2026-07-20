@@ -79,6 +79,29 @@ needs a Remake resource name. When an asset record includes `payloadPath`, the p
 is relative to the campaign root and follows the same traversal and absolute-path
 restrictions as the document paths.
 
+`payloadPath` always identifies the immutable packaged bytes described by
+`payloadEncoding`. It is not implicitly a Godot-loadable file. A catalog,
+managed-asset, or player-map record may separately provide decoded media:
+
+```json
+{
+  "runtimeMedia": {
+    "path": "media/pictures/32128.png",
+    "mediaType": "image/png",
+    "bytes": 41700,
+    "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  }
+}
+```
+
+All four fields are required when `runtimeMedia` is present. `path` is
+campaign-relative, `bytes` is the decoded file length, and `sha256` is its
+64-digit content hash. Picture, icon, tileset, special-land-tile, and player-map
+media types begin with `image/`; sound media types begin with `audio/`. The
+installed-campaign loader verifies both immutable payloads and decoded media
+before launch. Version-1 consumers that do not know this additive object may
+ignore it; producers must not overload `payloadPath` with decoded media.
+
 Negative `cicn` IDs identify special land tiles and belong in the additive
 `assets.catalog.specialLandTiles` collection. Ordinary `assets.catalog.icons`
 retain their non-negative Classic resource identity.
@@ -203,4 +226,6 @@ file manifest matches the companion provenance record.
 This fixture proves producer determinism, consumer contract coverage, and
 cross-repository interchange. Its managed payloads use
 `payloadEncoding: classic-resource-data`; it does not yet prove decoded
-Remake-native media adapter coverage.
+Remake-native media adapter coverage. Remake's consumer tests cover the additive
+`runtimeMedia` contract and native PNG, WAV, Ogg Vorbis, and MP3 loading
+separately until the producer fixture includes derived files.

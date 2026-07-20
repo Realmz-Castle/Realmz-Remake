@@ -459,6 +459,20 @@ func _show_classic_picture(payload: Dictionary) -> Dictionary:
 	var picture_rect: Object = _picture_rect()
 	if picture_rect == null:
 		return {"status": "skipped", "message": "Realmz HUD PictureRect is unavailable"}
+	var picture: Variant = payload.get("picture", {})
+	if (not (picture is Dictionary) or picture.is_empty()) and classic_bundle != null \
+			and classic_bundle.has_method("get_picture"):
+		picture = classic_bundle.get_picture(int(payload.get("pictureId", 0)))
+	if picture is Dictionary:
+		var runtime_path := runtime_media_path(picture, "image/")
+		if not runtime_path.is_empty():
+			if not picture_rect.has_method("display_image_path") \
+					or not bool(picture_rect.display_image_path(runtime_path)):
+				return {
+					"status": "skipped",
+					"message": "Classic picture runtime media could not be decoded",
+				}
+			return {"runtimeMediaPath": str(picture["runtimeMedia"].get("path", ""))}
 	var paths: Object = _autoload("Paths")
 	var game_global: Object = _autoload("GameGlobal")
 	if paths == null or game_global == null:
@@ -475,6 +489,34 @@ func _show_classic_picture(payload: Dictionary) -> Dictionary:
 		"message": "Classic picture %d has no exported Remake image" \
 			% int(payload.get("pictureId", 0)),
 	}
+
+
+func runtime_media_path(record: Dictionary, media_type_prefix: String) -> String:
+	if classic_bundle == null:
+		return ""
+	var runtime_media: Variant = record.get("runtimeMedia", {})
+	if not (runtime_media is Dictionary):
+		return ""
+	var media_type := str(runtime_media.get("mediaType", "")).to_lower()
+	if not media_type.begins_with(media_type_prefix.to_lower()):
+		return ""
+	var relative_path := str(runtime_media.get("path", "")).strip_edges().replace("\\", "/")
+	if not _is_safe_campaign_relative_path(relative_path):
+		return ""
+	var bundle_root := str(classic_bundle.get("root_directory"))
+	if bundle_root.is_empty():
+		return ""
+	var absolute_path := bundle_root.path_join(relative_path)
+	return absolute_path if FileAccess.file_exists(absolute_path) else ""
+
+
+func _is_safe_campaign_relative_path(path: String) -> bool:
+	if path.is_empty() or path.ends_with("/") or path.is_absolute_path() or path.contains(":"):
+		return false
+	for component: String in path.split("/", false):
+		if component in [".", ".."]:
+			return false
+	return true
 
 
 func picture_file_candidates(payload: Dictionary) -> Array:
@@ -3857,6 +3899,19 @@ func _play_sound(payload: Dictionary) -> Dictionary:
 	var sound_id := int(payload.get("soundId", 0))
 	if sound_id == 0:
 		return {}
+	var sound: Variant = payload.get("sound", {})
+	if (not (sound is Dictionary) or sound.is_empty()) and classic_bundle != null \
+			and classic_bundle.has_method("get_sound"):
+		sound = classic_bundle.get_sound(sound_id)
+	if sound is Dictionary:
+		var runtime_stream := runtime_audio_stream(sound)
+		if runtime_stream != null:
+			var runtime_player: Object = _autoload("SfxPlayer")
+			if runtime_player == null:
+				return {"status": "skipped", "message": "Realmz SFX player is unavailable"}
+			runtime_player.stream = runtime_stream
+			runtime_player.play()
+			return {"runtimeMediaPath": str(sound.get("runtimeMedia", {}).get("path", ""))}
 	var sound_ids: Object = _autoload("SfxIdDivinity")
 	if sound_ids == null or not sound_ids.mapping.has(sound_id):
 		return {"status": "skipped", "message": "Classic sound %d has no Remake mapping" % sound_id}
@@ -3871,6 +3926,23 @@ func _play_sound(payload: Dictionary) -> Dictionary:
 	sfx_player.stream = resources.sounds_book[sound_name]
 	sfx_player.play()
 	return {}
+
+
+func runtime_audio_stream(sound: Dictionary) -> AudioStream:
+	var runtime_path := runtime_media_path(sound, "audio/")
+	if runtime_path.is_empty():
+		return null
+	var runtime_media: Dictionary = sound.get("runtimeMedia", {})
+	var media_type := str(runtime_media.get("mediaType", "")).to_lower()
+	match media_type:
+		"audio/wav", "audio/x-wav", "audio/wave":
+			return AudioStreamWAV.load_from_file(runtime_path)
+		"audio/ogg", "audio/vorbis":
+			return AudioStreamOggVorbis.load_from_file(runtime_path)
+		"audio/mpeg", "audio/mp3":
+			return AudioStreamMP3.load_from_file(runtime_path)
+		_:
+			return null
 
 
 func _text_rect() -> Object:

@@ -43,6 +43,7 @@ var maps_by_id: Dictionary = {}
 var player_maps_by_id: Dictionary = {}
 var random_levels_by_id: Dictionary = {}
 var pictures_by_id: Dictionary = {}
+var sounds_by_id: Dictionary = {}
 var dispatcher_noop_keys: Dictionary = {}
 
 
@@ -210,13 +211,28 @@ func _validate_document_contract() -> bool:
 		"assets.catalog", catalog, "specialLandTiles", "resourceId", false, true
 	):
 		return false
-	if not _validate_payload_paths_in_collection("assets", documents["assets"], "managedAssets"):
+	if not _validate_media_paths_in_collection(
+		"assets", documents["assets"], "managedAssets", ""
+	):
 		return false
-	for collection_name: String in [
-		"tilesets", "pictures", "icons", "sounds", "specialLandTiles"
+	for media_specification: Array in [
+		["tilesets", "image/"],
+		["pictures", "image/"],
+		["icons", "image/"],
+		["sounds", "audio/"],
+		["specialLandTiles", "image/"],
 	]:
-		if not _validate_payload_paths_in_collection("assets.catalog", catalog, collection_name):
+		if not _validate_media_paths_in_collection(
+			"assets.catalog",
+			catalog,
+			str(media_specification[0]),
+			str(media_specification[1])
+		):
 			return false
+	if not _validate_media_paths_in_collection(
+		"maps", documents["maps"], "mapRecords", "image/"
+	):
+		return false
 
 	var semantic_decoding: Variant = documents["evidence"].get("semanticDecoding", {})
 	if semantic_decoding is Dictionary and semantic_decoding.has("dispatcherNoops"):
@@ -400,28 +416,68 @@ func _validate_dispatcher_noops(semantic_decoding: Dictionary) -> bool:
 	return true
 
 
-func _validate_payload_paths_in_collection(
+func _validate_media_paths_in_collection(
 	context: String,
 	container: Dictionary,
-	collection_name: String
+	collection_name: String,
+	expected_media_prefix: String
 ) -> bool:
 	if not container.has(collection_name):
 		return true
 	var records: Array = container[collection_name]
 	for index: int in range(records.size()):
 		var record: Dictionary = records[index]
-		if not record.has("payloadPath"):
-			continue
-		var path_value: Variant = record["payloadPath"]
-		if not (path_value is String) or not _is_safe_campaign_path(path_value):
-			return _fail(
-				"%s.%s[%d].payloadPath must be a campaign-relative path" % [
-					context,
-					collection_name,
-					index,
-				]
-			)
+		var record_context := "%s.%s[%d]" % [context, collection_name, index]
+		if record.has("payloadPath"):
+			var path_value: Variant = record["payloadPath"]
+			if not (path_value is String) or not _is_safe_campaign_path(path_value):
+				return _fail(
+					"%s.payloadPath must be a campaign-relative path" % record_context
+				)
+		if not _validate_runtime_media(record_context, record, expected_media_prefix):
+			return false
 	return true
+
+
+func _validate_runtime_media(
+	record_context: String,
+	record: Dictionary,
+	expected_media_prefix: String
+) -> bool:
+	if not record.has("runtimeMedia"):
+		return true
+	var runtime_media: Variant = record.get("runtimeMedia")
+	if not (runtime_media is Dictionary):
+		return _fail("%s.runtimeMedia must be a JSON object" % record_context)
+	var path_value: Variant = runtime_media.get("path")
+	if not (path_value is String) or not _is_safe_campaign_path(path_value):
+		return _fail(
+			"%s.runtimeMedia.path must be a campaign-relative path" % record_context
+		)
+	var media_type_value: Variant = runtime_media.get("mediaType")
+	if not (media_type_value is String) or media_type_value.strip_edges().is_empty():
+		return _fail("%s.runtimeMedia.mediaType must not be empty" % record_context)
+	if not expected_media_prefix.is_empty() \
+			and not media_type_value.to_lower().begins_with(expected_media_prefix):
+		return _fail(
+			"%s.runtimeMedia.mediaType must begin with '%s'" % [
+				record_context,
+				expected_media_prefix,
+			]
+		)
+	if not _is_nonnegative_integer(runtime_media.get("bytes")):
+		return _fail("%s.runtimeMedia.bytes must be a non-negative integer" % record_context)
+	var sha256_value: Variant = runtime_media.get("sha256")
+	if not (sha256_value is String) or not _is_sha256(sha256_value):
+		return _fail("%s.runtimeMedia.sha256 must be a 64-digit hexadecimal hash" % record_context)
+	return true
+
+
+func _is_sha256(value: String) -> bool:
+	var expression := RegEx.new()
+	if expression.compile("^[0-9a-fA-F]{64}$") != OK:
+		return false
+	return expression.search(value) != null
 
 
 func _is_safe_document_path(path: String) -> bool:
@@ -537,6 +593,10 @@ func get_picture(picture_id: int) -> Dictionary:
 	return pictures_by_id.get(abs(picture_id), {})
 
 
+func get_sound(sound_id: int) -> Dictionary:
+	return sounds_by_id.get(abs(sound_id), {})
+
+
 func get_random_rectangle(level_type: String, level_index: int, rect_index: int) -> Dictionary:
 	var random_level := get_random_level(level_type, level_index)
 	var rectangles: Variant = random_level.get("rects", [])
@@ -588,6 +648,7 @@ func _reset() -> void:
 	player_maps_by_id.clear()
 	random_levels_by_id.clear()
 	pictures_by_id.clear()
+	sounds_by_id.clear()
 	dispatcher_noop_keys.clear()
 
 
@@ -691,6 +752,9 @@ func _build_indexes() -> void:
 		for picture: Variant in _array_value(asset_catalog, "pictures"):
 			if picture is Dictionary:
 				pictures_by_id[int(picture.get("resourceId", -1))] = picture
+		for sound: Variant in _array_value(asset_catalog, "sounds"):
+			if sound is Dictionary:
+				sounds_by_id[int(sound.get("resourceId", -1))] = sound
 
 	var evidence_document: Dictionary = documents["evidence"]
 	var semantic_decoding: Variant = evidence_document.get("semanticDecoding", {})

@@ -706,6 +706,7 @@ func _init() -> void:
 	_test_shipped_opcode_25_mutation()
 	_test_opcode_25_xap_copy()
 	_test_modal_picture_actions()
+	_test_runtime_media_adapters()
 	_test_party_state_actions()
 	_test_priest_turning_actions()
 	_test_turn_undead_rules()
@@ -929,6 +930,69 @@ func _test_bundle_contract_validation() -> void:
 		"asset payload path error includes record-level context"
 	)
 
+	var runtime_media_bundle = BundleScript.new()
+	runtime_media_bundle.manifest = _minimal_contract_manifest()
+	runtime_media_bundle.documents = _minimal_contract_documents()
+	runtime_media_bundle.documents["assets"]["catalog"]["pictures"] = [{
+		"resourceId": 32128,
+		"payloadEncoding": "classic-resource-data",
+		"payloadPath": "assets/managed/pict-32128.pict",
+		"runtimeMedia": {
+			"path": "media/pictures/32128.png",
+			"mediaType": "image/png",
+			"bytes": 41700,
+			"sha256": "a".repeat(64),
+		},
+	}]
+	_expect(
+		runtime_media_bundle._validate_document_contract(),
+		"bundle contract keeps decoded runtime media separate from Classic payloads"
+	)
+
+	var unsafe_runtime_media_bundle = BundleScript.new()
+	unsafe_runtime_media_bundle.manifest = _minimal_contract_manifest()
+	unsafe_runtime_media_bundle.documents = _minimal_contract_documents()
+	unsafe_runtime_media_bundle.documents["assets"]["catalog"]["sounds"] = [{
+		"resourceId": 321,
+		"runtimeMedia": {
+			"path": "../outside.wav",
+			"mediaType": "audio/wav",
+			"bytes": 10,
+			"sha256": "b".repeat(64),
+		},
+	}]
+	_expect(
+		not unsafe_runtime_media_bundle._validate_document_contract(),
+		"bundle contract rejects unsafe runtime-media paths"
+	)
+	_expect(
+		unsafe_runtime_media_bundle.last_error.contains(
+			"assets.catalog.sounds[0].runtimeMedia.path"
+		),
+		"runtime-media path error includes record-level context"
+	)
+
+	var mismatched_runtime_media_bundle = BundleScript.new()
+	mismatched_runtime_media_bundle.manifest = _minimal_contract_manifest()
+	mismatched_runtime_media_bundle.documents = _minimal_contract_documents()
+	mismatched_runtime_media_bundle.documents["maps"]["mapRecords"] = [{
+		"id": 2,
+		"runtimeMedia": {
+			"path": "media/maps/waterford.wav",
+			"mediaType": "audio/wav",
+			"bytes": 10,
+			"sha256": "not-a-sha256",
+		},
+	}]
+	_expect(
+		not mismatched_runtime_media_bundle._validate_document_contract(),
+		"bundle contract requires image runtime media for player maps"
+	)
+	_expect(
+		mismatched_runtime_media_bundle.last_error.contains("runtimeMedia.mediaType"),
+		"player-map media error identifies its mismatched type"
+	)
+
 	var special_land_tile_bundle = BundleScript.new()
 	special_land_tile_bundle.manifest = _minimal_contract_manifest()
 	special_land_tile_bundle.documents = _minimal_contract_documents()
@@ -1071,6 +1135,15 @@ func _test_providence_authoritative_export() -> void:
 	_expect_equal(catalog.get("icons", []).size(), 0, "producer fixture ordinary icon count")
 	var special_land_tiles: Array = catalog.get("specialLandTiles", [])
 	_expect_equal(special_land_tiles.size(), 1, "producer fixture special-land-tile count")
+	_expect(
+		not catalog.get("pictures", [])[0].has("runtimeMedia"),
+		"producer fixture distinguishes preserved Classic bytes from decoded runtime media"
+	)
+	_expect_equal(
+		bundle.get_sound(321).get("payloadEncoding"),
+		"classic-resource-data",
+		"producer fixture indexes immutable sound payload metadata"
+	)
 	if special_land_tiles.size() == 1:
 		_expect_equal(special_land_tiles[0].get("resourceId"), -100, "special land tile keeps signed identity")
 		_expect_equal(
@@ -1303,6 +1376,35 @@ func _test_installed_classic_campaign_layout() -> void:
 		"missing payload failure returns an actionable error"
 	)
 	first_payload["payloadPath"] = payload_path
+	var picture: Dictionary = install.bundle.get_picture(306)
+	var runtime_media_path := "campaign.json"
+	var runtime_media_file := FileAccess.open(
+		install.campaign_directory.path_join(runtime_media_path),
+		FileAccess.READ
+	)
+	picture["runtimeMedia"] = {
+		"path": runtime_media_path,
+		"mediaType": "image/png",
+		"bytes": runtime_media_file.get_length(),
+		"sha256": FileAccess.get_sha256(
+			install.campaign_directory.path_join(runtime_media_path)
+		),
+	}
+	runtime_media_file.close()
+	_expect(
+		install._validate_packaged_payloads(),
+		"installed campaign validates decoded runtime media separately"
+	)
+	picture["runtimeMedia"]["bytes"] = int(picture["runtimeMedia"]["bytes"]) + 1
+	_expect(
+		not install._validate_packaged_payloads(),
+		"installed campaign rejects runtime media with the wrong size"
+	)
+	_expect(
+		install.last_error.contains("runtime media has the wrong size"),
+		"runtime-media integrity failure identifies the derived file"
+	)
+	picture.erase("runtimeMedia")
 
 	var invalid_install = CampaignInstallScript.new()
 	_expect(
@@ -2022,6 +2124,16 @@ func _test_campaign_readiness_report() -> void:
 		ReadinessScript.SCHEMA_VERSION,
 		"readiness JSON carries its schema version"
 	)
+	bundle.root_directory = "res://Campaigns/City of Bywater"
+	var runtime_picture_path: String = bundle.root_directory.path_join("Splash Images/0.png")
+	var runtime_picture_file := FileAccess.open(runtime_picture_path, FileAccess.READ)
+	bundle.get_picture(32128)["runtimeMedia"] = {
+		"path": "Splash Images/0.png",
+		"mediaType": "image/png",
+		"bytes": runtime_picture_file.get_length(),
+		"sha256": FileAccess.get_sha256(runtime_picture_path),
+	}
+	runtime_picture_file.close()
 
 	var resolved_report: Dictionary = ReadinessScript.new().inspect(bundle, {
 		"bestiary": {
@@ -2066,6 +2178,28 @@ func _test_campaign_readiness_report() -> void:
 			resolved_report, "unresolved-item-identity", 878
 		),
 		"stable item metadata resolves a scenario-local encounter item"
+	)
+	_expect(
+		not _readiness_has_diagnostic(
+			resolved_report,
+			"missing-picture-payload",
+			"Data DD",
+			76,
+			0,
+			"fidelity-fallback"
+		),
+		"available picture runtime media clears its readiness fallback"
+	)
+	_expect(
+		not _readiness_has_diagnostic(
+			resolved_report,
+			"missing-picture-runtime-media",
+			"Data DD",
+			76,
+			0,
+			"fidelity-fallback"
+		),
+		"available decoded picture does not report missing runtime media"
 	)
 	_expect(
 		not _readiness_has_diagnostic(
@@ -4553,6 +4687,59 @@ func _test_modal_picture_actions() -> void:
 		["32128.png", "portraits/mayor.png"],
 		"picture candidates stay inside the campaign splash directory"
 	)
+
+
+func _test_runtime_media_adapters() -> void:
+	var bundle = BundleScript.new()
+	bundle.root_directory = "res://Campaigns/City of Bywater"
+	var adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(bundle)
+	var picture := {
+		"resourceId": 0,
+		"runtimeMedia": {
+			"path": "Splash Images/0.png",
+			"mediaType": "image/png",
+		},
+	}
+	var picture_path := adapter.runtime_media_path(picture, "image/")
+	_expect_equal(
+		picture_path,
+		"res://Campaigns/City of Bywater/Splash Images/0.png",
+		"picture adapter resolves campaign-relative runtime media"
+	)
+	var unsafe_picture := picture.duplicate(true)
+	unsafe_picture["runtimeMedia"]["path"] = "../0.png"
+	_expect_equal(
+		adapter.runtime_media_path(unsafe_picture, "image/"),
+		"",
+		"picture adapter rejects runtime-media traversal"
+	)
+
+	for sound_specification: Array in [
+		["Sounds/woof.wav", "audio/wav", "AudioStreamWAV"],
+		["Sounds/woof.ogg", "audio/ogg", "AudioStreamOggVorbis"],
+		["Sounds/woof.mp3", "audio/mpeg", "AudioStreamMP3"],
+	]:
+		var stream: AudioStream = adapter.runtime_audio_stream({
+			"runtimeMedia": {
+				"path": sound_specification[0],
+				"mediaType": sound_specification[1],
+			},
+		})
+		_expect(stream != null, "%s runtime media loads" % sound_specification[1])
+		if stream != null:
+			_expect_equal(
+				stream.get_class(),
+				sound_specification[2],
+				"%s uses the expected Godot stream" % sound_specification[1]
+			)
+
+	var runtime_image := Image.new()
+	_expect(
+		runtime_image.load(picture_path) == OK,
+		"Godot decodes picture runtime media by campaign-relative path"
+	)
+	_expect(runtime_image.get_width() > 0, "decoded picture runtime media has image content")
 
 
 func _test_party_state_actions() -> void:

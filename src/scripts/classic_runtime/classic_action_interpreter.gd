@@ -719,7 +719,10 @@ func _execute_action(action: Dictionary) -> Dictionary:
 		8:
 			return _execute_same_as_other_action_point(record_id)
 		9:
-			return _yield_result("play_sound", {"soundId": record_id})
+			return _yield_result("play_sound", {
+				"soundId": record_id,
+				"sound": bundle.get_sound(record_id),
+			})
 		10:
 			return _execute_treasure(record_id)
 		11:

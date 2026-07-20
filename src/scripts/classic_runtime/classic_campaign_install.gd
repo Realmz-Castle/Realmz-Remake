@@ -149,27 +149,62 @@ func _validate_packaged_payloads() -> bool:
 			var collection: Variant = catalog.get(collection_name, [])
 			if collection is Array:
 				records.append_array(collection)
+	var maps: Variant = bundle.documents.get("maps", {})
+	if maps is Dictionary:
+		var map_records: Variant = maps.get("mapRecords", [])
+		if map_records is Array:
+			records.append_array(map_records)
 
 	var checked_paths: Dictionary = {}
 	for record_value: Variant in records:
-		if not (record_value is Dictionary) or not record_value.has("payloadPath"):
+		if not (record_value is Dictionary):
 			continue
-		var relative_path := str(record_value.get("payloadPath", ""))
-		if checked_paths.has(relative_path):
-			continue
-		checked_paths[relative_path] = true
-		var payload_path := campaign_directory.path_join(relative_path)
-		if not FileAccess.file_exists(payload_path):
-			return _fail("Installed Classic campaign is missing payload: %s" % relative_path)
-		var expected_bytes: Variant = record_value.get("payloadBytes")
-		if expected_bytes is int or expected_bytes is float:
-			var file := FileAccess.open(payload_path, FileAccess.READ)
-			if file == null or file.get_length() != int(expected_bytes):
-				return _fail("Installed Classic payload has the wrong size: %s" % relative_path)
-		var expected_hash := str(record_value.get("payloadSha256", "")).to_lower()
-		if not expected_hash.is_empty() \
-				and FileAccess.get_sha256(payload_path).to_lower() != expected_hash:
-			return _fail("Installed Classic payload failed its checksum: %s" % relative_path)
+		if record_value.has("payloadPath") and not _validate_packaged_file(
+			str(record_value.get("payloadPath", "")),
+			record_value.get("payloadBytes"),
+			str(record_value.get("payloadSha256", "")),
+			"payload",
+			checked_paths
+		):
+			return false
+		var runtime_media: Variant = record_value.get("runtimeMedia", {})
+		if runtime_media is Dictionary and not runtime_media.is_empty() \
+				and not _validate_packaged_file(
+					str(runtime_media.get("path", "")),
+					runtime_media.get("bytes"),
+					str(runtime_media.get("sha256", "")),
+					"runtime media",
+					checked_paths
+				):
+			return false
+	return true
+
+
+func _validate_packaged_file(
+	relative_path: String,
+	expected_bytes: Variant,
+	expected_hash: String,
+	file_kind: String,
+	checked_paths: Dictionary
+) -> bool:
+	if checked_paths.has(relative_path):
+		return true
+	checked_paths[relative_path] = true
+	var packaged_path := campaign_directory.path_join(relative_path)
+	if not FileAccess.file_exists(packaged_path):
+		return _fail("Installed Classic campaign is missing %s: %s" % [file_kind, relative_path])
+	if expected_bytes is int or expected_bytes is float:
+		var file := FileAccess.open(packaged_path, FileAccess.READ)
+		if file == null or file.get_length() != int(expected_bytes):
+			return _fail(
+				"Installed Classic %s has the wrong size: %s" % [file_kind, relative_path]
+			)
+	var normalized_hash := expected_hash.to_lower()
+	if not normalized_hash.is_empty() \
+			and FileAccess.get_sha256(packaged_path).to_lower() != normalized_hash:
+		return _fail(
+			"Installed Classic %s failed its checksum: %s" % [file_kind, relative_path]
+		)
 	return true
 
 

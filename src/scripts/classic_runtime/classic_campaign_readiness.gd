@@ -178,7 +178,7 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 				reference_id
 			)
 		9:
-			_check_sound(action, reference_id)
+			_check_sound(bundle, action, reference_id)
 		10:
 			_check_direct_record(bundle.get_treasure(reference_id), action, "treasure", reference_id)
 		27:
@@ -244,13 +244,41 @@ func _check_picture(
 			{"resourceId": abs(picture_id)}
 		)
 		return
+	var runtime_media: Variant = picture.get("runtimeMedia", {})
+	if runtime_media is Dictionary and not runtime_media.is_empty():
+		var runtime_path := str(runtime_media.get("path", "")).strip_edges()
+		if not FileAccess.file_exists(bundle.root_directory.path_join(runtime_path)):
+			_add_fallback_for_action(
+				action,
+				"missing-picture-runtime-media",
+				"Picture %d runtime media '%s' is missing" % [abs(picture_id), runtime_path],
+				{"resourceId": abs(picture_id), "runtimeMediaPath": runtime_path}
+			)
+		return
+	var legacy_candidates: Array = _adapter.picture_file_candidates({
+		"pictureId": picture_id,
+		"picture": picture,
+	})
+	for file_name: String in legacy_candidates:
+		if FileAccess.file_exists(
+			bundle.root_directory.path_join("Splash Images").path_join(file_name)
+		):
+			return
 	var payload_path := str(picture.get("payloadPath", "")).strip_edges()
 	if payload_path.is_empty():
 		_add_fallback_for_action(
 			action,
 			"missing-picture-payload",
-			"Picture %d is metadata-only and will not be shown" % abs(picture_id),
+			"Picture %d has no exported runtime media" % abs(picture_id),
 			{"resourceId": abs(picture_id)}
+		)
+	elif str(picture.get("payloadEncoding", "")) == "classic-resource-data":
+		_add_fallback_for_action(
+			action,
+			"missing-picture-runtime-media",
+			"Picture %d has preserved Classic bytes but no decoded runtime media" \
+				% abs(picture_id),
+			{"resourceId": abs(picture_id), "payloadPath": payload_path}
 		)
 	elif not FileAccess.file_exists(bundle.root_directory.path_join(payload_path)):
 		_add_fallback_for_action(
@@ -261,13 +289,29 @@ func _check_picture(
 		)
 
 
-func _check_sound(action: Dictionary, sound_id: int) -> void:
+func _check_sound(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	sound_id: int
+) -> void:
+	var sound := bundle.get_sound(sound_id)
+	var runtime_media: Variant = sound.get("runtimeMedia", {})
+	if runtime_media is Dictionary and not runtime_media.is_empty():
+		var runtime_path := str(runtime_media.get("path", "")).strip_edges()
+		if not FileAccess.file_exists(bundle.root_directory.path_join(runtime_path)):
+			_add_fallback_for_action(
+				action,
+				"missing-sound-runtime-media",
+				"Sound %d runtime media '%s' is missing" % [sound_id, runtime_path],
+				{"resourceId": sound_id, "runtimeMediaPath": runtime_path}
+			)
+		return
 	var sound_name := str(_sound_mapping.get(sound_id, ""))
 	if sound_name.is_empty():
 		_add_fallback_for_action(
 			action,
 			"unresolved-sound-identity",
-			"Sound %d has no Remake mapping" % sound_id,
+			"Sound %d has no runtime media or Remake mapping" % sound_id,
 			{"resourceId": sound_id}
 		)
 		return
