@@ -91,13 +91,13 @@ func exit() :
 		#UI.ow_hud.botrightpanel.enable_all(selected_character)
 		UI.ow_hud.textRect.set_text('', false)
 	
-	cur_menu_name = ''
-	
 	if cur_menu_name == "MiniMapsMenu" :
 		UI.ow_hud.minimapRect.hide()
 	
 	if cur_menu_name == "TempleMenu" :
 		UI.ow_hud.temple_rect.close_temple_window()
+
+	cur_menu_name = ''
 
 
 

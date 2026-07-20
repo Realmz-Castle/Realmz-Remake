@@ -96,7 +96,7 @@ Opcode `11` sends its authored total through Remake's existing loot and experien
 
 Opcodes `6` and `73` convert Classic's five fixed 200-slot stock categories into Remake's native shop categories and apply the authored inflation to purchase and resale prices. A positive shop ID makes the Shop control available until movement; a negative ID opens it immediately. Opcode `73` resolves the shop ID and two inclusive item ranges from Extra Code, then applies the resulting transfer rule to both purchases and sales. It preserves Classic's original two-range test: an item is rejected only when it misses both populated ranges, so a record with only one populated range remains unrestricted. Existing native shop state is retained when the same shop is loaded again so purchased stock survives Remake's save lifecycle, while its active restriction is replaced or cleared by each load. Every stocked or accepted item must resolve to a loaded Remake resource. The current full City of Bywater bundle does not include names for its scenario-specific items, so affected shops remain an explicit resource boundary rather than silently omitting their merchandise.
 
-Opcode `32` exposes Classic's nine temple services through Remake's native temple menu. The authored value is a percentage applied to Classic's base prices, including City of Bywater's standard 100-percent temple and its 300-percent hostile temple. Service payments combine pooled and selected-character gold and spend the pool first, matching Classic. Opcode `49` enables the native bank until movement and preserves the source sound and built-in warning IDs. Remake does not yet reproduce Classic's automatic transfer of banked wealth into the temple pool while both services are available.
+Opcode `32` exposes Classic's nine temple services through Remake's native temple menu. The authored value is a percentage applied to Classic's base prices, including City of Bywater's standard 100-percent temple and its 300-percent hostile temple. Service payments combine pooled and selected-character gold and spend the pool first, matching Classic. Opcode `49` enables the native bank until movement and preserves the source sound and built-in warning IDs. When both services are available, banked wealth moves into the temple pool on entry and the remaining pool returns to the bank on exit, matching Classic.
 
 Opcode `33` charges gold for a positive authored amount or gems for a negative
 amount. It spends the matching pooled currency first, then removes carried units
@@ -278,6 +278,13 @@ The experience playtest starts at the source-backed 1,500-point award in CoB's c
 ```powershell
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_experience_playtest.tscn
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_experience_playtest.tscn -- --smoke
+```
+
+The services playtest runs CoB's compiled bank and temple actions through the native HUD. Its smoke verifies banking availability, standard and hostile temple prices, and the bank-to-temple transfer lifecycle:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn -- --smoke
 ```
 
 The party-health playtest runs CoB's standalone fixed-damage macro and verifies the character HP change and completed host state:

@@ -727,7 +727,7 @@ func _on_minimaps_button_pressed() -> void:
 
 func _on_temple_button_pressed() -> void:
 	if temple_rect.visible :
-		temple_rect.hide()
+		temple_rect.close_temple_window()
 		StateMachine.exit_ex_menu_state()
 	else :
 		StateMachine.enter_ex_menu_state(({"menu_name" : "TempleMenu"}))

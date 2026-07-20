@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/Main.tscn" id="1_main"]
+[ext_resource type="Script" path="res://scripts/classic_runtime/playtest/classic_runtime_playtest.gd" id="2_playtest"]
+
+[node name="Main" instance=ExtResource("1_main")]
+
+[node name="ClassicServicesPlaytest" type="Node" parent="."]
+script = ExtResource("2_playtest")
+trigger_id = "Data DD:0:10"
+playtest_label = "services"

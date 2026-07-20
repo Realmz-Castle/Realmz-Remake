@@ -6341,6 +6341,34 @@ func _test_service_actions() -> void:
 		not TemplePaymentScript.can_afford_service(40, 50, 100),
 		"temple rejects an unaffordable service"
 	)
+	var temple_entry_balances: Array = TemplePaymentScript.balances_after_transfer(
+		[800, 3, 2],
+		[100, 1, 0]
+	)
+	_expect_equal(
+		temple_entry_balances,
+		[[0, 0, 0], [900, 4, 2]],
+		"banked wealth joins the pool on temple entry"
+	)
+	var hostile_payment: Array = TemplePaymentScript.balances_after_service(
+		75,
+		temple_entry_balances[1][0],
+		expensive.get("services", [])[0][2]
+	)
+	temple_entry_balances[1][0] = hostile_payment[1]
+	_expect_equal(
+		hostile_payment,
+		[75, 150],
+		"hostile temple payment spends transferred pool gold first"
+	)
+	_expect_equal(
+		TemplePaymentScript.balances_after_transfer(
+			temple_entry_balances[1],
+			temple_entry_balances[0]
+		),
+		[[0, 0, 0], [150, 4, 2]],
+		"remaining temple pool returns to the bank on exit"
+	)
 
 
 func _test_treasure_delivery(bundle) -> void:

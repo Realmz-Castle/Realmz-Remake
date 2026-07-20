@@ -10,11 +10,10 @@ const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
 class CaveInSpell:
 	extends Spell
 
-	var classic_spell_class := 6
-
 	func _init() -> void:
 		name = "Dig Hole"
 		description = "Opens earth and debris by magical means."
+		classic_spell_class = 6
 		elements = [GameGlobal.ELEMENTS.MAGICAL]
 		schools = ["Sorcerer"]
 		school_levels = {"Sorcerer": 1}
@@ -81,7 +80,8 @@ func _start_playtest() -> void:
 			or test_max_movement >= 0.0 \
 			or not test_spell_name.is_empty() \
 			or not test_effect_spell_name.is_empty() \
-			or not test_item_name.is_empty():
+			or not test_item_name.is_empty() \
+			or playtest_label == "services":
 		var resources: CampaignResources = NodeAccess.__Resources()
 		if test_rogue_stat >= 0.0 and resources.items_book.is_empty():
 			resources.load_item_resources("res://shared_assets/items/")
@@ -112,6 +112,9 @@ func _start_playtest() -> void:
 		else:
 			UI.ow_hud.fillCharactersRect()
 		UI.ow_hud.selected_character = first_character
+	if playtest_label == "services":
+		GameGlobal.money_pool = [100, 1, 0]
+		GameGlobal.money_banked = [800, 3, 2]
 	host = HostScript.new()
 	add_child(host)
 	host.configure(AdapterScript.new())
@@ -149,6 +152,9 @@ func _show_status(message: String, is_error: bool) -> void:
 
 
 func _run_automated_smoke() -> void:
+	if playtest_label == "services":
+		await _run_services_smoke()
+		return
 	if playtest_label == "character-pick":
 		await _run_character_pick_smoke()
 		return
@@ -217,6 +223,60 @@ func _run_automated_smoke() -> void:
 		"Classic guard-house playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
 		"host reports completed playthrough"
 	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_services_smoke() -> void:
+	await _wait_frames(3)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(5)
+	_verify_smoke_stage(
+		"01_service_actions",
+		not host.active
+			and UI.ow_hud.moneyControl.banking_available
+			and not UI.ow_hud.templeButton.disabled,
+		"the compiled service actions complete and enable their native controls"
+	)
+	UI.ow_hud._on_MoneyButton_pressed()
+	await _wait_frames(2)
+	_verify_smoke_stage(
+		"02_native_bank",
+		UI.ow_hud.moneyControl.visible
+			and UI.ow_hud.moneyControl.banking_box.visible,
+		"the bank action opens Remake's banking controls"
+	)
+	UI.ow_hud.moneyControl.close()
+	UI.ow_hud._on_temple_button_pressed()
+	await _wait_frames(2)
+	_verify_smoke_stage(
+		"03_standard_temple",
+		UI.ow_hud.temple_rect.visible
+			and UI.ow_hud.temple_rect.spells_box.get_child_count() == 9
+			and UI.ow_hud.temple_rect.prices_box.get_child(0).text == "250 G"
+			and GameGlobal.money_banked == [0, 0, 0]
+			and GameGlobal.money_pool == [900, 4, 2],
+		"the standard temple opens with Classic prices and transfers banked wealth"
+	)
+	UI.ow_hud._on_temple_button_pressed()
+	await _wait_frames(2)
+	_verify_smoke_stage(
+		"04_temple_exit",
+		not UI.ow_hud.temple_rect.visible
+			and GameGlobal.money_pool == [0, 0, 0]
+			and GameGlobal.money_banked == [900, 4, 2],
+		"closing the temple returns the remaining pool to the bank"
+	)
+	GameGlobal.currentTemple = AdapterScript.new().build_temple_services(300)["services"]
+	UI.ow_hud._on_temple_button_pressed()
+	await _wait_frames(2)
+	_verify_smoke_stage(
+		"05_hostile_temple",
+		UI.ow_hud.temple_rect.visible
+			and UI.ow_hud.temple_rect.prices_box.get_child(0).text == "750 G",
+		"the native temple displays the authored hostile price scale"
+	)
+	UI.ow_hud._on_temple_button_pressed()
+	await _wait_frames(2)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
 
 

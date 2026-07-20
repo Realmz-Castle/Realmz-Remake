@@ -20,6 +20,7 @@ var chara_conditions : Array = []
 var statusesindex : int = 0
 
 var temple_caster : Creature #used for casting the spells, dummy creature
+var banking_session_active: bool = false
 
 
 # Called when the node enters the scene tree for the first time.
@@ -30,8 +31,29 @@ func _ready() -> void:
 	pass # Replace with function body.
 
 func show_temple_window() :
+	banking_session_active = UI.ow_hud.moneyControl.banking_available
+	if banking_session_active:
+		var balances := TemplePayment.balances_after_transfer(
+			GameGlobal.money_banked,
+			GameGlobal.money_pool
+		)
+		GameGlobal.money_banked = balances[0]
+		GameGlobal.money_pool = balances[1]
 	show()
 	display_character(GameGlobal.player_characters[0])
+
+
+func close_temple_window() -> void:
+	if banking_session_active:
+		var balances := TemplePayment.balances_after_transfer(
+			GameGlobal.money_pool,
+			GameGlobal.money_banked
+		)
+		GameGlobal.money_pool = balances[0]
+		GameGlobal.money_banked = balances[1]
+		banking_session_active = false
+	hide()
+	char_status_timer.stop()
 
 
 func _display_services() :
@@ -146,6 +168,5 @@ func _on_share_button_pressed() -> void:
 
 
 func _on_exit_button_pressed() -> void:
-		hide()
-		char_status_timer.stop()
-		StateMachine.exit_ex_menu_state()
+	close_temple_window()
+	StateMachine.exit_ex_menu_state()
