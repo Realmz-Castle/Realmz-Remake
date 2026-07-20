@@ -1,0 +1,277 @@
+{
+  "itemTexts": [
+    {
+      "authored": true,
+      "description": "This item text was compiled from canonical Providence data.",
+      "id": 901,
+      "identifiedName": "Providence Token",
+      "itemId": 901,
+      "provenance": {
+        "byteLength": 0,
+        "byteOffset": 0,
+        "confidence": "inferred",
+        "recordIndex": 901,
+        "sourceFile": "Data ID.rsrc"
+      },
+      "unidentifiedName": "Unknown Providence Token"
+    }
+  ],
+  "monsterDescriptions": [
+    {
+      "authored": true,
+      "id": 1,
+      "provenance": {
+        "byteLength": 256,
+        "byteOffset": 256,
+        "confidence": "inferred",
+        "recordIndex": 1,
+        "sourceFile": "Data DES"
+      },
+      "text": "Compiled entirely from canonical Providence monster data."
+    }
+  ],
+  "monsterSets": [],
+  "monsters": [
+    {
+      "agility": 201,
+      "armor": -4,
+      "attackCount": 1,
+      "attackNum": 0,
+      "attacks": [
+        [
+          1,
+          8,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "authored": true,
+      "beenAttacked": 0,
+      "bonusAttack": 0,
+      "canSummon": 0,
+      "castPercent": 0,
+      "conditions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "damageBonus": 0,
+      "deathMacro": 0,
+      "displayName": "Providence Sentinel",
+      "distance": 0,
+      "exp": 29,
+      "guarding": 0,
+      "hitDice": 9,
+      "iconId": 0,
+      "id": 1,
+      "items": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "lr": 0,
+      "magicAttackCount": 0,
+      "magicResistance": 0,
+      "magicToHit": 0,
+      "maxSpellPoints": 0,
+      "missilePercent": 0,
+      "money": [
+        0,
+        0,
+        0
+      ],
+      "movement": 0,
+      "movementMax": 202,
+      "nameId": 1,
+      "notOnMenu": false,
+      "provenance": {
+        "byteLength": 210,
+        "byteOffset": 210,
+        "confidence": "inferred",
+        "recordIndex": 1,
+        "sourceFile": "Data MD"
+      },
+      "runPercent": 0,
+      "saves": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "size": 1,
+      "spellImmunities": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "spellPoints": 0,
+      "spells": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "stamina": 30,
+      "staminaBonus": 200,
+      "staminaMax": 31,
+      "surrenderPercent": 0,
+      "target": 0,
+      "traitor": 0,
+      "typeFlags": [
+        1,
+        -1,
+        2,
+        -2,
+        3,
+        -3,
+        4,
+        -4
+      ],
+      "underneath": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "up": 0,
+      "weapon": 0
+    }
+  ],
+  "questLabels": [
+    {
+      "id": 1,
+      "label": "Providence ownership proof triggered",
+      "note": ""
+    }
+  ],
+  "scenarioItems": [
+    {
+      "ac": 0,
+      "authored": true,
+      "blunt": 0,
+      "casteClassOnly": 0,
+      "casteRestrictions": 0,
+      "charge": 0,
+      "cold": 0,
+      "cost": 1,
+      "cursedItemId": 0,
+      "damage": 0,
+      "dropOnEmpty": 0,
+      "electric": 0,
+      "hands": 0,
+      "heat": 0,
+      "iconId": 0,
+      "id": 101,
+      "itemCat0": 0,
+      "itemCat1": 0,
+      "itemId": 901,
+      "lu": 0,
+      "magicResistance": 0,
+      "magical": 0,
+      "movement": 0,
+      "provenance": {
+        "byteLength": 100,
+        "byteOffset": 10100,
+        "confidence": "inferred",
+        "recordIndex": 101,
+        "sourceFile": "Data NI"
+      },
+      "raceClassOnly": 0,
+      "raceRestrictions": 0,
+      "sound": 0,
+      "special1": 0,
+      "special2": 0,
+      "special3": 0,
+      "special4": 0,
+      "special5": 0,
+      "specificCaste": 0,
+      "specificRace": 0,
+      "spellPoints": 0,
+      "st": 0,
+      "type": 25,
+      "vLarge": 0,
+      "vSmall": 0,
+      "vsDemonDevil": 0,
+      "vsEvil": 0,
+      "vsUndead": 0,
+      "weight": 0,
+      "weightPerCharge": 0
+    }
+  ],
+  "schemaVersion": 1
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "producer": {
+    "repository": "Realmz - Providence",
+    "branch": "investigation/authoritative-realmz-compiler",
+    "commit": "8e7eeccc50707d60a34b16dbfb378bc4897ddbaa",
+    "sourceFixture": "fixtures/scenario-seeds/authoritative-ownership-proof.seed.json"
+  },
+  "bundleDirectory": "providence_authoritative_export",
+  "readiness": {
+    "progressionBlockers": 1,
+    "fidelityFallbacks": 0,
+    "knownBlocker": {
+      "code": "unresolved-spell-identity",
+      "referenceId": 17
+    }
+  },
+  "files": [
+    {
+      "path": "assets/managed/cicn-neg-100-363a140e3045.cicn",
+      "bytes": 1386,
+      "sha256": "363a140e30456fff0494279451ce06c639b93d142a7408a3e2ee1b7375a5621b"
+    },
+    {
+      "path": "assets/managed/pict-306-d08dae63460f.pict",
+      "bytes": 13782,
+      "sha256": "d08dae63460fc6584884c76be5301ac1d884ed83582fb1a8be5e65adc2e7a03c"
+    },
+    {
+      "path": "assets/managed/snd-321-fdd45aff3e3b.snd",
+      "bytes": 298,
+      "sha256": "fdd45aff3e3bca219ecc14f3ee1b01dfb5b2c313b559cb6e38a419b7d405045c"
+    },
+    {
+      "path": "assets/managed/styl-neg-200-04f1eaac6389.styl",
+      "bytes": 22,
+      "sha256": "04f1eaac6389619252c668457eaed04d13ae8a103778a7868649fb61bbff82d4"
+    },
+    {
+      "path": "assets/managed/text-neg-200-ee8506353a59.txt",
+      "bytes": 46,
+      "sha256": "ee8506353a59ede3b2420ff409f569546ce2258da18c968927d342a28289dd5c"
+    },
+    {
+      "path": "campaign.json",
+      "bytes": 2034,
+      "sha256": "a6259387408d3dbda91192fe499fb2ec40fa78c2e6246fb049d9d799f01b9bcb"
+    },
+    {
+      "path": "classic/assets.json",
+      "bytes": 6414,
+      "sha256": "cd2afad900901e717acb40e3e3062709ba402e4435ee399ee08ae814acfb3ba1"
+    },
+    {
+      "path": "classic/content.json",
+      "bytes": 4716,
+      "sha256": "813f0208c85d411f6c505f2ea1b8fd6b616109133d17c3223b16ae55da0b0309"
+    },
+    {
+      "path": "classic/encounters.json",
+      "bytes": 29429,
+      "sha256": "3b5975128d7190ba2c586498e1ba70a60de0f7c76af6e574135ea3a8b29f0cf6"
+    },
+    {
+      "path": "classic/evidence.json",
+      "bytes": 850,
+      "sha256": "8b0309228fa3a119942534d8bd12e5ae82d2f5cea6d7458fe0e700ca2d3c4559"
+    },
+    {
+      "path": "classic/maps.json",
+      "bytes": 1185585,
+      "sha256": "4163c8c63c77e3d64d3ac972d45e44a16a377a2095f5ccbae817d92dd2170c7e"
+    },
+    {
+      "path": "classic/rules.json",
+      "bytes": 9674,
+      "sha256": "ae6a376c4daab78a2a5365c925dda35444d23c670c78cbd8fb95360e0cbe0262"
+    },
+    {
+      "path": "classic/scenario.json",
+      "bytes": 2128,
+      "sha256": "50cc6e25d4bf4e9aa07ad06751836cc1da980ccde9a093aa027ef2328bd3f5f2"
+    },
+    {
+      "path": "classic/scripts.json",
+      "bytes": 3502,
+      "sha256": "c1ffb0cc3ac7da7c5578245742db5da7695c5fabf369f677c8718a854e9910e3"
+    }
+  ]
+}

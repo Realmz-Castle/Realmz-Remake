@@ -1,0 +1,62 @@
+{
+  "campaignKind": "classic-compiled",
+  "capabilities": {
+    "classicResourcePayloads": "packaged-classic-resource-data",
+    "generatedGdscript": false,
+    "semanticScenarioData": "canonical-project-projection"
+  },
+  "compatibilityProfile": "realmz-7.1",
+  "counts": {
+    "activeTriggers": 2,
+    "battles": 1,
+    "complexEncounters": 1,
+    "dungeonMaps": 0,
+    "extraCodes": 1,
+    "itemTexts": 1,
+    "landMaps": 1,
+    "managedAssets": 5,
+    "maps": 1,
+    "messages": 2,
+    "monsters": 1,
+    "packagedAssetPayloads": 5,
+    "scenarioItems": 1,
+    "shops": 1,
+    "simpleEncounters": 1,
+    "thiefEncounters": 1,
+    "timedEncounters": 1,
+    "treasures": 1,
+    "triggers": 2
+  },
+  "files": {
+    "assets": "classic/assets.json",
+    "content": "classic/content.json",
+    "encounters": "classic/encounters.json",
+    "evidence": "classic/evidence.json",
+    "maps": "classic/maps.json",
+    "rules": "classic/rules.json",
+    "scenario": "classic/scenario.json",
+    "scripts": "classic/scripts.json"
+  },
+  "format": "realmz-remake-classic-campaign",
+  "formatVersion": 1,
+  "id": "providence-ownership-proof",
+  "limitations": [
+    "Classic resource payloads are packaged without defining Remake-native image, icon, sound, or styled-text conversion semantics.",
+    "Providence schema version 5 authors a land start; the v1 bundle can also represent dungeon starts when the canonical model gains that distinction.",
+    "Legacy scenario-icon and monster-icon override payloads are excluded unless they are canonical scenario-managed assets.",
+    "Negative cicn special-land-tile identities use the additive v1 assets.catalog.specialLandTiles collection because ordinary v1 icon identities are non-negative."
+  ],
+  "name": "Providence Ownership Proof",
+  "producer": {
+    "name": "Providence",
+    "projectOrigin": "authored",
+    "projectSchemaVersion": 5,
+    "providenceVersion": "authoritative-scenario-proof"
+  },
+  "start": {
+    "levelIndex": 0,
+    "levelType": "land",
+    "x": 10,
+    "y": 12
+  }
+}

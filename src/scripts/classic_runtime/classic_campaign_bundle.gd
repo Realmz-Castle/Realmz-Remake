@@ -199,9 +199,15 @@ func _validate_document_contract() -> bool:
 			bool(specification[2])
 		):
 			return false
+	if not _validate_nested_record_collection(
+		"assets.catalog", catalog, "specialLandTiles", "resourceId", false, true
+	):
+		return false
 	if not _validate_payload_paths_in_collection("assets", documents["assets"], "managedAssets"):
 		return false
-	for collection_name: String in ["tilesets", "pictures", "icons", "sounds"]:
+	for collection_name: String in [
+		"tilesets", "pictures", "icons", "sounds", "specialLandTiles"
+	]:
 		if not _validate_payload_paths_in_collection("assets.catalog", catalog, collection_name):
 			return false
 
@@ -306,7 +312,8 @@ func _validate_nested_record_collection(
 	container: Dictionary,
 	collection_name: String,
 	identity_field: String,
-	string_identity: bool
+	string_identity: bool,
+	integer_identity_may_be_negative := false
 ) -> bool:
 	if not container.has(collection_name):
 		return true
@@ -324,7 +331,9 @@ func _validate_nested_record_collection(
 			if not (identity is String) or identity.strip_edges().is_empty():
 				return _fail("%s is missing stable field '%s'" % [record_context, identity_field])
 		else:
-			if not _is_nonnegative_integer(identity):
+			if integer_identity_may_be_negative and not _is_integer(identity):
+				return _fail("%s.%s must be an integer" % [record_context, identity_field])
+			if not integer_identity_may_be_negative and not _is_nonnegative_integer(identity):
 				return _fail(
 					"%s.%s must be a non-negative integer" % [record_context, identity_field]
 				)

@@ -28,6 +28,10 @@ const COB_SPOKEN_WORD_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/cob_spoken_word"
 const COMPLEX_RESPONSE_MODES_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/complex_response_modes"
+const PROVIDENCE_AUTHORITATIVE_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export"
+const PROVIDENCE_AUTHORITATIVE_PROVENANCE := \
+	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export.provenance.json"
 
 var failures := 0
 
@@ -317,6 +321,7 @@ func _init() -> void:
 		return
 
 	_test_bundle_contract_validation()
+	_test_providence_authoritative_export()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
 	_test_campaign_readiness_report()
@@ -494,6 +499,50 @@ func _test_bundle_contract_validation() -> void:
 		"asset payload path error includes record-level context"
 	)
 
+	var special_land_tile_bundle = BundleScript.new()
+	special_land_tile_bundle.manifest = _minimal_contract_manifest()
+	special_land_tile_bundle.documents = _minimal_contract_documents()
+	special_land_tile_bundle.documents["assets"]["catalog"]["specialLandTiles"] = [{
+		"id": "resource:cicn:-100",
+		"resourceId": -100,
+		"payloadPath": "assets/managed/special-land-tile.cicn",
+	}]
+	_expect(
+		special_land_tile_bundle._validate_document_contract(),
+		"bundle contract accepts signed special-land-tile identities"
+	)
+
+	var negative_icon_bundle = BundleScript.new()
+	negative_icon_bundle.manifest = _minimal_contract_manifest()
+	negative_icon_bundle.documents = _minimal_contract_documents()
+	negative_icon_bundle.documents["assets"]["catalog"]["icons"] = [{"resourceId": -100}]
+	_expect(
+		not negative_icon_bundle._validate_document_contract(),
+		"bundle contract keeps ordinary icon identities non-negative"
+	)
+	_expect(
+		negative_icon_bundle.last_error.contains("assets.catalog.icons[0].resourceId"),
+		"ordinary icon identity error includes record-level context"
+	)
+
+	var unsafe_special_land_tile_bundle = BundleScript.new()
+	unsafe_special_land_tile_bundle.manifest = _minimal_contract_manifest()
+	unsafe_special_land_tile_bundle.documents = _minimal_contract_documents()
+	unsafe_special_land_tile_bundle.documents["assets"]["catalog"]["specialLandTiles"] = [{
+		"resourceId": -100,
+		"payloadPath": "../managed/special-land-tile.cicn",
+	}]
+	_expect(
+		not unsafe_special_land_tile_bundle._validate_document_contract(),
+		"bundle contract rejects an unsafe special-land-tile payload path"
+	)
+	_expect(
+		unsafe_special_land_tile_bundle.last_error.contains(
+			"assets.catalog.specialLandTiles[0].payloadPath"
+		),
+		"special-land-tile payload path error includes record-level context"
+	)
+
 	var forward_compatible_bundle = BundleScript.new()
 	forward_compatible_bundle.manifest = _minimal_contract_manifest()
 	forward_compatible_bundle.documents = _minimal_contract_documents()
@@ -521,6 +570,120 @@ func _test_bundle_contract_validation() -> void:
 		encounter_action_bundle.last_error.contains("simpleEncounters[0].actions[0].slot"),
 		"encounter action error includes record and slot context"
 	)
+
+
+func _test_providence_authoritative_export() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"Providence authoritative export loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+
+	_expect_equal(bundle.manifest.get("id"), "providence-ownership-proof", "producer fixture identity")
+	_expect_equal(bundle.documents["maps"].get("maps", []).size(), 1, "producer fixture map count")
+	_expect_equal(bundle.documents["scripts"].get("triggers", []).size(), 2, "producer fixture trigger count")
+	_expect_equal(
+		bundle.documents["encounters"].get("simpleEncounters", []).size()
+		+ bundle.documents["encounters"].get("complexEncounters", []).size(),
+		2,
+		"producer fixture encounter count"
+	)
+
+	var provenance_value: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(PROVIDENCE_AUTHORITATIVE_PROVENANCE)
+	)
+	_expect(provenance_value is Dictionary, "producer fixture provenance parses")
+	if not (provenance_value is Dictionary):
+		return
+	var provenance: Dictionary = provenance_value
+	_expect_equal(
+		provenance.get("producer", {}).get("commit"),
+		"8e7eeccc50707d60a34b16dbfb378bc4897ddbaa",
+		"producer fixture records its Providence commit"
+	)
+	var expected_readiness: Dictionary = provenance.get("readiness", {})
+	_expect_equal(
+		expected_readiness.get("progressionBlockers"),
+		1,
+		"producer fixture provenance records one progression blocker"
+	)
+	_expect_equal(
+		expected_readiness.get("fidelityFallbacks"),
+		0,
+		"producer fixture provenance records no fidelity fallbacks"
+	)
+	_expect_equal(
+		expected_readiness.get("knownBlocker", {}).get("code"),
+		"unresolved-spell-identity",
+		"producer fixture provenance records the blocker kind"
+	)
+	_expect_equal(
+		expected_readiness.get("knownBlocker", {}).get("referenceId"),
+		17,
+		"producer fixture provenance records custom spell 17"
+	)
+	var expected_files: Array = provenance.get("files", [])
+	_expect_equal(expected_files.size(), 14, "producer fixture provenance covers every file")
+	for expected_value: Variant in expected_files:
+		if not (expected_value is Dictionary):
+			_expect(false, "producer fixture provenance file entry is an object")
+			continue
+		var expected: Dictionary = expected_value
+		var relative_path := str(expected.get("path", ""))
+		var fixture_path := PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(relative_path)
+		_expect(FileAccess.file_exists(fixture_path), "producer fixture includes %s" % relative_path)
+		if not FileAccess.file_exists(fixture_path):
+			continue
+		var file := FileAccess.open(fixture_path, FileAccess.READ)
+		_expect_equal(file.get_length(), int(expected.get("bytes", -1)), "%s byte count" % relative_path)
+		_expect_equal(
+			FileAccess.get_sha256(fixture_path),
+			str(expected.get("sha256", "")),
+			"%s content hash" % relative_path
+		)
+
+	var assets: Dictionary = bundle.documents["assets"]
+	var catalog: Dictionary = assets.get("catalog", {})
+	_expect_equal(assets.get("managedAssets", []).size(), 5, "producer fixture managed asset count")
+	_expect_equal(catalog.get("icons", []).size(), 0, "producer fixture ordinary icon count")
+	var special_land_tiles: Array = catalog.get("specialLandTiles", [])
+	_expect_equal(special_land_tiles.size(), 1, "producer fixture special-land-tile count")
+	if special_land_tiles.size() == 1:
+		_expect_equal(special_land_tiles[0].get("resourceId"), -100, "special land tile keeps signed identity")
+		_expect_equal(
+			special_land_tiles[0].get("payloadEncoding"),
+			"classic-resource-data",
+			"special land tile keeps its payload encoding"
+		)
+	for asset_value: Variant in assets.get("managedAssets", []):
+		if not (asset_value is Dictionary):
+			continue
+		var payload_path := str(asset_value.get("payloadPath", ""))
+		_expect(bundle._is_safe_campaign_path(payload_path), "managed asset path remains portable")
+		_expect(
+			FileAccess.file_exists(PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(payload_path)),
+			"managed asset payload exists: %s" % payload_path
+		)
+
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	_expect(not bool(readiness.get("ready", true)), "producer fixture retains its known blocker")
+	_expect_equal(
+		readiness.get("totals", {}).get("progressionBlockers"),
+		1,
+		"producer fixture has one progression blocker"
+	)
+	_expect_equal(
+		readiness.get("totals", {}).get("fidelityFallbacks"),
+		0,
+		"producer fixture has no fidelity fallbacks"
+	)
+	_expect(
+		_readiness_has_reference_diagnostic(readiness, "unresolved-spell-identity", 17),
+		"producer fixture blocker identifies custom spell 17"
+	)
+
 
 func _minimal_contract_manifest() -> Dictionary:
 	return {
