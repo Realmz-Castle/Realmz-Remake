@@ -1,4 +1,4 @@
-[gd_scene load_steps=79 format=3 uid="uid://bcm4yk3e2uv7"]
+[gd_scene load_steps=80 format=3 uid="uid://bcm4yk3e2uv7"]
 
 [ext_resource type="PackedScene" uid="uid://y2mh6jttjyop" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButton.tscn" id="1"]
 [ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://bauulxe7dboxs" path="res://scenes/UI/HUD/TurnOrderPanel/turn_order_panel.tscn" id="11_6j1vb"]
 [ext_resource type="StyleBox" uid="uid://hikrvka0lrg3" path="res://shared_assets/UI/button50_normal_styleboxtexture.tres" id="12_c6hp3"]
 [ext_resource type="PackedScene" uid="uid://vd2sjsgfcp04" path="res://scenes/UI/HUD/MiniMapsRect/minimaps_rect.tscn" id="12_rykdu"]
+[ext_resource type="PackedScene" path="res://scenes/UI/HUD/ClassicPlayerMapRect/classic_player_map_rect.tscn" id="12_classic_map"]
 [ext_resource type="StyleBox" uid="uid://5gwr2x8v5t1f" path="res://shared_assets/UI/button50_hover_styleboxtexture.tres" id="13_dm23x"]
 [ext_resource type="PackedScene" uid="uid://bok34jeuhstd2" path="res://scenes/UI/HUD/CreatureCBRect/creature_rect.tscn" id="13_svkkd"]
 [ext_resource type="PackedScene" uid="uid://1ulsncmtjfnq" path="res://scenes/UI/HUD/PictureRect/picture_rect.tscn" id="13_vmq7b"]
@@ -186,6 +187,10 @@ offset_top = 0.0
 offset_bottom = 0.0
 
 [node name="MinimapsRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("12_rykdu")]
+visible = false
+layout_mode = 1
+
+[node name="ClassicPlayerMapRect" parent="VBoxScreen/HBoxTop/MapArea" instance=ExtResource("12_classic_map")]
 visible = false
 layout_mode = 1
 

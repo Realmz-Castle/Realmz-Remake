@@ -24,6 +24,7 @@ var selected_character = null
 @onready var bestiaryRect = $BestiaryRect
 @onready var characterStatRect = $CharacterStatRect
 @onready var minimapRect = $VBoxScreen/HBoxTop/MapArea/MinimapsRect
+@onready var classicPlayerMapRect = $VBoxScreen/HBoxTop/MapArea/ClassicPlayerMapRect
 @onready var pictureRect = $VBoxScreen/HBoxTop/MapArea/PictureRect
 
 @onready var turnorderPanel : TurnOrderPanel = $VBoxScreen/HBoxTop/MapArea/TurnOrderPanel

@@ -102,7 +102,53 @@ func _run_smoke() -> void:
 		"normal launch uses the compiled start coordinates"
 	)
 	_expect(map.visible and UI.ow_hud.visible, "normal launch presents the native map and HUD")
+	_expect(
+		is_instance_valid(UI.ow_hud.classicPlayerMapRect),
+		"normal HUD provides the standalone Classic player-map panel"
+	)
+	await _test_runtime_player_map_display()
 	_finish()
+
+
+func _test_runtime_player_map_display() -> void:
+	var session: Node = GameGlobal.classic_campaign_session
+	var bundle: Object = session.install.bundle
+	var adapter: Object = session.command_adapter
+	var original_root: String = bundle.root_directory
+	bundle.root_directory = "res://Campaigns/City of Bywater"
+	UI.ow_hud.classicPlayerMapRect.call_deferred("close_map")
+	var result: Dictionary = await adapter.execute_command("give_map", {
+		"mapId": 7,
+		"display": true,
+		"mapRecord": {
+			"id": 7,
+			"primaryName": "The Old Road",
+			"note": "The old road crosses the river north of town.",
+			"runtimeMedia": {
+				"path": "Splash Images/0.png",
+				"mediaType": "image/png",
+			},
+		},
+	})
+	bundle.root_directory = original_root
+	_expect(
+		result.get("runtimeMediaPath") == "Splash Images/0.png",
+		"opcode 29 uses decoded player-map media before native minimaps"
+	)
+	_expect(
+		UI.ow_hud.classicPlayerMapRect.map_name_label.text == "The Old Road",
+		"opcode 29 presents the compiled player-map name"
+	)
+	_expect(
+		UI.ow_hud.classicPlayerMapRect.map_note_label.text
+			== "The old road crosses the river north of town.",
+		"opcode 29 presents the compiled player-map note"
+	)
+	_expect(
+		StateMachine._state_name == "Exploration" \
+			and not UI.ow_hud.classicPlayerMapRect.visible,
+		"closing a Classic player map restores exploration"
+	)
 
 
 func _find_campaign_index(item_list: ItemList, campaign_name: String) -> int:

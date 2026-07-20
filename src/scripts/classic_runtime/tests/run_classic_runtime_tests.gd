@@ -25,6 +25,12 @@ const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const ClassicPlayerMapScene = preload(
+	"res://scenes/UI/HUD/ClassicPlayerMapRect/classic_player_map_rect.tscn"
+)
+const ClassicPlayerMapScript = preload(
+	"res://scenes/UI/HUD/ClassicPlayerMapRect/classic_player_map_rect.gd"
+)
 const CombatIntegrationAdapterScript = preload(
 	"res://scripts/classic_runtime/tests/classic_combat_integration_adapter.gd"
 )
@@ -707,6 +713,7 @@ func _init() -> void:
 	_test_opcode_25_xap_copy()
 	_test_modal_picture_actions()
 	_test_runtime_media_adapters()
+	_test_classic_player_map_renderer()
 	_test_party_state_actions()
 	_test_priest_turning_actions()
 	_test_turn_undead_rules()
@@ -4740,6 +4747,62 @@ func _test_runtime_media_adapters() -> void:
 		"Godot decodes picture runtime media by campaign-relative path"
 	)
 	_expect(runtime_image.get_width() > 0, "decoded picture runtime media has image content")
+
+
+func _test_classic_player_map_renderer() -> void:
+	var player_map_rect: Control = ClassicPlayerMapScene.instantiate()
+	player_map_rect.map_texture_rect = player_map_rect.get_node(
+		"VBoxContainer/MapArea/MapTextureRect"
+	)
+	player_map_rect.map_name_label = player_map_rect.get_node(
+		"VBoxContainer/Footer/MapNameLabel"
+	)
+	player_map_rect.map_note_label = player_map_rect.get_node(
+		"VBoxContainer/Footer/MapNoteLabel"
+	)
+	player_map_rect.done_button = player_map_rect.get_node("VBoxContainer/Footer/DoneButton")
+	get_root().add_child(player_map_rect)
+	var map_record := {
+		"id": 7,
+		"primaryName": "The Old Road",
+		"secondaryName": "Unknown Map",
+		"note": "The old road crosses the river north of town.",
+	}
+	_expect(
+		player_map_rect.display_map(
+			map_record,
+			"res://Campaigns/City of Bywater/Splash Images/0.png"
+		),
+		"Classic player-map renderer loads campaign runtime media"
+	)
+	_expect(player_map_rect.visible, "Classic player-map renderer opens independently")
+	_expect_equal(
+		player_map_rect.map_name_label.text,
+		"The Old Road",
+		"Classic player-map renderer uses the available map name"
+	)
+	_expect_equal(
+		player_map_rect.map_note_label.text,
+		map_record["note"],
+		"Classic player-map renderer presents the compiled note"
+	)
+	_expect(
+		player_map_rect.map_texture_rect.texture != null,
+		"Classic player-map renderer presents decoded image content"
+	)
+	_expect_equal(
+		ClassicPlayerMapScript.map_display_name({"id": 9}),
+		"Player Map 9",
+		"Classic player-map renderer supplies a stable unnamed-map label"
+	)
+	var close_state := {"didClose": false}
+	player_map_rect.closed.connect(func() -> void: close_state["didClose"] = true)
+	player_map_rect.close_map()
+	_expect(
+		bool(close_state["didClose"]) and not player_map_rect.visible,
+		"Classic player-map renderer closes cleanly"
+	)
+	player_map_rect.free()
 
 
 func _test_party_state_actions() -> void:

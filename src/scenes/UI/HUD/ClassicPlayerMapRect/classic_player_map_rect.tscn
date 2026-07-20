@@ -1,0 +1,113 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scenes/UI/HUD/ClassicPlayerMapRect/classic_player_map_rect.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://shared_assets/UI/StonePatternRect9.png" id="2_stone"]
+[ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="3_font"]
+[ext_resource type="StyleBox" path="res://shared_assets/UI/button_disabled_styleboxtexture.tres" id="4_disabled"]
+[ext_resource type="StyleBox" path="res://shared_assets/UI/button_hover_styleboxtexture.tres" id="5_hover"]
+[ext_resource type="StyleBox" path="res://shared_assets/UI/button_pressed_styleboxtexture.tres" id="6_pressed"]
+[ext_resource type="StyleBox" path="res://shared_assets/UI/button_normal_styleboxtexture.tres" id="7_normal"]
+
+[node name="ClassicPlayerMapRect" type="ColorRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+mouse_filter = 0
+script = ExtResource("1_script")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MapArea" type="Control" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MapTextureRect" type="TextureRect" parent="VBoxContainer/MapArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Footer" type="NinePatchRect" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+texture = ExtResource("2_stone")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MapNameLabel" type="Label" parent="VBoxContainer/Footer"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -112.0
+offset_bottom = 40.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 24
+text = "Player Map"
+clip_text = true
+
+[node name="MapNoteLabel" type="Label" parent="VBoxContainer/Footer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 42.0
+offset_right = -112.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "Map note"
+autowrap_mode = 2
+vertical_alignment = 1
+
+[node name="DoneButton" type="Button" parent="VBoxContainer/Footer"]
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -22.0
+offset_right = -10.0
+offset_bottom = 22.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/disabled = ExtResource("4_disabled")
+theme_override_styles/hover = ExtResource("5_hover")
+theme_override_styles/pressed = ExtResource("6_pressed")
+theme_override_styles/normal = ExtResource("7_normal")
+text = "Done"
+
+[connection signal="pressed" from="VBoxContainer/Footer/DoneButton" to="." method="_on_done_button_pressed"]

@@ -65,6 +65,9 @@ func enter(_msg : Dictionary = {} ) ->void :
 			cur_menu_name = menu_name
 			UI.ow_hud.minimapRect.show()
 			UI.ow_hud.minimapRect.on_display()
+		"ClassicPlayerMapMenu" :
+			cur_menu_name = menu_name
+			UI.ow_hud.classicPlayerMapRect.show()
 		"SpecEncounter_menu" :
 			cur_menu_name = menu_name
 			UI.ow_hud.encounterControl.disablerButton.hide()
@@ -93,6 +96,8 @@ func exit() :
 	
 	if cur_menu_name == "MiniMapsMenu" :
 		UI.ow_hud.minimapRect.hide()
+	if cur_menu_name == "ClassicPlayerMapMenu" :
+		UI.ow_hud.classicPlayerMapRect.hide()
 	
 	if cur_menu_name == "TempleMenu" :
 		UI.ow_hud.temple_rect.close_temple_window()
