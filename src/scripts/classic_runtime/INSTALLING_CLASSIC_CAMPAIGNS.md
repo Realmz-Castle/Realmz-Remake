@@ -72,10 +72,21 @@ godot --headless --path src --script `
 ```
 
 The optional second positional argument selects a different `Campaigns`
-directory. The installer validates the source and its native start map, copies
-the complete package to a temporary directory below `Campaigns`, validates that
-copy, and then moves it into place. A package that is not ready to launch is not
-installed.
+directory. The installer validates the compiled source, copies the complete
+package to a temporary directory below `Campaigns`, materializes missing native
+maps there, validates the staged launch state, and then moves it into place.
+Providence does not need to emit Remake's private `map_things.json` or map-script
+files. Existing complete native maps remain available for hand-maintained native
+campaigns; when they are absent, Remake is the sole owner of compiled-map
+materialization.
+
+Materialization currently supports complete outdoor tile arrays that resolve to
+a shared Remake landlook or an already decoded campaign tileset. It preserves
+stable Action Point IDs and chances and emits the normalized random rectangles.
+An undecoded custom atlas, special negative tile, incomplete tile array, unknown
+render mode, or atlas-capacity mismatch blocks installation with the map and
+resource identity instead of substituting lossy data. A package that is not ready
+to launch is not installed.
 
 Pass `--replace` to update an existing campaign. The old package remains in
 place until the staged update passes validation, and the update replaces the
@@ -87,4 +98,4 @@ bundle and saved-state versions. Use `--json` for a machine-readable result.
 
 The source directory must already contain the complete exported campaign. In
 particular, do not pass only its `classic` subdirectory, and do not treat raw
-Classic resource payloads as decoded Godot maps, images, or sounds.
+Classic resource payloads as decoded Godot images, sounds, or custom tilesets.

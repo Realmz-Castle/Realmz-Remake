@@ -21,6 +21,9 @@ const CampaignInstallScript = preload(
 const CampaignPackageInstallerScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
 )
+const MapMaterializerScript = preload(
+	"res://scripts/classic_runtime/classic_map_materializer.gd"
+)
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
@@ -680,6 +683,7 @@ func _init() -> void:
 	_test_bundle_contract_validation()
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
+	_test_classic_map_materializer()
 	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
 	_test_native_battle_bridge_fixture()
@@ -1715,6 +1719,158 @@ func _test_installed_classic_campaign_layout() -> void:
 	session.queue_free()
 
 
+func _test_classic_map_materializer() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"producer fixture loads for native map materialization"
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var map_record: Dictionary = bundle.documents["maps"]["maps"][0]
+	map_record["render"] = {
+		"landlook": 0,
+		"mode": "outdoor-landlook",
+		"tilesetId": "landlook-0",
+	}
+	var tiles: Array = []
+	tiles.resize(int(map_record["width"]) * int(map_record["height"]))
+	tiles.fill(156)
+	tiles[0] = 1156
+	map_record["tiles"] = tiles
+	var random_level: Dictionary = bundle.get_random_level("land", 0)
+	random_level["isDark"] = true
+	random_level["useLos"] = true
+	random_level["rects"] = [{
+		"battleRange": [4, 6],
+		"bottom": 8,
+		"left": 2,
+		"option": 35,
+		"percent": 2500,
+		"rectIndex": 3,
+		"right": 7,
+		"sound": 12,
+		"text": 1,
+		"top": 1,
+	}]
+
+	var test_root := ProjectSettings.globalize_path(
+		"user://classic-map-materializer-%d" % Time.get_ticks_msec()
+	)
+	DirAccess.make_dir_recursive_absolute(test_root)
+	var materializer = MapMaterializerScript.new()
+	var result: Dictionary = materializer.materialize(bundle, test_root)
+	_expect_equal(result.get("status"), "ok", "normalized map generates native artifacts")
+	_expect_equal(result.get("generatedMaps"), ["map_0"], "materializer reports generated map")
+	var map_directory := test_root.path_join("Maps").path_join("map_0")
+	for file_name: String in MapMaterializerScript.REQUIRED_MAP_FILES:
+		_expect(
+			FileAccess.file_exists(map_directory.path_join(file_name)),
+			"materializer writes %s" % file_name
+		)
+	var map_things: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(map_directory.path_join("map_things.json"))
+	)
+	_expect_equal(
+		map_things.get("tilesets", [])[0].get("source"),
+		"ForestDay.json",
+		"stock Classic landlook resolves to the shared native tileset"
+	)
+	_expect_equal(
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[0],
+		156,
+		"Classic tile flags normalize to the one-based native atlas slot"
+	)
+	var map_info: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(map_directory.path_join("map_info.json"))
+	)
+	_expect_equal(map_info.get("darkness_level"), 0, "generated map preserves darkness")
+	_expect_equal(
+		map_info.get("display_explored_only"),
+		1,
+		"generated map preserves line-of-sight exploration"
+	)
+	var script_areas: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(map_directory.path_join("map_scriptareas.json"))
+	)
+	_expect_equal(
+		script_areas.get("ScriptRects", {}).get("AP0x11y12", {}).get("scriptToLoad"),
+		"land:0:ap:0",
+		"native map area dispatches the producer's stable trigger ID"
+	)
+	_expect_equal(
+		script_areas.get("ScriptRects", {}).get("AP0x11y12", {}).get("chance"),
+		1.0,
+		"native map area preserves the Classic trigger chance"
+	)
+	var random_area: Dictionary = script_areas.get("ScriptRects", {}).get("LRR0.3", {})
+	_expect_equal(random_area.get("chance"), 0.25, "native map preserves random-area chance")
+	_expect_equal(
+		random_area.get("scriptRectangle"),
+		[[2.0, 1.0], [7.0, 8.0]],
+		"native map preserves random-area bounds"
+	)
+	_expect_equal(
+		random_area.get("RR_Battle", {}).get("battle_range"),
+		[4.0, 6.0],
+		"native map preserves random battle range"
+	)
+	_expect_equal(
+		random_area.get("RR_Battle", {}).get("text"),
+		"Providence owns this rogue encounter.",
+		"native map resolves random battle text"
+	)
+	var first_artifacts := {}
+	for file_name: String in MapMaterializerScript.REQUIRED_MAP_FILES:
+		first_artifacts[file_name] = FileAccess.get_file_as_string(
+			map_directory.path_join(file_name)
+		)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(map_directory),
+		OK,
+		"materializer test removes its first generated map"
+	)
+	_expect_equal(
+		materializer.materialize(bundle, test_root).get("status"),
+		"ok",
+		"normalized map regenerates"
+	)
+	for file_name: String in MapMaterializerScript.REQUIRED_MAP_FILES:
+		_expect_equal(
+			FileAccess.get_file_as_string(map_directory.path_join(file_name)),
+			first_artifacts[file_name],
+			"materialized %s is deterministic" % file_name
+		)
+
+	var unsupported_bundle = BundleScript.new()
+	unsupported_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	unsupported_bundle.documents["maps"]["maps"][0]["render"] = {
+		"landlook": 0,
+		"mode": "outdoor-landlook",
+		"tilesetId": "landlook-0",
+	}
+	var unsupported_directory := test_root.path_join("unsupported")
+	DirAccess.make_dir_recursive_absolute(unsupported_directory)
+	var unsupported_result: Dictionary = MapMaterializerScript.new().materialize(
+		unsupported_bundle,
+		unsupported_directory
+	)
+	_expect_equal(
+		unsupported_result.get("status"),
+		"error",
+		"special Classic map tile blocks lossy native materialization"
+	)
+	_expect(
+		str(unsupported_result.get("message", "")).contains("special tile -100"),
+		"unsupported special tile reports its exact identity"
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"materializer test cleans its workspace"
+	)
+
+
 func _test_classic_campaign_package_installer() -> void:
 	var test_root := ProjectSettings.globalize_path(
 		"user://classic-package-installer-%d" % Time.get_ticks_msec()
@@ -1749,6 +1905,61 @@ func _test_classic_campaign_package_installer() -> void:
 	_expect(
 		FileAccess.file_exists(destination.path_join("campaign.json")),
 		"installer copies the complete campaign directory"
+	)
+	var materializable_export := test_root.path_join("producer-stock-map")
+	_expect_equal(
+		installer._copy_directory(
+			ProjectSettings.globalize_path(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+			materializable_export
+		),
+		OK,
+		"installer test stages a producer-generated bundle without native maps"
+	)
+	var producer_maps_path := materializable_export.path_join("classic").path_join("maps.json")
+	var producer_maps: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(producer_maps_path)
+	)
+	producer_maps["maps"][0]["render"] = {
+		"landlook": 0,
+		"mode": "outdoor-landlook",
+		"tilesetId": "landlook-0",
+	}
+	var producer_tiles: Array = producer_maps["maps"][0]["tiles"]
+	for tile_index: int in range(producer_tiles.size()):
+		if int(producer_tiles[tile_index]) < 0:
+			producer_tiles[tile_index] = 156
+	var producer_maps_file := FileAccess.open(producer_maps_path, FileAccess.WRITE)
+	_expect(producer_maps_file != null, "installer test rewrites its disposable map document")
+	if producer_maps_file != null:
+		producer_maps_file.store_string(JSON.stringify(producer_maps, "  ") + "\n")
+		producer_maps_file.close()
+	var materialized_install: Dictionary = installer.install_export(
+		materializable_export,
+		campaigns_directory
+	)
+	_expect_equal(
+		materialized_install.get("status"),
+		"ok",
+		"installer generates native maps from normalized producer data"
+	)
+	var materialized_map_directory := campaigns_directory.path_join(
+		"producer-stock-map"
+	).path_join("Maps").path_join("map_0")
+	_expect(
+		FileAccess.file_exists(materialized_map_directory.path_join("map_things.json")),
+		"installed producer bundle contains its generated native map"
+	)
+	var materialized_areas: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			materialized_map_directory.path_join("map_scriptareas.json")
+		)
+	)
+	_expect_equal(
+		materialized_areas.get("ScriptRects", {}).get(
+			"AP0x11y12", {}
+		).get("scriptToLoad"),
+		"land:0:ap:0",
+		"installed producer map retains its stable action-point identity"
 	)
 
 	var no_replace_result: Dictionary = installer.install_export(
@@ -1828,8 +2039,8 @@ func _test_classic_campaign_package_installer() -> void:
 		"producer export without a native start map is not installed"
 	)
 	_expect(
-		str(blocked_result.get("message", "")).contains("Native start map map_0"),
-		"blocked producer export retains its actionable launch diagnostic"
+		str(blocked_result.get("message", "")).contains("decoded native file"),
+		"blocked producer export identifies its missing decoded tileset"
 	)
 	_expect(
 		not DirAccess.dir_exists_absolute(

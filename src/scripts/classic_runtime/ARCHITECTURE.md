@@ -25,6 +25,10 @@ These components are intentionally separate from the native owners:
 - `ClassicCampaignBundle` validates the Providence bundle and builds read-only
   indexes for Classic records. Native resource loading does not understand these
   normalized action, encounter, and evidence documents.
+- `ClassicMapMaterializer` is the single compiled-map-to-native-map boundary. The
+  package installer runs it in staging, before the normal campaign resource
+  lifecycle sees the package. It writes only Remake's existing map format and
+  does not parse Classic files or add another map loader.
 - `ClassicRuntimeState` holds Classic mutations that cannot be written back to the
   installed campaign. Its snapshot is payload for the native save system, not a
   competing save owner.
