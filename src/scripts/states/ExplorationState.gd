@@ -117,7 +117,26 @@ func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position :
 		if GameGlobal.map.mapsecrets[Vector2i(position)][0]== 1 :
 			canwalk_secret  = true
 	
-	canwalk = (canwalk or canwalk_path or canwalk_secret) 
+	var mapfocuschar: Variant = GameGlobal.map.focuscharacter
+	var current_position := Vector2i(
+		int(mapfocuschar.tile_position_x),
+		int(mapfocuschar.tile_position_y)
+	)
+	var classic_movement: Dictionary = GameGlobal.resolve_classic_dungeon_movement(
+		current_position,
+		Vector2i(position)
+	)
+	if bool(classic_movement.get("handled", false)):
+		canwalk = bool(classic_movement.get("allowed", false))
+		if canwalk and classic_movement.has("movementTime"):
+			timetowalk = int(classic_movement["movementTime"])
+		if str(classic_movement.get("status", "")) == "error":
+			push_error(str(classic_movement.get(
+				"message",
+				"Classic dungeon movement failed"
+			)))
+	else:
+		canwalk = (canwalk or canwalk_path or canwalk_secret)
 	if canwalk :
 		if canwalk_path :
 			GameGlobal.map.set_secretpath_seen( Vector2i(position) )

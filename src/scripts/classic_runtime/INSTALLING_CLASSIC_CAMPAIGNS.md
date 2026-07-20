@@ -85,12 +85,14 @@ Remake landlook or an already decoded campaign tileset. It also converts ordinar
 Classic dungeon fields into a campaign-local native tileset using Realmz's PICT
 302 overhead sprites. The generated tiles retain their signed field value and
 native movement behavior for walls, doors, note cells, and Action Point cells.
-Stable Action Point IDs, trigger chances, and normalized random rectangles use
-the normal map files in both map families. Directional secret passages still
-require direction-aware native movement and therefore block installation. An
-undecoded custom atlas, special negative land tile, incomplete tile array,
-unknown render mode, or atlas-capacity mismatch is likewise reported instead of
-receiving lossy data. A package that is not ready to launch is not installed.
+Directional secret passages use their Classic north, east, south, and west entry
+bits; entering from a permitted direction reveals the passage in native map data
+and persistent Classic state, while other directions remain blocked. Stable
+Action Point IDs, trigger chances, and normalized random rectangles use the
+normal map files in both map families. An undecoded custom atlas, special
+negative land tile, incomplete tile array, unknown render mode, or
+atlas-capacity mismatch is reported instead of receiving lossy data. A package
+that is not ready to launch is not installed.
 
 Pass `--replace` to update an existing campaign. The old package remains in
 place until the staged update passes validation, and the update replaces the

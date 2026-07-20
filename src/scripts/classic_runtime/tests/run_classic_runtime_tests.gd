@@ -2006,12 +2006,23 @@ func _test_classic_map_materializer() -> void:
 	)
 	_expect_equal(
 		directional_result.get("status"),
-		"error",
-		"directional dungeon secret blocks lossy native movement"
+		"ok",
+		"directional dungeon secret materializes with native movement support"
+	)
+	var directional_templates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			directional_directory.path_join(
+				"Tilesets/ClassicDungeon/tile_templates.json"
+			)
+		)
 	)
 	_expect(
-		str(directional_result.get("message", "")).contains("direction-aware dungeon movement"),
-		"directional dungeon blocker identifies the missing native behavior"
+		directional_templates.has("classic_dungeon_0101"),
+		"directional dungeon tileset retains the concealed field"
+	)
+	_expect(
+		directional_templates.has("classic_dungeon_0141"),
+		"directional dungeon tileset pre-generates its revealed field"
 	)
 	_expect_equal(
 		CampaignPackageInstallerScript.new()._remove_directory(test_root),
@@ -3336,6 +3347,14 @@ func _test_classic_map_bridge() -> void:
 		"height": 2,
 		"tiles": [1, 2, 3, 4],
 	}
+	bundle.maps_by_id["dungeon:1"] = {
+		"id": "dungeon:1",
+		"levelType": "dungeon",
+		"index": 1,
+		"width": 2,
+		"height": 2,
+		"tiles": [0, 0x0101, 0, 0],
+	}
 	var bridge = MapBridgeScript.new()
 	bridge.configure(bundle)
 	_expect_equal(bridge.native_map_name("land", 3), "map_3", "land map uses native map naming")
@@ -3364,6 +3383,27 @@ func _test_classic_map_bridge() -> void:
 		{"tileset_name": "landlook-6", "id": 3, "name": "custom sand"},
 	]
 	var overlay_tile := {"tileset_name": "Overlay", "id": 0, "name": "tree"}
+	var dungeon_floor := {
+		"tileset_name": "ClassicDungeon",
+		"id": 0,
+		"name": "classic_dungeon_0000",
+		"classicDungeonField": 0,
+		"wall": 0,
+	}
+	var north_secret := {
+		"tileset_name": "ClassicDungeon",
+		"id": 1,
+		"name": "classic_dungeon_0101",
+		"classicDungeonField": 0x0101,
+		"wall": 1,
+	}
+	var revealed_north_secret := {
+		"tileset_name": "ClassicDungeon",
+		"id": 2,
+		"name": "classic_dungeon_0141",
+		"classicDungeonField": 0x0141,
+		"wall": 1,
+	}
 	var land_map: Array = [
 		[[forest_tiles[0], overlay_tile], [forest_tiles[1]]],
 		[[forest_tiles[2]], [forest_tiles[3]]],
@@ -3384,6 +3424,11 @@ func _test_classic_map_bridge() -> void:
 	resources.tiles_book["ForestDay.json"] = forest_tiles
 	resources.tiles_book["SnowDay.json"] = snow_tiles
 	resources.tiles_book["landlook-6.json"] = custom_tiles
+	resources.tiles_book["ClassicDungeon.json"] = [
+		dungeon_floor,
+		north_secret,
+		revealed_north_secret,
+	]
 	resources.maps_book["map_0"] = [
 		land_map,
 		{"ScriptRects": land_areas, "Paths": [], "Secrets": []},
@@ -3396,7 +3441,10 @@ func _test_classic_map_bridge() -> void:
 		[],
 	]
 	resources.maps_book["mapd_1"] = [
-		[[["floor"]]],
+		[
+			[[dungeon_floor], [dungeon_floor]],
+			[[north_secret], [dungeon_floor]],
+		],
 		{"ScriptRects": {}, "Paths": [], "Secrets": []},
 		null,
 		"Indoor",
@@ -3478,6 +3526,83 @@ func _test_classic_map_bridge() -> void:
 	_expect_equal(darkness.get("nativeDarkness"), 0, "Classic darkness maps to native full darkness")
 	_expect_equal(game_global.map.darkness_level, 0, "current native map receives darkness change")
 	_expect_equal(resources.maps_book["mapd_1"][6], 0, "native darkness survives a map reload")
+
+	var movement_state = StateScript.new()
+	movement_state.set_location("dungeon", 1, 1, 1)
+	var north_entry: Dictionary = bridge.resolve_dungeon_movement(
+		movement_state,
+		Vector2i(1, 1),
+		Vector2i(1, 0),
+		game_global,
+		resources
+	)
+	_expect(bool(north_entry.get("handled")), "directional dungeon secret uses Classic movement")
+	_expect(bool(north_entry.get("allowed")), "matching north entry passes the dungeon secret")
+	_expect(bool(north_entry.get("revealed")), "first matching entry reveals the dungeon secret")
+	_expect_equal(north_entry.get("movementTime"), 5, "secret entry uses normal dungeon step time")
+	_expect_equal(
+		MapBridgeScript.DUNGEON_DIRECTION_BY_DELTA.get(Vector2i(1, 0)),
+		0x0200,
+		"east movement resolves the Classic east entry bit"
+	)
+	_expect_equal(
+		MapBridgeScript.DUNGEON_DIRECTION_BY_DELTA.get(Vector2i(0, 1)),
+		0x0400,
+		"south movement resolves the Classic south entry bit"
+	)
+	_expect_equal(
+		MapBridgeScript.DUNGEON_DIRECTION_BY_DELTA.get(Vector2i(-1, 0)),
+		0x0800,
+		"west movement resolves the Classic west entry bit"
+	)
+	_expect_equal(
+		movement_state.get_tile("dungeon", 1, 1, 0, -1),
+		0x0141,
+		"dungeon secret reveal persists in Classic map state"
+	)
+	_expect_equal(
+		resources.maps_book["mapd_1"][0][1][0],
+		[revealed_north_secret],
+		"dungeon secret reveal swaps in the generated native visual"
+	)
+	var wrong_entry: Dictionary = bridge.resolve_dungeon_movement(
+		movement_state,
+		Vector2i(0, 0),
+		Vector2i(1, 0),
+		game_global,
+		resources
+	)
+	_expect(bool(wrong_entry.get("handled")), "wrong-direction secret entry remains handled")
+	_expect(not bool(wrong_entry.get("allowed")), "wrong-direction secret entry is blocked")
+	_expect_equal(
+		wrong_entry.get("message"),
+		MapBridgeScript.DUNGEON_SECRET_BLOCKED_MESSAGE,
+		"wrong-direction secret entry returns the Classic warning"
+	)
+	var repeated_north_entry: Dictionary = bridge.resolve_dungeon_movement(
+		movement_state,
+		Vector2i(1, 1),
+		Vector2i(1, 0),
+		game_global,
+		resources
+	)
+	_expect(bool(repeated_north_entry.get("allowed")), "revealed secret retains its entry rule")
+	_expect(
+		not bool(repeated_north_entry.get("revealed")),
+		"revealed secret is not recorded as a second discovery"
+	)
+	movement_state.set_tile("dungeon", 1, 1, 0, 0x1101)
+	var action_point_entry: Dictionary = bridge.resolve_dungeon_movement(
+		movement_state,
+		Vector2i(0, 0),
+		Vector2i(1, 0),
+		game_global,
+		resources
+	)
+	_expect(
+		not bool(action_point_entry.get("handled")),
+		"Classic Action Point exception remains passable from another direction"
+	)
 
 	var tile_result: Dictionary = bridge.set_tile({
 		"levelType": "land",

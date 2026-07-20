@@ -19,6 +19,7 @@ const DUNGEON_SOURCE_X := 576
 const DUNGEON_SOURCE_Y := 320
 const DUNGEON_VISIBLE_BITS := 7
 const DUNGEON_HIDDEN_MASK := 0x0080
+const DUNGEON_REVEALED_SECRET_MASK := 0x0040
 const DUNGEON_SECRET_DIRECTION_MASK := 0x0f00
 const DUNGEON_ACTION_POINT_MASK := 0x1000
 const DUNGEON_DOOR_MASK := 0x0006
@@ -384,13 +385,9 @@ func _build_dungeon_tileset_plan(
 		for tile_value: Variant in tiles:
 			var field := int(tile_value) & 0xffff
 			if field & DUNGEON_SECRET_DIRECTION_MASK:
-				return {
-					"status": "error",
-					"message": (
-						"Compiled map %s uses directional secret dungeon field 0x%04X; " +
-						"Remake needs direction-aware dungeon movement before it can be installed"
-					) % [pending_map["name"], field],
-				}
+				# Runtime discovery sets this bit on the field. Generate that visual
+				# state even when it is not present in the compiler's initial tile array.
+				fields[field | DUNGEON_REVEALED_SECRET_MASK] = true
 			fields[field] = true
 	if fields.is_empty():
 		return {"status": "skip"}

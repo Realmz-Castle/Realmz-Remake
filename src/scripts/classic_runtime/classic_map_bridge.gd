@@ -21,6 +21,20 @@ const NATIVE_LANDLOOK_TILESETS := [
 	"SnowDay",
 	"SnowNight",
 ]
+const DUNGEON_WALL_MASK := 0x0001
+const DUNGEON_DOOR_MASK := 0x0006
+const DUNGEON_NOTE_MASK := 0x0020
+const DUNGEON_REVEALED_SECRET_MASK := 0x0040
+const DUNGEON_SECRET_DIRECTION_MASK := 0x0f00
+const DUNGEON_ACTION_POINT_MASK := 0x1000
+const DUNGEON_DIRECTION_BY_DELTA := {
+	Vector2i(0, -1): 0x0100,
+	Vector2i(1, 0): 0x0200,
+	Vector2i(0, 1): 0x0400,
+	Vector2i(-1, 0): 0x0800,
+}
+const DUNGEON_SECRET_BLOCKED_MESSAGE := \
+	"Something prevents you from passing through in that direction."
 
 var classic_bundle: Object
 var native_tile_stacks: Dictionary = {}
@@ -193,6 +207,110 @@ func redraw_view(payload: Dictionary, game_global: Object) -> Dictionary:
 	}
 
 
+func resolve_dungeon_movement(
+	runtime_state: Object,
+	from_position: Vector2i,
+	to_position: Vector2i,
+	game_global: Object,
+	resources: Object
+) -> Dictionary:
+	if runtime_state == null or str(runtime_state.get("level_type")) != "dungeon":
+		return {"handled": false}
+	var level_index := int(runtime_state.get("level_index"))
+	var map_name := native_map_name("dungeon", level_index)
+	if game_global == null or str(game_global.get("currentmap_name")) != map_name:
+		return {"handled": false}
+	if classic_bundle == null or not classic_bundle.has_method("get_map"):
+		return _movement_error("Classic dungeon map data is unavailable")
+	var map_record: Variant = classic_bundle.get_map("dungeon:%d" % level_index)
+	if not (map_record is Dictionary):
+		return _movement_error("Classic dungeon %d is unavailable" % level_index)
+	var width := int(map_record.get("width", 0))
+	var height := int(map_record.get("height", 0))
+	var tiles: Variant = map_record.get("tiles", [])
+	if (
+		not (tiles is Array)
+		or width <= 0
+		or height <= 0
+		or tiles.size() != width * height
+		or to_position.x < 0
+		or to_position.y < 0
+		or to_position.x >= width
+		or to_position.y >= height
+	):
+		return _movement_error("Classic dungeon movement is outside map %s" % map_name)
+
+	var tile_index := to_position.y * width + to_position.x
+	var fallback_field := int(tiles[tile_index])
+	var field := fallback_field
+	if runtime_state.has_method("get_tile"):
+		field = int(runtime_state.call(
+			"get_tile",
+			"dungeon",
+			level_index,
+			to_position.x,
+			to_position.y,
+			fallback_field
+		))
+	var unsigned_field := field & 0xffff
+	var secret_directions := unsigned_field & DUNGEON_SECRET_DIRECTION_MASK
+	if secret_directions == 0 or unsigned_field & DUNGEON_DOOR_MASK:
+		return {"handled": false}
+
+	var entry_direction := int(DUNGEON_DIRECTION_BY_DELTA.get(
+		to_position - from_position,
+		0
+	))
+	if entry_direction != 0 and secret_directions & entry_direction:
+		var revealed_field := unsigned_field | DUNGEON_REVEALED_SECRET_MASK
+		var newly_revealed := revealed_field != unsigned_field
+		if newly_revealed:
+			var signed_field := revealed_field - 0x10000 \
+				if revealed_field >= 0x8000 else revealed_field
+			var projection := set_tile({
+				"levelType": "dungeon",
+				"levelIndex": level_index,
+				"x": to_position.x,
+				"y": to_position.y,
+				"tileValue": signed_field,
+			}, game_global, resources)
+			if str(projection.get("status", "")) in ["error", "skipped"]:
+				return _movement_error(str(projection.get(
+					"message",
+					"Classic dungeon secret could not be revealed"
+				)))
+			if runtime_state.has_method("set_tile"):
+				runtime_state.call(
+					"set_tile",
+					"dungeon",
+					level_index,
+					to_position.x,
+					to_position.y,
+					signed_field
+				)
+		return {
+			"handled": true,
+			"allowed": true,
+			"revealed": newly_revealed,
+			"field": revealed_field,
+			"movementTime": 5,
+		}
+
+	# Classic still admits note and Action Point cells, and direction metadata
+	# without a hard wall does not block movement.
+	if (
+		unsigned_field & (DUNGEON_NOTE_MASK | DUNGEON_ACTION_POINT_MASK)
+		or not (unsigned_field & DUNGEON_WALL_MASK)
+	):
+		return {"handled": false}
+	return {
+		"handled": true,
+		"allowed": false,
+		"message": DUNGEON_SECRET_BLOCKED_MESSAGE,
+		"field": unsigned_field,
+	}
+
+
 func set_darkness(payload: Dictionary, game_global: Object, resources: Object) -> Dictionary:
 	var map_name := native_map_name(
 		str(payload.get("levelType", "")),
@@ -305,7 +423,13 @@ func set_tile(payload: Dictionary, game_global: Object, resources: Object) -> Di
 		return _error("Native map %s does not match the compiled map dimensions" % map_name)
 
 	var tile_value := int(payload.get("tileValue", -1))
-	var native_tile: Dictionary = _native_tile_stack(map_name, map_record, native_map, tile_value)
+	var native_tile: Dictionary = _native_tile_stack(
+		map_name,
+		map_record,
+		native_map,
+		tile_value,
+		resources
+	)
 	if native_tile.is_empty():
 		return _skipped(
 			"Classic tile %d has no native reference cell on %s" % [tile_value, map_name]
@@ -649,7 +773,8 @@ func _native_tile_stack(
 	map_name: String,
 	map_record: Dictionary,
 	native_map: Array,
-	tile_value: int
+	tile_value: int,
+	resources: Object
 ) -> Dictionary:
 	# Capture one native stack per Classic value before applying the first change.
 	# Later mutations can then reuse a cell that has itself already been changed.
@@ -669,7 +794,22 @@ func _native_tile_stack(
 					"stack": native_map[x][y].duplicate(true),
 				}
 		native_tile_stacks[map_name] = stacks
-	return native_tile_stacks[map_name].get(tile_value, {})
+	var stack: Dictionary = native_tile_stacks[map_name].get(tile_value, {})
+	if not stack.is_empty() or not map_name.begins_with("mapd_"):
+		return stack
+	for tile_value_candidate: Variant in _native_tileset(resources, "ClassicDungeon"):
+		if not (tile_value_candidate is Dictionary):
+			continue
+		if int(tile_value_candidate.get("classicDungeonField", 0)) & 0xffff \
+				!= tile_value & 0xffff:
+			continue
+		stack = {
+			"sourceCell": Vector2i(-1, -1),
+			"stack": [tile_value_candidate],
+		}
+		native_tile_stacks[map_name][tile_value] = stack
+		break
+	return stack
 
 
 func _area_matches_trigger(
@@ -720,6 +860,15 @@ func _record_replay_result(category: String, result: Dictionary, report: Diction
 
 func _error(message: String) -> Dictionary:
 	return {"status": "error", "message": message}
+
+
+func _movement_error(message: String) -> Dictionary:
+	return {
+		"status": "error",
+		"handled": true,
+		"allowed": false,
+		"message": message,
+	}
 
 
 func _skipped(message: String) -> Dictionary:

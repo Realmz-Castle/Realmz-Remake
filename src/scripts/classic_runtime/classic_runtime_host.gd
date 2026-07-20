@@ -191,6 +191,24 @@ func reapply_map_state() -> Dictionary:
 	}
 
 
+func resolve_dungeon_movement(from_position: Vector2i, to_position: Vector2i) -> Dictionary:
+	if command_adapter == null \
+			or not command_adapter.has_method("resolve_classic_dungeon_movement"):
+		return {"handled": false}
+	var response: Variant = command_adapter.call(
+		"resolve_classic_dungeon_movement",
+		runtime.runtime_state,
+		from_position,
+		to_position
+	)
+	return response if response is Dictionary else {
+		"status": "error",
+		"handled": true,
+		"allowed": false,
+		"message": "Classic dungeon movement adapter returned an invalid response",
+	}
+
+
 func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
 	if command_adapter == null or not command_adapter.has_method("execute_command"):
 		_stop_with_error("ClassicRuntimeHost requires an execute_command adapter")
