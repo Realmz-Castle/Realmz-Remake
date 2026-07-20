@@ -1,0 +1,276 @@
+class_name ClassicItemMaterializer
+extends RefCounted
+
+const ITEM_BOOK_PATH := "Items/stuff_book.json"
+const ITEM_IMAGE_BOOK_PATH := "Items/img_pack.json"
+const ITEM_ATLAS_PATH := "Items/textureAtlas.png"
+# These fields affect item behavior but do not yet have verified native equivalents.
+# Keeping the record is lossless; treating it as launchable would not be.
+const UNSUPPORTED_EFFECT_FIELDS := [
+	"ac",
+	"blunt",
+	"casteClassOnly",
+	"casteRestrictions",
+	"cold",
+	"cursedItemId",
+	"damage",
+	"electric",
+	"heat",
+	"lu",
+	"magicResistance",
+	"movement",
+	"raceClassOnly",
+	"raceRestrictions",
+	"special1",
+	"special2",
+	"special3",
+	"special4",
+	"special5",
+	"specificCaste",
+	"specificRace",
+	"spellPoints",
+	"st",
+	"vLarge",
+	"vSmall",
+	"vsDemonDevil",
+	"vsEvil",
+	"vsUndead",
+]
+const SLOT_BY_CLASSIC_TYPE := {
+	0: "Ring",
+	2: "Melee Weapon",
+	3: "Shield",
+	4: "Body",
+	5: "Hands",
+	6: "Cloak",
+	7: "Head",
+	8: "IonStone",
+	9: "Feet",
+	10: "Ammunition",
+	11: "Belt",
+	12: "Neck",
+	13: "ScrollCase",
+	15: "Ranged Weapon",
+	16: "Broach",
+	17: "Mask",
+	18: "Loop",
+	19: "Loop",
+}
+const ICON_BY_CATEGORY := {
+	"Weapons": "ITEM_Dagger",
+	"Armor": "ITEM_Leather_Armor",
+	"Limbs": "ITEM_Ring_of_Defense_3",
+	"Magic": "ITEM_Parchment",
+	"Supplies": "ITEM_Rope",
+}
+const SOUND_BY_CATEGORY := {
+	"Weapons": "metal hit.wav",
+	"Armor": "metal armor.wav",
+	"Limbs": "cloth armor.wav",
+	"Magic": "prout.wav",
+	"Supplies": "cloth armor.wav",
+}
+
+var last_error := ""
+
+
+func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
+	last_error = ""
+	if bundle == null:
+		return _fail("Classic campaign bundle is unavailable")
+	var root := campaign_directory.strip_edges().replace("\\", "/").trim_suffix("/")
+	if root.is_empty() or not DirAccess.dir_exists_absolute(root):
+		return _fail("Classic campaign directory is unavailable")
+	var content: Variant = bundle.documents.get("content", {})
+	if not (content is Dictionary):
+		return _fail("Classic content document is unavailable")
+	var scenario_items: Variant = content.get("scenarioItems", [])
+	if not (scenario_items is Array):
+		return _fail("Classic scenario item collection is malformed")
+	if scenario_items.is_empty():
+		return {"status": "ok", "generated": 0, "skipped": 0}
+
+	var item_book_path := root.path_join(ITEM_BOOK_PATH)
+	var item_book := _read_item_book(item_book_path)
+	if not last_error.is_empty():
+		return {"status": "error", "message": last_error}
+	var item_texts: Array = content.get("itemTexts", []) if content.get("itemTexts", []) is Array else []
+	var records: Array[Dictionary] = []
+	for item_value: Variant in scenario_items:
+		if not (item_value is Dictionary):
+			return _fail("Classic scenario item collection contains a malformed record")
+		records.append(item_value)
+	records.sort_custom(
+		func(left: Dictionary, right: Dictionary) -> bool:
+			return abs(int(left.get("itemId", 0))) < abs(int(right.get("itemId", 0)))
+	)
+
+	var generated := 0
+	var skipped := 0
+	for record: Dictionary in records:
+		var item_id: int = abs(int(record.get("itemId", 0)))
+		if item_id == 0:
+			continue
+		if _book_has_item_id(item_book, item_id):
+			skipped += 1
+			continue
+		item_book[_item_key(item_book, item_id)] = _native_item(record, item_texts)
+		generated += 1
+
+	var items_directory := item_book_path.get_base_dir()
+	var make_error := DirAccess.make_dir_recursive_absolute(items_directory)
+	if make_error != OK:
+		return _fail("Could not create native item directory: %s" % error_string(make_error))
+	var write_error := OK
+	if generated > 0 or not FileAccess.file_exists(item_book_path):
+		write_error = _write_json(item_book_path, item_book)
+		if write_error != OK:
+			return _fail("Could not write native item book: %s" % error_string(write_error))
+	# CampaignResources requires a complete local item pack even though generated
+	# definitions currently reuse textures from the shared item pack.
+	var image_book_path := root.path_join(ITEM_IMAGE_BOOK_PATH)
+	if not FileAccess.file_exists(image_book_path):
+		write_error = _write_json(image_book_path, {})
+		if write_error != OK:
+			return _fail("Could not write native item image book: %s" % error_string(write_error))
+	var atlas_path := root.path_join(ITEM_ATLAS_PATH)
+	if not FileAccess.file_exists(atlas_path):
+		var atlas := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+		atlas.fill(Color(0, 0, 0, 0))
+		write_error = atlas.save_png(atlas_path)
+		if write_error != OK:
+			return _fail("Could not write native item atlas: %s" % error_string(write_error))
+	return {"status": "ok", "generated": generated, "skipped": skipped}
+
+
+func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
+	var item_id: int = abs(int(record.get("itemId", 0)))
+	var item_text := _item_text(item_texts, item_id)
+	var identified_name := str(item_text.get("identifiedName", "")).strip_edges()
+	var unidentified_name := str(item_text.get("unidentifiedName", "")).strip_edges()
+	if identified_name.is_empty():
+		identified_name = "Classic Item %d" % item_id
+	if unidentified_name.is_empty():
+		unidentified_name = identified_name
+	var classic_type: int = abs(int(record.get("type", 0)))
+	var category := _category_for_item(item_id)
+	var unsupported_fields := _unsupported_fields(record)
+	var charge := int(record.get("charge", 0))
+	var slots: Array[String] = []
+	if SLOT_BY_CLASSIC_TYPE.has(classic_type):
+		slots.append(str(SLOT_BY_CLASSIC_TYPE[classic_type]))
+	return {
+		"name": identified_name,
+		"unidentified_name": unidentified_name,
+		"description": str(item_text.get("description", "")),
+		"classicItemId": item_id,
+		"classicRecordId": int(record.get("id", -1)),
+		"classicItemType": int(record.get("type", 0)),
+		"classicIconId": int(record.get("iconId", 0)),
+		"classicSoundId": int(record.get("sound", 0)),
+		"classicRecord": record.duplicate(true),
+		"classicMaterialization": {
+			"status": "complete" if unsupported_fields.is_empty() else "blocked",
+			"unsupportedFields": unsupported_fields,
+		},
+		"type": category,
+		"img_ptr": str(ICON_BY_CATEGORY[category]),
+		"sound": str(SOUND_BY_CATEGORY[category]),
+		"is_magical": int(record.get("magical", 0)),
+		"is_identified": 1 if classic_type == 24 else 0,
+		"weight": int(record.get("weight", 0)),
+		"price": abs(int(record.get("cost", 0))),
+		"charges": max(charge, 0),
+		"charges_max": max(charge, 0),
+		"charges_weight": int(record.get("weightPerCharge", 0)),
+		"delete_on_empty": int(record.get("dropOnEmpty", 0)),
+		"hands": int(record.get("hands", 0)),
+		"slots": slots,
+		"equippable": 1 if SLOT_BY_CLASSIC_TYPE.has(classic_type) else 0,
+		"equipped": 0,
+		"stats": {},
+		"stats_mini": "",
+		"unique": 1 if int(record.get("cost", 0)) < 0 else 0,
+		"tradeable": 1,
+		"splittable": 0,
+	}
+
+
+func _item_text(item_texts: Array, item_id: int) -> Dictionary:
+	for text_value: Variant in item_texts:
+		if text_value is Dictionary and abs(int(text_value.get("itemId", 0))) == item_id:
+			return text_value
+	return {}
+
+
+func _category_for_item(item_id: int) -> String:
+	if item_id < 200:
+		return "Weapons"
+	if item_id < 400:
+		return "Armor"
+	if item_id < 600:
+		return "Limbs"
+	if item_id < 800:
+		return "Magic"
+	return "Supplies"
+
+
+func _unsupported_fields(record: Dictionary) -> Array[String]:
+	var fields: Array[String] = []
+	for field_name: String in UNSUPPORTED_EFFECT_FIELDS:
+		if int(record.get(field_name, 0)) != 0:
+			fields.append(field_name)
+	var classic_type: int = abs(int(record.get("type", 0)))
+	if SLOT_BY_CLASSIC_TYPE.has(classic_type):
+		for field_name: String in ["itemCat0", "itemCat1"]:
+			if int(record.get(field_name, 0)) != 0:
+				fields.append(field_name)
+	return fields
+
+
+func _read_item_book(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (value is Dictionary):
+		last_error = "Existing native item book is not a JSON object"
+		return {}
+	return value
+
+
+func _book_has_item_id(item_book: Dictionary, item_id: int) -> bool:
+	for item_value: Variant in item_book.values():
+		if not (item_value is Dictionary):
+			continue
+		if abs(int(item_value.get("classicItemId", 0))) == item_id:
+			return true
+		var ids: Variant = item_value.get("classicItemIds", [])
+		if ids is Array:
+			for id_value: Variant in ids:
+				if abs(int(id_value)) == item_id:
+					return true
+	return false
+
+
+func _item_key(item_book: Dictionary, item_id: int) -> String:
+	var base := "Classic Item %d" % item_id
+	var candidate := base
+	var suffix := 2
+	while item_book.has(candidate):
+		candidate = "%s (%d)" % [base, suffix]
+		suffix += 1
+	return candidate
+
+
+func _write_json(path: String, value: Variant) -> Error:
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	file.store_string(JSON.stringify(value, "  ", true) + "\n")
+	file.close()
+	return OK
+
+
+func _fail(message: String) -> Dictionary:
+	last_error = message
+	return {"status": "error", "message": message}

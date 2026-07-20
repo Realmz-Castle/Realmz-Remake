@@ -550,9 +550,13 @@ func _check_item_ids(
 		if not (native_items is Dictionary) or native_items.is_empty():
 			continue
 		var has_native_item := false
+		var native_item: Dictionary = {}
 		for item_name: String in names:
 			if native_items.has(item_name):
 				has_native_item = true
+				var item_value: Variant = native_items[item_name]
+				if item_value is Dictionary:
+					native_item = item_value
 				break
 		if not has_native_item:
 			_add_blocker(
@@ -562,6 +566,21 @@ func _check_item_ids(
 				-1,
 				"Complex encounter item %d has no native Remake resource" % item_id,
 				{"referenceId": item_id, "candidateNames": names}
+			)
+			continue
+		var materialization: Variant = native_item.get("classicMaterialization", {})
+		if materialization is Dictionary \
+				and str(materialization.get("status", "")) == "blocked":
+			_add_blocker(
+				"unsupported-native-item-fields",
+				"Data ED2",
+				encounter_id,
+				-1,
+				"Complex encounter item %d has unsupported native fields" % item_id,
+				{
+					"referenceId": item_id,
+					"unsupportedFields": materialization.get("unsupportedFields", []),
+				}
 			)
 
 

@@ -24,6 +24,9 @@ const CampaignPackageInstallerScript = preload(
 const MapMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_map_materializer.gd"
 )
+const ItemMaterializerScript = preload(
+	"res://scripts/classic_runtime/classic_item_materializer.gd"
+)
 const NativeResourcesScript = preload("res://scripts/Resources.gd")
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
@@ -697,6 +700,7 @@ func _init() -> void:
 	_test_installed_classic_campaign_layout()
 	_test_classic_map_materializer()
 	_test_classic_boat_materialization()
+	_test_classic_item_materializer()
 	_test_classic_map_sound_bridge()
 	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
@@ -1802,6 +1806,11 @@ func _test_classic_map_materializer() -> void:
 	var test_root := ProjectSettings.globalize_path(
 		"user://classic-map-materializer-%d" % Time.get_ticks_msec()
 	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"materializer test clears stale output from an interrupted run"
+	)
 	DirAccess.make_dir_recursive_absolute(test_root)
 	var managed_directory := test_root.path_join("assets").path_join("managed")
 	DirAccess.make_dir_recursive_absolute(managed_directory)
@@ -2391,6 +2400,116 @@ func _test_classic_boat_materialization() -> void:
 	)
 
 
+func _test_classic_item_materializer() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"producer fixture loads for native item materialization"
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var test_root := ProjectSettings.globalize_path(
+		"user://classic-item-materializer-%d" % Time.get_ticks_msec()
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"item materializer test clears stale output from an interrupted run"
+	)
+	DirAccess.make_dir_recursive_absolute(test_root)
+	var materializer = ItemMaterializerScript.new()
+	var result: Dictionary = materializer.materialize(bundle, test_root)
+	_expect_equal(result.get("status"), "ok", "Classic item generates a native item book")
+	_expect_equal(result.get("generated"), 1, "materializer reports its generated item")
+	var item_book_path := test_root.path_join("Items/stuff_book.json")
+	var image_book_path := test_root.path_join("Items/img_pack.json")
+	var atlas_path := test_root.path_join("Items/textureAtlas.png")
+	_expect(FileAccess.file_exists(item_book_path), "materializer writes the native item book")
+	_expect(FileAccess.file_exists(image_book_path), "materializer writes the native image book")
+	_expect(FileAccess.file_exists(atlas_path), "materializer writes the native image atlas")
+	var first_item_book_text := FileAccess.get_file_as_string(item_book_path)
+	var item_book: Dictionary = JSON.parse_string(first_item_book_text)
+	var item: Dictionary = item_book.get("Classic Item 901", {})
+	_expect_equal(item.get("name"), "Providence Token", "item text supplies the native name")
+	_expect_equal(
+		item.get("unidentified_name"),
+		"Unknown Providence Token",
+		"item text supplies the unidentified name"
+	)
+	_expect_equal(item.get("classicItemId"), 901, "native item preserves its stable Classic ID")
+	_expect_equal(
+		item.get("classicRecord", {}).get("itemId"),
+		901,
+		"native item preserves its complete source record"
+	)
+	_expect_equal(item.get("type"), "Supplies", "scenario item receives a safe native category")
+	_expect_equal(item.get("price"), 1, "native item preserves its source price")
+	_expect_equal(
+		item.get("classicMaterialization", {}).get("status"),
+		"complete",
+		"fully mapped fixture item is launchable"
+	)
+
+	var native_resources = NativeResourcesScript.new()
+	native_resources.load_item_resources("res://shared_assets/items/")
+	native_resources.load_item_resources(test_root.path_join("Items") + "/")
+	_expect(
+		native_resources.items_book.has("Classic Item 901"),
+		"normal resource lifecycle loads the generated campaign item"
+	)
+	_expect_equal(
+		native_resources.items_book.get("Classic Item 901", {}).get("classicItemId"),
+		901,
+		"loaded campaign item retains its stable Classic identity"
+	)
+	native_resources.free()
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle, {"items": item_book})
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			readiness, "missing-native-item", 901
+		),
+		"generated native item satisfies Classic item readiness"
+	)
+
+	var second_result: Dictionary = materializer.materialize(bundle, test_root)
+	_expect_equal(second_result.get("generated"), 0, "item materialization is idempotent")
+	_expect_equal(second_result.get("skipped"), 1, "rerun recognizes the existing Classic ID")
+	_expect_equal(
+		FileAccess.get_file_as_string(item_book_path),
+		first_item_book_text,
+		"item materialization is byte-stable on rerun"
+	)
+
+	var unsupported_root := test_root.path_join("unsupported")
+	DirAccess.make_dir_recursive_absolute(unsupported_root)
+	var unsupported_bundle = BundleScript.new()
+	unsupported_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	unsupported_bundle.documents["content"]["scenarioItems"][0]["damage"] = 1
+	_expect_equal(
+		materializer.materialize(unsupported_bundle, unsupported_root).get("status"),
+		"ok",
+		"unsupported item fields remain inspectable in the native book"
+	)
+	var unsupported_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(unsupported_root.path_join("Items/stuff_book.json"))
+	)
+	var unsupported_readiness: Dictionary = ReadinessScript.new().inspect(
+		unsupported_bundle,
+		{"items": unsupported_book}
+	)
+	_expect(
+		_readiness_has_reference_diagnostic(
+			unsupported_readiness, "unsupported-native-item-fields", 901
+		),
+		"unsupported item behavior blocks launch with its stable identity"
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"item materializer test cleans its workspace"
+	)
+
+
 func _test_classic_map_sound_bridge() -> void:
 	var classic_selection: Dictionary = MapBridgeScript.select_tile_stack_sound([
 		{"sound": [], "classicSoundId": 0},
@@ -2543,6 +2662,45 @@ func _test_classic_campaign_package_installer() -> void:
 		"land:0:ap:0",
 		"installed producer map retains its stable action-point identity"
 	)
+	var unsupported_item_export := test_root.path_join("producer-unsupported-item")
+	_expect_equal(
+		installer._copy_directory(materializable_export, unsupported_item_export),
+		OK,
+		"installer test stages a producer item with unsupported behavior"
+	)
+	var unsupported_content_path := unsupported_item_export.path_join(
+		"classic/content.json"
+	)
+	var unsupported_content: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(unsupported_content_path)
+	)
+	unsupported_content["scenarioItems"][0]["damage"] = 1
+	var unsupported_content_file := FileAccess.open(
+		unsupported_content_path,
+		FileAccess.WRITE
+	)
+	_expect(
+		unsupported_content_file != null,
+		"installer test rewrites its disposable item document"
+	)
+	if unsupported_content_file != null:
+		unsupported_content_file.store_string(JSON.stringify(unsupported_content, "  ") + "\n")
+		unsupported_content_file.close()
+	var unsupported_item_install: Dictionary = installer.install_export(
+		unsupported_item_export,
+		campaigns_directory
+	)
+	_expect_equal(
+		unsupported_item_install.get("status"),
+		"error",
+		"installer rejects a materialized item with unsupported behavior"
+	)
+	_expect(
+		str(unsupported_item_install.get("message", "")).contains(
+			"unsupported native fields"
+		),
+		"unsupported item installation reports the item readiness boundary"
+	)
 
 	var no_replace_result: Dictionary = installer.install_export(
 		CAMPAIGN_UI_SMOKE_FIXTURE,
@@ -2647,6 +2805,20 @@ func _test_classic_campaign_package_installer() -> void:
 			producer_destination.path_join("Maps/mapd_0/map_things.json")
 		),
 		"unchanged producer export materializes its authored dungeon"
+	)
+	var producer_item_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			producer_destination.path_join("Items/stuff_book.json")
+		)
+	)
+	_expect_equal(
+		producer_item_book.get("Classic Item 901", {}).get("classicItemId"),
+		901,
+		"unchanged producer export materializes its scenario item"
+	)
+	_expect(
+		FileAccess.file_exists(producer_destination.path_join("Items/textureAtlas.png")),
+		"installed producer bundle includes a loadable native item resource set"
 	)
 
 	var campaigns_access := DirAccess.open(campaigns_directory)

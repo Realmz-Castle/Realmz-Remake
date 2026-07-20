@@ -64,8 +64,29 @@ func load_from_campaigns_directory(
 		return _fail(bundle.last_error)
 	if not _validate_packaged_payloads():
 		return false
-	readiness_report = ReadinessScript.new().inspect(bundle)
+	var native_context := {"items": {}}
+	if not _merge_item_book(
+		"res://shared_assets/items/stuff_book.json",
+		native_context["items"]
+	):
+		return false
+	if not _merge_item_book(
+		campaign_directory.path_join("Items/stuff_book.json"),
+		native_context["items"]
+	):
+		return false
+	readiness_report = ReadinessScript.new().inspect(bundle, native_context)
 	start_diagnostic = _validate_native_start_map()
+	return true
+
+
+func _merge_item_book(path: String, destination: Dictionary) -> bool:
+	if not FileAccess.file_exists(path):
+		return true
+	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (value is Dictionary):
+		return _fail("Native item book is not a JSON object: %s" % path)
+	destination.merge(value, true)
 	return true
 
 

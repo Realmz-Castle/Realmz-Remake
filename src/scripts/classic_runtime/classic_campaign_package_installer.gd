@@ -7,6 +7,9 @@ const CampaignInstallScript = preload(
 const MapMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_map_materializer.gd"
 )
+const ItemMaterializerScript = preload(
+	"res://scripts/classic_runtime/classic_item_materializer.gd"
+)
 
 var last_error := ""
 
@@ -81,6 +84,16 @@ func install_export(
 		_remove_directory(staging_directory)
 		return _fail(
 			"Staged Classic maps could not be generated: %s" % materializer.last_error
+		)
+	var item_materializer = ItemMaterializerScript.new()
+	var item_result: Dictionary = item_materializer.materialize(
+		staged_source_check["bundle"],
+		staging_directory
+	)
+	if str(item_result.get("status", "")) != "ok":
+		_remove_directory(staging_directory)
+		return _fail(
+			"Staged Classic items could not be generated: %s" % item_materializer.last_error
 		)
 
 	var staged_check := _load_launchable_package(staging_directory)
@@ -164,23 +177,11 @@ func _load_compiled_package(directory: String) -> Dictionary:
 	var install = CampaignInstallScript.new()
 	if not install.load_from_campaigns_directory(directory.get_base_dir(), directory.get_file()):
 		return {"valid": false, "error": install.last_error}
-	if not bool(install.readiness_report.get("ready", false)):
-		return {"valid": false, "error": _first_readiness_blocker(install.readiness_report)}
 	return {
 		"valid": true,
 		"campaignId": str(install.bundle.manifest.get("id", "")),
 		"bundle": install.bundle,
 	}
-
-
-func _first_readiness_blocker(report: Dictionary) -> String:
-	for diagnostic_value: Variant in report.get("diagnostics", []):
-		if (
-			diagnostic_value is Dictionary
-			and str(diagnostic_value.get("classification", "")) == "progression-blocker"
-		):
-			return str(diagnostic_value.get("message", "Campaign readiness check failed"))
-	return "Campaign readiness check failed"
 
 
 func _read_campaign_identity(directory: String) -> Dictionary:
