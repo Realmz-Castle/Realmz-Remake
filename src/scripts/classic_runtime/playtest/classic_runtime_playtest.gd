@@ -333,18 +333,27 @@ func _run_shop_smoke() -> void:
 func _run_services_smoke() -> void:
 	await _wait_frames(3)
 	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	await _wait_frames(3)
+	_verify_smoke_stage(
+		"01_banking_warning",
+		host.active
+			and UI.ow_hud.moneyControl.banking_available
+			and UI.ow_hud.templeButton.disabled
+			and UI.ow_hud.textRect.textLabel.get_parsed_text()
+				== AdapterScript.CLASSIC_BANKING_MESSAGE,
+		"the Classic banking warning pauses later service actions"
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
 	await _wait_frames(5)
 	_verify_smoke_stage(
-		"01_service_actions",
-		not host.active
-			and UI.ow_hud.moneyControl.banking_available
-			and not UI.ow_hud.templeButton.disabled,
-		"the compiled service actions complete and enable their native controls"
+		"02_service_actions",
+		not host.active and not UI.ow_hud.templeButton.disabled,
+		"dismissing the banking warning resumes and completes the service actions"
 	)
 	UI.ow_hud._on_MoneyButton_pressed()
 	await _wait_frames(2)
 	_verify_smoke_stage(
-		"02_native_bank",
+		"03_native_bank",
 		UI.ow_hud.moneyControl.visible
 			and UI.ow_hud.moneyControl.banking_box.visible,
 		"the bank action opens Remake's banking controls"
@@ -353,7 +362,7 @@ func _run_services_smoke() -> void:
 	UI.ow_hud._on_temple_button_pressed()
 	await _wait_frames(2)
 	_verify_smoke_stage(
-		"03_standard_temple",
+		"04_standard_temple",
 		UI.ow_hud.temple_rect.visible
 			and UI.ow_hud.temple_rect.spells_box.get_child_count() == 9
 			and UI.ow_hud.temple_rect.prices_box.get_child(0).text == "250 G"
@@ -364,7 +373,7 @@ func _run_services_smoke() -> void:
 	UI.ow_hud._on_temple_button_pressed()
 	await _wait_frames(2)
 	_verify_smoke_stage(
-		"04_temple_exit",
+		"05_temple_exit",
 		not UI.ow_hud.temple_rect.visible
 			and GameGlobal.money_pool == [0, 0, 0]
 			and GameGlobal.money_banked == [900, 4, 2],
@@ -374,7 +383,7 @@ func _run_services_smoke() -> void:
 	UI.ow_hud._on_temple_button_pressed()
 	await _wait_frames(2)
 	_verify_smoke_stage(
-		"05_hostile_temple",
+		"06_hostile_temple",
 		UI.ow_hud.temple_rect.visible
 			and UI.ow_hud.temple_rect.prices_box.get_child(0).text == "750 G",
 		"the native temple displays the authored hostile price scale"

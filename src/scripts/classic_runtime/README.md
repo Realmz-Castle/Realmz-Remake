@@ -280,7 +280,7 @@ Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_experience_playtest.tscn -- --smoke
 ```
 
-The services playtest runs CoB's compiled bank and temple actions through the native HUD. Its smoke verifies banking availability, standard and hostile temple prices, and the bank-to-temple transfer lifecycle:
+The services playtest runs CoB's compiled bank and temple actions through the native HUD. Its smoke verifies Classic's built-in banking warning and continuation pause, banking availability, standard and hostile temple prices, and the bank-to-temple transfer lifecycle:
 
 ```powershell
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn

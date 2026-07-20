@@ -50,6 +50,9 @@ const CLASSIC_TEMPLE_SERVICES := [
 ]
 const MAP_GAINED_MESSAGE := \
 	"You gain a map, to view the map use Maps/Notes in the Menu."
+# Core STR# 3 warning 106 follows opcode 49 after the bank control is enabled.
+const CLASSIC_BANKING_MESSAGE := \
+	"Banking available.  All wealth left in the pool will be banked."
 # These are core STR# 3 warnings 118 and 124, not scenario messages. Their
 # original spelling is preserved.
 const CLASSIC_COWARD_RETREAT_MESSAGE := \
@@ -412,7 +415,7 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		"offer_temple":
 			return _offer_temple(payload)
 		"enable_banking":
-			return _enable_banking(payload)
+			return await _enable_banking(payload)
 		"check_party_item":
 			return _check_party_item(payload)
 		"take_party_wealth":
@@ -2911,7 +2914,14 @@ func _enable_banking(payload: Dictionary) -> Dictionary:
 		return _error("Realmz game state is unavailable")
 	game_global.allow_banking(true)
 	_play_sound(payload)
-	return {"warningId": int(payload.get("warningId", 0))}
+	var warning_id := int(payload.get("warningId", 0))
+	if warning_id == 106:
+		var warning_result := await _show_text({
+			"message": {"text": CLASSIC_BANKING_MESSAGE},
+		})
+		if str(warning_result.get("status", "")) == "error":
+			return warning_result
+	return {"warningId": warning_id}
 
 
 func _check_party_item(payload: Dictionary) -> Dictionary:
