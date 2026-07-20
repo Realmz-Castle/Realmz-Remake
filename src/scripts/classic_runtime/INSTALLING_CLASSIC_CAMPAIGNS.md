@@ -81,10 +81,14 @@ campaigns; when they are absent, Remake is the sole owner of compiled-map
 materialization.
 
 Materialization supports complete outdoor tile arrays that resolve to a shared
-Remake landlook or an already decoded campaign tileset. It also converts ordinary
-Classic dungeon fields into a campaign-local native tileset using Realmz's PICT
-302 overhead sprites. The generated tiles retain their signed field value and
-native movement behavior for walls, doors, note cells, and Action Point cells.
+Remake landlook or an already decoded campaign tileset. A custom landlook with a
+decoded 640 x 320 `runtimeMedia` image is converted into a 200-tile native
+tileset using its compiled behavior records. The generated templates retain
+movement, sight, water, shore, timing, path, clear-land, combat-build, and sound
+identities. Materialization also converts ordinary Classic dungeon fields into a
+campaign-local native tileset using Realmz's PICT 302 overhead sprites. The
+generated tiles retain their signed field value and native movement behavior for
+walls, doors, note cells, and Action Point cells.
 Directional secret passages use their Classic north, east, south, and west entry
 bits; entering from a permitted direction reveals the passage in native map data
 and persistent Classic state, while other directions remain blocked. Stable

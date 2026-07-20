@@ -12,6 +12,10 @@ const MAP_SCRIPT_SOURCE := "static func _on_map_load(_map) -> void:\n\tpass\n"
 const LAND_OVERLAY_TILESET_NAME := "ClassicLandOverlay"
 const LAND_OVERLAY_TILE_SIZE := 32
 const LAND_OVERLAY_ATLAS_COLUMNS := 16
+const CUSTOM_LAND_TILE_SIZE := 32
+const CUSTOM_LAND_COLUMNS := 20
+const CUSTOM_LAND_ROWS := 10
+const CUSTOM_LAND_TILE_COUNT := CUSTOM_LAND_COLUMNS * CUSTOM_LAND_ROWS
 const DUNGEON_TILESET_NAME := "ClassicDungeon"
 const DUNGEON_SOURCE_ATLAS := \
 	"res://shared_assets/tiles/The Family Jewels.rsf_PICT_302.png"
@@ -77,6 +81,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			"message",
 			"Classic special land tileset could not be generated"
 		)))
+	var custom_land_tilesets := _build_custom_land_tileset_plans(bundle, pending_maps, root)
+	if str(custom_land_tilesets.get("status", "skip")) == "error":
+		return _fail(str(custom_land_tilesets.get(
+			"message",
+			"Classic custom land tileset could not be generated"
+		)))
 
 	var plans: Array[Dictionary] = []
 	for pending_map: Dictionary in pending_maps:
@@ -87,7 +97,8 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			pending_map["name"],
 			pending_map["directory"],
 			dungeon_tileset,
-			land_overlay_tileset
+			land_overlay_tileset,
+			custom_land_tilesets
 		)
 		if plan.is_empty():
 			return {"status": "error", "message": last_error}
@@ -107,6 +118,19 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 					overlay_error
 				)
 			)
+	if str(custom_land_tilesets.get("status", "skip")) == "ok":
+		var custom_plans: Dictionary = custom_land_tilesets.get("plans", {})
+		var custom_ids: Array = custom_plans.keys()
+		custom_ids.sort()
+		for custom_id: Variant in custom_ids:
+			var custom_error := _write_generated_tileset(custom_plans[custom_id])
+			if custom_error != OK:
+				return _fail(
+					"Could not write native custom land tileset %s: %s" % [
+						custom_id,
+						error_string(custom_error),
+					]
+				)
 
 	for plan: Dictionary in plans:
 		var map_directory: String = plan["directory"]
@@ -143,7 +167,8 @@ func _build_plan(
 	map_name: String,
 	map_directory: String,
 	dungeon_tileset: Dictionary,
-	land_overlay_tileset: Dictionary
+	land_overlay_tileset: Dictionary,
+	custom_land_tilesets: Dictionary
 ) -> Dictionary:
 	var width := int(map_record.get("width", 0))
 	var height := int(map_record.get("height", 0))
@@ -162,7 +187,8 @@ func _build_plan(
 		bundle,
 		campaign_directory,
 		map_record,
-		dungeon_tileset
+		dungeon_tileset,
+		custom_land_tilesets
 	)
 	if str(tileset_result.get("status", "")) != "ok":
 		return _plan_fail(str(tileset_result.get("message", "Compiled map tileset is unavailable")))
@@ -323,7 +349,8 @@ func _resolve_tileset(
 	bundle: Object,
 	campaign_directory: String,
 	map_record: Dictionary,
-	dungeon_tileset: Dictionary
+	dungeon_tileset: Dictionary,
+	custom_land_tilesets: Dictionary
 ) -> Dictionary:
 	var render: Variant = map_record.get("render", {})
 	if not (render is Dictionary):
@@ -343,22 +370,25 @@ func _resolve_tileset(
 					"status": "error",
 					"message": "Classic landlook %d has no safe native tileset identity" % landlook,
 				}
+			var generated_plans: Variant = custom_land_tilesets.get("plans", {})
+			if generated_plans is Dictionary and generated_plans.has(tileset_name):
+				var generated_plan: Dictionary = generated_plans[tileset_name]
+				return {
+					"status": "ok",
+					"name": tileset_name,
+					"baseTile": int(generated_plan.get("baseTile", base_tile)),
+					"tileCapacity": int(generated_plan.get("tileCapacity", 0)),
+				}
 			var tileset_directory := campaign_directory.path_join("Tilesets").path_join(
 				tileset_name
 			)
-			for file_name: String in [
-				"%s.json" % tileset_name,
-				"%s.png" % tileset_name,
-				"tile_templates.json",
-			]:
-				if not FileAccess.file_exists(tileset_directory.path_join(file_name)):
-					return {
-						"status": "error",
-						"message": (
-							"Classic tileset %s requires decoded native file " +
-							"Tilesets/%s/%s"
-						) % [tileset_name, tileset_name, file_name],
-					}
+			if not _has_complete_native_tileset(tileset_directory, tileset_name):
+				return {
+					"status": "error",
+					"message": "Classic tileset %s has no generated or native tileset" % (
+						tileset_name
+					),
+				}
 			tileset_path = tileset_directory.path_join("%s.json" % tileset_name)
 	elif mode == "dungeon-top-down":
 		if str(dungeon_tileset.get("status", "")) != "ok":
@@ -398,6 +428,298 @@ func _resolve_tileset(
 		"baseTile": base_tile,
 		"tileCapacity": int(tileset_value["tilecount"]),
 	}
+
+
+func _build_custom_land_tileset_plans(
+	bundle: Object,
+	pending_maps: Array[Dictionary],
+	campaign_directory: String
+) -> Dictionary:
+	var required: Dictionary = {}
+	for pending_map: Dictionary in pending_maps:
+		var map_record: Dictionary = pending_map["record"]
+		if str(map_record.get("levelType", "")) != "land":
+			continue
+		var render: Variant = map_record.get("render", {})
+		if not (render is Dictionary):
+			continue
+		var landlook := int(render.get("landlook", -1))
+		if MapBridgeScript.STOCK_LANDLOOK_TILESETS.has(landlook):
+			continue
+		var tileset_id := str(render.get("tilesetId", "")).strip_edges()
+		if not _is_safe_component(tileset_id):
+			return {
+				"status": "error",
+				"message": "Classic landlook %d has no safe native tileset identity" % landlook,
+			}
+		if required.has(tileset_id) and int(required[tileset_id]) != landlook:
+			return {
+				"status": "error",
+				"message": "Classic tileset %s is assigned to more than one landlook" % (
+					tileset_id
+				),
+			}
+		required[tileset_id] = landlook
+	if required.is_empty():
+		return {"status": "skip", "plans": {}}
+
+	var catalog: Variant = bundle.documents.get("assets", {}).get("catalog", {})
+	var catalog_tilesets: Variant = catalog.get("tilesets", []) if catalog is Dictionary else []
+	var assets_by_id: Dictionary = {}
+	if catalog_tilesets is Array:
+		for asset_value: Variant in catalog_tilesets:
+			if asset_value is Dictionary:
+				assets_by_id[str(asset_value.get("id", ""))] = asset_value
+	var custom_landlooks: Variant = bundle.documents.get("maps", {}).get(
+		"customLandlooks",
+		[]
+	)
+	var metadata_by_landlook: Dictionary = {}
+	if custom_landlooks is Array:
+		for metadata_value: Variant in custom_landlooks:
+			if metadata_value is Dictionary:
+				metadata_by_landlook[int(metadata_value.get("landlook", -1))] = metadata_value
+
+	var plans: Dictionary = {}
+	var tileset_ids: Array = required.keys()
+	tileset_ids.sort()
+	for tileset_id_value: Variant in tileset_ids:
+		var tileset_id := str(tileset_id_value)
+		var landlook := int(required[tileset_id])
+		if not assets_by_id.has(tileset_id):
+			return {
+				"status": "error",
+				"message": "Classic custom tileset %s is missing from the asset catalog" % (
+					tileset_id
+				),
+			}
+		var asset: Dictionary = assets_by_id[tileset_id]
+		var native_directory := campaign_directory.path_join("Tilesets").path_join(
+			tileset_id
+		)
+		if (
+			not asset.has("runtimeMedia")
+			and _has_complete_native_tileset(native_directory, tileset_id)
+		):
+			continue
+		if not metadata_by_landlook.has(landlook):
+			return {
+				"status": "error",
+				"message": "Classic landlook %d has no compiled behavior table" % landlook,
+			}
+		var plan := _build_custom_land_tileset_plan(
+			asset,
+			metadata_by_landlook[landlook],
+			tileset_id,
+			landlook,
+			campaign_directory
+		)
+		if str(plan.get("status", "error")) != "ok":
+			return plan
+		plans[tileset_id] = plan
+	return {"status": "ok", "plans": plans}
+
+
+func _build_custom_land_tileset_plan(
+	asset: Dictionary,
+	metadata: Dictionary,
+	tileset_id: String,
+	landlook: int,
+	campaign_directory: String
+) -> Dictionary:
+	if (
+		int(asset.get("columns", 0)) != CUSTOM_LAND_COLUMNS
+		or int(asset.get("rows", 0)) != CUSTOM_LAND_ROWS
+		or int(asset.get("tileWidth", 0)) != CUSTOM_LAND_TILE_SIZE
+		or int(asset.get("tileHeight", 0)) != CUSTOM_LAND_TILE_SIZE
+	):
+		return {
+			"status": "error",
+			"message": (
+				"Classic tileset %s must declare the source-backed 20 x 10 grid " +
+				"of 32 x 32 tiles"
+			) % tileset_id,
+		}
+	var image_result := _load_runtime_image(
+		asset,
+		campaign_directory,
+		"Classic tileset %s" % tileset_id,
+		Vector2i(
+			CUSTOM_LAND_COLUMNS * CUSTOM_LAND_TILE_SIZE,
+			CUSTOM_LAND_ROWS * CUSTOM_LAND_TILE_SIZE
+		)
+	)
+	if str(image_result.get("status", "error")) != "ok":
+		return image_result
+	var records: Variant = metadata.get("records", [])
+	if not (records is Array):
+		return {
+			"status": "error",
+			"message": "Classic landlook %d has no readable behavior records" % landlook,
+		}
+	var records_by_tile: Dictionary = {}
+	for record_value: Variant in records:
+		if not (record_value is Dictionary):
+			continue
+		var tile_id := int(record_value.get("tile", -1))
+		if tile_id < 1 or tile_id > CUSTOM_LAND_TILE_COUNT:
+			continue
+		if records_by_tile.has(tile_id):
+			return {
+				"status": "error",
+				"message": "Classic landlook %d repeats behavior record %d" % [
+					landlook,
+					tile_id,
+				],
+			}
+		records_by_tile[tile_id] = record_value
+	for tile_id: int in range(1, CUSTOM_LAND_TILE_COUNT + 1):
+		if not records_by_tile.has(tile_id):
+			return {
+				"status": "error",
+				"message": "Classic landlook %d is missing behavior record %d" % [
+					landlook,
+					tile_id,
+				],
+			}
+	var base_tile := int(metadata.get("baseTile", 0))
+	if base_tile < 1 or base_tile > CUSTOM_LAND_TILE_COUNT:
+		return {
+			"status": "error",
+			"message": "Classic landlook %d has invalid base tile %d" % [landlook, base_tile],
+		}
+
+	var tiles: Array = []
+	var templates: Dictionary = {}
+	var base_scale := int(metadata.get("baseScale", 0))
+	for tile_id: int in range(1, CUSTOM_LAND_TILE_COUNT + 1):
+		var tile_name := "classic_landlook_%d_%03d" % [landlook, tile_id]
+		tiles.append({
+			"id": tile_id - 1,
+			"properties": [
+				{"name": "name", "type": "string", "value": tile_name},
+				{"name": "template", "type": "string", "value": tile_name},
+			],
+		})
+		templates[tile_name] = _custom_land_tile_template(
+			records_by_tile[tile_id],
+			landlook,
+			base_scale
+		)
+	return {
+		"status": "ok",
+		"name": tileset_id,
+		"directory": campaign_directory.path_join("Tilesets").path_join(tileset_id),
+		"image": image_result["image"],
+		"baseTile": base_tile,
+		"tileCapacity": CUSTOM_LAND_TILE_COUNT,
+		"tileset": {
+			"columns": CUSTOM_LAND_COLUMNS,
+			"image": "%s.png" % tileset_id,
+			"imageheight": CUSTOM_LAND_ROWS * CUSTOM_LAND_TILE_SIZE,
+			"imagewidth": CUSTOM_LAND_COLUMNS * CUSTOM_LAND_TILE_SIZE,
+			"margin": 0,
+			"name": tileset_id,
+			"spacing": 0,
+			"tilecount": CUSTOM_LAND_TILE_COUNT,
+			"tiledversion": "1.11.2",
+			"tileheight": CUSTOM_LAND_TILE_SIZE,
+			"tiles": tiles,
+			"tilewidth": CUSTOM_LAND_TILE_SIZE,
+			"type": "tileset",
+			"version": "1.10",
+		},
+		"templates": templates,
+	}
+
+
+func _custom_land_tile_template(
+	record: Dictionary,
+	landlook: int,
+	base_scale: int
+) -> Dictionary:
+	var solid := int(record.get("solid", 0))
+	var need_boat := int(record.get("needBoat", 0))
+	var shore := int(record.get("shore", 0))
+	# Classic permits a boat to enter needBoat=2 terrain even when its solid flag is set.
+	var blocks_movement := solid != 0 and need_boat != 2
+	var blocks_sight := int(record.get("los", 0)) != 0
+	return {
+		"time": int(record.get("time", 0)),
+		"wall": int(blocks_movement),
+		"swall": int(blocks_movement),
+		"blkproj": int(blocks_sight),
+		"blkview": int(blocks_sight),
+		"water": int(need_boat == 2),
+		"dock": int(shore != 0 or need_boat == 1),
+		# Native templates expect filenames, so retain the Classic resource ID as metadata.
+		"sound": [],
+		"classicLandlook": landlook,
+		"classicTileId": int(record.get("tile", 0)),
+		"classicSoundId": int(record.get("sound", 0)),
+		"classicSolid": solid,
+		"classicShore": shore,
+		"classicNeedBoat": need_boat,
+		"classicPath": int(record.get("isPath", 0)),
+		"classicLos": int(record.get("los", 0)),
+		"classicFlyFloat": int(record.get("flyFloat", 0)),
+		"classicForest": int(record.get("forest", 0)),
+		"classicClearLandId": int(record.get("clearLandId", 0)),
+		"classicCombatBuild": record.get("combatBuild", []),
+		"classicBaseScale": base_scale,
+	}
+
+
+func _load_runtime_image(
+	record: Dictionary,
+	campaign_directory: String,
+	subject: String,
+	expected_size: Vector2i
+) -> Dictionary:
+	var runtime_media: Variant = record.get("runtimeMedia")
+	if not (runtime_media is Dictionary):
+		return {
+			"status": "error",
+			"message": "%s requires a decoded %d x %d runtimeMedia image" % [
+				subject,
+				expected_size.x,
+				expected_size.y,
+			],
+		}
+	var relative_path := str(runtime_media.get("path", ""))
+	if not _is_safe_campaign_path(relative_path):
+		return {
+			"status": "error",
+			"message": "%s has an unsafe runtimeMedia path" % subject,
+		}
+	var image_path := campaign_directory.path_join(relative_path)
+	if not FileAccess.file_exists(image_path):
+		return {
+			"status": "error",
+			"message": "%s is missing runtimeMedia %s" % [subject, relative_path],
+		}
+	var image := Image.load_from_file(image_path)
+	if image == null or image.is_empty():
+		return {
+			"status": "error",
+			"message": "%s runtimeMedia is not a readable image" % subject,
+		}
+	if image.get_size() != expected_size:
+		return {
+			"status": "error",
+			"message": (
+				"%s runtimeMedia is %d x %d; Remake requires the source-backed " +
+				"%d x %d image"
+			) % [
+				subject,
+				image.get_width(),
+				image.get_height(),
+				expected_size.x,
+				expected_size.y,
+			],
+		}
+	image.convert(Image.FORMAT_RGBA8)
+	return {"status": "ok", "image": image}
 
 
 func _build_land_overlay_tileset_plan(
@@ -445,50 +767,15 @@ func _build_land_overlay_tileset_plan(
 				) % [field_value, resource_id],
 			}
 		var record: Dictionary = records_by_id[resource_id]
-		var runtime_media: Variant = record.get("runtimeMedia")
-		if not (runtime_media is Dictionary):
-			return {
-				"status": "error",
-				"message": (
-					"Classic special land tile %d (cicn %d) requires a decoded " +
-					"32 x 32 runtimeMedia image"
-				) % [field_value, resource_id],
-			}
-		var relative_path := str(runtime_media.get("path", ""))
-		if not _is_safe_campaign_path(relative_path):
-			return {
-				"status": "error",
-				"message": "Classic special land tile %d has an unsafe runtimeMedia path" % (
-					field_value
-				),
-			}
-		var image_path := campaign_directory.path_join(relative_path)
-		if not FileAccess.file_exists(image_path):
-			return {
-				"status": "error",
-				"message": "Classic special land tile %d is missing runtimeMedia %s" % [
-					field_value,
-					relative_path,
-				],
-			}
-		var image := Image.load_from_file(image_path)
-		if image == null or image.is_empty():
-			return {
-				"status": "error",
-				"message": "Classic special land tile %d runtimeMedia is not a readable image" % (
-					field_value
-				),
-			}
-		if image.get_size() != Vector2i(LAND_OVERLAY_TILE_SIZE, LAND_OVERLAY_TILE_SIZE):
-			return {
-				"status": "error",
-				"message": (
-					"Classic special land tile %d runtimeMedia is %d x %d; " +
-					"Remake requires the source-backed 32 x 32 overlay"
-				) % [field_value, image.get_width(), image.get_height()],
-			}
-		image.convert(Image.FORMAT_RGBA8)
-		images[field_value] = image
+		var image_result := _load_runtime_image(
+			record,
+			campaign_directory,
+			"Classic special land tile %d (cicn %d)" % [field_value, resource_id],
+			Vector2i(LAND_OVERLAY_TILE_SIZE, LAND_OVERLAY_TILE_SIZE)
+		)
+		if str(image_result.get("status", "error")) != "ok":
+			return image_result
+		images[field_value] = image_result["image"]
 		resource_ids[field_value] = resource_id
 
 	var columns := mini(LAND_OVERLAY_ATLAS_COLUMNS, field_values.size())
@@ -852,6 +1139,17 @@ func _is_safe_campaign_path(value: String) -> bool:
 func _has_complete_native_map(map_directory: String) -> bool:
 	for file_name: String in REQUIRED_MAP_FILES:
 		if not FileAccess.file_exists(map_directory.path_join(file_name)):
+			return false
+	return true
+
+
+func _has_complete_native_tileset(tileset_directory: String, tileset_name: String) -> bool:
+	for file_name: String in [
+		"%s.json" % tileset_name,
+		"%s.png" % tileset_name,
+		"tile_templates.json",
+	]:
+		if not FileAccess.file_exists(tileset_directory.path_join(file_name)):
 			return false
 	return true
 

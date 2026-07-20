@@ -102,6 +102,11 @@ installed-campaign loader verifies both immutable payloads and decoded media
 before launch. Version-1 consumers that do not know this additive object may
 ignore it; producers must not overload `payloadPath` with decoded media.
 
+A custom landlook tileset uses its catalog `runtimeMedia` as the decoded 640 x
+320, 20-by-10 atlas. Remake combines its 200 one-based visual slots with records
+1 through 200 from the matching `maps.customLandlooks` entry. Record 0 remains
+compiler metadata rather than a visual atlas slot.
+
 Negative `cicn` IDs identify special land tiles and belong in the additive
 `assets.catalog.specialLandTiles` collection. Ordinary `assets.catalog.icons`
 retain their non-negative Classic resource identity. Remake can materialize a

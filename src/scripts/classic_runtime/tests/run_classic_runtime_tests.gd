@@ -1729,17 +1729,18 @@ func _test_classic_map_materializer() -> void:
 	if not bundle.last_error.is_empty():
 		return
 	var map_record: Dictionary = bundle.documents["maps"]["maps"][0]
-	map_record["render"] = {
-		"landlook": 0,
-		"mode": "outdoor-landlook",
-		"tilesetId": "landlook-0",
-	}
 	var tiles: Array = []
 	tiles.resize(int(map_record["width"]) * int(map_record["height"]))
 	tiles.fill(156)
 	tiles[0] = 1156
 	tiles[1] = -100
+	tiles[2] = 5
+	tiles[3] = 6
 	map_record["tiles"] = tiles
+	var custom_landlook: Dictionary = bundle.documents["maps"]["customLandlooks"][0]
+	custom_landlook["records"][6]["time"] = 9
+	custom_landlook["records"][6]["solid"] = 1
+	custom_landlook["records"][6]["los"] = 1
 	bundle.documents["maps"]["tileAttributes"].append({
 		"solidType": 2,
 		"source": "Data Solids",
@@ -1781,6 +1782,30 @@ func _test_classic_map_materializer() -> void:
 	DirAccess.make_dir_recursive_absolute(test_root)
 	var media_directory := test_root.path_join("media")
 	DirAccess.make_dir_recursive_absolute(media_directory)
+	var custom_land_image := Image.create(640, 320, false, Image.FORMAT_RGBA8)
+	for tile_index: int in range(200):
+		custom_land_image.fill_rect(
+			Rect2i((tile_index % 20) * 32, (tile_index / 20) * 32, 32, 32),
+			Color(
+				float(tile_index % 20) / 19.0,
+				float(tile_index / 20) / 9.0,
+				0.4,
+				1.0
+			)
+		)
+	var custom_land_path := media_directory.path_join("landlook-6.png")
+	_expect_equal(
+		custom_land_image.save_png(custom_land_path),
+		OK,
+		"materializer fixture writes decoded custom-land runtime media"
+	)
+	var custom_tileset: Dictionary = bundle.documents["assets"]["catalog"]["tilesets"][1]
+	custom_tileset["runtimeMedia"] = {
+		"path": "media/landlook-6.png",
+		"mediaType": "image/png",
+		"bytes": FileAccess.get_file_as_bytes(custom_land_path).size(),
+		"sha256": FileAccess.get_sha256(custom_land_path),
+	}
 	var special_tile_image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
 	special_tile_image.fill(Color(0, 0, 0, 0))
 	special_tile_image.fill_rect(Rect2i(6, 6, 20, 20), Color(0.8, 0.2, 0.6, 1.0))
@@ -1828,8 +1853,8 @@ func _test_classic_map_materializer() -> void:
 	)
 	_expect_equal(
 		map_things.get("tilesets", [])[0].get("source"),
-		"ForestDay.json",
-		"stock Classic landlook resolves to the shared native tileset"
+		"landlook-6.json",
+		"custom Classic landlook resolves to its generated native tileset"
 	)
 	_expect_equal(
 		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[0],
@@ -1840,6 +1865,11 @@ func _test_classic_map_materializer() -> void:
 		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[1],
 		156,
 		"special land tile keeps the current landlook base terrain"
+	)
+	_expect_equal(
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[2],
+		5,
+		"custom land tile keeps its one-based atlas slot"
 	)
 	_expect_equal(map_things.get("layers", []).size(), 2, "special land tile adds an overlay layer")
 	var overlay_first_gid := int(map_things.get("tilesets", [])[1].get("firstgid", 0))
@@ -1893,6 +1923,58 @@ func _test_classic_map_materializer() -> void:
 		"native map resolves random battle text"
 	)
 	var dungeon_directory := test_root.path_join("Maps").path_join("mapd_0")
+	var custom_land_directory := test_root.path_join("Tilesets").path_join("landlook-6")
+	var custom_land_tileset: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(custom_land_directory.path_join("landlook-6.json"))
+	)
+	_expect_equal(
+		custom_land_tileset.get("tilecount"),
+		200,
+		"custom landlook materializes all source atlas slots"
+	)
+	_expect_equal(
+		custom_land_tileset.get("columns"),
+		20,
+		"custom landlook retains the source atlas layout"
+	)
+	var custom_land_templates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(custom_land_directory.path_join("tile_templates.json"))
+	)
+	var path_template: Dictionary = custom_land_templates.get(
+		"classic_landlook_6_005",
+		{}
+	)
+	_expect_equal(path_template.get("time"), 2, "custom land tile preserves travel time")
+	_expect_equal(
+		path_template.get("classicSoundId"),
+		321,
+		"custom land tile preserves its Classic sound identity"
+	)
+	_expect_equal(path_template.get("classicPath"), 1, "custom land tile preserves path behavior")
+	_expect_equal(
+		path_template.get("classicClearLandId"),
+		156,
+		"custom land tile preserves clear-land behavior"
+	)
+	var solid_template: Dictionary = custom_land_templates.get(
+		"classic_landlook_6_006",
+		{}
+	)
+	_expect_equal(solid_template.get("wall"), 1, "custom solid tile blocks native movement")
+	_expect_equal(solid_template.get("blkview"), 1, "custom LOS tile blocks native view")
+	var generated_custom_land_image := Image.load_from_file(
+		custom_land_directory.path_join("landlook-6.png")
+	)
+	_expect_equal(
+		generated_custom_land_image.get_size(),
+		Vector2i(640, 320),
+		"custom landlook keeps the source-backed atlas dimensions"
+	)
+	_expect_equal(
+		generated_custom_land_image.get_data(),
+		custom_land_image.get_data(),
+		"custom landlook keeps the decoded source pixels"
+	)
 	var land_overlay_directory := test_root.path_join("Tilesets").path_join(
 		"ClassicLandOverlay"
 	)
@@ -1995,6 +2077,11 @@ func _test_classic_map_materializer() -> void:
 		9,
 		"normal resource lifecycle loads the generated dungeon tileset"
 	)
+	_expect_equal(
+		native_resources.tiles_book.get("landlook-6.json", []).size(),
+		200,
+		"normal resource lifecycle loads the generated custom landlook"
+	)
 	native_resources.load_map_ressources(dungeon_directory + "/", "mapd_0")
 	_expect(
 		native_resources.maps_book.has("mapd_0"),
@@ -2011,6 +2098,12 @@ func _test_classic_map_materializer() -> void:
 		special_land_stack[1].get("classicLandField"),
 		-100,
 		"loaded special-land overlay retains its raw field identity"
+	)
+	var custom_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][2][0]
+	_expect_equal(
+		custom_land_stack[0].get("classicTileId"),
+		5,
+		"loaded custom land tile retains its Classic tile identity"
 	)
 	native_resources.free()
 	var first_artifacts := {}
@@ -2029,6 +2122,9 @@ func _test_classic_map_materializer() -> void:
 		"Tilesets/ClassicDungeon/ClassicDungeon.json",
 		"Tilesets/ClassicDungeon/tile_templates.json",
 		"Tilesets/ClassicDungeon/ClassicDungeon.png",
+		"Tilesets/landlook-6/landlook-6.json",
+		"Tilesets/landlook-6/tile_templates.json",
+		"Tilesets/landlook-6/landlook-6.png",
 	]
 	for relative_path: String in deterministic_files:
 		first_artifacts[relative_path] = FileAccess.get_sha256(
@@ -2105,6 +2201,63 @@ func _test_classic_map_materializer() -> void:
 	_expect(
 		str(invalid_media_result.get("message", "")).contains("is 16 x 16"),
 		"wrong-sized special land media reports its decoded dimensions"
+	)
+	var missing_custom_bundle = BundleScript.new()
+	missing_custom_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	var missing_custom_map: Dictionary = missing_custom_bundle.documents["maps"]["maps"][0]
+	var ordinary_custom_tiles: Array = []
+	ordinary_custom_tiles.resize(
+		int(missing_custom_map["width"]) * int(missing_custom_map["height"])
+	)
+	ordinary_custom_tiles.fill(156)
+	missing_custom_map["tiles"] = ordinary_custom_tiles
+	var missing_custom_directory := test_root.path_join("missing-custom-landlook")
+	DirAccess.make_dir_recursive_absolute(missing_custom_directory)
+	var missing_custom_result: Dictionary = MapMaterializerScript.new().materialize(
+		missing_custom_bundle,
+		missing_custom_directory
+	)
+	_expect_equal(
+		missing_custom_result.get("status"),
+		"error",
+		"raw custom atlas blocks lossy native materialization"
+	)
+	_expect(
+		str(missing_custom_result.get("message", "")).contains(
+			"Classic tileset landlook-6 requires a decoded 640 x 320 runtimeMedia image"
+		),
+		"missing custom-land media reports the exact decoded requirement"
+	)
+	var wrong_custom_media_directory := missing_custom_directory.path_join("media")
+	DirAccess.make_dir_recursive_absolute(wrong_custom_media_directory)
+	var wrong_custom_media := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	wrong_custom_media.fill(Color.WHITE)
+	var wrong_custom_media_path := wrong_custom_media_directory.path_join("landlook-6.png")
+	_expect_equal(
+		wrong_custom_media.save_png(wrong_custom_media_path),
+		OK,
+		"materializer fixture writes wrong-sized custom-land media"
+	)
+	missing_custom_bundle.documents["assets"]["catalog"]["tilesets"][1][
+		"runtimeMedia"
+	] = {
+		"path": "media/landlook-6.png",
+		"mediaType": "image/png",
+		"bytes": FileAccess.get_file_as_bytes(wrong_custom_media_path).size(),
+		"sha256": FileAccess.get_sha256(wrong_custom_media_path),
+	}
+	var wrong_custom_result: Dictionary = MapMaterializerScript.new().materialize(
+		missing_custom_bundle,
+		missing_custom_directory
+	)
+	_expect_equal(
+		wrong_custom_result.get("status"),
+		"error",
+		"wrong-sized custom-land media blocks native materialization"
+	)
+	_expect(
+		str(wrong_custom_result.get("message", "")).contains("is 32 x 32"),
+		"wrong-sized custom-land media reports its decoded dimensions"
 	)
 
 	var directional_bundle = BundleScript.new()
