@@ -1554,6 +1554,8 @@ func resolve_classic_monster_bestiary_name(
 ) -> String:
 	var display_name := str(monster.get("displayName", ""))
 	var name_matches: Array[String] = []
+	# Producer-generated entries carry explicit identities and must win over
+	# older hand-converted entries whose native data.id happens to match.
 	for bestiary_key: Variant in creature_book:
 		var entry: Variant = creature_book[bestiary_key]
 		if not (entry is Dictionary):
@@ -1568,6 +1570,18 @@ func resolve_classic_monster_bestiary_name(
 		if not explicit_ids.is_empty():
 			if explicit_ids.has(monster_id):
 				return str(bestiary_key)
+	for bestiary_key: Variant in creature_book:
+		var entry: Variant = creature_book[bestiary_key]
+		if not (entry is Dictionary):
+			continue
+		var data: Variant = entry.get("data", {})
+		if not (data is Dictionary):
+			continue
+		var explicit_ids := _classic_resource_ids(entry, "classicMonsterId", "classicMonsterIds")
+		explicit_ids.append_array(
+			_classic_resource_ids(data, "classicMonsterId", "classicMonsterIds")
+		)
+		if not explicit_ids.is_empty():
 			continue
 		var native_id: Variant = data.get("id")
 		if native_id is int or native_id is float:

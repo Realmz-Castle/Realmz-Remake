@@ -308,6 +308,20 @@ func load_bestiary_resources( path : String ) -> void:
 		) :
 			new_crea_data["classicMonsterIds"] = \
 				n_crea_stuff_book[crea_name]["classicMonsterIds"].duplicate()
+		for classic_field : String in [
+			"classicMonsterNameId",
+			"classicDeathMacro",
+			"classicTurnUndeadEligible",
+			"classicHitDice",
+			"classicMagicResistance",
+			"classicCanSummon",
+		] :
+			if n_crea_stuff_book[crea_name].has(classic_field) :
+				new_crea_data[classic_field] = n_crea_stuff_book[crea_name][classic_field]
+		for classic_field : String in ["classicRecord", "classicMaterialization"] :
+			if n_crea_stuff_book[crea_name].has(classic_field) :
+				new_crea_data[classic_field] = \
+					n_crea_stuff_book[crea_name][classic_field].duplicate(true)
 		new_crea_data["tools"] = n_crea_stuff_book[crea_name]["tools"]
 		new_crea_data["ai"] = n_crea_stuff_book[crea_name]["ai"]
 		if n_crea_stuff_book[crea_name].has("scripts"):

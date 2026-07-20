@@ -10,6 +10,9 @@ const MapMaterializerScript = preload(
 const ItemMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_item_materializer.gd"
 )
+const BestiaryMaterializerScript = preload(
+	"res://scripts/classic_runtime/classic_bestiary_materializer.gd"
+)
 
 var last_error := ""
 
@@ -94,6 +97,17 @@ func install_export(
 		_remove_directory(staging_directory)
 		return _fail(
 			"Staged Classic items could not be generated: %s" % item_materializer.last_error
+		)
+	var bestiary_materializer = BestiaryMaterializerScript.new()
+	var bestiary_result: Dictionary = bestiary_materializer.materialize(
+		staged_source_check["bundle"],
+		staging_directory
+	)
+	if str(bestiary_result.get("status", "")) != "ok":
+		_remove_directory(staging_directory)
+		return _fail(
+			"Staged Classic bestiary could not be generated: %s" \
+				% bestiary_materializer.last_error
 		)
 
 	var staged_check := _load_launchable_package(staging_directory)

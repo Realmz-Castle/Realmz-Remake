@@ -64,15 +64,29 @@ func load_from_campaigns_directory(
 		return _fail(bundle.last_error)
 	if not _validate_packaged_payloads():
 		return false
-	var native_context := {"items": {}}
-	if not _merge_item_book(
+	var native_context := {"items": {}, "bestiary": {}}
+	if not _merge_resource_book(
 		"res://shared_assets/items/stuff_book.json",
-		native_context["items"]
+		native_context["items"],
+		"item"
 	):
 		return false
-	if not _merge_item_book(
+	if not _merge_resource_book(
 		campaign_directory.path_join("Items/stuff_book.json"),
-		native_context["items"]
+		native_context["items"],
+		"item"
+	):
+		return false
+	if not _merge_resource_book(
+		"res://shared_assets/Bestiary/stuff_book.json",
+		native_context["bestiary"],
+		"bestiary"
+	):
+		return false
+	if not _merge_resource_book(
+		campaign_directory.path_join("Bestiary/stuff_book.json"),
+		native_context["bestiary"],
+		"bestiary"
 	):
 		return false
 	readiness_report = ReadinessScript.new().inspect(bundle, native_context)
@@ -80,12 +94,12 @@ func load_from_campaigns_directory(
 	return true
 
 
-func _merge_item_book(path: String, destination: Dictionary) -> bool:
+func _merge_resource_book(path: String, destination: Dictionary, resource_kind: String) -> bool:
 	if not FileAccess.file_exists(path):
 		return true
 	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not (value is Dictionary):
-		return _fail("Native item book is not a JSON object: %s" % path)
+		return _fail("Native %s book is not a JSON object: %s" % [resource_kind, path])
 	destination.merge(value, true)
 	return true
 

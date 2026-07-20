@@ -27,6 +27,9 @@ const MapMaterializerScript = preload(
 const ItemMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_item_materializer.gd"
 )
+const BestiaryMaterializerScript = preload(
+	"res://scripts/classic_runtime/classic_bestiary_materializer.gd"
+)
 const NativeResourcesScript = preload("res://scripts/Resources.gd")
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
@@ -701,6 +704,7 @@ func _init() -> void:
 	_test_classic_map_materializer()
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
+	_test_classic_bestiary_materializer()
 	_test_classic_map_sound_bridge()
 	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
@@ -2510,6 +2514,161 @@ func _test_classic_item_materializer() -> void:
 	)
 
 
+func _test_classic_bestiary_materializer() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"producer fixture loads for native bestiary materialization"
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var test_root := ProjectSettings.globalize_path(
+		"user://classic-bestiary-materializer-%d" % Time.get_ticks_msec()
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"bestiary materializer test clears stale output from an interrupted run"
+	)
+	DirAccess.make_dir_recursive_absolute(test_root)
+	var materializer = BestiaryMaterializerScript.new()
+	var result: Dictionary = materializer.materialize(bundle, test_root)
+	_expect_equal(result.get("status"), "ok", "Classic monster generates a native bestiary")
+	_expect_equal(result.get("generated"), 1, "materializer reports its generated monster")
+	var book_path := test_root.path_join("Bestiary/stuff_book.json")
+	var image_book_path := test_root.path_join("Bestiary/img_pack.json")
+	var atlas_path := test_root.path_join("Bestiary/textureAtlas.png")
+	_expect(FileAccess.file_exists(book_path), "materializer writes the native bestiary book")
+	_expect(FileAccess.file_exists(image_book_path), "materializer writes the bestiary image book")
+	_expect(FileAccess.file_exists(atlas_path), "materializer writes the bestiary image atlas")
+	var first_book_text := FileAccess.get_file_as_string(book_path)
+	var bestiary_book: Dictionary = JSON.parse_string(first_book_text)
+	var monster: Dictionary = bestiary_book.get("Classic Monster 1", {})
+	_expect_equal(
+		monster.get("data", {}).get("name"),
+		"Providence Sentinel",
+		"compiled monster name reaches its native resource"
+	)
+	_expect_equal(
+		monster.get("data", {}).get("description"),
+		"Compiled entirely from canonical Providence monster data.",
+		"compiled monster description reaches its native resource"
+	)
+	_expect_equal(monster.get("classicMonsterId"), 1, "native monster preserves its stable ID")
+	_expect_equal(
+		monster.get("classicMonsterNameId"),
+		1,
+		"native monster preserves its stable name identity"
+	)
+	_expect_equal(
+		monster.get("classicRecord", {}).get("agility"),
+		201,
+		"native monster preserves the complete compiler record"
+	)
+	_expect_equal(
+		monster.get("classicMaterialization", {}).get("status"),
+		"fallback",
+		"simple physical monster remains launchable with explicit visual and roll fallbacks"
+	)
+	_expect_equal(
+		monster.get("classicMaterialization", {}).get("unsupportedFields"),
+		[],
+		"simple physical fixture has no unsupported behavior"
+	)
+	_expect_equal(monster.get("data", {}).get("size"), [1.0, 2.0], "Classic tall size maps natively")
+	_expect_equal(monster.get("stats", {}).get("MaxMovement"), 202, "movement maps natively")
+	_expect_equal(monster.get("stats", {}).get("Dexterity"), 201, "agility maps natively")
+	_expect_equal(monster.get("stats", {}).get("EvasionMelee"), -4, "armor maps natively")
+	_expect_equal(monster.get("stats", {}).get("maxHP"), 241, "average Classic stamina is deterministic")
+	_expect_equal(monster.get("stats", {}).get("AccuracyMelee"), 9, "Classic melee accuracy maps natively")
+	_expect_equal(monster.get("data", {}).get("exp"), 7709, "Classic average battle reward maps natively")
+	_expect_equal(
+		monster.get("tools", {}).get("unarmed_melee_attacks", [])[0].get(
+			"weapon_dmg", {}
+		).get("Physical"),
+		[1.0, 8.0],
+		"ordinary Classic attack range maps natively"
+	)
+	_expect_equal(
+		monster.get("data", {}).get("tags", []).size(),
+		8,
+		"all eight Classic type flags retain native tags"
+	)
+
+	var merged_book := {
+		"Older conversion": {"data": {"id": 1, "name": "Providence Sentinel"}},
+	}
+	merged_book.merge(bestiary_book, true)
+	_expect_equal(
+		GodotAdapterScript.new().resolve_classic_monster_bestiary_name(
+			1,
+			bundle.get_monster(1),
+			merged_book
+		),
+		"Classic Monster 1",
+		"explicit producer identity wins over a hand-converted numeric ID"
+	)
+	var battle_result: Dictionary = GodotAdapterScript.new().materialize_classic_battle(
+		bundle.get_battle(0),
+		bundle.monsters_by_id,
+		bestiary_book
+	)
+	_expect_equal(
+		battle_result.get("battle", {}).get("Creatures", [])[0][0],
+		"Classic Monster 1",
+		"compiled battle consumes the generated native bestiary entry"
+	)
+	var readiness: Dictionary = ReadinessScript.new().inspect(
+		bundle,
+		{"bestiary": bestiary_book}
+	)
+	_expect(bool(readiness.get("ready", false)), "simple physical native monster remains launchable")
+	_expect(
+		_readiness_has_reference_diagnostic(
+			readiness, "native-monster-fidelity-fallback", 1
+		),
+		"readiness reports the generated monster's bounded fidelity fallbacks"
+	)
+
+	var second_result: Dictionary = materializer.materialize(bundle, test_root)
+	_expect_equal(second_result.get("generated"), 0, "bestiary materialization is idempotent")
+	_expect_equal(second_result.get("skipped"), 1, "rerun recognizes the existing monster ID")
+	_expect_equal(
+		FileAccess.get_file_as_string(book_path),
+		first_book_text,
+		"bestiary materialization is byte-stable on rerun"
+	)
+
+	var unsupported_root := test_root.path_join("unsupported")
+	DirAccess.make_dir_recursive_absolute(unsupported_root)
+	var unsupported_bundle = BundleScript.new()
+	unsupported_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	unsupported_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 1
+	_expect_equal(
+		materializer.materialize(unsupported_bundle, unsupported_root).get("status"),
+		"ok",
+		"unsupported monster fields remain inspectable in the native bestiary"
+	)
+	var unsupported_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(unsupported_root.path_join("Bestiary/stuff_book.json"))
+	)
+	var unsupported_readiness: Dictionary = ReadinessScript.new().inspect(
+		unsupported_bundle,
+		{"bestiary": unsupported_book}
+	)
+	_expect(
+		_readiness_has_reference_diagnostic(
+			unsupported_readiness, "unsupported-native-monster-fields", 1
+		),
+		"unsupported monster behavior blocks launch with its stable identity"
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"bestiary materializer test cleans its workspace"
+	)
+
+
 func _test_classic_map_sound_bridge() -> void:
 	var classic_selection: Dictionary = MapBridgeScript.select_tile_stack_sound([
 		{"sound": [], "classicSoundId": 0},
@@ -2701,6 +2860,47 @@ func _test_classic_campaign_package_installer() -> void:
 		),
 		"unsupported item installation reports the item readiness boundary"
 	)
+	var unsupported_monster_export := test_root.path_join("producer-unsupported-monster")
+	_expect_equal(
+		installer._copy_directory(materializable_export, unsupported_monster_export),
+		OK,
+		"installer test stages a producer monster with unsupported behavior"
+	)
+	var unsupported_monster_content_path := unsupported_monster_export.path_join(
+		"classic/content.json"
+	)
+	var unsupported_monster_content: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(unsupported_monster_content_path)
+	)
+	unsupported_monster_content["monsters"][0]["attacks"][0][3] = 1
+	var unsupported_monster_content_file := FileAccess.open(
+		unsupported_monster_content_path,
+		FileAccess.WRITE
+	)
+	_expect(
+		unsupported_monster_content_file != null,
+		"installer test rewrites its disposable monster document"
+	)
+	if unsupported_monster_content_file != null:
+		unsupported_monster_content_file.store_string(
+			JSON.stringify(unsupported_monster_content, "  ") + "\n"
+		)
+		unsupported_monster_content_file.close()
+	var unsupported_monster_install: Dictionary = installer.install_export(
+		unsupported_monster_export,
+		campaigns_directory
+	)
+	_expect_equal(
+		unsupported_monster_install.get("status"),
+		"error",
+		"installer rejects a materialized monster with unsupported behavior"
+	)
+	_expect(
+		str(unsupported_monster_install.get("message", "")).contains(
+			"unsupported native fields"
+		),
+		"unsupported monster installation reports the bestiary readiness boundary"
+	)
 
 	var no_replace_result: Dictionary = installer.install_export(
 		CAMPAIGN_UI_SMOKE_FIXTURE,
@@ -2780,8 +2980,8 @@ func _test_classic_campaign_package_installer() -> void:
 	)
 	_expect_equal(
 		producer_result.get("readinessState"),
-		"Ready",
-		"unchanged producer export is ready to launch"
+		"Ready with fallbacks",
+		"unchanged producer export reports its bounded monster fallbacks"
 	)
 	var producer_destination := campaigns_directory.path_join(
 		PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file()
@@ -2819,6 +3019,20 @@ func _test_classic_campaign_package_installer() -> void:
 	_expect(
 		FileAccess.file_exists(producer_destination.path_join("Items/textureAtlas.png")),
 		"installed producer bundle includes a loadable native item resource set"
+	)
+	var producer_bestiary: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			producer_destination.path_join("Bestiary/stuff_book.json")
+		)
+	)
+	_expect_equal(
+		producer_bestiary.get("Classic Monster 1", {}).get("classicMonsterId"),
+		1,
+		"unchanged producer export materializes its battle monster"
+	)
+	_expect(
+		FileAccess.file_exists(producer_destination.path_join("Bestiary/textureAtlas.png")),
+		"installed producer bundle includes a loadable native bestiary resource set"
 	)
 
 	var campaigns_access := DirAccess.open(campaigns_directory)

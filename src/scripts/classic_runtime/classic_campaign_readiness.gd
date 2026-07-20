@@ -153,6 +153,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_field_spell(bundle, action, extra_code)
 		elif code == 85:
 			_check_random_branch(bundle, action, extra_code)
+		elif code == 124:
+			_check_spawn_monster(bundle, action, extra_code)
 		return
 
 	match code:
@@ -375,6 +377,29 @@ func _check_ally(bundle: ClassicCampaignBundle, action: Dictionary, monster_id: 
 			],
 			{"referenceId": abs(monster_id)}
 		)
+		return
+	_check_monster_materialization(
+		bestiary[native_name],
+		abs(monster_id),
+		str(action.get("source", "")),
+		int(action.get("recordIndex", -1)),
+		int(action.get("slot", -1)),
+		action
+	)
+
+
+func _check_spawn_monster(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 2:
+		return
+	var monster_id: int = abs(int(values[1]))
+	if monster_id == 0:
+		return
+	_check_ally(bundle, action, monster_id)
 
 
 func _check_field_spell(
@@ -502,6 +527,7 @@ func _check_random_branch(
 
 
 func _check_encounter_identities(bundle: ClassicCampaignBundle) -> void:
+	_check_battle_monsters(bundle)
 	var encounter_ids: Array = bundle.complex_encounters_by_id.keys()
 	encounter_ids.sort()
 	for encounter_id_value: Variant in encounter_ids:
@@ -511,6 +537,113 @@ func _check_encounter_identities(bundle: ClassicCampaignBundle) -> void:
 		_check_spell_ids(bundle, encounter, encounter_id)
 		_check_rogue_trap_spell(bundle, encounter, encounter_id)
 	_check_special_scenario_items(bundle)
+
+
+func _check_battle_monsters(bundle: ClassicCampaignBundle) -> void:
+	var bestiary: Variant = _native_context.get("bestiary", {})
+	if not (bestiary is Dictionary) or bestiary.is_empty():
+		return
+	var checked_ids: Dictionary = {}
+	var battle_ids: Array = bundle.battles_by_id.keys()
+	battle_ids.sort()
+	for battle_id_value: Variant in battle_ids:
+		var battle_id := int(battle_id_value)
+		var battle: Dictionary = bundle.battles_by_id[battle_id_value]
+		var grid: Variant = battle.get("grid", [])
+		if not (grid is Array):
+			continue
+		for cell_index: int in range(grid.size()):
+			var monster_id: int = abs(int(grid[cell_index]))
+			if monster_id == 0 or checked_ids.has(monster_id):
+				continue
+			checked_ids[monster_id] = true
+			var monster := bundle.get_monster(monster_id)
+			if monster.is_empty():
+				_add_blocker(
+					"missing-battle-monster",
+					"Data BD",
+					battle_id,
+					cell_index,
+					"Classic battle %d references missing monster %d" % [
+						battle_id, monster_id,
+					],
+					{"referenceId": monster_id}
+				)
+				continue
+			var native_name := _adapter.resolve_classic_monster_bestiary_name(
+				monster_id, monster, bestiary
+			)
+			if native_name.is_empty():
+				_add_blocker(
+					"unresolved-native-monster",
+					"Data BD",
+					battle_id,
+					cell_index,
+					"Classic monster %d '%s' has no native bestiary equivalent" % [
+						monster_id, str(monster.get("displayName", "")),
+					],
+					{"referenceId": monster_id}
+				)
+				continue
+			_check_monster_materialization(
+				bestiary[native_name],
+				monster_id,
+				"Data BD",
+				battle_id,
+				cell_index
+			)
+
+
+func _check_monster_materialization(
+	native_entry: Variant,
+	monster_id: int,
+	source: String,
+	record_index: int,
+	slot: int,
+	action := {}
+) -> void:
+	if not (native_entry is Dictionary):
+		return
+	var materialization: Variant = native_entry.get("classicMaterialization", {})
+	if not (materialization is Dictionary):
+		return
+	var unsupported: Variant = materialization.get("unsupportedFields", [])
+	if str(materialization.get("status", "")) == "blocked":
+		var message := "Classic monster %d has unsupported native fields" % monster_id
+		var extra := {"referenceId": monster_id, "unsupportedFields": unsupported}
+		if action is Dictionary and not action.is_empty():
+			_add_blocker_for_action(action, "unsupported-native-monster-fields", message, extra)
+		else:
+			_add_blocker(
+				"unsupported-native-monster-fields",
+				source,
+				record_index,
+				slot,
+				message,
+				extra
+			)
+		return
+	var fallbacks: Variant = materialization.get("fidelityFallbacks", [])
+	if not (fallbacks is Array) or fallbacks.is_empty():
+		return
+	var fallback_message := "Classic monster %d uses native fidelity fallbacks" % monster_id
+	var fallback_extra := {"referenceId": monster_id, "fallbackFields": fallbacks}
+	if action is Dictionary and not action.is_empty():
+		_add_fallback_for_action(
+			action,
+			"native-monster-fidelity-fallback",
+			fallback_message,
+			fallback_extra
+		)
+	else:
+		_add_fallback(
+			"native-monster-fidelity-fallback",
+			source,
+			record_index,
+			slot,
+			fallback_message,
+			fallback_extra
+		)
 
 
 func _check_item_ids(
@@ -894,6 +1027,29 @@ func _add_blocker(
 	var diagnostic := {
 		"severity": "error",
 		"classification": BLOCKER,
+		"code": code,
+		"source": source,
+		"recordIndex": record_index,
+		"message": message,
+	}
+	if slot >= 0:
+		diagnostic["slot"] = slot
+	if extra is Dictionary:
+		diagnostic.merge(extra, true)
+	_add_diagnostic(diagnostic)
+
+
+func _add_fallback(
+	code: String,
+	source: String,
+	record_index: int,
+	slot: int,
+	message: String,
+	extra := {}
+) -> void:
+	var diagnostic := {
+		"severity": "warning",
+		"classification": FALLBACK,
 		"code": code,
 		"source": source,
 		"recordIndex": record_index,

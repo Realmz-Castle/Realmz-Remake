@@ -648,6 +648,17 @@ func _ready():
 func initialize_from_bestiary_dict(creaname : String) :
 	var resources = NodeAccess.__Resources()
 	var cdata : Dictionary = resources.crea_book[creaname]
+	classic_monster_id = int(cdata.get("classicMonsterId", -1))
+	classic_monster_name_id = int(cdata.get("classicMonsterNameId", -1))
+	for metadata_pair : Array in [
+		["classic_death_macro", "classicDeathMacro"],
+		["classic_turn_undead_eligible", "classicTurnUndeadEligible"],
+		["classic_hit_dice", "classicHitDice"],
+		["classic_magic_resistance", "classicMagicResistance"],
+		["classic_can_summon", "classicCanSummon"],
+	] :
+		if cdata.has(metadata_pair[1]) :
+			set_meta(metadata_pair[0], cdata[metadata_pair[1]])
 	textureL = cdata["data"]["image"]
 	textureR = cdata["data"]["image"] #usually just the  same and flipped with sprite
 	name = cdata["data"]["name"]
