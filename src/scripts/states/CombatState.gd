@@ -4,6 +4,9 @@ class_name CombatState
 #var spell_picked_tiles : Dictionary
 
 const combatcreaturemapobjectTSCN : PackedScene = preload("res://scenes/Map/CombatCharacter.tscn")
+const ClassicCombatMacroQueueScript = preload(
+	"res://scripts/classic_runtime/classic_combat_macro_queue.gd"
+)
 @export var cbanimstate : CbAnimationState
 
 
@@ -16,6 +19,7 @@ var battle_creatures_yet_to_act_btns : Array = []#array of  combatcreabuttons
 var battle_allows_loss : bool = false
 var battle_dead_enemies : Array = []
 var battle_dead_party_members : Array = []
+var classic_combat_macro_queue: Array = []
 
 #var pcs_who_joined_battle : Array = []  #is in bartle data dict
 
@@ -137,6 +141,27 @@ func add_to_action_queue(arr : Array) :
 	if not arr.is_empty() :
 		pass
 		action_queue = arr + action_queue
+
+
+func queue_classic_death_macro(creature: Variant) -> bool:
+	return ClassicCombatMacroQueueScript.enqueue_death_macro(
+		classic_combat_macro_queue,
+		creature
+	)
+
+
+func has_classic_combat_macros() -> bool:
+	return not classic_combat_macro_queue.is_empty()
+
+
+func pop_classic_combat_macro() -> Dictionary:
+	if classic_combat_macro_queue.is_empty():
+		return {}
+	return classic_combat_macro_queue.pop_front()
+
+
+func clear_classic_combat_macros() -> void:
+	classic_combat_macro_queue.clear()
 
 
 

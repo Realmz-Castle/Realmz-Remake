@@ -5,6 +5,9 @@ const ExecutionAuditScript = preload("res://scripts/classic_runtime/classic_exec
 const ReadinessScript = preload("res://scripts/classic_runtime/classic_campaign_readiness.gd")
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
+const CombatMacroQueueScript = preload(
+	"res://scripts/classic_runtime/classic_combat_macro_queue.gd"
+)
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const CharacterConditionRulesScript = preload(
@@ -274,6 +277,7 @@ class CombatTestCreature:
 	var name: String
 	var current_hp: int
 	var curFaction: int
+	var position := Vector2.ZERO
 	var classic_monster_id := -1
 	var classic_monster_name_id := -1
 	var applied_traits: Array = []
@@ -320,6 +324,7 @@ class CombatTestState:
 	var battle_dead_enemies: Array = []
 	var cur_battle_data: Dictionary = {"battleMacro": -1}
 	var placement_origins: Array = []
+	var queued_death_creatures: Array = []
 
 	func _init(combatants: Array) -> void:
 		all_battle_creatures_btns = combatants.duplicate()
@@ -328,6 +333,14 @@ class CombatTestState:
 	func remove_cb_from_battle(combatant: Variant) -> void:
 		all_battle_creatures_btns.erase(combatant)
 		battle_creatures_yet_to_act_btns.erase(combatant)
+
+	func queue_classic_death_macro(creature: Variant) -> bool:
+		if not creature.has_meta("classic_death_macro"):
+			return false
+		if int(creature.get_meta("classic_death_macro")) <= 0:
+			return false
+		queued_death_creatures.append(creature)
+		return true
 
 	func find_pos_for_crea_on_battlefield(
 		_creature: Variant,
@@ -509,7 +522,9 @@ func _init() -> void:
 	_test_combat_monster_rout_action()
 	_test_combat_monster_spawn_action()
 	_test_battle_round_macro_action()
+	_test_classic_combat_macro_queue()
 	await _test_native_battle_round_host()
+	await _test_queued_combat_macro_host()
 	_test_forced_battle_end_action()
 	_test_action_point_copy_mutations(bundle)
 	_test_action_data_patch_variants()
@@ -3987,12 +4002,15 @@ func _test_combat_monster_destruction_action() -> void:
 	var adapter = GodotAdapterScript.new()
 	var enemy_one_creature := CombatTestCreature.new("Rat Demi-Lord 134", 10)
 	enemy_one_creature.classic_monster_name_id = 12
+	enemy_one_creature.set_meta("classic_death_macro", 960)
 	var enemy_one := CombatTestButton.new(enemy_one_creature)
 	var enemy_two_creature := CombatTestCreature.new("Rat Demi-Lord 134", 10)
 	enemy_two_creature.classic_monster_name_id = 12
+	enemy_two_creature.set_meta("classic_death_macro", 960)
 	var enemy_two := CombatTestButton.new(enemy_two_creature)
 	var ally_creature := CombatTestCreature.new("Rat Demi-Lord 134", 10, 0)
 	ally_creature.classic_monster_name_id = 12
+	ally_creature.set_meta("classic_death_macro", 960)
 	var ally := CombatTestButton.new(ally_creature)
 	var other := CombatTestButton.new(CombatTestCreature.new("Podling 42", 10))
 	var defeated_creature := CombatTestCreature.new("Rat Demi-Lord 134", 0)
@@ -4023,6 +4041,11 @@ func _test_combat_monster_destruction_action() -> void:
 	_expect_equal(combat_state.all_battle_creatures_btns.size(), 2, "removed matches leave the live roster")
 	_expect_equal(combat_state.battle_creatures_yet_to_act_btns.size(), 2, "removed matches leave initiative")
 	_expect_equal(combat_state.battle_dead_enemies.size(), 2, "only hostile removals enter battle rewards")
+	_expect_equal(
+		combat_state.queued_death_creatures,
+		[enemy_one_creature, enemy_two_creature, ally_creature],
+		"Classic removals queue each affected death macro"
+	)
 
 
 func _test_lower_undead_deanimation_action() -> void:
@@ -4181,6 +4204,7 @@ func _test_combat_monster_spawn_action() -> void:
 		var spawned: Variant = spawned_value.creature
 		_expect_equal(spawned.initialized_name, "Goblin 92", "spawn resolves native bestiary entry")
 		_expect_equal(spawned.get_meta("classic_monster_id"), 92, "spawn records Classic identity")
+		_expect_equal(spawned.get_meta("classic_death_macro"), 960, "spawn records death macro")
 		_expect_equal(spawned.classic_monster_id, 92, "spawn preserves Classic record identity")
 		_expect_equal(spawned.classic_monster_name_id, 7, "spawn preserves Classic name identity")
 		_expect_equal(spawned.curFaction, 3, "spawn inherits actor faction")
@@ -4338,6 +4362,30 @@ func _test_battle_round_macro_action() -> void:
 	_expect_equal(battle_data.get("battleMacro"), 0, "one-shot schedule is disabled")
 
 
+func _test_classic_combat_macro_queue() -> void:
+	var creature := CombatTestCreature.new("Queued Beast", 0, 3)
+	creature.position = Vector2(8, 9)
+	creature.set_meta("classic_death_macro", 960)
+	creature.set_meta("classic_monster_id", 42)
+	creature.set_meta("classic_monster_name_id", 7)
+	var entry: Dictionary = CombatMacroQueueScript.death_macro_entry(creature)
+	_expect_equal(entry.get("triggerId"), "Data ED3:macro:960", "death macro resolves ED3 trigger")
+	var context: Dictionary = entry.get("context", {})
+	_expect(bool(context.get("queuedMacro", false)), "death macro records queued execution")
+	_expect_equal(context.get("actorPosition"), Vector2(8, 9), "death macro records actor position")
+	_expect_equal(context.get("actorFaction"), 3, "death macro records actor faction")
+	_expect_equal(context.get("actorMonsterId"), 42, "death macro records monster identity")
+	_expect_equal(context.get("actorMonsterNameId"), 7, "death macro records name identity")
+	var queue: Array = []
+	_expect(CombatMacroQueueScript.enqueue_death_macro(queue, creature), "death macro enters queue")
+	_expect_equal(queue, [entry], "death macro queue preserves its entry")
+	creature.set_meta("classic_death_macro", 0)
+	_expect(
+		not CombatMacroQueueScript.enqueue_death_macro(queue, creature),
+		"monster without death macro does not enter queue"
+	)
+
+
 func _test_native_battle_round_host() -> void:
 	var bundle = _combat_monster_test_bundle()
 	_add_stack_trigger(bundle, "Data ED3:macro:118", 118, [
@@ -4425,6 +4473,46 @@ func _test_native_battle_round_host() -> void:
 		"outer command context is preserved"
 	)
 	_expect(not host.nested_trigger_active, "nested battle macro releases its execution guard")
+	host.active = false
+	host.command_context.clear()
+	host.queue_free()
+
+
+func _test_queued_combat_macro_host() -> void:
+	var bundle = _combat_monster_test_bundle()
+	var state = StateScript.new()
+	state.configure_from_bundle(bundle)
+	var adapter = BattleRoundHostAdapter.new(self)
+	var host = HostScript.new()
+	get_root().add_child(host)
+	host.configure(adapter)
+	host.runtime.use_shared_campaign(bundle, state)
+	host.active = true
+	host.command_context = {"outerMarker": "suspended-battle"}
+	var creature := CombatTestCreature.new("Queued Beast", 0, 3)
+	creature.position = Vector2(8, 9)
+	creature.set_meta("classic_death_macro", 960)
+	var dispatch: Dictionary = await host.run_queued_combat_macro(
+		CombatMacroQueueScript.death_macro_entry(creature),
+		{"combatRound": 4, "battleMacro": -118}
+	)
+	_expect(bool(dispatch.get("handled", false)), "queued combat macro is handled")
+	_expect_equal(dispatch.get("triggerId"), "Data ED3:macro:960", "queued macro resolves ED3 trigger")
+	_expect_equal(dispatch.get("result", {}).get("status"), "completed", "queued macro completes")
+	_expect_equal(adapter.commands.size(), 1, "queued macro drives its target action point")
+	var payload: Dictionary = adapter.commands[0].get("payload", {})
+	_expect_equal(payload.get("messageId"), 928, "queued macro runs its target")
+	_expect_equal(payload.get("combatRound"), 4, "queued macro receives one-based round")
+	_expect_equal(payload.get("battleMacro"), -118, "queued macro receives battle schedule")
+	_expect(bool(payload.get("queuedMacro", false)), "queued macro receives queued state")
+	_expect_equal(payload.get("actorPosition"), Vector2(8, 9), "queued macro receives actor position")
+	_expect_equal(payload.get("actorFaction"), 3, "queued macro receives actor faction")
+	_expect(host.active, "queued macro preserves the suspended outer action point")
+	_expect_equal(
+		host.command_context.get("outerMarker"),
+		"suspended-battle",
+		"queued macro preserves outer command context"
+	)
 	host.active = false
 	host.command_context.clear()
 	host.queue_free()
@@ -4599,6 +4687,7 @@ func _test_compiled_battle_materialization() -> void:
 	battle["messageAfter"] = 32
 	battle["battleMacro"] = -9
 	battle["grid"][84] = -1
+	bundle.monsters_by_id[1]["deathMacro"] = 42
 	var adapter = GodotAdapterScript.new()
 	var result: Dictionary = adapter.materialize_classic_battle(
 		battle,
@@ -4630,6 +4719,11 @@ func _test_compiled_battle_materialization() -> void:
 		creature[2].get("classicMonsterNameId"),
 		1,
 		"compiled battle preserves monster name identity"
+	)
+	_expect_equal(
+		creature[2].get("classicDeathMacro"),
+		42,
+		"compiled battle preserves monster death macro"
 	)
 	_expect(bool(creature[2].get("classicForceFriend")), "negative grid entry flips side")
 
@@ -7831,6 +7925,7 @@ func _combat_monster_test_bundle():
 		"nameId": 7,
 		"displayName": "Goblin",
 		"traitor": 4,
+		"deathMacro": 960,
 		"typeFlags": [0, 0, 0, 0, 0, 0, 0, 0],
 	}
 	bundle.monsters_by_id[134] = {
@@ -7891,6 +7986,7 @@ func _combat_monster_test_bundle():
 	_add_stack_trigger(bundle, "Data ED3:macro:950", 950, [_classic_action(0, 1, 925)])
 	_add_stack_trigger(bundle, "Data ED3:macro:951", 951, [_classic_action(0, 1, 926)])
 	_add_stack_trigger(bundle, "Data ED3:macro:952", 952, [_classic_action(0, 1, 927)])
+	_add_stack_trigger(bundle, "Data ED3:macro:960", 960, [_classic_action(0, 1, 928)])
 	_add_stack_trigger(bundle, "combat:end", -1, [
 		_classic_action(0, 100, 0),
 		_classic_action(1, 1, 923),

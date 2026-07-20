@@ -239,6 +239,7 @@ func enter(_msg : Dictionary = {}) -> void:
 			for ded in dying:
 				#ded.creature.doing_on_death_action = true
 				if is_instance_valid(ded) :
+					combat_state.queue_classic_death_macro(ded.creature)
 					ded.atkSprite.frame = ded.pic_frame_dict["ATK_SKL"]
 					ded.atkSprite.show()
 					var added_to_queue : Array = []
@@ -277,7 +278,8 @@ func enter(_msg : Dictionary = {}) -> void:
 		
 	var battle_end_str : String = combat_state.check_battle_end()  # 0=nope 1=won 2=lost 3=fled
 	print("CbAnim l263 before check balle end")
-	if not battle_end_str.is_empty() :
+	# Classic drains queued death macros before deciding whether combat is over.
+	if not battle_end_str.is_empty() and not combat_state.has_classic_combat_macros() :
 		GameGlobal.end_battle(battle_end_str)
 		return
 	print("Cbanim m 266 transition_to(Combat/CbDecideAction)")

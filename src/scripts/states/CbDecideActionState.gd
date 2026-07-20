@@ -68,6 +68,11 @@ func enter(_msg : Dictionary = {}) -> void:
 		await initialize_battle(_msg, resources, map)
 		#printerr("CBDecideAction combat_state.all_battle_creatures_btns after  init : ", combat_state.all_battle_creatures_btns)
 		printerr("CBDecideAction combat_state.battle_creatures_yet_to_act_btns after  init : ", combat_state.battle_creatures_yet_to_act_btns)
+	if StateMachine.state != self:
+		return
+	await _flush_classic_combat_macros()
+	if StateMachine.state != self:
+		return
 
 	if UI.ow_hud.turnorderPanel.visible :
 		UI.ow_hud.turnorderPanel.update_display()
@@ -122,6 +127,7 @@ func enter(_msg : Dictionary = {}) -> void:
 func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map : Map) :
 	combat_state.cur_battle_round = 0
 	combat_state.cur_battle_data = _msg
+	combat_state.clear_classic_combat_macros()
 	is_bandaging = false
 	var _battle_pos : Array = [map.focuscharacter.tile_position_x, map.focuscharacter.tile_position_y]
 	if _msg.has("Position") :
@@ -219,6 +225,8 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 			"classic_monster_name_id",
 			int(metadata["classicMonsterNameId"])
 		)
+	if metadata.has("classicDeathMacro"):
+		creature.set_meta("classic_death_macro", int(metadata["classicDeathMacro"]))
 	if bool(metadata.get("classicForceFriend", false)):
 		var flipped_faction := 1 if int(creature.curFaction) == 0 else 0
 		creature.baseFaction = flipped_faction
@@ -310,6 +318,37 @@ func _dispatch_classic_battle_round(
 			"message": "Classic battle-round dispatcher returned an invalid result",
 		},
 	}
+
+
+func _flush_classic_combat_macros() -> void:
+	if not combat_state.has_classic_combat_macros():
+		return
+	var host: Variant = GameGlobal.classic_runtime_host
+	if not is_instance_valid(host) or not host.has_method("run_queued_combat_macro"):
+		printerr("Classic combat macro queue has no registered runtime host")
+		combat_state.clear_classic_combat_macros()
+		return
+	while combat_state.has_classic_combat_macros():
+		var entry: Dictionary = combat_state.pop_classic_combat_macro()
+		var dispatch: Variant = await host.call(
+			"run_queued_combat_macro",
+			entry,
+			{
+				"combatRound": combat_state.cur_battle_round,
+				"battleMacro": int(combat_state.cur_battle_data.get("battleMacro", 0)),
+			}
+		)
+		if not (dispatch is Dictionary):
+			printerr("Classic queued combat macro returned an invalid result")
+			continue
+		var result: Variant = dispatch.get("result", {})
+		if result is Dictionary and str(result.get("status", "")) not in ["completed", ""]:
+			printerr(
+				"Classic queued combat action point stopped: ",
+				result.get("message", result)
+			)
+		if StateMachine.state != self:
+			return
 
 
 func _classic_battle_round_context() -> Dictionary:

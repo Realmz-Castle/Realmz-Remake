@@ -965,6 +965,7 @@ func materialize_classic_battle(
 			{
 				"classicMonsterId": monster_id,
 				"classicMonsterNameId": int(monster.get("nameId", -1)),
+				"classicDeathMacro": int(monster.get("deathMacro", 0)),
 				"classicForceFriend": raw_monster_id < 0,
 			},
 		])
@@ -1075,6 +1076,8 @@ func remove_classic_combatants(combat_state: Variant, combatants: Array) -> int:
 		var creature: Variant = _combatant_creature(combatant_value)
 		if creature == null:
 			continue
+		if combat_state.has_method("queue_classic_death_macro"):
+			combat_state.queue_classic_death_macro(creature)
 		if defeated is Array and _combat_creature_faction(creature) != 0:
 			if not defeated.has(creature):
 				defeated.append(creature)
@@ -1174,6 +1177,7 @@ func _set_classic_monster_identity(
 	var name_id := int(monster.get("nameId", -1))
 	creature.set_meta("classic_monster_id", monster_id)
 	creature.set_meta("classic_monster_name_id", name_id)
+	creature.set_meta("classic_death_macro", int(monster.get("deathMacro", 0)))
 	if _object_has_property(creature, "classic_monster_id"):
 		creature.set("classic_monster_id", monster_id)
 	if _object_has_property(creature, "classic_monster_name_id"):

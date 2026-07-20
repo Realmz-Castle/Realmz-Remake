@@ -105,6 +105,31 @@ func run_battle_round_macro(
 	}
 
 
+func run_queued_combat_macro(entry: Dictionary, combat_context := {}) -> Dictionary:
+	var trigger_id := str(entry.get("triggerId", ""))
+	if trigger_id.is_empty() or not has_trigger(trigger_id):
+		return {
+			"handled": true,
+			"triggerId": trigger_id,
+			"result": {
+				"status": "error",
+				"message": "Classic queued combat macro trigger '%s' is missing" % trigger_id,
+			},
+		}
+	var execution_context: Dictionary = combat_context.duplicate(true) \
+		if combat_context is Dictionary else {}
+	var queued_context: Variant = entry.get("context", {})
+	if queued_context is Dictionary:
+		for context_key: Variant in queued_context:
+			execution_context[context_key] = queued_context[context_key]
+	execution_context["queuedMacro"] = true
+	return {
+		"handled": true,
+		"triggerId": trigger_id,
+		"result": await run_nested_trigger(trigger_id, 0, execution_context),
+	}
+
+
 func activate_start_location() -> Dictionary:
 	if command_adapter == null or not command_adapter.has_method("activate_classic_start"):
 		return {
