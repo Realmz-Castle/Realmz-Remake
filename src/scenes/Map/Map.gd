@@ -492,7 +492,10 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 			if t.x<0 or t.y<0 or t.x>=explored_tiles_x_size or t.y>=explored_tiles_y_size : break
 			explored_tiles[t.y][t.x] = 1
 #			print(mapdata[t.x][t.y])
-			if bool(mapdata[t.x][t.y][0]["blkview"]) :
+			var tile_stack: Array = mapdata[t.x][t.y]
+			if tile_stack.is_empty():
+				continue
+			if bool(tile_stack[0]["blkview"]) :
 				break
 
 func generate_zoomed_map(mapname : String) -> void:

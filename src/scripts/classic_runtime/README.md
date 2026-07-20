@@ -189,6 +189,23 @@ shared bestiary and therefore correctly produces no ally diagnostic.
 
 ## Godot guard-house playtest
 
+The map bridge playtest loads Remake's existing City of Bywater map resources,
+activates the checked Classic fixture at `land:0`, follows `Data DD:0:83` into
+`dungeon:0`, and follows `Data DDD:0:1` back outside. The normal run leaves the
+final land map open after displaying both native maps:
+
+```powershell
+Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn
+```
+
+Its automated smoke verifies the native map identities, map families, dungeon
+heading and multiview state, renderable tile textures, and distinct captured
+land and dungeon output:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- --smoke
+```
+
 The first in-engine vertical slice loads the CoB fixture, displays `Data DD:0:0` through Remake's existing `TextRect`, presents the four source-backed `Data ED` choices and Classic's Back Out control, feeds the selected result back to the interpreter, and runs that eight-action encounter result block.
 
 Run the standalone scene from the repository root:
