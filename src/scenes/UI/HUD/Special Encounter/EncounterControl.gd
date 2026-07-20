@@ -33,6 +33,14 @@ func _ready():
 	useSkillRect.connect("skill_picked", Callable(self,"_on_skill_used"))
 
 func initialize(scriptname : String) :
+	if not transition_to(scriptname):
+		close()
+		return
+	await self.encounter_over
+	close()
+
+
+func transition_to(scriptname: String) -> bool:
 	print("encountercontrol initialize : "+scriptname)
 	encounter_phrase_selection_mode = false
 	encounter_phrase = ""
@@ -42,8 +50,7 @@ func initialize(scriptname : String) :
 		encounter_name = encounter_name.trim_suffix(".gd")
 	if not resources.special_encounters_book.has(encounter_name):
 		push_error("Special encounter %s was not found" % scriptname)
-		close()
-		return
+		return false
 	if encounter_script != null:
 		if encounter_script.is_connected("encounter_over", _on_encounter_script_over):
 			encounter_script.disconnect("encounter_over", _on_encounter_script_over)
@@ -58,8 +65,7 @@ func initialize(scriptname : String) :
 		encounter_script.connect("encounter_changed", _configure_encounter_buttons)
 	_configure_encounter_buttons()
 	show()
-	await self.encounter_over
-	close()
+	return true
 
 
 func _configure_encounter_buttons() -> void:

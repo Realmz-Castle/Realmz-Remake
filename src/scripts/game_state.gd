@@ -419,6 +419,10 @@ func check_map_script(position, context := {}) ->bool :
 					break
 				
 				script_returned = await GameGlobal.map.mapscripts.call(GameGlobal.current_map_script_name)
+				if ScriptHelperFuncsClass.is_complex_encounter_branch(script_returned):
+					await run_complex_encounter_branch(script_returned)
+					script_returned = ''
+					break
 				if script_returned != null:
 					print("StateMachine check_map_scripts : script_returned is "+str(script_returned))
 					GameGlobal.current_map_script_name = script_returned
@@ -438,6 +442,10 @@ func check_map_script(position, context := {}) ->bool :
 	return canwalk
 	
 
+
+
+func run_complex_encounter_branch(branch: Dictionary) -> void:
+	await ScriptHelperFuncsClass.start_complex_encounter(str(branch["encounter"]))
 
 
 func enter_ex_menu_state(msg_dict : Dictionary) :

@@ -7,6 +7,9 @@ const NativeEncounterRuntimeScript = preload(
 const NativeEncounterBookScript = preload(
 	"res://scripts/native_encounters/native_encounter_book.gd"
 )
+const NativeEncounterBranchScript = preload(
+	"res://scripts/native_encounters/native_encounter_branch.gd"
+)
 const FIXTURE_PATH := (
 	"res://Campaigns/City of Bywater/Special Encounters/encounters.json"
 )
@@ -22,6 +25,7 @@ func _initialize() -> void:
 	_test_loader()
 	_test_response_modes(document)
 	_test_nested_route_and_state_round_trip(document)
+	_test_legacy_complex_encounter_branch()
 	_test_validation_rejects_missing_results(document)
 	_finish()
 
@@ -127,6 +131,19 @@ func _test_validation_rejects_missing_results(document: Dictionary) -> void:
 	invalid["encounters"]["native_nested_followup"]["responses"]["action"][0]["result"] = "missing"
 	var validation: Dictionary = NativeEncounterRuntimeScript.new().validate_document(invalid)
 	_expect(validation.get("status") == "error", "missing response results are rejected")
+
+
+func _test_legacy_complex_encounter_branch() -> void:
+	var branch: Dictionary = NativeEncounterBranchScript.create(2)
+	_expect(
+		NativeEncounterBranchScript.is_branch(branch),
+		"legacy scripts can request a native complex encounter"
+	)
+	_expect(branch.get("encounter") == "CE2", "complex encounter requests retain their target")
+	_expect(
+		not NativeEncounterBranchScript.is_branch({"kind": "complexEncounter"}),
+		"complex encounter requests require a target"
+	)
 
 
 func _configured_runtime(document: Dictionary, state: Dictionary) -> RefCounted:

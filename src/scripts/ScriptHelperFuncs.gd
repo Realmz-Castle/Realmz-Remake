@@ -1,6 +1,11 @@
 extends Node
 class_name ScriptHelperFuncsClass
 
+
+const NativeEncounterBranch = preload(
+	"res://scripts/native_encounters/native_encounter_branch.gd"
+)
+
 static func get_random_creature_of_size(needed_size : Vector2i, pickstrongest : bool, picks_to_compare : int) -> String :
 	var bestiary : Dictionary = GameGlobal.cmp_resources.crea_book
 	var right_size_crea_namesandlvl : Array = []
@@ -104,13 +109,25 @@ static func display_simple_encounter_Divinity(enc_id : int) :
 
 ## Divinity Code 5: Complex Encounter, complex_enc
 ## Use: Send party to a Complex Encounter.
-static func start_complex_encounter( comp_enc_name : String) :
+static func start_complex_encounter(comp_enc_name: String) -> void:
 	StateMachine.enter_ex_menu_state({"prev_state" : "Exploration", "menu_name" : "SpecEncounter_menu"})
 	UI.ow_hud.encounterControl.show()
-	UI.ow_hud.encounterControl.initialize(comp_enc_name)
+	await UI.ow_hud.encounterControl.initialize(comp_enc_name)
 
-static func start_complex_encounter_Divinity( ce_id : int) :
+static func start_complex_encounter_Divinity(ce_id: int) -> void:
 	await start_complex_encounter("CE"+str(ce_id))
+
+
+static func complex_encounter_branch(ce_id: int) -> Dictionary:
+	return NativeEncounterBranch.create(ce_id)
+
+
+static func is_complex_encounter_branch(branch: Variant) -> bool:
+	return NativeEncounterBranch.is_branch(branch)
+
+
+static func transition_complex_encounter_Divinity(ce_id: int) -> bool:
+	return UI.ow_hud.encounterControl.transition_to("CE%d" % ce_id)
 
 
 static func play_sound(sfx_name : String, stop : bool) :
@@ -957,6 +974,8 @@ static func branch_on_random_divinity(type:int, low:int, high:int, sound_id:int,
 			return 'XAP'+str(rand_id)
 		1 :#SEeeee
 			return 'SE'+str(rand_id)
+		2: #Complex encounter
+			return complex_encounter_branch(rand_id)
 
 
 #Code 42: Branch on Percent Chance
@@ -1052,8 +1071,7 @@ static func branch_NPC_in_party_Divinity(creature_name : String, ifpresenttype :
 			1 : #SEXAP
 				return GameGlobal.prev_simple_enc_name+str(ifpresentto)
 			2: #complex :
-				printerr("ScriptHelperFuncs branch_NPC_in_party_Divinity : cant  handle  special encounter "+str(ifpresentto)+", fix manually")
-				assert(false)
+				return complex_encounter_branch(ifpresentto)
 	else :
 		match ifabsenttype :
 			0 : #like in item 2 if present
@@ -1063,12 +1081,11 @@ static func branch_NPC_in_party_Divinity(creature_name : String, ifpresenttype :
 					1 : #SEXAP
 						return GameGlobal.prev_simple_enc_name+str(ifabsentto)
 					2: #complex :
-						printerr("ScriptHelperFuncs branch_NPC_in_party_Divinity : cant  handle  special encounter "+str(ifabsentto)+", fix manually")
-						assert(false)
+						return complex_encounter_branch(ifabsentto)
 			1 : #continue
 				return ''#GameGlobal.prev_simple_enc_name+str(ifabsentto)
 			2: #complex :
-				printerr("ScriptHelperFuncs branch_NPC_in_party_Divinity : cant  handle  special encounter "+str(ifabsentto)+", fix manually")
+				printerr("ScriptHelperFuncs branch_NPC_in_party_Divinity : displaying an absent-ally string is not supported")
 				assert(false)
 	return ''
 

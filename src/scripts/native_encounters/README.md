@@ -92,6 +92,14 @@ rules, mutation quirks, resource identities, and other compatibility details.
 A compatibility adapter may use the native HUD or services, but native
 encounter data must not be treated as a replacement for Classic control flow.
 
+Converted native campaign scripts can return a `complexEncounter` branch
+request when a branch selects an entire encounter. The map-script loop opens
+that encounter through the same HUD and ends the source script chain when the
+encounter closes. An active GDScript encounter can also transition to another
+loaded encounter without closing the HUD. These adapters cover Remake's native
+campaign scripts; Classic stack behavior remains in the compatibility
+interpreter.
+
 The City of Bywater `native_nested_proof` fixture exercises all response modes,
 conditional and nested routing, and serialized mutation state. Run its focused
 test from the Godot project directory with:

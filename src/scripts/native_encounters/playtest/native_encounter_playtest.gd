@@ -191,6 +191,53 @@ func _run_smoke() -> void:
 	encounter.stopButton.pressed.emit()
 	await _wait_frames(2)
 	_expect(not encounter.visible, "stop closes the encounter through the existing HUD")
+
+	var random_branch: Variant = ScriptHelperFuncsClass.branch_on_random_divinity(
+		2,
+		1,
+		1,
+		0,
+		""
+	)
+	_expect(
+		ScriptHelperFuncsClass.is_complex_encounter_branch(random_branch)
+			and random_branch.get("encounter") == "CE1",
+		"random branches can target a complex encounter"
+	)
+	var absent_ally_branch: Variant = ScriptHelperFuncsClass.branch_NPC_in_party_Divinity(
+		"Missing Ally",
+		2,
+		0,
+		1,
+		2
+	)
+	_expect(
+		ScriptHelperFuncsClass.is_complex_encounter_branch(absent_ally_branch)
+			and absent_ally_branch.get("encounter") == "CE2",
+		"ally checks can target a complex encounter"
+	)
+	StateMachine.run_complex_encounter_branch(
+		random_branch
+	)
+	await _wait_frames(2)
+	_expect(
+		encounter.visible
+			and encounter.encounter_script
+				== NodeAccess.__Resources().special_encounters_book.get("CE1"),
+		"legacy map branches open a complex encounter through the existing HUD"
+	)
+	var transitioned := ScriptHelperFuncsClass.transition_complex_encounter_Divinity(2)
+	await _wait_frames(2)
+	_expect(
+		transitioned
+			and encounter.visible
+			and encounter.encounter_script
+				== NodeAccess.__Resources().special_encounters_book.get("CE2"),
+		"legacy complex encounters can transition without closing the HUD"
+	)
+	encounter.stopButton.pressed.emit()
+	await _wait_frames(2)
+	_expect(not encounter.visible, "the transitioned legacy encounter closes normally")
 	_finish()
 
 
