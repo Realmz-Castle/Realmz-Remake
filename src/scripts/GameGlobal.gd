@@ -454,9 +454,14 @@ func validate_classic_campaign_save(campaign_name: String, payload: Variant) -> 
 	var install = ClassicCampaignInstallScript.new()
 	if not install.load_from_campaigns_directory(Paths.campaignsfolderpath, campaign_name):
 		return {"status": "error", "message": install.last_error}
-	return ClassicCampaignSessionScript.validate_save_payload(
+	var campaign_validation := ClassicCampaignSessionScript.validate_save_payload(
 		payload,
 		str(install.bundle.manifest.get("id", ""))
+	)
+	if str(campaign_validation.get("status", "")) != "ok":
+		return campaign_validation
+	return ClassicGodotCommandAdapterScript.validate_classic_save_state(
+		payload.get("adapterState", {})
 	)
 
 

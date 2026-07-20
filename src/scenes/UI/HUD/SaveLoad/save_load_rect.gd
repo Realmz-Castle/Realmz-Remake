@@ -250,7 +250,6 @@ func disable_create_new_save(dis : bool) :
 
 func load_game(campaignname : String, savename : String) :
 	var prevCampaign : String = GameGlobal.currentcampaign+''
-	GameGlobal.allow_next_battle_loot = true
 	# GameGlobal.init_globals_before_game_start....
 	var save_path : String = Paths.profilesfolderpath + GameGlobal.currentprofile + "/Saves/"+ campaignname + "/"+ savename
 	print("load_game save_path : ", save_path)
@@ -267,6 +266,8 @@ func load_game(campaignname : String, savename : String) :
 		preview_panel.notesTextEdit.text = validation_message
 		push_error(validation_message)
 		return
+	# Do not change the active profile until the Classic save and install agree.
+	GameGlobal.allow_next_battle_loot = true
 	var shop_data : Dictionary = Utils.FileHandler.read_json_dic_from_file(save_path+"/shops.json")
 	var money_banked : Array = []
 	if GameGlobal.honest_mode :

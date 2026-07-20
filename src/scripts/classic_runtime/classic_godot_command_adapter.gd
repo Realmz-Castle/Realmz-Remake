@@ -153,29 +153,44 @@ func classic_save_state() -> Dictionary:
 	return {"storedPartyEquipment": saved_equipment}
 
 
-func restore_classic_save_state(saved_state: Dictionary) -> Dictionary:
+static func validate_classic_save_state(saved_state: Variant) -> Dictionary:
+	if not (saved_state is Dictionary):
+		return {"status": "error", "message": "Classic save contains invalid adapter state"}
 	var equipment_value: Variant = saved_state.get("storedPartyEquipment", {})
 	if not (equipment_value is Dictionary):
-		return _error("Classic save contains invalid stored equipment")
-	stored_party_equipment = equipment_value.duplicate(true)
-	var inventories: Variant = stored_party_equipment.get("inventories", [])
+		return {"status": "error", "message": "Classic save contains invalid stored equipment"}
+	var inventories: Variant = equipment_value.get("inventories", [])
 	if not (inventories is Array):
-		return _error("Classic save contains invalid stored inventories")
-	var resources := _classic_campaign_resources()
-	if resources == null or not resources.has_method("generate_item_from_json_dict"):
-		return {"status": "ok"}
-	for inventory_index: int in inventories.size():
-		var inventory_value: Variant = inventories[inventory_index]
+		return {"status": "error", "message": "Classic save contains invalid stored inventories"}
+	for inventory_value: Variant in inventories:
 		if not (inventory_value is Array):
-			return _error("Classic save contains an invalid stored inventory")
-		var restored_inventory: Array = []
+			return {"status": "error", "message": "Classic save contains an invalid stored inventory"}
 		for item_value: Variant in inventory_value:
 			if not (item_value is Dictionary):
-				return _error("Classic save contains an invalid stored item")
+				return {"status": "error", "message": "Classic save contains an invalid stored item"}
+	return {"status": "ok"}
+
+
+func restore_classic_save_state(saved_state: Dictionary) -> Dictionary:
+	var validation := validate_classic_save_state(saved_state)
+	if str(validation.get("status", "")) != "ok":
+		return validation
+	var equipment_value: Variant = saved_state.get("storedPartyEquipment", {})
+	var restored_equipment: Dictionary = equipment_value.duplicate(true)
+	var inventories: Array = restored_equipment.get("inventories", [])
+	var resources := _classic_campaign_resources()
+	if resources == null or not resources.has_method("generate_item_from_json_dict"):
+		stored_party_equipment = restored_equipment
+		return {"status": "ok"}
+	for inventory_index: int in inventories.size():
+		var inventory_value: Array = inventories[inventory_index]
+		var restored_inventory: Array = []
+		for item_value: Variant in inventory_value:
 			restored_inventory.append(
 				resources.call("generate_item_from_json_dict", item_value.duplicate(true))
 			)
 		inventories[inventory_index] = restored_inventory
+	stored_party_equipment = restored_equipment
 	return {"status": "ok"}
 
 

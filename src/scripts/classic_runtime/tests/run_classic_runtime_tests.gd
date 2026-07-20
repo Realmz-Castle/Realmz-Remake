@@ -182,6 +182,31 @@ class StartLocationAdapter:
 		return {}
 
 
+class FailingSaveRestoreAdapter:
+	extends RefCounted
+	var compatibility_state := {"marker": "original"}
+	var reject_next_restore := false
+
+	func configure_classic_bundle(_bundle: Variant) -> void:
+		pass
+
+	func classic_save_state() -> Dictionary:
+		return compatibility_state.duplicate(true)
+
+	func restore_classic_save_state(saved_state: Dictionary) -> Dictionary:
+		compatibility_state = saved_state.duplicate(true)
+		if reject_next_restore:
+			reject_next_restore = false
+			return {
+				"status": "error",
+				"message": "Classic adapter rejected the saved state",
+			}
+		return {"status": "ok"}
+
+	func execute_command(_command: String, _payload: Dictionary) -> Dictionary:
+		return {}
+
+
 class SelectiveBattleAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -646,6 +671,7 @@ func _init() -> void:
 	_test_bundle_contract_validation()
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
+	_test_failed_save_restore_rolls_back()
 	_test_native_battle_bridge_fixture()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
@@ -768,6 +794,17 @@ func _test_bundle_contract_validation() -> void:
 	_expect(
 		version_bundle.last_error.contains("rules.schemaVersion"),
 		"document version error identifies the document"
+	)
+	var future_format_bundle = BundleScript.new()
+	future_format_bundle.manifest = _minimal_contract_manifest()
+	future_format_bundle.manifest["formatVersion"] = BundleScript.FORMAT_VERSION + 1
+	_expect(
+		not future_format_bundle._validate_manifest_contract(),
+		"bundle contract rejects a newer campaign format"
+	)
+	_expect(
+		future_format_bundle.last_error.contains("format version"),
+		"campaign format rejection is actionable"
 	)
 
 	var missing_id_bundle = BundleScript.new()
@@ -1284,6 +1321,10 @@ func _test_installed_classic_campaign_layout() -> void:
 	saved_state.set_tile("dungeon", 2, 14, 29, 118)
 	saved_state.set_trigger_percent("dungeon", 2, 7, 35)
 	saved_state.set_action_point_override("save:test", {"id": "save:test", "active": false})
+	saved_state.set_thief_encounter_override(4, {"id": 4, "tumblers": 0})
+	saved_state.set_simple_encounter_override(2, {"id": 2, "maximumAttempts": 1})
+	saved_state.set_complex_encounter_override(3, {"id": 3, "maximumAttempts": 2})
+	saved_state.set_timed_encounter_override(1, {"id": 1, "chancePercent": 0})
 	saved_state.set_map_owned(6)
 	saved_state.set_random_rectangle("dungeon", 2, 1, {
 		"rectIndex": 1,
@@ -1354,6 +1395,32 @@ func _test_installed_classic_campaign_layout() -> void:
 		35,
 		"saved campaign restores trigger mutations"
 	)
+	_expect_equal(
+		restored_state.get_action_point_override("save:test").get("active"),
+		false,
+		"saved campaign restores action-point mutations"
+	)
+	_expect_equal(
+		restored_state.get_effective_thief_encounter({"id": 4}).get("tumblers"),
+		0,
+		"saved campaign restores thief-encounter mutations"
+	)
+	_expect_equal(
+		restored_state.get_effective_simple_encounter({"id": 2}).get("maximumAttempts"),
+		1,
+		"saved campaign restores simple-encounter mutations"
+	)
+	_expect_equal(
+		restored_state.get_effective_complex_encounter({"id": 3}).get("maximumAttempts"),
+		2,
+		"saved campaign restores complex-encounter mutations"
+	)
+	_expect_equal(
+		restored_state.get_effective_timed_encounter({"id": 1}).get("chancePercent"),
+		0,
+		"saved campaign restores timed-encounter mutations"
+	)
+	_expect(restored_state.is_map_owned(6), "saved campaign restores acquired maps")
 	_expect_equal(
 		restored_adapter.compatibility_state.get("storedPartyEquipment", {}).get("itemCount"),
 		2,
@@ -1444,8 +1511,83 @@ func _test_installed_classic_campaign_layout() -> void:
 		[4, 3, 2],
 		"adapter-owned captured wealth restores"
 	)
+	var equipment_before_invalid_restore: Dictionary = \
+		reloaded_equipment_adapter.stored_party_equipment.duplicate(true)
+	var invalid_equipment_result: Dictionary = \
+		reloaded_equipment_adapter.restore_classic_save_state({
+			"storedPartyEquipment": {
+				"active": true,
+				"inventories": [{"not": "an inventory"}],
+			},
+		})
+	_expect_equal(
+		invalid_equipment_result.get("status"),
+		"error",
+		"invalid equipment capture is rejected before load"
+	)
+	_expect(
+		str(invalid_equipment_result.get("message", "")).contains("stored inventory"),
+		"invalid equipment capture returns an actionable error"
+	)
+	_expect_equal(
+		reloaded_equipment_adapter.stored_party_equipment,
+		equipment_before_invalid_restore,
+		"rejected equipment capture leaves adapter state unchanged"
+	)
 	restored_session.clear()
 	restored_session.queue_free()
+	session.clear()
+	session.queue_free()
+
+
+func _test_failed_save_restore_rolls_back() -> void:
+	var campaigns_directory := PROVIDENCE_AUTHORITATIVE_FIXTURE.get_base_dir()
+	var campaign_name := PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file()
+	var session = CampaignSessionScript.new()
+	get_root().add_child(session)
+	var adapter = FailingSaveRestoreAdapter.new()
+	_expect_equal(
+		session.load_installed_campaign(
+			campaigns_directory,
+			campaign_name,
+			adapter
+		).get("status"),
+		"ok",
+		"recovery test campaign session loads"
+	)
+	var state: Object = session.host.runtime.runtime_state
+	state.set_quest_flag(12)
+	state.set_location("land", 0, 10, 12)
+	var runtime_before: Dictionary = state.snapshot()
+	var adapter_before: Dictionary = adapter.compatibility_state.duplicate(true)
+	var bundle_before: Dictionary = session.install.bundle.documents.duplicate(true)
+	var incoming: Dictionary = session.make_save_payload().duplicate(true)
+	incoming["runtimeState"]["questFlags"] = {"99": true}
+	incoming["runtimeState"]["position"] = {
+		"levelType": "dungeon",
+		"levelIndex": 3,
+		"x": 8,
+		"y": 9,
+	}
+	incoming["adapterState"] = {"marker": "incoming"}
+	adapter.reject_next_restore = true
+	var restore_result: Dictionary = session.restore_save_payload(incoming)
+	_expect_equal(restore_result.get("status"), "error", "failed adapter restore is reported")
+	_expect(
+		str(restore_result.get("message", "")).contains("rejected the saved state"),
+		"failed adapter restore returns an actionable error"
+	)
+	_expect_equal(state.snapshot(), runtime_before, "failed restore rolls back runtime mutations")
+	_expect_equal(
+		adapter.compatibility_state,
+		adapter_before,
+		"failed restore rolls back adapter mutations"
+	)
+	_expect_equal(
+		session.install.bundle.documents,
+		bundle_before,
+		"failed restore leaves the installed campaign immutable"
+	)
 	session.clear()
 	session.queue_free()
 

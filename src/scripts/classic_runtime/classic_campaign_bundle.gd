@@ -53,13 +53,6 @@ func load_from_directory(directory: String) -> bool:
 	if not (manifest_value is Dictionary):
 		return _fail("campaign.json must contain a JSON object")
 	manifest = manifest_value
-	if str(manifest.get("format", "")) != FORMAT:
-		return _fail("Unsupported classic campaign format: %s" % manifest.get("format", "<missing>"))
-	var format_version: Variant = manifest.get("formatVersion")
-	if not _is_integer(format_version) or int(format_version) != FORMAT_VERSION:
-		return _fail(
-			"Unsupported classic campaign format version: %s" % manifest.get("formatVersion", "<missing>")
-		)
 	if not _validate_manifest_contract():
 		return false
 
@@ -79,6 +72,16 @@ func load_from_directory(directory: String) -> bool:
 
 
 func _validate_manifest_contract() -> bool:
+	if str(manifest.get("format", "")) != FORMAT:
+		return _fail(
+			"Unsupported classic campaign format: %s" % manifest.get("format", "<missing>")
+		)
+	var format_version: Variant = manifest.get("formatVersion")
+	if not _is_integer(format_version) or int(format_version) != FORMAT_VERSION:
+		return _fail(
+			"Unsupported classic campaign format version: %s" % \
+				manifest.get("formatVersion", "<missing>")
+		)
 	if str(manifest.get("campaignKind", "")) != CAMPAIGN_KIND:
 		return _fail("campaign.json campaignKind must be '%s'" % CAMPAIGN_KIND)
 	if str(manifest.get("compatibilityProfile", "")) != COMPATIBILITY_PROFILE:

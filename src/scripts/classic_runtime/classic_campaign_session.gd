@@ -88,19 +88,65 @@ func restore_save_payload(payload: Dictionary) -> Dictionary:
 	if not is_instance_valid(host) or host.runtime == null:
 		return _error("Classic campaign runtime is not loaded")
 	var runtime_state: Object = host.runtime.runtime_state
+	var previous_runtime_state: Dictionary = runtime_state.call("snapshot")
+	var previous_continuation_result: Dictionary = host.make_continuation_snapshot()
+	if str(previous_continuation_result.get("status", "")) != "ok":
+		return previous_continuation_result
+	var previous_adapter_state := {}
+	if command_adapter != null and command_adapter.has_method("restore_classic_save_state"):
+		if not command_adapter.has_method("classic_save_state"):
+			return _error("Classic campaign adapter state cannot be recovered safely")
+		var saved_adapter_state: Variant = command_adapter.call("classic_save_state")
+		if not (saved_adapter_state is Dictionary):
+			return _error("Classic campaign adapter returned invalid recovery state")
+		previous_adapter_state = saved_adapter_state.duplicate(true)
 	runtime_state.call("restore", payload["runtimeState"])
 	if command_adapter != null and command_adapter.has_method("restore_classic_save_state"):
 		var adapter_result: Variant = command_adapter.call(
 			"restore_classic_save_state",
 			payload.get("adapterState", {})
 		)
-		if adapter_result is Dictionary and str(adapter_result.get("status", "")) == "error":
+		if not (adapter_result is Dictionary):
+			_rollback_restore(
+				runtime_state,
+				previous_runtime_state,
+				previous_adapter_state,
+				previous_continuation_result["snapshot"]
+			)
+			return _error("Classic campaign adapter returned an invalid restore result")
+		if str(adapter_result.get("status", "")) == "error":
+			_rollback_restore(
+				runtime_state,
+				previous_runtime_state,
+				previous_adapter_state,
+				previous_continuation_result["snapshot"]
+			)
 			return adapter_result
 	var continuation_state: Dictionary = payload.get("continuationState", {
 		"schemaVersion": RuntimeScript.CONTINUATION_SCHEMA_VERSION,
 		"state": "idle",
 	})
-	return host.restore_continuation(continuation_state)
+	var continuation_result: Dictionary = host.restore_continuation(continuation_state)
+	if str(continuation_result.get("status", "")) != "ok":
+		_rollback_restore(
+			runtime_state,
+			previous_runtime_state,
+			previous_adapter_state,
+			previous_continuation_result["snapshot"]
+		)
+	return continuation_result
+
+
+func _rollback_restore(
+	runtime_state: Object,
+	previous_runtime_state: Dictionary,
+	previous_adapter_state: Dictionary,
+	previous_continuation_state: Dictionary
+) -> void:
+	runtime_state.call("restore", previous_runtime_state)
+	if command_adapter != null and command_adapter.has_method("restore_classic_save_state"):
+		command_adapter.call("restore_classic_save_state", previous_adapter_state)
+	host.restore_continuation(previous_continuation_state)
 
 
 func has_pending_continuation() -> bool:
