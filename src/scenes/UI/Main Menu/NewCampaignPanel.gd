@@ -43,7 +43,7 @@ func _on_campaign_selected(idx : int) -> void :
 		return
 	
 	selectedCampaignNameLabel.text = selectedCampaign
-	selectedcampaign_onselect = load(Paths.campaignsfolderpath + selectedCampaign + "/on_select.gd" )
+	selectedcampaign_onselect = GameGlobal.get_campaign_selection_rules(selectedCampaign)
 	selectedCampaignDescrLabel.text = GameGlobal.get_campaign_description(selectedCampaign)
 	#reset the character picking panel
 	charPickRect.fill()
@@ -88,8 +88,9 @@ func _on_StartButton_pressed() -> void :
 	GameGlobal.init_globals_before_game_start(data_dict)
 	
 	#minimaps from on_campaign_start.gd  :
-	var onstartscript = load(Paths.campaignsfolderpath + selectedCampaign + "/on_campaign_start.gd" )
-	onstartscript.set_minimaps_in_gameglobal()
+	var onstartscript: Variant = GameGlobal.get_native_campaign_start_script(selectedCampaign)
+	if onstartscript != null:
+		onstartscript.set_minimaps_in_gameglobal()
 	#GameGlobal.currentcampaign_onload_script
 	
 	

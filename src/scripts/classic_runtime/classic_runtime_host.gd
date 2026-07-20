@@ -32,9 +32,23 @@ func load_campaign(directory: String) -> bool:
 	command_context.clear()
 	if not runtime.load_campaign(directory):
 		return false
+	_configure_adapter()
+	return true
+
+
+func use_campaign(campaign_bundle: ClassicCampaignBundle) -> void:
+	active = false
+	nested_trigger_active = false
+	command_context.clear()
+	var loaded_state := ClassicRuntimeState.new()
+	loaded_state.configure_from_bundle(campaign_bundle)
+	runtime.use_shared_campaign(campaign_bundle, loaded_state)
+	_configure_adapter()
+
+
+func _configure_adapter() -> void:
 	if command_adapter != null and command_adapter.has_method("configure_classic_bundle"):
 		command_adapter.call("configure_classic_bundle", runtime.bundle)
-	return true
 
 
 func has_trigger(trigger_id: String) -> bool:

@@ -1,6 +1,9 @@
 extends State
 class_name ExplorationState
 
+const ClassicCampaignGlobalScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_global.gd"
+)
 
 
 var map : Map
@@ -23,18 +26,35 @@ func enter(_msg : Dictionary = {}) -> void:
 	if _msg.has("campaign_start") or  _msg.has("campaign_continue") :
 		var is_start : bool = _msg["campaign_start"] if _msg.has("campaign_start") else false
 		var campaign : String = GameGlobal.currentcampaign
-		var onstartGD : GDScript = load(Paths.campaignsfolderpath + GameGlobal.currentcampaign + "/on_campaign_start.gd" )
-		if is_start :
+		var classic_campaign := GameGlobal.is_classic_campaign(campaign)
+		var onstartGD: Variant = GameGlobal.get_native_campaign_start_script(campaign)
+		if is_start and onstartGD != null:
 			onstartGD.before_loading_ressources()
-		GameGlobal.campaign_global_script = load(Paths.campaignsfolderpath + GameGlobal.currentcampaign + "/campaign_global_script.gd" ).new()
+		if classic_campaign:
+			GameGlobal.campaign_global_script = ClassicCampaignGlobalScript.new()
+		else:
+			GameGlobal.campaign_global_script = load(
+				Paths.campaignsfolderpath + campaign + "/campaign_global_script.gd"
+			).new()
 		GameGlobal.cmp_resources.load_campaign_ressources( campaign )
 
-		GameGlobal.load_shops_script(campaign)
-		GameGlobal.campaign_start_load_shops_data(GameGlobal.cmp_resources.items_book)
+		if not classic_campaign:
+			GameGlobal.load_shops_script(campaign)
+			GameGlobal.campaign_start_load_shops_data(GameGlobal.cmp_resources.items_book)
 		map = GameGlobal.map
-		if is_start :
+		if is_start and onstartGD != null:
 			onstartGD.after_loading_ressources()
-		map.load_map( campaign, GameGlobal.currentmap_name )
+		if classic_campaign:
+			var classic_start: Dictionary = GameGlobal.start_current_classic_campaign()
+			if str(classic_start.get("status", "")) == "error":
+				push_error("Classic campaign start failed: %s" % classic_start.get(
+					"message",
+					"unknown error"
+				))
+				StateMachine.transition_to("Inactive", {})
+				return
+		else:
+			map.load_map( campaign, GameGlobal.currentmap_name )
 		map.explore_tiles_from_tilepos(Vector2(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y))
 		map.visible = true
 		UI.show_only(UI.ow_hud)

@@ -13,6 +13,15 @@ extends Node
 const UDLR : Array = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
 const ShopRules = preload("res://scripts/shop_rules.gd")
 const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
+const ClassicCampaignInstallScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_install.gd"
+)
+const ClassicCampaignSessionScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_session.gd"
+)
+const ClassicGodotCommandAdapterScript = preload(
+	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
+)
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
@@ -21,6 +30,7 @@ const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 var map : Map
 var current_map_script_name : String = ''
 var classic_runtime_host: Object
+var classic_campaign_session: Object
 
 var playerCharacterGD : GDScript = preload("res://Creature/PlayerCharacter.gd")
 var combatCreatureGD : GDScript = preload("res://Creature/Creature.gd")
@@ -44,7 +54,7 @@ var dontlognext_execute_spell : bool = false
 
 var honest_mode : bool = false
 var currentcampaign : String = ''
-var currentcampaign_onload_script : GDScript = null
+var currentcampaign_onload_script: Variant = null
 var campaign_global_script = null
 var currentprofile : String = 'Default Profile'
 var profile_characters_list : Array = []
@@ -380,6 +390,41 @@ func clear_classic_runtime_host(host: Object = null) -> void:
 		classic_runtime_host = null
 
 
+func stop_classic_campaign_runtime() -> void:
+	classic_runtime_host = null
+	if is_instance_valid(classic_campaign_session):
+		classic_campaign_session.call("clear")
+		classic_campaign_session.queue_free()
+	classic_campaign_session = null
+
+
+func start_current_classic_campaign() -> Dictionary:
+	if not is_classic_campaign(currentcampaign):
+		return {"handled": false}
+	stop_classic_campaign_runtime()
+	var session = ClassicCampaignSessionScript.new()
+	add_child(session)
+	var load_result: Dictionary = session.load_installed_campaign(
+		Paths.campaignsfolderpath,
+		currentcampaign,
+		ClassicGodotCommandAdapterScript.new()
+	)
+	if str(load_result.get("status", "")) == "error":
+		session.queue_free()
+		return {
+			"handled": true,
+			"status": "error",
+			"message": str(load_result.get("message", "Classic campaign could not be loaded")),
+		}
+	classic_campaign_session = session
+	register_classic_runtime_host(session.host)
+	var start_result: Dictionary = session.activate_start_location()
+	start_result["handled"] = true
+	if str(start_result.get("status", "")) == "error":
+		stop_classic_campaign_runtime()
+	return start_result
+
+
 func dispatch_classic_map_script(script_name: String, context := {}) -> Dictionary:
 	if (
 		not is_instance_valid(classic_runtime_host)
@@ -412,16 +457,40 @@ func show_loot_menu(items:Array, money : Array, experience : int) :
 
 
 func set_current_campaign(campname : String) :
+	if currentcampaign != campname:
+		stop_classic_campaign_runtime()
 	currentcampaign = campname
-	# get the campaign's info and restrictions script
-	currentcampaign_onload_script = load(Paths.campaignsfolderpath + currentcampaign + "/on_select.gd" )
+	currentcampaign_onload_script = get_campaign_selection_rules(currentcampaign)
+
+
+func is_classic_campaign(campaign_name: String) -> bool:
+	return ClassicCampaignInstallScript.has_manifest(
+		Paths.campaignsfolderpath,
+		campaign_name
+	)
+
+
+func get_campaign_selection_rules(campaign_name: String) -> Variant:
+	if is_classic_campaign(campaign_name):
+		var install = ClassicCampaignInstallScript.new()
+		install.load_from_campaigns_directory(Paths.campaignsfolderpath, campaign_name)
+		return install.selection_rules()
+	return load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd")
+
+
+func get_native_campaign_start_script(campaign_name: String) -> Variant:
+	if is_classic_campaign(campaign_name):
+		return null
+	return load(Paths.campaignsfolderpath + campaign_name + "/on_campaign_start.gd")
 
 
 func get_campaign_description(campaign_name : String) -> String:
-	var campaign_onload_script = load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd" )
+	var campaign_onload_script: Variant = get_campaign_selection_rules(campaign_name)
 	if campaign_onload_script==null :
 		print("NO currentcampaign_onload_script loaded !!!")
 		return "NO currentcampaign_onload_script loaded !!!"
+	if campaign_onload_script is Dictionary:
+		return str(campaign_onload_script.get("description", ""))
 	return campaign_onload_script.description
 
 func get_campaign_restrictions_description(campaign_name : String, campaign_onload_script) -> String:
@@ -429,6 +498,8 @@ func get_campaign_restrictions_description(campaign_name : String, campaign_onlo
 	if campaign_onload_script==null :
 		print("campaign_onload_script loaded !!!")
 		return "Pick a campaign first !"
+	if campaign_onload_script is Dictionary:
+		return str(campaign_onload_script.get("restrictionsDescription", ""))
 	return campaign_onload_script.restrictions_description
 
 func can_character_enter_campaign(chara, campaign_name : String,campaign_onload_script ) -> bool :
@@ -439,12 +510,16 @@ func can_character_enter_campaign(chara, campaign_name : String,campaign_onload_
 	var honesty : bool = true
 	honesty = campaign_name == chara.cur_campaign or chara.cur_campaign=="Free"
 	honesty = honesty or (not honest_mode)
+	if campaign_onload_script is Dictionary:
+		return honesty and bool(campaign_onload_script.get("valid", false))
 	return honesty and campaign_onload_script.can_character_enter(chara)
 
 func get_campaign_max_party_size(campaign_onselect) -> int :
 	if campaign_onselect==null :
 		print("NO currentcampaign_onload_script loaded !!!")
 		return 0
+	if campaign_onselect is Dictionary:
+		return int(campaign_onselect.get("charactersLimit", 0))
 	return campaign_onselect.characters_limit
 
 

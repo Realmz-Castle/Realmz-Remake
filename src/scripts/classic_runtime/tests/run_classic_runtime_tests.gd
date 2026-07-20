@@ -15,6 +15,12 @@ const CharacterConditionRulesScript = preload(
 )
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
+const CampaignInstallScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_install.gd"
+)
+const CampaignSessionScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_session.gd"
+)
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
 const CombatIntegrationAdapterScript = preload(
 	"res://scripts/classic_runtime/tests/classic_combat_integration_adapter.gd"
@@ -601,6 +607,7 @@ func _init() -> void:
 
 	_test_bundle_contract_validation()
 	_test_providence_authoritative_export()
+	_test_installed_classic_campaign_layout()
 	_test_native_battle_bridge_fixture()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
@@ -1066,6 +1073,107 @@ func _test_native_battle_bridge_fixture() -> void:
 		"Zombie",
 		"native battle fixture identifies its lower-undead roster target"
 	)
+
+
+func _test_installed_classic_campaign_layout() -> void:
+	var campaigns_directory := PROVIDENCE_AUTHORITATIVE_FIXTURE.get_base_dir()
+	var campaign_name := PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file()
+	_expect(
+		CampaignInstallScript.has_manifest(campaigns_directory, campaign_name),
+		"installed Classic campaign is selected by campaign.json"
+	)
+	_expect(
+		not CampaignInstallScript.has_manifest(campaigns_directory, "../%s" % campaign_name),
+		"installed campaign discovery rejects traversal names"
+	)
+
+	var install = CampaignInstallScript.new()
+	_expect(
+		install.load_from_campaigns_directory(campaigns_directory, campaign_name),
+		"self-contained Classic campaign layout loads: %s" % install.last_error
+	)
+	if not install.last_error.is_empty():
+		return
+	_expect_equal(
+		install.campaign_directory,
+		PROVIDENCE_AUTHORITATIVE_FIXTURE,
+		"installed bundle remains inside its selected campaign directory"
+	)
+	_expect_equal(
+		install.bundle.manifest.get("campaignKind"),
+		BundleScript.CAMPAIGN_KIND,
+		"installed manifest selects the Classic compatibility runtime"
+	)
+	_expect_equal(
+		install.selection_rules().get("formatVersion"),
+		BundleScript.FORMAT_VERSION,
+		"installed campaign reports its supported runtime version"
+	)
+	var managed_assets: Array = install.bundle.documents.get("assets", {}).get(
+		"managedAssets",
+		[]
+	)
+	var first_payload: Dictionary = managed_assets[0]
+	var payload_bytes := int(first_payload.get("payloadBytes", 0))
+	first_payload["payloadBytes"] = payload_bytes + 1
+	_expect(
+		not install._validate_packaged_payloads(),
+		"installed campaign rejects a payload with the wrong size"
+	)
+	_expect(
+		install.last_error.contains("wrong size"),
+		"payload size failure returns an actionable error"
+	)
+	first_payload["payloadBytes"] = payload_bytes
+	var payload_path := str(first_payload.get("payloadPath", ""))
+	first_payload["payloadPath"] = "%s.missing" % payload_path
+	_expect(
+		not install._validate_packaged_payloads(),
+		"installed campaign rejects a missing payload"
+	)
+	_expect(
+		install.last_error.contains("missing payload"),
+		"missing payload failure returns an actionable error"
+	)
+	first_payload["payloadPath"] = payload_path
+
+	var invalid_install = CampaignInstallScript.new()
+	_expect(
+		not invalid_install.load_from_campaigns_directory(
+			campaigns_directory,
+			"../%s" % campaign_name
+		),
+		"installed campaign loader rejects traversal before reading files"
+	)
+	_expect(
+		invalid_install.last_error.contains("one installed campaign directory"),
+		"unsafe install path returns an actionable error"
+	)
+
+	var session = CampaignSessionScript.new()
+	get_root().add_child(session)
+	var adapter = StartLocationAdapter.new()
+	var load_result: Dictionary = session.load_installed_campaign(
+		campaigns_directory,
+		campaign_name,
+		adapter
+	)
+	_expect_equal(load_result.get("status"), "ok", "normal campaign session creates a runtime host")
+	_expect_equal(
+		adapter.configured_bundle,
+		session.install.bundle,
+		"installed campaign session configures its adapter from the selected bundle"
+	)
+	var start_result: Dictionary = session.activate_start_location()
+	_expect_equal(start_result.get("nativeMapName"), "map_0", "installed campaign starts its native map")
+	_expect_equal(start_result.get("position"), Vector2i(10, 12), "installed campaign starts at compiled coordinates")
+	_expect_equal(
+		start_result.get("persistentMapState", {}).get("status"),
+		"ok",
+		"installed campaign replays compatibility state before entry"
+	)
+	session.clear()
+	session.queue_free()
 
 
 func _test_bundle_indexes(bundle) -> void:
