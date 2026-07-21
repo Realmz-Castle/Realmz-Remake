@@ -2465,6 +2465,7 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["heat"] = 4
 	weapon_record["cold"] = 3
 	weapon_record["electric"] = 2
+	weapon_record["damage"] = 2
 	var weapon: Dictionary = materializer._native_item(weapon_record, [])
 	_expect_equal(
 		weapon.get("type"),
@@ -2535,6 +2536,16 @@ func _test_classic_item_materializer() -> void:
 		"native weapon retains both Classic damage ranges"
 	)
 	_expect_equal(
+		weapon.get("stats", {}).get("AccuracyMelee"),
+		2,
+		"positive Classic weapon magic-plus maps to native melee accuracy"
+	)
+	_expect_equal(
+		weapon.get("stats", {}).get("Bonus_Physical_dmg"),
+		2,
+		"positive Classic weapon magic-plus maps to native physical damage"
+	)
+	_expect_equal(
 		weapon.get("classicMaterialization", {}).get("unsupportedFields"),
 		[],
 		"matching small and large damage ranges remain launchable"
@@ -2583,6 +2594,14 @@ func _test_classic_item_materializer() -> void:
 		).get("unsupportedFields", []).has("heat"),
 		"negative Classic elemental damage remains an explicit blocker"
 	)
+	var negative_magic_plus_record := weapon_record.duplicate(true)
+	negative_magic_plus_record["damage"] = -1
+	_expect(
+		materializer._native_item(negative_magic_plus_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("damage"),
+		"negative Classic weapon magic-plus remains an explicit blocker"
+	)
 	var non_weapon_element_record := weapon_record.duplicate(true)
 	non_weapon_element_record["type"] = 25
 	_expect(
@@ -2590,6 +2609,12 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("heat"),
 		"elemental damage on a non-melee item remains an explicit blocker"
+	)
+	_expect(
+		materializer._native_item(non_weapon_element_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("damage"),
+		"magic-plus on a non-melee item remains an explicit blocker"
 	)
 	var readiness: Dictionary = ReadinessScript.new().inspect(bundle, {"items": item_book})
 	_expect(

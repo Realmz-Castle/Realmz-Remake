@@ -118,6 +118,18 @@ func _run_smoke() -> void:
 		[1.0, 4.0],
 		"equipped scenario weapon retains its Classic heat damage"
 	)
+	_expect_equal(
+		weapon_user.get_stat("AccuracyMelee")
+			- weapon_user.base_stats.get("AccuracyMelee", 0),
+		2,
+		"equipped scenario weapon applies its Classic melee accuracy bonus once"
+	)
+	_expect_equal(
+		weapon_user.get_stat("Bonus_Physical_dmg")
+			- weapon_user.base_stats.get("Bonus_Physical_dmg", 0),
+		2,
+		"equipped scenario weapon applies its Classic damage bonus once"
+	)
 	var weapon_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		weapon_user,
 		elemental_attacker,
@@ -134,6 +146,11 @@ func _run_smoke() -> void:
 		float(weapon_damage.get("Fire", 0)) >= 1.0 \
 			and float(weapon_damage.get("Fire", 0)) <= 4.0,
 		"native combat rolls the generated Classic heat range"
+	)
+	_expect_equal(
+		weapon_damage.get("Bonus_dmg"),
+		2,
+		"native combat applies the generated Classic weapon magic-plus"
 	)
 	var shock_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		elemental_attacker,
@@ -184,6 +201,8 @@ func _run_smoke() -> void:
 		fighter,
 		human
 	)
+	var player_accuracy_before: float = player_character.get_stat("AccuracyMelee")
+	var player_damage_before: float = player_character.get_stat("Bonus_Physical_dmg")
 	player_character.inventory.append(player_weapon)
 	player_character.inventory.append(player_armor)
 	player_character.inventory.append(player_shield)
@@ -195,6 +214,16 @@ func _run_smoke() -> void:
 		player_character.current_melee_weapons[0].get("classicItemId"),
 		150,
 		"generated Classic weapon becomes the player's active melee weapon"
+	)
+	_expect_equal(
+		player_character.get_stat("AccuracyMelee"),
+		player_accuracy_before + 2,
+		"generated Classic weapon applies its melee accuracy to the player"
+	)
+	_expect_equal(
+		player_character.get_stat("Bonus_Physical_dmg"),
+		player_damage_before + 2,
+		"generated Classic weapon applies its damage bonus to the player"
 	)
 	_expect_equal(
 		player_armor.get("type"),
@@ -369,6 +398,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_record["vLarge"] = 6
 	weapon_record["itemCat0"] = 1 << 28
 	weapon_record["heat"] = 4
+	weapon_record["damage"] = 2
 	content["scenarioItems"].append(weapon_record)
 	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)
 	weapon_text["id"] = 150

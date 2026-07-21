@@ -12,7 +12,6 @@ const UNSUPPORTED_EFFECT_FIELDS := [
 	"casteClassOnly",
 	"casteRestrictions",
 	"cursedItemId",
-	"damage",
 	"lu",
 	"magicResistance",
 	"movement",
@@ -317,11 +316,14 @@ func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 	var fidelity_fallbacks: Array[String] = []
 	var small_damage := int(record.get("vSmall", 0))
 	var large_damage := int(record.get("vLarge", 0))
+	var magic_plus := int(record.get("damage", 0))
 	if classic_type != 2:
 		if small_damage != 0:
 			unsupported_fields.append("vSmall")
 		if large_damage != 0:
 			unsupported_fields.append("vLarge")
+		if magic_plus != 0:
+			unsupported_fields.append("damage")
 		for field_name: String in ELEMENT_BY_CLASSIC_FIELD:
 			if int(record.get(field_name, 0)) != 0:
 				unsupported_fields.append(field_name)
@@ -348,16 +350,26 @@ func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 				# Native resistance replaces Classic's separate save and protection rolls.
 				fidelity_fallbacks.append("elementalWeaponDamageMitigation")
 	if not damage.is_empty():
-		fields = {
-			"weapon_dmg": damage,
-			"melee_atk_anim_icon": "ATK_WPN",
-			"extra_data": {
-				"classicWeaponDamage": {
-					"small": small_damage,
-					"large": large_damage,
-				},
+		fields["weapon_dmg"] = damage
+		fields["melee_atk_anim_icon"] = "ATK_WPN"
+		fields["extra_data"] = {
+			"classicWeaponDamage": {
+				"small": small_damage,
+				"large": large_damage,
 			},
 		}
+	if magic_plus < 0:
+		unsupported_fields.append("damage")
+	elif magic_plus > 0:
+		# One Remake accuracy point is five percentage points, matching Classic.
+		fields["stats"] = {
+			"AccuracyMelee": magic_plus,
+			"Bonus_Physical_dmg": magic_plus,
+		}
+		fields["stats_mini"] = "+%d%% Melee Hit, +%d Physical Damage" % [
+			magic_plus * 5,
+			magic_plus,
+		]
 	return {
 		"fields": fields,
 		"unsupportedFields": unsupported_fields,
