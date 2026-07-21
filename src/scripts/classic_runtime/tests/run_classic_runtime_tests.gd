@@ -16,6 +16,9 @@ const CharacterConditionRulesScript = preload(
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const RegenerationScript = preload(
+	"res://scripts/classic_runtime/classic_regeneration.gd"
+)
 const SpellScreenScript = preload(
 	"res://scripts/classic_runtime/classic_spell_screen.gd"
 )
@@ -728,6 +731,7 @@ func _init() -> void:
 	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
 	_test_custom_spell_overrides()
+	_test_classic_regeneration_contract()
 	_test_classic_spell_screen_contract()
 	_test_classic_magic_resistance_contract()
 	_test_text_and_encounter(bundle)
@@ -3223,6 +3227,44 @@ func _test_classic_bestiary_materializer() -> void:
 		).has("conditions"),
 		"permanent Classic spell protection no longer blocks native materialization"
 	)
+	var regenerating_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	var regeneration_conditions: Array = regenerating_record.get(
+		"conditions", []
+	).duplicate()
+	regeneration_conditions[10] = -2
+	regenerating_record["conditions"] = regeneration_conditions
+	var regenerating_monster: Dictionary = materializer._native_monster(
+		regenerating_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect_equal(
+		regenerating_monster.get("classicRegenerationPerRound"),
+		2,
+		"permanent Classic regeneration reaches native monster metadata"
+	)
+	_expect(
+		not regenerating_monster.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("conditions"),
+		"permanent Classic regeneration no longer blocks native materialization"
+	)
+	var temporary_regeneration_record: Dictionary = regenerating_record.duplicate(true)
+	temporary_regeneration_record["conditions"][10] = 2
+	_expect(
+		materializer._unsupported_fields(
+			temporary_regeneration_record,
+			{},
+			{},
+			{},
+			{}
+		).has("conditions"),
+		"temporary starting regeneration remains blocked until its counter is modeled"
+	)
 	var temporary_screen_record: Dictionary = screen_record.duplicate(true)
 	temporary_screen_record["conditions"][16] = 2
 	_expect(
@@ -4011,9 +4053,9 @@ func _test_classic_campaign_package_installer() -> void:
 	)
 	_expect(
 		str(unsupported_monster_install.get("message", "")).contains(
-			"unsupported native fields"
+			"unsupported native fields: attacks[0].special"
 		),
-		"unsupported monster installation reports the bestiary readiness boundary"
+		"unsupported monster installation names the blocked bestiary field"
 	)
 
 	var no_replace_result: Dictionary = installer.install_export(
@@ -4834,6 +4876,47 @@ func _test_custom_spell_overrides() -> void:
 	)
 
 
+func _test_classic_regeneration_contract() -> void:
+	var conditions: Array = []
+	conditions.resize(40)
+	conditions.fill(0)
+	conditions[10] = -2
+	_expect_equal(
+		RegenerationScript.permanent_amount(conditions),
+		2,
+		"negative Classic regeneration retains its per-round healing amount"
+	)
+	conditions[10] = 2
+	_expect_equal(
+		RegenerationScript.permanent_amount(conditions),
+		0,
+		"positive regeneration is not mistaken for a permanent effect"
+	)
+
+	var target := RogueTestCharacter.new()
+	target.current_hp = 20
+	target.set_meta("classic_regeneration_per_round", 2)
+	_expect_equal(
+		RegenerationScript.apply_new_round(target),
+		2,
+		"permanent Classic regeneration reports its applied healing"
+	)
+	_expect_equal(target.current_hp, 22, "permanent regeneration heals once per round")
+	target.current_hp = 29
+	_expect_equal(
+		RegenerationScript.apply_new_round(target),
+		1,
+		"Classic regeneration clamps to maximum health"
+	)
+	_expect_equal(target.current_hp, 30, "clamped regeneration reaches maximum health")
+	target.current_hp = 0
+	_expect_equal(
+		RegenerationScript.apply_new_round(target),
+		0,
+		"Classic monster regeneration does not revive a defeated combatant"
+	)
+
+
 func _test_classic_spell_screen_contract() -> void:
 	var conditions: Array = []
 	conditions.resize(40)
@@ -4851,12 +4934,12 @@ func _test_classic_spell_screen_contract() -> void:
 		"the strongest permanent Classic screen protects through its level"
 	)
 	_expect(
-		not SpellScreenScript.has_unsupported_conditions(conditions),
+		SpellScreenScript.supports_condition(19, -4),
 		"negative spell screens are complete persistent state"
 	)
 	conditions[19] = 2
 	_expect(
-		SpellScreenScript.has_unsupported_conditions(conditions),
+		not SpellScreenScript.supports_condition(19, 2),
 		"positive spell screens require round-based duration support"
 	)
 
@@ -9134,6 +9217,7 @@ func _test_compiled_battle_materialization() -> void:
 	bundle.monsters_by_id[1]["hitDice"] = 7
 	bundle.monsters_by_id[1]["magicResistance"] = 12
 	bundle.monsters_by_id[1]["canSummon"] = 1
+	bundle.monsters_by_id[1]["conditions"][10] = -2
 	bundle.monsters_by_id[1]["conditions"][16] = -1
 	var adapter = GodotAdapterScript.new()
 	var result: Dictionary = adapter.materialize_classic_battle(
@@ -9181,6 +9265,11 @@ func _test_compiled_battle_materialization() -> void:
 		creature[2].get("classicMagicResistance"),
 		12,
 		"compiled battle preserves turning resistance"
+	)
+	_expect_equal(
+		creature[2].get("classicRegenerationPerRound"),
+		2,
+		"compiled battle preserves permanent regeneration"
 	)
 	_expect_equal(
 		creature[2].get("classicSpellScreenLevel"),

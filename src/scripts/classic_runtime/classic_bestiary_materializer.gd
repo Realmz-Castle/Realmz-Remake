@@ -5,6 +5,7 @@ const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_i
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
+const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
@@ -247,6 +248,9 @@ func _native_monster(
 		"classicTurnUndeadEligible": _type_flag(record, 1) or _type_flag(record, 2),
 		"classicHitDice": hit_dice,
 		"classicMagicResistance": int(record.get("magicResistance", 0)),
+		"classicRegenerationPerRound": RegenerationScript.permanent_amount(
+			record.get("conditions", [])
+		),
 		"classicSpellScreenLevel": SpellScreenScript.permanent_level(
 			record.get("conditions", [])
 		),
@@ -625,7 +629,7 @@ func _unsupported_fields(
 		fields.append("runPercent")
 	if int(record.get("surrenderPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
 		fields.append("surrenderPercent")
-	if SpellScreenScript.has_unsupported_conditions(record.get("conditions", [])):
+	if _has_unsupported_conditions(record.get("conditions", [])):
 		fields.append("conditions")
 	for field_name: String in native_inventory.get("unsupportedFields", []):
 		if not fields.has(field_name):
@@ -652,6 +656,21 @@ func _unsupported_fields(
 	if int(record.get("canSummon", 0)) not in [-1, 0, 1]:
 		fields.append("canSummon")
 	return fields
+
+
+func _has_unsupported_conditions(conditions: Variant) -> bool:
+	if not (conditions is Array):
+		return false
+	for condition_index: int in range(conditions.size()):
+		var value := int(conditions[condition_index])
+		if value == 0:
+			continue
+		if RegenerationScript.supports_condition(condition_index, value):
+			continue
+		if SpellScreenScript.supports_condition(condition_index, value):
+			continue
+		return true
+	return false
 
 
 func _average_stamina(record: Dictionary) -> int:

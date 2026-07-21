@@ -488,6 +488,19 @@ func _run_smoke() -> void:
 		1,
 		"ally receives its permanent Classic spell screen through native resources"
 	)
+	_expect_equal(
+		ally.get_meta("classic_regeneration_per_round", 0),
+		2,
+		"ally receives permanent Classic regeneration through native resources"
+	)
+	var ally_max_hp := int(ally.get_stat("maxHP"))
+	ally.stats["curHP"] = ally_max_hp - 3
+	await ally._on_new_round()
+	_expect_equal(
+		ally.get_stat("curHP"),
+		ally_max_hp - 1,
+		"normal creature round lifecycle applies exact Classic regeneration"
+	)
 	_expect_equal(ally.inventory.size(), 2, "ally receives both compiled monster items")
 	var equipped_dagger := _inventory_item(ally.inventory, "Dagger")
 	var carried_token := _inventory_item(ally.inventory, "Providence Token")
@@ -578,6 +591,11 @@ func _run_smoke() -> void:
 		1,
 		"restored ally recovers its permanent spell screen from the Bestiary entry"
 	)
+	_expect_equal(
+		restored_ally.get_meta("classic_regeneration_per_round", 0),
+		2,
+		"restored ally recovers permanent regeneration from the Bestiary entry"
+	)
 	_expect(
 		AdapterScript.new().party_has_classic_ally({"monsterNameId": 1}, [restored_ally]),
 		"restored producer ally satisfies a Classic name-identity check"
@@ -604,6 +622,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	content["monsters"][0]["items"] = [1, 901, 0, 0, 0, 0]
 	content["monsters"][0]["weapon"] = 1
 	content["monsters"][0]["spells"] = [1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0]
+	content["monsters"][0]["conditions"][10] = -2
 	content["monsters"][0]["conditions"][16] = -1
 	content["monsters"][0]["magicAttackCount"] = 2
 	content["monsters"][0]["castPercent"] = 75

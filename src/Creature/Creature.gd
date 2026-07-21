@@ -3,6 +3,10 @@ class_name  Creature
 #Creature
 #Only custom classes that inherit from Object or another class can be extended (have child classes)
 
+const CLASSIC_REGENERATION_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_regeneration.gd"
+)
+
 # Declare member variables here. Examples:
 var name : String = 'Base Creature'
 var used_resource : String = "SP"
@@ -655,6 +659,7 @@ func initialize_from_bestiary_dict(creaname : String) :
 		["classic_turn_undead_eligible", "classicTurnUndeadEligible"],
 		["classic_hit_dice", "classicHitDice"],
 		["classic_magic_resistance", "classicMagicResistance"],
+		["classic_regeneration_per_round", "classicRegenerationPerRound"],
 		["classic_spell_screen_level", "classicSpellScreenLevel"],
 		["classic_can_summon", "classicCanSummon"],
 		["classic_required_weapon_kind", "classicRequiredWeaponKind"],
@@ -930,6 +935,7 @@ func _on_new_round() :
 			UI.ow_hud.creatureRect.logrect.log_bleed(self)
 		else :
 			UI.ow_hud.creatureRect.logrect.log_other_text(self, " was not rescued in time.", null,'')
+	CLASSIC_REGENERATION_SCRIPT.apply_new_round(self)
 	for t in traits :
 		if t.has_method("_on_new_round") :
 			await t._on_new_round(self)

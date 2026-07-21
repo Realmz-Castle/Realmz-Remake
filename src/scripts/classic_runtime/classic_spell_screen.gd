@@ -7,6 +7,15 @@ const FIRST_CONDITION_INDEX := 16
 const LAST_CONDITION_INDEX := 20
 
 
+static func supports_condition(condition_index: int, value: int) -> bool:
+	# Realmz decrements only positive condition values at a round boundary.
+	return (
+		condition_index >= FIRST_CONDITION_INDEX
+		and condition_index <= LAST_CONDITION_INDEX
+		and value < 0
+	)
+
+
 static func permanent_level(conditions: Variant) -> int:
 	if not (conditions is Array):
 		return 0
@@ -19,24 +28,6 @@ static func permanent_level(conditions: Variant) -> int:
 		if int(conditions[condition_index]) < 0:
 			protected_level = condition_index - FIRST_CONDITION_INDEX + 1
 	return protected_level
-
-
-static func has_unsupported_conditions(conditions: Variant) -> bool:
-	if not (conditions is Array):
-		return false
-	for condition_index: int in range(conditions.size()):
-		var value := int(conditions[condition_index])
-		if value == 0:
-			continue
-		# getup.c decrements only positive condition values each round.
-		var permanent_spell_screen := (
-			condition_index >= FIRST_CONDITION_INDEX
-			and condition_index <= LAST_CONDITION_INDEX
-			and value < 0
-		)
-		if not permanent_spell_screen:
-			return true
-	return false
 
 
 static func level(character: Object) -> int:

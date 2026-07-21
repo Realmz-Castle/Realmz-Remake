@@ -5,6 +5,7 @@ const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
+const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
@@ -1212,6 +1213,9 @@ func _classic_battle_monster_metadata(
 		"classicTurnUndeadEligible": _classic_monster_can_be_turned(monster),
 		"classicHitDice": int(monster.get("hitDice", 0)),
 		"classicMagicResistance": int(monster.get("magicResistance", 0)),
+		"classicRegenerationPerRound": RegenerationScript.permanent_amount(
+			monster.get("conditions", [])
+		),
 		"classicSpellScreenLevel": SpellScreenScript.permanent_level(
 			monster.get("conditions", [])
 		),
@@ -1494,6 +1498,9 @@ func _set_classic_monster_identity(
 	creature.set_meta("classic_monster_id", monster_id)
 	creature.set_meta("classic_monster_name_id", name_id)
 	creature.set_meta("classic_death_macro", int(monster.get("deathMacro", 0)))
+	var regeneration := RegenerationScript.permanent_amount(monster.get("conditions", []))
+	if regeneration > 0:
+		creature.set_meta(RegenerationScript.META_KEY, regeneration)
 	var spell_screen_level := SpellScreenScript.permanent_level(
 		monster.get("conditions", [])
 	)

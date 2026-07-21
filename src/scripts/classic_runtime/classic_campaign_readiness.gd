@@ -610,6 +610,11 @@ func _check_monster_materialization(
 	var unsupported: Variant = materialization.get("unsupportedFields", [])
 	if str(materialization.get("status", "")) == "blocked":
 		var message := "Classic monster %d has unsupported native fields" % monster_id
+		if unsupported is Array and not unsupported.is_empty():
+			var field_names: Array[String] = []
+			for field_name: Variant in unsupported:
+				field_names.append(str(field_name))
+			message += ": %s" % ", ".join(field_names)
 		var extra := {"referenceId": monster_id, "unsupportedFields": unsupported}
 		if action is Dictionary and not action.is_empty():
 			_add_blocker_for_action(action, "unsupported-native-monster-fields", message, extra)
