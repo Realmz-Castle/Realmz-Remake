@@ -2461,11 +2461,29 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["hands"] = 1
 	weapon_record["vSmall"] = 6
 	weapon_record["vLarge"] = 6
+	weapon_record["heat"] = 4
+	weapon_record["cold"] = 3
+	weapon_record["electric"] = 2
 	var weapon: Dictionary = materializer._native_item(weapon_record, [])
 	_expect_equal(
 		weapon.get("weapon_dmg", {}).get("Physical"),
 		[1, 6],
 		"matching Classic weapon dice map to native physical damage"
+	)
+	_expect_equal(
+		weapon.get("weapon_dmg", {}).get("Fire"),
+		[1, 4],
+		"Classic weapon heat maps to native fire damage"
+	)
+	_expect_equal(
+		weapon.get("weapon_dmg", {}).get("Ice"),
+		[1, 3],
+		"Classic weapon cold maps to native ice damage"
+	)
+	_expect_equal(
+		weapon.get("weapon_dmg", {}).get("Electric"),
+		[1, 2],
+		"Classic weapon electricity uses the native combat damage key"
 	)
 	_expect_equal(
 		weapon.get("extra_data", {}).get("classicWeaponDamage"),
@@ -2477,6 +2495,17 @@ func _test_classic_item_materializer() -> void:
 		[],
 		"matching small and large damage ranges remain launchable"
 	)
+	_expect_equal(
+		weapon.get("classicMaterialization", {}).get("status"),
+		"fallback",
+		"elemental Classic weapon damage remains launchable through native mitigation"
+	)
+	_expect(
+		weapon.get("classicMaterialization", {}).get(
+			"fidelityFallbacks", []
+		).has("elementalWeaponDamageMitigation"),
+		"elemental weapon mitigation records the Classic save and protection fallback"
+	)
 	var size_split_record := weapon_record.duplicate(true)
 	size_split_record["vLarge"] = 8
 	_expect(
@@ -2484,6 +2513,22 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("vLarge"),
 		"size-dependent Classic weapon damage remains an explicit blocker"
+	)
+	var negative_element_record := weapon_record.duplicate(true)
+	negative_element_record["heat"] = -1
+	_expect(
+		materializer._native_item(negative_element_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("heat"),
+		"negative Classic elemental damage remains an explicit blocker"
+	)
+	var non_weapon_element_record := weapon_record.duplicate(true)
+	non_weapon_element_record["type"] = 25
+	_expect(
+		materializer._native_item(non_weapon_element_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("heat"),
+		"elemental damage on a non-melee item remains an explicit blocker"
 	)
 	var readiness: Dictionary = ReadinessScript.new().inspect(bundle, {"items": item_book})
 	_expect(
@@ -2802,7 +2847,7 @@ func _test_classic_bestiary_materializer() -> void:
 	var expected_elements := {
 		11: "Fire",
 		12: "Ice",
-		13: "Elect",
+		13: "Electric",
 		14: "Chemical",
 		15: "Mental",
 	}

@@ -40,7 +40,7 @@ const SAVE_MULTIPLIERS := [
 const ELEMENT_BY_SPECIAL_ATTACK := {
 	11: "Fire",
 	12: "Ice",
-	13: "Elect",
+	13: "Electric",
 	14: "Chemical",
 	15: "Mental",
 }

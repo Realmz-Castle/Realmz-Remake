@@ -75,15 +75,17 @@ func _run_smoke() -> void:
 	var elemental_attacker: Creature = GameGlobal.combatCreatureGD.new()
 	elemental_attacker.initialize_from_bestiary_dict("Classic Monster 2")
 	_expect_equal(
-		elemental_attacker.current_melee_weapons[0].get("weapon_dmg", {}).get("Fire"),
+		elemental_attacker.current_melee_weapons[0].get(
+			"weapon_dmg", {}
+		).get("Electric"),
 		[1.0, 8.0],
-		"native creature loading retains generated Classic fire damage"
+		"native creature loading retains generated Classic shock damage"
 	)
 	_expect_equal(
 		elemental_attacker.current_melee_weapons[0].get(
 			"extra_data", {}
 		).get("classicSpecialAttack"),
-		11,
+		13,
 		"native creature loading retains Classic attack metadata"
 	)
 	var weapon_user: Creature = GameGlobal.combatCreatureGD.new()
@@ -98,6 +100,11 @@ func _run_smoke() -> void:
 		[1.0, 6.0],
 		"equipped scenario weapon retains its native physical damage"
 	)
+	_expect_equal(
+		weapon_user.current_melee_weapons[0].get("weapon_dmg", {}).get("Fire"),
+		[1.0, 4.0],
+		"equipped scenario weapon retains its Classic heat damage"
+	)
 	var weapon_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		weapon_user,
 		elemental_attacker,
@@ -109,6 +116,23 @@ func _run_smoke() -> void:
 		float(weapon_damage.get("Physical", 0)) >= 1.0 \
 			and float(weapon_damage.get("Physical", 0)) <= 6.0,
 		"native combat rolls the generated Classic weapon range"
+	)
+	_expect(
+		float(weapon_damage.get("Fire", 0)) >= 1.0 \
+			and float(weapon_damage.get("Fire", 0)) <= 4.0,
+		"native combat rolls the generated Classic heat range"
+	)
+	var shock_damage: Dictionary = GameGlobal.calculate_melee_damage(
+		elemental_attacker,
+		weapon_user,
+		elemental_attacker.current_melee_weapons[0],
+		false,
+		1.0
+	)
+	_expect(
+		float(shock_damage.get("Electric", 0)) >= 1.0 \
+			and float(shock_damage.get("Electric", 0)) <= 8.0,
+		"native combat accepts the generated Classic shock damage key"
 	)
 
 	var bundle = BundleScript.new()
@@ -253,6 +277,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_record["cost"] = 40
 	weapon_record["vSmall"] = 6
 	weapon_record["vLarge"] = 6
+	weapon_record["heat"] = 4
 	content["scenarioItems"].append(weapon_record)
 	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)
 	weapon_text["id"] = 150
@@ -270,7 +295,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	elemental_monster["spells"] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	elemental_monster["magicAttackCount"] = 0
 	elemental_monster["castPercent"] = 0
-	elemental_monster["attacks"][0][3] = 11
+	elemental_monster["attacks"][0][3] = 13
 	content["monsters"].append(elemental_monster)
 	var weapon_monster: Dictionary = elemental_monster.duplicate(true)
 	weapon_monster["id"] = 3

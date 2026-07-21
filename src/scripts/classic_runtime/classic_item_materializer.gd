@@ -11,11 +11,8 @@ const UNSUPPORTED_EFFECT_FIELDS := [
 	"blunt",
 	"casteClassOnly",
 	"casteRestrictions",
-	"cold",
 	"cursedItemId",
 	"damage",
-	"electric",
-	"heat",
 	"lu",
 	"magicResistance",
 	"movement",
@@ -34,6 +31,11 @@ const UNSUPPORTED_EFFECT_FIELDS := [
 	"vsEvil",
 	"vsUndead",
 ]
+const ELEMENT_BY_CLASSIC_FIELD := {
+	"heat": "Fire",
+	"cold": "Ice",
+	"electric": "Electric",
+}
 const SLOT_BY_CLASSIC_TYPE := {
 	0: "Ring",
 	2: "Melee Weapon",
@@ -154,6 +156,12 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 	var category := _category_for_item(item_id)
 	var native_weapon := _native_weapon(record, classic_type)
 	var unsupported_fields := _unsupported_fields(record, native_weapon)
+	var fidelity_fallbacks: Array = native_weapon.get("fidelityFallbacks", [])
+	var materialization_status := "complete"
+	if not unsupported_fields.is_empty():
+		materialization_status = "blocked"
+	elif not fidelity_fallbacks.is_empty():
+		materialization_status = "fallback"
 	var charge := int(record.get("charge", 0))
 	var slots: Array[String] = []
 	if SLOT_BY_CLASSIC_TYPE.has(classic_type):
@@ -169,8 +177,9 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 		"classicSoundId": int(record.get("sound", 0)),
 		"classicRecord": record.duplicate(true),
 		"classicMaterialization": {
-			"status": "complete" if unsupported_fields.is_empty() else "blocked",
+			"status": materialization_status,
 			"unsupportedFields": unsupported_fields,
+			"fidelityFallbacks": fidelity_fallbacks,
 		},
 		"type": category,
 		"img_ptr": str(ICON_BY_CATEGORY[category]),
@@ -220,6 +229,7 @@ func _category_for_item(item_id: int) -> String:
 func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 	var fields := {}
 	var unsupported_fields: Array[String] = []
+	var fidelity_fallbacks: Array[String] = []
 	var small_damage := int(record.get("vSmall", 0))
 	var large_damage := int(record.get("vLarge", 0))
 	if classic_type != 2:
@@ -227,15 +237,34 @@ func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 			unsupported_fields.append("vSmall")
 		if large_damage != 0:
 			unsupported_fields.append("vLarge")
-		return {"fields": fields, "unsupportedFields": unsupported_fields}
+		for field_name: String in ELEMENT_BY_CLASSIC_FIELD:
+			if int(record.get(field_name, 0)) != 0:
+				unsupported_fields.append(field_name)
+		return {
+			"fields": fields,
+			"unsupportedFields": unsupported_fields,
+			"fidelityFallbacks": fidelity_fallbacks,
+		}
 
 	if small_damage < 1:
 		unsupported_fields.append("vSmall")
 	if large_damage < 1 or large_damage != small_damage:
 		unsupported_fields.append("vLarge")
+	var damage := {}
 	if small_damage > 0:
+		damage["Physical"] = [1, small_damage]
+	for field_name: String in ELEMENT_BY_CLASSIC_FIELD:
+		var element_damage := int(record.get(field_name, 0))
+		if element_damage < 0:
+			unsupported_fields.append(field_name)
+		elif element_damage > 0:
+			damage[ELEMENT_BY_CLASSIC_FIELD[field_name]] = [1, element_damage]
+			if fidelity_fallbacks.is_empty():
+				# Native resistance replaces Classic's separate save and protection rolls.
+				fidelity_fallbacks.append("elementalWeaponDamageMitigation")
+	if not damage.is_empty():
 		fields = {
-			"weapon_dmg": {"Physical": [1, small_damage]},
+			"weapon_dmg": damage,
 			"melee_atk_anim_icon": "ATK_WPN",
 			"extra_data": {
 				"classicWeaponDamage": {
@@ -244,7 +273,11 @@ func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 				},
 			},
 		}
-	return {"fields": fields, "unsupportedFields": unsupported_fields}
+	return {
+		"fields": fields,
+		"unsupportedFields": unsupported_fields,
+		"fidelityFallbacks": fidelity_fallbacks,
+	}
 
 
 func _unsupported_fields(record: Dictionary, native_weapon: Dictionary) -> Array[String]:
