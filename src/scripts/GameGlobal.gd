@@ -982,17 +982,24 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 	#if weapon["name"] == "NO_MELEE_WEAPON" :
 		#print("GameGlobal calculate_melee_damage NO_MELEE_WEAPON : ", weapon)
 	var wpn_dmg_types : Dictionary = weapon["weapon_dmg"]
+	for t in wpn_dmg_types :
+		var t_dmg_range : Array = wpn_dmg_types[t]
+		var t_damage : float = float( randi_range(t_dmg_range[0], t_dmg_range[1]) )
+		weapon_damage[t] = t_damage
 	if weapon.has("weapon_tag_bonus_dmg") :
 		for t in weapon["weapon_tag_bonus_dmg"] :
 			if defender.tags.has(t) :
 				for e in weapon["weapon_tag_bonus_dmg"][t] :
 					if not weapon_damage.has(e) :
 						weapon_damage[e]=0
-					weapon_damage[e] += weapon["weapon_tag_bonus_dmg"][t][e]
-	for t in wpn_dmg_types :
-		var t_dmg_range : Array = wpn_dmg_types[t]
-		var t_damage : float = float( randi_range(t_dmg_range[0], t_dmg_range[1]) )
-		weapon_damage[t] = t_damage
+					var bonus_value: Variant = weapon["weapon_tag_bonus_dmg"][t][e]
+					if bonus_value is Array and bonus_value.size() >= 2:
+						weapon_damage[e] += randi_range(
+							int(bonus_value[0]),
+							int(bonus_value[1])
+						)
+					else:
+						weapon_damage[e] += bonus_value
 
 	#}
 	#print("GameGlobal calculate_melee_damage",weapon_damage)

@@ -7,30 +7,93 @@ const ITEM_ATLAS_PATH := "Items/textureAtlas.png"
 # These fields affect item behavior but do not yet have verified native equivalents.
 # Keeping the record is lossless; treating it as launchable would not be.
 const UNSUPPORTED_EFFECT_FIELDS := [
-	"blunt",
-	"casteClassOnly",
-	"casteRestrictions",
 	"cursedItemId",
 	"lu",
 	"magicResistance",
-	"raceClassOnly",
-	"raceRestrictions",
 	"special1",
 	"special2",
 	"special3",
 	"special4",
 	"special5",
-	"specificCaste",
-	"specificRace",
-	"vsDemonDevil",
-	"vsEvil",
-	"vsUndead",
 ]
 const ELEMENT_BY_CLASSIC_FIELD := {
 	"heat": "Fire",
 	"cold": "Ice",
 	"electric": "Electric",
 }
+const TARGET_TAG_BY_CLASSIC_FIELD := {
+	"vsUndead": "Undead",
+	"vsDemonDevil": "Demonic",
+	"vsEvil": "Evil Creature",
+}
+const STANDARD_RACE_NAMES := [
+	"Human",
+	"Shadow Elf",
+	"Elf",
+	"Orc",
+	"Furfoot",
+	"Gnome",
+	"Dwarf",
+	"Half Elf",
+	"Half Orc",
+	"Goblin",
+	"Hobgoblin",
+	"Kobold",
+	"Vampire",
+	"Lizard Man",
+	"Brownie",
+	"Pixie",
+	"Leprechaun",
+	"Demon",
+	"Cathoon",
+]
+# The shared Realmz race table only assigns the Evil descriptor among the
+# standard profiles. Scenario-specific profile overrides remain a separate
+# character-resource boundary.
+const STANDARD_RACE_DESCRIPTORS := [
+	0,
+	0x0080,
+	0,
+	0x0080,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0x0080,
+	0x0080,
+	0x0080,
+	0x0080,
+	0,
+	0,
+	0,
+	0,
+	0x0080,
+	0,
+]
+const STANDARD_CASTE_NAMES := [
+	"Fighter",
+	"Monk",
+	"Crusader",
+	"Archer",
+	"Rogue",
+	"Sorcerer",
+	"Priest",
+	"Enchanter",
+	"Evoker",
+	"Cardinal",
+	"Cabalist",
+	"Berzerker",
+	"Bard",
+	"Fencer",
+	"Marksman",
+	"Assassin",
+	"Dabbler",
+	"Battle Mage",
+	"Warlock",
+	"Minstrel",
+]
+const STANDARD_CASTE_CLASSES := [1, 2, 7, 3, 2, 4, 5, 6, 6, 5, 4, 1, 2, 1, 3, 2, 7, 7, 6, 7]
 const NATIVE_TYPE_BY_CLASSIC_ITEM_CATEGORY := {
 	0: "Mace",
 	1: "Hammer",
@@ -360,6 +423,27 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 			stats_summary.append("+%d%% Melee Hit" % (magic_plus * 5))
 			stats_summary.append("+%d Physical Damage" % magic_plus)
 
+	var weapon_kind := int(record.get("blunt", 0))
+	if weapon_kind != 0:
+		if classic_type != 2 or weapon_kind not in [-2, -1]:
+			unsupported_fields.append("blunt")
+		else:
+			var weapon_extra_data: Dictionary = fields.get("extra_data", {})
+			weapon_extra_data["classicWeaponKind"] = "blunt" if weapon_kind == -1 else "sharp"
+			fields["extra_data"] = weapon_extra_data
+
+	var tag_bonus_damage := {}
+	for field_name: String in TARGET_TAG_BY_CLASSIC_FIELD:
+		var bonus_damage := int(record.get(field_name, 0))
+		if bonus_damage < 0 or (bonus_damage > 0 and classic_type != 2):
+			unsupported_fields.append(field_name)
+		elif bonus_damage > 0:
+			tag_bonus_damage[TARGET_TAG_BY_CLASSIC_FIELD[field_name]] = {
+				"Physical": [1, bonus_damage],
+			}
+	if not tag_bonus_damage.is_empty():
+		fields["weapon_tag_bonus_dmg"] = tag_bonus_damage
+
 	var armor_rating := int(record.get("ac", 0))
 	if armor_rating < 0 or (armor_rating > 0 and not SLOT_BY_CLASSIC_TYPE.has(classic_type)):
 		unsupported_fields.append("ac")
@@ -415,6 +499,16 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 		# Classic applies the item bonus after encumbrance; Remake weights the final stat.
 		fidelity_fallbacks.append("movementUsesNativeEncumbranceScale")
 
+	var native_restrictions := _native_restrictions(
+		record,
+		SLOT_BY_CLASSIC_TYPE.has(classic_type)
+	)
+	for field_name: String in native_restrictions.get("fields", {}):
+		fields[field_name] = native_restrictions["fields"][field_name]
+	for field_name: String in native_restrictions.get("unsupportedFields", []):
+		if not unsupported_fields.has(field_name):
+			unsupported_fields.append(field_name)
+
 	if not stats.is_empty():
 		fields["stats"] = stats
 		fields["stats_mini"] = ", ".join(stats_summary)
@@ -423,6 +517,103 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 		"unsupportedFields": unsupported_fields,
 		"fidelityFallbacks": fidelity_fallbacks,
 	}
+
+
+func _native_restrictions(record: Dictionary, is_equipment: bool) -> Dictionary:
+	var fields := {}
+	var unsupported_fields: Array[String] = []
+	var race_restrictions := int(record.get("raceRestrictions", 0))
+	var race_only := int(record.get("raceClassOnly", 0))
+	var specific_race := int(record.get("specificRace", 0))
+	var caste_restrictions := int(record.get("casteRestrictions", 0))
+	var caste_only := int(record.get("casteClassOnly", 0))
+	var specific_caste := int(record.get("specificCaste", 0))
+	var restriction_values := {
+		"raceRestrictions": race_restrictions,
+		"raceClassOnly": race_only,
+		"specificRace": specific_race,
+		"casteRestrictions": caste_restrictions,
+		"casteClassOnly": caste_only,
+		"specificCaste": specific_caste,
+	}
+	if not is_equipment:
+		for field_name: String in restriction_values:
+			if int(restriction_values[field_name]) != 0:
+				unsupported_fields.append(field_name)
+		return {"fields": fields, "unsupportedFields": unsupported_fields}
+
+	if _mask_has_bits_after(race_restrictions, 9):
+		unsupported_fields.append("raceRestrictions")
+	if _mask_has_bits_after(race_only, 9):
+		unsupported_fields.append("raceClassOnly")
+	if _mask_has_bits_after(caste_restrictions, 7):
+		unsupported_fields.append("casteRestrictions")
+	if _mask_has_bits_after(caste_only, 7):
+		unsupported_fields.append("casteClassOnly")
+
+	var has_race_restriction := (
+		race_restrictions != 0 or race_only != 0 or specific_race != 0
+	)
+	if has_race_restriction:
+		if specific_race < 0 or specific_race > STANDARD_RACE_NAMES.size():
+			unsupported_fields.append("specificRace")
+		else:
+			var allowed_races: Array[String] = []
+			for race_index: int in range(STANDARD_RACE_NAMES.size()):
+				if specific_race > 0 and race_index != specific_race - 1:
+					continue
+				var descriptors: int = STANDARD_RACE_DESCRIPTORS[race_index]
+				if _masks_overlap(descriptors, race_restrictions, 9):
+					continue
+				if not _mask_contains_all(descriptors, race_only, 9):
+					continue
+				allowed_races.append(STANDARD_RACE_NAMES[race_index])
+			fields["only_usable_by_races"] = allowed_races
+
+	var has_caste_restriction := (
+		caste_restrictions != 0 or caste_only != 0 or specific_caste != 0
+	)
+	if has_caste_restriction:
+		if specific_caste < 0 or specific_caste > STANDARD_CASTE_NAMES.size():
+			unsupported_fields.append("specificCaste")
+		else:
+			var allowed_castes: Array[String] = []
+			for caste_index: int in range(STANDARD_CASTE_NAMES.size()):
+				if specific_caste > 0 and caste_index != specific_caste - 1:
+					continue
+				var caste_class: int = STANDARD_CASTE_CLASSES[caste_index]
+				if _classic_mask_has(caste_restrictions, caste_class - 1):
+					continue
+				if caste_only != 0 and not _classic_mask_has(caste_only, caste_class - 1):
+					continue
+				allowed_castes.append(STANDARD_CASTE_NAMES[caste_index])
+			fields["only_usable_by_classes"] = allowed_castes
+	return {"fields": fields, "unsupportedFields": unsupported_fields}
+
+
+func _classic_mask_has(mask: int, bit_index: int) -> bool:
+	return (mask & (1 << (15 - bit_index))) != 0
+
+
+func _mask_has_bits_after(mask: int, supported_bits: int) -> bool:
+	for bit_index: int in range(supported_bits, 16):
+		if _classic_mask_has(mask, bit_index):
+			return true
+	return false
+
+
+func _masks_overlap(left: int, right: int, bit_count: int) -> bool:
+	for bit_index: int in range(bit_count):
+		if _classic_mask_has(left, bit_index) and _classic_mask_has(right, bit_index):
+			return true
+	return false
+
+
+func _mask_contains_all(value: int, required: int, bit_count: int) -> bool:
+	for bit_index: int in range(bit_count):
+		if _classic_mask_has(required, bit_index) and not _classic_mask_has(value, bit_index):
+			return false
+	return true
 
 
 func _unsupported_fields(

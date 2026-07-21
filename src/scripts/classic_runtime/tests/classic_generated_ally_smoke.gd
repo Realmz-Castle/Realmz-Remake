@@ -119,6 +119,20 @@ func _run_smoke() -> void:
 		"equipped scenario weapon retains its Classic heat damage"
 	)
 	_expect_equal(
+		weapon_user.current_melee_weapons[0].get("extra_data", {}).get(
+			"classicWeaponKind"
+		),
+		"blunt",
+		"equipped scenario weapon retains its Classic weapon classification"
+	)
+	_expect_equal(
+		weapon_user.current_melee_weapons[0].get("weapon_tag_bonus_dmg", {}).get(
+			"Undead", {}
+		).get("Physical"),
+		[1.0, 4.0],
+		"normal item loading retains Classic target-bonus damage"
+	)
+	_expect_equal(
 		weapon_user.get_stat("AccuracyMelee")
 			- weapon_user.base_stats.get("AccuracyMelee", 0),
 		2,
@@ -174,6 +188,25 @@ func _run_smoke() -> void:
 		2,
 		"native combat applies the generated Classic weapon magic-plus"
 	)
+	var fixed_tag_weapon: Dictionary = (
+		weapon_user.current_melee_weapons[0].duplicate(true)
+	)
+	fixed_tag_weapon["weapon_dmg"] = {"Physical": [1, 1]}
+	fixed_tag_weapon["weapon_tag_bonus_dmg"] = {
+		"Undead": {"Physical": [4, 4]},
+	}
+	var fixed_tag_damage: Dictionary = GameGlobal.calculate_melee_damage(
+		weapon_user,
+		elemental_attacker,
+		fixed_tag_weapon,
+		false,
+		1.0
+	)
+	_expect_equal(
+		fixed_tag_damage.get("Physical"),
+		5.0,
+		"native combat adds a matching tagged damage range to base weapon damage"
+	)
 	var shock_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		elemental_attacker,
 		weapon_user,
@@ -188,6 +221,8 @@ func _run_smoke() -> void:
 	)
 	var fighter: GDScript = load("res://Data/Character Classes/Class_Fighter.gd")
 	var human: GDScript = load("res://Data/Character Races/Race_Human.gd")
+	var priest: GDScript = load("res://Data/Character Classes/Class_Priest.gd")
+	var elf: GDScript = load("res://Data/Character Races/Race_Elf.gd")
 	var native_stat_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
 		{"name": "Native Equipment Fixture", "level": 0},
 		null,
@@ -222,6 +257,28 @@ func _run_smoke() -> void:
 		null,
 		fighter,
 		human
+	)
+	var wrong_caste_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+		{"name": "Fixture Priest", "level": 0},
+		null,
+		null,
+		priest,
+		human
+	)
+	var wrong_race_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+		{"name": "Fixture Elf", "level": 0},
+		null,
+		null,
+		fighter,
+		elf
+	)
+	_expect(
+		not wrong_caste_character.can_equip_item(player_weapon),
+		"native equipment rejects a caste outside the Classic restriction"
+	)
+	_expect(
+		not wrong_race_character.can_equip_item(player_weapon),
+		"native equipment rejects a race outside the Classic restriction"
 	)
 	var player_accuracy_before: float = player_character.get_stat("AccuracyMelee")
 	var player_damage_before: float = player_character.get_stat("Bonus_Physical_dmg")
@@ -507,6 +564,10 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_record["st"] = 2
 	weapon_record["spellPoints"] = 5
 	weapon_record["movement"] = 4
+	weapon_record["blunt"] = -1
+	weapon_record["vsUndead"] = 4
+	weapon_record["specificRace"] = 1
+	weapon_record["specificCaste"] = 1
 	content["scenarioItems"].append(weapon_record)
 	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)
 	weapon_text["id"] = 150

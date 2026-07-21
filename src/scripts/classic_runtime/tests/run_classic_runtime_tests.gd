@@ -2469,6 +2469,12 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["st"] = 2
 	weapon_record["spellPoints"] = 5
 	weapon_record["movement"] = 4
+	weapon_record["blunt"] = -1
+	weapon_record["vsUndead"] = 4
+	weapon_record["vsDemonDevil"] = 3
+	weapon_record["vsEvil"] = 2
+	weapon_record["specificRace"] = 1
+	weapon_record["specificCaste"] = 1
 	var weapon: Dictionary = materializer._native_item(weapon_record, [])
 	_expect_equal(
 		weapon.get("type"),
@@ -2564,6 +2570,30 @@ func _test_classic_item_materializer() -> void:
 		weapon.get("extra_data", {}).get("classicWeaponDamage"),
 		{"small": 6, "large": 6},
 		"native weapon retains both Classic damage ranges"
+	)
+	_expect_equal(
+		weapon.get("extra_data", {}).get("classicWeaponKind"),
+		"blunt",
+		"native weapon retains its Classic blunt classification"
+	)
+	_expect_equal(
+		weapon.get("weapon_tag_bonus_dmg", {}),
+		{
+			"Undead": {"Physical": [1, 4]},
+			"Demonic": {"Physical": [1, 3]},
+			"Evil Creature": {"Physical": [1, 2]},
+		},
+		"Classic target bonuses map to native tagged damage ranges"
+	)
+	_expect_equal(
+		weapon.get("only_usable_by_races"),
+		["Human"],
+		"Classic specific-race equipment uses native race permissions"
+	)
+	_expect_equal(
+		weapon.get("only_usable_by_classes"),
+		["Fighter"],
+		"Classic specific-caste equipment uses native class permissions"
 	)
 	_expect_equal(
 		weapon.get("stats", {}).get("AccuracyMelee"),
@@ -2744,6 +2774,49 @@ func _test_classic_item_materializer() -> void:
 		).has("movement"),
 		"signed Classic movement remains launchable on equipment"
 	)
+	var grouped_restriction_record := weapon_record.duplicate(true)
+	grouped_restriction_record["specificRace"] = 0
+	grouped_restriction_record["specificCaste"] = 0
+	grouped_restriction_record["raceClassOnly"] = 1 << 7
+	grouped_restriction_record["casteClassOnly"] = 1 << 15
+	var grouped_restriction_item: Dictionary = materializer._native_item(
+		grouped_restriction_record, []
+	)
+	_expect_equal(
+		grouped_restriction_item.get("only_usable_by_races"),
+		["Shadow Elf", "Orc", "Goblin", "Hobgoblin", "Kobold", "Vampire", "Demon"],
+		"Classic race-descriptor requirements map to matching native races"
+	)
+	_expect_equal(
+		grouped_restriction_item.get("only_usable_by_classes"),
+		["Fighter", "Berzerker", "Fencer"],
+		"Classic caste-class requirements map to matching native classes"
+	)
+	_expect_equal(
+		grouped_restriction_item.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		),
+		[],
+		"standard Classic restriction groups remain launchable"
+	)
+	var excluded_group_record := grouped_restriction_record.duplicate(true)
+	excluded_group_record["raceClassOnly"] = 0
+	excluded_group_record["casteClassOnly"] = 0
+	excluded_group_record["raceRestrictions"] = 1 << 7
+	excluded_group_record["casteRestrictions"] = 1 << 15
+	var excluded_group_item: Dictionary = materializer._native_item(
+		excluded_group_record, []
+	)
+	_expect(
+		not excluded_group_item.get("only_usable_by_races", []).has("Orc")
+			and excluded_group_item.get("only_usable_by_races", []).has("Human"),
+		"Classic race exclusions remove matching native races"
+	)
+	_expect(
+		not excluded_group_item.get("only_usable_by_classes", []).has("Fighter")
+			and excluded_group_item.get("only_usable_by_classes", []).has("Priest"),
+		"Classic caste exclusions remove matching native classes"
+	)
 	var negative_armor_record := shield_record.duplicate(true)
 	negative_armor_record["ac"] = -1
 	_expect(
@@ -2802,6 +2875,31 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("movement"),
 		"movement on a non-equippable Classic item remains an explicit blocker"
+	)
+	var non_equipment_restriction_record := non_equipment_armor_record.duplicate(true)
+	non_equipment_restriction_record["ac"] = 0
+	non_equipment_restriction_record["specificRace"] = 1
+	_expect(
+		materializer._native_item(non_equipment_restriction_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("specificRace"),
+		"non-equipment restrictions remain blocked until native item use enforces them"
+	)
+	var unsupported_blunt_record := weapon_record.duplicate(true)
+	unsupported_blunt_record["blunt"] = 1
+	_expect(
+		materializer._native_item(unsupported_blunt_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("blunt"),
+		"unknown Classic weapon classifications remain explicit blockers"
+	)
+	var negative_target_bonus_record := weapon_record.duplicate(true)
+	negative_target_bonus_record["vsUndead"] = -1
+	_expect(
+		materializer._native_item(negative_target_bonus_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("vsUndead"),
+		"negative Classic target bonuses remain explicit blockers"
 	)
 	var luck_record := armor_record.duplicate(true)
 	luck_record["lu"] = 2
