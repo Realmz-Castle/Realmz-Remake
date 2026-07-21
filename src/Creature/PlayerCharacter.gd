@@ -1,6 +1,9 @@
 extends 'res://Creature/Creature.gd' # Weird, right?
 class_name PlayerCharacter
 
+const ClassicLearnedSpellIdentityScript = preload(
+	"res://scripts/classic_runtime/classic_learned_spell_identity.gd"
+)
 
 var portrait : Texture2D = null
 var icon : Texture2D = null
@@ -73,6 +76,7 @@ var equippable_types : Dictionary = {
 
 
 var cur_campaign : String = "Free"
+var classic_spell_identity_diagnostics : Array[String] = []
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -214,6 +218,30 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 #					add_trait(newscript.new(trait_dict["saved_variables"]) )
 #				else :
 #					add_trait(newscript.new() )
+
+
+func resolve_classic_learned_spell_identities(
+	spell_book: Dictionary,
+	spell_id_mapping: Dictionary
+) -> Array[String]:
+	var school_evidence := _classic_learned_spell_school()
+	var resolution := ClassicLearnedSpellIdentityScript.resolve_spell_levels(
+		spells,
+		spell_book,
+		spell_id_mapping,
+		school_evidence
+	)
+	spells = resolution.get("spellLevels", spells)
+	classic_spell_identity_diagnostics.clear()
+	for diagnostic_value: Variant in resolution.get("diagnostics", []):
+		var diagnostic := str(diagnostic_value)
+		classic_spell_identity_diagnostics.append(diagnostic)
+		push_warning("%s: %s" % [name, diagnostic])
+	return classic_spell_identity_diagnostics.duplicate()
+
+
+func _classic_learned_spell_school() -> String:
+	return ClassicLearnedSpellIdentityScript.school_evidence_for_character(self, classgd)
 
 
 func apply_raceclass_base_stats() :

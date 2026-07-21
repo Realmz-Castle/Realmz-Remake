@@ -4,7 +4,7 @@ const CAMPAIGNS_DIRECTORY := \
 	"res://scripts/classic_runtime/tests/fixtures/installed_campaigns/"
 const CAMPAIGN_NAME := "campaign_ui_smoke"
 const CAMPAIGN_TITLE := "Classic Campaign UI Smoke"
-const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
+const EnchanterClass = preload("res://Data/Character Classes/Class_Enchanter.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
 const DefaultIcon = preload("res://scenes/UI/Main Menu/DefaultIcon.png")
 const DefaultPortrait = preload("res://scenes/UI/Main Menu/DefaultPortrait.png")
@@ -102,6 +102,16 @@ func _run_smoke() -> void:
 		"normal launch uses the compiled start coordinates"
 	)
 	_expect(map.visible and UI.ow_hud.visible, "normal launch presents the native map and HUD")
+	var learned_darts: Dictionary = GameGlobal.player_characters[0].spells[1][0]
+	_expect(
+		learned_darts.get("classicSpellId") == 3208,
+		"normal Classic launch assigns the Enchanter Magic Darts identity"
+	)
+	_expect(
+		learned_darts.get("resourceName") == "Classic Magic Darts Enchanter"
+			and learned_darts.get("script").get_max_damage(1, null) == 4,
+		"normal Classic launch selects the 1-4 Enchanter resource"
+	)
 	_expect(
 		is_instance_valid(UI.ow_hud.classicPlayerMapRect),
 		"normal HUD provides the standalone Classic player-map panel"
@@ -229,17 +239,24 @@ func _find_campaign_index(item_list: ItemList, campaign_name: String) -> int:
 
 
 func _create_character() -> PlayerCharacter:
-	return GameGlobal.playerCharacterGD.new(
+	var character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
 		{
-			"name": "Campaign UI Test Rogue",
+			"name": "Campaign UI Test Enchanter",
 			"level": 1,
 			"exp_tnl": 10000,
 		},
 		DefaultIcon,
 		DefaultPortrait,
-		RogueClass,
+		EnchanterClass,
 		HumanRace
 	)
+	var magic_darts = load("res://shared_assets/spells/magic_darts.gd").new()
+	character.add_spell_drom_dict({
+		"name": magic_darts.name,
+		"source": magic_darts.generate_json_string(),
+		"script": magic_darts,
+	}, 2)
+	return character
 
 
 func _expect(condition: bool, description: String) -> void:

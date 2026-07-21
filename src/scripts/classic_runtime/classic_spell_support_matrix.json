@@ -371,7 +371,7 @@
         "saveMode": "none",
         "resistance": "none-force-affect",
         "costPerPower": 4,
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -404,7 +404,7 @@
         "special": 50,
         "adapter": "classic-light-condition",
         "costPerPower": 3,
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -739,7 +739,7 @@
         "special": 60,
         "adapter": "scaled-spell-point-drain",
         "costPerPower": 10,
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -992,7 +992,7 @@
         "adapter": "classic-light-condition",
         "costPerPower": 3,
         "presentationFidelity": "source launch-effect byte differs; native presentation retained",
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1087,7 +1087,7 @@
         "special": 30,
         "adapter": "classic-confusion-trait",
         "costPerPower": 15,
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1120,7 +1120,7 @@
         "special": 29,
         "adapter": "classic-disease-trait",
         "costPerPower": 12,
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1341,7 +1341,7 @@
         "costPerPower": 4,
         "nativeReuse": "extends-remake-magic-darts",
         "presentationFidelity": "source resolution sound byte differs; native presentation retained",
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1451,7 +1451,7 @@
         "adapter": "scaled-spell-point-drain",
         "costPerPower": 10,
         "presentationFidelity": "source launch-effect byte differs; native presentation retained",
-        "learnedSpellIdentity": "pending ISY-426"
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {

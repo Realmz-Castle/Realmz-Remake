@@ -38,6 +38,12 @@ func enter(_msg : Dictionary = {}) -> void:
 				Paths.campaignsfolderpath + campaign + "/campaign_global_script.gd"
 			).new()
 		GameGlobal.cmp_resources.load_campaign_ressources( campaign )
+		if classic_campaign:
+			for pc: PlayerCharacter in GameGlobal.player_characters:
+				pc.resolve_classic_learned_spell_identities(
+					GameGlobal.cmp_resources.spells_book,
+					SpellsIdDivinity.mappings
+				)
 
 		if not classic_campaign:
 			GameGlobal.load_shops_script(campaign)

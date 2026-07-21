@@ -32,6 +32,9 @@ const SpellResourceCatalogScript = preload(
 const SpellIdentityScript = preload(
 	"res://scripts/classic_runtime/classic_spell_identity.gd"
 )
+const LearnedSpellIdentityScript = preload(
+	"res://scripts/classic_runtime/classic_learned_spell_identity.gd"
+)
 const CoreSpellCatalogScript = preload(
 	"res://scripts/classic_runtime/classic_core_spell_catalog.gd"
 )
@@ -113,6 +116,20 @@ const CAMPAIGN_UI_SMOKE_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/installed_campaigns/campaign_ui_smoke"
 
 var failures := 0
+
+
+class SorcererLearningRule:
+	extends RefCounted
+
+	static func can_learn_spell(_character: Object, spell: Object) -> int:
+		return 1 if spell.school_levels.has("Sorcerer") else 10
+
+
+class EnchanterLearningRule:
+	extends RefCounted
+
+	static func can_learn_spell(_character: Object, spell: Object) -> int:
+		return 1 if spell.school_levels.has("Enchanter") else 10
 
 
 class GuardHouseAdapter:
@@ -842,6 +859,7 @@ func _init() -> void:
 	_test_spell_effect_actions(bundle)
 	_test_classic_spell_usage_audit()
 	_test_classic_spell_coverage()
+	_test_classic_learned_spell_identity()
 	_test_item_actions()
 	_test_take_gold_action()
 	_test_give_condition_action()
@@ -7354,6 +7372,137 @@ func _test_classic_disease_contract() -> void:
 	)
 
 
+func _test_classic_learned_spell_identity() -> void:
+	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
+	_expect_equal(
+		LearnedSpellIdentityScript.school_evidence_for_character(
+			null,
+			SorcererLearningRule
+		),
+		"Sorcerer",
+		"native Sorcerer learning rules provide Classic school evidence"
+	)
+	_expect_equal(
+		LearnedSpellIdentityScript.school_evidence_for_character(
+			null,
+			EnchanterLearningRule
+		),
+		"Enchanter",
+		"native Enchanter learning rules provide Classic school evidence"
+	)
+	var sorcerer_darts = load("res://shared_assets/spells/magic_darts.gd").new()
+	var enchanter_darts = load(
+		"res://shared_assets/spells/classic_magic_darts_enchanter.gd"
+	).new()
+	var spell_book := {
+		"Magic Darts": {
+			"name": sorcerer_darts.name,
+			"source": sorcerer_darts.generate_json_string(),
+			"script": sorcerer_darts,
+		},
+		"Classic Magic Darts Enchanter": {
+			"name": enchanter_darts.name,
+			"source": enchanter_darts.generate_json_string(),
+			"script": enchanter_darts,
+		},
+	}
+	var legacy_entry: Dictionary = spell_book["Magic Darts"].duplicate(false)
+	var sorcerer_resolution := LearnedSpellIdentityScript.resolve_spell_levels(
+		[[legacy_entry]],
+		spell_book,
+		spell_mapping,
+		"Sorcerer"
+	)
+	var sorcerer_entry: Dictionary = sorcerer_resolution.get("spellLevels", [])[0][0]
+	_expect_equal(
+		sorcerer_entry.get("classicSpellId"),
+		1108,
+		"Sorcerer campaign entry preserves the exact Magic Darts ID"
+	)
+	_expect_equal(
+		sorcerer_entry.get("resourceName"),
+		"Magic Darts",
+		"Sorcerer Magic Darts keeps its native resource key"
+	)
+	_expect_equal(
+		sorcerer_entry.get("script").get_max_damage(1, null),
+		5,
+		"Sorcerer Magic Darts remains a 1-5 spell after campaign entry"
+	)
+
+	var enchanter_resolution := LearnedSpellIdentityScript.resolve_spell_levels(
+		[[legacy_entry]],
+		spell_book,
+		spell_mapping,
+		"Enchanter"
+	)
+	var enchanter_entry: Dictionary = enchanter_resolution.get("spellLevels", [])[0][0]
+	_expect_equal(
+		enchanter_entry.get("classicSpellId"),
+		3208,
+		"Enchanter campaign entry preserves the exact Magic Darts ID"
+	)
+	_expect_equal(
+		enchanter_entry.get("resourceName"),
+		"Classic Magic Darts Enchanter",
+		"Enchanter Magic Darts selects its compatibility resource"
+	)
+	_expect_equal(
+		enchanter_entry.get("name"),
+		"Magic Darts",
+		"the spell picker keeps the player-facing Classic name"
+	)
+	_expect_equal(
+		enchanter_entry.get("script").get_max_damage(1, null),
+		4,
+		"Enchanter Magic Darts remains a 1-4 spell after campaign entry"
+	)
+	_expect(
+		enchanter_entry.get("script").school_levels.is_empty(),
+		"the compatibility-only Enchanter resource stays out of native learning lists"
+	)
+
+	var save_payload := LearnedSpellIdentityScript.serialize_spell_levels(
+		enchanter_resolution.get("spellLevels", [])
+	)
+	var saved_entry: Dictionary = save_payload[0][0]
+	_expect(not saved_entry.has("script"), "learned spell saves omit runtime objects")
+	_expect_equal(saved_entry.get("classicSpellId"), 3208, "learned spell saves retain exact ID")
+	_expect_equal(
+		saved_entry.get("resourceName"),
+		"Classic Magic Darts Enchanter",
+		"learned spell saves retain the native resource key"
+	)
+	var parsed_payload: Variant = JSON.parse_string(JSON.stringify(save_payload))
+	var restored_resolution := LearnedSpellIdentityScript.resolve_spell_levels(
+		parsed_payload,
+		spell_book,
+		spell_mapping
+	)
+	var restored_entry: Dictionary = restored_resolution.get("spellLevels", [])[0][0]
+	_expect_equal(
+		restored_entry.get("script").get_max_damage(1, null),
+		4,
+		"exact Enchanter Magic Darts survives JSON save and restore"
+	)
+
+	var ambiguous_resolution := LearnedSpellIdentityScript.resolve_spell_levels(
+		[[legacy_entry]],
+		spell_book,
+		spell_mapping
+	)
+	var ambiguous_entry: Dictionary = ambiguous_resolution.get("spellLevels", [])[0][0]
+	_expect(
+		not ambiguous_entry.has("classicSpellId"),
+		"a name-only ambiguous legacy spell is not assigned guessed mechanics"
+	)
+	_expect_equal(
+		ambiguous_resolution.get("diagnostics", []).size(),
+		1,
+		"an ambiguous legacy spell produces one actionable diagnostic"
+	)
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -7422,6 +7571,10 @@ func _test_classic_spell_coverage() -> void:
 	)
 	var support_audit = SpellUsageAuditScript.new()
 	var support_matrix: Dictionary = support_audit.load_support_matrix()
+	var support_by_id: Dictionary = {}
+	for support_value: Variant in support_matrix.get("spells", []):
+		if support_value is Dictionary:
+			support_by_id[int(support_value.get("classicSpellId", 0))] = support_value
 	var native_spells: Dictionary = {}
 	SpellResourceCatalogScript.merge_directory("res://shared_assets/spells", native_spells)
 	var coverage: Dictionary = CoreSpellCoverageScript.new().inspect(
@@ -7457,6 +7610,16 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(1108, {}).get("coverageStatus"),
 		"supported",
 		"supported native spells remain distinct from review candidates"
+	)
+	_expect_equal(
+		support_by_id.get(1108, {}).get("behavior", {}).get("learnedSpellIdentity"),
+		"exact-id-campaign-entry-save-load",
+		"Sorcerer Magic Darts records learned exact-ID coverage"
+	)
+	_expect_equal(
+		support_by_id.get(3208, {}).get("behavior", {}).get("learnedSpellIdentity"),
+		"exact-id-campaign-entry-save-load",
+		"Enchanter Magic Darts records learned exact-ID coverage"
 	)
 	_expect_equal(
 		coverage_by_id.get(1110, {}).get("coverageStatus"),

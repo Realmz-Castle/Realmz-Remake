@@ -6,6 +6,9 @@ class_name  Creature
 const CLASSIC_REGENERATION_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_regeneration.gd"
 )
+const CLASSIC_LEARNED_SPELL_IDENTITY_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_learned_spell_identity.gd"
+)
 
 # Declare member variables here. Examples:
 var name : String = 'Base Creature'
@@ -526,11 +529,21 @@ func add_spell_from_spells_book(spellname : String, slevel : int) :
 	var spelldict = resources.spells_book[spellname]
 	add_spell_drom_dict(spelldict, slevel)
 
-func add_spell_drom_dict(spell_dict : Dictionary, slevel : int) :
+func add_spell_drom_dict(
+	spell_dict : Dictionary,
+	slevel : int,
+	classic_spell_id : int = 0
+) :
 	#var slevel = spell_dict["script"].level
-	while spells.size() < level :
+	while spells.size() < slevel :
 		spells.append([])
-	spells[slevel-1].append(spell_dict)
+	var learned_entry := spell_dict.duplicate(false)
+	if classic_spell_id != 0:
+		learned_entry = CLASSIC_LEARNED_SPELL_IDENTITY_SCRIPT.with_explicit_id(
+			learned_entry,
+			classic_spell_id
+		)
+	spells[slevel-1].append(learned_entry)
 
 func get_all_spells() -> Array :
 	var returned : Array = []
@@ -1343,7 +1356,8 @@ func get_save_string() -> String :
 		equip_item(item)
 		
 	#save spells
-	var spellsJSONstring : String = JSON.stringify(spells)
+	var spell_save_levels := CLASSIC_LEARNED_SPELL_IDENTITY_SCRIPT.serialize_spell_levels(spells)
+	var spellsJSONstring : String = JSON.stringify(spell_save_levels)
 #	print("Creature spellsJSONstring : ", spellsJSONstring)
 	savestring += ('\n"spells" : ')
 	savestring += ('\n'+spellsJSONstring)
