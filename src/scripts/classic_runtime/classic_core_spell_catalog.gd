@@ -2,29 +2,25 @@ class_name ClassicCoreSpellCatalog
 extends RefCounted
 
 const CATALOG_PATH := "res://scripts/classic_runtime/classic_core_spell_catalog.json"
+const INVENTORY_PATH := "res://scripts/classic_runtime/classic_core_spell_inventory.json"
 const SpellOverrideScript = preload(
 	"res://scripts/classic_runtime/classic_spell_override.gd"
 )
 
 
 static func records() -> Array[Dictionary]:
-	if not FileAccess.file_exists(CATALOG_PATH):
-		return []
-	var document: Variant = JSON.parse_string(FileAccess.get_file_as_string(CATALOG_PATH))
-	if not (document is Dictionary):
-		return []
-	var record_values: Variant = document.get("spells", [])
-	if not (record_values is Array):
-		return []
-	var result: Array[Dictionary] = []
-	for record_value: Variant in record_values:
-		if record_value is Dictionary:
-			result.append(record_value)
-	result.sort_custom(
-		func(left: Dictionary, right: Dictionary) -> bool:
-			return int(left.get("packedSpellId", 0)) < int(right.get("packedSpellId", 0))
-	)
-	return result
+	return _records_at(CATALOG_PATH)
+
+
+static func inventory_records() -> Array[Dictionary]:
+	return _records_at(INVENTORY_PATH)
+
+
+static func inventory_spell(spell_id: int) -> Dictionary:
+	for record: Dictionary in inventory_records():
+		if int(record.get("packedSpellId", 0)) == abs(spell_id):
+			return record
+	return {}
 
 
 static func spell(spell_id: int) -> Variant:
@@ -103,3 +99,23 @@ static func _save_mode(record: Dictionary) -> String:
 		if int(record.get(field_name, 0)) != 0:
 			return "half_damage"
 	return "negate"
+
+
+static func _records_at(path: String) -> Array[Dictionary]:
+	if not FileAccess.file_exists(path):
+		return []
+	var document: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (document is Dictionary):
+		return []
+	var record_values: Variant = document.get("spells", [])
+	if not (record_values is Array):
+		return []
+	var result: Array[Dictionary] = []
+	for record_value: Variant in record_values:
+		if record_value is Dictionary:
+			result.append(record_value)
+	result.sort_custom(
+		func(left: Dictionary, right: Dictionary) -> bool:
+			return int(left.get("packedSpellId", 0)) < int(right.get("packedSpellId", 0))
+	)
+	return result

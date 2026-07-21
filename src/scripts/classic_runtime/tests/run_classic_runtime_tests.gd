@@ -791,7 +791,7 @@ func _init() -> void:
 	_test_misc_character_selection(bundle)
 	_test_spell_effect_actions(bundle)
 	_test_classic_spell_usage_audit()
-	_test_city_spell_coverage()
+	_test_classic_spell_coverage()
 	_test_item_actions()
 	_test_take_gold_action()
 	_test_give_condition_action()
@@ -6896,7 +6896,60 @@ func _test_spell_effect_actions(bundle) -> void:
 	_expect_equal(no_save_effect.get("effectScale"), 1.0, "a no-save spell always applies")
 
 
-func _test_city_spell_coverage() -> void:
+func _test_classic_spell_coverage() -> void:
+	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
+	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
+	_expect_equal(
+		inventory.front().get("packedSpellId"),
+		1101,
+		"core inventory begins with Sorcerer level 1"
+	)
+	_expect_equal(
+		inventory.back().get("packedSpellId"),
+		3712,
+		"core inventory ends with Enchanter level 7"
+	)
+	var inventory_ids: Dictionary = {}
+	var unique_ids := true
+	var valid_offsets := true
+	var generic_records := 0
+	var special_records := 0
+	for record: Dictionary in inventory:
+		var packed_id := int(record.get("packedSpellId", 0))
+		if inventory_ids.has(packed_id):
+			unique_ids = false
+		inventory_ids[packed_id] = true
+		var source_record: Dictionary = record.get("sourceRecord", {})
+		if int(source_record.get("byteOffset", -1)) \
+			!= int(source_record.get("recordIndex", -1)) * 30:
+			valid_offsets = false
+		if str(record.get("recordShape", "")) == "generic":
+			generic_records += 1
+		else:
+			special_records += 1
+	_expect(unique_ids, "core inventory IDs are unique")
+	_expect(valid_offsets, "core inventory offsets follow Data S records")
+	_expect_equal(generic_records, 79, "core inventory classifies generic record shapes")
+	_expect_equal(special_records, 173, "core inventory identifies special-behavior records")
+	var sorcerer_darts := CoreSpellCatalogScript.inventory_spell(1108)
+	_expect_equal(sorcerer_darts.get("displayName"), "Magic Darts", "inventory resolves names")
+	_expect_equal(
+		sorcerer_darts.get("record", {}).get("damage2"),
+		5,
+		"inventory preserves Sorcerer Magic Darts damage"
+	)
+	var enchanter_darts := CoreSpellCatalogScript.inventory_spell(3208)
+	_expect_equal(
+		enchanter_darts.get("record", {}).get("damage2"),
+		4,
+		"inventory preserves same-name Enchanter mechanics"
+	)
+	_expect_equal(
+		CoreSpellCatalogScript.inventory_spell(1110).get("record", {}).get("special"),
+		50,
+		"inventory retains special behavior numbers for adapter review"
+	)
+
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
 	_expect_equal(core_spell_book.size(), 10, "core catalog registers each verified generic spell")
