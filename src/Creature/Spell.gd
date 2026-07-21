@@ -67,6 +67,9 @@ var classic_spell_class : int = 0
 # A non-empty list limits this resource to Classic table entries whose
 # mechanics it represents. Empty lists retain the existing name-based fallback.
 var classic_spell_ids : Array[int] = []
+# Response aliases let one native learned spell answer equivalent Classic
+# caster-list entries without claiming that their casting mechanics are equal.
+var classic_spell_response_ids : Array[int] = []
 # Classic field spells use a damage-type save from 0-7. A value of -1 means
 # the spell has no out-of-combat save. Successful saves either negate the
 # effect or halve its damage, matching resolvespell.c.

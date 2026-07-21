@@ -31,6 +31,12 @@ static func resource_key(
 	spell_id_mapping: Dictionary,
 	spell_book: Dictionary
 ) -> String:
+	var resource_names: Array = spell_book.keys()
+	resource_names.sort()
+	for resource_name_value: Variant in resource_names:
+		var resource_name := str(resource_name_value)
+		if spell_id in resource_ids(spell_book[resource_name_value]):
+			return resource_name
 	var spell_name := mapped_name(spell_id, spell_id_mapping)
 	if spell_name.is_empty() or not spell_book.has(spell_name):
 		return ""

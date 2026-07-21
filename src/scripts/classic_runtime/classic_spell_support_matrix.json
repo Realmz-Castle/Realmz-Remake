@@ -12,9 +12,85 @@
           "displayName": "Vodalian"
         }
       ]
+    },
+    {
+      "id": "city-of-bywater-complex-10",
+      "scenario": "City of Bywater",
+      "contexts": ["complex-response"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data ED2",
+          "recordIndex": 10
+        }
+      ]
+    },
+    {
+      "id": "city-of-bywater-enchanted-blade-combatants",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant"],
+      "sourceRecords": [
+        {"sourceFile": "Data MD", "recordIndex": 12},
+        {"sourceFile": "Data MD", "recordIndex": 30},
+        {"sourceFile": "Data MD", "recordIndex": 63},
+        {"sourceFile": "Data MD", "recordIndex": 74},
+        {"sourceFile": "Data MD", "recordIndex": 88}
+      ]
     }
   ],
   "spells": [
+    {
+      "classicSpellId": 1101,
+      "displayName": "Discover Magic I",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/discover_magic.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 0,
+        "byteOffset": 0,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-complex-10",
+          "slots": [0]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 15,
+        "lineOfSight": false,
+        "special": 63,
+        "adapter": "native-magical-item-report",
+        "costPerPower": 1
+      }
+    },
+    {
+      "classicSpellId": 1102,
+      "displayName": "Enchanted Blade",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_enchanted_blade.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 1,
+        "byteOffset": 30,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-enchanted-blade-combatants",
+          "slots": [0, 1, 2, 3, 7]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "duration": "one-round-per-power-decaying",
+        "special": 33,
+        "adapter": "classic-attack-bonus-trait",
+        "costPerPower": 2
+      }
+    },
     {
       "classicSpellId": 1103,
       "displayName": "Energy Storm",
@@ -117,6 +193,60 @@
         "saveBonus": 10,
         "resistance": "classic-general",
         "costPerPower": 25
+      }
+    },
+    {
+      "classicSpellId": 2102,
+      "displayName": "Discover Magic",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_discover_magic_area.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 106,
+        "byteOffset": 3180,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-complex-10",
+          "slots": [1]
+        }
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 15,
+        "lineOfSight": false,
+        "special": 63,
+        "adapter": "native-magical-item-report",
+        "costPerPower": 1
+      }
+    },
+    {
+      "classicSpellId": 3102,
+      "displayName": "Discover Magic",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_discover_magic_area.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 211,
+        "byteOffset": 6330,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-complex-10",
+          "slots": [2]
+        }
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 15,
+        "lineOfSight": false,
+        "special": 63,
+        "adapter": "native-magical-item-report",
+        "costPerPower": 1
       }
     }
   ]

@@ -8,6 +8,7 @@ const GodotAdapterScript = preload(
 )
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
+const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const SoundIdsScript = preload("res://scripts/sfx_id_divinity.gd")
 
 const SCHEMA_VERSION := 1
@@ -433,28 +434,26 @@ func _check_field_spell(
 	else:
 		var spells: Variant = _native_context.get("spells", {})
 		if spells is Dictionary and not spells.is_empty():
-			if not spells.has(spell_name):
+			var resource_name := SpellIdentityScript.resource_key(
+				spell_id, _spell_mapping, spells
+			)
+			if resource_name.is_empty():
+				var code := "missing-native-spell"
+				var message := \
+					"Mapped spell '%s' has no executable Remake resource" % spell_name
+				if spells.has(spell_name):
+					code = "unsupported-native-spell-variant"
+					message = "Mapped spell '%s' does not represent Classic spell %d" % [
+						spell_name, spell_id,
+					]
 				_add_blocker_for_action(
 					action,
-					"missing-native-spell",
-					"Mapped spell '%s' has no executable Remake resource" % spell_name,
+					code,
+					message,
 					{"referenceId": spell_id, "nativeName": spell_name}
 				)
 			else:
-				var spell_metadata: Variant = spells.get(spell_name, {})
-				var supported_ids: Variant = spell_metadata.get("classicSpellIds", []) \
-					if spell_metadata is Dictionary else []
-				if supported_ids is Array \
-						and not supported_ids.is_empty() \
-						and spell_id not in supported_ids:
-					_add_blocker_for_action(
-						action,
-						"unsupported-native-spell-variant",
-						"Mapped spell '%s' does not represent Classic spell %d" % [
-							spell_name, spell_id,
-						],
-						{"referenceId": spell_id, "nativeName": spell_name}
-					)
+				var spell_metadata: Variant = spells.get(resource_name, {})
 				var save_index := int(spell_metadata.get("classicSpellSaveIndex", -2)) \
 					if spell_metadata is Dictionary else -2
 				var save_mode := str(spell_metadata.get("classicSpellSaveMode", "")) \
@@ -861,12 +860,13 @@ func _check_custom_spell_override(
 
 
 func _has_exact_native_spell(spell_id: int) -> bool:
-	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
-	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
 	var spells: Variant = _native_context.get("spells", {})
-	if spell_name.is_empty() or not (spells is Dictionary) or not spells.has(spell_name):
+	if not (spells is Dictionary):
 		return false
-	var metadata: Variant = spells.get(spell_name, {})
+	var resource_name := SpellIdentityScript.resource_key(spell_id, _spell_mapping, spells)
+	if resource_name.is_empty():
+		return false
+	var metadata: Variant = spells.get(resource_name, {})
 	if not (metadata is Dictionary):
 		return false
 	var supported_ids: Variant = metadata.get("classicSpellIds", [])
@@ -897,29 +897,25 @@ func _check_native_effect_spell(
 	var spells: Variant = _native_context.get("spells", {})
 	if not (spells is Dictionary) or spells.is_empty():
 		return
-	if not spells.has(spell_name):
+	var resource_name := SpellIdentityScript.resource_key(spell_id, _spell_mapping, spells)
+	if resource_name.is_empty():
+		var code := "missing-native-spell"
+		var message := "Mapped spell '%s' has no executable Remake resource" % spell_name
+		if spells.has(spell_name):
+			code = "unsupported-native-spell-variant"
+			message = "Mapped spell '%s' does not represent Classic spell %d" % [
+				spell_name, spell_id,
+			]
 		_add_blocker(
-			"missing-native-spell",
+			code,
 			source,
 			record_index,
 			-1,
-			"Mapped spell '%s' has no executable Remake resource" % spell_name,
+			message,
 			{"referenceId": spell_id, "nativeName": spell_name, "ownerId": owner_id}
 		)
 		return
-	var metadata: Variant = spells.get(spell_name, {})
-	var supported_ids: Variant = metadata.get("classicSpellIds", []) \
-		if metadata is Dictionary else []
-	if supported_ids is Array and not supported_ids.is_empty() and spell_id not in supported_ids:
-		_add_blocker(
-			"unsupported-native-spell-variant",
-			source,
-			record_index,
-			-1,
-			"Mapped spell '%s' does not represent Classic spell %d" % [spell_name, spell_id],
-			{"referenceId": spell_id, "nativeName": spell_name, "ownerId": owner_id}
-		)
-		return
+	var metadata: Variant = spells.get(resource_name, {})
 	var save_index := int(metadata.get("classicSpellSaveIndex", -2)) \
 		if metadata is Dictionary else -2
 	var save_mode := str(metadata.get("classicSpellSaveMode", "")) \

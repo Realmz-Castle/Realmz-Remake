@@ -3503,6 +3503,28 @@ func _test_classic_bestiary_materializer() -> void:
 		).get("ready", false)),
 		"resolved native monster spells remain launchable"
 	)
+	var exact_spell_book: Dictionary = {}
+	SpellResourceCatalogScript.merge_directory(
+		"res://shared_assets/spells",
+		exact_spell_book
+	)
+	var spell_ids := SpellIdsScript.new()
+	var exact_spell_result: Dictionary = materializer._native_spells(
+		{"spells": [1102, 2102]},
+		exact_spell_book,
+		spell_ids.mappings
+	)
+	spell_ids.free()
+	_expect_equal(
+		exact_spell_result.get("entries"),
+		[["Classic Enchanted Blade", 1], ["Classic Discover Magic Area", 1]],
+		"native monsters select mechanics-specific Classic spell resources"
+	)
+	_expect_equal(
+		exact_spell_result.get("fidelityFallbacks"),
+		[],
+		"exact-ID Classic monster spells do not use name-only fallbacks"
+	)
 
 	var requirement_record: Dictionary = bundle.get_monster(1).duplicate(true)
 	requirement_record["distance"] = 1
@@ -4781,6 +4803,28 @@ func _test_campaign_readiness_report() -> void:
 			unsupported_variant_report, "unsupported-native-spell-variant", 1408
 		),
 		"readiness blocks a same-name spell resource with different mechanics"
+	)
+	var exact_variant_report: Dictionary = ReadinessScript.new().inspect(bundle, {
+		"spells": {
+			"Power Drain": {"classicSpellIds": [2708]},
+			"Classic Power Drain": {
+				"classicSpellIds": [1408],
+				"classicSpellSaveIndex": 7,
+				"classicSpellSaveMode": "negate",
+			},
+		},
+	})
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			exact_variant_report, "unsupported-native-spell-variant", 1408
+		),
+		"readiness accepts a compatibility resource with the exact packed ID"
+	)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			exact_variant_report, "missing-native-spell-save-metadata", 1408
+		),
+		"readiness reads save metadata from the exact compatibility resource"
 	)
 
 	var malformed: Dictionary = ReadinessScript.new().inspect_directory(
@@ -6909,7 +6953,11 @@ func _test_city_spell_coverage() -> void:
 					"City spell matrix resource exists"
 				)
 			matrix_ids.sort()
-			_expect_equal(matrix_ids, [1103, 1104, 1111, 1203], "Vodalian spell inventory is complete")
+			_expect_equal(
+				matrix_ids,
+				[1101, 1102, 1103, 1104, 1111, 1203, 2102, 3102],
+				"source-verified City spell matrix is complete"
+			)
 
 
 func _test_classic_spell_usage_audit() -> void:
@@ -6953,6 +7001,11 @@ func _test_classic_spell_usage_audit() -> void:
 		[1306],
 		"spell catalog preserves declared Classic IDs"
 	)
+	_expect_equal(
+		native_spells.get("Classic Enchanted Blade", {}).get("classicSpellIds"),
+		[1102],
+		"spell catalog discovers exact-ID compatibility resources"
+	)
 	var report: Dictionary = audit.inspect_bundles(
 		[city_bundle, response_bundle], {}, native_spells
 	)
@@ -6967,7 +7020,7 @@ func _test_classic_spell_usage_audit() -> void:
 	var spell_item_row: Dictionary = {}
 	var trap_row: Dictionary = {}
 	var combat_spell_row: Dictionary = {}
-	var name_only_row: Dictionary = {}
+	var exact_adapter_row: Dictionary = {}
 	var missing_row: Dictionary = {}
 	var variant_row: Dictionary = {}
 	var unmapped_row: Dictionary = {}
@@ -6983,7 +7036,7 @@ func _test_classic_spell_usage_audit() -> void:
 			1103:
 				combat_spell_row = row
 			1102:
-				name_only_row = row
+				exact_adapter_row = row
 			1201:
 				missing_row = row
 			2708:
@@ -7026,9 +7079,22 @@ func _test_classic_spell_usage_audit() -> void:
 			"spell audit records %s usage" % expected_context
 		)
 	_expect_equal(
-		name_only_row.get("nativeResolution", {}).get("status"),
+		exact_adapter_row.get("nativeResolution", {}).get("status"),
+		"exact-id-resource",
+		"spell audit resolves an exact-ID compatibility resource"
+	)
+	_expect_equal(
+		exact_adapter_row.get("nativeResolution", {}).get("resourceName"),
+		"Classic Enchanted Blade",
+		"spell audit reports the selected compatibility resource"
+	)
+	_expect_equal(
+		audit._native_resolution(
+			1102,
+			{"Enchanted Blade": {"resourcePath": "res://test-name-only.gd"}}
+		).get("status"),
 		"name-only-resource",
-		"spell audit does not treat a shared name as exact-ID proof"
+		"spell audit retains a distinct name-only classification"
 	)
 	_expect_equal(
 		missing_row.get("nativeResolution", {}).get("status"),
@@ -10731,6 +10797,13 @@ func _test_complex_spell_results(bundle) -> void:
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
 	var confuse = load("res://shared_assets/spells/confuse.gd").new()
 	var daze = load("res://shared_assets/spells/daze.gd").new()
+	var discover_magic = load("res://shared_assets/spells/discover_magic.gd").new()
+	var area_discover_magic = load(
+		"res://shared_assets/spells/classic_discover_magic_area.gd"
+	).new()
+	var enchanted_blade = load(
+		"res://shared_assets/spells/classic_enchanted_blade.gd"
+	).new()
 	_expect_equal(flame_hands.classic_spell_class, 1, "Flame Hands exports its Classic class")
 	_expect_equal(flame_hands.get_range(7, null), 1, "Flame Hands keeps its touch range")
 	_expect_equal(flame_hands.get_min_damage(3, null), 3, "Flame Hands minimum scales by power")
@@ -10955,17 +11028,77 @@ func _test_complex_spell_results(bundle) -> void:
 		dazed_target.traits[0].power >= 1 and dazed_target.traits[0].power <= 4,
 		"Daze passes its rolled duration to the confusion trait"
 	)
+	_expect_equal(discover_magic.classic_spell_class, 8, "Discover Magic exports its Classic class")
+	_expect(discover_magic.supports_classic_spell_id(1101), "single-target Discover Magic supports 1101")
 	_expect(
-		FileAccess.get_file_as_string("res://shared_assets/spells/discover_magic.gd").contains(
-			"classic_spell_class = 8"
+		not discover_magic.supports_classic_spell_id(2102),
+		"single-target Discover Magic rejects the priest area variant"
+	)
+	_expect_equal(
+		adapter.classic_spell_response_ids(discover_magic),
+		[1101, 2102, 3102],
+		"native Discover Magic can answer its three Classic caster-list entries"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			{"spellIds": [2102], "spellResults": [2]},
+			discover_magic.name,
+			discover_magic.classic_spell_class,
+			spell_mapping,
+			adapter.classic_spell_response_ids(discover_magic)
 		),
-		"Discover Magic exports its Classic class"
+		2,
+		"Discover Magic response aliases reach the priest encounter result"
 	)
 	_expect(
-		FileAccess.get_file_as_string("res://shared_assets/spells/enchanted_blade.gd").contains(
-			"classic_spell_class = 8"
-		),
-		"Enchanted Blade exports its Classic class"
+		area_discover_magic.supports_classic_spell_id(2102)
+		and area_discover_magic.supports_classic_spell_id(3102),
+		"area Discover Magic supports its priest and enchanter IDs"
+	)
+	_expect_equal(
+		area_discover_magic.schools,
+		[],
+		"compatibility-only area spell stays out of native learning lists"
+	)
+	_expect_equal(
+		area_discover_magic.get_aoe(3, null),
+		Spell.AoE_b3,
+		"area Discover Magic scales its target area by power"
+	)
+	_expect(
+		enchanted_blade.supports_classic_spell_id(1102),
+		"Classic Enchanted Blade exports its exact ID"
+	)
+	_expect_equal(enchanted_blade.get_range(7, null), 5, "Classic Enchanted Blade keeps its range")
+	_expect_equal(
+		enchanted_blade.get_duration_roll(3, null),
+		3,
+		"Classic Enchanted Blade starts with one bonus point per power"
+	)
+	_expect_equal(
+		enchanted_blade.get_sp_cost(3, null),
+		6,
+		"Classic Enchanted Blade cost scales by power"
+	)
+	var blade_target := ConditionTestCharacter.new("Enchanted target")
+	enchanted_blade.add_traits_to_creature(null, blade_target, 3)
+	_expect(
+		str(blade_target.traits[0].name).ends_with("t_classic_attack_bonus.gd"),
+		"Classic Enchanted Blade uses its compatibility trait"
+	)
+	var attack_bonus_trait = load(
+		"res://shared_assets/traits/t_classic_attack_bonus.gd"
+	).new([blade_target, 3])
+	_expect_equal(
+		attack_bonus_trait._on_get_stat("Bonus_Physical_dmg", 2),
+		5,
+		"Classic attack bonus adds the remaining condition strength"
+	)
+	attack_bonus_trait._on_new_round(blade_target)
+	_expect_equal(
+		attack_bonus_trait.get_saved_variables(),
+		[2],
+		"Classic attack bonus decays by one each round"
 	)
 	_expect(
 		FileAccess.get_file_as_string("res://shared_assets/spells/magic_darts.gd").contains(

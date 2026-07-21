@@ -1899,6 +1899,19 @@ func classic_spell_resource_supports_id(spell: Variant, spell_id: int) -> bool:
 	return SpellIdentityScript.resource_supports_id(spell, spell_id)
 
 
+func classic_spell_response_ids(spell: Variant) -> Array[int]:
+	var response_ids: Array[int] = []
+	for field_name: String in ["classic_spell_ids", "classic_spell_response_ids"]:
+		var values: Variant = spell.get(field_name) if spell is Object else []
+		if not (values is Array):
+			continue
+		for value: Variant in values:
+			var spell_id: int = abs(int(value))
+			if spell_id != 0 and not response_ids.has(spell_id):
+				response_ids.append(spell_id)
+	return response_ids
+
+
 func spell_effect_targets(target_mode: String, party: Array, selected: Array) -> Array:
 	if target_mode == "party":
 		return party.duplicate()
@@ -2225,7 +2238,10 @@ func _complex_spell_item_response(encounter: Dictionary, selection: Dictionary) 
 		spell_name = _mapped_spell_name(spell_id, spell_mapping)
 	if spell_name.is_empty():
 		return _error("Classic spell item has no Remake spell mapping")
-	var spell: Variant = _loaded_spell(spell_name)
+	var resource_name := spell_name
+	if spell_id != 0:
+		resource_name = _loaded_spell_resource_name(spell_id, spell_mapping)
+	var spell: Variant = _loaded_spell(resource_name)
 	if spell == null:
 		return _error("Mapped spell '%s' is not loaded" % spell_name)
 	var spell_class := int(spell.get("classic_spell_class")) \
@@ -2367,8 +2383,7 @@ func _select_complex_spell(encounter: Dictionary) -> Dictionary:
 	var spell_mapping: Dictionary = spell_ids.mappings if spell_ids != null else {}
 	var spell_class := int(spell.get("classic_spell_class")) \
 		if spell.get("classic_spell_class") != null else 0
-	var supported_spell_ids: Array = spell.get("classic_spell_ids") \
-		if spell.get("classic_spell_ids") is Array else []
+	var supported_spell_ids := classic_spell_response_ids(spell)
 	return {
 		"outcome": resolve_complex_spell_result(
 			encounter,
@@ -2492,6 +2507,16 @@ func _loaded_spell(spell_name: String) -> Variant:
 	if spell_entry is Dictionary:
 		return spell_entry.get("script")
 	return spell_entry
+
+
+func _loaded_spell_resource_name(spell_id: int, spell_id_mapping: Dictionary) -> String:
+	var node_access: Object = _autoload("NodeAccess")
+	var resources: Object = node_access.__Resources() if node_access != null else null
+	if resources == null or not (resources.spells_book is Dictionary):
+		return ""
+	return SpellIdentityScript.resource_key(
+		spell_id, spell_id_mapping, resources.spells_book
+	)
 
 
 func _normalized_spell_name(spell_name: String) -> String:
@@ -3713,7 +3738,8 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 				]
 			)
 		return _error("Classic spell %d has no Remake mapping" % spell_id)
-	var spell: Variant = _loaded_spell(spell_name)
+	var resource_name := _loaded_spell_resource_name(spell_id, spell_id_mapping)
+	var spell: Variant = _loaded_spell(resource_name)
 	if spell == null:
 		return _error("Mapped spell '%s' has no executable resource" % spell_name)
 	if not classic_spell_resource_supports_id(spell, spell_id):
@@ -3743,9 +3769,9 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 		if effect_scale <= 0.0:
 			continue
 		affected_count += 1
-		await script_helper.CastSpellOnPickedCharacters(
+		await script_helper.ApplySpellOnPickedCharacters(
 			[target],
-			spell_name,
+			spell,
 			int(payload.get("power", 0)),
 			effect_scale
 		)
@@ -3753,6 +3779,7 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 		_refresh_character_panel(target)
 	return {
 		"spellName": spell_name,
+		"resourceName": resource_name,
 		"targetCount": targets.size(),
 		"affectedCount": affected_count,
 		"resolutions": resolutions,

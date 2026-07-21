@@ -432,10 +432,20 @@ func _native_resolution(spell_id: int, native_spells: Dictionary) -> Dictionary:
 	if mapped_name.is_empty():
 		resolution["status"] = "unmapped-identity"
 		return resolution
-	if not native_spells.has(mapped_name):
-		resolution["status"] = "missing-native-resource"
+	var resource_name := SpellIdentityScript.resource_key(
+		spell_id, _spell_mapping, native_spells
+	)
+	if resource_name.is_empty():
+		if not native_spells.has(mapped_name):
+			resolution["status"] = "missing-native-resource"
+			return resolution
+		resolution["resourceName"] = mapped_name
+		var mapped_ids := SpellIdentityScript.resource_ids(native_spells[mapped_name])
+		resolution["status"] = "name-only-resource" \
+			if mapped_ids.is_empty() else "unsupported-native-variant"
 		return resolution
-	var metadata: Variant = native_spells[mapped_name]
+	resolution["resourceName"] = resource_name
+	var metadata: Variant = native_spells[resource_name]
 	if not (metadata is Dictionary):
 		resolution["status"] = "name-only-resource"
 		return resolution
