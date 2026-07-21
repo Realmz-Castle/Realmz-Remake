@@ -44,11 +44,11 @@ func load_support_matrix(path := SUPPORT_MATRIX_PATH) -> Dictionary:
 	return value
 
 
-func inspect(bundle: ClassicCampaignBundle, matrix := {}) -> Dictionary:
-	return inspect_bundles([bundle], matrix)
+func inspect(bundle: ClassicCampaignBundle, matrix := {}, native_spells := {}) -> Dictionary:
+	return inspect_bundles([bundle], matrix, native_spells)
 
 
-func inspect_bundles(bundles: Array, matrix := {}) -> Dictionary:
+func inspect_bundles(bundles: Array, matrix := {}, native_spells := {}) -> Dictionary:
 	last_error = ""
 	_spell_usages.clear()
 	_class_usages.clear()
@@ -69,12 +69,21 @@ func inspect_bundles(bundles: Array, matrix := {}) -> Dictionary:
 		_collect_bundle(bundle)
 
 	var matrix_by_id := _index_matrix(support_matrix)
-	var spell_rows := _spell_rows(matrix_by_id)
+	var native_spell_book: Dictionary = native_spells if native_spells is Dictionary else {}
+	var spell_rows := _spell_rows(matrix_by_id, native_spell_book)
 	var class_rows := _reference_rows(_class_usages, "classicSpellClass")
 	var unresolved_rows := _reference_rows(_unresolved_usages, "referenceId")
 	var documented := 0
 	var supported := 0
 	var usage_count := 0
+	var resolution_counts := {
+		"exact-id-resource": 0,
+		"name-only-resource": 0,
+		"unsupported-native-variant": 0,
+		"missing-native-resource": 0,
+		"unmapped-identity": 0,
+		"not-audited": 0,
+	}
 	for row_value: Variant in spell_rows:
 		var row: Dictionary = row_value
 		usage_count += row.get("usages", []).size()
@@ -82,6 +91,12 @@ func inspect_bundles(bundles: Array, matrix := {}) -> Dictionary:
 			documented += 1
 		if str(row.get("supportStatus", "")) == "supported":
 			supported += 1
+		var resolution_status := str(row.get("nativeResolution", {}).get(
+			"status", "not-audited"
+		))
+		resolution_counts[resolution_status] = int(resolution_counts.get(
+			resolution_status, 0
+		)) + 1
 	for row_value: Variant in class_rows:
 		usage_count += row_value.get("usages", []).size()
 	for row_value: Variant in unresolved_rows:
@@ -99,6 +114,7 @@ func inspect_bundles(bundles: Array, matrix := {}) -> Dictionary:
 			"documentedSpellIds": documented,
 			"supportedSpellIds": supported,
 			"unclassifiedSpellIds": spell_rows.size() - documented,
+			"nativeResolution": resolution_counts,
 		},
 		"sourceCoverage": {
 			"covered": [
@@ -379,7 +395,7 @@ func _index_matrix(matrix: Dictionary) -> Dictionary:
 	return indexed
 
 
-func _spell_rows(matrix_by_id: Dictionary) -> Array:
+func _spell_rows(matrix_by_id: Dictionary, native_spells: Dictionary) -> Array:
 	var rows: Array = []
 	var spell_ids: Array = _spell_usages.keys()
 	spell_ids.sort()
@@ -396,6 +412,7 @@ func _spell_rows(matrix_by_id: Dictionary) -> Array:
 			"displayName": display_name,
 			"classification": str(matrix_row.get("classification", "unclassified")),
 			"supportStatus": str(matrix_row.get("supportStatus", "unclassified")),
+			"nativeResolution": _native_resolution(spell_id, native_spells),
 			"usages": _spell_usages[spell_id_value].duplicate(true),
 		}
 		if matrix_row.has("resource"):
@@ -404,6 +421,43 @@ func _spell_rows(matrix_by_id: Dictionary) -> Array:
 			row["behavior"] = matrix_row["behavior"].duplicate(true)
 		rows.append(row)
 	return rows
+
+
+func _native_resolution(spell_id: int, native_spells: Dictionary) -> Dictionary:
+	var mapped_name := SpellIdentityScript.mapped_name(spell_id, _spell_mapping)
+	var resolution := {"mappedName": mapped_name}
+	if native_spells.is_empty():
+		resolution["status"] = "not-audited"
+		return resolution
+	if mapped_name.is_empty():
+		resolution["status"] = "unmapped-identity"
+		return resolution
+	if not native_spells.has(mapped_name):
+		resolution["status"] = "missing-native-resource"
+		return resolution
+	var metadata: Variant = native_spells[mapped_name]
+	if not (metadata is Dictionary):
+		resolution["status"] = "name-only-resource"
+		return resolution
+	var declared_ids: Variant = metadata.get("classicSpellIds", [])
+	if declared_ids is Array and not declared_ids.is_empty():
+		resolution["status"] = (
+			"exact-id-resource" if spell_id in declared_ids else "unsupported-native-variant"
+		)
+	else:
+		resolution["status"] = "name-only-resource"
+	for field_name: String in [
+		"resourcePath",
+		"classicSpellClass",
+		"classicSpellIds",
+		"classicSpellSaveIndex",
+		"classicSpellSaveMode",
+		"inField",
+		"inCombat",
+	]:
+		if metadata.has(field_name):
+			resolution[field_name] = metadata[field_name]
+	return resolution
 
 
 func _reference_rows(usages_by_id: Dictionary, id_field: String) -> Array:

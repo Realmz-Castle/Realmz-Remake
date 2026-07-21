@@ -4,6 +4,9 @@ const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bun
 const SpellUsageAuditScript = preload(
 	"res://scripts/classic_runtime/classic_spell_usage_audit.gd"
 )
+const SpellResourceCatalogScript = preload(
+	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
+)
 
 
 func _init() -> void:
@@ -20,6 +23,16 @@ func _init() -> void:
 		matrix_path = str(arguments[matrix_option + 1])
 		arguments.remove_at(matrix_option + 1)
 		arguments.remove_at(matrix_option)
+	var native_campaign_directory := ""
+	var native_campaign_option := arguments.find("--native-campaign")
+	if native_campaign_option >= 0:
+		if native_campaign_option + 1 >= arguments.size():
+			_print_usage()
+			quit(2)
+			return
+		native_campaign_directory = str(arguments[native_campaign_option + 1])
+		arguments.remove_at(native_campaign_option + 1)
+		arguments.remove_at(native_campaign_option)
 	if arguments.is_empty():
 		_print_usage()
 		quit(2)
@@ -40,7 +53,13 @@ func _init() -> void:
 		push_error(audit.last_error)
 		quit(2)
 		return
-	var report: Dictionary = audit.inspect_bundles(bundles, matrix)
+	var native_spells := {}
+	SpellResourceCatalogScript.merge_directory("res://shared_assets/spells", native_spells)
+	if not native_campaign_directory.is_empty():
+		SpellResourceCatalogScript.merge_directory(
+			native_campaign_directory.path_join("Spells"), native_spells
+		)
+	var report: Dictionary = audit.inspect_bundles(bundles, matrix, native_spells)
 	if json_output:
 		print(JSON.stringify(report))
 	else:
@@ -51,7 +70,8 @@ func _init() -> void:
 func _print_usage() -> void:
 	print(
 		"Usage: report_classic_spell_support.gd <bundle-directory> " +
-		"[bundle-directory ...] [--matrix <matrix.json>] [--json]"
+		"[bundle-directory ...] [--matrix <matrix.json>] " +
+		"[--native-campaign <campaign-directory>] [--json]"
 	)
 
 
@@ -69,6 +89,14 @@ func _print_report(report: Dictionary) -> void:
 		int(totals.get("documentedSpellIds", 0)),
 		int(totals.get("supportedSpellIds", 0)),
 		int(totals.get("unclassifiedSpellIds", 0)),
+	])
+	var native_resolution: Dictionary = totals.get("nativeResolution", {})
+	print("Native resolution: %d exact ID, %d name-only, %d missing, %d variant, %d unmapped." % [
+		int(native_resolution.get("exact-id-resource", 0)),
+		int(native_resolution.get("name-only-resource", 0)),
+		int(native_resolution.get("missing-native-resource", 0)),
+		int(native_resolution.get("unsupported-native-variant", 0)),
+		int(native_resolution.get("unmapped-identity", 0)),
 	])
 	var unclassified: Array[String] = []
 	for row_value: Variant in report.get("spells", []):

@@ -1,6 +1,9 @@
 extends SceneTree
 
 const ReadinessScript = preload("res://scripts/classic_runtime/classic_campaign_readiness.gd")
+const SpellResourceCatalogScript = preload(
+	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
+)
 const MAX_DISPLAYED_DIAGNOSTICS := 25
 
 
@@ -62,8 +65,10 @@ func _load_native_context(campaign_directory: String) -> Dictionary:
 	_merge_json_book("res://shared_assets/items/stuff_book.json", context["items"])
 	_merge_json_book(campaign_directory.path_join("Bestiary/stuff_book.json"), context["bestiary"])
 	_merge_json_book(campaign_directory.path_join("Items/stuff_book.json"), context["items"])
-	_collect_spell_names("res://shared_assets/spells", context["spells"])
-	_collect_spell_names(campaign_directory.path_join("Spells"), context["spells"])
+	SpellResourceCatalogScript.merge_directory("res://shared_assets/spells", context["spells"])
+	SpellResourceCatalogScript.merge_directory(
+		campaign_directory.path_join("Spells"), context["spells"]
+	)
 	_collect_file_names("res://shared_assets/sounds", context["sounds"])
 	_collect_file_names(campaign_directory.path_join("Sounds"), context["sounds"])
 	return context
@@ -75,52 +80,6 @@ func _merge_json_book(path: String, destination: Dictionary) -> void:
 	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if value is Dictionary:
 		destination.merge(value, true)
-
-
-func _collect_spell_names(directory: String, destination: Dictionary) -> void:
-	var access := DirAccess.open(directory)
-	if access == null:
-		return
-	var expression := RegEx.new()
-	expression.compile("(?m)^\\s*name\\s*=\\s*[\"']([^\"']+)[\"']")
-	var class_expression := RegEx.new()
-	class_expression.compile("(?m)^\\s*classic_spell_class\\s*=\\s*(-?\\d+)")
-	var ids_expression := RegEx.new()
-	ids_expression.compile("(?m)^\\s*classic_spell_ids\\s*=\\s*\\[([^\\]]*)\\]")
-	var save_index_expression := RegEx.new()
-	save_index_expression.compile("(?m)^\\s*classic_spell_save_index\\s*=\\s*(-?\\d+)")
-	var save_mode_expression := RegEx.new()
-	save_mode_expression.compile(
-		"(?m)^\\s*classic_spell_save_mode\\s*=\\s*[\"']([^\"']+)[\"']"
-	)
-	access.list_dir_begin()
-	var file_name := access.get_next()
-	while not file_name.is_empty():
-		if not access.current_is_dir() and file_name.ends_with(".gd"):
-			var source := FileAccess.get_file_as_string(directory.path_join(file_name))
-			var match_result := expression.search(source)
-			if match_result != null:
-				var metadata := {}
-				var class_match := class_expression.search(source)
-				if class_match != null:
-					metadata["classicSpellClass"] = int(class_match.get_string(1))
-				var ids_match := ids_expression.search(source)
-				if ids_match != null:
-					var classic_spell_ids: Array[int] = []
-					for id_text: String in ids_match.get_string(1).split(","):
-						var trimmed_id := id_text.strip_edges()
-						if trimmed_id.is_valid_int():
-							classic_spell_ids.append(int(trimmed_id))
-					metadata["classicSpellIds"] = classic_spell_ids
-				var save_index_match := save_index_expression.search(source)
-				if save_index_match != null:
-					metadata["classicSpellSaveIndex"] = int(save_index_match.get_string(1))
-				var save_mode_match := save_mode_expression.search(source)
-				if save_mode_match != null:
-					metadata["classicSpellSaveMode"] = save_mode_match.get_string(1)
-				destination[match_result.get_string(1)] = metadata
-		file_name = access.get_next()
-	access.list_dir_end()
 
 
 func _collect_file_names(directory: String, destination: Dictionary) -> void:

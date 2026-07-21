@@ -26,6 +26,9 @@ const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_sa
 const SpellUsageAuditScript = preload(
 	"res://scripts/classic_runtime/classic_spell_usage_audit.gd"
 )
+const SpellResourceCatalogScript = preload(
+	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -6920,6 +6923,9 @@ func _test_classic_spell_usage_audit() -> void:
 	}
 	city_bundle.battles_by_id[999] = {"id": 999, "grid": [71]}
 	city_bundle.extra_codes_by_id[999] = {"id": 999, "values": [1, 71]}
+	city_bundle.extra_codes_by_id[998] = {"id": 998, "values": [1102, 1, 0, 0, 0]}
+	city_bundle.extra_codes_by_id[997] = {"id": 997, "values": [9998, 1, 0, 0, 0]}
+	city_bundle.extra_codes_by_id[996] = {"id": 996, "values": [2708, 1, 0, 0, 0]}
 	city_bundle.triggers_by_id["spell-audit:monster-contexts"] = {
 		"id": "spell-audit:monster-contexts",
 		"source": "Data DD",
@@ -6928,6 +6934,9 @@ func _test_classic_spell_usage_audit() -> void:
 		"actions": [
 			{"id": 71, "rawCode": 89, "slot": 0},
 			{"id": 999, "rawCode": 124, "slot": 1},
+			{"id": 998, "rawCode": 17, "slot": 2},
+			{"id": 997, "rawCode": 18, "slot": 3},
+			{"id": 996, "rawCode": 17, "slot": 4},
 		],
 	}
 	var response_bundle = BundleScript.new()
@@ -6936,7 +6945,17 @@ func _test_classic_spell_usage_audit() -> void:
 		"spell audit response fixture loads"
 	)
 	var audit = SpellUsageAuditScript.new()
-	var report: Dictionary = audit.inspect_bundles([city_bundle, response_bundle])
+	var native_spells := {}
+	SpellResourceCatalogScript.merge_directory("res://shared_assets/spells", native_spells)
+	_expect(native_spells.has("Fireball"), "spell catalog discovers shared resources")
+	_expect_equal(
+		native_spells.get("Fireball", {}).get("classicSpellIds"),
+		[1306],
+		"spell catalog preserves declared Classic IDs"
+	)
+	var report: Dictionary = audit.inspect_bundles(
+		[city_bundle, response_bundle], {}, native_spells
+	)
 	var totals: Dictionary = report.get("totals", {})
 	_expect_equal(totals.get("campaigns"), 2, "spell audit merges multiple scenario bundles")
 	_expect(int(totals.get("spellIds", 0)) > 0, "spell audit inventories packed spell IDs")
@@ -6948,6 +6967,10 @@ func _test_classic_spell_usage_audit() -> void:
 	var spell_item_row: Dictionary = {}
 	var trap_row: Dictionary = {}
 	var combat_spell_row: Dictionary = {}
+	var name_only_row: Dictionary = {}
+	var missing_row: Dictionary = {}
+	var variant_row: Dictionary = {}
+	var unmapped_row: Dictionary = {}
 	for row_value: Variant in report.get("spells", []):
 		if not (row_value is Dictionary):
 			continue
@@ -6959,6 +6982,14 @@ func _test_classic_spell_usage_audit() -> void:
 				trap_row = row
 			1103:
 				combat_spell_row = row
+			1102:
+				name_only_row = row
+			1201:
+				missing_row = row
+			2708:
+				variant_row = row
+			9998:
+				unmapped_row = row
 	_expect(not spell_item_row.is_empty(), "spell audit records a scenario-item spell")
 	var spell_item_contexts: Array = spell_item_row.get("usages", []).map(
 		func(usage: Dictionary) -> String: return str(usage.get("context", ""))
@@ -6981,6 +7012,11 @@ func _test_classic_spell_usage_audit() -> void:
 		"supported",
 		"spell audit joins a packed ID to the curated matrix"
 	)
+	_expect_equal(
+		combat_spell_row.get("nativeResolution", {}).get("status"),
+		"exact-id-resource",
+		"spell audit recognizes an explicit native spell identity"
+	)
 	var combat_contexts: Array = combat_spell_row.get("usages", []).map(
 		func(usage: Dictionary) -> String: return str(usage.get("context", ""))
 	)
@@ -6989,6 +7025,26 @@ func _test_classic_spell_usage_audit() -> void:
 			combat_contexts.has(expected_context),
 			"spell audit records %s usage" % expected_context
 		)
+	_expect_equal(
+		name_only_row.get("nativeResolution", {}).get("status"),
+		"name-only-resource",
+		"spell audit does not treat a shared name as exact-ID proof"
+	)
+	_expect_equal(
+		missing_row.get("nativeResolution", {}).get("status"),
+		"missing-native-resource",
+		"spell audit distinguishes a mapped name with no resource"
+	)
+	_expect_equal(
+		variant_row.get("nativeResolution", {}).get("status"),
+		"unsupported-native-variant",
+		"spell audit rejects an exact resource for another packed variant"
+	)
+	_expect_equal(
+		unmapped_row.get("nativeResolution", {}).get("status"),
+		"unmapped-identity",
+		"spell audit distinguishes an unmapped packed ID"
+	)
 
 	var class_rows: Array = report.get("spellClasses", [])
 	_expect_equal(class_rows.size(), 1, "spell audit separates low-ID class responses")

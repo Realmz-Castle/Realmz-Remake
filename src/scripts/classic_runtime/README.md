@@ -198,12 +198,20 @@ progression blocker.
 `ClassicSpellUsageAudit` inventories spell references separately from launch
 readiness. It records each packed ID or low-ID spell class with its campaign,
 runtime context, source file, record, and slot, then joins packed IDs to the
-curated `classic_spell_support_matrix.json`. Pass more than one bundle to merge
-their usages into a single report:
+curated `classic_spell_support_matrix.json`. The report also scans shared native
+spell resources and distinguishes an explicit exact-ID resource from a
+name-only fallback, a resource for another packed variant, a mapped name with no
+resource, and an unmapped identity. Pass more than one bundle to merge their
+usages into a single report:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_spell_support.gd -- "C:\path\to\bundle-a" "C:\path\to\bundle-b" --json
 ```
+
+Use `--native-campaign "C:\path\to\native-campaign"` to include that
+campaign's `Spells` directory after the shared catalog. Exact-ID resolution is
+identity evidence only; the curated classification still records whether the
+spell's complete Classic behavior has been verified.
 
 The inventory covers field actions, rogue traps, complex responses, referenced
 combatants and allies, scenario spell items, and authored spell overrides.
