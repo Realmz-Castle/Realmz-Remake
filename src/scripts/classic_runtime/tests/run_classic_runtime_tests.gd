@@ -2467,6 +2467,7 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["electric"] = 2
 	weapon_record["damage"] = 2
 	weapon_record["st"] = 2
+	weapon_record["spellPoints"] = 5
 	var weapon: Dictionary = materializer._native_item(weapon_record, [])
 	_expect_equal(
 		weapon.get("type"),
@@ -2583,6 +2584,21 @@ func _test_classic_item_materializer() -> void:
 		2,
 		"native equipment retains the source Classic strength modifier"
 	)
+	_expect_equal(
+		weapon.get("stats", {}).get("maxSP"),
+		5,
+		"positive Classic spell points map to the native maximum"
+	)
+	_expect_equal(
+		weapon.get("stats", {}).get("curSP"),
+		5,
+		"positive Classic spell points map to the native current pool"
+	)
+	_expect_equal(
+		weapon.get("extra_data", {}).get("classicSpellPointModifier"),
+		5,
+		"native equipment retains the source Classic spell-point modifier"
+	)
 	var defensive_weapon_record := weapon_record.duplicate(true)
 	defensive_weapon_record["ac"] = 3
 	var defensive_weapon: Dictionary = materializer._native_item(defensive_weapon_record, [])
@@ -2674,6 +2690,27 @@ func _test_classic_item_materializer() -> void:
 		).has("st"),
 		"signed Classic strength remains launchable on equipment"
 	)
+	var negative_spell_point_record := weapon_record.duplicate(true)
+	negative_spell_point_record["spellPoints"] = -5
+	var negative_spell_point_item: Dictionary = materializer._native_item(
+		negative_spell_point_record, []
+	)
+	_expect_equal(
+		negative_spell_point_item.get("stats", {}).get("maxSP"),
+		-5,
+		"negative Classic spell points remain a signed maximum modifier"
+	)
+	_expect_equal(
+		negative_spell_point_item.get("stats", {}).get("curSP"),
+		-5,
+		"negative Classic spell points remain a signed current modifier"
+	)
+	_expect(
+		not negative_spell_point_item.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("spellPoints"),
+		"signed Classic spell points remain launchable on equipment"
+	)
 	var negative_armor_record := shield_record.duplicate(true)
 	negative_armor_record["ac"] = -1
 	_expect(
@@ -2714,6 +2751,15 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("st"),
 		"strength on a non-equippable Classic item remains an explicit blocker"
+	)
+	var non_equipment_spell_point_record := non_equipment_armor_record.duplicate(true)
+	non_equipment_spell_point_record["ac"] = 0
+	non_equipment_spell_point_record["spellPoints"] = 5
+	_expect(
+		materializer._native_item(non_equipment_spell_point_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("spellPoints"),
+		"spell points on a non-equippable Classic item remain an explicit blocker"
 	)
 	var luck_record := armor_record.duplicate(true)
 	luck_record["lu"] = 2

@@ -136,6 +136,16 @@ func _run_smoke() -> void:
 		2,
 		"equipped scenario weapon applies its Classic strength modifier once"
 	)
+	_expect_equal(
+		weapon_user.get_stat("maxSP") - weapon_user.base_stats.get("maxSP", 0),
+		5,
+		"equipped scenario weapon applies its Classic maximum spell points once"
+	)
+	_expect_equal(
+		weapon_user.get_stat("curSP") - weapon_user.base_stats.get("curSP", 0),
+		5,
+		"equipped scenario weapon applies its Classic current spell points once"
+	)
 	var weapon_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		weapon_user,
 		elemental_attacker,
@@ -210,6 +220,8 @@ func _run_smoke() -> void:
 	var player_accuracy_before: float = player_character.get_stat("AccuracyMelee")
 	var player_damage_before: float = player_character.get_stat("Bonus_Physical_dmg")
 	var player_strength_before: float = player_character.get_stat("Strength")
+	var player_max_sp_before: float = player_character.get_stat("maxSP")
+	var player_cur_sp_before: float = player_character.get_stat("curSP")
 	player_character.inventory.append(player_weapon)
 	player_character.inventory.append(player_armor)
 	player_character.inventory.append(player_shield)
@@ -236,6 +248,16 @@ func _run_smoke() -> void:
 		player_character.get_stat("Strength"),
 		player_strength_before + 2,
 		"generated Classic weapon applies its strength modifier to the player"
+	)
+	_expect_equal(
+		player_character.get_stat("maxSP"),
+		player_max_sp_before + 5,
+		"generated Classic weapon applies its maximum spell points to the player"
+	)
+	_expect_equal(
+		player_character.get_stat("curSP"),
+		player_cur_sp_before + 5,
+		"generated Classic weapon applies its current spell points to the player"
 	)
 	_expect_equal(
 		player_armor.get("type"),
@@ -291,6 +313,20 @@ func _run_smoke() -> void:
 	_expect(
 		is_equal_approx(unshielded_hit_chance - shielded_hit_chance, 0.3),
 		"generated Classic armor participates in native melee accuracy"
+	)
+	_expect(
+		player_character.unequip_item(player_weapon, false),
+		"native player equipment removes the generated Classic weapon"
+	)
+	_expect_equal(
+		player_character.get_stat("maxSP"),
+		player_max_sp_before,
+		"removing Classic equipment restores the player's maximum spell points"
+	)
+	_expect_equal(
+		player_character.get_stat("curSP"),
+		player_cur_sp_before,
+		"removing Classic equipment restores the player's current spell points"
 	)
 
 	var bundle = BundleScript.new()
@@ -439,6 +475,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_record["heat"] = 4
 	weapon_record["damage"] = 2
 	weapon_record["st"] = 2
+	weapon_record["spellPoints"] = 5
 	content["scenarioItems"].append(weapon_record)
 	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)
 	weapon_text["id"] = 150

@@ -23,7 +23,6 @@ const UNSUPPORTED_EFFECT_FIELDS := [
 	"special5",
 	"specificCaste",
 	"specificRace",
-	"spellPoints",
 	"vsDemonDevil",
 	"vsEvil",
 	"vsUndead",
@@ -386,6 +385,21 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 		var strength_extra_data: Dictionary = fields.get("extra_data", {})
 		strength_extra_data["classicStrengthModifier"] = strength_modifier
 		fields["extra_data"] = strength_extra_data
+
+	var spell_point_modifier := int(record.get("spellPoints", 0))
+	if spell_point_modifier != 0 and not SLOT_BY_CLASSIC_TYPE.has(classic_type):
+		unsupported_fields.append("spellPoints")
+	elif spell_point_modifier != 0:
+		# Classic changes current and maximum spell points by the same amount.
+		stats["maxSP"] = spell_point_modifier
+		stats["curSP"] = spell_point_modifier
+		var spell_point_sign_prefix := "+" if spell_point_modifier > 0 else ""
+		stats_summary.append(
+			"%s%d Spell Points" % [spell_point_sign_prefix, spell_point_modifier]
+		)
+		var spell_point_extra_data: Dictionary = fields.get("extra_data", {})
+		spell_point_extra_data["classicSpellPointModifier"] = spell_point_modifier
+		fields["extra_data"] = spell_point_extra_data
 
 	if not stats.is_empty():
 		fields["stats"] = stats
