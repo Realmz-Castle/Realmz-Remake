@@ -14,11 +14,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Gauntlets +12": {
@@ -75,12 +75,12 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+5 Accuracy, +1 Physical Damage, , +5 Magic Evasion, Spell Level Protection",
+	"stats_mini": "+5 Accuracy, +1 Physical Damage, , +5 Classic Magic Resistance, Spell Level Protection",
 	"stats": {
 	  "Bonus_Physical_dmg": 1,
 	  "AccuracyRanged": 5,
 	  "AccuracyMelee": 5,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -227,11 +227,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +2 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +2 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	}
   },
   "Ring of Defense +5": {
@@ -249,11 +249,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Melee Evasion, +5 Ranged Evasion, +4 Magic Evasion",
+	"stats_mini": "+5 Melee Evasion, +5 Ranged Evasion, +4 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 5,
 	  "EvasionRanged": 5,
-	  "EvasionMagic": 4
+	  "ClassicMagicResistance": 4
 	}
   },
   "Ring of Defense +7": {
@@ -271,11 +271,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+7 Melee Evasion, +7 Ranged Evasion, +6 Magic Evasion",
+	"stats_mini": "+7 Melee Evasion, +7 Ranged Evasion, +6 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 7,
 	  "EvasionRanged": 7,
-	  "EvasionMagic": 6
+	  "ClassicMagicResistance": 6
 	}
   },
   "Unholy Visor": {
@@ -1236,12 +1236,12 @@
 	],
 	"hands": 2,
 	"equippable": 1,
-	"stats_mini": "+15 Accuracy, +3 Physical Damage, , +5 Magic Evasion, P Invisible",
+	"stats_mini": "+15 Accuracy, +3 Physical Damage, , +5 Classic Magic Resistance, P Invisible",
 	"stats": {
 	  "Bonus_Physical_dmg": 3,
 	  "AccuracyRanged": 15,
 	  "AccuracyMelee": 15,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -1484,11 +1484,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Quiver of Magic Resistance": {
@@ -1506,9 +1506,9 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Magic Evasion",
+	"stats_mini": "+5 Classic Magic Resistance",
 	"stats": {
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	}
   },
   "Shield of Healing +10": {
@@ -1586,11 +1586,11 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+21 Melee Evasion, +21 Ranged Evasion, +3 Magic Evasion, P Prot Elect",
+	"stats_mini": "+21 Melee Evasion, +21 Ranged Evasion, +3 Classic Magic Resistance, P Prot Elect",
 	"stats": {
 	  "EvasionMelee": 21,
 	  "EvasionRanged": 21,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	},
 	"traits": [
 	  [
@@ -1696,11 +1696,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+4 Melee Evasion, +4 Ranged Evasion, +10 Magic Evasion, Spell Level Protection",
+	"stats_mini": "+4 Melee Evasion, +4 Ranged Evasion, +10 Classic Magic Resistance, Spell Level Protection",
 	"stats": {
 	  "EvasionMelee": 4,
 	  "EvasionRanged": 4,
-	  "EvasionMagic": 10
+	  "ClassicMagicResistance": 10
 	},
 	"traits": [
 	  [
@@ -2096,11 +2096,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+7 Melee Evasion, +7 Ranged Evasion, +2 Magic Evasion, Spell Level Protection",
+	"stats_mini": "+7 Melee Evasion, +7 Ranged Evasion, +2 Classic Magic Resistance, Spell Level Protection",
 	"stats": {
 	  "EvasionMelee": 7,
 	  "EvasionRanged": 7,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	},
 	"traits": [
 	  [
@@ -2611,9 +2611,9 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Magic Evasion",
+	"stats_mini": "+3 Classic Magic Resistance",
 	"stats": {
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	},
 	"charges": 6,
 	"charges_max": 6,
@@ -3025,11 +3025,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+8 Melee Evasion, +8 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+8 Melee Evasion, +8 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 8,
 	  "EvasionRanged": 8,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Arrow of Seeking": {
@@ -3338,10 +3338,10 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+15 Max SP, +1 Magic Evasion, +1 Luck",
+	"stats_mini": "+15 Max SP, +1 Classic Magic Resistance, +1 Luck",
 	"stats": {
 	  "maxSP": 15,
-	  "EvasionMagic": 1
+	  "ClassicMagicResistance": 1
 	},
 	"notraits": [
 	  [
@@ -3499,13 +3499,13 @@
 	],
 	"hands": 2,
 	"equippable": 1,
-	"stats_mini": "+40 Accuracy, +8 Physical Damage, +2 Strength, +10 Magic Evasion",
+	"stats_mini": "+40 Accuracy, +8 Physical Damage, +2 Strength, +10 Classic Magic Resistance",
 	"stats": {
 	  "Bonus_Physical_dmg": 8,
 	  "AccuracyRanged": 40,
 	  "Strength": 2,
 	  "AccuracyMelee": 40,
-	  "EvasionMagic": 10
+	  "ClassicMagicResistance": 10
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -4007,14 +4007,14 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+35 Accuracy, +7 Melee Evasion, +7 Physical Damage, +7 Ranged Evasion, +5 Magic Evasion, +5 Luck",
+	"stats_mini": "+35 Accuracy, +7 Melee Evasion, +7 Physical Damage, +7 Ranged Evasion, +5 Classic Magic Resistance, +5 Luck",
 	"stats": {
 	  "EvasionMelee": 7,
 	  "Bonus_Physical_dmg": 7,
 	  "AccuracyRanged": 35,
 	  "EvasionRanged": 7,
 	  "AccuracyMelee": 35,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -4387,9 +4387,9 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+10 Magic Evasion, Spell Level Protection",
+	"stats_mini": "+10 Classic Magic Resistance, Spell Level Protection",
 	"stats": {
-	  "EvasionMagic": 10
+	  "ClassicMagicResistance": 10
 	},
 	"traits": [
 	  [
@@ -4510,14 +4510,14 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+20 Accuracy, +3 Melee Evasion, +4 Physical Damage, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+20 Accuracy, +3 Melee Evasion, +4 Physical Damage, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "Bonus_Physical_dmg": 4,
 	  "AccuracyRanged": 20,
 	  "EvasionRanged": 3,
 	  "AccuracyMelee": 20,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -4621,7 +4621,7 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Accuracy, +3 Melee Evasion, +1 Physical Damage, +3 Ranged Evasion, +2 Movement, +3 Magic Evasion, +2 Luck",
+	"stats_mini": "+5 Accuracy, +3 Melee Evasion, +1 Physical Damage, +3 Ranged Evasion, +2 Movement, +3 Classic Magic Resistance, +2 Luck",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "Bonus_Physical_dmg": 1,
@@ -4629,7 +4629,7 @@
 	  "EvasionRanged": 3,
 	  "MaxMovement": 2,
 	  "AccuracyMelee": 5,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	},
 	"notraits": [
 	  [
@@ -4896,14 +4896,14 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+5 Accuracy, +15 Melee Evasion, +1 Physical Damage, +15 Ranged Evasion, +5 Magic Evasion, P Prot Evil",
+	"stats_mini": "+5 Accuracy, +15 Melee Evasion, +1 Physical Damage, +15 Ranged Evasion, +5 Classic Magic Resistance, P Prot Evil",
 	"stats": {
 	  "EvasionMelee": 15,
 	  "Bonus_Physical_dmg": 1,
 	  "AccuracyRanged": 5,
 	  "EvasionRanged": 15,
 	  "AccuracyMelee": 5,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"traits": [
 	  [
@@ -5044,14 +5044,14 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Accuracy, +39 Melee Evasion, +1 Physical Damage, +39 Ranged Evasion, +2 Magic Evasion, P Prot Chem",
+	"stats_mini": "+5 Accuracy, +39 Melee Evasion, +1 Physical Damage, +39 Ranged Evasion, +2 Classic Magic Resistance, P Prot Chem",
 	"stats": {
 	  "EvasionMelee": 39,
 	  "Bonus_Physical_dmg": 1,
 	  "AccuracyRanged": 5,
 	  "EvasionRanged": 39,
 	  "AccuracyMelee": 5,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	},
 	"traits": [
 	  [
@@ -5076,11 +5076,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+6 Melee Evasion, +6 Ranged Evasion, +5 Magic Evasion, Spell Level Protection",
+	"stats_mini": "+6 Melee Evasion, +6 Ranged Evasion, +5 Classic Magic Resistance, Spell Level Protection",
 	"stats": {
 	  "EvasionMelee": 6,
 	  "EvasionRanged": 6,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"traits": [
 	  [
@@ -5160,11 +5160,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Flameheart +2": {
@@ -5270,11 +5270,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Shadow Cloak +9": {
@@ -5360,14 +5360,14 @@
 	],
 	"hands": 2,
 	"equippable": 1,
-	"stats_mini": "+15 Accuracy, +3 Physical Damage, +30 Max SP, +8 Movement, +5 Magic Evasion",
+	"stats_mini": "+15 Accuracy, +3 Physical Damage, +30 Max SP, +8 Movement, +5 Classic Magic Resistance",
 	"stats": {
 	  "Bonus_Physical_dmg": 3,
 	  "AccuracyRanged": 15,
 	  "maxSP": 30,
 	  "MaxMovement": 8,
 	  "AccuracyMelee": 15,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -5575,9 +5575,9 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+30 Magic Evasion",
+	"stats_mini": "+30 Classic Magic Resistance",
 	"stats": {
-	  "EvasionMagic": 30
+	  "ClassicMagicResistance": 30
 	},
 	"unique": 1
   },
@@ -5912,14 +5912,14 @@
 	],
 	"hands": 2,
 	"equippable": 1,
-	"stats_mini": "+10 Accuracy, +6 Melee Evasion, +2 Physical Damage, +6 Ranged Evasion, +5 Magic Evasion",
+	"stats_mini": "+10 Accuracy, +6 Melee Evasion, +2 Physical Damage, +6 Ranged Evasion, +5 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 6,
 	  "Bonus_Physical_dmg": 2,
 	  "AccuracyRanged": 10,
 	  "EvasionRanged": 6,
 	  "AccuracyMelee": 10,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -6489,7 +6489,7 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Accuracy, +9 Melee Evasion, +1 Physical Damage, +40 Max SP, +9 Ranged Evasion, +9 Magic Evasion, P Prot Evil",
+	"stats_mini": "+5 Accuracy, +9 Melee Evasion, +1 Physical Damage, +40 Max SP, +9 Ranged Evasion, +9 Classic Magic Resistance, P Prot Evil",
 	"stats": {
 	  "EvasionMelee": 9,
 	  "Bonus_Physical_dmg": 1,
@@ -6497,7 +6497,7 @@
 	  "maxSP": 40,
 	  "EvasionRanged": 9,
 	  "AccuracyMelee": 5,
-	  "EvasionMagic": 9
+	  "ClassicMagicResistance": 9
 	},
 	"traits": [
 	  [
@@ -6621,11 +6621,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+20 Max SP, -1 Movement, +2 Magic Evasion, +2 Luck",
+	"stats_mini": "+20 Max SP, -1 Movement, +2 Classic Magic Resistance, +2 Luck",
 	"stats": {
 	  "maxSP": 20,
 	  "MaxMovement": -1,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	},
 	"notraits": [
 	  [
@@ -6673,11 +6673,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Ring of Revival": {
@@ -7247,11 +7247,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+2 Melee Evasion, +2 Ranged Evasion, +2 Magic Evasion",
+	"stats_mini": "+2 Melee Evasion, +2 Ranged Evasion, +2 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 2,
 	  "EvasionRanged": 2,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	}
   },
   "Bitter Sweet +1 (-2)": {
@@ -7936,12 +7936,12 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+4 Melee Evasion, +15 Max SP, +4 Ranged Evasion, +2 Magic Evasion",
+	"stats_mini": "+4 Melee Evasion, +15 Max SP, +4 Ranged Evasion, +2 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 4,
 	  "maxSP": 15,
 	  "EvasionRanged": 4,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	}
   },
   "Ring of Cold": {
@@ -7983,7 +7983,7 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+35 Accuracy, +7 Melee Evasion, +7 Physical Damage, +7 Ranged Evasion, +1 Strength, +10 Magic Evasion, P Hp Regen, +, 2, l, u, c, k",
+	"stats_mini": "+35 Accuracy, +7 Melee Evasion, +7 Physical Damage, +7 Ranged Evasion, +1 Strength, +10 Classic Magic Resistance, P Hp Regen, +, 2, l, u, c, k",
 	"stats": {
 	  "EvasionMelee": 7,
 	  "Bonus_Physical_dmg": 7,
@@ -7991,7 +7991,7 @@
 	  "EvasionRanged": 7,
 	  "Strength": 1,
 	  "AccuracyMelee": 35,
-	  "EvasionMagic": 10
+	  "ClassicMagicResistance": 10
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -8168,11 +8168,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+25 Max SP, +4 Movement, +3 Magic Evasion, +2 vs Demonic",
+	"stats_mini": "+25 Max SP, +4 Movement, +3 Classic Magic Resistance, +2 vs Demonic",
 	"stats": {
 	  "maxSP": 25,
 	  "MaxMovement": 4,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	},
 	"notraits": [
 	  [
@@ -8223,14 +8223,14 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Accuracy, +1 Physical Damage, +50 Max SP, -1 Movement, +10 Magic Evasion, Spell Level Protection, +, 2, l, u, c, k",
+	"stats_mini": "+5 Accuracy, +1 Physical Damage, +50 Max SP, -1 Movement, +10 Classic Magic Resistance, Spell Level Protection, +, 2, l, u, c, k",
 	"stats": {
 	  "Bonus_Physical_dmg": 1,
 	  "AccuracyRanged": 5,
 	  "maxSP": 50,
 	  "MaxMovement": -1,
 	  "AccuracyMelee": 5,
-	  "EvasionMagic": 10
+	  "ClassicMagicResistance": 10
 	},
 	"notraits": "+2 luck",
 	"traits": [
@@ -8256,11 +8256,11 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+9 Melee Evasion, +9 Ranged Evasion, +5 Magic Evasion, Spell Level Protection",
+	"stats_mini": "+9 Melee Evasion, +9 Ranged Evasion, +5 Classic Magic Resistance, Spell Level Protection",
 	"stats": {
 	  "EvasionMelee": 9,
 	  "EvasionRanged": 9,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"traits": [
 	  [
@@ -9405,11 +9405,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+20 Melee Evasion, +20 Ranged Evasion, +20 Magic Evasion",
+	"stats_mini": "+20 Melee Evasion, +20 Ranged Evasion, +20 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 20,
 	  "EvasionRanged": 20,
-	  "EvasionMagic": 20
+	  "ClassicMagicResistance": 20
 	},
 	"unique": 1
   },
@@ -9597,12 +9597,12 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+10 Melee Evasion, +10 Ranged Evasion, +2 Movement, +5 Magic Evasion",
+	"stats_mini": "+10 Melee Evasion, +10 Ranged Evasion, +2 Movement, +5 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 10,
 	  "EvasionRanged": 10,
 	  "MaxMovement": 2,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	}
   },
   "Savage Winds +9": {
@@ -9840,11 +9840,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Short Sword of Defense +2": {
@@ -9862,14 +9862,14 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+10 Accuracy, +3 Melee Evasion, +2 Physical Damage, +3 Ranged Evasion, +1 Magic Evasion, P Prot Ice",
+	"stats_mini": "+10 Accuracy, +3 Melee Evasion, +2 Physical Damage, +3 Ranged Evasion, +1 Classic Magic Resistance, P Prot Ice",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "Bonus_Physical_dmg": 2,
 	  "AccuracyRanged": 10,
 	  "EvasionRanged": 3,
 	  "AccuracyMelee": 10,
-	  "EvasionMagic": 1
+	  "ClassicMagicResistance": 1
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -9983,14 +9983,14 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+10 Accuracy, +37 Melee Evasion, +2 Physical Damage, +37 Ranged Evasion, +5 Magic Evasion, P Prot Chem",
+	"stats_mini": "+10 Accuracy, +37 Melee Evasion, +2 Physical Damage, +37 Ranged Evasion, +5 Classic Magic Resistance, P Prot Chem",
 	"stats": {
 	  "EvasionMelee": 37,
 	  "Bonus_Physical_dmg": 2,
 	  "AccuracyRanged": 10,
 	  "EvasionRanged": 37,
 	  "AccuracyMelee": 10,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"traits": [
 	  [
@@ -10061,11 +10061,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Magic Evasion",
+	"stats_mini": "+3 Melee Evasion, +3 Ranged Evasion, +3 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 3,
 	  "EvasionRanged": 3,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	}
   },
   "Scimitar of Dodging +2": {
@@ -10156,11 +10156,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Melee Evasion, +5 Ranged Evasion, +2 Magic Evasion",
+	"stats_mini": "+5 Melee Evasion, +5 Ranged Evasion, +2 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 5,
 	  "EvasionRanged": 5,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	}
   },
   "Shield of the Blue Oxen +4": {
@@ -10260,11 +10260,11 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+18 Melee Evasion, +18 Ranged Evasion, +5 Magic Evasion",
+	"stats_mini": "+18 Melee Evasion, +18 Ranged Evasion, +5 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 18,
 	  "EvasionRanged": 18,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"unique": 1
   },
@@ -10518,10 +10518,10 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+25 Max SP, +3 Magic Evasion, +2 Luck",
+	"stats_mini": "+25 Max SP, +3 Classic Magic Resistance, +2 Luck",
 	"stats": {
 	  "maxSP": 25,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	},
 	"charges": 6,
 	"charges_max": 6,
@@ -10910,11 +10910,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+2 Melee Evasion, +2 Ranged Evasion, +1 Magic Evasion",
+	"stats_mini": "+2 Melee Evasion, +2 Ranged Evasion, +1 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 2,
 	  "EvasionRanged": 2,
-	  "EvasionMagic": 1
+	  "ClassicMagicResistance": 1
 	}
   },
   "Robe of Vulnerability -2": {
@@ -11407,9 +11407,9 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Magic Evasion",
+	"stats_mini": "+5 Classic Magic Resistance",
 	"stats": {
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"charges": 4,
 	"charges_max": 4,
@@ -11511,7 +11511,7 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+5 Accuracy, +4 Melee Evasion, +1 Physical Damage, +10 Max SP, +4 Ranged Evasion, +2 Movement, +3 Magic Evasion, P Aura, +, 1, l, u, c, k",
+	"stats_mini": "+5 Accuracy, +4 Melee Evasion, +1 Physical Damage, +10 Max SP, +4 Ranged Evasion, +2 Movement, +3 Classic Magic Resistance, P Aura, +, 1, l, u, c, k",
 	"stats": {
 	  "EvasionMelee": 4,
 	  "Bonus_Physical_dmg": 1,
@@ -11520,7 +11520,7 @@
 	  "EvasionRanged": 4,
 	  "MaxMovement": 2,
 	  "AccuracyMelee": 5,
-	  "EvasionMagic": 3
+	  "ClassicMagicResistance": 3
 	},
 	"notraits": "+1 luck",
 	"traits": [
@@ -11629,12 +11629,12 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+10 Accuracy, +2 Physical Damage, , +5 Magic Evasion",
+	"stats_mini": "+10 Accuracy, +2 Physical Damage, , +5 Classic Magic Resistance",
 	"stats": {
 	  "Bonus_Physical_dmg": 2,
 	  "AccuracyRanged": 10,
 	  "AccuracyMelee": 10,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -11787,14 +11787,14 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+30 Accuracy, +10 Melee Evasion, +6 Physical Damage, +10 Ranged Evasion, +5 Magic Evasion",
+	"stats_mini": "+30 Accuracy, +10 Melee Evasion, +6 Physical Damage, +10 Ranged Evasion, +5 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 10,
 	  "Bonus_Physical_dmg": 6,
 	  "AccuracyRanged": 30,
 	  "EvasionRanged": 10,
 	  "AccuracyMelee": 30,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"unique": 1
   },
@@ -12136,12 +12136,12 @@
 	],
 	"hands": 1,
 	"equippable": 1,
-	"stats_mini": "+10 Accuracy, +2 Physical Damage, , +5 Magic Evasion",
+	"stats_mini": "+10 Accuracy, +2 Physical Damage, , +5 Classic Magic Resistance",
 	"stats": {
 	  "Bonus_Physical_dmg": 2,
 	  "AccuracyRanged": 10,
 	  "AccuracyMelee": 10,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"weapon_dmg": {
 	  "Physical": [
@@ -12397,11 +12397,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+40 Melee Evasion, +40 Ranged Evasion, +5 Magic Evasion, Spell Level Protection",
+	"stats_mini": "+40 Melee Evasion, +40 Ranged Evasion, +5 Classic Magic Resistance, Spell Level Protection",
 	"stats": {
 	  "EvasionMelee": 40,
 	  "EvasionRanged": 40,
-	  "EvasionMagic": 5
+	  "ClassicMagicResistance": 5
 	},
 	"traits": [
 	  [
@@ -12482,11 +12482,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+20 Melee Evasion, +20 Ranged Evasion, +20 Magic Evasion",
+	"stats_mini": "+20 Melee Evasion, +20 Ranged Evasion, +20 Classic Magic Resistance",
 	"stats": {
 	  "EvasionMelee": 20,
 	  "EvasionRanged": 20,
-	  "EvasionMagic": 20
+	  "ClassicMagicResistance": 20
 	},
 	"unique": 1
   },
@@ -12593,9 +12593,9 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+6 Magic Evasion",
+	"stats_mini": "+6 Classic Magic Resistance",
 	"stats": {
-	  "EvasionMagic": 6
+	  "ClassicMagicResistance": 6
 	},
 	"charges": 1,
 	"charges_max": 6,
@@ -13419,11 +13419,11 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "+12 Melee Evasion, +12 Ranged Evasion, +2 Magic Evasion, P Increased Def",
+	"stats_mini": "+12 Melee Evasion, +12 Ranged Evasion, +2 Classic Magic Resistance, P Increased Def",
 	"stats": {
 	  "EvasionMelee": 12,
 	  "EvasionRanged": 12,
-	  "EvasionMagic": 2
+	  "ClassicMagicResistance": 2
 	},
 	"traits": [
 	  [
@@ -13704,9 +13704,9 @@
 	],
 	"hands": 0,
 	"equippable": 1,
-	"stats_mini": "-10 Magic Evasion, P Dumb",
+	"stats_mini": "-10 Classic Magic Resistance, P Dumb",
 	"stats": {
-	  "EvasionMagic": -10
+	  "ClassicMagicResistance": -10
 	},
 	"traits": [
 	  [

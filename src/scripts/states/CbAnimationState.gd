@@ -7,6 +7,9 @@ class_name CbAnimationState
 #@export var timer : Timer
 
 const SPELL_ANIMATION_TSCN : PackedScene = preload("res://scenes/Map/SpellAnimation/SpellAnimation.tscn")
+const CLASSIC_MAGIC_RESISTANCE_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
 
 var cur_action : Dictionary
 
@@ -382,11 +385,23 @@ func play_spell_resolution(gfx : Spell.GFX, _castercrea : Creature, effected_til
 
 func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_targeted_tile : Vector2, effected_tiles : Array, effected_creas : Array, add_terrain : bool) :
 	print("CbAnimState after_spell_anim_finished : "+castercrea.name+'s '+spell.name)
+	var unresisted_creatures : Array = []
+	for cb : CombatCreaButton in effected_creas :
+		var resistance : Dictionary = CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_resolution(
+			cb.creature,
+			spell,
+			power,
+			randi_range(1, 100)
+		)
+		if bool(resistance.get("resisted", false)) :
+			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
+			continue
+		unresisted_creatures.append(cb)
 	if spell.get("special_effect") :
-		var is_over : bool = await spell.special_effect(castercrea, spell, power, main_targeted_tile, effected_tiles, effected_creas, add_terrain)
+		var is_over : bool = await spell.special_effect(castercrea, spell, power, main_targeted_tile, effected_tiles, unresisted_creatures, add_terrain)
 		if is_over :
 			return
-	for cb : CombatCreaButton in effected_creas :
+	for cb : CombatCreaButton in unresisted_creatures :
 		var accuracy_array : Array = GameGlobal.calculate_spell_accuracy(castercrea, cb.creature, spell, power)
 		var accuracy = accuracy_array[0]
 		var evasion_stats_used : Array = accuracy_array[1]

@@ -5,6 +5,9 @@ const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
+const MagicResistanceScript = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
@@ -1892,7 +1895,8 @@ func classic_field_spell_target_resolution(
 	payload: Dictionary,
 	character: Object,
 	spell: Object,
-	roll: int
+	resistance_roll: int,
+	save_roll: int
 ) -> Dictionary:
 	var save_index := int(spell.get("classic_spell_save_index"))
 	var save_mode := str(spell.get("classic_spell_save_mode"))
@@ -1904,6 +1908,14 @@ func classic_field_spell_target_resolution(
 		return _error("Classic field-spell target has no readable stats")
 
 	var forced := bool(payload.get("forceAffect", false))
+	var resistance: Dictionary = MagicResistanceScript.spell_resolution(
+		character,
+		spell,
+		int(payload.get("power", 0)),
+		resistance_roll,
+		true
+	)
+	var resisted := not forced and bool(resistance.get("resisted", false))
 	var save_chance := 0.0
 	if save_mode != "none":
 		save_chance = clampf(
@@ -1912,14 +1924,18 @@ func classic_field_spell_target_resolution(
 			0.0,
 			100.0
 		)
-	var saved := not forced and save_mode != "none" and roll <= save_chance
-	var effect_scale := 1.0
+	var saved := not forced and not resisted and save_mode != "none" \
+		and save_roll <= save_chance
+	var effect_scale := 0.0 if resisted else 1.0
 	if saved:
 		effect_scale = 0.5 if save_mode == "half_damage" else 0.0
 	return {
 		"character": character,
 		"name": str(character.get("name")),
-		"roll": roll,
+		"resistanceRoll": resistance_roll,
+		"resistanceChance": int(resistance.get("chance", 0)),
+		"resisted": resisted,
+		"roll": save_roll,
 		"saveChance": save_chance,
 		"saved": saved,
 		"forced": forced,
@@ -1943,24 +1959,21 @@ func classic_custom_spell_target_resolution(
 		)
 	var save_index := int(spell.classic_spell_save_index)
 	var save_mode := str(spell.classic_spell_save_mode)
-	var check_resistance := bool(payload.get("checkResistance", false))
-	var can_resist := int(spell.classic_cannot) != 1 and int(spell.classic_cannot) <= 2
-	if (check_resistance and can_resist) or save_mode != "none":
+	var can_resist := MagicResistanceScript.custom_spell_uses_resistance(spell)
+	if can_resist or save_mode != "none":
 		if not character.has_method("get_stat"):
 			return _error("Classic custom-spell target has no readable stats")
 
 	var power := int(payload.get("power", 0))
 	var forced := bool(payload.get("forceAffect", false))
-	var resistance_chance := 0.0
-	if check_resistance and can_resist:
-		resistance_chance = clampf(
-			_classic_spell_save_chance(character, 6)
-				+ power * int(spell.classic_resist_adjust),
-			0.0,
-			100.0
-		)
-	var resisted := not forced and check_resistance and can_resist \
-		and resistance_roll <= resistance_chance
+	var resistance: Dictionary = MagicResistanceScript.custom_spell_resolution(
+		character,
+		spell,
+		power,
+		resistance_roll
+	)
+	var resistance_chance := int(resistance.get("chance", 0))
+	var resisted := not forced and bool(resistance.get("resisted", false))
 
 	var save_chance := 0.0
 	if save_mode != "none":
@@ -3706,6 +3719,7 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 			payload,
 			target,
 			spell,
+			randi_range(1, 100),
 			randi_range(1, 100)
 		)
 		if str(resolution.get("status", "")) == "error":

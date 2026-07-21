@@ -13,6 +13,9 @@ const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inve
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
+const MagicResistanceScript = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -720,6 +723,7 @@ func _init() -> void:
 	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
 	_test_custom_spell_overrides()
+	_test_classic_magic_resistance_contract()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -2557,6 +2561,7 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["st"] = 2
 	weapon_record["spellPoints"] = 5
 	weapon_record["movement"] = 4
+	weapon_record["magicResistance"] = 7
 	weapon_record["blunt"] = -1
 	weapon_record["vsUndead"] = 4
 	weapon_record["vsDemonDevil"] = 3
@@ -2593,6 +2598,16 @@ func _test_classic_item_materializer() -> void:
 		armor.get("classicMaterialization", {}).get("unsupportedFields"),
 		[],
 		"basic categorized Classic armor remains launchable"
+	)
+	var resistance_only_record := armor_record.duplicate(true)
+	resistance_only_record["magicResistance"] = 7
+	var resistance_only_item: Dictionary = materializer._native_item(
+		resistance_only_record, []
+	)
+	_expect_equal(
+		resistance_only_item.get("stats_mini"),
+		"+7% Classic Magic Resistance",
+		"resistance-only equipment exposes its compatibility effect"
 	)
 	var shield_record := armor_record.duplicate(true)
 	shield_record["itemId"] = 251
@@ -2733,6 +2748,15 @@ func _test_classic_item_materializer() -> void:
 		4,
 		"native equipment retains the source Classic movement modifier"
 	)
+	_expect_equal(
+		weapon.get("classicMagicResistance"),
+		7,
+		"Classic magic resistance maps to compatibility-owned item metadata"
+	)
+	_expect(
+		not weapon.get("stats", {}).has("EvasionMagic"),
+		"Classic magic resistance does not become native magic evasion"
+	)
 	_expect(
 		weapon.get("classicMaterialization", {}).get(
 			"fidelityFallbacks", []
@@ -2867,6 +2891,22 @@ func _test_classic_item_materializer() -> void:
 		).has("movement"),
 		"signed Classic movement remains launchable on equipment"
 	)
+	var negative_magic_resistance_record := weapon_record.duplicate(true)
+	negative_magic_resistance_record["magicResistance"] = -9
+	var negative_magic_resistance_item: Dictionary = materializer._native_item(
+		negative_magic_resistance_record, []
+	)
+	_expect_equal(
+		negative_magic_resistance_item.get("classicMagicResistance"),
+		-9,
+		"negative Classic magic resistance remains a signed equipment modifier"
+	)
+	_expect(
+		not negative_magic_resistance_item.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("magicResistance"),
+		"signed Classic magic resistance remains launchable on equipment"
+	)
 	var grouped_restriction_record := weapon_record.duplicate(true)
 	grouped_restriction_record["specificRace"] = 0
 	grouped_restriction_record["specificCaste"] = 0
@@ -2968,6 +3008,15 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("movement"),
 		"movement on a non-equippable Classic item remains an explicit blocker"
+	)
+	var non_equipment_magic_resistance_record := non_equipment_armor_record.duplicate(true)
+	non_equipment_magic_resistance_record["ac"] = 0
+	non_equipment_magic_resistance_record["magicResistance"] = 5
+	_expect(
+		materializer._native_item(non_equipment_magic_resistance_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("magicResistance"),
+		"magic resistance on a non-equippable Classic item remains a blocker"
 	)
 	var non_equipment_restriction_record := non_equipment_armor_record.duplicate(true)
 	non_equipment_restriction_record["ac"] = 0
@@ -3118,6 +3167,19 @@ func _test_classic_bestiary_materializer() -> void:
 	_expect_equal(monster.get("stats", {}).get("maxHP"), 241, "average Classic stamina is deterministic")
 	_expect_equal(monster.get("stats", {}).get("AccuracyMelee"), 9, "Classic melee accuracy maps natively")
 	_expect_equal(monster.get("data", {}).get("exp"), 7709, "Classic average battle reward maps natively")
+	var resistance_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	resistance_record["magicResistance"] = 37
+	var resistance_stats: Dictionary = materializer._native_stats(resistance_record, 100)
+	_expect_equal(
+		resistance_stats.get("EvasionMagic"),
+		0,
+		"Classic monster magic resistance stays distinct from native evasion"
+	)
+	_expect_equal(
+		resistance_stats.get("MultiplierMagic"),
+		1.0,
+		"Classic monster magic resistance stays distinct from damage scaling"
+	)
 	_expect_equal(
 		monster.get("tools", {}).get("unarmed_melee_attacks", [])[0].get(
 			"weapon_dmg", {}
@@ -4716,6 +4778,154 @@ func _test_custom_spell_overrides() -> void:
 	)
 
 
+func _test_classic_magic_resistance_contract() -> void:
+	var target := RogueTestCharacter.new()
+	target.set_meta("classic_magic_resistance", 25)
+	target.inventory = [
+		{"name": "Ward Ring", "equipped": 1, "classicMagicResistance": 10},
+		{"name": "Cursed Charm", "equipped": 1, "classicMagicResistance": -4},
+		{"name": "Carried Ward", "equipped": 0, "classicMagicResistance": 90},
+	]
+	_expect_equal(
+		MagicResistanceScript.base_value(target),
+		25,
+		"Classic monster metadata owns base magic resistance"
+	)
+	_expect_equal(
+		MagicResistanceScript.equipped_modifier(target),
+		6,
+		"signed worn-item magic resistance stacks additively"
+	)
+	_expect_equal(
+		MagicResistanceScript.chance(target, 2, 3),
+		37,
+		"Classic resistance adjustment applies after base and equipment values"
+	)
+
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var resisted: Dictionary = MagicResistanceScript.spell_resolution(
+		target, fireball, 1, 31
+	)
+	_expect(resisted.get("resisted"), "mapped combat spell can be fully resisted")
+	_expect_equal(
+		resisted.get("chance"),
+		31,
+		"mapped combat spell uses the compatibility-owned percentage"
+	)
+	var ignored_spell = load("res://shared_assets/spells/festering_wounds.gd").new()
+	_expect(
+		not MagicResistanceScript.spell_resolution(
+			target, ignored_spell, 1, 1
+		).get("checksResistance"),
+		"mapped spell preserves its ignore-magic-resistance flag"
+	)
+	var native_spell := Spell.new()
+	native_spell.resist = Spell.RESIST_TYPE.IGNORE_NOTHING
+	_expect(
+		not MagicResistanceScript.spell_resolution(
+			target, native_spell, 1, 1
+		).get("checksResistance"),
+		"ordinary native spells do not inherit the Classic resistance contract"
+	)
+
+	var custom_record := _custom_spell_record(18, 5204)
+	custom_record["cannot"] = 0
+	custom_record["resistAdjust"] = 2
+	var custom_spell = load(
+		"res://scripts/classic_runtime/classic_spell_override.gd"
+	).new()
+	custom_spell.configure(custom_record)
+	_expect_equal(
+		custom_spell.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"resistible compiled spell checks Classic magic resistance without native dodge"
+	)
+	_expect(
+		MagicResistanceScript.custom_spell_resolution(
+			target, custom_spell, 2, 35
+		).get("resisted"),
+		"compiler-produced spell applies its resistance adjustment"
+	)
+	var custom_field_resolution: Dictionary = (
+		GodotAdapterScript.new().classic_custom_spell_target_resolution(
+			{"power": 2, "saveAdjustment": 0, "forceAffect": false},
+			target,
+			custom_spell,
+			35,
+			100
+		)
+	)
+	_expect(
+		custom_field_resolution.get("resisted"),
+		"compiler-produced field resolution applies general resistance"
+	)
+	_expect(
+		not custom_field_resolution.get("saved"),
+		"compiled general resistance remains distinct from its damage save"
+	)
+	_expect_equal(
+		custom_field_resolution.get("effectScale"),
+		0.0,
+		"compiled general resistance negates the complete spell"
+	)
+
+	var restored_item: Dictionary = MagicResistanceScript.normalize_item_data({
+		"imgdata": "",
+		"imgdatasize": 0,
+		"name": "Saved Ward",
+		"type": "Ring",
+		"sound": "",
+		"equipped": 1,
+		"stats": {},
+		"classicMagicResistance": 12,
+	})
+	var saved_item: Dictionary = JSON.parse_string(JSON.stringify(restored_item))
+	var loaded_item: Dictionary = MagicResistanceScript.normalize_item_data(saved_item)
+	_expect_equal(
+		loaded_item.get("classicMagicResistance"),
+		12,
+		"character save/load preserves Classic item magic resistance"
+	)
+	_expect_equal(
+		loaded_item.get("equipped"),
+		1,
+		"character save/load preserves the worn state"
+	)
+	var migrated_item: Dictionary = MagicResistanceScript.normalize_item_data({
+		"imgdata": "",
+		"imgdatasize": 0,
+		"name": "Catalog Ward",
+		"type": "Ring",
+		"sound": "",
+		"stats": {"ClassicMagicResistance": -7},
+	})
+	_expect_equal(
+		migrated_item.get("classicMagicResistance"),
+		-7,
+		"shared catalog migration retains signed Classic resistance"
+	)
+	_expect(
+		not migrated_item.get("stats", {}).has("ClassicMagicResistance"),
+		"Classic resistance stays distinct from native Creature stats"
+	)
+	var legacy_item: Dictionary = MagicResistanceScript.normalize_item_data(
+		{
+			"name": "Saved Legacy Ward",
+			"stats": {"EvasionMagic": -4, "EvasionMelee": 2},
+		},
+		{"classicMagicResistance": 5}
+	)
+	_expect_equal(
+		legacy_item.get("classicMagicResistance"),
+		-4,
+		"pre-contract catalog saves retain their signed resistance value"
+	)
+	_expect(
+		not legacy_item.get("stats", {}).has("EvasionMagic"),
+		"pre-contract catalog saves no longer grant native magic evasion"
+	)
+
+
 func _custom_spell_record(record_id: int, packed_spell_id: int) -> Dictionary:
 	return {
 		"id": record_id,
@@ -6221,6 +6431,7 @@ func _test_spell_effect_actions(bundle) -> void:
 		},
 		first_target,
 		fire_flare,
+		1,
 		90
 	)
 	_expect_equal(adjusted_save.get("saveChance"), 90.0, "spell save adjustment scales by power")
@@ -6230,10 +6441,36 @@ func _test_spell_effect_actions(bundle) -> void:
 		0.5,
 		"a successful save halves damaging field spells"
 	)
+	second_target.set_meta("classic_magic_resistance", 100)
+	second_target.stat_values["MultiplierFire"] = 1.0
+	second_target.stat_values["ResistanceFire"] = 100.0
+	var resisted_field_spell: Dictionary = (
+		adapter.classic_field_spell_target_resolution(
+			{"power": 3, "saveAdjustment": 100, "forceAffect": false},
+			second_target,
+			fire_flare,
+			1,
+			1
+		)
+	)
+	_expect(
+		resisted_field_spell.get("resisted"),
+		"mapped field spell checks general Classic magic resistance"
+	)
+	_expect(
+		not resisted_field_spell.get("saved"),
+		"general field resistance remains distinct from the damage save"
+	)
+	_expect_equal(
+		resisted_field_spell.get("effectScale"),
+		0.0,
+		"general field resistance negates the complete spell"
+	)
 	var failed_save: Dictionary = adapter.classic_field_spell_target_resolution(
 		{"power": 3, "saveAdjustment": 0, "forceAffect": false},
 		first_target,
 		fire_flare,
+		1,
 		1
 	)
 	_expect(not failed_save.get("saved"), "a roll above a zero save chance fails")
@@ -6244,6 +6481,7 @@ func _test_spell_effect_actions(bundle) -> void:
 		{"power": 1, "saveAdjustment": 0, "forceAffect": false},
 		first_target,
 		confuse,
+		1,
 		50
 	)
 	_expect(negated_effect.get("saved"), "a target can save against a condition spell")
@@ -6256,6 +6494,7 @@ func _test_spell_effect_actions(bundle) -> void:
 		{"power": 1, "saveAdjustment": 0, "forceAffect": true},
 		first_target,
 		confuse,
+		1,
 		1
 	)
 	_expect(not forced_effect.get("saved"), "force-affect bypasses a guaranteed save")
@@ -6265,6 +6504,7 @@ func _test_spell_effect_actions(bundle) -> void:
 		{"power": 7, "saveAdjustment": 100, "forceAffect": false},
 		first_target,
 		daze,
+		1,
 		1
 	)
 	_expect(not no_save_effect.get("saved"), "a no-save spell ignores the adjustment field")

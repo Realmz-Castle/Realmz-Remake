@@ -9,7 +9,6 @@ const ITEM_ATLAS_PATH := "Items/textureAtlas.png"
 const UNSUPPORTED_EFFECT_FIELDS := [
 	"cursedItemId",
 	"lu",
-	"magicResistance",
 	"special1",
 	"special2",
 	"special3",
@@ -500,6 +499,19 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 		# Classic applies the item bonus after encumbrance; Remake weights the final stat.
 		fidelity_fallbacks.append("movementUsesNativeEncumbranceScale")
 
+	var magic_resistance_modifier := int(record.get("magicResistance", 0))
+	if magic_resistance_modifier != 0 and not SLOT_BY_CLASSIC_TYPE.has(classic_type):
+		unsupported_fields.append("magicResistance")
+	elif magic_resistance_modifier != 0:
+		fields["classicMagicResistance"] = magic_resistance_modifier
+		var resistance_sign_prefix := "+" if magic_resistance_modifier > 0 else ""
+		stats_summary.append(
+			"%s%d%% Classic Magic Resistance" % [
+				resistance_sign_prefix,
+				magic_resistance_modifier,
+			]
+		)
+
 	var native_restrictions := _native_restrictions(
 		record,
 		SLOT_BY_CLASSIC_TYPE.has(classic_type)
@@ -512,6 +524,7 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 
 	if not stats.is_empty():
 		fields["stats"] = stats
+	if not stats_summary.is_empty():
 		fields["stats_mini"] = ", ".join(stats_summary)
 	return {
 		"fields": fields,

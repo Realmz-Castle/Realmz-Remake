@@ -1,6 +1,10 @@
 class_name ClassicSpellOverride
 extends Spell
 
+const MagicResistanceScript = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
+
 # Scenario spell rows are data, not scripts. This adapter exposes the subset
 # with no special opcode through Remake's ordinary Spell interface.
 
@@ -15,7 +19,6 @@ var classic_special := 0
 var classic_cannot := 0
 var classic_save_bonus := 0
 var classic_save_adjust := 0
-var classic_resist_adjust := 0
 var classic_in_camp := false
 var classic_size := 0
 var classic_spell_look_ids: Array[int] = []
@@ -88,7 +91,9 @@ func configure(record: Dictionary) -> void:
 	in_combat = bool(record.get("inCombat", false))
 	in_field = classic_in_camp
 	rot = bool(record.get("canRotate", 0))
-	resist = RESIST_TYPE.IGNORE_MRES_DODGE
+	resist = RESIST_TYPE.IGNORE_DODGE \
+		if MagicResistanceScript.custom_spell_uses_resistance(self) \
+		else RESIST_TYPE.IGNORE_MRES_DODGE
 	classic_spell_save_index = classic_damage_type \
 		if classic_damage_type in range(1, 8) and classic_cannot <= 1 else -1
 	classic_spell_save_mode = _save_mode()

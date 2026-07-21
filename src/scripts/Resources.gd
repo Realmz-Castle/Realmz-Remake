@@ -14,6 +14,9 @@ class_name CampaignResources
 const NativeEncounterBookScript = preload(
 	"res://scripts/native_encounters/native_encounter_book.gd"
 )
+const ClassicMagicResistanceScript = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
 
 var g_scripts = {}
 
@@ -344,6 +347,12 @@ func load_bestiary_resources( path : String ) -> void:
 func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 	# sets  item's sound image etc from its dict data
 	# need to load sounds first !
+	var canonical_item: Dictionary = items_book.get(
+		str(json_dict.get("name", "")), {}
+	)
+	json_dict = ClassicMagicResistanceScript.normalize_item_data(
+		json_dict, canonical_item
+	)
 
 #	print("generate_item_from_json_dict, has imgdata ? ",json_dict["name"],' ',json_dict.has("imgdata"))
 
@@ -383,6 +392,8 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 		new_item["classicItemId"] = int(json_dict["classicItemId"])
 	if json_dict.has("classicItemIds") and json_dict["classicItemIds"] is Array :
 		new_item["classicItemIds"] = json_dict["classicItemIds"].duplicate()
+	if json_dict.has("classicMagicResistance") :
+		new_item["classicMagicResistance"] = int(json_dict["classicMagicResistance"])
 
 	if json_dict.has("unique") :
 		new_item["unique"] = json_dict["unique"]
@@ -455,7 +466,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 		new_item["not_usable_by_races"] = json_dict["not_usable_by_races"]
 
 	if json_dict.has("stats") :
-		new_item["stats"] = json_dict["stats"]
+		new_item["stats"] = json_dict["stats"].duplicate(true)
 	else :
 		if new_item.has('equippable') :
 			new_item["stats"] = {}

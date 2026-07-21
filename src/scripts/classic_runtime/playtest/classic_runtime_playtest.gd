@@ -5,6 +5,9 @@ const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_comma
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
+const MagicResistanceScript = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
 const SorcererClass = preload("res://Data/Character Classes/Class_Sorcerer.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
@@ -397,11 +400,26 @@ func _run_equipment_smoke() -> void:
 	await _wait_frames(3)
 	var character: PlayerCharacter = GameGlobal.player_characters[0]
 	var captured: Dictionary = host.command_adapter.stored_party_equipment
+	var captured_inventories: Variant = captured.get("inventories", [])
+	var shared_ward: Dictionary = GameGlobal.generate_item(
+		"Quiver of Magic Resistance"
+	)
+	_verify_smoke_stage(
+		"00_shared_magic_resistance",
+		int(shared_ward.get("classicMagicResistance", 0)) == 5
+			and not shared_ward.get("stats", {}).has("EvasionMagic"),
+		"the shared catalog loads Classic resistance without native magic evasion"
+	)
 	_verify_smoke_stage(
 		"01_equipment_capture",
 		not host.active
 			and bool(captured.get("active", false))
 			and int(captured.get("itemCount", 0)) == 2
+			and captured_inventories is Array
+			and captured_inventories.size() == 1
+			and int(captured_inventories[0][0].get(
+				"classicMagicResistance", 0
+			)) == 9
 			and captured.get("wealth", []) == [12, 3, 1]
 			and character.inventory.is_empty()
 			and character.money == [0, 0, 0]
@@ -424,6 +442,7 @@ func _run_equipment_smoke() -> void:
 			and saved_items is Array
 			and saved_items.size() == 1
 			and saved_items[0].size() == 2
+			and int(saved_items[0][0].get("classicMagicResistance", 0)) == 9
 			and not saved_items[0][0].has("texture"),
 		"the active capture is serialized through the same plain-data envelope used by profile saves"
 	)
@@ -465,6 +484,9 @@ func _run_equipment_smoke() -> void:
 			and restored_items[0].size() == 2
 			and restored_items[0][0].get("texture") is Texture2D
 			and int(restored_items[0][0].get("equipped", 0)) == 1
+			and int(restored_items[0][0].get(
+				"classicMagicResistance", 0
+			)) == 9
 			and int(restored_items[0][1].get("charges", 0)) == 2,
 		"load rebuilds saved items through Remake's campaign resource loader"
 	)
@@ -490,6 +512,7 @@ func _run_equipment_smoke() -> void:
 			and character.inventory.size() == 2
 			and dagger.get("name") == "Dagger"
 			and int(dagger.get("equipped", 0)) == 1
+			and MagicResistanceScript.equipped_modifier(character) == 9
 			and ointment.get("name") == "Corelian Ointment"
 			and int(ointment.get("charges", 0)) == 2
 			and total_wealth == [12, 3, 1]
@@ -1261,6 +1284,7 @@ func _install_equipment_playtest_data() -> void:
 	var character: PlayerCharacter = GameGlobal.player_characters[0]
 	character.inventory.clear()
 	var dagger: Dictionary = GameGlobal.generate_item("Dagger")
+	dagger["classicMagicResistance"] = 9
 	var ointment: Dictionary = GameGlobal.generate_item("Corelian Ointment")
 	ointment["charges"] = 2
 	character.inventory.append(dagger)

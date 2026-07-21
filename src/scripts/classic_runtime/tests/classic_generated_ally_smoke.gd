@@ -191,9 +191,9 @@ func _run_smoke() -> void:
 		1.0
 	)
 	_expect(
-		float(weapon_damage.get("Physical", 0)) >= 1.0 \
-			and float(weapon_damage.get("Physical", 0)) <= 6.0,
-		"native combat rolls the generated Classic weapon range"
+		float(weapon_damage.get("Physical", 0)) >= 2.0 \
+			and float(weapon_damage.get("Physical", 0)) <= 10.0,
+		"native combat rolls the Classic weapon and target-bonus ranges"
 	)
 	_expect(
 		float(weapon_damage.get("Fire", 0)) >= 1.0 \
