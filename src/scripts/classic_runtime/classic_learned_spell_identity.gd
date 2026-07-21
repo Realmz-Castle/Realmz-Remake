@@ -18,7 +18,8 @@ static func resolve_spell_levels(
 ) -> Dictionary:
 	var resolved_levels: Array = []
 	var diagnostics: Array[String] = []
-	for saved_level_value: Variant in saved_levels:
+	for level_index: int in saved_levels.size():
+		var saved_level_value: Variant = saved_levels[level_index]
 		var resolved_level: Array = []
 		if saved_level_value is Array:
 			for saved_entry_value: Variant in saved_level_value:
@@ -28,7 +29,8 @@ static func resolve_spell_levels(
 					saved_entry_value,
 					spell_book,
 					spell_id_mapping,
-					school_evidence
+					school_evidence,
+					level_index + 1
 				)
 				resolved_level.append(resolution.get(
 					"entry",
@@ -48,7 +50,8 @@ static func resolve_entry(
 	saved_entry: Dictionary,
 	spell_book: Dictionary,
 	spell_id_mapping: Dictionary,
-	school_evidence: String = ""
+	school_evidence: String = "",
+	learned_level: int = 0
 ) -> Dictionary:
 	var spell_id: int = abs(int(saved_entry.get("classicSpellId", 0)))
 	if spell_id != 0:
@@ -71,15 +74,19 @@ static func resolve_entry(
 			spell_id_mapping,
 			"inferred-exact-id"
 		)
-	if candidates.size() > 1 and not school_evidence.is_empty():
-		var school_candidates: Array[int] = []
+	if candidates.size() > 1 and (not school_evidence.is_empty() or learned_level > 0):
+		var evidenced_candidates: Array[int] = []
 		for candidate: int in candidates:
-			if school_for_spell_id(candidate) == school_evidence:
-				school_candidates.append(candidate)
-		if school_candidates.size() == 1:
+			if not school_evidence.is_empty() \
+			and school_for_spell_id(candidate) != school_evidence:
+				continue
+			if learned_level > 0 and level_for_spell_id(candidate) != learned_level:
+				continue
+			evidenced_candidates.append(candidate)
+		if evidenced_candidates.size() == 1:
 			return _resolve_exact_id(
 				saved_entry,
-				school_candidates[0],
+				evidenced_candidates[0],
 				spell_book,
 				spell_id_mapping,
 				"inferred-exact-id"
@@ -91,7 +98,8 @@ static func resolve_entry(
 			"entry": saved_entry.duplicate(false),
 			"diagnostic": (
 				"Learned spell '%s' matches Classic IDs %s; no single caster school "
-				+ "was established, so its saved implementation was left unchanged."
+				+ "and learned level established one identity, so its saved "
+				+ "implementation was left unchanged."
 			) % [display_name, str(candidates)],
 		}
 
@@ -137,6 +145,12 @@ static func school_for_spell_id(spell_id: int) -> String:
 		return ""
 	var class_index: int = int((spell_id - 1101) / 1000) + 1
 	return str(CLASSIC_SCHOOLS.get(class_index, ""))
+
+
+static func level_for_spell_id(spell_id: int) -> int:
+	if spell_id < 1101:
+		return 0
+	return int(((spell_id - 1101) % 1000) / 100) + 1
 
 
 static func school_evidence_for_character(character: Object, class_script: Variant) -> String:

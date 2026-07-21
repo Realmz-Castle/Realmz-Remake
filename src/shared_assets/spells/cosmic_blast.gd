@@ -7,7 +7,7 @@ func _init() -> void:
 	tags = ["Magical"]
 	schools = ["Enchanter", "Sorcerer"]
 	classic_spell_class = 6
-	classic_spell_ids = [1401]
+	classic_spell_ids = [1401, 3303]
 	classic_spell_save_index = 6
 	classic_spell_save_mode = "half_damage"
 	targettile = TARGET_TILE.NOWALL

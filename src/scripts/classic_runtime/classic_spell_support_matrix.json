@@ -71,9 +71,43 @@
         },
         {
           "sourceFile": "Data S",
+          "recordIndex": 202,
+          "displayName": "Priest Power Drain"
+        },
+        {
+          "sourceFile": "Data S",
           "recordIndex": 250,
           "displayName": "Enchanter Power Drain"
         }
+      ]
+    },
+    {
+      "id": "core-player-spell-enchanted-blade",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 1, "displayName": "Sorcerer Enchanted Blade"},
+        {"sourceFile": "Data S", "recordIndex": 213, "displayName": "Enchanter Enchanted Blade"}
+      ]
+    },
+    {
+      "id": "core-player-spell-cosmic-blast",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 45, "displayName": "Sorcerer Cosmic Blast"},
+        {"sourceFile": "Data S", "recordIndex": 242, "displayName": "Enchanter Cosmic Blast"}
+      ]
+    },
+    {
+      "id": "core-player-spell-fearful-thoughts",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 77, "displayName": "Sorcerer Fearful Thoughts"},
+        {"sourceFile": "Data S", "recordIndex": 107, "displayName": "Priest Fearful Thoughts I"},
+        {"sourceFile": "Data S", "recordIndex": 152, "displayName": "Priest Fearful Thoughts IV"},
+        {"sourceFile": "Data S", "recordIndex": 274, "displayName": "Enchanter Fearful Thoughts"}
       ]
     },
     {
@@ -282,6 +316,10 @@
         "byteLength": 30
       },
       "usages": [
+        {
+          "corpusId": "core-player-spell-enchanted-blade",
+          "slots": [0]
+        },
         {
           "corpusId": "city-of-bywater-enchanted-blade-combatants",
           "slots": [0, 1, 2, 3, 7]
@@ -665,6 +703,10 @@
       },
       "usages": [
         {
+          "corpusId": "core-player-spell-cosmic-blast",
+          "slots": [0]
+        },
+        {
           "corpusId": "city-of-bywater-cosmic-blast-1401",
           "slots": [2, 4, 5]
         }
@@ -825,6 +867,35 @@
       }
     },
     {
+      "classicSpellId": 1603,
+      "displayName": "Fearful Thoughts",
+      "classification": "native-compatibility-variant",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_fearful_thoughts_area.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 77,
+        "byteOffset": 2310,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-fearful-thoughts", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "fixed-large-area",
+        "range": 7,
+        "duration": "1-2-rounds-per-power",
+        "saveMode": "negate",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "special": 1,
+        "adapter": "native-fleeing-trait",
+        "costPerPower": 35,
+        "nativeReuse": "extends-remake-fearful-thoughts",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1701,
       "displayName": "Arctic Wind",
       "classification": "native-direct",
@@ -915,6 +986,7 @@
         "byteLength": 30
       },
       "usages": [
+        {"corpusId": "core-player-spell-fearful-thoughts", "slots": [1]},
         {
           "corpusId": "city-of-bywater-fearful-thoughts-2103",
           "slots": [0, 1, 2, 3, 8, 9]
@@ -925,11 +997,12 @@
         "range": 8,
         "lineOfSight": true,
         "duration": "one-round-per-power",
+        "opposedLevelChance": "35-plus-five-target-level-minus-five-caster-level",
         "saveMode": "negate",
         "saveIndex": 5,
         "resistance": "classic-general",
         "special": 1,
-        "adapter": "native-fleeing-trait",
+        "adapter": "native-fleeing-trait-with-classic-opposed-level-resistance",
         "costPerPower": 10
       }
     },
@@ -1152,6 +1225,36 @@
       }
     },
     {
+      "classicSpellId": 2403,
+      "displayName": "Fearful Thoughts",
+      "classification": "native-compatibility-variant",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_fearful_thoughts_priest_area.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 152,
+        "byteOffset": 4560,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-fearful-thoughts", "slots": [2]}
+      ],
+      "behavior": {
+        "targetType": "fixed-large-area",
+        "range": 7,
+        "duration": "one-round-per-power",
+        "opposedLevelChance": "35-plus-five-target-level-minus-five-caster-level",
+        "saveMode": "negate",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "special": 1,
+        "adapter": "native-fleeing-trait-with-classic-opposed-level-resistance",
+        "costPerPower": 15,
+        "nativeReuse": "extends-remake-fearful-thoughts",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2605,
       "displayName": "Psi Wave",
       "classification": "native-direct",
@@ -1206,6 +1309,38 @@
       }
     },
     {
+      "classicSpellId": 2708,
+      "displayName": "Power Drain",
+      "classification": "native-compatibility-variant",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_power_drain_priest.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 202,
+        "byteOffset": 6060,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-power-drain", "slots": [1]}
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "effect": "30-40-spell-points-per-power",
+        "saveMode": "half-effect",
+        "saveIndex": 7,
+        "saveAdjustPerPower": -10,
+        "resistance": "classic-general",
+        "resistAdjustPerPower": -10,
+        "special": 60,
+        "adapter": "scaled-spell-point-drain",
+        "costPerPower": 35,
+        "nativeReuse": "extends-remake-power-drain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3102,
       "displayName": "Discover Magic",
       "classification": "native-special-adapter",
@@ -1230,6 +1365,32 @@
         "special": 63,
         "adapter": "native-magical-item-report",
         "costPerPower": 1
+      }
+    },
+    {
+      "classicSpellId": 3104,
+      "displayName": "Enchanted Blade",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_enchanted_blade.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 213,
+        "byteOffset": 6390,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-enchanted-blade", "slots": [1]}
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "duration": "one-round-per-power-decaying",
+        "special": 33,
+        "adapter": "classic-attack-bonus-trait",
+        "costPerPower": 2,
+        "nativeReuse": "same-mechanics-as-1102",
+        "presentationFidelity": "source launch-effect byte differs; native presentation retained",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1396,6 +1557,33 @@
       }
     },
     {
+      "classicSpellId": 3303,
+      "displayName": "Cosmic Blast",
+      "classification": "native-direct",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/cosmic_blast.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 242,
+        "byteOffset": 7260,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-cosmic-blast", "slots": [1]}
+      ],
+      "behavior": {
+        "targetType": "all-enemies",
+        "damage": "2-4-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 6,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "nativeReuse": "same-mechanics-as-1401",
+        "presentationFidelity": "source launch-effect byte differs; native presentation retained",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3308,
       "displayName": "Lightning Bolt",
       "classification": "native-direct",
@@ -1436,7 +1624,7 @@
       "usages": [
         {
           "corpusId": "core-player-spell-power-drain",
-          "slots": [1]
+          "slots": [2]
         }
       ],
       "behavior": {
@@ -1503,6 +1691,36 @@
         "resistance": "classic-general",
         "resistAdjustPerPower": -5,
         "costPerPower": 15
+      }
+    },
+    {
+      "classicSpellId": 3505,
+      "displayName": "Fearful Thoughts",
+      "classification": "native-compatibility-variant",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_fearful_thoughts_area.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 274,
+        "byteOffset": 8220,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-fearful-thoughts", "slots": [3]}
+      ],
+      "behavior": {
+        "targetType": "fixed-large-area",
+        "range": 7,
+        "duration": "1-2-rounds-per-power",
+        "saveMode": "negate",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "special": 1,
+        "adapter": "native-fleeing-trait",
+        "costPerPower": 35,
+        "nativeReuse": "extends-remake-fearful-thoughts",
+        "presentationFidelity": "source launch-effect byte differs; native presentation retained",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {

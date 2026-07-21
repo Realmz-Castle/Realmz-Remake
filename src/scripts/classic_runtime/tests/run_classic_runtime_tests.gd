@@ -3877,42 +3877,42 @@ func _test_classic_bestiary_materializer() -> void:
 				expected_elements[special_code],
 			]
 		)
-	var mismatched_spell_root := test_root.path_join("mismatched-spell")
-	DirAccess.make_dir_recursive_absolute(mismatched_spell_root)
-	var mismatched_spell_bundle = BundleScript.new()
-	mismatched_spell_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
-	_clear_producer_monster_equipment(mismatched_spell_bundle)
-	# The native Power Drain script deliberately excludes this mechanically
-	# different priest spell, even though the inherited name mapping matches.
-	mismatched_spell_bundle.documents["content"]["monsters"][0]["spells"] = [
+	var exact_variant_root := test_root.path_join("exact-spell-variant")
+	DirAccess.make_dir_recursive_absolute(exact_variant_root)
+	var exact_variant_bundle = BundleScript.new()
+	exact_variant_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	_clear_producer_monster_equipment(exact_variant_bundle)
+	# The Priest record shares a display name with the weaker Sorcerer and
+	# Enchanter spell, but resolves through its own exact-ID resource.
+	exact_variant_bundle.documents["content"]["monsters"][0]["spells"] = [
 		2708, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	]
 	_expect_equal(
 		materializer.materialize(
-			mismatched_spell_bundle,
-			mismatched_spell_root
+			exact_variant_bundle,
+			exact_variant_root
 		).get("status"),
 		"ok",
-		"unsupported spell variants remain inspectable"
+		"exact spell variants remain materializable"
 	)
-	var mismatched_spell_book: Dictionary = JSON.parse_string(
+	var exact_variant_book: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(
-			mismatched_spell_root.path_join("Bestiary/stuff_book.json")
+			exact_variant_root.path_join("Bestiary/stuff_book.json")
 		)
 	)
-	var mismatched_spell_monster: Dictionary = mismatched_spell_book.get(
+	var exact_variant_monster: Dictionary = exact_variant_book.get(
 		"Classic Monster 1", {}
 	)
 	_expect_equal(
-		mismatched_spell_monster.get("tools", {}).get("spells"),
-		[],
-		"a same-name spell with different mechanics is not substituted"
+		exact_variant_monster.get("tools", {}).get("spells"),
+		[["Classic Power Drain Priest", 1.0]],
+		"a same-name spell with different mechanics selects its exact resource"
 	)
 	_expect(
-		mismatched_spell_monster.get(
+		not exact_variant_monster.get(
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("spells[0]"),
-		"unsupported spell variant records its exact source slot"
+		"an exact spell variant no longer records an unsupported source slot"
 	)
 
 	var unresolved_inventory_root := test_root.path_join("unresolved-inventory")
@@ -7394,6 +7394,13 @@ func _test_classic_learned_spell_identity() -> void:
 	var enchanter_darts = load(
 		"res://shared_assets/spells/classic_magic_darts_enchanter.gd"
 	).new()
+	var single_fear = load("res://shared_assets/spells/fearful_thoughts.gd").new()
+	var area_fear = load(
+		"res://shared_assets/spells/classic_fearful_thoughts_area.gd"
+	).new()
+	var priest_area_fear = load(
+		"res://shared_assets/spells/classic_fearful_thoughts_priest_area.gd"
+	).new()
 	var spell_book := {
 		"Magic Darts": {
 			"name": sorcerer_darts.name,
@@ -7404,6 +7411,21 @@ func _test_classic_learned_spell_identity() -> void:
 			"name": enchanter_darts.name,
 			"source": enchanter_darts.generate_json_string(),
 			"script": enchanter_darts,
+		},
+		"Fearful Thoughts": {
+			"name": single_fear.name,
+			"source": single_fear.generate_json_string(),
+			"script": single_fear,
+		},
+		"Classic Fearful Thoughts Area": {
+			"name": area_fear.name,
+			"source": area_fear.generate_json_string(),
+			"script": area_fear,
+		},
+		"Classic Fearful Thoughts Priest Area": {
+			"name": priest_area_fear.name,
+			"source": priest_area_fear.generate_json_string(),
+			"script": priest_area_fear,
 		},
 	}
 	var legacy_entry: Dictionary = spell_book["Magic Darts"].duplicate(false)
@@ -7431,12 +7453,12 @@ func _test_classic_learned_spell_identity() -> void:
 	)
 
 	var enchanter_resolution := LearnedSpellIdentityScript.resolve_spell_levels(
-		[[legacy_entry]],
+		[[], [legacy_entry]],
 		spell_book,
 		spell_mapping,
 		"Enchanter"
 	)
-	var enchanter_entry: Dictionary = enchanter_resolution.get("spellLevels", [])[0][0]
+	var enchanter_entry: Dictionary = enchanter_resolution.get("spellLevels", [])[1][0]
 	_expect_equal(
 		enchanter_entry.get("classicSpellId"),
 		3208,
@@ -7465,7 +7487,7 @@ func _test_classic_learned_spell_identity() -> void:
 	var save_payload := LearnedSpellIdentityScript.serialize_spell_levels(
 		enchanter_resolution.get("spellLevels", [])
 	)
-	var saved_entry: Dictionary = save_payload[0][0]
+	var saved_entry: Dictionary = save_payload[1][0]
 	_expect(not saved_entry.has("script"), "learned spell saves omit runtime objects")
 	_expect_equal(saved_entry.get("classicSpellId"), 3208, "learned spell saves retain exact ID")
 	_expect_equal(
@@ -7479,26 +7501,53 @@ func _test_classic_learned_spell_identity() -> void:
 		spell_book,
 		spell_mapping
 	)
-	var restored_entry: Dictionary = restored_resolution.get("spellLevels", [])[0][0]
+	var restored_entry: Dictionary = restored_resolution.get("spellLevels", [])[1][0]
 	_expect_equal(
 		restored_entry.get("script").get_max_damage(1, null),
 		4,
 		"exact Enchanter Magic Darts survives JSON save and restore"
 	)
+	var legacy_fear: Dictionary = spell_book["Fearful Thoughts"].duplicate(false)
+	var novice_priest_fear: Dictionary = LearnedSpellIdentityScript.resolve_spell_levels(
+		[[legacy_fear]],
+		spell_book,
+		spell_mapping,
+		"Priest"
+	).get("spellLevels", [])[0][0]
+	_expect_equal(
+		novice_priest_fear.get("classicSpellId"),
+		2103,
+		"legacy Priest level-one Fear resolves its single-target identity"
+	)
+	var area_priest_fear: Dictionary = LearnedSpellIdentityScript.resolve_spell_levels(
+		[[], [], [], [legacy_fear]],
+		spell_book,
+		spell_mapping,
+		"Priest"
+	).get("spellLevels", [])[3][0]
+	_expect_equal(
+		area_priest_fear.get("classicSpellId"),
+		2403,
+		"legacy Priest level-four Fear resolves its area identity"
+	)
+	_expect_equal(
+		area_priest_fear.get("resourceName"),
+		"Classic Fearful Thoughts Priest Area",
+		"legacy Priest area Fear selects the exact native variant"
+	)
 
-	var ambiguous_resolution := LearnedSpellIdentityScript.resolve_spell_levels(
-		[[legacy_entry]],
+	var ambiguous_resolution := LearnedSpellIdentityScript.resolve_entry(
+		{"name": "Discover Magic", "source": "preserved source"},
 		spell_book,
 		spell_mapping
 	)
-	var ambiguous_entry: Dictionary = ambiguous_resolution.get("spellLevels", [])[0][0]
+	var ambiguous_entry: Dictionary = ambiguous_resolution.get("entry", {})
 	_expect(
 		not ambiguous_entry.has("classicSpellId"),
 		"a name-only ambiguous legacy spell is not assigned guessed mechanics"
 	)
-	_expect_equal(
-		ambiguous_resolution.get("diagnostics", []).size(),
-		1,
+	_expect(
+		not str(ambiguous_resolution.get("diagnostic", "")).is_empty(),
 		"an ambiguous legacy spell produces one actionable diagnostic"
 	)
 
@@ -7584,7 +7633,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		49,
+		55,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7621,6 +7670,19 @@ func _test_classic_spell_coverage() -> void:
 		"exact-id-campaign-entry-save-load",
 		"Enchanter Magic Darts records learned exact-ID coverage"
 	)
+	for reviewed_variant_id: int in [1603, 2403, 2708, 3104, 3303, 3505]:
+		_expect_equal(
+			coverage_by_id.get(reviewed_variant_id, {}).get("coverageStatus"),
+			"supported",
+			"reviewed variant %d resolves through an exact resource" % reviewed_variant_id
+		)
+		_expect_equal(
+			support_by_id.get(reviewed_variant_id, {}).get(
+				"behavior", {}
+			).get("learnedSpellIdentity"),
+			"exact-id-campaign-entry-save-load",
+			"reviewed variant %d records learned exact-ID coverage" % reviewed_variant_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1110, {}).get("coverageStatus"),
 		"supported",
@@ -7906,6 +7968,11 @@ func _test_classic_spell_coverage() -> void:
 	var cosmic_blast = load("res://shared_assets/spells/cosmic_blast.gd").new()
 	_expect(cosmic_blast.skip_targeting, "Cosmic Blast needs no target selection")
 	_expect_equal(
+		cosmic_blast.classic_spell_ids,
+		[1401, 3303],
+		"equivalent Sorcerer and Enchanter Cosmic Blast records share one resource"
+	)
+	_expect_equal(
 		cosmic_blast.autotarget_type,
 		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
 		"Cosmic Blast targets every enemy"
@@ -8179,6 +8246,10 @@ func _test_classic_spell_coverage() -> void:
 		"negate",
 		"Fearful Thoughts is negated by a successful save"
 	)
+	_expect(
+		fearful_thoughts.uses_classic_opposed_level_check(),
+		"Priest Fearful Thoughts I preserves its signed mental level contest"
+	)
 	_expect(fearful_thoughts.los, "Fearful Thoughts requires line of sight")
 	_expect_equal(fearful_thoughts.get_range(7, null), 8, "Fearful Thoughts range")
 	_expect_equal(fearful_thoughts.get_duration_roll(3, null), 3, "fear lasts by power")
@@ -8190,6 +8261,64 @@ func _test_classic_spell_coverage() -> void:
 		"Fearful Thoughts uses Remake's fleeing behavior"
 	)
 	_expect_equal(fleeing_target.traits[0].power, 3, "Fearful Thoughts passes its duration")
+
+	var area_fear = load(
+		"res://shared_assets/spells/classic_fearful_thoughts_area.gd"
+	).new()
+	_expect_equal(
+		area_fear.classic_spell_ids,
+		[1603, 3505],
+		"Sorcerer and Enchanter area Fear share source-equivalent mechanics"
+	)
+	_expect_equal(area_fear.schools, [], "area Fear remains a compatibility-only resource")
+	_expect(
+		not area_fear.uses_classic_opposed_level_check(),
+		"positive mental damage types omit the opposed-level precheck"
+	)
+	_expect_equal(area_fear.get_range(3, null), 7, "area Fear keeps its fixed range")
+	_expect_equal(area_fear.get_aoe(3, null), Spell.AoE_ROUND, "area Fear uses size 9")
+	_expect_equal(area_fear.get_min_duration(3, null), 3, "area Fear minimum duration")
+	_expect_equal(area_fear.get_max_duration(3, null), 6, "area Fear maximum duration")
+	var area_fear_duration: int = area_fear.get_duration_roll(3, null)
+	_expect(
+		area_fear_duration >= 3 and area_fear_duration <= 6,
+		"area Fear rolls 1-2 rounds per power"
+	)
+	var area_fleeing_target := ConditionTestCharacter.new("Area fleeing target")
+	area_fear.add_traits_to_creature(null, area_fleeing_target, 3)
+	_expect_equal(area_fleeing_target.traits.size(), 1, "area Fear applies fleeing")
+	_expect(
+		area_fleeing_target.traits[0].power >= 3 \
+		and area_fleeing_target.traits[0].power <= 6,
+		"area Fear applies its rolled duration"
+	)
+	_expect_equal(area_fear.get_sp_cost(3, null), 105, "area Fear preserves its high cost")
+
+	var priest_area_fear = load(
+		"res://shared_assets/spells/classic_fearful_thoughts_priest_area.gd"
+	).new()
+	_expect_equal(priest_area_fear.classic_spell_ids, [2403], "Priest area Fear exact ID")
+	_expect_equal(
+		priest_area_fear.schools,
+		[],
+		"Priest area Fear remains a compatibility-only resource"
+	)
+	_expect(
+		priest_area_fear.uses_classic_opposed_level_check(),
+		"Priest area Fear preserves its signed mental level contest"
+	)
+	_expect_equal(priest_area_fear.get_range(3, null), 7, "Priest area Fear range")
+	_expect_equal(
+		priest_area_fear.get_aoe(3, null),
+		Spell.AoE_ROUND,
+		"Priest area Fear uses size 9"
+	)
+	_expect_equal(
+		priest_area_fear.get_duration_roll(3, null),
+		3,
+		"Priest area Fear lasts one round per power"
+	)
+	_expect_equal(priest_area_fear.get_sp_cost(3, null), 45, "Priest area Fear cost")
 
 	var soul_bind = load("res://shared_assets/spells/soul_bind.gd").new()
 	_expect_equal(soul_bind.classic_spell_ids, [2111], "Soul Bind exact ID")
@@ -8241,10 +8370,10 @@ func _test_classic_spell_coverage() -> void:
 				[
 					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
-					1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2301, 2304, 2306, 2605,
-					2706,
-					3102, 3105, 3202, 3207, 3208, 3211, 3301, 3308, 3311, 3401, 3409,
-					3506, 3603, 3704, 3712,
+					1603, 1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2301, 2304,
+					2306, 2403, 2605, 2706, 2708, 3102, 3104, 3105, 3202, 3207, 3208,
+					3211, 3301, 3303, 3308, 3311, 3401, 3409, 3505, 3506, 3603, 3704,
+					3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)
@@ -8293,7 +8422,7 @@ func _test_classic_spell_usage_audit() -> void:
 	)
 	_expect_equal(
 		native_spells.get("Classic Enchanted Blade", {}).get("classicSpellIds"),
-		[1102],
+		[1102, 3104],
 		"spell catalog discovers exact-ID compatibility resources"
 	)
 	_expect_equal(
@@ -8305,6 +8434,28 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Classic Magic Darts Enchanter", {}).get("classicSpellIds"),
 		[3208],
 		"spell catalog keeps the Enchanter damage variant distinct"
+	)
+	_expect_equal(
+		native_spells.get("Classic Fearful Thoughts Area", {}).get("classicSpellIds"),
+		[1603, 3505],
+		"spell catalog groups source-equivalent area Fear identities"
+	)
+	_expect_equal(
+		native_spells.get("Classic Fearful Thoughts Priest Area", {}).get(
+			"classicSpellIds"
+		),
+		[2403],
+		"spell catalog keeps the opposed-level Priest area Fear distinct"
+	)
+	_expect_equal(
+		native_spells.get("Classic Power Drain Priest", {}).get("classicSpellIds"),
+		[2708],
+		"spell catalog keeps the stronger Priest Power Drain distinct"
+	)
+	_expect_equal(
+		native_spells.get("Cosmic Blast", {}).get("classicSpellIds"),
+		[1401, 3303],
+		"spell catalog groups source-equivalent Cosmic Blast identities"
 	)
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	_expect_equal(
@@ -8319,8 +8470,8 @@ func _test_classic_spell_usage_audit() -> void:
 	)
 	_expect_equal(
 		SpellIdentityScript.resource_key(3303, spell_mapping, native_spells),
-		"",
-		"spell catalog rejects a distinct same-name Cosmic Blast variant"
+		"Cosmic Blast",
+		"spell catalog reuses Cosmic Blast for its equivalent Enchanter identity"
 	)
 	var report: Dictionary = audit.inspect_bundles(
 		[city_bundle, response_bundle], {}, native_spells
@@ -8419,8 +8570,13 @@ func _test_classic_spell_usage_audit() -> void:
 	)
 	_expect_equal(
 		variant_row.get("nativeResolution", {}).get("status"),
-		"unsupported-native-variant",
-		"spell audit rejects an exact resource for another packed variant"
+		"exact-id-resource",
+		"spell audit resolves the Priest Power Drain variant by exact ID"
+	)
+	_expect_equal(
+		variant_row.get("nativeResolution", {}).get("resourceName"),
+		"Classic Power Drain Priest",
+		"spell audit reports the specialized Priest Power Drain resource"
 	)
 	_expect_equal(
 		unmapped_row.get("nativeResolution", {}).get("status"),
@@ -12111,6 +12267,9 @@ func _test_complex_spell_results(bundle) -> void:
 	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
 	var festering_wounds = load("res://shared_assets/spells/festering_wounds.gd").new()
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
+	var priest_power_drain = load(
+		"res://shared_assets/spells/classic_power_drain_priest.gd"
+	).new()
 	var confuse = load("res://shared_assets/spells/confuse.gd").new()
 	var daze = load("res://shared_assets/spells/daze.gd").new()
 	var discover_magic = load("res://shared_assets/spells/discover_magic.gd").new()
@@ -12239,7 +12398,11 @@ func _test_complex_spell_results(bundle) -> void:
 	)
 	_expect(
 		not adapter.classic_spell_resource_supports_id(power_drain, 2708),
-		"field-spell adapter rejects an unsupported Power Drain ID"
+		"the shared field-spell resource rejects the distinct Priest Power Drain ID"
+	)
+	_expect(
+		adapter.classic_spell_resource_supports_id(priest_power_drain, 2708),
+		"the field-spell adapter accepts the exact Priest Power Drain resource"
 	)
 	_expect_equal(
 		adapter.resolve_complex_spell_result(
@@ -12261,7 +12424,18 @@ func _test_complex_spell_results(bundle) -> void:
 			power_drain.classic_spell_ids
 		),
 		4,
-		"complex encounters reject a same-name Power Drain variant"
+		"the shared learned spell cannot answer a different Power Drain identity"
+	)
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			{"spellIds": [2708], "spellResults": [2]},
+			"Power Drain",
+			7,
+			spell_mapping,
+			priest_power_drain.classic_spell_ids
+		),
+		2,
+		"the exact Priest Power Drain answers its encounter identity"
 	)
 	_expect_equal(power_drain.classic_spell_class, 7, "Power Drain exports its Classic class")
 	_expect_equal(power_drain.classic_spell_save_index, 7, "Power Drain uses the special save")
@@ -12314,6 +12488,44 @@ func _test_complex_spell_results(bundle) -> void:
 		saved_drain_target.current_sp,
 		100 - saved_drain,
 		"scaled Power Drain changes spell points only once"
+	)
+	_expect_equal(priest_power_drain.classic_spell_ids, [2708], "Priest Power Drain exact ID")
+	_expect_equal(
+		priest_power_drain.schools,
+		[],
+		"Priest Power Drain remains a compatibility-only resource"
+	)
+	_expect_equal(
+		priest_power_drain.classic_save_adjust,
+		-10,
+		"Priest Power Drain scales its save penalty"
+	)
+	_expect_equal(
+		priest_power_drain.classic_resist_adjust,
+		-10,
+		"Priest Power Drain scales its resistance penalty"
+	)
+	_expect_equal(priest_power_drain.get_sp_cost(3, null), 105, "Priest Power Drain cost")
+	_expect_equal(
+		priest_power_drain.get_min_spell_point_drain(3),
+		90,
+		"Priest Power Drain minimum scales by power"
+	)
+	_expect_equal(
+		priest_power_drain.get_max_spell_point_drain(3),
+		120,
+		"Priest Power Drain maximum scales by power"
+	)
+	var priest_drain_target := SpellPointTestCreature.new(1000)
+	var priest_drain: int = priest_power_drain.apply_power_drain(priest_drain_target, 2)
+	_expect(
+		priest_drain >= 60 and priest_drain <= 80,
+		"Priest Power Drain rolls 30-40 spell points per power"
+	)
+	_expect_equal(
+		priest_drain_target.current_sp,
+		1000 - priest_drain,
+		"Priest Power Drain uses the shared spell-point mutation path"
 	)
 	_expect(confuse.supports_classic_spell_id(2301), "Confuse exports its exact Classic ID")
 	_expect_equal(confuse.classic_spell_class, 5, "Confuse exports its Classic class")
@@ -12406,6 +12618,10 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect(
 		enchanted_blade.supports_classic_spell_id(1102),
 		"Classic Enchanted Blade exports its exact ID"
+	)
+	_expect(
+		enchanted_blade.supports_classic_spell_id(3104),
+		"Classic Enchanted Blade reuses the source-equivalent Enchanter ID"
 	)
 	_expect_equal(enchanted_blade.get_range(7, null), 5, "Classic Enchanted Blade keeps its range")
 	_expect_equal(

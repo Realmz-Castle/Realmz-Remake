@@ -6,7 +6,7 @@ func _init() -> void:
 	elements = [GameGlobal.ELEMENTS.MAGICAL]
 	tags = ["Magical", "Misc"]
 	classic_spell_class = 8
-	classic_spell_ids = [1102]
+	classic_spell_ids = [1102, 3104]
 	classic_spell_save_index = -1
 	classic_spell_save_mode = "none"
 	targettile = TARGET_TILE.CREATURE
