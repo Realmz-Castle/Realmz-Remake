@@ -7173,17 +7173,17 @@ func _test_city_spell_coverage() -> void:
 				)
 				_expect(
 					FileAccess.file_exists(str(entry.get("resource", ""))),
-					"City spell matrix resource exists"
+					"spell matrix resource exists"
 				)
 			matrix_ids.sort()
 			_expect_equal(
 				matrix_ids,
 				[
-					1101, 1102, 1103, 1104, 1111, 1203, 1204, 1209, 1211,
+					1101, 1102, 1103, 1104, 1108, 1111, 1203, 1204, 1209, 1211,
 					1306, 1310, 1401, 1402, 1501, 2102, 2103, 2111, 2201,
-					3102, 3603,
+					3102, 3208, 3603,
 				],
-				"source-verified City spell matrix is complete"
+				"source-verified spell matrix includes the audited core variants"
 			)
 
 
@@ -7233,7 +7233,22 @@ func _test_classic_spell_usage_audit() -> void:
 		[1102],
 		"spell catalog discovers exact-ID compatibility resources"
 	)
+	_expect_equal(
+		native_spells.get("Magic Darts", {}).get("classicSpellIds"),
+		[1108],
+		"spell catalog maps the existing native Magic Darts resource"
+	)
+	_expect_equal(
+		native_spells.get("Classic Magic Darts Enchanter", {}).get("classicSpellIds"),
+		[3208],
+		"spell catalog keeps the Enchanter damage variant distinct"
+	)
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
+	_expect_equal(
+		SpellIdentityScript.resource_key(3208, spell_mapping, native_spells),
+		"Classic Magic Darts Enchanter",
+		"exact Enchanter ID selects the compatibility variant"
+	)
 	_expect_equal(
 		SpellIdentityScript.resource_key(1401, spell_mapping, native_spells),
 		"Cosmic Blast",
@@ -11042,6 +11057,10 @@ func _test_complex_spell_results(bundle) -> void:
 	var enchanted_blade = load(
 		"res://shared_assets/spells/classic_enchanted_blade.gd"
 	).new()
+	var magic_darts = load("res://shared_assets/spells/magic_darts.gd").new()
+	var enchanter_magic_darts = load(
+		"res://shared_assets/spells/classic_magic_darts_enchanter.gd"
+	).new()
 	_expect_equal(flame_hands.classic_spell_class, 1, "Flame Hands exports its Classic class")
 	_expect_equal(flame_hands.get_range(7, null), 1, "Flame Hands keeps its touch range")
 	_expect_equal(flame_hands.get_min_damage(3, null), 3, "Flame Hands minimum scales by power")
@@ -11338,11 +11357,38 @@ func _test_complex_spell_results(bundle) -> void:
 		[2],
 		"Classic attack bonus decays by one each round"
 	)
-	_expect(
-		FileAccess.get_file_as_string("res://shared_assets/spells/magic_darts.gd").contains(
-			"classic_spell_class = 6"
-		),
-		"Magic Darts exports its Classic class"
+	_expect_equal(magic_darts.classic_spell_class, 6, "Magic Darts exports its Classic class")
+	_expect_equal(magic_darts.classic_spell_ids, [1108], "native Magic Darts owns Sorcerer ID 1108")
+	_expect_equal(
+		adapter.classic_spell_response_ids(magic_darts),
+		[1108, 3208],
+		"native Magic Darts can answer both caster-list encounter identities"
+	)
+	_expect_equal(magic_darts.get_range(7, null), 15, "Magic Darts keeps its fixed range")
+	_expect_equal(magic_darts.get_target_number(4, null), 4, "Magic Darts targets once per power")
+	_expect_equal(magic_darts.get_min_damage(7, null), 1, "Sorcerer Magic Darts minimum damage")
+	_expect_equal(magic_darts.get_max_damage(7, null), 5, "Sorcerer Magic Darts maximum damage")
+	_expect_equal(magic_darts.get_sp_cost(3, null), 12, "Magic Darts cost scales by power")
+	_expect_equal(magic_darts.classic_spell_save_mode, "none", "Magic Darts bypasses DRV saves")
+	_expect_equal(
+		magic_darts.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Magic Darts force-affects without resistance or projectile dodge"
+	)
+	_expect_equal(
+		enchanter_magic_darts.classic_spell_ids,
+		[3208],
+		"Enchanter Magic Darts keeps its distinct Classic identity"
+	)
+	_expect_equal(
+		enchanter_magic_darts.schools,
+		[],
+		"compatibility-only Enchanter variant stays out of native learning lists"
+	)
+	_expect_equal(
+		enchanter_magic_darts.get_max_damage(7, null),
+		4,
+		"Enchanter Magic Darts preserves its lower damage maximum"
 	)
 	_expect_equal(
 		adapter.classic_spell_mapping_key(1201),

@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "corpus": [
     {
+      "id": "core-player-spell-magic-darts",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 7,
+          "displayName": "Sorcerer Magic Darts"
+        },
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 232,
+          "displayName": "Enchanter Magic Darts"
+        }
+      ]
+    },
+    {
       "id": "city-of-bywater-monster-71",
       "scenario": "City of Bywater",
       "contexts": ["combatant"],
@@ -214,6 +231,34 @@
         "damage": "1d3-per-power",
         "resistance": "classic-general",
         "costPerPower": 2
+      }
+    },
+    {
+      "classicSpellId": 1108,
+      "displayName": "Magic Darts",
+      "classification": "native-direct",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/magic_darts.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 7,
+        "byteOffset": 210,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "core-player-spell-magic-darts",
+          "slots": [0]
+        }
+      ],
+      "behavior": {
+        "targetType": "power-scaled-target-count",
+        "range": 15,
+        "damage": "1-5-fixed-per-target",
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "costPerPower": 4,
+        "learnedSpellIdentity": "pending ISY-426"
       }
     },
     {
@@ -639,6 +684,36 @@
         "special": 63,
         "adapter": "native-magical-item-report",
         "costPerPower": 1
+      }
+    },
+    {
+      "classicSpellId": 3208,
+      "displayName": "Magic Darts",
+      "classification": "native-compatibility-variant",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_magic_darts_enchanter.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 232,
+        "byteOffset": 6960,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "core-player-spell-magic-darts",
+          "slots": [1]
+        }
+      ],
+      "behavior": {
+        "targetType": "power-scaled-target-count",
+        "range": 15,
+        "damage": "1-4-fixed-per-target",
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "costPerPower": 4,
+        "nativeReuse": "extends-remake-magic-darts",
+        "presentationFidelity": "source resolution sound byte differs; native presentation retained",
+        "learnedSpellIdentity": "pending ISY-426"
       }
     },
     {
