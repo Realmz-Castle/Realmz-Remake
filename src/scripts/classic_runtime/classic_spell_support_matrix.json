@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "corpus": [
+    {
+      "id": "city-of-bywater-monster-71",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data MD",
+          "recordIndex": 71,
+          "displayName": "Vodalian"
+        }
+      ]
+    }
+  ],
+  "spells": [
+    {
+      "classicSpellId": 1103,
+      "displayName": "Energy Storm",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/energy_storm.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 2,
+        "byteOffset": 60,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-monster-71",
+          "slots": [0, 1]
+        }
+      ],
+      "behavior": {
+        "targetType": "fixed-large-area",
+        "damage": "1d3-per-power",
+        "saveMode": "half-damage",
+        "resistance": "classic-general",
+        "costPerPower": 10
+      }
+    },
+    {
+      "classicSpellId": 1104,
+      "displayName": "Flame Hands",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/flame_hands.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 3,
+        "byteOffset": 90,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-monster-71",
+          "slots": [2, 3, 4]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-touch",
+        "damage": "1d3-per-power",
+        "resistance": "classic-general",
+        "costPerPower": 2
+      }
+    },
+    {
+      "classicSpellId": 1111,
+      "displayName": "Sparkling Armor",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/sparkling_armor.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 10,
+        "byteOffset": 300,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-monster-71",
+          "slots": [5, 6, 7]
+        }
+      ],
+      "behavior": {
+        "targetType": "self",
+        "duration": "one-round-per-power",
+        "special": 8,
+        "adapter": "protection-from-hits-trait",
+        "costPerPower": 2
+      }
+    },
+    {
+      "classicSpellId": 1203,
+      "displayName": "Flame Spikes",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/flame_spikes.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 17,
+        "byteOffset": 510,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-monster-71",
+          "slots": [8, 9]
+        }
+      ],
+      "behavior": {
+        "targetType": "all-enemies",
+        "damage": "1d4-per-power",
+        "saveMode": "half-damage",
+        "saveBonus": 10,
+        "resistance": "classic-general",
+        "costPerPower": 25
+      }
+    }
+  ]
+}

@@ -8,6 +8,7 @@ const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
@@ -1916,19 +1917,21 @@ func classic_field_spell_target_resolution(
 		true
 	)
 	var resisted := not forced and bool(resistance.get("resisted", false))
-	var save_chance := 0.0
-	if save_mode != "none":
-		save_chance = clampf(
-			_classic_spell_save_chance(character, save_index)
-				+ int(payload.get("power", 0)) * int(payload.get("saveAdjustment", 0)),
-			0.0,
-			100.0
-		)
-	var saved := not forced and not resisted and save_mode != "none" \
-		and save_roll <= save_chance
+	var save_resolution: Dictionary = SpellSavesScript.target_resolution(
+		character,
+		spell,
+		int(payload.get("power", 0)),
+		save_roll,
+		int(payload.get("saveAdjustment", 0)),
+		forced or resisted
+	)
+	if str(save_resolution.get("status", "")) == "error":
+		return _error(str(save_resolution.get("message", "Classic spell save failed")))
+	var save_chance := float(save_resolution.get("saveChance", 0.0))
+	var saved := bool(save_resolution.get("saved", false))
 	var effect_scale := 0.0 if resisted else 1.0
 	if saved:
-		effect_scale = 0.5 if save_mode == "half_damage" else 0.0
+		effect_scale = float(save_resolution.get("effectScale", 0.0))
 	return {
 		"character": character,
 		"name": str(character.get("name")),

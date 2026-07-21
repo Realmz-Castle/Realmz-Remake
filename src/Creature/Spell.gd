@@ -72,6 +72,8 @@ var classic_spell_ids : Array[int] = []
 # effect or halve its damage, matching resolvespell.c.
 var classic_spell_save_index : int = -1
 var classic_spell_save_mode : String = "none"
+var classic_save_bonus : int = 0
+var classic_save_adjust : int = 0
 # Classic general magic resistance is a separate all-or-nothing roll. Native
 # spells leave this at zero; mapped and compiled Classic spells may override it.
 var classic_resist_adjust : int = 0

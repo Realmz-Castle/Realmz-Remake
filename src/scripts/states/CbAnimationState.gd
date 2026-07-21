@@ -10,6 +10,9 @@ const SPELL_ANIMATION_TSCN : PackedScene = preload("res://scenes/Map/SpellAnimat
 const CLASSIC_MAGIC_RESISTANCE_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const CLASSIC_SPELL_SAVES_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_spell_saves.gd"
+)
 
 var cur_action : Dictionary
 
@@ -416,7 +419,23 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 		if accuracy < randf() :
 			UI.ow_hud.creatureRect.logrect.log_spell_miss(castercrea, cb, spell , power, accuracy)
 			continue
+		var save_resolution: Dictionary = CLASSIC_SPELL_SAVES_SCRIPT.target_resolution(
+			cb.creature,
+			spell,
+			power,
+			randi_range(1, 100)
+		)
+		if str(save_resolution.get("status", "")) == "error" :
+			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
+			continue
+		if bool(save_resolution.get("saved", false)) \
+				and float(save_resolution.get("effectScale", 0.0)) <= 0.0 :
+			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
+			continue
 		var spell_damage : int = GameGlobal.calculate_spell_damage(castercrea, cb.creature, spell, power, true)
+		spell_damage = floori(
+			spell_damage * float(save_resolution.get("effectScale", 1.0))
+		)
 		
 		
 		var spell_effect_array : Array = cb.creature.on_hit_by_spell(castercrea,spell,power, -spell_damage)
@@ -424,7 +443,7 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			cb.display_effect("ATK_NUL", spell_damage, 2.0)  # the spells animation plays behind the text
 			cb.creature.change_cur_hp(spell_effect_array[1])
 			UI.ow_hud.creatureRect.logrect.log_spell_damage(castercrea, cb, spell , power, {"total":spell_damage}, accuracy)
-			if spell.has_method("add_traits_to_target") :
+			if spell.has_method("add_traits_to_creature") :
 				spell.add_traits_to_creature(castercrea, cb.creature, power)
 		else :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea,cb,spell)

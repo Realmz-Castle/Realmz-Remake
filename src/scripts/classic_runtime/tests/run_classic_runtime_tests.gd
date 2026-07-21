@@ -16,6 +16,7 @@ const CharacterConditionRulesScript = preload(
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -738,6 +739,7 @@ func _init() -> void:
 	_test_selected_character_pipeline(bundle)
 	_test_misc_character_selection(bundle)
 	_test_spell_effect_actions(bundle)
+	_test_city_spell_coverage()
 	_test_item_actions()
 	_test_take_gold_action()
 	_test_give_condition_action()
@@ -6509,6 +6511,101 @@ func _test_spell_effect_actions(bundle) -> void:
 	)
 	_expect(not no_save_effect.get("saved"), "a no-save spell ignores the adjustment field")
 	_expect_equal(no_save_effect.get("effectScale"), 1.0, "a no-save spell always applies")
+
+
+func _test_city_spell_coverage() -> void:
+	var energy_storm = load("res://shared_assets/spells/energy_storm.gd").new()
+	var sparkling_armor = load("res://shared_assets/spells/sparkling_armor.gd").new()
+	var flame_spikes = load("res://shared_assets/spells/flame_spikes.gd").new()
+	_expect(energy_storm.supports_classic_spell_id(1103), "Energy Storm exports its exact ID")
+	_expect_equal(energy_storm.classic_spell_class, 6, "Energy Storm preserves its class")
+	_expect_equal(energy_storm.classic_spell_save_index, 6, "Energy Storm uses the magic save")
+	_expect_equal(
+		energy_storm.classic_spell_save_mode,
+		"half_damage",
+		"Energy Storm halves damage on a save"
+	)
+	_expect_equal(energy_storm.get_range(7, null), 6, "Energy Storm keeps its range")
+	_expect_equal(energy_storm.get_min_damage(3, null), 3, "Energy Storm minimum scales")
+	_expect_equal(energy_storm.get_max_damage(3, null), 9, "Energy Storm maximum scales")
+	_expect_equal(energy_storm.get_sp_cost(3, null), 30, "Energy Storm cost scales")
+	_expect_equal(energy_storm.get_aoe(1, null), Spell.AoE_ROUND, "Energy Storm keeps size 9")
+
+	_expect(
+		sparkling_armor.supports_classic_spell_id(1111),
+		"Sparkling Armor exports its exact ID"
+	)
+	_expect_equal(sparkling_armor.classic_spell_class, 8, "Sparkling Armor preserves its class")
+	_expect(sparkling_armor.in_field and sparkling_armor.in_combat, "Sparkling Armor is available")
+	_expect(sparkling_armor.skip_targeting, "Sparkling Armor targets its caster")
+	_expect_equal(
+		sparkling_armor.autotarget_type,
+		Spell.AUTOTARGET_TYPE.SELF,
+		"Sparkling Armor uses self targeting"
+	)
+	_expect_equal(sparkling_armor.get_duration_roll(3, null), 3, "Sparkling Armor duration scales")
+	_expect_equal(sparkling_armor.get_sp_cost(3, null), 6, "Sparkling Armor cost scales")
+	var armored_target := ConditionTestCharacter.new("Armored target")
+	sparkling_armor.add_traits_to_creature(null, armored_target, 3)
+	_expect_equal(armored_target.traits.size(), 1, "Sparkling Armor applies one trait")
+	_expect(
+		str(armored_target.traits[0].name).ends_with("t_pro_hits.gd"),
+		"Sparkling Armor uses the protection-from-hits adapter"
+	)
+	_expect_equal(armored_target.traits[0].power, 3, "Sparkling Armor passes its duration")
+
+	_expect(flame_spikes.supports_classic_spell_id(1203), "Flame Spikes exports its exact ID")
+	_expect_equal(flame_spikes.classic_spell_class, 1, "Flame Spikes preserves its class")
+	_expect_equal(flame_spikes.classic_save_bonus, 10, "Flame Spikes preserves its save bonus")
+	_expect(flame_spikes.skip_targeting, "Flame Spikes needs no target selection")
+	_expect_equal(
+		flame_spikes.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Flame Spikes targets every enemy"
+	)
+	_expect(not flame_spikes.los, "Flame Spikes does not require line of sight")
+	_expect_equal(flame_spikes.get_min_damage(3, null), 3, "Flame Spikes minimum scales")
+	_expect_equal(flame_spikes.get_max_damage(3, null), 12, "Flame Spikes maximum scales")
+	_expect_equal(flame_spikes.get_sp_cost(3, null), 75, "Flame Spikes cost scales")
+	var save_target := RogueTestCharacter.new()
+	save_target.stat_values["MultiplierFire"] = 1.0
+	save_target.stat_values["ResistanceFire"] = 0.0
+	var saved: Dictionary = SpellSavesScript.target_resolution(
+		save_target,
+		flame_spikes,
+		3,
+		10
+	)
+	_expect_equal(saved.get("saveChance"), 10.0, "native save includes the base bonus")
+	_expect(saved.get("saved"), "Flame Spikes' +10 save bonus is executable")
+	_expect_equal(saved.get("effectScale"), 0.5, "Flame Spikes save halves damage")
+
+	var matrix: Variant = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://scripts/classic_runtime/classic_spell_support_matrix.json"
+	))
+	_expect(matrix is Dictionary, "Classic spell support matrix is machine readable")
+	if matrix is Dictionary:
+		_expect_equal(matrix.get("schemaVersion"), 1, "Classic spell support matrix version")
+		var matrix_spells: Variant = matrix.get("spells", [])
+		_expect(matrix_spells is Array, "Classic spell support matrix contains spell rows")
+		if matrix_spells is Array:
+			var matrix_ids: Array[int] = []
+			for entry_value: Variant in matrix_spells:
+				if not (entry_value is Dictionary):
+					continue
+				var entry: Dictionary = entry_value
+				matrix_ids.append(int(entry.get("classicSpellId", 0)))
+				_expect_equal(
+					entry.get("supportStatus"),
+					"supported",
+					"City spell matrix row is executable"
+				)
+				_expect(
+					FileAccess.file_exists(str(entry.get("resource", ""))),
+					"City spell matrix resource exists"
+				)
+			matrix_ids.sort()
+			_expect_equal(matrix_ids, [1103, 1104, 1111, 1203], "Vodalian spell inventory is complete")
 
 
 func _test_item_actions() -> void:

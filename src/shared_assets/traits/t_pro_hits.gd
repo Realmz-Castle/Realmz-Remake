@@ -28,7 +28,7 @@ func _on_new_round(_character : Creature) :
 
 func _on_get_stat(statname : String, stat : int) :
 	if ['EvasionMelee'].has(statname) :
-		return stat+2*ceil(duration/2)  #1  stat = 5% chance
+		return stat + 2 * ceili(float(duration) / 5.0)
 	else :
 		return stat
 
