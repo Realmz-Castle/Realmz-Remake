@@ -855,7 +855,7 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	if saved_inventory is Array:
 		_clear_inventory_for_restore()
 	if saved_data.get("spells") is Array:
-		spells = saved_data["spells"].duplicate(true)
+		_restore_saved_spells(saved_data["spells"], resources)
 	if saved_data.get("traits") is Array:
 		traits = saved_data["traits"].duplicate(true)
 	if saved_inventory is Array and not _restore_saved_inventory(saved_inventory, resources):
@@ -864,6 +864,22 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	stats["curHP"] = int(saved_data.get("curHP", stats["curHP"]))
 	stats["curSP"] = int(saved_data.get("curSP", stats["curSP"]))
 	return true
+
+
+func _restore_saved_spells(saved_spell_levels: Array, resources: Object) -> void:
+	spells.clear()
+	for saved_level_value: Variant in saved_spell_levels:
+		var restored_level: Array = []
+		if saved_level_value is Array:
+			for saved_spell_value: Variant in saved_level_value:
+				if not (saved_spell_value is Dictionary):
+					continue
+				var spell_name := str(saved_spell_value.get("name", ""))
+				if resources.spells_book.has(spell_name):
+					restored_level.append(resources.spells_book[spell_name])
+				else:
+					restored_level.append(saved_spell_value.duplicate(true))
+		spells.append(restored_level)
 
 
 func _clear_inventory_for_restore() -> void:

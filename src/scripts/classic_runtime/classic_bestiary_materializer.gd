@@ -3,12 +3,15 @@ extends RefCounted
 
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
+const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
 const BESTIARY_IMAGE_BOOK_PATH := "Bestiary/img_pack.json"
 const BESTIARY_ATLAS_PATH := "Bestiary/textureAtlas.png"
 const ITEM_BOOK_PATH := "Items/stuff_book.json"
 const SHARED_ITEM_BOOK_PATH := "res://shared_assets/items/stuff_book.json"
+const SHARED_SPELL_DIRECTORY := "res://shared_assets/spells/"
 const DEFAULT_IMAGE := "CREA_humanmage"
 const TYPE_TAGS := [
 	"Magic Using",
@@ -104,6 +107,10 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	var item_ids: Object = ItemIdsScript.new()
 	var item_mapping: Dictionary = item_ids.mapping.duplicate()
 	item_ids.free()
+	var spell_ids: Object = SpellIdsScript.new()
+	var spell_mapping: Dictionary = spell_ids.mappings.duplicate()
+	spell_ids.free()
+	var spell_book := _read_spell_context()
 	var records: Array[Dictionary] = []
 	for monster_value: Variant in monsters:
 		if not (monster_value is Dictionary):
@@ -134,7 +141,9 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			descriptions,
 			item_book,
 			item_texts,
-			item_mapping
+			item_mapping,
+			spell_book,
+			spell_mapping
 		)
 		generated += 1
 
@@ -169,7 +178,9 @@ func _native_monster(
 	descriptions: Array,
 	item_book: Dictionary,
 	item_texts: Array,
-	item_mapping: Dictionary
+	item_mapping: Dictionary,
+	spell_book: Dictionary,
+	spell_mapping: Dictionary
 ) -> Dictionary:
 	var monster_id: int = abs(int(record.get("id", -1)))
 	var display_name := str(record.get("displayName", "")).strip_edges()
@@ -183,7 +194,8 @@ func _native_monster(
 		item_texts,
 		item_mapping
 	)
-	var unsupported_fields := _unsupported_fields(record, native_inventory)
+	var native_spells := _native_spells(record, spell_book, spell_mapping)
+	var unsupported_fields := _unsupported_fields(record, native_inventory, native_spells)
 	var fidelity_fallbacks: Array[String] = [
 		"iconId",
 		"randomizedStamina",
@@ -199,6 +211,9 @@ func _native_monster(
 	for fallback: String in native_inventory.get("fidelityFallbacks", []):
 		if not fidelity_fallbacks.has(fallback):
 			fidelity_fallbacks.append(fallback)
+	for fallback: String in native_spells.get("fidelityFallbacks", []):
+		if not fidelity_fallbacks.has(fallback):
+			fidelity_fallbacks.append(fallback)
 	var stats := _native_stats(record, stamina)
 	var attacks := _native_attacks(record)
 	return {
@@ -210,6 +225,7 @@ func _native_monster(
 		"classicMagicResistance": int(record.get("magicResistance", 0)),
 		"classicCanSummon": int(record.get("canSummon", 0)),
 		"classicWeaponItemId": int(record.get("weapon", 0)),
+		"classicSpellIds": _integer_array(record.get("spells", []), 10),
 		"classicRecord": record.duplicate(true),
 		"classicMaterialization": {
 			"status": "blocked" if not unsupported_fields.is_empty() else "fallback",
@@ -241,9 +257,41 @@ func _native_monster(
 			"inventory": native_inventory.get("entries", []),
 			"money": _integer_array(record.get("money", []), 3),
 			"unarmed_melee_attacks": attacks,
-			"spells": [],
+			"spells": native_spells.get("entries", []),
 		},
 		"scripts": {"default": "test_crea_script.gd"},
+	}
+
+
+func _native_spells(
+	record: Dictionary,
+	spell_book: Dictionary,
+	spell_mapping: Dictionary
+) -> Dictionary:
+	var entries: Array = []
+	var unsupported_fields: Array[String] = []
+	var fidelity_fallbacks: Array[String] = []
+	var spell_ids := _integer_array(record.get("spells", []), 10)
+	for spell_index: int in range(spell_ids.size()):
+		var spell_id: int = spell_ids[spell_index]
+		if spell_id == 0:
+			continue
+		var spell_key := SpellIdentityScript.resource_key(
+			spell_id,
+			spell_mapping,
+			spell_book
+		)
+		if spell_key.is_empty():
+			unsupported_fields.append("spells[%d]" % spell_index)
+			continue
+		entries.append([spell_key, 1])
+		if SpellIdentityScript.resource_ids(spell_book[spell_key]).is_empty() \
+				and not fidelity_fallbacks.has("spellIdentityNameMapping"):
+			fidelity_fallbacks.append("spellIdentityNameMapping")
+	return {
+		"entries": entries,
+		"unsupportedFields": unsupported_fields,
+		"fidelityFallbacks": fidelity_fallbacks,
 	}
 
 
@@ -430,15 +478,22 @@ func _native_attacks(record: Dictionary) -> Array:
 	return result
 
 
-func _unsupported_fields(record: Dictionary, native_inventory: Dictionary) -> Array[String]:
+func _unsupported_fields(
+	record: Dictionary,
+	native_inventory: Dictionary,
+	native_spells: Dictionary
+) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_SCALAR_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
 			fields.append(field_name)
-	for field_name: String in ["spells", "conditions", "underneath"]:
+	for field_name: String in ["conditions", "underneath"]:
 		if _array_has_nonzero(record.get(field_name, [])):
 			fields.append(field_name)
 	for field_name: String in native_inventory.get("unsupportedFields", []):
+		if not fields.has(field_name):
+			fields.append(field_name)
+	for field_name: String in native_spells.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
 	var attacks: Variant = record.get("attacks", [])
@@ -557,6 +612,32 @@ func _read_item_context(campaign_root: String) -> Dictionary:
 		return {}
 	item_book.merge(campaign_book, true)
 	return item_book
+
+
+func _read_spell_context() -> Dictionary:
+	var spell_book: Dictionary = {}
+	# Installation runs before the staged campaign is loaded. Read only the
+	# declarative identity fields so materialization never executes spell code.
+	var name_pattern := RegEx.new()
+	name_pattern.compile("(?m)^\\s*name\\s*=\\s*\"([^\"]+)\"")
+	var ids_pattern := RegEx.new()
+	ids_pattern.compile("(?m)^\\s*classic_spell_ids\\s*=\\s*\\[([^\\]]*)\\]")
+	var filenames := DirAccess.get_files_at(SHARED_SPELL_DIRECTORY)
+	filenames.sort()
+	for filename: String in filenames:
+		if not filename.ends_with(".gd"):
+			continue
+		var source := FileAccess.get_file_as_string(SHARED_SPELL_DIRECTORY + filename)
+		var name_match := name_pattern.search(source)
+		if name_match == null:
+			continue
+		var classic_ids: Array[int] = []
+		var ids_match := ids_pattern.search(source)
+		if ids_match != null:
+			for id_text: String in ids_match.get_string(1).split(",", false):
+				classic_ids.append(abs(int(id_text.strip_edges())))
+		spell_book[name_match.get_string(1)] = {"classicSpellIds": classic_ids}
+	return spell_book
 
 
 func _read_json_book(path: String, description: String) -> Dictionary:

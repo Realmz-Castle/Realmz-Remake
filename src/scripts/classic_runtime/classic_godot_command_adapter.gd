@@ -4,6 +4,7 @@ extends RefCounted
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
+const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
@@ -1872,22 +1873,11 @@ func resolve_complex_spell_result(
 
 
 func classic_spell_mapping_key(spell_id: int) -> String:
-	if spell_id < 1101:
-		return ""
-	# Classic packs zero-based caster class, level, and slot above the 1101 base.
-	# Remake's existing table uses those same parts as a concatenated string key.
-	var packed := spell_id - 1101
-	var caster_class := int(packed / 1000) + 1
-	var remainder := packed % 1000
-	var spell_level := int(remainder / 100)
-	var spell_slot := remainder % 100
-	return "%d%d%d" % [caster_class * 100, spell_level, spell_slot]
+	return SpellIdentityScript.mapping_key(spell_id)
 
 
 func classic_spell_resource_supports_id(spell: Variant, spell_id: int) -> bool:
-	if not (spell is Object) or not spell.has_method("supports_classic_spell_id"):
-		return true
-	return bool(spell.supports_classic_spell_id(spell_id))
+	return SpellIdentityScript.resource_supports_id(spell, spell_id)
 
 
 func spell_effect_targets(target_mode: String, party: Array, selected: Array) -> Array:

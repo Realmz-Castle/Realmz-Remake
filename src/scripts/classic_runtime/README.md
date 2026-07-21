@@ -262,10 +262,11 @@ The UI smoke instances the real `Main.tscn`, discovers a self-contained compiled
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_campaign_ui_smoke.tscn
 ```
 
-The generated-ally smoke derives carried and equipped item fields from the
-authoritative Providence fixture, installs it, loads its generated monster and
-scenario item through normal campaign resources, and round-trips mutable ally
-state, both Classic identities, carried inventory, and the active weapon:
+The generated-ally smoke derives carried, equipped, and weighted spell-slot
+fields from the authoritative Providence fixture. It installs the result,
+loads the generated monster and scenario item through normal campaign
+resources, and round-trips mutable ally state, both Classic identities,
+carried inventory, the active weapon, and executable native spells:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_generated_ally_smoke.tscn

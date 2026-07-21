@@ -31,7 +31,7 @@ func _run_smoke() -> void:
 	)
 	var installer = InstallerScript.new()
 	installer._remove_directory(test_root)
-	var fixture_directory := _prepare_inventory_fixture(installer)
+	var fixture_directory := _prepare_resource_fixture(installer)
 	if fixture_directory.is_empty():
 		_finish()
 		return
@@ -99,6 +99,11 @@ func _run_smoke() -> void:
 		"equipped Classic weapon remains the ally's active melee weapon"
 	)
 	_expect_equal(
+		_spell_count(ally, "Fireball"),
+		2,
+		"ally receives the weighted Classic spell slots through the native spell book"
+	)
+	_expect_equal(
 		carried_token.get("classicItemId"),
 		901,
 		"ally carries the scenario-local item with stable Classic identity"
@@ -156,6 +161,15 @@ func _run_smoke() -> void:
 		901,
 		"scenario-local carried item identity survives native ally save/load"
 	)
+	_expect_equal(
+		_spell_count(restored_ally, "Fireball"),
+		2,
+		"weighted Classic spell slots survive native ally save/load"
+	)
+	_expect(
+		_restored_spell_has_script(restored_ally, "Fireball"),
+		"restored Classic spell remains executable through the native spell resource"
+	)
 	_expect(
 		AdapterScript.new().party_has_classic_ally({"monsterNameId": 1}, [restored_ally]),
 		"restored producer ally satisfies a Classic name-identity check"
@@ -163,7 +177,7 @@ func _run_smoke() -> void:
 	_finish()
 
 
-func _prepare_inventory_fixture(installer: Object) -> String:
+func _prepare_resource_fixture(installer: Object) -> String:
 	var fixture_directory := test_root.path_join("source").path_join(
 		"producer-monster-inventory"
 	)
@@ -181,6 +195,9 @@ func _prepare_inventory_fixture(installer: Object) -> String:
 		return ""
 	content["monsters"][0]["items"] = [1, 901, 0, 0, 0, 0]
 	content["monsters"][0]["weapon"] = 1
+	content["monsters"][0]["spells"] = [1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0]
+	content["monsters"][0]["magicAttackCount"] = 2
+	content["monsters"][0]["castPercent"] = 75
 	var content_file := FileAccess.open(content_path, FileAccess.WRITE)
 	_expect(content_file != null, "ally smoke writes the derived monster inventory")
 	if content_file == null:
@@ -195,6 +212,22 @@ func _inventory_item(inventory: Array, item_name: String) -> Dictionary:
 		if item_value is Dictionary and str(item_value.get("name", "")) == item_name:
 			return item_value
 	return {}
+
+
+func _spell_count(creature: Creature, spell_name: String) -> int:
+	var count := 0
+	for spell_value: Variant in creature.get_all_spells():
+		if spell_value is Dictionary and str(spell_value.get("name", "")) == spell_name:
+			count += 1
+	return count
+
+
+func _restored_spell_has_script(creature: Creature, spell_name: String) -> bool:
+	for spell_value: Variant in creature.get_all_spells():
+		if spell_value is Dictionary \
+				and str(spell_value.get("name", "")) == spell_name:
+			return spell_value.get("script") is Object
+	return false
 
 
 func _expect(condition: bool, description: String) -> void:

@@ -2685,6 +2685,84 @@ func _test_classic_bestiary_materializer() -> void:
 		"resolved native monster inventory remains launchable"
 	)
 
+	var spell_root := test_root.path_join("spells")
+	DirAccess.make_dir_recursive_absolute(spell_root)
+	var spell_bundle = BundleScript.new()
+	spell_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	spell_bundle.documents["content"]["monsters"][0]["spells"] = [
+		1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0
+	]
+	spell_bundle.documents["content"]["monsters"][0]["magicAttackCount"] = 2
+	spell_bundle.documents["content"]["monsters"][0]["castPercent"] = 75
+	_expect_equal(
+		materializer.materialize(spell_bundle, spell_root).get("status"),
+		"ok",
+		"Classic spell slots generate native monster spells"
+	)
+	var spell_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(spell_root.path_join("Bestiary/stuff_book.json"))
+	)
+	var spell_monster: Dictionary = spell_book.get("Classic Monster 1", {})
+	_expect_equal(
+		spell_monster.get("tools", {}).get("spells"),
+		[["Fireball", 1.0], ["Fireball", 1.0]],
+		"repeated Classic spell slots preserve their random weighting"
+	)
+	_expect_equal(
+		spell_monster.get("classicSpellIds"),
+		[1306.0, 1306.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+		"native monster retains the packed spell identities"
+	)
+	_expect_equal(
+		spell_monster.get("classicMaterialization", {}).get("unsupportedFields"),
+		[],
+		"exact native spell identities do not block launch"
+	)
+	_expect(
+		bool(ReadinessScript.new().inspect(
+			spell_bundle,
+			{"bestiary": spell_book}
+		).get("ready", false)),
+		"resolved native monster spells remain launchable"
+	)
+
+	var mismatched_spell_root := test_root.path_join("mismatched-spell")
+	DirAccess.make_dir_recursive_absolute(mismatched_spell_root)
+	var mismatched_spell_bundle = BundleScript.new()
+	mismatched_spell_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	# The native Power Drain script deliberately excludes this mechanically
+	# different priest spell, even though the inherited name mapping matches.
+	mismatched_spell_bundle.documents["content"]["monsters"][0]["spells"] = [
+		2708, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	]
+	_expect_equal(
+		materializer.materialize(
+			mismatched_spell_bundle,
+			mismatched_spell_root
+		).get("status"),
+		"ok",
+		"unsupported spell variants remain inspectable"
+	)
+	var mismatched_spell_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			mismatched_spell_root.path_join("Bestiary/stuff_book.json")
+		)
+	)
+	var mismatched_spell_monster: Dictionary = mismatched_spell_book.get(
+		"Classic Monster 1", {}
+	)
+	_expect_equal(
+		mismatched_spell_monster.get("tools", {}).get("spells"),
+		[],
+		"a same-name spell with different mechanics is not substituted"
+	)
+	_expect(
+		mismatched_spell_monster.get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("spells[0]"),
+		"unsupported spell variant records its exact source slot"
+	)
+
 	var unresolved_inventory_root := test_root.path_join("unresolved-inventory")
 	DirAccess.make_dir_recursive_absolute(unresolved_inventory_root)
 	var unresolved_inventory_bundle = BundleScript.new()
