@@ -72,6 +72,14 @@ func _run_smoke() -> void:
 		resources.items_book.has("Classic Item 150"),
 		"normal campaign resources load the generated scenario weapon"
 	)
+	_expect(
+		resources.items_book.has("Classic Item 250"),
+		"normal campaign resources load the generated scenario armor"
+	)
+	_expect(
+		resources.items_book.has("Classic Item 251"),
+		"normal campaign resources load the generated scenario shield"
+	)
 	var elemental_attacker: Creature = GameGlobal.combatCreatureGD.new()
 	elemental_attacker.initialize_from_bestiary_dict("Classic Monster 2")
 	_expect_equal(
@@ -144,6 +152,12 @@ func _run_smoke() -> void:
 	var player_weapon: Dictionary = resources.items_book[
 		"Classic Item 150"
 	].duplicate(true)
+	var player_armor: Dictionary = resources.items_book[
+		"Classic Item 250"
+	].duplicate(true)
+	var player_shield: Dictionary = resources.items_book[
+		"Classic Item 251"
+	].duplicate(true)
 	var player_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
 		{"name": "Fixture Fighter", "level": 0},
 		null,
@@ -152,6 +166,8 @@ func _run_smoke() -> void:
 		human
 	)
 	player_character.inventory.append(player_weapon)
+	player_character.inventory.append(player_armor)
+	player_character.inventory.append(player_shield)
 	_expect(
 		player_character.equip_item(player_weapon),
 		"native player equipment accepts the generated Classic weapon type"
@@ -160,6 +176,34 @@ func _run_smoke() -> void:
 		player_character.current_melee_weapons[0].get("classicItemId"),
 		150,
 		"generated Classic weapon becomes the player's active melee weapon"
+	)
+	_expect_equal(
+		player_armor.get("type"),
+		"Leather Armor",
+		"generated Classic armor uses the native player permission type"
+	)
+	_expect(
+		player_character.equip_item(player_armor),
+		"native player equipment accepts the generated Classic armor type"
+	)
+	_expect_equal(
+		player_armor.get("equipped"),
+		1,
+		"generated Classic armor occupies the native body slot"
+	)
+	_expect_equal(
+		player_shield.get("type"),
+		"Small Shield",
+		"generated Classic shield uses the native player permission type"
+	)
+	_expect(
+		player_character.equip_item(player_shield),
+		"native player equipment accepts the generated Classic shield type"
+	)
+	_expect_equal(
+		player_shield.get("equipped"),
+		1,
+		"generated Classic shield occupies the native shield slot"
 	)
 
 	var bundle = BundleScript.new()
@@ -314,6 +358,20 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_text["unidentifiedName"] = "Plain Blade"
 	weapon_text["description"] = "A producer-derived scenario weapon."
 	content["itemTexts"].append(weapon_text)
+	var armor_record: Dictionary = content["scenarioItems"][0].duplicate(true)
+	armor_record["id"] = 103
+	armor_record["itemId"] = 250
+	armor_record["type"] = 4
+	armor_record["hands"] = 0
+	armor_record["itemCat1"] = 1 << 28
+	content["scenarioItems"].append(armor_record)
+	var shield_record: Dictionary = content["scenarioItems"][0].duplicate(true)
+	shield_record["id"] = 104
+	shield_record["itemId"] = 251
+	shield_record["type"] = 3
+	shield_record["hands"] = 1
+	shield_record["itemCat0"] = 1 << 6
+	content["scenarioItems"].append(shield_record)
 	var elemental_monster: Dictionary = content["monsters"][0].duplicate(true)
 	elemental_monster["id"] = 2
 	elemental_monster["nameId"] = 2

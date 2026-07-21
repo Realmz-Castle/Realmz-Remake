@@ -36,7 +36,7 @@ const ELEMENT_BY_CLASSIC_FIELD := {
 	"cold": "Ice",
 	"electric": "Electric",
 }
-const MELEE_TYPE_BY_CLASSIC_ITEM_CATEGORY := {
+const NATIVE_TYPE_BY_CLASSIC_ITEM_CATEGORY := {
 	0: "Mace",
 	1: "Hammer",
 	2: "Warhammer/Maul",
@@ -55,12 +55,38 @@ const MELEE_TYPE_BY_CLASSIC_ITEM_CATEGORY := {
 	15: "Throwing Bottle",
 	16: "Throwing Dagger",
 	17: "Whip",
+	18: "Quiver",
+	19: "Belt",
+	20: "Necklace",
+	21: "Hat",
+	22: "Soft Helmet",
+	23: "Light Helmet",
+	24: "Great Helm",
+	25: "Small Shield",
+	26: "Medium Shield",
+	27: "Large Shield",
+	28: "Bracers",
+	29: "Cloth Gloves",
+	30: "Leather Gloves",
+	31: "Metal Gloves",
+	32: "Cloak/Cape",
+	33: "Robe",
+	34: "Gambeson",
+	35: "Leather Armor",
+	36: "Chainmail Armor",
+	37: "Splint Armor",
+	38: "Plate Armor",
+	39: "Soft Boots",
+	40: "Hard Boots",
 	41: "Throwing Hammer",
 	42: "Eastern Weapon",
 	43: "Misc. Melee Weapon",
 	44: "Misc. Melee Weapon",
 	45: "Misc. Melee Weapon",
 	46: "Misc Ranged Weapon",
+	48: "Scroll Case",
+	50: "Ring",
+	54: "Ion Stone",
 }
 const SLOT_BY_CLASSIC_TYPE := {
 	0: "Ring",
@@ -259,14 +285,15 @@ func _native_item_type(
 	fallback_type: String
 ) -> Dictionary:
 	var unsupported_fields: Array[String] = []
-	if classic_type != 2:
+	if not SLOT_BY_CLASSIC_TYPE.has(classic_type):
 		return {"value": fallback_type, "unsupportedFields": unsupported_fields}
+	# Classic uses item type for the slot and the first category for use permission.
 	var category_index := _first_classic_item_category(record)
 	if category_index < 0:
 		unsupported_fields.append("itemCategory.missing")
-	elif MELEE_TYPE_BY_CLASSIC_ITEM_CATEGORY.has(category_index):
+	elif NATIVE_TYPE_BY_CLASSIC_ITEM_CATEGORY.has(category_index):
 		return {
-			"value": MELEE_TYPE_BY_CLASSIC_ITEM_CATEGORY[category_index],
+			"value": NATIVE_TYPE_BY_CLASSIC_ITEM_CATEGORY[category_index],
 			"unsupportedFields": unsupported_fields,
 		}
 	else:
@@ -353,11 +380,6 @@ func _unsupported_fields(
 	for field_name: String in native_type.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
-	var classic_type: int = abs(int(record.get("type", 0)))
-	if classic_type != 2 and SLOT_BY_CLASSIC_TYPE.has(classic_type):
-		for field_name: String in ["itemCat0", "itemCat1"]:
-			if int(record.get(field_name, 0)) != 0:
-				fields.append(field_name)
 	return fields
 
 

@@ -2478,6 +2478,37 @@ func _test_classic_item_materializer() -> void:
 		"Mace",
 		"signed Classic category bits retain their source ordering"
 	)
+	var armor_record: Dictionary = bundle.documents[
+		"content"
+	]["scenarioItems"][0].duplicate(true)
+	armor_record["itemId"] = 250
+	armor_record["type"] = 4
+	armor_record["itemCat1"] = 1 << 28
+	var armor: Dictionary = materializer._native_item(armor_record, [])
+	_expect_equal(
+		armor.get("type"),
+		"Leather Armor",
+		"Classic armor category selects a concrete native item type"
+	)
+	_expect_equal(armor.get("slots"), ["Body"], "Classic armor retains its native slot")
+	_expect_equal(
+		armor.get("classicMaterialization", {}).get("unsupportedFields"),
+		[],
+		"basic categorized Classic armor remains launchable"
+	)
+	var shield_record := armor_record.duplicate(true)
+	shield_record["itemId"] = 251
+	shield_record["type"] = 3
+	shield_record["hands"] = 1
+	shield_record["itemCat0"] = 1 << 6
+	shield_record["itemCat1"] = 0
+	var shield: Dictionary = materializer._native_item(shield_record, [])
+	_expect_equal(
+		shield.get("type"),
+		"Small Shield",
+		"Classic shield category selects a concrete native item type"
+	)
+	_expect_equal(shield.get("slots"), ["Shield"], "Classic shield retains its native slot")
 	_expect_equal(
 		weapon.get("weapon_dmg", {}).get("Physical"),
 		[1, 6],
@@ -2533,15 +2564,16 @@ func _test_classic_item_materializer() -> void:
 		materializer._native_item(categoryless_record, []).get(
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("itemCategory.missing"),
-		"categoryless Classic melee weapons remain explicit blockers"
+		"categoryless Classic equipment remains an explicit blocker"
 	)
-	var non_weapon_category_record := weapon_record.duplicate(true)
-	non_weapon_category_record["itemCat0"] = 1 << 13
+	var unsupported_category_record := weapon_record.duplicate(true)
+	unsupported_category_record["itemCat0"] = 0
+	unsupported_category_record["itemCat1"] = 1 << 16
 	_expect(
-		materializer._native_item(non_weapon_category_record, []).get(
+		materializer._native_item(unsupported_category_record, []).get(
 			"classicMaterialization", {}
-		).get("unsupportedFields", []).has("itemCategory[18]"),
-		"non-weapon Classic categories do not receive guessed melee types"
+		).get("unsupportedFields", []).has("itemCategory[47]"),
+		"Classic categories without native equip permissions remain blockers"
 	)
 	var negative_element_record := weapon_record.duplicate(true)
 	negative_element_record["heat"] = -1
