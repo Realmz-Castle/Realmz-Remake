@@ -30,6 +30,9 @@ const ItemMaterializerScript = preload(
 const BestiaryMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_bestiary_materializer.gd"
 )
+const MonsterWeaponRulesScript = preload(
+	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
+)
 const NativeResourcesScript = preload("res://scripts/Resources.gd")
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
@@ -2577,6 +2580,11 @@ func _test_classic_item_materializer() -> void:
 		"native weapon retains its Classic blunt classification"
 	)
 	_expect_equal(
+		weapon.get("extra_data", {}).get("classicMagicPlus"),
+		2,
+		"native weapon retains its Classic magic-plus requirement value"
+	)
+	_expect_equal(
 		weapon.get("weapon_tag_bonus_dmg", {}),
 		{
 			"Undead": {"Physical": [1, 4]},
@@ -3174,6 +3182,124 @@ func _test_classic_bestiary_materializer() -> void:
 			{"bestiary": spell_book}
 		).get("ready", false)),
 		"resolved native monster spells remain launchable"
+	)
+
+	var requirement_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	requirement_record["distance"] = 1
+	requirement_record["magicToHit"] = 2
+	var requirement_result: Dictionary = materializer._native_weapon_requirements(
+		requirement_record,
+		{"Dagger": {}},
+		[],
+		{1: "Dagger"}
+	)
+	_expect_equal(
+		requirement_result.get("fields"),
+		{
+			"classicRequiredWeaponItemId": 1,
+			"classicRequiredWeaponName": "Dagger",
+			"classicRequiredMagicPlus": 2,
+		},
+		"Classic exact-weapon and magic-plus gates resolve to native metadata"
+	)
+	_expect_equal(
+		requirement_result.get("unsupportedFields"),
+		[],
+		"resolved Classic weapon gates remain launchable"
+	)
+	var exact_defender := {
+		"classic_required_weapon_item_id": 1,
+		"classic_required_weapon_name": "Dagger",
+		"classic_required_magic_plus": 2,
+	}
+	var qualifying_weapon := {
+		"name": "Dagger",
+		"extra_data": {"classicMagicPlus": 2},
+	}
+	_expect(
+		MonsterWeaponRulesScript.can_hit({}, exact_defender, qualifying_weapon),
+		"matching native weapon and magic plus satisfy the Classic gate"
+	)
+	var weak_weapon: Dictionary = qualifying_weapon.duplicate(true)
+	weak_weapon["extra_data"]["classicMagicPlus"] = 1
+	_expect(
+		not MonsterWeaponRulesScript.can_hit({}, exact_defender, weak_weapon),
+		"insufficient weapon magic plus fails the Classic gate"
+	)
+	var wrong_weapon: Dictionary = qualifying_weapon.duplicate(true)
+	wrong_weapon["name"] = "Mace"
+	_expect(
+		not MonsterWeaponRulesScript.can_hit({}, exact_defender, wrong_weapon),
+		"wrong native weapon identity fails the Classic gate"
+	)
+	var blunt_result: Dictionary = materializer._native_weapon_requirements(
+		{"distance": -1},
+		{},
+		[],
+		{}
+	)
+	_expect_equal(
+		blunt_result.get("fields", {}).get("classicRequiredWeaponKind"),
+		"blunt",
+		"Classic blunt-only defenses retain their weapon classification"
+	)
+	_expect(
+		MonsterWeaponRulesScript.can_hit(
+			{},
+			{"classic_required_weapon_kind": "blunt"},
+			{"extra_data": {"classicWeaponKind": "blunt"}}
+		),
+		"matching Classic weapon classification satisfies the native gate"
+	)
+	_expect(
+		not MonsterWeaponRulesScript.can_hit(
+			{},
+			{"classic_required_weapon_kind": "blunt"},
+			{"extra_data": {"classicWeaponKind": "sharp"}}
+		),
+		"wrong Classic weapon classification fails the native gate"
+	)
+	_expect(
+		MonsterWeaponRulesScript.can_hit(
+			{"level": 16},
+			{"classic_required_magic_plus": 2},
+			{"name": "NO_MELEE_WEAPON", "type": "Unarmed"}
+		),
+		"Classic unarmed gate uses the attacker's level threshold"
+	)
+	var invalid_requirement: Dictionary = materializer._native_weapon_requirements(
+		{"distance": -3, "magicToHit": -1},
+		{},
+		[],
+		{}
+	)
+	_expect_equal(
+		invalid_requirement.get("unsupportedFields"),
+		["distance", "magicToHit"],
+		"unknown weapon gates remain explicit launch blockers"
+	)
+	var runtime_state_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	for field_name: String in [
+		"target",
+		"guarding",
+		"movement",
+		"lr",
+		"up",
+		"attackNum",
+		"bonusAttack",
+	]:
+		runtime_state_record[field_name] = 1
+	runtime_state_record["underneath"] = [1001, 1002, 1003, 1004]
+	_expect_equal(
+		materializer._unsupported_fields(
+			runtime_state_record,
+			{},
+			{},
+			{},
+			{}
+		),
+		[],
+		"Realmz battle-setup scratch fields do not block native materialization"
 	)
 
 	var elemental_root := test_root.path_join("elemental-attack")

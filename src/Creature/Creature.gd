@@ -656,6 +656,10 @@ func initialize_from_bestiary_dict(creaname : String) :
 		["classic_hit_dice", "classicHitDice"],
 		["classic_magic_resistance", "classicMagicResistance"],
 		["classic_can_summon", "classicCanSummon"],
+		["classic_required_weapon_kind", "classicRequiredWeaponKind"],
+		["classic_required_weapon_item_id", "classicRequiredWeaponItemId"],
+		["classic_required_weapon_name", "classicRequiredWeaponName"],
+		["classic_required_magic_plus", "classicRequiredMagicPlus"],
 	] :
 		if cdata.has(metadata_pair[1]) :
 			set_meta(metadata_pair[0], cdata[metadata_pair[1]])

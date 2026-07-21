@@ -68,17 +68,9 @@ const EXPERIENCE_BY_HIT_DICE := [
 	[5700, 75],
 ]
 const UNSUPPORTED_SCALAR_FIELDS := [
-	"distance",
 	"runPercent",
 	"surrenderPercent",
-	"target",
-	"guarding",
 	"beenAttacked",
-	"movement",
-	"lr",
-	"up",
-	"attackNum",
-	"bonusAttack",
 ]
 
 var last_error := ""
@@ -203,11 +195,18 @@ func _native_monster(
 	)
 	var native_spells := _native_spells(record, spell_book, spell_mapping)
 	var native_attacks := _native_attacks(record)
+	var native_requirements := _native_weapon_requirements(
+		record,
+		item_book,
+		item_texts,
+		item_mapping
+	)
 	var unsupported_fields := _unsupported_fields(
 		record,
 		native_inventory,
 		native_spells,
-		native_attacks
+		native_attacks,
+		native_requirements
 	)
 	var fidelity_fallbacks: Array[String] = [
 		"iconId",
@@ -230,8 +229,11 @@ func _native_monster(
 	for fallback: String in native_attacks.get("fidelityFallbacks", []):
 		if not fidelity_fallbacks.has(fallback):
 			fidelity_fallbacks.append(fallback)
+	for fallback: String in native_requirements.get("fidelityFallbacks", []):
+		if not fidelity_fallbacks.has(fallback):
+			fidelity_fallbacks.append(fallback)
 	var stats := _native_stats(record, stamina)
-	return {
+	var native_monster := {
 		"classicMonsterId": monster_id,
 		"classicMonsterNameId": int(record.get("nameId", -1)),
 		"classicDeathMacro": int(record.get("deathMacro", 0)),
@@ -275,6 +277,54 @@ func _native_monster(
 			"spells": native_spells.get("entries", []),
 		},
 		"scripts": {"default": "test_crea_script.gd"},
+	}
+	for field_name: String in native_requirements.get("fields", {}):
+		native_monster[field_name] = native_requirements["fields"][field_name]
+	return native_monster
+
+
+func _native_weapon_requirements(
+	record: Dictionary,
+	item_book: Dictionary,
+	item_texts: Array,
+	item_mapping: Dictionary
+) -> Dictionary:
+	var fields := {}
+	var unsupported_fields: Array[String] = []
+	var fidelity_fallbacks: Array[String] = []
+	# Realmz names this field "distance", but its attack code treats it as a
+	# required blunt, sharp, or exact weapon identity.
+	var required_weapon := int(record.get("distance", 0))
+	if required_weapon in [-2, -1]:
+		fields["classicRequiredWeaponKind"] = (
+			"blunt" if required_weapon == -1 else "sharp"
+		)
+	elif required_weapon < -2:
+		unsupported_fields.append("distance")
+	elif required_weapon > 0:
+		var item_name := _item_resource_key(
+			required_weapon,
+			item_book,
+			item_texts,
+			item_mapping
+		)
+		if item_name.is_empty():
+			unsupported_fields.append("distance")
+		else:
+			fields["classicRequiredWeaponItemId"] = required_weapon
+			fields["classicRequiredWeaponName"] = item_name
+
+	var required_magic_plus := int(record.get("magicToHit", 0))
+	if required_magic_plus < 0:
+		unsupported_fields.append("magicToHit")
+	elif required_magic_plus > 0:
+		fields["classicRequiredMagicPlus"] = required_magic_plus
+	if not fields.is_empty():
+		fidelity_fallbacks.append("weaponRequirementsUseNativeMissFeedback")
+	return {
+		"fields": fields,
+		"unsupportedFields": unsupported_fields,
+		"fidelityFallbacks": fidelity_fallbacks,
 	}
 
 
@@ -416,7 +466,8 @@ func _native_stats(record: Dictionary, stamina: int) -> Dictionary:
 		# These reproduce Classic's base 50% + 5% per point opposed roll.
 		"AccuracyMelee": hit_dice + damage_bonus,
 		"AccuracyRanged": hit_dice + damage_bonus,
-		"AccuracyMagic": int(record.get("magicToHit", 0)),
+		# magicToHit is a required weapon enchantment, not spell accuracy.
+		"AccuracyMagic": 0,
 		"EvasionMelee": int(record.get("armor", 0)),
 		"EvasionRanged": int(record.get("armor", 0)),
 		"EvasionMagic": int(record.get("magicResistance", 0)),
@@ -524,15 +575,15 @@ func _unsupported_fields(
 	record: Dictionary,
 	native_inventory: Dictionary,
 	native_spells: Dictionary,
-	native_attacks: Dictionary
+	native_attacks: Dictionary,
+	native_requirements: Dictionary
 ) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_SCALAR_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
 			fields.append(field_name)
-	for field_name: String in ["conditions", "underneath"]:
-		if _array_has_nonzero(record.get(field_name, [])):
-			fields.append(field_name)
+	if _array_has_nonzero(record.get("conditions", [])):
+		fields.append("conditions")
 	for field_name: String in native_inventory.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
@@ -540,6 +591,9 @@ func _unsupported_fields(
 		if not fields.has(field_name):
 			fields.append(field_name)
 	for field_name: String in native_attacks.get("unsupportedFields", []):
+		if not fields.has(field_name):
+			fields.append(field_name)
+	for field_name: String in native_requirements.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
 	var saves := _integer_array(record.get("saves", []), 6)

@@ -96,6 +96,16 @@ func _run_smoke() -> void:
 		13,
 		"native creature loading retains Classic attack metadata"
 	)
+	_expect_equal(
+		elemental_attacker.get_meta("classic_required_weapon_kind", ""),
+		"blunt",
+		"native creature loading retains the Classic weapon requirement"
+	)
+	_expect_equal(
+		elemental_attacker.get_meta("classic_required_magic_plus", 0),
+		2,
+		"native creature loading retains the Classic magic-plus requirement"
+	)
 	var weapon_user: Creature = GameGlobal.combatCreatureGD.new()
 	weapon_user.initialize_from_bestiary_dict("Classic Monster 3")
 	_expect_equal(
@@ -124,6 +134,13 @@ func _run_smoke() -> void:
 		),
 		"blunt",
 		"equipped scenario weapon retains its Classic weapon classification"
+	)
+	_expect_equal(
+		weapon_user.current_melee_weapons[0].get("extra_data", {}).get(
+			"classicMagicPlus"
+		),
+		2,
+		"equipped scenario weapon retains its Classic magic plus"
 	)
 	_expect_equal(
 		weapon_user.current_melee_weapons[0].get("weapon_tag_bonus_dmg", {}).get(
@@ -187,6 +204,36 @@ func _run_smoke() -> void:
 		weapon_damage.get("Bonus_dmg"),
 		2,
 		"native combat applies the generated Classic weapon magic-plus"
+	)
+	_expect(
+		GameGlobal.calculate_melee_accuracy(
+			weapon_user,
+			elemental_attacker,
+			weapon_user.current_melee_weapons[0]
+		) > 0.0,
+		"qualifying Classic weapon reaches native melee accuracy"
+	)
+	var sharp_weapon: Dictionary = weapon_user.current_melee_weapons[0].duplicate(true)
+	sharp_weapon["extra_data"]["classicWeaponKind"] = "sharp"
+	_expect_equal(
+		GameGlobal.calculate_melee_accuracy(
+			weapon_user,
+			elemental_attacker,
+			sharp_weapon
+		),
+		0.0,
+		"wrong Classic weapon kind cannot hit the generated monster"
+	)
+	var weak_weapon: Dictionary = weapon_user.current_melee_weapons[0].duplicate(true)
+	weak_weapon["extra_data"]["classicMagicPlus"] = 1
+	_expect_equal(
+		GameGlobal.calculate_melee_accuracy(
+			weapon_user,
+			elemental_attacker,
+			weak_weapon
+		),
+		0.0,
+		"insufficient Classic weapon magic plus cannot hit the generated monster"
 	)
 	var fixed_tag_weapon: Dictionary = (
 		weapon_user.current_melee_weapons[0].duplicate(true)
@@ -601,6 +648,8 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	elemental_monster["magicAttackCount"] = 0
 	elemental_monster["castPercent"] = 0
 	elemental_monster["attacks"][0][3] = 13
+	elemental_monster["distance"] = -1
+	elemental_monster["magicToHit"] = 2
 	content["monsters"].append(elemental_monster)
 	var weapon_monster: Dictionary = elemental_monster.duplicate(true)
 	weapon_monster["id"] = 3

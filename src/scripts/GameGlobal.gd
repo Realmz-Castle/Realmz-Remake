@@ -22,6 +22,9 @@ const ClassicCampaignSessionScript = preload(
 const ClassicGodotCommandAdapterScript = preload(
 	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
 )
+const ClassicMonsterWeaponRulesScript = preload(
+	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
+)
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
@@ -962,6 +965,8 @@ func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon :
 	#var weapon : Dictionary = attacker.current_melee_weapons[weapon_index]
 	var accuracy : float = 0.0
 	var evasion : float = 0.0
+	if not ClassicMonsterWeaponRulesScript.can_hit(attacker, defender, weapon):
+		return 0.0
 	if weapon.has("_calculate_melee_accuracy_source") and should_check_script :
 		#print("GameGlobal calculate_melee_accuracy USE CUSTOM ACC STRIPT")
 		return weapon["_calculate_melee_accuracy"]._calculate_melee_accuracy(attacker,defender, weapon)

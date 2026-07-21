@@ -409,6 +409,7 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 			fields["weapon_dmg"] = damage
 			fields["melee_atk_anim_icon"] = "ATK_WPN"
 			fields["extra_data"] = {
+				"classicMagicPlus": magic_plus,
 				"classicWeaponDamage": {
 					"small": small_damage,
 					"large": large_damage,
