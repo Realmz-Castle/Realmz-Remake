@@ -2453,20 +2453,38 @@ func _test_classic_item_materializer() -> void:
 		"complete",
 		"fully mapped fixture item is launchable"
 	)
-
-	var native_resources = NativeResourcesScript.new()
-	native_resources.load_item_resources("res://shared_assets/items/")
-	native_resources.load_item_resources(test_root.path_join("Items") + "/")
-	_expect(
-		native_resources.items_book.has("Classic Item 901"),
-		"normal resource lifecycle loads the generated campaign item"
+	var weapon_record: Dictionary = bundle.documents[
+		"content"
+	]["scenarioItems"][0].duplicate(true)
+	weapon_record["itemId"] = 150
+	weapon_record["type"] = 2
+	weapon_record["hands"] = 1
+	weapon_record["vSmall"] = 6
+	weapon_record["vLarge"] = 6
+	var weapon: Dictionary = materializer._native_item(weapon_record, [])
+	_expect_equal(
+		weapon.get("weapon_dmg", {}).get("Physical"),
+		[1, 6],
+		"matching Classic weapon dice map to native physical damage"
 	)
 	_expect_equal(
-		native_resources.items_book.get("Classic Item 901", {}).get("classicItemId"),
-		901,
-		"loaded campaign item retains its stable Classic identity"
+		weapon.get("extra_data", {}).get("classicWeaponDamage"),
+		{"small": 6, "large": 6},
+		"native weapon retains both Classic damage ranges"
 	)
-	native_resources.free()
+	_expect_equal(
+		weapon.get("classicMaterialization", {}).get("unsupportedFields"),
+		[],
+		"matching small and large damage ranges remain launchable"
+	)
+	var size_split_record := weapon_record.duplicate(true)
+	size_split_record["vLarge"] = 8
+	_expect(
+		materializer._native_item(size_split_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("vLarge"),
+		"size-dependent Classic weapon damage remains an explicit blocker"
+	)
 	var readiness: Dictionary = ReadinessScript.new().inspect(bundle, {"items": item_book})
 	_expect(
 		not _readiness_has_reference_diagnostic(

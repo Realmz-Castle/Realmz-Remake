@@ -30,8 +30,6 @@ const UNSUPPORTED_EFFECT_FIELDS := [
 	"specificRace",
 	"spellPoints",
 	"st",
-	"vLarge",
-	"vSmall",
 	"vsDemonDevil",
 	"vsEvil",
 	"vsUndead",
@@ -154,12 +152,13 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 		unidentified_name = identified_name
 	var classic_type: int = abs(int(record.get("type", 0)))
 	var category := _category_for_item(item_id)
-	var unsupported_fields := _unsupported_fields(record)
+	var native_weapon := _native_weapon(record, classic_type)
+	var unsupported_fields := _unsupported_fields(record, native_weapon)
 	var charge := int(record.get("charge", 0))
 	var slots: Array[String] = []
 	if SLOT_BY_CLASSIC_TYPE.has(classic_type):
 		slots.append(str(SLOT_BY_CLASSIC_TYPE[classic_type]))
-	return {
+	var native_item := {
 		"name": identified_name,
 		"unidentified_name": unidentified_name,
 		"description": str(item_text.get("description", "")),
@@ -194,6 +193,9 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 		"tradeable": 1,
 		"splittable": 0,
 	}
+	for field_name: String in native_weapon.get("fields", {}):
+		native_item[field_name] = native_weapon["fields"][field_name]
+	return native_item
 
 
 func _item_text(item_texts: Array, item_id: int) -> Dictionary:
@@ -215,10 +217,43 @@ func _category_for_item(item_id: int) -> String:
 	return "Supplies"
 
 
-func _unsupported_fields(record: Dictionary) -> Array[String]:
+func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
+	var fields := {}
+	var unsupported_fields: Array[String] = []
+	var small_damage := int(record.get("vSmall", 0))
+	var large_damage := int(record.get("vLarge", 0))
+	if classic_type != 2:
+		if small_damage != 0:
+			unsupported_fields.append("vSmall")
+		if large_damage != 0:
+			unsupported_fields.append("vLarge")
+		return {"fields": fields, "unsupportedFields": unsupported_fields}
+
+	if small_damage < 1:
+		unsupported_fields.append("vSmall")
+	if large_damage < 1 or large_damage != small_damage:
+		unsupported_fields.append("vLarge")
+	if small_damage > 0:
+		fields = {
+			"weapon_dmg": {"Physical": [1, small_damage]},
+			"melee_atk_anim_icon": "ATK_WPN",
+			"extra_data": {
+				"classicWeaponDamage": {
+					"small": small_damage,
+					"large": large_damage,
+				},
+			},
+		}
+	return {"fields": fields, "unsupportedFields": unsupported_fields}
+
+
+func _unsupported_fields(record: Dictionary, native_weapon: Dictionary) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_EFFECT_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
+			fields.append(field_name)
+	for field_name: String in native_weapon.get("unsupportedFields", []):
+		if not fields.has(field_name):
 			fields.append(field_name)
 	var classic_type: int = abs(int(record.get("type", 0)))
 	if SLOT_BY_CLASSIC_TYPE.has(classic_type):

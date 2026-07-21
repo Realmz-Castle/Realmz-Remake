@@ -68,6 +68,10 @@ func _run_smoke() -> void:
 		resources.items_book.has("Classic Item 901"),
 		"normal campaign resources load the generated scenario item"
 	)
+	_expect(
+		resources.items_book.has("Classic Item 150"),
+		"normal campaign resources load the generated scenario weapon"
+	)
 	var elemental_attacker: Creature = GameGlobal.combatCreatureGD.new()
 	elemental_attacker.initialize_from_bestiary_dict("Classic Monster 2")
 	_expect_equal(
@@ -81,6 +85,30 @@ func _run_smoke() -> void:
 		).get("classicSpecialAttack"),
 		11,
 		"native creature loading retains Classic attack metadata"
+	)
+	var weapon_user: Creature = GameGlobal.combatCreatureGD.new()
+	weapon_user.initialize_from_bestiary_dict("Classic Monster 3")
+	_expect_equal(
+		weapon_user.current_melee_weapons[0].get("classicItemId"),
+		150,
+		"native creature equips the generated scenario weapon"
+	)
+	_expect_equal(
+		weapon_user.current_melee_weapons[0].get("weapon_dmg", {}).get("Physical"),
+		[1.0, 6.0],
+		"equipped scenario weapon retains its native physical damage"
+	)
+	var weapon_damage: Dictionary = GameGlobal.calculate_melee_damage(
+		weapon_user,
+		elemental_attacker,
+		weapon_user.current_melee_weapons[0],
+		false,
+		1.0
+	)
+	_expect(
+		float(weapon_damage.get("Physical", 0)) >= 1.0 \
+			and float(weapon_damage.get("Physical", 0)) <= 6.0,
+		"native combat rolls the generated Classic weapon range"
 	)
 
 	var bundle = BundleScript.new()
@@ -216,6 +244,23 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	content["monsters"][0]["spells"] = [1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0]
 	content["monsters"][0]["magicAttackCount"] = 2
 	content["monsters"][0]["castPercent"] = 75
+	var weapon_record: Dictionary = content["scenarioItems"][0].duplicate(true)
+	weapon_record["id"] = 102
+	weapon_record["itemId"] = 150
+	weapon_record["type"] = 2
+	weapon_record["hands"] = 1
+	weapon_record["weight"] = 12
+	weapon_record["cost"] = 40
+	weapon_record["vSmall"] = 6
+	weapon_record["vLarge"] = 6
+	content["scenarioItems"].append(weapon_record)
+	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)
+	weapon_text["id"] = 150
+	weapon_text["itemId"] = 150
+	weapon_text["identifiedName"] = "Providence Blade"
+	weapon_text["unidentifiedName"] = "Plain Blade"
+	weapon_text["description"] = "A producer-derived scenario weapon."
+	content["itemTexts"].append(weapon_text)
 	var elemental_monster: Dictionary = content["monsters"][0].duplicate(true)
 	elemental_monster["id"] = 2
 	elemental_monster["nameId"] = 2
@@ -227,6 +272,14 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	elemental_monster["castPercent"] = 0
 	elemental_monster["attacks"][0][3] = 11
 	content["monsters"].append(elemental_monster)
+	var weapon_monster: Dictionary = elemental_monster.duplicate(true)
+	weapon_monster["id"] = 3
+	weapon_monster["nameId"] = 3
+	weapon_monster["displayName"] = "Providence Duelist"
+	weapon_monster["items"] = [150, 0, 0, 0, 0, 0]
+	weapon_monster["weapon"] = 150
+	weapon_monster["attacks"][0][3] = 0
+	content["monsters"].append(weapon_monster)
 	var content_file := FileAccess.open(content_path, FileAccess.WRITE)
 	_expect(content_file != null, "ally smoke writes the derived monster inventory")
 	if content_file == null:
