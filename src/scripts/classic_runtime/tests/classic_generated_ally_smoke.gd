@@ -149,6 +149,25 @@ func _run_smoke() -> void:
 	)
 	var fighter: GDScript = load("res://Data/Character Classes/Class_Fighter.gd")
 	var human: GDScript = load("res://Data/Character Races/Race_Human.gd")
+	var native_stat_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+		{"name": "Native Equipment Fixture", "level": 0},
+		null,
+		null,
+		fighter,
+		human
+	)
+	var native_shield: Dictionary = resources.items_book["Shield"].duplicate(true)
+	var native_evasion_before: int = native_stat_character.get_stat("EvasionMelee")
+	native_stat_character.inventory.append(native_shield)
+	_expect(
+		native_stat_character.equip_item(native_shield),
+		"native equipment-stat fixture equips its shared shield"
+	)
+	_expect_equal(
+		native_stat_character.get_stat("EvasionMelee"),
+		native_evasion_before + int(native_shield["stats"]["EvasionMelee"]),
+		"native equipment applies its declared stat once"
+	)
 	var player_weapon: Dictionary = resources.items_book[
 		"Classic Item 150"
 	].duplicate(true)

@@ -354,14 +354,12 @@ func recalculate_stats() :
 	for e in  inventory :
 		if e["equipped"] == 1 :
 			for s in e["stats"] :
-				if not NOTREALSTATS.has(s) :
-					stats[s] += e["stats"][s]
 				if s.begins_with("Multiplier") :
 					if stats[s]>=0 and e["stats"][s]>=0 :
 						stats[s] *= e["stats"][s]
 					else :
 						stats[s] = -absf(e["stats"][s] * stats[s])
-				else :
+				elif not NOTREALSTATS.has(s) :
 					stats[s] += e["stats"][s]
 	for t in traits :
 		for s in stats :
