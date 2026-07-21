@@ -35,6 +35,59 @@
         {"sourceFile": "Data MD", "recordIndex": 74},
         {"sourceFile": "Data MD", "recordIndex": 88}
       ]
+    },
+    {
+      "id": "city-of-bywater-charm-foe-1501",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant", "complex-response"],
+      "sourceRecords": [
+        {"sourceFile": "Data MD", "recordIndex": 31},
+        {"sourceFile": "Data MD", "recordIndex": 88},
+        {"sourceFile": "Data ED2", "recordIndex": 1}
+      ]
+    },
+    {
+      "id": "city-of-bywater-fearful-thoughts-2103",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant"],
+      "sourceRecords": [
+        {"sourceFile": "Data MD", "recordIndex": 19},
+        {"sourceFile": "Data MD", "recordIndex": 52},
+        {"sourceFile": "Data MD", "recordIndex": 111},
+        {"sourceFile": "Data MD", "recordIndex": 116},
+        {"sourceFile": "Data MD", "recordIndex": 121}
+      ]
+    },
+    {
+      "id": "city-of-bywater-soul-bind-2111",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant"],
+      "sourceRecords": [
+        {"sourceFile": "Data MD", "recordIndex": 19},
+        {"sourceFile": "Data MD", "recordIndex": 111},
+        {"sourceFile": "Data MD", "recordIndex": 116},
+        {"sourceFile": "Data MD", "recordIndex": 134},
+        {"sourceFile": "Data MD", "recordIndex": 135}
+      ]
+    },
+    {
+      "id": "city-of-bywater-charm-foe-2201",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant", "complex-response"],
+      "sourceRecords": [
+        {"sourceFile": "Data MD", "recordIndex": 19},
+        {"sourceFile": "Data MD", "recordIndex": 52},
+        {"sourceFile": "Data MD", "recordIndex": 116},
+        {"sourceFile": "Data ED2", "recordIndex": 1}
+      ]
+    },
+    {
+      "id": "city-of-bywater-charm-foe-3603",
+      "scenario": "City of Bywater",
+      "contexts": ["complex-response"],
+      "sourceRecords": [
+        {"sourceFile": "Data ED2", "recordIndex": 1}
+      ]
     }
   ],
   "spells": [
@@ -196,6 +249,36 @@
       }
     },
     {
+      "classicSpellId": 1501,
+      "displayName": "Charm Foe",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/charm_foe.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 60,
+        "byteOffset": 1800,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-charm-foe-1501",
+          "slots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "lineOfSight": false,
+        "duration": "battle",
+        "saveMode": "none",
+        "resistance": "classic-general",
+        "special": 51,
+        "adapter": "classic-battle-charm-trait",
+        "costPerPower": 15
+      }
+    },
+    {
       "classicSpellId": 2102,
       "displayName": "Discover Magic",
       "classification": "native-special-adapter",
@@ -223,6 +306,98 @@
       }
     },
     {
+      "classicSpellId": 2103,
+      "displayName": "Fearful Thoughts",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/fearful_thoughts.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 107,
+        "byteOffset": 3210,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-fearful-thoughts-2103",
+          "slots": [0, 1, 2, 3, 8, 9]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "lineOfSight": true,
+        "duration": "one-round-per-power",
+        "saveMode": "negate",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "special": 1,
+        "adapter": "native-fleeing-trait",
+        "costPerPower": 10
+      }
+    },
+    {
+      "classicSpellId": 2111,
+      "displayName": "Soul Bind",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/soul_bind.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 115,
+        "byteOffset": 3450,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-soul-bind-2111",
+          "slots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "lineOfSight": false,
+        "duration": "two-to-four-rounds",
+        "saveMode": "negate",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "special": 53,
+        "adapter": "native-helpless-trait",
+        "costPerPower": 15
+      }
+    },
+    {
+      "classicSpellId": 2201,
+      "displayName": "Charm Foe",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/charm_foe.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 120,
+        "byteOffset": 3600,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-charm-foe-2201",
+          "slots": [0, 1, 2, 3, 4, 6, 7, 8, 9]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "lineOfSight": false,
+        "duration": "battle",
+        "saveMode": "none",
+        "resistance": "classic-general",
+        "special": 51,
+        "adapter": "classic-battle-charm-trait",
+        "costPerPower": 15
+      }
+    },
+    {
       "classicSpellId": 3102,
       "displayName": "Discover Magic",
       "classification": "native-special-adapter",
@@ -247,6 +422,36 @@
         "special": 63,
         "adapter": "native-magical-item-report",
         "costPerPower": 1
+      }
+    },
+    {
+      "classicSpellId": 3603,
+      "displayName": "Charm Foe",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_charm_foe_enchanter.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 287,
+        "byteOffset": 8610,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-charm-foe-3603",
+          "slots": [4]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "lineOfSight": false,
+        "duration": "battle",
+        "saveMode": "none",
+        "resistance": "classic-general",
+        "special": 51,
+        "adapter": "classic-battle-charm-trait",
+        "costPerPower": 30
       }
     }
   ]

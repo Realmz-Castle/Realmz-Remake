@@ -413,6 +413,35 @@ class ConditionTestCharacter:
 		current_hp += change
 
 
+class CharmTestCharacter:
+	extends RefCounted
+	var name: String
+	var baseFaction: int
+	var curFaction: int
+	var traits: Array = []
+
+	func _init(character_name: String, faction: int) -> void:
+		name = character_name
+		baseFaction = faction
+		curFaction = faction
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		if trait_instance.has_method("_on_remove_trait"):
+			trait_instance._on_remove_trait(self, trait_instance)
+		traits.erase(trait_instance)
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -6928,6 +6957,83 @@ func _test_city_spell_coverage() -> void:
 	_expect(saved.get("saved"), "Flame Spikes' +10 save bonus is executable")
 	_expect_equal(saved.get("effectScale"), 0.5, "Flame Spikes save halves damage")
 
+	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
+	var enchanter_charm = load(
+		"res://shared_assets/spells/classic_charm_foe_enchanter.gd"
+	).new()
+	_expect_equal(charm_foe.classic_spell_ids, [1501, 2201], "Charm Foe exact IDs")
+	_expect_equal(
+		charm_foe.classic_spell_response_ids,
+		[1501, 2201, 3603],
+		"learned Charm Foe answers all equivalent encounter variants"
+	)
+	_expect_equal(charm_foe.classic_spell_save_index, -1, "Charm Foe has no DRV save")
+	_expect(not charm_foe.los, "Charm Foe keeps its no-LOS range")
+	_expect_equal(charm_foe.get_range(7, null), 8, "Charm Foe keeps its range")
+	_expect_equal(charm_foe.get_sp_cost(3, null), 45, "Charm Foe cost scales")
+	_expect_equal(enchanter_charm.classic_spell_ids, [3603], "Enchanter Charm exact ID")
+	_expect_equal(enchanter_charm.schools, [], "exact Enchanter variant stays hidden")
+	_expect_equal(
+		enchanter_charm.get_sp_cost(3, null),
+		90,
+		"Enchanter Charm preserves its distinct cost"
+	)
+	var charm_caster := CharmTestCharacter.new("Caster", 0)
+	var charmed_target := CharmTestCharacter.new("Target", 1)
+	charm_foe.add_traits_to_creature(charm_caster, charmed_target, 1)
+	_expect_equal(charmed_target.curFaction, 0, "Charm Foe adopts the caster's faction")
+	_expect_equal(charmed_target.traits.size(), 1, "Charm Foe applies one battle trait")
+	var second_charmer := CharmTestCharacter.new("Second caster", 2)
+	charmed_target.add_trait(
+		load("res://shared_assets/traits/t_classic_charmed.gd"),
+		[second_charmer]
+	)
+	_expect_equal(charmed_target.curFaction, 2, "recasting Charm updates the allegiance")
+	charmed_target.traits[0]._on_battle_end(charmed_target)
+	_expect_equal(charmed_target.curFaction, 1, "Charm restores the base faction after battle")
+	_expect(charmed_target.traits.is_empty(), "battle cleanup removes Classic Charm")
+
+	var fearful_thoughts = load("res://shared_assets/spells/fearful_thoughts.gd").new()
+	_expect_equal(fearful_thoughts.classic_spell_ids, [2103], "Fearful Thoughts exact ID")
+	_expect_equal(fearful_thoughts.classic_spell_class, 5, "Fearful Thoughts class")
+	_expect_equal(fearful_thoughts.classic_spell_save_index, 5, "Fearful Thoughts save")
+	_expect_equal(
+		fearful_thoughts.classic_spell_save_mode,
+		"negate",
+		"Fearful Thoughts is negated by a successful save"
+	)
+	_expect(fearful_thoughts.los, "Fearful Thoughts requires line of sight")
+	_expect_equal(fearful_thoughts.get_range(7, null), 8, "Fearful Thoughts range")
+	_expect_equal(fearful_thoughts.get_duration_roll(3, null), 3, "fear lasts by power")
+	_expect_equal(fearful_thoughts.get_sp_cost(3, null), 30, "Fearful Thoughts cost")
+	var fleeing_target := ConditionTestCharacter.new("Fleeing target")
+	fearful_thoughts.add_traits_to_creature(null, fleeing_target, 3)
+	_expect(
+		str(fleeing_target.traits[0].name).ends_with("t_fleeing.gd"),
+		"Fearful Thoughts uses Remake's fleeing behavior"
+	)
+	_expect_equal(fleeing_target.traits[0].power, 3, "Fearful Thoughts passes its duration")
+
+	var soul_bind = load("res://shared_assets/spells/soul_bind.gd").new()
+	_expect_equal(soul_bind.classic_spell_ids, [2111], "Soul Bind exact ID")
+	_expect_equal(soul_bind.classic_spell_class, 5, "Soul Bind class")
+	_expect_equal(soul_bind.classic_spell_save_index, 5, "Soul Bind save")
+	_expect(not soul_bind.los, "Soul Bind keeps its no-LOS range")
+	_expect_equal(soul_bind.get_range(7, null), 8, "Soul Bind range")
+	_expect_equal(soul_bind.get_min_duration(7, null), 2, "Soul Bind minimum duration")
+	_expect_equal(soul_bind.get_max_duration(1, null), 4, "Soul Bind maximum duration")
+	_expect_equal(soul_bind.get_sp_cost(3, null), 45, "Soul Bind cost")
+	var helpless_target := ConditionTestCharacter.new("Helpless target")
+	soul_bind.add_traits_to_creature(null, helpless_target, 7)
+	_expect(
+		str(helpless_target.traits[0].name).ends_with("t_helpless.gd"),
+		"Soul Bind uses Remake's helpless behavior"
+	)
+	_expect(
+		helpless_target.traits[0].power >= 2 and helpless_target.traits[0].power <= 4,
+		"Soul Bind passes its source duration roll"
+	)
+
 	var matrix: Variant = JSON.parse_string(FileAccess.get_file_as_string(
 		"res://scripts/classic_runtime/classic_spell_support_matrix.json"
 	))
@@ -6955,7 +7061,10 @@ func _test_city_spell_coverage() -> void:
 			matrix_ids.sort()
 			_expect_equal(
 				matrix_ids,
-				[1101, 1102, 1103, 1104, 1111, 1203, 2102, 3102],
+				[
+					1101, 1102, 1103, 1104, 1111, 1203, 1501,
+					2102, 2103, 2111, 2201, 3102, 3603,
+				],
 				"source-verified City spell matrix is complete"
 			)
 
