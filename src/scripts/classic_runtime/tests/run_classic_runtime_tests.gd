@@ -6963,7 +6963,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		33,
+		40,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -6978,7 +6978,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		57,
+		50,
 		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
@@ -7011,6 +7011,11 @@ func _test_classic_spell_coverage() -> void:
 		"reviewed generic damage spells are supported"
 	)
 	_expect_equal(
+		coverage_by_id.get(1303, {}).get("coverageStatus"),
+		"supported",
+		"reviewed generic ray spells are supported"
+	)
+	_expect_equal(
 		coverage_by_id.get(1105, {}).get("coverageStatus"),
 		"special-implementation-required",
 		"unresolved special records remain explicit implementation work"
@@ -7018,7 +7023,7 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 19, "core catalog registers each verified generic spell")
+	_expect_equal(core_spell_book.size(), 26, "core catalog registers each verified generic spell")
 	_expect_equal(
 		core_spell_book.get("Frozen Palm", {}).get("classicSpellIds"),
 		[1204],
@@ -7217,6 +7222,35 @@ func _test_classic_spell_coverage() -> void:
 		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
 		_expect_equal(spell.classic_spell_save_mode, expected[6], "%s save mode" % label)
 
+	var generic_ray_expectations := {
+		1303: ["Deep Freeze", 10, 3, 30, 45, 2, false],
+		1504: ["Flash", 10, 6, 45, 90, 6, true],
+		1701: ["Arctic Wind", 15, 60, 120, 180, 2, false],
+		3207: ["Heat Ray", 6, 2, 8, 30, 1, true],
+		3301: ["Acid Splash", 9, 6, 18, 30, 4, true],
+		3308: ["Lightning Bolt", 6, 3, 18, 30, 3, true],
+		3712: ["Vapor Trail", 6, 40, 65, 135, 4, false],
+	}
+	for spell_id: int in generic_ray_expectations:
+		var expected: Array = generic_ray_expectations[spell_id]
+		var spell = CoreSpellCatalogScript.spell(spell_id)
+		var label := str(expected[0])
+		_expect(spell != null, "%s is executable" % label)
+		_expect(spell.supports_classic_spell_id(spell_id), "%s exports its exact ID" % label)
+		_expect(spell.ray, "%s uses ray targeting" % label)
+		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
+		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
+		_expect_equal(spell.get_max_damage(3, null), expected[3], "%s maximum damage" % label)
+		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
+		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, "half_damage", "%s save mode" % label)
+		_expect_equal(spell.los, expected[6], "%s line-of-sight rule" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE,
+			"%s checks Classic general resistance" % label
+		)
+
 	var shiver = CoreSpellCatalogScript.spell(1212)
 	_expect(shiver.skip_targeting, "Shiver needs no target selection")
 	_expect_equal(
@@ -7387,9 +7421,9 @@ func _test_classic_spell_coverage() -> void:
 				matrix_ids,
 				[
 					1101, 1102, 1103, 1104, 1108, 1111, 1203, 1204, 1209, 1211,
-					1212, 1306, 1310, 1401, 1402, 1408, 1501, 1505, 2101, 2102,
-					2103, 2111, 2201, 3102, 3105, 3208, 3211, 3311, 3401, 3409,
-					3506, 3603, 3704,
+					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
+					1701, 2101, 2102, 2103, 2111, 2201, 3102, 3105, 3207, 3208,
+					3211, 3301, 3308, 3311, 3401, 3409, 3506, 3603, 3704, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)

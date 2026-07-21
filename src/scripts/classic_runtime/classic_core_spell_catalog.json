@@ -308,6 +308,21 @@
       "description": "Shiver: Deals 1-2 cold damage per power to every enemy."
     },
     {
+      "packedSpellId": 1303,
+      "resourceKey": "Deep Freeze",
+      "lineOfSight": false,
+      "ray": true,
+      "elements": [1],
+      "tags": ["Magical", "Ice"],
+      "schools": ["Sorcerer"],
+      "schoolLevels": {"Sorcerer": 3, "Priest": 0, "Enchanter": 0},
+      "selectionCosts": {"Sorcerer": 6, "Priest": 0, "Enchanter": 0},
+      "projectileTexture": 8,
+      "projectileHit": 8,
+      "sounds": ["wind.wav", "electric energize.wav"],
+      "description": "Deep Freeze: Deals 1-10 cold damage per power along a range-10 ray without requiring line of sight."
+    },
+    {
       "packedSpellId": 1306,
       "resourceKey": "Fireball",
       "displayName": "Fireball",
@@ -503,6 +518,21 @@
       "description": "Flame Tongue: Deals 8-16 fire damage along a ray with range 2 per power."
     },
     {
+      "packedSpellId": 1504,
+      "resourceKey": "Flash",
+      "lineOfSight": true,
+      "ray": true,
+      "elements": [9],
+      "tags": ["Magical"],
+      "schools": ["Sorcerer"],
+      "schoolLevels": {"Sorcerer": 5, "Priest": 0, "Enchanter": 0},
+      "selectionCosts": {"Sorcerer": 15, "Priest": 0, "Enchanter": 0},
+      "projectileTexture": 10,
+      "projectileHit": 4,
+      "sounds": ["spell launch 1.wav", "dingy ray gun.wav"],
+      "description": "Flash: Deals 2-15 magical damage per power along a range-10 ray."
+    },
+    {
       "packedSpellId": 1505,
       "resourceKey": "Frostbite",
       "elements": [1],
@@ -514,6 +544,21 @@
       "projectileHit": 8,
       "sounds": ["bloop.wav", "electric energize.wav"],
       "description": "Frostbite: Deals 10-20 cold damage per power at touch range."
+    },
+    {
+      "packedSpellId": 1701,
+      "resourceKey": "Arctic Wind",
+      "lineOfSight": false,
+      "ray": true,
+      "elements": [1],
+      "tags": ["Magical", "Ice"],
+      "schools": ["Sorcerer"],
+      "schoolLevels": {"Sorcerer": 7, "Priest": 0, "Enchanter": 0},
+      "selectionCosts": {"Sorcerer": 28, "Priest": 0, "Enchanter": 0},
+      "projectileTexture": 8,
+      "projectileHit": 8,
+      "sounds": ["wind.wav", "electric energize.wav"],
+      "description": "Arctic Wind: Deals 20-40 cold damage per power along a range-15 ray without requiring line of sight."
     },
     {
       "packedSpellId": 2101,
@@ -543,6 +588,21 @@
       "description": "Lightning Strike: Deals 1-6 electrical damage per power without requiring line of sight."
     },
     {
+      "packedSpellId": 3207,
+      "resourceKey": "Heat Ray",
+      "lineOfSight": true,
+      "ray": true,
+      "elements": [0],
+      "tags": ["Magical", "Fire"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 2},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 3},
+      "projectileTexture": 5,
+      "projectileHit": 5,
+      "sounds": ["spell launch 1.wav", "small explode.wav"],
+      "description": "Heat Ray: Deals 2-8 fire damage along a ray with range 2 per power."
+    },
+    {
       "packedSpellId": 3211,
       "resourceKey": "Steel Rain",
       "elements": [9],
@@ -554,6 +614,36 @@
       "projectileHit": 4,
       "sounds": ["lightning.wav", "sting.wav"],
       "description": "Steel Rain: Deals 2-8 damage in an area that grows with power."
+    },
+    {
+      "packedSpellId": 3301,
+      "resourceKey": "Acid Splash",
+      "lineOfSight": true,
+      "ray": true,
+      "elements": [4],
+      "tags": ["Magical", "Chemical"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 3},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 6},
+      "projectileTexture": 6,
+      "projectileHit": 11,
+      "sounds": ["big splat.wav", "slimed.wav"],
+      "description": "Acid Splash: Deals 2-6 chemical damage per power along a ray with range 3 per power."
+    },
+    {
+      "packedSpellId": 3308,
+      "resourceKey": "Lightning Bolt",
+      "lineOfSight": true,
+      "ray": true,
+      "elements": [2],
+      "tags": ["Magical", "Electric"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 3},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 6},
+      "projectileTexture": 13,
+      "projectileHit": 9,
+      "sounds": ["lightning.wav", "prout.wav"],
+      "description": "Lightning Bolt: Deals 3-18 electrical damage along a ray with range 2 per power."
     },
     {
       "packedSpellId": 3401,
@@ -607,6 +697,21 @@
       "projectileHit": 15,
       "sounds": ["dididup.wav", "prout.wav"],
       "description": "Mind Rash: Deals 4-7 plus 4-7 mental damage per power to every enemy."
+    },
+    {
+      "packedSpellId": 3712,
+      "resourceKey": "Vapor Trail",
+      "lineOfSight": false,
+      "ray": true,
+      "elements": [4],
+      "tags": ["Magical", "Chemical"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 7},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 28},
+      "projectileTexture": 6,
+      "projectileHit": 6,
+      "sounds": ["wind.wav", "big splat.wav"],
+      "description": "Vapor Trail: Deals 40-65 chemical damage along a ray with range 2 per power without requiring line of sight."
     }
   ]
 }

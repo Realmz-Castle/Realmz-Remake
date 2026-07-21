@@ -52,6 +52,20 @@
       ]
     },
     {
+      "id": "core-player-spell-generic-ray-batch",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 32, "displayName": "Deep Freeze"},
+        {"sourceFile": "Data S", "recordIndex": 63, "displayName": "Flash"},
+        {"sourceFile": "Data S", "recordIndex": 90, "displayName": "Arctic Wind"},
+        {"sourceFile": "Data S", "recordIndex": 231, "displayName": "Heat Ray"},
+        {"sourceFile": "Data S", "recordIndex": 240, "displayName": "Acid Splash"},
+        {"sourceFile": "Data S", "recordIndex": 247, "displayName": "Lightning Bolt"},
+        {"sourceFile": "Data S", "recordIndex": 311, "displayName": "Vapor Trail"}
+      ]
+    },
+    {
       "id": "city-of-bywater-extra-code-375",
       "scenario": "City of Bywater",
       "contexts": ["field-party"],
@@ -471,6 +485,32 @@
       }
     },
     {
+      "classicSpellId": 1303,
+      "displayName": "Deep Freeze",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 32,
+        "byteOffset": 960,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-ray-batch", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": 10,
+        "lineOfSight": false,
+        "damage": "1-10-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 2,
+        "resistance": "classic-general",
+        "costPerPower": 15
+      }
+    },
+    {
       "classicSpellId": 1306,
       "displayName": "Fireball",
       "classification": "generic-data-driven",
@@ -648,6 +688,32 @@
       }
     },
     {
+      "classicSpellId": 1504,
+      "displayName": "Flash",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 63,
+        "byteOffset": 1890,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-ray-batch", "slots": [1]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": 10,
+        "lineOfSight": true,
+        "damage": "2-15-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 6,
+        "resistance": "classic-general",
+        "costPerPower": 30
+      }
+    },
+    {
       "classicSpellId": 1505,
       "displayName": "Frostbite",
       "classification": "generic-data-driven",
@@ -670,6 +736,32 @@
         "resistance": "none",
         "resistanceBypass": "cannot=1",
         "costPerPower": 20
+      }
+    },
+    {
+      "classicSpellId": 1701,
+      "displayName": "Arctic Wind",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 90,
+        "byteOffset": 2700,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-ray-batch", "slots": [2]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": 15,
+        "lineOfSight": false,
+        "damage": "20-40-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 2,
+        "resistance": "classic-general",
+        "costPerPower": 60
       }
     },
     {
@@ -870,6 +962,32 @@
       }
     },
     {
+      "classicSpellId": 3207,
+      "displayName": "Heat Ray",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 231,
+        "byteOffset": 6930,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-ray-batch", "slots": [3]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "two-per-power",
+        "lineOfSight": true,
+        "damage": "2-8-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 10
+      }
+    },
+    {
       "classicSpellId": 3208,
       "displayName": "Magic Darts",
       "classification": "native-compatibility-variant",
@@ -922,6 +1040,58 @@
         "saveIndex": 7,
         "resistance": "classic-general",
         "costPerPower": 7
+      }
+    },
+    {
+      "classicSpellId": 3301,
+      "displayName": "Acid Splash",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 240,
+        "byteOffset": 7200,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-ray-batch", "slots": [4]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "three-per-power",
+        "lineOfSight": true,
+        "damage": "2-6-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "costPerPower": 10
+      }
+    },
+    {
+      "classicSpellId": 3308,
+      "displayName": "Lightning Bolt",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 247,
+        "byteOffset": 7410,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-ray-batch", "slots": [5]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "two-per-power",
+        "lineOfSight": true,
+        "damage": "3-18-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 3,
+        "resistance": "classic-general",
+        "costPerPower": 10
       }
     },
     {
@@ -1085,6 +1255,32 @@
         "saveAdjustPerPower": -2,
         "resistance": "classic-general",
         "costPerPower": 90
+      }
+    },
+    {
+      "classicSpellId": 3712,
+      "displayName": "Vapor Trail",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 311,
+        "byteOffset": 9330,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-ray-batch", "slots": [6]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "two-per-power",
+        "lineOfSight": false,
+        "damage": "40-65-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "costPerPower": 45
       }
     }
   ]
