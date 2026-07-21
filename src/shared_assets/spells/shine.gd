@@ -7,13 +7,15 @@ func _init() -> void:
 	tags = ["Magical", "Light"]
 	schools = ["Sorcerer", "Priest"]
 	classic_spell_class = 8
-	classic_spell_ids = [1110]
+	classic_spell_ids = [1110, 2110]
 	classic_spell_save_index = -1
 	classic_spell_save_mode = "none"
 	targettile = TARGET_TILE.ANY
 	school_levels = {"Sorcerer": 1, "Priest": 1, "Enchanter": 0}
 	selection_costs = {"Sorcerer": 1, "Priest": 1, "Enchanter": 0}
 	in_field = true
+	skip_targeting = true
+	autotarget_type = AUTOTARGET_TYPE.SELF
 	description = "Shine:  Will cause a magical flame to illuminate dark areas."
 	proj_tex = GFX.WHIRL
 	proj_hit = GFX.TARGET
@@ -53,5 +55,8 @@ func special_effect(
 	_effected_creatures,
 	_add_terrain
 ) -> bool:
-	GameGlobal.add_light_effect(power, 1200 * power)
+	if GameGlobal.is_classic_campaign(GameGlobal.currentcampaign):
+		GameGlobal.add_classic_light_effect(power)
+	else:
+		GameGlobal.add_light_effect(power, 1200 * power)
 	return true

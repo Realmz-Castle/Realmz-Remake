@@ -19,6 +19,23 @@
       ]
     },
     {
+      "id": "core-player-spell-shine",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "field-party"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 9,
+          "displayName": "Sorcerer Shine"
+        },
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 114,
+          "displayName": "Priest Shine"
+        }
+      ]
+    },
+    {
       "id": "core-player-spell-power-drain",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -330,6 +347,39 @@
         "saveMode": "none",
         "resistance": "none-force-affect",
         "costPerPower": 4,
+        "learnedSpellIdentity": "pending ISY-426"
+      }
+    },
+    {
+      "classicSpellId": 1110,
+      "displayName": "Shine",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/shine.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 9,
+        "byteOffset": 270,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "core-player-spell-shine",
+          "slots": [0]
+        }
+      ],
+      "behavior": {
+        "targetType": "party-light",
+        "duration": "thirty-condition-points-per-power-minus-one",
+        "decay": "two-condition-points-per-reduction",
+        "reductionTriggers": ["game-hour", "combat-round"],
+        "lightPower": "condition-divided-by-thirty-plus-one",
+        "stacking": "stronger-or-longer-result-replaces-current-condition",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 50,
+        "adapter": "classic-light-condition",
+        "costPerPower": 3,
         "learnedSpellIdentity": "pending ISY-426"
       }
     },
@@ -885,6 +935,40 @@
         "resistance": "classic-general",
         "adapter": "classic-opposed-level-resistance",
         "costPerPower": 4
+      }
+    },
+    {
+      "classicSpellId": 2110,
+      "displayName": "Shine",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/shine.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 114,
+        "byteOffset": 3420,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "core-player-spell-shine",
+          "slots": [1]
+        }
+      ],
+      "behavior": {
+        "targetType": "party-light",
+        "duration": "thirty-condition-points-per-power-minus-one",
+        "decay": "two-condition-points-per-reduction",
+        "reductionTriggers": ["game-hour", "combat-round"],
+        "lightPower": "condition-divided-by-thirty-plus-one",
+        "stacking": "stronger-or-longer-result-replaces-current-condition",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 50,
+        "adapter": "classic-light-condition",
+        "costPerPower": 3,
+        "presentationFidelity": "source launch-effect byte differs; native presentation retained",
+        "learnedSpellIdentity": "pending ISY-426"
       }
     },
     {

@@ -38,6 +38,7 @@ const CoreSpellCatalogScript = preload(
 const CoreSpellCoverageScript = preload(
 	"res://scripts/classic_runtime/classic_core_spell_coverage.gd"
 )
+const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -782,6 +783,7 @@ func _init() -> void:
 	_test_classic_spell_screen_contract()
 	_test_classic_magic_resistance_contract()
 	_test_classic_spell_save_contract()
+	_test_classic_light_contract()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -7043,6 +7045,61 @@ func _test_spell_effect_actions(bundle) -> void:
 	_expect_equal(daze_save.get("effectScale"), 0.0, "a successful Daze save negates confusion")
 
 
+func _test_classic_light_contract() -> void:
+	_expect_equal(
+		ClassicLightScript.apply_power(0, 2),
+		59,
+		"Classic Shine stores thirty condition points per power minus one"
+	)
+	_expect_equal(
+		ClassicLightScript.apply_power(60, 2),
+		60,
+		"Classic Shine does not shorten a stronger existing light"
+	)
+	_expect_equal(
+		ClassicLightScript.light_power(59),
+		2,
+		"Classic light derives its initial intensity from the condition"
+	)
+	_expect_equal(
+		ClassicLightScript.advance_time(59, 3599, 3600),
+		57,
+		"Classic light loses two condition points at an hour boundary"
+	)
+	_expect_equal(
+		ClassicLightScript.reduce(59),
+		57,
+		"Classic light uses the same reduction at a combat-round boundary"
+	)
+	var weakened_condition := ClassicLightScript.reduce(59, 15)
+	_expect_equal(weakened_condition, 29, "fifteen reductions step power-two light down")
+	_expect_equal(
+		ClassicLightScript.light_power(weakened_condition),
+		1,
+		"Classic light loses one power after the first step"
+	)
+	_expect_equal(
+		ClassicLightScript.reduce(29, 15),
+		0,
+		"fifteen reductions expire power-one Classic light"
+	)
+	_expect_equal(
+		ClassicLightScript.remaining_seconds(29, 3500),
+		50500,
+		"Classic light countdown remains aligned to the next game-hour boundary"
+	)
+	var shine = ShineScript.new()
+	_expect_equal(shine.classic_spell_ids, [1110, 2110], "both Shine records share one adapter")
+	_expect(shine.skip_targeting, "Shine bypasses the field target picker")
+	_expect_equal(
+		shine.autotarget_type,
+		Spell.AUTOTARGET_TYPE.SELF,
+		"Shine executes once through the field spell flow"
+	)
+	_expect(shine.in_field and not shine.in_combat, "Shine retains its source availability")
+	_expect_equal(shine.get_sp_cost(3, null), 9, "Shine costs three spell points per power")
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -7096,6 +7153,19 @@ func _test_classic_spell_coverage() -> void:
 		50,
 		"inventory retains special behavior numbers for adapter review"
 	)
+	var sorcerer_shine: Dictionary = CoreSpellCatalogScript.inventory_spell(1110).get(
+		"record", {}
+	).duplicate(true)
+	var priest_shine: Dictionary = CoreSpellCatalogScript.inventory_spell(2110).get(
+		"record", {}
+	).duplicate(true)
+	sorcerer_shine.erase("spellLook1")
+	priest_shine.erase("spellLook1")
+	_expect_equal(
+		priest_shine,
+		sorcerer_shine,
+		"Sorcerer and Priest Shine differ only in their launch presentation"
+	)
 	var support_audit = SpellUsageAuditScript.new()
 	var support_matrix: Dictionary = support_audit.load_support_matrix()
 	var native_spells: Dictionary = {}
@@ -7107,7 +7177,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		45,
+		47,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7136,8 +7206,13 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_by_id.get(1110, {}).get("coverageStatus"),
-		"exact-resource-review",
-		"exact native resources still require behavior review"
+		"supported",
+		"Sorcerer Shine uses the reviewed Classic light adapter"
+	)
+	_expect_equal(
+		coverage_by_id.get(2110, {}).get("coverageStatus"),
+		"supported",
+		"Priest Shine shares the same source mechanics"
 	)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
@@ -7602,9 +7677,9 @@ func _test_classic_spell_coverage() -> void:
 			_expect_equal(
 				matrix_ids,
 				[
-					1101, 1102, 1103, 1104, 1108, 1111, 1203, 1204, 1209, 1211,
+					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
-					1701, 2101, 2102, 2103, 2109, 2111, 2201, 2306, 2605, 2706,
+					1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2306, 2605, 2706,
 					3102, 3105, 3202, 3207, 3208, 3211, 3301, 3308, 3311, 3401, 3409,
 					3506, 3603, 3704, 3712,
 				],
@@ -12146,6 +12221,7 @@ func _test_complex_response_modes() -> void:
 	_expect_equal(spell_request.get("payload", {}).get("spellId"), 1110, "trap uses field-spell payload")
 	var shine = ShineScript.new()
 	_expect(shine.supports_classic_spell_id(1110), "Shine exposes its exact Classic identity")
+	_expect(shine.supports_classic_spell_id(2110), "Shine exposes the equivalent Priest identity")
 	_expect_equal(shine.classic_spell_save_mode, "none", "Shine uses the no-save field flow")
 	var readiness_context := {"spells": {
 		"Fireball": {

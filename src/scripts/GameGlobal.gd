@@ -25,6 +25,7 @@ const ClassicGodotCommandAdapterScript = preload(
 const ClassicMonsterWeaponRulesScript = preload(
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
 )
+const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
@@ -102,6 +103,8 @@ var player_allies : Array = []  #NPCs and summons
 
 var light_time : int = 0
 var light_power : int = 0
+# Classic combines light strength and remaining duration in one condition counter.
+var classic_light_condition : int = 0
 var camping : bool = false
 var money_pool : Array = [0,0,0] # coins gems jewels
 var money_banked : Array = [0,0,0] # coins gems jewels
@@ -239,6 +242,9 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	money_banked = data_dict["money_banked"]
 	light_time = data_dict["light_time"]
 	light_power = data_dict["light_power"]
+	classic_light_condition = int(data_dict.get("classic_light_condition", 0))
+	if classic_light_condition > 0:
+		_sync_classic_light_state()
 	camping = bool(data_dict["camping"])
 	cur_save_name = data_dict["save_name"]
 	cur_save_descrition = data_dict["save_descr"]
@@ -274,6 +280,7 @@ func restore_native_encounter_state(saved_state: Variant) -> void:
 		native_encounter_state.merge(saved_state, true)
 
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
+	var previous_time := time
 	time += seconds *time_scale
 	fatigue+= fatiguemultiplier * seconds *0.25 *time_scale
 	fatigue = clampf(fatigue, 0.0, 172800.0)
@@ -339,13 +346,38 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	UI.ow_hud.updateTimeDisplay()
 	UI.ow_hud.updateGlobalEffectsDisplay()
 	UI.ow_hud.updateCharPanelDisplay()
-	light_time = clamp(light_time-seconds,0,31536000)
-	if light_time == 0 :
-		light_power = 0
+	if classic_light_condition > 0:
+		classic_light_condition = ClassicLightScript.advance_time(
+			classic_light_condition,
+			previous_time,
+			time
+		)
+		_sync_classic_light_state()
+	else:
+		light_time = clamp(light_time-seconds,0,31536000)
+		if light_time == 0 :
+			light_power = 0
 
 func add_light_effect(p : int, t : int) :
 	light_power = max(light_power, p)
 	light_time = (light_power*light_time+p*t)/light_power
+
+
+func add_classic_light_effect(power: int) -> void:
+	classic_light_condition = ClassicLightScript.apply_power(classic_light_condition, power)
+	_sync_classic_light_state()
+
+
+func reduce_classic_light_condition() -> void:
+	if classic_light_condition <= 0:
+		return
+	classic_light_condition = ClassicLightScript.reduce(classic_light_condition)
+	_sync_classic_light_state()
+
+
+func _sync_classic_light_state() -> void:
+	light_power = ClassicLightScript.light_power(classic_light_condition)
+	light_time = ClassicLightScript.remaining_seconds(classic_light_condition, time)
 
 func load_shops_script(campaign : String) :
 	var shopsgd_path = Paths.campaignsfolderpath+ campaign + "/shops.gd"

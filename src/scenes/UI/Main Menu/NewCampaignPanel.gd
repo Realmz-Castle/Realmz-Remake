@@ -76,6 +76,7 @@ func _on_StartButton_pressed() -> void :
 		"money_banked" = [0,0,0],
 		"light_time" = 0,
 		"light_power" = 0,
+		"classic_light_condition" = 0,
 		"camping" = 0,
 		"allow_char_swap" = 0,
 		"curr_temple" = [],
