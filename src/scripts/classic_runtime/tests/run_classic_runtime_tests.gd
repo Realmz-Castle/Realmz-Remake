@@ -39,6 +39,9 @@ const CoreSpellCoverageScript = preload(
 	"res://scripts/classic_runtime/classic_core_spell_coverage.gd"
 )
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
+const ClassicConfusionScript = preload(
+	"res://scripts/classic_runtime/classic_confusion.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -431,6 +434,8 @@ class CharmTestCharacter:
 	var name: String
 	var baseFaction: int
 	var curFaction: int
+	var is_player_controlled := false
+	var creature_script = null
 	var traits: Array = []
 
 	func _init(character_name: String, faction: int) -> void:
@@ -784,6 +789,7 @@ func _init() -> void:
 	_test_classic_magic_resistance_contract()
 	_test_classic_spell_save_contract()
 	_test_classic_light_contract()
+	_test_classic_confusion_contract()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -7100,6 +7106,82 @@ func _test_classic_light_contract() -> void:
 	_expect_equal(shine.get_sp_cost(3, null), 9, "Shine costs three spell points per power")
 
 
+func _test_classic_confusion_contract() -> void:
+	_expect_equal(
+		ClassicConfusionScript.turn_outcome(39, 1),
+		ClassicConfusionScript.OUTCOME_BETRAY,
+		"Classic confusion can reverse allegiance below forty"
+	)
+	_expect_equal(
+		ClassicConfusionScript.turn_outcome(39, 2),
+		ClassicConfusionScript.OUTCOME_NORMAL,
+		"Classic confusion can leave the turn unchanged below forty"
+	)
+	_expect_equal(
+		ClassicConfusionScript.turn_outcome(40, 1),
+		ClassicConfusionScript.OUTCOME_IDLE,
+		"Classic confusion idles from forty through sixty"
+	)
+	_expect_equal(
+		ClassicConfusionScript.turn_outcome(61, 2),
+		ClassicConfusionScript.OUTCOME_FLEE,
+		"Classic confusion flees above sixty"
+	)
+	_expect_equal(
+		ClassicConfusionScript.stack_condition(98, 1, 99),
+		99,
+		"player confusion can reach its source cap"
+	)
+	_expect_equal(
+		ClassicConfusionScript.stack_condition(99, 1, 99),
+		99,
+		"player confusion rejects a stack beyond its source cap"
+	)
+	_expect_equal(
+		ClassicConfusionScript.advance_time(3, 3599, 3600),
+		2,
+		"Classic confusion loses one point at a game-hour boundary"
+	)
+	var target := CharmTestCharacter.new("Confused target", 1)
+	var trait_script = load("res://shared_assets/traits/t_classic_confused.gd")
+	var confusion_trait = target.add_trait(trait_script, [3])
+	_expect_equal(
+		confusion_trait.get_saved_variables(),
+		[3],
+		"Classic confusion persists its condition"
+	)
+	_expect_equal(
+		confusion_trait._on_get_stat("AccuracyMelee", 20),
+		10,
+		"Classic confusion reduces physical accuracy by ten"
+	)
+	_expect_equal(
+		confusion_trait._on_get_stat("EvasionRanged", 20),
+		10,
+		"Classic confusion makes the target ten points easier to hit"
+	)
+	confusion_trait._on_new_round(target)
+	_expect_equal(
+		confusion_trait.get_saved_variables(),
+		[2],
+		"combat rounds reduce Classic confusion"
+	)
+	confusion_trait.stack([2])
+	_expect_equal(
+		confusion_trait.get_saved_variables(),
+		[4],
+		"Classic confusion durations stack"
+	)
+	target.curFaction = 0
+	confusion_trait._on_battle_end(target)
+	_expect_equal(target.curFaction, 1, "Classic confusion restores faction after battle")
+	_expect_equal(
+		confusion_trait.get_saved_variables(),
+		[4],
+		"Classic confusion can persist after battle"
+	)
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -7177,7 +7259,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		47,
+		48,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7213,6 +7295,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(2110, {}).get("coverageStatus"),
 		"supported",
 		"Priest Shine shares the same source mechanics"
+	)
+	_expect_equal(
+		coverage_by_id.get(2301, {}).get("coverageStatus"),
+		"supported",
+		"Confuse uses the reviewed Classic condition adapter"
 	)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
@@ -7679,7 +7766,8 @@ func _test_classic_spell_coverage() -> void:
 				[
 					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
-					1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2306, 2605, 2706,
+					1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2301, 2306, 2605,
+					2706,
 					3102, 3105, 3202, 3207, 3208, 3211, 3301, 3308, 3311, 3401, 3409,
 					3506, 3603, 3704, 3712,
 				],
@@ -11774,16 +11862,10 @@ func _test_complex_spell_results(bundle) -> void:
 	confuse.add_traits_to_creature(null, confused_target, 3)
 	_expect_equal(confused_target.traits.size(), 1, "Confuse applies one condition trait")
 	_expect(
-		str(confused_target.traits[0].name).ends_with("t_confused.gd"),
-		"Confuse reuses Remake's temporary confusion trait"
+		str(confused_target.traits[0].name).ends_with("t_classic_confused.gd"),
+		"Confuse uses Classic's temporary confusion condition"
 	)
 	_expect_equal(confused_target.traits[0].power, 3, "Confuse passes its Classic duration")
-	var confused_trait = load("res://shared_assets/traits/t_confused.gd").new(
-		[confused_target, 3]
-	)
-	_expect_equal(confused_trait.get_saved_variables(), [3], "Confuse lasts three rounds")
-	confused_trait.stack([2])
-	_expect_equal(confused_trait.get_saved_variables(), [5], "Confuse durations stack")
 	_expect(daze.supports_classic_spell_id(3202), "Daze exports its exact Classic ID")
 	_expect_equal(daze.classic_spell_class, 0, "Daze exports its Classic class")
 	_expect_equal(daze.classic_spell_save_index, 0, "Daze uses Classic's charm save")
@@ -11808,8 +11890,8 @@ func _test_complex_spell_results(bundle) -> void:
 	daze.add_traits_to_creature(null, dazed_target, 7)
 	_expect_equal(dazed_target.traits.size(), 1, "Daze applies one condition trait")
 	_expect(
-		str(dazed_target.traits[0].name).ends_with("t_confused.gd"),
-		"Daze reuses Remake's temporary confusion trait"
+		str(dazed_target.traits[0].name).ends_with("t_classic_confused.gd"),
+		"Daze shares the reviewed Classic confusion condition"
 	)
 	_expect(
 		dazed_target.traits[0].power >= 1 and dazed_target.traits[0].power <= 4,

@@ -36,6 +36,18 @@
       ]
     },
     {
+      "id": "core-player-spell-confuse",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 135,
+          "displayName": "Priest Confuse"
+        }
+      ]
+    },
+    {
       "id": "core-player-spell-power-drain",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -1034,6 +1046,39 @@
       }
     },
     {
+      "classicSpellId": 2301,
+      "displayName": "Confuse",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/confuse.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 135,
+        "byteOffset": 4050,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-confuse", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "fixed-large-area",
+        "range": 9,
+        "duration": "one-round-per-power",
+        "conditionReductionTriggers": ["game-hour", "combat-round"],
+        "conditionCaps": {"player": 99, "monster": 124},
+        "turnOutcomes": ["normal", "betray", "idle", "flee"],
+        "accuracyPenalty": 10,
+        "evasionPenalty": 10,
+        "saveMode": "negate",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "special": 30,
+        "adapter": "classic-confusion-trait",
+        "costPerPower": 15,
+        "learnedSpellIdentity": "pending ISY-426"
+      }
+    },
+    {
       "classicSpellId": 2306,
       "displayName": "Mind Duel",
       "classification": "generic-data-driven",
@@ -1194,7 +1239,7 @@
         "saveBonus": -15,
         "resistance": "classic-general",
         "special": 30,
-        "adapter": "native-confusion-trait",
+        "adapter": "classic-confusion-trait",
         "costPerPower": 7
       }
     },

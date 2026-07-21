@@ -39,5 +39,5 @@ func get_aoe(_power : int, _caster) -> Array[Vector2i] :
 	return AoE_b7
 
 func add_traits_to_creature(caster, target, power : int) -> void :
-	var trait_script = load("res://shared_assets/traits/t_confused.gd")
+	var trait_script = load("res://shared_assets/traits/t_classic_confused.gd")
 	target.add_trait(trait_script, [get_duration_roll(power, caster)])
