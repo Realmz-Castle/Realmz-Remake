@@ -29,6 +29,9 @@ const SpellUsageAuditScript = preload(
 const SpellResourceCatalogScript = preload(
 	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
 )
+const SpellIdentityScript = preload(
+	"res://scripts/classic_runtime/classic_spell_identity.gd"
+)
 const CoreSpellCatalogScript = preload(
 	"res://scripts/classic_runtime/classic_core_spell_catalog.gd"
 )
@@ -5071,7 +5074,7 @@ func _test_classic_spell_screen_contract() -> void:
 	_expect_equal(screened.get("reason"), "spell-screen", "spell screen owns the resistance")
 	_expect_equal(screened.get("spellLevel"), 1, "packed Classic ID exposes cast level")
 
-	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var fireball = CoreSpellCatalogScript.spell(1306)
 	_expect(
 		not MagicResistanceScript.spell_resolution(
 			target, fireball, 1, 100
@@ -5131,7 +5134,7 @@ func _test_classic_magic_resistance_contract() -> void:
 		"Classic resistance adjustment applies after base and equipment values"
 	)
 
-	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var fireball = CoreSpellCatalogScript.spell(1306)
 	var resisted: Dictionary = MagicResistanceScript.spell_resolution(
 		target, fireball, 1, 31
 	)
@@ -6896,7 +6899,7 @@ func _test_spell_effect_actions(bundle) -> void:
 func _test_city_spell_coverage() -> void:
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 5, "core catalog registers each verified generic spell")
+	_expect_equal(core_spell_book.size(), 10, "core catalog registers each verified generic spell")
 	_expect_equal(
 		core_spell_book.get("Frozen Palm", {}).get("classicSpellIds"),
 		[1204],
@@ -7032,6 +7035,45 @@ func _test_city_spell_coverage() -> void:
 	_expect(not no_grip_save.get("saved"), "Magic Grip ignores a target's DRV chance")
 	_expect_equal(no_grip_save.get("effectScale"), 1.0, "Magic Grip applies full damage")
 
+	var scorched_earth = CoreSpellCatalogScript.spell(1211)
+	_expect(scorched_earth.ray, "Scorched Earth uses native ray targeting")
+	_expect_equal(scorched_earth.get_range(3, null), 6, "Scorched Earth range scales")
+	_expect_equal(scorched_earth.get_min_damage(7, null), 2, "Scorched Earth minimum is fixed")
+	_expect_equal(scorched_earth.get_max_damage(1, null), 10, "Scorched Earth maximum is fixed")
+	_expect_equal(scorched_earth.get_sp_cost(3, null), 30, "Scorched Earth cost scales")
+
+	var radiate = CoreSpellCatalogScript.spell(1310)
+	_expect(radiate.skip_targeting, "zero-range Radiate centers on its caster")
+	_expect_equal(
+		radiate.autotarget_type,
+		Spell.AUTOTARGET_TYPE.SELF,
+		"Radiate uses native self targeting"
+	)
+	_expect_equal(radiate.get_aoe(7, null), Spell.AoE_RADIANT, "Radiate hits adjacent tiles")
+	_expect_equal(radiate.classic_save_bonus, -10, "Radiate preserves its save penalty")
+	_expect_equal(radiate.get_min_damage(3, null), 6, "Radiate minimum scales")
+	_expect_equal(radiate.get_max_damage(3, null), 45, "Radiate maximum scales")
+	_expect_equal(radiate.get_sp_cost(3, null), 75, "Radiate cost scales")
+
+	var cosmic_blast = CoreSpellCatalogScript.spell(1401)
+	_expect(cosmic_blast.skip_targeting, "Cosmic Blast needs no target selection")
+	_expect_equal(
+		cosmic_blast.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Cosmic Blast targets every enemy"
+	)
+	_expect_equal(cosmic_blast.classic_spell_save_index, 6, "Cosmic Blast uses magic saves")
+	_expect_equal(cosmic_blast.get_min_damage(3, null), 6, "Cosmic Blast minimum scales")
+	_expect_equal(cosmic_blast.get_max_damage(3, null), 12, "Cosmic Blast maximum scales")
+	_expect_equal(cosmic_blast.get_sp_cost(3, null), 90, "Cosmic Blast cost scales")
+
+	var flame_tongue = CoreSpellCatalogScript.spell(1402)
+	_expect(flame_tongue.ray, "Flame Tongue uses native ray targeting")
+	_expect_equal(flame_tongue.get_range(3, null), 6, "Flame Tongue range scales")
+	_expect_equal(flame_tongue.get_min_damage(7, null), 8, "Flame Tongue minimum is fixed")
+	_expect_equal(flame_tongue.get_max_damage(1, null), 16, "Flame Tongue maximum is fixed")
+	_expect_equal(flame_tongue.get_sp_cost(3, null), 54, "Flame Tongue cost scales")
+
 	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
 	var enchanter_charm = load(
 		"res://shared_assets/spells/classic_charm_foe_enchanter.gd"
@@ -7137,8 +7179,9 @@ func _test_city_spell_coverage() -> void:
 			_expect_equal(
 				matrix_ids,
 				[
-					1101, 1102, 1103, 1104, 1111, 1203, 1204, 1209, 1501,
-					2102, 2103, 2111, 2201, 3102, 3603,
+					1101, 1102, 1103, 1104, 1111, 1203, 1204, 1209, 1211,
+					1306, 1310, 1401, 1402, 1501, 2102, 2103, 2111, 2201,
+					3102, 3603,
 				],
 				"source-verified City spell matrix is complete"
 			)
@@ -7189,6 +7232,17 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Classic Enchanted Blade", {}).get("classicSpellIds"),
 		[1102],
 		"spell catalog discovers exact-ID compatibility resources"
+	)
+	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
+	_expect_equal(
+		SpellIdentityScript.resource_key(1401, spell_mapping, native_spells),
+		"Cosmic Blast",
+		"spell catalog resolves the supported Cosmic Blast variant"
+	)
+	_expect_equal(
+		SpellIdentityScript.resource_key(3303, spell_mapping, native_spells),
+		"",
+		"spell catalog rejects a distinct same-name Cosmic Blast variant"
 	)
 	var report: Dictionary = audit.inspect_bundles(
 		[city_bundle, response_bundle], {}, native_spells
@@ -10975,7 +11029,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
 	var flame_hands = CoreSpellCatalogScript.spell(1104)
-	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var fireball = CoreSpellCatalogScript.spell(1306)
 	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
 	var festering_wounds = load("res://shared_assets/spells/festering_wounds.gd").new()
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
@@ -11487,7 +11541,7 @@ func _test_complex_response_modes() -> void:
 		not adapter.is_complex_scroll_item(spell_staff, scenario_items),
 		"spell-bearing staves remain on Classic's item-response path"
 	)
-	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	var fireball = CoreSpellCatalogScript.spell(1306)
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	_expect_equal(
 		adapter.resolve_complex_spell_result(

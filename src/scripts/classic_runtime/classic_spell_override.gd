@@ -154,8 +154,11 @@ func get_sp_cost(power: int, _caster) -> int:
 
 
 func get_aoe(power: int, _caster) -> Array[Vector2i]:
-	if _native_aoe == "round":
-		return AoE_ROUND
+	match _native_aoe:
+		"round":
+			return AoE_ROUND
+		"radiant":
+			return AoE_RADIANT
 	var radius := _size
 	if classic_target_type == 4:
 		radius = power
@@ -186,6 +189,11 @@ func _save_mode() -> String:
 
 
 func _configure_targeting() -> void:
+	# Classic casts zero-range target types below 8 on the caster.
+	if classic_target_type < 8 and _range_low == 0 and _range_per_power == 0:
+		skip_targeting = true
+		autotarget_type = AUTOTARGET_TYPE.SELF
+		return
 	match classic_target_type:
 		1:
 			targettile = TARGET_TILE.CREATURE

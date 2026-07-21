@@ -327,6 +327,145 @@
       }
     },
     {
+      "classicSpellId": 1211,
+      "displayName": "Scorched Earth",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 25,
+        "byteOffset": 750,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-scorched-earth-1211",
+          "slots": [4, 7]
+        }
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "two-per-power",
+        "damage": "2-10-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 10
+      }
+    },
+    {
+      "classicSpellId": 1306,
+      "displayName": "Fireball",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 35,
+        "byteOffset": 1050,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-fireball-1306",
+          "slots": [0, 1, 8, 9]
+        }
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 15,
+        "damage": "1-16-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 9
+      }
+    },
+    {
+      "classicSpellId": 1310,
+      "displayName": "Radiate",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 39,
+        "byteOffset": 1170,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-radiate-1310",
+          "slots": [0, 2, 3]
+        }
+      ],
+      "behavior": {
+        "targetType": "self-centered-radiant",
+        "damage": "2-15-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 6,
+        "saveBonus": -10,
+        "resistance": "classic-general",
+        "costPerPower": 25
+      }
+    },
+    {
+      "classicSpellId": 1401,
+      "displayName": "Cosmic Blast",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 45,
+        "byteOffset": 1350,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-cosmic-blast-1401",
+          "slots": [2, 4, 5]
+        }
+      ],
+      "behavior": {
+        "targetType": "all-enemies",
+        "damage": "2-4-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 6,
+        "resistance": "classic-general",
+        "costPerPower": 30
+      }
+    },
+    {
+      "classicSpellId": 1402,
+      "displayName": "Flame Tongue",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 46,
+        "byteOffset": 1380,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-flame-tongue-1402",
+          "slots": [5, 6]
+        }
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "two-per-power",
+        "damage": "8-16-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 18
+      }
+    },
+    {
       "classicSpellId": 1501,
       "displayName": "Charm Foe",
       "classification": "native-special-adapter",
