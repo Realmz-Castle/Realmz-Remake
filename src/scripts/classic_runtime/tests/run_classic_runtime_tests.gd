@@ -5116,7 +5116,7 @@ func _test_classic_spell_screen_contract() -> void:
 
 	var target := RogueTestCharacter.new()
 	target.set_meta("classic_spell_screen_level", 1)
-	var flame_hands = CoreSpellCatalogScript.spell(1104)
+	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
 	var screened: Dictionary = MagicResistanceScript.spell_resolution(
 		target, flame_hands, 1, 100
 	)
@@ -7479,19 +7479,48 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 29, "core catalog registers remaining generic spells")
+	_expect_equal(core_spell_book.size(), 24, "core catalog registers remaining generic spells")
 	_expect_equal(
-		core_spell_book.get("Frozen Palm", {}).get("classicSpellIds"),
-		[1204],
+		core_spell_book.get("Fireball", {}).get("classicSpellIds"),
+		[1306],
 		"core catalog exposes exact IDs through the native spell book"
 	)
 	var energy_storm = load("res://shared_assets/spells/energy_storm.gd").new()
+	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
+	var frozen_palm = load("res://shared_assets/spells/frozen_palm.gd").new()
+	var magic_grip = load("res://shared_assets/spells/magic_grip.gd").new()
+	var frostbite = load("res://shared_assets/spells/frostbite.gd").new()
+	var shock_palm = load("res://shared_assets/spells/shock_palm.gd").new()
 	var sparkling_armor = load("res://shared_assets/spells/sparkling_armor.gd").new()
 	var flame_spikes = CoreSpellCatalogScript.spell(1203)
-	_expect(
-		CoreSpellCatalogScript.spell(1103) == null,
-		"Energy Storm no longer depends on the generic runtime catalog"
-	)
+	for migrated_spell_id: int in [1103, 1104, 1204, 1209, 1505, 3409]:
+		_expect(
+			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
+			"migrated spell %d no longer depends on the generic runtime catalog"
+			% migrated_spell_id
+		)
+	var migrated_native_paths := {
+		"Energy Storm": "res://shared_assets/spells/energy_storm.gd",
+		"Flame Hands": "res://shared_assets/spells/flame_hands.gd",
+		"Frozen Palm": "res://shared_assets/spells/frozen_palm.gd",
+		"Magic Grip": "res://shared_assets/spells/magic_grip.gd",
+		"Frostbite": "res://shared_assets/spells/frostbite.gd",
+		"Shock Palm": "res://shared_assets/spells/shock_palm.gd",
+	}
+	var runtime_spell_resources = NativeResourcesScript.new()
+	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
+	CoreSpellCatalogScript.merge_into_spell_book(runtime_spell_resources.spells_book)
+	for spell_name: String in migrated_native_paths:
+		var runtime_spell: Variant = runtime_spell_resources.spells_book.get(
+			spell_name, {}
+		).get("script")
+		_expect(runtime_spell is Spell, "%s loads through the normal spell book" % spell_name)
+		_expect_equal(
+			runtime_spell.get_script().resource_path if runtime_spell is Spell else "",
+			migrated_native_paths[spell_name],
+			"%s remains native after the generic catalog merge" % spell_name
+		)
+	runtime_spell_resources.free()
 	_expect(energy_storm.supports_classic_spell_id(1103), "Energy Storm exports its exact ID")
 	_expect_equal(energy_storm.classic_spell_class, 6, "Energy Storm preserves its class")
 	_expect_equal(energy_storm.classic_spell_save_index, 6, "Energy Storm uses the magic save")
@@ -7505,6 +7534,17 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(energy_storm.get_max_damage(3, null), 9, "Energy Storm maximum scales")
 	_expect_equal(energy_storm.get_sp_cost(3, null), 30, "Energy Storm cost scales")
 	_expect_equal(energy_storm.get_aoe(1, null), Spell.AoE_ROUND, "Energy Storm keeps size 9")
+	_expect_equal(flame_hands.classic_spell_save_index, 1, "Flame Hands uses the fire save")
+	_expect_equal(
+		flame_hands.classic_spell_save_mode,
+		"half_damage",
+		"Flame Hands halves damage on a save"
+	)
+	_expect_equal(
+		flame_hands.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Flame Hands checks Classic resistance without projectile dodge"
+	)
 
 	_expect(
 		sparkling_armor.supports_classic_spell_id(1111),
@@ -7555,7 +7595,6 @@ func _test_classic_spell_coverage() -> void:
 	_expect(saved.get("saved"), "Flame Spikes' +10 save bonus is executable")
 	_expect_equal(saved.get("effectScale"), 0.5, "Flame Spikes save halves damage")
 
-	var frozen_palm = CoreSpellCatalogScript.spell(1204)
 	_expect_equal(frozen_palm.classic_spell_ids, [1204], "Frozen Palm exact ID")
 	_expect_equal(frozen_palm.classic_spell_class, 2, "Frozen Palm class")
 	_expect_equal(frozen_palm.classic_spell_save_index, 2, "Frozen Palm cold save")
@@ -7590,7 +7629,6 @@ func _test_classic_spell_coverage() -> void:
 	_expect(cold_save.get("saved"), "Frozen Palm cold save is executable")
 	_expect_equal(cold_save.get("effectScale"), 0.5, "cold save halves Frozen Palm")
 
-	var magic_grip = CoreSpellCatalogScript.spell(1209)
 	_expect_equal(magic_grip.classic_spell_ids, [1209], "Magic Grip exact ID")
 	_expect_equal(magic_grip.classic_spell_class, 6, "Magic Grip class")
 	_expect_equal(magic_grip.classic_spell_save_index, -1, "Magic Grip has no DRV save")
@@ -7660,12 +7698,10 @@ func _test_classic_spell_coverage() -> void:
 
 	var generic_damage_expectations := {
 		1212: ["Shiver", 0, 3, 6, 60, -1, "none"],
-		1505: ["Frostbite", 1, 30, 60, 60, 2, "half_damage"],
 		2101: ["Brimstones", 10, 1, 4, 9, 1, "half_damage"],
 		3105: ["Lightning Strike", 20, 3, 18, 15, 3, "half_damage"],
 		3211: ["Steel Rain", 15, 2, 8, 21, 7, "half_damage"],
 		3401: ["Acid Rain", 8, 3, 16, 36, 4, "half_damage"],
-		3409: ["Shock Palm", 1, 16, 22, 45, 3, "half_damage"],
 		3506: ["Finger of Pain", 8, 35, 35, 105, -1, "none"],
 		3704: ["Mind Rash", 0, 16, 28, 270, 5, "half_damage"],
 	}
@@ -7756,7 +7792,12 @@ func _test_classic_spell_coverage() -> void:
 		Spell.RESIST_TYPE.IGNORE_DODGE,
 		"Shiver checks general resistance without a DRV save"
 	)
-	var frostbite = CoreSpellCatalogScript.spell(1505)
+	_expect_equal(frostbite.get_range(3, null), 1, "Frostbite range")
+	_expect_equal(frostbite.get_min_damage(3, null), 30, "Frostbite minimum damage")
+	_expect_equal(frostbite.get_max_damage(3, null), 60, "Frostbite maximum damage")
+	_expect_equal(frostbite.get_sp_cost(3, null), 60, "Frostbite spell-point cost")
+	_expect_equal(frostbite.classic_spell_save_index, 2, "Frostbite save index")
+	_expect_equal(frostbite.classic_spell_save_mode, "half_damage", "Frostbite save mode")
 	_expect_equal(
 		frostbite.resist,
 		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
@@ -7771,13 +7812,24 @@ func _test_classic_spell_coverage() -> void:
 		)
 	var lightning_strike = CoreSpellCatalogScript.spell(3105)
 	_expect(not lightning_strike.los, "negative Classic range bypasses line of sight")
-	var shock_palm = CoreSpellCatalogScript.spell(3409)
+	_expect_equal(shock_palm.get_range(3, null), 1, "Shock Palm range")
+	_expect_equal(shock_palm.get_min_damage(3, null), 16, "Shock Palm minimum damage")
+	_expect_equal(shock_palm.get_max_damage(3, null), 22, "Shock Palm maximum damage")
+	_expect_equal(shock_palm.get_sp_cost(3, null), 45, "Shock Palm spell-point cost")
+	_expect_equal(shock_palm.classic_spell_save_index, 3, "Shock Palm save index")
+	_expect_equal(shock_palm.classic_spell_save_mode, "half_damage", "Shock Palm save mode")
 	_expect_equal(shock_palm.classic_save_adjust, -5, "Shock Palm scales its save penalty")
 	_expect_equal(
 		shock_palm.classic_resist_adjust,
 		-5,
 		"Shock Palm scales its resistance penalty"
 	)
+	for touch_spell in [flame_hands, frozen_palm, magic_grip, frostbite, shock_palm]:
+		_expect_equal(
+			touch_spell.targettile,
+			Spell.TARGET_TILE.CREATURE,
+			"%s targets a single creature" % touch_spell.name
+		)
 	var mind_rash = CoreSpellCatalogScript.spell(3704)
 	_expect(mind_rash.skip_targeting, "Mind Rash needs no target selection")
 	_expect_equal(
@@ -11780,7 +11832,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var adapter = GodotAdapterScript.new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
-	var flame_hands = CoreSpellCatalogScript.spell(1104)
+	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
 	var fireball = CoreSpellCatalogScript.spell(1306)
 	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
 	var festering_wounds = load("res://shared_assets/spells/festering_wounds.gd").new()

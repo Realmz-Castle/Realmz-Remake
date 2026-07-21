@@ -324,9 +324,9 @@
     {
       "classicSpellId": 1104,
       "displayName": "Flame Hands",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/flame_hands.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 3,
@@ -463,9 +463,9 @@
     {
       "classicSpellId": 1204,
       "displayName": "Frozen Palm",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/frozen_palm.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 18,
@@ -492,9 +492,9 @@
     {
       "classicSpellId": 1209,
       "displayName": "Magic Grip",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/magic_grip.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 23,
@@ -802,9 +802,9 @@
     {
       "classicSpellId": 1505,
       "displayName": "Frostbite",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/frostbite.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 64,
@@ -1482,9 +1482,9 @@
     {
       "classicSpellId": 3409,
       "displayName": "Shock Palm",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/shock_palm.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 263,
