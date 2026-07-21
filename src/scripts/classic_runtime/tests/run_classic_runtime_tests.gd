@@ -6957,6 +6957,70 @@ func _test_city_spell_coverage() -> void:
 	_expect(saved.get("saved"), "Flame Spikes' +10 save bonus is executable")
 	_expect_equal(saved.get("effectScale"), 0.5, "Flame Spikes save halves damage")
 
+	var frozen_palm = load("res://shared_assets/spells/frozen_palm.gd").new()
+	_expect_equal(frozen_palm.classic_spell_ids, [1204], "Frozen Palm exact ID")
+	_expect_equal(frozen_palm.classic_spell_class, 2, "Frozen Palm class")
+	_expect_equal(frozen_palm.classic_spell_save_index, 2, "Frozen Palm cold save")
+	_expect_equal(
+		frozen_palm.classic_spell_save_mode,
+		"half_damage",
+		"Frozen Palm halves damage on a save"
+	)
+	_expect_equal(
+		frozen_palm.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Frozen Palm checks Classic resistance without projectile dodge"
+	)
+	_expect_equal(frozen_palm.get_range(7, null), 1, "Frozen Palm keeps touch range")
+	_expect_equal(frozen_palm.get_min_damage(3, null), 6, "Frozen Palm minimum scales")
+	_expect_equal(frozen_palm.get_max_damage(3, null), 12, "Frozen Palm maximum scales")
+	var frozen_damage: int = frozen_palm.get_damage_roll(3, null)
+	_expect(
+		frozen_damage >= 6 and frozen_damage <= 12,
+		"Frozen Palm rolls 2-4 damage per power"
+	)
+	_expect_equal(frozen_palm.get_sp_cost(3, null), 9, "Frozen Palm cost scales")
+	var cold_save_target := RogueTestCharacter.new()
+	cold_save_target.stat_values["MultiplierIce"] = 1.0
+	cold_save_target.stat_values["ResistanceIce"] = 10.0
+	var cold_save: Dictionary = SpellSavesScript.target_resolution(
+		cold_save_target,
+		frozen_palm,
+		3,
+		100
+	)
+	_expect(cold_save.get("saved"), "Frozen Palm cold save is executable")
+	_expect_equal(cold_save.get("effectScale"), 0.5, "cold save halves Frozen Palm")
+
+	var magic_grip = load("res://shared_assets/spells/magic_grip.gd").new()
+	_expect_equal(magic_grip.classic_spell_ids, [1209], "Magic Grip exact ID")
+	_expect_equal(magic_grip.classic_spell_class, 6, "Magic Grip class")
+	_expect_equal(magic_grip.classic_spell_save_index, -1, "Magic Grip has no DRV save")
+	_expect_equal(magic_grip.classic_spell_save_mode, "none", "Magic Grip bypasses DRVs")
+	_expect_equal(
+		magic_grip.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Magic Grip checks Classic resistance without projectile dodge"
+	)
+	_expect(
+		MagicResistanceScript.spell_uses_resistance(magic_grip),
+		"Magic Grip still checks general magic resistance"
+	)
+	_expect_equal(magic_grip.get_range(7, null), 1, "Magic Grip keeps touch range")
+	_expect_equal(magic_grip.get_min_damage(3, null), 6, "Magic Grip minimum scales")
+	_expect_equal(magic_grip.get_max_damage(3, null), 18, "Magic Grip maximum scales")
+	var grip_damage: int = magic_grip.get_damage_roll(3, null)
+	_expect(grip_damage >= 6 and grip_damage <= 18, "Magic Grip rolls 2-6 per power")
+	_expect_equal(magic_grip.get_sp_cost(3, null), 12, "Magic Grip cost scales")
+	var no_grip_save: Dictionary = SpellSavesScript.target_resolution(
+		cold_save_target,
+		magic_grip,
+		3,
+		1
+	)
+	_expect(not no_grip_save.get("saved"), "Magic Grip ignores a target's DRV chance")
+	_expect_equal(no_grip_save.get("effectScale"), 1.0, "Magic Grip applies full damage")
+
 	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
 	var enchanter_charm = load(
 		"res://shared_assets/spells/classic_charm_foe_enchanter.gd"
@@ -7062,7 +7126,7 @@ func _test_city_spell_coverage() -> void:
 			_expect_equal(
 				matrix_ids,
 				[
-					1101, 1102, 1103, 1104, 1111, 1203, 1501,
+					1101, 1102, 1103, 1104, 1111, 1203, 1204, 1209, 1501,
 					2102, 2103, 2111, 2201, 3102, 3603,
 				],
 				"source-verified City spell matrix is complete"

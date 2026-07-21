@@ -37,6 +37,27 @@
       ]
     },
     {
+      "id": "city-of-bywater-frozen-palm-1204",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant"],
+      "sourceRecords": [
+        {"sourceFile": "Data MD", "recordIndex": 12},
+        {"sourceFile": "Data MD", "recordIndex": 13},
+        {"sourceFile": "Data MD", "recordIndex": 40},
+        {"sourceFile": "Data MD", "recordIndex": 63},
+        {"sourceFile": "Data MD", "recordIndex": 105}
+      ]
+    },
+    {
+      "id": "city-of-bywater-magic-grip-1209",
+      "scenario": "City of Bywater",
+      "contexts": ["combatant"],
+      "sourceRecords": [
+        {"sourceFile": "Data MD", "recordIndex": 13},
+        {"sourceFile": "Data MD", "recordIndex": 85}
+      ]
+    },
+    {
       "id": "city-of-bywater-charm-foe-1501",
       "scenario": "City of Bywater",
       "contexts": ["combatant", "complex-response"],
@@ -246,6 +267,63 @@
         "saveBonus": 10,
         "resistance": "classic-general",
         "costPerPower": 25
+      }
+    },
+    {
+      "classicSpellId": 1204,
+      "displayName": "Frozen Palm",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/frozen_palm.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 18,
+        "byteOffset": 540,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-frozen-palm-1204",
+          "slots": [1, 2, 3, 4, 5, 6, 8]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "damage": "2-4-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 2,
+        "resistance": "classic-general",
+        "costPerPower": 3
+      }
+    },
+    {
+      "classicSpellId": 1209,
+      "displayName": "Magic Grip",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/magic_grip.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 23,
+        "byteOffset": 690,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-magic-grip-1209",
+          "slots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "damage": "2-6-per-power",
+        "saveMode": "none",
+        "resistance": "classic-general",
+        "costPerPower": 4
       }
     },
     {
