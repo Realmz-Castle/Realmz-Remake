@@ -1,11 +1,6 @@
 class_name ClassicSpellResourceCatalog
 extends RefCounted
 
-const CoreCatalogScript = preload(
-	"res://scripts/classic_runtime/classic_core_spell_catalog.gd"
-)
-
-
 static func merge_directory(directory: String, destination: Dictionary) -> void:
 	var access := DirAccess.open(directory)
 	if access == null:
@@ -53,8 +48,6 @@ static func merge_directory(directory: String, destination: Dictionary) -> void:
 				destination[name_match.get_string(1)] = metadata
 		file_name = access.get_next()
 	access.list_dir_end()
-	if directory.trim_suffix("/") == "res://shared_assets/spells":
-		CoreCatalogScript.merge_metadata(destination)
 
 
 static func _expression(pattern: String) -> RegEx:

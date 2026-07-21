@@ -55,6 +55,7 @@ func configure(record: Dictionary) -> void:
 	classic_to_hit_bonus = int(record.get("toHitBonus", 0))
 	classic_raw_damage_type = int(record.get("damageType", 0))
 	classic_damage_type = abs(classic_raw_damage_type)
+	classic_opposed_level_check = classic_raw_damage_type < 0 and classic_damage_type != 9
 	classic_special = abs(int(record.get("special", 0)))
 	classic_cannot = int(record.get("cannot", 0))
 	classic_save_bonus = int(record.get("saveBonus", 0))
@@ -103,10 +104,6 @@ func configure(record: Dictionary) -> void:
 
 func is_generically_executable() -> bool:
 	return classic_special == 0
-
-
-func uses_classic_opposed_level_check() -> bool:
-	return classic_raw_damage_type < 0 and classic_damage_type != 9
 
 
 func get_range(power: int, _caster) -> int:

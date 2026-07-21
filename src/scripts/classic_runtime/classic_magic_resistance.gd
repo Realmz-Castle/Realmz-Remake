@@ -424,6 +424,8 @@ static func custom_spell_resolution(
 
 
 static func _combat_level(character: Object) -> Variant:
+	if character.has_meta(CLASSIC_HIT_DICE_META_KEY):
+		return int(character.get_meta(CLASSIC_HIT_DICE_META_KEY))
 	for property: Dictionary in character.get_property_list():
 		if str(property.get("name", "")) == "level":
 			return int(character.get("level"))

@@ -17,10 +17,6 @@ const NativeEncounterBookScript = preload(
 const ClassicMagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
-const ClassicCoreSpellCatalogScript = preload(
-	"res://scripts/classic_runtime/classic_core_spell_catalog.gd"
-)
-
 var g_scripts = {}
 
 var images_book : Dictionary = {}
@@ -100,7 +96,6 @@ func load_campaign_ressources( campaign : String = "") ->void :
 	print("Resources B4load spells")
 
 	load_spell_resources("res://shared_assets/spells/")
-	ClassicCoreSpellCatalogScript.merge_into_spell_book(spells_book)
 	var spellspath = Paths.campaignsfolderpath + campaign + "/Spells/"
 	if DirAccess.dir_exists_absolute(spellspath) :
 		load_spell_resources(spellspath)

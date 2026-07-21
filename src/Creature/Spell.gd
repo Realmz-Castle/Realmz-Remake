@@ -77,6 +77,10 @@ var classic_spell_save_index : int = -1
 var classic_spell_save_mode : String = "none"
 var classic_save_bonus : int = 0
 var classic_save_adjust : int = 0
+# Negative non-missile damage types in Classic run a target-versus-caster
+# level check before other resistance and save stages. Native resources opt in
+# to that behavior directly without reproducing the signed byte encoding.
+var classic_opposed_level_check : bool = false
 # Classic general magic resistance is a separate all-or-nothing roll. Native
 # spells leave this at zero; mapped and compiled Classic spells may override it.
 var classic_resist_adjust : int = 0
@@ -145,6 +149,9 @@ func get_target_number(_power : int, _caster) -> int :
 
 func get_aoe(_power : int, _caster) -> Array[Vector2i] :
 	return AoE_b1
+
+func uses_classic_opposed_level_check() -> bool :
+	return classic_opposed_level_check
 
 func add_traits_to_creature(_caster : Creature, _target : Creature, _power : int) -> void :
 	pass

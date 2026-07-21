@@ -5255,7 +5255,7 @@ func _test_classic_magic_resistance_contract() -> void:
 		"animated targets also ignore Classic mental-class spells"
 	)
 	target.traits.clear()
-	var psionic_spear = CoreSpellCatalogScript.spell(2109)
+	var psionic_spear = load("res://shared_assets/spells/psionic_spear.gd").new()
 	var psionic_caster := RogueTestCharacter.new()
 	target.level = 4
 	psionic_caster.level = 7
@@ -5265,6 +5265,22 @@ func _test_classic_magic_resistance_contract() -> void:
 	_expect(opposed.get("resisted"), "Psionic Spear can be stopped by its level contest")
 	_expect_equal(opposed.get("reason"), "opposed-level", "level contest reports its reason")
 	_expect_equal(opposed.get("opposedChance"), 20, "level contest preserves Classic's formula")
+	target.set_meta("classic_hit_dice", 1)
+	psionic_caster.set_meta("classic_hit_dice", 1)
+	var opposed_hit_dice: Dictionary = MagicResistanceScript.opposed_level_resolution(
+		target, psionic_spear, 1, 36, psionic_caster
+	)
+	_expect_equal(
+		opposed_hit_dice.get("chance"),
+		35,
+		"monster opposed-level checks use preserved Classic hit dice"
+	)
+	_expect(
+		not opposed_hit_dice.get("resisted"),
+		"hit-dice contest applies its source chance"
+	)
+	target.remove_meta("classic_hit_dice")
+	psionic_caster.remove_meta("classic_hit_dice")
 	target.set_meta("classic_spell_immunities", [0, 0, 0, 0, 0, 1])
 	var class_immunity: Dictionary = MagicResistanceScript.spell_resolution(
 		target, psionic_spear, 1, 100, false, psionic_caster, 21
@@ -5342,6 +5358,22 @@ func _test_classic_magic_resistance_contract() -> void:
 			target, custom_spell, 2, 35
 		).get("resisted"),
 		"compiler-produced spell applies its resistance adjustment"
+	)
+	var custom_opposed_record := _custom_spell_record(20, 5206)
+	custom_opposed_record["damageType"] = -5
+	custom_opposed_record["spellClass"] = 5
+	var custom_opposed = load(
+		"res://scripts/classic_runtime/classic_spell_override.gd"
+	).new()
+	custom_opposed.configure(custom_opposed_record)
+	_expect(
+		custom_opposed.uses_classic_opposed_level_check(),
+		"compiled signed damage types opt into the semantic opposed-level rule"
+	)
+	_expect_equal(
+		custom_opposed.classic_raw_damage_type,
+		-5,
+		"compiled custom spells retain their source encoding"
 	)
 	var custom_charm_record := _custom_spell_record(19, 5205)
 	custom_charm_record["spellClass"] = 0
@@ -7479,12 +7511,7 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 4, "core catalog registers remaining generic spells")
-	_expect_equal(
-		core_spell_book.get("Psionic Spear", {}).get("classicSpellIds"),
-		[2109],
-		"core catalog exposes exact IDs through the native spell book"
-	)
+	_expect(core_spell_book.is_empty(), "core catalog has no remaining runtime spells")
 	var energy_storm = load("res://shared_assets/spells/energy_storm.gd").new()
 	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
 	var frozen_palm = load("res://shared_assets/spells/frozen_palm.gd").new()
@@ -7493,12 +7520,15 @@ func _test_classic_spell_coverage() -> void:
 	var shock_palm = load("res://shared_assets/spells/shock_palm.gd").new()
 	var sparkling_armor = load("res://shared_assets/spells/sparkling_armor.gd").new()
 	var flame_spikes = load("res://shared_assets/spells/flame_spikes.gd").new()
-	for migrated_spell_id: int in [
+	var migrated_spell_ids: Array[int] = [
 		1103, 1104, 1204, 1209, 1211, 1303, 1402, 1504,
 		1505, 1701, 3207, 3301, 3308, 3409, 3712,
 		1203, 1212, 1306, 1310, 1401, 2101, 3211, 3401, 3704,
 		3105, 3506,
-	]:
+		2109, 2306, 2605, 2706,
+	]
+	_expect_equal(migrated_spell_ids.size(), 30, "the reviewed generic batch is complete")
+	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
 			"migrated spell %d no longer depends on the generic runtime catalog"
@@ -7531,10 +7561,18 @@ func _test_classic_spell_coverage() -> void:
 		"Mind Rash": "res://shared_assets/spells/mind_rash.gd",
 		"Lightning Strike": "res://shared_assets/spells/lightning_strike.gd",
 		"Finger of Pain": "res://shared_assets/spells/finger_of_pain.gd",
+		"Psionic Spear": "res://shared_assets/spells/psionic_spear.gd",
+		"Mind Duel": "res://shared_assets/spells/mind_duel.gd",
+		"Psi Wave": "res://shared_assets/spells/psi_wave.gd",
+		"Mind Melt": "res://shared_assets/spells/mind_melt.gd",
 	}
+	_expect_equal(
+		migrated_native_paths.size(),
+		30,
+		"every reviewed generic identity has a native resource"
+	)
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
-	CoreSpellCatalogScript.merge_into_spell_book(runtime_spell_resources.spells_book)
 	for spell_name: String in migrated_native_paths:
 		var runtime_spell: Variant = runtime_spell_resources.spells_book.get(
 			spell_name, {}
@@ -7832,32 +7870,36 @@ func _test_classic_spell_coverage() -> void:
 			"%s checks Classic general resistance" % label
 		)
 	var opposed_spell_expectations := {
-		2109: ["Psionic Spear", 9, 1, 3, 12, 6, true],
-		2306: ["Mind Duel", 12, 12, 30, 30, 1, false],
-		2605: ["Psi Wave", 0, 15, 30, 90, 10, false],
-		2706: ["Mind Melt", 9, 25, 35, 120, 6, true],
+		2109: ["Psionic Spear", 9, 1, 3, 12, true, "psionic_spear.gd", Spell.TARGET_TILE.NOWALL],
+		2306: ["Mind Duel", 12, 12, 30, 30, false, "mind_duel.gd", Spell.TARGET_TILE.CREATURE],
+		2605: ["Psi Wave", 0, 15, 30, 90, false, "psi_wave.gd", Spell.TARGET_TILE.NOWALL],
+		2706: ["Mind Melt", 9, 25, 35, 120, true, "mind_melt.gd", Spell.TARGET_TILE.NOWALL],
 	}
 	for spell_id: int in opposed_spell_expectations:
 		var expected: Array = opposed_spell_expectations[spell_id]
-		var spell = CoreSpellCatalogScript.spell(spell_id)
+		var spell = load("res://shared_assets/spells/" + str(expected[6])).new()
 		var label := str(expected[0])
 		_expect(spell.uses_classic_opposed_level_check(), "%s uses a level contest" % label)
-		_expect_equal(spell.classic_raw_damage_type, -5, "%s retains signed damage type" % label)
 		_expect_equal(spell.classic_spell_save_index, 5, "%s also uses mental saves" % label)
 		_expect_equal(spell.classic_spell_save_mode, "half_damage", "%s save halves damage" % label)
 		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
 		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
 		_expect_equal(spell.get_max_damage(3, null), expected[3], "%s maximum damage" % label)
 		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
-		_expect_equal(spell.classic_target_type, expected[5], "%s target type" % label)
-		_expect_equal(spell.ray, expected[6], "%s ray rule" % label)
+		var rolled_damage: int = spell.get_damage_roll(3, null)
+		_expect(
+			rolled_damage >= int(expected[2]) and rolled_damage <= int(expected[3]),
+			"%s damage roll stays within its source range" % label
+		)
+		_expect_equal(spell.ray, expected[5], "%s ray rule" % label)
+		_expect_equal(spell.targettile, expected[7], "%s target type" % label)
 		_expect(not spell.los, "%s does not require line of sight" % label)
 		_expect_equal(
 			spell.resist,
 			Spell.RESIST_TYPE.IGNORE_DODGE,
 			"%s also checks Classic general resistance" % label
 		)
-	var psi_wave = CoreSpellCatalogScript.spell(2605)
+	var psi_wave = load("res://shared_assets/spells/psi_wave.gd").new()
 	_expect(psi_wave.skip_targeting, "Psi Wave needs no target selection")
 	_expect_equal(
 		psi_wave.autotarget_type,
@@ -7924,27 +7966,10 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(mind_rash.classic_save_adjust, -2, "Mind Rash scales its save penalty")
 
-	var source_fields := [
-		"range1", "range2", "queueIcon", "toHitBonus", "saveBonus",
-		"fixedTargetNum", "canRotate", "saveAdjust", "cannot", "resistAdjust",
-		"cost", "damage1", "damage2", "powerDamage1", "powerDamage2",
-		"duration1", "duration2", "powerDuration1", "powerDuration2",
-		"spellLook1", "spellLook2", "sound1", "sound2", "targetType", "size",
-		"special", "damageType", "spellClass", "inCombat", "inCamp",
-	]
-	var source_backed := true
-	for catalog_record: Dictionary in CoreSpellCatalogScript.records():
-		var source_inventory: Dictionary = CoreSpellCatalogScript.inventory_spell(
-			int(catalog_record.get("packedSpellId", 0))
-		)
-		var source_record: Dictionary = source_inventory.get("record", {})
-		for field_name: String in source_fields:
-			if catalog_record.get(field_name) != source_record.get(field_name):
-				source_backed = false
-				break
-		if not source_backed:
-			break
-	_expect(source_backed, "core catalog mechanics come directly from the source inventory")
+	_expect(
+		CoreSpellCatalogScript.records().is_empty(),
+		"native spell resources replace the generic core runtime catalog"
+	)
 
 	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
 	var enchanter_charm = load(
