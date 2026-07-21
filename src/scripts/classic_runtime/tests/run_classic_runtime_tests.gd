@@ -341,6 +341,7 @@ class WealthTestAdapter:
 class RogueTestCharacter:
 	extends RefCounted
 	var name := "Test Rogue"
+	var level := 1
 	var stat_value := 35.0
 	var stat_values: Dictionary = {}
 	var current_hp := 30
@@ -5147,6 +5148,55 @@ func _test_classic_magic_resistance_contract() -> void:
 		31,
 		"mapped combat spell uses the compatibility-owned percentage"
 	)
+	var psionic_spear = CoreSpellCatalogScript.spell(2109)
+	var psionic_caster := RogueTestCharacter.new()
+	target.level = 4
+	psionic_caster.level = 7
+	var opposed: Dictionary = MagicResistanceScript.spell_resolution(
+		target, psionic_spear, 1, 100, false, psionic_caster, 20
+	)
+	_expect(opposed.get("resisted"), "Psionic Spear can be stopped by its level contest")
+	_expect_equal(opposed.get("reason"), "opposed-level", "level contest reports its reason")
+	_expect_equal(opposed.get("opposedChance"), 20, "level contest preserves Classic's formula")
+	target.set_meta("classic_spell_immunities", [0, 0, 0, 0, 0, 1])
+	var class_immunity: Dictionary = MagicResistanceScript.spell_resolution(
+		target, psionic_spear, 1, 100, false, psionic_caster, 21
+	)
+	_expect(class_immunity.get("resisted"), "mental spell immunity stops Psionic Spear")
+	_expect_equal(
+		class_immunity.get("reason"),
+		"spell-class-immunity",
+		"spell-class immunity remains a complete-resistance stage"
+	)
+	target.set_meta("classic_spell_immunities", [0, 0, 0, 0, 0, 0])
+	var missing_caster: Dictionary = MagicResistanceScript.spell_resolution(
+		target, psionic_spear, 1, 100, false, null, 21
+	)
+	_expect_equal(
+		missing_caster.get("status"),
+		"error",
+		"opposed-level spells do not approximate a missing caster"
+	)
+	_expect(missing_caster.get("resisted"), "missing opposed-level context fails closed")
+	var general_resistance: Dictionary = MagicResistanceScript.spell_resolution(
+		target, psionic_spear, 1, 31, false, psionic_caster, 21
+	)
+	_expect(
+		general_resistance.get("resisted"),
+		"Psionic Spear checks general resistance after the level contest"
+	)
+	_expect_equal(
+		general_resistance.get("reason"),
+		"magic-resistance",
+		"general resistance remains a distinct stage"
+	)
+	var unresisted_psionic: Dictionary = MagicResistanceScript.spell_resolution(
+		target, psionic_spear, 1, 32, false, psionic_caster, 21
+	)
+	_expect(
+		not unresisted_psionic.get("resisted"),
+		"Psionic Spear proceeds when both complete-resistance checks fail"
+	)
 	var ignored_spell = load("res://shared_assets/spells/festering_wounds.gd").new()
 	_expect(
 		MagicResistanceScript.spell_resolution(
@@ -6963,7 +7013,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		40,
+		44,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -6978,7 +7028,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		50,
+		46,
 		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
@@ -7023,7 +7073,7 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 26, "core catalog registers each verified generic spell")
+	_expect_equal(core_spell_book.size(), 30, "core catalog registers each verified generic spell")
 	_expect_equal(
 		core_spell_book.get("Frozen Palm", {}).get("classicSpellIds"),
 		[1204],
@@ -7250,6 +7300,39 @@ func _test_classic_spell_coverage() -> void:
 			Spell.RESIST_TYPE.IGNORE_DODGE,
 			"%s checks Classic general resistance" % label
 		)
+	var opposed_spell_expectations := {
+		2109: ["Psionic Spear", 9, 1, 3, 12, 6, true],
+		2306: ["Mind Duel", 12, 12, 30, 30, 1, false],
+		2605: ["Psi Wave", 0, 15, 30, 90, 10, false],
+		2706: ["Mind Melt", 9, 25, 35, 120, 6, true],
+	}
+	for spell_id: int in opposed_spell_expectations:
+		var expected: Array = opposed_spell_expectations[spell_id]
+		var spell = CoreSpellCatalogScript.spell(spell_id)
+		var label := str(expected[0])
+		_expect(spell.uses_classic_opposed_level_check(), "%s uses a level contest" % label)
+		_expect_equal(spell.classic_raw_damage_type, -5, "%s retains signed damage type" % label)
+		_expect_equal(spell.classic_spell_save_index, 5, "%s also uses mental saves" % label)
+		_expect_equal(spell.classic_spell_save_mode, "half_damage", "%s save halves damage" % label)
+		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
+		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
+		_expect_equal(spell.get_max_damage(3, null), expected[3], "%s maximum damage" % label)
+		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
+		_expect_equal(spell.classic_target_type, expected[5], "%s target type" % label)
+		_expect_equal(spell.ray, expected[6], "%s ray rule" % label)
+		_expect(not spell.los, "%s does not require line of sight" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE,
+			"%s also checks Classic general resistance" % label
+		)
+	var psi_wave = CoreSpellCatalogScript.spell(2605)
+	_expect(psi_wave.skip_targeting, "Psi Wave needs no target selection")
+	_expect_equal(
+		psi_wave.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Psi Wave targets every enemy"
+	)
 
 	var shiver = CoreSpellCatalogScript.spell(1212)
 	_expect(shiver.skip_targeting, "Shiver needs no target selection")
@@ -7422,8 +7505,9 @@ func _test_classic_spell_coverage() -> void:
 				[
 					1101, 1102, 1103, 1104, 1108, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
-					1701, 2101, 2102, 2103, 2111, 2201, 3102, 3105, 3207, 3208,
-					3211, 3301, 3308, 3311, 3401, 3409, 3506, 3603, 3704, 3712,
+					1701, 2101, 2102, 2103, 2109, 2111, 2201, 2306, 2605, 2706,
+					3102, 3105, 3207, 3208, 3211, 3301, 3308, 3311, 3401, 3409,
+					3506, 3603, 3704, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)

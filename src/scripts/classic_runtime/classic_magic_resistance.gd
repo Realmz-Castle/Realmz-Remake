@@ -3,6 +3,7 @@ extends RefCounted
 
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const META_KEY := "classic_magic_resistance"
+const SPELL_IMMUNITIES_META_KEY := "classic_spell_immunities"
 const ITEM_FIELD := "classicMagicResistance"
 const RESIST_IGNORE_DODGE := 2
 const RESIST_IGNORE_NOTHING := 3
@@ -86,13 +87,66 @@ static func spell_resolution(
 	power: int,
 	roll: int,
 	classic_context := false,
-	caster: Object = null
+	caster: Object = null,
+	opposed_roll: int = -1
 ) -> Dictionary:
+	var opposed: Dictionary = opposed_level_resolution(
+		character,
+		spell,
+		power,
+		opposed_roll if opposed_roll >= 0 else roll,
+		caster
+	)
+	if str(opposed.get("status", "")) == "error":
+		return {
+			"status": "error",
+			"message": str(opposed.get("message", "Classic opposed-level check failed")),
+			"checksResistance": false,
+			"checksScreen": false,
+			"checksOpposedLevel": true,
+			"checksClassImmunity": false,
+			"opposedChance": int(opposed.get("chance", 0)),
+			"opposedRoll": int(opposed.get("roll", 0)),
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "opposed-level-unavailable",
+		}
+	if bool(opposed.get("resisted", false)):
+		return {
+			"checksResistance": false,
+			"checksScreen": false,
+			"checksOpposedLevel": true,
+			"checksClassImmunity": false,
+			"opposedChance": int(opposed.get("chance", 0)),
+			"opposedRoll": int(opposed.get("roll", 0)),
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "opposed-level",
+		}
+	if spell_class_immunity(character, spell):
+		return {
+			"checksResistance": false,
+			"checksScreen": false,
+			"checksOpposedLevel": bool(opposed.get("checksOpposedLevel", false)),
+			"checksClassImmunity": true,
+			"opposedChance": int(opposed.get("chance", 0)),
+			"opposedRoll": int(opposed.get("roll", 0)),
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "spell-class-immunity",
+		}
 	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
 	if bool(screen.get("resisted", false)):
 		return {
 			"checksResistance": false,
 			"checksScreen": true,
+			"checksOpposedLevel": bool(opposed.get("checksOpposedLevel", false)),
+			"checksClassImmunity": false,
+			"opposedChance": int(opposed.get("chance", 0)),
+			"opposedRoll": int(opposed.get("roll", 0)),
 			"screenLevel": int(screen.get("screenLevel", 0)),
 			"spellLevel": int(screen.get("spellLevel", 0)),
 			"chance": 0,
@@ -108,16 +162,82 @@ static func spell_resolution(
 			power,
 			int(spell.get("classic_resist_adjust"))
 		)
+	var resisted := checks_resistance and roll <= resistance_chance
 	return {
 		"checksResistance": checks_resistance,
 		"checksScreen": bool(screen.get("checksScreen", false)),
+		"checksOpposedLevel": bool(opposed.get("checksOpposedLevel", false)),
+		"checksClassImmunity": false,
+		"opposedChance": int(opposed.get("chance", 0)),
+		"opposedRoll": int(opposed.get("roll", 0)),
 		"screenLevel": int(screen.get("screenLevel", 0)),
 		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,
 		"roll": roll,
-		"resisted": checks_resistance and roll <= resistance_chance,
-		"reason": "magic-resistance" \
-			if checks_resistance and roll <= resistance_chance else "",
+		"resisted": resisted,
+		"reason": "magic-resistance" if resisted else "",
+	}
+
+
+static func spell_class_immunity(character: Object, spell: Object) -> bool:
+	if character == null or spell == null \
+			or not character.has_meta(SPELL_IMMUNITIES_META_KEY):
+		return false
+	var spell_class := int(spell.get("classic_spell_class"))
+	if spell_class < 0 or spell_class >= 6:
+		return false
+	var immunities: Variant = character.get_meta(SPELL_IMMUNITIES_META_KEY)
+	return immunities is Array and spell_class < immunities.size() \
+		and int(immunities[spell_class]) != 0
+
+
+static func opposed_level_resolution(
+	character: Object,
+	spell: Object,
+	power: int,
+	roll: int,
+	caster: Object
+) -> Dictionary:
+	var checks_opposed := spell != null \
+		and spell.has_method("uses_classic_opposed_level_check") \
+		and bool(spell.uses_classic_opposed_level_check())
+	if not checks_opposed:
+		return {
+			"checksOpposedLevel": false,
+			"chance": 0,
+			"roll": roll,
+			"resisted": false,
+		}
+	if character == null or caster == null:
+		return {
+			"status": "error",
+			"message": "Classic opposed-level spell resolution requires caster and target",
+			"checksOpposedLevel": true,
+			"chance": 0,
+			"roll": roll,
+			"resisted": false,
+		}
+	var target_level: Variant = _combat_level(character)
+	var caster_level: Variant = _combat_level(caster)
+	if target_level == null or caster_level == null:
+		return {
+			"status": "error",
+			"message": "Classic opposed-level spell resolution requires readable levels",
+			"checksOpposedLevel": true,
+			"chance": 0,
+			"roll": roll,
+			"resisted": false,
+		}
+
+	# Negative Classic damage types check target level against caster level before
+	# spell screens, general resistance, and the ordinary damage-type save.
+	var chance := 35 + 5 * int(target_level) - 5 * int(caster_level)
+	chance += power * int(spell.get("classic_save_adjust"))
+	return {
+		"checksOpposedLevel": true,
+		"chance": chance,
+		"roll": roll,
+		"resisted": roll <= chance,
 	}
 
 
@@ -128,11 +248,22 @@ static func custom_spell_resolution(
 	roll: int,
 	caster: Object = null
 ) -> Dictionary:
+	if spell_class_immunity(character, spell):
+		return {
+			"checksResistance": false,
+			"checksScreen": false,
+			"checksClassImmunity": true,
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "spell-class-immunity",
+		}
 	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
 	if bool(screen.get("resisted", false)):
 		return {
 			"checksResistance": false,
 			"checksScreen": true,
+			"checksClassImmunity": false,
 			"screenLevel": int(screen.get("screenLevel", 0)),
 			"spellLevel": int(screen.get("spellLevel", 0)),
 			"chance": 0,
@@ -148,14 +279,22 @@ static func custom_spell_resolution(
 			power,
 			int(spell.get("classic_resist_adjust"))
 		)
+	var resisted := checks_resistance and roll <= resistance_chance
 	return {
 		"checksResistance": checks_resistance,
 		"checksScreen": bool(screen.get("checksScreen", false)),
+		"checksClassImmunity": false,
 		"screenLevel": int(screen.get("screenLevel", 0)),
 		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,
 		"roll": roll,
-		"resisted": checks_resistance and roll <= resistance_chance,
-		"reason": "magic-resistance" \
-			if checks_resistance and roll <= resistance_chance else "",
+		"resisted": resisted,
+		"reason": "magic-resistance" if resisted else "",
 	}
+
+
+static func _combat_level(character: Object) -> Variant:
+	for property: Dictionary in character.get_property_list():
+		if str(property.get("name", "")) == "level":
+			return int(character.get("level"))
+	return null

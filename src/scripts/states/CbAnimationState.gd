@@ -396,7 +396,8 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			power,
 			randi_range(1, 100),
 			false,
-			castercrea
+			castercrea,
+			randi_range(1, 100)
 		)
 		if bool(resistance.get("resisted", false)) :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)

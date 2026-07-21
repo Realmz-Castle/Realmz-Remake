@@ -66,6 +66,17 @@
       ]
     },
     {
+      "id": "core-player-spell-opposed-level-batch",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 113, "displayName": "Psionic Spear"},
+        {"sourceFile": "Data S", "recordIndex": 140, "displayName": "Mind Duel"},
+        {"sourceFile": "Data S", "recordIndex": 184, "displayName": "Psi Wave"},
+        {"sourceFile": "Data S", "recordIndex": 200, "displayName": "Mind Melt"}
+      ]
+    },
+    {
       "id": "city-of-bywater-extra-code-375",
       "scenario": "City of Bywater",
       "contexts": ["field-party"],
@@ -848,6 +859,34 @@
       }
     },
     {
+      "classicSpellId": 2109,
+      "displayName": "Psionic Spear",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 113,
+        "byteOffset": 3390,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-opposed-level-batch", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "three-per-power",
+        "lineOfSight": false,
+        "damage": "1-3-fixed",
+        "opposedLevelChance": "35-plus-five-target-level-minus-five-caster-level",
+        "saveMode": "half-damage",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "adapter": "classic-opposed-level-resistance",
+        "costPerPower": 4
+      }
+    },
+    {
       "classicSpellId": 2111,
       "displayName": "Soul Bind",
       "classification": "native-special-adapter",
@@ -906,6 +945,88 @@
         "special": 51,
         "adapter": "classic-battle-charm-trait",
         "costPerPower": 15
+      }
+    },
+    {
+      "classicSpellId": 2306,
+      "displayName": "Mind Duel",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 140,
+        "byteOffset": 4200,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-opposed-level-batch", "slots": [1]}
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 12,
+        "lineOfSight": false,
+        "damage": "4-10-per-power",
+        "opposedLevelChance": "35-plus-five-target-level-minus-five-caster-level",
+        "saveMode": "half-damage",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "adapter": "classic-opposed-level-resistance",
+        "costPerPower": 10
+      }
+    },
+    {
+      "classicSpellId": 2605,
+      "displayName": "Psi Wave",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 184,
+        "byteOffset": 5520,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-opposed-level-batch", "slots": [2]}
+      ],
+      "behavior": {
+        "targetType": "all-enemies",
+        "damage": "5-10-per-power",
+        "opposedLevelChance": "35-plus-five-target-level-minus-five-caster-level",
+        "saveMode": "half-damage",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "adapter": "classic-opposed-level-resistance",
+        "costPerPower": 30
+      }
+    },
+    {
+      "classicSpellId": 2706,
+      "displayName": "Mind Melt",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 200,
+        "byteOffset": 6000,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-opposed-level-batch", "slots": [3]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "three-per-power",
+        "lineOfSight": false,
+        "damage": "25-35-fixed",
+        "opposedLevelChance": "35-plus-five-target-level-minus-five-caster-level",
+        "saveMode": "half-damage",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "adapter": "classic-opposed-level-resistance",
+        "costPerPower": 40
       }
     },
     {

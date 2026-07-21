@@ -105,6 +105,10 @@ func is_generically_executable() -> bool:
 	return classic_special == 0
 
 
+func uses_classic_opposed_level_check() -> bool:
+	return classic_raw_damage_type < 0 and classic_damage_type != 9
+
+
 func get_range(power: int, _caster) -> int:
 	return abs(_range_low + _range_per_power * power)
 
