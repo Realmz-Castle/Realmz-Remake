@@ -7479,15 +7479,19 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 30, "core catalog registers each verified generic spell")
+	_expect_equal(core_spell_book.size(), 29, "core catalog registers remaining generic spells")
 	_expect_equal(
 		core_spell_book.get("Frozen Palm", {}).get("classicSpellIds"),
 		[1204],
 		"core catalog exposes exact IDs through the native spell book"
 	)
-	var energy_storm = CoreSpellCatalogScript.spell(1103)
+	var energy_storm = load("res://shared_assets/spells/energy_storm.gd").new()
 	var sparkling_armor = load("res://shared_assets/spells/sparkling_armor.gd").new()
 	var flame_spikes = CoreSpellCatalogScript.spell(1203)
+	_expect(
+		CoreSpellCatalogScript.spell(1103) == null,
+		"Energy Storm no longer depends on the generic runtime catalog"
+	)
 	_expect(energy_storm.supports_classic_spell_id(1103), "Energy Storm exports its exact ID")
 	_expect_equal(energy_storm.classic_spell_class, 6, "Energy Storm preserves its class")
 	_expect_equal(energy_storm.classic_spell_save_index, 6, "Energy Storm uses the magic save")

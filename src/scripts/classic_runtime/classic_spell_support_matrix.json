@@ -298,9 +298,9 @@
     {
       "classicSpellId": 1103,
       "displayName": "Energy Storm",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/energy_storm.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 2,
