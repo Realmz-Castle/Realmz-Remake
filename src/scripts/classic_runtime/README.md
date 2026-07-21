@@ -189,11 +189,29 @@ Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scrip
 
 Add `--json` for the versioned machine-readable report. Exit status 0 means no
 progression blockers were found, status 1 means the campaign is blocked, and
-status 2 means the command was used incorrectly. The current City of Bywater
-export identifies metadata-only PICT 32128 as a fidelity fallback and reports
-the signed `Data ED3` record 197 / Data EDCD `-1700` reference plus field-spell
-record 128 as progression blockers. Its Vodalian ally resolves through the
-shared bestiary and therefore correctly produces no ally diagnostic.
+status 2 means the command was used incorrectly. The current canonical City of
+Bywater export and its generated native resources pass this gate without a
+progression blocker.
+
+## Spell usage report
+
+`ClassicSpellUsageAudit` inventories spell references separately from launch
+readiness. It records each packed ID or low-ID spell class with its campaign,
+runtime context, source file, record, and slot, then joins packed IDs to the
+curated `classic_spell_support_matrix.json`. Pass more than one bundle to merge
+their usages into a single report:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_spell_support.gd -- "C:\path\to\bundle-a" "C:\path\to\bundle-b" --json
+```
+
+The inventory covers field actions, rogue traps, complex responses, referenced
+combatants and allies, scenario spell items, and authored spell overrides.
+Bundle v1 does not expose temple offerings, learned-spell lists, or scroll
+catalogs, so the report names those contexts under
+`sourceCoverage.notRepresentedByBundleV1` instead of implying coverage. An
+`unclassified` matrix status is a documentation and implementation-worklist
+gap; the readiness report remains the authority on whether a bundle can launch.
 
 ## Godot guard-house playtest
 

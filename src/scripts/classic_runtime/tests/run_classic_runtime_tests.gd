@@ -23,6 +23,9 @@ const SpellScreenScript = preload(
 	"res://scripts/classic_runtime/classic_spell_screen.gd"
 )
 const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
+const SpellUsageAuditScript = preload(
+	"res://scripts/classic_runtime/classic_spell_usage_audit.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -749,6 +752,7 @@ func _init() -> void:
 	_test_selected_character_pipeline(bundle)
 	_test_misc_character_selection(bundle)
 	_test_spell_effect_actions(bundle)
+	_test_classic_spell_usage_audit()
 	_test_city_spell_coverage()
 	_test_item_actions()
 	_test_take_gold_action()
@@ -6903,6 +6907,104 @@ func _test_city_spell_coverage() -> void:
 				)
 			matrix_ids.sort()
 			_expect_equal(matrix_ids, [1103, 1104, 1111, 1203], "Vodalian spell inventory is complete")
+
+
+func _test_classic_spell_usage_audit() -> void:
+	var city_bundle = BundleScript.new()
+	_expect(city_bundle.load_from_directory(FIXTURE), "spell audit City fixture loads")
+	city_bundle.monsters_by_id[71] = {
+		"id": 71,
+		"displayName": "Vodalian",
+		"spells": [1103],
+		"provenance": {"sourceFile": "Data MD", "recordIndex": 71},
+	}
+	city_bundle.battles_by_id[999] = {"id": 999, "grid": [71]}
+	city_bundle.extra_codes_by_id[999] = {"id": 999, "values": [1, 71]}
+	city_bundle.triggers_by_id["spell-audit:monster-contexts"] = {
+		"id": "spell-audit:monster-contexts",
+		"source": "Data DD",
+		"recordIndex": 999,
+		"active": true,
+		"actions": [
+			{"id": 71, "rawCode": 89, "slot": 0},
+			{"id": 999, "rawCode": 124, "slot": 1},
+		],
+	}
+	var response_bundle = BundleScript.new()
+	_expect(
+		response_bundle.load_from_directory(COMPLEX_RESPONSE_MODES_FIXTURE),
+		"spell audit response fixture loads"
+	)
+	var audit = SpellUsageAuditScript.new()
+	var report: Dictionary = audit.inspect_bundles([city_bundle, response_bundle])
+	var totals: Dictionary = report.get("totals", {})
+	_expect_equal(totals.get("campaigns"), 2, "spell audit merges multiple scenario bundles")
+	_expect(int(totals.get("spellIds", 0)) > 0, "spell audit inventories packed spell IDs")
+	_expect(
+		int(totals.get("unclassifiedSpellIds", 0)) > 0,
+		"spell audit identifies matrix rows still needing classification"
+	)
+
+	var spell_item_row: Dictionary = {}
+	var trap_row: Dictionary = {}
+	var combat_spell_row: Dictionary = {}
+	for row_value: Variant in report.get("spells", []):
+		if not (row_value is Dictionary):
+			continue
+		var row: Dictionary = row_value
+		match int(row.get("classicSpellId", 0)):
+			1306:
+				spell_item_row = row
+			1110:
+				trap_row = row
+			1103:
+				combat_spell_row = row
+	_expect(not spell_item_row.is_empty(), "spell audit records a scenario-item spell")
+	var spell_item_contexts: Array = spell_item_row.get("usages", []).map(
+		func(usage: Dictionary) -> String: return str(usage.get("context", ""))
+	)
+	_expect(
+		spell_item_contexts.has("complex-response"),
+		"spell audit records complex-response usage"
+	)
+	_expect(
+		spell_item_contexts.has("scenario-spell-item"),
+		"spell audit records scenario-item usage"
+	)
+	_expect(not trap_row.is_empty(), "spell audit records a rogue trap spell")
+	var trap_usage: Dictionary = trap_row.get("usages", [])[0]
+	_expect_equal(trap_usage.get("context"), "rogue-trap", "spell audit labels trap context")
+	_expect_equal(trap_usage.get("sourceFile"), "Data TD2", "spell audit preserves trap source")
+	_expect_equal(trap_usage.get("recordIndex"), 0, "spell audit preserves trap record")
+	_expect_equal(
+		combat_spell_row.get("supportStatus"),
+		"supported",
+		"spell audit joins a packed ID to the curated matrix"
+	)
+	var combat_contexts: Array = combat_spell_row.get("usages", []).map(
+		func(usage: Dictionary) -> String: return str(usage.get("context", ""))
+	)
+	for expected_context: String in ["combatant", "ally", "summoned-combatant"]:
+		_expect(
+			combat_contexts.has(expected_context),
+			"spell audit records %s usage" % expected_context
+		)
+
+	var class_rows: Array = report.get("spellClasses", [])
+	_expect_equal(class_rows.size(), 1, "spell audit separates low-ID class responses")
+	if not class_rows.is_empty():
+		_expect_equal(class_rows[0].get("classicSpellClass"), 1, "spell class identity stays exact")
+	_expect_equal(
+		report.get("unresolvedReferences", []).size(),
+		0,
+		"spell audit has no ambiguous low references in the fixture corpus"
+	)
+	_expect(
+		report.get("sourceCoverage", {}).get("notRepresentedByBundleV1", []).has(
+			"learned-spell-lists"
+		),
+		"spell audit names contexts unavailable in bundle v1"
+	)
 
 
 func _test_item_actions() -> void:
