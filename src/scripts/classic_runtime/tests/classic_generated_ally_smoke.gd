@@ -96,6 +96,11 @@ func _run_smoke() -> void:
 		"native creature equips the generated scenario weapon"
 	)
 	_expect_equal(
+		weapon_user.current_melee_weapons[0].get("type"),
+		"Dagger",
+		"generated scenario weapon loads with its concrete native item type"
+	)
+	_expect_equal(
 		weapon_user.current_melee_weapons[0].get("weapon_dmg", {}).get("Physical"),
 		[1.0, 6.0],
 		"equipped scenario weapon retains its native physical damage"
@@ -133,6 +138,28 @@ func _run_smoke() -> void:
 		float(shock_damage.get("Electric", 0)) >= 1.0 \
 			and float(shock_damage.get("Electric", 0)) <= 8.0,
 		"native combat accepts the generated Classic shock damage key"
+	)
+	var fighter: GDScript = load("res://Data/Character Classes/Class_Fighter.gd")
+	var human: GDScript = load("res://Data/Character Races/Race_Human.gd")
+	var player_weapon: Dictionary = resources.items_book[
+		"Classic Item 150"
+	].duplicate(true)
+	var player_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+		{"name": "Fixture Fighter", "level": 0},
+		null,
+		null,
+		fighter,
+		human
+	)
+	player_character.inventory.append(player_weapon)
+	_expect(
+		player_character.equip_item(player_weapon),
+		"native player equipment accepts the generated Classic weapon type"
+	)
+	_expect_equal(
+		player_character.current_melee_weapons[0].get("classicItemId"),
+		150,
+		"generated Classic weapon becomes the player's active melee weapon"
 	)
 
 	var bundle = BundleScript.new()
@@ -277,6 +304,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_record["cost"] = 40
 	weapon_record["vSmall"] = 6
 	weapon_record["vLarge"] = 6
+	weapon_record["itemCat0"] = 1 << 28
 	weapon_record["heat"] = 4
 	content["scenarioItems"].append(weapon_record)
 	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)

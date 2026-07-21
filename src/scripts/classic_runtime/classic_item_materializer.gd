@@ -36,6 +36,32 @@ const ELEMENT_BY_CLASSIC_FIELD := {
 	"cold": "Ice",
 	"electric": "Electric",
 }
+const MELEE_TYPE_BY_CLASSIC_ITEM_CATEGORY := {
+	0: "Mace",
+	1: "Hammer",
+	2: "Warhammer/Maul",
+	3: "Dagger",
+	4: "Shortsword",
+	5: "Arming Sword",
+	6: "Longsword",
+	7: "Longsword",
+	8: "Staff",
+	9: "Spear",
+	10: "Pole Axe",
+	11: "Eastern Weapon",
+	12: "Bow",
+	13: "Crossbow",
+	14: "Dart",
+	15: "Throwing Bottle",
+	16: "Throwing Dagger",
+	17: "Whip",
+	41: "Throwing Hammer",
+	42: "Eastern Weapon",
+	43: "Misc. Melee Weapon",
+	44: "Misc. Melee Weapon",
+	45: "Misc. Melee Weapon",
+	46: "Misc Ranged Weapon",
+}
 const SLOT_BY_CLASSIC_TYPE := {
 	0: "Ring",
 	2: "Melee Weapon",
@@ -153,9 +179,10 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 	if unidentified_name.is_empty():
 		unidentified_name = identified_name
 	var classic_type: int = abs(int(record.get("type", 0)))
-	var category := _category_for_item(item_id)
+	var asset_category := _category_for_item(item_id)
+	var native_type := _native_item_type(record, classic_type, asset_category)
 	var native_weapon := _native_weapon(record, classic_type)
-	var unsupported_fields := _unsupported_fields(record, native_weapon)
+	var unsupported_fields := _unsupported_fields(record, native_weapon, native_type)
 	var fidelity_fallbacks: Array = native_weapon.get("fidelityFallbacks", [])
 	var materialization_status := "complete"
 	if not unsupported_fields.is_empty():
@@ -181,9 +208,9 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 			"unsupportedFields": unsupported_fields,
 			"fidelityFallbacks": fidelity_fallbacks,
 		},
-		"type": category,
-		"img_ptr": str(ICON_BY_CATEGORY[category]),
-		"sound": str(SOUND_BY_CATEGORY[category]),
+		"type": native_type.get("value", asset_category),
+		"img_ptr": str(ICON_BY_CATEGORY[asset_category]),
+		"sound": str(SOUND_BY_CATEGORY[asset_category]),
 		"is_magical": int(record.get("magical", 0)),
 		"is_identified": 1 if classic_type == 24 else 0,
 		"weight": int(record.get("weight", 0)),
@@ -224,6 +251,37 @@ func _category_for_item(item_id: int) -> String:
 	if item_id < 800:
 		return "Magic"
 	return "Supplies"
+
+
+func _native_item_type(
+	record: Dictionary,
+	classic_type: int,
+	fallback_type: String
+) -> Dictionary:
+	var unsupported_fields: Array[String] = []
+	if classic_type != 2:
+		return {"value": fallback_type, "unsupportedFields": unsupported_fields}
+	var category_index := _first_classic_item_category(record)
+	if category_index < 0:
+		unsupported_fields.append("itemCategory.missing")
+	elif MELEE_TYPE_BY_CLASSIC_ITEM_CATEGORY.has(category_index):
+		return {
+			"value": MELEE_TYPE_BY_CLASSIC_ITEM_CATEGORY[category_index],
+			"unsupportedFields": unsupported_fields,
+		}
+	else:
+		unsupported_fields.append("itemCategory[%d]" % category_index)
+	return {"value": fallback_type, "unsupportedFields": unsupported_fields}
+
+
+func _first_classic_item_category(record: Dictionary) -> int:
+	# Classic scans the packed categories from zero and uses the first set bit.
+	for category_index: int in range(58):
+		var field_name := "itemCat0" if category_index < 32 else "itemCat1"
+		var storage_bit := 31 - category_index % 32
+		if (int(record.get(field_name, 0)) & (1 << storage_bit)) != 0:
+			return category_index
+	return -1
 
 
 func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
@@ -280,7 +338,11 @@ func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 	}
 
 
-func _unsupported_fields(record: Dictionary, native_weapon: Dictionary) -> Array[String]:
+func _unsupported_fields(
+	record: Dictionary,
+	native_weapon: Dictionary,
+	native_type: Dictionary
+) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_EFFECT_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
@@ -288,8 +350,11 @@ func _unsupported_fields(record: Dictionary, native_weapon: Dictionary) -> Array
 	for field_name: String in native_weapon.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
+	for field_name: String in native_type.get("unsupportedFields", []):
+		if not fields.has(field_name):
+			fields.append(field_name)
 	var classic_type: int = abs(int(record.get("type", 0)))
-	if SLOT_BY_CLASSIC_TYPE.has(classic_type):
+	if classic_type != 2 and SLOT_BY_CLASSIC_TYPE.has(classic_type):
 		for field_name: String in ["itemCat0", "itemCat1"]:
 			if int(record.get(field_name, 0)) != 0:
 				fields.append(field_name)

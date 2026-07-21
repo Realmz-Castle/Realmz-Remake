@@ -2461,10 +2461,23 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["hands"] = 1
 	weapon_record["vSmall"] = 6
 	weapon_record["vLarge"] = 6
+	weapon_record["itemCat0"] = 1 << 28
 	weapon_record["heat"] = 4
 	weapon_record["cold"] = 3
 	weapon_record["electric"] = 2
 	var weapon: Dictionary = materializer._native_item(weapon_record, [])
+	_expect_equal(
+		weapon.get("type"),
+		"Dagger",
+		"Classic melee category selects a concrete native item type"
+	)
+	var signed_category_record := weapon_record.duplicate(true)
+	signed_category_record["itemCat0"] = -2147483648
+	_expect_equal(
+		materializer._native_item(signed_category_record, []).get("type"),
+		"Mace",
+		"signed Classic category bits retain their source ordering"
+	)
 	_expect_equal(
 		weapon.get("weapon_dmg", {}).get("Physical"),
 		[1, 6],
@@ -2513,6 +2526,22 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("vLarge"),
 		"size-dependent Classic weapon damage remains an explicit blocker"
+	)
+	var categoryless_record := weapon_record.duplicate(true)
+	categoryless_record["itemCat0"] = 0
+	_expect(
+		materializer._native_item(categoryless_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("itemCategory.missing"),
+		"categoryless Classic melee weapons remain explicit blockers"
+	)
+	var non_weapon_category_record := weapon_record.duplicate(true)
+	non_weapon_category_record["itemCat0"] = 1 << 13
+	_expect(
+		materializer._native_item(non_weapon_category_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("itemCategory[18]"),
+		"non-weapon Classic categories do not receive guessed melee types"
 	)
 	var negative_element_record := weapon_record.duplicate(true)
 	negative_element_record["heat"] = -1
