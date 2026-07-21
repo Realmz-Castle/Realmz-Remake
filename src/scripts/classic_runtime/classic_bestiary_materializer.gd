@@ -5,6 +5,7 @@ const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_i
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
+const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
 const BESTIARY_IMAGE_BOOK_PATH := "Bestiary/img_pack.json"
@@ -246,6 +247,9 @@ func _native_monster(
 		"classicTurnUndeadEligible": _type_flag(record, 1) or _type_flag(record, 2),
 		"classicHitDice": hit_dice,
 		"classicMagicResistance": int(record.get("magicResistance", 0)),
+		"classicSpellScreenLevel": SpellScreenScript.permanent_level(
+			record.get("conditions", [])
+		),
 		"classicCanSummon": int(record.get("canSummon", 0)),
 		"classicRunPercent": int(record.get("runPercent", 0)),
 		"classicSurrenderPercent": int(record.get("surrenderPercent", 0)),
@@ -621,7 +625,7 @@ func _unsupported_fields(
 		fields.append("runPercent")
 	if int(record.get("surrenderPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
 		fields.append("surrenderPercent")
-	if _array_has_nonzero(record.get("conditions", [])):
+	if SpellScreenScript.has_unsupported_conditions(record.get("conditions", [])):
 		fields.append("conditions")
 	for field_name: String in native_inventory.get("unsupportedFields", []):
 		if not fields.has(field_name):

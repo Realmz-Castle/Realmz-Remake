@@ -16,6 +16,9 @@ const CharacterConditionRulesScript = preload(
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const SpellScreenScript = preload(
+	"res://scripts/classic_runtime/classic_spell_screen.gd"
+)
 const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
@@ -324,6 +327,7 @@ class RogueTestCharacter:
 	var stat_values: Dictionary = {}
 	var current_hp := 30
 	var inventory: Array = []
+	var spells: Array = []
 
 	func get_stat(stat_name: String) -> float:
 		if stat_values.has(stat_name):
@@ -724,6 +728,7 @@ func _init() -> void:
 	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
 	_test_custom_spell_overrides()
+	_test_classic_spell_screen_contract()
 	_test_classic_magic_resistance_contract()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
@@ -3194,6 +3199,55 @@ func _test_classic_bestiary_materializer() -> void:
 		8,
 		"all eight Classic type flags retain native tags"
 	)
+	var screen_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	var screen_conditions: Array = screen_record.get("conditions", []).duplicate()
+	screen_conditions[16] = -1
+	screen_record["conditions"] = screen_conditions
+	var screened_monster: Dictionary = materializer._native_monster(
+		screen_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect_equal(
+		screened_monster.get("classicSpellScreenLevel"),
+		1,
+		"permanent first-level spell protection reaches native monster metadata"
+	)
+	_expect(
+		not screened_monster.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("conditions"),
+		"permanent Classic spell protection no longer blocks native materialization"
+	)
+	var temporary_screen_record: Dictionary = screen_record.duplicate(true)
+	temporary_screen_record["conditions"][16] = 2
+	_expect(
+		materializer._unsupported_fields(
+			temporary_screen_record,
+			{},
+			{},
+			{},
+			{}
+		).has("conditions"),
+		"temporary starting spell screens remain blocked until native rounds decay them"
+	)
+	var unrelated_condition_record: Dictionary = screen_record.duplicate(true)
+	unrelated_condition_record["conditions"][16] = 0
+	unrelated_condition_record["conditions"][9] = -1
+	_expect(
+		materializer._unsupported_fields(
+			unrelated_condition_record,
+			{},
+			{},
+			{},
+			{}
+		).has("conditions"),
+		"unmapped permanent monster conditions remain launch blockers"
+	)
 
 	var merged_book := {
 		"Older conversion": {"data": {"id": 1, "name": "Providence Sentinel"}},
@@ -4777,6 +4831,78 @@ func _test_custom_spell_overrides() -> void:
 			unsupported_report, "unresolved-spell-identity", 5203
 		),
 		"unsupported custom special is not mislabeled as an identity gap"
+	)
+
+
+func _test_classic_spell_screen_contract() -> void:
+	var conditions: Array = []
+	conditions.resize(40)
+	conditions.fill(0)
+	conditions[16] = -1
+	_expect_equal(
+		SpellScreenScript.permanent_level(conditions),
+		1,
+		"Classic condition 16 provides a permanent first-level spell screen"
+	)
+	conditions[19] = -4
+	_expect_equal(
+		SpellScreenScript.permanent_level(conditions),
+		4,
+		"the strongest permanent Classic screen protects through its level"
+	)
+	_expect(
+		not SpellScreenScript.has_unsupported_conditions(conditions),
+		"negative spell screens are complete persistent state"
+	)
+	conditions[19] = 2
+	_expect(
+		SpellScreenScript.has_unsupported_conditions(conditions),
+		"positive spell screens require round-based duration support"
+	)
+
+	var target := RogueTestCharacter.new()
+	target.set_meta("classic_spell_screen_level", 1)
+	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
+	var screened: Dictionary = MagicResistanceScript.spell_resolution(
+		target, flame_hands, 1, 100
+	)
+	_expect(screened.get("resisted"), "first-level Classic spell is stopped by its screen")
+	_expect_equal(screened.get("reason"), "spell-screen", "spell screen owns the resistance")
+	_expect_equal(screened.get("spellLevel"), 1, "packed Classic ID exposes cast level")
+
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
+	_expect(
+		not MagicResistanceScript.spell_resolution(
+			target, fireball, 1, 100
+		).get("resisted"),
+		"first-level screen does not stop a third-level spell"
+	)
+	target.set_meta("classic_spell_screen_level", 3)
+	_expect(
+		MagicResistanceScript.spell_resolution(
+			target, fireball, 1, 100
+		).get("resisted"),
+		"higher-level screen also stops lower-level spells"
+	)
+
+	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
+	_expect_equal(
+		SpellScreenScript.spell_level(power_drain),
+		0,
+		"multi-school Classic identity is not guessed without its caster"
+	)
+	var caster := RogueTestCharacter.new()
+	caster.spells = [[], [], [{"script": power_drain}]]
+	_expect_equal(
+		SpellScreenScript.spell_level(power_drain, caster),
+		3,
+		"caster spellbook supplies the selected native spell level"
+	)
+	_expect(
+		MagicResistanceScript.spell_resolution(
+			target, power_drain, 1, 100, false, caster
+		).get("resisted"),
+		"caster-resolved multi-school spell obeys the matching screen"
 	)
 
 
@@ -9008,6 +9134,7 @@ func _test_compiled_battle_materialization() -> void:
 	bundle.monsters_by_id[1]["hitDice"] = 7
 	bundle.monsters_by_id[1]["magicResistance"] = 12
 	bundle.monsters_by_id[1]["canSummon"] = 1
+	bundle.monsters_by_id[1]["conditions"][16] = -1
 	var adapter = GodotAdapterScript.new()
 	var result: Dictionary = adapter.materialize_classic_battle(
 		battle,
@@ -9054,6 +9181,11 @@ func _test_compiled_battle_materialization() -> void:
 		creature[2].get("classicMagicResistance"),
 		12,
 		"compiled battle preserves turning resistance"
+	)
+	_expect_equal(
+		creature[2].get("classicSpellScreenLevel"),
+		1,
+		"compiled battle preserves permanent first-level spell protection"
 	)
 	_expect_equal(creature[2].get("classicCanSummon"), 1, "compiled battle preserves summon flag")
 	_expect(bool(creature[2].get("classicForceFriend")), "negative grid entry flips side")

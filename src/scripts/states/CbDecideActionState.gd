@@ -244,6 +244,11 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 			"classic_magic_resistance",
 			int(metadata["classicMagicResistance"])
 		)
+	if metadata.has("classicSpellScreenLevel"):
+		creature.set_meta(
+			"classic_spell_screen_level",
+			int(metadata["classicSpellScreenLevel"])
+		)
 	if metadata.has("classicCanSummon"):
 		creature.set_meta("classic_can_summon", int(metadata["classicCanSummon"]))
 	if bool(metadata.get("classicForceFriend", false)):

@@ -1,6 +1,7 @@
 class_name ClassicMagicResistance
 extends RefCounted
 
+const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const META_KEY := "classic_magic_resistance"
 const ITEM_FIELD := "classicMagicResistance"
 const RESIST_IGNORE_DODGE := 2
@@ -84,8 +85,21 @@ static func spell_resolution(
 	spell: Object,
 	power: int,
 	roll: int,
-	classic_context := false
+	classic_context := false,
+	caster: Object = null
 ) -> Dictionary:
+	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
+	if bool(screen.get("resisted", false)):
+		return {
+			"checksResistance": false,
+			"checksScreen": true,
+			"screenLevel": int(screen.get("screenLevel", 0)),
+			"spellLevel": int(screen.get("spellLevel", 0)),
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "spell-screen",
+		}
 	var checks_resistance := spell_uses_resistance(spell, classic_context)
 	var resistance_chance := 0
 	if checks_resistance:
@@ -96,9 +110,14 @@ static func spell_resolution(
 		)
 	return {
 		"checksResistance": checks_resistance,
+		"checksScreen": bool(screen.get("checksScreen", false)),
+		"screenLevel": int(screen.get("screenLevel", 0)),
+		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,
 		"roll": roll,
 		"resisted": checks_resistance and roll <= resistance_chance,
+		"reason": "magic-resistance" \
+			if checks_resistance and roll <= resistance_chance else "",
 	}
 
 
@@ -106,8 +125,21 @@ static func custom_spell_resolution(
 	character: Object,
 	spell: Object,
 	power: int,
-	roll: int
+	roll: int,
+	caster: Object = null
 ) -> Dictionary:
+	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
+	if bool(screen.get("resisted", false)):
+		return {
+			"checksResistance": false,
+			"checksScreen": true,
+			"screenLevel": int(screen.get("screenLevel", 0)),
+			"spellLevel": int(screen.get("spellLevel", 0)),
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "spell-screen",
+		}
 	var checks_resistance := custom_spell_uses_resistance(spell)
 	var resistance_chance := 0
 	if checks_resistance:
@@ -118,7 +150,12 @@ static func custom_spell_resolution(
 		)
 	return {
 		"checksResistance": checks_resistance,
+		"checksScreen": bool(screen.get("checksScreen", false)),
+		"screenLevel": int(screen.get("screenLevel", 0)),
+		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,
 		"roll": roll,
 		"resisted": checks_resistance and roll <= resistance_chance,
+		"reason": "magic-resistance" \
+			if checks_resistance and roll <= resistance_chance else "",
 	}

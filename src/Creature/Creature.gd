@@ -655,6 +655,7 @@ func initialize_from_bestiary_dict(creaname : String) :
 		["classic_turn_undead_eligible", "classicTurnUndeadEligible"],
 		["classic_hit_dice", "classicHitDice"],
 		["classic_magic_resistance", "classicMagicResistance"],
+		["classic_spell_screen_level", "classicSpellScreenLevel"],
 		["classic_can_summon", "classicCanSummon"],
 		["classic_required_weapon_kind", "classicRequiredWeaponKind"],
 		["classic_required_weapon_item_id", "classicRequiredWeaponItemId"],

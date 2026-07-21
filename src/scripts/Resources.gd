@@ -317,6 +317,7 @@ func load_bestiary_resources( path : String ) -> void:
 			"classicTurnUndeadEligible",
 			"classicHitDice",
 			"classicMagicResistance",
+			"classicSpellScreenLevel",
 			"classicCanSummon",
 			"classicWeaponItemId",
 			"classicRequiredWeaponKind",

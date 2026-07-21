@@ -483,6 +483,11 @@ func _run_smoke() -> void:
 	_expect_equal(ally.bestiary_key, "Classic Monster 1", "ally retains its native resource key")
 	_expect_equal(ally.classic_monster_id, 1, "ally retains its Classic record identity")
 	_expect_equal(ally.classic_monster_name_id, 1, "ally retains its Classic name identity")
+	_expect_equal(
+		ally.get_meta("classic_spell_screen_level", 0),
+		1,
+		"ally receives its permanent Classic spell screen through native resources"
+	)
 	_expect_equal(ally.inventory.size(), 2, "ally receives both compiled monster items")
 	var equipped_dagger := _inventory_item(ally.inventory, "Dagger")
 	var carried_token := _inventory_item(ally.inventory, "Providence Token")
@@ -568,6 +573,11 @@ func _run_smoke() -> void:
 		_restored_spell_has_script(restored_ally, "Fireball"),
 		"restored Classic spell remains executable through the native spell resource"
 	)
+	_expect_equal(
+		restored_ally.get_meta("classic_spell_screen_level", 0),
+		1,
+		"restored ally recovers its permanent spell screen from the Bestiary entry"
+	)
 	_expect(
 		AdapterScript.new().party_has_classic_ally({"monsterNameId": 1}, [restored_ally]),
 		"restored producer ally satisfies a Classic name-identity check"
@@ -594,6 +604,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	content["monsters"][0]["items"] = [1, 901, 0, 0, 0, 0]
 	content["monsters"][0]["weapon"] = 1
 	content["monsters"][0]["spells"] = [1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0]
+	content["monsters"][0]["conditions"][16] = -1
 	content["monsters"][0]["magicAttackCount"] = 2
 	content["monsters"][0]["castPercent"] = 75
 	var weapon_record: Dictionary = content["scenarioItems"][0].duplicate(true)
