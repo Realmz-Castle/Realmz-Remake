@@ -2,6 +2,9 @@ class_name ClassicSpellSaves
 extends RefCounted
 
 const SAVE_MODES := ["none", "negate", "half_damage"]
+const META_SAVES_KEY := "classic_spell_saves"
+const META_IMMUNITIES_KEY := "classic_spell_immunities"
+const MONSTER_SAVE_COUNT := 6
 const SAVE_STATS := {
 	0: ["MultiplierMental", "ResistanceMental"],
 	1: ["MultiplierFire", "ResistanceFire"],
@@ -12,6 +15,40 @@ const SAVE_STATS := {
 	6: ["MultiplierMagic", "ResistanceMagic"],
 	7: ["MultiplierHealing", "ResistanceHealing"],
 }
+
+
+static func monster_saves(values: Variant) -> Array:
+	return _integer_array(values, MONSTER_SAVE_COUNT)
+
+
+static func monster_immunities(values: Variant) -> Array:
+	return _integer_array(values, MONSTER_SAVE_COUNT)
+
+
+static func apply_monster_metadata(
+	character: Object,
+	saves: Variant,
+	immunities: Variant
+) -> void:
+	if character == null:
+		return
+	character.set_meta(META_SAVES_KEY, monster_saves(saves))
+	character.set_meta(META_IMMUNITIES_KEY, monster_immunities(immunities))
+
+
+static func supports_save_index(save_index: int) -> bool:
+	return SAVE_STATS.has(save_index)
+
+
+static func save_chance_for(character: Object, save_index: int) -> float:
+	var monster_chance: Variant = _monster_save_chance(character, save_index)
+	if monster_chance != null:
+		return float(monster_chance)
+	var stat_names: Array = SAVE_STATS[save_index]
+	var multiplier := float(character.get_stat(stat_names[0]))
+	var resistance := float(character.get_stat(stat_names[1]))
+	# Remake stores elemental defense as damage modifiers rather than Classic DRVs.
+	return clampf((2.0 * (1.0 - multiplier) + 0.1 * resistance) * 100.0, 0.0, 100.0)
 
 
 static func target_resolution(
@@ -36,16 +73,13 @@ static func target_resolution(
 			"forced": forced,
 			"effectScale": 1.0,
 		}
-	if not SAVE_STATS.has(save_index):
+	if not supports_save_index(save_index):
 		return {"status": "error", "message": "Spell has no Classic save type"}
 	if character == null or not character.has_method("get_stat"):
 		return {"status": "error", "message": "Classic spell target has no readable stats"}
 
-	var stat_names: Array = SAVE_STATS[save_index]
-	var multiplier := float(character.get_stat(stat_names[0]))
-	var resistance := float(character.get_stat(stat_names[1]))
 	var save_chance := clampf(
-		(2.0 * (1.0 - multiplier) + 0.1 * resistance) * 100.0
+		save_chance_for(character, save_index)
 			+ int(spell.get("classic_save_bonus"))
 			+ power * (
 				int(spell.get("classic_save_adjust")) + int(extra_adjustment)
@@ -66,3 +100,32 @@ static func target_resolution(
 		"forced": forced,
 		"effectScale": effect_scale,
 	}
+
+
+static func _monster_save_chance(character: Object, save_index: int) -> Variant:
+	if character == null or not character.has_meta(META_SAVES_KEY):
+		return null
+	# Data MD keeps Charm and Mental as separate families even though Remake
+	# represents both with its native Mental defense.
+	var saves := monster_saves(character.get_meta(META_SAVES_KEY))
+	if save_index >= 0 and save_index < MONSTER_SAVE_COUNT:
+		var immunities := monster_immunities(
+			character.get_meta(META_IMMUNITIES_KEY, [])
+		)
+		if int(immunities[save_index]) != 0:
+			return 100.0
+		return clampf(float(saves[save_index]), 0.0, 100.0)
+	if save_index == 7:
+		# Classic's special save truncates the average of all six monster saves.
+		var total := 0
+		for value: Variant in saves:
+			total += int(value)
+		return clampf(float(int(float(total) / float(MONSTER_SAVE_COUNT))), 0.0, 100.0)
+	return null
+
+
+static func _integer_array(values: Variant, expected_size: int) -> Array:
+	var result: Array = []
+	for index: int in expected_size:
+		result.append(int(values[index]) if values is Array and index < values.size() else 0)
+	return result

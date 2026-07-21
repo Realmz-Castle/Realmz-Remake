@@ -734,6 +734,7 @@ func _init() -> void:
 	_test_classic_regeneration_contract()
 	_test_classic_spell_screen_contract()
 	_test_classic_magic_resistance_contract()
+	_test_classic_spell_save_contract()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -3191,6 +3192,40 @@ func _test_classic_bestiary_materializer() -> void:
 		1.0,
 		"Classic monster magic resistance stays distinct from damage scaling"
 	)
+	var split_save_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	split_save_record["saves"] = [-25, -25, 100, 100, 100, 15]
+	split_save_record["spellImmunities"] = [1, 0, 0, 1, 1, 0]
+	var split_save_monster: Dictionary = materializer._native_monster(
+		split_save_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect_equal(
+		split_save_monster.get("classicSpellSaves"),
+		[-25, -25, 100, 100, 100, 15],
+		"native monster metadata preserves separate Charm and Mental saves"
+	)
+	_expect_equal(
+		split_save_monster.get("classicSpellImmunities"),
+		[1, 0, 0, 1, 1, 0],
+		"native monster metadata preserves separate family immunities"
+	)
+	_expect(
+		not split_save_monster.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("saves.charmMentalSplit"),
+		"distinct Charm and Mental saves no longer block native materialization"
+	)
+	_expect(
+		not split_save_monster.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("spellImmunities.charmMentalSplit"),
+		"distinct Charm and Mental immunities no longer block native materialization"
+	)
 	_expect_equal(
 		monster.get("tools", {}).get("unarmed_melee_attacks", [])[0].get(
 			"weapon_dmg", {}
@@ -5134,6 +5169,59 @@ func _test_classic_magic_resistance_contract() -> void:
 	_expect(
 		not legacy_item.get("stats", {}).has("EvasionMagic"),
 		"pre-contract catalog saves no longer grant native magic evasion"
+	)
+
+
+func _test_classic_spell_save_contract() -> void:
+	var target := RogueTestCharacter.new()
+	var saves := [-25, -25, 100, 100, 100, 15]
+	var immunities := [0, 0, 0, 0, 0, 0]
+	SpellSavesScript.apply_monster_metadata(target, saves, immunities)
+	_expect_equal(
+		target.get_meta("classic_spell_saves"),
+		saves,
+		"Classic monster save families remain separate compatibility metadata"
+	)
+
+	var charm_spell := Spell.new()
+	charm_spell.classic_spell_save_index = 0
+	charm_spell.classic_spell_save_mode = "negate"
+	var charm_resolution: Dictionary = SpellSavesScript.target_resolution(
+		target, charm_spell, 1, 1
+	)
+	_expect_equal(charm_resolution.get("saveChance"), 0.0, "negative Charm save clamps to zero")
+	_expect(not charm_resolution.get("saved"), "Charm uses the source save at index zero")
+
+	var mental_spell := Spell.new()
+	mental_spell.classic_spell_save_index = 5
+	mental_spell.classic_spell_save_mode = "negate"
+	var mental_resolution: Dictionary = SpellSavesScript.target_resolution(
+		target, mental_spell, 1, 15
+	)
+	_expect_equal(mental_resolution.get("saveChance"), 15.0, "Mental retains its distinct save")
+	_expect(mental_resolution.get("saved"), "Mental uses the source save at index five")
+	_expect_equal(
+		SpellSavesScript.save_chance_for(target, 7),
+		44.0,
+		"Classic special saves use the integer average of all six monster saves"
+	)
+
+	immunities[0] = 1
+	SpellSavesScript.apply_monster_metadata(target, saves, immunities)
+	_expect_equal(
+		SpellSavesScript.save_chance_for(target, 0),
+		100.0,
+		"a Classic family immunity guarantees its matching save"
+	)
+	_expect_equal(
+		SpellSavesScript.save_chance_for(target, 5),
+		15.0,
+		"Charm immunity does not leak into the Mental family"
+	)
+	_expect_equal(
+		GodotAdapterScript.new()._classic_spell_save_chance(target, 0),
+		100.0,
+		"encounter save checks use the same preserved monster contract"
 	)
 
 
@@ -9216,6 +9304,8 @@ func _test_compiled_battle_materialization() -> void:
 	bundle.monsters_by_id[1]["typeFlags"] = [false, false, true, false, false, false, false, false]
 	bundle.monsters_by_id[1]["hitDice"] = 7
 	bundle.monsters_by_id[1]["magicResistance"] = 12
+	bundle.monsters_by_id[1]["saves"] = [-25, -25, 100, 100, 100, 15]
+	bundle.monsters_by_id[1]["spellImmunities"] = [1, 0, 0, 1, 1, 0]
 	bundle.monsters_by_id[1]["canSummon"] = 1
 	bundle.monsters_by_id[1]["conditions"][10] = -2
 	bundle.monsters_by_id[1]["conditions"][16] = -1
@@ -9265,6 +9355,16 @@ func _test_compiled_battle_materialization() -> void:
 		creature[2].get("classicMagicResistance"),
 		12,
 		"compiled battle preserves turning resistance"
+	)
+	_expect_equal(
+		creature[2].get("classicSpellSaves"),
+		[-25, -25, 100, 100, 100, 15],
+		"compiled battle preserves all six monster saves"
+	)
+	_expect_equal(
+		creature[2].get("classicSpellImmunities"),
+		[1, 0, 0, 1, 1, 0],
+		"compiled battle preserves all six spell immunities"
 	)
 	_expect_equal(
 		creature[2].get("classicRegenerationPerRound"),

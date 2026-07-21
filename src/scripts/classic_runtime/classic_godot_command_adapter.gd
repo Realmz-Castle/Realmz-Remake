@@ -79,16 +79,6 @@ const CLASSIC_MISC_ATTRIBUTE_STATS := {
 	5: "Dexterity",
 	6: "Luck",
 }
-const CLASSIC_SPELL_SAVE_STATS := {
-	0: ["MultiplierMental", "ResistanceMental"],
-	1: ["MultiplierFire", "ResistanceFire"],
-	2: ["MultiplierIce", "ResistanceIce"],
-	3: ["MultiplierElect", "ResistanceElect"],
-	4: ["MultiplierChemical", "ResistanceChemical"],
-	5: ["MultiplierMental", "ResistanceMental"],
-	6: ["MultiplierMagic", "ResistanceMagic"],
-	7: ["MultiplierHealing", "ResistanceHealing"],
-}
 const CLASSIC_SPECIAL_STATS := {
 	0: "Melee_Crit_Mult",
 	3: "Melee_Crit_Rate",
@@ -1213,6 +1203,10 @@ func _classic_battle_monster_metadata(
 		"classicTurnUndeadEligible": _classic_monster_can_be_turned(monster),
 		"classicHitDice": int(monster.get("hitDice", 0)),
 		"classicMagicResistance": int(monster.get("magicResistance", 0)),
+		"classicSpellSaves": SpellSavesScript.monster_saves(monster.get("saves", [])),
+		"classicSpellImmunities": SpellSavesScript.monster_immunities(
+			monster.get("spellImmunities", [])
+		),
 		"classicRegenerationPerRound": RegenerationScript.permanent_amount(
 			monster.get("conditions", [])
 		),
@@ -1498,6 +1492,11 @@ func _set_classic_monster_identity(
 	creature.set_meta("classic_monster_id", monster_id)
 	creature.set_meta("classic_monster_name_id", name_id)
 	creature.set_meta("classic_death_macro", int(monster.get("deathMacro", 0)))
+	SpellSavesScript.apply_monster_metadata(
+		creature,
+		monster.get("saves", []),
+		monster.get("spellImmunities", [])
+	)
 	var regeneration := RegenerationScript.permanent_amount(monster.get("conditions", []))
 	if regeneration > 0:
 		creature.set_meta(RegenerationScript.META_KEY, regeneration)
@@ -1919,7 +1918,7 @@ func classic_field_spell_target_resolution(
 	var save_mode := str(spell.get("classic_spell_save_mode"))
 	if not CLASSIC_FIELD_SPELL_SAVE_MODES.has(save_mode):
 		return _error("Native spell has invalid Classic save metadata")
-	if save_mode != "none" and not CLASSIC_SPELL_SAVE_STATS.has(save_index):
+	if save_mode != "none" and not SpellSavesScript.supports_save_index(save_index):
 		return _error("Native spell has no Classic save type")
 	if save_mode != "none" and not character.has_method("get_stat"):
 		return _error("Classic field-spell target has no readable stats")
@@ -1996,7 +1995,7 @@ func classic_custom_spell_target_resolution(
 
 	var save_chance := 0.0
 	if save_mode != "none":
-		if not CLASSIC_SPELL_SAVE_STATS.has(save_index):
+		if not SpellSavesScript.supports_save_index(save_index):
 			return _error("Classic custom spell has no executable save type")
 		save_chance = clampf(
 			_classic_spell_save_chance(character, save_index)
@@ -3502,7 +3501,7 @@ func select_characters_by_misc(
 		return _error("Classic item selector has no item names")
 	if selector == "attribute_save_failure" and not CLASSIC_MISC_ATTRIBUTE_STATS.has(value):
 		return _error("Classic attribute save %d has no Remake stat mapping" % value)
-	if selector == "spell_save_failure" and not CLASSIC_SPELL_SAVE_STATS.has(value):
+	if selector == "spell_save_failure" and not SpellSavesScript.supports_save_index(value):
 		return _error("Classic spell save %d has no Remake stat mapping" % value)
 
 	var selected: Array = []
@@ -3643,11 +3642,7 @@ func _character_has_named_item(
 
 
 func _classic_spell_save_chance(character: Object, save_index: int) -> float:
-	var stat_names: Array = CLASSIC_SPELL_SAVE_STATS[save_index]
-	var multiplier := float(character.get_stat(stat_names[0]))
-	var resistance := float(character.get_stat(stat_names[1]))
-	# Remake stores elemental defense as damage modifiers rather than Classic DRVs.
-	return clampf((2.0 * (1.0 - multiplier) + 0.1 * resistance) * 100.0, 0.0, 100.0)
+	return SpellSavesScript.save_chance_for(character, save_index)
 
 
 func _change_selected_health(payload: Dictionary) -> Dictionary:

@@ -484,6 +484,16 @@ func _run_smoke() -> void:
 	_expect_equal(ally.classic_monster_id, 1, "ally retains its Classic record identity")
 	_expect_equal(ally.classic_monster_name_id, 1, "ally retains its Classic name identity")
 	_expect_equal(
+		ally.get_meta("classic_spell_saves", []),
+		[-25, -25, 100, 100, 100, 15],
+		"ally receives separate Classic Charm and Mental saves through native resources"
+	)
+	_expect_equal(
+		ally.get_meta("classic_spell_immunities", []),
+		[1, 0, 0, 1, 1, 0],
+		"ally receives its exact Classic spell-family immunities"
+	)
+	_expect_equal(
 		ally.get_meta("classic_spell_screen_level", 0),
 		1,
 		"ally receives its permanent Classic spell screen through native resources"
@@ -596,6 +606,16 @@ func _run_smoke() -> void:
 		2,
 		"restored ally recovers permanent regeneration from the Bestiary entry"
 	)
+	_expect_equal(
+		restored_ally.get_meta("classic_spell_saves", []),
+		[-25.0, -25.0, 100.0, 100.0, 100.0, 15.0],
+		"restored ally recovers its separate Classic saves from the Bestiary entry"
+	)
+	_expect_equal(
+		restored_ally.get_meta("classic_spell_immunities", []),
+		[1.0, 0.0, 0.0, 1.0, 1.0, 0.0],
+		"restored ally recovers its Classic immunities from the Bestiary entry"
+	)
 	_expect(
 		AdapterScript.new().party_has_classic_ally({"monsterNameId": 1}, [restored_ally]),
 		"restored producer ally satisfies a Classic name-identity check"
@@ -624,6 +644,8 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	content["monsters"][0]["spells"] = [1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0]
 	content["monsters"][0]["conditions"][10] = -2
 	content["monsters"][0]["conditions"][16] = -1
+	content["monsters"][0]["saves"] = [-25, -25, 100, 100, 100, 15]
+	content["monsters"][0]["spellImmunities"] = [1, 0, 0, 1, 1, 0]
 	content["monsters"][0]["magicAttackCount"] = 2
 	content["monsters"][0]["castPercent"] = 75
 	var weapon_record: Dictionary = content["scenarioItems"][0].duplicate(true)
@@ -677,6 +699,8 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	elemental_monster["spells"] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	elemental_monster["magicAttackCount"] = 0
 	elemental_monster["castPercent"] = 0
+	elemental_monster["saves"] = [0, 0, 0, 0, 0, 0]
+	elemental_monster["spellImmunities"] = [0, 0, 0, 0, 0, 0]
 	elemental_monster["attacks"][0][3] = 13
 	elemental_monster["distance"] = -1
 	elemental_monster["magicToHit"] = 2

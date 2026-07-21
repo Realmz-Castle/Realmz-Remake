@@ -244,6 +244,13 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 			"classic_magic_resistance",
 			int(metadata["classicMagicResistance"])
 		)
+	if metadata.has("classicSpellSaves"):
+		creature.set_meta("classic_spell_saves", metadata["classicSpellSaves"].duplicate())
+	if metadata.has("classicSpellImmunities"):
+		creature.set_meta(
+			"classic_spell_immunities",
+			metadata["classicSpellImmunities"].duplicate()
+		)
 	if metadata.has("classicRegenerationPerRound"):
 		creature.set_meta(
 			"classic_regeneration_per_round",

@@ -328,6 +328,10 @@ func load_bestiary_resources( path : String ) -> void:
 		] :
 			if n_crea_stuff_book[crea_name].has(classic_field) :
 				new_crea_data[classic_field] = n_crea_stuff_book[crea_name][classic_field]
+		for classic_field : String in ["classicSpellSaves", "classicSpellImmunities"] :
+			if n_crea_stuff_book[crea_name].has(classic_field) :
+				new_crea_data[classic_field] = \
+					n_crea_stuff_book[crea_name][classic_field].duplicate()
 		for classic_field : String in ["classicRecord", "classicMaterialization"] :
 			if n_crea_stuff_book[crea_name].has(classic_field) :
 				new_crea_data[classic_field] = \

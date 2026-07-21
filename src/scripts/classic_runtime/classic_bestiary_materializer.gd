@@ -7,6 +7,7 @@ const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
+const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
 const BESTIARY_IMAGE_BOOK_PATH := "Bestiary/img_pack.json"
@@ -248,6 +249,10 @@ func _native_monster(
 		"classicTurnUndeadEligible": _type_flag(record, 1) or _type_flag(record, 2),
 		"classicHitDice": hit_dice,
 		"classicMagicResistance": int(record.get("magicResistance", 0)),
+		"classicSpellSaves": SpellSavesScript.monster_saves(record.get("saves", [])),
+		"classicSpellImmunities": SpellSavesScript.monster_immunities(
+			record.get("spellImmunities", [])
+		),
 		"classicRegenerationPerRound": RegenerationScript.permanent_amount(
 			record.get("conditions", [])
 		),
@@ -643,12 +648,6 @@ func _unsupported_fields(
 	for field_name: String in native_requirements.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
-	var saves := _integer_array(record.get("saves", []), 6)
-	if saves[0] != saves[5]:
-		fields.append("saves.charmMentalSplit")
-	var immunities := _integer_array(record.get("spellImmunities", []), 6)
-	if immunities[0] != immunities[5]:
-		fields.append("spellImmunities.charmMentalSplit")
 	if not SIZE_BY_CLASSIC_VALUE.has(int(record.get("size", 0))):
 		fields.append("size")
 	if int(record.get("attackCount", 0)) < 1 or int(record.get("attackCount", 0)) > 5:
