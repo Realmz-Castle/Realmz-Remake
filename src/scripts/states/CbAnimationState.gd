@@ -390,14 +390,18 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 	print("CbAnimState after_spell_anim_finished : "+castercrea.name+'s '+spell.name)
 	var unresisted_creatures : Array = []
 	for cb : CombatCreaButton in effected_creas :
+		var pre_resistance_roll := -1
+		if CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_uses_pre_resistance(spell) :
+			pre_resistance_roll = randi_range(1, 100)
+		var general_resistance_roll := randi_range(1, 100)
 		var resistance : Dictionary = CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_resolution(
 			cb.creature,
 			spell,
 			power,
-			randi_range(1, 100),
+			general_resistance_roll,
 			false,
 			castercrea,
-			randi_range(1, 100)
+			pre_resistance_roll
 		)
 		if bool(resistance.get("resisted", false)) :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)

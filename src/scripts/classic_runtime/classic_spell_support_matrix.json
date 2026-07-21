@@ -692,6 +692,7 @@
         "lineOfSight": false,
         "duration": "battle",
         "saveMode": "none",
+        "preResistance": "classic-charm",
         "resistance": "classic-general",
         "special": 51,
         "adapter": "classic-battle-charm-trait",
@@ -941,6 +942,7 @@
         "lineOfSight": false,
         "duration": "battle",
         "saveMode": "none",
+        "preResistance": "classic-charm",
         "resistance": "classic-general",
         "special": 51,
         "adapter": "classic-battle-charm-trait",
@@ -1080,6 +1082,36 @@
         "saveIndex": 3,
         "resistance": "classic-general",
         "costPerPower": 5
+      }
+    },
+    {
+      "classicSpellId": 3202,
+      "displayName": "Daze",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/daze.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 226,
+        "byteOffset": 6780,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-daze", "slots": [3]}
+      ],
+      "behavior": {
+        "targetType": "ray",
+        "range": "three-per-power",
+        "lineOfSight": false,
+        "duration": "1-4-rounds",
+        "preResistance": "classic-charm",
+        "saveMode": "negate",
+        "saveIndex": 0,
+        "saveBonus": -15,
+        "resistance": "classic-general",
+        "special": 30,
+        "adapter": "native-confusion-trait",
+        "costPerPower": 7
       }
     },
     {
@@ -1347,6 +1379,7 @@
         "lineOfSight": false,
         "duration": "battle",
         "saveMode": "none",
+        "preResistance": "classic-charm",
         "resistance": "classic-general",
         "special": 51,
         "adapter": "classic-battle-charm-trait",

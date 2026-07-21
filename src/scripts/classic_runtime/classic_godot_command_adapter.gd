@@ -1925,7 +1925,8 @@ func classic_field_spell_target_resolution(
 	character: Object,
 	spell: Object,
 	resistance_roll: int,
-	save_roll: int
+	save_roll: int,
+	pre_resistance_roll: int = -1
 ) -> Dictionary:
 	var save_index := int(spell.get("classic_spell_save_index"))
 	var save_mode := str(spell.get("classic_spell_save_mode"))
@@ -1942,7 +1943,9 @@ func classic_field_spell_target_resolution(
 		spell,
 		int(payload.get("power", 0)),
 		resistance_roll,
-		true
+		true,
+		null,
+		pre_resistance_roll
 	)
 	var resisted := not forced and bool(resistance.get("resisted", false))
 	var save_resolution: Dictionary = SpellSavesScript.target_resolution(
@@ -1965,6 +1968,13 @@ func classic_field_spell_target_resolution(
 		"name": str(character.get("name")),
 		"resistanceRoll": resistance_roll,
 		"resistanceChance": int(resistance.get("chance", 0)),
+		"preResistanceRoll": int(
+			resistance.get("charmRoll", resistance.get("opposedRoll", 0))
+		),
+		"preResistanceChance": int(
+			resistance.get("charmChance", resistance.get("opposedChance", 0))
+		),
+		"resistanceReason": str(resistance.get("reason", "")),
 		"resisted": resisted,
 		"roll": save_roll,
 		"saveChance": save_chance,
@@ -1979,7 +1989,8 @@ func classic_custom_spell_target_resolution(
 	character: Object,
 	spell: Object,
 	resistance_roll: int,
-	save_roll: int
+	save_roll: int,
+	pre_resistance_roll: int = -1
 ) -> Dictionary:
 	if not spell.is_generically_executable():
 		return _error(
@@ -2001,7 +2012,9 @@ func classic_custom_spell_target_resolution(
 		character,
 		spell,
 		power,
-		resistance_roll
+		resistance_roll,
+		null,
+		pre_resistance_roll
 	)
 	var resistance_chance := int(resistance.get("chance", 0))
 	var resisted := not forced and bool(resistance.get("resisted", false))
@@ -2030,6 +2043,9 @@ func classic_custom_spell_target_resolution(
 		"name": str(character.get("name")),
 		"resistanceRoll": resistance_roll,
 		"resistanceChance": resistance_chance,
+		"preResistanceRoll": int(resistance.get("charmRoll", 0)),
+		"preResistanceChance": int(resistance.get("charmChance", 0)),
+		"resistanceReason": str(resistance.get("reason", "")),
 		"resisted": resisted,
 		"roll": save_roll,
 		"saveChance": save_chance,
@@ -3755,12 +3771,18 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 	for target: Variant in targets:
 		if not (target is Object):
 			return _error("Classic field-spell target is not a character")
+		var pre_resistance_roll := -1
+		if MagicResistanceScript.spell_uses_pre_resistance(spell, true):
+			pre_resistance_roll = randi_range(1, 100)
+		var general_resistance_roll := randi_range(1, 100)
+		var save_roll := randi_range(1, 100)
 		var resolution := classic_field_spell_target_resolution(
 			payload,
 			target,
 			spell,
-			randi_range(1, 100),
-			randi_range(1, 100)
+			general_resistance_roll,
+			save_roll,
+			pre_resistance_roll
 		)
 		if str(resolution.get("status", "")) == "error":
 			return resolution
@@ -3806,12 +3828,18 @@ func _apply_custom_spell_to_targets(
 	for target: Variant in targets:
 		if not (target is Object):
 			return _error("Classic custom-spell target is not a character")
+		var pre_resistance_roll := -1
+		if MagicResistanceScript.spell_uses_charm_resistance(spell, true):
+			pre_resistance_roll = randi_range(1, 100)
+		var general_resistance_roll := randi_range(1, 100)
+		var save_roll := randi_range(1, 100)
 		var resolution := classic_custom_spell_target_resolution(
 			payload,
 			target,
 			spell,
-			randi_range(1, 100),
-			randi_range(1, 100)
+			general_resistance_roll,
+			save_roll,
+			pre_resistance_roll
 		)
 		if str(resolution.get("status", "")) == "error":
 			return resolution

@@ -347,6 +347,8 @@ class RogueTestCharacter:
 	var current_hp := 30
 	var inventory: Array = []
 	var spells: Array = []
+	var tags: Array = []
+	var traits: Array = []
 
 	func get_stat(stat_name: String) -> float:
 		if stat_values.has(stat_name):
@@ -5148,6 +5150,67 @@ func _test_classic_magic_resistance_contract() -> void:
 		31,
 		"mapped combat spell uses the compatibility-owned percentage"
 	)
+	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
+	target.stat_values["MultiplierMental"] = 1.0
+	target.stat_values["ResistanceMental"] = 4.0
+	var resisted_charm: Dictionary = MagicResistanceScript.spell_resolution(
+		target, charm_foe, 1, 100, false, null, 40
+	)
+	_expect(resisted_charm.get("resisted"), "Charm Foe checks the target's charm save first")
+	_expect_equal(
+		resisted_charm.get("reason"),
+		"charm-resistance",
+		"the early charm check reports its own resistance reason"
+	)
+	_expect_equal(
+		resisted_charm.get("charmChance"),
+		40,
+		"party charm resistance uses Classic save slot zero"
+	)
+	var daze = load("res://shared_assets/spells/daze.gd").new()
+	var unresisted_daze: Dictionary = MagicResistanceScript.spell_resolution(
+		target, daze, 1, 32, false, null, 41
+	)
+	_expect(
+		not unresisted_daze.get("resisted"),
+		"Daze continues after both its early charm roll and general resistance fail"
+	)
+	_expect(
+		unresisted_daze.get("checksCharmResistance"),
+		"Daze shares the class-zero pre-resistance rule before its later damage save"
+	)
+	target.set_meta("classic_hit_dice", 4)
+	target.tags = ["Magic Using", "Intelligent"]
+	var monster_charm: Dictionary = MagicResistanceScript.spell_resolution(
+		target, charm_foe, 1, 100, false, null, 61
+	)
+	_expect(monster_charm.get("resisted"), "Classic monsters can resist charm before magic resistance")
+	_expect_equal(
+		monster_charm.get("charmChance"),
+		61,
+		"monster charm resistance uses hit dice and the magic-using and intelligent flags"
+	)
+	target.remove_meta("classic_hit_dice")
+	target.tags.clear()
+	target.traits = [ConditionTestTrait.new("t_animated.gd", 1)]
+	var animated_immunity: Dictionary = MagicResistanceScript.spell_resolution(
+		target, daze, 1, 100, false, null, 100
+	)
+	_expect(animated_immunity.get("resisted"), "animated targets ignore charm and mental spells")
+	_expect_equal(
+		animated_immunity.get("reason"),
+		"animated-immunity",
+		"animated immunity remains distinct from charm and general resistance"
+	)
+	var fearful_thoughts = load("res://shared_assets/spells/fearful_thoughts.gd").new()
+	var animated_mental_immunity: Dictionary = MagicResistanceScript.spell_resolution(
+		target, fearful_thoughts, 1, 100
+	)
+	_expect(
+		animated_mental_immunity.get("resisted"),
+		"animated targets also ignore Classic mental-class spells"
+	)
+	target.traits.clear()
 	var psionic_spear = CoreSpellCatalogScript.spell(2109)
 	var psionic_caster := RogueTestCharacter.new()
 	target.level = 4
@@ -5206,11 +5269,16 @@ func _test_classic_magic_resistance_contract() -> void:
 	)
 	var native_spell := Spell.new()
 	native_spell.resist = Spell.RESIST_TYPE.IGNORE_NOTHING
+	var native_resolution: Dictionary = MagicResistanceScript.spell_resolution(
+		target, native_spell, 1, 1
+	)
 	_expect(
-		not MagicResistanceScript.spell_resolution(
-			target, native_spell, 1, 1
-		).get("checksResistance"),
+		not native_resolution.get("checksResistance"),
 		"ordinary native spells do not inherit the Classic resistance contract"
+	)
+	_expect(
+		not native_resolution.get("checksCharmResistance"),
+		"the base spell class does not make an ordinary native spell use Classic charm resistance"
 	)
 
 	var custom_record := _custom_spell_record(18, 5204)
@@ -5230,6 +5298,26 @@ func _test_classic_magic_resistance_contract() -> void:
 			target, custom_spell, 2, 35
 		).get("resisted"),
 		"compiler-produced spell applies its resistance adjustment"
+	)
+	var custom_charm_record := _custom_spell_record(19, 5205)
+	custom_charm_record["spellClass"] = 0
+	custom_charm_record["damageType"] = 0
+	custom_charm_record["cannot"] = 0
+	var custom_charm = load(
+		"res://scripts/classic_runtime/classic_spell_override.gd"
+	).new()
+	custom_charm.configure(custom_charm_record)
+	var custom_charm_resolution: Dictionary = MagicResistanceScript.custom_spell_resolution(
+		target, custom_charm, 1, 100, null, 40
+	)
+	_expect(
+		custom_charm_resolution.get("resisted"),
+		"compiler-produced class-zero spells use the same early charm resistance"
+	)
+	_expect_equal(
+		custom_charm_resolution.get("reason"),
+		"charm-resistance",
+		"compiled charm resistance reports the shared reason"
 	)
 	var custom_field_resolution: Dictionary = (
 		GodotAdapterScript.new().classic_custom_spell_target_resolution(
@@ -6938,12 +7026,18 @@ func _test_spell_effect_actions(bundle) -> void:
 	_expect(not forced_effect.get("saved"), "force-affect bypasses a guaranteed save")
 	_expect(forced_effect.get("forced"), "force-affect remains visible in the resolution")
 	_expect_equal(forced_effect.get("effectScale"), 1.0, "force-affect applies the full spell")
+	first_target.stat_values["ResistanceMental"] = 0.0
 	var daze_save: Dictionary = adapter.classic_field_spell_target_resolution(
 		{"power": 7, "saveAdjustment": 100, "forceAffect": false},
 		first_target,
 		daze,
 		1,
-		1
+		1,
+		100
+	)
+	_expect(
+		not daze_save.get("resisted"),
+		"Daze can pass its independent class-zero resistance roll"
 	)
 	_expect(daze_save.get("saved"), "Daze uses Classic's charm save")
 	_expect_equal(daze_save.get("effectScale"), 0.0, "a successful Daze save negates confusion")
@@ -7013,7 +7107,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		44,
+		45,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7054,6 +7148,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(3311, {}).get("coverageStatus"),
 		"supported",
 		"reviewed Enchanter Power Drain is supported"
+	)
+	_expect_equal(
+		coverage_by_id.get(3202, {}).get("coverageStatus"),
+		"supported",
+		"Daze is supported after its early resistance and later charm save are represented"
 	)
 	_expect_equal(
 		coverage_by_id.get(1212, {}).get("coverageStatus"),
@@ -7506,7 +7605,7 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1108, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
 					1701, 2101, 2102, 2103, 2109, 2111, 2201, 2306, 2605, 2706,
-					3102, 3105, 3207, 3208, 3211, 3301, 3308, 3311, 3401, 3409,
+					3102, 3105, 3202, 3207, 3208, 3211, 3301, 3308, 3311, 3401, 3409,
 					3506, 3603, 3704, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
@@ -11614,6 +11713,7 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(daze.classic_spell_class, 0, "Daze exports its Classic class")
 	_expect_equal(daze.classic_spell_save_index, 0, "Daze uses Classic's charm save")
 	_expect_equal(daze.classic_spell_save_mode, "negate", "Daze's charm save negates confusion")
+	_expect_equal(daze.classic_save_bonus, -15, "Daze keeps its source save penalty")
 	_expect_equal(daze.get_range(3, null), 9, "Daze range scales by power")
 	_expect_equal(daze.get_min_duration(7, null), 1, "Daze keeps its minimum duration")
 	_expect_equal(daze.get_max_duration(1, null), 4, "Daze keeps its maximum duration")

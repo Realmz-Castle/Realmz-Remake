@@ -9,6 +9,7 @@ func _init() -> void :
 	classic_spell_ids = [3202]
 	classic_spell_save_index = 0
 	classic_spell_save_mode = "negate"
+	classic_save_bonus = -15
 	targettile = TARGET_TILE.NOWALL
 	school_levels = {"Sorcerer": 0, "Priest": 0, "Enchanter": 2}
 	selection_costs = {"Sorcerer": 0, "Priest": 0, "Enchanter": 3}

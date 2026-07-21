@@ -2,8 +2,10 @@ class_name ClassicMagicResistance
 extends RefCounted
 
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
+const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 const META_KEY := "classic_magic_resistance"
 const SPELL_IMMUNITIES_META_KEY := "classic_spell_immunities"
+const CLASSIC_HIT_DICE_META_KEY := "classic_hit_dice"
 const ITEM_FIELD := "classicMagicResistance"
 const RESIST_IGNORE_DODGE := 2
 const RESIST_IGNORE_NOTHING := 3
@@ -88,72 +90,48 @@ static func spell_resolution(
 	roll: int,
 	classic_context := false,
 	caster: Object = null,
-	opposed_roll: int = -1
+	pre_resistance_roll: int = -1
 ) -> Dictionary:
-	var opposed: Dictionary = opposed_level_resolution(
-		character,
-		spell,
-		power,
-		opposed_roll if opposed_roll >= 0 else roll,
-		caster
+	var early_roll := pre_resistance_roll if pre_resistance_roll >= 0 else roll
+	var early: Dictionary = pre_resistance_resolution(
+		character, spell, power, early_roll, caster, classic_context
 	)
-	if str(opposed.get("status", "")) == "error":
-		return {
-			"status": "error",
-			"message": str(opposed.get("message", "Classic opposed-level check failed")),
-			"checksResistance": false,
-			"checksScreen": false,
-			"checksOpposedLevel": true,
-			"checksClassImmunity": false,
-			"opposedChance": int(opposed.get("chance", 0)),
-			"opposedRoll": int(opposed.get("roll", 0)),
-			"chance": 0,
-			"roll": roll,
-			"resisted": true,
-			"reason": "opposed-level-unavailable",
-		}
-	if bool(opposed.get("resisted", false)):
-		return {
-			"checksResistance": false,
-			"checksScreen": false,
-			"checksOpposedLevel": true,
-			"checksClassImmunity": false,
-			"opposedChance": int(opposed.get("chance", 0)),
-			"opposedRoll": int(opposed.get("roll", 0)),
-			"chance": 0,
-			"roll": roll,
-			"resisted": true,
-			"reason": "opposed-level",
-		}
+	if str(early.get("status", "")) == "error" or bool(early.get("resisted", false)):
+		return _early_stop_result(early, roll)
 	if spell_class_immunity(character, spell):
-		return {
+		return _with_early_result({
 			"checksResistance": false,
 			"checksScreen": false,
-			"checksOpposedLevel": bool(opposed.get("checksOpposedLevel", false)),
 			"checksClassImmunity": true,
-			"opposedChance": int(opposed.get("chance", 0)),
-			"opposedRoll": int(opposed.get("roll", 0)),
 			"chance": 0,
 			"roll": roll,
 			"resisted": true,
 			"reason": "spell-class-immunity",
-		}
+		}, early)
 	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
 	if bool(screen.get("resisted", false)):
-		return {
+		return _with_early_result({
 			"checksResistance": false,
 			"checksScreen": true,
-			"checksOpposedLevel": bool(opposed.get("checksOpposedLevel", false)),
 			"checksClassImmunity": false,
-			"opposedChance": int(opposed.get("chance", 0)),
-			"opposedRoll": int(opposed.get("roll", 0)),
 			"screenLevel": int(screen.get("screenLevel", 0)),
 			"spellLevel": int(screen.get("spellLevel", 0)),
 			"chance": 0,
 			"roll": roll,
 			"resisted": true,
 			"reason": "spell-screen",
-		}
+		}, early)
+	if animated_spell_immunity(character, spell, classic_context):
+		return _with_early_result({
+			"checksResistance": false,
+			"checksScreen": bool(screen.get("checksScreen", false)),
+			"checksClassImmunity": false,
+			"checksAnimatedImmunity": true,
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "animated-immunity",
+		}, early)
 	var checks_resistance := spell_uses_resistance(spell, classic_context)
 	var resistance_chance := 0
 	if checks_resistance:
@@ -163,20 +141,151 @@ static func spell_resolution(
 			int(spell.get("classic_resist_adjust"))
 		)
 	var resisted := checks_resistance and roll <= resistance_chance
-	return {
+	return _with_early_result({
 		"checksResistance": checks_resistance,
 		"checksScreen": bool(screen.get("checksScreen", false)),
-		"checksOpposedLevel": bool(opposed.get("checksOpposedLevel", false)),
 		"checksClassImmunity": false,
-		"opposedChance": int(opposed.get("chance", 0)),
-		"opposedRoll": int(opposed.get("roll", 0)),
+		"checksAnimatedImmunity": false,
 		"screenLevel": int(screen.get("screenLevel", 0)),
 		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,
 		"roll": roll,
 		"resisted": resisted,
 		"reason": "magic-resistance" if resisted else "",
+	}, early)
+
+
+static func pre_resistance_resolution(
+	character: Object,
+	spell: Object,
+	power: int,
+	roll: int,
+	caster: Object,
+	classic_context := false
+) -> Dictionary:
+	var early: Dictionary
+	if spell_uses_charm_resistance(spell, classic_context):
+		early = charm_resistance_resolution(character, spell, power, roll, classic_context)
+		early["mode"] = "charm-resistance"
+	else:
+		early = opposed_level_resolution(character, spell, power, roll, caster)
+		early["mode"] = "opposed-level" \
+			if bool(early.get("checksOpposedLevel", false)) else ""
+	return early
+
+
+static func _early_stop_result(early: Dictionary, resistance_roll: int) -> Dictionary:
+	var unavailable := str(early.get("status", "")) == "error"
+	var reason := str(early.get("mode", ""))
+	var result := {
+		"checksResistance": false,
+		"checksScreen": false,
+		"checksClassImmunity": false,
+		"checksAnimatedImmunity": false,
+		"chance": 0,
+		"roll": resistance_roll,
+		"resisted": true,
+		"reason": reason + "-unavailable" if unavailable else reason,
 	}
+	if unavailable:
+		result["status"] = "error"
+		result["message"] = str(
+			early.get("message", "Classic pre-resistance check failed")
+		)
+	return _with_early_result(result, early)
+
+
+static func _with_early_result(result: Dictionary, early: Dictionary) -> Dictionary:
+	var mode := str(early.get("mode", ""))
+	result["checksCharmResistance"] = mode == "charm-resistance"
+	result["checksOpposedLevel"] = mode == "opposed-level"
+	result["charmChance"] = int(early.get("chance", 0)) \
+		if mode == "charm-resistance" else 0
+	result["charmRoll"] = int(early.get("roll", 0)) \
+		if mode == "charm-resistance" else 0
+	result["opposedChance"] = int(early.get("chance", 0)) \
+		if mode == "opposed-level" else 0
+	result["opposedRoll"] = int(early.get("roll", 0)) \
+		if mode == "opposed-level" else 0
+	return result
+
+
+static func charm_resistance_resolution(
+	character: Object,
+	spell: Object,
+	power: int,
+	roll: int,
+	classic_context := false
+) -> Dictionary:
+	if not spell_uses_charm_resistance(spell, classic_context):
+		return {
+			"checksCharmResistance": false,
+			"chance": 0,
+			"roll": roll,
+			"resisted": false,
+		}
+	if character == null:
+		return {
+			"status": "error",
+			"message": "Classic charm resistance requires a target",
+			"checksCharmResistance": true,
+			"chance": 0,
+			"roll": roll,
+			"resisted": false,
+		}
+
+	var resistance_chance: Variant = _classic_monster_charm_chance(character)
+	if resistance_chance == null:
+		if not character.has_method("get_stat"):
+			return {
+				"status": "error",
+				"message": "Classic charm resistance requires readable target saves",
+				"checksCharmResistance": true,
+				"chance": 0,
+				"roll": roll,
+				"resisted": false,
+			}
+		resistance_chance = int(SpellSavesScript.save_chance_for(character, 0))
+	resistance_chance = int(resistance_chance) \
+		+ power * int(spell.get("classic_save_adjust"))
+	return {
+		"checksCharmResistance": true,
+		"chance": int(resistance_chance),
+		"roll": roll,
+		"resisted": roll <= int(resistance_chance),
+	}
+
+
+static func spell_uses_charm_resistance(spell: Object, classic_context := false) -> bool:
+	return _is_classic_spell(spell, classic_context) \
+		and int(spell.get("classic_spell_class")) == 0
+
+
+static func spell_uses_pre_resistance(spell: Object, classic_context := false) -> bool:
+	if spell_uses_charm_resistance(spell, classic_context):
+		return true
+	return spell != null \
+		and spell.has_method("uses_classic_opposed_level_check") \
+		and bool(spell.uses_classic_opposed_level_check())
+
+
+static func animated_spell_immunity(
+	character: Object,
+	spell: Object,
+	classic_context := false
+) -> bool:
+	if character == null or not _is_classic_spell(spell, classic_context):
+		return false
+	if int(spell.get("classic_spell_class")) not in [0, 5]:
+		return false
+	var traits: Variant = _property_value(character, "traits")
+	if not (traits is Array):
+		return false
+	for condition_trait: Variant in traits:
+		if condition_trait is Object \
+			and str(condition_trait.get("name")) in ["p_animated.gd", "t_animated.gd"]:
+			return true
+	return false
 
 
 static func spell_class_immunity(character: Object, spell: Object) -> bool:
@@ -246,10 +355,19 @@ static func custom_spell_resolution(
 	spell: Object,
 	power: int,
 	roll: int,
-	caster: Object = null
+	caster: Object = null,
+	pre_resistance_roll: int = -1
 ) -> Dictionary:
+	var early_roll := pre_resistance_roll if pre_resistance_roll >= 0 else roll
+	var early: Dictionary = charm_resistance_resolution(
+		character, spell, power, early_roll, true
+	)
+	early["mode"] = "charm-resistance" \
+		if bool(early.get("checksCharmResistance", false)) else ""
+	if str(early.get("status", "")) == "error" or bool(early.get("resisted", false)):
+		return _early_stop_result(early, roll)
 	if spell_class_immunity(character, spell):
-		return {
+		return _with_early_result({
 			"checksResistance": false,
 			"checksScreen": false,
 			"checksClassImmunity": true,
@@ -257,10 +375,10 @@ static func custom_spell_resolution(
 			"roll": roll,
 			"resisted": true,
 			"reason": "spell-class-immunity",
-		}
+		}, early)
 	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
 	if bool(screen.get("resisted", false)):
-		return {
+		return _with_early_result({
 			"checksResistance": false,
 			"checksScreen": true,
 			"checksClassImmunity": false,
@@ -270,7 +388,18 @@ static func custom_spell_resolution(
 			"roll": roll,
 			"resisted": true,
 			"reason": "spell-screen",
-		}
+		}, early)
+	if animated_spell_immunity(character, spell, true):
+		return _with_early_result({
+			"checksResistance": false,
+			"checksScreen": bool(screen.get("checksScreen", false)),
+			"checksClassImmunity": false,
+			"checksAnimatedImmunity": true,
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "animated-immunity",
+		}, early)
 	var checks_resistance := custom_spell_uses_resistance(spell)
 	var resistance_chance := 0
 	if checks_resistance:
@@ -280,21 +409,53 @@ static func custom_spell_resolution(
 			int(spell.get("classic_resist_adjust"))
 		)
 	var resisted := checks_resistance and roll <= resistance_chance
-	return {
+	return _with_early_result({
 		"checksResistance": checks_resistance,
 		"checksScreen": bool(screen.get("checksScreen", false)),
 		"checksClassImmunity": false,
+		"checksAnimatedImmunity": false,
 		"screenLevel": int(screen.get("screenLevel", 0)),
 		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,
 		"roll": roll,
 		"resisted": resisted,
 		"reason": "magic-resistance" if resisted else "",
-	}
+	}, early)
 
 
 static func _combat_level(character: Object) -> Variant:
 	for property: Dictionary in character.get_property_list():
 		if str(property.get("name", "")) == "level":
 			return int(character.get("level"))
+	return null
+
+
+static func _classic_monster_charm_chance(character: Object) -> Variant:
+	if not character.has_meta(CLASSIC_HIT_DICE_META_KEY):
+		return null
+	# Classic ignores a monster's stored charm save here and derives the roll
+	# from hit dice plus its magic-using and intelligent type flags.
+	var resistance_chance := 35 + 4 * int(character.get_meta(CLASSIC_HIT_DICE_META_KEY))
+	var tags: Variant = _property_value(character, "tags")
+	if tags is Array:
+		if "Magic Using" in tags:
+			resistance_chance += 5
+		if "Intelligent" in tags:
+			resistance_chance += 5
+	return resistance_chance
+
+
+static func _is_classic_spell(spell: Object, classic_context: bool) -> bool:
+	if spell == null:
+		return false
+	if classic_context:
+		return true
+	var classic_spell_ids: Variant = spell.get("classic_spell_ids")
+	return classic_spell_ids is Array and not classic_spell_ids.is_empty()
+
+
+static func _property_value(value: Object, property_name: String) -> Variant:
+	for property: Dictionary in value.get_property_list():
+		if str(property.get("name", "")) == property_name:
+			return value.get(property_name)
 	return null
