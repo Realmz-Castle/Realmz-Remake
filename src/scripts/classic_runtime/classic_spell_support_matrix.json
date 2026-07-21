@@ -436,9 +436,9 @@
     {
       "classicSpellId": 1203,
       "displayName": "Flame Spikes",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/flame_spikes.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 17,
@@ -548,9 +548,9 @@
     {
       "classicSpellId": 1212,
       "displayName": "Shiver",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/shiver.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 26,
@@ -598,9 +598,9 @@
     {
       "classicSpellId": 1306,
       "displayName": "Fireball",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/fireball.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 35,
@@ -626,9 +626,9 @@
     {
       "classicSpellId": 1310,
       "displayName": "Radiate",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/radiate.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 39,
@@ -654,9 +654,9 @@
     {
       "classicSpellId": 1401,
       "displayName": "Cosmic Blast",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/cosmic_blast.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 45,
@@ -853,9 +853,9 @@
     {
       "classicSpellId": 2101,
       "displayName": "Brimstones",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/brimstones.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 105,
@@ -1347,9 +1347,9 @@
     {
       "classicSpellId": 3211,
       "displayName": "Steel Rain",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/steel_rain.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 235,
@@ -1457,9 +1457,9 @@
     {
       "classicSpellId": 3401,
       "displayName": "Acid Rain",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/acid_rain.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 255,
@@ -1563,9 +1563,9 @@
     {
       "classicSpellId": 3704,
       "displayName": "Mind Rash",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/mind_rash.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 303,

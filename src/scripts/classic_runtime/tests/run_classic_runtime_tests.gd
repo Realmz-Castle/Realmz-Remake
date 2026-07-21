@@ -5124,7 +5124,7 @@ func _test_classic_spell_screen_contract() -> void:
 	_expect_equal(screened.get("reason"), "spell-screen", "spell screen owns the resistance")
 	_expect_equal(screened.get("spellLevel"), 1, "packed Classic ID exposes cast level")
 
-	var fireball = CoreSpellCatalogScript.spell(1306)
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	_expect(
 		not MagicResistanceScript.spell_resolution(
 			target, fireball, 1, 100
@@ -5184,7 +5184,7 @@ func _test_classic_magic_resistance_contract() -> void:
 		"Classic resistance adjustment applies after base and equipment values"
 	)
 
-	var fireball = CoreSpellCatalogScript.spell(1306)
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	var resisted: Dictionary = MagicResistanceScript.spell_resolution(
 		target, fireball, 1, 31
 	)
@@ -7479,10 +7479,10 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 15, "core catalog registers remaining generic spells")
+	_expect_equal(core_spell_book.size(), 6, "core catalog registers remaining generic spells")
 	_expect_equal(
-		core_spell_book.get("Fireball", {}).get("classicSpellIds"),
-		[1306],
+		core_spell_book.get("Psionic Spear", {}).get("classicSpellIds"),
+		[2109],
 		"core catalog exposes exact IDs through the native spell book"
 	)
 	var energy_storm = load("res://shared_assets/spells/energy_storm.gd").new()
@@ -7492,10 +7492,11 @@ func _test_classic_spell_coverage() -> void:
 	var frostbite = load("res://shared_assets/spells/frostbite.gd").new()
 	var shock_palm = load("res://shared_assets/spells/shock_palm.gd").new()
 	var sparkling_armor = load("res://shared_assets/spells/sparkling_armor.gd").new()
-	var flame_spikes = CoreSpellCatalogScript.spell(1203)
+	var flame_spikes = load("res://shared_assets/spells/flame_spikes.gd").new()
 	for migrated_spell_id: int in [
 		1103, 1104, 1204, 1209, 1211, 1303, 1402, 1504,
 		1505, 1701, 3207, 3301, 3308, 3409, 3712,
+		1203, 1212, 1306, 1310, 1401, 2101, 3211, 3401, 3704,
 	]:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7518,6 +7519,15 @@ func _test_classic_spell_coverage() -> void:
 		"Acid Splash": "res://shared_assets/spells/acid_splash.gd",
 		"Lightning Bolt": "res://shared_assets/spells/lightning_bolt.gd",
 		"Vapor Trail": "res://shared_assets/spells/vapor_trail.gd",
+		"Flame Spikes": "res://shared_assets/spells/flame_spikes.gd",
+		"Shiver": "res://shared_assets/spells/shiver.gd",
+		"Fireball": "res://shared_assets/spells/fireball.gd",
+		"Radiate": "res://shared_assets/spells/radiate.gd",
+		"Cosmic Blast": "res://shared_assets/spells/cosmic_blast.gd",
+		"Brimstones": "res://shared_assets/spells/brimstones.gd",
+		"Steel Rain": "res://shared_assets/spells/steel_rain.gd",
+		"Acid Rain": "res://shared_assets/spells/acid_rain.gd",
+		"Mind Rash": "res://shared_assets/spells/mind_rash.gd",
 	}
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
@@ -7676,7 +7686,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(scorched_earth.get_max_damage(1, null), 10, "Scorched Earth maximum is fixed")
 	_expect_equal(scorched_earth.get_sp_cost(3, null), 30, "Scorched Earth cost scales")
 
-	var radiate = CoreSpellCatalogScript.spell(1310)
+	var radiate = load("res://shared_assets/spells/radiate.gd").new()
 	_expect(radiate.skip_targeting, "zero-range Radiate centers on its caster")
 	_expect_equal(
 		radiate.autotarget_type,
@@ -7689,7 +7699,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(radiate.get_max_damage(3, null), 45, "Radiate maximum scales")
 	_expect_equal(radiate.get_sp_cost(3, null), 75, "Radiate cost scales")
 
-	var cosmic_blast = CoreSpellCatalogScript.spell(1401)
+	var cosmic_blast = load("res://shared_assets/spells/cosmic_blast.gd").new()
 	_expect(cosmic_blast.skip_targeting, "Cosmic Blast needs no target selection")
 	_expect_equal(
 		cosmic_blast.autotarget_type,
@@ -7709,13 +7719,8 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(flame_tongue.get_sp_cost(3, null), 54, "Flame Tongue cost scales")
 
 	var generic_damage_expectations := {
-		1212: ["Shiver", 0, 3, 6, 60, -1, "none"],
-		2101: ["Brimstones", 10, 1, 4, 9, 1, "half_damage"],
 		3105: ["Lightning Strike", 20, 3, 18, 15, 3, "half_damage"],
-		3211: ["Steel Rain", 15, 2, 8, 21, 7, "half_damage"],
-		3401: ["Acid Rain", 8, 3, 16, 36, 4, "half_damage"],
 		3506: ["Finger of Pain", 8, 35, 35, 105, -1, "none"],
-		3704: ["Mind Rash", 0, 16, 28, 270, 5, "half_damage"],
 	}
 	for spell_id: int in generic_damage_expectations:
 		var expected: Array = generic_damage_expectations[spell_id]
@@ -7734,6 +7739,44 @@ func _test_classic_spell_coverage() -> void:
 		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
 		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
 		_expect_equal(spell.classic_spell_save_mode, expected[6], "%s save mode" % label)
+
+	var native_area_expectations := {
+		1203: ["Flame Spikes", 0, 3, 12, 75, 1, "half_damage", "flame_spikes.gd"],
+		1212: ["Shiver", 0, 3, 6, 60, -1, "none", "shiver.gd"],
+		1306: ["Fireball", 15, 1, 16, 27, 1, "half_damage", "fireball.gd"],
+		1310: ["Radiate", 0, 6, 45, 75, 6, "half_damage", "radiate.gd"],
+		1401: ["Cosmic Blast", 0, 6, 12, 90, 6, "half_damage", "cosmic_blast.gd"],
+		2101: ["Brimstones", 10, 1, 4, 9, 1, "half_damage", "brimstones.gd"],
+		3211: ["Steel Rain", 15, 2, 8, 21, 7, "half_damage", "steel_rain.gd"],
+		3401: ["Acid Rain", 8, 3, 16, 36, 4, "half_damage", "acid_rain.gd"],
+		3704: ["Mind Rash", 0, 16, 28, 270, 5, "half_damage", "mind_rash.gd"],
+	}
+	for spell_id: int in native_area_expectations:
+		var expected: Array = native_area_expectations[spell_id]
+		var spell = load("res://shared_assets/spells/" + str(expected[7])).new()
+		var label := str(expected[0])
+		_expect(spell.supports_classic_spell_id(spell_id), "%s exports its exact ID" % label)
+		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
+		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
+		_expect_equal(spell.get_max_damage(3, null), expected[3], "%s maximum damage" % label)
+		var rolled_damage: int = spell.get_damage_roll(3, null)
+		_expect(
+			rolled_damage >= int(expected[2]) and rolled_damage <= int(expected[3]),
+			"%s damage roll stays within its source range" % label
+		)
+		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
+		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, expected[6], "%s save mode" % label)
+		_expect_equal(
+			spell.targettile,
+			Spell.TARGET_TILE.NOWALL,
+			"%s uses area-compatible tile targeting" % label
+		)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE,
+			"%s checks Classic general resistance" % label
+		)
 
 	var native_ray_expectations := {
 		1211: ["Scorched Earth", 6, 2, 10, 30, 1, true, "scorched_earth.gd"],
@@ -7809,7 +7852,7 @@ func _test_classic_spell_coverage() -> void:
 		"Psi Wave targets every enemy"
 	)
 
-	var shiver = CoreSpellCatalogScript.spell(1212)
+	var shiver = load("res://shared_assets/spells/shiver.gd").new()
 	_expect(shiver.skip_targeting, "Shiver needs no target selection")
 	_expect_equal(
 		shiver.autotarget_type,
@@ -7832,8 +7875,8 @@ func _test_classic_spell_coverage() -> void:
 		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
 		"Frostbite's cannot-resist flag bypasses general resistance"
 	)
-	for area_spell_id: int in [2101, 3211, 3401]:
-		var area_spell = CoreSpellCatalogScript.spell(area_spell_id)
+	for area_spell_path: String in ["brimstones.gd", "steel_rain.gd", "acid_rain.gd"]:
+		var area_spell = load("res://shared_assets/spells/" + area_spell_path).new()
 		_expect_equal(
 			area_spell.get_aoe(3, null),
 			Spell.AoE_b3,
@@ -7859,13 +7902,14 @@ func _test_classic_spell_coverage() -> void:
 			Spell.TARGET_TILE.CREATURE,
 			"%s targets a single creature" % touch_spell.name
 		)
-	var mind_rash = CoreSpellCatalogScript.spell(3704)
+	var mind_rash = load("res://shared_assets/spells/mind_rash.gd").new()
 	_expect(mind_rash.skip_targeting, "Mind Rash needs no target selection")
 	_expect_equal(
 		mind_rash.autotarget_type,
 		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
 		"Mind Rash targets every enemy"
 	)
+	_expect_equal(mind_rash.classic_save_adjust, -2, "Mind Rash scales its save penalty")
 
 	var source_fields := [
 		"range1", "range2", "queueIcon", "toHitBonus", "saveBonus",
@@ -11862,7 +11906,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
 	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
-	var fireball = CoreSpellCatalogScript.spell(1306)
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
 	var festering_wounds = load("res://shared_assets/spells/festering_wounds.gd").new()
 	var power_drain = load("res://shared_assets/spells/power_drain.gd").new()
@@ -12423,7 +12467,7 @@ func _test_complex_response_modes() -> void:
 		not adapter.is_complex_scroll_item(spell_staff, scenario_items),
 		"spell-bearing staves remain on Classic's item-response path"
 	)
-	var fireball = CoreSpellCatalogScript.spell(1306)
+	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	_expect_equal(
 		adapter.resolve_complex_spell_result(
