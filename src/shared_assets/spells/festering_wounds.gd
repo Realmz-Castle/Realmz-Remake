@@ -46,5 +46,5 @@ func get_sp_cost(power : int, _caster) -> int :
 
 
 func add_traits_to_creature(caster, target, power : int) -> void :
-	var trait_script = load("res://shared_assets/traits/t_disease.gd")
+	var trait_script = load("res://shared_assets/traits/t_classic_disease.gd")
 	target.add_trait(trait_script, [get_duration_roll(power, caster)])

@@ -48,6 +48,18 @@
       ]
     },
     {
+      "id": "core-player-spell-festering-wounds",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 138,
+          "displayName": "Priest Festering Wounds"
+        }
+      ]
+    },
+    {
       "id": "core-player-spell-power-drain",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -1075,6 +1087,39 @@
         "special": 30,
         "adapter": "classic-confusion-trait",
         "costPerPower": 15,
+        "learnedSpellIdentity": "pending ISY-426"
+      }
+    },
+    {
+      "classicSpellId": 2304,
+      "displayName": "Festering Wounds",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/festering_wounds.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 138,
+        "byteOffset": 4140,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-festering-wounds", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "all-enemies",
+        "range": 0,
+        "duration": "one-to-three-rounds-per-power",
+        "conditionReductionTriggers": ["game-hour", "combat-round"],
+        "conditionCaps": {"player": 99, "monster": 124},
+        "playerDamageOrder": "damage-then-decrement",
+        "monsterDamageOrder": "decrement-then-damage",
+        "fieldAllyDamage": "none",
+        "saveMode": "negate",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "special": 29,
+        "adapter": "classic-disease-trait",
+        "costPerPower": 12,
         "learnedSpellIdentity": "pending ISY-426"
       }
     },

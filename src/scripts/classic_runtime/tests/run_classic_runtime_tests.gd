@@ -42,6 +42,9 @@ const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
 )
+const ClassicDiseaseScript = preload(
+	"res://scripts/classic_runtime/classic_disease.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -460,6 +463,38 @@ class CharmTestCharacter:
 		traits.erase(trait_instance)
 
 
+class DiseaseTestCharacter:
+	extends RefCounted
+	var name: String
+	var current_hp := 20
+	var is_player_controlled := false
+	var traits: Array = []
+
+	func _init(character_name: String, player_controlled := false) -> void:
+		name = character_name
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> int:
+		return current_hp if stat_name == "curHP" else 0
+
+	func change_cur_hp(change: int) -> void:
+		current_hp += change
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -790,6 +825,7 @@ func _init() -> void:
 	_test_classic_spell_save_contract()
 	_test_classic_light_contract()
 	_test_classic_confusion_contract()
+	_test_classic_disease_contract()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
 	_test_teleport(bundle)
@@ -7182,6 +7218,110 @@ func _test_classic_confusion_contract() -> void:
 	)
 
 
+func _test_classic_disease_contract() -> void:
+	_expect_equal(
+		ClassicDiseaseScript.player_reduction(3),
+		{"condition": 2, "damage": 3},
+		"Classic disease damages party members before reducing the condition"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.monster_reduction(3),
+		{"condition": 2, "damage": 2},
+		"Classic disease reduces monsters before applying damage"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.monster_reduction(1),
+		{"condition": 0, "damage": 0},
+		"a monster's final disease point expires without damage"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.stack_condition(98, 1, 99),
+		99,
+		"player disease can reach its source cap"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.stack_condition(99, 1, 99),
+		99,
+		"player disease rejects a stack beyond its source cap"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.stack_condition(123, 1, 124),
+		124,
+		"monster disease can reach its source cap"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.advance_player_time(3, 0, 7200),
+		{"condition": 1, "damage": 5},
+		"crossing two game hours applies two party disease reductions"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.player_reductions(3, 2),
+		[
+			{"condition": 2, "damage": 3},
+			{"condition": 1, "damage": 2},
+		],
+		"multi-hour party damage remains ordered by reduction"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.reduce(3, 2),
+		1,
+		"held-over allies reduce disease without field damage"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.elapsed_hour_boundaries(3599, 3600),
+		1,
+		"Classic disease advances at a game-hour boundary"
+	)
+
+	var trait_script = load("res://shared_assets/traits/t_classic_disease.gd")
+	var party_member := DiseaseTestCharacter.new("Diseased party member", true)
+	var party_trait = party_member.add_trait(trait_script, [3])
+	party_trait._on_new_round(party_member)
+	_expect_equal(party_member.current_hp, 17, "party disease deals the current condition")
+	_expect_equal(
+		party_trait.get_saved_variables(),
+		[2],
+		"party disease decays after dealing damage"
+	)
+
+	var monster := DiseaseTestCharacter.new("Diseased monster")
+	var monster_trait = monster.add_trait(trait_script, [3])
+	monster_trait._on_new_round(monster)
+	_expect_equal(monster.current_hp, 18, "monster disease deals the reduced condition")
+	_expect_equal(
+		monster_trait.get_saved_variables(),
+		[2],
+		"monster disease decays before dealing damage"
+	)
+	monster_trait.stack([122])
+	_expect_equal(
+		monster_trait.get_saved_variables(),
+		[124],
+		"the Classic trait uses the monster condition cap"
+	)
+	monster_trait.stack([1])
+	_expect_equal(
+		monster_trait.get_saved_variables(),
+		[124],
+		"the Classic trait rejects a stack above the monster cap"
+	)
+
+	var animated_monster := DiseaseTestCharacter.new("Animated monster")
+	var animated_trait = animated_monster.add_trait(trait_script, [3])
+	animated_monster.traits.append(ConditionTestTrait.new("p_animated.gd", 1))
+	animated_trait._on_new_round(animated_monster)
+	_expect_equal(
+		animated_monster.current_hp,
+		20,
+		"animated monsters do not take Classic disease damage"
+	)
+	_expect_equal(
+		animated_trait.get_saved_variables(),
+		[2],
+		"animated monsters still reduce the disease condition"
+	)
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -7259,7 +7399,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		48,
+		49,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7300,6 +7440,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(2301, {}).get("coverageStatus"),
 		"supported",
 		"Confuse uses the reviewed Classic condition adapter"
+	)
+	_expect_equal(
+		coverage_by_id.get(2304, {}).get("coverageStatus"),
+		"supported",
+		"Festering Wounds uses the reviewed Classic disease adapter"
 	)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
@@ -7766,7 +7911,7 @@ func _test_classic_spell_coverage() -> void:
 				[
 					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
-					1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2301, 2306, 2605,
+					1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2301, 2304, 2306, 2605,
 					2706,
 					3102, 3105, 3202, 3207, 3208, 3211, 3301, 3308, 3311, 3401, 3409,
 					3506, 3603, 3704, 3712,
@@ -11745,19 +11890,13 @@ func _test_complex_spell_results(bundle) -> void:
 	festering_wounds.add_traits_to_creature(null, diseased_target, 3)
 	_expect_equal(diseased_target.traits.size(), 1, "Festering Wounds applies one condition trait")
 	_expect(
-		str(diseased_target.traits[0].name).ends_with("t_disease.gd"),
-		"Festering Wounds reuses Remake's temporary disease trait"
+		str(diseased_target.traits[0].name).ends_with("t_classic_disease.gd"),
+		"Festering Wounds uses the Classic disease trait"
 	)
 	_expect(
 		diseased_target.traits[0].power >= 3 and diseased_target.traits[0].power <= 9,
 		"Festering Wounds passes its rolled duration to the disease trait"
 	)
-	var disease_trait = load("res://shared_assets/traits/t_disease.gd").new(
-		[diseased_target, 3]
-	)
-	disease_trait._on_new_round(diseased_target)
-	_expect_equal(diseased_target.current_hp, 17, "disease deals its current power each round")
-	_expect_equal(disease_trait.get_saved_variables(), [2], "disease power decays each round")
 	_expect(power_drain.supports_classic_spell_id(1408), "Power Drain supports CoB's spell ID")
 	_expect(power_drain.supports_classic_spell_id(3311), "Power Drain supports its Enchanter ID")
 	_expect(
