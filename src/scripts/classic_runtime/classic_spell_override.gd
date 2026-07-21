@@ -5,7 +5,7 @@ const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
 
-# Scenario spell rows are data, not scripts. This adapter exposes the subset
+# Classic spell rows are data, not scripts. This adapter exposes the subset
 # with no special opcode through Remake's ordinary Spell interface.
 
 var source_record: Dictionary = {}
@@ -33,6 +33,7 @@ var _duration_high := 0
 var _power_duration_low := 0
 var _power_duration_high := 0
 var _size := 0
+var _native_aoe := ""
 
 
 func configure(record: Dictionary) -> void:
@@ -68,6 +69,7 @@ func configure(record: Dictionary) -> void:
 		int(record.get("sound1", 0)),
 		int(record.get("sound2", 0)),
 	]
+	_native_aoe = str(record.get("nativeAoe", ""))
 	_cost = int(record.get("cost", 0))
 	_range_low = int(record.get("range1", 0))
 	_range_per_power = int(record.get("range2", 0))
@@ -86,6 +88,7 @@ func configure(record: Dictionary) -> void:
 	classic_size = int(record.get("size", 0))
 	_size = classic_size
 
+	_configure_presentation(record)
 	in_combat = bool(record.get("inCombat", false))
 	in_field = classic_in_camp
 	rot = bool(record.get("canRotate", 0))
@@ -107,6 +110,8 @@ func get_range(power: int, _caster) -> int:
 
 
 func get_target_number(power: int, _caster) -> int:
+	if classic_fixed_target_num > 0:
+		return classic_fixed_target_num
 	if classic_target_type < 1:
 		return max(1, power)
 	return 1
@@ -149,6 +154,8 @@ func get_sp_cost(power: int, _caster) -> int:
 
 
 func get_aoe(power: int, _caster) -> Array[Vector2i]:
+	if _native_aoe == "round":
+		return AoE_ROUND
 	var radius := _size
 	if classic_target_type == 4:
 		radius = power
@@ -180,6 +187,10 @@ func _save_mode() -> String:
 
 func _configure_targeting() -> void:
 	match classic_target_type:
+		1:
+			targettile = TARGET_TILE.CREATURE
+		2:
+			targettile = TARGET_TILE.EMPTY
 		5:
 			skip_targeting = true
 			autotarget_type = AUTOTARGET_TYPE.SELF
@@ -194,6 +205,37 @@ func _configure_targeting() -> void:
 			autotarget_type = AUTOTARGET_TYPE.EVERYONE
 		_:
 			targettile = TARGET_TILE.NOWALL
+
+
+func _configure_presentation(record: Dictionary) -> void:
+	elements.clear()
+	var element_values: Variant = record.get("elements", [])
+	if element_values is Array:
+		for element_value: Variant in element_values:
+			elements.append(int(element_value))
+	tags = _string_array(record.get("tags", []))
+	schools = _string_array(record.get("schools", []))
+	var level_values: Variant = record.get("schoolLevels", {})
+	if level_values is Dictionary:
+		school_levels = level_values.duplicate(true)
+	var cost_values: Variant = record.get("selectionCosts", {})
+	if cost_values is Dictionary:
+		selection_costs = cost_values.duplicate(true)
+	max_plevel = int(record.get("maxPowerLevel", max_plevel))
+	los = bool(record.get("lineOfSight", _range_low + _range_per_power != 0))
+	ray = bool(record.get("ray", false))
+	proj_tex = int(record.get("projectileTexture", GFX.NONE))
+	proj_hit = int(record.get("projectileHit", GFX.NONE))
+	sounds = _string_array(record.get("sounds", []))
+	max_focus_loss = int(record.get("maxFocusLoss", 0))
+
+
+func _string_array(value: Variant) -> Array:
+	var result: Array = []
+	if value is Array:
+		for entry: Variant in value:
+			result.append(str(entry))
+	return result
 
 
 func _range_high(low: int, high: int) -> int:

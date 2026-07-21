@@ -4,6 +4,9 @@ extends RefCounted
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
+const SpellResourceCatalogScript = preload(
+	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
+)
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
@@ -773,25 +776,7 @@ func _read_spell_context() -> Dictionary:
 	var spell_book: Dictionary = {}
 	# Installation runs before the staged campaign is loaded. Read only the
 	# declarative identity fields so materialization never executes spell code.
-	var name_pattern := RegEx.new()
-	name_pattern.compile("(?m)^\\s*name\\s*=\\s*\"([^\"]+)\"")
-	var ids_pattern := RegEx.new()
-	ids_pattern.compile("(?m)^\\s*classic_spell_ids\\s*=\\s*\\[([^\\]]*)\\]")
-	var filenames := DirAccess.get_files_at(SHARED_SPELL_DIRECTORY)
-	filenames.sort()
-	for filename: String in filenames:
-		if not filename.ends_with(".gd"):
-			continue
-		var source := FileAccess.get_file_as_string(SHARED_SPELL_DIRECTORY + filename)
-		var name_match := name_pattern.search(source)
-		if name_match == null:
-			continue
-		var classic_ids: Array[int] = []
-		var ids_match := ids_pattern.search(source)
-		if ids_match != null:
-			for id_text: String in ids_match.get_string(1).split(",", false):
-				classic_ids.append(abs(int(id_text.strip_edges())))
-		spell_book[name_match.get_string(1)] = {"classicSpellIds": classic_ids}
+	SpellResourceCatalogScript.merge_directory(SHARED_SPELL_DIRECTORY, spell_book)
 	return spell_book
 
 

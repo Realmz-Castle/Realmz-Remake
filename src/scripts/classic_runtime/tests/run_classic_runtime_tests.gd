@@ -29,6 +29,9 @@ const SpellUsageAuditScript = preload(
 const SpellResourceCatalogScript = preload(
 	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
 )
+const CoreSpellCatalogScript = preload(
+	"res://scripts/classic_runtime/classic_core_spell_catalog.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -5060,7 +5063,7 @@ func _test_classic_spell_screen_contract() -> void:
 
 	var target := RogueTestCharacter.new()
 	target.set_meta("classic_spell_screen_level", 1)
-	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
+	var flame_hands = CoreSpellCatalogScript.spell(1104)
 	var screened: Dictionary = MagicResistanceScript.spell_resolution(
 		target, flame_hands, 1, 100
 	)
@@ -6891,9 +6894,17 @@ func _test_spell_effect_actions(bundle) -> void:
 
 
 func _test_city_spell_coverage() -> void:
-	var energy_storm = load("res://shared_assets/spells/energy_storm.gd").new()
+	var core_spell_book: Dictionary = {}
+	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
+	_expect_equal(core_spell_book.size(), 5, "core catalog registers each verified generic spell")
+	_expect_equal(
+		core_spell_book.get("Frozen Palm", {}).get("classicSpellIds"),
+		[1204],
+		"core catalog exposes exact IDs through the native spell book"
+	)
+	var energy_storm = CoreSpellCatalogScript.spell(1103)
 	var sparkling_armor = load("res://shared_assets/spells/sparkling_armor.gd").new()
-	var flame_spikes = load("res://shared_assets/spells/flame_spikes.gd").new()
+	var flame_spikes = CoreSpellCatalogScript.spell(1203)
 	_expect(energy_storm.supports_classic_spell_id(1103), "Energy Storm exports its exact ID")
 	_expect_equal(energy_storm.classic_spell_class, 6, "Energy Storm preserves its class")
 	_expect_equal(energy_storm.classic_spell_save_index, 6, "Energy Storm uses the magic save")
@@ -6902,7 +6913,7 @@ func _test_city_spell_coverage() -> void:
 		"half_damage",
 		"Energy Storm halves damage on a save"
 	)
-	_expect_equal(energy_storm.get_range(7, null), 6, "Energy Storm keeps its range")
+	_expect_equal(energy_storm.get_range(7, null), 7, "Energy Storm keeps its source range")
 	_expect_equal(energy_storm.get_min_damage(3, null), 3, "Energy Storm minimum scales")
 	_expect_equal(energy_storm.get_max_damage(3, null), 9, "Energy Storm maximum scales")
 	_expect_equal(energy_storm.get_sp_cost(3, null), 30, "Energy Storm cost scales")
@@ -6957,7 +6968,7 @@ func _test_city_spell_coverage() -> void:
 	_expect(saved.get("saved"), "Flame Spikes' +10 save bonus is executable")
 	_expect_equal(saved.get("effectScale"), 0.5, "Flame Spikes save halves damage")
 
-	var frozen_palm = load("res://shared_assets/spells/frozen_palm.gd").new()
+	var frozen_palm = CoreSpellCatalogScript.spell(1204)
 	_expect_equal(frozen_palm.classic_spell_ids, [1204], "Frozen Palm exact ID")
 	_expect_equal(frozen_palm.classic_spell_class, 2, "Frozen Palm class")
 	_expect_equal(frozen_palm.classic_spell_save_index, 2, "Frozen Palm cold save")
@@ -6992,7 +7003,7 @@ func _test_city_spell_coverage() -> void:
 	_expect(cold_save.get("saved"), "Frozen Palm cold save is executable")
 	_expect_equal(cold_save.get("effectScale"), 0.5, "cold save halves Frozen Palm")
 
-	var magic_grip = load("res://shared_assets/spells/magic_grip.gd").new()
+	var magic_grip = CoreSpellCatalogScript.spell(1209)
 	_expect_equal(magic_grip.classic_spell_ids, [1209], "Magic Grip exact ID")
 	_expect_equal(magic_grip.classic_spell_class, 6, "Magic Grip class")
 	_expect_equal(magic_grip.classic_spell_save_index, -1, "Magic Grip has no DRV save")
@@ -10963,7 +10974,7 @@ func _test_complex_spell_results(bundle) -> void:
 	var adapter = GodotAdapterScript.new()
 	var spell_mapping: Dictionary = SpellIdsScript.new().mappings
 	var cave_in: Dictionary = bundle.get_encounter("complex", 2)
-	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
+	var flame_hands = CoreSpellCatalogScript.spell(1104)
 	var fireball = load("res://shared_assets/spells/fireball.gd").new()
 	var fire_flare = load("res://shared_assets/spells/fire_flare.gd").new()
 	var festering_wounds = load("res://shared_assets/spells/festering_wounds.gd").new()

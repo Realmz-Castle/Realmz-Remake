@@ -170,7 +170,7 @@
       "displayName": "Energy Storm",
       "classification": "generic-data-driven",
       "supportStatus": "supported",
-      "resource": "res://shared_assets/spells/energy_storm.gd",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 2,
@@ -196,7 +196,7 @@
       "displayName": "Flame Hands",
       "classification": "generic-data-driven",
       "supportStatus": "supported",
-      "resource": "res://shared_assets/spells/flame_hands.gd",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 3,
@@ -247,7 +247,7 @@
       "displayName": "Flame Spikes",
       "classification": "generic-data-driven",
       "supportStatus": "supported",
-      "resource": "res://shared_assets/spells/flame_spikes.gd",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 17,
@@ -274,7 +274,7 @@
       "displayName": "Frozen Palm",
       "classification": "generic-data-driven",
       "supportStatus": "supported",
-      "resource": "res://shared_assets/spells/frozen_palm.gd",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 18,
@@ -303,7 +303,7 @@
       "displayName": "Magic Grip",
       "classification": "generic-data-driven",
       "supportStatus": "supported",
-      "resource": "res://shared_assets/spells/magic_grip.gd",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 23,
