@@ -2503,6 +2503,7 @@ func _test_classic_item_materializer() -> void:
 	shield_record["hands"] = 1
 	shield_record["itemCat0"] = 1 << 6
 	shield_record["itemCat1"] = 0
+	shield_record["ac"] = 6
 	var shield: Dictionary = materializer._native_item(shield_record, [])
 	_expect_equal(
 		shield.get("type"),
@@ -2510,6 +2511,32 @@ func _test_classic_item_materializer() -> void:
 		"Classic shield category selects a concrete native item type"
 	)
 	_expect_equal(shield.get("slots"), ["Shield"], "Classic shield retains its native slot")
+	_expect_equal(
+		shield.get("stats", {}).get("EvasionMelee"),
+		6,
+		"positive Classic armor maps to native melee evasion"
+	)
+	_expect_equal(
+		shield.get("stats", {}).get("EvasionRanged"),
+		6,
+		"positive Classic armor maps to native ranged evasion"
+	)
+	_expect_equal(
+		shield.get("extra_data", {}).get("classicArmorRating"),
+		6,
+		"native equipment retains the source Classic armor rating"
+	)
+	_expect_equal(
+		shield.get("classicMaterialization", {}).get("status"),
+		"fallback",
+		"Classic armor remains launchable through Remake's native evasion scale"
+	)
+	_expect(
+		shield.get("classicMaterialization", {}).get(
+			"fidelityFallbacks", []
+		).has("armorRatingUsesNativeEvasionScale"),
+		"Classic armor records the native evasion-scale fallback"
+	)
 	_expect_equal(
 		weapon.get("weapon_dmg", {}).get("Physical"),
 		[1, 6],
@@ -2544,6 +2571,24 @@ func _test_classic_item_materializer() -> void:
 		weapon.get("stats", {}).get("Bonus_Physical_dmg"),
 		2,
 		"positive Classic weapon magic-plus maps to native physical damage"
+	)
+	var defensive_weapon_record := weapon_record.duplicate(true)
+	defensive_weapon_record["ac"] = 3
+	var defensive_weapon: Dictionary = materializer._native_item(defensive_weapon_record, [])
+	_expect_equal(
+		defensive_weapon.get("stats", {}).get("AccuracyMelee"),
+		2,
+		"Classic armor on a weapon preserves its magic-plus stats"
+	)
+	_expect_equal(
+		defensive_weapon.get("stats", {}).get("EvasionMelee"),
+		3,
+		"Classic armor on a weapon adds native evasion"
+	)
+	_expect_equal(
+		defensive_weapon.get("extra_data", {}).get("classicWeaponDamage"),
+		{"small": 6, "large": 6},
+		"Classic armor on a weapon preserves its damage metadata"
 	)
 	_expect_equal(
 		weapon.get("classicMaterialization", {}).get("unsupportedFields"),
@@ -2602,6 +2647,14 @@ func _test_classic_item_materializer() -> void:
 		).get("unsupportedFields", []).has("damage"),
 		"negative Classic weapon magic-plus remains an explicit blocker"
 	)
+	var negative_armor_record := shield_record.duplicate(true)
+	negative_armor_record["ac"] = -1
+	_expect(
+		materializer._native_item(negative_armor_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("ac"),
+		"negative Classic armor remains an explicit blocker"
+	)
 	var non_weapon_element_record := weapon_record.duplicate(true)
 	non_weapon_element_record["type"] = 25
 	_expect(
@@ -2615,6 +2668,16 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("damage"),
 		"magic-plus on a non-melee item remains an explicit blocker"
+	)
+	var non_equipment_armor_record: Dictionary = bundle.documents[
+		"content"
+	]["scenarioItems"][0].duplicate(true)
+	non_equipment_armor_record["ac"] = 6
+	_expect(
+		materializer._native_item(non_equipment_armor_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("ac"),
+		"armor on a non-equippable Classic item remains an explicit blocker"
 	)
 	var readiness: Dictionary = ReadinessScript.new().inspect(bundle, {"items": item_book})
 	_expect(

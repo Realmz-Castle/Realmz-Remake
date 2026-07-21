@@ -7,7 +7,6 @@ const ITEM_ATLAS_PATH := "Items/textureAtlas.png"
 # These fields affect item behavior but do not yet have verified native equivalents.
 # Keeping the record is lossless; treating it as launchable would not be.
 const UNSUPPORTED_EFFECT_FIELDS := [
-	"ac",
 	"blunt",
 	"casteClassOnly",
 	"casteRestrictions",
@@ -206,9 +205,9 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 	var classic_type: int = abs(int(record.get("type", 0)))
 	var asset_category := _category_for_item(item_id)
 	var native_type := _native_item_type(record, classic_type, asset_category)
-	var native_weapon := _native_weapon(record, classic_type)
-	var unsupported_fields := _unsupported_fields(record, native_weapon, native_type)
-	var fidelity_fallbacks: Array = native_weapon.get("fidelityFallbacks", [])
+	var native_fields := _native_item_fields(record, classic_type)
+	var unsupported_fields := _unsupported_fields(record, native_fields, native_type)
+	var fidelity_fallbacks: Array = native_fields.get("fidelityFallbacks", [])
 	var materialization_status := "complete"
 	if not unsupported_fields.is_empty():
 		materialization_status = "blocked"
@@ -254,8 +253,8 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 		"tradeable": 1,
 		"splittable": 0,
 	}
-	for field_name: String in native_weapon.get("fields", {}):
-		native_item[field_name] = native_weapon["fields"][field_name]
+	for field_name: String in native_fields.get("fields", {}):
+		native_item[field_name] = native_fields["fields"][field_name]
 	return native_item
 
 
@@ -310,10 +309,12 @@ func _first_classic_item_category(record: Dictionary) -> int:
 	return -1
 
 
-func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
+func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 	var fields := {}
 	var unsupported_fields: Array[String] = []
 	var fidelity_fallbacks: Array[String] = []
+	var stats := {}
+	var stats_summary: Array[String] = []
 	var small_damage := int(record.get("vSmall", 0))
 	var large_damage := int(record.get("vLarge", 0))
 	var magic_plus := int(record.get("damage", 0))
@@ -327,49 +328,58 @@ func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 		for field_name: String in ELEMENT_BY_CLASSIC_FIELD:
 			if int(record.get(field_name, 0)) != 0:
 				unsupported_fields.append(field_name)
-		return {
-			"fields": fields,
-			"unsupportedFields": unsupported_fields,
-			"fidelityFallbacks": fidelity_fallbacks,
-		}
+	else:
+		if small_damage < 1:
+			unsupported_fields.append("vSmall")
+		if large_damage < 1 or large_damage != small_damage:
+			unsupported_fields.append("vLarge")
+		var damage := {}
+		if small_damage > 0:
+			damage["Physical"] = [1, small_damage]
+		for field_name: String in ELEMENT_BY_CLASSIC_FIELD:
+			var element_damage := int(record.get(field_name, 0))
+			if element_damage < 0:
+				unsupported_fields.append(field_name)
+			elif element_damage > 0:
+				damage[ELEMENT_BY_CLASSIC_FIELD[field_name]] = [1, element_damage]
+				if not fidelity_fallbacks.has("elementalWeaponDamageMitigation"):
+					# Native resistance replaces Classic's separate save and protection rolls.
+					fidelity_fallbacks.append("elementalWeaponDamageMitigation")
+		if not damage.is_empty():
+			fields["weapon_dmg"] = damage
+			fields["melee_atk_anim_icon"] = "ATK_WPN"
+			fields["extra_data"] = {
+				"classicWeaponDamage": {
+					"small": small_damage,
+					"large": large_damage,
+				},
+			}
+		if magic_plus < 0:
+			unsupported_fields.append("damage")
+		elif magic_plus > 0:
+			# One Remake accuracy point is five percentage points, matching Classic.
+			stats["AccuracyMelee"] = magic_plus
+			stats["Bonus_Physical_dmg"] = magic_plus
+			stats_summary.append("+%d%% Melee Hit" % (magic_plus * 5))
+			stats_summary.append("+%d Physical Damage" % magic_plus)
 
-	if small_damage < 1:
-		unsupported_fields.append("vSmall")
-	if large_damage < 1 or large_damage != small_damage:
-		unsupported_fields.append("vLarge")
-	var damage := {}
-	if small_damage > 0:
-		damage["Physical"] = [1, small_damage]
-	for field_name: String in ELEMENT_BY_CLASSIC_FIELD:
-		var element_damage := int(record.get(field_name, 0))
-		if element_damage < 0:
-			unsupported_fields.append(field_name)
-		elif element_damage > 0:
-			damage[ELEMENT_BY_CLASSIC_FIELD[field_name]] = [1, element_damage]
-			if fidelity_fallbacks.is_empty():
-				# Native resistance replaces Classic's separate save and protection rolls.
-				fidelity_fallbacks.append("elementalWeaponDamageMitigation")
-	if not damage.is_empty():
-		fields["weapon_dmg"] = damage
-		fields["melee_atk_anim_icon"] = "ATK_WPN"
-		fields["extra_data"] = {
-			"classicWeaponDamage": {
-				"small": small_damage,
-				"large": large_damage,
-			},
-		}
-	if magic_plus < 0:
-		unsupported_fields.append("damage")
-	elif magic_plus > 0:
-		# One Remake accuracy point is five percentage points, matching Classic.
-		fields["stats"] = {
-			"AccuracyMelee": magic_plus,
-			"Bonus_Physical_dmg": magic_plus,
-		}
-		fields["stats_mini"] = "+%d%% Melee Hit, +%d Physical Damage" % [
-			magic_plus * 5,
-			magic_plus,
-		]
+	var armor_rating := int(record.get("ac", 0))
+	if armor_rating < 0 or (armor_rating > 0 and not SLOT_BY_CLASSIC_TYPE.has(classic_type)):
+		unsupported_fields.append("ac")
+	elif armor_rating > 0:
+		stats["EvasionMelee"] = armor_rating
+		stats["EvasionRanged"] = armor_rating
+		stats_summary.append("+%d Melee Evasion" % armor_rating)
+		stats_summary.append("+%d Ranged Evasion" % armor_rating)
+		var extra_data: Dictionary = fields.get("extra_data", {})
+		extra_data["classicArmorRating"] = armor_rating
+		fields["extra_data"] = extra_data
+		# Remake's shared items use this direct mapping despite its coarser hit scale.
+		fidelity_fallbacks.append("armorRatingUsesNativeEvasionScale")
+
+	if not stats.is_empty():
+		fields["stats"] = stats
+		fields["stats_mini"] = ", ".join(stats_summary)
 	return {
 		"fields": fields,
 		"unsupportedFields": unsupported_fields,
@@ -379,14 +389,14 @@ func _native_weapon(record: Dictionary, classic_type: int) -> Dictionary:
 
 func _unsupported_fields(
 	record: Dictionary,
-	native_weapon: Dictionary,
+	native_fields: Dictionary,
 	native_type: Dictionary
 ) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_EFFECT_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
 			fields.append(field_name)
-	for field_name: String in native_weapon.get("unsupportedFields", []):
+	for field_name: String in native_fields.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
 	for field_name: String in native_type.get("unsupportedFields", []):

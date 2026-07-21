@@ -244,6 +244,14 @@ func _run_smoke() -> void:
 		"Small Shield",
 		"generated Classic shield uses the native player permission type"
 	)
+	var player_melee_evasion_before: int = player_character.get_stat("EvasionMelee")
+	var player_ranged_evasion_before: int = player_character.get_stat("EvasionRanged")
+	var accuracy_attacker: Creature = GameGlobal.combatCreatureGD.new()
+	var unshielded_hit_chance := GameGlobal.calculate_melee_accuracy(
+		accuracy_attacker,
+		player_character,
+		player_weapon
+	)
 	_expect(
 		player_character.equip_item(player_shield),
 		"native player equipment accepts the generated Classic shield type"
@@ -252,6 +260,25 @@ func _run_smoke() -> void:
 		player_shield.get("equipped"),
 		1,
 		"generated Classic shield occupies the native shield slot"
+	)
+	_expect_equal(
+		player_character.get_stat("EvasionMelee"),
+		player_melee_evasion_before + 6,
+		"generated Classic armor applies its native melee evasion once"
+	)
+	_expect_equal(
+		player_character.get_stat("EvasionRanged"),
+		player_ranged_evasion_before + 6,
+		"generated Classic armor applies its native ranged evasion once"
+	)
+	var shielded_hit_chance := GameGlobal.calculate_melee_accuracy(
+		accuracy_attacker,
+		player_character,
+		player_weapon
+	)
+	_expect(
+		is_equal_approx(unshielded_hit_chance - shielded_hit_chance, 0.3),
+		"generated Classic armor participates in native melee accuracy"
 	)
 
 	var bundle = BundleScript.new()
@@ -420,6 +447,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	shield_record["type"] = 3
 	shield_record["hands"] = 1
 	shield_record["itemCat0"] = 1 << 6
+	shield_record["ac"] = 6
 	content["scenarioItems"].append(shield_record)
 	var elemental_monster: Dictionary = content["monsters"][0].duplicate(true)
 	elemental_monster["id"] = 2
