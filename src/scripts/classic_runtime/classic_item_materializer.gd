@@ -24,7 +24,6 @@ const UNSUPPORTED_EFFECT_FIELDS := [
 	"specificCaste",
 	"specificRace",
 	"spellPoints",
-	"st",
 	"vsDemonDevil",
 	"vsEvil",
 	"vsUndead",
@@ -376,6 +375,17 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 		fields["extra_data"] = extra_data
 		# Remake's shared items use this direct mapping despite its coarser hit scale.
 		fidelity_fallbacks.append("armorRatingUsesNativeEvasionScale")
+
+	var strength_modifier := int(record.get("st", 0))
+	if strength_modifier != 0 and not SLOT_BY_CLASSIC_TYPE.has(classic_type):
+		unsupported_fields.append("st")
+	elif strength_modifier != 0:
+		stats["Strength"] = strength_modifier
+		var sign_prefix := "+" if strength_modifier > 0 else ""
+		stats_summary.append("%s%d Strength" % [sign_prefix, strength_modifier])
+		var strength_extra_data: Dictionary = fields.get("extra_data", {})
+		strength_extra_data["classicStrengthModifier"] = strength_modifier
+		fields["extra_data"] = strength_extra_data
 
 	if not stats.is_empty():
 		fields["stats"] = stats

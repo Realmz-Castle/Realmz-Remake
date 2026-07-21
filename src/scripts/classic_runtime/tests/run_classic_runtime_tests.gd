@@ -2466,6 +2466,7 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["cold"] = 3
 	weapon_record["electric"] = 2
 	weapon_record["damage"] = 2
+	weapon_record["st"] = 2
 	var weapon: Dictionary = materializer._native_item(weapon_record, [])
 	_expect_equal(
 		weapon.get("type"),
@@ -2572,6 +2573,16 @@ func _test_classic_item_materializer() -> void:
 		2,
 		"positive Classic weapon magic-plus maps to native physical damage"
 	)
+	_expect_equal(
+		weapon.get("stats", {}).get("Strength"),
+		2,
+		"positive Classic strength maps to the native equipment stat"
+	)
+	_expect_equal(
+		weapon.get("extra_data", {}).get("classicStrengthModifier"),
+		2,
+		"native equipment retains the source Classic strength modifier"
+	)
 	var defensive_weapon_record := weapon_record.duplicate(true)
 	defensive_weapon_record["ac"] = 3
 	var defensive_weapon: Dictionary = materializer._native_item(defensive_weapon_record, [])
@@ -2647,6 +2658,22 @@ func _test_classic_item_materializer() -> void:
 		).get("unsupportedFields", []).has("damage"),
 		"negative Classic weapon magic-plus remains an explicit blocker"
 	)
+	var negative_strength_record := weapon_record.duplicate(true)
+	negative_strength_record["st"] = -2
+	var negative_strength_item: Dictionary = materializer._native_item(
+		negative_strength_record, []
+	)
+	_expect_equal(
+		negative_strength_item.get("stats", {}).get("Strength"),
+		-2,
+		"negative Classic strength remains a signed native equipment stat"
+	)
+	_expect(
+		not negative_strength_item.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("st"),
+		"signed Classic strength remains launchable on equipment"
+	)
 	var negative_armor_record := shield_record.duplicate(true)
 	negative_armor_record["ac"] = -1
 	_expect(
@@ -2678,6 +2705,23 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("ac"),
 		"armor on a non-equippable Classic item remains an explicit blocker"
+	)
+	var non_equipment_strength_record := non_equipment_armor_record.duplicate(true)
+	non_equipment_strength_record["ac"] = 0
+	non_equipment_strength_record["st"] = 2
+	_expect(
+		materializer._native_item(non_equipment_strength_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("st"),
+		"strength on a non-equippable Classic item remains an explicit blocker"
+	)
+	var luck_record := armor_record.duplicate(true)
+	luck_record["lu"] = 2
+	_expect(
+		materializer._native_item(luck_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("lu"),
+		"Classic luck remains blocked without a working native stat or trait"
 	)
 	var readiness: Dictionary = ReadinessScript.new().inspect(bundle, {"items": item_book})
 	_expect(

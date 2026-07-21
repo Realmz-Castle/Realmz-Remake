@@ -130,6 +130,12 @@ func _run_smoke() -> void:
 		2,
 		"equipped scenario weapon applies its Classic damage bonus once"
 	)
+	_expect_equal(
+		weapon_user.get_stat("Strength")
+			- weapon_user.base_stats.get("Strength", 0),
+		2,
+		"equipped scenario weapon applies its Classic strength modifier once"
+	)
 	var weapon_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		weapon_user,
 		elemental_attacker,
@@ -203,6 +209,7 @@ func _run_smoke() -> void:
 	)
 	var player_accuracy_before: float = player_character.get_stat("AccuracyMelee")
 	var player_damage_before: float = player_character.get_stat("Bonus_Physical_dmg")
+	var player_strength_before: float = player_character.get_stat("Strength")
 	player_character.inventory.append(player_weapon)
 	player_character.inventory.append(player_armor)
 	player_character.inventory.append(player_shield)
@@ -224,6 +231,11 @@ func _run_smoke() -> void:
 		player_character.get_stat("Bonus_Physical_dmg"),
 		player_damage_before + 2,
 		"generated Classic weapon applies its damage bonus to the player"
+	)
+	_expect_equal(
+		player_character.get_stat("Strength"),
+		player_strength_before + 2,
+		"generated Classic weapon applies its strength modifier to the player"
 	)
 	_expect_equal(
 		player_armor.get("type"),
@@ -426,6 +438,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_record["itemCat0"] = 1 << 28
 	weapon_record["heat"] = 4
 	weapon_record["damage"] = 2
+	weapon_record["st"] = 2
 	content["scenarioItems"].append(weapon_record)
 	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)
 	weapon_text["id"] = 150
