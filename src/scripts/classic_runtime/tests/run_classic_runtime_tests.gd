@@ -33,6 +33,9 @@ const BestiaryMaterializerScript = preload(
 const MonsterWeaponRulesScript = preload(
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
 )
+const MaterializationFixtureAuditScript = preload(
+	"res://scripts/classic_runtime/classic_materialization_fixture_audit.gd"
+)
 const NativeResourcesScript = preload("res://scripts/Resources.gd")
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
@@ -1222,6 +1225,61 @@ func _test_providence_authoritative_export() -> void:
 	_expect(
 		not _readiness_has_reference_diagnostic(readiness, "unresolved-spell-identity", 5202),
 		"producer fixture resolves its packed custom-spell identity"
+	)
+
+	var fixture_coverage: Dictionary = MaterializationFixtureAuditScript.inspect(
+		bundle.documents
+	)
+	_expect_equal(
+		fixture_coverage.get("missingCapabilities"),
+		["carriedEquippedItem", "ally"],
+		"checked producer fixture reports its remaining materialization coverage gaps"
+	)
+	_expect_equal(
+		fixture_coverage.get("capabilities", {}).get(
+			"scenarioLocalShopItem", {}
+		).get("details", {}).get("itemId"),
+		901,
+		"producer fixture covers its scenario-local shop item"
+	)
+	_expect_equal(
+		fixture_coverage.get("capabilities", {}).get(
+			"battleMonster", {}
+		).get("details", {}).get("monsterId"),
+		1,
+		"producer fixture covers its battle monster"
+	)
+
+	var complete_documents: Dictionary = bundle.documents.duplicate(true)
+	var complete_item: Dictionary = complete_documents.get(
+		"content", {}
+	).get("scenarioItems", [])[0].duplicate(true)
+	complete_item["id"] = 102
+	complete_item["itemId"] = 150
+	complete_item["type"] = 2
+	complete_item["itemCat0"] = 1 << 28
+	complete_documents.get("content", {}).get(
+		"scenarioItems", []
+	).append(complete_item)
+	var complete_monster: Dictionary = complete_documents.get(
+		"content", {}
+	).get("monsters", [])[0]
+	complete_monster["items"][0] = 150
+	complete_monster["weapon"] = 150
+	complete_documents.get("scripts", {}).get("triggers", [])[0].get(
+		"actions", []
+	).append({"slot": 2, "rawCode": 89, "code": 89, "id": 1})
+	var complete_coverage: Dictionary = MaterializationFixtureAuditScript.inspect(
+		complete_documents
+	)
+	_expect(
+		bool(complete_coverage.get("accepted", false)),
+		"materialization fixture audit accepts all four producer capabilities"
+	)
+	_expect_equal(
+		complete_coverage.get("missingCapabilities"),
+		[],
+		"complete materialization fixture has no missing capabilities"
 	)
 
 

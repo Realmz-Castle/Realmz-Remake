@@ -248,3 +248,22 @@ cross-repository interchange. Its managed payloads use
 Remake-native media adapter coverage. Remake's consumer tests cover the additive
 `runtimeMedia` contract and native PNG, WAV, Ogg Vorbis, and MP3 loading
 separately until the producer fixture includes derived files.
+
+ISY-404 has a stricter content-coverage gate for item and monster
+materialization. A candidate producer fixture must contain a scenario-local shop
+item, a scenario-local item carried and equipped by a monster, a monster placed
+in a battle, and an opcode 89 action that can add a compiled monster as an ally.
+Audit a candidate bundle without installing it:
+
+```powershell
+godot --headless --path src --script `
+  res://scripts/classic_runtime/tests/audit_classic_materialization_fixture.gd -- `
+  "C:\path\to\classic-bundle"
+```
+
+The currently checked fixture covers the shop item and battle monster. The audit
+deliberately remains unsuccessful until Providence's source fixture also exports
+the carried/equipped item and ally action; consumer tests must not patch those
+records and describe the result as producer-authored coverage. Once the audit
+passes, the checked fixture provenance and full runtime suite remain the final
+native installation and persistence gates.
