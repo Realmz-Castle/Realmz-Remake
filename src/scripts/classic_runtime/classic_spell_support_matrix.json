@@ -1235,9 +1235,9 @@
     {
       "classicSpellId": 3105,
       "displayName": "Lightning Strike",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/lightning_strike.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 214,
@@ -1508,9 +1508,9 @@
     {
       "classicSpellId": 3506,
       "displayName": "Finger of Pain",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/finger_of_pain.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 275,

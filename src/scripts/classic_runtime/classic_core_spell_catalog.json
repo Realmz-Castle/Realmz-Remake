@@ -59,33 +59,6 @@
       "projectileHit": 14,
       "sounds": ["bwee.wav", "prout.wav"],
       "description": "Mind Melt: Deals 25-35 mental damage along a ray with range 3 per power after an opposed target-versus-caster level check."
-    },
-    {
-      "packedSpellId": 3105,
-      "resourceKey": "Lightning Strike",
-      "lineOfSight": false,
-      "elements": [2],
-      "tags": ["Magical", "Electric"],
-      "schools": ["Enchanter"],
-      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 1},
-      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 1},
-      "projectileTexture": 9,
-      "projectileHit": 9,
-      "sounds": ["spell launch 9.wav", "lightning.wav"],
-      "description": "Lightning Strike: Deals 1-6 electrical damage per power without requiring line of sight."
-    },
-    {
-      "packedSpellId": 3506,
-      "resourceKey": "Finger of Pain",
-      "elements": [9],
-      "tags": ["Magical"],
-      "schools": ["Enchanter"],
-      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 5},
-      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 15},
-      "projectileTexture": 14,
-      "projectileHit": 14,
-      "sounds": ["jump.wav", "door slam.wav"],
-      "description": "Finger of Pain: Deals 20 plus 5 magical damage per power."
     }
   ]
 }

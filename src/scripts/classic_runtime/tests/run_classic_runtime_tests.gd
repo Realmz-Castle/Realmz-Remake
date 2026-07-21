@@ -7479,7 +7479,7 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 6, "core catalog registers remaining generic spells")
+	_expect_equal(core_spell_book.size(), 4, "core catalog registers remaining generic spells")
 	_expect_equal(
 		core_spell_book.get("Psionic Spear", {}).get("classicSpellIds"),
 		[2109],
@@ -7497,6 +7497,7 @@ func _test_classic_spell_coverage() -> void:
 		1103, 1104, 1204, 1209, 1211, 1303, 1402, 1504,
 		1505, 1701, 3207, 3301, 3308, 3409, 3712,
 		1203, 1212, 1306, 1310, 1401, 2101, 3211, 3401, 3704,
+		3105, 3506,
 	]:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7528,6 +7529,8 @@ func _test_classic_spell_coverage() -> void:
 		"Steel Rain": "res://shared_assets/spells/steel_rain.gd",
 		"Acid Rain": "res://shared_assets/spells/acid_rain.gd",
 		"Mind Rash": "res://shared_assets/spells/mind_rash.gd",
+		"Lightning Strike": "res://shared_assets/spells/lightning_strike.gd",
+		"Finger of Pain": "res://shared_assets/spells/finger_of_pain.gd",
 	}
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
@@ -7718,15 +7721,14 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(flame_tongue.get_max_damage(1, null), 16, "Flame Tongue maximum is fixed")
 	_expect_equal(flame_tongue.get_sp_cost(3, null), 54, "Flame Tongue cost scales")
 
-	var generic_damage_expectations := {
-		3105: ["Lightning Strike", 20, 3, 18, 15, 3, "half_damage"],
-		3506: ["Finger of Pain", 8, 35, 35, 105, -1, "none"],
+	var native_direct_damage_expectations := {
+		3105: ["Lightning Strike", 20, 3, 18, 15, 3, "half_damage", false, "lightning_strike.gd"],
+		3506: ["Finger of Pain", 8, 35, 35, 105, -1, "none", true, "finger_of_pain.gd"],
 	}
-	for spell_id: int in generic_damage_expectations:
-		var expected: Array = generic_damage_expectations[spell_id]
-		var spell = CoreSpellCatalogScript.spell(spell_id)
+	for spell_id: int in native_direct_damage_expectations:
+		var expected: Array = native_direct_damage_expectations[spell_id]
+		var spell = load("res://shared_assets/spells/" + str(expected[8])).new()
 		var label := str(expected[0])
-		_expect(spell != null, "%s is executable" % label)
 		_expect(spell.supports_classic_spell_id(spell_id), "%s exports its exact ID" % label)
 		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
 		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
@@ -7739,6 +7741,17 @@ func _test_classic_spell_coverage() -> void:
 		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
 		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
 		_expect_equal(spell.classic_spell_save_mode, expected[6], "%s save mode" % label)
+		_expect_equal(spell.los, expected[7], "%s line-of-sight rule" % label)
+		_expect_equal(
+			spell.targettile,
+			Spell.TARGET_TILE.CREATURE,
+			"%s targets a single creature" % label
+		)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE,
+			"%s checks Classic general resistance" % label
+		)
 
 	var native_area_expectations := {
 		1203: ["Flame Spikes", 0, 3, 12, 75, 1, "half_damage", "flame_spikes.gd"],
@@ -7882,7 +7895,7 @@ func _test_classic_spell_coverage() -> void:
 			Spell.AoE_b3,
 			"%s area grows with power" % area_spell.name
 		)
-	var lightning_strike = CoreSpellCatalogScript.spell(3105)
+	var lightning_strike = load("res://shared_assets/spells/lightning_strike.gd").new()
 	_expect(not lightning_strike.los, "negative Classic range bypasses line of sight")
 	_expect_equal(shock_palm.get_range(3, null), 1, "Shock Palm range")
 	_expect_equal(shock_palm.get_min_damage(3, null), 16, "Shock Palm minimum damage")
