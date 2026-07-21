@@ -36,6 +36,22 @@
       ]
     },
     {
+      "id": "core-player-spell-generic-damage-batch-2",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 26, "displayName": "Shiver"},
+        {"sourceFile": "Data S", "recordIndex": 64, "displayName": "Frostbite"},
+        {"sourceFile": "Data S", "recordIndex": 105, "displayName": "Brimstones"},
+        {"sourceFile": "Data S", "recordIndex": 214, "displayName": "Lightning Strike"},
+        {"sourceFile": "Data S", "recordIndex": 235, "displayName": "Steel Rain"},
+        {"sourceFile": "Data S", "recordIndex": 255, "displayName": "Acid Rain"},
+        {"sourceFile": "Data S", "recordIndex": 263, "displayName": "Shock Palm"},
+        {"sourceFile": "Data S", "recordIndex": 275, "displayName": "Finger of Pain"},
+        {"sourceFile": "Data S", "recordIndex": 303, "displayName": "Mind Rash"}
+      ]
+    },
+    {
       "id": "city-of-bywater-extra-code-375",
       "scenario": "City of Bywater",
       "contexts": ["field-party"],
@@ -431,6 +447,30 @@
       }
     },
     {
+      "classicSpellId": 1212,
+      "displayName": "Shiver",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 26,
+        "byteOffset": 780,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "all-enemies",
+        "damage": "1-2-per-power",
+        "saveMode": "none",
+        "saveBypass": "cannot=2",
+        "resistance": "classic-general",
+        "costPerPower": 20
+      }
+    },
+    {
       "classicSpellId": 1306,
       "displayName": "Fireball",
       "classification": "generic-data-driven",
@@ -608,6 +648,56 @@
       }
     },
     {
+      "classicSpellId": 1505,
+      "displayName": "Frostbite",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 64,
+        "byteOffset": 1920,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [1]}
+      ],
+      "behavior": {
+        "targetType": "single-touch",
+        "damage": "10-20-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 2,
+        "resistance": "none",
+        "resistanceBypass": "cannot=1",
+        "costPerPower": 20
+      }
+    },
+    {
+      "classicSpellId": 2101,
+      "displayName": "Brimstones",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 105,
+        "byteOffset": 3150,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [2]}
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 10,
+        "damage": "1-4-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 3
+      }
+    },
+    {
       "classicSpellId": 2102,
       "displayName": "Discover Magic",
       "classification": "native-special-adapter",
@@ -754,6 +844,32 @@
       }
     },
     {
+      "classicSpellId": 3105,
+      "displayName": "Lightning Strike",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 214,
+        "byteOffset": 6420,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [3]}
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 20,
+        "lineOfSight": false,
+        "damage": "1-6-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 3,
+        "resistance": "classic-general",
+        "costPerPower": 5
+      }
+    },
+    {
       "classicSpellId": 3208,
       "displayName": "Magic Darts",
       "classification": "native-compatibility-variant",
@@ -781,6 +897,31 @@
         "nativeReuse": "extends-remake-magic-darts",
         "presentationFidelity": "source resolution sound byte differs; native presentation retained",
         "learnedSpellIdentity": "pending ISY-426"
+      }
+    },
+    {
+      "classicSpellId": 3211,
+      "displayName": "Steel Rain",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 235,
+        "byteOffset": 7050,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [4]}
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 15,
+        "damage": "2-8-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "costPerPower": 7
       }
     },
     {
@@ -817,6 +958,81 @@
       }
     },
     {
+      "classicSpellId": 3401,
+      "displayName": "Acid Rain",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 255,
+        "byteOffset": 7650,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [5]}
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "damage": "3-16-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "costPerPower": 12
+      }
+    },
+    {
+      "classicSpellId": 3409,
+      "displayName": "Shock Palm",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 263,
+        "byteOffset": 7890,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [6]}
+      ],
+      "behavior": {
+        "targetType": "single-touch",
+        "damage": "10-plus-2-4-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 3,
+        "saveAdjustPerPower": -5,
+        "resistance": "classic-general",
+        "resistAdjustPerPower": -5,
+        "costPerPower": 15
+      }
+    },
+    {
+      "classicSpellId": 3506,
+      "displayName": "Finger of Pain",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 275,
+        "byteOffset": 8250,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [7]}
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "damage": "20-plus-5-per-power",
+        "saveMode": "none",
+        "resistance": "classic-general",
+        "costPerPower": 35
+      }
+    },
+    {
       "classicSpellId": 3603,
       "displayName": "Charm Foe",
       "classification": "native-special-adapter",
@@ -844,6 +1060,31 @@
         "special": 51,
         "adapter": "classic-battle-charm-trait",
         "costPerPower": 30
+      }
+    },
+    {
+      "classicSpellId": 3704,
+      "displayName": "Mind Rash",
+      "classification": "generic-data-driven",
+      "supportStatus": "supported",
+      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 303,
+        "byteOffset": 9090,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-generic-damage-batch-2", "slots": [8]}
+      ],
+      "behavior": {
+        "targetType": "all-enemies",
+        "damage": "4-7-plus-4-7-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 5,
+        "saveAdjustPerPower": -2,
+        "resistance": "classic-general",
+        "costPerPower": 90
       }
     }
   ]

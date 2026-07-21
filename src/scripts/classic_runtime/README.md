@@ -159,6 +159,8 @@ Learned spell persistence still uses the native resource name as its primary res
 
 `classic_core_spell_inventory.json` is the immutable audit baseline for the 252 named Sorcerer, Priest, and Enchanter spells in the shared Classic library. It preserves each packed ID, name, class, level, slot, every decoded field from the 30-byte `Data S` record, and source offset. The inventory distinguishes the 79 records whose source `special` field is zero from the 173 records that require a named special-behavior audit; that distinction identifies review shape, not support. Executable status remains in the support matrix so an inventory row cannot become supported merely because its bytes can be decoded.
 
+`classic_core_spell_catalog.json` is the reviewed executable allowlist for generic core spells. Catalog entries add Remake presentation and learning metadata, while `ClassicCoreSpellCatalog` takes range, targeting, damage, duration, saves, resistance, cost, availability, and other Classic mechanics directly from the matching inventory record. This avoids maintaining a second authored copy of each 30-byte source record.
+
 `ClassicCoreSpellCoverage` joins that inventory to the curated support matrix and
 the shared spell-resource catalog. Its report separates proven support from
 exact-ID resources awaiting behavior review, name-only reuse candidates,

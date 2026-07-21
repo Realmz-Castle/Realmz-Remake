@@ -9,7 +9,18 @@ const SpellOverrideScript = preload(
 
 
 static func records() -> Array[Dictionary]:
-	return _records_at(CATALOG_PATH)
+	var inventory_by_id: Dictionary = {}
+	for inventory: Dictionary in inventory_records():
+		inventory_by_id[int(inventory.get("packedSpellId", 0))] = inventory
+
+	var result: Array[Dictionary] = []
+	for catalog_record: Dictionary in _records_at(CATALOG_PATH):
+		var spell_id := int(catalog_record.get("packedSpellId", 0))
+		var inventory: Dictionary = inventory_by_id.get(spell_id, {})
+		var source_backed := _source_backed_record(catalog_record, inventory)
+		if not source_backed.is_empty():
+			result.append(source_backed)
+	return result
 
 
 static func inventory_records() -> Array[Dictionary]:
@@ -118,4 +129,28 @@ static func _records_at(path: String) -> Array[Dictionary]:
 		func(left: Dictionary, right: Dictionary) -> bool:
 			return int(left.get("packedSpellId", 0)) < int(right.get("packedSpellId", 0))
 	)
+	return result
+
+
+static func _source_backed_record(
+	catalog_record: Dictionary,
+	inventory: Dictionary
+) -> Dictionary:
+	if inventory.is_empty():
+		push_error(
+			"Classic core spell %d has no source inventory record"
+			% int(catalog_record.get("packedSpellId", 0))
+		)
+		return {}
+	var result := catalog_record.duplicate(true)
+	var source_fields: Variant = inventory.get("record", {})
+	if source_fields is Dictionary:
+		for field_name: Variant in source_fields:
+			result[field_name] = source_fields[field_name]
+	result["packedSpellId"] = int(inventory.get("packedSpellId", 0))
+	result["displayName"] = str(inventory.get("displayName", ""))
+	var source_record: Dictionary = inventory.get("sourceRecord", {})
+	for field_name: String in ["sourceFile", "recordIndex", "byteOffset", "byteLength"]:
+		if source_record.has(field_name):
+			result[field_name] = source_record[field_name]
 	return result

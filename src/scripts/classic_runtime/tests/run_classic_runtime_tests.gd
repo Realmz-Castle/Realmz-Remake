@@ -6963,7 +6963,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		24,
+		33,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -6975,6 +6975,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_statuses.get("support-resource-mismatch", 0),
 		0,
 		"every supported spell resolves through its exact resource"
+	)
+	_expect_equal(
+		coverage_statuses.get("generic-implementation-candidate", 0),
+		57,
+		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
 	for coverage_value: Variant in coverage.get("spells", []):
@@ -7001,6 +7006,11 @@ func _test_classic_spell_coverage() -> void:
 		"reviewed Enchanter Power Drain is supported"
 	)
 	_expect_equal(
+		coverage_by_id.get(1212, {}).get("coverageStatus"),
+		"supported",
+		"reviewed generic damage spells are supported"
+	)
+	_expect_equal(
 		coverage_by_id.get(1105, {}).get("coverageStatus"),
 		"special-implementation-required",
 		"unresolved special records remain explicit implementation work"
@@ -7008,7 +7018,7 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 10, "core catalog registers each verified generic spell")
+	_expect_equal(core_spell_book.size(), 19, "core catalog registers each verified generic spell")
 	_expect_equal(
 		core_spell_book.get("Frozen Palm", {}).get("classicSpellIds"),
 		[1204],
@@ -7183,6 +7193,94 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(flame_tongue.get_max_damage(1, null), 16, "Flame Tongue maximum is fixed")
 	_expect_equal(flame_tongue.get_sp_cost(3, null), 54, "Flame Tongue cost scales")
 
+	var generic_damage_expectations := {
+		1212: ["Shiver", 0, 3, 6, 60, -1, "none"],
+		1505: ["Frostbite", 1, 30, 60, 60, 2, "half_damage"],
+		2101: ["Brimstones", 10, 1, 4, 9, 1, "half_damage"],
+		3105: ["Lightning Strike", 20, 3, 18, 15, 3, "half_damage"],
+		3211: ["Steel Rain", 15, 2, 8, 21, 7, "half_damage"],
+		3401: ["Acid Rain", 8, 3, 16, 36, 4, "half_damage"],
+		3409: ["Shock Palm", 1, 16, 22, 45, 3, "half_damage"],
+		3506: ["Finger of Pain", 8, 35, 35, 105, -1, "none"],
+		3704: ["Mind Rash", 0, 16, 28, 270, 5, "half_damage"],
+	}
+	for spell_id: int in generic_damage_expectations:
+		var expected: Array = generic_damage_expectations[spell_id]
+		var spell = CoreSpellCatalogScript.spell(spell_id)
+		var label := str(expected[0])
+		_expect(spell != null, "%s is executable" % label)
+		_expect(spell.supports_classic_spell_id(spell_id), "%s exports its exact ID" % label)
+		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
+		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
+		_expect_equal(spell.get_max_damage(3, null), expected[3], "%s maximum damage" % label)
+		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
+		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, expected[6], "%s save mode" % label)
+
+	var shiver = CoreSpellCatalogScript.spell(1212)
+	_expect(shiver.skip_targeting, "Shiver needs no target selection")
+	_expect_equal(
+		shiver.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Shiver targets every enemy"
+	)
+	_expect_equal(
+		shiver.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Shiver checks general resistance without a DRV save"
+	)
+	var frostbite = CoreSpellCatalogScript.spell(1505)
+	_expect_equal(
+		frostbite.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Frostbite's cannot-resist flag bypasses general resistance"
+	)
+	for area_spell_id: int in [2101, 3211, 3401]:
+		var area_spell = CoreSpellCatalogScript.spell(area_spell_id)
+		_expect_equal(
+			area_spell.get_aoe(3, null),
+			Spell.AoE_b3,
+			"%s area grows with power" % area_spell.name
+		)
+	var lightning_strike = CoreSpellCatalogScript.spell(3105)
+	_expect(not lightning_strike.los, "negative Classic range bypasses line of sight")
+	var shock_palm = CoreSpellCatalogScript.spell(3409)
+	_expect_equal(shock_palm.classic_save_adjust, -5, "Shock Palm scales its save penalty")
+	_expect_equal(
+		shock_palm.classic_resist_adjust,
+		-5,
+		"Shock Palm scales its resistance penalty"
+	)
+	var mind_rash = CoreSpellCatalogScript.spell(3704)
+	_expect(mind_rash.skip_targeting, "Mind Rash needs no target selection")
+	_expect_equal(
+		mind_rash.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Mind Rash targets every enemy"
+	)
+
+	var source_fields := [
+		"range1", "range2", "queueIcon", "toHitBonus", "saveBonus",
+		"fixedTargetNum", "canRotate", "saveAdjust", "cannot", "resistAdjust",
+		"cost", "damage1", "damage2", "powerDamage1", "powerDamage2",
+		"duration1", "duration2", "powerDuration1", "powerDuration2",
+		"spellLook1", "spellLook2", "sound1", "sound2", "targetType", "size",
+		"special", "damageType", "spellClass", "inCombat", "inCamp",
+	]
+	var source_backed := true
+	for catalog_record: Dictionary in CoreSpellCatalogScript.records():
+		var source_inventory: Dictionary = CoreSpellCatalogScript.inventory_spell(
+			int(catalog_record.get("packedSpellId", 0))
+		)
+		var source_record: Dictionary = source_inventory.get("record", {})
+		for field_name: String in source_fields:
+			if catalog_record.get(field_name) != source_record.get(field_name):
+				source_backed = false
+				break
+		if not source_backed:
+			break
+	_expect(source_backed, "core catalog mechanics come directly from the source inventory")
+
 	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
 	var enchanter_charm = load(
 		"res://shared_assets/spells/classic_charm_foe_enchanter.gd"
@@ -7278,7 +7376,7 @@ func _test_classic_spell_coverage() -> void:
 				_expect_equal(
 					entry.get("supportStatus"),
 					"supported",
-					"City spell matrix row is executable"
+					"Classic spell matrix row is executable"
 				)
 				_expect(
 					FileAccess.file_exists(str(entry.get("resource", ""))),
@@ -7289,8 +7387,9 @@ func _test_classic_spell_coverage() -> void:
 				matrix_ids,
 				[
 					1101, 1102, 1103, 1104, 1108, 1111, 1203, 1204, 1209, 1211,
-					1306, 1310, 1401, 1402, 1408, 1501, 2102, 2103, 2111,
-					2201, 3102, 3208, 3311, 3603,
+					1212, 1306, 1310, 1401, 1402, 1408, 1501, 1505, 2101, 2102,
+					2103, 2111, 2201, 3102, 3105, 3208, 3211, 3311, 3401, 3409,
+					3506, 3603, 3704,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)

@@ -294,6 +294,20 @@
       "description": "Scorched Earth: Deals 2-10 fire damage along a ray with range 2 per power."
     },
     {
+      "packedSpellId": 1212,
+      "resourceKey": "Shiver",
+      "lineOfSight": false,
+      "elements": [1],
+      "tags": ["Magical", "Ice"],
+      "schools": ["Sorcerer"],
+      "schoolLevels": {"Sorcerer": 2, "Priest": 0, "Enchanter": 0},
+      "selectionCosts": {"Sorcerer": 3, "Priest": 0, "Enchanter": 0},
+      "projectileTexture": 8,
+      "projectileHit": 8,
+      "sounds": ["wind.wav", "electric energize.wav"],
+      "description": "Shiver: Deals 1-2 cold damage per power to every enemy."
+    },
+    {
       "packedSpellId": 1306,
       "resourceKey": "Fireball",
       "displayName": "Fireball",
@@ -487,6 +501,112 @@
       "projectileHit": 5,
       "sounds": ["spell launch 2.wav", "small explode.wav"],
       "description": "Flame Tongue: Deals 8-16 fire damage along a ray with range 2 per power."
+    },
+    {
+      "packedSpellId": 1505,
+      "resourceKey": "Frostbite",
+      "elements": [1],
+      "tags": ["Magical", "Ice", "Melee"],
+      "schools": ["Sorcerer"],
+      "schoolLevels": {"Sorcerer": 5, "Priest": 0, "Enchanter": 0},
+      "selectionCosts": {"Sorcerer": 15, "Priest": 0, "Enchanter": 0},
+      "projectileTexture": 8,
+      "projectileHit": 8,
+      "sounds": ["bloop.wav", "electric energize.wav"],
+      "description": "Frostbite: Deals 10-20 cold damage per power at touch range."
+    },
+    {
+      "packedSpellId": 2101,
+      "resourceKey": "Brimstones",
+      "elements": [0],
+      "tags": ["Magical", "Fire"],
+      "schools": ["Priest"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 1, "Enchanter": 0},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 1, "Enchanter": 0},
+      "projectileTexture": 5,
+      "projectileHit": 5,
+      "sounds": ["spell launch 2.wav", "small explode.wav"],
+      "description": "Brimstones: Deals 1-4 fire damage in an area that grows with power."
+    },
+    {
+      "packedSpellId": 3105,
+      "resourceKey": "Lightning Strike",
+      "lineOfSight": false,
+      "elements": [2],
+      "tags": ["Magical", "Electric"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 1},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 1},
+      "projectileTexture": 9,
+      "projectileHit": 9,
+      "sounds": ["spell launch 9.wav", "lightning.wav"],
+      "description": "Lightning Strike: Deals 1-6 electrical damage per power without requiring line of sight."
+    },
+    {
+      "packedSpellId": 3211,
+      "resourceKey": "Steel Rain",
+      "elements": [9],
+      "tags": ["Magical"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 2},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 3},
+      "projectileTexture": 4,
+      "projectileHit": 4,
+      "sounds": ["lightning.wav", "sting.wav"],
+      "description": "Steel Rain: Deals 2-8 damage in an area that grows with power."
+    },
+    {
+      "packedSpellId": 3401,
+      "resourceKey": "Acid Rain",
+      "elements": [4],
+      "tags": ["Magical", "Chemical"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 4},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 10},
+      "projectileTexture": 6,
+      "projectileHit": 11,
+      "sounds": ["big splat.wav", "slimed.wav"],
+      "description": "Acid Rain: Deals 3-16 chemical damage in an area that grows with power."
+    },
+    {
+      "packedSpellId": 3409,
+      "resourceKey": "Shock Palm",
+      "elements": [2],
+      "tags": ["Magical", "Electric", "Melee"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 4},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 10},
+      "projectileTexture": 9,
+      "projectileHit": 9,
+      "sounds": ["spell launch 6.wav", "prout.wav"],
+      "description": "Shock Palm: Deals 10 plus 2-4 electrical damage per power and penalizes saves and resistance by 5% per power."
+    },
+    {
+      "packedSpellId": 3506,
+      "resourceKey": "Finger of Pain",
+      "elements": [9],
+      "tags": ["Magical"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 5},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 15},
+      "projectileTexture": 14,
+      "projectileHit": 14,
+      "sounds": ["jump.wav", "door slam.wav"],
+      "description": "Finger of Pain: Deals 20 plus 5 magical damage per power."
+    },
+    {
+      "packedSpellId": 3704,
+      "resourceKey": "Mind Rash",
+      "lineOfSight": false,
+      "elements": [7],
+      "tags": ["Magical", "Mental"],
+      "schools": ["Enchanter"],
+      "schoolLevels": {"Sorcerer": 0, "Priest": 0, "Enchanter": 7},
+      "selectionCosts": {"Sorcerer": 0, "Priest": 0, "Enchanter": 28},
+      "projectileTexture": 6,
+      "projectileHit": 15,
+      "sounds": ["dididup.wav", "prout.wav"],
+      "description": "Mind Rash: Deals 4-7 plus 4-7 mental damage per power to every enemy."
     }
   ]
 }
