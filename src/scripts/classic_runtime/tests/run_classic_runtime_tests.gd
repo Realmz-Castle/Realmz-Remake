@@ -3388,6 +3388,68 @@ func _test_classic_bestiary_materializer() -> void:
 		[],
 		"Realmz battle-setup scratch fields do not block native materialization"
 	)
+	var morale_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	morale_record["runPercent"] = 12
+	morale_record["surrenderPercent"] = 6
+	var morale_native: Dictionary = materializer._native_monster(
+		morale_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect_equal(
+		morale_native.get("classicRunPercent"),
+		12,
+		"Classic run threshold remains available as source metadata"
+	)
+	_expect_equal(
+		morale_native.get("classicSurrenderPercent"),
+		6,
+		"Classic surrender threshold remains available as source metadata"
+	)
+	_expect_equal(
+		morale_native.get("classicMaterialization", {}).get("unsupportedFields"),
+		[],
+		"shipped inert morale thresholds do not block native materialization"
+	)
+	_expect(
+		morale_native.get(
+			"classicMaterialization", {}
+		).get("fidelityFallbacks", []).has("classicInertMoraleThresholds"),
+		"nonzero inert morale thresholds remain visible as a compatibility fallback"
+	)
+	morale_record["runPercent"] = 101
+	morale_record["surrenderPercent"] = 101
+	var active_morale_fields: Array = materializer._unsupported_fields(
+		morale_record,
+		{},
+		{},
+		{},
+		{}
+	)
+	_expect(
+		active_morale_fields.has("runPercent") \
+			and active_morale_fields.has("surrenderPercent"),
+		"active Classic retreat and surrender thresholds remain explicit blockers"
+	)
+	var active_morale_native: Dictionary = materializer._native_monster(
+		morale_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect(
+		not active_morale_native.get(
+			"classicMaterialization", {}
+		).get("fidelityFallbacks", []).has("classicInertMoraleThresholds"),
+		"active morale thresholds are not mislabeled as inert fallbacks"
+	)
 
 	var elemental_root := test_root.path_join("elemental-attack")
 	DirAccess.make_dir_recursive_absolute(elemental_root)

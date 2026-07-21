@@ -68,10 +68,9 @@ const EXPERIENCE_BY_HIT_DICE := [
 	[5700, 75],
 ]
 const UNSUPPORTED_SCALAR_FIELDS := [
-	"runPercent",
-	"surrenderPercent",
 	"beenAttacked",
 ]
+const CLASSIC_INERT_MORALE_MAX := 100
 
 var last_error := ""
 
@@ -220,6 +219,13 @@ func _native_monster(
 		fidelity_fallbacks.append("randomizedMoney")
 	if _attack_sound_is_present(record):
 		fidelity_fallbacks.append("attackSounds")
+	var run_percent := int(record.get("runPercent", 0))
+	var surrender_percent := int(record.get("surrenderPercent", 0))
+	if (
+		(run_percent != 0 and run_percent <= CLASSIC_INERT_MORALE_MAX)
+		or (surrender_percent != 0 and surrender_percent <= CLASSIC_INERT_MORALE_MAX)
+	):
+		fidelity_fallbacks.append("classicInertMoraleThresholds")
 	for fallback: String in native_inventory.get("fidelityFallbacks", []):
 		if not fidelity_fallbacks.has(fallback):
 			fidelity_fallbacks.append(fallback)
@@ -241,6 +247,8 @@ func _native_monster(
 		"classicHitDice": hit_dice,
 		"classicMagicResistance": int(record.get("magicResistance", 0)),
 		"classicCanSummon": int(record.get("canSummon", 0)),
+		"classicRunPercent": int(record.get("runPercent", 0)),
+		"classicSurrenderPercent": int(record.get("surrenderPercent", 0)),
 		"classicWeaponItemId": int(record.get("weapon", 0)),
 		"classicSpellIds": _integer_array(record.get("spells", []), 10),
 		"classicRecord": record.duplicate(true),
@@ -582,6 +590,14 @@ func _unsupported_fields(
 	for field_name: String in UNSUPPORTED_SCALAR_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
 			fields.append(field_name)
+	# Realmz getup.c calculates the morale percentage as stamina / stamina,
+	# making source thresholds from 0 through 100 inert. Values above 100 can
+	# still force retreat or surrender and remain blocked until Remake owns
+	# those battle transitions.
+	if int(record.get("runPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
+		fields.append("runPercent")
+	if int(record.get("surrenderPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
+		fields.append("surrenderPercent")
 	if _array_has_nonzero(record.get("conditions", [])):
 		fields.append("conditions")
 	for field_name: String in native_inventory.get("unsupportedFields", []):
