@@ -14,7 +14,7 @@ func _init() -> void :
 	selection_costs = {"Sorcerer": 0, "Priest": 6, "Enchanter": 0}
 	in_combat = true
 	description = "Festering Wounds: Diseases every enemy for 1-3 rounds per power."
-	resist = RESIST_TYPE.IGNORE_MRES_DODGE
+	resist = RESIST_TYPE.IGNORE_DODGE
 	skip_targeting = true
 	autotarget_type = AUTOTARGET_TYPE.ALL_ENEMIES
 	proj_tex = GFX.CLOUD

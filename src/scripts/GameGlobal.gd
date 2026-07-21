@@ -1135,6 +1135,10 @@ func do_spell_field_effect(
 	plvl : int,
 	damage_scale := 1.0
 ) :
+	# Some Classic effects scale a non-health value after the target saves.
+	if spell.has_method("apply_classic_scaled_effect") :
+		spell.apply_classic_scaled_effect(caster, target, plvl, damage_scale)
+		return
 	var spell_dmg := int(calculate_spell_damage(caster, target, spell, plvl, false) * damage_scale)
 	target.change_cur_hp(-spell_dmg)
 	if spell.has_method("add_traits_to_creature") :

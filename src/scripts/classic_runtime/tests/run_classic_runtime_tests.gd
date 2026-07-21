@@ -5149,10 +5149,10 @@ func _test_classic_magic_resistance_contract() -> void:
 	)
 	var ignored_spell = load("res://shared_assets/spells/festering_wounds.gd").new()
 	_expect(
-		not MagicResistanceScript.spell_resolution(
+		MagicResistanceScript.spell_resolution(
 			target, ignored_spell, 1, 1
 		).get("checksResistance"),
-		"mapped spell preserves its ignore-magic-resistance flag"
+		"Festering Wounds checks Classic magic resistance"
 	)
 	var native_spell := Spell.new()
 	native_spell.resist = Spell.RESIST_TYPE.IGNORE_NOTHING
@@ -6888,15 +6888,15 @@ func _test_spell_effect_actions(bundle) -> void:
 	_expect(not forced_effect.get("saved"), "force-affect bypasses a guaranteed save")
 	_expect(forced_effect.get("forced"), "force-affect remains visible in the resolution")
 	_expect_equal(forced_effect.get("effectScale"), 1.0, "force-affect applies the full spell")
-	var no_save_effect: Dictionary = adapter.classic_field_spell_target_resolution(
+	var daze_save: Dictionary = adapter.classic_field_spell_target_resolution(
 		{"power": 7, "saveAdjustment": 100, "forceAffect": false},
 		first_target,
 		daze,
 		1,
 		1
 	)
-	_expect(not no_save_effect.get("saved"), "a no-save spell ignores the adjustment field")
-	_expect_equal(no_save_effect.get("effectScale"), 1.0, "a no-save spell always applies")
+	_expect(daze_save.get("saved"), "Daze uses Classic's charm save")
+	_expect_equal(daze_save.get("effectScale"), 0.0, "a successful Daze save negates confusion")
 
 
 func _test_classic_spell_coverage() -> void:
@@ -6963,7 +6963,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		22,
+		24,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -6989,6 +6989,16 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(1110, {}).get("coverageStatus"),
 		"exact-resource-review",
 		"exact native resources still require behavior review"
+	)
+	_expect_equal(
+		coverage_by_id.get(1408, {}).get("coverageStatus"),
+		"supported",
+		"reviewed Sorcerer Power Drain is supported"
+	)
+	_expect_equal(
+		coverage_by_id.get(3311, {}).get("coverageStatus"),
+		"supported",
+		"reviewed Enchanter Power Drain is supported"
 	)
 	_expect_equal(
 		coverage_by_id.get(1105, {}).get("coverageStatus"),
@@ -7279,8 +7289,8 @@ func _test_classic_spell_coverage() -> void:
 				matrix_ids,
 				[
 					1101, 1102, 1103, 1104, 1108, 1111, 1203, 1204, 1209, 1211,
-					1306, 1310, 1401, 1402, 1501, 2102, 2103, 2111, 2201,
-					3102, 3208, 3603,
+					1306, 1310, 1401, 1402, 1408, 1501, 2102, 2103, 2111,
+					2201, 3102, 3208, 3311, 3603,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)
@@ -11244,8 +11254,8 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect(festering_wounds.skip_targeting, "Festering Wounds needs no target selection")
 	_expect_equal(
 		festering_wounds.resist,
-		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
-		"Festering Wounds relies on its scripted save instead of native resistance"
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Festering Wounds checks magic resistance without native projectile dodge"
 	)
 	_expect_equal(
 		festering_wounds.get_damage_roll(7, null),
@@ -11270,6 +11280,7 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(diseased_target.current_hp, 17, "disease deals its current power each round")
 	_expect_equal(disease_trait.get_saved_variables(), [2], "disease power decays each round")
 	_expect(power_drain.supports_classic_spell_id(1408), "Power Drain supports CoB's spell ID")
+	_expect(power_drain.supports_classic_spell_id(3311), "Power Drain supports its Enchanter ID")
 	_expect(
 		adapter.classic_spell_resource_supports_id(power_drain, 1408),
 		"field-spell adapter accepts a supported Power Drain ID"
@@ -11305,6 +11316,17 @@ func _test_complex_spell_results(bundle) -> void:
 		"complex encounters reject a same-name Power Drain variant"
 	)
 	_expect_equal(power_drain.classic_spell_class, 7, "Power Drain exports its Classic class")
+	_expect_equal(power_drain.classic_spell_save_index, 7, "Power Drain uses the special save")
+	_expect_equal(
+		power_drain.classic_spell_save_mode,
+		"half_damage",
+		"a successful save halves Power Drain"
+	)
+	_expect_equal(
+		power_drain.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Power Drain checks magic resistance without native projectile dodge"
+	)
 	_expect_equal(power_drain.get_range(7, null), 1, "Power Drain keeps its touch range")
 	_expect_equal(power_drain.get_sp_cost(3, null), 30, "Power Drain cost scales by power")
 	_expect_equal(
@@ -11335,6 +11357,16 @@ func _test_complex_spell_results(bundle) -> void:
 		"Power Drain cannot remove more spell points than remain"
 	)
 	_expect_equal(nearly_empty_target.current_sp, 0, "Power Drain clamps spell points at zero")
+	var saved_drain_target := SpellPointTestCreature.new(100)
+	var saved_drain: int = power_drain.apply_classic_scaled_effect(
+		null, saved_drain_target, 2, 0.5
+	)
+	_expect(saved_drain >= 5 and saved_drain <= 8, "a save halves the rolled spell-point drain")
+	_expect_equal(
+		saved_drain_target.current_sp,
+		100 - saved_drain,
+		"scaled Power Drain changes spell points only once"
+	)
 	_expect(confuse.supports_classic_spell_id(2301), "Confuse exports its exact Classic ID")
 	_expect_equal(confuse.classic_spell_class, 5, "Confuse exports its Classic class")
 	_expect_equal(confuse.get_range(7, null), 9, "Confuse keeps its fixed range")
@@ -11342,6 +11374,11 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(confuse.get_sp_cost(3, null), 45, "Confuse cost scales by power")
 	_expect_equal(confuse.get_aoe(1, null), Spell.AoE_b7, "Confuse keeps its fixed size-7 area")
 	_expect_equal(confuse.get_damage_roll(7, null), 0, "Confuse does not deal health damage")
+	_expect_equal(
+		confuse.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Confuse checks magic resistance without native projectile dodge"
+	)
 	var confused_target := ConditionTestCharacter.new("Confused target")
 	confuse.add_traits_to_creature(null, confused_target, 3)
 	_expect_equal(confused_target.traits.size(), 1, "Confuse applies one condition trait")
@@ -11358,6 +11395,8 @@ func _test_complex_spell_results(bundle) -> void:
 	_expect_equal(confused_trait.get_saved_variables(), [5], "Confuse durations stack")
 	_expect(daze.supports_classic_spell_id(3202), "Daze exports its exact Classic ID")
 	_expect_equal(daze.classic_spell_class, 0, "Daze exports its Classic class")
+	_expect_equal(daze.classic_spell_save_index, 0, "Daze uses Classic's charm save")
+	_expect_equal(daze.classic_spell_save_mode, "negate", "Daze's charm save negates confusion")
 	_expect_equal(daze.get_range(3, null), 9, "Daze range scales by power")
 	_expect_equal(daze.get_min_duration(7, null), 1, "Daze keeps its minimum duration")
 	_expect_equal(daze.get_max_duration(1, null), 4, "Daze keeps its maximum duration")

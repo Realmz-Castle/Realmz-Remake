@@ -19,6 +19,37 @@
       ]
     },
     {
+      "id": "core-player-spell-power-drain",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 52,
+          "displayName": "Sorcerer Power Drain"
+        },
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 250,
+          "displayName": "Enchanter Power Drain"
+        }
+      ]
+    },
+    {
+      "id": "city-of-bywater-extra-code-375",
+      "scenario": "City of Bywater",
+      "contexts": ["field-party"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data EDCD",
+          "recordIndex": 375,
+          "ownerSource": "Data DD",
+          "ownerRecordIndex": 89,
+          "ownerSlot": 1
+        }
+      ]
+    },
+    {
       "id": "city-of-bywater-monster-71",
       "scenario": "City of Bywater",
       "contexts": ["combatant"],
@@ -511,6 +542,42 @@
       }
     },
     {
+      "classicSpellId": 1408,
+      "displayName": "Power Drain",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/power_drain.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 52,
+        "byteOffset": 1560,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "city-of-bywater-extra-code-375",
+          "slots": [0]
+        },
+        {
+          "corpusId": "core-player-spell-power-drain",
+          "slots": [0]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "effect": "5-8-spell-points-per-power",
+        "saveMode": "half-effect",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "special": 60,
+        "adapter": "scaled-spell-point-drain",
+        "costPerPower": 10,
+        "learnedSpellIdentity": "pending ISY-426"
+      }
+    },
+    {
       "classicSpellId": 1501,
       "displayName": "Charm Foe",
       "classification": "native-special-adapter",
@@ -713,6 +780,39 @@
         "costPerPower": 4,
         "nativeReuse": "extends-remake-magic-darts",
         "presentationFidelity": "source resolution sound byte differs; native presentation retained",
+        "learnedSpellIdentity": "pending ISY-426"
+      }
+    },
+    {
+      "classicSpellId": 3311,
+      "displayName": "Power Drain",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/power_drain.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 250,
+        "byteOffset": 7500,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "core-player-spell-power-drain",
+          "slots": [1]
+        }
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "effect": "5-8-spell-points-per-power",
+        "saveMode": "half-effect",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "special": 60,
+        "adapter": "scaled-spell-point-drain",
+        "costPerPower": 10,
+        "presentationFidelity": "source launch-effect byte differs; native presentation retained",
         "learnedSpellIdentity": "pending ISY-426"
       }
     },

@@ -434,6 +434,14 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 				and float(save_resolution.get("effectScale", 0.0)) <= 0.0 :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
 			continue
+		if spell.has_method("apply_classic_scaled_effect") :
+			spell.apply_classic_scaled_effect(
+				castercrea,
+				cb.creature,
+				power,
+				float(save_resolution.get("effectScale", 1.0))
+			)
+			continue
 		var spell_damage : int = GameGlobal.calculate_spell_damage(castercrea, cb.creature, spell, power, true)
 		spell_damage = floori(
 			spell_damage * float(save_resolution.get("effectScale", 1.0))

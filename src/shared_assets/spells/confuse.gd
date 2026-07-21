@@ -14,7 +14,7 @@ func _init() -> void :
 	selection_costs = {"Sorcerer": 0, "Priest": 6, "Enchanter": 0}
 	in_combat = true
 	description = "Confuse: Those affected may flee, attack friend or foe, or stand idle."
-	resist = RESIST_TYPE.IGNORE_NOTHING
+	resist = RESIST_TYPE.IGNORE_DODGE
 	proj_tex = GFX.BALL
 	proj_hit = GFX.SPINNY
 	sounds = ["hit effect 4.wav", "prout.wav"]

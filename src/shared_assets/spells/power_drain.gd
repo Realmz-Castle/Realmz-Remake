@@ -8,13 +8,13 @@ func _init() -> void :
 	classic_spell_class = 7
 	classic_spell_ids = [1408, 3311]
 	classic_spell_save_index = 7
-	classic_spell_save_mode = "negate"
+	classic_spell_save_mode = "half_damage"
 	targettile = TARGET_TILE.CREATURE
 	school_levels = {"Sorcerer": 4, "Priest": 0, "Enchanter": 3}
 	selection_costs = {"Sorcerer": 10, "Priest": 0, "Enchanter": 6}
 	in_combat = true
 	description = "Power Drain: Will drain spell points from the target."
-	resist = RESIST_TYPE.IGNORE_NOTHING
+	resist = RESIST_TYPE.IGNORE_DODGE
 	proj_tex = GFX.WHIRL
 	proj_hit = GFX.SPHERE
 	sounds = ["boing.wav", "electric energize.wav"]
@@ -38,21 +38,18 @@ func get_spell_point_drain_roll(power : int) -> int :
 		drain += randi_range(5, 8)
 	return drain
 
-func apply_power_drain(target, power : int) -> int :
+func apply_power_drain(target, power : int, effect_scale := 1.0) -> int :
 	var available := maxi(0, int(target.get_stat("curSP")))
-	var drained := mini(available, get_spell_point_drain_roll(power))
+	var rolled_drain := get_spell_point_drain_roll(power)
+	var drained := mini(available, floori(rolled_drain * effect_scale))
 	target.change_cur_sp(-drained)
 	return drained
 
-func special_effect(
+
+func apply_classic_scaled_effect(
 	_caster,
-	_spell,
-	power,
-	_main_targeted_tile,
-	_effected_tiles,
-	effected_creatures,
-	_add_terrain
-) -> bool :
-	for target in effected_creatures :
-		apply_power_drain(target, power)
-	return true
+	target,
+	power : int,
+	effect_scale : float
+) -> int :
+	return apply_power_drain(target, power, effect_scale)
