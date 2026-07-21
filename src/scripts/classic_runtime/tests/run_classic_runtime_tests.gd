@@ -2684,6 +2684,14 @@ func _test_classic_bestiary_materializer() -> void:
 		bool(inventory_readiness.get("ready", false)),
 		"resolved native monster inventory remains launchable"
 	)
+	var armed_attack_record: Dictionary = inventory_bundle.get_monster(1).duplicate(true)
+	armed_attack_record["attacks"][0][3] = 11
+	_expect(
+		materializer._native_attacks(armed_attack_record).get(
+			"unsupportedFields", []
+		).has("attacks[0].specialWithWeapon"),
+		"elemental specials with equipped weapons remain explicit blockers"
+	)
 
 	var spell_root := test_root.path_join("spells")
 	DirAccess.make_dir_recursive_absolute(spell_root)
@@ -2726,6 +2734,73 @@ func _test_classic_bestiary_materializer() -> void:
 		"resolved native monster spells remain launchable"
 	)
 
+	var elemental_root := test_root.path_join("elemental-attack")
+	DirAccess.make_dir_recursive_absolute(elemental_root)
+	var elemental_bundle = BundleScript.new()
+	elemental_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	elemental_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 11
+	_expect_equal(
+		materializer.materialize(elemental_bundle, elemental_root).get("status"),
+		"ok",
+		"Classic elemental attacks generate native damage"
+	)
+	var elemental_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(elemental_root.path_join("Bestiary/stuff_book.json"))
+	)
+	var elemental_monster: Dictionary = elemental_book.get("Classic Monster 1", {})
+	var elemental_attack: Dictionary = elemental_monster.get(
+		"tools", {}
+	).get("unarmed_melee_attacks", [])[0]
+	_expect_equal(
+		elemental_attack.get("weapon_dmg", {}).get("Fire"),
+		[1.0, 8.0],
+		"Classic fire damage uses its source attack maximum"
+	)
+	_expect_equal(
+		elemental_attack.get("extra_data", {}).get("classicSpecialAttack"),
+		11,
+		"native attack retains its Classic special-attack identity"
+	)
+	_expect_equal(
+		elemental_monster.get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []),
+		[],
+		"unarmed elemental damage does not block launch"
+	)
+	_expect(
+		elemental_monster.get(
+			"classicMaterialization", {}
+		).get("fidelityFallbacks", []).has("elementalSpecialAttackMitigation"),
+		"native resistance records the Classic per-hit save fallback"
+	)
+	_expect(
+		bool(ReadinessScript.new().inspect(
+			elemental_bundle,
+			{"bestiary": elemental_book}
+		).get("ready", false)),
+		"unarmed elemental attack remains launchable"
+	)
+	var expected_elements := {
+		11: "Fire",
+		12: "Ice",
+		13: "Elect",
+		14: "Chemical",
+		15: "Mental",
+	}
+	for special_code: int in expected_elements:
+		var attack_record: Dictionary = bundle.get_monster(1).duplicate(true)
+		attack_record["attacks"][0][3] = special_code
+		var native_attack_result: Dictionary = materializer._native_attacks(attack_record)
+		_expect(
+			native_attack_result.get("entries", [])[0].get(
+				"weapon_dmg", {}
+			).has(expected_elements[special_code]),
+			"Classic special attack %d maps to native %s damage" % [
+				special_code,
+				expected_elements[special_code],
+			]
+		)
 	var mismatched_spell_root := test_root.path_join("mismatched-spell")
 	DirAccess.make_dir_recursive_absolute(mismatched_spell_root)
 	var mismatched_spell_bundle = BundleScript.new()
@@ -2805,6 +2880,14 @@ func _test_classic_bestiary_materializer() -> void:
 	)
 	var unsupported_book: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(unsupported_root.path_join("Bestiary/stuff_book.json"))
+	)
+	_expect(
+		unsupported_book.get(
+			"Classic Monster 1", {}
+		).get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("attacks[0].special"),
+		"unsupported attack records its exact source slot"
 	)
 	var unsupported_readiness: Dictionary = ReadinessScript.new().inspect(
 		unsupported_bundle,

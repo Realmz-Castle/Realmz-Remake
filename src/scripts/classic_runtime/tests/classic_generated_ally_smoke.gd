@@ -61,8 +61,26 @@ func _run_smoke() -> void:
 		"normal campaign resources load the generated Bestiary entry"
 	)
 	_expect(
+		resources.crea_book.has("Classic Monster 2"),
+		"normal campaign resources load the generated elemental attacker"
+	)
+	_expect(
 		resources.items_book.has("Classic Item 901"),
 		"normal campaign resources load the generated scenario item"
+	)
+	var elemental_attacker: Creature = GameGlobal.combatCreatureGD.new()
+	elemental_attacker.initialize_from_bestiary_dict("Classic Monster 2")
+	_expect_equal(
+		elemental_attacker.current_melee_weapons[0].get("weapon_dmg", {}).get("Fire"),
+		[1.0, 8.0],
+		"native creature loading retains generated Classic fire damage"
+	)
+	_expect_equal(
+		elemental_attacker.current_melee_weapons[0].get(
+			"extra_data", {}
+		).get("classicSpecialAttack"),
+		11,
+		"native creature loading retains Classic attack metadata"
 	)
 
 	var bundle = BundleScript.new()
@@ -198,6 +216,17 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	content["monsters"][0]["spells"] = [1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0]
 	content["monsters"][0]["magicAttackCount"] = 2
 	content["monsters"][0]["castPercent"] = 75
+	var elemental_monster: Dictionary = content["monsters"][0].duplicate(true)
+	elemental_monster["id"] = 2
+	elemental_monster["nameId"] = 2
+	elemental_monster["displayName"] = "Providence Elemental"
+	elemental_monster["items"] = [0, 0, 0, 0, 0, 0]
+	elemental_monster["weapon"] = 0
+	elemental_monster["spells"] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	elemental_monster["magicAttackCount"] = 0
+	elemental_monster["castPercent"] = 0
+	elemental_monster["attacks"][0][3] = 11
+	content["monsters"].append(elemental_monster)
 	var content_file := FileAccess.open(content_path, FileAccess.WRITE)
 	_expect(content_file != null, "ally smoke writes the derived monster inventory")
 	if content_file == null:

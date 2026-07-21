@@ -37,6 +37,13 @@ const SAVE_MULTIPLIERS := [
 	"MultiplierChemical",
 	"MultiplierMental",
 ]
+const ELEMENT_BY_SPECIAL_ATTACK := {
+	11: "Fire",
+	12: "Ice",
+	13: "Elect",
+	14: "Chemical",
+	15: "Mental",
+}
 const EXPERIENCE_BY_HIT_DICE := [
 	[15, 3],
 	[30, 6],
@@ -195,7 +202,13 @@ func _native_monster(
 		item_mapping
 	)
 	var native_spells := _native_spells(record, spell_book, spell_mapping)
-	var unsupported_fields := _unsupported_fields(record, native_inventory, native_spells)
+	var native_attacks := _native_attacks(record)
+	var unsupported_fields := _unsupported_fields(
+		record,
+		native_inventory,
+		native_spells,
+		native_attacks
+	)
 	var fidelity_fallbacks: Array[String] = [
 		"iconId",
 		"randomizedStamina",
@@ -214,8 +227,10 @@ func _native_monster(
 	for fallback: String in native_spells.get("fidelityFallbacks", []):
 		if not fidelity_fallbacks.has(fallback):
 			fidelity_fallbacks.append(fallback)
+	for fallback: String in native_attacks.get("fidelityFallbacks", []):
+		if not fidelity_fallbacks.has(fallback):
+			fidelity_fallbacks.append(fallback)
 	var stats := _native_stats(record, stamina)
-	var attacks := _native_attacks(record)
 	return {
 		"classicMonsterId": monster_id,
 		"classicMonsterNameId": int(record.get("nameId", -1)),
@@ -256,7 +271,7 @@ func _native_monster(
 		"tools": {
 			"inventory": native_inventory.get("entries", []),
 			"money": _integer_array(record.get("money", []), 3),
-			"unarmed_melee_attacks": attacks,
+			"unarmed_melee_attacks": native_attacks.get("entries", []),
 			"spells": native_spells.get("entries", []),
 		},
 		"scripts": {"default": "test_crea_script.gd"},
@@ -449,10 +464,13 @@ func _native_stats(record: Dictionary, stamina: int) -> Dictionary:
 	return stats
 
 
-func _native_attacks(record: Dictionary) -> Array:
-	var result: Array = []
+func _native_attacks(record: Dictionary) -> Dictionary:
+	var entries: Array = []
+	var unsupported_fields: Array[String] = []
+	var fidelity_fallbacks: Array[String] = []
 	var source: Variant = record.get("attacks", [])
 	var attack_count := maxi(1, int(record.get("attackCount", 1)))
+	var weapon_id := int(record.get("weapon", 0))
 	if source is Array:
 		for attack_index: int in mini(attack_count, source.size()):
 			var row: Variant = source[attack_index]
@@ -460,28 +478,53 @@ func _native_attacks(record: Dictionary) -> Array:
 				continue
 			var low := int(row[0])
 			var high := int(row[1])
-			if low == 0 and high == 0:
+			var special := int(row[3]) if row.size() > 3 else 0
+			if low == 0 and high == 0 and special == 0:
 				continue
-			result.append({
-				"weapon_dmg": {"Physical": [mini(low, high), maxi(low, high)]},
+			var damage := {"Physical": [mini(low, high), maxi(low, high)]}
+			var attack := {
+				"weapon_dmg": damage,
 				"sound": "slurpy.wav",
 				"melee_atk_anim_icon": "ATK_HTH",
 				"melee_inflicted_traits": [],
-			})
-	if result.is_empty():
-		result.append({
+			}
+			if special != 0:
+				attack["extra_data"] = {"classicSpecialAttack": special}
+			if ELEMENT_BY_SPECIAL_ATTACK.has(special):
+				if high < 1:
+					unsupported_fields.append("attacks[%d].specialDamage" % attack_index)
+				elif weapon_id != 0:
+					# Classic adds this damage to a carried weapon, while Remake's
+					# equipped-weapon path bypasses the rotating attack row.
+					unsupported_fields.append("attacks[%d].specialWithWeapon" % attack_index)
+				else:
+					damage[ELEMENT_BY_SPECIAL_ATTACK[special]] = [1, high]
+					# Native resistance replaces Classic's separate save and
+					# protection rolls for the same damage family.
+					if not fidelity_fallbacks.has("elementalSpecialAttackMitigation"):
+						fidelity_fallbacks.append("elementalSpecialAttackMitigation")
+			elif special != 0:
+				unsupported_fields.append("attacks[%d].special" % attack_index)
+			entries.append(attack)
+	if entries.is_empty():
+		entries.append({
 			"weapon_dmg": {"Physical": [1, 1]},
 			"sound": "slurpy.wav",
 			"melee_atk_anim_icon": "ATK_HTH",
 			"melee_inflicted_traits": [],
 		})
-	return result
+	return {
+		"entries": entries,
+		"unsupportedFields": unsupported_fields,
+		"fidelityFallbacks": fidelity_fallbacks,
+	}
 
 
 func _unsupported_fields(
 	record: Dictionary,
 	native_inventory: Dictionary,
-	native_spells: Dictionary
+	native_spells: Dictionary,
+	native_attacks: Dictionary
 ) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_SCALAR_FIELDS:
@@ -496,12 +539,9 @@ func _unsupported_fields(
 	for field_name: String in native_spells.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
-	var attacks: Variant = record.get("attacks", [])
-	if attacks is Array:
-		for attack_value: Variant in attacks:
-			if attack_value is Array and attack_value.size() > 3 and int(attack_value[3]) != 0:
-				fields.append("attacks.special")
-				break
+	for field_name: String in native_attacks.get("unsupportedFields", []):
+		if not fields.has(field_name):
+			fields.append(field_name)
 	var saves := _integer_array(record.get("saves", []), 6)
 	if saves[0] != saves[5]:
 		fields.append("saves.charmMentalSplit")
