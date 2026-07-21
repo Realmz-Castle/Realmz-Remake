@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "producer": {
     "repository": "Realmz - Providence",
-    "commit": "a94e615a9da8b3230546b908067057aada44bcab",
+    "commit": "7732775c9d8667b6af3b4803dc9716aba0ded05c",
     "sourceFixture": "fixtures/scenario-seeds/authoritative-ownership-proof.seed.json"
   },
   "bundleDirectory": "providence_authoritative_export",

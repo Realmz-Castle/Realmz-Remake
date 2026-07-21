@@ -230,7 +230,7 @@ godot --headless --path src --script res://scripts/classic_runtime/tests/run_cla
 ```
 
 The checked `providence_authoritative_export` fixture is the unchanged output of
-Providence commit `a94e615a9da8b3230546b908067057aada44bcab`, generated from
+Providence commit `7732775c9d8667b6af3b4803dc9716aba0ded05c`, generated from
 `fixtures/scenario-seeds/authoritative-ownership-proof.seed.json`. Its companion
 `providence_authoritative_export.provenance.json` records the byte count and
 SHA-256 hash of all 15 producer files, plus the expected readiness result: no

@@ -1143,7 +1143,7 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"a94e615a9da8b3230546b908067057aada44bcab",
+		"7732775c9d8667b6af3b4803dc9716aba0ded05c",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
