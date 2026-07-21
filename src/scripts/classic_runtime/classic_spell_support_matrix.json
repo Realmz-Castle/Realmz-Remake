@@ -520,9 +520,9 @@
     {
       "classicSpellId": 1211,
       "displayName": "Scorched Earth",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/scorched_earth.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 25,
@@ -572,9 +572,9 @@
     {
       "classicSpellId": 1303,
       "displayName": "Deep Freeze",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/deep_freeze.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 32,
@@ -681,9 +681,9 @@
     {
       "classicSpellId": 1402,
       "displayName": "Flame Tongue",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/flame_tongue.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 46,
@@ -776,9 +776,9 @@
     {
       "classicSpellId": 1504,
       "displayName": "Flash",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/flash.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 63,
@@ -827,9 +827,9 @@
     {
       "classicSpellId": 1701,
       "displayName": "Arctic Wind",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/arctic_wind.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 90,
@@ -1291,9 +1291,9 @@
     {
       "classicSpellId": 3207,
       "displayName": "Heat Ray",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/heat_ray.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 231,
@@ -1372,9 +1372,9 @@
     {
       "classicSpellId": 3301,
       "displayName": "Acid Splash",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/acid_splash.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 240,
@@ -1398,9 +1398,9 @@
     {
       "classicSpellId": 3308,
       "displayName": "Lightning Bolt",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/lightning_bolt.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 247,
@@ -1588,9 +1588,9 @@
     {
       "classicSpellId": 3712,
       "displayName": "Vapor Trail",
-      "classification": "generic-data-driven",
+      "classification": "native-direct",
       "supportStatus": "supported",
-      "resource": "res://scripts/classic_runtime/classic_core_spell_catalog.json",
+      "resource": "res://shared_assets/spells/vapor_trail.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 311,

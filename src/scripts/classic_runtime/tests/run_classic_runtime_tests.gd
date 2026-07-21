@@ -7479,7 +7479,7 @@ func _test_classic_spell_coverage() -> void:
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
-	_expect_equal(core_spell_book.size(), 24, "core catalog registers remaining generic spells")
+	_expect_equal(core_spell_book.size(), 15, "core catalog registers remaining generic spells")
 	_expect_equal(
 		core_spell_book.get("Fireball", {}).get("classicSpellIds"),
 		[1306],
@@ -7493,7 +7493,10 @@ func _test_classic_spell_coverage() -> void:
 	var shock_palm = load("res://shared_assets/spells/shock_palm.gd").new()
 	var sparkling_armor = load("res://shared_assets/spells/sparkling_armor.gd").new()
 	var flame_spikes = CoreSpellCatalogScript.spell(1203)
-	for migrated_spell_id: int in [1103, 1104, 1204, 1209, 1505, 3409]:
+	for migrated_spell_id: int in [
+		1103, 1104, 1204, 1209, 1211, 1303, 1402, 1504,
+		1505, 1701, 3207, 3301, 3308, 3409, 3712,
+	]:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
 			"migrated spell %d no longer depends on the generic runtime catalog"
@@ -7506,6 +7509,15 @@ func _test_classic_spell_coverage() -> void:
 		"Magic Grip": "res://shared_assets/spells/magic_grip.gd",
 		"Frostbite": "res://shared_assets/spells/frostbite.gd",
 		"Shock Palm": "res://shared_assets/spells/shock_palm.gd",
+		"Scorched Earth": "res://shared_assets/spells/scorched_earth.gd",
+		"Deep Freeze": "res://shared_assets/spells/deep_freeze.gd",
+		"Flame Tongue": "res://shared_assets/spells/flame_tongue.gd",
+		"Flash": "res://shared_assets/spells/flash.gd",
+		"Arctic Wind": "res://shared_assets/spells/arctic_wind.gd",
+		"Heat Ray": "res://shared_assets/spells/heat_ray.gd",
+		"Acid Splash": "res://shared_assets/spells/acid_splash.gd",
+		"Lightning Bolt": "res://shared_assets/spells/lightning_bolt.gd",
+		"Vapor Trail": "res://shared_assets/spells/vapor_trail.gd",
 	}
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
@@ -7657,7 +7669,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect(not no_grip_save.get("saved"), "Magic Grip ignores a target's DRV chance")
 	_expect_equal(no_grip_save.get("effectScale"), 1.0, "Magic Grip applies full damage")
 
-	var scorched_earth = CoreSpellCatalogScript.spell(1211)
+	var scorched_earth = load("res://shared_assets/spells/scorched_earth.gd").new()
 	_expect(scorched_earth.ray, "Scorched Earth uses native ray targeting")
 	_expect_equal(scorched_earth.get_range(3, null), 6, "Scorched Earth range scales")
 	_expect_equal(scorched_earth.get_min_damage(7, null), 2, "Scorched Earth minimum is fixed")
@@ -7689,7 +7701,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(cosmic_blast.get_max_damage(3, null), 12, "Cosmic Blast maximum scales")
 	_expect_equal(cosmic_blast.get_sp_cost(3, null), 90, "Cosmic Blast cost scales")
 
-	var flame_tongue = CoreSpellCatalogScript.spell(1402)
+	var flame_tongue = load("res://shared_assets/spells/flame_tongue.gd").new()
 	_expect(flame_tongue.ray, "Flame Tongue uses native ray targeting")
 	_expect_equal(flame_tongue.get_range(3, null), 6, "Flame Tongue range scales")
 	_expect_equal(flame_tongue.get_min_damage(7, null), 8, "Flame Tongue minimum is fixed")
@@ -7714,22 +7726,29 @@ func _test_classic_spell_coverage() -> void:
 		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
 		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
 		_expect_equal(spell.get_max_damage(3, null), expected[3], "%s maximum damage" % label)
+		var rolled_damage: int = spell.get_damage_roll(3, null)
+		_expect(
+			rolled_damage >= int(expected[2]) and rolled_damage <= int(expected[3]),
+			"%s damage roll stays within its source range" % label
+		)
 		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
 		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
 		_expect_equal(spell.classic_spell_save_mode, expected[6], "%s save mode" % label)
 
-	var generic_ray_expectations := {
-		1303: ["Deep Freeze", 10, 3, 30, 45, 2, false],
-		1504: ["Flash", 10, 6, 45, 90, 6, true],
-		1701: ["Arctic Wind", 15, 60, 120, 180, 2, false],
-		3207: ["Heat Ray", 6, 2, 8, 30, 1, true],
-		3301: ["Acid Splash", 9, 6, 18, 30, 4, true],
-		3308: ["Lightning Bolt", 6, 3, 18, 30, 3, true],
-		3712: ["Vapor Trail", 6, 40, 65, 135, 4, false],
+	var native_ray_expectations := {
+		1211: ["Scorched Earth", 6, 2, 10, 30, 1, true, "scorched_earth.gd"],
+		1303: ["Deep Freeze", 10, 3, 30, 45, 2, false, "deep_freeze.gd"],
+		1402: ["Flame Tongue", 6, 8, 16, 54, 1, true, "flame_tongue.gd"],
+		1504: ["Flash", 10, 6, 45, 90, 6, true, "flash.gd"],
+		1701: ["Arctic Wind", 15, 60, 120, 180, 2, false, "arctic_wind.gd"],
+		3207: ["Heat Ray", 6, 2, 8, 30, 1, true, "heat_ray.gd"],
+		3301: ["Acid Splash", 9, 6, 18, 30, 4, true, "acid_splash.gd"],
+		3308: ["Lightning Bolt", 6, 3, 18, 30, 3, true, "lightning_bolt.gd"],
+		3712: ["Vapor Trail", 6, 40, 65, 135, 4, false, "vapor_trail.gd"],
 	}
-	for spell_id: int in generic_ray_expectations:
-		var expected: Array = generic_ray_expectations[spell_id]
-		var spell = CoreSpellCatalogScript.spell(spell_id)
+	for spell_id: int in native_ray_expectations:
+		var expected: Array = native_ray_expectations[spell_id]
+		var spell = load("res://shared_assets/spells/" + str(expected[7])).new()
 		var label := str(expected[0])
 		_expect(spell != null, "%s is executable" % label)
 		_expect(spell.supports_classic_spell_id(spell_id), "%s exports its exact ID" % label)
@@ -7737,10 +7756,20 @@ func _test_classic_spell_coverage() -> void:
 		_expect_equal(spell.get_range(3, null), expected[1], "%s range" % label)
 		_expect_equal(spell.get_min_damage(3, null), expected[2], "%s minimum damage" % label)
 		_expect_equal(spell.get_max_damage(3, null), expected[3], "%s maximum damage" % label)
+		var rolled_damage: int = spell.get_damage_roll(3, null)
+		_expect(
+			rolled_damage >= int(expected[2]) and rolled_damage <= int(expected[3]),
+			"%s damage roll stays within its source range" % label
+		)
 		_expect_equal(spell.get_sp_cost(3, null), expected[4], "%s spell-point cost" % label)
 		_expect_equal(spell.classic_spell_save_index, expected[5], "%s save index" % label)
 		_expect_equal(spell.classic_spell_save_mode, "half_damage", "%s save mode" % label)
 		_expect_equal(spell.los, expected[6], "%s line-of-sight rule" % label)
+		_expect_equal(
+			spell.targettile,
+			Spell.TARGET_TILE.NOWALL,
+			"%s uses ray-compatible tile targeting" % label
+		)
 		_expect_equal(
 			spell.resist,
 			Spell.RESIST_TYPE.IGNORE_DODGE,
