@@ -35,6 +35,9 @@ const SpellIdentityScript = preload(
 const CoreSpellCatalogScript = preload(
 	"res://scripts/classic_runtime/classic_core_spell_catalog.gd"
 )
+const CoreSpellCoverageScript = preload(
+	"res://scripts/classic_runtime/classic_core_spell_coverage.gd"
+)
 const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd")
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const CampaignInstallScript = preload(
@@ -6948,6 +6951,49 @@ func _test_classic_spell_coverage() -> void:
 		CoreSpellCatalogScript.inventory_spell(1110).get("record", {}).get("special"),
 		50,
 		"inventory retains special behavior numbers for adapter review"
+	)
+	var support_audit = SpellUsageAuditScript.new()
+	var support_matrix: Dictionary = support_audit.load_support_matrix()
+	var native_spells: Dictionary = {}
+	SpellResourceCatalogScript.merge_directory("res://shared_assets/spells", native_spells)
+	var coverage: Dictionary = CoreSpellCoverageScript.new().inspect(
+		support_matrix, native_spells
+	)
+	var coverage_totals: Dictionary = coverage.get("totals", {})
+	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
+	_expect_equal(
+		coverage_totals.get("matrixSupported"),
+		22,
+		"coverage preserves the curated supported count"
+	)
+	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
+	var classified_total := 0
+	for status_count: Variant in coverage_statuses.values():
+		classified_total += int(status_count)
+	_expect_equal(classified_total, 252, "coverage assigns one review status per spell")
+	_expect_equal(
+		coverage_statuses.get("support-resource-mismatch", 0),
+		0,
+		"every supported spell resolves through its exact resource"
+	)
+	var coverage_by_id: Dictionary = {}
+	for coverage_value: Variant in coverage.get("spells", []):
+		if coverage_value is Dictionary:
+			coverage_by_id[int(coverage_value.get("classicSpellId", 0))] = coverage_value
+	_expect_equal(
+		coverage_by_id.get(1108, {}).get("coverageStatus"),
+		"supported",
+		"supported native spells remain distinct from review candidates"
+	)
+	_expect_equal(
+		coverage_by_id.get(1110, {}).get("coverageStatus"),
+		"exact-resource-review",
+		"exact native resources still require behavior review"
+	)
+	_expect_equal(
+		coverage_by_id.get(1105, {}).get("coverageStatus"),
+		"special-implementation-required",
+		"unresolved special records remain explicit implementation work"
 	)
 
 	var core_spell_book: Dictionary = {}

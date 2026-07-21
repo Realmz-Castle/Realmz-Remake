@@ -424,50 +424,7 @@ func _spell_rows(matrix_by_id: Dictionary, native_spells: Dictionary) -> Array:
 
 
 func _native_resolution(spell_id: int, native_spells: Dictionary) -> Dictionary:
-	var mapped_name := SpellIdentityScript.mapped_name(spell_id, _spell_mapping)
-	var resolution := {"mappedName": mapped_name}
-	if native_spells.is_empty():
-		resolution["status"] = "not-audited"
-		return resolution
-	if mapped_name.is_empty():
-		resolution["status"] = "unmapped-identity"
-		return resolution
-	var resource_name := SpellIdentityScript.resource_key(
-		spell_id, _spell_mapping, native_spells
-	)
-	if resource_name.is_empty():
-		if not native_spells.has(mapped_name):
-			resolution["status"] = "missing-native-resource"
-			return resolution
-		resolution["resourceName"] = mapped_name
-		var mapped_ids := SpellIdentityScript.resource_ids(native_spells[mapped_name])
-		resolution["status"] = "name-only-resource" \
-			if mapped_ids.is_empty() else "unsupported-native-variant"
-		return resolution
-	resolution["resourceName"] = resource_name
-	var metadata: Variant = native_spells[resource_name]
-	if not (metadata is Dictionary):
-		resolution["status"] = "name-only-resource"
-		return resolution
-	var declared_ids: Variant = metadata.get("classicSpellIds", [])
-	if declared_ids is Array and not declared_ids.is_empty():
-		resolution["status"] = (
-			"exact-id-resource" if spell_id in declared_ids else "unsupported-native-variant"
-		)
-	else:
-		resolution["status"] = "name-only-resource"
-	for field_name: String in [
-		"resourcePath",
-		"classicSpellClass",
-		"classicSpellIds",
-		"classicSpellSaveIndex",
-		"classicSpellSaveMode",
-		"inField",
-		"inCombat",
-	]:
-		if metadata.has(field_name):
-			resolution[field_name] = metadata[field_name]
-	return resolution
+	return SpellIdentityScript.native_resolution(spell_id, _spell_mapping, native_spells)
 
 
 func _reference_rows(usages_by_id: Dictionary, id_field: String) -> Array:

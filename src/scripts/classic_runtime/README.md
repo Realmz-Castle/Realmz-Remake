@@ -159,6 +159,20 @@ Learned spell persistence still uses the native resource name as its primary res
 
 `classic_core_spell_inventory.json` is the immutable audit baseline for the 252 named Sorcerer, Priest, and Enchanter spells in the shared Classic library. It preserves each packed ID, name, class, level, slot, every decoded field from the 30-byte `Data S` record, and source offset. The inventory distinguishes the 79 records whose source `special` field is zero from the 173 records that require a named special-behavior audit; that distinction identifies review shape, not support. Executable status remains in the support matrix so an inventory row cannot become supported merely because its bytes can be decoded.
 
+`ClassicCoreSpellCoverage` joins that inventory to the curated support matrix and
+the shared spell-resource catalog. Its report separates proven support from
+exact-ID resources awaiting behavior review, name-only reuse candidates,
+same-name variant conflicts, generic implementation candidates, and special
+behaviors that still need an adapter or engine decision:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_core_spell_coverage.gd -- --json
+```
+
+The report is a work queue, not a launch gate. A resource declaring the right
+ID remains in review until its complete Classic behavior is represented in the
+support matrix.
+
 Materialized monster inventories resolve all six source item slots against the campaign item book before the shared Divinity mapping. A concrete positive `weapon` ID equips the matching native inventory object. Realmz permits that active weapon to remain separate from the six carried slots; Remake represents it as an adapter-only equipped item and excludes it from victory loot. Missing items, unsupported item definitions, unresolved or non-equippable weapons, and negative random-weapon table selectors remain readiness blockers; Classic's detected-magic sign marker is retained only as a fidelity diagnostic.
 
 Against the checked City of Bywater compatibility baseline, these handlers cover 2,264 of 2,734 active action slots. The other 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined interpreter behavior for all 2,734 active trigger action slots. This is a semantic coverage measurement, not a playability percentage: native command adapters, resource bridges, campaign integration, and some encounter-result paths remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.

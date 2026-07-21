@@ -74,3 +74,52 @@ static func resource_ids(resource: Variant) -> Array[int]:
 			if not ids.has(spell_id):
 				ids.append(spell_id)
 	return ids
+
+
+static func native_resolution(
+	spell_id: int,
+	spell_id_mapping: Dictionary,
+	spell_book: Dictionary
+) -> Dictionary:
+	var mapped_spell_name := mapped_name(spell_id, spell_id_mapping)
+	var resolution := {"mappedName": mapped_spell_name}
+	if spell_book.is_empty():
+		resolution["status"] = "not-audited"
+		return resolution
+	if mapped_spell_name.is_empty():
+		resolution["status"] = "unmapped-identity"
+		return resolution
+	var resolved_key := resource_key(spell_id, spell_id_mapping, spell_book)
+	if resolved_key.is_empty():
+		if not spell_book.has(mapped_spell_name):
+			resolution["status"] = "missing-native-resource"
+			return resolution
+		resolution["resourceName"] = mapped_spell_name
+		var mapped_ids := resource_ids(spell_book[mapped_spell_name])
+		resolution["status"] = "name-only-resource" \
+			if mapped_ids.is_empty() else "unsupported-native-variant"
+		return resolution
+	resolution["resourceName"] = resolved_key
+	var metadata: Variant = spell_book[resolved_key]
+	if not (metadata is Dictionary):
+		resolution["status"] = "name-only-resource"
+		return resolution
+	var declared_ids: Variant = metadata.get("classicSpellIds", [])
+	if declared_ids is Array and not declared_ids.is_empty():
+		resolution["status"] = (
+			"exact-id-resource" if spell_id in declared_ids else "unsupported-native-variant"
+		)
+	else:
+		resolution["status"] = "name-only-resource"
+	for field_name: String in [
+		"resourcePath",
+		"classicSpellClass",
+		"classicSpellIds",
+		"classicSpellSaveIndex",
+		"classicSpellSaveMode",
+		"inField",
+		"inCombat",
+	]:
+		if metadata.has(field_name):
+			resolution[field_name] = metadata[field_name]
+	return resolution
