@@ -146,6 +146,12 @@ func _run_smoke() -> void:
 		5,
 		"equipped scenario weapon applies its Classic current spell points once"
 	)
+	_expect_equal(
+		weapon_user.get_stat("MaxMovement")
+			- weapon_user.base_stats.get("MaxMovement", 0),
+		4,
+		"equipped scenario weapon applies its Classic movement modifier once"
+	)
 	var weapon_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		weapon_user,
 		elemental_attacker,
@@ -222,9 +228,13 @@ func _run_smoke() -> void:
 	var player_strength_before: float = player_character.get_stat("Strength")
 	var player_max_sp_before: float = player_character.get_stat("maxSP")
 	var player_cur_sp_before: float = player_character.get_stat("curSP")
+	var player_movement_before: float = player_character.get_stat("MaxMovement")
 	player_character.inventory.append(player_weapon)
 	player_character.inventory.append(player_armor)
 	player_character.inventory.append(player_shield)
+	var player_weighted_movement_before: int = (
+		player_character.get_max_movement_weighted_down()
+	)
 	_expect(
 		player_character.equip_item(player_weapon),
 		"native player equipment accepts the generated Classic weapon type"
@@ -258,6 +268,16 @@ func _run_smoke() -> void:
 		player_character.get_stat("curSP"),
 		player_cur_sp_before + 5,
 		"generated Classic weapon applies its current spell points to the player"
+	)
+	_expect_equal(
+		player_character.get_stat("MaxMovement"),
+		player_movement_before + 4,
+		"generated Classic weapon applies its movement modifier to the player"
+	)
+	_expect(
+		player_character.get_max_movement_weighted_down()
+			> player_weighted_movement_before,
+		"generated Classic movement increases usable native movement"
 	)
 	_expect_equal(
 		player_armor.get("type"),
@@ -327,6 +347,16 @@ func _run_smoke() -> void:
 		player_character.get_stat("curSP"),
 		player_cur_sp_before,
 		"removing Classic equipment restores the player's current spell points"
+	)
+	_expect_equal(
+		player_character.get_stat("MaxMovement"),
+		player_movement_before,
+		"removing Classic equipment restores the player's movement stat"
+	)
+	_expect_equal(
+		player_character.get_max_movement_weighted_down(),
+		player_weighted_movement_before,
+		"removing Classic equipment restores usable native movement"
 	)
 
 	var bundle = BundleScript.new()
@@ -476,6 +506,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_record["damage"] = 2
 	weapon_record["st"] = 2
 	weapon_record["spellPoints"] = 5
+	weapon_record["movement"] = 4
 	content["scenarioItems"].append(weapon_record)
 	var weapon_text: Dictionary = content["itemTexts"][0].duplicate(true)
 	weapon_text["id"] = 150

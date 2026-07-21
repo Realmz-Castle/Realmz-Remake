@@ -2468,6 +2468,7 @@ func _test_classic_item_materializer() -> void:
 	weapon_record["damage"] = 2
 	weapon_record["st"] = 2
 	weapon_record["spellPoints"] = 5
+	weapon_record["movement"] = 4
 	var weapon: Dictionary = materializer._native_item(weapon_record, [])
 	_expect_equal(
 		weapon.get("type"),
@@ -2599,6 +2600,22 @@ func _test_classic_item_materializer() -> void:
 		5,
 		"native equipment retains the source Classic spell-point modifier"
 	)
+	_expect_equal(
+		weapon.get("stats", {}).get("MaxMovement"),
+		4,
+		"positive Classic movement maps to the native equipment stat"
+	)
+	_expect_equal(
+		weapon.get("extra_data", {}).get("classicMovementModifier"),
+		4,
+		"native equipment retains the source Classic movement modifier"
+	)
+	_expect(
+		weapon.get("classicMaterialization", {}).get(
+			"fidelityFallbacks", []
+		).has("movementUsesNativeEncumbranceScale"),
+		"Classic movement records the native encumbrance-order fallback"
+	)
 	var defensive_weapon_record := weapon_record.duplicate(true)
 	defensive_weapon_record["ac"] = 3
 	var defensive_weapon: Dictionary = materializer._native_item(defensive_weapon_record, [])
@@ -2711,6 +2728,22 @@ func _test_classic_item_materializer() -> void:
 		).has("spellPoints"),
 		"signed Classic spell points remain launchable on equipment"
 	)
+	var negative_movement_record := weapon_record.duplicate(true)
+	negative_movement_record["movement"] = -4
+	var negative_movement_item: Dictionary = materializer._native_item(
+		negative_movement_record, []
+	)
+	_expect_equal(
+		negative_movement_item.get("stats", {}).get("MaxMovement"),
+		-4,
+		"negative Classic movement remains a signed native equipment stat"
+	)
+	_expect(
+		not negative_movement_item.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("movement"),
+		"signed Classic movement remains launchable on equipment"
+	)
 	var negative_armor_record := shield_record.duplicate(true)
 	negative_armor_record["ac"] = -1
 	_expect(
@@ -2760,6 +2793,15 @@ func _test_classic_item_materializer() -> void:
 			"classicMaterialization", {}
 		).get("unsupportedFields", []).has("spellPoints"),
 		"spell points on a non-equippable Classic item remain an explicit blocker"
+	)
+	var non_equipment_movement_record := non_equipment_armor_record.duplicate(true)
+	non_equipment_movement_record["ac"] = 0
+	non_equipment_movement_record["movement"] = 4
+	_expect(
+		materializer._native_item(non_equipment_movement_record, []).get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("movement"),
+		"movement on a non-equippable Classic item remains an explicit blocker"
 	)
 	var luck_record := armor_record.duplicate(true)
 	luck_record["lu"] = 2

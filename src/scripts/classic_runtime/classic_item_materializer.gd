@@ -13,7 +13,6 @@ const UNSUPPORTED_EFFECT_FIELDS := [
 	"cursedItemId",
 	"lu",
 	"magicResistance",
-	"movement",
 	"raceClassOnly",
 	"raceRestrictions",
 	"special1",
@@ -400,6 +399,21 @@ func _native_item_fields(record: Dictionary, classic_type: int) -> Dictionary:
 		var spell_point_extra_data: Dictionary = fields.get("extra_data", {})
 		spell_point_extra_data["classicSpellPointModifier"] = spell_point_modifier
 		fields["extra_data"] = spell_point_extra_data
+
+	var movement_modifier := int(record.get("movement", 0))
+	if movement_modifier != 0 and not SLOT_BY_CLASSIC_TYPE.has(classic_type):
+		unsupported_fields.append("movement")
+	elif movement_modifier != 0:
+		stats["MaxMovement"] = movement_modifier
+		var movement_sign_prefix := "+" if movement_modifier > 0 else ""
+		stats_summary.append(
+			"%s%d Movement" % [movement_sign_prefix, movement_modifier]
+		)
+		var movement_extra_data: Dictionary = fields.get("extra_data", {})
+		movement_extra_data["classicMovementModifier"] = movement_modifier
+		fields["extra_data"] = movement_extra_data
+		# Classic applies the item bonus after encumbrance; Remake weights the final stat.
+		fidelity_fallbacks.append("movementUsesNativeEncumbranceScale")
 
 	if not stats.is_empty():
 		fields["stats"] = stats
