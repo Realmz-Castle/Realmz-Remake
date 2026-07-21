@@ -1143,7 +1143,7 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"1cd0da34941bb68db0559d3129b2a22e6b1a5d75",
+		"a94e615a9da8b3230546b908067057aada44bcab",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
@@ -1159,7 +1159,7 @@ func _test_providence_authoritative_export() -> void:
 		"producer fixture provenance records no fidelity fallbacks"
 	)
 	var expected_files: Array = provenance.get("files", [])
-	_expect_equal(expected_files.size(), 14, "producer fixture provenance covers every file")
+	_expect_equal(expected_files.size(), 15, "producer fixture provenance covers every file")
 	for expected_value: Variant in expected_files:
 		if not (expected_value is Dictionary):
 			_expect(false, "producer fixture provenance file entry is an object")
@@ -1192,6 +1192,19 @@ func _test_providence_authoritative_export() -> void:
 		bundle.get_sound(321).get("payloadEncoding"),
 		"classic-resource-data",
 		"producer fixture indexes immutable sound payload metadata"
+	)
+	_expect_equal(
+		bundle.get_sound(321).get("runtimeMedia", {}).get("mediaType"),
+		"audio/wav",
+		"producer fixture indexes decoded sound runtime media"
+	)
+	_expect(
+		FileAccess.file_exists(
+			PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(
+				str(bundle.get_sound(321).get("runtimeMedia", {}).get("path", ""))
+			)
+		),
+		"producer fixture includes decoded sound runtime media"
 	)
 	if special_land_tiles.size() == 1:
 		_expect_equal(special_land_tiles[0].get("resourceId"), -100, "special land tile keeps signed identity")
@@ -1230,10 +1243,14 @@ func _test_providence_authoritative_export() -> void:
 	var fixture_coverage: Dictionary = MaterializationFixtureAuditScript.inspect(
 		bundle.documents
 	)
+	_expect(
+		bool(fixture_coverage.get("accepted", false)),
+		"checked producer fixture covers all four materialization capabilities"
+	)
 	_expect_equal(
 		fixture_coverage.get("missingCapabilities"),
-		["carriedEquippedItem", "ally"],
-		"checked producer fixture reports its remaining materialization coverage gaps"
+		[],
+		"checked producer fixture has no materialization coverage gaps"
 	)
 	_expect_equal(
 		fixture_coverage.get("capabilities", {}).get(
@@ -1249,37 +1266,19 @@ func _test_providence_authoritative_export() -> void:
 		1,
 		"producer fixture covers its battle monster"
 	)
-
-	var complete_documents: Dictionary = bundle.documents.duplicate(true)
-	var complete_item: Dictionary = complete_documents.get(
-		"content", {}
-	).get("scenarioItems", [])[0].duplicate(true)
-	complete_item["id"] = 102
-	complete_item["itemId"] = 150
-	complete_item["type"] = 2
-	complete_item["itemCat0"] = 1 << 28
-	complete_documents.get("content", {}).get(
-		"scenarioItems", []
-	).append(complete_item)
-	var complete_monster: Dictionary = complete_documents.get(
-		"content", {}
-	).get("monsters", [])[0]
-	complete_monster["items"][0] = 150
-	complete_monster["weapon"] = 150
-	complete_documents.get("scripts", {}).get("triggers", [])[0].get(
-		"actions", []
-	).append({"slot": 2, "rawCode": 89, "code": 89, "id": 1})
-	var complete_coverage: Dictionary = MaterializationFixtureAuditScript.inspect(
-		complete_documents
-	)
-	_expect(
-		bool(complete_coverage.get("accepted", false)),
-		"materialization fixture audit accepts all four producer capabilities"
+	_expect_equal(
+		fixture_coverage.get("capabilities", {}).get(
+			"carriedEquippedItem", {}
+		).get("details", {}).get("itemId"),
+		902,
+		"producer fixture covers its carried and equipped scenario weapon"
 	)
 	_expect_equal(
-		complete_coverage.get("missingCapabilities"),
-		[],
-		"complete materialization fixture has no missing capabilities"
+		fixture_coverage.get("capabilities", {}).get(
+			"ally", {}
+		).get("details", {}).get("monsterId"),
+		1,
+		"producer fixture covers its authored ally action"
 	)
 
 
@@ -2485,7 +2484,7 @@ func _test_classic_item_materializer() -> void:
 	var materializer = ItemMaterializerScript.new()
 	var result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(result.get("status"), "ok", "Classic item generates a native item book")
-	_expect_equal(result.get("generated"), 1, "materializer reports its generated item")
+	_expect_equal(result.get("generated"), 2, "materializer reports its generated items")
 	var item_book_path := test_root.path_join("Items/stuff_book.json")
 	var image_book_path := test_root.path_join("Items/img_pack.json")
 	var atlas_path := test_root.path_join("Items/textureAtlas.png")
@@ -2985,7 +2984,7 @@ func _test_classic_item_materializer() -> void:
 
 	var second_result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(second_result.get("generated"), 0, "item materialization is idempotent")
-	_expect_equal(second_result.get("skipped"), 1, "rerun recognizes the existing Classic ID")
+	_expect_equal(second_result.get("skipped"), 2, "rerun recognizes the existing Classic IDs")
 	_expect_equal(
 		FileAccess.get_file_as_string(item_book_path),
 		first_item_book_text,
@@ -3030,6 +3029,7 @@ func _test_classic_bestiary_materializer() -> void:
 	)
 	if not bundle.last_error.is_empty():
 		return
+	_clear_producer_monster_equipment(bundle)
 	var test_root := ProjectSettings.globalize_path(
 		"user://classic-bestiary-materializer-%d" % Time.get_ticks_msec()
 	)
@@ -3205,6 +3205,7 @@ func _test_classic_bestiary_materializer() -> void:
 	DirAccess.make_dir_recursive_absolute(spell_root)
 	var spell_bundle = BundleScript.new()
 	spell_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	_clear_producer_monster_equipment(spell_bundle)
 	spell_bundle.documents["content"]["monsters"][0]["spells"] = [
 		1306, 1306, 0, 0, 0, 0, 0, 0, 0, 0
 	]
@@ -3364,6 +3365,7 @@ func _test_classic_bestiary_materializer() -> void:
 	DirAccess.make_dir_recursive_absolute(elemental_root)
 	var elemental_bundle = BundleScript.new()
 	elemental_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	_clear_producer_monster_equipment(elemental_bundle)
 	elemental_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 11
 	_expect_equal(
 		materializer.materialize(elemental_bundle, elemental_root).get("status"),
@@ -3431,6 +3433,7 @@ func _test_classic_bestiary_materializer() -> void:
 	DirAccess.make_dir_recursive_absolute(mismatched_spell_root)
 	var mismatched_spell_bundle = BundleScript.new()
 	mismatched_spell_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	_clear_producer_monster_equipment(mismatched_spell_bundle)
 	# The native Power Drain script deliberately excludes this mechanically
 	# different priest spell, even though the inherited name mapping matches.
 	mismatched_spell_bundle.documents["content"]["monsters"][0]["spells"] = [
@@ -3498,6 +3501,7 @@ func _test_classic_bestiary_materializer() -> void:
 	DirAccess.make_dir_recursive_absolute(unsupported_root)
 	var unsupported_bundle = BundleScript.new()
 	unsupported_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	_clear_producer_monster_equipment(unsupported_bundle)
 	unsupported_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 1
 	_expect_equal(
 		materializer.materialize(unsupported_bundle, unsupported_root).get("status"),
@@ -3530,6 +3534,14 @@ func _test_classic_bestiary_materializer() -> void:
 		OK,
 		"bestiary materializer test cleans its workspace"
 	)
+
+
+func _clear_producer_monster_equipment(bundle: Object) -> void:
+	var monsters: Array = bundle.documents.get("content", {}).get("monsters", [])
+	if monsters.is_empty() or not (monsters[0] is Dictionary):
+		return
+	monsters[0]["items"] = [0, 0, 0, 0, 0, 0]
+	monsters[0]["weapon"] = 0
 
 
 func _test_classic_map_sound_bridge() -> void:

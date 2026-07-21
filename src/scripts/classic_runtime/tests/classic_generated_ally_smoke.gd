@@ -597,7 +597,7 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	content["monsters"][0]["magicAttackCount"] = 2
 	content["monsters"][0]["castPercent"] = 75
 	var weapon_record: Dictionary = content["scenarioItems"][0].duplicate(true)
-	weapon_record["id"] = 102
+	weapon_record["id"] = 103
 	weapon_record["itemId"] = 150
 	weapon_record["type"] = 2
 	weapon_record["hands"] = 1
@@ -624,14 +624,14 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	weapon_text["description"] = "A producer-derived scenario weapon."
 	content["itemTexts"].append(weapon_text)
 	var armor_record: Dictionary = content["scenarioItems"][0].duplicate(true)
-	armor_record["id"] = 103
+	armor_record["id"] = 104
 	armor_record["itemId"] = 250
 	armor_record["type"] = 4
 	armor_record["hands"] = 0
 	armor_record["itemCat1"] = 1 << 28
 	content["scenarioItems"].append(armor_record)
 	var shield_record: Dictionary = content["scenarioItems"][0].duplicate(true)
-	shield_record["id"] = 104
+	shield_record["id"] = 105
 	shield_record["itemId"] = 251
 	shield_record["type"] = 3
 	shield_record["hands"] = 1

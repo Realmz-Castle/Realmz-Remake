@@ -54,8 +54,8 @@ func _run_smoke() -> void:
 		"the unmodified producer export installs through the package lifecycle"
 	)
 	_expect(
-		str(install_result.get("readinessState", "")) == "Ready",
-		"the installed producer export reports Ready"
+		str(install_result.get("readinessState", "")) == "Ready with fallbacks",
+		"the installed producer export reports its bounded native fallbacks"
 	)
 	if str(install_result.get("status", "")) != "ok":
 		_finish()
@@ -72,7 +72,8 @@ func _run_smoke() -> void:
 		_finish()
 		return
 	_expect(
-		panel.campaignsItemList.get_item_text(campaign_index) == "%s — Ready" % CAMPAIGN_TITLE,
+		panel.campaignsItemList.get_item_text(campaign_index) \
+			== "%s — Ready with fallbacks" % CAMPAIGN_TITLE,
 		"the campaign list presents the producer title and readiness state"
 	)
 	panel.campaignsItemList.select(campaign_index)

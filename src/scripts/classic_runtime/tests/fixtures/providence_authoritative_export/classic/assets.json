@@ -24,6 +24,12 @@
         "payloadSha256": "fdd45aff3e3bca219ecc14f3ee1b01dfb5b2c313b559cb6e38a419b7d405045c",
         "resourceId": 321,
         "resourceType": "snd ",
+        "runtimeMedia": {
+          "bytes": 300,
+          "mediaType": "audio/wav",
+          "path": "media/sounds/snd-321-827bab3b7d1c.wav",
+          "sha256": "827bab3b7d1c45c535da4459e1e9544460c6c98a23be761f315f7159d2572c3b"
+        },
         "source": "managed"
       }
     ],
@@ -114,6 +120,12 @@
       "provenance": "Providence ownership proof canonical resource bytes",
       "resourceId": 321,
       "resourceType": "snd ",
+      "runtimeMedia": {
+        "bytes": 300,
+        "mediaType": "audio/wav",
+        "path": "media/sounds/snd-321-827bab3b7d1c.wav",
+        "sha256": "827bab3b7d1c45c535da4459e1e9544460c6c98a23be761f315f7159d2572c3b"
+      },
       "sampleRate": 11025,
       "width": null
     },

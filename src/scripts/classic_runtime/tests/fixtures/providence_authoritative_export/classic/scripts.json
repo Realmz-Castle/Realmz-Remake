@@ -127,6 +127,15 @@
           "label": "Set • Clear Quest",
           "rawCode": 47,
           "slot": 1
+        },
+        {
+          "category": "state",
+          "code": 89,
+          "gosub": false,
+          "id": 1,
+          "label": "Add Special Character to Party",
+          "rawCode": 89,
+          "slot": 2
         }
       ],
       "active": true,
@@ -200,6 +209,7 @@
         }
       ],
       "active": true,
+      "callable": true,
       "coordinate": null,
       "doorid": 0,
       "id": "Data ED3:macro:2",

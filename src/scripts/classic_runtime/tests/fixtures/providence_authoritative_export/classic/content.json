@@ -14,6 +14,21 @@
         "sourceFile": "Data ID.rsrc"
       },
       "unidentifiedName": "Unknown Providence Token"
+    },
+    {
+      "authored": true,
+      "description": "A simple scenario-local weapon carried by the Providence Sentinel.",
+      "id": 902,
+      "identifiedName": "Providence Blade",
+      "itemId": 902,
+      "provenance": {
+        "byteLength": 0,
+        "byteOffset": 0,
+        "confidence": "inferred",
+        "recordIndex": 902,
+        "sourceFile": "Data ID.rsrc"
+      },
+      "unidentifiedName": "Plain Providence Blade"
     }
   ],
   "monsterDescriptions": [
@@ -127,7 +142,7 @@
           "iconId": 0,
           "id": 1,
           "items": [
-            0,
+            902,
             0,
             0,
             0,
@@ -210,7 +225,7 @@
             0
           ],
           "up": 0,
-          "weapon": 0
+          "weapon": 902
         }
       ],
       "setId": -1,
@@ -312,7 +327,7 @@
           "iconId": 0,
           "id": 1,
           "items": [
-            0,
+            902,
             0,
             0,
             0,
@@ -395,7 +410,7 @@
             0
           ],
           "up": 0,
-          "weapon": 0
+          "weapon": 902
         }
       ],
       "setId": 1,
@@ -497,7 +512,7 @@
       "iconId": 0,
       "id": 1,
       "items": [
-        0,
+        902,
         0,
         0,
         0,
@@ -580,7 +595,7 @@
         0
       ],
       "up": 0,
-      "weapon": 0
+      "weapon": 902
     }
   ],
   "questLabels": [
@@ -641,6 +656,58 @@
       "vsEvil": 0,
       "vsUndead": 0,
       "weight": 0,
+      "weightPerCharge": 0
+    },
+    {
+      "ac": 0,
+      "authored": true,
+      "blunt": 0,
+      "casteClassOnly": 0,
+      "casteRestrictions": 0,
+      "charge": 0,
+      "cold": 0,
+      "cost": 40,
+      "cursedItemId": 0,
+      "damage": 0,
+      "dropOnEmpty": 0,
+      "electric": 0,
+      "hands": 1,
+      "heat": 0,
+      "iconId": 0,
+      "id": 102,
+      "itemCat0": 268435456,
+      "itemCat1": 0,
+      "itemId": 902,
+      "lu": 0,
+      "magicResistance": 0,
+      "magical": 0,
+      "movement": 0,
+      "provenance": {
+        "byteLength": 100,
+        "byteOffset": 10200,
+        "confidence": "inferred",
+        "recordIndex": 102,
+        "sourceFile": "Data NI"
+      },
+      "raceClassOnly": 0,
+      "raceRestrictions": 0,
+      "sound": 0,
+      "special1": 0,
+      "special2": 0,
+      "special3": 0,
+      "special4": 0,
+      "special5": 0,
+      "specificCaste": 0,
+      "specificRace": 0,
+      "spellPoints": 0,
+      "st": 0,
+      "type": 2,
+      "vLarge": 6,
+      "vSmall": 6,
+      "vsDemonDevil": 0,
+      "vsEvil": 0,
+      "vsUndead": 0,
+      "weight": 12,
       "weightPerCharge": 0
     }
   ],

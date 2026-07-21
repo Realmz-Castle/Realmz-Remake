@@ -230,10 +230,10 @@ godot --headless --path src --script res://scripts/classic_runtime/tests/run_cla
 ```
 
 The checked `providence_authoritative_export` fixture is the unchanged output of
-Providence commit `9b5c7d94ff6a59a81acc91be9f600c797b63f269`, generated from
+Providence commit `a94e615a9da8b3230546b908067057aada44bcab`, generated from
 `fixtures/scenario-seeds/authoritative-ownership-proof.seed.json`. Its companion
 `providence_authoritative_export.provenance.json` records the byte count and
-SHA-256 hash of all 14 producer files, plus the expected readiness result: no
+SHA-256 hash of all 15 producer files, plus the expected readiness result: no
 progression blockers or fidelity fallbacks.
 
 To regenerate the fixture, check out the recorded Providence commit and run its
@@ -243,11 +243,10 @@ validator. Copy the resulting `remake-classic-a` directory only when its complet
 file manifest matches the companion provenance record.
 
 This fixture proves producer determinism, consumer contract coverage, and
-cross-repository interchange. Its managed payloads use
-`payloadEncoding: classic-resource-data`; it does not yet prove decoded
-Remake-native media adapter coverage. Remake's consumer tests cover the additive
-`runtimeMedia` contract and native PNG, WAV, Ogg Vorbis, and MP3 loading
-separately until the producer fixture includes derived files.
+cross-repository interchange. It retains immutable Classic resource bytes while
+also providing decoded WAV runtime media for its sound. Picture decoding remains
+covered by separate consumer fixtures until the producer emits picture
+`runtimeMedia`.
 
 ISY-404 has a stricter content-coverage gate for item and monster
 materialization. A candidate producer fixture must contain a scenario-local shop
@@ -261,9 +260,6 @@ godot --headless --path src --script `
   "C:\path\to\classic-bundle"
 ```
 
-The currently checked fixture covers the shop item and battle monster. The audit
-deliberately remains unsuccessful until Providence's source fixture also exports
-the carried/equipped item and ally action; consumer tests must not patch those
-records and describe the result as producer-authored coverage. Once the audit
-passes, the checked fixture provenance and full runtime suite remain the final
-native installation and persistence gates.
+The checked fixture passes this audit without consumer-side record changes. The
+checked provenance, package lifecycle, normal campaign resource loading, and
+native ally save/load smoke provide the remaining consumer gates.

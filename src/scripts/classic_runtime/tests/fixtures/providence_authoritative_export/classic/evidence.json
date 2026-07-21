@@ -6,7 +6,23 @@
   },
   "schemaVersion": 1,
   "semanticDecoding": {
-    "dispatcherNoops": []
+    "dispatcherNoops": [],
+    "ed3Reachability": [
+      {
+        "actionCount": 1,
+        "classification": "reachable-macro",
+        "entityId": "macro:2",
+        "evidence": [
+          "link:51"
+        ],
+        "incomingRefs": 6,
+        "pathStatus": "source-backed-root",
+        "promotionRule": "Promoted from Data ED3 because a source-backed root reaches this record.",
+        "reachable": true,
+        "recordIndex": 2,
+        "rootType": "source-backed-root"
+      }
+    ]
   },
   "source": {
     "files": [],
