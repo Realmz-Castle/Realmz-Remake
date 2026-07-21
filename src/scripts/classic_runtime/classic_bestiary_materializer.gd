@@ -419,7 +419,30 @@ func _native_inventory(
 			# Remake can still carry and drop the item, but has no equivalent marker.
 			fidelity_fallbacks.append("itemDetectionMarkers")
 	if weapon_id > 0 and not carried_weapon:
-		unsupported_fields.append("weapon.notCarried")
+		var weapon_key := _item_resource_key(
+			weapon_id,
+			item_book,
+			item_texts,
+			item_mapping
+		)
+		if weapon_key.is_empty():
+			unsupported_fields.append("weapon")
+		else:
+			var native_weapon: Dictionary = item_book.get(weapon_key, {})
+			var materialization: Variant = native_weapon.get(
+				"classicMaterialization", {}
+			)
+			if materialization is Dictionary \
+					and str(materialization.get("status", "")) == "blocked":
+				unsupported_fields.append("weapon.nativeFields")
+			if int(native_weapon.get("equippable", 0)) == 0:
+				unsupported_fields.append("weapon.nonEquippable")
+			else:
+				# Realmz keeps a positive active weapon separate from the six
+				# carried-item slots, so this native equipment entry is not loot.
+				entries.append([weapon_key, 1, false])
+				equipped_weapon = true
+				fidelity_fallbacks.append("separateActiveWeaponInventoryEntry")
 	elif weapon_id > 0 and not equipped_weapon:
 		unsupported_fields.append("weapon")
 	return {

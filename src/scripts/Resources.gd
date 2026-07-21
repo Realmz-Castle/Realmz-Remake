@@ -442,6 +442,8 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 		new_item["equipped"] = json_dict["equipped"]
 	else :
 		new_item["equipped"] = 0
+	if json_dict.has("drops_on_defeat") :
+		new_item["drops_on_defeat"] = bool(json_dict["drops_on_defeat"])
 
 	if json_dict.has("only_usable_by_classes") :
 		new_item["only_usable_by_classes"] = json_dict["only_usable_by_classes"]

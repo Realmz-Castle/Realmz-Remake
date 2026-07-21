@@ -3220,6 +3220,37 @@ func _test_classic_bestiary_materializer() -> void:
 		bool(inventory_readiness.get("ready", false)),
 		"resolved native monster inventory remains launchable"
 	)
+	var separate_weapon_record: Dictionary = inventory_bundle.get_monster(1).duplicate(true)
+	separate_weapon_record["items"] = [99, 0, 0, 0, 0, 0]
+	separate_weapon_record["weapon"] = 98
+	var separate_weapon_inventory: Dictionary = materializer._native_inventory(
+		separate_weapon_record,
+		{
+			"Quarter Staff": {"equippable": 1},
+			"Quarter Staff +1": {"equippable": 1},
+		},
+		[],
+		{
+			98: "Quarter Staff",
+			99: "Quarter Staff +1",
+		}
+	)
+	_expect_equal(
+		separate_weapon_inventory.get("entries"),
+		[["Quarter Staff +1", 0], ["Quarter Staff", 1, false]],
+		"active Classic weapon remains separate from the six carried loot slots"
+	)
+	_expect_equal(
+		separate_weapon_inventory.get("unsupportedFields"),
+		[],
+		"resolved positive weapon outside the carried slots remains launchable"
+	)
+	_expect(
+		separate_weapon_inventory.get("fidelityFallbacks", []).has(
+			"separateActiveWeaponInventoryEntry"
+		),
+		"native inventory adaptation for a separate active weapon remains explicit"
+	)
 	var armed_attack_record: Dictionary = inventory_bundle.get_monster(1).duplicate(true)
 	armed_attack_record["attacks"][0][3] = 11
 	_expect(
@@ -8426,6 +8457,34 @@ func _test_forced_battle_end_action() -> void:
 		["Test blade", "Test shield"],
 		"normal battle rewards retain inventory"
 	)
+	var separated_weapon_rewards: Dictionary = BattleRewardRulesScript.collect([{
+		"experience": 0,
+		"money": [0, 0, 0],
+		"inventory": [
+			{"name": "Quarter Staff +1"},
+			{"name": "Quarter Staff", "drops_on_defeat": false},
+		],
+	}])
+	_expect_equal(
+		separated_weapon_rewards.get("treasure"),
+		[{"name": "Quarter Staff +1"}],
+		"battle rewards omit an active weapon outside Classic's carried slots"
+	)
+	var native_resources = NativeResourcesScript.new()
+	var restored_active_weapon: Dictionary = native_resources.generate_item_from_json_dict({
+		"imgdata": "",
+		"imgdatasize": 0,
+		"name": "Quarter Staff",
+		"type": "Melee Weapon",
+		"sound": "",
+		"drops_on_defeat": false,
+	})
+	_expect_equal(
+		restored_active_weapon.get("drops_on_defeat"),
+		false,
+		"item reconstruction preserves the Classic defeat-loot boundary"
+	)
+	native_resources.free()
 	var experience_rewards: Dictionary = BattleRewardRulesScript.collect(defeated, true)
 	_expect_equal(experience_rewards.get("experience"), 55, "experience-only rewards retain experience")
 	_expect_equal(experience_rewards.get("money"), [0, 0, 0], "experience-only rewards omit money")

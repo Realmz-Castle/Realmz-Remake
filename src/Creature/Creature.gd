@@ -699,11 +699,15 @@ func initialize_from_bestiary_dict(creaname : String) :
 	stats["curTP"] = stats["maxTP"]
 	#inv/money
 	money = cdata["tools"]["money"]
-	for i_name_eq_arr in cdata["tools"]["inventory"] :  #[itemname, shouldequip01]
+	for i_name_eq_arr in cdata["tools"]["inventory"] :
+		# [item name, should equip, optional drops on defeat]
 		var item_added : Dictionary = resources.items_book[i_name_eq_arr[0]].duplicate()
 		if not add_inventory_item(item_added):
 			continue
 		var inventory_item: Dictionary = inventory.back()
+		inventory_item["drops_on_defeat"] = true
+		if i_name_eq_arr.size() > 2:
+			inventory_item["drops_on_defeat"] = bool(i_name_eq_arr[2])
 		if i_name_eq_arr[1]>0 :
 			print("Creature generation : "+name+" equips "+inventory_item["name"])
 			equip_item(inventory_item)
