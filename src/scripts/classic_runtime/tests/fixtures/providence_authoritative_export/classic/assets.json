@@ -43,6 +43,12 @@
         "payloadSha256": "363a140e30456fff0494279451ce06c639b93d142a7408a3e2ee1b7375a5621b",
         "resourceId": -100,
         "resourceType": "cicn",
+        "runtimeMedia": {
+          "bytes": 890,
+          "mediaType": "image/png",
+          "path": "media/images/cicn-neg-100-31df32a766f9.png",
+          "sha256": "31df32a766f9904c77c47dab9db9cc82811d14dd7091c6c3b604bac0f7df4a3c"
+        },
         "source": "managed"
       }
     ],
@@ -146,6 +152,12 @@
       "provenance": "Providence ownership proof canonical resource bytes",
       "resourceId": -100,
       "resourceType": "cicn",
+      "runtimeMedia": {
+        "bytes": 890,
+        "mediaType": "image/png",
+        "path": "media/images/cicn-neg-100-31df32a766f9.png",
+        "sha256": "31df32a766f9904c77c47dab9db9cc82811d14dd7091c6c3b604bac0f7df4a3c"
+      },
       "sampleRate": null,
       "width": 32
     },

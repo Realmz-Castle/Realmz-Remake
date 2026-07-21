@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "producer": {
     "repository": "Realmz - Providence",
-    "commit": "7732775c9d8667b6af3b4803dc9716aba0ded05c",
+    "commit": "cc5055c9627f418ec1c538da8a2148025c4b180a",
     "sourceFixture": "fixtures/scenario-seeds/authoritative-ownership-proof.seed.json"
   },
   "bundleDirectory": "providence_authoritative_export",
@@ -39,13 +39,13 @@
     },
     {
       "path": "campaign.json",
-      "bytes": 2078,
-      "sha256": "1827b7ff044c267155b7aaacde3d6317b3d32a0081bd48f17b9604d0a3a8abad"
+      "bytes": 2148,
+      "sha256": "fe0ea8bd1563ea3cb4cabcd3684503003ca0c9b7f271a38cf0e74c6d2641c3cf"
     },
     {
       "path": "classic/assets.json",
-      "bytes": 6888,
-      "sha256": "c36da82d076cd0fdb2670edaff046e3c845e1e831e0ca7947f4a6f62e2593ac2"
+      "bytes": 7372,
+      "sha256": "25d3edde9246088af6e95e118234523bdf638b5ca593fb93edce04e40af20fd2"
     },
     {
       "path": "classic/content.json",
@@ -81,6 +81,11 @@
       "path": "classic/scripts.json",
       "bytes": 4868,
       "sha256": "d5a26abb7c7ba84cda4a2d15d8ddbd4bc8c71817f8e3f5e858814d6580db9ee7"
+    },
+    {
+      "path": "media/images/cicn-neg-100-31df32a766f9.png",
+      "bytes": 890,
+      "sha256": "31df32a766f9904c77c47dab9db9cc82811d14dd7091c6c3b604bac0f7df4a3c"
     },
     {
       "path": "media/sounds/snd-321-827bab3b7d1c.wav",

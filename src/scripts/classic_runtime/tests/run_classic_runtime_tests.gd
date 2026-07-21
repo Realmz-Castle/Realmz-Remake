@@ -1143,7 +1143,7 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"7732775c9d8667b6af3b4803dc9716aba0ded05c",
+		"cc5055c9627f418ec1c538da8a2148025c4b180a",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
@@ -1159,7 +1159,7 @@ func _test_providence_authoritative_export() -> void:
 		"producer fixture provenance records no fidelity fallbacks"
 	)
 	var expected_files: Array = provenance.get("files", [])
-	_expect_equal(expected_files.size(), 15, "producer fixture provenance covers every file")
+	_expect_equal(expected_files.size(), 16, "producer fixture provenance covers every file")
 	for expected_value: Variant in expected_files:
 		if not (expected_value is Dictionary):
 			_expect(false, "producer fixture provenance file entry is an object")
@@ -1212,6 +1212,19 @@ func _test_providence_authoritative_export() -> void:
 			special_land_tiles[0].get("payloadEncoding"),
 			"classic-resource-data",
 			"special land tile keeps its payload encoding"
+		)
+		_expect_equal(
+			special_land_tiles[0].get("runtimeMedia", {}).get("mediaType"),
+			"image/png",
+			"producer fixture indexes decoded special-land runtime media"
+		)
+		_expect(
+			FileAccess.file_exists(
+				PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(
+					str(special_land_tiles[0].get("runtimeMedia", {}).get("path", ""))
+				)
+			),
+			"producer fixture includes decoded special-land runtime media"
 		)
 	for asset_value: Variant in assets.get("managedAssets", []):
 		if not (asset_value is Dictionary):
@@ -1894,6 +1907,21 @@ func _test_classic_map_materializer() -> void:
 			OK,
 			"materializer fixture stages immutable %s" % payload_name
 		)
+	var runtime_image_directory := test_root.path_join("media").path_join("images")
+	DirAccess.make_dir_recursive_absolute(runtime_image_directory)
+	var runtime_image_name := "cicn-neg-100-31df32a766f9.png"
+	_expect_equal(
+		DirAccess.copy_absolute(
+			ProjectSettings.globalize_path(
+				PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(
+					"media/images/%s" % runtime_image_name
+				)
+			),
+			runtime_image_directory.path_join(runtime_image_name)
+		),
+		OK,
+		"materializer fixture stages decoded special-land runtime media"
+	)
 	var materializer = MapMaterializerScript.new()
 	_expect_equal(
 		materializer._special_land_resource_id(-1100),
