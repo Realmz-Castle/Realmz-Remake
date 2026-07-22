@@ -1,21 +1,32 @@
-const name : String = 'p_dumb.gd'
-const menuname : String = 'Dumb (P)'
-const stacks : bool = false
-const trait_types : Array = []
+const name := "p_dumb.gd"
+const menuname := "Dumb (P)"
+const stacks := false
+const permanent := true
+const trait_types: Array = []
+
 var chara
-const permanent : int = 1
-var trait_source : String = ''
+var power := 1
+var trait_source := ""
 
-func _init(args : Array):
-	#[chara]
+
+func _init(args: Array) -> void:
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is Permanently Dumbfounded !', null,'')
+	if args.size() > 1:
+		power = maxi(1, int(args[1]))
 
-func get_saved_variables() :
-	return []
 
-func get_info_as_text() -> String :
-	return 'Permanently Dumb'+' (source : '+trait_source+')'
+func get_saved_variables() -> Array:
+	return [power]
 
-func equals_args(traits_array : Array) :
+
+func blocks_spellcasting() -> bool:
+	return true
+
+
+func get_info_as_text() -> String:
+	var source_text := "" if trait_source.is_empty() else " (source: %s)" % trait_source
+	return "Permanently dumb%s" % source_text
+
+
+func equals_args(_traits_array: Array) -> bool:
 	return true

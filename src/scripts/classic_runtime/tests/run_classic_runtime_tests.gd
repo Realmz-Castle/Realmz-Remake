@@ -1314,6 +1314,7 @@ func _init() -> void:
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
 	_test_classic_slug_spells()
+	_test_classic_spellcasting_block_spells()
 	_test_classic_healing_spells()
 	_test_classic_regeneration_spells()
 	_test_classic_protection_spells()
@@ -8267,7 +8268,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		204,
+		206,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8456,6 +8457,13 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"Slug %d uses the reviewed queued Slow path" % slug_spell_id
 		)
+	for spellcasting_block_id: int in [2203, 3407]:
+		_expect_equal(
+			coverage_by_id.get(spellcasting_block_id, {}).get("coverageStatus"),
+			"supported",
+			"spellcasting block %d uses the reviewed Dumb path"
+			% spellcasting_block_id
+		)
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
@@ -8504,8 +8512,9 @@ func _test_classic_spell_coverage() -> void:
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
+		2203, 3407,
 	]
-	_expect_equal(migrated_spell_ids.size(), 175, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 177, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8680,10 +8689,12 @@ func _test_classic_spell_coverage() -> void:
 		"Noxious Cloud": "res://shared_assets/spells/classic_core_3209_noxious_cloud.gd",
 		"Classic Slug Sorcerer": "res://shared_assets/spells/classic_core_1311_slug_sorcerer.gd",
 		"Slug": "res://shared_assets/spells/classic_core_2311_slug_priest.gd",
+		"Dumbstruck": "res://shared_assets/spells/classic_core_2203_dumbstruck.gd",
+		"Mind Blank": "res://shared_assets/spells/classic_core_3407_mind_blank.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		167,
+		169,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9979,6 +9990,155 @@ func _test_classic_slug_spells() -> void:
 	_expect_equal(queue_action.get("spell"), sorcerer, "Slug collision reuses its spell")
 	_expect(queue_action.get("from_terrain"), "Slug collision identifies the field")
 	_expect(not queue_action.get("add_terrain"), "Slug collision cannot duplicate its field")
+
+
+func _test_classic_spellcasting_block_spells() -> void:
+	var dumbstruck = load(
+		"res://shared_assets/spells/classic_core_2203_dumbstruck.gd"
+	).new()
+	var mind_blank = load(
+		"res://shared_assets/spells/classic_core_3407_mind_blank.gd"
+	).new()
+	var specs := [
+		{
+			"spell": dumbstruck,
+			"name": "Dumbstruck",
+			"id": 2203,
+			"school": "Priest",
+			"level": 2,
+			"target_type": 1,
+			"targets": 1,
+			"range": 9,
+			"duration": [3, 6],
+			"cost": 24,
+			"looks": [14, 5],
+			"sounds": [77, 81],
+			"opposed": true,
+			"resist_adjust": 0,
+		},
+		{
+			"spell": mind_blank,
+			"name": "Mind Blank",
+			"id": 3407,
+			"school": "Enchanter",
+			"level": 4,
+			"target_type": 0,
+			"targets": 3,
+			"range": 6,
+			"duration": [2, 6],
+			"cost": 45,
+			"looks": [14, 5],
+			"sounds": [26, 5],
+			"opposed": false,
+			"resist_adjust": -5,
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell: Variant = spec["spell"]
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s native resource name" % label)
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact identity" % label)
+		_expect_equal(spell.classic_spell_class, 5, "%s mental effect class" % label)
+		_expect_equal(spell.classic_special, 6, "%s Dumb condition code" % label)
+		_expect_equal(spell.classic_spell_save_index, 5, "%s mental save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, "negate", "%s save negates" % label)
+		_expect_equal(spell.classic_save_bonus, 0, "%s save bonus" % label)
+		_expect_equal(spell.classic_target_type, spec["target_type"], "%s targeting" % label)
+		_expect_equal(spell.get_target_number(3, null), spec["targets"], "%s target count" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s range" % label)
+		_expect(not spell.los, "%s ignores line of sight" % label)
+		_expect_equal(spell.classic_queue_icon, 0, "%s is immediate" % label)
+		_expect(not spell.in_field and spell.in_combat, "%s is combat-only" % label)
+		_expect_equal(spell.get_min_duration(3, null), spec["duration"][0], "%s minimum duration" % label)
+		_expect_equal(spell.get_max_duration(3, null), spec["duration"][1], "%s maximum duration" % label)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s source art" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s source sounds" % label)
+		_expect_equal(spell.school_levels.get(spec["school"]), spec["level"], "%s source level" % label)
+		_expect_equal(spell.attributes, ["Magical", "Mental"], "%s delivery attributes" % label)
+		_expect_equal(
+			spell.uses_classic_opposed_level_check(),
+			spec["opposed"],
+			"%s opposed-level rule" % label
+		)
+		_expect_equal(
+			spell.classic_resist_adjust,
+			spec["resist_adjust"],
+			"%s resistance adjustment" % label
+		)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE,
+			"%s checks general magic resistance" % label
+		)
+
+	var first := SpellScreenTestCharacter.new("First mind target", true)
+	var second := SpellScreenTestCharacter.new("Second mind target")
+	mind_blank.begin_classic_target_resolution(null, 3)
+	var first_duration: int = mind_blank.apply_classic_scaled_effect(
+		null, first, 3, 1.0
+	)
+	var second_duration: int = mind_blank.apply_classic_scaled_effect(
+		null, second, 3, 1.0
+	)
+	mind_blank.end_classic_target_resolution()
+	_expect(first_duration in range(2, 7), "Mind Blank uses its two-to-six-round duration")
+	_expect_equal(second_duration, first_duration, "Mind Blank shares one duration across targets")
+	_expect(not first.can_cast_spells(), "the temporary Dumb trait blocks spellcasting")
+	_expect(not second.can_cast_spells(), "every affected target is blocked from spellcasting")
+	first.traits[0]._on_new_round(first)
+	_expect_equal(
+		first.traits[0].get_saved_variables(),
+		[first_duration - 1],
+		"Dumb loses one point each combat round"
+	)
+	_expect(
+		not FileAccess.get_file_as_string(
+			"res://shared_assets/traits/t_dumb.gd"
+		).contains("focus_counter"),
+		"Dumb leaves non-spell actions unchanged"
+	)
+
+	var saved := SpellScreenTestCharacter.new("Saved mind target", true)
+	_expect_equal(
+		mind_blank.apply_classic_scaled_effect(null, saved, 3, 0.0),
+		0,
+		"a successful mental save prevents Dumb"
+	)
+	_expect(saved.can_cast_spells(), "a successful save leaves spellcasting available")
+
+	var capped := SpellScreenTestCharacter.new("Capped mind target", true)
+	capped.add_trait(load("res://shared_assets/traits/t_dumb.gd"), [98])
+	_expect_equal(
+		mind_blank.apply_classic_scaled_effect(null, capped, 3, 1.0),
+		0,
+		"player Dumb rejects a stack that reaches condition 100"
+	)
+	_expect_equal(capped.traits[0].get_saved_variables(), [98], "a rejected stack is unchanged")
+
+	var permanent := SpellScreenTestCharacter.new("Permanently dumb target", true)
+	permanent.add_trait(load("res://shared_assets/traits/p_dumb.gd"), [2])
+	_expect(not permanent.can_cast_spells(), "permanent Dumb blocks spellcasting")
+	_expect_equal(
+		dumbstruck.apply_classic_scaled_effect(null, permanent, 3, 1.0),
+		0,
+		"temporary Dumb does not replace permanent Dumb"
+	)
+
+	var condition_target := ConditionTestCharacter.new("Dumb condition target")
+	var condition_result: Dictionary = CharacterConditionRulesScript.apply_condition(
+		[condition_target],
+		[condition_target],
+		"selected",
+		5,
+		4
+	)
+	_expect_equal(condition_result.get("affectedCount"), 1, "Give Condition maps Dumb")
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(condition_target, 5),
+		4,
+		"Give Condition preserves the Dumb value"
+	)
 
 
 func _test_classic_healing_spells() -> void:

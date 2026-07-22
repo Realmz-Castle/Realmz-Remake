@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 204)
+        self.assertEqual(report["totals"]["supportedIdentities"], 206)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -251,6 +251,21 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertEqual(row["behavior"]["conditionIndex"], 6)
             self.assertEqual(row["behavior"]["saveMode"], "negate-condition")
             self.assertEqual(row["behavior"]["actionCount"], "unchanged-source-behavior")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id in {2203, 3407}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(
+                row["classification"], "native-special-spellcasting-block"
+            )
+            self.assertEqual(row["behavior"]["conditionIndex"], 5)
+            self.assertEqual(row["behavior"]["saveMode"], "negate-condition")
+            self.assertEqual(
+                row["behavior"]["effect"], "prevent-spellcasting-only"
+            )
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )

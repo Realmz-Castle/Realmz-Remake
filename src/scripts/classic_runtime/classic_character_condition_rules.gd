@@ -1,6 +1,11 @@
 extends RefCounted
 
 const CONDITION_TRAITS := {
+	5: {
+		"name": "Dumb",
+		"temporary": "res://shared_assets/traits/t_dumb.gd",
+		"permanent": "res://shared_assets/traits/p_dumb.gd",
+	},
 	9: {
 		"name": "Poisoned",
 		"temporary": "res://shared_assets/traits/t_poison.gd",

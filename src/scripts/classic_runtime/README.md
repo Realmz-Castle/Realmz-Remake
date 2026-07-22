@@ -242,6 +242,17 @@ source's fixed 15-point physical attack and defense penalties. Although the
 spell description also promises fewer actions, the Classic combat code never
 changes the target's attack count, so the adapter leaves actions unchanged.
 
+Dumbstruck and Mind Blank use Classic condition `6`, stored at character
+condition index `5`. Despite the latter's protective-sounding name, both are
+offensive mental effects that prevent spellcasting and leave movement, attacks,
+and player control unchanged. Dumbstruck targets one creature and preserves its
+signed mental opposed-level check; Mind Blank targets one creature per selected
+power and applies its source resistance penalty. Both retain individual
+resistance and mental saves while sharing one duration roll across a cast. The
+native temporary and permanent Dumb traits now participate in Remake's existing
+spellcasting-eligibility seam and use the Classic round/game-hour condition
+clock.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

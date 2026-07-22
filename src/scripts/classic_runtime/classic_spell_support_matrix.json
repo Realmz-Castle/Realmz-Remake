@@ -6008,6 +6008,67 @@
         "adapter": "source-record-backed-queued-native-slow-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 2203,
+      "displayName": "Dumbstruck",
+      "classification": "native-special-spellcasting-block",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2203_dumbstruck.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 122, "byteOffset": 3660, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-6-dumb", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": "three-per-power",
+        "lineOfSight": false,
+        "duration": "three-to-six-rounds",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 5,
+        "effect": "prevent-spellcasting-only",
+        "otherActions": "unchanged-source-behavior",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "stacking": "add-unless-result-reaches-condition-cap",
+        "playerConditionCapExclusive": 100,
+        "monsterConditionCapExclusive": 125,
+        "saveMode": "negate-condition",
+        "saveIndex": 5,
+        "resistance": "opposed-level-then-class-immunity-screen-animation-and-general",
+        "special": 6,
+        "costPerPower": 8,
+        "adapter": "source-record-backed-native-dumb-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3407,
+      "displayName": "Mind Blank",
+      "classification": "native-special-spellcasting-block",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3407_mind_blank.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 261, "byteOffset": 7830, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-6-dumb", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 6,
+        "lineOfSight": false,
+        "duration": "two-to-six-rounds",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 5,
+        "effect": "prevent-spellcasting-only",
+        "otherActions": "unchanged-source-behavior",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "stacking": "add-unless-result-reaches-condition-cap",
+        "playerConditionCapExclusive": 100,
+        "monsterConditionCapExclusive": 125,
+        "saveMode": "negate-condition",
+        "saveIndex": 5,
+        "resistance": "class-immunity-screen-animation-and-general",
+        "resistAdjustPerPower": -5,
+        "special": 6,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-native-dumb-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }
