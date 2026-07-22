@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 206)
+        self.assertEqual(report["totals"]["supportedIdentities"], 207)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -270,6 +270,21 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )
             self.assertTrue(resource_path.is_file(), resource_path)
+        magic_aura = matrix_by_id[2106]
+        self.assertEqual(magic_aura["supportStatus"], "supported")
+        self.assertEqual(
+            magic_aura["classification"], "native-special-magic-aura"
+        )
+        self.assertEqual(magic_aura["behavior"]["conditionIndex"], 4)
+        self.assertEqual(magic_aura["behavior"]["targetType"], "all-friendly")
+        self.assertEqual(
+            magic_aura["behavior"]["effect"],
+            "add-five-percentage-points-to-physical-attack-and-defense",
+        )
+        magic_aura_resource = (
+            REPO_ROOT / "src" / magic_aura["resource"].removeprefix("res://")
+        )
+        self.assertTrue(magic_aura_resource.is_file(), magic_aura_resource)
         shield_from_hits_ids = {1111, 2112, 3212, 3406}
         for spell_id in shield_from_hits_ids:
             row = matrix_by_id[spell_id]

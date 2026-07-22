@@ -6069,6 +6069,35 @@
         "adapter": "source-record-backed-native-dumb-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 2106,
+      "displayName": "Magic Aura",
+      "classification": "native-special-magic-aura",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/magic_aura.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 110, "byteOffset": 3300, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-5-magic-aura", "slots": [0]}],
+      "behavior": {
+        "targetType": "all-friendly",
+        "range": 0,
+        "lineOfSight": false,
+        "duration": "one-to-two-rounds-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 4,
+        "effect": "add-five-percentage-points-to-physical-attack-and-defense",
+        "nativeAccuracyAndEvasionBonus": 1,
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "stacking": "add-unless-result-reaches-condition-cap",
+        "playerConditionCapExclusive": 100,
+        "monsterConditionCapExclusive": 125,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 5,
+        "costPerPower": 4,
+        "adapter": "source-record-backed-native-magic-aura-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

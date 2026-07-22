@@ -253,6 +253,16 @@ native temporary and permanent Dumb traits now participate in Remake's existing
 spellcasting-eligibility seam and use the Classic round/game-hour condition
 clock.
 
+Magic Aura uses Classic condition `5`, stored at character condition index `4`.
+Its all-friendly target type reaches every ally in combat or camp, bypasses
+resistance and saving throws, and shares one duration roll of one to two rounds
+per power across the cast. While active it adds five percentage points to both
+physical hit chance and physical defense. Remake's opposed-roll formula assigns
+five percentage points to each native accuracy or evasion stat point, so the
+Aura traits add one native point rather than the legacy script's five-point,
+twenty-five-percentage-point bonus. Temporary Aura follows the Classic
+round/game-hour condition clock and cannot replace permanent Aura.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

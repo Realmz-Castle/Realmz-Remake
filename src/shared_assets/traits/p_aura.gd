@@ -1,29 +1,32 @@
-const name : String = 'p_aura.gd'
-const menuname : String = 'Magic Aura (P)'
-const stacks : bool = false
+const name := "p_aura.gd"
+const menuname := "Magic Aura (P)"
+const stacks := false
+const permanent := true
+const NATIVE_ACCURACY_BONUS := 1
+const trait_types: Array = []
 
-const trait_types : Array = []
 var chara
-var permanent : int = 0
-var trait_source : String = ''
+var power := 1
+var trait_source := ""
 
-func _init(args : Array):
-	#[chara]
+func _init(args: Array) -> void:
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets a Magic Aura !', null,'')
+	if args.size() > 1:
+		power = maxi(1, int(args[1]))
 
-func get_saved_variables() :
-	return []
+func get_saved_variables() -> Array:
+	return [power]
 
+func _on_get_stat(stat_name: String, stat):
+	if stat_name in [
+		"EvasionMelee", "EvasionRanged", "AccuracyMelee", "AccuracyRanged",
+	]:
+		return stat + NATIVE_ACCURACY_BONUS
+	return stat
 
-func _on_get_stat(statname : String, stat : int) :
-	if ['EvasionMelee','EvasionRanged','AccuracyMelee','AccuracyRanged'].has(statname) :
-		return stat+5  #1  stat = 1% chance
-	else :
-		return stat
+func get_info_as_text() -> String:
+	var source_text := "" if trait_source.is_empty() else " (source: %s)" % trait_source
+	return "Permanent Magic Aura%s" % source_text
 
-func get_info_as_text() -> String :
-	return 'Permanent Magic Aura'+' (source : '+trait_source+')'
-
-func equals_args(traits_array : Array) :
+func equals_args(_traits_array: Array) -> bool:
 	return true

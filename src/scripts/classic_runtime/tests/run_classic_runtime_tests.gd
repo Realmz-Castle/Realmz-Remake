@@ -1315,6 +1315,7 @@ func _init() -> void:
 	_test_classic_helpless_spells()
 	_test_classic_slug_spells()
 	_test_classic_spellcasting_block_spells()
+	_test_classic_magic_aura_spell()
 	_test_classic_healing_spells()
 	_test_classic_regeneration_spells()
 	_test_classic_protection_spells()
@@ -8268,7 +8269,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		206,
+		207,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8464,6 +8465,11 @@ func _test_classic_spell_coverage() -> void:
 			"spellcasting block %d uses the reviewed Dumb path"
 			% spellcasting_block_id
 		)
+	_expect_equal(
+		coverage_by_id.get(2106, {}).get("coverageStatus"),
+		"supported",
+		"Magic Aura uses the reviewed all-allies condition path"
+	)
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
@@ -8512,9 +8518,9 @@ func _test_classic_spell_coverage() -> void:
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
-		2203, 3407,
+		2106, 2203, 3407,
 	]
-	_expect_equal(migrated_spell_ids.size(), 177, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 178, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8691,10 +8697,11 @@ func _test_classic_spell_coverage() -> void:
 		"Slug": "res://shared_assets/spells/classic_core_2311_slug_priest.gd",
 		"Dumbstruck": "res://shared_assets/spells/classic_core_2203_dumbstruck.gd",
 		"Mind Blank": "res://shared_assets/spells/classic_core_3407_mind_blank.gd",
+		"Magic Aura": "res://shared_assets/spells/magic_aura.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		169,
+		170,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -10138,6 +10145,112 @@ func _test_classic_spellcasting_block_spells() -> void:
 		CharacterConditionRulesScript.condition_value(condition_target, 5),
 		4,
 		"Give Condition preserves the Dumb value"
+	)
+
+
+func _test_classic_magic_aura_spell() -> void:
+	var aura = load("res://shared_assets/spells/magic_aura.gd").new()
+	_expect_equal(aura.name, "Magic Aura", "Magic Aura native resource name")
+	_expect_equal(aura.classic_spell_ids, [2106], "Magic Aura exact identity")
+	_expect_equal(aura.classic_spell_class, 8, "Magic Aura miscellaneous class")
+	_expect_equal(aura.classic_damage_type, 8, "Magic Aura miscellaneous DRV")
+	_expect_equal(aura.classic_special, 5, "Magic Aura condition code")
+	_expect_equal(aura.classic_cannot, 3, "Magic Aura bypasses resistance")
+	_expect_equal(aura.classic_spell_save_index, -1, "Magic Aura has no save")
+	_expect_equal(aura.classic_spell_save_mode, "none", "Magic Aura save mode")
+	_expect_equal(
+		aura.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Magic Aura cannot miss or be resisted"
+	)
+	_expect(aura.in_combat and aura.in_field, "Magic Aura works in combat and camp")
+	_expect_equal(aura.classic_target_type, 9, "Magic Aura targets all allies")
+	_expect(aura.skip_targeting, "Magic Aura needs no manual target selection")
+	_expect_equal(
+		aura.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ALLIES,
+		"Magic Aura uses Remake's all-allies targeting"
+	)
+	_expect_equal(aura.get_range(3, null), 0, "Magic Aura source range")
+	_expect_equal(aura.get_target_number(3, null), 1, "Magic Aura source target count")
+	_expect_equal(aura.get_min_duration(3, null), 3, "Magic Aura minimum duration")
+	_expect_equal(aura.get_max_duration(3, null), 6, "Magic Aura maximum duration")
+	_expect_equal(aura.get_sp_cost(3, null), 12, "Magic Aura casting cost")
+	_expect_equal(aura.classic_spell_look_ids, [5, 5], "Magic Aura source art")
+	_expect_equal(aura.classic_sound_ids, [77, 61], "Magic Aura source sounds")
+
+	var first := SpellScreenTestCharacter.new("First aura target", true)
+	var second := SpellScreenTestCharacter.new("Second aura target")
+	first.stats = {
+		"AccuracyMelee": 5,
+		"AccuracyRanged": 4,
+		"AccuracyMagic": 3,
+		"EvasionMelee": 2,
+		"EvasionRanged": 1,
+		"EvasionMagic": 6,
+	}
+	second.stats = first.stats.duplicate()
+	_expect_equal(
+		aura.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Magic Aura affects every ally"
+	)
+	var first_duration: int = first.traits[0].power
+	_expect(first_duration in range(3, 7), "Magic Aura rolls one to two rounds per power")
+	_expect_equal(second.traits[0].power, first_duration, "Magic Aura shares one duration roll")
+	_expect_equal(
+		first.get_stat("AccuracyMelee"), 6,
+		"Aura adds five percentage points of melee hit chance"
+	)
+	_expect_equal(
+		first.get_stat("AccuracyRanged"), 5,
+		"Aura adds five percentage points of ranged hit chance"
+	)
+	_expect_equal(
+		first.get_stat("EvasionMelee"), 3,
+		"Aura adds five percentage points of melee defense"
+	)
+	_expect_equal(
+		first.get_stat("EvasionRanged"), 2,
+		"Aura adds five percentage points of ranged defense"
+	)
+	_expect_equal(first.get_stat("AccuracyMagic"), 3, "Aura leaves spell accuracy unchanged")
+	_expect_equal(first.get_stat("EvasionMagic"), 6, "Aura leaves spell evasion unchanged")
+	first.traits[0]._on_new_round(first)
+	_expect_equal(first.traits[0].power, first_duration - 1, "Aura loses one point each combat round")
+
+	var capped := SpellScreenTestCharacter.new("Capped aura target", true)
+	capped.add_trait(load("res://shared_assets/traits/t_aura.gd"), [98])
+	_expect_equal(
+		aura.apply_classic_group_effect(null, [capped], 3),
+		0,
+		"player Aura rejects a stack that reaches condition 100"
+	)
+	_expect_equal(capped.traits[0].power, 98, "a rejected Aura stack is unchanged")
+
+	var permanent := SpellScreenTestCharacter.new("Permanent aura target", true)
+	permanent.add_trait(load("res://shared_assets/traits/p_aura.gd"), [4])
+	_expect_equal(permanent.get_stat("AccuracyMelee"), 1, "permanent Aura uses the same bonus")
+	_expect_equal(permanent.traits[0].get_saved_variables(), [4], "permanent Aura preserves magnitude")
+	_expect_equal(
+		aura.apply_classic_group_effect(null, [permanent], 3),
+		0,
+		"temporary Aura does not replace permanent Aura"
+	)
+
+	var condition_target := ConditionTestCharacter.new("Aura condition target")
+	var condition_result: Dictionary = CharacterConditionRulesScript.apply_condition(
+		[condition_target],
+		[condition_target],
+		"selected",
+		4,
+		5
+	)
+	_expect_equal(condition_result.get("affectedCount"), 1, "Give Condition maps Magic Aura")
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(condition_target, 4),
+		5,
+		"Give Condition preserves the Magic Aura value"
 	)
 
 
