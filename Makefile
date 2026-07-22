@@ -33,9 +33,12 @@ bump:
 	@:
 
 # Asset building
-.PHONY: spells
+.PHONY: spells classic-spell-audit
 spells:
 	$(MAKE) -C $(ASSET_SCRIPTS_DIR)
+
+classic-spell-audit:
+	$(PYTHON) $(ASSET_SCRIPTS_DIR)/audit_classic_spell_parity.py
 
 # Build management
 .PHONY: build-mac clean-build
@@ -113,6 +116,7 @@ help:
 	@echo ""
 	@echo "Asset building:"
 	@echo "  spells          - Build spell assets"
+	@echo "  classic-spell-audit - Report remaining Classic spell implementation batches"
 	@echo ""
 	@echo "Build management:"
 	@echo "  build-mac       - Build macOS application (.app and .dmg)"

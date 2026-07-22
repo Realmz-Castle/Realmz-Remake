@@ -173,6 +173,13 @@ behaviors that still need an adapter or engine decision:
 Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_core_spell_coverage.gd -- --json
 ```
 
+For implementation planning, `asset_scripts/audit_classic_spell_parity.py`
+groups the same inventory by exact source mechanics and ranks the remaining
+generic and special-code batches. It also compares simple values from the older
+generated spell scripts, but treats those files only as migration hints. Its
+deterministic JSON and Markdown reports default to `tmp/` and do not change the
+support matrix or native resources.
+
 The report is a work queue, not a launch gate. A resource declaring the right
 ID remains in review until its complete Classic behavior is represented in the
 support matrix.

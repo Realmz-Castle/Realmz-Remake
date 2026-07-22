@@ -110,4 +110,24 @@ This is where helper function to convert and compute values go
 `lookups.py`
 Data tables as python dictionaries for enums and such
 
+### Classic parity audit
+
+`audit_classic_spell_parity.py` groups the immutable decoded `Data S` inventory
+into implementation batches and joins it to the curated support matrix, current
+native resources, and the older generated spell scripts:
+
+```bash
+python audit_classic_spell_parity.py
+```
+
+The default reports are written to `../tmp/classic-spell-parity-audit.json` and
+`../tmp/classic-spell-parity-audit.md`. Use `--json-output` and
+`--markdown-output` to select other locations. The JSON report is deterministic
+and suitable for further tooling.
+
+The audit never treats a matching name, a legacy script, or a decoded generic
+record as proof of support. Only a curated support-matrix row can mark an exact
+Classic identity supported. Parsed legacy values are reported as migration
+hints and source disagreements are called out explicitly.
+
 
