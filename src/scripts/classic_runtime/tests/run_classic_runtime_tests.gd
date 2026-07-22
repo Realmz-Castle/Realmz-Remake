@@ -1232,6 +1232,7 @@ func _init() -> void:
 	_test_classic_energy_drain_spells()
 	_test_classic_arcanic_bubble_spells()
 	_test_classic_itching_skin_spell()
+	_test_classic_shrink_foe_spell()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -8149,7 +8150,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		173,
+		174,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8268,6 +8269,11 @@ func _test_classic_spell_coverage() -> void:
 			% hindered_attack_id
 		)
 	_expect_equal(
+		coverage_by_id.get(3109, {}).get("coverageStatus"),
+		"supported",
+		"Shrink Foe uses the reviewed defense-hindrance adapter"
+	)
+	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
 		"reviewed Sorcerer Power Drain is supported"
@@ -8338,8 +8344,9 @@ func _test_classic_spell_coverage() -> void:
 		1511, 2711, 3511,
 		1301, 1403, 2702, 3302,
 		1207, 2209,
+		3109,
 	]
-	_expect_equal(migrated_spell_ids.size(), 144, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 145, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8488,10 +8495,11 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Improved Arcanic Bubble Priest": "res://shared_assets/spells/classic_core_2702_improved_arcanic_bubble_priest.gd",
 		"Classic Arcanic Bubble Enchanter": "res://shared_assets/spells/classic_core_3302_arcanic_bubble_enchanter.gd",
 		"Itching Skin": "res://shared_assets/spells/itching_skin.gd",
+		"Shrink Foe": "res://shared_assets/spells/shrink_foe.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		141,
+		142,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11690,6 +11698,89 @@ func _test_classic_itching_skin_spell() -> void:
 	)
 
 
+func _test_classic_shrink_foe_spell() -> void:
+	var spell = load("res://shared_assets/spells/shrink_foe.gd").new()
+	_expect_equal(spell.name, "Shrink Foe", "Shrink Foe resource identity")
+	_expect_equal(spell.classic_spell_ids, [3109], "Shrink Foe exact ID")
+	_expect_equal(spell.classic_special, 38, "Shrink Foe special code")
+	_expect_equal(spell.classic_spell_class, 7, "Shrink Foe special effect class")
+	_expect_equal(spell.classic_damage_type, 7, "Shrink Foe special DRV")
+	_expect_equal(spell.classic_cannot, 3, "Shrink Foe bypasses resistance gates")
+	_expect_equal(spell.classic_spell_save_index, -1, "Shrink Foe has no save")
+	_expect_equal(spell.classic_spell_save_mode, "none", "Shrink Foe has no save mode")
+	_expect_equal(
+		spell.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Shrink Foe cannot miss or be resisted"
+	)
+	_expect(spell.in_combat and not spell.in_field, "Shrink Foe is combat-only")
+	_expect_equal(spell.classic_target_type, 4, "Shrink Foe uses a power-scaled area")
+	_expect(not spell.skip_targeting, "Shrink Foe keeps manual area targeting")
+	_expect_equal(
+		spell.targettile,
+		Spell.TARGET_TILE.NOWALL,
+		"Shrink Foe preserves no-wall area targeting"
+	)
+	_expect_equal(spell.get_range(3, null), 74, "Shrink Foe source range")
+	_expect(not spell.los, "Shrink Foe does not require line of sight")
+	_expect_equal(spell.get_aoe(3, null), Spell.AoE_b3, "Shrink Foe area scales with power")
+	_expect_equal(spell.get_target_number(3, null), 1, "Shrink Foe source target count")
+	_expect_equal(spell.get_min_duration(3, null), 3, "Shrink Foe minimum duration")
+	_expect_equal(spell.get_max_duration(3, null), 6, "Shrink Foe maximum duration")
+	_expect_equal(spell.get_sp_cost(3, null), 9, "Shrink Foe casting cost")
+	_expect_equal(spell.classic_spell_look_ids, [15, 15], "Shrink Foe visuals")
+	_expect_equal(spell.classic_sound_ids, [30, 26], "Shrink Foe sounds")
+	_expect_equal(spell.schools, ["Enchanter"], "Shrink Foe remains an Enchanter spell")
+
+	var first := SpellScreenTestCharacter.new("First shrunken foe", true)
+	first.stats = {"EvasionMelee": 20, "EvasionRanged": 18}
+	var second := SpellScreenTestCharacter.new("Second shrunken foe", true)
+	second.stats = {"EvasionMelee": 20, "EvasionRanged": 18}
+	_expect_equal(
+		spell.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Shrink Foe affects every creature in its area"
+	)
+	var duration: int = first.traits[0].get_saved_variables()[0]
+	_expect(duration in range(3, 7), "Shrink Foe rolls three to six rounds")
+	_expect_equal(
+		second.traits[0].get_saved_variables()[0],
+		duration,
+		"one Shrink Foe cast shares its condition roll"
+	)
+	_expect_equal(
+		first.get_stat("EvasionMelee"),
+		20 - duration,
+		"Shrink Foe reduces melee evasion by the full condition"
+	)
+	_expect_equal(
+		first.get_stat("EvasionRanged"),
+		18 - duration,
+		"Shrink Foe reduces ranged evasion by the full condition"
+	)
+	first.traits[0]._on_new_round(first)
+	_expect_equal(
+		first.get_stat("EvasionMelee"),
+		21 - duration,
+		"Shrink Foe loses one penalty point each combat round"
+	)
+
+	var capped := SpellScreenTestCharacter.new("Capped shrunken foe", true)
+	capped.add_trait(load("res://shared_assets/traits/t_hindered_def.gd"), [98])
+	_expect_equal(
+		spell.apply_classic_scaled_effect(null, capped, 3, 1.0),
+		0,
+		"player Shrink Foe rejects a stack beyond condition 99"
+	)
+	var permanent := SpellScreenTestCharacter.new("Permanently vulnerable", true)
+	permanent.traits.append(ConditionTestTrait.new("p_hindered_def.gd", 5))
+	_expect_equal(
+		spell.apply_classic_scaled_effect(null, permanent, 3, 1.0),
+		0,
+		"temporary Shrink Foe does not replace permanent hindrance"
+	)
+
+
 func _test_classic_spell_screen_spells() -> void:
 	var specs: Array = [
 		{
@@ -12514,6 +12605,11 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Itching Skin", {}).get("classicSpellIds"),
 		[1207, 2209],
 		"spell catalog maps both source-equivalent Itching Skin identities"
+	)
+	_expect_equal(
+		native_spells.get("Shrink Foe", {}).get("classicSpellIds"),
+		[3109],
+		"spell catalog maps the native Shrink Foe resource"
 	)
 	_expect_equal(
 		native_spells.get("Magic Darts", {}).get("classicSpellIds"),

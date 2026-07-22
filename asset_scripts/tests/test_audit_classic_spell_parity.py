@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 173)
+        self.assertEqual(report["totals"]["supportedIdentities"], 174)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -530,6 +530,28 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
                 / hindrance["resource"].removeprefix("res://")
             )
             self.assertTrue(hindrance_resource.is_file(), hindrance_resource)
+        shrink_foe = matrix_by_id[3109]
+        self.assertEqual(shrink_foe["supportStatus"], "supported")
+        self.assertEqual(
+            shrink_foe["classification"],
+            "native-special-defense-hindrance",
+        )
+        self.assertEqual(shrink_foe["behavior"]["conditionIndex"], 37)
+        self.assertEqual(
+            shrink_foe["behavior"]["effect"],
+            "subtract-remaining-condition-from-melee-and-ranged-evasion",
+        )
+        self.assertEqual(shrink_foe["behavior"]["saveMode"], "none")
+        self.assertEqual(shrink_foe["behavior"]["resistance"], "none")
+        self.assertEqual(
+            shrink_foe["behavior"]["sharedDurationRoll"], "once-per-cast"
+        )
+        shrink_foe_resource = (
+            REPO_ROOT
+            / "src"
+            / shrink_foe["resource"].removeprefix("res://")
+        )
+        self.assertTrue(shrink_foe_resource.is_file(), shrink_foe_resource)
         parameterized_damage_ids = {
             1601,
             1703,

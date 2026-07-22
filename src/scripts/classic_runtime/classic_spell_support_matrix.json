@@ -170,6 +170,14 @@
       ]
     },
     {
+      "id": "core-player-spell-shrink-foe",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 218, "displayName": "Enchanter Shrink Foe"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -5058,6 +5066,33 @@
         "special": 37,
         "costPerPower": 8,
         "adapter": "source-record-backed-classic-attack-hindrance",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3109,
+      "displayName": "Shrink Foe",
+      "classification": "native-special-defense-hindrance",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/shrink_foe.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 218, "byteOffset": 6540, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-shrink-foe", "slots": [0]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 74,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "areaSize": "selected-power",
+        "duration": "three-to-six-rounds",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 37,
+        "effect": "subtract-remaining-condition-from-melee-and-ranged-evasion",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 38,
+        "costPerPower": 3,
+        "adapter": "source-record-backed-classic-defense-hindrance",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }
