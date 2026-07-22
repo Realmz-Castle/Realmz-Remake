@@ -366,6 +366,7 @@ class RogueTestCharacter:
 	extends RefCounted
 	var name := "Test Rogue"
 	var level := 1
+	var classgd: Variant = null
 	var stat_value := 35.0
 	var stat_values: Dictionary = {}
 	var current_hp := 30
@@ -7633,7 +7634,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		64,
+		65,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7648,7 +7649,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		37,
+		36,
 		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
@@ -7747,13 +7748,13 @@ func _test_classic_spell_coverage() -> void:
 	var flame_spikes = load("res://shared_assets/spells/flame_spikes.gd").new()
 	var migrated_spell_ids: Array[int] = [
 		1103, 1104, 1204, 1209, 1211, 1303, 1402, 1504,
-		1505, 1701, 3207, 3301, 3308, 3409, 3712,
+		1503, 1505, 1701, 3207, 3301, 3308, 3409, 3712,
 		1203, 1212, 1306, 1310, 1401, 2101, 3211, 3401, 3704,
 		3105, 3506,
 		2109, 2306, 2605, 2706,
 		1601, 1703, 2705, 3108, 3205, 3501, 3601, 3602, 3710,
 	]
-	_expect_equal(migrated_spell_ids.size(), 39, "the reviewed generic batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 40, "the reviewed generic batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7791,6 +7792,7 @@ func _test_classic_spell_coverage() -> void:
 		"Mind Duel": "res://shared_assets/spells/mind_duel.gd",
 		"Psi Wave": "res://shared_assets/spells/psi_wave.gd",
 		"Mind Melt": "res://shared_assets/spells/mind_melt.gd",
+		"Flame Missile": "res://shared_assets/spells/classic_core_1503_flame_missile.gd",
 		"Annihilate": "res://shared_assets/spells/classic_core_1601_annihilate.gd",
 		"Fire Flies": "res://shared_assets/spells/classic_core_1703_fire_flies.gd",
 		"Meteor Shower": "res://shared_assets/spells/classic_core_2705_meteor_shower.gd",
@@ -7803,10 +7805,11 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		39,
+		40,
 		"every reviewed generic identity has a native resource"
 	)
 	_test_parameterized_damage_spells()
+	_test_flame_missile()
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
 	for spell_name: String in migrated_native_paths:
@@ -8380,7 +8383,7 @@ func _test_classic_spell_coverage() -> void:
 				matrix_ids,
 				[
 					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
-					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
+					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1503, 1504, 1505,
 					1601, 1603, 1701, 1703, 2101, 2102, 2103, 2109, 2110, 2111, 2201,
 					2301, 2304, 2306, 2403, 2605, 2705, 2706, 2708, 3102, 3104, 3105,
 					3108, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3308, 3311, 3401,
@@ -8505,6 +8508,83 @@ func _test_parameterized_damage_spells() -> void:
 			inventory_entry.get("sourceRecord", {}).get("byteOffset"),
 			"%s retains source provenance" % label
 		)
+
+
+func _test_flame_missile() -> void:
+	var spell: Variant = load(
+		"res://shared_assets/spells/classic_core_1503_flame_missile.gd"
+	).new()
+	var source_entry: Dictionary = CoreSpellCatalogScript.inventory_spell(1503)
+	var source: Dictionary = source_entry.get("record", {})
+	_expect(spell is ClassicCoreMissileSpell, "Flame Missile uses the missile specialization")
+	_expect_equal(spell.classic_spell_ids, [1503], "Flame Missile exports its exact ID")
+	_expect_equal(spell.classic_spell_class, 9, "Flame Missile preserves class 9")
+	_expect_equal(spell.classic_to_hit_bonus, 127, "Flame Missile preserves its hit bonus")
+	_expect_equal(
+		spell.attributes,
+		["Magical", "Projectile"],
+		"Flame Missile participates in native projectile protection"
+	)
+	_expect_equal(spell.targettile, Spell.TARGET_TILE.CREATURE, "Flame Missile targets one creature")
+	_expect(not spell.los, "Flame Missile preserves its negative no-sight range")
+	_expect_equal(spell.get_range(4, null), 12, "Flame Missile range scales by three")
+	_expect_equal(spell.get_min_damage(4, null), 30, "Flame Missile minimum damage")
+	_expect_equal(spell.get_max_damage(4, null), 35, "Flame Missile maximum damage")
+	_expect_equal(spell.get_sp_cost(4, null), 80, "Flame Missile cost scales by power")
+	_expect_equal(spell.classic_spell_save_index, 1, "Flame Missile uses the fire save")
+	_expect_equal(
+		spell.classic_spell_save_mode,
+		"half_damage",
+		"Flame Missile halves damage on a save"
+	)
+	_expect_equal(
+		spell.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Flame Missile bypasses ordinary magic resistance and dodge"
+	)
+	_expect_equal(
+		spell.source_record.get("sourceRecord", {}).get("byteOffset"),
+		source_entry.get("sourceRecord", {}).get("byteOffset"),
+		"Flame Missile retains source provenance"
+	)
+	_expect_equal(int(source.get("spellClass", 0)), 9, "Flame Missile test uses its Data S class")
+
+	var caster := RogueTestCharacter.new()
+	caster.level = 10
+	caster.classgd = load("res://Data/Character Classes/Class_Archer.gd")
+	_expect_equal(
+		spell.classic_missile_bonus_range(caster),
+		Vector2i(1, 5),
+		"Archer Flame Missile gains Classic half-level bonus damage"
+	)
+	caster.classgd = load("res://Data/Character Classes/Class_Marksman.gd")
+	_expect_equal(
+		spell.classic_missile_bonus_range(caster),
+		Vector2i(1, 5),
+		"Marksman Flame Missile gains Classic half-level bonus damage"
+	)
+	caster.classgd = load("res://Data/Character Classes/Class_Sorcerer.gd")
+	_expect_equal(
+		spell.classic_missile_bonus_range(caster),
+		Vector2i.ZERO,
+		"other standard castes do not gain missile bonus damage"
+	)
+	caster.set_meta("classic_gets_missile_bonus", true)
+	_expect_equal(
+		spell.classic_missile_bonus_range(caster),
+		Vector2i(1, 5),
+		"preserved custom-caste metadata can opt into missile bonus damage"
+	)
+
+	var protected_target := RogueTestCharacter.new()
+	protected_target.set_meta(SpellScreenScript.META_KEY, 5)
+	protected_target.set_meta(MagicResistanceScript.META_KEY, 100)
+	var resolution: Dictionary = MagicResistanceScript.spell_resolution(
+		protected_target, spell, 4, 1, false, caster
+	)
+	_expect(not resolution.get("resisted"), "Flame Missile bypasses spell screens and magic resistance")
+	_expect(not resolution.get("checksScreen"), "class-9 missiles do not check spell screens")
+	_expect(not resolution.get("checksResistance"), "class-9 missiles do not check magic resistance")
 
 
 func _test_classic_spell_usage_audit() -> void:

@@ -58,6 +58,10 @@ enum RESIST_TYPE {IGNORE_MRES_DODGE = 0, IGNORE_MRES = 1, IGNORE_DODGE = 2, IGNO
 
 var name : String = ""
 var description : String = ""
+# Combat traits use these broad delivery attributes independently from damage
+# elements. Projectile protection, for example, should not depend on whether a
+# missile deals fire or physical damage.
+var attributes : Array = []
 var elements : Array[GameGlobal.ELEMENTS] = []
 var tags : Array = []
 var schools : Array = []

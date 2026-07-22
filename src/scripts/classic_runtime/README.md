@@ -173,6 +173,14 @@ the generator cannot silently treat those mechanics as ordinary damage spells.
 `asset_scripts/scaffold_classic_damage_spells.py` reproduces the audited family
 as review-required drafts; generation alone never changes support status.
 
+Flame Missile uses the narrower `ClassicCoreMissileSpell` specialization. Its
+class-9 delivery bypasses magic resistance and spell screens, carries the
+Projectile attribute used by Remake's existing projectile-protection traits,
+and preserves Classic's extra 1-through-half-level damage for the standard
+Archer and Marksman castes. The source `toHitBonus` of 127 suppresses ordinary
+projectile dodge while its negative range fields retain the no-line-of-sight
+rule.
+
 `ClassicCoreSpellCoverage` joins that inventory to the curated support matrix and
 the shared spell-resource catalog. Its report separates proven support from
 exact-ID resources awaiting behavior review, name-only reuse candidates,

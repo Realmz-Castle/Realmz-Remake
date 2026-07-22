@@ -81,13 +81,13 @@ const SOUND_BY_CLASSIC_ID := {
 }
 
 
-func configure_core_damage_spell(spell_id: int) -> bool:
+func configure_core_damage_spell(spell_id: int, required_spell_class := -1) -> bool:
 	var inventory: Dictionary = CoreSpellCatalogScript.inventory_spell(spell_id)
 	if inventory.is_empty():
 		push_error("Classic core spell %d has no Data S inventory record" % spell_id)
 		return false
 	var record: Dictionary = inventory.get("record", {}).duplicate(true)
-	if not _is_direct_damage_record(record):
+	if not _is_direct_damage_record(record, required_spell_class):
 		push_error("Classic core spell %d is not an immediate damage record" % spell_id)
 		return false
 
@@ -119,13 +119,16 @@ func configure_core_damage_spell(spell_id: int) -> bool:
 	return true
 
 
-func _is_direct_damage_record(record: Dictionary) -> bool:
+func _is_direct_damage_record(record: Dictionary, required_spell_class: int) -> bool:
 	if int(record.get("special", 0)) != 0 \
 			or int(record.get("queueIcon", 0)) != 0 \
 			or int(record.get("cost", 0)) <= 0 \
 			or not bool(record.get("inCombat", 0)):
 		return false
-	if abs(int(record.get("spellClass", 0))) == 9:
+	var spell_class: int = absi(int(record.get("spellClass", 0)))
+	if required_spell_class >= 0 and spell_class != required_spell_class:
+		return false
+	if spell_class == 9 and required_spell_class != 9:
 		return false
 	if abs(int(record.get("damageType", 0))) not in range(1, 8):
 		return false

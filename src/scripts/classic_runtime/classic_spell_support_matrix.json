@@ -143,6 +143,14 @@
       ]
     },
     {
+      "id": "core-player-spell-flame-missile",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 62, "displayName": "Flame Missile"}
+      ]
+    },
+    {
       "id": "core-player-spell-generic-ray-batch",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -829,6 +837,37 @@
         "special": 51,
         "adapter": "classic-battle-charm-trait",
         "costPerPower": 15
+      }
+    },
+    {
+      "classicSpellId": 1503,
+      "displayName": "Flame Missile",
+      "classification": "native-missile-specialization",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1503_flame_missile.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 62,
+        "byteOffset": 1860,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-flame-missile", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "single-creature-projectile",
+        "range": "three-per-power",
+        "lineOfSight": false,
+        "damage": "10-15-plus-5-per-power",
+        "casteBonus": "Archer-or-Marksman-1-through-half-level",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "no-magic-resistance-or-spell-screen",
+        "projectileProtection": true,
+        "toHitBonus": 127,
+        "costPerPower": 20,
+        "implementation": "source-record-backed-native-missile",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {

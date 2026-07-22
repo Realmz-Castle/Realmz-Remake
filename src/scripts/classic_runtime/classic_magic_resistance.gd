@@ -108,7 +108,16 @@ static func spell_resolution(
 			"resisted": true,
 			"reason": "spell-class-immunity",
 		}, early)
-	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
+	var screen := {
+		"checksScreen": false,
+		"screenLevel": 0,
+		"spellLevel": 0,
+		"resisted": false,
+	}
+	# Classic class-9 missiles clear the accumulated spell-screen result before
+	# their projectile-protection and dodge check.
+	if abs(int(spell.get("classic_spell_class"))) != 9:
+		screen = SpellScreenScript.spell_resolution(character, spell, caster)
 	if bool(screen.get("resisted", false)):
 		return _with_early_result({
 			"checksResistance": false,
