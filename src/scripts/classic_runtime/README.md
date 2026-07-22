@@ -349,6 +349,22 @@ points; Classic does not apply that upper bound to monsters, so the adapter
 preserves their ability to exceed the starting pool. Separate resources retain
 the two source records' different spell schools, launch art, and sounds.
 
+The eleven special-`58` summon identities use one combat summoning path while
+retaining each source record's range, cost, school, presentation, and tier.
+Realmz selects a summonable monster from the active scenario's Data MD set by
+hit-dice band, widens to any summonable monster after 101 unsuccessful picks,
+and gives every creature in a power-scaled cast the same selected form. The
+adapter applies that selection to the campaign bestiary, inherits the caster's
+current faction, uses Remake's ordinary creature and combat-button lifecycle,
+places the complete creature footprint at the selected tile, adds it to the
+current initiative, and honors Classic's 100-monster allocation limit. Summons
+remain battle-only because they never enter Remake's persistent ally list.
+Creature Summon 5 `3604` is the sole corrected record: its tier byte is zero
+between the tier-four and tier-six spells, so the adapter uses the described
+and structurally evident tier five rather than preserving the accidental retry
+fallback. A campaign with no summonable bestiary record reports the missing
+dependency at cast time and does not substitute a shared monster.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

@@ -785,8 +785,57 @@ func load_spell_resources(path : String) :
 		# Bake the script's source into the dict the same way JSON spells do, so
 		# character saves can include the full text and stay self-contained
 		# even if the class file later moves or disappears.
-		spells_book[instance.name] = { "name" : instance.name, "source" : instance.generate_json_string(), "script" : instance}
-		print("  loaded spell class ", filename, " as '", instance.name, "'")
+		var spell_entry: Dictionary = {
+			"name": instance.name,
+			"source": instance.generate_json_string(),
+			"script": instance,
+		}
+		var resource_key := _store_spell_resource(spell_entry)
+		print("  loaded spell class ", filename, " as '", resource_key, "'")
+
+
+func _store_spell_resource(spell_entry: Dictionary) -> String:
+	var instance: Variant = spell_entry.get("script")
+	var resource_key := str(spell_entry.get("name", ""))
+	if spells_book.has(resource_key):
+		var previous: Variant = spells_book[resource_key]
+		var previous_script: Variant = previous.get("script") \
+			if previous is Dictionary else null
+		var previous_ids: Array[int] = _explicit_classic_spell_ids(previous_script)
+		var incoming_ids: Array[int] = _explicit_classic_spell_ids(instance)
+		if not previous_ids.is_empty() and not incoming_ids.is_empty() \
+				and not _integer_arrays_overlap(previous_ids, incoming_ids):
+			spells_book[_classic_spell_variant_key(resource_key, previous_ids)] = previous
+	spells_book[resource_key] = spell_entry
+	return resource_key
+
+
+func _explicit_classic_spell_ids(spell: Variant) -> Array[int]:
+	var ids: Array[int] = []
+	if not (spell is Object):
+		return ids
+	var raw_ids: Variant = spell.get("classic_spell_ids")
+	if raw_ids is Array:
+		for id_value: Variant in raw_ids:
+			var spell_id: int = abs(int(id_value))
+			if spell_id > 0 and not ids.has(spell_id):
+				ids.append(spell_id)
+	ids.sort()
+	return ids
+
+
+func _integer_arrays_overlap(first: Array[int], second: Array[int]) -> bool:
+	for value: int in first:
+		if value in second:
+			return true
+	return false
+
+
+func _classic_spell_variant_key(display_name: String, spell_ids: Array[int]) -> String:
+	var id_labels: PackedStringArray = []
+	for spell_id: int in spell_ids:
+		id_labels.append(str(spell_id))
+	return "%s (%s)" % [display_name, ",".join(id_labels)]
 
 # load map data, convert to an array, added to the maps_book ressource dictionary
 func load_map_ressources( path : String , _name : String) -> void :

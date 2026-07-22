@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 231)
+        self.assertEqual(report["totals"]["supportedIdentities"], 242)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -292,6 +292,34 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertEqual(row["behavior"]["duration"], "battle")
             self.assertEqual(row["behavior"]["saveMode"], "none")
             self.assertEqual(row["behavior"]["preResistance"], "classic-charm")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        summon_tiers = {
+            1502: 1,
+            1602: 2,
+            1702: 3,
+            2604: 3,
+            2704: 5,
+            3201: 1,
+            3304: 2,
+            3403: 3,
+            3502: 4,
+            3604: 5,
+            3701: 6,
+        }
+        for spell_id, expected_tier in summon_tiers.items():
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertIn(
+                row["classification"],
+                {"native-special-summon", "native-corrected-source-defect"},
+            )
+            self.assertEqual(row["behavior"]["special"], 58)
+            self.assertEqual(row["behavior"]["summonTier"], expected_tier)
+            self.assertEqual(row["behavior"]["monsterSlotLimit"], 100)
+            self.assertEqual(row["behavior"]["lifetime"], "battle")
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )

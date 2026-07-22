@@ -56,6 +56,9 @@ const SpellAreaPatternsScript = preload(
 const MonsterTransformationScript = preload(
 	"res://scripts/classic_runtime/classic_monster_transformation.gd"
 )
+const ClassicSummoningScript = preload(
+	"res://scripts/classic_runtime/classic_summoning.gd"
+)
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
@@ -913,6 +916,39 @@ class PhaseTestCreature:
 		stats["curHP"] = int(stats["curHP"]) + change
 
 
+class SummonTestCaster:
+	extends RefCounted
+	var name := "Summoner"
+	var baseFaction := 4
+	var curFaction := 5
+
+
+class SummonTestCreature:
+	extends RefCounted
+	var name := "Summoned creature"
+	var position := Vector2.ZERO
+	var size := Vector2.ONE
+	var is_summoned := false
+	var summoner: Variant
+	var summoner_name := ""
+	var baseFaction := 0
+	var curFaction := 0
+	var combat_button: Variant
+
+
+class SummonTestCombatState:
+	extends RefCounted
+	var classic_monster_slots_used := 0
+	var all_battle_creatures_btns: Array = []
+	var battle_creatures_yet_to_act_btns: Array = []
+
+	func add_pc_or_npc_ally_to_battle_map(creature: Object, _position: Vector2) -> bool:
+		var button := CombatTestButton.new(creature)
+		creature.combat_button = button
+		all_battle_creatures_btns.append(button)
+		return true
+
+
 class TransformationTestCreature:
 	extends RefCounted
 	var name := ""
@@ -1430,6 +1466,7 @@ func _init() -> void:
 	_test_classic_transformation_spells()
 	_test_classic_phase_spells()
 	_test_classic_power_surge_spells()
+	_test_classic_summon_spells()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -8923,6 +8960,157 @@ func _test_classic_power_surge_spells() -> void:
 	)
 
 
+func _test_classic_summon_spells() -> void:
+	var resource_loader = NativeResourcesScript.new()
+	var sorcerer_variant := Spell.new()
+	sorcerer_variant.name = "Shared summon name"
+	sorcerer_variant.classic_spell_ids = [1502]
+	var enchanter_variant := Spell.new()
+	enchanter_variant.name = "Shared summon name"
+	enchanter_variant.classic_spell_ids = [3201]
+	resource_loader._store_spell_resource({
+		"name": sorcerer_variant.name,
+		"source": "sorcerer",
+		"script": sorcerer_variant,
+	})
+	resource_loader._store_spell_resource({
+		"name": enchanter_variant.name,
+		"source": "enchanter",
+		"script": enchanter_variant,
+	})
+	_expect_equal(
+		SpellIdentityScript.resource_key(1502, {}, resource_loader.spells_book),
+		"Shared summon name (1502)",
+		"spell loader preserves the first same-name exact-ID variant"
+	)
+	_expect_equal(
+		SpellIdentityScript.resource_key(3201, {}, resource_loader.spells_book),
+		"Shared summon name",
+		"spell loader retains the later same-name exact-ID variant"
+	)
+	resource_loader.free()
+
+	var expected := {
+		1502: ["res://shared_assets/spells/creature_summon_1.gd", 1, 24, 20, "Sorcerer"],
+		1602: ["res://shared_assets/spells/creature_summon_2.gd", 2, 12, 40, "Sorcerer"],
+		1702: ["res://shared_assets/spells/creature_summon_3.gd", 3, 12, 60, "Sorcerer"],
+		2604: ["res://shared_assets/spells/minor_summons.gd", 3, 12, 40, "Priest"],
+		2704: ["res://shared_assets/spells/major_summons.gd", 5, 12, 55, "Priest"],
+		3201: ["res://shared_assets/spells/classic_creature_summon_1_enchanter.gd", 1, 12, 15, "Enchanter"],
+		3304: ["res://shared_assets/spells/classic_creature_summon_2_enchanter.gd", 2, 12, 20, "Enchanter"],
+		3403: ["res://shared_assets/spells/classic_creature_summon_3_enchanter.gd", 3, 12, 40, "Enchanter"],
+		3502: ["res://shared_assets/spells/creature_summon_4.gd", 4, 12, 60, "Enchanter"],
+		3604: ["res://shared_assets/spells/creature_summon_5.gd", 5, 12, 90, "Enchanter"],
+		3701: ["res://shared_assets/spells/creature_summon_6.gd", 6, 12, 125, "Enchanter"],
+	}
+	for spell_id: int in expected:
+		var values: Array = expected[spell_id]
+		var spell = load(str(values[0])).new()
+		_expect_equal(spell.classic_spell_ids, [spell_id], "summon exact ID %d" % spell_id)
+		_expect_equal(spell.classic_special, 58, "summon special %d" % spell_id)
+		_expect_equal(spell.classic_summon_tier, values[1], "summon tier %d" % spell_id)
+		_expect_equal(spell.get_range(3, null), values[2], "summon range %d" % spell_id)
+		_expect_equal(spell.get_sp_cost(3, null), int(values[3]) * 3, "summon cost %d" % spell_id)
+		_expect_equal(spell.get_target_number(3, null), 3, "summon target count %d" % spell_id)
+		_expect_equal(spell.targettile, Spell.TARGET_TILE.EMPTY, "summon targets empty tile %d" % spell_id)
+		_expect(not spell.los, "summon ignores line of sight %d" % spell_id)
+		_expect(spell.in_combat and not spell.in_field, "summon is combat-only %d" % spell_id)
+		_expect_equal(spell.classic_spell_save_index, -1, "summon has no save %d" % spell_id)
+		_expect_equal(spell.classic_spell_save_mode, "none", "summon save mode %d" % spell_id)
+		_expect_equal(spell.get_aoe(3, null), [Vector2i.ZERO], "summon uses one target tile %d" % spell_id)
+		_expect_equal(
+			int(spell.school_levels.get(str(values[4]), 0)),
+			int((spell_id % 10000) / 100) % 10,
+			"summon source school level %d" % spell_id
+		)
+
+	_expect_equal(ClassicSummoningScript.hit_dice_bounds(1), Vector2i(2, 6), "tier-one summon band")
+	_expect_equal(ClassicSummoningScript.hit_dice_bounds(3), Vector2i(8, 18), "tier-three summon band")
+	_expect_equal(ClassicSummoningScript.hit_dice_bounds(5), Vector2i(14, 200), "tier-five summon band")
+	_expect_equal(ClassicSummoningScript.hit_dice_bounds(6), Vector2i(17, 200), "tier-six summon band")
+	_expect_equal(
+		ClassicSummoningScript.resolved_tier(3604, 0),
+		5,
+		"Creature Summon 5 repairs its zero-tier source defect"
+	)
+
+	var bestiary := {
+		"Native outsider": {"data": {"summonable": 1, "level": 4}},
+		"Classic weak": {
+			"classicMonsterId": 4,
+			"classicCanSummon": 1,
+			"classicHitDice": 4,
+			"data": {"summonable": 1, "level": 4},
+		},
+		"Classic tier three": {
+			"classicMonsterId": 8,
+			"classicCanSummon": 1,
+			"classicHitDice": 10,
+			"data": {"summonable": 1, "level": 10},
+		},
+		"Classic forbidden": {
+			"classicMonsterId": 9,
+			"classicCanSummon": 0,
+			"classicHitDice": 12,
+			"data": {"summonable": 0, "level": 12},
+		},
+	}
+	var pool: Dictionary = ClassicSummoningScript.candidate_pool(bestiary, 3)
+	_expect_equal(pool["preferred"], ["Classic tier three"], "summon uses active Classic bestiary")
+	_expect_equal(
+		pool["fallback"],
+		["Classic tier three", "Classic weak"],
+		"summon retry pool excludes native and forbidden creatures"
+	)
+	var choice: Dictionary = ClassicSummoningScript.choose_candidate(bestiary, 3, 0)
+	_expect_equal(choice.get("bestiaryKey"), "Classic tier three", "summon selects its tier band")
+	_expect(not bool(choice.get("usedFallback", true)), "in-band summon does not use fallback")
+	var fallback_choice: Dictionary = ClassicSummoningScript.choose_candidate(bestiary, 6, 0)
+	_expect_equal(fallback_choice.get("bestiaryKey"), "Classic tier three", "empty band widens after retries")
+	_expect(bool(fallback_choice.get("usedFallback", false)), "widened summon reports fallback")
+
+	var summon = load("res://shared_assets/spells/creature_summon_3.gd").new()
+	var caster := SummonTestCaster.new()
+	var creature := SummonTestCreature.new()
+	var combat_state := SummonTestCombatState.new()
+	var placed: Dictionary = summon.place_summon(
+		caster,
+		Vector2i(7, 9),
+		creature,
+		combat_state,
+		true
+	)
+	_expect_equal(placed.get("status"), "summoned", "summon enters native battle roster")
+	_expect_equal(creature.position, Vector2(7, 9), "summon keeps exact selected tile")
+	_expect(creature.is_summoned, "summon uses Remake summon identity")
+	_expect(creature.summoner == caster, "summon retains caster ownership")
+	_expect_equal(creature.summoner_name, "Summoner", "summon retains caster name")
+	_expect_equal(creature.baseFaction, 4, "summon inherits base faction")
+	_expect_equal(creature.curFaction, 5, "summon inherits current faction")
+	_expect_equal(combat_state.classic_monster_slots_used, 1, "summon consumes Classic monster slot")
+	_expect_equal(combat_state.battle_creatures_yet_to_act_btns.size(), 1, "summon joins initiative")
+
+	var blocked_creature := SummonTestCreature.new()
+	var blocked: Dictionary = summon.place_summon(
+		caster,
+		Vector2i(2, 3),
+		blocked_creature,
+		combat_state,
+		false
+	)
+	_expect_equal(blocked.get("status"), "blocked-destination", "summon refuses blocked exact tile")
+	_expect_equal(combat_state.all_battle_creatures_btns.size(), 1, "blocked summon does not relocate")
+	combat_state.classic_monster_slots_used = ClassicSummoningScript.MAX_MONSTER_SLOTS
+	var capped: Dictionary = summon.place_summon(
+		caster,
+		Vector2i(1, 1),
+		SummonTestCreature.new(),
+		combat_state,
+		true
+	)
+	_expect_equal(capped.get("status"), "monster-limit", "summon honors Classic 100-slot cap")
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -9004,7 +9192,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		231,
+		242,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
