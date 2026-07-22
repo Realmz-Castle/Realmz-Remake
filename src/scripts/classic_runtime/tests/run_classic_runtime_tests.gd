@@ -843,6 +843,31 @@ class PetrificationTestCharacter:
 		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
 
 
+class LethalSpellTestCharacter:
+	extends RefCounted
+	var name: String
+	var level: int
+	var life_status := 0
+	var stats := {
+		"curHP": 50,
+		"maxHP": 50,
+		"MultiplierChemical": 1.0,
+		"MultiplierMagic": 1.0,
+		"ResistanceChemical": 0,
+		"ResistanceMagic": 0,
+	}
+
+	func _init(character_name: String, character_level := 1) -> void:
+		name = character_name
+		level = character_level
+
+	func get_stat(stat_name: String) -> Variant:
+		return stats.get(stat_name, 0)
+
+	func change_cur_hp(change: int) -> void:
+		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
+
+
 class BlindnessTestCharacter:
 	extends RefCounted
 	var name: String
@@ -1312,6 +1337,7 @@ func _init() -> void:
 	_test_spell_effect_actions(bundle)
 	_test_classic_spell_usage_audit()
 	_test_classic_identify_objects_spell()
+	_test_classic_lethal_spells()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -8252,6 +8278,223 @@ func _test_classic_identify_objects_spell() -> void:
 	)
 
 
+func _test_classic_lethal_spells() -> void:
+	var specs := [
+		{
+			"file": "banish.gd",
+			"name": "Banish",
+			"id": 2601,
+			"class": 7,
+			"rawDamageType": -7,
+			"save": 7,
+			"saveMode": "negate",
+			"saveBonus": 0,
+			"saveAdjust": 0,
+			"resistAdjust": -5,
+			"targetType": 3,
+			"range": 0,
+			"mask": 14,
+			"footprint": 28,
+			"cost": 375,
+			"los": true,
+		},
+		{
+			"file": "death.gd",
+			"name": "Death",
+			"id": 2701,
+			"class": 7,
+			"rawDamageType": 7,
+			"save": 7,
+			"saveMode": "negate",
+			"saveBonus": 0,
+			"saveAdjust": -10,
+			"resistAdjust": -10,
+			"targetType": 1,
+			"range": 6,
+			"mask": 0,
+			"footprint": 1,
+			"cost": 225,
+			"los": true,
+		},
+		{
+			"file": "finger_of_death.gd",
+			"name": "Finger of Death",
+			"id": 3606,
+			"class": 7,
+			"rawDamageType": 7,
+			"save": 7,
+			"saveMode": "negate",
+			"saveBonus": 0,
+			"saveAdjust": -10,
+			"resistAdjust": -10,
+			"targetType": 1,
+			"range": 8,
+			"mask": 0,
+			"footprint": 1,
+			"cost": 375,
+			"los": false,
+		},
+		{
+			"file": "poison_cloud.gd",
+			"name": "Poison Cloud",
+			"id": 3609,
+			"class": 4,
+			"rawDamageType": 4,
+			"save": 4,
+			"saveMode": "half_damage",
+			"saveBonus": 35,
+			"saveAdjust": -5,
+			"resistAdjust": 0,
+			"targetType": 3,
+			"range": 6,
+			"mask": 4,
+			"footprint": 9,
+			"cost": 300,
+			"los": false,
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, spec["name"], "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(spell.classic_special, 49, "%s lethal special" % label)
+		_expect_equal(spell.classic_spell_class, spec["class"], "%s spell class" % label)
+		_expect_equal(
+			spell.classic_raw_damage_type,
+			spec["rawDamageType"],
+			"%s signed damage type" % label
+		)
+		_expect_equal(spell.classic_spell_save_index, spec["save"], "%s save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, spec["saveMode"], "%s save mode" % label)
+		_expect_equal(spell.classic_save_bonus, spec["saveBonus"], "%s save bonus" % label)
+		_expect_equal(spell.classic_save_adjust, spec["saveAdjust"], "%s save adjustment" % label)
+		_expect_equal(
+			spell.classic_resist_adjust,
+			spec["resistAdjust"],
+			"%s resistance adjustment" % label
+		)
+		_expect_equal(spell.classic_target_type, spec["targetType"], "%s target type" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(spell.classic_size, spec["mask"], "%s Data AD mask" % label)
+		_expect_equal(spell.get_aoe(3, null).size(), spec["footprint"], "%s footprint" % label)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.los, spec["los"], "%s line-of-sight rule" % label)
+		_expect(spell.in_combat and not spell.in_field, "%s is combat-only" % label)
+		_expect(spell.tags.has("Instant Death"), "%s exposes lethal behavior" % label)
+
+	var banish = load("res://shared_assets/spells/banish.gd").new()
+	_expect(banish.skip_targeting, "Banish centers its zero-range mask on the caster")
+	_expect_equal(
+		banish.autotarget_type,
+		Spell.AUTOTARGET_TYPE.SELF,
+		"Banish auto-targets the caster's tile"
+	)
+	var caster := LethalSpellTestCharacter.new("Banish caster", 10)
+	var weak_target := LethalSpellTestCharacter.new("Weak target", 6)
+	var opposed: Dictionary = MagicResistanceScript.spell_resolution(
+		weak_target, banish, 3, 100, false, caster, 16
+	)
+	_expect(opposed.get("checksOpposedLevel"), "Banish checks target level against caster level")
+	_expect(not opposed.get("resisted"), "a strong Banish caster can pass the opposed check")
+	var strong_target := LethalSpellTestCharacter.new("Strong target", 10)
+	var resisted: Dictionary = MagicResistanceScript.spell_resolution(
+		strong_target,
+		banish,
+		3,
+		100,
+		false,
+		LethalSpellTestCharacter.new("Weak caster", 1),
+		50
+	)
+	_expect(resisted.get("resisted"), "a target can resist Banish's opposed-level check")
+	_expect_equal(resisted.get("reason"), "opposed-level", "Banish reports its resistance stage")
+	_expect(
+		banish.apply_classic_scaled_effect(caster, weak_target, 3, 1.0),
+		"Banish affects an ordinary creature after its checks"
+	)
+	_expect_equal(weak_target.stats["curHP"], -10, "Banish uses the shared lethal result")
+	_expect_equal(weak_target.life_status, 3, "Banish marks its target dead")
+
+	var death = load("res://shared_assets/spells/death.gd").new()
+	var saved_target := LethalSpellTestCharacter.new("Saved target")
+	SpellSavesScript.apply_monster_metadata(
+		saved_target,
+		[80, 80, 80, 80, 80, 80],
+		[0, 0, 0, 0, 0, 0]
+	)
+	var death_save: Dictionary = SpellSavesScript.target_resolution(
+		saved_target, death, 3, 50
+	)
+	_expect(death_save.get("saved"), "Death retains its special saving throw")
+	_expect_equal(death_save.get("effectScale"), 0.0, "a Death save negates the lethal effect")
+	_expect(
+		not death.apply_classic_scaled_effect(
+			null, saved_target, 3, float(death_save.get("effectScale", 1.0))
+		),
+		"a successful special save negates Death"
+	)
+	_expect_equal(saved_target.stats["curHP"], 50, "a saved Death target keeps its health")
+	var death_target := LethalSpellTestCharacter.new("Death target")
+	_expect(
+		death.apply_classic_scaled_effect(null, death_target, 3, 1.0),
+		"an unresolved Death effect kills its target"
+	)
+	_expect_equal(death_target.stats["curHP"], -10, "Death ends at Classic's lethal health")
+	_expect_equal(death_target.life_status, 3, "Death marks its target dead")
+	_expect(
+		not death.apply_classic_scaled_effect(null, death_target, 3, 1.0),
+		"Death does not alter an already dead target"
+	)
+
+	var poison_cloud = load("res://shared_assets/spells/poison_cloud.gd").new()
+	_expect_equal(poison_cloud.get_min_damage(3, null), 3, "Poison Cloud fallback minimum")
+	_expect_equal(poison_cloud.get_max_damage(3, null), 6, "Poison Cloud fallback maximum")
+	var poison_saved := LethalSpellTestCharacter.new("Poison save")
+	SpellSavesScript.apply_monster_metadata(
+		poison_saved,
+		[0, 0, 0, 0, 70, 0],
+		[0, 0, 0, 0, 0, 0]
+	)
+	var poison_save: Dictionary = SpellSavesScript.target_resolution(
+		poison_saved, poison_cloud, 7, 70
+	)
+	_expect(poison_save.get("saved"), "Poison Cloud retains its chemical saving throw")
+	_expect_equal(
+		poison_save.get("effectScale"),
+		0.5,
+		"a Poison Cloud save selects reduced source damage"
+	)
+	_expect(
+		poison_cloud.apply_classic_scaled_effect(
+			null, poison_saved, 7, float(poison_save.get("effectScale", 1.0))
+		),
+		"a Poison Cloud save applies its reduced chemical damage"
+	)
+	_expect(
+		int(poison_saved.stats["curHP"]) in range(43, 48),
+		"Poison Cloud's saved damage stays within the source roll"
+	)
+	_expect_equal(poison_saved.life_status, 0, "saved Poison Cloud damage is not instant death")
+	var poison_target := LethalSpellTestCharacter.new("Poison death")
+	_expect(
+		poison_cloud.apply_classic_scaled_effect(null, poison_target, 3, 1.0),
+		"a failed Poison Cloud save is lethal"
+	)
+	_expect_equal(poison_target.stats["curHP"], -10, "Poison Cloud lethal result")
+	var immune_target := LethalSpellTestCharacter.new("Chemical immunity")
+	SpellSavesScript.apply_monster_metadata(
+		immune_target,
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 1, 0]
+	)
+	var immunity: Dictionary = MagicResistanceScript.spell_resolution(
+		immune_target, poison_cloud, 3, 100
+	)
+	_expect(immunity.get("resisted"), "chemical spell-class immunity blocks Poison Cloud")
+	_expect_equal(immunity.get("reason"), "spell-class-immunity", "Poison Cloud immunity reason")
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -8333,7 +8576,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		215,
+		219,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8599,9 +8842,10 @@ func _test_classic_spell_coverage() -> void:
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
-		1106, 1607, 1709, 2106, 2203, 2405, 2408, 2507, 2707, 3307, 3407,
+		1106, 1607, 1709, 2106, 2203, 2405, 2408, 2507, 2601, 2701, 2707,
+		3307, 3407, 3606, 3609,
 	]
-	_expect_equal(migrated_spell_ids.size(), 186, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 190, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8786,10 +9030,14 @@ func _test_classic_spell_coverage() -> void:
 		"Magic Aura": "res://shared_assets/spells/magic_aura.gd",
 		"Poison": "res://shared_assets/spells/poison.gd",
 		"Identify Objects": "res://shared_assets/spells/identify_objects.gd",
+		"Banish": "res://shared_assets/spells/banish.gd",
+		"Death": "res://shared_assets/spells/death.gd",
+		"Finger of Death": "res://shared_assets/spells/finger_of_death.gd",
+		"Poison Cloud": "res://shared_assets/spells/poison_cloud.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		177,
+		181,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()

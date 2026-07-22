@@ -293,6 +293,19 @@ but special `48` never consumes duration; both exact IDs therefore retain one
 behavioral resource. Remake's existing inventory Identify button resolves this
 same resource name and continues to identify the selected item for 25 points.
 
+Banish `2601`, Death `2701`, Finger of Death `3606`, and Poison Cloud `3609`
+now share a source-record-backed lethal adapter for Classic special `49`.
+Unresisted lethal effects set the target to minus ten health and mark it dead.
+Banish retains its opposed target-level-versus-caster-level check and its
+self-centered Data AD mask; the original handler does not restrict it to
+summoned creatures. Death and Finger of Death retain their individual range,
+line-of-sight, save, and resistance adjustments. Poison Cloud keeps its
+chemical class immunity and fixed area. Its description and otherwise-unused
+damage fields promise death or `1-2` chemical damage per power, while the
+current Classic handler accidentally overwrites even a successful save with
+lethal damage. Following the corrected-intent policy already used for Stun, a
+successful chemical save instead takes half of that source damage roll.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

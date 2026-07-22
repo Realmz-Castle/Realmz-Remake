@@ -6295,6 +6295,110 @@
         "adapter": "source-record-backed-native-item-identification",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 2601,
+      "displayName": "Banish",
+      "classification": "native-special-lethal",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/banish.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 180, "byteOffset": 5400, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-49-lethal", "slots": [0]}],
+      "behavior": {
+        "targetType": "self-centered-fixed-area",
+        "range": 0,
+        "areaMask": 14,
+        "footprint": 28,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "set-health-to-minus-ten-and-mark-dead",
+        "saveIndex": 7,
+        "saveMode": "negate-lethal",
+        "saveAdjustmentPerPower": 0,
+        "preResistance": "opposed-target-level-versus-caster-level",
+        "resistanceAdjustmentPerPower": -5,
+        "special": 49,
+        "costPerPower": 125,
+        "adapter": "source-record-backed-native-lethal-effect",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2701,
+      "displayName": "Death",
+      "classification": "native-special-lethal",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/death.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 195, "byteOffset": 5850, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-49-lethal", "slots": [1]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 6,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "set-health-to-minus-ten-and-mark-dead",
+        "saveIndex": 7,
+        "saveMode": "negate-lethal",
+        "saveAdjustmentPerPower": -10,
+        "resistanceAdjustmentPerPower": -10,
+        "special": 49,
+        "costPerPower": 75,
+        "adapter": "source-record-backed-native-lethal-effect",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3606,
+      "displayName": "Finger of Death",
+      "classification": "native-special-lethal",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/finger_of_death.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 290, "byteOffset": 8700, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-49-lethal", "slots": [2]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "set-health-to-minus-ten-and-mark-dead",
+        "saveIndex": 7,
+        "saveMode": "negate-lethal",
+        "saveAdjustmentPerPower": -10,
+        "resistanceAdjustmentPerPower": -10,
+        "special": 49,
+        "costPerPower": 125,
+        "adapter": "source-record-backed-native-lethal-effect",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3609,
+      "displayName": "Poison Cloud",
+      "classification": "native-special-lethal",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/poison_cloud.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 293, "byteOffset": 8790, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-49-lethal", "slots": [3]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 6,
+        "areaMask": 4,
+        "footprint": 9,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "failed-save-lethal-successful-save-reduced-chemical-damage",
+        "fallbackDamagePerPower": [1, 2],
+        "saveIndex": 4,
+        "saveBonus": 35,
+        "saveMode": "half-fallback-damage",
+        "saveAdjustmentPerPower": -5,
+        "spellClassImmunity": "chemical",
+        "correctedIntent": "successful-save-uses-source-damage-fields-instead-of-special-49-overwrite",
+        "special": 49,
+        "costPerPower": 100,
+        "adapter": "source-record-backed-native-lethal-effect",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }
