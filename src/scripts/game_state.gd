@@ -310,7 +310,7 @@ func check_map_script(position, context := {}) ->bool :
 					continue
 				
 
-				if sr.has("RR_Battle") :
+				if sr.has("RR_Battle") and GameGlobal.random_battles_allowed():
 					printerr("StateMachine sr has RR_Battle")
 					var do_rr_fight : bool = false
 					var num_of_poss_outcomes : int = 1

@@ -2,12 +2,14 @@ extends Node
 
 const FreeFallScript = preload("res://shared_assets/spells/free_fall.gd")
 const DiscoverSecretScript = preload("res://shared_assets/spells/discover_secret.gd")
+const SentryScript = preload("res://shared_assets/spells/sentry.gd")
 
 var failures: Array[String] = []
 var original_time := 0
 var original_global_effects: Dictionary = {}
 var original_conditions: Dictionary = {}
 var original_map_secrets: Dictionary = {}
+var original_script_areas: Dictionary = {}
 
 
 func _ready() -> void:
@@ -20,6 +22,7 @@ func _run_smoke() -> void:
 	original_global_effects = GameGlobal.global_effects.duplicate(true)
 	original_conditions = GameGlobal.classic_party_conditions.duplicate(true)
 	original_map_secrets = GameGlobal.map.mapsecrets.duplicate(true)
+	original_script_areas = GameGlobal.map.mapscriptareas.duplicate(true)
 
 	GameGlobal.time = 3500
 	GameGlobal.global_effects["FeatherFall"] = {"Duration": 0}
@@ -102,6 +105,37 @@ func _run_smoke() -> void:
 		"Classic Awareness guarantees the native secret-detection check"
 	)
 
+	GameGlobal.global_effects["Sentry"] = {"Duration": 0}
+	_expect_equal(
+		GameGlobal.random_battles_allowed(),
+		true,
+		"wandering battles remain available without Sentry"
+	)
+	var sentry = SentryScript.new()
+	_expect_equal(
+		sentry.apply_classic_duration(48),
+		48,
+		"Sentry reaches the live Classic party condition"
+	)
+	_expect_equal(
+		GameGlobal.random_battles_allowed(),
+		false,
+		"active Sentry suppresses wandering battles"
+	)
+	GameGlobal.map.mapscriptareas = {
+		"SentryRandomBattle": {
+			"scriptRectangle": [[50, 50], [50, 50]],
+			"scriptToLoad": [],
+			"chance": 1.0,
+			"RR_Battle": {"battle_range": [-1, -1]},
+		},
+	}
+	_expect_equal(
+		await StateMachine.check_map_script(Vector2i(50, 50)),
+		true,
+		"the live map path skips an eligible wandering battle while Sentry is active"
+	)
+
 	_finish()
 
 
@@ -118,6 +152,7 @@ func _finish() -> void:
 	GameGlobal.global_effects = original_global_effects
 	GameGlobal.classic_party_conditions = original_conditions
 	GameGlobal.map.mapsecrets = original_map_secrets
+	GameGlobal.map.mapscriptareas = original_script_areas
 	if failures.is_empty():
 		print("Classic party-condition smoke passed.")
 		get_tree().quit(0)

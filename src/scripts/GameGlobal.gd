@@ -1310,8 +1310,7 @@ func play_sfx(sfx_name : String) ->void :
 		SfxPlayer.play()
 
 func get_mapsecret_detection_chance(pos: Vector2i) -> float:
-	var awareness: Variant = global_effects.get("Awareness", {})
-	if awareness is Dictionary and int(awareness.get("Duration", 0)) > 0:
+	if is_global_effect_active("Awareness"):
 		return 1.0
 	# Map's legacy name says "fail chance"; exploration stores and uses it as success chance.
 	return clampf(map.get_secret_fail_chance(pos), 0.0, 1.0)
@@ -1319,6 +1318,15 @@ func get_mapsecret_detection_chance(pos: Vector2i) -> float:
 
 func map_secret_detection_succeeds(pos: Vector2i, roll: float) -> bool:
 	return roll <= get_mapsecret_detection_chance(pos)
+
+
+func random_battles_allowed() -> bool:
+	return not is_global_effect_active("Sentry")
+
+
+func is_global_effect_active(effect_name: String) -> bool:
+	var effect: Variant = global_effects.get(effect_name, {})
+	return effect is Dictionary and int(effect.get("Duration", 0)) > 0
 
 
 func identify_item(item : Dictionary) :

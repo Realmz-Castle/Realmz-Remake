@@ -208,6 +208,15 @@
       ]
     },
     {
+      "id": "core-player-spell-sentry",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "field-party", "random-battle", "game-time", "combat-round", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 204, "displayName": "Priest Sentry"},
+        {"sourceFile": "Data S", "recordIndex": 295, "displayName": "Enchanter Sentry"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -5366,6 +5375,56 @@
         "resistance": "none",
         "special": 3,
         "costPerPower": 5,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2710,
+      "displayName": "Sentry",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2710_sentry_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 204, "byteOffset": 6120, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-sentry", "slots": [0]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "twenty-four-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 7,
+        "effect": "suppress-wandering-battles-preserve-scripted-random-encounters",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 7,
+        "costPerPower": 35,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3611,
+      "displayName": "Sentry",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/sentry.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 295, "byteOffset": 8850, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-sentry", "slots": [1]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "twenty-four-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 7,
+        "effect": "suppress-wandering-battles-preserve-scripted-random-encounters",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 7,
+        "costPerPower": 30,
         "adapter": "source-record-backed-classic-party-condition",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
