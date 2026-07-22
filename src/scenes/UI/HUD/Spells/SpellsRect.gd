@@ -246,10 +246,12 @@ func _on_SLevelButton_pressed(slevel : int):
 func can_cast_spell(crea : Creature, spell, power : int) -> bool :
 	if not spell.get("is_not_spell") and crea.get_spellsperround_left()<=0 :
 		return false
-	if StateMachine.is_combat_state() and (not spell.in_combat) :
+	if not encounter_selection_mode \
+			and StateMachine.is_combat_state() and (not spell.in_combat) :
 		#print("SpellsRect can_cast_spell : "+spell.name+ "is not for combat mode")
 		return false
-	if StateMachine.is_exploration_state() and (not spell.in_field) :
+	if not encounter_selection_mode \
+			and StateMachine.is_exploration_state() and (not spell.in_field) :
 		#print("SpellsRect can_cast_spell : "+spell.name+ "is not for field mode")
 		return false
 			#castButton.disabled = castButton.disabled and picked_spell.in_combat
@@ -293,10 +295,10 @@ func _on_spell_selected(spelldict : Dictionary, button) :
 		for i in range(7) :
 			var pbutton = plevelbuttons[i]
 			pbutton.set_disabled(i>=maxplevel)
-		if picked_power >= maxplevel :
+		if picked_power > maxplevel :
 			var pbutton = plevelbuttons[maxplevel-1]
 			pbutton.set_pressed(true)
-			_on_PLevelButton_pressed(maxplevel-1)
+			_on_PLevelButton_pressed(maxplevel)
 	else :
 		for b in plevelbuttons :
 			b.set_disabled(false)

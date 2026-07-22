@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 66)
+        self.assertEqual(report["totals"]["supportedIdentities"], 81)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -190,10 +190,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         self.assertEqual(report["validationErrors"], [])
         self.assertEqual(
             report["totals"]["genericImplementationLanes"],
-            {
-                "field-utility-review": 15,
-                "queued-area-engine-gap": 20,
-            },
+            {"queued-area-engine-gap": 20},
         )
         self.assertEqual(report, audit.build_report(inventory, matrix, native, legacy))
 
@@ -215,6 +212,36 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")
             self.assertEqual(row["classification"], "native-parameterized-damage")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+
+        encounter_response_ids = {
+            1107,
+            1112,
+            1201,
+            1305,
+            1609,
+            2504,
+            2609,
+            2611,
+            3111,
+            3112,
+            3306,
+            3404,
+            3410,
+            3709,
+            3711,
+        }
+        for spell_id in encounter_response_ids:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-encounter-response")
+            self.assertEqual(
+                row["behavior"]["learnedSpellIdentity"],
+                "exact-id-campaign-entry-save-load",
+            )
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )

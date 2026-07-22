@@ -168,10 +168,22 @@ missile specialization share `ClassicCoreDamageSpell`. Each thin spell resource
 selects one exact packed ID; the base then configures its damage, cost, range,
 targeting, save and resistance rules, area shape, presentation, and provenance
 from the immutable `Data S` inventory. The parity audit keeps queued-area,
-field-utility, missile, and source-no-effect records in separate review lanes so
+missile, and source-no-effect records in separate review lanes so
 the generator cannot silently treat those mechanics as ordinary damage spells.
 `asset_scripts/scaffold_classic_damage_spells.py` reproduces the audited family
 as review-required drafts; generation alone never changes support status.
+
+The 15 negative-cost, noncombat utility records use
+`ClassicCoreEncounterResponseSpell`. In Classic, their negative cost fixes the
+cast at power 1 and their effect is selected by the active complex encounter's
+spell-ID/result table; the records do not define a universal map operation.
+Remake therefore exposes Leap, Superfly, Dig Hole, Fantastic Wings, Shape
+Earth, both Hands to Clay and Teleport Party variants, Watergate, Splinters,
+Voiceover, and Speak Language only while an encounter requests a spell. Each
+resource retains its exact packed identity and fixed spell-point cost, then the
+existing encounter adapter runs the scenario-authored result. Ordinary field
+and combat casting remain disabled, avoiding invented behavior outside an
+authored encounter.
 
 Flame Missile uses the narrower `ClassicCoreMissileSpell` specialization. Its
 class-9 delivery bypasses magic resistance and spell screens, carries the

@@ -41,6 +41,9 @@ const CoreSpellCatalogScript = preload(
 const CoreSpellCoverageScript = preload(
 	"res://scripts/classic_runtime/classic_core_spell_coverage.gd"
 )
+const EncounterResponseSpellScript = preload(
+	"res://scripts/classic_runtime/classic_core_encounter_response_spell.gd"
+)
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
@@ -7634,7 +7637,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		66,
+		81,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7649,7 +7652,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		35,
+		20,
 		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
@@ -7753,8 +7756,10 @@ func _test_classic_spell_coverage() -> void:
 		3105, 3506,
 		2109, 2306, 2605, 2706,
 		1601, 1703, 2705, 2712, 3108, 3205, 3501, 3601, 3602, 3710,
+		1107, 1112, 1201, 1305, 1609, 2504, 2609, 2611,
+		3111, 3112, 3306, 3404, 3410, 3709, 3711,
 	]
-	_expect_equal(migrated_spell_ids.size(), 41, "the reviewed generic batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 56, "the reviewed generic batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7803,15 +7808,29 @@ func _test_classic_spell_coverage() -> void:
 		"Ball Lightning": "res://shared_assets/spells/classic_core_3601_ball_lightning.gd",
 		"Caustic Vapor": "res://shared_assets/spells/classic_core_3602_caustic_vapor.gd",
 		"Static Discharge": "res://shared_assets/spells/classic_core_3710_static_discharge.gd",
+		"Leap": "res://shared_assets/spells/classic_core_1107_leap.gd",
+		"Superfly": "res://shared_assets/spells/classic_core_1112_superfly.gd",
+		"Dig Hole": "res://shared_assets/spells/classic_core_1201_dig_hole.gd",
+		"Fantastic Wings": "res://shared_assets/spells/classic_core_1305_fantastic_wings.gd",
+		"Shape Earth": "res://shared_assets/spells/classic_core_1609_shape_earth.gd",
+		"Hands to Clay": "res://shared_assets/spells/classic_core_2504_hands_to_clay.gd",
+		"Teleport Party": "res://shared_assets/spells/classic_core_2609_teleport_party.gd",
+		"Watergate": "res://shared_assets/spells/classic_core_2611_watergate.gd",
+		"Splinters": "res://shared_assets/spells/classic_core_3111_splinters.gd",
+		"Voiceover": "res://shared_assets/spells/classic_core_3112_voiceover.gd",
+		"Classic Hands to Clay Enchanter": "res://shared_assets/spells/classic_core_3306_hands_to_clay_enchanter.gd",
+		"Speak Language": "res://shared_assets/spells/classic_core_3410_speak_language.gd",
+		"Classic Teleport Party Enchanter": "res://shared_assets/spells/classic_core_3711_teleport_party_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		41,
+		54,
 		"every reviewed generic identity has a native resource"
 	)
 	_test_parameterized_damage_spells()
 	_test_flame_missile()
 	_test_stun_corrected_helplessness()
+	_test_encounter_response_spells()
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
 	for spell_name: String in migrated_native_paths:
@@ -8384,12 +8403,14 @@ func _test_classic_spell_coverage() -> void:
 			_expect_equal(
 				matrix_ids,
 				[
-					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
-					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1503, 1504, 1505,
-					1601, 1603, 1701, 1703, 2101, 2102, 2103, 2109, 2110, 2111, 2201,
-					2301, 2304, 2306, 2403, 2605, 2705, 2706, 2708, 2712, 3102, 3104, 3105,
-					3108, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3308, 3311, 3401,
-					3409, 3501, 3505, 3506, 3601, 3602, 3603, 3704, 3710, 3712,
+					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
+					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1310, 1401, 1402, 1408,
+					1501, 1503, 1504, 1505, 1601, 1603, 1609, 1701, 1703, 2101, 2102,
+					2103, 2109, 2110, 2111, 2201, 2301, 2304, 2306, 2403, 2504, 2605,
+					2609, 2611, 2705, 2706, 2708, 2712, 3102, 3104, 3105, 3108, 3111,
+					3112, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3306, 3308, 3311,
+					3401, 3404, 3409, 3410, 3501, 3505, 3506, 3601, 3602, 3603, 3704,
+					3709, 3710, 3711, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)
@@ -8653,6 +8674,104 @@ func _test_stun_corrected_helplessness() -> void:
 	_expect_equal(stunned_target.traits[0].power, 1, "Stun applies helplessness for one round")
 
 
+func _test_encounter_response_spells() -> void:
+	var cases := [
+		[1107, "res://shared_assets/spells/classic_core_1107_leap.gd", 15, 11, 0],
+		[1112, "res://shared_assets/spells/classic_core_1112_superfly.gd", 12, 11, 0],
+		[1201, "res://shared_assets/spells/classic_core_1201_dig_hole.gd", 20, 11, 0],
+		[1305, "res://shared_assets/spells/classic_core_1305_fantastic_wings.gd", 20, 11, 0],
+		[1609, "res://shared_assets/spells/classic_core_1609_shape_earth.gd", 50, 11, 255],
+		[2504, "res://shared_assets/spells/classic_core_2504_hands_to_clay.gd", 45, 11, 255],
+		[2609, "res://shared_assets/spells/classic_core_2609_teleport_party.gd", 120, 11, 255],
+		[2611, "res://shared_assets/spells/classic_core_2611_watergate.gd", 70, 11, 255],
+		[3111, "res://shared_assets/spells/classic_core_3111_splinters.gd", 10, 11, 255],
+		[3112, "res://shared_assets/spells/classic_core_3112_voiceover.gd", 15, 11, 255],
+		[3306, "res://shared_assets/spells/classic_core_3306_hands_to_clay_enchanter.gd", 25, 11, 0],
+		[3404, "res://shared_assets/spells/classic_core_1305_fantastic_wings.gd", 20, 11, 0],
+		[3410, "res://shared_assets/spells/classic_core_3410_speak_language.gd", 25, 11, 255],
+		[3709, "res://shared_assets/spells/classic_core_1609_shape_earth.gd", 50, 11, 255],
+		[3711, "res://shared_assets/spells/classic_core_3711_teleport_party_enchanter.gd", 45, 0, 255],
+	]
+	var adapter = GodotAdapterScript.new()
+	for spell_case: Array in cases:
+		var spell_id := int(spell_case[0])
+		var spell: Variant = load(str(spell_case[1])).new()
+		var source: Dictionary = spell.source_record
+		_expect(
+			spell is EncounterResponseSpellScript,
+			"encounter-response spell %d uses the shared adapter" % spell_id
+		)
+		_expect(
+			spell.supports_classic_spell_id(spell_id),
+			"encounter-response spell %d exports its exact identity" % spell_id
+		)
+		_expect(
+			spell_id in spell.classic_spell_response_ids,
+			"encounter-response spell %d is eligible for authored results" % spell_id
+		)
+		_expect_equal(spell.max_plevel, 1, "encounter responses use fixed power 1")
+		_expect(
+			not spell.in_field and not spell.in_combat,
+			"encounter-response spell %d is hidden from ordinary casting" % spell_id
+		)
+		_expect_equal(
+			spell.get_sp_cost(1, null),
+			int(spell_case[2]),
+			"encounter-response spell %d keeps its fixed source cost" % spell_id
+		)
+		_expect_equal(
+			int(source.get("cost", 0)),
+			-int(spell_case[2]),
+			"encounter-response spell %d retains the negative fixed-cost marker" % spell_id
+		)
+		_expect_equal(
+			int(source.get("targetType", -1)),
+			int(spell_case[3]),
+			"encounter-response spell %d preserves its source target type" % spell_id
+		)
+		_expect_equal(
+			int(source.get("inCamp", -1)),
+			int(spell_case[4]),
+			"encounter-response spell %d preserves its source availability byte" % spell_id
+		)
+		_expect_equal(spell.classic_special, 0, "encounter response has no universal opcode")
+		_expect_equal(spell.get_min_damage(1, null), 0, "encounter response has no damage")
+		_expect_equal(spell.get_max_damage(1, null), 0, "encounter response cannot roll damage")
+		_expect_equal(
+			adapter.resolve_complex_spell_result(
+				{"spellIds": [spell_id], "spellResults": [1]},
+				spell.name,
+				spell.classic_spell_class,
+				{},
+				adapter.classic_spell_response_ids(spell)
+			),
+			1,
+			"encounter-response spell %d selects its authored result" % spell_id
+		)
+
+	var wings: Variant = load(
+		"res://shared_assets/spells/classic_core_1305_fantastic_wings.gd"
+	).new()
+	_expect_equal(wings.classic_spell_ids, [1305, 3404], "Fantastic Wings shares exact records")
+	_expect_equal(wings.schools, ["Sorcerer", "Enchanter"], "Fantastic Wings exposes both schools")
+	_expect_equal(wings.school_levels.get("Sorcerer"), 3, "Sorcerer Wings level")
+	_expect_equal(wings.school_levels.get("Enchanter"), 4, "Enchanter Wings level")
+	var shape_earth: Variant = load(
+		"res://shared_assets/spells/classic_core_1609_shape_earth.gd"
+	).new()
+	_expect_equal(shape_earth.classic_spell_ids, [1609, 3709], "Shape Earth shares exact records")
+	_expect_equal(shape_earth.school_levels.get("Sorcerer"), 6, "Sorcerer Shape Earth level")
+	_expect_equal(shape_earth.school_levels.get("Enchanter"), 7, "Enchanter Shape Earth level")
+	var hidden_hands: Variant = load(
+		"res://shared_assets/spells/classic_core_3306_hands_to_clay_enchanter.gd"
+	).new()
+	var hidden_teleport: Variant = load(
+		"res://shared_assets/spells/classic_core_3711_teleport_party_enchanter.gd"
+	).new()
+	_expect(hidden_hands.schools.is_empty(), "duplicate Hands to Clay stays out of the spell book")
+	_expect(hidden_teleport.schools.is_empty(), "duplicate Teleport Party stays out of the spell book")
+
+
 func _test_classic_spell_usage_audit() -> void:
 	var city_bundle = BundleScript.new()
 	_expect(city_bundle.load_from_directory(FIXTURE), "spell audit City fixture loads")
@@ -8839,8 +8958,13 @@ func _test_classic_spell_usage_audit() -> void:
 	)
 	_expect_equal(
 		missing_row.get("nativeResolution", {}).get("status"),
-		"missing-native-resource",
-		"spell audit distinguishes a mapped name with no resource"
+		"exact-id-resource",
+		"spell audit resolves Dig Hole through its encounter-response resource"
+	)
+	_expect_equal(
+		missing_row.get("nativeResolution", {}).get("resourceName"),
+		"Dig Hole",
+		"spell audit reports the implemented Dig Hole response"
 	)
 	_expect_equal(
 		variant_row.get("nativeResolution", {}).get("status"),

@@ -13,24 +13,6 @@ const SorcererClass = preload("res://Data/Character Classes/Class_Sorcerer.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
 
 
-class CaveInSpell:
-	extends Spell
-
-	func _init() -> void:
-		name = "Dig Hole"
-		description = "Opens earth and debris by magical means."
-		classic_spell_class = 6
-		elements = [GameGlobal.ELEMENTS.MAGICAL]
-		schools = ["Sorcerer"]
-		school_levels = {"Sorcerer": 1}
-		selection_costs = {"Sorcerer": 1}
-		in_field = true
-		max_plevel = 1
-
-	func get_sp_cost(_power: int, _caster) -> int:
-		return 5
-
-
 class PowerDrainSpell:
 	extends Spell
 
@@ -1001,7 +983,7 @@ func _run_complex_spell_smoke() -> void:
 		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
 			"You have succeeded in uncovering the passage"
 		)
-			and int(caster.get_stat("curSP")) == spell_points_before - 5,
+			and int(caster.get_stat("curSP")) == spell_points_before - 20,
 		"the packed spell ID selects result 1 and consumes spell points"
 	)
 	UI.ow_hud.textRect.disablerButton.pressed.emit()
@@ -1226,7 +1208,9 @@ func _make_playtest_spellcaster() -> PlayerCharacter:
 		SorcererClass,
 		HumanRace
 	)
-	var spell := CaveInSpell.new()
+	var spell = load(
+		"res://shared_assets/spells/classic_core_1201_dig_hole.gd"
+	).new()
 	caster.spells = [[{
 		"name": spell.name,
 		"source": "",

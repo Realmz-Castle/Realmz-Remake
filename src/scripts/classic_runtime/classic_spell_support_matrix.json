@@ -159,6 +159,28 @@
       ]
     },
     {
+      "id": "core-player-spell-encounter-responses",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "complex-response"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 6, "displayName": "Leap"},
+        {"sourceFile": "Data S", "recordIndex": 11, "displayName": "Superfly"},
+        {"sourceFile": "Data S", "recordIndex": 15, "displayName": "Dig Hole"},
+        {"sourceFile": "Data S", "recordIndex": 34, "displayName": "Sorcerer Fantastic Wings"},
+        {"sourceFile": "Data S", "recordIndex": 83, "displayName": "Sorcerer Shape Earth"},
+        {"sourceFile": "Data S", "recordIndex": 168, "displayName": "Priest Hands to Clay"},
+        {"sourceFile": "Data S", "recordIndex": 188, "displayName": "Priest Teleport Party"},
+        {"sourceFile": "Data S", "recordIndex": 190, "displayName": "Watergate"},
+        {"sourceFile": "Data S", "recordIndex": 220, "displayName": "Splinters"},
+        {"sourceFile": "Data S", "recordIndex": 221, "displayName": "Voiceover"},
+        {"sourceFile": "Data S", "recordIndex": 245, "displayName": "Enchanter Hands to Clay"},
+        {"sourceFile": "Data S", "recordIndex": 258, "displayName": "Enchanter Fantastic Wings"},
+        {"sourceFile": "Data S", "recordIndex": 264, "displayName": "Speak Language"},
+        {"sourceFile": "Data S", "recordIndex": 308, "displayName": "Enchanter Shape Earth"},
+        {"sourceFile": "Data S", "recordIndex": 310, "displayName": "Enchanter Teleport Party"}
+      ]
+    },
+    {
       "id": "core-player-spell-generic-ray-batch",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -417,6 +439,25 @@
       }
     },
     {
+      "classicSpellId": 1107,
+      "displayName": "Leap",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1107_leap.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 6, "byteOffset": 180, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [0]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 15,
+        "sourceTargetType": 11,
+        "sourceInCamp": 0,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1108,
       "displayName": "Magic Darts",
       "classification": "native-direct",
@@ -501,6 +542,44 @@
         "special": 8,
         "adapter": "protection-from-hits-trait",
         "costPerPower": 2
+      }
+    },
+    {
+      "classicSpellId": 1112,
+      "displayName": "Superfly",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1112_superfly.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 11, "byteOffset": 330, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [1]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 12,
+        "sourceTargetType": 11,
+        "sourceInCamp": 0,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1201,
+      "displayName": "Dig Hole",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1201_dig_hole.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 15, "byteOffset": 450, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [2]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 20,
+        "sourceTargetType": 11,
+        "sourceInCamp": 0,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -663,6 +742,25 @@
         "saveIndex": 2,
         "resistance": "classic-general",
         "costPerPower": 15
+      }
+    },
+    {
+      "classicSpellId": 1305,
+      "displayName": "Fantastic Wings",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1305_fantastic_wings.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 34, "byteOffset": 1020, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [3]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 20,
+        "sourceTargetType": 11,
+        "sourceInCamp": 0,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -982,6 +1080,25 @@
         "adapter": "native-fleeing-trait",
         "costPerPower": 35,
         "nativeReuse": "extends-remake-fearful-thoughts",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1609,
+      "displayName": "Shape Earth",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1609_shape_earth.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 83, "byteOffset": 2490, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [4]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 50,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -1374,6 +1491,25 @@
       }
     },
     {
+      "classicSpellId": 2504,
+      "displayName": "Hands to Clay",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2504_hands_to_clay.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 168, "byteOffset": 5040, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [5]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 45,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2605,
       "displayName": "Psi Wave",
       "classification": "native-direct",
@@ -1397,6 +1533,44 @@
         "resistance": "classic-general",
         "adapter": "classic-opposed-level-resistance",
         "costPerPower": 30
+      }
+    },
+    {
+      "classicSpellId": 2609,
+      "displayName": "Teleport Party",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2609_teleport_party.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 188, "byteOffset": 5640, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [6]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 120,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2611,
+      "displayName": "Watergate",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2611_watergate.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 190, "byteOffset": 5700, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [7]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 70,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1628,6 +1802,44 @@
       }
     },
     {
+      "classicSpellId": 3111,
+      "displayName": "Splinters",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3111_splinters.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 220, "byteOffset": 6600, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [8]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 10,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3112,
+      "displayName": "Voiceover",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3112_voiceover.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 221, "byteOffset": 6630, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [9]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 15,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3202,
       "displayName": "Daze",
       "classification": "native-special-adapter",
@@ -1819,6 +2031,25 @@
       }
     },
     {
+      "classicSpellId": 3306,
+      "displayName": "Hands to Clay",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3306_hands_to_clay_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 245, "byteOffset": 7350, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [10]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 25,
+        "sourceTargetType": 11,
+        "sourceInCamp": 0,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3308,
       "displayName": "Lightning Bolt",
       "classification": "native-direct",
@@ -1903,6 +2134,25 @@
       }
     },
     {
+      "classicSpellId": 3404,
+      "displayName": "Fantastic Wings",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1305_fantastic_wings.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 258, "byteOffset": 7740, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [11]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 20,
+        "sourceTargetType": 11,
+        "sourceInCamp": 0,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3409,
       "displayName": "Shock Palm",
       "classification": "native-direct",
@@ -1926,6 +2176,25 @@
         "resistance": "classic-general",
         "resistAdjustPerPower": -5,
         "costPerPower": 15
+      }
+    },
+    {
+      "classicSpellId": 3410,
+      "displayName": "Speak Language",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3410_speak_language.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 264, "byteOffset": 7920, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [12]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 25,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -2122,6 +2391,25 @@
       }
     },
     {
+      "classicSpellId": 3709,
+      "displayName": "Shape Earth",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1609_shape_earth.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 308, "byteOffset": 9240, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [13]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 50,
+        "sourceTargetType": 11,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3710,
       "displayName": "Static Discharge",
       "classification": "native-parameterized-damage",
@@ -2145,6 +2433,25 @@
         "resistance": "classic-general",
         "costPerPower": 75,
         "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3711,
+      "displayName": "Teleport Party",
+      "classification": "native-encounter-response",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3711_teleport_party_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 310, "byteOffset": 9300, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-encounter-responses", "slots": [14]}],
+      "behavior": {
+        "availability": "complex-encounter-only",
+        "fixedPower": 1,
+        "fixedCost": 45,
+        "sourceTargetType": 0,
+        "sourceInCamp": 255,
+        "effect": "scenario-authored-result",
+        "adapter": "exact-id-encounter-response",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
