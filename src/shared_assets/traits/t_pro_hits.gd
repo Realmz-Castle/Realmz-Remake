@@ -1,42 +1,23 @@
-const name : String = 't_pro_hits.gd'
-const menuname : String = 'Protection from Hits (T)'
-const stacks : bool = true
-const trait_types : Array = []
-var chara
-var duration : int #in seconds, 1 round = 5s
+extends "res://scripts/classic_runtime/classic_timed_condition_trait.gd"
 
-func _init(args : Array):
-	#[chara, duration]
-	chara = args[0]
-	duration = 5*args[1]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Protection from Hits !', null,'')
+const name := "t_pro_hits.gd"
+const menuname := "Protection from Hits (T)"
 
-func stack(args : Array) :
-	duration += 5*args[0]
 
-func unstack(args : Array) :
-	duration -= 5*args[0]
+func _on_get_stat(stat_name: String, stat: Variant) -> Variant:
+	if stat_name == "EvasionMelee":
+		# One native evasion point changes hit chance by five percentage points.
+		return float(stat) + 0.4 * _remaining_condition()
+	return stat
 
-func get_saved_variables() :
-	return [ceil(duration/5)]
 
-func _on_new_round(_character : Creature) :
-	if duration <= 0 :
-		chara.remove_trait(self)
-		return
-	duration -= 5
+func get_info_as_text() -> String:
+	var remaining := _remaining_condition()
+	return "Melee hit chance -%d%% for %d rounds" % [
+		2 * remaining,
+		remaining,
+	]
 
-func _on_get_stat(statname : String, stat : int) :
-	if ['EvasionMelee'].has(statname) :
-		return stat + 2 * ceili(float(duration) / 5.0)
-	else :
-		return stat
 
-func _on_time_pass(_character, seconds) :
-	if duration <= 0 :
-		chara.remove_trait(self)
-		return
-	duration -= seconds
-	
-func get_info_as_text() -> String :
-	return 'Protection from Hits for '+str(ceil(duration/5))+' rounds'
+func _remaining_condition() -> int:
+	return ceili(float(duration_seconds) / SECONDS_PER_ROUND)

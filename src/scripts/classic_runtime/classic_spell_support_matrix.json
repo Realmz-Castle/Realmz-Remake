@@ -836,7 +836,7 @@
     {
       "classicSpellId": 1111,
       "displayName": "Sparkling Armor",
-      "classification": "native-special-adapter",
+      "classification": "native-special-shield-from-hits",
       "supportStatus": "supported",
       "resource": "res://shared_assets/spells/sparkling_armor.gd",
       "sourceRecord": {
@@ -849,14 +849,115 @@
         {
           "corpusId": "city-of-bywater-monster-71",
           "slots": [5, 6, 7]
+        },
+        {
+          "corpusId": "core-player-spell-shield-from-hits",
+          "slots": [0]
         }
       ],
       "behavior": {
         "targetType": "self",
         "duration": "one-round-per-power",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "subtract-two-percentage-points-per-condition-point-from-melee-hit-chance",
+        "evasionTranslationPerConditionPoint": 0.4,
+        "conditionIndex": 7,
+        "nativeTrait": "t_pro_hits.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
         "special": 8,
-        "adapter": "protection-from-hits-trait",
-        "costPerPower": 2
+        "adapter": "classic-shield-from-hits-trait",
+        "costPerPower": 2,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2112,
+      "displayName": "Vorpal Plate",
+      "classification": "native-special-shield-from-hits",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/vorpal_plate.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 116, "byteOffset": 3480, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-shield-from-hits", "slots": [1]}],
+      "behavior": {
+        "targetType": "size-four-area",
+        "range": 3,
+        "lineOfSight": true,
+        "duration": "one-to-two-rounds-per-power-shared-roll",
+        "sharedDurationRoll": "once-per-cast",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "subtract-two-percentage-points-per-condition-point-from-melee-hit-chance",
+        "evasionTranslationPerConditionPoint": 0.4,
+        "conditionIndex": 7,
+        "nativeTrait": "t_pro_hits.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 8,
+        "costPerPower": 8,
+        "adapter": "classic-shield-from-hits-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3212,
+      "displayName": "Vorpal Plate",
+      "nativeResourceName": "Classic Vorpal Plate Enchanter",
+      "classification": "native-special-shield-from-hits",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3212_vorpal_plate_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 236, "byteOffset": 7080, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-shield-from-hits", "slots": [2]}],
+      "behavior": {
+        "targetType": "size-four-area-around-caster",
+        "range": 0,
+        "lineOfSight": true,
+        "duration": "one-to-two-rounds-per-power-shared-roll",
+        "sharedDurationRoll": "once-per-cast",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "subtract-two-percentage-points-per-condition-point-from-melee-hit-chance",
+        "evasionTranslationPerConditionPoint": 0.4,
+        "conditionIndex": 7,
+        "nativeTrait": "t_pro_hits.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 8,
+        "costPerPower": 8,
+        "adapter": "classic-shield-from-hits-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3406,
+      "displayName": "Major Vorpal Plate",
+      "classification": "native-special-shield-from-hits",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/major_vorpal_plate.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 260, "byteOffset": 7800, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-shield-from-hits", "slots": [3]}],
+      "behavior": {
+        "targetType": "all-allies",
+        "range": 0,
+        "duration": "one-round-per-power-shared-roll",
+        "sharedDurationRoll": "once-per-cast",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "subtract-two-percentage-points-per-condition-point-from-melee-hit-chance",
+        "evasionTranslationPerConditionPoint": 0.4,
+        "conditionIndex": 7,
+        "nativeTrait": "t_pro_hits.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 8,
+        "costPerPower": 20,
+        "adapter": "classic-shield-from-hits-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {

@@ -224,6 +224,15 @@ for one round. That duration follows Classic's own spell-info display, which
 shows the record's signed `-1` duration through `abs(...)`. The raw record and
 its defect remain in the inventory and support matrix as provenance.
 
+Sparkling Armor and the three Vorpal Plate identities share Classic condition
+`7` (Shield from Hits). Each remaining condition point subtracts two percentage
+points from melee hit chance without changing ranged attacks. Remake represents
+that percentage in its native accuracy formula as `0.4` melee-evasion points per
+condition point. Temporary effects stack up to Classic's player and monster
+condition caps, decay once per combat round or crossed game-hour boundary, and
+do not replace a permanent Shield from Hits condition. Area variants roll their
+duration once per cast and share it across every affected target.
+
 `ClassicCoreSpellCoverage` joins that inventory to the curated support matrix and
 the shared spell-resource catalog. Its report separates proven support from
 exact-ID resources awaiting behavior review, name-only reuse candidates,
@@ -393,6 +402,10 @@ wandering-battle suppression, and restoration of the exact Classic counters:
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn
 ```
+
+The generated-ally smoke also applies Shield from Hits to a real native player
+character and verifies the resulting six-percentage-point melee-accuracy change
+for a three-point condition.
 
 The generated-ally smoke derives carried, equipped, and weighted spell-slot
 fields from the authoritative Providence fixture. It installs the result,

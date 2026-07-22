@@ -438,6 +438,20 @@ func _run_smoke() -> void:
 		is_equal_approx(unshielded_hit_chance - shielded_hit_chance, 0.3),
 		"generated Classic armor participates in native melee accuracy"
 	)
+	var shield_from_hits_trait = player_character.add_trait(
+		load("res://shared_assets/traits/t_pro_hits.gd"),
+		[3]
+	)
+	var protected_hit_chance := GameGlobal.calculate_melee_accuracy(
+		accuracy_attacker,
+		player_character,
+		player_weapon
+	)
+	_expect(
+		is_equal_approx(shielded_hit_chance - protected_hit_chance, 0.06),
+		"Shield from Hits subtracts two percentage points per condition point"
+	)
+	player_character.remove_trait(shield_from_hits_trait)
 	_expect(
 		player_character.unequip_item(player_weapon, false),
 		"native player equipment removes the generated Classic weapon"

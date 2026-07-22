@@ -1244,6 +1244,7 @@ func _init() -> void:
 	_test_classic_itching_skin_spell()
 	_test_classic_shrink_foe_spell()
 	_test_classic_party_condition_spells()
+	_test_classic_shield_from_hits_spells()
 	_test_classic_silence_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
@@ -8174,7 +8175,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		187,
+		190,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8297,6 +8298,13 @@ func _test_classic_spell_coverage() -> void:
 		"supported",
 		"Shrink Foe uses the reviewed defense-hindrance adapter"
 	)
+	for shield_spell_id: int in [1111, 2112, 3212, 3406]:
+		_expect_equal(
+			coverage_by_id.get(shield_spell_id, {}).get("coverageStatus"),
+			"supported",
+			"Shield from Hits spell %d uses the reviewed condition adapter"
+			% shield_spell_id
+		)
 	for silence_id: int in [1411, 2211, 3110]:
 		_expect_equal(
 			coverage_by_id.get(silence_id, {}).get("coverageStatus"),
@@ -8376,10 +8384,11 @@ func _test_classic_spell_coverage() -> void:
 		1301, 1403, 2702, 3302,
 		1207, 2209,
 		3109,
+		2112, 3212, 3406,
 		1105, 1202, 1205, 1512, 1612, 2104, 2202, 2710, 3203, 3611,
 		1411, 2211, 3110,
 	]
-	_expect_equal(migrated_spell_ids.size(), 158, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 161, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8529,6 +8538,9 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Arcanic Bubble Enchanter": "res://shared_assets/spells/classic_core_3302_arcanic_bubble_enchanter.gd",
 		"Itching Skin": "res://shared_assets/spells/itching_skin.gd",
 		"Shrink Foe": "res://shared_assets/spells/shrink_foe.gd",
+		"Vorpal Plate": "res://shared_assets/spells/vorpal_plate.gd",
+		"Classic Vorpal Plate Enchanter": "res://shared_assets/spells/classic_core_3212_vorpal_plate_enchanter.gd",
+		"Major Vorpal Plate": "res://shared_assets/spells/major_vorpal_plate.gd",
 		"Free Fall": "res://shared_assets/spells/free_fall.gd",
 		"Hover": "res://shared_assets/spells/hover.gd",
 		"Discover Secret": "res://shared_assets/spells/discover_secret.gd",
@@ -8541,7 +8553,7 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		151,
+		154,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8600,14 +8612,23 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(sparkling_armor.get_duration_roll(3, null), 3, "Sparkling Armor duration scales")
 	_expect_equal(sparkling_armor.get_sp_cost(3, null), 6, "Sparkling Armor cost scales")
-	var armored_target := ConditionTestCharacter.new("Armored target")
-	sparkling_armor.add_traits_to_creature(null, armored_target, 3)
+	var armored_target := SpellScreenTestCharacter.new("Armored target", true)
+	armored_target.stats = {"EvasionMelee": 0, "EvasionRanged": 0}
+	_expect_equal(
+		sparkling_armor.apply_classic_scaled_effect(null, armored_target, 3, 1.0),
+		3,
+		"Sparkling Armor applies its source condition"
+	)
 	_expect_equal(armored_target.traits.size(), 1, "Sparkling Armor applies one trait")
 	_expect(
 		str(armored_target.traits[0].name).ends_with("t_pro_hits.gd"),
 		"Sparkling Armor uses the protection-from-hits adapter"
 	)
-	_expect_equal(armored_target.traits[0].power, 3, "Sparkling Armor passes its duration")
+	_expect_equal(
+		armored_target.traits[0].get_saved_variables(),
+		[3],
+		"Sparkling Armor preserves its condition duration"
+	)
 
 	_expect(flame_spikes.supports_classic_spell_id(1203), "Flame Spikes exports its exact ID")
 	_expect_equal(flame_spikes.classic_spell_class, 1, "Flame Spikes preserves its class")
@@ -9125,12 +9146,12 @@ func _test_classic_spell_coverage() -> void:
 					1402, 1406, 1407, 1408,
 					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
-					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
+					2109, 2110, 2111, 2112, 2201, 2207, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
 					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
 					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
-					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3305, 3306, 3308,
+					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3308,
 					3310,
-					3311, 3401, 3404, 3405, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3510, 3511, 3512, 3601,
+					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3510, 3511, 3512, 3601,
 					3507, 3602, 3603, 3607, 3608, 3702, 3703, 3704, 3706,
 					3708, 3709, 3710, 3711, 3712,
 				],
@@ -11820,6 +11841,164 @@ func _test_classic_shrink_foe_spell() -> void:
 		spell.apply_classic_scaled_effect(null, permanent, 3, 1.0),
 		0,
 		"temporary Shrink Foe does not replace permanent hindrance"
+	)
+
+
+func _test_classic_shield_from_hits_spells() -> void:
+	var sparkling = load("res://shared_assets/spells/sparkling_armor.gd").new()
+	var priest = load("res://shared_assets/spells/vorpal_plate.gd").new()
+	var enchanter = load(
+		"res://shared_assets/spells/classic_core_3212_vorpal_plate_enchanter.gd"
+	).new()
+	var major = load("res://shared_assets/spells/major_vorpal_plate.gd").new()
+	var spells := [sparkling, priest, enchanter, major]
+	var expected_ids := [1111, 2112, 3212, 3406]
+	for index: int in range(spells.size()):
+		var spell: Variant = spells[index]
+		_expect_equal(
+			spell.classic_spell_ids,
+			[expected_ids[index]],
+			"Shield from Hits spell keeps its exact ID"
+		)
+		_expect_equal(spell.classic_special, 8, "Shield from Hits special code")
+		_expect_equal(spell.classic_spell_class, 8, "Shield from Hits effect class")
+		_expect_equal(spell.classic_damage_type, 8, "Shield from Hits miscellaneous DRV")
+		_expect_equal(spell.classic_cannot, 4, "Shield from Hits bypasses resistance")
+		_expect_equal(spell.classic_spell_save_index, -1, "Shield from Hits has no save")
+		_expect_equal(spell.classic_spell_save_mode, "none", "Shield from Hits save mode")
+		_expect(
+			spell.in_combat and spell.in_field,
+			"Shield from Hits spell works in combat and camp"
+		)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"Shield from Hits cannot miss or be resisted"
+		)
+
+	_expect_equal(sparkling.name, "Sparkling Armor", "Sparkling Armor resource identity")
+	_expect(sparkling.skip_targeting, "Sparkling Armor targets its caster")
+	_expect_equal(sparkling.get_min_duration(3, null), 3, "Sparkling Armor duration")
+	_expect_equal(sparkling.get_max_duration(3, null), 3, "Sparkling Armor fixed duration")
+	_expect_equal(sparkling.get_sp_cost(3, null), 6, "Sparkling Armor casting cost")
+	_expect_equal(sparkling.classic_spell_look_ids, [13, 5], "Sparkling Armor visuals")
+	_expect_equal(sparkling.classic_sound_ids, [26, 10], "Sparkling Armor sounds")
+
+	_expect_equal(priest.name, "Vorpal Plate", "Priest Vorpal Plate resource identity")
+	_expect_equal(priest.classic_target_type, 3, "Priest Vorpal Plate area target")
+	_expect(not priest.skip_targeting, "Priest Vorpal Plate keeps manual targeting")
+	_expect_equal(priest.get_range(3, null), 3, "Priest Vorpal Plate range")
+	_expect(priest.los, "Priest Vorpal Plate requires line of sight")
+	_expect_equal(priest.get_aoe(3, null), Spell.AoE_b4, "Priest Vorpal Plate area")
+	_expect_equal(priest.get_min_duration(3, null), 3, "Priest Vorpal Plate minimum duration")
+	_expect_equal(priest.get_max_duration(3, null), 6, "Priest Vorpal Plate maximum duration")
+	_expect_equal(priest.get_sp_cost(3, null), 24, "Priest Vorpal Plate casting cost")
+	_expect_equal(priest.classic_spell_look_ids, [13, 5], "Priest Vorpal Plate visuals")
+	_expect_equal(priest.classic_sound_ids, [35, 37], "Priest Vorpal Plate sounds")
+
+	_expect_equal(
+		enchanter.name,
+		"Classic Vorpal Plate Enchanter",
+		"Enchanter Vorpal Plate has a distinct native identity"
+	)
+	_expect(enchanter.skip_targeting, "Enchanter Vorpal Plate centers on its caster")
+	_expect_equal(
+		enchanter.autotarget_type,
+		Spell.AUTOTARGET_TYPE.SELF,
+		"Enchanter Vorpal Plate uses self targeting"
+	)
+	_expect_equal(enchanter.get_range(3, null), 0, "Enchanter Vorpal Plate range")
+	_expect_equal(enchanter.get_aoe(3, null), Spell.AoE_b4, "Enchanter Vorpal Plate area")
+	_expect_equal(enchanter.get_sp_cost(3, null), 24, "Enchanter Vorpal Plate casting cost")
+
+	_expect_equal(major.name, "Major Vorpal Plate", "Major Vorpal Plate resource identity")
+	_expect_equal(major.classic_target_type, 9, "Major Vorpal Plate targets all allies")
+	_expect(major.skip_targeting, "Major Vorpal Plate needs no target selection")
+	_expect_equal(
+		major.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ALLIES,
+		"Major Vorpal Plate uses ally autotargeting"
+	)
+	_expect_equal(major.get_min_duration(3, null), 3, "Major Vorpal Plate duration")
+	_expect_equal(major.get_max_duration(3, null), 3, "Major Vorpal Plate fixed duration")
+	_expect_equal(major.get_sp_cost(3, null), 60, "Major Vorpal Plate casting cost")
+	_expect_equal(major.classic_spell_look_ids, [15, 5], "Major Vorpal Plate visuals")
+	_expect_equal(major.classic_sound_ids, [35, 37], "Major Vorpal Plate sounds")
+
+	var first := SpellScreenTestCharacter.new("First armored target", true)
+	first.stats = {"EvasionMelee": 5, "EvasionRanged": 7}
+	var second := SpellScreenTestCharacter.new("Second armored target", true)
+	second.stats = {"EvasionMelee": 5, "EvasionRanged": 7}
+	_expect_equal(
+		priest.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Vorpal Plate affects every creature in its area"
+	)
+	var duration: int = first.traits[0].get_saved_variables()[0]
+	_expect(duration in range(3, 7), "Vorpal Plate rolls three to six condition points")
+	_expect_equal(
+		second.traits[0].get_saved_variables(),
+		[duration],
+		"one Vorpal Plate cast shares its condition roll"
+	)
+	_expect(
+		is_equal_approx(first.get_stat("EvasionMelee"), 5.0 + 0.4 * duration),
+		"Shield from Hits translates each point to two percent melee protection"
+	)
+	_expect_equal(
+		first.get_stat("EvasionRanged"),
+		7,
+		"Shield from Hits does not alter ranged evasion"
+	)
+	_expect(
+		is_equal_approx(
+			0.05 * (float(first.get_stat("EvasionMelee")) - 5.0),
+			0.02 * duration
+		),
+		"Remake melee accuracy receives the exact Classic percentage change"
+	)
+	first.traits[0]._on_new_round(first)
+	_expect_equal(
+		first.traits[0].get_saved_variables(),
+		[duration - 1],
+		"Shield from Hits loses one point each combat round"
+	)
+	var saved_duration: Array = first.traits[0].get_saved_variables()
+	var restored := SpellScreenTestCharacter.new("Restored armored target", true)
+	restored.add_trait(load("res://shared_assets/traits/t_pro_hits.gd"), saved_duration)
+	_expect_equal(
+		restored.traits[0].get_saved_variables(),
+		saved_duration,
+		"temporary Shield from Hits preserves its saved condition"
+	)
+
+	var capped := SpellScreenTestCharacter.new("Capped armored target", true)
+	capped.add_trait(load("res://shared_assets/traits/t_pro_hits.gd"), [98])
+	_expect_equal(
+		sparkling.apply_classic_scaled_effect(null, capped, 2, 1.0),
+		0,
+		"player Shield from Hits rejects a stack beyond condition 99"
+	)
+	_expect_equal(
+		capped.traits[0].get_saved_variables(),
+		[98],
+		"rejected Shield from Hits leaves the current duration unchanged"
+	)
+	var permanent_target := SpellScreenTestCharacter.new("Permanently armored", true)
+	permanent_target.traits.append(ConditionTestTrait.new("p_pro_hits.gd", 3))
+	_expect_equal(
+		sparkling.apply_classic_scaled_effect(null, permanent_target, 3, 1.0),
+		0,
+		"temporary Shield from Hits does not replace a permanent condition"
+	)
+	var permanent_trait = load("res://shared_assets/traits/p_pro_hits.gd").new(
+		[permanent_target, 3]
+	)
+	_expect_equal(permanent_trait.name, "p_pro_hits.gd", "permanent condition save identity")
+	_expect_equal(permanent_trait.get_saved_variables(), [3], "permanent condition persists")
+	_expect(
+		is_equal_approx(permanent_trait._on_get_stat("EvasionMelee", 5), 6.2),
+		"permanent Shield from Hits uses the same source percentage"
 	)
 
 

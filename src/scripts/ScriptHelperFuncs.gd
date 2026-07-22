@@ -804,7 +804,7 @@ static func give_Divinity_condition(affect_who : int, condition_id : int, powerp
 		6: #Slow
 			traitscript_filename += "slow.gd"
 		7:#Shield from hits :
-			traitscript_filename += "pro_hits"
+			traitscript_filename += "pro_hits.gd"
 			trait_array = [power] # permanent still stacks !
 		8: #Shielded from Projectiles
 			traitscript_filename += "pro_proj.gd"

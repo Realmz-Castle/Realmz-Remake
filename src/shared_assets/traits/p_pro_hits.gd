@@ -1,33 +1,35 @@
-const name : String = 't_pro_hits.gd'
-const menuname : String = 'Protection from Hits (T)'
-const stacks : bool = true
-const trait_types : Array = []
+const name := "p_pro_hits.gd"
+const menuname := "Protection from Hits (P)"
+const stacks := true
+const permanent := true
+const trait_types: Array = []
 var chara
-var power : int #in seconds, 1 round = 5s
+var power: int
 
-func _init(args : Array):
-	#[chara, power]
+
+func _init(args: Array) -> void:
 	chara = args[0]
-	power = args[1]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Protection from Hits !', null,'')
-
-func stack(args : Array) :
-	power += args[0]
-
-func unstack(args : Array) :
-	power -= args[0]
-
-func get_saved_variables() :
-	return [ceil(power)]
+	power = int(args[1])
 
 
-func _on_get_stat(statname : String, stat : int) :
-	if ['EvasionMelee'].has(statname) :
-		return stat+2*ceil(power/2)  #1  stat = 5% chance
-	else :
-		return stat
+func stack(args: Array) -> void:
+	power += int(args[0])
 
 
-	
-func get_info_as_text() -> String :
-	return 'Protection from Hits : '+str(power)
+func unstack(args: Array) -> void:
+	power -= int(args[0])
+
+
+func get_saved_variables() -> Array:
+	return [power]
+
+
+func _on_get_stat(stat_name: String, stat: Variant) -> Variant:
+	if stat_name == "EvasionMelee":
+		# One native evasion point changes hit chance by five percentage points.
+		return float(stat) + 0.4 * power
+	return stat
+
+
+func get_info_as_text() -> String:
+	return "Permanent melee hit chance -%d%%" % (2 * power)
