@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 164)
+        self.assertEqual(report["totals"]["supportedIdentities"], 167)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -456,6 +456,35 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
                 / power_gather["resource"].removeprefix("res://")
             )
             self.assertTrue(power_gather_resource.is_file(), power_gather_resource)
+        for spell_id in {1511, 2711, 3511}:
+            energy_drain = matrix_by_id[spell_id]
+            self.assertEqual(energy_drain["supportStatus"], "supported")
+            self.assertEqual(
+                energy_drain["classification"],
+                "native-special-spell-point-drain",
+            )
+            self.assertEqual(energy_drain["behavior"]["conditionIndex"], 34)
+            self.assertEqual(
+                energy_drain["behavior"]["playerOrder"],
+                "drain-before-condition-decrement",
+            )
+            self.assertEqual(
+                energy_drain["behavior"]["monsterOrder"],
+                "condition-decrement-before-drain",
+            )
+            self.assertEqual(
+                energy_drain["behavior"]["minimumSpellPoints"], "clamp-zero"
+            )
+            energy_drain_resource = (
+                REPO_ROOT
+                / "src"
+                / energy_drain["resource"].removeprefix("res://")
+            )
+            self.assertTrue(energy_drain_resource.is_file(), energy_drain_resource)
+        self.assertEqual(
+            matrix_by_id[2711]["behavior"]["saveMode"],
+            "half-immediate-damage-condition-still-applies",
+        )
         parameterized_damage_ids = {
             1601,
             1703,

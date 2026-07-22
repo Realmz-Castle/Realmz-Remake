@@ -82,30 +82,44 @@ func apply_classic_group_effect(
 
 
 func _apply_duration(target: Variant, duration: int) -> bool:
-	if duration <= 0 or _temporary_condition_trait == null \
+	return apply_condition_duration(
+		target,
+		duration,
+		_temporary_condition_trait,
+		_conflicting_condition_traits
+	)
+
+
+static func apply_condition_duration(
+	target: Variant,
+	duration: int,
+	temporary_condition_trait: GDScript,
+	conflicting_condition_traits: Array[String]
+) -> bool:
+	if duration <= 0 or temporary_condition_trait == null \
 			or not (target is Object) or not target.has_method("add_trait"):
 		return false
 	var traits: Variant = target.get("traits")
 	if not (traits is Array):
 		return false
-	var temporary_name := _temporary_condition_trait.resource_path.get_file()
+	var temporary_name := temporary_condition_trait.resource_path.get_file()
 	var current_duration := 0
 	for trait_value: Variant in traits:
 		if not (trait_value is Object):
 			continue
 		var trait_name := str(trait_value.get("name"))
-		if _conflicting_condition_traits.has(trait_name):
+		if conflicting_condition_traits.has(trait_name):
 			return false
 		if trait_name == temporary_name:
 			current_duration = ceili(float(trait_value.get("duration_seconds")) / 5.0)
 	var condition_cap := 99 if _is_player_character(target) else 124
 	if current_duration + duration > condition_cap:
 		return false
-	target.add_trait(_temporary_condition_trait, [duration])
+	target.add_trait(temporary_condition_trait, [duration])
 	return true
 
 
-func _is_player_character(target: Object) -> bool:
+static func _is_player_character(target: Object) -> bool:
 	return target is PlayerCharacter or bool(target.get("is_player_controlled"))
 
 

@@ -140,6 +140,16 @@
       ]
     },
     {
+      "id": "core-player-spell-energy-drain",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 70, "displayName": "Sorcerer Power Wither"},
+        {"sourceFile": "Data S", "recordIndex": 205, "displayName": "Priest Spirit Drain"},
+        {"sourceFile": "Data S", "recordIndex": 280, "displayName": "Enchanter Power Wither"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -1364,6 +1374,35 @@
       }
     },
     {
+      "classicSpellId": 1511,
+      "displayName": "Power Wither",
+      "classification": "native-special-spell-point-drain",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/power_wither.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 70, "byteOffset": 2100, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-energy-drain", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": 5,
+        "availability": "combat-only",
+        "immediateDamage": "none",
+        "duration": "one-to-five-rounds-per-power",
+        "conditionIndex": 34,
+        "effect": "drain-current-condition-value-in-spell-points",
+        "playerOrder": "drain-before-condition-decrement",
+        "monsterOrder": "condition-decrement-before-drain",
+        "conditionDecay": "one-per-combat-round",
+        "minimumSpellPoints": "clamp-zero",
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "special": 35,
+        "costPerPower": 25,
+        "adapter": "source-record-backed-classic-spell-point-drain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1601,
       "displayName": "Annihilate",
       "classification": "native-parameterized-damage",
@@ -2458,6 +2497,37 @@
       }
     },
     {
+      "classicSpellId": 2711,
+      "displayName": "Spirit Drain",
+      "classification": "native-special-spell-point-drain",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/spirit_drain.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 205, "byteOffset": 6150, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-energy-drain", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": 1,
+        "availability": "combat-only",
+        "immediateDamage": "ten-to-twenty-special",
+        "duration": "one-to-two-rounds-per-power",
+        "conditionIndex": 34,
+        "effect": "drain-current-condition-value-in-spell-points",
+        "playerOrder": "drain-before-condition-decrement",
+        "monsterOrder": "condition-decrement-before-drain",
+        "conditionDecay": "one-per-combat-round",
+        "minimumSpellPoints": "clamp-zero",
+        "saveMode": "half-immediate-damage-condition-still-applies",
+        "saveIndex": 7,
+        "saveAdjust": -10,
+        "resistance": "classic-general",
+        "resistAdjust": -10,
+        "special": 35,
+        "costPerPower": 35,
+        "adapter": "source-record-backed-classic-spell-point-drain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2712,
       "displayName": "Stun",
       "classification": "native-corrected-source-defect",
@@ -3199,6 +3269,36 @@
         "costPerPower": 40,
         "adapter": "source-record-backed-classic-spell-point-regeneration",
         "correctedIntent": "monster-source-branch-reads-adjacent-energy-drain-slot",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3511,
+      "displayName": "Power Wither",
+      "nativeResourceName": "Classic Power Wither Enchanter",
+      "classification": "native-special-spell-point-drain",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3511_power_wither_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 280, "byteOffset": 8400, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-energy-drain", "slots": [2]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": 5,
+        "availability": "combat-only",
+        "immediateDamage": "none",
+        "duration": "one-to-five-rounds-per-power",
+        "conditionIndex": 34,
+        "effect": "drain-current-condition-value-in-spell-points",
+        "playerOrder": "drain-before-condition-decrement",
+        "monsterOrder": "condition-decrement-before-drain",
+        "conditionDecay": "one-per-combat-round",
+        "minimumSpellPoints": "clamp-zero",
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "special": 35,
+        "costPerPower": 25,
+        "adapter": "source-record-backed-classic-spell-point-drain",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },

@@ -1210,6 +1210,7 @@ func _init() -> void:
 	_test_classic_attack_deflectors()
 	_test_classic_attack_bonus_spells()
 	_test_classic_power_gather_spells()
+	_test_classic_energy_drain_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -8127,7 +8128,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		164,
+		167,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8226,6 +8227,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"Power Gather %d uses the reviewed spell-point adapter" % power_gather_id
 		)
+	for energy_drain_id: int in [1511, 2711, 3511]:
+		_expect_equal(
+			coverage_by_id.get(energy_drain_id, {}).get("coverageStatus"),
+			"supported",
+			"energy drain %d uses the reviewed spell-point adapter" % energy_drain_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -8294,8 +8301,9 @@ func _test_classic_spell_coverage() -> void:
 		1406, 1606, 2307, 2506, 3408, 3608,
 		1102, 2503, 3104, 3305,
 		1510, 3510,
+		1511, 2711, 3511,
 	]
-	_expect_equal(migrated_spell_ids.size(), 135, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 138, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8436,10 +8444,13 @@ func _test_classic_spell_coverage() -> void:
 		"Enchanted Blades": "res://shared_assets/spells/enchanted_blades.gd",
 		"Power Gather": "res://shared_assets/spells/power_gather.gd",
 		"Classic Power Gather Enchanter": "res://shared_assets/spells/classic_core_3510_power_gather_enchanter.gd",
+		"Power Wither": "res://shared_assets/spells/power_wither.gd",
+		"Spirit Drain": "res://shared_assets/spells/spirit_drain.gd",
+		"Classic Power Wither Enchanter": "res://shared_assets/spells/classic_core_3511_power_wither_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		133,
+		136,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9021,14 +9032,14 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1406, 1407, 1408,
-					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
+					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
 					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
-					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
+					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3305, 3306, 3308,
 					3310,
-					3311, 3401, 3404, 3405, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3510, 3512, 3601,
+					3311, 3401, 3404, 3405, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3510, 3511, 3512, 3601,
 					3507, 3602, 3603, 3607, 3608, 3702, 3703, 3704, 3706,
 					3708, 3709, 3710, 3711, 3712,
 				],
@@ -11262,6 +11273,139 @@ func _test_classic_power_gather_spells() -> void:
 	)
 
 
+func _test_classic_energy_drain_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "power_wither.gd",
+			"name": "Power Wither",
+			"ids": [1511],
+			"range": 5,
+			"duration": [3, 15],
+			"damage": [0, 0],
+			"cost": 75,
+			"save_mode": "negate",
+			"save_adjust": 0,
+			"resist_adjust": 0,
+			"looks": [13, 15],
+			"sounds": [66, 67],
+		},
+		{
+			"file": "spirit_drain.gd",
+			"name": "Spirit Drain",
+			"ids": [2711],
+			"range": 1,
+			"duration": [3, 6],
+			"damage": [10, 20],
+			"cost": 105,
+			"save_mode": "half_damage",
+			"save_adjust": -10,
+			"resist_adjust": -10,
+			"looks": [5, 15],
+			"sounds": [4, 86],
+		},
+		{
+			"file": "classic_core_3511_power_wither_enchanter.gd",
+			"name": "Classic Power Wither Enchanter",
+			"ids": [3511],
+			"range": 5,
+			"duration": [3, 15],
+			"damage": [0, 0],
+			"cost": 75,
+			"save_mode": "negate",
+			"save_adjust": 0,
+			"resist_adjust": 0,
+			"looks": [14, 13],
+			"sounds": [66, 67],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact IDs" % label)
+		_expect_equal(spell.classic_special, 35, "%s special code" % label)
+		_expect_equal(spell.classic_spell_class, 7, "%s source class" % label)
+		_expect_equal(spell.classic_damage_type, 7, "%s special DRV" % label)
+		_expect_equal(spell.classic_cannot, 0, "%s preserves resistance gates" % label)
+		_expect_equal(spell.classic_spell_save_index, 7, "%s uses the special save" % label)
+		_expect_equal(spell.classic_spell_save_mode, spec["save_mode"], "%s save mode" % label)
+		_expect_equal(spell.classic_save_adjust, spec["save_adjust"], "%s save adjustment" % label)
+		_expect_equal(spell.classic_resist_adjust, spec["resist_adjust"], "%s resistance adjustment" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE,
+			"%s checks Classic magic resistance" % label
+		)
+		_expect(spell.in_combat and not spell.in_field, "%s is combat-only" % label)
+		_expect_equal(spell.classic_target_type, 1, "%s targets one creature" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(spell.get_target_number(3, null), 1, "%s source target count" % label)
+		_expect_equal(spell.get_min_duration(3, null), spec["duration"][0], "%s minimum duration" % label)
+		_expect_equal(spell.get_max_duration(3, null), spec["duration"][1], "%s maximum duration" % label)
+		_expect_equal(spell.get_min_damage(3, null), spec["damage"][0], "%s minimum damage" % label)
+		_expect_equal(spell.get_max_damage(3, null), spec["damage"][1], "%s maximum damage" % label)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+		_expect(
+			not spell.has_method("apply_classic_scaled_effect"),
+			"%s retains the native damage-plus-trait resolution path" % label
+		)
+
+	var power_wither = load("res://shared_assets/spells/power_wither.gd").new()
+	_expect_equal(
+		power_wither.schools,
+		["Sorcerer", "Enchanter"],
+		"native Power Wither remains learnable by both source schools"
+	)
+	var spirit_drain = load("res://shared_assets/spells/spirit_drain.gd").new()
+	_expect_equal(spirit_drain.schools, ["Priest"], "Spirit Drain remains a Priest spell")
+	_expect_equal(
+		spirit_drain.classic_spell_save_mode,
+		"half_damage",
+		"Spirit Drain saves halve immediate damage without negating its trait path"
+	)
+
+	var applied_target := SpellPointConditionTestCharacter.new("Withered target", 20, 30)
+	power_wither.add_traits_to_creature(null, applied_target, 3)
+	_expect_equal(applied_target.traits.size(), 1, "Power Wither adds one drain trait")
+	var applied_duration: int = applied_target.traits[0].get_saved_variables()[0]
+	_expect(applied_duration in range(3, 16), "Power Wither rolls 1-5 condition points per power")
+
+	var player := SpellPointConditionTestCharacter.new("Withered player", 10, 30)
+	var player_trait = load(
+		"res://shared_assets/traits/t_classic_power_wither.gd"
+	).new([player, 4])
+	player_trait._on_new_round(player)
+	_expect_equal(player.current_sp, 6, "player energy drain uses the current condition value")
+	_expect_equal(player_trait.get_saved_variables(), [3], "player energy drain then decays")
+
+	var monster := SpellPointConditionTestCharacter.new("Withered monster", 10, 30, false)
+	var monster_trait = load(
+		"res://shared_assets/traits/t_classic_power_wither.gd"
+	).new([monster, 4])
+	monster_trait._on_new_round(monster)
+	_expect_equal(monster.current_sp, 7, "monster energy drain decays before applying")
+	_expect_equal(monster_trait.get_saved_variables(), [3], "monster energy drain persists")
+
+	var nearly_empty := SpellPointConditionTestCharacter.new("Nearly empty target", 2, 30)
+	var nearly_empty_trait = load(
+		"res://shared_assets/traits/t_classic_power_wither.gd"
+	).new([nearly_empty, 4])
+	nearly_empty_trait._on_new_round(nearly_empty)
+	_expect_equal(nearly_empty.current_sp, 0, "energy drain clamps spell points at zero")
+
+	var capped_target := SpellPointConditionTestCharacter.new("Capped wither", 20, 30)
+	capped_target.add_trait(
+		load("res://shared_assets/traits/t_classic_power_wither.gd"),
+		[98]
+	)
+	_expect(
+		not power_wither.apply_energy_drain_duration(capped_target, 2),
+		"player energy drain rejects a stack beyond condition 99"
+	)
+
+
 func _test_classic_spell_screen_spells() -> void:
 	var specs: Array = [
 		{
@@ -12044,6 +12188,21 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Classic Power Gather Enchanter", {}).get("classicSpellIds"),
 		[3510],
 		"spell catalog keeps the Enchanter Power Gather presentation distinct"
+	)
+	_expect_equal(
+		native_spells.get("Power Wither", {}).get("classicSpellIds"),
+		[1511],
+		"spell catalog maps the native Power Wither resource"
+	)
+	_expect_equal(
+		native_spells.get("Spirit Drain", {}).get("classicSpellIds"),
+		[2711],
+		"spell catalog maps the native Spirit Drain resource"
+	)
+	_expect_equal(
+		native_spells.get("Classic Power Wither Enchanter", {}).get("classicSpellIds"),
+		[3511],
+		"spell catalog keeps the Enchanter Power Wither presentation distinct"
 	)
 	_expect_equal(
 		native_spells.get("Magic Darts", {}).get("classicSpellIds"),
