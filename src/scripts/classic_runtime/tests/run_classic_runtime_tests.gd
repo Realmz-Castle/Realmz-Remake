@@ -5707,6 +5707,18 @@ func _test_classic_magic_resistance_contract() -> void:
 		40,
 		"party charm resistance uses Classic save slot zero"
 	)
+	var thought_lace_resistance: Dictionary = MagicResistanceScript.spell_resolution(
+		target, charm_foe, 1, 100, false, null, 90, 50
+	)
+	_expect(
+		thought_lace_resistance.get("resisted"),
+		"Thought Lace can stop a charm that passes the character's ordinary save"
+	)
+	_expect_equal(
+		thought_lace_resistance.get("charmChance"),
+		90,
+		"Thought Lace adds fifty points to the source charm save"
+	)
 	var daze = load("res://shared_assets/spells/daze.gd").new()
 	var unresisted_daze: Dictionary = MagicResistanceScript.spell_resolution(
 		target, daze, 1, 32, false, null, 41
@@ -8162,7 +8174,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		185,
+		187,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8316,7 +8328,7 @@ func _test_classic_spell_coverage() -> void:
 		"supported",
 		"reviewed generic ray spells are supported"
 	)
-	for party_spell_id: int in [1105, 1202, 1205, 2104, 2202, 2710, 3203, 3611]:
+	for party_spell_id: int in [1105, 1202, 1205, 1512, 1612, 2104, 2202, 2710, 3203, 3611]:
 		_expect_equal(
 			coverage_by_id.get(party_spell_id, {}).get("coverageStatus"),
 			"supported",
@@ -8364,10 +8376,10 @@ func _test_classic_spell_coverage() -> void:
 		1301, 1403, 2702, 3302,
 		1207, 2209,
 		3109,
-		1105, 1202, 1205, 2104, 2202, 2710, 3203, 3611,
+		1105, 1202, 1205, 1512, 1612, 2104, 2202, 2710, 3203, 3611,
 		1411, 2211, 3110,
 	]
-	_expect_equal(migrated_spell_ids.size(), 156, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 158, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8520,6 +8532,8 @@ func _test_classic_spell_coverage() -> void:
 		"Free Fall": "res://shared_assets/spells/free_fall.gd",
 		"Hover": "res://shared_assets/spells/hover.gd",
 		"Discover Secret": "res://shared_assets/spells/discover_secret.gd",
+		"Wizard Eye": "res://shared_assets/spells/wizard_eye.gd",
+		"Thought Lace": "res://shared_assets/spells/thought_lace.gd",
 		"Sentry": "res://shared_assets/spells/sentry.gd",
 		"Classic Sentry Priest": "res://shared_assets/spells/classic_core_2710_sentry_priest.gd",
 		"Silence": "res://shared_assets/spells/silence.gd",
@@ -8527,7 +8541,7 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		149,
+		151,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11839,6 +11853,8 @@ func _test_classic_party_condition_spells() -> void:
 	var free_fall = load("res://shared_assets/spells/free_fall.gd").new()
 	var hover = load("res://shared_assets/spells/hover.gd").new()
 	var discover_secret = load("res://shared_assets/spells/discover_secret.gd").new()
+	var wizard_eye = load("res://shared_assets/spells/wizard_eye.gd").new()
+	var thought_lace = load("res://shared_assets/spells/thought_lace.gd").new()
 	var sentry = load("res://shared_assets/spells/sentry.gd").new()
 	var priest_sentry = load(
 		"res://shared_assets/spells/classic_core_2710_sentry_priest.gd"
@@ -11914,6 +11930,26 @@ func _test_classic_party_condition_spells() -> void:
 		["Sorcerer", "Priest", "Enchanter"],
 		"Discover Secret remains available to all three source caster classes"
 	)
+	_expect_equal(wizard_eye.name, "Wizard Eye", "Wizard Eye resource identity")
+	_expect_equal(wizard_eye.classic_spell_ids, [1512], "Wizard Eye exact identity")
+	_expect_equal(wizard_eye.classic_special, 4, "Wizard Eye condition index")
+	_expect_equal(wizard_eye.classic_target_type, 7, "Wizard Eye targets the party")
+	_expect(wizard_eye.in_field and not wizard_eye.in_combat, "Wizard Eye is field-only")
+	_expect_equal(wizard_eye.get_min_duration(3, null), 8, "Wizard Eye minimum duration")
+	_expect_equal(wizard_eye.get_max_duration(3, null), 35, "Wizard Eye maximum duration")
+	_expect_equal(wizard_eye.get_sp_cost(3, null), 120, "Wizard Eye casting cost")
+	_expect_equal(wizard_eye.classic_spell_look_ids, [13, 5], "Wizard Eye source visuals")
+	_expect_equal(wizard_eye.classic_sound_ids, [67, 83], "Wizard Eye source sounds")
+	_expect_equal(thought_lace.name, "Thought Lace", "Thought Lace resource identity")
+	_expect_equal(thought_lace.classic_spell_ids, [1612], "Thought Lace exact identity")
+	_expect_equal(thought_lace.classic_special, 8, "Thought Lace condition index")
+	_expect_equal(thought_lace.classic_target_type, 7, "Thought Lace targets the party")
+	_expect(thought_lace.in_field and thought_lace.in_combat, "Thought Lace works in field and combat")
+	_expect_equal(thought_lace.get_min_duration(3, null), 3, "Thought Lace duration")
+	_expect_equal(thought_lace.get_max_duration(3, null), 3, "Thought Lace fixed duration")
+	_expect_equal(thought_lace.get_sp_cost(3, null), 225, "Thought Lace casting cost")
+	_expect_equal(thought_lace.classic_spell_look_ids, [11, 11], "Thought Lace source visuals")
+	_expect_equal(thought_lace.classic_sound_ids, [92, 93], "Thought Lace source sounds")
 	_expect_equal(sentry.name, "Sentry", "Enchanter Sentry resource identity")
 	_expect_equal(sentry.classic_spell_ids, [3611], "Enchanter Sentry exact identity")
 	_expect_equal(sentry.classic_special, 7, "Enchanter Sentry condition index")

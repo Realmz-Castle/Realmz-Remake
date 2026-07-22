@@ -124,7 +124,6 @@ func _is_party_condition_record(record: Dictionary) -> bool:
 			or not PartyConditionScript.EFFECT_BY_INDEX.has(abs(int(record.get("special", 0)))) \
 			or int(record.get("queueIcon", 0)) != 0 \
 			or int(record.get("cost", 0)) <= 0 \
-			or bool(record.get("inCombat", 0)) \
 			or not bool(record.get("inCamp", 0)):
 		return false
 	for field_name: String in ["damage1", "damage2", "powerDamage1", "powerDamage2"]:

@@ -91,11 +91,12 @@ static func spell_resolution(
 	roll: int,
 	classic_context := false,
 	caster: Object = null,
-	pre_resistance_roll: int = -1
+	pre_resistance_roll: int = -1,
+	party_charm_bonus: int = 0
 ) -> Dictionary:
 	var early_roll := pre_resistance_roll if pre_resistance_roll >= 0 else roll
 	var early: Dictionary = pre_resistance_resolution(
-		character, spell, power, early_roll, caster, classic_context
+		character, spell, power, early_roll, caster, classic_context, party_charm_bonus
 	)
 	if str(early.get("status", "")) == "error" or bool(early.get("resisted", false)):
 		return _early_stop_result(early, roll)
@@ -171,11 +172,14 @@ static func pre_resistance_resolution(
 	power: int,
 	roll: int,
 	caster: Object,
-	classic_context := false
+	classic_context := false,
+	party_charm_bonus: int = 0
 ) -> Dictionary:
 	var early: Dictionary
 	if spell_uses_charm_resistance(spell, classic_context):
-		early = charm_resistance_resolution(character, spell, power, roll, classic_context)
+		early = charm_resistance_resolution(
+			character, spell, power, roll, classic_context, party_charm_bonus
+		)
 		early["mode"] = "charm-resistance"
 	else:
 		early = opposed_level_resolution(character, spell, power, roll, caster)
@@ -225,7 +229,8 @@ static func charm_resistance_resolution(
 	spell: Object,
 	power: int,
 	roll: int,
-	classic_context := false
+	classic_context := false,
+	party_charm_bonus: int = 0
 ) -> Dictionary:
 	if not spell_uses_charm_resistance(spell, classic_context):
 		return {
@@ -257,7 +262,8 @@ static func charm_resistance_resolution(
 			}
 		resistance_chance = int(SpellSavesScript.save_chance_for(character, 0))
 	resistance_chance = int(resistance_chance) \
-		+ power * int(spell.get("classic_save_adjust"))
+		+ power * int(spell.get("classic_save_adjust")) \
+		+ party_charm_bonus
 	return {
 		"checksCharmResistance": true,
 		"chance": int(resistance_chance),
@@ -359,11 +365,12 @@ static func custom_spell_resolution(
 	power: int,
 	roll: int,
 	caster: Object = null,
-	pre_resistance_roll: int = -1
+	pre_resistance_roll: int = -1,
+	party_charm_bonus: int = 0
 ) -> Dictionary:
 	var early_roll := pre_resistance_roll if pre_resistance_roll >= 0 else roll
 	var early: Dictionary = charm_resistance_resolution(
-		character, spell, power, early_roll, true
+		character, spell, power, early_roll, true, party_charm_bonus
 	)
 	early["mode"] = "charm-resistance" \
 		if bool(early.get("checksCharmResistance", false)) else ""

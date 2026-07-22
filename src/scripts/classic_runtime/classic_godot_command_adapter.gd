@@ -1927,6 +1927,14 @@ func spell_effect_targets(target_mode: String, party: Array, selected: Array) ->
 	return []
 
 
+func _classic_party_charm_resistance_bonus(character: Object) -> int:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null \
+			or not game_global.has_method("classic_party_charm_resistance_bonus"):
+		return 0
+	return int(game_global.call("classic_party_charm_resistance_bonus", character))
+
+
 func classic_field_spell_target_resolution(
 	payload: Dictionary,
 	character: Object,
@@ -1952,7 +1960,8 @@ func classic_field_spell_target_resolution(
 		resistance_roll,
 		true,
 		null,
-		pre_resistance_roll
+		pre_resistance_roll,
+		_classic_party_charm_resistance_bonus(character)
 	)
 	var resisted := not forced and bool(resistance.get("resisted", false))
 	var save_resolution: Dictionary = SpellSavesScript.target_resolution(
@@ -2021,7 +2030,8 @@ func classic_custom_spell_target_resolution(
 		power,
 		resistance_roll,
 		null,
-		pre_resistance_roll
+		pre_resistance_roll,
+		_classic_party_charm_resistance_bonus(character)
 	)
 	var resistance_chance := int(resistance.get("chance", 0))
 	var resisted := not forced and bool(resistance.get("resisted", false))

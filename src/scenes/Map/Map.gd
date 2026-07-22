@@ -540,6 +540,7 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 	#bresenham_line(startpt : Vector2, endpt : Vector2, min_range : int, max_range : int) -> Array :
 	var explored_tiles_x_size = explored_tiles[0].size()
 	var explored_tiles_y_size = explored_tiles.size()
+	var ignore_blocking_sight := GameGlobal.exploration_sight_ignores_blocking_tiles()
 	for endpt in exploration_sight_dirs :
 		#continue
 		#print("explored_tiles_x_size : ",explored_tiles_x_size, ", explored_tiles_y_size : ", explored_tiles_y_size)
@@ -551,7 +552,7 @@ func explore_tiles_from_tilepos(tpos : Vector2) -> void :
 			var tile_stack: Array = mapdata[t.x][t.y]
 			if tile_stack.is_empty():
 				continue
-			if bool(tile_stack[0]["blkview"]) :
+			if bool(tile_stack[0]["blkview"]) and not ignore_blocking_sight:
 				break
 
 func generate_zoomed_map(mapname : String) -> void:

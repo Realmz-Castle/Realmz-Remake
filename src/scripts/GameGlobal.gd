@@ -1324,6 +1324,24 @@ func random_battles_allowed() -> bool:
 	return not is_global_effect_active("Sentry")
 
 
+func exploration_sight_ignores_blocking_tiles() -> bool:
+	return is_global_effect_active("Scrying")
+
+
+func classic_party_charm_resistance_bonus(character: Object) -> int:
+	if character == null:
+		return 0
+	var player_controlled := character is PlayerCharacter
+	if not player_controlled:
+		for property: Dictionary in character.get_property_list():
+			if str(property.get("name", "")) == "is_player_controlled":
+				player_controlled = bool(character.get("is_player_controlled"))
+				break
+	if not player_controlled:
+		return 0
+	return 50 if is_global_effect_active("CharmProt") else 0
+
+
 func is_global_effect_active(effect_name: String) -> bool:
 	var effect: Variant = global_effects.get(effect_name, {})
 	return effect is Dictionary and int(effect.get("Duration", 0)) > 0

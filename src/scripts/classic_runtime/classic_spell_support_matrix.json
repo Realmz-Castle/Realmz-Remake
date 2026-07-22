@@ -217,6 +217,22 @@
       ]
     },
     {
+      "id": "core-player-spell-wizard-eye",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "field-party", "map-exploration", "game-time", "combat-round", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 71, "displayName": "Sorcerer Wizard Eye"}
+      ]
+    },
+    {
+      "id": "core-player-spell-thought-lace",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "field-party", "combat-party", "charm-resistance", "game-time", "combat-round", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 86, "displayName": "Sorcerer Thought Lace"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -5375,6 +5391,56 @@
         "resistance": "none",
         "special": 3,
         "costPerPower": 5,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1512,
+      "displayName": "Wizard Eye",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/wizard_eye.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 71, "byteOffset": 2130, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-wizard-eye", "slots": [0]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "five-plus-one-to-ten-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 4,
+        "effect": "ignore-blocking-tiles-during-native-exploration-sight",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 4,
+        "costPerPower": 40,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1612,
+      "displayName": "Thought Lace",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/thought_lace.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 86, "byteOffset": 2580, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-thought-lace", "slots": [0]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-and-combat",
+        "duration": "one-condition-point-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 8,
+        "effect": "add-fifty-to-player-character-charm-save",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 8,
+        "costPerPower": 75,
         "adapter": "source-record-backed-classic-party-condition",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }

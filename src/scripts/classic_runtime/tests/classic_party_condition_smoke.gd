@@ -2,7 +2,13 @@ extends Node
 
 const FreeFallScript = preload("res://shared_assets/spells/free_fall.gd")
 const DiscoverSecretScript = preload("res://shared_assets/spells/discover_secret.gd")
+const WizardEyeScript = preload("res://shared_assets/spells/wizard_eye.gd")
+const ThoughtLaceScript = preload("res://shared_assets/spells/thought_lace.gd")
 const SentryScript = preload("res://shared_assets/spells/sentry.gd")
+const CharmFoeScript = preload("res://shared_assets/spells/charm_foe.gd")
+const CommandAdapterScript = preload(
+	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
+)
 
 var failures: Array[String] = []
 var original_time := 0
@@ -10,6 +16,21 @@ var original_global_effects: Dictionary = {}
 var original_conditions: Dictionary = {}
 var original_map_secrets: Dictionary = {}
 var original_script_areas: Dictionary = {}
+var original_explored_tiles: Array = []
+var original_map_data: Array = []
+var original_sight_dirs: Array = []
+
+
+class PartyMemberStub:
+	extends RefCounted
+	var name := "Party member"
+	var is_player_controlled: bool
+
+	func _init(player_controlled: bool) -> void:
+		is_player_controlled = player_controlled
+
+	func get_stat(stat_name: String) -> float:
+		return 1.0 if stat_name == "MultiplierMental" else 0.0
 
 
 func _ready() -> void:
@@ -23,6 +44,9 @@ func _run_smoke() -> void:
 	original_conditions = GameGlobal.classic_party_conditions.duplicate(true)
 	original_map_secrets = GameGlobal.map.mapsecrets.duplicate(true)
 	original_script_areas = GameGlobal.map.mapscriptareas.duplicate(true)
+	original_explored_tiles = GameGlobal.map.explored_tiles.duplicate(true)
+	original_map_data = GameGlobal.map.mapdata.duplicate(true)
+	original_sight_dirs = GameGlobal.map.exploration_sight_dirs.duplicate(true)
 
 	GameGlobal.time = 3500
 	GameGlobal.global_effects["FeatherFall"] = {"Duration": 0}
@@ -105,6 +129,70 @@ func _run_smoke() -> void:
 		"Classic Awareness guarantees the native secret-detection check"
 	)
 
+	GameGlobal.global_effects["Scrying"] = {"Duration": 0}
+	GameGlobal.map.exploration_sight_dirs = [Vector2(1, 0)]
+	GameGlobal.map.mapdata = []
+	for x in range(6):
+		GameGlobal.map.mapdata.append([[{"blkview": x == 1}]])
+	GameGlobal.map.explored_tiles = [[0, 0, 0, 0, 0, 0]]
+	GameGlobal.map.explore_tiles_from_tilepos(Vector2.ZERO)
+	_expect_equal(
+		GameGlobal.map.explored_tiles[0][2],
+		0,
+		"ordinary exploration sight stops after a blocking tile"
+	)
+	var wizard_eye = WizardEyeScript.new()
+	_expect_equal(
+		wizard_eye.apply_classic_duration(12),
+		12,
+		"Wizard Eye reaches the live Classic Scrying condition"
+	)
+	GameGlobal.map.explored_tiles = [[0, 0, 0, 0, 0, 0]]
+	GameGlobal.map.explore_tiles_from_tilepos(Vector2.ZERO)
+	_expect_equal(
+		GameGlobal.map.explored_tiles[0][5],
+		1,
+		"Wizard Eye lets the live exploration ray pass through blocking tiles"
+	)
+
+	GameGlobal.global_effects["CharmProt"] = {"Duration": 0}
+	var party_member := PartyMemberStub.new(true)
+	_expect_equal(
+		GameGlobal.classic_party_charm_resistance_bonus(party_member),
+		0,
+		"party members receive no charm bonus without Thought Lace"
+	)
+	var thought_lace = ThoughtLaceScript.new()
+	_expect_equal(
+		thought_lace.apply_classic_duration(3),
+		3,
+		"Thought Lace reaches the live Classic Charm Protection condition"
+	)
+	_expect_equal(
+		GameGlobal.classic_party_charm_resistance_bonus(party_member),
+		50,
+		"Thought Lace grants the source fifty-point charm-save bonus"
+	)
+	_expect_equal(
+		GameGlobal.classic_party_charm_resistance_bonus(PartyMemberStub.new(false)),
+		0,
+		"party charm protection does not affect non-player combatants"
+	)
+	var command_adapter = CommandAdapterScript.new()
+	var charm_resolution: Dictionary = command_adapter.classic_field_spell_target_resolution(
+		{"power": 1}, party_member, CharmFoeScript.new(), 100, 100, 50
+	)
+	_expect_equal(
+		charm_resolution.get("preResistanceChance"),
+		50,
+		"compiled spell resolution receives the active Thought Lace bonus"
+	)
+	_expect_equal(
+		charm_resolution.get("resisted"),
+		true,
+		"Thought Lace stops a matching charm roll in compiled spell resolution"
+	)
+
 	GameGlobal.global_effects["Sentry"] = {"Duration": 0}
 	_expect_equal(
 		GameGlobal.random_battles_allowed(),
@@ -153,6 +241,9 @@ func _finish() -> void:
 	GameGlobal.classic_party_conditions = original_conditions
 	GameGlobal.map.mapsecrets = original_map_secrets
 	GameGlobal.map.mapscriptareas = original_script_areas
+	GameGlobal.map.explored_tiles = original_explored_tiles
+	GameGlobal.map.mapdata = original_map_data
+	GameGlobal.map.exploration_sight_dirs = original_sight_dirs
 	if failures.is_empty():
 		print("Classic party-condition smoke passed.")
 		get_tree().quit(0)

@@ -425,7 +425,8 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			general_resistance_roll,
 			false,
 			castercrea,
-			pre_resistance_roll
+			pre_resistance_roll,
+			GameGlobal.classic_party_charm_resistance_bonus(cb.creature)
 		)
 		if bool(resistance.get("resisted", false)) :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
