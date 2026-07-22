@@ -562,6 +562,41 @@ class RegenerationTestCharacter:
 		current_hp = mini(maximum_hp, current_hp + change)
 
 
+class ProtectionTestTrait:
+	extends RefCounted
+	var name: String
+	var duration: int
+	var stacks := true
+
+	func _init(trait_name: String, rounds: int) -> void:
+		name = trait_name
+		duration = 5 * rounds
+
+	func stack(args: Array) -> void:
+		duration += 5 * int(args[0])
+
+
+class ProtectionTestCharacter:
+	extends RefCounted
+	var name: String
+	var is_player_controlled: bool
+	var traits: Array = []
+
+	func _init(character_name: String, player_controlled := false) -> void:
+		name = character_name
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		var trait_name := str(trait_script.resource_path).get_file()
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_instance := ProtectionTestTrait.new(trait_name, int(args[0]))
+		traits.append(trait_instance)
+		return trait_instance
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -930,6 +965,7 @@ func _init() -> void:
 	_test_classic_queued_area_spells()
 	_test_classic_healing_spells()
 	_test_classic_regeneration_spells()
+	_test_classic_protection_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7742,7 +7778,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		118,
+		125,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7867,8 +7903,9 @@ func _test_classic_spell_coverage() -> void:
 		1608, 1610, 1611, 1704, 1711, 1712, 2407, 2501, 2508, 2607, 3210, 3512,
 		3607, 3702, 3706,
 		2204, 2205, 2206, 2602, 2606, 3206, 3405, 3708,
+		2107, 2108, 2303, 3101, 3103, 3402, 3412,
 	]
-	_expect_equal(migrated_spell_ids.size(), 86, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 93, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7963,10 +8000,17 @@ func _test_classic_spell_coverage() -> void:
 		"Flesh": "res://shared_assets/spells/classic_core_2602_flesh.gd",
 		"Revive Dead": "res://shared_assets/spells/classic_core_2606_revive_dead.gd",
 		"Classic Flesh Enchanter": "res://shared_assets/spells/classic_core_3405_flesh_enchanter.gd",
+		"Protection from Cold": "res://shared_assets/spells/classic_core_2107_protection_from_cold.gd",
+		"Protection from Heat": "res://shared_assets/spells/classic_core_2108_protection_from_heat.gd",
+		"Electrical Protection": "res://shared_assets/spells/classic_core_2303_electrical_protection.gd",
+		"Chemical Protection": "res://shared_assets/spells/classic_core_3101_chemical_protection.gd",
+		"Classic Electrical Protection Enchanter": "res://shared_assets/spells/classic_core_3103_electrical_protection_enchanter.gd",
+		"Cool Breeze": "res://shared_assets/spells/classic_core_3402_cool_breeze.gd",
+		"Warmth": "res://shared_assets/spells/classic_core_3412_warmth.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		87,
+		94,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9055,6 +9099,151 @@ func _test_classic_regeneration_spells() -> void:
 		"temporary regeneration does not replace innate negative condition 10"
 	)
 	_expect(innate.traits.is_empty(), "innate regeneration receives no temporary trait")
+
+
+func _test_classic_protection_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_2107_protection_from_cold.gd",
+			"name": "Protection from Cold", "id": 2107, "special": 13,
+			"range": 6, "targets": 3, "duration": [4, 12], "cost": 12,
+			"looks": [6, 6], "sounds": [77, 45],
+			"element": GameGlobal.ELEMENTS.ICE,
+		},
+		{
+			"file": "classic_core_2108_protection_from_heat.gd",
+			"name": "Protection from Heat", "id": 2108, "special": 12,
+			"range": 6, "targets": 3, "duration": [4, 12], "cost": 12,
+			"looks": [9, 9], "sounds": [18, 86],
+			"element": GameGlobal.ELEMENTS.FIRE,
+		},
+		{
+			"file": "classic_core_2303_electrical_protection.gd",
+			"name": "Electrical Protection", "id": 2303, "special": 14,
+			"range": 6, "targets": 3, "duration": [4, 12], "cost": 12,
+			"looks": [8, 15], "sounds": [44, 30],
+			"element": GameGlobal.ELEMENTS.ELECTRIC,
+		},
+		{
+			"file": "classic_core_3101_chemical_protection.gd",
+			"name": "Chemical Protection", "id": 3101, "special": 15,
+			"range": 6, "targets": 3, "duration": [4, 12], "cost": 12,
+			"looks": [12, 12], "sounds": [81, 84],
+			"element": GameGlobal.ELEMENTS.CHEMICAL,
+		},
+		{
+			"file": "classic_core_3103_electrical_protection_enchanter.gd",
+			"name": "Classic Electrical Protection Enchanter", "id": 3103,
+			"special": 14, "range": 6, "targets": 3,
+			"duration": [4, 12], "cost": 12,
+			"looks": [10, 15], "sounds": [44, 30],
+			"element": GameGlobal.ELEMENTS.ELECTRIC,
+		},
+		{
+			"file": "classic_core_3402_cool_breeze.gd",
+			"name": "Cool Breeze", "id": 3402, "special": 12,
+			"range": 0, "targets": 1, "duration": [3, 6], "cost": 60,
+			"looks": [9, 8], "sounds": [77, 86],
+			"element": GameGlobal.ELEMENTS.FIRE,
+		},
+		{
+			"file": "classic_core_3412_warmth.gd",
+			"name": "Warmth", "id": 3412, "special": 13,
+			"range": 0, "targets": 1, "duration": [3, 6], "cost": 60,
+			"looks": [6, 6], "sounds": [26, 45],
+			"element": GameGlobal.ELEMENTS.ICE,
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(spell.classic_special, spec["special"], "%s protection condition" % label)
+		_expect_equal(spell.classic_spell_class, 8, "%s preserves spell class 8" % label)
+		_expect_equal(spell.classic_damage_type, 8, "%s remains miscellaneous" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(
+			spell.get_target_number(3, null),
+			spec["targets"],
+			"%s source target count" % label
+		)
+		_expect_equal(
+			spell.get_min_duration(3, null),
+			spec["duration"][0],
+			"%s minimum duration" % label
+		)
+		_expect_equal(
+			spell.get_max_duration(3, null),
+			spec["duration"][1],
+			"%s maximum duration" % label
+		)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+		_expect_equal(spell.elements, [spec["element"]], "%s native damage seam" % label)
+
+	var cool_breeze = load(
+		"res://shared_assets/spells/classic_core_3402_cool_breeze.gd"
+	).new()
+	_expect(cool_breeze.skip_targeting, "Cool Breeze automatically targets friendlies")
+	_expect_equal(
+		cool_breeze.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ALLIES,
+		"Cool Breeze uses the native all-allies target mode"
+	)
+	var first := ProtectionTestCharacter.new("First", true)
+	var second := ProtectionTestCharacter.new("Second", true)
+	_expect_equal(
+		cool_breeze.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Cool Breeze applies fire protection to every friendly target"
+	)
+	_expect_equal(first.traits[0].name, "t_prot_fire.gd", "Cool Breeze reuses native fire protection")
+	_expect_equal(
+		first.traits[0].duration,
+		second.traits[0].duration,
+		"one Classic duration roll is shared by every protected target"
+	)
+	_expect(
+		first.traits[0].duration in range(15, 31),
+		"Cool Breeze duration stays within its source bounds"
+	)
+
+	var heat = load(
+		"res://shared_assets/spells/classic_core_2108_protection_from_heat.gd"
+	).new()
+	var capped := ProtectionTestCharacter.new("Capped", true)
+	capped.traits.append(ProtectionTestTrait.new("t_prot_fire.gd", 98))
+	_expect_equal(
+		heat.apply_classic_scaled_effect(null, capped, 1, 1.0),
+		0,
+		"player protection rejects a duration that would exceed condition 99"
+	)
+	_expect_equal(capped.traits[0].duration, 490, "rejected protection leaves duration unchanged")
+	var capped_monster := ProtectionTestCharacter.new("Capped Monster")
+	capped_monster.traits.append(ProtectionTestTrait.new("t_prot_fire.gd", 123))
+	_expect_equal(
+		heat.apply_classic_scaled_effect(null, capped_monster, 1, 1.0),
+		0,
+		"monster protection rejects a duration that would exceed condition 124"
+	)
+	var innate := ProtectionTestCharacter.new("Innate", true)
+	innate.traits.append(ProtectionTestTrait.new("p_prot_fire.gd", 1))
+	_expect_equal(
+		heat.apply_classic_scaled_effect(null, innate, 1, 1.0),
+		0,
+		"temporary protection does not replace an innate negative condition"
+	)
+	_expect_equal(innate.traits.size(), 1, "innate protection receives no temporary trait")
 
 
 func _test_classic_restorative_spells() -> void:
