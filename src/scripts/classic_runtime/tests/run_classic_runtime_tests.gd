@@ -508,6 +508,49 @@ class HelplessTestCharacter:
 		return max_movement - used_movepoints
 
 
+class SlowTestTrait:
+	extends RefCounted
+	var name := "t_slow.gd"
+	var stacks := true
+	var duration := 0
+
+	func _init(rounds: int) -> void:
+		duration = rounds * 5
+
+	func stack(args: Array) -> void:
+		duration += int(args[0]) * 5
+
+
+class SlowTestCharacter:
+	extends RefCounted
+	var name: String
+	var is_player_controlled := false
+	var traits: Array = []
+	var max_movement := 20
+	var used_movepoints := 0
+
+	func _init(character_name: String, player_controlled := false) -> void:
+		name = character_name
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var condition_trait := SlowTestTrait.new(int(args[0]))
+		traits.append(condition_trait)
+		return condition_trait
+
+	func get_movement_left() -> int:
+		var current_maximum := max_movement
+		for trait_value: Variant in traits:
+			if trait_value.name == "t_slow.gd":
+				current_maximum = floori(float(current_maximum) / 2.0)
+				break
+		return current_maximum - used_movepoints
+
+
 class CharmTestCharacter:
 	extends RefCounted
 	var name: String
@@ -1270,6 +1313,7 @@ func _init() -> void:
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
+	_test_classic_slug_spells()
 	_test_classic_healing_spells()
 	_test_classic_regeneration_spells()
 	_test_classic_protection_spells()
@@ -8223,7 +8267,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		202,
+		204,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8406,6 +8450,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"helpless spell %d uses the reviewed condition path" % helpless_spell_id
 		)
+	for slug_spell_id: int in [1311, 2311]:
+		_expect_equal(
+			coverage_by_id.get(slug_spell_id, {}).get("coverageStatus"),
+			"supported",
+			"Slug %d uses the reviewed queued Slow path" % slug_spell_id
+		)
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
@@ -8453,8 +8503,9 @@ func _test_classic_spell_coverage() -> void:
 		3203, 3204, 3611,
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
+		1311, 2311,
 	]
-	_expect_equal(migrated_spell_ids.size(), 173, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 175, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8627,10 +8678,12 @@ func _test_classic_spell_coverage() -> void:
 		"Paralyzing Wall": "res://shared_assets/spells/classic_core_2510_paralyzing_wall.gd",
 		"Time Trap": "res://shared_assets/spells/classic_core_2610_time_trap.gd",
 		"Noxious Cloud": "res://shared_assets/spells/classic_core_3209_noxious_cloud.gd",
+		"Classic Slug Sorcerer": "res://shared_assets/spells/classic_core_1311_slug_sorcerer.gd",
+		"Slug": "res://shared_assets/spells/classic_core_2311_slug_priest.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		165,
+		167,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9785,6 +9838,147 @@ func _test_classic_helpless_spells() -> void:
 	_expect_equal(queue_action.get("spell"), wall, "Paralyzing Wall collision reuses its spell")
 	_expect(queue_action.get("from_terrain"), "Paralyzing Wall collision identifies the field")
 	_expect(not queue_action.get("add_terrain"), "Paralyzing Wall collision cannot duplicate its field")
+
+
+func _test_classic_slug_spells() -> void:
+	var sorcerer = load(
+		"res://shared_assets/spells/classic_core_1311_slug_sorcerer.gd"
+	).new()
+	var priest = load(
+		"res://shared_assets/spells/classic_core_2311_slug_priest.gd"
+	).new()
+	var specs := [
+		{
+			"spell": sorcerer,
+			"name": "Classic Slug Sorcerer",
+			"id": 1311,
+			"school": "Sorcerer",
+			"looks": [4, 4],
+			"sounds": [3, 10],
+		},
+		{
+			"spell": priest,
+			"name": "Slug",
+			"id": 2311,
+			"school": "Priest",
+			"looks": [8, 4],
+			"sounds": [0, 9],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell: Variant = spec["spell"]
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s native resource name" % label)
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact identity" % label)
+		_expect_equal(spell.classic_spell_class, 7, "%s effect class" % label)
+		_expect_equal(spell.classic_special, 7, "%s Slow condition code" % label)
+		_expect_equal(spell.classic_spell_save_index, 7, "%s save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, "negate", "%s save negates" % label)
+		_expect_equal(spell.classic_save_bonus, 10, "%s save bonus" % label)
+		_expect_equal(spell.classic_target_type, 3, "%s fixed-area targeting" % label)
+		_expect_equal(spell.classic_size, 14, "%s Data AD mask" % label)
+		_expect_equal(spell.get_aoe(3, null).size(), 28, "%s footprint" % label)
+		_expect_equal(spell.get_range(3, null), 10, "%s range" % label)
+		_expect(not spell.los, "%s ignores line of sight" % label)
+		_expect(not spell.rot, "%s mask is not rotatable" % label)
+		_expect_equal(spell.classic_queue_icon, 4, "%s queue icon" % label)
+		_expect_equal(spell.terrain_tex, "Web", "%s battlefield art" % label)
+		_expect(spell.is_classic_queued_spell(), "%s creates a queued field" % label)
+		_expect_equal(spell.get_min_duration(3, null), 3, "%s minimum duration" % label)
+		_expect_equal(spell.get_max_duration(3, null), 6, "%s maximum duration" % label)
+		_expect_equal(spell.get_sp_cost(3, null), 60, "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s source art" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s source sounds" % label)
+		_expect_equal(spell.school_levels.get(spec["school"]), 3, "%s source level" % label)
+
+	var slow_trait_script = load("res://shared_assets/traits/t_slow.gd")
+	for stat_name: String in [
+		"AccuracyMelee", "AccuracyRanged", "EvasionMelee", "EvasionRanged",
+	]:
+		_expect_equal(
+			slow_trait_script.adjust_stat(stat_name, 10),
+			7,
+			"native Slow applies Classic's 15-point %s adjustment" % stat_name
+		)
+	_expect_equal(
+		slow_trait_script.adjust_stat("MaxMovement", 21),
+		10,
+		"native Slow halves future movement with Classic integer division"
+	)
+	_expect_equal(
+		slow_trait_script.adjust_stat("MaxActions", 3),
+		3,
+		"Classic Slow leaves action count unchanged"
+	)
+
+	var first := SlowTestCharacter.new("First target", true)
+	first.used_movepoints = 5
+	var second := SlowTestCharacter.new("Second target")
+	sorcerer.begin_classic_target_resolution(null, 3)
+	var first_duration: int = sorcerer.apply_classic_scaled_effect(
+		null, first, 3, 1.0
+	)
+	var second_duration: int = sorcerer.apply_classic_scaled_effect(
+		null, second, 3, 1.0
+	)
+	sorcerer.end_classic_target_resolution()
+	_expect(first_duration in range(3, 7), "Slug uses its 1-2 rounds per power duration")
+	_expect_equal(second_duration, first_duration, "Slug shares one duration across its area")
+	_expect_equal(
+		first.traits[0].duration,
+		first_duration * 5,
+		"Slug stores its duration in the native Slow trait"
+	)
+	_expect_equal(first.get_movement_left(), 7, "Slug halves current partial-turn movement")
+	_expect_equal(second.get_movement_left(), 10, "Slug halves current full movement")
+
+	var stacked_before := int(first.traits[0].duration)
+	var stacked_duration: int = sorcerer.apply_classic_scaled_effect(
+		null, first, 1, 1.0
+	)
+	_expect_equal(
+		first.traits[0].duration,
+		stacked_before + stacked_duration * 5,
+		"Slug stacks later condition duration"
+	)
+	_expect_equal(first.get_movement_left(), 3, "a later Slug halves remaining movement again")
+
+	var capped := SlowTestCharacter.new("Capped target", true)
+	capped.traits.append(SlowTestTrait.new(99))
+	_expect_equal(
+		sorcerer.apply_classic_scaled_effect(null, capped, 1, 1.0),
+		0,
+		"a player Slow result of 100 or more is rejected"
+	)
+	_expect_equal(capped.traits[0].duration, 495, "a rejected duration leaves Slow unchanged")
+	_expect_equal(capped.get_movement_left(), 5, "special code 7 still halves current movement at the cap")
+
+	var saved := SlowTestCharacter.new("Saved target", true)
+	saved.used_movepoints = 5
+	_expect_equal(
+		sorcerer.apply_classic_scaled_effect(null, saved, 3, 0.0),
+		0,
+		"a successful special save prevents Slug"
+	)
+	_expect(saved.traits.is_empty(), "a successful save adds no Slow trait")
+	_expect_equal(saved.get_movement_left(), 15, "a successful save preserves movement")
+
+	var queue_caster := QueuedTerrainTestCreature.new(Vector2(1, 1))
+	var queue_target := QueuedTerrainTestCreature.new(Vector2(5, 5))
+	var queue_action := QueuedSpellRuntimeScript.action_for_effect(
+		{
+			"id": 62,
+			"classic": true,
+			"tiles": [Vector2i(5, 5)],
+			"caster": queue_caster,
+			"spell": sorcerer,
+			"power": 3,
+		},
+		QueuedTerrainTestButton.new(queue_target)
+	)
+	_expect_equal(queue_action.get("spell"), sorcerer, "Slug collision reuses its spell")
+	_expect(queue_action.get("from_terrain"), "Slug collision identifies the field")
+	_expect(not queue_action.get("add_terrain"), "Slug collision cannot duplicate its field")
 
 
 func _test_classic_healing_spells() -> void:

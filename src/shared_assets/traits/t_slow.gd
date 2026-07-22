@@ -9,7 +9,7 @@ func _init(args : Array):
 	#[chara, duration]
 	chara = args[0]
 	duration = 5*args[1]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is Slowed !', null,'')
+	log_status(chara, ' is Slowed !')
 
 func stack(args : Array) :
 	duration += 5*args[0]
@@ -26,12 +26,29 @@ func _on_new_round(_character : Creature) :
 		return
 	duration -= 5
 
-func _on_get_stat(statname : String, stat : int) :
-	if ['EvasionMelee5','EvasionRanged','AccuracyMelee','AccuracyRanged'].has(statname) :
-		return stat-3  #1  stat = 5% chance
+static func adjust_stat(statname : String, stat : int) :
+	if ['EvasionMelee','EvasionRanged','AccuracyMelee','AccuracyRanged'].has(statname) :
+		return stat-3  #1 stat = 5 percentage points
 	if statname == 'MaxMovement' :
-		return ceil(stat/2)
+		return floori(float(stat)/2.0)
 	return stat
+
+static func log_status(character, message: String) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return
+	var ui: Node = tree.root.get_node_or_null("UI")
+	if ui == null:
+		return
+	var hud: Variant = ui.get("ow_hud")
+	var creature_rect: Variant = hud.get("creatureRect") if hud is Object else null
+	var log_rect: Variant = creature_rect.get("logrect") \
+		if creature_rect is Object else null
+	if log_rect is Object and log_rect.has_method("log_other_text"):
+		log_rect.call("log_other_text", character, message, null, '')
+
+func _on_get_stat(statname : String, stat : int) :
+	return adjust_stat(statname, stat)
 
 func _on_time_pass(_character, seconds) :
 	if duration <= 0 :

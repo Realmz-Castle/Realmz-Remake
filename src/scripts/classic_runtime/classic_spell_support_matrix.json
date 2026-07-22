@@ -5941,6 +5941,73 @@
         "adapter": "source-record-backed-queued-native-helpless-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1311,
+      "displayName": "Slug",
+      "nativeResourceName": "Classic Slug Sorcerer",
+      "classification": "native-special-queued-slow",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1311_slug_sorcerer.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 40, "byteOffset": 1200, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-7-slow", "slots": [0]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 10,
+        "lineOfSight": false,
+        "areaMask": 14,
+        "queuedTerrain": "web",
+        "queueCollision": "rerun-resistance-save-and-condition",
+        "duration": "one-to-two-rounds-per-power",
+        "sharedDurationRoll": "once-per-cast-or-field-collision",
+        "conditionIndex": 6,
+        "effect": "halve-current-and-future-movement-and-adjust-physical-accuracy-evasion-by-fifteen-points",
+        "actionCount": "unchanged-source-behavior",
+        "stacking": "add-unless-result-reaches-condition-cap",
+        "playerConditionCapExclusive": 100,
+        "monsterConditionCapExclusive": 125,
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "saveBonus": 10,
+        "resistance": "classic-general",
+        "special": 7,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-queued-native-slow-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2311,
+      "displayName": "Slug",
+      "classification": "native-special-queued-slow",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2311_slug_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 145, "byteOffset": 4350, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-7-slow", "slots": [1]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 10,
+        "lineOfSight": false,
+        "areaMask": 14,
+        "queuedTerrain": "web",
+        "queueCollision": "rerun-resistance-save-and-condition",
+        "duration": "one-to-two-rounds-per-power",
+        "sharedDurationRoll": "once-per-cast-or-field-collision",
+        "conditionIndex": 6,
+        "effect": "halve-current-and-future-movement-and-adjust-physical-accuracy-evasion-by-fifteen-points",
+        "actionCount": "unchanged-source-behavior",
+        "stacking": "add-unless-result-reaches-condition-cap",
+        "playerConditionCapExclusive": 100,
+        "monsterConditionCapExclusive": 125,
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "saveBonus": 10,
+        "resistance": "classic-general",
+        "special": 7,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-queued-native-slow-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

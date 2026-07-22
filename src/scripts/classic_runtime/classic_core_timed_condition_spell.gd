@@ -113,7 +113,13 @@ static func apply_condition_duration(
 		if conflicting_condition_traits.has(trait_name):
 			return false
 		if trait_name == temporary_name:
-			current_duration = ceili(float(trait_value.get("duration_seconds")) / 5.0)
+			var stored_duration: Variant = trait_value.get("duration_seconds")
+			if stored_duration == null:
+				# Older native traits store the same value under `duration`.
+				stored_duration = trait_value.get("duration")
+			if stored_duration == null:
+				return false
+			current_duration = ceili(float(stored_duration) / 5.0)
 	var condition_cap := 99 if _is_player_character(target) else 124
 	if current_duration + duration > condition_cap:
 		return false

@@ -233,6 +233,15 @@ monster condition caps. Paralyzing Wall and Noxious Cloud retain their exact
 Data AD footprints as queued Web and Gas Cloud fields, so entering or remaining
 on an affected tile resolves the spell again without creating another field.
 
+The Sorcerer and Priest Slug records use Classic condition `7` (Slow). They
+share the same duration, save, resistance, area, and queued Web-field behavior,
+but retain their distinct launch art and sounds through separate exact-ID
+resources. A successful resolution halves the target's remaining movement
+immediately; the native Slow trait then halves later movement and applies the
+source's fixed 15-point physical attack and defense penalties. Although the
+spell description also promises fewer actions, the Classic combat code never
+changes the target's attack count, so the adapter leaves actions unchanged.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents
