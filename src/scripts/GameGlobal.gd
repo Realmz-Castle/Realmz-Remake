@@ -1097,7 +1097,14 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 #	print(weapon)
 	if weapon.has("_calculate_melee_attack_source") and should_check_script :
 		print("GameGlobal calculate_melee_damage USE CUSTOM ATK STRIPT")
-		return weapon["_calculate_melee_attack"]._calculate_melee_attack(attacker,defender, weapon, is_crit, crit_mult)
+		var custom_damage: Dictionary = weapon["_calculate_melee_attack"]._calculate_melee_attack(
+			attacker,
+			defender,
+			weapon,
+			is_crit,
+			crit_mult
+		)
+		return apply_classic_party_weapon_protection(custom_damage, attacker, defender)
 	#if weapon["name"] == "NO_MELEE_WEAPON" :
 		#print("GameGlobal calculate_melee_damage NO_MELEE_WEAPON : ", weapon)
 	var wpn_dmg_types : Dictionary = weapon["weapon_dmg"]
@@ -1149,7 +1156,21 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 			damage_detail[dv] = damage_detail[dv] * crit_mult
 	damage_detail["is_crit"] = is_crit
 	damage_detail["crit_mult"] = crit_mult
-	return damage_detail
+	return apply_classic_party_weapon_protection(damage_detail, attacker, defender)
+
+
+func apply_classic_party_weapon_protection(
+	damage_detail: Dictionary,
+	attacker: Object,
+	defender: Object
+) -> Dictionary:
+	var protects_target := not _is_player_controlled_character(attacker) \
+		and _is_player_controlled_character(defender)
+	return ClassicPartyConditionScript.adjust_weapon_damage(
+		damage_detail,
+		int(classic_party_conditions.get("2", 0)),
+		protects_target
+	)
 
 func calculate_spell_damage(attacker : Creature, defender : Creature, spell : Spell, spellpower : int, _should_check_script : bool = true) -> int :
 	#print("Gameglobal calculate_spell_damage : atker", attacker.name, ", defer", defender.name,", spell:", spell.name)
@@ -1329,17 +1350,20 @@ func exploration_sight_ignores_blocking_tiles() -> bool:
 
 
 func classic_party_charm_resistance_bonus(character: Object) -> int:
-	if character == null:
-		return 0
-	var player_controlled := character is PlayerCharacter
-	if not player_controlled:
-		for property: Dictionary in character.get_property_list():
-			if str(property.get("name", "")) == "is_player_controlled":
-				player_controlled = bool(character.get("is_player_controlled"))
-				break
-	if not player_controlled:
+	if not _is_player_controlled_character(character):
 		return 0
 	return 50 if is_global_effect_active("CharmProt") else 0
+
+
+func _is_player_controlled_character(character: Object) -> bool:
+	if character == null:
+		return false
+	if character is PlayerCharacter:
+		return true
+	for property: Dictionary in character.get_property_list():
+		if str(property.get("name", "")) == "is_player_controlled":
+			return bool(character.get("is_player_controlled"))
+	return false
 
 
 func is_global_effect_active(effect_name: String) -> bool:

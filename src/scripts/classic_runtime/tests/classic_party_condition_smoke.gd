@@ -2,6 +2,7 @@ extends Node
 
 const FreeFallScript = preload("res://shared_assets/spells/free_fall.gd")
 const WaterworldScript = preload("res://shared_assets/spells/waterworld.gd")
+const OgreHideScript = preload("res://shared_assets/spells/ogre_hide.gd")
 const DiscoverSecretScript = preload("res://shared_assets/spells/discover_secret.gd")
 const WizardEyeScript = preload("res://shared_assets/spells/wizard_eye.gd")
 const ThoughtLaceScript = preload("res://shared_assets/spells/thought_lace.gd")
@@ -52,6 +53,7 @@ func _run_smoke() -> void:
 	GameGlobal.time = 3500
 	GameGlobal.global_effects["FeatherFall"] = {"Duration": 0}
 	GameGlobal.global_effects["WaterBreath"] = {"Duration": 0}
+	GameGlobal.global_effects["Shielded"] = {"Duration": 0}
 	GameGlobal.classic_party_conditions.clear()
 
 	var command_adapter = CommandAdapterScript.new()
@@ -75,6 +77,39 @@ func _run_smoke() -> void:
 		waterworld.apply_classic_duration(8),
 		12,
 		"a shorter Waterworld recast leaves the live condition unchanged"
+	)
+
+	var ogre_hide = OgreHideScript.new()
+	_expect_equal(
+		ogre_hide.apply_classic_duration(10),
+		10,
+		"Ogre Hide reaches the live Classic party-condition state"
+	)
+	_expect_equal(
+		GameGlobal.global_effects["Shielded"]["Duration"],
+		32500,
+		"the exact counter is exposed through Remake's Shielded duration"
+	)
+	var enemy := PartyMemberStub.new(false)
+	var party_member := PartyMemberStub.new(true)
+	var protected_damage: Dictionary = GameGlobal.apply_classic_party_weapon_protection(
+		{"Physical": 8, "Bonus_dmg": 1, "Chemical": 3, "total": 12},
+		enemy,
+		party_member
+	)
+	_expect_equal(
+		protected_damage,
+		{"Physical": 4, "Bonus_dmg": 0, "Chemical": 3, "total": 7},
+		"Ogre Hide reduces an incoming enemy weapon hit without reducing elemental damage"
+	)
+	_expect_equal(
+		GameGlobal.apply_classic_party_weapon_protection(
+			{"Physical": 8, "Bonus_dmg": 1, "total": 9},
+			party_member,
+			party_member
+		).get("total"),
+		9,
+		"Ogre Hide does not reduce a party member's friendly attack"
 	)
 
 	var free_fall = FreeFallScript.new()
@@ -181,7 +216,6 @@ func _run_smoke() -> void:
 	)
 
 	GameGlobal.global_effects["CharmProt"] = {"Duration": 0}
-	var party_member := PartyMemberStub.new(true)
 	_expect_equal(
 		GameGlobal.classic_party_charm_resistance_bonus(party_member),
 		0,

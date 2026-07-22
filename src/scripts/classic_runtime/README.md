@@ -404,11 +404,12 @@ Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path sr
 ```
 
 The party-condition smoke verifies the live GameGlobal boundary used by
-Waterworld, Free Fall, Hover, Discover Secret, Wizard Eye, Thought Lace, and
-Sentry, including longer-result replacement, combat and hourly decay, native
-HUD durations, secret detection, exploration through sight blockers, charm
-resistance, wandering-battle suppression, and restoration of the exact Classic
-counters:
+Waterworld, Vorpal Shield, Ogre Hide, Dragon Hide, Free Fall, Hover, Discover
+Secret, Wizard Eye, Thought Lace, and Sentry. It covers longer-result
+replacement, combat and hourly decay, native HUD durations, the five-point
+physical weapon-damage reduction, secret detection, exploration through sight
+blockers, charm resistance, wandering-battle suppression, and restoration of
+the exact Classic counters:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn

@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 193)
+        self.assertEqual(report["totals"]["supportedIdentities"], 196)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -206,8 +206,11 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             1612: 8,
             2104: 6,
             2202: 3,
+            2312: 2,
             2710: 7,
+            3107: 2,
             3203: 3,
+            3204: 2,
             3611: 7,
         }
         for spell_id, expected_condition in party_conditions_by_spell.items():

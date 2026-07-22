@@ -5688,6 +5688,84 @@
         "adapter": "source-record-backed-classic-party-condition",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 2312,
+      "displayName": "Vorpal Shield",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/vorpal_shield.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 146, "byteOffset": 4380, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-dragon-hide-condition", "slots": [0]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "twelve-to-twenty-four-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 2,
+        "effect": "reduce-incoming-monster-physical-attack-damage-by-five-minimum-one",
+        "elementalDamage": "unchanged",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 2,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-party-weapon-protection",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3107,
+      "displayName": "Ogre Hide",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/ogre_hide.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 216, "byteOffset": 6480, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-dragon-hide-condition", "slots": [1]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "eight-to-sixteen-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 2,
+        "effect": "reduce-incoming-monster-physical-attack-damage-by-five-minimum-one",
+        "elementalDamage": "unchanged",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 2,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-party-weapon-protection",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3204,
+      "displayName": "Dragon Hide",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/dragon_hide.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 228, "byteOffset": 6840, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-dragon-hide-condition", "slots": [2]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "sixteen-to-thirty-two-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 2,
+        "effect": "reduce-incoming-monster-physical-attack-damage-by-five-minimum-one",
+        "elementalDamage": "unchanged",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 2,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-party-weapon-protection",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }
