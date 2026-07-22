@@ -16,8 +16,8 @@ const CLASSIC_SPELL_SAVES_SCRIPT = preload(
 const CLASSIC_SPELL_REFLECTION_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_spell_reflection.gd"
 )
-const CLASSIC_MONSTER_STATUS_ATTACK_SCRIPT = preload(
-	"res://scripts/classic_runtime/classic_monster_status_attack.gd"
+const CLASSIC_MONSTER_SPECIAL_ATTACK_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_monster_special_attack.gd"
 )
 
 var cur_action : Dictionary
@@ -609,13 +609,15 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		SfxPlayer.play()
 		#await defender.atkanimTimer.timeout
 		defender.creature.focus_counter +=1 
-		var classic_status: Dictionary = CLASSIC_MONSTER_STATUS_ATTACK_SCRIPT.apply_from_weapon(
+		var classic_special: Dictionary = CLASSIC_MONSTER_SPECIAL_ATTACK_SCRIPT.apply_from_weapon(
 			attacker.creature,
 			defender.creature,
-			weapon
+			weapon,
+			-1,
+			GameGlobal.classic_party_charm_resistance_bonus(defender.creature)
 		)
-		if str(classic_status.get("status", "ok")) == "error":
-			push_error(str(classic_status.get(
+		if str(classic_special.get("status", "ok")) == "error":
+			push_error(str(classic_special.get(
 				"message", "Classic monster status attack failed"
 			)))
 		defender.creature.change_cur_hp(-damage_detail["total"])

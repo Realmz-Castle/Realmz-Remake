@@ -4,6 +4,7 @@ extends RefCounted
 const SAVE_MODES := ["none", "negate", "half_damage"]
 const META_SAVES_KEY := "classic_spell_saves"
 const META_IMMUNITIES_KEY := "classic_spell_immunities"
+const META_HIT_DICE_KEY := "classic_hit_dice"
 const MONSTER_SAVE_COUNT := 6
 const SAVE_STATS := {
 	0: ["MultiplierMental", "ResistanceMental"],
@@ -51,6 +52,41 @@ static func save_chance_for(character: Object, save_index: int) -> float:
 	var resistance := float(character.get_stat(stat_names[1]))
 	# Remake stores elemental defense as damage modifiers rather than Classic DRVs.
 	return clampf((2.0 * (1.0 - multiplier) + 0.1 * resistance) * 100.0, 0.0, 100.0)
+
+
+static func monster_attack_save_chance_for(
+	character: Object,
+	save_index: int,
+	party_charm_bonus := 0
+) -> float:
+	if character == null or not character.has_meta(META_HIT_DICE_KEY):
+		return clampf(
+			save_chance_for(character, save_index) + party_charm_bonus,
+			0.0,
+			100.0
+		)
+
+	var saves := monster_saves(character.get_meta(META_SAVES_KEY, []))
+	if save_index == 7:
+		var total := 0
+		for value: Variant in saves:
+			total += int(value)
+		return clampf(float(int(float(total) / float(MONSTER_SAVE_COUNT))), 0.0, 100.0)
+	if save_index < 0 or save_index > MONSTER_SAVE_COUNT:
+		return 0.0
+
+	var immunities := monster_immunities(
+		character.get_meta(META_IMMUNITIES_KEY, [])
+	)
+	if save_index < MONSTER_SAVE_COUNT and int(immunities[save_index]) != 0:
+		return 100.0
+	# savevs grants Undead monsters automatic Charm, Chemical, and Mental saves.
+	if save_index in [0, 4, 5] and _has_tag(character, "Undead"):
+		return 100.0
+	# Monster save bytes cover types 1-6; Charm has no ordinary monster save byte.
+	if save_index == 0:
+		return 0.0
+	return clampf(float(saves[save_index - 1]), 0.0, 100.0)
 
 
 static func target_resolution(
@@ -124,6 +160,15 @@ static func _monster_save_chance(character: Object, save_index: int) -> Variant:
 			total += int(value)
 		return clampf(float(int(float(total) / float(MONSTER_SAVE_COUNT))), 0.0, 100.0)
 	return null
+
+
+static func _has_tag(character: Object, tag: String) -> bool:
+	for property: Dictionary in character.get_property_list():
+		if str(property.get("name", "")) != "tags":
+			continue
+		var tags: Variant = character.get("tags")
+		return tags is Array and tag in tags
+	return false
 
 
 static func _integer_array(values: Variant, expected_size: int) -> Array:

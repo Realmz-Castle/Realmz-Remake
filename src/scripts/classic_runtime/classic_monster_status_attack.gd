@@ -116,13 +116,16 @@ static func apply(
 		"saveIndex": save_index,
 		"applied": false,
 	}
-	var is_player_target := bool(target.get("is_player_controlled"))
-	if not is_player_target \
+	var is_monster_target := target.has_meta("classic_hit_dice")
+	if is_monster_target \
 			and int(target.get_meta("classic_magic_resistance", 0)) > 100:
 		result["blockedByMagicResistance"] = true
 		return result
 	var actual_save_roll := save_roll if save_roll >= 0 else randi_range(1, 100)
-	var save_chance := SpellSavesScript.save_chance_for(target, save_index)
+	var save_chance := SpellSavesScript.monster_attack_save_chance_for(
+		target,
+		save_index
+	)
 	result["saveChance"] = save_chance
 	result["saveRoll"] = actual_save_roll
 	result["saved"] = actual_save_roll <= save_chance
@@ -138,7 +141,7 @@ static func apply(
 	var current_duration := _condition_duration(traits, definition["temporaryTraits"])
 	result["previousDuration"] = current_duration
 	# Party conditions stop stacking at 30; the monster path has no equivalent cap.
-	if is_player_target and current_duration >= 30:
+	if not is_monster_target and current_duration >= 30:
 		result["capped"] = true
 		return result
 

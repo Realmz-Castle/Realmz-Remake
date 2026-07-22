@@ -90,6 +90,9 @@ const MonsterWeaponRulesScript = preload(
 const MonsterStatusAttackScript = preload(
 	"res://scripts/classic_runtime/classic_monster_status_attack.gd"
 )
+const MonsterSpecialAttackScript = preload(
+	"res://scripts/classic_runtime/classic_monster_special_attack.gd"
+)
 const MaterializationFixtureAuditScript = preload(
 	"res://scripts/classic_runtime/classic_materialization_fixture_audit.gd"
 )
@@ -597,6 +600,62 @@ class CharmTestCharacter:
 		name = character_name
 		baseFaction = faction
 		curFaction = faction
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		if trait_instance.has_method("_on_remove_trait"):
+			trait_instance._on_remove_trait(self, trait_instance)
+		traits.erase(trait_instance)
+
+
+class MonsterSpecialAttackTestCharacter:
+	extends RefCounted
+	var name: String
+	var baseFaction: int
+	var curFaction: int
+	var is_player_controlled: bool
+	var creature_script = null
+	var creature_script_memory: Dictionary = {}
+	var exp_tnl := 1000
+	var tags: Array = []
+	var traits: Array = []
+	var stats := {
+		"curSP": 0,
+		"maxSP": 0,
+		"maxHP": 20,
+		"MultiplierMental": 1.0,
+		"ResistanceMental": 0.0,
+		"MultiplierMagic": 1.0,
+		"ResistanceMagic": 0.0,
+	}
+
+	func _init(
+		character_name: String,
+		faction: int,
+		spell_points := 0,
+		maximum_hp := 20,
+		player_controlled := false
+	) -> void:
+		name = character_name
+		baseFaction = faction
+		curFaction = faction
+		is_player_controlled = player_controlled
+		stats["curSP"] = spell_points
+		stats["maxSP"] = spell_points
+		stats["maxHP"] = maximum_hp
+
+	func get_stat(stat_name: String) -> Variant:
+		return stats.get(stat_name, 0)
 
 	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		for existing_trait: Variant in traits:
@@ -1506,6 +1565,7 @@ func _init() -> void:
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
 	_test_classic_bestiary_materializer()
+	_test_classic_monster_special_attacks()
 	_test_classic_map_sound_bridge()
 	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
@@ -4112,6 +4172,23 @@ func _test_classic_bestiary_materializer() -> void:
 			status_specials[special_code],
 			"Classic status attack %d selects the expected trait" % special_code
 		)
+	for special_code: int in [8, 9, 10]:
+		var special_record: Dictionary = bundle.get_monster(1).duplicate(true)
+		special_record["weapon"] = 0
+		special_record["attacks"][0][3] = special_code
+		var special_attacks: Dictionary = materializer._native_attacks(special_record)
+		_expect_equal(
+			special_attacks.get("unsupportedFields"),
+			[],
+			"unarmed Classic special attack %d is executable" % special_code
+		)
+		_expect_equal(
+			special_attacks.get("entries", [])[0].get(
+				"extra_data", {}
+			).get("classicSpecialAttack"),
+			special_code,
+			"unarmed Classic special attack %d keeps its source identity" % special_code
+		)
 	var armed_status_record: Dictionary = bundle.get_monster(1).duplicate(true)
 	armed_status_record["weapon"] = 1
 	armed_status_record["attacks"][0][3] = 6
@@ -4173,6 +4250,7 @@ func _test_classic_bestiary_materializer() -> void:
 	_expect(bool(capped_result.get("capped")), "monster status does not stack at 30 rounds")
 	var monster_target := ConditionTestCharacter.new("Monster target")
 	monster_target.is_player_controlled = false
+	monster_target.set_meta("classic_hit_dice", 4)
 	monster_target.traits.append(ConditionTestTrait.new("t_poison.gd", 30))
 	var monster_target_result: Dictionary = MonsterStatusAttackScript.apply(
 		status_attacker,
@@ -4187,6 +4265,7 @@ func _test_classic_bestiary_materializer() -> void:
 	)
 	var resistant_monster := ConditionTestCharacter.new("Resistant monster")
 	resistant_monster.is_player_controlled = false
+	resistant_monster.set_meta("classic_hit_dice", 4)
 	resistant_monster.set_meta("classic_magic_resistance", 101)
 	var resisted_monster_result: Dictionary = MonsterStatusAttackScript.apply(
 		status_attacker,
@@ -4817,7 +4896,7 @@ func _test_classic_bestiary_materializer() -> void:
 	var unsupported_bundle = BundleScript.new()
 	unsupported_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
 	_clear_producer_monster_equipment(unsupported_bundle)
-	unsupported_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 8
+	unsupported_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 17
 	_expect_equal(
 		materializer.materialize(unsupported_bundle, unsupported_root).get("status"),
 		"ok",
@@ -4848,6 +4927,175 @@ func _test_classic_bestiary_materializer() -> void:
 		CampaignPackageInstallerScript.new()._remove_directory(test_root),
 		OK,
 		"bestiary materializer test cleans its workspace"
+	)
+
+
+func _test_classic_monster_special_attacks() -> void:
+	var drain_attacker := MonsterSpecialAttackTestCharacter.new(
+		"Spell drainer", 1, 2, 20, false
+	)
+	drain_attacker.set_meta("classic_hit_dice", 4)
+	var drain_target := MonsterSpecialAttackTestCharacter.new(
+		"Spell target", 0, 20, 20, true
+	)
+	var drain_result: Dictionary = MonsterSpecialAttackScript.apply(
+		drain_attacker, drain_target, 8, 100
+	)
+	_expect(bool(drain_result.get("applied")), "failed save applies spell-point drain")
+	_expect_equal(
+		drain_result.get("drainedSpellPoints"),
+		12,
+		"spell-point drain uses three points per attacker hit die"
+	)
+	_expect_equal(
+		drain_target.stats.get("curSP"),
+		8,
+		"spell-point drain subtracts from the target"
+	)
+	_expect_equal(
+		drain_attacker.stats.get("curSP"),
+		14,
+		"drained spell points can raise the attacker above its normal maximum"
+	)
+
+	var saved_drain_target := MonsterSpecialAttackTestCharacter.new(
+		"Protected spell target", 0, 20, 20, true
+	)
+	saved_drain_target.stats["MultiplierMagic"] = 0.5
+	var saved_drain: Dictionary = MonsterSpecialAttackScript.apply(
+		drain_attacker, saved_drain_target, 8, 1
+	)
+	_expect(bool(saved_drain.get("saved")), "magic save negates spell-point drain")
+	_expect_equal(
+		saved_drain_target.stats.get("curSP"),
+		20,
+		"saved spell-point drain leaves the target unchanged"
+	)
+
+	var experience_attacker := MonsterSpecialAttackTestCharacter.new(
+		"Victory drainer", 1, 0, 20, false
+	)
+	experience_attacker.set_meta("classic_hit_dice", 4)
+	var experience_target := MonsterSpecialAttackTestCharacter.new(
+		"Experience target", 0, 0, 20, true
+	)
+	var experience_result: Dictionary = MonsterSpecialAttackScript.apply(
+		experience_attacker, experience_target, 9, 100
+	)
+	_expect(bool(experience_result.get("applied")), "failed save applies experience drain")
+	_expect_equal(
+		experience_result.get("experienceRemoved"),
+		400,
+		"experience drain uses twenty points per attacker maximum stamina"
+	)
+	_expect_equal(
+		experience_target.exp_tnl,
+		1400,
+		"experience drain increases Remake's experience-to-next-level balance"
+	)
+	var monster_experience_target := MonsterSpecialAttackTestCharacter.new(
+		"Monster experience target", 0
+	)
+	monster_experience_target.set_meta("classic_hit_dice", 2)
+	var monster_experience_result: Dictionary = MonsterSpecialAttackScript.apply(
+		experience_attacker, monster_experience_target, 9, 100
+	)
+	_expect(
+		bool(monster_experience_result.get("partyTargetOnly")),
+		"experience drain preserves Classic's party-only target rule"
+	)
+	_expect_equal(
+		monster_experience_target.exp_tnl,
+		1000,
+		"party-only experience drain leaves monster state unchanged"
+	)
+
+	var charmer := MonsterSpecialAttackTestCharacter.new("Charmer", 1)
+	charmer.set_meta("classic_hit_dice", 4)
+	var charm_target := MonsterSpecialAttackTestCharacter.new(
+		"Charm target", 0, 0, 20, true
+	)
+	var charm_result: Dictionary = MonsterSpecialAttackScript.apply(
+		charmer, charm_target, 10, 100
+	)
+	_expect(bool(charm_result.get("applied")), "failed Charm save changes allegiance")
+	_expect_equal(charm_target.curFaction, 1, "Charm adopts the attacker's faction")
+	_expect_equal(charm_target.traits.size(), 1, "Charm uses the native battle trait")
+	charm_target.traits[0]._on_battle_end(charm_target)
+	_expect_equal(charm_target.curFaction, 0, "battle end restores a charmed target's faction")
+	_expect(charm_target.traits.is_empty(), "battle end removes the Charm trait")
+	var monster_charm_target := MonsterSpecialAttackTestCharacter.new(
+		"Monster charm target", 0
+	)
+	monster_charm_target.set_meta("classic_hit_dice", 2)
+	SpellSavesScript.apply_monster_metadata(
+		monster_charm_target,
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0]
+	)
+	charmer.creature_script_memory["target_crea"] = monster_charm_target
+	var monster_charm: Dictionary = MonsterSpecialAttackScript.apply(
+		charmer, monster_charm_target, 10, 100
+	)
+	_expect(bool(monster_charm.get("applied")), "failed monster Charm save changes allegiance")
+	_expect_equal(
+		monster_charm_target.curFaction,
+		1,
+		"monster Charm adopts the attacker's faction"
+	)
+	_expect(
+		bool(monster_charm.get("attackerTargetCleared")),
+		"monster Charm reports clearing the attacker's cached target"
+	)
+	_expect(
+		not charmer.creature_script_memory.has("target_crea"),
+		"monster Charm makes Remake AI select a new target"
+	)
+
+	var party_protected_target := MonsterSpecialAttackTestCharacter.new(
+		"Protected charm target", 0, 0, 20, true
+	)
+	var protected_charm: Dictionary = MonsterSpecialAttackScript.apply(
+		charmer, party_protected_target, 10, 50, 50
+	)
+	_expect(
+		bool(protected_charm.get("saved")),
+		"party Charm resistance contributes to the Classic monster attack save"
+	)
+	_expect_equal(
+		party_protected_target.curFaction,
+		0,
+		"successful Charm resistance leaves faction unchanged"
+	)
+
+	var undead_target := MonsterSpecialAttackTestCharacter.new("Undead target", 0)
+	undead_target.set_meta("classic_hit_dice", 2)
+	undead_target.tags = ["Undead"]
+	SpellSavesScript.apply_monster_metadata(
+		undead_target,
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0]
+	)
+	var undead_charm: Dictionary = MonsterSpecialAttackScript.apply(
+		charmer, undead_target, 10, 100
+	)
+	_expect(bool(undead_charm.get("saved")), "Undead monsters automatically save against Charm")
+	_expect_equal(undead_target.curFaction, 0, "Undead Charm save leaves faction unchanged")
+
+	var resistant_target := MonsterSpecialAttackTestCharacter.new("Resistant target", 0, 20)
+	resistant_target.set_meta("classic_hit_dice", 2)
+	resistant_target.set_meta("classic_magic_resistance", 101)
+	var resistant_result: Dictionary = MonsterSpecialAttackScript.apply(
+		drain_attacker, resistant_target, 8, 100
+	)
+	_expect(
+		bool(resistant_result.get("blockedByMagicResistance")),
+		"monster magic resistance over 100 blocks drain and Charm attacks"
+	)
+	_expect_equal(
+		resistant_target.stats.get("curSP"),
+		20,
+		"blocked spell-point drain leaves monster state unchanged"
 	)
 
 
@@ -6515,6 +6763,58 @@ func _test_classic_spell_save_contract() -> void:
 		GodotAdapterScript.new()._classic_spell_save_chance(target, 0),
 		100.0,
 		"encounter save checks use the same preserved monster contract"
+	)
+
+	var attack_target := RogueTestCharacter.new()
+	attack_target.set_meta("classic_hit_dice", 4)
+	attack_target.tags = []
+	SpellSavesScript.apply_monster_metadata(
+		attack_target,
+		[11, 22, 33, 44, 55, 66],
+		[0, 0, 0, 0, 0, 0]
+	)
+	_expect_equal(
+		SpellSavesScript.monster_attack_save_chance_for(attack_target, 0),
+		0.0,
+		"ordinary Classic monsters have no raw Charm save byte"
+	)
+	_expect_equal(
+		SpellSavesScript.monster_attack_save_chance_for(attack_target, 4),
+		44.0,
+		"monster attacks use the source save byte preceding their save index"
+	)
+	_expect_equal(
+		SpellSavesScript.monster_attack_save_chance_for(attack_target, 6),
+		66.0,
+		"monster attack save index six uses the sixth source save byte"
+	)
+	_expect_equal(
+		SpellSavesScript.monster_attack_save_chance_for(attack_target, 7),
+		38.0,
+		"monster special save averages all six source save bytes"
+	)
+	attack_target.tags = ["Undead"]
+	for save_index: int in [0, 4, 5]:
+		_expect_equal(
+			SpellSavesScript.monster_attack_save_chance_for(attack_target, save_index),
+			100.0,
+			"Undead monster attack save %d is automatic" % save_index
+		)
+	attack_target.tags = []
+	SpellSavesScript.apply_monster_metadata(
+		attack_target,
+		[11, 22, 33, 44, 55, 66],
+		[0, 0, 0, 0, 0, 1]
+	)
+	_expect_equal(
+		SpellSavesScript.monster_attack_save_chance_for(attack_target, 5),
+		100.0,
+		"monster attack immunities cover source save families zero through five"
+	)
+	_expect_equal(
+		SpellSavesScript.monster_attack_save_chance_for(attack_target, 6),
+		66.0,
+		"the sixth source save has no matching Classic immunity flag"
 	)
 
 
