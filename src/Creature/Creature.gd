@@ -1024,6 +1024,18 @@ func on_classic_spell_targeted(attacker: Creature, spell, power: int) -> Array:
 			returned_action_queue.append_array(result[1])
 	return [continue_action, returned_action_queue]
 
+
+func on_melee_reflection_check(attacker: Creature, weapon: Dictionary) -> bool:
+	for trait_value in traits:
+		if trait_value.has_method("_on_melee_reflection_check"):
+			return bool(trait_value._on_melee_reflection_check(
+				attacker,
+				weapon,
+				randi_range(1, 100)
+			))
+	return false
+
+
 func on_after_melee_attack() :
 	if current_melee_weapons[0]["name"]=="NO_MELEE_WEAPON" :
 		if rotating_unarmed_melee_weapons.size()>0 :

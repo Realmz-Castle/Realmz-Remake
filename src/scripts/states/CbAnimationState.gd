@@ -565,6 +565,13 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 	if not continue_action :
 		#print("CbAnimation.perform_melee_attack : not continue_action , returned_action_queue = ", returned_action_queue)
 		return [continue_action, returned_action_queue]
+	# Classic redirects an attack that already hit; it does not queue a second
+	# attack with another accuracy roll or action cost.
+	if hit_success and defendercb.creature.on_melee_reflection_check(
+		attackercb.creature,
+		weapon
+	):
+		defendercb = attackercb
 	var picture : String = "ATK_WPN"
 	if attackercb.creature.current_melee_weapons[0].has("melee_atk_anim_icon") :
 		picture = attackercb.creature.current_melee_weapons[0]["melee_atk_anim_icon"]
@@ -584,8 +591,8 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		
 		
 		
-		var attacker = msg["attacker"]
-		var defender = msg["defender"]
+		var attacker = attackercb
+		var defender = defendercb
 		
 		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[ attacker.creature.current_melee_weapons[0]["sound"] ]
 		UI.ow_hud.creatureRect.logrect.log_melee_attack(attacker,defender,damage_detail, accuracy, is_crit, crit_mult, crit_rate)

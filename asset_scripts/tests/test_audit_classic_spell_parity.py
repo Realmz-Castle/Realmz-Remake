@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 154)
+        self.assertEqual(report["totals"]["supportedIdentities"], 160)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -386,6 +386,25 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
                 "before-magic-resistance-and-save",
             )
             self.assertFalse(deflector["behavior"]["recursiveReflection"])
+            deflector_resource = (
+                REPO_ROOT
+                / "src"
+                / deflector["resource"].removeprefix("res://")
+            )
+            self.assertTrue(deflector_resource.is_file(), deflector_resource)
+        for spell_id in {1406, 1606, 2307, 2506, 3408, 3608}:
+            deflector = matrix_by_id[spell_id]
+            self.assertEqual(deflector["supportStatus"], "supported")
+            self.assertEqual(
+                deflector["classification"], "native-special-attack-deflection"
+            )
+            self.assertEqual(deflector["behavior"]["conditionIndex"], 31)
+            self.assertEqual(
+                deflector["behavior"]["reflectionOrder"],
+                "after-original-hit-before-damage",
+            )
+            self.assertFalse(deflector["behavior"]["secondAccuracyRoll"])
+            self.assertFalse(deflector["behavior"]["additionalActionCost"])
             deflector_resource = (
                 REPO_ROOT
                 / "src"
