@@ -471,6 +471,14 @@
       ]
     },
     {
+      "id": "core-player-spell-blindness",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "character-save", "condition-cure"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 151, "displayName": "Priest Blind"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -4196,6 +4204,34 @@
         "special": 27,
         "costPerPower": 50,
         "adapter": "classic-permanent-petrification",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2402,
+      "displayName": "Blind",
+      "classification": "native-special-blindness",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2402_blind.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 151, "byteOffset": 4530, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-blindness", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 1,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "permanent-blindness",
+        "conditionIndex": 27,
+        "nativeTrait": "p_classic_blind.gd",
+        "accuracyEvasionTranslation": "minus-3-remake-stat-points-equals-minus-15-percentage-points",
+        "legacyHealthSideEffect": "omit-stale-disease-path-one-point-heal",
+        "saveMode": "negate",
+        "saveIndex": 7,
+        "saveBonus": 0,
+        "resistance": "classic-magic-resistance",
+        "special": 28,
+        "costPerPower": 25,
+        "adapter": "classic-permanent-blindness",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }

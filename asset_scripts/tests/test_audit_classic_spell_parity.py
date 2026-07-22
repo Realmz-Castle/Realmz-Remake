@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 146)
+        self.assertEqual(report["totals"]["supportedIdentities"], 147)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -341,6 +341,22 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertTrue(resource_path.is_file(), resource_path)
             petrification_resources.add(row["resource"])
         self.assertEqual(len(petrification_resources), 2)
+        blind = matrix_by_id[2402]
+        self.assertEqual(blind["supportStatus"], "supported")
+        self.assertEqual(blind["classification"], "native-special-blindness")
+        self.assertEqual(blind["behavior"]["conditionIndex"], 27)
+        self.assertEqual(
+            blind["behavior"]["accuracyEvasionTranslation"],
+            "minus-3-remake-stat-points-equals-minus-15-percentage-points",
+        )
+        self.assertEqual(
+            blind["behavior"]["legacyHealthSideEffect"],
+            "omit-stale-disease-path-one-point-heal",
+        )
+        blind_resource = (
+            REPO_ROOT / "src" / blind["resource"].removeprefix("res://")
+        )
+        self.assertTrue(blind_resource.is_file(), blind_resource)
         parameterized_damage_ids = {
             1601,
             1703,

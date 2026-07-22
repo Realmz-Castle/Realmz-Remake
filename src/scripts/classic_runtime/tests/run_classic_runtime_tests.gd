@@ -716,6 +716,43 @@ class PetrificationTestCharacter:
 		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
 
 
+class BlindnessTestCharacter:
+	extends RefCounted
+	var name: String
+	var traits: Array = []
+	var stats := {
+		"curHP": 20,
+		"AccuracyMelee": 10,
+		"AccuracyRanged": 8,
+		"AccuracyMagic": 9,
+		"EvasionMelee": 6,
+		"EvasionRanged": 4,
+	}
+
+	func _init(character_name: String) -> void:
+		name = character_name
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name:
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> Variant:
+		var stat: Variant = stats.get(stat_name, 0)
+		for trait_value: Variant in traits:
+			if trait_value.has_method("_on_get_stat"):
+				stat = trait_value._on_get_stat(stat_name, stat)
+		return stat
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -1092,6 +1129,7 @@ func _init() -> void:
 	_test_classic_invisible_spells()
 	_test_classic_animation_spells()
 	_test_classic_petrification_spells()
+	_test_classic_blindness_spell()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7970,7 +8008,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		146,
+		147,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8103,8 +8141,9 @@ func _test_classic_spell_coverage() -> void:
 		1206, 1708, 2208, 2509,
 		2410, 3610,
 		2608, 3411,
+		2402,
 	]
-	_expect_equal(migrated_spell_ids.size(), 114, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 115, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8227,10 +8266,11 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Puppet Master Enchanter": "res://shared_assets/spells/classic_core_3610_puppet_master_enchanter.gd",
 		"Statue": "res://shared_assets/spells/classic_core_2608_statue.gd",
 		"Classic Statue Enchanter": "res://shared_assets/spells/classic_core_3411_statue_enchanter.gd",
+		"Blind": "res://shared_assets/spells/classic_core_2402_blind.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		115,
+		116,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -10267,6 +10307,76 @@ func _test_classic_petrification_spells() -> void:
 	flesh.apply_classic_scaled_effect(null, healing_gate, 1, 1.0)
 	healing_gate.change_cur_hp(5)
 	_expect_equal(healing_gate.stats["curHP"], 15, "Flesh restores ordinary health recovery")
+
+
+func _test_classic_blindness_spell() -> void:
+	var blind = load("res://shared_assets/spells/classic_core_2402_blind.gd").new()
+	_expect_equal(blind.name, "Blind", "Blind resource identity")
+	_expect_equal(blind.classic_spell_ids, [2402], "Blind exact ID")
+	_expect_equal(blind.classic_special, 28, "Blind uses condition special 28")
+	_expect_equal(blind.classic_spell_class, 7, "Blind preserves special class 7")
+	_expect_equal(blind.classic_damage_type, 7, "Blind preserves special DRV 7")
+	_expect_equal(blind.classic_cannot, 0, "Blind preserves source resistance gates")
+	_expect_equal(blind.classic_spell_save_index, 7, "Blind uses the special DRV")
+	_expect_equal(blind.classic_spell_save_mode, "negate", "a save negates Blind")
+	_expect_equal(blind.classic_save_bonus, 0, "Blind source save bonus")
+	_expect_equal(blind.classic_resist_adjust, 0, "Blind source resistance adjustment")
+	_expect_equal(
+		blind.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Blind checks magic resistance but cannot miss"
+	)
+	_expect(blind.in_combat and not blind.in_field, "Blind is combat-only")
+	_expect_equal(blind.get_range(3, null), 1, "Blind source range")
+	_expect_equal(blind.get_target_number(3, null), 3, "Blind targets one creature per power")
+	_expect_equal(blind.get_min_duration(3, null), -1, "Blind is permanent")
+	_expect_equal(blind.get_max_duration(3, null), -1, "Blind has no duration roll")
+	_expect_equal(blind.get_sp_cost(3, null), 75, "Blind casting cost")
+	_expect_equal(blind.classic_spell_look_ids, [14, 11], "Blind visuals")
+	_expect_equal(blind.classic_sound_ids, [29, 98], "Blind sounds")
+	_expect(blind.los, "Blind requires line of sight")
+	_expect_equal(blind.get_aoe(3, null), Spell.AoE_b1, "Blind source area")
+	_expect(blind.elements.is_empty(), "Blind has no ordinary damage element")
+	_expect_equal(blind.targettile, Spell.TARGET_TILE.CREATURE, "Blind targets creatures")
+
+	var unaffected := BlindnessTestCharacter.new("Saved target")
+	_expect(
+		not blind.apply_classic_scaled_effect(null, unaffected, 1, 0.0),
+		"a successful save negates Blind"
+	)
+	_expect(unaffected.traits.is_empty(), "a saved target is not blinded")
+
+	var target := BlindnessTestCharacter.new("Blind target")
+	_expect(
+		blind.apply_classic_scaled_effect(null, target, 1, 1.0),
+		"an unresolved Blind effect applies its condition"
+	)
+	_expect_equal(target.traits.size(), 1, "Blind adds one permanent condition")
+	_expect_equal(
+		target.get_stat("curHP"),
+		20,
+		"Blind does not inherit the stale disease healing path"
+	)
+	var blind_trait: Variant = target.traits[0]
+	_expect_equal(blind_trait.name, "p_classic_blind.gd", "Blind uses its translated native trait")
+	_expect(blind_trait.permanent, "blindness is permanent")
+	_expect_equal(target.get_stat("AccuracyMelee"), 7, "Blind lowers melee accuracy by 15 points")
+	_expect_equal(target.get_stat("AccuracyRanged"), 5, "Blind lowers ranged accuracy by 15 points")
+	_expect_equal(target.get_stat("EvasionMelee"), 3, "Blind lowers melee evasion by 15 points")
+	_expect_equal(target.get_stat("EvasionRanged"), 1, "Blind lowers ranged evasion by 15 points")
+	_expect_equal(target.get_stat("AccuracyMagic"), 9, "Blind does not alter spell resistance checks")
+	blind.apply_classic_scaled_effect(null, target, 1, 1.0)
+	_expect_equal(target.traits.size(), 1, "permanent blindness does not stack")
+
+	var heal_blindness = load(
+		"res://shared_assets/spells/classic_core_2204_heal_blindness.gd"
+	).new()
+	_expect_equal(
+		heal_blindness.apply_classic_scaled_effect(null, target, 1, 1.0),
+		1,
+		"Heal Blindness removes Classic permanent blindness"
+	)
+	_expect(target.traits.is_empty(), "the cured target regains normal accuracy and evasion")
 
 
 func _test_classic_spell_screen_spells() -> void:
