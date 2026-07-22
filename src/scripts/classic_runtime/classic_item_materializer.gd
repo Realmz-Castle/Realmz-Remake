@@ -257,6 +257,7 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 	var item_text := _item_text(item_texts, item_id)
 	var identified_name := str(item_text.get("identifiedName", "")).strip_edges()
 	var unidentified_name := str(item_text.get("unidentifiedName", "")).strip_edges()
+	var missing_item_text := identified_name.is_empty()
 	if identified_name.is_empty():
 		identified_name = "Classic Item %d" % item_id
 	if unidentified_name.is_empty():
@@ -267,6 +268,8 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 	var native_fields := _native_item_fields(record, classic_type)
 	var unsupported_fields := _unsupported_fields(record, native_fields, native_type)
 	var fidelity_fallbacks: Array = native_fields.get("fidelityFallbacks", [])
+	if missing_item_text:
+		fidelity_fallbacks.append("missingItemText")
 	var materialization_status := "complete"
 	if not unsupported_fields.is_empty():
 		materialization_status = "blocked"

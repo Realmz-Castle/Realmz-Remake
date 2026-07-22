@@ -3455,6 +3455,26 @@ func _test_classic_item_materializer() -> void:
 		"complete",
 		"fully mapped fixture item is launchable"
 	)
+	var unnamed_item: Dictionary = materializer._native_item(
+		bundle.documents["content"]["scenarioItems"][0],
+		[]
+	)
+	_expect_equal(
+		unnamed_item.get("name"),
+		"Classic Item 901",
+		"an item without exported text receives a stable generated name"
+	)
+	_expect(
+		unnamed_item.get("classicMaterialization", {}).get(
+			"fidelityFallbacks", []
+		).has("missingItemText"),
+		"an item without exported text records its presentation fallback"
+	)
+	_expect_equal(
+		unnamed_item.get("classicMaterialization", {}).get("status"),
+		"fallback",
+		"missing item presentation remains launchable without being called complete"
+	)
 	var weapon_record: Dictionary = bundle.documents[
 		"content"
 	]["scenarioItems"][0].duplicate(true)
@@ -4030,6 +4050,11 @@ func _test_classic_bestiary_materializer() -> void:
 	var result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(result.get("status"), "ok", "Classic monster generates a native bestiary")
 	_expect_equal(result.get("generated"), 1, "materializer reports its generated monster")
+	_expect_equal(
+		result.get("reusedNative"),
+		0,
+		"a scenario-specific monster is not replaced by a shared numeric-ID collision"
+	)
 	var book_path := test_root.path_join("Bestiary/stuff_book.json")
 	var image_book_path := test_root.path_join("Bestiary/img_pack.json")
 	var atlas_path := test_root.path_join("Bestiary/textureAtlas.png")
@@ -4418,6 +4443,63 @@ func _test_classic_bestiary_materializer() -> void:
 			{}
 		).has("conditions"),
 		"unmapped permanent monster conditions remain launch blockers"
+	)
+
+	var native_reuse_root := test_root.path_join("native-reuse")
+	DirAccess.make_dir_recursive_absolute(native_reuse_root)
+	var native_reuse_bundle = BundleScript.new()
+	native_reuse_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	var native_reuse_record: Dictionary = native_reuse_bundle.documents.get(
+		"content", {}
+	).get("monsters", [])[0]
+	native_reuse_record["authored"] = false
+	native_reuse_record["id"] = 80
+	native_reuse_record["displayName"] = "Krise"
+	var native_reuse_result: Dictionary = materializer.materialize(
+		native_reuse_bundle,
+		native_reuse_root
+	)
+	_expect_equal(
+		native_reuse_result.get("generated"),
+		0,
+		"matching shared monsters do not create campaign-local shadows"
+	)
+	_expect_equal(
+		native_reuse_result.get("reusedNative"),
+		1,
+		"matching Classic identity and name reuse the native monster"
+	)
+	var native_reuse_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			native_reuse_root.path_join("Bestiary/stuff_book.json")
+		)
+	)
+	_expect(
+		native_reuse_book.is_empty(),
+		"native monster reuse leaves the campaign bestiary free of generated overrides"
+	)
+	var shared_bestiary_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			"res://shared_assets/Bestiary/stuff_book.json"
+		)
+	)
+	var authored_native_collision := native_reuse_record.duplicate(true)
+	authored_native_collision["authored"] = true
+	_expect(
+		not materializer._book_has_matching_native_monster(
+			shared_bestiary_book,
+			authored_native_collision
+		),
+		"an authored monster is not replaced even when its stock ID and name match"
+	)
+	_expect_equal(
+		GodotAdapterScript.new().resolve_classic_monster_bestiary_name(
+			80,
+			native_reuse_record,
+			shared_bestiary_book
+		),
+		"Krise 80",
+		"a reused native monster remains resolvable by the runtime adapter"
 	)
 
 	var merged_book := {

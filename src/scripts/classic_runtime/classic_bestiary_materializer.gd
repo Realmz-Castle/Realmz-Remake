@@ -19,6 +19,7 @@ const MonsterSpecialAttackScript = preload(
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
 const BESTIARY_IMAGE_BOOK_PATH := "Bestiary/img_pack.json"
 const BESTIARY_ATLAS_PATH := "Bestiary/textureAtlas.png"
+const SHARED_BESTIARY_BOOK_PATH := "res://shared_assets/Bestiary/stuff_book.json"
 const ITEM_BOOK_PATH := "Items/stuff_book.json"
 const SHARED_ITEM_BOOK_PATH := "res://shared_assets/items/stuff_book.json"
 const SHARED_SPELL_DIRECTORY := "res://shared_assets/spells/"
@@ -101,10 +102,16 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	if not (monsters is Array):
 		return _fail("Classic monster collection is malformed")
 	if monsters.is_empty():
-		return {"status": "ok", "generated": 0, "skipped": 0}
+		return {"status": "ok", "generated": 0, "skipped": 0, "reusedNative": 0}
 
 	var book_path := root.path_join(BESTIARY_BOOK_PATH)
 	var bestiary_book := _read_bestiary_book(book_path)
+	if not last_error.is_empty():
+		return {"status": "error", "message": last_error}
+	var shared_bestiary_book := _read_json_book(
+		SHARED_BESTIARY_BOOK_PATH,
+		"Shared native bestiary book"
+	)
 	if not last_error.is_empty():
 		return {"status": "error", "message": last_error}
 	var descriptions: Array = content.get("monsterDescriptions", []) \
@@ -133,6 +140,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 
 	var generated := 0
 	var skipped := 0
+	var reused_native := 0
 	for record: Dictionary in records:
 		var hit_dice := int(record.get("hitDice", 0))
 		if hit_dice == 255:
@@ -145,6 +153,9 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		var monster_id: int = abs(source_id)
 		if _book_has_monster_id(bestiary_book, monster_id):
 			skipped += 1
+			continue
+		if _book_has_matching_native_monster(shared_bestiary_book, record):
+			reused_native += 1
 			continue
 		bestiary_book[_monster_key(bestiary_book, monster_id)] = _native_monster(
 			record,
@@ -180,7 +191,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		write_error = atlas.save_png(atlas_path)
 		if write_error != OK:
 			return _fail("Could not write native bestiary atlas: %s" % error_string(write_error))
-	return {"status": "ok", "generated": generated, "skipped": skipped}
+	return {
+		"status": "ok",
+		"generated": generated,
+		"skipped": skipped,
+		"reusedNative": reused_native,
+	}
 
 
 func _native_monster(
@@ -813,14 +829,52 @@ func _book_has_monster_id(bestiary_book: Dictionary, monster_id: int) -> bool:
 	for monster_value: Variant in bestiary_book.values():
 		if not (monster_value is Dictionary):
 			continue
-		if monster_value.has("classicMonsterId") \
-				and abs(int(monster_value["classicMonsterId"])) == monster_id:
+		if _monster_has_explicit_id(monster_value, monster_id):
 			return true
-		var ids: Variant = monster_value.get("classicMonsterIds", [])
-		if ids is Array:
-			for id_value: Variant in ids:
-				if abs(int(id_value)) == monster_id:
-					return true
+	return false
+
+
+func _book_has_matching_native_monster(
+	bestiary_book: Dictionary,
+	record: Dictionary
+) -> bool:
+	# Authored records may intentionally redefine a stock identity. Only imported
+	# library records are eligible for reuse from Remake's shared bestiary.
+	if bool(record.get("authored", true)):
+		return false
+	var monster_id: int = abs(int(record.get("id", -1)))
+	var source_name := str(record.get("displayName", "")).strip_edges().to_lower()
+	if monster_id < 0 or source_name.is_empty():
+		return false
+	for bestiary_key: Variant in bestiary_book:
+		var monster_value: Variant = bestiary_book[bestiary_key]
+		if not (monster_value is Dictionary):
+			continue
+		var data: Variant = monster_value.get("data", {})
+		if not (data is Dictionary):
+			continue
+		var native_name := str(data.get("name", bestiary_key)).strip_edges().to_lower()
+		if native_name != source_name:
+			continue
+		if _monster_has_explicit_id(monster_value, monster_id) \
+				or _monster_has_explicit_id(data, monster_id):
+			return true
+		var native_id: Variant = data.get("id")
+		if (native_id is int or native_id is float) \
+				and abs(int(native_id)) == monster_id:
+			return true
+	return false
+
+
+func _monster_has_explicit_id(monster: Dictionary, monster_id: int) -> bool:
+	if monster.has("classicMonsterId") \
+			and abs(int(monster["classicMonsterId"])) == monster_id:
+		return true
+	var ids: Variant = monster.get("classicMonsterIds", [])
+	if ids is Array:
+		for id_value: Variant in ids:
+			if abs(int(id_value)) == monster_id:
+				return true
 	return false
 
 

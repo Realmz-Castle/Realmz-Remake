@@ -27,6 +27,7 @@ const MUTATED_TRIGGER_ID := "Data DD:0:17"
 var campaign_session: ClassicCampaignSession
 var host: ClassicRuntimeHost
 var automated_smoke := false
+var launch_through_ui := false
 var smoke_failures: Array[String] = []
 
 
@@ -38,6 +39,8 @@ func _start_playtest() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument == "--smoke":
 			automated_smoke = true
+		elif argument == "--ui-launch":
+			launch_through_ui = true
 		else:
 			campaign_directory = argument
 	if automated_smoke:
@@ -46,18 +49,24 @@ func _start_playtest() -> void:
 		_fail("load_bundle", "Pass a fresh City of Bywater bundle directory")
 		_finish_smoke()
 		return
+	campaign_directory = campaign_directory.replace("\\", "/").trim_suffix("/")
 
 	var resources: CampaignResources = NodeAccess.__Resources()
-	GameGlobal.set_current_campaign(native_campaign)
-	resources.load_campaign_ressources(native_campaign)
-	_create_playtest_party()
-	UI.show_only(UI.ow_hud)
-	NodeAccess.__Map().show()
-
-	if not _load_session():
-		_finish_smoke()
-		return
-	var start_result := campaign_session.activate_start_location()
+	var start_result := {"status": "ok"}
+	if launch_through_ui:
+		if not await _launch_installed_campaign():
+			_finish_smoke()
+			return
+	else:
+		GameGlobal.set_current_campaign(native_campaign)
+		resources.load_campaign_ressources(native_campaign)
+		_create_playtest_party()
+		UI.show_only(UI.ow_hud)
+		NodeAccess.__Map().show()
+		if not _load_session():
+			_finish_smoke()
+			return
+		start_result = campaign_session.activate_start_location()
 	_move_to_trigger()
 	_verify_stage(
 		"01_city_entry",
@@ -117,6 +126,76 @@ func _start_playtest() -> void:
 		await _finish_victory_and_reload()
 
 
+func _launch_installed_campaign() -> bool:
+	var campaigns_directory := campaign_directory.get_base_dir()
+	var campaign_name := campaign_directory.get_file()
+	Paths.campaignsfolderpath = campaigns_directory + "/"
+	GameGlobal.profile_characters_list = [_new_playtest_character()]
+	GameGlobal.player_characters.clear()
+
+	var panel: Node = UI.main_menu.newCampaignPanel
+	UI.main_menu._on_new_campaign_button_pressed()
+	await get_tree().process_frame
+	var campaign_index := _find_campaign_index(panel.campaignsItemList, campaign_name)
+	if campaign_index < 0:
+		_fail("00_ui_launch", "the installed City package was not listed by the campaign menu")
+		return false
+	var metadata: Variant = panel.campaignsItemList.get_item_metadata(campaign_index)
+	var selection_rules: Dictionary = metadata.get("selectionRules", {}) \
+		if metadata is Dictionary else {}
+	_verify_stage(
+		"00_ui_discovery",
+		str(selection_rules.get("title", "")) == "City of Bywater"
+			and str(selection_rules.get("readinessState", "")) == "Ready with fallbacks"
+			and bool(selection_rules.get("valid", false)),
+		"the normal campaign menu discovers the clean install as Ready with fallbacks"
+	)
+	if not smoke_failures.is_empty():
+		return false
+
+	panel.campaignsItemList.select(campaign_index)
+	panel._on_campaign_selected(campaign_index)
+	await get_tree().process_frame
+	var eligible_characters: Array[Node] = panel.charPickRect.eligibleContainer.get_children()
+	if eligible_characters.size() != 1 or eligible_characters[0].disabled:
+		_fail("00_ui_launch", "the normal party picker did not accept the test character")
+		return false
+	panel.charPickRect._on_char_button_pressed(eligible_characters[0])
+	panel.charPickRect._on_AddButton_pressed()
+	if panel.startButton.disabled:
+		_fail("00_ui_launch", "the normal party picker did not enable Start")
+		return false
+	panel._on_StartButton_pressed()
+	for _frame: int in 120:
+		if is_instance_valid(GameGlobal.classic_campaign_session) \
+				and StateMachine._state_name == "Exploration":
+			break
+		await get_tree().process_frame
+	if not is_instance_valid(GameGlobal.classic_campaign_session):
+		_fail("00_ui_launch", "the normal Start path did not create a Classic session")
+		return false
+	campaign_session = GameGlobal.classic_campaign_session
+	host = campaign_session.host
+	host.playthrough_stopped.connect(_on_playthrough_stopped)
+	_verify_stage(
+		"00_ui_launch",
+		GameGlobal.currentcampaign == campaign_name
+			and StateMachine._state_name == "Exploration"
+			and GameGlobal.currentmap_name == "map_0"
+			and _native_position() == Vector2i(2, 1),
+		"the normal party and Start controls enter the compiled City start location"
+	)
+	return smoke_failures.is_empty()
+
+
+func _find_campaign_index(item_list: ItemList, campaign_name: String) -> int:
+	for item_index: int in item_list.item_count:
+		var metadata: Variant = item_list.get_item_metadata(item_index)
+		if metadata is Dictionary and metadata.get("campaignName") == campaign_name:
+			return item_index
+	return -1
+
+
 func _load_session() -> bool:
 	campaign_session = CampaignSessionScript.new()
 	add_child(campaign_session)
@@ -167,7 +246,7 @@ func _finish_victory_and_reload() -> void:
 		_fail("05_outer_resume", "authored treasure 11 did not open")
 		_finish_smoke()
 		return
-	if not await _loot_item("Personal Items"):
+	if not await _loot_classic_item(807):
 		_fail("05_outer_resume", "treasure 11 did not offer mapped item 807")
 		_finish_smoke()
 		return
@@ -253,7 +332,16 @@ func _move_to_trigger() -> void:
 
 
 func _create_playtest_party() -> void:
-	var character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+	var character := _new_playtest_character()
+	GameGlobal.player_characters.clear()
+	GameGlobal.player_allies.clear()
+	GameGlobal.player_characters.append(character)
+	UI.ow_hud.fillCharactersRect()
+	UI.ow_hud.selected_character = character
+
+
+func _new_playtest_character() -> PlayerCharacter:
+	return GameGlobal.playerCharacterGD.new(
 		{
 			"name": "City Acceptance Rogue",
 			"level": 8,
@@ -264,11 +352,6 @@ func _create_playtest_party() -> void:
 		RogueClass,
 		HumanRace
 	)
-	GameGlobal.player_characters.clear()
-	GameGlobal.player_allies.clear()
-	GameGlobal.player_characters.append(character)
-	UI.ow_hud.fillCharactersRect()
-	UI.ow_hud.selected_character = character
 
 
 func _classic_enemy_count(monster_id: int) -> int:
@@ -341,7 +424,7 @@ func _wait_for_treasure() -> bool:
 	return false
 
 
-func _loot_item(item_name: String) -> bool:
+func _loot_classic_item(item_id: int) -> bool:
 	var container: GridContainer = UI.ow_hud.treasureControl.itemsContainer
 	if container.get_child_count() != 1:
 		return false
@@ -351,7 +434,7 @@ func _loot_item(item_name: String) -> bool:
 	item_button.pressed.emit()
 	await get_tree().process_frame
 	for item: Dictionary in character.inventory:
-		if str(item.get("name", "")) == item_name:
+		if int(item.get("classicItemId", 0)) == item_id:
 			return true
 	return false
 

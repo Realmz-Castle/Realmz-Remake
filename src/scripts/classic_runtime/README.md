@@ -465,6 +465,13 @@ support matrix.
 
 Materialized monster inventories resolve all six source item slots against the campaign item book before the shared Divinity mapping. A concrete positive `weapon` ID equips the matching native inventory object. Realmz permits that active weapon to remain separate from the six carried slots; Remake represents it as an adapter-only equipped item and excludes it from victory loot. Missing items, unsupported item definitions, unresolved or non-equippable weapons, and negative random-weapon table selectors remain readiness blockers; Classic's detected-magic sign marker is retained only as a fidelity diagnostic.
 
+Package installation reuses a shared Remake monster only for a non-authored
+Classic library record whose numeric ID and normalized name both match. Authored
+records always materialize into the campaign book, so a scenario can redefine a
+stock identity without being silently replaced. Scenario items without exported
+item text keep their stable `classicItemId`, receive a generated display name,
+and report `missingItemText` as a launchable fidelity fallback.
+
 Against the checked City of Bywater compatibility baseline, these handlers cover 2,264 of 2,734 active action slots. The other 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined interpreter behavior for all 2,734 active trigger action slots. This is a semantic coverage measurement, not a playability percentage: native command adapters, resource bridges, campaign integration, and some encounter-result paths remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
 
 The execution audit deliberately reports result rows and combat macro roots
