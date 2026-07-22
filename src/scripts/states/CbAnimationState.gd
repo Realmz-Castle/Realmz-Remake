@@ -418,6 +418,9 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 		var is_over : bool = await spell.special_effect(castercrea, spell, power, main_targeted_tile, effected_tiles, unresisted_creatures, add_terrain)
 		if is_over :
 			return
+	# A few Classic spells roll a condition once before resolving each target.
+	if spell.has_method("begin_classic_target_resolution") :
+		spell.begin_classic_target_resolution(castercrea, power)
 	for cb : CombatCreaButton in unresisted_creatures :
 		var accuracy_array : Array = GameGlobal.calculate_spell_accuracy(castercrea, cb.creature, spell, power)
 		var accuracy = accuracy_array[0]
@@ -470,6 +473,8 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 		else :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea,cb,spell)
 		combat_state.add_to_action_queue(spell_effect_array[2])
+	if spell.has_method("end_classic_target_resolution") :
+		spell.end_classic_target_resolution()
 
 	if not spell.terrain_tex.is_empty() and add_terrain:
 		print("CBAnimState add_terrain_effects")

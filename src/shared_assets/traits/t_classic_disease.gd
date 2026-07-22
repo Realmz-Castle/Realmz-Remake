@@ -16,15 +16,17 @@ var condition := 0
 
 func _init(args: Array) -> void:
 	chara = args[0]
-	condition = max(0, int(args[1]))
+	condition = int(args[1])
 	_log_condition(" is Diseased!")
 
 
 func stack(args: Array) -> void:
+	var is_player := _is_player_character(chara)
 	condition = DiseaseRules.stack_condition(
 		condition,
 		int(args[0]),
-		99 if _is_player_character(chara) else 124
+		99 if is_player else 124,
+		not is_player
 	)
 
 
@@ -81,6 +83,8 @@ func _on_time_pass(character, seconds: int) -> void:
 
 
 func get_info_as_text() -> String:
+	if condition < 0:
+		return "Permanently Diseased for %d damage per round" % absi(condition)
 	return "Diseased for %d rounds" % condition
 
 

@@ -1130,6 +1130,7 @@ func _init() -> void:
 	_test_classic_animation_spells()
 	_test_classic_petrification_spells()
 	_test_classic_blindness_spell()
+	_test_classic_disease_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7697,6 +7698,31 @@ func _test_classic_disease_contract() -> void:
 		1,
 		"Classic disease advances at a game-hour boundary"
 	)
+	_expect_equal(
+		ClassicDiseaseScript.stack_condition(0, -6, 99),
+		-6,
+		"a negative disease value records a permanent condition"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.stack_condition(-6, 3, 99),
+		-6,
+		"temporary disease cannot replace a permanent condition"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.stack_condition(0, -125, 124, true),
+		0,
+		"monster disease preserves the source absolute condition cap"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.player_reduction(-6),
+		{"condition": -6, "damage": 6},
+		"permanent party disease deals damage without decaying"
+	)
+	_expect_equal(
+		ClassicDiseaseScript.monster_reduction(-6),
+		{"condition": -6, "damage": 6},
+		"permanent monster disease deals damage without decaying"
+	)
 
 	var trait_script = load("res://shared_assets/traits/t_classic_disease.gd")
 	var party_member := DiseaseTestCharacter.new("Diseased party member", true)
@@ -7729,6 +7755,20 @@ func _test_classic_disease_contract() -> void:
 		monster_trait.get_saved_variables(),
 		[124],
 		"the Classic trait rejects a stack above the monster cap"
+	)
+
+	var permanent_target := DiseaseTestCharacter.new("Permanently diseased", true)
+	var permanent_trait = permanent_target.add_trait(trait_script, [-6])
+	permanent_trait._on_new_round(permanent_target)
+	_expect_equal(permanent_target.current_hp, 14, "permanent disease deals absolute damage")
+	_expect_equal(
+		permanent_trait.get_saved_variables(),
+		[-6],
+		"permanent disease remains until explicitly cured"
+	)
+	_expect(
+		permanent_trait.get_info_as_text().contains("Permanently Diseased"),
+		"permanent disease is identified clearly in the trait UI"
 	)
 
 	var animated_monster := DiseaseTestCharacter.new("Animated monster")
@@ -8008,7 +8048,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		147,
+		148,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8079,6 +8119,11 @@ func _test_classic_spell_coverage() -> void:
 		"Festering Wounds uses the reviewed Classic disease adapter"
 	)
 	_expect_equal(
+		coverage_by_id.get(2502, {}).get("coverageStatus"),
+		"supported",
+		"Disease uses the reviewed Classic disease adapter"
+	)
+	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
 		"reviewed Sorcerer Power Drain is supported"
@@ -8141,9 +8186,9 @@ func _test_classic_spell_coverage() -> void:
 		1206, 1708, 2208, 2509,
 		2410, 3610,
 		2608, 3411,
-		2402,
+		2402, 2304, 2502,
 	]
-	_expect_equal(migrated_spell_ids.size(), 115, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 117, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8267,10 +8312,12 @@ func _test_classic_spell_coverage() -> void:
 		"Statue": "res://shared_assets/spells/classic_core_2608_statue.gd",
 		"Classic Statue Enchanter": "res://shared_assets/spells/classic_core_3411_statue_enchanter.gd",
 		"Blind": "res://shared_assets/spells/classic_core_2402_blind.gd",
+		"Festering Wounds": "res://shared_assets/spells/festering_wounds.gd",
+		"Disease": "res://shared_assets/spells/classic_core_2502_disease.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		116,
+		118,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8855,7 +8902,7 @@ func _test_classic_spell_coverage() -> void:
 					1501, 1503, 1504, 1505, 1506, 1601, 1603, 1604, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2403, 2404, 2407,
-					2204, 2205, 2206, 2501, 2504, 2505, 2508, 2512, 2602, 2605, 2606, 2607,
+					2204, 2205, 2206, 2501, 2502, 2504, 2505, 2508, 2512, 2602, 2605, 2606, 2607,
 					2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
 					3310,
@@ -10377,6 +10424,120 @@ func _test_classic_blindness_spell() -> void:
 		"Heal Blindness removes Classic permanent blindness"
 	)
 	_expect(target.traits.is_empty(), "the cured target regains normal accuracy and evasion")
+
+
+func _test_classic_disease_spells() -> void:
+	var festering = load("res://shared_assets/spells/festering_wounds.gd").new()
+	_expect_equal(festering.name, "Festering Wounds", "Festering Wounds resource identity")
+	_expect_equal(festering.classic_spell_ids, [2304], "Festering Wounds exact ID")
+	_expect_equal(festering.classic_special, 29, "Festering Wounds uses disease special 29")
+	_expect_equal(festering.classic_spell_class, 4, "Festering Wounds source class")
+	_expect_equal(festering.classic_damage_type, 4, "Festering Wounds uses chemical DRV")
+	_expect_equal(festering.classic_cannot, 0, "Festering Wounds preserves resistance gates")
+	_expect_equal(festering.classic_spell_save_index, 4, "Festering Wounds uses chemical saves")
+	_expect_equal(festering.classic_spell_save_mode, "negate", "a save negates Festering Wounds")
+	_expect_equal(festering.resist, Spell.RESIST_TYPE.IGNORE_DODGE, "Festering Wounds checks magic resistance")
+	_expect(festering.in_combat and not festering.in_field, "Festering Wounds is combat-only")
+	_expect_equal(festering.get_range(3, null), 0, "Festering Wounds source range")
+	_expect_equal(festering.get_damage_roll(3, null), 0, "Festering Wounds has no direct damage")
+	_expect_equal(festering.get_min_duration(3, null), 3, "Festering Wounds minimum duration")
+	_expect_equal(festering.get_max_duration(3, null), 9, "Festering Wounds maximum duration")
+	_expect_equal(festering.get_sp_cost(3, null), 36, "Festering Wounds casting cost")
+	_expect_equal(festering.classic_spell_look_ids, [8, 7], "Festering Wounds visuals")
+	_expect_equal(festering.classic_sound_ids, [84, 40], "Festering Wounds sounds")
+	_expect_equal(
+		festering.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Festering Wounds targets every enemy"
+	)
+
+	var first_target := DiseaseTestCharacter.new("First diseased target")
+	var second_target := DiseaseTestCharacter.new("Second diseased target")
+	festering.begin_classic_target_resolution(null, 3)
+	festering.add_traits_to_creature(null, first_target, 3)
+	festering.add_traits_to_creature(null, second_target, 3)
+	festering.end_classic_target_resolution()
+	var first_condition := int(first_target.traits[0].get_saved_variables()[0])
+	var second_condition := int(second_target.traits[0].get_saved_variables()[0])
+	_expect(
+		first_condition >= 3 and first_condition <= 9,
+		"Festering Wounds rolls its source duration"
+	)
+	_expect_equal(
+		second_condition,
+		first_condition,
+		"Festering Wounds shares one duration roll across the cast"
+	)
+
+	var disease = load("res://shared_assets/spells/classic_core_2502_disease.gd").new()
+	_expect_equal(disease.name, "Disease", "Disease resource identity")
+	_expect_equal(disease.classic_spell_ids, [2502], "Disease exact ID")
+	_expect_equal(disease.classic_special, 29, "Disease uses disease special 29")
+	_expect_equal(disease.classic_spell_class, 4, "Disease source class")
+	_expect_equal(disease.classic_damage_type, 4, "Disease uses chemical damage")
+	_expect_equal(disease.classic_cannot, 0, "Disease preserves resistance gates")
+	_expect_equal(disease.classic_spell_save_index, 4, "Disease uses chemical saves")
+	_expect_equal(disease.classic_spell_save_mode, "half_damage", "a save halves Disease damage")
+	_expect_equal(disease.resist, Spell.RESIST_TYPE.IGNORE_DODGE, "Disease checks magic resistance")
+	_expect(disease.in_combat and not disease.in_field, "Disease is combat-only")
+	_expect_equal(disease.get_range(3, null), 5, "Disease source range")
+	_expect_equal(disease.get_target_number(3, null), 1, "Disease targets one area")
+	_expect_equal(disease.get_damage_roll(3, null), 6, "Disease direct damage scales by power")
+	_expect_equal(disease.get_duration_roll(3, null), -6, "Disease condition is permanent")
+	_expect_equal(disease.get_sp_cost(3, null), 90, "Disease casting cost")
+	_expect_equal(disease.classic_spell_look_ids, [7, 12], "Disease visuals")
+	_expect_equal(disease.classic_sound_ids, [10, 84], "Disease sounds")
+	_expect_equal(disease.targettile, Spell.TARGET_TILE.NOWALL, "Disease targets an area")
+	_expect_equal(disease.get_aoe(3, null), Spell.AoE_b4, "Disease source area")
+	_expect(
+		not disease.has_method("apply_classic_scaled_effect"),
+		"Disease leaves direct damage on Remake's save-scaled spell path"
+	)
+	var save_target := RogueTestCharacter.new()
+	SpellSavesScript.apply_monster_metadata(
+		save_target,
+		[0, 0, 0, 0, 100, 0],
+		[0, 0, 0, 0, 0, 0]
+	)
+	var saved_disease: Dictionary = SpellSavesScript.target_resolution(
+		save_target, disease, 3, 1
+	)
+	_expect(saved_disease.get("saved"), "Disease executes its chemical save")
+	_expect_equal(
+		saved_disease.get("effectScale"),
+		0.5,
+		"a Disease save halves direct damage without negating the condition path"
+	)
+
+	var permanent_target := DiseaseTestCharacter.new("Disease target", true)
+	disease.begin_classic_target_resolution(null, 3)
+	disease.add_traits_to_creature(null, permanent_target, 3)
+	disease.end_classic_target_resolution()
+	_expect_equal(permanent_target.traits.size(), 1, "Disease adds one condition trait")
+	var permanent_trait: Variant = permanent_target.traits[0]
+	_expect_equal(
+		permanent_trait.get_saved_variables(),
+		[-6],
+		"Disease applies its full permanent condition after damage resolution"
+	)
+	permanent_trait._on_new_round(permanent_target)
+	_expect_equal(permanent_target.current_hp, 14, "Disease deals permanent round damage")
+	_expect_equal(permanent_trait.get_saved_variables(), [-6], "Disease does not decay")
+	var heal_disease = load(
+		"res://shared_assets/spells/classic_core_2205_heal_disease.gd"
+	).new()
+	_expect_equal(
+		heal_disease.apply_classic_scaled_effect(null, permanent_target, 1, 1.0),
+		1,
+		"Heal Disease removes a permanent Classic disease"
+	)
+	_expect(permanent_target.traits.is_empty(), "the permanent disease remains curable")
+	_expect(
+		FileAccess.get_file_as_string("res://scripts/states/CbAnimationState.gd").contains(
+			'begin_classic_target_resolution'
+		),
+		"combat resolution brackets multi-target Classic condition rolls"
+	)
 
 
 func _test_classic_spell_screen_spells() -> void:

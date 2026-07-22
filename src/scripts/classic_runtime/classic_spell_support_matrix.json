@@ -50,12 +50,24 @@
     {
       "id": "core-player-spell-festering-wounds",
       "scenario": "Core Realmz spell library",
-      "contexts": ["core-catalog", "combat"],
+      "contexts": ["core-catalog", "combat", "character-save", "condition-cure"],
       "sourceRecords": [
         {
           "sourceFile": "Data S",
           "recordIndex": 138,
           "displayName": "Priest Festering Wounds"
+        }
+      ]
+    },
+    {
+      "id": "core-player-spell-disease",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "character-save", "condition-cure"],
+      "sourceRecords": [
+        {
+          "sourceFile": "Data S",
+          "recordIndex": 166,
+          "displayName": "Priest Disease"
         }
       ]
     },
@@ -1876,7 +1888,7 @@
     {
       "classicSpellId": 2304,
       "displayName": "Festering Wounds",
-      "classification": "native-special-adapter",
+      "classification": "native-special-disease",
       "supportStatus": "supported",
       "resource": "res://shared_assets/spells/festering_wounds.gd",
       "sourceRecord": {
@@ -1892,6 +1904,9 @@
         "targetType": "all-enemies",
         "range": 0,
         "duration": "one-to-three-rounds-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 28,
+        "nativeTrait": "t_classic_disease.gd",
         "conditionReductionTriggers": ["game-hour", "combat-round"],
         "conditionCaps": {"player": 99, "monster": 124},
         "playerDamageOrder": "damage-then-decrement",
@@ -1901,7 +1916,7 @@
         "saveIndex": 4,
         "resistance": "classic-general",
         "special": 29,
-        "adapter": "classic-disease-trait",
+        "adapter": "source-record-backed-classic-disease",
         "costPerPower": 12,
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
@@ -2026,6 +2041,33 @@
         "saveMode": "none",
         "resistance": "none",
         "costPerPower": 20,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2502,
+      "displayName": "Disease",
+      "classification": "native-special-disease",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2502_disease.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 166, "byteOffset": 4980, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-disease", "slots": [0]}],
+      "behavior": {
+        "targetType": "size-four-area",
+        "range": 5,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "directDamage": "two-chemical-per-power",
+        "condition": "permanent-disease-two-damage-per-round-per-power",
+        "conditionIndex": 28,
+        "nativeTrait": "t_classic_disease.gd",
+        "saveMode": "half-damage",
+        "savedCondition": "full-permanent-disease",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "special": 29,
+        "costPerPower": 30,
+        "adapter": "source-record-backed-classic-disease",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },

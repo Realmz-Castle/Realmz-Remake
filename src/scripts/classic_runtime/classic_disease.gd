@@ -4,22 +4,34 @@ extends RefCounted
 const SECONDS_PER_HOUR := 3600
 
 
-static func stack_condition(current: int, added: int, maximum: int) -> int:
+static func stack_condition(
+	current: int,
+	added: int,
+	maximum: int,
+	absolute_cap := false
+) -> int:
 	# resolvespell.c rejects the entire addition when it would cross the actor cap.
-	var candidate: int = max(0, current) + max(0, added)
-	return candidate if candidate <= maximum else max(0, current)
+	# Its monster check is absolute, while its party check remains signed.
+	if current < 0:
+		return current
+	var candidate := current + added
+	var within_cap := absi(candidate) <= maximum \
+		if absolute_cap else candidate <= maximum
+	return candidate if within_cap else current
 
 
 static func reduce(condition: int, reduction_calls: int = 1) -> int:
+	if condition <= 0:
+		return condition
 	return max(0, condition - max(0, reduction_calls))
 
 
 static func player_reduction(condition: int) -> Dictionary:
 	# reduce.c damages party members before reducing the condition.
-	var current: int = max(0, condition)
+	var current := condition
 	return {
 		"condition": reduce(current),
-		"damage": current,
+		"damage": absi(current),
 	}
 
 
@@ -28,7 +40,7 @@ static func monster_reduction(condition: int) -> Dictionary:
 	var remaining := reduce(condition)
 	return {
 		"condition": remaining,
-		"damage": remaining,
+		"damage": absi(remaining),
 	}
 
 
@@ -41,7 +53,7 @@ static func elapsed_hour_boundaries(previous_time: int, current_time: int) -> in
 
 
 static func player_reductions(condition: int, reduction_calls: int) -> Array[Dictionary]:
-	var remaining: int = max(0, condition)
+	var remaining := condition
 	var results: Array[Dictionary] = []
 	for _reduction in range(max(0, reduction_calls)):
 		if remaining == 0:
@@ -57,7 +69,7 @@ static func advance_player_time(
 	previous_time: int,
 	current_time: int
 ) -> Dictionary:
-	var remaining: int = max(0, condition)
+	var remaining := condition
 	var damage := 0
 	for result: Dictionary in player_reductions(
 		condition,
