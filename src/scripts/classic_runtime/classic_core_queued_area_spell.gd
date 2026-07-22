@@ -4,11 +4,23 @@ extends "res://scripts/classic_runtime/classic_core_damage_spell.gd"
 const AreaPatternsScript = preload(
 	"res://scripts/classic_runtime/classic_spell_area_patterns.gd"
 )
+# Source queue icons have direct counterparts in Remake's battlefield atlas.
+const TERRAIN_TEXTURE_BY_QUEUE_ICON := {
+	5: "Dts",
+	6: "Yfr",
+	7: "Gcl",
+	8: "Bcl",
+	9: "Ice",
+	10: "Spk",
+	13: "Str",
+	14: "Trg",
+	15: "Orb",
+	16: "Thn",
+}
 
 
 func configure_core_queued_area_spell(
 	spell_id: int,
-	terrain_texture: String,
 	required_spell_class := -1
 ) -> bool:
 	var inventory: Dictionary = CoreSpellCatalogScript.inventory_spell(spell_id)
@@ -18,6 +30,13 @@ func configure_core_queued_area_spell(
 	var record: Dictionary = inventory.get("record", {}).duplicate(true)
 	if not _is_queued_area_record(record, required_spell_class):
 		push_error("Classic spell %d is not a queued-area damage record" % spell_id)
+		return false
+	var queue_icon := int(record.get("queueIcon", 0))
+	var terrain_texture := str(TERRAIN_TEXTURE_BY_QUEUE_ICON.get(queue_icon, ""))
+	if terrain_texture.is_empty():
+		push_error(
+			"Classic queued spell %d has unmapped queue icon %d" % [spell_id, queue_icon]
+		)
 		return false
 	_configure_core_record(inventory, record)
 	terrain_tex = terrain_texture
@@ -49,7 +68,7 @@ func _is_queued_area_record(record: Dictionary, required_spell_class: int) -> bo
 		return false
 	if spell_class == 9:
 		return false
-	if abs(int(record.get("damageType", 0))) not in range(1, 8):
+	if abs(int(record.get("damageType", 0))) not in range(1, 9):
 		return false
 	var has_damage := false
 	for field_name: String in ["damage1", "damage2", "powerDamage1", "powerDamage2"]:

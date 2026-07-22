@@ -7674,7 +7674,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		87,
+		101,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7689,8 +7689,8 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		14,
-		"coverage leaves only unreviewed generic records in the implementation queue"
+		0,
+		"coverage closes the generic implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
 	for coverage_value: Variant in coverage.get("spells", []):
@@ -7796,8 +7796,10 @@ func _test_classic_spell_coverage() -> void:
 		1107, 1112, 1201, 1305, 1609, 2504, 2609, 2611,
 		3111, 3112, 3306, 3404, 3410, 3709, 3711,
 		1308, 1309, 1407, 2512, 3310, 3509,
+		1608, 1610, 1611, 1704, 1711, 1712, 2407, 2501, 2508, 2607, 3210, 3512,
+		3607, 3702,
 	]
-	_expect_equal(migrated_spell_ids.size(), 62, "the reviewed generic batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 76, "the reviewed generic batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7864,10 +7866,24 @@ func _test_classic_spell_coverage() -> void:
 		"Plane of Ice": "res://shared_assets/spells/classic_core_1407_plane_of_ice.gd",
 		"Classic Plane of Force Enchanter": "res://shared_assets/spells/classic_core_3310_plane_of_force_enchanter.gd",
 		"Classic Plague Enchanter": "res://shared_assets/spells/classic_core_3509_plague_enchanter.gd",
+		"Plane of Fire": "res://shared_assets/spells/classic_core_1608_plane_of_fire.gd",
+		"Solar Flare": "res://shared_assets/spells/classic_core_1610_solar_flare.gd",
+		"Stinging Lights": "res://shared_assets/spells/classic_core_1611_stinging_lights.gd",
+		"Hail Storm": "res://shared_assets/spells/classic_core_1704_hail_storm.gd",
+		"Pulse": "res://shared_assets/spells/classic_core_1711_pulse.gd",
+		"Solor Winds": "res://shared_assets/spells/classic_core_1712_solor_winds.gd",
+		"Plane of Thorns": "res://shared_assets/spells/classic_core_2407_plane_of_thorns.gd",
+		"Cloud of Cleavers": "res://shared_assets/spells/classic_core_2501_cloud_of_cleavers.gd",
+		"Mind Mines": "res://shared_assets/spells/classic_core_2508_mind_mines.gd",
+		"Ring of Fire": "res://shared_assets/spells/classic_core_2607_ring_of_fire.gd",
+		"Plane of Fog": "res://shared_assets/spells/classic_core_3210_plane_of_fog.gd",
+		"Shell Shock": "res://shared_assets/spells/classic_core_3512_shell_shock.gd",
+		"Fire Storm": "res://shared_assets/spells/classic_core_3607_fire_storm.gd",
+		"Fog of Doom": "res://shared_assets/spells/classic_core_3702_fog_of_doom.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		59,
+		73,
 		"every reviewed generic identity has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8449,13 +8465,14 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1407, 1408,
-					1501, 1503, 1504, 1505, 1601, 1603, 1609, 1701, 1703, 2101, 2102,
-					2103, 2109, 2110, 2111, 2201, 2301, 2304, 2306, 2403, 2504, 2512,
-					2605,
+					1501, 1503, 1504, 1505, 1601, 1603, 1608, 1609, 1610, 1611, 1701,
+					1703, 1704, 1711, 1712, 2101, 2102, 2103, 2109, 2110, 2111, 2201,
+					2301, 2304, 2306, 2403, 2407, 2501, 2504, 2508, 2512, 2605, 2607,
 					2609, 2611, 2705, 2706, 2708, 2712, 3102, 3104, 3105, 3108, 3111,
-					3112, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3306, 3308, 3310,
-					3311, 3401, 3404, 3409, 3410, 3501, 3505, 3506, 3509, 3601, 3602,
-					3603, 3704,
+					3112, 3202, 3205, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
+					3310,
+					3311, 3401, 3404, 3409, 3410, 3501, 3505, 3506, 3509, 3512, 3601,
+					3602, 3603, 3607, 3702, 3704,
 					3709, 3710, 3711, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
@@ -8523,7 +8540,167 @@ func _test_classic_queued_area_spells() -> void:
 		"special-DRV force damage uses the neutral magical fallback"
 	)
 	_expect_equal(enchanter_plague.classic_spell_ids, [3509], "Enchanter Plague exact ID")
-	_expect_equal(enchanter_plague.get_sp_cost(2, null), 60, "Enchanter Plague keeps its distinct cost")
+	_expect_equal(
+		enchanter_plague.get_sp_cost(2, null),
+		60,
+		"Enchanter Plague keeps its distinct cost"
+	)
+
+	var remaining_specs: Array = [
+		{
+			"id": 1608, "file": "classic_core_1608_plane_of_fire.gd",
+			"name": "Plane of Fire", "art": "Yfr", "element": GameGlobal.ELEMENTS.FIRE,
+			"save": 1, "saveMode": "half_damage", "damage": [3, 18],
+			"duration": [2, 4], "range": 10, "footprint": 14,
+			"rot": true, "los": true, "cost": 80,
+		},
+		{
+			"id": 1610, "file": "classic_core_1610_solar_flare.gd",
+			"name": "Solar Flare", "art": "Str", "element": GameGlobal.ELEMENTS.FIRE,
+			"save": 1, "saveMode": "half_damage", "damage": [15, 25],
+			"duration": [2, 2], "range": 12, "footprint": 28,
+			"rot": false, "los": true, "cost": 100,
+		},
+		{
+			"id": 1611, "file": "classic_core_1611_stinging_lights.gd",
+			"name": "Stinging Lights", "art": "Spk",
+			"element": GameGlobal.ELEMENTS.MAGICAL,
+			"save": 6, "saveMode": "half_damage", "damage": [3, 18],
+			"duration": [2, 2], "range": 20, "footprint": 1,
+			"rot": false, "los": true, "cost": 30,
+		},
+		{
+			"id": 1704, "file": "classic_core_1704_hail_storm.gd",
+			"name": "Hail Storm", "art": "Ice", "element": GameGlobal.ELEMENTS.ICE,
+			"save": 2, "saveMode": "half_damage", "damage": [15, 20],
+			"duration": [2, 4], "range": 10, "footprint": 2,
+			"rot": false, "los": true, "cost": 60,
+		},
+		{
+			"id": 1711, "file": "classic_core_1711_pulse.gd",
+			"name": "Pulse", "art": "Orb", "element": GameGlobal.ELEMENTS.MENTAL,
+			"save": 5, "saveMode": "half_damage", "damage": [20, 40],
+			"duration": [2, 2], "range": 0, "footprint": 8,
+			"rot": false, "los": true, "cost": 60,
+		},
+		{
+			"id": 1712, "file": "classic_core_1712_solor_winds.gd",
+			"name": "Solor Winds", "art": "Yfr", "element": GameGlobal.ELEMENTS.FIRE,
+			"save": 1, "saveMode": "half_damage", "damage": [10, 25],
+			"duration": [4, 8], "range": 10, "footprint": 28,
+			"rot": false, "los": true, "cost": 100,
+		},
+		{
+			"id": 2407, "file": "classic_core_2407_plane_of_thorns.gd",
+			"name": "Plane of Thorns", "art": "Thn",
+			"element": GameGlobal.ELEMENTS.MAGICAL,
+			"save": 7, "saveMode": "half_damage", "damage": [5, 10],
+			"duration": [2, 2], "range": 10, "footprint": 14,
+			"rot": true, "los": true, "cost": 40,
+		},
+		{
+			"id": 2501, "file": "classic_core_2501_cloud_of_cleavers.gd",
+			"name": "Cloud of Cleavers", "art": "Dts",
+			"element": GameGlobal.ELEMENTS.MAGICAL,
+			"save": -1, "saveMode": "none", "damage": [10, 15],
+			"duration": [2, 4], "range": 6, "footprint": 4,
+			"rot": false, "los": true, "cost": 40,
+		},
+		{
+			"id": 2508, "file": "classic_core_2508_mind_mines.gd",
+			"name": "Mind Mines", "art": "Trg", "element": GameGlobal.ELEMENTS.MENTAL,
+			"save": 5, "saveMode": "half_damage", "damage": [2, 10],
+			"duration": [2, 3], "range": 20, "footprint": 2,
+			"rot": false, "los": false, "cost": 30,
+		},
+		{
+			"id": 2607, "file": "classic_core_2607_ring_of_fire.gd",
+			"name": "Ring of Fire", "art": "Yfr", "element": GameGlobal.ELEMENTS.FIRE,
+			"save": 1, "saveMode": "half_damage", "damage": [10, 25],
+			"duration": [2, 2], "range": 3, "footprint": 8,
+			"rot": false, "los": false, "cost": 80,
+		},
+		{
+			"id": 3210, "file": "classic_core_3210_plane_of_fog.gd",
+			"name": "Plane of Fog", "art": "Bcl",
+			"element": GameGlobal.ELEMENTS.CHEMICAL,
+			"save": 4, "saveMode": "half_damage", "damage": [6, 12],
+			"duration": [2, 2], "range": 6, "footprint": 14,
+			"rot": true, "los": false, "cost": 60,
+		},
+		{
+			"id": 3512, "file": "classic_core_3512_shell_shock.gd",
+			"name": "Shell Shock", "art": "Spk",
+			"element": GameGlobal.ELEMENTS.ELECTRIC,
+			"save": 3, "saveMode": "half_damage", "damage": [20, 40],
+			"duration": [2, 2], "range": 0, "footprint": 8,
+			"rot": false, "los": true, "cost": 100,
+		},
+		{
+			"id": 3607, "file": "classic_core_3607_fire_storm.gd",
+			"name": "Fire Storm", "art": "Yfr", "element": GameGlobal.ELEMENTS.FIRE,
+			"save": 1, "saveMode": "half_damage", "damage": [3, 18],
+			"duration": [2, 2], "range": 10, "footprint": 37,
+			"rot": false, "los": true, "cost": 80,
+		},
+		{
+			"id": 3702, "file": "classic_core_3702_fog_of_doom.gd",
+			"name": "Fog of Doom", "art": "Gcl",
+			"element": GameGlobal.ELEMENTS.CHEMICAL,
+			"save": 4, "saveMode": "half_damage", "damage": [7, 35],
+			"duration": [1, 2], "range": 8, "footprint": 2,
+			"rot": false, "los": false, "cost": 100,
+		},
+	]
+	for spec: Dictionary in remaining_specs:
+		var queued_spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(queued_spell.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(queued_spell.name, spec["name"], "%s display name" % label)
+		_expect_equal(queued_spell.terrain_tex, spec["art"], "%s queue artwork" % label)
+		_expect_equal(queued_spell.elements, [spec["element"]], "%s damage element" % label)
+		_expect_equal(queued_spell.classic_spell_save_index, spec["save"], "%s save index" % label)
+		_expect_equal(queued_spell.classic_spell_save_mode, spec["saveMode"], "%s save mode" % label)
+		_expect_equal(
+			queued_spell.get_min_damage(2, null),
+			spec["damage"][0],
+			"%s minimum damage" % label
+		)
+		_expect_equal(
+			queued_spell.get_max_damage(2, null),
+			spec["damage"][1],
+			"%s maximum damage" % label
+		)
+		_expect_equal(
+			queued_spell.get_min_duration(2, null),
+			spec["duration"][0],
+			"%s minimum duration" % label
+		)
+		_expect_equal(
+			queued_spell.get_max_duration(2, null),
+			spec["duration"][1],
+			"%s maximum duration" % label
+		)
+		_expect_equal(queued_spell.get_range(2, null), spec["range"], "%s range" % label)
+		_expect_equal(queued_spell.get_aoe(2, null).size(), spec["footprint"], "%s footprint" % label)
+		_expect_equal(queued_spell.rot, spec["rot"], "%s rotation" % label)
+		_expect_equal(queued_spell.los, spec["los"], "%s line of sight" % label)
+		_expect_equal(queued_spell.get_sp_cost(2, null), spec["cost"], "%s casting cost" % label)
+
+	var cleavers = load(
+		"res://shared_assets/spells/classic_core_2501_cloud_of_cleavers.gd"
+	).new()
+	_expect_equal(
+		cleavers.classic_damage_type,
+		8,
+		"Cloud of Cleavers keeps miscellaneous damage type 8"
+	)
+	_expect_equal(cleavers.classic_cannot, 1, "Cloud of Cleavers retains its no-resistance flag")
+	_expect_equal(
+		cleavers.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Cloud of Cleavers bypasses general magic resistance and DRV saves"
+	)
 
 	_expect(
 		_same_tile_set(SpellAreaPatternsScript.pattern(11), Spell.AoE_WALL_L),
@@ -8537,8 +8714,16 @@ func _test_classic_queued_area_spells() -> void:
 		_same_tile_set(SpellAreaPatternsScript.pattern(13), Spell.AoE_WALL_J),
 		"Data AD wall 13 matches diagonal-right targeting"
 	)
-	_expect_equal(SpellAreaPatternsScript.pattern(14).size(), 28, "Data AD hollow field preserves all source cells")
-	_expect_equal(SpellAreaPatternsScript.pattern(18).size(), 4, "Data AD large-creature mask preserves four cells")
+	_expect_equal(
+		SpellAreaPatternsScript.pattern(14).size(),
+		28,
+		"Data AD hollow field preserves all source cells"
+	)
+	_expect_equal(
+		SpellAreaPatternsScript.pattern(18).size(),
+		4,
+		"Data AD large-creature mask preserves four cells"
+	)
 
 	var caster := QueuedTerrainTestCreature.new(Vector2(1, 1))
 	var other_caster := QueuedTerrainTestCreature.new(Vector2(9, 9))

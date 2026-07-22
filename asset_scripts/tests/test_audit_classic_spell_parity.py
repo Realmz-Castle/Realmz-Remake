@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 87)
+        self.assertEqual(report["totals"]["supportedIdentities"], 101)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -190,14 +190,18 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         self.assertEqual(report["validationErrors"], [])
         self.assertEqual(
             report["totals"]["genericImplementationLanes"],
-            {"queued-area-engine-gap": 14},
+            {},
         )
         self.assertEqual(report, audit.build_report(inventory, matrix, native, legacy))
 
         matrix_by_id = {
             int(row["classicSpellId"]): row for row in matrix.get("spells", [])
         }
-        for spell_id in {1308, 1309, 1407, 2512, 3310, 3509}:
+        queued_spell_ids = {
+            1308, 1309, 1407, 1608, 1610, 1611, 1704, 1711, 1712, 2407,
+            2501, 2508, 2512, 2607, 3210, 3310, 3509, 3512, 3607, 3702,
+        }
+        for spell_id in queued_spell_ids:
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")
             self.assertEqual(row["classification"], "native-queued-area")

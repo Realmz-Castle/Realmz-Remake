@@ -181,9 +181,11 @@ large creatures whose non-origin tile enters the mask; occupants also retrigger
 at the next round boundary. Durations expire when the original caster's next
 initiative phase begins, with a round-boundary fallback when that phase owner
 has left combat, and the retained queue observes Classic's 60-entry limit.
-Plague `1308`/`2512`/`3509`, Plane of Force `1309`/`3310`, and Plane of Ice
-`1407` are the first source-reviewed resources on this runtime. Same-name rows
-share a resource only when their mechanics and presentation bytes are equal.
+All 20 core queue-icon records use this path. Their queue-icon identities map
+to the corresponding existing Remake battlefield art, while damage type `8`
+uses the same neutral magical fallback as Remake's established miscellaneous
+damage spells and correctly carries no Classic DRV save. Same-name rows share
+a resource only when their mechanics and presentation bytes are equal.
 
 The 15 negative-cost, noncombat utility records use
 `ClassicCoreEncounterResponseSpell`. In Classic, their negative cost fixes the

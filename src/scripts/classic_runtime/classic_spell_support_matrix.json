@@ -340,6 +340,27 @@
         {"sourceFile": "Data S", "recordIndex": 249, "displayName": "Enchanter Plane of Force"},
         {"sourceFile": "Data S", "recordIndex": 278, "displayName": "Enchanter Plague"}
       ]
+    },
+    {
+      "id": "core-player-spell-queued-area-batch-2",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 82, "displayName": "Sorcerer Plane of Fire"},
+        {"sourceFile": "Data S", "recordIndex": 84, "displayName": "Sorcerer Solar Flare"},
+        {"sourceFile": "Data S", "recordIndex": 85, "displayName": "Sorcerer Stinging Lights"},
+        {"sourceFile": "Data S", "recordIndex": 93, "displayName": "Sorcerer Hail Storm"},
+        {"sourceFile": "Data S", "recordIndex": 100, "displayName": "Sorcerer Pulse"},
+        {"sourceFile": "Data S", "recordIndex": 101, "displayName": "Sorcerer Solor Winds"},
+        {"sourceFile": "Data S", "recordIndex": 156, "displayName": "Priest Plane of Thorns"},
+        {"sourceFile": "Data S", "recordIndex": 165, "displayName": "Priest Cloud of Cleavers"},
+        {"sourceFile": "Data S", "recordIndex": 172, "displayName": "Priest Mind Mines"},
+        {"sourceFile": "Data S", "recordIndex": 186, "displayName": "Priest Ring of Fire"},
+        {"sourceFile": "Data S", "recordIndex": 234, "displayName": "Enchanter Plane of Fog"},
+        {"sourceFile": "Data S", "recordIndex": 281, "displayName": "Enchanter Shell Shock"},
+        {"sourceFile": "Data S", "recordIndex": 291, "displayName": "Enchanter Fire Storm"},
+        {"sourceFile": "Data S", "recordIndex": 301, "displayName": "Enchanter Fog of Doom"}
+      ]
     }
   ],
   "spells": [
@@ -1162,6 +1183,28 @@
       }
     },
     {
+      "classicSpellId": 1608,
+      "displayName": "Plane of Fire",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1608_plane_of_fire.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 82, "byteOffset": 2460, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [0]}],
+      "behavior": {
+        "targetType": "rotatable-wall",
+        "range": 10,
+        "damage": "3-18-fixed",
+        "duration": "1-2-per-power-initiative-phases",
+        "queueShape": "Data-AD-10-through-13",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 40,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1609,
       "displayName": "Shape Earth",
       "classification": "native-encounter-response",
@@ -1177,6 +1220,52 @@
         "sourceInCamp": 255,
         "effect": "scenario-authored-result",
         "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1610,
+      "displayName": "Solar Flare",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1610_solar_flare.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 84, "byteOffset": 2520, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [1]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 12,
+        "damage": "15-25-fixed",
+        "duration": "1-per-power-initiative-phases",
+        "queueShape": "Data-AD-14",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "saveBonus": -20,
+        "resistance": "classic-general",
+        "costPerPower": 50,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1611,
+      "displayName": "Stinging Lights",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1611_stinging_lights.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 85, "byteOffset": 2550, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [2]}],
+      "behavior": {
+        "targetType": "power-count-creatures",
+        "range": 20,
+        "damage": "3-18-fixed",
+        "duration": "2-initiative-phases",
+        "queueShape": "Data-AD-1",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 6,
+        "saveBonus": -20,
+        "resistance": "classic-general",
+        "costPerPower": 15,
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -1232,6 +1321,73 @@
         "resistance": "classic-general",
         "costPerPower": 30,
         "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1704,
+      "displayName": "Hail Storm",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1704_hail_storm.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 93, "byteOffset": 2790, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [3]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 10,
+        "damage": "15-20-fixed",
+        "duration": "1-2-per-power-initiative-phases",
+        "queueShape": "Data-AD-power",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 2,
+        "saveBonus": -20,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1711,
+      "displayName": "Pulse",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1711_pulse.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 100, "byteOffset": 3000, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [4]}],
+      "behavior": {
+        "targetType": "caster-centered-area",
+        "range": 0,
+        "damage": "20-40-fixed",
+        "duration": "1-per-power-initiative-phases",
+        "queueShape": "Data-AD-8",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1712,
+      "displayName": "Solor Winds",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1712_solor_winds.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 101, "byteOffset": 3030, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [5]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 10,
+        "damage": "10-25-fixed",
+        "duration": "2-4-per-power-initiative-phases",
+        "queueShape": "Data-AD-14",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 50,
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -1569,6 +1725,49 @@
       }
     },
     {
+      "classicSpellId": 2407,
+      "displayName": "Plane of Thorns",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2407_plane_of_thorns.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 156, "byteOffset": 4680, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [6]}],
+      "behavior": {
+        "targetType": "rotatable-wall",
+        "range": 10,
+        "damage": "5-10-fixed",
+        "duration": "1-per-power-initiative-phases",
+        "queueShape": "Data-AD-10-through-13",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 7,
+        "resistance": "none",
+        "costPerPower": 20,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2501,
+      "displayName": "Cloud of Cleavers",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2501_cloud_of_cleavers.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 165, "byteOffset": 4950, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [7]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 6,
+        "damage": "10-15-miscellaneous",
+        "duration": "1-2-per-power-initiative-phases",
+        "queueShape": "Data-AD-18",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "none",
+        "resistance": "none",
+        "costPerPower": 20,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2504,
       "displayName": "Hands to Clay",
       "classification": "native-encounter-response",
@@ -1584,6 +1783,29 @@
         "sourceInCamp": 255,
         "effect": "scenario-authored-result",
         "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2508,
+      "displayName": "Mind Mines",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2508_mind_mines.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 172, "byteOffset": 5160, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [8]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 20,
+        "lineOfSight": false,
+        "damage": "2-10-fixed",
+        "duration": "2-3-initiative-phases",
+        "queueShape": "Data-AD-power",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "costPerPower": 15,
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -1634,6 +1856,29 @@
         "resistance": "classic-general",
         "adapter": "classic-opposed-level-resistance",
         "costPerPower": 30
+      }
+    },
+    {
+      "classicSpellId": 2607,
+      "displayName": "Ring of Fire",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2607_ring_of_fire.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 186, "byteOffset": 5580, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [9]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 3,
+        "lineOfSight": false,
+        "damage": "10-25-fixed",
+        "duration": "1-per-power-initiative-phases",
+        "queueShape": "Data-AD-8",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 40,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -2054,6 +2299,29 @@
       }
     },
     {
+      "classicSpellId": 3210,
+      "displayName": "Plane of Fog",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3210_plane_of_fog.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 234, "byteOffset": 7020, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [10]}],
+      "behavior": {
+        "targetType": "rotatable-wall",
+        "range": 6,
+        "lineOfSight": false,
+        "damage": "6-12-fixed",
+        "duration": "1-per-power-initiative-phases",
+        "queueShape": "Data-AD-10-through-13",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3211,
       "displayName": "Steel Rain",
       "classification": "native-direct",
@@ -2425,6 +2693,28 @@
       }
     },
     {
+      "classicSpellId": 3512,
+      "displayName": "Shell Shock",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3512_shell_shock.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 281, "byteOffset": 8430, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [11]}],
+      "behavior": {
+        "targetType": "caster-centered-area",
+        "range": 0,
+        "damage": "20-40-fixed",
+        "duration": "1-per-power-initiative-phases",
+        "queueShape": "Data-AD-8",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 3,
+        "resistance": "classic-general",
+        "costPerPower": 50,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3601,
       "displayName": "Ball Lightning",
       "classification": "native-parameterized-damage",
@@ -2508,6 +2798,51 @@
         "special": 51,
         "adapter": "classic-battle-charm-trait",
         "costPerPower": 30
+      }
+    },
+    {
+      "classicSpellId": 3607,
+      "displayName": "Fire Storm",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3607_fire_storm.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 291, "byteOffset": 8730, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [12]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 10,
+        "damage": "3-18-fixed",
+        "duration": "1-per-power-initiative-phases",
+        "queueShape": "Data-AD-7",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "resistance": "classic-general",
+        "costPerPower": 40,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3702,
+      "displayName": "Fog of Doom",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3702_fog_of_doom.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 301, "byteOffset": 9030, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-2", "slots": [13]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "lineOfSight": false,
+        "damage": "7-35-fixed",
+        "duration": "1-2-initiative-phases",
+        "queueShape": "Data-AD-power",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "costPerPower": 50,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {

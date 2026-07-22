@@ -97,6 +97,9 @@ func _element_for_damage_type(damage_type: int) -> int:
 			# Remake has no matching element, so its neutral magical defense is
 			# the least lossy damage-side fallback; the DRV remains separate.
 			return GameGlobal.ELEMENTS.MAGICAL
+		8:
+			# Type 8 is Classic's miscellaneous, no-element damage path.
+			return GameGlobal.ELEMENTS.MAGICAL
 		_:
 			return GameGlobal.ELEMENTS.MAGICAL
 
@@ -110,6 +113,7 @@ func _tags_for_damage_type(damage_type: int) -> Array[String]:
 		4: "Chemical",
 		5: "Mental",
 		7: "Special",
+		8: "Miscellaneous",
 	}.get(damage_type, ""))
 	if not element_name.is_empty():
 		result.append(element_name)
@@ -142,5 +146,6 @@ func _tag_for_description(damage_type: int) -> String:
 		5: "mental",
 		6: "magical",
 		7: "special",
+		8: "miscellaneous",
 	}
 	return str(labels.get(damage_type, "unknown"))
