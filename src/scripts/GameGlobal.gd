@@ -290,12 +290,19 @@ func restore_native_encounter_state(saved_state: Variant) -> void:
 	if saved_state is Dictionary:
 		native_encounter_state.merge(saved_state, true)
 
+
+func set_party_fatigue(value: float) -> float:
+	fatigue = clampf(value, 0.0, max_fatigue * 2.0)
+	var hud: Variant = UI.get("ow_hud") if UI != null else null
+	if hud is Object and hud.has_method("update_fatigue_bar"):
+		hud.call("update_fatigue_bar")
+	return fatigue
+
+
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	var previous_time := time
 	time += seconds *time_scale
-	fatigue+= fatiguemultiplier * seconds *0.25 *time_scale
-	fatigue = clampf(fatigue, 0.0, 172800.0)
-	UI.ow_hud.update_fatigue_bar()
+	set_party_fatigue(fatigue + fatiguemultiplier * seconds * 0.25 * time_scale)
 
 	if campaign_global_script.has_on_time_pass and ( not StateMachine.is_combat_state() ):
 		campaign_global_script._on_time_pass(seconds)

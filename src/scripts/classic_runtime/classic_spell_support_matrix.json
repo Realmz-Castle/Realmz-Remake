@@ -7240,6 +7240,31 @@
         "adapter": "source-record-backed-rogue-encounter-service",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1412,
+      "displayName": "Sleepwalk",
+      "classification": "native-special-party-fatigue",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/sleepwalk.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 56, "byteOffset": 1680, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-68-sleepwalk", "slots": [0]}],
+      "behavior": {
+        "targetType": "party-global-fatigue",
+        "effect": "set-remake-party-fatigue-to-one",
+        "classicAssignment": "fat-equals-one",
+        "powerScaling": "none",
+        "targetSelection": "none",
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "duration": "none",
+        "availability": "field-and-camp-only",
+        "hudRefresh": "fatigue-bar",
+        "rawSpecial": 68,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-party-fatigue-service",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

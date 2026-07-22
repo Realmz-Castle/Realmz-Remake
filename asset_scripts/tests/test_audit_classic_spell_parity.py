@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 250)
+        self.assertEqual(report["totals"]["supportedIdentities"], 251)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -317,6 +317,22 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             REPO_ROOT / "src" / open_lock["resource"].removeprefix("res://")
         )
         self.assertTrue(open_lock_resource.is_file(), open_lock_resource)
+        sleepwalk = matrix_by_id[1412]
+        self.assertEqual(sleepwalk["supportStatus"], "supported")
+        self.assertEqual(
+            sleepwalk["classification"], "native-special-party-fatigue"
+        )
+        self.assertEqual(sleepwalk["behavior"]["rawSpecial"], 68)
+        self.assertEqual(
+            sleepwalk["behavior"]["effect"],
+            "set-remake-party-fatigue-to-one",
+        )
+        self.assertEqual(sleepwalk["behavior"]["powerScaling"], "none")
+        self.assertEqual(sleepwalk["behavior"]["targetSelection"], "none")
+        sleepwalk_resource = (
+            REPO_ROOT / "src" / sleepwalk["resource"].removeprefix("res://")
+        )
+        self.assertTrue(sleepwalk_resource.is_file(), sleepwalk_resource)
         for spell_id in {2203, 3407}:
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")

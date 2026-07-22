@@ -1453,6 +1453,17 @@ class CowardRetreatTestGameGlobal:
 	var map = CowardRetreatTestMap.new()
 
 
+class FatigueServiceTestDouble:
+	extends RefCounted
+	var fatigue := 0.0
+	var set_calls := 0
+
+	func set_party_fatigue(value: float) -> float:
+		fatigue = value
+		set_calls += 1
+		return fatigue
+
+
 class QueuedTerrainTestCreature:
 	extends RefCounted
 	var position := Vector2.ZERO
@@ -1531,6 +1542,7 @@ func _init() -> void:
 	_test_classic_tangle_weed_spell()
 	_test_classic_destroy_trap_spell(bundle)
 	_test_classic_open_lock_spell(bundle)
+	_test_classic_sleepwalk_spell()
 	_test_classic_spellcasting_block_spells()
 	_test_classic_magic_aura_spell()
 	_test_classic_healing_spells()
@@ -9470,7 +9482,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		250,
+		251,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -9690,6 +9702,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(1109, {}).get("coverageStatus"),
 		"supported",
 		"Open Lock uses the reviewed rogue encounter path"
+	)
+	_expect_equal(
+		coverage_by_id.get(1412, {}).get("coverageStatus"),
+		"supported",
+		"Sleepwalk uses the reviewed party fatigue path"
 	)
 	for spellcasting_block_id: int in [2203, 3407]:
 		_expect_equal(
@@ -10644,7 +10661,7 @@ func _test_classic_spell_coverage() -> void:
 				[
 					1101, 1102, 1103, 1104, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
-					1402, 1406, 1407, 1408,
+					1402, 1406, 1407, 1408, 1412,
 					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1709, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407, 2412,
@@ -11757,6 +11774,41 @@ func _test_classic_open_lock_spell(bundle) -> void:
 		0,
 		"Open Lock fallback does not spring the trap"
 	)
+
+
+func _test_classic_sleepwalk_spell() -> void:
+	var spell = load("res://shared_assets/spells/sleepwalk.gd").new()
+	_expect_equal(spell.name, "Sleepwalk", "Sleepwalk native resource name")
+	_expect_equal(spell.classic_spell_ids, [1412], "Sleepwalk exact identity")
+	_expect_equal(spell.classic_special, 68, "Sleepwalk fatigue special")
+	_expect_equal(spell.classic_spell_class, 8, "Sleepwalk effect class")
+	_expect_equal(spell.classic_target_type, 11, "Sleepwalk source target type")
+	_expect_equal(spell.classic_cannot, 3, "Sleepwalk force-affect code")
+	_expect_equal(spell.classic_spell_save_index, -1, "Sleepwalk has no creature save")
+	_expect_equal(spell.classic_spell_save_mode, "none", "Sleepwalk has no save mode")
+	_expect_equal(spell.get_range(3, null), 0, "Sleepwalk requires no map range")
+	_expect_equal(spell.get_targets(3, null), 0, "Sleepwalk has no selected targets")
+	_expect_equal(spell.get_target_number(3, null), 0, "Sleepwalk has no target multiplier")
+	_expect_equal(spell.get_min_damage(3, null), 0, "Sleepwalk has no damage")
+	_expect_equal(spell.get_max_duration(3, null), 0, "Sleepwalk has no duration")
+	_expect_equal(spell.get_sp_cost(3, null), 60, "Sleepwalk source cost")
+	_expect_equal(spell.classic_spell_look_ids, [14, 5], "Sleepwalk source art")
+	_expect_equal(spell.classic_sound_ids, [77, 13], "Sleepwalk source sounds")
+	_expect_equal(spell.school_levels.get("Sorcerer"), 4, "Sleepwalk source level")
+	_expect_equal(spell.selection_costs.get("Sorcerer"), 10, "Sleepwalk selection cost")
+	_expect(spell.in_field and not spell.in_combat, "Sleepwalk is field and camp only")
+	_expect(spell.skip_targeting, "Sleepwalk skips the character picker")
+	_expect_equal(spell.autotarget_type, Spell.AUTOTARGET_TYPE.SELF, "Sleepwalk enters field flow once")
+	_expect_equal(spell.targettile, Spell.TARGET_TILE.ANY, "Sleepwalk has no tile restriction")
+
+	var fatigue_service = FatigueServiceTestDouble.new()
+	fatigue_service.fatigue = 12345.0
+	_expect(spell.apply_to_game_global(fatigue_service), "Sleepwalk finds the fatigue service")
+	_expect_equal(fatigue_service.fatigue, 1.0, "Sleepwalk assigns Classic fatigue value one")
+	_expect_equal(fatigue_service.set_calls, 1, "Sleepwalk mutates party fatigue once")
+	fatigue_service.fatigue = 0.0
+	spell.apply_to_game_global(fatigue_service)
+	_expect_equal(fatigue_service.fatigue, 1.0, "Sleepwalk assigns rather than subtracting fatigue")
 
 
 func _test_classic_spellcasting_block_spells() -> void:

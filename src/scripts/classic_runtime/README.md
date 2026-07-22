@@ -266,6 +266,11 @@ the saved chance for the authored Open Lock result. Records without an Open
 Lock modifier retain their ordinary authored spell result. Native casts,
 scrolls, and type-20 spell items share this path.
 
+Sleepwalk is a field/camp spell with no selected target. Classic special `68`
+sets the party-wide fatigue value to exactly `1` and returns before damage,
+duration, resistance, or saving-throw resolution. Remake applies the same
+assignment through its party-fatigue setter and refreshes the fatigue display.
+
 Dumbstruck and Mind Blank use Classic condition `6`, stored at character
 condition index `5`. Despite the latter's protective-sounding name, both are
 offensive mental effects that prevent spellcasting and leave movement, attacks,
