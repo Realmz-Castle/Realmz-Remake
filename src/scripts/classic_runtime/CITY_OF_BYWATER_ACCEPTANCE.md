@@ -60,9 +60,9 @@ Godot_v4.6.2-stable_win64_console.exe --headless `
 ```
 
 Exercise the checked authored guard-house encounter and the land-to-dungeon-to-
-land map route using that same fresh bundle. The battle acceptance scene also
-runs a source-backed City action point through native combat and a fresh-session
-reload:
+land map route using that same fresh bundle. The City acceptance scene runs the
+blacksmith's quest from its offer through native combat, a fresh-session reload,
+and the reward turn-in:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --resolution 1152x648 `
@@ -111,14 +111,19 @@ guard-house encounter and the authored `Data DD:0:83` land-to-dungeon /
 `Data DDD:0:1` dungeon-to-land route also pass their real-display smoke checks
 with the fresh bundle.
 
-The authored `Data DD:0:30` route now passes its first battle and persistence
-checkpoint. Extra Code row 85 resolves to compiled Battle 45, whose 24 monster-80
-entries map to Remake's existing `Krise 80` definition and enter the native
-combat lifecycle. Victory resumes the source action list, awards player map 4
-and treasure 11, enables land trigger 17, and replaces that trigger's action
-data. The session save envelope survives a JSON round trip, and a fresh session
-restores the map position, acquired map, trigger percentage, and action-point
-override with no pending continuation.
+The blacksmith quest now passes as a complete installed-campaign progression
+route. `Data DD:0:17` presents the request with its authored Data OD labels,
+acceptance grants player map 3, and the initial offer retires itself. At
+`Data DD:0:30`, Extra Code row 85 resolves to compiled Battle 45, whose 24
+monster-80 entries map to Remake's existing `Krise 80` definition and enter the
+native combat lifecycle. Victory resumes the source action list, awards player
+map 4 and treasure 11, enables land trigger 17, and replaces that trigger's
+action data. The session save envelope survives a JSON round trip, and a fresh
+session restores both maps, item 807, the trigger percentage, and the
+action-point override with no pending continuation. Returning to the blacksmith
+runs macro 39, consumes item 807, and awards treasure 19's items 210 and 434 plus
+800 experience. Both rewards retain their Classic item identities after mapping
+to native Remake definitions.
 
 The smoke scene removes any loaded `Battle_45` entry in memory before starting
 the trigger. This makes the formation come from the producer bundle. The
@@ -127,8 +132,10 @@ producer bundle has no scenario item-text rows, item 807 is presented under its
 stable generated name and records that presentation loss as a fidelity fallback;
 the route consumes it by its preserved `classicItemId`.
 
-This is now a clean-install and first playable-checkpoint result, not a complete
-City of Bywater playthrough.
+This proves a clean install and one source-backed quest from offer through
+turn-in. It is not yet the complete ISY-379 acceptance route because the same
+installed-campaign path has not exercised a service and a full simple or complex
+encounter.
 
 ## Blocking findings
 
@@ -148,7 +155,7 @@ City of Bywater playthrough.
 
 ## Next playable checkpoint
 
-Expand the installed campaign's documented play path to the next
-progression-significant service, encounter, or battle boundary. Add save, quit,
-reload, and continuation checkpoints as that route grows, while keeping
-unrelated fidelity systems from blocking each playable checkpoint.
+Extend the installed route through one authored service and one complete simple
+or complex encounter. Then review the collected evidence against every ISY-379
+acceptance line and distinguish any remaining normal-save lifecycle gap from
+optional campaign fidelity work.

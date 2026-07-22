@@ -1742,6 +1742,24 @@ func _test_bundle_contract_validation() -> void:
 		"unsafe path error identifies the manifest field"
 	)
 
+	var option_label_bundle = BundleScript.new()
+	option_label_bundle.manifest = _minimal_contract_manifest()
+	option_label_bundle.documents = _minimal_contract_documents()
+	option_label_bundle.documents["scripts"]["optionLabels"] = [
+		{"id": 20, "text": "Avenge his son"},
+		{"id": 21, "text": "Wish him luck"},
+	]
+	_expect(
+		option_label_bundle._validate_document_contract(),
+		"bundle contract accepts Classic choice labels"
+	)
+	option_label_bundle._build_indexes()
+	_expect_equal(
+		option_label_bundle.get_option_label(20).get("text"),
+		"Avenge his son",
+		"bundle indexes Classic choice labels"
+	)
+
 	var version_bundle = BundleScript.new()
 	version_bundle.manifest = _minimal_contract_manifest()
 	version_bundle.documents = _minimal_contract_documents()
@@ -19694,6 +19712,35 @@ func _test_choice_continuation(bundle) -> void:
 	var accepted_result: Dictionary = interpreter.resume_choice(true)
 	_expect_equal(accepted_result.get("command"), "start_battle", "accepting inverted CoB choice continues to battle")
 
+	var labeled_bundle = BundleScript.new()
+	labeled_bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	labeled_bundle.triggers_by_id["choice-labels"] = {
+		"id": "choice-labels",
+		"source": "Data DD",
+		"recordIndex": 0,
+		"levelType": "land",
+		"levelIndex": 0,
+		"actions": [{"slot": 0, "rawCode": 3, "code": 3, "id": 1}],
+	}
+	labeled_bundle.extra_codes_by_id[1] = {"id": 1, "values": [0, 0, 0, 20, 21]}
+	labeled_bundle.option_labels_by_id = {
+		20: {"id": 20, "text": "Avenge his son"},
+		21: {"id": 21, "text": "Wish him luck"},
+	}
+	interpreter = _interpreter(labeled_bundle)
+	_expect(interpreter.begin_trigger("choice-labels"), "begin labeled Classic choice")
+	choice_result = interpreter.run_until_yield()
+	_expect_equal(
+		choice_result.get("payload", {}).get("yesLabel", {}).get("text"),
+		"Avenge his son",
+		"choice resolves its authored affirmative label"
+	)
+	_expect_equal(
+		choice_result.get("payload", {}).get("noLabel", {}).get("text"),
+		"Wish him luck",
+		"choice resolves its authored negative label"
+	)
+
 
 func _test_sound_and_treasure(bundle) -> void:
 	var interpreter = _interpreter(bundle)
@@ -20063,6 +20110,11 @@ func _test_treasure_delivery(bundle) -> void:
 			"Parchment",
 		],
 		"treasure IDs resolve through shared mappings and scenario item text"
+	)
+	_expect_equal(
+		delivery.get("itemIds"),
+		[600, 601, 617, 801, 806],
+		"treasure delivery retains each source item identity"
 	)
 	_expect_equal(delivery.get("money"), [0, 5, 2], "treasure preserves classic money")
 	_expect_equal(delivery.get("experience"), 600, "treasure preserves classic experience")

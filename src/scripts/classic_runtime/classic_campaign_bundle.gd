@@ -27,6 +27,7 @@ var extra_action_points_by_id: Dictionary = {}
 var triggers_by_coordinate: Dictionary = {}
 var extra_codes_by_id: Dictionary = {}
 var messages_by_id: Dictionary = {}
+var option_labels_by_id: Dictionary = {}
 var battles_by_id: Dictionary = {}
 var treasures_by_id: Dictionary = {}
 var shops_by_id: Dictionary = {}
@@ -154,6 +155,7 @@ func _validate_document_contract() -> bool:
 		["scripts", "triggers", "id", true],
 		["scripts", "extraCodes", "id", false],
 		["scripts", "messages", "id", false],
+		["scripts", "optionLabels", "id", false],
 		["scripts", "randomLevels", "id", true],
 		["encounters", "battles", "id", false],
 		["encounters", "treasures", "id", false],
@@ -534,6 +536,10 @@ func get_message(message_id: int) -> Dictionary:
 	return messages_by_id.get(abs(message_id), {})
 
 
+func get_option_label(label_id: int) -> Dictionary:
+	return option_labels_by_id.get(abs(label_id), {})
+
+
 func get_battle(battle_id: int) -> Dictionary:
 	return battles_by_id.get(abs(battle_id), {})
 
@@ -641,6 +647,7 @@ func _reset() -> void:
 	triggers_by_coordinate.clear()
 	extra_codes_by_id.clear()
 	messages_by_id.clear()
+	option_labels_by_id.clear()
 	battles_by_id.clear()
 	treasures_by_id.clear()
 	shops_by_id.clear()
@@ -695,6 +702,9 @@ func _build_indexes() -> void:
 	for message: Variant in _array_value(script_document, "messages"):
 		if message is Dictionary:
 			messages_by_id[int(message.get("id", -1))] = message
+	for option_label: Variant in _array_value(script_document, "optionLabels"):
+		if option_label is Dictionary:
+			option_labels_by_id[int(option_label.get("id", -1))] = option_label
 	for random_level: Variant in _array_value(script_document, "randomLevels"):
 		if not (random_level is Dictionary):
 			continue

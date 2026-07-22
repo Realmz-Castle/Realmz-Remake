@@ -342,7 +342,7 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		"show_text":
 			return await _show_text(payload)
 		"choice":
-			return await _show_yes_no_choice()
+			return await _show_yes_no_choice(payload)
 		"start_encounter":
 			return await _show_encounter(payload)
 		"start_battle":
@@ -457,12 +457,22 @@ func _show_text(payload: Dictionary) -> Dictionary:
 	return {}
 
 
-func _show_yes_no_choice() -> Dictionary:
+func _show_yes_no_choice(payload: Dictionary) -> Dictionary:
 	var text_rect: Object = _text_rect()
 	if text_rect == null:
 		return _error("Realmz HUD TextRect is unavailable")
-	var answer: Variant = await _show_choices(text_rect, ["Yes", "No"], ["YES", "NO"])
+	var answer: Variant = await _show_choices(text_rect, [
+		_choice_label_text(payload.get("yesLabel", {}), "Yes"),
+		_choice_label_text(payload.get("noLabel", {}), "No"),
+	], ["YES", "NO"])
 	return {"accepted": str(answer) == "YES"}
+
+
+func _choice_label_text(label_value: Variant, fallback: String) -> String:
+	if not (label_value is Dictionary):
+		return fallback
+	var label := str(label_value.get("text", "")).strip_edges()
+	return label if not label.is_empty() else fallback
 
 
 func _wait_for_click(payload: Dictionary) -> Dictionary:
@@ -2532,8 +2542,8 @@ func _select_complex_item(
 	var picked_holder: Variant = item_menu.picked_character
 	if not (picked_holder is Object):
 		picked_holder = holder
-	var item_ids: Object = _autoload("ItemIdDivinity")
-	var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
+	var item_id_registry: Object = _autoload("ItemIdDivinity")
+	var item_mapping: Dictionary = item_id_registry.mapping if item_id_registry != null else {}
 	var response_item_texts: Array = item_texts if item_texts is Array else []
 	var available_scenario_items: Array = scenario_items if scenario_items is Array else []
 	var response := resolve_complex_item_selection(
@@ -3001,6 +3011,7 @@ func build_treasure_delivery(
 	var response_item_texts: Array = item_texts if item_texts is Array else []
 
 	var item_names: Array[String] = []
+	var delivered_item_ids: Array[int] = []
 	for item_id_value: Variant in item_ids:
 		var item_id: int = abs(int(item_id_value))
 		if item_id == 0:
@@ -3015,9 +3026,11 @@ func build_treasure_delivery(
 		if item_name.is_empty() or not available_items.has(item_name):
 			return _error("Classic item %d has no loaded Remake item mapping" % item_id)
 		item_names.append(item_name)
+		delivered_item_ids.append(item_id)
 
 	return {
 		"itemNames": item_names,
+		"itemIds": delivered_item_ids,
 		"money": [
 			int(treasure.get("gold", 0)),
 			int(treasure.get("gems", 0)),
@@ -3429,8 +3442,12 @@ func _give_treasure(payload: Dictionary) -> Dictionary:
 	if game_global == null:
 		return _error("Realmz game state is unavailable")
 	var items: Array = []
-	for item_name: String in delivery.get("itemNames", []):
-		items.append(game_global.generate_item(item_name))
+	var item_names: Array = delivery.get("itemNames", [])
+	var delivered_item_ids: Array = delivery.get("itemIds", [])
+	for item_index: int in item_names.size():
+		var item: Dictionary = game_global.generate_item(str(item_names[item_index]))
+		item["classicItemId"] = int(delivered_item_ids[item_index])
+		items.append(item)
 	await game_global.show_loot_menu(
 		items,
 		delivery.get("money", [0, 0, 0]),

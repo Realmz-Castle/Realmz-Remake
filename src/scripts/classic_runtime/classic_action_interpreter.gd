@@ -1978,6 +1978,10 @@ func _execute_choice(extra_code_id: int, gosub: bool) -> Dictionary:
 	}
 	return _yield_result("choice", {
 		"extraCodeId": extra_code_id,
+		"yesLabelId": int(values[3]),
+		"yesLabel": bundle.get_option_label(int(values[3])),
+		"noLabelId": int(values[4]),
+		"noLabel": bundle.get_option_label(int(values[4])),
 		"yesMessageId": int(values[3]),
 		"yesMessage": bundle.get_message(int(values[3])),
 		"noMessageId": int(values[4]),

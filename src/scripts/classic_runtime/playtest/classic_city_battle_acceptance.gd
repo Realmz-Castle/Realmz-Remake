@@ -15,11 +15,27 @@ const BATTLE_ID := 45
 const MONSTER_ID := 80
 const EXPECTED_ENEMY_COUNT := 24
 const TRIGGER_POSITION := Vector2i(2, 44)
+const QUEST_TRIGGER_ID := "Data DD:0:17"
+const QUEST_POSITION := Vector2i(10, 6)
+const QUEST_MAP_ID := 3
+const QUEST_ITEM_ID := 807
+const QUEST_REWARD_ITEM_IDS: Array[int] = [210, 434]
+const QUEST_OFFER_MESSAGES: Array[String] = [
+	"You have entered the blacksmith's shop",
+	"\"Hello.  Good people, what can I do for you today?\"",
+	"\"I cannot get the King's men to rout out these foul vermin",
+	"If you were to send these foul sluk",
+]
+const QUEST_ACCEPT_MESSAGE := "The blacksmith hands you a map"
+const QUEST_COMPLETE_MESSAGES: Array[String] = [
+	"The blacksmith weeps as you hand him his son's possessions",
+	"\"But alas, I am old and withered",
+]
 const FIRST_MESSAGE := "In this hut there is a wounded goblin"
 const SECOND_MESSAGE := "You search his body and turn up a map"
 const MAP_GAINED_MESSAGE := "You gain a map"
 const RETURN_MESSAGE := "Among the items, you find a sack"
-const MUTATED_TRIGGER_ID := "Data DD:0:17"
+const MUTATED_TRIGGER_ID := QUEST_TRIGGER_ID
 
 @export var campaign_directory := ""
 @export var native_campaign := "City of Bywater"
@@ -67,17 +83,20 @@ func _start_playtest() -> void:
 			_finish_smoke()
 			return
 		start_result = campaign_session.activate_start_location()
-	_move_to_trigger()
 	_verify_stage(
 		"01_city_entry",
 		str(start_result.get("status", "")) != "error"
 			and GameGlobal.currentmap_name == "map_0"
-			and _native_position() == TRIGGER_POSITION,
-		"the fresh City bundle enters native map_0 at the authored battle trigger"
+			and _native_position() == Vector2i(2, 1),
+		"the fresh City bundle enters native map_0 at its authored start"
 	)
 	if not smoke_failures.is_empty():
 		_finish_smoke()
 		return
+	if not await _accept_blacksmith_quest():
+		_finish_smoke()
+		return
+	_move_to_trigger()
 
 	if not _verify_native_monster_mapping(resources):
 		_finish_smoke()
@@ -89,30 +108,30 @@ func _start_playtest() -> void:
 		return
 
 	if not await _dismiss_message(FIRST_MESSAGE):
-		_fail("02_authored_presentation", "the first authored message did not open")
+		_fail("04_authored_presentation", "the first authored message did not open")
 		_finish_smoke()
 		return
 	if not await _dismiss_message(SECOND_MESSAGE):
-		_fail("02_authored_presentation", "the second authored message did not open")
+		_fail("04_authored_presentation", "the second authored message did not open")
 		_finish_smoke()
 		return
 	if not await _dismiss_message(MAP_GAINED_MESSAGE):
-		_fail("02_authored_presentation", "the acquired-map notice did not open")
+		_fail("04_authored_presentation", "the acquired-map notice did not open")
 		_finish_smoke()
 		return
 	if not await _wait_for_combat():
-		_fail("03_source_battle", _combat_diagnostic())
+		_fail("05_source_battle", _combat_diagnostic())
 		_finish_smoke()
 		return
 
 	var battle: Dictionary = resources.battles_book.get("Battle_%d" % BATTLE_ID, {})
 	_verify_stage(
-		"02_authored_presentation",
+		"04_authored_presentation",
 		host.runtime.runtime_state.is_map_owned(4),
 		"the pre-battle action list acquires City player map 4"
 	)
 	_verify_stage(
-		"03_source_battle",
+		"05_source_battle",
 		int(battle.get("classicBattleId", -1)) == BATTLE_ID
 			and battle.get("Creatures", []).size() == EXPECTED_ENEMY_COUNT
 			and _classic_enemy_count(MONSTER_ID) == EXPECTED_ENEMY_COUNT,
@@ -124,6 +143,50 @@ func _start_playtest() -> void:
 	call_deferred("_request_victory")
 	if automated_smoke:
 		await _finish_victory_and_reload()
+
+
+func _accept_blacksmith_quest() -> bool:
+	_move_to_position(QUEST_POSITION)
+	if not host.start_trigger(QUEST_TRIGGER_ID):
+		_fail("02_quest_offer", str(host.runtime.last_result))
+		return false
+	for message_prefix: String in QUEST_OFFER_MESSAGES:
+		if not await _dismiss_message(message_prefix):
+			_fail("02_quest_offer", "the authored blacksmith request did not complete")
+			return false
+	if not await _wait_for_choices():
+		_fail("02_quest_offer", "the blacksmith response choices did not open")
+		return false
+	_verify_stage(
+		"02_quest_offer",
+		_choice_labels() == ["Avenge his son", "Wish him luck"],
+		"the blacksmith request uses its authored Data OD response labels"
+	)
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("YES")
+	if not await _dismiss_message(QUEST_ACCEPT_MESSAGE):
+		_fail(
+			"03_quest_acceptance",
+			"the authored quest acceptance did not open (active=%s, result=%s, text=%s)" % [
+				host.active,
+				host.runtime.last_result,
+				UI.ow_hud.textRect.textLabel.get_parsed_text(),
+			]
+		)
+		return false
+	if not await _dismiss_message(MAP_GAINED_MESSAGE):
+		_fail("03_quest_acceptance", "the acquired-map notice did not open")
+		return false
+	if not await _wait_for_playthrough_completion():
+		_fail("03_quest_acceptance", "the quest-offer action list did not complete")
+		return false
+	var state: ClassicRuntimeState = host.runtime.runtime_state
+	_verify_stage(
+		"03_quest_acceptance",
+		state.is_map_owned(QUEST_MAP_ID)
+			and state.get_trigger_percent("land", 0, 17, 0) == -1,
+		"acceptance grants player map 3 and retires the initial blacksmith action"
+	)
+	return smoke_failures.is_empty()
 
 
 func _launch_installed_campaign() -> bool:
@@ -229,42 +292,42 @@ func _verify_native_monster_mapping(resources: CampaignResources) -> bool:
 
 func _finish_victory_and_reload() -> void:
 	if not await _wait_for_treasure():
-		_fail("04_victory", "the battle reward screen did not open")
+		_fail("06_victory", "the battle reward screen did not open")
 		_finish_smoke()
 		return
 	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 	if not await _wait_for_allies():
-		_fail("04_victory", "the post-battle allies screen did not open")
+		_fail("06_victory", "the post-battle allies screen did not open")
 		_finish_smoke()
 		return
 	UI.ow_hud.alliesCtrl.okbutton.pressed.emit()
 	if not await _dismiss_message(RETURN_MESSAGE):
-		_fail("05_outer_resume", "the authored post-battle message did not open")
+		_fail("07_outer_resume", "the authored post-battle message did not open")
 		_finish_smoke()
 		return
 	if not await _wait_for_treasure():
-		_fail("05_outer_resume", "authored treasure 11 did not open")
+		_fail("07_outer_resume", "authored treasure 11 did not open")
 		_finish_smoke()
 		return
-	if not await _loot_classic_item(807):
-		_fail("05_outer_resume", "treasure 11 did not offer mapped item 807")
+	if not await _loot_classic_item(QUEST_ITEM_ID):
+		_fail("07_outer_resume", "treasure 11 did not offer mapped item 807")
 		_finish_smoke()
 		return
 	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 	if not await _wait_for_playthrough_completion():
-		_fail("05_outer_resume", "the City action list did not complete")
+		_fail("07_outer_resume", "the City action list did not complete")
 		_finish_smoke()
 		return
 
 	var state: ClassicRuntimeState = host.runtime.runtime_state
 	var action_point_override := state.get_action_point_override(MUTATED_TRIGGER_ID)
 	_verify_stage(
-		"04_victory",
+		"06_victory",
 		not StateMachine.is_combat_state() and GameGlobal.currentmap_name == "map_0",
 		"native victory cleanup returns the party to City exploration"
 	)
 	_verify_stage(
-		"05_outer_resume",
+		"07_outer_resume",
 		state.get_trigger_percent("land", 0, 17, -1) == 100
 			and not action_point_override.is_empty(),
 		"victory awards mapped treasure 11, then applies both authored map mutations"
@@ -274,7 +337,7 @@ func _finish_victory_and_reload() -> void:
 	var serialized := JSON.stringify(save_result.get("payload", {}))
 	var saved_payload: Variant = JSON.parse_string(serialized)
 	_verify_stage(
-		"06_save_envelope",
+		"08_mid_quest_save",
 		str(save_result.get("status", "")) == "ok"
 			and saved_payload is Dictionary
 			and saved_payload.get("continuationState", {}).get("state", "") == "idle",
@@ -297,18 +360,69 @@ func _finish_victory_and_reload() -> void:
 	var restored_override := restored_state.get_action_point_override(MUTATED_TRIGGER_ID)
 	var acquired_maps := campaign_session.acquired_player_map_entries()
 	_verify_stage(
-		"07_session_reload",
+		"09_mid_quest_reload",
 		str(restore_result.get("status", "")) == "ok"
 			and str(start_result.get("status", "")) != "error"
 			and GameGlobal.currentmap_name == "map_0"
 			and _native_position() == TRIGGER_POSITION
+			and restored_state.is_map_owned(QUEST_MAP_ID)
 			and restored_state.is_map_owned(4)
-			and acquired_maps.size() == 1
-			and int(acquired_maps[0].get("record", {}).get("id", -1)) == 4
+			and acquired_maps.size() == 2
 			and restored_state.get_trigger_percent("land", 0, 17, -1) == 100
 			and not restored_override.is_empty()
 			and not campaign_session.has_pending_continuation(),
-		"a fresh session restores the City map, acquired map, and post-battle mutations"
+		"a fresh session restores both quest maps, item 807, and the blacksmith rewrite"
+	)
+	if not smoke_failures.is_empty():
+		_finish_smoke()
+		return
+	await _complete_blacksmith_quest()
+
+
+func _complete_blacksmith_quest() -> void:
+	_move_to_position(QUEST_POSITION)
+	if not host.start_trigger(QUEST_TRIGGER_ID):
+		_fail("10_quest_turn_in", str(host.runtime.last_result))
+		_finish_smoke()
+		return
+	for message_prefix: String in QUEST_COMPLETE_MESSAGES:
+		if not await _dismiss_message(message_prefix):
+			_fail("10_quest_turn_in", "the authored blacksmith completion did not open")
+			_finish_smoke()
+			return
+	if not await _wait_for_treasure():
+		_fail("10_quest_turn_in", "authored treasure 19 did not open")
+		_finish_smoke()
+		return
+	var reward_ids := _treasure_classic_item_ids()
+	_verify_stage(
+		"10_quest_turn_in",
+		not _party_has_classic_item(QUEST_ITEM_ID)
+			and reward_ids == QUEST_REWARD_ITEM_IDS
+			and UI.ow_hud.treasureControl.exp_gain == 800,
+		"turn-in consumes item 807 and presents treasure 19's two items and experience "
+			+ "(has807=%s, rewardIds=%s, experience=%d)" % [
+				_party_has_classic_item(QUEST_ITEM_ID),
+				reward_ids,
+				UI.ow_hud.treasureControl.exp_gain,
+			]
+	)
+	if not await _loot_classic_items(QUEST_REWARD_ITEM_IDS):
+		_fail("10_quest_turn_in", "the party could not take both blacksmith rewards")
+		_finish_smoke()
+		return
+	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+	if not await _wait_for_playthrough_completion():
+		_fail("11_quest_complete", "the blacksmith reward action list did not complete")
+		_finish_smoke()
+		return
+	_verify_stage(
+		"11_quest_complete",
+		not _party_has_classic_item(QUEST_ITEM_ID)
+			and _party_has_classic_item(210)
+			and _party_has_classic_item(434)
+			and not campaign_session.has_pending_continuation(),
+		"the installed quest completes in exploration with its rewards in inventory"
 	)
 	_finish_smoke()
 
@@ -318,17 +432,16 @@ func _request_victory() -> void:
 
 
 func _move_to_trigger() -> void:
-	host.runtime.runtime_state.set_location(
-		"land",
-		0,
-		TRIGGER_POSITION.x,
-		TRIGGER_POSITION.y
-	)
+	_move_to_position(TRIGGER_POSITION)
+
+
+func _move_to_position(position: Vector2i) -> void:
+	host.runtime.runtime_state.set_location("land", 0, position.x, position.y)
 	var map: Node = NodeAccess.__Map()
 	for character: Node in [map.focuscharacter, map.owcharacter]:
 		if character != null and character.has_method("set_tile_position"):
-			character.set_tile_position(Vector2(TRIGGER_POSITION))
-	map.explore_tiles_from_tilepos(TRIGGER_POSITION)
+			character.set_tile_position(Vector2(position))
+	map.explore_tiles_from_tilepos(position)
 
 
 func _create_playtest_party() -> void:
@@ -424,6 +537,23 @@ func _wait_for_treasure() -> bool:
 	return false
 
 
+func _wait_for_choices() -> bool:
+	for _frame: int in 600:
+		await get_tree().process_frame
+		var choices: Control = UI.ow_hud.textRect.choicesContainer
+		if choices.visible and choices.get_child_count() > 0:
+			return true
+	return false
+
+
+func _choice_labels() -> Array[String]:
+	var labels: Array[String] = []
+	for child: Node in UI.ow_hud.textRect.choicesContainer.get_children():
+		if child is Label:
+			labels.append(str(child.text))
+	return labels
+
+
 func _loot_classic_item(item_id: int) -> bool:
 	var container: GridContainer = UI.ow_hud.treasureControl.itemsContainer
 	if container.get_child_count() != 1:
@@ -436,6 +566,50 @@ func _loot_classic_item(item_id: int) -> bool:
 	for item: Dictionary in character.inventory:
 		if int(item.get("classicItemId", 0)) == item_id:
 			return true
+	return false
+
+
+func _loot_classic_items(item_ids: Array[int]) -> bool:
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	UI.ow_hud.selected_character = character
+	for item_id: int in item_ids:
+		var found := false
+		for item_button: Button in UI.ow_hud.treasureControl.itemsContainer.get_children():
+			var item := _treasure_button_item(item_button)
+			if int(item.get("classicItemId", 0)) != item_id:
+				continue
+			item_button.pressed.emit()
+			await get_tree().process_frame
+			found = _party_has_classic_item(item_id)
+			break
+		if not found:
+			return false
+	return true
+
+
+func _treasure_classic_item_ids() -> Array[int]:
+	var item_ids: Array[int] = []
+	for item_button: Button in UI.ow_hud.treasureControl.itemsContainer.get_children():
+		var item := _treasure_button_item(item_button)
+		item_ids.append(int(item.get("classicItemId", 0)))
+	return item_ids
+
+
+func _treasure_button_item(item_button: Button) -> Dictionary:
+	var connections := item_button.pressed.get_connections()
+	if connections.is_empty():
+		return {}
+	var arguments: Array = connections[0]["callable"].get_bound_arguments()
+	if arguments.is_empty() or not (arguments[0] is Dictionary):
+		return {}
+	return arguments[0]
+
+
+func _party_has_classic_item(item_id: int) -> bool:
+	for character: PlayerCharacter in GameGlobal.player_characters:
+		for item: Dictionary in character.inventory:
+			if int(item.get("classicItemId", 0)) == item_id:
+				return true
 	return false
 
 
@@ -485,6 +659,6 @@ func _finish_smoke() -> void:
 		return
 	UI.ow_hud.textRect.show()
 	UI.ow_hud.textRect.set_text(
-		"City battle acceptance complete.\n"
-		+ "Battle 45 returned to exploration and its authored mutations survived reload."
+		"City blacksmith quest acceptance complete.\n"
+		+ "The installed quest ran from offer through Battle 45, reload, and reward."
 	)
