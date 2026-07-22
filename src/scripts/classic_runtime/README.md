@@ -341,6 +341,14 @@ no-op; the compatibility resource treats those values as the intended drain
 described by the spell rather than preserving the data-entry defect. Both
 effects are halved by a successful special save.
 
+Sorcerer Power Surge `1409` and Enchanter Power Surge `3312` restore `5-8`
+spell points per power through one source-backed special-`59` adapter. Both
+work in combat and camp, target one creature at range one, and bypass magic
+resistance and saving throws. Player characters stop at their maximum spell
+points; Classic does not apply that upper bound to monsters, so the adapter
+preserves their ability to exceed the starting pool. Separate resources retain
+the two source records' different spell schools, launch art, and sounds.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

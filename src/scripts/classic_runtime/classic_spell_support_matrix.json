@@ -6651,6 +6651,54 @@
         "adapter": "source-record-backed-scaled-spell-point-drain",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1409,
+      "displayName": "Power Surge",
+      "classification": "native-special-spell-point-surge",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/power_surge.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 53, "byteOffset": 1590, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-59-surge", "slots": [0]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "availability": ["combat", "camp"],
+        "effect": "5-8-spell-points-per-power",
+        "playerMaximum": "max-spell-points",
+        "monsterMaximum": "uncapped-like-classic",
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "special": 59,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-scaled-spell-point-gain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3312,
+      "displayName": "Power Surge",
+      "classification": "native-special-spell-point-surge",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_power_surge_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 251, "byteOffset": 7530, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-59-surge", "slots": [1]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "availability": ["combat", "camp"],
+        "effect": "5-8-spell-points-per-power",
+        "playerMaximum": "max-spell-points",
+        "monsterMaximum": "uncapped-like-classic",
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "special": 59,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-scaled-spell-point-gain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

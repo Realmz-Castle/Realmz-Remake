@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 229)
+        self.assertEqual(report["totals"]["supportedIdentities"], 231)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -387,6 +387,25 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertEqual(row["behavior"]["saveMode"], "half-effect")
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id in {1409, 3312}:
+            surge = matrix_by_id[spell_id]
+            self.assertEqual(surge["supportStatus"], "supported")
+            self.assertEqual(
+                surge["classification"],
+                "native-special-spell-point-surge",
+            )
+            self.assertEqual(surge["behavior"]["special"], 59)
+            self.assertEqual(surge["behavior"]["saveMode"], "none")
+            self.assertEqual(
+                surge["behavior"]["playerMaximum"], "max-spell-points"
+            )
+            self.assertEqual(
+                surge["behavior"]["monsterMaximum"], "uncapped-like-classic"
+            )
+            resource_path = (
+                REPO_ROOT / "src" / surge["resource"].removeprefix("res://")
             )
             self.assertTrue(resource_path.is_file(), resource_path)
         shield_from_hits_ids = {1111, 2112, 3212, 3406}

@@ -1,6 +1,9 @@
 class_name ClassicSpellAbsorption
 extends RefCounted
 
+const SpellPointMutationScript = preload(
+	"res://scripts/classic_runtime/classic_spell_point_mutation.gd"
+)
 const SUPPRESS_META := "suppress_spell_reflection"
 
 
@@ -23,25 +26,13 @@ static func absorb_spell_power(
 
 	var current_sp := int(target.get_stat("curSP"))
 	if _is_player_character(target):
-		var maximum_sp := int(target.get_stat("maxSP"))
-		if maximum_sp <= 0:
-			return 0
-		var gain := mini(power, maximum_sp - current_sp)
-		if gain <= 0:
-			return 0
-		target.change_cur_sp(gain)
-		return gain
+		return SpellPointMutationScript.gain(target, power)
 
 	# resolvespell.c requires a monster to have spell points, then lets the
 	# absorbed power exceed its starting pool.
 	if current_sp <= 0:
 		return 0
-	var stats: Variant = target.get("stats")
-	if stats is Dictionary and stats.has("curSP"):
-		stats["curSP"] = current_sp + power
-		return power
-	target.change_cur_sp(power)
-	return int(target.get_stat("curSP")) - current_sp
+	return SpellPointMutationScript.gain(target, power)
 
 
 static func _is_player_character(character: Object) -> bool:

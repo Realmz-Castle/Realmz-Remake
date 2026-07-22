@@ -1429,6 +1429,7 @@ func _init() -> void:
 	_test_classic_lethal_spells()
 	_test_classic_transformation_spells()
 	_test_classic_phase_spells()
+	_test_classic_power_surge_spells()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -8840,6 +8841,88 @@ func _test_classic_phase_spells() -> void:
 	_expect_equal(collision_caster.life_status, 3, "blocked Phase marks the caster dead")
 
 
+func _test_classic_power_surge_spells() -> void:
+	var sorcerer = load("res://shared_assets/spells/power_surge.gd").new()
+	_expect_equal(sorcerer.name, "Power Surge", "Sorcerer Power Surge display name")
+	_expect_equal(sorcerer.classic_spell_ids, [1409], "Sorcerer Power Surge exact ID")
+	_expect_equal(sorcerer.classic_special, 59, "Power Surge special")
+	_expect_equal(sorcerer.classic_spell_class, 8, "Power Surge spell class")
+	_expect_equal(sorcerer.classic_target_type, 1, "Power Surge targets one creature")
+	_expect_equal(sorcerer.classic_cannot, 4, "Power Surge retains friendly targeting flag")
+	_expect_equal(sorcerer.classic_spell_save_index, -1, "Power Surge has no save")
+	_expect_equal(sorcerer.classic_spell_save_mode, "none", "Power Surge bypasses saves")
+	_expect_equal(
+		sorcerer.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Power Surge bypasses resistance and dodge"
+	)
+	_expect(sorcerer.in_combat and sorcerer.in_field, "Power Surge works in combat and camp")
+	_expect_equal(sorcerer.get_range(3, null), 1, "Power Surge range")
+	_expect_equal(sorcerer.get_sp_cost(3, null), 30, "Power Surge cost scales by power")
+	_expect_equal(
+		sorcerer.get_min_spell_point_gain(3),
+		15,
+		"Power Surge minimum scales by power"
+	)
+	_expect_equal(
+		sorcerer.get_max_spell_point_gain(3),
+		24,
+		"Power Surge maximum scales by power"
+	)
+	_expect_equal(
+		sorcerer.school_levels,
+		{"Sorcerer": 4, "Priest": 0, "Enchanter": 0},
+		"Sorcerer Power Surge keeps its source level"
+	)
+	_expect_equal(sorcerer.proj_tex, Spell.GFX.BALL, "Sorcerer Power Surge presentation")
+	_expect_equal(
+		sorcerer.sounds,
+		["hit effect 3.wav", "boing.wav"],
+		"Sorcerer Power Surge keeps its source sounds"
+	)
+
+	var enchanter = load(
+		"res://shared_assets/spells/classic_power_surge_enchanter.gd"
+	).new()
+	_expect_equal(enchanter.name, "Power Surge", "Enchanter Power Surge display name")
+	_expect_equal(enchanter.classic_spell_ids, [3312], "Enchanter Power Surge exact ID")
+	_expect_equal(
+		enchanter.school_levels,
+		{"Sorcerer": 0, "Priest": 0, "Enchanter": 3},
+		"Enchanter Power Surge keeps its source level"
+	)
+	_expect_equal(enchanter.proj_tex, Spell.GFX.WHIRL, "Enchanter presentation remains exact")
+	_expect_equal(
+		enchanter.sounds,
+		["boing.wav", "hit effect 3.wav"],
+		"Enchanter Power Surge keeps its source sounds"
+	)
+
+	var player := SpellPointConditionTestCharacter.new("Surged player", 17, 20)
+	_expect_equal(
+		sorcerer.apply_classic_scaled_effect(null, player, 2, 1.0),
+		3,
+		"runtime Power Surge path clamps players at maximum SP"
+	)
+	_expect_equal(player.current_sp, 20, "player Power Surge reaches maximum SP")
+	_expect_equal(sorcerer.apply_power_surge(player, 2), 0, "full player gains no spell points")
+
+	var monster := MonsterSpellPointAbsorptionTestCharacter.new()
+	var monster_gain: int = enchanter.apply_power_surge(monster, 1)
+	_expect(monster_gain >= 5 and monster_gain <= 8, "monster Power Surge rolls 5-8 per power")
+	_expect_equal(
+		monster.stats["curSP"],
+		5 + monster_gain,
+		"monster Power Surge can exceed the starting spell-point pool"
+	)
+	monster.stats["curSP"] = 0
+	var empty_monster_gain: int = enchanter.apply_power_surge(monster, 1)
+	_expect(
+		empty_monster_gain >= 5 and empty_monster_gain <= 8,
+		"Power Surge can restore a monster with zero spell points"
+	)
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -8921,7 +9004,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		229,
+		231,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
