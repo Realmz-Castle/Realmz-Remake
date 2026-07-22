@@ -873,7 +873,7 @@ static func give_Divinity_condition(affect_who : int, condition_id : int, powerp
 			traitscript_filename += "increased_def.gd"
 			trait_array = [power]
 		39: #Silenced
-			traitscript_filename += "dumb.gd"
+			traitscript_filename += "silenced.gd"
 			trait_array = [power]
 	var traitscript = load("res://shared_assets/traits/"+traitscript_filename)
 	for c in affected_characters :

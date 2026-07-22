@@ -11,6 +11,11 @@ const CONDITION_TRAITS := {
 		"temporary": "res://shared_assets/traits/t_disease.gd",
 		"permanent": "res://shared_assets/traits/p_disease.gd",
 	},
+	39: {
+		"name": "Silenced",
+		"temporary": "res://shared_assets/traits/t_silenced.gd",
+		"permanent": "res://shared_assets/traits/p_silenced.gd",
+	},
 }
 
 

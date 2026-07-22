@@ -244,6 +244,10 @@ func _on_SLevelButton_pressed(slevel : int):
 			#castButton.disabled = castButton.disabled and picked_spell.in_field
 
 func can_cast_spell(crea : Creature, spell, power : int) -> bool :
+	if not encounter_selection_mode \
+			and not spell.get("is_not_spell") \
+			and not crea.can_cast_spells():
+		return false
 	if not spell.get("is_not_spell") and crea.get_spellsperround_left()<=0 :
 		return false
 	if not encounter_selection_mode \

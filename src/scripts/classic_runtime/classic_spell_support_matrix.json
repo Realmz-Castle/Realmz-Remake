@@ -178,6 +178,16 @@
       ]
     },
     {
+      "id": "core-player-spell-silence",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "battlefield-queue", "character-save", "complex-encounter"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 55, "displayName": "Sorcerer Silence"},
+        {"sourceFile": "Data S", "recordIndex": 130, "displayName": "Priest Silence"},
+        {"sourceFile": "Data S", "recordIndex": 219, "displayName": "Enchanter Silence"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -5093,6 +5103,100 @@
         "special": 38,
         "costPerPower": 3,
         "adapter": "source-record-backed-classic-defense-hindrance",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1411,
+      "displayName": "Silence",
+      "nativeResourceName": "Classic Silence Sorcerer",
+      "classification": "native-special-queued-silence",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 55, "byteOffset": 1650, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-silence", "slots": [0]}],
+      "behavior": {
+        "targetType": "targeted-round-area",
+        "range": 10,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "areaSize": "data-ad-9-round",
+        "queueIcon": 14,
+        "queuedField": "initiative-phase-expiry-and-stationary-retrigger",
+        "duration": "one-round-per-power",
+        "conditionIndex": 39,
+        "effect": "block-player-and-monster-spellcasting",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "saveBonus": 15,
+        "resistance": "none",
+        "spellClassImmunity": 7,
+        "special": 40,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-classic-queued-silence",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2211,
+      "displayName": "Silence",
+      "classification": "native-special-queued-silence",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/silence.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 130, "byteOffset": 3900, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-silence", "slots": [1]}],
+      "behavior": {
+        "targetType": "targeted-round-area",
+        "range": 10,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "areaSize": "data-ad-9-round",
+        "queueIcon": 14,
+        "queuedField": "initiative-phase-expiry-and-stationary-retrigger",
+        "duration": "one-round-per-power",
+        "conditionIndex": 39,
+        "effect": "block-player-and-monster-spellcasting",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "saveBonus": 15,
+        "resistance": "classic-general",
+        "spellClassImmunity": 7,
+        "special": 40,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-classic-queued-silence",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3110,
+      "displayName": "Silence",
+      "classification": "native-special-queued-silence",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/silence.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 219, "byteOffset": 6570, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-silence", "slots": [2]}],
+      "behavior": {
+        "targetType": "targeted-round-area",
+        "range": 10,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "areaSize": "data-ad-9-round",
+        "queueIcon": 14,
+        "queuedField": "initiative-phase-expiry-and-stationary-retrigger",
+        "duration": "one-round-per-power",
+        "conditionIndex": 39,
+        "effect": "block-player-and-monster-spellcasting",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "saveBonus": 15,
+        "resistance": "classic-general",
+        "spellClassImmunity": 7,
+        "special": 40,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-classic-queued-silence",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }

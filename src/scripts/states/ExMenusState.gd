@@ -195,8 +195,10 @@ func get_num_of_targs_of_spell_in_field(spell : Spell, spellpower, user : Creatu
 	how_many_targets = min(how_many_targets, GameGlobal.player_allies.size()+GameGlobal.player_characters.size())
 	return how_many_targets
 
-func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dictionary) :
+func on_spell_picked(character : Creature, spell, powerlevel : int, item : Dictionary) :
 	print("ExMenus state on_spell_picked : ",character.name," ", spell.name)
+	if item.is_empty() and not spell.get("is_not_spell") and not character.can_cast_spells():
+		return
 	var _spelldata :  Dictionary = character.get_spell_data(spell, powerlevel)
 	var how_many_targets : int = get_num_of_targs_of_spell_in_field(spell, powerlevel, character)
 	var targets : Array = []

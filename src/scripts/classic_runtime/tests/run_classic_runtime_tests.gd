@@ -650,6 +650,13 @@ class SpellScreenTestCharacter:
 	func remove_trait(trait_instance: Variant) -> void:
 		traits.erase(trait_instance)
 
+	func can_cast_spells() -> bool:
+		for trait_value: Variant in traits:
+			if trait_value.has_method("blocks_spellcasting") \
+					and bool(trait_value.blocks_spellcasting()):
+				return false
+		return true
+
 	func get_stat(stat_name: String) -> Variant:
 		var stat: Variant = stats.get(stat_name, 0)
 		for trait_value: Variant in traits:
@@ -1233,6 +1240,7 @@ func _init() -> void:
 	_test_classic_arcanic_bubble_spells()
 	_test_classic_itching_skin_spell()
 	_test_classic_shrink_foe_spell()
+	_test_classic_silence_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -8150,7 +8158,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		174,
+		177,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8273,6 +8281,12 @@ func _test_classic_spell_coverage() -> void:
 		"supported",
 		"Shrink Foe uses the reviewed defense-hindrance adapter"
 	)
+	for silence_id: int in [1411, 2211, 3110]:
+		_expect_equal(
+			coverage_by_id.get(silence_id, {}).get("coverageStatus"),
+			"supported",
+			"Silence %d uses the reviewed queued-condition adapter" % silence_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -8345,8 +8359,9 @@ func _test_classic_spell_coverage() -> void:
 		1301, 1403, 2702, 3302,
 		1207, 2209,
 		3109,
+		1411, 2211, 3110,
 	]
-	_expect_equal(migrated_spell_ids.size(), 145, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 148, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8496,10 +8511,12 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Arcanic Bubble Enchanter": "res://shared_assets/spells/classic_core_3302_arcanic_bubble_enchanter.gd",
 		"Itching Skin": "res://shared_assets/spells/itching_skin.gd",
 		"Shrink Foe": "res://shared_assets/spells/shrink_foe.gd",
+		"Silence": "res://shared_assets/spells/silence.gd",
+		"Classic Silence Sorcerer": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		142,
+		144,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11781,6 +11798,137 @@ func _test_classic_shrink_foe_spell() -> void:
 	)
 
 
+func _test_classic_silence_spells() -> void:
+	var silence = load("res://shared_assets/spells/silence.gd").new()
+	var sorcerer = load(
+		"res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd"
+	).new()
+	_expect_equal(silence.name, "Silence", "Silence resource identity")
+	_expect_equal(
+		silence.classic_spell_ids,
+		[2211, 3110],
+		"Priest and Enchanter Silence share one source-equivalent resource"
+	)
+	_expect_equal(
+		sorcerer.classic_spell_ids,
+		[1411],
+		"Sorcerer Silence keeps its distinct resistance record"
+	)
+	for spell: Variant in [silence, sorcerer]:
+		var label := str(spell.name)
+		_expect_equal(spell.classic_special, 40, "%s special code" % label)
+		_expect_equal(spell.classic_spell_class, 7, "%s special effect class" % label)
+		_expect_equal(spell.classic_damage_type, 7, "%s special save family" % label)
+		_expect_equal(spell.classic_spell_save_index, 7, "%s special save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, "negate", "%s save negates" % label)
+		_expect_equal(spell.classic_save_bonus, 15, "%s save bonus" % label)
+		_expect(spell.in_combat and not spell.in_field, "%s is combat-only" % label)
+		_expect_equal(spell.classic_target_type, 3, "%s uses a fixed area" % label)
+		_expect_equal(spell.classic_size, 9, "%s uses Data AD area 9" % label)
+		_expect_equal(spell.classic_queue_icon, 14, "%s queue icon" % label)
+		_expect_equal(spell.targettile, Spell.TARGET_TILE.NOWALL, "%s targeting" % label)
+		_expect_equal(spell.get_range(3, null), 10, "%s source range" % label)
+		_expect(not spell.los, "%s does not require line of sight" % label)
+		_expect(
+			_same_tile_set(spell.get_aoe(3, null), Spell.AoE_ROUND),
+			"%s preserves the round area" % label
+		)
+		_expect_equal(spell.get_min_duration(3, null), 3, "%s minimum duration" % label)
+		_expect_equal(spell.get_max_duration(3, null), 3, "%s maximum duration" % label)
+		_expect_equal(spell.get_sp_cost(3, null), 45, "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, [8, 15], "%s visuals" % label)
+		_expect_equal(spell.terrain_tex, "Trg", "%s battlefield texture" % label)
+		_expect(spell.is_classic_queued_spell(), "%s creates a queued field" % label)
+		_expect(
+			not spell.uses_classic_group_effect(),
+			"%s resolves resistance and saves per target" % label
+		)
+	_expect_equal(silence.classic_cannot, 0, "Priest Silence uses general resistance")
+	_expect_equal(
+		silence.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Priest Silence checks general magic resistance"
+	)
+	_expect_equal(silence.classic_sound_ids, [66, 77], "Priest Silence sounds")
+	_expect_equal(sorcerer.classic_cannot, 1, "Sorcerer Silence bypasses resistance")
+	_expect_equal(
+		sorcerer.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Sorcerer Silence bypasses general magic resistance"
+	)
+	_expect_equal(sorcerer.classic_sound_ids, [26, 24], "Sorcerer Silence sounds")
+	_expect_equal(
+		silence.schools,
+		["Sorcerer", "Priest", "Enchanter"],
+		"Silence remains available to all three caster classes"
+	)
+
+	var target := SpellScreenTestCharacter.new("Silenced target", true)
+	_expect(target.can_cast_spells(), "an unaffected creature can cast spells")
+	_expect_equal(
+		silence.apply_classic_scaled_effect(null, target, 3, 1.0),
+		3,
+		"Silence applies one condition round per selected power"
+	)
+	_expect(not target.can_cast_spells(), "temporary Silence blocks spellcasting")
+	for remaining: int in [2, 1]:
+		target.traits[0]._on_new_round(target)
+		_expect_equal(
+			target.traits[0].get_saved_variables(),
+			[remaining],
+			"Silence loses one point each combat round"
+		)
+	target.traits[0]._on_new_round(target)
+	_expect(target.can_cast_spells(), "spellcasting returns when Silence expires")
+
+	var capped := SpellScreenTestCharacter.new("Capped silence target", true)
+	capped.add_trait(load("res://shared_assets/traits/t_silenced.gd"), [98])
+	_expect_equal(
+		silence.apply_classic_scaled_effect(null, capped, 3, 1.0),
+		0,
+		"player Silence rejects a stack beyond condition 99"
+	)
+	var permanent := SpellScreenTestCharacter.new("Permanently silenced target", true)
+	permanent.add_trait(load("res://shared_assets/traits/p_silenced.gd"), [2])
+	_expect(not permanent.can_cast_spells(), "permanent Silence blocks spellcasting")
+	_expect_equal(
+		silence.apply_classic_scaled_effect(null, permanent, 3, 1.0),
+		0,
+		"temporary Silence does not replace permanent Silence"
+	)
+
+	var condition_target := ConditionTestCharacter.new("Condition target")
+	var condition_result: Dictionary = CharacterConditionRulesScript.apply_condition(
+		[condition_target],
+		[condition_target],
+		"selected",
+		39,
+		4
+	)
+	_expect_equal(condition_result.get("affectedCount"), 1, "Give Condition maps Silence")
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(condition_target, 39),
+		4,
+		"Give Condition preserves the Silence value"
+	)
+	_expect(
+		FileAccess.get_file_as_string("res://Creature/Creature.gd").contains(
+			"func can_cast_spells()"
+		),
+		"creatures expose one spellcasting eligibility seam"
+	)
+	for consumer_path: String in [
+		"res://scenes/UI/HUD/Spells/SpellsRect.gd",
+		"res://scripts/states/CbDecideActionState.gd",
+		"res://shared_assets/CreatureScripts/test_crea_script.gd",
+		"res://shared_assets/CreatureScripts/dumb_melee.gd",
+	]:
+		_expect(
+			FileAccess.get_file_as_string(consumer_path).contains("can_cast_spells()"),
+			"%s observes spellcasting eligibility" % consumer_path.get_file()
+		)
+
+
 func _test_classic_spell_screen_spells() -> void:
 	var specs: Array = [
 		{
@@ -12610,6 +12758,16 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Shrink Foe", {}).get("classicSpellIds"),
 		[3109],
 		"spell catalog maps the native Shrink Foe resource"
+	)
+	_expect_equal(
+		native_spells.get("Silence", {}).get("classicSpellIds"),
+		[2211, 3110],
+		"spell catalog groups source-equivalent Priest and Enchanter Silence"
+	)
+	_expect_equal(
+		native_spells.get("Classic Silence Sorcerer", {}).get("classicSpellIds"),
+		[1411],
+		"spell catalog keeps the Sorcerer resistance variant distinct"
 	)
 	_expect_equal(
 		native_spells.get("Magic Darts", {}).get("classicSpellIds"),

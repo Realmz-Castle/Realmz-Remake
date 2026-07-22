@@ -217,6 +217,15 @@ func is_crea_player_controlled() -> bool :
 				return false
 	return curFaction==0 and is_player_controlled #and no_trait_control_loss
 
+
+func can_cast_spells() -> bool:
+	for trait_value: Variant in traits:
+		if trait_value is Object \
+				and trait_value.has_method("blocks_spellcasting") \
+				and bool(trait_value.blocks_spellcasting()):
+			return false
+	return true
+
 func move(dir : Vector2)->Array :  #Array returned is the list of  new  actions for the state action queue (counterattacks...)
 	#print("creature.gd move : "+name)
 	var extra_actions_queue : Array = []

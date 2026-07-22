@@ -48,6 +48,8 @@ static func decide_action(crea : Creature) -> Array :
 			var spell_target_pos : Vector2 = target_pos
 			var sp_left = crea.get_stat("curSP")
 			var allspellsArray : Array = crea.get_all_spells()
+			if not crea.can_cast_spells():
+				allspellsArray.clear()
 			if allspellsArray.size()>0 :
 				allspellsArray.shuffle()
 			var selectedSpell = null

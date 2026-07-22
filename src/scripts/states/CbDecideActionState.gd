@@ -737,6 +737,14 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	var spell = msg["spell"]
 	#print("CbDecideState on_spellcast_confirmed, spell is ", spell.name)
 	var power : int = msg["s_plvl"]
+	var used_item : Dictionary = msg["used_item"]
+	if used_item.is_empty() \
+			and not spell.get("is_not_spell") \
+			and not current_active_creabutton.creature.can_cast_spells():
+		set_spell_targeting_mode(false, {})
+		if not current_active_creabutton.creature.is_crea_player_controlled():
+			end_active_creature_turn(true)
+		return
 
 	var chain : Array =[]
 	if spell.has_method("get_chain") :
@@ -748,7 +756,6 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	else :
 		chain = [ [ spell, power ] ]
 	# chains are [  [spell1, power1] , [spell2, power2] , ... ]
-	var used_item : Dictionary = msg["used_item"]
 	var must_add_terrain : bool = msg["must_add_terrain"]
 	var targeted_tiles : Array = msg["targeted_tiles"]
 	var targetinglayer : TargetingLayer = GameGlobal.map.targetingLayer
