@@ -6,6 +6,9 @@ const trait_types := ["Disease"]
 const DiseaseRules = preload(
 	"res://scripts/classic_runtime/classic_disease.gd"
 )
+const AnimationScript = preload(
+	"res://scripts/classic_runtime/classic_animation.gd"
+)
 
 var chara
 var condition := 0
@@ -89,11 +92,8 @@ func _can_take_disease_damage(character) -> bool:
 	if not character.has_method("get_stat") or int(character.get_stat("curHP")) <= 0:
 		return false
 	if _is_player_character(character):
-		return true
-	for condition_trait: Variant in character.get("traits"):
-		if str(condition_trait.get("name")) in ["p_animated.gd", "t_animated.gd"]:
-			return false
-	return true
+		return not AnimationScript.is_permanently_animated(character)
+	return not AnimationScript.is_animated(character)
 
 
 func _remove_if_expired() -> void:

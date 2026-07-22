@@ -631,6 +631,47 @@ class SpellScreenTestCharacter:
 		return stat
 
 
+class AnimationTestCharacter:
+	extends RefCounted
+	var name: String
+	var life_status := 3
+	var is_player_controlled := true
+	var traits: Array = []
+	var stats := {
+		"curHP": -12,
+		"maxHP": 43,
+		"SP_regen_mult": 1.0,
+		"MultiplierHealing": 1.0,
+	}
+
+	func _init(character_name: String) -> void:
+		name = character_name
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> Variant:
+		var stat: Variant = stats.get(stat_name, 0)
+		for trait_value: Variant in traits:
+			if trait_value.has_method("_on_get_stat"):
+				stat = trait_value._on_get_stat(stat_name, stat)
+		return stat
+
+	func change_cur_hp(change: int) -> void:
+		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -1005,6 +1046,7 @@ func _init() -> void:
 	_test_classic_protection_from_foe_spells()
 	_test_classic_speedy_spells()
 	_test_classic_invisible_spells()
+	_test_classic_animation_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7883,7 +7925,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		142,
+		144,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8014,8 +8056,9 @@ func _test_classic_spell_coverage() -> void:
 		1210, 2409,
 		1302, 2401,
 		1206, 1708, 2208, 2509,
+		2410, 3610,
 	]
-	_expect_equal(migrated_spell_ids.size(), 110, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 112, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8134,10 +8177,12 @@ func _test_classic_spell_coverage() -> void:
 		"Multi Invisible Skin": "res://shared_assets/spells/classic_core_1708_multi_invisible_skin.gd",
 		"Classic Invisible Skin Priest": "res://shared_assets/spells/classic_core_2208_invisible_skin_priest.gd",
 		"Classic Multi Invisible Skin Priest": "res://shared_assets/spells/classic_core_2509_multi_invisible_skin_priest.gd",
+		"Puppet Master": "res://shared_assets/spells/classic_core_2410_puppet_master.gd",
+		"Classic Puppet Master Enchanter": "res://shared_assets/spells/classic_core_3610_puppet_master_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		111,
+		113,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9895,6 +9940,171 @@ func _test_classic_invisible_spells() -> void:
 		0,
 		"Classic invisibility does not stack beside Remake's temporary invisibility"
 	)
+
+
+func _test_classic_animation_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_2410_puppet_master.gd",
+			"name": "Puppet Master",
+			"id": 2410,
+			"sounds": [66, 31],
+		},
+		{
+			"file": "classic_core_3610_puppet_master_enchanter.gd",
+			"name": "Classic Puppet Master Enchanter",
+			"id": 3610,
+			"sounds": [83, 31],
+		},
+	]
+	for spec: Dictionary in specs:
+		var puppet_master = load(
+			"res://shared_assets/spells/%s" % spec["file"]
+		).new()
+		var label := str(spec["name"])
+		_expect_equal(puppet_master.name, spec["name"], "%s resource identity" % label)
+		_expect_equal(puppet_master.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(puppet_master.classic_special, 26, "%s uses animation special 26" % label)
+		_expect_equal(puppet_master.classic_spell_class, 7, "%s preserves special class 7" % label)
+		_expect_equal(puppet_master.classic_damage_type, 7, "%s preserves special DRV 7" % label)
+		_expect_equal(puppet_master.classic_cannot, 3, "%s source cannot value" % label)
+		_expect_equal(puppet_master.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(puppet_master.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(
+			puppet_master.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect(not puppet_master.in_combat and puppet_master.in_field, "%s is camp-only" % label)
+		_expect_equal(puppet_master.get_range(3, null), 0, "%s source range" % label)
+		_expect_equal(
+			puppet_master.get_target_number(3, null),
+			3,
+			"%s selects one party character per power" % label
+		)
+		_expect_equal(puppet_master.get_min_duration(3, null), 0, "%s has no duration" % label)
+		_expect_equal(puppet_master.get_max_duration(3, null), 0, "%s has no duration roll" % label)
+		_expect_equal(puppet_master.get_sp_cost(3, null), 195, "%s casting cost" % label)
+		_expect_equal(puppet_master.classic_spell_look_ids, [14, 15], "%s visuals" % label)
+		_expect_equal(puppet_master.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+		_expect(puppet_master.los, "%s preserves source line of sight" % label)
+		_expect_equal(puppet_master.get_aoe(3, null), Spell.AoE_b1, "%s source area" % label)
+		_expect(puppet_master.elements.is_empty(), "%s has no damage element" % label)
+		_expect(not puppet_master.skip_targeting, "%s uses the camp party picker" % label)
+		_expect_equal(
+			puppet_master.autotarget_type,
+			Spell.AUTOTARGET_TYPE.NONE,
+			"%s does not force a self target" % label
+		)
+		_expect_equal(
+			puppet_master.targettile,
+			Spell.TARGET_TILE.CREATURE,
+			"%s targets party characters" % label
+		)
+
+	var priest = load(
+		"res://shared_assets/spells/classic_core_2410_puppet_master.gd"
+	).new()
+	var dead := AnimationTestCharacter.new("Dead character")
+	_expect(
+		priest.apply_classic_scaled_effect(null, dead, 3, 1.0),
+		"Puppet Master animates a dead character"
+	)
+	_expect_equal(dead.stats["curHP"], 10, "animation restores one-quarter maximum health")
+	_expect_equal(dead.life_status, 0, "animation returns the character to active health")
+	_expect_equal(dead.traits.size(), 1, "animation adds one permanent condition")
+	var animation_trait: Variant = dead.traits[0]
+	_expect_equal(
+		animation_trait.name,
+		"p_classic_animated.gd",
+		"Puppet Master uses its Classic permanent trait"
+	)
+	_expect(animation_trait.permanent == 1, "Puppet Master animation is permanent")
+	_expect(not animation_trait.stacks, "permanent animation does not stack")
+	_expect(animation_trait.trait_types.has("no_exp"), "animated characters cannot gain experience")
+	_expect(not animation_trait._on_get_player_controlled(), "animated characters fight automatically")
+	_expect_equal(
+		animation_trait._on_get_stat("SP_regen_mult", 1.0),
+		0,
+		"animated characters do not recover spell points"
+	)
+	_expect_equal(
+		animation_trait._on_get_stat("MultiplierHealing", 1.0),
+		1.0,
+		"Classic animation does not turn healing into damage"
+	)
+	_expect_equal(
+		animation_trait.get_saved_variables(),
+		[],
+		"permanent animation needs no duration payload"
+	)
+
+	var animation_rules = load(
+		"res://scripts/classic_runtime/classic_animation.gd"
+	)
+	_expect(animation_rules.is_animated(dead), "animation helper recognizes Puppet Master")
+	_expect(
+		animation_rules.is_permanently_animated(dead),
+		"animation helper recognizes Classic permanent animation"
+	)
+	_expect(
+		not animation_rules.can_receive_experience(dead),
+		"the shared experience rule excludes animated characters"
+	)
+	_expect(
+		FileAccess.get_file_as_string("res://scripts/GameGlobal.gd").contains(
+			"ClassicAnimationScript.can_receive_experience(character)"
+		),
+		"direct experience awards use the shared no-experience rule"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scenes/UI/HUD/Looting/TreasureControl.gd"
+		).contains("GameGlobal.can_character_receive_experience(pc)"),
+		"battle-loot experience selection uses the same no-experience rule"
+	)
+
+	var daze = load("res://shared_assets/spells/daze.gd").new()
+	_expect(
+		MagicResistanceScript.animated_spell_immunity(dead, daze, true),
+		"Puppet Master grants Classic charm and mental immunity"
+	)
+	var regeneration_trait = load(
+		"res://shared_assets/traits/t_classic_regeneration.gd"
+	)
+	var regeneration = dead.add_trait(regeneration_trait, [3])
+	regeneration._on_new_round(dead)
+	_expect_equal(dead.stats["curHP"], 10, "animated characters do not regenerate")
+	var disease_trait = load("res://shared_assets/traits/t_classic_disease.gd")
+	var disease = dead.add_trait(disease_trait, [3])
+	disease._on_new_round(dead)
+	_expect_equal(dead.stats["curHP"], 10, "permanently animated characters ignore disease damage")
+	_expect_equal(disease.condition, 2, "animated disease still reduces normally")
+	var poison_trait = load("res://shared_assets/traits/t_poison.gd")
+	var poison = dead.add_trait(poison_trait, [3])
+	poison._on_new_round(dead)
+	_expect_equal(dead.stats["curHP"], 10, "permanently animated characters ignore poison damage")
+	_expect_equal(poison.power, 2, "animated poison still reduces normally")
+
+	var living := AnimationTestCharacter.new("Living character")
+	living.stats["curHP"] = 1
+	living.life_status = 0
+	_expect(
+		not priest.apply_classic_scaled_effect(null, living, 1, 1.0),
+		"Puppet Master ignores living characters"
+	)
+	_expect(living.traits.is_empty(), "failed animation does not add a trait")
+
+	var revive = load("res://shared_assets/spells/classic_core_2606_revive_dead.gd").new()
+	_expect(
+		revive.apply_classic_scaled_effect(null, dead, 1, 1.0),
+		"Revive Dead accepts a character animated by Puppet Master"
+	)
+	_expect(
+		not animation_rules.is_animated(dead),
+		"Revive Dead removes Classic permanent animation"
+	)
+	_expect_equal(dead.stats["curHP"], -9, "deanimation leaves the character unconscious")
 
 
 func _test_classic_spell_screen_spells() -> void:

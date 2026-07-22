@@ -3,6 +3,7 @@ extends RefCounted
 
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
+const AnimationScript = preload("res://scripts/classic_runtime/classic_animation.gd")
 const META_KEY := "classic_magic_resistance"
 const SPELL_IMMUNITIES_META_KEY := "classic_spell_immunities"
 const CLASSIC_HIT_DICE_META_KEY := "classic_hit_dice"
@@ -287,14 +288,7 @@ static func animated_spell_immunity(
 		return false
 	if int(spell.get("classic_spell_class")) not in [0, 5]:
 		return false
-	var traits: Variant = _property_value(character, "traits")
-	if not (traits is Array):
-		return false
-	for condition_trait: Variant in traits:
-		if condition_trait is Object \
-			and str(condition_trait.get("name")) in ["p_animated.gd", "t_animated.gd"]:
-			return true
-	return false
+	return AnimationScript.is_animated(character)
 
 
 static func spell_class_immunity(character: Object, spell: Object) -> bool:

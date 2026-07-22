@@ -6,6 +6,9 @@ const trait_types := ["Regeneration"]
 const RegenerationRules = preload(
 	"res://scripts/classic_runtime/classic_regeneration.gd"
 )
+const AnimationScript = preload(
+	"res://scripts/classic_runtime/classic_animation.gd"
+)
 
 var chara
 var condition := 0
@@ -94,14 +97,10 @@ func _can_regenerate(character, minimum_health: int) -> bool:
 	var current_health := int(character.get_stat("curHP"))
 	if current_health <= minimum_health or current_health >= int(character.get_stat("maxHP")):
 		return false
-	return not (_is_player_character(character) and _is_animated(character))
-
-
-func _is_animated(character) -> bool:
-	for condition_trait: Variant in character.get("traits"):
-		if str(condition_trait.get("name")) in ["p_animated.gd", "t_animated.gd"]:
-			return true
-	return false
+	return not (
+		_is_player_character(character)
+		and AnimationScript.is_animated(character)
+	)
 
 
 func _apply_healing(character, amount: int) -> void:

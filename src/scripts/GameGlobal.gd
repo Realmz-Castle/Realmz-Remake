@@ -28,6 +28,9 @@ const ClassicMonsterWeaponRulesScript = preload(
 const ClassicProtectionFromFoeScript = preload(
 	"res://scripts/classic_runtime/classic_protection_from_foe.gd"
 )
+const ClassicAnimationScript = preload(
+	"res://scripts/classic_runtime/classic_animation.gd"
+)
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
@@ -1207,9 +1210,8 @@ func give_exp_to_pcs(experience : int, pcs : Array) -> bool:
 	print("GameGlobals give_exp_to_pcs ", experience,' to ', pcs.size())
 	var leveledup : bool = false
 	for pc in pcs :
-		for t in pc.traits :
-			if t.trait_types.has('no_exp') :
-				continue
+		if not can_character_receive_experience(pc) :
+			continue
 		pc.exp_tnl -= experience
 		while pc.exp_tnl <0 :
 			# HUD level up !
@@ -1221,6 +1223,10 @@ func give_exp_to_pcs(experience : int, pcs : Array) -> bool:
 			pc.exp_tnl += PlayerCharacter.get_exp_req_for_lvl(pc.level)
 #	emit_signal("done_giving_exp")
 	return leveledup
+
+
+func can_character_receive_experience(character) -> bool:
+	return ClassicAnimationScript.can_receive_experience(character)
 
 #returns [boolean, character with item, item itself  or emptydict]
 func does_party_have_same_item(item : Dictionary)->Array :

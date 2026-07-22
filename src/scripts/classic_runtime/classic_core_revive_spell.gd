@@ -4,6 +4,9 @@ extends "res://scripts/classic_runtime/classic_core_damage_spell.gd"
 const ConditionCureScript = preload(
 	"res://scripts/classic_runtime/classic_condition_cure.gd"
 )
+const AnimationScript = preload(
+	"res://scripts/classic_runtime/classic_animation.gd"
+)
 
 # This is character.spec[2] in Classic's spelllist.c.
 const RESURRECT_ABILITY_INDEX := 2
@@ -47,37 +50,15 @@ func apply_classic_scaled_effect(
 	var stats: Variant = target.get("stats")
 	if not (stats is Dictionary):
 		return false
-	var animated := _has_animated_trait(target)
+	var animated := AnimationScript.is_animated(target)
 	if int(stats.get("curHP", 0)) >= -9 and not animated:
 		return false
-	_remove_animated_traits(target)
+	AnimationScript.remove_animation_traits(target)
 	stats["curHP"] = -9
 	target.set("life_status", 2)
 	if target.has_method("change_classic_special_ability"):
 		target.change_classic_special_ability(RESURRECT_ABILITY_INDEX, -2)
 	return true
-
-
-func _has_animated_trait(target: Object) -> bool:
-	var traits: Variant = target.get("traits")
-	if not (traits is Array):
-		return false
-	for trait_value: Variant in traits:
-		if trait_value is Object \
-				and str(trait_value.get("name")) in ["p_animated.gd", "t_animated.gd"]:
-			return true
-	return false
-
-
-func _remove_animated_traits(target: Object) -> void:
-	var traits: Variant = target.get("traits")
-	if not (traits is Array) or not target.has_method("remove_trait"):
-		return
-	for trait_value: Variant in traits.duplicate():
-		if trait_value is Object \
-				and str(trait_value.get("name")) in ["p_animated.gd", "t_animated.gd"]:
-			target.remove_trait(trait_value)
-
 
 func _is_revive_record(record: Dictionary) -> bool:
 	if absi(int(record.get("special", 0))) != 64 \

@@ -453,6 +453,15 @@
       ]
     },
     {
+      "id": "core-player-spell-animation",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "field-party", "character-save", "combat-control", "battle-rewards"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 159, "displayName": "Priest Puppet Master"},
+        {"sourceFile": "Data S", "recordIndex": 294, "displayName": "Enchanter Puppet Master"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -4062,6 +4071,65 @@
         "special": 25,
         "costPerPower": 50,
         "adapter": "classic-invisible-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2410,
+      "displayName": "Puppet Master",
+      "classification": "native-special-animation",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2410_puppet_master.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 159, "byteOffset": 4770, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-animation", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-party-character-per-power",
+        "range": 0,
+        "lineOfSight": true,
+        "availability": "camp-only",
+        "eligibleTarget": "health-below-minus-nine",
+        "restoredHealth": "floor-max-health-divided-by-four",
+        "effect": "permanent-animation-with-automatic-melee-control",
+        "conditionIndex": 25,
+        "nativeTrait": "p_classic_animated.gd",
+        "experience": "blocked",
+        "spellPointRecovery": "blocked",
+        "healing": "normal",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 26,
+        "costPerPower": 65,
+        "adapter": "classic-permanent-animation",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3610,
+      "displayName": "Puppet Master",
+      "nativeResourceName": "Classic Puppet Master Enchanter",
+      "classification": "native-special-animation",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3610_puppet_master_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 294, "byteOffset": 8820, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-animation", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-party-character-per-power",
+        "range": 0,
+        "lineOfSight": true,
+        "availability": "camp-only",
+        "eligibleTarget": "health-below-minus-nine",
+        "restoredHealth": "floor-max-health-divided-by-four",
+        "effect": "permanent-animation-with-automatic-melee-control",
+        "conditionIndex": 25,
+        "nativeTrait": "p_classic_animated.gd",
+        "experience": "blocked",
+        "spellPointRecovery": "blocked",
+        "healing": "normal",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 26,
+        "costPerPower": 65,
+        "adapter": "classic-permanent-animation",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }

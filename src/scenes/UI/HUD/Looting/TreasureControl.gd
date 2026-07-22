@@ -60,9 +60,8 @@ func display(items : Array, money : Array, experience : int) :
 	for pc : PlayerCharacter in GameGlobal.player_characters :
 		if pc.get_stat("curHP")<=0 :
 			continue
-		for t in pc.traits :
-			if t.trait_types.has("no_exp") :
-				continue
+		if not GameGlobal.can_character_receive_experience(pc) :
+			continue
 		exp_receivers.append(pc)
 			
 	explabel.text = " Experience : "+ str(exp_gain) +", split among " + str(exp_receivers.size()) + "characters"

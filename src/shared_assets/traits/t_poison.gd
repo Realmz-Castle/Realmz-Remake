@@ -2,6 +2,9 @@ const name : String = 't_poison.gd'
 const menuname : String = 'Poison'
 const stacks : bool = true
 const trait_types : Array = ['Poison']
+const ClassicAnimationScript = preload(
+	"res://scripts/classic_runtime/classic_animation.gd"
+)
 var chara
 var power : int #in seconds, 1 round = 5s
 
@@ -31,7 +34,8 @@ func get_saved_variables() :
 	return [power]
 
 func _on_new_round(_character) :
-	chara.change_cur_hp(-power)
+	if not ClassicAnimationScript.is_permanently_animated(chara) :
+		chara.change_cur_hp(-power)
 	power -= 1
 	if power <= 0 :
 		chara.remove_trait(self)
@@ -43,7 +47,8 @@ func _on_time_pass(_character, seconds) :
 		if power <= 0 :
 			chara.remove_trait(self)
 			return
-		chara.change_cur_hp(-power)
+		if not ClassicAnimationScript.is_permanently_animated(chara) :
+			chara.change_cur_hp(-power)
 		power -= 1
 		if power <= 0 :
 			chara.remove_trait(self)
