@@ -6458,6 +6458,150 @@
         "adapter": "source-record-backed-native-monster-transformation",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1208,
+      "displayName": "Limited Phase",
+      "classification": "native-special-phase",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/limited_phase.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 22, "byteOffset": 660, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-56-phase", "slots": [0]}],
+      "behavior": {
+        "targetType": "unobstructed-destination-tile",
+        "rangePerPower": 2,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "relocate-caster",
+        "remainingActions": "exhausted",
+        "blockedDestination": "set-health-to-minus-ten-and-mark-dead",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 56,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-native-combat-phase",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2305,
+      "displayName": "Limited Phase",
+      "classification": "native-special-phase",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/limited_phase.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 139, "byteOffset": 4170, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-56-phase", "slots": [1]}],
+      "behavior": {
+        "targetType": "unobstructed-destination-tile",
+        "rangePerPower": 2,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "relocate-caster",
+        "remainingActions": "exhausted",
+        "blockedDestination": "set-health-to-minus-ten-and-mark-dead",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 56,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-native-combat-phase",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3106,
+      "displayName": "Limited Phase",
+      "classification": "native-special-phase",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/limited_phase.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 215, "byteOffset": 6450, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-56-phase", "slots": [2]}],
+      "behavior": {
+        "targetType": "unobstructed-destination-tile",
+        "rangePerPower": 2,
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "relocate-caster",
+        "remainingActions": "exhausted",
+        "blockedDestination": "set-health-to-minus-ten-and-mark-dead",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 56,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-native-combat-phase",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1509,
+      "displayName": "Phase",
+      "classification": "native-special-phase",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/phase.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 68, "byteOffset": 2040, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-56-phase", "slots": [3]}],
+      "behavior": {
+        "targetType": "unobstructed-destination-tile",
+        "range": "one-plus-two-per-power",
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "relocate-caster",
+        "remainingActions": "preserved-after-casting-action",
+        "blockedDestination": "set-health-to-minus-ten-and-mark-dead",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 56,
+        "costPerPower": 25,
+        "adapter": "source-record-backed-native-combat-phase",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2511,
+      "displayName": "Phase",
+      "classification": "native-special-phase",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/phase.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 175, "byteOffset": 5250, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-56-phase", "slots": [4]}],
+      "behavior": {
+        "targetType": "unobstructed-destination-tile",
+        "range": "one-plus-two-per-power",
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "relocate-caster",
+        "remainingActions": "preserved-after-casting-action",
+        "blockedDestination": "set-health-to-minus-ten-and-mark-dead",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 56,
+        "costPerPower": 25,
+        "adapter": "source-record-backed-native-combat-phase",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3309,
+      "displayName": "Phase",
+      "classification": "native-special-phase",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/phase.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 248, "byteOffset": 7440, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-56-phase", "slots": [5]}],
+      "behavior": {
+        "targetType": "unobstructed-destination-tile",
+        "range": "one-plus-two-per-power",
+        "lineOfSight": false,
+        "availability": "combat-only",
+        "effect": "relocate-caster",
+        "remainingActions": "preserved-after-casting-action",
+        "blockedDestination": "set-health-to-minus-ten-and-mark-dead",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 56,
+        "costPerPower": 25,
+        "adapter": "source-record-backed-native-combat-phase",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

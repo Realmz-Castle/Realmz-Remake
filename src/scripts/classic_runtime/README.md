@@ -320,6 +320,17 @@ and Classic monster metadata, while carried money is cleared as in
 naturally has Classic's battle-only lifetime. Multi Morph differs only by using
 the source record's power-scaled area targeting.
 
+Limited Phase `1208`/`2305`/`3106` and Phase `1509`/`2511`/`3309` use one
+source-backed combat relocation path for Classic special `56`. Both variants
+target an otherwise unobstructed tile without requiring line of sight, update
+the creature, battlefield control, camera, and navigation positions together,
+and preserve the source range and spell-point scaling. Limited Phase exhausts
+the caster's remaining actions after arrival; Phase leaves actions other than
+the casting action available. Classic treats a phase into a solid or occupied
+destination as lethal, so a stale or externally supplied invalid target moves
+the caster to that destination, sets health to minus ten, and marks the caster
+dead rather than silently finding a nearby tile.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

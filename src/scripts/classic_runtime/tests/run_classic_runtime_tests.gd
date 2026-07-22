@@ -892,6 +892,27 @@ class TransformationTestButton:
 		refresh_count += 1
 
 
+class PhaseTestButton:
+	extends RefCounted
+	var position := Vector2.ZERO
+
+
+class PhaseTestCreature:
+	extends RefCounted
+	var position := Vector2.ZERO
+	var size := Vector2.ONE
+	var used_apr := 1
+	var life_status := 0
+	var stats := {"curHP": 20, "maxHP": 20}
+	var combat_button := PhaseTestButton.new()
+
+	func get_stat(stat_name: String) -> int:
+		return 3 if stat_name == "MaxActions" else int(stats.get(stat_name, 0))
+
+	func change_cur_hp(change: int) -> void:
+		stats["curHP"] = int(stats["curHP"]) + change
+
+
 class TransformationTestCreature:
 	extends RefCounted
 	var name := ""
@@ -1407,6 +1428,7 @@ func _init() -> void:
 	_test_classic_identify_objects_spell()
 	_test_classic_lethal_spells()
 	_test_classic_transformation_spells()
+	_test_classic_phase_spells()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -8764,6 +8786,60 @@ func _test_classic_transformation_spells() -> void:
 	)
 
 
+func _test_classic_phase_spells() -> void:
+	var limited = load("res://shared_assets/spells/limited_phase.gd").new()
+	_expect_equal(limited.name, "Limited Phase", "Limited Phase resource identity")
+	_expect_equal(limited.classic_spell_ids, [1208, 2305, 3106], "Limited Phase exact IDs")
+	_expect_equal(limited.classic_special, 56, "Limited Phase special")
+	_expect_equal(limited.classic_target_type, 8, "Limited Phase targets a destination tile")
+	_expect_equal(limited.targettile, Spell.TARGET_TILE.NOWALL, "Limited Phase blocks walls")
+	_expect_equal(limited.get_range(3, null), 6, "Limited Phase source range")
+	_expect_equal(limited.get_sp_cost(3, null), 30, "Limited Phase casting cost")
+	_expect(not limited.los, "Limited Phase does not require line of sight")
+	_expect_equal(
+		limited.school_levels,
+		{"Sorcerer": 2, "Priest": 3, "Enchanter": 1},
+		"Limited Phase exposes all source caster levels"
+	)
+
+	var limited_caster := PhaseTestCreature.new()
+	var limited_result: Dictionary = limited.phase_to(limited_caster, Vector2i(4, 6))
+	_expect_equal(limited_result.get("status"), "moved", "Limited Phase relocates its caster")
+	_expect_equal(limited_caster.position, Vector2(4, 6), "Limited Phase updates tile position")
+	_expect_equal(
+		limited_caster.combat_button.position,
+		Vector2(4, 6) * 32,
+		"Limited Phase updates battlefield presentation"
+	)
+	_expect_equal(limited_caster.used_apr, 3, "Limited Phase exhausts remaining actions")
+
+	var phase = load("res://shared_assets/spells/phase.gd").new()
+	_expect_equal(phase.name, "Phase", "Phase resource identity")
+	_expect_equal(phase.classic_spell_ids, [1509, 2511, 3309], "Phase exact IDs")
+	_expect_equal(phase.classic_special, 56, "Phase special")
+	_expect_equal(phase.get_range(3, null), 7, "Phase source range")
+	_expect_equal(phase.get_sp_cost(3, null), 75, "Phase casting cost")
+	_expect(not phase.los, "Phase does not require line of sight")
+	_expect_equal(
+		phase.school_levels,
+		{"Sorcerer": 5, "Priest": 5, "Enchanter": 3},
+		"Phase exposes all source caster levels"
+	)
+
+	var phase_caster := PhaseTestCreature.new()
+	var phase_result: Dictionary = phase.phase_to(phase_caster, Vector2i(7, 2))
+	_expect_equal(phase_result.get("status"), "moved", "Phase relocates its caster")
+	_expect_equal(phase_caster.position, Vector2(7, 2), "Phase updates tile position")
+	_expect_equal(phase_caster.used_apr, 1, "Phase preserves remaining actions")
+
+	var collision_caster := PhaseTestCreature.new()
+	var collision: Dictionary = phase.phase_to(collision_caster, Vector2i(3, 3), true)
+	_expect_equal(collision.get("status"), "collision", "blocked Phase reports its collision")
+	_expect_equal(collision_caster.position, Vector2(3, 3), "blocked Phase reaches the destination")
+	_expect_equal(collision_caster.stats["curHP"], -10, "blocked Phase is lethal")
+	_expect_equal(collision_caster.life_status, 3, "blocked Phase marks the caster dead")
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -8845,7 +8921,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		221,
+		227,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})

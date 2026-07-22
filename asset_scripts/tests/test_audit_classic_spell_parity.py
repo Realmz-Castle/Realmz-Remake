@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 221)
+        self.assertEqual(report["totals"]["supportedIdentities"], 227)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -344,6 +344,24 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         self.assertEqual(
             matrix_by_id[3705]["behavior"]["targetType"],
             "power-scaled-area",
+        )
+        for spell_id in {1208, 1509, 2305, 2511, 3106, 3309}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-special-phase")
+            self.assertEqual(row["behavior"]["special"], 56)
+            self.assertEqual(row["behavior"]["saveMode"], "none")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        self.assertEqual(
+            matrix_by_id[1208]["behavior"]["remainingActions"],
+            "exhausted",
+        )
+        self.assertEqual(
+            matrix_by_id[1509]["behavior"]["remainingActions"],
+            "preserved-after-casting-action",
         )
         shield_from_hits_ids = {1111, 2112, 3212, 3406}
         for spell_id in shield_from_hits_ids:
