@@ -8271,7 +8271,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		210,
+		213,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8472,6 +8472,12 @@ func _test_classic_spell_coverage() -> void:
 			"spellcasting block %d uses the reviewed Dumb path"
 			% spellcasting_block_id
 		)
+	for charm_spell_id: int in [1607, 1709, 2507, 2707]:
+		_expect_equal(
+			coverage_by_id.get(charm_spell_id, {}).get("coverageStatus"),
+			"supported",
+			"charm spell %d uses the reviewed battle-allegiance path" % charm_spell_id
+		)
 	_expect_equal(
 		coverage_by_id.get(2106, {}).get("coverageStatus"),
 		"supported",
@@ -8525,9 +8531,9 @@ func _test_classic_spell_coverage() -> void:
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
-		1607, 2106, 2203, 2405, 2408, 3407,
+		1607, 1709, 2106, 2203, 2405, 2408, 2507, 2707, 3407,
 	]
-	_expect_equal(migrated_spell_ids.size(), 181, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 184, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8696,6 +8702,9 @@ func _test_classic_spell_coverage() -> void:
 		"Silence": "res://shared_assets/spells/silence.gd",
 		"Classic Silence Sorcerer": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
 		"Major Charm Foe": "res://shared_assets/spells/major_charm_foe.gd",
+		"Classic Major Charm Foe Priest": "res://shared_assets/spells/classic_major_charm_foe_priest.gd",
+		"Classic Multi Mutiny Sorcerer": "res://shared_assets/spells/classic_multi_mutiny_sorcerer.gd",
+		"Multi Mutiny": "res://shared_assets/spells/multi_mutiny.gd",
 		"Multi Sandman": "res://shared_assets/spells/classic_core_1710_multi_sandman.gd",
 		"Sandman": "res://shared_assets/spells/classic_core_2310_sandman.gd",
 		"Major Soul Bind": "res://shared_assets/spells/major_soul_bind.gd",
@@ -8711,7 +8720,7 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		173,
+		176,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9134,6 +9143,13 @@ func _test_classic_spell_coverage() -> void:
 
 	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
 	var major_charm = load("res://shared_assets/spells/major_charm_foe.gd").new()
+	var sorcerer_mutiny = load(
+		"res://shared_assets/spells/classic_multi_mutiny_sorcerer.gd"
+	).new()
+	var priest_major_charm = load(
+		"res://shared_assets/spells/classic_major_charm_foe_priest.gd"
+	).new()
+	var priest_mutiny = load("res://shared_assets/spells/multi_mutiny.gd").new()
 	var enchanter_charm = load(
 		"res://shared_assets/spells/classic_charm_foe_enchanter.gd"
 	).new()
@@ -9192,6 +9208,38 @@ func _test_classic_spell_coverage() -> void:
 		"a resisted Major Charm Foe applies no trait"
 	)
 	_expect(resisted_major_charm.traits.is_empty(), "resisted Major Charm leaves no trait")
+	_expect_equal(sorcerer_mutiny.classic_spell_ids, [1709], "Sorcerer Multi Mutiny exact ID")
+	_expect_equal(sorcerer_mutiny.classic_special, 52, "Sorcerer Multi Mutiny special")
+	_expect_equal(sorcerer_mutiny.classic_target_type, 4, "Sorcerer Multi Mutiny target type")
+	_expect_equal(sorcerer_mutiny.get_aoe(3, null), Spell.AoE_b3, "Sorcerer Multi Mutiny area")
+	_expect_equal(sorcerer_mutiny.get_range(3, null), 15, "Sorcerer Multi Mutiny range")
+	_expect_equal(sorcerer_mutiny.get_sp_cost(3, null), 150, "Sorcerer Multi Mutiny cost")
+	_expect_equal(sorcerer_mutiny.school_levels.get("Sorcerer"), 7, "Sorcerer Multi Mutiny level")
+	_expect_equal(sorcerer_mutiny.selection_costs.get("Sorcerer"), 28, "Sorcerer Multi Mutiny selection cost")
+	_expect_equal(sorcerer_mutiny.classic_spell_look_ids, [14, 11], "Sorcerer Multi Mutiny art")
+	_expect_equal(sorcerer_mutiny.classic_sound_ids, [28, 13], "Sorcerer Multi Mutiny sounds")
+	_expect_equal(priest_major_charm.classic_spell_ids, [2507], "Priest Major Charm Foe exact ID")
+	_expect_equal(priest_major_charm.get_aoe(3, null), Spell.AoE_b3, "Priest Major Charm Foe area")
+	_expect_equal(priest_major_charm.get_range(3, null), 8, "Priest Major Charm Foe range")
+	_expect_equal(priest_major_charm.get_sp_cost(3, null), 135, "Priest Major Charm Foe cost")
+	_expect_equal(priest_major_charm.school_levels.get("Priest"), 5, "Priest Major Charm Foe level")
+	_expect_equal(priest_major_charm.selection_costs.get("Priest"), 15, "Priest Major Charm Foe selection cost")
+	_expect_equal(priest_major_charm.classic_spell_look_ids, [14, 11], "Priest Major Charm Foe art")
+	_expect_equal(priest_major_charm.classic_sound_ids, [13, 21], "Priest Major Charm Foe sounds")
+	_expect_equal(priest_mutiny.classic_spell_ids, [2707], "Priest Multi Mutiny exact ID")
+	_expect_equal(priest_mutiny.get_aoe(3, null), Spell.AoE_b3, "Priest Multi Mutiny area")
+	_expect_equal(priest_mutiny.get_range(3, null), 15, "Priest Multi Mutiny range")
+	_expect_equal(priest_mutiny.get_sp_cost(3, null), 150, "Priest Multi Mutiny cost")
+	_expect_equal(priest_mutiny.school_levels.get("Priest"), 7, "Priest Multi Mutiny level")
+	_expect_equal(priest_mutiny.selection_costs.get("Priest"), 28, "Priest Multi Mutiny selection cost")
+	_expect_equal(priest_mutiny.classic_spell_look_ids, [15, 11], "Priest Multi Mutiny art")
+	_expect_equal(priest_mutiny.classic_sound_ids, [13, 11], "Priest Multi Mutiny sounds")
+	var mutinied_target := CharmTestCharacter.new("Mutinied target", 1)
+	_expect(
+		priest_mutiny.apply_classic_scaled_effect(charm_caster, mutinied_target, 3, 1.0),
+		"Multi Mutiny applies the shared battle-charm trait"
+	)
+	_expect_equal(mutinied_target.curFaction, 0, "Multi Mutiny adopts caster faction")
 
 	var fearful_thoughts = load("res://shared_assets/spells/fearful_thoughts.gd").new()
 	_expect_equal(fearful_thoughts.classic_spell_ids, [2103], "Fearful Thoughts exact ID")
@@ -9357,10 +9405,10 @@ func _test_classic_spell_coverage() -> void:
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1406, 1407, 1408,
 					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
-					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
+					1611, 1701, 1703, 1704, 1705, 1707, 1709, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407,
-					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
-					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
+					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2507, 2508, 2512, 2602, 2605, 2606, 2607,
+					2603, 2609, 2611, 2705, 2706, 2707, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3308,
 					3310,
 					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,

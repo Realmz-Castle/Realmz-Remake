@@ -6180,6 +6180,74 @@
         "adapter": "source-record-backed-native-helpless-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1709,
+      "displayName": "Multi Mutiny",
+      "classification": "native-special-charm",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_multi_mutiny_sorcerer.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 98, "byteOffset": 2940, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-52-charm", "slots": [0]}],
+      "behavior": {
+        "nativeResourceName": "Classic Multi Mutiny Sorcerer",
+        "targetType": "power-scaled-area",
+        "range": 15,
+        "lineOfSight": false,
+        "duration": "battle",
+        "saveMode": "none",
+        "preResistance": "classic-charm",
+        "resistance": "classic-general-and-spell-class-immunity",
+        "special": 52,
+        "costPerPower": 50,
+        "adapter": "source-record-backed-native-battle-charm-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2507,
+      "displayName": "Major Charm Foe",
+      "classification": "native-special-charm",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_major_charm_foe_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 171, "byteOffset": 5130, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-52-charm", "slots": [0]}],
+      "behavior": {
+        "nativeResourceName": "Classic Major Charm Foe Priest",
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "lineOfSight": false,
+        "duration": "battle",
+        "saveMode": "none",
+        "preResistance": "classic-charm",
+        "resistance": "classic-general-and-spell-class-immunity",
+        "special": 52,
+        "costPerPower": 45,
+        "adapter": "source-record-backed-native-battle-charm-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2707,
+      "displayName": "Multi Mutiny",
+      "classification": "native-special-charm",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/multi_mutiny.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 201, "byteOffset": 6030, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-52-charm", "slots": [0]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 15,
+        "lineOfSight": false,
+        "duration": "battle",
+        "saveMode": "none",
+        "preResistance": "classic-charm",
+        "resistance": "classic-general-and-spell-class-immunity",
+        "special": 52,
+        "costPerPower": 50,
+        "adapter": "source-record-backed-native-battle-charm-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }
