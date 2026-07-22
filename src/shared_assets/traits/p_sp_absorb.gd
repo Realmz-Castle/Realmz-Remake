@@ -1,32 +1,50 @@
-const name : String = 'p_sp_absorb.gd'
-const menuname : String = 'SP Absorb (P)'
-const stacks : bool = false
-const trait_types : Array = []
+const name := "p_sp_absorb.gd"
+const menuname := "Spell Energy Absorption (P)"
+const stacks := false
+const trait_types: Array = []
+const permanent := true
+const AbsorptionRules = preload(
+	"res://scripts/classic_runtime/classic_spell_absorption.gd"
+)
+
 var chara
-const permanent : int = 1
-var trait_source : String = ''
+var trait_source := ""
 
 
-func _init(args : Array):
-	#[chara]
+func _init(args: Array) -> void:
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' has Permanent SP Absorbtion !', null,'')
+	UI.ow_hud.creatureRect.logrect.log_other_text(
+		chara,
+		" has Permanent Spell Energy Absorption!",
+		null,
+		""
+	)
 
-func get_saved_variables() :
+func get_saved_variables() -> Array:
 	return []
 
 
-			#var returned_array = t._on_spell_hit_chara(caster, spell, power, applied_damage)
-			#has_effect = has_effect and returned_array[0]
-			#applied_damage = returned_array[1]
-			#added_to_action_queue.append(returned_array[2])
-func _on_spell_hit_chara(caster : Creature, spell, powerlevel : int, damage : int) -> Array :
-	var cost = caster.get_spell_resource_cost(spell, powerlevel)
+func _on_classic_spell_targeted_before_resistance(
+	attacker,
+	spell,
+	power: int
+) -> void:
+	AbsorptionRules.absorb_spell_power(chara, attacker, spell, power)
+
+
+func _on_spell_hit_chara(caster, spell, power: int, damage: int) -> Array:
+	var spell_ids: Variant = spell.get("classic_spell_ids") if spell != null else []
+	if spell_ids is Array and not spell_ids.is_empty():
+		return [true, damage, []]
+	var cost := int(caster.get_spell_resource_cost(spell, power))
 	chara.change_cur_sp(cost)
 	return [true, damage, []]
 
-func get_info_as_text() -> String :
-	return 'Permanent SP Absorbtion'+' (source : '+trait_source+')'
 
-func equals_args(traits_array : Array) :
+func get_info_as_text() -> String:
+	var source_text := "" if trait_source.is_empty() else " (source: %s)" % trait_source
+	return "Permanent Spell Energy Absorption%s" % source_text
+
+
+func equals_args(_traits_array: Array) -> bool:
 	return true

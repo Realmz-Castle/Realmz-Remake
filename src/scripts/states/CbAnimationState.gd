@@ -409,6 +409,11 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 				combat_state.add_to_action_queue(reflection[1])
 			if not bool(reflection[0]):
 				continue
+			cb.creature.on_classic_spell_targeted_before_resistance(
+				castercrea,
+				spell,
+				power
+			)
 		var pre_resistance_roll := -1
 		if CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_uses_pre_resistance(spell) :
 			pre_resistance_roll = randi_range(1, 100)

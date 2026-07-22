@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 167)
+        self.assertEqual(report["totals"]["supportedIdentities"], 171)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -485,6 +485,29 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             matrix_by_id[2711]["behavior"]["saveMode"],
             "half-immediate-damage-condition-still-applies",
         )
+        for spell_id in {1301, 1403, 2702, 3302}:
+            absorption = matrix_by_id[spell_id]
+            self.assertEqual(absorption["supportStatus"], "supported")
+            self.assertEqual(
+                absorption["classification"],
+                "native-special-spell-point-absorption",
+            )
+            self.assertEqual(absorption["behavior"]["conditionIndex"], 35)
+            self.assertEqual(
+                absorption["behavior"]["absorptionOrder"],
+                "after-spell-reflection-before-magic-resistance-and-save",
+            )
+            self.assertFalse(absorption["behavior"]["reflectedCastAbsorption"])
+            self.assertEqual(
+                absorption["behavior"]["conditionDecay"],
+                "one-per-combat-round-or-game-hour",
+            )
+            absorption_resource = (
+                REPO_ROOT
+                / "src"
+                / absorption["resource"].removeprefix("res://")
+            )
+            self.assertTrue(absorption_resource.is_file(), absorption_resource)
         parameterized_damage_ids = {
             1601,
             1703,

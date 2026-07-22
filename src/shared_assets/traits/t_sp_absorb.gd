@@ -1,47 +1,30 @@
-const name : String = 't_sp_absorb.gd'
-const menuname : String = 'SP Absorb (T)'
-const stacks : bool = true
-const trait_types : Array = []
-var chara
-var duration : int #in seconds, 1 round = 5s
+extends "res://scripts/classic_runtime/classic_timed_condition_trait.gd"
+
+const name := "t_sp_absorb.gd"
+const menuname := "Spell Energy Absorption (T)"
+const AbsorptionRules = preload(
+	"res://scripts/classic_runtime/classic_spell_absorption.gd"
+)
 
 
-func _init(args : Array):
-	#[chara, duration]
-	chara = args[0]
-	duration = 5*args[1]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets SP Absorbtion !', null,'')
-
-func stack(args : Array) :
-	duration += 5*args[0]
-
-func unstack(args : Array) :
-	duration -= 5*args[0]
-
-func get_saved_variables() :
-	return [ceil(duration/5)]
-
-func _on_new_round(_character : Creature) :
-	if duration <= 0 :
-		chara.remove_trait(self)
-		return
-	duration -= 5
-
-func _on_time_pass(_character, seconds) :
-	if duration <= 0 :
-		chara.remove_trait(self)
-		return
-	duration -= seconds
+func _on_classic_spell_targeted_before_resistance(
+	attacker,
+	spell,
+	power: int
+) -> void:
+	AbsorptionRules.absorb_spell_power(chara, attacker, spell, power)
 
 
-			#var returned_array = t._on_spell_hit_chara(caster, spell, power, applied_damage)
-			#has_effect = has_effect and returned_array[0]
-			#applied_damage = returned_array[1]
-			#added_to_action_queue.append(returned_array[2])
-func _on_spell_hit_chara(caster : Creature, spell, powerlevel : int, damage : int) -> Array :
-	var cost = caster.get_spell_resource_cost(spell, powerlevel)
+func _on_spell_hit_chara(caster, spell, power: int, damage: int) -> Array:
+	var spell_ids: Variant = spell.get("classic_spell_ids") if spell != null else []
+	if spell_ids is Array and not spell_ids.is_empty():
+		return [true, damage, []]
+	var cost := int(caster.get_spell_resource_cost(spell, power))
 	chara.change_cur_sp(cost)
 	return [true, damage, []]
 
-func get_info_as_text() -> String :
-	return 'SP Absorbtion for '+str(ceil(duration/5))+' rounds'
+
+func get_info_as_text() -> String:
+	return "Spell energy absorption for %d rounds" % ceili(
+		float(duration_seconds) / SECONDS_PER_ROUND
+	)

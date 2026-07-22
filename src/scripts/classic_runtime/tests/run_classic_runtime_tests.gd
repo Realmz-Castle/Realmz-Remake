@@ -831,18 +831,23 @@ class SpellPointConditionTestCharacter:
 	var current_sp: int
 	var maximum_sp: int
 	var is_player_controlled: bool
+	var baseFaction: int
+	var curFaction: int
 	var traits: Array = []
 
 	func _init(
 		character_name: String,
 		spell_points: int,
 		maximum_spell_points: int,
-		player_controlled := true
+		player_controlled := true,
+		faction := 0
 	) -> void:
 		name = character_name
 		current_sp = spell_points
 		maximum_sp = maximum_spell_points
 		is_player_controlled = player_controlled
+		baseFaction = faction
+		curFaction = faction
 
 	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		for existing_trait: Variant in traits:
@@ -870,6 +875,20 @@ class SpellPointConditionTestCharacter:
 
 	func change_cur_sp(change: int) -> void:
 		current_sp = mini(maximum_sp, current_sp + change)
+
+
+class MonsterSpellPointAbsorptionTestCharacter:
+	extends RefCounted
+	var name := "Spellcasting monster"
+	var curFaction := 1
+	var is_player_controlled := false
+	var stats := {"curSP": 5, "maxSP": 5}
+
+	func get_stat(stat_name: String) -> int:
+		return int(stats.get(stat_name, 0))
+
+	func change_cur_sp(change: int) -> void:
+		stats["curSP"] = mini(int(stats["maxSP"]), int(stats["curSP"]) + change)
 
 
 class CombatTestButton:
@@ -1211,6 +1230,7 @@ func _init() -> void:
 	_test_classic_attack_bonus_spells()
 	_test_classic_power_gather_spells()
 	_test_classic_energy_drain_spells()
+	_test_classic_arcanic_bubble_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -8128,7 +8148,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		167,
+		171,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8233,6 +8253,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"energy drain %d uses the reviewed spell-point adapter" % energy_drain_id
 		)
+	for absorption_id: int in [1301, 1403, 2702, 3302]:
+		_expect_equal(
+			coverage_by_id.get(absorption_id, {}).get("coverageStatus"),
+			"supported",
+			"Arcanic Bubble %d uses the reviewed pre-resistance adapter" % absorption_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -8302,8 +8328,9 @@ func _test_classic_spell_coverage() -> void:
 		1102, 2503, 3104, 3305,
 		1510, 3510,
 		1511, 2711, 3511,
+		1301, 1403, 2702, 3302,
 	]
-	_expect_equal(migrated_spell_ids.size(), 138, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 142, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8447,10 +8474,14 @@ func _test_classic_spell_coverage() -> void:
 		"Power Wither": "res://shared_assets/spells/power_wither.gd",
 		"Spirit Drain": "res://shared_assets/spells/spirit_drain.gd",
 		"Classic Power Wither Enchanter": "res://shared_assets/spells/classic_core_3511_power_wither_enchanter.gd",
+		"Arcanic Bubble": "res://shared_assets/spells/arcanic_bubble.gd",
+		"Improved Arcanic Bubble": "res://shared_assets/spells/improved_arcanic_bubble.gd",
+		"Classic Improved Arcanic Bubble Priest": "res://shared_assets/spells/classic_core_2702_improved_arcanic_bubble_priest.gd",
+		"Classic Arcanic Bubble Enchanter": "res://shared_assets/spells/classic_core_3302_arcanic_bubble_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		136,
+		140,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11406,6 +11437,166 @@ func _test_classic_energy_drain_spells() -> void:
 	)
 
 
+func _test_classic_arcanic_bubble_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "arcanic_bubble.gd",
+			"name": "Arcanic Bubble",
+			"ids": [1301],
+			"target_type": 5,
+			"range": 0,
+			"targets": 1,
+			"duration": [3, 6],
+			"cost": 60,
+			"looks": [8, 15],
+			"sounds": [5, 39],
+		},
+		{
+			"file": "improved_arcanic_bubble.gd",
+			"name": "Improved Arcanic Bubble",
+			"ids": [1403],
+			"target_type": 0,
+			"range": 4,
+			"targets": 3,
+			"duration": [2, 6],
+			"cost": 90,
+			"looks": [13, 15],
+			"sounds": [2, 39],
+		},
+		{
+			"file": "classic_core_2702_improved_arcanic_bubble_priest.gd",
+			"name": "Classic Improved Arcanic Bubble Priest",
+			"ids": [2702],
+			"target_type": 0,
+			"range": 4,
+			"targets": 3,
+			"duration": [2, 6],
+			"cost": 90,
+			"looks": [8, 15],
+			"sounds": [30, 39],
+		},
+		{
+			"file": "classic_core_3302_arcanic_bubble_enchanter.gd",
+			"name": "Classic Arcanic Bubble Enchanter",
+			"ids": [3302],
+			"target_type": 5,
+			"range": 0,
+			"targets": 1,
+			"duration": [3, 6],
+			"cost": 60,
+			"looks": [8, 13],
+			"sounds": [5, 39],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact IDs" % label)
+		_expect_equal(spell.classic_special, 36, "%s special code" % label)
+		_expect_equal(spell.classic_spell_class, 8, "%s source class" % label)
+		_expect_equal(spell.classic_damage_type, 8, "%s miscellaneous DRV" % label)
+		_expect_equal(spell.classic_cannot, 4, "%s bypasses resistance" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or be resisted" % label
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % label)
+		_expect_equal(spell.classic_target_type, spec["target_type"], "%s target type" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(spell.get_target_number(3, null), spec["targets"], "%s target count" % label)
+		_expect_equal(spell.get_min_duration(3, null), spec["duration"][0], "%s minimum duration" % label)
+		_expect_equal(spell.get_max_duration(3, null), spec["duration"][1], "%s maximum duration" % label)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+
+	var bubble = load("res://shared_assets/spells/arcanic_bubble.gd").new()
+	_expect_equal(
+		bubble.schools,
+		["Sorcerer", "Enchanter"],
+		"Arcanic Bubble remains learnable by both source schools"
+	)
+	var improved = load("res://shared_assets/spells/improved_arcanic_bubble.gd").new()
+	_expect_equal(
+		improved.schools,
+		["Sorcerer", "Priest"],
+		"Improved Arcanic Bubble remains learnable by both source schools"
+	)
+
+	var first := SpellPointConditionTestCharacter.new("First bubble target", 5, 20)
+	var second := SpellPointConditionTestCharacter.new("Second bubble target", 5, 20)
+	_expect_equal(
+		improved.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Improved Arcanic Bubble affects every selected target"
+	)
+	_expect_equal(first.traits.size(), 1, "Improved Arcanic Bubble adds its trait")
+	_expect_equal(
+		first.traits[0].get_saved_variables(),
+		second.traits[0].get_saved_variables(),
+		"one Improved Arcanic Bubble cast shares its duration roll"
+	)
+	_expect(
+		int(first.traits[0].get_saved_variables()[0]) in range(2, 7),
+		"Improved Arcanic Bubble rolls two to six rounds"
+	)
+
+	var warded := SpellPointConditionTestCharacter.new("Warded player", 10, 12, true, 0)
+	var hostile := SpellPointConditionTestCharacter.new("Hostile caster", 20, 20, false, 1)
+	var friendly := SpellPointConditionTestCharacter.new("Friendly caster", 20, 20, true, 0)
+	var incoming := Spell.new()
+	incoming.name = "Incoming Classic spell"
+	incoming.attributes = ["Magical"]
+	incoming.classic_spell_ids = [1103]
+	var absorption_trait = load("res://shared_assets/traits/t_sp_absorb.gd").new([warded, 4])
+	absorption_trait._on_classic_spell_targeted_before_resistance(hostile, incoming, 3)
+	_expect_equal(warded.current_sp, 12, "Arcanic Bubble gains selected power and clamps players")
+	absorption_trait._on_classic_spell_targeted_before_resistance(friendly, incoming, 3)
+	_expect_equal(warded.current_sp, 12, "friendly spells do not feed Arcanic Bubble")
+	incoming.set_meta("suppress_spell_reflection", true)
+	warded.current_sp = 8
+	absorption_trait._on_classic_spell_targeted_before_resistance(hostile, incoming, 3)
+	_expect_equal(warded.current_sp, 8, "a reflected cast does not feed its new target")
+	incoming.remove_meta("suppress_spell_reflection")
+	absorption_trait._on_new_round(warded)
+	_expect_equal(absorption_trait.get_saved_variables(), [3], "Arcanic Bubble loses one combat round")
+
+	var monster := MonsterSpellPointAbsorptionTestCharacter.new()
+	var player_caster := SpellPointConditionTestCharacter.new("Player caster", 20, 20, true, 0)
+	var monster_trait = load("res://shared_assets/traits/t_sp_absorb.gd").new([monster, 4])
+	monster_trait._on_classic_spell_targeted_before_resistance(player_caster, incoming, 2)
+	_expect_equal(monster.stats["curSP"], 7, "monster absorption can exceed its starting pool")
+	monster.stats["curSP"] = 0
+	monster_trait._on_classic_spell_targeted_before_resistance(player_caster, incoming, 2)
+	_expect_equal(monster.stats["curSP"], 0, "monsters without spell points cannot absorb")
+
+	var capped := SpellPointConditionTestCharacter.new("Capped bubble", 10, 20)
+	capped.add_trait(load("res://shared_assets/traits/t_sp_absorb.gd"), [98])
+	_expect(
+		not bubble.apply_classic_group_effect(null, [capped], 3),
+		"player Arcanic Bubble rejects a stack beyond condition 99"
+	)
+
+	var combat_source := FileAccess.get_file_as_string(
+		"res://scripts/states/CbAnimationState.gd"
+	)
+	var reflection_hook := combat_source.find("on_classic_spell_targeted(")
+	var absorption_hook := combat_source.find(
+		"on_classic_spell_targeted_before_resistance("
+	)
+	var resistance_hook := combat_source.find(
+		"CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_resolution"
+	)
+	_expect(
+		reflection_hook < absorption_hook and absorption_hook < resistance_hook,
+		"Arcanic Bubble absorbs after reflection and before magic resistance"
+	)
+
+
 func _test_classic_spell_screen_spells() -> void:
 	var specs: Array = [
 		{
@@ -12203,6 +12394,28 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Classic Power Wither Enchanter", {}).get("classicSpellIds"),
 		[3511],
 		"spell catalog keeps the Enchanter Power Wither presentation distinct"
+	)
+	_expect_equal(
+		native_spells.get("Arcanic Bubble", {}).get("classicSpellIds"),
+		[1301],
+		"spell catalog maps the native Arcanic Bubble resource"
+	)
+	_expect_equal(
+		native_spells.get("Improved Arcanic Bubble", {}).get("classicSpellIds"),
+		[1403],
+		"spell catalog maps the native Improved Arcanic Bubble resource"
+	)
+	_expect_equal(
+		native_spells.get(
+			"Classic Improved Arcanic Bubble Priest", {}
+		).get("classicSpellIds"),
+		[2702],
+		"spell catalog keeps the Priest Improved Arcanic Bubble presentation distinct"
+	)
+	_expect_equal(
+		native_spells.get("Classic Arcanic Bubble Enchanter", {}).get("classicSpellIds"),
+		[3302],
+		"spell catalog keeps the Enchanter Arcanic Bubble presentation distinct"
 	)
 	_expect_equal(
 		native_spells.get("Magic Darts", {}).get("classicSpellIds"),

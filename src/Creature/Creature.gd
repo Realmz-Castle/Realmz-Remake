@@ -1025,6 +1025,20 @@ func on_classic_spell_targeted(attacker: Creature, spell, power: int) -> Array:
 	return [continue_action, returned_action_queue]
 
 
+func on_classic_spell_targeted_before_resistance(
+	attacker: Creature,
+	spell,
+	power: int
+) -> void:
+	for trait_value in traits:
+		if trait_value.has_method("_on_classic_spell_targeted_before_resistance"):
+			trait_value._on_classic_spell_targeted_before_resistance(
+				attacker,
+				spell,
+				power
+			)
+
+
 func on_melee_reflection_check(attacker: Creature, weapon: Dictionary) -> bool:
 	for trait_value in traits:
 		if trait_value.has_method("_on_melee_reflection_check"):
