@@ -331,6 +331,16 @@ destination as lethal, so a stale or externally supplied invalid target moves
 the caster to that destination, sets health to minus ten, and marks the caster
 dead rather than silently finding a nearby tile.
 
+Weakness `2612` and Improved Power Drain `2703` extend the existing Power
+Drain behavior through the same clamped spell-point mutation path. Improved
+Power Drain selects one creature per power and drains `3 + 1-5` points per
+power from each. Weakness uses Classic's type-`6` ray and a fixed `30-50`
+drain. Its source record stores that range in the duration fields even though
+special `60` reads the damage fields, making the original executable path a
+no-op; the compatibility resource treats those values as the intended drain
+described by the spell rather than preserving the data-entry defect. Both
+effects are halved by a successful special save.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

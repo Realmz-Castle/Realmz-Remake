@@ -1,5 +1,9 @@
 extends Spell
 
+const SpellPointMutationScript = preload(
+	"res://scripts/classic_runtime/classic_spell_point_mutation.gd"
+)
+
 func _init() -> void :
 	name = "Power Drain"
 	elements = [GameGlobal.ELEMENTS.MAGICAL]
@@ -39,11 +43,11 @@ func get_spell_point_drain_roll(power : int) -> int :
 	return drain
 
 func apply_power_drain(target, power : int, effect_scale := 1.0) -> int :
-	var available := maxi(0, int(target.get_stat("curSP")))
-	var rolled_drain := get_spell_point_drain_roll(power)
-	var drained := mini(available, floori(rolled_drain * effect_scale))
-	target.change_cur_sp(-drained)
-	return drained
+	return SpellPointMutationScript.drain(
+		target,
+		get_spell_point_drain_roll(power),
+		effect_scale
+	)
 
 
 func apply_classic_scaled_effect(

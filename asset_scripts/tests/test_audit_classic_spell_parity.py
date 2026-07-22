@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 227)
+        self.assertEqual(report["totals"]["supportedIdentities"], 229)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -363,6 +363,32 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             matrix_by_id[1509]["behavior"]["remainingActions"],
             "preserved-after-casting-action",
         )
+        weakness = matrix_by_id[2612]
+        self.assertEqual(weakness["supportStatus"], "supported")
+        self.assertEqual(
+            weakness["classification"], "native-corrected-source-defect"
+        )
+        self.assertEqual(weakness["behavior"]["targetType"], "ray")
+        self.assertEqual(
+            weakness["behavior"]["sourceDefect"],
+            "drain-range-stored-in-duration-fields",
+        )
+        improved_drain = matrix_by_id[2703]
+        self.assertEqual(improved_drain["supportStatus"], "supported")
+        self.assertEqual(
+            improved_drain["classification"], "native-special-adapter"
+        )
+        self.assertEqual(
+            improved_drain["behavior"]["targetType"],
+            "power-selected-creatures",
+        )
+        for row in [weakness, improved_drain]:
+            self.assertEqual(row["behavior"]["special"], 60)
+            self.assertEqual(row["behavior"]["saveMode"], "half-effect")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
         shield_from_hits_ids = {1111, 2112, 3212, 3406}
         for spell_id in shield_from_hits_ids:
             row = matrix_by_id[spell_id]

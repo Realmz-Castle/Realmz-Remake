@@ -8921,7 +8921,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		227,
+		229,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -18940,6 +18940,10 @@ func _test_complex_spell_results(bundle) -> void:
 	var priest_power_drain = load(
 		"res://shared_assets/spells/classic_power_drain_priest.gd"
 	).new()
+	var weakness = load("res://shared_assets/spells/weakness.gd").new()
+	var improved_power_drain = load(
+		"res://shared_assets/spells/improved_power_drain.gd"
+	).new()
 	var confuse = load("res://shared_assets/spells/confuse.gd").new()
 	var daze = load("res://shared_assets/spells/daze.gd").new()
 	var discover_magic = load("res://shared_assets/spells/discover_magic.gd").new()
@@ -19193,6 +19197,86 @@ func _test_complex_spell_results(bundle) -> void:
 		priest_drain_target.current_sp,
 		1000 - priest_drain,
 		"Priest Power Drain uses the shared spell-point mutation path"
+	)
+	_expect_equal(weakness.classic_spell_ids, [2612], "Weakness exact ID")
+	_expect_equal(weakness.classic_special, 60, "Weakness special")
+	_expect_equal(weakness.classic_target_type, 6, "Weakness uses ray targeting")
+	_expect(weakness.ray, "Weakness affects creatures along its ray")
+	_expect_equal(weakness.get_range(3, null), 6, "Weakness range scales by power")
+	_expect_equal(weakness.get_sp_cost(3, null), 120, "Weakness cost scales by power")
+	_expect_equal(
+		weakness.get_min_spell_point_drain(3),
+		30,
+		"Weakness recovers the intended minimum from the duration fields"
+	)
+	_expect_equal(
+		weakness.get_max_spell_point_drain(3),
+		50,
+		"Weakness recovers the intended maximum from the duration fields"
+	)
+	_expect_equal(weakness.classic_spell_save_index, 7, "Weakness uses the special save")
+	_expect_equal(
+		weakness.classic_spell_save_mode,
+		"half_damage",
+		"a successful save halves Weakness"
+	)
+	var weakness_target := SpellPointTestCreature.new(100)
+	var weakness_drain: int = weakness.apply_power_drain(weakness_target, 3)
+	_expect(
+		weakness_drain >= 30 and weakness_drain <= 50,
+		"Weakness rolls its intended fixed drain range"
+	)
+	_expect_equal(
+		weakness_target.current_sp,
+		100 - weakness_drain,
+		"Weakness drains spell points through the shared mutation path"
+	)
+	_expect_equal(
+		improved_power_drain.classic_spell_ids,
+		[2703],
+		"Improved Power Drain exact ID"
+	)
+	_expect_equal(
+		improved_power_drain.classic_target_type,
+		0,
+		"Improved Power Drain selects one creature per power"
+	)
+	_expect_equal(
+		improved_power_drain.get_target_number(3, null),
+		3,
+		"Improved Power Drain target count scales by power"
+	)
+	_expect_equal(improved_power_drain.get_range(3, null), 1, "Improved Power Drain range")
+	_expect_equal(
+		improved_power_drain.get_sp_cost(3, null),
+		60,
+		"Improved Power Drain cost scales by power"
+	)
+	_expect_equal(
+		improved_power_drain.get_min_spell_point_drain(3),
+		6,
+		"Improved Power Drain minimum includes its fixed base"
+	)
+	_expect_equal(
+		improved_power_drain.get_max_spell_point_drain(3),
+		18,
+		"Improved Power Drain maximum includes its fixed base"
+	)
+	var improved_target := SpellPointTestCreature.new(100)
+	var improved_drain: int = improved_power_drain.apply_classic_scaled_effect(
+		null,
+		improved_target,
+		3,
+		0.5
+	)
+	_expect(
+		improved_drain >= 3 and improved_drain <= 9,
+		"a save halves Improved Power Drain after its source roll"
+	)
+	_expect_equal(
+		improved_target.current_sp,
+		100 - improved_drain,
+		"Improved Power Drain mutates spell points rather than health"
 	)
 	_expect(confuse.supports_classic_spell_id(2301), "Confuse exports its exact Classic ID")
 	_expect_equal(confuse.classic_spell_class, 5, "Confuse exports its Classic class")

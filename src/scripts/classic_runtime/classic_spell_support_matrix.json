@@ -6602,6 +6602,55 @@
         "adapter": "source-record-backed-native-combat-phase",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 2612,
+      "displayName": "Weakness",
+      "classification": "native-corrected-source-defect",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/weakness.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 191, "byteOffset": 5730, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-60-drain", "slots": [0]}],
+      "behavior": {
+        "targetType": "ray",
+        "range": "two-per-power",
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "30-50-fixed-spell-points",
+        "sourceDefect": "drain-range-stored-in-duration-fields",
+        "correction": "interpret-duration-range-as-intended-special-60-drain-range",
+        "saveMode": "half-effect",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "special": 60,
+        "costPerPower": 40,
+        "adapter": "source-record-backed-scaled-spell-point-drain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2703,
+      "displayName": "Improved Power Drain",
+      "classification": "native-special-adapter",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/improved_power_drain.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 197, "byteOffset": 5910, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-60-drain", "slots": [1]}],
+      "behavior": {
+        "targetType": "power-selected-creatures",
+        "targetCount": "one-per-power",
+        "range": 1,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "3-fixed-plus-1-5-spell-points-per-power-per-target",
+        "saveMode": "half-effect",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "special": 60,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-scaled-spell-point-drain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }
