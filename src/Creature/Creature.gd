@@ -43,6 +43,14 @@ var bestiary_key : String = ""
 # record ID selects Data MD; name ID is the byte used by several combat macros.
 var classic_monster_id : int = -1
 var classic_monster_name_id : int = -1
+# Classic keeps fifteen mutable special-ability values on each character.
+# Most have native Remake stat equivalents; this array preserves the values
+# whose spell and encounter side effects do not.
+var classic_special_abilities: Array[int] = [
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0,
+]
 var is_summoned : bool = false
 var summoner : Creature = null
 var summoner_name : String = ''
@@ -876,6 +884,7 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	classic_monster_name_id = int(
 		saved_data.get("classicMonsterNameId", classic_monster_name_id)
 	)
+	restore_classic_special_abilities(saved_data.get("classicSpecialAbilities", []))
 	is_summoned = bool(saved_data.get("is_summoned", is_summoned))
 	summoner_name = str(saved_data.get("summoner_name", summoner_name))
 	joins_combat = bool(saved_data.get("joins_combat", joins_combat))
@@ -898,6 +907,21 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	stats["curHP"] = int(saved_data.get("curHP", stats["curHP"]))
 	stats["curSP"] = int(saved_data.get("curSP", stats["curSP"]))
 	return true
+
+
+func restore_classic_special_abilities(saved_value: Variant) -> void:
+	classic_special_abilities.fill(0)
+	if not (saved_value is Array):
+		return
+	for index: int in range(mini(saved_value.size(), classic_special_abilities.size())):
+		classic_special_abilities[index] = int(saved_value[index])
+
+
+func change_classic_special_ability(index: int, change: int) -> int:
+	if index < 0 or index >= classic_special_abilities.size():
+		return 0
+	classic_special_abilities[index] += change
+	return classic_special_abilities[index]
 
 
 func _restore_saved_spells(saved_spell_levels: Array, resources: Object) -> void:
@@ -1333,6 +1357,8 @@ func get_save_string() -> String :
 		savestring += ('\n"bestiaryKey" : '+ JSON.stringify(bestiary_key)+',')
 	savestring += ('\n"classicMonsterId" : '+ str(classic_monster_id)+',')
 	savestring += ('\n"classicMonsterNameId" : '+ str(classic_monster_name_id)+',')
+	savestring += ('\n"classicSpecialAbilities" : '
+		+ JSON.stringify(classic_special_abilities)+',')
 	savestring += ('\n"is_summoned" : '+ str(int(is_summoned))+',')
 	savestring += ('\n"summoner_name" : "'+ str(summoner_name)+'",')
 	savestring += ('\n"joins_combat" : '+ str(int(joins_combat))+',')

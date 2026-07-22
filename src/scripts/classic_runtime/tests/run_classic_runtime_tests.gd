@@ -930,6 +930,7 @@ func _init() -> void:
 	_test_classic_queued_area_spells()
 	_test_classic_healing_spells()
 	_test_classic_regeneration_spells()
+	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
 	_test_take_gold_action()
@@ -7741,7 +7742,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		110,
+		118,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7865,8 +7866,9 @@ func _test_classic_spell_coverage() -> void:
 		1308, 1309, 1407, 2512, 3310, 3509,
 		1608, 1610, 1611, 1704, 1711, 1712, 2407, 2501, 2508, 2607, 3210, 3512,
 		3607, 3702, 3706,
+		2204, 2205, 2206, 2602, 2606, 3206, 3405, 3708,
 	]
-	_expect_equal(migrated_spell_ids.size(), 78, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 86, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7955,10 +7957,16 @@ func _test_classic_spell_coverage() -> void:
 		"Heal Wounds": "res://shared_assets/spells/classic_core_2505_heal_wounds.gd",
 		"Regenerate Stamina": "res://shared_assets/spells/classic_core_2709_regenerate_stamina.gd",
 		"Multi Regenerate Stamina": "res://shared_assets/spells/classic_core_3706_multi_regenerate_stamina.gd",
+		"Heal Blindness": "res://shared_assets/spells/classic_core_2204_heal_blindness.gd",
+		"Heal Disease": "res://shared_assets/spells/classic_core_2205_heal_disease.gd",
+		"Heal Poison": "res://shared_assets/spells/classic_core_2206_heal_poison.gd",
+		"Flesh": "res://shared_assets/spells/classic_core_2602_flesh.gd",
+		"Revive Dead": "res://shared_assets/spells/classic_core_2606_revive_dead.gd",
+		"Classic Flesh Enchanter": "res://shared_assets/spells/classic_core_3405_flesh_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		81,
+		87,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8543,13 +8551,13 @@ func _test_classic_spell_coverage() -> void:
 					1501, 1503, 1504, 1505, 1506, 1601, 1603, 1604, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2403, 2404, 2407,
-					2501, 2504, 2505, 2508, 2512, 2605, 2607,
+					2204, 2205, 2206, 2501, 2504, 2505, 2508, 2512, 2602, 2605, 2606, 2607,
 					2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
-					3112, 3202, 3205, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
+					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
 					3310,
-					3311, 3401, 3404, 3409, 3410, 3501, 3505, 3506, 3509, 3512, 3601,
+					3311, 3401, 3404, 3405, 3409, 3410, 3501, 3505, 3506, 3509, 3512, 3601,
 					3602, 3603, 3607, 3702, 3704, 3706,
-					3709, 3710, 3711, 3712,
+					3708, 3709, 3710, 3711, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)
@@ -9047,6 +9055,209 @@ func _test_classic_regeneration_spells() -> void:
 		"temporary regeneration does not replace innate negative condition 10"
 	)
 	_expect(innate.traits.is_empty(), "innate regeneration receives no temporary trait")
+
+
+func _test_classic_restorative_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_2204_heal_blindness.gd",
+			"name": "Heal Blindness", "ids": [2204, 3206],
+			"special": 128, "condition": 27, "class": 8,
+			"range": 1, "targets": 2, "cost": 40,
+			"looks": [5, 11], "sounds": [93, 98], "combat": true,
+		},
+		{
+			"file": "classic_core_2205_heal_disease.gd",
+			"name": "Heal Disease", "ids": [2205],
+			"special": 129, "condition": 28, "class": 8,
+			"range": 1, "targets": 2, "cost": 40,
+			"looks": [5, 8], "sounds": [40, 84], "combat": true,
+		},
+		{
+			"file": "classic_core_2206_heal_poison.gd",
+			"name": "Heal Poison", "ids": [2206],
+			"special": 110, "condition": 9, "class": 8,
+			"range": 1, "targets": 2, "cost": 40,
+			"looks": [5, 7], "sounds": [84, 40], "combat": true,
+		},
+		{
+			"file": "classic_core_2602_flesh.gd",
+			"name": "Flesh", "ids": [2602],
+			"special": 127, "condition": 26, "class": 6,
+			"range": 1, "targets": 1, "cost": 100,
+			"looks": [5, 5], "sounds": [40, 84], "combat": false,
+		},
+		{
+			"file": "classic_core_3405_flesh_enchanter.gd",
+			"name": "Classic Flesh Enchanter", "ids": [3405],
+			"special": 127, "condition": 26, "class": 8,
+			"range": 0, "targets": 2, "cost": 60,
+			"looks": [5, 5], "sounds": [9, 86], "combat": false,
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact IDs" % label)
+		_expect_equal(spell.classic_special, spec["special"], "%s special code" % label)
+		_expect_equal(
+			spell.classic_condition_index,
+			spec["condition"],
+			"%s condition mapping" % label
+		)
+		_expect_equal(spell.classic_spell_class, spec["class"], "%s effect class" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect_equal(spell.get_range(2, null), spec["range"], "%s source range" % label)
+		_expect_equal(
+			spell.get_target_number(2, null),
+			spec["targets"],
+			"%s camp target count" % label
+		)
+		_expect(not spell.skip_targeting, "%s uses the camp party picker" % label)
+		_expect_equal(spell.get_sp_cost(2, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+		_expect_equal(spell.in_combat, spec["combat"], "%s combat availability" % label)
+		_expect(spell.in_field, "%s remains available in camp" % label)
+
+	var priest_blind_source: Dictionary = CoreSpellCatalogScript.inventory_spell(2204).get(
+		"record", {}
+	)
+	var enchanter_blind_source: Dictionary = CoreSpellCatalogScript.inventory_spell(3206).get(
+		"record", {}
+	)
+	_expect_equal(
+		[int(priest_blind_source.get("cannot", 0)), int(enchanter_blind_source.get("cannot", 0))],
+		[3, 4],
+		"Heal Blindness aliases preserve two source records that both bypass resistance"
+	)
+
+	var poison_target := ConditionTestCharacter.new("Poisoned")
+	poison_target.traits = [
+		ConditionTestTrait.new("t_poison.gd", 3),
+		ConditionTestTrait.new("p_poison.gd", 5),
+		ConditionTestTrait.new("t_blind.gd", 2),
+	]
+	var heal_poison = load(
+		"res://shared_assets/spells/classic_core_2206_heal_poison.gd"
+	).new()
+	_expect_equal(
+		heal_poison.apply_classic_scaled_effect(null, poison_target, 1, 1.0),
+		2,
+		"Heal Poison clears temporary and permanent poison"
+	)
+	_expect_equal(poison_target.traits[0].name, "t_blind.gd", "Heal Poison leaves other conditions")
+
+	var disease_target := ConditionTestCharacter.new("Diseased")
+	disease_target.traits = [
+		ConditionTestTrait.new("t_classic_disease.gd", 3),
+		ConditionTestTrait.new("t_disease.gd", 2),
+		ConditionTestTrait.new("p_disease.gd", 1),
+	]
+	var heal_disease = load(
+		"res://shared_assets/spells/classic_core_2205_heal_disease.gd"
+	).new()
+	_expect_equal(
+		heal_disease.apply_classic_scaled_effect(null, disease_target, 1, 1.0),
+		3,
+		"Heal Disease clears native and compatibility disease traits"
+	)
+	_expect(disease_target.traits.is_empty(), "Heal Disease removes every disease representation")
+
+	var blind_target := ConditionTestCharacter.new("Blind")
+	blind_target.traits = [
+		ConditionTestTrait.new("t_blind.gd", 2),
+		ConditionTestTrait.new("p_blind.gd", 1),
+	]
+	var heal_blindness = load(
+		"res://shared_assets/spells/classic_core_2204_heal_blindness.gd"
+	).new()
+	_expect_equal(
+		heal_blindness.apply_classic_scaled_effect(null, blind_target, 2, 1.0),
+		2,
+		"Heal Blindness clears temporary and permanent blindness"
+	)
+
+	var stone_target := ConditionTestCharacter.new("Stone")
+	stone_target.traits = [ConditionTestTrait.new("p_petrified.gd", 1)]
+	var flesh = load("res://shared_assets/spells/classic_core_2602_flesh.gd").new()
+	_expect_equal(
+		flesh.apply_classic_scaled_effect(null, stone_target, 1, 0.0),
+		0,
+		"a negated Flesh effect does not clear petrification"
+	)
+	_expect_equal(
+		flesh.apply_classic_scaled_effect(null, stone_target, 1, 1.0),
+		1,
+		"Flesh clears petrification"
+	)
+
+	var revive = load("res://shared_assets/spells/classic_core_2606_revive_dead.gd").new()
+	_expect_equal(revive.classic_spell_ids, [2606, 3708], "identical Revive Dead rows share one resource")
+	_expect_equal(revive.classic_special, 64, "Revive Dead uses special 64")
+	_expect_equal(revive.classic_spell_class, 7, "Revive Dead preserves spell class 7")
+	_expect_equal(revive.classic_damage_type, 7, "Revive Dead preserves damage type 7")
+	_expect_equal(revive.get_target_number(3, null), 3, "Revive Dead selects once per power")
+	_expect(not revive.skip_targeting, "Revive Dead uses the camp party picker")
+	_expect(not revive.in_combat and revive.in_field, "Revive Dead remains camp-only")
+
+	var dead := Creature.new()
+	dead.stats["curHP"] = -12
+	dead.stats["maxHP"] = 30
+	dead.life_status = 3
+	dead.classic_special_abilities[2] = 9
+	_expect(revive.apply_classic_scaled_effect(null, dead, 1, 1.0), "Revive Dead accepts a dead target")
+	_expect_equal(dead.stats["curHP"], -9, "Revive Dead returns the target at source health")
+	_expect_equal(dead.life_status, 2, "Revive Dead returns the target unconscious")
+	_expect_equal(dead.classic_special_abilities[2], 7, "Revive Dead consumes two Resurrect points")
+
+	var animated := Creature.new()
+	animated.stats["curHP"] = 1
+	animated.stats["maxHP"] = 30
+	animated.traits.append(ConditionTestTrait.new("p_animated.gd", 1))
+	animated.classic_special_abilities[2] = 3
+	_expect(
+		revive.apply_classic_scaled_effect(null, animated, 1, 1.0),
+		"Revive Dead accepts an animated target"
+	)
+	_expect(animated.traits.is_empty(), "Revive Dead removes animation")
+	_expect_equal(animated.stats["curHP"], -9, "deanimation leaves the target unconscious")
+	_expect_equal(animated.classic_special_abilities[2], 1, "deanimation consumes Resurrect points")
+
+	var petrified_dead := Creature.new()
+	petrified_dead.stats["curHP"] = -12
+	petrified_dead.stats["maxHP"] = 30
+	petrified_dead.life_status = 3
+	petrified_dead.traits.append(ConditionTestTrait.new("p_petrified.gd", 1))
+	petrified_dead.classic_special_abilities[2] = 4
+	_expect(
+		not revive.apply_classic_scaled_effect(null, petrified_dead, 1, 1.0),
+		"Revive Dead rejects a petrified target"
+	)
+	_expect_equal(petrified_dead.stats["curHP"], -12, "failed revival leaves health unchanged")
+	_expect_equal(petrified_dead.classic_special_abilities[2], 4, "failed revival has no ability cost")
+
+	var saved_character := Creature.new()
+	saved_character.classic_special_abilities[2] = 11
+	var saved_value: Variant = JSON.parse_string(saved_character.get_save_string() + "}")
+	_expect(saved_value is Dictionary, "Classic special abilities serialize with character saves")
+	if saved_value is Dictionary:
+		var restored_character := Creature.new()
+		restored_character.restore_classic_special_abilities(
+			saved_value.get("classicSpecialAbilities", [])
+		)
+		_expect_equal(
+			restored_character.classic_special_abilities[2],
+			11,
+			"character saves preserve the mutable Resurrect ability"
+		)
 
 
 func _test_parameterized_damage_spells() -> void:

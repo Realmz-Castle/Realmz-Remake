@@ -384,6 +384,21 @@
         {"sourceFile": "Data S", "recordIndex": 203, "displayName": "Priest Regenerate Stamina"},
         {"sourceFile": "Data S", "recordIndex": 305, "displayName": "Enchanter Multi Regenerate Stamina"}
       ]
+    },
+    {
+      "id": "core-player-spell-restoration",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 123, "displayName": "Priest Heal Blindness"},
+        {"sourceFile": "Data S", "recordIndex": 124, "displayName": "Priest Heal Disease"},
+        {"sourceFile": "Data S", "recordIndex": 125, "displayName": "Priest Heal Poison"},
+        {"sourceFile": "Data S", "recordIndex": 181, "displayName": "Priest Flesh"},
+        {"sourceFile": "Data S", "recordIndex": 185, "displayName": "Priest Revive Dead"},
+        {"sourceFile": "Data S", "recordIndex": 230, "displayName": "Enchanter Heal Blindness"},
+        {"sourceFile": "Data S", "recordIndex": 259, "displayName": "Enchanter Flesh"},
+        {"sourceFile": "Data S", "recordIndex": 307, "displayName": "Enchanter Revive Dead"}
+      ]
     }
   ],
   "spells": [
@@ -3187,6 +3202,182 @@
         "saveIndex": 4,
         "resistance": "classic-general",
         "costPerPower": 45
+      }
+    },
+    {
+      "classicSpellId": 2204,
+      "displayName": "Heal Blindness",
+      "classification": "native-special-condition-cure",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2204_heal_blindness.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 123, "byteOffset": 3690, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-party-member-per-power",
+        "range": 1,
+        "condition": 27,
+        "effect": "clear-temporary-or-permanent-blindness",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 128,
+        "costPerPower": 20,
+        "adapter": "native-trait-condition-cure",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2205,
+      "displayName": "Heal Disease",
+      "classification": "native-special-condition-cure",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2205_heal_disease.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 124, "byteOffset": 3720, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-party-member-per-power",
+        "range": 1,
+        "condition": 28,
+        "effect": "clear-temporary-or-permanent-disease",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 129,
+        "costPerPower": 20,
+        "adapter": "native-trait-condition-cure",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2206,
+      "displayName": "Heal Poison",
+      "classification": "native-special-condition-cure",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2206_heal_poison.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 125, "byteOffset": 3750, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [2]}],
+      "behavior": {
+        "targetType": "one-party-member-per-power",
+        "range": 1,
+        "condition": 9,
+        "effect": "clear-temporary-or-permanent-poison",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 110,
+        "costPerPower": 20,
+        "adapter": "native-trait-condition-cure",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2602,
+      "displayName": "Flesh",
+      "classification": "native-special-condition-cure",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2602_flesh.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 181, "byteOffset": 5430, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [3]}],
+      "behavior": {
+        "availability": "field-only",
+        "targetType": "single-party-member",
+        "range": 1,
+        "condition": 26,
+        "effect": "clear-petrification",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 127,
+        "costPerPower": 50,
+        "adapter": "native-trait-condition-cure",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2606,
+      "displayName": "Revive Dead",
+      "classification": "native-special-revival",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2606_revive_dead.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 185, "byteOffset": 5550, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [4]}],
+      "behavior": {
+        "availability": "field-only",
+        "targetType": "one-party-member-per-power",
+        "range": 0,
+        "eligibleTarget": "health-below-minus-nine-or-animated-and-not-petrified",
+        "resultHealth": -9,
+        "resultLifeStatus": "unconscious",
+        "animatedCondition": "cleared",
+        "resurrectAbilityChange": -2,
+        "special": 64,
+        "costPerPower": 100,
+        "adapter": "classic-revival-state",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3206,
+      "displayName": "Heal Blindness",
+      "classification": "native-special-condition-cure",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2204_heal_blindness.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 230, "byteOffset": 6900, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [5]}],
+      "behavior": {
+        "targetType": "one-party-member-per-power",
+        "range": 1,
+        "condition": 27,
+        "effect": "clear-temporary-or-permanent-blindness",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 128,
+        "costPerPower": 20,
+        "nativeReuse": "same-effective-mechanics-and-presentation-as-2204",
+        "adapter": "native-trait-condition-cure",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3405,
+      "displayName": "Flesh",
+      "classification": "native-special-condition-cure",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3405_flesh_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 259, "byteOffset": 7770, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [6]}],
+      "behavior": {
+        "availability": "field-only",
+        "targetType": "one-party-member-per-power",
+        "range": 0,
+        "condition": 26,
+        "effect": "clear-petrification",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 127,
+        "costPerPower": 30,
+        "adapter": "native-trait-condition-cure",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3708,
+      "displayName": "Revive Dead",
+      "classification": "native-special-revival",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2606_revive_dead.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 307, "byteOffset": 9210, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-restoration", "slots": [7]}],
+      "behavior": {
+        "availability": "field-only",
+        "targetType": "one-party-member-per-power",
+        "range": 0,
+        "eligibleTarget": "health-below-minus-nine-or-animated-and-not-petrified",
+        "resultHealth": -9,
+        "resultLifeStatus": "unconscious",
+        "animatedCondition": "cleared",
+        "resurrectAbilityChange": -2,
+        "special": 64,
+        "costPerPower": 100,
+        "nativeReuse": "byte-identical-to-2606",
+        "adapter": "classic-revival-state",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }
   ]

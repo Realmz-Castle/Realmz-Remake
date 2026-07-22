@@ -105,6 +105,8 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		summoner_name = data["summoner_name"]
 	if data.has("joins_combat") :
 		joins_combat = bool(data["joins_combat"])
+	if data.has("classicSpecialAbilities"):
+		restore_classic_special_abilities(data["classicSpecialAbilities"])
 	if data.has("exp_tnl") :
 		exp_tnl = data["exp_tnl"]
 #

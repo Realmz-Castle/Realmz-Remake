@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 110)
+        self.assertEqual(report["totals"]["supportedIdentities"], 118)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -222,6 +222,24 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")
             self.assertEqual(row["classification"], "native-special-regeneration")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id in {2204, 2205, 2206, 2602, 3206, 3405}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(
+                row["classification"], "native-special-condition-cure"
+            )
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id in {2606, 3708}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-special-revival")
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )
