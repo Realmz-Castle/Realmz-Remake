@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 136)
+        self.assertEqual(report["totals"]["supportedIdentities"], 138)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -285,6 +285,21 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertTrue(resource_path.is_file(), resource_path)
             protection_from_foe_resources.add(row["resource"])
         self.assertEqual(len(protection_from_foe_resources), 2)
+        speedy_resources = set()
+        for spell_id in {1302, 2401}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-special-speedy")
+            self.assertEqual(
+                row["behavior"]["actionTranslation"],
+                "plus-4-classic-half-attacks-equals-plus-2-remake-actions",
+            )
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+            speedy_resources.add(row["resource"])
+        self.assertEqual(len(speedy_resources), 2)
         parameterized_damage_ids = {
             1601,
             1703,

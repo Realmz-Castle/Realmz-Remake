@@ -603,6 +603,7 @@ class SpellScreenTestCharacter:
 	var is_player_controlled: bool
 	var traits: Array = []
 	var tags: Array = []
+	var stats: Dictionary = {}
 
 	func _init(character_name: String, player_controlled := false) -> void:
 		name = character_name
@@ -621,6 +622,13 @@ class SpellScreenTestCharacter:
 
 	func remove_trait(trait_instance: Variant) -> void:
 		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> Variant:
+		var stat: Variant = stats.get(stat_name, 0)
+		for trait_value: Variant in traits:
+			if trait_value.has_method("_on_get_stat"):
+				stat = trait_value._on_get_stat(stat_name, stat)
+		return stat
 
 
 class AllyTestCharacter:
@@ -995,6 +1003,7 @@ func _init() -> void:
 	_test_classic_spell_screen_spells()
 	_test_classic_strong_spell()
 	_test_classic_protection_from_foe_spells()
+	_test_classic_speedy_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7873,7 +7882,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		136,
+		138,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8002,8 +8011,9 @@ func _test_classic_spell_coverage() -> void:
 		1307, 1404, 1405, 1507, 1605, 1706, 2411,
 		2212,
 		1210, 2409,
+		1302, 2401,
 	]
-	_expect_equal(migrated_spell_ids.size(), 104, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 106, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8116,10 +8126,12 @@ func _test_classic_spell_coverage() -> void:
 		"Super Brawn": "res://shared_assets/spells/classic_core_2212_super_brawn.gd",
 		"Protection from Foe": "res://shared_assets/spells/classic_core_1210_protection_from_foe.gd",
 		"Classic Protection from Foe Priest": "res://shared_assets/spells/classic_core_2409_protection_from_foe_priest.gd",
+		"Adrenalin": "res://shared_assets/spells/classic_core_1302_adrenalin.gd",
+		"Classic Adrenalin Priest": "res://shared_assets/spells/classic_core_2401_adrenalin_priest.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		105,
+		107,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9566,33 +9578,35 @@ func _test_classic_protection_from_foe_spells() -> void:
 	var protection_trait = load(
 		"res://shared_assets/traits/t_classic_protection_from_foe.gd"
 	)
-	var game_global := root.get_node("GameGlobal")
-	var protected_attacker := Creature.new()
-	var evil_defender := Creature.new()
+	var protection_rules = load(
+		"res://scripts/classic_runtime/classic_protection_from_foe.gd"
+	)
+	var protected_attacker := SpellScreenTestCharacter.new("Protected attacker")
+	var evil_defender := SpellScreenTestCharacter.new("Evil defender")
 	protected_attacker.traits.append(protection_trait.new([protected_attacker, 4]))
 	evil_defender.tags = ["Evil Creature"]
 	_expect(
 		is_equal_approx(
-			game_global.calculate_melee_accuracy(
+			protection_rules.adjust_melee_accuracy(
+				0.5,
 				protected_attacker,
-				evil_defender,
-				protected_attacker.ITEM_NO_MELEE_WEAPON
+				evil_defender
 			),
 			0.6
 		),
 		"Protection from Foe adds 10 percentage points against an evil defender"
 	)
 
-	var evil_attacker := Creature.new()
-	var protected_defender := Creature.new()
+	var evil_attacker := SpellScreenTestCharacter.new("Evil attacker")
+	var protected_defender := SpellScreenTestCharacter.new("Protected defender")
 	evil_attacker.tags = ["Very Evil"]
 	protected_defender.traits.append(protection_trait.new([protected_defender, 4]))
 	_expect(
 		is_equal_approx(
-			game_global.calculate_melee_accuracy(
+			protection_rules.adjust_melee_accuracy(
+				0.5,
 				evil_attacker,
-				protected_defender,
-				evil_attacker.ITEM_NO_MELEE_WEAPON
+				protected_defender
 			),
 			0.4
 		),
@@ -9601,14 +9615,20 @@ func _test_classic_protection_from_foe_spells() -> void:
 	evil_defender.tags = ["Humanoid"]
 	_expect(
 		is_equal_approx(
-			game_global.calculate_melee_accuracy(
+			protection_rules.adjust_melee_accuracy(
+				0.5,
 				protected_attacker,
-				evil_defender,
-				protected_attacker.ITEM_NO_MELEE_WEAPON
+				evil_defender
 			),
 			0.5
 		),
 		"Protection from Foe does not change attacks against neutral defenders"
+	)
+	_expect(
+		FileAccess.get_file_as_string("res://scripts/GameGlobal.gd").contains(
+			"ClassicProtectionFromFoeScript.adjust_melee_accuracy"
+		),
+		"native melee accuracy routes through the Classic Protection from Foe rule"
 	)
 
 	var innate := ProtectionTestCharacter.new("Innate", true)
@@ -9617,6 +9637,101 @@ func _test_classic_protection_from_foe_spells() -> void:
 		sorcerer.apply_classic_scaled_effect(null, innate, 1, 1.0),
 		0,
 		"Classic Protection from Foe does not replace native permanent protection"
+	)
+
+
+func _test_classic_speedy_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_1302_adrenalin.gd",
+			"name": "Adrenalin",
+			"id": 1302,
+			"cost": 105,
+		},
+		{
+			"file": "classic_core_2401_adrenalin_priest.gd",
+			"name": "Classic Adrenalin Priest",
+			"id": 2401,
+			"cost": 60,
+		},
+	]
+	for spec: Dictionary in specs:
+		var adrenalin = load(
+			"res://shared_assets/spells/%s" % spec["file"]
+		).new()
+		var label := str(spec["name"])
+		_expect_equal(adrenalin.name, spec["name"], "%s resource identity" % label)
+		_expect_equal(adrenalin.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(adrenalin.classic_special, 24, "%s writes Speedy condition 23" % label)
+		_expect_equal(adrenalin.classic_spell_class, 8, "%s preserves spell class 8" % label)
+		_expect_equal(adrenalin.classic_damage_type, 8, "%s remains miscellaneous" % label)
+		_expect_equal(adrenalin.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(adrenalin.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(
+			adrenalin.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect(adrenalin.in_combat and adrenalin.in_field, "%s works in combat and camp" % label)
+		_expect_equal(adrenalin.get_range(3, null), 4, "%s source range" % label)
+		_expect_equal(adrenalin.get_target_number(3, null), 1, "%s source targets" % label)
+		_expect_equal(adrenalin.get_min_duration(3, null), 3, "%s minimum duration" % label)
+		_expect_equal(adrenalin.get_max_duration(3, null), 6, "%s maximum duration" % label)
+		_expect_equal(adrenalin.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(adrenalin.classic_spell_look_ids, [14, 8], "%s visuals" % label)
+		_expect_equal(adrenalin.classic_sound_ids, [22, 26], "%s sounds" % label)
+		_expect(adrenalin.los, "%s requires line of sight" % label)
+		_expect_equal(adrenalin.get_aoe(3, null), Spell.AoE_ROUND, "%s source area" % label)
+		_expect(adrenalin.elements.is_empty(), "%s has no damage element" % label)
+
+	var sorcerer = load(
+		"res://shared_assets/spells/classic_core_1302_adrenalin.gd"
+	).new()
+	var first := SpellScreenTestCharacter.new("First", true)
+	var second := SpellScreenTestCharacter.new("Second", true)
+	_expect_equal(
+		sorcerer.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Adrenalin applies Speedy to every creature in its area"
+	)
+	var first_trait: Variant = first.traits[0]
+	var second_trait: Variant = second.traits[0]
+	_expect_equal(first_trait.name, "t_classic_speedy.gd", "Adrenalin uses its Classic Speedy trait")
+	_expect_equal(
+		first_trait.duration_seconds,
+		second_trait.duration_seconds,
+		"one Classic duration roll is shared by every Adrenalin target"
+	)
+	_expect_equal(first_trait._on_get_stat("MaxMovement", 7), 14, "Speedy doubles movement")
+	_expect_equal(
+		first_trait._on_get_stat("MaxActions", 1),
+		3,
+		"Speedy adds the Classic equivalent of two Remake actions"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("AccuracyMelee", 4),
+		4,
+		"Speedy does not alter unrelated stats"
+	)
+	first.stats["MaxMovement"] = 7
+	first.stats["MaxActions"] = 1
+	_expect_equal(
+		first.get_stat("MaxMovement"),
+		14,
+		"character movement uses the Classic Speedy stat hook"
+	)
+	_expect_equal(
+		first.get_stat("MaxActions"),
+		3,
+		"character action economy uses the Classic Speedy stat hook"
+	)
+
+	var native_speedy := ProtectionTestCharacter.new("Native Speedy", true)
+	native_speedy.traits.append(ProtectionTestTrait.new("t_speedy.gd", 1))
+	_expect_equal(
+		sorcerer.apply_classic_scaled_effect(null, native_speedy, 1, 1.0),
+		0,
+		"Classic Speedy does not stack beside Remake's temporary Speedy trait"
 	)
 
 

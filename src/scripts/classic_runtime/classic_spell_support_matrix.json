@@ -433,6 +433,15 @@
       ]
     },
     {
+      "id": "core-player-spell-speedy",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 31, "displayName": "Sorcerer Adrenalin"},
+        {"sourceFile": "Data S", "recordIndex": 150, "displayName": "Priest Adrenalin"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -3873,6 +3882,61 @@
         "special": 23,
         "costPerPower": 15,
         "adapter": "target-aware-melee-accuracy",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1302,
+      "displayName": "Adrenalin",
+      "classification": "native-special-speedy",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1302_adrenalin.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 31, "byteOffset": 930, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-speedy", "slots": [0]}],
+      "behavior": {
+        "targetType": "round-area",
+        "range": 4,
+        "lineOfSight": true,
+        "duration": "1-2-per-power-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "double-movement-plus-two-remake-actions",
+        "actionTranslation": "plus-4-classic-half-attacks-equals-plus-2-remake-actions",
+        "nativeTrait": "t_classic_speedy.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 24,
+        "costPerPower": 35,
+        "adapter": "classic-speedy-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2401,
+      "displayName": "Adrenalin",
+      "nativeResourceName": "Classic Adrenalin Priest",
+      "classification": "native-special-speedy",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2401_adrenalin_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 150, "byteOffset": 4500, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-speedy", "slots": [1]}],
+      "behavior": {
+        "targetType": "round-area",
+        "range": 4,
+        "lineOfSight": true,
+        "duration": "1-2-per-power-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "double-movement-plus-two-remake-actions",
+        "actionTranslation": "plus-4-classic-half-attacks-equals-plus-2-remake-actions",
+        "nativeTrait": "t_classic_speedy.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 24,
+        "costPerPower": 20,
+        "adapter": "classic-speedy-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }
