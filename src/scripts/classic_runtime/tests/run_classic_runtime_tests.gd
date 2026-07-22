@@ -824,6 +824,54 @@ class SpellPointTestCreature:
 		current_sp += change
 
 
+class SpellPointConditionTestCharacter:
+	extends RefCounted
+	var name: String
+	var current_hp := 20
+	var current_sp: int
+	var maximum_sp: int
+	var is_player_controlled: bool
+	var traits: Array = []
+
+	func _init(
+		character_name: String,
+		spell_points: int,
+		maximum_spell_points: int,
+		player_controlled := true
+	) -> void:
+		name = character_name
+		current_sp = spell_points
+		maximum_sp = maximum_spell_points
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> int:
+		match stat_name:
+			"curHP":
+				return current_hp
+			"curSP":
+				return current_sp
+			"maxSP":
+				return maximum_sp
+		return 0
+
+	func change_cur_sp(change: int) -> void:
+		current_sp = mini(maximum_sp, current_sp + change)
+
+
 class CombatTestButton:
 	extends RefCounted
 	var creature: Variant
@@ -1161,6 +1209,7 @@ func _init() -> void:
 	_test_classic_spell_deflectors()
 	_test_classic_attack_deflectors()
 	_test_classic_attack_bonus_spells()
+	_test_classic_power_gather_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -8078,7 +8127,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		162,
+		164,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8171,6 +8220,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"Enchanted Blade %d uses the reviewed attack-bonus adapter" % attack_bonus_id
 		)
+	for power_gather_id: int in [1510, 3510]:
+		_expect_equal(
+			coverage_by_id.get(power_gather_id, {}).get("coverageStatus"),
+			"supported",
+			"Power Gather %d uses the reviewed spell-point adapter" % power_gather_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -8238,8 +8293,9 @@ func _test_classic_spell_coverage() -> void:
 		1508, 1707, 2406, 2603, 3507, 3703,
 		1406, 1606, 2307, 2506, 3408, 3608,
 		1102, 2503, 3104, 3305,
+		1510, 3510,
 	]
-	_expect_equal(migrated_spell_ids.size(), 133, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 135, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8378,10 +8434,12 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Enchanted Blade": "res://shared_assets/spells/classic_enchanted_blade.gd",
 		"Classic Enchanted Blades Priest": "res://shared_assets/spells/classic_core_2503_enchanted_blades.gd",
 		"Enchanted Blades": "res://shared_assets/spells/enchanted_blades.gd",
+		"Power Gather": "res://shared_assets/spells/power_gather.gd",
+		"Classic Power Gather Enchanter": "res://shared_assets/spells/classic_core_3510_power_gather_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		131,
+		133,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8963,14 +9021,14 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1406, 1407, 1408,
-					1501, 1503, 1504, 1505, 1506, 1508, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
+					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
 					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
 					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3305, 3306, 3308,
 					3310,
-					3311, 3401, 3404, 3405, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3512, 3601,
+					3311, 3401, 3404, 3405, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3510, 3512, 3601,
 					3507, 3602, 3603, 3607, 3608, 3702, 3703, 3704, 3706,
 					3708, 3709, 3710, 3711, 3712,
 				],
@@ -11104,6 +11162,106 @@ func _test_classic_attack_bonus_spells() -> void:
 	)
 
 
+func _test_classic_power_gather_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "power_gather.gd",
+			"name": "Power Gather",
+			"ids": [1510],
+			"looks": [13, 15],
+			"sounds": [67, 66],
+		},
+		{
+			"file": "classic_core_3510_power_gather_enchanter.gd",
+			"name": "Classic Power Gather Enchanter",
+			"ids": [3510],
+			"looks": [14, 13],
+			"sounds": [67, 66],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact IDs" % label)
+		_expect_equal(spell.classic_special, 34, "%s special code" % label)
+		_expect_equal(spell.classic_spell_class, 7, "%s source class" % label)
+		_expect_equal(spell.classic_damage_type, 7, "%s special DRV" % label)
+		_expect_equal(spell.classic_cannot, 4, "%s bypasses resistance" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or be resisted" % label
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % label)
+		_expect_equal(spell.classic_target_type, 1, "%s targets one creature" % label)
+		_expect_equal(spell.get_range(3, null), 5, "%s source range" % label)
+		_expect_equal(spell.get_target_number(3, null), 1, "%s source target count" % label)
+		_expect_equal(spell.get_min_duration(3, null), 3, "%s minimum duration" % label)
+		_expect_equal(spell.get_max_duration(3, null), 15, "%s maximum duration" % label)
+		_expect_equal(spell.get_sp_cost(3, null), 120, "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+
+	var power_gather = load("res://shared_assets/spells/power_gather.gd").new()
+	_expect_equal(
+		power_gather.schools,
+		["Sorcerer", "Enchanter"],
+		"native Power Gather remains learnable by both source schools"
+	)
+	var target := SpellPointConditionTestCharacter.new("Power-gathering target", 10, 30)
+	var duration: int = power_gather.apply_classic_scaled_effect(null, target, 3, 1.0)
+	_expect(duration in range(3, 16), "Power Gather rolls 1-5 condition points per power")
+	_expect_equal(target.traits.size(), 1, "Power Gather adds one regeneration trait")
+	var power_gather_trait: Variant = target.traits[0]
+	_expect_equal(power_gather_trait.get_saved_variables(), [duration], "Power Gather persists")
+	power_gather_trait._on_new_round(target)
+	_expect_equal(
+		target.current_sp,
+		mini(30, 10 + duration),
+		"Power Gather restores its current condition value before decay"
+	)
+	_expect_equal(
+		power_gather_trait.get_saved_variables(),
+		[duration - 1],
+		"Power Gather loses one condition point per combat round"
+	)
+	_expect_equal(
+		power_gather_trait.elapsed_hour_boundaries(3599, 7201),
+		2,
+		"Power Gather uses game-hour boundaries outside combat"
+	)
+
+	var capped_target := SpellPointConditionTestCharacter.new("Capped target", 0, 200)
+	capped_target.add_trait(
+		load("res://shared_assets/traits/t_classic_power_gather.gd"),
+		[98]
+	)
+	_expect(
+		not power_gather._apply_duration(capped_target, 2),
+		"player Power Gather rejects a stack beyond condition 99"
+	)
+	var nearly_full := SpellPointConditionTestCharacter.new("Nearly full target", 29, 30)
+	var nearly_full_trait = load(
+		"res://shared_assets/traits/t_classic_power_gather.gd"
+	).new([nearly_full, 4])
+	nearly_full_trait._on_new_round(nearly_full)
+	_expect_equal(nearly_full.current_sp, 30, "Power Gather clamps at maximum spell points")
+
+	var monster := SpellPointConditionTestCharacter.new("Gathering monster", 5, 30, false)
+	var monster_trait = load(
+		"res://shared_assets/traits/t_classic_power_gather.gd"
+	).new([monster, 4])
+	monster_trait._on_new_round(monster)
+	_expect_equal(
+		monster.current_sp,
+		9,
+		"Power Gather honors the described monster effect instead of the adjacent-slot typo"
+	)
+
+
 func _test_classic_spell_screen_spells() -> void:
 	var specs: Array = [
 		{
@@ -11876,6 +12034,16 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Enchanted Blades", {}).get("classicSpellIds"),
 		[3305],
 		"spell catalog maps the native Enchanted Blades resource"
+	)
+	_expect_equal(
+		native_spells.get("Power Gather", {}).get("classicSpellIds"),
+		[1510],
+		"spell catalog maps the native Power Gather resource"
+	)
+	_expect_equal(
+		native_spells.get("Classic Power Gather Enchanter", {}).get("classicSpellIds"),
+		[3510],
+		"spell catalog keeps the Enchanter Power Gather presentation distinct"
 	)
 	_expect_equal(
 		native_spells.get("Magic Darts", {}).get("classicSpellIds"),

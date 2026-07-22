@@ -131,6 +131,15 @@
       ]
     },
     {
+      "id": "core-player-spell-power-gather",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 69, "displayName": "Sorcerer Power Gather"},
+        {"sourceFile": "Data S", "recordIndex": 279, "displayName": "Enchanter Power Gather"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -1324,6 +1333,33 @@
         "special": 57,
         "costPerPower": 10,
         "adapter": "source-record-backed-native-healing",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1510,
+      "displayName": "Power Gather",
+      "classification": "native-special-spell-point-regeneration",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/power_gather.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 69, "byteOffset": 2070, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-power-gather", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": 5,
+        "availability": "combat-and-camp",
+        "duration": "one-to-five-rounds-per-power",
+        "conditionIndex": 33,
+        "effect": "restore-current-condition-value-in-spell-points-before-decrement",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "maximumSpellPoints": "clamp",
+        "invalidTargets": ["dead", "zero-maximum-spell-points"],
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 34,
+        "costPerPower": 40,
+        "adapter": "source-record-backed-classic-spell-point-regeneration",
+        "correctedIntent": "monster-source-branch-reads-adjacent-energy-drain-slot",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -3135,6 +3171,34 @@
         "saveIndex": 7,
         "resistance": "classic-general",
         "costPerPower": 30,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3510,
+      "displayName": "Power Gather",
+      "nativeResourceName": "Classic Power Gather Enchanter",
+      "classification": "native-special-spell-point-regeneration",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3510_power_gather_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 279, "byteOffset": 8370, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-power-gather", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": 5,
+        "availability": "combat-and-camp",
+        "duration": "one-to-five-rounds-per-power",
+        "conditionIndex": 33,
+        "effect": "restore-current-condition-value-in-spell-points-before-decrement",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "maximumSpellPoints": "clamp",
+        "invalidTargets": ["dead", "zero-maximum-spell-points"],
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 34,
+        "costPerPower": 40,
+        "adapter": "source-record-backed-classic-spell-point-regeneration",
+        "correctedIntent": "monster-source-branch-reads-adjacent-energy-drain-slot",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },

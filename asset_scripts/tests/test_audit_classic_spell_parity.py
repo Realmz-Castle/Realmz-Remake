@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 162)
+        self.assertEqual(report["totals"]["supportedIdentities"], 164)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -433,6 +433,29 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertTrue(
                 attack_bonus_resource.is_file(), attack_bonus_resource
             )
+        for spell_id in {1510, 3510}:
+            power_gather = matrix_by_id[spell_id]
+            self.assertEqual(power_gather["supportStatus"], "supported")
+            self.assertEqual(
+                power_gather["classification"],
+                "native-special-spell-point-regeneration",
+            )
+            self.assertEqual(power_gather["behavior"]["conditionIndex"], 33)
+            self.assertEqual(
+                power_gather["behavior"]["conditionDecay"],
+                "one-per-combat-round-or-game-hour",
+            )
+            self.assertEqual(power_gather["behavior"]["maximumSpellPoints"], "clamp")
+            self.assertEqual(
+                power_gather["behavior"]["correctedIntent"],
+                "monster-source-branch-reads-adjacent-energy-drain-slot",
+            )
+            power_gather_resource = (
+                REPO_ROOT
+                / "src"
+                / power_gather["resource"].removeprefix("res://")
+            )
+            self.assertTrue(power_gather_resource.is_file(), power_gather_resource)
         parameterized_damage_ids = {
             1601,
             1703,
