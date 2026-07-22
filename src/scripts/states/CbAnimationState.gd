@@ -13,6 +13,9 @@ const CLASSIC_MAGIC_RESISTANCE_SCRIPT = preload(
 const CLASSIC_SPELL_SAVES_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_spell_saves.gd"
 )
+const CLASSIC_SPELL_REFLECTION_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_spell_reflection.gd"
+)
 
 var cur_action : Dictionary
 
@@ -241,7 +244,12 @@ func enter(_msg : Dictionary = {}) -> void:
 						if used_item["charges_max"]>0 :
 							used_item["charges"] -=1
 				#call_deferred("play_spell_resolution", a_spell.proj_hit, a_caster, a_effected_tiles, a_effected_creas)
+				CLASSIC_SPELL_REFLECTION_SCRIPT.begin_resolution(
+					a_spell,
+					bool(cur_action.get("suppress_spell_reflection", false))
+				)
 				await after_spell_anim_finished(a_castercrea,a_spell,a_power,a_main_targeted_tile,a_effected_tiles, a_effected_creas, a_add_terrain)
+				CLASSIC_SPELL_REFLECTION_SCRIPT.end_resolution(a_spell)
 				#call_deferred("after_spell_anim_finished", a_caster,a_spell,a_power,a_main_targeted_tile,a_effected_tiles, a_effected_creas, a_add_terrain)
 				
 				
@@ -391,6 +399,16 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 	print("CbAnimState after_spell_anim_finished : "+castercrea.name+'s '+spell.name)
 	var unresisted_creatures : Array = []
 	for cb : CombatCreaButton in effected_creas :
+		if CLASSIC_SPELL_REFLECTION_SCRIPT.is_classic_spell(spell):
+			var reflection: Array = cb.creature.on_classic_spell_targeted(
+				castercrea,
+				spell,
+				power
+			)
+			if not reflection[1].is_empty():
+				combat_state.add_to_action_queue(reflection[1])
+			if not bool(reflection[0]):
+				continue
 		var pre_resistance_roll := -1
 		if CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_uses_pre_resistance(spell) :
 			pre_resistance_roll = randi_range(1, 100)
@@ -408,7 +426,9 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
 			continue
 		unresisted_creatures.append(cb)
-	if spell.has_method("apply_classic_group_effect") :
+	var use_group_effect: bool = not spell.has_method("uses_classic_group_effect") \
+		or bool(spell.uses_classic_group_effect())
+	if spell.has_method("apply_classic_group_effect") and use_group_effect :
 		var group_targets: Array = []
 		for cb: CombatCreaButton in unresisted_creatures:
 			group_targets.append(cb.creature)

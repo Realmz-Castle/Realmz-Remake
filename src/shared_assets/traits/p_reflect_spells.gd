@@ -1,35 +1,44 @@
-const name : String = 'p_reflect_spells.gd'
-const menuname : String = 'Spell Reflection'
-const stacks : bool = false
-const trait_types : Array = []
+const name := "p_reflect_spells.gd"
+const menuname := "Spell Reflection"
+const stacks := false
+const trait_types: Array = []
+const ReflectionRules = preload(
+	"res://scripts/classic_runtime/classic_spell_reflection.gd"
+)
 var chara
-var power : int #chance in %
-const permanent : int = 1
-var trait_source : String = ''
+const permanent := true
+var trait_source := ""
 
-func _init(args : Array):
-	#[chara]
+func _init(args: Array) -> void:
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Spell Reflection !', null,'')
 
-func get_saved_variables() :
+func get_saved_variables() -> Array:
 	return []
 
-func _on_evasion_check(crea, evasion_stats_used : Array, attacker, spellornull, power : int) -> Array :
-	#return array : [ proceed_with_atatack_on_self : bool, added_actions_queue : Array]
-	if not is_instance_valid(spellornull) or (not is_instance_valid(attacker.combat_button)) or (not is_instance_valid(chara.combat_button)):
+func _on_classic_spell_targeted(attacker, spell, power: int, roll: int) -> Array:
+	return ReflectionRules.resolve_target(chara, attacker, spell, power, roll)
+
+func _on_evasion_check(
+	_creature,
+	_evasion_stats_used: Array,
+	attacker,
+	spell,
+	power: int
+) -> Array:
+	if ReflectionRules.is_classic_spell(spell):
 		return [true, []]
-	if randf()<0.333 and spellornull.attributes.has('Magical'):
-		var act_msg : Dictionary = {'type' : 'Spell', 'caster' : chara.combat_button, 'spell' : spellornull, 's_plvl' : power, 'used_item' : {'charges_max'=100, 'charges'=100} , 'add_terrain' : true, 'override_aoe' : [Vector2.ZERO], 'from_terrain' : false }
-		act_msg['Effected Tiles'] = [attacker.position]
-		act_msg['Effected Creas'] = [attacker.combat_button]
-		act_msg["Targeted Tiles"] = [attacker.position]
-		act_msg['Main Targeted Tile'] = attacker.position
-		return [false,[act_msg]]
-	return [true, []]
+	return ReflectionRules.resolve_target(
+		chara,
+		attacker,
+		spell,
+		power,
+		randi_range(1, 100)
+	)
 
-func get_info_as_text() -> String :
-	return 'Permanent Spell Reflection'+str(power)+'% (source : '+trait_source+')'
+func get_info_as_text() -> String:
+	var source_text := "" if trait_source.is_empty() else " (source: %s)" % trait_source
+	return "Permanent Spell Reflection (33%%)%s" % source_text
 
-func equals_args(traits_array : Array) :
+
+func equals_args(_traits_array: Array) -> bool:
 	return true

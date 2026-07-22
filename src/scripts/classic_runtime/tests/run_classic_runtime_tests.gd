@@ -522,6 +522,33 @@ class DiseaseTestCharacter:
 		current_hp += change
 
 
+class ReflectionTestCharacter:
+	extends RefCounted
+	var name: String
+	var position := Vector2i.ZERO
+	var combat_button = RefCounted.new()
+	var is_player_controlled := false
+	var traits: Array = []
+
+	func _init(character_name: String, player_controlled := false) -> void:
+		name = character_name
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+
 class RegenerationTestCharacter:
 	extends RefCounted
 	var name: String
@@ -1131,6 +1158,7 @@ func _init() -> void:
 	_test_classic_petrification_spells()
 	_test_classic_blindness_spell()
 	_test_classic_disease_spells()
+	_test_classic_spell_deflectors()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -8048,7 +8076,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		148,
+		154,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8123,6 +8151,12 @@ func _test_classic_spell_coverage() -> void:
 		"supported",
 		"Disease uses the reviewed Classic disease adapter"
 	)
+	for deflector_id: int in [1508, 1707, 2406, 2603, 3507, 3703]:
+		_expect_equal(
+			coverage_by_id.get(deflector_id, {}).get("coverageStatus"),
+			"supported",
+			"Spell Deflector %d uses the reviewed reflection adapter" % deflector_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -8187,8 +8221,9 @@ func _test_classic_spell_coverage() -> void:
 		2410, 3610,
 		2608, 3411,
 		2402, 2304, 2502,
+		1508, 1707, 2406, 2603, 3507, 3703,
 	]
-	_expect_equal(migrated_spell_ids.size(), 117, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 123, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8314,10 +8349,14 @@ func _test_classic_spell_coverage() -> void:
 		"Blind": "res://shared_assets/spells/classic_core_2402_blind.gd",
 		"Festering Wounds": "res://shared_assets/spells/festering_wounds.gd",
 		"Disease": "res://shared_assets/spells/classic_core_2502_disease.gd",
+		"Minor Spell Deflector": "res://shared_assets/spells/minor_spell_deflector.gd",
+		"Classic Minor Spell Deflector Priest Enchanter": "res://shared_assets/spells/classic_core_2406_minor_spell_deflector.gd",
+		"Major Spell Deflector": "res://shared_assets/spells/major_spell_deflector.gd",
+		"Classic Major Spell Deflector Priest Enchanter": "res://shared_assets/spells/classic_core_2603_major_spell_deflector.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		118,
+		122,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8899,15 +8938,15 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1407, 1408,
-					1501, 1503, 1504, 1505, 1506, 1601, 1603, 1604, 1608, 1609, 1610,
-					1611, 1701, 1703, 1704, 1705, 1711, 1712, 2101, 2102, 2103, 2105,
-					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2403, 2404, 2407,
+					1501, 1503, 1504, 1505, 1506, 1508, 1601, 1603, 1604, 1608, 1609, 1610,
+					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
+					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2403, 2404, 2406, 2407,
 					2204, 2205, 2206, 2501, 2502, 2504, 2505, 2508, 2512, 2602, 2605, 2606, 2607,
-					2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
+					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
 					3310,
 					3311, 3401, 3404, 3405, 3409, 3410, 3501, 3505, 3506, 3509, 3512, 3601,
-					3602, 3603, 3607, 3702, 3704, 3706,
+					3507, 3602, 3603, 3607, 3702, 3703, 3704, 3706,
 					3708, 3709, 3710, 3711, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
@@ -10537,6 +10576,200 @@ func _test_classic_disease_spells() -> void:
 			'begin_classic_target_resolution'
 		),
 		"combat resolution brackets multi-target Classic condition rolls"
+	)
+
+
+func _test_classic_spell_deflectors() -> void:
+	var specs: Array = [
+		{
+			"file": "minor_spell_deflector.gd",
+			"name": "Minor Spell Deflector",
+			"ids": [1508],
+			"source_id": 1508,
+			"target_type": 5,
+			"range": 0,
+			"targets": 1,
+			"duration": [3, 3],
+			"cost": 90,
+			"looks": [13, 14],
+		},
+		{
+			"file": "classic_core_2406_minor_spell_deflector.gd",
+			"name": "Classic Minor Spell Deflector Priest Enchanter",
+			"ids": [2406, 3507],
+			"source_id": 2406,
+			"target_type": 5,
+			"range": 0,
+			"targets": 1,
+			"duration": [3, 3],
+			"cost": 90,
+			"looks": [15, 5],
+		},
+		{
+			"file": "major_spell_deflector.gd",
+			"name": "Major Spell Deflector",
+			"ids": [1707],
+			"source_id": 1707,
+			"target_type": 0,
+			"range": 6,
+			"targets": 3,
+			"duration": [2, 4],
+			"cost": 225,
+			"looks": [13, 5],
+		},
+		{
+			"file": "classic_core_2603_major_spell_deflector.gd",
+			"name": "Classic Major Spell Deflector Priest Enchanter",
+			"ids": [2603, 3703],
+			"source_id": 2603,
+			"target_type": 0,
+			"range": 6,
+			"targets": 3,
+			"duration": [2, 4],
+			"cost": 225,
+			"looks": [15, 5],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact IDs" % label)
+		_expect_equal(spell.classic_special, 31, "%s special code" % label)
+		_expect_equal(spell.classic_spell_class, 8, "%s source class" % label)
+		_expect_equal(spell.classic_damage_type, 8, "%s miscellaneous DRV" % label)
+		_expect_equal(spell.classic_cannot, 4, "%s bypasses resistance" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or be resisted" % label
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % label)
+		_expect_equal(spell.classic_target_type, spec["target_type"], "%s target type" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(
+			spell.get_target_number(3, null),
+			spec["targets"],
+			"%s source target count" % label
+		)
+		_expect_equal(
+			spell.get_min_duration(3, null),
+			spec["duration"][0],
+			"%s minimum duration" % label
+		)
+		_expect_equal(
+			spell.get_max_duration(3, null),
+			spec["duration"][1],
+			"%s maximum duration" % label
+		)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, [58, 67], "%s sounds" % label)
+		_expect(not spell.uses_classic_group_effect(), "%s resolves each selected target" % label)
+
+	var minor = load("res://shared_assets/spells/minor_spell_deflector.gd").new()
+	_expect_equal(
+		minor.schools,
+		["Sorcerer", "Priest", "Enchanter"],
+		"the native Minor Spell Deflector remains learnable by all source schools"
+	)
+	var target := ReflectionTestCharacter.new("Reflecting target", true)
+	_expect_equal(
+		minor.apply_classic_scaled_effect(null, target, 3, 1.0),
+		3,
+		"Minor Spell Deflector applies one round per power"
+	)
+	_expect_equal(target.traits.size(), 1, "Spell Deflector adds one reflection trait")
+	var reflection_trait: Variant = target.traits[0]
+	_expect_equal(reflection_trait.get_saved_variables(), [3], "reflection duration persists")
+	reflection_trait._on_new_round(target)
+	_expect_equal(reflection_trait.get_saved_variables(), [2], "reflection loses one combat round")
+	_expect_equal(
+		minor.apply_classic_scaled_effect(null, target, 98, 1.0),
+		0,
+		"party reflection rejects a stack beyond condition 99"
+	)
+
+	var permanent_target := ReflectionTestCharacter.new("Permanent reflector", true)
+	permanent_target.add_trait(load("res://shared_assets/traits/p_reflect_spells.gd"), [])
+	_expect_equal(
+		minor.apply_classic_scaled_effect(null, permanent_target, 3, 1.0),
+		0,
+		"temporary reflection does not replace a permanent condition"
+	)
+
+	var attacker := ReflectionTestCharacter.new("Original caster")
+	attacker.position = Vector2i(4, 5)
+	var incoming := Spell.new()
+	incoming.name = "Incoming Classic spell"
+	incoming.attributes = ["Magical"]
+	incoming.classic_spell_ids = [1103]
+	incoming.classic_spell_class = 6
+	incoming.set("classic_target_type", 0)
+	var reflection_rules = load(
+		"res://scripts/classic_runtime/classic_spell_reflection.gd"
+	)
+	reflection_rules.begin_resolution(incoming, false)
+	var reflected: Array = reflection_trait._on_classic_spell_targeted(
+		attacker, incoming, 2, 33
+	)
+	_expect(not reflected[0], "a roll of 33 reflects a Classic spell")
+	_expect_equal(reflected[1].size(), 1, "the first reflector queues one redirected cast")
+	var reflected_action: Dictionary = reflected[1][0]
+	_expect_equal(reflected_action.get("caster"), target.combat_button, "the defender recasts")
+	_expect_equal(
+		reflected_action.get("Main Targeted Tile"),
+		attacker.position,
+		"the reflected spell targets its original caster"
+	)
+	_expect(
+		reflected_action.get("suppress_spell_reflection"),
+		"a reflected cast cannot be reflected again"
+	)
+	var duplicate_reflection: Array = reflection_trait._on_classic_spell_targeted(
+		attacker, incoming, 2, 1
+	)
+	_expect(not duplicate_reflection[0], "a second reflector still avoids the original spell")
+	_expect(
+		duplicate_reflection[1].is_empty(),
+		"an area spell redirects to its caster only once per resolution"
+	)
+	reflection_rules.end_resolution(incoming)
+
+	reflection_rules.begin_resolution(incoming, false)
+	_expect(
+		reflection_trait._on_classic_spell_targeted(attacker, incoming, 2, 34)[0],
+		"a roll of 34 does not reflect"
+	)
+	reflection_rules.end_resolution(incoming)
+	incoming.classic_spell_class = 9
+	_expect(
+		not reflection_rules.should_reflect(incoming, 1),
+		"Classic missile-class spells bypass reflection"
+	)
+	incoming.classic_spell_class = 6
+	incoming.set("classic_target_type", 10)
+	_expect(
+		not reflection_rules.should_reflect(incoming, 1),
+		"Classic automatic all-enemy spells bypass reflection"
+	)
+	incoming.set("classic_target_type", 0)
+	reflection_rules.begin_resolution(incoming, true)
+	_expect(
+		not reflection_rules.should_reflect(incoming, 1),
+		"a redirected spell cannot recurse through another reflector"
+	)
+	reflection_rules.end_resolution(incoming)
+
+	var combat_source := FileAccess.get_file_as_string(
+		"res://scripts/states/CbAnimationState.gd"
+	)
+	_expect(
+		combat_source.find("on_classic_spell_targeted") \
+			< combat_source.find("CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_resolution"),
+		"Classic reflection resolves before magic resistance"
 	)
 
 

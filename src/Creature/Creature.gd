@@ -1008,6 +1008,22 @@ func on_evasion_check(evasion_stats_used : Array, attacker : Creature, spellscri
 			continue_action = continue_action and t_returned_array[0]
 	return [continue_action, returned_action_queue]
 
+
+func on_classic_spell_targeted(attacker: Creature, spell, power: int) -> Array:
+	var returned_action_queue: Array = []
+	var continue_action := true
+	for trait_value in traits:
+		if continue_action and trait_value.has_method("_on_classic_spell_targeted"):
+			var result: Array = trait_value._on_classic_spell_targeted(
+				attacker,
+				spell,
+				power,
+				randi_range(1, 100)
+			)
+			continue_action = bool(result[0])
+			returned_action_queue.append_array(result[1])
+	return [continue_action, returned_action_queue]
+
 func on_after_melee_attack() :
 	if current_melee_weapons[0]["name"]=="NO_MELEE_WEAPON" :
 		if rotating_unarmed_melee_weapons.size()>0 :

@@ -9,7 +9,6 @@ const MagicResistanceScript = preload(
 # with no special opcode through Remake's ordinary Spell interface.
 
 var source_record: Dictionary = {}
-var classic_target_type := 0
 var classic_fixed_target_num := 0
 var classic_queue_icon := 0
 var classic_to_hit_bonus := 0

@@ -68,6 +68,9 @@ var schools : Array = []
 # Classic spells also carry an effect class. Complex encounters can match
 # classes 1-6 instead of a packed spell-table ID.
 var classic_spell_class : int = 0
+# Classic targeting modes 9, 10, and 12 bypass spell reflection. Native
+# spells retain zero, which follows Remake's ordinary targeted-spell behavior.
+var classic_target_type : int = 0
 # A non-empty list limits this resource to Classic table entries whose
 # mechanics it represents. Empty lists retain the existing name-based fallback.
 var classic_spell_ids : Array[int] = []

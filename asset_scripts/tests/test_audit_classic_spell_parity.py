@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 148)
+        self.assertEqual(report["totals"]["supportedIdentities"], 154)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -374,6 +374,24 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             matrix_by_id[2502]["behavior"]["savedCondition"],
             "full-permanent-disease",
         )
+        for spell_id in {1508, 1707, 2406, 2603, 3507, 3703}:
+            deflector = matrix_by_id[spell_id]
+            self.assertEqual(deflector["supportStatus"], "supported")
+            self.assertEqual(
+                deflector["classification"], "native-special-spell-deflection"
+            )
+            self.assertEqual(deflector["behavior"]["conditionIndex"], 30)
+            self.assertEqual(
+                deflector["behavior"]["reflectionOrder"],
+                "before-magic-resistance-and-save",
+            )
+            self.assertFalse(deflector["behavior"]["recursiveReflection"])
+            deflector_resource = (
+                REPO_ROOT
+                / "src"
+                / deflector["resource"].removeprefix("res://")
+            )
+            self.assertTrue(deflector_resource.is_file(), deflector_resource)
         parameterized_damage_ids = {
             1601,
             1703,
