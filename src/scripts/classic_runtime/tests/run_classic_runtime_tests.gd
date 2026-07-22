@@ -1160,6 +1160,7 @@ func _init() -> void:
 	_test_classic_disease_spells()
 	_test_classic_spell_deflectors()
 	_test_classic_attack_deflectors()
+	_test_classic_attack_bonus_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -3932,7 +3933,7 @@ func _test_classic_bestiary_materializer() -> void:
 	spell_ids.free()
 	_expect_equal(
 		exact_spell_result.get("entries"),
-		[["Classic Enchanted Blade", 1], ["Classic Discover Magic Area", 1]],
+		[["Enchanted Blade", 1], ["Classic Discover Magic Area", 1]],
 		"native monsters select mechanics-specific Classic spell resources"
 	)
 	_expect_equal(
@@ -8077,7 +8078,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		160,
+		162,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8164,6 +8165,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"Attack Deflector %d uses the reviewed reflection adapter" % attack_deflector_id
 		)
+	for attack_bonus_id: int in [1102, 2503, 3104, 3305]:
+		_expect_equal(
+			coverage_by_id.get(attack_bonus_id, {}).get("coverageStatus"),
+			"supported",
+			"Enchanted Blade %d uses the reviewed attack-bonus adapter" % attack_bonus_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -8230,8 +8237,9 @@ func _test_classic_spell_coverage() -> void:
 		2402, 2304, 2502,
 		1508, 1707, 2406, 2603, 3507, 3703,
 		1406, 1606, 2307, 2506, 3408, 3608,
+		1102, 2503, 3104, 3305,
 	]
-	_expect_equal(migrated_spell_ids.size(), 129, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 133, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8366,10 +8374,14 @@ func _test_classic_spell_coverage() -> void:
 		"Major Attack Deflector": "res://shared_assets/spells/major_attack_deflector.gd",
 		"Classic Major Attack Deflector Priest": "res://shared_assets/spells/classic_core_2506_major_attack_deflector.gd",
 		"Classic Major Attack Deflector Enchanter": "res://shared_assets/spells/classic_core_3608_major_attack_deflector.gd",
+		"Enchanted Blade": "res://shared_assets/spells/enchanted_blade.gd",
+		"Classic Enchanted Blade": "res://shared_assets/spells/classic_enchanted_blade.gd",
+		"Classic Enchanted Blades Priest": "res://shared_assets/spells/classic_core_2503_enchanted_blades.gd",
+		"Enchanted Blades": "res://shared_assets/spells/enchanted_blades.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		127,
+		131,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8954,9 +8966,9 @@ func _test_classic_spell_coverage() -> void:
 					1501, 1503, 1504, 1505, 1506, 1508, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
-					2204, 2205, 2206, 2501, 2502, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
+					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
 					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
-					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
+					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3301, 3303, 3305, 3306, 3308,
 					3310,
 					3311, 3401, 3404, 3405, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3512, 3601,
 					3507, 3602, 3603, 3607, 3608, 3702, 3703, 3704, 3706,
@@ -10943,6 +10955,155 @@ func _test_classic_attack_deflectors() -> void:
 	)
 
 
+func _test_classic_attack_bonus_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "enchanted_blade.gd",
+			"name": "Enchanted Blade",
+			"ids": [1102],
+			"target_type": 1,
+			"range": 5,
+			"targets": 1,
+			"duration": [3, 3],
+			"cost": 6,
+			"looks": [14, 5],
+			"sounds": [0, 35],
+		},
+		{
+			"file": "classic_enchanted_blade.gd",
+			"name": "Classic Enchanted Blade",
+			"ids": [3104],
+			"target_type": 1,
+			"range": 5,
+			"targets": 1,
+			"duration": [3, 3],
+			"cost": 6,
+			"looks": [14, 5],
+			"sounds": [81, 35],
+		},
+		{
+			"file": "classic_core_2503_enchanted_blades.gd",
+			"name": "Classic Enchanted Blades Priest",
+			"ids": [2503],
+			"target_type": 0,
+			"range": 3,
+			"targets": 3,
+			"duration": [1, 3],
+			"cost": 45,
+			"looks": [14, 5],
+			"sounds": [83, 37],
+		},
+		{
+			"file": "enchanted_blades.gd",
+			"name": "Enchanted Blades",
+			"ids": [3305],
+			"target_type": 9,
+			"range": 1,
+			"targets": 1,
+			"duration": [3, 6],
+			"cost": 60,
+			"looks": [15, 5],
+			"sounds": [81, 35],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact IDs" % label)
+		_expect_equal(spell.classic_special, 33, "%s special code" % label)
+		_expect_equal(spell.classic_spell_class, 8, "%s source class" % label)
+		_expect_equal(spell.classic_damage_type, 8, "%s miscellaneous DRV" % label)
+		_expect_equal(spell.classic_cannot, 4, "%s bypasses resistance" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or be resisted" % label
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % label)
+		_expect_equal(spell.classic_target_type, spec["target_type"], "%s target type" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(
+			spell.get_target_number(3, null),
+			spec["targets"],
+			"%s source target count" % label
+		)
+		_expect_equal(
+			spell.get_min_duration(3, null),
+			spec["duration"][0],
+			"%s minimum duration" % label
+		)
+		_expect_equal(
+			spell.get_max_duration(3, null),
+			spec["duration"][1],
+			"%s maximum duration" % label
+		)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+
+	var blade = load("res://shared_assets/spells/enchanted_blade.gd").new()
+	_expect_equal(
+		blade.schools,
+		["Sorcerer", "Enchanter"],
+		"native Enchanted Blade remains learnable by both source schools"
+	)
+	var blades = load("res://shared_assets/spells/enchanted_blades.gd").new()
+	_expect_equal(
+		blades.schools,
+		["Priest", "Enchanter"],
+		"native Enchanted Blades remains learnable by both source schools"
+	)
+	_expect_equal(
+		blades.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ALLIES,
+		"Enchanted Blades automatically reaches every ally"
+	)
+
+	var target := ReflectionTestCharacter.new("Enchanted target", true)
+	_expect_equal(
+		blade.apply_classic_scaled_effect(null, target, 3, 1.0),
+		3,
+		"Enchanted Blade applies one attack-bonus point per power"
+	)
+	_expect_equal(target.traits.size(), 1, "Enchanted Blade adds one attack-bonus trait")
+	var attack_bonus_trait: Variant = target.traits[0]
+	_expect_equal(attack_bonus_trait.get_saved_variables(), [3], "attack bonus persists")
+	_expect_equal(
+		attack_bonus_trait._on_get_stat("Bonus_Physical_dmg", 2),
+		5,
+		"attack bonus adds its remaining condition value to physical damage"
+	)
+	attack_bonus_trait._on_new_round(target)
+	_expect_equal(attack_bonus_trait.get_saved_variables(), [2], "attack bonus loses one round")
+	_expect_equal(
+		blade.apply_classic_scaled_effect(null, target, 98, 1.0),
+		0,
+		"player attack bonus rejects a stack beyond condition 99"
+	)
+
+	var priest_blades = load(
+		"res://shared_assets/spells/classic_core_2503_enchanted_blades.gd"
+	).new()
+	var first := ReflectionTestCharacter.new("First enchanted target", true)
+	var second := ReflectionTestCharacter.new("Second enchanted target", true)
+	_expect_equal(
+		priest_blades.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Enchanted Blades applies to every selected target"
+	)
+	var first_duration: Array = first.traits[0].get_saved_variables()
+	var second_duration: Array = second.traits[0].get_saved_variables()
+	_expect(first_duration[0] in range(1, 4), "Priest Enchanted Blades rolls a 1-3 duration")
+	_expect_equal(
+		second_duration,
+		first_duration,
+		"Enchanted Blades shares one duration roll across the cast"
+	)
+
+
 func _test_classic_spell_screen_spells() -> void:
 	var specs: Array = [
 		{
@@ -11697,9 +11858,24 @@ func _test_classic_spell_usage_audit() -> void:
 		"spell catalog preserves declared Classic IDs"
 	)
 	_expect_equal(
+		native_spells.get("Enchanted Blade", {}).get("classicSpellIds"),
+		[1102],
+		"spell catalog maps the native Enchanted Blade resource"
+	)
+	_expect_equal(
 		native_spells.get("Classic Enchanted Blade", {}).get("classicSpellIds"),
-		[1102, 3104],
+		[3104],
 		"spell catalog discovers exact-ID compatibility resources"
+	)
+	_expect_equal(
+		native_spells.get("Classic Enchanted Blades Priest", {}).get("classicSpellIds"),
+		[2503],
+		"spell catalog keeps the Priest Enchanted Blades record distinct"
+	)
+	_expect_equal(
+		native_spells.get("Enchanted Blades", {}).get("classicSpellIds"),
+		[3305],
+		"spell catalog maps the native Enchanted Blades resource"
 	)
 	_expect_equal(
 		native_spells.get("Magic Darts", {}).get("classicSpellIds"),
@@ -11828,7 +12004,7 @@ func _test_classic_spell_usage_audit() -> void:
 	)
 	_expect_equal(
 		exact_adapter_row.get("nativeResolution", {}).get("resourceName"),
-		"Classic Enchanted Blade",
+		"Enchanted Blade",
 		"spell audit reports the selected compatibility resource"
 	)
 	_expect_equal(
@@ -15557,9 +15733,6 @@ func _test_complex_spell_results(bundle) -> void:
 	var area_discover_magic = load(
 		"res://shared_assets/spells/classic_discover_magic_area.gd"
 	).new()
-	var enchanted_blade = load(
-		"res://shared_assets/spells/classic_enchanted_blade.gd"
-	).new()
 	var magic_darts = load("res://shared_assets/spells/magic_darts.gd").new()
 	var enchanter_magic_darts = load(
 		"res://shared_assets/spells/classic_magic_darts_enchanter.gd"
@@ -15895,45 +16068,6 @@ func _test_complex_spell_results(bundle) -> void:
 		area_discover_magic.get_aoe(3, null),
 		Spell.AoE_b3,
 		"area Discover Magic scales its target area by power"
-	)
-	_expect(
-		enchanted_blade.supports_classic_spell_id(1102),
-		"Classic Enchanted Blade exports its exact ID"
-	)
-	_expect(
-		enchanted_blade.supports_classic_spell_id(3104),
-		"Classic Enchanted Blade reuses the source-equivalent Enchanter ID"
-	)
-	_expect_equal(enchanted_blade.get_range(7, null), 5, "Classic Enchanted Blade keeps its range")
-	_expect_equal(
-		enchanted_blade.get_duration_roll(3, null),
-		3,
-		"Classic Enchanted Blade starts with one bonus point per power"
-	)
-	_expect_equal(
-		enchanted_blade.get_sp_cost(3, null),
-		6,
-		"Classic Enchanted Blade cost scales by power"
-	)
-	var blade_target := ConditionTestCharacter.new("Enchanted target")
-	enchanted_blade.add_traits_to_creature(null, blade_target, 3)
-	_expect(
-		str(blade_target.traits[0].name).ends_with("t_classic_attack_bonus.gd"),
-		"Classic Enchanted Blade uses its compatibility trait"
-	)
-	var attack_bonus_trait = load(
-		"res://shared_assets/traits/t_classic_attack_bonus.gd"
-	).new([blade_target, 3])
-	_expect_equal(
-		attack_bonus_trait._on_get_stat("Bonus_Physical_dmg", 2),
-		5,
-		"Classic attack bonus adds the remaining condition strength"
-	)
-	attack_bonus_trait._on_new_round(blade_target)
-	_expect_equal(
-		attack_bonus_trait.get_saved_variables(),
-		[2],
-		"Classic attack bonus decays by one each round"
 	)
 	_expect_equal(magic_darts.classic_spell_class, 6, "Magic Darts exports its Classic class")
 	_expect_equal(magic_darts.classic_spell_ids, [1108], "native Magic Darts owns Sorcerer ID 1108")

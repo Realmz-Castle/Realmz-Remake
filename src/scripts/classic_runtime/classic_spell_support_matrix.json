@@ -122,10 +122,12 @@
     {
       "id": "core-player-spell-enchanted-blade",
       "scenario": "Core Realmz spell library",
-      "contexts": ["core-catalog"],
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
       "sourceRecords": [
         {"sourceFile": "Data S", "recordIndex": 1, "displayName": "Sorcerer Enchanted Blade"},
-        {"sourceFile": "Data S", "recordIndex": 213, "displayName": "Enchanter Enchanted Blade"}
+        {"sourceFile": "Data S", "recordIndex": 167, "displayName": "Priest Enchanted Blades"},
+        {"sourceFile": "Data S", "recordIndex": 213, "displayName": "Enchanter Enchanted Blade"},
+        {"sourceFile": "Data S", "recordIndex": 244, "displayName": "Enchanter Enchanted Blades"}
       ]
     },
     {
@@ -562,9 +564,9 @@
     {
       "classicSpellId": 1102,
       "displayName": "Enchanted Blade",
-      "classification": "native-special-adapter",
+      "classification": "native-special-attack-bonus",
       "supportStatus": "supported",
-      "resource": "res://shared_assets/spells/classic_enchanted_blade.gd",
+      "resource": "res://shared_assets/spells/enchanted_blade.gd",
       "sourceRecord": {
         "sourceFile": "Data S",
         "recordIndex": 1,
@@ -582,11 +584,20 @@
         }
       ],
       "behavior": {
-        "targetType": "single-creature",
-        "duration": "one-round-per-power-decaying",
+        "targetType": "one-creature",
+        "range": 5,
+        "availability": "combat-and-camp",
+        "duration": "one-round-per-power",
+        "conditionIndex": 32,
+        "effect": "remaining-condition-value-added-to-physical-attack-damage",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "sharedDurationRoll": "once-per-cast",
+        "saveMode": "none",
+        "resistance": "none",
         "special": 33,
-        "adapter": "classic-attack-bonus-trait",
-        "costPerPower": 2
+        "costPerPower": 2,
+        "adapter": "source-record-backed-classic-attack-bonus",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -2098,6 +2109,32 @@
       }
     },
     {
+      "classicSpellId": 2503,
+      "displayName": "Enchanted Blades",
+      "nativeResourceName": "Classic Enchanted Blades Priest",
+      "classification": "native-special-attack-bonus",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2503_enchanted_blades.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 167, "byteOffset": 5010, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-enchanted-blade", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 3,
+        "availability": "combat-and-camp",
+        "duration": "one-to-three-rounds-per-cast",
+        "conditionIndex": 32,
+        "effect": "remaining-condition-value-added-to-physical-attack-damage",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "sharedDurationRoll": "once-per-cast",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 33,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-classic-attack-bonus",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2504,
       "displayName": "Hands to Clay",
       "classification": "native-encounter-response",
@@ -2447,7 +2484,8 @@
     {
       "classicSpellId": 3104,
       "displayName": "Enchanted Blade",
-      "classification": "native-special-adapter",
+      "nativeResourceName": "Classic Enchanted Blade",
+      "classification": "native-special-attack-bonus",
       "supportStatus": "supported",
       "resource": "res://shared_assets/spells/classic_enchanted_blade.gd",
       "sourceRecord": {
@@ -2457,16 +2495,22 @@
         "byteLength": 30
       },
       "usages": [
-        {"corpusId": "core-player-spell-enchanted-blade", "slots": [1]}
+        {"corpusId": "core-player-spell-enchanted-blade", "slots": [2]}
       ],
       "behavior": {
-        "targetType": "single-creature",
-        "duration": "one-round-per-power-decaying",
+        "targetType": "one-creature",
+        "range": 5,
+        "availability": "combat-and-camp",
+        "duration": "one-round-per-power",
+        "conditionIndex": 32,
+        "effect": "remaining-condition-value-added-to-physical-attack-damage",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "sharedDurationRoll": "once-per-cast",
+        "saveMode": "none",
+        "resistance": "none",
         "special": 33,
-        "adapter": "classic-attack-bonus-trait",
+        "adapter": "source-record-backed-classic-attack-bonus",
         "costPerPower": 2,
-        "nativeReuse": "same-mechanics-as-1102",
-        "presentationFidelity": "source launch-effect byte differs; native presentation retained",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -2773,6 +2817,31 @@
         "costPerPower": 30,
         "nativeReuse": "same-mechanics-as-1401",
         "presentationFidelity": "source launch-effect byte differs; native presentation retained",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3305,
+      "displayName": "Enchanted Blades",
+      "classification": "native-special-attack-bonus",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/enchanted_blades.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 244, "byteOffset": 7320, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-enchanted-blade", "slots": [3]}],
+      "behavior": {
+        "targetType": "all-friendly",
+        "range": 1,
+        "availability": "combat-and-camp",
+        "duration": "one-to-two-rounds-per-power",
+        "conditionIndex": 32,
+        "effect": "remaining-condition-value-added-to-physical-attack-damage",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "sharedDurationRoll": "once-per-cast",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 33,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-classic-attack-bonus",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },

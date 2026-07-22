@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 160)
+        self.assertEqual(report["totals"]["supportedIdentities"], 162)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -411,6 +411,28 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
                 / deflector["resource"].removeprefix("res://")
             )
             self.assertTrue(deflector_resource.is_file(), deflector_resource)
+        for spell_id in {1102, 2503, 3104, 3305}:
+            attack_bonus = matrix_by_id[spell_id]
+            self.assertEqual(attack_bonus["supportStatus"], "supported")
+            self.assertEqual(
+                attack_bonus["classification"], "native-special-attack-bonus"
+            )
+            self.assertEqual(attack_bonus["behavior"]["conditionIndex"], 32)
+            self.assertEqual(
+                attack_bonus["behavior"]["conditionDecay"],
+                "one-per-combat-round-or-game-hour",
+            )
+            self.assertEqual(
+                attack_bonus["behavior"]["sharedDurationRoll"], "once-per-cast"
+            )
+            attack_bonus_resource = (
+                REPO_ROOT
+                / "src"
+                / attack_bonus["resource"].removeprefix("res://")
+            )
+            self.assertTrue(
+                attack_bonus_resource.is_file(), attack_bonus_resource
+            )
         parameterized_damage_ids = {
             1601,
             1703,
