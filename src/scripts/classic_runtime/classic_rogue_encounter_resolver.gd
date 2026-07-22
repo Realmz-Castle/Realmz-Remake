@@ -106,6 +106,22 @@ func resolve_destroy_trap(disarm_succeeded: bool, open_succeeded: bool) -> Dicti
 		)
 
 	events.append(_feedback_event("failure", DESTROY_TRAP_INDEX))
+	return _resolve_open_lock(type_flags, open_succeeded, events)
+
+
+func resolve_open_lock(open_succeeded: bool) -> Dictionary:
+	last_error = ""
+	var type_flags := _type_flags()
+	if type_flags.size() < 10:
+		return _error_result("Classic rogue encounter requires ten type flags")
+	return _resolve_open_lock(type_flags, open_succeeded, [])
+
+
+func _resolve_open_lock(
+	type_flags: Array,
+	open_succeeded: bool,
+	events: Array[Dictionary]
+) -> Dictionary:
 	if _array_int("modifiers", OPEN_LOCK_MODIFIER_INDEX) == 0:
 		return _spell_result("fallback", 0, events)
 

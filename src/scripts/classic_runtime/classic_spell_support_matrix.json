@@ -7215,6 +7215,31 @@
         "adapter": "source-record-backed-rogue-encounter-service",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1109,
+      "displayName": "Open Lock",
+      "classification": "native-special-rogue-open-lock",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/open_lock.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 8, "byteOffset": 240, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-70-open-lock", "slots": [0]}],
+      "behavior": {
+        "targetType": "rogue-complex-encounter",
+        "openLockChance": "data-td2-open-lock-modifier-times-power",
+        "chanceSnapshot": "before-armed-trap-damage-or-spell-resolution",
+        "armedAttempt": "spring-trap-before-open-lock-result",
+        "success": "clear-armed-flag-and-use-open-lock-success-result",
+        "failure": "use-open-lock-failure-result",
+        "zeroResult": "exit-encounter-without-reopening-response-picker",
+        "genericFallback": "use-authored-spell-result-when-data-td2-has-no-open-lock-check",
+        "trapMutation": "clear-armed-and-detect-flags-then-enable-pick-lock",
+        "spellAndItemPaths": "native-cast-scroll-and-type-20-item",
+        "rawSpecial": 70,
+        "costPerPower": 45,
+        "adapter": "source-record-backed-rogue-encounter-service",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

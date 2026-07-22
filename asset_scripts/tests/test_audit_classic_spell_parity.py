@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 249)
+        self.assertEqual(report["totals"]["supportedIdentities"], 250)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -295,6 +295,28 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             REPO_ROOT / "src" / destroy_trap["resource"].removeprefix("res://")
         )
         self.assertTrue(destroy_trap_resource.is_file(), destroy_trap_resource)
+        open_lock = matrix_by_id[1109]
+        self.assertEqual(open_lock["supportStatus"], "supported")
+        self.assertEqual(
+            open_lock["classification"], "native-special-rogue-open-lock"
+        )
+        self.assertEqual(open_lock["behavior"]["rawSpecial"], 70)
+        self.assertEqual(
+            open_lock["behavior"]["openLockChance"],
+            "data-td2-open-lock-modifier-times-power",
+        )
+        self.assertEqual(
+            open_lock["behavior"]["chanceSnapshot"],
+            "before-armed-trap-damage-or-spell-resolution",
+        )
+        self.assertEqual(
+            open_lock["behavior"]["spellAndItemPaths"],
+            "native-cast-scroll-and-type-20-item",
+        )
+        open_lock_resource = (
+            REPO_ROOT / "src" / open_lock["resource"].removeprefix("res://")
+        )
+        self.assertTrue(open_lock_resource.is_file(), open_lock_resource)
         for spell_id in {2203, 3407}:
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")

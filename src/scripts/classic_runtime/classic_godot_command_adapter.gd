@@ -1953,17 +1953,22 @@ func resolve_rogue_spell_result(
 		return _error("Classic rogue spell response requires an encounter resolver")
 	var result := spell_response.duplicate(true)
 	result.erase("_spellUser")
-	if int(result.get("classicSpecial", 0)) != RogueResolverScript.DESTROY_TRAP_SPECIAL:
-		result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
-		return result
-	if not resolver.has_method("resolve_destroy_trap"):
-		return _error("Classic Destroy Trap requires the rogue encounter resolver")
-	var resolution: Dictionary = resolver.resolve_destroy_trap(
-		disarm_succeeded,
-		open_succeeded
-	)
+	var special := int(result.get("classicSpecial", 0))
+	var resolution: Dictionary
+	match special:
+		RogueResolverScript.DESTROY_TRAP_SPECIAL:
+			if not resolver.has_method("resolve_destroy_trap"):
+				return _error("Classic Destroy Trap requires the rogue encounter resolver")
+			resolution = resolver.resolve_destroy_trap(disarm_succeeded, open_succeeded)
+		RogueResolverScript.OPEN_LOCK_SPECIAL:
+			if not resolver.has_method("resolve_open_lock"):
+				return _error("Classic Open Lock requires the rogue encounter resolver")
+			resolution = resolver.resolve_open_lock(open_succeeded)
+		_:
+			result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			return result
 	if str(resolution.get("status", "")) == "error":
-		return _error(str(resolution.get("message", "Classic Destroy Trap failed")))
+		return _error(str(resolution.get("message", "Classic rogue spell failed")))
 	if str(resolution.get("status", "")) != "fallback":
 		result["outcome"] = int(resolution.get("outcome", 0))
 	result["classicRogueSpellHandled"] = true
@@ -2559,28 +2564,38 @@ func _apply_rogue_spell_response(
 	var spell_user: Variant = spell_response.get("_spellUser", default_user)
 	if not (spell_user is Object):
 		spell_user = default_user
-	if int(spell_response.get("classicSpecial", 0)) \
-			!= RogueResolverScript.DESTROY_TRAP_SPECIAL:
+	var special := int(spell_response.get("classicSpecial", 0))
+	if special not in [
+		RogueResolverScript.DESTROY_TRAP_SPECIAL,
+		RogueResolverScript.OPEN_LOCK_SPECIAL,
+	]:
 		spell_response.erase("_spellUser")
 		spell_response["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
 		return spell_response
 
 	var power := int(spell_response.get("spellPower", 0))
-	var disarm_chance: int = resolver.spell_success_percent(
-		RogueResolverScript.DESTROY_TRAP_SPECIAL,
-		power
-	)
-	if disarm_chance > 0:
-		_active_command_save_safe = false
-	var disarm_succeeded := disarm_chance > 0 \
-		and randi_range(1, 100) <= disarm_chance
+	var disarm_succeeded := false
 	var open_succeeded := false
-	if disarm_chance > 0 and not disarm_succeeded:
-		var open_chance: int = resolver.spell_success_percent(
-			RogueResolverScript.OPEN_LOCK_SPECIAL,
-			power
-		)
-		open_succeeded = open_chance > 0 and randi_range(1, 100) <= open_chance
+	var uses_random_result := false
+	if special == RogueResolverScript.DESTROY_TRAP_SPECIAL:
+		var disarm_chance: int = resolver.spell_success_percent(special, power)
+		uses_random_result = disarm_chance > 0
+		disarm_succeeded = disarm_chance > 0 \
+			and randi_range(1, 100) <= disarm_chance
+		if disarm_chance > 0 and not disarm_succeeded:
+			var open_chance: int = resolver.spell_success_percent(
+				RogueResolverScript.OPEN_LOCK_SPECIAL,
+				power
+			)
+			open_succeeded = open_chance > 0 \
+				and randi_range(1, 100) <= open_chance
+	else:
+		var open_chance: int = resolver.spell_success_percent(special, power)
+		uses_random_result = open_chance > 0
+		open_succeeded = open_chance > 0 \
+			and randi_range(1, 100) <= open_chance
+	if uses_random_result:
+		_active_command_save_safe = false
 	var result := resolve_rogue_spell_result(
 		resolver,
 		spell_response,

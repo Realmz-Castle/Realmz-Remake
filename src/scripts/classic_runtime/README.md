@@ -259,6 +259,13 @@ their ordinary authored spell result. A zero TD2 result exits the encounter as
 it does in Classic; it does not reopen the spell picker. Native casts, scrolls,
 and type-20 spell items all enter the same resolver-owned state transition.
 
+Open Lock uses that same complex-encounter service. Its chance is the Data TD2
+open-lock modifier times the selected power level. Classic saves that chance
+before an armed trap applies damage or a spell, springs the trap, and then rolls
+the saved chance for the authored Open Lock result. Records without an Open
+Lock modifier retain their ordinary authored spell result. Native casts,
+scrolls, and type-20 spell items share this path.
+
 Dumbstruck and Mind Blank use Classic condition `6`, stored at character
 condition index `5`. Despite the latter's protective-sounding name, both are
 offensive mental effects that prevent spellcasting and leave movement, attacks,

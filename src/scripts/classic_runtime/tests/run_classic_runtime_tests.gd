@@ -1530,6 +1530,7 @@ func _init() -> void:
 	_test_classic_slug_spells()
 	_test_classic_tangle_weed_spell()
 	_test_classic_destroy_trap_spell(bundle)
+	_test_classic_open_lock_spell(bundle)
 	_test_classic_spellcasting_block_spells()
 	_test_classic_magic_aura_spell()
 	_test_classic_healing_spells()
@@ -9469,7 +9470,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		249,
+		250,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -9684,6 +9685,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(3605, {}).get("coverageStatus"),
 		"supported",
 		"Destroy Trap uses the reviewed rogue encounter path"
+	)
+	_expect_equal(
+		coverage_by_id.get(1109, {}).get("coverageStatus"),
+		"supported",
+		"Open Lock uses the reviewed rogue encounter path"
 	)
 	for spellcasting_block_id: int in [2203, 3407]:
 		_expect_equal(
@@ -10636,7 +10642,7 @@ func _test_classic_spell_coverage() -> void:
 			_expect_equal(
 				matrix_ids,
 				[
-					1101, 1102, 1103, 1104, 1106, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
+					1101, 1102, 1103, 1104, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1406, 1407, 1408,
 					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
@@ -11602,6 +11608,154 @@ func _test_classic_destroy_trap_spell(bundle) -> void:
 		ordinary_response.get("rogueSpellResolution", {}).get("status"),
 		"fallback",
 		"Destroy Trap explicitly reports the generic encounter fallback"
+	)
+
+
+func _test_classic_open_lock_spell(bundle) -> void:
+	var spell = load("res://shared_assets/spells/open_lock.gd").new()
+	_expect_equal(spell.name, "Open Lock", "Open Lock native resource name")
+	_expect_equal(spell.classic_spell_ids, [1109], "Open Lock exact identity")
+	_expect_equal(spell.classic_spell_response_ids, [1109], "Open Lock encounter identity")
+	_expect_equal(spell.classic_special, 70, "Open Lock special code")
+	_expect_equal(spell.classic_spell_class, 8, "Open Lock effect class")
+	_expect_equal(spell.classic_target_type, 11, "Open Lock rogue target mode")
+	_expect_equal(spell.classic_cannot, 3, "Open Lock force-affect code")
+	_expect_equal(spell.classic_spell_save_index, -1, "Open Lock has no creature save")
+	_expect_equal(spell.classic_spell_save_mode, "none", "Open Lock has no save mode")
+	_expect_equal(spell.get_range(3, null), 0, "Open Lock requires no map range")
+	_expect_equal(spell.get_sp_cost(3, null), 135, "Open Lock source cost")
+	_expect_equal(spell.classic_spell_look_ids, [14, 5], "Open Lock source art")
+	_expect_equal(spell.classic_sound_ids, [22, 20], "Open Lock source sounds")
+	_expect_equal(spell.school_levels.get("Sorcerer"), 1, "Open Lock source level")
+	_expect_equal(spell.selection_costs.get("Sorcerer"), 1, "Open Lock selection cost")
+	_expect(not spell.in_field and not spell.in_combat, "Open Lock is encounter-only")
+	_expect(not spell.is_generically_executable(), "Open Lock requires rogue encounter state")
+
+	var encounter: Dictionary = bundle.get_encounter("complex", 3)
+	var rogue: Dictionary = bundle.get_thief_encounter(1)
+	var adapter = GodotAdapterScript.new()
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			encounter,
+			spell.name,
+			spell.classic_spell_class,
+			{},
+			spell.classic_spell_ids
+		),
+		2,
+		"Open Lock retains the encounter's ordinary fallback result"
+	)
+
+	var resolver = RogueResolverScript.new()
+	_expect(resolver.configure(encounter, rogue), "configure Open Lock encounter")
+	_expect_equal(resolver.spell_success_percent(70, 3), 60, "Open Lock chance scales by power")
+	var opened: Dictionary = adapter.resolve_rogue_spell_result(
+		resolver,
+		{
+			"outcome": 2,
+			"spellName": spell.name,
+			"spellPower": 3,
+			"classicSpecial": 70,
+		},
+		false,
+		true
+	)
+	_expect(bool(opened.get("classicRogueSpellHandled")), "Open Lock enters the rogue spell path")
+	_expect_equal(opened.get("outcome"), 2, "successful Open Lock uses its TD2 result")
+	var success_events: Array = opened.get("rogueSpellResolution", {}).get("events", [])
+	_expect_equal(success_events.size(), 2, "armed Open Lock preserves trap and feedback order")
+	_expect_equal(success_events[0].get("type"), "trap", "Open Lock springs the armed trap first")
+	_expect_equal(success_events[0].get("trap", {}).get("damageLow"), 4, "Open Lock keeps trap damage")
+	_expect_equal(success_events[1].get("messageId"), 4, "Open Lock success text")
+	_expect_equal(success_events[1].get("soundId"), 141, "Open Lock success sound")
+	var opened_flags: Array = opened.get("thiefEncounter", {}).get("typeFlags", [])
+	_expect(not bool(opened_flags[9]), "Open Lock clears the sprung trap")
+	_expect(not bool(opened_flags[1]), "Open Lock consumes Detect Trap when sprung")
+	_expect(bool(opened_flags[6]), "Open Lock leaves Pick Lock available after a trap")
+
+	resolver = RogueResolverScript.new()
+	resolver.configure(encounter, rogue)
+	var failed: Dictionary = adapter.resolve_rogue_spell_result(
+		resolver,
+		{
+			"outcome": 2,
+			"spellName": spell.name,
+			"spellPower": 3,
+			"classicSpecial": 70,
+		},
+		false,
+		false
+	)
+	_expect_equal(failed.get("outcome"), 0, "failed Open Lock uses its TD2 result")
+	var failure_events: Array = failed.get("rogueSpellResolution", {}).get("events", [])
+	_expect_equal(failure_events.size(), 2, "failed Open Lock still springs an armed trap first")
+	_expect_equal(failure_events[1].get("messageId"), 3, "Open Lock failure text")
+	_expect_equal(failure_events[1].get("soundId"), 696, "Open Lock failure sound")
+	var spell_interpreter = _interpreter(bundle)
+	_expect(spell_interpreter.begin_trigger("Data DD:5:3"), "begin Open Lock persistence test")
+	spell_interpreter.run_until_yield()
+	var zero_result: Dictionary = spell_interpreter.resume_encounter(0, failed)
+	_expect_equal(zero_result.get("reason"), "encounter-cancelled", "zero Open Lock result exits")
+	_expect(
+		not bool(spell_interpreter.runtime_state.get_effective_thief_encounter(
+			bundle.get_thief_encounter(1)
+		).get("typeFlags", [])[9]),
+		"Open Lock trap mutation persists when its result exits the encounter"
+	)
+
+	# The standalone test runner does not initialize the campaign resource scan.
+	adapter.classic_spell_overrides[1109] = spell
+	var scroll_response: Dictionary = adapter.resolve_complex_item_selection(
+		encounter,
+		{
+			"name": "Open Lock scroll",
+			"type": "Scroll",
+			"_on_field_use_spell": ["Open Lock (1109)", 3],
+		},
+		{},
+		[],
+		[]
+	)
+	_expect_equal(scroll_response.get("classicSpecial"), 70, "Open Lock scroll enters rogue handling")
+	_expect_equal(scroll_response.get("spellPower"), 3, "Open Lock scroll preserves power")
+	var item_response: Dictionary = adapter.resolve_complex_item_selection(
+		encounter,
+		{"name": "Open Lock wand", "classic_item_id": 900},
+		{},
+		[],
+		[{"itemId": 900, "type": 20, "special1": 3, "special2": 1109}]
+	)
+	_expect_equal(item_response.get("mode"), "spell-item", "Open Lock type-20 item uses spell mode")
+	_expect_equal(item_response.get("classicSpecial"), 70, "Open Lock type-20 item enters rogue handling")
+	_expect_equal(item_response.get("spellPower"), 3, "Open Lock type-20 item preserves power")
+
+	var no_open_modifier := rogue.duplicate(true)
+	var modifiers: Array = no_open_modifier.get("modifiers", []).duplicate()
+	modifiers[1] = 0
+	no_open_modifier["modifiers"] = modifiers
+	resolver = RogueResolverScript.new()
+	resolver.configure(encounter, no_open_modifier)
+	var ordinary_response: Dictionary = adapter.resolve_rogue_spell_result(
+		resolver,
+		{
+			"outcome": 2,
+			"spellName": spell.name,
+			"spellPower": 3,
+			"classicSpecial": 70,
+		},
+		false,
+		false
+	)
+	_expect_equal(ordinary_response.get("outcome"), 2, "Open Lock keeps its authored fallback result")
+	_expect_equal(
+		ordinary_response.get("rogueSpellResolution", {}).get("status"),
+		"fallback",
+		"Open Lock reports a missing TD2 lock check as fallback"
+	)
+	_expect_equal(
+		ordinary_response.get("rogueSpellResolution", {}).get("events", []).size(),
+		0,
+		"Open Lock fallback does not spring the trap"
 	)
 
 
