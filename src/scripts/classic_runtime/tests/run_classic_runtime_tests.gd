@@ -888,6 +888,7 @@ func _init() -> void:
 	_test_classic_spell_usage_audit()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
+	_test_classic_healing_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
 	_test_take_gold_action()
@@ -7674,7 +7675,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		101,
+		108,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7880,11 +7881,17 @@ func _test_classic_spell_coverage() -> void:
 		"Shell Shock": "res://shared_assets/spells/classic_core_3512_shell_shock.gd",
 		"Fire Storm": "res://shared_assets/spells/classic_core_3607_fire_storm.gd",
 		"Fog of Doom": "res://shared_assets/spells/classic_core_3702_fog_of_doom.gd",
+		"Heal Small Wounds": "res://shared_assets/spells/classic_core_1506_heal_small_wounds.gd",
+		"Classic Heal Medium Wounds Sorcerer": "res://shared_assets/spells/classic_core_1604_heal_medium_wounds_sorcerer.gd",
+		"Classic Heal Large Wounds Sorcerer": "res://shared_assets/spells/classic_core_1705_heal_large_wounds_sorcerer.gd",
+		"Heal Medium Wounds": "res://shared_assets/spells/classic_core_2207_heal_medium_wounds.gd",
+		"Heal Large Wounds": "res://shared_assets/spells/classic_core_2404_heal_large_wounds.gd",
+		"Heal Wounds": "res://shared_assets/spells/classic_core_2505_heal_wounds.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		73,
-		"every reviewed generic identity has a native resource"
+		79,
+		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
 	_test_flame_missile()
@@ -8465,9 +8472,10 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1407, 1408,
-					1501, 1503, 1504, 1505, 1601, 1603, 1608, 1609, 1610, 1611, 1701,
-					1703, 1704, 1711, 1712, 2101, 2102, 2103, 2109, 2110, 2111, 2201,
-					2301, 2304, 2306, 2403, 2407, 2501, 2504, 2508, 2512, 2605, 2607,
+					1501, 1503, 1504, 1505, 1506, 1601, 1603, 1604, 1608, 1609, 1610,
+					1611, 1701, 1703, 1704, 1705, 1711, 1712, 2101, 2102, 2103, 2105,
+					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2403, 2404, 2407,
+					2501, 2504, 2505, 2508, 2512, 2605, 2607,
 					2609, 2611, 2705, 2706, 2708, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
 					3310,
@@ -8790,6 +8798,105 @@ func _test_classic_queued_area_spells() -> void:
 		60,
 		"Classic battlefield queue retains its source capacity"
 	)
+
+
+func _test_classic_healing_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_1506_heal_small_wounds.gd",
+			"name": "Heal Small Wounds", "ids": [1506, 2105],
+			"healing": [2, 16], "cost": 20, "sounds": [26, 30],
+		},
+		{
+			"file": "classic_core_1604_heal_medium_wounds_sorcerer.gd",
+			"name": "Classic Heal Medium Wounds Sorcerer", "ids": [1604],
+			"healing": [4, 32], "cost": 40, "sounds": [26, 13],
+		},
+		{
+			"file": "classic_core_1705_heal_large_wounds_sorcerer.gd",
+			"name": "Classic Heal Large Wounds Sorcerer", "ids": [1705],
+			"healing": [6, 48], "cost": 22, "sounds": [26, 13],
+		},
+		{
+			"file": "classic_core_2207_heal_medium_wounds.gd",
+			"name": "Heal Medium Wounds", "ids": [2207],
+			"healing": [4, 32], "cost": 40, "sounds": [26, 51],
+		},
+		{
+			"file": "classic_core_2404_heal_large_wounds.gd",
+			"name": "Heal Large Wounds", "ids": [2404],
+			"healing": [6, 48], "cost": 60, "sounds": [26, 13],
+		},
+		{
+			"file": "classic_core_2505_heal_wounds.gd",
+			"name": "Heal Wounds", "ids": [2505],
+			"healing": [16, 72], "cost": 80, "sounds": [26, 13],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact IDs" % label)
+		_expect_equal(spell.classic_special, 57, "%s uses the healing special" % label)
+		_expect_equal(spell.classic_spell_class, 8, "%s keeps miscellaneous class" % label)
+		_expect_equal(spell.classic_damage_type, 8, "%s keeps miscellaneous damage type" % label)
+		_expect_equal(spell.classic_cannot, 4, "%s bypasses magic resistance" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect_equal(
+			spell.targettile,
+			Spell.TARGET_TILE.CREATURE,
+			"%s targets one creature" % label
+		)
+		_expect_equal(spell.get_range(2, null), 1, "%s preserves source range" % label)
+		_expect_equal(
+			spell.get_min_damage(2, null),
+			spec["healing"][0],
+			"%s minimum healing" % label
+		)
+		_expect_equal(
+			spell.get_max_damage(2, null),
+			spec["healing"][1],
+			"%s maximum healing" % label
+		)
+		_expect_equal(spell.get_sp_cost(2, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(
+			spell.classic_sound_ids,
+			spec["sounds"],
+			"%s presentation bytes" % label
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % label)
+
+	var small_heal = load(
+		"res://shared_assets/spells/classic_core_1506_heal_small_wounds.gd"
+	).new()
+	var unconscious := Creature.new()
+	unconscious.stats["curHP"] = -2
+	unconscious.stats["maxHP"] = 100
+	unconscious.life_status = 2
+	var recovered: int = small_heal.apply_classic_scaled_effect(
+		null, unconscious, 7, 1.0
+	)
+	_expect(recovered >= 7, "healing applies every power roll to an unconscious target")
+	_expect(unconscious.get_stat("curHP") > 0, "healing can restore positive health")
+	_expect_equal(unconscious.life_status, 0, "positive health returns an unconscious ally")
+
+	var dead := Creature.new()
+	dead.stats["curHP"] = -12
+	dead.stats["maxHP"] = 100
+	dead.life_status = 3
+	_expect_equal(
+		small_heal.apply_classic_scaled_effect(null, dead, 7, 1.0),
+		0,
+		"ordinary healing does not revive a dead character"
+	)
+	_expect_equal(dead.get_stat("curHP"), -12, "a dead character's health stays unchanged")
 
 
 func _test_parameterized_damage_spells() -> void:

@@ -361,6 +361,20 @@
         {"sourceFile": "Data S", "recordIndex": 291, "displayName": "Enchanter Fire Storm"},
         {"sourceFile": "Data S", "recordIndex": 301, "displayName": "Enchanter Fog of Doom"}
       ]
+    },
+    {
+      "id": "core-player-spell-healing",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 65, "displayName": "Sorcerer Heal Small Wounds"},
+        {"sourceFile": "Data S", "recordIndex": 78, "displayName": "Sorcerer Heal Medium Wounds"},
+        {"sourceFile": "Data S", "recordIndex": 94, "displayName": "Sorcerer Heal Large Wounds"},
+        {"sourceFile": "Data S", "recordIndex": 109, "displayName": "Priest Heal Small Wounds"},
+        {"sourceFile": "Data S", "recordIndex": 126, "displayName": "Priest Heal Medium Wounds"},
+        {"sourceFile": "Data S", "recordIndex": 153, "displayName": "Priest Heal Large Wounds"},
+        {"sourceFile": "Data S", "recordIndex": 169, "displayName": "Priest Heal Wounds"}
+      ]
     }
   ],
   "spells": [
@@ -1127,6 +1141,28 @@
       }
     },
     {
+      "classicSpellId": 1506,
+      "displayName": "Heal Small Wounds",
+      "classification": "native-special-healing",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1506_heal_small_wounds.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 65, "byteOffset": 1950, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-healing", "slots": [0]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "healing": "1-8-per-power",
+        "saveMode": "none",
+        "resistance": "none",
+        "unconsciousRecovery": "heal-above-zero-and-return-to-combat",
+        "deadTarget": "unchanged",
+        "special": 57,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-native-healing",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1601,
       "displayName": "Annihilate",
       "classification": "native-parameterized-damage",
@@ -1179,6 +1215,28 @@
         "adapter": "native-fleeing-trait",
         "costPerPower": 35,
         "nativeReuse": "extends-remake-fearful-thoughts",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1604,
+      "displayName": "Heal Medium Wounds",
+      "classification": "native-special-healing",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1604_heal_medium_wounds_sorcerer.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 78, "byteOffset": 2340, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-healing", "slots": [1]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "healing": "2-16-per-power",
+        "saveMode": "none",
+        "resistance": "none",
+        "unconsciousRecovery": "heal-above-zero-and-return-to-combat",
+        "deadTarget": "unchanged",
+        "special": 57,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-native-healing",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -1344,6 +1402,28 @@
         "saveBonus": -20,
         "resistance": "classic-general",
         "costPerPower": 30,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1705,
+      "displayName": "Heal Large Wounds",
+      "classification": "native-special-healing",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1705_heal_large_wounds_sorcerer.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 94, "byteOffset": 2820, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-healing", "slots": [2]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "healing": "3-24-per-power",
+        "saveMode": "none",
+        "resistance": "none",
+        "unconsciousRecovery": "heal-above-zero-and-return-to-combat",
+        "deadTarget": "unchanged",
+        "special": 57,
+        "costPerPower": 11,
+        "adapter": "source-record-backed-native-healing",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
@@ -1539,6 +1619,28 @@
       }
     },
     {
+      "classicSpellId": 2105,
+      "displayName": "Heal Small Wounds",
+      "classification": "native-special-healing",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1506_heal_small_wounds.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 109, "byteOffset": 3270, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-healing", "slots": [3]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "healing": "1-8-per-power",
+        "saveMode": "none",
+        "resistance": "none",
+        "unconsciousRecovery": "heal-above-zero-and-return-to-combat",
+        "deadTarget": "unchanged",
+        "special": 57,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-native-healing",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2111,
       "displayName": "Soul Bind",
       "classification": "native-special-adapter",
@@ -1634,6 +1736,28 @@
       }
     },
     {
+      "classicSpellId": 2207,
+      "displayName": "Heal Medium Wounds",
+      "classification": "native-special-healing",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2207_heal_medium_wounds.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 126, "byteOffset": 3780, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-healing", "slots": [4]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "healing": "2-16-per-power",
+        "saveMode": "none",
+        "resistance": "none",
+        "unconsciousRecovery": "heal-above-zero-and-return-to-combat",
+        "deadTarget": "unchanged",
+        "special": 57,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-native-healing",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2304,
       "displayName": "Festering Wounds",
       "classification": "native-special-adapter",
@@ -1725,6 +1849,28 @@
       }
     },
     {
+      "classicSpellId": 2404,
+      "displayName": "Heal Large Wounds",
+      "classification": "native-special-healing",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2404_heal_large_wounds.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 153, "byteOffset": 4590, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-healing", "slots": [5]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "healing": "3-24-per-power",
+        "saveMode": "none",
+        "resistance": "none",
+        "unconsciousRecovery": "heal-above-zero-and-return-to-combat",
+        "deadTarget": "unchanged",
+        "special": 57,
+        "costPerPower": 30,
+        "adapter": "source-record-backed-native-healing",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2407,
       "displayName": "Plane of Thorns",
       "classification": "native-queued-area",
@@ -1783,6 +1929,28 @@
         "sourceInCamp": 255,
         "effect": "scenario-authored-result",
         "adapter": "exact-id-encounter-response",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2505,
+      "displayName": "Heal Wounds",
+      "classification": "native-special-healing",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2505_heal_wounds.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 169, "byteOffset": 5070, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-healing", "slots": [6]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "healing": "8-36-per-power",
+        "saveMode": "none",
+        "resistance": "none",
+        "unconsciousRecovery": "heal-above-zero-and-return-to-combat",
+        "deadTarget": "unchanged",
+        "special": 57,
+        "costPerPower": 40,
+        "adapter": "source-record-backed-native-healing",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },

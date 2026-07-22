@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 101)
+        self.assertEqual(report["totals"]["supportedIdentities"], 108)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -205,6 +205,15 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")
             self.assertEqual(row["classification"], "native-queued-area")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+
+        for spell_id in {1506, 1604, 1705, 2105, 2207, 2404, 2505}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-special-healing")
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )

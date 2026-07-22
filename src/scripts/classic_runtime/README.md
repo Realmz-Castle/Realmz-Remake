@@ -187,6 +187,14 @@ uses the same neutral magical fallback as Remake's established miscellaneous
 damage spells and correctly carries no Classic DRV save. Same-name rows share
 a resource only when their mechanics and presentation bytes are equal.
 
+The seven special-`57` healing identities use their exact per-power `Data S`
+dice, costs, casting contexts, and presentation. They bypass saves and magic
+resistance as Classic's `cannot = 4` records require. Remake's existing
+character-panel targeting and life-status transition let those spells return
+an unconscious character to combat while ordinary healing still cannot revive
+a dead character. Exact variants remain separate where casting cost or sound
+bytes differ; the two identical Heal Small Wounds rows share one resource.
+
 The 15 negative-cost, noncombat utility records use
 `ClassicCoreEncounterResponseSpell`. In Classic, their negative cost fixes the
 cast at power 1 and their effect is selected by the active complex encounter's
