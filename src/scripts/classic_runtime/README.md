@@ -284,6 +284,15 @@ reuses Remake's helpless trait, with a power-scaled area, its signed mental
 opposed-level check and save, and the original one-duration-roll-per-cast
 behavior before applying helplessness to each successful target.
 
+Identify Objects `1106` and `3307` share one native field-spell resource. A
+cast selects one party member and marks every item in that character's
+inventory as identified, matching Classic's `track`-selected inventory loop.
+The negative source cost fixes the spell at power one and 25 spell points. The
+Enchanter row's otherwise-identical record contains a duration value of one,
+but special `48` never consumes duration; both exact IDs therefore retain one
+behavioral resource. Remake's existing inventory Identify button resolves this
+same resource name and continues to identify the selected item for 25 points.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

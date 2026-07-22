@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 213)
+        self.assertEqual(report["totals"]["supportedIdentities"], 215)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -292,6 +292,19 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertEqual(row["behavior"]["duration"], "battle")
             self.assertEqual(row["behavior"]["saveMode"], "none")
             self.assertEqual(row["behavior"]["preResistance"], "classic-charm")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id in {1106, 3307}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(
+                row["classification"], "native-special-identify-items"
+            )
+            self.assertEqual(row["behavior"]["power"], "fixed-one")
+            self.assertEqual(row["behavior"]["fixedCost"], 25)
+            self.assertEqual(row["behavior"]["saveMode"], "none")
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )

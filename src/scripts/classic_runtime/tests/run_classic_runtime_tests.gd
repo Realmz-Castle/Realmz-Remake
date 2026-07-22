@@ -1311,6 +1311,7 @@ func _init() -> void:
 	_test_misc_character_selection(bundle)
 	_test_spell_effect_actions(bundle)
 	_test_classic_spell_usage_audit()
+	_test_classic_identify_objects_spell()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -8190,6 +8191,67 @@ func _test_classic_learned_spell_identity() -> void:
 	)
 
 
+func _test_classic_identify_objects_spell() -> void:
+	var identify_objects = load("res://shared_assets/spells/identify_objects.gd").new()
+	_expect_equal(
+		identify_objects.classic_spell_ids,
+		[1106, 3307],
+		"both Identify Objects records share one exact resource"
+	)
+	_expect_equal(identify_objects.classic_special, 48, "Identify Objects special")
+	_expect_equal(identify_objects.classic_target_type, 1, "Identify Objects target type")
+	_expect_equal(identify_objects.get_range(1, null), 0, "Identify Objects range")
+	_expect_equal(identify_objects.get_sp_cost(1, null), 25, "Identify Objects fixed cost")
+	_expect_equal(
+		identify_objects.get_sp_cost(7, null),
+		25,
+		"Identify Objects ignores unsupported power values"
+	)
+	_expect_equal(identify_objects.max_plevel, 1, "Identify Objects fixes power at one")
+	_expect(identify_objects.in_field, "Identify Objects is available in the field")
+	_expect(not identify_objects.in_combat, "Identify Objects is unavailable in combat")
+	_expect(not identify_objects.skip_targeting, "Identify Objects selects its carrier")
+	_expect_equal(
+		identify_objects.autotarget_type,
+		Spell.AUTOTARGET_TYPE.NONE,
+		"Identify Objects does not force the caster as target"
+	)
+	_expect_equal(
+		identify_objects.school_levels,
+		{"Sorcerer": 1, "Priest": 0, "Enchanter": 3},
+		"Identify Objects preserves both source levels"
+	)
+	_expect_equal(
+		identify_objects.selection_costs,
+		{"Sorcerer": 1, "Priest": 0, "Enchanter": 6},
+		"Identify Objects preserves both learning costs"
+	)
+	_expect_equal(identify_objects.classic_spell_look_ids, [14, 5], "Identify Objects art")
+	_expect_equal(identify_objects.classic_sound_ids, [64, 83], "Identify Objects sounds")
+	var identify_target := InventoryTestCharacter.new()
+	identify_target.inventory = [
+		{"name": "Unknown sword", "is_identified": 0},
+		{"name": "Known ring", "is_identified": 1},
+	]
+	var untouched_target := InventoryTestCharacter.new()
+	untouched_target.inventory = [{"name": "Unknown cloak", "is_identified": 0}]
+	_expect_equal(
+		identify_objects.apply_classic_group_effect(null, [identify_target], 1),
+		2,
+		"Identify Objects visits every carried item"
+	)
+	_expect_equal(
+		identify_target.inventory.map(func(item: Dictionary) -> int: return item["is_identified"]),
+		[1, 1],
+		"Identify Objects reveals the selected character's complete inventory"
+	)
+	_expect_equal(
+		untouched_target.inventory[0].get("is_identified"),
+		0,
+		"Identify Objects leaves unselected characters unchanged"
+	)
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -8271,7 +8333,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		213,
+		215,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8478,6 +8540,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"charm spell %d uses the reviewed battle-allegiance path" % charm_spell_id
 		)
+	for identify_spell_id: int in [1106, 3307]:
+		_expect_equal(
+			coverage_by_id.get(identify_spell_id, {}).get("coverageStatus"),
+			"supported",
+			"Identify Objects %d uses the reviewed inventory path" % identify_spell_id
+		)
 	_expect_equal(
 		coverage_by_id.get(2106, {}).get("coverageStatus"),
 		"supported",
@@ -8531,9 +8599,9 @@ func _test_classic_spell_coverage() -> void:
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
-		1607, 1709, 2106, 2203, 2405, 2408, 2507, 2707, 3407,
+		1106, 1607, 1709, 2106, 2203, 2405, 2408, 2507, 2707, 3307, 3407,
 	]
-	_expect_equal(migrated_spell_ids.size(), 184, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 186, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8717,10 +8785,11 @@ func _test_classic_spell_coverage() -> void:
 		"Mind Blank": "res://shared_assets/spells/classic_core_3407_mind_blank.gd",
 		"Magic Aura": "res://shared_assets/spells/magic_aura.gd",
 		"Poison": "res://shared_assets/spells/poison.gd",
+		"Identify Objects": "res://shared_assets/spells/identify_objects.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		176,
+		177,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9401,7 +9470,7 @@ func _test_classic_spell_coverage() -> void:
 			_expect_equal(
 				matrix_ids,
 				[
-					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
+					1101, 1102, 1103, 1104, 1106, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1406, 1407, 1408,
 					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
@@ -9409,7 +9478,7 @@ func _test_classic_spell_coverage() -> void:
 					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407,
 					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2507, 2508, 2512, 2602, 2605, 2606, 2607,
 					2603, 2609, 2611, 2705, 2706, 2707, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
-					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3308,
+					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3307, 3308,
 					3310,
 					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,
 					3507, 3602, 3603, 3607, 3608, 3702, 3703, 3704, 3706,

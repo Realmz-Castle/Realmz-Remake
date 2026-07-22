@@ -6248,6 +6248,53 @@
         "adapter": "source-record-backed-native-battle-charm-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1106,
+      "displayName": "Identify Objects",
+      "classification": "native-special-identify-items",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/identify_objects.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 5, "byteOffset": 150, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-48-identify-items", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-selected-party-member",
+        "range": 0,
+        "lineOfSight": true,
+        "availability": "field-only",
+        "power": "fixed-one",
+        "effect": "identify-every-carried-item-on-selected-character",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 48,
+        "fixedCost": 25,
+        "adapter": "source-record-backed-native-item-identification",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3307,
+      "displayName": "Identify Objects",
+      "classification": "native-special-identify-items",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/identify_objects.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 246, "byteOffset": 7380, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-48-identify-items", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-selected-party-member",
+        "range": 0,
+        "lineOfSight": true,
+        "availability": "field-only",
+        "power": "fixed-one",
+        "effect": "identify-every-carried-item-on-selected-character",
+        "inertSourceDifference": "duration1-is-one-but-special-48-does-not-consume-duration",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 48,
+        "fixedCost": 25,
+        "adapter": "source-record-backed-native-item-identification",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }
