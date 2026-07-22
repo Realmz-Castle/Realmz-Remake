@@ -6399,6 +6399,65 @@
         "adapter": "source-record-backed-native-lethal-effect",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 3612,
+      "displayName": "Transmute Other",
+      "classification": "native-special-transformation",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/transmute_other.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 296, "byteOffset": 8880, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-46-transformation", "slots": [0]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 8,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "replace-monster-with-random-same-size-summonable-form",
+        "formPool": "active-classic-bestiary-with-native-fallback",
+        "preserves": ["battle-position", "allegiance", "active-conditions", "turn-bookkeeping"],
+        "clears": ["carried-money"],
+        "duration": "remainder-of-battle",
+        "saveIndex": 7,
+        "saveBonus": 10,
+        "saveMode": "negate-transformation",
+        "saveAdjustmentPerPower": 0,
+        "resistanceAdjustmentPerPower": -3,
+        "special": 46,
+        "costPerPower": 20,
+        "adapter": "source-record-backed-native-monster-transformation",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3705,
+      "displayName": "Multi Morph Other",
+      "classification": "native-special-transformation",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/multi_morph_other.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 304, "byteOffset": 9120, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-46-transformation", "slots": [1]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "replace-each-monster-with-random-same-size-summonable-form",
+        "formPool": "active-classic-bestiary-with-native-fallback",
+        "areaRadius": "power",
+        "preserves": ["battle-position", "allegiance", "active-conditions", "turn-bookkeeping"],
+        "clears": ["carried-money"],
+        "duration": "remainder-of-battle",
+        "saveIndex": 7,
+        "saveBonus": 5,
+        "saveMode": "negate-transformation",
+        "saveAdjustmentPerPower": 0,
+        "resistanceAdjustmentPerPower": 0,
+        "special": 46,
+        "costPerPower": 80,
+        "adapter": "source-record-backed-native-monster-transformation",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

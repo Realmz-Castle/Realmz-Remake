@@ -53,6 +53,9 @@ const QueuedSpellRuntimeScript = preload(
 const SpellAreaPatternsScript = preload(
 	"res://scripts/classic_runtime/classic_spell_area_patterns.gd"
 )
+const MonsterTransformationScript = preload(
+	"res://scripts/classic_runtime/classic_monster_transformation.gd"
+)
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
@@ -868,6 +871,71 @@ class LethalSpellTestCharacter:
 		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
 
 
+class TransformationTestTrait:
+	extends RefCounted
+	var name: String
+	var trait_source: String
+	var chara: Variant
+
+	func _init(trait_name: String, source: String) -> void:
+		name = trait_name
+		trait_source = source
+
+
+class TransformationTestButton:
+	extends RefCounted
+	var creature: Variant
+	var refresh_count := 0
+
+	func set_creature_represented(value: Variant) -> void:
+		creature = value
+		refresh_count += 1
+
+
+class TransformationTestCreature:
+	extends RefCounted
+	var name := ""
+	var level := 1
+	var bestiary_key := ""
+	var classic_monster_id := -1
+	var size := Vector2.ONE
+	var position := Vector2.ZERO
+	var dirfaced := 1
+	var selected := false
+	var baseFaction := 1
+	var curFaction := 1
+	var reaction_ready := true
+	var used_movepoints := 0
+	var used_apr := 0
+	var used_spr := 0
+	var has_turned_undead := false
+	var terrain_already_crossed_this_turn := {}
+	var is_summoned := false
+	var summoner: Variant
+	var summoner_name := ""
+	var joins_combat := true
+	var combat_button: Variant
+	var life_status := 0
+	var stats := {
+		"curHP": 10,
+		"maxHP": 10,
+		"MultiplierMagic": 1.0,
+		"ResistanceMagic": 0,
+	}
+	var base_stats := stats.duplicate(true)
+	var traits: Array = []
+	var money: Array = [0, 0, 0]
+	var inventory: Array = []
+	var spells: Array = []
+	var ai_variables := {}
+
+	func initialize_from_bestiary_dict(_form_key: String) -> void:
+		pass
+
+	func get_stat(stat_name: String) -> Variant:
+		return stats.get(stat_name, 0)
+
+
 class BlindnessTestCharacter:
 	extends RefCounted
 	var name: String
@@ -1338,6 +1406,7 @@ func _init() -> void:
 	_test_classic_spell_usage_audit()
 	_test_classic_identify_objects_spell()
 	_test_classic_lethal_spells()
+	_test_classic_transformation_spells()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -8495,6 +8564,206 @@ func _test_classic_lethal_spells() -> void:
 	_expect_equal(immunity.get("reason"), "spell-class-immunity", "Poison Cloud immunity reason")
 
 
+func _test_classic_transformation_spells() -> void:
+	var transmute = load("res://shared_assets/spells/transmute_other.gd").new()
+	_expect_equal(transmute.name, "Transmute Other", "Transmute Other resource identity")
+	_expect_equal(transmute.classic_spell_ids, [3612], "Transmute Other exact ID")
+	_expect_equal(transmute.classic_special, 46, "Transmute Other transformation special")
+	_expect_equal(transmute.classic_target_type, 1, "Transmute Other targets one creature")
+	_expect_equal(transmute.get_range(3, null), 8, "Transmute Other source range")
+	_expect_equal(transmute.get_aoe(3, null).size(), 1, "Transmute Other single footprint")
+	_expect_equal(transmute.get_sp_cost(3, null), 60, "Transmute Other casting cost")
+	_expect_equal(transmute.classic_spell_save_index, 7, "Transmute Other special save")
+	_expect_equal(transmute.classic_save_bonus, 10, "Transmute Other save bonus")
+	_expect_equal(transmute.classic_save_adjust, 0, "Transmute Other save adjustment")
+	_expect_equal(transmute.classic_resist_adjust, -3, "Transmute Other resistance adjustment")
+	_expect(transmute.los, "Transmute Other requires line of sight")
+	_expect(transmute.tags.has("Transformation"), "Transmute Other exposes its mechanic")
+
+	var multi = load("res://shared_assets/spells/multi_morph_other.gd").new()
+	_expect_equal(multi.name, "Multi Morph Other", "Multi Morph Other resource identity")
+	_expect_equal(multi.classic_spell_ids, [3705], "Multi Morph Other exact ID")
+	_expect_equal(multi.classic_special, 46, "Multi Morph Other transformation special")
+	_expect_equal(multi.classic_target_type, 4, "Multi Morph Other uses a scaling area")
+	_expect_equal(multi.get_range(3, null), 8, "Multi Morph Other source range")
+	_expect_equal(multi.get_aoe(3, null).size(), 9, "Multi Morph Other power-three area")
+	_expect_equal(multi.get_sp_cost(3, null), 240, "Multi Morph Other casting cost")
+	_expect_equal(multi.classic_spell_save_index, 7, "Multi Morph Other special save")
+	_expect_equal(multi.classic_save_bonus, 5, "Multi Morph Other save bonus")
+	_expect_equal(multi.classic_resist_adjust, 0, "Multi Morph Other resistance adjustment")
+	_expect(multi.los, "Multi Morph Other requires line of sight")
+
+	var bestiary := {
+		"Native small": {
+			"data": {"size": [1, 1], "summonable": 1, "level": 2},
+		},
+		"Classic small": {
+			"classicMonsterId": 12,
+			"data": {"size": [1, 1], "summonable": 1, "level": 3},
+		},
+		"Classic large": {
+			"classicMonsterId": 13,
+			"data": {"size": [2, 2], "summonable": 1, "level": 4},
+		},
+		"Classic inert": {
+			"classicMonsterId": 14,
+			"data": {"size": [1, 1], "summonable": 1, "level": 0},
+		},
+		"Classic forbidden": {
+			"classicMonsterId": 15,
+			"data": {"size": [1, 1], "summonable": 0, "level": 4},
+		},
+	}
+	_expect_equal(
+		MonsterTransformationScript.candidate_keys(bestiary, Vector2i.ONE),
+		["Classic small"],
+		"Classic forms take precedence over the merged native bestiary"
+	)
+	_expect_equal(
+		MonsterTransformationScript.choose_form(bestiary, Vector2i.ONE, 0),
+		"Classic small",
+		"transformation selects from eligible same-size forms"
+	)
+	var no_matching_classic := {
+		"Native small": {
+			"data": {"size": [1, 1], "summonable": 1, "level": 2},
+		},
+		"Classic large": {
+			"classicMonsterId": 13,
+			"data": {"size": [2, 2], "summonable": 1, "level": 4},
+		},
+	}
+	_expect(
+		MonsterTransformationScript.candidate_keys(
+			no_matching_classic, Vector2i.ONE
+		).is_empty(),
+		"an active Classic set does not borrow an ineligible native form"
+	)
+	var native_only := {
+		"Native small": {
+			"data": {"size": [1, 1], "summonable": 1, "level": 2},
+		},
+	}
+	_expect_equal(
+		MonsterTransformationScript.candidate_keys(native_only, Vector2i.ONE),
+		["Native small"],
+		"native forms remain available when no Classic Data MD set is loaded"
+	)
+	var resisted_target := TransformationTestCreature.new()
+	resisted_target.set_meta("classic_magic_resistance", 60)
+	var resisted: Dictionary = MagicResistanceScript.spell_resolution(
+		resisted_target, transmute, 3, 50
+	)
+	_expect(resisted.get("resisted"), "Transmute Other retains general resistance")
+	_expect_equal(
+		resisted.get("chance"),
+		51,
+		"Transmute Other applies its resistance adjustment per power"
+	)
+	var saved_target := TransformationTestCreature.new()
+	SpellSavesScript.apply_monster_metadata(
+		saved_target,
+		[80, 80, 80, 80, 80, 80],
+		[0, 0, 0, 0, 0, 0]
+	)
+	var saved: Dictionary = SpellSavesScript.target_resolution(
+		saved_target, transmute, 3, 50
+	)
+	_expect(saved.get("saved"), "Transmute Other retains its special save")
+	_expect_equal(saved.get("effectScale"), 0.0, "a special save negates transformation")
+
+	var old_condition := TransformationTestTrait.new("Slowed", "Transmute Other")
+	var old_innate := TransformationTestTrait.new("Old hide", "Innate")
+	var target := TransformationTestCreature.new()
+	target.name = "Old monster"
+	target.bestiary_key = "Old form"
+	target.classic_monster_id = 4
+	target.position = Vector2(7, 5)
+	target.baseFaction = 0
+	target.curFaction = 0
+	target.used_movepoints = 3
+	target.used_apr = 1
+	target.reaction_ready = false
+	target.is_summoned = true
+	target.summoner_name = "Summoner"
+	target.money = [10, 2, 1]
+	target.stats = {"curHP": 17, "maxHP": 17}
+	target.traits = [old_condition, old_innate]
+	old_condition.chara = target
+	old_innate.chara = target
+	var button := TransformationTestButton.new()
+	button.creature = target
+	target.combat_button = button
+	target.set_meta("classic_death_macro", 42)
+	target.set_meta("classic_regeneration_per_round", 2)
+	target.set_meta("encounter_slot", 6)
+
+	var new_innate := TransformationTestTrait.new("New claws", "Innate")
+	var replacement := TransformationTestCreature.new()
+	replacement.name = "New monster"
+	replacement.bestiary_key = "New form"
+	replacement.classic_monster_id = 27
+	replacement.stats = {"curHP": 31, "maxHP": 31}
+	replacement.base_stats = replacement.stats.duplicate(true)
+	replacement.money = [99, 99, 99]
+	replacement.inventory = [{"name": "New weapon"}]
+	replacement.spells = [[{"name": "New spell"}]]
+	replacement.ai_variables = {"cast_chance": 25}
+	replacement.traits = [new_innate]
+	new_innate.chara = replacement
+	replacement.set_meta("classic_death_macro", 7)
+	replacement.set_meta("classic_regeneration_per_round", 9)
+
+	_expect(
+		transmute.apply_classic_form(target, replacement),
+		"Transmute Other installs a same-size replacement form"
+	)
+	_expect_equal(target.name, "New monster", "transformation replaces form identity")
+	_expect_equal(target.classic_monster_id, 27, "transformation replaces Classic identity")
+	_expect_equal(target.stats["curHP"], 31, "transformation replaces form stamina")
+	_expect_equal(target.inventory[0]["name"], "New weapon", "transformation replaces inventory")
+	_expect_equal(target.spells[0][0]["name"], "New spell", "transformation replaces spells")
+	_expect_equal(target.position, Vector2(7, 5), "transformation preserves battlefield position")
+	_expect_equal(target.curFaction, 0, "transformation preserves current allegiance")
+	_expect_equal(target.baseFaction, 0, "transformation preserves base allegiance")
+	_expect_equal(target.used_movepoints, 3, "transformation preserves turn movement")
+	_expect_equal(target.used_apr, 1, "transformation preserves turn actions")
+	_expect(not target.reaction_ready, "transformation preserves reaction use")
+	_expect(target.is_summoned, "transformation preserves summon ownership")
+	_expect_equal(target.summoner_name, "Summoner", "transformation preserves summoner identity")
+	_expect_equal(target.money, [0, 0, 0], "transformation clears carried money")
+	var trait_names: Array = []
+	for trait_value: Variant in target.traits:
+		trait_names.append(trait_value.name)
+	_expect(trait_names.has("Slowed"), "transformation preserves active conditions")
+	_expect(not trait_names.has("Old hide"), "transformation drops the old form's innate traits")
+	_expect(trait_names.has("New claws"), "transformation installs the new form's innate traits")
+	for trait_value: Variant in target.traits:
+		_expect(trait_value.chara == target, "transformation rebinds condition ownership")
+	_expect(button.creature == target, "transformation keeps the battlefield object identity")
+	_expect_equal(button.refresh_count, 1, "transformation refreshes battlefield presentation")
+	_expect_equal(target.get_meta("classic_death_macro"), 7, "new form metadata replaces old metadata")
+	_expect_equal(
+		target.get_meta("classic_regeneration_per_round"),
+		2,
+		"transformation preserves active Classic condition metadata"
+	)
+	_expect_equal(target.get_meta("encounter_slot"), 6, "encounter-owned metadata remains attached")
+	_expect_equal(target.get_meta("classic_transformed_from"), "Old form", "old form provenance")
+	_expect_equal(target.get_meta("classic_transformed_form"), "New form", "new form provenance")
+
+	var wrong_size := TransformationTestCreature.new()
+	wrong_size.size = Vector2(2, 2)
+	_expect(
+		not transmute.apply_classic_form(target, wrong_size),
+		"transformation rejects a different-size form"
+	)
+	_expect(
+		not transmute.apply_classic_scaled_effect(null, target, 3, 0.0),
+		"a successful special save negates transformation"
+	)
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -8576,7 +8845,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		219,
+		221,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8843,9 +9112,9 @@ func _test_classic_spell_coverage() -> void:
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
 		1106, 1607, 1709, 2106, 2203, 2405, 2408, 2507, 2601, 2701, 2707,
-		3307, 3407, 3606, 3609,
+		3307, 3407, 3606, 3609, 3612, 3705,
 	]
-	_expect_equal(migrated_spell_ids.size(), 190, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 192, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -9034,10 +9303,12 @@ func _test_classic_spell_coverage() -> void:
 		"Death": "res://shared_assets/spells/death.gd",
 		"Finger of Death": "res://shared_assets/spells/finger_of_death.gd",
 		"Poison Cloud": "res://shared_assets/spells/poison_cloud.gd",
+		"Transmute Other": "res://shared_assets/spells/transmute_other.gd",
+		"Multi Morph Other": "res://shared_assets/spells/multi_morph_other.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		181,
+		183,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()

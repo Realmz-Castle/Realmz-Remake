@@ -306,6 +306,20 @@ current Classic handler accidentally overwrites even a successful save with
 lethal damage. Following the corrected-intent policy already used for Stun, a
 successful chemical save instead takes half of that source damage roll.
 
+Transmute Other `3612` and Multi Morph Other `3705` share the native
+transformation path for Classic special `46`. A failed resistance and special
+save replaces each affected monster with a random summonable creature of the
+same footprint. When an installed Classic campaign supplies materialized
+monster records, the form pool stays within that active Data MD set; otherwise
+the shared native bestiary is the fallback. Transformation keeps the existing
+battlefield object, position, allegiance, active non-innate conditions, and
+turn bookkeeping, so combat queues and UI selections remain valid. The new
+form supplies identity, statistics, attacks, spells, AI, inventory, graphics,
+and Classic monster metadata, while carried money is cleared as in
+`spelllist.c`. Because combat creatures are discarded at battle end, the form
+naturally has Classic's battle-only lifetime. Multi Morph differs only by using
+the source record's power-scaled area targeting.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents
