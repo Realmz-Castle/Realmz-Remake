@@ -18,6 +18,54 @@ static func permanent_amount(conditions: Variant) -> int:
 	return absi(value) if value < 0 else 0
 
 
+static func stack_condition(current: int, added: int, maximum: int) -> int:
+	# resolvespell.c rejects the entire addition when it would cross the actor cap.
+	var candidate: int = max(0, current) + max(0, added)
+	return candidate if candidate <= maximum else max(0, current)
+
+
+static func reduce(condition: int, reduction_calls: int = 1) -> int:
+	return max(0, condition - max(0, reduction_calls))
+
+
+static func player_reduction(condition: int) -> Dictionary:
+	# reduce.c heals party members before reducing the condition.
+	var current: int = max(0, condition)
+	return {
+		"condition": reduce(current),
+		"healing": current,
+	}
+
+
+static func monster_reduction(condition: int) -> Dictionary:
+	# getup.c reduces monster conditions before applying regeneration.
+	var remaining := reduce(condition)
+	return {
+		"condition": remaining,
+		"healing": remaining,
+	}
+
+
+static func elapsed_hour_boundaries(previous_time: int, current_time: int) -> int:
+	if current_time <= previous_time:
+		return 0
+	var previous_hour := int(floor(float(previous_time) / 3600.0))
+	var current_hour := int(floor(float(current_time) / 3600.0))
+	return max(0, current_hour - previous_hour)
+
+
+static func player_reductions(condition: int, reduction_calls: int) -> Array[Dictionary]:
+	var remaining: int = max(0, condition)
+	var results: Array[Dictionary] = []
+	for _reduction in range(max(0, reduction_calls)):
+		if remaining == 0:
+			break
+		var result: Dictionary = player_reduction(remaining)
+		results.append(result)
+		remaining = int(result["condition"])
+	return results
+
+
 static func amount(character: Object) -> int:
 	if character == null or not character.has_meta(META_KEY):
 		return 0

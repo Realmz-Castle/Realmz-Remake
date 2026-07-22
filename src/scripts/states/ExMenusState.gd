@@ -232,6 +232,9 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 		
 
 		character.on_ability_use(spell, powerlevel)
+		var uses_group_effect: bool = spell.has_method("apply_classic_group_effect")
+		if uses_group_effect:
+			spell.apply_classic_group_effect(character, targets, powerlevel)
 
 		for target in targets :
 			print ("cast "+spell.name+" on "+target.name)
@@ -243,9 +246,10 @@ func on_spell_picked(character : Creature, spell, powerlevel : int, _item : Dict
 			if spell.get("proj_hit") :
 				print("ExMenusState : OW HUD display spell effect ",spell.proj_hit)
 				await UI.ow_hud.show_spell_effect_on_char_menu( target, spell.proj_hit  )
-			await GameGlobal.do_spell_field_effect(character, target, spell, powerlevel)
+			if not uses_group_effect:
+				await GameGlobal.do_spell_field_effect(character, target, spell, powerlevel)
 			
-			if spell.get("special_effect") : 
+			if not uses_group_effect and spell.get("special_effect") :
 				print("FIELD SPECIAL EFFECT")
 				var _is_over : bool = await spell.special_effect(character, spell, powerlevel, Vector2.ZERO, [], [target], false)
 			

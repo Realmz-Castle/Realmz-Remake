@@ -408,6 +408,12 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
 			continue
 		unresisted_creatures.append(cb)
+	if spell.has_method("apply_classic_group_effect") :
+		var group_targets: Array = []
+		for cb: CombatCreaButton in unresisted_creatures:
+			group_targets.append(cb.creature)
+		spell.apply_classic_group_effect(castercrea, group_targets, power)
+		return
 	if spell.get("special_effect") :
 		var is_over : bool = await spell.special_effect(castercrea, spell, power, main_targeted_tile, effected_tiles, unresisted_creatures, add_terrain)
 		if is_over :

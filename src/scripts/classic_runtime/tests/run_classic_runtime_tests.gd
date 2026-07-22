@@ -522,6 +522,46 @@ class DiseaseTestCharacter:
 		current_hp += change
 
 
+class RegenerationTestCharacter:
+	extends RefCounted
+	var name: String
+	var current_hp := 20
+	var maximum_hp := 30
+	var life_status := 0
+	var is_player_controlled := false
+	var traits: Array = []
+
+	func _init(character_name: String, player_controlled := false) -> void:
+		name = character_name
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> int:
+		match stat_name:
+			"curHP":
+				return current_hp
+			"maxHP":
+				return maximum_hp
+			_:
+				return 0
+
+	func change_cur_hp(change: int) -> void:
+		current_hp = mini(maximum_hp, current_hp + change)
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -889,6 +929,7 @@ func _init() -> void:
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_healing_spells()
+	_test_classic_regeneration_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
 	_test_take_gold_action()
@@ -5134,6 +5175,31 @@ func _test_classic_regeneration_contract() -> void:
 		0,
 		"Classic monster regeneration does not revive a defeated combatant"
 	)
+	_expect_equal(
+		RegenerationScript.stack_condition(98, 1, 99),
+		99,
+		"temporary player regeneration can reach its source cap"
+	)
+	_expect_equal(
+		RegenerationScript.stack_condition(98, 2, 99),
+		98,
+		"temporary player regeneration rejects an addition beyond its source cap"
+	)
+	_expect_equal(
+		RegenerationScript.player_reduction(5),
+		{"condition": 4, "healing": 5},
+		"party regeneration heals before its condition decreases"
+	)
+	_expect_equal(
+		RegenerationScript.monster_reduction(5),
+		{"condition": 4, "healing": 4},
+		"monster regeneration decreases before it heals"
+	)
+	_expect_equal(
+		RegenerationScript.elapsed_hour_boundaries(3599, 7201),
+		2,
+		"field regeneration advances once per crossed Classic hour"
+	)
 
 
 func _test_classic_spell_screen_contract() -> void:
@@ -7675,7 +7741,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		108,
+		110,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7793,14 +7859,14 @@ func _test_classic_spell_coverage() -> void:
 		1203, 1212, 1306, 1310, 1401, 2101, 3211, 3401, 3704,
 		3105, 3506,
 		2109, 2306, 2605, 2706,
-		1601, 1703, 2705, 2712, 3108, 3205, 3501, 3601, 3602, 3710,
+		1601, 1703, 2705, 2709, 2712, 3108, 3205, 3501, 3601, 3602, 3710,
 		1107, 1112, 1201, 1305, 1609, 2504, 2609, 2611,
 		3111, 3112, 3306, 3404, 3410, 3709, 3711,
 		1308, 1309, 1407, 2512, 3310, 3509,
 		1608, 1610, 1611, 1704, 1711, 1712, 2407, 2501, 2508, 2607, 3210, 3512,
-		3607, 3702,
+		3607, 3702, 3706,
 	]
-	_expect_equal(migrated_spell_ids.size(), 76, "the reviewed generic batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 78, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7887,10 +7953,12 @@ func _test_classic_spell_coverage() -> void:
 		"Heal Medium Wounds": "res://shared_assets/spells/classic_core_2207_heal_medium_wounds.gd",
 		"Heal Large Wounds": "res://shared_assets/spells/classic_core_2404_heal_large_wounds.gd",
 		"Heal Wounds": "res://shared_assets/spells/classic_core_2505_heal_wounds.gd",
+		"Regenerate Stamina": "res://shared_assets/spells/classic_core_2709_regenerate_stamina.gd",
+		"Multi Regenerate Stamina": "res://shared_assets/spells/classic_core_3706_multi_regenerate_stamina.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		79,
+		81,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8476,11 +8544,11 @@ func _test_classic_spell_coverage() -> void:
 					1611, 1701, 1703, 1704, 1705, 1711, 1712, 2101, 2102, 2103, 2105,
 					2109, 2110, 2111, 2201, 2207, 2301, 2304, 2306, 2403, 2404, 2407,
 					2501, 2504, 2505, 2508, 2512, 2605, 2607,
-					2609, 2611, 2705, 2706, 2708, 2712, 3102, 3104, 3105, 3108, 3111,
+					2609, 2611, 2705, 2706, 2708, 2709, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3207, 3208, 3210, 3211, 3301, 3303, 3306, 3308,
 					3310,
 					3311, 3401, 3404, 3409, 3410, 3501, 3505, 3506, 3509, 3512, 3601,
-					3602, 3603, 3607, 3702, 3704,
+					3602, 3603, 3607, 3702, 3704, 3706,
 					3709, 3710, 3711, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
@@ -8897,6 +8965,88 @@ func _test_classic_healing_spells() -> void:
 		"ordinary healing does not revive a dead character"
 	)
 	_expect_equal(dead.get_stat("curHP"), -12, "a dead character's health stays unchanged")
+
+
+func _test_classic_regeneration_spells() -> void:
+	var single = load(
+		"res://shared_assets/spells/classic_core_2709_regenerate_stamina.gd"
+	).new()
+	var multi = load(
+		"res://shared_assets/spells/classic_core_3706_multi_regenerate_stamina.gd"
+	).new()
+	for spell in [single, multi]:
+		_expect_equal(spell.classic_special, 11, "%s uses regeneration special 11" % spell.name)
+		_expect_equal(spell.classic_spell_class, 7, "%s preserves spell class 7" % spell.name)
+		_expect_equal(spell.classic_damage_type, 7, "%s preserves damage type 7" % spell.name)
+		_expect_equal(spell.classic_cannot, 4, "%s bypasses magic resistance" % spell.name)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no DRV save" % spell.name)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s has no save mode" % spell.name)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % spell.name
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % spell.name)
+
+	_expect_equal(single.name, "Regenerate Stamina", "single regeneration resource identity")
+	_expect_equal(single.classic_spell_ids, [2709], "single regeneration exact ID")
+	_expect_equal(single.get_range(3, null), 1, "single regeneration source range")
+	_expect_equal(single.get_target_number(3, null), 1, "single regeneration target count")
+	_expect(single.los, "single regeneration requires line of sight")
+	_expect_equal(single.get_min_duration(3, null), 6, "single regeneration minimum duration")
+	_expect_equal(single.get_max_duration(3, null), 18, "single regeneration maximum duration")
+	_expect_equal(single.get_sp_cost(3, null), 105, "single regeneration casting cost")
+	_expect_equal(single.classic_spell_look_ids, [15, 7], "single regeneration visuals")
+	_expect_equal(single.classic_sound_ids, [58, 84], "single regeneration sounds")
+
+	_expect_equal(multi.name, "Multi Regenerate Stamina", "multi regeneration resource identity")
+	_expect_equal(multi.classic_spell_ids, [3706], "multi regeneration exact ID")
+	_expect_equal(multi.get_range(3, null), 7, "multi regeneration source range")
+	_expect_equal(multi.get_target_number(3, null), 3, "multi regeneration targets once per power")
+	_expect(not multi.los, "negative source range bypasses line of sight")
+	_expect_equal(multi.get_min_duration(3, null), 5, "multi regeneration minimum duration")
+	_expect_equal(multi.get_max_duration(3, null), 15, "multi regeneration maximum duration")
+	_expect_equal(multi.get_sp_cost(3, null), 150, "multi regeneration casting cost")
+	_expect_equal(multi.classic_spell_look_ids, [5, 7], "multi regeneration visuals")
+	_expect_equal(multi.classic_sound_ids, [58, 84], "multi regeneration sounds")
+
+	var first := RegenerationTestCharacter.new("First", true)
+	var second := RegenerationTestCharacter.new("Second", true)
+	_expect_equal(
+		multi.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"multi regeneration applies to every selected target"
+	)
+	_expect_equal(
+		first.traits[0].condition,
+		second.traits[0].condition,
+		"one Classic duration roll is shared by every target in the cast"
+	)
+	_expect(first.traits[0].condition in range(5, 16), "shared duration stays within source bounds")
+
+	var player := RegenerationTestCharacter.new("Player", true)
+	player.add_trait(load("res://shared_assets/traits/t_classic_regeneration.gd"), [5])
+	player.traits[0]._on_new_round(player)
+	_expect_equal(player.current_hp, 25, "party regeneration heals before decrementing")
+	_expect_equal(player.traits[0].condition, 4, "party regeneration decreases after healing")
+	player.traits[0].condition = 98
+	player.traits[0].stack([2])
+	_expect_equal(player.traits[0].condition, 98, "party regeneration rejects cap overflow")
+
+	var monster := RegenerationTestCharacter.new("Monster")
+	monster.add_trait(load("res://shared_assets/traits/t_classic_regeneration.gd"), [5])
+	monster.traits[0]._on_new_round(monster)
+	_expect_equal(monster.current_hp, 24, "monster regeneration decrements before healing")
+	_expect_equal(monster.traits[0].condition, 4, "monster regeneration keeps the reduced value")
+
+	var innate := RegenerationTestCharacter.new("Innate")
+	innate.set_meta(RegenerationScript.META_KEY, 2)
+	_expect_equal(
+		single.apply_classic_scaled_effect(null, innate, 1, 1.0),
+		0,
+		"temporary regeneration does not replace innate negative condition 10"
+	)
+	_expect(innate.traits.is_empty(), "innate regeneration receives no temporary trait")
 
 
 func _test_parameterized_damage_spells() -> void:

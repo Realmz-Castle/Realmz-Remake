@@ -375,6 +375,15 @@
         {"sourceFile": "Data S", "recordIndex": 153, "displayName": "Priest Heal Large Wounds"},
         {"sourceFile": "Data S", "recordIndex": 169, "displayName": "Priest Heal Wounds"}
       ]
+    },
+    {
+      "id": "core-player-spell-regeneration",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 203, "displayName": "Priest Regenerate Stamina"},
+        {"sourceFile": "Data S", "recordIndex": 305, "displayName": "Enchanter Multi Regenerate Stamina"}
+      ]
     }
   ],
   "spells": [
@@ -2176,6 +2185,31 @@
       }
     },
     {
+      "classicSpellId": 2709,
+      "displayName": "Regenerate Stamina",
+      "classification": "native-special-regeneration",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2709_regenerate_stamina.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 203, "byteOffset": 6090, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-regeneration", "slots": [0]}],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "duration": "2-6-per-power-rounds",
+        "condition": 10,
+        "roundOrder": "party-heal-then-decrement-monster-decrement-then-heal",
+        "fieldCadence": "once-per-crossed-hour",
+        "stackCaps": {"party": 99, "monster": 124},
+        "permanentConditionGuard": "negative-condition-10-is-innate",
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "costPerPower": 35,
+        "presentation": {"spellLook": [15, 7], "sound": [58, 84]},
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2712,
       "displayName": "Stun",
       "classification": "native-corrected-source-defect",
@@ -3036,6 +3070,32 @@
         "saveAdjustPerPower": -2,
         "resistance": "classic-general",
         "costPerPower": 90
+      }
+    },
+    {
+      "classicSpellId": 3706,
+      "displayName": "Multi Regenerate Stamina",
+      "classification": "native-special-regeneration",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3706_multi_regenerate_stamina.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 305, "byteOffset": 9150, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-regeneration", "slots": [1]}],
+      "behavior": {
+        "targetType": "power-scaled-creature-selection",
+        "range": 7,
+        "lineOfSight": false,
+        "duration": "5-15-fixed-rounds",
+        "durationRoll": "one-shared-roll-per-cast",
+        "condition": 10,
+        "roundOrder": "party-heal-then-decrement-monster-decrement-then-heal",
+        "fieldCadence": "once-per-crossed-hour",
+        "stackCaps": {"party": 99, "monster": 124},
+        "permanentConditionGuard": "negative-condition-10-is-innate",
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "costPerPower": 50,
+        "presentation": {"spellLook": [5, 7], "sound": [58, 84]},
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
