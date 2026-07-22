@@ -17,7 +17,7 @@ static func can_attempt(caster: Object, combatants: Array, battle_data: Dictiona
 		return false
 	for combatant: Variant in combatants:
 		var target := _combatant_creature(combatant)
-		if target != null and _is_eligible_target(caster, target):
+		if target != null and is_eligible_target(caster, target):
 			return true
 	return false
 
@@ -49,7 +49,7 @@ static func perform_attempt(
 	var roll_index := 0
 	for combatant: Variant in combatants:
 		var target := _combatant_creature(combatant)
-		if target == null or not _is_eligible_target(caster, target):
+		if target == null or not is_eligible_target(caster, target):
 			continue
 		var roll := clampi(
 			int(rolls[roll_index]) if roll_index < rolls.size() else randi_range(1, 100),
@@ -57,27 +57,20 @@ static func perform_attempt(
 			100
 		)
 		roll_index += 1
-		var hit_dice := _target_hit_dice(target)
-		# This is the original Realmz threshold. A roll above it succeeds;
-		# a margin of 30 or more turns the target instead of destroying it.
-		var difficulty := maxi(
-			25,
-			100 - int(caster.get_stat("Turn_Undead")) + 5 * hit_dice
-		) + _target_magic_resistance(target)
-		var margin := roll - difficulty
-		var outcome := "resisted"
-		var experience := 0
-		if margin > 0 and margin < 30:
-			outcome = "destroyed"
-			experience = 25 * hit_dice
+		var resolution := resolve_target(
+			caster,
+			target,
+			int(caster.get_stat("Turn_Undead")),
+			roll,
+			true
+		)
+		var outcome := str(resolution.get("outcome", "resisted"))
+		var hit_dice := int(resolution.get("hitDice", 0))
+		var experience := turning_experience(outcome, hit_dice)
+		if outcome == "destroyed":
 			destroyed += 1
-			var current_hp := int(target.get_stat("curHP"))
-			target.change_cur_hp(-current_hp)
-		elif margin >= 30:
-			outcome = "turned"
-			experience = 50 * hit_dice
+		elif outcome == "turned":
 			turned += 1
-			target.set("curFaction", int(caster.get("curFaction")))
 		else:
 			resisted += 1
 		bonus_experience += experience
@@ -86,7 +79,7 @@ static func perform_attempt(
 			"creature": target,
 			"outcome": outcome,
 			"roll": roll,
-			"difficulty": difficulty,
+			"difficulty": resolution.get("difficulty", 0),
 			"bonusExperience": experience,
 		})
 	return {
@@ -100,7 +93,61 @@ static func perform_attempt(
 	}
 
 
-static func _is_eligible_target(caster: Object, target: Object) -> bool:
+static func resolve_target(
+	caster: Object,
+	target: Object,
+	turning_strength: int,
+	roll: int,
+	include_magic_resistance := true
+) -> Dictionary:
+	if not is_eligible_target(caster, target):
+		return {"status": "ineligible", "outcome": "ineligible"}
+	var hit_dice := target_hit_dice(target)
+	# A roll above the source threshold succeeds. Margins below 30 destroy;
+	# larger margins turn the target to the caster's side.
+	var difficulty := maxi(25, 100 - turning_strength + 5 * hit_dice)
+	if include_magic_resistance:
+		difficulty += _target_magic_resistance(target)
+	var margin := clampi(roll, 1, 100) - difficulty
+	var outcome := "resisted"
+	if margin > 0 and margin < 30:
+		outcome = "destroyed"
+	elif margin >= 30:
+		outcome = "turned"
+	apply_target_outcome(caster, target, outcome)
+	return {
+		"status": "ok",
+		"outcome": outcome,
+		"roll": clampi(roll, 1, 100),
+		"difficulty": difficulty,
+		"margin": margin,
+		"hitDice": hit_dice,
+	}
+
+
+static func apply_target_outcome(caster: Object, target: Object, outcome: String) -> bool:
+	match outcome:
+		"destroyed":
+			var current_hp := int(target.get_stat("curHP"))
+			target.change_cur_hp(-current_hp)
+			return true
+		"turned":
+			target.set("curFaction", int(caster.get("curFaction")))
+			return true
+	return false
+
+
+static func turning_experience(outcome: String, hit_dice: int) -> int:
+	if outcome == "destroyed":
+		return 25 * maxi(0, hit_dice)
+	if outcome == "turned":
+		return 50 * maxi(0, hit_dice)
+	return 0
+
+
+static func is_eligible_target(caster: Object, target: Object) -> bool:
+	if caster == null or target == null:
+		return false
 	if int(target.get("curFaction")) == int(caster.get("curFaction")):
 		return false
 	if not target.has_method("get_stat") or int(target.get_stat("curHP")) <= 0:
@@ -117,7 +164,7 @@ static func _is_eligible_target(caster: Object, target: Object) -> bool:
 	return false
 
 
-static func _target_hit_dice(target: Object) -> int:
+static func target_hit_dice(target: Object) -> int:
 	if target.has_meta("classic_hit_dice"):
 		return maxi(0, int(target.get_meta("classic_hit_dice")))
 	return maxi(0, int(target.get("level")))

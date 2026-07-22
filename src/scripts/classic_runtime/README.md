@@ -271,6 +271,14 @@ sets the party-wide fatigue value to exactly `1` and returns before damage,
 duration, resistance, or saving-throw resolution. Remake applies the same
 assignment through its party-fatigue setter and refreshes the fatigue display.
 
+Destroy / Turn Undead `3504` uses Remake's native undead eligibility and
+faction handling. After normal magic resistance and the special DRV, each
+hostile undead or nether-spawn target rolls against
+`max(25, 100 - (5 * power + 3 * caster level) + 5 * hit dice)`. Success
+margins from 1 through 29 destroy the target; margins of 30 or more turn it to
+the caster's faction. Classic's summon sentinel `255` remains ineligible, and
+the spell does not grant the experience awarded by the separate priest action.
+
 Dumbstruck and Mind Blank use Classic condition `6`, stored at character
 condition index `5`. Despite the latter's protective-sounding name, both are
 offensive mental effects that prevent spellcasting and leave movement, attacks,

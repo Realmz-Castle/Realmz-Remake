@@ -7265,6 +7265,32 @@
         "adapter": "source-record-backed-party-fatigue-service",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 3504,
+      "displayName": "Destroy / Turn Undead",
+      "classification": "native-special-undead-turning",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/destroy_turn_undead.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 273, "byteOffset": 8190, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-90-destroy-turn-undead", "slots": [0]}],
+      "behavior": {
+        "targetType": "all-hostile-creatures",
+        "eligibleTargets": "living-undead-or-nether-spawn-excluding-classic-summon-sentinel-255",
+        "generalResistance": "normal-classic-magic-resistance",
+        "saveIndex": 7,
+        "saveMode": "negate-before-special-roll",
+        "turningStrength": "five-times-power-plus-three-times-caster-level",
+        "difficulty": "maximum-25-or-100-minus-strength-plus-five-times-target-hit-dice",
+        "success": "d100-roll-strictly-above-difficulty",
+        "destroyed": "success-margin-1-through-29",
+        "turned": "success-margin-30-or-more-switches-to-caster-faction",
+        "experience": "none-from-spell",
+        "rawSpecial": 90,
+        "costPerPower": 30,
+        "adapter": "source-record-backed-native-turn-undead-rules",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

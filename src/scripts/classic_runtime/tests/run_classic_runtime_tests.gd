@@ -1543,6 +1543,7 @@ func _init() -> void:
 	_test_classic_destroy_trap_spell(bundle)
 	_test_classic_open_lock_spell(bundle)
 	_test_classic_sleepwalk_spell()
+	_test_classic_destroy_turn_undead_spell()
 	_test_classic_spellcasting_block_spells()
 	_test_classic_magic_aura_spell()
 	_test_classic_healing_spells()
@@ -9482,7 +9483,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		251,
+		252,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -9707,6 +9708,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(1412, {}).get("coverageStatus"),
 		"supported",
 		"Sleepwalk uses the reviewed party fatigue path"
+	)
+	_expect_equal(
+		coverage_by_id.get(3504, {}).get("coverageStatus"),
+		"supported",
+		"Destroy / Turn Undead uses the reviewed native turning path"
 	)
 	for spellcasting_block_id: int in [2203, 3407]:
 		_expect_equal(
@@ -10669,7 +10675,7 @@ func _test_classic_spell_coverage() -> void:
 					2603, 2609, 2611, 2705, 2706, 2707, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3307, 3308,
 					3310,
-					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,
+					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3504, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,
 					3507, 3602, 3603, 3605, 3607, 3608, 3702, 3703, 3704, 3706,
 					3708, 3709, 3710, 3711, 3712,
 				],
@@ -11809,6 +11815,60 @@ func _test_classic_sleepwalk_spell() -> void:
 	fatigue_service.fatigue = 0.0
 	spell.apply_to_game_global(fatigue_service)
 	_expect_equal(fatigue_service.fatigue, 1.0, "Sleepwalk assigns rather than subtracting fatigue")
+
+
+func _test_classic_destroy_turn_undead_spell() -> void:
+	var spell = load("res://shared_assets/spells/destroy_turn_undead.gd").new()
+	_expect_equal(spell.name, "Destroy / Turn Undead", "undead spell native resource name")
+	_expect_equal(spell.classic_spell_ids, [3504], "undead spell exact identity")
+	_expect_equal(spell.classic_special, 90, "undead spell source special")
+	_expect_equal(spell.classic_spell_class, 7, "undead spell effect class")
+	_expect_equal(spell.classic_target_type, 10, "undead spell targets all enemies")
+	_expect_equal(spell.classic_cannot, 2, "undead spell source resistance code")
+	_expect_equal(spell.classic_spell_save_index, 7, "undead spell checks the special DRV")
+	_expect_equal(spell.classic_spell_save_mode, "negate", "undead spell save negates")
+	_expect_equal(spell.resist, Spell.RESIST_TYPE.IGNORE_DODGE, "undead spell checks magic resistance")
+	_expect_equal(spell.get_range(3, null), 0, "undead spell requires no map range")
+	_expect_equal(spell.get_sp_cost(3, null), 90, "undead spell source cost")
+	_expect_equal(spell.classic_spell_look_ids, [4, 13], "undead spell source art")
+	_expect_equal(spell.classic_sound_ids, [7, 86], "undead spell source sounds")
+	_expect_equal(spell.school_levels.get("Enchanter"), 5, "undead spell source level")
+	_expect_equal(spell.selection_costs.get("Enchanter"), 15, "undead spell selection cost")
+	_expect(spell.in_combat and not spell.in_field, "undead spell is combat only")
+	_expect(spell.skip_targeting, "undead spell uses automatic targeting")
+	_expect_equal(
+		spell.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"undead spell selects every enemy"
+	)
+	_expect(not spell.uses_classic_group_effect(), "undead spell resolves each target separately")
+
+	var caster := TurnUndeadTestCreature.new("Enchanter", 0)
+	caster.level = 10
+	var destroyed := TurnUndeadTestCreature.new("Skeleton", 1)
+	var turned := TurnUndeadTestCreature.new("Wraith", 1)
+	var resisted := TurnUndeadTestCreature.new("Lich", 1)
+	var excluded := TurnUndeadTestCreature.new("Summoned shade", 1)
+	for target: TurnUndeadTestCreature in [destroyed, turned, resisted, excluded]:
+		target.set_meta("classic_turn_undead_eligible", true)
+		target.set_meta("classic_hit_dice", 2)
+		target.set_meta("classic_can_summon", 0)
+	excluded.set_meta("classic_can_summon", 255)
+
+	var destroyed_result: Dictionary = spell.resolve_classic_target(caster, destroyed, 3, 66)
+	_expect_equal(destroyed_result.get("difficulty"), 65, "undead spell uses power and caster level")
+	_expect_equal(destroyed_result.get("outcome"), "destroyed", "one-point success destroys")
+	_expect_equal(destroyed.current_hp, 0, "destroyed undead enters normal death handling")
+	var turned_result: Dictionary = spell.resolve_classic_target(caster, turned, 3, 95)
+	_expect_equal(turned_result.get("margin"), 30, "undead spell preserves the turn boundary")
+	_expect_equal(turned_result.get("outcome"), "turned", "thirty-point success turns")
+	_expect_equal(turned.curFaction, 0, "turned undead joins the caster faction")
+	var resisted_result: Dictionary = spell.resolve_classic_target(caster, resisted, 3, 65)
+	_expect_equal(resisted_result.get("outcome"), "resisted", "threshold tie resists")
+	_expect_equal(resisted.current_hp, 20, "resisted undead keeps its health")
+	var excluded_result: Dictionary = spell.resolve_classic_target(caster, excluded, 3, 100)
+	_expect_equal(excluded_result.get("status"), "ineligible", "summon sentinel is excluded")
+	_expect_equal(excluded.curFaction, 1, "excluded undead stays hostile")
 
 
 func _test_classic_spellcasting_block_spells() -> void:

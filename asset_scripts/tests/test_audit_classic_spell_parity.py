@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 251)
+        self.assertEqual(report["totals"]["supportedIdentities"], 252)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -333,6 +333,26 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             REPO_ROOT / "src" / sleepwalk["resource"].removeprefix("res://")
         )
         self.assertTrue(sleepwalk_resource.is_file(), sleepwalk_resource)
+        undead_spell = matrix_by_id[3504]
+        self.assertEqual(undead_spell["supportStatus"], "supported")
+        self.assertEqual(
+            undead_spell["classification"], "native-special-undead-turning"
+        )
+        self.assertEqual(undead_spell["behavior"]["rawSpecial"], 90)
+        self.assertEqual(undead_spell["behavior"]["saveIndex"], 7)
+        self.assertEqual(
+            undead_spell["behavior"]["turningStrength"],
+            "five-times-power-plus-three-times-caster-level",
+        )
+        self.assertEqual(
+            undead_spell["behavior"]["experience"], "none-from-spell"
+        )
+        undead_spell_resource = (
+            REPO_ROOT
+            / "src"
+            / undead_spell["resource"].removeprefix("res://")
+        )
+        self.assertTrue(undead_spell_resource.is_file(), undead_spell_resource)
         for spell_id in {2203, 3407}:
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")
