@@ -11,6 +11,9 @@ const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
+const MonsterStatusAttackScript = preload(
+	"res://scripts/classic_runtime/classic_monster_status_attack.gd"
+)
 
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
 const BESTIARY_IMAGE_BOOK_PATH := "Bestiary/img_pack.json"
@@ -595,7 +598,10 @@ func _native_attacks(record: Dictionary) -> Dictionary:
 			}
 			if special != 0:
 				attack["extra_data"] = {"classicSpecialAttack": special}
-			if ELEMENT_BY_SPECIAL_ATTACK.has(special):
+			if MonsterStatusAttackScript.supports(special):
+				if weapon_id != 0:
+					unsupported_fields.append("attacks[%d].specialWithWeapon" % attack_index)
+			elif ELEMENT_BY_SPECIAL_ATTACK.has(special):
 				if high < 1:
 					unsupported_fields.append("attacks[%d].specialDamage" % attack_index)
 				elif weapon_id != 0:

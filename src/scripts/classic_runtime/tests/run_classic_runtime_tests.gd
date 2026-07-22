@@ -87,6 +87,9 @@ const BestiaryMaterializerScript = preload(
 const MonsterWeaponRulesScript = preload(
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
 )
+const MonsterStatusAttackScript = preload(
+	"res://scripts/classic_runtime/classic_monster_status_attack.gd"
+)
 const MaterializationFixtureAuditScript = preload(
 	"res://scripts/classic_runtime/classic_materialization_fixture_audit.gd"
 )
@@ -453,10 +456,12 @@ class ConditionTestCharacter:
 	var is_player_controlled := true
 	var current_hp := 20
 	var traits: Array = []
+	var classic_save_chance := 0.0
 
-	func _init(character_name: String, status := 0) -> void:
+	func _init(character_name: String, status := 0, save_chance := 0.0) -> void:
 		name = character_name
 		life_status = status
+		classic_save_chance = save_chance
 
 	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		var condition_trait := ConditionTestTrait.new(
@@ -471,6 +476,11 @@ class ConditionTestCharacter:
 
 	func change_cur_hp(change: int) -> void:
 		current_hp += change
+
+	func get_stat(stat_name: String) -> float:
+		if stat_name.begins_with("Multiplier"):
+			return 1.0 - classic_save_chance / 200.0
+		return 0.0
 
 
 class CurseRemovalTestCharacter:
@@ -4056,6 +4066,140 @@ func _test_classic_bestiary_materializer() -> void:
 		[1.0, 8.0],
 		"ordinary Classic attack range maps natively"
 	)
+	var status_specials := {
+		1: "t_fleeing.gd",
+		2: "t_helpless.gd",
+		3: "t_cursed.gd",
+		4: "t_dumb.gd",
+		5: "t_slow.gd",
+		6: "t_poison.gd",
+		7: "t_classic_confused.gd",
+		16: "t_classic_disease.gd",
+	}
+	for special_code: int in status_specials:
+		var status_record: Dictionary = bundle.get_monster(1).duplicate(true)
+		status_record["weapon"] = 0
+		status_record["attacks"][0][3] = special_code
+		var status_attacks: Dictionary = materializer._native_attacks(status_record)
+		_expect_equal(
+			status_attacks.get("unsupportedFields"),
+			[],
+			"unarmed Classic status attack %d is executable" % special_code
+		)
+		_expect_equal(
+			status_attacks.get("entries", [])[0].get(
+				"extra_data", {}
+			).get("classicSpecialAttack"),
+			special_code,
+			"unarmed Classic status attack %d keeps its source identity" % special_code
+		)
+		var status_target := ConditionTestCharacter.new(
+			"Status target %d" % special_code
+		)
+		var mapped_status: Dictionary = MonsterStatusAttackScript.apply(
+			ConditionTestCharacter.new("Status attacker %d" % special_code),
+			status_target,
+			special_code,
+			1,
+			100
+		)
+		_expect(
+			bool(mapped_status.get("applied")),
+			"Classic status attack %d applies its native condition" % special_code
+		)
+		_expect_equal(
+			status_target.traits[0].name,
+			status_specials[special_code],
+			"Classic status attack %d selects the expected trait" % special_code
+		)
+	var armed_status_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	armed_status_record["weapon"] = 1
+	armed_status_record["attacks"][0][3] = 6
+	_expect(
+		materializer._native_attacks(armed_status_record).get(
+			"unsupportedFields", []
+		).has("attacks[0].specialWithWeapon"),
+		"weapon-coupled status attacks remain explicit launch blockers"
+	)
+	var status_attacker := ConditionTestCharacter.new("Status attacker")
+	status_attacker.set_meta("classic_hit_dice", 8)
+	var poisoned_target := ConditionTestCharacter.new("Poisoned target")
+	var poison_result: Dictionary = MonsterStatusAttackScript.apply(
+		status_attacker,
+		poisoned_target,
+		6,
+		4,
+		100
+	)
+	_expect(bool(poison_result.get("applied")), "failed chemical save applies monster poison")
+	_expect_equal(poison_result.get("duration"), 4, "monster status duration uses its HD roll")
+	_expect_equal(
+		poisoned_target.traits[0].name,
+		"t_poison.gd",
+		"monster poison reuses the source-backed native condition"
+	)
+	var saved_target := ConditionTestCharacter.new("Saved target", 0, 100.0)
+	var saved_result: Dictionary = MonsterStatusAttackScript.apply(
+		status_attacker,
+		saved_target,
+		6,
+		4,
+		1
+	)
+	_expect(bool(saved_result.get("saved")), "chemical save negates monster poison")
+	_expect(saved_target.traits.is_empty(), "saved monster status adds no trait")
+	var permanent_target := ConditionTestCharacter.new("Permanent target")
+	permanent_target.traits.append(ConditionTestTrait.new("p_poison.gd", 2))
+	var permanent_result: Dictionary = MonsterStatusAttackScript.apply(
+		status_attacker,
+		permanent_target,
+		6,
+		4,
+		100
+	)
+	_expect(
+		bool(permanent_result.get("blockedByPermanentCondition")),
+		"permanent Classic conditions reject temporary monster status"
+	)
+	var capped_target := ConditionTestCharacter.new("Capped target")
+	capped_target.traits.append(ConditionTestTrait.new("t_poison.gd", 30))
+	var capped_result: Dictionary = MonsterStatusAttackScript.apply(
+		status_attacker,
+		capped_target,
+		6,
+		4,
+		100
+	)
+	_expect(bool(capped_result.get("capped")), "monster status does not stack at 30 rounds")
+	var monster_target := ConditionTestCharacter.new("Monster target")
+	monster_target.is_player_controlled = false
+	monster_target.traits.append(ConditionTestTrait.new("t_poison.gd", 30))
+	var monster_target_result: Dictionary = MonsterStatusAttackScript.apply(
+		status_attacker,
+		monster_target,
+		6,
+		4,
+		100
+	)
+	_expect(
+		bool(monster_target_result.get("applied")),
+		"Classic monster targets do not use the party's 30-round gate"
+	)
+	var resistant_monster := ConditionTestCharacter.new("Resistant monster")
+	resistant_monster.is_player_controlled = false
+	resistant_monster.set_meta("classic_magic_resistance", 101)
+	var resisted_monster_result: Dictionary = MonsterStatusAttackScript.apply(
+		status_attacker,
+		resistant_monster,
+		6,
+		4,
+		100
+	)
+	_expect(
+		bool(resisted_monster_result.get("blockedByMagicResistance")),
+		"monster magic resistance over 100 stops Classic status attacks"
+	)
+	_expect(resistant_monster.traits.is_empty(), "immune monsters receive no status trait")
 	_expect_equal(
 		monster.get("data", {}).get("tags", []).size(),
 		8,
@@ -4673,7 +4817,7 @@ func _test_classic_bestiary_materializer() -> void:
 	var unsupported_bundle = BundleScript.new()
 	unsupported_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
 	_clear_producer_monster_equipment(unsupported_bundle)
-	unsupported_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 1
+	unsupported_bundle.documents["content"]["monsters"][0]["attacks"][0][3] = 8
 	_expect_equal(
 		materializer.materialize(unsupported_bundle, unsupported_root).get("status"),
 		"ok",
