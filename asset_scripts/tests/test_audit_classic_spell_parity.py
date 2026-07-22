@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 245)
+        self.assertEqual(report["totals"]["supportedIdentities"], 247)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -336,6 +336,28 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertEqual(row["behavior"]["partyAllegiance"], "restore-base")
             self.assertEqual(row["behavior"]["monsterAllegiance"], "preserve")
             self.assertEqual(row["behavior"]["forceAffectCode"], force_affect_code)
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id, expected_cost in {1410: 6, 2309: 30}.items():
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(
+                row["classification"], "native-special-curse-removal"
+            )
+            self.assertEqual(row["behavior"]["special"], 62)
+            self.assertEqual(row["behavior"]["conditionIndex"], 3)
+            self.assertEqual(
+                row["behavior"]["effect"],
+                "clear-cursed-condition-and-unequip-all-equipped-cursed-items",
+            )
+            self.assertEqual(
+                row["behavior"]["itemSelection"],
+                "all-equipped-cursed-items-per-target",
+            )
+            self.assertEqual(row["behavior"]["inventoryMutation"], "preserve-items")
+            self.assertEqual(row["behavior"]["costPerPower"], expected_cost)
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )

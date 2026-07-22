@@ -7101,6 +7101,62 @@
         "adapter": "source-record-backed-temporary-condition-dispel",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1410,
+      "displayName": "Remove Item",
+      "classification": "native-special-curse-removal",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/remove_item.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 54, "byteOffset": 1620, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-62-curse-removal", "slots": [0]}],
+      "behavior": {
+        "targetType": "power-selected-characters",
+        "range": 1,
+        "lineOfSight": true,
+        "availability": ["combat", "camp"],
+        "effect": "clear-cursed-condition-and-unequip-all-equipped-cursed-items",
+        "conditionIndex": 3,
+        "conditionDurations": ["temporary", "permanent"],
+        "itemSelection": "all-equipped-cursed-items-per-target",
+        "inventoryMutation": "preserve-items",
+        "unequipMode": "forced-native-bookkeeping",
+        "forceAffectCode": 4,
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "special": 62,
+        "costPerPower": 6,
+        "adapter": "source-record-backed-curse-and-equipment-removal",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2309,
+      "displayName": "Remove Items",
+      "classification": "native-special-curse-removal",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/remove_items.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 143, "byteOffset": 4290, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-62-curse-removal", "slots": [1]}],
+      "behavior": {
+        "targetType": "power-selected-characters",
+        "range": 1,
+        "lineOfSight": true,
+        "availability": ["combat", "camp"],
+        "effect": "clear-cursed-condition-and-unequip-all-equipped-cursed-items",
+        "conditionIndex": 3,
+        "conditionDurations": ["temporary", "permanent"],
+        "itemSelection": "all-equipped-cursed-items-per-target",
+        "inventoryMutation": "preserve-items",
+        "unequipMode": "forced-native-bookkeeping",
+        "forceAffectCode": 4,
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "special": 62,
+        "costPerPower": 30,
+        "adapter": "source-record-backed-curse-and-equipment-removal",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

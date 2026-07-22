@@ -473,6 +473,21 @@ class ConditionTestCharacter:
 		current_hp += change
 
 
+class CurseRemovalTestCharacter:
+	extends RefCounted
+	var inventory: Array = []
+	var traits: Array = []
+	var unequip_checks: Array[bool] = []
+
+	func remove_trait(condition_trait: Variant) -> void:
+		traits.erase(condition_trait)
+
+	func unequip_item(item: Dictionary, check_script := true) -> bool:
+		unequip_checks.append(check_script)
+		item["equipped"] = 0
+		return true
+
+
 class HelplessTestTrait:
 	extends RefCounted
 	var name := "t_helpless.gd"
@@ -1504,6 +1519,7 @@ func _init() -> void:
 	_test_classic_power_surge_spells()
 	_test_classic_summon_spells()
 	_test_classic_destroy_magic_spells()
+	_test_classic_remove_item_spells()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -9288,6 +9304,84 @@ func _test_classic_destroy_magic_spells() -> void:
 	_expect_equal(no_effect_target.traits.size(), 1, "zero-scale dispel preserves traits")
 
 
+func _test_classic_remove_item_spells() -> void:
+	var expected := {
+		1410: ["res://shared_assets/spells/remove_item.gd", "Remove Item", "Sorcerer", 4, 6, [22, 13]],
+		2309: ["res://shared_assets/spells/remove_items.gd", "Remove Items", "Priest", 3, 30, [22, 24]],
+	}
+	for spell_id: int in expected:
+		var values: Array = expected[spell_id]
+		var spell = load(str(values[0])).new()
+		_expect_equal(spell.name, values[1], "curse removal display name %d" % spell_id)
+		_expect_equal(spell.classic_spell_ids, [spell_id], "curse removal exact ID %d" % spell_id)
+		_expect_equal(spell.classic_special, 62, "curse removal special %d" % spell_id)
+		_expect_equal(spell.classic_cannot, 4, "curse removal force-affect code %d" % spell_id)
+		_expect_equal(spell.get_range(3, null), 1, "curse removal range %d" % spell_id)
+		_expect_equal(
+			spell.get_sp_cost(3, null),
+			int(values[4]) * 3,
+			"curse removal cost %d" % spell_id
+		)
+		_expect_equal(spell.get_target_number(3, null), 3, "curse removal targets %d" % spell_id)
+		_expect_equal(spell.targettile, Spell.TARGET_TILE.CREATURE, "curse removal target %d" % spell_id)
+		_expect(spell.los, "curse removal requires line of sight %d" % spell_id)
+		_expect(spell.in_combat and spell.in_field, "curse removal works in combat and camp %d" % spell_id)
+		_expect_equal(spell.classic_spell_save_index, -1, "curse removal has no save %d" % spell_id)
+		_expect_equal(spell.classic_spell_save_mode, "none", "curse removal save mode %d" % spell_id)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"curse removal bypasses resistance %d" % spell_id
+		)
+		_expect_equal(spell.classic_spell_look_ids, [4, 4], "curse removal source art %d" % spell_id)
+		_expect_equal(spell.classic_sound_ids, values[5], "curse removal source sounds %d" % spell_id)
+		_expect_equal(
+			int(spell.school_levels.get(str(values[2]), 0)),
+			values[3],
+			"curse removal source level %d" % spell_id
+		)
+
+	var target := CurseRemovalTestCharacter.new()
+	target.traits = [
+		ConditionTestTrait.new("p_cursed.gd", 1),
+		ConditionTestTrait.new("t_cursed.gd", 4),
+		ConditionTestTrait.new("p_blind.gd", 1),
+	]
+	target.inventory = [
+		{"name": "Native cursed sword", "equipped": 1, "traits": [["p_cursed.gd", []]]},
+		{"name": "Classic cursed ring", "equipped": 1, "classicCursedItemId": 318},
+		{"name": "Carried cursed cloak", "equipped": 0, "classicRecord": {"cursedItemId": 77}},
+		{"name": "Ordinary shield", "equipped": 1},
+	]
+	var remove_items = load("res://shared_assets/spells/remove_items.gd").new()
+	_expect_equal(
+		remove_items.apply_classic_scaled_effect(null, target, 1, 1.0),
+		4,
+		"Remove Items clears two curse traits and unequips two cursed items"
+	)
+	_expect_equal(target.traits.size(), 1, "Remove Items clears temporary and permanent curse traits")
+	_expect_equal(target.traits[0].name, "p_blind.gd", "Remove Items preserves unrelated conditions")
+	_expect_equal(target.inventory.size(), 4, "Remove Items never deletes inventory entries")
+	_expect_equal(target.inventory[0].get("equipped"), 0, "native cursed item is unequipped")
+	_expect_equal(target.inventory[1].get("equipped"), 0, "Classic cursed item is unequipped")
+	_expect_equal(target.inventory[2].get("equipped"), 0, "carried cursed item remains carried")
+	_expect_equal(target.inventory[3].get("equipped"), 1, "ordinary equipment remains worn")
+	_expect_equal(target.unequip_checks, [false, false], "curse removal forces normal unequip bookkeeping")
+
+	var no_effect_target := CurseRemovalTestCharacter.new()
+	no_effect_target.traits.append(ConditionTestTrait.new("t_cursed.gd", 2))
+	no_effect_target.inventory.append(
+		{"name": "Cursed item", "equipped": 1, "traits": [["p_cursed.gd", []]]}
+	)
+	_expect_equal(
+		remove_items.apply_classic_scaled_effect(null, no_effect_target, 1, 0.0),
+		0,
+		"zero-scale curse removal does not mutate the target"
+	)
+	_expect_equal(no_effect_target.traits.size(), 1, "zero-scale curse removal preserves conditions")
+	_expect_equal(no_effect_target.inventory[0].get("equipped"), 1, "zero-scale curse removal preserves equipment")
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -9369,7 +9463,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		245,
+		247,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -9523,6 +9617,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"Destroy Magic %d uses the reviewed dispel adapter" % dispel_id
 		)
+	for curse_removal_id: int in [1410, 2309]:
+		_expect_equal(
+			coverage_by_id.get(curse_removal_id, {}).get("coverageStatus"),
+			"supported",
+			"curse removal %d uses the reviewed inventory adapter" % curse_removal_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -9643,8 +9743,9 @@ func _test_classic_spell_coverage() -> void:
 		1311, 2311,
 		1106, 1607, 1709, 2106, 2203, 2405, 2408, 2507, 2601, 2701, 2707,
 		3307, 3407, 3606, 3609, 3612, 3705,
+		1410, 2309,
 	]
-	_expect_equal(migrated_spell_ids.size(), 192, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 194, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,

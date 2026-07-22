@@ -376,6 +376,14 @@ a hostile party character to the party faction, but does not undo a monster's
 changed allegiance; the adapter preserves that distinction. All three records
 bypass resistance and saving throws.
 
+Special `62` supplies the Sorcerer Remove Item and Priest Remove Items spells.
+Despite their names, both source records perform the same operation on every
+selected character: they clear temporary and permanent curse conditions, then
+force every equipped cursed item off through the ordinary unequip lifecycle.
+The items remain in inventory, unequipped cursed items are unchanged, and all
+other equipment stays worn. Each power adds one range-one target; both spells
+work in combat and camp and bypass resistance and saving throws.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

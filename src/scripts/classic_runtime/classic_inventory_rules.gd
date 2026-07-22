@@ -125,6 +125,30 @@ static func alter_named_items(
 	}
 
 
+static func remove_equipped_cursed_items(character: Object) -> Dictionary:
+	if character == null:
+		return _error("Classic curse removal target is unavailable")
+	var inventory_value: Variant = character.get("inventory")
+	if not (inventory_value is Array):
+		return _error("Classic curse removal target has no inventory")
+
+	var unequipped := 0
+	for item_value: Variant in inventory_value:
+		if not (item_value is Dictionary):
+			continue
+		var item: Dictionary = item_value
+		if int(item.get("equipped", 0)) != 1 or not _item_is_cursed(item):
+			continue
+		# Passing false is Remake's equivalent of Classic's force flag: it skips
+		# an item's normal unequip veto while retaining equipment bookkeeping.
+		if not _unequip_item(character, item):
+			return _error("Classic curse removal could not unequip '%s'" % item.get(
+				"name", "item"
+			))
+		unequipped += 1
+	return {"status": "applied", "unequipped": unequipped}
+
+
 static func capture_party_equipment(party: Array, pooled_money: Array) -> Dictionary:
 	var validation := _validate_party_storage(party, pooled_money)
 	if not validation.is_empty():
@@ -308,6 +332,24 @@ static func _equip_item(character: Object, item: Dictionary) -> bool:
 
 static func _item_matches(item: Dictionary, normalized_names: Dictionary) -> bool:
 	return normalized_names.has(str(item.get("name", "")).strip_edges().to_lower())
+
+
+static func _item_is_cursed(item: Dictionary) -> bool:
+	for field_name: String in ["classicCursedItemId", "cursedItemId"]:
+		if int(item.get(field_name, 0)) != 0:
+			return true
+	var classic_record: Variant = item.get("classicRecord", {})
+	if classic_record is Dictionary \
+			and int(classic_record.get("cursedItemId", 0)) != 0:
+		return true
+	var item_traits: Variant = item.get("traits", [])
+	if not (item_traits is Array):
+		return false
+	for trait_value: Variant in item_traits:
+		if trait_value is Array and not trait_value.is_empty() \
+				and str(trait_value[0]).get_file() == "p_cursed.gd":
+			return true
+	return false
 
 
 static func _normalized_names(item_names: Array) -> Dictionary:
