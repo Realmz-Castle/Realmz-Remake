@@ -992,6 +992,7 @@ func _init() -> void:
 	_test_classic_regeneration_spells()
 	_test_classic_protection_spells()
 	_test_classic_spell_screen_spells()
+	_test_classic_strong_spell()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7870,7 +7871,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		133,
+		134,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7997,8 +7998,9 @@ func _test_classic_spell_coverage() -> void:
 		2204, 2205, 2206, 2602, 2606, 3206, 3405, 3708,
 		2107, 2108, 2303, 2308, 3101, 3103, 3402, 3412,
 		1307, 1404, 1405, 1507, 1605, 1706, 2411,
+		2212,
 	]
-	_expect_equal(migrated_spell_ids.size(), 101, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 102, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8108,10 +8110,11 @@ func _test_classic_spell_coverage() -> void:
 		"Magic Screen IV": "res://shared_assets/spells/classic_core_1605_magic_screen_iv.gd",
 		"Magic Screen V": "res://shared_assets/spells/classic_core_1706_magic_screen_v.gd",
 		"Sphere of Protection": "res://shared_assets/spells/classic_core_2411_sphere_of_protection.gd",
+		"Super Brawn": "res://shared_assets/spells/classic_core_2212_super_brawn.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		102,
+		103,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9387,6 +9390,93 @@ func _test_classic_protection_spells() -> void:
 		"temporary protection does not replace an innate negative condition"
 	)
 	_expect_equal(innate.traits.size(), 1, "innate protection receives no temporary trait")
+
+
+func _test_classic_strong_spell() -> void:
+	var super_brawn = load(
+		"res://shared_assets/spells/classic_core_2212_super_brawn.gd"
+	).new()
+	_expect_equal(super_brawn.name, "Super Brawn", "Super Brawn resource identity")
+	_expect_equal(super_brawn.classic_spell_ids, [2212], "Super Brawn exact ID")
+	_expect_equal(super_brawn.classic_special, 22, "Super Brawn writes Strong condition 21")
+	_expect_equal(super_brawn.classic_spell_class, 8, "Super Brawn preserves spell class 8")
+	_expect_equal(super_brawn.classic_damage_type, 8, "Super Brawn remains miscellaneous")
+	_expect_equal(super_brawn.classic_spell_save_index, -1, "Super Brawn has no DRV save")
+	_expect_equal(super_brawn.classic_spell_save_mode, "none", "Super Brawn has no save mode")
+	_expect_equal(
+		super_brawn.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Super Brawn cannot miss or resist"
+	)
+	_expect(super_brawn.in_combat and super_brawn.in_field, "Super Brawn works in combat and camp")
+	_expect_equal(super_brawn.get_range(3, null), 1, "Super Brawn source range")
+	_expect_equal(super_brawn.get_target_number(3, null), 3, "Super Brawn targets one creature per power")
+	_expect_equal(super_brawn.get_min_duration(3, null), 3, "Super Brawn minimum duration")
+	_expect_equal(super_brawn.get_max_duration(3, null), 8, "Super Brawn maximum duration")
+	_expect_equal(super_brawn.get_sp_cost(3, null), 45, "Super Brawn casting cost")
+	_expect_equal(super_brawn.classic_spell_look_ids, [5, 5], "Super Brawn visuals")
+	_expect_equal(super_brawn.classic_sound_ids, [83, 21], "Super Brawn sounds")
+	_expect(super_brawn.elements.is_empty(), "Super Brawn has no damage element")
+
+	var first := SpellScreenTestCharacter.new("First", true)
+	var second := SpellScreenTestCharacter.new("Second", true)
+	_expect_equal(
+		super_brawn.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Super Brawn applies Strong to every selected target"
+	)
+	var first_trait: Variant = first.traits[0]
+	var second_trait: Variant = second.traits[0]
+	_expect_equal(first_trait.name, "t_classic_strong.gd", "Super Brawn uses its Classic Strong trait")
+	_expect_equal(
+		first_trait.duration_seconds,
+		second_trait.duration_seconds,
+		"one Classic duration roll is shared by every Strong target"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("AccuracyMelee", 0),
+		3,
+		"Strong adds 15 percentage points of melee accuracy"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("AccuracyRanged", 0),
+		3,
+		"Strong adds 15 percentage points of ranged accuracy"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("Bonus_Physical_dmg", 0),
+		3,
+		"Strong adds three physical damage"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("AccuracyMagic", 2),
+		2,
+		"Strong does not alter magical accuracy"
+	)
+	_expect_equal(
+		first_trait.elapsed_hour_boundaries(3599, 7201),
+		2,
+		"Strong field duration decreases once per crossed Classic hour"
+	)
+	first_trait.duration_seconds = 5
+	first_trait._on_new_round(first)
+	_expect(first.traits.is_empty(), "Strong expires after its last round")
+
+	var capped := SpellScreenTestCharacter.new("Capped", true)
+	capped.add_trait(load("res://shared_assets/traits/t_classic_strong.gd"), [98])
+	_expect_equal(
+		super_brawn.apply_classic_scaled_effect(null, capped, 1, 1.0),
+		0,
+		"player Strong rejects a duration that would exceed condition 99"
+	)
+	_expect_equal(capped.traits[0].get_saved_variables(), [98], "rejected Strong leaves duration unchanged")
+	var innate := ProtectionTestCharacter.new("Innate", true)
+	innate.traits.append(ProtectionTestTrait.new("p_strong.gd", 1))
+	_expect_equal(
+		super_brawn.apply_classic_scaled_effect(null, innate, 1, 1.0),
+		0,
+		"temporary Strong does not replace an innate negative condition"
+	)
 
 
 func _test_classic_spell_screen_spells() -> void:

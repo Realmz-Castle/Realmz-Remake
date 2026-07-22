@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 133)
+        self.assertEqual(report["totals"]["supportedIdentities"], 134)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -257,6 +257,17 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         self.assertEqual(psi_shield["behavior"]["effect"], "halve-mental-damage")
         self.assertFalse(psi_shield["behavior"]["charmProtection"])
+        super_brawn = matrix_by_id[2212]
+        self.assertEqual(super_brawn["supportStatus"], "supported")
+        self.assertEqual(super_brawn["classification"], "native-special-strong")
+        self.assertEqual(
+            super_brawn["behavior"]["accuracyTranslation"],
+            "plus-3-remake-stat-points",
+        )
+        super_brawn_resource = (
+            REPO_ROOT / "src" / super_brawn["resource"].removeprefix("res://")
+        )
+        self.assertTrue(super_brawn_resource.is_file(), super_brawn_resource)
         parameterized_damage_ids = {
             1601,
             1703,

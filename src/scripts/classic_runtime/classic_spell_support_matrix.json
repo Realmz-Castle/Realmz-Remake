@@ -416,6 +416,14 @@
       ]
     },
     {
+      "id": "core-player-spell-strong",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 131, "displayName": "Priest Super Brawn"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -3775,6 +3783,32 @@
         "special": 20,
         "costPerPower": 50,
         "adapter": "layered-classic-spell-screen",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2212,
+      "displayName": "Super Brawn",
+      "classification": "native-special-strong",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2212_super_brawn.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 131, "byteOffset": 3930, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-strong", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 1,
+        "duration": "3-8-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "plus-15-percent-physical-accuracy-plus-3-physical-damage",
+        "nativeTrait": "t_classic_strong.gd",
+        "accuracyTranslation": "plus-3-remake-stat-points",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 22,
+        "costPerPower": 15,
+        "adapter": "classic-strong-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }
