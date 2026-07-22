@@ -6098,6 +6098,36 @@
         "adapter": "source-record-backed-native-magic-aura-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 2408,
+      "displayName": "Poison",
+      "classification": "native-special-poison",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/poison.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 157, "byteOffset": 4710, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-10-poison", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 1,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "immediateDamage": "two-chemical",
+        "duration": "permanent-two-damage-poison",
+        "conditionIndex": 9,
+        "conditionTick": "once-per-combat-round-or-crossed-game-hour",
+        "savedCondition": "full-permanent-poison",
+        "temporaryCondition": "replaced-by-permanent",
+        "animatedPartyTarget": "clear-lingering-poison",
+        "animatedOrMentalImmuneMonster": "clear-lingering-poison",
+        "saveMode": "half-immediate-damage",
+        "saveIndex": 4,
+        "resistance": "class-immunity-screen-and-classic-general",
+        "special": 10,
+        "costPerPower": 25,
+        "adapter": "source-record-backed-native-permanent-poison-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

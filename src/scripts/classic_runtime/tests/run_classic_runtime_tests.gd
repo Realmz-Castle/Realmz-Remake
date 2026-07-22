@@ -443,6 +443,7 @@ class ConditionTestCharacter:
 	extends RefCounted
 	var name: String
 	var life_status: int
+	var is_player_controlled := true
 	var current_hp := 20
 	var traits: Array = []
 
@@ -1328,6 +1329,7 @@ func _init() -> void:
 	_test_classic_petrification_spells()
 	_test_classic_blindness_spell()
 	_test_classic_disease_spells()
+	_test_classic_poison_spell()
 	_test_classic_spell_deflectors()
 	_test_classic_attack_deflectors()
 	_test_classic_attack_bonus_spells()
@@ -8269,7 +8271,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		207,
+		208,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8343,6 +8345,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(2502, {}).get("coverageStatus"),
 		"supported",
 		"Disease uses the reviewed Classic disease adapter"
+	)
+	_expect_equal(
+		coverage_by_id.get(2408, {}).get("coverageStatus"),
+		"supported",
+		"Poison uses the reviewed permanent condition adapter"
 	)
 	for deflector_id: int in [1508, 1707, 2406, 2603, 3507, 3703]:
 		_expect_equal(
@@ -8518,9 +8525,9 @@ func _test_classic_spell_coverage() -> void:
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
-		2106, 2203, 3407,
+		2106, 2203, 2408, 3407,
 	]
-	_expect_equal(migrated_spell_ids.size(), 178, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 179, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8698,10 +8705,11 @@ func _test_classic_spell_coverage() -> void:
 		"Dumbstruck": "res://shared_assets/spells/classic_core_2203_dumbstruck.gd",
 		"Mind Blank": "res://shared_assets/spells/classic_core_3407_mind_blank.gd",
 		"Magic Aura": "res://shared_assets/spells/magic_aura.gd",
+		"Poison": "res://shared_assets/spells/poison.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		170,
+		171,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11564,6 +11572,122 @@ func _test_classic_disease_spells() -> void:
 			'begin_classic_target_resolution'
 		),
 		"combat resolution brackets multi-target Classic condition rolls"
+	)
+
+
+func _test_classic_poison_spell() -> void:
+	var poison = load("res://shared_assets/spells/poison.gd").new()
+	_expect_equal(poison.name, "Poison", "Poison native resource identity")
+	_expect_equal(poison.classic_spell_ids, [2408], "Poison exact ID")
+	_expect_equal(poison.classic_special, 10, "Poison uses condition special 10")
+	_expect_equal(poison.classic_spell_class, 4, "Poison source spell class")
+	_expect_equal(poison.classic_damage_type, 4, "Poison uses chemical damage")
+	_expect_equal(poison.classic_cannot, 0, "Poison preserves resistance gates")
+	_expect_equal(poison.classic_spell_save_index, 4, "Poison uses chemical saves")
+	_expect_equal(poison.classic_spell_save_mode, "half_damage", "a save halves Poison damage")
+	_expect_equal(poison.resist, Spell.RESIST_TYPE.IGNORE_DODGE, "Poison checks magic resistance")
+	_expect(poison.in_combat and not poison.in_field, "Poison is combat-only")
+	_expect_equal(poison.get_range(3, null), 1, "Poison source range")
+	_expect_equal(poison.get_target_number(3, null), 3, "Poison targets one creature per power")
+	_expect_equal(poison.get_damage_roll(3, null), 2, "Poison deals fixed immediate damage")
+	_expect_equal(poison.get_duration_roll(3, null), -2, "Poison applies a fixed permanent condition")
+	_expect_equal(poison.get_sp_cost(3, null), 75, "Poison casting cost")
+	_expect_equal(poison.classic_spell_look_ids, [7, 12], "Poison visuals")
+	_expect_equal(poison.classic_sound_ids, [40, 84], "Poison sounds")
+	_expect_equal(poison.targettile, Spell.TARGET_TILE.CREATURE, "Poison targets creatures")
+	_expect_equal(poison.get_aoe(3, null), Spell.AoE_b1, "Poison has no area spread")
+	_expect(
+		not poison.has_method("apply_classic_scaled_effect"),
+		"Poison leaves immediate damage on Remake's save-scaled spell path"
+	)
+
+	var save_target := RogueTestCharacter.new()
+	SpellSavesScript.apply_monster_metadata(
+		save_target,
+		[0, 0, 0, 0, 100, 0],
+		[0, 0, 0, 0, 0, 0]
+	)
+	var saved_poison: Dictionary = SpellSavesScript.target_resolution(
+		save_target, poison, 3, 1
+	)
+	_expect(saved_poison.get("saved"), "Poison executes its chemical save")
+	_expect_equal(
+		saved_poison.get("effectScale"),
+		0.5,
+		"a Poison save halves immediate damage without negating its condition"
+	)
+	var class_immune := DiseaseTestCharacter.new("Chemical immune monster")
+	SpellSavesScript.apply_monster_metadata(
+		class_immune,
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 1, 0]
+	)
+	var immunity_result: Dictionary = MagicResistanceScript.spell_resolution(
+		class_immune, poison, 1, 100
+	)
+	_expect_equal(
+		immunity_result.get("reason"),
+		"spell-class-immunity",
+		"Poison respects chemical-class immunity before damage and condition handling"
+	)
+
+	var temporary_poison: GDScript = load("res://shared_assets/traits/t_poison.gd")
+	var permanent_target := DiseaseTestCharacter.new("Poison target", true)
+	permanent_target.add_trait(temporary_poison, [5])
+	poison.begin_classic_target_resolution(null, 3)
+	poison.add_traits_to_creature(null, permanent_target, 3)
+	poison.end_classic_target_resolution()
+	_expect_equal(permanent_target.traits.size(), 1, "permanent Poison replaces temporary poison")
+	var permanent_trait: Variant = permanent_target.traits[0]
+	_expect_equal(permanent_trait.name, "p_poison.gd", "Poison uses Remake's saved poison trait")
+	_expect_equal(permanent_trait.get_saved_variables(), [2], "Poison stores its full condition power")
+	permanent_trait._on_new_round(permanent_target)
+	_expect_equal(permanent_target.current_hp, 18, "permanent Poison deals round damage")
+	_expect_equal(permanent_trait.get_saved_variables(), [2], "permanent Poison does not decay")
+
+	var heal_poison = load("res://shared_assets/spells/classic_core_2206_heal_poison.gd").new()
+	_expect_equal(
+		heal_poison.apply_classic_scaled_effect(null, permanent_target, 1, 1.0),
+		1,
+		"Heal Poison removes permanent Poison"
+	)
+	_expect(permanent_target.traits.is_empty(), "Poison remains curable through the native spell")
+
+	var mental_immune := DiseaseTestCharacter.new("Mental immune monster")
+	mental_immune.add_trait(temporary_poison, [3])
+	SpellSavesScript.apply_monster_metadata(
+		mental_immune,
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 1]
+	)
+	poison.add_traits_to_creature(null, mental_immune, 1)
+	_expect(
+		mental_immune.traits.is_empty(),
+		"Poison's source special clears lingering poison from mental-immune monsters"
+	)
+
+	var animated_target := DiseaseTestCharacter.new("Animated target", true)
+	animated_target.traits.append(ConditionTestTrait.new("p_animated.gd", 1))
+	animated_target.add_trait(temporary_poison, [3])
+	poison.add_traits_to_creature(null, animated_target, 1)
+	_expect_equal(animated_target.traits.size(), 1, "permanent animation clears lingering poison")
+	_expect_equal(animated_target.traits[0].name, "p_animated.gd", "animation itself remains intact")
+
+	var poison_rules = load("res://scripts/classic_runtime/classic_poison.gd")
+	_expect_equal(
+		poison_rules.elapsed_hour_boundaries(3599, 7201),
+		2,
+		"field poison ticks once per crossed game hour"
+	)
+	_expect_equal(
+		poison_rules.player_reduction(3),
+		{"power": 2, "damage": 3},
+		"party poison damages before reducing its temporary condition"
+	)
+	_expect_equal(
+		poison_rules.monster_reduction(3),
+		{"power": 2, "damage": 2},
+		"monster poison reduces before dealing temporary-condition damage"
 	)
 
 
@@ -14710,18 +14834,33 @@ func _test_give_condition_action() -> void:
 		"the native trait exposes the value used by character saves"
 	)
 	poison_effect._on_time_pass(effect_target, 5)
-	_expect_equal(effect_target.current_hp, 18, "native permanent poison deals periodic damage")
+	_expect_equal(
+		effect_target.current_hp,
+		20,
+		"native permanent poison waits for a crossed game-hour boundary"
+	)
 	var permanent_disease: GDScript = load("res://shared_assets/traits/p_disease.gd")
-	var disease_effect: Variant = permanent_disease.new([effect_target, 3])
-	disease_effect._on_time_pass(effect_target, 5)
-	_expect_equal(effect_target.current_hp, 15, "native permanent disease deals periodic damage")
-	var temporary_poison_effect: Variant = temporary_poison.new([effect_target, 2])
-	temporary_poison_effect._on_time_pass(effect_target, 5)
-	_expect_equal(effect_target.current_hp, 13, "native temporary poison deals periodic damage")
+	var disease_target := ConditionTestCharacter.new("Disease effect target")
+	var disease_effect: Variant = permanent_disease.new([disease_target, 3])
+	disease_effect._on_time_pass(disease_target, 5)
+	_expect_equal(disease_target.current_hp, 17, "native permanent disease deals periodic damage")
+	var temporary_poison_target := ConditionTestCharacter.new("Temporary poison target")
+	var temporary_poison_effect: Variant = temporary_poison.new([temporary_poison_target, 2])
+	temporary_poison_effect._on_time_pass(temporary_poison_target, 5)
+	_expect_equal(
+		temporary_poison_target.current_hp,
+		20,
+		"native temporary poison waits for a crossed game-hour boundary"
+	)
 	var temporary_disease: GDScript = load("res://shared_assets/traits/t_disease.gd")
-	var temporary_disease_effect: Variant = temporary_disease.new([effect_target, 3])
-	temporary_disease_effect._on_time_pass(effect_target, 5)
-	_expect_equal(effect_target.current_hp, 10, "native temporary disease deals periodic damage")
+	var temporary_disease_target := ConditionTestCharacter.new("Temporary disease target")
+	var temporary_disease_effect: Variant = temporary_disease.new([temporary_disease_target, 3])
+	temporary_disease_effect._on_time_pass(temporary_disease_target, 5)
+	_expect_equal(
+		temporary_disease_target.current_hp,
+		17,
+		"native temporary disease deals periodic damage"
+	)
 
 	var bundle = _give_condition_test_bundle()
 	var interpreter = _interpreter(bundle)

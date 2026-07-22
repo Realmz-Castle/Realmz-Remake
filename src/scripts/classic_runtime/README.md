@@ -263,6 +263,16 @@ Aura traits add one native point rather than the legacy script's five-point,
 twenty-five-percentage-point bonus. Temporary Aura follows the Classic
 round/game-hour condition clock and cannot replace permanent Aura.
 
+Poison `2408` now uses a native source-record adapter instead of the stale
+generated spell-book definition. An unresisted hit deals two chemical damage;
+a successful chemical save halves only that immediate damage. The spell then
+replaces temporary poison with a permanent two-damage condition, which ticks
+once per combat round or crossed game hour until Heal Poison removes it.
+Classic's special cleanup is retained: permanent animation clears poison from
+party members, while any animation or mental-class immunity clears it from
+monsters. Chemical class immunity remains part of the earlier spell-resistance
+stage and prevents the hit entirely.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

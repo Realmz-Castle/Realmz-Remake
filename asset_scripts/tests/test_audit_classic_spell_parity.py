@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 207)
+        self.assertEqual(report["totals"]["supportedIdentities"], 208)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -497,6 +497,15 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             matrix_by_id[2502]["behavior"]["savedCondition"],
             "full-permanent-disease",
         )
+        poison = matrix_by_id[2408]
+        self.assertEqual(poison["supportStatus"], "supported")
+        self.assertEqual(poison["classification"], "native-special-poison")
+        self.assertEqual(poison["behavior"]["conditionIndex"], 9)
+        self.assertEqual(poison["behavior"]["savedCondition"], "full-permanent-poison")
+        poison_resource = (
+            REPO_ROOT / "src" / poison["resource"].removeprefix("res://")
+        )
+        self.assertTrue(poison_resource.is_file(), poison_resource)
         for spell_id in {1508, 1707, 2406, 2603, 3507, 3703}:
             deflector = matrix_by_id[spell_id]
             self.assertEqual(deflector["supportStatus"], "supported")
