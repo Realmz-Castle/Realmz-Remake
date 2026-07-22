@@ -10,7 +10,7 @@ func _init() -> void :
 	classic_spell_response_ids = [1108, 3208]
 	classic_spell_save_index = -1
 	classic_spell_save_mode = "none"
-	targettile = TARGET_TILE.NOWALL
+	targettile = TARGET_TILE.CREATURE
 	school_levels = {"Sorcerer": 1, "Priest": 0, "Enchanter": 2}
 	selection_costs = {"Sorcerer": 1, "Priest": 0, "Enchanter": 3}
 	in_combat = true

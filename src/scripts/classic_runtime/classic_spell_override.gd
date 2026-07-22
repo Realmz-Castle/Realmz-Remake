@@ -196,6 +196,8 @@ func _configure_targeting() -> void:
 		autotarget_type = AUTOTARGET_TYPE.SELF
 		return
 	match classic_target_type:
+		0:
+			targettile = TARGET_TILE.CREATURE
 		1:
 			targettile = TARGET_TILE.CREATURE
 		2:

@@ -17,6 +17,7 @@ def spell_record(
     special: int = 0,
     cost: int = 5,
     sound: int = 1,
+    queue_icon: int = 0,
 ) -> dict:
     record = {field: 0 for field in audit.MECHANIC_FIELDS}
     record.update(
@@ -31,7 +32,7 @@ def spell_record(
             "inCombat": 1,
             "sound1": sound,
             "sound2": 2,
-            "queueIcon": 3,
+            "queueIcon": queue_icon,
             "spellLook1": 4,
             "spellLook2": 5,
         }
@@ -54,6 +55,33 @@ def spell_record(
 
 
 class ClassicSpellParityAuditTests(unittest.TestCase):
+    def test_generic_records_are_split_by_runtime_mechanism(self) -> None:
+        direct = spell_record(1101)
+        self.assertEqual(audit.generic_implementation_lane(direct), "direct-damage")
+
+        queued = spell_record(1102, queue_icon=3)
+        self.assertEqual(
+            audit.generic_implementation_lane(queued), "queued-area-engine-gap"
+        )
+
+        utility = spell_record(1103, cost=-1)
+        self.assertEqual(
+            audit.generic_implementation_lane(utility), "field-utility-review"
+        )
+
+        missile = spell_record(1104)
+        missile["record"]["spellClass"] = 9
+        self.assertEqual(
+            audit.generic_implementation_lane(missile), "missile-specialization"
+        )
+
+        no_effect = spell_record(1105)
+        for field in ("damage1", "damage2", "powerDamage1", "powerDamage2"):
+            no_effect["record"][field] = 0
+        self.assertEqual(
+            audit.generic_implementation_lane(no_effect), "no-source-effect-review"
+        )
+
     def test_mechanic_family_ignores_presentation_only_changes(self) -> None:
         first = spell_record(1101, sound=1)
         second = spell_record(1102, sound=99)
@@ -153,13 +181,46 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
+        self.assertEqual(report["totals"]["supportedIdentities"], 64)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
             252,
         )
         self.assertEqual(report["validationErrors"], [])
+        self.assertEqual(
+            report["totals"]["genericImplementationLanes"],
+            {
+                "field-utility-review": 15,
+                "missile-specialization": 1,
+                "no-source-effect-review": 1,
+                "queued-area-engine-gap": 20,
+            },
+        )
         self.assertEqual(report, audit.build_report(inventory, matrix, native, legacy))
+
+        matrix_by_id = {
+            int(row["classicSpellId"]): row for row in matrix.get("spells", [])
+        }
+        parameterized_damage_ids = {
+            1601,
+            1703,
+            2705,
+            3108,
+            3205,
+            3501,
+            3601,
+            3602,
+            3710,
+        }
+        for spell_id in parameterized_damage_ids:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-parameterized-damage")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
 
 
 if __name__ == "__main__":

@@ -127,6 +127,22 @@
       ]
     },
     {
+      "id": "core-player-spell-parameterized-damage-batch-3",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 75, "displayName": "Annihilate"},
+        {"sourceFile": "Data S", "recordIndex": 92, "displayName": "Fire Flies"},
+        {"sourceFile": "Data S", "recordIndex": 199, "displayName": "Meteor Shower"},
+        {"sourceFile": "Data S", "recordIndex": 217, "displayName": "Repulsive Bubble"},
+        {"sourceFile": "Data S", "recordIndex": 229, "displayName": "Electric Pulse"},
+        {"sourceFile": "Data S", "recordIndex": 270, "displayName": "Acid Bath"},
+        {"sourceFile": "Data S", "recordIndex": 285, "displayName": "Ball Lightning"},
+        {"sourceFile": "Data S", "recordIndex": 286, "displayName": "Caustic Vapor"},
+        {"sourceFile": "Data S", "recordIndex": 309, "displayName": "Static Discharge"}
+      ]
+    },
+    {
       "id": "core-player-spell-generic-ray-batch",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -867,6 +883,33 @@
       }
     },
     {
+      "classicSpellId": 1601,
+      "displayName": "Annihilate",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1601_annihilate.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 75,
+        "byteOffset": 2250,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "fixed-size-area",
+        "range": 6,
+        "damage": "20-30-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 6,
+        "resistance": "classic-general",
+        "costPerPower": 50,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1603,
       "displayName": "Fearful Thoughts",
       "classification": "native-compatibility-variant",
@@ -919,6 +962,35 @@
         "saveIndex": 2,
         "resistance": "classic-general",
         "costPerPower": 60
+      }
+    },
+    {
+      "classicSpellId": 1703,
+      "displayName": "Fire Flies",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1703_fire_flies.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 92,
+        "byteOffset": 2760,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [1]}
+      ],
+      "behavior": {
+        "targetType": "power-scaled-target-count",
+        "range": 15,
+        "lineOfSight": false,
+        "damage": "35-40-fixed-per-target",
+        "saveMode": "half-damage",
+        "saveIndex": 1,
+        "saveBonus": -20,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1281,6 +1353,34 @@
       }
     },
     {
+      "classicSpellId": 2705,
+      "displayName": "Meteor Shower",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2705_meteor_shower.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 199,
+        "byteOffset": 5970,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [2]}
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 10,
+        "lineOfSight": false,
+        "damage": "40-60-fixed",
+        "saveMode": "none",
+        "saveBypass": "cannot=3",
+        "resistance": "none-force-affect",
+        "costPerPower": 40,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2706,
       "displayName": "Mind Melt",
       "classification": "native-direct",
@@ -1420,6 +1520,34 @@
       }
     },
     {
+      "classicSpellId": 3108,
+      "displayName": "Repulsive Bubble",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3108_repulsive_bubble.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 217,
+        "byteOffset": 6510,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [3]}
+      ],
+      "behavior": {
+        "targetType": "self-centered-radiant",
+        "range": 0,
+        "damage": "1-6-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "saveBonus": -10,
+        "resistance": "classic-general",
+        "costPerPower": 6,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3202,
       "displayName": "Daze",
       "classification": "native-special-adapter",
@@ -1447,6 +1575,33 @@
         "special": 30,
         "adapter": "classic-confusion-trait",
         "costPerPower": 7
+      }
+    },
+    {
+      "classicSpellId": 3205,
+      "displayName": "Electric Pulse",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3205_electric_pulse.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 229,
+        "byteOffset": 6870,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [4]}
+      ],
+      "behavior": {
+        "targetType": "fixed-size-area",
+        "range": 10,
+        "damage": "2-8-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 3,
+        "resistance": "classic-general",
+        "costPerPower": 25,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1694,6 +1849,34 @@
       }
     },
     {
+      "classicSpellId": 3501,
+      "displayName": "Acid Bath",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3501_acid_bath.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 270,
+        "byteOffset": 8100,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [5]}
+      ],
+      "behavior": {
+        "targetType": "fixed-round-area",
+        "range": 15,
+        "lineOfSight": false,
+        "damage": "5-10-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3505,
       "displayName": "Fearful Thoughts",
       "classification": "native-compatibility-variant",
@@ -1745,6 +1928,61 @@
         "saveMode": "none",
         "resistance": "classic-general",
         "costPerPower": 35
+      }
+    },
+    {
+      "classicSpellId": 3601,
+      "displayName": "Ball Lightning",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3601_ball_lightning.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 285,
+        "byteOffset": 8550,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [6]}
+      ],
+      "behavior": {
+        "targetType": "fixed-size-area",
+        "range": 10,
+        "damage": "30-40-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 3,
+        "resistance": "classic-general",
+        "costPerPower": 75,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3602,
+      "displayName": "Caustic Vapor",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3602_caustic_vapor.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 286,
+        "byteOffset": 8580,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [7]}
+      ],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": "one-per-power",
+        "lineOfSight": false,
+        "damage": "20-25-fixed",
+        "saveMode": "half-damage",
+        "saveIndex": 4,
+        "resistance": "classic-general",
+        "costPerPower": 25,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1801,6 +2039,33 @@
         "saveAdjustPerPower": -2,
         "resistance": "classic-general",
         "costPerPower": 90
+      }
+    },
+    {
+      "classicSpellId": 3710,
+      "displayName": "Static Discharge",
+      "classification": "native-parameterized-damage",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3710_static_discharge.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 309,
+        "byteOffset": 9270,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-parameterized-damage-batch-3", "slots": [8]}
+      ],
+      "behavior": {
+        "targetType": "self-centered-radiant",
+        "range": 0,
+        "damage": "40-50-per-power",
+        "saveMode": "half-damage",
+        "saveIndex": 3,
+        "resistance": "classic-general",
+        "costPerPower": 75,
+        "implementation": "source-record-backed-native-family",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {

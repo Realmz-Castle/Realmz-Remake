@@ -130,4 +130,16 @@ record as proof of support. Only a curated support-matrix row can mark an exact
 Classic identity supported. Parsed legacy values are reported as migration
 hints and source disagreements are called out explicitly.
 
+`scaffold_classic_damage_spells.py` consumes that audit and drafts only the
+immediate-damage lane:
+
+```bash
+python scaffold_classic_damage_spells.py
+```
+
+It writes deterministic thin GDScript resources and `review-manifest.json` to
+`../tmp/classic-damage-spell-scaffold`. The manifest deliberately uses
+`review-required`; generated output must pass source-contract and runtime tests
+before its curated support-matrix rows are added.
+
 

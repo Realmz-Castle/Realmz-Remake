@@ -263,6 +263,47 @@ def _source_hints(spell: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def generic_implementation_lane(spell: dict[str, Any]) -> str:
+    """Return the narrow implementation lane for a source-generic record.
+
+    A zero ``special`` byte only rules out the named opcode switch. Queued
+    terrain, fixed-power field utilities, missiles, and records with no source
+    effect still need different runtime treatment from immediate damage.
+    """
+
+    record = spell.get("record", {})
+    if int(record.get("special", 0)) != 0:
+        return "special-handler"
+    if int(record.get("queueIcon", 0)) != 0:
+        return "queued-area-engine-gap"
+    if (
+        int(record.get("cost", 0)) <= 0
+        or int(record.get("targetType", 0)) in (7, 11)
+        or not bool(record.get("inCombat", 0))
+    ):
+        return "field-utility-review"
+
+    damage_fields = ("damage1", "damage2", "powerDamage1", "powerDamage2")
+    if not any(int(record.get(field, 0)) != 0 for field in damage_fields):
+        return "no-source-effect-review"
+    if abs(int(record.get("spellClass", 0))) == 9:
+        return "missile-specialization"
+
+    duration_fields = (
+        "duration1",
+        "duration2",
+        "powerDuration1",
+        "powerDuration2",
+    )
+    if (
+        abs(int(record.get("damageType", 0))) in range(1, 8)
+        and not any(int(record.get(field, 0)) != 0 for field in duration_fields)
+        and int(record.get("targetType", 0)) in (0, 1, 3, 4, 10)
+    ):
+        return "direct-damage"
+    return "generic-mechanic-review"
+
+
 def compare_legacy_hints(spell: dict[str, Any], legacy: dict[str, Any]) -> dict[str, Any]:
     expected = _source_hints(spell)
     compared: dict[str, dict[str, Any]] = {}
@@ -438,6 +479,7 @@ def build_report(
             "supportStatus": support_status,
             "classification": str(matrix_row.get("classification", "unclassified")),
             "coverageStatus": _coverage_status(value, matrix_row, native_paths),
+            "implementationLane": generic_implementation_lane(value),
             "nativeExactResources": native_paths,
             "nativeNameCandidates": sorted(
                 native_by_name.get(_normal_name(str(value.get("displayName", ""))), [])
@@ -520,17 +562,28 @@ def build_report(
 
     generic_rows = [row for row in remaining_rows if row["recordShape"] == "generic"]
     recommended_batches = []
-    if generic_rows:
+    generic_lanes: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in generic_rows:
+        generic_lanes[row["implementationLane"]].append(row)
+    lane_actions = {
+        "direct-damage": "implement-parameterized-native-family",
+        "missile-specialization": "implement-missile-native-family",
+        "no-source-effect-review": "verify-source-no-op-before-implementation",
+        "queued-area-engine-gap": "implement-queued-area-runtime",
+        "field-utility-review": "review-field-utility-family",
+        "generic-mechanic-review": "review-generic-mechanics",
+    }
+    for lane, lane_rows in generic_lanes.items():
         recommended_batches.append(
             {
-                "batchId": "generic-special-0",
-                "kind": "parameterized-generic",
-                "count": len(generic_rows),
-                "familyCount": len({row["mechanicFamilyId"] for row in generic_rows}),
-                "spellIds": sorted(row["classicSpellId"] for row in generic_rows),
-                "displayNames": sorted({row["displayName"] for row in generic_rows}),
+                "batchId": f"generic-{lane}",
+                "kind": lane,
+                "count": len(lane_rows),
+                "familyCount": len({row["mechanicFamilyId"] for row in lane_rows}),
+                "spellIds": sorted(row["classicSpellId"] for row in lane_rows),
+                "displayNames": sorted({row["displayName"] for row in lane_rows}),
                 "supportedExampleIds": [],
-                "recommendedAction": "implement-parameterized-native-family",
+                "recommendedAction": lane_actions[lane],
             }
         )
     for special in special_rows:
@@ -576,6 +629,9 @@ def build_report(
         "genericCandidates": sum(
             row["recordShape"] == "generic" for row in remaining_rows
         ),
+        "genericImplementationLanes": {
+            lane: len(rows) for lane, rows in sorted(generic_lanes.items())
+        },
         "specialBehaviorCandidates": sum(
             row["recordShape"] != "generic" for row in remaining_rows
         ),
@@ -814,7 +870,12 @@ def main(argv: list[str] | None = None) -> int:
         f"{totals['remainingMechanicFamilies']} mechanic families."
     )
     print(
-        f"Next batches: {totals['genericCandidates']} parameterized generic identities; "
+        "Generic lanes: "
+        + ", ".join(
+            f"{count} {lane}"
+            for lane, count in totals["genericImplementationLanes"].items()
+        )
+        + "; "
         f"{totals['specialCodesWithSupportedExamples']} special codes have a supported example."
     )
     print(f"JSON: {_relative_path(json_output, repo_root)}")

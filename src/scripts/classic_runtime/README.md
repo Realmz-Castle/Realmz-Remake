@@ -163,6 +163,16 @@ Learned spell entries may carry both `classicSpellId` and `resourceName`. Classi
 
 `classic_core_spell_catalog.json` is the empty migration sentinel for the original reviewed generic-spell batch. Those identities now execute through native spell resources, while `ClassicCoreSpellCatalog` continues to expose the immutable inventory to coverage and provenance tools. Scenario-authored generic records remain campaign-scoped `ClassicSpellOverride` instances; they do not repopulate the core spell book.
 
+Immediate-damage records with no special handler, queued effect, duration, or
+missile specialization share `ClassicCoreDamageSpell`. Each thin spell resource
+selects one exact packed ID; the base then configures its damage, cost, range,
+targeting, save and resistance rules, area shape, presentation, and provenance
+from the immutable `Data S` inventory. The parity audit keeps queued-area,
+field-utility, missile, and source-no-effect records in separate review lanes so
+the generator cannot silently treat those mechanics as ordinary damage spells.
+`asset_scripts/scaffold_classic_damage_spells.py` reproduces the audited family
+as review-required drafts; generation alone never changes support status.
+
 `ClassicCoreSpellCoverage` joins that inventory to the curated support matrix and
 the shared spell-resource catalog. Its report separates proven support from
 exact-ID resources awaiting behavior review, name-only reuse candidates,

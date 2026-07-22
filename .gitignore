@@ -28,6 +28,7 @@ asset_scripts/expansion_tiles
 # Generated local audit reports
 tmp/classic-spell-parity-audit.json
 tmp/classic-spell-parity-audit.md
+tmp/classic-damage-spell-scaffold/
 
 
 # External addons

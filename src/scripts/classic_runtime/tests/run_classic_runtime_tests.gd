@@ -7633,7 +7633,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		55,
+		64,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7648,7 +7648,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		46,
+		37,
 		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
@@ -7751,8 +7751,9 @@ func _test_classic_spell_coverage() -> void:
 		1203, 1212, 1306, 1310, 1401, 2101, 3211, 3401, 3704,
 		3105, 3506,
 		2109, 2306, 2605, 2706,
+		1601, 1703, 2705, 3108, 3205, 3501, 3601, 3602, 3710,
 	]
-	_expect_equal(migrated_spell_ids.size(), 30, "the reviewed generic batch is complete")
+	_expect_equal(migrated_spell_ids.size(), 39, "the reviewed generic batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7790,12 +7791,22 @@ func _test_classic_spell_coverage() -> void:
 		"Mind Duel": "res://shared_assets/spells/mind_duel.gd",
 		"Psi Wave": "res://shared_assets/spells/psi_wave.gd",
 		"Mind Melt": "res://shared_assets/spells/mind_melt.gd",
+		"Annihilate": "res://shared_assets/spells/classic_core_1601_annihilate.gd",
+		"Fire Flies": "res://shared_assets/spells/classic_core_1703_fire_flies.gd",
+		"Meteor Shower": "res://shared_assets/spells/classic_core_2705_meteor_shower.gd",
+		"Repulsive Bubble": "res://shared_assets/spells/classic_core_3108_repulsive_bubble.gd",
+		"Electric Pulse": "res://shared_assets/spells/classic_core_3205_electric_pulse.gd",
+		"Acid Bath": "res://shared_assets/spells/classic_core_3501_acid_bath.gd",
+		"Ball Lightning": "res://shared_assets/spells/classic_core_3601_ball_lightning.gd",
+		"Caustic Vapor": "res://shared_assets/spells/classic_core_3602_caustic_vapor.gd",
+		"Static Discharge": "res://shared_assets/spells/classic_core_3710_static_discharge.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		30,
+		39,
 		"every reviewed generic identity has a native resource"
 	)
+	_test_parameterized_damage_spells()
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
 	for spell_name: String in migrated_native_paths:
@@ -8370,13 +8381,130 @@ func _test_classic_spell_coverage() -> void:
 				[
 					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1504, 1505,
-					1603, 1701, 2101, 2102, 2103, 2109, 2110, 2111, 2201, 2301, 2304,
-					2306, 2403, 2605, 2706, 2708, 3102, 3104, 3105, 3202, 3207, 3208,
-					3211, 3301, 3303, 3308, 3311, 3401, 3409, 3505, 3506, 3603, 3704,
-					3712,
+					1601, 1603, 1701, 1703, 2101, 2102, 2103, 2109, 2110, 2111, 2201,
+					2301, 2304, 2306, 2403, 2605, 2705, 2706, 2708, 3102, 3104, 3105,
+					3108, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3308, 3311, 3401,
+					3409, 3501, 3505, 3506, 3601, 3602, 3603, 3704, 3710, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)
+
+
+func _test_parameterized_damage_spells() -> void:
+	var paths := {
+		1601: "res://shared_assets/spells/classic_core_1601_annihilate.gd",
+		1703: "res://shared_assets/spells/classic_core_1703_fire_flies.gd",
+		2705: "res://shared_assets/spells/classic_core_2705_meteor_shower.gd",
+		3108: "res://shared_assets/spells/classic_core_3108_repulsive_bubble.gd",
+		3205: "res://shared_assets/spells/classic_core_3205_electric_pulse.gd",
+		3501: "res://shared_assets/spells/classic_core_3501_acid_bath.gd",
+		3601: "res://shared_assets/spells/classic_core_3601_ball_lightning.gd",
+		3602: "res://shared_assets/spells/classic_core_3602_caustic_vapor.gd",
+		3710: "res://shared_assets/spells/classic_core_3710_static_discharge.gd",
+	}
+	for spell_id: int in paths:
+		var inventory_entry: Dictionary = CoreSpellCatalogScript.inventory_spell(spell_id)
+		var source: Dictionary = inventory_entry.get("record", {})
+		var spell: Variant = load(str(paths[spell_id])).new()
+		var label := str(inventory_entry.get("displayName", spell_id))
+		var power := 3
+		var fixed_low := int(source.get("damage1", 0))
+		var fixed_high := _classic_record_high(fixed_low, int(source.get("damage2", 0)))
+		var power_low := int(source.get("powerDamage1", 0))
+		var power_high := _classic_record_high(
+			power_low,
+			int(source.get("powerDamage2", 0))
+		)
+		var expected_min := fixed_low + power * power_low
+		var expected_max := fixed_high + power * power_high
+		_expect(spell is ClassicSpellOverride, "%s uses the shared Classic adapter" % label)
+		_expect_equal(spell.name, label, "%s preserves its Data S name" % label)
+		_expect_equal(spell.classic_spell_ids, [spell_id], "%s exports its exact ID" % label)
+		_expect_equal(
+			spell.classic_spell_class,
+			int(source.get("spellClass", 0)),
+			"%s preserves its effect class" % label
+		)
+		_expect_equal(
+			spell.classic_sound_ids,
+			[int(source.get("sound1", 0)), int(source.get("sound2", 0))],
+			"%s preserves its source presentation IDs" % label
+		)
+		_expect_equal(
+			spell.get_range(power, null),
+			abs(int(source.get("range1", 0)) + power * int(source.get("range2", 0))),
+			"%s range follows its signed source fields" % label
+		)
+		_expect_equal(spell.get_min_damage(power, null), expected_min, "%s minimum damage" % label)
+		_expect_equal(spell.get_max_damage(power, null), expected_max, "%s maximum damage" % label)
+		var rolled_damage: int = spell.get_damage_roll(power, null)
+		_expect(
+			rolled_damage >= expected_min and rolled_damage <= expected_max,
+			"%s damage roll stays within its source range" % label
+		)
+		_expect_equal(
+			spell.get_sp_cost(power, null),
+			abs(power * int(source.get("cost", 0))),
+			"%s cost scales from its source field" % label
+		)
+		var expected_save_index: int = abs(int(source.get("damageType", 0))) \
+			if int(source.get("cannot", 0)) <= 1 else -1
+		_expect_equal(spell.classic_spell_save_index, expected_save_index, "%s save index" % label)
+		_expect_equal(
+			spell.classic_spell_save_mode,
+			"half_damage" if expected_save_index >= 0 else "none",
+			"%s save mode" % label
+		)
+		var checks_resistance := int(source.get("cannot", 0)) != 1 \
+			and int(source.get("cannot", 0)) <= 2
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE \
+				if checks_resistance else Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s general-resistance rule" % label
+		)
+		_expect_equal(
+			spell.los,
+			int(source.get("range1", 0)) >= 0 and int(source.get("range2", 0)) >= 0,
+			"%s line-of-sight rule follows signed range fields" % label
+		)
+		_expect_equal(
+			spell.school_levels.get(str(inventory_entry.get("casterClass", ""))),
+			int(inventory_entry.get("level", 0)),
+			"%s exports its source school level" % label
+		)
+		_expect_equal(
+			spell.selection_costs.get(str(inventory_entry.get("casterClass", ""))),
+			[0, 1, 3, 6, 10, 15, 21, 28][int(inventory_entry.get("level", 0))],
+			"%s exports its source selection cost" % label
+		)
+		var source_size := int(source.get("size", 0))
+		var expected_aoe: Array[Vector2i]
+		if int(source.get("targetType", 0)) == 4:
+			expected_aoe = Spell.AoE_b_SCALING[power]
+		elif source_size == 8:
+			expected_aoe = Spell.AoE_RADIANT
+		elif source_size == 9:
+			expected_aoe = Spell.AoE_ROUND
+		else:
+			expected_aoe = Spell.AoE_b_SCALING[clampi(source_size, 1, 7)]
+		_expect_equal(spell.get_aoe(power, null), expected_aoe, "%s source area" % label)
+		if int(source.get("targetType", 0)) in [0, 1]:
+			_expect_equal(
+				spell.targettile,
+				Spell.TARGET_TILE.CREATURE,
+				"%s requires a creature target" % label
+			)
+		_expect_equal(
+			spell.get_target_number(power, null),
+			power if int(source.get("targetType", 0)) < 1 else 1,
+			"%s target count follows its source type" % label
+		)
+		_expect_equal(
+			spell.source_record.get("sourceRecord", {}).get("byteOffset"),
+			inventory_entry.get("sourceRecord", {}).get("byteOffset"),
+			"%s retains source provenance" % label
+		)
 
 
 func _test_classic_spell_usage_audit() -> void:
@@ -12663,6 +12791,11 @@ func _test_complex_spell_results(bundle) -> void:
 	)
 	_expect_equal(magic_darts.get_range(7, null), 15, "Magic Darts keeps its fixed range")
 	_expect_equal(magic_darts.get_target_number(4, null), 4, "Magic Darts targets once per power")
+	_expect_equal(
+		magic_darts.targettile,
+		Spell.TARGET_TILE.CREATURE,
+		"Magic Darts requires each selected Classic target to be a creature"
+	)
 	_expect_equal(magic_darts.get_min_damage(7, null), 1, "Sorcerer Magic Darts minimum damage")
 	_expect_equal(magic_darts.get_max_damage(7, null), 5, "Sorcerer Magic Darts maximum damage")
 	_expect_equal(magic_darts.get_sp_cost(3, null), 12, "Magic Darts cost scales by power")
@@ -15305,6 +15438,10 @@ func _expect(condition: bool, label: String) -> void:
 
 func _expect_equal(actual: Variant, expected: Variant, label: String) -> void:
 	_expect(actual == expected, "%s (expected %s, got %s)" % [label, expected, actual])
+
+
+func _classic_record_high(low: int, high: int) -> int:
+	return low if high == 0 and low != 0 else maxi(low, high)
 
 
 func _finish() -> void:
