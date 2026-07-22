@@ -462,6 +462,15 @@
       ]
     },
     {
+      "id": "core-player-spell-petrification",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "character-save", "condition-cure", "healing"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 187, "displayName": "Priest Statue"},
+        {"sourceFile": "Data S", "recordIndex": 265, "displayName": "Enchanter Statue"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -4130,6 +4139,63 @@
         "special": 26,
         "costPerPower": 65,
         "adapter": "classic-permanent-animation",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2608,
+      "displayName": "Statue",
+      "classification": "native-special-petrification",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2608_statue.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 187, "byteOffset": 5610, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-petrification", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": 4,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "permanent-petrification-and-health-set-to-minus-ten",
+        "conditionIndex": 26,
+        "nativeTrait": "p_petrified.gd",
+        "healing": "blocked-until-flesh",
+        "revival": "blocked-until-flesh",
+        "saveMode": "negate",
+        "saveIndex": 7,
+        "saveBonus": 20,
+        "resistance": "classic-magic-resistance-minus-10-per-power",
+        "special": 27,
+        "costPerPower": 50,
+        "adapter": "classic-permanent-petrification",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3411,
+      "displayName": "Statue",
+      "nativeResourceName": "Classic Statue Enchanter",
+      "classification": "native-special-petrification",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3411_statue_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 265, "byteOffset": 7950, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-petrification", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-creature",
+        "range": 4,
+        "lineOfSight": true,
+        "availability": "combat-only",
+        "effect": "permanent-petrification-and-health-set-to-minus-ten",
+        "conditionIndex": 26,
+        "nativeTrait": "p_petrified.gd",
+        "healing": "blocked-until-flesh",
+        "revival": "blocked-until-flesh",
+        "saveMode": "negate",
+        "saveIndex": 7,
+        "saveBonus": 20,
+        "resistance": "classic-magic-resistance-minus-5-per-power",
+        "special": 27,
+        "costPerPower": 50,
+        "adapter": "classic-permanent-petrification",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }

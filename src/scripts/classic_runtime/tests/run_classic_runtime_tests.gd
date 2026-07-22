@@ -672,6 +672,50 @@ class AnimationTestCharacter:
 		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
 
 
+class PetrificationTestCharacter:
+	extends RefCounted
+	var name: String
+	var life_status := 0
+	var traits: Array = []
+	var stats := {
+		"curHP": 25,
+		"maxHP": 25,
+		"EvasionMelee": 4,
+		"EvasionRanged": 4,
+		"MultiplierHealing": 1,
+		"MultiplierMagic": 1,
+	}
+
+	func _init(character_name: String) -> void:
+		name = character_name
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name:
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> Variant:
+		var stat: Variant = stats.get(stat_name, 0)
+		for trait_value: Variant in traits:
+			if trait_value.has_method("_on_get_stat"):
+				stat = trait_value._on_get_stat(stat_name, stat)
+		return stat
+
+	func change_cur_hp(change: int) -> void:
+		for trait_value: Variant in traits:
+			if trait_value.has_method("_on_change_cur_hp"):
+				change = trait_value._on_change_cur_hp(change)
+		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -1047,6 +1091,7 @@ func _init() -> void:
 	_test_classic_speedy_spells()
 	_test_classic_invisible_spells()
 	_test_classic_animation_spells()
+	_test_classic_petrification_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7925,7 +7970,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		144,
+		146,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8057,8 +8102,9 @@ func _test_classic_spell_coverage() -> void:
 		1302, 2401,
 		1206, 1708, 2208, 2509,
 		2410, 3610,
+		2608, 3411,
 	]
-	_expect_equal(migrated_spell_ids.size(), 112, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 114, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8179,10 +8225,12 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Multi Invisible Skin Priest": "res://shared_assets/spells/classic_core_2509_multi_invisible_skin_priest.gd",
 		"Puppet Master": "res://shared_assets/spells/classic_core_2410_puppet_master.gd",
 		"Classic Puppet Master Enchanter": "res://shared_assets/spells/classic_core_3610_puppet_master_enchanter.gd",
+		"Statue": "res://shared_assets/spells/classic_core_2608_statue.gd",
+		"Classic Statue Enchanter": "res://shared_assets/spells/classic_core_3411_statue_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		113,
+		115,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -10105,6 +10153,120 @@ func _test_classic_animation_spells() -> void:
 		"Revive Dead removes Classic permanent animation"
 	)
 	_expect_equal(dead.stats["curHP"], -9, "deanimation leaves the character unconscious")
+
+
+func _test_classic_petrification_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_2608_statue.gd",
+			"name": "Statue",
+			"id": 2608,
+			"looks": [5, 15],
+			"resistAdjust": -10,
+		},
+		{
+			"file": "classic_core_3411_statue_enchanter.gd",
+			"name": "Classic Statue Enchanter",
+			"id": 3411,
+			"looks": [5, 5],
+			"resistAdjust": -5,
+		},
+	]
+	for spec: Dictionary in specs:
+		var statue = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(statue.name, spec["name"], "%s resource identity" % label)
+		_expect_equal(statue.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(statue.classic_special, 27, "%s uses petrification special 27" % label)
+		_expect_equal(statue.classic_spell_class, 7, "%s preserves special class 7" % label)
+		_expect_equal(statue.classic_damage_type, 7, "%s preserves special DRV 7" % label)
+		_expect_equal(statue.classic_cannot, 0, "%s preserves source resistance gates" % label)
+		_expect_equal(statue.classic_spell_save_index, 7, "%s uses the special DRV" % label)
+		_expect_equal(statue.classic_spell_save_mode, "negate", "%s save negates petrification" % label)
+		_expect_equal(statue.classic_save_bonus, 20, "%s source save bonus" % label)
+		_expect_equal(
+			statue.classic_resist_adjust,
+			spec["resistAdjust"],
+			"%s source resistance adjustment" % label
+		)
+		_expect_equal(
+			statue.resist,
+			Spell.RESIST_TYPE.IGNORE_DODGE,
+			"%s checks magic resistance but cannot miss" % label
+		)
+		_expect(statue.in_combat and not statue.in_field, "%s is combat-only" % label)
+		_expect_equal(statue.get_range(3, null), 4, "%s source range" % label)
+		_expect_equal(statue.get_target_number(3, null), 1, "%s targets one creature" % label)
+		_expect_equal(statue.get_min_duration(3, null), -1, "%s is permanent" % label)
+		_expect_equal(statue.get_max_duration(3, null), -1, "%s has no duration roll" % label)
+		_expect_equal(statue.get_sp_cost(3, null), 150, "%s casting cost" % label)
+		_expect_equal(statue.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(statue.classic_sound_ids, [84, 59], "%s sounds" % label)
+		_expect(statue.los, "%s requires line of sight" % label)
+		_expect_equal(statue.get_aoe(3, null), Spell.AoE_b1, "%s source area" % label)
+		_expect(statue.elements.is_empty(), "%s has no ordinary damage element" % label)
+		_expect_equal(statue.targettile, Spell.TARGET_TILE.CREATURE, "%s targets creatures" % label)
+
+	var statue = load("res://shared_assets/spells/classic_core_2608_statue.gd").new()
+	var unaffected := PetrificationTestCharacter.new("Saved target")
+	_expect(
+		not statue.apply_classic_scaled_effect(null, unaffected, 1, 0.0),
+		"a successful save negates Statue"
+	)
+	_expect_equal(unaffected.stats["curHP"], 25, "a saved target keeps its health")
+	_expect(unaffected.traits.is_empty(), "a saved target is not petrified")
+
+	var target := PetrificationTestCharacter.new("Statue target")
+	_expect(
+		statue.apply_classic_scaled_effect(null, target, 1, 1.0),
+		"an unresolved Statue effect petrifies its target"
+	)
+	_expect_equal(target.stats["curHP"], -10, "Statue leaves its target at minus ten health")
+	_expect_equal(target.life_status, 3, "Statue kills its target")
+	_expect_equal(target.traits.size(), 1, "Statue adds one permanent condition")
+	var petrified_trait: Variant = target.traits[0]
+	_expect_equal(petrified_trait.name, "p_petrified.gd", "Statue reuses Remake's petrified trait")
+	_expect(petrified_trait.permanent, "petrification is permanent")
+	_expect(not petrified_trait._on_get_player_controlled(), "petrified characters cannot act")
+	_expect_equal(
+		petrified_trait._on_get_stat("MultiplierHealing", 1),
+		0,
+		"petrification blocks healing"
+	)
+	_expect_equal(petrified_trait._on_change_cur_hp(10), 0, "petrification rejects health recovery")
+	_expect_equal(petrified_trait._on_change_cur_hp(-10), -10, "petrification does not absorb damage")
+
+	var revive = load("res://shared_assets/spells/classic_core_2606_revive_dead.gd").new()
+	_expect(
+		not revive.apply_classic_scaled_effect(null, target, 1, 1.0),
+		"Revive Dead rejects a petrified target"
+	)
+	var flesh = load("res://shared_assets/spells/classic_core_2602_flesh.gd").new()
+	_expect_equal(
+		flesh.apply_classic_scaled_effect(null, target, 1, 1.0),
+		1,
+		"Flesh removes Statue's petrification"
+	)
+	_expect(
+		revive.apply_classic_scaled_effect(null, target, 1, 1.0),
+		"Revive Dead can restore the victim after Flesh"
+	)
+	_expect_equal(target.stats["curHP"], -9, "post-Flesh revival returns the victim unconscious")
+
+	var healing_gate := PetrificationTestCharacter.new("Petrified healing target")
+	healing_gate.stats["curHP"] = 10
+	healing_gate.add_trait(load("res://shared_assets/traits/p_petrified.gd"), [])
+	healing_gate.change_cur_hp(5)
+	_expect_equal(healing_gate.stats["curHP"], 10, "Creature health changes honor petrification")
+	_expect(
+		FileAccess.get_file_as_string("res://Creature/Creature.gd").contains(
+			'trait_value.has_method("_on_change_cur_hp")'
+		),
+		"the native Creature health path invokes trait health-change hooks"
+	)
+	flesh.apply_classic_scaled_effect(null, healing_gate, 1, 1.0)
+	healing_gate.change_cur_hp(5)
+	_expect_equal(healing_gate.stats["curHP"], 15, "Flesh restores ordinary health recovery")
 
 
 func _test_classic_spell_screen_spells() -> void:

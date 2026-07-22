@@ -1056,6 +1056,9 @@ func on_hit_by_spell(caster : Creature, spell, powerlevel, spell_damage : int) :
 func change_cur_hp(hpchange : int) -> void :
 	if life_status ==3 :
 		return
+	for trait_value in traits :
+		if trait_value.has_method("_on_change_cur_hp") :
+			hpchange = trait_value._on_change_cur_hp(hpchange)
 	var prev_hp = stats['curHP']
 	stats['curHP'] += hpchange
 	stats['curHP'] = min(  get_stat('maxHP') , stats['curHP'])

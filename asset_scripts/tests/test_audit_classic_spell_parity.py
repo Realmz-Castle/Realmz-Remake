@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 144)
+        self.assertEqual(report["totals"]["supportedIdentities"], 146)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -328,6 +328,19 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertTrue(resource_path.is_file(), resource_path)
             animation_resources.add(row["resource"])
         self.assertEqual(len(animation_resources), 2)
+        petrification_resources = set()
+        for spell_id in {2608, 3411}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-special-petrification")
+            self.assertEqual(row["behavior"]["conditionIndex"], 26)
+            self.assertEqual(row["behavior"]["healing"], "blocked-until-flesh")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+            petrification_resources.add(row["resource"])
+        self.assertEqual(len(petrification_resources), 2)
         parameterized_damage_ids = {
             1601,
             1703,

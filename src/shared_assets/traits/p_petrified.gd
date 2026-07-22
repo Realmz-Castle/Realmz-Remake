@@ -9,7 +9,6 @@ var chara
 func _init(args : Array):
 	#[character]
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' is rendered Helpless !', null,'')
 
 
 func get_saved_variables() :
@@ -26,10 +25,15 @@ func _on_get_player_controlled() :
 func _on_get_stat(statname : String, stat : int) :
 	if ['EvasionMelee','EvasionRanged'].has(statname) :
 		return 0
+	if statname == 'MultiplierHealing' :
+		return 0
 	if statname.begins_with('Multiplier') :
 		return 0.25*stat
 	else :
 		return stat
+
+func _on_change_cur_hp(hpchange : int) -> int :
+	return 0 if hpchange > 0 else hpchange
 
 func _on_remove_trait(character : Creature, traitscript) :
 	if traitscript == self :
