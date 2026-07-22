@@ -7634,7 +7634,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		65,
+		66,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7649,7 +7649,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		36,
+		35,
 		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
@@ -7752,9 +7752,9 @@ func _test_classic_spell_coverage() -> void:
 		1203, 1212, 1306, 1310, 1401, 2101, 3211, 3401, 3704,
 		3105, 3506,
 		2109, 2306, 2605, 2706,
-		1601, 1703, 2705, 3108, 3205, 3501, 3601, 3602, 3710,
+		1601, 1703, 2705, 2712, 3108, 3205, 3501, 3601, 3602, 3710,
 	]
-	_expect_equal(migrated_spell_ids.size(), 40, "the reviewed generic batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 41, "the reviewed generic batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7796,6 +7796,7 @@ func _test_classic_spell_coverage() -> void:
 		"Annihilate": "res://shared_assets/spells/classic_core_1601_annihilate.gd",
 		"Fire Flies": "res://shared_assets/spells/classic_core_1703_fire_flies.gd",
 		"Meteor Shower": "res://shared_assets/spells/classic_core_2705_meteor_shower.gd",
+		"Stun": "res://shared_assets/spells/classic_core_2712_stun.gd",
 		"Repulsive Bubble": "res://shared_assets/spells/classic_core_3108_repulsive_bubble.gd",
 		"Electric Pulse": "res://shared_assets/spells/classic_core_3205_electric_pulse.gd",
 		"Acid Bath": "res://shared_assets/spells/classic_core_3501_acid_bath.gd",
@@ -7805,11 +7806,12 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		40,
+		41,
 		"every reviewed generic identity has a native resource"
 	)
 	_test_parameterized_damage_spells()
 	_test_flame_missile()
+	_test_stun_corrected_helplessness()
 	var runtime_spell_resources = NativeResourcesScript.new()
 	runtime_spell_resources.load_spell_resources("res://shared_assets/spells/")
 	for spell_name: String in migrated_native_paths:
@@ -8385,7 +8387,7 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1108, 1110, 1111, 1203, 1204, 1209, 1211,
 					1212, 1303, 1306, 1310, 1401, 1402, 1408, 1501, 1503, 1504, 1505,
 					1601, 1603, 1701, 1703, 2101, 2102, 2103, 2109, 2110, 2111, 2201,
-					2301, 2304, 2306, 2403, 2605, 2705, 2706, 2708, 3102, 3104, 3105,
+					2301, 2304, 2306, 2403, 2605, 2705, 2706, 2708, 2712, 3102, 3104, 3105,
 					3108, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3308, 3311, 3401,
 					3409, 3501, 3505, 3506, 3601, 3602, 3603, 3704, 3710, 3712,
 				],
@@ -8585,6 +8587,70 @@ func _test_flame_missile() -> void:
 	_expect(not resolution.get("resisted"), "Flame Missile bypasses spell screens and magic resistance")
 	_expect(not resolution.get("checksScreen"), "class-9 missiles do not check spell screens")
 	_expect(not resolution.get("checksResistance"), "class-9 missiles do not check magic resistance")
+
+
+func _test_stun_corrected_helplessness() -> void:
+	var spell: Variant = load(
+		"res://shared_assets/spells/classic_core_2712_stun.gd"
+	).new()
+	var source_entry: Dictionary = CoreSpellCatalogScript.inventory_spell(2712)
+	var source: Dictionary = source_entry.get("record", {})
+	_expect(spell is ClassicSpellOverride, "Stun uses the source-record spell adapter")
+	_expect_equal(spell.classic_spell_ids, [2712], "Stun exports its exact ID")
+	_expect_equal(spell.classic_spell_class, 7, "Stun preserves its Classic spell class")
+	_expect_equal(spell.classic_special, 0, "Stun preserves its empty special code")
+	_expect_equal(spell.attributes, ["Magical", "Special"], "Stun retains its delivery attributes")
+	_expect_equal(spell.targettile, Spell.TARGET_TILE.CREATURE, "Stun targets one creature")
+	_expect(spell.los, "Stun requires line of sight")
+	_expect_equal(spell.get_range(7, null), 1, "Stun keeps its touch range")
+	_expect_equal(spell.get_min_damage(7, null), 0, "Stun has no source damage")
+	_expect_equal(spell.get_max_damage(7, null), 0, "Stun cannot roll source damage")
+	_expect_equal(spell.get_min_duration(7, null), 1, "Stun lasts one round")
+	_expect_equal(spell.get_duration_roll(1, null), 1, "Stun duration does not scale")
+	_expect_equal(spell.get_max_duration(7, null), 1, "Stun maximum is one round")
+	_expect_equal(spell.get_sp_cost(3, null), 120, "Stun cost scales by power")
+	_expect_equal(spell.classic_spell_save_index, 7, "Stun uses Classic's special save")
+	_expect_equal(spell.classic_spell_save_mode, "negate", "Stun keeps its save stage")
+	_expect_equal(spell.classic_save_adjust, -5, "Stun keeps its save adjustment")
+	_expect_equal(spell.classic_resist_adjust, -5, "Stun keeps its resistance adjustment")
+	_expect_equal(
+		spell.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Stun checks Classic magic resistance without native dodge"
+	)
+	_expect(spell.has_method("apply_classic_scaled_effect"), "Stun has a corrected condition hook")
+	_expect_equal(int(source.get("special", -1)), 0, "Stun test uses the shipped zero special")
+	_expect_equal(int(source.get("damage1", -1)), 0, "Stun test uses the shipped zero damage")
+	_expect_equal(int(source.get("duration1", 0)), -1, "Stun retains its defective raw duration")
+	_expect_equal(
+		spell.source_record.get("sourceRecord", {}).get("byteOffset"),
+		source_entry.get("sourceRecord", {}).get("byteOffset"),
+		"Stun retains source provenance"
+	)
+
+	var target := RogueTestCharacter.new()
+	target.current_hp = 23
+	target.traits.append(ConditionTestTrait.new("existing.gd", 2))
+	target.set_meta(MagicResistanceScript.META_KEY, 50)
+	target.set_meta(SpellSavesScript.META_SAVES_KEY, [50, 50, 50, 50, 50, 50])
+	var resistance: Dictionary = MagicResistanceScript.spell_resolution(
+		target, spell, 3, 36
+	)
+	_expect(not resistance.get("resisted"), "Stun can pass its adjusted resistance check")
+	_expect_equal(resistance.get("chance"), 35, "Stun applies its resistance penalty per power")
+	var save: Dictionary = SpellSavesScript.target_resolution(target, spell, 3, 36)
+	_expect(not save.get("saved"), "Stun can pass its adjusted special save")
+	_expect_equal(save.get("saveChance"), 35.0, "Stun applies its save penalty per power")
+	var stunned_target := ConditionTestCharacter.new("Stunned target")
+	stunned_target.current_hp = 23
+	spell.apply_classic_scaled_effect(null, stunned_target, 3, 1.0)
+	_expect_equal(stunned_target.current_hp, 23, "Stun changes no health")
+	_expect_equal(stunned_target.traits.size(), 1, "Stun applies one condition trait")
+	_expect(
+		str(stunned_target.traits[0].name).ends_with("t_helpless.gd"),
+		"Stun uses Remake's helpless behavior"
+	)
+	_expect_equal(stunned_target.traits[0].power, 1, "Stun applies helplessness for one round")
 
 
 func _test_classic_spell_usage_audit() -> void:

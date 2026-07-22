@@ -151,6 +151,14 @@
       ]
     },
     {
+      "id": "core-player-spell-stun",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 206, "displayName": "Stun"}
+      ]
+    },
+    {
       "id": "core-player-spell-generic-ray-batch",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -1476,6 +1484,39 @@
         "adapter": "scaled-spell-point-drain",
         "costPerPower": 35,
         "nativeReuse": "extends-remake-power-drain",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2712,
+      "displayName": "Stun",
+      "classification": "native-corrected-source-defect",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2712_stun.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 206,
+        "byteOffset": 6180,
+        "byteLength": 30
+      },
+      "usages": [
+        {"corpusId": "core-player-spell-stun", "slots": [0]}
+      ],
+      "behavior": {
+        "targetType": "single-creature",
+        "range": 1,
+        "lineOfSight": true,
+        "damage": "none",
+        "condition": "helpless-one-round",
+        "saveMode": "negate-condition",
+        "saveIndex": 7,
+        "saveAdjustPerPower": -5,
+        "resistance": "classic-general",
+        "resistAdjustPerPower": -5,
+        "sourceDefect": "special-zero-and-damage-zero-leave-no-resolved-effect",
+        "correctedIntent": "description-promises-helpless-and-classic-ui-displays-absolute-duration-one",
+        "costPerPower": 40,
+        "implementation": "source-record-backed-native-helpless-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },

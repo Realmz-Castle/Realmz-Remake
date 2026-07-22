@@ -181,6 +181,15 @@ Archer and Marksman castes. The source `toHitBonus` of 127 suppresses ordinary
 projectile dodge while its negative range fields retain the no-line-of-sight
 rule.
 
+Priest Stun `2712` corrects a verified defect in the shipped Classic data. Its
+record has no damage and special code zero, so `resolvespell.c` reaches
+`spelllist(target, 0)` and returns without applying the helpless condition named
+by the spell description. The exact-ID resource retains the source resistance,
+special-save, range, and cost rules, then applies Remake's native helpless trait
+for one round. That duration follows Classic's own spell-info display, which
+shows the record's signed `-1` duration through `abs(...)`. The raw record and
+its defect remain in the inventory and support matrix as provenance.
+
 `ClassicCoreSpellCoverage` joins that inventory to the curated support matrix and
 the shared spell-resource catalog. Its report separates proven support from
 exact-ID resources awaiting behavior review, name-only reuse candidates,

@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 65)
+        self.assertEqual(report["totals"]["supportedIdentities"], 66)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -192,7 +192,6 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             report["totals"]["genericImplementationLanes"],
             {
                 "field-utility-review": 15,
-                "no-source-effect-review": 1,
                 "queued-area-engine-gap": 20,
             },
         )
@@ -230,6 +229,12 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             REPO_ROOT / "src" / flame_missile["resource"].removeprefix("res://")
         )
         self.assertTrue(flame_resource.is_file(), flame_resource)
+
+        stun = matrix_by_id[2712]
+        self.assertEqual(stun["supportStatus"], "supported")
+        self.assertEqual(stun["classification"], "native-corrected-source-defect")
+        stun_resource = REPO_ROOT / "src" / stun["resource"].removeprefix("res://")
+        self.assertTrue(stun_resource.is_file(), stun_resource)
 
 
 if __name__ == "__main__":
