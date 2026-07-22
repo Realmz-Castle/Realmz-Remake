@@ -1529,6 +1529,7 @@ func _init() -> void:
 	_test_classic_helpless_spells()
 	_test_classic_slug_spells()
 	_test_classic_tangle_weed_spell()
+	_test_classic_destroy_trap_spell(bundle)
 	_test_classic_spellcasting_block_spells()
 	_test_classic_magic_aura_spell()
 	_test_classic_healing_spells()
@@ -9468,7 +9469,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		248,
+		249,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -9678,6 +9679,11 @@ func _test_classic_spell_coverage() -> void:
 		coverage_by_id.get(2412, {}).get("coverageStatus"),
 		"supported",
 		"Tangle Weed uses the reviewed queued Tangled path"
+	)
+	_expect_equal(
+		coverage_by_id.get(3605, {}).get("coverageStatus"),
+		"supported",
+		"Destroy Trap uses the reviewed rogue encounter path"
 	)
 	for spellcasting_block_id: int in [2203, 3407]:
 		_expect_equal(
@@ -10641,7 +10647,7 @@ func _test_classic_spell_coverage() -> void:
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3307, 3308,
 					3310,
 					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,
-					3507, 3602, 3603, 3607, 3608, 3702, 3703, 3704, 3706,
+					3507, 3602, 3603, 3605, 3607, 3608, 3702, 3703, 3704, 3706,
 					3708, 3709, 3710, 3711, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
@@ -11427,6 +11433,176 @@ func _test_classic_tangle_weed_spell() -> void:
 	_expect_equal(queue_action.get("spell"), spell, "Tangle Weed collision reuses its spell")
 	_expect(queue_action.get("from_terrain"), "Tangle Weed collision identifies the field")
 	_expect(not queue_action.get("add_terrain"), "Tangle Weed collision cannot duplicate its field")
+
+
+func _test_classic_destroy_trap_spell(bundle) -> void:
+	var spell = load("res://shared_assets/spells/destroy_trap.gd").new()
+	_expect_equal(spell.name, "Destroy Trap", "Destroy Trap native resource name")
+	_expect_equal(spell.classic_spell_ids, [3605], "Destroy Trap exact identity")
+	_expect_equal(spell.classic_spell_response_ids, [3605], "Destroy Trap encounter identity")
+	_expect_equal(spell.classic_special, 65, "Destroy Trap special code")
+	_expect_equal(spell.classic_spell_class, 8, "Destroy Trap effect class")
+	_expect_equal(spell.classic_target_type, 11, "Destroy Trap rogue target mode")
+	_expect_equal(spell.classic_cannot, 3, "Destroy Trap force-affect code")
+	_expect_equal(spell.classic_spell_save_index, -1, "Destroy Trap has no creature save")
+	_expect_equal(spell.classic_spell_save_mode, "none", "Destroy Trap has no save mode")
+	_expect_equal(spell.get_range(3, null), 0, "Destroy Trap requires no map range")
+	_expect_equal(spell.get_sp_cost(3, null), 120, "Destroy Trap source cost")
+	_expect_equal(spell.classic_spell_look_ids, [5, 15], "Destroy Trap source art")
+	_expect_equal(spell.classic_sound_ids, [77, 92], "Destroy Trap source sounds")
+	_expect_equal(spell.school_levels.get("Enchanter"), 6, "Destroy Trap source level")
+	_expect_equal(spell.selection_costs.get("Enchanter"), 21, "Destroy Trap selection cost")
+	_expect(not spell.in_field and not spell.in_combat, "Destroy Trap is encounter-only")
+	_expect(not spell.is_generically_executable(), "Destroy Trap requires rogue encounter state")
+
+	var encounter: Dictionary = bundle.get_encounter("complex", 3)
+	var rogue: Dictionary = bundle.get_thief_encounter(1)
+	var adapter = GodotAdapterScript.new()
+	_expect_equal(
+		adapter.resolve_complex_spell_result(
+			encounter,
+			spell.name,
+			spell.classic_spell_class,
+			{},
+			spell.classic_spell_ids
+		),
+		2,
+		"Destroy Trap retains the encounter's ordinary fallback result"
+	)
+
+	var resolver = RogueResolverScript.new()
+	_expect(resolver.configure(encounter, rogue), "configure Destroy Trap encounter")
+	_expect_equal(resolver.spell_success_percent(65, 3), 30, "Destroy Trap chance scales by power")
+	_expect_equal(resolver.spell_success_percent(70, 3), 60, "fallback Open Lock rolls separately")
+	var disarmed: Dictionary = adapter.resolve_rogue_spell_result(
+		resolver,
+		{
+			"outcome": 2,
+			"spellName": spell.name,
+			"spellPower": 3,
+			"classicSpecial": 65,
+		},
+		true,
+		false
+	)
+	_expect(bool(disarmed.get("classicRogueSpellHandled")), "Destroy Trap enters the rogue spell path")
+	_expect_equal(disarmed.get("outcome"), 0, "successful disarm uses its TD2 result")
+	_expect(
+		not bool(disarmed.get("thiefEncounter", {}).get("typeFlags", [])[9]),
+		"successful Destroy Trap clears the armed flag"
+	)
+	var disarm_events: Array = disarmed.get("rogueSpellResolution", {}).get("events", [])
+	_expect_equal(disarm_events.size(), 1, "successful Destroy Trap emits one feedback event")
+	_expect_equal(disarm_events[0].get("messageId"), 5, "Destroy Trap success text")
+	_expect_equal(disarm_events[0].get("soundId"), 677, "Destroy Trap success sound")
+	var spell_interpreter = _interpreter(bundle)
+	_expect(
+		spell_interpreter.begin_trigger("Data DD:5:3"),
+		"begin trapped chest for Destroy Trap persistence"
+	)
+	spell_interpreter.run_until_yield()
+	var zero_result: Dictionary = spell_interpreter.resume_encounter(0, disarmed)
+	_expect_equal(
+		zero_result.get("reason"),
+		"encounter-cancelled",
+		"a zero Destroy Trap result exits the encounter"
+	)
+	_expect(
+		not bool(spell_interpreter.runtime_state.get_effective_thief_encounter(
+			bundle.get_thief_encounter(1)
+		).get("typeFlags", [])[9]),
+		"Destroy Trap mutation persists when its result exits the encounter"
+	)
+	# The standalone test runner does not initialize a campaign Resources node;
+	# supply the same spell instance that the normal resource scan registers.
+	adapter.classic_spell_overrides[3605] = spell
+	var spell_item_response: Dictionary = adapter.resolve_complex_item_selection(
+		encounter,
+		{
+			"name": "Destroy Trap scroll",
+			"type": "Scroll",
+			"_on_field_use_spell": ["Destroy Trap (3605)", 3],
+		},
+		{},
+		[],
+		[]
+	)
+	_expect_equal(spell_item_response.get("mode"), "spell-item", "Destroy Trap scroll uses spell mode")
+	_expect_equal(spell_item_response.get("outcome"), 2, "Destroy Trap scroll keeps its fallback result")
+	_expect_equal(spell_item_response.get("classicSpecial"), 65, "Destroy Trap scroll enters rogue spell handling")
+	_expect_equal(spell_item_response.get("spellPower"), 3, "Destroy Trap scroll preserves power")
+
+	resolver = RogueResolverScript.new()
+	resolver.configure(encounter, rogue)
+	var sprung_and_opened: Dictionary = adapter.resolve_rogue_spell_result(
+		resolver,
+		{
+			"outcome": 2,
+			"spellName": spell.name,
+			"spellPower": 3,
+			"classicSpecial": 65,
+		},
+		false,
+		true
+	)
+	_expect_equal(sprung_and_opened.get("outcome"), 2, "failed disarm can still open the lock")
+	var failure_events: Array = sprung_and_opened.get(
+		"rogueSpellResolution", {}
+	).get("events", [])
+	_expect_equal(failure_events.size(), 3, "failed disarm preserves feedback, trap, and lock order")
+	_expect_equal(failure_events[0].get("messageId"), 6, "Destroy Trap failure text")
+	_expect_equal(failure_events[1].get("type"), "trap", "failed disarm springs the armed trap")
+	_expect_equal(
+		failure_events[1].get("trap", {}).get("damageLow"),
+		4,
+		"Destroy Trap fallback keeps trap damage"
+	)
+	_expect_equal(failure_events[2].get("messageId"), 4, "fallback Open Lock success text")
+	var sprung_flags: Array = sprung_and_opened.get("thiefEncounter", {}).get("typeFlags", [])
+	_expect(not bool(sprung_flags[9]), "Destroy Trap fallback clears the sprung trap")
+	_expect(not bool(sprung_flags[1]), "Destroy Trap fallback consumes Detect Trap when sprung")
+	_expect(bool(sprung_flags[6]), "Destroy Trap fallback leaves Pick Lock available")
+	resolver = RogueResolverScript.new()
+	resolver.configure(encounter, rogue)
+	var sprung_and_failed: Dictionary = adapter.resolve_rogue_spell_result(
+		resolver,
+		{
+			"outcome": 2,
+			"spellName": spell.name,
+			"spellPower": 3,
+			"classicSpecial": 65,
+		},
+		false,
+		false
+	)
+	_expect_equal(sprung_and_failed.get("outcome"), 0, "both failed spell rolls select TD2 result zero")
+	var failed_events: Array = sprung_and_failed.get("rogueSpellResolution", {}).get("events", [])
+	_expect_equal(failed_events[2].get("messageId"), 3, "fallback Open Lock failure text")
+	_expect_equal(failed_events[2].get("soundId"), 696, "fallback Open Lock failure sound")
+
+	resolver = RogueResolverScript.new()
+	resolver.configure(bundle.get_encounter("complex", 4), bundle.get_thief_encounter(4))
+	var ordinary_response: Dictionary = adapter.resolve_rogue_spell_result(
+		resolver,
+		{
+			"outcome": 1,
+			"spellName": spell.name,
+			"spellPower": 3,
+			"classicSpecial": 65,
+		},
+		false,
+		false
+	)
+	_expect_equal(
+		ordinary_response.get("outcome"),
+		1,
+		"a TD2 record without a disarm chance keeps the authored spell result"
+	)
+	_expect_equal(
+		ordinary_response.get("rogueSpellResolution", {}).get("status"),
+		"fallback",
+		"Destroy Trap explicitly reports the generic encounter fallback"
+	)
 
 
 func _test_classic_spellcasting_block_spells() -> void:

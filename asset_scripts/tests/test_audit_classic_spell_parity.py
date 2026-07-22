@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 248)
+        self.assertEqual(report["totals"]["supportedIdentities"], 249)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -269,6 +269,32 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             REPO_ROOT / "src" / tangle_weed["resource"].removeprefix("res://")
         )
         self.assertTrue(tangle_resource.is_file(), tangle_resource)
+        destroy_trap = matrix_by_id[3605]
+        self.assertEqual(destroy_trap["supportStatus"], "supported")
+        self.assertEqual(
+            destroy_trap["classification"], "native-special-rogue-destroy-trap"
+        )
+        self.assertEqual(destroy_trap["behavior"]["rawSpecial"], 65)
+        self.assertEqual(
+            destroy_trap["behavior"]["disarmChance"],
+            "data-td2-disarm-modifier-times-power",
+        )
+        self.assertEqual(
+            destroy_trap["behavior"]["disarmFailure"],
+            "show-disarm-failure-then-fall-through-to-open-lock",
+        )
+        self.assertEqual(
+            destroy_trap["behavior"]["spellAndItemPaths"],
+            "native-cast-scroll-and-type-20-item",
+        )
+        self.assertEqual(
+            destroy_trap["behavior"]["zeroResult"],
+            "exit-encounter-without-reopening-response-picker",
+        )
+        destroy_trap_resource = (
+            REPO_ROOT / "src" / destroy_trap["resource"].removeprefix("res://")
+        )
+        self.assertTrue(destroy_trap_resource.is_file(), destroy_trap_resource)
         for spell_id in {2203, 3407}:
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")

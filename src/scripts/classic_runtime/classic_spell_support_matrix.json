@@ -7190,6 +7190,31 @@
         "adapter": "source-record-backed-queued-native-tangled-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 3605,
+      "displayName": "Destroy Trap",
+      "classification": "native-special-rogue-destroy-trap",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/destroy_trap.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 289, "byteOffset": 8670, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-65-destroy-trap", "slots": [0]}],
+      "behavior": {
+        "targetType": "rogue-complex-encounter",
+        "disarmChance": "data-td2-disarm-modifier-times-power",
+        "disarmSuccess": "clear-armed-flag-and-use-disarm-success-result",
+        "disarmFailure": "show-disarm-failure-then-fall-through-to-open-lock",
+        "zeroResult": "exit-encounter-without-reopening-response-picker",
+        "openLockChance": "data-td2-open-lock-modifier-times-power-separate-roll",
+        "armedFailure": "spring-trap-before-open-lock-result",
+        "genericFallback": "use-authored-spell-result-when-data-td2-has-no-disarm-check",
+        "trapMutation": "clear-armed-and-detect-flags-then-enable-pick-lock",
+        "spellAndItemPaths": "native-cast-scroll-and-type-20-item",
+        "rawSpecial": 65,
+        "costPerPower": 40,
+        "adapter": "source-record-backed-rogue-encounter-service",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

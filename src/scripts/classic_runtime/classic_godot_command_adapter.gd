@@ -1773,31 +1773,55 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			word_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
 			return word_result
 		if selected == "spell":
-			var spell_result := await _select_complex_spell(encounter)
+			var spell_result := await _select_complex_spell(encounter, true)
 			if str(spell_result.get("status", "")) == "cancelled":
 				continue
-			spell_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			spell_result = await _apply_rogue_spell_response(
+				payload,
+				resolver,
+				spell_result,
+				character
+			)
+			if str(spell_result.get("status", "")) == "error":
+				return spell_result
 			return spell_result
 		if selected == "scroll":
 			var scroll_result := await _select_complex_item(
 				encounter,
 				payload.get("itemTexts", []),
 				payload.get("scenarioItems", []),
-				"scroll"
+				"scroll",
+				true
 			)
 			if str(scroll_result.get("status", "")) == "cancelled":
 				continue
-			scroll_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			scroll_result = await _apply_rogue_spell_response(
+				payload,
+				resolver,
+				scroll_result,
+				character
+			)
+			if str(scroll_result.get("status", "")) == "error":
+				return scroll_result
 			return scroll_result
 		if selected == "item":
 			var item_result := await _select_complex_item(
 				encounter,
 				payload.get("itemTexts", []),
-				payload.get("scenarioItems", [])
+				payload.get("scenarioItems", []),
+				"",
+				true
 			)
 			if str(item_result.get("status", "")) == "cancelled":
 				continue
-			item_result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+			item_result = await _apply_rogue_spell_response(
+				payload,
+				resolver,
+				item_result,
+				character
+			)
+			if str(item_result.get("status", "")) == "error":
+				return item_result
 			return item_result
 		var token_parts: PackedStringArray = selected.split(":", false, 1)
 		if token_parts.size() == 2 and token_parts[0] == "action":
@@ -1917,6 +1941,38 @@ func classic_spell_response_ids(spell: Variant) -> Array[int]:
 			if spell_id != 0 and not response_ids.has(spell_id):
 				response_ids.append(spell_id)
 	return response_ids
+
+
+func resolve_rogue_spell_result(
+	resolver: Object,
+	spell_response: Dictionary,
+	disarm_succeeded: bool,
+	open_succeeded: bool
+) -> Dictionary:
+	if resolver == null:
+		return _error("Classic rogue spell response requires an encounter resolver")
+	var result := spell_response.duplicate(true)
+	result.erase("_spellUser")
+	if int(result.get("classicSpecial", 0)) != RogueResolverScript.DESTROY_TRAP_SPECIAL:
+		result["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+		return result
+	if not resolver.has_method("resolve_destroy_trap"):
+		return _error("Classic Destroy Trap requires the rogue encounter resolver")
+	var resolution: Dictionary = resolver.resolve_destroy_trap(
+		disarm_succeeded,
+		open_succeeded
+	)
+	if str(resolution.get("status", "")) == "error":
+		return _error(str(resolution.get("message", "Classic Destroy Trap failed")))
+	if str(resolution.get("status", "")) != "fallback":
+		result["outcome"] = int(resolution.get("outcome", 0))
+	result["classicRogueSpellHandled"] = true
+	result["rogueSpellResolution"] = resolution
+	result["thiefEncounter"] = resolution.get(
+		"thiefEncounter",
+		resolver.rogue_encounter
+	).duplicate(true)
+	return result
 
 
 func spell_effect_targets(target_mode: String, party: Array, selected: Array) -> Array:
@@ -2262,6 +2318,7 @@ func _complex_spell_item_response(encounter: Dictionary, selection: Dictionary) 
 			),
 			"spellName": str(custom_spell.get("name")),
 			"spellId": spell_id,
+			"classicSpecial": int(custom_spell.get("classic_special")),
 		}
 	var spell_mapping: Dictionary = {}
 	var spell_ids: Object = _autoload("SpellsIdDivinity")
@@ -2291,6 +2348,8 @@ func _complex_spell_item_response(encounter: Dictionary, selection: Dictionary) 
 		),
 		"spellName": spell_name,
 		"spellId": spell_id,
+		"classicSpecial": int(spell.get("classic_special")) \
+			if spell.get("classic_special") != null else 0,
 	}
 
 
@@ -2392,7 +2451,7 @@ func _select_complex_word(encounter: Dictionary) -> Dictionary:
 	}
 
 
-func _select_complex_spell(encounter: Dictionary) -> Dictionary:
+func _select_complex_spell(encounter: Dictionary, include_spell_user := false) -> Dictionary:
 	var caster := _first_spellcaster()
 	if caster == null:
 		return _error("Classic complex encounter has no conscious spellcaster")
@@ -2417,7 +2476,7 @@ func _select_complex_spell(encounter: Dictionary) -> Dictionary:
 	var spell_class := int(spell.get("classic_spell_class")) \
 		if spell.get("classic_spell_class") != null else 0
 	var supported_spell_ids := classic_spell_response_ids(spell)
-	return {
+	var result := {
 		"outcome": resolve_complex_spell_result(
 			encounter,
 			str(spell.get("name")),
@@ -2427,14 +2486,20 @@ func _select_complex_spell(encounter: Dictionary) -> Dictionary:
 		),
 		"spellName": str(spell.get("name")),
 		"spellPower": power,
+		"classicSpecial": int(spell.get("classic_special")) \
+			if spell.get("classic_special") != null else 0,
 	}
+	if include_spell_user:
+		result["_spellUser"] = picked_character
+	return result
 
 
 func _select_complex_item(
 	encounter: Dictionary,
 	item_texts: Variant,
 	scenario_items: Variant,
-	required_mode := ""
+	required_mode := "",
+	include_spell_user := false
 ) -> Dictionary:
 	var holder := _first_item_holder()
 	if holder == null:
@@ -2480,7 +2545,67 @@ func _select_complex_item(
 		if str(consumption.get("status", "")) == "error":
 			return consumption
 		response["itemConsumption"] = consumption
+	if include_spell_user and str(response.get("mode", "")) == "spell-item":
+		response["_spellUser"] = picked_holder
 	return response
+
+
+func _apply_rogue_spell_response(
+	payload: Dictionary,
+	resolver: Object,
+	spell_response: Dictionary,
+	default_user: Object
+) -> Dictionary:
+	var spell_user: Variant = spell_response.get("_spellUser", default_user)
+	if not (spell_user is Object):
+		spell_user = default_user
+	if int(spell_response.get("classicSpecial", 0)) \
+			!= RogueResolverScript.DESTROY_TRAP_SPECIAL:
+		spell_response.erase("_spellUser")
+		spell_response["thiefEncounter"] = resolver.rogue_encounter.duplicate(true)
+		return spell_response
+
+	var power := int(spell_response.get("spellPower", 0))
+	var disarm_chance: int = resolver.spell_success_percent(
+		RogueResolverScript.DESTROY_TRAP_SPECIAL,
+		power
+	)
+	if disarm_chance > 0:
+		_active_command_save_safe = false
+	var disarm_succeeded := disarm_chance > 0 \
+		and randi_range(1, 100) <= disarm_chance
+	var open_succeeded := false
+	if disarm_chance > 0 and not disarm_succeeded:
+		var open_chance: int = resolver.spell_success_percent(
+			RogueResolverScript.OPEN_LOCK_SPECIAL,
+			power
+		)
+		open_succeeded = open_chance > 0 and randi_range(1, 100) <= open_chance
+	var result := resolve_rogue_spell_result(
+		resolver,
+		spell_response,
+		disarm_succeeded,
+		open_succeeded
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	var resolution: Variant = result.get("rogueSpellResolution", {})
+	if resolution is Dictionary:
+		for event_value: Variant in resolution.get("events", []):
+			if not (event_value is Dictionary):
+				continue
+			var event: Dictionary = event_value
+			match str(event.get("type", "")):
+				"feedback":
+					await _show_rogue_feedback(payload, event)
+				"trap":
+					var trap_result := await _show_rogue_trap(
+						{"trap": event.get("trap", {})},
+						spell_user
+					)
+					if str(trap_result.get("status", "")) == "error":
+						return trap_result
+	return result
 
 
 func _first_spellcaster() -> Object:

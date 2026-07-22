@@ -250,6 +250,15 @@ movement point and one percentage point from physical attack and defense, then
 decays once per combat round. The source force-affect code bypasses both magic
 resistance and saving throws.
 
+Destroy Trap is available only as a complex-encounter response. In a rogue
+encounter it rolls the Data TD2 disarm modifier once per selected power level.
+Success clears the armed flag and uses the disarm result. Failure displays the
+disarm feedback, falls through to a separate Open Lock roll, and springs an
+armed trap before resolving that roll. Records without a disarm modifier retain
+their ordinary authored spell result. A zero TD2 result exits the encounter as
+it does in Classic; it does not reopen the spell picker. Native casts, scrolls,
+and type-20 spell items all enter the same resolver-owned state transition.
+
 Dumbstruck and Mind Blank use Classic condition `6`, stored at character
 condition index `5`. Despite the latter's protective-sounding name, both are
 offensive mental effects that prevent spellcasting and leave movement, attacks,

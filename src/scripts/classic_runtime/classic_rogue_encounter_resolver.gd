@@ -23,6 +23,12 @@ const STAT_NAMES := [
 	"",
 ]
 
+const DESTROY_TRAP_SPECIAL := 65
+const OPEN_LOCK_SPECIAL := 70
+const DESTROY_TRAP_INDEX := 2
+const OPEN_LOCK_MODIFIER_INDEX := 1
+const OPEN_LOCK_FEEDBACK_INDEX := 6
+
 var encounter: Dictionary = {}
 var rogue_encounter: Dictionary = {}
 var last_error := ""
@@ -66,6 +72,57 @@ func success_percent(action_index: int, stat_value: float) -> int:
 	if action_index in [2, 4, 6, 7]:
 		chance = min(chance, 90)
 	return clampi(chance, 0, 100)
+
+
+func spell_success_percent(special_code: int, power: int) -> int:
+	var modifier_index := -1
+	match special_code:
+		DESTROY_TRAP_SPECIAL:
+			modifier_index = DESTROY_TRAP_INDEX
+		OPEN_LOCK_SPECIAL:
+			modifier_index = OPEN_LOCK_MODIFIER_INDEX
+		_:
+			return 0
+	return clampi(_array_int("modifiers", modifier_index) * maxi(0, power), 0, 100)
+
+
+func resolve_destroy_trap(disarm_succeeded: bool, open_succeeded: bool) -> Dictionary:
+	last_error = ""
+	var type_flags := _type_flags()
+	if type_flags.size() < 10:
+		return _error_result("Classic rogue encounter requires ten type flags")
+	var events: Array[Dictionary] = []
+	if _array_int("modifiers", DESTROY_TRAP_INDEX) == 0:
+		return _spell_result("fallback", 0, events)
+
+	if disarm_succeeded:
+		type_flags[9] = false
+		rogue_encounter["typeFlags"] = type_flags
+		events.append(_feedback_event("success", DESTROY_TRAP_INDEX))
+		return _spell_result(
+			"resolved",
+			_array_int("successCodes", DESTROY_TRAP_INDEX),
+			events
+		)
+
+	events.append(_feedback_event("failure", DESTROY_TRAP_INDEX))
+	if _array_int("modifiers", OPEN_LOCK_MODIFIER_INDEX) == 0:
+		return _spell_result("fallback", 0, events)
+
+	if bool(type_flags[9]):
+		var trap_result := _trap_result(type_flags)
+		type_flags = _type_flags()
+		events.append({"type": "trap", "trap": trap_result.get("trap", {})})
+	if open_succeeded:
+		type_flags[9] = false
+	rogue_encounter["typeFlags"] = type_flags
+	var prefix := "success" if open_succeeded else "failure"
+	events.append(_feedback_event(prefix, OPEN_LOCK_FEEDBACK_INDEX))
+	return _spell_result(
+		"resolved",
+		_array_int("%sCodes" % prefix, OPEN_LOCK_FEEDBACK_INDEX),
+		events
+	)
 
 
 func stat_name(action_index: int) -> String:
@@ -138,6 +195,23 @@ func _array_int(field_name: String, index: int) -> int:
 	if not (values is Array) or index < 0 or index >= values.size():
 		return 0
 	return int(values[index])
+
+
+func _feedback_event(prefix: String, index: int) -> Dictionary:
+	return {
+		"type": "feedback",
+		"messageId": _array_int("%sText" % prefix, index),
+		"soundId": _array_int("%sSounds" % prefix, index),
+	}
+
+
+func _spell_result(status: String, outcome: int, events: Array[Dictionary]) -> Dictionary:
+	return {
+		"status": status,
+		"outcome": outcome,
+		"events": events,
+		"thiefEncounter": rogue_encounter.duplicate(true),
+	}
 
 
 func _error_result(message: String) -> Dictionary:
