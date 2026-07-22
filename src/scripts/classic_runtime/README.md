@@ -173,6 +173,18 @@ the generator cannot silently treat those mechanics as ordinary damage spells.
 `asset_scripts/scaffold_classic_damage_spells.py` reproduces the audited family
 as review-required drafts; generation alone never changes support status.
 
+Queued damage records use `ClassicCoreQueuedAreaSpell` and the source `Data AD`
+7x7 masks instead of the ordinary radius approximation. Casting resolves the
+spell immediately and retains its absolute battlefield footprint. A creature
+then retriggers each touching field once during its movement phase, including
+large creatures whose non-origin tile enters the mask; occupants also retrigger
+at the next round boundary. Durations expire when the original caster's next
+initiative phase begins, with a round-boundary fallback when that phase owner
+has left combat, and the retained queue observes Classic's 60-entry limit.
+Plague `1308`/`2512`/`3509`, Plane of Force `1309`/`3310`, and Plane of Ice
+`1407` are the first source-reviewed resources on this runtime. Same-name rows
+share a resource only when their mechanics and presentation bytes are equal.
+
 The 15 negative-cost, noncombat utility records use
 `ClassicCoreEncounterResponseSpell`. In Classic, their negative cost fixes the
 cast at power 1 and their effect is selected by the active complex encounter's

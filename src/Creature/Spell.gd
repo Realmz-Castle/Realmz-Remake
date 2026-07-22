@@ -116,6 +116,11 @@ var proj_tex : GFX = -1
 var proj_hit : GFX = -1
 var sounds : Array = []
 var max_focus_loss : int = 0
+# Persistent battlefield spells opt into these fields. Keeping them on the
+# common spell contract lets the combat runtime distinguish an absent effect
+# from a malformed spell resource.
+var terrain_tex : String = ""
+var terrain_walk_type : int = 0
 
 
 func get_targets(_power : int, _caster) -> int :
@@ -162,6 +167,10 @@ func add_traits_to_creature(_caster : Creature, _target : Creature, _power : int
 
 func supports_classic_spell_id(spell_id : int) -> bool :
 	return classic_spell_ids.is_empty() or spell_id in classic_spell_ids
+
+
+func is_classic_queued_spell() -> bool:
+	return false
 
 
 # Returns this spell's source code as a string, suitable for storing in a

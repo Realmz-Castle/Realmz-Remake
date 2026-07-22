@@ -129,13 +129,13 @@ func update_targeting()->void:
 	
 	if spell_allow_rotation :
 		if Input.is_action_just_pressed("RotateAoE") :
-			if spell_aoe==Spell.AoE_WALL_H :
+			if _same_aoe(spell_aoe, Spell.AoE_WALL_H) :
 				spell_aoe=Spell.AoE_WALL_L
-			if spell_aoe==Spell.AoE_WALL_L :
+			elif _same_aoe(spell_aoe, Spell.AoE_WALL_L) :
 				spell_aoe=Spell.AoE_WALL_V
-			if spell_aoe==Spell.AoE_WALL_V :
+			elif _same_aoe(spell_aoe, Spell.AoE_WALL_V) :
 				spell_aoe=Spell.AoE_WALL_J
-			if spell_aoe==Spell.AoE_WALL_J :
+			elif _same_aoe(spell_aoe, Spell.AoE_WALL_J) :
 				spell_aoe=Spell.AoE_WALL_H
 	
 	if Input.is_action_just_pressed("LeftClick") :
@@ -211,6 +211,15 @@ func update_targeting()->void:
 		execute_spell(caster,spell,power,all_picked_tiles, used_item, true, aoe_override)
 		return
 	return
+
+
+func _same_aoe(left: Array, right: Array) -> bool:
+	if left.size() != right.size():
+		return false
+	for point: Variant in left:
+		if not right.has(Vector2i(point)):
+			return false
+	return true
 
 #	print(mousepos,', ',caster.creature.position )
 

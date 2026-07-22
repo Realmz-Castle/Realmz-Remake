@@ -13,7 +13,9 @@ const SAVE_STATS := {
 	4: ["MultiplierChemical", "ResistanceChemical"],
 	5: ["MultiplierMental", "ResistanceMental"],
 	6: ["MultiplierMagic", "ResistanceMagic"],
-	7: ["MultiplierHealing", "ResistanceHealing"],
+	# Classic's seventh damage type is its special DRV. Native characters do
+	# not expose that family, so use their general magical defense as fallback.
+	7: ["MultiplierMagic", "ResistanceMagic"],
 }
 
 

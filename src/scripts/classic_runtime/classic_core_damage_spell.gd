@@ -18,6 +18,12 @@ func configure_core_damage_spell(spell_id: int, required_spell_class := -1) -> b
 	if not _is_direct_damage_record(record, required_spell_class):
 		push_error("Classic core spell %d is not an immediate damage record" % spell_id)
 		return false
+	_configure_core_record(inventory, record)
+	return true
+
+
+func _configure_core_record(inventory: Dictionary, record: Dictionary) -> void:
+	var spell_id := int(inventory.get("packedSpellId", 0))
 
 	var caster_class := str(inventory.get("casterClass", ""))
 	var spell_level := int(inventory.get("level", 0))
@@ -48,7 +54,6 @@ func configure_core_damage_spell(spell_id: int, required_spell_class := -1) -> b
 			record["nativeAoe"] = "round"
 	record["sourceRecord"] = inventory.get("sourceRecord", {}).duplicate(true)
 	configure(record)
-	return true
 
 
 func _is_direct_damage_record(record: Dictionary, required_spell_class: int) -> bool:
@@ -88,7 +93,10 @@ func _element_for_damage_type(damage_type: int) -> int:
 		5:
 			return GameGlobal.ELEMENTS.MENTAL
 		7:
-			return GameGlobal.ELEMENTS.HEALING
+			# Classic uses type 7 for its special DRV, not healing damage.
+			# Remake has no matching element, so its neutral magical defense is
+			# the least lossy damage-side fallback; the DRV remains separate.
+			return GameGlobal.ELEMENTS.MAGICAL
 		_:
 			return GameGlobal.ELEMENTS.MAGICAL
 
@@ -101,7 +109,7 @@ func _tags_for_damage_type(damage_type: int) -> Array[String]:
 		3: "Electric",
 		4: "Chemical",
 		5: "Mental",
-		7: "Healing",
+		7: "Special",
 	}.get(damage_type, ""))
 	if not element_name.is_empty():
 		result.append(element_name)

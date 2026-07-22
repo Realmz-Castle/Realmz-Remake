@@ -12,6 +12,10 @@ Loads Things and add them into this Node.
 extends Control
 class_name Map
 
+const ClassicQueuedSpellRuntimeScript = preload(
+	"res://scripts/classic_runtime/classic_queued_spell_runtime.gd"
+)
+
 # Get Thing Scene By default #
 #@export (PackedScene) var _thing
 
@@ -86,6 +90,7 @@ var  exploration_sight_dirs : Array = []
 #var exampleTerrainEffect : Dictionary = {"caster" : "somecreature", "Tiles" : [Vector2.ZERO], "timeleft" : 3, "spell" : somescript, "texture" : Texture}
 
 var terrainEffects : Array = []
+var _next_terrain_effect_id := 1
 #var terrainTexAtlas : ImageTexture = preload("res://shared_assets/BattleEffects/BattleEffects.png")
 var terrains_tex_pos_dict : Dictionary = {
 	"Bnd" : Vector2i(2,1),	"Web" : Vector2i(3,1),	"Trg" : Vector2i(4,1),"Yfr" : Vector2i(5,1),
@@ -94,13 +99,42 @@ var terrains_tex_pos_dict : Dictionary = {
 	"Spk" : Vector2i(14,1),	"Str" : Vector2i(0,2),	"Dts" : Vector2i(1,2) ,"Ice" : Vector2i(5,2) }
 var tex_name_tex_dict : Dictionary = {}
 
-func add_terrain_effect_from_spell(spell,power : int, aoe : Array, targ_pos : Vector2i,caster : Creature) :
+func add_terrain_effect_from_spell(
+	spell,
+	power: int,
+	aoe: Array,
+	targ_pos: Vector2i,
+	caster: Creature
+) -> bool:
 	var t_aoe : Array = []
 	for i in range(aoe.size()) :
 		t_aoe.append(Vector2i(aoe[i])+targ_pos)
-	var texture = tex_name_tex_dict[spell.terrain_tex]
-	terrainEffects.append( {"time":spell.get_duration_roll(power,caster), "tiles":t_aoe, "caster":caster, "spell":spell,"power":power,"texture":texture} )
+	var is_classic: bool = spell.has_method("is_classic_queued_spell") \
+		and spell.is_classic_queued_spell()
+	if is_classic and ClassicQueuedSpellRuntimeScript.classic_effect_count(terrainEffects) \
+			>= ClassicQueuedSpellRuntimeScript.MAX_EFFECTS:
+		push_warning("Classic queued spell limit reached; the new field was not retained")
+		return false
+	if spell.terrain_tex.is_empty() or not tex_name_tex_dict.has(spell.terrain_tex):
+		push_warning("Spell %s has no battlefield terrain texture" % spell.name)
+		return false
+	var duration := int(spell.get_duration_roll(power, caster))
+	if duration <= 0 or t_aoe.is_empty():
+		return false
+	terrainEffects.append({
+		"id": _next_terrain_effect_id,
+		"time": duration,
+		"tiles": t_aoe,
+		"caster": caster,
+		"phase_owner": caster,
+		"spell": spell,
+		"power": power,
+		"texture": tex_name_tex_dict[spell.terrain_tex],
+		"classic": is_classic,
+	})
+	_next_terrain_effect_id += 1
 	queue_redraw()
+	return true
 
 func remove_terrain_effect(terrain : Dictionary) :
 	terrainEffects.erase(terrain)
@@ -120,6 +154,12 @@ func get_terrain_effects_at_pos(tpos : Vector2) -> Array :
 				returned.append(t)
 				continue
 	return returned
+
+
+func get_terrain_effects_touching_creature(creature: Creature) -> Array:
+	return ClassicQueuedSpellRuntimeScript.effects_touching_creature(
+		terrainEffects, creature
+	)
 
 func add_extra_image(key : String, img_key : String, coords : Vector2) :
 	print("MAp add_extra_image : "+ key+ ', '+img_key,', ',coords)
@@ -144,19 +184,35 @@ func remove_extra_image(key : String) :
 	extra_images[key].queue_free()
 	extra_images.erase(key)
 
-func _on_new_round() :
-	for t in terrainEffects :
-		t["time"]-=1
-	var newarray : Array = []
-	for t in terrainEffects :
-		if t["time"]>0 :
-			newarray.append(t)
-	terrainEffects = newarray
-	var allCreaButtons : Array = StateMachine.combat_state.all_battle_creatures_btns
-	var crealist : Array = []
-	for cb in allCreaButtons :
-		crealist.append(cb.creature)
-	#pathfinder_update_characters(crealist)
+func _on_new_round(combat_buttons: Array = []) -> Array:
+	var stationary_actions := ClassicQueuedSpellRuntimeScript.stationary_actions(
+		terrainEffects, combat_buttons
+	)
+	for terrain: Dictionary in terrainEffects:
+		if not bool(terrain.get("classic", false)):
+			terrain["time"] = int(terrain.get("time", 0)) - 1
+	terrainEffects = terrainEffects.filter(
+		func(terrain: Dictionary) -> bool: return int(terrain.get("time", 0)) > 0
+	)
+	queue_redraw()
+	return stationary_actions
+
+
+func advance_classic_terrain_phase(phase_owner: Creature) -> void:
+	terrainEffects = ClassicQueuedSpellRuntimeScript.advance_phase(
+		terrainEffects, phase_owner
+	)
+	queue_redraw()
+
+
+func advance_missing_classic_terrain_phases(combat_buttons: Array) -> void:
+	var live_creatures: Array = []
+	for button: Variant in combat_buttons:
+		if is_instance_valid(button) and is_instance_valid(button.creature):
+			live_creatures.append(button.creature)
+	terrainEffects = ClassicQueuedSpellRuntimeScript.advance_missing_phases(
+		terrainEffects, live_creatures
+	)
 	queue_redraw()
 
 # Call functions to load the map #

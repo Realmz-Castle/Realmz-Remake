@@ -44,6 +44,12 @@ const CoreSpellCoverageScript = preload(
 const EncounterResponseSpellScript = preload(
 	"res://scripts/classic_runtime/classic_core_encounter_response_spell.gd"
 )
+const QueuedSpellRuntimeScript = preload(
+	"res://scripts/classic_runtime/classic_queued_spell_runtime.gd"
+)
+const SpellAreaPatternsScript = preload(
+	"res://scripts/classic_runtime/classic_spell_area_patterns.gd"
+)
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
@@ -817,6 +823,24 @@ class CowardRetreatTestGameGlobal:
 	var map = CowardRetreatTestMap.new()
 
 
+class QueuedTerrainTestCreature:
+	extends RefCounted
+	var position := Vector2.ZERO
+	var size := Vector2.ONE
+
+	func _init(at: Vector2, footprint := Vector2.ONE) -> void:
+		position = at
+		size = footprint
+
+
+class QueuedTerrainTestButton:
+	extends RefCounted
+	var creature: QueuedTerrainTestCreature
+
+	func _init(value: QueuedTerrainTestCreature) -> void:
+		creature = value
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -863,6 +887,7 @@ func _init() -> void:
 	_test_spell_effect_actions(bundle)
 	_test_classic_spell_usage_audit()
 	_test_classic_spell_coverage()
+	_test_classic_queued_area_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
 	_test_take_gold_action()
@@ -5530,6 +5555,18 @@ func _test_classic_spell_save_contract() -> void:
 		44.0,
 		"Classic special saves use the integer average of all six monster saves"
 	)
+	var native_target := RogueTestCharacter.new()
+	native_target.stat_values = {
+		"MultiplierMagic": 0.75,
+		"ResistanceMagic": 0.0,
+		"MultiplierHealing": 1.0,
+		"ResistanceHealing": 0.0,
+	}
+	_expect_equal(
+		SpellSavesScript.save_chance_for(native_target, 7),
+		50.0,
+		"native characters use magical defense for Classic's special save"
+	)
 
 	immunities[0] = 1
 	SpellSavesScript.apply_monster_metadata(target, saves, immunities)
@@ -7637,7 +7674,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		81,
+		87,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7652,7 +7689,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 	_expect_equal(
 		coverage_statuses.get("generic-implementation-candidate", 0),
-		20,
+		14,
 		"coverage leaves only unreviewed generic records in the implementation queue"
 	)
 	var coverage_by_id: Dictionary = {}
@@ -7758,8 +7795,9 @@ func _test_classic_spell_coverage() -> void:
 		1601, 1703, 2705, 2712, 3108, 3205, 3501, 3601, 3602, 3710,
 		1107, 1112, 1201, 1305, 1609, 2504, 2609, 2611,
 		3111, 3112, 3306, 3404, 3410, 3709, 3711,
+		1308, 1309, 1407, 2512, 3310, 3509,
 	]
-	_expect_equal(migrated_spell_ids.size(), 56, "the reviewed generic batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 62, "the reviewed generic batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -7821,10 +7859,15 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Hands to Clay Enchanter": "res://shared_assets/spells/classic_core_3306_hands_to_clay_enchanter.gd",
 		"Speak Language": "res://shared_assets/spells/classic_core_3410_speak_language.gd",
 		"Classic Teleport Party Enchanter": "res://shared_assets/spells/classic_core_3711_teleport_party_enchanter.gd",
+		"Plague": "res://shared_assets/spells/classic_core_1308_plague.gd",
+		"Plane of Force": "res://shared_assets/spells/classic_core_1309_plane_of_force.gd",
+		"Plane of Ice": "res://shared_assets/spells/classic_core_1407_plane_of_ice.gd",
+		"Classic Plane of Force Enchanter": "res://shared_assets/spells/classic_core_3310_plane_of_force_enchanter.gd",
+		"Classic Plague Enchanter": "res://shared_assets/spells/classic_core_3509_plague_enchanter.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		54,
+		59,
 		"every reviewed generic identity has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -8404,16 +8447,164 @@ func _test_classic_spell_coverage() -> void:
 				matrix_ids,
 				[
 					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
-					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1310, 1401, 1402, 1408,
+					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
+					1402, 1407, 1408,
 					1501, 1503, 1504, 1505, 1601, 1603, 1609, 1701, 1703, 2101, 2102,
-					2103, 2109, 2110, 2111, 2201, 2301, 2304, 2306, 2403, 2504, 2605,
+					2103, 2109, 2110, 2111, 2201, 2301, 2304, 2306, 2403, 2504, 2512,
+					2605,
 					2609, 2611, 2705, 2706, 2708, 2712, 3102, 3104, 3105, 3108, 3111,
-					3112, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3306, 3308, 3311,
-					3401, 3404, 3409, 3410, 3501, 3505, 3506, 3601, 3602, 3603, 3704,
+					3112, 3202, 3205, 3207, 3208, 3211, 3301, 3303, 3306, 3308, 3310,
+					3311, 3401, 3404, 3409, 3410, 3501, 3505, 3506, 3509, 3601, 3602,
+					3603, 3704,
 					3709, 3710, 3711, 3712,
 				],
 				"source-verified spell matrix includes the audited core variants"
 			)
+
+
+func _test_classic_queued_area_spells() -> void:
+	var plague = load(
+		"res://shared_assets/spells/classic_core_1308_plague.gd"
+	).new()
+	var force = load(
+		"res://shared_assets/spells/classic_core_1309_plane_of_force.gd"
+	).new()
+	var ice = load(
+		"res://shared_assets/spells/classic_core_1407_plane_of_ice.gd"
+	).new()
+	var enchanter_force = load(
+		"res://shared_assets/spells/classic_core_3310_plane_of_force_enchanter.gd"
+	).new()
+	var enchanter_plague = load(
+		"res://shared_assets/spells/classic_core_3509_plague_enchanter.gd"
+	).new()
+
+	_expect_equal(plague.classic_spell_ids, [1308, 2512], "identical Plague rows share one resource")
+	_expect_equal(plague.school_levels, {"Sorcerer": 3, "Priest": 5, "Enchanter": 0}, "Plague preserves both learned-spell levels")
+	_expect_equal(plague.get_range(7, null), 8, "Plague preserves its source range")
+	_expect_equal(plague.get_min_damage(4, null), 5, "Plague damage is fixed")
+	_expect_equal(plague.get_max_damage(4, null), 15, "Plague maximum damage is fixed")
+	_expect_equal(plague.get_min_duration(4, null), 1, "Plague minimum duration")
+	_expect_equal(plague.get_max_duration(4, null), 3, "Plague maximum duration")
+	_expect_equal(
+		plague.elements,
+		[GameGlobal.ELEMENTS.MAGICAL],
+		"Classic special-DRV damage does not become Remake healing"
+	)
+	_expect_equal(plague.terrain_tex, "Thn", "Plague uses Remake's thorn field art")
+	_expect(plague.is_classic_queued_spell(), "Plague opts into Classic queue timing")
+	_expect_equal(
+		plague.get_aoe(3, null),
+		SpellAreaPatternsScript.pattern(3),
+		"Plague power selects the exact Data AD mask"
+	)
+
+	_expect_equal(force.classic_spell_ids, [1309], "Sorcerer Plane of Force exact ID")
+	_expect(force.rot, "Plane of Force exposes rotatable targeting")
+	_expect(
+		_same_tile_set(force.get_aoe(1, null), Spell.AoE_WALL_H),
+		"Plane of Force starts with Data AD wall 10"
+	)
+	_expect_equal(force.get_min_damage(3, null), 6, "Plane of Force damage scales by power")
+	_expect_equal(force.get_max_damage(3, null), 24, "Plane of Force maximum scales")
+	_expect_equal(force.classic_spell_save_index, -1, "Sorcerer Plane of Force cannot be saved against")
+	_expect_equal(force.terrain_tex, "Orb", "Plane of Force uses Remake's force-field art")
+	_expect_equal(ice.classic_spell_save_index, 2, "Plane of Ice uses the cold save")
+	_expect_equal(ice.get_min_damage(3, null), 6, "Plane of Ice damage scales by power")
+	_expect_equal(ice.get_max_damage(3, null), 30, "Plane of Ice maximum scales")
+	_expect_equal(ice.get_sp_cost(2, null), 60, "Plane of Ice preserves source cost")
+	_expect_equal(ice.terrain_tex, "Ice", "Plane of Ice uses Remake's ice field art")
+	_expect_equal(enchanter_force.classic_spell_ids, [3310], "Enchanter Plane of Force exact ID")
+	_expect_equal(enchanter_force.get_sp_cost(2, null), 70, "Enchanter Plane of Force keeps its distinct cost")
+	_expect_equal(enchanter_force.classic_spell_save_index, 7, "Enchanter Plane of Force keeps its distinct save")
+	_expect_equal(
+		enchanter_force.elements,
+		[GameGlobal.ELEMENTS.MAGICAL],
+		"special-DRV force damage uses the neutral magical fallback"
+	)
+	_expect_equal(enchanter_plague.classic_spell_ids, [3509], "Enchanter Plague exact ID")
+	_expect_equal(enchanter_plague.get_sp_cost(2, null), 60, "Enchanter Plague keeps its distinct cost")
+
+	_expect(
+		_same_tile_set(SpellAreaPatternsScript.pattern(11), Spell.AoE_WALL_L),
+		"Data AD wall 11 matches diagonal-left targeting"
+	)
+	_expect(
+		_same_tile_set(SpellAreaPatternsScript.pattern(12), Spell.AoE_WALL_V),
+		"Data AD wall 12 matches vertical targeting"
+	)
+	_expect(
+		_same_tile_set(SpellAreaPatternsScript.pattern(13), Spell.AoE_WALL_J),
+		"Data AD wall 13 matches diagonal-right targeting"
+	)
+	_expect_equal(SpellAreaPatternsScript.pattern(14).size(), 28, "Data AD hollow field preserves all source cells")
+	_expect_equal(SpellAreaPatternsScript.pattern(18).size(), 4, "Data AD large-creature mask preserves four cells")
+
+	var caster := QueuedTerrainTestCreature.new(Vector2(1, 1))
+	var other_caster := QueuedTerrainTestCreature.new(Vector2(9, 9))
+	var target := QueuedTerrainTestCreature.new(Vector2(5, 5), Vector2(2, 2))
+	var target_button := QueuedTerrainTestButton.new(target)
+	var effects: Array = [
+		{
+			"id": 1,
+			"classic": true,
+			"time": 2,
+			"tiles": [Vector2i(6, 6), Vector2i(7, 7)],
+			"caster": caster,
+			"phase_owner": caster,
+			"spell": plague,
+			"power": 3,
+		},
+		{
+			"id": 2,
+			"classic": true,
+			"time": 2,
+			"tiles": [Vector2i(5, 5), Vector2i(5, 6)],
+			"caster": other_caster,
+			"phase_owner": other_caster,
+			"spell": force,
+			"power": 2,
+		},
+		{
+			"id": 3,
+			"classic": false,
+			"time": 2,
+			"tiles": [Vector2i(5, 5)],
+			"caster": caster,
+			"phase_owner": caster,
+			"spell": plague,
+			"power": 1,
+		},
+	]
+	var touching := QueuedSpellRuntimeScript.effects_touching_creature(effects, target)
+	_expect_equal(touching.size(), 3, "large creatures test every occupied tile")
+	var stationary := QueuedSpellRuntimeScript.stationary_actions(
+		effects, [target_button]
+	)
+	_expect_equal(stationary.size(), 2, "stationary collision runs once per Classic effect")
+	_expect_equal(
+		stationary[0].get("absolute_aoe"),
+		[Vector2i(6, 6)],
+		"terrain retrigger carries absolute intersecting tiles"
+	)
+	_expect(stationary[0].get("from_terrain"), "terrain action identifies its source")
+	_expect(not stationary[0].get("add_terrain"), "terrain action cannot enqueue another field")
+
+	var after_caster_phase := QueuedSpellRuntimeScript.advance_phase(effects, caster)
+	_expect_equal(after_caster_phase[0].get("time"), 1, "matching initiative phase decrements a field")
+	_expect_equal(after_caster_phase[1].get("time"), 2, "other initiative phases remain unchanged")
+	var after_missing_phase := QueuedSpellRuntimeScript.advance_missing_phases(
+		after_caster_phase, [caster]
+	)
+	_expect_equal(after_missing_phase[1].get("time"), 1, "orphaned phase owners still expire after round collision")
+	var capacity_probe: Array = []
+	for index: int in range(QueuedSpellRuntimeScript.MAX_EFFECTS):
+		capacity_probe.append({"classic": true, "time": 1, "id": index})
+	_expect_equal(
+		QueuedSpellRuntimeScript.classic_effect_count(capacity_probe),
+		60,
+		"Classic battlefield queue retains its source capacity"
+	)
 
 
 func _test_parameterized_damage_spells() -> void:
@@ -15708,6 +15899,15 @@ func _expect(condition: bool, label: String) -> void:
 
 func _expect_equal(actual: Variant, expected: Variant, label: String) -> void:
 	_expect(actual == expected, "%s (expected %s, got %s)" % [label, expected, actual])
+
+
+func _same_tile_set(left: Array, right: Array) -> bool:
+	if left.size() != right.size():
+		return false
+	for point: Variant in left:
+		if not right.has(Vector2i(point)):
+			return false
+	return true
 
 
 func _classic_record_high(low: int, high: int) -> int:

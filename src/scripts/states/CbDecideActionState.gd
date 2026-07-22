@@ -10,6 +10,7 @@ var is_bandaging : bool = false
 var picked_charas : Array = []
 var pleaseconfirmspell : bool = false
 var current_active_creabutton : CombatCreaButton
+var pending_classic_terrain_phase_owner: Creature
 
 signal cbdecide_picked_characters_done
 signal cbdecide_charpanel_clicked
@@ -73,6 +74,30 @@ func enter(_msg : Dictionary = {}) -> void:
 	await _flush_classic_combat_macros()
 	if StateMachine.state != self:
 		return
+	if pending_classic_terrain_phase_owner != null:
+		var completed_phase_owner := pending_classic_terrain_phase_owner
+		pending_classic_terrain_phase_owner = null
+		GameGlobal.map.advance_missing_classic_terrain_phases(
+			combat_state.all_battle_creatures_btns
+		)
+		var phase_owner_is_live := false
+		for button: Variant in combat_state.all_battle_creatures_btns:
+			if is_instance_valid(button) and button.creature == completed_phase_owner:
+				phase_owner_is_live = true
+				break
+		if phase_owner_is_live:
+			GameGlobal.map.advance_classic_terrain_phase(completed_phase_owner)
+		if not combat_state.battle_creatures_yet_to_act_btns.has(
+			current_active_creabutton
+		):
+			current_active_creabutton = null
+			if not combat_state.battle_creatures_yet_to_act_btns.is_empty():
+				current_active_creabutton = \
+					combat_state.battle_creatures_yet_to_act_btns[0]
+				_select_active_creature(current_active_creabutton)
+				GameGlobal.map.advance_classic_terrain_phase(
+					current_active_creabutton.creature
+				)
 
 	if UI.ow_hud.turnorderPanel.visible :
 		UI.ow_hud.turnorderPanel.update_display()
@@ -128,6 +153,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.cur_battle_round = 0
 	combat_state.cur_battle_data = _msg
 	combat_state.clear_classic_combat_macros()
+	pending_classic_terrain_phase_owner = null
 	is_bandaging = false
 	var _battle_pos : Array = [map.focuscharacter.tile_position_x, map.focuscharacter.tile_position_y]
 	if _msg.has("Position") :
@@ -294,7 +320,9 @@ func start_new_round() :
 	if not battle_end_str.is_empty():
 		GameGlobal.end_battle(battle_end_str)
 		return
-	GameGlobal.map._on_new_round()
+	var terrain_actions: Array = GameGlobal.map._on_new_round(
+		combat_state.all_battle_creatures_btns
+	)
 
 	for creab in combat_state.all_battle_creatures_btns :
 		creab.creature._on_new_round()
@@ -329,9 +357,33 @@ func start_new_round() :
 	get_parent().all_battle_creatures_btns.sort_custom(func(a, b): return a.creature.get_stat("Dexterity") > b.creature.get_stat("Dexterity") )
 	GameGlobal.map.pathfinder_update_characters(all_creatures,current_active_creabutton.creature)
 	GameGlobal.map.pathfinder_clear_pos(Vector2i(current_active_creabutton.creature.position))
+	if not terrain_actions.is_empty():
+		pending_classic_terrain_phase_owner = current_active_creabutton.creature
+		combat_state.add_to_action_queue(terrain_actions)
+		StateMachine.transition_to("Combat/CbAnimation")
+		return
+	GameGlobal.map.advance_missing_classic_terrain_phases(
+		combat_state.all_battle_creatures_btns
+	)
+	GameGlobal.map.advance_classic_terrain_phase(current_active_creabutton.creature)
 	#enter()
 	if not current_active_creabutton.creature.is_player_controlled :
 		do_ai_creature_action(current_active_creabutton.creature)
+
+
+func _select_active_creature(button: CombatCreaButton) -> void:
+	UI.ow_hud.set_selected_creature(button.creature)
+	UI.ow_hud._on_mouse_exit_combat_crea_button()
+	UI.ow_hud.creatureRect.charbutton_this_turn = button
+	UI.ow_hud.creatureRect.display_crea_info(button)
+	UI.ow_hud.combatBRPanel.prepare_for_creab(button)
+	GameGlobal.map.focuscharacter.set_tile_position(button.creature.position)
+	var creatures: Array = []
+	for combat_button: Variant in combat_state.all_battle_creatures_btns:
+		if is_instance_valid(combat_button):
+			creatures.append(combat_button.creature)
+	GameGlobal.map.pathfinder_update_characters(creatures, button.creature)
+	GameGlobal.map.pathfinder_clear_pos(Vector2i(button.creature.position))
 
 
 func _dispatch_classic_battle_round(
@@ -575,6 +627,7 @@ func end_active_creature_turn(set_apr_zero : bool)->void :
 
 	UI.ow_hud._on_mouse_exit_combat_crea_button()
 	current_active_creabutton = combat_state.battle_creatures_yet_to_act_btns[0]
+	GameGlobal.map.advance_classic_terrain_phase(current_active_creabutton.creature)
 	UI.ow_hud.creatureRect.charbutton_this_turn = current_active_creabutton
 	UI.ow_hud.creatureRect.display_crea_info( current_active_creabutton )
 	UI.ow_hud.combatBRPanel.prepare_for_creab(current_active_creabutton)
@@ -596,6 +649,7 @@ func delay_active_creature_turn() :
 	combat_state.battle_creatures_yet_to_act_btns.append(current_active_creabutton)
 	UI.ow_hud.set_selected_creature(combat_state.battle_creatures_yet_to_act_btns[0].creature)
 	current_active_creabutton = combat_state.battle_creatures_yet_to_act_btns[0]
+	GameGlobal.map.advance_classic_terrain_phase(current_active_creabutton.creature)
 
 	UI.ow_hud._on_mouse_exit_combat_crea_button()
 	UI.ow_hud.creatureRect.charbutton_this_turn = current_active_creabutton

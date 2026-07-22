@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 81)
+        self.assertEqual(report["totals"]["supportedIdentities"], 87)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -190,13 +190,21 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         self.assertEqual(report["validationErrors"], [])
         self.assertEqual(
             report["totals"]["genericImplementationLanes"],
-            {"queued-area-engine-gap": 20},
+            {"queued-area-engine-gap": 14},
         )
         self.assertEqual(report, audit.build_report(inventory, matrix, native, legacy))
 
         matrix_by_id = {
             int(row["classicSpellId"]): row for row in matrix.get("spells", [])
         }
+        for spell_id in {1308, 1309, 1407, 2512, 3310, 3509}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-queued-area")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
         parameterized_damage_ids = {
             1601,
             1703,

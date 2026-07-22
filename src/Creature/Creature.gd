@@ -9,6 +9,9 @@ const CLASSIC_REGENERATION_SCRIPT = preload(
 const CLASSIC_LEARNED_SPELL_IDENTITY_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_learned_spell_identity.gd"
 )
+const CLASSIC_QUEUED_SPELL_RUNTIME_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_queued_spell_runtime.gd"
+)
 
 # Declare member variables here. Examples:
 var name : String = 'Base Creature'
@@ -272,16 +275,20 @@ func _on_before_move(dir : Vector2)-> Array :
 
 func _on_after_move(_dir : Vector2)-> Array :
 	#Terrain effects :
-	var terrain_effects_here : Array = GameGlobal.map.get_terrain_effects_at_pos(position)
+	var terrain_effects_here : Array = GameGlobal.map.get_terrain_effects_touching_creature(self)
 	print("Creature _on_after_move "+name+" MOVE", terrain_effects_here)
 	var queue_returned : Array = []
 	for t in terrain_effects_here :
 		print("Crea Move _on_after_move terrain : ", t["spell"].name)
-		var t_type = t["spell"].terrain_walk_type #0=on entry and re entry this turn 1=every step
-		if (t_type == 0 and not terrain_already_crossed_this_turn.keys().has(t)) or t_type==1:
-			terrain_already_crossed_this_turn[t] = 1
-			#var c_act_msg = {"type" : "Spell", "caster" : current_active_creabutton, "spell" : c[0], "s_plvl" : c[1], "used_item" : used_item , "add_terrain" : must_add_terrain, "override_aoe" : override_aoe }
-			var act_msg = {"type" : "Spell", "caster" : combat_button, "castercrea" : t["caster"], "spell" : t["spell"], "s_plvl" : t["power"], "used_item" : {} , "add_terrain" : false, "override_aoe" : [position] , "from_terrain" : true, "Targeted Tiles" : [position], "Main Targeted Tile" : position }
+		var t_type = t["spell"].terrain_walk_type # 0 once per turn, 1 every step
+		var effect_key: Variant = CLASSIC_QUEUED_SPELL_RUNTIME_SCRIPT.effect_key(t)
+		if t_type == 0 and terrain_already_crossed_this_turn.has(effect_key):
+			continue
+		terrain_already_crossed_this_turn[effect_key] = 1
+		var act_msg := CLASSIC_QUEUED_SPELL_RUNTIME_SCRIPT.action_for_effect(
+			t, combat_button
+		)
+		if not act_msg.is_empty():
 			queue_returned.append(act_msg)
 ##		for o in creature.terrain_already_crossed_this_turn.keys() :
 ##			if not terrain_effects_here.has(o) :

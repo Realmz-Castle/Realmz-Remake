@@ -33,8 +33,6 @@ var spell_clicked_tile : Vector2i = Vector2i.ZERO
 var spell_aoe_array : Array = []
 var spell_picked_targets : Dictionary = {}
 var spell_picked_tiles : Dictionary = {}
-var spell_must_add_terrain : bool = true
-
 signal timer_over
 
 # Called when the node enters the scene tree for the first time.
@@ -175,7 +173,9 @@ func enter(_msg : Dictionary = {}) -> void:
 				var _a_all_targeted_tiles : Array = cur_action["Targeted Tiles"]
 				var a_main_targeted_tile : Vector2i= Vector2i(cur_action["Main Targeted Tile"])
 				var a_effected_tiles : Array = []
-				if cur_action["override_aoe"].is_empty() :
+				if cur_action.has("absolute_aoe"):
+					a_effected_tiles = cur_action["absolute_aoe"].duplicate()
+				elif cur_action["override_aoe"].is_empty() :
 					a_effected_tiles = targetinglayer.get_affected_tiles(a_spell, a_power, a_caster, a_main_targeted_tile, [])
 					#print("CBANILSTATE a_effected_tiles : ", a_effected_tiles,  ', a_main_targeted_tile : ',a_main_targeted_tile)
 					#pass
@@ -191,7 +191,8 @@ func enter(_msg : Dictionary = {}) -> void:
 				
 				UI.ow_hud.creatureRect.logrect.log_spell_cast(a_castercrea, a_spell ,a_power , '')
 				
-				a_castercrea.used_apr +=1
+				if not a_from_terrain:
+					a_castercrea.used_apr +=1
 				
 				if cur_action.has("oob_creas") :#and a_spell.in_field :
 					# similar to ExMenus state :
@@ -464,7 +465,7 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea,cb,spell)
 		combat_state.add_to_action_queue(spell_effect_array[2])
 
-	if spell.get("terrain_tex") and spell_must_add_terrain :
+	if not spell.terrain_tex.is_empty() and add_terrain:
 		print("CBAnimState add_terrain_effects")
 		GameGlobal.map.add_terrain_effect_from_spell(spell,power, effected_tiles,Vector2i.ZERO,castercrea )
 	

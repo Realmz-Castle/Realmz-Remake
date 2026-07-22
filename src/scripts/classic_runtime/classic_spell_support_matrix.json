@@ -327,6 +327,19 @@
       "sourceRecords": [
         {"sourceFile": "Data ED2", "recordIndex": 1}
       ]
+    },
+    {
+      "id": "core-player-spell-queued-area-batch-1",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 37, "displayName": "Sorcerer Plague"},
+        {"sourceFile": "Data S", "recordIndex": 38, "displayName": "Sorcerer Plane of Force"},
+        {"sourceFile": "Data S", "recordIndex": 51, "displayName": "Sorcerer Plane of Ice"},
+        {"sourceFile": "Data S", "recordIndex": 176, "displayName": "Priest Plague"},
+        {"sourceFile": "Data S", "recordIndex": 249, "displayName": "Enchanter Plane of Force"},
+        {"sourceFile": "Data S", "recordIndex": 278, "displayName": "Enchanter Plague"}
+      ]
     }
   ],
   "spells": [
@@ -792,6 +805,49 @@
       }
     },
     {
+      "classicSpellId": 1308,
+      "displayName": "Plague",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1308_plague.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 37, "byteOffset": 1110, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-1", "slots": [0]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "damage": "5-15-fixed",
+        "duration": "1-3-initiative-phases",
+        "queueShape": "Data-AD-power",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "costPerPower": 35,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1309,
+      "displayName": "Plane of Force",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1309_plane_of_force.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 38, "byteOffset": 1140, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-1", "slots": [1]}],
+      "behavior": {
+        "targetType": "rotatable-wall",
+        "range": 10,
+        "damage": "2-8-per-power",
+        "duration": "1-4-initiative-phases",
+        "queueShape": "Data-AD-10-through-13",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "none",
+        "resistance": "classic-general",
+        "costPerPower": 25,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1310,
       "displayName": "Radiate",
       "classification": "native-direct",
@@ -876,6 +932,28 @@
         "saveIndex": 1,
         "resistance": "classic-general",
         "costPerPower": 18
+      }
+    },
+    {
+      "classicSpellId": 1407,
+      "displayName": "Plane of Ice",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1407_plane_of_ice.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 51, "byteOffset": 1530, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-1", "slots": [2]}],
+      "behavior": {
+        "targetType": "rotatable-wall",
+        "range": 10,
+        "damage": "2-10-per-power",
+        "duration": "1-4-initiative-phases",
+        "queueShape": "Data-AD-10-through-13",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 2,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
@@ -1510,6 +1588,29 @@
       }
     },
     {
+      "classicSpellId": 2512,
+      "displayName": "Plague",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1308_plague.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 176, "byteOffset": 5280, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-1", "slots": [3]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "damage": "5-15-fixed",
+        "duration": "1-3-initiative-phases",
+        "queueShape": "Data-AD-power",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "costPerPower": 35,
+        "nativeReuse": "same-mechanics-as-1308",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 2605,
       "displayName": "Psi Wave",
       "classification": "native-direct",
@@ -2076,6 +2177,28 @@
       }
     },
     {
+      "classicSpellId": 3310,
+      "displayName": "Plane of Force",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3310_plane_of_force_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 249, "byteOffset": 7470, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-1", "slots": [4]}],
+      "behavior": {
+        "targetType": "rotatable-wall",
+        "range": 10,
+        "damage": "2-8-per-power",
+        "duration": "1-4-initiative-phases",
+        "queueShape": "Data-AD-10-through-13",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "costPerPower": 35,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3311,
       "displayName": "Power Drain",
       "classification": "native-special-adapter",
@@ -2277,6 +2400,28 @@
         "saveMode": "none",
         "resistance": "classic-general",
         "costPerPower": 35
+      }
+    },
+    {
+      "classicSpellId": 3509,
+      "displayName": "Plague",
+      "classification": "native-queued-area",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_3509_plague_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 278, "byteOffset": 8340, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-queued-area-batch-1", "slots": [5]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "damage": "5-15-fixed",
+        "duration": "1-3-initiative-phases",
+        "queueShape": "Data-AD-power",
+        "collision": "once-per-effect-per-creature-phase",
+        "saveMode": "half-damage",
+        "saveIndex": 7,
+        "resistance": "classic-general",
+        "costPerPower": 30,
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     },
     {
