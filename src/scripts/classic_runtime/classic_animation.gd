@@ -1,10 +1,23 @@
 class_name ClassicAnimation
 extends RefCounted
 
+const CONDITION_INDEX := 25
 const PERMANENT_TRAIT_NAMES := [
 	"p_animated.gd",
 	"p_classic_animated.gd",
 ]
+
+
+static func supports_condition(condition_index: int, value: int) -> bool:
+	return condition_index == CONDITION_INDEX and value < 0
+
+
+static func has_permanent_condition(conditions: Variant) -> bool:
+	return (
+		conditions is Array
+		and conditions.size() > CONDITION_INDEX
+		and supports_condition(CONDITION_INDEX, int(conditions[CONDITION_INDEX]))
+	)
 const TRAIT_NAMES := [
 	"p_animated.gd",
 	"t_animated.gd",

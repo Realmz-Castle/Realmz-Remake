@@ -501,9 +501,16 @@ Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scrip
 
 Add `--json` for the versioned machine-readable report. Exit status 0 means no
 progression blockers were found, status 1 means the campaign is blocked, and
-status 2 means the command was used incorrectly. The current canonical City of
-Bywater export and its generated native resources pass this gate without a
-progression blocker.
+status 2 means the command was used incorrectly. The current authoritative City
+of Bywater export passes this gate when checked against the existing native City
+resources. Package installation is a separate gate: every referenced generated-
+map asset must be present in the export or supplied by a defined shared resource
+catalog.
+
+The [City of Bywater acceptance log](CITY_OF_BYWATER_ACCEPTANCE.md) records the
+reproducible end-to-end campaign checks, current blockers, and the next playable
+checkpoint. It deliberately distinguishes bundle readiness, package installation,
+component playtests, and a complete start-to-finish campaign run.
 
 ## Spell usage report
 

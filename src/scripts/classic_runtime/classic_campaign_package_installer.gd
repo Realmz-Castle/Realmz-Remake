@@ -113,9 +113,11 @@ func install_export(
 	var staged_check := _load_launchable_package(staging_directory)
 	if not bool(staged_check.get("valid", false)):
 		_remove_directory(staging_directory)
-		return _fail(
+		var failed_install := _fail(
 			"Staged Classic campaign failed validation: %s" % staged_check.get("error", "")
 		)
+		failed_install["readinessReport"] = staged_check.get("readinessReport", {}).duplicate(true)
+		return failed_install
 
 	var replaced_existing := DirAccess.dir_exists_absolute(destination)
 	if replaced_existing:
@@ -179,6 +181,7 @@ func _load_launchable_package(directory: String) -> Dictionary:
 		return {
 			"valid": false,
 			"error": str(rules.get("diagnostic", "Campaign is not ready to launch")),
+			"readinessReport": install.readiness_report.duplicate(true),
 		}
 	return {
 		"valid": true,

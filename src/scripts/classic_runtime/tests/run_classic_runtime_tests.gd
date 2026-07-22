@@ -4339,6 +4339,39 @@ func _test_classic_bestiary_materializer() -> void:
 		).has("conditions"),
 		"permanent Classic regeneration no longer blocks native materialization"
 	)
+	var animated_record: Dictionary = bundle.get_monster(1).duplicate(true)
+	animated_record["conditions"][25] = -1
+	var animated_native_monster: Dictionary = materializer._native_monster(
+		animated_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect(
+		not animated_native_monster.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
+		).has("conditions"),
+		"permanent Classic Animated no longer blocks native materialization"
+	)
+	_expect(
+		animated_native_monster.get("traits", []).has(["p_classic_animated.gd", []]),
+		"permanent Classic Animated reuses the native compatibility trait"
+	)
+	var temporary_animated_record: Dictionary = animated_record.duplicate(true)
+	temporary_animated_record["conditions"][25] = 1
+	_expect(
+		materializer._unsupported_fields(
+			temporary_animated_record,
+			{},
+			{},
+			{},
+			{}
+		).has("conditions"),
+		"temporary starting Animated remains blocked until its counter is modeled"
+	)
 	var temporary_regeneration_record: Dictionary = regenerating_record.duplicate(true)
 	temporary_regeneration_record["conditions"][10] = 2
 	_expect(
@@ -5379,6 +5412,12 @@ func _test_classic_campaign_package_installer() -> void:
 			"unsupported native fields: attacks[0].special"
 		),
 		"unsupported monster installation names the blocked bestiary field"
+	)
+	_expect(
+		unsupported_monster_install.get("readinessReport", {}).get(
+			"totals", {}
+		).get("progressionBlockers", 0) > 0,
+		"failed installation exposes the complete readiness report"
 	)
 
 	var no_replace_result: Dictionary = installer.install_export(
@@ -16568,6 +16607,16 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Fireball", {}).get("classicSpellIds"),
 		[1306],
 		"spell catalog preserves declared Classic IDs"
+	)
+	_expect_equal(
+		native_spells.get("Festering Wounds", {}).get("classicSpellSaveIndex"),
+		4,
+		"spell catalog exposes Festering Wounds' chemical save"
+	)
+	_expect_equal(
+		native_spells.get("Festering Wounds", {}).get("classicSpellSaveMode"),
+		"negate",
+		"spell catalog exposes Festering Wounds' save outcome"
 	)
 	_expect_equal(
 		native_spells.get("Enchanted Blade", {}).get("classicSpellIds"),

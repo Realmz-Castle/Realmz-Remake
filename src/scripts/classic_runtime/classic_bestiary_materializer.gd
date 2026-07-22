@@ -9,6 +9,7 @@ const SpellResourceCatalogScript = preload(
 )
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
+const AnimationScript = preload("res://scripts/classic_runtime/classic_animation.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 const MonsterSpecialAttackScript = preload(
@@ -22,6 +23,7 @@ const ITEM_BOOK_PATH := "Items/stuff_book.json"
 const SHARED_ITEM_BOOK_PATH := "res://shared_assets/items/stuff_book.json"
 const SHARED_SPELL_DIRECTORY := "res://shared_assets/spells/"
 const TEMPORARY_SPELL_SCREEN_TRAIT := "t_classic_spell_screen.gd"
+const PERMANENT_ANIMATED_TRAIT := "p_classic_animated.gd"
 const DEFAULT_IMAGE := "CREA_humanmage"
 const TYPE_TAGS := [
 	"Magic Using",
@@ -249,6 +251,8 @@ func _native_monster(
 		if not fidelity_fallbacks.has(fallback):
 			fidelity_fallbacks.append(fallback)
 	var native_traits: Array = []
+	if AnimationScript.has_permanent_condition(record.get("conditions", [])):
+		native_traits.append([PERMANENT_ANIMATED_TRAIT, []])
 	var temporary_screens := SpellScreenScript.temporary_durations(
 		record.get("conditions", [])
 	)
@@ -681,6 +685,8 @@ func _has_unsupported_conditions(conditions: Variant) -> bool:
 		if value == 0:
 			continue
 		if RegenerationScript.supports_condition(condition_index, value):
+			continue
+		if AnimationScript.supports_condition(condition_index, value):
 			continue
 		if SpellScreenScript.supports_condition(condition_index, value):
 			continue
