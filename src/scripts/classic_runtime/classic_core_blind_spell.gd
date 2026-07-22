@@ -1,8 +1,8 @@
 class_name ClassicCoreBlindSpell
 extends "res://scripts/classic_runtime/classic_core_damage_spell.gd"
 
-const PermanentBlindTrait = preload(
-	"res://shared_assets/traits/p_classic_blind.gd"
+const PermanentAfflictionScript = preload(
+	"res://scripts/classic_runtime/classic_permanent_affliction.gd"
 )
 
 
@@ -32,13 +32,11 @@ func apply_classic_scaled_effect(
 	_power: int,
 	effect_scale: float
 ) -> bool:
-	if effect_scale <= 0.0 or not (target is Object) \
-			or not target.has_method("add_trait"):
+	if effect_scale <= 0.0 or not (target is Object):
 		return false
 	# resolvespell.c also feeds the -1 duration into a stale disease-damage path,
 	# which heals one point. That unrelated side effect is not part of Blind.
-	target.add_trait(PermanentBlindTrait, [])
-	return true
+	return PermanentAfflictionScript.apply_blindness(target)
 
 
 func _is_blindness_record(record: Dictionary) -> bool:

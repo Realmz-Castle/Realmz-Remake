@@ -627,9 +627,11 @@ class MonsterSpecialAttackTestCharacter:
 	var creature_script = null
 	var creature_script_memory: Dictionary = {}
 	var exp_tnl := 1000
+	var life_status := 0
 	var tags: Array = []
 	var traits: Array = []
 	var stats := {
+		"curHP": 20,
 		"curSP": 0,
 		"maxSP": 0,
 		"maxHP": 20,
@@ -656,6 +658,9 @@ class MonsterSpecialAttackTestCharacter:
 
 	func get_stat(stat_name: String) -> Variant:
 		return stats.get(stat_name, 0)
+
+	func change_cur_hp(change: int) -> void:
+		stats["curHP"] = int(stats.get("curHP", 0)) + change
 
 	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		for existing_trait: Variant in traits:
@@ -4172,7 +4177,7 @@ func _test_classic_bestiary_materializer() -> void:
 			status_specials[special_code],
 			"Classic status attack %d selects the expected trait" % special_code
 		)
-	for special_code: int in [8, 9, 10]:
+	for special_code: int in [8, 9, 10, 18, 19]:
 		var special_record: Dictionary = bundle.get_monster(1).duplicate(true)
 		special_record["weapon"] = 0
 		special_record["attacks"][0][3] = special_code
@@ -5097,6 +5102,42 @@ func _test_classic_monster_special_attacks() -> void:
 		20,
 		"blocked spell-point drain leaves monster state unchanged"
 	)
+
+	var blind_target := MonsterSpecialAttackTestCharacter.new("Blind target", 0)
+	var blind_result: Dictionary = MonsterSpecialAttackScript.apply(
+		drain_attacker, blind_target, 18, 100
+	)
+	_expect(bool(blind_result.get("applied")), "failed special save applies blindness")
+	_expect_equal(blind_result.get("saveIndex"), 7, "blindness uses the special save")
+	_expect_equal(
+		blind_target.traits[0].name,
+		"p_classic_blind.gd",
+		"monster blindness reuses the translated permanent trait"
+	)
+
+	var saved_blind_target := MonsterSpecialAttackTestCharacter.new(
+		"Saved blind target", 0
+	)
+	saved_blind_target.stats["MultiplierMagic"] = 0.5
+	var saved_blind_result: Dictionary = MonsterSpecialAttackScript.apply(
+		drain_attacker, saved_blind_target, 18, 1
+	)
+	_expect(bool(saved_blind_result.get("saved")), "special save negates blindness")
+	_expect(saved_blind_target.traits.is_empty(), "saved blindness adds no trait")
+
+	var stone_target := MonsterSpecialAttackTestCharacter.new("Stone target", 0)
+	var stone_result: Dictionary = MonsterSpecialAttackScript.apply(
+		drain_attacker, stone_target, 19, 100
+	)
+	_expect(bool(stone_result.get("applied")), "failed special save applies petrification")
+	_expect(bool(stone_result.get("targetKilled")), "petrification reports its lethal result")
+	_expect_equal(
+		stone_target.traits[0].name,
+		"p_petrified.gd",
+		"monster petrification reuses Remake's permanent trait"
+	)
+	_expect_equal(stone_target.stats.get("curHP"), -10, "petrification forces dead health")
+	_expect_equal(stone_target.life_status, 3, "petrification marks the target dead")
 
 
 func _clear_producer_monster_equipment(bundle: Object) -> void:

@@ -618,7 +618,7 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		)
 		if str(classic_special.get("status", "ok")) == "error":
 			push_error(str(classic_special.get(
-				"message", "Classic monster status attack failed"
+				"message", "Classic monster special attack failed"
 			)))
 		defender.creature.change_cur_hp(-damage_detail["total"])
 		print('GameGlobal weapon.has("melee_inflicted_traits") ? ', weapon.has("melee_inflicted_traits"))

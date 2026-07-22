@@ -5,12 +5,17 @@ const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_sa
 const StatusAttackScript = preload(
 	"res://scripts/classic_runtime/classic_monster_status_attack.gd"
 )
+const PermanentAfflictionScript = preload(
+	"res://scripts/classic_runtime/classic_permanent_affliction.gd"
+)
 const CharmedTrait = preload("res://shared_assets/traits/t_classic_charmed.gd")
 
 const SAVE_BY_SPECIAL := {
 	8: 6,
 	9: 5,
 	10: 0,
+	18: 7,
+	19: 7,
 }
 
 
@@ -86,6 +91,10 @@ static func apply(
 			return _drain_experience(attacker, target, result)
 		10:
 			return _charm(attacker, target, result)
+		18:
+			return _blind(target, result)
+		19:
+			return _petrify(target, result)
 	return result
 
 
@@ -146,6 +155,21 @@ static func _charm(
 			result["attackerTargetCleared"] = true
 	result["applied"] = true
 	result["targetFaction"] = int(target.get("curFaction"))
+	return result
+
+
+static func _blind(target: Object, result: Dictionary) -> Dictionary:
+	if not PermanentAfflictionScript.apply_blindness(target):
+		return _error("Classic blindness requires mutable target traits")
+	result["applied"] = true
+	return result
+
+
+static func _petrify(target: Object, result: Dictionary) -> Dictionary:
+	if not PermanentAfflictionScript.apply_petrification(target):
+		return _error("Classic petrification requires mutable combat health")
+	result["applied"] = true
+	result["targetKilled"] = true
 	return result
 
 

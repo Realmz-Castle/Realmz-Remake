@@ -1,10 +1,9 @@
 class_name ClassicCorePetrificationSpell
 extends "res://scripts/classic_runtime/classic_core_damage_spell.gd"
 
-const ConditionCureScript = preload(
-	"res://scripts/classic_runtime/classic_condition_cure.gd"
+const PermanentAfflictionScript = preload(
+	"res://scripts/classic_runtime/classic_permanent_affliction.gd"
 )
-const PetrifiedTrait = preload("res://shared_assets/traits/p_petrified.gd")
 
 
 func configure_core_petrification_spell(spell_id: int) -> bool:
@@ -33,22 +32,9 @@ func apply_classic_scaled_effect(
 	_power: int,
 	effect_scale: float
 ) -> bool:
-	if effect_scale <= 0.0 or not (target is Object) \
-			or not target.has_method("add_trait") \
-			or not target.has_method("change_cur_hp"):
+	if effect_scale <= 0.0 or not (target is Object):
 		return false
-	var stats: Variant = target.get("stats")
-	if not (stats is Dictionary):
-		return false
-	if not ConditionCureScript.has_condition(target, 26):
-		target.add_trait(PetrifiedTrait, [])
-	var current_health := int(stats.get("curHP", 0))
-	# Classic derives the damage from current stamina so the result is exactly -10.
-	if current_health != -10:
-		target.change_cur_hp(-10 - current_health)
-		stats["curHP"] = -10
-	target.set("life_status", 3)
-	return true
+	return PermanentAfflictionScript.apply_petrification(target)
 
 
 func _is_petrification_record(record: Dictionary) -> bool:
