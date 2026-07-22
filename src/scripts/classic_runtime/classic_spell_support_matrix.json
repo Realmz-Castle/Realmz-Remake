@@ -7020,6 +7020,87 @@
         "adapter": "source-record-backed-native-combat-summon",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1304,
+      "displayName": "Destroy Magic",
+      "classification": "native-special-dispel",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/destroy_magic.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 33, "byteOffset": 990, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-61-dispel", "slots": [0]}],
+      "behavior": {
+        "targetType": "power-selected-creatures",
+        "range": 10,
+        "lineOfSight": false,
+        "availability": ["combat", "camp"],
+        "effect": "clear-positive-duration-conditions",
+        "permanentConditions": "preserve",
+        "nonConditionTraits": "preserve",
+        "partyAllegiance": "restore-base",
+        "monsterAllegiance": "preserve",
+        "forceAffectCode": 4,
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "special": 61,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-temporary-condition-dispel",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2302,
+      "displayName": "Destroy Magic",
+      "classification": "native-special-dispel",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_destroy_magic_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 136, "byteOffset": 4080, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-61-dispel", "slots": [1]}],
+      "behavior": {
+        "targetType": "power-selected-creatures",
+        "range": 10,
+        "lineOfSight": false,
+        "availability": ["combat", "camp"],
+        "effect": "clear-positive-duration-conditions",
+        "permanentConditions": "preserve",
+        "nonConditionTraits": "preserve",
+        "partyAllegiance": "restore-base",
+        "monsterAllegiance": "preserve",
+        "forceAffectCode": 3,
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "special": 61,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-temporary-condition-dispel",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3503,
+      "displayName": "Destroy Magic",
+      "classification": "native-special-dispel",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_destroy_magic_enchanter.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 272, "byteOffset": 8160, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-61-dispel", "slots": [2]}],
+      "behavior": {
+        "targetType": "power-selected-creatures",
+        "range": 10,
+        "lineOfSight": false,
+        "availability": ["combat", "camp"],
+        "effect": "clear-positive-duration-conditions",
+        "permanentConditions": "preserve",
+        "nonConditionTraits": "preserve",
+        "partyAllegiance": "restore-base",
+        "monsterAllegiance": "preserve",
+        "forceAffectCode": 4,
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "special": 61,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-temporary-condition-dispel",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

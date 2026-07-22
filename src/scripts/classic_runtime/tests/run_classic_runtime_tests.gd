@@ -59,6 +59,7 @@ const MonsterTransformationScript = preload(
 const ClassicSummoningScript = preload(
 	"res://scripts/classic_runtime/classic_summoning.gd"
 )
+const ClassicDispelScript = preload("res://scripts/classic_runtime/classic_dispel.gd")
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
@@ -577,6 +578,41 @@ class CharmTestCharacter:
 			if existing_trait.name == trait_script.name and existing_trait.stacks:
 				existing_trait.stack(args)
 				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		if trait_instance.has_method("_on_remove_trait"):
+			trait_instance._on_remove_trait(self, trait_instance)
+		traits.erase(trait_instance)
+
+
+class DispelTestTrait:
+	extends RefCounted
+	var name: String
+
+	func _init(trait_name: String) -> void:
+		name = trait_name
+
+
+class DispelTestCharacter:
+	extends RefCounted
+	var name: String
+	var baseFaction: int
+	var curFaction: int
+	var is_player_controlled: bool
+	var traits: Array = []
+
+	func _init(character_name: String, faction: int, player_controlled: bool) -> void:
+		name = character_name
+		baseFaction = faction
+		curFaction = faction
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		var trait_args := [self]
 		trait_args.append_array(args)
 		var trait_instance = trait_script.new(trait_args)
@@ -1467,6 +1503,7 @@ func _init() -> void:
 	_test_classic_phase_spells()
 	_test_classic_power_surge_spells()
 	_test_classic_summon_spells()
+	_test_classic_destroy_magic_spells()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
@@ -9111,6 +9148,146 @@ func _test_classic_summon_spells() -> void:
 	_expect_equal(capped.get("status"), "monster-limit", "summon honors Classic 100-slot cap")
 
 
+func _test_classic_destroy_magic_spells() -> void:
+	var expected := {
+		1304: [
+			"res://shared_assets/spells/destroy_magic.gd",
+			"Sorcerer", 3, 4, [13, 14], [7, 20],
+		],
+		2302: [
+			"res://shared_assets/spells/classic_destroy_magic_priest.gd",
+			"Priest", 3, 3, [14, 13], [7, 12],
+		],
+		3503: [
+			"res://shared_assets/spells/classic_destroy_magic_enchanter.gd",
+			"Enchanter", 5, 4, [13, 5], [7, 12],
+		],
+	}
+	for spell_id: int in expected:
+		var values: Array = expected[spell_id]
+		var spell = load(str(values[0])).new()
+		_expect_equal(
+			spell.name, "Destroy Magic", "Destroy Magic display name %d" % spell_id
+		)
+		_expect_equal(
+			spell.classic_spell_ids,
+			[spell_id],
+			"Destroy Magic exact ID %d" % spell_id
+		)
+		_expect_equal(spell.classic_special, 61, "Destroy Magic special %d" % spell_id)
+		_expect_equal(
+			spell.classic_cannot,
+			values[3],
+			"Destroy Magic force-affect code %d" % spell_id
+		)
+		_expect_equal(spell.get_range(3, null), 10, "Destroy Magic range %d" % spell_id)
+		_expect_equal(spell.get_sp_cost(3, null), 45, "Destroy Magic cost %d" % spell_id)
+		_expect_equal(
+			spell.get_target_number(3, null),
+			3,
+			"Destroy Magic target count %d" % spell_id
+		)
+		_expect_equal(
+			spell.targettile,
+			Spell.TARGET_TILE.CREATURE,
+			"Destroy Magic target %d" % spell_id
+		)
+		_expect(not spell.los, "Destroy Magic ignores line of sight %d" % spell_id)
+		_expect(
+			spell.in_combat and spell.in_field,
+			"Destroy Magic works in combat and camp %d" % spell_id
+		)
+		_expect_equal(
+			spell.classic_spell_save_index,
+			-1,
+			"Destroy Magic has no save %d" % spell_id
+		)
+		_expect_equal(
+			spell.classic_spell_save_mode,
+			"none",
+			"Destroy Magic save mode %d" % spell_id
+		)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"Destroy Magic bypasses resistance %d" % spell_id
+		)
+		_expect_equal(
+			spell.classic_spell_look_ids,
+			values[4],
+			"Destroy Magic source art %d" % spell_id
+		)
+		_expect_equal(
+			spell.classic_sound_ids,
+			values[5],
+			"Destroy Magic source sounds %d" % spell_id
+		)
+		_expect_equal(
+			int(spell.school_levels.get(str(values[1]), 0)),
+			values[2],
+			"Destroy Magic source level %d" % spell_id
+		)
+
+	var caster := DispelTestCharacter.new("Caster", 2, true)
+	var party_target := DispelTestCharacter.new("Party target", 0, true)
+	party_target.traits = [
+		DispelTestTrait.new("t_prot_fire.gd"),
+		DispelTestTrait.new("p_blind.gd"),
+		DispelTestTrait.new("guarding.gd"),
+	]
+	party_target.add_trait(load("res://shared_assets/traits/t_classic_charmed.gd"), [caster])
+	_expect_equal(party_target.curFaction, 2, "test charm changes party allegiance")
+	var party_result: Dictionary = ClassicDispelScript.apply(party_target)
+	_expect_equal(party_result.get("status"), "applied", "Destroy Magic applies to party member")
+	_expect_equal(
+		party_result.get("removed"),
+		["t_prot_fire.gd", "t_classic_charmed.gd"],
+		"Destroy Magic removes temporary conditions and party charm"
+	)
+	_expect_equal(party_target.curFaction, 0, "Destroy Magic restores party allegiance")
+	_expect_equal(
+		party_target.traits.size(),
+		2,
+		"Destroy Magic preserves non-temporary traits"
+	)
+	_expect_equal(
+		party_target.traits[0].name,
+		"p_blind.gd",
+		"Destroy Magic preserves permanent conditions"
+	)
+	_expect_equal(
+		party_target.traits[1].name,
+		"guarding.gd",
+		"Destroy Magic preserves combat actions"
+	)
+
+	var monster_target := DispelTestCharacter.new("Monster target", 1, false)
+	monster_target.add_trait(load("res://shared_assets/traits/t_classic_charmed.gd"), [party_target])
+	monster_target.traits.append(DispelTestTrait.new("t_slow.gd"))
+	var monster_result: Dictionary = ClassicDispelScript.apply(monster_target)
+	_expect_equal(
+		monster_result.get("removed"),
+		["t_slow.gd"],
+		"monster dispel preserves allegiance"
+	)
+	_expect_equal(monster_target.curFaction, 0, "monster remains charmed after Destroy Magic")
+	_expect_equal(
+		monster_target.traits[0].name,
+		"t_classic_charmed.gd",
+		"monster charm trait remains"
+	)
+
+	var no_effect_target := DispelTestCharacter.new("Saved target", 0, true)
+	no_effect_target.traits.append(DispelTestTrait.new("t_slow.gd"))
+	var destroy_magic = load("res://shared_assets/spells/destroy_magic.gd").new()
+	_expect_equal(
+		destroy_magic.apply_classic_scaled_effect(null, no_effect_target, 1, 0.0),
+		0,
+		"zero-scale Destroy Magic does not mutate the target"
+	)
+	_expect_equal(no_effect_target.traits.size(), 1, "zero-scale dispel preserves traits")
+
+
 func _test_classic_spell_coverage() -> void:
 	var inventory: Array[Dictionary] = CoreSpellCatalogScript.inventory_records()
 	_expect_equal(inventory.size(), 252, "core inventory includes every named player spell")
@@ -9192,7 +9369,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		242,
+		245,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -9339,6 +9516,12 @@ func _test_classic_spell_coverage() -> void:
 			coverage_by_id.get(silence_id, {}).get("coverageStatus"),
 			"supported",
 			"Silence %d uses the reviewed queued-condition adapter" % silence_id
+		)
+	for dispel_id: int in [1304, 2302, 3503]:
+		_expect_equal(
+			coverage_by_id.get(dispel_id, {}).get("coverageStatus"),
+			"supported",
+			"Destroy Magic %d uses the reviewed dispel adapter" % dispel_id
 		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),

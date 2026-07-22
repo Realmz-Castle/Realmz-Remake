@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 242)
+        self.assertEqual(report["totals"]["supportedIdentities"], 245)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -320,6 +320,22 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             self.assertEqual(row["behavior"]["summonTier"], expected_tier)
             self.assertEqual(row["behavior"]["monsterSlotLimit"], 100)
             self.assertEqual(row["behavior"]["lifetime"], "battle")
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id, force_affect_code in {1304: 4, 2302: 3, 3503: 4}.items():
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(row["classification"], "native-special-dispel")
+            self.assertEqual(row["behavior"]["special"], 61)
+            self.assertEqual(
+                row["behavior"]["effect"], "clear-positive-duration-conditions"
+            )
+            self.assertEqual(row["behavior"]["permanentConditions"], "preserve")
+            self.assertEqual(row["behavior"]["partyAllegiance"], "restore-base")
+            self.assertEqual(row["behavior"]["monsterAllegiance"], "preserve")
+            self.assertEqual(row["behavior"]["forceAffectCode"], force_affect_code)
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )

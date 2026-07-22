@@ -365,6 +365,17 @@ and structurally evident tier five rather than preserving the accidental retry
 fallback. A campaign with no summonable bestiary record reports the missing
 dependency at cast time and does not substitute a shared monster.
 
+The three special-`61` Destroy Magic identities share a source-backed dispel
+adapter while retaining their individual school, level, art, sounds, and
+force-affect byte. Each power selects one creature at range ten without a
+line-of-sight requirement, in combat or camp. Realmz clears every positive
+condition counter and preserves permanent negative counters. The native path
+therefore removes temporary `t_` condition traits while retaining permanent
+conditions and non-condition traits such as Guard or Parry. Realmz also resets
+a hostile party character to the party faction, but does not undo a monster's
+changed allegiance; the adapter preserves that distinction. All three records
+bypass resistance and saving throws.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents
