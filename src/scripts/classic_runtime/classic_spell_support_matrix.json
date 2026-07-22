@@ -7157,6 +7157,39 @@
         "adapter": "source-record-backed-curse-and-equipment-removal",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 2412,
+      "displayName": "Tangle Weed",
+      "classification": "native-special-queued-tangled",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/tangle_weed.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 161, "byteOffset": 4830, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-253-tangled", "slots": [0]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 8,
+        "lineOfSight": true,
+        "areaMask": 14,
+        "queuedTerrain": "web",
+        "queueCollision": "rerun-condition-without-duplicating-field",
+        "duration": "one-to-two-rounds-per-power",
+        "sharedDurationRoll": "once-per-cast-or-field-collision",
+        "conditionIndex": 2,
+        "effect": "halve-current-movement-then-subtract-remaining-condition-from-later-movement-and-physical-accuracy-evasion",
+        "accuracyEvasionTranslation": "minus-0.2-remake-stat-points-per-condition-point",
+        "stacking": "add-unless-result-reaches-condition-cap",
+        "playerConditionCapExclusive": 100,
+        "monsterConditionCapExclusive": 125,
+        "forceAffectCode": 3,
+        "saveMode": "none",
+        "resistance": "none-force-affect",
+        "rawSpecial": 253,
+        "resolvedSpecial": 3,
+        "costPerPower": 30,
+        "adapter": "source-record-backed-queued-native-tangled-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }

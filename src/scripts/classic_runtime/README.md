@@ -242,6 +242,14 @@ source's fixed 15-point physical attack and defense penalties. Although the
 spell description also promises fewer actions, the Classic combat code never
 changes the target's attack count, so the adapter leaves actions unchanged.
 
+Tangle Weed uses the same queued Web-field and immediate movement-halving path,
+but applies Classic condition `3` (Tangled). Its Data S special byte stores the
+signed value `-3` as `253`; the adapter preserves that raw byte while resolving
+the described Tangle branch. Each remaining condition point removes one later
+movement point and one percentage point from physical attack and defense, then
+decays once per combat round. The source force-affect code bypasses both magic
+resistance and saving throws.
+
 Dumbstruck and Mind Blank use Classic condition `6`, stored at character
 condition index `5`. Despite the latter's protective-sounding name, both are
 offensive mental effects that prevent spellcasting and leave movement, attacks,

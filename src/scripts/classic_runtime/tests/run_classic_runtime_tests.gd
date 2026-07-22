@@ -781,6 +781,7 @@ class SpellScreenTestCharacter:
 	var traits: Array = []
 	var tags: Array = []
 	var stats: Dictionary = {}
+	var used_movepoints := 0
 
 	func _init(character_name: String, player_controlled := false) -> void:
 		name = character_name
@@ -813,6 +814,9 @@ class SpellScreenTestCharacter:
 			if trait_value.has_method("_on_get_stat"):
 				stat = trait_value._on_get_stat(stat_name, stat)
 		return stat
+
+	func get_movement_left() -> int:
+		return maxi(0, int(get_stat("MaxMovement")) - used_movepoints)
 
 
 class AnimationTestCharacter:
@@ -1524,6 +1528,7 @@ func _init() -> void:
 	_test_classic_queued_area_spells()
 	_test_classic_helpless_spells()
 	_test_classic_slug_spells()
+	_test_classic_tangle_weed_spell()
 	_test_classic_spellcasting_block_spells()
 	_test_classic_magic_aura_spell()
 	_test_classic_healing_spells()
@@ -9463,7 +9468,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		247,
+		248,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -9669,6 +9674,11 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"Slug %d uses the reviewed queued Slow path" % slug_spell_id
 		)
+	_expect_equal(
+		coverage_by_id.get(2412, {}).get("coverageStatus"),
+		"supported",
+		"Tangle Weed uses the reviewed queued Tangled path"
+	)
 	for spellcasting_block_id: int in [2203, 3407]:
 		_expect_equal(
 			coverage_by_id.get(spellcasting_block_id, {}).get("coverageStatus"),
@@ -10625,7 +10635,7 @@ func _test_classic_spell_coverage() -> void:
 					1402, 1406, 1407, 1408,
 					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1709, 1711, 1712, 2101, 2102, 2103, 2105,
-					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407,
+					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407, 2412,
 					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2507, 2508, 2512, 2602, 2605, 2606, 2607,
 					2603, 2609, 2611, 2705, 2706, 2707, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3307, 3308,
@@ -11328,6 +11338,95 @@ func _test_classic_slug_spells() -> void:
 	_expect_equal(queue_action.get("spell"), sorcerer, "Slug collision reuses its spell")
 	_expect(queue_action.get("from_terrain"), "Slug collision identifies the field")
 	_expect(not queue_action.get("add_terrain"), "Slug collision cannot duplicate its field")
+
+
+func _test_classic_tangle_weed_spell() -> void:
+	var spell = load("res://shared_assets/spells/tangle_weed.gd").new()
+	_expect_equal(spell.name, "Tangle Weed", "Tangle Weed native resource name")
+	_expect_equal(spell.classic_spell_ids, [2412], "Tangle Weed exact identity")
+	_expect_equal(spell.classic_spell_class, 7, "Tangle Weed effect class")
+	_expect_equal(spell.source_record.get("special"), 253, "Tangle Weed preserves its raw special byte")
+	_expect_equal(spell.classic_special, 3, "Tangle Weed resolves the encoded condition code")
+	_expect_equal(spell.classic_cannot, 3, "Tangle Weed keeps its force-affect code")
+	_expect_equal(spell.classic_spell_save_index, -1, "Tangle Weed bypasses saving throws")
+	_expect_equal(spell.classic_spell_save_mode, "none", "Tangle Weed has no save mode")
+	_expect_equal(spell.classic_target_type, 3, "Tangle Weed uses fixed-area targeting")
+	_expect_equal(spell.classic_size, 14, "Tangle Weed uses its Data AD mask")
+	_expect_equal(spell.get_aoe(3, null).size(), 28, "Tangle Weed footprint")
+	_expect_equal(spell.get_range(3, null), 8, "Tangle Weed range")
+	_expect(spell.los, "Tangle Weed requires line of sight")
+	_expect(not spell.rot, "Tangle Weed mask is not rotatable")
+	_expect_equal(spell.classic_queue_icon, 4, "Tangle Weed queue icon")
+	_expect_equal(spell.terrain_tex, "Web", "Tangle Weed battlefield art")
+	_expect(spell.is_classic_queued_spell(), "Tangle Weed creates a queued field")
+	_expect(not spell.uses_classic_group_effect(), "Tangle Weed resolves each target separately")
+	_expect_equal(spell.get_min_duration(3, null), 3, "Tangle Weed minimum duration")
+	_expect_equal(spell.get_max_duration(3, null), 6, "Tangle Weed maximum duration")
+	_expect_equal(spell.get_sp_cost(3, null), 90, "Tangle Weed casting cost")
+	_expect_equal(spell.classic_spell_look_ids, [4, 4], "Tangle Weed source art")
+	_expect_equal(spell.classic_sound_ids, [5, 81], "Tangle Weed source sounds")
+	_expect_equal(spell.school_levels.get("Priest"), 4, "Tangle Weed source level")
+
+	var target := SpellScreenTestCharacter.new("Tangled target", true)
+	target.stats = {
+		"MaxMovement": 20,
+		"AccuracyMelee": 20,
+		"AccuracyRanged": 18,
+		"EvasionMelee": 16,
+		"EvasionRanged": 14,
+	}
+	target.used_movepoints = 5
+	spell.begin_classic_target_resolution(null, 3)
+	var duration: int = spell.apply_classic_scaled_effect(null, target, 3, 1.0)
+	spell.end_classic_target_resolution()
+	_expect(duration in range(3, 7), "Tangle Weed rolls one to two rounds per power")
+	_expect_equal(target.traits[0].get_saved_variables(), [duration], "Tangle Weed stores condition points")
+	_expect_equal(target.get_movement_left(), 7, "Tangle Weed halves current partial-turn movement")
+	_expect_equal(target.get_stat("MaxMovement"), 20 - duration, "Tangle Weed reduces later movement")
+	_expect(
+		is_equal_approx(target.get_stat("AccuracyMelee"), 20.0 - 0.2 * duration),
+		"Tangle Weed applies its exact physical accuracy percentage"
+	)
+	_expect(
+		is_equal_approx(target.get_stat("EvasionRanged"), 14.0 - 0.2 * duration),
+		"Tangle Weed applies its exact physical evasion percentage"
+	)
+	target.traits[0]._on_new_round(target)
+	_expect_equal(
+		target.traits[0].get_saved_variables(),
+		[duration - 1],
+		"Tangle Weed loses one condition point per combat round"
+	)
+	var tangled_trait = load("res://shared_assets/traits/t_classic_tangled.gd")
+	var player_floor := SpellScreenTestCharacter.new("Player floor", true)
+	var monster_floor := SpellScreenTestCharacter.new("Monster floor")
+	_expect_equal(
+		tangled_trait.new([player_floor, 3])._on_get_stat("MaxMovement", 2),
+		2,
+		"Tangle Weed preserves Classic's player movement floor"
+	)
+	_expect_equal(
+		tangled_trait.new([monster_floor, 3])._on_get_stat("MaxMovement", 2),
+		0,
+		"Tangle Weed permits a monster to be fully immobilized"
+	)
+
+	var queue_caster := QueuedTerrainTestCreature.new(Vector2(1, 1))
+	var queue_target := QueuedTerrainTestCreature.new(Vector2(5, 5))
+	var queue_action := QueuedSpellRuntimeScript.action_for_effect(
+		{
+			"id": 63,
+			"classic": true,
+			"tiles": [Vector2i(5, 5)],
+			"caster": queue_caster,
+			"spell": spell,
+			"power": 3,
+		},
+		QueuedTerrainTestButton.new(queue_target)
+	)
+	_expect_equal(queue_action.get("spell"), spell, "Tangle Weed collision reuses its spell")
+	_expect(queue_action.get("from_terrain"), "Tangle Weed collision identifies the field")
+	_expect(not queue_action.get("add_terrain"), "Tangle Weed collision cannot duplicate its field")
 
 
 func _test_classic_spellcasting_block_spells() -> void:

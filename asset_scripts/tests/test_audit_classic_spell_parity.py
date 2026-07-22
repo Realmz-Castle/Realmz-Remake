@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 247)
+        self.assertEqual(report["totals"]["supportedIdentities"], 248)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -255,6 +255,20 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")
             )
             self.assertTrue(resource_path.is_file(), resource_path)
+        tangle_weed = matrix_by_id[2412]
+        self.assertEqual(tangle_weed["supportStatus"], "supported")
+        self.assertEqual(
+            tangle_weed["classification"], "native-special-queued-tangled"
+        )
+        self.assertEqual(tangle_weed["behavior"]["conditionIndex"], 2)
+        self.assertEqual(tangle_weed["behavior"]["rawSpecial"], 253)
+        self.assertEqual(tangle_weed["behavior"]["resolvedSpecial"], 3)
+        self.assertEqual(tangle_weed["behavior"]["saveMode"], "none")
+        self.assertEqual(tangle_weed["behavior"]["resistance"], "none-force-affect")
+        tangle_resource = (
+            REPO_ROOT / "src" / tangle_weed["resource"].removeprefix("res://")
+        )
+        self.assertTrue(tangle_resource.is_file(), tangle_resource)
         for spell_id in {2203, 3407}:
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")
