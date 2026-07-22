@@ -25,6 +25,9 @@ const ClassicGodotCommandAdapterScript = preload(
 const ClassicMonsterWeaponRulesScript = preload(
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
 )
+const ClassicProtectionFromFoeScript = preload(
+	"res://scripts/classic_runtime/classic_protection_from_foe.gd"
+)
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
@@ -1001,11 +1004,20 @@ func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon :
 		return 0.0
 	if weapon.has("_calculate_melee_accuracy_source") and should_check_script :
 		#print("GameGlobal calculate_melee_accuracy USE CUSTOM ACC STRIPT")
-		return weapon["_calculate_melee_accuracy"]._calculate_melee_accuracy(attacker,defender, weapon)
+		accuracy = weapon["_calculate_melee_accuracy"]._calculate_melee_accuracy(
+			attacker,
+			defender,
+			weapon
+		)
 	else :
 		accuracy = attacker.get_stat("AccuracyMelee")  #checks traits too
 		evasion = defender.get_stat("EvasionMelee")
-		return clampf(0.5+0.05*(accuracy-evasion), 0.0, 1.0)
+		accuracy = clampf(0.5+0.05*(accuracy-evasion), 0.0, 1.0)
+	return ClassicProtectionFromFoeScript.adjust_melee_accuracy(
+		accuracy,
+		attacker,
+		defender
+	)
 
 
 func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : Dictionary, is_crit : bool, crit_mult : float, should_check_script : bool = true) -> Dictionary :

@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 134)
+        self.assertEqual(report["totals"]["supportedIdentities"], 136)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -268,6 +268,23 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             REPO_ROOT / "src" / super_brawn["resource"].removeprefix("res://")
         )
         self.assertTrue(super_brawn_resource.is_file(), super_brawn_resource)
+        protection_from_foe_resources = set()
+        for spell_id in {1210, 2409}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(
+                row["classification"], "native-special-protection-from-foe"
+            )
+            self.assertEqual(
+                row["behavior"]["effect"],
+                "plus-10-hit-chance-against-evil-minus-10-for-evil-attacker",
+            )
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+            protection_from_foe_resources.add(row["resource"])
+        self.assertEqual(len(protection_from_foe_resources), 2)
         parameterized_damage_ids = {
             1601,
             1703,

@@ -602,6 +602,7 @@ class SpellScreenTestCharacter:
 	var name: String
 	var is_player_controlled: bool
 	var traits: Array = []
+	var tags: Array = []
 
 	func _init(character_name: String, player_controlled := false) -> void:
 		name = character_name
@@ -993,6 +994,7 @@ func _init() -> void:
 	_test_classic_protection_spells()
 	_test_classic_spell_screen_spells()
 	_test_classic_strong_spell()
+	_test_classic_protection_from_foe_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7871,7 +7873,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		134,
+		136,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7999,8 +8001,9 @@ func _test_classic_spell_coverage() -> void:
 		2107, 2108, 2303, 2308, 3101, 3103, 3402, 3412,
 		1307, 1404, 1405, 1507, 1605, 1706, 2411,
 		2212,
+		1210, 2409,
 	]
-	_expect_equal(migrated_spell_ids.size(), 102, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 104, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8111,10 +8114,12 @@ func _test_classic_spell_coverage() -> void:
 		"Magic Screen V": "res://shared_assets/spells/classic_core_1706_magic_screen_v.gd",
 		"Sphere of Protection": "res://shared_assets/spells/classic_core_2411_sphere_of_protection.gd",
 		"Super Brawn": "res://shared_assets/spells/classic_core_2212_super_brawn.gd",
+		"Protection from Foe": "res://shared_assets/spells/classic_core_1210_protection_from_foe.gd",
+		"Classic Protection from Foe Priest": "res://shared_assets/spells/classic_core_2409_protection_from_foe_priest.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		103,
+		105,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9476,6 +9481,142 @@ func _test_classic_strong_spell() -> void:
 		super_brawn.apply_classic_scaled_effect(null, innate, 1, 1.0),
 		0,
 		"temporary Strong does not replace an innate negative condition"
+	)
+
+
+func _test_classic_protection_from_foe_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_1210_protection_from_foe.gd",
+			"name": "Protection from Foe",
+			"id": 1210,
+			"range": 5,
+			"targets": 3,
+			"duration": [2, 5],
+			"cost": 6,
+			"looks": [13, 14],
+			"sounds": [11, 12],
+			"los": false,
+			"aoe": Spell.AoE_b1,
+		},
+		{
+			"file": "classic_core_2409_protection_from_foe_priest.gd",
+			"name": "Classic Protection from Foe Priest",
+			"id": 2409,
+			"range": 5,
+			"targets": 1,
+			"duration": [3, 6],
+			"cost": 45,
+			"looks": [15, 5],
+			"sounds": [4, 10],
+			"los": true,
+			"aoe": Spell.AoE_ROUND,
+		},
+	]
+	for spec: Dictionary in specs:
+		var protection = load(
+			"res://shared_assets/spells/%s" % spec["file"]
+		).new()
+		var label := str(spec["name"])
+		_expect_equal(protection.name, spec["name"], "%s resource identity" % label)
+		_expect_equal(protection.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(protection.classic_special, 23, "%s writes Protection condition 22" % label)
+		_expect_equal(protection.classic_spell_class, 8, "%s preserves spell class 8" % label)
+		_expect_equal(protection.classic_damage_type, 8, "%s remains miscellaneous" % label)
+		_expect_equal(protection.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(protection.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(
+			protection.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect(protection.in_combat and protection.in_field, "%s works in combat and camp" % label)
+		_expect_equal(protection.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(protection.get_target_number(3, null), spec["targets"], "%s source targets" % label)
+		_expect_equal(protection.get_min_duration(3, null), spec["duration"][0], "%s minimum duration" % label)
+		_expect_equal(protection.get_max_duration(3, null), spec["duration"][1], "%s maximum duration" % label)
+		_expect_equal(protection.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(protection.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(protection.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+		_expect_equal(protection.los, spec["los"], "%s line of sight" % label)
+		_expect_equal(protection.get_aoe(3, null), spec["aoe"], "%s source area" % label)
+		_expect(protection.elements.is_empty(), "%s has no damage element" % label)
+
+	var sorcerer = load(
+		"res://shared_assets/spells/classic_core_1210_protection_from_foe.gd"
+	).new()
+	var first := SpellScreenTestCharacter.new("First", true)
+	var second := SpellScreenTestCharacter.new("Second", true)
+	_expect_equal(
+		sorcerer.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Protection from Foe applies to every selected target"
+	)
+	_expect_equal(
+		first.traits[0].name,
+		"t_classic_protection_from_foe.gd",
+		"Protection from Foe uses its Classic condition trait"
+	)
+	_expect_equal(
+		first.traits[0].duration_seconds,
+		second.traits[0].duration_seconds,
+		"one Classic duration roll is shared by every Protection from Foe target"
+	)
+
+	var protection_trait = load(
+		"res://shared_assets/traits/t_classic_protection_from_foe.gd"
+	)
+	var game_global := root.get_node("GameGlobal")
+	var protected_attacker := Creature.new()
+	var evil_defender := Creature.new()
+	protected_attacker.traits.append(protection_trait.new([protected_attacker, 4]))
+	evil_defender.tags = ["Evil Creature"]
+	_expect(
+		is_equal_approx(
+			game_global.calculate_melee_accuracy(
+				protected_attacker,
+				evil_defender,
+				protected_attacker.ITEM_NO_MELEE_WEAPON
+			),
+			0.6
+		),
+		"Protection from Foe adds 10 percentage points against an evil defender"
+	)
+
+	var evil_attacker := Creature.new()
+	var protected_defender := Creature.new()
+	evil_attacker.tags = ["Very Evil"]
+	protected_defender.traits.append(protection_trait.new([protected_defender, 4]))
+	_expect(
+		is_equal_approx(
+			game_global.calculate_melee_accuracy(
+				evil_attacker,
+				protected_defender,
+				evil_attacker.ITEM_NO_MELEE_WEAPON
+			),
+			0.4
+		),
+		"Protection from Foe subtracts 10 percentage points from an evil attacker"
+	)
+	evil_defender.tags = ["Humanoid"]
+	_expect(
+		is_equal_approx(
+			game_global.calculate_melee_accuracy(
+				protected_attacker,
+				evil_defender,
+				protected_attacker.ITEM_NO_MELEE_WEAPON
+			),
+			0.5
+		),
+		"Protection from Foe does not change attacks against neutral defenders"
+	)
+
+	var innate := ProtectionTestCharacter.new("Innate", true)
+	innate.traits.append(ProtectionTestTrait.new("p_prot_evil.gd", 1))
+	_expect_equal(
+		sorcerer.apply_classic_scaled_effect(null, innate, 1, 1.0),
+		0,
+		"Classic Protection from Foe does not replace native permanent protection"
 	)
 
 

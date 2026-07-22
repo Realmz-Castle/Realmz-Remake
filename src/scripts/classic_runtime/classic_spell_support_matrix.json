@@ -424,6 +424,15 @@
       ]
     },
     {
+      "id": "core-player-spell-protection-from-foe",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 24, "displayName": "Sorcerer Protection from Foe"},
+        {"sourceFile": "Data S", "recordIndex": 158, "displayName": "Priest Protection from Foe"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -3809,6 +3818,61 @@
         "special": 22,
         "costPerPower": 15,
         "adapter": "classic-strong-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1210,
+      "displayName": "Protection from Foe",
+      "classification": "native-special-protection-from-foe",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1210_protection_from_foe.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 24, "byteOffset": 720, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-protection-from-foe", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 5,
+        "lineOfSight": false,
+        "duration": "2-5-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "plus-10-hit-chance-against-evil-minus-10-for-evil-attacker",
+        "evilTags": ["Evil Creature", "Very Evil"],
+        "nativeTrait": "t_classic_protection_from_foe.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 23,
+        "costPerPower": 2,
+        "adapter": "target-aware-melee-accuracy",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2409,
+      "displayName": "Protection from Foe",
+      "nativeResourceName": "Classic Protection from Foe Priest",
+      "classification": "native-special-protection-from-foe",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2409_protection_from_foe_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 158, "byteOffset": 4740, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-protection-from-foe", "slots": [1]}],
+      "behavior": {
+        "targetType": "round-area",
+        "range": 5,
+        "lineOfSight": true,
+        "duration": "1-2-per-power-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "plus-10-hit-chance-against-evil-minus-10-for-evil-attacker",
+        "evilTags": ["Evil Creature", "Very Evil"],
+        "nativeTrait": "t_classic_protection_from_foe.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 23,
+        "costPerPower": 15,
+        "adapter": "target-aware-melee-accuracy",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }
