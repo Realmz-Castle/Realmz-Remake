@@ -962,7 +962,9 @@ func _start_classic_battle(payload: Dictionary) -> Dictionary:
 
 	_play_sound(payload)
 	var message: Variant = payload.get("message", {})
-	if message is Dictionary and not str(message.get("text", "")).is_empty():
+	if int(payload.get("messageId", 0)) != 0 \
+			and message is Dictionary \
+			and not str(message.get("text", "")).is_empty():
 		var text_result := await _show_text(payload)
 		if str(text_result.get("status", "")) == "error":
 			return text_result

@@ -36,6 +36,7 @@
 "Personal Items": {
     "name": "Personal Items",
     "unidentified_name": "Personal Items",
+    "classicItemId": 807,
     "is_magical": 0,
     "description": "These things belonged to the blacksmiths son.",
     "weight": 225,

@@ -48,7 +48,9 @@ Godot_v4.6.2-stable_win64_console.exe --headless --path "F:\Realmz Remake\src" `
 ```
 
 Exercise the checked authored guard-house encounter and the land-to-dungeon-to-
-land map route using that same fresh bundle:
+land map route using that same fresh bundle. The battle acceptance scene also
+runs a source-backed City action point through native combat and a fresh-session
+reload:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --resolution 1152x648 `
@@ -59,6 +61,11 @@ Godot_v4.6.2-stable_win64_console.exe --resolution 1152x648 `
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- `
+  "C:\path\to\new-city-of-bywater-bundle" --smoke
+
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
+  --path "F:\Realmz Remake\src" `
+  res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
   "C:\path\to\new-city-of-bywater-bundle" --smoke
 ```
 
@@ -75,6 +82,19 @@ Readiness passes with no progression blockers when the bundle is checked against
 the existing native City resources. The guard-house encounter and the authored
 `Data DD:0:83` land-to-dungeon / `Data DDD:0:1` dungeon-to-land route both pass
 their real-display smoke checks with the fresh bundle.
+
+The authored `Data DD:0:30` route now passes its first battle and persistence
+checkpoint. Extra Code row 85 resolves to compiled Battle 45, whose 24 monster-80
+entries map to Remake's existing `Krise 80` definition and enter the native
+combat lifecycle. Victory resumes the source action list, awards player map 4
+and treasure 11, enables land trigger 17, and replaces that trigger's action
+data. The session save envelope survives a JSON round trip, and a fresh session
+restores the map position, acquired map, trigger percentage, and action-point
+override with no pending continuation.
+
+The smoke scene removes the hand-converted `Battle_45` entry in memory before
+starting the trigger. This makes the formation come from the producer bundle;
+the matching Krise and Personal Items resources remain native Remake resources.
 
 This is not yet an installable-campaign or full-playthrough result. The checks
 above reuse repository-native City map resources. A clean installation now gets
@@ -102,9 +122,9 @@ remaining generated-bestiary readiness boundary.
 
 ## Next playable checkpoint
 
-Run one source-backed City battle whose records are already materializable, from
-map entry through victory and continuation, followed by a save, quit, reload, and
-resumed mutation check. New implementation work should be taken from failures on
-that route. The remaining bestiary diagnostics stay visible for later campaign
-acceptance, but unrelated records and fidelity systems do not block this playable
-checkpoint.
+Reduce the readiness failures needed for normal installation, then launch the
+installed City package through campaign discovery and repeat the accepted route
+without the playtest harness. After that, expand the documented play path to the
+next progression-significant service, encounter, or battle boundary. The
+remaining bestiary diagnostics stay visible for campaign acceptance, but
+unrelated records and fidelity systems do not block each playable checkpoint.
