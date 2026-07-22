@@ -7,6 +7,9 @@ const InstallerScript = preload(
 const AdapterScript = preload(
 	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
 )
+const MagicResistanceScript = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
 const PRODUCER_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export"
 
@@ -452,6 +455,29 @@ func _run_smoke() -> void:
 		"Shield from Hits subtracts two percentage points per condition point"
 	)
 	player_character.remove_trait(shield_from_hits_trait)
+	var projectile_protection_trait = player_character.add_trait(
+		load("res://shared_assets/traits/t_pro_proj.gd"),
+		[3]
+	)
+	var flame_missile = load(
+		"res://shared_assets/spells/classic_core_1503_flame_missile.gd"
+	).new()
+	var missile_resolution: Dictionary = MagicResistanceScript.spell_resolution(
+		player_character,
+		flame_missile,
+		1,
+		100
+	)
+	_expect(
+		missile_resolution.get("resisted"),
+		"projectile protection stops a class-9 spell on a native player"
+	)
+	_expect_equal(
+		missile_resolution.get("reason"),
+		"projectile-protection",
+		"native player resolution uses the shared compatibility stage"
+	)
+	player_character.remove_trait(projectile_protection_trait)
 	_expect(
 		player_character.unequip_item(player_weapon, false),
 		"native player equipment removes the generated Classic weapon"

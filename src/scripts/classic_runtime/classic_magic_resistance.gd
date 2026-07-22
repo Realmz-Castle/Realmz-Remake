@@ -4,6 +4,9 @@ extends RefCounted
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 const AnimationScript = preload("res://scripts/classic_runtime/classic_animation.gd")
+const ProjectileProtectionScript = preload(
+	"res://scripts/classic_runtime/classic_projectile_protection.gd"
+)
 const META_KEY := "classic_magic_resistance"
 const SPELL_IMMUNITIES_META_KEY := "classic_spell_immunities"
 const CLASSIC_HIT_DICE_META_KEY := "classic_hit_dice"
@@ -105,6 +108,7 @@ static func spell_resolution(
 			"checksResistance": false,
 			"checksScreen": false,
 			"checksClassImmunity": true,
+			"checksProjectileProtection": false,
 			"chance": 0,
 			"roll": roll,
 			"resisted": true,
@@ -125,6 +129,7 @@ static func spell_resolution(
 			"checksResistance": false,
 			"checksScreen": true,
 			"checksClassImmunity": false,
+			"checksProjectileProtection": false,
 			"screenLevel": int(screen.get("screenLevel", 0)),
 			"spellLevel": int(screen.get("spellLevel", 0)),
 			"chance": 0,
@@ -138,10 +143,28 @@ static func spell_resolution(
 			"checksScreen": bool(screen.get("checksScreen", false)),
 			"checksClassImmunity": false,
 			"checksAnimatedImmunity": true,
+			"checksProjectileProtection": false,
 			"chance": 0,
 			"roll": roll,
 			"resisted": true,
 			"reason": "animated-immunity",
+		}, early)
+	var projectile_protection: Dictionary = ProjectileProtectionScript.spell_resolution(
+		character, spell
+	)
+	if bool(projectile_protection.get("resisted", false)):
+		return _with_early_result({
+			"checksResistance": false,
+			"checksScreen": bool(screen.get("checksScreen", false)),
+			"checksClassImmunity": false,
+			"checksAnimatedImmunity": false,
+			"checksProjectileProtection": true,
+			"screenLevel": int(screen.get("screenLevel", 0)),
+			"spellLevel": int(screen.get("spellLevel", 0)),
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "projectile-protection",
 		}, early)
 	var checks_resistance := spell_uses_resistance(spell, classic_context)
 	var resistance_chance := 0
@@ -157,6 +180,9 @@ static func spell_resolution(
 		"checksScreen": bool(screen.get("checksScreen", false)),
 		"checksClassImmunity": false,
 		"checksAnimatedImmunity": false,
+		"checksProjectileProtection": bool(
+			projectile_protection.get("checksProjectileProtection", false)
+		),
 		"screenLevel": int(screen.get("screenLevel", 0)),
 		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,
@@ -196,6 +222,7 @@ static func _early_stop_result(early: Dictionary, resistance_roll: int) -> Dicti
 		"checksScreen": false,
 		"checksClassImmunity": false,
 		"checksAnimatedImmunity": false,
+		"checksProjectileProtection": false,
 		"chance": 0,
 		"roll": resistance_roll,
 		"resisted": true,
@@ -381,17 +408,26 @@ static func custom_spell_resolution(
 			"checksResistance": false,
 			"checksScreen": false,
 			"checksClassImmunity": true,
+			"checksProjectileProtection": false,
 			"chance": 0,
 			"roll": roll,
 			"resisted": true,
 			"reason": "spell-class-immunity",
 		}, early)
-	var screen: Dictionary = SpellScreenScript.spell_resolution(character, spell, caster)
+	var screen := {
+		"checksScreen": false,
+		"screenLevel": 0,
+		"spellLevel": 0,
+		"resisted": false,
+	}
+	if abs(int(spell.get("classic_spell_class"))) != 9:
+		screen = SpellScreenScript.spell_resolution(character, spell, caster)
 	if bool(screen.get("resisted", false)):
 		return _with_early_result({
 			"checksResistance": false,
 			"checksScreen": true,
 			"checksClassImmunity": false,
+			"checksProjectileProtection": false,
 			"screenLevel": int(screen.get("screenLevel", 0)),
 			"spellLevel": int(screen.get("spellLevel", 0)),
 			"chance": 0,
@@ -405,10 +441,28 @@ static func custom_spell_resolution(
 			"checksScreen": bool(screen.get("checksScreen", false)),
 			"checksClassImmunity": false,
 			"checksAnimatedImmunity": true,
+			"checksProjectileProtection": false,
 			"chance": 0,
 			"roll": roll,
 			"resisted": true,
 			"reason": "animated-immunity",
+		}, early)
+	var projectile_protection: Dictionary = ProjectileProtectionScript.spell_resolution(
+		character, spell
+	)
+	if bool(projectile_protection.get("resisted", false)):
+		return _with_early_result({
+			"checksResistance": false,
+			"checksScreen": bool(screen.get("checksScreen", false)),
+			"checksClassImmunity": false,
+			"checksAnimatedImmunity": false,
+			"checksProjectileProtection": true,
+			"screenLevel": int(screen.get("screenLevel", 0)),
+			"spellLevel": int(screen.get("spellLevel", 0)),
+			"chance": 0,
+			"roll": roll,
+			"resisted": true,
+			"reason": "projectile-protection",
 		}, early)
 	var checks_resistance := custom_spell_uses_resistance(spell)
 	var resistance_chance := 0
@@ -424,6 +478,9 @@ static func custom_spell_resolution(
 		"checksScreen": bool(screen.get("checksScreen", false)),
 		"checksClassImmunity": false,
 		"checksAnimatedImmunity": false,
+		"checksProjectileProtection": bool(
+			projectile_protection.get("checksProjectileProtection", false)
+		),
 		"screenLevel": int(screen.get("screenLevel", 0)),
 		"spellLevel": int(screen.get("spellLevel", 0)),
 		"chance": resistance_chance,

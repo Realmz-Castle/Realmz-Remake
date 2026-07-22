@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 190)
+        self.assertEqual(report["totals"]["supportedIdentities"], 192)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -238,6 +238,22 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
             )
             self.assertEqual(
                 row["behavior"]["evasionTranslationPerConditionPoint"], 0.4
+            )
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
+        for spell_id in {2210, 3508}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(
+                row["classification"],
+                "native-special-projectile-protection",
+            )
+            self.assertEqual(row["behavior"]["conditionIndex"], 8)
+            self.assertEqual(
+                row["behavior"]["effect"],
+                "complete-immunity-to-class-9-missile-spells",
             )
             resource_path = (
                 REPO_ROOT / "src" / row["resource"].removeprefix("res://")

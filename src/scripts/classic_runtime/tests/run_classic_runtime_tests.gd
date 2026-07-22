@@ -16,6 +16,9 @@ const CharacterConditionRulesScript = preload(
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const ProjectileProtectionScript = preload(
+	"res://scripts/classic_runtime/classic_projectile_protection.gd"
+)
 const RegenerationScript = preload(
 	"res://scripts/classic_runtime/classic_regeneration.gd"
 )
@@ -1245,6 +1248,7 @@ func _init() -> void:
 	_test_classic_shrink_foe_spell()
 	_test_classic_party_condition_spells()
 	_test_classic_shield_from_hits_spells()
+	_test_classic_projectile_protection_spells()
 	_test_classic_silence_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
@@ -8175,7 +8179,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		190,
+		192,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8305,6 +8309,13 @@ func _test_classic_spell_coverage() -> void:
 			"Shield from Hits spell %d uses the reviewed condition adapter"
 			% shield_spell_id
 		)
+	for projectile_protection_id: int in [2210, 3508]:
+		_expect_equal(
+			coverage_by_id.get(projectile_protection_id, {}).get("coverageStatus"),
+			"supported",
+			"projectile protection %d uses the reviewed class-9 adapter"
+			% projectile_protection_id
+		)
 	for silence_id: int in [1411, 2211, 3110]:
 		_expect_equal(
 			coverage_by_id.get(silence_id, {}).get("coverageStatus"),
@@ -8384,11 +8395,11 @@ func _test_classic_spell_coverage() -> void:
 		1301, 1403, 2702, 3302,
 		1207, 2209,
 		3109,
-		2112, 3212, 3406,
+		2112, 2210, 3212, 3406, 3508,
 		1105, 1202, 1205, 1512, 1612, 2104, 2202, 2710, 3203, 3611,
 		1411, 2211, 3110,
 	]
-	_expect_equal(migrated_spell_ids.size(), 161, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 163, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8538,6 +8549,7 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Arcanic Bubble Enchanter": "res://shared_assets/spells/classic_core_3302_arcanic_bubble_enchanter.gd",
 		"Itching Skin": "res://shared_assets/spells/itching_skin.gd",
 		"Shrink Foe": "res://shared_assets/spells/shrink_foe.gd",
+		"Shield from Projectiles": "res://shared_assets/spells/shield_from_projectiles.gd",
 		"Vorpal Plate": "res://shared_assets/spells/vorpal_plate.gd",
 		"Classic Vorpal Plate Enchanter": "res://shared_assets/spells/classic_core_3212_vorpal_plate_enchanter.gd",
 		"Major Vorpal Plate": "res://shared_assets/spells/major_vorpal_plate.gd",
@@ -8548,12 +8560,13 @@ func _test_classic_spell_coverage() -> void:
 		"Thought Lace": "res://shared_assets/spells/thought_lace.gd",
 		"Sentry": "res://shared_assets/spells/sentry.gd",
 		"Classic Sentry Priest": "res://shared_assets/spells/classic_core_2710_sentry_priest.gd",
+		"Missile Screen": "res://shared_assets/spells/missile_screen.gd",
 		"Silence": "res://shared_assets/spells/silence.gd",
 		"Classic Silence Sorcerer": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		154,
+		156,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9146,12 +9159,12 @@ func _test_classic_spell_coverage() -> void:
 					1402, 1406, 1407, 1408,
 					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
-					2109, 2110, 2111, 2112, 2201, 2207, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
+					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
 					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
 					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3308,
 					3310,
-					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3505, 3506, 3509, 3510, 3511, 3512, 3601,
+					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,
 					3507, 3602, 3603, 3607, 3608, 3702, 3703, 3704, 3706,
 					3708, 3709, 3710, 3711, 3712,
 				],
@@ -12000,6 +12013,153 @@ func _test_classic_shield_from_hits_spells() -> void:
 		is_equal_approx(permanent_trait._on_get_stat("EvasionMelee", 5), 6.2),
 		"permanent Shield from Hits uses the same source percentage"
 	)
+
+
+func _test_classic_projectile_protection_spells() -> void:
+	var shield = load("res://shared_assets/spells/shield_from_projectiles.gd").new()
+	var screen = load("res://shared_assets/spells/missile_screen.gd").new()
+	for spell: Variant in [shield, screen]:
+		_expect_equal(spell.classic_special, 9, "projectile protection special code")
+		_expect_equal(spell.classic_cannot, 4, "projectile protection bypasses resistance")
+		_expect_equal(spell.classic_spell_save_index, -1, "projectile protection has no save")
+		_expect_equal(spell.classic_spell_save_mode, "none", "projectile protection save mode")
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"projectile protection cannot miss or check general resistance"
+		)
+
+	_expect_equal(shield.name, "Shield from Projectiles", "Priest spell identity")
+	_expect_equal(shield.classic_spell_ids, [2210], "Priest spell exact ID")
+	_expect_equal(shield.classic_spell_class, 8, "Priest spell effect class")
+	_expect_equal(shield.classic_damage_type, 8, "Priest spell miscellaneous DRV")
+	_expect(shield.skip_targeting, "Priest spell targets its caster")
+	_expect_equal(shield.get_range(3, null), 0, "Priest spell range")
+	_expect_equal(shield.get_min_duration(3, null), 3, "Priest spell minimum duration")
+	_expect_equal(shield.get_max_duration(3, null), 6, "Priest spell maximum duration")
+	_expect_equal(shield.get_sp_cost(3, null), 24, "Priest spell casting cost")
+	_expect_equal(shield.classic_spell_look_ids, [13, 5], "Priest spell visuals")
+	_expect_equal(shield.classic_sound_ids, [93, 53], "Priest spell sounds")
+	_expect(shield.in_combat and shield.in_field, "Priest spell works in combat and camp")
+
+	_expect_equal(screen.name, "Missile Screen", "Enchanter spell identity")
+	_expect_equal(screen.classic_spell_ids, [3508], "Enchanter spell exact ID")
+	_expect_equal(screen.classic_spell_class, 0, "Enchanter spell effect class")
+	_expect_equal(screen.classic_damage_type, 0, "Enchanter spell zero DRV")
+	_expect_equal(screen.classic_target_type, 1, "Enchanter spell targets one creature")
+	_expect_equal(screen.targettile, Spell.TARGET_TILE.CREATURE, "Enchanter target tile")
+	_expect_equal(screen.get_range(3, null), 8, "Enchanter spell range")
+	_expect(screen.los, "Enchanter spell requires line of sight")
+	_expect_equal(screen.get_min_duration(3, null), 7, "Enchanter spell minimum duration")
+	_expect_equal(screen.get_max_duration(3, null), 22, "Enchanter spell maximum duration")
+	_expect_equal(screen.get_sp_cost(3, null), 45, "Enchanter spell casting cost")
+	_expect_equal(screen.classic_spell_look_ids, [13, 15], "Enchanter spell visuals")
+	_expect_equal(screen.classic_sound_ids, [75, 77], "Enchanter spell sounds")
+	_expect(screen.in_combat and not screen.in_field, "Enchanter spell is combat-only")
+
+	var charm_target := SpellScreenTestCharacter.new("Charm-resistant ally", true)
+	charm_target.stats = {"MultiplierMental": 0.5, "ResistanceMental": 0}
+	var resisted_screen: Dictionary = MagicResistanceScript.spell_resolution(
+		charm_target, screen, 3, 100
+	)
+	_expect(resisted_screen.get("resisted"), "Missile Screen keeps its class-zero precheck")
+	_expect_equal(
+		resisted_screen.get("reason"),
+		"charm-resistance",
+		"Missile Screen reports the source precheck"
+	)
+	charm_target.stats["MultiplierMental"] = 1.0
+	_expect(
+		not MagicResistanceScript.spell_resolution(
+			charm_target, screen, 3, 100
+		).get("resisted"),
+		"Missile Screen proceeds after its class-zero precheck fails"
+	)
+
+	var protected_target := SpellScreenTestCharacter.new("Missile-protected target", true)
+	var duration: int = shield.apply_classic_scaled_effect(null, protected_target, 3, 1.0)
+	_expect(duration in range(3, 7), "Priest spell rolls three to six condition points")
+	_expect_equal(
+		protected_target.traits[0].get_saved_variables(),
+		[duration],
+		"temporary projectile protection preserves its saved condition"
+	)
+	var flame_missile = load(
+		"res://shared_assets/spells/classic_core_1503_flame_missile.gd"
+	).new()
+	var blocked: Dictionary = MagicResistanceScript.spell_resolution(
+		protected_target, flame_missile, 4, 100
+	)
+	_expect(blocked.get("resisted"), "projectile protection stops a class-9 missile")
+	_expect_equal(
+		blocked.get("reason"),
+		"projectile-protection",
+		"class-9 immunity reports its own resolution stage"
+	)
+	_expect(
+		not blocked.get("checksScreen"),
+		"class-9 projectile protection runs after the source screen bypass"
+	)
+	var compiled_record := _custom_spell_record(0, 5101)
+	compiled_record["spellClass"] = 9
+	compiled_record["cannot"] = 4
+	var compiled_missile = load(
+		"res://scripts/classic_runtime/classic_spell_override.gd"
+	).new()
+	compiled_missile.configure(compiled_record)
+	var compiled_blocked: Dictionary = MagicResistanceScript.custom_spell_resolution(
+		protected_target, compiled_missile, 1, 100
+	)
+	_expect(compiled_blocked.get("resisted"), "compiled class-9 missiles share protection")
+	_expect_equal(
+		compiled_blocked.get("reason"),
+		"projectile-protection",
+		"compiled projectile protection reports the shared stage"
+	)
+	protected_target.traits[0]._on_new_round(protected_target)
+	_expect_equal(
+		protected_target.traits[0].get_saved_variables(),
+		[duration - 1],
+		"temporary projectile protection loses one point each combat round"
+	)
+
+	var ordinary_spell := Spell.new()
+	ordinary_spell.attributes = ["Ranged"]
+	_expect(
+		not ProjectileProtectionScript.spell_resolution(
+			protected_target, ordinary_spell
+		).get("checksProjectileProtection"),
+		"the Classic adapter does not reinterpret ordinary ranged attacks as class 9"
+	)
+	var native_projectile := Spell.new()
+	native_projectile.attributes = ["Projectile"]
+	_expect_equal(
+		protected_target.traits[0]._on_spell_hit_chara(
+			null, native_projectile, 1, -10
+		),
+		[false, 0, []],
+		"the updated trait retains Remake's native Projectile behavior"
+	)
+
+	var capped := SpellScreenTestCharacter.new("Capped missile protection", true)
+	capped.add_trait(load("res://shared_assets/traits/t_pro_proj.gd"), [98])
+	_expect_equal(
+		shield.apply_classic_scaled_effect(null, capped, 2, 1.0),
+		0,
+		"player projectile protection rejects a stack beyond condition 99"
+	)
+	var permanent_target := SpellScreenTestCharacter.new("Permanent missile protection", true)
+	var permanent_trait = load("res://shared_assets/traits/p_pro_proj.gd").new(
+		[permanent_target]
+	)
+	permanent_target.traits.append(permanent_trait)
+	_expect(ProjectileProtectionScript.is_active(permanent_target), "permanent protection is active")
+	_expect_equal(
+		shield.apply_classic_scaled_effect(null, permanent_target, 3, 1.0),
+		0,
+		"temporary projectile protection does not replace a permanent condition"
+	)
+	_expect_equal(permanent_trait.get_saved_variables(), [], "permanent protection persists")
 
 
 func _test_classic_party_condition_spells() -> void:

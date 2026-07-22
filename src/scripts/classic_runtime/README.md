@@ -233,6 +233,16 @@ condition caps, decay once per combat round or crossed game-hour boundary, and
 do not replace a permanent Shield from Hits condition. Area variants roll their
 duration once per cast and share it across every affected target.
 
+Shield from Projectiles `2210` and Missile Screen `3508` share Classic character
+condition `8`. Despite the broader wording in their spell descriptions, the
+Classic resolver consults that condition specifically for spell class `9`;
+ordinary ranged attacks do not enter that check. The compatibility resistance
+stage therefore stops class-9 missiles after their spell-screen bypass, while
+the trait callback retains Remake's existing behavior for native spells marked
+`Projectile`. Both temporary and permanent traits now use the current four-arg
+spell-hit callback. Temporary protection stacks to the source condition caps,
+persists through saves, and decays once per round or crossed game hour.
+
 `ClassicCoreSpellCoverage` joins that inventory to the curated support matrix and
 the shared spell-resource catalog. Its report separates proven support from
 exact-ID resources awaiting behavior review, name-only reuse candidates,
@@ -403,9 +413,10 @@ wandering-battle suppression, and restoration of the exact Classic counters:
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn
 ```
 
-The generated-ally smoke also applies Shield from Hits to a real native player
-character and verifies the resulting six-percentage-point melee-accuracy change
-for a three-point condition.
+The generated-ally smoke also applies Shield from Hits and projectile protection
+to a real native player character. It verifies the resulting six-percentage-point
+melee-accuracy change for a three-point condition and the shared class-9 missile
+resolution stage.
 
 The generated-ally smoke derives carried, equipped, and weighted spell-slot
 fields from the authoritative Providence fixture. It installs the result,
