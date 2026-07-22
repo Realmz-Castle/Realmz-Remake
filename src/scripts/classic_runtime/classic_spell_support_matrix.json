@@ -188,6 +188,16 @@
       ]
     },
     {
+      "id": "core-player-spell-free-fall-hover",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "field-party", "game-time", "combat-round", "character-save", "complex-encounter"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 4, "displayName": "Sorcerer Free Fall"},
+        {"sourceFile": "Data S", "recordIndex": 19, "displayName": "Sorcerer Hover"},
+        {"sourceFile": "Data S", "recordIndex": 108, "displayName": "Priest Free Fall"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -5197,6 +5207,81 @@
         "special": 40,
         "costPerPower": 15,
         "adapter": "source-record-backed-classic-queued-silence",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1105,
+      "displayName": "Free Fall",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/free_fall.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 4, "byteOffset": 120, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-free-fall-hover", "slots": [0]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "two-to-four-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 6,
+        "effect": "prevent-authored-falling-hazards",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 6,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1205,
+      "displayName": "Hover",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/hover.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 19, "byteOffset": 570, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-free-fall-hover", "slots": [1]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "five-to-ten-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 6,
+        "effect": "prevent-authored-falling-hazards",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 6,
+        "costPerPower": 15,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2104,
+      "displayName": "Free Fall",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/free_fall.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 108, "byteOffset": 3240, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-free-fall-hover", "slots": [2]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "two-to-four-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 6,
+        "effect": "prevent-authored-falling-hazards",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 6,
+        "costPerPower": 10,
+        "adapter": "source-record-backed-classic-party-condition",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }

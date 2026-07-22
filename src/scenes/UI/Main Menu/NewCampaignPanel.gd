@@ -77,6 +77,7 @@ func _on_StartButton_pressed() -> void :
 		"light_time" = 0,
 		"light_power" = 0,
 		"classic_light_condition" = 0,
+		"classic_party_conditions" = {},
 		"camping" = 0,
 		"allow_char_swap" = 0,
 		"curr_temple" = [],

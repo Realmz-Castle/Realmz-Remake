@@ -298,6 +298,7 @@ func start_new_round() :
 	print("CbDecideAction.start_new_round()")
 	combat_state.cur_battle_round += 1
 	GameGlobal.reduce_classic_light_condition()
+	GameGlobal.reduce_classic_party_conditions()
 	UI.ow_hud.creatureRect.logrect.log_new_round(combat_state.cur_battle_round)
 	var classic_dispatch: Dictionary = await _dispatch_classic_battle_round(
 		combat_state.cur_battle_data,

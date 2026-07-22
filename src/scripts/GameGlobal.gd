@@ -32,6 +32,9 @@ const ClassicAnimationScript = preload(
 	"res://scripts/classic_runtime/classic_animation.gd"
 )
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
+const ClassicPartyConditionScript = preload(
+	"res://scripts/classic_runtime/classic_party_condition.gd"
+)
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
@@ -111,6 +114,7 @@ var light_time : int = 0
 var light_power : int = 0
 # Classic combines light strength and remaining duration in one condition counter.
 var classic_light_condition : int = 0
+var classic_party_conditions: Dictionary = {}
 var camping : bool = false
 var money_pool : Array = [0,0,0] # coins gems jewels
 var money_banked : Array = [0,0,0] # coins gems jewels
@@ -268,6 +272,7 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	shops_dict = data_dict["shops_dict"]
 
 	global_effects = data_dict["GlobalEffects"]
+	_restore_classic_party_conditions(data_dict.get("classic_party_conditions", {}))
 
 	minimaps = data_dict["minimaps"]
 
@@ -347,6 +352,7 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 
 	for effect in global_effects.keys() :
 		global_effects[effect]["Duration"] = max(0, global_effects[effect]["Duration"] - seconds)
+	_advance_classic_party_conditions(previous_time, time)
 
 #	player_characters[0].stats["curHP"] = seconds
 	UI.ow_hud.updateTimeDisplay()
@@ -372,6 +378,67 @@ func add_light_effect(p : int, t : int) :
 func add_classic_light_effect(power: int) -> void:
 	classic_light_condition = ClassicLightScript.apply_power(classic_light_condition, power)
 	_sync_classic_light_state()
+
+
+func apply_classic_party_condition(condition_index: int, duration: int) -> int:
+	if not ClassicPartyConditionScript.EFFECT_BY_INDEX.has(condition_index):
+		push_error("Classic party condition %d has no Remake state mapping" % condition_index)
+		return 0
+	var key := str(condition_index)
+	var current := int(classic_party_conditions.get(key, 0))
+	var result := ClassicPartyConditionScript.apply(current, duration)
+	classic_party_conditions[key] = result
+	_sync_classic_party_condition(condition_index)
+	return result
+
+
+func reduce_classic_party_conditions(reduction_calls: int = 1) -> void:
+	for key: Variant in classic_party_conditions.keys():
+		var condition_index := int(key)
+		classic_party_conditions[str(condition_index)] = ClassicPartyConditionScript.reduce(
+			int(classic_party_conditions[key]),
+			reduction_calls
+		)
+		_sync_classic_party_condition(condition_index)
+
+
+func _advance_classic_party_conditions(previous_time: int, current_time: int) -> void:
+	for key: Variant in classic_party_conditions.keys():
+		var condition_index := int(key)
+		classic_party_conditions[str(condition_index)] = ClassicPartyConditionScript.advance_time(
+			int(classic_party_conditions[key]),
+			previous_time,
+			current_time
+		)
+		_sync_classic_party_condition(condition_index)
+
+
+func _restore_classic_party_conditions(value: Variant) -> void:
+	classic_party_conditions.clear()
+	if not (value is Dictionary):
+		return
+	for key: Variant in value:
+		var condition_index := int(key)
+		if not ClassicPartyConditionScript.EFFECT_BY_INDEX.has(condition_index):
+			continue
+		classic_party_conditions[str(condition_index)] = maxi(0, int(value[key]))
+		_sync_classic_party_condition(condition_index)
+
+
+func _sync_classic_party_condition(condition_index: int) -> void:
+	var effect_name := str(ClassicPartyConditionScript.EFFECT_BY_INDEX.get(
+		condition_index,
+		""
+	))
+	if effect_name.is_empty():
+		return
+	if not global_effects.has(effect_name) or not (global_effects[effect_name] is Dictionary):
+		global_effects[effect_name] = {"Duration": 0}
+	var condition := int(classic_party_conditions.get(str(condition_index), 0))
+	global_effects[effect_name]["Duration"] = ClassicPartyConditionScript.remaining_seconds(
+		condition,
+		time
+	)
 
 
 func reduce_classic_light_condition() -> void:

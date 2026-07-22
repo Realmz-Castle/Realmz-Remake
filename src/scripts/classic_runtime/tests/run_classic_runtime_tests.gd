@@ -106,6 +106,9 @@ const TemplePaymentScript = preload("res://scenes/UI/HUD/Temple/temple_payment.g
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const ShineScript = preload("res://shared_assets/spells/shine.gd")
+const ClassicPartyConditionScript = preload(
+	"res://scripts/classic_runtime/classic_party_condition.gd"
+)
 const FIXTURE := "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice"
 const WAR_IN_THE_SWORD_LANDS_GOSUB_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub"
@@ -1240,6 +1243,7 @@ func _init() -> void:
 	_test_classic_arcanic_bubble_spells()
 	_test_classic_itching_skin_spell()
 	_test_classic_shrink_foe_spell()
+	_test_classic_party_condition_spells()
 	_test_classic_silence_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
@@ -8158,7 +8162,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		177,
+		180,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8312,11 +8316,12 @@ func _test_classic_spell_coverage() -> void:
 		"supported",
 		"reviewed generic ray spells are supported"
 	)
-	_expect_equal(
-		coverage_by_id.get(1105, {}).get("coverageStatus"),
-		"special-implementation-required",
-		"unresolved special records remain explicit implementation work"
-	)
+	for party_spell_id: int in [1105, 1205, 2104]:
+		_expect_equal(
+			coverage_by_id.get(party_spell_id, {}).get("coverageStatus"),
+			"supported",
+			"party spell %d uses the reviewed condition clock" % party_spell_id
+		)
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
@@ -8359,9 +8364,10 @@ func _test_classic_spell_coverage() -> void:
 		1301, 1403, 2702, 3302,
 		1207, 2209,
 		3109,
+		1105, 1205, 2104,
 		1411, 2211, 3110,
 	]
-	_expect_equal(migrated_spell_ids.size(), 148, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 151, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8511,12 +8517,14 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Arcanic Bubble Enchanter": "res://shared_assets/spells/classic_core_3302_arcanic_bubble_enchanter.gd",
 		"Itching Skin": "res://shared_assets/spells/itching_skin.gd",
 		"Shrink Foe": "res://shared_assets/spells/shrink_foe.gd",
+		"Free Fall": "res://shared_assets/spells/free_fall.gd",
+		"Hover": "res://shared_assets/spells/hover.gd",
 		"Silence": "res://shared_assets/spells/silence.gd",
 		"Classic Silence Sorcerer": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		144,
+		146,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11795,6 +11803,93 @@ func _test_classic_shrink_foe_spell() -> void:
 		spell.apply_classic_scaled_effect(null, permanent, 3, 1.0),
 		0,
 		"temporary Shrink Foe does not replace permanent hindrance"
+	)
+
+
+func _test_classic_party_condition_spells() -> void:
+	_expect_equal(
+		ClassicPartyConditionScript.apply(5, 3),
+		5,
+		"a shorter party spell does not replace the current condition"
+	)
+	_expect_equal(
+		ClassicPartyConditionScript.apply(5, 8),
+		8,
+		"a longer party spell replaces the current condition"
+	)
+	_expect_equal(
+		ClassicPartyConditionScript.advance_time(3, 3599, 3600),
+		2,
+		"party conditions lose one point at a game-hour boundary"
+	)
+	_expect_equal(
+		ClassicPartyConditionScript.advance_time(3, 3600, 7199),
+		3,
+		"party conditions do not decay within a game hour"
+	)
+	_expect_equal(
+		ClassicPartyConditionScript.remaining_seconds(3, 3500),
+		7300,
+		"party conditions expose an equivalent native HUD duration"
+	)
+
+	var free_fall = load("res://shared_assets/spells/free_fall.gd").new()
+	var hover = load("res://shared_assets/spells/hover.gd").new()
+	_expect_equal(free_fall.name, "Free Fall", "Free Fall resource identity")
+	_expect_equal(
+		free_fall.classic_spell_ids,
+		[1105, 2104],
+		"Sorcerer and Priest Free Fall share source-equivalent mechanics"
+	)
+	_expect_equal(hover.name, "Hover", "Hover resource identity")
+	_expect_equal(hover.classic_spell_ids, [1205], "Hover exports its exact Classic ID")
+	for spell: Variant in [free_fall, hover]:
+		var label := str(spell.name)
+		_expect_equal(spell.classic_special, 6, "%s party condition index" % label)
+		_expect_equal(spell.classic_target_type, 7, "%s targets the party" % label)
+		_expect(spell.in_field and not spell.in_combat, "%s is field-only" % label)
+		_expect(spell.skip_targeting, "%s bypasses creature targeting" % label)
+		_expect_equal(spell.get_targets(3, null), 0, "%s selects no creatures" % label)
+		_expect_equal(spell.get_target_number(3, null), 0, "%s reports a party target" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no save" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s bypasses creature resistance" % label
+		)
+	_expect_equal(free_fall.get_min_duration(3, null), 6, "Free Fall minimum duration")
+	_expect_equal(free_fall.get_max_duration(3, null), 12, "Free Fall maximum duration")
+	_expect_equal(free_fall.get_sp_cost(3, null), 30, "Free Fall casting cost")
+	_expect_equal(free_fall.classic_sound_ids, [99, 21], "Free Fall source sounds")
+	_expect_equal(
+		free_fall.schools,
+		["Sorcerer", "Priest"],
+		"Free Fall remains available to both source caster classes"
+	)
+	_expect_equal(hover.get_min_duration(3, null), 15, "Hover minimum duration")
+	_expect_equal(hover.get_max_duration(3, null), 30, "Hover maximum duration")
+	_expect_equal(hover.get_sp_cost(3, null), 45, "Hover casting cost")
+	_expect_equal(hover.classic_sound_ids, [22, 4], "Hover source sounds")
+
+	_expect_equal(
+		ClassicPartyConditionScript.reduce(
+			ClassicPartyConditionScript.apply(4, 8),
+			2
+		),
+		6,
+		"the shared condition loses one point per combat round"
+	)
+	_expect(
+		FileAccess.get_file_as_string("res://scripts/GameGlobal.gd").contains(
+			"func apply_classic_party_condition"
+		),
+		"GameGlobal exposes the party-condition spell boundary"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scenes/UI/HUD/SaveLoad/save_load_rect.gd"
+		).contains("classic_party_conditions"),
+		"save files retain exact Classic party-condition counters"
 	)
 
 

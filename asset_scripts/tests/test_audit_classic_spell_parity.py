@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 177)
+        self.assertEqual(report["totals"]["supportedIdentities"], 180)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -197,6 +197,21 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         matrix_by_id = {
             int(row["classicSpellId"]): row for row in matrix.get("spells", [])
         }
+        for spell_id in {1105, 1205, 2104}:
+            row = matrix_by_id[spell_id]
+            self.assertEqual(row["supportStatus"], "supported")
+            self.assertEqual(
+                row["classification"], "native-special-party-condition"
+            )
+            self.assertEqual(row["behavior"]["conditionIndex"], 6)
+            self.assertEqual(
+                row["behavior"]["conditionDecay"],
+                "one-per-combat-round-or-game-hour",
+            )
+            resource_path = (
+                REPO_ROOT / "src" / row["resource"].removeprefix("res://")
+            )
+            self.assertTrue(resource_path.is_file(), resource_path)
         queued_spell_ids = {
             1308, 1309, 1407, 1608, 1610, 1611, 1704, 1711, 1712, 2407,
             2501, 2508, 2512, 2607, 3210, 3310, 3509, 3512, 3607, 3702,

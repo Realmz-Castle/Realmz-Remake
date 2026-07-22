@@ -20,6 +20,9 @@ const CharacterConditionRulesScript = preload(
 const SpellOverrideScript = preload(
 	"res://scripts/classic_runtime/classic_spell_override.gd"
 )
+const PartyConditionScript = preload(
+	"res://scripts/classic_runtime/classic_party_condition.gd"
+)
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
 const CombatRoutRulesScript = preload(
 	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
@@ -92,17 +95,6 @@ const CLASSIC_SPECIAL_STATS := {
 	9: "Force_Lock",
 	11: "Pick_Lock",
 	13: "Turn_Undead",
-}
-# Classic's party-condition indexes use different names from Remake's saved
-# global effects. Search and the unused final slot have no native state yet.
-const CLASSIC_PARTY_EFFECTS := {
-	1: "WaterBreath",
-	2: "Shielded",
-	3: "Awareness",
-	4: "Scrying",
-	6: "FeatherFall",
-	7: "Sentry",
-	8: "CharmProt",
 }
 const REPLAYABLE_PRESENTATION_COMMANDS := [
 	"show_text",
@@ -625,9 +617,12 @@ func _check_party_condition(payload: Dictionary) -> Dictionary:
 func party_condition_status(condition_index: int, global_effects: Dictionary, light_time: int) -> Dictionary:
 	if condition_index == 0:
 		return {"supported": true, "active": light_time > 0}
-	if not CLASSIC_PARTY_EFFECTS.has(condition_index):
+	if not PartyConditionScript.EFFECT_BY_INDEX.has(condition_index):
 		return {"supported": false, "active": false}
-	var effect: Variant = global_effects.get(CLASSIC_PARTY_EFFECTS[condition_index], {})
+	var effect: Variant = global_effects.get(
+		PartyConditionScript.EFFECT_BY_INDEX[condition_index],
+		{}
+	)
 	var duration := int(effect.get("Duration", 0)) if effect is Dictionary else 0
 	return {"supported": true, "active": duration > 0}
 

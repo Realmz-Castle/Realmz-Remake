@@ -384,6 +384,14 @@ The UI smoke instances the real `Main.tscn`, discovers a self-contained compiled
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_campaign_ui_smoke.tscn
 ```
 
+The party-condition smoke verifies the live GameGlobal boundary used by Free
+Fall and Hover, including longer-result replacement, combat and hourly decay,
+the native HUD duration, and restoration of the exact Classic counter:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn
+```
+
 The generated-ally smoke derives carried, equipped, and weighted spell-slot
 fields from the authoritative Providence fixture. It installs the result,
 loads the generated monster and scenario item through normal campaign
