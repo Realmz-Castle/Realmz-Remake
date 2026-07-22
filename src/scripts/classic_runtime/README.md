@@ -224,6 +224,15 @@ for one round. That duration follows Classic's own spell-info display, which
 shows the record's signed `-1` duration through `abs(...)`. The raw record and
 its defect remain in the inventory and support matrix as provenance.
 
+Multi Sandman, Sandman, both identical Paralyzing Wall records, Time Trap, and
+Noxious Cloud use Classic condition `2` (Helpless). Their shared adapter rolls
+duration once per cast, then preserves each target's resistance and saving
+throw before stacking Remake's native helpless trait. It also reproduces the
+separate `spelllist.c` movement cancellation and Classic's exclusive player and
+monster condition caps. Paralyzing Wall and Noxious Cloud retain their exact
+Data AD footprints as queued Web and Gas Cloud fields, so entering or remaining
+on an affected tile resolves the spell again without creating another field.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

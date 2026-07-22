@@ -465,6 +465,49 @@ class ConditionTestCharacter:
 		current_hp += change
 
 
+class HelplessTestTrait:
+	extends RefCounted
+	var name := "t_helpless.gd"
+	var stacks := true
+	var duration := 0
+
+	func _init(initial_duration: int) -> void:
+		duration = initial_duration
+
+	func stack(args: Array) -> void:
+		duration += int(args[0])
+
+
+class HelplessTestCharacter:
+	extends RefCounted
+	var name: String
+	var is_player_controlled := false
+	var traits: Array = []
+	var max_actions := 3
+	var max_movement := 20
+	var used_apr := 0
+	var used_movepoints := 0
+
+	func _init(character_name: String, player_controlled := false) -> void:
+		name = character_name
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var condition_trait := HelplessTestTrait.new(int(args[0]))
+		traits.append(condition_trait)
+		return condition_trait
+
+	func get_apr_left() -> int:
+		return max_actions - used_apr
+
+	func get_movement_left() -> int:
+		return max_movement - used_movepoints
+
+
 class CharmTestCharacter:
 	extends RefCounted
 	var name: String
@@ -1226,6 +1269,7 @@ func _init() -> void:
 	_test_classic_spell_usage_audit()
 	_test_classic_spell_coverage()
 	_test_classic_queued_area_spells()
+	_test_classic_helpless_spells()
 	_test_classic_healing_spells()
 	_test_classic_regeneration_spells()
 	_test_classic_protection_spells()
@@ -8179,7 +8223,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		196,
+		202,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8356,6 +8400,12 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"party spell %d uses the reviewed condition clock" % party_spell_id
 		)
+	for helpless_spell_id: int in [1710, 2310, 2510, 2610, 3209, 3707]:
+		_expect_equal(
+			coverage_by_id.get(helpless_spell_id, {}).get("coverageStatus"),
+			"supported",
+			"helpless spell %d uses the reviewed condition path" % helpless_spell_id
+		)
 
 	var core_spell_book: Dictionary = {}
 	CoreSpellCatalogScript.merge_into_spell_book(core_spell_book)
@@ -8402,8 +8452,9 @@ func _test_classic_spell_coverage() -> void:
 		1105, 1202, 1205, 1312, 1512, 1612, 2104, 2202, 2312, 2710, 3107,
 		3203, 3204, 3611,
 		1411, 2211, 3110,
+		1710, 2310, 2510, 2610, 3209, 3707,
 	]
-	_expect_equal(migrated_spell_ids.size(), 167, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 173, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8571,10 +8622,15 @@ func _test_classic_spell_coverage() -> void:
 		"Missile Screen": "res://shared_assets/spells/missile_screen.gd",
 		"Silence": "res://shared_assets/spells/silence.gd",
 		"Classic Silence Sorcerer": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
+		"Multi Sandman": "res://shared_assets/spells/classic_core_1710_multi_sandman.gd",
+		"Sandman": "res://shared_assets/spells/classic_core_2310_sandman.gd",
+		"Paralyzing Wall": "res://shared_assets/spells/classic_core_2510_paralyzing_wall.gd",
+		"Time Trap": "res://shared_assets/spells/classic_core_2610_time_trap.gd",
+		"Noxious Cloud": "res://shared_assets/spells/classic_core_3209_noxious_cloud.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		160,
+		165,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9491,6 +9547,244 @@ func _test_classic_queued_area_spells() -> void:
 		60,
 		"Classic battlefield queue retains its source capacity"
 	)
+
+
+func _test_classic_helpless_spells() -> void:
+	var multi = load(
+		"res://shared_assets/spells/classic_core_1710_multi_sandman.gd"
+	).new()
+	var sandman = load(
+		"res://shared_assets/spells/classic_core_2310_sandman.gd"
+	).new()
+	var wall = load(
+		"res://shared_assets/spells/classic_core_2510_paralyzing_wall.gd"
+	).new()
+	var time_trap = load(
+		"res://shared_assets/spells/classic_core_2610_time_trap.gd"
+	).new()
+	var noxious = load(
+		"res://shared_assets/spells/classic_core_3209_noxious_cloud.gd"
+	).new()
+	var specs := [
+		{
+			"spell": multi,
+			"name": "Multi Sandman",
+			"ids": [1710],
+			"target": 10,
+			"class": 5,
+			"save": 5,
+			"duration": [3, 3],
+			"range": 0,
+			"mask": 0,
+			"footprint": 1,
+			"queue": 0,
+			"terrain": "",
+			"cost": 270,
+			"los": true,
+			"rot": false,
+			"opposed": true,
+			"save_bonus": 0,
+			"save_adjust": 0,
+			"resist_adjust": 0,
+			"attribute": "Mental",
+		},
+		{
+			"spell": sandman,
+			"name": "Sandman",
+			"ids": [2310],
+			"target": 3,
+			"class": 5,
+			"save": 5,
+			"duration": [3, 6],
+			"range": 6,
+			"mask": 4,
+			"footprint": 9,
+			"queue": 0,
+			"terrain": "",
+			"cost": 30,
+			"los": false,
+			"rot": false,
+			"opposed": false,
+			"save_bonus": 20,
+			"save_adjust": 0,
+			"resist_adjust": 0,
+			"attribute": "Mental",
+		},
+		{
+			"spell": wall,
+			"name": "Paralyzing Wall",
+			"ids": [2510, 3707],
+			"target": 3,
+			"class": 5,
+			"save": 5,
+			"duration": [3, 3],
+			"range": 10,
+			"mask": 10,
+			"footprint": 14,
+			"queue": 4,
+			"terrain": "Web",
+			"cost": 75,
+			"los": true,
+			"rot": true,
+			"opposed": false,
+			"save_bonus": 0,
+			"save_adjust": 0,
+			"resist_adjust": 0,
+			"attribute": "Mental",
+		},
+		{
+			"spell": time_trap,
+			"name": "Time Trap",
+			"ids": [2610],
+			"target": 3,
+			"class": 7,
+			"save": 7,
+			"duration": [2, 4],
+			"range": 8,
+			"mask": 18,
+			"footprint": 4,
+			"queue": 0,
+			"terrain": "",
+			"cost": 135,
+			"los": false,
+			"rot": false,
+			"opposed": false,
+			"save_bonus": 0,
+			"save_adjust": -5,
+			"resist_adjust": -5,
+			"attribute": "Special",
+		},
+		{
+			"spell": noxious,
+			"name": "Noxious Cloud",
+			"ids": [3209],
+			"target": 3,
+			"class": 4,
+			"save": 4,
+			"duration": [3, 3],
+			"range": 4,
+			"mask": 18,
+			"footprint": 4,
+			"queue": 7,
+			"terrain": "Gcl",
+			"cost": 45,
+			"los": true,
+			"rot": false,
+			"opposed": false,
+			"save_bonus": 35,
+			"save_adjust": 0,
+			"resist_adjust": 0,
+			"attribute": "Chemical",
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell: Variant = spec["spell"]
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s display name" % label)
+		_expect_equal(spell.classic_spell_ids, spec["ids"], "%s exact identities" % label)
+		_expect_equal(spell.classic_special, 2, "%s helpless condition index" % label)
+		_expect_equal(spell.classic_target_type, spec["target"], "%s target type" % label)
+		_expect_equal(spell.classic_spell_class, spec["class"], "%s effect class" % label)
+		_expect_equal(spell.classic_spell_save_index, spec["save"], "%s save index" % label)
+		_expect_equal(spell.classic_spell_save_mode, "negate", "%s save negates" % label)
+		_expect_equal(spell.get_min_duration(3, null), spec["duration"][0], "%s minimum duration" % label)
+		_expect_equal(spell.get_max_duration(3, null), spec["duration"][1], "%s maximum duration" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s range" % label)
+		_expect_equal(spell.classic_size, spec["mask"], "%s Data AD mask" % label)
+		_expect_equal(spell.get_aoe(3, null).size(), spec["footprint"], "%s footprint" % label)
+		_expect_equal(spell.classic_queue_icon, spec["queue"], "%s queue icon" % label)
+		_expect_equal(spell.terrain_tex, spec["terrain"], "%s terrain art" % label)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.los, spec["los"], "%s line of sight" % label)
+		_expect_equal(spell.rot, spec["rot"], "%s rotation" % label)
+		_expect_equal(spell.uses_classic_opposed_level_check(), spec["opposed"], "%s opposed-level check" % label)
+		_expect_equal(spell.classic_save_bonus, spec["save_bonus"], "%s save bonus" % label)
+		_expect_equal(spell.classic_save_adjust, spec["save_adjust"], "%s save adjustment" % label)
+		_expect_equal(spell.classic_resist_adjust, spec["resist_adjust"], "%s resistance adjustment" % label)
+		_expect_equal(spell.attributes, ["Magical", spec["attribute"]], "%s delivery attributes" % label)
+		_expect_equal(
+			spell.is_classic_queued_spell(),
+			int(spec["queue"]) > 0,
+			"%s queue behavior" % label
+		)
+
+	var first := HelplessTestCharacter.new("First target", true)
+	first.used_apr = 1
+	first.used_movepoints = 5
+	var second := HelplessTestCharacter.new("Second target")
+	multi.begin_classic_target_resolution(null, 3)
+	_expect_equal(
+		multi.apply_classic_scaled_effect(null, first, 3, 1.0),
+		3,
+		"Multi Sandman applies its shared duration to the first target"
+	)
+	_expect_equal(
+		multi.apply_classic_scaled_effect(null, second, 3, 1.0),
+		3,
+		"Multi Sandman applies the same duration to the second target"
+	)
+	multi.end_classic_target_resolution()
+	_expect_equal(first.traits[0].duration, 3, "helplessness stores the source duration")
+	_expect_equal(second.traits[0].duration, 3, "shared duration reaches every target")
+	_expect_equal(first.used_apr, first.max_actions, "helplessness exhausts current actions")
+	_expect_equal(
+		first.used_movepoints,
+		first.max_movement,
+		"helplessness exhausts current movement after a partial turn"
+	)
+
+	first.used_apr = 0
+	first.used_movepoints = 0
+	_expect_equal(
+		multi.apply_classic_scaled_effect(null, first, 2, 1.0),
+		2,
+		"a later helpless effect stacks its duration"
+	)
+	_expect_equal(first.traits[0].duration, 5, "helpless duration stacks additively")
+
+	var capped := HelplessTestCharacter.new("Capped target", true)
+	capped.traits.append(HelplessTestTrait.new(98))
+	_expect_equal(
+		multi.apply_classic_scaled_effect(null, capped, 3, 1.0),
+		0,
+		"a player condition result of 100 or more is rejected"
+	)
+	_expect_equal(capped.traits[0].duration, 98, "a rejected duration leaves the condition unchanged")
+	_expect_equal(capped.used_apr, 0, "a rejected duration leaves current actions available")
+	_expect_equal(
+		capped.used_movepoints,
+		capped.max_movement,
+		"special code 2 still exhausts movement when the duration cap rejects"
+	)
+
+	var saved := HelplessTestCharacter.new("Saved target", true)
+	saved.used_apr = 1
+	saved.used_movepoints = 5
+	_expect_equal(
+		multi.apply_classic_scaled_effect(null, saved, 3, 0.0),
+		0,
+		"a successful DRV prevents helplessness"
+	)
+	_expect(saved.traits.is_empty(), "a successful DRV adds no condition")
+	_expect_equal(saved.used_apr, 1, "a successful DRV preserves current actions")
+	_expect_equal(saved.used_movepoints, 5, "a successful DRV preserves current movement")
+
+	var queue_caster := QueuedTerrainTestCreature.new(Vector2(1, 1))
+	var queue_target := QueuedTerrainTestCreature.new(Vector2(5, 5))
+	var queue_action := QueuedSpellRuntimeScript.action_for_effect(
+		{
+			"id": 61,
+			"classic": true,
+			"tiles": [Vector2i(5, 5)],
+			"caster": queue_caster,
+			"spell": wall,
+			"power": 3,
+		},
+		QueuedTerrainTestButton.new(queue_target)
+	)
+	_expect_equal(queue_action.get("spell"), wall, "Paralyzing Wall collision reuses its spell")
+	_expect(queue_action.get("from_terrain"), "Paralyzing Wall collision identifies the field")
+	_expect(not queue_action.get("add_terrain"), "Paralyzing Wall collision cannot duplicate its field")
 
 
 func _test_classic_healing_spells() -> void:
