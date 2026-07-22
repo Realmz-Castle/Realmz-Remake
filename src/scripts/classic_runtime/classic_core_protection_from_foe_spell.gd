@@ -13,6 +13,7 @@ func configure_core_protection_from_foe_spell(spell_id: int) -> bool:
 		TemporaryProtectionTrait,
 		["p_prot_evil.gd", "t_pro_evil.gd"],
 		[0, 3],
+		[4],
 		"Adds 10 percentage points to hit chance against evil foes and subtracts 10 from their hit chance",
 		["Protection", "Evil"]
 	)

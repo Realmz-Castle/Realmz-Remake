@@ -13,6 +13,7 @@ func configure_core_strong_spell(spell_id: int) -> bool:
 		TemporaryStrongTrait,
 		["p_strong.gd", "t_strong.gd"],
 		[0],
+		[4],
 		"Adds 15 percentage points to physical accuracy and 3 damage",
 		["Enhancement", "Strong"]
 	)

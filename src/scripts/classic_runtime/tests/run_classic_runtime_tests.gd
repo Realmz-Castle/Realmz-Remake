@@ -1004,6 +1004,7 @@ func _init() -> void:
 	_test_classic_strong_spell()
 	_test_classic_protection_from_foe_spells()
 	_test_classic_speedy_spells()
+	_test_classic_invisible_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -7882,7 +7883,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		138,
+		142,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8012,8 +8013,9 @@ func _test_classic_spell_coverage() -> void:
 		2212,
 		1210, 2409,
 		1302, 2401,
+		1206, 1708, 2208, 2509,
 	]
-	_expect_equal(migrated_spell_ids.size(), 106, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 110, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8128,10 +8130,14 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Protection from Foe Priest": "res://shared_assets/spells/classic_core_2409_protection_from_foe_priest.gd",
 		"Adrenalin": "res://shared_assets/spells/classic_core_1302_adrenalin.gd",
 		"Classic Adrenalin Priest": "res://shared_assets/spells/classic_core_2401_adrenalin_priest.gd",
+		"Invisible Skin": "res://shared_assets/spells/classic_core_1206_invisible_skin.gd",
+		"Multi Invisible Skin": "res://shared_assets/spells/classic_core_1708_multi_invisible_skin.gd",
+		"Classic Invisible Skin Priest": "res://shared_assets/spells/classic_core_2208_invisible_skin_priest.gd",
+		"Classic Multi Invisible Skin Priest": "res://shared_assets/spells/classic_core_2509_multi_invisible_skin_priest.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		107,
+		111,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9732,6 +9738,162 @@ func _test_classic_speedy_spells() -> void:
 		sorcerer.apply_classic_scaled_effect(null, native_speedy, 1, 1.0),
 		0,
 		"Classic Speedy does not stack beside Remake's temporary Speedy trait"
+	)
+
+
+func _test_classic_invisible_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_1206_invisible_skin.gd",
+			"name": "Invisible Skin", "id": 1206,
+			"range": 6, "targets": 3, "duration": [4, 10], "cost": 15,
+			"looks": [14, 15], "sounds": [4, 83], "los": false,
+			"cannot": 4, "allies": false,
+		},
+		{
+			"file": "classic_core_1708_multi_invisible_skin.gd",
+			"name": "Multi Invisible Skin", "id": 1708,
+			"range": 0, "targets": 1, "duration": [3, 3], "cost": 150,
+			"looks": [14, 15], "sounds": [86, 81], "los": true,
+			"cannot": 3, "allies": true,
+		},
+		{
+			"file": "classic_core_2208_invisible_skin_priest.gd",
+			"name": "Classic Invisible Skin Priest", "id": 2208,
+			"range": 6, "targets": 3, "duration": [4, 10], "cost": 15,
+			"looks": [14, 15], "sounds": [4, 83], "los": false,
+			"cannot": 4, "allies": false,
+		},
+		{
+			"file": "classic_core_2509_multi_invisible_skin_priest.gd",
+			"name": "Classic Multi Invisible Skin Priest", "id": 2509,
+			"range": 0, "targets": 1, "duration": [3, 3], "cost": 150,
+			"looks": [14, 15], "sounds": [4, 83], "los": true,
+			"cannot": 3, "allies": true,
+		},
+	]
+	for spec: Dictionary in specs:
+		var invisibility = load(
+			"res://shared_assets/spells/%s" % spec["file"]
+		).new()
+		var label := str(spec["name"])
+		_expect_equal(invisibility.name, spec["name"], "%s resource identity" % label)
+		_expect_equal(invisibility.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(invisibility.classic_special, 25, "%s writes Invisible condition 24" % label)
+		_expect_equal(invisibility.classic_spell_class, 8, "%s preserves spell class 8" % label)
+		_expect_equal(invisibility.classic_damage_type, 8, "%s remains miscellaneous" % label)
+		_expect_equal(invisibility.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(invisibility.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(invisibility.classic_cannot, spec["cannot"], "%s source cannot value" % label)
+		_expect_equal(
+			invisibility.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect(
+			invisibility.in_combat and invisibility.in_field,
+			"%s works in combat and camp" % label
+		)
+		_expect_equal(invisibility.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(
+			invisibility.get_target_number(3, null),
+			spec["targets"],
+			"%s source targets" % label
+		)
+		_expect_equal(
+			invisibility.get_min_duration(3, null),
+			spec["duration"][0],
+			"%s minimum duration" % label
+		)
+		_expect_equal(
+			invisibility.get_max_duration(3, null),
+			spec["duration"][1],
+			"%s maximum duration" % label
+		)
+		_expect_equal(invisibility.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(invisibility.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(invisibility.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+		_expect_equal(invisibility.los, spec["los"], "%s line of sight" % label)
+		_expect_equal(invisibility.get_aoe(3, null), Spell.AoE_b1, "%s source area" % label)
+		_expect(invisibility.elements.is_empty(), "%s has no damage element" % label)
+		if bool(spec["allies"]):
+			_expect(
+				invisibility.skip_targeting,
+				"%s automatically targets friendlies" % label
+			)
+			_expect_equal(
+				invisibility.autotarget_type,
+				Spell.AUTOTARGET_TYPE.ALL_ALLIES,
+				"%s targets every ally" % label
+			)
+		else:
+			_expect(not invisibility.skip_targeting, "%s uses the creature target picker" % label)
+			_expect_equal(
+				invisibility.targettile,
+				Spell.TARGET_TILE.CREATURE,
+				"%s targets creatures" % label
+			)
+
+	var multi = load(
+		"res://shared_assets/spells/classic_core_1708_multi_invisible_skin.gd"
+	).new()
+	var first := SpellScreenTestCharacter.new("First", true)
+	var second := SpellScreenTestCharacter.new("Second", true)
+	_expect_equal(
+		multi.apply_classic_group_effect(null, [first, second], 3),
+		2,
+		"Multi Invisible Skin affects every ally"
+	)
+	var first_trait: Variant = first.traits[0]
+	var second_trait: Variant = second.traits[0]
+	_expect_equal(
+		first_trait.name,
+		"t_classic_invisible.gd",
+		"Invisible Skin uses its Classic condition trait"
+	)
+	_expect_equal(
+		first_trait.duration_seconds,
+		second_trait.duration_seconds,
+		"one Classic duration roll is shared by every invisible ally"
+	)
+	_expect(
+		first_trait.trait_types.has("AoO_imm"),
+		"Classic invisibility prevents opportunity attacks"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("EvasionMelee", 4),
+		6,
+		"invisibility adds two melee evasion points"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("EvasionRanged", 1),
+		3,
+		"invisibility adds two ranged evasion points"
+	)
+	_expect_equal(
+		first_trait._on_get_stat("EvasionMagic", 7),
+		7,
+		"invisibility does not alter magic evasion"
+	)
+	first.stats["EvasionMelee"] = 4
+	first.stats["EvasionRanged"] = 1
+	_expect_equal(
+		first.get_stat("EvasionMelee"),
+		6,
+		"character melee evasion uses Classic invisibility"
+	)
+	_expect_equal(
+		first.get_stat("EvasionRanged"),
+		3,
+		"character ranged evasion uses Classic invisibility"
+	)
+
+	var native_invisible := ProtectionTestCharacter.new("Native Invisible", true)
+	native_invisible.traits.append(ProtectionTestTrait.new("t_invisible.gd", 1))
+	_expect_equal(
+		multi.apply_classic_scaled_effect(null, native_invisible, 1, 1.0),
+		0,
+		"Classic invisibility does not stack beside Remake's temporary invisibility"
 	)
 
 

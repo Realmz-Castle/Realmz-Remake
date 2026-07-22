@@ -3,7 +3,7 @@ extends RefCounted
 
 const stacks := true
 const permanent := false
-const trait_types: Array = []
+var trait_types: Array = []
 const SECONDS_PER_ROUND := 5
 const SECONDS_PER_HOUR := 3600
 

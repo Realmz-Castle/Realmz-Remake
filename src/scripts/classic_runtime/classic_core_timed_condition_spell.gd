@@ -11,6 +11,7 @@ func configure_core_timed_condition_spell(
 	temporary_trait: GDScript,
 	conflicting_traits: Array[String],
 	allowed_target_types: Array[int],
+	allowed_cannot_values: Array[int],
 	effect_description: String,
 	condition_tags: Array[String]
 ) -> bool:
@@ -19,7 +20,12 @@ func configure_core_timed_condition_spell(
 		push_error("Classic condition spell %d has no Data S inventory record" % spell_id)
 		return false
 	var record: Dictionary = inventory.get("record", {}).duplicate(true)
-	if not _is_timed_condition_record(record, special_code, allowed_target_types):
+	if not _is_timed_condition_record(
+		record,
+		special_code,
+		allowed_target_types,
+		allowed_cannot_values
+	):
 		push_error(
 			"Classic spell %d is not a special-%d timed condition record"
 			% [spell_id, special_code]
@@ -102,14 +108,15 @@ func _is_player_character(target: Object) -> bool:
 func _is_timed_condition_record(
 	record: Dictionary,
 	special_code: int,
-	allowed_target_types: Array[int]
+	allowed_target_types: Array[int],
+	allowed_cannot_values: Array[int]
 ) -> bool:
 	if absi(int(record.get("special", 0))) != special_code \
 			or int(record.get("queueIcon", 0)) != 0 \
 			or int(record.get("cost", 0)) <= 0 \
 			or absi(int(record.get("damageType", 0))) != 8 \
 			or absi(int(record.get("spellClass", 0))) != 8 \
-			or int(record.get("cannot", 0)) != 4 \
+			or int(record.get("cannot", 0)) not in allowed_cannot_values \
 			or not bool(record.get("inCombat", 0)) \
 			or not bool(record.get("inCamp", 0)) \
 			or int(record.get("targetType", -1)) not in allowed_target_types:

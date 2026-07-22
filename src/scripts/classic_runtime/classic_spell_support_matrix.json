@@ -442,6 +442,17 @@
       ]
     },
     {
+      "id": "core-player-spell-invisible",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 20, "displayName": "Sorcerer Invisible Skin"},
+        {"sourceFile": "Data S", "recordIndex": 97, "displayName": "Sorcerer Multi Invisible Skin"},
+        {"sourceFile": "Data S", "recordIndex": 127, "displayName": "Priest Invisible Skin"},
+        {"sourceFile": "Data S", "recordIndex": 173, "displayName": "Priest Multi Invisible Skin"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -3937,6 +3948,120 @@
         "special": 24,
         "costPerPower": 20,
         "adapter": "classic-speedy-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1206,
+      "displayName": "Invisible Skin",
+      "classification": "native-special-invisible",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1206_invisible_skin.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 20, "byteOffset": 600, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-invisible", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 6,
+        "lineOfSight": false,
+        "duration": "4-10-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "plus-10-percent-physical-evasion-and-opportunity-attack-immunity",
+        "evasionTranslation": "plus-2-remake-stat-points",
+        "conditionIndex": 24,
+        "nativeTrait": "t_classic_invisible.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 25,
+        "costPerPower": 5,
+        "adapter": "classic-invisible-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1708,
+      "displayName": "Multi Invisible Skin",
+      "classification": "native-special-invisible",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1708_multi_invisible_skin.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 97, "byteOffset": 2910, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-invisible", "slots": [1]}],
+      "behavior": {
+        "targetType": "all-allies",
+        "range": 0,
+        "lineOfSight": true,
+        "duration": "1-round-per-power-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "plus-10-percent-physical-evasion-and-opportunity-attack-immunity",
+        "evasionTranslation": "plus-2-remake-stat-points",
+        "conditionIndex": 24,
+        "nativeTrait": "t_classic_invisible.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 25,
+        "costPerPower": 50,
+        "adapter": "classic-invisible-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2208,
+      "displayName": "Invisible Skin",
+      "nativeResourceName": "Classic Invisible Skin Priest",
+      "classification": "native-special-invisible",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2208_invisible_skin_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 127, "byteOffset": 3810, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-invisible", "slots": [2]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 6,
+        "lineOfSight": false,
+        "duration": "4-10-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "plus-10-percent-physical-evasion-and-opportunity-attack-immunity",
+        "evasionTranslation": "plus-2-remake-stat-points",
+        "conditionIndex": 24,
+        "nativeTrait": "t_classic_invisible.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 25,
+        "costPerPower": 5,
+        "adapter": "classic-invisible-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2509,
+      "displayName": "Multi Invisible Skin",
+      "nativeResourceName": "Classic Multi Invisible Skin Priest",
+      "classification": "native-special-invisible",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2509_multi_invisible_skin_priest.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 173, "byteOffset": 5190, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-invisible", "slots": [3]}],
+      "behavior": {
+        "targetType": "all-allies",
+        "range": 0,
+        "lineOfSight": true,
+        "duration": "1-round-per-power-shared-roll",
+        "fieldDurationReduction": "one-point-per-crossed-hour",
+        "effect": "plus-10-percent-physical-evasion-and-opportunity-attack-immunity",
+        "evasionTranslation": "plus-2-remake-stat-points",
+        "conditionIndex": 24,
+        "nativeTrait": "t_classic_invisible.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 25,
+        "costPerPower": 50,
+        "adapter": "classic-invisible-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }
