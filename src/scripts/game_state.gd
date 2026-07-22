@@ -348,10 +348,9 @@ func check_map_script(position, context := {}) ->bool :
 		for y in [-1,0,1] :
 			var vpos : Vector2i = Vector2i(int(position.x+x),int(position.y+y))
 			if GameGlobal.map.mapsecrets.has( vpos ) :
-				var  randomfloat : float = randf()
-				var randomfail : bool = GameGlobal.map.get_secret_fail_chance(vpos) < randomfloat
-				print("StateMachine randomfail : ", randomfail,' ',GameGlobal.map.get_secret_fail_chance(vpos), '<',randomfloat)
-				if randomfail : #(x==!0 or y!=0) and 
+				var randomfloat : float = randf()
+				var detected := GameGlobal.map_secret_detection_succeeds(vpos, randomfloat)
+				if not detected:
 					continue
 			
 				if GameGlobal.map.mapsecrets[vpos][0]==0 :

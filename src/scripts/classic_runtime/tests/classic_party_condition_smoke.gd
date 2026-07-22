@@ -1,11 +1,13 @@
 extends Node
 
 const FreeFallScript = preload("res://shared_assets/spells/free_fall.gd")
+const DiscoverSecretScript = preload("res://shared_assets/spells/discover_secret.gd")
 
 var failures: Array[String] = []
 var original_time := 0
 var original_global_effects: Dictionary = {}
 var original_conditions: Dictionary = {}
+var original_map_secrets: Dictionary = {}
 
 
 func _ready() -> void:
@@ -17,6 +19,7 @@ func _run_smoke() -> void:
 	original_time = GameGlobal.time
 	original_global_effects = GameGlobal.global_effects.duplicate(true)
 	original_conditions = GameGlobal.classic_party_conditions.duplicate(true)
+	original_map_secrets = GameGlobal.map.mapsecrets.duplicate(true)
 
 	GameGlobal.time = 3500
 	GameGlobal.global_effects["FeatherFall"] = {"Duration": 0}
@@ -74,6 +77,31 @@ func _run_smoke() -> void:
 		"hourly reduction remains synchronized with the native display"
 	)
 
+	var secret_position := Vector2i(89, 89)
+	GameGlobal.map.mapsecrets[secret_position] = [0, "TestSecret", 0.25]
+	GameGlobal.global_effects["Awareness"] = {"Duration": 0}
+	_expect_equal(
+		GameGlobal.map_secret_detection_succeeds(secret_position, 0.2),
+		true,
+		"a native secret roll below its detection chance succeeds"
+	)
+	_expect_equal(
+		GameGlobal.map_secret_detection_succeeds(secret_position, 0.5),
+		false,
+		"a failed native secret roll remains hidden without Awareness"
+	)
+	var discover_secret = DiscoverSecretScript.new()
+	_expect_equal(
+		discover_secret.apply_classic_duration(7),
+		7,
+		"Discover Secret reaches the live Classic Awareness condition"
+	)
+	_expect_equal(
+		GameGlobal.map_secret_detection_succeeds(secret_position, 0.5),
+		true,
+		"Classic Awareness guarantees the native secret-detection check"
+	)
+
 	_finish()
 
 
@@ -89,6 +117,7 @@ func _finish() -> void:
 	GameGlobal.time = original_time
 	GameGlobal.global_effects = original_global_effects
 	GameGlobal.classic_party_conditions = original_conditions
+	GameGlobal.map.mapsecrets = original_map_secrets
 	if failures.is_empty():
 		print("Classic party-condition smoke passed.")
 		get_tree().quit(0)

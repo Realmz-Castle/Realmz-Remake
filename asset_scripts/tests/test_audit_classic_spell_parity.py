@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 180)
+        self.assertEqual(report["totals"]["supportedIdentities"], 183)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -197,13 +197,14 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         matrix_by_id = {
             int(row["classicSpellId"]): row for row in matrix.get("spells", [])
         }
-        for spell_id in {1105, 1205, 2104}:
+        for spell_id in {1105, 1202, 1205, 2104, 2202, 3203}:
             row = matrix_by_id[spell_id]
             self.assertEqual(row["supportStatus"], "supported")
             self.assertEqual(
                 row["classification"], "native-special-party-condition"
             )
-            self.assertEqual(row["behavior"]["conditionIndex"], 6)
+            expected_condition = 3 if spell_id in {1202, 2202, 3203} else 6
+            self.assertEqual(row["behavior"]["conditionIndex"], expected_condition)
             self.assertEqual(
                 row["behavior"]["conditionDecay"],
                 "one-per-combat-round-or-game-hour",

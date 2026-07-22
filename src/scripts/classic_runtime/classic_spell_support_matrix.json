@@ -198,6 +198,16 @@
       ]
     },
     {
+      "id": "core-player-spell-discover-secret",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "field-party", "map-secret-detection", "game-time", "combat-round", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 16, "displayName": "Sorcerer Discover Secret"},
+        {"sourceFile": "Data S", "recordIndex": 121, "displayName": "Priest Discover Secret"},
+        {"sourceFile": "Data S", "recordIndex": 227, "displayName": "Enchanter Discover Secret"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -5281,6 +5291,81 @@
         "resistance": "none",
         "special": 6,
         "costPerPower": 10,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1202,
+      "displayName": "Discover Secret",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/discover_secret.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 16, "byteOffset": 480, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-discover-secret", "slots": [0]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "ten-to-thirty-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 3,
+        "effect": "guarantee-native-secret-detection",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 3,
+        "costPerPower": 5,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2202,
+      "displayName": "Discover Secret",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/discover_secret.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 121, "byteOffset": 3630, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-discover-secret", "slots": [1]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "ten-to-thirty-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 3,
+        "effect": "guarantee-native-secret-detection",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 3,
+        "costPerPower": 5,
+        "adapter": "source-record-backed-classic-party-condition",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 3203,
+      "displayName": "Discover Secret",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/discover_secret.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 227, "byteOffset": 6810, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-discover-secret", "slots": [2]}],
+      "behavior": {
+        "targetType": "party",
+        "availability": "field-only",
+        "duration": "ten-to-thirty-condition-points-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 3,
+        "effect": "guarantee-native-secret-detection",
+        "stacking": "longer-result-replaces-current-condition",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 3,
+        "costPerPower": 5,
         "adapter": "source-record-backed-classic-party-condition",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }

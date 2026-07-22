@@ -385,8 +385,9 @@ Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path sr
 ```
 
 The party-condition smoke verifies the live GameGlobal boundary used by Free
-Fall and Hover, including longer-result replacement, combat and hourly decay,
-the native HUD duration, and restoration of the exact Classic counter:
+Fall, Hover, and Discover Secret, including longer-result replacement, combat
+and hourly decay, native HUD durations, secret detection, and restoration of
+the exact Classic counters:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn

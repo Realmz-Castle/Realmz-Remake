@@ -8162,7 +8162,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		180,
+		183,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8316,7 +8316,7 @@ func _test_classic_spell_coverage() -> void:
 		"supported",
 		"reviewed generic ray spells are supported"
 	)
-	for party_spell_id: int in [1105, 1205, 2104]:
+	for party_spell_id: int in [1105, 1202, 1205, 2104, 2202, 3203]:
 		_expect_equal(
 			coverage_by_id.get(party_spell_id, {}).get("coverageStatus"),
 			"supported",
@@ -8364,10 +8364,10 @@ func _test_classic_spell_coverage() -> void:
 		1301, 1403, 2702, 3302,
 		1207, 2209,
 		3109,
-		1105, 1205, 2104,
+		1105, 1202, 1205, 2104, 2202, 3203,
 		1411, 2211, 3110,
 	]
-	_expect_equal(migrated_spell_ids.size(), 151, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 154, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8519,12 +8519,13 @@ func _test_classic_spell_coverage() -> void:
 		"Shrink Foe": "res://shared_assets/spells/shrink_foe.gd",
 		"Free Fall": "res://shared_assets/spells/free_fall.gd",
 		"Hover": "res://shared_assets/spells/hover.gd",
+		"Discover Secret": "res://shared_assets/spells/discover_secret.gd",
 		"Silence": "res://shared_assets/spells/silence.gd",
 		"Classic Silence Sorcerer": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		146,
+		147,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11835,6 +11836,7 @@ func _test_classic_party_condition_spells() -> void:
 
 	var free_fall = load("res://shared_assets/spells/free_fall.gd").new()
 	var hover = load("res://shared_assets/spells/hover.gd").new()
+	var discover_secret = load("res://shared_assets/spells/discover_secret.gd").new()
 	_expect_equal(free_fall.name, "Free Fall", "Free Fall resource identity")
 	_expect_equal(
 		free_fall.classic_spell_ids,
@@ -11870,6 +11872,42 @@ func _test_classic_party_condition_spells() -> void:
 	_expect_equal(hover.get_max_duration(3, null), 30, "Hover maximum duration")
 	_expect_equal(hover.get_sp_cost(3, null), 45, "Hover casting cost")
 	_expect_equal(hover.classic_sound_ids, [22, 4], "Hover source sounds")
+	_expect_equal(
+		discover_secret.name,
+		"Discover Secret",
+		"Discover Secret resource identity"
+	)
+	_expect_equal(
+		discover_secret.classic_spell_ids,
+		[1202, 2202, 3203],
+		"all three schools share source-equivalent Discover Secret mechanics"
+	)
+	_expect_equal(discover_secret.classic_special, 3, "Discover Secret condition index")
+	_expect_equal(
+		discover_secret.classic_target_type,
+		7,
+		"Discover Secret targets the party"
+	)
+	_expect(
+		discover_secret.in_field and not discover_secret.in_combat,
+		"Discover Secret is field-only"
+	)
+	_expect_equal(
+		discover_secret.get_min_duration(3, null),
+		30,
+		"Discover Secret minimum duration"
+	)
+	_expect_equal(
+		discover_secret.get_max_duration(3, null),
+		90,
+		"Discover Secret maximum duration"
+	)
+	_expect_equal(discover_secret.get_sp_cost(3, null), 15, "Discover Secret casting cost")
+	_expect_equal(
+		discover_secret.schools,
+		["Sorcerer", "Priest", "Enchanter"],
+		"Discover Secret remains available to all three source caster classes"
+	)
 
 	_expect_equal(
 		ClassicPartyConditionScript.reduce(
