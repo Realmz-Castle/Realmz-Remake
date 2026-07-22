@@ -273,6 +273,13 @@ party members, while any animation or mental-class immunity clears it from
 monsters. Chemical class immunity remains part of the earlier spell-resistance
 stage and prevents the hit entirely.
 
+Major Charm Foe `1607` and Major Soul Bind `2405` reuse Remake's battle-charm
+and helpless traits through source-record-backed adapters. Major Charm Foe uses
+the fixed Data AD area mask `7`; each affected creature retains its own Classic
+charm and general-resistance checks. Major Soul Bind uses a power-scaled area,
+its signed mental opposed-level check and save, and the original one-duration-
+roll-per-cast behavior before applying helplessness to each successful target.
+
 Sparkling Armor and the three Vorpal Plate identities share Classic condition
 `7` (Shield from Hits). Each remaining condition point subtracts two percentage
 points from melee hit chance without changing ranged attacks. Remake represents

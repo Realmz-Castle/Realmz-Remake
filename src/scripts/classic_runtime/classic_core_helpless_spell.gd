@@ -26,7 +26,7 @@ func configure_core_helpless_spell(
 		return false
 	var record: Dictionary = inventory.get("record", {}).duplicate(true)
 	if not _is_helpless_record(record):
-		push_error("Classic spell %d is not a special-2 helpless record" % spell_id)
+		push_error("Classic spell %d is not a helpless record" % spell_id)
 		return false
 
 	var spell_ids: Array[int] = [spell_id]
@@ -94,7 +94,7 @@ func apply_classic_scaled_effect(
 func get_aoe(power: int, _caster) -> Array[Vector2i]:
 	if classic_target_type == 3:
 		return AreaPatternsScript.pattern(classic_size)
-	return AoE_b1
+	return super.get_aoe(power, _caster)
 
 
 func is_classic_queued_spell() -> bool:
@@ -146,12 +146,12 @@ func _apply_current_turn_restrictions(target: Variant, helpless_applied: bool) -
 
 
 func _is_helpless_record(record: Dictionary) -> bool:
-	if absi(int(record.get("special", 0))) != 2 \
+	if absi(int(record.get("special", 0))) not in [2, 53, 54] \
 			or int(record.get("cost", 0)) <= 0 \
 			or int(record.get("cannot", 0)) != 0 \
 			or not bool(record.get("inCombat", 0)) \
 			or bool(record.get("inCamp", 0)) \
-			or int(record.get("targetType", -1)) not in [3, 10] \
+			or int(record.get("targetType", -1)) not in [0, 3, 4, 10] \
 			or absi(int(record.get("damageType", 0))) not in [4, 5, 7]:
 		return false
 	for field_name: String in ["damage1", "damage2", "powerDamage1", "powerDamage2"]:

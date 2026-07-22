@@ -8271,7 +8271,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		208,
+		210,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8453,7 +8453,7 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"party spell %d uses the reviewed condition clock" % party_spell_id
 		)
-	for helpless_spell_id: int in [1710, 2310, 2510, 2610, 3209, 3707]:
+	for helpless_spell_id: int in [1710, 2310, 2405, 2510, 2610, 3209, 3707]:
 		_expect_equal(
 			coverage_by_id.get(helpless_spell_id, {}).get("coverageStatus"),
 			"supported",
@@ -8525,9 +8525,9 @@ func _test_classic_spell_coverage() -> void:
 		1411, 2211, 3110,
 		1710, 2310, 2510, 2610, 3209, 3707,
 		1311, 2311,
-		2106, 2203, 2408, 3407,
+		1607, 2106, 2203, 2405, 2408, 3407,
 	]
-	_expect_equal(migrated_spell_ids.size(), 179, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 181, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8695,8 +8695,10 @@ func _test_classic_spell_coverage() -> void:
 		"Missile Screen": "res://shared_assets/spells/missile_screen.gd",
 		"Silence": "res://shared_assets/spells/silence.gd",
 		"Classic Silence Sorcerer": "res://shared_assets/spells/classic_core_1411_silence_sorcerer.gd",
+		"Major Charm Foe": "res://shared_assets/spells/major_charm_foe.gd",
 		"Multi Sandman": "res://shared_assets/spells/classic_core_1710_multi_sandman.gd",
 		"Sandman": "res://shared_assets/spells/classic_core_2310_sandman.gd",
+		"Major Soul Bind": "res://shared_assets/spells/major_soul_bind.gd",
 		"Paralyzing Wall": "res://shared_assets/spells/classic_core_2510_paralyzing_wall.gd",
 		"Time Trap": "res://shared_assets/spells/classic_core_2610_time_trap.gd",
 		"Noxious Cloud": "res://shared_assets/spells/classic_core_3209_noxious_cloud.gd",
@@ -8709,7 +8711,7 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		171,
+		173,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9131,6 +9133,7 @@ func _test_classic_spell_coverage() -> void:
 	)
 
 	var charm_foe = load("res://shared_assets/spells/charm_foe.gd").new()
+	var major_charm = load("res://shared_assets/spells/major_charm_foe.gd").new()
 	var enchanter_charm = load(
 		"res://shared_assets/spells/classic_charm_foe_enchanter.gd"
 	).new()
@@ -9151,6 +9154,16 @@ func _test_classic_spell_coverage() -> void:
 		90,
 		"Enchanter Charm preserves its distinct cost"
 	)
+	_expect_equal(major_charm.classic_spell_ids, [1607], "Major Charm Foe exact ID")
+	_expect_equal(major_charm.classic_special, 51, "Major Charm Foe special")
+	_expect_equal(major_charm.classic_target_type, 3, "Major Charm Foe target type")
+	_expect_equal(major_charm.classic_size, 7, "Major Charm Foe area-mask ID")
+	_expect_equal(major_charm.get_aoe(1, null), Spell.AoE_b7, "Major Charm Foe area")
+	_expect_equal(major_charm.get_range(7, null), 8, "Major Charm Foe range")
+	_expect_equal(major_charm.get_sp_cost(3, null), 135, "Major Charm Foe cost")
+	_expect_equal(major_charm.school_levels.get("Sorcerer"), 6, "Major Charm Foe level")
+	_expect_equal(major_charm.selection_costs.get("Sorcerer"), 21, "Major Charm Foe selection cost")
+	_expect(not major_charm.los, "Major Charm Foe keeps its no-LOS range")
 	var charm_caster := CharmTestCharacter.new("Caster", 0)
 	var charmed_target := CharmTestCharacter.new("Target", 1)
 	charm_foe.add_traits_to_creature(charm_caster, charmed_target, 1)
@@ -9165,6 +9178,20 @@ func _test_classic_spell_coverage() -> void:
 	charmed_target.traits[0]._on_battle_end(charmed_target)
 	_expect_equal(charmed_target.curFaction, 1, "Charm restores the base faction after battle")
 	_expect(charmed_target.traits.is_empty(), "battle cleanup removes Classic Charm")
+	var major_charmed_target := CharmTestCharacter.new("Major target", 1)
+	_expect(
+		major_charm.apply_classic_scaled_effect(charm_caster, major_charmed_target, 3, 1.0),
+		"Major Charm Foe applies the shared battle-charm trait"
+	)
+	_expect_equal(major_charmed_target.curFaction, 0, "Major Charm Foe adopts caster faction")
+	var resisted_major_charm := CharmTestCharacter.new("Resisted target", 1)
+	_expect(
+		not major_charm.apply_classic_scaled_effect(
+			charm_caster, resisted_major_charm, 3, 0.0
+		),
+		"a resisted Major Charm Foe applies no trait"
+	)
+	_expect(resisted_major_charm.traits.is_empty(), "resisted Major Charm leaves no trait")
 
 	var fearful_thoughts = load("res://shared_assets/spells/fearful_thoughts.gd").new()
 	_expect_equal(fearful_thoughts.classic_spell_ids, [2103], "Fearful Thoughts exact ID")
@@ -9250,6 +9277,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(priest_area_fear.get_sp_cost(3, null), 45, "Priest area Fear cost")
 
 	var soul_bind = load("res://shared_assets/spells/soul_bind.gd").new()
+	var major_soul_bind = load("res://shared_assets/spells/major_soul_bind.gd").new()
 	_expect_equal(soul_bind.classic_spell_ids, [2111], "Soul Bind exact ID")
 	_expect_equal(soul_bind.classic_spell_class, 5, "Soul Bind class")
 	_expect_equal(soul_bind.classic_spell_save_index, 5, "Soul Bind save")
@@ -9267,6 +9295,34 @@ func _test_classic_spell_coverage() -> void:
 	_expect(
 		helpless_target.traits[0].power >= 2 and helpless_target.traits[0].power <= 4,
 		"Soul Bind passes its source duration roll"
+	)
+	_expect_equal(major_soul_bind.classic_spell_ids, [2405], "Major Soul Bind exact ID")
+	_expect_equal(major_soul_bind.classic_special, 53, "Major Soul Bind special")
+	_expect_equal(major_soul_bind.classic_target_type, 4, "Major Soul Bind target type")
+	_expect_equal(major_soul_bind.classic_raw_damage_type, -5, "Major Soul Bind signed DRV")
+	_expect(major_soul_bind.uses_classic_opposed_level_check(), "Major Soul Bind opposed check")
+	_expect_equal(major_soul_bind.classic_spell_save_index, 5, "Major Soul Bind save")
+	_expect_equal(major_soul_bind.classic_spell_save_mode, "negate", "Major Soul Bind save mode")
+	_expect_equal(major_soul_bind.get_aoe(3, null), Spell.AoE_b3, "Major Soul Bind area")
+	_expect_equal(major_soul_bind.get_range(7, null), 8, "Major Soul Bind range")
+	_expect_equal(major_soul_bind.get_sp_cost(3, null), 105, "Major Soul Bind cost")
+	_expect_equal(major_soul_bind.school_levels.get("Priest"), 4, "Major Soul Bind level")
+	var first_major_bind := ConditionTestCharacter.new("First major bind target")
+	var second_major_bind := ConditionTestCharacter.new("Second major bind target")
+	major_soul_bind.begin_classic_target_resolution(null, 3)
+	var first_bind_duration: int = major_soul_bind.apply_classic_scaled_effect(
+		null, first_major_bind, 3, 1.0
+	)
+	var second_bind_duration: int = major_soul_bind.apply_classic_scaled_effect(
+		null, second_major_bind, 3, 1.0
+	)
+	major_soul_bind.end_classic_target_resolution()
+	_expect(first_bind_duration in range(2, 5), "Major Soul Bind rolls its source duration")
+	_expect_equal(second_bind_duration, first_bind_duration, "Major Soul Bind shares one cast roll")
+	_expect_equal(
+		second_major_bind.traits[0].power,
+		first_major_bind.traits[0].power,
+		"Major Soul Bind applies the shared duration to every target"
 	)
 
 	var matrix: Variant = JSON.parse_string(FileAccess.get_file_as_string(
@@ -9300,9 +9356,9 @@ func _test_classic_spell_coverage() -> void:
 					1101, 1102, 1103, 1104, 1107, 1108, 1110, 1111, 1112, 1201, 1203,
 					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
 					1402, 1406, 1407, 1408,
-					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1608, 1609, 1610,
+					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
 					1611, 1701, 1703, 1704, 1705, 1707, 1711, 1712, 2101, 2102, 2103, 2105,
-					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2406, 2407,
+					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407,
 					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2508, 2512, 2602, 2605, 2606, 2607,
 					2603, 2609, 2611, 2705, 2706, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
 					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3308,

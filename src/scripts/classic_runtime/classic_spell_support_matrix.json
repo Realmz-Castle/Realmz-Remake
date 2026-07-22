@@ -6128,6 +6128,58 @@
         "adapter": "source-record-backed-native-permanent-poison-trait",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
+    },
+    {
+      "classicSpellId": 1607,
+      "displayName": "Major Charm Foe",
+      "classification": "native-special-charm",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/major_charm_foe.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 81, "byteOffset": 2430, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-51-charm", "slots": [0]}],
+      "behavior": {
+        "targetType": "fixed-area",
+        "range": 8,
+        "lineOfSight": false,
+        "areaMask": 7,
+        "duration": "battle",
+        "saveMode": "none",
+        "preResistance": "classic-charm",
+        "resistance": "classic-general-and-spell-class-immunity",
+        "special": 51,
+        "costPerPower": 45,
+        "adapter": "source-record-backed-native-battle-charm-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2405,
+      "displayName": "Major Soul Bind",
+      "classification": "native-special-helpless",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/major_soul_bind.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 154, "byteOffset": 4620, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-special-53-soul-bind", "slots": [0]}],
+      "behavior": {
+        "targetType": "power-scaled-area",
+        "range": 8,
+        "lineOfSight": false,
+        "duration": "two-to-four-rounds",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 1,
+        "effect": "helpless-and-exhaust-current-movement-actions",
+        "stacking": "add-unless-result-reaches-condition-cap",
+        "playerConditionCapExclusive": 100,
+        "monsterConditionCapExclusive": 125,
+        "saveMode": "negate-condition",
+        "saveIndex": 5,
+        "opposedLevelCheck": true,
+        "resistance": "opposed-level-then-class-immunity-screen-animation-and-general",
+        "special": 53,
+        "costPerPower": 35,
+        "adapter": "source-record-backed-native-helpless-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
     }
   ]
 }
