@@ -15,7 +15,8 @@ func configure_core_timed_condition_spell(
 	effect_description: String,
 	condition_tags: Array[String],
 	required_damage_type := 8,
-	required_spell_class := 8
+	required_spell_class := 8,
+	required_in_camp := true
 ) -> bool:
 	var inventory: Dictionary = CoreSpellCatalogScript.inventory_spell(spell_id)
 	if inventory.is_empty():
@@ -28,7 +29,8 @@ func configure_core_timed_condition_spell(
 		allowed_target_types,
 		allowed_cannot_values,
 		required_damage_type,
-		required_spell_class
+		required_spell_class,
+		required_in_camp
 	):
 		push_error(
 			"Classic spell %d is not a special-%d timed condition record"
@@ -129,7 +131,8 @@ func _is_timed_condition_record(
 	allowed_target_types: Array[int],
 	allowed_cannot_values: Array[int],
 	required_damage_type: int,
-	required_spell_class: int
+	required_spell_class: int,
+	required_in_camp: bool
 ) -> bool:
 	if absi(int(record.get("special", 0))) != special_code \
 			or int(record.get("queueIcon", 0)) != 0 \
@@ -138,7 +141,7 @@ func _is_timed_condition_record(
 			or absi(int(record.get("spellClass", 0))) != required_spell_class \
 			or int(record.get("cannot", 0)) not in allowed_cannot_values \
 			or not bool(record.get("inCombat", 0)) \
-			or not bool(record.get("inCamp", 0)) \
+			or bool(record.get("inCamp", 0)) != required_in_camp \
 			or int(record.get("targetType", -1)) not in allowed_target_types:
 		return false
 	for field_name: String in ["damage1", "damage2", "powerDamage1", "powerDamage2"]:

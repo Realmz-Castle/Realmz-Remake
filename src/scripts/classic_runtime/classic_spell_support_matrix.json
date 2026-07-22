@@ -161,6 +161,15 @@
       ]
     },
     {
+      "id": "core-player-spell-itching-skin",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 21, "displayName": "Sorcerer Itching Skin"},
+        {"sourceFile": "Data S", "recordIndex": 128, "displayName": "Priest Itching Skin"}
+      ]
+    },
+    {
       "id": "core-player-spell-cosmic-blast",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog"],
@@ -4995,6 +5004,60 @@
         "special": 36,
         "costPerPower": 20,
         "adapter": "source-record-backed-classic-pre-resistance-spell-absorption",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1207,
+      "displayName": "Itching Skin",
+      "classification": "native-special-attack-hindrance",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/itching_skin.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 21, "byteOffset": 630, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-itching-skin", "slots": [0]}],
+      "behavior": {
+        "targetType": "all-enemies",
+        "range": 0,
+        "availability": "combat-only",
+        "duration": "one-to-three-rounds-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 36,
+        "effect": "subtract-remaining-condition-from-melee-and-ranged-accuracy",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "negate-condition",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "spellClassImmunity": 5,
+        "special": 37,
+        "costPerPower": 8,
+        "adapter": "source-record-backed-classic-attack-hindrance",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2209,
+      "displayName": "Itching Skin",
+      "classification": "native-special-attack-hindrance",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/itching_skin.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 128, "byteOffset": 3840, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-itching-skin", "slots": [1]}],
+      "behavior": {
+        "targetType": "all-enemies",
+        "range": 0,
+        "availability": "combat-only",
+        "duration": "one-to-three-rounds-per-power",
+        "sharedDurationRoll": "once-per-cast",
+        "conditionIndex": 36,
+        "effect": "subtract-remaining-condition-from-melee-and-ranged-accuracy",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "saveMode": "negate-condition",
+        "saveIndex": 5,
+        "resistance": "classic-general",
+        "spellClassImmunity": 5,
+        "special": 37,
+        "costPerPower": 8,
+        "adapter": "source-record-backed-classic-attack-hindrance",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }

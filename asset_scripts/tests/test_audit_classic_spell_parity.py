@@ -181,7 +181,7 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
         )
         report = audit.build_report(inventory, matrix, native, legacy)
         self.assertEqual(report["totals"]["identities"], 252)
-        self.assertEqual(report["totals"]["supportedIdentities"], 171)
+        self.assertEqual(report["totals"]["supportedIdentities"], 173)
         self.assertEqual(
             report["totals"]["supportedIdentities"]
             + report["totals"]["remainingIdentities"],
@@ -508,6 +508,28 @@ class ClassicSpellParityAuditTests(unittest.TestCase):
                 / absorption["resource"].removeprefix("res://")
             )
             self.assertTrue(absorption_resource.is_file(), absorption_resource)
+        for spell_id in {1207, 2209}:
+            hindrance = matrix_by_id[spell_id]
+            self.assertEqual(hindrance["supportStatus"], "supported")
+            self.assertEqual(
+                hindrance["classification"],
+                "native-special-attack-hindrance",
+            )
+            self.assertEqual(hindrance["behavior"]["conditionIndex"], 36)
+            self.assertEqual(
+                hindrance["behavior"]["effect"],
+                "subtract-remaining-condition-from-melee-and-ranged-accuracy",
+            )
+            self.assertEqual(hindrance["behavior"]["saveIndex"], 5)
+            self.assertEqual(
+                hindrance["behavior"]["sharedDurationRoll"], "once-per-cast"
+            )
+            hindrance_resource = (
+                REPO_ROOT
+                / "src"
+                / hindrance["resource"].removeprefix("res://")
+            )
+            self.assertTrue(hindrance_resource.is_file(), hindrance_resource)
         parameterized_damage_ids = {
             1601,
             1703,

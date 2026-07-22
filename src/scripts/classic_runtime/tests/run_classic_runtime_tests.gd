@@ -1231,6 +1231,7 @@ func _init() -> void:
 	_test_classic_power_gather_spells()
 	_test_classic_energy_drain_spells()
 	_test_classic_arcanic_bubble_spells()
+	_test_classic_itching_skin_spell()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -8148,7 +8149,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		171,
+		173,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8259,6 +8260,13 @@ func _test_classic_spell_coverage() -> void:
 			"supported",
 			"Arcanic Bubble %d uses the reviewed pre-resistance adapter" % absorption_id
 		)
+	for hindered_attack_id: int in [1207, 2209]:
+		_expect_equal(
+			coverage_by_id.get(hindered_attack_id, {}).get("coverageStatus"),
+			"supported",
+			"Itching Skin %d uses the reviewed attack-hindrance adapter"
+			% hindered_attack_id
+		)
 	_expect_equal(
 		coverage_by_id.get(1408, {}).get("coverageStatus"),
 		"supported",
@@ -8329,8 +8337,9 @@ func _test_classic_spell_coverage() -> void:
 		1510, 3510,
 		1511, 2711, 3511,
 		1301, 1403, 2702, 3302,
+		1207, 2209,
 	]
-	_expect_equal(migrated_spell_ids.size(), 142, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 144, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8478,10 +8487,11 @@ func _test_classic_spell_coverage() -> void:
 		"Improved Arcanic Bubble": "res://shared_assets/spells/improved_arcanic_bubble.gd",
 		"Classic Improved Arcanic Bubble Priest": "res://shared_assets/spells/classic_core_2702_improved_arcanic_bubble_priest.gd",
 		"Classic Arcanic Bubble Enchanter": "res://shared_assets/spells/classic_core_3302_arcanic_bubble_enchanter.gd",
+		"Itching Skin": "res://shared_assets/spells/itching_skin.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		140,
+		141,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -11597,6 +11607,89 @@ func _test_classic_arcanic_bubble_spells() -> void:
 	)
 
 
+func _test_classic_itching_skin_spell() -> void:
+	var spell = load("res://shared_assets/spells/itching_skin.gd").new()
+	_expect_equal(spell.name, "Itching Skin", "Itching Skin resource identity")
+	_expect_equal(spell.classic_spell_ids, [1207, 2209], "Itching Skin exact IDs")
+	_expect_equal(spell.classic_special, 37, "Itching Skin special code")
+	_expect_equal(spell.classic_spell_class, 5, "Itching Skin mental effect class")
+	_expect_equal(spell.classic_damage_type, 5, "Itching Skin mental DRV")
+	_expect_equal(spell.classic_cannot, 0, "Itching Skin preserves resistance gates")
+	_expect_equal(spell.classic_spell_save_index, 5, "Itching Skin uses the mental save")
+	_expect_equal(spell.classic_spell_save_mode, "negate", "Itching Skin save negates")
+	_expect_equal(
+		spell.resist,
+		Spell.RESIST_TYPE.IGNORE_DODGE,
+		"Itching Skin checks Classic magic resistance"
+	)
+	_expect(spell.in_combat and not spell.in_field, "Itching Skin is combat-only")
+	_expect_equal(spell.classic_target_type, 10, "Itching Skin targets every enemy")
+	_expect(spell.skip_targeting, "Itching Skin skips manual targeting")
+	_expect_equal(
+		spell.autotarget_type,
+		Spell.AUTOTARGET_TYPE.ALL_ENEMIES,
+		"Itching Skin uses Remake's all-enemy targeting"
+	)
+	_expect_equal(spell.get_range(3, null), 0, "Itching Skin source range")
+	_expect_equal(spell.get_target_number(3, null), 1, "Itching Skin source target count")
+	_expect_equal(spell.get_min_duration(3, null), 3, "Itching Skin minimum duration")
+	_expect_equal(spell.get_max_duration(3, null), 9, "Itching Skin maximum duration")
+	_expect_equal(spell.get_sp_cost(3, null), 24, "Itching Skin casting cost")
+	_expect_equal(spell.classic_spell_look_ids, [16, 16], "Itching Skin visuals")
+	_expect_equal(spell.classic_sound_ids, [93, 30], "Itching Skin sounds")
+	_expect_equal(
+		spell.schools,
+		["Sorcerer", "Priest"],
+		"Itching Skin remains learnable by both source schools"
+	)
+	_expect(
+		not spell.uses_classic_group_effect(),
+		"Itching Skin keeps per-target saves despite its shared duration roll"
+	)
+
+	var first := SpellScreenTestCharacter.new("First itching target", true)
+	first.stats = {"AccuracyMelee": 20, "AccuracyRanged": 18}
+	var second := SpellScreenTestCharacter.new("Second itching target", true)
+	second.stats = {"AccuracyMelee": 20, "AccuracyRanged": 18}
+	spell.begin_classic_target_resolution(null, 3)
+	var first_duration: int = spell.apply_classic_scaled_effect(null, first, 3, 1.0)
+	var second_duration: int = spell.apply_classic_scaled_effect(null, second, 3, 1.0)
+	spell.end_classic_target_resolution()
+	_expect(first_duration in range(3, 10), "Itching Skin rolls one to three per power")
+	_expect_equal(second_duration, first_duration, "one cast shares its condition roll")
+	_expect_equal(
+		first.get_stat("AccuracyMelee"),
+		20 - first_duration,
+		"Itching Skin reduces melee accuracy by the full condition"
+	)
+	_expect_equal(
+		first.get_stat("AccuracyRanged"),
+		18 - first_duration,
+		"Itching Skin reduces ranged accuracy by the full condition"
+	)
+	first.traits[0]._on_new_round(first)
+	_expect_equal(
+		first.get_stat("AccuracyMelee"),
+		21 - first_duration,
+		"Itching Skin loses one penalty point each combat round"
+	)
+
+	var capped := SpellScreenTestCharacter.new("Capped itching target", true)
+	capped.add_trait(load("res://shared_assets/traits/t_hindered_atk.gd"), [98])
+	_expect_equal(
+		spell.apply_classic_scaled_effect(null, capped, 3, 1.0),
+		0,
+		"player Itching Skin rejects a stack beyond condition 99"
+	)
+	var permanent := SpellScreenTestCharacter.new("Permanently hindered", true)
+	permanent.traits.append(ConditionTestTrait.new("p_hindered_atk.gd", 5))
+	_expect_equal(
+		spell.apply_classic_scaled_effect(null, permanent, 3, 1.0),
+		0,
+		"temporary Itching Skin does not replace permanent hindrance"
+	)
+
+
 func _test_classic_spell_screen_spells() -> void:
 	var specs: Array = [
 		{
@@ -12416,6 +12509,11 @@ func _test_classic_spell_usage_audit() -> void:
 		native_spells.get("Classic Arcanic Bubble Enchanter", {}).get("classicSpellIds"),
 		[3302],
 		"spell catalog keeps the Enchanter Arcanic Bubble presentation distinct"
+	)
+	_expect_equal(
+		native_spells.get("Itching Skin", {}).get("classicSpellIds"),
+		[1207, 2209],
+		"spell catalog maps both source-equivalent Itching Skin identities"
 	)
 	_expect_equal(
 		native_spells.get("Magic Darts", {}).get("classicSpellIds"),
