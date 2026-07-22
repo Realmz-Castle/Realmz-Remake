@@ -18,6 +18,7 @@ const BESTIARY_ATLAS_PATH := "Bestiary/textureAtlas.png"
 const ITEM_BOOK_PATH := "Items/stuff_book.json"
 const SHARED_ITEM_BOOK_PATH := "res://shared_assets/items/stuff_book.json"
 const SHARED_SPELL_DIRECTORY := "res://shared_assets/spells/"
+const TEMPORARY_SPELL_SCREEN_TRAIT := "t_classic_spell_screen.gd"
 const DEFAULT_IMAGE := "CREA_humanmage"
 const TYPE_TAGS := [
 	"Magic Using",
@@ -244,6 +245,12 @@ func _native_monster(
 	for fallback: String in native_requirements.get("fidelityFallbacks", []):
 		if not fidelity_fallbacks.has(fallback):
 			fidelity_fallbacks.append(fallback)
+	var native_traits: Array = []
+	var temporary_screens := SpellScreenScript.temporary_durations(
+		record.get("conditions", [])
+	)
+	if temporary_screens.max() > 0:
+		native_traits.append([TEMPORARY_SPELL_SCREEN_TRAIT, [temporary_screens]])
 	var stats := _native_stats(record, stamina)
 	var native_monster := {
 		"classicMonsterId": monster_id,
@@ -288,7 +295,7 @@ func _native_monster(
 			"description": _description(descriptions, monster_id),
 		},
 		"stats": stats,
-		"traits": [],
+		"traits": native_traits,
 		"ai": {
 			"flees_at": 0,
 			"cast_chance": int(record.get("castPercent", 0)),

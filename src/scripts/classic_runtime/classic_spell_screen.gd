@@ -3,16 +3,17 @@ extends RefCounted
 
 const META_KEY := "classic_spell_screen_level"
 const BESTIARY_FIELD := "classicSpellScreenLevel"
+const TEMPORARY_TRAIT_NAME := "t_classic_spell_screen.gd"
 const FIRST_CONDITION_INDEX := 16
 const LAST_CONDITION_INDEX := 20
+const SECONDS_PER_HOUR := 3600
 
 
 static func supports_condition(condition_index: int, value: int) -> bool:
-	# Realmz decrements only positive condition values at a round boundary.
 	return (
 		condition_index >= FIRST_CONDITION_INDEX
 		and condition_index <= LAST_CONDITION_INDEX
-		and value < 0
+		and value != 0
 	)
 
 
@@ -30,10 +31,59 @@ static func permanent_level(conditions: Variant) -> int:
 	return protected_level
 
 
+static func temporary_durations(conditions: Variant) -> Array[int]:
+	var durations: Array[int] = [0, 0, 0, 0, 0]
+	if not (conditions is Array):
+		return durations
+	for condition_index: int in range(FIRST_CONDITION_INDEX, LAST_CONDITION_INDEX + 1):
+		if condition_index >= conditions.size():
+			break
+		durations[condition_index - FIRST_CONDITION_INDEX] = maxi(
+			0,
+			int(conditions[condition_index])
+		)
+	return durations
+
+
 static func level(character: Object) -> int:
-	if character == null or not character.has_meta(META_KEY):
+	if character == null:
 		return 0
-	return clampi(int(character.get_meta(META_KEY)), 0, 5)
+	var innate_level := clampi(int(character.get_meta(META_KEY, 0)), 0, 5)
+	return maxi(innate_level, temporary_level(character))
+
+
+static func temporary_level(character: Object) -> int:
+	var screen_trait: Variant = temporary_trait(character)
+	if screen_trait != null and screen_trait.has_method("screen_level"):
+		return clampi(int(screen_trait.screen_level()), 0, 5)
+	return 0
+
+
+static func temporary_duration(character: Object, screen_level: int) -> int:
+	var screen_trait: Variant = temporary_trait(character)
+	if screen_trait != null and screen_trait.has_method("duration_for_level"):
+		return maxi(0, int(screen_trait.duration_for_level(screen_level)))
+	return 0
+
+
+static func temporary_trait(character: Object) -> Variant:
+	if character == null:
+		return null
+	var traits: Variant = character.get("traits")
+	if not (traits is Array):
+		return null
+	for trait_value: Variant in traits:
+		if trait_value is Object and str(trait_value.get("name")) == TEMPORARY_TRAIT_NAME:
+			return trait_value
+	return null
+
+
+static func elapsed_hour_boundaries(previous_time: int, current_time: int) -> int:
+	if current_time <= previous_time:
+		return 0
+	var previous_hour := floori(float(previous_time) / SECONDS_PER_HOUR)
+	var current_hour := floori(float(current_time) / SECONDS_PER_HOUR)
+	return maxi(0, current_hour - previous_hour)
 
 
 static func spell_level(spell: Object, caster: Object = null) -> int:

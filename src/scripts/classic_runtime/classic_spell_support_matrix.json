@@ -399,6 +399,20 @@
         {"sourceFile": "Data S", "recordIndex": 259, "displayName": "Enchanter Flesh"},
         {"sourceFile": "Data S", "recordIndex": 307, "displayName": "Enchanter Revive Dead"}
       ]
+    },
+    {
+      "id": "core-player-spell-screen",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 36, "displayName": "Sorcerer Magic Screen I"},
+        {"sourceFile": "Data S", "recordIndex": 48, "displayName": "Sorcerer Magic Screen II"},
+        {"sourceFile": "Data S", "recordIndex": 49, "displayName": "Sorcerer Magic Shield"},
+        {"sourceFile": "Data S", "recordIndex": 66, "displayName": "Sorcerer Magic Screen III"},
+        {"sourceFile": "Data S", "recordIndex": 79, "displayName": "Sorcerer Magic Screen IV"},
+        {"sourceFile": "Data S", "recordIndex": 95, "displayName": "Sorcerer Magic Screen V"},
+        {"sourceFile": "Data S", "recordIndex": 160, "displayName": "Priest Sphere of Protection"}
+      ]
     }
   ],
   "spells": [
@@ -3546,6 +3560,181 @@
         "special": 13,
         "costPerPower": 20,
         "adapter": "native-element-protection-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1307,
+      "displayName": "Magic Screen I",
+      "classification": "native-special-spell-screen",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1307_magic_screen_i.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 36, "byteOffset": 1080, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-screen", "slots": [0]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 5,
+        "duration": "2-8-shared-roll",
+        "effect": "block-spells-through-level-1",
+        "conditionIndex": 16,
+        "nativeTrait": "t_classic_spell_screen.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 17,
+        "costPerPower": 10,
+        "adapter": "layered-classic-spell-screen",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1404,
+      "displayName": "Magic Screen II",
+      "classification": "native-special-spell-screen",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1404_magic_screen_ii.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 48, "byteOffset": 1440, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-screen", "slots": [1]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 5,
+        "duration": "2-8-shared-roll",
+        "effect": "block-spells-through-level-2",
+        "conditionIndex": 17,
+        "nativeTrait": "t_classic_spell_screen.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 18,
+        "costPerPower": 25,
+        "adapter": "layered-classic-spell-screen",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1405,
+      "displayName": "Magic Shield",
+      "classification": "native-special-spell-screen",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1405_magic_shield.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 49, "byteOffset": 1470, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-screen", "slots": [2]}],
+      "behavior": {
+        "targetType": "radiant-around-caster",
+        "range": 0,
+        "duration": "1-2-per-power-shared-roll",
+        "effect": "block-spells-through-level-2",
+        "conditionIndex": 17,
+        "nativeTrait": "t_classic_spell_screen.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 18,
+        "costPerPower": 25,
+        "adapter": "layered-classic-spell-screen",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1507,
+      "displayName": "Magic Screen III",
+      "classification": "native-special-spell-screen",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1507_magic_screen_iii.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 66, "byteOffset": 1980, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-screen", "slots": [3]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 5,
+        "duration": "2-8-shared-roll",
+        "effect": "block-spells-through-level-3",
+        "conditionIndex": 18,
+        "nativeTrait": "t_classic_spell_screen.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 19,
+        "costPerPower": 45,
+        "adapter": "layered-classic-spell-screen",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1605,
+      "displayName": "Magic Screen IV",
+      "classification": "native-special-spell-screen",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1605_magic_screen_iv.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 79, "byteOffset": 2370, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-screen", "slots": [4]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 5,
+        "duration": "2-8-shared-roll",
+        "effect": "block-spells-through-level-4",
+        "conditionIndex": 19,
+        "nativeTrait": "t_classic_spell_screen.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 20,
+        "costPerPower": 70,
+        "adapter": "layered-classic-spell-screen",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 1706,
+      "displayName": "Magic Screen V",
+      "classification": "native-special-spell-screen",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_1706_magic_screen_v.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 95, "byteOffset": 2850, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-screen", "slots": [5]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 5,
+        "duration": "2-8-shared-roll",
+        "effect": "block-spells-through-level-5",
+        "conditionIndex": 20,
+        "nativeTrait": "t_classic_spell_screen.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 21,
+        "costPerPower": 100,
+        "adapter": "layered-classic-spell-screen",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
+      "classicSpellId": 2411,
+      "displayName": "Sphere of Protection",
+      "classification": "native-special-spell-screen",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2411_sphere_of_protection.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 160, "byteOffset": 4800, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-screen", "slots": [6]}],
+      "behavior": {
+        "targetType": "self",
+        "range": 0,
+        "duration": "1-round-per-power-shared-roll",
+        "effect": "block-spells-through-level-4",
+        "conditionIndex": 19,
+        "nativeTrait": "t_classic_spell_screen.gd",
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 20,
+        "costPerPower": 50,
+        "adapter": "layered-classic-spell-screen",
         "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
       }
     }

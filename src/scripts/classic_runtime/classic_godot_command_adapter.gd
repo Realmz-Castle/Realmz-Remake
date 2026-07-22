@@ -7,6 +7,9 @@ const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_i
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
+const TemporarySpellScreenTrait = preload(
+	"res://shared_assets/traits/t_classic_spell_screen.gd"
+)
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
@@ -1505,6 +1508,15 @@ func _set_classic_monster_identity(
 	)
 	if spell_screen_level > 0:
 		creature.set_meta(SpellScreenScript.META_KEY, spell_screen_level)
+	var temporary_screens := SpellScreenScript.temporary_durations(
+		monster.get("conditions", [])
+	)
+	if (
+		temporary_screens.max() > 0
+		and creature.has_method("add_trait")
+		and SpellScreenScript.temporary_trait(creature) == null
+	):
+		creature.add_trait(TemporarySpellScreenTrait, [temporary_screens])
 	if _object_has_property(creature, "classic_monster_id"):
 		creature.set("classic_monster_id", monster_id)
 	if _object_has_property(creature, "classic_monster_name_id"):

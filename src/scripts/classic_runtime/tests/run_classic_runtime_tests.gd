@@ -597,6 +597,31 @@ class ProtectionTestCharacter:
 		return trait_instance
 
 
+class SpellScreenTestCharacter:
+	extends RefCounted
+	var name: String
+	var is_player_controlled: bool
+	var traits: Array = []
+
+	func _init(character_name: String, player_controlled := false) -> void:
+		name = character_name
+		is_player_controlled = player_controlled
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
+
+
 class AllyTestCharacter:
 	extends RefCounted
 	var name := "Vodalian"
@@ -966,6 +991,7 @@ func _init() -> void:
 	_test_classic_healing_spells()
 	_test_classic_regeneration_spells()
 	_test_classic_protection_spells()
+	_test_classic_spell_screen_spells()
 	_test_classic_restorative_spells()
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
@@ -3520,15 +3546,25 @@ func _test_classic_bestiary_materializer() -> void:
 	)
 	var temporary_screen_record: Dictionary = screen_record.duplicate(true)
 	temporary_screen_record["conditions"][16] = 2
+	var temporary_screen_monster: Dictionary = materializer._native_monster(
+		temporary_screen_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
 	_expect(
-		materializer._unsupported_fields(
-			temporary_screen_record,
-			{},
-			{},
-			{},
-			{}
+		not temporary_screen_monster.get("classicMaterialization", {}).get(
+			"unsupportedFields", []
 		).has("conditions"),
-		"temporary starting spell screens remain blocked until native rounds decay them"
+		"temporary starting spell screens no longer block native materialization"
+	)
+	_expect_equal(
+		temporary_screen_monster.get("traits", []),
+		[["t_classic_spell_screen.gd", [[2, 0, 0, 0, 0]]]],
+		"temporary starting screen levels reach the layered native trait"
 	)
 	var unrelated_condition_record: Dictionary = screen_record.duplicate(true)
 	unrelated_condition_record["conditions"][16] = 0
@@ -5261,8 +5297,18 @@ func _test_classic_spell_screen_contract() -> void:
 	)
 	conditions[19] = 2
 	_expect(
-		not SpellScreenScript.supports_condition(19, 2),
-		"positive spell screens require round-based duration support"
+		SpellScreenScript.supports_condition(19, 2),
+		"positive spell screens have round-based duration support"
+	)
+	_expect_equal(
+		SpellScreenScript.temporary_durations(conditions),
+		[0, 0, 0, 2, 0],
+		"temporary screen conditions retain their separate level counters"
+	)
+	_expect_equal(
+		SpellScreenScript.elapsed_hour_boundaries(3599, 7201),
+		2,
+		"field spell screens advance once per crossed Classic hour"
 	)
 
 	var target := RogueTestCharacter.new()
@@ -5308,6 +5354,52 @@ func _test_classic_spell_screen_contract() -> void:
 			target, power_drain, 1, 100, false, caster
 		).get("resisted"),
 		"caster-resolved multi-school spell obeys the matching screen"
+	)
+
+	var layered := SpellScreenTestCharacter.new("Layered")
+	var temporary_trait = load("res://shared_assets/traits/t_classic_spell_screen.gd")
+	layered.add_trait(temporary_trait, [2, 6])
+	layered.add_trait(temporary_trait, [4, 2])
+	_expect_equal(SpellScreenScript.level(layered), 4, "strongest temporary screen is active")
+	layered.traits[0]._on_new_round(layered)
+	layered.traits[0]._on_new_round(layered)
+	_expect_equal(
+		SpellScreenScript.level(layered),
+		2,
+		"an expired strong screen falls back to a weaker active screen"
+	)
+	_expect_equal(
+		layered.traits[0].get_saved_variables(),
+		[[0, 4, 0, 0, 0]],
+		"layered screen counters use the normal trait save contract"
+	)
+	var restored := SpellScreenTestCharacter.new("Restored")
+	restored.add_trait(temporary_trait, layered.traits[0].get_saved_variables())
+	_expect_equal(
+		SpellScreenScript.temporary_duration(restored, 2),
+		4,
+		"saved temporary screen counters restore without flattening"
+	)
+	var projected := SpellScreenTestCharacter.new("Projected")
+	GodotAdapterScript.new()._set_classic_monster_identity(
+		projected,
+		1,
+		{"conditions": conditions}
+	)
+	_expect_equal(
+		SpellScreenScript.level(projected),
+		4,
+		"existing native monsters receive compiled temporary screen counters"
+	)
+	GodotAdapterScript.new()._set_classic_monster_identity(
+		projected,
+		1,
+		{"conditions": conditions}
+	)
+	_expect_equal(
+		projected.traits.size(),
+		1,
+		"compiled monster identity does not duplicate a materialized screen trait"
 	)
 
 
@@ -7778,7 +7870,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		125,
+		132,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7904,8 +7996,9 @@ func _test_classic_spell_coverage() -> void:
 		3607, 3702, 3706,
 		2204, 2205, 2206, 2602, 2606, 3206, 3405, 3708,
 		2107, 2108, 2303, 3101, 3103, 3402, 3412,
+		1307, 1404, 1405, 1507, 1605, 1706, 2411,
 	]
-	_expect_equal(migrated_spell_ids.size(), 93, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 100, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8007,10 +8100,17 @@ func _test_classic_spell_coverage() -> void:
 		"Classic Electrical Protection Enchanter": "res://shared_assets/spells/classic_core_3103_electrical_protection_enchanter.gd",
 		"Cool Breeze": "res://shared_assets/spells/classic_core_3402_cool_breeze.gd",
 		"Warmth": "res://shared_assets/spells/classic_core_3412_warmth.gd",
+		"Magic Screen I": "res://shared_assets/spells/classic_core_1307_magic_screen_i.gd",
+		"Magic Screen II": "res://shared_assets/spells/classic_core_1404_magic_screen_ii.gd",
+		"Magic Shield": "res://shared_assets/spells/classic_core_1405_magic_shield.gd",
+		"Magic Screen III": "res://shared_assets/spells/classic_core_1507_magic_screen_iii.gd",
+		"Magic Screen IV": "res://shared_assets/spells/classic_core_1605_magic_screen_iv.gd",
+		"Magic Screen V": "res://shared_assets/spells/classic_core_1706_magic_screen_v.gd",
+		"Sphere of Protection": "res://shared_assets/spells/classic_core_2411_sphere_of_protection.gd",
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		94,
+		101,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9244,6 +9344,159 @@ func _test_classic_protection_spells() -> void:
 		"temporary protection does not replace an innate negative condition"
 	)
 	_expect_equal(innate.traits.size(), 1, "innate protection receives no temporary trait")
+
+
+func _test_classic_spell_screen_spells() -> void:
+	var specs: Array = [
+		{
+			"file": "classic_core_1307_magic_screen_i.gd",
+			"name": "Magic Screen I", "id": 1307, "special": 17,
+			"range": 5, "targets": 3, "duration": [2, 8], "cost": 30,
+			"looks": [13, 15], "sounds": [58, 29],
+		},
+		{
+			"file": "classic_core_1404_magic_screen_ii.gd",
+			"name": "Magic Screen II", "id": 1404, "special": 18,
+			"range": 5, "targets": 3, "duration": [2, 8], "cost": 75,
+			"looks": [13, 15], "sounds": [58, 90],
+		},
+		{
+			"file": "classic_core_1405_magic_shield.gd",
+			"name": "Magic Shield", "id": 1405, "special": 18,
+			"range": 0, "targets": 1, "duration": [3, 6], "cost": 75,
+			"looks": [13, 15], "sounds": [59, 90],
+		},
+		{
+			"file": "classic_core_1507_magic_screen_iii.gd",
+			"name": "Magic Screen III", "id": 1507, "special": 19,
+			"range": 5, "targets": 3, "duration": [2, 8], "cost": 135,
+			"looks": [13, 15], "sounds": [58, 90],
+		},
+		{
+			"file": "classic_core_1605_magic_screen_iv.gd",
+			"name": "Magic Screen IV", "id": 1605, "special": 20,
+			"range": 5, "targets": 3, "duration": [2, 8], "cost": 210,
+			"looks": [13, 15], "sounds": [58, 90],
+		},
+		{
+			"file": "classic_core_1706_magic_screen_v.gd",
+			"name": "Magic Screen V", "id": 1706, "special": 21,
+			"range": 5, "targets": 3, "duration": [2, 8], "cost": 300,
+			"looks": [13, 15], "sounds": [30, 29],
+		},
+		{
+			"file": "classic_core_2411_sphere_of_protection.gd",
+			"name": "Sphere of Protection", "id": 2411, "special": 20,
+			"range": 0, "targets": 1, "duration": [3, 3], "cost": 150,
+			"looks": [14, 15], "sounds": [44, 67],
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell = load("res://shared_assets/spells/%s" % spec["file"]).new()
+		var label := str(spec["name"])
+		_expect_equal(spell.name, label, "%s resource identity" % label)
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(spell.classic_special, spec["special"], "%s screen condition" % label)
+		_expect_equal(spell.classic_spell_class, 8, "%s preserves spell class 8" % label)
+		_expect_equal(spell.classic_damage_type, 8, "%s remains miscellaneous" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s has no DRV save" % label)
+		_expect_equal(spell.classic_spell_save_mode, "none", "%s has no save mode" % label)
+		_expect_equal(
+			spell.resist,
+			Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+			"%s cannot miss or resist" % label
+		)
+		_expect(spell.in_combat and spell.in_field, "%s works in combat and camp" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s source range" % label)
+		_expect_equal(
+			spell.get_target_number(3, null),
+			spec["targets"],
+			"%s source target count" % label
+		)
+		_expect_equal(
+			spell.get_min_duration(3, null),
+			spec["duration"][0],
+			"%s minimum duration" % label
+		)
+		_expect_equal(
+			spell.get_max_duration(3, null),
+			spec["duration"][1],
+			"%s maximum duration" % label
+		)
+		_expect_equal(spell.get_sp_cost(3, null), spec["cost"], "%s casting cost" % label)
+		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
+		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
+
+	var magic_shield = load(
+		"res://shared_assets/spells/classic_core_1405_magic_shield.gd"
+	).new()
+	_expect(magic_shield.skip_targeting, "Magic Shield centers its radiant area on the caster")
+	_expect_equal(
+		magic_shield.get_aoe(1, null),
+		Spell.AoE_RADIANT,
+		"Magic Shield preserves Classic size 8"
+	)
+	var sphere = load(
+		"res://shared_assets/spells/classic_core_2411_sphere_of_protection.gd"
+	).new()
+	_expect(sphere.skip_targeting, "Sphere of Protection automatically targets its caster")
+	_expect_equal(
+		sphere.autotarget_type,
+		Spell.AUTOTARGET_TYPE.SELF,
+		"Sphere of Protection uses the native self target mode"
+	)
+
+	var screen_one = load(
+		"res://shared_assets/spells/classic_core_1307_magic_screen_i.gd"
+	).new()
+	var first := SpellScreenTestCharacter.new("First", true)
+	var second := SpellScreenTestCharacter.new("Second", true)
+	_expect_equal(
+		screen_one.apply_classic_group_effect(null, [first, second], 1),
+		2,
+		"Magic Screen applies to every selected target"
+	)
+	_expect_equal(
+		first.traits[0].condition_values(),
+		second.traits[0].condition_values(),
+		"one Classic duration roll is shared by every screened target"
+	)
+	_expect(
+		first.traits[0].duration_for_level(1) in range(2, 9),
+		"Magic Screen duration stays within its source bounds"
+	)
+	var flame_hands = load("res://shared_assets/spells/flame_hands.gd").new()
+	_expect(
+		MagicResistanceScript.spell_resolution(first, flame_hands, 1, 100).get("resisted"),
+		"a cast Magic Screen participates in normal spell resistance"
+	)
+
+	var capped := SpellScreenTestCharacter.new("Capped", true)
+	capped.add_trait(load("res://shared_assets/traits/t_classic_spell_screen.gd"), [1, 98])
+	_expect_equal(
+		screen_one.apply_classic_scaled_effect(null, capped, 1, 1.0),
+		0,
+		"player spell screens reject a duration that would exceed condition 99"
+	)
+	_expect_equal(capped.traits[0].duration_for_level(1), 98, "rejected screen is unchanged")
+	var capped_monster := SpellScreenTestCharacter.new("Capped Monster")
+	capped_monster.add_trait(
+		load("res://shared_assets/traits/t_classic_spell_screen.gd"),
+		[1, 123]
+	)
+	_expect_equal(
+		screen_one.apply_classic_scaled_effect(null, capped_monster, 1, 1.0),
+		0,
+		"monster spell screens reject a duration that would exceed condition 124"
+	)
+	var innate := SpellScreenTestCharacter.new("Innate", true)
+	innate.set_meta(SpellScreenScript.META_KEY, 1)
+	_expect_equal(
+		screen_one.apply_classic_scaled_effect(null, innate, 1, 1.0),
+		0,
+		"temporary spell screens do not replace an innate negative condition"
+	)
+	_expect(innate.traits.is_empty(), "innate screen receives no temporary trait")
 
 
 func _test_classic_restorative_spells() -> void:
