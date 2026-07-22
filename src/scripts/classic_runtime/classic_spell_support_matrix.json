@@ -401,6 +401,21 @@
       ]
     },
     {
+      "id": "core-player-spell-protection",
+      "scenario": "Core Realmz spell library",
+      "contexts": ["core-catalog", "combat", "field-party", "character-save"],
+      "sourceRecords": [
+        {"sourceFile": "Data S", "recordIndex": 111, "displayName": "Priest Protection from Cold"},
+        {"sourceFile": "Data S", "recordIndex": 112, "displayName": "Priest Protection from Heat"},
+        {"sourceFile": "Data S", "recordIndex": 137, "displayName": "Priest Electrical Protection"},
+        {"sourceFile": "Data S", "recordIndex": 142, "displayName": "Priest Psi Shield"},
+        {"sourceFile": "Data S", "recordIndex": 210, "displayName": "Enchanter Chemical Protection"},
+        {"sourceFile": "Data S", "recordIndex": 212, "displayName": "Enchanter Electrical Protection"},
+        {"sourceFile": "Data S", "recordIndex": 256, "displayName": "Enchanter Cool Breeze"},
+        {"sourceFile": "Data S", "recordIndex": 266, "displayName": "Enchanter Warmth"}
+      ]
+    },
+    {
       "id": "core-player-spell-screen",
       "scenario": "Core Realmz spell library",
       "contexts": ["core-catalog", "combat", "field-party", "character-save"],
@@ -3467,13 +3482,38 @@
       }
     },
     {
+      "classicSpellId": 2308,
+      "displayName": "Psi Shield",
+      "classification": "native-special-damage-protection",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/classic_core_2308_psi_shield.gd",
+      "sourceRecord": {"sourceFile": "Data S", "recordIndex": 142, "byteOffset": 4260, "byteLength": 30},
+      "usages": [{"corpusId": "core-player-spell-protection", "slots": [3]}],
+      "behavior": {
+        "targetType": "one-creature-per-power",
+        "range": 6,
+        "duration": "4-12-shared-roll",
+        "effect": "halve-mental-damage",
+        "nativeTrait": "t_prot_mental.gd",
+        "charmProtection": false,
+        "playerConditionCap": 99,
+        "monsterConditionCap": 124,
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 16,
+        "costPerPower": 4,
+        "adapter": "native-damage-protection-trait",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 3101,
       "displayName": "Chemical Protection",
       "classification": "native-special-element-protection",
       "supportStatus": "supported",
       "resource": "res://shared_assets/spells/classic_core_3101_chemical_protection.gd",
       "sourceRecord": {"sourceFile": "Data S", "recordIndex": 210, "byteOffset": 6300, "byteLength": 30},
-      "usages": [{"corpusId": "core-player-spell-protection", "slots": [3]}],
+      "usages": [{"corpusId": "core-player-spell-protection", "slots": [4]}],
       "behavior": {
         "targetType": "one-creature-per-power",
         "range": 6,
@@ -3497,7 +3537,7 @@
       "supportStatus": "supported",
       "resource": "res://shared_assets/spells/classic_core_3103_electrical_protection_enchanter.gd",
       "sourceRecord": {"sourceFile": "Data S", "recordIndex": 212, "byteOffset": 6360, "byteLength": 30},
-      "usages": [{"corpusId": "core-player-spell-protection", "slots": [4]}],
+      "usages": [{"corpusId": "core-player-spell-protection", "slots": [5]}],
       "behavior": {
         "targetType": "one-creature-per-power",
         "range": 6,
@@ -3522,7 +3562,7 @@
       "supportStatus": "supported",
       "resource": "res://shared_assets/spells/classic_core_3402_cool_breeze.gd",
       "sourceRecord": {"sourceFile": "Data S", "recordIndex": 256, "byteOffset": 7680, "byteLength": 30},
-      "usages": [{"corpusId": "core-player-spell-protection", "slots": [5]}],
+      "usages": [{"corpusId": "core-player-spell-protection", "slots": [6]}],
       "behavior": {
         "targetType": "all-friendly-to-caster",
         "range": 0,
@@ -3546,7 +3586,7 @@
       "supportStatus": "supported",
       "resource": "res://shared_assets/spells/classic_core_3412_warmth.gd",
       "sourceRecord": {"sourceFile": "Data S", "recordIndex": 266, "byteOffset": 7980, "byteLength": 30},
-      "usages": [{"corpusId": "core-player-spell-protection", "slots": [6]}],
+      "usages": [{"corpusId": "core-player-spell-protection", "slots": [7]}],
       "behavior": {
         "targetType": "all-friendly-to-caster",
         "range": 0,

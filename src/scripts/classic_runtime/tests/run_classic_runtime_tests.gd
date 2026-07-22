@@ -7870,7 +7870,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		132,
+		133,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -7995,10 +7995,10 @@ func _test_classic_spell_coverage() -> void:
 		1608, 1610, 1611, 1704, 1711, 1712, 2407, 2501, 2508, 2607, 3210, 3512,
 		3607, 3702, 3706,
 		2204, 2205, 2206, 2602, 2606, 3206, 3405, 3708,
-		2107, 2108, 2303, 3101, 3103, 3402, 3412,
+		2107, 2108, 2303, 2308, 3101, 3103, 3402, 3412,
 		1307, 1404, 1405, 1507, 1605, 1706, 2411,
 	]
-	_expect_equal(migrated_spell_ids.size(), 100, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 101, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8096,6 +8096,7 @@ func _test_classic_spell_coverage() -> void:
 		"Protection from Cold": "res://shared_assets/spells/classic_core_2107_protection_from_cold.gd",
 		"Protection from Heat": "res://shared_assets/spells/classic_core_2108_protection_from_heat.gd",
 		"Electrical Protection": "res://shared_assets/spells/classic_core_2303_electrical_protection.gd",
+		"Psi Shield": "res://shared_assets/spells/classic_core_2308_psi_shield.gd",
 		"Chemical Protection": "res://shared_assets/spells/classic_core_3101_chemical_protection.gd",
 		"Classic Electrical Protection Enchanter": "res://shared_assets/spells/classic_core_3103_electrical_protection_enchanter.gd",
 		"Cool Breeze": "res://shared_assets/spells/classic_core_3402_cool_breeze.gd",
@@ -8110,7 +8111,7 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		101,
+		102,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -9225,6 +9226,13 @@ func _test_classic_protection_spells() -> void:
 			"element": GameGlobal.ELEMENTS.ELECTRIC,
 		},
 		{
+			"file": "classic_core_2308_psi_shield.gd",
+			"name": "Psi Shield", "id": 2308, "special": 16,
+			"range": 6, "targets": 3, "duration": [4, 12], "cost": 12,
+			"looks": [13, 5], "sounds": [51, 29],
+			"element": GameGlobal.ELEMENTS.MENTAL,
+		},
+		{
 			"file": "classic_core_3101_chemical_protection.gd",
 			"name": "Chemical Protection", "id": 3101, "special": 15,
 			"range": 6, "targets": 3, "duration": [4, 12], "cost": 12,
@@ -9290,6 +9298,41 @@ func _test_classic_protection_spells() -> void:
 		_expect_equal(spell.classic_spell_look_ids, spec["looks"], "%s visuals" % label)
 		_expect_equal(spell.classic_sound_ids, spec["sounds"], "%s sounds" % label)
 		_expect_equal(spell.elements, [spec["element"]], "%s native damage seam" % label)
+
+	var psi_shield = load(
+		"res://shared_assets/spells/classic_core_2308_psi_shield.gd"
+	).new()
+	var mental_target := SpellScreenTestCharacter.new("Mental Target", true)
+	var mental_duration: int = psi_shield.apply_classic_scaled_effect(
+		null,
+		mental_target,
+		1,
+		1.0
+	)
+	_expect(
+		mental_duration in range(4, 13),
+		"Psi Shield duration stays within its source bounds"
+	)
+	_expect_equal(mental_target.traits.size(), 1, "Psi Shield adds one protection trait")
+	var mental_trait: Variant = mental_target.traits[0]
+	_expect_equal(mental_trait.name, "t_prot_mental.gd", "Psi Shield reuses mental protection")
+	_expect_equal(
+		mental_trait._on_get_stat("MultiplierMental", 1),
+		0.5,
+		"Psi Shield halves mental damage"
+	)
+	_expect_equal(
+		mental_trait._on_get_stat("MultiplierElect", 1),
+		1,
+		"Psi Shield does not alter electrical damage"
+	)
+	_expect(
+		not mental_trait.has_method("_on_get_player_controlled"),
+		"Psi Shield does not act as charm protection"
+	)
+	mental_trait.duration = 5
+	mental_trait._on_new_round(mental_target)
+	_expect(mental_target.traits.is_empty(), "Psi Shield expires after its last round")
 
 	var cool_breeze = load(
 		"res://shared_assets/spells/classic_core_3402_cool_breeze.gd"

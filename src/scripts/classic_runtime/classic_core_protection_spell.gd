@@ -6,24 +6,28 @@ const ProtectionTraits := {
 	13: preload("res://shared_assets/traits/t_prot_ice.gd"),
 	14: preload("res://shared_assets/traits/t_prot_elect.gd"),
 	15: preload("res://shared_assets/traits/t_prot_chem.gd"),
+	16: preload("res://shared_assets/traits/t_prot_mental.gd"),
 }
 const PermanentTraitNames := {
 	12: "p_prot_fire.gd",
 	13: "p_prot_ice.gd",
 	14: "p_prot_elect.gd",
 	15: "p_prot_chem.gd",
+	16: "p_prot_mental.gd",
 }
 const ProtectionLabels := {
 	12: "fire",
 	13: "cold",
 	14: "electrical",
 	15: "chemical",
+	16: "mental",
 }
 const ProtectionElements := {
 	12: GameGlobal.ELEMENTS.FIRE,
 	13: GameGlobal.ELEMENTS.ICE,
 	14: GameGlobal.ELEMENTS.ELECTRIC,
 	15: GameGlobal.ELEMENTS.CHEMICAL,
+	16: GameGlobal.ELEMENTS.MENTAL,
 }
 
 
@@ -34,7 +38,7 @@ func configure_core_protection_spell(spell_id: int) -> bool:
 		return false
 	var record: Dictionary = inventory.get("record", {}).duplicate(true)
 	if not _is_protection_record(record):
-		push_error("Classic spell %d is not an elemental protection record" % spell_id)
+		push_error("Classic spell %d is not a damage protection record" % spell_id)
 		return false
 	_configure_core_record(inventory, record)
 	var protection_code := absi(int(record.get("special", 0)))
