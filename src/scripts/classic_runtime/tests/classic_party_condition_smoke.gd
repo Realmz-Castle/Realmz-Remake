@@ -1,6 +1,7 @@
 extends Node
 
 const FreeFallScript = preload("res://shared_assets/spells/free_fall.gd")
+const WaterworldScript = preload("res://shared_assets/spells/waterworld.gd")
 const DiscoverSecretScript = preload("res://shared_assets/spells/discover_secret.gd")
 const WizardEyeScript = preload("res://shared_assets/spells/wizard_eye.gd")
 const ThoughtLaceScript = preload("res://shared_assets/spells/thought_lace.gd")
@@ -50,7 +51,31 @@ func _run_smoke() -> void:
 
 	GameGlobal.time = 3500
 	GameGlobal.global_effects["FeatherFall"] = {"Duration": 0}
+	GameGlobal.global_effects["WaterBreath"] = {"Duration": 0}
 	GameGlobal.classic_party_conditions.clear()
+
+	var command_adapter = CommandAdapterScript.new()
+	var waterworld = WaterworldScript.new()
+	_expect_equal(
+		waterworld.apply_classic_duration(12),
+		12,
+		"Waterworld reaches the live Classic party-condition state"
+	)
+	_expect_equal(
+		GameGlobal.global_effects["WaterBreath"]["Duration"],
+		39700,
+		"the exact counter is exposed through Remake's Water Breath duration"
+	)
+	_expect_equal(
+		command_adapter.party_condition_status(1, GameGlobal.global_effects, 0),
+		{"supported": true, "active": true},
+		"scenario Waterworld checks see the newly cast condition"
+	)
+	_expect_equal(
+		waterworld.apply_classic_duration(8),
+		12,
+		"a shorter Waterworld recast leaves the live condition unchanged"
+	)
 
 	var free_fall = FreeFallScript.new()
 	_expect_equal(
@@ -178,7 +203,6 @@ func _run_smoke() -> void:
 		0,
 		"party charm protection does not affect non-player combatants"
 	)
-	var command_adapter = CommandAdapterScript.new()
 	var charm_resolution: Dictionary = command_adapter.classic_field_spell_target_resolution(
 		{"power": 1}, party_member, CharmFoeScript.new(), 100, 100, 50
 	)

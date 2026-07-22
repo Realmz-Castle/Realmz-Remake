@@ -403,11 +403,12 @@ The UI smoke instances the real `Main.tscn`, discovers a self-contained compiled
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_campaign_ui_smoke.tscn
 ```
 
-The party-condition smoke verifies the live GameGlobal boundary used by Free
-Fall, Hover, Discover Secret, Wizard Eye, Thought Lace, and Sentry, including
-longer-result replacement, combat and hourly decay, native HUD durations,
-secret detection, exploration through sight blockers, charm resistance,
-wandering-battle suppression, and restoration of the exact Classic counters:
+The party-condition smoke verifies the live GameGlobal boundary used by
+Waterworld, Free Fall, Hover, Discover Secret, Wizard Eye, Thought Lace, and
+Sentry, including longer-result replacement, combat and hourly decay, native
+HUD durations, secret detection, exploration through sight blockers, charm
+resistance, wandering-battle suppression, and restoration of the exact Classic
+counters:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn

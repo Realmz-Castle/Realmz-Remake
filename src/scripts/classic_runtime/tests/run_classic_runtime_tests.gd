@@ -8179,7 +8179,7 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(coverage_totals.get("spellIds"), 252, "coverage classifies every player spell")
 	_expect_equal(
 		coverage_totals.get("matrixSupported"),
-		192,
+		193,
 		"coverage preserves the curated supported count"
 	)
 	var coverage_statuses: Dictionary = coverage_totals.get("coverageStatus", {})
@@ -8347,7 +8347,9 @@ func _test_classic_spell_coverage() -> void:
 		"supported",
 		"reviewed generic ray spells are supported"
 	)
-	for party_spell_id: int in [1105, 1202, 1205, 1512, 1612, 2104, 2202, 2710, 3203, 3611]:
+	for party_spell_id: int in [
+		1105, 1202, 1205, 1312, 1512, 1612, 2104, 2202, 2710, 3203, 3611,
+	]:
 		_expect_equal(
 			coverage_by_id.get(party_spell_id, {}).get("coverageStatus"),
 			"supported",
@@ -8396,10 +8398,10 @@ func _test_classic_spell_coverage() -> void:
 		1207, 2209,
 		3109,
 		2112, 2210, 3212, 3406, 3508,
-		1105, 1202, 1205, 1512, 1612, 2104, 2202, 2710, 3203, 3611,
+		1105, 1202, 1205, 1312, 1512, 1612, 2104, 2202, 2710, 3203, 3611,
 		1411, 2211, 3110,
 	]
-	_expect_equal(migrated_spell_ids.size(), 163, "the reviewed spell batches are complete")
+	_expect_equal(migrated_spell_ids.size(), 164, "the reviewed spell batches are complete")
 	for migrated_spell_id: int in migrated_spell_ids:
 		_expect(
 			CoreSpellCatalogScript.spell(migrated_spell_id) == null,
@@ -8553,6 +8555,7 @@ func _test_classic_spell_coverage() -> void:
 		"Vorpal Plate": "res://shared_assets/spells/vorpal_plate.gd",
 		"Classic Vorpal Plate Enchanter": "res://shared_assets/spells/classic_core_3212_vorpal_plate_enchanter.gd",
 		"Major Vorpal Plate": "res://shared_assets/spells/major_vorpal_plate.gd",
+		"Waterworld": "res://shared_assets/spells/waterworld.gd",
 		"Free Fall": "res://shared_assets/spells/free_fall.gd",
 		"Hover": "res://shared_assets/spells/hover.gd",
 		"Discover Secret": "res://shared_assets/spells/discover_secret.gd",
@@ -8566,7 +8569,7 @@ func _test_classic_spell_coverage() -> void:
 	}
 	_expect_equal(
 		migrated_native_paths.size(),
-		156,
+		157,
 		"every reviewed spell implementation has a native resource"
 	)
 	_test_parameterized_damage_spells()
@@ -12191,6 +12194,7 @@ func _test_classic_party_condition_spells() -> void:
 
 	var free_fall = load("res://shared_assets/spells/free_fall.gd").new()
 	var hover = load("res://shared_assets/spells/hover.gd").new()
+	var waterworld = load("res://shared_assets/spells/waterworld.gd").new()
 	var discover_secret = load("res://shared_assets/spells/discover_secret.gd").new()
 	var wizard_eye = load("res://shared_assets/spells/wizard_eye.gd").new()
 	var thought_lace = load("res://shared_assets/spells/thought_lace.gd").new()
@@ -12233,6 +12237,23 @@ func _test_classic_party_condition_spells() -> void:
 	_expect_equal(hover.get_max_duration(3, null), 30, "Hover maximum duration")
 	_expect_equal(hover.get_sp_cost(3, null), 45, "Hover casting cost")
 	_expect_equal(hover.classic_sound_ids, [22, 4], "Hover source sounds")
+	_expect_equal(waterworld.name, "Waterworld", "Waterworld resource identity")
+	_expect_equal(waterworld.classic_spell_ids, [1312], "Waterworld exact identity")
+	_expect_equal(waterworld.classic_special, 1, "Waterworld party condition index")
+	_expect_equal(waterworld.classic_target_type, 7, "Waterworld targets the party")
+	_expect(waterworld.in_field and not waterworld.in_combat, "Waterworld is field-only")
+	_expect_equal(waterworld.get_range(3, null), 0, "Waterworld source range")
+	_expect_equal(waterworld.get_min_duration(3, null), 9, "Waterworld minimum duration")
+	_expect_equal(waterworld.get_max_duration(3, null), 15, "Waterworld maximum duration")
+	_expect_equal(waterworld.get_sp_cost(3, null), 75, "Waterworld casting cost")
+	_expect_equal(waterworld.classic_spell_look_ids, [8, 8], "Waterworld source visuals")
+	_expect_equal(waterworld.classic_sound_ids, [18, 66], "Waterworld source sounds")
+	_expect_equal(waterworld.classic_cannot, 3, "Waterworld bypasses creature resistance")
+	_expect_equal(
+		waterworld.resist,
+		Spell.RESIST_TYPE.IGNORE_MRES_DODGE,
+		"Waterworld does not resolve against a creature"
+	)
 	_expect_equal(
 		discover_secret.name,
 		"Discover Secret",

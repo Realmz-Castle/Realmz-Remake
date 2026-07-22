@@ -1336,6 +1336,42 @@
       }
     },
     {
+      "classicSpellId": 1312,
+      "displayName": "Waterworld",
+      "classification": "native-special-party-condition",
+      "supportStatus": "supported",
+      "resource": "res://shared_assets/spells/waterworld.gd",
+      "sourceRecord": {
+        "sourceFile": "Data S",
+        "recordIndex": 41,
+        "byteOffset": 1230,
+        "byteLength": 30
+      },
+      "usages": [
+        {
+          "corpusId": "core-player-spell-waterworld",
+          "slots": [0]
+        }
+      ],
+      "behavior": {
+        "availability": "camp-only",
+        "targetType": "party",
+        "range": 0,
+        "duration": "three-to-five-per-power",
+        "replacement": "longer-result-only",
+        "conditionDecay": "one-per-combat-round-or-game-hour",
+        "effect": "scenario-condition-and-native-waterbreath-state",
+        "conditionIndex": 1,
+        "nativeEffect": "WaterBreath",
+        "saveMode": "none",
+        "resistance": "none",
+        "special": 1,
+        "costPerPower": 25,
+        "adapter": "classic-party-condition-clock",
+        "learnedSpellIdentity": "exact-id-campaign-entry-save-load"
+      }
+    },
+    {
       "classicSpellId": 1401,
       "displayName": "Cosmic Blast",
       "classification": "native-direct",
