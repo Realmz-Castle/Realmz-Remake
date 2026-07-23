@@ -465,7 +465,14 @@ class CampaignRuleCharacter:
 	var classic_rule_profile: Dictionary = {}
 	var racegd := CampaignRuleDefinition.new(12)
 	var classgd := CampaignRuleDefinition.new(2)
-	var native_movement := 14
+	var classic_magic_resistance := 0
+	var classic_magic_resistance_initialized := false
+	var native_stats := {
+		"MaxMovement": 14,
+		"Intellect": 11,
+		"Wisdom": 8,
+		"Vitality": 10,
+	}
 
 	func _init(saved_data: Dictionary = {}) -> void:
 		level = int(saved_data.get("level", level))
@@ -474,6 +481,10 @@ class CampaignRuleCharacter:
 		var saved_profile: Variant = saved_data.get("classicRuleProfile", {})
 		if saved_profile is Dictionary:
 			classic_rule_profile = saved_profile.duplicate(true)
+		if saved_data.has("classicMagicResistance"):
+			set_classic_magic_resistance(
+				int(saved_data["classicMagicResistance"])
+			)
 
 	func apply_classic_rule_profile(profile: Dictionary) -> void:
 		classic_rule_profile = profile.duplicate(true)
@@ -483,24 +494,39 @@ class CampaignRuleCharacter:
 	func clear_classic_rule_profile() -> void:
 		classic_rule_profile.clear()
 
+	func set_classic_magic_resistance(value: int) -> void:
+		classic_magic_resistance = value
+		classic_magic_resistance_initialized = true
+		set_meta("classic_magic_resistance", value)
+
+	func has_classic_magic_resistance() -> bool:
+		return classic_magic_resistance_initialized
+
 	func get_stat(stat_name: String) -> Variant:
 		return CharacterRulesScript.adjusted_stat(
 			self,
 			classic_rule_profile,
 			stat_name,
-			native_movement
+			native_stats.get(stat_name, 0)
 		)
 
-	func level_up() -> void:
+	func level_up(magic_resistance_roll: int = -1) -> void:
 		level += 1
+		CharacterRulesScript.apply_level_up_magic_resistance(
+			self,
+			magic_resistance_roll
+		)
 
 	func save_data() -> Dictionary:
-		return {
+		var data := {
 			"level": level,
 			"classicRaceId": classic_race_id,
 			"classicCasteId": classic_caste_id,
 			"classicRuleProfile": classic_rule_profile.duplicate(true),
 		}
+		if classic_magic_resistance_initialized:
+			data["classicMagicResistance"] = classic_magic_resistance
+		return data
 
 
 class WealthTestAdapter:
@@ -7071,12 +7097,37 @@ func _test_classic_character_rule_profile() -> void:
 		{"raceBaseMove": 11, "casteMoveBonus": 1},
 		"character retains the source-backed movement profile"
 	)
+	_expect_equal(
+		character.classic_rule_profile.get("magicResistance"),
+		{
+			"raceBonus": 7,
+			"casteMultiplier": 5,
+			"initialValue": 12,
+		},
+		"character retains the source-backed magic-resistance formula"
+	)
+	_expect_equal(
+		MagicResistanceScript.base_value(character),
+		12,
+		"race and caste rules initialize Classic magic resistance"
+	)
 
-	character.level_up()
+	character.level_up(30)
 	_expect_equal(
 		character.get_stat("MaxMovement"),
 		12,
 		"scenario movement remains effective after level-up"
+	)
+	_expect_equal(
+		MagicResistanceScript.base_value(character),
+		12,
+		"a failed level-up resistance roll leaves the value unchanged"
+	)
+	character.level_up(29)
+	_expect_equal(
+		MagicResistanceScript.base_value(character),
+		13,
+		"a roll at the attribute total grants one resistance point"
 	)
 	var saved_data: Variant = JSON.parse_string(JSON.stringify(character.save_data()))
 	_expect(saved_data is Dictionary, "character rule profile serializes with the character")
@@ -7085,10 +7136,24 @@ func _test_classic_character_rule_profile() -> void:
 	var reloaded := CampaignRuleCharacter.new(saved_data)
 	_expect_equal(reloaded.classic_race_id, 20, "Classic race identity survives save/load")
 	_expect_equal(reloaded.classic_caste_id, 21, "Classic caste identity survives save/load")
+	reloaded.native_stats["Intellect"] = 21
+	CharacterRulesScript.apply_party(install.bundle, [reloaded])
 	_expect_equal(
 		reloaded.get_stat("MaxMovement"),
 		12,
 		"scenario movement remains effective after character save/load"
+	)
+	_expect_equal(
+		MagicResistanceScript.base_value(reloaded),
+		13,
+		"Classic magic resistance survives character save/load"
+	)
+	_expect_equal(
+		reloaded.classic_rule_profile.get("magicResistance", {}).get(
+			"initialValue"
+		),
+		12,
+		"campaign reload does not recalculate the creation value from later stats"
 	)
 	install.bundle.documents["rules"]["tableSelection"] = {
 		"races": {"source": "shared"},
@@ -7099,6 +7164,43 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("MaxMovement"),
 		14,
 		"leaving the scenario-local rule table restores native movement"
+	)
+	_expect_equal(
+		MagicResistanceScript.base_value(reloaded),
+		13,
+		"earned Classic magic resistance remains character state outside the override table"
+	)
+
+	var negative_rules: Dictionary = install.bundle.documents["rules"].duplicate(true)
+	negative_rules["tableSelection"] = {
+		"races": {
+			"source": "scenario-local",
+			"changedRecordIds": [19],
+		},
+		"castes": {
+			"source": "scenario-local",
+			"changedRecordIds": [20],
+		},
+	}
+	for record: Variant in negative_rules["raceOverrides"]:
+		if record is Dictionary and int(record.get("id", -1)) == 19:
+			record["magRes"] = -20
+	install.bundle.documents["rules"] = negative_rules
+	var negative_character := CampaignRuleCharacter.new()
+	CharacterRulesScript.apply_party(install.bundle, [negative_character])
+	_expect_equal(
+		MagicResistanceScript.base_value(negative_character),
+		-15,
+		"negative scenario race modifiers remain valid character state"
+	)
+	var negative_saved: Variant = JSON.parse_string(
+		JSON.stringify(negative_character.save_data())
+	)
+	var negative_reloaded := CampaignRuleCharacter.new(negative_saved)
+	_expect_equal(
+		MagicResistanceScript.base_value(negative_reloaded),
+		-15,
+		"negative Classic magic resistance survives character save/load"
 	)
 
 

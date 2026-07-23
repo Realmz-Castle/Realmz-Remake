@@ -7,6 +7,9 @@ const ClassicLearnedSpellIdentityScript = preload(
 const ClassicCharacterRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_rules.gd"
 )
+const ClassicMagicResistanceScript = preload(
+	"res://scripts/classic_runtime/classic_magic_resistance.gd"
+)
 
 var portrait : Texture2D = null
 var icon : Texture2D = null
@@ -83,6 +86,8 @@ var classic_spell_identity_diagnostics : Array[String] = []
 var classic_race_id := 0
 var classic_caste_id := 0
 var classic_rule_profile: Dictionary = {}
+var classic_magic_resistance := 0
+var classic_magic_resistance_initialized := false
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -108,6 +113,10 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 	var saved_rule_profile: Variant = data.get("classicRuleProfile", {})
 	if saved_rule_profile is Dictionary:
 		classic_rule_profile = saved_rule_profile.duplicate(true)
+	if data.has("classicMagicResistance"):
+		set_classic_magic_resistance(int(data["classicMagicResistance"]))
+	elif data.has("classic_magic_resistance"):
+		set_classic_magic_resistance(int(data["classic_magic_resistance"]))
 	if data.has("is_npc_ally") :
 		is_npc_ally = bool(data["is_npc_ally"])
 	if data.has("is_summoned") :
@@ -267,6 +276,16 @@ func clear_classic_rule_profile() -> void:
 	classic_rule_profile.clear()
 
 
+func set_classic_magic_resistance(value: int) -> void:
+	classic_magic_resistance = value
+	classic_magic_resistance_initialized = true
+	set_meta(ClassicMagicResistanceScript.META_KEY, value)
+
+
+func has_classic_magic_resistance() -> bool:
+	return classic_magic_resistance_initialized
+
+
 func get_stat(statname: String):
 	return ClassicCharacterRulesScript.adjusted_stat(
 		self,
@@ -305,6 +324,7 @@ func level_up() :
 	racegd._level_up(self, level)
 
 	recalculate_stats()
+	ClassicCharacterRulesScript.apply_level_up_magic_resistance(self)
 	print("PC after level up  base_stats ", base_stats["curHP"] ,'/',base_stats["maxHP"])
 
 
@@ -456,5 +476,10 @@ func get_save_string()->String :
 		crea_string += (',\n"classicCasteId" : '+ str(classic_caste_id))
 	if not classic_rule_profile.is_empty():
 		crea_string += (',\n"classicRuleProfile" : '+ JSON.stringify(classic_rule_profile))
+	if classic_magic_resistance_initialized:
+		crea_string += (
+			',\n"classicMagicResistance" : '
+			+ str(classic_magic_resistance)
+		)
 	crea_string += ('\n}')
 	return crea_string
