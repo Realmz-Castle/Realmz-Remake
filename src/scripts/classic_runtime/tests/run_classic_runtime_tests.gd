@@ -7691,6 +7691,14 @@ func _test_classic_character_rule_profile() -> void:
 			record["stamina"] = [8, 6]
 			record["maxStaminaBonus"] = 2
 			record["strength"] = [0, 4]
+			record["victory"] = [
+				1200, 3000, 6000, 10000, 15000,
+				21000, 28000, 36000, 45000, 55000,
+				66000, 78000, 91000, 105000, 120000,
+				136000, 153000, 171000, 190000, 210000,
+				231000, 253000, 276000, 300000, 325000,
+				351000, 378000, 406000, 435000, 465000,
+			]
 			record["itemTypes"] = [
 				(1 << 28) | (1 << 27),
 				0,
@@ -7847,6 +7855,65 @@ func _test_classic_character_rule_profile() -> void:
 			"maximumVitalityBonus": 2,
 		},
 		"creation stamina stays separate from source-backed level growth"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("victoryProgression"),
+		{
+			"requirements": [
+				1200, 3000, 6000, 10000, 15000,
+				21000, 28000, 36000, 45000, 55000,
+				66000, 78000, 91000, 105000, 120000,
+				136000, 153000, 171000, 190000, 210000,
+				231000, 253000, 276000, 300000, 325000,
+				351000, 378000, 406000, 435000, 465000,
+			],
+		},
+		"character retains the source-backed victory progression"
+	)
+	_expect_equal(
+		CharacterRulesScript.post_level_up_experience_requirement(
+			character,
+			2,
+			100
+		),
+		1200,
+		"the first Classic advancement reloads the first authored requirement"
+	)
+	_expect_equal(
+		CharacterRulesScript.post_level_up_experience_requirement(
+			character,
+			3,
+			800
+		),
+		3000,
+		"later Classic advancement uses the preceding source level's requirement"
+	)
+	_expect_equal(
+		CharacterRulesScript.post_level_up_experience_requirement(
+			character,
+			45,
+			999999
+		),
+		465000,
+		"Classic victory requirements cap at the thirtieth source entry"
+	)
+	_expect_equal(
+		CharacterRulesScript.post_level_up_experience_requirement(
+			CampaignRuleCharacter.new(),
+			2,
+			800
+		),
+		800,
+		"characters without an active Classic caste retain native requirements"
+	)
+	var experience_source := FileAccess.get_file_as_string(
+		"res://scripts/GameGlobal.gd"
+	)
+	_expect(
+		experience_source.contains(
+			".post_level_up_experience_requirement"
+		),
+		"native level-up flow requests the active Classic victory requirement"
 	)
 	_expect_equal(
 		character.classic_rule_profile.get("specialAbilities"),
@@ -9966,6 +10033,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.classic_rule_profile.get("itemPermissions"),
 		character.classic_rule_profile.get("itemPermissions"),
 		"Classic item-category permissions survive character save/load"
+	)
+	_expect_equal(
+		reloaded.classic_rule_profile.get("victoryProgression"),
+		character.classic_rule_profile.get("victoryProgression"),
+		"Classic victory requirements survive character save/load"
 	)
 	_expect_equal(
 		CharacterRulesScript.classic_foe_type_bonus(reloaded, typed_foe),

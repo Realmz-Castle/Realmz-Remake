@@ -160,6 +160,10 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var victory_progression := _victory_progression_profile(
+		active_caste_record,
+		not changed_caste_record.is_empty()
+	)
 	var condition_progression := _condition_progression_profile(
 		active_caste_record,
 		not changed_caste_record.is_empty()
@@ -194,6 +198,7 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 			and attacks.is_empty() \
 			and combat_progression.is_empty() \
 			and stamina_progression.is_empty() \
+			and victory_progression.is_empty() \
 			and condition_progression.is_empty() \
 			and spellcasting_progression.is_empty() \
 			and special_abilities.is_empty() \
@@ -215,6 +220,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["combatProgression"] = combat_progression
 	if not stamina_progression.is_empty():
 		profile["staminaProgression"] = stamina_progression
+	if not victory_progression.is_empty():
+		profile["victoryProgression"] = victory_progression
 	if not condition_progression.is_empty():
 		profile["conditionProgression"] = condition_progression
 	if not spellcasting_progression.is_empty():
@@ -1119,6 +1126,29 @@ static func classic_battle_experience(
 		return share
 	# Preserve the source's float multiplication followed by integer storage.
 	return int(float(share) * 0.6666666)
+
+
+## Returns the active caste requirement loaded after an advancement.
+## Realmz performs this lookup before incrementing the character's level, so
+## the new level uses the preceding one-based table row. Lookups cap at row 30.
+static func post_level_up_experience_requirement(
+	character: Variant,
+	new_level: int,
+	native_requirement: int
+) -> int:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var progression := _dictionary_value(
+		profile.get("victoryProgression", {})
+	)
+	var requirements := _integer_array(
+		progression.get("requirements", [])
+	)
+	if requirements.size() != 30:
+		return native_requirement
+	var index := clampi(new_level - 2, 0, 29)
+	return maxi(0, requirements[index])
 
 
 ## Applies Classic's eight saving throws and forty starting conditions.
@@ -2060,6 +2090,18 @@ static func _stamina_progression_profile(
 		"dieMaximum": stamina[1],
 		"maximumVitalityBonus": int(caste_record["maxStaminaBonus"]),
 	}
+
+
+static func _victory_progression_profile(
+	caste_record: Dictionary,
+	has_changed_caste: bool
+) -> Dictionary:
+	if not has_changed_caste:
+		return {}
+	var requirements := _integer_array(caste_record.get("victory", []))
+	if requirements.size() != 30:
+		return {}
+	return {"requirements": requirements}
 
 
 static func _combat_progression_profile(

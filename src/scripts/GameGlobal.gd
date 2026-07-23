@@ -1527,7 +1527,14 @@ func give_exp_to_pcs(
 			SfxPlayer.play()
 			UI.ow_hud.levelupCtrl.levelup_character(pc)
 			await UI.ow_hud.levelupCtrl.closed_lvlup_popup
-			pc.exp_tnl += PlayerCharacter.get_exp_req_for_lvl(pc.level)
+			pc.exp_tnl += (
+				ClassicCharacterRulesScript
+				.post_level_up_experience_requirement(
+					pc,
+					pc.level,
+					PlayerCharacter.get_exp_req_for_lvl(pc.level)
+				)
+			)
 #	emit_signal("done_giving_exp")
 	return leveledup
 
