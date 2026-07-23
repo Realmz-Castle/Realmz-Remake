@@ -339,6 +339,7 @@ func level_up() :
 	racegd._level_up(self, level)
 
 	recalculate_stats()
+	ClassicCharacterRulesScript.apply_level_up_stamina_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_combat_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_attack_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_magic_resistance(self)

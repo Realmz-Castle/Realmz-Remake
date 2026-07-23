@@ -7,6 +7,7 @@ const AdmissionScript = preload(
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const RANDOM_ROLL_UNSET := -2147483648
 
 
 static func apply_party(bundle: Variant, party: Array) -> Dictionary:
@@ -94,11 +95,16 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var stamina_progression := _stamina_progression_profile(
+		active_caste_record,
+		not changed_caste_record.is_empty()
+	)
 
 	if movement.is_empty() \
 			and magic_resistance.is_empty() \
 			and attacks.is_empty() \
-			and combat_progression.is_empty():
+			and combat_progression.is_empty() \
+			and stamina_progression.is_empty():
 		return {}
 
 	var profile := {
@@ -112,6 +118,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["attacks"] = attacks
 	if not combat_progression.is_empty():
 		profile["combatProgression"] = combat_progression
+	if not stamina_progression.is_empty():
+		profile["staminaProgression"] = stamina_progression
 	if race_id > 0:
 		profile["raceId"] = race_id
 	if caste_id > 0:
@@ -279,6 +287,72 @@ static func apply_level_up_attack_progression(character: Variant) -> Dictionary:
 	}
 
 
+static func apply_level_up_stamina_progression(
+	character: Variant,
+	stamina_roll: int = RANDOM_ROLL_UNSET
+) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var progression := _dictionary_value(
+		profile.get("staminaProgression", {})
+	)
+	if progression.is_empty():
+		return {"status": "skipped"}
+
+	var base_stats: Variant = _value(character, "base_stats", {})
+	if not (base_stats is Dictionary):
+		return {
+			"status": "error",
+			"message": "Classic stamina progression requires native base stats.",
+		}
+
+	var vitality_bonus := 0
+	var vitality := _character_stat(character, "Vitality")
+	if vitality > 16:
+		vitality_bonus = mini(
+			vitality - 16,
+			int(progression.get("maximumVitalityBonus", 0))
+		)
+	var rolled_stamina := _classic_rand(
+		int(progression.get("dieMaximum", 0)),
+		stamina_roll
+	)
+	var stamina_gain := rolled_stamina + vitality_bonus
+
+	# Native race and class level-up scripts have already run. Replace only
+	# their max-HP contribution. Recalculate_stats preserves the existing HP
+	# deficit, so current and maximum stamina rise together as they do in Realmz.
+	base_stats["maxHP"] = (
+		int(base_stats.get("maxHP", 0))
+		- roundi(_native_level_up_stat(character, "maxHP"))
+		+ stamina_gain
+	)
+	if character is Object and character.has_method("recalculate_stats"):
+		character.call("recalculate_stats")
+	return {
+		"status": "ok",
+		"roll": rolled_stamina,
+		"vitalityBonus": vitality_bonus,
+		"staminaGain": stamina_gain,
+	}
+
+
+static func _stamina_progression_profile(
+	caste_record: Dictionary,
+	has_changed_caste: bool
+) -> Dictionary:
+	if not has_changed_caste:
+		return {}
+	var stamina := _integer_array(caste_record.get("stamina", []))
+	if stamina.size() < 2 or not caste_record.has("maxStaminaBonus"):
+		return {}
+	return {
+		"dieMaximum": stamina[1],
+		"maximumVitalityBonus": int(caste_record["maxStaminaBonus"]),
+	}
+
+
 static func _combat_progression_profile(
 	caste_record: Dictionary,
 	has_changed_caste: bool
@@ -307,7 +381,19 @@ static func _missile_level_gain(maximum: int, requested_roll: int = -1) -> int:
 		return 0
 	if requested_roll >= 1:
 		return clampi(requested_roll, 1, maximum)
-	return randi_range(1, maximum)
+	return _classic_rand(maximum)
+
+
+static func _classic_rand(
+	range_maximum: int,
+	requested_roll: int = RANDOM_ROLL_UNSET
+) -> int:
+	if requested_roll != RANDOM_ROLL_UNSET:
+		return requested_roll
+	var raw_result := randi_range(0, 32767)
+	# Realmz scales the signed 15-bit Random result and adds one. Keeping that
+	# formula also preserves its unusual zero and negative-range behavior.
+	return 1 + int(float(raw_result * range_maximum) / 32768.0)
 
 
 static func _attack_profile(

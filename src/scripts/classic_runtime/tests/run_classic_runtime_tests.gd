@@ -458,7 +458,8 @@ class CampaignRuleDefinition:
 		actions: float,
 		melee_accuracy_per_level: float = 0.0,
 		ranged_evasion_per_level: float = 0.0,
-		ranged_accuracy_per_level: float = 0.0
+		ranged_accuracy_per_level: float = 0.0,
+		max_hp_per_level: int = 0
 	) -> void:
 		base_stat_bonuses = {
 			"MaxMovement": movement,
@@ -468,6 +469,7 @@ class CampaignRuleDefinition:
 			"AccuracyMelee": melee_accuracy_per_level,
 			"AccuracyRanged": ranged_accuracy_per_level,
 			"EvasionRanged": ranged_evasion_per_level,
+			"maxHP": max_hp_per_level,
 		}
 
 
@@ -484,7 +486,8 @@ class CampaignRuleCharacter:
 		1.0,
 		0.03,
 		0.03,
-		0.03
+		0.03,
+		4
 	)
 	var classic_magic_resistance := 0
 	var classic_magic_resistance_initialized := false
@@ -499,6 +502,7 @@ class CampaignRuleCharacter:
 		"AccuracyMelee": 0.05,
 		"AccuracyRanged": 0.05,
 		"EvasionRanged": 0.05,
+		"maxHP": 20,
 	}
 	var native_stats := {
 		"MaxMovement": 14,
@@ -506,9 +510,11 @@ class CampaignRuleCharacter:
 		"AccuracyMelee": 0.05,
 		"AccuracyRanged": 0.05,
 		"EvasionRanged": 0.05,
+		"maxHP": 20,
+		"curHP": 15,
 		"Intellect": 11,
 		"Wisdom": 8,
-		"Vitality": 10,
+		"Vitality": 19,
 	}
 
 	func _init(saved_data: Dictionary = {}) -> void:
@@ -555,13 +561,19 @@ class CampaignRuleCharacter:
 		return classic_hand_to_hand_initialized
 
 	func recalculate_stats() -> void:
+		var hp_deficit := (
+			int(native_stats.get("maxHP", 0))
+			- int(native_stats.get("curHP", 0))
+		)
 		for stat_name: String in [
 			"MaxActions",
 			"AccuracyMelee",
 			"AccuracyRanged",
 			"EvasionRanged",
+			"maxHP",
 		]:
 			native_stats[stat_name] = base_stats[stat_name]
+		native_stats["curHP"] = int(native_stats["maxHP"]) - hp_deficit
 
 	func get_stat(stat_name: String) -> Variant:
 		var native_value: Variant = native_stats.get(stat_name, 0)
@@ -576,15 +588,21 @@ class CampaignRuleCharacter:
 
 	func level_up(
 		magic_resistance_roll: int = -1,
-		missile_roll: int = -1
+		missile_roll: int = -1,
+		stamina_roll: int = CharacterRulesScript.RANDOM_ROLL_UNSET
 	) -> void:
 		level += 1
 		base_stats["AccuracyMelee"] += 0.03
 		base_stats["AccuracyRanged"] += 0.03
 		base_stats["EvasionRanged"] += 0.03
+		base_stats["maxHP"] += 4
 		if level == 2:
 			base_stats["MaxActions"] += 0.5
 		recalculate_stats()
+		CharacterRulesScript.apply_level_up_stamina_progression(
+			self,
+			stamina_roll
+		)
 		CharacterRulesScript.apply_level_up_combat_progression(
 			self,
 			missile_roll
@@ -7173,6 +7191,8 @@ func _test_classic_character_rule_profile() -> void:
 			record["canUseMissile"] = 0
 			record["missile"] = [15, 5]
 			record["hand2Hand"] = [6, 2]
+			record["stamina"] = [8, 6]
+			record["maxStaminaBonus"] = 2
 
 	var character := CampaignRuleCharacter.new()
 	_expect_equal(character.get_stat("MaxMovement"), 14, "native movement starts unchanged")
@@ -7189,6 +7209,8 @@ func _test_classic_character_rule_profile() -> void:
 		character.get_stat("EvasionRanged") == 0,
 		"native ranged evasion starts unchanged at Remake's rounded precision"
 	)
+	_expect_equal(character.get_stat("maxHP"), 20, "native maximum HP starts unchanged")
+	_expect_equal(character.get_stat("curHP"), 15, "native current HP starts injured")
 	var apply_result := CharacterRulesScript.apply_party(install.bundle, [character])
 	_expect_equal(apply_result.get("status"), "ok", "Classic character rules apply")
 	_expect_equal(
@@ -7232,6 +7254,14 @@ func _test_classic_character_rule_profile() -> void:
 		"creation bases stay separate from the ongoing combat progression"
 	)
 	_expect_equal(
+		character.classic_rule_profile.get("staminaProgression"),
+		{
+			"dieMaximum": 6,
+			"maximumVitalityBonus": 2,
+		},
+		"creation stamina stays separate from source-backed level growth"
+	)
+	_expect_equal(
 		character.get_stat("MaxActions"),
 		2.5,
 		"race and caste rules apply the starting half-attack"
@@ -7249,12 +7279,17 @@ func _test_classic_character_rule_profile() -> void:
 		"Classic attack progression stops at twice the race maximum"
 	)
 	_expect_equal(
+		CharacterRulesScript._classic_rand(0),
+		1,
+		"Classic Rand preserves its one-point result for a zero range"
+	)
+	_expect_equal(
 		MagicResistanceScript.base_value(character),
 		12,
 		"race and caste rules initialize Classic magic resistance"
 	)
 
-	character.level_up(30, 5)
+	character.level_up(39, 5, 6)
 	_expect_equal(
 		character.get_stat("MaxMovement"),
 		12,
@@ -7283,6 +7318,16 @@ func _test_classic_character_rule_profile() -> void:
 		"Classic hand-to-hand growth increases the native unarmed die"
 	)
 	_expect_equal(
+		character.get_stat("maxHP"),
+		28,
+		"Classic stamina replaces native class HP growth"
+	)
+	_expect_equal(
+		character.get_stat("curHP"),
+		23,
+		"Classic stamina increases current HP while retaining the injury deficit"
+	)
+	_expect_equal(
 		CharacterRulesScript.adjusted_unarmed_damage_range(
 			character,
 			character.ITEM_NO_MELEE_WEAPON,
@@ -7296,7 +7341,7 @@ func _test_classic_character_rule_profile() -> void:
 		12,
 		"a failed level-up resistance roll leaves the value unchanged"
 	)
-	character.level_up(29, 1)
+	character.level_up(38, 1, 1)
 	_expect(
 		is_equal_approx(character.get_stat("AccuracyMelee"), 4.05),
 		"Classic to-hit growth accumulates once per level"
@@ -7313,6 +7358,16 @@ func _test_classic_character_rule_profile() -> void:
 		character.classic_hand_to_hand,
 		7,
 		"Classic hand-to-hand growth accumulates once per level"
+	)
+	_expect_equal(
+		character.get_stat("maxHP"),
+		31,
+		"Classic stamina rolls accumulate once per level"
+	)
+	_expect_equal(
+		character.get_stat("curHP"),
+		26,
+		"accumulated stamina retains the original injury deficit"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(character),
@@ -7348,6 +7403,16 @@ func _test_classic_character_rule_profile() -> void:
 		7,
 		"Classic hand-to-hand progression survives character save/load"
 	)
+	_expect_equal(
+		reloaded.get_stat("maxHP"),
+		31,
+		"Classic stamina progression survives character save/load"
+	)
+	_expect_equal(
+		reloaded.get_stat("curHP"),
+		26,
+		"the saved injury deficit survives character save/load"
+	)
 	reloaded.native_stats["Intellect"] = 21
 	CharacterRulesScript.apply_party(install.bundle, [reloaded])
 	_expect_equal(
@@ -7367,6 +7432,11 @@ func _test_classic_character_rule_profile() -> void:
 	_expect(
 		is_equal_approx(reloaded.get_stat("AccuracyRanged"), 1.25),
 		"campaign reload does not reroll missile progression"
+	)
+	_expect_equal(
+		reloaded.get_stat("maxHP"),
+		31,
+		"campaign reload does not reroll stamina progression"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),
@@ -7411,6 +7481,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.classic_hand_to_hand,
 		7,
 		"earned Classic hand-to-hand remains stored after leaving the table"
+	)
+	_expect_equal(
+		reloaded.get_stat("maxHP"),
+		31,
+		"earned Classic stamina remains stored after leaving the table"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),
