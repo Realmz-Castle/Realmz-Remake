@@ -14,6 +14,8 @@ var thief_encounter_overrides: Dictionary = {}
 var simple_encounter_overrides: Dictionary = {}
 var complex_encounter_overrides: Dictionary = {}
 var timed_encounter_overrides: Dictionary = {}
+var pending_timed_encounter_scans: Array[Dictionary] = []
+var last_timed_encounter_day := -1
 var owned_maps: Dictionary = {}
 var darkland_overrides: Dictionary = {}
 var landlook_overrides: Dictionary = {}
@@ -39,6 +41,8 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	timed_encounter_overrides.clear()
+	pending_timed_encounter_scans.clear()
+	last_timed_encounter_day = -1
 	owned_maps.clear()
 	darkland_overrides.clear()
 	landlook_overrides.clear()
@@ -357,6 +361,37 @@ func get_effective_timed_encounter(encounter: Dictionary) -> Dictionary:
 		else encounter.duplicate(true)
 
 
+func enqueue_timed_encounter_day(scenario_day: int) -> bool:
+	if scenario_day < 0 or scenario_day <= last_timed_encounter_day:
+		return false
+	for pending_scan: Dictionary in pending_timed_encounter_scans:
+		if int(pending_scan.get("day", -1)) == scenario_day:
+			return false
+	pending_timed_encounter_scans.append({"day": scenario_day, "nextIndex": 0})
+	return true
+
+
+func pending_timed_encounter_scan() -> Dictionary:
+	return pending_timed_encounter_scans[0].duplicate(true) \
+		if not pending_timed_encounter_scans.is_empty() else {}
+
+
+func set_pending_timed_encounter_index(next_index: int) -> void:
+	if pending_timed_encounter_scans.is_empty():
+		return
+	pending_timed_encounter_scans[0]["nextIndex"] = maxi(0, next_index)
+
+
+func finish_pending_timed_encounter_day() -> void:
+	if pending_timed_encounter_scans.is_empty():
+		return
+	var completed: Dictionary = pending_timed_encounter_scans.pop_front()
+	last_timed_encounter_day = maxi(
+		last_timed_encounter_day,
+		int(completed.get("day", -1))
+	)
+
+
 func set_map_owned(map_id: int) -> void:
 	if map_id >= 0:
 		owned_maps[str(map_id)] = true
@@ -376,6 +411,8 @@ func snapshot() -> Dictionary:
 		"simpleEncounterOverrides": simple_encounter_overrides.duplicate(true),
 		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
 		"timedEncounterOverrides": timed_encounter_overrides.duplicate(true),
+		"pendingTimedEncounterScans": pending_timed_encounter_scans.duplicate(true),
+		"lastTimedEncounterDay": last_timed_encounter_day,
 		"ownedMaps": owned_maps.duplicate(true),
 		"darklandOverrides": darkland_overrides.duplicate(true),
 		"landlookOverrides": landlook_overrides.duplicate(true),
@@ -405,6 +442,8 @@ func restore(saved_state: Dictionary) -> void:
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	timed_encounter_overrides.clear()
+	pending_timed_encounter_scans.clear()
+	last_timed_encounter_day = -1
 	owned_maps.clear()
 	if owns_initial_map:
 		owned_maps["0"] = true
@@ -447,6 +486,19 @@ func restore(saved_state: Dictionary) -> void:
 			var encounter: Variant = saved_timed_encounters[encounter_id]
 			if encounter is Dictionary:
 				timed_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+	var saved_timed_scans: Variant = saved_state.get("pendingTimedEncounterScans", [])
+	if saved_timed_scans is Array:
+		for scan_value: Variant in saved_timed_scans:
+			if not (scan_value is Dictionary):
+				continue
+			var scan_day := int(scan_value.get("day", -1))
+			var next_index := int(scan_value.get("nextIndex", -1))
+			if scan_day >= 0 and next_index >= 0:
+				pending_timed_encounter_scans.append({
+					"day": scan_day,
+					"nextIndex": next_index,
+				})
+	last_timed_encounter_day = int(saved_state.get("lastTimedEncounterDay", -1))
 	var saved_maps: Variant = saved_state.get("ownedMaps", {})
 	if saved_maps is Dictionary:
 		for map_id: Variant in saved_maps:

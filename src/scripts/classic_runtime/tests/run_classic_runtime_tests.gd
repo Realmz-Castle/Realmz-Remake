@@ -106,6 +106,9 @@ const NativeResourcesScript = preload("res://scripts/Resources.gd")
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
+const TimedEncounterSchedulerScript = preload(
+	"res://scripts/classic_runtime/classic_timed_encounter_scheduler.gd"
+)
 const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
 const ClassicPlayerMapScene = preload(
 	"res://scenes/UI/HUD/ClassicPlayerMapRect/classic_player_map_rect.tscn"
@@ -233,6 +236,28 @@ class SuspendedCommandAdapter:
 
 	func respond(response := {}) -> void:
 		response_ready.emit(response)
+
+
+class TimedPercentRoller:
+	extends RefCounted
+	var rolls: Array[int] = []
+
+	func roll_percent() -> int:
+		return rolls.pop_front() if not rolls.is_empty() else 100
+
+
+class TimedEncounterAdapter:
+	extends RefCounted
+	var possessed_items: Dictionary = {}
+
+	func execute_command(_command: String, _payload: Dictionary) -> Dictionary:
+		return {}
+
+	func classic_party_has_item(item_id: int, _item_texts := []) -> Dictionary:
+		return {
+			"status": "ok",
+			"possessed": bool(possessed_items.get(item_id, false)),
+		}
 
 
 class RejectingAdapter:
@@ -1730,6 +1755,8 @@ func _init() -> void:
 	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
 	_test_timed_encounter_mutation()
+	_test_timed_encounter_scheduler()
+	await _test_timed_encounter_session_dispatch()
 	_test_complex_encounter(bundle)
 	_test_complex_action_choices(bundle)
 	_test_complex_word_results()
@@ -2902,6 +2929,10 @@ func _test_installed_classic_campaign_layout() -> void:
 	saved_state.set_simple_encounter_override(2, {"id": 2, "maximumAttempts": 1})
 	saved_state.set_complex_encounter_override(3, {"id": 3, "maximumAttempts": 2})
 	saved_state.set_timed_encounter_override(1, {"id": 1, "chancePercent": 0})
+	saved_state.enqueue_timed_encounter_day(11)
+	saved_state.finish_pending_timed_encounter_day()
+	saved_state.enqueue_timed_encounter_day(12)
+	saved_state.set_pending_timed_encounter_index(2)
 	session.install.bundle.player_maps_by_id[2] = {
 		"id": 2,
 		"primaryName": "Second Map",
@@ -3034,6 +3065,16 @@ func _test_installed_classic_campaign_layout() -> void:
 		restored_state.get_effective_timed_encounter({"id": 1}).get("chancePercent"),
 		0,
 		"saved campaign restores timed-encounter mutations"
+	)
+	_expect_equal(
+		restored_state.last_timed_encounter_day,
+		11,
+		"saved campaign restores its last timed scan"
+	)
+	_expect_equal(
+		restored_state.pending_timed_encounter_scan(),
+		{"day": 12, "nextIndex": 2},
+		"saved campaign restores a suspended timed scan"
 	)
 	_expect(restored_state.is_map_owned(6), "saved campaign restores acquired maps")
 	_expect_equal(
@@ -21441,6 +21482,332 @@ func _test_timed_encounter_mutation() -> void:
 	)
 
 
+func _test_timed_encounter_scheduler() -> void:
+	var bundle = _timed_encounter_scheduler_test_bundle()
+	var state = StateScript.new()
+	state.configure_from_bundle(bundle)
+	state.set_location("land", 4, 10, 12)
+	state.set_quest_flag(7)
+	var roller = TimedPercentRoller.new()
+	roller.rolls.assign([75, 1])
+	var scheduler = TimedEncounterSchedulerScript.new()
+	scheduler.percent_roller = Callable(roller, "roll_percent")
+
+	_expect_equal(
+		scheduler.crossed_days(86399, 259200),
+		[1, 2, 3],
+		"timed scheduler finds every crossed scenario day"
+	)
+	_expect_equal(
+		scheduler.crossed_days(86400, 86400),
+		[],
+		"timed scheduler ignores a non-advancing clock"
+	)
+
+	var result: Dictionary = scheduler.scan_day(
+		bundle,
+		state,
+		2,
+		0,
+		func(item_id: int) -> bool: return item_id == 901
+	)
+	_expect(
+		result.get("dispatch", {}).is_empty(),
+		"failed timed chance ends the current day's scan"
+	)
+	_expect_equal(
+		state.get_effective_timed_encounter(bundle.get_timed_encounter(0)).get("day"),
+		5,
+		"timed schedule advances before chance evaluation"
+	)
+	_expect_equal(
+		state.get_effective_timed_encounter(bundle.get_timed_encounter(1)).get("day"),
+		2,
+		"failed chance leaves later timed records untouched"
+	)
+
+	var quest_roller = TimedPercentRoller.new()
+	quest_roller.rolls.assign([1])
+	scheduler.percent_roller = Callable(quest_roller, "roll_percent")
+	result = scheduler.scan_day(bundle, state, 2, 1)
+	_expect_equal(
+		result.get("dispatch", {}).get("encounterId"),
+		1,
+		"timed scan dispatches a met quest requirement"
+	)
+	_expect_equal(
+		state.get_effective_timed_encounter(bundle.get_timed_encounter(1)).get("day"),
+		2,
+		"zero-increment timed encounter remains a one-shot schedule"
+	)
+
+	var later_encounter: Dictionary = bundle.get_timed_encounter(2).duplicate(true)
+	later_encounter["day"] = 3
+	state.set_timed_encounter_override(2, later_encounter)
+	var resumed: Dictionary = scheduler.scan_day(
+		bundle,
+		state,
+		2,
+		int(result.get("nextIndex", 0)),
+		func(_item_id: int) -> bool: return true
+	)
+	_expect_equal(
+		resumed.get("dispatch", {}).get("encounterId"),
+		3,
+		"timed scan reads a mutation and continues to the next matching record"
+	)
+	_expect_equal(
+		state.get_effective_timed_encounter(bundle.get_timed_encounter(2)).get("day"),
+		3,
+		"timed scan does not dispatch the mutated later record"
+	)
+	_expect(
+		bool(scheduler.scan_day(
+			bundle,
+			state,
+			2,
+			int(resumed.get("nextIndex", 0))
+		).get("complete")),
+		"timed scan resumes after each dispatched macro"
+	)
+
+	var gated_state = StateScript.new()
+	gated_state.configure_from_bundle(bundle)
+	gated_state.set_location("land", 4, 10, 12)
+	var gated_roller = TimedPercentRoller.new()
+	gated_roller.rolls.assign([1])
+	scheduler.percent_roller = Callable(gated_roller, "roll_percent")
+	var gated: Dictionary = scheduler.scan_day(
+		bundle,
+		gated_state,
+		2,
+		2,
+		func(_item_id: int) -> bool: return false
+	)
+	_expect(bool(gated.get("complete")), "missing required item blocks timed dispatch")
+	_expect_equal(
+		gated_state.get_effective_timed_encounter(bundle.get_timed_encounter(2)).get("day"),
+		3,
+		"failed timed item gate still advances the schedule"
+	)
+
+	var matching_state = StateScript.new()
+	matching_state.configure_from_bundle(bundle)
+	matching_state.set_location("land", 4, 10, 12)
+	var matching_roller = TimedPercentRoller.new()
+	matching_roller.rolls.assign([1])
+	scheduler.percent_roller = Callable(matching_roller, "roll_percent")
+	var matching: Dictionary = scheduler.scan_day(
+		bundle,
+		matching_state,
+		2,
+		2,
+		func(item_id: int) -> bool: return item_id == 901
+	)
+	_expect_equal(
+		matching.get("dispatch", {}).get("encounterId"),
+		2,
+		"timed item and location gates dispatch their authored macro"
+	)
+	_expect_equal(
+		matching.get("dispatch", {}).get("triggerId"),
+		"Data ED3:macro:82",
+		"timed encounter door resolves through the normal macro host"
+	)
+
+	var edge_state = StateScript.new()
+	edge_state.configure_from_bundle(bundle)
+	edge_state.set_location("land", 4, 12, 12)
+	var edge_roller = TimedPercentRoller.new()
+	edge_roller.rolls.assign([1])
+	scheduler.percent_roller = Callable(edge_roller, "roll_percent")
+	var edge_result: Dictionary = scheduler.scan_day(
+		bundle,
+		edge_state,
+		2,
+		2,
+		func(_item_id: int) -> bool: return true
+	)
+	_expect_equal(
+		edge_result.get("dispatch", {}).get("encounterId"),
+		3,
+		"timed location mismatch continues to a later record"
+	)
+	_expect_equal(
+		edge_state.get_effective_timed_encounter(bundle.get_timed_encounter(2)).get("day"),
+		2,
+		"timed location mismatch does not persist the candidate increment"
+	)
+
+	var quest_state = StateScript.new()
+	quest_state.configure_from_bundle(bundle)
+	var missing_quest_roller = TimedPercentRoller.new()
+	missing_quest_roller.rolls.assign([1])
+	scheduler.percent_roller = Callable(missing_quest_roller, "roll_percent")
+	var quest_result: Dictionary = scheduler.scan_day(
+		bundle,
+		quest_state,
+		2,
+		1
+	)
+	_expect(
+		quest_result.get("dispatch", {}).is_empty(),
+		"unset timed quest requirement blocks dispatch"
+	)
+	_expect_equal(
+		quest_state.get_effective_timed_encounter(bundle.get_timed_encounter(1)).get("day"),
+		2,
+		"failed timed quest gate records its zero-increment schedule"
+	)
+
+	var terminator_bundle = BundleScript.new()
+	terminator_bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	terminator_bundle.timed_encounters_by_id[0] = {"id": 0, "day": 0}
+	terminator_bundle.timed_encounters_by_id[1] = {
+		"id": 1,
+		"day": 2,
+		"increment": 1,
+		"percent": 100,
+		"door": 99,
+	}
+	var terminator_state = StateScript.new()
+	terminator_state.configure_from_bundle(terminator_bundle)
+	_expect(
+		scheduler.scan_day(terminator_bundle, terminator_state, 2, 0).get(
+			"dispatch",
+			{}
+		).is_empty(),
+		"zero-day timed record terminates the ordered scan"
+	)
+
+
+func _test_timed_encounter_session_dispatch() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"id": "timed-session-test",
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.timed_encounters_by_id[0] = {
+		"id": 0,
+		"day": 1,
+		"increment": 1,
+		"percent": 100,
+		"door": 83,
+		"requiredItem": 901,
+	}
+	_add_stack_trigger(bundle, "Data ED3:macro:83", 83, [
+		_classic_action(0, 47, 99),
+		_classic_action(7, 24, 0),
+	])
+	var session = CampaignSessionScript.new()
+	get_root().add_child(session)
+	session.install = CampaignInstallScript.new()
+	session.install.bundle = bundle
+	var adapter = TimedEncounterAdapter.new()
+	adapter.possessed_items[901] = true
+	session.command_adapter = adapter
+	session.host = HostScript.new()
+	session.add_child(session.host)
+	session.host.configure(adapter)
+	session.host.use_campaign(bundle)
+	session.host.playthrough_finished.connect(session._on_host_playthrough_finished)
+	var dispatches: Array = []
+	session.timed_encounter_dispatched.connect(
+		func(encounter_id: int, trigger_id: String, result: Dictionary) -> void:
+			dispatches.append({
+				"encounterId": encounter_id,
+				"triggerId": trigger_id,
+				"result": result,
+			})
+	)
+
+	var advance_result: Dictionary = session.on_native_time_advanced(
+		0,
+		86400,
+		{"mapName": "map_0", "x": 0, "y": 0}
+	)
+	await process_frame
+	var state: Object = session.host.runtime.runtime_state
+	_expect_equal(advance_result.get("queuedDays"), 1, "native time hook queues crossed day")
+	_expect(state.is_quest_set(99), "timed macro executes through the normal runtime host")
+	_expect_equal(dispatches.size(), 1, "timed macro dispatches once for its scheduled day")
+	_expect_equal(
+		state.get_effective_timed_encounter(bundle.get_timed_encounter(0)).get("day"),
+		2,
+		"repeating timed encounter records its next schedule"
+	)
+	_expect_equal(state.last_timed_encounter_day, 1, "completed timed scan records its day")
+	_expect(state.pending_timed_encounter_scan().is_empty(), "completed timed scan clears its cursor")
+
+	session.on_native_time_advanced(
+		0,
+		86400,
+		{"mapName": "map_0", "x": 0, "y": 0}
+	)
+	await process_frame
+	_expect_equal(dispatches.size(), 1, "same native time advance cannot dispatch twice")
+
+	session.on_native_time_advanced(
+		86400,
+		172800,
+		{"mapName": "map_0", "x": 0, "y": 0}
+	)
+	await process_frame
+	_expect_equal(dispatches.size(), 2, "repeating timed encounter dispatches on its next day")
+	_expect_equal(
+		state.get_effective_timed_encounter(bundle.get_timed_encounter(0)).get("day"),
+		3,
+		"second timed dispatch advances the following schedule"
+	)
+
+	var deferred_result: Dictionary = session.on_native_time_advanced(
+		172800,
+		259200,
+		{"deferDispatch": true}
+	)
+	await process_frame
+	_expect(bool(deferred_result.get("deferred")), "combat defers timed macro dispatch")
+	_expect_equal(dispatches.size(), 2, "combat cannot start a timed macro")
+	_expect_equal(
+		state.pending_timed_encounter_scan().get("day"),
+		3,
+		"combat-time day crossing remains queued"
+	)
+
+	session.on_native_time_advanced(
+		259200,
+		259200,
+		{"mapName": "map_0", "x": 0, "y": 0}
+	)
+	await process_frame
+	_expect_equal(dispatches.size(), 3, "deferred timed macro resumes outside combat")
+	_expect(state.pending_timed_encounter_scan().is_empty(), "resumed timed scan completes once")
+
+	_expect(state.enqueue_timed_encounter_day(4), "pending timed day can be queued for save")
+	state.set_pending_timed_encounter_index(1)
+	var restored = StateScript.new()
+	restored.configure_from_bundle(bundle)
+	restored.restore(state.snapshot())
+	_expect_equal(
+		restored.pending_timed_encounter_scan(),
+		{"day": 4, "nextIndex": 1},
+		"timed scan cursor survives save restoration"
+	)
+	_expect_equal(
+		restored.get_effective_timed_encounter(bundle.get_timed_encounter(0)).get("day"),
+		4,
+		"next timed schedule survives save restoration"
+	)
+	_expect(
+		not restored.enqueue_timed_encounter_day(2),
+		"restored timed state rejects an already completed day"
+	)
+	session.clear()
+	session.queue_free()
+
+
 func _test_complex_encounter(bundle) -> void:
 	var interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("Data DD:0:19"), "begin CoB complex encounter")
@@ -24207,6 +24574,63 @@ func _timed_encounter_test_bundle():
 		_classic_action(0, 54, 314),
 		_classic_action(7, 24, 0),
 	])
+	return bundle
+
+
+func _timed_encounter_scheduler_test_bundle():
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	bundle.random_levels_by_id["land:4:randlevel"] = {
+		"id": "land:4:randlevel",
+		"rects": [
+			{
+				"rectIndex": 2,
+				"left": 8,
+				"top": 10,
+				"right": 12,
+				"bottom": 14,
+			},
+		],
+	}
+	bundle.timed_encounters_by_id[0] = {
+		"id": 0,
+		"day": 2,
+		"increment": 3,
+		"percent": 50,
+		"door": 80,
+		"locationKind": "any",
+	}
+	bundle.timed_encounters_by_id[1] = {
+		"id": 1,
+		"day": 2,
+		"increment": 0,
+		"percent": 100,
+		"door": 81,
+		"requiredQuest": 7,
+		"locationKind": "any",
+	}
+	bundle.timed_encounters_by_id[2] = {
+		"id": 2,
+		"day": 2,
+		"increment": 1,
+		"percent": 100,
+		"door": 82,
+		"requiredItem": 901,
+		"locationKind": "land",
+		"requiredLevel": 4,
+		"requiredRandomRect": 2,
+		"requiredX": 10,
+		"requiredY": 12,
+	}
+	bundle.timed_encounters_by_id[3] = {
+		"id": 3,
+		"day": 2,
+		"increment": 0,
+		"percent": 100,
+		"door": 84,
+		"locationKind": "any",
+	}
+	bundle.timed_encounters_by_id[4] = {"id": 4, "day": 0}
 	return bundle
 
 

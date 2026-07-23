@@ -352,6 +352,11 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 				campaign_global_script.call (func_name)
 				#else :
 					#printerr("GameGlobal ERROR pass_time : Campaign Global function "+ func_name+" NOT FOUND")
+	_advance_classic_timed_encounters(
+		previous_time,
+		time,
+		StateMachine.is_combat_state()
+	)
 	for character in player_characters :
 		character._on_time_pass(seconds)
 	for character in player_allies :
@@ -376,6 +381,35 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 		light_time = clamp(light_time-seconds,0,31536000)
 		if light_time == 0 :
 			light_power = 0
+
+
+func _advance_classic_timed_encounters(
+	previous_time: int,
+	current_time: int,
+	defer_dispatch: bool
+) -> void:
+	if not is_instance_valid(classic_campaign_session) \
+			or not classic_campaign_session.has_method("on_native_time_advanced"):
+		return
+	var native_location := {"deferDispatch": defer_dispatch}
+	if not defer_dispatch and map != null and map.owcharacter != null:
+		native_location.merge({
+			"mapName": currentmap_name,
+			"x": int(map.owcharacter.tile_position_x),
+			"y": int(map.owcharacter.tile_position_y),
+		})
+	var result: Variant = classic_campaign_session.call(
+		"on_native_time_advanced",
+		previous_time,
+		current_time,
+		native_location
+	)
+	if result is Dictionary and str(result.get("status", "")) == "error":
+		push_error(str(result.get(
+			"message",
+			"Classic timed encounters could not be evaluated"
+		)))
+
 
 func add_light_effect(p : int, t : int) :
 	light_power = max(light_power, p)

@@ -3237,6 +3237,13 @@ func _enable_banking(payload: Dictionary) -> Dictionary:
 	return {"warningId": warning_id}
 
 
+func classic_party_has_item(item_id: int, item_texts: Array = []) -> Dictionary:
+	return _check_party_item({
+		"itemId": item_id,
+		"itemTexts": item_texts,
+	})
+
+
 func _check_party_item(payload: Dictionary) -> Dictionary:
 	var item_names := _mapped_item_names(payload)
 	if item_names.is_empty():
