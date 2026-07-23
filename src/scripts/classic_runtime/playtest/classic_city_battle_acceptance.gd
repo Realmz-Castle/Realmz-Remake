@@ -51,6 +51,8 @@ const SECOND_MESSAGE := "You search his body and turn up a map"
 const MAP_GAINED_MESSAGE := "You gain a map"
 const RETURN_MESSAGE := "Among the items, you find a sack"
 const MUTATED_TRIGGER_ID := QUEST_TRIGGER_ID
+const ACCEPTANCE_PROFILE := "City Acceptance"
+const ACCEPTANCE_SAVE := "Post Battle"
 
 @export var campaign_directory := ""
 @export var native_campaign := "City of Bywater"
@@ -59,6 +61,8 @@ var campaign_session: ClassicCampaignSession
 var host: ClassicRuntimeHost
 var automated_smoke := false
 var launch_through_ui := false
+var acceptance_phase := ""
+var profile_root := ""
 var smoke_failures: Array[String] = []
 
 
@@ -72,6 +76,14 @@ func _start_playtest() -> void:
 			automated_smoke = true
 		elif argument == "--ui-launch":
 			launch_through_ui = true
+		elif argument == "--save-phase":
+			acceptance_phase = "save"
+			launch_through_ui = true
+		elif argument == "--continue-phase":
+			acceptance_phase = "continue"
+			launch_through_ui = true
+		elif argument.begins_with("--profile-root="):
+			profile_root = argument.trim_prefix("--profile-root=")
 		else:
 			campaign_directory = argument
 	if automated_smoke:
@@ -81,6 +93,13 @@ func _start_playtest() -> void:
 		_finish_smoke()
 		return
 	campaign_directory = campaign_directory.replace("\\", "/").trim_suffix("/")
+	if not acceptance_phase.is_empty():
+		if not _prepare_acceptance_profile():
+			_finish_smoke()
+			return
+		if acceptance_phase == "continue":
+			await _continue_installed_campaign()
+			return
 
 	var resources: CampaignResources = NodeAccess.__Resources()
 	var start_result := {"status": "ok"}
@@ -164,6 +183,94 @@ func _start_playtest() -> void:
 	call_deferred("_request_victory")
 	if automated_smoke:
 		await _finish_victory_and_reload()
+
+
+func _prepare_acceptance_profile() -> bool:
+	if profile_root.is_empty():
+		_fail("acceptance_profile", "Pass --profile-root=<temporary directory>")
+		return false
+	profile_root = profile_root.replace("\\", "/").trim_suffix("/")
+	Paths.profilesfolderpath = profile_root + "/Profiles/"
+	Paths.settingspath = profile_root + "/override.cfg"
+	var profile_path := Paths.profilesfolderpath + ACCEPTANCE_PROFILE
+	if acceptance_phase == "save" and DirAccess.dir_exists_absolute(profile_path):
+		_fail("acceptance_profile", "the save phase requires a new temporary profile root")
+		return false
+	if not DirAccess.dir_exists_absolute(profile_path):
+		if not GameGlobal.create_new_profile(ACCEPTANCE_PROFILE, false):
+			_fail("acceptance_profile", "the disposable acceptance profile could not be created")
+			return false
+	GameGlobal.set_current_profile(ACCEPTANCE_PROFILE)
+	return true
+
+
+func _continue_installed_campaign() -> void:
+	var campaigns_directory := campaign_directory.get_base_dir()
+	var campaign_name := campaign_directory.get_file()
+	Paths.campaignsfolderpath = campaigns_directory + "/"
+	var load_control: SaveLoadCtrl = UI.main_menu.loadgameCtrl
+	UI.main_menu._on_load_button_pressed()
+	await get_tree().process_frame
+
+	var campaign_index := load_control.scenarios_panel.scenarios_list.find(campaign_name)
+	if campaign_index < 0:
+		_fail("13_disk_continue", "the saved campaign was not listed by the main-menu Load window")
+		_finish_smoke()
+		return
+	load_control.scenarios_panel.scenarios_itemlist.select(campaign_index)
+	load_control.scenarios_panel._on_scenarios_item_list_item_selected(campaign_index)
+	await get_tree().process_frame
+
+	var save_index := load_control.saves_panel.saves_list.find(ACCEPTANCE_SAVE)
+	if save_index < 0:
+		_fail("13_disk_continue", "the persisted City save was not listed by the Load window")
+		_finish_smoke()
+		return
+	load_control.saves_panel.saves_itemlist.select(save_index)
+	load_control.saves_panel._on_saves_item_list_item_selected(save_index)
+	await get_tree().process_frame
+	if load_control.preview_panel.load_button.disabled:
+		_fail("13_disk_continue", "the selected City save did not enable the normal Load button")
+		_finish_smoke()
+		return
+	load_control.preview_panel.load_button.pressed.emit()
+	for _frame: int in 600:
+		if is_instance_valid(GameGlobal.classic_campaign_session) \
+				and StateMachine._state_name == "Exploration":
+			break
+		await get_tree().process_frame
+	if not is_instance_valid(GameGlobal.classic_campaign_session):
+		_fail("13_disk_continue", "Continue did not restore a Classic campaign session")
+		_finish_smoke()
+		return
+
+	campaign_session = GameGlobal.classic_campaign_session
+	host = campaign_session.host
+	host.playthrough_stopped.connect(_on_playthrough_stopped)
+	var restored_state: ClassicRuntimeState = host.runtime.runtime_state
+	var restored_override := restored_state.get_action_point_override(MUTATED_TRIGGER_ID)
+	var shop: Dictionary = GameGlobal.get_shop(SHOP_NAME)
+	_verify_stage(
+		"13_disk_continue",
+		GameGlobal.currentcampaign == campaign_name
+			and GameGlobal.cur_save_name == ACCEPTANCE_SAVE
+			and GameGlobal.currentmap_name == "map_0"
+			and _native_position() == TRIGGER_POSITION
+			and restored_state.is_map_owned(QUEST_MAP_ID)
+			and restored_state.is_map_owned(4)
+			and campaign_session.acquired_player_map_entries().size() == 2
+			and restored_state.get_trigger_percent("land", 0, 17, -1) == 100
+			and not restored_override.is_empty()
+			and _party_has_classic_item(SHOP_ITEM_ID)
+			and _party_has_classic_item(QUEST_ITEM_ID)
+			and _shop_stock_quantity(shop) == 83
+			and not campaign_session.has_pending_continuation(),
+		"a fresh process restores the native and Classic post-battle state from disk"
+	)
+	if not smoke_failures.is_empty():
+		_finish_smoke()
+		return
+	await _complete_blacksmith_quest()
 
 
 func _complete_guard_house_encounter() -> bool:
@@ -320,7 +427,17 @@ func _launch_installed_campaign() -> bool:
 	var campaigns_directory := campaign_directory.get_base_dir()
 	var campaign_name := campaign_directory.get_file()
 	Paths.campaignsfolderpath = campaigns_directory + "/"
-	GameGlobal.profile_characters_list = [_new_playtest_character()]
+	var character := _new_playtest_character()
+	if acceptance_phase == "save":
+		var character_path := (
+			Paths.profilesfolderpath
+			+ GameGlobal.currentprofile
+			+ "/Characters/"
+			+ character.name
+		)
+		DirAccess.make_dir_recursive_absolute(character_path)
+		Utils.FileHandler.save_character(character_path, character)
+	GameGlobal.profile_characters_list = [character]
 	GameGlobal.player_characters.clear()
 
 	var panel: Node = UI.main_menu.newCampaignPanel
@@ -459,6 +576,9 @@ func _finish_victory_and_reload() -> void:
 			and not action_point_override.is_empty(),
 		"victory awards mapped treasure 11, then applies both authored map mutations"
 	)
+	if acceptance_phase == "save":
+		await _save_mid_quest_and_exit()
+		return
 
 	var save_result: Dictionary = campaign_session.make_save_result()
 	var serialized := JSON.stringify(save_result.get("payload", {}))
@@ -504,6 +624,49 @@ func _finish_victory_and_reload() -> void:
 		_finish_smoke()
 		return
 	await _complete_blacksmith_quest()
+
+
+func _save_mid_quest_and_exit() -> void:
+	UI.ow_hud._on_save_button_pressed()
+	await get_tree().process_frame
+	var save_control: SaveLoadCtrl = UI.ow_hud.saveloadCtrl
+	if not save_control.visible:
+		_fail("12_disk_save", "the normal HUD Save button did not open the save controls")
+		_finish_smoke()
+		return
+	save_control.new_save_lineedit.text = ACCEPTANCE_SAVE
+	save_control.new_save_lineedit.text_changed.emit(ACCEPTANCE_SAVE)
+	await get_tree().process_frame
+	if save_control.create_save_button.disabled:
+		_fail("12_disk_save", "the normal save-name field did not enable Create")
+		_finish_smoke()
+		return
+	save_control.create_save_button.pressed.emit()
+	await get_tree().process_frame
+
+	var save_path := (
+		Paths.profilesfolderpath
+		+ GameGlobal.currentprofile
+		+ "/Saves/"
+		+ GameGlobal.currentcampaign
+		+ "/"
+		+ ACCEPTANCE_SAVE
+	)
+	var data_path := save_path + "/data.json"
+	var save_data: Dictionary = Utils.FileHandler.read_json_dic_from_file(data_path) \
+		if FileAccess.file_exists(data_path) else {}
+	var classic_payload: Variant = save_data.get("classic_runtime", {})
+	_verify_stage(
+		"12_disk_save",
+		FileAccess.file_exists(data_path)
+			and FileAccess.file_exists(save_path + "/shops.json")
+			and FileAccess.file_exists(save_path + "/allies.json")
+			and FileAccess.file_exists(save_path + "/map_exploration.json")
+			and classic_payload is Dictionary
+			and classic_payload.get("continuationState", {}).get("state", "") == "idle",
+		"the normal Save controls persist native files and the Classic envelope"
+	)
+	_finish_smoke()
 
 
 func _complete_blacksmith_quest() -> void:

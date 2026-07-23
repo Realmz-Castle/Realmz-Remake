@@ -215,6 +215,9 @@ func save_game(campaignname : String, savename : String) :
 	var campaign_maps_array : Array = resources.maps_book.keys()
 	var maps_secrets_dict : Dictionary = {}
 	for mapname in campaign_maps_array :
+		# Combat adds this derived map to the resource book; it is rebuilt when needed.
+		if mapname == "temporary_zoomed_map":
+			continue
 		maps_secrets_dict[mapname] = {}
 		maps_secrets_dict[mapname]["explored_tiles"] = resources.maps_book[mapname][8]
 		maps_secrets_dict[mapname]["secret_paths"] =  resources.maps_book[mapname][1]["Paths"]
@@ -224,7 +227,7 @@ func save_game(campaignname : String, savename : String) :
 	save_data_file = FileAccess.open(save_path+"/map_exploration.json", FileAccess.ModeFlags.WRITE)
 	save_data_file.store_line('{')
 	comma = ''
-	for mapname in campaign_maps_array :
+	for mapname in maps_secrets_dict :
 		save_data_file.store_line(comma)
 		comma = ','
 		save_data_file.store_line('"'+mapname + '" : {')
@@ -333,6 +336,9 @@ func load_game(campaignname : String, savename : String) :
 	print("load_game maps_book : ", maps_book.keys())
 	for mapname in exploration_data.keys() :
 		print("save_load_rect maps_book keys : ", maps_book.keys())
+		# Older saves may contain a transient combat map that is absent after relaunch.
+		if not maps_book.has(mapname):
+			continue
 		maps_book[mapname][8] = exploration_data[mapname]["explored_tiles"]
 		maps_book[mapname][1]["Paths"] = exploration_data[mapname]["secret_paths"]
 		for s in exploration_data[mapname]["secrets"] :

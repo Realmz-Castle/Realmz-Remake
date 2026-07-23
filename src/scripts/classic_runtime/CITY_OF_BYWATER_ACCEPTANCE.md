@@ -62,8 +62,7 @@ Godot_v4.6.2-stable_win64_console.exe --headless `
 Exercise the checked authored guard-house encounter and the land-to-dungeon-to-
 land map route using that same fresh bundle. The City acceptance scene runs the
 guard-house encounter and tannery service before taking the blacksmith's quest
-from its offer through native combat, a fresh-session reload, and the reward
-turn-in:
+from its offer through native combat and the reward turn-in:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --resolution 1152x648 `
@@ -86,6 +85,30 @@ Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
   res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
   "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
   --smoke --ui-launch
+```
+
+The full disk boundary uses a disposable profile root and two separate Godot
+processes. The first process launches the installed campaign through the normal
+campaign UI, reaches the post-battle checkpoint, creates `Post Battle` through
+the HUD Save controls, and exits. The second process opens the main-menu Load
+window, selects that save, restores it from disk, and completes the blacksmith
+quest:
+
+```powershell
+$acceptanceRoot = Join-Path $env:TEMP "realmz-city-acceptance-$([guid]::NewGuid())"
+New-Item -ItemType Directory -Path $acceptanceRoot | Out-Null
+
+Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 `
+  --path "F:\Realmz Remake\src" `
+  res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
+  "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
+  --smoke --save-phase "--profile-root=$acceptanceRoot"
+
+Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 `
+  --path "F:\Realmz Remake\src" `
+  res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
+  "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
+  --smoke --continue-phase "--profile-root=$acceptanceRoot"
 ```
 
 ## Current checkpoint
@@ -128,12 +151,21 @@ acceptance grants player map 3, and the initial offer retires itself. At
 monster-80 entries map to Remake's existing `Krise 80` definition and enter the
 native combat lifecycle. Victory resumes the source action list, awards player
 map 4 and treasure 11, enables land trigger 17, and replaces that trigger's
-action data. The session save envelope survives a JSON round trip, and a fresh
-session restores both maps, item 807, the trigger percentage, and the
-action-point override with no pending continuation. Returning to the blacksmith
-runs macro 39, consumes item 807, and awards treasure 19's items 210 and 434 plus
-800 experience. Both rewards retain their Classic item identities after mapping
-to native Remake definitions.
+action data. The normal Save controls persist both native files and the Classic
+runtime envelope before the application exits. A second Godot process discovers
+the installed campaign and `Post Battle` save through the main-menu Load window.
+Continue restores both maps, item 807, the purchased item 806 and depleted shop
+stock, the trigger percentage, the action-point override, and an idle battle
+continuation at `map_0 (2, 44)`. Returning to the blacksmith runs macro 39,
+consumes item 807, and awards treasure 19's items 210 and 434 plus 800 experience.
+Both rewards retain their Classic item identities after mapping to native Remake
+definitions.
+
+This route also exposed a native save defect: the temporary map derived for
+combat remained in the in-memory map book and was written to map exploration.
+It did not exist after a fresh resource load, so Continue failed before creating
+the Classic session. New saves now omit that derived map, and the loader skips
+unknown map-exploration entries so existing affected saves can continue.
 
 The smoke scene removes any loaded `Battle_45` entry in memory before starting
 the trigger. This makes the formation come from the producer bundle. The
@@ -144,11 +176,8 @@ the route consumes it by its preserved `classicItemId`.
 
 This proves a clean install and one source-backed route that includes a complete
 simple encounter, a native shop transaction, a quest from offer through turn-in,
-and a native battle. It is not yet the complete ISY-379 acceptance because the
-mid-quest check recreates the Classic session around a JSON-round-tripped
-runtime envelope inside one process. The normal save UI, persisted save file,
-application exit, relaunch, and Continue path have not yet been exercised as a
-single acceptance run.
+a native battle, and a save/exit/relaunch/Continue boundary. The two-process run
+passes with no progression blocker and no pending Classic continuation.
 
 ## Blocking findings
 
@@ -166,11 +195,9 @@ single acceptance run.
 - Decoded picture, sound, and monster-icon media remain fidelity fallbacks unless
   a missing asset carries progression meaning.
 
-## Next playable checkpoint
+## Further coverage
 
-Drive this installed route through Remake's normal save UI, persist the complete
-native and Classic state, exit the application, relaunch it, and continue from
-that save. Verify the quest maps, purchased shop stock, carried Classic item,
-trigger rewrite, and battle continuation state after reload. Then review the
-collected evidence against every ISY-379 acceptance line and separate any
-optional campaign fidelity work from playability blockers.
+The accepted route is deliberately bounded; it does not claim that every City
+branch or optional asset is exact. Remaining readiness fallbacks and unexercised
+routes should be tracked as compatibility defects when they block progression,
+or as optional fidelity work when they only affect presentation.
