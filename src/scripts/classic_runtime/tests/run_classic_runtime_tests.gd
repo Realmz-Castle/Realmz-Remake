@@ -7499,7 +7499,10 @@ func _test_classic_character_rule_profile() -> void:
 			record["conditions"][16] = 6
 			record["conditions"][18] = -1
 			record["conditions"][19] = 2
+			record["conditions"][21] = -1
 			record["conditions"][22] = -1
+			record["conditions"][23] = 3
+			record["conditions"][24] = -1
 			record["conditions"][30] = 2
 			record["conditions"][31] = -1
 			record["ageChange"][0] = [
@@ -7636,7 +7639,7 @@ func _test_classic_character_rule_profile() -> void:
 			"raceStartingConditions": [
 				0, 0, 0, 0, 2, 0, 0, 3, -1, 0,
 				-3, 4, -1, 2, -1, 3, 6, 0, -1, 2,
-				0, 0, -1, 0, 0, 0, 0, 0, 0, 0,
+				0, -1, -1, 3, -1, 0, 0, 0, 0, 0,
 				2, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 			],
 			"casteConditionLevels": [
@@ -8084,6 +8087,21 @@ func _test_classic_character_rule_profile() -> void:
 		4,
 		"the strongest active spell-screen slot owns the aggregate threshold"
 	)
+	var expected_enhancement_conditions := {
+		21: -1,
+		23: 3,
+		24: -1,
+	}
+	for condition_index: int in expected_enhancement_conditions:
+		_expect_equal(
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				condition_index
+			),
+			expected_enhancement_conditions[condition_index],
+			"enhancement condition %d retains its Classic value"
+			% condition_index
+		)
 	var defensive_trait_names: Array[String] = []
 	for trait_value: Variant in attribute_creation.traits:
 		defensive_trait_names.append(str(trait_value.get("name")))
@@ -8095,7 +8113,10 @@ func _test_classic_character_rule_profile() -> void:
 		"t_prot_elect.gd",
 		"p_prot_chem.gd",
 		"t_prot_mental.gd",
+		"p_classic_strong.gd",
 		"p_classic_protection_from_foe.gd",
+		"t_classic_speedy.gd",
+		"p_classic_invisible.gd",
 		"t_reflect_spells.gd",
 		"p_reflect_melee.gd",
 	]:
@@ -8106,6 +8127,9 @@ func _test_classic_character_rule_profile() -> void:
 	var hit_shield: Variant = null
 	var fire_protection: Variant = null
 	var spell_screen: Variant = null
+	var permanent_strong: Variant = null
+	var temporary_speedy: Variant = null
+	var permanent_invisible: Variant = null
 	for trait_value: Variant in attribute_creation.traits:
 		if str(trait_value.get("name")) == "t_pro_hits.gd":
 			hit_shield = trait_value
@@ -8113,6 +8137,12 @@ func _test_classic_character_rule_profile() -> void:
 			fire_protection = trait_value
 		elif str(trait_value.get("name")) == "t_classic_spell_screen.gd":
 			spell_screen = trait_value
+		elif str(trait_value.get("name")) == "p_classic_strong.gd":
+			permanent_strong = trait_value
+		elif str(trait_value.get("name")) == "t_classic_speedy.gd":
+			temporary_speedy = trait_value
+		elif str(trait_value.get("name")) == "p_classic_invisible.gd":
+			permanent_invisible = trait_value
 	_expect(
 		hit_shield != null \
 			and is_equal_approx(
@@ -8135,6 +8165,27 @@ func _test_classic_character_rule_profile() -> void:
 	_expect(
 		protection_rules.is_protected(attribute_creation),
 		"permanent Protection from Evil is visible to the Classic melee rule"
+	)
+	_expect(
+		permanent_strong != null \
+			and permanent_strong._on_get_stat("AccuracyMelee", 1) == 4 \
+			and permanent_strong._on_get_stat(
+				"Bonus_Physical_dmg",
+				2
+			) == 5,
+		"permanent Strong retains Classic's fixed accuracy and damage bonuses"
+	)
+	_expect(
+		temporary_speedy != null \
+			and temporary_speedy._on_get_stat("MaxMovement", 6) == 12 \
+			and temporary_speedy._on_get_stat("MaxActions", 1) == 3,
+		"temporary Speedy retains Classic's movement and half-attack bonuses"
+	)
+	_expect(
+		permanent_invisible != null \
+			and permanent_invisible._on_get_stat("EvasionMelee", 2) == 4 \
+			and "AoO_imm" in permanent_invisible.trait_types,
+		"permanent invisibility retains Classic evasion and opportunity immunity"
 	)
 	if hit_shield != null:
 		hit_shield._on_new_round(attribute_creation)
@@ -8167,6 +8218,16 @@ func _test_classic_character_rule_profile() -> void:
 			],
 			[4, 0],
 			"spell-screen condition reads follow their live level counters"
+		)
+	if temporary_speedy != null:
+		temporary_speedy._on_new_round(attribute_creation)
+		_expect_equal(
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				23
+			),
+			2,
+			"temporary Speedy reads its live remaining duration"
 		)
 	_expect_equal(
 		attribute_creation.get_meta("classic_regeneration_per_round", 0),
@@ -8248,6 +8309,24 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		[3, 4, -1, 0],
 		"aggregate and per-level spell screens survive character save/load"
+	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				21
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				23
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				24
+			),
+		],
+		[-1, 2, -1],
+		"Strong, Speedy, and Invisible conditions survive character save/load"
 	)
 	_expect_equal(
 		attribute_creation_reloaded.get_meta(
@@ -16460,6 +16539,20 @@ func _test_classic_strong_spell() -> void:
 		0,
 		"temporary Strong does not replace an innate negative condition"
 	)
+	var classic_innate := ProtectionTestCharacter.new("Classic Innate", true)
+	classic_innate.traits.append(
+		ProtectionTestTrait.new("p_classic_strong.gd", 1)
+	)
+	_expect_equal(
+		super_brawn.apply_classic_scaled_effect(
+			null,
+			classic_innate,
+			1,
+			1.0
+		),
+		0,
+		"temporary Strong does not stack beside an imported permanent condition"
+	)
 
 
 func _test_classic_protection_from_foe_spells() -> void:
@@ -16699,6 +16792,15 @@ func _test_classic_speedy_spells() -> void:
 		0,
 		"Classic Speedy does not stack beside Remake's temporary Speedy trait"
 	)
+	var innate_speedy := ProtectionTestCharacter.new("Innate Speedy", true)
+	innate_speedy.traits.append(
+		ProtectionTestTrait.new("p_classic_speedy.gd", 1)
+	)
+	_expect_equal(
+		sorcerer.apply_classic_scaled_effect(null, innate_speedy, 1, 1.0),
+		0,
+		"temporary Speedy does not stack beside an imported permanent condition"
+	)
 
 
 func _test_classic_invisible_spells() -> void:
@@ -16854,6 +16956,23 @@ func _test_classic_invisible_spells() -> void:
 		multi.apply_classic_scaled_effect(null, native_invisible, 1, 1.0),
 		0,
 		"Classic invisibility does not stack beside Remake's temporary invisibility"
+	)
+	var innate_invisible := ProtectionTestCharacter.new(
+		"Innate Invisible",
+		true
+	)
+	innate_invisible.traits.append(
+		ProtectionTestTrait.new("p_classic_invisible.gd", 1)
+	)
+	_expect_equal(
+		multi.apply_classic_scaled_effect(
+			null,
+			innate_invisible,
+			1,
+			1.0
+		),
+		0,
+		"temporary invisibility does not stack beside an imported permanent condition"
 	)
 
 

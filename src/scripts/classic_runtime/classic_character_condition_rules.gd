@@ -61,6 +61,11 @@ const CONDITION_TRAITS := {
 		"temporary": "res://shared_assets/traits/t_prot_mental.gd",
 		"permanent": "res://shared_assets/traits/p_prot_mental.gd",
 	},
+	21: {
+		"name": "Strong",
+		"temporary": "res://shared_assets/traits/t_classic_strong.gd",
+		"permanent": "res://shared_assets/traits/p_classic_strong.gd",
+	},
 	22: {
 		"name": "Protection from Evil",
 		"temporary": (
@@ -69,6 +74,16 @@ const CONDITION_TRAITS := {
 		"permanent": (
 			"res://shared_assets/traits/p_classic_protection_from_foe.gd"
 		),
+	},
+	23: {
+		"name": "Speedy",
+		"temporary": "res://shared_assets/traits/t_classic_speedy.gd",
+		"permanent": "res://shared_assets/traits/p_classic_speedy.gd",
+	},
+	24: {
+		"name": "Invisible",
+		"temporary": "res://shared_assets/traits/t_classic_invisible.gd",
+		"permanent": "res://shared_assets/traits/p_classic_invisible.gd",
 	},
 	28: {
 		"name": "Diseased",

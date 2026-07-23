@@ -11,7 +11,7 @@ func configure_core_invisible_spell(spell_id: int) -> bool:
 		spell_id,
 		25,
 		TemporaryInvisibleTrait,
-		["p_invisible.gd", "t_invisible.gd"],
+		["p_classic_invisible.gd", "p_invisible.gd", "t_invisible.gd"],
 		[0, 9],
 		[3, 4],
 		"Adds 10 percentage points of physical evasion and prevents opportunity attacks",
