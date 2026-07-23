@@ -7478,7 +7478,17 @@ func _test_classic_character_rule_profile() -> void:
 			record["canCaste"][20] = 1
 			record["drvBonus"] = [10, -200, 5, 0, 0, 0, 0, 100]
 			record["conditions"][4] = 2
+			record["conditions"][7] = 3
+			record["conditions"][8] = -1
 			record["conditions"][10] = -3
+			record["conditions"][11] = 4
+			record["conditions"][12] = -1
+			record["conditions"][13] = 2
+			record["conditions"][14] = -1
+			record["conditions"][15] = 3
+			record["conditions"][22] = -1
+			record["conditions"][30] = 2
+			record["conditions"][31] = -1
 			record["ageChange"][0] = [
 				1, 2, 3, 4, 5, 6,
 				0, 0, 1, 2, 3, 4, 5, 6, 7,
@@ -7611,10 +7621,10 @@ func _test_classic_character_rule_profile() -> void:
 				5, 0, 5, 0, 0, 0, 0, 50,
 			],
 			"raceStartingConditions": [
-				0, 0, 0, 0, 2, 0, 0, 0, 0, 0,
-				-3, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 2, 0, 0, 3, -1, 0,
+				-3, 4, -1, 2, -1, 3, 0, 0, 0, 0,
+				0, 0, -1, 0, 0, 0, 0, 0, 0, 0,
+				2, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 			],
 			"casteConditionLevels": [
 				0, 0, 0, 0, 2, 1, 0, 0, 0, 0,
@@ -8003,6 +8013,93 @@ func _test_classic_character_rule_profile() -> void:
 		-3,
 		"innate regeneration retains its negative condition strength"
 	)
+	for condition_index: int in [7, 8, 11, 12, 13, 14, 15, 22, 30, 31]:
+		_expect(
+			CharacterConditionRulesScript.supports_condition(condition_index),
+			"defensive condition %d has a runtime trait mapping"
+			% condition_index
+		)
+	var expected_defensive_conditions := {
+		7: 3,
+		8: -1,
+		11: 4,
+		12: -1,
+		13: 2,
+		14: -1,
+		15: 3,
+		22: -1,
+		30: 2,
+		31: -1,
+	}
+	for condition_index: int in expected_defensive_conditions:
+		_expect_equal(
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				condition_index
+			),
+			expected_defensive_conditions[condition_index],
+			"defensive condition %d retains its Classic value"
+			% condition_index
+		)
+	var defensive_trait_names: Array[String] = []
+	for trait_value: Variant in attribute_creation.traits:
+		defensive_trait_names.append(str(trait_value.get("name")))
+	for expected_trait_name: String in [
+		"t_pro_hits.gd",
+		"p_pro_proj.gd",
+		"t_prot_fire.gd",
+		"p_prot_ice.gd",
+		"t_prot_elect.gd",
+		"p_prot_chem.gd",
+		"t_prot_mental.gd",
+		"p_classic_protection_from_foe.gd",
+		"t_reflect_spells.gd",
+		"p_reflect_melee.gd",
+	]:
+		_expect(
+			expected_trait_name in defensive_trait_names,
+			"Classic creation installs %s" % expected_trait_name
+		)
+	var hit_shield: Variant = null
+	var fire_protection: Variant = null
+	for trait_value: Variant in attribute_creation.traits:
+		if str(trait_value.get("name")) == "t_pro_hits.gd":
+			hit_shield = trait_value
+		elif str(trait_value.get("name")) == "t_prot_fire.gd":
+			fire_protection = trait_value
+	_expect(
+		hit_shield != null \
+			and is_equal_approx(
+				float(hit_shield._on_get_stat("EvasionMelee", 5.0)),
+				6.2
+			),
+		"Shield from Hits converts its Classic penalty to native evasion"
+	)
+	_expect(
+		fire_protection != null \
+			and is_equal_approx(
+				float(fire_protection._on_get_stat("MultiplierFire", 1)),
+				0.5
+			),
+		"Classic fire protection reuses Remake's half-damage trait"
+	)
+	var protection_rules = load(
+		"res://scripts/classic_runtime/classic_protection_from_foe.gd"
+	)
+	_expect(
+		protection_rules.is_protected(attribute_creation),
+		"permanent Protection from Evil is visible to the Classic melee rule"
+	)
+	if hit_shield != null:
+		hit_shield._on_new_round(attribute_creation)
+		_expect_equal(
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				7
+			),
+			2,
+			"temporary condition reads use the live trait duration"
+		)
 	_expect_equal(
 		attribute_creation.get_meta("classic_regeneration_per_round", 0),
 		3,
@@ -8042,6 +8139,28 @@ func _test_classic_character_rule_profile() -> void:
 		attribute_creation_reloaded.classic_conditions[10],
 		-3,
 		"the exact Classic condition array survives character save/load"
+	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				7
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				8
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				22
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				31
+			),
+		],
+		[2, -1, -1, -1],
+		"temporary and permanent defensive conditions survive save/load"
 	)
 	_expect_equal(
 		attribute_creation_reloaded.get_meta(

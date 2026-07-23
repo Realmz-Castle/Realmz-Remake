@@ -15,15 +15,69 @@ const CONDITION_TRAITS := {
 		"temporary": "res://shared_assets/traits/t_dumb.gd",
 		"permanent": "res://shared_assets/traits/p_dumb.gd",
 	},
+	7: {
+		"name": "Shield from Hits",
+		"temporary": "res://shared_assets/traits/t_pro_hits.gd",
+		"permanent": "res://shared_assets/traits/p_pro_hits.gd",
+	},
+	8: {
+		"name": "Shield from Projectiles",
+		"temporary": "res://shared_assets/traits/t_pro_proj.gd",
+		"permanent": "res://shared_assets/traits/p_pro_proj.gd",
+	},
 	9: {
 		"name": "Poisoned",
 		"temporary": "res://shared_assets/traits/t_poison.gd",
 		"permanent": "res://shared_assets/traits/p_poison.gd",
 	},
+	11: {
+		"name": "Fire Protection",
+		"temporary": "res://shared_assets/traits/t_prot_fire.gd",
+		"permanent": "res://shared_assets/traits/p_prot_fire.gd",
+	},
+	12: {
+		"name": "Cold Protection",
+		"temporary": "res://shared_assets/traits/t_prot_ice.gd",
+		"permanent": "res://shared_assets/traits/p_prot_ice.gd",
+	},
+	13: {
+		"name": "Electrical Protection",
+		"temporary": "res://shared_assets/traits/t_prot_elect.gd",
+		"permanent": "res://shared_assets/traits/p_prot_elect.gd",
+	},
+	14: {
+		"name": "Chemical Protection",
+		"temporary": "res://shared_assets/traits/t_prot_chem.gd",
+		"permanent": "res://shared_assets/traits/p_prot_chem.gd",
+	},
+	15: {
+		"name": "Mental Protection",
+		"temporary": "res://shared_assets/traits/t_prot_mental.gd",
+		"permanent": "res://shared_assets/traits/p_prot_mental.gd",
+	},
+	22: {
+		"name": "Protection from Evil",
+		"temporary": (
+			"res://shared_assets/traits/t_classic_protection_from_foe.gd"
+		),
+		"permanent": (
+			"res://shared_assets/traits/p_classic_protection_from_foe.gd"
+		),
+	},
 	28: {
 		"name": "Diseased",
 		"temporary": "res://shared_assets/traits/t_disease.gd",
 		"permanent": "res://shared_assets/traits/p_disease.gd",
+	},
+	30: {
+		"name": "Reflecting Spells",
+		"temporary": "res://shared_assets/traits/t_reflect_spells.gd",
+		"permanent": "res://shared_assets/traits/p_reflect_spells.gd",
+	},
+	31: {
+		"name": "Reflecting Attacks",
+		"temporary": "res://shared_assets/traits/t_reflect_melee.gd",
+		"permanent": "res://shared_assets/traits/p_reflect_melee.gd",
 	},
 	39: {
 		"name": "Silenced",
@@ -114,6 +168,17 @@ static func apply_condition(
 static func condition_value(character: Object, condition_index: int) -> int:
 	if not supports_condition(condition_index):
 		return 0
+	if character.has_method("has_classic_conditions") \
+			and bool(character.call("has_classic_conditions")) \
+			and character.has_method("get_classic_condition"):
+		var stored_value := int(
+			character.call("get_classic_condition", condition_index)
+		)
+		# Permanent values do not count down, so the exact compatibility slot
+		# remains authoritative. Positive durations are read from their live
+		# traits instead.
+		if stored_value < 0:
+			return stored_value
 	if condition_index == RegenerationScript.CONDITION_INDEX:
 		var permanent_amount := RegenerationScript.amount(character)
 		if permanent_amount > 0:
@@ -130,12 +195,23 @@ static func condition_value(character: Object, condition_index: int) -> int:
 		if not (trait_value is Object):
 			continue
 		var trait_name := str(trait_value.get("name"))
-		var condition_power: int = abs(int(trait_value.get("power")))
+		var condition_power := _trait_condition_power(trait_value)
 		if trait_name == temporary_name:
 			value += condition_power
 		elif trait_name == permanent_name:
 			value -= condition_power
 	return value
+
+
+static func _trait_condition_power(trait_value: Object) -> int:
+	if trait_value.has_method("get_saved_variables"):
+		var saved_variables: Variant = trait_value.call("get_saved_variables")
+		if saved_variables is Array \
+				and not saved_variables.is_empty() \
+				and not (saved_variables[0] is Array):
+			return maxi(1, absi(int(saved_variables[0])))
+	var power: Variant = trait_value.get("power")
+	return maxi(1, absi(int(power))) if power != null else 1
 
 
 static func condition_name(condition_index: int) -> String:

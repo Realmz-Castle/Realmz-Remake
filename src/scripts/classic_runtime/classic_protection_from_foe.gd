@@ -1,7 +1,10 @@
 class_name ClassicProtectionFromFoe
 extends RefCounted
 
-const TEMPORARY_TRAIT_NAME := "t_classic_protection_from_foe.gd"
+const TRAIT_NAMES := [
+	"t_classic_protection_from_foe.gd",
+	"p_classic_protection_from_foe.gd",
+]
 const HIT_CHANCE_BONUS := 0.10
 
 
@@ -28,7 +31,7 @@ static func is_protected(character: Object) -> bool:
 		return false
 	for trait_value: Variant in traits:
 		if trait_value is Object \
-				and str(trait_value.get("name")) == TEMPORARY_TRAIT_NAME:
+				and str(trait_value.get("name")) in TRAIT_NAMES:
 			return true
 	return false
 

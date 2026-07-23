@@ -1,3 +1,6 @@
+const ConditionLog = preload(
+	"res://scripts/classic_runtime/classic_condition_log.gd"
+)
 const name : String = 'p_prot_mental.gd'
 const menuname : String = 'Mental Protection (P)'
 const stacks : bool = false
@@ -9,7 +12,7 @@ var trait_source : String = ''
 func _init(args : Array):
 	#[chara]
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Permanent Mental Protection !', null,'')
+	ConditionLog.write(chara, " gets Permanent Mental Protection !")
 
 func get_saved_variables() :
 	return []

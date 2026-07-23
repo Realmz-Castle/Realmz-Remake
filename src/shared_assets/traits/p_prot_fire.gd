@@ -1,3 +1,6 @@
+const ConditionLog = preload(
+	"res://scripts/classic_runtime/classic_condition_log.gd"
+)
 const name : String = 'p_prot_fire.gd'
 const menuname : String = 'Fire Protection (P)'
 const stacks : bool = false
@@ -9,7 +12,7 @@ var trait_source : String = ''
 func _init(args : Array):
 	#[chara]
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Permanent Fire Protection !', null,'')
+	ConditionLog.write(chara, " gets Permanent Fire Protection !")
 
 func get_saved_variables() :
 	return []

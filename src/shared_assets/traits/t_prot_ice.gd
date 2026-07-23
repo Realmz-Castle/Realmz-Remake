@@ -1,3 +1,6 @@
+const ConditionLog = preload(
+	"res://scripts/classic_runtime/classic_condition_log.gd"
+)
 const name : String = 't_prot_ice.gd'
 const menuname : String = 'Ice Protection (T)'
 const stacks : bool = true
@@ -10,22 +13,21 @@ func _init(args : Array):
 	#[chara, duration]
 	chara = args[0]
 	duration = 5*args[1]
-	UI.ow_hud.creatureRect.logrect.log_other_text(chara, ' gets Ice Protection !', null,'')
+	ConditionLog.write(chara, " gets Ice Protection !")
 
 func stack(args : Array) :
 	duration += 5*args[0]
 
 func unstack(args : Array) :
 	duration -= 5*args[0]
+	_remove_if_expired()
 
 func get_saved_variables() :
 	return [ceil(duration/5)]
 
 func _on_new_round(_character : Creature) :
-	if duration <= 0 :
-		chara.remove_trait(self)
-		return
 	duration -= 5
+	_remove_if_expired()
 
 func _on_get_stat(statname : String, stat : int) :
 	if statname == "MultiplierIce" :
@@ -34,10 +36,12 @@ func _on_get_stat(statname : String, stat : int) :
 		return stat
 
 func _on_time_pass(_character, seconds) :
-	if duration <= 0 :
-		chara.remove_trait(self)
-		return
 	duration -= seconds
+	_remove_if_expired()
+
+func _remove_if_expired() -> void:
+	if duration <= 0:
+		chara.remove_trait(self)
 	
 func get_info_as_text() -> String :
 	return 'Ice Protection for '+str(ceil(duration/5))+' rounds'
