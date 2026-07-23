@@ -457,7 +457,8 @@ class CampaignRuleDefinition:
 		movement: int,
 		actions: float,
 		melee_accuracy_per_level: float = 0.0,
-		ranged_evasion_per_level: float = 0.0
+		ranged_evasion_per_level: float = 0.0,
+		ranged_accuracy_per_level: float = 0.0
 	) -> void:
 		base_stat_bonuses = {
 			"MaxMovement": movement,
@@ -465,6 +466,7 @@ class CampaignRuleDefinition:
 		}
 		levelup_bonuses = {
 			"AccuracyMelee": melee_accuracy_per_level,
+			"AccuracyRanged": ranged_accuracy_per_level,
 			"EvasionRanged": ranged_evasion_per_level,
 		}
 
@@ -477,7 +479,13 @@ class CampaignRuleCharacter:
 	var classic_caste_id := 21
 	var classic_rule_profile: Dictionary = {}
 	var racegd := CampaignRuleDefinition.new(12, 1.0)
-	var classgd := CampaignRuleDefinition.new(2, 1.0, 0.03, 0.03)
+	var classgd := CampaignRuleDefinition.new(
+		2,
+		1.0,
+		0.03,
+		0.03,
+		0.03
+	)
 	var classic_magic_resistance := 0
 	var classic_magic_resistance_initialized := false
 	var classic_hand_to_hand := 0
@@ -489,12 +497,14 @@ class CampaignRuleCharacter:
 	var base_stats := {
 		"MaxActions": 2.0,
 		"AccuracyMelee": 0.05,
+		"AccuracyRanged": 0.05,
 		"EvasionRanged": 0.05,
 	}
 	var native_stats := {
 		"MaxMovement": 14,
 		"MaxActions": 2.0,
 		"AccuracyMelee": 0.05,
+		"AccuracyRanged": 0.05,
 		"EvasionRanged": 0.05,
 		"Intellect": 11,
 		"Wisdom": 8,
@@ -548,6 +558,7 @@ class CampaignRuleCharacter:
 		for stat_name: String in [
 			"MaxActions",
 			"AccuracyMelee",
+			"AccuracyRanged",
 			"EvasionRanged",
 		]:
 			native_stats[stat_name] = base_stats[stat_name]
@@ -563,14 +574,21 @@ class CampaignRuleCharacter:
 			native_value
 		)
 
-	func level_up(magic_resistance_roll: int = -1) -> void:
+	func level_up(
+		magic_resistance_roll: int = -1,
+		missile_roll: int = -1
+	) -> void:
 		level += 1
 		base_stats["AccuracyMelee"] += 0.03
+		base_stats["AccuracyRanged"] += 0.03
 		base_stats["EvasionRanged"] += 0.03
 		if level == 2:
 			base_stats["MaxActions"] += 0.5
 		recalculate_stats()
-		CharacterRulesScript.apply_level_up_combat_progression(self)
+		CharacterRulesScript.apply_level_up_combat_progression(
+			self,
+			missile_roll
+		)
 		CharacterRulesScript.apply_level_up_attack_progression(self)
 		CharacterRulesScript.apply_level_up_magic_resistance(
 			self,
@@ -7152,6 +7170,8 @@ func _test_classic_character_rule_profile() -> void:
 			record["attacks"] = [2, 4, 0, 0, 0, 0, 0, 0, 0, 0]
 			record["toHit"] = [5, 10]
 			record["dodge"] = [20, 4]
+			record["canUseMissile"] = 0
+			record["missile"] = [15, 5]
 			record["hand2Hand"] = [6, 2]
 
 	var character := CampaignRuleCharacter.new()
@@ -7160,6 +7180,10 @@ func _test_classic_character_rule_profile() -> void:
 	_expect(
 		is_equal_approx(character.get_stat("AccuracyMelee"), 0.05),
 		"native melee accuracy starts unchanged"
+	)
+	_expect(
+		is_equal_approx(character.get_stat("AccuracyRanged"), 0.05),
+		"native ranged accuracy starts unchanged"
 	)
 	_expect(
 		character.get_stat("EvasionRanged") == 0,
@@ -7202,6 +7226,7 @@ func _test_classic_character_rule_profile() -> void:
 		{
 			"toHitPerLevel": 10,
 			"dodgePerLevel": 4,
+			"missilePerLevelMaximum": 5,
 			"handToHandPerLevel": 2,
 		},
 		"creation bases stay separate from the ongoing combat progression"
@@ -7229,7 +7254,7 @@ func _test_classic_character_rule_profile() -> void:
 		"race and caste rules initialize Classic magic resistance"
 	)
 
-	character.level_up(30)
+	character.level_up(30, 5)
 	_expect_equal(
 		character.get_stat("MaxMovement"),
 		12,
@@ -7243,6 +7268,10 @@ func _test_classic_character_rule_profile() -> void:
 	_expect(
 		is_equal_approx(character.get_stat("AccuracyMelee"), 2.05),
 		"Classic to-hit growth replaces native caste accuracy growth"
+	)
+	_expect(
+		is_equal_approx(character.get_stat("AccuracyRanged"), 1.05),
+		"level-up missile growth remains independent of the creation-only missile gate"
 	)
 	_expect(
 		character.get_stat("EvasionRanged") == 1,
@@ -7267,10 +7296,14 @@ func _test_classic_character_rule_profile() -> void:
 		12,
 		"a failed level-up resistance roll leaves the value unchanged"
 	)
-	character.level_up(29)
+	character.level_up(29, 1)
 	_expect(
 		is_equal_approx(character.get_stat("AccuracyMelee"), 4.05),
 		"Classic to-hit growth accumulates once per level"
+	)
+	_expect(
+		is_equal_approx(character.get_stat("AccuracyRanged"), 1.25),
+		"Classic missile rolls accumulate once per level"
 	)
 	_expect(
 		character.get_stat("EvasionRanged") == 2,
@@ -7303,6 +7336,10 @@ func _test_classic_character_rule_profile() -> void:
 		"Classic to-hit progression survives character save/load"
 	)
 	_expect(
+		is_equal_approx(reloaded.get_stat("AccuracyRanged"), 1.25),
+		"Classic missile progression survives character save/load"
+	)
+	_expect(
 		reloaded.get_stat("EvasionRanged") == 2,
 		"Classic dodge progression survives character save/load"
 	)
@@ -7326,6 +7363,10 @@ func _test_classic_character_rule_profile() -> void:
 	_expect(
 		is_equal_approx(reloaded.get_stat("AccuracyMelee"), 4.05),
 		"campaign reload does not reapply combat progression"
+	)
+	_expect(
+		is_equal_approx(reloaded.get_stat("AccuracyRanged"), 1.25),
+		"campaign reload does not reroll missile progression"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),
@@ -7357,6 +7398,10 @@ func _test_classic_character_rule_profile() -> void:
 	_expect(
 		is_equal_approx(reloaded.get_stat("AccuracyMelee"), 4.05),
 		"earned Classic to-hit remains stored after leaving the table"
+	)
+	_expect(
+		is_equal_approx(reloaded.get_stat("AccuracyRanged"), 1.25),
+		"earned Classic missile skill remains stored after leaving the table"
 	)
 	_expect(
 		reloaded.get_stat("EvasionRanged") == 2,

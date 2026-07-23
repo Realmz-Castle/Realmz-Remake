@@ -156,7 +156,10 @@ static func adjusted_stat(
 	return native_value
 
 
-static func apply_level_up_combat_progression(character: Variant) -> Dictionary:
+static func apply_level_up_combat_progression(
+	character: Variant,
+	missile_roll: int = -1
+) -> Dictionary:
 	var profile := _dictionary_value(
 		_value(character, "classic_rule_profile", {})
 	)
@@ -176,12 +179,30 @@ static func apply_level_up_combat_progression(character: Variant) -> Dictionary:
 	# Native race and class level-up scripts have already run. Remove their
 	# identity-owned gains before applying the active Classic caste instead.
 	# One Remake accuracy/evasion point represents five percentage points.
+	# Classic's canUseMissile flag applies only at character creation; later
+	# level-ups still roll from one through the caste missile maximum.
 	var to_hit_gain := float(progression.get("toHitPerLevel", 0)) / 5.0
 	var dodge_gain := float(progression.get("dodgePerLevel", 0)) / 5.0
+	var missile_max := maxi(
+		0,
+		int(progression.get("missilePerLevelMaximum", 0))
+	)
+	var missile_gain_percent := _missile_level_gain(
+		missile_max,
+		missile_roll
+	)
+	var missile_gain := float(missile_gain_percent) / 5.0
 	base_stats["AccuracyMelee"] = (
 		float(base_stats.get("AccuracyMelee", 0.0))
 		- _native_level_up_stat(character, "AccuracyMelee")
 		+ to_hit_gain
+	)
+	base_stats["AccuracyRanged"] = clampf(
+		float(base_stats.get("AccuracyRanged", 0.0))
+		- _native_level_up_stat(character, "AccuracyRanged")
+		+ missile_gain,
+		0.0,
+		20.0
 	)
 	base_stats["EvasionRanged"] = clampf(
 		float(base_stats.get("EvasionRanged", 0.0))
@@ -208,6 +229,8 @@ static func apply_level_up_combat_progression(character: Variant) -> Dictionary:
 	return {
 		"status": "ok",
 		"toHitGain": to_hit_gain,
+		"missileRoll": missile_gain_percent,
+		"missileGain": missile_gain,
 		"dodgeGain": dodge_gain,
 		"handToHand": _current_hand_to_hand(character),
 	}
@@ -264,14 +287,27 @@ static func _combat_progression_profile(
 		return {}
 	var to_hit := _integer_array(caste_record.get("toHit", []))
 	var dodge := _integer_array(caste_record.get("dodge", []))
+	var missile := _integer_array(caste_record.get("missile", []))
 	var hand_to_hand := _integer_array(caste_record.get("hand2Hand", []))
-	if to_hit.size() < 2 or dodge.size() < 2 or hand_to_hand.size() < 2:
+	if to_hit.size() < 2 \
+			or dodge.size() < 2 \
+			or missile.size() < 2 \
+			or hand_to_hand.size() < 2:
 		return {}
 	return {
 		"toHitPerLevel": to_hit[1],
 		"dodgePerLevel": dodge[1],
+		"missilePerLevelMaximum": missile[1],
 		"handToHandPerLevel": hand_to_hand[1],
 	}
+
+
+static func _missile_level_gain(maximum: int, requested_roll: int = -1) -> int:
+	if maximum <= 0:
+		return 0
+	if requested_roll >= 1:
+		return clampi(requested_roll, 1, maximum)
+	return randi_range(1, maximum)
 
 
 static func _attack_profile(
