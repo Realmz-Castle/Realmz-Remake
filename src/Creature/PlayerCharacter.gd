@@ -109,6 +109,7 @@ var classic_conditions: Array[int] = []
 var classic_conditions_initialized := false
 var classic_can_regenerate := false
 var classic_can_regenerate_initialized := false
+var classic_creation_resources_initialized := false
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -161,6 +162,9 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		set_classic_conditions(data["classicConditions"])
 	if data.has("classicCanRegenerate"):
 		set_classic_can_regenerate(bool(data["classicCanRegenerate"]))
+	classic_creation_resources_initialized = bool(
+		data.get("classicCreationResourcesInitialized", false)
+	)
 	if data.has("is_npc_ally") :
 		is_npc_ally = bool(data["is_npc_ally"])
 	if data.has("is_summoned") :
@@ -468,6 +472,68 @@ func set_classic_creation_combat_stats(values: Dictionary) -> void:
 	stats["curHP"] = get_stat("maxHP")
 
 
+func set_classic_creation_resources(
+	items: Array,
+	starting_money: int
+) -> Dictionary:
+	if classic_creation_resources_initialized:
+		return {"status": "skipped", "reason": "already-applied"}
+	for item_value: Variant in items:
+		if not (item_value is Dictionary):
+			return {
+				"status": "error",
+				"message": "Classic starting resources contain an invalid item.",
+			}
+	for item_value: Variant in inventory:
+		if item_value is Dictionary \
+				and int(item_value.get("equipped", 0)) != 0:
+			return {
+				"status": "error",
+				"message": (
+					"Classic starting resources must be applied before equipment."
+				),
+			}
+
+	# Native race/class gifts are replaced, not combined with the active
+	# Classic caste's creation resources.
+	inventory.clear()
+	money = [0, 0, 0]
+	var added_item_ids: Array[int] = []
+	var skipped_item_ids: Array[int] = []
+	for item_value: Variant in items:
+		var item: Dictionary = item_value.duplicate(true)
+		item["is_identified"] = 1
+		item["equipped"] = 0
+		var item_id := int(item.get("classicItemId", 0))
+		if add_inventory_item(item):
+			added_item_ids.append(item_id)
+		else:
+			skipped_item_ids.append(item_id)
+
+	# Realmz checks item weight before adding startmoney to carried load.
+	money[0] = starting_money
+	var unequipped_item_ids: Array[int] = []
+	for item_value: Variant in inventory:
+		if int(item_value.get("equippable", 0)) == 0:
+			continue
+		if not equip_item(item_value):
+			unequipped_item_ids.append(
+				int(item_value.get("classicItemId", 0))
+			)
+	classic_creation_resources_initialized = true
+	return {
+		"status": "ok",
+		"startingMoney": starting_money,
+		"addedItemIds": added_item_ids,
+		"skippedItemIds": skipped_item_ids,
+		"unequippedItemIds": unequipped_item_ids,
+	}
+
+
+func has_classic_creation_resources() -> bool:
+	return classic_creation_resources_initialized
+
+
 func has_classic_spellcaster_type() -> bool:
 	return classic_spellcaster_type_initialized
 
@@ -754,5 +820,7 @@ func get_save_string()->String :
 			',\n"classicCanRegenerate" : '
 			+ str(classic_can_regenerate)
 		)
+	if classic_creation_resources_initialized:
+		crea_string += ',\n"classicCreationResourcesInitialized" : true'
 	crea_string += ('\n}')
 	return crea_string

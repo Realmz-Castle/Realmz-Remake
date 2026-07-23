@@ -509,6 +509,9 @@ class CampaignRuleCharacter:
 	var classic_conditions_initialized := false
 	var classic_can_regenerate := false
 	var classic_can_regenerate_initialized := false
+	var classic_creation_resources_initialized := false
+	var money: Array = [9, 1, 1]
+	var inventory: Array = [{"name": "Native creation gift", "equipped": 0}]
 	var used_resource := "MP"
 	var is_player_controlled := true
 	var curFaction := 0
@@ -587,6 +590,15 @@ class CampaignRuleCharacter:
 			set_classic_can_regenerate(
 				bool(saved_data["classicCanRegenerate"])
 			)
+		classic_creation_resources_initialized = bool(
+			saved_data.get("classicCreationResourcesInitialized", false)
+		)
+		var saved_money: Variant = saved_data.get("money", null)
+		if saved_money is Array:
+			money = saved_money.duplicate()
+		var saved_inventory: Variant = saved_data.get("inventory", null)
+		if saved_inventory is Array:
+			inventory = saved_inventory.duplicate(true)
 		var saved_base_stats: Variant = saved_data.get("baseStats", null)
 		if saved_base_stats is Dictionary:
 			base_stats = saved_base_stats.duplicate(true)
@@ -749,6 +761,30 @@ class CampaignRuleCharacter:
 		recalculate_stats()
 		native_stats["curHP"] = native_stats["maxHP"]
 
+	func set_classic_creation_resources(
+		items: Array,
+		starting_money: int
+	) -> Dictionary:
+		if classic_creation_resources_initialized:
+			return {"status": "skipped", "reason": "already-applied"}
+		inventory.clear()
+		for item_value: Variant in items:
+			inventory.append(item_value.duplicate(true))
+		money = [starting_money, 0, 0]
+		classic_creation_resources_initialized = true
+		return {
+			"status": "ok",
+			"startingMoney": starting_money,
+			"addedItemIds": inventory.map(
+				func(item: Dictionary) -> int: return int(item.get("classicItemId", 0))
+			),
+			"skippedItemIds": [],
+			"unequippedItemIds": [],
+		}
+
+	func has_classic_creation_resources() -> bool:
+		return classic_creation_resources_initialized
+
 	func has_classic_spellcaster_type() -> bool:
 		return classic_spellcaster_type_initialized
 
@@ -874,6 +910,10 @@ class CampaignRuleCharacter:
 			"nativeStats": native_stats.duplicate(true),
 			"spells": spells.duplicate(true),
 			"traits": [],
+			"money": money.duplicate(),
+			"inventory": inventory.duplicate(true),
+			"classicCreationResourcesInitialized":
+				classic_creation_resources_initialized,
 		}
 		for trait_value: Variant in traits:
 			data["traits"].append({
@@ -7565,6 +7605,11 @@ func _test_classic_character_rule_profile() -> void:
 				(1 << 28) | (1 << 27),
 				0,
 			]
+			record["startMoney"] = 37
+			record["startItems"] = [
+				1, 902, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			]
 			record["conditions"][4] = 2
 			record["conditions"][5] = 1
 			record["conditions"][17] = 2
@@ -7865,8 +7910,107 @@ func _test_classic_character_rule_profile() -> void:
 			"canUseMissile": false,
 			"handToHandBase": 6,
 			"maximumStrengthDamageBonus": 4,
+			"startingMoney": 37,
+			"startingItemIds": [
+				1, 902, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			],
 		},
 		"character retains the source-backed creation combat profile"
+	)
+	var creation_item_book := {
+		"Dagger": {
+			"name": "Dagger",
+			"is_identified": 0,
+			"equipped": 0,
+		},
+		"Scenario creation gift": {
+			"name": "Scenario creation gift",
+			"classicItemId": 902,
+			"is_identified": 0,
+			"equipped": 0,
+		},
+	}
+	var creation_resources := (
+		CharacterRulesScript.apply_character_creation_resources(
+			character,
+			creation_item_book
+		)
+	)
+	_expect_equal(
+		creation_resources,
+		{
+			"status": "ok",
+			"startingMoney": 37,
+			"addedItemIds": [1, 902],
+			"skippedItemIds": [],
+			"unequippedItemIds": [],
+		},
+		"Classic creation resolves stock and scenario-local starting items"
+	)
+	_expect_equal(
+		character.money,
+		[37, 0, 0],
+		"Classic starting money replaces Remake's native creation money"
+	)
+	_expect_equal(
+		character.inventory.map(
+			func(item: Dictionary) -> int: return int(item.get("classicItemId", 0))
+		),
+		[1, 902],
+		"Classic starting items replace native creation gifts in source order"
+	)
+	_expect(
+		character.inventory.all(
+			func(item: Dictionary) -> bool: return int(item.get("is_identified", 0)) == 1
+		),
+		"Classic starting items are identified before entering inventory"
+	)
+	_expect_equal(
+		CharacterRulesScript.apply_character_creation_resources(
+			character,
+			creation_item_book
+		),
+		{"status": "skipped", "reason": "already-applied"},
+		"Classic creation resources cannot be granted twice"
+	)
+	var unresolved_resources_character := CampaignRuleCharacter.new()
+	unresolved_resources_character.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	unresolved_resources_character.classic_rule_profile[
+		"creation"
+	]["startingItemIds"] = [
+		9999, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	]
+	var unresolved_money := unresolved_resources_character.money.duplicate()
+	var unresolved_inventory := (
+		unresolved_resources_character.inventory.duplicate(true)
+	)
+	var unresolved_resources := (
+		CharacterRulesScript.apply_character_creation_resources(
+			unresolved_resources_character,
+			creation_item_book
+		)
+	)
+	_expect_equal(
+		unresolved_resources.get("status"),
+		"error",
+		"an unresolved Classic starting item stops creation resources"
+	)
+	_expect_equal(
+		unresolved_resources.get("itemId"),
+		9999,
+		"the creation-resource error identifies the missing Classic item"
+	)
+	_expect_equal(
+		[
+			unresolved_resources_character.money,
+			unresolved_resources_character.inventory,
+		],
+		[unresolved_money, unresolved_inventory],
+		"unresolved starting items leave native creation gifts untouched"
 	)
 	_expect_equal(
 		character.classic_rule_profile.get("conditionProgression"),
@@ -9405,6 +9549,22 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.classic_rule_profile.get("itemPermissions"),
 		character.classic_rule_profile.get("itemPermissions"),
 		"Classic item-category permissions survive character save/load"
+	)
+	_expect_equal(
+		reloaded.money,
+		[37, 0, 0],
+		"Classic starting money survives character save/load"
+	)
+	_expect_equal(
+		reloaded.inventory.map(
+			func(item: Dictionary) -> int: return int(item.get("classicItemId", 0))
+		),
+		[1, 902],
+		"Classic starting items survive character save/load"
+	)
+	_expect(
+		reloaded.has_classic_creation_resources(),
+		"save/load retains the one-time Classic creation-resource guard"
 	)
 	_expect_equal(
 		reloaded.get_stat("MaxActions"),

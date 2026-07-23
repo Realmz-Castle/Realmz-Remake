@@ -320,6 +320,72 @@ func _run_smoke() -> void:
 		23,
 		"native character creation accepts Classic attributes"
 	)
+	var overweight_gift: Dictionary = resources.items_book[
+		"Classic Item 150"
+	].duplicate(true)
+	overweight_gift["name"] = "Overweight Classic creation gift"
+	overweight_gift["classicItemId"] = 990
+	overweight_gift["weight"] = 1000000
+	resources.items_book[overweight_gift["name"]] = overweight_gift
+	classic_creation_character.inventory.append(
+		resources.items_book["Dagger"].duplicate(true)
+	)
+	classic_creation_character.money = [99, 2, 1]
+	classic_creation_character.apply_classic_rule_profile({
+		"creation": {
+			"startingMoney": 41,
+			"startingItemIds": [
+				150, 250, 251, 990, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			],
+		},
+		"itemPermissions": {
+			"raceMasks": [
+				(1 << 28) | (1 << 6),
+				1 << 28,
+			],
+			"casteMasks": [
+				(1 << 28) | (1 << 6),
+				1 << 28,
+			],
+		},
+	})
+	var creation_resources := (
+		ClassicCharacterRulesScript.apply_character_creation_resources(
+			classic_creation_character,
+			resources.items_book
+		)
+	)
+	_expect_equal(
+		creation_resources,
+		{
+			"status": "ok",
+			"startingMoney": 41,
+			"addedItemIds": [150, 250, 251],
+			"skippedItemIds": [990],
+			"unequippedItemIds": [],
+		},
+		"native creation applies Classic gifts in source order and skips excess weight"
+	)
+	_expect_equal(
+		classic_creation_character.money,
+		[41, 0, 0],
+		"native creation replaces Remake's gifts with Classic starting money"
+	)
+	_expect_equal(
+		classic_creation_character.inventory.map(
+			func(item: Dictionary) -> int: return int(item.get("classicItemId", 0))
+		),
+		[150, 250, 251],
+		"native creation replaces the existing inventory with accepted Classic items"
+	)
+	_expect(
+		classic_creation_character.inventory.all(
+			func(item: Dictionary) -> bool: return int(item.get("is_identified", 0)) == 1 \
+					and int(item.get("equipped", 0)) == 1
+		),
+		"accepted Classic starting equipment is identified and worn"
+	)
 	var classic_creation_saved: Variant = JSON.parse_string(
 		classic_creation_character.get_save_string()
 	)
@@ -352,6 +418,29 @@ func _run_smoke() -> void:
 			[22, 2, 20, 2],
 			"native character save/load retains Classic demographics"
 		)
+		_expect_equal(
+			restored_creation_character.money.map(
+				func(value: Variant) -> int: return int(value)
+			),
+			[41, 0, 0],
+			"native character save/load retains Classic starting money"
+		)
+		_expect_equal(
+			restored_creation_character.inventory.map(
+				func(item: Dictionary) -> int: return int(item.get("classicItemId", 0))
+			),
+			[150, 250, 251],
+			"native character save/load retains Classic starting equipment"
+		)
+		_expect_equal(
+			ClassicCharacterRulesScript.apply_character_creation_resources(
+				restored_creation_character,
+				resources.items_book
+			),
+			{"status": "skipped", "reason": "already-applied"},
+			"restored characters cannot receive Classic creation resources twice"
+		)
+	resources.items_book.erase(overweight_gift["name"])
 	var player_weapon: Dictionary = resources.items_book[
 		"Classic Item 150"
 	].duplicate(true)

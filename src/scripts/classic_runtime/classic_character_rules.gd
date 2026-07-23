@@ -10,6 +10,10 @@ const MagicResistanceScript = preload(
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
+const ItemIdentityScript = preload(
+	"res://scripts/classic_runtime/classic_item_identity.gd"
+)
+const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const RANDOM_ROLL_UNSET := -2147483648
 const CLASSIC_CASTER_SCHOOLS := {
 	1: "Sorcerer",
@@ -955,6 +959,85 @@ static func apply_character_creation_spellcasting(
 	}
 
 
+## Replaces Remake's native creation gifts with the active Classic caste's
+## starting items and gold. Call this once after advanced-level progression and
+## spell selection, matching newcharacter.c's addinitialitems() order.
+static func apply_character_creation_resources(
+	character: Variant,
+	item_book: Dictionary,
+	item_mapping: Dictionary = {}
+) -> Dictionary:
+	var creation := _dictionary_value(
+		_dictionary_value(
+			_value(character, "classic_rule_profile", {})
+		).get("creation", {})
+	)
+	if creation.is_empty():
+		return {"status": "skipped"}
+	if not (character is Object) \
+			or not character.has_method("set_classic_creation_resources"):
+		return {
+			"status": "error",
+			"message": "Classic character creation requires mutable resource state.",
+		}
+	if character.has_method("has_classic_creation_resources") \
+			and bool(character.call("has_classic_creation_resources")):
+		return {"status": "skipped", "reason": "already-applied"}
+
+	var starting_item_ids := _integer_array(
+		creation.get("startingItemIds", [])
+	)
+	if starting_item_ids.size() != 20:
+		return {
+			"status": "error",
+			"message": "Classic character creation requires twenty starting-item slots.",
+		}
+	var effective_mapping := (
+		item_mapping
+		if not item_mapping.is_empty()
+		else _default_item_mapping()
+	)
+	var resolved_items: Array[Dictionary] = []
+	for raw_item_id: int in starting_item_ids:
+		if raw_item_id == 0:
+			continue
+		var item_id := absi(raw_item_id)
+		var resource_key := ItemIdentityScript.resource_key(
+			item_id,
+			effective_mapping,
+			[],
+			item_book
+		)
+		if resource_key.is_empty() \
+				or not item_book.has(resource_key) \
+				or not (item_book[resource_key] is Dictionary):
+			return {
+				"status": "error",
+				"message": (
+					"Classic starting item %d has no native Remake resource."
+					% item_id
+				),
+				"itemId": item_id,
+			}
+		var item: Dictionary = item_book[resource_key].duplicate(true)
+		item["classicItemId"] = item_id
+		item["is_identified"] = 1
+		item["equipped"] = 0
+		resolved_items.append(item)
+
+	var applied: Variant = character.call(
+		"set_classic_creation_resources",
+		resolved_items,
+		int(creation.get("startingMoney", 0))
+	)
+	if not (applied is Dictionary):
+		return {
+			"status": "error",
+			"message": "Classic character resource owner returned an invalid result.",
+		}
+	return applied
+
+
 static func apply_level_up_spellcasting_progression(
 	character: Variant,
 	spell_point_roll: int = RANDOM_ROLL_UNSET
@@ -1275,6 +1358,7 @@ static func _creation_profile(
 	var caste_condition_levels := _integer_array(
 		caste_record.get("conditions", [])
 	)
+	var starting_item_ids := _integer_array(caste_record.get("startItems", []))
 	if stamina.size() < 2 \
 			or race_attribute_bonuses.size() != 6 \
 			or caste_attribute_bonuses.size() != 6 \
@@ -1296,6 +1380,8 @@ static func _creation_profile(
 			or not caste_record.has("maxStaminaBonus") \
 			or not caste_record.has("canUseMissile") \
 			or not caste_record.has("minimumAgeGroup") \
+			or not caste_record.has("startMoney") \
+			or starting_item_ids.size() != 20 \
 			or not race_record.has("missile") \
 			or not race_record.has("canRegenerate"):
 		return {}
@@ -1322,6 +1408,8 @@ static func _creation_profile(
 		"canUseMissile": int(caste_record["canUseMissile"]) != 0,
 		"handToHandBase": hand_to_hand[0],
 		"maximumStrengthDamageBonus": strength[1],
+		"startingMoney": int(caste_record["startMoney"]),
+		"startingItemIds": starting_item_ids,
 	}
 
 
@@ -1847,6 +1935,14 @@ static func _integer_rows(value: Variant) -> Array[Array]:
 		for row_value: Variant in value:
 			result.append(_integer_array(row_value))
 	return result
+
+
+static func _default_item_mapping() -> Dictionary:
+	var source: Object = ItemIdsScript.new()
+	var value: Variant = source.get("mapping")
+	var mapping: Dictionary = value.duplicate() if value is Dictionary else {}
+	source.free()
+	return mapping
 
 
 static func _campaign_id(bundle: Variant) -> String:
