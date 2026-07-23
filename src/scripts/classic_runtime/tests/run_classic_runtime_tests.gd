@@ -510,6 +510,8 @@ class CampaignRuleCharacter:
 	var classic_can_regenerate := false
 	var classic_can_regenerate_initialized := false
 	var used_resource := "MP"
+	var is_player_controlled := true
+	var curFaction := 0
 	var spells: Array = [[], [], [], [], [], [], []]
 	var traits: Array = []
 	var ITEM_NO_MELEE_WEAPON := {
@@ -805,6 +807,13 @@ class CampaignRuleCharacter:
 			classic_rule_profile,
 			stat_name,
 			native_value
+		)
+
+	func change_cur_sp(change: int) -> void:
+		native_stats["curSP"] = clampi(
+			int(native_stats["curSP"]) + change,
+			0,
+			int(get_stat("maxSP"))
 		)
 
 	func level_up(
@@ -7509,6 +7518,9 @@ func _test_classic_character_rule_profile() -> void:
 			record["conditions"][30] = 2
 			record["conditions"][31] = -1
 			record["conditions"][32] = 3
+			record["conditions"][33] = -3
+			record["conditions"][34] = -4
+			record["conditions"][35] = -1
 			record["conditions"][36] = -5
 			record["conditions"][37] = 4
 			record["conditions"][38] = -6
@@ -7647,7 +7659,7 @@ func _test_classic_character_rule_profile() -> void:
 				0, 0, -4, -1, 2, 0, 2, 3, -1, 0,
 				-3, 4, -1, 2, -1, 3, 6, 0, -1, 2,
 				0, -1, -1, 3, -1, 0, 0, 0, 0, 0,
-				2, -1, 3, 0, 0, 0, -5, 4, -6, 0,
+				2, -1, 3, -3, -4, -1, -5, 4, -6, 0,
 			],
 			"casteConditionLevels": [
 				0, 0, 0, 0, 2, 1, 0, 0, 0, 0,
@@ -8140,6 +8152,21 @@ func _test_classic_character_rule_profile() -> void:
 			"combat modifier %d retains its Classic value"
 			% condition_index
 		)
+	var expected_energy_conditions := {
+		33: -3,
+		34: -4,
+		35: -1,
+	}
+	for condition_index: int in expected_energy_conditions:
+		_expect_equal(
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				condition_index
+			),
+			expected_energy_conditions[condition_index],
+			"energy condition %d retains its Classic value"
+			% condition_index
+		)
 	var condition_trait_names: Array[String] = []
 	for trait_value: Variant in attribute_creation.traits:
 		condition_trait_names.append(str(trait_value.get("name")))
@@ -8161,6 +8188,9 @@ func _test_classic_character_rule_profile() -> void:
 		"t_reflect_spells.gd",
 		"p_reflect_melee.gd",
 		"t_classic_attack_bonus.gd",
+		"p_classic_power_gather.gd",
+		"p_classic_power_wither.gd",
+		"p_sp_absorb.gd",
 		"p_classic_hindered_atk.gd",
 		"t_hindered_def.gd",
 		"p_classic_defense_bonus.gd",
@@ -8179,6 +8209,9 @@ func _test_classic_character_rule_profile() -> void:
 	var temporary_speedy: Variant = null
 	var permanent_invisible: Variant = null
 	var temporary_attack_bonus: Variant = null
+	var permanent_power_gather: Variant = null
+	var permanent_power_wither: Variant = null
+	var permanent_spell_absorption: Variant = null
 	var permanent_hindered_attack: Variant = null
 	var temporary_hindered_defense: Variant = null
 	var permanent_defense_bonus: Variant = null
@@ -8203,6 +8236,12 @@ func _test_classic_character_rule_profile() -> void:
 			permanent_invisible = trait_value
 		elif str(trait_value.get("name")) == "t_classic_attack_bonus.gd":
 			temporary_attack_bonus = trait_value
+		elif str(trait_value.get("name")) == "p_classic_power_gather.gd":
+			permanent_power_gather = trait_value
+		elif str(trait_value.get("name")) == "p_classic_power_wither.gd":
+			permanent_power_wither = trait_value
+		elif str(trait_value.get("name")) == "p_sp_absorb.gd":
+			permanent_spell_absorption = trait_value
 		elif str(trait_value.get("name")) == "p_classic_hindered_atk.gd":
 			permanent_hindered_attack = trait_value
 		elif str(trait_value.get("name")) == "t_hindered_def.gd":
@@ -8301,6 +8340,41 @@ func _test_classic_character_rule_profile() -> void:
 			),
 		"permanent Defense Bonus converts six percentage points"
 	)
+	if permanent_power_gather != null:
+		attribute_creation.native_stats["curSP"] = 5
+		permanent_power_gather._on_new_round(attribute_creation)
+		_expect_equal(
+			attribute_creation.get_stat("curSP"),
+			8,
+			"permanent Power Gathering restores its exact condition strength"
+		)
+	if permanent_power_wither != null:
+		permanent_power_wither._on_new_round(attribute_creation)
+		_expect_equal(
+			attribute_creation.get_stat("curSP"),
+			4,
+			"permanent Power Withering drains its exact condition strength"
+		)
+	if permanent_spell_absorption != null:
+		var hostile_spellcaster := SpellPointConditionTestCharacter.new(
+			"Hostile spellcaster",
+			10,
+			10,
+			false,
+			1
+		)
+		var incoming_classic_spell := Spell.new()
+		incoming_classic_spell.classic_spell_ids = [1103]
+		permanent_spell_absorption._on_classic_spell_targeted_before_resistance(
+			hostile_spellcaster,
+			incoming_classic_spell,
+			3
+		)
+		_expect_equal(
+			attribute_creation.get_stat("curSP"),
+			7,
+			"permanent spell absorption gains the selected hostile spell power"
+		)
 	var temporary_defense_bonus = load(
 		"res://shared_assets/traits/t_classic_defense_bonus.gd"
 	).new([attribute_creation, 4])
@@ -8558,6 +8632,24 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		[2, -5, 3, -6],
 		"attack and defense modifiers survive character save/load"
+	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				33
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				34
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				35
+			),
+		],
+		[-3, -4, -1],
+		"permanent energy conditions survive character save/load"
 	)
 	_expect_equal(
 		attribute_creation_reloaded.get_meta(
@@ -18425,6 +18517,19 @@ func _test_classic_power_gather_spells() -> void:
 		9,
 		"Power Gather honors the described monster effect instead of the adjacent-slot typo"
 	)
+	var innate_gatherer := SpellPointConditionTestCharacter.new(
+		"Innate gatherer",
+		5,
+		30
+	)
+	innate_gatherer.add_trait(
+		load("res://shared_assets/traits/p_classic_power_gather.gd"),
+		[2]
+	)
+	_expect(
+		not power_gather._apply_duration(innate_gatherer, 3),
+		"temporary Power Gather does not stack over an innate condition"
+	)
 
 
 func _test_classic_energy_drain_spells() -> void:
@@ -18557,6 +18662,19 @@ func _test_classic_energy_drain_spells() -> void:
 	_expect(
 		not power_wither.apply_energy_drain_duration(capped_target, 2),
 		"player energy drain rejects a stack beyond condition 99"
+	)
+	var innate_withered := SpellPointConditionTestCharacter.new(
+		"Innately withered",
+		20,
+		30
+	)
+	innate_withered.add_trait(
+		load("res://shared_assets/traits/p_classic_power_wither.gd"),
+		[2]
+	)
+	_expect(
+		not power_wither.apply_energy_drain_duration(innate_withered, 3),
+		"temporary Power Wither does not stack over an innate condition"
 	)
 
 
@@ -18702,6 +18820,19 @@ func _test_classic_arcanic_bubble_spells() -> void:
 	_expect(
 		not bubble.apply_classic_group_effect(null, [capped], 3),
 		"player Arcanic Bubble rejects a stack beyond condition 99"
+	)
+	var innate_absorber := SpellPointConditionTestCharacter.new(
+		"Innate absorber",
+		10,
+		20
+	)
+	innate_absorber.add_trait(
+		load("res://shared_assets/traits/p_sp_absorb.gd"),
+		[]
+	)
+	_expect(
+		not bubble.apply_classic_group_effect(null, [innate_absorber], 3),
+		"temporary Arcanic Bubble does not stack over an innate condition"
 	)
 
 	var combat_source := FileAccess.get_file_as_string(

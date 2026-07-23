@@ -11,7 +11,7 @@ func configure_core_power_gather_spell(spell_id: int) -> bool:
 		spell_id,
 		34,
 		PowerGatherTrait,
-		[],
+		["p_classic_power_gather.gd"],
 		[1],
 		[4],
 		"Restores spell points equal to its remaining duration at each round or hour",

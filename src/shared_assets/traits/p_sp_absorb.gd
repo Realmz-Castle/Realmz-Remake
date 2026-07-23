@@ -13,12 +13,6 @@ var trait_source := ""
 
 func _init(args: Array) -> void:
 	chara = args[0]
-	UI.ow_hud.creatureRect.logrect.log_other_text(
-		chara,
-		" has Permanent Spell Energy Absorption!",
-		null,
-		""
-	)
 
 func get_saved_variables() -> Array:
 	return []

@@ -120,6 +120,21 @@ const CONDITION_TRAITS := {
 		"temporary": "res://shared_assets/traits/t_classic_attack_bonus.gd",
 		"permanent": "res://shared_assets/traits/p_classic_attack_bonus.gd",
 	},
+	33: {
+		"name": "Power Gathering",
+		"temporary": "res://shared_assets/traits/t_classic_power_gather.gd",
+		"permanent": "res://shared_assets/traits/p_classic_power_gather.gd",
+	},
+	34: {
+		"name": "Power Withering",
+		"temporary": "res://shared_assets/traits/t_classic_power_wither.gd",
+		"permanent": "res://shared_assets/traits/p_classic_power_wither.gd",
+	},
+	35: {
+		"name": "Spell Energy Absorption",
+		"temporary": "res://shared_assets/traits/t_sp_absorb.gd",
+		"permanent": "res://shared_assets/traits/p_sp_absorb.gd",
+	},
 	36: {
 		"name": "Hindered Attacks",
 		"temporary": "res://shared_assets/traits/t_hindered_atk.gd",

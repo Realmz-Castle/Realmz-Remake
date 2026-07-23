@@ -34,7 +34,7 @@ func apply_energy_drain_duration(target: Variant, duration: int) -> bool:
 		target,
 		duration,
 		EnergyDrainTrait,
-		[]
+		["p_classic_power_wither.gd"]
 	)
 
 
