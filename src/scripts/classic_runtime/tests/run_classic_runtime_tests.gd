@@ -509,6 +509,11 @@ class CampaignRuleCharacter:
 	var classic_conditions_initialized := false
 	var classic_can_regenerate := false
 	var classic_can_regenerate_initialized := false
+	var classic_special_abilities: Array[int] = [
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+	]
 	var classic_creation_resources_initialized := false
 	var money: Array = [9, 1, 1]
 	var inventory: Array = [{"name": "Native creation gift", "equipped": 0}]
@@ -589,6 +594,10 @@ class CampaignRuleCharacter:
 		if saved_data.has("classicCanRegenerate"):
 			set_classic_can_regenerate(
 				bool(saved_data["classicCanRegenerate"])
+			)
+		if saved_data.has("classicSpecialAbilities"):
+			set_classic_special_abilities(
+				saved_data["classicSpecialAbilities"]
 			)
 		classic_creation_resources_initialized = bool(
 			saved_data.get("classicCreationResourcesInitialized", false)
@@ -745,6 +754,21 @@ class CampaignRuleCharacter:
 		classic_can_regenerate = value
 		classic_can_regenerate_initialized = true
 
+	func set_classic_special_abilities(values: Variant) -> void:
+		classic_special_abilities.fill(0)
+		if not (values is Array):
+			return
+		for index: int in range(
+			mini(values.size(), classic_special_abilities.size())
+		):
+			classic_special_abilities[index] = int(values[index])
+
+	func change_classic_special_ability(index: int, change: int) -> int:
+		if index < 0 or index >= classic_special_abilities.size():
+			return 0
+		classic_special_abilities[index] += change
+		return classic_special_abilities[index]
+
 	func set_classic_creation_combat_stats(values: Dictionary) -> void:
 		for stat_name: String in [
 			"maxHP",
@@ -870,7 +894,8 @@ class CampaignRuleCharacter:
 		magic_resistance_roll: int = -1,
 		missile_roll: int = -1,
 		stamina_roll: int = CharacterRulesScript.RANDOM_ROLL_UNSET,
-		spell_point_roll: int = CharacterRulesScript.RANDOM_ROLL_UNSET
+		spell_point_roll: int = CharacterRulesScript.RANDOM_ROLL_UNSET,
+		special_ability_rolls: Array[int] = []
 	) -> void:
 		level += 1
 		base_stats["AccuracyMelee"] += 0.03
@@ -898,6 +923,10 @@ class CampaignRuleCharacter:
 			self,
 			magic_resistance_roll
 		)
+		CharacterRulesScript.apply_level_up_special_ability_progression(
+			self,
+			special_ability_rolls
+		)
 		CharacterRulesScript.apply_level_up_condition_progression(self)
 
 	func save_data() -> Dictionary:
@@ -914,6 +943,7 @@ class CampaignRuleCharacter:
 			"inventory": inventory.duplicate(true),
 			"classicCreationResourcesInitialized":
 				classic_creation_resources_initialized,
+			"classicSpecialAbilities": classic_special_abilities.duplicate(),
 		}
 		for trait_value: Variant in traits:
 			data["traits"].append({
@@ -7610,6 +7640,10 @@ func _test_classic_character_rule_profile() -> void:
 				1, 902, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			]
+			record["specialAbility"] = [
+				[10, 0, 3, 5, 0, 20, 5, 5, 5, 5, 5, 5, 2, 4],
+				[4, 0, 2, 3, 0, 6, 2, 2, 2, 2, 2, 2, 5, 3],
+			]
 			record["conditions"][4] = 2
 			record["conditions"][5] = 1
 			record["conditions"][17] = 2
@@ -7636,6 +7670,9 @@ func _test_classic_character_rule_profile() -> void:
 			record["itemTypes"] = [
 				(1 << 28) | (1 << 26),
 				0,
+			]
+			record["specialAbility"] = [
+				2, 99, 1, 2, 99, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 			]
 			record["drvBonus"] = [10, -200, 5, 0, 0, 0, 0, 100]
 			record["conditions"][2] = -4
@@ -7749,6 +7786,21 @@ func _test_classic_character_rule_profile() -> void:
 			"maximumVitalityBonus": 2,
 		},
 		"creation stamina stays separate from source-backed level growth"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("specialAbilities"),
+		{
+			"raceBase": [
+				2, 99, 1, 2, 99, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			],
+			"casteBase": [
+				10, 0, 3, 5, 0, 20, 5, 5, 5, 5, 5, 5, 2, 4,
+			],
+			"levelMaximums": [
+				4, 0, 2, 3, 0, 6, 2, 2, 2, 2, 2, 2, 5, 3,
+			],
+		},
+		"character retains the source-backed special-ability rows"
 	)
 	_expect_equal(
 		character.classic_rule_profile.get("itemPermissions"),
@@ -7917,6 +7969,77 @@ func _test_classic_character_rule_profile() -> void:
 			],
 		},
 		"character retains the source-backed creation combat profile"
+	)
+	var special_character := CampaignRuleCharacter.new()
+	special_character.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	var special_creation := (
+		CharacterRulesScript.apply_character_creation_special_abilities(
+			special_character
+		)
+	)
+	_expect_equal(
+		special_creation.get("status"),
+		"ok",
+		"Classic special abilities initialize from the active race and caste"
+	)
+	_expect_equal(
+		special_character.classic_special_abilities,
+		[
+			14, 0, 4, 9, 0,
+			38, 9, 19, 11, 22,
+			13, 19, 12, 15, 0,
+		],
+		"creation applies enabled skills, attribute modifiers, and racial turning"
+	)
+	special_character.level_up(
+		5,
+		3,
+		4,
+		7,
+		[4, 0, 2, 3, 0, 6, 2, 2, 2, 2, 2, 2, 5, 1]
+	)
+	_expect_equal(
+		special_character.classic_special_abilities,
+		[
+			18, 0, 6, 12, 0,
+			44, 11, 21, 13, 24,
+			15, 21, 17, 18, 0,
+		],
+		"level-up rolls grow enabled skills and enforce Turn Undead progression"
+	)
+	var special_saved: Variant = JSON.parse_string(
+		JSON.stringify(special_character.save_data())
+	)
+	var special_reloaded := CampaignRuleCharacter.new(special_saved)
+	_expect_equal(
+		special_reloaded.classic_special_abilities,
+		special_character.classic_special_abilities,
+		"Classic special-ability progression survives save and reload"
+	)
+	special_reloaded.classic_special_abilities[0] = 99
+	special_reloaded.level = 3
+	var capped_special_result := (
+		CharacterRulesScript.apply_level_up_special_ability_progression(
+			special_reloaded,
+			[4, 0, 2, 3, 0, 6, 2, 2, 2, 2, 2, 2, 5, 1]
+		)
+	)
+	_expect_equal(
+		special_reloaded.classic_special_abilities[0],
+		100,
+		"the first twelve percentage skills retain Classic's 100-point cap"
+	)
+	_expect_equal(
+		capped_special_result.get("turnUndeadFloor"),
+		21,
+		"Turn Undead uses its deterministic race, caste, and level floor"
+	)
+	_expect_equal(
+		special_reloaded.classic_special_abilities[13],
+		21,
+		"Turn Undead is raised to its source-backed current-level floor"
 	)
 	var creation_item_book := {
 		"Dagger": {

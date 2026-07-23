@@ -585,6 +585,13 @@ func level_up() :
 	ClassicCharacterRulesScript.apply_level_up_combat_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_attack_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_magic_resistance(self)
+	var special_ability_result := (
+		ClassicCharacterRulesScript.apply_level_up_special_ability_progression(
+			self
+		)
+	)
+	if str(special_ability_result.get("status", "")) == "error":
+		push_error(str(special_ability_result.get("message", "")))
 	var condition_result := (
 		ClassicCharacterRulesScript.apply_level_up_condition_progression(self)
 	)

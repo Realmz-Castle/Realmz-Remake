@@ -20,6 +20,41 @@ const CLASSIC_CASTER_SCHOOLS := {
 	2: "Priest",
 	3: "Enchanter",
 }
+const SPECIAL_ABILITY_COUNT := 14
+const PERCENT_SPECIAL_ABILITY_COUNT := 12
+const SNEAK_ATTACK_ABILITY_INDEX := 0
+const MAJOR_WOUND_ABILITY_INDEX := 3
+const ACROBATIC_ACT_ABILITY_INDEX := 5
+const DISARM_TRAP_ABILITY_INDEX := 7
+const FORCE_LOCK_ABILITY_INDEX := 9
+const PICK_LOCK_ABILITY_INDEX := 11
+const TURN_UNDEAD_ABILITY_INDEX := 13
+const SPECIAL_ABILITY_ATTRIBUTE_VALUES: Array[int] = [
+	3, 4, 5, 6, 7,
+	17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+]
+const SPECIAL_ABILITY_STRENGTH_MODIFIERS := {
+	SNEAK_ATTACK_ABILITY_INDEX:
+		[-5, -4, -3, -2, -1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4],
+	MAJOR_WOUND_ABILITY_INDEX:
+		[-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+	ACROBATIC_ACT_ABILITY_INDEX:
+		[-75, -60, -45, -30, -15, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70],
+	DISARM_TRAP_ABILITY_INDEX:
+		[-10, -8, -6, -4, -2, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28],
+	FORCE_LOCK_ABILITY_INDEX:
+		[-75, -60, -45, -30, -15, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70],
+}
+const SPECIAL_ABILITY_DEXTERITY_MODIFIERS := {
+	SNEAK_ATTACK_ABILITY_INDEX:
+		[-5, -4, -3, -2, -1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5],
+	ACROBATIC_ACT_ABILITY_INDEX:
+		[-20, -15, -10, -5, -2, 5, 8, 11, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
+	DISARM_TRAP_ABILITY_INDEX:
+		[-25, -20, -15, -10, -5, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70],
+	PICK_LOCK_ABILITY_INDEX:
+		[-25, -20, -15, -10, -5, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70],
+}
 
 
 static func apply_party(bundle: Variant, party: Array) -> Dictionary:
@@ -122,6 +157,11 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var special_abilities := _special_ability_profile(
+		active_race_record,
+		active_caste_record,
+		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
+	)
 	var item_permissions := _item_permissions_profile(
 		active_race_record,
 		active_caste_record,
@@ -141,6 +181,7 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 			and stamina_progression.is_empty() \
 			and condition_progression.is_empty() \
 			and spellcasting_progression.is_empty() \
+			and special_abilities.is_empty() \
 			and item_permissions.is_empty() \
 			and creation.is_empty():
 		return {}
@@ -162,6 +203,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["conditionProgression"] = condition_progression
 	if not spellcasting_progression.is_empty():
 		profile["spellcastingProgression"] = spellcasting_progression
+	if not special_abilities.is_empty():
+		profile["specialAbilities"] = special_abilities
 	if not item_permissions.is_empty():
 		profile["itemPermissions"] = item_permissions
 	if not creation.is_empty():
@@ -466,6 +509,145 @@ static func apply_level_up_condition_progression(character: Variant) -> Dictiona
 			return result
 		applied.append(result)
 	return {"status": "ok", "applied": applied}
+
+
+## Initializes the fourteen Classic special abilities from the active race and
+## caste. A race contributes to an ordinary skill only when the caste enables
+## that skill. Turn Undead is the exception: Realmz restores the racial value
+## even when the caste has no starting value.
+static func apply_character_creation_special_abilities(
+	character: Variant
+) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var rules := _dictionary_value(profile.get("specialAbilities", {}))
+	if rules.is_empty():
+		return {"status": "skipped"}
+	if not (character is Object) \
+			or not character.has_method("set_classic_special_abilities"):
+		return {
+			"status": "error",
+			"message": "Classic character creation requires mutable special abilities.",
+		}
+
+	var race_base := _integer_array(rules.get("raceBase", []))
+	var caste_base := _integer_array(rules.get("casteBase", []))
+	if race_base.size() != SPECIAL_ABILITY_COUNT \
+			or caste_base.size() != SPECIAL_ABILITY_COUNT:
+		return {
+			"status": "error",
+			"message": "Classic character creation has incomplete special abilities.",
+		}
+
+	var strength := _character_stat(character, "Strength")
+	var dexterity := _character_stat(character, "Dexterity")
+	var abilities: Array[int] = []
+	for ability_index: int in range(SPECIAL_ABILITY_COUNT):
+		var value := 0
+		if ability_index == TURN_UNDEAD_ABILITY_INDEX:
+			value = race_base[ability_index] + caste_base[ability_index]
+		elif caste_base[ability_index] != 0:
+			value = race_base[ability_index] + caste_base[ability_index]
+			value += _special_ability_attribute_modifier(
+				SPECIAL_ABILITY_STRENGTH_MODIFIERS,
+				ability_index,
+				strength
+			)
+			value += _special_ability_attribute_modifier(
+				SPECIAL_ABILITY_DEXTERITY_MODIFIERS,
+				ability_index,
+				dexterity
+			)
+		if ability_index < PERCENT_SPECIAL_ABILITY_COUNT:
+			value = clampi(value, 0, 100)
+		abilities.append(value)
+
+	character.call("set_classic_special_abilities", abilities)
+	return {"status": "ok", "abilities": abilities}
+
+
+## Applies one Classic level's random special-ability gains. The optional
+## rolls make source-bound tests deterministic; an empty array uses Realmz's
+## inclusive random formula for every enabled slot.
+static func apply_level_up_special_ability_progression(
+	character: Variant,
+	requested_rolls: Array[int] = []
+) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var rules := _dictionary_value(profile.get("specialAbilities", {}))
+	if rules.is_empty():
+		return {"status": "skipped"}
+	if not requested_rolls.is_empty() \
+			and requested_rolls.size() != SPECIAL_ABILITY_COUNT:
+		return {
+			"status": "error",
+			"message": "Classic special-ability progression requires fourteen rolls.",
+		}
+	if not (character is Object) \
+			or not character.has_method("set_classic_special_abilities"):
+		return {
+			"status": "error",
+			"message": "Classic special-ability progression requires mutable abilities.",
+		}
+
+	var race_base := _integer_array(rules.get("raceBase", []))
+	var caste_base := _integer_array(rules.get("casteBase", []))
+	var level_maximums := _integer_array(rules.get("levelMaximums", []))
+	var abilities := _integer_array(
+		_value(character, "classic_special_abilities", [])
+	)
+	if race_base.size() != SPECIAL_ABILITY_COUNT \
+			or caste_base.size() != SPECIAL_ABILITY_COUNT \
+			or level_maximums.size() != SPECIAL_ABILITY_COUNT \
+			or abilities.size() < SPECIAL_ABILITY_COUNT:
+		return {
+			"status": "error",
+			"message": "Classic special-ability progression has incomplete state.",
+		}
+
+	var rolls: Array[int] = []
+	for ability_index: int in range(SPECIAL_ABILITY_COUNT):
+		var maximum := level_maximums[ability_index]
+		var roll := 0
+		if maximum != 0:
+			var requested_roll := (
+				requested_rolls[ability_index]
+				if not requested_rolls.is_empty()
+				else RANDOM_ROLL_UNSET
+			)
+			roll = _classic_rand(maximum, requested_roll)
+			abilities[ability_index] += roll
+		if ability_index < PERCENT_SPECIAL_ABILITY_COUNT:
+			abilities[ability_index] = clampi(
+				abilities[ability_index],
+				0,
+				100
+			)
+		rolls.append(roll)
+
+	# bandaid() makes Turn Undead at least the racial base plus the caste's
+	# deterministic value for the current level, even though updatespec() also
+	# rolls that slot. Preserve a larger value supplied by items or actions.
+	var turn_undead_floor := (
+		race_base[TURN_UNDEAD_ABILITY_INDEX]
+		+ caste_base[TURN_UNDEAD_ABILITY_INDEX]
+		+ level_maximums[TURN_UNDEAD_ABILITY_INDEX]
+			* maxi(0, int(_value(character, "level", 1)) - 1)
+	)
+	abilities[TURN_UNDEAD_ABILITY_INDEX] = maxi(
+		abilities[TURN_UNDEAD_ABILITY_INDEX],
+		turn_undead_floor
+	)
+	character.call("set_classic_special_abilities", abilities)
+	return {
+		"status": "ok",
+		"rolls": rolls,
+		"abilities": abilities.slice(0, SPECIAL_ABILITY_COUNT),
+		"turnUndeadFloor": turn_undead_floor,
+	}
 
 
 ## Rolls and assigns Classic's six creation attributes and demographics.
@@ -1317,6 +1499,27 @@ static func _active_spellcaster_type(
 	return int(progression.get("casterType", 0))
 
 
+static func _special_ability_profile(
+	race_record: Dictionary,
+	caste_record: Dictionary,
+	has_changed_record: bool
+) -> Dictionary:
+	if not has_changed_record:
+		return {}
+	var race_base := _integer_array(race_record.get("specialAbility", []))
+	var caste_rows := _integer_rows(caste_record.get("specialAbility", []))
+	if race_base.size() != SPECIAL_ABILITY_COUNT \
+			or caste_rows.size() != 2 \
+			or caste_rows[0].size() != SPECIAL_ABILITY_COUNT \
+			or caste_rows[1].size() != SPECIAL_ABILITY_COUNT:
+		return {}
+	return {
+		"raceBase": race_base,
+		"casteBase": caste_rows[0],
+		"levelMaximums": caste_rows[1],
+	}
+
+
 static func _creation_profile(
 	race_record: Dictionary,
 	caste_record: Dictionary,
@@ -1610,6 +1813,20 @@ static func _classic_rand(
 	# Realmz scales the signed 15-bit Random result and adds one. Keeping that
 	# formula also preserves its unusual zero and negative-range behavior.
 	return 1 + int(float(raw_result * range_maximum) / 32768.0)
+
+
+static func _special_ability_attribute_modifier(
+	modifiers: Dictionary,
+	ability_index: int,
+	attribute_value: int
+) -> int:
+	var range_index := SPECIAL_ABILITY_ATTRIBUTE_VALUES.find(attribute_value)
+	if range_index < 0:
+		return 0
+	var values: Variant = modifiers.get(ability_index, [])
+	if not (values is Array) or range_index >= values.size():
+		return 0
+	return int(values[range_index])
 
 
 static func _attack_profile(

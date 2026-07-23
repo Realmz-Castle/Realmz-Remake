@@ -349,7 +349,37 @@ func _run_smoke() -> void:
 				1 << 28,
 			],
 		},
+		"specialAbilities": {
+			"raceBase": [
+				2, 99, 1, 2, 99, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			],
+			"casteBase": [
+				10, 0, 3, 5, 0, 20, 5, 5, 5, 5, 5, 5, 2, 4,
+			],
+			"levelMaximums": [
+				4, 0, 2, 3, 0, 6, 2, 2, 2, 2, 2, 2, 5, 3,
+			],
+		},
 	})
+	var creation_special_abilities := (
+		ClassicCharacterRulesScript.apply_character_creation_special_abilities(
+			classic_creation_character
+		)
+	)
+	_expect_equal(
+		creation_special_abilities.get("status"),
+		"ok",
+		"native character creation accepts Classic special abilities"
+	)
+	_expect_equal(
+		classic_creation_character.classic_special_abilities,
+		[
+			15, 0, 4, 6, 0,
+			38, 9, 43, 11, 0,
+			13, 49, 12, 15, 0,
+		],
+		"native creation applies source attribute modifiers to special abilities"
+	)
 	var creation_resources := (
 		ClassicCharacterRulesScript.apply_character_creation_resources(
 			classic_creation_character,
@@ -431,6 +461,11 @@ func _run_smoke() -> void:
 			),
 			[150, 250, 251],
 			"native character save/load retains Classic starting equipment"
+		)
+		_expect_equal(
+			restored_creation_character.classic_special_abilities,
+			classic_creation_character.classic_special_abilities,
+			"native save/load retains Classic special abilities"
 		)
 		_expect_equal(
 			ClassicCharacterRulesScript.apply_character_creation_resources(

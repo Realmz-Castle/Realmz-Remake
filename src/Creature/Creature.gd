@@ -938,12 +938,16 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	return true
 
 
-func restore_classic_special_abilities(saved_value: Variant) -> void:
+func set_classic_special_abilities(values: Variant) -> void:
 	classic_special_abilities.fill(0)
-	if not (saved_value is Array):
+	if not (values is Array):
 		return
-	for index: int in range(mini(saved_value.size(), classic_special_abilities.size())):
-		classic_special_abilities[index] = int(saved_value[index])
+	for index: int in range(mini(values.size(), classic_special_abilities.size())):
+		classic_special_abilities[index] = int(values[index])
+
+
+func restore_classic_special_abilities(saved_value: Variant) -> void:
+	set_classic_special_abilities(saved_value)
 
 
 func change_classic_special_ability(index: int, change: int) -> int:
