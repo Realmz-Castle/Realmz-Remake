@@ -324,6 +324,23 @@ func set_classic_creation_spell_points(value: int) -> void:
 	stats["curSP"] = get_stat("maxSP")
 
 
+func set_classic_creation_combat_stats(values: Dictionary) -> void:
+	for stat_name: String in [
+		"maxHP",
+		"AccuracyMelee",
+		"AccuracyRanged",
+		"EvasionMelee",
+		"EvasionRanged",
+		"Bonus_Physical_dmg",
+	]:
+		if values.has(stat_name):
+			base_stats[stat_name] = values[stat_name]
+	if values.has("classicHandToHand"):
+		set_classic_hand_to_hand(int(values["classicHandToHand"]))
+	recalculate_stats()
+	stats["curHP"] = get_stat("maxHP")
+
+
 func has_classic_spellcaster_type() -> bool:
 	return classic_spellcaster_type_initialized
 

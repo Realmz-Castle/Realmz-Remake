@@ -509,7 +509,9 @@ class CampaignRuleCharacter:
 		"MaxActions": 2.0,
 		"AccuracyMelee": 0.05,
 		"AccuracyRanged": 0.05,
+		"EvasionMelee": 0.0,
 		"EvasionRanged": 0.05,
+		"Bonus_Physical_dmg": 0,
 		"maxHP": 20,
 		"maxSP": 12,
 	}
@@ -518,13 +520,17 @@ class CampaignRuleCharacter:
 		"MaxActions": 2.0,
 		"AccuracyMelee": 0.05,
 		"AccuracyRanged": 0.05,
+		"EvasionMelee": 0.0,
 		"EvasionRanged": 0.05,
+		"Bonus_Physical_dmg": 0,
 		"maxHP": 20,
 		"curHP": 15,
 		"maxSP": 12,
 		"curSP": 7,
+		"Strength": 18,
 		"Intellect": 11,
 		"Wisdom": 8,
+		"Dexterity": 17,
 		"Vitality": 19,
 	}
 
@@ -603,6 +609,22 @@ class CampaignRuleCharacter:
 		recalculate_stats()
 		native_stats["curSP"] = native_stats["maxSP"]
 
+	func set_classic_creation_combat_stats(values: Dictionary) -> void:
+		for stat_name: String in [
+			"maxHP",
+			"AccuracyMelee",
+			"AccuracyRanged",
+			"EvasionMelee",
+			"EvasionRanged",
+			"Bonus_Physical_dmg",
+		]:
+			if values.has(stat_name):
+				base_stats[stat_name] = values[stat_name]
+		if values.has("classicHandToHand"):
+			set_classic_hand_to_hand(int(values["classicHandToHand"]))
+		recalculate_stats()
+		native_stats["curHP"] = native_stats["maxHP"]
+
 	func has_classic_spellcaster_type() -> bool:
 		return classic_spellcaster_type_initialized
 
@@ -634,7 +656,9 @@ class CampaignRuleCharacter:
 			"MaxActions",
 			"AccuracyMelee",
 			"AccuracyRanged",
+			"EvasionMelee",
 			"EvasionRanged",
+			"Bonus_Physical_dmg",
 			"maxHP",
 			"maxSP",
 		]:
@@ -644,7 +668,11 @@ class CampaignRuleCharacter:
 
 	func get_stat(stat_name: String) -> Variant:
 		var native_value: Variant = native_stats.get(stat_name, 0)
-		if stat_name == "EvasionRanged":
+		if not [
+			"MaxActions",
+			"AccuracyMelee",
+			"AccuracyRanged",
+		].has(stat_name):
 			native_value = roundi(native_value)
 		return CharacterRulesScript.adjusted_stat(
 			self,
@@ -7287,6 +7315,7 @@ func _test_classic_character_rule_profile() -> void:
 			record["hand2Hand"] = [6, 2]
 			record["stamina"] = [8, 6]
 			record["maxStaminaBonus"] = 2
+			record["strength"] = [0, 4]
 			record["conditions"][4] = 2
 			record["conditions"][39] = 3
 			record["spellcasters"] = [
@@ -7368,6 +7397,21 @@ func _test_classic_character_rule_profile() -> void:
 			"maximumVitalityBonus": 2,
 		},
 		"creation stamina stays separate from source-backed level growth"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("creation"),
+		{
+			"staminaDieMaximum": 8,
+			"maximumVitalityBonus": 2,
+			"toHitBase": 5,
+			"dodgeBase": 20,
+			"raceMissileBase": 0,
+			"casteMissileBase": 15,
+			"canUseMissile": false,
+			"handToHandBase": 6,
+			"maximumStrengthDamageBonus": 4,
+		},
+		"character retains the source-backed creation combat profile"
 	)
 	_expect_equal(
 		character.classic_rule_profile.get("conditionProgression"),
@@ -7623,6 +7667,123 @@ func _test_classic_character_rule_profile() -> void:
 		creation_reloaded.classic_spellcaster_type,
 		3,
 		"the creation-time caster identity survives character save/load"
+	)
+	var combat_creation := CampaignRuleCharacter.new()
+	combat_creation.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	var combat_creation_result := (
+		CharacterRulesScript.apply_character_creation_combat(
+			combat_creation,
+			5
+		)
+	)
+	_expect_equal(
+		combat_creation_result,
+		{
+			"status": "ok",
+			"staminaRoll": 5,
+			"vitalityBonus": 2,
+			"stamina": 7,
+			"toHit": 15,
+			"armorClass": 6,
+			"dodge": 54,
+			"missile": 0,
+			"handToHand": 6,
+			"damageBonus": 2,
+		},
+		"Classic creation derives its combat values from finalized attributes"
+	)
+	_expect_equal(
+		combat_creation.get_stat("maxHP"),
+		7,
+		"Classic creation replaces native starting stamina"
+	)
+	_expect_equal(
+		combat_creation.get_stat("curHP"),
+		7,
+		"Classic creation starts at full stamina"
+	)
+	_expect_equal(
+		combat_creation.get_stat("AccuracyMelee"),
+		3.0,
+		"Classic creation maps fifteen to-hit points to native accuracy"
+	)
+	_expect_equal(
+		combat_creation.get_stat("EvasionMelee"),
+		1,
+		"Classic creation maps Dexterity armor class at native precision"
+	)
+	_expect_equal(
+		combat_creation.get_stat("EvasionRanged"),
+		11,
+		"Classic creation maps dodge at native precision"
+	)
+	_expect_equal(
+		combat_creation.get_stat("AccuracyRanged"),
+		0.0,
+		"the caste missile gate clears both race and caste skill"
+	)
+	_expect_equal(
+		combat_creation.classic_hand_to_hand,
+		6,
+		"Classic creation stores the caste unarmed die"
+	)
+	_expect_equal(
+		combat_creation.get_stat("Bonus_Physical_dmg"),
+		2,
+		"Classic creation applies the capped Strength damage bonus"
+	)
+	var missile_creation := CampaignRuleCharacter.new()
+	missile_creation.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	missile_creation.classic_rule_profile["creation"]["canUseMissile"] = true
+	missile_creation.classic_rule_profile["creation"]["raceMissileBase"] = 20
+	CharacterRulesScript.apply_character_creation_combat(
+		missile_creation,
+		5
+	)
+	_expect_equal(
+		missile_creation.get_stat("AccuracyRanged"),
+		7.0,
+		"an enabled missile user combines the race and caste creation bases"
+	)
+	var combat_creation_saved: Variant = JSON.parse_string(
+		JSON.stringify(combat_creation.save_data())
+	)
+	var combat_creation_reloaded := CampaignRuleCharacter.new(
+		combat_creation_saved
+	)
+	_expect_equal(
+		combat_creation_reloaded.get_stat("maxHP"),
+		7,
+		"creation stamina survives character save/load"
+	)
+	_expect_equal(
+		combat_creation_reloaded.get_stat("AccuracyMelee"),
+		3.0,
+		"creation melee accuracy survives character save/load"
+	)
+	_expect_equal(
+		combat_creation_reloaded.get_stat("EvasionRanged"),
+		11,
+		"creation dodge survives character save/load"
+	)
+	_expect_equal(
+		combat_creation_reloaded.classic_hand_to_hand,
+		6,
+		"creation hand-to-hand survives character save/load"
+	)
+	_expect_equal(
+		CharacterRulesScript._classic_strength_bonuses(4, 8),
+		{"toHit": -15, "damage": 0},
+		"negative Classic Strength damage is clamped during initialization"
+	)
+	_expect_equal(
+		CharacterRulesScript._classic_strength_bonuses(30, 6),
+		{"toHit": 40, "damage": 6},
+		"Classic Strength damage respects the caste maximum"
 	)
 	var delayed_spellcaster := CampaignRuleCharacter.new()
 	delayed_spellcaster.classic_rule_profile = {

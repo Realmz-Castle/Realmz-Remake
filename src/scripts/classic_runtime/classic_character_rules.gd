@@ -118,6 +118,11 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var creation := _creation_profile(
+		active_race_record,
+		active_caste_record,
+		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
+	)
 
 	if movement.is_empty() \
 			and magic_resistance.is_empty() \
@@ -125,7 +130,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 			and combat_progression.is_empty() \
 			and stamina_progression.is_empty() \
 			and condition_progression.is_empty() \
-			and spellcasting_progression.is_empty():
+			and spellcasting_progression.is_empty() \
+			and creation.is_empty():
 		return {}
 
 	var profile := {
@@ -145,6 +151,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["conditionProgression"] = condition_progression
 	if not spellcasting_progression.is_empty():
 		profile["spellcastingProgression"] = spellcasting_progression
+	if not creation.is_empty():
+		profile["creation"] = creation
 	if race_id > 0:
 		profile["raceId"] = race_id
 	if caste_id > 0:
@@ -405,6 +413,97 @@ static func apply_level_up_condition_progression(character: Variant) -> Dictiona
 			return result
 		applied.append(result)
 	return {"status": "ok", "applied": applied}
+
+
+## Applies Classic's initial stamina and mundane combat values.
+##
+## Call this after the level-one attributes and active rule profile have been
+## assigned, but before any level-ups used to reach an advanced starting level.
+static func apply_character_creation_combat(
+	character: Variant,
+	stamina_roll: int = RANDOM_ROLL_UNSET
+) -> Dictionary:
+	var creation := _dictionary_value(
+		_dictionary_value(
+			_value(character, "classic_rule_profile", {})
+		).get("creation", {})
+	)
+	if creation.is_empty():
+		return {"status": "skipped"}
+	if not (character is Object) \
+			or not character.has_method("set_classic_creation_combat_stats"):
+		return {
+			"status": "error",
+			"message": "Classic character creation requires mutable combat stats.",
+		}
+
+	var strength := _character_stat(character, "Strength")
+	var dexterity := _character_stat(character, "Dexterity")
+	var vitality := _character_stat(character, "Vitality")
+	var strength_bonuses := _classic_strength_bonuses(
+		strength,
+		int(creation.get("maximumStrengthDamageBonus", 0))
+	)
+	var vitality_bonus := 0
+	if vitality > 16:
+		vitality_bonus = mini(
+			vitality - 16,
+			int(creation.get("maximumVitalityBonus", 0))
+		)
+	var rolled_stamina := _classic_rand(
+		int(creation.get("staminaDieMaximum", 0)),
+		stamina_roll
+	)
+	var stamina := rolled_stamina + vitality_bonus
+	var melee_to_hit := (
+		int(creation.get("toHitBase", 0))
+		+ int(strength_bonuses.get("toHit", 0))
+	)
+	var melee_evasion := maxi(0, 2 * (dexterity - 14))
+	var dodge := clampi(
+		2 * dexterity + int(creation.get("dodgeBase", 0)),
+		0,
+		100
+	)
+	var missile := 0
+	if bool(creation.get("canUseMissile", false)):
+		missile = clampi(
+			int(creation.get("raceMissileBase", 0))
+				+ int(creation.get("casteMissileBase", 0)),
+			0,
+			100
+		)
+	var hand_to_hand := clampi(
+		int(creation.get("handToHandBase", 0)),
+		0,
+		200
+	)
+	character.call(
+		"set_classic_creation_combat_stats",
+		{
+			"maxHP": stamina,
+			"AccuracyMelee": float(melee_to_hit) / 5.0,
+			"AccuracyRanged": float(missile) / 5.0,
+			"EvasionMelee": float(melee_evasion) / 5.0,
+			"EvasionRanged": float(dodge) / 5.0,
+			"Bonus_Physical_dmg": int(
+				strength_bonuses.get("damage", 0)
+			),
+			"classicHandToHand": hand_to_hand,
+		}
+	)
+	return {
+		"status": "ok",
+		"staminaRoll": rolled_stamina,
+		"vitalityBonus": vitality_bonus,
+		"stamina": stamina,
+		"toHit": melee_to_hit,
+		"armorClass": melee_evasion,
+		"dodge": dodge,
+		"missile": missile,
+		"handToHand": hand_to_hand,
+		"damageBonus": int(strength_bonuses.get("damage", 0)),
+	}
 
 
 ## Applies the spell-point portion of Classic character creation.
@@ -778,6 +877,112 @@ static func _active_spellcaster_type(
 			and bool(character.call("has_classic_spellcaster_type")):
 		return int(_value(character, "classic_spellcaster_type", 0))
 	return int(progression.get("casterType", 0))
+
+
+static func _creation_profile(
+	race_record: Dictionary,
+	caste_record: Dictionary,
+	has_changed_record: bool
+) -> Dictionary:
+	if not has_changed_record:
+		return {}
+	var stamina := _integer_array(caste_record.get("stamina", []))
+	var to_hit := _integer_array(caste_record.get("toHit", []))
+	var dodge := _integer_array(caste_record.get("dodge", []))
+	var caste_missile := _integer_array(caste_record.get("missile", []))
+	var hand_to_hand := _integer_array(caste_record.get("hand2Hand", []))
+	var strength := _integer_array(caste_record.get("strength", []))
+	if stamina.size() < 2 \
+			or to_hit.size() < 2 \
+			or dodge.size() < 2 \
+			or caste_missile.size() < 2 \
+			or hand_to_hand.size() < 2 \
+			or strength.size() < 2 \
+			or not caste_record.has("maxStaminaBonus") \
+			or not caste_record.has("canUseMissile") \
+			or not race_record.has("missile"):
+		return {}
+	return {
+		"staminaDieMaximum": stamina[0],
+		"maximumVitalityBonus": int(caste_record["maxStaminaBonus"]),
+		"toHitBase": to_hit[0],
+		"dodgeBase": dodge[0],
+		"raceMissileBase": int(race_record["missile"]),
+		"casteMissileBase": caste_missile[0],
+		"canUseMissile": int(caste_record["canUseMissile"]) != 0,
+		"handToHandBase": hand_to_hand[0],
+		"maximumStrengthDamageBonus": strength[1],
+	}
+
+
+static func _classic_strength_bonuses(
+	strength: int,
+	maximum_damage_bonus: int
+) -> Dictionary:
+	var to_hit := 0
+	var damage := 0
+	if strength < 4:
+		to_hit = -20
+	else:
+		match strength:
+			4:
+				to_hit = -15
+				damage = -1
+			5:
+				to_hit = -10
+				damage = -1
+			6:
+				to_hit = -5
+			16:
+				to_hit = 5
+				damage = 1
+			17:
+				to_hit = 5
+				damage = 2
+			18:
+				to_hit = 10
+				damage = 2
+			19:
+				to_hit = 10
+				damage = 3
+			20:
+				to_hit = 15
+				damage = 3
+			21:
+				to_hit = 15
+				damage = 4
+			22:
+				to_hit = 20
+				damage = 4
+			23:
+				to_hit = 20
+				damage = 5
+			24:
+				to_hit = 25
+				damage = 5
+			25:
+				to_hit = 25
+				damage = 6
+			26:
+				to_hit = 30
+				damage = 6
+			27:
+				to_hit = 30
+				damage = 7
+			28:
+				to_hit = 35
+				damage = 7
+			29:
+				to_hit = 35
+				damage = 8
+			30:
+				to_hit = 40
+				damage = 8
+	damage = clampi(mini(damage, maximum_damage_bonus), 0, 200)
+	return {
+		"toHit": to_hit,
+		"damage": damage,
+	}
 
 
 static func _condition_progression_profile(
