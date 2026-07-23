@@ -115,6 +115,26 @@ const CONDITION_TRAITS := {
 		"temporary": "res://shared_assets/traits/t_reflect_melee.gd",
 		"permanent": "res://shared_assets/traits/p_reflect_melee.gd",
 	},
+	32: {
+		"name": "Attack Bonus",
+		"temporary": "res://shared_assets/traits/t_classic_attack_bonus.gd",
+		"permanent": "res://shared_assets/traits/p_classic_attack_bonus.gd",
+	},
+	36: {
+		"name": "Hindered Attacks",
+		"temporary": "res://shared_assets/traits/t_hindered_atk.gd",
+		"permanent": "res://shared_assets/traits/p_classic_hindered_atk.gd",
+	},
+	37: {
+		"name": "Hindered Defense",
+		"temporary": "res://shared_assets/traits/t_hindered_def.gd",
+		"permanent": "res://shared_assets/traits/p_classic_hindered_def.gd",
+	},
+	38: {
+		"name": "Defense Bonus",
+		"temporary": "res://shared_assets/traits/t_classic_defense_bonus.gd",
+		"permanent": "res://shared_assets/traits/p_classic_defense_bonus.gd",
+	},
 	39: {
 		"name": "Silenced",
 		"temporary": "res://shared_assets/traits/t_silenced.gd",

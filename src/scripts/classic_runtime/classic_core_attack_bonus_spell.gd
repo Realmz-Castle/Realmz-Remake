@@ -11,7 +11,7 @@ func configure_core_attack_bonus_spell(spell_id: int) -> bool:
 		spell_id,
 		33,
 		AttackBonusTrait,
-		[],
+		["p_classic_attack_bonus.gd"],
 		[0, 1, 9],
 		[4],
 		"Adds its remaining duration to physical attack damage",

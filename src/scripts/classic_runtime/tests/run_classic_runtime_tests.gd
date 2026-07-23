@@ -7508,6 +7508,10 @@ func _test_classic_character_rule_profile() -> void:
 			record["conditions"][24] = -1
 			record["conditions"][30] = 2
 			record["conditions"][31] = -1
+			record["conditions"][32] = 3
+			record["conditions"][36] = -5
+			record["conditions"][37] = 4
+			record["conditions"][38] = -6
 			record["ageChange"][0] = [
 				1, 2, 3, 4, 5, 6,
 				0, 0, 1, 2, 3, 4, 5, 6, 7,
@@ -7643,7 +7647,7 @@ func _test_classic_character_rule_profile() -> void:
 				0, 0, -4, -1, 2, 0, 2, 3, -1, 0,
 				-3, 4, -1, 2, -1, 3, 6, 0, -1, 2,
 				0, -1, -1, 3, -1, 0, 0, 0, 0, 0,
-				2, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, -1, 3, 0, 0, 0, -5, 4, -6, 0,
 			],
 			"casteConditionLevels": [
 				0, 0, 0, 0, 2, 1, 0, 0, 0, 0,
@@ -8120,9 +8124,25 @@ func _test_classic_character_rule_profile() -> void:
 			"combat impairment %d retains its Classic value"
 			% condition_index
 		)
-	var defensive_trait_names: Array[String] = []
+	var expected_modifier_conditions := {
+		32: 3,
+		36: -5,
+		37: 4,
+		38: -6,
+	}
+	for condition_index: int in expected_modifier_conditions:
+		_expect_equal(
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				condition_index
+			),
+			expected_modifier_conditions[condition_index],
+			"combat modifier %d retains its Classic value"
+			% condition_index
+		)
+	var condition_trait_names: Array[String] = []
 	for trait_value: Variant in attribute_creation.traits:
-		defensive_trait_names.append(str(trait_value.get("name")))
+		condition_trait_names.append(str(trait_value.get("name")))
 	for expected_trait_name: String in [
 		"p_classic_tangled.gd",
 		"p_cursed.gd",
@@ -8140,9 +8160,13 @@ func _test_classic_character_rule_profile() -> void:
 		"p_classic_invisible.gd",
 		"t_reflect_spells.gd",
 		"p_reflect_melee.gd",
+		"t_classic_attack_bonus.gd",
+		"p_classic_hindered_atk.gd",
+		"t_hindered_def.gd",
+		"p_classic_defense_bonus.gd",
 	]:
 		_expect(
-			expected_trait_name in defensive_trait_names,
+			expected_trait_name in condition_trait_names,
 			"Classic creation installs %s" % expected_trait_name
 		)
 	var hit_shield: Variant = null
@@ -8154,6 +8178,10 @@ func _test_classic_character_rule_profile() -> void:
 	var permanent_strong: Variant = null
 	var temporary_speedy: Variant = null
 	var permanent_invisible: Variant = null
+	var temporary_attack_bonus: Variant = null
+	var permanent_hindered_attack: Variant = null
+	var temporary_hindered_defense: Variant = null
+	var permanent_defense_bonus: Variant = null
 	for trait_value: Variant in attribute_creation.traits:
 		if str(trait_value.get("name")) == "t_pro_hits.gd":
 			hit_shield = trait_value
@@ -8173,6 +8201,14 @@ func _test_classic_character_rule_profile() -> void:
 			temporary_speedy = trait_value
 		elif str(trait_value.get("name")) == "p_classic_invisible.gd":
 			permanent_invisible = trait_value
+		elif str(trait_value.get("name")) == "t_classic_attack_bonus.gd":
+			temporary_attack_bonus = trait_value
+		elif str(trait_value.get("name")) == "p_classic_hindered_atk.gd":
+			permanent_hindered_attack = trait_value
+		elif str(trait_value.get("name")) == "t_hindered_def.gd":
+			temporary_hindered_defense = trait_value
+		elif str(trait_value.get("name")) == "p_classic_defense_bonus.gd":
+			permanent_defense_bonus = trait_value
 	_expect(
 		hit_shield != null \
 			and is_equal_approx(
@@ -8217,6 +8253,74 @@ func _test_classic_character_rule_profile() -> void:
 			and temporary_slow._on_get_stat("AccuracyMelee", 5) == 2 \
 			and temporary_slow._on_get_stat("MaxMovement", 14) == 7,
 		"temporary Slow preserves its fixed combat and movement penalties"
+	)
+	_expect(
+		temporary_attack_bonus != null \
+			and temporary_attack_bonus._on_get_stat(
+				"Bonus_Physical_dmg",
+				2
+			) == 5,
+		"temporary Attack Bonus adds its exact condition value to damage"
+	)
+	_expect(
+		permanent_hindered_attack != null \
+			and is_equal_approx(
+				float(
+					permanent_hindered_attack._on_get_stat(
+						"AccuracyMelee",
+						5
+					)
+				),
+				4.0
+			),
+		"permanent Hindered Attacks converts five percentage points once"
+	)
+	_expect(
+		temporary_hindered_defense != null \
+			and is_equal_approx(
+				float(
+					temporary_hindered_defense._on_get_stat(
+						"EvasionRanged",
+						5
+					)
+				),
+				4.2
+			),
+		"temporary Hindered Defense converts four percentage points"
+	)
+	_expect(
+		permanent_defense_bonus != null \
+			and is_equal_approx(
+				float(
+					permanent_defense_bonus._on_get_stat(
+						"EvasionMelee",
+						5
+					)
+				),
+				6.2
+			),
+		"permanent Defense Bonus converts six percentage points"
+	)
+	var temporary_defense_bonus = load(
+		"res://shared_assets/traits/t_classic_defense_bonus.gd"
+	).new([attribute_creation, 4])
+	_expect(
+		is_equal_approx(
+			float(
+				temporary_defense_bonus._on_get_stat(
+					"EvasionRanged",
+					5
+				)
+			),
+			5.8
+		),
+		"temporary Defense Bonus uses the same percentage conversion"
+	)
+	temporary_defense_bonus._on_new_round(attribute_creation)
+	_expect_equal(
+		temporary_defense_bonus.get_saved_variables(),
+		[3],
+		"temporary Defense Bonus loses one condition point per round"
 	)
 	var protection_rules = load(
 		"res://scripts/classic_runtime/classic_protection_from_foe.gd"
@@ -8297,6 +8401,24 @@ func _test_classic_character_rule_profile() -> void:
 		),
 		1,
 		"temporary Slow follows its live remaining duration"
+	)
+	if temporary_attack_bonus != null:
+		temporary_attack_bonus._on_new_round(attribute_creation)
+	if temporary_hindered_defense != null:
+		temporary_hindered_defense._on_new_round(attribute_creation)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				32
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				37
+			),
+		],
+		[2, 3],
+		"temporary combat modifiers follow their live remaining values"
 	)
 	_expect_equal(
 		attribute_creation.get_meta("classic_regeneration_per_round", 0),
@@ -8414,6 +8536,28 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		[-4, -1, 1],
 		"Tangled, Cursed, and Slow conditions survive character save/load"
+	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				32
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				36
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				37
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				38
+			),
+		],
+		[2, -5, 3, -6],
+		"attack and defense modifiers survive character save/load"
 	)
 	_expect_equal(
 		attribute_creation_reloaded.get_meta(
@@ -18144,6 +18288,24 @@ func _test_classic_attack_bonus_spells() -> void:
 		0,
 		"player attack bonus rejects a stack beyond condition 99"
 	)
+	var permanent_attack_bonus := ReflectionTestCharacter.new(
+		"Permanent attack bonus",
+		true
+	)
+	permanent_attack_bonus.add_trait(
+		load("res://shared_assets/traits/p_classic_attack_bonus.gd"),
+		[3]
+	)
+	_expect_equal(
+		blade.apply_classic_scaled_effect(
+			null,
+			permanent_attack_bonus,
+			3,
+			1.0
+		),
+		0,
+		"temporary Attack Bonus does not stack over an imported permanent condition"
+	)
 
 	var priest_blades = load(
 		"res://shared_assets/spells/classic_core_2503_enchanted_blades.gd"
@@ -18608,20 +18770,26 @@ func _test_classic_itching_skin_spell() -> void:
 	spell.end_classic_target_resolution()
 	_expect(first_duration in range(3, 10), "Itching Skin rolls one to three per power")
 	_expect_equal(second_duration, first_duration, "one cast shares its condition roll")
-	_expect_equal(
-		first.get_stat("AccuracyMelee"),
-		20 - first_duration,
-		"Itching Skin reduces melee accuracy by the full condition"
+	_expect(
+		is_equal_approx(
+			float(first.get_stat("AccuracyMelee")),
+			20.0 - 0.2 * first_duration
+		),
+		"Itching Skin converts its melee penalty from percentage points"
 	)
-	_expect_equal(
-		first.get_stat("AccuracyRanged"),
-		18 - first_duration,
-		"Itching Skin reduces ranged accuracy by the full condition"
+	_expect(
+		is_equal_approx(
+			float(first.get_stat("AccuracyRanged")),
+			18.0 - 0.2 * first_duration
+		),
+		"Itching Skin converts its ranged penalty from percentage points"
 	)
 	first.traits[0]._on_new_round(first)
-	_expect_equal(
-		first.get_stat("AccuracyMelee"),
-		21 - first_duration,
+	_expect(
+		is_equal_approx(
+			float(first.get_stat("AccuracyMelee")),
+			20.0 - 0.2 * (first_duration - 1)
+		),
 		"Itching Skin loses one penalty point each combat round"
 	)
 
@@ -18638,6 +18806,24 @@ func _test_classic_itching_skin_spell() -> void:
 		spell.apply_classic_scaled_effect(null, permanent, 3, 1.0),
 		0,
 		"temporary Itching Skin does not replace permanent hindrance"
+	)
+	var classic_permanent := SpellScreenTestCharacter.new(
+		"Classic permanently hindered",
+		true
+	)
+	classic_permanent.add_trait(
+		load("res://shared_assets/traits/p_classic_hindered_atk.gd"),
+		[5]
+	)
+	_expect_equal(
+		spell.apply_classic_scaled_effect(
+			null,
+			classic_permanent,
+			3,
+			1.0
+		),
+		0,
+		"temporary Itching Skin does not stack over a Classic permanent condition"
 	)
 
 
@@ -18691,20 +18877,26 @@ func _test_classic_shrink_foe_spell() -> void:
 		duration,
 		"one Shrink Foe cast shares its condition roll"
 	)
-	_expect_equal(
-		first.get_stat("EvasionMelee"),
-		20 - duration,
-		"Shrink Foe reduces melee evasion by the full condition"
+	_expect(
+		is_equal_approx(
+			float(first.get_stat("EvasionMelee")),
+			20.0 - 0.2 * duration
+		),
+		"Shrink Foe converts its melee penalty from percentage points"
 	)
-	_expect_equal(
-		first.get_stat("EvasionRanged"),
-		18 - duration,
-		"Shrink Foe reduces ranged evasion by the full condition"
+	_expect(
+		is_equal_approx(
+			float(first.get_stat("EvasionRanged")),
+			18.0 - 0.2 * duration
+		),
+		"Shrink Foe converts its ranged penalty from percentage points"
 	)
 	first.traits[0]._on_new_round(first)
-	_expect_equal(
-		first.get_stat("EvasionMelee"),
-		21 - duration,
+	_expect(
+		is_equal_approx(
+			float(first.get_stat("EvasionMelee")),
+			20.0 - 0.2 * (duration - 1)
+		),
 		"Shrink Foe loses one penalty point each combat round"
 	)
 
@@ -18721,6 +18913,24 @@ func _test_classic_shrink_foe_spell() -> void:
 		spell.apply_classic_scaled_effect(null, permanent, 3, 1.0),
 		0,
 		"temporary Shrink Foe does not replace permanent hindrance"
+	)
+	var classic_permanent := SpellScreenTestCharacter.new(
+		"Classic permanently vulnerable",
+		true
+	)
+	classic_permanent.add_trait(
+		load("res://shared_assets/traits/p_classic_hindered_def.gd"),
+		[5]
+	)
+	_expect_equal(
+		spell.apply_classic_scaled_effect(
+			null,
+			classic_permanent,
+			3,
+			1.0
+		),
+		0,
+		"temporary Shrink Foe does not stack over a Classic permanent condition"
 	)
 
 
