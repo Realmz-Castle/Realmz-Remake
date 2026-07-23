@@ -53,6 +53,9 @@ var selected_character = null
 @onready var spellcastButton : Button = $VBoxScreen/HBoxBot/BotRightPanel/SpellButton
 @onready var abilistButton   : Button = $VBoxScreen/HBoxBot/BotRightPanel/AbiListButton
 @onready var templeButton    : Button = $VBoxScreen/HBoxBot/BotRightPanel/TempleButton
+@onready var classicSearchButton: Button = (
+	$VBoxScreen/HBoxBot/BotRightPanel/ClassicSearchButton
+)
 @onready var temple_rect : TempleMenu = $VBoxScreen/HBoxTop/MapArea/TempleRect
 @onready var spellcastMenu = $SpellsRect
 @onready var abilitesmngtMenu = $VBoxScreen/HBoxTop/MapArea/AbilitiesMngtRect
@@ -245,6 +248,22 @@ func updateCharPanelDisplay() :
 
 func updateGlobalEffectsDisplay() :
 	globaleffectsRect.update_display()
+	_sync_classic_search_control()
+
+
+func _sync_classic_search_control() -> void:
+	var available := is_instance_valid(GameGlobal.classic_campaign_session)
+	classicSearchButton.visible = available
+	classicSearchButton.set_pressed_no_signal(
+		available and GameGlobal.is_classic_party_condition_active(5)
+	)
+
+
+func _on_classic_search_button_toggled(enabled: bool) -> void:
+	if not is_instance_valid(GameGlobal.classic_campaign_session):
+		return
+	GameGlobal.set_classic_search_enabled(enabled)
+	updateGlobalEffectsDisplay()
 
 func called_on_CharPanel_SelectButton_pressed(panel) :
 	print("called_on_CharPanel_SelectButton_pressed. Selecting several?", selecting_several_characters, ', ',panel.character.name)

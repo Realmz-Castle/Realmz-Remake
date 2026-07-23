@@ -16,6 +16,9 @@ var failures: Array[String] = []
 var original_time := 0
 var original_global_effects: Dictionary = {}
 var original_conditions: Dictionary = {}
+var original_campaign_global_script: Variant
+var original_player_characters: Array = []
+var original_player_allies: Array = []
 var original_map_secrets: Dictionary = {}
 var original_script_areas: Dictionary = {}
 var original_explored_tiles: Array = []
@@ -44,6 +47,9 @@ func _run_smoke() -> void:
 	original_time = GameGlobal.time
 	original_global_effects = GameGlobal.global_effects.duplicate(true)
 	original_conditions = GameGlobal.classic_party_conditions.duplicate(true)
+	original_campaign_global_script = GameGlobal.campaign_global_script
+	original_player_characters = GameGlobal.player_characters.duplicate()
+	original_player_allies = GameGlobal.player_allies.duplicate()
 	original_map_secrets = GameGlobal.map.mapsecrets.duplicate(true)
 	original_script_areas = GameGlobal.map.mapscriptareas.duplicate(true)
 	original_explored_tiles = GameGlobal.map.explored_tiles.duplicate(true)
@@ -55,6 +61,9 @@ func _run_smoke() -> void:
 	GameGlobal.global_effects["WaterBreath"] = {"Duration": 0}
 	GameGlobal.global_effects["Shielded"] = {"Duration": 0}
 	GameGlobal.classic_party_conditions.clear()
+	GameGlobal.campaign_global_script = {"has_on_time_pass": false}
+	GameGlobal.player_characters.clear()
+	GameGlobal.player_allies.clear()
 
 	var command_adapter = CommandAdapterScript.new()
 	var waterworld = WaterworldScript.new()
@@ -188,6 +197,53 @@ func _run_smoke() -> void:
 		true,
 		"Classic Awareness guarantees the native secret-detection check"
 	)
+	GameGlobal.set_classic_search_enabled(true)
+	_expect_equal(
+		GameGlobal.classic_party_conditions.get("5"),
+		-1,
+		"the live Search control stores Classic's permanent signed toggle"
+	)
+	_expect_equal(
+		GameGlobal.map_secret_detection_succeeds(secret_position, 1.0),
+		true,
+		"Search guarantees the native secret-detection check"
+	)
+	_expect_equal(
+		command_adapter.party_condition_status(
+			5,
+			GameGlobal.global_effects,
+			GameGlobal.classic_light_condition,
+			GameGlobal.classic_party_conditions
+		),
+		{"supported": true, "active": true},
+		"scenario condition branches read the exact Search slot"
+	)
+	var search_time_before := GameGlobal.time
+	var expected_search_time := (
+		search_time_before + roundi(4 * GameGlobal.time_scale)
+	)
+	GameGlobal.apply_classic_search_time_cost()
+	_expect_equal(
+		GameGlobal.time,
+		expected_search_time,
+		"each live Search pass pays Classic's four-tick time cost"
+	)
+	GameGlobal.reduce_classic_party_conditions(4)
+	GameGlobal._advance_classic_party_conditions(3600, 7200)
+	_expect_equal(
+		GameGlobal.classic_party_conditions.get("5"),
+		-1,
+		"Search remains enabled across combat and field condition reduction"
+	)
+	var search_save := GameGlobal.classic_party_conditions.duplicate(true)
+	GameGlobal.set_classic_search_enabled(false)
+	GameGlobal._restore_classic_party_conditions(search_save)
+	_expect_equal(
+		GameGlobal.classic_party_conditions.get("5"),
+		-1,
+		"Search survives the normal party-condition save payload"
+	)
+	GameGlobal.set_classic_search_enabled(false)
 
 	GameGlobal.global_effects["Scrying"] = {"Duration": 0}
 	GameGlobal.map.exploration_sight_dirs = [Vector2(1, 0)]
@@ -282,6 +338,40 @@ func _run_smoke() -> void:
 		"the live map path skips an eligible wandering battle while Sentry is active"
 	)
 
+	GameGlobal.set_classic_party_condition(2, -1)
+	GameGlobal.reduce_classic_party_conditions(10)
+	GameGlobal._advance_classic_party_conditions(7200, 10800)
+	_expect_equal(
+		GameGlobal.classic_party_conditions.get("2"),
+		-1,
+		"permanent Dragon Hide survives both reduction paths"
+	)
+	_expect_equal(
+		GameGlobal.global_effects["Shielded"]["Duration"],
+		2147483647,
+		"permanent Dragon Hide stays active for native HUD consumers"
+	)
+	_expect_equal(
+		GameGlobal.apply_classic_party_weapon_protection(
+			{"Physical": 8, "Bonus_dmg": 1, "total": 9},
+			enemy,
+			party_member
+		).get("total"),
+		4,
+		"permanent Dragon Hide continues reducing enemy weapon damage"
+	)
+	GameGlobal.set_classic_party_condition(9, -1)
+	var complete_condition_save := (
+		GameGlobal.classic_party_conditions.duplicate(true)
+	)
+	GameGlobal.classic_party_conditions.clear()
+	GameGlobal._restore_classic_party_conditions(complete_condition_save)
+	_expect_equal(
+		GameGlobal.classic_party_conditions.get("9"),
+		-1,
+		"the source-unused tenth slot is preserved without invented mechanics"
+	)
+
 	_finish()
 
 
@@ -297,6 +387,9 @@ func _finish() -> void:
 	GameGlobal.time = original_time
 	GameGlobal.global_effects = original_global_effects
 	GameGlobal.classic_party_conditions = original_conditions
+	GameGlobal.campaign_global_script = original_campaign_global_script
+	GameGlobal.player_characters = original_player_characters
+	GameGlobal.player_allies = original_player_allies
 	GameGlobal.map.mapsecrets = original_map_secrets
 	GameGlobal.map.mapscriptareas = original_script_areas
 	GameGlobal.map.explored_tiles = original_explored_tiles

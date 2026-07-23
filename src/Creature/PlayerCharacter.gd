@@ -7,6 +7,9 @@ const ClassicLearnedSpellIdentityScript = preload(
 const ClassicCharacterRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_rules.gd"
 )
+const ClassicCharacterConditionRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
+)
 const ClassicMagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
@@ -950,7 +953,9 @@ func get_save_string()->String :
 	if classic_conditions_initialized:
 		crea_string += (
 			',\n"classicConditions" : '
-			+ JSON.stringify(classic_conditions)
+			+ JSON.stringify(
+				ClassicCharacterConditionRulesScript.snapshot(self)
+			)
 		)
 	if classic_can_regenerate_initialized:
 		crea_string += (

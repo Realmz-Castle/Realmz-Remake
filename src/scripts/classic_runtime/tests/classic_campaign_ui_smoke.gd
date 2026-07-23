@@ -157,6 +157,25 @@ func _run_smoke() -> void:
 		"normal launch uses the compiled start coordinates"
 	)
 	_expect(map.visible and UI.ow_hud.visible, "normal launch presents the native map and HUD")
+	var search_button: Button = UI.ow_hud.classicSearchButton
+	_expect(
+		search_button.visible and search_button.toggle_mode,
+		"normal Classic launch exposes the Search toggle"
+	)
+	search_button.button_pressed = true
+	await get_tree().process_frame
+	_expect(
+		GameGlobal.classic_party_conditions.get("5") == -1 \
+			and UI.ow_hud.globaleffectsRect.eye_sprite.animation \
+				== &"Searching",
+		"the Search toggle updates exact state and its native HUD indicator"
+	)
+	search_button.button_pressed = false
+	await get_tree().process_frame
+	_expect(
+		GameGlobal.classic_party_conditions.get("5") == 0,
+		"the Search toggle clears the exact Classic slot"
+	)
 	var learned_darts: Dictionary = GameGlobal.player_characters[0].spells[1][0]
 	_expect(
 		learned_darts.get("classicSpellId") == 3208,

@@ -623,7 +623,8 @@ func _check_party_condition(payload: Dictionary) -> Dictionary:
 	var result := party_condition_status(
 		int(payload.get("conditionIndex", -1)),
 		global_effects,
-		int(game_global.get("light_time"))
+		int(game_global.get("classic_light_condition")),
+		game_global.get("classic_party_conditions")
 	)
 	if not bool(result.get("supported", false)):
 		return _error(
@@ -633,11 +634,29 @@ func _check_party_condition(payload: Dictionary) -> Dictionary:
 	return {"active": bool(result.get("active", false))}
 
 
-func party_condition_status(condition_index: int, global_effects: Dictionary, light_time: int) -> Dictionary:
+func party_condition_status(
+	condition_index: int,
+	global_effects: Dictionary,
+	light_condition: int,
+	classic_conditions: Dictionary = {}
+) -> Dictionary:
 	if condition_index == 0:
-		return {"supported": true, "active": light_time > 0}
-	if not PartyConditionScript.EFFECT_BY_INDEX.has(condition_index):
+		return {
+			"supported": true,
+			"active": PartyConditionScript.is_active(light_condition),
+		}
+	if not PartyConditionScript.supports_condition(condition_index):
 		return {"supported": false, "active": false}
+	var condition_key := str(condition_index)
+	if classic_conditions.has(condition_key):
+		return {
+			"supported": true,
+			"active": PartyConditionScript.is_active(
+				int(classic_conditions[condition_key])
+			),
+		}
+	if not PartyConditionScript.EFFECT_BY_INDEX.has(condition_index):
+		return {"supported": true, "active": false}
 	var effect: Variant = global_effects.get(
 		PartyConditionScript.EFFECT_BY_INDEX[condition_index],
 		{}

@@ -710,6 +710,23 @@ offset_top = 7.94815
 offset_right = 180.189
 offset_bottom = 116.948
 
+[node name="ClassicSearchButton" type="Button" parent="VBoxScreen/HBoxBot/BotRightPanel"]
+visible = false
+layout_mode = 0
+offset_left = 190.0
+offset_top = 90.0
+offset_right = 260.0
+offset_bottom = 120.0
+tooltip_text = "Toggle Classic searching"
+focus_mode = 0
+toggle_mode = true
+theme_override_font_sizes/font_size = 14
+theme_override_styles/disabled = ExtResource("15_rs5dt")
+theme_override_styles/hover = ExtResource("13_dm23x")
+theme_override_styles/pressed = ExtResource("14_pjtj6")
+theme_override_styles/normal = ExtResource("12_c6hp3")
+text = "Search"
+
 [node name="CombatBRPanel" parent="VBoxScreen/HBoxBot" instance=ExtResource("28_s8a54")]
 visible = false
 layout_mode = 2
@@ -854,5 +871,6 @@ popup_window = true
 [connection signal="toggled" from="VBoxScreen/HBoxBot/BotRightPanel/RestButton" to="." method="_on_RestButton_toggled"]
 [connection signal="timeout" from="VBoxScreen/HBoxBot/BotRightPanel/RestButton/RestTimer" to="." method="_on_RestTimer_timeout"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/SpellButton" to="." method="_on_SpellButton_pressed"]
+[connection signal="toggled" from="VBoxScreen/HBoxBot/BotRightPanel/ClassicSearchButton" to="." method="_on_classic_search_button_toggled"]
 [connection signal="pressed" from="CharSwapRect/OKButton" to="CharSwapRect" method="_on_OKButton_pressed"]
 [connection signal="pressed" from="CharSwapRect/CancelButton" to="CharSwapRect" method="_on_CancelButton_pressed"]

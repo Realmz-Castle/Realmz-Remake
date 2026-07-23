@@ -22,7 +22,12 @@ class_name GlobalEffectsRect
 func update_display() :
 	water_sprite.visible =  GameGlobal.global_effects["WaterBreath"]["Duration"] >0
 	feather_sprite.visible =  GameGlobal.global_effects["FeatherFall"]["Duration"] >0
-	eye_sprite.visible =  GameGlobal.global_effects["Awareness"]["Duration"] >0
+	var search_active := GameGlobal.is_classic_party_condition_active(5)
+	eye_sprite.visible = search_active \
+		or GameGlobal.global_effects["Awareness"]["Duration"] > 0
+	var eye_animation := &"Searching" if search_active else &"Looking"
+	if eye_sprite.animation != eye_animation:
+		eye_sprite.play(eye_animation)
 	orb_sprite.visible =  GameGlobal.global_effects["Scrying"]["Duration"] >0
 	shield_sprite.visible =  GameGlobal.global_effects["Shielded"]["Duration"] >0
 	sentry_sprite.visible =  GameGlobal.global_effects["Sentry"]["Duration"] >0

@@ -10,6 +10,50 @@ const REGENERATION_TRAIT := "res://shared_assets/traits/t_classic_regeneration.g
 const TEMPORARY_SPELL_SCREEN_TRAIT := (
 	"res://shared_assets/traits/t_classic_spell_screen.gd"
 )
+const DISEASE_CONDITION_INDEX := 28
+const DISEASE_TRAIT := "res://shared_assets/traits/t_classic_disease.gd"
+const CONDITION_NAMES := [
+	"Fleeing",
+	"Helpless",
+	"Tangled",
+	"Cursed",
+	"Magic Aura",
+	"Dumb",
+	"Slow",
+	"Shield from Hits",
+	"Shield from Projectiles",
+	"Poisoned",
+	"Regenerating",
+	"Fire Protection",
+	"Cold Protection",
+	"Electrical Protection",
+	"Chemical Protection",
+	"Mental Protection",
+	"Level 1 Spell Screen",
+	"Level 2 Spell Screen",
+	"Level 3 Spell Screen",
+	"Level 4 Spell Screen",
+	"Level 5 Spell Screen",
+	"Strong",
+	"Protection from Evil",
+	"Speedy",
+	"Invisible",
+	"Animated",
+	"Turned to Stone",
+	"Blind",
+	"Diseased",
+	"Confused",
+	"Reflecting Spells",
+	"Reflecting Attacks",
+	"Attack Bonus",
+	"Power Gathering",
+	"Power Withering",
+	"Spell Energy Absorption",
+	"Hindered Attacks",
+	"Hindered Defense",
+	"Defense Bonus",
+	"Silenced",
+]
 const CONDITION_TRAITS := {
 	0: {
 		"name": "Fleeing",
@@ -28,7 +72,7 @@ const CONDITION_TRAITS := {
 	},
 	3: {
 		"name": "Cursed",
-		"temporary": "res://shared_assets/traits/t_cursed.gd",
+		"temporary": "res://shared_assets/traits/t_classic_cursed.gd",
 		"permanent": "res://shared_assets/traits/p_cursed.gd",
 	},
 	4: {
@@ -43,7 +87,7 @@ const CONDITION_TRAITS := {
 	},
 	6: {
 		"name": "Slow",
-		"temporary": "res://shared_assets/traits/t_slow.gd",
+		"temporary": "res://shared_assets/traits/t_classic_slow.gd",
 		"permanent": "res://shared_assets/traits/p_slow.gd",
 	},
 	7: {
@@ -63,27 +107,27 @@ const CONDITION_TRAITS := {
 	},
 	11: {
 		"name": "Fire Protection",
-		"temporary": "res://shared_assets/traits/t_prot_fire.gd",
+		"temporary": "res://shared_assets/traits/t_classic_prot_fire.gd",
 		"permanent": "res://shared_assets/traits/p_prot_fire.gd",
 	},
 	12: {
 		"name": "Cold Protection",
-		"temporary": "res://shared_assets/traits/t_prot_ice.gd",
+		"temporary": "res://shared_assets/traits/t_classic_prot_ice.gd",
 		"permanent": "res://shared_assets/traits/p_prot_ice.gd",
 	},
 	13: {
 		"name": "Electrical Protection",
-		"temporary": "res://shared_assets/traits/t_prot_elect.gd",
+		"temporary": "res://shared_assets/traits/t_classic_prot_elect.gd",
 		"permanent": "res://shared_assets/traits/p_prot_elect.gd",
 	},
 	14: {
 		"name": "Chemical Protection",
-		"temporary": "res://shared_assets/traits/t_prot_chem.gd",
+		"temporary": "res://shared_assets/traits/t_classic_prot_chem.gd",
 		"permanent": "res://shared_assets/traits/p_prot_chem.gd",
 	},
 	15: {
 		"name": "Mental Protection",
-		"temporary": "res://shared_assets/traits/t_prot_mental.gd",
+		"temporary": "res://shared_assets/traits/t_classic_prot_mental.gd",
 		"permanent": "res://shared_assets/traits/p_prot_mental.gd",
 	},
 	21: {
@@ -124,11 +168,6 @@ const CONDITION_TRAITS := {
 		"name": "Blind",
 		"temporary": "res://shared_assets/traits/t_classic_blind.gd",
 		"permanent": "res://shared_assets/traits/p_classic_blind.gd",
-	},
-	28: {
-		"name": "Diseased",
-		"temporary": "res://shared_assets/traits/t_disease.gd",
-		"permanent": "res://shared_assets/traits/p_disease.gd",
 	},
 	29: {
 		"name": "Confused",
@@ -190,6 +229,7 @@ const CONDITION_TRAITS := {
 
 static func supports_condition(condition_index: int) -> bool:
 	return condition_index == RegenerationScript.CONDITION_INDEX \
+		or condition_index == DISEASE_CONDITION_INDEX \
 		or SpellScreenScript.condition_level(condition_index) > 0 \
 		or CONDITION_TRAITS.has(condition_index)
 
@@ -297,6 +337,8 @@ static func condition_value(character: Object, condition_index: int) -> int:
 		if permanent_amount > 0:
 			return -permanent_amount
 		return _temporary_regeneration_value(character)
+	if condition_index == DISEASE_CONDITION_INDEX:
+		return _disease_value(character)
 	var definition: Dictionary = CONDITION_TRAITS[condition_index]
 	var temporary_name := str(definition["temporary"]).get_file()
 	var permanent_name := str(definition["permanent"]).get_file()
@@ -328,14 +370,16 @@ static func _trait_condition_power(trait_value: Object) -> int:
 
 
 static func condition_name(condition_index: int) -> String:
-	if condition_index == RegenerationScript.CONDITION_INDEX:
-		return "Regenerating"
-	var screen_level := SpellScreenScript.condition_level(condition_index)
-	if screen_level > 0:
-		return "Level %d Spell Screen" % screen_level
-	if CONDITION_TRAITS.has(condition_index):
-		return str(CONDITION_TRAITS[condition_index]["name"])
+	if condition_index >= 0 and condition_index < CONDITION_NAMES.size():
+		return CONDITION_NAMES[condition_index]
 	return "Condition %d" % condition_index
+
+
+static func snapshot(character: Object) -> Array[int]:
+	var result: Array[int] = []
+	for condition_index: int in range(CONDITION_NAMES.size()):
+		result.append(condition_value(character, condition_index))
+	return result
 
 
 static func set_condition_value(
@@ -356,6 +400,10 @@ static func set_condition_value(
 		var regeneration_result := _set_regeneration_value(character, value)
 		if str(regeneration_result.get("status", "")) == "error":
 			return regeneration_result
+	elif condition_index == DISEASE_CONDITION_INDEX:
+		var disease_result := _set_disease_value(character, value)
+		if str(disease_result.get("status", "")) == "error":
+			return disease_result
 	elif SpellScreenScript.condition_level(condition_index) > 0:
 		var screen_result := _set_spell_screen_value(
 			character,
@@ -501,6 +549,39 @@ static func _temporary_regeneration_value(character: Object) -> int:
 				and str(trait_value.get("name")) == REGENERATION_TRAIT.get_file():
 			return int(trait_value.get("condition"))
 	return 0
+
+
+static func _disease_value(character: Object) -> int:
+	var traits: Variant = character.get("traits")
+	if not (traits is Array):
+		return 0
+	for trait_value: Variant in traits:
+		if trait_value is Object \
+				and str(trait_value.get("name")) == DISEASE_TRAIT.get_file():
+			var saved_variables: Variant = trait_value.call(
+				"get_saved_variables"
+			)
+			if saved_variables is Array and not saved_variables.is_empty():
+				return int(saved_variables[0])
+	return 0
+
+
+static func _set_disease_value(character: Object, value: int) -> Dictionary:
+	var disease_trait: GDScript = load(DISEASE_TRAIT)
+	if disease_trait == null:
+		return _error("Classic disease trait could not be loaded")
+	for trait_value: Variant in character.get("traits").duplicate():
+		if not (trait_value is Object):
+			continue
+		if str(trait_value.get("name")) in [
+			DISEASE_TRAIT.get_file(),
+			"t_disease.gd",
+			"p_disease.gd",
+		]:
+			character.remove_trait(trait_value)
+	if value != 0:
+		character.add_trait(disease_trait, [value])
+	return {"status": "ok"}
 
 
 static func _store_condition_value(

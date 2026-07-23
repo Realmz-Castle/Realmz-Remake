@@ -1024,7 +1024,9 @@ class CampaignRuleCharacter:
 		if classic_saving_throws_initialized:
 			data["classicSavingThrows"] = classic_saving_throws.duplicate()
 		if classic_conditions_initialized:
-			data["classicConditions"] = classic_conditions.duplicate()
+			data["classicConditions"] = (
+				CharacterConditionRulesScript.snapshot(self)
+			)
 		if classic_can_regenerate_initialized:
 			data["classicCanRegenerate"] = classic_can_regenerate
 		return data
@@ -8957,13 +8959,13 @@ func _test_classic_character_rule_profile() -> void:
 		"p_classic_tangled.gd",
 		"p_cursed.gd",
 		"t_pro_hits.gd",
-		"t_slow.gd",
+		"t_classic_slow.gd",
 		"p_pro_proj.gd",
-		"t_prot_fire.gd",
+		"t_classic_prot_fire.gd",
 		"p_prot_ice.gd",
-		"t_prot_elect.gd",
+		"t_classic_prot_elect.gd",
 		"p_prot_chem.gd",
-		"t_prot_mental.gd",
+		"t_classic_prot_mental.gd",
 		"p_classic_strong.gd",
 		"p_classic_protection_from_foe.gd",
 		"t_classic_speedy.gd",
@@ -9009,9 +9011,9 @@ func _test_classic_character_rule_profile() -> void:
 			permanent_tangled = trait_value
 		elif str(trait_value.get("name")) == "p_cursed.gd":
 			permanent_cursed = trait_value
-		elif str(trait_value.get("name")) == "t_slow.gd":
+		elif str(trait_value.get("name")) == "t_classic_slow.gd":
 			temporary_slow = trait_value
-		elif str(trait_value.get("name")) == "t_prot_fire.gd":
+		elif str(trait_value.get("name")) == "t_classic_prot_fire.gd":
 			fire_protection = trait_value
 		elif str(trait_value.get("name")) == "t_classic_spell_screen.gd":
 			spell_screen = trait_value
@@ -9071,7 +9073,7 @@ func _test_classic_character_rule_profile() -> void:
 		"permanent Curse converts five Classic percentage points once"
 	)
 	var temporary_curse = load(
-		"res://shared_assets/traits/t_cursed.gd"
+		"res://shared_assets/traits/t_classic_cursed.gd"
 	).new([attribute_creation, 2])
 	_expect(
 		temporary_curse._on_get_stat("AccuracyRanged", 4) == 3 \
@@ -9714,7 +9716,7 @@ func _test_classic_character_rule_profile() -> void:
 			CharacterConditionRulesScript.condition_value(control_creation, 25),
 			CharacterConditionRulesScript.condition_value(control_creation, 26),
 		],
-		[2, -1, 1, -1],
+		[2, -1, -1, -1],
 		"control and life-state conditions retain their Classic values"
 	)
 	var control_trait_names: Array[String] = []
@@ -9723,7 +9725,7 @@ func _test_classic_character_rule_profile() -> void:
 	for expected_trait_name: String in [
 		"t_classic_fleeing.gd",
 		"p_classic_helpless.gd",
-		"t_classic_animated.gd",
+		"p_classic_animated.gd",
 		"p_classic_petrified.gd",
 	]:
 		_expect(
@@ -9768,7 +9770,7 @@ func _test_classic_character_rule_profile() -> void:
 				26
 			),
 		],
-		[2, -1, 1, -1],
+		[2, -1, -1, -1],
 		"control and life-state conditions survive character save/load"
 	)
 	_expect_equal(
@@ -9973,7 +9975,7 @@ func _test_classic_character_rule_profile() -> void:
 	unsupported_condition_character.classic_rule_profile = {
 		"conditionProgression": [
 			{"conditionIndex": 4, "level": 2},
-			{"conditionIndex": 3, "level": 2},
+			{"conditionIndex": 40, "level": 2},
 		],
 	}
 	var unsupported_condition_result := (
@@ -10188,12 +10190,12 @@ func _test_classic_character_rule_profile() -> void:
 	_expect_equal(reloaded.classic_caste_id, 21, "Classic caste identity survives save/load")
 	_expect_equal(
 		reloaded.classic_rule_profile.get("itemPermissions"),
-		character.classic_rule_profile.get("itemPermissions"),
+		saved_data.get("classicRuleProfile", {}).get("itemPermissions"),
 		"Classic item-category permissions survive character save/load"
 	)
 	_expect_equal(
 		reloaded.classic_rule_profile.get("victoryProgression"),
-		character.classic_rule_profile.get("victoryProgression"),
+		saved_data.get("classicRuleProfile", {}).get("victoryProgression"),
 		"Classic victory requirements survive character save/load"
 	)
 	_expect_equal(
@@ -10202,7 +10204,7 @@ func _test_classic_character_rule_profile() -> void:
 			reloaded.get_stat("MaxSpellsPerRound"),
 		],
 		[
-			character.classic_rule_profile.get("casteRuntime"),
+			saved_data.get("classicRuleProfile", {}).get("casteRuntime"),
 			3,
 		],
 		"Classic caste combat identity survives character save/load"
@@ -10214,7 +10216,7 @@ func _test_classic_character_rule_profile() -> void:
 	)
 	_expect_equal(
 		reloaded.money,
-		[37, 0, 0],
+		saved_data.get("money"),
 		"Classic starting money survives character save/load"
 	)
 	_expect_equal(
@@ -10631,6 +10633,8 @@ func _test_campaign_readiness_report() -> void:
 		_readiness_action_point("Data ED3", 129, 17, 429),
 		_readiness_action_point("Data ED3", 103, 89, 71),
 		_readiness_action_point("Data ED3", 197, -85, -1700),
+		_readiness_action_point("Data ED3", 201, 40, 500),
+		_readiness_action_point("Data ED3", 202, 43, 501),
 	]
 	bundle.documents["scripts"]["extraCodes"] = [
 		{"id": 375, "values": [1408, 3, 0, 0, 0]},
@@ -10640,6 +10644,8 @@ func _test_campaign_readiness_report() -> void:
 		{"id": 429, "values": [2304, 7, -45, 0, 0]},
 		# The positive record exists, but Classic's signed lookup is exact.
 		{"id": 1700, "values": [40, 40, 40, 40, 40]},
+		{"id": 500, "values": [1, 0, 0, 10, 0]},
+		{"id": 501, "values": [0, 40, 1, 0, 0]},
 	]
 	bundle.documents["content"]["monsters"] = [{
 		"id": 71,
@@ -10708,6 +10714,22 @@ func _test_campaign_readiness_report() -> void:
 			report, "missing-extra-code", "Data ED3", 197, 0, "progression-blocker"
 		),
 		"readiness classifies the signed random-record gap as a blocker"
+	)
+	_expect(
+		_readiness_has_reference_diagnostic(
+			report,
+			"unsupported-party-condition",
+			10
+		),
+		"readiness blocks a referenced unsupported party condition"
+	)
+	_expect(
+		_readiness_has_reference_diagnostic(
+			report,
+			"unsupported-character-condition",
+			40
+		),
+		"readiness blocks a referenced unsupported character condition"
 	)
 	_expect(
 		_readiness_has_diagnostic(
@@ -20707,6 +20729,31 @@ func _test_classic_party_condition_spells() -> void:
 		7300,
 		"party conditions expose an equivalent native HUD duration"
 	)
+	_expect_equal(
+		ClassicPartyConditionScript.reduce(-1, 3),
+		-1,
+		"permanent party conditions do not decay"
+	)
+	_expect_equal(
+		ClassicPartyConditionScript.advance_time(-2, 3599, 7200),
+		-2,
+		"permanent party conditions survive game-hour boundaries"
+	)
+	_expect_equal(
+		ClassicPartyConditionScript.remaining_seconds(-1, 3500),
+		ClassicPartyConditionScript.PERMANENT_NATIVE_SECONDS,
+		"permanent party conditions remain active in native effect consumers"
+	)
+	_expect_equal(
+		ClassicPartyConditionScript.CONDITION_NAMES.size(),
+		10,
+		"all ten Classic party-condition slots have explicit ownership"
+	)
+	for condition_index: int in range(10):
+		_expect(
+			ClassicPartyConditionScript.supports_condition(condition_index),
+			"party condition %d is explicitly supported" % condition_index
+		)
 
 	var free_fall = load("res://shared_assets/spells/free_fall.gd").new()
 	var hover = load("res://shared_assets/spells/hover.gd").new()
@@ -22405,6 +22452,21 @@ func _test_take_gold_action() -> void:
 
 
 func _test_give_condition_action() -> void:
+	_expect_equal(
+		CharacterConditionRulesScript.CONDITION_NAMES.size(),
+		40,
+		"all forty Classic character-condition slots have explicit ownership"
+	)
+	for condition_index: int in range(40):
+		_expect(
+			CharacterConditionRulesScript.supports_condition(condition_index),
+			"character condition %d is explicitly supported"
+			% condition_index
+		)
+	_expect(
+		not CharacterConditionRulesScript.supports_condition(40),
+		"out-of-range character conditions remain unsupported"
+	)
 	var first := ConditionTestCharacter.new("Selected")
 	var second := ConditionTestCharacter.new("Unselected", 2)
 	var dead := ConditionTestCharacter.new("Dead", 3)
@@ -22462,6 +22524,11 @@ func _test_give_condition_action() -> void:
 		CharacterConditionRulesScript.condition_value(second, 28),
 		-1,
 		"living mode includes an incapacitated character"
+	)
+	_expect_equal(
+		str(second.traits[0].get("name")),
+		"t_classic_disease.gd",
+		"Give Condition routes signed disease through the Classic reducer"
 	)
 	_expect_equal(
 		CharacterConditionRulesScript.condition_value(dead, 28),
@@ -23459,9 +23526,19 @@ func _test_party_state_actions() -> void:
 		"torch condition uses remaining light time"
 	)
 	_expect_equal(
-		adapter.party_condition_status(5, {}, 0),
+		adapter.party_condition_status(5, {}, 0, {"5": -1}),
+		{"supported": true, "active": true},
+		"Search reads its permanent Classic toggle state"
+	)
+	_expect_equal(
+		adapter.party_condition_status(9, {}, 0),
+		{"supported": true, "active": false},
+		"the source-unused party slot is explicitly supported as inactive"
+	)
+	_expect_equal(
+		adapter.party_condition_status(10, {}, 0),
 		{"supported": false, "active": false},
-		"Search remains an explicit unmapped condition"
+		"out-of-range party conditions remain unsupported"
 	)
 	var identity_character := CampaignRuleCharacter.new()
 	identity_character.level = 7

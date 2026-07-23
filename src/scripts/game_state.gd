@@ -282,6 +282,7 @@ func _is_overlay_panel_visible() -> bool :
 func check_map_script(position, context := {}) ->bool :
 	var canwalk = true
 #	print("GameState check_map_scripts : ")
+	GameGlobal.apply_classic_search_time_cost()
 	
 	var scriptstocall : Dictionary = {}
 	

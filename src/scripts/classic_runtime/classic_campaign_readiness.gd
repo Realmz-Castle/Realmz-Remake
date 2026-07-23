@@ -6,6 +6,12 @@ const ExecutionAuditScript = preload("res://scripts/classic_runtime/classic_exec
 const GodotAdapterScript = preload(
 	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
 )
+const CharacterConditionRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
+)
+const PartyConditionScript = preload(
+	"res://scripts/classic_runtime/classic_party_condition.gd"
+)
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
@@ -152,6 +158,10 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			return
 		if code in [17, 18]:
 			_check_field_spell(bundle, action, extra_code)
+		elif code == 40:
+			_check_party_condition(action, extra_code)
+		elif code == 43:
+			_check_character_condition(action, extra_code)
 		elif code == 85:
 			_check_random_branch(bundle, action, extra_code)
 		elif code == 124:
@@ -190,6 +200,56 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_player_map(bundle, action, reference_id)
 		89:
 			_check_ally(bundle, action, reference_id)
+
+
+func _check_party_condition(
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 4:
+		_add_blocker_for_action(
+			action,
+			"malformed-party-condition",
+			"Party-condition Data EDCD record has fewer than four values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var condition_index := int(values[3])
+	if PartyConditionScript.supports_condition(condition_index):
+		return
+	_add_blocker_for_action(
+		action,
+		"unsupported-party-condition",
+		"Classic party condition %d has no safe Remake mapping"
+		% condition_index,
+		{"referenceId": condition_index}
+	)
+
+
+func _check_character_condition(
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 3:
+		_add_blocker_for_action(
+			action,
+			"malformed-character-condition",
+			"Give Condition Data EDCD record has fewer than three values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var condition_index := int(values[1])
+	if CharacterConditionRulesScript.supports_condition(condition_index):
+		return
+	_add_blocker_for_action(
+		action,
+		"unsupported-character-condition",
+		"Classic character condition %d has no safe Remake mapping"
+		% condition_index,
+		{"referenceId": condition_index}
+	)
 
 
 func _check_message(

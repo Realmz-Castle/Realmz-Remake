@@ -432,7 +432,10 @@ func add_classic_light_effect(power: int) -> void:
 
 
 func apply_classic_party_condition(condition_index: int, duration: int) -> int:
-	if not ClassicPartyConditionScript.EFFECT_BY_INDEX.has(condition_index):
+	if condition_index == 0:
+		add_classic_light_effect(duration)
+		return classic_light_condition
+	if not ClassicPartyConditionScript.supports_condition(condition_index):
 		push_error("Classic party condition %d has no Remake state mapping" % condition_index)
 		return 0
 	var key := str(condition_index)
@@ -441,6 +444,41 @@ func apply_classic_party_condition(condition_index: int, duration: int) -> int:
 	classic_party_conditions[key] = result
 	_sync_classic_party_condition(condition_index)
 	return result
+
+
+func set_classic_party_condition(condition_index: int, value: int) -> int:
+	if condition_index == 0:
+		classic_light_condition = value
+		_sync_classic_light_state()
+		return classic_light_condition
+	if not ClassicPartyConditionScript.supports_condition(condition_index):
+		push_error("Classic party condition %d has no Remake state mapping" % condition_index)
+		return 0
+	classic_party_conditions[str(condition_index)] = value
+	_sync_classic_party_condition(condition_index)
+	return value
+
+
+func set_classic_search_enabled(enabled: bool) -> void:
+	set_classic_party_condition(5, -1 if enabled else 0)
+
+
+func apply_classic_search_time_cost() -> bool:
+	if not is_classic_party_condition_active(5):
+		return false
+	# checkforsecret.c advances source time by four ticks on every search pass.
+	pass_time(4)
+	return true
+
+
+func is_classic_party_condition_active(condition_index: int) -> bool:
+	if condition_index == 0:
+		return ClassicPartyConditionScript.is_active(classic_light_condition)
+	if not ClassicPartyConditionScript.supports_condition(condition_index):
+		return false
+	return ClassicPartyConditionScript.is_active(
+		int(classic_party_conditions.get(str(condition_index), 0))
+	)
 
 
 func reduce_classic_party_conditions(reduction_calls: int = 1) -> void:
@@ -470,9 +508,12 @@ func _restore_classic_party_conditions(value: Variant) -> void:
 		return
 	for key: Variant in value:
 		var condition_index := int(key)
-		if not ClassicPartyConditionScript.EFFECT_BY_INDEX.has(condition_index):
+		if condition_index == 0 \
+				or not ClassicPartyConditionScript.supports_condition(
+					condition_index
+				):
 			continue
-		classic_party_conditions[str(condition_index)] = maxi(0, int(value[key]))
+		classic_party_conditions[str(condition_index)] = int(value[key])
 		_sync_classic_party_condition(condition_index)
 
 
@@ -1557,7 +1598,9 @@ func play_sfx(sfx_name : String) ->void :
 		SfxPlayer.play()
 
 func get_mapsecret_detection_chance(pos: Vector2i) -> float:
-	if is_global_effect_active("Awareness"):
+	if is_classic_party_condition_active(3) \
+			or is_classic_party_condition_active(5) \
+			or is_global_effect_active("Awareness"):
 		return 1.0
 	# Map's legacy name says "fail chance"; exploration stores and uses it as success chance.
 	return clampf(map.get_secret_fail_chance(pos), 0.0, 1.0)
@@ -1568,17 +1611,24 @@ func map_secret_detection_succeeds(pos: Vector2i, roll: float) -> bool:
 
 
 func random_battles_allowed() -> bool:
-	return not is_global_effect_active("Sentry")
+	return not (
+		is_classic_party_condition_active(7)
+		or is_global_effect_active("Sentry")
+	)
 
 
 func exploration_sight_ignores_blocking_tiles() -> bool:
-	return is_global_effect_active("Scrying")
+	return is_classic_party_condition_active(4) \
+		or is_global_effect_active("Scrying")
 
 
 func classic_party_charm_resistance_bonus(character: Object) -> int:
 	if not _is_player_controlled_character(character):
 		return 0
-	return 50 if is_global_effect_active("CharmProt") else 0
+	return 50 if (
+		is_classic_party_condition_active(8)
+		or is_global_effect_active("CharmProt")
+	) else 0
 
 
 func _is_player_controlled_character(character: Object) -> bool:

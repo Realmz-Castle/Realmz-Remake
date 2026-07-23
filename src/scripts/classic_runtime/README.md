@@ -121,7 +121,7 @@ Percent branches use Classic's inclusive 1-100 roll. Their success action can re
 
 Difficulty branches compare their threshold with Classic's saved five-step difficulty setting, represented internally from `-2` (easiest) through `2` (hardest), with `0` as the default. They use the same success outcomes as percent branches. City of Bywater does not author opcode `58`, so this handler does not change its compatibility coverage count.
 
-Opcode `40` reads Classic party conditions through a small native-state mapping; City of Bywater's shipped use checks Waterworld against Remake's active WaterBreath effect before branching to complex encounter 8. Opcode `43` applies its signed condition value to the whole party, the current picked set, or every living character. City of Bywater's two uses permanently poison or disease picked characters, so those conditions map to Remake's existing saved traits. The rules preserve Classic's pre-target clearing of positive durations and accumulation of permanent values; other condition indexes remain an explicit native-mapping boundary. Opcode `85` selects an inclusive random AP, simple encounter, or complex encounter and preserves its optional sound and message before branching. The only City of Bywater slot is inside malformed `Data ED3:macro:197` data and remains a signed missing-row diagnostic rather than being guessed into valid scenario logic. Opcode `87` compares the monster name byte stored on each ally, while opcode `89` selects a Data MD monster record to create. The adapter therefore stores both identities on imported allies and in save files instead of deriving one from the other. Adding an ally requires an exact native bestiary identity; stable bestiary metadata or the existing numeric bestiary ID is preferred over a unique display-name fallback. City of Bywater's Vodalian resolves through the shared `Vodalian 71` entry; a scenario-local ally with no shared or campaign match remains a visible resource boundary. Opcode `98` is intentionally a no-op because the open-source Classic dispatcher disables its registration check.
+Opcode `40` reads all ten Classic party conditions through an exact native-state mapping; City of Bywater's shipped use checks Waterworld against Remake's active WaterBreath effect before branching to complex encounter 8. Opcode `43` applies any of Classic's forty signed character conditions to the whole party, the current picked set, or every living character. The rules preserve Classic's pre-target clearing of positive durations, accumulation of permanent values, combat-round and field-hour expiry, and save/load state. Existing native traits own matching effects, while narrow Classic traits cover otherwise missing curse, slow, and elemental-protection state. The complete source and runtime ownership matrix is in `CONDITION_COMPATIBILITY.md`. Opcode `85` selects an inclusive random AP, simple encounter, or complex encounter and preserves its optional sound and message before branching. The only City of Bywater slot is inside malformed `Data ED3:macro:197` data and remains a signed missing-row diagnostic rather than being guessed into valid scenario logic. Opcode `87` compares the monster name byte stored on each ally, while opcode `89` selects a Data MD monster record to create. The adapter therefore stores both identities on imported allies and in save files instead of deriving one from the other. Adding an ally requires an exact native bestiary identity; stable bestiary metadata or the existing numeric bestiary ID is preferred over a unique display-name fallback. City of Bywater's Vodalian resolves through the shared `Vodalian 71` entry; a scenario-local ally with no shared or campaign match remains a visible resource boundary. Opcode `98` is intentionally a no-op because the open-source Classic dispatcher disables its registration check.
 
 Opcodes `82` and `83` persist Classic's global permission to turn undead and nether spawn, then present their fixed message and sound through the native HUD. New campaigns start with turning enabled, and older snapshots use the same default. Battle requests carry the current value into native combat, where eligible player characters receive a Turn Undead action only while that gate is enabled. Each character can attempt it once per battle. Materialized compiler monsters supply the original undead/nether-spawn flags, hit dice, magic resistance, and summon sentinel, allowing the native action to use Classic's exact threshold and destroy-versus-turn outcomes. Destroyed hostiles continue through normal death macros and battle rewards; turned targets switch to the player's faction and no longer count as defeated enemies. Classic's two half-action cost maps to one Remake action.
 
@@ -636,16 +636,27 @@ The UI smoke instances the real `Main.tscn`, discovers a self-contained compiled
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_campaign_ui_smoke.tscn
 ```
 
-The party-condition smoke verifies the live GameGlobal boundary used by
-Waterworld, Vorpal Shield, Ogre Hide, Dragon Hide, Free Fall, Hover, Discover
-Secret, Wizard Eye, Thought Lace, and Sentry. It covers longer-result
-replacement, combat and hourly decay, native HUD durations, the five-point
-physical weapon-damage reduction, secret detection, exploration through sight
-blockers, charm resistance, wandering-battle suppression, and restoration of
-the exact Classic counters:
+The party-condition smoke verifies all ten live GameGlobal slots: Light,
+Waterworld, Dragon Hide, Discover Secret, Wizard Eye, Search, Free Fall,
+Sentry, Thought Lace, and the source-unused slot. It covers signed temporary
+and permanent state, longer-result replacement, combat and hourly decay, native
+HUD durations, the five-point physical weapon-damage reduction, active-search
+time cost, secret detection, exploration through sight blockers, charm
+resistance, wandering-battle suppression, and restoration of the exact Classic
+counters:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn
+```
+
+The character-condition smoke verifies the complete forty-index inventory
+against real native character state. It exercises temporary and permanent
+application, clearing, combat-round and crossed-hour expiry, disease strength,
+Classic-only curse, slow, and elemental-protection traits, and the live
+save-snapshot projection:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_character_condition_smoke.tscn
 ```
 
 The generated-ally smoke also applies Shield from Hits and projectile protection
