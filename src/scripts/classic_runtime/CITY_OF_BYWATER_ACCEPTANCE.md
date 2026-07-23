@@ -224,9 +224,11 @@ passes with no progression blocker and no pending Classic continuation.
   padding encounter data that the authoritative importer correctly treats as
   inactive. Baseline count changes must therefore be reviewed by record, rather
   than copied wholesale from either exporter.
-- Unmapped optional sound and monster-icon media remain fidelity fallbacks unless
-  a missing asset carries progression meaning. City PICT 32128 and AP 76's stock
-  sounds now have installed-route evidence.
+- Unmapped optional sound and monster-icon media remain fidelity fallbacks. An
+  audited executable media action uses `mediaRequiredForProgression` when the
+  missing asset would prevent progress; readiness then reports a blocker at that
+  action's source record and slot. City PICT 32128 and AP 76's stock sounds now
+  have installed-route evidence and do not need that fallback.
 
 ## Further coverage
 

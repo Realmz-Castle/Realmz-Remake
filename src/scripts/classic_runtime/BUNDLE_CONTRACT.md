@@ -147,6 +147,13 @@ encounters contain four contiguous eight-slot result rows, addressed as slots
 normalizes the signed opcode when it selects a result. Duplicate or out-of-range
 slots and malformed action values fail bundle loading with record-level context.
 
+A media action may carry `mediaRequiredForProgression: true` when an author or
+scenario audit establishes that the referenced picture, sound, or player map
+contains information needed to continue. Missing media for an executable marked
+action is a readiness blocker with the action's source, record, and slot. The
+field is optional; omitted or `false` media remains a non-fatal fidelity fallback
+because Remake cannot infer narrative importance from a Classic opcode alone.
+
 ## Authored data and preserved evidence
 
 Runtime-relevant records may carry:

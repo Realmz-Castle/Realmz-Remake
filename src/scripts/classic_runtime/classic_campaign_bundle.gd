@@ -368,6 +368,11 @@ func _validate_action_array(
 				return _fail("%s.%s must be an integer" % [action_context, field_name])
 		if require_normalized_code and not _is_integer(action.get("code")):
 			return _fail("%s.code must be an integer" % action_context)
+		if action.has("mediaRequiredForProgression") \
+				and not (action["mediaRequiredForProgression"] is bool):
+			return _fail(
+				"%s.mediaRequiredForProgression must be a boolean" % action_context
+			)
 	return true
 
 

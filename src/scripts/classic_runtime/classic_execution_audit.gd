@@ -162,6 +162,10 @@ func _append_record_actions(
 		if storage_context in ["data-ed-result", "data-ed2-result"]:
 			entry["result"] = floori(float(slot) / 8.0) + 1
 			entry["resultSlot"] = slot % 8
+		if action_value.has("mediaRequiredForProgression"):
+			entry["mediaRequiredForProgression"] = bool(
+				action_value["mediaRequiredForProgression"]
+			)
 		actions.append(entry)
 		if executable and support == "unknown":
 			diagnostics.append({

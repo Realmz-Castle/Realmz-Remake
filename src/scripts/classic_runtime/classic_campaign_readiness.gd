@@ -255,7 +255,7 @@ func _check_picture(
 ) -> void:
 	var picture := bundle.get_picture(picture_id)
 	if picture.is_empty():
-		_add_fallback_for_action(
+		_add_media_diagnostic_for_action(
 			action,
 			"missing-picture",
 			"Picture %d has no exported catalog record" % abs(picture_id),
@@ -266,7 +266,7 @@ func _check_picture(
 	if runtime_media is Dictionary and not runtime_media.is_empty():
 		var runtime_path := str(runtime_media.get("path", "")).strip_edges()
 		if not FileAccess.file_exists(bundle.root_directory.path_join(runtime_path)):
-			_add_fallback_for_action(
+			_add_media_diagnostic_for_action(
 				action,
 				"missing-picture-runtime-media",
 				"Picture %d runtime media '%s' is missing" % [abs(picture_id), runtime_path],
@@ -284,14 +284,14 @@ func _check_picture(
 			return
 	var payload_path := str(picture.get("payloadPath", "")).strip_edges()
 	if payload_path.is_empty():
-		_add_fallback_for_action(
+		_add_media_diagnostic_for_action(
 			action,
 			"missing-picture-payload",
 			"Picture %d has no exported runtime media" % abs(picture_id),
 			{"resourceId": abs(picture_id)}
 		)
 	elif str(picture.get("payloadEncoding", "")) == "classic-resource-data":
-		_add_fallback_for_action(
+		_add_media_diagnostic_for_action(
 			action,
 			"missing-picture-runtime-media",
 			"Picture %d has preserved Classic bytes but no decoded runtime media" \
@@ -299,7 +299,7 @@ func _check_picture(
 			{"resourceId": abs(picture_id), "payloadPath": payload_path}
 		)
 	elif not FileAccess.file_exists(bundle.root_directory.path_join(payload_path)):
-		_add_fallback_for_action(
+		_add_media_diagnostic_for_action(
 			action,
 			"missing-picture-file",
 			"Picture %d payload '%s' is missing" % [abs(picture_id), payload_path],
@@ -317,7 +317,7 @@ func _check_sound(
 	if runtime_media is Dictionary and not runtime_media.is_empty():
 		var runtime_path := str(runtime_media.get("path", "")).strip_edges()
 		if not FileAccess.file_exists(bundle.root_directory.path_join(runtime_path)):
-			_add_fallback_for_action(
+			_add_media_diagnostic_for_action(
 				action,
 				"missing-sound-runtime-media",
 				"Sound %d runtime media '%s' is missing" % [sound_id, runtime_path],
@@ -326,7 +326,7 @@ func _check_sound(
 		return
 	var sound_name := str(_sound_mapping.get(sound_id, ""))
 	if sound_name.is_empty():
-		_add_fallback_for_action(
+		_add_media_diagnostic_for_action(
 			action,
 			"unresolved-sound-identity",
 			"Sound %d has no runtime media or Remake mapping" % sound_id,
@@ -335,7 +335,7 @@ func _check_sound(
 		return
 	var sounds: Variant = _native_context.get("sounds", {})
 	if sounds is Dictionary and not sounds.is_empty() and not sounds.has(sound_name):
-		_add_fallback_for_action(
+		_add_media_diagnostic_for_action(
 			action,
 			"missing-native-sound",
 			"Mapped sound '%s' is not available to Remake" % sound_name,
@@ -350,7 +350,7 @@ func _check_player_map(
 ) -> void:
 	if not bundle.get_player_map(map_id).is_empty():
 		return
-	_add_fallback_for_action(
+	_add_media_diagnostic_for_action(
 		action,
 		"missing-player-map",
 		"Player map %d is unavailable" % abs(map_id),
@@ -992,6 +992,21 @@ func _add_fallback_for_action(
 	extra := {}
 ) -> void:
 	_add_action_diagnostic(action, "warning", FALLBACK, code, message, extra)
+
+
+func _add_media_diagnostic_for_action(
+	action: Dictionary,
+	code: String,
+	message: String,
+	extra := {}
+) -> void:
+	if (
+		bool(action.get("executable", false))
+		and bool(action.get("mediaRequiredForProgression", false))
+	):
+		_add_blocker_for_action(action, code, message, extra)
+	else:
+		_add_fallback_for_action(action, code, message, extra)
 
 
 func _add_action_diagnostic(
