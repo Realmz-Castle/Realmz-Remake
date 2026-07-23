@@ -598,7 +598,6 @@ func _native_attacks(record: Dictionary) -> Dictionary:
 	var fidelity_fallbacks: Array[String] = []
 	var source: Variant = record.get("attacks", [])
 	var attack_count := maxi(1, int(record.get("attackCount", 1)))
-	var weapon_id := int(record.get("weapon", 0))
 	if source is Array:
 		for attack_index: int in mini(attack_count, source.size()):
 			var row: Variant = source[attack_index]
@@ -618,23 +617,16 @@ func _native_attacks(record: Dictionary) -> Dictionary:
 			}
 			if special != 0:
 				attack["extra_data"] = {"classicSpecialAttack": special}
-			if MonsterSpecialAttackScript.supports(special):
-				if weapon_id != 0:
-					unsupported_fields.append("attacks[%d].specialWithWeapon" % attack_index)
-			elif ELEMENT_BY_SPECIAL_ATTACK.has(special):
+			if ELEMENT_BY_SPECIAL_ATTACK.has(special):
 				if high < 1:
 					unsupported_fields.append("attacks[%d].specialDamage" % attack_index)
-				elif weapon_id != 0:
-					# Classic adds this damage to a carried weapon, while Remake's
-					# equipped-weapon path bypasses the rotating attack row.
-					unsupported_fields.append("attacks[%d].specialWithWeapon" % attack_index)
 				else:
 					damage[ELEMENT_BY_SPECIAL_ATTACK[special]] = [1, high]
 					# Native resistance replaces Classic's separate save and
 					# protection rolls for the same damage family.
 					if not fidelity_fallbacks.has("elementalSpecialAttackMitigation"):
 						fidelity_fallbacks.append("elementalSpecialAttackMitigation")
-			elif special != 0:
+			elif special != 0 and not MonsterSpecialAttackScript.supports(special):
 				unsupported_fields.append("attacks[%d].special" % attack_index)
 			entries.append(attack)
 	if entries.is_empty():

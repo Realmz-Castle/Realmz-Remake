@@ -39,7 +39,7 @@ func _on_evasion_check(crea, evasion_stats_used : Array, attacker, spellornull, 
 	if evasion_stats_used.has('EvasionMelee') or evasion_stats_used.has('EvasionRanged') or evasion_stats_used.has('EvasionMagic') :
 		power = max(power-1, 0)
 	if evasion_stats_used.has('EvasionMelee') and power>0 and is_instance_valid(attacker.combat_button) :
-		var act_msg : Dictionary = {'type' : 'MeleeAttack', 'attacker' : chara.combat_button, 'defender' : attacker.combat_button, 'weapon': chara.current_melee_weapons[0] }  #uses 1 apr
+		var act_msg : Dictionary = {'type' : 'MeleeAttack', 'attacker' : chara.combat_button, 'defender' : attacker.combat_button, 'weapon': chara.get_melee_weapon_for_next_attack() }  #uses 1 apr
 		return [false,[act_msg]]
 	return [true, []]
 	

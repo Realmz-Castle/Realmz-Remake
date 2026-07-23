@@ -93,6 +93,9 @@ const MonsterStatusAttackScript = preload(
 const MonsterSpecialAttackScript = preload(
 	"res://scripts/classic_runtime/classic_monster_special_attack.gd"
 )
+const MonsterAttackSequenceScript = preload(
+	"res://scripts/classic_runtime/classic_monster_attack_sequence.gd"
+)
 const MaterializationFixtureAuditScript = preload(
 	"res://scripts/classic_runtime/classic_materialization_fixture_audit.gd"
 )
@@ -1585,6 +1588,7 @@ func _init() -> void:
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
 	_test_classic_bestiary_materializer()
+	_test_classic_monster_attack_sequence()
 	_test_classic_monster_special_attacks()
 	_test_classic_map_sound_bridge()
 	_test_classic_campaign_package_installer()
@@ -4412,10 +4416,10 @@ func _test_classic_bestiary_materializer() -> void:
 	armed_status_record["weapon"] = 1
 	armed_status_record["attacks"][0][3] = 6
 	_expect(
-		materializer._native_attacks(armed_status_record).get(
+		not materializer._native_attacks(armed_status_record).get(
 			"unsupportedFields", []
 		).has("attacks[0].specialWithWeapon"),
-		"weapon-coupled status attacks remain explicit launch blockers"
+		"weapon-coupled status attacks remain executable"
 	)
 	var status_attacker := ConditionTestCharacter.new("Status attacker")
 	status_attacker.set_meta("classic_hit_dice", 8)
@@ -4814,10 +4818,10 @@ func _test_classic_bestiary_materializer() -> void:
 	var armed_attack_record: Dictionary = inventory_bundle.get_monster(1).duplicate(true)
 	armed_attack_record["attacks"][0][3] = 11
 	_expect(
-		materializer._native_attacks(armed_attack_record).get(
+		not materializer._native_attacks(armed_attack_record).get(
 			"unsupportedFields", []
 		).has("attacks[0].specialWithWeapon"),
-		"elemental specials with equipped weapons remain explicit blockers"
+		"equipped weapons can carry the current Classic attack-row special"
 	)
 
 	var spell_root := test_root.path_join("spells")
@@ -5239,6 +5243,84 @@ func _test_classic_bestiary_materializer() -> void:
 	)
 
 
+func _test_classic_monster_attack_sequence() -> void:
+	var unarmed_rows := [
+		{
+			"name": "NO_MELEE_WEAPON",
+			"weapon_dmg": {"Physical": [1, 4]},
+			"extra_data": {"classicSpecialAttack": 6},
+		},
+		{
+			"name": "NO_MELEE_WEAPON",
+			"weapon_dmg": {"Physical": [2, 8], "Fire": [1, 8]},
+		},
+	]
+	_expect_equal(
+		MonsterAttackSequenceScript.weapon_for_attack(
+			unarmed_rows[0], unarmed_rows, 1
+		),
+		unarmed_rows[1],
+		"unarmed Classic monsters advance through their authored attack rows"
+	)
+	_expect_equal(
+		MonsterAttackSequenceScript.weapon_for_attack(
+			unarmed_rows[0], unarmed_rows, 2
+		),
+		unarmed_rows[0],
+		"Classic attack rows wrap after the authored attack count"
+	)
+
+	var equipped_weapon := {
+		"name": "Flaming Spear",
+		"type": "Melee Weapon",
+		"weapon_dmg": {"Physical": [3, 9], "Fire": [2, 4]},
+		"extra_data": {"classicItemId": 77},
+	}
+	var status_weapon: Dictionary = MonsterAttackSequenceScript.weapon_for_attack(
+		equipped_weapon, unarmed_rows, 0
+	)
+	_expect_equal(
+		status_weapon.get("weapon_dmg"),
+		equipped_weapon.get("weapon_dmg"),
+		"armed Classic attacks ignore the attack row's ordinary physical damage"
+	)
+	_expect_equal(
+		status_weapon.get("extra_data", {}).get("classicSpecialAttack"),
+		6,
+		"armed Classic attacks retain the current row's status special"
+	)
+	_expect_equal(
+		status_weapon.get("extra_data", {}).get("classicItemId"),
+		77,
+		"attack-row metadata preserves the equipped item's identity"
+	)
+
+	var elemental_weapon: Dictionary = MonsterAttackSequenceScript.weapon_for_attack(
+		equipped_weapon, unarmed_rows, 1
+	)
+	_expect_equal(
+		elemental_weapon.get("weapon_dmg", {}).get("Physical"),
+		[3, 9],
+		"armed elemental specials do not add the row's physical damage"
+	)
+	_expect_equal(
+		elemental_weapon.get("weapon_dmg", {}).get("Fire"),
+		[3, 12],
+		"armed elemental specials add their damage to the equipped weapon"
+	)
+	_expect_equal(
+		equipped_weapon.get("weapon_dmg", {}).get("Fire"),
+		[2, 4],
+		"per-attack adaptation does not mutate the equipped inventory item"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scripts/states/CbDecideActionState.gd"
+		).contains("get_melee_weapon_for_next_attack()"),
+		"native battle decisions consume the Classic attack-row selector"
+	)
+
+
 func _test_classic_monster_special_attacks() -> void:
 	var drain_attacker := MonsterSpecialAttackTestCharacter.new(
 		"Spell drainer", 1, 2, 20, false
@@ -5655,7 +5737,7 @@ func _test_classic_campaign_package_installer() -> void:
 	var unsupported_monster_content: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(unsupported_monster_content_path)
 	)
-	unsupported_monster_content["monsters"][0]["attacks"][0][3] = 1
+	unsupported_monster_content["monsters"][0]["attacks"][0][3] = 17
 	var unsupported_monster_content_file := FileAccess.open(
 		unsupported_monster_content_path,
 		FileAccess.WRITE

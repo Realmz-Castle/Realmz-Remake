@@ -12,6 +12,9 @@ const CLASSIC_LEARNED_SPELL_IDENTITY_SCRIPT = preload(
 const CLASSIC_QUEUED_SPELL_RUNTIME_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_queued_spell_runtime.gd"
 )
+const CLASSIC_MONSTER_ATTACK_SEQUENCE_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_monster_attack_sequence.gd"
+)
 
 # Declare member variables here. Examples:
 var name : String = 'Base Creature'
@@ -281,7 +284,7 @@ func _on_before_move(dir : Vector2)-> Array :
 			willAoO.append(cb)
 	var counter_action_queue : Array = []
 	for cb in willAoO :
-		counter_action_queue.append({"type" : "MeleeAttack", "attacker" : cb, "defender" : combat_button, "weapon": cb.creature.current_melee_weapons[0] })
+		counter_action_queue.append({"type" : "MeleeAttack", "attacker" : cb, "defender" : combat_button, "weapon": cb.creature.get_melee_weapon_for_next_attack() })
 		cb.creature.reaction_ready = false
 		print("    creature.move._on_before_move : counter_action_queue by "+cb.creature.name,cb.creature.position)
 	return counter_action_queue
@@ -1064,6 +1067,19 @@ func on_after_melee_attack() :
 		if rotating_unarmed_melee_weapons.size()>0 :
 			var index : int = used_apr % rotating_unarmed_melee_weapons.size()
 			current_melee_weapons[0] = rotating_unarmed_melee_weapons[index]
+
+
+func get_melee_weapon_for_next_attack() -> Dictionary:
+	var active_weapon: Dictionary = ITEM_NO_MELEE_WEAPON
+	if not current_melee_weapons.is_empty():
+		active_weapon = current_melee_weapons[0]
+	if classic_monster_id < 0 and not has_meta("classic_monster_id"):
+		return active_weapon
+	return CLASSIC_MONSTER_ATTACK_SEQUENCE_SCRIPT.weapon_for_attack(
+		active_weapon,
+		rotating_unarmed_melee_weapons,
+		used_apr
+	)
 
 
 func _on_before_melee_attack(_attacker : CombatCreaButton, damage_detail : Dictionary) -> Array :

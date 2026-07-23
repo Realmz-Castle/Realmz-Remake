@@ -594,10 +594,10 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 	):
 		defendercb = attackercb
 	var picture : String = "ATK_WPN"
-	if attackercb.creature.current_melee_weapons[0].has("melee_atk_anim_icon") :
-		picture = attackercb.creature.current_melee_weapons[0]["melee_atk_anim_icon"]
+	if weapon.has("melee_atk_anim_icon") :
+		picture = weapon["melee_atk_anim_icon"]
 	else :
-		if attackercb.creature.current_melee_weapons[0]["name"]=="NO_MELEE_WEAPON" :
+		if weapon["name"]=="NO_MELEE_WEAPON" :
 			picture = "ATK_HTH"
 	var crit_rate : float = attackercb.creature.get_stat("Melee_Crit_Rate")
 	var crit_mult : float = attackercb.creature.get_stat("Melee_Crit_Mult")
@@ -615,7 +615,7 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		var attacker = attackercb
 		var defender = defendercb
 		
-		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[ attacker.creature.current_melee_weapons[0]["sound"] ]
+		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[weapon["sound"]]
 		UI.ow_hud.creatureRect.logrect.log_melee_attack(attacker,defender,damage_detail, accuracy, is_crit, crit_mult, crit_rate)
 		defender.display_effect(picture, damage_detail["total"], 0.8 *2)
 		SfxPlayer.play()
@@ -635,7 +635,7 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		defender.creature.change_cur_hp(-damage_detail["total"])
 		print('GameGlobal weapon.has("melee_inflicted_traits") ? ', weapon.has("melee_inflicted_traits"))
 		if weapon.has("melee_inflicted_traits") :
-			var inflicted_traits_array : Array = attacker.creature.current_melee_weapons[0]["melee_inflicted_traits"]
+			var inflicted_traits_array : Array = weapon["melee_inflicted_traits"]
 			# looks like [traitname:String, traitinitargs : Array, chance : float]
 			for itr : Array in inflicted_traits_array :
 				print("itr : ", itr)

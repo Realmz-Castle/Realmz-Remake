@@ -526,7 +526,7 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 						UI.ow_hud.updateCharPanelDisplay()
 						return
 					if answer == "ATTACK" :
-						var used_weapon : Dictionary = current_active_creabutton.creature.current_melee_weapons[0]
+						var used_weapon : Dictionary = current_active_creabutton.creature.get_melee_weapon_for_next_attack()
 						action_msg = {"type" : "MeleeAttack", "attacker" : current_active_creabutton, "defender" : whothere, "weapon": used_weapon }
 					combat_state.add_to_action_queue([action_msg])
 					StateMachine.transition_to("Combat/CbAnimation")
@@ -534,7 +534,7 @@ func _on_dir_input_received(input : Vector2i, is_keyboard : bool) -> void :
 
 			else :
 				if current_active_creabutton.creature.get_apr_left()>0 :
-					var used_weapon : Dictionary = current_active_creabutton.creature.current_melee_weapons[0]
+					var used_weapon : Dictionary = current_active_creabutton.creature.get_melee_weapon_for_next_attack()
 					action_msg = {"type" : "MeleeAttack", "attacker" : current_active_creabutton, "defender" : whothere, "weapon": used_weapon }
 					combat_state.add_to_action_queue([action_msg])
 					StateMachine.transition_to("Combat/CbAnimation")
@@ -589,7 +589,7 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 				end_active_creature_turn(true)
 				return
 			else :
-				var used_weapon : Dictionary = cur_act_crea.current_melee_weapons[0]
+				var used_weapon : Dictionary = cur_act_crea.get_melee_weapon_for_next_attack()
 				action_msg = {"type" : "MeleeAttack", "attacker" : current_active_creabutton, "defender" : whothere, "weapon": used_weapon }
 	if decision_array[0] == 1 : #cast spell
 		#return [1, selectedSpell, selectedplvl, spell_target_pos, aoe_shape, {},[Vector2i(spell_target_pos)] , true, true]

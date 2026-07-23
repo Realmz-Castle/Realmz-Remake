@@ -45,7 +45,7 @@ func _on_other_creature_walked(othercreabutton : CombatCreaButton) -> Array :
 		print('guard.gd trait : _on_other_creature_walked :  ATTACK  !')
 		power = max(0,chara.get_apr_left()-1)
 		#{'type' : 'MeleeAttack', 'attacker' : Crea, 'defender' : Crea, 'weapon': {} }
-		var act_msg : Dictionary = {'type' : 'MeleeAttack', 'attacker' : chara.combat_button, 'defender' : othercreabutton, 'weapon': chara.current_melee_weapons[0] }
+		var act_msg : Dictionary = {'type' : 'MeleeAttack', 'attacker' : chara.combat_button, 'defender' : othercreabutton, 'weapon': chara.get_melee_weapon_for_next_attack() }
 		print("GUARDING TRAIT  SENDS EXTRA ATTACK")
 		return [act_msg]  #uses 1 apr
 	return []
