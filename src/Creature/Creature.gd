@@ -409,7 +409,18 @@ func get_stat(statname : String) :
 	if statname == "Weight_Limit" :
 		return 1200
 	var this_stat = stats[statname]
-	if not ["AccuracyMelee","AccuracyRanged","AccuracyMagic","Melee_Crit_Rate","Melee_Crit_Mult","Ranged_Crit_Rate","Ranged_Crit_Mult"].has(statname) :
+	# Fractional actions grant one extra action on alternating combat rounds.
+	var fractional_stats := [
+		"MaxActions",
+		"AccuracyMelee",
+		"AccuracyRanged",
+		"AccuracyMagic",
+		"Melee_Crit_Rate",
+		"Melee_Crit_Mult",
+		"Ranged_Crit_Rate",
+		"Ranged_Crit_Mult",
+	]
+	if not fractional_stats.has(statname) :
 		this_stat = roundi(this_stat)
 	for t in traits :
 		if t.has_method("_on_get_stat") :

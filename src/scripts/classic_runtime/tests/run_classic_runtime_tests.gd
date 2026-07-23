@@ -452,8 +452,11 @@ class CampaignRuleDefinition:
 	extends RefCounted
 	var base_stat_bonuses: Dictionary
 
-	func _init(movement: int) -> void:
-		base_stat_bonuses = {"MaxMovement": movement}
+	func _init(movement: int, actions: float) -> void:
+		base_stat_bonuses = {
+			"MaxMovement": movement,
+			"MaxActions": actions,
+		}
 
 
 class CampaignRuleCharacter:
@@ -463,12 +466,14 @@ class CampaignRuleCharacter:
 	var classic_race_id := 20
 	var classic_caste_id := 21
 	var classic_rule_profile: Dictionary = {}
-	var racegd := CampaignRuleDefinition.new(12)
-	var classgd := CampaignRuleDefinition.new(2)
+	var racegd := CampaignRuleDefinition.new(12, 1.0)
+	var classgd := CampaignRuleDefinition.new(2, 1.0)
 	var classic_magic_resistance := 0
 	var classic_magic_resistance_initialized := false
+	var base_stats := {"MaxActions": 2.0}
 	var native_stats := {
 		"MaxMovement": 14,
+		"MaxActions": 2.0,
 		"Intellect": 11,
 		"Wisdom": 8,
 		"Vitality": 10,
@@ -485,6 +490,12 @@ class CampaignRuleCharacter:
 			set_classic_magic_resistance(
 				int(saved_data["classicMagicResistance"])
 			)
+		var saved_base_stats: Variant = saved_data.get("baseStats", null)
+		if saved_base_stats is Dictionary:
+			base_stats = saved_base_stats.duplicate(true)
+		var saved_native_stats: Variant = saved_data.get("nativeStats", null)
+		if saved_native_stats is Dictionary:
+			native_stats = saved_native_stats.duplicate(true)
 
 	func apply_classic_rule_profile(profile: Dictionary) -> void:
 		classic_rule_profile = profile.duplicate(true)
@@ -512,6 +523,10 @@ class CampaignRuleCharacter:
 
 	func level_up(magic_resistance_roll: int = -1) -> void:
 		level += 1
+		if level == 2:
+			base_stats["MaxActions"] += 0.5
+			native_stats["MaxActions"] += 0.5
+		CharacterRulesScript.apply_level_up_attack_progression(self)
 		CharacterRulesScript.apply_level_up_magic_resistance(
 			self,
 			magic_resistance_roll
@@ -523,6 +538,8 @@ class CampaignRuleCharacter:
 			"classicRaceId": classic_race_id,
 			"classicCasteId": classic_caste_id,
 			"classicRuleProfile": classic_rule_profile.duplicate(true),
+			"baseStats": base_stats.duplicate(true),
+			"nativeStats": native_stats.duplicate(true),
 		}
 		if classic_magic_resistance_initialized:
 			data["classicMagicResistance"] = classic_magic_resistance
@@ -7082,9 +7099,14 @@ func _test_classic_character_rule_profile() -> void:
 			"changedRecordIds": [20],
 		},
 	}
+	for record: Variant in install.bundle.documents["rules"]["casteOverrides"]:
+		if record is Dictionary and int(record.get("id", -1)) == 20:
+			record["bonusAttacks"] = 1
+			record["attacks"] = [2, 4, 0, 0, 0, 0, 0, 0, 0, 0]
 
 	var character := CampaignRuleCharacter.new()
 	_expect_equal(character.get_stat("MaxMovement"), 14, "native movement starts unchanged")
+	_expect_equal(character.get_stat("MaxActions"), 2.0, "native actions start unchanged")
 	var apply_result := CharacterRulesScript.apply_party(install.bundle, [character])
 	_expect_equal(apply_result.get("status"), "ok", "Classic character rules apply")
 	_expect_equal(
@@ -7107,6 +7129,34 @@ func _test_classic_character_rule_profile() -> void:
 		"character retains the source-backed magic-resistance formula"
 	)
 	_expect_equal(
+		character.classic_rule_profile.get("attacks"),
+		{
+			"baseHalfAttacks": 2,
+			"maxAttacks": 4,
+			"bonusHalfAttacks": 1,
+			"levelThresholds": [2, 4, 0, 0, 0, 0, 0, 0, 0, 0],
+			"nativeAdjustment": 0.5,
+		},
+		"character retains the source-backed attack progression"
+	)
+	_expect_equal(
+		character.get_stat("MaxActions"),
+		2.5,
+		"race and caste rules apply the starting half-attack"
+	)
+	var capped_thresholds: Array[int] = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+	_expect_equal(
+		CharacterRulesScript._classic_action_budget(
+			2,
+			2,
+			1,
+			capped_thresholds,
+			4
+		),
+		5.0,
+		"Classic attack progression stops at twice the race maximum"
+	)
+	_expect_equal(
 		MagicResistanceScript.base_value(character),
 		12,
 		"race and caste rules initialize Classic magic resistance"
@@ -7117,6 +7167,11 @@ func _test_classic_character_rule_profile() -> void:
 		character.get_stat("MaxMovement"),
 		12,
 		"scenario movement remains effective after level-up"
+	)
+	_expect_equal(
+		character.get_stat("MaxActions"),
+		3.0,
+		"the first caste attack threshold replaces native progression"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(character),
@@ -7136,12 +7191,22 @@ func _test_classic_character_rule_profile() -> void:
 	var reloaded := CampaignRuleCharacter.new(saved_data)
 	_expect_equal(reloaded.classic_race_id, 20, "Classic race identity survives save/load")
 	_expect_equal(reloaded.classic_caste_id, 21, "Classic caste identity survives save/load")
+	_expect_equal(
+		reloaded.get_stat("MaxActions"),
+		3.0,
+		"Classic attack progression survives character save/load"
+	)
 	reloaded.native_stats["Intellect"] = 21
 	CharacterRulesScript.apply_party(install.bundle, [reloaded])
 	_expect_equal(
 		reloaded.get_stat("MaxMovement"),
 		12,
 		"scenario movement remains effective after character save/load"
+	)
+	_expect_equal(
+		reloaded.get_stat("MaxActions"),
+		3.0,
+		"campaign reload preserves the level-derived attack budget"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),
@@ -7164,6 +7229,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("MaxMovement"),
 		14,
 		"leaving the scenario-local rule table restores native movement"
+	)
+	_expect_equal(
+		reloaded.get_stat("MaxActions"),
+		2.5,
+		"leaving the override table restores native action progression"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),

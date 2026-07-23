@@ -324,6 +324,7 @@ func level_up() :
 	racegd._level_up(self, level)
 
 	recalculate_stats()
+	ClassicCharacterRulesScript.apply_level_up_attack_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_magic_resistance(self)
 	print("PC after level up  base_stats ", base_stats["curHP"] ,'/',base_stats["maxHP"])
 

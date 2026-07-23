@@ -84,8 +84,14 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
 	)
+	var attacks := _attack_profile(
+		character,
+		active_race_record,
+		active_caste_record,
+		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
+	)
 
-	if movement.is_empty() and magic_resistance.is_empty():
+	if movement.is_empty() and magic_resistance.is_empty() and attacks.is_empty():
 		return {}
 
 	var profile := {
@@ -95,6 +101,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["movement"] = movement
 	if not magic_resistance.is_empty():
 		profile["magicResistance"] = magic_resistance
+	if not attacks.is_empty():
+		profile["attacks"] = attacks
 	if race_id > 0:
 		profile["raceId"] = race_id
 	if caste_id > 0:
@@ -108,22 +116,118 @@ static func adjusted_stat(
 	stat_name: String,
 	native_value: Variant
 ) -> Variant:
-	if stat_name != "MaxMovement":
-		return native_value
-	var movement := _dictionary_value(profile.get("movement", {}))
-	if movement.is_empty():
-		return native_value
+	if stat_name == "MaxMovement":
+		var movement := _dictionary_value(profile.get("movement", {}))
+		if movement.is_empty():
+			return native_value
 
-	# Remake already combines identity and equipment movement. Replace only the
-	# native race/caste contributions so ordinary equipment modifiers still apply.
-	var adjusted := float(native_value)
-	if movement.has("raceBaseMove"):
-		adjusted += int(movement["raceBaseMove"]) \
-			- _native_identity_stat(_value(character, "racegd", null), stat_name)
-	if movement.has("casteMoveBonus"):
-		adjusted += int(movement["casteMoveBonus"]) \
-			- _native_identity_stat(_value(character, "classgd", null), stat_name)
-	return roundi(adjusted)
+		# Remake already combines identity and equipment movement. Replace only
+		# the native race/caste contributions so equipment still applies.
+		var adjusted := float(native_value)
+		if movement.has("raceBaseMove"):
+			adjusted += int(movement["raceBaseMove"]) \
+				- _native_identity_stat(
+					_value(character, "racegd", null),
+					stat_name
+				)
+		if movement.has("casteMoveBonus"):
+			adjusted += int(movement["casteMoveBonus"]) \
+				- _native_identity_stat(
+					_value(character, "classgd", null),
+					stat_name
+				)
+		return roundi(adjusted)
+	if stat_name == "MaxActions":
+		var attacks := _dictionary_value(profile.get("attacks", {}))
+		if attacks.is_empty():
+			return native_value
+		return float(native_value) + float(
+			attacks.get("nativeAdjustment", 0.0)
+		)
+	return native_value
+
+
+static func apply_level_up_attack_progression(character: Variant) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var attacks := _dictionary_value(profile.get("attacks", {}))
+	if attacks.is_empty():
+		return {"status": "skipped"}
+
+	var desired_actions := _classic_action_budget(
+		int(_value(character, "level", 1)),
+		int(attacks.get("baseHalfAttacks", 0)),
+		int(attacks.get("bonusHalfAttacks", 0)),
+		_integer_array(attacks.get("levelThresholds", [])),
+		int(attacks.get("maxAttacks", 0))
+	)
+	attacks["nativeAdjustment"] = (
+		desired_actions - _raw_base_stat(character, "MaxActions")
+	)
+	profile["attacks"] = attacks
+	if character is Object \
+			and character.has_method("apply_classic_rule_profile"):
+		character.call("apply_classic_rule_profile", profile)
+	return {
+		"status": "ok",
+		"maxActions": desired_actions,
+		"halfAttacks": int((desired_actions - 1.0) * 2.0),
+	}
+
+
+static func _attack_profile(
+	character: Variant,
+	race_record: Dictionary,
+	caste_record: Dictionary,
+	has_changed_record: bool
+) -> Dictionary:
+	if not has_changed_record \
+			or not race_record.has("numOfAttacks") \
+			or not caste_record.has("bonusAttacks") \
+			or not caste_record.has("attacks"):
+		return {}
+	var race_attacks := _integer_array(race_record["numOfAttacks"])
+	if race_attacks.size() < 2:
+		return {}
+	var thresholds := _integer_array(caste_record["attacks"])
+	var result := {
+		"baseHalfAttacks": race_attacks[0],
+		"maxAttacks": race_attacks[1],
+		"bonusHalfAttacks": int(caste_record["bonusAttacks"]),
+		"levelThresholds": thresholds,
+	}
+	var desired_actions := _classic_action_budget(
+		int(_value(character, "level", 1)),
+		int(result["baseHalfAttacks"]),
+		int(result["bonusHalfAttacks"]),
+		thresholds,
+		int(result["maxAttacks"])
+	)
+	result["nativeAdjustment"] = (
+		desired_actions - _raw_base_stat(character, "MaxActions")
+	)
+	return result
+
+
+static func _classic_action_budget(
+	level: int,
+	base_half_attacks: int,
+	bonus_half_attacks: int,
+	level_thresholds: Array[int],
+	max_attacks: int
+) -> float:
+	var half_attacks := base_half_attacks + bonus_half_attacks
+	for threshold: int in level_thresholds:
+		if threshold > 0 and threshold <= level:
+			half_attacks += 1
+	if max_attacks > 0:
+		half_attacks = mini(half_attacks, max_attacks * 2)
+
+	# Remake reserves one action for the turn itself. Each Classic half-attack
+	# adds half an action; Creature.get_apr_left grants the fraction every other
+	# round.
+	return 1.0 + float(half_attacks) / 2.0
 
 
 static func _magic_resistance_profile(
@@ -323,6 +427,16 @@ static func _native_identity_stat(definition: Variant, stat_name: String) -> int
 	if bonuses is Dictionary:
 		return int(bonuses.get(stat_name, 0))
 	return 0
+
+
+static func _raw_base_stat(character: Variant, stat_name: String) -> float:
+	var base_stats: Variant = _value(character, "base_stats", {})
+	if base_stats is Dictionary and base_stats.has(stat_name):
+		return float(base_stats[stat_name])
+	var stats: Variant = _value(character, "stats", {})
+	if stats is Dictionary and stats.has(stat_name):
+		return float(stats[stat_name])
+	return 0.0
 
 
 static func _integer_array(value: Variant) -> Array[int]:
