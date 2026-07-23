@@ -121,6 +121,31 @@ func _run_smoke() -> void:
 		AudioStreamWAV.load_from_file(sound_media_path) != null,
 		"installed producer sound loads through the native audio resource"
 	)
+	var scrolling_map: Dictionary = bundle.get_player_map(1)
+	var scrolling_text: Dictionary = scrolling_map.get("scrollingText", {})
+	_expect_equal(
+		scrolling_text.get("resourceId"),
+		-200,
+		"producer scrolling player map keeps its TEXT identity"
+	)
+	_expect_equal(
+		scrolling_text.get("text"),
+		"Providence owns this scrolling TEXT resource.",
+		"producer scrolling player map exposes decoded text"
+	)
+	_expect_equal(
+		scrolling_text.get("styleResource", {}).get("resourceId"),
+		-200,
+		"producer scrolling player map keeps its paired styl identity"
+	)
+	_expect(
+		UI.ow_hud.classicPlayerMapRect.display_map(scrolling_map, "")
+			and UI.ow_hud.classicPlayerMapRect.scrolling_text_label.visible
+			and UI.ow_hud.classicPlayerMapRect.scrolling_text_label.text
+				== "Providence owns this scrolling TEXT resource.",
+		"normal player-map panel presents producer scrolling text"
+	)
+	UI.ow_hud.classicPlayerMapRect.close_map()
 	var ally_action := _find_ally_action(bundle.documents.get("scripts", {}))
 	_expect(not ally_action.is_empty(), "producer trigger contains an authored ally action")
 	if ally_action.is_empty():

@@ -183,6 +183,17 @@ func _test_acquired_player_map_browser() -> void:
 			"primaryName": "The River Note",
 			"note": "Follow the river when no drawn map survives.",
 		},
+		5: {
+			"id": 5,
+			"show": -200,
+			"primaryName": "The Archivist's Note",
+			"scrollingText": {
+				"resourceType": "TEXT",
+				"resourceId": -200,
+				"text": "The first archive lies beyond the old road.\n\n"
+					+ "Seek the stone bridge before nightfall.",
+			},
+		},
 		7: {
 			"id": 7,
 			"primaryName": "The Old Road",
@@ -198,6 +209,7 @@ func _test_acquired_player_map_browser() -> void:
 		},
 	}
 	runtime_state.set_map_owned(3)
+	runtime_state.set_map_owned(5)
 	runtime_state.set_map_owned(7)
 	UI.ow_hud._on_minimaps_button_pressed()
 	_expect(
@@ -215,8 +227,22 @@ func _test_acquired_player_map_browser() -> void:
 	)
 	UI.ow_hud.classicPlayerMapRect._on_next_button_pressed()
 	_expect(
+		UI.ow_hud.classicPlayerMapRect.current_map_record.get("id") == 5 \
+			and UI.ow_hud.classicPlayerMapRect.scrolling_text_label.visible \
+			and not UI.ow_hud.classicPlayerMapRect.map_texture_rect.visible,
+		"Maps/Notes presents acquired scrolling-text player maps"
+	)
+	_expect(
+		UI.ow_hud.classicPlayerMapRect.scrolling_text_label.text.contains(
+			"Seek the stone bridge before nightfall."
+		),
+		"Maps/Notes preserves multiline scrolling-text content"
+	)
+	UI.ow_hud.classicPlayerMapRect._on_next_button_pressed()
+	_expect(
 		UI.ow_hud.classicPlayerMapRect.current_map_record.get("id") == 7 \
-			and UI.ow_hud.classicPlayerMapRect.map_texture_rect.visible,
+			and UI.ow_hud.classicPlayerMapRect.map_texture_rect.visible \
+			and not UI.ow_hud.classicPlayerMapRect.scrolling_text_label.visible,
 		"Maps/Notes advances to acquired decoded player-map art"
 	)
 	UI.ow_hud.classicPlayerMapRect._on_done_button_pressed()

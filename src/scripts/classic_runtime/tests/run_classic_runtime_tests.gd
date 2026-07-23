@@ -2115,7 +2115,7 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"3a95d48a412666aedf11e6c84c5ea64f0d3711b3",
+		"f98d11ba0d0c70330e9b61d83f83f6934b5fc1cf",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
@@ -2196,6 +2196,22 @@ func _test_providence_authoritative_export() -> void:
 		bundle.get_sound(321).get("runtimeMedia", {}).get("mediaType"),
 		"audio/wav",
 		"producer fixture indexes decoded sound runtime media"
+	)
+	var scrolling_map: Dictionary = bundle.get_player_map(1)
+	_expect_equal(
+		scrolling_map.get("show"),
+		-200,
+		"producer fixture keeps the scrolling player-map identity"
+	)
+	_expect_equal(
+		scrolling_map.get("scrollingText", {}).get("text"),
+		"Providence owns this scrolling TEXT resource.",
+		"producer fixture includes decoded scrolling text"
+	)
+	_expect_equal(
+		scrolling_map.get("scrollingText", {}).get("styleResource", {}).get("resourceId"),
+		-200,
+		"producer fixture links the paired styl resource"
 	)
 	_expect(
 		FileAccess.file_exists(
@@ -18848,6 +18864,9 @@ func _test_classic_player_map_renderer() -> void:
 	player_map_rect.map_texture_rect = player_map_rect.get_node(
 		"VBoxContainer/MapArea/MapTextureRect"
 	)
+	player_map_rect.scrolling_text_label = player_map_rect.get_node(
+		"VBoxContainer/MapArea/ScrollingTextLabel"
+	)
 	player_map_rect.missing_media_label = player_map_rect.get_node(
 		"VBoxContainer/MapArea/MissingMediaLabel"
 	)
@@ -18969,6 +18988,19 @@ func _test_classic_player_map_renderer() -> void:
 				},
 				"runtimeMediaPath": "",
 			},
+			{
+				"record": {
+					"id": 10,
+					"primaryName": "The Archivist's Note",
+					"show": -200,
+					"scrollingText": {
+						"resourceType": "TEXT",
+						"resourceId": -200,
+						"text": "First line.\nSecond line.",
+					},
+				},
+				"runtimeMediaPath": "",
+			},
 		]),
 		"Classic player-map renderer opens an acquired-map catalog"
 	)
@@ -18987,6 +19019,14 @@ func _test_classic_player_map_renderer() -> void:
 			and not player_map_rect.map_texture_rect.visible,
 		"Classic player-map catalog keeps note-only records browseable"
 	)
+	player_map_rect._on_next_button_pressed()
+	_expect(
+		player_map_rect.current_map_record.get("id") == 10 \
+			and player_map_rect.scrolling_text_label.visible \
+			and player_map_rect.scrolling_text_label.text == "First line.\nSecond line.",
+		"Classic player-map catalog presents decoded scrolling text"
+	)
+	player_map_rect._on_previous_button_pressed()
 	player_map_rect._on_previous_button_pressed()
 	_expect_equal(
 		player_map_rect.current_map_record.get("id"),

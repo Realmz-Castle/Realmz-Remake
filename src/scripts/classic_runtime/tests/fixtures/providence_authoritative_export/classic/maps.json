@@ -6320,6 +6320,107 @@
       "show": 1,
       "startX": 10,
       "startY": 12
+    },
+    {
+      "authored": true,
+      "iconSize": 0,
+      "id": 1,
+      "isDungeon": false,
+      "level": 0,
+      "mapNameAuthored": false,
+      "markers": [
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "iconId": 0,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "name": null,
+      "nameSource": null,
+      "note": "",
+      "pictId": 0,
+      "primaryName": null,
+      "provenance": {
+        "byteLength": 340,
+        "byteOffset": 340,
+        "confidence": "fixture-backed",
+        "recordIndex": 1,
+        "sourceFile": "Data MD2"
+      },
+      "rect": {
+        "bottom": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0
+      },
+      "scrollingText": {
+        "payloadBytes": 46,
+        "payloadEncoding": "classic-resource-data",
+        "payloadFileName": "text-neg-200-ee8506353a59.txt",
+        "payloadPath": "assets/managed/text-neg-200-ee8506353a59.txt",
+        "payloadSha256": "ee8506353a59ede3b2420ff409f569546ce2258da18c968927d342a28289dd5c",
+        "resourceId": -200,
+        "resourceType": "TEXT",
+        "styleResource": {
+          "payloadBytes": 22,
+          "payloadEncoding": "classic-resource-data",
+          "payloadFileName": "styl-neg-200-04f1eaac6389.styl",
+          "payloadPath": "assets/managed/styl-neg-200-04f1eaac6389.styl",
+          "payloadSha256": "04f1eaac6389619252c668457eaed04d13ae8a103778a7868649fb61bbff82d4",
+          "resourceId": -200,
+          "resourceType": "styl"
+        },
+        "text": "Providence owns this scrolling TEXT resource."
+      },
+      "secondaryName": null,
+      "show": -200,
+      "startX": 0,
+      "startY": 0
     }
   ],
   "maps": [

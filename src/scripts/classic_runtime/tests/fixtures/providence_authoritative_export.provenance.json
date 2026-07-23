@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "producer": {
     "repository": "Realmz - Providence",
-    "commit": "3a95d48a412666aedf11e6c84c5ea64f0d3711b3",
+    "commit": "f98d11ba0d0c70330e9b61d83f83f6934b5fc1cf",
     "sourceFixture": "fixtures/scenario-seeds/authoritative-ownership-proof.seed.json"
   },
   "bundleDirectory": "providence_authoritative_export",
@@ -64,8 +64,8 @@
     },
     {
       "path": "classic/maps.json",
-      "bytes": 1276721,
-      "sha256": "796f976d9f04a79fcccbc7b88bfedb41fdf0b5432085c36653acd96a3682c342"
+      "bytes": 1279048,
+      "sha256": "a9e528dd52008d0a93180882883e6f87b5d4a208c4110b8f41f58f79d2f7422d"
     },
     {
       "path": "classic/rules.json",

@@ -7,6 +7,8 @@ const PlayerMapRendererScript = preload(
 )
 
 @onready var map_texture_rect: TextureRect = $VBoxContainer/MapArea/MapTextureRect
+@onready var scrolling_text_label: RichTextLabel = \
+	$VBoxContainer/MapArea/ScrollingTextLabel
 @onready var missing_media_label: Label = $VBoxContainer/MapArea/MissingMediaLabel
 @onready var map_name_label: Label = $VBoxContainer/Footer/MapNameLabel
 @onready var map_note_label: Label = $VBoxContainer/Footer/MapNoteLabel
@@ -78,8 +80,16 @@ func _display_map_record(
 	current_map_record = map_record.duplicate(true)
 	map_texture_rect.texture = null
 	map_texture_rect.visible = false
+	scrolling_text_label.text = ""
+	scrolling_text_label.visible = false
 	missing_media_label.visible = true
-	if not image_path.is_empty():
+	var scrolling_text: Variant = map_record.get("scrollingText")
+	if scrolling_text is Dictionary and scrolling_text.get("text") is String:
+		scrolling_text_label.text = str(scrolling_text["text"])
+		scrolling_text_label.visible = true
+		scrolling_text_label.scroll_to_line(0)
+		missing_media_label.visible = false
+	elif not image_path.is_empty():
 		var image := Image.new()
 		if image.load(image_path) != OK or image.get_width() <= 0 \
 				or image.get_height() <= 0:

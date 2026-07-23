@@ -102,6 +102,13 @@ installed-campaign loader verifies both immutable payloads and decoded media
 before launch. Version-1 consumers that do not know this additive object may
 ignore it; producers must not overload `payloadPath` with decoded media.
 
+Scrolling-text player maps retain their negative `show` value and may include a
+`scrollingText` object. It identifies the same negative `TEXT` resource, carries
+decoded plain text for presentation, and preserves the immutable TEXT payload
+path, byte count, hash, and encoding. A same-ID `styl` payload may be linked as
+`styleResource`; Remake currently presents the decoded text without claiming
+Classic style-run fidelity.
+
 A custom landlook tileset uses its catalog `runtimeMedia` as the decoded 640 x
 320, 20-by-10 atlas. Remake combines its 200 one-based visual slots with records
 1 through 200 from the matching `maps.customLandlooks` entry. Record 0 remains
@@ -236,7 +243,7 @@ godot --headless --path src --script res://scripts/classic_runtime/tests/run_cla
 ```
 
 The checked `providence_authoritative_export` fixture is the unchanged output of
-Providence commit `3a95d48a412666aedf11e6c84c5ea64f0d3711b3`, generated from
+Providence commit `f98d11ba0d0c70330e9b61d83f83f6934b5fc1cf`, generated from
 `fixtures/scenario-seeds/authoritative-ownership-proof.seed.json`. Its companion
 `providence_authoritative_export.provenance.json` records the byte count and
 SHA-256 hash of all 17 producer files, plus the expected readiness result: no
@@ -253,7 +260,8 @@ cross-repository interchange. It retains immutable Classic resource bytes while
 also providing separate decoded PNG runtime media for its picture and special
 land tile, plus decoded WAV runtime media for its sound. The consumer verifies
 the payload and runtime-media paths, lengths, hashes, encodings, and media types
-independently.
+independently. Its second player-map record also proves decoded scrolling TEXT
+with paired immutable styl provenance.
 
 ISY-404 has a stricter content-coverage gate for item and monster
 materialization. A candidate producer fixture must contain a scenario-local shop
