@@ -704,6 +704,8 @@ func initialize_from_bestiary_dict(creaname : String) :
 		["classic_regeneration_per_round", "classicRegenerationPerRound"],
 		["classic_spell_screen_level", "classicSpellScreenLevel"],
 		["classic_can_summon", "classicCanSummon"],
+		["classic_missile_item_name", "classicMissileItemName"],
+		["classic_missile_item_slot", "classicMissileItemSlot"],
 		["classic_required_weapon_kind", "classicRequiredWeaponKind"],
 		["classic_required_weapon_item_id", "classicRequiredWeaponItemId"],
 		["classic_required_weapon_name", "classicRequiredWeaponName"],
@@ -756,6 +758,8 @@ func initialize_from_bestiary_dict(creaname : String) :
 		inventory_item["drops_on_defeat"] = true
 		if i_name_eq_arr.size() > 2:
 			inventory_item["drops_on_defeat"] = bool(i_name_eq_arr[2])
+		if i_name_eq_arr.size() > 3:
+			inventory_item["classic_item_slot"] = int(i_name_eq_arr[3])
 		if i_name_eq_arr[1]>0 :
 			print("Creature generation : "+name+" equips "+inventory_item["name"])
 			equip_item(inventory_item)

@@ -90,10 +90,21 @@ static func decide_action(crea : Creature) -> Array :
 				allspellsArray.shuffle()
 			#var allitemspellsArray : Array = []  # array of [spellname : String, spellevel : int]
 			var allitemswspellsArray : Array = []
-			for i:Dictionary in crea.inventory :
-				if i.has("_on_combat_use_spell") and (i["charges_max"]==0 or i["charges"]>0 ) :
-					allitemswspellsArray.append(i)
-			if allitemswspellsArray.size()>0 :
+			if is_classic_monster:
+				var classic_missile_item := (
+					ClassicMonsterDecisionScript.missile_item(
+						crea.inventory,
+						str(crea.get_meta("classic_missile_item_name", "")),
+						int(crea.get_meta("classic_missile_item_slot", -1))
+					)
+				)
+				if not classic_missile_item.is_empty():
+					allitemswspellsArray.append(classic_missile_item)
+			else:
+				for i:Dictionary in crea.inventory :
+					if i.has("_on_combat_use_spell") and (i["charges_max"]==0 or i["charges"]>0 ) :
+						allitemswspellsArray.append(i)
+			if not is_classic_monster and allitemswspellsArray.size()>0 :
 				allitemswspellsArray.shuffle()
 			var selectedSpell = null
 			var selectedplvl : int = 0

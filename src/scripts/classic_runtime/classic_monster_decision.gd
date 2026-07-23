@@ -46,3 +46,28 @@ static func should_retry_cast(
 		and not did_attack
 		and failed_spell_passes < 2
 	)
+
+
+static func missile_item(
+	inventory: Array,
+	item_name: String,
+	item_slot: int
+) -> Dictionary:
+	if item_name.is_empty():
+		return {}
+	for item_value: Variant in inventory:
+		if not (item_value is Dictionary):
+			continue
+		var item: Dictionary = item_value
+		if str(item.get("name", "")) != item_name:
+			continue
+		if int(item.get("classic_item_slot", -1)) != item_slot:
+			continue
+		var combat_spell: Variant = item.get("_on_combat_use_spell")
+		if not (combat_spell is Array) or combat_spell.size() < 2:
+			return {}
+		var maximum_charges := int(item.get("charges_max", 0))
+		if maximum_charges != 0 and int(item.get("charges", 0)) <= 0:
+			return {}
+		return item
+	return {}

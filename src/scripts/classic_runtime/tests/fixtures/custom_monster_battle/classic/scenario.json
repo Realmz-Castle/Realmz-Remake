@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "fixture-custom-monster-battle",
+    "name": "Custom Monster Battle Fixture"
+  },
+  "shell": {
+    "sourceFile": "Integration fixture",
+    "recLevel": 6,
+    "maxLevel": 18,
+    "landLevel": 0,
+    "lookX": 6,
+    "lookY": 6,
+    "creatorUser": "Realmz Remake"
+  }
+}

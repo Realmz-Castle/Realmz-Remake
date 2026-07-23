@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "fixture": "Custom monster native battle conformance fixture",
+  "fixtureNote": "Purpose-built records combine deterministic caster, missile, melee, defense, morale, summoning, reward, faction, and death-macro inputs.",
+  "validation": {
+    "ok": true,
+    "errors": []
+  },
+  "semanticDecoding": {
+    "dispatcherNoops": []
+  },
+  "conformance": {
+    "battleId": 7,
+    "hostileMonsterIds": [201, 202, 203],
+    "friendlyMonsterIds": [204],
+    "deathMacroId": 960,
+    "roundMacroId": 961
+  }
+}

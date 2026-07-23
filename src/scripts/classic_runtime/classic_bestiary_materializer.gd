@@ -228,12 +228,19 @@ func _native_monster(
 		item_texts,
 		item_mapping
 	)
+	var native_missile_item := _native_missile_item(
+		record,
+		item_book,
+		item_texts,
+		item_mapping
+	)
 	var unsupported_fields := _unsupported_fields(
 		record,
 		native_inventory,
 		native_spells,
 		native_attacks,
-		native_requirements
+		native_requirements,
+		native_missile_item
 	)
 	var fidelity_fallbacks: Array[String] = [
 		"iconId",
@@ -336,6 +343,8 @@ func _native_monster(
 	}
 	for field_name: String in native_requirements.get("fields", {}):
 		native_monster[field_name] = native_requirements["fields"][field_name]
+	for field_name: String in native_missile_item.get("fields", {}):
+		native_monster[field_name] = native_missile_item["fields"][field_name]
 	return native_monster
 
 
@@ -459,7 +468,11 @@ func _native_inventory(
 			unsupported_fields.append("items[%d].nativeFields" % item_index)
 		if should_equip and int(native_item.get("equippable", 0)) == 0:
 			unsupported_fields.append("weapon.nonEquippable")
-		entries.append([item_key, 1 if should_equip else 0])
+		var native_entry: Array = [item_key, 1 if should_equip else 0]
+		if int(record.get("missilePercent", 0)) != 0 and item_index == 1:
+			native_entry.append(true)
+			native_entry.append(item_index)
+		entries.append(native_entry)
 		if should_equip:
 			equipped_weapon = true
 		if raw_item_id < 0 and not fidelity_fallbacks.has("itemDetectionMarkers"):
@@ -497,6 +510,42 @@ func _native_inventory(
 		"entries": entries,
 		"unsupportedFields": unsupported_fields,
 		"fidelityFallbacks": fidelity_fallbacks,
+	}
+
+
+func _native_missile_item(
+	record: Dictionary,
+	item_book: Dictionary,
+	item_texts: Array,
+	item_mapping: Dictionary
+) -> Dictionary:
+	if int(record.get("missilePercent", 0)) == 0:
+		return {"fields": {}, "unsupportedFields": []}
+	var item_ids: Array[int] = _integer_array(record.get("items", []), 6)
+	var item_id: int = abs(item_ids[1])
+	if item_id == 0:
+		return {"fields": {}, "unsupportedFields": ["missilePercent"]}
+	var item_name := _item_resource_key(
+		item_id,
+		item_book,
+		item_texts,
+		item_mapping
+	)
+	var native_item: Variant = item_book.get(item_name, {})
+	if item_name.is_empty() or not (native_item is Dictionary):
+		return {"fields": {}, "unsupportedFields": ["missilePercent"]}
+	var combat_spell: Variant = native_item.get("_on_combat_use_spell")
+	if not (combat_spell is Array) or combat_spell.size() < 2:
+		return {"fields": {}, "unsupportedFields": ["missilePercent"]}
+	var maximum_charges := int(native_item.get("charges_max", 0))
+	if maximum_charges != 0 and int(native_item.get("charges", 0)) <= 0:
+		return {"fields": {}, "unsupportedFields": ["missilePercent"]}
+	return {
+		"fields": {
+			"classicMissileItemName": item_name,
+			"classicMissileItemSlot": 1,
+		},
+		"unsupportedFields": [],
 	}
 
 
@@ -650,7 +699,8 @@ func _unsupported_fields(
 	native_inventory: Dictionary,
 	native_spells: Dictionary,
 	native_attacks: Dictionary,
-	native_requirements: Dictionary
+	native_requirements: Dictionary,
+	native_missile_item := {}
 ) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_SCALAR_FIELDS:
@@ -664,11 +714,6 @@ func _unsupported_fields(
 		fields.append("runPercent")
 	if int(record.get("surrenderPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
 		fields.append("surrenderPercent")
-	# Classic's missile decision invokes the spell stored on carried item slot
-	# two. Remake's generic AI instead searches every usable inventory item, so
-	# accepting this percentage would silently change both the item and timing.
-	if int(record.get("missilePercent", 0)) != 0:
-		fields.append("missilePercent")
 	if _has_unsupported_conditions(record.get("conditions", [])):
 		fields.append("conditions")
 	for field_name: String in native_inventory.get("unsupportedFields", []):
@@ -681,6 +726,9 @@ func _unsupported_fields(
 		if not fields.has(field_name):
 			fields.append(field_name)
 	for field_name: String in native_requirements.get("unsupportedFields", []):
+		if not fields.has(field_name):
+			fields.append(field_name)
+	for field_name: String in native_missile_item.get("unsupportedFields", []):
 		if not fields.has(field_name):
 			fields.append(field_name)
 	if not SIZE_BY_CLASSIC_VALUE.has(int(record.get("size", 0))):

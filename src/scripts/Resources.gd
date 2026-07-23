@@ -320,6 +320,8 @@ func load_bestiary_resources( path : String ) -> void:
 			"classicSpellScreenLevel",
 			"classicCanSummon",
 			"classicWeaponItemId",
+			"classicMissileItemName",
+			"classicMissileItemSlot",
 			"classicRequiredWeaponKind",
 			"classicRequiredWeaponItemId",
 			"classicRequiredWeaponName",

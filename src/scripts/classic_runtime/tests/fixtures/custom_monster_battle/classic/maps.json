@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "maps": [
+    {
+      "id": "land:0",
+      "levelType": "land",
+      "index": 0,
+      "name": "Custom monster conformance field",
+      "width": 90,
+      "height": 90,
+      "render": {
+        "landlook": 0,
+        "mode": "outdoor-landlook",
+        "tilesetId": "landlook-0"
+      }
+    }
+  ]
+}

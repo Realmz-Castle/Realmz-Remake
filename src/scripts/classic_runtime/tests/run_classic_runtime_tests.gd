@@ -151,6 +151,8 @@ const PROVIDENCE_AUTHORITATIVE_PROVENANCE := \
 	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export.provenance.json"
 const NATIVE_BATTLE_BRIDGE_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/native_battle_bridge"
+const CUSTOM_MONSTER_BATTLE_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/custom_monster_battle"
 const CAMPAIGN_UI_SMOKE_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/installed_campaigns/campaign_ui_smoke"
 
@@ -1598,6 +1600,7 @@ func _init() -> void:
 	_test_classic_campaign_package_installer()
 	_test_failed_save_restore_rolls_back()
 	_test_native_battle_bridge_fixture()
+	_test_custom_monster_battle_fixture()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
 	_test_data_ed3_callability_contract()
@@ -2339,6 +2342,246 @@ func _test_native_battle_bridge_fixture() -> void:
 		bundle.get_monster(78).get("displayName"),
 		"Zombie",
 		"native battle fixture identifies its lower-undead roster target"
+	)
+
+
+func _test_custom_monster_battle_fixture() -> void:
+	var bundle = BundleScript.new()
+	_expect(
+		bundle.load_from_directory(CUSTOM_MONSTER_BATTLE_FIXTURE),
+		"custom monster battle fixture loads: %s" % bundle.last_error
+	)
+	if not bundle.last_error.is_empty():
+		return
+	var battle: Dictionary = bundle.get_battle(7)
+	_expect_equal(
+		battle.get("grid", []).size(),
+		169,
+		"custom monster fixture preserves the complete 13x13 battle grid"
+	)
+	_expect_equal(
+		bundle.documents.get("evidence", {}).get(
+			"conformance", {}
+		).get("hostileMonsterIds", []).map(
+			func(monster_id: Variant) -> int: return int(monster_id)
+		),
+		[201, 202, 203],
+		"custom monster fixture declares its hostile coverage"
+	)
+	_expect(
+		not bundle.get_extra_action_point(960).is_empty(),
+		"custom monster fixture provides the caster death macro"
+	)
+	_expect(
+		not bundle.get_extra_action_point(961).is_empty(),
+		"custom monster fixture provides the battle-round macro"
+	)
+
+	var test_root := ProjectSettings.globalize_path(
+		"user://classic-custom-monster-battle-%d" % Time.get_ticks_msec()
+	)
+	DirAccess.make_dir_recursive_absolute(test_root)
+	var materializer = BestiaryMaterializerScript.new()
+	var materialize_result: Dictionary = materializer.materialize(bundle, test_root)
+	_expect_equal(
+		materialize_result.get("status"),
+		"ok",
+		"custom monster fixture generates a native bestiary"
+	)
+	var book_path := test_root.path_join("Bestiary/stuff_book.json")
+	var bestiary_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(book_path)
+	)
+	var arcanist: Dictionary = bestiary_book.get("Classic Monster 201", {})
+	var skirmisher: Dictionary = bestiary_book.get("Classic Monster 202", {})
+	var summoner: Dictionary = bestiary_book.get("Classic Monster 203", {})
+	var turncoat: Dictionary = bestiary_book.get("Classic Monster 204", {})
+	_expect_equal(
+		materialize_result.get("generated"),
+		4,
+		"custom monster fixture generates all four authored definitions"
+	)
+	_expect_equal(
+		arcanist.get("stats", {}).get("MaxActions"),
+		2,
+		"custom caster preserves its authored melee attack count"
+	)
+	_expect_equal(
+		arcanist.get("tools", {}).get("unarmed_melee_attacks", []).size(),
+		2,
+		"custom caster preserves both rotating melee attack rows"
+	)
+	_expect_equal(
+		arcanist.get("tools", {}).get("spells"),
+		[["Fireball", 1.0], ["Creature Summon 1", 1.0]],
+		"custom caster resolves its exact offensive and summon spell identities"
+	)
+	_expect_equal(
+		arcanist.get("classicSpellSaves"),
+		[10.0, 20.0, 30.0, 40.0, 50.0, 60.0],
+		"custom caster preserves all six Classic saves"
+	)
+	_expect_equal(
+		arcanist.get("classicSpellImmunities"),
+		[0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+		"custom caster preserves its spell-family immunity"
+	)
+	_expect_equal(
+		arcanist.get("tools", {}).get("money"),
+		[7.0, 2.0, 1.0],
+		"custom caster preserves defeated-monster money"
+	)
+	_expect_equal(
+		arcanist.get("tools", {}).get("inventory"),
+		[["Dagger", 1.0]],
+		"custom caster preserves carried and equipped loot"
+	)
+	_expect_equal(
+		arcanist.get("classicDeathMacro"),
+		960,
+		"custom caster preserves its death macro"
+	)
+	_expect_equal(
+		arcanist.get("classicRunPercent"),
+		12,
+		"custom caster preserves its source run threshold"
+	)
+	_expect_equal(
+		arcanist.get("classicSurrenderPercent"),
+		6,
+		"custom caster preserves its source surrender threshold"
+	)
+	_expect(
+		arcanist.get(
+			"classicMaterialization", {}
+		).get("fidelityFallbacks", []).has("classicInertMoraleThresholds"),
+		"custom caster records the inert source morale thresholds"
+	)
+	_expect_equal(
+		skirmisher.get("classicMissileItemName"),
+		"Staff of Fireballs +1",
+		"custom skirmisher binds its missile decision to carried item slot two"
+	)
+	_expect_equal(
+		skirmisher.get("classicMissileItemSlot"),
+		1,
+		"custom skirmisher preserves the exact carried slot"
+	)
+	_expect_equal(
+		skirmisher.get("tools", {}).get("inventory", [])[1],
+		["Staff of Fireballs +1", 0.0, true, 1.0],
+		"custom skirmisher tags the corresponding native inventory instance"
+	)
+	_expect_equal(
+		skirmisher.get(
+			"classicMaterialization", {}
+		).get("unsupportedFields"),
+		[],
+		"resolved custom missile and melee behavior is launchable"
+	)
+	_expect_equal(
+		MonsterDecisionScript.opening_action(
+			int(skirmisher.get("classicMissilePercent", 0)),
+			int(skirmisher.get("classicCastPercent", 0)),
+			false,
+			false,
+			false,
+			100,
+			100
+		),
+		MonsterDecisionScript.ACTION_MISSILE,
+		"custom skirmisher deterministically chooses its missile action"
+	)
+	_expect_equal(
+		MonsterDecisionScript.opening_action(
+			int(arcanist.get("classicMissilePercent", 0)),
+			int(arcanist.get("classicCastPercent", 0)),
+			false,
+			false,
+			false,
+			100,
+			100
+		),
+		MonsterDecisionScript.ACTION_CAST,
+		"custom caster deterministically chooses its spell action"
+	)
+	_expect_equal(
+		summoner.get("tools", {}).get("spells"),
+		[["Creature Summon 1", 1.0]],
+		"custom summoner receives its executable summon spell"
+	)
+	_expect_equal(
+		summoner.get("classicCanSummon"),
+		1,
+		"custom summoner remains eligible for the Classic summon pool"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var battle_result: Dictionary = adapter.materialize_classic_battle(
+		battle,
+		bundle.monsters_by_id,
+		bestiary_book
+	)
+	_expect_equal(
+		battle_result.get("creatureCount"),
+		4,
+		"custom monster fixture materializes its complete native battle roster"
+	)
+	var native_battle: Dictionary = battle_result.get("battle", {})
+	_expect_equal(
+		native_battle.get("battleMacro"),
+		-961,
+		"custom monster battle preserves its round-macro schedule"
+	)
+	var turncoat_entry: Array = []
+	var arcanist_entry: Array = []
+	for creature_value: Variant in native_battle.get("Creatures", []):
+		if not (creature_value is Array) or creature_value.size() < 3:
+			continue
+		var creature: Array = creature_value
+		var metadata: Dictionary = creature[2]
+		if int(metadata.get("classicMonsterId", -1)) == 204:
+			turncoat_entry = creature
+		elif int(metadata.get("classicMonsterId", -1)) == 201:
+			arcanist_entry = creature
+	_expect(
+		not turncoat_entry.is_empty() \
+			and bool(turncoat_entry[2].get("classicForceFriend", false)),
+		"negative grid identity materializes the custom turncoat as friendly"
+	)
+	var arcanist_metadata: Dictionary = (
+		arcanist_entry[2] if arcanist_entry.size() > 2 else {}
+	)
+	_expect_equal(
+		arcanist_metadata.get("classicDeathMacro"),
+		960,
+		"native battle roster carries the custom caster death macro"
+	)
+	var rewards: Dictionary = BattleRewardRulesScript.collect([{
+		"experience": arcanist.get("data", {}).get("exp", 0),
+		"money": arcanist.get("tools", {}).get("money", []),
+		"inventory": arcanist.get("tools", {}).get(
+			"inventory", []
+		).map(func(entry: Array) -> String: return str(entry[0])),
+	}])
+	_expect_equal(
+		rewards.get("money"),
+		[7, 2, 1],
+		"custom battle rewards collect the caster's source money"
+	)
+	_expect_equal(
+		rewards.get("treasure"),
+		["Dagger"],
+		"custom battle rewards collect the caster's carried item"
+	)
+	_expect(
+		not turncoat.is_empty(),
+		"custom battle bestiary retains the friendly monster definition"
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"custom monster fixture cleans its generated native resources"
 	)
 
 
@@ -4894,7 +5137,63 @@ func _test_classic_bestiary_materializer() -> void:
 			{},
 			{}
 		).has("missilePercent"),
-		"Classic missile decisions remain blocked until item-slot two is executable"
+		"Classic missile decisions remain blocked without a usable item in carried slot two"
+	)
+	missile_record["spells"] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	missile_record["weapon"] = 0
+	missile_record["items"] = [1, 117, 0, 0, 0, 0]
+	var missile_item_book := {
+		"Dagger": {},
+		"Staff of Fireballs +1": {
+			"_on_combat_use_spell": ["Fireball (1306)", 1],
+			"charges_max": 12,
+			"charges": 12,
+		},
+	}
+	var missile_mapping := {
+		1: "Dagger",
+		117: "Staff of Fireballs +1",
+	}
+	var missile_item: Dictionary = materializer._native_missile_item(
+		missile_record,
+		missile_item_book,
+		[],
+		missile_mapping
+	)
+	_expect_equal(
+		missile_item.get("fields", {}).get("classicMissileItemName"),
+		"Staff of Fireballs +1",
+		"materialization preserves the exact carried-slot-two missile item"
+	)
+	_expect_equal(
+		missile_item.get("fields", {}).get("classicMissileItemSlot"),
+		1,
+		"materialization preserves the zero-based carried-slot-two index"
+	)
+	var missile_native: Dictionary = materializer._native_monster(
+		missile_record,
+		[],
+		missile_item_book,
+		[],
+		missile_mapping,
+		{},
+		{}
+	)
+	_expect_equal(
+		missile_native.get("classicMissileItemName"),
+		"Staff of Fireballs +1",
+		"native monster metadata carries the Classic missile item identity"
+	)
+	_expect_equal(
+		missile_native.get("tools", {}).get("inventory", [])[1],
+		["Staff of Fireballs +1", 0, true, 1],
+		"native inventory tags the source item instance as carried slot two"
+	)
+	_expect(
+		not missile_native.get(
+			"classicMaterialization", {}
+		).get("unsupportedFields", []).has("missilePercent"),
+		"a resolved carried-slot-two missile item is launchable"
 	)
 	var exact_spell_book: Dictionary = {}
 	SpellResourceCatalogScript.merge_directory(
@@ -5337,6 +5636,36 @@ func _test_classic_monster_decision() -> void:
 	_expect(
 		not MonsterDecisionScript.should_retry_cast(100, false, false, false, 2),
 		"Classic stops after its second failed spell pass"
+	)
+	var depleted_missile := {
+		"name": "Slot Two Wand",
+		"_on_combat_use_spell": ["Fireball", 1],
+		"charges_max": 4,
+		"charges": 0,
+	}
+	depleted_missile["classic_item_slot"] = 1
+	var slot_two_missile := depleted_missile.duplicate(true)
+	slot_two_missile["charges"] = 3
+	var other_missile := slot_two_missile.duplicate(true)
+	other_missile["classic_item_slot"] = 0
+	_expect_equal(
+		MonsterDecisionScript.missile_item(
+			[other_missile, slot_two_missile], "Slot Two Wand", 1
+		).get("name"),
+		"Slot Two Wand",
+		"Classic missile use selects the preserved carried-slot-two item"
+	)
+	_expect(
+		MonsterDecisionScript.missile_item(
+			[other_missile, depleted_missile], "Slot Two Wand", 1
+		).is_empty(),
+		"Classic missile use rejects a depleted carried-slot-two item"
+	)
+	_expect(
+		MonsterDecisionScript.missile_item(
+			[other_missile], "Slot Two Wand", 1
+		).is_empty(),
+		"Classic missile use does not substitute another usable item"
 	)
 	var ai_source := FileAccess.get_file_as_string(
 		"res://shared_assets/CreatureScripts/test_crea_script.gd"
