@@ -503,6 +503,12 @@ class CampaignRuleCharacter:
 	var classic_age_years := 0
 	var classic_age_group := 0
 	var classic_creation_demographics_initialized := false
+	var classic_saving_throws: Array[int] = []
+	var classic_saving_throws_initialized := false
+	var classic_conditions: Array[int] = []
+	var classic_conditions_initialized := false
+	var classic_can_regenerate := false
+	var classic_can_regenerate_initialized := false
 	var used_resource := "MP"
 	var spells: Array = [[], [], [], [], [], [], []]
 	var traits: Array = []
@@ -570,6 +576,14 @@ class CampaignRuleCharacter:
 			classic_age_years = int(saved_data.get("classicAgeYears", 0))
 			classic_age_group = int(saved_data.get("classicAgeGroup", 0))
 			classic_creation_demographics_initialized = true
+		if saved_data.has("classicSavingThrows"):
+			set_classic_saving_throws(saved_data["classicSavingThrows"])
+		if saved_data.has("classicConditions"):
+			set_classic_conditions(saved_data["classicConditions"])
+		if saved_data.has("classicCanRegenerate"):
+			set_classic_can_regenerate(
+				bool(saved_data["classicCanRegenerate"])
+			)
 		var saved_base_stats: Variant = saved_data.get("baseStats", null)
 		if saved_base_stats is Dictionary:
 			base_stats = saved_base_stats.duplicate(true)
@@ -648,6 +662,64 @@ class CampaignRuleCharacter:
 		)
 		classic_creation_demographics_initialized = true
 		recalculate_stats()
+
+	func has_classic_creation_demographics() -> bool:
+		return classic_creation_demographics_initialized
+
+	func set_classic_saving_throws(values: Variant) -> void:
+		classic_saving_throws.clear()
+		if values is Array:
+			for index: int in range(mini(8, values.size())):
+				classic_saving_throws.append(int(values[index]))
+		classic_saving_throws_initialized = classic_saving_throws.size() == 8
+
+	func has_classic_saving_throws() -> bool:
+		return classic_saving_throws_initialized
+
+	func get_classic_saving_throw(save_index: int) -> int:
+		if not classic_saving_throws_initialized \
+				or save_index < 0 \
+				or save_index >= classic_saving_throws.size():
+			return 0
+		return classic_saving_throws[save_index]
+
+	func set_classic_conditions(values: Variant) -> void:
+		classic_conditions.clear()
+		if values is Array:
+			for index: int in range(mini(40, values.size())):
+				classic_conditions.append(int(values[index]))
+		classic_conditions_initialized = classic_conditions.size() == 40
+		remove_meta(RegenerationScript.META_KEY)
+		if classic_conditions_initialized \
+				and classic_conditions[RegenerationScript.CONDITION_INDEX] < 0:
+			set_meta(
+				RegenerationScript.META_KEY,
+				absi(
+					classic_conditions[
+						RegenerationScript.CONDITION_INDEX
+					]
+				)
+			)
+
+	func has_classic_conditions() -> bool:
+		return classic_conditions_initialized
+
+	func set_classic_condition(condition_index: int, value: int) -> void:
+		if classic_conditions_initialized \
+				and condition_index >= 0 \
+				and condition_index < classic_conditions.size():
+			classic_conditions[condition_index] = value
+
+	func get_classic_condition(condition_index: int) -> int:
+		if not classic_conditions_initialized \
+				or condition_index < 0 \
+				or condition_index >= classic_conditions.size():
+			return 0
+		return classic_conditions[condition_index]
+
+	func set_classic_can_regenerate(value: bool) -> void:
+		classic_can_regenerate = value
+		classic_can_regenerate_initialized = true
 
 	func set_classic_creation_combat_stats(values: Dictionary) -> void:
 		for stat_name: String in [
@@ -787,6 +859,12 @@ class CampaignRuleCharacter:
 			data["classicGender"] = classic_gender
 			data["classicAgeYears"] = classic_age_years
 			data["classicAgeGroup"] = classic_age_group
+		if classic_saving_throws_initialized:
+			data["classicSavingThrows"] = classic_saving_throws.duplicate()
+		if classic_conditions_initialized:
+			data["classicConditions"] = classic_conditions.duplicate()
+		if classic_can_regenerate_initialized:
+			data["classicCanRegenerate"] = classic_can_regenerate
 		return data
 
 
@@ -7377,7 +7455,9 @@ func _test_classic_character_rule_profile() -> void:
 			record["maxStaminaBonus"] = 2
 			record["strength"] = [0, 4]
 			record["conditions"][4] = 2
+			record["conditions"][5] = 1
 			record["conditions"][39] = 3
+			record["drvBonus"] = [5, 0, 5, 0, 0, 0, 0, 50]
 			record["spellcasters"] = [
 				[1, 2, 4],
 				[0, 0, 0],
@@ -7396,13 +7476,16 @@ func _test_classic_character_rule_profile() -> void:
 				8, 25,
 			]
 			record["canCaste"][20] = 1
+			record["drvBonus"] = [10, -200, 5, 0, 0, 0, 0, 100]
+			record["conditions"][4] = 2
+			record["conditions"][10] = -3
 			record["ageChange"][0] = [
 				1, 2, 3, 4, 5, 6,
-				0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 2, 3, 4, 5, 6, 7,
 			]
 			record["ageChange"][1] = [
 				-1, 1, -2, 2, -3, 3,
-				0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, -1, -2, -3, -4, -5, -6, -7,
 			]
 
 	var character := CampaignRuleCharacter.new()
@@ -7511,16 +7594,35 @@ func _test_classic_character_rule_profile() -> void:
 			"ageChanges": [
 				[
 					1, 2, 3, 4, 5, 6,
-					0, 0, 0, 0, 0, 0, 0, 0, 0,
+					0, 0, 1, 2, 3, 4, 5, 6, 7,
 				],
 				[
 					-1, 1, -2, 2, -3, 3,
-					0, 0, 0, 0, 0, 0, 0, 0, 0,
+					0, 0, -1, -2, -3, -4, -5, -6, -7,
 				],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			],
+			"raceSavingThrowBonuses": [
+				10, -200, 5, 0, 0, 0, 0, 100,
+			],
+			"casteSavingThrowBonuses": [
+				5, 0, 5, 0, 0, 0, 0, 50,
+			],
+			"raceStartingConditions": [
+				0, 0, 0, 0, 2, 0, 0, 0, 0, 0,
+				-3, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			],
+			"casteConditionLevels": [
+				0, 0, 0, 0, 2, 1, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+			],
+			"raceCanRegenerate": true,
 			"staminaDieMaximum": 8,
 			"maximumVitalityBonus": 2,
 			"toHitBase": 5,
@@ -7537,6 +7639,7 @@ func _test_classic_character_rule_profile() -> void:
 		character.classic_rule_profile.get("conditionProgression"),
 		[
 			{"conditionIndex": 4, "level": 2},
+			{"conditionIndex": 5, "level": 1},
 			{"conditionIndex": 39, "level": 3},
 		],
 		"caste condition slots retain their exact level thresholds"
@@ -7851,6 +7954,64 @@ func _test_classic_character_rule_profile() -> void:
 		2,
 		"Classic age group remains compatibility-owned"
 	)
+	var defense_creation_result := (
+		CharacterRulesScript.apply_character_creation_defenses(
+			attribute_creation
+		)
+	)
+	_expect_equal(
+		defense_creation_result.get("status"),
+		"ok",
+		"Classic creation applies saving throws and starting conditions"
+	)
+	_expect_equal(
+		attribute_creation.classic_saving_throws,
+		[65, -99, 60, 50, 50, 50, 50, 120],
+		"creation saves combine race, caste, age, and Classic bounds"
+	)
+	_expect_equal(
+		SpellSavesScript.save_chance_for(attribute_creation, 0),
+		65.0,
+		"the existing save resolver reads compatibility-owned creation DRVs"
+	)
+	_expect_equal(
+		SpellSavesScript.save_chance_for(attribute_creation, 7),
+		100.0,
+		"a Classic save above one hundred remains automatic at runtime"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(
+			attribute_creation,
+			4
+		),
+		2,
+		"race starting conditions retain positive duration"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(
+			attribute_creation,
+			5
+		),
+		-1,
+		"a caste value of one grants a permanent starting condition"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(
+			attribute_creation,
+			10
+		),
+		-3,
+		"innate regeneration retains its negative condition strength"
+	)
+	_expect_equal(
+		attribute_creation.get_meta("classic_regeneration_per_round", 0),
+		3,
+		"negative condition ten feeds the existing round regeneration hook"
+	)
+	_expect(
+		attribute_creation.classic_can_regenerate,
+		"the separately authored race regeneration flag is preserved"
+	)
 	var attribute_creation_saved: Variant = JSON.parse_string(
 		JSON.stringify(attribute_creation.save_data())
 	)
@@ -7871,6 +8032,55 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		[22, 2, 20, 2],
 		"Classic creation demographics survive character save/load"
+	)
+	_expect_equal(
+		attribute_creation_reloaded.classic_saving_throws,
+		[65, -99, 60, 50, 50, 50, 50, 120],
+		"Classic saving throws survive character save/load"
+	)
+	_expect_equal(
+		attribute_creation_reloaded.classic_conditions[10],
+		-3,
+		"the exact Classic condition array survives character save/load"
+	)
+	_expect_equal(
+		attribute_creation_reloaded.get_meta(
+			"classic_regeneration_per_round",
+			0
+		),
+		3,
+		"innate regeneration is restored from the saved condition array"
+	)
+	_expect(
+		attribute_creation_reloaded.classic_can_regenerate,
+		"the authored regeneration flag survives character save/load"
+	)
+	var unsupported_defense_character := CampaignRuleCharacter.new()
+	unsupported_defense_character.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	unsupported_defense_character.classic_rule_profile[
+		"creation"
+	]["raceStartingConditions"][2] = 1
+	CharacterRulesScript.apply_character_creation_attributes(
+		unsupported_defense_character,
+		1,
+		[10, 10, 10, 10, 10, 10],
+		20
+	)
+	var unsupported_defense_result := (
+		CharacterRulesScript.apply_character_creation_defenses(
+			unsupported_defense_character
+		)
+	)
+	_expect_equal(
+		unsupported_defense_result.get("unsupportedConditionIndices"),
+		[2],
+		"an active unmapped starting condition reports its exact source slot"
+	)
+	_expect(
+		not unsupported_defense_character.classic_saving_throws_initialized,
+		"unsupported starting conditions block the batch before mutation"
 	)
 	var forbidden_creation := CampaignRuleCharacter.new()
 	forbidden_creation.classic_rule_profile = (

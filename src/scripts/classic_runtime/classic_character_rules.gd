@@ -599,6 +599,129 @@ static func apply_character_creation_attributes(
 	}
 
 
+## Applies Classic's eight saving throws and forty starting conditions.
+##
+## Call this after apply_character_creation_attributes so the caste's starting
+## age group is available for the seven age-adjusted saving throws.
+static func apply_character_creation_defenses(character: Variant) -> Dictionary:
+	var creation := _dictionary_value(
+		_dictionary_value(
+			_value(character, "classic_rule_profile", {})
+		).get("creation", {})
+	)
+	if creation.is_empty():
+		return {"status": "skipped"}
+	if not (character is Object) \
+			or not character.has_method("set_classic_saving_throws") \
+			or not character.has_method("set_classic_conditions") \
+			or not character.has_method("set_classic_can_regenerate"):
+		return {
+			"status": "error",
+			"message": "Classic character creation requires mutable defense state.",
+		}
+	if not character.has_method("has_classic_creation_demographics") \
+			or not bool(character.call("has_classic_creation_demographics")):
+		return {
+			"status": "error",
+			"message": "Classic defenses require finalized creation demographics.",
+		}
+
+	var race_saves := _integer_array(
+		creation.get("raceSavingThrowBonuses", [])
+	)
+	var caste_saves := _integer_array(
+		creation.get("casteSavingThrowBonuses", [])
+	)
+	var age_changes := _integer_rows(creation.get("ageChanges", []))
+	var race_conditions := _integer_array(
+		creation.get("raceStartingConditions", [])
+	)
+	var caste_conditions := _integer_array(
+		creation.get("casteConditionLevels", [])
+	)
+	var age_group := int(_value(character, "classic_age_group", 0))
+	if race_saves.size() != 8 \
+			or caste_saves.size() != 8 \
+			or age_changes.size() != 5 \
+			or race_conditions.size() != 40 \
+			or caste_conditions.size() != 40 \
+			or age_group < 1 \
+			or age_group > 5:
+		return {
+			"status": "error",
+			"message": "Classic character creation has incomplete defense rules.",
+		}
+	for row: Array[int] in age_changes:
+		if row.size() != 15:
+			return {
+				"status": "error",
+				"message": "Classic character creation has invalid age defenses.",
+			}
+
+	var saving_throws: Array[int] = []
+	for save_index: int in range(8):
+		var value := 50 + race_saves[save_index] + caste_saves[save_index]
+		# age.c changes only the first seven DRVs. The special save at index
+		# seven keeps its race-and-caste creation value.
+		if save_index < 7:
+			for age_group_index: int in range(age_group):
+				value += age_changes[age_group_index][8 + save_index]
+		saving_throws.append(clampi(value, -99, 120))
+
+	var starting_conditions := race_conditions.duplicate()
+	for condition_index: int in range(40):
+		# A caste value of one is an innate condition. Larger values are level
+		# thresholds and are handled by apply_level_up_condition_progression.
+		if caste_conditions[condition_index] == 1:
+			starting_conditions[condition_index] = -1
+
+	var unsupported_indices: Array[int] = []
+	for condition_index: int in range(starting_conditions.size()):
+		if starting_conditions[condition_index] != 0 \
+				and not CharacterConditionRulesScript.supports_condition(
+					condition_index
+				):
+			unsupported_indices.append(condition_index)
+	if not unsupported_indices.is_empty():
+		return {
+			"status": "error",
+			"message": (
+				"Classic starting conditions have no safe Remake mapping: %s"
+				% str(unsupported_indices)
+			),
+			"unsupportedConditionIndices": unsupported_indices,
+		}
+
+	character.call("set_classic_saving_throws", saving_throws)
+	character.call("set_classic_conditions", starting_conditions)
+	character.call(
+		"set_classic_can_regenerate",
+		bool(creation.get("raceCanRegenerate", false))
+	)
+	var applied_conditions: Array[Dictionary] = []
+	for condition_index: int in range(starting_conditions.size()):
+		var condition_value: int = int(starting_conditions[condition_index])
+		if condition_value == 0:
+			continue
+		var result: Dictionary = (
+			CharacterConditionRulesScript.set_condition_value(
+				character,
+				condition_index,
+				condition_value
+			)
+		)
+		if str(result.get("status", "")) == "error":
+			return result
+		applied_conditions.append(result)
+	return {
+		"status": "ok",
+		"savingThrows": saving_throws,
+		"conditions": starting_conditions,
+		"canRegenerate": bool(creation.get("raceCanRegenerate", false)),
+		"appliedConditions": applied_conditions,
+	}
+
+
 ## Applies Classic's initial stamina and mundane combat values.
 ##
 ## Call this after the level-one attributes and active rule profile have been
@@ -1092,11 +1215,27 @@ static func _creation_profile(
 	var caste_missile := _integer_array(caste_record.get("missile", []))
 	var hand_to_hand := _integer_array(caste_record.get("hand2Hand", []))
 	var strength := _integer_array(caste_record.get("strength", []))
+	var race_saving_throw_bonuses := _integer_array(
+		race_record.get("drvBonus", [])
+	)
+	var caste_saving_throw_bonuses := _integer_array(
+		caste_record.get("drvBonus", [])
+	)
+	var race_starting_conditions := _integer_array(
+		race_record.get("conditions", [])
+	)
+	var caste_condition_levels := _integer_array(
+		caste_record.get("conditions", [])
+	)
 	if stamina.size() < 2 \
 			or race_attribute_bonuses.size() != 6 \
 			or caste_attribute_bonuses.size() != 6 \
 			or race_attribute_limits.size() != 12 \
 			or caste_attribute_limits.size() != 12 \
+			or race_saving_throw_bonuses.size() != 8 \
+			or caste_saving_throw_bonuses.size() != 8 \
+			or race_starting_conditions.size() != 40 \
+			or caste_condition_levels.size() != 40 \
 			or caste_id < 1 \
 			or allowed_castes.size() < caste_id \
 			or age_ranges.size() != 5 \
@@ -1109,7 +1248,8 @@ static func _creation_profile(
 			or not caste_record.has("maxStaminaBonus") \
 			or not caste_record.has("canUseMissile") \
 			or not caste_record.has("minimumAgeGroup") \
-			or not race_record.has("missile"):
+			or not race_record.has("missile") \
+			or not race_record.has("canRegenerate"):
 		return {}
 	return {
 		"raceAttributeBonuses": race_attribute_bonuses,
@@ -1120,6 +1260,11 @@ static func _creation_profile(
 		"minimumAgeGroup": int(caste_record["minimumAgeGroup"]),
 		"ageRanges": age_ranges,
 		"ageChanges": age_changes,
+		"raceSavingThrowBonuses": race_saving_throw_bonuses,
+		"casteSavingThrowBonuses": caste_saving_throw_bonuses,
+		"raceStartingConditions": race_starting_conditions,
+		"casteConditionLevels": caste_condition_levels,
+		"raceCanRegenerate": int(race_record["canRegenerate"]) != 0,
 		"staminaDieMaximum": stamina[0],
 		"maximumVitalityBonus": int(caste_record["maxStaminaBonus"]),
 		"toHitBase": to_hit[0],

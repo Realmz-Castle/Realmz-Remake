@@ -10,6 +10,9 @@ const ClassicCharacterRulesScript = preload(
 const ClassicMagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const ClassicRegenerationScript = preload(
+	"res://scripts/classic_runtime/classic_regeneration.gd"
+)
 
 var portrait : Texture2D = null
 var icon : Texture2D = null
@@ -97,6 +100,12 @@ var classic_gender := 0
 var classic_age_years := 0
 var classic_age_group := 0
 var classic_creation_demographics_initialized := false
+var classic_saving_throws: Array[int] = []
+var classic_saving_throws_initialized := false
+var classic_conditions: Array[int] = []
+var classic_conditions_initialized := false
+var classic_can_regenerate := false
+var classic_can_regenerate_initialized := false
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -143,6 +152,12 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		classic_age_years = int(data.get("classicAgeYears", 0))
 		classic_age_group = int(data.get("classicAgeGroup", 0))
 		classic_creation_demographics_initialized = true
+	if data.has("classicSavingThrows"):
+		set_classic_saving_throws(data["classicSavingThrows"])
+	if data.has("classicConditions"):
+		set_classic_conditions(data["classicConditions"])
+	if data.has("classicCanRegenerate"):
+		set_classic_can_regenerate(bool(data["classicCanRegenerate"]))
 	if data.has("is_npc_ally") :
 		is_npc_ally = bool(data["is_npc_ally"])
 	if data.has("is_summoned") :
@@ -354,6 +369,74 @@ func set_classic_creation_attributes(values: Dictionary) -> void:
 	classic_age_group = int(values.get("classicAgeGroup", classic_age_group))
 	classic_creation_demographics_initialized = true
 	recalculate_stats()
+
+
+func has_classic_creation_demographics() -> bool:
+	return classic_creation_demographics_initialized
+
+
+func set_classic_saving_throws(values: Variant) -> void:
+	classic_saving_throws.clear()
+	if values is Array:
+		for index: int in range(mini(8, values.size())):
+			classic_saving_throws.append(int(values[index]))
+	classic_saving_throws_initialized = classic_saving_throws.size() == 8
+
+
+func has_classic_saving_throws() -> bool:
+	return classic_saving_throws_initialized
+
+
+func get_classic_saving_throw(save_index: int) -> int:
+	if not classic_saving_throws_initialized \
+			or save_index < 0 \
+			or save_index >= classic_saving_throws.size():
+		return 0
+	return classic_saving_throws[save_index]
+
+
+func set_classic_conditions(values: Variant) -> void:
+	classic_conditions.clear()
+	if values is Array:
+		for index: int in range(mini(40, values.size())):
+			classic_conditions.append(int(values[index]))
+	classic_conditions_initialized = classic_conditions.size() == 40
+	remove_meta(ClassicRegenerationScript.META_KEY)
+	if classic_conditions_initialized \
+			and classic_conditions[ClassicRegenerationScript.CONDITION_INDEX] < 0:
+		set_meta(
+			ClassicRegenerationScript.META_KEY,
+			absi(
+				classic_conditions[
+					ClassicRegenerationScript.CONDITION_INDEX
+				]
+			)
+		)
+
+
+func has_classic_conditions() -> bool:
+	return classic_conditions_initialized
+
+
+func set_classic_condition(condition_index: int, value: int) -> void:
+	if not classic_conditions_initialized \
+			or condition_index < 0 \
+			or condition_index >= classic_conditions.size():
+		return
+	classic_conditions[condition_index] = value
+
+
+func get_classic_condition(condition_index: int) -> int:
+	if not classic_conditions_initialized \
+			or condition_index < 0 \
+			or condition_index >= classic_conditions.size():
+		return 0
+	return classic_conditions[condition_index]
+
+
+func set_classic_can_regenerate(value: bool) -> void:
+	classic_can_regenerate = value
+	classic_can_regenerate_initialized = true
 
 
 func set_classic_creation_combat_stats(values: Dictionary) -> void:
@@ -639,5 +722,20 @@ func get_save_string()->String :
 		crea_string += (',\n"classicGender" : '+ str(classic_gender))
 		crea_string += (',\n"classicAgeYears" : '+ str(classic_age_years))
 		crea_string += (',\n"classicAgeGroup" : '+ str(classic_age_group))
+	if classic_saving_throws_initialized:
+		crea_string += (
+			',\n"classicSavingThrows" : '
+			+ JSON.stringify(classic_saving_throws)
+		)
+	if classic_conditions_initialized:
+		crea_string += (
+			',\n"classicConditions" : '
+			+ JSON.stringify(classic_conditions)
+		)
+	if classic_can_regenerate_initialized:
+		crea_string += (
+			',\n"classicCanRegenerate" : '
+			+ str(classic_can_regenerate)
+		)
 	crea_string += ('\n}')
 	return crea_string

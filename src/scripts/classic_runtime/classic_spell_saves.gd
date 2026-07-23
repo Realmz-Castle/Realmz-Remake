@@ -47,6 +47,15 @@ static func save_chance_for(character: Object, save_index: int) -> float:
 	var monster_chance: Variant = _monster_save_chance(character, save_index)
 	if monster_chance != null:
 		return float(monster_chance)
+	if character != null \
+			and character.has_method("has_classic_saving_throws") \
+			and bool(character.call("has_classic_saving_throws")) \
+			and character.has_method("get_classic_saving_throw"):
+		return clampf(
+			float(character.call("get_classic_saving_throw", save_index)),
+			0.0,
+			100.0
+		)
 	var stat_names: Array = SAVE_STATS[save_index]
 	var multiplier := float(character.get_stat(stat_names[0]))
 	var resistance := float(character.get_stat(stat_names[1]))

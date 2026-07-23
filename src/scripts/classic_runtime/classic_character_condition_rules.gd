@@ -1,5 +1,9 @@
 extends RefCounted
 
+const RegenerationScript = preload(
+	"res://scripts/classic_runtime/classic_regeneration.gd"
+)
+const REGENERATION_TRAIT := "res://shared_assets/traits/t_classic_regeneration.gd"
 const CONDITION_TRAITS := {
 	4: {
 		"name": "Magic Aura",
@@ -30,7 +34,8 @@ const CONDITION_TRAITS := {
 
 
 static func supports_condition(condition_index: int) -> bool:
-	return CONDITION_TRAITS.has(condition_index)
+	return condition_index == RegenerationScript.CONDITION_INDEX \
+		or CONDITION_TRAITS.has(condition_index)
 
 
 static func grant_permanent_condition(
@@ -46,25 +51,15 @@ static func grant_permanent_condition(
 	if not validation.is_empty():
 		return validation
 
-	var definition: Dictionary = CONDITION_TRAITS[condition_index]
-	var temporary_trait: GDScript = load(str(definition["temporary"]))
-	var permanent_trait: GDScript = load(str(definition["permanent"]))
-	if temporary_trait == null or permanent_trait == null:
-		return _error("Classic character condition traits could not be loaded")
-
 	var current_value := condition_value(character, condition_index)
 	var new_value := -1 if current_value >= 0 else current_value - 1
-	_set_condition_value(
-		character,
-		definition,
-		new_value,
-		temporary_trait,
-		permanent_trait
-	)
+	var set_result := set_condition_value(character, condition_index, new_value)
+	if str(set_result.get("status", "")) == "error":
+		return set_result
 	return {
 		"status": "ok",
 		"conditionIndex": condition_index,
-		"conditionName": str(definition["name"]),
+		"conditionName": condition_name(condition_index),
 		"value": new_value,
 	}
 
@@ -76,7 +71,7 @@ static func apply_condition(
 	condition_index: int,
 	duration: int
 ) -> Dictionary:
-	if not CONDITION_TRAITS.has(condition_index):
+	if not supports_condition(condition_index):
 		return _error("Classic character condition %d has no Remake trait mapping" % condition_index)
 	if not ["party", "selected", "living"].has(target_mode):
 		return _error("Classic character condition has an invalid target mode")
@@ -87,38 +82,43 @@ static func apply_condition(
 		if not validation.is_empty():
 			return validation
 
-	var definition: Dictionary = CONDITION_TRAITS[condition_index]
-	var temporary_trait: GDScript = load(str(definition["temporary"]))
-	var permanent_trait: GDScript = load(str(definition["permanent"]))
-	if temporary_trait == null or permanent_trait == null:
-		return _error("Classic character condition traits could not be loaded")
-
 	# Give Condition first clears a positive value from every party member,
 	# including characters outside the selected target set.
 	for character_value: Variant in party:
 		if condition_value(character_value, condition_index) > 0:
-			_set_condition_value(character_value, definition, 0, temporary_trait, permanent_trait)
+			var clear_result := set_condition_value(
+				character_value,
+				condition_index,
+				0
+			)
+			if str(clear_result.get("status", "")) == "error":
+				return clear_result
 
 	var affected_characters := _targets(party, selected, target_mode)
 	for character_value: Variant in affected_characters:
 		var new_value := condition_value(character_value, condition_index) + duration
-		_set_condition_value(
+		var set_result := set_condition_value(
 			character_value,
-			definition,
-			new_value,
-			temporary_trait,
-			permanent_trait
+			condition_index,
+			new_value
 		)
+		if str(set_result.get("status", "")) == "error":
+			return set_result
 	return {
-		"conditionName": str(definition["name"]),
+		"conditionName": condition_name(condition_index),
 		"affectedCharacters": affected_characters,
 		"affectedCount": affected_characters.size(),
 	}
 
 
 static func condition_value(character: Object, condition_index: int) -> int:
-	if not CONDITION_TRAITS.has(condition_index):
+	if not supports_condition(condition_index):
 		return 0
+	if condition_index == RegenerationScript.CONDITION_INDEX:
+		var permanent_amount := RegenerationScript.amount(character)
+		if permanent_amount > 0:
+			return -permanent_amount
+		return _temporary_regeneration_value(character)
 	var definition: Dictionary = CONDITION_TRAITS[condition_index]
 	var temporary_name := str(definition["temporary"]).get_file()
 	var permanent_name := str(definition["permanent"]).get_file()
@@ -138,7 +138,54 @@ static func condition_value(character: Object, condition_index: int) -> int:
 	return value
 
 
-static func _set_condition_value(
+static func condition_name(condition_index: int) -> String:
+	if condition_index == RegenerationScript.CONDITION_INDEX:
+		return "Regenerating"
+	if CONDITION_TRAITS.has(condition_index):
+		return str(CONDITION_TRAITS[condition_index]["name"])
+	return "Condition %d" % condition_index
+
+
+static func set_condition_value(
+	character: Object,
+	condition_index: int,
+	value: int
+) -> Dictionary:
+	if not supports_condition(condition_index):
+		return _error(
+			"Classic character condition %d has no Remake trait mapping"
+			% condition_index
+		)
+	var validation := _validate_character(character)
+	if not validation.is_empty():
+		return validation
+	if condition_index == RegenerationScript.CONDITION_INDEX:
+		var regeneration_result := _set_regeneration_value(character, value)
+		if str(regeneration_result.get("status", "")) == "error":
+			return regeneration_result
+	else:
+		var definition: Dictionary = CONDITION_TRAITS[condition_index]
+		var temporary_trait: GDScript = load(str(definition["temporary"]))
+		var permanent_trait: GDScript = load(str(definition["permanent"]))
+		if temporary_trait == null or permanent_trait == null:
+			return _error("Classic character condition traits could not be loaded")
+		_set_trait_condition_value(
+			character,
+			definition,
+			value,
+			temporary_trait,
+			permanent_trait
+		)
+	_store_condition_value(character, condition_index, value)
+	return {
+		"status": "ok",
+		"conditionIndex": condition_index,
+		"conditionName": condition_name(condition_index),
+		"value": value,
+	}
+
+
+static func _set_trait_condition_value(
 	character: Object,
 	definition: Dictionary,
 	value: int,
@@ -156,6 +203,47 @@ static func _set_condition_value(
 		character.add_trait(temporary_trait, [value])
 	elif value < 0:
 		character.add_trait(permanent_trait, [abs(value)])
+
+
+static func _set_regeneration_value(
+	character: Object,
+	value: int
+) -> Dictionary:
+	var regeneration_trait: GDScript = load(REGENERATION_TRAIT)
+	if regeneration_trait == null:
+		return _error("Classic regeneration trait could not be loaded")
+	for trait_value: Variant in character.get("traits").duplicate():
+		if trait_value is Object \
+				and str(trait_value.get("name")) == REGENERATION_TRAIT.get_file():
+			character.remove_trait(trait_value)
+	character.remove_meta(RegenerationScript.META_KEY)
+	if value > 0:
+		character.add_trait(regeneration_trait, [value])
+	elif value < 0:
+		character.set_meta(RegenerationScript.META_KEY, absi(value))
+	return {"status": "ok"}
+
+
+static func _temporary_regeneration_value(character: Object) -> int:
+	var traits: Variant = character.get("traits")
+	if not (traits is Array):
+		return 0
+	for trait_value: Variant in traits:
+		if trait_value is Object \
+				and str(trait_value.get("name")) == REGENERATION_TRAIT.get_file():
+			return int(trait_value.get("condition"))
+	return 0
+
+
+static func _store_condition_value(
+	character: Object,
+	condition_index: int,
+	value: int
+) -> void:
+	if character.has_method("has_classic_conditions") \
+			and bool(character.call("has_classic_conditions")) \
+			and character.has_method("set_classic_condition"):
+		character.call("set_classic_condition", condition_index, value)
 
 
 static func _targets(party: Array, selected: Array, target_mode: String) -> Array:
