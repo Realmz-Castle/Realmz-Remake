@@ -802,6 +802,16 @@ Run the headless proof from the repository root:
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
 ```
 
+Run only the checked three-scenario loader/interpreter corpus:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd
+```
+
+Its [corpus contract](CLASSIC_REGRESSION_CORPUS.md) records the scenario matrix,
+provenance boundary, execution-context coverage, and five evidence
+classifications. Use `-- --json` when a machine-readable report is needed.
+
 Pass the path to a full compiled bundle after `--` to run the same loader against all CoB records:
 
 ```powershell

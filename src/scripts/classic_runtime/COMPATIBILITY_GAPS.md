@@ -26,9 +26,11 @@ Implementation status describes the Remake side of the gap:
 - **Unknown**: the closest native behavior or the Classic contract still needs
   source and fixture research.
 
-Evidence is recorded as **fixture-proven**, **source-backed**, **inferred**, or
-**unknown**. A row moves to completed only after its completion criterion is
-covered by a focused fixture or playtest.
+Evidence is recorded as **fixture-proven**, **source-backed**, **inferred**,
+**malformed**, or **unknown**. The
+[multi-scenario regression corpus](CLASSIC_REGRESSION_CORPUS.md) keeps all five
+categories distinct for audited actions. A row moves to completed only after
+its completion criterion is covered by a focused fixture or playtest.
 
 ## Required compatibility work
 

@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "id": "realmz-classic-three-scenario-corpus",
+  "requiredDomains": [
+    "map",
+    "stack-xap",
+    "encounter",
+    "item",
+    "spell",
+    "battle"
+  ],
+  "requiredContexts": [
+    "map-trigger",
+    "data-ed3-xap",
+    "data-ed-result",
+    "data-ed2-result"
+  ],
+  "members": [
+    {
+      "scenarioId": "scenario-city-of-bywater",
+      "name": "City of Bywater",
+      "bundlePath": "res://scripts/classic_runtime/tests/fixtures/cob_vertical_slice",
+      "availability": "repository-reduced-fixture",
+      "legalNote": "Selected normalized Providence records retained as a regression fixture; this is not a distributable scenario package.",
+      "expectedContexts": [
+        "map-trigger",
+        "data-ed3-xap",
+        "data-ed-result",
+        "data-ed2-result"
+      ],
+      "cases": [
+        {
+          "id": "guard-house-encounter",
+          "triggerId": "Data DD:0:0",
+          "startSlot": 0,
+          "domains": ["encounter"],
+          "steps": [
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "show_text",
+                "payload": {"messageId": 50}
+              }
+            },
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "start_encounter",
+                "payload": {"encounterId": 0}
+              }
+            },
+            {
+              "operation": "resumeEncounter",
+              "choice": 4,
+              "expect": {
+                "status": "yield",
+                "command": "show_text",
+                "payload": {"messageId": 61}
+              }
+            },
+            {
+              "operation": "run",
+              "expect": {"status": "completed", "reason": "keep-codes"}
+            }
+          ]
+        },
+        {
+          "id": "fixed-treasure-items",
+          "triggerId": "Data DD:0:30",
+          "startSlot": 5,
+          "domains": ["item"],
+          "steps": [
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "give_treasure",
+                "payload": {
+                  "treasureId": 11,
+                  "treasure": {"itemIds": [807, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "exp": 1200}
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "party-spell",
+          "triggerId": "Data DD:8:89",
+          "startSlot": 0,
+          "domains": ["spell"],
+          "steps": [
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "show_text",
+                "payload": {"messageId": 698}
+              }
+            },
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "cast_classic_spell",
+                "payload": {
+                  "spellId": 1408,
+                  "power": 3,
+                  "saveAdjustment": 0,
+                  "forceAffect": false,
+                  "targetMode": "party"
+                }
+              }
+            },
+            {
+              "operation": "run",
+              "expect": {"status": "completed", "reason": "keep-codes"}
+            }
+          ]
+        },
+        {
+          "id": "battle-request",
+          "triggerId": "Data DD:0:27",
+          "startSlot": 2,
+          "domains": ["battle"],
+          "steps": [
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "start_battle",
+                "payload": {
+                  "battleIdRange": [38, 38],
+                  "soundId": 30000,
+                  "battle": {"id": 38}
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "scenarioId": "scenario-war-in-the-sword-lands",
+      "name": "War in the Sword Lands",
+      "bundlePath": "res://scripts/classic_runtime/tests/fixtures/war_in_the_sword_lands_gosub",
+      "availability": "repository-reduced-fixture",
+      "legalNote": "Selected normalized Providence records retained as a regression fixture; this is not a distributable scenario package.",
+      "expectedContexts": ["map-trigger", "data-ed3-xap"],
+      "cases": [
+        {
+          "id": "nested-gosub-chain",
+          "triggerId": "Data DD:9:48",
+          "startSlot": 3,
+          "domains": ["stack-xap"],
+          "setup": {"questFlags": [29, 64]},
+          "steps": [
+            {
+              "operation": "run",
+              "expect": {"status": "yield", "command": "show_text"},
+              "oneOf": [
+                {"path": "payload.messageId", "values": [1107, 1108, 1109]}
+              ]
+            },
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "show_text",
+                "payload": {"messageId": 1110}
+              }
+            },
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "show_text",
+                "payload": {"messageId": 1246}
+              }
+            },
+            {
+              "operation": "run",
+              "expect": {"status": "completed", "reason": "keep-codes"}
+            }
+          ],
+          "expectedCallStackDepth": 0,
+          "expectedTrace": [
+            {"triggerId": "Data DD:9:48", "slot": 3, "code": 46},
+            {"triggerId": "Data ED3:macro:1026", "slot": 0, "code": 19},
+            {"triggerId": "Data ED3:macro:1026", "slot": 1, "code": 46},
+            {"triggerId": "Data ED3:macro:1027", "slot": 0, "code": 1},
+            {"triggerId": "Data ED3:macro:1027", "slot": 1, "code": 46},
+            {"triggerId": "Data ED3:macro:1196", "slot": 0, "code": 1},
+            {"triggerId": "Data ED3:macro:1196", "slot": 1, "code": 111},
+            {"triggerId": "Data ED3:macro:1027", "slot": 2, "code": 111},
+            {"triggerId": "Data ED3:macro:1026", "slot": 2, "code": 111},
+            {"triggerId": "Data DD:9:48", "slot": 7, "code": 24}
+          ]
+        }
+      ]
+    },
+    {
+      "scenarioId": "scenario-twin-sands-of-time",
+      "name": "Twin Sands of Time",
+      "bundlePath": "res://scripts/classic_runtime/tests/fixtures/twin_sands_opcode_25",
+      "availability": "repository-reduced-fixture",
+      "legalNote": "Selected normalized Providence records retained as a regression fixture; this is not a distributable scenario package.",
+      "expectedContexts": ["map-trigger"],
+      "cases": [
+        {
+          "id": "door-exit-mutation",
+          "triggerId": "Data DDD:0:32",
+          "startSlot": 7,
+          "domains": ["map"],
+          "setup": {
+            "position": {
+              "levelType": "dungeon",
+              "levelIndex": 0,
+              "x": 43,
+              "y": 81
+            }
+          },
+          "steps": [
+            {
+              "operation": "run",
+              "expect": {
+                "status": "completed",
+                "reason": "action-point-ended"
+              }
+            }
+          ],
+          "stateAssertions": [
+            {"path": "position.levelType", "equals": "dungeon"},
+            {"path": "position.levelIndex", "equals": 0},
+            {"path": "position.x", "equals": 77},
+            {"path": "position.y", "equals": 16},
+            {"path": "triggerPercentOverrides.dungeon:0:32", "equals": -1},
+            {"path": "actionPointOverrides.Data DDD:0:32.targetX", "equals": 43},
+            {"path": "actionPointOverrides.Data DDD:0:32.targetY", "equals": 81}
+          ]
+        },
+        {
+          "id": "source-battle-request",
+          "triggerId": "Data DDD:0:32",
+          "startSlot": 1,
+          "domains": ["battle"],
+          "steps": [
+            {
+              "operation": "run",
+              "expect": {
+                "status": "yield",
+                "command": "start_battle",
+                "payload": {"battleIdRange": [21, 21]}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

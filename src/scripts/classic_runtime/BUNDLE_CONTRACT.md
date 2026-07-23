@@ -259,6 +259,14 @@ artifact remain portable and relative:
 godot --headless --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
 ```
 
+The dedicated [Classic regression corpus](CLASSIC_REGRESSION_CORPUS.md) runs the
+same loader, audit, and interpreter suite against all three members and reports
+coverage by behavior domain, execution context, and evidence classification:
+
+```powershell
+godot --headless --path src --script res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd
+```
+
 The checked `providence_authoritative_export` fixture is the unchanged output of
 Providence commit `c26443b85ee3a0e883bf0a8b1d46d27ccf9818ca`, generated from
 `fixtures/scenario-seeds/authoritative-ownership-proof.seed.json`. Its companion

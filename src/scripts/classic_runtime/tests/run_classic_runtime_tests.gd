@@ -2,6 +2,9 @@ extends SceneTree
 
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
 const ExecutionAuditScript = preload("res://scripts/classic_runtime/classic_execution_audit.gd")
+const RegressionCorpusScript = preload(
+	"res://scripts/classic_runtime/classic_regression_corpus.gd"
+)
 const ReadinessScript = preload("res://scripts/classic_runtime/classic_campaign_readiness.gd")
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
@@ -2313,6 +2316,7 @@ func _init() -> void:
 	_test_custom_monster_battle_fixture()
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
+	_test_multi_scenario_regression_corpus()
 	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
 	_test_custom_spell_overrides()
@@ -10559,6 +10563,116 @@ func _test_execution_coverage_audit(bundle) -> void:
 		str(unsupported.get("message", "")).contains("Data ED2 record 2 slot 0"),
 		"unsupported result identifies its source record and slot"
 	)
+
+
+func _test_multi_scenario_regression_corpus() -> void:
+	var corpus = RegressionCorpusScript.new()
+	var report: Dictionary = corpus.run()
+	_expect(
+		bool(report.get("ok", false)),
+		"multi-scenario Classic regression corpus passes"
+	)
+	_expect_equal(
+		report.get("scenarios", []).size(),
+		3,
+		"regression corpus uses three scenario fixtures"
+	)
+	_expect_equal(
+		report.get("domains", []),
+		["battle", "encounter", "item", "map", "spell", "stack-xap"],
+		"regression corpus executes every required behavior domain"
+	)
+	var contexts: Dictionary = report.get("executionContexts", {})
+	for context: String in [
+		"map-trigger",
+		"data-ed3-xap",
+		"data-ed-result",
+		"data-ed2-result",
+	]:
+		_expect(
+			contexts.has(context),
+			"regression corpus inventories %s execution context" % context
+		)
+	var counts: Dictionary = report.get("classificationCounts", {})
+	for classification: String in RegressionCorpusScript.CLASSIFICATIONS:
+		_expect(
+			counts.has(classification),
+			"regression corpus reports %s classification" % classification
+		)
+	_expect(
+		int(counts.get("fixture-proven", 0)) > 0,
+		"regression corpus distinguishes fixture-proven actions"
+	)
+	_expect(
+		int(counts.get("source-backed", 0)) > 0,
+		"regression corpus preserves unexecuted source-backed actions"
+	)
+	_expect_equal(
+		int(counts.get("inferred", 0))
+			+ int(counts.get("malformed", 0))
+			+ int(counts.get("unknown", 0)),
+		0,
+		"checked corpus has no inferred, malformed, or unknown actions"
+	)
+	for scenario_value: Variant in report.get("scenarios", []):
+		if not (scenario_value is Dictionary):
+			continue
+		_expect_equal(
+			scenario_value.get("suiteVersion"),
+			report.get("suiteVersion"),
+			"%s uses the shared corpus suite version"
+			% str(scenario_value.get("scenarioId", "scenario"))
+		)
+		_expect_equal(
+			scenario_value.get("availability"),
+			"repository-reduced-fixture",
+			"%s records its repository availability boundary"
+			% str(scenario_value.get("scenarioId", "scenario"))
+		)
+		_expect(
+			not str(scenario_value.get("legalNote", "")).is_empty(),
+			"%s records its legal/provenance boundary"
+			% str(scenario_value.get("scenarioId", "scenario"))
+		)
+
+	var manifest_text := FileAccess.get_file_as_string(
+		RegressionCorpusScript.DEFAULT_MANIFEST
+	)
+	var manifest_value: Variant = JSON.parse_string(manifest_text)
+	_expect(
+		manifest_value is Dictionary,
+		"regression corpus manifest is parseable for failure diagnostics"
+	)
+	if manifest_value is Dictionary:
+		var mismatched_manifest: Dictionary = manifest_value.duplicate(true)
+		var members: Array = mismatched_manifest["members"]
+		var cases: Array = members[1]["cases"]
+		var steps: Array = cases[0]["steps"]
+		steps[1]["expect"]["payload"]["messageId"] = 9999
+		var mismatch_report: Dictionary = corpus.run_manifest(
+			mismatched_manifest,
+			"<diagnostic-fixture>"
+		)
+		_expect(
+			not bool(mismatch_report.get("ok", true)),
+			"regression corpus rejects a mismatched source expectation"
+		)
+		var identified_failure := false
+		for failure_value: Variant in mismatch_report.get("failures", []):
+			if not (failure_value is Dictionary):
+				continue
+			if (
+				failure_value.get("scenarioId")
+					== "scenario-war-in-the-sword-lands"
+				and failure_value.get("caseId") == "nested-gosub-chain"
+				and failure_value.get("recordId") == "Data DD:9:48"
+			):
+				identified_failure = true
+				break
+		_expect(
+			identified_failure,
+			"corpus failure identifies scenario, case, and source record"
+		)
 
 
 func _test_data_ed3_callability_contract() -> void:
