@@ -7487,7 +7487,10 @@ func _test_classic_character_rule_profile() -> void:
 			]
 			record["canCaste"][20] = 1
 			record["drvBonus"] = [10, -200, 5, 0, 0, 0, 0, 100]
+			record["conditions"][2] = -4
+			record["conditions"][3] = -1
 			record["conditions"][4] = 2
+			record["conditions"][6] = 2
 			record["conditions"][7] = 3
 			record["conditions"][8] = -1
 			record["conditions"][10] = -3
@@ -7637,7 +7640,7 @@ func _test_classic_character_rule_profile() -> void:
 				5, 0, 5, 0, 0, 0, 0, 50,
 			],
 			"raceStartingConditions": [
-				0, 0, 0, 0, 2, 0, 0, 3, -1, 0,
+				0, 0, -4, -1, 2, 0, 2, 3, -1, 0,
 				-3, 4, -1, 2, -1, 3, 6, 0, -1, 2,
 				0, -1, -1, 3, -1, 0, 0, 0, 0, 0,
 				2, -1, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -8102,11 +8105,29 @@ func _test_classic_character_rule_profile() -> void:
 			"enhancement condition %d retains its Classic value"
 			% condition_index
 		)
+	var expected_impairment_conditions := {
+		2: -4,
+		3: -1,
+		6: 2,
+	}
+	for condition_index: int in expected_impairment_conditions:
+		_expect_equal(
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				condition_index
+			),
+			expected_impairment_conditions[condition_index],
+			"combat impairment %d retains its Classic value"
+			% condition_index
+		)
 	var defensive_trait_names: Array[String] = []
 	for trait_value: Variant in attribute_creation.traits:
 		defensive_trait_names.append(str(trait_value.get("name")))
 	for expected_trait_name: String in [
+		"p_classic_tangled.gd",
+		"p_cursed.gd",
 		"t_pro_hits.gd",
+		"t_slow.gd",
 		"p_pro_proj.gd",
 		"t_prot_fire.gd",
 		"p_prot_ice.gd",
@@ -8127,12 +8148,21 @@ func _test_classic_character_rule_profile() -> void:
 	var hit_shield: Variant = null
 	var fire_protection: Variant = null
 	var spell_screen: Variant = null
+	var permanent_tangled: Variant = null
+	var permanent_cursed: Variant = null
+	var temporary_slow: Variant = null
 	var permanent_strong: Variant = null
 	var temporary_speedy: Variant = null
 	var permanent_invisible: Variant = null
 	for trait_value: Variant in attribute_creation.traits:
 		if str(trait_value.get("name")) == "t_pro_hits.gd":
 			hit_shield = trait_value
+		elif str(trait_value.get("name")) == "p_classic_tangled.gd":
+			permanent_tangled = trait_value
+		elif str(trait_value.get("name")) == "p_cursed.gd":
+			permanent_cursed = trait_value
+		elif str(trait_value.get("name")) == "t_slow.gd":
+			temporary_slow = trait_value
 		elif str(trait_value.get("name")) == "t_prot_fire.gd":
 			fire_protection = trait_value
 		elif str(trait_value.get("name")) == "t_classic_spell_screen.gd":
@@ -8158,6 +8188,35 @@ func _test_classic_character_rule_profile() -> void:
 				0.5
 			),
 		"Classic fire protection reuses Remake's half-damage trait"
+	)
+	_expect(
+		permanent_tangled != null \
+			and is_equal_approx(
+				float(permanent_tangled._on_get_stat("AccuracyMelee", 5)),
+				4.2
+			) \
+			and permanent_tangled._on_get_stat("MaxMovement", 14) == 10,
+		"permanent Tangled preserves its percentage and movement penalties"
+	)
+	_expect(
+		permanent_cursed != null \
+			and permanent_cursed._on_get_stat("AccuracyMelee", 5) == 4 \
+			and permanent_cursed._on_get_stat("EvasionRanged", 3) == 2,
+		"permanent Curse converts five Classic percentage points once"
+	)
+	var temporary_curse = load(
+		"res://shared_assets/traits/t_cursed.gd"
+	).new([attribute_creation, 2])
+	_expect(
+		temporary_curse._on_get_stat("AccuracyRanged", 4) == 3 \
+			and temporary_curse._on_get_stat("EvasionMelee", 2) == 1,
+		"temporary Curse uses the same five-percentage-point conversion"
+	)
+	_expect(
+		temporary_slow != null \
+			and temporary_slow._on_get_stat("AccuracyMelee", 5) == 2 \
+			and temporary_slow._on_get_stat("MaxMovement", 14) == 7,
+		"temporary Slow preserves its fixed combat and movement penalties"
 	)
 	var protection_rules = load(
 		"res://scripts/classic_runtime/classic_protection_from_foe.gd"
@@ -8229,6 +8288,16 @@ func _test_classic_character_rule_profile() -> void:
 			2,
 			"temporary Speedy reads its live remaining duration"
 		)
+	if temporary_slow != null:
+		temporary_slow._on_new_round(attribute_creation)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(
+			attribute_creation,
+			6
+		),
+		1,
+		"temporary Slow follows its live remaining duration"
+	)
 	_expect_equal(
 		attribute_creation.get_meta("classic_regeneration_per_round", 0),
 		3,
@@ -8329,6 +8398,24 @@ func _test_classic_character_rule_profile() -> void:
 		"Strong, Speedy, and Invisible conditions survive character save/load"
 	)
 	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				2
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				3
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				6
+			),
+		],
+		[-4, -1, 1],
+		"Tangled, Cursed, and Slow conditions survive character save/load"
+	)
+	_expect_equal(
 		attribute_creation_reloaded.get_meta(
 			"classic_regeneration_per_round",
 			0
@@ -8346,7 +8433,7 @@ func _test_classic_character_rule_profile() -> void:
 	)
 	unsupported_defense_character.classic_rule_profile[
 		"creation"
-	]["raceStartingConditions"][2] = 1
+	]["raceStartingConditions"][0] = 1
 	CharacterRulesScript.apply_character_creation_attributes(
 		unsupported_defense_character,
 		1,
@@ -8360,7 +8447,7 @@ func _test_classic_character_rule_profile() -> void:
 	)
 	_expect_equal(
 		unsupported_defense_result.get("unsupportedConditionIndices"),
-		[2],
+		[0],
 		"an active unmapped starting condition reports its exact source slot"
 	)
 	_expect(
@@ -15404,6 +15491,29 @@ func _test_classic_tangle_weed_spell() -> void:
 		tangled_trait.new([monster_floor, 3])._on_get_stat("MaxMovement", 2),
 		0,
 		"Tangle Weed permits a monster to be fully immobilized"
+	)
+	var permanent_tangled := SpellScreenTestCharacter.new(
+		"Permanently tangled",
+		true
+	)
+	permanent_tangled.add_trait(
+		load("res://shared_assets/traits/p_classic_tangled.gd"),
+		[4]
+	)
+	_expect_equal(
+		spell.apply_classic_scaled_effect(
+			null,
+			permanent_tangled,
+			3,
+			1.0
+		),
+		0,
+		"Tangle Weed does not stack over an imported permanent condition"
+	)
+	_expect_equal(
+		permanent_tangled.traits.size(),
+		1,
+		"permanent Tangled remains the only condition trait"
 	)
 
 	var queue_caster := QueuedTerrainTestCreature.new(Vector2(1, 1))

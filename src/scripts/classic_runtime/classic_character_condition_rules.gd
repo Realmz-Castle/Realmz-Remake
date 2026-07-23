@@ -11,6 +11,16 @@ const TEMPORARY_SPELL_SCREEN_TRAIT := (
 	"res://shared_assets/traits/t_classic_spell_screen.gd"
 )
 const CONDITION_TRAITS := {
+	2: {
+		"name": "Tangled",
+		"temporary": "res://shared_assets/traits/t_classic_tangled.gd",
+		"permanent": "res://shared_assets/traits/p_classic_tangled.gd",
+	},
+	3: {
+		"name": "Cursed",
+		"temporary": "res://shared_assets/traits/t_cursed.gd",
+		"permanent": "res://shared_assets/traits/p_cursed.gd",
+	},
 	4: {
 		"name": "Magic Aura",
 		"temporary": "res://shared_assets/traits/t_aura.gd",
@@ -20,6 +30,11 @@ const CONDITION_TRAITS := {
 		"name": "Dumb",
 		"temporary": "res://shared_assets/traits/t_dumb.gd",
 		"permanent": "res://shared_assets/traits/p_dumb.gd",
+	},
+	6: {
+		"name": "Slow",
+		"temporary": "res://shared_assets/traits/t_slow.gd",
+		"permanent": "res://shared_assets/traits/p_slow.gd",
 	},
 	7: {
 		"name": "Shield from Hits",

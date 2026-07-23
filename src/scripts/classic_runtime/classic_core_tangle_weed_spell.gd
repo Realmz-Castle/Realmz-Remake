@@ -16,7 +16,7 @@ func configure_core_tangle_weed_spell() -> bool:
 		return false
 
 	_temporary_condition_trait = TangledTrait
-	_conflicting_condition_traits = []
+	_conflicting_condition_traits = ["p_classic_tangled.gd"]
 	_configure_core_record(inventory, record)
 	# Data S stores -3 in the unsigned special byte as 253. The intended
 	# condition is confirmed by the spell description and spelllist.c's Tangle
