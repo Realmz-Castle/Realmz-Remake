@@ -84,6 +84,43 @@ func _run_smoke() -> void:
 	if not bundle.last_error.is_empty():
 		_finish()
 		return
+	var picture: Dictionary = bundle.get_picture(306)
+	var picture_media: Dictionary = picture.get("runtimeMedia", {})
+	var picture_media_path := campaign_directory.path_join(
+		str(picture_media.get("path", ""))
+	)
+	_expect_equal(
+		picture.get("payloadEncoding"),
+		"classic-resource-data",
+		"producer picture retains its immutable Classic payload"
+	)
+	_expect_equal(
+		picture_media.get("mediaType"),
+		"image/png",
+		"producer picture exposes decoded runtime media"
+	)
+	_expect(
+		picture.get("payloadPath") != picture_media.get("path"),
+		"producer picture keeps payload and runtime-media paths distinct"
+	)
+	var picture_image := Image.load_from_file(picture_media_path)
+	_expect(
+		not picture_image.is_empty()
+			and picture_image.get_size() == Vector2i(640, 320),
+		"installed producer picture decodes at its authored dimensions"
+	)
+	var sound: Dictionary = bundle.get_sound(321)
+	var sound_media: Dictionary = sound.get("runtimeMedia", {})
+	var sound_media_path := campaign_directory.path_join(str(sound_media.get("path", "")))
+	_expect_equal(
+		sound_media.get("mediaType"),
+		"audio/wav",
+		"producer sound exposes decoded runtime media"
+	)
+	_expect(
+		AudioStreamWAV.load_from_file(sound_media_path) != null,
+		"installed producer sound loads through the native audio resource"
+	)
 	var ally_action := _find_ally_action(bundle.documents.get("scripts", {}))
 	_expect(not ally_action.is_empty(), "producer trigger contains an authored ally action")
 	if ally_action.is_empty():

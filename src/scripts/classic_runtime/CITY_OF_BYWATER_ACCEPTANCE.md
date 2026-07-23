@@ -157,7 +157,13 @@ Classic session, and enters the compiled `map_0` start at `(2, 1)`. The
 authored `Data DD:0:83` land-to-dungeon / `Data DDD:0:1` dungeon-to-land route
 also passes its real-display smoke check with the fresh bundle.
 
-The installed route first completes `Data DD:0:0` and simple encounter 0. It
+Before leaving the start, the installed route runs AP 76. Providence's decoded
+PICT 32128 appears at its original 320 x 320 size in the native HUD, remains
+visible behind all four source messages, and disappears only when the extended
+action list reaches Redraw Screen. The three interleaved stock sound actions
+resolve to Remake's loaded native sound resources.
+
+The route then completes `Data DD:0:0` and simple encounter 0. It
 shows all four authored guard-house choices plus Back out, selects the farewell
 result, displays its source message, and returns to exploration without a
 pending continuation. It then enters the tannery at `Data DD:0:29`, loads
@@ -169,7 +175,10 @@ reduces both displayed and stored stock before the party continues.
 
 The blacksmith quest now passes as a complete installed-campaign progression
 route. `Data DD:0:17` presents the request with its authored Data OD labels,
-acceptance grants player map 3, and the initial offer retires itself. At
+acceptance grants player map 3, and the initial offer retires itself. Maps/Notes
+opens both the initially owned map and the newly acquired map as independent
+320 x 320 terrain-composed views, including the source note and marker overlay,
+then returns cleanly to exploration. At
 `Data DD:0:30`, Extra Code row 85 resolves to compiled Battle 45, whose 24
 monster-80 entries map to Remake's existing `Krise 80` definition and enter the
 native combat lifecycle. Victory resumes the source action list, awards player
@@ -215,8 +224,9 @@ passes with no progression blocker and no pending Classic continuation.
   padding encounter data that the authoritative importer correctly treats as
   inactive. Baseline count changes must therefore be reviewed by record, rather
   than copied wholesale from either exporter.
-- Decoded picture, sound, and monster-icon media remain fidelity fallbacks unless
-  a missing asset carries progression meaning.
+- Unmapped optional sound and monster-icon media remain fidelity fallbacks unless
+  a missing asset carries progression meaning. City PICT 32128 and AP 76's stock
+  sounds now have installed-route evidence.
 
 ## Further coverage
 

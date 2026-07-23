@@ -18,7 +18,7 @@
     "maps": 2,
     "messages": 2,
     "monsters": 1,
-    "packagedAssetPayloads": 7,
+    "packagedAssetPayloads": 8,
     "scenarioItems": 2,
     "shops": 1,
     "simpleEncounters": 1,
@@ -41,7 +41,7 @@
   "formatVersion": 1,
   "id": "providence-ownership-proof",
   "limitations": [
-    "Classic PICT and styled-text payloads are packaged without defining Remake-native conversion semantics; referenced special-land cicn resources include derived PNG runtime media, and decodable snd resources include derived WAV runtime media.",
+    "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Styled-text payloads remain Classic resource data.",
     "Providence schema version 5 authors a land start; the v1 bundle can also represent dungeon starts when the canonical model gains that distinction.",
     "Legacy scenario-icon and monster-icon override payloads are excluded unless they are canonical scenario-managed assets.",
     "Negative cicn special-land-tile identities use the additive v1 assets.catalog.specialLandTiles collection because ordinary v1 icon identities are non-negative."

@@ -11,6 +11,12 @@
         "payloadSha256": "d08dae63460fc6584884c76be5301ac1d884ed83582fb1a8be5e65adc2e7a03c",
         "resourceId": 306,
         "resourceType": "PICT",
+        "runtimeMedia": {
+          "bytes": 43393,
+          "mediaType": "image/png",
+          "path": "media/pictures/pict-306-8d2fafb24573.png",
+          "sha256": "8d2fafb24573fecb9da9d5c16460122eca823e1186c0706430be34a737038d21"
+        },
         "source": "managed"
       }
     ],
@@ -82,6 +88,12 @@
         "payloadSha256": "d08dae63460fc6584884c76be5301ac1d884ed83582fb1a8be5e65adc2e7a03c",
         "pictId": 306,
         "rows": 10,
+        "runtimeMedia": {
+          "bytes": 43393,
+          "mediaType": "image/png",
+          "path": "media/pictures/pict-306-8d2fafb24573.png",
+          "sha256": "8d2fafb24573fecb9da9d5c16460122eca823e1186c0706430be34a737038d21"
+        },
         "source": "Scenario custom atlas",
         "tileHeight": 32,
         "tileWidth": 32
@@ -106,6 +118,12 @@
       "provenance": "Providence ownership proof normalized atlas pixels",
       "resourceId": 306,
       "resourceType": "PICT",
+      "runtimeMedia": {
+        "bytes": 43393,
+        "mediaType": "image/png",
+        "path": "media/pictures/pict-306-8d2fafb24573.png",
+        "sha256": "8d2fafb24573fecb9da9d5c16460122eca823e1186c0706430be34a737038d21"
+      },
       "sampleRate": null,
       "width": 640
     },

@@ -19,6 +19,20 @@ const GUARD_TRIGGER_ID := "Data DD:0:0"
 const GUARD_POSITION := Vector2i(9, 17)
 const GUARD_INTRO_MESSAGE := "You enter the guard house outside the main gate"
 const GUARD_OUTCOME_MESSAGE := "He bids you farewell"
+const SPLASH_TRIGGER_ID := "Data DD:0:76"
+const SPLASH_POSITION := Vector2i(2, 2)
+const SPLASH_PICTURE_ID := 32128
+const SPLASH_MESSAGES: Array[String] = [
+	"Welcome to \"The City of Bywater\"",
+	"Once you have registered this copy of Realmz, you will be able to play the entire scenario",
+	"Once you have registered this copy of Realmz, you will also be able to play test",
+	"Other scenarios utilize the capabilities of the Realmz scenario driver",
+]
+const SPLASH_SOUND_NAMES: Array[String] = [
+	"heal.wav",
+	"heal.wav",
+	"hallelujah.wav",
+]
 const GUARD_CHOICES: Array[String] = [
 	"Attempt to bribe your way into the castle.",
 	"Show him an invitation to the castle.",
@@ -136,6 +150,9 @@ func _start_playtest() -> void:
 		if automated_smoke:
 			_finish_smoke()
 		return
+	if not await _present_city_splash():
+		_finish_smoke()
+		return
 	if not await _complete_guard_house_encounter():
 		_finish_smoke()
 		return
@@ -143,6 +160,9 @@ func _start_playtest() -> void:
 		_finish_smoke()
 		return
 	if not await _accept_blacksmith_quest():
+		_finish_smoke()
+		return
+	if not await _browse_acquired_player_maps():
 		_finish_smoke()
 		return
 	_move_to_trigger()
@@ -286,6 +306,63 @@ func _continue_installed_campaign() -> void:
 		_finish_smoke()
 		return
 	await _complete_blacksmith_quest()
+
+
+func _present_city_splash() -> bool:
+	_move_to_position(SPLASH_POSITION)
+	if not host.start_trigger(SPLASH_TRIGGER_ID):
+		_fail("01a_city_splash_picture", str(host.runtime.last_result))
+		return false
+	if not await _wait_for_picture_message(SPLASH_MESSAGES[0]):
+		_fail("01a_city_splash_picture", "the authored splash and welcome text did not open")
+		return false
+
+	var picture: Dictionary = host.runtime.bundle.get_picture(SPLASH_PICTURE_ID)
+	var runtime_path: String = campaign_session.command_adapter.runtime_media_path(
+		picture,
+		"image/"
+	)
+	var texture: Texture2D = UI.ow_hud.pictureRect.pictxtrect.texture
+	_verify_stage(
+		"01a_city_splash_picture",
+		not runtime_path.is_empty()
+			and texture != null
+			and texture.get_size() == Vector2(320, 320),
+		"AP 76 presents Providence's decoded 320x320 City PICT in the native HUD"
+	)
+	if not smoke_failures.is_empty():
+		return false
+
+	var sound_book: Dictionary = NodeAccess.__Resources().sounds_book
+	var resolved_sound_count := 0
+	for message_index: int in SPLASH_MESSAGES.size():
+		if message_index > 0 \
+				and not await _wait_for_picture_message(SPLASH_MESSAGES[message_index]):
+			_fail(
+				"01b_city_splash_order",
+				"the splash did not remain visible for authored message %d" % (message_index + 1)
+			)
+			return false
+		if message_index < SPLASH_SOUND_NAMES.size():
+			var sound_name := SPLASH_SOUND_NAMES[message_index]
+			if sound_book.has(sound_name) and SfxPlayer.stream == sound_book[sound_name]:
+				resolved_sound_count += 1
+		UI.ow_hud.textRect.disablerButton.pressed.emit()
+
+	if not await _wait_for_playthrough_completion():
+		_fail("01b_city_splash_order", "the splash action list did not complete")
+		return false
+	_verify_stage(
+		"01b_city_splash_order",
+		not UI.ow_hud.pictureRect.visible,
+		"the four source messages remain over the splash until Redraw Screen restores the map"
+	)
+	_verify_stage(
+		"01c_city_splash_sounds",
+		resolved_sound_count == SPLASH_SOUND_NAMES.size(),
+		"the splash's three referenced stock sounds resolve through Remake's native sound library"
+	)
+	return smoke_failures.is_empty()
 
 
 func _complete_guard_house_encounter() -> bool:
@@ -434,6 +511,50 @@ func _accept_blacksmith_quest() -> bool:
 		state.is_map_owned(QUEST_MAP_ID)
 			and state.get_trigger_percent("land", 0, 17, 0) == -1,
 		"acceptance grants player map 3 and retires the initial blacksmith action"
+	)
+	return smoke_failures.is_empty()
+
+
+func _browse_acquired_player_maps() -> bool:
+	UI.ow_hud._on_minimaps_button_pressed()
+	await get_tree().process_frame
+	var map_panel: Control = UI.ow_hud.classicPlayerMapRect
+	var texture: Texture2D = map_panel.map_texture_rect.texture
+	_verify_stage(
+		"07a_player_map_browser",
+		StateMachine._state_name == "ExMenus"
+			and StateMachine.ex_menu_state.cur_menu_name == "ClassicPlayerMapMenu"
+			and int(map_panel.current_map_record.get("id", -1)) == 0
+			and map_panel.map_texture_rect.visible
+			and texture != null
+			and texture.get_size() == Vector2(320, 320),
+		"Maps/Notes opens the initially owned City map as a terrain-composed 320x320 view"
+	)
+	if not smoke_failures.is_empty():
+		return false
+
+	for _entry_index: int in map_panel.map_entries.size():
+		if int(map_panel.current_map_record.get("id", -1)) == QUEST_MAP_ID:
+			break
+		map_panel._on_next_button_pressed()
+	texture = map_panel.map_texture_rect.texture
+	_verify_stage(
+		"07b_acquired_player_map",
+		int(map_panel.current_map_record.get("id", -1)) == QUEST_MAP_ID
+			and map_panel.map_texture_rect.visible
+			and texture != null
+			and texture.get_size() == Vector2(320, 320)
+			and map_panel.map_note_label.text.begins_with(
+				"The location where they found the son of the blacksmith"
+			),
+		"Maps/Notes browses the newly acquired source map with its terrain, marker, and note"
+	)
+	map_panel._on_done_button_pressed()
+	await get_tree().process_frame
+	_verify_stage(
+		"07c_player_map_close",
+		StateMachine._state_name == "Exploration" and not map_panel.visible,
+		"closing the standalone map restores exploration"
 	)
 	return smoke_failures.is_empty()
 
@@ -817,6 +938,18 @@ func _dismiss_message(prefix: String) -> bool:
 		if UI.ow_hud.textRect.visible \
 				and UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(prefix):
 			UI.ow_hud.textRect.disablerButton.pressed.emit()
+			return true
+		await get_tree().process_frame
+	return false
+
+
+func _wait_for_picture_message(prefix: String) -> bool:
+	for _frame: int in 600:
+		var texture: Texture2D = UI.ow_hud.pictureRect.pictxtrect.texture
+		if UI.ow_hud.pictureRect.visible \
+				and texture != null \
+				and UI.ow_hud.textRect.visible \
+				and UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(prefix):
 			return true
 		await get_tree().process_frame
 	return false

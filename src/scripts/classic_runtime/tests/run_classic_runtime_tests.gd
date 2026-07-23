@@ -2115,7 +2115,7 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"cc5055c9627f418ec1c538da8a2148025c4b180a",
+		"3a95d48a412666aedf11e6c84c5ea64f0d3711b3",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
@@ -2131,7 +2131,7 @@ func _test_providence_authoritative_export() -> void:
 		"producer fixture provenance records no fidelity fallbacks"
 	)
 	var expected_files: Array = provenance.get("files", [])
-	_expect_equal(expected_files.size(), 16, "producer fixture provenance covers every file")
+	_expect_equal(expected_files.size(), 17, "producer fixture provenance covers every file")
 	for expected_value: Variant in expected_files:
 		if not (expected_value is Dictionary):
 			_expect(false, "producer fixture provenance file entry is an object")
@@ -2154,11 +2154,38 @@ func _test_providence_authoritative_export() -> void:
 	var catalog: Dictionary = assets.get("catalog", {})
 	_expect_equal(assets.get("managedAssets", []).size(), 5, "producer fixture managed asset count")
 	_expect_equal(catalog.get("icons", []).size(), 0, "producer fixture ordinary icon count")
+	var pictures: Array = catalog.get("pictures", [])
 	var special_land_tiles: Array = catalog.get("specialLandTiles", [])
 	_expect_equal(special_land_tiles.size(), 1, "producer fixture special-land-tile count")
-	_expect(
-		not catalog.get("pictures", [])[0].has("runtimeMedia"),
-		"producer fixture distinguishes preserved Classic bytes from decoded runtime media"
+	_expect_equal(pictures.size(), 1, "producer fixture picture count")
+	if pictures.size() == 1:
+		_expect_equal(
+			pictures[0].get("payloadEncoding"),
+			"classic-resource-data",
+			"producer fixture indexes immutable picture payload metadata"
+		)
+		_expect_equal(
+			pictures[0].get("runtimeMedia", {}).get("mediaType"),
+			"image/png",
+			"producer fixture distinguishes decoded picture media from Classic bytes"
+		)
+		_expect(
+			FileAccess.file_exists(
+				PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(
+					str(pictures[0].get("runtimeMedia", {}).get("path", ""))
+				)
+			),
+			"producer fixture includes decoded picture runtime media"
+		)
+		_expect(
+			pictures[0].get("payloadPath")
+				!= pictures[0].get("runtimeMedia", {}).get("path"),
+			"producer fixture keeps picture payload and runtime-media paths distinct"
+		)
+	_expect_equal(
+		bundle.get_picture(306).get("runtimeMedia", {}).get("mediaType"),
+		"image/png",
+		"producer fixture indexes decoded picture runtime media"
 	)
 	_expect_equal(
 		bundle.get_sound(321).get("payloadEncoding"),
