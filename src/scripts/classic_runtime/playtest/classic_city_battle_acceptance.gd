@@ -61,6 +61,7 @@ var campaign_session: ClassicCampaignSession
 var host: ClassicRuntimeHost
 var automated_smoke := false
 var launch_through_ui := false
+var interactive_overworld := false
 var acceptance_phase := ""
 var profile_root := ""
 var smoke_failures: Array[String] = []
@@ -75,6 +76,9 @@ func _start_playtest() -> void:
 		if argument == "--smoke":
 			automated_smoke = true
 		elif argument == "--ui-launch":
+			launch_through_ui = true
+		elif argument == "--overworld-demo":
+			interactive_overworld = true
 			launch_through_ui = true
 		elif argument == "--save-phase":
 			acceptance_phase = "save"
@@ -126,6 +130,11 @@ func _start_playtest() -> void:
 	)
 	if not smoke_failures.is_empty():
 		_finish_smoke()
+		return
+	if interactive_overworld:
+		print("CLASSIC_CITY_DEMO READY: City of Bywater map_0 at (2, 1)")
+		if automated_smoke:
+			_finish_smoke()
 		return
 	if not await _complete_guard_house_encounter():
 		_finish_smoke()

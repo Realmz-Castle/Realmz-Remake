@@ -111,6 +111,20 @@ Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 `
   --smoke --continue-phase "--profile-root=$acceptanceRoot"
 ```
 
+For an interactive overworld demo, omit `--smoke` and stop the route at its
+authored starting position with `--overworld-demo`:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
+  --path "F:\Realmz Remake\src" `
+  res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
+  "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
+  --overworld-demo
+```
+
+Click and hold around the party on the map, or use the configured movement keys,
+to travel. The ordinary HUD buttons and authored map triggers remain active.
+
 ## Current checkpoint
 
 The authoritative export checked on July 22, 2026 contains 11 maps, 1,341
