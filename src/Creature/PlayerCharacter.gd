@@ -343,6 +343,11 @@ func level_up() :
 	ClassicCharacterRulesScript.apply_level_up_combat_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_attack_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_magic_resistance(self)
+	var condition_result := (
+		ClassicCharacterRulesScript.apply_level_up_condition_progression(self)
+	)
+	if str(condition_result.get("status", "")) == "error":
+		push_error(str(condition_result.get("message", "")))
 	print("PC after level up  base_stats ", base_stats["curHP"] ,'/',base_stats["maxHP"])
 
 

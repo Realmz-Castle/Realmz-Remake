@@ -7,6 +7,9 @@ const AdmissionScript = preload(
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const CharacterConditionRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
+)
 const RANDOM_ROLL_UNSET := -2147483648
 
 
@@ -99,12 +102,17 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var condition_progression := _condition_progression_profile(
+		active_caste_record,
+		not changed_caste_record.is_empty()
+	)
 
 	if movement.is_empty() \
 			and magic_resistance.is_empty() \
 			and attacks.is_empty() \
 			and combat_progression.is_empty() \
-			and stamina_progression.is_empty():
+			and stamina_progression.is_empty() \
+			and condition_progression.is_empty():
 		return {}
 
 	var profile := {
@@ -120,6 +128,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["combatProgression"] = combat_progression
 	if not stamina_progression.is_empty():
 		profile["staminaProgression"] = stamina_progression
+	if not condition_progression.is_empty():
+		profile["conditionProgression"] = condition_progression
 	if race_id > 0:
 		profile["raceId"] = race_id
 	if caste_id > 0:
@@ -336,6 +346,68 @@ static func apply_level_up_stamina_progression(
 		"vitalityBonus": vitality_bonus,
 		"staminaGain": stamina_gain,
 	}
+
+
+static func apply_level_up_condition_progression(character: Variant) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var progression: Variant = profile.get("conditionProgression", [])
+	if not (progression is Array) or progression.is_empty():
+		return {"status": "skipped"}
+
+	var current_level := int(_value(character, "level", 1))
+	var due_indices: Array[int] = []
+	for entry_value: Variant in progression:
+		if not (entry_value is Dictionary):
+			continue
+		if int(entry_value.get("level", 0)) == current_level:
+			due_indices.append(int(entry_value.get("conditionIndex", -1)))
+	if due_indices.is_empty():
+		return {"status": "ok", "applied": []}
+
+	# Validate the whole level before changing any trait. A partly translated
+	# caste must not receive only the convenient subset of its authored grants.
+	for condition_index: int in due_indices:
+		if not CharacterConditionRulesScript.supports_condition(condition_index):
+			return {
+				"status": "error",
+				"message": (
+					"Classic caste condition %d has no safe Remake mapping."
+					% condition_index
+				),
+			}
+
+	var applied: Array[Dictionary] = []
+	for condition_index: int in due_indices:
+		var result: Dictionary = (
+			CharacterConditionRulesScript.grant_permanent_condition(
+				character,
+				condition_index
+			)
+		)
+		if str(result.get("status", "")) == "error":
+			return result
+		applied.append(result)
+	return {"status": "ok", "applied": applied}
+
+
+static func _condition_progression_profile(
+	caste_record: Dictionary,
+	has_changed_caste: bool
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if not has_changed_caste:
+		return result
+	var conditions := _integer_array(caste_record.get("conditions", []))
+	for condition_index: int in range(conditions.size()):
+		var level := conditions[condition_index]
+		if level > 0:
+			result.append({
+				"conditionIndex": condition_index,
+				"level": level,
+			})
+	return result
 
 
 static func _stamina_progression_profile(

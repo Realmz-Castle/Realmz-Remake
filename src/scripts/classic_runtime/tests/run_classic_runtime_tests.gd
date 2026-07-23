@@ -493,6 +493,7 @@ class CampaignRuleCharacter:
 	var classic_magic_resistance_initialized := false
 	var classic_hand_to_hand := 0
 	var classic_hand_to_hand_initialized := false
+	var traits: Array = []
 	var ITEM_NO_MELEE_WEAPON := {
 		"name": "NO_MELEE_WEAPON",
 		"weapon_dmg": {"Physical": [1, 3]},
@@ -536,6 +537,20 @@ class CampaignRuleCharacter:
 		var saved_native_stats: Variant = saved_data.get("nativeStats", null)
 		if saved_native_stats is Dictionary:
 			native_stats = saved_native_stats.duplicate(true)
+		var saved_traits: Variant = saved_data.get("traits", [])
+		if saved_traits is Array:
+			for saved_trait_value: Variant in saved_traits:
+				if not (saved_trait_value is Dictionary):
+					continue
+				var trait_script: Variant = load(
+					"res://shared_assets/traits/%s"
+					% str(saved_trait_value.get("name", ""))
+				)
+				if trait_script != null:
+					add_trait(
+						trait_script,
+						saved_trait_value.get("savedVariables", [])
+					)
 
 	func apply_classic_rule_profile(profile: Dictionary) -> void:
 		classic_rule_profile = profile.duplicate(true)
@@ -559,6 +574,16 @@ class CampaignRuleCharacter:
 
 	func has_classic_hand_to_hand() -> bool:
 		return classic_hand_to_hand_initialized
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		var constructor_args: Array = [self]
+		constructor_args.append_array(args)
+		var trait_instance: Variant = trait_script.new(constructor_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		traits.erase(trait_instance)
 
 	func recalculate_stats() -> void:
 		var hp_deficit := (
@@ -612,6 +637,7 @@ class CampaignRuleCharacter:
 			self,
 			magic_resistance_roll
 		)
+		CharacterRulesScript.apply_level_up_condition_progression(self)
 
 	func save_data() -> Dictionary:
 		var data := {
@@ -621,7 +647,13 @@ class CampaignRuleCharacter:
 			"classicRuleProfile": classic_rule_profile.duplicate(true),
 			"baseStats": base_stats.duplicate(true),
 			"nativeStats": native_stats.duplicate(true),
+			"traits": [],
 		}
+		for trait_value: Variant in traits:
+			data["traits"].append({
+				"name": str(trait_value.get("name")),
+				"savedVariables": trait_value.get_saved_variables(),
+			})
 		if classic_magic_resistance_initialized:
 			data["classicMagicResistance"] = classic_magic_resistance
 		if classic_hand_to_hand_initialized:
@@ -7193,8 +7225,14 @@ func _test_classic_character_rule_profile() -> void:
 			record["hand2Hand"] = [6, 2]
 			record["stamina"] = [8, 6]
 			record["maxStaminaBonus"] = 2
+			record["conditions"][4] = 2
+			record["conditions"][39] = 3
 
 	var character := CampaignRuleCharacter.new()
+	character.add_trait(
+		load("res://shared_assets/traits/p_aura.gd"),
+		[2]
+	)
 	_expect_equal(character.get_stat("MaxMovement"), 14, "native movement starts unchanged")
 	_expect_equal(character.get_stat("MaxActions"), 2.0, "native actions start unchanged")
 	_expect(
@@ -7260,6 +7298,36 @@ func _test_classic_character_rule_profile() -> void:
 			"maximumVitalityBonus": 2,
 		},
 		"creation stamina stays separate from source-backed level growth"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("conditionProgression"),
+		[
+			{"conditionIndex": 4, "level": 2},
+			{"conditionIndex": 39, "level": 3},
+		],
+		"caste condition slots retain their exact level thresholds"
+	)
+	var unsupported_condition_character := CampaignRuleCharacter.new()
+	unsupported_condition_character.level = 2
+	unsupported_condition_character.classic_rule_profile = {
+		"conditionProgression": [
+			{"conditionIndex": 4, "level": 2},
+			{"conditionIndex": 3, "level": 2},
+		],
+	}
+	var unsupported_condition_result := (
+		CharacterRulesScript.apply_level_up_condition_progression(
+			unsupported_condition_character
+		)
+	)
+	_expect_equal(
+		unsupported_condition_result.get("status"),
+		"error",
+		"an unmapped caste condition blocks the whole level grant"
+	)
+	_expect(
+		unsupported_condition_character.traits.is_empty(),
+		"condition progression does not partially apply a mixed supported level"
 	)
 	_expect_equal(
 		character.get_stat("MaxActions"),
@@ -7328,6 +7396,16 @@ func _test_classic_character_rule_profile() -> void:
 		"Classic stamina increases current HP while retaining the injury deficit"
 	)
 	_expect_equal(
+		CharacterConditionRulesScript.condition_value(character, 4),
+		-3,
+		"a level grant strengthens an existing permanent condition"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(character, 39),
+		0,
+		"later caste condition thresholds do not apply early"
+	)
+	_expect_equal(
 		CharacterRulesScript.adjusted_unarmed_damage_range(
 			character,
 			character.ITEM_NO_MELEE_WEAPON,
@@ -7368,6 +7446,16 @@ func _test_classic_character_rule_profile() -> void:
 		character.get_stat("curHP"),
 		26,
 		"accumulated stamina retains the original injury deficit"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(character, 4),
+		-3,
+		"condition progression applies only at its exact source level"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(character, 39),
+		-1,
+		"a later caste threshold grants a new permanent condition"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(character),
@@ -7413,6 +7501,16 @@ func _test_classic_character_rule_profile() -> void:
 		26,
 		"the saved injury deficit survives character save/load"
 	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(reloaded, 4),
+		-3,
+		"strengthened caste conditions survive character save/load"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(reloaded, 39),
+		-1,
+		"new caste conditions survive character save/load"
+	)
 	reloaded.native_stats["Intellect"] = 21
 	CharacterRulesScript.apply_party(install.bundle, [reloaded])
 	_expect_equal(
@@ -7437,6 +7535,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("maxHP"),
 		31,
 		"campaign reload does not reroll stamina progression"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(reloaded, 39),
+		-1,
+		"campaign reload does not reapply a caste condition threshold"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),
@@ -7486,6 +7589,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("maxHP"),
 		31,
 		"earned Classic stamina remains stored after leaving the table"
+	)
+	_expect_equal(
+		CharacterConditionRulesScript.condition_value(reloaded, 39),
+		-1,
+		"earned caste conditions remain character state outside the override table"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),

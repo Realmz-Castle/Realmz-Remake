@@ -29,6 +29,46 @@ const CONDITION_TRAITS := {
 }
 
 
+static func supports_condition(condition_index: int) -> bool:
+	return CONDITION_TRAITS.has(condition_index)
+
+
+static func grant_permanent_condition(
+	character: Variant,
+	condition_index: int
+) -> Dictionary:
+	if not supports_condition(condition_index):
+		return _error(
+			"Classic character condition %d has no Remake trait mapping"
+			% condition_index
+		)
+	var validation := _validate_character(character)
+	if not validation.is_empty():
+		return validation
+
+	var definition: Dictionary = CONDITION_TRAITS[condition_index]
+	var temporary_trait: GDScript = load(str(definition["temporary"]))
+	var permanent_trait: GDScript = load(str(definition["permanent"]))
+	if temporary_trait == null or permanent_trait == null:
+		return _error("Classic character condition traits could not be loaded")
+
+	var current_value := condition_value(character, condition_index)
+	var new_value := -1 if current_value >= 0 else current_value - 1
+	_set_condition_value(
+		character,
+		definition,
+		new_value,
+		temporary_trait,
+		permanent_trait
+	)
+	return {
+		"status": "ok",
+		"conditionIndex": condition_index,
+		"conditionName": str(definition["name"]),
+		"value": new_value,
+	}
+
+
 static func apply_condition(
 	party: Array,
 	selected: Array,
