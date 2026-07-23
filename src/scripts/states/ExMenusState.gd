@@ -59,7 +59,12 @@ func enter(_msg : Dictionary = {} ) ->void :
 			UI.ow_hud.spellcastMenu.show()
 		"LootMenu" :
 			cur_menu_name = menu_name
-			await GameGlobal.show_loot_menu(_msg["treasure"],_msg["money"],_msg["exp"])
+			await GameGlobal.show_loot_menu(
+				_msg["treasure"],
+				_msg["money"],
+				_msg["exp"],
+				bool(_msg.get("classicBattleReward", false))
+			)
 			#if not GameGlobal.player_allies.is_empty() :
 		"MiniMapsMenu" :
 			cur_menu_name = menu_name

@@ -25,6 +25,7 @@ extends Control
 
 var exp_gain : int = 0
 var exp_receivers : Array = []
+var classic_battle_reward := false
 
 var already_identified : bool = false
 
@@ -52,8 +53,14 @@ func on_viewport_size_changed(screensize : Vector2) :
 
 
 # take inspiration from textrect script, money is  [gold,gems,jewels]
-func display(items : Array, money : Array, experience : int) :
+func display(
+	items: Array,
+	money: Array,
+	experience: int,
+	is_classic_battle_reward := false
+) :
 	exp_gain = experience
+	classic_battle_reward = is_classic_battle_reward
 	exp_receivers.clear()
 	detect_button.disabled = false
 	already_identified = false
@@ -129,7 +136,11 @@ func _on_itemlootbutton_pressed(item:Dictionary, button : Button) :
 
 func close() :
 	#empty the gridcontainer
-	await GameGlobal.give_exp_to_pcs( floor( float(exp_gain)/float(exp_receivers.size()) ) , exp_receivers )
+	await GameGlobal.give_exp_to_pcs(
+		floor(float(exp_gain) / float(exp_receivers.size())),
+		exp_receivers,
+		classic_battle_reward
+	)
 
 	print("teasure_control got GameGlobal.done_giving_exp")
 	for child in itemsContainer.get_children() :

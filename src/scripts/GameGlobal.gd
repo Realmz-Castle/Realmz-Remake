@@ -772,8 +772,18 @@ func dispatch_classic_map_script(script_name: String, context := {}) -> Dictiona
 		"result": result if result is Dictionary else {},
 	}
 
-func show_loot_menu(items:Array, money : Array, experience : int) :
-	await UI.ow_hud.show_loot_menu(items,money,experience)
+func show_loot_menu(
+	items: Array,
+	money: Array,
+	experience: int,
+	classic_battle_reward := false
+) :
+	await UI.ow_hud.show_loot_menu(
+		items,
+		money,
+		experience,
+		classic_battle_reward
+	)
 
 
 
@@ -1063,7 +1073,14 @@ func end_battle(
 
 
 
-			StateMachine.transition_to("Exploration/ExMenus", {"menu_name" : "LootMenu", "treasure" : rewards["treasure"], "money" : rewards["money"], "exp" : rewards["experience"], "prev_state" : "Exploration"})
+			StateMachine.transition_to("Exploration/ExMenus", {
+				"menu_name": "LootMenu",
+				"treasure": rewards["treasure"],
+				"money": rewards["money"],
+				"exp": rewards["experience"],
+				"classicBattleReward": true,
+				"prev_state": "Exploration",
+			})
 			await UI.ow_hud.treasureControl.done_looting
 			print("done looting")
 			GameGlobal.show_allies_menu()
@@ -1436,13 +1453,25 @@ func show_allies_menu() :
 	UI.ow_hud.alliesWindow.show()
 
 # returns true if a levelup occured
-func give_exp_to_pcs(experience : int, pcs : Array) -> bool:
+func give_exp_to_pcs(
+	experience: int,
+	pcs: Array,
+	classic_battle_reward := false
+) -> bool:
 	print("GameGlobals give_exp_to_pcs ", experience,' to ', pcs.size())
 	var leveledup : bool = false
 	for pc in pcs :
 		if not can_character_receive_experience(pc) :
 			continue
-		pc.exp_tnl -= experience
+		var awarded_experience := experience
+		if classic_battle_reward:
+			awarded_experience = (
+				ClassicCharacterRulesScript.classic_battle_experience(
+					pc,
+					experience
+				)
+			)
+		pc.exp_tnl -= awarded_experience
 		while pc.exp_tnl <0 :
 			# HUD level up !
 			leveledup = true

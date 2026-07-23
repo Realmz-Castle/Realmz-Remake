@@ -406,7 +406,12 @@ func _on_CharSwapButton_pressed():
 #		GameState.set_paused(false)
 
 
-func show_loot_menu(items:Array, money : Array, experience : int) :
+func show_loot_menu(
+	items: Array,
+	money: Array,
+	experience: int,
+	classic_battle_reward := false
+) :
 #	if GameState.paused :
 #		return
 ##	if inventoryRect.visible :
@@ -418,7 +423,12 @@ func show_loot_menu(items:Array, money : Array, experience : int) :
 	
 	
 	#GameState.set_paused(true)
-	treasureControl.display(items, money, experience)
+	treasureControl.display(
+		items,
+		money,
+		experience,
+		classic_battle_reward
+	)
 	MusicStreamPlayer.play_music_type("Treasure")
 	await treasureControl.done_looting
 	MusicStreamPlayer.play_music_map()

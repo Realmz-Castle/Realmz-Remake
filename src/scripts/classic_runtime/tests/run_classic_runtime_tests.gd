@@ -7993,6 +7993,7 @@ func _test_classic_character_rule_profile() -> void:
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			],
+			"maximumAge": 120,
 			"raceSavingThrowBonuses": [
 				10, -200, 5, 0, 0, 0, 0, 100,
 			],
@@ -9174,6 +9175,62 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		[22 * 365, 22, 3],
 		"the midnight seam keeps exact Classic day and band state"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_battle_experience(
+			clock_aging_character,
+			1500
+		),
+		1500,
+		"a Classic character below maximum age receives the full battle share"
+	)
+	clock_aging_character.set_classic_age_state({
+		"classicAgeDays": 120 * 365,
+		"classicAgeYears": 120,
+		"classicAgeGroup": 5,
+	})
+	_expect_equal(
+		CharacterRulesScript.classic_battle_experience(
+			clock_aging_character,
+			1500
+		),
+		999,
+		"maximum-age battle experience preserves the source float truncation"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_battle_experience(
+			CampaignRuleCharacter.new(),
+			1500
+		),
+		1500,
+		"native characters do not receive a Classic maximum-age penalty"
+	)
+	var game_global_source := FileAccess.get_file_as_string(
+		"res://scripts/GameGlobal.gd"
+	)
+	_expect(
+		game_global_source.contains('"classicBattleReward": true'),
+		"native battle completion marks only its combat reward"
+	)
+	_expect(
+		game_global_source.contains(
+			"if classic_battle_reward:"
+		) and game_global_source.contains(
+			"ClassicCharacterRulesScript.classic_battle_experience"
+		),
+		"battle experience applies the per-character Classic age rule"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scripts/states/ExMenusState.gd"
+		).contains('bool(_msg.get("classicBattleReward", false))'),
+		"the loot-menu transition keeps scripted rewards unmarked by default"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scenes/UI/HUD/Looting/TreasureControl.gd"
+		).contains("classic_battle_reward"),
+		"battle loot carries its reward origin through per-character division"
 	)
 	var attribute_creation_saved: Variant = JSON.parse_string(
 		JSON.stringify(attribute_creation.save_data())

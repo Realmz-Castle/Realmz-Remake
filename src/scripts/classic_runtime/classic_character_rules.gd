@@ -1045,6 +1045,43 @@ static func advance_character_age_between_times(
 	}
 
 
+## Returns one character's share of a Classic battle reward.
+##
+## booty.c applies the maximum-age reduction after dividing combat experience
+## among eligible party members. Other experience awards do not use this rule.
+static func classic_battle_experience(
+	character: Variant,
+	experience: int
+) -> int:
+	var share := maxi(0, experience)
+	var creation := _dictionary_value(
+		_dictionary_value(
+			_value(character, "classic_rule_profile", {})
+		).get("creation", {})
+	)
+	var maximum_age := int(creation.get("maximumAge", 0))
+	if maximum_age <= 0 \
+			or not bool(
+				_value(
+					character,
+					"classic_creation_demographics_initialized",
+					false
+				)
+			):
+		return share
+	var age_days := int(
+		_value(
+			character,
+			"classic_age_days",
+			int(_value(character, "classic_age_years", 0)) * 365
+		)
+	)
+	if int(age_days / 365) < maximum_age:
+		return share
+	# Preserve the source's float multiplication followed by integer storage.
+	return int(float(share) * 0.6666666)
+
+
 ## Applies Classic's eight saving throws and forty starting conditions.
 ##
 ## Call this after apply_character_creation_attributes so the caste's starting
@@ -1798,6 +1835,7 @@ static func _creation_profile(
 			or not caste_record.has("startMoney") \
 			or starting_item_ids.size() != 20 \
 			or not race_record.has("missile") \
+			or not race_record.has("maxAge") \
 			or not race_record.has("canRegenerate"):
 		return {}
 	return {
@@ -1809,6 +1847,7 @@ static func _creation_profile(
 		"minimumAgeGroup": int(caste_record["minimumAgeGroup"]),
 		"ageRanges": age_ranges,
 		"ageChanges": age_changes,
+		"maximumAge": int(race_record["maxAge"]),
 		"raceSavingThrowBonuses": race_saving_throw_bonuses,
 		"casteSavingThrowBonuses": caste_saving_throw_bonuses,
 		"raceStartingConditions": race_starting_conditions,
