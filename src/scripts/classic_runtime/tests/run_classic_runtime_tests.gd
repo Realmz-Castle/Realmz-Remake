@@ -692,6 +692,18 @@ class MonsterSpecialAttackTestCharacter:
 		traits.erase(trait_instance)
 
 
+class ClassicEffectTarget:
+	extends RefCounted
+	var curFaction: int
+	var attacked := false
+
+	func _init(faction: int) -> void:
+		curFaction = faction
+
+	func mark_classic_attacked() -> void:
+		attacked = true
+
+
 class DispelTestTrait:
 	extends RefCounted
 	var name: String
@@ -5637,6 +5649,41 @@ func _test_classic_monster_decision() -> void:
 		not MonsterDecisionScript.should_retry_cast(100, false, false, false, 2),
 		"Classic stops after its second failed spell pass"
 	)
+	var hostile_caster := ClassicEffectTarget.new(0)
+	var effect_target := ClassicEffectTarget.new(1)
+	var was_hostile := MonsterDecisionScript.are_opponents(
+		hostile_caster,
+		effect_target
+	)
+	# Charm changes faction while its effect runs, so resolution must retain
+	# the relationship from the moment the target was selected.
+	effect_target.curFaction = hostile_caster.curFaction
+	_expect(
+		MonsterDecisionScript.mark_attacked_by_effect(
+			effect_target,
+			true,
+			was_hostile
+		),
+		"a successful hostile Classic effect records the attacked state"
+	)
+	_expect(effect_target.attacked, "the hostile effect updates its target")
+	var unaffected_target := ClassicEffectTarget.new(1)
+	_expect(
+		not MonsterDecisionScript.mark_attacked_by_effect(
+			unaffected_target,
+			0,
+			true
+		),
+		"a rejected or empty effect does not record the attacked state"
+	)
+	_expect(
+		not MonsterDecisionScript.mark_attacked_by_effect(
+			unaffected_target,
+			3,
+			false
+		),
+		"an allied effect does not record the attacked state"
+	)
 	var depleted_missile := {
 		"name": "Slot Two Wand",
 		"_on_combat_use_spell": ["Fireball", 1],
@@ -5694,11 +5741,20 @@ func _test_classic_monster_decision() -> void:
 		).contains("classicConsumesTurn"),
 		"the battle state honors Classic missile and final-spell turn completion"
 	)
+	var animation_source := FileAccess.get_file_as_string(
+		"res://scripts/states/CbAnimationState.gd"
+	)
 	_expect(
-		FileAccess.get_file_as_string(
-			"res://scripts/states/CbAnimationState.gd"
-		).contains("if spell_damage > 0:\n\t\t\t\tcb.creature.mark_classic_attacked()"),
+		animation_source.contains(
+			"if spell_damage > 0:\n\t\t\t\tcb.creature.mark_classic_attacked()"
+		),
 		"damaging native spell resolution records the Classic attack flag"
+	)
+	_expect(
+		animation_source.count(
+			"CLASSIC_MONSTER_DECISION_SCRIPT.mark_attacked_by_effect("
+		) == 2,
+		"scaled and zero-damage condition effects share the hostile-effect adapter"
 	)
 	_expect(
 		FileAccess.get_file_as_string(

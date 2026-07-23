@@ -19,6 +19,9 @@ const CLASSIC_SPELL_REFLECTION_SCRIPT = preload(
 const CLASSIC_MONSTER_SPECIAL_ATTACK_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_monster_special_attack.gd"
 )
+const CLASSIC_MONSTER_DECISION_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_monster_decision.gd"
+)
 
 var cur_action : Dictionary
 
@@ -490,12 +493,23 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 				and float(save_resolution.get("effectScale", 0.0)) <= 0.0 :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
 			continue
+		# Charm changes the target's faction, so retain the relationship from
+		# the moment this effect passed resistance and saves.
+		var was_hostile := CLASSIC_MONSTER_DECISION_SCRIPT.are_opponents(
+			castercrea,
+			cb.creature
+		)
 		if spell.has_method("apply_classic_scaled_effect") :
-			spell.apply_classic_scaled_effect(
+			var effect_result: Variant = spell.apply_classic_scaled_effect(
 				castercrea,
 				cb.creature,
 				power,
 				float(save_resolution.get("effectScale", 1.0))
+			)
+			CLASSIC_MONSTER_DECISION_SCRIPT.mark_attacked_by_effect(
+				cb.creature,
+				effect_result,
+				was_hostile
 			)
 			continue
 		var spell_damage : int = GameGlobal.calculate_spell_damage(castercrea, cb.creature, spell, power, true)
@@ -513,6 +527,12 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 			UI.ow_hud.creatureRect.logrect.log_spell_damage(castercrea, cb, spell , power, {"total":spell_damage}, accuracy)
 			if spell.has_method("add_traits_to_creature") :
 				spell.add_traits_to_creature(castercrea, cb.creature, power)
+				if spell_damage <= 0:
+					CLASSIC_MONSTER_DECISION_SCRIPT.mark_attacked_by_effect(
+						cb.creature,
+						true,
+						was_hostile
+					)
 		else :
 			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea,cb,spell)
 		combat_state.add_to_action_queue(spell_effect_array[2])
