@@ -127,17 +127,26 @@ to travel. The ordinary HUD buttons and authored map triggers remain active.
 
 ## Current checkpoint
 
-The authoritative export checked on July 22, 2026 contains 11 maps, 1,341
+The authoritative export checked on July 23, 2026 contains 11 maps, 1,341
 triggers, 880 messages, 20 simple encounters, 13 complex encounters, 8 thief
 encounters, 21 shop rows, 256 battles, and 155 monsters. The generic bundle
-validator accepts it. Providence also packages the 84 shared negative `cicn`
-resources referenced by its land maps as immutable payloads plus 84 decoded PNGs;
-Remake accepts and materializes those special-land overlays.
+validator accepts it. Providence packages 170 referenced resource payloads,
+including the 84 shared negative `cicn` resources used by its land maps. Classic
+payloads remain immutable while decoded PNG or WAV runtime media travels beside
+them; Remake accepts and materializes the resulting native resources.
+
+The July 23 cross-repository rerun used Providence `98afcbf` and Remake
+`d001dcf`. Two untouched City exports produced the same 179 relative files with
+byte-identical contents, and their JSON documents contained no absolute or
+parent-relative local paths. The clean installer accepted that output directly,
+and the normal campaign menu discovered it as `Ready with fallbacks`. Starting
+through the party controls entered the compiled City start and completed every
+stage of the route below with exit status 0.
 
 Readiness passes with no progression blockers when the bundle is checked against
 the existing native City resources. A clean package installation also succeeds
 without manual file rearrangement and reports `Ready with fallbacks`: no
-progression blockers and 80 fidelity fallbacks. Imported library monsters reuse
+progression blockers and 79 fidelity fallbacks. Imported library monsters reuse
 a shared Remake bestiary entry only when the Classic ID and normalized name both
 match. Authored monster records still materialize locally, even if they reuse a
 stock identity.
