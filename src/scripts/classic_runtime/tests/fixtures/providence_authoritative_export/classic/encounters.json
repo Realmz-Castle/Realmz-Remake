@@ -2321,6 +2321,12 @@
           "id": 0,
           "rawCode": 33,
           "slot": 1
+        },
+        {
+          "id": 321,
+          "mediaRequiredForProgression": true,
+          "rawCode": 9,
+          "slot": 2
         }
       ],
       "authored": true,

@@ -136,6 +136,16 @@
           "label": "Add Special Character to Party",
           "rawCode": 89,
           "slot": 2
+        },
+        {
+          "category": "ui_text",
+          "code": 9,
+          "gosub": false,
+          "id": 321,
+          "label": "Play Sound",
+          "mediaRequiredForProgression": true,
+          "rawCode": 9,
+          "slot": 3
         }
       ],
       "active": true,

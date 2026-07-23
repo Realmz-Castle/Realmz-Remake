@@ -2105,6 +2105,25 @@ func _test_providence_authoritative_export() -> void:
 		2,
 		"producer fixture encounter count"
 	)
+	_expect(
+		_has_progression_media_action(
+			bundle.documents["scripts"].get("triggers", []),
+			9,
+			321
+		),
+		"producer fixture retains its trigger progression-media marker"
+	)
+	var encounter_records: Array = []
+	encounter_records.append_array(
+		bundle.documents["encounters"].get("simpleEncounters", [])
+	)
+	encounter_records.append_array(
+		bundle.documents["encounters"].get("complexEncounters", [])
+	)
+	_expect(
+		_has_progression_media_action(encounter_records, 9, 321),
+		"producer fixture retains its encounter progression-media marker"
+	)
 
 	var provenance_value: Variant = JSON.parse_string(
 		FileAccess.get_file_as_string(PROVIDENCE_AUTHORITATIVE_PROVENANCE)
@@ -2115,7 +2134,7 @@ func _test_providence_authoritative_export() -> void:
 	var provenance: Dictionary = provenance_value
 	_expect_equal(
 		provenance.get("producer", {}).get("commit"),
-		"f98d11ba0d0c70330e9b61d83f83f6934b5fc1cf",
+		"c26443b85ee3a0e883bf0a8b1d46d27ccf9818ca",
 		"producer fixture records its Providence commit"
 	)
 	var expected_readiness: Dictionary = provenance.get("readiness", {})
@@ -2668,6 +2687,20 @@ func _test_custom_monster_battle_fixture() -> void:
 		OK,
 		"custom monster fixture cleans its generated native resources"
 	)
+
+
+func _has_progression_media_action(records: Array, code: int, id: int) -> bool:
+	for record_value: Variant in records:
+		if not (record_value is Dictionary):
+			continue
+		for action_value: Variant in record_value.get("actions", []):
+			if not (action_value is Dictionary):
+				continue
+			if int(action_value.get("rawCode", 0)) == code \
+					and int(action_value.get("id", 0)) == id \
+					and bool(action_value.get("mediaRequiredForProgression", false)):
+				return true
+	return false
 
 
 func _test_installed_classic_campaign_layout() -> void:
@@ -3234,6 +3267,21 @@ func _test_classic_map_materializer() -> void:
 		OK,
 		"materializer fixture stages decoded special-land runtime media"
 	)
+	var runtime_picture_directory := test_root.path_join("media").path_join("pictures")
+	DirAccess.make_dir_recursive_absolute(runtime_picture_directory)
+	var runtime_picture_name := "pict-306-8d2fafb24573.png"
+	_expect_equal(
+		DirAccess.copy_absolute(
+			ProjectSettings.globalize_path(
+				PROVIDENCE_AUTHORITATIVE_FIXTURE.path_join(
+					"media/pictures/%s" % runtime_picture_name
+				)
+			),
+			runtime_picture_directory.path_join(runtime_picture_name)
+		),
+		OK,
+		"materializer fixture stages decoded custom-landlook runtime media"
+	)
 	var materializer = MapMaterializerScript.new()
 	_expect_equal(
 		materializer._classic_combat_expansion({
@@ -3260,7 +3308,11 @@ func _test_classic_map_materializer() -> void:
 		"third-band special land field resolves to its signed cicn identity"
 	)
 	var result: Dictionary = materializer.materialize(bundle, test_root)
-	_expect_equal(result.get("status"), "ok", "normalized map generates native artifacts")
+	_expect_equal(
+		result.get("status"),
+		"ok",
+		"normalized map generates native artifacts: %s" % str(result.get("message", ""))
+	)
 	_expect_equal(
 		result.get("generatedMaps"),
 		["map_0", "mapd_0"],

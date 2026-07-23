@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "producer": {
     "repository": "Realmz - Providence",
-    "commit": "f98d11ba0d0c70330e9b61d83f83f6934b5fc1cf",
+    "commit": "c26443b85ee3a0e883bf0a8b1d46d27ccf9818ca",
     "sourceFixture": "fixtures/scenario-seeds/authoritative-ownership-proof.seed.json"
   },
   "bundleDirectory": "providence_authoritative_export",
@@ -54,13 +54,13 @@
     },
     {
       "path": "classic/encounters.json",
-      "bytes": 29429,
-      "sha256": "3b5975128d7190ba2c586498e1ba70a60de0f7c76af6e574135ea3a8b29f0cf6"
+      "bytes": 29562,
+      "sha256": "45fbaa32f47aa7d7c598199c4d8ce06634c76e3c43977551d7749ee388106912"
     },
     {
       "path": "classic/evidence.json",
       "bytes": 1415,
-      "sha256": "113babeab9eb03ba22ef4eb5669caff8636c84998cc803f2324f6f5a42c8c28b"
+      "sha256": "d47ed4248e78f1691bc0b7d301a600796ec4279ff7a437273f81f020d472d2bd"
     },
     {
       "path": "classic/maps.json",
@@ -79,8 +79,8 @@
     },
     {
       "path": "classic/scripts.json",
-      "bytes": 4868,
-      "sha256": "d5a26abb7c7ba84cda4a2d15d8ddbd4bc8c71817f8e3f5e858814d6580db9ee7"
+      "bytes": 5114,
+      "sha256": "105e197acc4eeb9d4a0f869db0b302f87171b24316e8d12e502451270479d551"
     },
     {
       "path": "media/images/cicn-neg-100-31df32a766f9.png",
