@@ -319,6 +319,8 @@ func load_bestiary_resources( path : String ) -> void:
 			"classicRegenerationPerRound",
 			"classicSpellScreenLevel",
 			"classicCanSummon",
+			"classicRunPercent",
+			"classicSurrenderPercent",
 			"classicWeaponItemId",
 			"classicMissileItemName",
 			"classicMissileItemSlot",

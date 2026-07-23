@@ -704,6 +704,8 @@ func initialize_from_bestiary_dict(creaname : String) :
 		["classic_regeneration_per_round", "classicRegenerationPerRound"],
 		["classic_spell_screen_level", "classicSpellScreenLevel"],
 		["classic_can_summon", "classicCanSummon"],
+		["classic_run_percent", "classicRunPercent"],
+		["classic_surrender_percent", "classicSurrenderPercent"],
 		["classic_missile_item_name", "classicMissileItemName"],
 		["classic_missile_item_slot", "classicMissileItemSlot"],
 		["classic_required_weapon_kind", "classicRequiredWeaponKind"],

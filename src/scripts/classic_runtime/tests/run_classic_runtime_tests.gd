@@ -2377,7 +2377,7 @@ func _test_custom_monster_battle_fixture() -> void:
 		).get("hostileMonsterIds", []).map(
 			func(monster_id: Variant) -> int: return int(monster_id)
 		),
-		[201, 202, 203],
+		[201, 202, 203, 205],
 		"custom monster fixture declares its hostile coverage"
 	)
 	_expect(
@@ -2408,10 +2408,11 @@ func _test_custom_monster_battle_fixture() -> void:
 	var skirmisher: Dictionary = bestiary_book.get("Classic Monster 202", {})
 	var summoner: Dictionary = bestiary_book.get("Classic Monster 203", {})
 	var turncoat: Dictionary = bestiary_book.get("Classic Monster 204", {})
+	var runner: Dictionary = bestiary_book.get("Classic Monster 205", {})
 	_expect_equal(
 		materialize_result.get("generated"),
-		4,
-		"custom monster fixture generates all four authored definitions"
+		5,
+		"custom monster fixture generates all five authored definitions"
 	)
 	_expect_equal(
 		arcanist.get("stats", {}).get("MaxActions"),
@@ -2527,6 +2528,16 @@ func _test_custom_monster_battle_fixture() -> void:
 		1,
 		"custom summoner remains eligible for the Classic summon pool"
 	)
+	_expect_equal(
+		runner.get("classicRunPercent"),
+		101,
+		"custom runner preserves its active source run threshold"
+	)
+	_expect_equal(
+		runner.get("classicMaterialization", {}).get("unsupportedFields"),
+		[],
+		"custom runner is launchable through native fleeing"
+	)
 
 	var adapter = GodotAdapterScript.new()
 	var battle_result: Dictionary = adapter.materialize_classic_battle(
@@ -2536,7 +2547,7 @@ func _test_custom_monster_battle_fixture() -> void:
 	)
 	_expect_equal(
 		battle_result.get("creatureCount"),
-		4,
+		5,
 		"custom monster fixture materializes its complete native battle roster"
 	)
 	var native_battle: Dictionary = battle_result.get("battle", {})
@@ -2547,6 +2558,7 @@ func _test_custom_monster_battle_fixture() -> void:
 	)
 	var turncoat_entry: Array = []
 	var arcanist_entry: Array = []
+	var runner_entry: Array = []
 	for creature_value: Variant in native_battle.get("Creatures", []):
 		if not (creature_value is Array) or creature_value.size() < 3:
 			continue
@@ -2556,6 +2568,8 @@ func _test_custom_monster_battle_fixture() -> void:
 			turncoat_entry = creature
 		elif int(metadata.get("classicMonsterId", -1)) == 201:
 			arcanist_entry = creature
+		elif int(metadata.get("classicMonsterId", -1)) == 205:
+			runner_entry = creature
 	_expect(
 		not turncoat_entry.is_empty() \
 			and bool(turncoat_entry[2].get("classicForceFriend", false)),
@@ -2568,6 +2582,12 @@ func _test_custom_monster_battle_fixture() -> void:
 		arcanist_metadata.get("classicDeathMacro"),
 		960,
 		"native battle roster carries the custom caster death macro"
+	)
+	var runner_metadata: Dictionary = runner_entry[2] if runner_entry.size() > 2 else {}
+	_expect_equal(
+		runner_metadata.get("classicRunPercent"),
+		101,
+		"native battle roster carries the custom runner morale threshold"
 	)
 	var rewards: Dictionary = BattleRewardRulesScript.collect([{
 		"experience": arcanist.get("data", {}).get("exp", 0),
@@ -5389,10 +5409,10 @@ func _test_classic_bestiary_materializer() -> void:
 		{},
 		{}
 	)
-	_expect(
-		active_morale_fields.has("runPercent") \
-			and active_morale_fields.has("surrenderPercent"),
-		"active Classic retreat and surrender thresholds remain explicit blockers"
+	_expect_equal(
+		active_morale_fields,
+		[],
+		"active Classic retreat and surrender thresholds are launchable"
 	)
 	var active_morale_native: Dictionary = materializer._native_monster(
 		morale_record,
@@ -19528,6 +19548,73 @@ func _test_combat_monster_rout_action() -> void:
 	_expect(
 		routed_state.battle_dead_party_members.is_empty(),
 		"a living routed ally is not a party defeat"
+	)
+
+	_expect_equal(
+		CombatRoutRulesScript.opening_morale_outcome(100, 100),
+		CombatRoutRulesScript.OUTCOME_NONE,
+		"source morale thresholds through 100 remain inert"
+	)
+	_expect_equal(
+		CombatRoutRulesScript.opening_morale_outcome(101, 0),
+		CombatRoutRulesScript.OUTCOME_RUN,
+		"an active run threshold starts permanent retreat"
+	)
+	_expect_equal(
+		CombatRoutRulesScript.opening_morale_outcome(101, 101),
+		CombatRoutRulesScript.OUTCOME_PANIC,
+		"the source surrender check takes priority and preserves panic 101"
+	)
+	_expect_equal(
+		CombatRoutRulesScript.opening_morale_outcome(255, 102),
+		CombatRoutRulesScript.OUTCOME_SURRENDER,
+		"other active surrender values use the surrender outcome"
+	)
+	var morale_runner := CombatTestCreature.new("Morale Runner", 10)
+	morale_runner.set_meta("classic_run_percent", 101)
+	_expect_equal(
+		CombatRoutRulesScript.apply_opening_morale(
+			morale_runner,
+			GodotAdapterScript
+		),
+		CombatRoutRulesScript.OUTCOME_RUN,
+		"active source morale applies Remake's permanent fleeing path"
+	)
+	_expect_equal(
+		morale_runner.applied_traits.size(),
+		1,
+		"active source running applies one native fleeing trait"
+	)
+	_expect(
+		CombatRoutRulesScript.is_routed(morale_runner),
+		"active source running uses Classic edge cleanup"
+	)
+	_expect_equal(
+		CombatRoutRulesScript.apply_opening_morale(
+			morale_runner,
+			GodotAdapterScript
+		),
+		CombatRoutRulesScript.OUTCOME_NONE,
+		"an already routed monster does not restart morale"
+	)
+	var morale_surrender := CombatTestCreature.new("Morale Surrender", 10)
+	morale_surrender.set_meta("classic_run_percent", 255)
+	morale_surrender.set_meta("classic_surrender_percent", 102)
+	_expect_equal(
+		CombatRoutRulesScript.apply_opening_morale(
+			morale_surrender,
+			GodotAdapterScript
+		),
+		CombatRoutRulesScript.OUTCOME_SURRENDER,
+		"active source surrender is resolved before running"
+	)
+	_expect(
+		morale_surrender.please_remove_from_combat,
+		"source surrender queues native non-death removal"
+	)
+	_expect(
+		not CombatRoutRulesScript.is_routed(morale_surrender),
+		"surrender does not masquerade as edge-based retreat"
 	)
 
 

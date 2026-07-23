@@ -1,6 +1,13 @@
 extends State
 class_name CbDecideState
 
+const ClassicCombatRoutRulesScript = preload(
+	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
+)
+const PermanentFleeingTraitScript = preload(
+	"res://shared_assets/traits/p_fleeing.gd"
+)
+
 @export var combat_state : CombatState
 
 var is_spell_targeting : bool = false
@@ -131,8 +138,6 @@ func enter(_msg : Dictionary = {}) -> void:
 		await end_active_creature_turn(true)
 		StateMachine.transition_to("Combat/CbAnimation")
 		pass
-
-
 
 	UI.ow_hud.xPosLabel.text = str(cur_act_crea.position.x)
 	UI.ow_hud.yPosLabel.text = str(cur_act_crea.position.y)
@@ -289,6 +294,13 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 		)
 	if metadata.has("classicCanSummon"):
 		creature.set_meta("classic_can_summon", int(metadata["classicCanSummon"]))
+	if metadata.has("classicRunPercent"):
+		creature.set_meta("classic_run_percent", int(metadata["classicRunPercent"]))
+	if metadata.has("classicSurrenderPercent"):
+		creature.set_meta(
+			"classic_surrender_percent",
+			int(metadata["classicSurrenderPercent"])
+		)
 	if bool(metadata.get("classicForceFriend", false)):
 		var flipped_faction := 1 if int(creature.curFaction) == 0 else 0
 		creature.baseFaction = flipped_faction
@@ -370,6 +382,40 @@ func start_new_round() :
 	#enter()
 	if not current_active_creabutton.creature.is_player_controlled :
 		do_ai_creature_action(current_active_creabutton.creature)
+
+
+func _apply_classic_opening_morale(creature: Creature) -> bool:
+	if not creature.is_classic_monster_record():
+		return false
+	var outcome := ClassicCombatRoutRulesScript.apply_opening_morale(
+		creature,
+		PermanentFleeingTraitScript
+	)
+	if outcome == ClassicCombatRoutRulesScript.OUTCOME_NONE:
+		return false
+	var message := " is running away!"
+	if outcome == ClassicCombatRoutRulesScript.OUTCOME_SURRENDER:
+		message = " surrenders."
+	elif outcome == ClassicCombatRoutRulesScript.OUTCOME_PANIC:
+		message = " flees from battle!"
+	UI.ow_hud.creatureRect.logrect.log_other_text(creature, message, null, "")
+	if outcome == ClassicCombatRoutRulesScript.OUTCOME_RUN:
+		return false
+
+	var surrendering_button := current_active_creabutton
+	combat_state.battle_creatures_yet_to_act_btns.erase(surrendering_button)
+	if combat_state.battle_creatures_yet_to_act_btns.is_empty():
+		current_active_creabutton = null
+	else:
+		current_active_creabutton = combat_state.battle_creatures_yet_to_act_btns[0]
+		_select_active_creature(current_active_creabutton)
+		GameGlobal.map.advance_classic_terrain_phase(
+			current_active_creabutton.creature
+		)
+		GameGlobal.refresh_OW_HUD()
+	combat_state.action_queue.clear()
+	StateMachine.transition_to("Combat/CbAnimation")
+	return true
 
 
 func _select_active_creature(button: CombatCreaButton) -> void:
@@ -559,6 +605,8 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 
 		#await get_tree().create_timer(1.0*GameGlobal.gamespeed).timeout
 
+	if _apply_classic_opening_morale(cur_act_crea):
+		return
 	print("CbDecideAction : "+ cur_act_crea.name+" is going to take a decision")
 	var decision_array : Array = cur_act_crea.get_creature_script().decide_action(current_active_creabutton.creature)
 	print("CbDecideAction : "+ cur_act_crea.name+"'s decision taken !", decision_array)

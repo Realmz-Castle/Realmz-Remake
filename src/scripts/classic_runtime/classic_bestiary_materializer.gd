@@ -706,14 +706,6 @@ func _unsupported_fields(
 	for field_name: String in UNSUPPORTED_SCALAR_FIELDS:
 		if int(record.get(field_name, 0)) != 0:
 			fields.append(field_name)
-	# Realmz getup.c calculates the morale percentage as stamina / stamina,
-	# making source thresholds from 0 through 100 inert. Values above 100 can
-	# still force retreat or surrender and remain blocked until Remake owns
-	# those battle transitions.
-	if int(record.get("runPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
-		fields.append("runPercent")
-	if int(record.get("surrenderPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
-		fields.append("surrenderPercent")
 	if _has_unsupported_conditions(record.get("conditions", [])):
 		fields.append("conditions")
 	for field_name: String in native_inventory.get("unsupportedFields", []):

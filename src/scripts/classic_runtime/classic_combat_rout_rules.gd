@@ -3,6 +3,11 @@ extends RefCounted
 
 const ROUTED_META := "classic_permanently_routed"
 const EDGE_INSET := 1
+const INERT_MORALE_MAX := 100
+const OUTCOME_NONE := ""
+const OUTCOME_RUN := "run"
+const OUTCOME_SURRENDER := "surrender"
+const OUTCOME_PANIC := "panic"
 
 
 static func mark_routed(creature: Object) -> void:
@@ -11,6 +16,39 @@ static func mark_routed(creature: Object) -> void:
 
 static func is_routed(creature: Variant) -> bool:
 	return creature is Object and bool(creature.get_meta(ROUTED_META, false))
+
+
+static func opening_morale_outcome(
+	run_percent: int,
+	surrender_percent: int
+) -> String:
+	# Realmz compares both fields with a percentage that getup.c always
+	# calculates as 100. Surrender is checked before running.
+	if surrender_percent > INERT_MORALE_MAX:
+		return OUTCOME_PANIC if surrender_percent == 101 else OUTCOME_SURRENDER
+	if run_percent > INERT_MORALE_MAX:
+		return OUTCOME_RUN
+	return OUTCOME_NONE
+
+
+static func apply_opening_morale(
+	creature: Variant,
+	fleeing_trait: Script
+) -> String:
+	if not (creature is Object) or is_routed(creature):
+		return OUTCOME_NONE
+	var outcome := opening_morale_outcome(
+		int(creature.get_meta("classic_run_percent", 0)),
+		int(creature.get_meta("classic_surrender_percent", 0))
+	)
+	if outcome == OUTCOME_RUN:
+		if not creature.has_method("add_trait") or fleeing_trait == null:
+			return OUTCOME_NONE
+		creature.add_trait(fleeing_trait, [])
+		mark_routed(creature)
+	elif outcome == OUTCOME_SURRENDER or outcome == OUTCOME_PANIC:
+		creature.set("please_remove_from_combat", true)
+	return outcome
 
 
 static func mark_exit_if_at_edge(creature: Variant, battlefield_size: Vector2i) -> bool:

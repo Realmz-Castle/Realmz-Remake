@@ -1238,6 +1238,8 @@ func _classic_battle_monster_metadata(
 			monster.get("conditions", [])
 		),
 		"classicCanSummon": int(monster.get("canSummon", 0)),
+		"classicRunPercent": int(monster.get("runPercent", 0)),
+		"classicSurrenderPercent": int(monster.get("surrenderPercent", 0)),
 		"classicForceFriend": force_friend,
 	}
 

@@ -11,7 +11,7 @@
   },
   "conformance": {
     "battleId": 7,
-    "hostileMonsterIds": [201, 202, 203],
+    "hostileMonsterIds": [201, 202, 203, 205],
     "friendlyMonsterIds": [204],
     "deathMacroId": 960,
     "roundMacroId": 961
