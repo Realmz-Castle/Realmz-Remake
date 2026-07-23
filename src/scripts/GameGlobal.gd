@@ -706,6 +706,17 @@ func start_current_classic_campaign(
 			"status": "error",
 			"message": str(restore_result.get("message", "Classic save could not be restored")),
 		}
+	var character_rules_result: Dictionary = session.apply_character_rules(player_characters)
+	if str(character_rules_result.get("status", "")) == "error":
+		stop_classic_campaign_runtime()
+		return {
+			"handled": true,
+			"status": "error",
+			"message": str(character_rules_result.get(
+				"message",
+				"Classic character rules could not be applied"
+			)),
+		}
 	var restored := not saved_payload.is_empty() or not legacy_location.is_empty()
 	var start_result: Dictionary = session.activate_start_location(restored)
 	start_result["handled"] = true

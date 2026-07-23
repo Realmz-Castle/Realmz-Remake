@@ -75,6 +75,9 @@ const CampaignInstallScript = preload(
 const CampaignAdmissionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_admission.gd"
 )
+const CharacterRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_rules.gd"
+)
 const CampaignPackageInstallerScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
 )
@@ -443,6 +446,61 @@ class CampaignAdmissionCharacter:
 		level = character_level
 		racegd = CampaignAdmissionDefinition.new(race_name)
 		classgd = CampaignAdmissionDefinition.new(caste_name)
+
+
+class CampaignRuleDefinition:
+	extends RefCounted
+	var base_stat_bonuses: Dictionary
+
+	func _init(movement: int) -> void:
+		base_stat_bonuses = {"MaxMovement": movement}
+
+
+class CampaignRuleCharacter:
+	extends RefCounted
+	var name := "Override Walker"
+	var level := 1
+	var classic_race_id := 20
+	var classic_caste_id := 21
+	var classic_rule_profile: Dictionary = {}
+	var racegd := CampaignRuleDefinition.new(12)
+	var classgd := CampaignRuleDefinition.new(2)
+	var native_movement := 14
+
+	func _init(saved_data: Dictionary = {}) -> void:
+		level = int(saved_data.get("level", level))
+		classic_race_id = int(saved_data.get("classicRaceId", classic_race_id))
+		classic_caste_id = int(saved_data.get("classicCasteId", classic_caste_id))
+		var saved_profile: Variant = saved_data.get("classicRuleProfile", {})
+		if saved_profile is Dictionary:
+			classic_rule_profile = saved_profile.duplicate(true)
+
+	func apply_classic_rule_profile(profile: Dictionary) -> void:
+		classic_rule_profile = profile.duplicate(true)
+		classic_race_id = int(profile.get("raceId", classic_race_id))
+		classic_caste_id = int(profile.get("casteId", classic_caste_id))
+
+	func clear_classic_rule_profile() -> void:
+		classic_rule_profile.clear()
+
+	func get_stat(stat_name: String) -> Variant:
+		return CharacterRulesScript.adjusted_stat(
+			self,
+			classic_rule_profile,
+			stat_name,
+			native_movement
+		)
+
+	func level_up() -> void:
+		level += 1
+
+	func save_data() -> Dictionary:
+		return {
+			"level": level,
+			"classicRaceId": classic_race_id,
+			"classicCasteId": classic_caste_id,
+			"classicRuleProfile": classic_rule_profile.duplicate(true),
+		}
 
 
 class WealthTestAdapter:
@@ -1658,6 +1716,7 @@ func _init() -> void:
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
 	_test_classic_campaign_admission()
+	_test_classic_character_rule_profile()
 	_test_classic_map_materializer()
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
@@ -6974,6 +7033,73 @@ func _test_failed_save_restore_rolls_back() -> void:
 	)
 	session.clear()
 	session.queue_free()
+
+
+func _test_classic_character_rule_profile() -> void:
+	var install = CampaignInstallScript.new()
+	_expect(
+		install.load_from_campaigns_directory(
+			PROVIDENCE_AUTHORITATIVE_FIXTURE.get_base_dir(),
+			PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file()
+		),
+		"character-rule fixture loads: %s" % install.last_error
+	)
+	if not install.last_error.is_empty():
+		return
+	install.bundle.documents["rules"]["tableSelection"] = {
+		"races": {
+			"source": "scenario-local",
+			"changedRecordIds": [19],
+		},
+		"castes": {
+			"source": "scenario-local",
+			"changedRecordIds": [20],
+		},
+	}
+
+	var character := CampaignRuleCharacter.new()
+	_expect_equal(character.get_stat("MaxMovement"), 14, "native movement starts unchanged")
+	var apply_result := CharacterRulesScript.apply_party(install.bundle, [character])
+	_expect_equal(apply_result.get("status"), "ok", "Classic character rules apply")
+	_expect_equal(
+		character.get_stat("MaxMovement"),
+		12,
+		"scenario race base move and caste move bonus replace native identity contributions"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("movement"),
+		{"raceBaseMove": 11, "casteMoveBonus": 1},
+		"character retains the source-backed movement profile"
+	)
+
+	character.level_up()
+	_expect_equal(
+		character.get_stat("MaxMovement"),
+		12,
+		"scenario movement remains effective after level-up"
+	)
+	var saved_data: Variant = JSON.parse_string(JSON.stringify(character.save_data()))
+	_expect(saved_data is Dictionary, "character rule profile serializes with the character")
+	if not (saved_data is Dictionary):
+		return
+	var reloaded := CampaignRuleCharacter.new(saved_data)
+	_expect_equal(reloaded.classic_race_id, 20, "Classic race identity survives save/load")
+	_expect_equal(reloaded.classic_caste_id, 21, "Classic caste identity survives save/load")
+	_expect_equal(
+		reloaded.get_stat("MaxMovement"),
+		12,
+		"scenario movement remains effective after character save/load"
+	)
+	install.bundle.documents["rules"]["tableSelection"] = {
+		"races": {"source": "shared"},
+		"castes": {"source": "shared"},
+	}
+	CharacterRulesScript.apply_party(install.bundle, [reloaded])
+	_expect_equal(
+		reloaded.get_stat("MaxMovement"),
+		14,
+		"leaving the scenario-local rule table restores native movement"
+	)
 
 
 func _test_bundle_indexes(bundle) -> void:

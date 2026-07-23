@@ -4,6 +4,9 @@ class_name PlayerCharacter
 const ClassicLearnedSpellIdentityScript = preload(
 	"res://scripts/classic_runtime/classic_learned_spell_identity.gd"
 )
+const ClassicCharacterRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_rules.gd"
+)
 
 var portrait : Texture2D = null
 var icon : Texture2D = null
@@ -77,6 +80,9 @@ var equippable_types : Dictionary = {
 
 var cur_campaign : String = "Free"
 var classic_spell_identity_diagnostics : Array[String] = []
+var classic_race_id := 0
+var classic_caste_id := 0
+var classic_rule_profile: Dictionary = {}
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -97,6 +103,11 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 	racegd = new_racegd
 	if data.has("campaign") :
 		cur_campaign = data["campaign"]
+	classic_race_id = int(data.get("classicRaceId", data.get("classic_race_id", 0)))
+	classic_caste_id = int(data.get("classicCasteId", data.get("classic_caste_id", 0)))
+	var saved_rule_profile: Variant = data.get("classicRuleProfile", {})
+	if saved_rule_profile is Dictionary:
+		classic_rule_profile = saved_rule_profile.duplicate(true)
 	if data.has("is_npc_ally") :
 		is_npc_ally = bool(data["is_npc_ally"])
 	if data.has("is_summoned") :
@@ -116,12 +127,12 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		money = [0,0,0]
 
 
-	var resourcenode = NodeAccess.__Resources()
 	if data.has("inventory") :
 		for item in data["inventory"] :
 			print("PC init ITEM  ", item["name"])
 			if item.has("equipped") :
 				print("   equipped ? ", item["equipped"])
+			var resourcenode = NodeAccess.__Resources()
 			item = resourcenode.generate_item_from_json_dict(item)
 			if item.has("equipped") :
 				print("   equipped ? ", item["equipped"])
@@ -244,6 +255,25 @@ func resolve_classic_learned_spell_identities(
 
 func _classic_learned_spell_school() -> String:
 	return ClassicLearnedSpellIdentityScript.school_evidence_for_character(self, classgd)
+
+
+func apply_classic_rule_profile(profile: Dictionary) -> void:
+	classic_rule_profile = profile.duplicate(true)
+	classic_race_id = int(profile.get("raceId", classic_race_id))
+	classic_caste_id = int(profile.get("casteId", classic_caste_id))
+
+
+func clear_classic_rule_profile() -> void:
+	classic_rule_profile.clear()
+
+
+func get_stat(statname: String):
+	return ClassicCharacterRulesScript.adjusted_stat(
+		self,
+		classic_rule_profile,
+		statname,
+		super.get_stat(statname)
+	)
 
 
 func apply_raceclass_base_stats() :
@@ -420,5 +450,11 @@ func get_save_string()->String :
 	var crea_string : String = super.get_save_string()
 	crea_string += (',\n"selection_pts" : '+ str(selection_pts))
 	crea_string += (',\n"campaign" : "'+ str(cur_campaign)+'"')
+	if classic_race_id > 0:
+		crea_string += (',\n"classicRaceId" : '+ str(classic_race_id))
+	if classic_caste_id > 0:
+		crea_string += (',\n"classicCasteId" : '+ str(classic_caste_id))
+	if not classic_rule_profile.is_empty():
+		crea_string += (',\n"classicRuleProfile" : '+ JSON.stringify(classic_rule_profile))
 	crea_string += ('\n}')
 	return crea_string

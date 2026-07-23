@@ -9,6 +9,9 @@ const RuntimeScript = preload("res://scripts/classic_runtime/classic_runtime.gd"
 const TimedEncounterSchedulerScript = preload(
 	"res://scripts/classic_runtime/classic_timed_encounter_scheduler.gd"
 )
+const CharacterRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_rules.gd"
+)
 const SAVE_SCHEMA_VERSION := 2
 
 var install: Object
@@ -52,6 +55,12 @@ func activate_start_location(force_reload := false) -> Dictionary:
 	if str(normalized.get("status", "")) != "error":
 		_drain_timed_encounter_scans()
 	return normalized
+
+
+func apply_character_rules(party: Array) -> Dictionary:
+	if install == null or install.bundle == null:
+		return {"status": "error", "message": "Classic campaign runtime is not loaded"}
+	return CharacterRulesScript.apply_party(install.bundle, party)
 
 
 func on_native_time_advanced(

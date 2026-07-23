@@ -100,7 +100,6 @@ static func character_admission(character: Variant, rules: Dictionary) -> Dictio
 		character,
 		character_name,
 		"race",
-		"classic_race_id",
 		"racegd",
 		"raceName",
 		rules.get("raceNames", []),
@@ -114,7 +113,6 @@ static func character_admission(character: Variant, rules: Dictionary) -> Dictio
 		character,
 		character_name,
 		"caste",
-		"classic_caste_id",
 		"classgd",
 		"casteName",
 		rules.get("casteNames", []),
@@ -130,6 +128,34 @@ static func character_admission(character: Variant, rules: Dictionary) -> Dictio
 		"raceId": race_result.get("identityId", 0),
 		"casteId": caste_result.get("identityId", 0),
 	}
+
+
+static func classic_identity_id(
+	character: Variant,
+	identity_kind: String,
+	names_value: Variant
+) -> int:
+	var id_property: String
+	var definition_property: String
+	var name_property: String
+	match identity_kind:
+		"race":
+			id_property = "classic_race_id"
+			definition_property = "racegd"
+			name_property = "raceName"
+		"caste":
+			id_property = "classic_caste_id"
+			definition_property = "classgd"
+			name_property = "casteName"
+		_:
+			return 0
+	var identity_id := int(_value(character, id_property, 0))
+	if identity_id > 0:
+		return identity_id
+	return _unique_name_id(
+		_identity_name(character, definition_property, name_property),
+		_string_array(names_value)
+	)
 
 
 static func party_admission(party: Array, rules: Dictionary) -> Dictionary:
@@ -173,7 +199,6 @@ static func _identity_admission(
 	character: Variant,
 	character_name: String,
 	identity_kind: String,
-	id_property: String,
 	definition_property: String,
 	name_property: String,
 	names_value: Variant,
@@ -191,9 +216,7 @@ static func _identity_admission(
 		definition_property,
 		name_property
 	)
-	var identity_id := int(_value(character, id_property, 0))
-	if identity_id <= 0:
-		identity_id = _unique_name_id(identity_name, names)
+	var identity_id := classic_identity_id(character, identity_kind, names)
 	if identity_id <= 0:
 		var visible_identity := identity_name if not identity_name.is_empty() else "unknown"
 		return _rejection(
