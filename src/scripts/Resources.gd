@@ -401,6 +401,8 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 		new_item["classicItemId"] = int(json_dict["classicItemId"])
 	if json_dict.has("classicItemIds") and json_dict["classicItemIds"] is Array :
 		new_item["classicItemIds"] = json_dict["classicItemIds"].duplicate()
+	if json_dict.has("classicItemCategory") :
+		new_item["classicItemCategory"] = int(json_dict["classicItemCategory"])
 	if json_dict.has("classicMagicResistance") :
 		new_item["classicMagicResistance"] = int(json_dict["classicMagicResistance"])
 

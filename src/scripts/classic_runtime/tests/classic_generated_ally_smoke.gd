@@ -10,6 +10,9 @@ const AdapterScript = preload(
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const ClassicCharacterRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_rules.gd"
+)
 const PRODUCER_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export"
 
@@ -365,6 +368,18 @@ func _run_smoke() -> void:
 		fighter,
 		human
 	)
+	player_character.apply_classic_rule_profile({
+		"itemPermissions": {
+			"raceMasks": [
+				(1 << 28) | (1 << 6),
+				1 << 28,
+			],
+			"casteMasks": [
+				(1 << 28) | (1 << 6),
+				1 << 28,
+			],
+		},
+	})
 	player_character.set_ability_selection_points(5)
 	_expect_equal(
 		player_character.get_ability_selection_points(),
@@ -447,6 +462,40 @@ func _run_smoke() -> void:
 	_expect(
 		not wrong_race_character.can_equip_item(player_weapon),
 		"native equipment rejects a race outside the Classic restriction"
+	)
+	_expect_equal(
+		[
+			player_weapon.get("classicItemCategory"),
+			player_armor.get("classicItemCategory"),
+			player_shield.get("classicItemCategory"),
+		],
+		[3, 35, 25],
+		"generated player equipment preserves its exact Classic categories"
+	)
+	_expect_equal(
+		ClassicCharacterRulesScript.classic_item_use_permission(
+			player_character,
+			player_weapon
+		),
+		{
+			"status": "ok",
+			"allowed": true,
+			"category": 3,
+			"raceAllowed": true,
+			"casteAllowed": true,
+		},
+		"the native player receives both active Classic permission masks"
+	)
+	var denied_player_weapon := player_weapon.duplicate(true)
+	denied_player_weapon["name"] = "Denied Classic Weapon"
+	denied_player_weapon["classicItemCategory"] = 4
+	_expect(
+		not player_character.can_equip_item(denied_player_weapon),
+		"native equipment enforces active Classic race and caste category masks"
+	)
+	_expect(
+		player_character.can_equip_item(player_weapon),
+		"native equipment accepts a Classic category permitted by both masks"
 	)
 	var player_accuracy_before: float = player_character.get_stat("AccuracyMelee")
 	var player_damage_before: float = player_character.get_stat("Bonus_Physical_dmg")
@@ -620,6 +669,36 @@ func _run_smoke() -> void:
 		player_weighted_movement_before,
 		"removing Classic equipment restores usable native movement"
 	)
+	var saved_player_data: Variant = JSON.parse_string(
+		player_character.get_save_string()
+	)
+	_expect(
+		saved_player_data is Dictionary,
+		"native player serialization retains Classic item permissions"
+	)
+	if saved_player_data is Dictionary:
+		var restored_player: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+			saved_player_data,
+			null,
+			null,
+			fighter,
+			human
+		)
+		var restored_weapon: Dictionary = {}
+		for restored_item: Variant in restored_player.inventory:
+			if restored_item is Dictionary \
+					and int(restored_item.get("classicItemId", 0)) == 150:
+				restored_weapon = restored_item
+				break
+		_expect_equal(
+			restored_weapon.get("classicItemCategory"),
+			3,
+			"Classic item category survives native player save/load"
+		)
+		_expect(
+			restored_player.can_equip_item(restored_weapon),
+			"restored Classic permissions accept the saved weapon category"
+		)
 
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(campaign_directory), "installed producer bundle loads")

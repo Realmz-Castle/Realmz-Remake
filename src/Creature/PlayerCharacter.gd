@@ -530,6 +530,11 @@ func level_up() :
 func can_equip_item(item) -> bool :
 	print("PlayerCharacter "+name+" can_equip_item : ", item["name"])
 #	print(equipment_slots)
+	var classic_permission := (
+		ClassicCharacterRulesScript.classic_item_use_permission(self, item)
+	)
+	if not bool(classic_permission.get("allowed", true)):
+		return false
 	#check "only_usable_by_classes"
 	var my_class_types : Array = classgd.classrace_types
 	var my_race_types : Array = racegd.classrace_types

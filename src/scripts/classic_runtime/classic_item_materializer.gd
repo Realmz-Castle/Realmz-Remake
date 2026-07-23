@@ -286,6 +286,7 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 		"classicItemId": item_id,
 		"classicRecordId": int(record.get("id", -1)),
 		"classicItemType": int(record.get("type", 0)),
+		"classicItemCategory": _first_classic_item_category(record),
 		"classicIconId": int(record.get("iconId", 0)),
 		"classicSoundId": int(record.get("sound", 0)),
 		"classicRecord": record.duplicate(true),

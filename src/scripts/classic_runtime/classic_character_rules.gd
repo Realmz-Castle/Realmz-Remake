@@ -118,6 +118,11 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var item_permissions := _item_permissions_profile(
+		active_race_record,
+		active_caste_record,
+		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
+	)
 	var creation := _creation_profile(
 		active_race_record,
 		active_caste_record,
@@ -132,6 +137,7 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 			and stamina_progression.is_empty() \
 			and condition_progression.is_empty() \
 			and spellcasting_progression.is_empty() \
+			and item_permissions.is_empty() \
 			and creation.is_empty():
 		return {}
 
@@ -152,6 +158,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["conditionProgression"] = condition_progression
 	if not spellcasting_progression.is_empty():
 		profile["spellcastingProgression"] = spellcasting_progression
+	if not item_permissions.is_empty():
+		profile["itemPermissions"] = item_permissions
 	if not creation.is_empty():
 		profile["creation"] = creation
 	if race_id > 0:
@@ -159,6 +167,46 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 	if caste_id > 0:
 		profile["casteId"] = caste_id
 	return profile
+
+
+static func classic_item_use_permission(
+	character: Variant,
+	item: Variant
+) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var permissions := _dictionary_value(profile.get("itemPermissions", {}))
+	if permissions.is_empty():
+		return {"status": "native", "allowed": true}
+	if not (item is Dictionary):
+		return {
+			"status": "error",
+			"allowed": false,
+			"message": "Classic item permissions require an item record.",
+		}
+
+	var category := _classic_item_category(item)
+	if category < 0:
+		if _has_classic_item_identity(item):
+			return {
+				"status": "unresolved",
+				"allowed": false,
+				"message": "The Classic item's use category is unavailable.",
+			}
+		return {"status": "native", "allowed": true}
+
+	var race_masks := _integer_array(permissions.get("raceMasks", []))
+	var caste_masks := _integer_array(permissions.get("casteMasks", []))
+	var race_allowed := _item_category_allowed(race_masks, category)
+	var caste_allowed := _item_category_allowed(caste_masks, category)
+	return {
+		"status": "ok",
+		"allowed": race_allowed and caste_allowed,
+		"category": category,
+		"raceAllowed": race_allowed,
+		"casteAllowed": caste_allowed,
+	}
 
 
 static func adjusted_stat(
@@ -1275,6 +1323,51 @@ static func _creation_profile(
 		"handToHandBase": hand_to_hand[0],
 		"maximumStrengthDamageBonus": strength[1],
 	}
+
+
+static func _item_permissions_profile(
+	race_record: Dictionary,
+	caste_record: Dictionary,
+	has_changed_record: bool
+) -> Dictionary:
+	if not has_changed_record:
+		return {}
+	var race_masks := _integer_array(race_record.get("itemTypes", []))
+	var caste_masks := _integer_array(caste_record.get("itemTypes", []))
+	if race_masks.size() != 2 or caste_masks.size() != 2:
+		return {}
+	return {
+		"raceMasks": race_masks,
+		"casteMasks": caste_masks,
+	}
+
+
+static func _classic_item_category(item: Dictionary) -> int:
+	var stored_category := int(item.get("classicItemCategory", -1))
+	if stored_category >= 0 and stored_category < 58:
+		return stored_category
+	var classic_record := _dictionary_value(item.get("classicRecord", {}))
+	for category: int in range(58):
+		var field_name := "itemCat0" if category < 32 else "itemCat1"
+		var storage_bit := 31 - category % 32
+		if (int(classic_record.get(field_name, 0)) & (1 << storage_bit)) != 0:
+			return category
+	return -1
+
+
+static func _has_classic_item_identity(item: Dictionary) -> bool:
+	return item.has("classicItemId") \
+		or item.has("classicItemIds") \
+		or item.has("classic_item_id") \
+		or item.has("classicRecord")
+
+
+static func _item_category_allowed(masks: Array[int], category: int) -> bool:
+	var word := int(category / 32)
+	if category < 0 or category >= 58 or masks.size() <= word:
+		return false
+	var storage_bit := 31 - category % 32
+	return (masks[word] & (1 << storage_bit)) != 0
 
 
 static func _classic_strength_bonuses(

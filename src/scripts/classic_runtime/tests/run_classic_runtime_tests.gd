@@ -4941,12 +4941,24 @@ func _test_classic_item_materializer() -> void:
 		"Dagger",
 		"Classic melee category selects a concrete native item type"
 	)
+	_expect_equal(
+		weapon.get("classicItemCategory"),
+		3,
+		"native items retain the first Classic use-permission category"
+	)
 	var signed_category_record := weapon_record.duplicate(true)
 	signed_category_record["itemCat0"] = -2147483648
 	_expect_equal(
 		materializer._native_item(signed_category_record, []).get("type"),
 		"Mace",
 		"signed Classic category bits retain their source ordering"
+	)
+	_expect_equal(
+		materializer._native_item(signed_category_record, []).get(
+			"classicItemCategory"
+		),
+		0,
+		"signed Classic category bits preserve their exact category"
 	)
 	var armor_record: Dictionary = bundle.documents[
 		"content"
@@ -4959,6 +4971,11 @@ func _test_classic_item_materializer() -> void:
 		armor.get("type"),
 		"Leather Armor",
 		"Classic armor category selects a concrete native item type"
+	)
+	_expect_equal(
+		armor.get("classicItemCategory"),
+		35,
+		"second-word Classic categories retain their exact index"
 	)
 	_expect_equal(armor.get("slots"), ["Body"], "Classic armor retains its native slot")
 	_expect_equal(
@@ -4988,6 +5005,11 @@ func _test_classic_item_materializer() -> void:
 		shield.get("type"),
 		"Small Shield",
 		"Classic shield category selects a concrete native item type"
+	)
+	_expect_equal(
+		shield.get("classicItemCategory"),
+		25,
+		"Classic shield retains its exact use-permission category"
 	)
 	_expect_equal(shield.get("slots"), ["Shield"], "Classic shield retains its native slot")
 	_expect_equal(
@@ -7539,6 +7561,10 @@ func _test_classic_character_rule_profile() -> void:
 			record["stamina"] = [8, 6]
 			record["maxStaminaBonus"] = 2
 			record["strength"] = [0, 4]
+			record["itemTypes"] = [
+				(1 << 28) | (1 << 27),
+				0,
+			]
 			record["conditions"][4] = 2
 			record["conditions"][5] = 1
 			record["conditions"][17] = 2
@@ -7562,6 +7588,10 @@ func _test_classic_character_rule_profile() -> void:
 				8, 25,
 			]
 			record["canCaste"][20] = 1
+			record["itemTypes"] = [
+				(1 << 28) | (1 << 26),
+				0,
+			]
 			record["drvBonus"] = [10, -200, 5, 0, 0, 0, 0, 100]
 			record["conditions"][2] = -4
 			record["conditions"][3] = -1
@@ -7674,6 +7704,95 @@ func _test_classic_character_rule_profile() -> void:
 			"maximumVitalityBonus": 2,
 		},
 		"creation stamina stays separate from source-backed level growth"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("itemPermissions"),
+		{
+			"raceMasks": [(1 << 28) | (1 << 26), 0],
+			"casteMasks": [(1 << 28) | (1 << 27), 0],
+		},
+		"character retains both source item-category permission masks"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_item_use_permission(
+			character,
+			{
+				"classicItemId": 150,
+				"classicItemCategory": 3,
+			}
+		),
+		{
+			"status": "ok",
+			"allowed": true,
+			"category": 3,
+			"raceAllowed": true,
+			"casteAllowed": true,
+		},
+		"an item category allowed by both active profiles is usable"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_item_use_permission(
+			character,
+			{
+				"classicItemId": 151,
+				"classicItemCategory": 4,
+			}
+		),
+		{
+			"status": "ok",
+			"allowed": false,
+			"category": 4,
+			"raceAllowed": false,
+			"casteAllowed": true,
+		},
+		"the active race can reject a caste-permitted item category"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_item_use_permission(
+			character,
+			{
+				"classicItemId": 152,
+				"classicItemCategory": 5,
+			}
+		),
+		{
+			"status": "ok",
+			"allowed": false,
+			"category": 5,
+			"raceAllowed": true,
+			"casteAllowed": false,
+		},
+		"the active caste can reject a race-permitted item category"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_item_use_permission(
+			character,
+			{
+				"classicItemId": 153,
+				"classicRecord": {
+					"itemCat0": 1 << 28,
+					"itemCat1": 0,
+				},
+			}
+		).get("allowed"),
+		true,
+		"older generated items recover their category from the source record"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_item_use_permission(
+			character,
+			{"classicItemId": 154}
+		).get("status"),
+		"unresolved",
+		"a Classic item without a recoverable category fails conservatively"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_item_use_permission(
+			character,
+			{"name": "Native Item"}
+		),
+		{"status": "native", "allowed": true},
+		"native-only items continue through Remake's ordinary permissions"
 	)
 	_expect_equal(
 		character.classic_rule_profile.get("creation"),
@@ -9282,6 +9401,11 @@ func _test_classic_character_rule_profile() -> void:
 	var reloaded := CampaignRuleCharacter.new(saved_data)
 	_expect_equal(reloaded.classic_race_id, 20, "Classic race identity survives save/load")
 	_expect_equal(reloaded.classic_caste_id, 21, "Classic caste identity survives save/load")
+	_expect_equal(
+		reloaded.classic_rule_profile.get("itemPermissions"),
+		character.classic_rule_profile.get("itemPermissions"),
+		"Classic item-category permissions survive character save/load"
+	)
 	_expect_equal(
 		reloaded.get_stat("MaxActions"),
 		3.0,
