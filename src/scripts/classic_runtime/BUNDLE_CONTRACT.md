@@ -79,6 +79,16 @@ needs a Remake resource name. When an asset record includes `payloadPath`, the p
 is relative to the campaign root and follows the same traversal and absolute-path
 restrictions as the document paths.
 
+`rules.tableSelection` is optional producer evidence for Classic's race and caste
+file-selection behavior. Its `races` and `castes` members each use a `source` of
+`shared`, `scenario-local`, or `unresolved`. A `scenario-local` member may also
+carry zero-based `changedRecordIds` when the producer compared that table against
+the shared Realmz rules. Remake ignores preserved rows when the selected source
+is `shared`, blocks only listed changed rows when a comparison is available, and
+conservatively treats every exported row as potentially changed when selection
+or comparison evidence is absent. This field describes which table Classic
+would consume; the presence of `Data Race` or `Data Caste` alone does not.
+
 `payloadPath` always identifies the immutable packaged bytes described by
 `payloadEncoding`. It is not implicitly a Godot-loadable file. A catalog,
 managed-asset, or player-map record may separately provide decoded media:

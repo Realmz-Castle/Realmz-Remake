@@ -1913,6 +1913,54 @@ func _test_bundle_contract_validation() -> void:
 		invalid_level_bundle.last_error.contains("shell.maxLevel"),
 		"party-level error identifies the scenario shell field"
 	)
+	var selected_rules_bundle = BundleScript.new()
+	selected_rules_bundle.manifest = _minimal_contract_manifest()
+	selected_rules_bundle.documents = _minimal_contract_documents()
+	selected_rules_bundle.documents["rules"]["raceOverrides"] = [{"id": 19}]
+	selected_rules_bundle.documents["rules"]["casteOverrides"] = [{"id": 20}]
+	selected_rules_bundle.documents["rules"]["tableSelection"] = {
+		"races": {
+			"source": "scenario-local",
+			"changedRecordIds": [19],
+		},
+		"castes": {"source": "shared"},
+	}
+	_expect(
+		selected_rules_bundle._validate_document_contract(),
+		"bundle contract accepts explicit Classic rule-table selection"
+	)
+	var invalid_rule_source_bundle = BundleScript.new()
+	invalid_rule_source_bundle.manifest = _minimal_contract_manifest()
+	invalid_rule_source_bundle.documents = _minimal_contract_documents()
+	invalid_rule_source_bundle.documents["rules"]["tableSelection"] = {
+		"races": {"source": "scenario-copy"},
+	}
+	_expect(
+		not invalid_rule_source_bundle._validate_document_contract(),
+		"bundle contract rejects an unknown rule-table source"
+	)
+	_expect(
+		invalid_rule_source_bundle.last_error.contains("tableSelection.races.source"),
+		"rule-table source error identifies its contract field"
+	)
+	var missing_changed_rule_bundle = BundleScript.new()
+	missing_changed_rule_bundle.manifest = _minimal_contract_manifest()
+	missing_changed_rule_bundle.documents = _minimal_contract_documents()
+	missing_changed_rule_bundle.documents["rules"]["raceOverrides"] = [{"id": 19}]
+	missing_changed_rule_bundle.documents["rules"]["tableSelection"] = {
+		"races": {
+			"source": "scenario-local",
+			"changedRecordIds": [20],
+		},
+	}
+	_expect(
+		not missing_changed_rule_bundle._validate_document_contract(),
+		"bundle contract rejects changed rule IDs without exported records"
+	)
+	_expect(
+		missing_changed_rule_bundle.last_error.contains("missing override record 20"),
+		"missing changed-rule error identifies the unresolved record"
+	)
 	var future_format_bundle = BundleScript.new()
 	future_format_bundle.manifest = _minimal_contract_manifest()
 	future_format_bundle.manifest["formatVersion"] = BundleScript.FORMAT_VERSION + 1
@@ -3361,6 +3409,68 @@ func _test_classic_campaign_admission() -> void:
 		unsupported_override.get("code"),
 		"unsupported-race-override",
 		"changed scenario race remains blocked until its mechanics can be applied"
+	)
+	var shared_rule_bundle = BundleScript.new()
+	shared_rule_bundle.documents = install.bundle.documents.duplicate(true)
+	shared_rule_bundle.documents["rules"]["tableSelection"] = {
+		"races": {"source": "shared"},
+		"castes": {"source": "shared"},
+	}
+	var shared_rules := CampaignAdmissionScript.rules_from_bundle(shared_rule_bundle)
+	shared_rules["valid"] = true
+	shared_rules["diagnostic"] = ""
+	var inactive_override := CampaignAdmissionScript.character_admission(
+		CampaignAdmissionCharacter.new(
+			"Shared Rules",
+			5,
+			"Providence Kin",
+			"Providence Warden"
+		),
+		shared_rules
+	)
+	_expect(
+		bool(inactive_override.get("allowed", false)),
+		"shared rule-table selection ignores preserved scenario rows"
+	)
+	var compared_rule_bundle = BundleScript.new()
+	compared_rule_bundle.documents = install.bundle.documents.duplicate(true)
+	compared_rule_bundle.documents["rules"]["tableSelection"] = {
+		"races": {
+			"source": "scenario-local",
+			"changedRecordIds": [19],
+		},
+		"castes": {
+			"source": "scenario-local",
+			"changedRecordIds": [],
+		},
+	}
+	var compared_rules := CampaignAdmissionScript.rules_from_bundle(compared_rule_bundle)
+	compared_rules["valid"] = true
+	compared_rules["diagnostic"] = ""
+	_expect_equal(
+		CampaignAdmissionScript.character_admission(
+			CampaignAdmissionCharacter.new(
+				"Changed Race",
+				5,
+				"Providence Kin",
+				"Providence Warden"
+			),
+			compared_rules
+		).get("code"),
+		"unsupported-race-override",
+		"compared scenario table blocks a character using a changed race row"
+	)
+	_expect(
+		bool(CampaignAdmissionScript.character_admission(
+			CampaignAdmissionCharacter.new(
+				"No-op Caste",
+				5,
+				"Elf",
+				"Providence Warden"
+			),
+			compared_rules
+		).get("allowed", false)),
+		"compared scenario table accepts a character using an unchanged caste row"
 	)
 	var allowed_character := CampaignAdmissionScript.character_admission(
 		CampaignAdmissionCharacter.new("Eligible Elf", 5, "Elf", "Fighter"),

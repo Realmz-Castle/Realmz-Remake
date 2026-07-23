@@ -6,6 +6,7 @@ const FORMAT_VERSION := 1
 const CAMPAIGN_KIND := "classic-compiled"
 const COMPATIBILITY_PROFILE := "realmz-7.1"
 const DOCUMENT_SCHEMA_VERSION := 1
+const RULE_TABLE_SOURCES := ["shared", "scenario-local", "unresolved"]
 const REQUIRED_DOCUMENTS := [
 	"scenario",
 	"maps",
@@ -152,6 +153,8 @@ func _validate_document_contract() -> bool:
 	if not _validate_scenario_identity():
 		return false
 	if not _validate_scenario_selection_metadata():
+		return false
+	if not _validate_rule_table_selection():
 		return false
 	for specification: Array in [
 		["scripts", "triggers", "id", true],
@@ -370,6 +373,75 @@ func _validate_restriction_ids(restrictions: Dictionary, field_name: String) -> 
 				]
 			)
 		seen[int(id_value)] = true
+	return true
+
+
+func _validate_rule_table_selection() -> bool:
+	var rules: Dictionary = documents["rules"]
+	if not rules.has("tableSelection"):
+		return true
+	var selection_value: Variant = rules.get("tableSelection")
+	if not (selection_value is Dictionary):
+		return _fail("rules.tableSelection must be a JSON object")
+	var selection: Dictionary = selection_value
+	for specification: Array in [
+		["races", "raceOverrides"],
+		["castes", "casteOverrides"],
+	]:
+		var table_name := str(specification[0])
+		if not selection.has(table_name):
+			continue
+		var table_value: Variant = selection[table_name]
+		var table_context := "rules.tableSelection.%s" % table_name
+		if not (table_value is Dictionary):
+			return _fail("%s must be a JSON object" % table_context)
+		var table: Dictionary = table_value
+		var source := str(table.get("source", ""))
+		if source not in RULE_TABLE_SOURCES:
+			return _fail(
+				"%s.source must be 'shared', 'scenario-local', or 'unresolved'" % \
+				table_context
+			)
+		if not table.has("changedRecordIds"):
+			continue
+		if source != "scenario-local":
+			return _fail(
+				"%s.changedRecordIds is only valid for a scenario-local table" % \
+				table_context
+			)
+		var changed_value: Variant = table["changedRecordIds"]
+		if not (changed_value is Array):
+			return _fail("%s.changedRecordIds must be a JSON array" % table_context)
+		var record_ids: Dictionary = {}
+		for record: Variant in _array_value(rules, str(specification[1])):
+			record_ids[int(record.get("id", -1))] = true
+		var seen: Dictionary = {}
+		for index: int in range(changed_value.size()):
+			var id_value: Variant = changed_value[index]
+			if not _is_integer(id_value) or int(id_value) < 0 or int(id_value) > 29:
+				return _fail(
+					"%s.changedRecordIds[%d] must be an integer from 0 through 29" % [
+						table_context,
+						index,
+					]
+				)
+			var record_id := int(id_value)
+			if seen.has(record_id):
+				return _fail(
+					"%s.changedRecordIds contains duplicate ID %d" % [
+						table_context,
+						record_id,
+					]
+				)
+			if not record_ids.has(record_id):
+				return _fail(
+					"%s.changedRecordIds[%d] references missing override record %d" % [
+						table_context,
+						index,
+						record_id,
+					]
+				)
+			seen[record_id] = true
 	return true
 
 

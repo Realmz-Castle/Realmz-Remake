@@ -27,11 +27,13 @@ static func rules_from_bundle(bundle: Variant) -> Dictionary:
 		"bannedCasteIds": _positive_ids(restrictions.get("bannedCastes", [])),
 		"raceNames": _string_array(rule_names.get("raceNames", [])),
 		"casteNames": _string_array(rule_names.get("casteNames", [])),
-		"unsupportedRaceOverrideIds": _override_character_ids(
-			rule_document.get("raceOverrides", [])
+		"unsupportedRaceOverrideIds": _unsupported_override_character_ids(
+			rule_document.get("raceOverrides", []),
+			_rule_table_selection(rule_document, "races")
 		),
-		"unsupportedCasteOverrideIds": _override_character_ids(
-			rule_document.get("casteOverrides", [])
+		"unsupportedCasteOverrideIds": _unsupported_override_character_ids(
+			rule_document.get("casteOverrides", []),
+			_rule_table_selection(rule_document, "castes")
 		),
 		"authoredRestrictionsDescription": str(
 			restrictions.get("description", "")
@@ -268,19 +270,40 @@ static func _identity_display_name(identity_id: int, names: Array[String], kind:
 	return "%s %d" % [kind.capitalize(), identity_id]
 
 
-static func _override_character_ids(records_value: Variant) -> Array[int]:
+static func _unsupported_override_character_ids(
+	records_value: Variant,
+	selection: Dictionary
+) -> Array[int]:
 	var result: Array[int] = []
 	if not (records_value is Array):
 		return result
+	var source := str(selection.get("source", "unresolved"))
+	if source == "shared":
+		return result
+	var has_changed_ids := source == "scenario-local" and selection.has("changedRecordIds")
+	var changed_ids: Dictionary = {}
+	if has_changed_ids:
+		for id_value: Variant in selection["changedRecordIds"]:
+			changed_ids[int(id_value)] = true
 	for record_value: Variant in records_value:
 		if not (record_value is Dictionary):
 			continue
 		var record_id := int(record_value.get("id", -1))
+		if has_changed_ids and not changed_ids.has(record_id):
+			continue
 		if record_id >= 0:
 			# Rule records are zero-based; character race and caste IDs are one-based.
 			result.append(record_id + 1)
 	result.sort()
 	return result
+
+
+static func _rule_table_selection(rule_document: Dictionary, table_name: String) -> Dictionary:
+	var selection: Variant = rule_document.get("tableSelection", {})
+	if not (selection is Dictionary):
+		return {}
+	var table: Variant = selection.get(table_name, {})
+	return table if table is Dictionary else {}
 
 
 static func _positive_ids(value: Variant) -> Array[int]:
