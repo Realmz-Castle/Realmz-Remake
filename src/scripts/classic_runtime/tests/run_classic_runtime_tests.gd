@@ -598,6 +598,11 @@ class CampaignRuleCharacter:
 		if classic_spellcaster_type_initialized:
 			used_resource = "SP"
 
+	func set_classic_creation_spell_points(value: int) -> void:
+		base_stats["maxSP"] = maxi(0, value)
+		recalculate_stats()
+		native_stats["curSP"] = native_stats["maxSP"]
+
 	func has_classic_spellcaster_type() -> bool:
 		return classic_spellcaster_type_initialized
 
@@ -7239,6 +7244,17 @@ func _test_failed_save_restore_rolls_back() -> void:
 	session.queue_free()
 
 
+func _changed_caste_spellcasting_profile(rows: Array) -> Dictionary:
+	return {
+		"spellcastingProgression": (
+			CharacterRulesScript._spellcasting_progression_profile(
+				{"spellcasters": rows},
+				true
+			)
+		),
+	}
+
+
 func _test_classic_character_rule_profile() -> void:
 	var install = CampaignInstallScript.new()
 	_expect(
@@ -7475,6 +7491,138 @@ func _test_classic_character_rule_profile() -> void:
 			"maximumSpellLevel": 16,
 		},
 		"level-up caster precedence follows the first nonzero start level"
+	)
+	var sorcerer_creation := CampaignRuleCharacter.new()
+	sorcerer_creation.classic_rule_profile = (
+		_changed_caste_spellcasting_profile([
+			[1, 1, 4],
+			[0, 0, 0],
+			[0, 0, 0],
+		])
+	)
+	var sorcerer_creation_result := (
+		CharacterRulesScript.apply_character_creation_spellcasting(
+			sorcerer_creation,
+			1,
+			[6]
+		)
+	)
+	_expect_equal(
+		sorcerer_creation_result.get("initialSpellPoints"),
+		21,
+		"Sorcerer creation adds four, Intellect, and the Wisdom roll"
+	)
+	_expect_equal(
+		sorcerer_creation.get_stat("maxSP"),
+		21,
+		"Classic creation replaces the native maximum spell-point pool"
+	)
+	_expect_equal(
+		sorcerer_creation.get_stat("curSP"),
+		21,
+		"Classic creation starts with the full spell-point pool"
+	)
+	var priest_creation := CampaignRuleCharacter.new()
+	priest_creation.classic_rule_profile = (
+		_changed_caste_spellcasting_profile([
+			[0, 0, 0],
+			[1, 1, 4],
+			[0, 0, 0],
+		])
+	)
+	var priest_creation_result := (
+		CharacterRulesScript.apply_character_creation_spellcasting(
+			priest_creation,
+			1,
+			[0, 7]
+		)
+	)
+	_expect_equal(
+		priest_creation_result.get("initialSpellPoints"),
+		19,
+		"Priest creation adds four, Wisdom, and the Intellect roll"
+	)
+	var enchanter_creation := CampaignRuleCharacter.new()
+	enchanter_creation.classic_rule_profile = (
+		_changed_caste_spellcasting_profile([
+			[0, 0, 0],
+			[0, 0, 0],
+			[1, 1, 4],
+		])
+	)
+	var enchanter_creation_result := (
+		CharacterRulesScript.apply_character_creation_spellcasting(
+			enchanter_creation,
+			1,
+			[0, 0, 9]
+		)
+	)
+	_expect_equal(
+		enchanter_creation_result.get("initialSpellPoints"),
+		19,
+		"Enchanter creation adds ten and the combined attribute roll"
+	)
+	var hybrid_creation := CampaignRuleCharacter.new()
+	hybrid_creation.classic_rule_profile = (
+		_changed_caste_spellcasting_profile([
+			[0, 1, 2],
+			[1, 2, 3],
+			[1, 4, 4],
+		])
+	)
+	var hybrid_creation_result := (
+		CharacterRulesScript.apply_character_creation_spellcasting(
+			hybrid_creation,
+			2,
+			[4, 5, 6]
+		)
+	)
+	_expect_equal(
+		hybrid_creation_result.get("initialSpellPoints"),
+		17,
+		"a later eligible creation row replaces the earlier spell-point pool"
+	)
+	_expect_equal(
+		hybrid_creation.classic_spellcaster_type,
+		3,
+		"a later ineligible creation row still replaces the caster identity"
+	)
+	_expect_equal(
+		hybrid_creation_result.get("appliedRows", []).size(),
+		2,
+		"creation rolls only the caster rows eligible at the selected level"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_spell_level(
+			hybrid_creation,
+			{
+				"school_levels": {
+					"Sorcerer": 2,
+					"Enchanter": 4,
+				},
+			}
+		),
+		4,
+		"creation-time spell selection follows the final caster identity"
+	)
+	var creation_saved: Variant = JSON.parse_string(
+		JSON.stringify(hybrid_creation.save_data())
+	)
+	var creation_reloaded := CampaignRuleCharacter.new(creation_saved)
+	_expect_equal(
+		creation_reloaded.get_stat("maxSP"),
+		17,
+		"the initial Classic spell-point pool survives character save/load"
+	)
+	_expect_equal(
+		creation_reloaded.get_stat("curSP"),
+		17,
+		"the full creation pool survives character save/load"
+	)
+	_expect_equal(
+		creation_reloaded.classic_spellcaster_type,
+		3,
+		"the creation-time caster identity survives character save/load"
 	)
 	var delayed_spellcaster := CampaignRuleCharacter.new()
 	delayed_spellcaster.classic_rule_profile = {

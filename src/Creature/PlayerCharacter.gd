@@ -318,6 +318,12 @@ func set_classic_spellcaster_type(value: int) -> void:
 		used_resource = "SP"
 
 
+func set_classic_creation_spell_points(value: int) -> void:
+	base_stats["maxSP"] = maxi(0, value)
+	recalculate_stats()
+	stats["curSP"] = get_stat("maxSP")
+
+
 func has_classic_spellcaster_type() -> bool:
 	return classic_spellcaster_type_initialized
 

@@ -407,6 +407,100 @@ static func apply_level_up_condition_progression(character: Variant) -> Dictiona
 	return {"status": "ok", "applied": applied}
 
 
+## Applies the spell-point portion of Classic character creation.
+##
+## Call this after the level-one attributes and active rule profile have been
+## assigned, but before any level-ups used to reach an advanced starting level.
+## `starting_level` is the level selected in the creation dialog, not the
+## character's current level at this point in the construction sequence.
+static func apply_character_creation_spellcasting(
+	character: Variant,
+	starting_level: int,
+	spell_point_rolls: Array[int] = []
+) -> Dictionary:
+	if starting_level < 1:
+		return {
+			"status": "error",
+			"message": "Classic character creation requires a positive starting level.",
+		}
+	var progression := _spellcasting_progression(character)
+	if progression.is_empty():
+		return {"status": "skipped"}
+	var start_levels := _integer_array(progression.get("startLevels", []))
+	if start_levels.size() < 3:
+		return {
+			"status": "error",
+			"message": "Classic character creation requires all three caster rows.",
+		}
+	if not (character is Object) \
+			or not character.has_method("set_classic_creation_spell_points") \
+			or not character.has_method("set_classic_spellcaster_type"):
+		return {
+			"status": "error",
+			"message": "Classic character creation requires mutable spell-point state.",
+		}
+
+	var intellect := _character_stat(character, "Intellect")
+	var wisdom := _character_stat(character, "Wisdom")
+	var caster_type := 0
+	var initial_spell_points := 0
+	var applied_rows: Array[Dictionary] = []
+	for row_index: int in range(3):
+		var start_level := start_levels[row_index]
+		if start_level == 0:
+			continue
+
+		# newcharacter.c uses independent checks here. A later row therefore
+		# replaces the displayed caster identity, and, when eligible, the pool
+		# calculated by an earlier row.
+		caster_type = row_index + 1
+		if starting_level < start_level:
+			continue
+		var roll_maximum := 0
+		var fixed_points := 0
+		match caster_type:
+			1:
+				roll_maximum = wisdom
+				fixed_points = 4 + intellect
+			2:
+				roll_maximum = intellect
+				fixed_points = 4 + wisdom
+			3:
+				roll_maximum = wisdom + intellect
+				fixed_points = 10
+		var requested_roll := (
+			spell_point_rolls[row_index]
+			if row_index < spell_point_rolls.size()
+			else RANDOM_ROLL_UNSET
+		)
+		var rolled_points := _classic_rand(roll_maximum, requested_roll)
+		initial_spell_points = fixed_points + rolled_points
+		applied_rows.append({
+			"casterType": caster_type,
+			"rollMaximum": roll_maximum,
+			"roll": rolled_points,
+			"spellPoints": initial_spell_points,
+		})
+
+	character.call("set_classic_spellcaster_type", caster_type)
+	if character.has_method("ensure_classic_spell_levels"):
+		character.call(
+			"ensure_classic_spell_levels",
+			int(progression.get("maximumSpellLevel", 0))
+		)
+	character.call(
+		"set_classic_creation_spell_points",
+		initial_spell_points
+	)
+	return {
+		"status": "ok",
+		"casterType": caster_type,
+		"school": spellcaster_school(caster_type),
+		"initialSpellPoints": initial_spell_points,
+		"appliedRows": applied_rows,
+	}
+
+
 static func apply_level_up_spellcasting_progression(
 	character: Variant,
 	spell_point_roll: int = RANDOM_ROLL_UNSET
@@ -494,7 +588,7 @@ static func classic_spell_selection_total(character: Variant) -> int:
 	if relative_level < 1:
 		return 0
 
-	var caster_type := int(progression.get("casterType", 0))
+	var caster_type := _active_spellcaster_type(character, progression)
 	var bonus_attribute := (
 		_character_stat(character, "Wisdom")
 		if caster_type == 2
@@ -565,7 +659,7 @@ static func classic_spell_level(character: Variant, spell: Variant) -> int:
 	if progression.is_empty():
 		return 0
 	var school := spellcaster_school(
-		int(progression.get("casterType", 0))
+		_active_spellcaster_type(character, progression)
 	)
 	var school_levels := _dictionary_value(
 		_value(spell, "school_levels", {})
@@ -673,6 +767,17 @@ static func _spellcasting_progression(character: Variant) -> Dictionary:
 		_value(character, "classic_rule_profile", {})
 	)
 	return _dictionary_value(profile.get("spellcastingProgression", {}))
+
+
+static func _active_spellcaster_type(
+	character: Variant,
+	progression: Dictionary
+) -> int:
+	if character is Object \
+			and character.has_method("has_classic_spellcaster_type") \
+			and bool(character.call("has_classic_spellcaster_type")):
+		return int(_value(character, "classic_spellcaster_type", 0))
+	return int(progression.get("casterType", 0))
 
 
 static func _condition_progression_profile(
