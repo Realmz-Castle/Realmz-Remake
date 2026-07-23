@@ -116,7 +116,17 @@ func display_data(character) -> void :
 		emptyprompt.hide()
 	statsscroll.show()
 	portraitrect.texture = character.portrait
-	raceclasslabel.text = character.racegd.classrace_name + " · " + character.classgd.classrace_name
+	var race_name: String = (
+		str(character.get_display_race_name())
+		if character.has_method("get_display_race_name")
+		else str(character.racegd.classrace_name)
+	)
+	var caste_name: String = (
+		str(character.get_display_caste_name())
+		if character.has_method("get_display_caste_name")
+		else str(character.classgd.classrace_name)
+	)
+	raceclasslabel.text = race_name + " · " + caste_name
 	levellabel.text = str(character.level)
 	current_character = character
 	_rebuild_stats_list()

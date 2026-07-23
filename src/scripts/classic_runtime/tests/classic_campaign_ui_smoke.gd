@@ -74,6 +74,34 @@ func _run_smoke() -> void:
 		),
 		"campaign selection shows the compiled party admission summary"
 	)
+	_expect(
+		not panel.createCharacterButton.disabled,
+		"ready Classic campaign offers scenario-aware character creation"
+	)
+	panel._on_CreateCharacterButton_pressed()
+	await get_tree().process_frame
+	var character_panel: Node = UI.main_menu.newCharacterPanel
+	_expect(
+		character_panel.visible and not panel.visible,
+		"campaign creation opens the existing New Character panel"
+	)
+	_expect(
+		character_panel.classicContextLabel.visible \
+			and character_panel.genderOptionButton.visible \
+			and character_panel.classic_campaign_name == CAMPAIGN_NAME,
+		"New Character panel retains the selected Classic campaign context"
+	)
+	_expect(
+		character_panel.raceitemlist.item_count > 0 \
+			and character_panel.classitemlist.item_count > 0,
+		"scenario-aware creation exposes eligible race and caste choices"
+	)
+	character_panel._on_CancelButton_pressed()
+	await get_tree().process_frame
+	_expect(
+		panel.visible and panel.selectedCampaign == CAMPAIGN_NAME,
+		"closing character creation returns to the selected campaign"
+	)
 
 	var live_rules: Dictionary = panel.selectedcampaign_onselect
 	var original_rules := live_rules.duplicate(true)

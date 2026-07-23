@@ -332,6 +332,10 @@ func _run_smoke() -> void:
 	)
 	classic_creation_character.money = [99, 2, 1]
 	classic_creation_character.apply_classic_rule_profile({
+		"raceId": 20,
+		"raceName": "Providence Kin",
+		"casteId": 21,
+		"casteName": "Warden",
 		"creation": {
 			"startingMoney": 41,
 			"startingItemIds": [
@@ -466,6 +470,16 @@ func _run_smoke() -> void:
 			restored_creation_character.classic_special_abilities,
 			classic_creation_character.classic_special_abilities,
 			"native save/load retains Classic special abilities"
+		)
+		_expect_equal(
+			[
+				restored_creation_character.classic_race_id,
+				restored_creation_character.get_display_race_name(),
+				restored_creation_character.classic_caste_id,
+				restored_creation_character.get_display_caste_name(),
+			],
+			[20, "Providence Kin", 21, "Warden"],
+			"native save/load retains custom Classic identity labels"
 		)
 		_expect_equal(
 			ClassicCharacterRulesScript.apply_character_creation_resources(

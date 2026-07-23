@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bov2d346tediq" path="res://scenes/UI/Main Menu/CharacterStatsRect/CharacterStatsRect.tscn" id="5_pga5p"]
 [ext_resource type="PackedScene" uid="uid://biqyyjm2makqt" path="res://scenes/UI/HUD/AbilitiesManagement/abilities_mngt_rect.tscn" id="6_oel76"]
 
-[node name="NewCharacterPanel" type="NinePatchRect" node_paths=PackedStringArray("cancelButton", "okButton", "lineEdit", "portraitContainer", "iconContainer", "portraitScroll", "iconScroll", "toggleButton", "classitemlist", "raceitemlist", "characterstatrect", "levelMenuButton", "abilities_rect", "portraitRect", "iconRect")]
+[node name="NewCharacterPanel" type="NinePatchRect" node_paths=PackedStringArray("cancelButton", "okButton", "lineEdit", "portraitContainer", "iconContainer", "portraitScroll", "iconScroll", "toggleButton", "classitemlist", "raceitemlist", "characterstatrect", "levelMenuButton", "classicContextLabel", "genderOptionButton", "abilities_rect", "portraitRect", "iconRect")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -33,6 +33,8 @@ classitemlist = NodePath("BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/ClassVBox/Cl
 raceitemlist = NodePath("BigVBox/TopHBox/NewCharVBox/ClassRaceHBox/RaceVBox/RaceItemList")
 characterstatrect = NodePath("BigVBox/TopHBox/CharacterStatsRect")
 levelMenuButton = NodePath("BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/LevelMenuButton")
+classicContextLabel = NodePath("BigVBox/ClassicContextLabel")
+genderOptionButton = NodePath("BigVBox/TopHBox/NewCharVBox/NameLvlCntrl/GenderOptionButton")
 abilities_rect = NodePath("AbilitiesMngtRect")
 portraitRect = NodePath("BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/PortraitRect")
 iconRect = NodePath("BigVBox/TopHBox/NewCharVBox/ChosenImgHBox/IconRect")
@@ -48,6 +50,14 @@ offset_right = -20.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="ClassicContextLabel" type="Label" parent="BigVBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+text = "Creating for a Classic campaign."
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="TopHBox" type="HBoxContainer" parent="BigVBox"]
 layout_mode = 2
@@ -84,6 +94,16 @@ custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 size_flags_vertical = 4
 text = "1"
+
+[node name="GenderOptionButton" type="OptionButton" parent="BigVBox/TopHBox/NewCharVBox/NameLvlCntrl"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+item_count = 2
+popup/item_0/text = "Male"
+popup/item_0/id = 0
+popup/item_1/text = "Female"
+popup/item_1/id = 1
 
 [node name="ImgsControl" type="Control" parent="BigVBox/TopHBox/NewCharVBox"]
 layout_mode = 2

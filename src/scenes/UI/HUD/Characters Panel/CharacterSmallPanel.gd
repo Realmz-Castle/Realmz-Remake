@@ -268,7 +268,17 @@ func _on_portrait_button_pressed():
 	elif character.is_summoned :
 		cdata["data"]["subtitle"] = "Summoned by " + character.summoner_name
 	elif character.classgd != null and character.racegd != null :
-		cdata["data"]["subtitle"] = character.racegd.classrace_name + " · " + character.classgd.classrace_name
+		var race_name: String = (
+			str(character.get_display_race_name())
+			if character.has_method("get_display_race_name")
+			else str(character.racegd.classrace_name)
+		)
+		var caste_name: String = (
+			str(character.get_display_caste_name())
+			if character.has_method("get_display_caste_name")
+			else str(character.classgd.classrace_name)
+		)
+		cdata["data"]["subtitle"] = race_name + " · " + caste_name
 
 	# Description: short flavor + progression info. The special-skill stats live
 	# in their own panel via cdata["special_skills"], not here.

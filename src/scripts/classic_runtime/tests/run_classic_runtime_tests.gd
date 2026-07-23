@@ -4036,7 +4036,7 @@ func _test_classic_campaign_admission() -> void:
 		"character-level",
 		"Data RI character-level gate rejects only the excessive character"
 	)
-	var unsupported_override := CampaignAdmissionScript.character_admission(
+	var unresolved_fixture_override := CampaignAdmissionScript.character_admission(
 		CampaignAdmissionCharacter.new(
 			"Scenario Kin",
 			5,
@@ -4046,9 +4046,9 @@ func _test_classic_campaign_admission() -> void:
 		rules
 	)
 	_expect_equal(
-		unsupported_override.get("code"),
+		unresolved_fixture_override.get("code"),
 		"unsupported-race-override",
-		"changed scenario race remains blocked until its mechanics can be applied"
+		"older fixture without table selection remains conservatively blocked"
 	)
 	var shared_rule_bundle = BundleScript.new()
 	shared_rule_bundle.documents = install.bundle.documents.duplicate(true)
@@ -4087,8 +4087,8 @@ func _test_classic_campaign_admission() -> void:
 	var compared_rules := CampaignAdmissionScript.rules_from_bundle(compared_rule_bundle)
 	compared_rules["valid"] = true
 	compared_rules["diagnostic"] = ""
-	_expect_equal(
-		CampaignAdmissionScript.character_admission(
+	_expect(
+		bool(CampaignAdmissionScript.character_admission(
 			CampaignAdmissionCharacter.new(
 				"Changed Race",
 				5,
@@ -4096,9 +4096,8 @@ func _test_classic_campaign_admission() -> void:
 				"Providence Warden"
 			),
 			compared_rules
-		).get("code"),
-		"unsupported-race-override",
-		"compared scenario table blocks a character using a changed race row"
+		).get("allowed", false)),
+		"compared scenario table admits a character using a supported changed race row"
 	)
 	_expect(
 		bool(CampaignAdmissionScript.character_admission(
@@ -4111,6 +4110,30 @@ func _test_classic_campaign_admission() -> void:
 			compared_rules
 		).get("allowed", false)),
 		"compared scenario table accepts a character using an unchanged caste row"
+	)
+	var unresolved_rule_bundle = BundleScript.new()
+	unresolved_rule_bundle.documents = install.bundle.documents.duplicate(true)
+	unresolved_rule_bundle.documents["rules"]["tableSelection"] = {
+		"races": {"source": "unresolved"},
+		"castes": {"source": "shared"},
+	}
+	var unresolved_rules := CampaignAdmissionScript.rules_from_bundle(
+		unresolved_rule_bundle
+	)
+	unresolved_rules["valid"] = true
+	unresolved_rules["diagnostic"] = ""
+	_expect_equal(
+		CampaignAdmissionScript.character_admission(
+			CampaignAdmissionCharacter.new(
+				"Ambiguous Race",
+				5,
+				"Providence Kin",
+				"Fighter"
+			),
+			unresolved_rules
+		).get("code"),
+		"unsupported-race-override",
+		"unresolved older rule tables retain the conservative admission gate"
 	)
 	var allowed_character := CampaignAdmissionScript.character_admission(
 		CampaignAdmissionCharacter.new("Eligible Elf", 5, "Elf", "Fighter"),
@@ -7813,6 +7836,50 @@ func _test_classic_character_rule_profile() -> void:
 	_expect_equal(character.get_stat("curSP"), 7, "native current SP starts partly spent")
 	var apply_result := CharacterRulesScript.apply_party(install.bundle, [character])
 	_expect_equal(apply_result.get("status"), "ok", "Classic character rules apply")
+	var created_character := CampaignRuleCharacter.new()
+	var creation_result := (
+		CharacterRulesScript.initialize_character_creation(
+			install.bundle,
+			created_character,
+			2,
+			1,
+			[10, 10, 10, 10, 10, 10],
+			20,
+			5,
+			[4, 0, 0]
+		)
+	)
+	_expect_equal(
+		creation_result.get("status"),
+		"ok",
+		"scenario-local character creation runs through one ordered adapter"
+	)
+	_expect_equal(
+		[
+			created_character.classic_race_id,
+			created_character.classic_caste_id,
+			created_character.classic_gender,
+			created_character.classic_age_years,
+			created_character.level,
+		],
+		[20, 21, 2, 20, 1],
+		"scenario-local creation retains identity and finalized demographics"
+	)
+	_expect_equal(
+		creation_result.get("nextExperienceRequirement"),
+		1200,
+		"scenario-local creation initializes the active caste victory requirement"
+	)
+	_expect_equal(
+		created_character.classic_magic_resistance,
+		int(
+			(
+				created_character.get_stat("Intellect")
+				+ created_character.get_stat("Wisdom")
+			) / 10.0
+		) * 5 + 7,
+		"creation fixes magic resistance after final Classic attributes"
+	)
 	_expect_equal(
 		character.get_stat("MaxMovement"),
 		12,

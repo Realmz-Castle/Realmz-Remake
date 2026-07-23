@@ -148,7 +148,12 @@ func save_game(campaignname : String, savename : String) :
 	var preview_arr : Array = []
 	for pc in GameGlobal.player_characters :
 		pc_order.append(pc.name)
-		preview_arr.append([pc.name, pc.level, pc.classgd.classrace_name, floor(100.0*pc.get_stat("curHP")/pc.get_stat("maxHP"))])
+		var caste_name: String = (
+			str(pc.get_display_caste_name())
+			if pc.has_method("get_display_caste_name")
+			else str(pc.classgd.classrace_name)
+		)
+		preview_arr.append([pc.name, pc.level, caste_name, floor(100.0*pc.get_stat("curHP")/pc.get_stat("maxHP"))])
 	
 	var notes : String = preview_panel.notesTextEdit.text
 	notes = notes.replace("'",' ')

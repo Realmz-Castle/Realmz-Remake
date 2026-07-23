@@ -91,6 +91,8 @@ var cur_campaign : String = "Free"
 var classic_spell_identity_diagnostics : Array[String] = []
 var classic_race_id := 0
 var classic_caste_id := 0
+var classic_race_name := ""
+var classic_caste_name := ""
 var classic_rule_profile: Dictionary = {}
 var classic_magic_resistance := 0
 var classic_magic_resistance_initialized := false
@@ -137,6 +139,18 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 	var saved_rule_profile: Variant = data.get("classicRuleProfile", {})
 	if saved_rule_profile is Dictionary:
 		classic_rule_profile = saved_rule_profile.duplicate(true)
+	classic_race_name = str(
+		data.get(
+			"classicRaceName",
+			classic_rule_profile.get("raceName", "")
+		)
+	)
+	classic_caste_name = str(
+		data.get(
+			"classicCasteName",
+			classic_rule_profile.get("casteName", "")
+		)
+	)
 	if data.has("classicMagicResistance"):
 		set_classic_magic_resistance(int(data["classicMagicResistance"]))
 	elif data.has("classic_magic_resistance"):
@@ -332,10 +346,30 @@ func apply_classic_rule_profile(profile: Dictionary) -> void:
 	classic_rule_profile = profile.duplicate(true)
 	classic_race_id = int(profile.get("raceId", classic_race_id))
 	classic_caste_id = int(profile.get("casteId", classic_caste_id))
+	classic_race_name = str(profile.get("raceName", classic_race_name))
+	classic_caste_name = str(profile.get("casteName", classic_caste_name))
 
 
 func clear_classic_rule_profile() -> void:
 	classic_rule_profile.clear()
+	classic_race_name = ""
+	classic_caste_name = ""
+
+
+func get_display_race_name() -> String:
+	if not classic_race_name.is_empty():
+		return classic_race_name
+	if racegd:
+		return str(racegd.classrace_name)
+	return ""
+
+
+func get_display_caste_name() -> String:
+	if not classic_caste_name.is_empty():
+		return classic_caste_name
+	if classgd:
+		return str(classgd.classrace_name)
+	return ""
 
 
 func set_classic_magic_resistance(value: int) -> void:
@@ -871,6 +905,16 @@ func get_save_string()->String :
 		crea_string += (',\n"classicRaceId" : '+ str(classic_race_id))
 	if classic_caste_id > 0:
 		crea_string += (',\n"classicCasteId" : '+ str(classic_caste_id))
+	if not classic_race_name.is_empty():
+		crea_string += (
+			',\n"classicRaceName" : '
+			+ JSON.stringify(classic_race_name)
+		)
+	if not classic_caste_name.is_empty():
+		crea_string += (
+			',\n"classicCasteName" : '
+			+ JSON.stringify(classic_caste_name)
+		)
 	if not classic_rule_profile.is_empty():
 		crea_string += (',\n"classicRuleProfile" : '+ JSON.stringify(classic_rule_profile))
 	if classic_magic_resistance_initialized:

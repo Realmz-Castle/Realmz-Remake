@@ -29,7 +29,17 @@ func set_character(chara, eligible: bool, rejection_reason := "") :
 	character = chara
 	$NameLabel.text = chara.name
 	$LevelnLabel.text = str(chara.level)
-	$RaceClassLabel.text = chara.racegd.classrace_name+' '+chara.classgd.classrace_name
+	var race_name: String = (
+		str(chara.get_display_race_name())
+		if chara.has_method("get_display_race_name")
+		else str(chara.racegd.classrace_name)
+	)
+	var caste_name: String = (
+		str(chara.get_display_caste_name())
+		if chara.has_method("get_display_caste_name")
+		else str(chara.classgd.classrace_name)
+	)
+	$RaceClassLabel.text = race_name + " " + caste_name
 	$PortraitSprite.texture = chara.portrait
 	tooltip_text = rejection_reason
 	if GameGlobal.honest_mode :

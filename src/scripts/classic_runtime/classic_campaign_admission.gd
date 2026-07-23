@@ -301,19 +301,15 @@ static func _unsupported_override_character_ids(
 	if not (records_value is Array):
 		return result
 	var source := str(selection.get("source", "unresolved"))
-	if source == "shared":
+	# Producer-identified shared rows are inactive, while scenario-local rows
+	# now have complete runtime and creation consumers. Older bundles without a
+	# resolved selection remain conservative.
+	if source in ["shared", "scenario-local"]:
 		return result
-	var has_changed_ids := source == "scenario-local" and selection.has("changedRecordIds")
-	var changed_ids: Dictionary = {}
-	if has_changed_ids:
-		for id_value: Variant in selection["changedRecordIds"]:
-			changed_ids[int(id_value)] = true
 	for record_value: Variant in records_value:
 		if not (record_value is Dictionary):
 			continue
 		var record_id := int(record_value.get("id", -1))
-		if has_changed_ids and not changed_ids.has(record_id):
-			continue
 		if record_id >= 0:
 			# Rule records are zero-based; character race and caste IDs are one-based.
 			result.append(record_id + 1)

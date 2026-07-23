@@ -23,7 +23,12 @@ func display_this_game_preview() -> void :
 	for pc  in GameGlobal.player_characters :
 		var prvw : PCMicroCtrl = PCMicroCtrlTSCN.instantiate()
 		pc_micro_box.add_child(prvw)
-		prvw.set_char_info(pc.name, pc.level, pc.classgd.classrace_name, floor( 100.0*pc.get_stat("curHP")/pc.get_stat("maxHP") ) , pc.portrait )
+		var caste_name: String = (
+			str(pc.get_display_caste_name())
+			if pc.has_method("get_display_caste_name")
+			else str(pc.classgd.classrace_name)
+		)
+		prvw.set_char_info(pc.name, pc.level, caste_name, floor( 100.0*pc.get_stat("curHP")/pc.get_stat("maxHP") ) , pc.portrait )
 	notesTextEdit.set_text(GameGlobal.cur_save_descrition)
 	if  GameGlobal.cur_save_name.is_empty() :
 		savename_label.text = "Create a new save folder first."

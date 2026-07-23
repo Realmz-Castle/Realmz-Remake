@@ -79,8 +79,11 @@ func _on_profile_popup_menu_id_pressed(id):
 
 
 func _on_new_character_button_pressed():
+	newCharacterPanel.clear_classic_campaign_context()
 	newCharacterPanel.set_clean_character()
 	newCharacterPanel.fill()
+	newCharacterPanel.loadClassesRaces()
+	newCharacterPanel.fillClassesRacesMenus()
 	newCharacterPanel.show()
 #	newCampaignButton.hide()
 

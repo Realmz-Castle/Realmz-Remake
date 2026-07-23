@@ -7,6 +7,9 @@ extends NinePatchRect
 var selectedcampaign_onselect
 
 @onready var startButton : Button = $VBoxContainer/HBoxContainerB/StartControl/StartButton
+@onready var createCharacterButton : Button = (
+	$VBoxContainer/HBoxContainerB/CreateCharacterControl/CreateCharacterButton
+)
 
 @onready var charPickRect : Control = $VBoxContainer/HBoxContainertT/PartyControl/CharPickRect
 
@@ -18,6 +21,7 @@ var charactersdict : Dictionary = {}  #  name : characterGD
 
 
 var selectedCampaign : String = ''
+var selected_campaign_index := -1
 
 var pickedparty : Array = []
 
@@ -37,6 +41,8 @@ func _on_CancelButton_pressed() -> void :
 
 func _on_campaign_selected(idx : int) -> void :
 	set_ready(false, [])
+	selected_campaign_index = idx
+	createCharacterButton.disabled = true
 	var metadata: Variant = campaignsItemList.get_item_metadata(idx)
 	if not (metadata is Dictionary):
 		return
@@ -48,6 +54,11 @@ func _on_campaign_selected(idx : int) -> void :
 			+ "\nThis campaign is already in use by another party.\nDelete that game first."
 		)
 		return
+	createCharacterButton.disabled = not (
+		selectedcampaign_onselect is Dictionary
+		and bool(selectedcampaign_onselect.get("classic", false))
+		and bool(selectedcampaign_onselect.get("valid", false))
+	)
 
 	if selectedcampaign_onselect is Dictionary:
 		selectedCampaignNameLabel.text = str(
@@ -131,10 +142,12 @@ func _on_StartButton_pressed() -> void :
 
 func fill() -> void :
 	selectedCampaign = ""
+	selected_campaign_index = -1
 	selectedcampaign_onselect = null
 	selectedCampaignNameLabel.text = ""
 	selectedCampaignDescrLabel.text = ""
 	set_ready(false, [])
+	createCharacterButton.disabled = true
 
 	campaignslist = Utils.FileHandler.list_dirs_in_directory(Paths.campaignsfolderpath)
 	campaignsItemList.clear()
@@ -169,6 +182,47 @@ func fill() -> void :
 		})
 
 	return
+
+
+func _on_CreateCharacterButton_pressed() -> void:
+	if createCharacterButton.disabled or selectedCampaign.is_empty():
+		return
+	var character_panel: Variant = get_parent().get_node_or_null(
+		"NewCharacterPanel"
+	)
+	if character_panel == null \
+			or not character_panel.has_method("configure_classic_campaign"):
+		selectedCampaignDescrLabel.text += (
+			"\nCannot create: the character editor is unavailable."
+		)
+		return
+	var result: Variant = character_panel.call(
+		"configure_classic_campaign",
+		selectedCampaign,
+		self
+	)
+	if not (result is Dictionary) \
+			or str(result.get("status", "")) != "ok":
+		selectedCampaignDescrLabel.text += "\nCannot create: %s" % str(
+			result.get("message", "Classic character setup failed.")
+			if result is Dictionary
+			else "Classic character setup failed."
+		)
+		return
+	hide()
+	character_panel.show()
+
+
+func resume_after_character_creation(campaign_name: String) -> void:
+	fill()
+	show()
+	for item_index: int in range(campaignsItemList.item_count):
+		var metadata: Variant = campaignsItemList.get_item_metadata(item_index)
+		if metadata is Dictionary \
+				and str(metadata.get("campaignName", "")) == campaign_name:
+			campaignsItemList.select(item_index)
+			_on_campaign_selected(item_index)
+			return
 
 
 func _classic_campaign_description(selection_rules: Dictionary) -> String:

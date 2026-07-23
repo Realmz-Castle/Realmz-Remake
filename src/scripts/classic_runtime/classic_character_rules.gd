@@ -95,6 +95,111 @@ static func apply_party(bundle: Variant, party: Array) -> Dictionary:
 	return {"status": "ok", "applied": applied}
 
 
+## Initializes a temporary level-one PlayerCharacter with an active scenario
+## race/caste pair, then advances it through the ordinary level-up owner.
+##
+## Starting inventory is intentionally separate because the creation UI applies
+## it after spell selection, matching Classic's addinitialitems() order.
+static func initialize_character_creation(
+	bundle: Variant,
+	character: Variant,
+	gender: int,
+	starting_level: int,
+	attribute_rolls: Array[int] = [],
+	age_year: int = RANDOM_ROLL_UNSET,
+	stamina_roll: int = RANDOM_ROLL_UNSET,
+	spell_point_rolls: Array[int] = []
+) -> Dictionary:
+	if not (character is Object) \
+			or not character.has_method("apply_classic_rule_profile") \
+			or not character.has_method("level_up"):
+		return {
+			"status": "error",
+			"message": "Classic character creation requires a mutable player character.",
+		}
+	if int(_value(character, "level", 0)) != 1:
+		return {
+			"status": "error",
+			"message": "Classic character creation must begin from native level one.",
+		}
+	if starting_level < 1:
+		return {
+			"status": "error",
+			"message": "Classic character creation requires a positive starting level.",
+		}
+
+	var apply_result := apply_party(bundle, [character])
+	if str(apply_result.get("status", "")) == "error":
+		return apply_result
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	if profile.is_empty():
+		return {"status": "native"}
+	if _dictionary_value(profile.get("creation", {})).is_empty():
+		return {
+			"status": "error",
+			"message": (
+				"The selected scenario race and caste do not provide a complete "
+				+ "Classic creation profile."
+			),
+		}
+
+	var attributes := apply_character_creation_attributes(
+		character,
+		gender,
+		attribute_rolls,
+		age_year
+	)
+	if str(attributes.get("status", "")) != "ok":
+		return attributes
+	_refresh_creation_magic_resistance(character)
+
+	var defenses := apply_character_creation_defenses(character)
+	if str(defenses.get("status", "")) != "ok":
+		return defenses
+	var combat := apply_character_creation_combat(character, stamina_roll)
+	if str(combat.get("status", "")) != "ok":
+		return combat
+	var spellcasting := apply_character_creation_spellcasting(
+		character,
+		starting_level,
+		spell_point_rolls
+	)
+	if str(spellcasting.get("status", "")) == "error":
+		return spellcasting
+	var special_abilities := apply_character_creation_special_abilities(
+		character
+	)
+	if str(special_abilities.get("status", "")) != "ok":
+		return special_abilities
+
+	while int(_value(character, "level", 0)) < starting_level:
+		character.call("level_up")
+	if int(_value(character, "level", 0)) != starting_level:
+		return {
+			"status": "error",
+			"message": "Classic character creation could not reach the selected level.",
+		}
+	var next_requirement := post_level_up_experience_requirement(
+		character,
+		starting_level + 1,
+		int(_value(character, "exp_tnl", 0))
+	)
+	if _has_property(character, "exp_tnl"):
+		character.set("exp_tnl", next_requirement)
+	return {
+		"status": "ok",
+		"startingLevel": starting_level,
+		"attributes": attributes,
+		"defenses": defenses,
+		"combat": combat,
+		"spellcasting": spellcasting,
+		"specialAbilities": special_abilities,
+		"nextExperienceRequirement": next_requirement,
+	}
+
+
 static func profile_for_character(bundle: Variant, character: Variant) -> Dictionary:
 	var rules := _bundle_document(bundle, "rules")
 	var campaign_id := _campaign_id(bundle)
@@ -253,8 +358,14 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["creation"] = creation
 	if race_id > 0:
 		profile["raceId"] = race_id
+		var race_names: Variant = rule_names.get("raceNames", [])
+		if race_names is Array and race_id <= race_names.size():
+			profile["raceName"] = str(race_names[race_id - 1])
 	if caste_id > 0:
 		profile["casteId"] = caste_id
+		var caste_names: Variant = rule_names.get("casteNames", [])
+		if caste_names is Array and caste_id <= caste_names.size():
+			profile["casteName"] = str(caste_names[caste_id - 1])
 	return profile
 
 
@@ -2607,6 +2718,30 @@ static func _sync_magic_resistance(
 	)
 
 
+static func _refresh_creation_magic_resistance(character: Variant) -> void:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var magic_resistance := _dictionary_value(
+		profile.get("magicResistance", {})
+	)
+	if magic_resistance.is_empty():
+		return
+	var initial_value := (
+		int(
+			(
+				_character_stat(character, "Intellect")
+				+ _character_stat(character, "Wisdom")
+			) / 10.0
+		) * int(magic_resistance.get("casteMultiplier", 0))
+		+ int(magic_resistance.get("raceBonus", 0))
+	)
+	magic_resistance["initialValue"] = initial_value
+	profile["magicResistance"] = magic_resistance
+	character.call("apply_classic_rule_profile", profile)
+	_store_magic_resistance(character, initial_value)
+
+
 static func _has_magic_resistance(character: Variant) -> bool:
 	if character is Object \
 			and character.has_method("has_classic_magic_resistance") \
@@ -2750,6 +2885,15 @@ static func _bundle_document(bundle: Variant, document_name: String) -> Dictiona
 
 static func _dictionary_value(value: Variant) -> Dictionary:
 	return value if value is Dictionary else {}
+
+
+static func _has_property(source: Variant, property_name: String) -> bool:
+	if source == null or not (source is Object):
+		return false
+	for property: Dictionary in source.get_property_list():
+		if str(property.get("name", "")) == property_name:
+			return true
+	return false
 
 
 static func _value(source: Variant, property_name: String, fallback: Variant) -> Variant:
