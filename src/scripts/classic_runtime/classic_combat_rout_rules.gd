@@ -14,6 +14,10 @@ static func mark_routed(creature: Object) -> void:
 	creature.set_meta(ROUTED_META, true)
 
 
+static func clear_routed(creature: Object) -> void:
+	creature.remove_meta(ROUTED_META)
+
+
 static func is_routed(creature: Variant) -> bool:
 	return creature is Object and bool(creature.get_meta(ROUTED_META, false))
 

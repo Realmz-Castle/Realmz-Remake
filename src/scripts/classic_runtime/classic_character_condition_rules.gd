@@ -11,6 +11,16 @@ const TEMPORARY_SPELL_SCREEN_TRAIT := (
 	"res://shared_assets/traits/t_classic_spell_screen.gd"
 )
 const CONDITION_TRAITS := {
+	0: {
+		"name": "Fleeing",
+		"temporary": "res://shared_assets/traits/t_classic_fleeing.gd",
+		"permanent": "res://shared_assets/traits/p_classic_fleeing.gd",
+	},
+	1: {
+		"name": "Helpless",
+		"temporary": "res://shared_assets/traits/t_classic_helpless.gd",
+		"permanent": "res://shared_assets/traits/p_classic_helpless.gd",
+	},
 	2: {
 		"name": "Tangled",
 		"temporary": "res://shared_assets/traits/t_classic_tangled.gd",
@@ -99,6 +109,16 @@ const CONDITION_TRAITS := {
 		"name": "Invisible",
 		"temporary": "res://shared_assets/traits/t_classic_invisible.gd",
 		"permanent": "res://shared_assets/traits/p_classic_invisible.gd",
+	},
+	25: {
+		"name": "Animated",
+		"temporary": "res://shared_assets/traits/t_classic_animated.gd",
+		"permanent": "res://shared_assets/traits/p_classic_animated.gd",
+	},
+	26: {
+		"name": "Turned to Stone",
+		"temporary": "res://shared_assets/traits/t_classic_petrified.gd",
+		"permanent": "res://shared_assets/traits/p_classic_petrified.gd",
 	},
 	27: {
 		"name": "Blind",

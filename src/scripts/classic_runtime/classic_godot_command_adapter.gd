@@ -29,7 +29,9 @@ const CombatRoutRulesScript = preload(
 )
 const COMBATANT_SCENE_PATH := "res://scenes/Map/CombatCharacter.tscn"
 # Classic's negative runs-away condition is permanent and maps to this native AI trait.
-const PERMANENT_FLEEING_TRAIT_PATH := "res://shared_assets/traits/p_fleeing.gd"
+const PERMANENT_FLEEING_TRAIT_PATH := (
+	"res://shared_assets/traits/p_classic_fleeing.gd"
+)
 const CLASSIC_MAX_MONSTERS := 100
 const CLASSIC_BATTLE_GRID_SIZE := 13
 const CLASSIC_BATTLE_GRID_CELLS := CLASSIC_BATTLE_GRID_SIZE * CLASSIC_BATTLE_GRID_SIZE

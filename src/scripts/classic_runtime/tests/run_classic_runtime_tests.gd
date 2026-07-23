@@ -512,6 +512,7 @@ class CampaignRuleCharacter:
 	var used_resource := "MP"
 	var is_player_controlled := true
 	var curFaction := 0
+	var life_status := 0
 	var spells: Array = [[], [], [], [], [], [], []]
 	var traits: Array = []
 	var ITEM_NO_MELEE_WEAPON := {
@@ -816,6 +817,19 @@ class CampaignRuleCharacter:
 			int(get_stat("maxSP"))
 		)
 
+	func change_cur_hp(change: int) -> void:
+		native_stats["curHP"] = mini(
+			int(get_stat("maxHP")),
+			int(native_stats["curHP"]) + change
+		)
+
+	func can_cast_spells() -> bool:
+		for trait_value: Variant in traits:
+			if trait_value.has_method("blocks_spellcasting") \
+					and bool(trait_value.blocks_spellcasting()):
+				return false
+		return true
+
 	func level_up(
 		magic_resistance_roll: int = -1,
 		missile_roll: int = -1,
@@ -996,6 +1010,58 @@ class ConditionTestCharacter:
 		return 0.0
 
 
+class ClassicControlConditionTestCharacter:
+	extends RefCounted
+	var name: String
+	var life_status := 0
+	var is_player_controlled := true
+	var traits: Array = []
+	var stats := {
+		"curHP": 17,
+		"maxHP": 20,
+		"SP_regen_mult": 1.0,
+	}
+
+	func _init(character_name: String) -> void:
+		name = character_name
+
+	func add_trait(trait_script: Variant, args: Array) -> Variant:
+		for existing_trait: Variant in traits:
+			if existing_trait.name == trait_script.name and existing_trait.stacks:
+				existing_trait.stack(args)
+				return existing_trait
+		var trait_args := [self]
+		trait_args.append_array(args)
+		var trait_instance = trait_script.new(trait_args)
+		traits.append(trait_instance)
+		return trait_instance
+
+	func remove_trait(trait_instance: Variant) -> void:
+		if trait_instance.has_method("_on_remove_trait"):
+			trait_instance._on_remove_trait(self, trait_instance)
+		traits.erase(trait_instance)
+
+	func get_stat(stat_name: String) -> Variant:
+		var stat: Variant = stats.get(stat_name, 0)
+		for trait_value: Variant in traits:
+			if trait_value.has_method("_on_get_stat"):
+				stat = trait_value._on_get_stat(stat_name, stat)
+		return stat
+
+	func change_cur_hp(change: int) -> void:
+		for trait_value: Variant in traits:
+			if trait_value.has_method("_on_change_cur_hp"):
+				change = trait_value._on_change_cur_hp(change)
+		stats["curHP"] = mini(int(stats["maxHP"]), int(stats["curHP"]) + change)
+
+	func can_cast_spells() -> bool:
+		for trait_value: Variant in traits:
+			if trait_value.has_method("blocks_spellcasting") \
+					and bool(trait_value.blocks_spellcasting()):
+				return false
+		return true
+
+
 class CurseRemovalTestCharacter:
 	extends RefCounted
 	var inventory: Array = []
@@ -1013,7 +1079,7 @@ class CurseRemovalTestCharacter:
 
 class HelplessTestTrait:
 	extends RefCounted
-	var name := "t_helpless.gd"
+	var name := "t_classic_helpless.gd"
 	var stacks := true
 	var duration := 0
 
@@ -2123,6 +2189,7 @@ func _init() -> void:
 	_test_classic_spell_save_contract()
 	_test_classic_light_contract()
 	_test_classic_confusion_contract()
+	_test_classic_control_conditions()
 	_test_classic_disease_contract()
 	_test_text_and_encounter(bundle)
 	_test_evidence_backed_dispatcher_noop(bundle)
@@ -5527,8 +5594,8 @@ func _test_classic_bestiary_materializer() -> void:
 		"ordinary Classic attack range maps natively"
 	)
 	var status_specials := {
-		1: "t_fleeing.gd",
-		2: "t_helpless.gd",
+		1: "t_classic_fleeing.gd",
+		2: "t_classic_helpless.gd",
 		3: "t_cursed.gd",
 		4: "t_dumb.gd",
 		5: "t_slow.gd",
@@ -6958,8 +7025,8 @@ func _test_classic_monster_special_attacks() -> void:
 	_expect(bool(stone_result.get("targetKilled")), "petrification reports its lethal result")
 	_expect_equal(
 		stone_target.traits[0].name,
-		"p_petrified.gd",
-		"monster petrification reuses Remake's permanent trait"
+		"p_classic_petrified.gd",
+		"monster petrification uses the Classic permanent trait"
 	)
 	_expect_equal(stone_target.stats.get("curHP"), -10, "petrification forces dead health")
 	_expect_equal(stone_target.life_status, 3, "petrification marks the target dead")
@@ -8703,33 +8770,117 @@ func _test_classic_character_rule_profile() -> void:
 		attribute_creation_reloaded.classic_can_regenerate,
 		"the authored regeneration flag survives character save/load"
 	)
-	var unsupported_defense_character := CampaignRuleCharacter.new()
-	unsupported_defense_character.classic_rule_profile = (
+	var control_creation := CampaignRuleCharacter.new()
+	control_creation.classic_rule_profile = (
 		character.classic_rule_profile.duplicate(true)
 	)
-	unsupported_defense_character.classic_rule_profile[
-		"creation"
-	]["raceStartingConditions"][0] = 1
+	var control_conditions: Array[int] = []
+	control_conditions.resize(40)
+	control_conditions.fill(0)
+	control_conditions[0] = 2
+	control_conditions[1] = -1
+	control_conditions[25] = 1
+	control_conditions[26] = -1
+	control_creation.classic_rule_profile["creation"][
+		"raceStartingConditions"
+	] = control_conditions
+	control_creation.classic_rule_profile["creation"][
+		"casteConditionLevels"
+	] = control_conditions.duplicate()
 	CharacterRulesScript.apply_character_creation_attributes(
-		unsupported_defense_character,
+		control_creation,
 		1,
 		[10, 10, 10, 10, 10, 10],
 		20
 	)
-	var unsupported_defense_result := (
+	var control_creation_result := (
 		CharacterRulesScript.apply_character_creation_defenses(
-			unsupported_defense_character
+			control_creation
 		)
 	)
 	_expect_equal(
-		unsupported_defense_result.get("unsupportedConditionIndices"),
-		[0],
-		"an active unmapped starting condition reports its exact source slot"
+		control_creation_result.get("status"),
+		"ok",
+		"the four control and life-state starting conditions apply together"
+	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(control_creation, 0),
+			CharacterConditionRulesScript.condition_value(control_creation, 1),
+			CharacterConditionRulesScript.condition_value(control_creation, 25),
+			CharacterConditionRulesScript.condition_value(control_creation, 26),
+		],
+		[2, -1, 1, -1],
+		"control and life-state conditions retain their Classic values"
+	)
+	var control_trait_names: Array[String] = []
+	for trait_value: Variant in control_creation.traits:
+		control_trait_names.append(str(trait_value.get("name")))
+	for expected_trait_name: String in [
+		"t_classic_fleeing.gd",
+		"p_classic_helpless.gd",
+		"t_classic_animated.gd",
+		"p_classic_petrified.gd",
+	]:
+		_expect(
+			expected_trait_name in control_trait_names,
+			"Classic creation installs %s" % expected_trait_name
+		)
+	_expect(
+		control_creation.get_meta("classic_permanently_routed", false),
+		"Classic Fleeing enters the routed movement state"
 	)
 	_expect(
-		not unsupported_defense_character.classic_saving_throws_initialized,
-		"unsupported starting conditions block the batch before mutation"
+		not control_creation.can_cast_spells(),
+		"Helpless, Animated, and petrified characters cannot cast spells"
 	)
+	_expect_equal(
+		[control_creation.get_stat("curHP"), control_creation.life_status],
+		[-10, 3],
+		"Turned to Stone enters Remake's fully dead state"
+	)
+	var control_creation_saved: Variant = JSON.parse_string(
+		JSON.stringify(control_creation.save_data())
+	)
+	var control_creation_reloaded := CampaignRuleCharacter.new(
+		control_creation_saved
+	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				control_creation_reloaded,
+				0
+			),
+			CharacterConditionRulesScript.condition_value(
+				control_creation_reloaded,
+				1
+			),
+			CharacterConditionRulesScript.condition_value(
+				control_creation_reloaded,
+				25
+			),
+			CharacterConditionRulesScript.condition_value(
+				control_creation_reloaded,
+				26
+			),
+		],
+		[2, -1, 1, -1],
+		"control and life-state conditions survive character save/load"
+	)
+	_expect_equal(
+		[
+			control_creation_reloaded.get_stat("curHP"),
+			control_creation_reloaded.life_status,
+		],
+		[-10, 3],
+		"petrified health and life state survive character save/load"
+	)
+	for condition_index: int in range(40):
+		_expect(
+			CharacterConditionRulesScript.supports_condition(condition_index),
+			"Classic condition %d has a reviewed runtime mapping"
+			% condition_index
+		)
 	var forbidden_creation := CampaignRuleCharacter.new()
 	forbidden_creation.classic_rule_profile = (
 		character.classic_rule_profile.duplicate(true)
@@ -12452,6 +12603,136 @@ func _test_classic_confusion_contract() -> void:
 	)
 
 
+func _test_classic_control_conditions() -> void:
+	var temporary_fleeing = load(
+		"res://shared_assets/traits/t_classic_fleeing.gd"
+	)
+	var fleeing := ClassicControlConditionTestCharacter.new("Fleeing")
+	var fleeing_trait = fleeing.add_trait(temporary_fleeing, [2])
+	_expect(
+		fleeing.get_meta("classic_permanently_routed", false),
+		"Classic Fleeing marks its combatant for an edge exit"
+	)
+	_expect(
+		not fleeing_trait._on_get_player_controlled(),
+		"Classic Fleeing delegates the turn to retreat AI"
+	)
+	_expect(
+		not fleeing_trait.has_method("_on_get_stat"),
+		"Classic Fleeing does not invent an accuracy penalty"
+	)
+	fleeing_trait._on_new_round(fleeing)
+	_expect_equal(
+		fleeing_trait.get_saved_variables(),
+		[1],
+		"temporary Fleeing loses one point per combat round"
+	)
+	fleeing_trait._on_new_round(fleeing)
+	_expect(fleeing.traits.is_empty(), "expired Fleeing removes its retreat AI")
+	_expect(
+		not fleeing.get_meta("classic_permanently_routed", false),
+		"expired Fleeing clears its edge-exit state"
+	)
+
+	var temporary_helpless = load(
+		"res://shared_assets/traits/t_classic_helpless.gd"
+	)
+	var helpless := ClassicControlConditionTestCharacter.new("Helpless")
+	var helpless_trait = helpless.add_trait(temporary_helpless, [2])
+	var helpless_rules = load(
+		"res://scripts/classic_runtime/classic_helpless.gd"
+	)
+	_expect(
+		not helpless_trait._on_get_player_controlled(),
+		"Classic Helpless removes direct control"
+	)
+	_expect(
+		not helpless.can_cast_spells(),
+		"Classic Helpless blocks spellcasting"
+	)
+	_expect(
+		helpless_rules.is_helpless(helpless),
+		"the physical-attack hook recognizes Classic Helpless"
+	)
+	_expect_equal(
+		helpless_rules.force_physical_damage(
+			{"Physical": 1, "total": 1},
+			helpless
+		).get("total"),
+		17,
+		"a physical hit on a helpless target deals its current health"
+	)
+	helpless_trait._on_new_round(helpless)
+	_expect_equal(
+		helpless_trait.get_saved_variables(),
+		[1],
+		"temporary Helpless loses one point per combat round"
+	)
+
+	var temporary_animated = load(
+		"res://shared_assets/traits/t_classic_animated.gd"
+	)
+	var animated := ClassicControlConditionTestCharacter.new("Animated")
+	var animated_trait = animated.add_trait(temporary_animated, [4])
+	var animation_rules = load(
+		"res://scripts/classic_runtime/classic_animation.gd"
+	)
+	_expect(animation_rules.is_animated(animated), "positive Animated is a live animation state")
+	_expect(
+		animated_trait.trait_types.has("no_exp"),
+		"temporarily Animated characters receive no experience"
+	)
+	_expect(
+		not animated.can_cast_spells(),
+		"temporarily Animated characters cannot cast spells"
+	)
+	_expect_equal(
+		animated_trait._on_get_stat("SP_regen_mult", 1.0),
+		0,
+		"temporarily Animated characters do not recover spell points"
+	)
+	animated_trait._on_turn_end(animated)
+	_expect(
+		animated.traits.is_empty(),
+		"positive Animated clears when the affected character finishes a turn"
+	)
+	_expect(
+		FileAccess.get_file_as_string("res://Creature/Creature.gd").contains(
+			'trait_value.has_method("_on_turn_end")'
+		) and FileAccess.get_file_as_string(
+			"res://scripts/states/CbDecideActionState.gd"
+		).contains("creature.on_turn_end()"),
+		"native combat turn completion invokes the trait lifecycle hook"
+	)
+
+	var temporary_petrified = load(
+		"res://shared_assets/traits/t_classic_petrified.gd"
+	)
+	var petrified := ClassicControlConditionTestCharacter.new("Petrified")
+	var petrified_trait = petrified.add_trait(temporary_petrified, [2])
+	_expect_equal(petrified.get_stat("curHP"), -10, "Turned to Stone forces death")
+	_expect_equal(petrified.life_status, 3, "Turned to Stone records the dead life state")
+	petrified_trait._on_new_round(petrified)
+	petrified_trait._on_new_round(petrified)
+	_expect(petrified.traits.is_empty(), "temporary Stone can lose its condition counter")
+	_expect_equal(
+		petrified.get_stat("curHP"),
+		-10,
+		"an expired Stone counter does not silently revive the character"
+	)
+
+	var combat_source := FileAccess.get_file_as_string(
+		"res://scripts/states/CbAnimationState.gd"
+	)
+	_expect(
+		combat_source.contains("classic_helpless or accuracy > randf()") \
+			and combat_source.contains(
+				"CLASSIC_HELPLESS_SCRIPT.force_physical_damage"
+			),
+		"native physical attacks enforce both Classic helpless hit rules"
+	)
+
+
 func _test_classic_disease_contract() -> void:
 	_expect_equal(
 		ClassicDiseaseScript.player_reduction(3),
@@ -14881,7 +15162,7 @@ func _test_classic_spell_coverage() -> void:
 	var fleeing_target := ConditionTestCharacter.new("Fleeing target")
 	fearful_thoughts.add_traits_to_creature(null, fleeing_target, 3)
 	_expect(
-		str(fleeing_target.traits[0].name).ends_with("t_fleeing.gd"),
+		str(fleeing_target.traits[0].name).ends_with("t_classic_fleeing.gd"),
 		"Fearful Thoughts uses Remake's fleeing behavior"
 	)
 	_expect_equal(fleeing_target.traits[0].power, 3, "Fearful Thoughts passes its duration")
@@ -14957,7 +15238,7 @@ func _test_classic_spell_coverage() -> void:
 	var helpless_target := ConditionTestCharacter.new("Helpless target")
 	soul_bind.add_traits_to_creature(null, helpless_target, 7)
 	_expect(
-		str(helpless_target.traits[0].name).ends_with("t_helpless.gd"),
+		str(helpless_target.traits[0].name).ends_with("t_classic_helpless.gd"),
 		"Soul Bind uses Remake's helpless behavior"
 	)
 	_expect(
@@ -17630,7 +17911,11 @@ func _test_classic_petrification_spells() -> void:
 	_expect_equal(target.life_status, 3, "Statue kills its target")
 	_expect_equal(target.traits.size(), 1, "Statue adds one permanent condition")
 	var petrified_trait: Variant = target.traits[0]
-	_expect_equal(petrified_trait.name, "p_petrified.gd", "Statue reuses Remake's petrified trait")
+	_expect_equal(
+		petrified_trait.name,
+		"p_classic_petrified.gd",
+		"Statue uses the Classic petrified trait"
+	)
 	_expect(petrified_trait.permanent, "petrification is permanent")
 	_expect(not petrified_trait._on_get_player_controlled(), "petrified characters cannot act")
 	_expect_equal(
@@ -17660,9 +17945,16 @@ func _test_classic_petrification_spells() -> void:
 
 	var healing_gate := PetrificationTestCharacter.new("Petrified healing target")
 	healing_gate.stats["curHP"] = 10
-	healing_gate.add_trait(load("res://shared_assets/traits/p_petrified.gd"), [])
+	healing_gate.add_trait(
+		load("res://shared_assets/traits/p_classic_petrified.gd"),
+		[]
+	)
 	healing_gate.change_cur_hp(5)
-	_expect_equal(healing_gate.stats["curHP"], 10, "Creature health changes honor petrification")
+	_expect_equal(
+		healing_gate.stats["curHP"],
+		-10,
+		"installing the condition petrifies before blocking health recovery"
+	)
 	_expect(
 		FileAccess.get_file_as_string("res://Creature/Creature.gd").contains(
 			'trait_value.has_method("_on_change_cur_hp")'
@@ -17671,7 +17963,7 @@ func _test_classic_petrification_spells() -> void:
 	)
 	flesh.apply_classic_scaled_effect(null, healing_gate, 1, 1.0)
 	healing_gate.change_cur_hp(5)
-	_expect_equal(healing_gate.stats["curHP"], 15, "Flesh restores ordinary health recovery")
+	_expect_equal(healing_gate.stats["curHP"], -5, "Flesh restores ordinary health recovery")
 
 
 func _test_classic_blindness_spell() -> void:
@@ -20463,8 +20755,10 @@ func _test_stun_corrected_helplessness() -> void:
 	_expect_equal(stunned_target.current_hp, 23, "Stun changes no health")
 	_expect_equal(stunned_target.traits.size(), 1, "Stun applies one condition trait")
 	_expect(
-		str(stunned_target.traits[0].name).ends_with("t_helpless.gd"),
-		"Stun uses Remake's helpless behavior"
+		str(stunned_target.traits[0].name).ends_with(
+			"t_classic_helpless.gd"
+		),
+		"Stun uses Classic helpless behavior"
 	)
 	_expect_equal(stunned_target.traits[0].power, 1, "Stun applies helplessness for one round")
 
@@ -22543,8 +22837,8 @@ func _test_combat_monster_rout_action() -> void:
 	_expect_equal(selected, [matching_enemy, second_enemy], "rout selects living IDs on the actor faction")
 	_expect_equal(
 		adapter.PERMANENT_FLEEING_TRAIT_PATH,
-		"res://shared_assets/traits/p_fleeing.gd",
-		"rout maps to Remake's permanent fleeing trait"
+		"res://shared_assets/traits/p_classic_fleeing.gd",
+		"rout maps to the Classic permanent fleeing trait"
 	)
 	_expect_equal(
 		adapter.apply_classic_rout(selected, GodotAdapterScript),

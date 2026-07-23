@@ -4,7 +4,11 @@ extends RefCounted
 const TRAIT_NAMES_BY_CONDITION := {
 	3: ["t_cursed.gd", "p_cursed.gd"],
 	9: ["t_poison.gd", "p_poison.gd"],
-	26: ["p_petrified.gd"],
+	26: [
+		"t_classic_petrified.gd",
+		"p_classic_petrified.gd",
+		"p_petrified.gd",
+	],
 	27: [
 		"t_classic_blind.gd",
 		"t_blind.gd",

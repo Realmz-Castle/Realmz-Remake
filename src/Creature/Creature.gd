@@ -1031,6 +1031,13 @@ func on_battle_end() :
 		if t.has_method("_on_battle_end") :
 			await t._on_battle_end(self)
 
+
+func on_turn_end() -> void:
+	for trait_value: Variant in traits.duplicate():
+		if trait_value is Object and trait_value.has_method("_on_turn_end"):
+			await trait_value._on_turn_end(self)
+
+
 #happens right after an accuracy check is done in a melee attack or spell in GameGlobal.combat_melee_attack and GameGlobal.
 func on_evasion_check(evasion_stats_used : Array, attacker : Creature, spellscriptornullformelee, power : int) -> Array :
 	var returned_action_queue : Array = []

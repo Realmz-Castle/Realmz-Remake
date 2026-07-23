@@ -52,5 +52,7 @@ func apply_classic_scaled_effect(
 ) -> void:
 	if effect_scale <= 0.0:
 		return
-	var trait_script = load("res://shared_assets/traits/t_helpless.gd")
+	var trait_script = load(
+		"res://shared_assets/traits/t_classic_helpless.gd"
+	)
 	target.add_trait(trait_script, [get_duration_roll(power, caster)])

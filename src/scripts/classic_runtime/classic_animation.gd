@@ -22,6 +22,7 @@ const TRAIT_NAMES := [
 	"p_animated.gd",
 	"t_animated.gd",
 	"p_classic_animated.gd",
+	"t_classic_animated.gd",
 ]
 
 

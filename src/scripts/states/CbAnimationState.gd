@@ -22,6 +22,9 @@ const CLASSIC_MONSTER_SPECIAL_ATTACK_SCRIPT = preload(
 const CLASSIC_MONSTER_DECISION_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_monster_decision.gd"
 )
+const CLASSIC_HELPLESS_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_helpless.gd"
+)
 
 var cur_action : Dictionary
 
@@ -621,8 +624,18 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 	attackercb.creature.used_apr += 1
 	attackercb.creature.mark_classic_attack_attempt()
 	var accuracy : float = GameGlobal.calculate_melee_accuracy(attackercb.creature, defendercb.creature, weapon, true)
-	var hit_success : bool = accuracy > randf()
-	var evasion_check_array : Array = defendercb.creature.on_evasion_check(['Melee'], attackercb.creature, null, 0) #null for melee attacks, spell for spells
+	var classic_helpless := CLASSIC_HELPLESS_SCRIPT.is_helpless(
+		defendercb.creature
+	)
+	var hit_success : bool = classic_helpless or accuracy > randf()
+	var evasion_check_array : Array = [true, []] if classic_helpless else (
+		defendercb.creature.on_evasion_check(
+			['Melee'],
+			attackercb.creature,
+			null,
+			0
+		)
+	) #null for melee attacks, spell for spells
 	var continue_action : bool = evasion_check_array[0]
 	var extra_actions : Array = evasion_check_array[1]
 	returned_action_queue += extra_actions
@@ -657,6 +670,10 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 	defendercb = attack_result_array[2]
 	damage_detail = attack_result_array[3]
 	if hit_success :
+		damage_detail = CLASSIC_HELPLESS_SCRIPT.force_physical_damage(
+			damage_detail,
+			defendercb.creature
+		)
 		
 		
 		

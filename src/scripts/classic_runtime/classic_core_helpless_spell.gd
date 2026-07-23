@@ -4,7 +4,9 @@ extends "res://scripts/classic_runtime/classic_core_damage_spell.gd"
 const AreaPatternsScript = preload(
 	"res://scripts/classic_runtime/classic_spell_area_patterns.gd"
 )
-const HelplessTrait = preload("res://shared_assets/traits/t_helpless.gd")
+const HelplessTrait = preload(
+	"res://shared_assets/traits/t_classic_helpless.gd"
+)
 const TERRAIN_TEXTURE_BY_QUEUE_ICON := {
 	4: "Web",
 	7: "Gcl",

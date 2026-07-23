@@ -5,7 +5,7 @@ const ClassicCombatRoutRulesScript = preload(
 	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
 )
 const PermanentFleeingTraitScript = preload(
-	"res://shared_assets/traits/p_fleeing.gd"
+	"res://shared_assets/traits/p_classic_fleeing.gd"
 )
 
 @export var combat_state : CombatState
@@ -681,6 +681,8 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 
 func end_active_creature_turn(set_apr_zero : bool)->void :
 
+	if is_instance_valid(current_active_creabutton):
+		await current_active_creabutton.creature.on_turn_end()
 	if set_apr_zero :
 		current_active_creabutton.creature.used_movepoints = current_active_creabutton.creature.get_stat("MaxMovement")
 		current_active_creabutton.creature.used_apr = current_active_creabutton.creature.get_stat("MaxActions")
