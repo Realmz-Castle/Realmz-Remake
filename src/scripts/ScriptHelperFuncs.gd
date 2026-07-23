@@ -264,16 +264,47 @@ static func set_walk_back_once(should : bool) :
 static func do_RR_battle(rr_dict : Dictionary) :
 	var answer = "YES"
 	var randi : int = randi()%100
+	var offered_encounter := false
+	var classic_adapter: Object = null
+	var classic_session: Object = GameGlobal.classic_campaign_session
+	if is_instance_valid(classic_session):
+		classic_adapter = classic_session.get("command_adapter")
 	#printerr("ScriptHelperFuncs do_RR_battle chance : " ,rr_dict["option_chance"],'>=',randi,' : start fight ? ', rr_dict["option_chance"]<=randi )
 	if rr_dict["option_chance"]>=randi :
-		play_sound("generation error.wav", false)
+		offered_encounter = true
+		if is_instance_valid(classic_adapter) \
+				and classic_adapter.has_method("play_classic_map_sound"):
+			classic_adapter.call("play_classic_map_sound", int(rr_dict.get("sfx_id", 0)))
+		else:
+			play_sound("generation error.wav", false)
 		var textRect : TextRect = UI.ow_hud.textRect
 		textRect.display_multiple_choices([rr_dict['text'],"YESNO"],["TEXT","YESNO"])
 		answer = await textRect.choice_pressed
 		textRect.choicesContainer.hide()
 	if answer == "YES" :
-		start_battle_in_range(rr_dict["battle_range"][0], rr_dict["battle_range"][1], 10049, '', 0)
-		await GameGlobal.battle_end
+		var battle_range: Array = rr_dict.get("battle_range", [])
+		if battle_range.size() < 2 or int(battle_range[0]) <= 0:
+			return
+		if is_instance_valid(classic_adapter) \
+				and classic_adapter.has_method("start_classic_random_battle"):
+			var result: Variant = await classic_adapter.call(
+				"start_classic_random_battle",
+				battle_range,
+				offered_encounter
+			)
+			if result is Dictionary and str(result.get("status", "")) == "error":
+				push_error("Classic random battle stopped: %s" % result.get(
+					"message",
+					"unknown compatibility error"
+				))
+			return
+		await start_battle_in_range(
+			int(battle_range[0]),
+			int(battle_range[1]),
+			10049,
+			'',
+			0
+		)
 
 ## Divinity Code 2 : battle
 static func start_battle_in_range(low : int, high : int, sfx_id : int, displaytext : String, give_treasure : int) :

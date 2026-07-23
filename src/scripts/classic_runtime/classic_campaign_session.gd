@@ -209,9 +209,20 @@ func acquired_player_map_entries() -> Array:
 		var runtime_path := ""
 		if command_adapter != null and command_adapter.has_method("runtime_media_path"):
 			runtime_path = str(command_adapter.call("runtime_media_path", map_record, "image/"))
+		var current_position := {
+			"levelType": str(runtime_state.get("level_type")),
+			"levelIndex": int(runtime_state.get("level_index")),
+			"x": int(runtime_state.get("x")),
+			"y": int(runtime_state.get("y")),
+		}
 		entries.append({
 			"record": map_record.duplicate(true),
 			"runtimeMediaPath": runtime_path,
+			"nativeMapName": "%s_%d" % [
+				"mapd" if bool(map_record.get("isDungeon", false)) else "map",
+				int(map_record.get("level", 0)),
+			],
+			"currentPosition": current_position,
 		})
 	return entries
 

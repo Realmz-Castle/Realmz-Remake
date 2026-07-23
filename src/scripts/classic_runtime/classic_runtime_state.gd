@@ -54,6 +54,8 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	view_type = VIEW_3D
 	compass_enabled = true
 	priest_turning_enabled = true
+	if not bundle.get_player_map(0).is_empty():
+		set_map_owned(0)
 
 
 func set_quest_flag(signed_quest_id: int) -> void:
@@ -394,6 +396,7 @@ func snapshot() -> Dictionary:
 
 
 func restore(saved_state: Dictionary) -> void:
+	var owns_initial_map := is_map_owned(0)
 	quest_flags.clear()
 	tile_overrides.clear()
 	trigger_percent_overrides.clear()
@@ -403,6 +406,8 @@ func restore(saved_state: Dictionary) -> void:
 	complex_encounter_overrides.clear()
 	timed_encounter_overrides.clear()
 	owned_maps.clear()
+	if owns_initial_map:
+		owned_maps["0"] = true
 	darkland_overrides.clear()
 	landlook_overrides.clear()
 	random_rectangle_overrides.clear()

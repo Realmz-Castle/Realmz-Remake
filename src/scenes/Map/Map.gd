@@ -590,7 +590,6 @@ func generate_zoomed_map(mapname : String) -> void:
 			if ground_tile.has("expansion") and ground_tile["expansion"].size() == 9:
 				expansion = ground_tile["expansion"]
 			else:
-				push_warning("Expansion data missing for tile: %s" % [str(ground_tile)])
 				for k in range(9):
 					expansion.append(ground_tile["id"])
 			# LOGGING for debugging
@@ -620,6 +619,16 @@ func generate_zoomed_map(mapname : String) -> void:
 	} # ScriptRects, Paths, and Secrets are present but empty
 	zoomed_map[2] = null # Clear map scripts
 	zoomed_map[4] = "Battle" # Set mapmusictype to "Battle"
+	# Exploration masks use row/column dimensions from the source map. They cannot
+	# be reused by the three-times-larger battlefield, and combat terrain should
+	# remain visible regardless of how much of the source map was explored.
+	zoomed_map[7] = false
+	zoomed_map[8] = []
+	for row in range(expanded_rows):
+		var explored_row: Array = []
+		explored_row.resize(expanded_cols)
+		explored_row.fill(1)
+		zoomed_map[8].append(explored_row)
 	resources.maps_book["temporary_zoomed_map"] = zoomed_map
 	print("MAP Generated temporary zoomed map from: ", mapname, " with music type set to Battle and expanded tiles")
 	load_map(GameGlobal.currentcampaign, "temporary_zoomed_map" )

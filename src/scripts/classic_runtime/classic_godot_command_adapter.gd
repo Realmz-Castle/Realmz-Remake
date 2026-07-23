@@ -942,6 +942,20 @@ func _end_classic_battle(payload: Dictionary) -> Dictionary:
 	return {"outcome": outcome, "resumeSlot": resume_slot}
 
 
+func start_classic_random_battle(
+	battle_range: Array,
+	surprise := false
+) -> Dictionary:
+	return await _start_classic_battle({
+		"battleIdRange": battle_range.duplicate(),
+		"participantMode": "party",
+		"surprise": surprise,
+		"lootMode": 0,
+		"soundId": 0,
+		"priestTurningEnabled": true,
+	})
+
+
 func _start_classic_battle(payload: Dictionary) -> Dictionary:
 	_forced_battle_resume_slot = -1
 	var node_access: Object = _autoload("NodeAccess")
@@ -4136,13 +4150,24 @@ func _give_player_map(payload: Dictionary) -> Dictionary:
 	_play_sound({"soundId": 30005})
 	if bool(payload.get("display", false)):
 		var runtime_path := runtime_media_path(map_record, "image/")
-		if not runtime_path.is_empty():
+		var can_render_from_level := int(map_record.get("show", 0)) >= 0 \
+			and int(map_record.get("pictId", 0)) == 0
+		if not runtime_path.is_empty() or can_render_from_level:
 			var ui: Object = _autoload("UI")
 			if ui == null or ui.ow_hud == null \
 					or ui.ow_hud.classicPlayerMapRect == null:
 				return _error("Realmz Classic player-map UI is unavailable")
 			var player_map_rect: Object = ui.ow_hud.classicPlayerMapRect
-			if not player_map_rect.display_map(map_record, runtime_path):
+			var native_map_name := "%s_%d" % [
+				"mapd" if bool(map_record.get("isDungeon", false)) else "map",
+				int(map_record.get("level", 0)),
+			]
+			if not player_map_rect.display_map(
+				map_record,
+				runtime_path,
+				native_map_name,
+				payload.get("currentPosition", {})
+			):
 				return _error("Classic player-map media could not be displayed")
 			var state_machine: Object = _autoload("StateMachine")
 			if state_machine != null:
@@ -4150,7 +4175,10 @@ func _give_player_map(payload: Dictionary) -> Dictionary:
 			await player_map_rect.closed
 			if state_machine != null and state_machine._state_name == "ExMenus":
 				state_machine.exit_ex_menu_state({})
-			return {"runtimeMediaPath": str(map_record["runtimeMedia"].get("path", ""))}
+			return {
+				"runtimeMediaPath": str(map_record.get("runtimeMedia", {}).get("path", "")),
+				"generatedFromLevel": runtime_path.is_empty(),
+			}
 	if bool(payload.get("display", false)) and _can_display_native_map(native_map):
 		var ui: Object = _autoload("UI")
 		if ui == null or ui.ow_hud == null or ui.ow_hud.minimapRect == null:

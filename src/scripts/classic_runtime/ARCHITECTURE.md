@@ -31,10 +31,13 @@ These components are intentionally separate from the native owners:
   formats and does not parse Classic files or add another map loader. Dungeon
   field values become campaign-local native tiles composed from the shared
   PICT 302 overhead sprites, with the signed Classic field retained as tile
-  metadata. Decoded custom landlooks combine their 640 x 320 atlas with the
-  compiler's behavior table in that same native format. Decoded special-land
-  media becomes a second campaign-local tile layer; immutable Classic resource
-  bytes remain outside Godot's image loader.
+  metadata. Stock landlooks combine Remake's decoded Realmz PICT atlases with the
+  compiler's tile-attribute table, preserving Classic's one-based atlas order and
+  movement rules instead of translating them to a similarly themed Remake sheet.
+  Decoded custom landlooks use the same native format with their exported 640 x
+  320 atlas and behavior table. Decoded special-land media becomes a second
+  campaign-local tile layer; immutable Classic resource bytes remain outside
+  Godot's image loader.
 - `ClassicRuntimeState` holds Classic mutations that cannot be written back to the
   installed campaign. Its snapshot is payload for the native save system, not a
   competing save owner.

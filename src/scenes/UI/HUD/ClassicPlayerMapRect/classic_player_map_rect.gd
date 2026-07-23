@@ -2,6 +2,10 @@ extends ColorRect
 
 signal closed
 
+const PlayerMapRendererScript = preload(
+	"res://scripts/classic_runtime/classic_player_map_renderer.gd"
+)
+
 @onready var map_texture_rect: TextureRect = $VBoxContainer/MapArea/MapTextureRect
 @onready var missing_media_label: Label = $VBoxContainer/MapArea/MissingMediaLabel
 @onready var map_name_label: Label = $VBoxContainer/Footer/MapNameLabel
@@ -15,11 +19,16 @@ var map_entries: Array = []
 var current_map_index := -1
 
 
-func display_map(map_record: Dictionary, image_path: String) -> bool:
+func display_map(
+	map_record: Dictionary,
+	image_path: String,
+	native_map_name := "",
+	current_position: Dictionary = {}
+) -> bool:
 	map_entries.clear()
 	current_map_index = -1
 	_update_navigation()
-	return _display_map_record(map_record, image_path)
+	return _display_map_record(map_record, image_path, native_map_name, current_position)
 
 
 func display_catalog(entries: Array, preferred_map_id := -1) -> bool:
@@ -48,12 +57,24 @@ func _display_catalog_entry() -> bool:
 		return false
 	var entry: Dictionary = map_entries[current_map_index]
 	var runtime_path := str(entry.get("runtimeMediaPath", ""))
-	if _display_map_record(entry["record"], runtime_path):
+	var native_map_name := str(entry.get("nativeMapName", ""))
+	var current_position: Dictionary = entry.get("currentPosition", {})
+	if _display_map_record(entry["record"], runtime_path, native_map_name, current_position):
 		return true
-	return _display_map_record(entry["record"], "") if not runtime_path.is_empty() else false
+	return _display_map_record(
+		entry["record"],
+		"",
+		native_map_name,
+		current_position
+	) if not runtime_path.is_empty() else false
 
 
-func _display_map_record(map_record: Dictionary, image_path: String) -> bool:
+func _display_map_record(
+	map_record: Dictionary,
+	image_path: String,
+	native_map_name := "",
+	current_position: Dictionary = {}
+) -> bool:
 	current_map_record = map_record.duplicate(true)
 	map_texture_rect.texture = null
 	map_texture_rect.visible = false
@@ -66,6 +87,16 @@ func _display_map_record(map_record: Dictionary, image_path: String) -> bool:
 		map_texture_rect.texture = ImageTexture.create_from_image(image)
 		map_texture_rect.visible = true
 		missing_media_label.visible = false
+	elif not native_map_name.is_empty():
+		var generated_texture := _render_native_map(
+			map_record,
+			native_map_name,
+			current_position
+		)
+		if generated_texture != null:
+			map_texture_rect.texture = generated_texture
+			map_texture_rect.visible = true
+			missing_media_label.visible = false
 	map_name_label.text = map_display_name(map_record)
 	map_note_label.text = str(map_record.get("note", "")).strip_edges()
 	show()
@@ -86,10 +117,32 @@ func _update_navigation() -> void:
 
 static func map_display_name(map_record: Dictionary) -> String:
 	for field: String in ["primaryName", "name", "secondaryName"]:
-		var candidate := str(map_record.get(field, "")).strip_edges()
+		var field_value: Variant = map_record.get(field)
+		if field_value == null:
+			continue
+		var candidate := str(field_value).strip_edges()
 		if not candidate.is_empty():
 			return candidate
 	return "Player Map %d" % int(map_record.get("id", 0))
+
+
+func _render_native_map(
+	map_record: Dictionary,
+	native_map_name: String,
+	current_position: Dictionary
+) -> ImageTexture:
+	var node_access := get_node_or_null("/root/NodeAccess")
+	var resources: Object = node_access.call("__Resources") \
+		if node_access != null and node_access.has_method("__Resources") else null
+	if resources == null:
+		return null
+	var maps_value: Variant = resources.get("maps_book")
+	if not (maps_value is Dictionary) or not maps_value.has(native_map_name):
+		return null
+	var native_map: Variant = maps_value[native_map_name]
+	if not (native_map is Array) or native_map.is_empty() or not (native_map[0] is Array):
+		return null
+	return PlayerMapRendererScript.render(map_record, native_map[0], current_position)
 
 
 func _on_done_button_pressed() -> void:

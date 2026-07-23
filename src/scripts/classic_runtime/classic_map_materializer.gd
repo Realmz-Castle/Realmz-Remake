@@ -19,6 +19,22 @@ const CUSTOM_LAND_TILE_SIZE := 32
 const CUSTOM_LAND_COLUMNS := 20
 const CUSTOM_LAND_ROWS := 10
 const CUSTOM_LAND_TILE_COUNT := CUSTOM_LAND_COLUMNS * CUSTOM_LAND_ROWS
+const STOCK_LANDLOOK_ATLASES := {
+	0: "res://shared_assets/tiles/The Family Jewels.rsf_PICT_300.png",
+	3: "res://shared_assets/tiles/The Family Jewels.rsf_PICT_303.png",
+	4: "res://shared_assets/tiles/The Family Jewels.rsf_PICT_304.png",
+	5: "res://shared_assets/tiles/The Family Jewels.rsf_PICT_305.png",
+	9: "res://shared_assets/tiles/The Family Jewels.rsf_PICT_309.png",
+	10: "res://shared_assets/tiles/The Family Jewels.rsf_PICT_310.png",
+}
+const STOCK_LANDLOOK_ENVIRONMENTS := {
+	0: {"mapType": "Outdoor", "musicType": "Forest", "outdoorRiding": true},
+	3: {"mapType": "Outdoor", "musicType": "Cave", "outdoorRiding": true},
+	4: {"mapType": "Indoor", "musicType": "Indoor", "outdoorRiding": false},
+	5: {"mapType": "Outdoor", "musicType": "Desert", "outdoorRiding": true},
+	9: {"mapType": "Outdoor", "musicType": "Swamp", "outdoorRiding": true},
+	10: {"mapType": "Outdoor", "musicType": "Snow", "outdoorRiding": true},
+}
 const DUNGEON_TILESET_NAME := "ClassicDungeon"
 const DUNGEON_SOURCE_ATLAS := \
 	"res://shared_assets/tiles/The Family Jewels.rsf_PICT_302.png"
@@ -84,6 +100,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			"message",
 			"Classic special land tileset could not be generated"
 		)))
+	var stock_land_tilesets := _build_stock_land_tileset_plans(bundle, pending_maps, root)
+	if str(stock_land_tilesets.get("status", "skip")) == "error":
+		return _fail(str(stock_land_tilesets.get(
+			"message",
+			"Classic stock land tileset could not be generated"
+		)))
 	var custom_land_tilesets := _build_custom_land_tileset_plans(bundle, pending_maps, root)
 	if str(custom_land_tilesets.get("status", "skip")) == "error":
 		return _fail(str(custom_land_tilesets.get(
@@ -101,6 +123,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			pending_map["directory"],
 			dungeon_tileset,
 			land_overlay_tileset,
+			stock_land_tilesets,
 			custom_land_tilesets
 		)
 		if plan.is_empty():
@@ -120,7 +143,20 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 				"Could not write native special land tileset: %s" % error_string(
 					overlay_error
 				)
-			)
+				)
+	if str(stock_land_tilesets.get("status", "skip")) == "ok":
+		var stock_plans: Dictionary = stock_land_tilesets.get("plans", {})
+		var stock_ids: Array = stock_plans.keys()
+		stock_ids.sort()
+		for stock_id: Variant in stock_ids:
+			var stock_error := _write_generated_tileset(stock_plans[stock_id])
+			if stock_error != OK:
+				return _fail(
+					"Could not write Classic stock land tileset %s: %s" % [
+						stock_id,
+						error_string(stock_error),
+					]
+				)
 	if str(custom_land_tilesets.get("status", "skip")) == "ok":
 		var custom_plans: Dictionary = custom_land_tilesets.get("plans", {})
 		var custom_ids: Array = custom_plans.keys()
@@ -171,6 +207,7 @@ func _build_plan(
 	map_directory: String,
 	dungeon_tileset: Dictionary,
 	land_overlay_tileset: Dictionary,
+	stock_land_tilesets: Dictionary,
 	custom_land_tilesets: Dictionary
 ) -> Dictionary:
 	var width := int(map_record.get("width", 0))
@@ -191,6 +228,7 @@ func _build_plan(
 		campaign_directory,
 		map_record,
 		dungeon_tileset,
+		stock_land_tilesets,
 		custom_land_tilesets
 	)
 	if str(tileset_result.get("status", "")) != "ok":
@@ -198,6 +236,7 @@ func _build_plan(
 	var native_tiles: Array = []
 	var overlay_tiles: Array = []
 	var has_land_overlays := false
+	var level_type := str(map_record.get("levelType", ""))
 	var tile_capacity := int(tileset_result.get("tileCapacity", 0))
 	var dungeon_lookup: Variant = tileset_result.get("tileLookup")
 	var map_bridge = MapBridgeScript.new()
@@ -206,57 +245,64 @@ func _build_plan(
 	if str(boat_plan.get("status", "")) == "error":
 		return _plan_fail(str(boat_plan.get("message", "Classic boat placement is invalid")))
 	var boat_terrain: Dictionary = boat_plan.get("terrainByCell", {})
-	for tile_index: int in range(tiles.size()):
-		var classic_tile := int(tiles[tile_index])
-		if boat_terrain.has(tile_index):
-			classic_tile = int(boat_terrain[tile_index])
-		var native_tile := 0
-		if dungeon_lookup is Dictionary:
-			native_tile = int(dungeon_lookup.get(classic_tile & 0xffff, 0))
-			if native_tile <= 0:
-				return _plan_fail(
-					"Compiled map %s dungeon field %d has no generated native tile" % [
-						map_name,
-						classic_tile,
-					]
+	for y: int in range(height):
+		for x: int in range(width):
+			# Providence preserves Realmz's column-major land fields. Remake's map
+			# loader consumes Tiled's row-major order; dungeon fields are already row-major.
+			var source_index := y * width + x
+			if level_type == "land":
+				source_index = x * height + y
+			var classic_tile := int(tiles[source_index])
+			if boat_terrain.has(source_index):
+				classic_tile = int(boat_terrain[source_index])
+			var native_tile := 0
+			if dungeon_lookup is Dictionary:
+				native_tile = int(dungeon_lookup.get(classic_tile & 0xffff, 0))
+				if native_tile <= 0:
+					return _plan_fail(
+						"Compiled map %s dungeon field %d has no generated native tile" % [
+							map_name,
+							classic_tile,
+						]
+					)
+			elif classic_tile < 0:
+				var overlay_lookup: Variant = land_overlay_tileset.get("tileLookup", {})
+				if not (overlay_lookup is Dictionary) or not overlay_lookup.has(classic_tile):
+					return _plan_fail(
+						"Compiled map %s special tile %d at (%d,%d) has no generated native overlay" % [
+							map_name,
+							classic_tile,
+							x,
+							y,
+						]
+					)
+				native_tile = int(tileset_result["baseTile"])
+				overlay_tiles.append(
+					tile_capacity + int(overlay_lookup[classic_tile])
 				)
-		elif classic_tile < 0:
-			var overlay_lookup: Variant = land_overlay_tileset.get("tileLookup", {})
-			if not (overlay_lookup is Dictionary) or not overlay_lookup.has(classic_tile):
-				return _plan_fail(
-					"Compiled map %s special tile %d at cell %d has no generated native overlay" % [
-						map_name,
-						classic_tile,
-						tile_index,
-					]
-				)
-			native_tile = int(tileset_result["baseTile"])
-			overlay_tiles.append(
-				tile_capacity + int(overlay_lookup[classic_tile])
-			)
-			has_land_overlays = true
-		else:
-			native_tile = _normalize_atlas_tile(
-				classic_tile,
-				int(tileset_result["baseTile"])
-			)
-		if classic_tile >= 0 or dungeon_lookup is Dictionary:
-			overlay_tiles.append(0)
-		if native_tile > tile_capacity:
-			return _plan_fail(
-				"Compiled map %s tile %d needs atlas slot %d, but %s provides only %d slots" % [
-					map_name,
+				has_land_overlays = true
+			else:
+				native_tile = _normalize_atlas_tile(
 					classic_tile,
-					native_tile,
-					tileset_result["name"],
-					tile_capacity,
-				]
-			)
-		native_tiles.append(native_tile)
+					int(tileset_result["baseTile"])
+				)
+			if classic_tile >= 0 or dungeon_lookup is Dictionary:
+				overlay_tiles.append(0)
+			if native_tile > tile_capacity:
+				return _plan_fail(
+					"Compiled map %s tile %d needs atlas slot %d, but %s provides only %d slots" % [
+						map_name,
+						classic_tile,
+						native_tile,
+						tileset_result["name"],
+						tile_capacity,
+					]
+				)
+			native_tiles.append(native_tile)
 
-	var level_type := str(map_record.get("levelType", ""))
 	var level_index := int(map_record.get("index", -1))
 	var random_level: Dictionary = bundle.get_random_level(level_type, level_index)
+	var environment := _map_environment(map_record)
 	var script_areas := _script_areas(bundle, level_type, level_index, random_level)
 	var layers: Array = [{"chunks": [{"data": native_tiles}]}]
 	var tilesets: Array = [{
@@ -275,10 +321,12 @@ func _build_plan(
 		"files": {
 			"map_info.json": {
 				"name": map_name,
-				"map_type": "Outdoor" if level_type == "land" else "Indoor",
-				"music_type": "Forest" if level_type == "land" else "Indoor",
-				"outdoor_riding": level_type == "land",
-				"darkness_level": 0 if bool(random_level.get("isDark", false)) else 7,
+				"map_type": environment["mapType"],
+				"music_type": environment["musicType"],
+				"outdoor_riding": environment["outdoorRiding"],
+				"darkness_level": MapBridgeScript.native_darkness(
+					bool(random_level.get("isDark", false))
+				),
 				"display_explored_only": int(bool(random_level.get("useLos", false))),
 				"classic_boats": boat_plan.get("placements", {}),
 			},
@@ -292,6 +340,17 @@ func _build_plan(
 			},
 		},
 	}
+
+
+func _map_environment(map_record: Dictionary) -> Dictionary:
+	if str(map_record.get("levelType", "")) == "dungeon":
+		return {"mapType": "Indoor", "musicType": "Dungeon", "outdoorRiding": false}
+	var render: Variant = map_record.get("render", {})
+	var landlook := int(render.get("landlook", -1)) if render is Dictionary else -1
+	return STOCK_LANDLOOK_ENVIRONMENTS.get(
+		landlook,
+		{"mapType": "Outdoor", "musicType": "Forest", "outdoorRiding": true}
+	).duplicate()
 
 
 func _script_areas(
@@ -346,7 +405,10 @@ func _script_areas(
 				"chance": maxf(0.0, float(rectangle.get("percent", 0)) / 10000.0),
 				"scriptToLoad": [],
 			}
-			if battle_range is Array and battle_range.size() >= 2:
+			if battle_range is Array \
+					and battle_range.size() >= 2 \
+					and int(battle_range[0]) > 0 \
+					and int(battle_range[1]) >= int(battle_range[0]):
 				area["RR_Battle"] = {
 					"battle_range": [int(battle_range[0]), int(battle_range[1])],
 					"option_chance": int(rectangle.get("option", 0)),
@@ -362,6 +424,7 @@ func _resolve_tileset(
 	campaign_directory: String,
 	map_record: Dictionary,
 	dungeon_tileset: Dictionary,
+	stock_land_tilesets: Dictionary,
 	custom_land_tilesets: Dictionary
 ) -> Dictionary:
 	var render: Variant = map_record.get("render", {})
@@ -373,10 +436,20 @@ func _resolve_tileset(
 	var tileset_path := ""
 	if mode == "outdoor-landlook":
 		var landlook := int(render.get("landlook", -1))
+		var tileset_id := str(render.get("tilesetId", "")).strip_edges()
+		var stock_plans: Variant = stock_land_tilesets.get("plans", {})
+		if stock_plans is Dictionary and stock_plans.has(tileset_id):
+			var stock_plan: Dictionary = stock_plans[tileset_id]
+			return {
+				"status": "ok",
+				"name": tileset_id,
+				"baseTile": int(stock_plan.get("baseTile", 1)),
+				"tileCapacity": int(stock_plan.get("tileCapacity", 0)),
+			}
 		tileset_name = str(MapBridgeScript.STOCK_LANDLOOK_TILESETS.get(landlook, ""))
-		base_tile = _catalog_base_tile(bundle, str(render.get("tilesetId", "")), 156)
+		base_tile = _catalog_base_tile(bundle, tileset_id, 156)
 		if tileset_name.is_empty():
-			tileset_name = str(render.get("tilesetId", "")).strip_edges()
+			tileset_name = tileset_id
 			if not _is_safe_component(tileset_name):
 				return {
 					"status": "error",
@@ -440,6 +513,231 @@ func _resolve_tileset(
 		"baseTile": base_tile,
 		"tileCapacity": int(tileset_value["tilecount"]),
 	}
+
+
+func _build_stock_land_tileset_plans(
+	bundle: Object,
+	pending_maps: Array[Dictionary],
+	campaign_directory: String
+) -> Dictionary:
+	var required: Dictionary = {}
+	for pending_map: Dictionary in pending_maps:
+		var map_record: Dictionary = pending_map["record"]
+		if str(map_record.get("levelType", "")) != "land":
+			continue
+		var render: Variant = map_record.get("render", {})
+		if not (render is Dictionary):
+			continue
+		var landlook := int(render.get("landlook", -1))
+		if not STOCK_LANDLOOK_ATLASES.has(landlook):
+			continue
+		var tileset_id := str(render.get("tilesetId", "")).strip_edges()
+		if not _is_safe_component(tileset_id):
+			return {
+				"status": "error",
+				"message": "Classic landlook %d has no safe tileset identity" % landlook,
+			}
+		required[tileset_id] = landlook
+	if required.is_empty():
+		return {"status": "skip", "plans": {}}
+
+	var catalog: Variant = bundle.documents.get("assets", {}).get("catalog", {})
+	var catalog_tilesets: Variant = catalog.get("tilesets", []) if catalog is Dictionary else []
+	var assets_by_id: Dictionary = {}
+	if catalog_tilesets is Array:
+		for asset_value: Variant in catalog_tilesets:
+			if asset_value is Dictionary:
+				assets_by_id[str(asset_value.get("id", ""))] = asset_value
+
+	var plans: Dictionary = {}
+	var tileset_ids: Array = required.keys()
+	tileset_ids.sort()
+	for tileset_id_value: Variant in tileset_ids:
+		var tileset_id := str(tileset_id_value)
+		var landlook := int(required[tileset_id])
+		if not assets_by_id.has(tileset_id):
+			return {
+				"status": "error",
+				"message": "Classic stock tileset %s is missing from the asset catalog" % (
+					tileset_id
+				),
+			}
+		var plan := _build_stock_land_tileset_plan(
+			bundle,
+			assets_by_id[tileset_id],
+			tileset_id,
+			landlook,
+			campaign_directory
+		)
+		if str(plan.get("status", "error")) != "ok":
+			return plan
+		plans[tileset_id] = plan
+	return {"status": "ok", "plans": plans}
+
+
+func _build_stock_land_tileset_plan(
+	bundle: Object,
+	asset: Dictionary,
+	tileset_id: String,
+	landlook: int,
+	campaign_directory: String
+) -> Dictionary:
+	if int(asset.get("landlook", -1)) != landlook \
+			or int(asset.get("pictId", -1)) != 300 + landlook \
+			or bool(asset.get("custom", true)):
+		return {
+			"status": "error",
+			"message": "Classic stock tileset %s has inconsistent catalog identity" % tileset_id,
+		}
+	if (
+		int(asset.get("columns", 0)) != CUSTOM_LAND_COLUMNS
+		or int(asset.get("rows", 0)) != CUSTOM_LAND_ROWS
+		or int(asset.get("tileWidth", 0)) != CUSTOM_LAND_TILE_SIZE
+		or int(asset.get("tileHeight", 0)) != CUSTOM_LAND_TILE_SIZE
+	):
+		return {
+			"status": "error",
+			"message": "Classic tileset %s does not declare the stock 20 x 10 tile grid" % (
+				tileset_id
+			),
+		}
+	var source_path := str(STOCK_LANDLOOK_ATLASES.get(landlook, ""))
+	var source := Image.load_from_file(ProjectSettings.globalize_path(source_path))
+	var expected_size := Vector2i(
+		CUSTOM_LAND_COLUMNS * CUSTOM_LAND_TILE_SIZE,
+		CUSTOM_LAND_ROWS * CUSTOM_LAND_TILE_SIZE
+	)
+	if source == null or source.is_empty() or source.get_size() != expected_size:
+		return {
+			"status": "error",
+			"message": "Realmz PICT %d stock atlas is unavailable or malformed" % (300 + landlook),
+		}
+	source.convert(Image.FORMAT_RGBA8)
+
+	var records_by_tile: Dictionary = {}
+	var attributes: Variant = bundle.documents.get("maps", {}).get("tileAttributes", [])
+	if attributes is Array:
+		for record_value: Variant in attributes:
+			if not (record_value is Dictionary):
+				continue
+			var record: Dictionary = record_value
+			if record.get("landlook") == null or int(record.get("landlook", -1)) != landlook:
+				continue
+			var tile_id := int(record.get("tile", -1))
+			if tile_id >= 0 and tile_id <= CUSTOM_LAND_TILE_COUNT:
+				records_by_tile[tile_id] = record
+	for tile_id: int in range(1, CUSTOM_LAND_TILE_COUNT + 1):
+		if not records_by_tile.has(tile_id):
+			return {
+				"status": "error",
+				"message": "Classic landlook %d is missing tile behavior %d" % [
+					landlook,
+					tile_id,
+				],
+			}
+	var base_tile_value: Variant = asset.get("baseTile")
+	var base_tile := int(base_tile_value) if base_tile_value != null else 0
+	if base_tile <= 0 and records_by_tile.has(0):
+		base_tile = int(records_by_tile[0].get("baseTile", 0))
+	if base_tile < 1 or base_tile > CUSTOM_LAND_TILE_COUNT:
+		return {
+			"status": "error",
+			"message": "Classic landlook %d has invalid base tile %d" % [landlook, base_tile],
+		}
+
+	var tiles: Array = []
+	var templates: Dictionary = {}
+	for tile_id: int in range(1, CUSTOM_LAND_TILE_COUNT + 1):
+		var tile_name := "classic_landlook_%d_%03d" % [landlook, tile_id]
+		tiles.append({
+			"id": tile_id - 1,
+			"properties": [
+				{"name": "name", "type": "string", "value": tile_name},
+				{"name": "template", "type": "string", "value": tile_name},
+				{
+					"name": "expansion",
+					"type": "object",
+					"value": _classic_combat_expansion(records_by_tile[tile_id], tile_id),
+				},
+			],
+		})
+		templates[tile_name] = _stock_land_tile_template(records_by_tile[tile_id], landlook)
+	return {
+		"status": "ok",
+		"name": tileset_id,
+		"directory": campaign_directory.path_join("Tilesets").path_join(tileset_id),
+		"image": source,
+		"baseTile": base_tile,
+		"tileCapacity": CUSTOM_LAND_TILE_COUNT,
+		"tileset": {
+			"columns": CUSTOM_LAND_COLUMNS,
+			"image": "%s.png" % tileset_id,
+			"imageheight": CUSTOM_LAND_ROWS * CUSTOM_LAND_TILE_SIZE,
+			"imagewidth": CUSTOM_LAND_COLUMNS * CUSTOM_LAND_TILE_SIZE,
+			"margin": 0,
+			"name": tileset_id,
+			"spacing": 0,
+			"tilecount": CUSTOM_LAND_TILE_COUNT,
+			"tiledversion": "1.11.2",
+			"tileheight": CUSTOM_LAND_TILE_SIZE,
+			"tiles": tiles,
+			"tilewidth": CUSTOM_LAND_TILE_SIZE,
+			"type": "tileset",
+			"version": "1.10",
+		},
+		"templates": templates,
+	}
+
+
+func _stock_land_tile_template(record: Dictionary, landlook: int) -> Dictionary:
+	var solid := int(record.get("solidType", 0))
+	var need_boat := int(record.get("boatRequirement", 0))
+	var blocks_movement := solid != 0 and need_boat != 2
+	var blocks_sight := bool(record.get("blocksLos", false))
+	return {
+		"time": int(record.get("movementCost", 0)),
+		"wall": int(blocks_movement),
+		"swall": int(blocks_movement),
+		"blkproj": int(blocks_sight),
+		"blkview": int(blocks_sight),
+		"water": int(need_boat == 2),
+		"dock": int(bool(record.get("shore", false)) or need_boat == 1),
+		"sound": [],
+		"classicLandlook": landlook,
+		"classicTileId": int(record.get("tile", 0)),
+		"classicSoundId": int(record.get("movementSoundId", 0)),
+		"classicSolid": solid,
+		"classicShore": int(bool(record.get("shore", false))),
+		"classicNeedBoat": need_boat,
+		"classicPath": int(bool(record.get("pathFlag", false))),
+		"classicLos": int(blocks_sight),
+		"classicFlyFloat": int(bool(record.get("flyFloatRequired", false))),
+		"classicForest": int(record.get("forestType", 0)),
+		"classicClearLandId": int(record.get("clearLandId", 0)),
+		"classicCombatBuild": record.get("combatBuild", []),
+		"classicBaseScale": int(record.get("baseScale", 1)),
+	}
+
+
+func _classic_combat_expansion(record: Dictionary, fallback_tile_id: int) -> Array:
+	var fallback: Array = []
+	fallback.resize(9)
+	fallback.fill(fallback_tile_id - 1)
+	var combat_build: Variant = record.get("combatBuild", [])
+	if not (combat_build is Array) or combat_build.size() != 3:
+		return fallback
+	var expansion: Array = []
+	for source_row: Variant in combat_build:
+		if not (source_row is Array) or source_row.size() != 3:
+			return fallback
+		for source_tile: Variant in source_row:
+			var classic_tile_id := int(source_tile)
+			if classic_tile_id < 1 or classic_tile_id > CUSTOM_LAND_TILE_COUNT:
+				return fallback
+			# Classic build tables contain one-based land tile identities. Native
+			# tileset expansion arrays address their zero-based atlas slots.
+			expansion.append(classic_tile_id - 1)
+	return expansion
 
 
 func _build_custom_land_tileset_plans(
@@ -611,6 +909,11 @@ func _build_custom_land_tileset_plan(
 			"properties": [
 				{"name": "name", "type": "string", "value": tile_name},
 				{"name": "template", "type": "string", "value": tile_name},
+				{
+					"name": "expansion",
+					"type": "object",
+					"value": _classic_combat_expansion(records_by_tile[tile_id], tile_id),
+				},
 			],
 		})
 		templates[tile_name] = _custom_land_tile_template(

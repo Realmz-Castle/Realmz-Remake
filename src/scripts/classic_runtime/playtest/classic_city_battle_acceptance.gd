@@ -186,6 +186,11 @@ func _start_playtest() -> void:
 			and _classic_enemy_count(MONSTER_ID) == EXPECTED_ENEMY_COUNT,
 		"the compiled 24-Krise formation materializes into the native battle roster"
 	)
+	_verify_stage(
+		"09_battlefield",
+		_temporary_battlefield_is_drawable(),
+		"the temporary battle map has visible terrain and a matching exploration grid"
+	)
 	if not automated_smoke:
 		await _wait_frames(120)
 
@@ -267,7 +272,8 @@ func _continue_installed_campaign() -> void:
 			and _native_position() == TRIGGER_POSITION
 			and restored_state.is_map_owned(QUEST_MAP_ID)
 			and restored_state.is_map_owned(4)
-			and campaign_session.acquired_player_map_entries().size() == 2
+			and restored_state.is_map_owned(0)
+			and campaign_session.acquired_player_map_entries().size() == 3
 			and restored_state.get_trigger_percent("land", 0, 17, -1) == 100
 			and not restored_override.is_empty()
 			and _party_has_classic_item(SHOP_ITEM_ID)
@@ -543,6 +549,28 @@ func _verify_native_monster_mapping(resources: CampaignResources) -> bool:
 	return smoke_failures.is_empty()
 
 
+func _temporary_battlefield_is_drawable() -> bool:
+	var battle_map: Map = NodeAccess.__Map()
+	if GameGlobal.currentmap_name != "temporary_zoomed_map":
+		return false
+	var columns := int(battle_map.map_size.x)
+	var rows := int(battle_map.map_size.y)
+	if columns <= 0 or rows <= 0 or battle_map.display_explored_only:
+		return false
+	if battle_map.explored_tiles.size() != rows:
+		return false
+	for explored_row: Array in battle_map.explored_tiles:
+		if explored_row.size() != columns:
+			return false
+	var battle_origin := Vector2i(GameGlobal.pos_when_battle_started) * 3
+	if battle_origin.x < 0 or battle_origin.y < 0:
+		return false
+	if battle_origin.x >= columns or battle_origin.y >= rows:
+		return false
+	var terrain_stack: Array = battle_map.mapdata[battle_origin.x][battle_origin.y]
+	return not terrain_stack.is_empty() and terrain_stack[0].get("texture") != null
+
+
 func _finish_victory_and_reload() -> void:
 	if not await _wait_for_treasure():
 		_fail("10_victory", "the battle reward screen did not open")
@@ -623,7 +651,8 @@ func _finish_victory_and_reload() -> void:
 			and _native_position() == TRIGGER_POSITION
 			and restored_state.is_map_owned(QUEST_MAP_ID)
 			and restored_state.is_map_owned(4)
-			and acquired_maps.size() == 2
+			and restored_state.is_map_owned(0)
+			and acquired_maps.size() == 3
 			and restored_state.get_trigger_percent("land", 0, 17, -1) == 100
 			and not restored_override.is_empty()
 			and not campaign_session.has_pending_continuation(),

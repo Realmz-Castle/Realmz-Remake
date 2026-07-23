@@ -43,6 +43,7 @@ var current_trigger: Dictionary = {}
 var current_action_index := 0
 var origin_action_point: Dictionary = {}
 var active_action_point_header: Dictionary = {}
+var suppress_action_point_destination := false
 var remove_action_point := false
 var removal_x := 0
 var removal_y := 0
@@ -95,6 +96,7 @@ func reset_execution() -> void:
 	current_action_index = 0
 	origin_action_point.clear()
 	active_action_point_header.clear()
+	suppress_action_point_destination = false
 	remove_action_point = false
 	removal_x = 0
 	removal_y = 0
@@ -128,6 +130,7 @@ func make_execution_snapshot() -> Dictionary:
 		"currentActionIndex": current_action_index,
 		"originActionPoint": origin_action_point.duplicate(true),
 		"activeActionPointHeader": active_action_point_header.duplicate(true),
+		"suppressActionPointDestination": suppress_action_point_destination,
 		"removeActionPoint": remove_action_point,
 		"removalX": removal_x,
 		"removalY": removal_y,
@@ -167,6 +170,10 @@ func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
 	current_action_index = int(saved["currentActionIndex"])
 	origin_action_point = saved["originActionPoint"].duplicate(true)
 	active_action_point_header = saved["activeActionPointHeader"].duplicate(true)
+	suppress_action_point_destination = bool(saved.get(
+		"suppressActionPointDestination",
+		false
+	))
 	remove_action_point = bool(saved["removeActionPoint"])
 	removal_x = int(saved["removalX"])
 	removal_y = int(saved["removalY"])
@@ -226,6 +233,11 @@ static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
 	for field_name: String in ["removeActionPoint", "gosubActive"]:
 		if not (snapshot.get(field_name) is bool):
 			return _snapshot_error("Classic continuation has invalid %s" % field_name)
+	if snapshot.has("suppressActionPointDestination") \
+			and not (snapshot.get("suppressActionPointDestination") is bool):
+		return _snapshot_error(
+			"Classic continuation has invalid suppressActionPointDestination"
+		)
 	for field_name: String in [
 		"removalX",
 		"removalY",
@@ -519,6 +531,10 @@ func resume_teleport() -> Dictionary:
 		runtime_state.y
 	)
 	if destination_triggers.is_empty():
+		if teleport.has("completionReason"):
+			var completion_reason := str(teleport["completionReason"])
+			_clear_control_flow()
+			return _completed_result(completion_reason)
 		return run_until_yield()
 	var destination: Variant = destination_triggers[0]
 	if not (destination is Dictionary):
@@ -533,6 +549,7 @@ func resume_teleport() -> Dictionary:
 	origin_action_point = destination.duplicate(true)
 	active_action_point_header = destination.duplicate(true)
 	active_action_point_header.erase("actions")
+	suppress_action_point_destination = true
 	_set_cursor(destination, 0)
 	return run_until_yield()
 
@@ -1649,6 +1666,12 @@ func _execute_player_map(signed_map_id: int) -> Dictionary:
 		"mapId": map_id,
 		"display": signed_map_id < 0,
 		"mapRecord": map_record,
+		"currentPosition": {
+			"levelType": runtime_state.level_type,
+			"levelIndex": runtime_state.level_index,
+			"x": runtime_state.x,
+			"y": runtime_state.y,
+		},
 	})
 
 
@@ -2179,8 +2202,56 @@ func _finish_action_point(reason: String, consume_codes: bool) -> Dictionary:
 			return repeated_encounter
 	if remove_action_point and not origin_action_point.is_empty():
 		_persist_removed_action_point(consume_codes)
+	elif consume_codes and not origin_action_point.is_empty():
+		_set_origin_action_point_percent(-1)
+	var destination_result := _action_point_destination_result(reason)
+	if not destination_result.is_empty():
+		return destination_result
 	_clear_control_flow()
 	return _completed_result(reason)
+
+
+func _action_point_destination_result(reason: String) -> Dictionary:
+	if origin_action_point.is_empty() or suppress_action_point_destination:
+		return {}
+	var source_level := int(origin_action_point.get(
+		"levelIndex",
+		runtime_state.level_index
+	))
+	var source_coordinate: Variant = origin_action_point.get("coordinate", {})
+	var source_x := runtime_state.x
+	var source_y := runtime_state.y
+	if source_coordinate is Dictionary:
+		source_x = int(source_coordinate.get("x", source_x))
+		source_y = int(source_coordinate.get("y", source_y))
+	var destination_level := int(active_action_point_header.get("landid", source_level))
+	var destination_x := int(active_action_point_header.get("targetX", source_x))
+	var destination_y := int(active_action_point_header.get("targetY", source_y))
+	if destination_level == source_level \
+			and destination_x == source_x \
+			and destination_y == source_y:
+		return {}
+	if destination_level == runtime_state.level_index \
+			and destination_x == runtime_state.x \
+			and destination_y == runtime_state.y:
+		return {}
+
+	runtime_state.set_position(destination_level, destination_x, destination_y)
+	pending_teleport = {
+		"recheckDestination": true,
+		"completionReason": reason,
+	}
+	return _yield_result("teleport", {
+		"levelType": runtime_state.level_type,
+		"levelIndex": runtime_state.level_index,
+		"x": runtime_state.x,
+		"y": runtime_state.y,
+		"soundId": 0,
+		"messageId": 0,
+		"message": {},
+		"recheckDestination": true,
+		"actionPointDestination": true,
+	})
 
 
 func _repeat_encounter_after_fallthrough() -> Dictionary:
@@ -2647,6 +2718,7 @@ func _clear_control_flow() -> void:
 	current_action_index = 0
 	origin_action_point.clear()
 	active_action_point_header.clear()
+	suppress_action_point_destination = false
 	remove_action_point = false
 	removal_x = 0
 	removal_y = 0

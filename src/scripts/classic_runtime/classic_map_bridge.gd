@@ -76,6 +76,10 @@ static func normalize_land_tile(value: int, base_tile: int) -> int:
 	return maxi(1, tile)
 
 
+static func native_darkness(is_dark: bool) -> int:
+	return 0 if is_dark else -1
+
+
 func configure(bundle: Object) -> void:
 	classic_bundle = bundle
 	native_tile_stacks.clear()
@@ -93,8 +97,9 @@ func classic_boat_plan(map_record: Dictionary, tileset_name: String) -> Dictiona
 	if not (render is Dictionary) or str(render.get("mode", "")) != "outdoor-landlook":
 		return empty_plan
 	var width := int(map_record.get("width", 0))
+	var height := int(map_record.get("height", 0))
 	var tiles: Variant = map_record.get("tiles", [])
-	if width <= 0 or not (tiles is Array):
+	if width <= 0 or height <= 0 or not (tiles is Array) or tiles.size() != width * height:
 		return _error("Classic boat placement needs a complete land map")
 
 	var landlook := int(render.get("landlook", -1))
@@ -114,7 +119,8 @@ func classic_boat_plan(map_record: Dictionary, tileset_name: String) -> Dictiona
 		))
 		if boat_requirement != 1 or int(attribute.get("baseScale", 0)) != 0:
 			continue
-		var coordinate := "%d,%d" % [cell_index % width, int(cell_index / width)]
+		# Realmz stores land fields by column, unlike Remake's row-major map data.
+		var coordinate := "%d,%d" % [int(cell_index / height), cell_index % height]
 		placements[coordinate] = "%s%d" % [tileset_name, tile_id - 1]
 		terrain_by_cell[cell_index] = CLASSIC_BOAT_WATER_TILE
 	return {
@@ -438,17 +444,16 @@ func set_darkness(payload: Dictionary, game_global: Object, resources: Object) -
 	if map_entry.is_empty():
 		return _error("Classic map %s has no loaded native map resource" % map_name)
 
-	# Remake uses 0 for full darkness and 7 for an unobscured map.
-	var native_darkness := 0 if bool(payload.get("dark", false)) else 7
-	map_entry[6] = native_darkness
+	var darkness_level := native_darkness(bool(payload.get("dark", false)))
+	map_entry[6] = darkness_level
 	var current_map: Variant = _current_map(game_global, map_name)
 	if current_map != null:
-		current_map.set("darkness_level", native_darkness)
+		current_map.set("darkness_level", darkness_level)
 		if current_map.has_method("queue_redraw"):
 			current_map.queue_redraw()
 	return {
 		"nativeMapName": map_name,
-		"nativeDarkness": native_darkness,
+		"nativeDarkness": darkness_level,
 	}
 
 
@@ -694,10 +699,13 @@ func set_random_rectangle(payload: Dictionary, game_global: Object, resources: O
 
 
 func _native_landlook_tileset(landlook: int, resources: Object) -> String:
+	var catalog_name := str(_catalog_landlook_tilesets(resources).get(landlook, ""))
+	if not catalog_name.is_empty():
+		return catalog_name
 	var stock_name := str(STOCK_LANDLOOK_TILESETS.get(landlook, ""))
 	if not stock_name.is_empty() and not _native_tileset(resources, stock_name).is_empty():
 		return stock_name
-	return str(_catalog_landlook_tilesets(resources).get(landlook, ""))
+	return ""
 
 
 func _land_tile_attributes(landlook: int) -> Dictionary:

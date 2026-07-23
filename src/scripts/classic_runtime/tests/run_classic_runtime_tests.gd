@@ -107,6 +107,9 @@ const ClassicPlayerMapScene = preload(
 const ClassicPlayerMapScript = preload(
 	"res://scenes/UI/HUD/ClassicPlayerMapRect/classic_player_map_rect.gd"
 )
+const ClassicPlayerMapRendererScript = preload(
+	"res://scripts/classic_runtime/classic_player_map_renderer.gd"
+)
 const CombatIntegrationAdapterScript = preload(
 	"res://scripts/classic_runtime/tests/classic_combat_integration_adapter.gd"
 )
@@ -1654,6 +1657,7 @@ func _init() -> void:
 	_test_item_mutation_rules()
 	_test_equipment_storage_rules()
 	_test_quest_state_and_branch(bundle)
+	_test_action_point_consumption()
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
 	_test_shipped_opcode_25_mutation()
@@ -2524,11 +2528,23 @@ func _test_installed_classic_campaign_layout() -> void:
 		"id": 6,
 		"primaryName": "Sixth Map",
 	}
+	var pre_starting_map_save: Dictionary = saved_state.snapshot()
+	pre_starting_map_save["ownedMaps"].erase("0")
+	saved_state.restore(pre_starting_map_save)
+	_expect(
+		saved_state.is_map_owned(0),
+		"older compatibility saves retain Classic's starting player map"
+	)
 	saved_state.set_map_owned(6)
 	var acquired_maps: Array = session.acquired_player_map_entries()
-	_expect_equal(acquired_maps.size(), 1, "campaign session filters unacquired player maps")
+	_expect_equal(acquired_maps.size(), 2, "campaign session filters unacquired player maps")
 	_expect_equal(
-		acquired_maps[0]["record"].get("id"),
+		acquired_maps[0].get("nativeMapName"),
+		"map_0",
+		"campaign session resolves a dynamic player map to its materialized level"
+	)
+	_expect_equal(
+		acquired_maps[1]["record"].get("id"),
 		6,
 		"campaign session exposes the acquired player-map record"
 	)
@@ -2536,10 +2552,11 @@ func _test_installed_classic_campaign_layout() -> void:
 	acquired_maps = session.acquired_player_map_entries()
 	_expect_equal(
 		[
-			acquired_maps[0]["record"].get("id"),
-			acquired_maps[1]["record"].get("id"),
+			int(acquired_maps[0]["record"].get("id")),
+			int(acquired_maps[1]["record"].get("id")),
+			int(acquired_maps[2]["record"].get("id")),
 		],
-		[2, 6],
+		[0, 2, 6],
 		"campaign session orders acquired player maps by stable ID"
 	)
 	saved_state.set_random_rectangle("dungeon", 2, 1, {
@@ -2784,20 +2801,34 @@ func _test_classic_map_materializer() -> void:
 		"tile": 100,
 	})
 	var random_level: Dictionary = bundle.get_random_level("land", 0)
-	random_level["isDark"] = true
+	random_level["isDark"] = false
 	random_level["useLos"] = true
-	random_level["rects"] = [{
-		"battleRange": [4, 6],
-		"bottom": 8,
-		"left": 2,
-		"option": 35,
-		"percent": 2500,
-		"rectIndex": 3,
-		"right": 7,
-		"sound": 12,
-		"text": 1,
-		"top": 1,
-	}]
+	random_level["rects"] = [
+		{
+			"battleRange": [4, 6],
+			"bottom": 8,
+			"left": 2,
+			"option": 35,
+			"percent": 2500,
+			"rectIndex": 3,
+			"right": 7,
+			"sound": 12,
+			"text": 1,
+			"top": 1,
+		},
+		{
+			"battleRange": [0, 0],
+			"bottom": 18,
+			"left": 0,
+			"option": 0,
+			"percent": 100,
+			"rectIndex": 4,
+			"right": 41,
+			"sound": 0,
+			"text": 0,
+			"top": 0,
+		},
+	]
 	bundle.documents["maps"]["maps"][1] = {
 		"height": 3,
 		"id": "dungeon:0",
@@ -2856,6 +2887,20 @@ func _test_classic_map_materializer() -> void:
 	)
 	var materializer = MapMaterializerScript.new()
 	_expect_equal(
+		materializer._classic_combat_expansion({
+			"combatBuild": [[1, 2, 3], [4, 5, 6], [7, 8, 200]],
+		}, 40),
+		[0, 1, 2, 3, 4, 5, 6, 7, 199],
+		"Classic combat build IDs become native zero-based expansion slots"
+	)
+	_expect_equal(
+		materializer._classic_combat_expansion({
+			"combatBuild": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+		}, 40),
+		[39, 39, 39, 39, 39, 39, 39, 39, 39],
+		"unsupported empty Classic combat builds repeat their source tile"
+	)
+	_expect_equal(
 		materializer._special_land_resource_id(-1100),
 		-100,
 		"second-band special land field resolves to its signed cicn identity"
@@ -2892,14 +2937,19 @@ func _test_classic_map_materializer() -> void:
 		"Classic tile flags normalize to the one-based native atlas slot"
 	)
 	_expect_equal(
-		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[1],
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[90],
 		156,
-		"special land tile keeps the current landlook base terrain"
+		"column-major special land tile keeps the current landlook base terrain"
 	)
 	_expect_equal(
-		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[2],
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[180],
 		5,
-		"custom land tile keeps its one-based atlas slot"
+		"column-major custom land tile keeps its one-based atlas slot"
+	)
+	_expect_equal(
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[1],
+		156,
+		"land fields are transposed into Remake row-major order"
 	)
 	_expect_equal(map_things.get("layers", []).size(), 2, "special land tile adds an overlay layer")
 	var overlay_first_gid := int(map_things.get("tilesets", [])[1].get("firstgid", 0))
@@ -2909,14 +2959,14 @@ func _test_classic_map_materializer() -> void:
 		"special land tile uses its generated native overlay tileset"
 	)
 	_expect_equal(
-		map_things.get("layers", [])[1].get("chunks", [])[0].get("data", [])[1],
+		map_things.get("layers", [])[1].get("chunks", [])[0].get("data", [])[90],
 		overlay_first_gid,
 		"special land tile is layered over its source cell"
 	)
 	var map_info: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(map_directory.path_join("map_info.json"))
 	)
-	_expect_equal(map_info.get("darkness_level"), 0, "generated map preserves darkness")
+	_expect_equal(map_info.get("darkness_level"), -1, "generated light map disables darkness")
 	_expect_equal(
 		map_info.get("display_explored_only"),
 		1,
@@ -2951,6 +3001,10 @@ func _test_classic_map_materializer() -> void:
 		random_area.get("RR_Battle", {}).get("text"),
 		"Providence owns this rogue encounter.",
 		"native map resolves random battle text"
+	)
+	_expect(
+		not script_areas.get("ScriptRects", {}).get("LRR0.4", {}).has("RR_Battle"),
+		"zero Classic battle range does not create a native Battle_0 encounter"
 	)
 	var dungeon_directory := test_root.path_join("Maps").path_join("mapd_0")
 	var custom_land_directory := test_root.path_join("Tilesets").path_join("landlook-6")
@@ -3138,7 +3192,7 @@ func _test_classic_map_materializer() -> void:
 		-100,
 		"loaded special-land overlay retains its raw field identity"
 	)
-	var custom_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][2][0]
+	var custom_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][0][2]
 	_expect_equal(
 		custom_land_stack[0].get("classicTileId"),
 		5,
@@ -3185,6 +3239,110 @@ func _test_classic_map_materializer() -> void:
 			first_artifacts[relative_path],
 			"materialized %s is deterministic" % relative_path
 		)
+
+	var stock_bundle = BundleScript.new()
+	_expect(
+		stock_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),
+		"producer fixture loads for stock landlook materialization"
+	)
+	stock_bundle.documents["maps"]["maps"] = [{
+		"height": 2,
+		"id": "land:0",
+		"index": 0,
+		"levelType": "land",
+		"render": {
+			"landlook": 4,
+			"mode": "outdoor-landlook",
+			"tilesetId": "landlook-4",
+		},
+		# Classic land fields are column-major: (40, 111), then (41, 39).
+		"tiles": [40, 111, 41, 39],
+		"width": 2,
+	}]
+	stock_bundle.documents["assets"]["catalog"]["tilesets"].append({
+		"available": true,
+		"baseTile": 111,
+		"columns": 20,
+		"custom": false,
+		"id": "landlook-4",
+		"landlook": 4,
+		"pictId": 304,
+		"rows": 10,
+		"tileHeight": 32,
+		"tileWidth": 32,
+	})
+	var stock_random_level: Dictionary = stock_bundle.get_random_level("land", 0)
+	stock_random_level["isDark"] = false
+	stock_random_level["useLos"] = true
+	var stock_directory := test_root.path_join("stock-landlook")
+	DirAccess.make_dir_recursive_absolute(stock_directory)
+	var stock_result: Dictionary = MapMaterializerScript.new().materialize(
+		stock_bundle,
+		stock_directory
+	)
+	_expect_equal(
+		stock_result.get("status"),
+		"ok",
+		"stock Castle landlook materializes with its Classic atlas"
+	)
+	var stock_map_directory := stock_directory.path_join("Maps/map_0")
+	var stock_map_things: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(stock_map_directory.path_join("map_things.json"))
+	)
+	_expect_equal(
+		stock_map_things.get("tilesets", [])[0].get("source"),
+		"landlook-4.json",
+		"stock Castle map uses the generated source-numbered tileset"
+	)
+	_expect_equal(
+		stock_map_things.get("layers", [])[0].get("chunks", [])[0].get("data"),
+		[40.0, 41.0, 111.0, 39.0],
+		"stock Castle tile IDs retain their Classic meaning after row transposition"
+	)
+	var stock_map_info: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(stock_map_directory.path_join("map_info.json"))
+	)
+	_expect_equal(stock_map_info.get("map_type"), "Indoor", "Castle landlook is indoor")
+	_expect_equal(stock_map_info.get("music_type"), "Indoor", "Castle uses indoor music")
+	_expect_equal(
+		stock_map_info.get("outdoor_riding"),
+		false,
+		"Castle landlook does not permit outdoor riding"
+	)
+	var stock_tileset_directory := stock_directory.path_join("Tilesets/landlook-4")
+	var stock_templates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(stock_tileset_directory.path_join("tile_templates.json"))
+	)
+	_expect_equal(
+		stock_templates.get("classic_landlook_4_040", {}).get("wall"),
+		1,
+		"Castle solid tile uses compiled Classic movement behavior"
+	)
+	_expect_equal(
+		stock_templates.get("classic_landlook_4_040", {}).get("blkview"),
+		1,
+		"Castle wall uses compiled Classic line-of-sight behavior"
+	)
+	_expect_equal(
+		stock_templates.get("classic_landlook_4_111", {}).get("classicSoundId"),
+		82,
+		"Castle floor retains its compiled Classic movement sound identity"
+	)
+	var stock_source_image := Image.load_from_file(ProjectSettings.globalize_path(
+		MapMaterializerScript.STOCK_LANDLOOK_ATLASES[4]
+	))
+	var stock_generated_image := Image.load_from_file(
+		stock_tileset_directory.path_join("landlook-4.png")
+	)
+	_expect_equal(
+		stock_generated_image.get_size(),
+		Vector2i(640, 320),
+		"stock Castle atlas keeps the Classic 20 x 10 layout"
+	)
+	_expect(
+		stock_generated_image.get_data() == stock_source_image.get_data(),
+		"stock Castle atlas preserves every decoded Classic pixel"
+	)
 
 	var unsupported_bundle = BundleScript.new()
 	unsupported_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
@@ -3365,9 +3523,9 @@ func _test_classic_boat_materialization() -> void:
 	if not bundle.last_error.is_empty():
 		return
 	var map_record: Dictionary = bundle.documents["maps"]["maps"][0]
-	map_record["width"] = 3
-	map_record["height"] = 1
-	map_record["tiles"] = [147, 60, 1147]
+	map_record["width"] = 2
+	map_record["height"] = 3
+	map_record["tiles"] = [147, 60, 60, 60, 60, 1147]
 	map_record["render"] = {
 		"landlook": 0,
 		"mode": "outdoor-landlook",
@@ -3386,7 +3544,7 @@ func _test_classic_boat_materialization() -> void:
 	)
 	_expect_equal(
 		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", []),
-		[60.0, 60.0, 60.0],
+		[60.0, 60.0, 60.0, 60.0, 60.0, 60.0],
 		"boat cells materialize their source-backed underlying water terrain"
 	)
 	var map_info: Dictionary = JSON.parse_string(
@@ -3394,8 +3552,8 @@ func _test_classic_boat_materialization() -> void:
 	)
 	_expect_equal(
 		map_info.get("classic_boats", {}),
-		{"0,0": "ForestDay146", "2,0": "ForestDay146"},
-		"generated map metadata preserves Classic boat placements and native art"
+		{"0,0": "landlook-0146", "1,2": "landlook-0146"},
+		"generated map metadata preserves Classic boat placements and source art"
 	)
 
 	var resources = MapBridgeTestResources.new()
@@ -3407,14 +3565,14 @@ func _test_classic_boat_materialization() -> void:
 	_expect_equal(seed_result.get("seededBoats"), 2, "Classic start seeds native boat state")
 	_expect_equal(
 		game_global.map_boats_dict.get("map_0", {}),
-		{"0,0": "ForestDay146", "2,0": "ForestDay146"},
+		{"0,0": "landlook-0146", "1,2": "landlook-0146"},
 		"Classic boats use Remake's existing map boat dictionary"
 	)
 	game_global.map_boats_dict["map_0"].erase("0,0")
 	bridge.seed_classic_boats(game_global, resources)
 	_expect_equal(
 		game_global.map_boats_dict.get("map_0", {}),
-		{"2,0": "ForestDay146"},
+		{"1,2": "landlook-0146"},
 		"saved or moved native boat state is not reseeded"
 	)
 	_expect_equal(
@@ -7153,6 +7311,64 @@ func _test_teleport(bundle) -> void:
 		"teleport-only continues the source action point"
 	)
 
+	var door_bundle = BundleScript.new()
+	door_bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 7, "y": 6},
+	}
+	door_bundle.messages_by_id[160] = {"id": 160, "text": "Brothel entrance"}
+	door_bundle.messages_by_id[161] = {"id": 161, "text": "Brothel notice"}
+	var door_trigger := _map_trigger(16, 7, 6, [
+		_classic_action(0, 1, 160),
+		_classic_action(1, 1, 161),
+		_classic_action(2, 24, 0),
+	])
+	door_trigger["landid"] = 6
+	door_trigger["targetX"] = 8
+	door_trigger["targetY"] = 1
+	_add_map_trigger(door_bundle, door_trigger)
+	interpreter = _interpreter(door_bundle)
+	interpreter.runtime_state.set_location("land", 0, 7, 6)
+	_expect(interpreter.begin_trigger(str(door_trigger["id"])), "begin CoB brothel entrance")
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		160,
+		"brothel entrance presents its first authored message"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		161,
+		"brothel entrance presents its second authored message"
+	)
+	var door_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		door_result.get("command"),
+		"teleport",
+		"action-point header yields the brothel map transition"
+	)
+	_expect_equal(
+		door_result.get("payload", {}).get("levelIndex"),
+		6,
+		"brothel action-point header selects land level 6"
+	)
+	_expect_equal(
+		Vector2i(
+			int(door_result.get("payload", {}).get("x", -1)),
+			int(door_result.get("payload", {}).get("y", -1))
+		),
+		Vector2i(8, 1),
+		"brothel action-point header preserves its destination coordinate"
+	)
+	_expect_equal(
+		interpreter.resume_teleport().get("reason"),
+		"keep-codes",
+		"header transition preserves the source Keep Codes result"
+	)
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 16, 100),
+		100,
+		"header transition leaves the reusable brothel entrance enabled"
+	)
+
 
 func _test_teleport_recheck() -> void:
 	var bundle = BundleScript.new()
@@ -7672,6 +7888,14 @@ func _test_classic_map_bridge() -> void:
 	_expect_equal(darkness.get("nativeDarkness"), 0, "Classic darkness maps to native full darkness")
 	_expect_equal(game_global.map.darkness_level, 0, "current native map receives darkness change")
 	_expect_equal(resources.maps_book["mapd_1"][6], 0, "native darkness survives a map reload")
+	var light: Dictionary = bridge.set_darkness({
+		"levelType": "dungeon",
+		"levelIndex": 1,
+		"dark": false,
+	}, game_global, resources)
+	_expect_equal(light.get("nativeDarkness"), -1, "Classic light maps disable native darkness")
+	_expect_equal(game_global.map.darkness_level, -1, "current native map removes darkness")
+	_expect_equal(resources.maps_book["mapd_1"][6], -1, "light state survives a map reload")
 
 	var movement_state = StateScript.new()
 	movement_state.set_location("dungeon", 1, 1, 1)
@@ -17539,6 +17763,71 @@ func _test_quest_state_and_branch(bundle) -> void:
 	_expect_equal(true_branch.get("payload", {}).get("messageId"), 620, "continued AP reaches CoB message 620")
 
 
+func _test_action_point_consumption() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
+	_add_map_trigger(bundle, _map_trigger(13, 26, 7, []))
+	_add_map_trigger(bundle, _map_trigger(27, 87, 39, [_classic_action(7, 24, 0)]))
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:13"), "begin one-shot map action point")
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"action-point-ended",
+		"ordinary map action point falls through"
+	)
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 13, 100),
+		-1,
+		"ordinary map action point is consumed after fallthrough"
+	)
+	var consumed_triggers: Array = interpreter.runtime_state.get_effective_triggers_at(
+		bundle,
+		"land",
+		0,
+		26,
+		7
+	)
+	_expect_equal(consumed_triggers.size(), 1, "consumed map action point remains indexed")
+	_expect(not bool(consumed_triggers[0].get("active")), "consumed map action point is inactive")
+
+	_expect(interpreter.begin_trigger("Data DD:0:27"), "begin reusable map action point")
+	_expect_equal(
+		interpreter.run_until_yield().get("reason"),
+		"keep-codes",
+		"opcode 24 exits through Keep Codes"
+	)
+	_expect_equal(
+		interpreter.runtime_state.get_trigger_percent("land", 0, 27, 100),
+		100,
+		"opcode 24 keeps the map action point active"
+	)
+	_expect_equal(
+		interpreter.runtime_state.get_effective_triggers_at(bundle, "land", 0, 87, 39).size(),
+		1,
+		"kept map action point continues matching its tile"
+	)
+
+	var runtime = RuntimeScript.new()
+	runtime.use_shared_campaign(bundle, interpreter.runtime_state)
+	_expect(not runtime.is_trigger_active("Data DD:0:13"), "runtime reports consumed AP inactive")
+	_expect(runtime.is_trigger_active("Data DD:0:27"), "runtime reports kept AP active")
+	var completions: Array = []
+	var commands: Array = []
+	runtime.trigger_completed.connect(func(result: Dictionary) -> void: completions.append(result))
+	runtime.command_requested.connect(func(command: String, _payload: Dictionary) -> void:
+		commands.append(command)
+	)
+	_expect(runtime.activate_trigger("Data DD:0:13"), "runtime handles consumed AP activation")
+	_expect_equal(completions.size(), 1, "consumed AP activation completes without execution")
+	_expect_equal(
+		completions[0].get("reason"),
+		"inactive-action-point",
+		"consumed AP activation reports its inactive state"
+	)
+	_expect(commands.is_empty(), "consumed AP activation emits no native command")
+
+
 func _test_classic_stack_semantics() -> void:
 	var bundle = _stack_test_bundle()
 	var interpreter = _interpreter(bundle)
@@ -17930,10 +18219,69 @@ func _test_classic_player_map_renderer() -> void:
 		"Classic player-map renderer presents decoded image content"
 	)
 	_expect_equal(
-		ClassicPlayerMapScript.map_display_name({"id": 9}),
+		ClassicPlayerMapScript.map_display_name({
+			"id": 9,
+			"primaryName": null,
+			"name": null,
+			"secondaryName": null,
+		}),
 		"Player Map 9",
-		"Classic player-map renderer supplies a stable unnamed-map label"
+		"Classic player-map renderer ignores null names"
 	)
+	var red_image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	red_image.fill(Color.RED)
+	var green_image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	green_image.fill(Color.GREEN)
+	var blue_image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	blue_image.fill(Color.BLUE)
+	var white_image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	white_image.fill(Color.WHITE)
+	var generated_map := ClassicPlayerMapRendererScript.render(
+		{
+			"iconSize": 160,
+			"level": 0,
+			"isDungeon": false,
+			"markers": [{"iconId": 137, "x": 1, "y": 1}],
+			"pictId": 0,
+			"show": 1,
+			"startX": 0,
+			"startY": 0,
+		},
+		[
+			[
+				[{"texture": ImageTexture.create_from_image(red_image)}],
+				[{"texture": ImageTexture.create_from_image(green_image)}],
+			],
+			[
+				[{"texture": ImageTexture.create_from_image(blue_image)}],
+				[{"texture": ImageTexture.create_from_image(white_image)}],
+			],
+		],
+		{"levelType": "land", "levelIndex": 0, "x": 0, "y": 1}
+	)
+	_expect(generated_map != null, "Classic player-map renderer builds terrain maps")
+	if generated_map != null:
+		var generated_image := generated_map.get_image()
+		_expect_equal(
+			generated_image.get_pixel(10, 10),
+			Color.RED,
+			"Classic player-map renderer preserves column-major terrain placement"
+		)
+		_expect_equal(
+			generated_image.get_pixel(170, 10),
+			Color.BLUE,
+			"Classic player-map renderer advances source columns across the view"
+		)
+		_expect_equal(
+			generated_image.get_pixel(240, 240),
+			Color8(255, 30, 20),
+			"Classic player-map renderer overlays authored map markers"
+		)
+		_expect_equal(
+			generated_image.get_pixel(80, 240),
+			Color8(25, 255, 51),
+			"Classic player-map renderer shows the party on its current level"
+		)
 	_expect(
 		player_map_rect.display_catalog([
 			{
@@ -21894,26 +22242,51 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(bundle.triggers_by_id.size(), 1341, "full CoB trigger index")
 	_expect_equal(bundle.extra_action_points_by_id.size(), 241, "full CoB ED3 AP index")
 	_expect_equal(bundle.extra_codes_by_id.size(), 5282, "full CoB Extra Code index")
-	_expect_equal(bundle.messages_by_id.size(), 881, "full CoB message index")
-	_expect_equal(bundle.battles_by_id.size(), 257, "full CoB battle index")
+	_expect_equal(bundle.messages_by_id.size(), 880, "full CoB message index")
+	_expect_equal(bundle.battles_by_id.size(), 256, "full CoB battle index")
 	_expect_equal(bundle.treasures_by_id.size(), 76, "full CoB treasure index")
-	_expect_equal(bundle.shops_by_id.size(), 16, "full CoB shop index")
+	_expect_equal(bundle.shops_by_id.size(), 21, "full CoB shop index")
 	_expect_equal(bundle.monsters_by_id.size(), 155, "full CoB monster index")
 	_expect_equal(bundle.get_monster(71).get("displayName"), "Vodalian", "full CoB ally monster index")
 	_expect_equal(bundle.simple_encounters_by_id.size(), 20, "full CoB simple encounter index")
-	_expect_equal(bundle.complex_encounters_by_id.size(), 14, "full CoB complex encounter index")
+	_expect_equal(bundle.complex_encounters_by_id.size(), 13, "full CoB complex encounter index")
 	_expect_equal(bundle.thief_encounters_by_id.size(), 8, "full CoB rogue encounter index")
 	_expect_equal(bundle.timed_encounters_by_id.size(), 3, "full CoB timed encounter index")
 	_expect_equal(bundle.maps_by_id.size(), 11, "full CoB map index")
 	_expect_equal(bundle.player_maps_by_id.size(), 20, "full CoB player map index")
+	var initial_state = StateScript.new()
+	initial_state.configure_from_bundle(bundle)
+	_expect(initial_state.is_map_owned(0), "a new Classic party owns player map zero")
 	_expect_equal(bundle.random_levels_by_id.size(), 11, "full CoB random-level index")
 	_expect_equal(bundle.pictures_by_id.size(), 1, "full CoB picture index")
-	_expect_equal(bundle.get_picture(32128).get("resourceType"), "PICT", "full CoB picture metadata")
+	var city_picture: Dictionary = bundle.get_picture(32128)
+	_expect_equal(city_picture.get("resourceType"), "PICT", "full CoB picture metadata")
+	_expect_equal(
+		city_picture.get("runtimeMedia", {}).get("mediaType"),
+		"image/png",
+		"full CoB picture includes decoded runtime media"
+	)
+	var city_picture_adapter = GodotAdapterScript.new()
+	city_picture_adapter.configure_classic_bundle(bundle)
+	var city_picture_path: String = city_picture_adapter.runtime_media_path(
+		city_picture,
+		"image/"
+	)
+	var city_picture_image := Image.new()
+	_expect(
+		not city_picture_path.is_empty() and city_picture_image.load(city_picture_path) == OK,
+		"full CoB picture runtime media is readable by Godot"
+	)
+	_expect_equal(
+		city_picture_image.get_size(),
+		Vector2i(320, 320),
+		"full CoB splash keeps its Classic dimensions"
+	)
 	_expect_equal(bundle.dispatcher_noop_keys.size(), 470, "full CoB dispatcher no-op evidence index")
 	var coordinate_trigger_count := 0
 	for coordinate: Variant in bundle.triggers_by_coordinate:
 		coordinate_trigger_count += bundle.triggers_by_coordinate[coordinate].size()
-	_expect_equal(coordinate_trigger_count, 658, "full CoB active coordinate trigger index")
+	_expect_equal(coordinate_trigger_count, 656, "full CoB active coordinate trigger index")
 	var active_slots := 0
 	var handled_slots := 0
 	for trigger_value: Variant in bundle.triggers_by_id.values():
@@ -21923,9 +22296,9 @@ func _test_full_bundle(path: String) -> void:
 			active_slots += 1
 			if InterpreterScript.handles_opcode(int(action_value.get("code", 0))):
 				handled_slots += 1
-	_expect_equal(active_slots, 2734, "full CoB active action slots")
-	_expect_equal(handled_slots, 2264, "full CoB directly handled action slots")
-	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2734, "full CoB defined-behavior slots")
+	_expect_equal(active_slots, 2730, "full CoB active action slots")
+	_expect_equal(handled_slots, 2260, "full CoB directly handled action slots")
+	_expect_equal(handled_slots + bundle.dispatcher_noop_keys.size(), 2730, "full CoB defined-behavior slots")
 	var execution_report: Dictionary = ExecutionAuditScript.new().inspect(bundle)
 	var execution_totals: Dictionary = execution_report.get("totals", {})
 	_expect(
@@ -22247,8 +22620,8 @@ func _test_full_bundle(path: String) -> void:
 	_expect_equal(add_ally.get("payload", {}).get("monsterId"), 71, "shipped add ally preserves Vodalian ID")
 
 	for shipped_registration: Array in [
-		["Data DD:0:37", 1, "keep-codes"],
-		["Data ED3:macro:106", 0, "action-point-ended"],
+		["Data DD:0:37", 1, "keep-codes", "teleport"],
+		["Data ED3:macro:106", 0, "action-point-ended", ""],
 	]:
 		var registration_interpreter = _interpreter(bundle)
 		_expect(
@@ -22256,6 +22629,13 @@ func _test_full_bundle(path: String) -> void:
 			"begin shipped CoB registration action %s" % shipped_registration[0]
 		)
 		var registration_result: Dictionary = registration_interpreter.run_until_yield()
+		if not str(shipped_registration[3]).is_empty():
+			_expect_equal(
+				registration_result.get("command"),
+				shipped_registration[3],
+				"registration no-op continues to the action-point destination"
+			)
+			continue
 		_expect_equal(registration_result.get("status"), "completed", "registration action continues")
 		_expect_equal(
 			registration_result.get("reason"),
@@ -22486,14 +22866,14 @@ func _test_full_bundle(path: String) -> void:
 		else:
 			resource_gap_count += 1
 			_expect(
-				str(built_shop.get("message", "")).begins_with("Classic shop item "),
-				"full CoB shop %d stops explicitly for unavailable item resources" % shop_id
+				str(built_shop.get("message", "")).begins_with("Classic shop "),
+				"full CoB shop %d stops explicitly for unsupported stock" % shop_id
 			)
 	_expect(built_shop_count >= 11, "all empty full CoB shops build for the native UI")
 	_expect_equal(
 		built_shop_count + resource_gap_count,
-		16,
-		"every full CoB shop either builds or reports its resource gap"
+		21,
+		"every full CoB shop either builds or reports its compatibility boundary"
 	)
 
 	var interpreter = _interpreter(bundle)

@@ -63,6 +63,15 @@ func has_trigger(trigger_id: String) -> bool:
 	)
 
 
+func is_trigger_active(trigger_id: String) -> bool:
+	var trigger := runtime_state.get_action_point_override(trigger_id)
+	if trigger.is_empty():
+		trigger = bundle.get_trigger(trigger_id)
+	if trigger.is_empty():
+		return false
+	return bool(runtime_state.get_effective_action_point(trigger).get("active", true))
+
+
 func timed_encounters() -> Array:
 	var encounters: Array = []
 	var encounter_ids: Array = bundle.timed_encounters_by_id.keys()
@@ -83,6 +92,13 @@ func set_difficulty(difficulty: int) -> void:
 
 
 func activate_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
+	if has_trigger(trigger_id) and not is_trigger_active(trigger_id):
+		_publish({
+			"status": "completed",
+			"reason": "inactive-action-point",
+			"triggerId": trigger_id,
+		})
+		return true
 	if not interpreter.begin_trigger(trigger_id, start_slot, context):
 		last_result = {
 			"status": "error",
