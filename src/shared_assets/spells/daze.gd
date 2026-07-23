@@ -1,5 +1,9 @@
 extends Spell
 
+const ConfusionRules = preload(
+	"res://scripts/classic_runtime/classic_confusion.gd"
+)
+
 func _init() -> void :
 	name = "Daze"
 	elements = [GameGlobal.ELEMENTS.MAGICAL, GameGlobal.ELEMENTS.MENTAL]
@@ -40,5 +44,7 @@ func get_sp_cost(power : int, _caster) -> int :
 	return power * 7
 
 func add_traits_to_creature(caster, target, power : int) -> void :
+	if ConfusionRules.has_permanent_condition(target):
+		return
 	var trait_script = load("res://shared_assets/traits/t_classic_confused.gd")
 	target.add_trait(trait_script, [get_duration_roll(power, caster)])

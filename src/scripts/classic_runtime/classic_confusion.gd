@@ -6,6 +6,10 @@ const OUTCOME_BETRAY := "betray"
 const OUTCOME_IDLE := "idle"
 const OUTCOME_FLEE := "flee"
 const SECONDS_PER_HOUR := 3600
+const PERMANENT_TRAIT_NAMES := [
+	"p_classic_confused.gd",
+	"p_confused.gd",
+]
 
 
 static func turn_outcome(action_roll: int, allegiance_roll: int) -> String:
@@ -33,3 +37,16 @@ static func advance_time(condition: int, previous_time: int, current_time: int) 
 	var previous_hour := int(floor(float(previous_time) / SECONDS_PER_HOUR))
 	var current_hour := int(floor(float(current_time) / SECONDS_PER_HOUR))
 	return reduce(condition, max(0, current_hour - previous_hour))
+
+
+static func has_permanent_condition(character: Object) -> bool:
+	if character == null:
+		return false
+	var traits: Variant = character.get("traits")
+	if not (traits is Array):
+		return false
+	for trait_value: Variant in traits:
+		if trait_value is Object \
+				and str(trait_value.get("name")) in PERMANENT_TRAIT_NAMES:
+			return true
+	return false

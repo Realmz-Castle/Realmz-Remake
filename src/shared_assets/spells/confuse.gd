@@ -1,5 +1,9 @@
 extends Spell
 
+const ConfusionRules = preload(
+	"res://scripts/classic_runtime/classic_confusion.gd"
+)
+
 func _init() -> void :
 	name = "Confuse"
 	elements = [GameGlobal.ELEMENTS.MAGICAL, GameGlobal.ELEMENTS.MENTAL]
@@ -39,5 +43,7 @@ func get_aoe(_power : int, _caster) -> Array[Vector2i] :
 	return AoE_b7
 
 func add_traits_to_creature(caster, target, power : int) -> void :
+	if ConfusionRules.has_permanent_condition(target):
+		return
 	var trait_script = load("res://shared_assets/traits/t_classic_confused.gd")
 	target.add_trait(trait_script, [get_duration_roll(power, caster)])

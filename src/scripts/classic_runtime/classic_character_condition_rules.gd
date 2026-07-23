@@ -100,10 +100,20 @@ const CONDITION_TRAITS := {
 		"temporary": "res://shared_assets/traits/t_classic_invisible.gd",
 		"permanent": "res://shared_assets/traits/p_classic_invisible.gd",
 	},
+	27: {
+		"name": "Blind",
+		"temporary": "res://shared_assets/traits/t_classic_blind.gd",
+		"permanent": "res://shared_assets/traits/p_classic_blind.gd",
+	},
 	28: {
 		"name": "Diseased",
 		"temporary": "res://shared_assets/traits/t_disease.gd",
 		"permanent": "res://shared_assets/traits/p_disease.gd",
+	},
+	29: {
+		"name": "Confused",
+		"temporary": "res://shared_assets/traits/t_classic_confused.gd",
+		"permanent": "res://shared_assets/traits/p_classic_confused.gd",
 	},
 	30: {
 		"name": "Reflecting Spells",

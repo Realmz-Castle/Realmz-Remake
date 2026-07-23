@@ -59,7 +59,7 @@ const STATUS_BY_SPECIAL := {
 		"saveIndex": 5,
 		"trait": "t_classic_confused.gd",
 		"temporaryTraits": ["t_classic_confused.gd", "t_confused.gd"],
-		"permanentTraits": ["p_confused.gd"],
+		"permanentTraits": ["p_classic_confused.gd", "p_confused.gd"],
 	},
 	16: {
 		"name": "Disease",

@@ -7515,6 +7515,8 @@ func _test_classic_character_rule_profile() -> void:
 			record["conditions"][22] = -1
 			record["conditions"][23] = 3
 			record["conditions"][24] = -1
+			record["conditions"][27] = 3
+			record["conditions"][29] = -1
 			record["conditions"][30] = 2
 			record["conditions"][31] = -1
 			record["conditions"][32] = 3
@@ -7658,7 +7660,7 @@ func _test_classic_character_rule_profile() -> void:
 			"raceStartingConditions": [
 				0, 0, -4, -1, 2, 0, 2, 3, -1, 0,
 				-3, 4, -1, 2, -1, 3, 6, 0, -1, 2,
-				0, -1, -1, 3, -1, 0, 0, 0, 0, 0,
+				0, -1, -1, 3, -1, 0, 0, 3, 0, -1,
 				2, -1, 3, -3, -4, -1, -5, 4, -6, 0,
 			],
 			"casteConditionLevels": [
@@ -8125,6 +8127,8 @@ func _test_classic_character_rule_profile() -> void:
 		2: -4,
 		3: -1,
 		6: 2,
+		27: 3,
+		29: -1,
 	}
 	for condition_index: int in expected_impairment_conditions:
 		_expect_equal(
@@ -8185,6 +8189,8 @@ func _test_classic_character_rule_profile() -> void:
 		"p_classic_protection_from_foe.gd",
 		"t_classic_speedy.gd",
 		"p_classic_invisible.gd",
+		"t_classic_blind.gd",
+		"p_classic_confused.gd",
 		"t_reflect_spells.gd",
 		"p_reflect_melee.gd",
 		"t_classic_attack_bonus.gd",
@@ -8208,6 +8214,8 @@ func _test_classic_character_rule_profile() -> void:
 	var permanent_strong: Variant = null
 	var temporary_speedy: Variant = null
 	var permanent_invisible: Variant = null
+	var temporary_blind: Variant = null
+	var permanent_confused: Variant = null
 	var temporary_attack_bonus: Variant = null
 	var permanent_power_gather: Variant = null
 	var permanent_power_wither: Variant = null
@@ -8234,6 +8242,10 @@ func _test_classic_character_rule_profile() -> void:
 			temporary_speedy = trait_value
 		elif str(trait_value.get("name")) == "p_classic_invisible.gd":
 			permanent_invisible = trait_value
+		elif str(trait_value.get("name")) == "t_classic_blind.gd":
+			temporary_blind = trait_value
+		elif str(trait_value.get("name")) == "p_classic_confused.gd":
+			permanent_confused = trait_value
 		elif str(trait_value.get("name")) == "t_classic_attack_bonus.gd":
 			temporary_attack_bonus = trait_value
 		elif str(trait_value.get("name")) == "p_classic_power_gather.gd":
@@ -8424,6 +8436,18 @@ func _test_classic_character_rule_profile() -> void:
 			and "AoO_imm" in permanent_invisible.trait_types,
 		"permanent invisibility retains Classic evasion and opportunity immunity"
 	)
+	_expect(
+		temporary_blind != null \
+			and temporary_blind._on_get_stat("AccuracyMelee", 5) == 2 \
+			and temporary_blind._on_get_stat("EvasionRanged", 5) == 2,
+		"temporary Blind changes physical attack and defense by fifteen percent"
+	)
+	_expect(
+		permanent_confused != null \
+			and permanent_confused._on_get_stat("AccuracyRanged", 5) == 3 \
+			and permanent_confused._on_get_stat("EvasionMelee", 5) == 3,
+		"permanent Confused changes physical attack and defense by ten percent"
+	)
 	if hit_shield != null:
 		hit_shield._on_new_round(attribute_creation)
 		_expect_equal(
@@ -8468,6 +8492,8 @@ func _test_classic_character_rule_profile() -> void:
 		)
 	if temporary_slow != null:
 		temporary_slow._on_new_round(attribute_creation)
+	if temporary_blind != null:
+		temporary_blind._on_new_round(attribute_creation)
 	_expect_equal(
 		CharacterConditionRulesScript.condition_value(
 			attribute_creation,
@@ -8610,6 +8636,20 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		[-4, -1, 1],
 		"Tangled, Cursed, and Slow conditions survive character save/load"
+	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				27
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				29
+			),
+		],
+		[2, -1],
+		"Blind and Confused conditions survive character save/load"
 	)
 	_expect_equal(
 		[
@@ -12349,12 +12389,12 @@ func _test_classic_confusion_contract() -> void:
 	)
 	_expect_equal(
 		confusion_trait._on_get_stat("AccuracyMelee", 20),
-		10,
+		18,
 		"Classic confusion reduces physical accuracy by ten"
 	)
 	_expect_equal(
 		confusion_trait._on_get_stat("EvasionRanged", 20),
-		10,
+		18,
 		"Classic confusion makes the target ten points easier to hit"
 	)
 	confusion_trait._on_new_round(target)
@@ -12376,6 +12416,39 @@ func _test_classic_confusion_contract() -> void:
 		confusion_trait.get_saved_variables(),
 		[4],
 		"Classic confusion can persist after battle"
+	)
+	var permanent_trait_script = load(
+		"res://shared_assets/traits/p_classic_confused.gd"
+	)
+	var permanent_target := CharmTestCharacter.new("Innately confused", 1)
+	var permanent_confusion = permanent_target.add_trait(
+		permanent_trait_script,
+		[]
+	)
+	_expect(
+		ClassicConfusionScript.has_permanent_condition(permanent_target),
+		"permanent Classic confusion blocks temporary confusion"
+	)
+	var confuse_spell = load("res://shared_assets/spells/confuse.gd").new()
+	confuse_spell.add_traits_to_creature(null, permanent_target, 2)
+	var daze_spell = load("res://shared_assets/spells/daze.gd").new()
+	daze_spell.add_traits_to_creature(null, permanent_target, 2)
+	_expect_equal(
+		permanent_target.traits.size(),
+		1,
+		"Confuse and Daze do not stack over permanent Classic confusion"
+	)
+	_expect_equal(
+		permanent_confusion._on_get_stat("AccuracyMelee", 20),
+		18,
+		"permanent Classic confusion uses the same combat adjustment"
+	)
+	permanent_target.curFaction = 0
+	permanent_confusion._on_new_round(permanent_target)
+	_expect_equal(
+		permanent_target.curFaction,
+		1,
+		"permanent Classic confusion resets temporary allegiance each round"
 	)
 
 

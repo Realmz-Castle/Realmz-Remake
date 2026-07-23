@@ -5,7 +5,12 @@ const TRAIT_NAMES_BY_CONDITION := {
 	3: ["t_cursed.gd", "p_cursed.gd"],
 	9: ["t_poison.gd", "p_poison.gd"],
 	26: ["p_petrified.gd"],
-	27: ["t_blind.gd", "p_blind.gd", "p_classic_blind.gd"],
+	27: [
+		"t_classic_blind.gd",
+		"t_blind.gd",
+		"p_blind.gd",
+		"p_classic_blind.gd",
+	],
 	28: ["t_classic_disease.gd", "t_disease.gd", "p_disease.gd"],
 }
 
