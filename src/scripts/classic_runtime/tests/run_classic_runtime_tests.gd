@@ -1049,6 +1049,7 @@ class RogueTestCharacter:
 	var name := "Test Rogue"
 	var level := 1
 	var classgd: Variant = null
+	var classic_rule_profile: Dictionary = {}
 	var stat_value := 35.0
 	var stat_values: Dictionary = {}
 	var current_hp := 30
@@ -7686,8 +7687,11 @@ func _test_classic_character_rule_profile() -> void:
 			record["toHit"] = [5, 10]
 			record["dodge"] = [20, 4]
 			record["canUseMissile"] = 0
+			record["getsMissileBonus"] = 1
 			record["missile"] = [15, 5]
 			record["hand2Hand"] = [6, 2]
+			record["casteClass"] = 6
+			record["maxSpellsAttacks"] = 3
 			record["stamina"] = [8, 6]
 			record["maxStaminaBonus"] = 2
 			record["strength"] = [0, 4]
@@ -7869,6 +7873,20 @@ func _test_classic_character_rule_profile() -> void:
 			],
 		},
 		"character retains the source-backed victory progression"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("casteRuntime"),
+		{
+			"getsMissileBonus": true,
+			"maxSpellsPerRound": 3,
+			"casteClass": 6,
+		},
+		"character retains the source-backed caste combat identity"
+	)
+	_expect_equal(
+		character.get_stat("MaxSpellsPerRound"),
+		3,
+		"Classic spell attacks per round replace the native class contribution"
 	)
 	_expect_equal(
 		CharacterRulesScript.post_level_up_experience_requirement(
@@ -10038,6 +10056,17 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.classic_rule_profile.get("victoryProgression"),
 		character.classic_rule_profile.get("victoryProgression"),
 		"Classic victory requirements survive character save/load"
+	)
+	_expect_equal(
+		[
+			reloaded.classic_rule_profile.get("casteRuntime"),
+			reloaded.get_stat("MaxSpellsPerRound"),
+		],
+		[
+			character.classic_rule_profile.get("casteRuntime"),
+			3,
+		],
+		"Classic caste combat identity survives character save/load"
 	)
 	_expect_equal(
 		CharacterRulesScript.classic_foe_type_bonus(reloaded, typed_foe),
@@ -21462,6 +21491,23 @@ func _test_flame_missile() -> void:
 		spell.classic_missile_bonus_range(caster),
 		Vector2i(1, 5),
 		"preserved custom-caste metadata can opt into missile bonus damage"
+	)
+	caster.set_meta("classic_gets_missile_bonus", false)
+	caster.set("classic_rule_profile", {
+		"casteRuntime": {"getsMissileBonus": true},
+	})
+	_expect_equal(
+		spell.classic_missile_bonus_range(caster),
+		Vector2i(1, 5),
+		"an active changed caste drives missile bonus eligibility"
+	)
+	caster.set("classic_rule_profile", {
+		"casteRuntime": {"getsMissileBonus": false},
+	})
+	_expect_equal(
+		spell.classic_missile_bonus_range(caster),
+		Vector2i.ZERO,
+		"an active changed caste can remove a native missile bonus"
 	)
 
 	var protected_target := RogueTestCharacter.new()

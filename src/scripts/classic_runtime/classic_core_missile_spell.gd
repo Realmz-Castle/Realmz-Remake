@@ -32,6 +32,12 @@ func classic_missile_bonus_range(caster) -> Vector2i:
 func _caster_gets_missile_bonus(caster) -> bool:
 	if caster == null:
 		return false
+	var profile: Variant = caster.get("classic_rule_profile")
+	if profile is Dictionary:
+		var caste_runtime: Variant = profile.get("casteRuntime", {})
+		if caste_runtime is Dictionary \
+				and caste_runtime.has("getsMissileBonus"):
+			return bool(caste_runtime["getsMissileBonus"])
 	if caster.has_meta(MISSILE_BONUS_META_KEY):
 		return bool(caster.get_meta(MISSILE_BONUS_META_KEY))
 	var class_script: Variant = caster.get("classgd")

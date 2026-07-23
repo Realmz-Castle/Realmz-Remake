@@ -172,6 +172,10 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var caste_runtime := _caste_runtime_profile(
+		active_caste_record,
+		not changed_caste_record.is_empty()
+	)
 	var special_abilities := _special_ability_profile(
 		active_race_record,
 		active_caste_record,
@@ -201,6 +205,7 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 			and victory_progression.is_empty() \
 			and condition_progression.is_empty() \
 			and spellcasting_progression.is_empty() \
+			and caste_runtime.is_empty() \
 			and special_abilities.is_empty() \
 			and item_permissions.is_empty() \
 			and foe_type_bonuses.is_empty() \
@@ -226,6 +231,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["conditionProgression"] = condition_progression
 	if not spellcasting_progression.is_empty():
 		profile["spellcastingProgression"] = spellcasting_progression
+	if not caste_runtime.is_empty():
+		profile["casteRuntime"] = caste_runtime
 	if not special_abilities.is_empty():
 		profile["specialAbilities"] = special_abilities
 	if not item_permissions.is_empty():
@@ -337,6 +344,23 @@ static func adjusted_stat(
 			return native_value
 		return float(native_value) + float(
 			attacks.get("nativeAdjustment", 0.0)
+		)
+	if stat_name == "MaxSpellsPerRound":
+		var caste_runtime := _dictionary_value(
+			profile.get("casteRuntime", {})
+		)
+		if caste_runtime.is_empty() \
+				or not caste_runtime.has("maxSpellsPerRound"):
+			return native_value
+		# Remake already combines identity and equipment stats. Replace only
+		# the native class contribution with Classic's caste-owned limit.
+		return roundi(
+			float(native_value)
+			+ int(caste_runtime["maxSpellsPerRound"])
+			- _native_identity_stat(
+				_value(character, "classgd", null),
+				stat_name
+			)
 		)
 	return native_value
 
@@ -1796,6 +1820,25 @@ static func _spellcasting_progression_profile(
 		"startLevels": start_levels,
 		"maximumSpellLevels": maximum_spell_levels,
 		"maximumSpellLevel": maximum_spell_level,
+	}
+
+
+static func _caste_runtime_profile(
+	caste_record: Dictionary,
+	has_changed_caste: bool
+) -> Dictionary:
+	if not has_changed_caste \
+			or not caste_record.has("getsMissileBonus") \
+			or not caste_record.has("maxSpellsAttacks") \
+			or not caste_record.has("casteClass"):
+		return {}
+	return {
+		"getsMissileBonus": int(caste_record["getsMissileBonus"]) != 0,
+		"maxSpellsPerRound": maxi(
+			0,
+			int(caste_record["maxSpellsAttacks"])
+		),
+		"casteClass": int(caste_record["casteClass"]),
 	}
 
 
