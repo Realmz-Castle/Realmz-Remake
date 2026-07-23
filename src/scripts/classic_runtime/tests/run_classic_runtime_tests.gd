@@ -498,6 +498,11 @@ class CampaignRuleCharacter:
 	var classic_hand_to_hand_initialized := false
 	var classic_spellcaster_type := 0
 	var classic_spellcaster_type_initialized := false
+	var classic_luck := 0
+	var classic_gender := 0
+	var classic_age_years := 0
+	var classic_age_group := 0
+	var classic_creation_demographics_initialized := false
 	var used_resource := "MP"
 	var spells: Array = [[], [], [], [], [], [], []]
 	var traits: Array = []
@@ -512,6 +517,11 @@ class CampaignRuleCharacter:
 		"EvasionMelee": 0.0,
 		"EvasionRanged": 0.05,
 		"Bonus_Physical_dmg": 0,
+		"Strength": 18,
+		"Intellect": 11,
+		"Wisdom": 8,
+		"Dexterity": 17,
+		"Vitality": 19,
 		"maxHP": 20,
 		"maxSP": 12,
 	}
@@ -551,6 +561,15 @@ class CampaignRuleCharacter:
 			set_classic_spellcaster_type(
 				int(saved_data["classicSpellcasterType"])
 			)
+		if saved_data.has("classicLuck") \
+				or saved_data.has("classicGender") \
+				or saved_data.has("classicAgeYears") \
+				or saved_data.has("classicAgeGroup"):
+			classic_luck = int(saved_data.get("classicLuck", 0))
+			classic_gender = int(saved_data.get("classicGender", 0))
+			classic_age_years = int(saved_data.get("classicAgeYears", 0))
+			classic_age_group = int(saved_data.get("classicAgeGroup", 0))
+			classic_creation_demographics_initialized = true
 		var saved_base_stats: Variant = saved_data.get("baseStats", null)
 		if saved_base_stats is Dictionary:
 			base_stats = saved_base_stats.duplicate(true)
@@ -609,6 +628,27 @@ class CampaignRuleCharacter:
 		recalculate_stats()
 		native_stats["curSP"] = native_stats["maxSP"]
 
+	func set_classic_creation_attributes(values: Dictionary) -> void:
+		for stat_name: String in [
+			"Strength",
+			"Intellect",
+			"Wisdom",
+			"Dexterity",
+			"Vitality",
+		]:
+			if values.has(stat_name):
+				base_stats[stat_name] = values[stat_name]
+		classic_luck = int(values.get("classicLuck", classic_luck))
+		classic_gender = int(values.get("classicGender", classic_gender))
+		classic_age_years = int(
+			values.get("classicAgeYears", classic_age_years)
+		)
+		classic_age_group = int(
+			values.get("classicAgeGroup", classic_age_group)
+		)
+		classic_creation_demographics_initialized = true
+		recalculate_stats()
+
 	func set_classic_creation_combat_stats(values: Dictionary) -> void:
 		for stat_name: String in [
 			"maxHP",
@@ -659,6 +699,11 @@ class CampaignRuleCharacter:
 			"EvasionMelee",
 			"EvasionRanged",
 			"Bonus_Physical_dmg",
+			"Strength",
+			"Intellect",
+			"Wisdom",
+			"Dexterity",
+			"Vitality",
 			"maxHP",
 			"maxSP",
 		]:
@@ -737,6 +782,11 @@ class CampaignRuleCharacter:
 			data["classicHandToHand"] = classic_hand_to_hand
 		if classic_spellcaster_type_initialized:
 			data["classicSpellcasterType"] = classic_spellcaster_type
+		if classic_creation_demographics_initialized:
+			data["classicLuck"] = classic_luck
+			data["classicGender"] = classic_gender
+			data["classicAgeYears"] = classic_age_years
+			data["classicAgeGroup"] = classic_age_group
 		return data
 
 
@@ -7306,6 +7356,16 @@ func _test_classic_character_rule_profile() -> void:
 	}
 	for record: Variant in install.bundle.documents["rules"]["casteOverrides"]:
 		if record is Dictionary and int(record.get("id", -1)) == 20:
+			record["attBonus"] = [6, 5, 4, 3, 2, 1]
+			record["minMax"] = [
+				2, 24,
+				3, 24,
+				4, 24,
+				5, 24,
+				6, 24,
+				7, 24,
+			]
+			record["minimumAgeGroup"] = 2
 			record["bonusAttacks"] = 1
 			record["attacks"] = [2, 4, 0, 0, 0, 0, 0, 0, 0, 0]
 			record["toHit"] = [5, 10]
@@ -7323,6 +7383,26 @@ func _test_classic_character_rule_profile() -> void:
 				[0, 0, 0],
 				[0, 0, 0],
 				[0, 0, 0],
+			]
+	for record: Variant in install.bundle.documents["rules"]["raceOverrides"]:
+		if record is Dictionary and int(record.get("id", -1)) == 19:
+			record["attBonus"] = [1, 2, 3, 4, 5, 6]
+			record["minMax"] = [
+				3, 20,
+				4, 21,
+				5, 22,
+				6, 23,
+				7, 24,
+				8, 25,
+			]
+			record["canCaste"][20] = 1
+			record["ageChange"][0] = [
+				1, 2, 3, 4, 5, 6,
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
+			]
+			record["ageChange"][1] = [
+				-1, 1, -2, 2, -3, 3,
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
 			]
 
 	var character := CampaignRuleCharacter.new()
@@ -7401,6 +7481,46 @@ func _test_classic_character_rule_profile() -> void:
 	_expect_equal(
 		character.classic_rule_profile.get("creation"),
 		{
+			"raceAttributeBonuses": [1, 2, 3, 4, 5, 6],
+			"casteAttributeBonuses": [6, 5, 4, 3, 2, 1],
+			"raceAttributeLimits": [
+				3, 20,
+				4, 21,
+				5, 22,
+				6, 23,
+				7, 24,
+				8, 25,
+			],
+			"casteAttributeLimits": [
+				2, 24,
+				3, 24,
+				4, 24,
+				5, 24,
+				6, 24,
+				7, 24,
+			],
+			"casteAllowed": true,
+			"minimumAgeGroup": 2,
+			"ageRanges": [
+				[14, 17],
+				[18, 21],
+				[22, 35],
+				[36, 49],
+				[50, 70],
+			],
+			"ageChanges": [
+				[
+					1, 2, 3, 4, 5, 6,
+					0, 0, 0, 0, 0, 0, 0, 0, 0,
+				],
+				[
+					-1, 1, -2, 2, -3, 3,
+					0, 0, 0, 0, 0, 0, 0, 0, 0,
+				],
+				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			],
 			"staminaDieMaximum": 8,
 			"maximumVitalityBonus": 2,
 			"toHitBase": 5,
@@ -7667,6 +7787,130 @@ func _test_classic_character_rule_profile() -> void:
 		creation_reloaded.classic_spellcaster_type,
 		3,
 		"the creation-time caster identity survives character save/load"
+	)
+	var attribute_creation := CampaignRuleCharacter.new()
+	attribute_creation.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	var attribute_creation_result := (
+		CharacterRulesScript.apply_character_creation_attributes(
+			attribute_creation,
+			2,
+			[1, 2, 3, 18, 5, 6],
+			20
+		)
+	)
+	_expect_equal(
+		attribute_creation_result,
+		{
+			"status": "ok",
+			"rolls": [1, 2, 3, 18, 5, 6],
+			"attributes": {
+				"Strength": 7,
+				"Intellect": 12,
+				"Wisdom": 12,
+				"Dexterity": 23,
+				"Vitality": 14,
+				"Luck": 22,
+			},
+			"gender": 2,
+			"ageYears": 20,
+			"ageGroup": 2,
+		},
+		"Classic creation applies rolls, limits, gender, and age in source order"
+	)
+	for stat_name: String in [
+		"Strength",
+		"Intellect",
+		"Wisdom",
+		"Dexterity",
+		"Vitality",
+	]:
+		_expect_equal(
+			attribute_creation.get_stat(stat_name),
+			attribute_creation_result["attributes"][stat_name],
+			"Classic creation writes %s through native base stats" % stat_name
+		)
+	_expect_equal(
+		attribute_creation.classic_luck,
+		22,
+		"Classic Luck remains compatibility-owned"
+	)
+	_expect_equal(
+		attribute_creation.classic_gender,
+		2,
+		"Classic gender remains compatibility-owned"
+	)
+	_expect_equal(
+		attribute_creation.classic_age_years,
+		20,
+		"Classic age remains compatibility-owned"
+	)
+	_expect_equal(
+		attribute_creation.classic_age_group,
+		2,
+		"Classic age group remains compatibility-owned"
+	)
+	var attribute_creation_saved: Variant = JSON.parse_string(
+		JSON.stringify(attribute_creation.save_data())
+	)
+	var attribute_creation_reloaded := CampaignRuleCharacter.new(
+		attribute_creation_saved
+	)
+	_expect_equal(
+		attribute_creation_reloaded.get_stat("Dexterity"),
+		23,
+		"Classic creation attributes survive character save/load"
+	)
+	_expect_equal(
+		[
+			attribute_creation_reloaded.classic_luck,
+			attribute_creation_reloaded.classic_gender,
+			attribute_creation_reloaded.classic_age_years,
+			attribute_creation_reloaded.classic_age_group,
+		],
+		[22, 2, 20, 2],
+		"Classic creation demographics survive character save/load"
+	)
+	var forbidden_creation := CampaignRuleCharacter.new()
+	forbidden_creation.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	forbidden_creation.classic_rule_profile["creation"]["casteAllowed"] = false
+	var forbidden_creation_result := (
+		CharacterRulesScript.apply_character_creation_attributes(
+			forbidden_creation,
+			1,
+			[10, 10, 10, 10, 10, 10],
+			20
+		)
+	)
+	_expect_equal(
+		forbidden_creation_result.get("status"),
+		"error",
+		"a race's Classic canCaste table rejects character creation"
+	)
+	_expect_equal(
+		forbidden_creation.get_stat("Strength"),
+		18,
+		"a rejected race/caste pairing does not mutate attributes"
+	)
+	var invalid_age_character := CampaignRuleCharacter.new()
+	invalid_age_character.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	var invalid_age_result := (
+		CharacterRulesScript.apply_character_creation_attributes(
+			invalid_age_character,
+			2,
+			[1, 2, 3, 18, 5, 6],
+			22
+		)
+	)
+	_expect_equal(
+		invalid_age_result.get("status"),
+		"error",
+		"an explicit creation age must use the caste's minimum age group"
 	)
 	var combat_creation := CampaignRuleCharacter.new()
 	combat_creation.classic_rule_profile = (

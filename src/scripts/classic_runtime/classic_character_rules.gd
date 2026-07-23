@@ -121,6 +121,7 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 	var creation := _creation_profile(
 		active_race_record,
 		active_caste_record,
+		caste_id,
 		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
 	)
 
@@ -413,6 +414,189 @@ static func apply_level_up_condition_progression(character: Variant) -> Dictiona
 			return result
 		applied.append(result)
 	return {"status": "ok", "applied": applied}
+
+
+## Rolls and assigns Classic's six creation attributes and demographics.
+##
+## Call this before the other creation adapters. Luck, gender, and age have no
+## native Remake owner, so PlayerCharacter retains them as compatibility state.
+static func apply_character_creation_attributes(
+	character: Variant,
+	gender: int,
+	attribute_rolls: Array[int] = [],
+	age_year: int = RANDOM_ROLL_UNSET
+) -> Dictionary:
+	var creation := _dictionary_value(
+		_dictionary_value(
+			_value(character, "classic_rule_profile", {})
+		).get("creation", {})
+	)
+	if creation.is_empty():
+		return {"status": "skipped"}
+	if not (character is Object) \
+			or not character.has_method("set_classic_creation_attributes"):
+		return {
+			"status": "error",
+			"message": "Classic character creation requires mutable attributes.",
+		}
+	if gender not in [1, 2]:
+		return {
+			"status": "error",
+			"message": "Classic character creation gender must be 1 or 2.",
+		}
+	if not attribute_rolls.is_empty() and attribute_rolls.size() != 6:
+		return {
+			"status": "error",
+			"message": "Classic character creation requires six attribute rolls.",
+		}
+	if not bool(creation.get("casteAllowed", false)):
+		return {
+			"status": "error",
+			"message": "The selected Classic race cannot use this caste.",
+		}
+
+	var race_bonuses := _integer_array(
+		creation.get("raceAttributeBonuses", [])
+	)
+	var caste_bonuses := _integer_array(
+		creation.get("casteAttributeBonuses", [])
+	)
+	var race_limits := _integer_array(
+		creation.get("raceAttributeLimits", [])
+	)
+	var caste_limits := _integer_array(
+		creation.get("casteAttributeLimits", [])
+	)
+	var age_ranges := _integer_rows(creation.get("ageRanges", []))
+	var age_changes := _integer_rows(creation.get("ageChanges", []))
+	var minimum_age_group := int(creation.get("minimumAgeGroup", 0))
+	if race_bonuses.size() != 6 \
+			or caste_bonuses.size() != 6 \
+			or race_limits.size() != 12 \
+			or caste_limits.size() != 12 \
+			or age_ranges.size() != 5 \
+			or age_changes.size() != 5 \
+			or minimum_age_group < 1 \
+			or minimum_age_group > 5:
+		return {
+			"status": "error",
+			"message": "Classic character creation has incomplete attribute rules.",
+		}
+	for row: Array[int] in age_ranges:
+		if row.size() != 2:
+			return {
+				"status": "error",
+				"message": "Classic character creation has an invalid age range.",
+			}
+	for row: Array[int] in age_changes:
+		if row.size() != 15:
+			return {
+				"status": "error",
+				"message": "Classic character creation has invalid age changes.",
+			}
+
+	var rolls: Array[int] = []
+	var attributes: Array[int] = []
+	for attribute_index: int in range(6):
+		var roll := (
+			attribute_rolls[attribute_index]
+			if not attribute_rolls.is_empty()
+			else _classic_rand(18)
+		)
+		if roll < 1 or roll > 18:
+			return {
+				"status": "error",
+				"message": "Classic attribute rolls must be between 1 and 18.",
+			}
+		rolls.append(roll)
+		var value := roll + race_bonuses[attribute_index] \
+			+ caste_bonuses[attribute_index]
+		value = _classic_pin(
+			value,
+			caste_limits[attribute_index * 2],
+			caste_limits[attribute_index * 2 + 1]
+		)
+		value = _classic_pin(
+			value,
+			race_limits[attribute_index * 2],
+			race_limits[attribute_index * 2 + 1]
+		)
+		attributes.append(value)
+
+	# Gender 2 is female in Classic's creation dialog.
+	if gender == 2:
+		attributes[0] -= 1
+		attributes[2] += 1
+		attributes[3] += 1
+	else:
+		attributes[0] += 1
+		attributes[3] -= 1
+
+	for age_group_index: int in range(minimum_age_group):
+		var changes: Array[int] = age_changes[age_group_index]
+		for attribute_index: int in range(6):
+			attributes[attribute_index] += changes[attribute_index]
+
+	for attribute_index: int in range(6):
+		attributes[attribute_index] = _classic_pin(
+			attributes[attribute_index],
+			caste_limits[attribute_index * 2],
+			caste_limits[attribute_index * 2 + 1]
+		)
+		attributes[attribute_index] = _classic_pin(
+			attributes[attribute_index],
+			race_limits[attribute_index * 2],
+			race_limits[attribute_index * 2 + 1]
+		)
+
+	var selected_age_range: Array[int] = age_ranges[minimum_age_group - 1]
+	var minimum_age := selected_age_range[0]
+	var maximum_age := selected_age_range[1]
+	if minimum_age > maximum_age:
+		return {
+			"status": "error",
+			"message": "Classic character creation has a reversed age range.",
+		}
+	var selected_age := age_year
+	if selected_age == RANDOM_ROLL_UNSET:
+		selected_age = _classic_rand(maximum_age - minimum_age + 1) \
+			- 1 + minimum_age
+	elif selected_age < minimum_age or selected_age > maximum_age:
+		return {
+			"status": "error",
+			"message": (
+				"Classic creation age must be between %d and %d."
+				% [minimum_age, maximum_age]
+			),
+		}
+
+	var assigned := {
+		"Strength": attributes[0],
+		"Intellect": attributes[1],
+		"Wisdom": attributes[2],
+		"Dexterity": attributes[3],
+		"Vitality": attributes[4],
+		"classicLuck": attributes[5],
+		"classicGender": gender,
+		"classicAgeYears": selected_age,
+		"classicAgeGroup": minimum_age_group,
+	}
+	character.call("set_classic_creation_attributes", assigned)
+	return {
+		"status": "ok",
+		"rolls": rolls,
+		"attributes": {
+			"Strength": attributes[0],
+			"Intellect": attributes[1],
+			"Wisdom": attributes[2],
+			"Dexterity": attributes[3],
+			"Vitality": attributes[4],
+			"Luck": attributes[5],
+		},
+		"gender": gender,
+		"ageYears": selected_age,
+		"ageGroup": minimum_age_group,
+	}
 
 
 ## Applies Classic's initial stamina and mundane combat values.
@@ -882,10 +1066,26 @@ static func _active_spellcaster_type(
 static func _creation_profile(
 	race_record: Dictionary,
 	caste_record: Dictionary,
+	caste_id: int,
 	has_changed_record: bool
 ) -> Dictionary:
 	if not has_changed_record:
 		return {}
+	var race_attribute_bonuses := _integer_array(
+		race_record.get("attBonus", [])
+	)
+	var caste_attribute_bonuses := _integer_array(
+		caste_record.get("attBonus", [])
+	)
+	var race_attribute_limits := _integer_array(
+		race_record.get("minMax", [])
+	)
+	var caste_attribute_limits := _integer_array(
+		caste_record.get("minMax", [])
+	)
+	var allowed_castes := _integer_array(race_record.get("canCaste", []))
+	var age_ranges := _integer_rows(race_record.get("ageRange", []))
+	var age_changes := _integer_rows(race_record.get("ageChange", []))
 	var stamina := _integer_array(caste_record.get("stamina", []))
 	var to_hit := _integer_array(caste_record.get("toHit", []))
 	var dodge := _integer_array(caste_record.get("dodge", []))
@@ -893,6 +1093,14 @@ static func _creation_profile(
 	var hand_to_hand := _integer_array(caste_record.get("hand2Hand", []))
 	var strength := _integer_array(caste_record.get("strength", []))
 	if stamina.size() < 2 \
+			or race_attribute_bonuses.size() != 6 \
+			or caste_attribute_bonuses.size() != 6 \
+			or race_attribute_limits.size() != 12 \
+			or caste_attribute_limits.size() != 12 \
+			or caste_id < 1 \
+			or allowed_castes.size() < caste_id \
+			or age_ranges.size() != 5 \
+			or age_changes.size() != 5 \
 			or to_hit.size() < 2 \
 			or dodge.size() < 2 \
 			or caste_missile.size() < 2 \
@@ -900,9 +1108,18 @@ static func _creation_profile(
 			or strength.size() < 2 \
 			or not caste_record.has("maxStaminaBonus") \
 			or not caste_record.has("canUseMissile") \
+			or not caste_record.has("minimumAgeGroup") \
 			or not race_record.has("missile"):
 		return {}
 	return {
+		"raceAttributeBonuses": race_attribute_bonuses,
+		"casteAttributeBonuses": caste_attribute_bonuses,
+		"raceAttributeLimits": race_attribute_limits,
+		"casteAttributeLimits": caste_attribute_limits,
+		"casteAllowed": allowed_castes[caste_id - 1] != 0,
+		"minimumAgeGroup": int(caste_record["minimumAgeGroup"]),
+		"ageRanges": age_ranges,
+		"ageChanges": age_changes,
 		"staminaDieMaximum": stamina[0],
 		"maximumVitalityBonus": int(caste_record["maxStaminaBonus"]),
 		"toHitBase": to_hit[0],
@@ -983,6 +1200,14 @@ static func _classic_strength_bonuses(
 		"toHit": to_hit,
 		"damage": damage,
 	}
+
+
+static func _classic_pin(value: int, low: int, high: int) -> int:
+	if value < low:
+		value = low
+	if value > high:
+		value = high
+	return value
 
 
 static func _condition_progression_profile(
@@ -1375,6 +1600,14 @@ static func _integer_array(value: Variant) -> Array[int]:
 	if value is Array:
 		for item: Variant in value:
 			result.append(int(item))
+	return result
+
+
+static func _integer_rows(value: Variant) -> Array[Array]:
+	var result: Array[Array] = []
+	if value is Array:
+		for row_value: Variant in value:
+			result.append(_integer_array(row_value))
 	return result
 
 

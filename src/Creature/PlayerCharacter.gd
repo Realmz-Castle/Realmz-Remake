@@ -92,6 +92,11 @@ var classic_hand_to_hand := 0
 var classic_hand_to_hand_initialized := false
 var classic_spellcaster_type := 0
 var classic_spellcaster_type_initialized := false
+var classic_luck := 0
+var classic_gender := 0
+var classic_age_years := 0
+var classic_age_group := 0
+var classic_creation_demographics_initialized := false
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -129,6 +134,15 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		set_classic_spellcaster_type(int(data["classicSpellcasterType"]))
 	elif data.has("classic_spellcaster_type"):
 		set_classic_spellcaster_type(int(data["classic_spellcaster_type"]))
+	if data.has("classicLuck") \
+			or data.has("classicGender") \
+			or data.has("classicAgeYears") \
+			or data.has("classicAgeGroup"):
+		classic_luck = int(data.get("classicLuck", 0))
+		classic_gender = int(data.get("classicGender", 0))
+		classic_age_years = int(data.get("classicAgeYears", 0))
+		classic_age_group = int(data.get("classicAgeGroup", 0))
+		classic_creation_demographics_initialized = true
 	if data.has("is_npc_ally") :
 		is_npc_ally = bool(data["is_npc_ally"])
 	if data.has("is_summoned") :
@@ -322,6 +336,24 @@ func set_classic_creation_spell_points(value: int) -> void:
 	base_stats["maxSP"] = maxi(0, value)
 	recalculate_stats()
 	stats["curSP"] = get_stat("maxSP")
+
+
+func set_classic_creation_attributes(values: Dictionary) -> void:
+	for stat_name: String in [
+		"Strength",
+		"Intellect",
+		"Wisdom",
+		"Dexterity",
+		"Vitality",
+	]:
+		if values.has(stat_name):
+			base_stats[stat_name] = values[stat_name]
+	classic_luck = int(values.get("classicLuck", classic_luck))
+	classic_gender = int(values.get("classicGender", classic_gender))
+	classic_age_years = int(values.get("classicAgeYears", classic_age_years))
+	classic_age_group = int(values.get("classicAgeGroup", classic_age_group))
+	classic_creation_demographics_initialized = true
+	recalculate_stats()
 
 
 func set_classic_creation_combat_stats(values: Dictionary) -> void:
@@ -602,5 +634,10 @@ func get_save_string()->String :
 			',\n"classicSpellcasterType" : '
 			+ str(classic_spellcaster_type)
 		)
+	if classic_creation_demographics_initialized:
+		crea_string += (',\n"classicLuck" : '+ str(classic_luck))
+		crea_string += (',\n"classicGender" : '+ str(classic_gender))
+		crea_string += (',\n"classicAgeYears" : '+ str(classic_age_years))
+		crea_string += (',\n"classicAgeGroup" : '+ str(classic_age_group))
 	crea_string += ('\n}')
 	return crea_string

@@ -292,6 +292,63 @@ func _run_smoke() -> void:
 		native_evasion_before + int(native_shield["stats"]["EvasionMelee"]),
 		"native equipment applies its declared stat once"
 	)
+	var classic_creation_character: PlayerCharacter = (
+		GameGlobal.playerCharacterGD.new(
+			{"name": "Classic Creation Fixture", "level": 0},
+			null,
+			null,
+			fighter,
+			human
+		)
+	)
+	classic_creation_character.set_classic_creation_attributes({
+		"Strength": 7,
+		"Intellect": 12,
+		"Wisdom": 12,
+		"Dexterity": 23,
+		"Vitality": 14,
+		"classicLuck": 22,
+		"classicGender": 2,
+		"classicAgeYears": 20,
+		"classicAgeGroup": 2,
+	})
+	_expect_equal(
+		classic_creation_character.get_stat("Dexterity"),
+		23,
+		"native character creation accepts Classic attributes"
+	)
+	var classic_creation_saved: Variant = JSON.parse_string(
+		classic_creation_character.get_save_string()
+	)
+	_expect(
+		classic_creation_saved is Dictionary,
+		"native character serialization retains Classic demographics"
+	)
+	if classic_creation_saved is Dictionary:
+		var restored_creation_character: PlayerCharacter = (
+			GameGlobal.playerCharacterGD.new(
+				classic_creation_saved,
+				null,
+				null,
+				fighter,
+				human
+			)
+		)
+		_expect_equal(
+			restored_creation_character.get_stat("Dexterity"),
+			23,
+			"native character save/load retains Classic attributes"
+		)
+		_expect_equal(
+			[
+				restored_creation_character.classic_luck,
+				restored_creation_character.classic_gender,
+				restored_creation_character.classic_age_years,
+				restored_creation_character.classic_age_group,
+			],
+			[22, 2, 20, 2],
+			"native character save/load retains Classic demographics"
+		)
 	var player_weapon: Dictionary = resources.items_book[
 		"Classic Item 150"
 	].duplicate(true)
