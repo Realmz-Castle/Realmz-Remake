@@ -61,8 +61,9 @@ Godot_v4.6.2-stable_win64_console.exe --headless `
 
 Exercise the checked authored guard-house encounter and the land-to-dungeon-to-
 land map route using that same fresh bundle. The City acceptance scene runs the
-blacksmith's quest from its offer through native combat, a fresh-session reload,
-and the reward turn-in:
+guard-house encounter and tannery service before taking the blacksmith's quest
+from its offer through native combat, a fresh-session reload, and the reward
+turn-in:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --resolution 1152x648 `
@@ -107,9 +108,18 @@ stock identity.
 The installed package is discovered by the normal campaign menu under the City
 of Bywater manifest title. The normal party picker enables Start, creates the
 Classic session, and enters the compiled `map_0` start at `(2, 1)`. The
-guard-house encounter and the authored `Data DD:0:83` land-to-dungeon /
-`Data DDD:0:1` dungeon-to-land route also pass their real-display smoke checks
-with the fresh bundle.
+authored `Data DD:0:83` land-to-dungeon / `Data DDD:0:1` dungeon-to-land route
+also passes its real-display smoke check with the fresh bundle.
+
+The installed route first completes `Data DD:0:0` and simple encounter 0. It
+shows all four authored guard-house choices plus Back out, selects the farewell
+result, displays its source message, and returns to exploration without a
+pending continuation. It then enters the tannery at `Data DD:0:29`, loads
+compiled shop 4, and opens Remake's normal inventory and shop controls. The
+native shop preserves all 17 source stock rows, their five fixed categories,
+84 total items, and the authored 100-percent price rate. Buying item 806 deducts
+the native price, adds the exact Classic item to the character inventory, and
+reduces both displayed and stored stock before the party continues.
 
 The blacksmith quest now passes as a complete installed-campaign progression
 route. `Data DD:0:17` presents the request with its authored Data OD labels,
@@ -132,10 +142,13 @@ producer bundle has no scenario item-text rows, item 807 is presented under its
 stable generated name and records that presentation loss as a fidelity fallback;
 the route consumes it by its preserved `classicItemId`.
 
-This proves a clean install and one source-backed quest from offer through
-turn-in. It is not yet the complete ISY-379 acceptance route because the same
-installed-campaign path has not exercised a service and a full simple or complex
-encounter.
+This proves a clean install and one source-backed route that includes a complete
+simple encounter, a native shop transaction, a quest from offer through turn-in,
+and a native battle. It is not yet the complete ISY-379 acceptance because the
+mid-quest check recreates the Classic session around a JSON-round-tripped
+runtime envelope inside one process. The normal save UI, persisted save file,
+application exit, relaunch, and Continue path have not yet been exercised as a
+single acceptance run.
 
 ## Blocking findings
 
@@ -155,7 +168,9 @@ encounter.
 
 ## Next playable checkpoint
 
-Extend the installed route through one authored service and one complete simple
-or complex encounter. Then review the collected evidence against every ISY-379
-acceptance line and distinguish any remaining normal-save lifecycle gap from
-optional campaign fidelity work.
+Drive this installed route through Remake's normal save UI, persist the complete
+native and Classic state, exit the application, relaunch it, and continue from
+that save. Verify the quest maps, purchased shop stock, carried Classic item,
+trigger rewrite, and battle continuation state after reload. Then review the
+collected evidence against every ISY-379 acceptance line and separate any
+optional campaign fidelity work from playability blockers.

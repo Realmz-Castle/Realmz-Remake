@@ -15,6 +15,21 @@ const BATTLE_ID := 45
 const MONSTER_ID := 80
 const EXPECTED_ENEMY_COUNT := 24
 const TRIGGER_POSITION := Vector2i(2, 44)
+const GUARD_TRIGGER_ID := "Data DD:0:0"
+const GUARD_POSITION := Vector2i(9, 17)
+const GUARD_INTRO_MESSAGE := "You enter the guard house outside the main gate"
+const GUARD_OUTCOME_MESSAGE := "He bids you farewell"
+const GUARD_CHOICES: Array[String] = [
+	"Attempt to bribe your way into the castle.",
+	"Show him an invitation to the castle.",
+	"Show him a forged invitation.",
+	"Kindly bid him farewell and leave the guardhouse.",
+]
+const SHOP_TRIGGER_ID := "Data DD:0:29"
+const SHOP_POSITION := Vector2i(38, 13)
+const SHOP_NAME := "classic_shop_4"
+const SHOP_MESSAGE := "You have walked into a tannery"
+const SHOP_ITEM_ID := 806
 const QUEST_TRIGGER_ID := "Data DD:0:17"
 const QUEST_POSITION := Vector2i(10, 6)
 const QUEST_MAP_ID := 3
@@ -93,6 +108,12 @@ func _start_playtest() -> void:
 	if not smoke_failures.is_empty():
 		_finish_smoke()
 		return
+	if not await _complete_guard_house_encounter():
+		_finish_smoke()
+		return
+	if not await _use_tannery_shop():
+		_finish_smoke()
+		return
 	if not await _accept_blacksmith_quest():
 		_finish_smoke()
 		return
@@ -108,30 +129,30 @@ func _start_playtest() -> void:
 		return
 
 	if not await _dismiss_message(FIRST_MESSAGE):
-		_fail("04_authored_presentation", "the first authored message did not open")
+		_fail("08_authored_presentation", "the first authored message did not open")
 		_finish_smoke()
 		return
 	if not await _dismiss_message(SECOND_MESSAGE):
-		_fail("04_authored_presentation", "the second authored message did not open")
+		_fail("08_authored_presentation", "the second authored message did not open")
 		_finish_smoke()
 		return
 	if not await _dismiss_message(MAP_GAINED_MESSAGE):
-		_fail("04_authored_presentation", "the acquired-map notice did not open")
+		_fail("08_authored_presentation", "the acquired-map notice did not open")
 		_finish_smoke()
 		return
 	if not await _wait_for_combat():
-		_fail("05_source_battle", _combat_diagnostic())
+		_fail("09_source_battle", _combat_diagnostic())
 		_finish_smoke()
 		return
 
 	var battle: Dictionary = resources.battles_book.get("Battle_%d" % BATTLE_ID, {})
 	_verify_stage(
-		"04_authored_presentation",
+		"08_authored_presentation",
 		host.runtime.runtime_state.is_map_owned(4),
 		"the pre-battle action list acquires City player map 4"
 	)
 	_verify_stage(
-		"05_source_battle",
+		"09_source_battle",
 		int(battle.get("classicBattleId", -1)) == BATTLE_ID
 			and battle.get("Creatures", []).size() == EXPECTED_ENEMY_COUNT
 			and _classic_enemy_count(MONSTER_ID) == EXPECTED_ENEMY_COUNT,
@@ -145,27 +166,133 @@ func _start_playtest() -> void:
 		await _finish_victory_and_reload()
 
 
+func _complete_guard_house_encounter() -> bool:
+	_move_to_position(GUARD_POSITION)
+	if not host.start_trigger(GUARD_TRIGGER_ID):
+		_fail("02_guard_house_prompt", str(host.runtime.last_result))
+		return false
+	if not await _dismiss_message(GUARD_INTRO_MESSAGE):
+		_fail("02_guard_house_prompt", "the authored guard-house introduction did not open")
+		return false
+	if not await _wait_for_choices():
+		_fail("02_guard_house_prompt", "the guard-house choices did not open")
+		return false
+	_verify_stage(
+		"02_guard_house_prompt",
+		_choice_labels() == GUARD_CHOICES + ["Back out"],
+		"the installed campaign presents all four source choices and Back out"
+	)
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("4")
+	if not await _dismiss_message(GUARD_OUTCOME_MESSAGE):
+		_fail("03_guard_house_outcome", "the selected guard-house result did not open")
+		return false
+	if not await _wait_for_playthrough_completion():
+		_fail("03_guard_house_outcome", "the selected simple-encounter result did not complete")
+		return false
+	_verify_stage(
+		"03_guard_house_outcome",
+		not campaign_session.has_pending_continuation(),
+		"the selected Data ED result returns cleanly to exploration"
+	)
+	return smoke_failures.is_empty()
+
+
+func _use_tannery_shop() -> bool:
+	_move_to_position(SHOP_POSITION)
+	if not host.start_trigger(SHOP_TRIGGER_ID):
+		_fail("04_tannery_service", str(host.runtime.last_result))
+		return false
+	if not await _dismiss_message(SHOP_MESSAGE):
+		_fail("04_tannery_service", "the authored tannery introduction did not open")
+		return false
+	if not await _wait_for_playthrough_completion():
+		_fail("04_tannery_service", "the tannery action list did not complete")
+		return false
+	if not GameGlobal.shops_dict.has(SHOP_NAME):
+		_fail("04_tannery_service", "compiled shop 4 did not enter native shop state")
+		return false
+
+	var native_shop: Dictionary = GameGlobal.get_shop(SHOP_NAME)
+	_verify_stage(
+		"04_tannery_service",
+		GameGlobal.currentShop == SHOP_NAME
+			and is_equal_approx(float(native_shop.get("buy_rate", -1.0)), 1.0)
+			and is_equal_approx(float(native_shop.get("sell_rate", -1.0)), 1.0)
+			and _shop_stock_row_count(native_shop) == 17
+			and _shop_stock_quantity(native_shop) == 84,
+		"shop 4 loads all 17 authored stock rows and 84 items at standard prices"
+	)
+	if not smoke_failures.is_empty():
+		return false
+
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	character.money[0] = 100
+	GameGlobal.money_pool[0] = 0
+	UI.ow_hud.selected_character = character
+	UI.ow_hud._on_InventoryButton_pressed()
+	if not await _wait_for_inventory():
+		_fail("05_tannery_purchase", "the normal inventory menu did not open")
+		return false
+	var inventory: InventoryControl = UI.ow_hud.inventoryRect
+	inventory._on_ButtonShop_pressed()
+	if not await _wait_for_shop():
+		_fail("05_tannery_purchase", "the enabled native shop did not open")
+		return false
+	var shop: ShopRect = inventory.shopRect
+	if shop.weapons.size() != 2 \
+			or shop.armor.size() != 4 \
+			or shop.limbs.size() != 4 \
+			or shop.magic.size() != 3 \
+			or shop.supplies.size() != 4:
+		_fail("05_tannery_purchase", "the native shop did not preserve its five stock categories")
+		return false
+	shop._on_ShopButton_pressed("Supplies")
+	var stock_index := _shop_stock_index(shop.supplies, SHOP_ITEM_ID)
+	if stock_index < 0:
+		_fail("05_tannery_purchase", "the native shop did not expose Classic item 806")
+		return false
+	var stock: Array = shop.supplies[stock_index]
+	var item: Dictionary = stock[0]
+	var original_quantity := int(stock[1])
+	var price := int(item.get("price", 0) * float(native_shop.get("sell_rate", 1.0)))
+	inventory.inventoryScrollRight._drop_data(Vector2.ZERO, [item, "Shop"])
+	await get_tree().process_frame
+	_verify_stage(
+		"05_tannery_purchase",
+		int(item.get("classicItemId", 0)) == SHOP_ITEM_ID
+			and _party_has_classic_item(SHOP_ITEM_ID)
+			and int(shop.supplies[stock_index][1]) == original_quantity - 1
+			and int(native_shop["Supplies"][stock_index][1]) == original_quantity - 1
+			and character.money[0] == 100 - price,
+		"the native shop purchases Classic item 806 and persists its reduced stock"
+	)
+	shop._on_LeaveShopButton_pressed()
+	UI.ow_hud._on_InventoryButton_pressed()
+	await get_tree().process_frame
+	return smoke_failures.is_empty()
+
+
 func _accept_blacksmith_quest() -> bool:
 	_move_to_position(QUEST_POSITION)
 	if not host.start_trigger(QUEST_TRIGGER_ID):
-		_fail("02_quest_offer", str(host.runtime.last_result))
+		_fail("06_quest_offer", str(host.runtime.last_result))
 		return false
 	for message_prefix: String in QUEST_OFFER_MESSAGES:
 		if not await _dismiss_message(message_prefix):
-			_fail("02_quest_offer", "the authored blacksmith request did not complete")
+			_fail("06_quest_offer", "the authored blacksmith request did not complete")
 			return false
 	if not await _wait_for_choices():
-		_fail("02_quest_offer", "the blacksmith response choices did not open")
+		_fail("06_quest_offer", "the blacksmith response choices did not open")
 		return false
 	_verify_stage(
-		"02_quest_offer",
+		"06_quest_offer",
 		_choice_labels() == ["Avenge his son", "Wish him luck"],
 		"the blacksmith request uses its authored Data OD response labels"
 	)
 	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("YES")
 	if not await _dismiss_message(QUEST_ACCEPT_MESSAGE):
 		_fail(
-			"03_quest_acceptance",
+			"07_quest_acceptance",
 			"the authored quest acceptance did not open (active=%s, result=%s, text=%s)" % [
 				host.active,
 				host.runtime.last_result,
@@ -174,14 +301,14 @@ func _accept_blacksmith_quest() -> bool:
 		)
 		return false
 	if not await _dismiss_message(MAP_GAINED_MESSAGE):
-		_fail("03_quest_acceptance", "the acquired-map notice did not open")
+		_fail("07_quest_acceptance", "the acquired-map notice did not open")
 		return false
 	if not await _wait_for_playthrough_completion():
-		_fail("03_quest_acceptance", "the quest-offer action list did not complete")
+		_fail("07_quest_acceptance", "the quest-offer action list did not complete")
 		return false
 	var state: ClassicRuntimeState = host.runtime.runtime_state
 	_verify_stage(
-		"03_quest_acceptance",
+		"07_quest_acceptance",
 		state.is_map_owned(QUEST_MAP_ID)
 			and state.get_trigger_percent("land", 0, 17, 0) == -1,
 		"acceptance grants player map 3 and retires the initial blacksmith action"
@@ -292,42 +419,42 @@ func _verify_native_monster_mapping(resources: CampaignResources) -> bool:
 
 func _finish_victory_and_reload() -> void:
 	if not await _wait_for_treasure():
-		_fail("06_victory", "the battle reward screen did not open")
+		_fail("10_victory", "the battle reward screen did not open")
 		_finish_smoke()
 		return
 	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 	if not await _wait_for_allies():
-		_fail("06_victory", "the post-battle allies screen did not open")
+		_fail("10_victory", "the post-battle allies screen did not open")
 		_finish_smoke()
 		return
 	UI.ow_hud.alliesCtrl.okbutton.pressed.emit()
 	if not await _dismiss_message(RETURN_MESSAGE):
-		_fail("07_outer_resume", "the authored post-battle message did not open")
+		_fail("11_outer_resume", "the authored post-battle message did not open")
 		_finish_smoke()
 		return
 	if not await _wait_for_treasure():
-		_fail("07_outer_resume", "authored treasure 11 did not open")
+		_fail("11_outer_resume", "authored treasure 11 did not open")
 		_finish_smoke()
 		return
 	if not await _loot_classic_item(QUEST_ITEM_ID):
-		_fail("07_outer_resume", "treasure 11 did not offer mapped item 807")
+		_fail("11_outer_resume", "treasure 11 did not offer mapped item 807")
 		_finish_smoke()
 		return
 	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 	if not await _wait_for_playthrough_completion():
-		_fail("07_outer_resume", "the City action list did not complete")
+		_fail("11_outer_resume", "the City action list did not complete")
 		_finish_smoke()
 		return
 
 	var state: ClassicRuntimeState = host.runtime.runtime_state
 	var action_point_override := state.get_action_point_override(MUTATED_TRIGGER_ID)
 	_verify_stage(
-		"06_victory",
+		"10_victory",
 		not StateMachine.is_combat_state() and GameGlobal.currentmap_name == "map_0",
 		"native victory cleanup returns the party to City exploration"
 	)
 	_verify_stage(
-		"07_outer_resume",
+		"11_outer_resume",
 		state.get_trigger_percent("land", 0, 17, -1) == 100
 			and not action_point_override.is_empty(),
 		"victory awards mapped treasure 11, then applies both authored map mutations"
@@ -337,7 +464,7 @@ func _finish_victory_and_reload() -> void:
 	var serialized := JSON.stringify(save_result.get("payload", {}))
 	var saved_payload: Variant = JSON.parse_string(serialized)
 	_verify_stage(
-		"08_mid_quest_save",
+		"12_mid_quest_save",
 		str(save_result.get("status", "")) == "ok"
 			and saved_payload is Dictionary
 			and saved_payload.get("continuationState", {}).get("state", "") == "idle",
@@ -360,7 +487,7 @@ func _finish_victory_and_reload() -> void:
 	var restored_override := restored_state.get_action_point_override(MUTATED_TRIGGER_ID)
 	var acquired_maps := campaign_session.acquired_player_map_entries()
 	_verify_stage(
-		"09_mid_quest_reload",
+		"13_mid_quest_reload",
 		str(restore_result.get("status", "")) == "ok"
 			and str(start_result.get("status", "")) != "error"
 			and GameGlobal.currentmap_name == "map_0"
@@ -382,21 +509,21 @@ func _finish_victory_and_reload() -> void:
 func _complete_blacksmith_quest() -> void:
 	_move_to_position(QUEST_POSITION)
 	if not host.start_trigger(QUEST_TRIGGER_ID):
-		_fail("10_quest_turn_in", str(host.runtime.last_result))
+		_fail("14_quest_turn_in", str(host.runtime.last_result))
 		_finish_smoke()
 		return
 	for message_prefix: String in QUEST_COMPLETE_MESSAGES:
 		if not await _dismiss_message(message_prefix):
-			_fail("10_quest_turn_in", "the authored blacksmith completion did not open")
+			_fail("14_quest_turn_in", "the authored blacksmith completion did not open")
 			_finish_smoke()
 			return
 	if not await _wait_for_treasure():
-		_fail("10_quest_turn_in", "authored treasure 19 did not open")
+		_fail("14_quest_turn_in", "authored treasure 19 did not open")
 		_finish_smoke()
 		return
 	var reward_ids := _treasure_classic_item_ids()
 	_verify_stage(
-		"10_quest_turn_in",
+		"14_quest_turn_in",
 		not _party_has_classic_item(QUEST_ITEM_ID)
 			and reward_ids == QUEST_REWARD_ITEM_IDS
 			and UI.ow_hud.treasureControl.exp_gain == 800,
@@ -408,16 +535,16 @@ func _complete_blacksmith_quest() -> void:
 			]
 	)
 	if not await _loot_classic_items(QUEST_REWARD_ITEM_IDS):
-		_fail("10_quest_turn_in", "the party could not take both blacksmith rewards")
+		_fail("14_quest_turn_in", "the party could not take both blacksmith rewards")
 		_finish_smoke()
 		return
 	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 	if not await _wait_for_playthrough_completion():
-		_fail("11_quest_complete", "the blacksmith reward action list did not complete")
+		_fail("15_quest_complete", "the blacksmith reward action list did not complete")
 		_finish_smoke()
 		return
 	_verify_stage(
-		"11_quest_complete",
+		"15_quest_complete",
 		not _party_has_classic_item(QUEST_ITEM_ID)
 			and _party_has_classic_item(210)
 			and _party_has_classic_item(434)
@@ -546,12 +673,51 @@ func _wait_for_choices() -> bool:
 	return false
 
 
+func _wait_for_inventory() -> bool:
+	for _frame: int in 600:
+		await get_tree().process_frame
+		if UI.ow_hud.inventoryRect.visible and StateMachine._state_name == "ExMenus":
+			return true
+	return false
+
+
+func _wait_for_shop() -> bool:
+	for _frame: int in 600:
+		await get_tree().process_frame
+		if UI.ow_hud.inventoryRect.shopRect.visible:
+			return true
+	return false
+
+
 func _choice_labels() -> Array[String]:
 	var labels: Array[String] = []
 	for child: Node in UI.ow_hud.textRect.choicesContainer.get_children():
 		if child is Label:
 			labels.append(str(child.text))
 	return labels
+
+
+func _shop_stock_row_count(shop: Dictionary) -> int:
+	var count := 0
+	for category: String in ["Weapons", "Armor", "Limbs", "Magic", "Supplies"]:
+		count += shop.get(category, []).size()
+	return count
+
+
+func _shop_stock_quantity(shop: Dictionary) -> int:
+	var count := 0
+	for category: String in ["Weapons", "Armor", "Limbs", "Magic", "Supplies"]:
+		for stock: Array in shop.get(category, []):
+			count += int(stock[1])
+	return count
+
+
+func _shop_stock_index(stock_rows: Array, classic_item_id: int) -> int:
+	for stock_index: int in stock_rows.size():
+		var stock: Array = stock_rows[stock_index]
+		if int(stock[0].get("classicItemId", 0)) == classic_item_id:
+			return stock_index
+	return -1
 
 
 func _loot_classic_item(item_id: int) -> bool:
@@ -659,6 +825,6 @@ func _finish_smoke() -> void:
 		return
 	UI.ow_hud.textRect.show()
 	UI.ow_hud.textRect.set_text(
-		"City blacksmith quest acceptance complete.\n"
-		+ "The installed quest ran from offer through Battle 45, reload, and reward."
+		"City installed-route acceptance complete.\n"
+		+ "The route covered an encounter, shop, quest, Battle 45, reload, and reward."
 	)
