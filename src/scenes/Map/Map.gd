@@ -26,6 +26,7 @@ var display_explored_only : bool = false
 var explored_tiles : Array = []  #array of array  of boold, true=explored
 var extra_images : Dictionary = {}
 var show_scripts : bool = true
+@export var show_pathfinding_debug : bool = false
 var mapdata : Array = []
 var map_size : Vector2 = Vector2.ONE
 var mapscriptareas : Dictionary = {}
@@ -386,7 +387,8 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 #						print(stuffbook[i]){image:[Image:1191], type:ground}
 #						print("draw map, ",i)
 						draw_texture_rect(i["texture"], Rect2(32*x,32*y,32,32), true)
-					if last_generated_path.has(Vector2(cam_x+x,cam_y+y)) :#Vector2(cam_x+x,cam_y+y)) :  #last_generated_path
+					if show_pathfinding_debug \
+							and last_generated_path.has(Vector2(cam_x+x,cam_y+y)):
 						draw_texture_rect(darktexture, Rect2(32*x,32*y,32,32), true)
 
 			##PATHFINDING DEBUG
