@@ -451,11 +451,21 @@ class CampaignAdmissionCharacter:
 class CampaignRuleDefinition:
 	extends RefCounted
 	var base_stat_bonuses: Dictionary
+	var levelup_bonuses: Dictionary
 
-	func _init(movement: int, actions: float) -> void:
+	func _init(
+		movement: int,
+		actions: float,
+		melee_accuracy_per_level: float = 0.0,
+		ranged_evasion_per_level: float = 0.0
+	) -> void:
 		base_stat_bonuses = {
 			"MaxMovement": movement,
 			"MaxActions": actions,
+		}
+		levelup_bonuses = {
+			"AccuracyMelee": melee_accuracy_per_level,
+			"EvasionRanged": ranged_evasion_per_level,
 		}
 
 
@@ -467,13 +477,25 @@ class CampaignRuleCharacter:
 	var classic_caste_id := 21
 	var classic_rule_profile: Dictionary = {}
 	var racegd := CampaignRuleDefinition.new(12, 1.0)
-	var classgd := CampaignRuleDefinition.new(2, 1.0)
+	var classgd := CampaignRuleDefinition.new(2, 1.0, 0.03, 0.03)
 	var classic_magic_resistance := 0
 	var classic_magic_resistance_initialized := false
-	var base_stats := {"MaxActions": 2.0}
+	var classic_hand_to_hand := 0
+	var classic_hand_to_hand_initialized := false
+	var ITEM_NO_MELEE_WEAPON := {
+		"name": "NO_MELEE_WEAPON",
+		"weapon_dmg": {"Physical": [1, 3]},
+	}
+	var base_stats := {
+		"MaxActions": 2.0,
+		"AccuracyMelee": 0.05,
+		"EvasionRanged": 0.05,
+	}
 	var native_stats := {
 		"MaxMovement": 14,
 		"MaxActions": 2.0,
+		"AccuracyMelee": 0.05,
+		"EvasionRanged": 0.05,
 		"Intellect": 11,
 		"Wisdom": 8,
 		"Vitality": 10,
@@ -490,6 +512,8 @@ class CampaignRuleCharacter:
 			set_classic_magic_resistance(
 				int(saved_data["classicMagicResistance"])
 			)
+		if saved_data.has("classicHandToHand"):
+			set_classic_hand_to_hand(int(saved_data["classicHandToHand"]))
 		var saved_base_stats: Variant = saved_data.get("baseStats", null)
 		if saved_base_stats is Dictionary:
 			base_stats = saved_base_stats.duplicate(true)
@@ -513,19 +537,40 @@ class CampaignRuleCharacter:
 	func has_classic_magic_resistance() -> bool:
 		return classic_magic_resistance_initialized
 
+	func set_classic_hand_to_hand(value: int) -> void:
+		classic_hand_to_hand = value
+		classic_hand_to_hand_initialized = true
+
+	func has_classic_hand_to_hand() -> bool:
+		return classic_hand_to_hand_initialized
+
+	func recalculate_stats() -> void:
+		for stat_name: String in [
+			"MaxActions",
+			"AccuracyMelee",
+			"EvasionRanged",
+		]:
+			native_stats[stat_name] = base_stats[stat_name]
+
 	func get_stat(stat_name: String) -> Variant:
+		var native_value: Variant = native_stats.get(stat_name, 0)
+		if stat_name == "EvasionRanged":
+			native_value = roundi(native_value)
 		return CharacterRulesScript.adjusted_stat(
 			self,
 			classic_rule_profile,
 			stat_name,
-			native_stats.get(stat_name, 0)
+			native_value
 		)
 
 	func level_up(magic_resistance_roll: int = -1) -> void:
 		level += 1
+		base_stats["AccuracyMelee"] += 0.03
+		base_stats["EvasionRanged"] += 0.03
 		if level == 2:
 			base_stats["MaxActions"] += 0.5
-			native_stats["MaxActions"] += 0.5
+		recalculate_stats()
+		CharacterRulesScript.apply_level_up_combat_progression(self)
 		CharacterRulesScript.apply_level_up_attack_progression(self)
 		CharacterRulesScript.apply_level_up_magic_resistance(
 			self,
@@ -543,6 +588,8 @@ class CampaignRuleCharacter:
 		}
 		if classic_magic_resistance_initialized:
 			data["classicMagicResistance"] = classic_magic_resistance
+		if classic_hand_to_hand_initialized:
+			data["classicHandToHand"] = classic_hand_to_hand
 		return data
 
 
@@ -7103,10 +7150,21 @@ func _test_classic_character_rule_profile() -> void:
 		if record is Dictionary and int(record.get("id", -1)) == 20:
 			record["bonusAttacks"] = 1
 			record["attacks"] = [2, 4, 0, 0, 0, 0, 0, 0, 0, 0]
+			record["toHit"] = [5, 10]
+			record["dodge"] = [20, 4]
+			record["hand2Hand"] = [6, 2]
 
 	var character := CampaignRuleCharacter.new()
 	_expect_equal(character.get_stat("MaxMovement"), 14, "native movement starts unchanged")
 	_expect_equal(character.get_stat("MaxActions"), 2.0, "native actions start unchanged")
+	_expect(
+		is_equal_approx(character.get_stat("AccuracyMelee"), 0.05),
+		"native melee accuracy starts unchanged"
+	)
+	_expect(
+		character.get_stat("EvasionRanged") == 0,
+		"native ranged evasion starts unchanged at Remake's rounded precision"
+	)
 	var apply_result := CharacterRulesScript.apply_party(install.bundle, [character])
 	_expect_equal(apply_result.get("status"), "ok", "Classic character rules apply")
 	_expect_equal(
@@ -7138,6 +7196,15 @@ func _test_classic_character_rule_profile() -> void:
 			"nativeAdjustment": 0.5,
 		},
 		"character retains the source-backed attack progression"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("combatProgression"),
+		{
+			"toHitPerLevel": 10,
+			"dodgePerLevel": 4,
+			"handToHandPerLevel": 2,
+		},
+		"creation bases stay separate from the ongoing combat progression"
 	)
 	_expect_equal(
 		character.get_stat("MaxActions"),
@@ -7173,12 +7240,47 @@ func _test_classic_character_rule_profile() -> void:
 		3.0,
 		"the first caste attack threshold replaces native progression"
 	)
+	_expect(
+		is_equal_approx(character.get_stat("AccuracyMelee"), 2.05),
+		"Classic to-hit growth replaces native caste accuracy growth"
+	)
+	_expect(
+		character.get_stat("EvasionRanged") == 1,
+		"Classic dodge growth uses Remake's five-percent evasion units"
+	)
+	_expect_equal(
+		character.classic_hand_to_hand,
+		5,
+		"Classic hand-to-hand growth increases the native unarmed die"
+	)
+	_expect_equal(
+		CharacterRulesScript.adjusted_unarmed_damage_range(
+			character,
+			character.ITEM_NO_MELEE_WEAPON,
+			[1, 3]
+		),
+		[1, 5],
+		"unarmed combat reads the compatibility-owned die maximum"
+	)
 	_expect_equal(
 		MagicResistanceScript.base_value(character),
 		12,
 		"a failed level-up resistance roll leaves the value unchanged"
 	)
 	character.level_up(29)
+	_expect(
+		is_equal_approx(character.get_stat("AccuracyMelee"), 4.05),
+		"Classic to-hit growth accumulates once per level"
+	)
+	_expect(
+		character.get_stat("EvasionRanged") == 2,
+		"Classic dodge growth accumulates once per level"
+	)
+	_expect_equal(
+		character.classic_hand_to_hand,
+		7,
+		"Classic hand-to-hand growth accumulates once per level"
+	)
 	_expect_equal(
 		MagicResistanceScript.base_value(character),
 		13,
@@ -7196,6 +7298,19 @@ func _test_classic_character_rule_profile() -> void:
 		3.0,
 		"Classic attack progression survives character save/load"
 	)
+	_expect(
+		is_equal_approx(reloaded.get_stat("AccuracyMelee"), 4.05),
+		"Classic to-hit progression survives character save/load"
+	)
+	_expect(
+		reloaded.get_stat("EvasionRanged") == 2,
+		"Classic dodge progression survives character save/load"
+	)
+	_expect_equal(
+		reloaded.classic_hand_to_hand,
+		7,
+		"Classic hand-to-hand progression survives character save/load"
+	)
 	reloaded.native_stats["Intellect"] = 21
 	CharacterRulesScript.apply_party(install.bundle, [reloaded])
 	_expect_equal(
@@ -7207,6 +7322,10 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("MaxActions"),
 		3.0,
 		"campaign reload preserves the level-derived attack budget"
+	)
+	_expect(
+		is_equal_approx(reloaded.get_stat("AccuracyMelee"), 4.05),
+		"campaign reload does not reapply combat progression"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),
@@ -7234,6 +7353,19 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("MaxActions"),
 		2.5,
 		"leaving the override table restores native action progression"
+	)
+	_expect(
+		is_equal_approx(reloaded.get_stat("AccuracyMelee"), 4.05),
+		"earned Classic to-hit remains stored after leaving the table"
+	)
+	_expect(
+		reloaded.get_stat("EvasionRanged") == 2,
+		"earned Classic dodge remains stored after leaving the table"
+	)
+	_expect_equal(
+		reloaded.classic_hand_to_hand,
+		7,
+		"earned Classic hand-to-hand remains stored after leaving the table"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),

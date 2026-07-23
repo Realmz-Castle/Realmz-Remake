@@ -88,6 +88,8 @@ var classic_caste_id := 0
 var classic_rule_profile: Dictionary = {}
 var classic_magic_resistance := 0
 var classic_magic_resistance_initialized := false
+var classic_hand_to_hand := 0
+var classic_hand_to_hand_initialized := false
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -117,6 +119,10 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		set_classic_magic_resistance(int(data["classicMagicResistance"]))
 	elif data.has("classic_magic_resistance"):
 		set_classic_magic_resistance(int(data["classic_magic_resistance"]))
+	if data.has("classicHandToHand"):
+		set_classic_hand_to_hand(int(data["classicHandToHand"]))
+	elif data.has("classic_hand_to_hand"):
+		set_classic_hand_to_hand(int(data["classic_hand_to_hand"]))
 	if data.has("is_npc_ally") :
 		is_npc_ally = bool(data["is_npc_ally"])
 	if data.has("is_summoned") :
@@ -286,6 +292,15 @@ func has_classic_magic_resistance() -> bool:
 	return classic_magic_resistance_initialized
 
 
+func set_classic_hand_to_hand(value: int) -> void:
+	classic_hand_to_hand = value
+	classic_hand_to_hand_initialized = true
+
+
+func has_classic_hand_to_hand() -> bool:
+	return classic_hand_to_hand_initialized
+
+
 func get_stat(statname: String):
 	return ClassicCharacterRulesScript.adjusted_stat(
 		self,
@@ -324,6 +339,7 @@ func level_up() :
 	racegd._level_up(self, level)
 
 	recalculate_stats()
+	ClassicCharacterRulesScript.apply_level_up_combat_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_attack_progression(self)
 	ClassicCharacterRulesScript.apply_level_up_magic_resistance(self)
 	print("PC after level up  base_stats ", base_stats["curHP"] ,'/',base_stats["maxHP"])
@@ -481,6 +497,11 @@ func get_save_string()->String :
 		crea_string += (
 			',\n"classicMagicResistance" : '
 			+ str(classic_magic_resistance)
+		)
+	if classic_hand_to_hand_initialized:
+		crea_string += (
+			',\n"classicHandToHand" : '
+			+ str(classic_hand_to_hand)
 		)
 	crea_string += ('\n}')
 	return crea_string

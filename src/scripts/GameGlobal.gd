@@ -28,6 +28,9 @@ const ClassicGodotCommandAdapterScript = preload(
 const ClassicMonsterWeaponRulesScript = preload(
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
 )
+const ClassicCharacterRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_rules.gd"
+)
 const ClassicProtectionFromFoeScript = preload(
 	"res://scripts/classic_runtime/classic_protection_from_foe.gd"
 )
@@ -1237,6 +1240,14 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 	var wpn_dmg_types : Dictionary = weapon["weapon_dmg"]
 	for t in wpn_dmg_types :
 		var t_dmg_range : Array = wpn_dmg_types[t]
+		if t == "Physical":
+			t_dmg_range = (
+				ClassicCharacterRulesScript.adjusted_unarmed_damage_range(
+					attacker,
+					weapon,
+					t_dmg_range
+				)
+			)
 		var t_damage : float = float( randi_range(t_dmg_range[0], t_dmg_range[1]) )
 		weapon_damage[t] = t_damage
 	if weapon.has("weapon_tag_bonus_dmg") :

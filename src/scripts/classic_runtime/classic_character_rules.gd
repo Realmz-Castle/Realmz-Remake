@@ -90,8 +90,15 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
 	)
+	var combat_progression := _combat_progression_profile(
+		active_caste_record,
+		not changed_caste_record.is_empty()
+	)
 
-	if movement.is_empty() and magic_resistance.is_empty() and attacks.is_empty():
+	if movement.is_empty() \
+			and magic_resistance.is_empty() \
+			and attacks.is_empty() \
+			and combat_progression.is_empty():
 		return {}
 
 	var profile := {
@@ -103,6 +110,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["magicResistance"] = magic_resistance
 	if not attacks.is_empty():
 		profile["attacks"] = attacks
+	if not combat_progression.is_empty():
+		profile["combatProgression"] = combat_progression
 	if race_id > 0:
 		profile["raceId"] = race_id
 	if caste_id > 0:
@@ -147,6 +156,77 @@ static func adjusted_stat(
 	return native_value
 
 
+static func apply_level_up_combat_progression(character: Variant) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var progression := _dictionary_value(
+		profile.get("combatProgression", {})
+	)
+	if progression.is_empty():
+		return {"status": "skipped"}
+
+	var base_stats: Variant = _value(character, "base_stats", {})
+	if not (base_stats is Dictionary):
+		return {
+			"status": "error",
+			"message": "Classic combat progression requires native base stats.",
+		}
+
+	# Native race and class level-up scripts have already run. Remove their
+	# identity-owned gains before applying the active Classic caste instead.
+	# One Remake accuracy/evasion point represents five percentage points.
+	var to_hit_gain := float(progression.get("toHitPerLevel", 0)) / 5.0
+	var dodge_gain := float(progression.get("dodgePerLevel", 0)) / 5.0
+	base_stats["AccuracyMelee"] = (
+		float(base_stats.get("AccuracyMelee", 0.0))
+		- _native_level_up_stat(character, "AccuracyMelee")
+		+ to_hit_gain
+	)
+	base_stats["EvasionRanged"] = clampf(
+		float(base_stats.get("EvasionRanged", 0.0))
+		- _native_level_up_stat(character, "EvasionRanged")
+		+ dodge_gain,
+		0.0,
+		20.0
+	)
+
+	var hand_to_hand_gain := int(progression.get("handToHandPerLevel", 0))
+	# Creation-time hand-to-hand is not retrofitted onto an existing character.
+	# The first compatible level-up grows that character's current native die.
+	var hand_to_hand := (
+		_current_hand_to_hand(character)
+		if _has_hand_to_hand(character)
+		else _native_unarmed_max(character)
+	)
+	_store_hand_to_hand(
+		character,
+		clampi(hand_to_hand + hand_to_hand_gain, 0, 200)
+	)
+	if character is Object and character.has_method("recalculate_stats"):
+		character.call("recalculate_stats")
+	return {
+		"status": "ok",
+		"toHitGain": to_hit_gain,
+		"dodgeGain": dodge_gain,
+		"handToHand": _current_hand_to_hand(character),
+	}
+
+
+static func adjusted_unarmed_damage_range(
+	character: Variant,
+	weapon: Dictionary,
+	damage_range: Array
+) -> Array:
+	if str(weapon.get("name", "")) != "NO_MELEE_WEAPON" \
+			or not _has_hand_to_hand(character):
+		return damage_range
+	var hand_to_hand := _current_hand_to_hand(character)
+	if hand_to_hand <= 0:
+		return [0, 0]
+	return [1, hand_to_hand]
+
+
 static func apply_level_up_attack_progression(character: Variant) -> Dictionary:
 	var profile := _dictionary_value(
 		_value(character, "classic_rule_profile", {})
@@ -173,6 +253,24 @@ static func apply_level_up_attack_progression(character: Variant) -> Dictionary:
 		"status": "ok",
 		"maxActions": desired_actions,
 		"halfAttacks": int((desired_actions - 1.0) * 2.0),
+	}
+
+
+static func _combat_progression_profile(
+	caste_record: Dictionary,
+	has_changed_caste: bool
+) -> Dictionary:
+	if not has_changed_caste:
+		return {}
+	var to_hit := _integer_array(caste_record.get("toHit", []))
+	var dodge := _integer_array(caste_record.get("dodge", []))
+	var hand_to_hand := _integer_array(caste_record.get("hand2Hand", []))
+	if to_hit.size() < 2 or dodge.size() < 2 or hand_to_hand.size() < 2:
+		return {}
+	return {
+		"toHitPerLevel": to_hit[1],
+		"dodgePerLevel": dodge[1],
+		"handToHandPerLevel": hand_to_hand[1],
 	}
 
 
@@ -429,6 +527,25 @@ static func _native_identity_stat(definition: Variant, stat_name: String) -> int
 	return 0
 
 
+static func _native_level_up_stat(character: Variant, stat_name: String) -> float:
+	var total := 0.0
+	for definition: Variant in [
+		_value(character, "racegd", null),
+		_value(character, "classgd", null),
+	]:
+		var bonuses: Variant = {}
+		if definition is Script:
+			bonuses = definition.get_script_constant_map().get(
+				"levelup_bonuses",
+				{}
+			)
+		else:
+			bonuses = _value(definition, "levelup_bonuses", {})
+		if bonuses is Dictionary:
+			total += float(bonuses.get(stat_name, 0.0))
+	return total
+
+
 static func _raw_base_stat(character: Variant, stat_name: String) -> float:
 	var base_stats: Variant = _value(character, "base_stats", {})
 	if base_stats is Dictionary and base_stats.has(stat_name):
@@ -437,6 +554,33 @@ static func _raw_base_stat(character: Variant, stat_name: String) -> float:
 	if stats is Dictionary and stats.has(stat_name):
 		return float(stats[stat_name])
 	return 0.0
+
+
+static func _native_unarmed_max(character: Variant) -> int:
+	var weapon: Variant = _value(character, "ITEM_NO_MELEE_WEAPON", {})
+	if not (weapon is Dictionary):
+		return 0
+	var physical: Variant = weapon.get("weapon_dmg", {}).get("Physical", [])
+	if physical is Array and physical.size() >= 2:
+		return int(physical[1])
+	return 0
+
+
+static func _has_hand_to_hand(character: Variant) -> bool:
+	return character is Object \
+		and character.has_method("has_classic_hand_to_hand") \
+		and bool(character.call("has_classic_hand_to_hand"))
+
+
+static func _current_hand_to_hand(character: Variant) -> int:
+	if _has_hand_to_hand(character):
+		return int(_value(character, "classic_hand_to_hand", 0))
+	return 0
+
+
+static func _store_hand_to_hand(character: Variant, value: int) -> void:
+	if character is Object and character.has_method("set_classic_hand_to_hand"):
+		character.call("set_classic_hand_to_hand", value)
 
 
 static func _integer_array(value: Variant) -> Array[int]:
