@@ -365,8 +365,12 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	)
 	for character in player_characters :
 		character._on_time_pass(seconds)
+		if character.has_method("advance_classic_age_between_times"):
+			character.advance_classic_age_between_times(previous_time, time)
 	for character in player_allies :
 		character._on_time_pass(seconds)
+		if character.has_method("advance_classic_age_between_times"):
+			character.advance_classic_age_between_times(previous_time, time)
 
 	for effect in global_effects.keys() :
 		global_effects[effect]["Duration"] = max(0, global_effects[effect]["Duration"] - seconds)

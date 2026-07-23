@@ -101,7 +101,9 @@ var classic_spellcaster_type_initialized := false
 var classic_luck := 0
 var classic_gender := 0
 var classic_age_years := 0
+var classic_age_days := 0
 var classic_age_group := 0
+var classic_age_movement_adjustment := 0
 var classic_creation_demographics_initialized := false
 var classic_saving_throws: Array[int] = []
 var classic_saving_throws_initialized := false
@@ -150,11 +152,19 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 	if data.has("classicLuck") \
 			or data.has("classicGender") \
 			or data.has("classicAgeYears") \
+			or data.has("classicAgeDays") \
+			or data.has("classicAgeMovementAdjustment") \
 			or data.has("classicAgeGroup"):
 		classic_luck = int(data.get("classicLuck", 0))
 		classic_gender = int(data.get("classicGender", 0))
 		classic_age_years = int(data.get("classicAgeYears", 0))
+		classic_age_days = int(
+			data.get("classicAgeDays", classic_age_years * 365)
+		)
 		classic_age_group = int(data.get("classicAgeGroup", 0))
+		classic_age_movement_adjustment = int(
+			data.get("classicAgeMovementAdjustment", 0)
+		)
 		classic_creation_demographics_initialized = true
 	if data.has("classicSavingThrows"):
 		set_classic_saving_throws(data["classicSavingThrows"])
@@ -373,9 +383,70 @@ func set_classic_creation_attributes(values: Dictionary) -> void:
 	classic_luck = int(values.get("classicLuck", classic_luck))
 	classic_gender = int(values.get("classicGender", classic_gender))
 	classic_age_years = int(values.get("classicAgeYears", classic_age_years))
+	classic_age_days = int(
+		values.get("classicAgeDays", classic_age_years * 365)
+	)
 	classic_age_group = int(values.get("classicAgeGroup", classic_age_group))
 	classic_creation_demographics_initialized = true
 	recalculate_stats()
+
+
+func set_classic_age_state(values: Dictionary) -> void:
+	var recalculate := false
+	var attributes: Variant = values.get("attributes", {})
+	if attributes is Dictionary:
+		for stat_name: String in [
+			"Strength",
+			"Intellect",
+			"Wisdom",
+			"Dexterity",
+			"Vitality",
+		]:
+			if attributes.has(stat_name):
+				base_stats[stat_name] = attributes[stat_name]
+				recalculate = true
+	if values.has("AccuracyMelee"):
+		base_stats["AccuracyMelee"] = values["AccuracyMelee"]
+		recalculate = true
+	if values.has("Bonus_Physical_dmg"):
+		base_stats["Bonus_Physical_dmg"] = values["Bonus_Physical_dmg"]
+		recalculate = true
+	classic_luck = int(values.get("classicLuck", classic_luck))
+	classic_age_days = int(values.get("classicAgeDays", classic_age_days))
+	classic_age_years = int(values.get("classicAgeYears", classic_age_years))
+	classic_age_group = int(values.get("classicAgeGroup", classic_age_group))
+	classic_age_movement_adjustment = int(
+		values.get(
+			"classicAgeMovementAdjustment",
+			classic_age_movement_adjustment
+		)
+	)
+	if values.has("classicMagicResistance"):
+		set_classic_magic_resistance(
+			int(values["classicMagicResistance"])
+		)
+	if values.has("classicSavingThrows"):
+		set_classic_saving_throws(values["classicSavingThrows"])
+	if recalculate:
+		recalculate_stats()
+
+
+func advance_classic_age_days(day_change: int) -> Dictionary:
+	return ClassicCharacterRulesScript.advance_character_age_days(
+		self,
+		day_change
+	)
+
+
+func advance_classic_age_between_times(
+	previous_time: int,
+	current_time: int
+) -> Dictionary:
+	return ClassicCharacterRulesScript.advance_character_age_between_times(
+		self,
+		previous_time,
+		current_time
+	)
 
 
 func has_classic_creation_demographics() -> bool:
@@ -811,7 +882,12 @@ func get_save_string()->String :
 		crea_string += (',\n"classicLuck" : '+ str(classic_luck))
 		crea_string += (',\n"classicGender" : '+ str(classic_gender))
 		crea_string += (',\n"classicAgeYears" : '+ str(classic_age_years))
+		crea_string += (',\n"classicAgeDays" : '+ str(classic_age_days))
 		crea_string += (',\n"classicAgeGroup" : '+ str(classic_age_group))
+		crea_string += (
+			',\n"classicAgeMovementAdjustment" : '
+			+ str(classic_age_movement_adjustment)
+		)
 	if classic_saving_throws_initialized:
 		crea_string += (
 			',\n"classicSavingThrows" : '

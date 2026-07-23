@@ -15,6 +15,7 @@ const ItemIdentityScript = preload(
 )
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const RANDOM_ROLL_UNSET := -2147483648
+const SECONDS_PER_DAY := 86400
 const CLASSIC_CASTER_SCHOOLS := {
 	1: "Sorcerer",
 	2: "Priest",
@@ -264,24 +265,25 @@ static func adjusted_stat(
 ) -> Variant:
 	if stat_name == "MaxMovement":
 		var movement := _dictionary_value(profile.get("movement", {}))
-		if movement.is_empty():
-			return native_value
-
-		# Remake already combines identity and equipment movement. Replace only
-		# the native race/caste contributions so equipment still applies.
 		var adjusted := float(native_value)
-		if movement.has("raceBaseMove"):
-			adjusted += int(movement["raceBaseMove"]) \
-				- _native_identity_stat(
-					_value(character, "racegd", null),
-					stat_name
-				)
-		if movement.has("casteMoveBonus"):
-			adjusted += int(movement["casteMoveBonus"]) \
-				- _native_identity_stat(
-					_value(character, "classgd", null),
-					stat_name
-				)
+		if not movement.is_empty():
+			# Remake already combines identity and equipment movement. Replace
+			# only native identity contributions so equipment still applies.
+			if movement.has("raceBaseMove"):
+				adjusted += int(movement["raceBaseMove"]) \
+					- _native_identity_stat(
+						_value(character, "racegd", null),
+						stat_name
+					)
+			if movement.has("casteMoveBonus"):
+				adjusted += int(movement["casteMoveBonus"]) \
+					- _native_identity_stat(
+						_value(character, "classgd", null),
+						stat_name
+					)
+		adjusted += int(
+			_value(character, "classic_age_movement_adjustment", 0)
+		)
 		return roundi(adjusted)
 	if stat_name == "MaxActions":
 		var attacks := _dictionary_value(profile.get("attacks", {}))
@@ -830,6 +832,216 @@ static func apply_character_creation_attributes(
 		"gender": gender,
 		"ageYears": selected_age,
 		"ageGroup": minimum_age_group,
+	}
+
+
+## Advances the exact Classic age counter and applies at most one age band.
+##
+## Classic calls age() once per midnight, aging attack, or aging spell. Even
+## when a spell jumps across several bands, that call applies only the next
+## row in the direction of travel.
+static func advance_character_age_days(
+	character: Variant,
+	day_change: int
+) -> Dictionary:
+	var creation := _dictionary_value(
+		_dictionary_value(
+			_value(character, "classic_rule_profile", {})
+		).get("creation", {})
+	)
+	if creation.is_empty():
+		return {"status": "skipped"}
+	if not (character is Object) \
+			or not character.has_method("has_classic_creation_demographics") \
+			or not bool(character.call("has_classic_creation_demographics")) \
+			or not character.has_method("set_classic_age_state") \
+			or not character.has_method("has_classic_saving_throws") \
+			or not bool(character.call("has_classic_saving_throws")) \
+			or not character.has_method("has_classic_magic_resistance") \
+			or not bool(character.call("has_classic_magic_resistance")):
+		return {
+			"status": "error",
+			"message": "Classic aging requires initialized character state.",
+		}
+
+	var age_ranges := _integer_rows(creation.get("ageRanges", []))
+	var age_changes := _integer_rows(creation.get("ageChanges", []))
+	if age_ranges.size() != 5 or age_changes.size() != 5:
+		return {
+			"status": "error",
+			"message": "Classic aging has incomplete race rules.",
+		}
+	for age_range: Array[int] in age_ranges:
+		if age_range.size() != 2 or age_range[0] > age_range[1]:
+			return {
+				"status": "error",
+				"message": "Classic aging has an invalid age range.",
+			}
+	for changes: Array[int] in age_changes:
+		if changes.size() != 15:
+			return {
+				"status": "error",
+				"message": "Classic aging has an invalid change row.",
+			}
+
+	var current_days := int(
+		_value(
+			character,
+			"classic_age_days",
+			int(_value(character, "classic_age_years", 0)) * 365
+		)
+	)
+	var target_days := current_days + day_change
+	if target_days < 0:
+		return {
+			"status": "error",
+			"message": "Classic age cannot be negative.",
+		}
+	var current_group := int(_value(character, "classic_age_group", 0))
+	if current_group < 1 or current_group > 5:
+		return {
+			"status": "error",
+			"message": "Classic aging requires a valid current age group.",
+		}
+
+	var target_group := 0
+	var target_year := int(target_days / 365)
+	for range_index: int in range(age_ranges.size()):
+		var age_range: Array[int] = age_ranges[range_index]
+		if target_year >= age_range[0] and target_year <= age_range[1]:
+			target_group = range_index + 1
+			break
+
+	var direction := 0
+	var next_group := current_group
+	var change_row_index := -1
+	if target_group > current_group and current_group < 5:
+		direction = 1
+		next_group = current_group + 1
+		change_row_index = next_group - 1
+	elif target_group > 0 and target_group < current_group and current_group > 1:
+		direction = -1
+		next_group = current_group - 1
+		change_row_index = current_group - 1
+
+	var assigned := {
+		"classicAgeDays": target_days,
+		"classicAgeYears": target_year,
+		"classicAgeGroup": next_group,
+	}
+	if direction == 0:
+		character.call("set_classic_age_state", assigned)
+		return {
+			"status": "ok",
+			"ageDays": target_days,
+			"ageYears": target_year,
+			"ageGroup": current_group,
+			"transition": 0,
+		}
+
+	var changes: Array[int] = age_changes[change_row_index]
+	var base_stats: Variant = _value(character, "base_stats", {})
+	if not (base_stats is Dictionary):
+		return {
+			"status": "error",
+			"message": "Classic aging requires native base stats.",
+		}
+	var old_strength := _character_stat(character, "Strength")
+	var new_strength := old_strength + direction * changes[0]
+	var maximum_damage_bonus := int(
+		creation.get("maximumStrengthDamageBonus", 0)
+	)
+	var old_strength_bonuses := _classic_strength_bonuses(
+		old_strength,
+		maximum_damage_bonus
+	)
+	var new_strength_bonuses := _classic_strength_bonuses(
+		new_strength,
+		maximum_damage_bonus
+	)
+	var attributes := {
+		"Strength": int(base_stats.get("Strength", 0))
+			+ direction * changes[0],
+		"Intellect": int(base_stats.get("Intellect", 0))
+			+ direction * changes[1],
+		"Wisdom": int(base_stats.get("Wisdom", 0))
+			+ direction * changes[2],
+		"Dexterity": int(base_stats.get("Dexterity", 0))
+			+ direction * changes[3],
+		"Vitality": int(base_stats.get("Vitality", 0))
+			+ direction * changes[4],
+	}
+	var accuracy_melee := float(base_stats.get("AccuracyMelee", 0.0)) \
+		+ (
+			int(new_strength_bonuses["toHit"])
+			- int(old_strength_bonuses["toHit"])
+		) / 5.0
+	var physical_damage := int(base_stats.get("Bonus_Physical_dmg", 0)) \
+		+ int(new_strength_bonuses["damage"]) \
+		- int(old_strength_bonuses["damage"])
+	var movement_adjustment := int(
+		_value(character, "classic_age_movement_adjustment", 0)
+	)
+	var current_movement := _character_stat(character, "MaxMovement")
+	var next_movement := maxi(
+		2,
+		current_movement + direction * changes[7]
+	)
+	movement_adjustment += next_movement - current_movement
+	var saving_throws: Array[int] = []
+	for save_index: int in range(8):
+		var saving_throw := int(
+			character.call("get_classic_saving_throw", save_index)
+		)
+		if save_index < 7:
+			saving_throw += direction * changes[8 + save_index]
+		saving_throws.append(saving_throw)
+
+	assigned.merge({
+		"attributes": attributes,
+		"classicLuck": int(_value(character, "classic_luck", 0))
+			+ direction * changes[5],
+		"classicMagicResistance": int(
+			_value(character, "classic_magic_resistance", 0)
+		) + direction * changes[6],
+		"classicAgeMovementAdjustment": movement_adjustment,
+		"classicSavingThrows": saving_throws,
+		"AccuracyMelee": accuracy_melee,
+		"Bonus_Physical_dmg": physical_damage,
+	})
+	character.call("set_classic_age_state", assigned)
+	return {
+		"status": "ok",
+		"ageDays": target_days,
+		"ageYears": target_year,
+		"ageGroup": next_group,
+		"transition": direction,
+		"changeRow": change_row_index,
+	}
+
+
+## Applies one daily Classic aging call for every crossed game midnight.
+static func advance_character_age_between_times(
+	character: Variant,
+	previous_time: int,
+	current_time: int
+) -> Dictionary:
+	if previous_time < 0 or current_time <= previous_time:
+		return {"status": "skipped", "days": 0, "transitions": []}
+	var previous_day := int(floor(float(previous_time) / SECONDS_PER_DAY))
+	var current_day := int(floor(float(current_time) / SECONDS_PER_DAY))
+	var elapsed_days := maxi(0, current_day - previous_day)
+	var transitions: Array[int] = []
+	for _day: int in range(elapsed_days):
+		var result := advance_character_age_days(character, 1)
+		if str(result.get("status", "")) == "error":
+			return result
+		if int(result.get("transition", 0)) != 0:
+			transitions.append(int(result["transition"]))
+	return {
+		"status": "ok" if elapsed_days > 0 else "skipped",
+		"days": elapsed_days,
+		"transitions": transitions,
 	}
 
 

@@ -501,7 +501,9 @@ class CampaignRuleCharacter:
 	var classic_luck := 0
 	var classic_gender := 0
 	var classic_age_years := 0
+	var classic_age_days := 0
 	var classic_age_group := 0
+	var classic_age_movement_adjustment := 0
 	var classic_creation_demographics_initialized := false
 	var classic_saving_throws: Array[int] = []
 	var classic_saving_throws_initialized := false
@@ -581,11 +583,19 @@ class CampaignRuleCharacter:
 		if saved_data.has("classicLuck") \
 				or saved_data.has("classicGender") \
 				or saved_data.has("classicAgeYears") \
+				or saved_data.has("classicAgeDays") \
+				or saved_data.has("classicAgeMovementAdjustment") \
 				or saved_data.has("classicAgeGroup"):
 			classic_luck = int(saved_data.get("classicLuck", 0))
 			classic_gender = int(saved_data.get("classicGender", 0))
 			classic_age_years = int(saved_data.get("classicAgeYears", 0))
+			classic_age_days = int(
+				saved_data.get("classicAgeDays", classic_age_years * 365)
+			)
 			classic_age_group = int(saved_data.get("classicAgeGroup", 0))
+			classic_age_movement_adjustment = int(
+				saved_data.get("classicAgeMovementAdjustment", 0)
+			)
 			classic_creation_demographics_initialized = true
 		if saved_data.has("classicSavingThrows"):
 			set_classic_saving_throws(saved_data["classicSavingThrows"])
@@ -681,10 +691,55 @@ class CampaignRuleCharacter:
 		classic_age_years = int(
 			values.get("classicAgeYears", classic_age_years)
 		)
+		classic_age_days = int(
+			values.get("classicAgeDays", classic_age_years * 365)
+		)
 		classic_age_group = int(
 			values.get("classicAgeGroup", classic_age_group)
 		)
 		classic_creation_demographics_initialized = true
+		recalculate_stats()
+
+	func set_classic_age_state(values: Dictionary) -> void:
+		var attributes: Variant = values.get("attributes", {})
+		if attributes is Dictionary:
+			for stat_name: String in [
+				"Strength",
+				"Intellect",
+				"Wisdom",
+				"Dexterity",
+				"Vitality",
+			]:
+				if attributes.has(stat_name):
+					base_stats[stat_name] = attributes[stat_name]
+		if values.has("AccuracyMelee"):
+			base_stats["AccuracyMelee"] = values["AccuracyMelee"]
+		if values.has("Bonus_Physical_dmg"):
+			base_stats["Bonus_Physical_dmg"] = values[
+				"Bonus_Physical_dmg"
+			]
+		classic_luck = int(values.get("classicLuck", classic_luck))
+		classic_age_days = int(
+			values.get("classicAgeDays", classic_age_days)
+		)
+		classic_age_years = int(
+			values.get("classicAgeYears", classic_age_years)
+		)
+		classic_age_group = int(
+			values.get("classicAgeGroup", classic_age_group)
+		)
+		classic_age_movement_adjustment = int(
+			values.get(
+				"classicAgeMovementAdjustment",
+				classic_age_movement_adjustment
+			)
+		)
+		if values.has("classicMagicResistance"):
+			set_classic_magic_resistance(
+				int(values["classicMagicResistance"])
+			)
+		if values.has("classicSavingThrows"):
+			set_classic_saving_throws(values["classicSavingThrows"])
 		recalculate_stats()
 
 	func has_classic_creation_demographics() -> bool:
@@ -960,7 +1015,11 @@ class CampaignRuleCharacter:
 			data["classicLuck"] = classic_luck
 			data["classicGender"] = classic_gender
 			data["classicAgeYears"] = classic_age_years
+			data["classicAgeDays"] = classic_age_days
 			data["classicAgeGroup"] = classic_age_group
+			data["classicAgeMovementAdjustment"] = (
+				classic_age_movement_adjustment
+			)
 		if classic_saving_throws_initialized:
 			data["classicSavingThrows"] = classic_saving_throws.duplicate()
 		if classic_conditions_initialized:
@@ -8982,6 +9041,140 @@ func _test_classic_character_rule_profile() -> void:
 		attribute_creation.classic_can_regenerate,
 		"the separately authored race regeneration flag is preserved"
 	)
+	var aging_character := CampaignRuleCharacter.new(
+		JSON.parse_string(JSON.stringify(attribute_creation.save_data()))
+	)
+	aging_character.set_classic_magic_resistance(12)
+	aging_character.classic_rule_profile[
+		"creation"
+	]["ageChanges"][2] = [
+		10, 1, -1, 2, -2, 3,
+		4, -20, 1, 2, 3, 4, 5, 6, 7,
+	]
+	var aging_result := CharacterRulesScript.advance_character_age_days(
+		aging_character,
+		2 * 365
+	)
+	_expect_equal(
+		aging_result,
+		{
+			"status": "ok",
+			"ageDays": 22 * 365,
+			"ageYears": 22,
+			"ageGroup": 3,
+			"transition": 1,
+			"changeRow": 2,
+		},
+		"an aging call crosses one source age band"
+	)
+	_expect_equal(
+		[
+			aging_character.get_stat("Strength"),
+			aging_character.get_stat("Intellect"),
+			aging_character.get_stat("Wisdom"),
+			aging_character.get_stat("Dexterity"),
+			aging_character.get_stat("Vitality"),
+			aging_character.classic_luck,
+		],
+		[17, 13, 11, 25, 12, 25],
+		"aging applies all six source attribute changes"
+	)
+	_expect(
+		is_equal_approx(
+			float(aging_character.get_stat("AccuracyMelee")),
+			1.05
+		),
+		"aging recomputes the Strength-owned melee accuracy contribution"
+	)
+	_expect_equal(
+		aging_character.get_stat("Bonus_Physical_dmg"),
+		2,
+		"aging recomputes the capped Strength damage contribution"
+	)
+	_expect_equal(
+		aging_character.classic_magic_resistance,
+		16,
+		"aging applies the source magic-resistance change"
+	)
+	_expect_equal(
+		aging_character.get_stat("MaxMovement"),
+		2,
+		"aging retains the source minimum movement of two"
+	)
+	_expect_equal(
+		aging_character.classic_saving_throws,
+		[66, -97, 63, 54, 55, 56, 57, 120],
+		"aging changes only the first seven source saving throws"
+	)
+	var aging_saved: Variant = JSON.parse_string(
+		JSON.stringify(aging_character.save_data())
+	)
+	var aging_reloaded := CampaignRuleCharacter.new(aging_saved)
+	_expect_equal(
+		[
+			aging_reloaded.classic_age_days,
+			aging_reloaded.classic_age_years,
+			aging_reloaded.classic_age_group,
+			aging_reloaded.classic_age_movement_adjustment,
+			aging_reloaded.classic_magic_resistance,
+			aging_reloaded.get_stat("MaxMovement"),
+		],
+		[22 * 365, 22, 3, -10, 16, 2],
+		"exact age and its mutable rule state survive save and reload"
+	)
+	_expect_equal(
+		CharacterRulesScript.advance_character_age_days(
+			aging_reloaded,
+			-5 * 365
+		).get("ageGroup"),
+		2,
+		"a rejuvenation call erases only the current age row"
+	)
+	_expect_equal(
+		[
+			aging_reloaded.get_stat("Strength"),
+			aging_reloaded.classic_magic_resistance,
+			aging_reloaded.classic_saving_throws,
+			aging_reloaded.get_stat("MaxMovement"),
+		],
+		[
+			7,
+			12,
+			[65, -99, 60, 50, 50, 50, 50, 120],
+			22,
+		],
+		"rejuvenation reverses that row after the movement floor was applied"
+	)
+	var clock_aging_character := CampaignRuleCharacter.new(
+		JSON.parse_string(JSON.stringify(attribute_creation.save_data()))
+	)
+	clock_aging_character.set_classic_magic_resistance(12)
+	clock_aging_character.classic_rule_profile = (
+		aging_character.classic_rule_profile.duplicate(true)
+	)
+	clock_aging_character.set_classic_age_state({
+		"classicAgeDays": 22 * 365 - 1,
+		"classicAgeYears": 21,
+		"classicAgeGroup": 2,
+	})
+	_expect_equal(
+		CharacterRulesScript.advance_character_age_between_times(
+			clock_aging_character,
+			CharacterRulesScript.SECONDS_PER_DAY - 1,
+			CharacterRulesScript.SECONDS_PER_DAY
+		),
+		{"status": "ok", "days": 1, "transitions": [1]},
+		"one crossed Remake midnight performs one Classic daily aging call"
+	)
+	_expect_equal(
+		[
+			clock_aging_character.classic_age_days,
+			clock_aging_character.classic_age_years,
+			clock_aging_character.classic_age_group,
+		],
+		[22 * 365, 22, 3],
+		"the midnight seam keeps exact Classic day and band state"
+	)
 	var attribute_creation_saved: Variant = JSON.parse_string(
 		JSON.stringify(attribute_creation.save_data())
 	)
@@ -8998,9 +9191,11 @@ func _test_classic_character_rule_profile() -> void:
 			attribute_creation_reloaded.classic_luck,
 			attribute_creation_reloaded.classic_gender,
 			attribute_creation_reloaded.classic_age_years,
+			attribute_creation_reloaded.classic_age_days,
 			attribute_creation_reloaded.classic_age_group,
+			attribute_creation_reloaded.classic_age_movement_adjustment,
 		],
-		[22, 2, 20, 2],
+		[22, 2, 20, 20 * 365, 2, 0],
 		"Classic creation demographics survive character save/load"
 	)
 	_expect_equal(
