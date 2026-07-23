@@ -855,6 +855,7 @@ func rest() :
 #if pc_participating is empty, use all PC
 func start_battle(battlename : String, mapname : String, is_pos_relative : bool, is_ambush : bool, allow_loss : bool, allow_escape : bool, npcs_allowed : bool, pc_participating : Array, battle_overrides := {}) :
 	print("GameGlobal start_battle " + battlename)
+	StateMachine.combat_state.reset_battle_completion()
 	var battle_data : Dictionary = GameGlobal.cmp_resources.battles_book[battlename].duplicate()
 	for override_key: Variant in battle_overrides:
 		battle_data[override_key] = battle_overrides[override_key]
@@ -888,6 +889,8 @@ func end_battle(
 	wonfledlost: String,
 	reward_mode := BATTLE_REWARD_NORMAL
 ) :
+	if not StateMachine.combat_state.begin_battle_completion():
+		return
 	print("GameGlobal end_battle", last_exploration_map_name,wonfledlost)
 	StateMachine.combat_state.battle_creatures_yet_to_act_btns.clear()
 	StateMachine.combat_state.all_battle_creatures_btns.clear()

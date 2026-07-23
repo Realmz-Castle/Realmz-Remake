@@ -2415,6 +2415,16 @@ func _test_custom_monster_battle_fixture() -> void:
 		"custom monster fixture generates all five authored definitions"
 	)
 	_expect_equal(
+		arcanist.get("data", {}).get("faction"),
+		1,
+		"custom battle enemy retains its hostile source allegiance"
+	)
+	_expect_equal(
+		turncoat.get("data", {}).get("faction"),
+		1,
+		"friendly battle-grid sign starts from the monster's hostile source allegiance"
+	)
+	_expect_equal(
 		arcanist.get("stats", {}).get("MaxActions"),
 		2,
 		"custom caster preserves its authored melee attack count"

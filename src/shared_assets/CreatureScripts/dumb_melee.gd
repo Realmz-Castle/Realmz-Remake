@@ -63,8 +63,7 @@ static func decide_action(crea : Creature) -> Array :
 					var affected_creas : Array = GameGlobal.map.targetingLayer.get_cbs_touching_tiles(affected_tiles)
 					if affected_creas.size()>0 :
 						print("    DECIDED TO USE BOW")
-					var aoe_name = weapon_spell.get_aoe(weapon_power, crea)
-					var aoe_shape = GameGlobal.map.targetingLayer.get_aoe_from_name(aoe_name)
+					var aoe_shape = weapon_spell.get_aoe(weapon_power, crea)
 					return [1, weapon_spell, weapon_power, spell_target_pos, aoe_shape, {},Vector2i(target_pos), affected_tiles, affected_creas]
 					#return [1, weapon_spell, weapon_power, spell_target_pos, aoe_shape, {},Vector2i(target_pos), true, true]
 			
@@ -89,8 +88,7 @@ static func decide_action(crea : Creature) -> Array :
 						selectedplvl = plvl
 			if selectedSpell :
 				print("    DECIDED TO USE MAGIC")
-				var aoe_name = selectedSpell.get_aoe(selectedplvl, crea)
-				var aoe_shape = GameGlobal.map.targetingLayer.get_aoe_from_name(aoe_name)
+				var aoe_shape = selectedSpell.get_aoe(selectedplvl, crea)
 				return [1, selectedSpell, selectedplvl, spell_target_pos, aoe_shape, {},Vector2i(spell_target_pos), affected_tiles, affected_creas]
 			#picked_targets : Dictionary, picked_tiles:Dictionary, chain_start : bool, must_add_terrain : bool)
 					

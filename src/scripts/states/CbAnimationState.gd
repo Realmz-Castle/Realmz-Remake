@@ -26,6 +26,8 @@ const CLASSIC_MONSTER_DECISION_SCRIPT = preload(
 var cur_action : Dictionary
 
 var timer : float = -1000000
+# Invalidates animation coroutines that resume after this state has been exited.
+var entry_serial := 0
 
 #to handle spell castingduring combat  and chains
 #var spell_chain : Array = [] #the list of spells to cast in  this execution phase
@@ -62,8 +64,13 @@ func _state_process(delta : float) -> void :
 		_on_timer_over()
 		
 
+func exit() -> void:
+	entry_serial += 1
+
 
 func enter(_msg : Dictionary = {}) -> void:
+	entry_serial += 1
+	var current_entry := entry_serial
 	#print("CbAnimationState enter _msg : ", _msg)
 	print("CbANimState anim queue size : "+str(combat_state.action_queue.size()) )#,  combat_state.action_queue)
 	Input.set_custom_mouse_cursor(UI.cursor_sword)
@@ -74,6 +81,8 @@ func enter(_msg : Dictionary = {}) -> void:
 		match cur_action["type"] :
 			"TurnUndead" :
 				await perform_turn_undead(cur_action)
+				if current_entry != entry_serial:
+					return
 			"Move" :
 				if not is_instance_valid( cur_action["mover"]):
 					print("CBAnimationState : Move : MoverCb invalid. skipped.")
@@ -154,10 +163,14 @@ func enter(_msg : Dictionary = {}) -> void:
 					movercb.creature.used_apr+=999999
 				timer = 0.2
 				await timer_over
+				if current_entry != entry_serial:
+					return
 			"Swap" :
 				perform_swap(cur_action)
 				timer = 0.2
 				await timer_over
+				if current_entry != entry_serial:
+					return
 			"MeleeAttack" :
 				if not (is_instance_valid(cur_action["attacker"]) and is_instance_valid(cur_action["defender"])) :
 					continue
@@ -172,6 +185,8 @@ func enter(_msg : Dictionary = {}) -> void:
 				if not continue_action :
 					timer = 0.5
 					await timer_over
+					if current_entry != entry_serial:
+						return
 					continue
 				
 				timer = 1.0 *2
@@ -180,6 +195,8 @@ func enter(_msg : Dictionary = {}) -> void:
 				if is_instance_valid(cur_action["defender"]) :
 					UI.ow_hud.creatureRect.display_crea_info(cur_action["defender"])
 				await timer_over
+				if current_entry != entry_serial:
+					return
 				
 			"Spell" :
 				if not is_instance_valid(cur_action["caster"]) :
@@ -190,6 +207,10 @@ func enter(_msg : Dictionary = {}) -> void:
 				#recalculate the affected creas and tiles !
 				var a_spell = cur_action["spell"]
 				var a_power : int = cur_action["s_plvl"]
+				var used_item: Dictionary = cur_action.get("used_item", {})
+				var suppress_spell_reflection := bool(
+					cur_action.get("suppress_spell_reflection", false)
+				)
 				
 				var _a_all_targeted_tiles : Array = cur_action["Targeted Tiles"]
 				var a_main_targeted_tile : Vector2i= Vector2i(cur_action["Main Targeted Tile"])
@@ -245,16 +266,16 @@ func enter(_msg : Dictionary = {}) -> void:
 						SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[ a_spell.sounds[0] ]
 						SfxPlayer.play()
 					await play_projectile_animation(a_spell.proj_tex, a_castercrea, a_main_targeted_tile)
+					if current_entry != entry_serial:
+						return
 					#call_deferred("play_projectile_animation", a_spell.proj_tex, a_caster, a_main_targeted_tile)
 				if not a_spell.sounds[1].is_empty() :
 						SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book[ a_spell.sounds[1] ]
 						SfxPlayer.play()
 				await play_spell_resolution(a_spell.proj_hit, a_castercrea, a_effected_tiles, a_effected_creas)
+				if current_entry != entry_serial:
+					return
 				print("CbAnim l 196 just played anim for spell "+a_spell.name)
-				##DEBUG
-				#if not cur_action.has("used_item") :
-					#print('CUR ACTION NO USEDITEM :  \n'+str(cur_action)+'\n')
-				var used_item : Dictionary = cur_action["used_item"]
 				if not used_item.is_empty() :
 					if used_item.has("ammo_type") :
 						a_castercrea.current_ammo_weapon["charges"] -= 1
@@ -264,9 +285,11 @@ func enter(_msg : Dictionary = {}) -> void:
 				#call_deferred("play_spell_resolution", a_spell.proj_hit, a_caster, a_effected_tiles, a_effected_creas)
 				CLASSIC_SPELL_REFLECTION_SCRIPT.begin_resolution(
 					a_spell,
-					bool(cur_action.get("suppress_spell_reflection", false))
+					suppress_spell_reflection
 				)
 				await after_spell_anim_finished(a_castercrea,a_spell,a_power,a_main_targeted_tile,a_effected_tiles, a_effected_creas, a_add_terrain)
+				if current_entry != entry_serial:
+					return
 				CLASSIC_SPELL_REFLECTION_SCRIPT.end_resolution(a_spell)
 				#call_deferred("after_spell_anim_finished", a_caster,a_spell,a_power,a_main_targeted_tile,a_effected_tiles, a_effected_creas, a_add_terrain)
 				
@@ -303,6 +326,8 @@ func enter(_msg : Dictionary = {}) -> void:
 						combat_state.add_to_action_queue(added_to_queue)
 			#print("CbANimSTate l140 await tilmer over")
 			await timer_over
+			if current_entry != entry_serial:
+				return
 		
 	#end while
 	print("CbAnimState END OF WHILE<")

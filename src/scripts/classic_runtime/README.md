@@ -592,6 +592,16 @@ mode drives that full UI lifecycle deterministically:
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_battle_bridge_playtest.tscn -- --smoke
 ```
 
+The custom-monster acceptance materializes five compiled monster definitions
+into a temporary native bestiary, starts their authored `Battle_7`, and drives
+the real combat lifecycle. It checks hostile and friendly allegiance, live
+spells and equipment, a battle-round macro, active running, death-macro
+dispatch, reward cleanup, and resumption of the outer action list:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_custom_monster_battle_acceptance.tscn -- --smoke
+```
+
 The first in-engine vertical slice loads the CoB fixture, displays `Data DD:0:0` through Remake's existing `TextRect`, presents the four source-backed `Data ED` choices and Classic's Back Out control, feeds the selected result back to the interpreter, and runs that eight-action encounter result block.
 
 Run the standalone scene from the repository root:

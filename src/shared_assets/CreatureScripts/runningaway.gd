@@ -49,8 +49,7 @@ static func decide_action(crea : Creature) -> Array :
 				var affected_creas = tg.get_cbs_touching_tiles(affected_tiles)
 				if affected_creas.is_empty() :
 					return [0, Vector2.ZERO]
-				var aoe_name = ranged_spell.get_aoe(ranged_plvl, crea)
-				var aoe_shape = GameGlobal.map.targetingLayer.get_aoe_from_name(aoe_name)
+				var aoe_shape = ranged_spell.get_aoe(ranged_plvl, crea)
 				return [1, ranged_spell, ranged_plvl, target_crea.position, aoe_shape, {},Vector2i(target_crea.position), affected_tiles, affected_creas]
 			else :
 				return [0, Vector2i.ZERO]

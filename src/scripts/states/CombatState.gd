@@ -26,6 +26,9 @@ var battle_allows_loss : bool = false
 var battle_dead_enemies : Array = []
 var battle_dead_party_members : Array = []
 var classic_combat_macro_queue: Array = []
+# State transitions do not cancel an enter() coroutine that is already awaiting.
+# Keep battle completion idempotent when an older combat callback resumes.
+var battle_completion_started := false
 # Classic allocates at most 100 monster slots and never reuses them during a battle.
 var classic_monster_slots_used: int = 0
 
@@ -237,6 +240,17 @@ func pop_classic_combat_macro() -> Dictionary:
 
 func clear_classic_combat_macros() -> void:
 	classic_combat_macro_queue.clear()
+
+
+func reset_battle_completion() -> void:
+	battle_completion_started = false
+
+
+func begin_battle_completion() -> bool:
+	if battle_completion_started:
+		return false
+	battle_completion_started = true
+	return true
 
 
 

@@ -136,7 +136,7 @@ static func decide_action(crea : Creature) -> Array :
 				ignore_cost = true
 				used_an_item = true
 			if want_use_spell :
-				selectedSpell = allspellsArray[0][0]["script"]
+				selectedSpell = allspellsArray[0]["script"]
 				selectedplvl  = randi_range(1,7)
 			if not (want_use_item or want_use_spell) :
 				print("test crea script.gd decideaction : "+crea.name+" wants to do nothing")
@@ -199,8 +199,7 @@ static func get_spell_cast_message (caster: Creature, spell, plvl : int, target_
 		var affected_creas : Array = GameGlobal.map.targetingLayer.get_cbs_touching_tiles(affected_tiles)
 		if affected_creas.size()>0 :
 			print("Test_Crea_Script.gd : "+caster.name + "'s spell hits at least "+ target_crea.name )
-		var aoe_name = spell.get_aoe(plvl, caster)
-		var aoe_shape = GameGlobal.map.targetingLayer.get_aoe_from_name(aoe_name)
+		var aoe_shape = spell.get_aoe(plvl, caster)
 		return [1, spell, plvl, target_crea.position, aoe_shape, item_used,Vector2i(target_crea.position), affected_tiles, affected_creas]
 	return [0, Vector2i.ZERO ]
 

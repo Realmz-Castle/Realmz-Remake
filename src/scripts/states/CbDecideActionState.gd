@@ -18,6 +18,7 @@ var picked_charas : Array = []
 var pleaseconfirmspell : bool = false
 var current_active_creabutton : CombatCreaButton
 var pending_classic_terrain_phase_owner: Creature
+var classic_combat_macro_flush_active := false
 
 signal cbdecide_picked_characters_done
 signal cbdecide_charpanel_clicked
@@ -158,6 +159,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.cur_battle_round = 0
 	combat_state.cur_battle_data = _msg
 	combat_state.clear_classic_combat_macros()
+	classic_combat_macro_flush_active = false
 	pending_classic_terrain_phase_owner = null
 	is_bandaging = false
 	var _battle_pos : Array = [map.focuscharacter.tile_position_x, map.focuscharacter.tile_position_y]
@@ -457,12 +459,20 @@ func _dispatch_classic_battle_round(
 
 
 func _flush_classic_combat_macros() -> void:
+	# Several combat callbacks can re-enter this state while a macro awaits UI.
+	# Let the first caller finish the queue instead of starting a second runtime.
+	while classic_combat_macro_flush_active:
+		await get_tree().process_frame
+		if StateMachine.state != self:
+			return
 	if not combat_state.has_classic_combat_macros():
 		return
+	classic_combat_macro_flush_active = true
 	var host: Variant = GameGlobal.classic_runtime_host
 	if not is_instance_valid(host) or not host.has_method("run_queued_combat_macro"):
 		printerr("Classic combat macro queue has no registered runtime host")
 		combat_state.clear_classic_combat_macros()
+		classic_combat_macro_flush_active = false
 		return
 	while combat_state.has_classic_combat_macros():
 		var entry: Dictionary = combat_state.pop_classic_combat_macro()
@@ -484,7 +494,9 @@ func _flush_classic_combat_macros() -> void:
 				result.get("message", result)
 			)
 		if StateMachine.state != self:
+			classic_combat_macro_flush_active = false
 			return
+	classic_combat_macro_flush_active = false
 
 
 func _classic_battle_round_context() -> Dictionary:
