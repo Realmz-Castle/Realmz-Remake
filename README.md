@@ -17,6 +17,12 @@ You can find latest releases [here](https://github.com/Realmz-Castle/Realmz-Rema
 [Godot 4.x](https://godotengine.org/download)
 [Git LFS](https://git-lfs.com)
 
+### Classic scenario compatibility
+
+The [Classic support matrix and porting workflow](src/scripts/classic_runtime/CLASSIC_PORTING_GUIDE.md)
+documents the current Providence export, validation, installation, safe update,
+readiness, regression, and playability-evidence boundaries.
+
 ## Music System
 
 The game uses OpenMPT for tracker music playback, supporting a wide variety of formats beyond just MOD files:

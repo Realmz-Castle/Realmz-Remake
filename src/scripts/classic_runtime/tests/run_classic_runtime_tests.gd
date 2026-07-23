@@ -2317,6 +2317,7 @@ func _init() -> void:
 	_test_bundle_indexes(bundle)
 	_test_execution_coverage_audit(bundle)
 	_test_multi_scenario_regression_corpus()
+	_test_classic_porting_guide_contract()
 	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
 	_test_custom_spell_overrides()
@@ -10672,6 +10673,69 @@ func _test_multi_scenario_regression_corpus() -> void:
 		_expect(
 			identified_failure,
 			"corpus failure identifies scenario, case, and source record"
+		)
+
+
+func _test_classic_porting_guide_contract() -> void:
+	var guide_path := (
+		"res://scripts/classic_runtime/CLASSIC_PORTING_GUIDE.md"
+	)
+	_expect(
+		FileAccess.file_exists(guide_path),
+		"Classic support matrix and porting guide is published"
+	)
+	if not FileAccess.file_exists(guide_path):
+		return
+	var guide := FileAccess.get_file_as_string(guide_path)
+	var required_markers := {
+		"formatVersion: %d" % BundleScript.FORMAT_VERSION:
+			"porting guide records the accepted bundle version",
+		"schemaVersion: %d" % BundleScript.DOCUMENT_SCHEMA_VERSION:
+			"porting guide records the accepted document version",
+		BundleScript.COMPATIBILITY_PROFILE:
+			"porting guide records the compatibility profile",
+		"Classic save envelope | Schema `%d`"
+			% CampaignSessionScript.SAVE_SCHEMA_VERSION:
+			"porting guide records the Classic save schema",
+		"Regression corpus | Manifest schema `%d`; shared suite `%d`"
+			% [
+				RegressionCorpusScript.SCHEMA_VERSION,
+				RegressionCorpusScript.SUITE_VERSION,
+			]:
+			"porting guide records the corpus schema and suite",
+		"progression-blocker":
+			"porting guide explains progression blockers",
+		"fidelity-fallback":
+			"porting guide explains fidelity fallbacks",
+		"Semantic coverage is not end-to-end playability.":
+			"porting guide separates semantics from playability",
+		"validate_classic_bundle.gd":
+			"porting guide publishes bundle validation commands",
+		"report_classic_readiness.gd":
+			"porting guide publishes readiness commands",
+		"install_classic_campaign.gd":
+			"porting guide publishes installation commands",
+		"run_classic_regression_corpus.gd":
+			"porting guide publishes corpus verification commands",
+	}
+	for marker: String in required_markers:
+		_expect(
+			guide.contains(marker),
+			str(required_markers[marker])
+		)
+	for linked_document: String in [
+		"BUNDLE_CONTRACT.md",
+		"INSTALLING_CLASSIC_CAMPAIGNS.md",
+		"COMPATIBILITY_GAPS.md",
+		"CLASSIC_REGRESSION_CORPUS.md",
+		"CITY_OF_BYWATER_ACCEPTANCE.md",
+	]:
+		_expect(
+			FileAccess.file_exists(
+				"res://scripts/classic_runtime".path_join(linked_document)
+			),
+			"porting guide local link target exists: %s"
+			% linked_document
 		)
 
 

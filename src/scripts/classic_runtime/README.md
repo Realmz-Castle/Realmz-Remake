@@ -7,7 +7,10 @@ compatibility runtime, Realmz Remake's native systems, and the optional dump
 importer path. [BUNDLE_CONTRACT.md](BUNDLE_CONTRACT.md) defines the versioned
 Providence-to-Remake runtime artifact. [INSTALLING_CLASSIC_CAMPAIGNS.md](INSTALLING_CLASSIC_CAMPAIGNS.md)
 defines its self-contained layout below Remake's `Campaigns` directory and the
-normal campaign-start lifecycle.
+normal campaign-start lifecycle. The
+[Classic support matrix and porting workflow](CLASSIC_PORTING_GUIDE.md) is the
+public entry point for version compatibility, readiness, installation, safe
+updates, current boundaries, and the evidence required for broader claims.
 
 `ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicExecutionAudit` inventories executable map, Data ED, Data ED2, Data ED3, battle-round, and immediate or queued death-macro actions without turning those counts into a playability percentage. `ClassicRuntimeState` owns classic quest flags, map position, view mode, priest-turning availability, per-map random-level settings, tile overrides, trigger-percentage overrides, acquired player maps, and persistent encounter, timed-encounter, and action-point replacements. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the low-level Godot `Node` facade. `ClassicRuntimeHost` drives that facade through an injected command adapter, and `ClassicGodotCommandAdapter` is the first Remake-facing adapter. That boundary can reuse existing Remake helpers wherever their behavior matches Classic while keeping compatibility-specific control flow inside the interpreter.
 

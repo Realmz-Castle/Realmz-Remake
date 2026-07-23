@@ -3,6 +3,9 @@
 A compiled Classic campaign is installed as one directory directly below
 Realmz Remake's `Campaigns` directory. The package is self-contained; the game
 does not retain the Providence project path or any other source-machine path.
+For the complete export, readiness, installation, update, acceptance, and
+regression sequence, see the
+[Classic support matrix and porting workflow](CLASSIC_PORTING_GUIDE.md).
 
 ```text
 Campaigns/
@@ -107,8 +110,12 @@ place until the staged update passes validation, and the update replaces the
 whole campaign directory rather than mixing files from different exports. Keep
 the exported folder name and manifest `id` stable across updates. Player saves
 live below `Profiles`, outside the installation target, so package replacement
-does not overwrite them; compatibility with an older save still depends on the
-bundle and saved-state versions. Use `--json` for a machine-readable result.
+does not overwrite them; compatibility with an older save still depends on
+stable referenced identities and resources as well as the bundle and
+saved-state versions. The installer's temporary rollback copy is removed after
+a successful update, so retain the previous export, back up the affected
+profiles, and load representative existing saves against a test installation
+before replacing the live package. Use `--json` for a machine-readable result.
 
 The source directory must already contain the complete exported campaign. In
 particular, do not pass only its `classic` subdirectory, and do not treat raw
