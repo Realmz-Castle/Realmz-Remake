@@ -459,7 +459,8 @@ class CampaignRuleDefinition:
 		melee_accuracy_per_level: float = 0.0,
 		ranged_evasion_per_level: float = 0.0,
 		ranged_accuracy_per_level: float = 0.0,
-		max_hp_per_level: int = 0
+		max_hp_per_level: int = 0,
+		max_sp_per_level: int = 0
 	) -> void:
 		base_stat_bonuses = {
 			"MaxMovement": movement,
@@ -470,6 +471,7 @@ class CampaignRuleDefinition:
 			"AccuracyRanged": ranged_accuracy_per_level,
 			"EvasionRanged": ranged_evasion_per_level,
 			"maxHP": max_hp_per_level,
+			"maxSP": max_sp_per_level,
 		}
 
 
@@ -487,12 +489,16 @@ class CampaignRuleCharacter:
 		0.03,
 		0.03,
 		0.03,
-		4
+		4,
+		3
 	)
 	var classic_magic_resistance := 0
 	var classic_magic_resistance_initialized := false
 	var classic_hand_to_hand := 0
 	var classic_hand_to_hand_initialized := false
+	var classic_spellcaster_type := 0
+	var classic_spellcaster_type_initialized := false
+	var used_resource := "MP"
 	var traits: Array = []
 	var ITEM_NO_MELEE_WEAPON := {
 		"name": "NO_MELEE_WEAPON",
@@ -504,6 +510,7 @@ class CampaignRuleCharacter:
 		"AccuracyRanged": 0.05,
 		"EvasionRanged": 0.05,
 		"maxHP": 20,
+		"maxSP": 12,
 	}
 	var native_stats := {
 		"MaxMovement": 14,
@@ -513,6 +520,8 @@ class CampaignRuleCharacter:
 		"EvasionRanged": 0.05,
 		"maxHP": 20,
 		"curHP": 15,
+		"maxSP": 12,
+		"curSP": 7,
 		"Intellect": 11,
 		"Wisdom": 8,
 		"Vitality": 19,
@@ -531,6 +540,10 @@ class CampaignRuleCharacter:
 			)
 		if saved_data.has("classicHandToHand"):
 			set_classic_hand_to_hand(int(saved_data["classicHandToHand"]))
+		if saved_data.has("classicSpellcasterType"):
+			set_classic_spellcaster_type(
+				int(saved_data["classicSpellcasterType"])
+			)
 		var saved_base_stats: Variant = saved_data.get("baseStats", null)
 		if saved_base_stats is Dictionary:
 			base_stats = saved_base_stats.duplicate(true)
@@ -575,6 +588,15 @@ class CampaignRuleCharacter:
 	func has_classic_hand_to_hand() -> bool:
 		return classic_hand_to_hand_initialized
 
+	func set_classic_spellcaster_type(value: int) -> void:
+		classic_spellcaster_type = value
+		classic_spellcaster_type_initialized = value > 0
+		if classic_spellcaster_type_initialized:
+			used_resource = "SP"
+
+	func has_classic_spellcaster_type() -> bool:
+		return classic_spellcaster_type_initialized
+
 	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		var constructor_args: Array = [self]
 		constructor_args.append_array(args)
@@ -590,15 +612,21 @@ class CampaignRuleCharacter:
 			int(native_stats.get("maxHP", 0))
 			- int(native_stats.get("curHP", 0))
 		)
+		var sp_deficit := (
+			int(native_stats.get("maxSP", 0))
+			- int(native_stats.get("curSP", 0))
+		)
 		for stat_name: String in [
 			"MaxActions",
 			"AccuracyMelee",
 			"AccuracyRanged",
 			"EvasionRanged",
 			"maxHP",
+			"maxSP",
 		]:
 			native_stats[stat_name] = base_stats[stat_name]
 		native_stats["curHP"] = int(native_stats["maxHP"]) - hp_deficit
+		native_stats["curSP"] = int(native_stats["maxSP"]) - sp_deficit
 
 	func get_stat(stat_name: String) -> Variant:
 		var native_value: Variant = native_stats.get(stat_name, 0)
@@ -614,19 +642,25 @@ class CampaignRuleCharacter:
 	func level_up(
 		magic_resistance_roll: int = -1,
 		missile_roll: int = -1,
-		stamina_roll: int = CharacterRulesScript.RANDOM_ROLL_UNSET
+		stamina_roll: int = CharacterRulesScript.RANDOM_ROLL_UNSET,
+		spell_point_roll: int = CharacterRulesScript.RANDOM_ROLL_UNSET
 	) -> void:
 		level += 1
 		base_stats["AccuracyMelee"] += 0.03
 		base_stats["AccuracyRanged"] += 0.03
 		base_stats["EvasionRanged"] += 0.03
 		base_stats["maxHP"] += 4
+		base_stats["maxSP"] += 3
 		if level == 2:
 			base_stats["MaxActions"] += 0.5
 		recalculate_stats()
 		CharacterRulesScript.apply_level_up_stamina_progression(
 			self,
 			stamina_roll
+		)
+		CharacterRulesScript.apply_level_up_spellcasting_progression(
+			self,
+			spell_point_roll
 		)
 		CharacterRulesScript.apply_level_up_combat_progression(
 			self,
@@ -658,6 +692,8 @@ class CampaignRuleCharacter:
 			data["classicMagicResistance"] = classic_magic_resistance
 		if classic_hand_to_hand_initialized:
 			data["classicHandToHand"] = classic_hand_to_hand
+		if classic_spellcaster_type_initialized:
+			data["classicSpellcasterType"] = classic_spellcaster_type
 		return data
 
 
@@ -7227,6 +7263,12 @@ func _test_classic_character_rule_profile() -> void:
 			record["maxStaminaBonus"] = 2
 			record["conditions"][4] = 2
 			record["conditions"][39] = 3
+			record["spellcasters"] = [
+				[1, 2, 4],
+				[0, 0, 0],
+				[0, 0, 0],
+				[0, 0, 0],
+			]
 
 	var character := CampaignRuleCharacter.new()
 	character.add_trait(
@@ -7249,6 +7291,8 @@ func _test_classic_character_rule_profile() -> void:
 	)
 	_expect_equal(character.get_stat("maxHP"), 20, "native maximum HP starts unchanged")
 	_expect_equal(character.get_stat("curHP"), 15, "native current HP starts injured")
+	_expect_equal(character.get_stat("maxSP"), 12, "native maximum SP starts unchanged")
+	_expect_equal(character.get_stat("curSP"), 7, "native current SP starts partly spent")
 	var apply_result := CharacterRulesScript.apply_party(install.bundle, [character])
 	_expect_equal(apply_result.get("status"), "ok", "Classic character rules apply")
 	_expect_equal(
@@ -7307,6 +7351,73 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		"caste condition slots retain their exact level thresholds"
 	)
+	_expect_equal(
+		character.classic_rule_profile.get("spellcastingProgression"),
+		{
+			"casterType": 1,
+			"school": "Sorcerer",
+			"catalogEnabled": 1,
+			"startLevel": 2,
+			"maximumSpellLevel": 4,
+		},
+		"caste spellcasting retains its source school and level bounds"
+	)
+	_expect_equal(
+		character.classic_spellcaster_type,
+		1,
+		"campaign rule application activates the source caster school"
+	)
+	_expect_equal(
+		character.used_resource,
+		"SP",
+		"an active Classic caster exposes Remake's spell-point pool"
+	)
+	_expect_equal(
+		CharacterRulesScript._spellcasting_progression_profile(
+			{
+				"spellcasters": [
+					[0, 5, 2],
+					[1, 1, 7],
+					[1, 1, 7],
+				],
+			},
+			true
+		),
+		{
+			"casterType": 1,
+			"school": "Sorcerer",
+			"catalogEnabled": 0,
+			"startLevel": 5,
+			"maximumSpellLevel": 2,
+		},
+		"level-up caster precedence follows the first nonzero start level"
+	)
+	var delayed_spellcaster := CampaignRuleCharacter.new()
+	delayed_spellcaster.classic_rule_profile = {
+		"spellcastingProgression": {
+			"casterType": 2,
+			"school": "Priest",
+			"catalogEnabled": 1,
+			"startLevel": 4,
+			"maximumSpellLevel": 3,
+		},
+	}
+	delayed_spellcaster.level_up(39, 5, 6, 1)
+	_expect_equal(
+		delayed_spellcaster.classic_spellcaster_type,
+		2,
+		"the caster school is retained before its SP-growth threshold"
+	)
+	_expect_equal(
+		delayed_spellcaster.get_stat("maxSP"),
+		12,
+		"native SP growth is removed before the Classic start level"
+	)
+	_expect_equal(
+		delayed_spellcaster.get_stat("curSP"),
+		7,
+		"the spent-point deficit is unchanged before the Classic start level"
+	)
 	var unsupported_condition_character := CampaignRuleCharacter.new()
 	unsupported_condition_character.level = 2
 	unsupported_condition_character.classic_rule_profile = {
@@ -7357,7 +7468,7 @@ func _test_classic_character_rule_profile() -> void:
 		"race and caste rules initialize Classic magic resistance"
 	)
 
-	character.level_up(39, 5, 6)
+	character.level_up(39, 5, 6, 15)
 	_expect_equal(
 		character.get_stat("MaxMovement"),
 		12,
@@ -7396,6 +7507,21 @@ func _test_classic_character_rule_profile() -> void:
 		"Classic stamina increases current HP while retaining the injury deficit"
 	)
 	_expect_equal(
+		character.classic_spellcaster_type,
+		1,
+		"the source caster school remains persistent character identity"
+	)
+	_expect_equal(
+		character.get_stat("maxSP"),
+		29,
+		"Classic spell-point growth replaces native class SP growth"
+	)
+	_expect_equal(
+		character.get_stat("curSP"),
+		24,
+		"Classic spell-point growth preserves the spent-point deficit"
+	)
+	_expect_equal(
 		CharacterConditionRulesScript.condition_value(character, 4),
 		-3,
 		"a level grant strengthens an existing permanent condition"
@@ -7419,7 +7545,7 @@ func _test_classic_character_rule_profile() -> void:
 		12,
 		"a failed level-up resistance roll leaves the value unchanged"
 	)
-	character.level_up(38, 1, 1)
+	character.level_up(38, 1, 1, 1)
 	_expect(
 		is_equal_approx(character.get_stat("AccuracyMelee"), 4.05),
 		"Classic to-hit growth accumulates once per level"
@@ -7446,6 +7572,16 @@ func _test_classic_character_rule_profile() -> void:
 		character.get_stat("curHP"),
 		26,
 		"accumulated stamina retains the original injury deficit"
+	)
+	_expect_equal(
+		character.get_stat("maxSP"),
+		33,
+		"Classic spell-point rolls accumulate once per eligible level"
+	)
+	_expect_equal(
+		character.get_stat("curSP"),
+		28,
+		"accumulated spell points retain the original spent-point deficit"
 	)
 	_expect_equal(
 		CharacterConditionRulesScript.condition_value(character, 4),
@@ -7502,6 +7638,26 @@ func _test_classic_character_rule_profile() -> void:
 		"the saved injury deficit survives character save/load"
 	)
 	_expect_equal(
+		reloaded.classic_spellcaster_type,
+		1,
+		"Classic caster identity survives character save/load"
+	)
+	_expect_equal(
+		reloaded.used_resource,
+		"SP",
+		"saved Classic caster identity restores the spell-point display"
+	)
+	_expect_equal(
+		reloaded.get_stat("maxSP"),
+		33,
+		"Classic spell-point progression survives character save/load"
+	)
+	_expect_equal(
+		reloaded.get_stat("curSP"),
+		28,
+		"the saved spell-point deficit survives character save/load"
+	)
+	_expect_equal(
 		CharacterConditionRulesScript.condition_value(reloaded, 4),
 		-3,
 		"strengthened caste conditions survive character save/load"
@@ -7535,6 +7691,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("maxHP"),
 		31,
 		"campaign reload does not reroll stamina progression"
+	)
+	_expect_equal(
+		reloaded.get_stat("maxSP"),
+		33,
+		"campaign reload does not reroll spell-point progression"
 	)
 	_expect_equal(
 		CharacterConditionRulesScript.condition_value(reloaded, 39),
@@ -7589,6 +7750,16 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("maxHP"),
 		31,
 		"earned Classic stamina remains stored after leaving the table"
+	)
+	_expect_equal(
+		reloaded.get_stat("maxSP"),
+		33,
+		"earned Classic spell points remain stored after leaving the table"
+	)
+	_expect_equal(
+		reloaded.classic_spellcaster_type,
+		1,
+		"earned Classic caster identity remains outside the override table"
 	)
 	_expect_equal(
 		CharacterConditionRulesScript.condition_value(reloaded, 39),

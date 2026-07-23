@@ -11,6 +11,11 @@ const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
 const RANDOM_ROLL_UNSET := -2147483648
+const CLASSIC_CASTER_SCHOOLS := {
+	1: "Sorcerer",
+	2: "Priest",
+	3: "Enchanter",
+}
 
 
 static func apply_party(bundle: Variant, party: Array) -> Dictionary:
@@ -30,6 +35,9 @@ static func apply_party(bundle: Variant, party: Array) -> Dictionary:
 			}
 		character.call("apply_classic_rule_profile", profile)
 		_sync_magic_resistance(character, profile)
+		var spellcasting_result := _sync_spellcasting_identity(character, profile)
+		if str(spellcasting_result.get("status", "")) == "error":
+			return spellcasting_result
 		applied += 1
 	return {"status": "ok", "applied": applied}
 
@@ -106,13 +114,18 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var spellcasting_progression := _spellcasting_progression_profile(
+		active_caste_record,
+		not changed_caste_record.is_empty()
+	)
 
 	if movement.is_empty() \
 			and magic_resistance.is_empty() \
 			and attacks.is_empty() \
 			and combat_progression.is_empty() \
 			and stamina_progression.is_empty() \
-			and condition_progression.is_empty():
+			and condition_progression.is_empty() \
+			and spellcasting_progression.is_empty():
 		return {}
 
 	var profile := {
@@ -130,6 +143,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["staminaProgression"] = stamina_progression
 	if not condition_progression.is_empty():
 		profile["conditionProgression"] = condition_progression
+	if not spellcasting_progression.is_empty():
+		profile["spellcastingProgression"] = spellcasting_progression
 	if race_id > 0:
 		profile["raceId"] = race_id
 	if caste_id > 0:
@@ -390,6 +405,128 @@ static func apply_level_up_condition_progression(character: Variant) -> Dictiona
 			return result
 		applied.append(result)
 	return {"status": "ok", "applied": applied}
+
+
+static func apply_level_up_spellcasting_progression(
+	character: Variant,
+	spell_point_roll: int = RANDOM_ROLL_UNSET
+) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var progression := _dictionary_value(
+		profile.get("spellcastingProgression", {})
+	)
+	if progression.is_empty():
+		return {"status": "skipped"}
+
+	var identity_result := _sync_spellcasting_identity(character, profile)
+	if str(identity_result.get("status", "")) == "error":
+		return identity_result
+	var caster_type := int(progression.get("casterType", 0))
+	var level := int(_value(character, "level", 1))
+	var start_level := int(progression.get("startLevel", 0))
+	var base_stats: Variant = _value(character, "base_stats", {})
+	if not (base_stats is Dictionary):
+		return {
+			"status": "error",
+			"message": "Classic spellcasting progression requires native base stats.",
+		}
+
+	var roll_maximum := 0
+	var rolled_points := 0
+	var spell_point_gain := 0
+	if level > 1 and start_level <= level:
+		var intellect := _character_stat(character, "Intellect")
+		var wisdom := _character_stat(character, "Wisdom")
+		roll_maximum = (
+			intellect + int(wisdom / 2.0)
+			if caster_type == 1
+			else wisdom + int(intellect / 2.0)
+		)
+		rolled_points = _classic_rand(roll_maximum, spell_point_roll)
+		spell_point_gain = level + rolled_points
+
+	# Current and maximum spell points rise together in Realmz. Remake's normal
+	# recalculation preserves the spent-point deficit and reapplies equipment.
+	# Native class growth is removed even before the Classic start level.
+	base_stats["maxSP"] = (
+		int(base_stats.get("maxSP", 0))
+		- roundi(_native_level_up_stat(character, "maxSP"))
+		+ spell_point_gain
+	)
+	if character.has_method("recalculate_stats"):
+		character.call("recalculate_stats")
+	return {
+		"status": "ok",
+		"casterType": caster_type,
+		"school": spellcaster_school(caster_type),
+		"rollMaximum": roll_maximum,
+		"roll": rolled_points,
+		"spellPointGain": spell_point_gain,
+	}
+
+
+static func spellcaster_school(caster_type: int) -> String:
+	return str(CLASSIC_CASTER_SCHOOLS.get(caster_type, ""))
+
+
+static func _sync_spellcasting_identity(
+	character: Variant,
+	profile: Dictionary
+) -> Dictionary:
+	var progression := _dictionary_value(
+		profile.get("spellcastingProgression", {})
+	)
+	if progression.is_empty():
+		return {"status": "skipped"}
+	var caster_type := int(progression.get("casterType", 0))
+	if not CLASSIC_CASTER_SCHOOLS.has(caster_type):
+		return {
+			"status": "error",
+			"message": "Classic spellcasting progression has an invalid caster type.",
+		}
+	if not (character is Object) \
+			or not character.has_method("set_classic_spellcaster_type"):
+		return {
+			"status": "error",
+			"message": "Classic spellcasting progression requires saved caster identity.",
+		}
+	character.call("set_classic_spellcaster_type", caster_type)
+	return {
+		"status": "ok",
+		"casterType": caster_type,
+		"school": spellcaster_school(caster_type),
+	}
+
+
+static func _spellcasting_progression_profile(
+	caste_record: Dictionary,
+	has_changed_caste: bool
+) -> Dictionary:
+	if not has_changed_caste:
+		return {}
+	var rows: Variant = caste_record.get("spellcasters", [])
+	if not (rows is Array):
+		return {}
+
+	# levelup.c chooses the first nonzero start level, regardless of the editor's
+	# display flag. Preserve that source precedence for unusual hybrid records.
+	for row_index: int in range(mini(3, rows.size())):
+		var row: Variant = rows[row_index]
+		if not (row is Array) or row.size() < 3:
+			continue
+		var start_level := int(row[1])
+		if start_level == 0:
+			continue
+		return {
+			"casterType": row_index + 1,
+			"school": spellcaster_school(row_index + 1),
+			"catalogEnabled": int(row[0]),
+			"startLevel": start_level,
+			"maximumSpellLevel": int(row[2]),
+		}
+	return {}
 
 
 static func _condition_progression_profile(
