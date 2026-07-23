@@ -977,6 +977,8 @@ func _restore_saved_inventory(saved_inventory: Array, resources: Object) -> bool
 func _on_new_round() :
 	print("Creature "+name+" _on_new_round()")
 	creature_script_memory.erase("classic_opening_action")
+	creature_script_memory.erase("classic_failed_spell_passes")
+	creature_script_memory.erase("classic_did_attack")
 	if is_classic_monster_record():
 		set_meta("classic_been_attacked", false)
 	if is_instance_valid(combat_button) :
@@ -1083,6 +1085,15 @@ func was_classic_attacked() -> bool:
 func mark_classic_attacked() -> void:
 	if is_classic_monster_record():
 		set_meta("classic_been_attacked", true)
+
+
+func did_classic_attack() -> bool:
+	return bool(creature_script_memory.get("classic_did_attack", false))
+
+
+func mark_classic_attack_attempt() -> void:
+	if is_classic_monster_record():
+		creature_script_memory["classic_did_attack"] = true
 
 
 func get_melee_weapon_for_next_attack() -> Dictionary:

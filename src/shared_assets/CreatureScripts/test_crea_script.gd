@@ -68,6 +68,13 @@ static func decide_action(crea : Creature) -> Array :
 				classic_opening_action
 				== ClassicMonsterDecisionScript.ACTION_ADVANCE
 			)
+			if (
+				should_advance
+				and not _classic_can_advance(crea, target_pos)
+				and _prepare_classic_post_movement_retry(crea, cast_chance)
+			):
+				classic_opening_action = ClassicMonsterDecisionScript.ACTION_CAST
+				should_advance = false
 		if should_advance:
 			return _move_toward_target(crea, target_pos)
 		else :
@@ -123,10 +130,10 @@ static func decide_action(crea : Creature) -> Array :
 			if not (want_use_item or want_use_spell) :
 				print("test crea script.gd decideaction : "+crea.name+" wants to do nothing")
 				if is_classic_monster:
-					crea.creature_script_memory["classic_opening_action"] = (
-						ClassicMonsterDecisionScript.ACTION_ADVANCE
+					_record_classic_spell_pass_failure(crea)
+					return _classic_advance_after_failed_spell(
+						crea, target_pos, cast_chance
 					)
-					return _move_toward_target(crea, target_pos)
 				return [0, Vector2i.ZERO ]
 			
 			#var spell_cast_message :  Array = [0, Vector2i.ZERO ]
@@ -138,10 +145,10 @@ static func decide_action(crea : Creature) -> Array :
 				):
 					selectedplvl -= 1
 				if selectedplvl == 0:
-					crea.creature_script_memory["classic_opening_action"] = (
-						ClassicMonsterDecisionScript.ACTION_ADVANCE
+					_record_classic_spell_pass_failure(crea)
+					return _classic_advance_after_failed_spell(
+						crea, target_pos, cast_chance
 					)
-					return _move_toward_target(crea, target_pos)
 			if (
 				(
 					is_classic_monster
@@ -165,10 +172,10 @@ static func decide_action(crea : Creature) -> Array :
 						),
 					})
 				elif is_classic_monster:
-					crea.creature_script_memory["classic_opening_action"] = (
-						ClassicMonsterDecisionScript.ACTION_ADVANCE
+					_record_classic_spell_pass_failure(crea)
+					return _classic_advance_after_failed_spell(
+						crea, target_pos, cast_chance
 					)
-					return _move_toward_target(crea, target_pos)
 				return spell_cast_message
 	print("decideaction : "+crea.name+" can do nothing")
 	return [0, Vector2i.ZERO ]
@@ -208,6 +215,78 @@ static func _move_toward_target(crea: Creature, target_pos: Vector2) -> Array:
 			+str(path.size())+" long"
 		)
 		return [0, Vector2i(path[1]) - Vector2i(crea.position)]
+	return [0, Vector2i.ZERO]
+
+
+static func _classic_can_advance(crea: Creature, target_pos: Vector2) -> bool:
+	var path: Array = GameGlobal.map.find_path(
+		crea.position, target_pos, true, false, false, crea, true
+	)
+	if path.size() <= 1:
+		return false
+	var destination := Vector2i(path[1])
+	var occupant = GameGlobal.who_is_at_tile(destination)
+	if (
+		is_instance_valid(occupant)
+		and occupant != crea.combat_button
+		and occupant.creature.curFaction != crea.curFaction
+	):
+		return true
+	var move_check: Array = (
+		StateMachine.combat_state.on_trying_to_move_to_position(
+			crea, destination, true
+		)
+	)
+	return (
+		bool(move_check[0])
+		and crea.get_movement_left() >= int(move_check[1])
+	)
+
+
+static func _prepare_classic_post_movement_retry(
+	crea: Creature,
+	cast_chance: int
+) -> bool:
+	var failed_spell_passes := int(
+		crea.creature_script_memory.get("classic_failed_spell_passes", 0)
+	)
+	if not ClassicMonsterDecisionScript.should_retry_cast(
+		cast_chance,
+		not crea.can_cast_spells() or crea.get_spellsperround_left() <= 0,
+		crea.was_classic_attacked(),
+		crea.did_classic_attack(),
+		failed_spell_passes
+	):
+		return false
+	# The retry does not make another percentage roll. Setting the pass counter
+	# to two prevents a failed retry from cycling back through movement.
+	crea.creature_script_memory["classic_failed_spell_passes"] = 2
+	crea.creature_script_memory["classic_opening_action"] = (
+		ClassicMonsterDecisionScript.ACTION_CAST
+	)
+	return true
+
+
+static func _record_classic_spell_pass_failure(crea: Creature) -> void:
+	crea.creature_script_memory["classic_failed_spell_passes"] = (
+		int(crea.creature_script_memory.get(
+			"classic_failed_spell_passes", 0
+		)) + 1
+	)
+	crea.creature_script_memory["classic_opening_action"] = (
+		ClassicMonsterDecisionScript.ACTION_ADVANCE
+	)
+
+
+static func _classic_advance_after_failed_spell(
+	crea: Creature,
+	target_pos: Vector2,
+	cast_chance: int
+) -> Array:
+	if _classic_can_advance(crea, target_pos):
+		return _move_toward_target(crea, target_pos)
+	if _prepare_classic_post_movement_retry(crea, cast_chance):
+		return decide_action(crea)
 	return [0, Vector2i.ZERO]
 		
 				

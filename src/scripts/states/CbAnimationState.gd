@@ -574,6 +574,7 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 
 	var weapon : Dictionary = msg["weapon"]
 	attackercb.creature.used_apr += 1
+	attackercb.creature.mark_classic_attack_attempt()
 	var accuracy : float = GameGlobal.calculate_melee_accuracy(attackercb.creature, defendercb.creature, weapon, true)
 	var hit_success : bool = accuracy > randf()
 	var evasion_check_array : Array = defendercb.creature.on_evasion_check(['Melee'], attackercb.creature, null, 0) #null for melee attacks, spell for spells

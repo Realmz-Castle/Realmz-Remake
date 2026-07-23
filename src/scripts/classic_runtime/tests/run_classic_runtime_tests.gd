@@ -5350,6 +5350,16 @@ func _test_classic_monster_decision() -> void:
 		"the opening roll is retained across a Classic monster's actions"
 	)
 	_expect(
+		ai_source.contains(
+			"ClassicMonsterDecisionScript.should_retry_cast("
+		),
+		"native battle AI uses the source-backed post-movement retry predicate"
+	)
+	_expect(
+		ai_source.contains("\"classic_failed_spell_passes\""),
+		"native battle AI caps failed Classic spell passes"
+	)
+	_expect(
 		FileAccess.get_file_as_string(
 			"res://scripts/states/CbDecideActionState.gd"
 		).contains("classicConsumesTurn"),
@@ -5360,6 +5370,12 @@ func _test_classic_monster_decision() -> void:
 			"res://scripts/states/CbAnimationState.gd"
 		).contains("if spell_damage > 0:\n\t\t\t\tcb.creature.mark_classic_attacked()"),
 		"damaging native spell resolution records the Classic attack flag"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scripts/states/CbAnimationState.gd"
+		).contains("attackercb.creature.mark_classic_attack_attempt()"),
+		"native melee attempts suppress Classic's post-movement cast retry"
 	)
 
 
