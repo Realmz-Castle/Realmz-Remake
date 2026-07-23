@@ -5,6 +5,9 @@ const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bun
 const ReadinessScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_readiness.gd"
 )
+const CampaignAdmissionScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_admission.gd"
+)
 
 const REQUIRED_NATIVE_MAP_FILES := [
 	"map_info.json",
@@ -148,15 +151,9 @@ func selection_rules() -> Dictionary:
 	var version_label := "Classic format v%d" % format_version
 	if not compatibility_profile.is_empty():
 		version_label += " (%s)" % compatibility_profile
-	return {
+	var selection := {
 		"title": title,
 		"description": description,
-		"restrictionsDescription": (
-			"No race or class restrictions; 6 characters maximum"
-			if ready
-			else "Cannot start: %s" % diagnostic
-		),
-		"charactersLimit": 6,
 		"classic": true,
 		"valid": ready,
 		"formatVersion": format_version,
@@ -166,6 +163,10 @@ func selection_rules() -> Dictionary:
 		"readinessSummary": readiness_summary,
 		"diagnostic": diagnostic,
 	}
+	selection.merge(CampaignAdmissionScript.rules_from_bundle(bundle), true)
+	if not ready:
+		selection["restrictionsDescription"] = "Cannot start: %s" % diagnostic
+	return selection
 
 
 func _validate_packaged_payloads() -> bool:

@@ -17,6 +17,7 @@ var my_menu # the menu this rect is part of, handles results
 @onready var teamContainer : VBoxContainer = $VBoxContainer/HBoxContainer/SelectedVBox/TeamListRect/TeamScrollContainer/TeamVBoxContainer
 
 var selectedcharbutton = null
+var restrictions_summary := ""
 
 var characterfoldernameslist : Array = [] # array of String
 #var characterslist : Array = [] # array of Character.gd objects
@@ -36,7 +37,11 @@ func _ready():
 
 func fill() :
 	pick_party_label.text = "Pick a party for "+GameGlobal.currentcampaign
-	$RestrictionsLabel.text = GameGlobal.get_campaign_restrictions_description(my_menu.selectedCampaign, my_menu.selectedcampaign_onselect)
+	restrictions_summary = GameGlobal.get_campaign_restrictions_description(
+		my_menu.selectedCampaign,
+		my_menu.selectedcampaign_onselect
+	)
+	_show_restriction_feedback()
 #	print("charpickretct fill()  :")
 #	characterslist = []
 #	charactersdict = {}
@@ -64,8 +69,16 @@ func fill() :
 #		print("charîckrect  adding panel for ", c.name)
 		var charpickpanel = charpickbuttonTSCN.instantiate()
 #		charpickpanel.set_text(c.name)
-		var allowed = GameGlobal.can_character_enter_campaign(c, my_menu.selectedCampaign, my_menu.selectedcampaign_onselect)
-		charpickpanel.set_character(c, allowed)
+		var admission := GameGlobal.get_character_campaign_admission(
+			c,
+			my_menu.selectedCampaign,
+			my_menu.selectedcampaign_onselect
+		)
+		charpickpanel.set_character(
+			c,
+			bool(admission.get("allowed", false)),
+			str(admission.get("reason", ""))
+		)
 		charpickpanel.my_menu = self
 		charpickpanel.connect("pressed",Callable(self,"_on_char_button_pressed").bind(charpickpanel))
 #		if GameGlobal.player_characters.has(c) :
@@ -78,6 +91,7 @@ func fill() :
 			teamContainer.add_child(charpickpanel)
 		else :
 			eligibleContainer.add_child(charpickpanel)
+	check_party_ok()
 	
 func _on_char_button_pressed(bp) :
 #	print("_on_char_button_pressed ", bp.character.name)
@@ -100,9 +114,15 @@ func _on_AddButton_pressed():
 	if selectedcharbutton.disabled :
 		print("CharPickRect : seklectedcharbvutton dsabled")
 		return
-	var partysize = teamContainer.get_child_count()
-	if GameGlobal.get_campaign_max_party_size(my_menu.selectedcampaign_onselect) <= partysize :
-		print("CharPickRect : TOO MANY  IN PARTY")
+	var party := _selected_party()
+	party.append(selectedcharbutton.character)
+	var admission := GameGlobal.validate_campaign_party(
+		party,
+		my_menu.selectedCampaign,
+		my_menu.selectedcampaign_onselect
+	)
+	if not bool(admission.get("allowed", false)):
+		_show_restriction_feedback(str(admission.get("reason", "")))
 		return
 #	selectedcharbutton.character.cur_campaign = GameGlobal.currentcampaign
 	eligibleContainer.remove_child(selectedcharbutton)
@@ -124,10 +144,28 @@ func _on_DropButton_pressed():
 
 
 func check_party_ok() :
-	var party : Array = []
-	for cp in teamContainer.get_children() :
-		party.append(cp.character)
-	if party.size() <= GameGlobal.get_campaign_max_party_size(my_menu.selectedcampaign_onselect) and party.size()>0 :
-		my_menu.set_ready(true, party)
-	else :
-		my_menu.set_ready(false, party)
+	var party := _selected_party()
+	var admission := GameGlobal.validate_campaign_party(
+		party,
+		my_menu.selectedCampaign,
+		my_menu.selectedcampaign_onselect
+	)
+	var allowed := bool(admission.get("allowed", false))
+	my_menu.set_ready(allowed, party)
+	var reason := str(admission.get("reason", ""))
+	_show_restriction_feedback("" if party.is_empty() else reason)
+
+
+func _selected_party() -> Array:
+	var party: Array = []
+	for character_panel in teamContainer.get_children():
+		party.append(character_panel.character)
+	return party
+
+
+func _show_restriction_feedback(reason := "") -> void:
+	var message := restrictions_summary
+	if not reason.is_empty():
+		message += " — %s" % reason
+	$RestrictionsLabel.text = message
+	$RestrictionsLabel.tooltip_text = message

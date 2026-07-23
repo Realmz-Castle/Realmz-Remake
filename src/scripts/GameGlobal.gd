@@ -16,6 +16,9 @@ const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
 const ClassicCampaignInstallScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
+const ClassicCampaignAdmissionScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_admission.gd"
+)
 const ClassicCampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
@@ -803,16 +806,48 @@ func get_campaign_restrictions_description(campaign_name : String, campaign_onlo
 	return campaign_onload_script.restrictions_description
 
 func can_character_enter_campaign(chara, campaign_name : String,campaign_onload_script ) -> bool :
-	#var campaign_onload_script = load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd" )
+	return bool(
+		get_character_campaign_admission(
+			chara,
+			campaign_name,
+			campaign_onload_script
+		).get("allowed", false)
+	)
+
+
+func get_character_campaign_admission(
+	chara,
+	campaign_name: String,
+	campaign_onload_script
+) -> Dictionary:
 	if campaign_onload_script==null :
 		print("NO campaign_onload_script loaded !!!")
-		return false
+		return {
+			"allowed": false,
+			"reason": "Pick a campaign first.",
+			"code": "missing-campaign",
+		}
 	var honesty : bool = true
 	honesty = campaign_name == chara.cur_campaign or chara.cur_campaign=="Free"
 	honesty = honesty or (not honest_mode)
+	if not honesty:
+		return {
+			"allowed": false,
+			"reason": "%s is already assigned to %s." % [chara.name, chara.cur_campaign],
+			"code": "campaign-assignment",
+		}
 	if campaign_onload_script is Dictionary:
-		return honesty and bool(campaign_onload_script.get("valid", false))
-	return honesty and campaign_onload_script.can_character_enter(chara)
+		return ClassicCampaignAdmissionScript.character_admission(
+			chara,
+			campaign_onload_script
+		)
+	if campaign_onload_script.can_character_enter(chara):
+		return {"allowed": true, "reason": "", "code": "allowed"}
+	return {
+		"allowed": false,
+		"reason": "%s does not meet this campaign's character restrictions." % chara.name,
+		"code": "native-campaign-restriction",
+	}
 
 func get_campaign_max_party_size(campaign_onselect) -> int :
 	if campaign_onselect==null :
@@ -821,6 +856,43 @@ func get_campaign_max_party_size(campaign_onselect) -> int :
 	if campaign_onselect is Dictionary:
 		return int(campaign_onselect.get("charactersLimit", 0))
 	return campaign_onselect.characters_limit
+
+
+func validate_campaign_party(
+	party: Array,
+	campaign_name: String,
+	campaign_onselect
+) -> Dictionary:
+	if campaign_onselect == null:
+		return {
+			"allowed": false,
+			"reason": "Pick a campaign first.",
+			"code": "missing-campaign",
+		}
+	if campaign_onselect is Dictionary:
+		for character in party:
+			var character_result := get_character_campaign_admission(
+				character,
+				campaign_name,
+				campaign_onselect
+			)
+			if not bool(character_result.get("allowed", false)):
+				return character_result
+		return ClassicCampaignAdmissionScript.party_admission(party, campaign_onselect)
+	if party.is_empty():
+		return {
+			"allowed": false,
+			"reason": "Select at least one character.",
+			"code": "empty-party",
+		}
+	var characters_limit := get_campaign_max_party_size(campaign_onselect)
+	if characters_limit > 0 and party.size() > characters_limit:
+		return {
+			"allowed": false,
+			"reason": "This campaign allows at most %d characters." % characters_limit,
+			"code": "party-size",
+		}
+	return {"allowed": true, "reason": "", "code": "allowed"}
 
 
 func allow_character_swap(yes : bool) :

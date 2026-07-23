@@ -178,6 +178,10 @@ func _classic_campaign_description(selection_rules: Dictionary) -> String:
 		"Status: %s" % selection_rules.get("readinessState", "Invalid"),
 		str(selection_rules.get("readinessSummary", "")),
 	]
+	if bool(selection_rules.get("valid", false)):
+		lines.append(
+			"Party: %s" % selection_rules.get("restrictionsDescription", "")
+		)
 	var diagnostic := str(selection_rules.get("diagnostic", "")).strip_edges()
 	if not diagnostic.is_empty():
 		lines.append("Cannot start: %s" % diagnostic)

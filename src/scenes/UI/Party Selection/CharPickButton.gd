@@ -23,7 +23,7 @@ func _ready():
 		set_custom_minimum_size(Vector2(200,60))
 	pass # Replace with function body.
 
-func set_character(chara, eligible:bool) :
+func set_character(chara, eligible: bool, rejection_reason := "") :
 	selectable = eligible
 #	print("charîckbutton setcharacter ", chara)
 	character = chara
@@ -31,6 +31,7 @@ func set_character(chara, eligible:bool) :
 	$LevelnLabel.text = str(chara.level)
 	$RaceClassLabel.text = chara.racegd.classrace_name+' '+chara.classgd.classrace_name
 	$PortraitSprite.texture = chara.portrait
+	tooltip_text = rejection_reason
 	if GameGlobal.honest_mode :
 		$BusyLabel.text = chara.cur_campaign
 		

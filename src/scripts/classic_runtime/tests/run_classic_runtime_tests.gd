@@ -72,6 +72,9 @@ const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.g
 const CampaignInstallScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
+const CampaignAdmissionScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_admission.gd"
+)
 const CampaignPackageInstallerScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
 )
@@ -412,6 +415,34 @@ class CowardPenaltyTestCharacter:
 	func _init(character_level: int, experience_to_next_level: int) -> void:
 		level = character_level
 		exp_tnl = experience_to_next_level
+
+
+class CampaignAdmissionDefinition:
+	extends RefCounted
+	var classrace_name := ""
+
+	func _init(display_name: String) -> void:
+		classrace_name = display_name
+
+
+class CampaignAdmissionCharacter:
+	extends RefCounted
+	var name := ""
+	var level := 1
+	var cur_campaign := "Free"
+	var racegd: CampaignAdmissionDefinition
+	var classgd: CampaignAdmissionDefinition
+
+	func _init(
+		character_name: String,
+		character_level: int,
+		race_name: String,
+		caste_name: String
+	) -> void:
+		name = character_name
+		level = character_level
+		racegd = CampaignAdmissionDefinition.new(race_name)
+		classgd = CampaignAdmissionDefinition.new(caste_name)
 
 
 class WealthTestAdapter:
@@ -1626,6 +1657,7 @@ func _init() -> void:
 	_test_bundle_contract_validation()
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
+	_test_classic_campaign_admission()
 	_test_classic_map_materializer()
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
@@ -1838,6 +1870,48 @@ func _test_bundle_contract_validation() -> void:
 	_expect(
 		version_bundle.last_error.contains("rules.schemaVersion"),
 		"document version error identifies the document"
+	)
+	var invalid_restriction_bundle = BundleScript.new()
+	invalid_restriction_bundle.manifest = _minimal_contract_manifest()
+	invalid_restriction_bundle.documents = _minimal_contract_documents()
+	invalid_restriction_bundle.documents["scenario"]["restrictions"] = {
+		"maxPartyCharacters": "4",
+	}
+	_expect(
+		not invalid_restriction_bundle._validate_document_contract(),
+		"bundle contract rejects a non-numeric party-size restriction"
+	)
+	_expect(
+		invalid_restriction_bundle.last_error.contains(
+			"restrictions.maxPartyCharacters"
+		),
+		"party-size restriction error identifies its contract field"
+	)
+	var invalid_ban_bundle = BundleScript.new()
+	invalid_ban_bundle.manifest = _minimal_contract_manifest()
+	invalid_ban_bundle.documents = _minimal_contract_documents()
+	invalid_ban_bundle.documents["scenario"]["restrictions"] = {
+		"bannedRaces": [0],
+	}
+	_expect(
+		not invalid_ban_bundle._validate_document_contract(),
+		"bundle contract rejects an out-of-range race restriction"
+	)
+	_expect(
+		invalid_ban_bundle.last_error.contains("bannedRaces[0]"),
+		"race restriction error identifies its array entry"
+	)
+	var invalid_level_bundle = BundleScript.new()
+	invalid_level_bundle.manifest = _minimal_contract_manifest()
+	invalid_level_bundle.documents = _minimal_contract_documents()
+	invalid_level_bundle.documents["scenario"]["shell"] = {"maxLevel": -1}
+	_expect(
+		not invalid_level_bundle._validate_document_contract(),
+		"bundle contract rejects a negative total-party level cap"
+	)
+	_expect(
+		invalid_level_bundle.last_error.contains("shell.maxLevel"),
+		"party-level error identifies the scenario shell field"
 	)
 	var future_format_bundle = BundleScript.new()
 	future_format_bundle.manifest = _minimal_contract_manifest()
@@ -2837,6 +2911,8 @@ func _test_installed_classic_campaign_layout() -> void:
 		"missing payload failure returns an actionable error"
 	)
 	first_payload["payloadPath"] = payload_path
+
+
 	var picture: Dictionary = install.bundle.get_picture(306)
 	var runtime_media_path := "campaign.json"
 	var runtime_media_file := FileAccess.open(
@@ -3194,6 +3270,130 @@ func _test_installed_classic_campaign_layout() -> void:
 	restored_session.queue_free()
 	session.clear()
 	session.queue_free()
+
+
+func _test_classic_campaign_admission() -> void:
+	var install = CampaignInstallScript.new()
+	_expect(
+		install.load_from_campaigns_directory(
+			PROVIDENCE_AUTHORITATIVE_FIXTURE.get_base_dir(),
+			PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file()
+		),
+		"party restriction fixture loads: %s" % install.last_error
+	)
+	if not install.last_error.is_empty():
+		return
+
+	var rules := CampaignAdmissionScript.rules_from_bundle(install.bundle)
+	_expect_equal(rules.get("charactersLimit"), 4, "Data RI caps native party size")
+	_expect_equal(
+		rules.get("recommendedPartyLevel"),
+		1,
+		"scenario shell preserves recommended total party level"
+	)
+	_expect_equal(
+		rules.get("partyLevelLimit"),
+		999,
+		"scenario shell preserves maximum total party level"
+	)
+	_expect_equal(
+		rules.get("characterLevelLimit"),
+		20,
+		"Data RI preserves its per-character level gate"
+	)
+	_expect_equal(rules.get("bannedRaceIds"), [1, 30], "Data RI preserves banned races")
+	_expect_equal(rules.get("bannedCasteIds"), [2, 29], "Data RI preserves banned castes")
+	_expect(
+		str(rules.get("restrictionsDescription", "")).contains(
+			"Four seasoned adventurers only."
+		),
+		"party selection exposes the authored restriction description"
+	)
+	_expect(
+		str(rules.get("restrictionsDescription", "")).contains("Human"),
+		"party selection names a banned standard race"
+	)
+	_expect(
+		str(rules.get("restrictionsDescription", "")).contains("Monk"),
+		"party selection names a banned standard caste"
+	)
+
+	rules["valid"] = true
+	rules["diagnostic"] = ""
+	var banned_race := CampaignAdmissionScript.character_admission(
+		CampaignAdmissionCharacter.new("Banned Human", 5, "Human", "Fighter"),
+		rules
+	)
+	_expect_equal(banned_race.get("code"), "banned-race", "banned race rejects character")
+	_expect(
+		str(banned_race.get("reason", "")).contains("Human"),
+		"banned-race rejection identifies the authored race"
+	)
+
+	var banned_caste := CampaignAdmissionScript.character_admission(
+		CampaignAdmissionCharacter.new("Banned Monk", 5, "Elf", "Monk"),
+		rules
+	)
+	_expect_equal(
+		banned_caste.get("code"),
+		"banned-caste",
+		"banned caste rejects character"
+	)
+	var excessive_level := CampaignAdmissionScript.character_admission(
+		CampaignAdmissionCharacter.new("Veteran", 21, "Elf", "Fighter"),
+		rules
+	)
+	_expect_equal(
+		excessive_level.get("code"),
+		"character-level",
+		"Data RI character-level gate rejects only the excessive character"
+	)
+	var unsupported_override := CampaignAdmissionScript.character_admission(
+		CampaignAdmissionCharacter.new(
+			"Scenario Kin",
+			5,
+			"Providence Kin",
+			"Fighter"
+		),
+		rules
+	)
+	_expect_equal(
+		unsupported_override.get("code"),
+		"unsupported-race-override",
+		"changed scenario race remains blocked until its mechanics can be applied"
+	)
+	var allowed_character := CampaignAdmissionScript.character_admission(
+		CampaignAdmissionCharacter.new("Eligible Elf", 5, "Elf", "Fighter"),
+		rules
+	)
+	_expect(
+		bool(allowed_character.get("allowed", false)),
+		"unaffected standard race and caste remain eligible"
+	)
+
+	var party_rules := rules.duplicate(true)
+	party_rules["partyLevelLimit"] = 8
+	party_rules["characterLevelLimit"] = 0
+	var excessive_party := CampaignAdmissionScript.party_admission(
+		[
+			CampaignAdmissionCharacter.new("First", 5, "Elf", "Fighter"),
+			CampaignAdmissionCharacter.new("Second", 4, "Dwarf", "Fighter"),
+		],
+		party_rules
+	)
+	_expect_equal(
+		excessive_party.get("code"),
+		"party-level",
+		"scenario shell enforces the combined party-level cap"
+	)
+	var allowed_party := CampaignAdmissionScript.party_admission(
+		[
+			CampaignAdmissionCharacter.new("First", 5, "Elf", "Fighter"),
+			CampaignAdmissionCharacter.new("Second", 3, "Dwarf", "Fighter"),
+		],
+		party_rules
+	)
+	_expect(bool(allowed_party.get("allowed", false)), "party at the total-level cap is allowed")
 
 
 func _test_classic_map_materializer() -> void:

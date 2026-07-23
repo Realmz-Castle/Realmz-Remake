@@ -68,7 +68,34 @@ func _run_smoke() -> void:
 		panel.selectedCampaignDescrLabel.text.contains("Status: Ready"),
 		"campaign selection shows its readiness summary"
 	)
+	_expect(
+		panel.selectedCampaignDescrLabel.text.contains(
+			"Party: Up to 6 characters; party total level 1 or lower."
+		),
+		"campaign selection shows the compiled party admission summary"
+	)
 
+	var live_rules: Dictionary = panel.selectedcampaign_onselect
+	var original_rules := live_rules.duplicate(true)
+	live_rules["bannedRaceIds"] = [1]
+	live_rules["raceNames"] = ["Human"]
+	panel.charPickRect.fill()
+	await get_tree().process_frame
+	var rejected_characters: Array[Node] = \
+		panel.charPickRect.eligibleContainer.get_children()
+	_expect(
+		rejected_characters.size() == 1 and rejected_characters[0].disabled,
+		"authored Classic restrictions disable an ineligible profile character"
+	)
+	_expect(
+		not rejected_characters.is_empty()
+			and rejected_characters[0].tooltip_text.contains("Human")
+			and rejected_characters[0].tooltip_text.contains("banned"),
+		"ineligible character exposes an actionable restriction reason"
+	)
+	live_rules.clear()
+	live_rules.merge(original_rules, true)
+	panel.charPickRect.fill()
 	await get_tree().process_frame
 	var eligible_characters: Array[Node] = panel.charPickRect.eligibleContainer.get_children()
 	_expect(

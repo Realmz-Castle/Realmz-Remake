@@ -151,6 +151,8 @@ func _validate_document_contract() -> bool:
 
 	if not _validate_scenario_identity():
 		return false
+	if not _validate_scenario_selection_metadata():
+		return false
 	for specification: Array in [
 		["scripts", "triggers", "id", true],
 		["scripts", "extraCodes", "id", false],
@@ -307,6 +309,67 @@ func _validate_scenario_identity() -> bool:
 			return _fail(
 				"scenario.identity.%s must match campaign.json %s" % [field_name, field_name]
 			)
+	return true
+
+
+func _validate_scenario_selection_metadata() -> bool:
+	var scenario: Dictionary = documents["scenario"]
+	var shell_value: Variant = scenario.get("shell")
+	if shell_value != null:
+		if not (shell_value is Dictionary):
+			return _fail("scenario.shell must be a JSON object")
+		for field_name: String in ["recLevel", "maxLevel"]:
+			if shell_value.has(field_name) and not _is_nonnegative_integer(
+				shell_value[field_name]
+			):
+				return _fail("scenario.shell.%s must be a non-negative integer" % field_name)
+
+	var restrictions_value: Variant = scenario.get("restrictions")
+	if restrictions_value == null:
+		return true
+	if not (restrictions_value is Dictionary):
+		return _fail("scenario.restrictions must be a JSON object")
+	if restrictions_value.has("description") and not (
+		restrictions_value["description"] is String
+	):
+		return _fail("scenario.restrictions.description must be a string")
+	for field_name: String in ["maxPartyCharacters", "maxPartyLevel"]:
+		if restrictions_value.has(field_name) and not _is_nonnegative_integer(
+			restrictions_value[field_name]
+		):
+			return _fail(
+				"scenario.restrictions.%s must be a non-negative integer" % field_name
+			)
+	for field_name: String in ["bannedRaces", "bannedCastes"]:
+		if not _validate_restriction_ids(restrictions_value, field_name):
+			return false
+	return true
+
+
+func _validate_restriction_ids(restrictions: Dictionary, field_name: String) -> bool:
+	if not restrictions.has(field_name):
+		return true
+	var ids_value: Variant = restrictions[field_name]
+	if not (ids_value is Array):
+		return _fail("scenario.restrictions.%s must be an array" % field_name)
+	var seen: Dictionary = {}
+	for index: int in range(ids_value.size()):
+		var id_value: Variant = ids_value[index]
+		if not _is_integer(id_value) or int(id_value) < 1 or int(id_value) > 30:
+			return _fail(
+				"scenario.restrictions.%s[%d] must be an integer from 1 through 30" % [
+					field_name,
+					index,
+				]
+			)
+		if seen.has(int(id_value)):
+			return _fail(
+				"scenario.restrictions.%s contains duplicate ID %d" % [
+					field_name,
+					int(id_value),
+				]
+			)
+		seen[int(id_value)] = true
 	return true
 
 
