@@ -976,6 +976,9 @@ func _restore_saved_inventory(saved_inventory: Array, resources: Object) -> bool
 # called by CbDecideAction State
 func _on_new_round() :
 	print("Creature "+name+" _on_new_round()")
+	creature_script_memory.erase("classic_opening_action")
+	if is_classic_monster_record():
+		set_meta("classic_been_attacked", false)
 	if is_instance_valid(combat_button) :
 		combat_button.set_creature_represented(self)
 	reaction_ready = true
@@ -1069,11 +1072,24 @@ func on_after_melee_attack() :
 			current_melee_weapons[0] = rotating_unarmed_melee_weapons[index]
 
 
+func is_classic_monster_record() -> bool:
+	return classic_monster_id >= 0 or has_meta("classic_monster_id")
+
+
+func was_classic_attacked() -> bool:
+	return bool(get_meta("classic_been_attacked", false))
+
+
+func mark_classic_attacked() -> void:
+	if is_classic_monster_record():
+		set_meta("classic_been_attacked", true)
+
+
 func get_melee_weapon_for_next_attack() -> Dictionary:
 	var active_weapon: Dictionary = ITEM_NO_MELEE_WEAPON
 	if not current_melee_weapons.is_empty():
 		active_weapon = current_melee_weapons[0]
-	if classic_monster_id < 0 and not has_meta("classic_monster_id"):
+	if not is_classic_monster_record():
 		return active_weapon
 	return CLASSIC_MONSTER_ATTACK_SEQUENCE_SCRIPT.weapon_for_attack(
 		active_weapon,

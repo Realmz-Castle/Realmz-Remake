@@ -96,6 +96,9 @@ const MonsterSpecialAttackScript = preload(
 const MonsterAttackSequenceScript = preload(
 	"res://scripts/classic_runtime/classic_monster_attack_sequence.gd"
 )
+const MonsterDecisionScript = preload(
+	"res://scripts/classic_runtime/classic_monster_decision.gd"
+)
 const MaterializationFixtureAuditScript = preload(
 	"res://scripts/classic_runtime/classic_materialization_fixture_audit.gd"
 )
@@ -1588,6 +1591,7 @@ func _init() -> void:
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
 	_test_classic_bestiary_materializer()
+	_test_classic_monster_decision()
 	_test_classic_monster_attack_sequence()
 	_test_classic_monster_special_attacks()
 	_test_classic_map_sound_bridge()
@@ -4854,6 +4858,21 @@ func _test_classic_bestiary_materializer() -> void:
 		"native monster retains the packed spell identities"
 	)
 	_expect_equal(
+		spell_monster.get("classicCastPercent"),
+		75,
+		"native monster retains its Classic cast decision percentage"
+	)
+	_expect_equal(
+		spell_monster.get("classicMissilePercent"),
+		0,
+		"native monster retains its Classic missile decision percentage"
+	)
+	_expect_equal(
+		spell_monster.get("ai", {}).get("cast_chance"),
+		75,
+		"native combat receives the percentage-scale Classic cast chance"
+	)
+	_expect_equal(
 		spell_monster.get("classicMaterialization", {}).get("unsupportedFields"),
 		[],
 		"exact native spell identities do not block launch"
@@ -4864,6 +4883,18 @@ func _test_classic_bestiary_materializer() -> void:
 			{"bestiary": spell_book}
 		).get("ready", false)),
 		"resolved native monster spells remain launchable"
+	)
+	var missile_record: Dictionary = spell_bundle.get_monster(1).duplicate(true)
+	missile_record["missilePercent"] = 25
+	_expect(
+		materializer._unsupported_fields(
+			missile_record,
+			{},
+			{},
+			{},
+			{}
+		).has("missilePercent"),
+		"Classic missile decisions remain blocked until item-slot two is executable"
 	)
 	var exact_spell_book: Dictionary = {}
 	SpellResourceCatalogScript.merge_directory(
@@ -5240,6 +5271,95 @@ func _test_classic_bestiary_materializer() -> void:
 		CampaignPackageInstallerScript.new()._remove_directory(test_root),
 		OK,
 		"bestiary materializer test cleans its workspace"
+	)
+
+
+func _test_classic_monster_decision() -> void:
+	_expect(
+		not MonsterDecisionScript.chance_succeeds(0, 1),
+		"a zero Classic percentage never succeeds"
+	)
+	_expect(
+		MonsterDecisionScript.chance_succeeds(1, 1),
+		"a one-percent Classic chance succeeds on its single roll"
+	)
+	_expect(
+		not MonsterDecisionScript.chance_succeeds(1, 2),
+		"Classic percentage rolls use a one-based inclusive boundary"
+	)
+	_expect(
+		MonsterDecisionScript.chance_succeeds(100, 100),
+		"a 100-percent Classic chance always succeeds"
+	)
+	_expect_equal(
+		MonsterDecisionScript.opening_action(
+			50, 100, false, false, false, 50, 1
+		),
+		MonsterDecisionScript.ACTION_MISSILE,
+		"the Classic missile roll has priority when no enemy is adjacent"
+	)
+	_expect_equal(
+		MonsterDecisionScript.opening_action(
+			50, 100, true, false, false, 1, 100
+		),
+		MonsterDecisionScript.ACTION_CAST,
+		"an adjacent enemy suppresses the missile attempt but not the cast roll"
+	)
+	_expect_equal(
+		MonsterDecisionScript.opening_action(
+			0, 75, false, false, false, 1, 75
+		),
+		MonsterDecisionScript.ACTION_CAST,
+		"the Classic cast roll uses its authored percentage"
+	)
+	_expect_equal(
+		MonsterDecisionScript.opening_action(
+			0, 100, false, false, true, 1, 1
+		),
+		MonsterDecisionScript.ACTION_ADVANCE,
+		"an attacked Classic monster does not begin a spell pass"
+	)
+	_expect_equal(
+		MonsterDecisionScript.opening_action(
+			0, 100, false, true, false, 1, 1
+		),
+		MonsterDecisionScript.ACTION_ADVANCE,
+		"a spellcasting condition suppresses the cast attempt"
+	)
+	_expect(
+		MonsterDecisionScript.should_retry_cast(1, false, false, false, 1),
+		"a nonzero cast percentage permits Classic's post-movement retry"
+	)
+	_expect(
+		not MonsterDecisionScript.should_retry_cast(100, false, false, true, 0),
+		"a melee attack suppresses the post-movement cast retry"
+	)
+	_expect(
+		not MonsterDecisionScript.should_retry_cast(100, false, false, false, 2),
+		"Classic stops after its second failed spell pass"
+	)
+	var ai_source := FileAccess.get_file_as_string(
+		"res://shared_assets/CreatureScripts/test_crea_script.gd"
+	)
+	_expect(
+		ai_source.contains("ClassicMonsterDecisionScript.opening_action("),
+		"native battle AI routes Classic monsters through the decision adapter"
+	)
+	_expect(
+		ai_source.contains("\"classic_opening_action\""),
+		"the opening roll is retained across a Classic monster's actions"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scripts/states/CbDecideActionState.gd"
+		).contains("classicConsumesTurn"),
+		"the battle state honors Classic missile and final-spell turn completion"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scripts/states/CbAnimationState.gd"
+		).contains("if spell_damage > 0:\n\t\t\t\tcb.creature.mark_classic_attacked()"),
+		"damaging native spell resolution records the Classic attack flag"
 	)
 
 

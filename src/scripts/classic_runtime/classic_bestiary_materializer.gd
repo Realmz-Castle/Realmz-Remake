@@ -293,6 +293,8 @@ func _native_monster(
 			record.get("conditions", [])
 		),
 		"classicCanSummon": int(record.get("canSummon", 0)),
+		"classicCastPercent": int(record.get("castPercent", 0)),
+		"classicMissilePercent": int(record.get("missilePercent", 0)),
 		"classicRunPercent": int(record.get("runPercent", 0)),
 		"classicSurrenderPercent": int(record.get("surrenderPercent", 0)),
 		"classicWeaponItemId": int(record.get("weapon", 0)),
@@ -662,6 +664,11 @@ func _unsupported_fields(
 		fields.append("runPercent")
 	if int(record.get("surrenderPercent", 0)) > CLASSIC_INERT_MORALE_MAX:
 		fields.append("surrenderPercent")
+	# Classic's missile decision invokes the spell stored on carried item slot
+	# two. Remake's generic AI instead searches every usable inventory item, so
+	# accepting this percentage would silently change both the item and timing.
+	if int(record.get("missilePercent", 0)) != 0:
+		fields.append("missilePercent")
 	if _has_unsupported_conditions(record.get("conditions", [])):
 		fields.append("conditions")
 	for field_name: String in native_inventory.get("unsupportedFields", []):

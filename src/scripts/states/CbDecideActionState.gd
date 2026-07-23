@@ -601,6 +601,12 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 		var _main_tpos : Vector2i = decision_array[6]
 		var tg_tiles : Array = decision_array[7]
 		var _tg_creas : Array = decision_array[8]
+		if (
+			decision_array.size() > 9
+			and decision_array[9] is Dictionary
+			and bool(decision_array[9].get("classicConsumesTurn", false))
+		):
+			cur_act_crea.used_apr = ceili(cur_act_crea.get_stat("MaxActions"))
 
 		action_msg = {"type" : "Spell", "spell" : spell, "s_plvl" : power, "targeted_tiles" : tg_tiles, "used_item" : item , "must_add_terrain" : true, "override_aoe" : [] }
 		on_spellcast_confirmed(action_msg)

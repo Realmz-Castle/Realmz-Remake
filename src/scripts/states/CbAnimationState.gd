@@ -507,6 +507,8 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 		var spell_effect_array : Array = cb.creature.on_hit_by_spell(castercrea,spell,power, -spell_damage)
 		if spell_effect_array[0] :
 			cb.display_effect("ATK_NUL", spell_damage, 2.0)  # the spells animation plays behind the text
+			if spell_damage > 0:
+				cb.creature.mark_classic_attacked()
 			cb.creature.change_cur_hp(spell_effect_array[1])
 			UI.ow_hud.creatureRect.logrect.log_spell_damage(castercrea, cb, spell , power, {"total":spell_damage}, accuracy)
 			if spell.has_method("add_traits_to_creature") :
@@ -614,6 +616,7 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		
 		var attacker = attackercb
 		var defender = defendercb
+		defender.creature.mark_classic_attacked()
 		
 		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[weapon["sound"]]
 		UI.ow_hud.creatureRect.logrect.log_melee_attack(attacker,defender,damage_detail, accuracy, is_crit, crit_mult, crit_rate)
