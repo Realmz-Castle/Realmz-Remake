@@ -94,14 +94,19 @@ func _level_color(lvl : int) -> Color :
 
 # extra_avail: array of [spellname, spell_level] arrays for spells the
 # character can learn beyond what their class would normally allow.
-func set_displayed_character(pc : PlayerCharacter, show_class_abilities : bool, extra_avail : Array = []) -> void :
+func set_displayed_character(
+	pc: PlayerCharacter,
+	show_class_abilities: bool = false,
+	extra_avail: Array = []
+) -> void:
 	extra_abs = extra_avail
 	show_class_abs = show_class_abilities or pc.can_manage_ablt_anywhere()
 	spells_book = NodeAccess.__Resources().spells_book
 	character = pc
+	character.prepare_ability_selection()
 	charspells = character.spells
 	nameLabel.text = pc.name
-	char_sp = pc.selection_pts
+	char_sp = pc.get_ability_selection_points()
 	portraitRect.texture = pc.portrait
 
 	_rebuild_spell_lists()
@@ -287,6 +292,6 @@ func _on_done_button_pressed() -> void :
 		for entry in spells_by_level[lvl] :
 			if entry["known"] :
 				character.add_spell_drom_dict(entry["dict"], lvl)
-	character.selection_pts = char_sp
+	character.set_ability_selection_points(char_sp)
 	emit_signal("on_closed")
 	hide()

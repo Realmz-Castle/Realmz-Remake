@@ -440,6 +440,11 @@ func get_max_perma_summons() ->int :
 	return classgd.get_max_perma_summons(self)
 
 func get_selection_cost(ability) -> int:
+	if ClassicCharacterRulesScript.has_classic_spell_selection(self):
+		return ClassicCharacterRulesScript.classic_spell_selection_cost_for_spell(
+			self,
+			ability
+		)
 	var cost : float = 0
 	cost = racegd.get_selection_cost(self, ability, cost) + classgd.get_selection_cost(self, ability, cost)
 	return roundi(cost)
@@ -452,6 +457,8 @@ static func get_exp_req_for_lvl(lvl : int) -> int :
 ## returns  the spell level at which the character can learn spell,  or  0 if it can't.
 ## should return a value in [0,7]
 func can_learn_spell_at_level(spell) -> int :
+	if ClassicCharacterRulesScript.has_classic_spell_selection(self):
+		return ClassicCharacterRulesScript.classic_spell_level(self, spell)
 	#print("PlayerCHararcter.gd can_learn_spell_at_level ", spell.get_script_property_list())
 	var spell_level : int = classgd.can_learn_spell(self,spell) + racegd.can_learn_spell(self,spell)
 	#printerr("PlayerCharacter.gd can_learn_spell_at_level ", name, ' ',spell.name, ' lv? ', spell_level )
@@ -479,7 +486,39 @@ func get_abilities_pc_can_learn() ->Array : #only  Strings  as spell names
 	#return classgd.can_manage_ablt_anywhere
 
 func can_show_ability_list() -> bool :
-	return classgd.can_manage_ablt_anywhere
+	return (
+		ClassicCharacterRulesScript.has_classic_spell_selection(self)
+		or classgd.can_manage_ablt_anywhere
+	)
+
+
+func get_ability_selection_points() -> int:
+	if ClassicCharacterRulesScript.has_classic_spell_selection(self):
+		return ClassicCharacterRulesScript.classic_spell_selection_remaining(self)
+	return selection_pts
+
+
+func set_ability_selection_points(value: int) -> void:
+	if ClassicCharacterRulesScript.has_classic_spell_selection(self):
+		return
+	selection_pts = value
+
+
+func get_ability_selection_points_label() -> String:
+	if ClassicCharacterRulesScript.has_classic_spell_selection(self):
+		return "Spell Selection Points"
+	return "Ability Selection Points"
+
+
+func prepare_ability_selection() -> void:
+	if ClassicCharacterRulesScript.has_classic_spell_selection(self):
+		ClassicCharacterRulesScript.enforce_classic_spell_selection_budget(self)
+
+
+func ensure_classic_spell_levels(maximum_level: int) -> void:
+	var target_level := clampi(maximum_level, 0, 7)
+	while spells.size() < target_level:
+		spells.append([])
 
 
 func get_spell_resource_cost(spell, plvl : int) :

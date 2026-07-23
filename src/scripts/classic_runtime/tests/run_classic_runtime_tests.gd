@@ -499,6 +499,7 @@ class CampaignRuleCharacter:
 	var classic_spellcaster_type := 0
 	var classic_spellcaster_type_initialized := false
 	var used_resource := "MP"
+	var spells: Array = [[], [], [], [], [], [], []]
 	var traits: Array = []
 	var ITEM_NO_MELEE_WEAPON := {
 		"name": "NO_MELEE_WEAPON",
@@ -550,6 +551,9 @@ class CampaignRuleCharacter:
 		var saved_native_stats: Variant = saved_data.get("nativeStats", null)
 		if saved_native_stats is Dictionary:
 			native_stats = saved_native_stats.duplicate(true)
+		var saved_spells: Variant = saved_data.get("spells", null)
+		if saved_spells is Array:
+			spells = saved_spells.duplicate(true)
 		var saved_traits: Variant = saved_data.get("traits", [])
 		if saved_traits is Array:
 			for saved_trait_value: Variant in saved_traits:
@@ -596,6 +600,11 @@ class CampaignRuleCharacter:
 
 	func has_classic_spellcaster_type() -> bool:
 		return classic_spellcaster_type_initialized
+
+	func ensure_classic_spell_levels(maximum_level: int) -> void:
+		var target_level := clampi(maximum_level, 0, 7)
+		while spells.size() < target_level:
+			spells.append([])
 
 	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		var constructor_args: Array = [self]
@@ -681,6 +690,7 @@ class CampaignRuleCharacter:
 			"classicRuleProfile": classic_rule_profile.duplicate(true),
 			"baseStats": base_stats.duplicate(true),
 			"nativeStats": native_stats.duplicate(true),
+			"spells": spells.duplicate(true),
 			"traits": [],
 		}
 		for trait_value: Variant in traits:
@@ -7358,6 +7368,8 @@ func _test_classic_character_rule_profile() -> void:
 			"school": "Sorcerer",
 			"catalogEnabled": 1,
 			"startLevel": 2,
+			"startLevels": [2, 0, 0],
+			"maximumSpellLevels": [4, 0, 0],
 			"maximumSpellLevel": 4,
 		},
 		"caste spellcasting retains its source school and level bounds"
@@ -7371,6 +7383,76 @@ func _test_classic_character_rule_profile() -> void:
 		character.used_resource,
 		"SP",
 		"an active Classic caster exposes Remake's spell-point pool"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_spell_selection_total(character),
+		0,
+		"Classic spell selection starts at zero before the caster level"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_spell_level(
+			character,
+			{
+				"school_levels": {
+					"Sorcerer": 4,
+					"Priest": 2,
+				},
+			}
+		),
+		4,
+		"Classic spell access uses the active caster school"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_spell_level(
+			character,
+			{"school_levels": {"Sorcerer": 5}}
+		),
+		0,
+		"Classic spell access respects the caste maximum level"
+	)
+	_expect_equal(
+		[
+			CharacterRulesScript.classic_spell_selection_cost(1),
+			CharacterRulesScript.classic_spell_selection_cost(2),
+			CharacterRulesScript.classic_spell_selection_cost(3),
+			CharacterRulesScript.classic_spell_selection_cost(4),
+			CharacterRulesScript.classic_spell_selection_cost(5),
+			CharacterRulesScript.classic_spell_selection_cost(6),
+			CharacterRulesScript.classic_spell_selection_cost(7),
+		],
+		[1, 3, 6, 10, 15, 21, 28],
+		"Classic spell selection uses its exact seven-level cost ladder"
+	)
+	var overspent_spellcaster := CampaignRuleCharacter.new()
+	overspent_spellcaster.level = 2
+	overspent_spellcaster.classic_rule_profile = (
+		character.classic_rule_profile.duplicate(true)
+	)
+	overspent_spellcaster.spells[0] = [
+		{"name": "First"},
+		{"name": "Second"},
+		{"name": "Third"},
+		{"name": "Over Budget"},
+	]
+	var budget_result := (
+		CharacterRulesScript.enforce_classic_spell_selection_budget(
+			overspent_spellcaster
+		)
+	)
+	_expect_equal(
+		budget_result.get("remaining"),
+		0,
+		"Classic spell selection consumes its recalculated total"
+	)
+	_expect_equal(
+		overspent_spellcaster.spells[0].size(),
+		3,
+		"over-budget learned spells are pruned in source traversal order"
+	)
+	_expect_equal(
+		budget_result.get("removed", [])[0].get("name"),
+		"Over Budget",
+		"the first three affordable spells remain learned"
 	)
 	_expect_equal(
 		CharacterRulesScript._spellcasting_progression_profile(
@@ -7388,7 +7470,9 @@ func _test_classic_character_rule_profile() -> void:
 			"school": "Sorcerer",
 			"catalogEnabled": 0,
 			"startLevel": 5,
-			"maximumSpellLevel": 2,
+			"startLevels": [5, 1, 1],
+			"maximumSpellLevels": [2, 7, 7],
+			"maximumSpellLevel": 16,
 		},
 		"level-up caster precedence follows the first nonzero start level"
 	)
@@ -7470,6 +7554,17 @@ func _test_classic_character_rule_profile() -> void:
 
 	character.level_up(39, 5, 6, 15)
 	_expect_equal(
+		CharacterRulesScript.classic_spell_selection_total(character),
+		3,
+		"the first eligible caster level earns three selection points"
+	)
+	character.spells[0].append({"name": "Selected Level-One Spell"})
+	_expect_equal(
+		CharacterRulesScript.classic_spell_selection_remaining(character),
+		2,
+		"known spells are subtracted from the recalculated selection budget"
+	)
+	_expect_equal(
 		character.get_stat("MaxMovement"),
 		12,
 		"scenario movement remains effective after level-up"
@@ -7546,6 +7641,16 @@ func _test_classic_character_rule_profile() -> void:
 		"a failed level-up resistance roll leaves the value unchanged"
 	)
 	character.level_up(38, 1, 1, 1)
+	_expect_equal(
+		CharacterRulesScript.classic_spell_selection_total(character),
+		7,
+		"Classic selection points recalculate from the effective caster level"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_spell_selection_remaining(character),
+		6,
+		"the recalculated budget retains the selected level-one spell"
+	)
 	_expect(
 		is_equal_approx(character.get_stat("AccuracyMelee"), 4.05),
 		"Classic to-hit growth accumulates once per level"
@@ -7658,6 +7763,11 @@ func _test_classic_character_rule_profile() -> void:
 		"the saved spell-point deficit survives character save/load"
 	)
 	_expect_equal(
+		CharacterRulesScript.classic_spell_selection_remaining(reloaded),
+		6,
+		"the derived spell-selection remainder survives character save/load"
+	)
+	_expect_equal(
 		CharacterConditionRulesScript.condition_value(reloaded, 4),
 		-3,
 		"strengthened caste conditions survive character save/load"
@@ -7696,6 +7806,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.get_stat("maxSP"),
 		33,
 		"campaign reload does not reroll spell-point progression"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_spell_selection_remaining(reloaded),
+		18,
+		"the derived selection budget follows the character's current Intellect"
 	)
 	_expect_equal(
 		CharacterConditionRulesScript.condition_value(reloaded, 39),
@@ -7760,6 +7875,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.classic_spellcaster_type,
 		1,
 		"earned Classic caster identity remains outside the override table"
+	)
+	_expect_equal(
+		reloaded.spells[0].size(),
+		1,
+		"learned Classic spells remain stored after leaving the override table"
 	)
 	_expect_equal(
 		CharacterConditionRulesScript.condition_value(reloaded, 39),

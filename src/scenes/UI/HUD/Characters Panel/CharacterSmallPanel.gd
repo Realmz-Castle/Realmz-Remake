@@ -279,8 +279,16 @@ func _on_portrait_button_pressed():
 		descr_parts.append("A creature summoned by " + character.summoner_name + ".")
 	else :
 		descr_parts.append("One of your characters.")
-	if character.get("selection_pts") and character.selection_pts != 0 :
-		descr_parts.append("%d unused Ability Selection Points." % character.selection_pts)
+	if character.has_method("get_ability_selection_points"):
+		var selection_points := int(character.get_ability_selection_points())
+		if selection_points != 0:
+			descr_parts.append(
+				"%d unused %s."
+				% [
+					selection_points,
+					character.get_ability_selection_points_label(),
+				]
+			)
 	if character.get("exp_tnl") :
 		descr_parts.append("Experience to next level: %d" % character.exp_tnl)
 	cdata["data"]["description"] = "\n".join(descr_parts)

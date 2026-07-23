@@ -471,6 +471,123 @@ static func spellcaster_school(caster_type: int) -> String:
 	return str(CLASSIC_CASTER_SCHOOLS.get(caster_type, ""))
 
 
+static func has_classic_spell_selection(character: Variant) -> bool:
+	var progression := _spellcasting_progression(character)
+	return CLASSIC_CASTER_SCHOOLS.has(
+		int(progression.get("casterType", 0))
+	)
+
+
+# getnumspells.c derives this total each time from the active caste and current
+# attributes. It is not the saved generic ability budget used by Remake.
+static func classic_spell_selection_total(character: Variant) -> int:
+	var progression := _spellcasting_progression(character)
+	if progression.is_empty():
+		return 0
+	var start_levels := _integer_array(progression.get("startLevels", []))
+	if start_levels.size() < 3:
+		return 0
+	var relative_level := (
+		int(_value(character, "level", 1))
+		- (start_levels[0] + start_levels[1] + start_levels[2] - 1)
+	)
+	if relative_level < 1:
+		return 0
+
+	var caster_type := int(progression.get("casterType", 0))
+	var bonus_attribute := (
+		_character_stat(character, "Wisdom")
+		if caster_type == 2
+		else _character_stat(character, "Intellect")
+	)
+	var total := 3 * relative_level
+	total += int(relative_level * (relative_level - 1) / 2.0)
+	if bonus_attribute > 15:
+		total += relative_level * (bonus_attribute - 15)
+	return total
+
+
+static func classic_spell_selection_remaining(character: Variant) -> int:
+	var remaining := classic_spell_selection_total(character)
+	var spell_levels: Variant = _value(character, "spells", [])
+	if not (spell_levels is Array):
+		return remaining
+	for level_index: int in range(mini(7, spell_levels.size())):
+		var learned: Variant = spell_levels[level_index]
+		if learned is Array:
+			remaining -= learned.size() * classic_spell_selection_cost(
+				level_index + 1
+			)
+	return remaining
+
+
+# spellselect.c spends points in level and slot order, clearing later known
+# spells when a changed level or attribute total can no longer afford them.
+static func enforce_classic_spell_selection_budget(
+	character: Variant
+) -> Dictionary:
+	var remaining := classic_spell_selection_total(character)
+	var spell_levels: Variant = _value(character, "spells", [])
+	if not (spell_levels is Array):
+		return {
+			"status": "error",
+			"message": "Classic spell selection requires learned spell levels.",
+		}
+	var removed: Array = []
+	for level_index: int in range(mini(7, spell_levels.size())):
+		var learned: Variant = spell_levels[level_index]
+		if not (learned is Array):
+			continue
+		var cost := classic_spell_selection_cost(level_index + 1)
+		var retained: Array = []
+		for spell: Variant in learned:
+			if remaining >= cost:
+				retained.append(spell)
+				remaining -= cost
+			else:
+				removed.append(spell)
+		spell_levels[level_index] = retained
+	return {
+		"status": "ok",
+		"remaining": remaining,
+		"removed": removed,
+	}
+
+
+static func classic_spell_selection_cost(spell_level: int) -> int:
+	if spell_level < 1 or spell_level > 7:
+		return 0
+	return int(spell_level * (spell_level + 1) / 2.0)
+
+
+static func classic_spell_level(character: Variant, spell: Variant) -> int:
+	var progression := _spellcasting_progression(character)
+	if progression.is_empty():
+		return 0
+	var school := spellcaster_school(
+		int(progression.get("casterType", 0))
+	)
+	var school_levels := _dictionary_value(
+		_value(spell, "school_levels", {})
+	)
+	var spell_level := int(school_levels.get(school, 0))
+	var maximum_level := clampi(
+		int(progression.get("maximumSpellLevel", 0)),
+		0,
+		7
+	)
+	if spell_level < 1 or spell_level > maximum_level:
+		return 0
+	return spell_level
+
+
+static func classic_spell_selection_cost_for_spell(
+	character: Variant,
+	spell: Variant
+) -> int:
+	return classic_spell_selection_cost(classic_spell_level(character, spell))
+
+
 static func _sync_spellcasting_identity(
 	character: Variant,
 	profile: Dictionary
@@ -493,6 +610,11 @@ static func _sync_spellcasting_identity(
 			"message": "Classic spellcasting progression requires saved caster identity.",
 		}
 	character.call("set_classic_spellcaster_type", caster_type)
+	if character.has_method("ensure_classic_spell_levels"):
+		character.call(
+			"ensure_classic_spell_levels",
+			int(progression.get("maximumSpellLevel", 0))
+		)
 	return {
 		"status": "ok",
 		"casterType": caster_type,
@@ -512,21 +634,45 @@ static func _spellcasting_progression_profile(
 
 	# levelup.c chooses the first nonzero start level, regardless of the editor's
 	# display flag. Preserve that source precedence for unusual hybrid records.
+	var caster_type := 0
+	var catalog_enabled := 0
+	var start_level := 0
+	var maximum_spell_level := 0
+	var start_levels: Array[int] = []
+	var maximum_spell_levels: Array[int] = []
 	for row_index: int in range(mini(3, rows.size())):
 		var row: Variant = rows[row_index]
 		if not (row is Array) or row.size() < 3:
+			start_levels.append(0)
+			maximum_spell_levels.append(0)
 			continue
-		var start_level := int(row[1])
-		if start_level == 0:
-			continue
-		return {
-			"casterType": row_index + 1,
-			"school": spellcaster_school(row_index + 1),
-			"catalogEnabled": int(row[0]),
-			"startLevel": start_level,
-			"maximumSpellLevel": int(row[2]),
-		}
-	return {}
+		var row_start_level := int(row[1])
+		var row_maximum_level := int(row[2])
+		start_levels.append(row_start_level)
+		maximum_spell_levels.append(row_maximum_level)
+		maximum_spell_level += row_maximum_level
+		if caster_type == 0 and row_start_level != 0:
+			caster_type = row_index + 1
+			catalog_enabled = int(row[0])
+			start_level = row_start_level
+	if caster_type == 0:
+		return {}
+	return {
+		"casterType": caster_type,
+		"school": spellcaster_school(caster_type),
+		"catalogEnabled": catalog_enabled,
+		"startLevel": start_level,
+		"startLevels": start_levels,
+		"maximumSpellLevels": maximum_spell_levels,
+		"maximumSpellLevel": maximum_spell_level,
+	}
+
+
+static func _spellcasting_progression(character: Variant) -> Dictionary:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	return _dictionary_value(profile.get("spellcastingProgression", {}))
 
 
 static func _condition_progression_profile(

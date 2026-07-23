@@ -308,6 +308,13 @@ func _run_smoke() -> void:
 		fighter,
 		human
 	)
+	player_character.set_ability_selection_points(5)
+	_expect_equal(
+		player_character.get_ability_selection_points(),
+		5,
+		"native characters retain their saved generic ability budget"
+	)
+	player_character.set_ability_selection_points(0)
 	var wrong_caste_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
 		{"name": "Fixture Priest", "level": 0},
 		null,
@@ -321,6 +328,60 @@ func _run_smoke() -> void:
 		null,
 		fighter,
 		elf
+	)
+	var classic_spellcaster: PlayerCharacter = GameGlobal.playerCharacterGD.new(
+		{"name": "Classic Spell Selection Fixture", "level": 0},
+		null,
+		null,
+		fighter,
+		human
+	)
+	classic_spellcaster.level = 3
+	classic_spellcaster.apply_classic_rule_profile({
+		"spellcastingProgression": {
+			"casterType": 1,
+			"school": "Sorcerer",
+			"catalogEnabled": 1,
+			"startLevel": 2,
+			"startLevels": [2, 0, 0],
+			"maximumSpellLevels": [4, 0, 0],
+			"maximumSpellLevel": 4,
+		},
+	})
+	classic_spellcaster.set_classic_spellcaster_type(1)
+	classic_spellcaster.ensure_classic_spell_levels(4)
+	var classic_fireball: Variant = load(
+		"res://shared_assets/spells/fireball.gd"
+	).new()
+	_expect_equal(
+		classic_spellcaster.can_learn_spell_at_level(classic_fireball),
+		3,
+		"a Classic caster bypasses the native Fighter spell catalog"
+	)
+	_expect_equal(
+		classic_spellcaster.get_selection_cost(classic_fireball),
+		6,
+		"native spell management uses the Classic level-three cost"
+	)
+	_expect_equal(
+		classic_spellcaster.get_ability_selection_points(),
+		7,
+		"native spell management exposes the derived Classic budget"
+	)
+	classic_spellcaster.spells[2] = [
+		{"name": "First Fireball", "script": classic_fireball},
+		{"name": "Over-Budget Fireball", "script": classic_fireball},
+	]
+	classic_spellcaster.prepare_ability_selection()
+	_expect_equal(
+		classic_spellcaster.spells[2].size(),
+		1,
+		"native spell management prunes an over-budget Classic spell"
+	)
+	_expect_equal(
+		classic_spellcaster.get_ability_selection_points(),
+		1,
+		"native spell management retains the remaining Classic point"
 	)
 	_expect(
 		not wrong_caste_character.can_equip_item(player_weapon),

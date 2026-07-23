@@ -27,7 +27,7 @@ func levelup_character(chara : PlayerCharacter) :
 	var level : int = character.level
 	levellabel.text = "Reached level "+str(level+1)+" !"
 	var stats_before : Dictionary = character.stats.duplicate()
-	var selpts_before : int = chara.selection_pts
+	var selpts_before : int = chara.get_ability_selection_points()
 	character.level_up()
 	for sl  in statsbox.get_children() :
 		sl.queue_free()
@@ -37,10 +37,17 @@ func levelup_character(chara : PlayerCharacter) :
 			newlabel.custom_minimum_size = Vector2(0,20)
 			newlabel.text = s + ' : ' + str(stats_before[s]) + ' -> ' + str(character.stats[s])
 			statsbox.add_child(newlabel)
-	if chara.selection_pts != selpts_before :
+	var selpts_after := chara.get_ability_selection_points()
+	if selpts_after != selpts_before :
 		var newlabel : Label = Label.new()
 		newlabel.custom_minimum_size = Vector2(0,20)
-		newlabel.text = 'Ability Selection Points : ' + str(selpts_before) + ' -> ' + str(chara.selection_pts)
+		newlabel.text = (
+			chara.get_ability_selection_points_label()
+			+ " : "
+			+ str(selpts_before)
+			+ " -> "
+			+ str(selpts_after)
+		)
 		statsbox.add_child(newlabel)
 
 func _on_close_button_pressed():
