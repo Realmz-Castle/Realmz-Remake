@@ -674,17 +674,23 @@ func level_up() :
 func can_equip_item(item) -> bool :
 	print("PlayerCharacter "+name+" can_equip_item : ", item["name"])
 #	print(equipment_slots)
-	if not can_use_inventory_item(item):
+	var classic_permission := (
+		ClassicCharacterRulesScript.classic_item_use_permission(self, item)
+	)
+	if not bool(classic_permission.get("allowed", true)):
 		return false
+	var classic_identity_handled := bool(
+		classic_permission.get("handlesIdentityRestrictions", false)
+	)
 	#check "only_usable_by_classes"
 	var my_class_types : Array = classgd.classrace_types
 	var my_race_types : Array = racegd.classrace_types
 
-	if item.has("only_usable_by_classes") :
+	if item.has("only_usable_by_classes") and not classic_identity_handled :
 		var item_usable_by_classes : Array = item["only_usable_by_classes"]
 		if not array_contains_lfstr_or_one_of_oarray(item_usable_by_classes, classgd.classrace_name,my_class_types) :
 			return false
-	if item.has("only_usable_by_races") :
+	if item.has("only_usable_by_races") and not classic_identity_handled :
 		var item_usable_by_races : Array = item["only_usable_by_races"]
 		if not array_contains_lfstr_or_one_of_oarray(item_usable_by_races, racegd.classrace_name,my_race_types) :
 			return false

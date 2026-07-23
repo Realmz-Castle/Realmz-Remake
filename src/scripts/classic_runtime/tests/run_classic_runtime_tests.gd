@@ -7729,6 +7729,7 @@ func _test_classic_character_rule_profile() -> void:
 			]
 	for record: Variant in install.bundle.documents["rules"]["raceOverrides"]:
 		if record is Dictionary and int(record.get("id", -1)) == 19:
+			record["descriptors"] = 0x0080
 			record["plusMinusToHit"] = [1, 2, 3, 4, 5, 6, 7, 8]
 			record["attBonus"] = [1, 2, 3, 4, 5, 6]
 			record["minMax"] = [
@@ -7882,6 +7883,21 @@ func _test_classic_character_rule_profile() -> void:
 			"casteClass": 6,
 		},
 		"character retains the source-backed caste combat identity"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("raceRuntime"),
+		{"descriptors": 0x0080},
+		"character retains the source-backed race class identity"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_caste_class(character),
+		6,
+		"changed Classic caste class replaces the stock caste grouping"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_race_descriptors(character),
+		0x0080,
+		"changed Classic race descriptors replace the stock race grouping"
 	)
 	_expect_equal(
 		character.get_stat("MaxSpellsPerRound"),
@@ -8058,6 +8074,62 @@ func _test_classic_character_rule_profile() -> void:
 		).get("status"),
 		"unresolved",
 		"a Classic item without a recoverable category fails conservatively"
+	)
+	var identity_restricted_item := {
+		"classicItemId": 155,
+		"classicItemCategory": 3,
+		"classicRecord": {
+			"specificRace": 20,
+			"specificCaste": 21,
+			"raceClassOnly": 0x0080,
+			"casteClassOnly": 1 << 10,
+		},
+	}
+	var identity_permission := (
+		CharacterRulesScript.classic_item_use_permission(
+			character,
+			identity_restricted_item
+		)
+	)
+	_expect(
+		bool(identity_permission.get("allowed", false))
+		and bool(identity_permission.get("handlesIdentityRestrictions", false)),
+		"active custom race and caste identity satisfy exact Classic item restrictions"
+	)
+	identity_restricted_item["classicRecord"]["casteClassOnly"] = 1 << 15
+	_expect(
+		not bool(
+			CharacterRulesScript.classic_item_use_permission(
+				character,
+				identity_restricted_item
+			).get("allowed", true)
+		),
+		"Classic item restriction rejects the wrong active caste class"
+	)
+	var identity_adapter = GodotAdapterScript.new()
+	_expect_equal(
+		identity_adapter.select_characters_by_identity(
+			{
+				"selector": "caste_class",
+				"value": 6,
+				"livingOnly": false,
+			},
+			[character]
+		).get("selected"),
+		[character],
+		"race/caste selection resolves the active custom caste class"
+	)
+	_expect_equal(
+		identity_adapter.select_characters_by_identity(
+			{
+				"selector": "race_class",
+				"value": 9,
+				"livingOnly": false,
+			},
+			[character]
+		).get("selected"),
+		[character],
+		"race/caste selection resolves the active custom race descriptor"
 	)
 	_expect_equal(
 		CharacterRulesScript.classic_item_use_permission(
@@ -23168,6 +23240,69 @@ func _test_party_state_actions() -> void:
 	_expect_equal(condition_fallthrough.get("payload", {}).get("messageId"), 901, "inactive condition falls through")
 
 	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:identity-select"), "begin identity-selection fixture")
+	var identity_selection: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		identity_selection.get("command"),
+		"select_characters_by_identity",
+		"race/caste pick yields a typed selection command"
+	)
+	_expect_equal(
+		identity_selection.get("payload", {}).get("selector"),
+		"caste_class",
+		"race/caste pick preserves its caste-class selector"
+	)
+	_expect_equal(
+		identity_selection.get("payload", {}).get("value"),
+		6,
+		"race/caste pick preserves its authored class"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:identity-branch"), "begin identity-branch fixture")
+	var identity_check: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		identity_check.get("command"),
+		"check_party_misc",
+		"miscellaneous branch yields a typed party identity check"
+	)
+	_expect_equal(
+		identity_check.get("payload", {}).get("selector"),
+		"caste_class",
+		"miscellaneous branch preserves its caste-class selector"
+	)
+	var identity_snapshot: Dictionary = interpreter.make_execution_snapshot()
+	_expect_equal(
+		identity_snapshot.get("status"),
+		"ok",
+		"pending party identity check is saveable"
+	)
+	var restored_identity = _interpreter(bundle)
+	_expect_equal(
+		restored_identity.restore_execution_snapshot(
+			identity_snapshot.get("snapshot", {})
+		).get("status"),
+		"ok",
+		"pending party identity check restores"
+	)
+	var identity_branch: Dictionary = restored_identity.resume_misc_branch(true)
+	_expect_equal(
+		identity_branch.get("payload", {}).get("messageId"),
+		910,
+		"matching caste class follows its authored XAP branch"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:identity-branch"), "restart identity-branch fixture")
+	interpreter.run_until_yield()
+	var identity_fallthrough: Dictionary = interpreter.resume_misc_branch(false)
+	_expect_equal(
+		identity_fallthrough.get("payload", {}).get("messageId"),
+		902,
+		"missing caste class follows its authored fallthrough"
+	)
+
+	interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("party:ally"), "begin ally-check fixture")
 	var ally_check: Dictionary = interpreter.run_until_yield()
 	_expect_equal(ally_check.get("command"), "check_party_ally", "ally action yields typed check")
@@ -23260,6 +23395,58 @@ func _test_party_state_actions() -> void:
 		adapter.party_condition_status(5, {}, 0),
 		{"supported": false, "active": false},
 		"Search remains an explicit unmapped condition"
+	)
+	var identity_character := CampaignRuleCharacter.new()
+	identity_character.level = 7
+	identity_character.classic_gender = 2
+	identity_character.classic_rule_profile = {
+		"raceId": 20,
+		"casteId": 21,
+		"raceRuntime": {"descriptors": 0x0080},
+		"casteRuntime": {"casteClass": 6},
+	}
+	_expect_equal(
+		adapter.party_misc_matches(
+			{"selector": "caste_class", "value": 6},
+			[identity_character],
+			[],
+		).get("matched"),
+		true,
+		"party branch resolves a custom caste class from the active profile"
+	)
+	_expect_equal(
+		adapter.party_misc_matches(
+			{
+				"selector": "race_class",
+				"value": 9,
+				"selectedOnly": true,
+			},
+			[identity_character],
+			[identity_character],
+		).get("matched"),
+		true,
+		"selected-only party branch resolves a custom race descriptor"
+	)
+	_expect_equal(
+		adapter.party_misc_matches(
+			{"selector": "party_level_above", "value": 6},
+			[identity_character],
+			[],
+		).get("matched"),
+		true,
+		"party branch uses the strict source level threshold"
+	)
+	_expect_equal(
+		adapter.party_misc_matches(
+			{"selector": "in_boat", "value": 0},
+			[identity_character],
+			[],
+			{},
+			false,
+			true
+		).get("matched"),
+		true,
+		"party branch reads the active boat state"
 	)
 	var ally = AllyTestCharacter.new()
 	_expect(
@@ -28839,6 +29026,13 @@ func _party_state_test_bundle():
 		_classic_action(0, 40, 1),
 		_classic_action(1, 1, 901),
 	])
+	_add_stack_trigger(bundle, "party:identity-select", -1, [
+		_classic_action(0, 50, 8),
+	])
+	_add_stack_trigger(bundle, "party:identity-branch", -1, [
+		_classic_action(0, 86, 9),
+		_classic_action(1, 1, 902),
+	])
 	_add_stack_trigger(bundle, "party:ally", -1, [
 		_classic_action(0, 87, 2),
 		_classic_action(1, 1, 902),
@@ -28869,6 +29063,8 @@ func _party_state_test_bundle():
 	bundle.extra_codes_by_id[5] = {"id": 5, "values": [2, 8, 8, 0, 0]}
 	bundle.extra_codes_by_id[6] = {"id": 6, "values": [19, 0, 2, 500, 903]}
 	bundle.extra_codes_by_id[7] = {"id": 7, "values": [0, 501, 501, 0, 0]}
+	bundle.extra_codes_by_id[8] = {"id": 8, "values": [4, 0, 6, 0, 0]}
+	bundle.extra_codes_by_id[9] = {"id": 9, "values": [5, 6, 0, 500, 0]}
 	bundle.simple_encounters_by_id[3] = {
 		"id": 3,
 		"actions": [],

@@ -12,8 +12,8 @@ const HANDLED_OPCODES := [
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-	52, 54, 56, 57, 58,
-	73, 82, 83, 85, 87, 89,
+	50, 52, 54, 56, 57, 58,
+	73, 82, 83, 85, 86, 87, 89,
 	93, 94, 95, 96, 97, 98,
 	100, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
@@ -56,6 +56,7 @@ var pending_selective_battle: Dictionary = {}
 var pending_item_check: Dictionary = {}
 var pending_wealth_payment: Dictionary = {}
 var pending_party_condition_check: Dictionary = {}
+var pending_misc_branch: Dictionary = {}
 var pending_ally_check: Dictionary = {}
 var pending_combat_monster_check: Dictionary = {}
 var pending_battle_round_macro: Dictionary = {}
@@ -109,6 +110,7 @@ func reset_execution() -> void:
 	pending_item_check.clear()
 	pending_wealth_payment.clear()
 	pending_party_condition_check.clear()
+	pending_misc_branch.clear()
 	pending_ally_check.clear()
 	pending_combat_monster_check.clear()
 	pending_battle_round_macro.clear()
@@ -143,6 +145,7 @@ func make_execution_snapshot() -> Dictionary:
 		"pendingItemCheck": pending_item_check.duplicate(true),
 		"pendingWealthPayment": pending_wealth_payment.duplicate(true),
 		"pendingPartyConditionCheck": pending_party_condition_check.duplicate(true),
+		"pendingMiscBranch": pending_misc_branch.duplicate(true),
 		"pendingAllyCheck": pending_ally_check.duplicate(true),
 		"pendingCombatMonsterCheck": pending_combat_monster_check.duplicate(true),
 		"pendingBattleRoundMacro": pending_battle_round_macro.duplicate(true),
@@ -186,6 +189,7 @@ func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
 	pending_item_check = saved["pendingItemCheck"].duplicate(true)
 	pending_wealth_payment = saved["pendingWealthPayment"].duplicate(true)
 	pending_party_condition_check = saved["pendingPartyConditionCheck"].duplicate(true)
+	pending_misc_branch = saved.get("pendingMiscBranch", {}).duplicate(true)
 	pending_ally_check = saved["pendingAllyCheck"].duplicate(true)
 	pending_combat_monster_check = saved["pendingCombatMonsterCheck"].duplicate(true)
 	pending_battle_round_macro = saved["pendingBattleRoundMacro"].duplicate(true)
@@ -223,6 +227,9 @@ static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
 	]:
 		if not (snapshot.get(field_name) is Dictionary):
 			return _snapshot_error("Classic continuation has invalid %s" % field_name)
+	if snapshot.has("pendingMiscBranch") \
+			and not (snapshot.get("pendingMiscBranch") is Dictionary):
+		return _snapshot_error("Classic continuation has invalid pendingMiscBranch")
 	for field_name: String in ["callStack", "encounterOrigins"]:
 		if not (snapshot.get(field_name) is Array):
 			return _snapshot_error("Classic continuation has invalid %s" % field_name)
@@ -325,6 +332,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic wealth payment must be resumed before execution can continue")
 	if not pending_party_condition_check.is_empty():
 		return _error_result("A classic party-condition check must be resumed before execution can continue")
+	if not pending_misc_branch.is_empty():
+		return _error_result("A classic party identity check must be resumed before execution can continue")
 	if not pending_ally_check.is_empty():
 		return _error_result("A classic ally check must be resumed before execution can continue")
 	if not pending_combat_monster_check.is_empty():
@@ -656,6 +665,25 @@ func resume_party_condition_check(active: bool) -> Dictionary:
 	return run_until_yield()
 
 
+func resume_misc_branch(matched: bool) -> Dictionary:
+	if pending_misc_branch.is_empty():
+		return _error_result("No classic party identity check is waiting for a response")
+	var branch := pending_misc_branch
+	pending_misc_branch = {}
+	var values: Array = branch["values"]
+	var target_id := int(values[3]) if matched else int(values[4])
+	if target_id == 0:
+		return run_until_yield()
+	var branch_result := _branch_to_action_or_encounter(
+		int(values[2]),
+		target_id,
+		bool(branch.get("gosub", false))
+	)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
+
+
 func resume_ally_check(present: bool) -> Dictionary:
 	if pending_ally_check.is_empty():
 		return _error_result("No classic ally check is waiting for a response")
@@ -834,6 +862,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"soundId": 128,
 				"warningId": 106,
 			})
+		50:
+			return _execute_identity_character_selection(record_id)
 		52:
 			return _execute_misc_character_selection(record_id)
 		54:
@@ -848,6 +878,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_priest_turning(code == 83)
 		85:
 			return _execute_random_branch(record_id, gosub_active)
+		86:
+			return _execute_misc_branch(record_id, gosub_active)
 		87:
 			return _execute_ally_branch(record_id, gosub_active)
 		89:
@@ -1548,6 +1580,42 @@ func _execute_character_check_selection(extra_code_id: int) -> Dictionary:
 		"candidateMode": candidate_mode,
 		"checkType": "attribute" if int(values[3]) != 0 else "special",
 		"selectOnFailure": int(values[0]) < 0,
+	})
+
+
+func _execute_identity_character_selection(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Race/caste character selector references missing Extra Code row %d" \
+			% extra_code_id
+		)
+	var selector_index := int(values[0])
+	var selector := ""
+	var value_index := 2
+	match selector_index:
+		0:
+			selector = "race"
+		1:
+			selector = "gender"
+			value_index = 1
+		2:
+			selector = "caste"
+		3:
+			selector = "race_class"
+		4:
+			selector = "caste_class"
+		_:
+			return _halt_with_error(
+				"Race/caste character selector %d is not supported" \
+				% selector_index
+			)
+	return _yield_result("select_characters_by_identity", {
+		"extraCodeId": extra_code_id,
+		"selector": selector,
+		"selectorIndex": selector_index,
+		"value": abs(int(values[value_index])),
+		"livingOnly": int(values[4]) != 0,
 	})
 
 
@@ -2381,6 +2449,54 @@ func _execute_party_condition_branch(extra_code_id: int, gosub: bool) -> Diction
 		"requiredActive": required_state == 1,
 		"branchMode": int(values[1]),
 		"targetId": int(values[2]),
+	})
+
+
+func _execute_misc_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Party identity branch references missing Extra Code row %d" \
+			% extra_code_id
+		)
+	var selector_index := int(values[0])
+	var selectors := [
+		"caste",
+		"race",
+		"gender",
+		"in_boat",
+		"in_camp",
+		"caste_class",
+		"race_class",
+		"party_level_above",
+		"selected_level_above",
+	]
+	if selector_index < 0 or selector_index >= selectors.size():
+		return _halt_with_error(
+			"Party identity branch selector %d is not supported" % selector_index
+		)
+	var branch_mode := int(values[2])
+	if branch_mode < 0 or branch_mode > 2:
+		return _halt_with_error(
+			"Party identity branch has invalid target mode %d" % branch_mode
+		)
+	var authored_value := int(values[1])
+	pending_misc_branch = {
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_party_misc", {
+		"extraCodeId": extra_code_id,
+		"selector": selectors[selector_index],
+		"selectorIndex": selector_index,
+		"value": abs(authored_value),
+		"selectedOnly": (
+			authored_value < 0
+			and selector_index in [0, 1, 2, 5, 6]
+		),
+		"branchMode": branch_mode,
+		"matchTargetId": int(values[3]),
+		"missTargetId": int(values[4]),
 	})
 
 

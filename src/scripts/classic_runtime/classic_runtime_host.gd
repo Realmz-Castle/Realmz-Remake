@@ -370,6 +370,11 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Party-condition adapter response is missing 'active'", command)
 				return
 			runtime.finish_party_condition_check(bool(response["active"]))
+		"check_party_misc":
+			if not response.has("matched"):
+				_stop_with_error("Party identity adapter response is missing 'matched'", command)
+				return
+			runtime.finish_misc_branch(bool(response["matched"]))
 		"check_party_ally":
 			if not response.has("present"):
 				_stop_with_error("Ally-check adapter response is missing 'present'", command)
@@ -387,7 +392,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
 		"give_character_condition", \
-		"pick_characters", "filter_selected_characters", "select_characters_by_misc", \
+		"pick_characters", "filter_selected_characters", \
+		"select_characters_by_misc", "select_characters_by_identity", \
 		"change_selected_health", "change_party_health", "cast_classic_spell", \
 		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \
 		"set_trigger_percent", "set_view_direction", \

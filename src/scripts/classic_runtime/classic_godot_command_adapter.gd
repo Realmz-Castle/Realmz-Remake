@@ -17,6 +17,9 @@ const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_sa
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
+const CharacterRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_rules.gd"
+)
 const SpellOverrideScript = preload(
 	"res://scripts/classic_runtime/classic_spell_override.gd"
 )
@@ -423,6 +426,10 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _filter_selected_characters(payload)
 		"select_characters_by_misc":
 			return _select_characters_by_misc(payload)
+		"select_characters_by_identity":
+			return _select_characters_by_identity(payload)
+		"check_party_misc":
+			return _check_party_misc(payload)
 		"change_selected_health":
 			return await _change_selected_health(payload)
 		"change_party_health":
@@ -3674,6 +3681,114 @@ func _filter_selected_characters(payload: Dictionary) -> Dictionary:
 	}
 
 
+func _select_characters_by_identity(payload: Dictionary) -> Dictionary:
+	var result := select_characters_by_identity(
+		payload,
+		_party_characters(),
+		_classic_rule_names()
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	var selected: Array = result.get("selected", [])
+	_store_selected_characters(selected)
+	return {
+		"selectedCount": selected.size(),
+		"checks": result.get("checks", []),
+	}
+
+
+func select_characters_by_identity(
+	payload: Dictionary,
+	party: Array,
+	rule_names: Dictionary = {}
+) -> Dictionary:
+	var selector := str(payload.get("selector", ""))
+	if selector not in ["race", "gender", "caste", "race_class", "caste_class"]:
+		return _error("Classic race/caste character selector is invalid")
+	var value := int(payload.get("value", 0))
+	if value < 1:
+		return _error("Classic race/caste character selector has an invalid value")
+	var selected: Array = []
+	var checks: Array = []
+	for character_value: Variant in party:
+		if not (character_value is Object):
+			return _error("Classic race/caste selector target is not a character")
+		if bool(payload.get("livingOnly", false)) \
+				and not _is_living_character(character_value):
+			continue
+		var actual := _classic_identity_value(
+			character_value,
+			selector,
+			rule_names
+		)
+		var matched := (
+			_classic_mask_has(actual, value - 1)
+			if selector == "race_class"
+			else actual == value
+		)
+		if matched:
+			selected.append(character_value)
+		checks.append({
+			"character": character_value,
+			"name": str(character_value.get("name")),
+			"actual": actual,
+			"matched": matched,
+		})
+	return {
+		"selected": selected,
+		"checks": checks,
+	}
+
+
+func _check_party_misc(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	return party_misc_matches(
+		payload,
+		_party_characters(),
+		_current_selected_characters(),
+		_classic_rule_names(),
+		bool(game_global.camping) if game_global != null else false,
+		bool(game_global.is_sailing_boat) if game_global != null else false
+	)
+
+
+func party_misc_matches(
+	payload: Dictionary,
+	party: Array,
+	selected: Array,
+	rule_names: Dictionary = {},
+	in_camp: bool = false,
+	in_boat: bool = false
+) -> Dictionary:
+	var selector := str(payload.get("selector", ""))
+	var value := int(payload.get("value", 0))
+	if selector == "in_camp":
+		return {"matched": in_camp}
+	if selector == "in_boat":
+		return {"matched": in_boat}
+	if selector == "party_level_above":
+		return {"matched": _party_level_total(party) > value}
+	if selector == "selected_level_above":
+		return {"matched": _party_level_total(selected) > value}
+	if selector not in ["race", "gender", "caste", "race_class", "caste_class"]:
+		return _error("Classic party identity branch selector is invalid")
+	var candidates := selected if bool(payload.get("selectedOnly", false)) else party
+	for character_value: Variant in candidates:
+		if not (character_value is Object):
+			return _error("Classic party identity branch target is not a character")
+		var actual := _classic_identity_value(
+			character_value,
+			selector,
+			rule_names
+		)
+		if selector == "race_class":
+			if _classic_mask_has(actual, value - 1):
+				return {"matched": true}
+		elif actual == value:
+			return {"matched": true}
+	return {"matched": false}
+
+
 func _select_characters_by_misc(payload: Dictionary) -> Dictionary:
 	var resolved_payload := payload.duplicate(true)
 	var selector := str(payload.get("selector", ""))
@@ -3860,6 +3975,64 @@ func _selection_candidates(mode: String, party: Array, previously_selected: Arra
 		or (mode == "selected" and previously_selected.has(character_value)):
 			candidates.append(character_value)
 	return candidates
+
+
+func _classic_rule_names() -> Dictionary:
+	if classic_bundle == null:
+		return {}
+	var documents: Variant = classic_bundle.get("documents")
+	if not (documents is Dictionary):
+		return {}
+	var rules: Variant = documents.get("rules", {})
+	if not (rules is Dictionary):
+		return {}
+	var rule_names: Variant = rules.get("ruleNames", {})
+	return rule_names if rule_names is Dictionary else {}
+
+
+func _classic_identity_value(
+	character: Object,
+	selector: String,
+	rule_names: Dictionary
+) -> int:
+	match selector:
+		"race":
+			return CharacterRulesScript.classic_race_id(character, rule_names)
+		"caste":
+			return CharacterRulesScript.classic_caste_id(character, rule_names)
+		"race_class":
+			return CharacterRulesScript.classic_race_descriptors(
+				character,
+				rule_names
+			)
+		"caste_class":
+			return CharacterRulesScript.classic_caste_class(
+				character,
+				rule_names
+			)
+		"gender":
+			var classic_gender: Variant = character.get("classic_gender")
+			if classic_gender != null:
+				return int(classic_gender)
+			var native_gender: Variant = character.get("gender")
+			return int(native_gender) if native_gender != null else 0
+	return 0
+
+
+func _classic_mask_has(mask: int, bit_index: int) -> bool:
+	return bit_index >= 0 \
+		and bit_index < 16 \
+		and (mask & (1 << (15 - bit_index))) != 0
+
+
+func _party_level_total(characters: Array) -> int:
+	var total := 0
+	for character_value: Variant in characters:
+		if character_value is Object:
+			var level_value: Variant = character_value.get("level")
+			if level_value != null:
+				total += maxi(0, int(level_value))
+	return total
 
 
 func _character_has_named_item(

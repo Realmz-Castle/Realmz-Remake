@@ -154,6 +154,10 @@ func finish_party_condition_check(active: bool) -> void:
 	_publish(interpreter.resume_party_condition_check(active))
 
 
+func finish_misc_branch(matched: bool) -> void:
+	_publish(interpreter.resume_misc_branch(matched))
+
+
 func finish_ally_check(present: bool) -> void:
 	_publish(interpreter.resume_ally_check(present))
 

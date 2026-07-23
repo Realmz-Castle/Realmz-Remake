@@ -13,6 +13,9 @@ const CharacterConditionRulesScript = preload(
 const ItemIdentityScript = preload(
 	"res://scripts/classic_runtime/classic_item_identity.gd"
 )
+const ItemMaterializerScript = preload(
+	"res://scripts/classic_runtime/classic_item_materializer.gd"
+)
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const RANDOM_ROLL_UNSET := -2147483648
 const SECONDS_PER_DAY := 86400
@@ -176,6 +179,10 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_caste_record.is_empty()
 	)
+	var race_runtime := _race_runtime_profile(
+		active_race_record,
+		not changed_race_record.is_empty()
+	)
 	var special_abilities := _special_ability_profile(
 		active_race_record,
 		active_caste_record,
@@ -206,6 +213,7 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 			and condition_progression.is_empty() \
 			and spellcasting_progression.is_empty() \
 			and caste_runtime.is_empty() \
+			and race_runtime.is_empty() \
 			and special_abilities.is_empty() \
 			and item_permissions.is_empty() \
 			and foe_type_bonuses.is_empty() \
@@ -233,6 +241,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["spellcastingProgression"] = spellcasting_progression
 	if not caste_runtime.is_empty():
 		profile["casteRuntime"] = caste_runtime
+	if not race_runtime.is_empty():
+		profile["raceRuntime"] = race_runtime
 	if not special_abilities.is_empty():
 		profile["specialAbilities"] = special_abilities
 	if not item_permissions.is_empty():
@@ -301,13 +311,84 @@ static func classic_item_use_permission(
 	var caste_masks := _integer_array(permissions.get("casteMasks", []))
 	var race_allowed := _item_category_allowed(race_masks, category)
 	var caste_allowed := _item_category_allowed(caste_masks, category)
-	return {
+	var classic_record := _dictionary_value(item.get("classicRecord", {}))
+	var identity_permission := _classic_item_identity_permission(
+		character,
+		classic_record
+	)
+	var result := {
 		"status": "ok",
-		"allowed": race_allowed and caste_allowed,
+		"allowed": (
+			race_allowed
+			and caste_allowed
+			and bool(identity_permission.get("allowed", true))
+		),
 		"category": category,
 		"raceAllowed": race_allowed,
 		"casteAllowed": caste_allowed,
 	}
+	if bool(identity_permission.get("handled", false)):
+		result["identityAllowed"] = bool(
+			identity_permission.get("allowed", true)
+		)
+		result["handlesIdentityRestrictions"] = true
+	return result
+
+
+static func classic_race_id(
+	character: Variant,
+	rule_names: Dictionary = {}
+) -> int:
+	var names: Variant = rule_names.get(
+		"raceNames",
+		ItemMaterializerScript.STANDARD_RACE_NAMES
+	)
+	return AdmissionScript.classic_identity_id(character, "race", names)
+
+
+static func classic_caste_id(
+	character: Variant,
+	rule_names: Dictionary = {}
+) -> int:
+	var names: Variant = rule_names.get(
+		"casteNames",
+		ItemMaterializerScript.STANDARD_CASTE_NAMES
+	)
+	return AdmissionScript.classic_identity_id(character, "caste", names)
+
+
+static func classic_race_descriptors(
+	character: Variant,
+	rule_names: Dictionary = {}
+) -> int:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var race_runtime := _dictionary_value(profile.get("raceRuntime", {}))
+	if race_runtime.has("descriptors"):
+		return int(race_runtime["descriptors"])
+	var race_id := classic_race_id(character, rule_names)
+	if race_id < 1 \
+			or race_id > ItemMaterializerScript.STANDARD_RACE_DESCRIPTORS.size():
+		return 0
+	return int(ItemMaterializerScript.STANDARD_RACE_DESCRIPTORS[race_id - 1])
+
+
+static func classic_caste_class(
+	character: Variant,
+	rule_names: Dictionary = {}
+) -> int:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var caste_runtime := _dictionary_value(profile.get("casteRuntime", {}))
+	if caste_runtime.has("casteClass"):
+		return int(caste_runtime["casteClass"])
+	var caste_id := classic_caste_id(character, rule_names)
+	if caste_id < 1 \
+			or caste_id > ItemMaterializerScript.STANDARD_CASTE_CLASSES.size():
+		return 0
+	return int(ItemMaterializerScript.STANDARD_CASTE_CLASSES[caste_id - 1])
 
 
 static func adjusted_stat(
@@ -1842,6 +1923,17 @@ static func _caste_runtime_profile(
 	}
 
 
+static func _race_runtime_profile(
+	race_record: Dictionary,
+	has_changed_race: bool
+) -> Dictionary:
+	if not has_changed_race or not race_record.has("descriptors"):
+		return {}
+	return {
+		"descriptors": int(race_record["descriptors"]),
+	}
+
+
 static func _spellcasting_progression(character: Variant) -> Dictionary:
 	var profile := _dictionary_value(
 		_value(character, "classic_rule_profile", {})
@@ -2022,6 +2114,96 @@ static func _item_category_allowed(masks: Array[int], category: int) -> bool:
 		return false
 	var storage_bit := 31 - category % 32
 	return (masks[word] & (1 << storage_bit)) != 0
+
+
+static func _classic_item_identity_permission(
+	character: Variant,
+	record: Dictionary
+) -> Dictionary:
+	if record.is_empty():
+		return {"handled": false, "allowed": true}
+	var specific_race := int(record.get("specificRace", 0))
+	var specific_caste := int(record.get("specificCaste", 0))
+	var race_restrictions := int(record.get("raceRestrictions", 0))
+	var race_only := int(record.get("raceClassOnly", 0))
+	var caste_restrictions := int(record.get("casteRestrictions", 0))
+	var caste_only := int(record.get("casteClassOnly", 0))
+	var handled := (
+		specific_race != 0
+		or specific_caste != 0
+		or race_restrictions != 0
+		or race_only != 0
+		or caste_restrictions != 0
+		or caste_only != 0
+	)
+	if not handled:
+		return {"handled": false, "allowed": true}
+
+	var race_id := classic_race_id(character)
+	var caste_id := classic_caste_id(character)
+	var descriptors := classic_race_descriptors(character)
+	var caste_class := classic_caste_class(character)
+	var allowed := true
+	if specific_race != 0:
+		allowed = allowed and race_id == specific_race
+	if specific_caste != 0:
+		allowed = allowed and caste_id == specific_caste
+	if race_restrictions != 0:
+		allowed = allowed and not _classic_masks_overlap(
+			descriptors,
+			race_restrictions,
+			9
+		)
+	if race_only != 0:
+		allowed = allowed and _classic_mask_contains_all(
+			descriptors,
+			race_only,
+			9
+		)
+	if caste_restrictions != 0:
+		allowed = allowed and caste_class > 0 \
+			and not _classic_mask_has(caste_restrictions, caste_class - 1)
+	if caste_only != 0:
+		allowed = allowed and caste_class > 0 \
+			and _classic_mask_has(caste_only, caste_class - 1)
+	return {
+		"handled": true,
+		"allowed": allowed,
+		"raceId": race_id,
+		"casteId": caste_id,
+		"raceDescriptors": descriptors,
+		"casteClass": caste_class,
+	}
+
+
+static func _classic_mask_has(mask: int, bit_index: int) -> bool:
+	return bit_index >= 0 \
+		and bit_index < 16 \
+		and (mask & (1 << (15 - bit_index))) != 0
+
+
+static func _classic_masks_overlap(
+	left: int,
+	right: int,
+	bit_count: int
+) -> bool:
+	for bit_index: int in range(bit_count):
+		if _classic_mask_has(left, bit_index) \
+				and _classic_mask_has(right, bit_index):
+			return true
+	return false
+
+
+static func _classic_mask_contains_all(
+	value: int,
+	required: int,
+	bit_count: int
+) -> bool:
+	for bit_index: int in range(bit_count):
+		if _classic_mask_has(required, bit_index) \
+				and not _classic_mask_has(value, bit_index):
+			return false
+	return true
 
 
 static func _classic_strength_bonuses(
