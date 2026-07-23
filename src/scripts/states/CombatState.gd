@@ -11,6 +11,7 @@ const ClassicCombatRoutRulesScript = preload(
 	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
 )
 const BattleRemovalRulesScript = preload("res://scripts/battle_removal_rules.gd")
+const BattleOccupancyRulesScript = preload("res://scripts/battle_occupancy_rules.gd")
 const TurnUndeadRulesScript = preload("res://scripts/turn_undead_rules.gd")
 @export var cbanimstate : CbAnimationState
 
@@ -76,21 +77,53 @@ func is_map_tile_walkable_by_char(chara : Creature, pos : Vector2)->bool : #batt
 
 	
 
+func creature_footprint_is_open(
+	crea: Creature,
+	position: Vector2,
+	ignored_button: CombatCreaButton = null
+) -> bool:
+	var map_bounds := Rect2i(Vector2i.ZERO, Vector2i(GameGlobal.map.map_size))
+	for tile_position: Vector2i in BattleOccupancyRulesScript.footprint_tiles(
+		position,
+		crea.size
+	):
+		if not map_bounds.has_point(tile_position):
+			return false
+		var occupant: CombatCreaButton = GameGlobal.who_is_at_tile(tile_position)
+		if occupant != null and occupant != ignored_button:
+			return false
+	return true
+
+
+func can_place_creature_at(crea: Creature, position: Vector2) -> bool:
+	if not creature_footprint_is_open(crea, position):
+		return false
+	for tile_position: Vector2i in BattleOccupancyRulesScript.footprint_tiles(
+		position,
+		crea.size
+	):
+		if not is_map_tile_walkable_by_char(crea, tile_position):
+			return false
+	return true
+
+
 func find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, _is_failure_ok : bool, max_move_attempts : int, max_los_attempts : int) ->Vector2 :
 	var move_attempts : int = 0
 	var los_attempts : int = 0
 #	var max_los_attempts : int = player_characters.size()*100
 	var is_los : bool = true
 	var pos = Vector2(coords)
-	while not (is_map_tile_walkable_by_char(crea, pos) and GameGlobal.who_is_at_tile(pos)==null and is_los):
+	while not (can_place_creature_at(crea, pos) and is_los):
 			pos = pos + GameGlobal.UDLR[randi_range(0,3)]
 			var whodere = GameGlobal.who_is_at_tile(pos)
 			var whoname = 'nobody'
 			if whodere != null :
 				whoname = whodere.name
 			
-			is_los = check_los(coords, pos)
+			var map_bounds := Rect2i(Vector2i.ZERO, Vector2i(GameGlobal.map.map_size))
+			is_los = map_bounds.has_point(Vector2i(pos)) and check_los(coords, pos)
 			print("GameGlobal place_crea_on_battlefield "+crea.name+" pos : ", pos, "who there : ",whoname)
+			move_attempts += 1
 			if move_attempts > max_move_attempts :
 				move_attempts = 0
 				pos = coords
@@ -104,9 +137,12 @@ func find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, _is_fai
 
 func check_los(fromV : Vector2, toV : Vector2) -> bool :
 	var tiles_line_array : Array = GameGlobal.map.targetingLayer.bresenham_line(fromV,toV, 0, 500)
+	var map_bounds := Rect2i(Vector2i.ZERO, Vector2i(GameGlobal.map.map_size))
 #		print("Targeting bresentham : ",tiles_line_array)
 	#var _breakagain : bool = false
 	for ts_pos in tiles_line_array :
+		if not map_bounds.has_point(Vector2i(ts_pos)):
+			return false
 		#_breakagain = false
 		var tilestack : Array = GameGlobal.map.mapdata[ts_pos.x][ts_pos.y]
 		for tiledict in tilestack :
@@ -213,10 +249,14 @@ func on_trying_to_move_to_position(crea : Creature, position : Vector2, notreall
 
 	var timetowalk : int = 999999
 	var idef : Dictionary = {}
+	var map_bounds := Rect2i(Vector2i.ZERO, Vector2i(GameGlobal.map.map_size))
 	
 	for x in range(crea.size.x) :
 		for y in range(crea.size.y) :
-			var tilestack : Array = GameGlobal.map.mapdata[position.x+x][position.y+y]
+			var tile_position := Vector2i(position) + Vector2i(x, y)
+			if not map_bounds.has_point(tile_position):
+				return [false, timetowalk]
+			var tilestack : Array = GameGlobal.map.mapdata[tile_position.x][tile_position.y]
 			var stacksize : int = tilestack.size()
 			var canwalkxy : bool = true
 			var timetowalkxy : int = 999999

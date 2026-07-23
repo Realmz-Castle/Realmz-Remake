@@ -84,6 +84,18 @@ func enter(_msg : Dictionary = {}) -> void:
 					continue
 				var canmoveandtime : Array = cur_action["canmoveandtime"]
 				if canmoveandtime[0] :
+					var destination := movercb.creature.position + dir
+					if not combat_state.creature_footprint_is_open(
+						movercb.creature,
+						destination,
+						movercb
+					):
+						printerr(
+							"CBAnimationState: Move destination became occupied for "
+							+ movercb.creature.name
+						)
+						movercb.creature.used_apr += 999999
+						continue
 					printerr("CBAnimationState : Move :"+movercb.creature.name+"tries to move. MP"+str(movercb.creature.get_movement_left())+", MP needed"+str(canmoveandtime[1]) )
 					if  movercb.creature.get_movement_left() >=canmoveandtime[1] :
 						if cur_action.has("check_before_scripts") :

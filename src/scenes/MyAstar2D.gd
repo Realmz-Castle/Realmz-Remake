@@ -1,6 +1,8 @@
 extends AStarGrid2D
 class_name SpecificAstar2D
 
+const BattleOccupancyRulesScript = preload("res://scripts/battle_occupancy_rules.gd")
+
 # defines a graph for a certain kind of character (small,big,flyer, swimmer, idk)
 
 #https://docs.godotengine.org/en/stable/classes/class_astar.html#class-astar-method-connect-points
@@ -14,7 +16,7 @@ const DIRECTIONS : Array = [Vector2( 0, 1), Vector2( 0,-1),
 							Vector2(-1,-1), Vector2(-1, 1),
 							Vector2( 1,-1), Vector2( 1, 1)]
 
-var blocked_tiles : Dictionary = {} # id : array of ids that connected to it
+var blocked_tiles : Dictionary = {} # position: whether the graph was already solid there
 
 #var last_generated_path : Array = []
 
@@ -42,6 +44,11 @@ func generate_graph(mapdata : Array, swimmer : bool, flyer : bool, big : bool) :
 			var weight : float = get_tilestack_cost(ts, swimmer, flyer, big)
 			
 			pos = Vector2i(y,x)
+			if pos.x + int(crea_size.x) > region.end.x \
+					or pos.y + int(crea_size.y) > region.end.y:
+				set_point_solid(pos, true)
+				x += 1
+				continue
 			#print(pos, ' ',weight)
 			#if big :
 				#print("astar big crea : "+str(pos)+' size:'+str(crea_size)+' w8:' + str(weight))
@@ -108,31 +115,34 @@ func get_tilestack_cost(ts : Array, swimmer : bool, flyer : bool, big : bool) ->
 	return mov_cost
 
 func block_pos(pos : Vector2i) :
-	blocked_tiles[pos] = true
+	if blocked_tiles.has(pos):
+		return
+	blocked_tiles[pos] = is_point_solid(pos)
 	set_point_solid(pos, true)
 
 func clear_pos(pos : Vector2i) :
 	if blocked_tiles.has(pos) :
+		var was_already_solid: bool = blocked_tiles[pos]
 		blocked_tiles.erase(pos)
-		set_point_solid(pos, false)
+		set_point_solid(pos, was_already_solid)
 
 func clear_all_pos() :
 	for pos in blocked_tiles :
-		set_point_solid(pos, false)
+		set_point_solid(pos, bool(blocked_tiles[pos]))
 	blocked_tiles.clear()
 
-func update_blocked_by_creas(creas_array : Array, active_crea : Creature) :
+func update_blocked_by_creas(creas_array : Array, active_crea : Object) :
 	clear_all_pos()
 	for c in creas_array :
 		if c==active_crea :
 			continue
-		for x in range(c.size.x) :
-			for y in range(c.size.y) :
-				block_pos(c.position + Vector2(x,y))
-				#for cx in range(crea_size.x) :
-					#for cy in range(crea_size.y) :
-						##print("MyAstar2D update_blocked_by_creas : "+c.name+' '+str(c.position) + str(Vector2(x,y)) + str(Vector2(cx,cy)))
-						#block_pos(c.position + Vector2(x,y) - Vector2(cx,cy))
+		for anchor: Vector2i in BattleOccupancyRulesScript.blocked_anchors_for(
+			c.position,
+			c.size,
+			crea_size,
+			region
+		):
+			block_pos(anchor)
 				
 
 #func generate_graph_part(topleft: Vector2, botrigt : Vector2, data : Array, also_disconnect : bool = false) :

@@ -117,6 +117,8 @@ const CombatRoutRulesScript = preload(
 	"res://scripts/classic_runtime/classic_combat_rout_rules.gd"
 )
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
+const BattleOccupancyRulesScript = preload("res://scripts/battle_occupancy_rules.gd")
+const SpecificAstarScript = preload("res://scenes/MyAstar2D.gd")
 const BattleRemovalRulesScript = preload("res://scripts/battle_removal_rules.gd")
 const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
 const TurnUndeadRulesScript = preload("res://scripts/turn_undead_rules.gd")
@@ -1559,6 +1561,16 @@ class QueuedTerrainTestButton:
 		creature = value
 
 
+class BattleOccupancyTestCreature:
+	extends RefCounted
+	var position: Vector2
+	var size: Vector2
+
+	func _init(at: Vector2, footprint: Vector2) -> void:
+		position = at
+		size = footprint
+
+
 func _init() -> void:
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
@@ -1668,6 +1680,7 @@ func _init() -> void:
 	_test_party_state_actions()
 	_test_priest_turning_actions()
 	_test_turn_undead_rules()
+	_test_battle_occupancy_rules()
 	_test_combat_monster_presence_action()
 	_test_combat_monster_destruction_action()
 	_test_lower_undead_deanimation_action()
@@ -19225,6 +19238,56 @@ func _test_native_combat_command_host() -> void:
 		"native forced victory runs no later macro action"
 	)
 	host.queue_free()
+
+
+func _test_battle_occupancy_rules() -> void:
+	var footprint := BattleOccupancyRulesScript.footprint_tiles(
+		Vector2(4, 4),
+		Vector2(2, 2)
+	)
+	_expect_equal(footprint.size(), 4, "2x2 creature occupies four battle tiles")
+	_expect(footprint.has(Vector2i(5, 5)), "2x2 footprint includes its far corner")
+
+	var blocked := BattleOccupancyRulesScript.blocked_anchors_for(
+		Vector2(4, 4),
+		Vector2(2, 2),
+		Vector2(2, 2),
+		Rect2i(0, 0, 10, 10)
+	)
+	_expect_equal(
+		blocked.size(),
+		9,
+		"2x2 mover cannot anchor where its footprint overlaps another 2x2 creature"
+	)
+	_expect(blocked.has(Vector2i(3, 3)), "blocked anchors include upper-left overlap")
+	_expect(blocked.has(Vector2i(5, 5)), "blocked anchors include lower-right overlap")
+
+	var edge_blocked := BattleOccupancyRulesScript.blocked_anchors_for(
+		Vector2.ZERO,
+		Vector2.ONE,
+		Vector2(2, 2),
+		Rect2i(0, 0, 10, 10)
+	)
+	_expect_equal(edge_blocked, [Vector2i.ZERO], "blocked anchors stay inside the battlefield")
+
+	var graph = SpecificAstarScript.new()
+	graph.region = Rect2i(0, 0, 10, 10)
+	graph.update()
+	graph.crea_size = Vector2(2, 2)
+	graph.set_point_solid(Vector2i(3, 3), true)
+	var occupant := BattleOccupancyTestCreature.new(Vector2(4, 4), Vector2(2, 2))
+	var active := BattleOccupancyTestCreature.new(Vector2.ZERO, Vector2(2, 2))
+	graph.update_blocked_by_creas([occupant, active], active)
+	_expect(graph.is_point_solid(Vector2i(5, 5)), "2x2 A* graph blocks an overlapping anchor")
+	graph.clear_all_pos()
+	_expect(
+		graph.is_point_solid(Vector2i(3, 3)),
+		"clearing creature occupancy preserves an existing terrain block"
+	)
+	_expect(
+		not graph.is_point_solid(Vector2i(5, 5)),
+		"clearing creature occupancy restores a previously open anchor"
+	)
 
 
 func _test_battle_round_macro_action() -> void:

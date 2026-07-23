@@ -15,6 +15,7 @@ class_name Map
 const ClassicQueuedSpellRuntimeScript = preload(
 	"res://scripts/classic_runtime/classic_queued_spell_runtime.gd"
 )
+const BattleOccupancyRulesScript = preload("res://scripts/battle_occupancy_rules.gd")
 
 # Get Thing Scene By default #
 #@export (PackedScene) var _thing
@@ -640,39 +641,38 @@ func find_path(from : Vector2i, to : Vector2i, swimmer : bool, flying : bool, bi
 	#var right_astar : SpecificAstar2D = aStar11 #get_right_graph_for_crea(crea)
 	var right_astar : SpecificAstar2D = get_right_graph_for_crea(crea)
 	print("MAP ASTAR CREA  SIZE : ", right_astar.crea_size)
-	var unblocked_poses : Array = []
-	for cx in range(right_astar.crea_size.x) :
-		for cy in range(right_astar.crea_size.y):
-			unblocked_poses.append(from+Vector2i(cx,cy))
-			pathfinder_clear_pos(from+Vector2i(cx,cy))
+	var temporarily_cleared: Dictionary = {}
 
+	# Melee AI paths into an occupied target; its final attempted step becomes
+	# an attack. Temporarily clear only that overlap from the active size graph.
 	var who = GameGlobal.who_is_at_tile(to)
 	if who :
-		for x in range(who.creature.size.x) :
-			for y in range(who.creature.size.y) :
-				#var ubp : Vector2 = Vector2(to.x+x, to.y+y)
-				var ubp : Vector2 = Vector2(who.creature.position.x+x, who.creature.position.y+y)
-				#print("map.find_path , to who : "+who.creature.name+ ', at '+ str(who.creature.position)+", size: "+str(who.creature.size))
-
-				if GameGlobal.is_map_tile_walkable_by_char(crea,ubp) :
-					#print("map find_path unlock ubp  unblockposition")
-					unblocked_poses.append(ubp)
-					pathfinder_clear_pos(ubp)
+		for anchor: Vector2i in BattleOccupancyRulesScript.blocked_anchors_for(
+			who.creature.position,
+			who.creature.size,
+			right_astar.crea_size,
+			right_astar.region
+		):
+			if right_astar.blocked_tiles.has(anchor):
+				right_astar.clear_pos(anchor)
+				temporarily_cleared[anchor] = true
 	if melee_enemies_on_the_way :
 		for cb : CombatCreaButton in StateMachine.combat_state.all_battle_creatures_btns :
 			var c : Creature = cb.creature
 			if c.curFaction != crea.curFaction :
-
-				for x in range(c.size.x) :
-					for y in range(c.size.y) :
-						var ubp : Vector2 = Vector2(to.x+x, to.y+y)
-						if GameGlobal.is_map_tile_walkable_by_char(crea,ubp) :
-							unblocked_poses.append(ubp)
-							pathfinder_clear_pos(ubp)
+				for anchor: Vector2i in BattleOccupancyRulesScript.blocked_anchors_for(
+					c.position,
+					c.size,
+					right_astar.crea_size,
+					right_astar.region
+				):
+					if right_astar.blocked_tiles.has(anchor):
+						right_astar.clear_pos(anchor)
+						temporarily_cleared[anchor] = true
 
 	last_generated_path = right_astar.get_point_path(from, to)
-	for p in unblocked_poses :
-		pathfinder_block_pos(p)
+	for anchor: Vector2i in temporarily_cleared:
+		right_astar.block_pos(anchor)
 	return last_generated_path
 
 func get_right_graph_for_crea(crea : Creature) -> SpecificAstar2D :
