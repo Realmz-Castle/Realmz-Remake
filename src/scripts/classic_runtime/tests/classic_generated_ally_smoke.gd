@@ -613,6 +613,16 @@ func _run_smoke() -> void:
 	var denied_player_weapon := player_weapon.duplicate(true)
 	denied_player_weapon["name"] = "Denied Classic Weapon"
 	denied_player_weapon["classicItemCategory"] = 4
+	denied_player_weapon["equippable"] = 0
+	_expect(
+		not player_character.can_use_inventory_item(denied_player_weapon),
+		"native item activation enforces active Classic category masks"
+	)
+	_expect(
+		player_character.can_use_inventory_item(player_weapon),
+		"native item activation accepts a Classic category allowed by both masks"
+	)
+	denied_player_weapon["equippable"] = 1
 	_expect(
 		not player_character.can_equip_item(denied_player_weapon),
 		"native equipment enforces active Classic race and caste category masks"

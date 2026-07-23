@@ -580,5 +580,12 @@ func set_allow_honest_storage(yes : bool) :
 
 func use_item(item : Dictionary, user : Creature, itemcontrol) :
 	print("InventoryRect use_item() : "+item["name"]+" , StateMachine state : "+StateMachine._state_name)
+	if user.has_method("can_use_inventory_item") \
+			and not user.call("can_use_inventory_item", item):
+		SfxPlayer.stream = (
+			NodeAccess.__Resources().sounds_book["generation error.wav"]
+		)
+		SfxPlayer.play()
+		return
 	StateMachine.state.use_inventory_item(item, user)
 	itemcontrol.set_item(item)

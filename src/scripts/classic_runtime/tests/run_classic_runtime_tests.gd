@@ -7950,6 +7950,16 @@ func _test_classic_character_rule_profile() -> void:
 		{"status": "native", "allowed": true},
 		"native-only items continue through Remake's ordinary permissions"
 	)
+	var inventory_source := FileAccess.get_file_as_string(
+		"res://scenes/UI/HUD/Inventory/InventoryRect.gd"
+	)
+	_expect(
+		inventory_source.contains('user.has_method("can_use_inventory_item")')
+		and inventory_source.contains(
+			'not user.call("can_use_inventory_item", item)'
+		),
+		"ordinary inventory activation uses the character item-permission gate"
+	)
 	_expect_equal(
 		character.classic_rule_profile.get("creation"),
 		{

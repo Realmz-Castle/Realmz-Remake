@@ -674,10 +674,7 @@ func level_up() :
 func can_equip_item(item) -> bool :
 	print("PlayerCharacter "+name+" can_equip_item : ", item["name"])
 #	print(equipment_slots)
-	var classic_permission := (
-		ClassicCharacterRulesScript.classic_item_use_permission(self, item)
-	)
-	if not bool(classic_permission.get("allowed", true)):
+	if not can_use_inventory_item(item):
 		return false
 	#check "only_usable_by_classes"
 	var my_class_types : Array = classgd.classrace_types
@@ -719,6 +716,13 @@ func can_equip_item(item) -> bool :
 				hasfreeslots = can_dual_wield and hasfreeslots
 	print(" PlayerCharacter canequipitem : ", equippable_types[item["type"]]>0, 'free slots:',hasfreeslots)
 	return equippable_types[item["type"]]>0 and hasfreeslots #and super.can_equip_item(item)
+
+
+func can_use_inventory_item(item: Dictionary) -> bool:
+	var permission := (
+		ClassicCharacterRulesScript.classic_item_use_permission(self, item)
+	)
+	return bool(permission.get("allowed", true))
 
 
 func array_contains_lfstr_or_one_of_oarray( arr : Array,  lfstr : String, oarr :Array) -> bool :
