@@ -482,6 +482,7 @@ class CampaignRuleCharacter:
 	var classic_race_id := 20
 	var classic_caste_id := 21
 	var classic_rule_profile: Dictionary = {}
+	var tags: Array = []
 	var racegd := CampaignRuleDefinition.new(12, 1.0)
 	var classgd := CampaignRuleDefinition.new(
 		2,
@@ -7716,6 +7717,7 @@ func _test_classic_character_rule_profile() -> void:
 			]
 	for record: Variant in install.bundle.documents["rules"]["raceOverrides"]:
 		if record is Dictionary and int(record.get("id", -1)) == 19:
+			record["plusMinusToHit"] = [1, 2, 3, 4, 5, 6, 7, 8]
 			record["attBonus"] = [1, 2, 3, 4, 5, 6]
 			record["minMax"] = [
 				3, 20,
@@ -7868,6 +7870,36 @@ func _test_classic_character_rule_profile() -> void:
 			"casteMasks": [(1 << 28) | (1 << 27), 0],
 		},
 		"character retains both source item-category permission masks"
+	)
+	_expect_equal(
+		character.classic_rule_profile.get("foeTypeBonuses"),
+		{"bonuses": [1, 2, 3, 4, 5, 6, 7, 8]},
+		"character retains the source race's eight foe-type bonuses"
+	)
+	var typed_foe := CampaignRuleCharacter.new()
+	typed_foe.tags = ["Undead", "Evil Creature"]
+	_expect_equal(
+		CharacterRulesScript.classic_foe_type_bonus(character, typed_foe),
+		7,
+		"matching Classic monster types stack the race's foe bonuses"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_foe_type_bonus(
+			CampaignRuleCharacter.new(),
+			typed_foe
+		),
+		0,
+		"characters without an active Classic race profile keep native combat"
+	)
+	var combat_source := FileAccess.get_file_as_string(
+		"res://scripts/GameGlobal.gd"
+	)
+	_expect(
+		combat_source.contains(
+			"ClassicCharacterRulesScript.classic_foe_type_bonus"
+		)
+		and combat_source.contains("apply_classic_foe_type_damage_bonus"),
+		"native melee accuracy and damage share the Classic foe-type adapter"
 	)
 	_expect_equal(
 		CharacterRulesScript.classic_item_use_permission(
@@ -9934,6 +9966,11 @@ func _test_classic_character_rule_profile() -> void:
 		reloaded.classic_rule_profile.get("itemPermissions"),
 		character.classic_rule_profile.get("itemPermissions"),
 		"Classic item-category permissions survive character save/load"
+	)
+	_expect_equal(
+		CharacterRulesScript.classic_foe_type_bonus(reloaded, typed_foe),
+		7,
+		"Classic race foe bonuses survive character save/load"
 	)
 	_expect_equal(
 		reloaded.money,

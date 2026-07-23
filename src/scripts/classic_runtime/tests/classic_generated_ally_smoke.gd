@@ -503,7 +503,77 @@ func _run_smoke() -> void:
 				1 << 28,
 			],
 		},
+		"foeTypeBonuses": {
+			"bonuses": [1, 1, 0, 0, 0, 0, 0, 0],
+		},
 	})
+	_expect(
+		elemental_attacker.tags.has("Magic Using")
+			and elemental_attacker.tags.has("Undead"),
+		"generated Classic monster types reach the native creature tags"
+	)
+	var foe_profile := player_character.classic_rule_profile.duplicate(true)
+	var profile_without_foe_bonus := foe_profile.duplicate(true)
+	profile_without_foe_bonus.erase("foeTypeBonuses")
+	var fixed_foe_weapon := player_weapon.duplicate(true)
+	fixed_foe_weapon["weapon_dmg"] = {"Physical": [1, 1]}
+	fixed_foe_weapon["weapon_tag_bonus_dmg"] = {}
+	player_character.apply_classic_rule_profile(profile_without_foe_bonus)
+	var native_foe_accuracy := GameGlobal.calculate_melee_accuracy(
+		player_character,
+		elemental_attacker,
+		fixed_foe_weapon
+	)
+	var native_foe_damage := GameGlobal.calculate_melee_damage(
+		player_character,
+		elemental_attacker,
+		fixed_foe_weapon,
+		false,
+		1.0
+	)
+	var native_foe_critical_damage := GameGlobal.calculate_melee_damage(
+		player_character,
+		elemental_attacker,
+		fixed_foe_weapon,
+		true,
+		2.0
+	)
+	player_character.apply_classic_rule_profile(foe_profile)
+	var classic_foe_accuracy := GameGlobal.calculate_melee_accuracy(
+		player_character,
+		elemental_attacker,
+		fixed_foe_weapon
+	)
+	var classic_foe_damage := GameGlobal.calculate_melee_damage(
+		player_character,
+		elemental_attacker,
+		fixed_foe_weapon,
+		false,
+		1.0
+	)
+	var classic_foe_critical_damage := GameGlobal.calculate_melee_damage(
+		player_character,
+		elemental_attacker,
+		fixed_foe_weapon,
+		true,
+		2.0
+	)
+	_expect(
+		is_equal_approx(classic_foe_accuracy - native_foe_accuracy, 0.1),
+		"native melee accuracy applies matching Classic race foe bonuses"
+	)
+	_expect_equal(
+		float(classic_foe_damage.get("total", 0))
+			- float(native_foe_damage.get("total", 0)),
+		2.0,
+		"native melee damage applies matching Classic race foe bonuses"
+	)
+	_expect_equal(
+		float(classic_foe_critical_damage.get("total", 0))
+			- float(native_foe_critical_damage.get("total", 0)),
+		4.0,
+		"native critical damage scales matching Classic race foe bonuses"
+	)
 	player_character.set_ability_selection_points(5)
 	_expect_equal(
 		player_character.get_ability_selection_points(),
@@ -828,6 +898,14 @@ func _run_smoke() -> void:
 			restored_weapon.get("classicItemCategory"),
 			3,
 			"Classic item category survives native player save/load"
+		)
+		_expect_equal(
+			ClassicCharacterRulesScript.classic_foe_type_bonus(
+				restored_player,
+				elemental_attacker
+			),
+			2,
+			"Classic race foe bonuses survive native player save/load"
 		)
 		_expect(
 			restored_player.can_equip_item(restored_weapon),

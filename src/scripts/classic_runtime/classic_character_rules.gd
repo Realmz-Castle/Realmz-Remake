@@ -23,6 +23,16 @@ const CLASSIC_CASTER_SCHOOLS := {
 }
 const SPECIAL_ABILITY_COUNT := 14
 const PERCENT_SPECIAL_ABILITY_COUNT := 12
+const FOE_TYPE_TAGS: Array[String] = [
+	"Magic Using",
+	"Undead",
+	"Demonic",
+	"Reptilian",
+	"Evil Creature",
+	"Intelligent",
+	"Large Creature",
+	"Non-Humanoid",
+]
 const SNEAK_ATTACK_ABILITY_INDEX := 0
 const MAJOR_WOUND_ABILITY_INDEX := 3
 const ACROBATIC_ACT_ABILITY_INDEX := 5
@@ -168,6 +178,10 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		active_caste_record,
 		not changed_race_record.is_empty() or not changed_caste_record.is_empty()
 	)
+	var foe_type_bonuses := _foe_type_bonus_profile(
+		active_race_record,
+		not changed_race_record.is_empty()
+	)
 	var creation := _creation_profile(
 		active_race_record,
 		active_caste_record,
@@ -184,6 +198,7 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 			and spellcasting_progression.is_empty() \
 			and special_abilities.is_empty() \
 			and item_permissions.is_empty() \
+			and foe_type_bonuses.is_empty() \
 			and creation.is_empty():
 		return {}
 
@@ -208,6 +223,8 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 		profile["specialAbilities"] = special_abilities
 	if not item_permissions.is_empty():
 		profile["itemPermissions"] = item_permissions
+	if not foe_type_bonuses.is_empty():
+		profile["foeTypeBonuses"] = foe_type_bonuses
 	if not creation.is_empty():
 		profile["creation"] = creation
 	if race_id > 0:
@@ -215,6 +232,28 @@ static func profile_for_character(bundle: Variant, character: Variant) -> Dictio
 	if caste_id > 0:
 		profile["casteId"] = caste_id
 	return profile
+
+
+static func classic_foe_type_bonus(
+	character: Variant,
+	defender: Variant
+) -> int:
+	var profile := _dictionary_value(
+		_value(character, "classic_rule_profile", {})
+	)
+	var foe_profile := _dictionary_value(profile.get("foeTypeBonuses", {}))
+	var bonuses := _integer_array(foe_profile.get("bonuses", []))
+	if bonuses.size() < FOE_TYPE_TAGS.size():
+		return 0
+
+	var tags: Variant = _value(defender, "tags", [])
+	if not (tags is Array):
+		return 0
+	var result := 0
+	for index: int in FOE_TYPE_TAGS.size():
+		if tags.has(FOE_TYPE_TAGS[index]):
+			result += bonuses[index]
+	return result
 
 
 static func classic_item_use_permission(
@@ -2044,6 +2083,19 @@ static func _combat_progression_profile(
 		"missilePerLevelMaximum": missile[1],
 		"handToHandPerLevel": hand_to_hand[1],
 	}
+
+
+static func _foe_type_bonus_profile(
+	race_record: Dictionary,
+	has_changed_race: bool
+) -> Dictionary:
+	if not has_changed_race:
+		return {}
+	var bonuses := _integer_array(race_record.get("plusMinusToHit", []))
+	if bonuses.size() < FOE_TYPE_TAGS.size():
+		return {}
+	bonuses.resize(FOE_TYPE_TAGS.size())
+	return {"bonuses": bonuses}
 
 
 static func _missile_level_gain(maximum: int, requested_roll: int = -1) -> int:

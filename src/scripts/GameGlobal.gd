@@ -1234,6 +1234,15 @@ func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon :
 		accuracy = attacker.get_stat("AccuracyMelee")  #checks traits too
 		evasion = defender.get_stat("EvasionMelee")
 		accuracy = clampf(0.5+0.05*(accuracy-evasion), 0.0, 1.0)
+	accuracy = clampf(
+		accuracy
+			+ 0.05 * ClassicCharacterRulesScript.classic_foe_type_bonus(
+				attacker,
+				defender
+			),
+		0.0,
+		1.0
+	)
 	return ClassicProtectionFromFoeScript.adjust_melee_accuracy(
 		accuracy,
 		attacker,
@@ -1252,6 +1261,13 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 			attacker,
 			defender,
 			weapon,
+			is_crit,
+			crit_mult
+		)
+		custom_damage = apply_classic_foe_type_damage_bonus(
+			custom_damage,
+			attacker,
+			defender,
 			is_crit,
 			crit_mult
 		)
@@ -1315,7 +1331,39 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 			damage_detail[dv] = damage_detail[dv] * crit_mult
 	damage_detail["is_crit"] = is_crit
 	damage_detail["crit_mult"] = crit_mult
+	damage_detail = apply_classic_foe_type_damage_bonus(
+		damage_detail,
+		attacker,
+		defender,
+		is_crit,
+		crit_mult
+	)
 	return apply_classic_party_weapon_protection(damage_detail, attacker, defender)
+
+
+func apply_classic_foe_type_damage_bonus(
+	damage_detail: Dictionary,
+	attacker: Object,
+	defender: Object,
+	is_crit: bool,
+	crit_mult: float
+) -> Dictionary:
+	var base_bonus := ClassicCharacterRulesScript.classic_foe_type_bonus(
+		attacker,
+		defender
+	)
+	if base_bonus == 0:
+		return damage_detail
+	var result := damage_detail.duplicate()
+	var applied_bonus := float(base_bonus) * (crit_mult if is_crit else 1.0)
+	if applied_bonus < 0.0:
+		applied_bonus = maxf(
+			applied_bonus,
+			-float(result.get("total", 0))
+		)
+	result["Bonus_dmg"] = float(result.get("Bonus_dmg", 0)) + applied_bonus
+	result["total"] = float(result.get("total", 0)) + applied_bonus
+	return result
 
 
 func apply_classic_party_weapon_protection(
