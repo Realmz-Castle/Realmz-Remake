@@ -700,6 +700,15 @@ class CampaignRuleCharacter:
 					]
 				)
 			)
+		var spell_screen_level := (
+			SpellScreenScript.permanent_level(classic_conditions)
+			if classic_conditions_initialized
+			else 0
+		)
+		if spell_screen_level > 0:
+			set_meta(SpellScreenScript.META_KEY, spell_screen_level)
+		else:
+			remove_meta(SpellScreenScript.META_KEY)
 
 	func has_classic_conditions() -> bool:
 		return classic_conditions_initialized
@@ -7456,6 +7465,7 @@ func _test_classic_character_rule_profile() -> void:
 			record["strength"] = [0, 4]
 			record["conditions"][4] = 2
 			record["conditions"][5] = 1
+			record["conditions"][17] = 2
 			record["conditions"][39] = 3
 			record["drvBonus"] = [5, 0, 5, 0, 0, 0, 0, 50]
 			record["spellcasters"] = [
@@ -7486,6 +7496,9 @@ func _test_classic_character_rule_profile() -> void:
 			record["conditions"][13] = 2
 			record["conditions"][14] = -1
 			record["conditions"][15] = 3
+			record["conditions"][16] = 6
+			record["conditions"][18] = -1
+			record["conditions"][19] = 2
 			record["conditions"][22] = -1
 			record["conditions"][30] = 2
 			record["conditions"][31] = -1
@@ -7622,13 +7635,13 @@ func _test_classic_character_rule_profile() -> void:
 			],
 			"raceStartingConditions": [
 				0, 0, 0, 0, 2, 0, 0, 3, -1, 0,
-				-3, 4, -1, 2, -1, 3, 0, 0, 0, 0,
+				-3, 4, -1, 2, -1, 3, 6, 0, -1, 2,
 				0, 0, -1, 0, 0, 0, 0, 0, 0, 0,
 				2, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 			],
 			"casteConditionLevels": [
 				0, 0, 0, 0, 2, 1, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
 			],
@@ -7650,6 +7663,7 @@ func _test_classic_character_rule_profile() -> void:
 		[
 			{"conditionIndex": 4, "level": 2},
 			{"conditionIndex": 5, "level": 1},
+			{"conditionIndex": 17, "level": 2},
 			{"conditionIndex": 39, "level": 3},
 		],
 		"caste condition slots retain their exact level thresholds"
@@ -8041,6 +8055,35 @@ func _test_classic_character_rule_profile() -> void:
 			"defensive condition %d retains its Classic value"
 			% condition_index
 		)
+	for condition_index: int in range(16, 21):
+		_expect(
+			CharacterConditionRulesScript.supports_condition(condition_index),
+			"spell-screen condition %d has an aggregate runtime mapping"
+			% condition_index
+		)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				16
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				18
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation,
+				19
+			),
+		],
+		[6, -1, 2],
+		"spell-screen slots retain separate temporary and permanent values"
+	)
+	_expect_equal(
+		SpellScreenScript.level(attribute_creation),
+		4,
+		"the strongest active spell-screen slot owns the aggregate threshold"
+	)
 	var defensive_trait_names: Array[String] = []
 	for trait_value: Variant in attribute_creation.traits:
 		defensive_trait_names.append(str(trait_value.get("name")))
@@ -8062,11 +8105,14 @@ func _test_classic_character_rule_profile() -> void:
 		)
 	var hit_shield: Variant = null
 	var fire_protection: Variant = null
+	var spell_screen: Variant = null
 	for trait_value: Variant in attribute_creation.traits:
 		if str(trait_value.get("name")) == "t_pro_hits.gd":
 			hit_shield = trait_value
 		elif str(trait_value.get("name")) == "t_prot_fire.gd":
 			fire_protection = trait_value
+		elif str(trait_value.get("name")) == "t_classic_spell_screen.gd":
+			spell_screen = trait_value
 	_expect(
 		hit_shield != null \
 			and is_equal_approx(
@@ -8099,6 +8145,28 @@ func _test_classic_character_rule_profile() -> void:
 			),
 			2,
 			"temporary condition reads use the live trait duration"
+		)
+	if spell_screen != null:
+		spell_screen._on_new_round(attribute_creation)
+		spell_screen._on_new_round(attribute_creation)
+		_expect_equal(
+			SpellScreenScript.level(attribute_creation),
+			3,
+			"an expired stronger screen falls back to the permanent threshold"
+		)
+		_expect_equal(
+			[
+				CharacterConditionRulesScript.condition_value(
+					attribute_creation,
+					16
+				),
+				CharacterConditionRulesScript.condition_value(
+					attribute_creation,
+					19
+				),
+			],
+			[4, 0],
+			"spell-screen condition reads follow their live level counters"
 		)
 	_expect_equal(
 		attribute_creation.get_meta("classic_regeneration_per_round", 0),
@@ -8161,6 +8229,25 @@ func _test_classic_character_rule_profile() -> void:
 		],
 		[2, -1, -1, -1],
 		"temporary and permanent defensive conditions survive save/load"
+	)
+	_expect_equal(
+		[
+			SpellScreenScript.level(attribute_creation_reloaded),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				16
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				18
+			),
+			CharacterConditionRulesScript.condition_value(
+				attribute_creation_reloaded,
+				19
+			),
+		],
+		[3, 4, -1, 0],
+		"aggregate and per-level spell screens survive character save/load"
 	)
 	_expect_equal(
 		attribute_creation_reloaded.get_meta(
@@ -8504,6 +8591,16 @@ func _test_classic_character_rule_profile() -> void:
 		"a level grant strengthens an existing permanent condition"
 	)
 	_expect_equal(
+		CharacterConditionRulesScript.condition_value(character, 17),
+		-1,
+		"an exact caste threshold grants a persistent second-level screen"
+	)
+	_expect_equal(
+		SpellScreenScript.level(character),
+		2,
+		"the caste spell-screen grant reaches the combat resolver"
+	)
+	_expect_equal(
 		CharacterConditionRulesScript.condition_value(character, 39),
 		0,
 		"later caste condition thresholds do not apply early"
@@ -8659,6 +8756,14 @@ func _test_classic_character_rule_profile() -> void:
 		-1,
 		"new caste conditions survive character save/load"
 	)
+	_expect_equal(
+		[
+			CharacterConditionRulesScript.condition_value(reloaded, 17),
+			SpellScreenScript.level(reloaded),
+		],
+		[-1, 2],
+		"the caste spell-screen threshold survives character save/load"
+	)
 	reloaded.native_stats["Intellect"] = 21
 	CharacterRulesScript.apply_party(install.bundle, [reloaded])
 	_expect_equal(
@@ -8698,6 +8803,11 @@ func _test_classic_character_rule_profile() -> void:
 		CharacterConditionRulesScript.condition_value(reloaded, 39),
 		-1,
 		"campaign reload does not reapply a caste condition threshold"
+	)
+	_expect_equal(
+		SpellScreenScript.level(reloaded),
+		2,
+		"campaign reload retains the earned spell-screen threshold"
 	)
 	_expect_equal(
 		MagicResistanceScript.base_value(reloaded),

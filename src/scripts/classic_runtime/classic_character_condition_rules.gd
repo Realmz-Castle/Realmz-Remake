@@ -3,7 +3,13 @@ extends RefCounted
 const RegenerationScript = preload(
 	"res://scripts/classic_runtime/classic_regeneration.gd"
 )
+const SpellScreenScript = preload(
+	"res://scripts/classic_runtime/classic_spell_screen.gd"
+)
 const REGENERATION_TRAIT := "res://shared_assets/traits/t_classic_regeneration.gd"
+const TEMPORARY_SPELL_SCREEN_TRAIT := (
+	"res://shared_assets/traits/t_classic_spell_screen.gd"
+)
 const CONDITION_TRAITS := {
 	4: {
 		"name": "Magic Aura",
@@ -89,6 +95,7 @@ const CONDITION_TRAITS := {
 
 static func supports_condition(condition_index: int) -> bool:
 	return condition_index == RegenerationScript.CONDITION_INDEX \
+		or SpellScreenScript.condition_level(condition_index) > 0 \
 		or CONDITION_TRAITS.has(condition_index)
 
 
@@ -179,6 +186,17 @@ static func condition_value(character: Object, condition_index: int) -> int:
 		# traits instead.
 		if stored_value < 0:
 			return stored_value
+	var screen_level := SpellScreenScript.condition_level(condition_index)
+	if screen_level > 0:
+		var temporary_duration := SpellScreenScript.temporary_duration(
+			character,
+			screen_level
+		)
+		if temporary_duration > 0:
+			return temporary_duration
+		return -1 if int(
+			character.get_meta(SpellScreenScript.META_KEY, 0)
+		) == screen_level else 0
 	if condition_index == RegenerationScript.CONDITION_INDEX:
 		var permanent_amount := RegenerationScript.amount(character)
 		if permanent_amount > 0:
@@ -217,6 +235,9 @@ static func _trait_condition_power(trait_value: Object) -> int:
 static func condition_name(condition_index: int) -> String:
 	if condition_index == RegenerationScript.CONDITION_INDEX:
 		return "Regenerating"
+	var screen_level := SpellScreenScript.condition_level(condition_index)
+	if screen_level > 0:
+		return "Level %d Spell Screen" % screen_level
 	if CONDITION_TRAITS.has(condition_index):
 		return str(CONDITION_TRAITS[condition_index]["name"])
 	return "Condition %d" % condition_index
@@ -235,10 +256,19 @@ static func set_condition_value(
 	var validation := _validate_character(character)
 	if not validation.is_empty():
 		return validation
+	_ensure_condition_state(character)
 	if condition_index == RegenerationScript.CONDITION_INDEX:
 		var regeneration_result := _set_regeneration_value(character, value)
 		if str(regeneration_result.get("status", "")) == "error":
 			return regeneration_result
+	elif SpellScreenScript.condition_level(condition_index) > 0:
+		var screen_result := _set_spell_screen_value(
+			character,
+			condition_index,
+			value
+		)
+		if str(screen_result.get("status", "")) == "error":
+			return screen_result
 	else:
 		var definition: Dictionary = CONDITION_TRAITS[condition_index]
 		var temporary_trait: GDScript = load(str(definition["temporary"]))
@@ -259,6 +289,73 @@ static func set_condition_value(
 		"conditionName": condition_name(condition_index),
 		"value": value,
 	}
+
+
+static func _set_spell_screen_value(
+	character: Object,
+	condition_index: int,
+	value: int
+) -> Dictionary:
+	var screen_level := SpellScreenScript.condition_level(condition_index)
+	var screen_trait: Variant = SpellScreenScript.temporary_trait(character)
+	if screen_trait != null:
+		if not screen_trait.has_method("set_duration_for_level"):
+			return _error("Classic spell-screen trait cannot set an exact duration")
+		screen_trait.call(
+			"set_duration_for_level",
+			screen_level,
+			maxi(0, value)
+		)
+	elif value > 0:
+		var temporary_trait: GDScript = load(TEMPORARY_SPELL_SCREEN_TRAIT)
+		if temporary_trait == null:
+			return _error("Classic spell-screen trait could not be loaded")
+		character.add_trait(temporary_trait, [screen_level, value])
+
+	var permanent_level := _permanent_spell_screen_level(
+		character,
+		condition_index,
+		value
+	)
+	if permanent_level > 0:
+		character.set_meta(SpellScreenScript.META_KEY, permanent_level)
+	else:
+		character.remove_meta(SpellScreenScript.META_KEY)
+	return {"status": "ok"}
+
+
+static func _permanent_spell_screen_level(
+	character: Object,
+	condition_index: int,
+	value: int
+) -> int:
+	if character.has_method("has_classic_conditions") \
+			and bool(character.call("has_classic_conditions")) \
+			and character.has_method("get_classic_condition"):
+		var conditions: Array[int] = []
+		for index: int in range(40):
+			conditions.append(int(character.call("get_classic_condition", index)))
+		conditions[condition_index] = value
+		return SpellScreenScript.permanent_level(conditions)
+
+	var screen_level := SpellScreenScript.condition_level(condition_index)
+	var current_level := int(
+		character.get_meta(SpellScreenScript.META_KEY, 0)
+	)
+	if value < 0:
+		return maxi(current_level, screen_level)
+	return 0 if current_level == screen_level else current_level
+
+
+static func _ensure_condition_state(character: Object) -> void:
+	if not character.has_method("has_classic_conditions") \
+			or bool(character.call("has_classic_conditions")) \
+			or not character.has_method("set_classic_conditions"):
+		return
+	var conditions: Array[int] = []
+	conditions.resize(40)
+	conditions.fill(0)
+	character.call("set_classic_conditions", conditions)
 
 
 static func _set_trait_condition_value(

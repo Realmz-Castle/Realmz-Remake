@@ -46,6 +46,13 @@ func duration_for_level(level: int) -> int:
 	return ceili(float(duration_seconds[level - 1]) / SECONDS_PER_ROUND)
 
 
+func set_duration_for_level(level: int, rounds: int) -> void:
+	if level < 1 or level > SCREEN_LEVELS:
+		return
+	duration_seconds[level - 1] = maxi(0, rounds) * SECONDS_PER_ROUND
+	_remove_if_expired()
+
+
 func condition_values() -> Array[int]:
 	var values: Array[int] = []
 	for level: int in range(1, SCREEN_LEVELS + 1):

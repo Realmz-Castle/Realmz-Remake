@@ -10,11 +10,14 @@ const SECONDS_PER_HOUR := 3600
 
 
 static func supports_condition(condition_index: int, value: int) -> bool:
-	return (
-		condition_index >= FIRST_CONDITION_INDEX
-		and condition_index <= LAST_CONDITION_INDEX
-		and value != 0
-	)
+	return condition_level(condition_index) > 0 and value != 0
+
+
+static func condition_level(condition_index: int) -> int:
+	if condition_index < FIRST_CONDITION_INDEX \
+			or condition_index > LAST_CONDITION_INDEX:
+		return 0
+	return condition_index - FIRST_CONDITION_INDEX + 1
 
 
 static func permanent_level(conditions: Variant) -> int:

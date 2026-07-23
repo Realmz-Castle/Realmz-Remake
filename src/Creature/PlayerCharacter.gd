@@ -13,6 +13,9 @@ const ClassicMagicResistanceScript = preload(
 const ClassicRegenerationScript = preload(
 	"res://scripts/classic_runtime/classic_regeneration.gd"
 )
+const ClassicSpellScreenScript = preload(
+	"res://scripts/classic_runtime/classic_spell_screen.gd"
+)
 
 var portrait : Texture2D = null
 var icon : Texture2D = null
@@ -412,6 +415,15 @@ func set_classic_conditions(values: Variant) -> void:
 				]
 			)
 		)
+	var spell_screen_level := (
+		ClassicSpellScreenScript.permanent_level(classic_conditions)
+		if classic_conditions_initialized
+		else 0
+	)
+	if spell_screen_level > 0:
+		set_meta(ClassicSpellScreenScript.META_KEY, spell_screen_level)
+	else:
+		remove_meta(ClassicSpellScreenScript.META_KEY)
 
 
 func has_classic_conditions() -> bool:
