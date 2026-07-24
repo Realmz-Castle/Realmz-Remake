@@ -9,8 +9,6 @@ env:
   GODOT_VERSION_MAC_PI: 4.7.1
   PROJECT_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
-  LFS_USERNAME: ${{secrets.LFS_USERNAME}}
-  LFS_PASSWORD: ${{secrets.LFS_PASSWORD}}
   OPENMPT_VERSION: v1.3.2
 
 jobs:
@@ -19,9 +17,6 @@ jobs:
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
-
-      - name: Configure Git LFS
-        run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
@@ -81,9 +76,6 @@ jobs:
       - name: Checkout current branch
         uses: actions/checkout@v4
 
-      - name: Configure Git LFS
-        run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
-
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
@@ -142,9 +134,6 @@ jobs:
       - name: Checkout current branch
         uses: actions/checkout@v4
 
-      - name: Configure Git LFS
-        run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
-
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout
 
@@ -199,9 +188,6 @@ jobs:
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
-
-      - name: Configure Git LFS
-        run: git config -f .lfsconfig lfs.url https://${{env.LFS_USERNAME}}:${{env.LFS_PASSWORD}}@git-lfs-s3-proxy-984.pages.dev/c8076907f522754d603bf3b68096609c.r2.cloudflarestorage.com/realmz-remake
 
       - name: Checkout LFS
         run: git lfs fetch --all && git lfs checkout

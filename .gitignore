@@ -41,5 +41,3 @@ src/Profiles/Default Profile/Characters/*
 src/Profiles/Default Profile/Saves/*
 !src/Profiles/Default Profile/Saves/.gitkeep
 !src/Profiles/Default Profile/Characters/.gitkeep
-
-# Git LFS ignores
