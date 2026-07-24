@@ -74,6 +74,10 @@ func success_percent(action_index: int, stat_value: float) -> int:
 	return clampi(chance, 0, 100)
 
 
+func roll_succeeds(action_index: int, stat_value: float, roll: int) -> bool:
+	return roll >= 1 and roll <= success_percent(action_index, stat_value)
+
+
 func spell_success_percent(special_code: int, power: int) -> int:
 	var modifier_index := -1
 	match special_code:

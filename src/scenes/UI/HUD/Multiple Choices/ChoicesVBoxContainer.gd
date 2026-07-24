@@ -29,6 +29,7 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 		c.queue_free()
 	
 	height = 0
+	var focus_buttons: Array[Button] = []
 	for i in range(choices.size()) :
 		
 		if scripts[i]!='STOP' and scripts[i]!='YESNO' :
@@ -40,6 +41,9 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 				newButton.set_just_text()
 			
 			add_child(newButton)
+			var choice_button := newButton.get_node_or_null("ChoicesButton") as Button
+			if choice_button != null and not choice_button.disabled:
+				focus_buttons.append(choice_button)
 			var separation = separator_tscn.instantiate()
 			add_child(separation)
 			print("panel ", choices[i], " size : ", newButton.get_line_count())
@@ -91,9 +95,23 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 
 		#		separation.hide()
 	show()
+	_configure_choice_focus(focus_buttons)
 	print("height : ",height)
 	var screensize : Vector2  = ScreenUtils.get_logical_window_size(self)
 	on_viewport_size_changed(screensize)
+
+
+func _configure_choice_focus(buttons: Array[Button]) -> void:
+	if buttons.is_empty():
+		return
+	for index: int in range(buttons.size()):
+		var previous: Button = buttons[(index - 1 + buttons.size()) % buttons.size()]
+		var next: Button = buttons[(index + 1) % buttons.size()]
+		buttons[index].focus_neighbor_top = previous.get_path()
+		buttons[index].focus_neighbor_bottom = next.get_path()
+		buttons[index].focus_previous = previous.get_path()
+		buttons[index].focus_next = next.get_path()
+	buttons[0].call_deferred("grab_focus")
 
 
 func _on_choice_button_pressed(script) :

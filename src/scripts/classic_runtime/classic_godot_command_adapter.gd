@@ -1891,13 +1891,10 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		# Rogue resolution mutates its TD2 state and may immediately damage the
 		# party. From here onward the encounter must finish before it is saved.
 		_active_command_save_safe = false
-		var chance: int = resolver.success_percent(
-			action_index,
-			float(character.get_stat(resolver.stat_name(action_index)))
-		)
+		var stat_value := float(character.get_stat(resolver.stat_name(action_index)))
 		var resolution: Dictionary = resolver.resolve_action(
 			action_index,
-			chance > 0 and randi_range(1, 100) <= chance
+			resolver.roll_succeeds(action_index, stat_value, randi_range(1, 100))
 		)
 		match str(resolution.get("status", "")):
 			"error":

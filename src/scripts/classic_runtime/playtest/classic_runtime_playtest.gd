@@ -5,6 +5,7 @@ const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_comma
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
+const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
@@ -41,11 +42,13 @@ class PowerDrainSpell:
 @export var test_spell_name := ""
 @export var test_effect_spell_name := ""
 @export var test_item_name := ""
+@export var expected_rogue_success := true
 
 var host: Node
 var campaign_session: Node
 var automated_smoke := false
 var smoke_failures: Array[String] = []
+var smoke_capture_directory := ""
 
 
 func _ready() -> void:
@@ -57,6 +60,8 @@ func _start_playtest() -> void:
 	for argument: String in user_arguments:
 		if argument == "--smoke":
 			automated_smoke = true
+		elif argument.begins_with("--capture="):
+			smoke_capture_directory = argument.trim_prefix("--capture=")
 		else:
 			campaign_directory = argument
 	if automated_smoke:
@@ -859,6 +864,8 @@ func _run_complex_word_smoke() -> void:
 
 func _run_lock_smoke() -> void:
 	var choices_ready := await _wait_for_choices()
+	var choice_buttons := _choice_buttons()
+	var pick_button := _choice_button_with_text(choice_buttons, "Pick Lock")
 	_verify_smoke_stage(
 		"01_lock_prompt",
 		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
@@ -870,20 +877,168 @@ func _run_lock_smoke() -> void:
 		"02_rogue_choices",
 		choices_ready
 			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 12
-			and _choice_menu_fits_map_area(),
-		"rogue controls, encounter actions, and back-out are visible within the map area"
+			and _choice_menu_fits_map_area()
+			and pick_button != null
+			and "Pick Lock — Test Rogue (45%)" in pick_button.get_parent().text,
+		"the native menu shows the authored chance without a timed minigame"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
 		return
-	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("back")
-	await _wait_frames(3)
+	await _capture_smoke_stage("01_chance_menu")
+	await _wait_frames(1)
+	var first_button: Button = choice_buttons[0] if not choice_buttons.is_empty() else null
 	_verify_smoke_stage(
-		"03_lock_playthrough_complete",
-		"Classic lock playtest complete" in UI.ow_hud.textRect.textLabel.get_parsed_text(),
-		"host completes after leaving the complex encounter"
+		"03_keyboard_focus",
+		first_button != null and get_viewport().gui_get_focus_owner() == first_button,
+		"the first choice receives keyboard focus"
+	)
+	if first_button == null or pick_button == null:
+		get_tree().quit(1)
+		return
+	var focus_guard := 0
+	while get_viewport().gui_get_focus_owner() != pick_button and focus_guard < 12:
+		await _send_ui_action("ui_down")
+		focus_guard += 1
+	_verify_smoke_stage(
+		"04_keyboard_navigation",
+		get_viewport().gui_get_focus_owner() == pick_button,
+		"keyboard navigation reaches Pick Lock"
+	)
+	var chance := 45
+	var selected_seed := _rogue_roll_seed(chance, expected_rogue_success)
+	seed(selected_seed)
+	if expected_rogue_success:
+		await _send_ui_action("ui_accept")
+	else:
+		await _send_mouse_click(pick_button)
+	await _wait_frames(3)
+	var expected_text := "The lock is now open" if expected_rogue_success \
+		else "You have failed to pick the lock"
+	_verify_smoke_stage(
+		"05_chance_result",
+		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(expected_text),
+		"the deterministic %s activation reaches the authored %s result"
+			% [
+				"keyboard" if expected_rogue_success else "mouse",
+				"success" if expected_rogue_success else "failure",
+			]
+	)
+	await _capture_smoke_stage(
+		"02_%s_result" % ("success" if expected_rogue_success else "failure")
+	)
+	UI.ow_hud.textRect.disablerButton.pressed.emit()
+	if not expected_rogue_success:
+		var retry_ready := await _wait_for_choices()
+		var retry_buttons := _choice_buttons()
+		var back_button := _choice_button_with_text(retry_buttons, "Back out")
+		_verify_smoke_stage(
+			"06_failed_action_consumed",
+			retry_ready
+				and _choice_button_with_text(retry_buttons, "Pick Lock") == null
+				and back_button != null,
+			"a failed roll consumes Pick Lock while leaving the encounter exit"
+		)
+		if not retry_ready or back_button == null:
+			get_tree().quit(1)
+			return
+		back_button.pressed.emit()
+	await _wait_frames(4)
+	var source_record: Dictionary = host.runtime.bundle.get_thief_encounter(4)
+	var effective_record: Dictionary = \
+		host.runtime.interpreter.runtime_state.get_effective_thief_encounter(
+			source_record
+		)
+	var restored_state = StateScript.new()
+	restored_state.configure_from_bundle(host.runtime.bundle)
+	restored_state.restore(host.runtime.interpreter.runtime_state.snapshot())
+	var restored_record: Dictionary = restored_state.get_effective_thief_encounter(
+		source_record
+	)
+	_verify_smoke_stage(
+		"07_action_persistence",
+		bool(source_record.get("typeFlags", [])[6])
+			and not bool(effective_record.get("typeFlags", [])[6])
+			and not bool(restored_record.get("typeFlags", [])[6]),
+		"the consumed action persists through runtime state and snapshot restore"
+	)
+	_verify_smoke_stage(
+		"08_lock_playthrough_complete",
+		("Classic %s playtest complete" % playtest_label) \
+			in UI.ow_hud.textRect.textLabel.get_parsed_text(),
+		"the chance-based lock encounter completes through the native HUD"
 	)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _choice_buttons() -> Array[Button]:
+	var buttons: Array[Button] = []
+	for child: Node in UI.ow_hud.textRect.choicesContainer.get_children():
+		var button := child.get_node_or_null("ChoicesButton") as Button
+		if button != null:
+			buttons.append(button)
+	return buttons
+
+
+func _choice_button_with_text(buttons: Array[Button], prefix: String) -> Button:
+	for button: Button in buttons:
+		var label := button.get_parent() as Label
+		if label != null and label.text.begins_with(prefix):
+			return button
+	return null
+
+
+func _send_ui_action(action_name: String) -> void:
+	var event := InputEventAction.new()
+	event.action = action_name
+	event.pressed = true
+	Input.parse_input_event(event)
+	await get_tree().process_frame
+	event = InputEventAction.new()
+	event.action = action_name
+	event.pressed = false
+	Input.parse_input_event(event)
+	await get_tree().process_frame
+
+
+func _send_mouse_click(button: Button) -> void:
+	var center := button.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = center
+	motion.global_position = center
+	Input.parse_input_event(motion)
+	await get_tree().process_frame
+	for pressed: bool in [true, false]:
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.pressed = pressed
+		click.position = center
+		click.global_position = center
+		Input.parse_input_event(click)
+		await get_tree().process_frame
+
+
+func _rogue_roll_seed(chance: int, expected_success: bool) -> int:
+	for candidate_seed: int in 1000:
+		seed(candidate_seed)
+		if (randi_range(1, 100) <= chance) == expected_success:
+			return candidate_seed
+	return 0
+
+
+func _capture_smoke_stage(stage_name: String) -> void:
+	if smoke_capture_directory.is_empty():
+		return
+	DirAccess.make_dir_recursive_absolute(smoke_capture_directory)
+	await RenderingServer.frame_post_draw
+	var image := get_viewport().get_texture().get_image()
+	var file_name := "%s_%s.png" % [
+		playtest_label.to_snake_case(),
+		stage_name.to_snake_case(),
+	]
+	var error := image.save_png(smoke_capture_directory.path_join(file_name))
+	if error != OK:
+		smoke_failures.append("capture:%s" % stage_name)
 
 
 func _run_complex_action_smoke() -> void:

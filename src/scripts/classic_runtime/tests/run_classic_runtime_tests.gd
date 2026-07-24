@@ -27834,6 +27834,19 @@ func _test_shipped_lock_encounter(bundle) -> void:
 		"shipped lock exposes Detect Trap, Force Lock, and Pick Lock"
 	)
 	_expect_equal(resolver.success_percent(6, 35.0), 45, "Pick Lock applies Data TD2 modifier")
+	_expect(
+		resolver.roll_succeeds(6, 35.0, 45),
+		"chance-based Pick Lock accepts a roll at the authored threshold"
+	)
+	_expect(
+		not resolver.roll_succeeds(6, 35.0, 46),
+		"chance-based Pick Lock rejects a roll above the authored threshold"
+	)
+	_expect(
+		resolver.roll_succeeds(6, 200.0, 90)
+			and not resolver.roll_succeeds(6, 200.0, 91),
+		"chance-based Pick Lock preserves Classic's 90-percent cap"
+	)
 	var choice_model: Dictionary = GodotAdapterScript.new().build_rogue_encounter_choices(
 		resolver,
 		RogueTestCharacter.new(),
