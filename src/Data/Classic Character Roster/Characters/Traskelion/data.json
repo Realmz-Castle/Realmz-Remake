@@ -9,8 +9,7 @@
 "curHP" : 45,
 "curSP" : 49,
 "base_stats" : { "MaxMovement": 15, "MaxActions": 3.0, "MaxSpellsPerRound": 1, "Strength": 18, "Intellect": 17, "Wisdom": 12, "Dexterity": 6, "Vitality": 15, "Weight_Limit": 1000000000, "curHP": 0, "curSP": 0, "curTP": 0, "curFP": 0, "curRP": 0, "maxHP": 45, "maxSP": 49, "maxTP": 0, "maxFP": 0, "maxRP": 0, "HP_regen_base": 1.0, "SP_regen_base": 1.0, "HP_regen_mult": 0.0, "SP_regen_mult": 0.0, "AccuracyMelee": 10.0, "AccuracyRanged": 0.0, "AccuracyMagic": 0, "EvasionMelee": 0.0, "EvasionRanged": 6.2, "EvasionMagic": 0, "ResistancePhysical": 0.0, "ResistanceFire": 0.0, "ResistanceIce": 0.0, "ResistanceElect": 0.0, "ResistancePoison": 0.0, "ResistanceChemical": 0.0, "ResistanceDisease": 0.0, "ResistanceMagic": 0.0, "ResistanceHealing": 0.0, "ResistanceMental": 0.0, "MultiplierPhysical": 1.0, "MultiplierFire": 1.0, "MultiplierIce": 1.0, "MultiplierElect": 1.0, "MultiplierPoison": 1.0, "MultiplierChemical": 1.0, "MultiplierDisease": 1.0, "MultiplierMagic": 1.0, "MultiplierHealing": 1.0, "MultiplierMental": 1.0, "Melee_Crit_Rate": 0.0, "Melee_Crit_Mult": 1.0, "Ranged_Crit_Rate": 0.0, "Ranged_Crit_Mult": 1.0, "Bonus_Physical_dmg": 3, "Bonus_Magical_dmg": 0, "Detect_Secret": 0.0, "Acrobatics": 7.0, "Detect_Trap": 0.0, "Disable_Trap": 0.0, "Force_Lock": 40.0, "Pick_Lock": 0.0, "Turn_Undead": 4.0 },
-"inventory" : [
-],
+"inventory" : [],
 "spells" :
 [[],[],[],[],[],[],[]]
 ,

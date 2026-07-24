@@ -539,8 +539,10 @@ static func filter_PCs_Divinity(type : int, parameter : int, who : int, previous
 				while(true) :{
 				}
 			for pc in pc_picked_pre_filter :
-				for i in pc.inventory :
-					if i["name"]==parameter :
+				for i: ItemInstance in pc.inventory_instances():
+					var definition := NodeAccess.__Resources().get_item_definition(i)
+					if definition != null \
+							and definition.display_name == str(parameter):
 						picked_array.append(pc)
 						break
 		3 : #%chance
@@ -944,9 +946,16 @@ static func pick_chara_Divinity_misc(type:int, challenge : int, checkwho : int, 
 			if item_poss_name.is_empty() :
 				printerr("ScriptHelperFunc pick_chara_Divinity_misc : "+GameGlobal.current_map_script_name+' : please manually fix by adding the item name as argument : '+str(challenge))
 				return []
-			var item_dict : Dictionary = GameGlobal.cmp_resources.items_book[item_poss_name]
+			var definition_id := (
+				GameGlobal.cmp_resources.item_catalog.resolve_active_catalog_key(
+					item_poss_name
+				)
+			)
 			for c : Creature in tested_charas :
-				if not c.get_item(item_dict).is_empty() : picked_charas.append(c)
+				for carried: ItemInstance in c.inventory_instances():
+					if carried.definition_id == definition_id:
+						picked_charas.append(c)
+						break
 		3: # %chance
 			for c : Creature in tested_charas :
 				if randi()%100>=challenge : picked_charas.append(c)

@@ -176,7 +176,11 @@ func _character_data(
 		if special_abilities.size() > mapping[0]:
 			base_stats[mapping[1]] = special_abilities[mapping[0]]
 
-	var inventory_result := _inventory(spec.get("items", []), resources)
+	var inventory_result := _inventory(
+		spec.get("items", []),
+		resources,
+		str(spec.get("name", "")),
+	)
 	if str(inventory_result.get("status", "")) != "ok":
 		return inventory_result
 	var spells_result := _spells(
@@ -225,18 +229,24 @@ func _character_data(
 
 func _inventory(
 	items_value: Variant,
-	resources: CampaignResources
+	resources: CampaignResources,
+	character_name: String,
 ) -> Dictionary:
 	var inventory: Array = []
 	if not (items_value is Array):
 		return _error("source inventory is malformed")
-	for item_value: Variant in items_value:
+	for item_index: int in range(items_value.size()):
+		var item_value: Variant = items_value[item_index]
 		if not (item_value is Dictionary):
 			return _error("source inventory contains a malformed item")
 		var item_name := str(item_value.get("name", ""))
 		if not resources.items_book.has(item_name):
 			return _error("item %s has no native definition" % item_name)
 		var item: Dictionary = resources.items_book[item_name].duplicate(true)
+		item["instanceId"] = "classic-stock:%s:item:%d" % [
+			character_name.uri_encode(),
+			item_index,
+		]
 		item["classicItemId"] = int(item_value.get("id", 0))
 		item["is_identified"] = 1 if bool(
 			item_value.get("identified", false)

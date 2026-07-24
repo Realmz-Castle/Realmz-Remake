@@ -32,7 +32,8 @@ func _on_spell_used(character, spell, power) :
 
 func _on_item_used(item, character) :
 	var result : String = "0"
-	if item["name"] == "Helm of True Sight +3" :
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	if definition != null and definition.display_name == "Helm of True Sight +3" :
 		result = "1"
 	if result == "1":
 		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)

@@ -44,7 +44,9 @@ var selected_character = null
 
 @onready var charSwapRect = $CharSwapRect
 
-@onready var honestStorageControl = $VBoxScreen/HBoxTop/MapArea/StorageRect
+@onready var honestStorageControl: Honest_Storage = (
+	$VBoxScreen/HBoxTop/MapArea/StorageRect
+)
 
 @onready var treasureControl = $TreasureControl
 @onready var settingsControl = $SettingsRect
@@ -60,9 +62,6 @@ var selected_character = null
 @onready var spellcastMenu = $SpellsRect
 @onready var abilitesmngtMenu = $VBoxScreen/HBoxTop/MapArea/AbilitiesMngtRect
 @onready var restTimer : Timer = $VBoxScreen/HBoxBot/BotRightPanel/RestButton/RestTimer
-@export var storage_rect : Honest_Storage
-
-
 @onready var levelupWindow : Window = $LevelUpWindow
 @onready var levelupCtrl : LevelupRect = $LevelUpWindow/LevelUpRect
 @onready var alliesWindow : Window = $AlliesWindow
@@ -732,12 +731,12 @@ func set_allow_honest_storage(yes : bool) :
 	inventoryRect.set_allow_honest_storage(yes)
 
 func open_storage_rect() :
-	storage_rect.initialize()
+	honestStorageControl.initialize()
 	inventoryRect.hide()
-	storage_rect.show()
+	honestStorageControl.show()
 
 func close_storage_rect() :
-	storage_rect.hide()
+	honestStorageControl.hide()
 	inventoryRect.hide()
 	_on_InventoryButton_pressed()
 	inventoryRect.show()

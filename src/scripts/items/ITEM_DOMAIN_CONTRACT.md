@@ -1,11 +1,11 @@
 # Stable item domain contract, version 1
 
-This document is the migration contract for M6. It defines the target item
-domain and save boundary before any current dictionary consumer is changed.
-`stuff_book.json` remains the native campaign-authoring format, and the M4
-Classic item materializer remains the producer of campaign-local
-`stuff_book.json` records. This contract does not change either format or any
-current item behavior.
+This document is the completed M6 item contract. `stuff_book.json` remains the
+native campaign-authoring format, and the Classic item materializer remains the
+producer of campaign-local `stuff_book.json` records. Runtime inventory,
+equipment, combat, UI, shops, loot, storage, encounters, and item hooks use
+`ItemDefinition` plus `ItemInstance`; they do not keep a mirrored item
+dictionary.
 
 The checked fixture and its headless test are the executable examples:
 
@@ -14,10 +14,10 @@ godot --headless --path src --script `
   res://scripts/items/tests/run_item_domain_contract_tests.gd
 ```
 
-## Current behavior being migrated
+## Legacy behavior isolated at import
 
-`CampaignResources.generate_item_from_json_dict()` currently expands a source
-dictionary into another dictionary that contains all of these at once:
+Before M6, `CampaignResources.generate_item_from_json_dict()` expanded a source
+dictionary into another dictionary that contained all of these at once:
 
 - catalog fields such as name, type, weight, restrictions, statistics, and
   Classic record identity;
@@ -25,11 +25,10 @@ dictionary into another dictionary that contains all of these at once:
 - portable custom data such as hook source and compressed PNG bytes; and
 - runtime-only values such as `Texture2D` and compiled `GDScript` objects.
 
-Creature saves then pass that whole dictionary to `JSON.stringify()`.
-Restoration sends the resulting dictionary back through the resource loader.
-The migration must preserve the behavior of that route until each consumer has
-moved, but new versioned saves must not depend on serializing runtime objects or
-on resolving an item by its display name.
+That representation is now accepted only at catalog, old-save, and old-campaign
+import boundaries. Successful import produces an `ItemInstance`; every new
+save uses the versioned schema and never serializes a texture, script, callable,
+or dictionary mirror.
 
 ## Domain boundary
 
@@ -168,8 +167,7 @@ materialized records.
 
 ## Catalog and construction API
 
-ISY-411 implements this logical API. Exact GDScript signatures may add types and
-diagnostic return objects, but may not change these semantics.
+The catalog-level API has these semantics:
 
 | Operation | Contract |
 | --- | --- |
@@ -194,6 +192,42 @@ Runtime media and hook resolution are separate services:
 - hooks receive both the instance and its resolved definition.
 
 Neither service changes serialized domain data.
+
+### Public runtime API
+
+Campaign and gameplay code uses `CampaignResources`:
+
+| Operation | Result |
+| --- | --- |
+| `create_item_instance(item_identity, overrides = {})` | A new `ItemInstance` resolved by stable ID or exact active catalog key. |
+| `create_classic_item_instance(item_id, overrides = {})` | A new instance resolved through explicit Classic definition metadata. |
+| `get_item_definition(instance)` | The shared immutable `ItemDefinition` for an instance. |
+| `item_classic_ids(instance)` | Instance-preserved legacy identity first, followed by the immutable definition aliases without duplicates. |
+| `copy_item_instance(instance)` | A new instance with copied state and a distinct `instanceId`. |
+| `serialize_item_inventory(instances)` | A transactional versioned save result. |
+| `deserialize_item_inventory(saved)` | An array of stable instances, or an empty result with diagnostics. |
+| `item_texture(instance)` | Cached runtime media without adding media to instance state. |
+| `item_has_hook(instance, kind)` / `run_item_hook(...)` | Definition-backed hook discovery and execution. |
+
+`Creature.item_inventory` is the authoritative inventory. The historical
+`Creature.inventory` property remains as a deprecated alias to that same
+`Array[ItemInstance]` for campaign source compatibility; it is not a second
+collection and never contains item dictionaries. Equipment properties likewise
+return the owned instances. Mutation uses `add_inventory_item`,
+`remove_inventory_item`, `transfer_inventory_item_to`, `equip_item`,
+`unequip_item`, and `consume_item_charges`.
+
+Item definitions expose typed accessors for display, weight, price, statistics,
+damage, equipment slots, restrictions, traits, hook descriptors, and Classic
+identity. Per-instance mutations belong in the `ItemInstance` fields or its
+JSON-compatible `stateData`. A legacy hook that changes its temporary `name` or
+`description` view is retained under `stateData.legacyMutableFields`; display
+code reads that override without mutating the shared definition.
+
+Profile loading ensures the shared item catalog is present before deserializing
+versioned character inventories. This keeps the main-menu character picker
+independent of campaign resource-loading order while definitions remain shared
+rather than copied into each stock-character save.
 
 ## Versioned save format
 
@@ -256,6 +290,20 @@ IDs. Identical digests coalesce. If an exact installed definition ID exists,
 the installed definition is used; embedded data with a non-matching digest or
 identity is an error rather than an implicit override.
 
+### Serializer evolution
+
+Readers dispatch on both `format` and `formatVersion`. Version 1 accepts only
+the documented root and state fields. A future migration must add a new reader,
+convert transactionally to the current in-memory model, and preserve the
+original inventory if any entry fails. Writers emit one current version only;
+they do not silently add fields to version 1. Unsupported future versions fail
+with the inventory index and version in the diagnostic.
+
+Definition IDs and instance IDs are durable. Serializer migrations may
+normalize representation but must not regenerate either ID for already
+versioned items. New optional per-instance behavior belongs in `state.data`;
+new immutable authored behavior belongs in a new validated definition field.
+
 ## Legacy dictionary import
 
 ISY-412 keeps existing characters readable through this ordered import:
@@ -277,18 +325,43 @@ This adapter is deliberately compatibility-only. New saves written after
 ISY-412 use the versioned format even when they were loaded from an old
 dictionary.
 
-## Adapter lifetime and removal
+## Custom campaign authoring
+
+Native campaigns author items in their campaign `Items/stuff_book.json`.
+Shared items live in `shared_assets/items/stuff_book.json`. A campaign record
+may shadow a shared catalog key for that campaign while retaining its own
+stable campaign or Classic definition ID. The loader validates the complete
+book transactionally, including media keys, hook descriptors, restrictions,
+Classic-ID collisions, and JSON portability.
+
+Compiled Classic campaigns continue to produce campaign-local
+`stuff_book.json`; explicit `classicItemId` or `classicItemIds` metadata is the
+supported bridge to numeric records. Authors should not construct runtime item
+dictionaries or append copied catalog rows. They create an instance through
+`create_item_instance` or `create_classic_item_instance`, then add that instance
+through the creature, shop, loot, storage, or encounter API.
+
+An old campaign may still hand an item dictionary to an import-aware public
+entry point. That input is converted immediately, and only portable source data
+can become an embedded definition. This is a compatibility route, not the
+native authoring API.
+
+## Retained compatibility boundaries
 
 The dictionary adapter may exist at these boundaries only:
 
 - `stuff_book.json` and M4 Classic materializer input into the catalog;
 - old character/save inventory import;
-- temporary dictionary views supplied to an unmigrated consumer.
+- old campaign scripts and Classic rule adapters that require their historical
+  dictionary-shaped arguments.
 
-It must not become a second permanent item model. It may not be used by new
-save output, stable catalog lookup, or stable equipment ownership.
+The last case uses `legacy_item_view_for_adapter()` and synchronizes only
+supported mutable instance state back into the stable instance. Deprecated
+method spellings remain in `CampaignResources` solely so installed old
+campaigns do not fail method lookup. Migrated runtime and UI consumers do not
+call them.
 
-ISY-416 removes the temporary runtime view only after all of these are true:
+The temporary live dictionary mirror was removed by ISY-416 after:
 
 - creature inventory, equipment, combat, UI, shops, loot, storage, encounters,
   scripted hooks, and Classic compatibility consume the stable API;
@@ -300,8 +373,39 @@ ISY-416 removes the temporary runtime view only after all of these are true:
   custom items across save/load; and
 - a full gameplay regression run proves no item behavior change.
 
-The catalog input adapter and old-save reader remain supported compatibility
-surfaces. Only the temporary *runtime* dictionary view is removed.
+The catalog input adapter, old-save reader, and explicitly named old-campaign
+projection remain supported compatibility surfaces. There is no persistent
+runtime dictionary view.
+
+## Conformance and regression commands
+
+Run these from the repository root:
+
+```powershell
+godot --headless --path src --script `
+  res://scripts/items/tests/run_item_catalog_tests.gd
+godot --headless --path src --script `
+  res://scripts/items/tests/run_item_serialization_tests.gd
+godot --headless --path src --script `
+  res://scripts/items/tests/run_item_domain_contract_tests.gd
+godot --headless --path src --script `
+  res://scripts/items/tests/run_item_hook_tests.gd
+godot --headless --path src `
+  res://scripts/items/tests/creature_item_instance_smoke.tscn
+godot --headless --path src `
+  res://scripts/items/tests/item_ui_flow_smoke.tscn
+godot --headless --path src --script `
+  res://scripts/items/tests/run_item_migration_conformance_tests.gd
+```
+
+The focused suites cover shared and campaign catalogs, independent instances,
+old dictionaries, embedded custom definitions, versioned save/load, hooks,
+creature inventory and combat handoff, inventory UI, shop purchase and sale,
+loot, storage, encounter item selection, and source-boundary conformance.
+Classic runtime and City of Bywater acceptance suites cover compiled campaign
+item identities and live Classic combat behavior. The stock-character builder
+also uses deterministic instance IDs; two consecutive builds must produce
+byte-identical roster packages.
 
 ## M6 dependency order
 

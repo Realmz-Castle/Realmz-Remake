@@ -50,5 +50,5 @@ static func set_time_encounters_in_gameglobal() :
 	# "called_func" is  the name of the function in the campaign's global script.gd
 	#before<0 means  ignored,  req_rect empty means  anywhere on map,  req_map empty means any map
 	t_encs["Time_Enc_0"] = { "called_func" : "Time_Enc_0", "after" : -1*86400, "before" : -1, "chance_prct" : 0   ,"increment" : 0, "req_map" : "map_0", "req_rect" : [], "req_quest" : "" }
-	t_encs["Time_Enc_1"] = { "called_func" : "Time_Enc_1", "after" : 0.03*86400 , "before" : -1, "chance_prct" : 100,"increment" : 0, "req_map" : "", "req_rect" : [] , "req_quest" : ""}
+	t_encs["Time_Enc_1"] = { "called_func" : "Time_Enc_1", "after" : 3*86400 , "before" : -1, "chance_prct" : 100,"increment" : 0, "req_map" : "", "req_rect" : [] , "req_quest" : ""}
 	t_encs["Time_Enc_2"] = { "called_func" : "Time_Enc_2", "after" : 0*86400 , "before" : -1, "chance_prct" : 0    ,"increment" : 0, "req_map" : "mapd_0", "req_rect" : [], "req_quest" : "" }

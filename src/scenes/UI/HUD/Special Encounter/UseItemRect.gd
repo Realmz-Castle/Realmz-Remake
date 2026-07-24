@@ -1,101 +1,83 @@
 extends NinePatchRect
 
-
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-@onready var  itemLootButton : PackedScene = preload("res://scenes/UI/HUD/Looting/ItemLootButton.tscn")
-
-@onready var charportrait : TextureRect = $CharFaceRect
-@onready var charnamelabel : Label = $CharNameLabel
-@onready var itemsContainer = $"itemsRect/ScrollContainer/ItemContainer"
+@onready var itemLootButton: PackedScene = preload(
+	"res://scenes/UI/HUD/Looting/ItemLootButton.tscn"
+)
+@onready var charportrait: TextureRect = $CharFaceRect
+@onready var charnamelabel: Label = $CharNameLabel
+@onready var itemsContainer = $itemsRect/ScrollContainer/ItemContainer
 @onready var itempreview = $ItemPreview
-var character = null
-enum  {ALL,FIELD,BATTLE}
-var itemkind : int = ALL
+
+var character: Creature = null
+enum { ALL, FIELD, BATTLE }
+var itemkind := ALL
 var encounter_selection_mode := false
-var picked_item: Dictionary = {}
-var picked_character = null
+var picked_item: ItemInstance = null
+var picked_character: Creature = null
 
 signal item_picked
 signal encounter_item_picked
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
-
-func display_character_inventory() :
-	if character == null :
+func display_character_inventory() -> void:
+	if character == null:
 		return
-	charportrait.set_texture(character.portrait)
-	charnamelabel.set_text(character.name)
-	itempreview.set_item({"name":'', "type":'',"texture":null,"charges_max":0, "stats_mini":'', "equipped":0, "is_identified":0, "unidentified_name":''})
-	for child in itemsContainer.get_children() :
-		itemsContainer.remove_child(child)
+	charportrait.texture = character.portrait
+	charnamelabel.text = character.name
+	itempreview.clear_item()
+	for child: Node in itemsContainer.get_children():
 		child.queue_free()
-	
-	#fill the gridcontainer
-	for i in character.inventory :
-		var validitem : bool = false
-		if itemkind == ALL :
-			validitem = true
-		elif itemkind == FIELD :
-			validitem = i.has("_on_field_use")
-		elif itemkind == BATTLE :
-			validitem = i.has("_on_battle_use")
-		
-		if validitem :
-			var newButton = itemLootButton.instantiate()
-			var newtex : Texture2D = i["texture"]
-			newButton.find_child("ItemTextureRect").set_texture( newtex )
-			newButton.connect("pressed",Callable(self,"_on_itembutton_pressed").bind(i, character))
-			newButton.connect("mouse_entered",Callable(self,"_on_itembutton_mouse_entered").bind(i))
-			newButton.connect("mouse_exited",Callable(self,"_on_itembutton_mouse_exited"))
-			
-			#ibutton.connect("pressed",Callable(self,"_on_dropentry_pressed").bind(i))
-			itemsContainer.add_child(newButton)
+	var resources = NodeAccess.__Resources()
+	for item: ItemInstance in character.inventory_instances():
+		var definition := resources.get_item_definition(item)
+		if definition == null or not _matches_filter(definition):
+			continue
+		var button: Button = itemLootButton.instantiate()
+		button.set_meta("item_instance", item)
+		button.find_child("ItemTextureRect").texture = (
+			resources.item_texture(item)
+		)
+		button.pressed.connect(_on_itembutton_pressed.bind(item, character))
+		button.mouse_entered.connect(_on_itembutton_mouse_entered.bind(item))
+		button.mouse_exited.connect(_on_itembutton_mouse_exited)
+		itemsContainer.add_child(button)
 
 
-func initialize_for_encounter(chara) -> void:
+func initialize_for_encounter(chara: Creature) -> void:
 	encounter_selection_mode = true
-	picked_item = {}
+	picked_item = null
 	picked_character = null
 	character = chara
 	itemkind = ALL
 	display_character_inventory()
 
-func _on_LeftButton_pressed():
-	var charindex = GameGlobal.player_characters.find(character)
-	var indexminus = charindex-1
-	if indexminus <0 :
-		indexminus = GameGlobal.player_characters.size()-1
-	character = GameGlobal.player_characters[indexminus]
+
+func _on_LeftButton_pressed() -> void:
+	var charindex := GameGlobal.player_characters.find(character)
+	character = GameGlobal.player_characters[
+		(charindex - 1 + GameGlobal.player_characters.size())
+		% GameGlobal.player_characters.size()
+	]
 	display_character_inventory()
 
-func _on_RightButton_pressed():
-	var charindex = GameGlobal.player_characters.find(character)
-	var indexplus = (charindex+1) % GameGlobal.player_characters.size()
-	character = GameGlobal.player_characters[indexplus]
+
+func _on_RightButton_pressed() -> void:
+	var charindex := GameGlobal.player_characters.find(character)
+	character = GameGlobal.player_characters[
+		(charindex + 1) % GameGlobal.player_characters.size()
+	]
 	display_character_inventory()
-	
-	
-func _on_itembutton_mouse_entered(item : Dictionary) :
+
+
+func _on_itembutton_mouse_entered(item: ItemInstance) -> void:
 	itempreview.set_item(item)
 
-func _on_itemlootbutton_mouse_exited() :
-	itempreview.iconequipped.hide()
-	itempreview.namelabel.text = ''
-	itempreview.iconsprite.set_texture( null )
-	itempreview.statsLabel.text = ''
-	itempreview.chargesLabel.text = ''
-	
 
-func _on_itembutton_pressed(item : Dictionary, chara) :
+func _on_itembutton_mouse_exited() -> void:
+	itempreview.clear_item()
+
+
+func _on_itembutton_pressed(item: ItemInstance, chara: Creature) -> void:
 	if encounter_selection_mode:
 		encounter_selection_mode = false
 		picked_item = item
@@ -103,13 +85,22 @@ func _on_itembutton_pressed(item : Dictionary, chara) :
 		hide()
 		encounter_item_picked.emit()
 		return
-	emit_signal("item_picked", item, chara)
+	item_picked.emit(item, chara)
 
 
-func _on_CancelButton_pressed():
+func _on_CancelButton_pressed() -> void:
 	hide()
 	if encounter_selection_mode:
 		encounter_selection_mode = false
-		picked_item = {}
+		picked_item = null
 		picked_character = null
 		encounter_item_picked.emit()
+
+
+func _matches_filter(definition: ItemDefinition) -> bool:
+	match itemkind:
+		FIELD:
+			return definition.has_use("field")
+		BATTLE:
+			return definition.has_use("combat")
+	return true

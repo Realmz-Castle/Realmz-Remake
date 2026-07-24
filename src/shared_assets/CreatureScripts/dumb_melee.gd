@@ -54,8 +54,13 @@ static func decide_action(crea : Creature) -> Array :
 				allspellsArray.shuffle()
 			var selectedSpell = null
 			var selectedplvl : int = 0
-			if crea.current_range_weapon != crea.ITEM_NO_RANGE_WEAPON :
-				var weapon_spell_arr : Array =  crea.current_range_weapon["_on_combat_use_spell"]
+			if crea.current_range_weapon_instance != null:
+				var weapon_spell_arr: Array = NodeAccess.__Resources().item_spell_use(
+					crea.current_range_weapon_instance,
+					"combat",
+				)
+				if weapon_spell_arr.size() < 2:
+					return [0, Vector2i.ZERO]
 				var weapon_spell = NodeAccess.__Resources().spells_book[weapon_spell_arr[0]]["script"]
 				var weapon_power : int = weapon_spell_arr[1]
 				if weapon_spell.get_range(weapon_power, crea) >= targ_range :

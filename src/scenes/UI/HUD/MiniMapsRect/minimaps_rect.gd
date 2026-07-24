@@ -39,6 +39,7 @@ func display_map(m : Array) :
 	if m.is_empty() :
 		maptextrect.hide()
 		mmap_name_label.text = ''
+		return
 	else :
 		maptextrect.show()
 	#"MinimapName, MapItRepresents, splashimagename, description, topleftcoordinates(array), pixels/tile, owned

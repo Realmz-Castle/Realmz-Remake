@@ -87,6 +87,8 @@ func _start_playtest() -> void:
 		var resources: CampaignResources = NodeAccess.__Resources()
 		if test_rogue_stat >= 0.0 and resources.items_book.is_empty():
 			resources.load_item_resources("res://shared_assets/items/")
+		if not test_item_name.is_empty() and resources.spells_book.is_empty():
+			resources.load_spell_resources("res://shared_assets/spells/")
 		if not test_effect_spell_name.is_empty():
 			if resources.sounds_book.is_empty():
 				resources.load_sound_ressources("res://shared_assets/sounds/")
@@ -295,16 +297,28 @@ func _run_shop_smoke() -> void:
 		str(save_policy.get("status", "")) == "error",
 		"an open immediate shop cannot be replayed through a save"
 	)
-	var dagger: Dictionary = shop.weapons[0][0]
-	inventory.inventoryScrollRight._drop_data(Vector2.ZERO, [dagger, "Shop"])
+	var first_dagger: ItemInstance = shop.weapons[0][0]
+	inventory.inventoryScrollRight._drop_data(
+		Vector2.ZERO,
+		[first_dagger, "Shop"],
+	)
 	await _wait_frames(2)
-	inventory.inventoryScrollRight._drop_data(Vector2.ZERO, [dagger, "Shop"])
+	var second_dagger: ItemInstance = shop.weapons[0][0]
+	inventory.inventoryScrollRight._drop_data(
+		Vector2.ZERO,
+		[second_dagger, "Shop"],
+	)
 	await _wait_frames(2)
+	var item_resources: CampaignResources = NodeAccess.__Resources()
 	_verify_smoke_stage(
 		"04_native_purchase",
-		character.inventory.size() == 2
-			and character.inventory[0]["name"] == "Dagger"
-			and character.inventory[1]["name"] == "Dagger"
+		character.item_inventory.size() == 2
+			and character.item_inventory[0] == first_dagger
+			and character.item_inventory[1] == second_dagger
+			and item_resources.get_item_definition(first_dagger).display_name
+				== "Dagger"
+			and item_resources.get_item_definition(second_dagger).display_name
+				== "Dagger"
 			and character.money[0] == 2
 			and GameGlobal.money_pool[0] == 0
 			and shop.weapons[0][1] == 0
@@ -329,7 +343,7 @@ func _run_shop_smoke() -> void:
 		shop.visible
 			and shop.weapons[0][1] == 0
 			and shop.vbox.get_child_count() == 0
-			and character.inventory.size() == 2
+			and character.item_inventory.size() == 2
 			and character.money[0] == 1,
 		"reopening the shop neither restores sold stock nor repeats the purchase"
 	)
@@ -497,13 +511,17 @@ func _run_equipment_smoke() -> void:
 	var character: PlayerCharacter = GameGlobal.player_characters[0]
 	var captured: Dictionary = host.command_adapter.stored_party_equipment
 	var captured_inventories: Variant = captured.get("inventories", [])
-	var shared_ward: Dictionary = GameGlobal.generate_item(
+	var shared_ward: ItemInstance = GameGlobal.generate_item(
 		"Quiver of Magic Resistance"
+	)
+	var shared_ward_definition := (
+		NodeAccess.__Resources().get_item_definition(shared_ward)
 	)
 	_verify_smoke_stage(
 		"00_shared_magic_resistance",
-		int(shared_ward.get("classicMagicResistance", 0)) == 5
-			and not shared_ward.get("stats", {}).has("EvasionMagic"),
+		shared_ward_definition != null
+			and shared_ward_definition.classic_magic_resistance() == 5
+			and not shared_ward_definition.stats().has("EvasionMagic"),
 		"the shared catalog loads Classic resistance without native magic evasion"
 	)
 	_verify_smoke_stage(
@@ -513,14 +531,13 @@ func _run_equipment_smoke() -> void:
 			and int(captured.get("itemCount", 0)) == 2
 			and captured_inventories is Array
 			and captured_inventories.size() == 1
-			and int(captured_inventories[0][0].get(
-				"classicMagicResistance", 0
-			)) == 9
+			and captured_inventories[0][0] is ItemInstance
+			and captured_inventories[0][1] is ItemInstance
 			and captured.get("wealth", []) == [12, 3, 1]
-			and character.inventory.is_empty()
+			and character.item_inventory.is_empty()
 			and character.money == [0, 0, 0]
 			and GameGlobal.money_pool == [0, 0, 0],
-		"opcode 36 captures native inventory, worn state, and pooled wealth"
+		"opcode 36 captures exact item instances, worn state, and pooled wealth"
 	)
 
 	var save_result: Dictionary = campaign_session.make_save_result()
@@ -538,9 +555,12 @@ func _run_equipment_smoke() -> void:
 			and saved_items is Array
 			and saved_items.size() == 1
 			and saved_items[0].size() == 2
-			and int(saved_items[0][0].get("classicMagicResistance", 0)) == 9
+			and saved_items[0][0].get("format") \
+				== "realmz-remake-item-instance"
+			and saved_items[0][0].get("instanceId") \
+				== captured_inventories[0][0].instance_id
 			and not saved_items[0][0].has("texture"),
-		"the active capture is serialized through the same plain-data envelope used by profile saves"
+		"the active capture uses the versioned item envelope from profile saves"
 	)
 	if not (parsed_payload is Dictionary):
 		get_tree().quit(1)
@@ -578,16 +598,20 @@ func _run_equipment_smoke() -> void:
 			and restored_items is Array
 			and restored_items.size() == 1
 			and restored_items[0].size() == 2
-			and restored_items[0][0].get("texture") is Texture2D
-			and int(restored_items[0][0].get("equipped", 0)) == 1
-			and int(restored_items[0][0].get(
-				"classicMagicResistance", 0
-			)) == 9
-			and int(restored_items[0][1].get("charges", 0)) == 2,
-		"load rebuilds saved items through Remake's campaign resource loader"
+			and restored_items[0][0] is ItemInstance
+			and restored_items[0][0].instance_id \
+				== saved_items[0][0].get("instanceId")
+			and restored_items[0][0].equipped
+			and restored_items[0][1] is ItemInstance
+			and restored_items[0][1].charges == 2,
+		"load restores saved ItemInstances through the campaign resource loader"
 	)
 
-	character.inventory.append(GameGlobal.generate_item("Leather Boots"))
+	var resources: CampaignResources = NodeAccess.__Resources()
+	var interim_boots: ItemInstance = resources.create_item_instance(
+		"Leather Boots"
+	)
+	character.add_inventory_item(interim_boots)
 	if not host.start_trigger("playtest:equipment-restore"):
 		_verify_smoke_stage(
 			"04_equipment_restore",
@@ -597,28 +621,42 @@ func _run_equipment_smoke() -> void:
 		get_tree().quit(1)
 		return
 	var loot_ready := await _wait_for_treasure()
-	var dagger: Dictionary = character.inventory[0] if character.inventory.size() > 0 else {}
-	var ointment: Dictionary = character.inventory[1] if character.inventory.size() > 1 else {}
+	var dagger_instance: ItemInstance = (
+		character.item_inventory[0]
+		if character.item_inventory.size() > 0 else null
+	)
+	var ointment_instance: ItemInstance = (
+		character.item_inventory[1]
+		if character.item_inventory.size() > 1 else null
+	)
+	var dagger_definition := resources.get_item_definition(dagger_instance)
+	var ointment_definition := resources.get_item_definition(ointment_instance)
 	var total_wealth := GameGlobal.money_pool.duplicate()
 	for currency: int in 3:
 		total_wealth[currency] += int(character.money[currency])
 	_verify_smoke_stage(
 		"04_equipment_restore",
 		loot_ready
-			and character.inventory.size() == 2
-			and dagger.get("name") == "Dagger"
-			and int(dagger.get("equipped", 0)) == 1
+			and character.item_inventory.size() == 2
+			and dagger_instance == restored_items[0][0]
+			and ointment_instance == restored_items[0][1]
+			and dagger_definition != null
+			and dagger_definition.display_name == "Pearled Ion Stone +9"
+			and dagger_instance.equipped
 			and MagicResistanceScript.equipped_modifier(character) == 9
-			and ointment.get("name") == "Corelian Ointment"
-			and int(ointment.get("charges", 0)) == 2
+			and ointment_definition != null
+			and ointment_definition.display_name == "Corelian Ointment"
+			and ointment_instance.charges == 2
 			and total_wealth == [12, 3, 1]
 			and host.command_adapter.stored_party_equipment.is_empty(),
 		"the captured item state and wealth return without consuming interim loot"
 	)
 	_verify_smoke_stage(
 		"05_interim_loot_ui",
-		loot_ready and UI.ow_hud.treasureControl.itemsContainer.get_child_count() == 1,
-		"items acquired during capture reach Remake's native loot UI"
+		loot_ready
+			and UI.ow_hud.treasureControl.itemsContainer.get_child_count() == 1
+			and UI.ow_hud.treasureControl.pending_items == [interim_boots],
+		"interim ItemInstances reach Remake's native loot UI without conversion"
 	)
 	if loot_ready:
 		# This standalone scene has no native map loaded for the loot panel to reveal.
@@ -1302,6 +1340,9 @@ func _run_complex_item_smoke() -> void:
 		return
 	var item_menu: Control = UI.ow_hud.encounterControl.useitemRect
 	var item_button: Button = item_menu.itemsContainer.get_child(0)
+	var selected_instance: ItemInstance = item_button.get_meta(
+		"item_instance",
+	)
 	item_button.pressed.emit()
 	await _wait_frames(3)
 	_verify_smoke_stage(
@@ -1309,8 +1350,9 @@ func _run_complex_item_smoke() -> void:
 		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
 			"The lock is now open"
 		)
-			and holder.inventory.size() == 1,
-		"the Necklace of Keys selects result 1 without consuming the key"
+			and holder.item_inventory.size() == 1
+			and holder.item_inventory[0] == selected_instance,
+		"the exact Necklace of Keys selects result 1 without deleting the key"
 	)
 	UI.ow_hud.textRect.disablerButton.pressed.emit()
 	await _wait_frames(3)
@@ -1456,7 +1498,7 @@ func _make_playtest_rogue() -> PlayerCharacter:
 		rogue.base_stats["MaxMovement"] = test_max_movement
 		rogue.stats["MaxMovement"] = test_max_movement
 	if not test_item_name.is_empty():
-		rogue.inventory.append(GameGlobal.generate_item(test_item_name))
+		rogue.add_inventory_item(GameGlobal.generate_item(test_item_name))
 	return rogue
 
 
@@ -1530,14 +1572,17 @@ func _install_shop_playtest_data() -> void:
 func _install_equipment_playtest_data() -> void:
 	_install_equipment_playtest_triggers()
 	var character: PlayerCharacter = GameGlobal.player_characters[0]
-	character.inventory.clear()
-	var dagger: Dictionary = GameGlobal.generate_item("Dagger")
-	dagger["classicMagicResistance"] = 9
-	var ointment: Dictionary = GameGlobal.generate_item("Corelian Ointment")
-	ointment["charges"] = 2
-	character.inventory.append(dagger)
-	character.inventory.append(ointment)
-	character.equip_item(dagger)
+	character.clear_inventory_items()
+	var dagger: ItemInstance = GameGlobal.generate_item("Pearled Ion Stone +9")
+	character.add_inventory_item(dagger)
+	var dagger_instance: ItemInstance = character.item_inventory.back()
+	var resources: CampaignResources = NodeAccess.__Resources()
+	var ointment: ItemInstance = resources.create_item_instance(
+		"Corelian Ointment",
+		{"charges": 2},
+	)
+	character.add_inventory_item(ointment)
+	character.equip_item(dagger_instance)
 	character.money = [7, 1, 0]
 	GameGlobal.money_pool = [5, 2, 1]
 	StateMachine.transition_to("Exploration")

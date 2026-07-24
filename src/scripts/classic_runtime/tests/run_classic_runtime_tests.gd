@@ -5065,9 +5065,45 @@ func _test_classic_item_materializer() -> void:
 	)
 	DirAccess.make_dir_recursive_absolute(test_root)
 	var materializer = ItemMaterializerScript.new()
+	var empty_record: Dictionary = bundle.documents[
+		"content"
+	]["scenarioItems"][0].duplicate(true)
+	empty_record["id"] = 11
+	empty_record["itemId"] = 811
+	empty_record["authored"] = false
+	for key: String in empty_record:
+		if key not in ["id", "itemId", "authored", "provenance", "rawBytes"]:
+			if empty_record[key] is bool:
+				empty_record[key] = false
+			elif empty_record[key] is int or empty_record[key] is float:
+				empty_record[key] = 0
+			elif empty_record[key] is String:
+				empty_record[key] = ""
+			elif empty_record[key] is Array:
+				empty_record[key] = []
+			elif empty_record[key] is Dictionary:
+				empty_record[key] = {}
+	bundle.documents["content"]["scenarioItems"].append(empty_record)
+	bundle.documents["content"]["itemTexts"].append({
+		"authored": false,
+		"description": "",
+		"id": 811,
+		"identifiedName": "",
+		"itemId": 811,
+		"provenance": {
+			"byteLength": 1064,
+			"byteOffset": 0,
+			"confidence": "source-backed",
+			"recordIndex": 811,
+			"sourceFile": "Scenario.rsrc",
+		},
+		"unidentifiedName": "",
+	})
+	bundle._build_indexes()
 	var result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(result.get("status"), "ok", "Classic item generates a native item book")
 	_expect_equal(result.get("generated"), 2, "materializer reports its generated items")
+	_expect_equal(result.get("empty"), 1, "materializer skips empty fixed-capacity item records")
 	var item_book_path := test_root.path_join("Items/stuff_book.json")
 	var image_book_path := test_root.path_join("Items/img_pack.json")
 	var atlas_path := test_root.path_join("Items/textureAtlas.png")
@@ -5655,6 +5691,7 @@ func _test_classic_item_materializer() -> void:
 	var second_result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(second_result.get("generated"), 0, "item materialization is idempotent")
 	_expect_equal(second_result.get("skipped"), 2, "rerun recognizes the existing Classic IDs")
+	_expect_equal(second_result.get("empty"), 1, "rerun still ignores empty item records")
 	_expect_equal(
 		FileAccess.get_file_as_string(item_book_path),
 		first_item_book_text,
@@ -10889,6 +10926,21 @@ func _test_campaign_readiness_report() -> void:
 			"weight": 0,
 		},
 	]
+	bundle.documents["content"]["itemTexts"] = [{
+		"authored": false,
+		"description": "",
+		"id": 811,
+		"identifiedName": "",
+		"itemId": 811,
+		"provenance": {
+			"byteLength": 1064,
+			"byteOffset": 0,
+			"confidence": "source-backed",
+			"recordIndex": 811,
+			"sourceFile": "Scenario.rsrc",
+		},
+		"unidentifiedName": "",
+	}]
 	bundle.documents["encounters"]["complexEncounters"] = [{
 		"id": 9,
 		"actions": [],
@@ -10982,12 +11034,12 @@ func _test_campaign_readiness_report() -> void:
 	)
 	_expect(
 		_readiness_has_diagnostic(
-			report, "unresolved-item-identity", "Data ED2", 9, -1, "progression-blocker"
+			report, "missing-native-item", "Data ED2", 9, -1, "progression-blocker"
 		),
-		"readiness reports an unresolved complex-encounter item"
+		"readiness requires an explicitly identified native complex-encounter item"
 	)
 	_expect(
-		not _readiness_has_reference_diagnostic(report, "unresolved-item-identity", 811),
+		not _readiness_has_reference_diagnostic(report, "missing-native-item", 811),
 		"readiness ignores empty fixed-capacity scenario-item slots"
 	)
 	_expect(
@@ -11065,7 +11117,7 @@ func _test_campaign_readiness_report() -> void:
 	})
 	_expect(
 		not _readiness_has_reference_diagnostic(
-			resolved_report, "unresolved-item-identity", 878
+			resolved_report, "missing-native-item", 878
 		),
 		"stable item metadata resolves a scenario-local encounter item"
 	)
@@ -22808,9 +22860,9 @@ func _test_item_actions() -> void:
 		"itemTexts": [],
 	})
 	_expect_equal(
-		unresolved_item.get("status"),
-		"error",
-		"native item check stops when a scenario item has no exported identity"
+		unresolved_item.get("possessed"),
+		false,
+		"native item check uses exact Classic identity without guessing a display name"
 	)
 	var host = HostScript.new()
 	get_root().add_child(host)
@@ -26059,15 +26111,36 @@ func _test_shop_actions() -> void:
 	var native_shop: Dictionary = built.get("shop", {})
 	_expect_equal(native_shop.get("sell_rate"), 0.95, "shop inflation sets purchase rate")
 	_expect_equal(native_shop.get("buy_rate"), 0.95, "shop inflation sets resale rate")
-	_expect_equal(native_shop.get("Weapons"), [["Dagger", 3, -1]], "weapon slots map to Weapons")
-	_expect_equal(native_shop.get("Armor"), [["Leather Armor", 2, -1]], "body armor maps to Armor")
-	_expect_equal(native_shop.get("Limbs"), [["Leather Cap", 1, -1]], "limb armor maps to Limbs")
 	_expect_equal(
-		native_shop.get("Magic"),
-		[["Quiver of Protection +2", 1, -1]],
+		_shop_stock_names(native_shop.get("Weapons")),
+		["Dagger"],
+		"weapon slots map to Weapons",
+	)
+	_expect_equal(
+		_shop_stock_names(native_shop.get("Armor")),
+		["Leather Armor"],
+		"body armor maps to Armor",
+	)
+	_expect_equal(
+		_shop_stock_names(native_shop.get("Limbs")),
+		["Leather Cap"],
+		"limb armor maps to Limbs",
+	)
+	_expect_equal(
+		_shop_stock_names(native_shop.get("Magic")),
+		["Quiver of Protection +2"],
 		"scenario item text can resolve magic stock"
 	)
-	_expect_equal(native_shop.get("Supplies"), [["Quiver of Arrows", 4, -1]], "supplies map by slot")
+	_expect_equal(
+		_shop_stock_names(native_shop.get("Supplies")),
+		["Quiver of Arrows"],
+		"supplies map by slot",
+	)
+	_expect_equal(
+		_shop_stock_classic_ids(native_shop),
+		[1, 209, 418, 675, 803],
+		"shop stock preserves exact Classic identities",
+	)
 	_expect_equal(built.get("itemCount"), 11, "shop reports total stock quantity")
 
 	var restricted_built: Dictionary = GodotAdapterScript.new().build_shop_inventory(
@@ -26152,14 +26225,19 @@ func _test_shop_actions() -> void:
 		{"Quarter Staff": {}, "Waterworld": {}, "Heal Small Wounds": {}}
 	)
 	_expect_equal(
-		aliases.get("shop", {}).get("Weapons"),
-		[["Quarter Staff", 1, -1]],
+		_shop_stock_names(aliases.get("shop", {}).get("Weapons")),
+		["Quarter Staff"],
 		"duplicate shared weapon ID resolves"
 	)
 	_expect_equal(
-		aliases.get("shop", {}).get("Magic"),
-		[["Waterworld", 1, -1], ["Heal Small Wounds", 2, -1]],
+		_shop_stock_names(aliases.get("shop", {}).get("Magic")),
+		["Waterworld", "Heal Small Wounds"],
 		"duplicate shared magic IDs resolve"
+	)
+	_expect_equal(
+		_shop_stock_classic_ids(aliases.get("shop", {})),
+		[98, 610, 611],
+		"duplicate shared stock keeps each source identity",
 	)
 
 
@@ -30385,6 +30463,35 @@ func _action_id_at_slot(actions: Array, slot: int) -> int:
 		if action is Dictionary and int(action.get("slot", -1)) == slot:
 			return int(action.get("id", 0))
 	return 0
+
+
+func _shop_stock_names(stock_rows: Variant) -> Array[String]:
+	var names: Array[String] = []
+	if not (stock_rows is Array):
+		return names
+	for row_value: Variant in stock_rows:
+		if not (row_value is Array) or row_value.is_empty():
+			continue
+		var item_value: Variant = row_value[0]
+		names.append(
+			str(item_value.get("name", ""))
+			if item_value is Dictionary else str(item_value)
+		)
+	return names
+
+
+func _shop_stock_classic_ids(shop: Dictionary) -> Array[int]:
+	var item_ids: Array[int] = []
+	for category: String in ["Weapons", "Armor", "Limbs", "Magic", "Supplies"]:
+		for row_value: Variant in shop.get(category, []):
+			if not (row_value is Array) or row_value.is_empty():
+				continue
+			var item_value: Variant = row_value[0]
+			item_ids.append(
+				int(item_value.get("classicItemId", 0))
+				if item_value is Dictionary else 0
+			)
+	return item_ids
 
 
 func _expect(condition: bool, label: String) -> void:

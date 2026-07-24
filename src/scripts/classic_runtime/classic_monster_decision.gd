@@ -73,25 +73,25 @@ static func missile_item(
 	inventory: Array,
 	item_name: String,
 	item_slot: int
-) -> Dictionary:
+) -> ItemInstance:
 	if item_name.is_empty():
-		return {}
+		return null
 	for item_value: Variant in inventory:
-		if not (item_value is Dictionary):
+		if not (item_value is ItemInstance):
 			continue
-		var item: Dictionary = item_value
-		if str(item.get("name", "")) != item_name:
+		var item: ItemInstance = item_value
+		var definition := NodeAccess.__Resources().get_item_definition(item)
+		if definition == null or definition.display_name != item_name:
 			continue
-		if int(item.get("classic_item_slot", -1)) != item_slot:
+		if int(item.state_value("classicItemSlot", -1)) != item_slot:
 			continue
-		var combat_spell: Variant = item.get("_on_combat_use_spell")
-		if not (combat_spell is Array) or combat_spell.size() < 2:
-			return {}
-		var maximum_charges := int(item.get("charges_max", 0))
-		if maximum_charges != 0 and int(item.get("charges", 0)) <= 0:
-			return {}
+		var combat_spell := definition.spell_use("combat")
+		if combat_spell.size() < 2:
+			return null
+		if definition.maximum_charges != 0 and item.charges <= 0:
+			return null
 		return item
-	return {}
+	return null
 
 
 static func _effect_applied(effect_result: Variant) -> bool:

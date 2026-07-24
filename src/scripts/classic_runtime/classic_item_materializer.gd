@@ -216,9 +216,13 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 
 	var generated := 0
 	var skipped := 0
+	var empty := 0
 	for record: Dictionary in records:
 		var item_id: int = abs(int(record.get("itemId", 0)))
 		if item_id == 0:
+			continue
+		if bundle.is_empty_scenario_item(item_id):
+			empty += 1
 			continue
 		if _book_has_item_id(item_book, item_id):
 			skipped += 1
@@ -249,7 +253,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		write_error = atlas.save_png(atlas_path)
 		if write_error != OK:
 			return _fail("Could not write native item atlas: %s" % error_string(write_error))
-	return {"status": "ok", "generated": generated, "skipped": skipped}
+	return {
+		"status": "ok",
+		"generated": generated,
+		"skipped": skipped,
+		"empty": empty,
+	}
 
 
 func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:

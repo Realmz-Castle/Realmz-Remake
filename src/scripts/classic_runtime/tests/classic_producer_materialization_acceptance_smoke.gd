@@ -79,16 +79,25 @@ func _run_smoke() -> void:
 	)
 	var generated_blade := GameGlobal.generate_item("Classic Item 902")
 	var second_generated_blade := GameGlobal.generate_item("Classic Item 902")
+	var generated_definition := resources.get_item_definition(generated_blade)
 	_expect_equal(
-		generated_blade.get("classicItemId"),
+		resources.item_classic_ids(generated_blade)[0],
 		902,
 		"normal item factory resolves the producer weapon through its catalog key"
 	)
-	generated_blade["weapon_dmg"]["Physical"][0] = 99.0
+	generated_blade.set_state_value("fixtureMutation", 99)
 	_expect_equal(
-		second_generated_blade.get("weapon_dmg", {}).get("Physical"),
+		resources.get_item_definition(
+			second_generated_blade
+		).weapon_damage().get("Physical"),
 		[1.0, 6.0],
-		"normal item factory creates independent mutable item dictionaries"
+		"normal item factory shares the immutable producer definition"
+	)
+	_expect(
+		generated_definition
+				== resources.get_item_definition(second_generated_blade)
+			and second_generated_blade.state_value("fixtureMutation", 0) == 0,
+		"normal item factory creates independent mutable instances"
 	)
 	_expect_equal(
 		blade.get("weapon_dmg", {}).get("Physical"),
@@ -185,12 +194,12 @@ func _run_smoke() -> void:
 	_expect_equal(ally.bestiary_key, "Classic Monster 1", "ally keeps its native resource key")
 	_expect_equal(ally.classic_monster_id, 1, "ally keeps its Classic record identity")
 	_expect_equal(ally.inventory.size(), 1, "ally receives its producer-authored inventory")
-	var equipped_blade := _inventory_item(ally.inventory, "Providence Blade")
-	_expect_equal(equipped_blade.get("classicItemId"), 902, "ally carries the producer weapon")
-	_expect_equal(equipped_blade.get("equipped"), 1, "ally equips the producer weapon")
+	var equipped_blade: ItemInstance = _inventory_item_by_classic_id(ally.inventory, 902)
+	_expect_equal(_classic_item_id(equipped_blade), 902, "ally carries the producer weapon")
+	_expect(equipped_blade != null and equipped_blade.equipped, "ally equips the producer weapon")
 	var active_weapon_id: int = (
-		int(ally.current_melee_weapons[0].get("classicItemId"))
-		if not ally.current_melee_weapons.is_empty()
+		_classic_item_id(ally.current_melee_weapon_instances[0])
+		if not ally.current_melee_weapon_instances.is_empty()
 		else 0
 	)
 	_expect_equal(
@@ -221,12 +230,18 @@ func _run_smoke() -> void:
 	_expect_equal(restored_ally.money, [23, 2, 1], "ally money survives save/load")
 	_expect(not restored_ally.joins_combat, "ally combat preference survives save/load")
 	_expect_equal(restored_ally.classic_monster_id, 1, "ally identity survives save/load")
-	var restored_blade := _inventory_item(restored_ally.inventory, "Providence Blade")
-	_expect_equal(restored_blade.get("classicItemId"), 902, "carried weapon survives ally save/load")
-	_expect_equal(restored_blade.get("equipped"), 1, "equipped weapon survives ally save/load")
+	var restored_blade: ItemInstance = _inventory_item_by_classic_id(
+		restored_ally.inventory,
+		902
+	)
+	_expect_equal(_classic_item_id(restored_blade), 902, "carried weapon survives ally save/load")
+	_expect(
+		restored_blade != null and restored_blade.equipped,
+		"equipped weapon survives ally save/load"
+	)
 	_expect_equal(
-		restored_ally.current_melee_weapons[0].get("classicItemId") \
-			if not restored_ally.current_melee_weapons.is_empty() else 0,
+		_classic_item_id(restored_ally.current_melee_weapon_instances[0]) \
+			if not restored_ally.current_melee_weapon_instances.is_empty() else 0,
 		902,
 		"restored producer weapon remains active"
 	)
@@ -243,11 +258,21 @@ func _find_ally_action(scripts: Dictionary) -> Dictionary:
 	return {}
 
 
-func _inventory_item(inventory: Array, item_name: String) -> Dictionary:
-	for item_value: Variant in inventory:
-		if item_value is Dictionary and str(item_value.get("name", "")) == item_name:
-			return item_value
-	return {}
+func _inventory_item_by_classic_id(
+	inventory: Array[ItemInstance],
+	classic_item_id: int
+) -> ItemInstance:
+	for item: ItemInstance in inventory:
+		if _classic_item_id(item) == classic_item_id:
+			return item
+	return null
+
+
+func _classic_item_id(item: ItemInstance) -> int:
+	if item == null:
+		return 0
+	var classic_ids: Array[int] = NodeAccess.__Resources().item_classic_ids(item)
+	return classic_ids[0] if not classic_ids.is_empty() else 0
 
 
 func _expect(condition: bool, description: String) -> void:

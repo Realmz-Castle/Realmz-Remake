@@ -1,132 +1,94 @@
 extends Button
-#ItemShopButton
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-@onready var colorRect : ColorRect = $colorRect
-@onready var iconsprite : Sprite2D = $"IconSprite"
-@onready var namelabel : Label= $"ItemnameLabel"
-@onready var infolabel : Label = $"IteminfoLabel"
-@onready var priceLabel : Label = $"PricenLabel"
-@onready var weightLabel : Label = $"WeightnLabel"
-@onready var quantityLabel : Label = $"QuantityLabel"
-#onready var inventoryrect : Control = get_parent().get_parent().inventoryrect
-@onready var chargesLabel : Label = $ChargesLabel
-@onready var statsLabel : RichTextLabel = $ItemstatsRTLabel
-@onready var selectedSprite : Sprite2D = $SpriteSelected
+@onready var colorRect: ColorRect = $colorRect
+@onready var iconsprite: Sprite2D = $IconSprite
+@onready var namelabel: Label = $ItemnameLabel
+@onready var infolabel: Label = $IteminfoLabel
+@onready var priceLabel: Label = $PricenLabel
+@onready var weightLabel: Label = $WeightnLabel
+@onready var quantityLabel: Label = $QuantityLabel
+@onready var chargesLabel: Label = $ChargesLabel
+@onready var statsLabel: RichTextLabel = $ItemstatsRTLabel
+@onready var selectedSprite: Sprite2D = $SpriteSelected
 
-#onready var buttonJoin : Button = $JoinButton
-#onready var buttonSplit : Button = $SplitButton
-#onready var textfield : TextEdit = $TextEdit
-
-var item = null
-var shopVbox : Control = null
-var inventoryrect : Control = null
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-#	on_viewport_size_changed (get_window().get_size())
-#	var screensize : Vector2 = get_window().get_size()
-#	_set_size(Vector2(floor((screensize.x-320-44-20)/2), 40))
-	pass # Replace with function body.
+var item: ItemInstance = null
+var shopVbox: Control = null
+var inventoryrect: Control = null
+var listed_price: int = 0
 
 
-func on_viewport_size_changed(screensize):
-	#needed to set size expand flags checked this AND the parent vcontainer
-#	print("itembutton on_viewport_size_changed ", namelabel.text, floor((screensize.x-320-44-20)/2))
-	chargesLabel._set_position( Vector2(floor((screensize.x-320-44-20)/2) - 85 -10, 4) )
-	statsLabel._set_position( Vector2(floor((screensize.x-320-44-20)/2) - 205 -10, 20) )
-	colorRect._set_size(Vector2(floor((screensize.x-320-44-20)/2), 60))
-#	_set_size(Vector2(floor((screensize.x-320-44-20)/2), 40))
-
-#	SfxPlayer.stream = NodeAccess.__Resources().sounds_book["slurpy.ogg"]
-#	SfxPlayer.play()
+func on_viewport_size_changed(screensize: Vector2) -> void:
+	var item_width: float = floorf((screensize.x - 320 - 44 - 20) / 2)
+	chargesLabel.position = Vector2(item_width - 95, 4)
+	statsLabel.position = Vector2(item_width - 215, 20)
+	colorRect.size = Vector2(item_width, 60)
 
 
-func set_item(nitem : Dictionary, quantity, invrect, price) -> void :
+func set_item(
+	new_item: ItemInstance,
+	quantity: int,
+	invrect: Control,
+	price: int,
+) -> void:
+	item = new_item
 	inventoryrect = invrect
-#	print("item : ",item)
-	var screensize : Vector2  = ScreenUtils.get_logical_window_size(self)
-	colorRect._set_size(Vector2(floor((screensize.x-320-44-20)/2), 40))
-	_set_size(Vector2(floor((screensize.x-320-44-20)/2), 40))
-	iconsprite.set_texture( nitem["texture"] )
-	namelabel.text = nitem["name"]
-	infolabel.text = nitem["type"]
+	listed_price = price
+	var definition: ItemDefinition = (
+		NodeAccess.__Resources().get_item_definition(item)
+	)
+	if definition == null:
+		return
+	var screensize: Vector2 = ScreenUtils.get_logical_window_size(self)
+	var item_width: float = floorf(
+		(screensize.x - 320 - 44 - 20) / 2
+	)
+	colorRect.size = Vector2(item_width, 40)
+	size = Vector2(item_width, 40)
+	iconsprite.texture = NodeAccess.__Resources().item_texture(item)
+	namelabel.text = definition.display_name_for(item)
+	infolabel.text = definition.item_type
 	priceLabel.text = str(price)
-	weightLabel.text = str(nitem["weight"])
-	quantityLabel.text = str(quantity)+' X'
-	if nitem["charges_max"] == 0 :
-		chargesLabel.hide()
-	else :
+	weightLabel.text = str(definition.total_weight(item))
+	quantityLabel.text = "%d X" % quantity
+	if definition.maximum_charges > 0:
 		chargesLabel.show()
-		chargesLabel.text = 'X ' + str(nitem["charges"]) + ' / '+ str(nitem["charges_max"])
-#		var screensize : Vector2 = get_window().get_size()
-		chargesLabel._set_position( Vector2(floor((screensize.x-320-44-20)/2) - 85 -10, 4) )
-	if nitem.has("stats_mini") :
-		statsLabel.parse_bbcode(nitem["stats_mini"] )
-#		var screensize : Vector2 = get_window().get_size()
-		statsLabel._set_position( Vector2(floor((screensize.x-320-44-20)/2) - 205 -10, 20) )
-	else :
+		chargesLabel.text = "X %d / %d" % [
+			item.charges,
+			definition.maximum_charges,
+		]
+		chargesLabel.position = Vector2(item_width - 95, 4)
+	else:
+		chargesLabel.hide()
+	if not definition.stats_summary.is_empty():
+		statsLabel.parse_bbcode(definition.stats_summary)
+		statsLabel.position = Vector2(item_width - 215, 20)
+	else:
 		statsLabel.clear()
-	item = nitem
-#
-#	if nitem["splittable"]==0:
-#		remove_child(buttonJoin)
-#		remove_child(buttonSplit)
-#		remove_child()
-#		queue_free()
 
-func update_display() -> void :
+
+func update_display() -> void:
 	pass
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
-func _get_drag_data(_pos):
-	if inventoryrect==null :
-		return
-	if not GameGlobal.current_shop_accepts_item(item) :
+func _get_drag_data(_pos: Vector2) -> Variant:
+	if inventoryrect == null or item == null:
+		return null
+	var customer: Creature = inventoryrect.inventoryScrollRight.get_inventory_owner()
+	if not inventoryrect.can_purchase_shop_item(customer, item):
 		GameGlobal.play_sfx("target error.wav")
-		return
-	var itemprice = int( item["price"] * GameGlobal.get_shop(GameGlobal.currentShop)["sell_rate"] )
-	var customer = inventoryrect.inventoryScrollRight.get_inventory_owner()
-	print(itemprice ,"<>", customer.money[0], '+', GameGlobal.money_pool[0])
-	if itemprice > customer.money[0] + GameGlobal.money_pool[0] : # if
-		print(" NOT ENOUGH GOLD TO BUY THIS")
-		GameGlobal.play_sfx("target error.wav")
-		return
-	# Use another colorpicker as drag preview
-	var dragpreview = TextureRect.new()
-	dragpreview.set_texture(item["texture"])
-#	cpb.size = Vector2(50, 50)
+		return null
+	var dragpreview := TextureRect.new()
+	dragpreview.texture = NodeAccess.__Resources().item_texture(item)
 	set_drag_preview(dragpreview)
-	# Return item and its owner character as data
-	return [item, "Shop" ]  #parent is the vbox it came from
+	return [item, "Shop"]
 
 
-
-#
-#func _drop_data(_pos, data):
-#	if inventoryrect==null :
-#		return
-#
-
-
-
-
-
-
-
-#func _on_ItemSmallButton_gui_input(event):
-	#pass
-
-func _on_ItemSmallButton_mouse_entered():
-	if inventoryrect==null :
+func _on_ItemSmallButton_mouse_entered() -> void:
+	if inventoryrect == null or item == null:
 		return
 	inventoryrect.display_item_info(item)
 	colorRect.color = Color(0.9, 0.9, 0.9, 1)
 
-func _on_ItemSmallButton_mouse_exited():
-	colorRect.color = Color(1,1,1, 1)
+
+func _on_ItemSmallButton_mouse_exited() -> void:
+	colorRect.color = Color.WHITE

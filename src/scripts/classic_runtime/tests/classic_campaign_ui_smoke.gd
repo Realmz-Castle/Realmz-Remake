@@ -99,8 +99,13 @@ func _run_smoke() -> void:
 
 	var item_text: String = panel.campaignsItemList.get_item_text(campaign_index)
 	_expect(
-		item_text == "%s — Ready" % CAMPAIGN_TITLE,
+		item_text == "%s — Classic: Ready" % CAMPAIGN_TITLE,
 		"campaign list shows the manifest title and readiness state"
+	)
+	_expect(
+		panel._campaign_display_name("City of Bywater", null)
+			== "City of Bywater — Native",
+		"campaign list explicitly distinguishes native campaigns"
 	)
 	panel.campaignsItemList.select(campaign_index)
 	panel._on_campaign_selected(campaign_index)
@@ -132,6 +137,14 @@ func _run_smoke() -> void:
 			and _profile_character("Traskelion") != null
 			and GameGlobal.profile_characters_list.size() == 8,
 		"selecting a ready Classic campaign adds the seven stock characters"
+	)
+	var stock_character_button := _character_button(
+		panel.charPickRect.eligibleContainer.get_children(),
+		"Tristan"
+	)
+	_expect(
+		stock_character_button != null and not stock_character_button.disabled,
+		"a Ready Classic campaign accepts a stock Classic character"
 	)
 	panel._on_CreateCharacterButton_pressed()
 	await get_tree().process_frame

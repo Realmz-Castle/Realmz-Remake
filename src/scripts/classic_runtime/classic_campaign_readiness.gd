@@ -761,51 +761,29 @@ func _check_item_ids(
 	var item_ids: Variant = encounter.get("itemIds", [])
 	if not (item_ids is Array):
 		return
-	var item_texts: Array = []
-	var content: Variant = bundle.documents.get("content", {})
-	if content is Dictionary and content.get("itemTexts", []) is Array:
-		item_texts = content.get("itemTexts", [])
 	for item_id_value: Variant in item_ids:
 		var raw_item_id := int(item_id_value)
 		if raw_item_id in [0, -1]:
 			continue
 		var item_id: int = abs(raw_item_id)
-		if _is_empty_scenario_item_response(bundle, item_id):
+		if bundle.is_empty_scenario_item(item_id):
 			continue
 		var native_items: Variant = _native_context.get("items", {})
 		var item_book: Dictionary = native_items if native_items is Dictionary else {}
-		var names: Array = _adapter._classic_item_names(
-			item_id, _item_mapping, item_texts, item_book
-		)
-		if names.is_empty():
-			_add_blocker(
-				"unresolved-item-identity",
-				"Data ED2",
-				encounter_id,
-				-1,
-				"Complex encounter item %d has no Remake identity" % item_id,
-				{"referenceId": item_id}
-			)
-			continue
 		if not (native_items is Dictionary) or native_items.is_empty():
 			continue
-		var has_native_item := false
-		var native_item: Dictionary = {}
-		for item_name: String in names:
-			if native_items.has(item_name):
-				has_native_item = true
-				var item_value: Variant = native_items[item_name]
-				if item_value is Dictionary:
-					native_item = item_value
-				break
-		if not has_native_item:
+		var native_item := _native_item_for_classic_id(item_id, item_book)
+		if native_item.is_empty():
 			_add_blocker(
 				"missing-native-item",
 				"Data ED2",
 				encounter_id,
 				-1,
-				"Complex encounter item %d has no native Remake resource" % item_id,
-				{"referenceId": item_id, "candidateNames": names}
+				(
+					"Complex encounter item %d has no native Remake resource "
+					+ "with explicit Classic identity metadata"
+				) % item_id,
+				{"referenceId": item_id}
 			)
 			continue
 		var materialization: Variant = native_item.get("classicMaterialization", {})
@@ -822,6 +800,27 @@ func _check_item_ids(
 					"unsupportedFields": materialization.get("unsupportedFields", []),
 				}
 			)
+
+
+func _native_item_for_classic_id(
+	item_id: int,
+	native_items: Dictionary,
+) -> Dictionary:
+	for item_value: Variant in native_items.values():
+		if not (item_value is Dictionary):
+			continue
+		var ids: Array[int] = []
+		if item_value.has("classicItemId"):
+			ids.append(abs(int(item_value["classicItemId"])))
+		var aliases: Variant = item_value.get("classicItemIds", [])
+		if aliases is Array:
+			for alias_value: Variant in aliases:
+				var alias_id: int = abs(int(alias_value))
+				if alias_id != 0 and not ids.has(alias_id):
+					ids.append(alias_id)
+		if ids.has(item_id):
+			return item_value
+	return {}
 
 
 func _check_spell_ids(
@@ -1198,38 +1197,6 @@ func _check_native_effect_spell(
 			"Mapped spell '%s' has no executable Classic save behavior" % spell_name,
 			{"referenceId": spell_id, "nativeName": spell_name, "ownerId": owner_id}
 		)
-
-
-func _is_empty_scenario_item_response(bundle: ClassicCampaignBundle, item_id: int) -> bool:
-	var scenario_item := bundle.get_scenario_item(item_id)
-	if scenario_item.is_empty() or not bundle.get_item_text(item_id).is_empty():
-		return false
-	for key_value: Variant in scenario_item.keys():
-		var key := str(key_value)
-		if key in ["id", "itemId", "authored", "provenance", "rawBytes"]:
-			continue
-		if _identity_value_has_content(scenario_item[key_value]):
-			return false
-	return true
-
-
-func _identity_value_has_content(value: Variant) -> bool:
-	if value is bool:
-		return value
-	if value is int or value is float:
-		return value != 0
-	if value is String:
-		return not value.strip_edges().is_empty()
-	if value is Array:
-		for nested_value: Variant in value:
-			if _identity_value_has_content(nested_value):
-				return true
-		return false
-	if value is Dictionary:
-		for nested_value: Variant in value.values():
-			if _identity_value_has_content(nested_value):
-				return true
-	return false
 
 
 func _add_action_dependency(

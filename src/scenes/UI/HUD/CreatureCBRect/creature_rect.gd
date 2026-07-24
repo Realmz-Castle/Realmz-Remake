@@ -78,48 +78,60 @@ func display_crea_info(creabutton : CombatCreaButton) :
 	_on_status_timer_timeout()
 #	iconsprite.set_texture( nitem["texture"] )
 
-	var crea_melee_item : Dictionary = my_crea.current_melee_weapons[0]
-	var crea_range_item : Dictionary = my_crea.current_range_weapon
-	var crea_ammo_item : Dictionary = my_crea.current_ammo_weapon
-	
-	if crea_melee_item["name"] == "NO_MELEE_WEAPON" :
+	var resources = NodeAccess.__Resources()
+	var crea_melee_item: ItemInstance = (
+		my_crea.current_melee_weapon_instances[0]
+		if not my_crea.current_melee_weapon_instances.is_empty() else null
+	)
+	var crea_range_item: ItemInstance = my_crea.current_range_weapon_instance
+	var crea_ammo_item: ItemInstance = my_crea.current_ammo_weapon_instance
+	var melee_definition := resources.get_item_definition(crea_melee_item)
+	var range_definition := resources.get_item_definition(crea_range_item)
+	var ammo_definition := resources.get_item_definition(crea_ammo_item)
+	if crea_melee_item == null:
 		creaMeleeButton.icon = melee_unarmed
-	else :
-		creaMeleeButton.icon = crea_melee_item["texture"]
-	creaMeleeButton.disabled = not crea_melee_item["charges"]>0
+	else:
+		creaMeleeButton.icon = resources.item_texture(crea_melee_item)
+	creaMeleeButton.disabled = (
+			melee_definition != null
+			and melee_definition.maximum_charges > 0
+			and crea_melee_item.charges <= 0
+		)
 	creaMeleeCLabel.text = generate_item_charges_txt(crea_melee_item)
 
-	if crea_range_item["name"] == "NO_RANGE_WEAPON" :
+	if crea_range_item == null:
 		creaRangeButton.icon = null
 		creaRangeButton.disabled = true
-	else :
-		creaRangeButton.icon = crea_range_item["texture"]
-#		print("Creaturerect crea_range_item : ", crea_range_item)
-		var noneedammo : bool = crea_range_item["ammo_type"]=="none"
-		var hasammo : bool = crea_ammo_item["charges_max"]==0 or crea_ammo_item["charges"]>0
+	else:
+		creaRangeButton.icon = resources.item_texture(crea_range_item)
+		var noneedammo: bool = range_definition != null \
+			and range_definition.ammo_type == "none"
+		var hasammo := crea_ammo_item != null and (
+			ammo_definition == null
+			or ammo_definition.maximum_charges == 0
+			or crea_ammo_item.charges > 0
+		)
 		creaRangeButton.disabled = not (noneedammo or hasammo)
 	creaRangeCLabel.text = generate_item_charges_txt(crea_range_item)
 
-	if crea_ammo_item["name"] == "NO_AMMO_WEAPON" :
+	if crea_ammo_item == null:
 		creaAmmoButton.icon = null
-	else :
-		creaAmmoButton.icon = crea_ammo_item["texture"]
-	creaAmmoCLabel.text = generate_item_charges_txt(crea_range_item)
+	else:
+		creaAmmoButton.icon = resources.item_texture(crea_ammo_item)
+	creaAmmoCLabel.text = generate_item_charges_txt(crea_ammo_item)
 
 	var crea_is_pc_ally : bool = my_crea.get("classgd") and my_crea.curFaction==0
 	creaMeleeButton.disabled = not crea_is_pc_ally
 	creaRangeButton.disabled = not crea_is_pc_ally
 	creaAmmoButton.disabled = not crea_is_pc_ally
 
-func generate_item_charges_txt(item : Dictionary) -> String :
-	var crea_melee_charges_txt : String = ''
-	if item["name"] == "NO_MELEE_WEAPON" :
-		return crea_melee_charges_txt
-	if item.has("charges") :
-		crea_melee_charges_txt = "Charges : "+str(item["charges"])
-	if item.has("charges_max") : 
-		crea_melee_charges_txt += '/'+str(item["charges_max"])
-	return crea_melee_charges_txt
+func generate_item_charges_txt(item: ItemInstance) -> String:
+	if item == null:
+		return ""
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	if definition == null or definition.maximum_charges <= 0:
+		return ""
+	return "Charges : %d/%d" % [item.charges, definition.maximum_charges]
 
 
 func _on_status_timer_timeout():
@@ -134,13 +146,20 @@ func _on_status_timer_timeout():
 
 func _on_melee_button_pressed():
 	_on_mouse_entered()
-	StateMachine.state.use_inventory_item(my_crea.current_melee_weapons[0], my_crea)
+	if not my_crea.current_melee_weapon_instances.is_empty():
+		StateMachine.state.use_inventory_item(
+			my_crea.current_melee_weapon_instances[0],
+			my_crea,
+		)
 
 
 func _on_range_button_pressed():
 	_on_mouse_entered()
-	print("Creature_rect _on_range_button_pressed", my_crea.current_range_weapon )
-	StateMachine.state.use_inventory_item(my_crea.current_range_weapon, my_crea)
+	if my_crea.current_range_weapon_instance != null:
+		StateMachine.state.use_inventory_item(
+			my_crea.current_range_weapon_instance,
+			my_crea,
+		)
 	#if my_crea.current_range_weapon.has("_on_combat_use_spell") :
 		#var spellname : String = my_crea.current_range_weapon["_on_combat_use_spell"][0]
 		#var spellpower : int = my_crea.current_range_weapon["_on_combat_use_spell"][1]
@@ -156,24 +175,42 @@ func _on_ammo_button_pressed():
 	for c in creaAmmoVBox.get_children() :
 		c.queue_free()
 	creaAmmoPanel.show()
-	for i in my_crea.inventory :
-		if i["slots"].has("Ammunition") :
-			if my_crea.current_range_weapon["ammo_type"]==i["ammo_type"] :
+	var resources = NodeAccess.__Resources()
+	var range_definition := resources.get_item_definition(
+		my_crea.current_range_weapon_instance
+	)
+	for i: ItemInstance in my_crea.inventory_instances():
+		var definition := resources.get_item_definition(i)
+		if definition != null and definition.slots().has("Ammunition"):
+			if range_definition != null \
+					and range_definition.ammo_type == definition.ammo_type:
 				var ibutton : Button = Button.new()
-				var chargestext : String =  str(i["charges"])+'/'+str(i["charges_max"]) if i["charges_max"]>0 else "infinite"
-				var equippedtext : String = " (equipped)" if my_crea.current_ammo_weapon==i else ""
-				ibutton.text = i["name"]+ ' : ' + chargestext + equippedtext
+				var chargestext := (
+					"%d/%d" % [i.charges, definition.maximum_charges]
+					if definition.maximum_charges > 0 else "infinite"
+				)
+				var equippedtext := (
+					" (equipped)"
+					if my_crea.current_ammo_weapon_instance == i else ""
+				)
+				ibutton.text = (
+					definition.display_name_for(i)
+					+ " : "
+					+ chargestext
+					+ equippedtext
+				)
 				creaAmmoVBox.add_child(ibutton)
 				ibutton.pressed.connect(_on_ammoselectbutton_pressed.bind(i, my_crea))
 	if creaAmmoVBox.get_children().is_empty() :
 		creaAmmoPanel.hide()
 
 
-func _on_ammoselectbutton_pressed(ammo_item : Dictionary, crea) :
+func _on_ammoselectbutton_pressed(ammo_item: ItemInstance, crea: Creature) -> void:
 	_on_mouse_entered()
 	if not crea.get("classgd") :
 		return
-	crea.unequip_item(my_crea.current_ammo_weapon)
+	if my_crea.current_ammo_weapon_instance != null:
+		crea.unequip_item(my_crea.current_ammo_weapon_instance)
 	crea.equip_item(ammo_item)
 	creaAmmoPanel.hide()
 	display_crea_info(my_crea_button)

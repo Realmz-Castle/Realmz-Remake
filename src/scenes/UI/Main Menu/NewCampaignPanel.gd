@@ -315,12 +315,7 @@ func fill() -> void :
 	for campaign_value: Variant in campaignslist:
 		var campaign_name := str(campaign_value)
 		var selection_rules: Variant = GameGlobal.get_campaign_selection_rules(campaign_name)
-		var display_name := campaign_name
-		if selection_rules is Dictionary:
-			display_name = "%s — %s" % [
-				selection_rules.get("title", campaign_name),
-				selection_rules.get("readinessState", "Invalid"),
-			]
+		var display_name := _campaign_display_name(campaign_name, selection_rules)
 		var busy := false
 		if GameGlobal.honest_mode :
 			var savepath : String = (
@@ -343,6 +338,15 @@ func fill() -> void :
 		})
 
 	return
+
+
+func _campaign_display_name(campaign_name: String, selection_rules: Variant) -> String:
+	if selection_rules is Dictionary:
+		return "%s — Classic: %s" % [
+			selection_rules.get("title", campaign_name),
+			selection_rules.get("readinessState", "Invalid"),
+		]
+	return "%s — Native" % campaign_name
 
 
 func _on_CreateCharacterButton_pressed() -> void:

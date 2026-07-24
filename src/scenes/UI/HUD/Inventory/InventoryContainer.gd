@@ -1,108 +1,63 @@
 extends ScrollContainer
 class_name CharacterInventoryContainer
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+@export var is_hud_selected := false
 
-#does this display the inventory of the character selected in the main hud ?
-@export var is_hud_selected : bool = false
-
-@onready var mybox = self.get_child(0)
+@onready var mybox = get_child(0)
 var inventoryrect = null
+var belongstoally := false:
+	set(value):
+		belongstoally = value
+		modulate = Color(1, 1, 1, 0.75) if value else Color.WHITE
 
-var belongstoally : bool = false  : set = set_belongstoally
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-func set_belongstoally(value : bool) :
-	belongstoally = value
-	modulate = Color(1,1,1,0.75) if value else Color.WHITE
-
-func _can_drop_data(_pos, data):
-	if belongstoally :
+func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
+	if belongstoally or not _valid_drag_data(data):
 		return false
-	# good enough to prove it's an item !
-	if (typeof(data[0]) == TYPE_DICTIONARY and data[0].has("imgdata") ) :
-		var mycharacter = get_inventory_owner()
-		var characteritemcamefrom = data[1]
-		if typeof(characteritemcamefrom) != TYPE_STRING :
-			if mycharacter == characteritemcamefrom :
-				return true
-			else :
-				if data[0]["is_unique"] and  GameGlobal.enforce_unique_items :
-					print("CharacterInventoryContainer "+name+" : Item is unique !")
-					return not GameGlobal.does_party_have_same_item(data[0])[0] and (data[0]["tradeable"]==1 or data[1]=="Shop")
-				return data[0]["tradeable"]==1 or data[1]=="Shop"
-		else :
-			if characteritemcamefrom == "Shop" :
-				if not GameGlobal.current_shop_accepts_item(data[0]) :
-					return false
-				var shop = GameGlobal.get_shop(GameGlobal.currentShop)
-				var price = int(data[0]["price"]*shop["sell_rate"])
-				return mycharacter.can_add_inventory_item(data[0]) and  mycharacter.money[0]+GameGlobal.money_pool[0]>=price # check for money first
-				
-				
-func _drop_data(_pos, data):
-	print("CharacterInventoryContainer "+name+" _drop_data ")
-	var item = data[0]
-	var characteritemcamefrom = data[1]
-	var mycharacter = get_inventory_owner()
-	
-	if typeof(characteritemcamefrom) != TYPE_STRING :
-		if characteritemcamefrom == mycharacter :
-			return
-		else :
-			
-			if mycharacter.can_add_inventory_item(item) :
-				#if selchar.drop_inventory_item(item) :
-				characteritemcamefrom.inventory.erase(item)
-				mycharacter.add_inventory_item(item)
-			else :
-				SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.ogg']
-				SfxPlayer.play()
-	else : 
-		if characteritemcamefrom == "Shop" :
-			print ("INcvoentoryContainer: char money : ", mycharacter.money[0], ", pool : ", GameGlobal.money_pool[0])
-			if mycharacter.can_add_inventory_item(item) :
-				#if selchar.drop_inventory_item(item) :
-				var shop = GameGlobal.get_shop(GameGlobal.currentShop)
-#				characteritemcamefrom.inventory.erase(item)
-				if not inventoryrect.shopRect.remove_one_from_stock(item):
-					return
-				mycharacter.add_inventory_item(item)
-				#deduct money
-				var price = int(item["price"]*shop["sell_rate"])
-				print("INcvoentoryContainer: price : ", price)
-				var balances: Array[int] = GameGlobal.shop_purchase_balances(
-					mycharacter.money[0],
-					GameGlobal.money_pool[0],
-					price
-				)
-				mycharacter.money[0] = balances[0]
-				GameGlobal.money_pool[0] = balances[1]
-				print ("INcvoentoryContainer: char money : ", mycharacter.money[0], ", pool : ", GameGlobal.money_pool[0])
-				inventoryrect.shopRect.goldLabel.text = str(mycharacter.money[0])
-				inventoryrect.shopRect.poolLabel.text = str( GameGlobal.money_pool[0] )
-				inventoryrect.shopRect.fillVbox(inventoryrect.shopRect.current_shop_category)
-			else :
-				SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.ogg']
-				SfxPlayer.play()
+	var item: ItemInstance = data[0]
+	var source: Variant = data[1]
+	var mycharacter: Creature = get_inventory_owner()
+	if source is Creature:
+		if source == mycharacter:
+			return true
+		var definition := NodeAccess.__Resources().get_item_definition(item)
+		if definition == null or not definition.tradeable:
+			return false
+		if definition.unique and GameGlobal.enforce_unique_items:
+			if GameGlobal.does_party_have_same_item(item)[0]:
+				return false
+		return mycharacter.can_add_inventory_item(item)
+	if source == "Shop":
+		return inventoryrect.can_purchase_shop_item(mycharacter, item)
+	return false
 
-#		characteritemcamefrom.inventory.erase(item)
-#		mycharacter.inventory.append(item)
-		
-	print("INcvoentoryContainer "+name+" fill_inventory_Vbox ", inventoryrect.inventoryBoxLeft, inventoryrect.inventoryBoxLeft.get_parent().get_inventory_owner() )
-	inventoryrect.fill_inventory_Vbox(inventoryrect.inventoryBoxLeft, inventoryrect.inventoryBoxLeft.get_parent().get_inventory_owner())
-	inventoryrect.fill_inventory_Vbox(inventoryrect.inventoryBoxRight, inventoryrect.inventoryBoxRight.get_parent().get_inventory_owner())
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
-func get_inventory_owner() :
-	if is_hud_selected :
+func _drop_data(_pos: Vector2, data: Variant) -> void:
+	if belongstoally or not _valid_drag_data(data):
+		return
+	var item: ItemInstance = data[0]
+	var source: Variant = data[1]
+	var mycharacter: Creature = get_inventory_owner()
+	var changed := false
+	if source is Creature:
+		if source != mycharacter:
+			changed = source.transfer_inventory_item_to(mycharacter, item)
+	elif source == "Shop":
+		changed = inventoryrect.purchase_shop_item(mycharacter, item)
+	if not changed:
+		GameGlobal.play_sfx("generation error.ogg")
+	inventoryrect.refresh_inventory_lists()
+
+
+func get_inventory_owner() -> Creature:
+	if is_hud_selected:
 		return inventoryrect.hud.selected_character
-	else :
-		return inventoryrect.selectedTradeCharacter
+	return inventoryrect.selectedTradeCharacter
+
+
+func _valid_drag_data(data: Variant) -> bool:
+	return (
+		data is Array
+		and data.size() >= 2
+		and data[0] is ItemInstance
+	)

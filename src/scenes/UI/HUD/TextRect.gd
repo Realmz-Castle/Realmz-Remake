@@ -44,56 +44,59 @@ func on_viewport_size_changed(screensize:Vector2) :
 #
 #	choicesContainer.on_viewport_size_changed(screensize)
 
-func set_item_info(item : Dictionary) :
+func set_item_info(item: ItemInstance) -> void:
+	if item == null:
+		return
+	var resources = NodeAccess.__Resources()
+	var definition := resources.get_item_definition(item)
+	if definition == null:
+		return
 	aoetex.hide()
 	itemtex.show()
-	itemtex.texture = item["texture"]
-	var text = "          "+item["name"]+" : "+item["type"]#+' imgdatasize'+str(item["imgdatasize"])
-
-	if item.has("slots") :
-		if not item["slots"].is_empty() :
-			text += "\t\t( "
-			for s in item["slots"] :
-				text += s+' '
-			text += ")"
-	text +="\n          Price : "+str(item["price"])+"\tWeight : "+str(item["weight"])
-	if item.has("charges_max") :
-		if item["charges_max"] >0 :
-			text +="\tCharges : "+str(item["charges"])+'/'+str(item["charges_max"])
-	text +="\n"+item["description"]
-	if item.has("weapon_dmg") :
-		text +="\nWeapon Damage :\t"
-		for t in item["weapon_dmg"] :
-			text += t+' : '+str(item["weapon_dmg"][t][0])+'-'+str(item["weapon_dmg"][t][1])+' \t'
-	if item.has("stats") :
-		if not item["stats"].is_empty() :
-			text +="\nStats :\t"
-			for s in item["stats"] :
-				text += s+' : '+str(item["stats"][s])+' \t'
-	if item.has("traits") :
-		if not item["traits"].is_empty() :
-			var traitsnameslist : Array = []
-			for t in item["traits"] :
-				print("TextRect t : ",t)
-				var traitname = t[0]
-#				print(item["name"]+"traitname : ",traitname)
-				var traitscript = item[traitname][0]
-#				print(item["name"]+" traitname : ",traitname," traitscript ",traitscript.get_source_code())
-#				var traitinstance = traitscript.new()
-				traitsnameslist.append(traitscript.menuname)
-			text +="\nStatus Effects :\t"
-			for tn in traitsnameslist :
-				text +=tn+" \t"
-	if item.has("equippable") :
-		if item["equippable"]>0 :
-			var canequiplist : Array = []
-			for pc in GameGlobal.player_characters :
-				#if item["type"].begins_with("Misc.") : continue
-				if pc.equippable_types[item["type"]]>0 :
-					canequiplist.append(pc.name)
-			text += "\nCan be equipped by : "
-			for n in canequiplist :
-				text +=n+' '
+	itemtex.texture = resources.item_texture(item)
+	var text := "          %s : %s" % [
+		definition.display_name_for(item),
+		definition.item_type,
+	]
+	var slots := definition.slots()
+	if not slots.is_empty():
+		text += "\t\t( %s )" % " ".join(slots)
+	text += "\n          Price : %d\tWeight : %d" % [
+		definition.price,
+		definition.total_weight(item),
+	]
+	if item.identified and definition.maximum_charges > 0:
+		text += "\tCharges : %d/%d" % [
+			item.charges,
+			definition.maximum_charges,
+		]
+	text += "\n" + definition.description_for(item)
+	if item.identified:
+		var weapon_damage := definition.weapon_damage()
+		if not weapon_damage.is_empty():
+			text += "\nWeapon Damage :\t"
+			for damage_type: Variant in weapon_damage:
+				var damage: Variant = weapon_damage[damage_type]
+				if damage is Array and damage.size() >= 2:
+					text += "%s : %s-%s \t" % [
+						damage_type,
+						damage[0],
+						damage[1],
+					]
+		var stats := definition.stats()
+		if not stats.is_empty():
+			text += "\nStats :\t"
+			for stat_name: Variant in stats:
+				text += "%s : %s \t" % [stat_name, stats[stat_name]]
+		var trait_names := resources.item_trait_display_names(item)
+		if not trait_names.is_empty():
+			text += "\nStatus Effects :\t%s" % " \t".join(trait_names)
+	if definition.equippable:
+		var can_equip: Array[String] = []
+		for pc: PlayerCharacter in GameGlobal.player_characters:
+			if int(pc.equippable_types.get(definition.item_type, 0)) > 0:
+				can_equip.append(pc.name)
+		text += "\nCan be equipped by : %s" % " ".join(can_equip)
 			
 #	if item.has("weapon_dmg") :
 #		text +="\n"

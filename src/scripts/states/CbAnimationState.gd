@@ -210,7 +210,7 @@ func enter(_msg : Dictionary = {}) -> void:
 				#recalculate the affected creas and tiles !
 				var a_spell = cur_action["spell"]
 				var a_power : int = cur_action["s_plvl"]
-				var used_item: Dictionary = cur_action.get("used_item", {})
+				var used_item: Variant = cur_action.get("used_item")
 				var suppress_spell_reflection := bool(
 					cur_action.get("suppress_spell_reflection", false)
 				)
@@ -279,12 +279,25 @@ func enter(_msg : Dictionary = {}) -> void:
 				if current_entry != entry_serial:
 					return
 				print("CbAnim l 196 just played anim for spell "+a_spell.name)
-				if not used_item.is_empty() :
-					if used_item.has("ammo_type") :
-						a_castercrea.current_ammo_weapon["charges"] -= 1
-					else :
-						if used_item["charges_max"]>0 :
-							used_item["charges"] -=1
+				if used_item is ItemInstance:
+					var used_definition := (
+						GameGlobal.cmp_resources.get_item_definition(used_item)
+					)
+					if used_definition != null \
+							and used_definition.ammo_type != "cantuse":
+						a_castercrea.consume_item_charges(
+							a_castercrea.current_ammo_weapon_instance,
+						)
+					elif used_definition != null \
+							and used_definition.maximum_charges > 0:
+						a_castercrea.consume_item_charges(used_item)
+				elif used_item is Dictionary and not used_item.is_empty():
+					if used_item.has("ammo_type"):
+						a_castercrea.consume_item_charges(
+							a_castercrea.current_ammo_weapon_instance,
+						)
+					elif int(used_item.get("charges_max", 0)) > 0:
+						a_castercrea.consume_item_charges(used_item)
 				#call_deferred("play_spell_resolution", a_spell.proj_hit, a_caster, a_effected_tiles, a_effected_creas)
 				CLASSIC_SPELL_REFLECTION_SCRIPT.begin_resolution(
 					a_spell,
@@ -654,11 +667,19 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		weapon
 	):
 		defendercb = attackercb
+	var weapon_instance: ItemInstance = attackercb.creature.get_item_instance(
+		weapon
+	)
+	var item_resources = NodeAccess.__Resources()
+	var weapon_definition := item_resources.get_item_definition(weapon_instance) \
+		if weapon_instance != null else null
 	var picture : String = "ATK_WPN"
-	if weapon.has("melee_atk_anim_icon") :
-		picture = weapon["melee_atk_anim_icon"]
-	else :
-		if weapon["name"]=="NO_MELEE_WEAPON" :
+	if weapon_definition != null and not weapon_definition.melee_animation.is_empty():
+		picture = weapon_definition.melee_animation
+	elif weapon is Dictionary:
+		if weapon.has("melee_atk_anim_icon"):
+			picture = weapon["melee_atk_anim_icon"]
+		elif str(weapon.get("name", "")) == "NO_MELEE_WEAPON":
 			picture = "ATK_HTH"
 	var crit_rate : float = attackercb.creature.get_stat("Melee_Crit_Rate")
 	var crit_mult : float = attackercb.creature.get_stat("Melee_Crit_Mult")
@@ -681,7 +702,10 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		var defender = defendercb
 		defender.creature.mark_classic_attacked()
 		
-		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[weapon["sound"]]
+		var weapon_sound := weapon_definition.sound_key \
+			if weapon_definition != null else str(weapon.get("sound", "")) \
+			if weapon is Dictionary else ""
+		SfxPlayer.stream = item_resources.sounds_book[weapon_sound]
 		UI.ow_hud.creatureRect.logrect.log_melee_attack(attacker,defender,damage_detail, accuracy, is_crit, crit_mult, crit_rate)
 		defender.display_effect(picture, damage_detail["total"], 0.8 *2)
 		SfxPlayer.play()
@@ -690,7 +714,8 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		var classic_special: Dictionary = CLASSIC_MONSTER_SPECIAL_ATTACK_SCRIPT.apply_from_weapon(
 			attacker.creature,
 			defender.creature,
-			weapon,
+			item_resources.legacy_item_view_for_adapter(weapon_instance)
+				if weapon_instance != null else weapon,
 			-1,
 			GameGlobal.classic_party_charm_resistance_bonus(defender.creature)
 		)
@@ -699,8 +724,28 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 				"message", "Classic monster special attack failed"
 			)))
 		defender.creature.change_cur_hp(-damage_detail["total"])
-		print('GameGlobal weapon.has("melee_inflicted_traits") ? ', weapon.has("melee_inflicted_traits"))
-		if weapon.has("melee_inflicted_traits") :
+		if weapon_instance != null:
+			var resolved_traits: Dictionary = item_resources.item_trait_bindings(
+				weapon_instance,
+				true,
+			)
+			if not bool(resolved_traits.get("ok", false)):
+				for message: Variant in resolved_traits.get("errors", []):
+					push_error(str(message))
+			for binding_value: Variant in resolved_traits.get("bindings", []):
+				var binding: Dictionary = binding_value
+				if randf() <= float(binding.get("chance", 1.0)):
+					var traitinstance = defender.creature.add_trait(
+						binding.get("script"),
+						binding.get("arguments", []),
+					)
+					UI.ow_hud.creatureRect.logrect.log_other_text(
+						attacker.creature,
+						"'s attack inflicted " + traitinstance.menuname + " to ",
+						defender.creature,
+						"",
+					)
+		elif weapon.has("melee_inflicted_traits") :
 			var inflicted_traits_array : Array = weapon["melee_inflicted_traits"]
 			# looks like [traitname:String, traitinitargs : Array, chance : float]
 			for itr : Array in inflicted_traits_array :

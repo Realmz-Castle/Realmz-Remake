@@ -16,7 +16,9 @@ func _ready() :
 
 func _on_item_used(item, character) :
 	var textRect = UI.ow_hud.textRect
-	textRect.set_text(character.name+' used '+item["name"]+' !')
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	var item_name := definition.display_name_for(item) if definition != null else ""
+	textRect.set_text(character.name + " used " + item_name + " !")
 
 func _on_ActionButton_pressed() :
 	var textRect = UI.ow_hud.textRect

@@ -18,12 +18,24 @@ const ClassicMagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
 const ItemCatalogScript = preload("res://scripts/items/item_catalog.gd")
+const ItemSerializationScript = preload(
+	"res://scripts/items/item_serialization.gd"
+)
+const ItemHookRuntimeScript = preload(
+	"res://scripts/items/item_hook_runtime.gd"
+)
+const ClassicItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const LEGACY_ITEM_IDENTITY_STATE_KEY := "legacyDefinitionIdentity"
 var g_scripts = {}
 
 var images_book : Dictionary = {}
 var tiles_book : Dictionary = {}	#contains data about the tiles used in maps
 var items_book : Dictionary = {}	# contains models of standard items.
 var item_catalog: ItemCatalog = ItemCatalogScript.new()
+var item_serialization: ItemSerialization = ItemSerializationScript.new(
+	item_catalog
+)
+var item_hooks: ItemHookRuntime = ItemHookRuntimeScript.new()
 var crea_book: Dictionary = {}	# contains dicts defining creatures for combat.
 var battles_book : Dictionary = {}	# contains dicts defining battles.
 var creascripts_book : Dictionary = {}	#a  dict of  scriptname:creature ai gdscript
@@ -61,6 +73,7 @@ func clear_ressources() -> void:
 	map_info_book.clear()
 	items_book.clear()
 	item_catalog.clear()
+	item_hooks.clear()
 	sounds_book.clear()
 	musics_book.clear()
 	musics_types_book.clear()
@@ -193,7 +206,11 @@ func load_tile_resources( path : String ) -> void:
 	print("Done loading tiles from : ", path)
 	return
 
-func load_item_resources(path: String, campaign_id := "") -> bool:
+func load_item_resources(
+	path: String,
+	campaign_id := "",
+	preserve_existing_campaign_definitions := false,
+) -> bool:
 	# load the item data at the "path" location
 	print("Resources.load_item_resources("+path+')')
 	var load_from_pack : bool = path.contains("shared_assets")
@@ -212,11 +229,20 @@ func load_item_resources(path: String, campaign_id := "") -> bool:
 		return false
 	var n_item_img_pack: Dictionary = image_book_result["value"]
 	var n_item_stuff_book: Dictionary = item_book_result["value"]
+	if load_from_pack:
+		n_item_stuff_book = _shared_item_book_with_classic_ids(
+			n_item_stuff_book
+		)
 	if not _validate_item_image_book(n_item_img_pack, image_book_path):
 		return false
 	var source_scope := "shared" if load_from_pack else "campaign"
 	if source_scope == "campaign" and campaign_id.strip_edges().is_empty():
 		campaign_id = _item_campaign_id(path)
+	if source_scope == "campaign" and preserve_existing_campaign_definitions:
+		n_item_stuff_book = _without_existing_campaign_item_definitions(
+			n_item_stuff_book,
+			campaign_id,
+		)
 	var available_image_keys := {}
 	for loaded_image_key: Variant in images_book:
 		available_image_keys[loaded_image_key] = true
@@ -282,8 +308,87 @@ func load_item_resources(path: String, campaign_id := "") -> bool:
 				or not item_catalog.bind_legacy_template(definition_id, new_item):
 			_report_item_catalog_errors()
 			return false
+		var definition := item_catalog.get_definition(definition_id)
+		if definition != null and not _register_item_custom_spell(definition):
+			return false
 	items_book.merge(staged_item_book, true)
 	return true
+
+
+func _shared_item_book_with_classic_ids(item_book: Dictionary) -> Dictionary:
+	var enriched_book := item_book.duplicate(true)
+	var mapping_source := ClassicItemIdsScript.new()
+	var mapping_value: Variant = mapping_source.get("mapping")
+	if not (mapping_value is Dictionary):
+		return enriched_book
+	var ids_by_catalog_key: Dictionary = {}
+	for item_id_value: Variant in mapping_value:
+		var item_id: int = abs(int(item_id_value))
+		var catalog_key := str(mapping_value[item_id_value])
+		if item_id == 0 or not enriched_book.has(catalog_key):
+			continue
+		if not ids_by_catalog_key.has(catalog_key):
+			ids_by_catalog_key[catalog_key] = []
+		var item_ids: Array = ids_by_catalog_key[catalog_key]
+		if not item_ids.has(item_id):
+			item_ids.append(item_id)
+	for catalog_key: String in ids_by_catalog_key:
+		var source_value: Variant = enriched_book[catalog_key]
+		if not (source_value is Dictionary):
+			continue
+		var source: Dictionary = source_value
+		var merged_ids: Array = []
+		if source.has("classicItemId"):
+			merged_ids.append(abs(int(source["classicItemId"])))
+		var authored_aliases: Variant = source.get("classicItemIds", [])
+		if authored_aliases is Array:
+			for authored_id_value: Variant in authored_aliases:
+				var authored_id: int = abs(int(authored_id_value))
+				if authored_id != 0 and not merged_ids.has(authored_id):
+					merged_ids.append(authored_id)
+		for mapped_id_value: Variant in ids_by_catalog_key[catalog_key]:
+			var mapped_id: int = abs(int(mapped_id_value))
+			if mapped_id != 0 and not merged_ids.has(mapped_id):
+				merged_ids.append(mapped_id)
+		source["classicItemId"] = merged_ids[0]
+		source["classicItemIds"] = merged_ids
+	return enriched_book
+
+
+func _without_existing_campaign_item_definitions(
+	item_book: Dictionary,
+	campaign_id: String,
+) -> Dictionary:
+	var additions := {}
+	for catalog_key_value: Variant in item_book:
+		var catalog_key := str(catalog_key_value)
+		if not item_book[catalog_key_value] is Dictionary:
+			continue
+		if not item_catalog.resolve_catalog_key(
+			"campaign",
+			campaign_id,
+			catalog_key,
+		).is_empty():
+			continue
+		var source: Dictionary = item_book[catalog_key_value]
+		var classic_ids: Array[int] = []
+		if source.has("classicItemId"):
+			classic_ids.append(abs(int(source["classicItemId"])))
+		var alias_values: Variant = source.get("classicItemIds", [])
+		if alias_values is Array:
+			for alias_value: Variant in alias_values:
+				var alias_id: int = abs(int(alias_value))
+				if alias_id != 0 and not classic_ids.has(alias_id):
+					classic_ids.append(alias_id)
+		var already_resolved := false
+		for item_id: int in classic_ids:
+			if item_catalog.resolve_classic_item(campaign_id, item_id) \
+					.begins_with("classic:%s:" % campaign_id):
+				already_resolved = true
+				break
+		if not already_resolved:
+			additions[catalog_key] = source.duplicate(true)
+	return additions
 
 
 func create_item_instance(
@@ -299,6 +404,194 @@ func create_item_instance(
 	return instance
 
 
+func ensure_shared_item_catalog_loaded() -> bool:
+	if item_catalog.get_definition("shared:Dagger") != null:
+		return true
+	return load_item_resources("res://shared_assets/items/")
+
+
+func get_item_definition(instance: ItemInstance) -> ItemDefinition:
+	if instance == null:
+		return null
+	return item_catalog.get_definition(instance.definition_id)
+
+
+func resolve_classic_item_definition(item_id: int) -> ItemDefinition:
+	var definition_id := item_catalog.resolve_classic_item(
+		item_catalog.active_campaign_id(),
+		item_id,
+	)
+	return item_catalog.get_definition(definition_id) \
+		if not definition_id.is_empty() else null
+
+
+func create_classic_item_instance(
+	item_id: int,
+	overrides: Dictionary = {},
+) -> ItemInstance:
+	var definition := resolve_classic_item_definition(item_id)
+	if definition == null:
+		push_error(
+			"Classic item %d does not resolve through definition metadata"
+			% abs(item_id)
+		)
+		return null
+	return create_item_instance(definition.definition_id, overrides)
+
+
+func item_classic_ids(instance: ItemInstance) -> Array[int]:
+	var classic_ids: Array[int] = []
+	if instance != null:
+		var legacy_identity: Variant = instance.state_value(
+			LEGACY_ITEM_IDENTITY_STATE_KEY,
+			{},
+		)
+		if legacy_identity is Dictionary:
+			if legacy_identity.has("classicItemId"):
+				var primary_id: int = abs(int(legacy_identity["classicItemId"]))
+				if primary_id != 0:
+					classic_ids.append(primary_id)
+			var alias_values: Variant = legacy_identity.get("classicItemIds", [])
+			if alias_values is Array:
+				for alias_value: Variant in alias_values:
+					var alias_id: int = abs(int(alias_value))
+					if alias_id != 0 and not classic_ids.has(alias_id):
+						classic_ids.append(alias_id)
+	var definition := get_item_definition(instance)
+	if definition != null:
+		for definition_id: int in definition.classic_item_ids():
+			if not classic_ids.has(definition_id):
+				classic_ids.append(definition_id)
+	return classic_ids
+
+
+func item_has_hook(instance: ItemInstance, hook_kind: String) -> bool:
+	var definition := get_item_definition(instance)
+	return item_hooks.has_hook(definition, hook_kind)
+
+
+func run_item_hook(
+	instance: ItemInstance,
+	hook_kind: String,
+	arguments: Array,
+	runtime_view: Dictionary = {},
+) -> Dictionary:
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return {
+			"ok": false,
+			"handled": false,
+			"value": null,
+			"errors": [
+				"Item instance %s has no definition" % instance.instance_id
+			],
+		}
+	var view := runtime_view
+	if view.is_empty():
+		view = legacy_item_view_for_adapter(instance)
+	var result := item_hooks.invoke(
+		definition,
+		instance,
+		hook_kind,
+		arguments,
+		view,
+	)
+	if bool(result.get("handled", false)) \
+			and bool(result.get("ok", false)) \
+			and not sync_legacy_item_adapter(instance, view):
+		return {
+			"ok": false,
+			"handled": true,
+			"value": result.get("value"),
+			"errors": item_serialization.last_errors.duplicate(),
+		}
+	return result
+
+
+func item_trait_bindings(
+	instance: ItemInstance,
+	inflicted := false,
+) -> Dictionary:
+	return item_hooks.trait_bindings(
+		get_item_definition(instance),
+		inflicted,
+	)
+
+
+func item_spell_use(instance: ItemInstance, use_kind: String) -> Array:
+	var definition := get_item_definition(instance)
+	return definition.spell_use(use_kind) if definition != null else []
+
+
+func item_custom_spell_script(instance: ItemInstance) -> GDScript:
+	return item_hooks.custom_spell_script(get_item_definition(instance))
+
+
+func copy_item_instance(
+	instance: ItemInstance,
+	overrides: Dictionary = {},
+) -> ItemInstance:
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return null
+	var copied_overrides := {
+		"charges": instance.charges,
+		"equipped": instance.equipped,
+		"identified": instance.identified,
+		"stateData": instance.state_data(),
+	}
+	copied_overrides.merge(overrides, true)
+	return create_item_instance(instance.definition_id, copied_overrides)
+
+
+func item_texture(instance: ItemInstance) -> Texture2D:
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return null
+	var image_value: Variant = images_book.get(definition.image_key, {})
+	if image_value is Dictionary:
+		var texture_value: Variant = image_value.get("tex")
+		if texture_value is Texture2D:
+			return texture_value
+	# Embedded legacy definitions carry their own media. Keep that reconstruction
+	# inside the resource/import boundary rather than exposing a dictionary to UI.
+	var runtime_view := legacy_item_view_for_adapter(instance)
+	var embedded_texture: Variant = runtime_view.get("texture")
+	return embedded_texture if embedded_texture is Texture2D else null
+
+
+func item_trait_display_names(instance: ItemInstance) -> Array[String]:
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return []
+	var result: Array[String] = []
+	var resolved := item_trait_bindings(instance)
+	if not bool(resolved.get("ok", false)):
+		return result
+	for binding_value: Variant in resolved.get("bindings", []):
+		if not (binding_value is Dictionary):
+			continue
+		var binding: Dictionary = binding_value
+		var trait_name := str(binding.get("name", ""))
+		var script_value: Variant = binding.get("script")
+		var menu_name: Variant = script_value.get("menuname") \
+			if script_value is Object else null
+		if menu_name != null and not str(menu_name).is_empty():
+			result.append(str(menu_name))
+			continue
+		result.append(trait_name.get_file().trim_suffix(".gd"))
+	return result
+
+
+func import_item_instance(item_value: Variant) -> ItemInstance:
+	var imported := item_instance_from_runtime_value(item_value)
+	if not bool(imported.get("ok", false)):
+		for message: Variant in imported.get("errors", []):
+			push_error(str(message))
+		return null
+	return imported.get("instance")
+
+
 func generate_item_from_catalog(
 	catalog_key: String,
 	overrides: Dictionary = {},
@@ -307,6 +600,218 @@ func generate_item_from_catalog(
 	if item.is_empty():
 		_report_item_catalog_errors()
 	return item
+
+
+func serialize_item_inventory(instances: Array) -> Dictionary:
+	return item_serialization.serialize_inventory(instances)
+
+
+func deserialize_item_inventory(saved_inventory: Array) -> Dictionary:
+	var imported := item_serialization.import_inventory(
+		saved_inventory,
+		item_catalog.active_campaign_id(),
+	)
+	if not bool(imported.get("ok", false)):
+		return imported
+	return {
+		"ok": true,
+		"instances": imported.get("instances", []),
+		"diagnostics": imported.get("diagnostics", []),
+		"errors": [],
+	}
+
+
+# Old campaign scripts and pre-v1 saves may still submit a dictionary here.
+# Stable runtime code should construct and carry ItemInstance values directly.
+func serialize_runtime_item_inventory(runtime_inventory: Array) -> Dictionary:
+	var domain_values: Array = []
+	for index: int in runtime_inventory.size():
+		var item_value: Variant = runtime_inventory[index]
+		if item_value is ItemInstance:
+			domain_values.append(item_value)
+			continue
+		if not (item_value is Dictionary):
+			return {
+				"ok": false,
+				"errors": [
+					"inventory[%d]: runtime item must be an ItemInstance or dictionary"
+					% index
+				],
+			}
+		var item: Dictionary = item_value
+		var instance_value: Variant = item.get("_item_instance")
+		if instance_value is ItemInstance:
+			if not item_serialization.sync_instance_from_legacy_view(
+				instance_value,
+				item,
+			):
+				return {
+					"ok": false,
+					"errors": item_serialization.last_errors.duplicate(),
+					"diagnostics": item_serialization.last_diagnostics.duplicate(),
+				}
+			domain_values.append(instance_value)
+		else:
+			domain_values.append(item)
+	var imported := item_serialization.import_inventory(
+		domain_values,
+		item_catalog.active_campaign_id(),
+	)
+	if not bool(imported.get("ok", false)):
+		return imported
+	var instances: Array = imported.get("instances", [])
+	var serialized := item_serialization.serialize_inventory(instances)
+	if not bool(serialized.get("ok", false)):
+		return serialized
+	for index: int in runtime_inventory.size():
+		var item_value: Variant = runtime_inventory[index]
+		if not (item_value is Dictionary):
+			continue
+		var item: Dictionary = item_value
+		var instance: ItemInstance = instances[index]
+		_attach_item_instance(item, instance)
+	serialized["diagnostics"] = imported.get("diagnostics", [])
+	return serialized
+
+
+func item_instance_from_runtime_value(item_value: Variant) -> Dictionary:
+	if item_value is ItemInstance:
+		var existing_instance: ItemInstance = item_value
+		var existing_view := legacy_item_view_for_adapter(existing_instance)
+		if existing_view.is_empty():
+			return {
+				"ok": false,
+				"errors": item_serialization.last_errors.duplicate(),
+			}
+		return {
+			"ok": true,
+			"instance": existing_instance,
+			"item": existing_view,
+			"errors": [],
+			"diagnostics": [],
+		}
+	if not (item_value is Dictionary):
+		return {
+			"ok": false,
+			"errors": ["item: runtime value must be an ItemInstance or dictionary"],
+		}
+	var runtime_item: Dictionary = item_value
+	var attached_value: Variant = runtime_item.get("_item_instance")
+	if attached_value is ItemInstance:
+		var attached_instance: ItemInstance = attached_value
+		if not item_serialization.sync_instance_from_legacy_view(
+			attached_instance,
+			runtime_item,
+		):
+			return {
+				"ok": false,
+				"errors": item_serialization.last_errors.duplicate(),
+				"diagnostics": item_serialization.last_diagnostics.duplicate(),
+			}
+		_attach_item_instance(runtime_item, attached_instance)
+		return {
+			"ok": true,
+			"instance": attached_instance,
+			"item": runtime_item,
+			"errors": [],
+			"diagnostics": item_serialization.last_diagnostics.duplicate(),
+		}
+	var imported := item_serialization.import_item(
+		runtime_item,
+		item_catalog.active_campaign_id(),
+	)
+	if not bool(imported.get("ok", false)):
+		return imported
+	var instance: ItemInstance = imported.get("instance")
+	var view: Dictionary = imported.get("legacyView", {})
+	var hydrated_view := runtime_item \
+		if runtime_item.has("texture") else _hydrate_runtime_item_view(view)
+	_attach_item_instance(hydrated_view, instance)
+	return {
+		"ok": true,
+		"instance": instance,
+		"item": hydrated_view,
+		"errors": [],
+		"diagnostics": imported.get("diagnostics", []),
+	}
+
+
+func legacy_item_view_for_adapter(instance: ItemInstance) -> Dictionary:
+	if instance == null:
+		return {}
+	var view := item_serialization.legacy_view(instance)
+	if view.is_empty():
+		return {}
+	var runtime_item := _hydrate_runtime_item_view(view)
+	_attach_item_instance(runtime_item, instance)
+	return runtime_item
+
+
+func sync_legacy_item_adapter(
+	instance: ItemInstance,
+	runtime_item: Dictionary,
+) -> bool:
+	return item_serialization.sync_instance_from_legacy_view(
+		instance,
+		runtime_item,
+	)
+
+
+# Deprecated compatibility spellings retained for old campaign scripts only.
+func runtime_item_view(instance: ItemInstance) -> Dictionary:
+	return legacy_item_view_for_adapter(instance)
+
+
+func sync_runtime_item_instance(
+	instance: ItemInstance,
+	runtime_item: Dictionary,
+) -> bool:
+	return sync_legacy_item_adapter(instance, runtime_item)
+
+
+func deserialize_runtime_item_inventory(saved_inventory: Array) -> Dictionary:
+	var imported := item_serialization.import_inventory(
+		saved_inventory,
+		item_catalog.active_campaign_id(),
+	)
+	if not bool(imported.get("ok", false)):
+		return imported
+	var instances: Array = imported.get("instances", [])
+	var views: Array = imported.get("legacyViews", [])
+	var runtime_items: Array[Dictionary] = []
+	for index: int in views.size():
+		var view: Dictionary = views[index]
+		var runtime_item := _hydrate_runtime_item_view(view)
+		var instance: ItemInstance = instances[index]
+		_attach_item_instance(runtime_item, instance)
+		runtime_items.append(runtime_item)
+	return {
+		"ok": true,
+		"items": runtime_items,
+		"instances": instances,
+		"diagnostics": imported.get("diagnostics", []),
+		"errors": [],
+	}
+
+
+func _hydrate_runtime_item_view(view: Dictionary) -> Dictionary:
+	var runtime_item := view.duplicate(true)
+	if not runtime_item.has("texture"):
+		runtime_item = generate_item_from_json_dict(view)
+	return runtime_item
+
+
+func _attach_item_instance(
+	runtime_item: Dictionary,
+	instance: ItemInstance,
+) -> void:
+	runtime_item["definitionId"] = instance.definition_id
+	runtime_item["instanceId"] = instance.instance_id
+	runtime_item["stateData"] = instance.state_data()
+	runtime_item["charges"] = instance.charges
+	runtime_item["equipped"] = 1 if instance.equipped else 0
+	runtime_item["is_identified"] = 1 if instance.identified else 0
+	runtime_item["_item_instance"] = instance
 
 
 func _read_item_json_object(file_path: String) -> Dictionary:
@@ -383,6 +888,37 @@ func _item_campaign_id(item_directory: String) -> String:
 func _report_item_catalog_errors() -> void:
 	for message: String in item_catalog.last_errors:
 		push_error(message)
+
+
+func _register_item_custom_spell(definition: ItemDefinition) -> bool:
+	var sources: Dictionary = definition.hooks().get("sources", {})
+	if not sources.has("custom_spell_source"):
+		return true
+	var script := item_hooks.custom_spell_script(definition)
+	if script == null:
+		for message: String in item_hooks.last_errors:
+			push_error(message)
+		return false
+	var spell_name := script.get_global_name()
+	if spell_name.is_empty():
+		var spell_instance: Variant = script.new()
+		if spell_instance is Object:
+			var instance_name: Variant = spell_instance.get("name")
+			if instance_name != null:
+				spell_name = str(instance_name)
+	if spell_name.is_empty():
+		push_error(
+			"Item definition %s custom spell has no stable name"
+			% definition.definition_id
+		)
+		return false
+	spells_book[spell_name] = {
+		"name": spell_name,
+		"source": str(sources["custom_spell_source"]),
+		"script": script,
+		"itemDefinitionId": definition.definition_id,
+	}
+	return true
 
 
 static func _item_value_is_integer(value: Variant) -> bool:
@@ -681,15 +1217,7 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 		new_item["ammo_type"] = 'cantuse'
 
 	if json_dict.has("custom_spell_source") :
-		var custom_spell_source : String = json_dict["custom_spell_source"]
-		var custom_spellscript : GDScript = GDScript.new()
-		custom_spellscript.set_source_code(custom_spell_source)
-#		print("resources.gd DONE set source code for "+sn+" , before reload()")
-
-		var _err_newscript_reload = custom_spellscript.reload()
-		printerr(_err_newscript_reload)
-		var newscript = custom_spellscript.new()
-		spells_book[custom_spellscript.name] = { "name" : custom_spellscript.name, "source" : custom_spell_source, "script" : custom_spellscript}
+		new_item["custom_spell_source"] = json_dict["custom_spell_source"]
 
 	if json_dict.has("weapon_dmg") :
 		new_item["weapon_dmg"] = json_dict["weapon_dmg"]
@@ -703,95 +1231,46 @@ func generate_item_from_json_dict(json_dict : Dictionary) -> Dictionary :
 	#Load Scripts !
 #	print("checking for item scripts  in "+new_item["name"])
 
-	if json_dict.has("_on_equipping_source") :
-		new_item["_on_equipping_source"] = json_dict["_on_equipping_source"]
-		_add_script_to_dict_from_source(new_item,"_on_equipping", "(_character, _item)")
-
-	if json_dict.has("_on_unequipping_source") :
-		new_item["_on_unequipping_source"] = json_dict["_on_unequipping_source"]
-		_add_script_to_dict_from_source(new_item,"_on_unequipping", "(_character, _item)")
-#	print("lol")
-	if json_dict.has("_on_field_use_source") :
-		new_item["_on_field_use_source"] = json_dict["_on_field_use_source"]
-		_add_script_to_dict_from_source(new_item,"_on_field_use", "(_character, _item)")
-	if json_dict.has("_on_combat_use_source") :
-		new_item["_on_combat_use_source"] = json_dict["_on_combat_use_source"]
-		_add_script_to_dict_from_source(new_item,"_on_combat_use", "(_character, _item)")
+	for hook_source_name: String in [
+		"_on_equipping_source",
+		"on_equipping_source",
+		"_on_unequipping_source",
+		"on_unequipping_source",
+		"_on_field_use_source",
+		"_on_combat_use_source",
+		"_on_drop_source",
+		"_calculate_melee_attack_source",
+		"_calculate_melee_accuracy_source",
+	]:
+		if json_dict.has(hook_source_name):
+			new_item[hook_source_name] = json_dict[hook_source_name]
 
 	if json_dict.has("_on_field_use_spell") :
 		new_item["_on_field_use_spell"] = json_dict["_on_field_use_spell"]
 	if json_dict.has("_on_combat_use_spell") :
 		new_item["_on_combat_use_spell"] = json_dict["_on_combat_use_spell"]
 
-
-	if json_dict.has("_on_drop_source") :
-		new_item["_on_drop_source"] = json_dict["_on_drop_source"]
-		_add_script_to_dict_from_source(new_item,"_on_drop", "(_character, _item)")
-
-	if json_dict.has("_calculate_melee_attack_source") :
-		new_item["_calculate_melee_attack_source"] = json_dict["_calculate_melee_attack_source"]
-		_add_script_to_dict_from_source(new_item,"_calculate_melee_attack", "(_attacker, _defender, _weapon,  _is_crit, _crit_mult)")
-
-	if json_dict.has("_calculate_melee_accuracy_source") :
-		new_item["_calculate_melee_accuracy_source"] = json_dict["_calculate_melee_accuracy_source"]
-		_add_script_to_dict_from_source(new_item,"_calculate_melee_accuracy", "(_attacker, _defender, _weapon)")
-
 	if json_dict.has("extra_data") :
 		new_item["extra_data"] = json_dict["extra_data"].duplicate(true)
 
 	# load traits !
 	if json_dict.has("traits") :
-		new_item["traits"] = json_dict["traits"]
+		new_item["traits"] = json_dict["traits"].duplicate(true)
 		for traitarray in json_dict["traits"] :
-			#print("item traitarray ",traitarray)
-			var traitname = traitarray[0]
-			var traitinit = traitarray[1]
-			var newscript : GDScript = GDScript.new()
-
-			if traitname.ends_with('.gd') :
-				newscript = load("res://shared_assets/traits/"+traitname)
-#				var args : Array = traitinit
-				new_item[traitname] = [newscript,traitinit]#.new(args)
-			else :
-				new_item[traitname+"_source"] = json_dict[traitname+"_source"]
-				newscript.set_source_code(new_item[traitname+"_source"])
-				var _err_newscript_reload = newscript.reload()
-				if _err_newscript_reload != OK :
-					print("ERROR LOADING ITEM TRAIT SCRIPT "+new_item["name"] + " "+traitname+ " , error code : "+_err_newscript_reload)
-#				var new_trait_script = newscript.new(traitinit)
-#				new_trait_script.
-				new_item[traitname] = [newscript,traitinit]#new_trait_script
+			var traitname := str(traitarray[0])
+			var source_field := "%s_source" % traitname
+			if not traitname.ends_with(".gd") and json_dict.has(source_field):
+				new_item[source_field] = json_dict[source_field]
 
 	if json_dict.has("melee_inflicted_traits") :
-		#printerr("RESOURCES : item "+new_item["name"]+"has melee_inflicted_traits : ", json_dict["melee_inflicted_traits"])
-		new_item["melee_inflicted_traits"] = json_dict["melee_inflicted_traits"]
+		new_item["melee_inflicted_traits"] = json_dict[
+			"melee_inflicted_traits"
+		].duplicate(true)
 		for traitarray in json_dict["melee_inflicted_traits"] :
-			print("item traitarray ",traitarray)
-			var traitname = traitarray[0]
-			var traitinit = traitarray[1]
-			var chance = traitarray[2]
-			var newscript : GDScript = GDScript.new()
-
-			if traitname.ends_with('.gd') :
-				newscript = load("res://shared_assets/traits/"+traitname)
-#				var args : Array = traitinit
-				new_item[traitname] = [newscript,traitinit]#.new(args)
-			else :
-				new_item[traitname+"_source"] = json_dict[traitname+"_source"]
-				newscript.set_source_code(new_item[traitname+"_source"])
-				var _err_newscript_reload = newscript.reload()
-				if _err_newscript_reload != OK :
-					print("ERROR LOADING ITEM inflicetdTRAIT SCRIPT "+new_item["name"] + " "+traitname+ " , error code : "+_err_newscript_reload)
-#				var new_trait_script = newscript.new(traitinit)
-#				new_trait_script.
-				new_item[traitname] = [newscript,traitinit]#new_trait_script
-#				else :
-#					print("NO ERROR LOADING ITEM TRAIT SCRIPT "+new_item["name"] + " "+traitname)
-
-#				print("\n\n")
-#				print("new_item "+new_item["name"]+ " "+traitname+" \n" , new_item[traitname] )
-#				print("\n\n")
-#	new_item["name"] = "lelele"
+			var traitname := str(traitarray[0])
+			var source_field := "%s_source" % traitname
+			if not traitname.ends_with(".gd") and json_dict.has(source_field):
+				new_item[source_field] = json_dict[source_field]
 	return new_item
 
 

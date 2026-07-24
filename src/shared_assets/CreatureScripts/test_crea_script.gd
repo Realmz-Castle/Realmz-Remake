@@ -93,16 +93,22 @@ static func decide_action(crea : Creature) -> Array :
 			if is_classic_monster:
 				var classic_missile_item := (
 					ClassicMonsterDecisionScript.missile_item(
-						crea.inventory,
+						crea.inventory_instances(),
 						str(crea.get_meta("classic_missile_item_name", "")),
 						int(crea.get_meta("classic_missile_item_slot", -1))
 					)
 				)
-				if not classic_missile_item.is_empty():
+				if classic_missile_item != null:
 					allitemswspellsArray.append(classic_missile_item)
 			else:
-				for i:Dictionary in crea.inventory :
-					if i.has("_on_combat_use_spell") and (i["charges_max"]==0 or i["charges"]>0 ) :
+				for i: ItemInstance in crea.inventory_instances():
+					var definition := NodeAccess.__Resources().get_item_definition(i)
+					if definition != null \
+							and not definition.spell_use("combat").is_empty() \
+							and (
+								definition.maximum_charges == 0
+								or i.charges > 0
+							):
 						allitemswspellsArray.append(i)
 			if not is_classic_monster and allitemswspellsArray.size()>0 :
 				allitemswspellsArray.shuffle()
@@ -125,14 +131,17 @@ static func decide_action(crea : Creature) -> Array :
 				)
 			var ignore_cost : bool = false
 			var used_an_item : bool = false
-			var item_used : Dictionary = {}
+			var item_used: ItemInstance = null
 			print("test crea script.gd want_use_item ? ", want_use_item, " , missile_chance :", missile_chance, '  , randint : ', randint)
 			if want_use_item :
 				#var weapon_spell_arr : Array =  crea.current_range_weapon["_on_combat_use_spell"]
 				item_used = allitemswspellsArray[0]
-				var item_spell_name : String = item_used["_on_combat_use_spell"][0]
+				var item_spell_use := (
+					NodeAccess.__Resources().item_spell_use(item_used, "combat")
+				)
+				var item_spell_name: String = item_spell_use[0]
 				selectedSpell = NodeAccess.__Resources().spells_book[item_spell_name]["script"]
-				selectedplvl  = item_used["_on_combat_use_spell"][1]
+				selectedplvl = item_spell_use[1]
 				ignore_cost = true
 				used_an_item = true
 			if want_use_spell :
@@ -191,7 +200,7 @@ static func decide_action(crea : Creature) -> Array :
 	print("decideaction : "+crea.name+" can do nothing")
 	return [0, Vector2i.ZERO ]
 	
-static func get_spell_cast_message (caster: Creature, spell, plvl : int, target_crea: Creature, used_an_item : bool, item_used : Dictionary) :
+static func get_spell_cast_message (caster: Creature, spell, plvl : int, target_crea: Creature, used_an_item : bool, item_used: ItemInstance) :
 	var targ_range : int = AiFunctions.get_range_between_creas(caster, target_crea)
 	print(spell.name,plvl, ' ',spell.get_range(plvl, caster) , '<=>' ,targ_range)
 	if spell.get_range(plvl, caster) >= targ_range :

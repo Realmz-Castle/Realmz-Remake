@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/Main.tscn" id="1_main"]
+[ext_resource type="Script" path="res://scripts/items/tests/item_ui_flow_smoke.gd" id="2_smoke"]
+
+[node name="Main" instance=ExtResource("1_main")]
+
+[node name="ItemUiFlowSmoke" type="Node" parent="."]
+script = ExtResource("2_smoke")

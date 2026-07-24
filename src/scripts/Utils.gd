@@ -174,19 +174,33 @@ class FileHandler:
 		return newchar
 	
 	
-	static func save_character(path : String, chara) :
+	static func save_character(
+		path : String,
+		chara,
+		prepared_save_string := "",
+	) :
 		print("Utils : saving character "+chara.name)
 #		var save_char = File.new()
 #		save_char.open(path+'/data.json', File.WRITE)
 		print("Utils save : ",path+'/data.json')
+		var character_save_string: String = str(prepared_save_string)
+		if character_save_string.is_empty():
+			character_save_string = chara.get_save_string()
+		if character_save_string.is_empty():
+			push_error(
+				"Could not serialize character %s; the existing save was not modified"
+				% chara.name
+			)
+			return false
 		var save_char_file : FileAccess = FileAccess.open(path+'/data.json', FileAccess.ModeFlags.WRITE)
 		if save_char_file==null :
 			print("ERROR save_character save_char_file get_open_error() : ", FileAccess.get_open_error() )
+			return false
 #		var data_text : String = save_char_file.get_as_text()
 #		file = null #fileaccess is closed when it's  freed, no close() since godot4
 
 		#save simple stuff
-		save_char_file.store_line(chara.get_save_string())
+		save_char_file.store_line(character_save_string)
 
 		save_char_file = null #fileaccess is closed when it's  freed, no close() since godot4
 
@@ -207,6 +221,7 @@ class FileHandler:
 		var _err_savepng_icon = chara.icon.get_image().save_png(path+"/icon.png")
 	
 		print("Utils : DONE saving character "+chara.name)
+		return true
 	
 	static func load_img_texture(path) ->ImageTexture :
 		var img = Image.new()

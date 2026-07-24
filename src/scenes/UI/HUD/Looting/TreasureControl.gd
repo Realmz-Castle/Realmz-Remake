@@ -1,198 +1,198 @@
 extends Control
 
-
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-@export var itemLootButton : PackedScene
+@export var itemLootButton: PackedScene
 
 @onready var itemsRect = $itemsRect
 @onready var expRect = $ExpRect
 @onready var botrightpanel = $BotRightLootInfo
-@onready var itemsContainer : GridContainer = $itemsRect/ScrollContainer/ItemContainer
+@onready var itemsContainer: GridContainer = (
+	$itemsRect/ScrollContainer/ItemContainer
+)
+@onready var itemTextureRect: TextureRect = (
+	$BotRightLootInfo/ItemInfoRect/ItemTextureRect
+)
+@onready var itemNameLabel: Label = $BotRightLootInfo/ItemInfoRect/ItemNameLabel
+@onready var itemStatsLabel: Label = (
+	$BotRightLootInfo/ItemInfoRect/ItemStatsLabel
+)
+@onready var itemsWeightLabel: Label = (
+	$BotRightLootInfo/ItemInfoRect/ItemWeightLabel
+)
+@onready var explabel: Label = $ExpRect/ExpLabel
+@onready var moneyLabel: Label = $BotRightLootInfo/ItemInfoRect/MoneynLabel
+@onready var detect_button: Button = $BotRightLootInfo/DetectButton
 
-@onready var itemTextureRect : TextureRect = $BotRightLootInfo/ItemInfoRect/ItemTextureRect
-@onready var itemNameLabel : Label = $BotRightLootInfo/ItemInfoRect/ItemNameLabel
-@onready var itemStatsLabel : Label = $BotRightLootInfo/ItemInfoRect/ItemStatsLabel
-@onready var itemsWeightLabel : Label = $BotRightLootInfo/ItemInfoRect/ItemWeightLabel
-
-@onready var explabel : Label = $ExpRect/ExpLabel
-
-@onready var moneyLabel : Label = $BotRightLootInfo/ItemInfoRect/MoneynLabel
-
-@onready var detect_button : Button = $BotRightLootInfo/DetectButton
-
-var exp_gain : int = 0
-var exp_receivers : Array = []
+var exp_gain := 0
+var exp_receivers: Array = []
 var classic_battle_reward := false
-
-var already_identified : bool = false
+var already_identified := false
+var pending_items: Array[ItemInstance] = []
 
 signal done_looting
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
+
+func on_viewport_size_changed(screensize: Vector2) -> void:
+	itemsRect.size = Vector2(screensize.x - 320, screensize.y - 24)
+	expRect.position = Vector2(0, screensize.y - 24)
+	expRect.size = Vector2(screensize.x - 320, 24)
+	botrightpanel.position = Vector2(screensize.x - 320, screensize.y - 200)
+	itemsContainer.columns = floori((screensize.x - 320) / 50.0) - 1
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
-
-
-func on_viewport_size_changed(screensize : Vector2) :
-	itemsRect._set_size(Vector2(screensize.x-320, screensize.y-24))
-	expRect._set_position(Vector2(0,screensize.y-24))
-	expRect._set_size(Vector2(screensize.x-320, 24))
-	botrightpanel._set_position(Vector2(screensize.x-320,screensize.y-200))
-	#set itemcontainer max columns
-	var width = screensize.x-320
-	var columns = floor(width/50)-1
-	itemsContainer.set_columns(columns)  # 9 if width<480
-
-
-# take inspiration from textrect script, money is  [gold,gems,jewels]
 func display(
 	items: Array,
 	money: Array,
 	experience: int,
-	is_classic_battle_reward := false
-) :
+	is_classic_battle_reward := false,
+) -> void:
 	exp_gain = experience
 	classic_battle_reward = is_classic_battle_reward
 	exp_receivers.clear()
+	pending_items.clear()
 	detect_button.disabled = false
 	already_identified = false
-	for pc : PlayerCharacter in GameGlobal.player_characters :
-		if pc.get_stat("curHP")<=0 :
-			continue
-		if not GameGlobal.can_character_receive_experience(pc) :
-			continue
-		exp_receivers.append(pc)
-			
-	explabel.text = " Experience : "+ str(exp_gain) +", split among " + str(exp_receivers.size()) + "characters"
-	for c in range(3) :
-		GameGlobal.money_pool[c] += money[c]
+	for child: Node in itemsContainer.get_children():
+		child.queue_free()
+	for pc: PlayerCharacter in GameGlobal.player_characters:
+		if pc.get_stat("curHP") > 0 \
+				and GameGlobal.can_character_receive_experience(pc):
+			exp_receivers.append(pc)
+	explabel.text = " Experience : %d, split among %d characters" % [
+		exp_gain,
+		exp_receivers.size(),
+	]
+	for currency_index: int in mini(3, money.size()):
+		GameGlobal.money_pool[currency_index] += int(money[currency_index])
 	update_money_label()
-	#fill the gridcontainer
-	for i in items :
-		i["equipped"] = 0
-		var newButton = itemLootButton.instantiate()
-		var newtex : Texture2D = i["texture"]
-		newButton.find_child("ItemTextureRect").set_texture( newtex )
-		newButton.connect("pressed",Callable(self,"_on_itemlootbutton_pressed").bind(i, newButton))
-		newButton.connect("mouse_entered",Callable(self,"_on_itemlootbutton_mouse_entered").bind(i,newButton))
-		newButton.connect("mouse_exited",Callable(self,"_on_itemlootbutton_mouse_exited"))
-		
-		#ibutton.connect("pressed",Callable(self,"_on_dropentry_pressed").bind(i))
-		itemsContainer.add_child(newButton)
-#		display_money(money)
+	var resources = NodeAccess.__Resources()
+	for item_value: Variant in items:
+		var instance := resources.import_item_instance(item_value)
+		if instance == null:
+			continue
+		instance.equipped = false
+		pending_items.append(instance)
+		var button: Button = itemLootButton.instantiate()
+		button.set_meta("item_instance", instance)
+		button.find_child("ItemTextureRect").texture = (
+			resources.item_texture(instance)
+		)
+		button.pressed.connect(_on_itemlootbutton_pressed.bind(instance, button))
+		button.mouse_entered.connect(
+			_on_itemlootbutton_mouse_entered.bind(instance, button)
+		)
+		button.mouse_exited.connect(_on_itemlootbutton_mouse_exited)
+		itemsContainer.add_child(button)
 	show()
 
-#func display_money(money : Array) :
-#	var moneytext : String = str(money[0])+'\n'+str(money[1])+'\n'+str(money[2])
-#	moneyLabel.text = moneytext
 
-func _on_itemlootbutton_mouse_entered(item : Dictionary, button : Button) :
-	if button.disabled :
+func _on_itemlootbutton_mouse_entered(
+	item: ItemInstance,
+	button: Button,
+) -> void:
+	if button.disabled:
 		_on_itemlootbutton_mouse_exited()
+		return
+	var resources = NodeAccess.__Resources()
+	var definition := resources.get_item_definition(item)
+	if definition == null:
 		return
 	itemTextureRect.show()
 	itemNameLabel.show()
 	itemStatsLabel.show()
 	itemsWeightLabel.show()
-	
-	itemTextureRect.set_texture(item["texture"])
-	var iname = item["name"]
-	if item.has("charges_max") :
-		if item["charges_max"]>0 :
-			iname = iname + ' X' + str(item["charges"])
-	itemNameLabel.text = iname+" ("+item["type"]+")"
-	itemStatsLabel.text = item["stats_mini"]
-	itemsWeightLabel.text = "Weight : " + str(item["weight"]+item["charges_weight"]*item["charges"])
+	itemTextureRect.texture = resources.item_texture(item)
+	var item_name := definition.display_name_for(item)
+	if item.identified and definition.maximum_charges > 0:
+		item_name += " X%d" % item.charges
+	itemNameLabel.text = "%s (%s)" % [item_name, definition.item_type]
+	itemStatsLabel.text = definition.stats_summary if item.identified else ""
+	itemsWeightLabel.text = "Weight : %d" % definition.total_weight(item)
 
-func _on_itemlootbutton_mouse_exited() :
+
+func _on_itemlootbutton_mouse_exited() -> void:
 	itemTextureRect.hide()
 	itemNameLabel.hide()
 	itemStatsLabel.hide()
 	itemsWeightLabel.hide()
 
 
-func _on_itemlootbutton_pressed(item:Dictionary, button : Button) :
-	var looter = UI.ow_hud.selected_character
-#	print(looter.name," picks up ", item["name"])
-#	return
-	var looted : bool = looter.add_inventory_item(item)
-	if looted :
-		# to keep an empty spot
-		button.set_disabled(true)
-		button.release_focus()
-#		button.disconnect("pressed",Callable(self,"_on_itemlootbutton_pressed"))
-		for child in button.get_children() :
-#			button.remove_child(child)
-			child.queue_free()
-		UI.ow_hud.updateCharPanelDisplay()
-
-func close() :
-	#empty the gridcontainer
-	await GameGlobal.give_exp_to_pcs(
-		floor(float(exp_gain) / float(exp_receivers.size())),
-		exp_receivers,
-		classic_battle_reward
-	)
-
-	print("teasure_control got GameGlobal.done_giving_exp")
-	for child in itemsContainer.get_children() :
-		itemsContainer.remove_child(child)
+func _on_itemlootbutton_pressed(
+	item: ItemInstance,
+	button: Button,
+) -> void:
+	var looter: Creature = UI.ow_hud.selected_character
+	if not looter.add_inventory_item(item):
+		return
+	pending_items.erase(item)
+	button.disabled = true
+	button.release_focus()
+	for child: Node in button.get_children():
 		child.queue_free()
+	UI.ow_hud.updateCharPanelDisplay()
+
+
+func close() -> void:
+	if not exp_receivers.is_empty():
+		await GameGlobal.give_exp_to_pcs(
+			floori(float(exp_gain) / exp_receivers.size()),
+			exp_receivers,
+			classic_battle_reward,
+		)
+	for child: Node in itemsContainer.get_children():
+		child.queue_free()
+	pending_items.clear()
 	get_parent().set_charactersRect_type(0)
 	get_parent().moneyControl.close()
 	NodeAccess.__Map().show()
-	emit_signal("done_looting")
-	print("teasure_control  close()")
+	done_looting.emit()
 	StateMachine.exit_ex_menu_state()
 	hide()
 
 
-func _on_ButtonDone_pressed():
+func _on_ButtonDone_pressed() -> void:
 	close()
 
-func update_money_label() :
-	var moneytext : String = ''
-	for c in GameGlobal.money_pool :
-		moneytext += str(c)+'\n'
-	moneyLabel.set_text(moneytext)
 
-func _on_PoolButton_pressed():
+func update_money_label() -> void:
+	var lines: Array[String] = []
+	for amount: Variant in GameGlobal.money_pool:
+		lines.append(str(amount))
+	moneyLabel.text = "\n".join(lines)
+
+
+func _on_PoolButton_pressed() -> void:
 	get_parent().moneyControl._on_PoolButton_pressed()
 	update_money_label()
 
 
-func _on_ShareButton_pressed():
+func _on_ShareButton_pressed() -> void:
 	get_parent().moneyControl._on_ShareButton_pressed()
 	update_money_label()
 
 
-func _on_money_button_pressed():
+func _on_money_button_pressed() -> void:
 	get_parent()._on_MoneyButton_pressed()
 
 
-func _on_detect_button_pressed():
-	if already_identified : return
-	var character : Creature = UI.ow_hud.selected_character
+func _on_detect_button_pressed() -> void:
+	if already_identified:
+		return
+	var character: Creature = UI.ow_hud.selected_character
 	var resources = NodeAccess.__Resources()
-	var disco_spell = resources.spells_book["Discover Magic"]['script']
-	var sp_cost : int = character.get_spell_resource_cost(disco_spell, 1)
-
-	if character.does_crea_know_spell_named("Discover Magic") and character.get_stat('curSP') >= sp_cost :
-		for ilb : Button in itemsContainer.get_children() :
-			var item : Dictionary = ilb.pressed.get_connections()[0]['callable'].get_bound_arguments()[0]
-			if item['is_magical'] :
-				ilb.find_child("GlowTextureRect").show()
-		character.change_cur_sp( -sp_cost )
-		detect_button.disabled = true
-		already_identified = true
-	else :
-		SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.wav']
-		SfxPlayer.play()
+	var discover_spell = resources.spells_book["Discover Magic"]["script"]
+	var sp_cost: int = character.get_spell_resource_cost(discover_spell, 1)
+	if not (
+		character.does_crea_know_spell_named("Discover Magic")
+		and character.get_stat("curSP") >= sp_cost
+	):
+		GameGlobal.play_sfx("generation error.wav")
+		return
+	for button: Button in itemsContainer.get_children():
+		var item: Variant = button.get_meta("item_instance")
+		if item is ItemInstance:
+			var definition := resources.get_item_definition(item)
+			if definition != null and definition.magical:
+				button.find_child("GlowTextureRect").show()
+	character.change_cur_sp(-sp_cost)
+	detect_button.disabled = true
+	already_identified = true

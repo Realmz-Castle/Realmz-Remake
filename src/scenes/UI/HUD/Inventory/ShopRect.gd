@@ -1,154 +1,206 @@
 extends NinePatchRect
 class_name ShopRect
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
 @onready var inventoryrect = $"../../../.."
-@onready var vbox : VBoxContainer = $"InvScrollContainerShop/VBoxContainerL"
-@onready var itemShopButtonTSCN : PackedScene = preload("res://scenes/UI/HUD/Inventory/ItemShopButton.tscn")
+@onready var vbox: VBoxContainer = $InvScrollContainerShop/VBoxContainerL
+@onready var itemShopButtonTSCN: PackedScene = preload(
+	"res://scenes/UI/HUD/Inventory/ItemShopButton.tscn"
+)
 @onready var resources = NodeAccess.__Resources()
+@onready var goldLabel: Label = $MoneyRect/GoldnLabel
+@onready var poolLabel: Label = $MoneyRect/PoolnLabel
 
-@onready var goldLabel : Label = $"MoneyRect/GoldnLabel"
-@onready var poolLabel : Label = $"MoneyRect/PoolnLabel"
+var buy_rate := 1.0
+var sell_rate := 1.0
+var weapons: Array = []
+var armor: Array = []
+var limbs: Array = []
+var magic: Array = []
+var supplies: Array = []
+var buyback: Array = []
+var types := {
+	"Weapons": weapons,
+	"Armor": armor,
+	"Limbs": limbs,
+	"Magic": magic,
+	"Supplies": supplies,
+	"BuyBack": buyback,
+}
+var current_shop_category := "Weapons"
 
-var buy_rate : float = 1.0
-var sell_rate : float = 1.0
-var weapons : Array = []	# arrays of itemshopbuttons
-var armor : Array = []
-var limbs : Array = []
-var magic : Array = []
-var supplies : Array = []
-var buyback : Array = []
-var types = {"Weapons":weapons, "Armor":armor, "Limbs":limbs,"Magic" : magic,  "Supplies":supplies, "BuyBack":buyback}
-var current_shop_category : String = "Weapons"
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-func initialize() :
-	print("INITIALIZING shoprect's inventoryrect ", inventoryrect)
-	#display selected character's gold
-	var chara = $"../../../..".hud.selected_character
-	goldLabel.text = str( chara.money[0] )
-	poolLabel.text = str( GameGlobal.money_pool[0] )
-#	pass # GameGlobal.currentShop : String
-	weapons.clear()
-	armor.clear()
-	limbs.clear()
-	magic.clear()
-	supplies.clear()
-	buyback.clear()
-	
-	var curshopname : String = GameGlobal.currentShop
-	print("shoprect curshopname : ",curshopname)
-#	var shopscript = resources.shopsGD
-	if curshopname == '' :
+func initialize() -> void:
+	var chara: Creature = inventoryrect.hud.selected_character
+	goldLabel.text = str(chara.money[0])
+	poolLabel.text = str(GameGlobal.money_pool[0])
+	for category: String in types:
+		types[category].clear()
+	var shop_name := GameGlobal.currentShop
+	if shop_name.is_empty():
 		return
-	var curShop = GameGlobal.get_shop(curshopname)
-	print(curShop)
-	buy_rate = curShop["buy_rate"]
-	sell_rate = curShop["sell_rate"]
-#	print(curShop)
-	for t in types :
-		for i in curShop[t] :
-			
-			var newitemdict = null
-			if typeof(i[0]) == TYPE_STRING :
-				newitemdict = resources.items_book[i[0]].duplicate()
-			else :
-				newitemdict = i[0]
-			if t != "BuyBack" :
-				if newitemdict.has("charges_max") :
-					newitemdict["charges"] = newitemdict["charges_max"]
-			
-			
-#			var newitem = resources.generate_item_from_json_dict(newitemdict)
-#			print("ShopRect newitemdict : ", newitemdict)
-#			print("ShopRect newitem : ", newitem)
+	var shop: Dictionary = GameGlobal.get_shop(shop_name)
+	buy_rate = float(shop["buy_rate"])
+	sell_rate = float(shop["sell_rate"])
+	for category: String in types:
+		var source_stock: Array = shop.get(category, [])
+		for source_index: int in source_stock.size():
+			var entry: Array = source_stock[source_index]
+			if entry.size() < 3:
+				continue
+			var instance := _stock_instance(entry[0], category != "BuyBack")
+			if instance == null:
+				continue
+			var definition := resources.get_item_definition(instance)
+			var price := int(entry[2])
+			if price <= 0 and definition != null:
+				price = int(sell_rate * definition.price)
+			types[category].append([
+				instance,
+				int(entry[1]),
+				price,
+				source_index,
+			])
 
 
-			var price = i[2]
-			if i[2]<=0 :
-				price = sell_rate * newitemdict["price"]
-			var quantity : int = i[1]
-#			await newshopitembutton.ready #doesnt happen until added to tree !
-			types[t].append([newitemdict, quantity, price])
-#			print("adding "+newitemdict["name"]+" to "+t)
-#	print(types)
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func _on_LeaveShopButton_pressed() -> void:
+	if not visible:
+		return
+	for category: String in types:
+		types[category].clear()
+	inventoryrect.hud.set_charactersRect_type(0)
+	hide()
+	inventoryrect.hud.moneyControl._on_ShareButton_pressed()
+	inventoryrect.buttonIdenPay.hide()
 
 
-func _on_LeaveShopButton_pressed():
-	if visible :
-		weapons.clear()
-		armor.clear()
-		limbs.clear()
-		magic.clear()
-		supplies.clear()
-		buyback.clear()
-		inventoryrect.hud.set_charactersRect_type(0)
-		hide()
-		inventoryrect.hud.moneyControl._on_ShareButton_pressed()
-		inventoryrect.buttonIdenPay.hide()
-#		$"../../MoneyRect"._on_ShareButton_pressed()
-
-func _on_character_selected(chara) :
-	goldLabel.text = str( chara.money[0] )
-	poolLabel.text = str( GameGlobal.money_pool[0] )
+func _on_character_selected(chara: Creature) -> void:
+	goldLabel.text = str(chara.money[0])
+	poolLabel.text = str(GameGlobal.money_pool[0])
 
 
-func _on_PoolButton_pressed():
-#	$"../../MoneyRect".initialize(GameGlobal.player_characters)
-#	$"../../MoneyRect"._on_PoolButton_pressed()
+func _on_PoolButton_pressed() -> void:
 	inventoryrect.hud.moneyControl.initialize(GameGlobal.player_characters)
 	inventoryrect.hud.moneyControl._on_PoolButton_pressed()
-	
-	goldLabel.text = '0'
-	poolLabel.text = str( GameGlobal.money_pool[0] )
-	
+	goldLabel.text = "0"
+	poolLabel.text = str(GameGlobal.money_pool[0])
 
 
-func _on_ShopButton_pressed(type : String):
-	print("ShopRect _on_ShopButton_pressed "+type)
-	fillVbox(type)
-	current_shop_category = type
+func _on_ShopButton_pressed(category: String) -> void:
+	current_shop_category = category
+	fillVbox(category)
 
-func fillVbox(type : String) :
-#	print("ShopRect fillVbox"+type)
-	for child in vbox.get_children() :
-		vbox.remove_child(child)
+
+func fillVbox(category: String) -> void:
+	for child: Node in vbox.get_children():
 		child.queue_free()
-	for itemshoparray in types[type] :
-		if int(itemshoparray[1]) <= 0:
+	for stock_value: Variant in types.get(category, []):
+		var stock: Array = stock_value
+		if int(stock[1]) <= 0:
 			continue
-		var newshopitembutton = itemShopButtonTSCN.instantiate()
-		vbox.add_child(newshopitembutton)
-		newshopitembutton.set_item(itemshoparray[0], itemshoparray[1], inventoryrect, itemshoparray[2])
-		
-#		itemcontrol.update_display()
+		var item_button = itemShopButtonTSCN.instantiate()
+		vbox.add_child(item_button)
+		item_button.set_item(stock[0], stock[1], inventoryrect, stock[2])
 
 
-func remove_one_from_stock(item : Dictionary) -> bool:
-	var category_stock: Array = types[current_shop_category]
-	for stock_index: int in category_stock.size():
-		var stock: Array = category_stock[stock_index]
-		if (stock[0]["name"] == item["name"]
-		and stock[0]["stats_mini"] == item["stats_mini"]
-		and stock[0]["weight"] == item["weight"]
-		and stock[0]["price"] == item["price"]
-		and stock[0]["charges"] == item["charges"]
-		):
-			if int(stock[1]) <= 0:
-				return false
-			stock[1] -= 1
-			var saved_stock: Array = GameGlobal.get_shop(
-				GameGlobal.currentShop
-			)[current_shop_category]
-			if stock_index < saved_stock.size():
-				saved_stock[stock_index][1] = stock[1]
-			return true
-	return false
+func price_for(item: ItemInstance) -> int:
+	for stock_value: Variant in types.get(current_shop_category, []):
+		var stock: Array = stock_value
+		if stock[0] == item and int(stock[1]) > 0:
+			return int(stock[2])
+	return -1
+
+
+func purchase_item(
+	customer: Creature,
+	item: ItemInstance,
+	target_index := -1,
+) -> Dictionary:
+	if customer == null or item == null:
+		return {"ok": false, "price": 0}
+	var category_stock: Array = types.get(current_shop_category, [])
+	for stock_value: Variant in category_stock:
+		var stock: Array = stock_value
+		if stock[0] != item or int(stock[1]) <= 0:
+			continue
+		if not customer.add_inventory_item(item, target_index):
+			return {"ok": false, "price": int(stock[2])}
+		stock[1] = int(stock[1]) - 1
+		var saved_stock: Array = GameGlobal.get_shop(
+			GameGlobal.currentShop
+		).get(current_shop_category, [])
+		var source_index := int(stock[3])
+		if source_index >= 0 and source_index < saved_stock.size():
+			saved_stock[source_index][1] = stock[1]
+		if int(stock[1]) > 0:
+			var replacement := resources.copy_item_instance(
+				item,
+				{"equipped": false},
+			)
+			if replacement == null:
+				customer.remove_inventory_item(item)
+				stock[1] = int(stock[1]) + 1
+				if source_index >= 0 and source_index < saved_stock.size():
+					saved_stock[source_index][1] = stock[1]
+				return {"ok": false, "price": int(stock[2])}
+			stock[0] = replacement
+			if source_index >= 0 \
+					and source_index < saved_stock.size() \
+					and saved_stock[source_index][0] is ItemInstance:
+				saved_stock[source_index][0] = replacement
+		return {"ok": true, "price": int(stock[2]), "item": item}
+	return {"ok": false, "price": 0}
+
+
+func sell_item(owner: Creature, item: ItemInstance) -> Dictionary:
+	if owner == null or item == null or item.equipped:
+		return {"ok": false, "price": 0}
+	var definition := resources.get_item_definition(item)
+	if definition == null or not definition.tradeable:
+		return {"ok": false, "price": 0}
+	var category := _category_for_definition(definition)
+	if not GameGlobal.get_shop(GameGlobal.currentShop).has(category):
+		category = "BuyBack"
+	var price := int(definition.price * buy_rate)
+	if not owner.remove_inventory_item(item):
+		return {"ok": false, "price": 0}
+	var saved_stock: Array = GameGlobal.get_shop(
+		GameGlobal.currentShop
+	)[category]
+	saved_stock.append([item, 1, price])
+	types[category].append([item, 1, price, saved_stock.size() - 1])
+	return {
+		"ok": true,
+		"price": price,
+		"category": category,
+		"item": item,
+	}
+
+
+func _stock_instance(source_value: Variant, refill_charges: bool) -> ItemInstance:
+	var instance: ItemInstance = null
+	if source_value is ItemInstance:
+		instance = source_value
+	elif source_value is String:
+		instance = resources.create_item_instance(source_value)
+	else:
+		instance = resources.import_item_instance(source_value)
+	if instance == null:
+		return null
+	var definition := resources.get_item_definition(instance)
+	if refill_charges and definition != null and definition.maximum_charges > 0:
+		instance.charges = definition.maximum_charges
+	instance.equipped = false
+	return instance
+
+
+func _category_for_definition(definition: ItemDefinition) -> String:
+	var item_type := definition.item_type
+	if item_type in ShopInventoryContainer.WEAPON_TYPES:
+		return "Weapons"
+	if item_type in ShopInventoryContainer.ARMOR_TYPES:
+		return "Armor"
+	if item_type in ShopInventoryContainer.LIMB_TYPES:
+		return "Limbs"
+	if item_type in ShopInventoryContainer.SUPPLY_TYPES:
+		return "Supplies"
+	return "BuyBack"

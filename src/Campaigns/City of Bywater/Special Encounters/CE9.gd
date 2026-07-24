@@ -31,15 +31,18 @@ func _on_spell_used(character, spell, power) :
 
 func _on_item_used(item, character) :
 	var result : String = "0"
-	if item["name"] == "Rope" :
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	var item_name := definition.display_name if definition != null else ""
+	var classic_ids := definition.classic_item_ids() if definition != null else []
+	if item_name == "Rope" :
 		result = "1"
-	if item["id"] == 813 :
+	if classic_ids.has(813) :
 		result = "1"
-	if item["id"] == 819 :
+	if classic_ids.has(819) :
 		result = "1"
-	if item["id"] == 811 :
+	if classic_ids.has(811) :
 		result = "4"
-	if item["id"] == 816 :
+	if classic_ids.has(816) :
 		result = "4"
 	if result == "1":
 		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)

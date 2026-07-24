@@ -71,16 +71,32 @@ func special_effect(
 func identify_targets(targets: Array) -> int:
 	var identified := 0
 	for target: Variant in targets:
-		var inventory: Variant = target.get("inventory") \
-			if target is Object or target is Dictionary else null
+		if not (target is Object):
+			continue
+		var stable_inventory: bool = target.has_method("inventory_instances")
+		var inventory: Variant = target.inventory_instances() \
+			if stable_inventory else _legacy_inventory(target)
 		if not (inventory is Array):
 			continue
 		for item: Variant in inventory:
-			if not (item is Dictionary):
+			if item is ItemInstance:
+				item.identified = true
+				identified += 1
 				continue
-			item["is_identified"] = 1
-			identified += 1
+			# Old campaign character objects can still reach this Classic spell
+			# before their dictionary inventory is imported into a Creature.
+			if not stable_inventory and item is Dictionary:
+				item["is_identified"] = 1
+				item["identified"] = true
+				identified += 1
 	return identified
+
+
+func _legacy_inventory(target: Object) -> Variant:
+	for property: Dictionary in target.get_property_list():
+		if str(property.get("name", "")) == "inventory":
+			return target.get("inventory")
+	return []
 
 
 func _apply_school_metadata(spell_ids: Array[int]) -> void:

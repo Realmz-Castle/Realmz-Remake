@@ -166,8 +166,7 @@ func _on_InventoryButton_pressed():
 	useitemRect.display_character_inventory()
 	useitemRect.show()
 
-func _on_item_used(item : Dictionary, character) :
-#	print(character.name+' used '+item["name"]+' !')
+func _on_item_used(item: ItemInstance, character: Creature) -> void:
 	useitemRect.hide()
 	await encounter_script._on_item_used(item, character)
 

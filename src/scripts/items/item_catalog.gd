@@ -107,6 +107,126 @@ func get_definition(definition_id: String) -> ItemDefinition:
 	return _definitions.get(definition_id)
 
 
+func active_campaign_id() -> String:
+	return _active_campaign_id
+
+
+func has_issued_instance_id(instance_id: String) -> bool:
+	return _issued_instance_ids.has(instance_id)
+
+
+func resolve_legacy_name(display_name: String) -> String:
+	var matched_definition_id := ""
+	for definition_id_value: Variant in _legacy_templates:
+		var definition_id := str(definition_id_value)
+		var definition := get_definition(definition_id)
+		if definition == null:
+			continue
+		if definition.source_scope == "campaign" \
+				and definition.campaign_id != _active_campaign_id:
+			continue
+		var template_value: Variant = _legacy_templates[definition_id_value]
+		if not (template_value is Dictionary) \
+				or str(template_value.get("name", "")) != display_name:
+			continue
+		if not matched_definition_id.is_empty() \
+				and matched_definition_id != definition_id:
+			return ""
+		matched_definition_id = definition_id
+	return matched_definition_id
+
+
+func register_embedded_definition(
+	normalized_definition: Dictionary,
+	legacy_template: Dictionary = {},
+) -> bool:
+	last_errors.clear()
+	if not _is_json_compatible(normalized_definition):
+		_error(
+			"",
+			"",
+			"embeddedDefinition",
+			"must contain only JSON-compatible string-keyed data",
+		)
+		return false
+	var definition_id := str(
+		normalized_definition.get("definitionId", "")
+	).strip_edges()
+	var digest := str(normalized_definition.get("digest", "")).strip_edges()
+	if not definition_id.begins_with("embedded:sha256:") \
+			or digest.length() != 64 \
+			or not digest.is_valid_hex_number(false) \
+			or definition_id != "embedded:sha256:%s" % digest:
+		_error(
+			"",
+			definition_id,
+			"definitionId",
+			"must match embedded:sha256:<digest>",
+		)
+		return false
+	var source_value: Variant = normalized_definition.get("source", {})
+	if not (source_value is Dictionary) \
+			or str(source_value.get("scope", "")) != "embedded":
+		_error(
+			"",
+			definition_id,
+			"source.scope",
+			"must be embedded",
+		)
+		return false
+	for field_name: String in [
+		"catalogKey",
+		"name",
+		"unidentifiedName",
+		"description",
+		"type",
+		"imageKey",
+		"soundKey",
+	]:
+		if not (normalized_definition.get(field_name) is String):
+			_error(
+				"",
+				definition_id,
+				field_name,
+				"must be a string",
+			)
+	for field_name: String in ["gameplay", "hooks", "classic"]:
+		if not (normalized_definition.get(field_name) is Dictionary):
+			_error(
+				"",
+				definition_id,
+				field_name,
+				"must be an object",
+			)
+	if not (normalized_definition.get("defaultIdentified") is bool):
+		_error(
+			"",
+			definition_id,
+			"defaultIdentified",
+			"must be a boolean",
+		)
+	if not last_errors.is_empty():
+		return false
+	var existing := get_definition(definition_id)
+	if existing != null:
+		if existing.to_dictionary() != normalized_definition:
+			_error(
+				"",
+				definition_id,
+				"embeddedDefinition",
+				"conflicts with the previously registered digest",
+			)
+			return false
+		if not legacy_template.is_empty() \
+				and not _legacy_templates.has(definition_id):
+			_legacy_templates[definition_id] = legacy_template.duplicate(true)
+		return true
+	_definitions[definition_id] = ItemDefinitionScript.new(normalized_definition)
+	if not legacy_template.is_empty():
+		_legacy_templates[definition_id] = legacy_template.duplicate(true)
+	return true
+
+
 func load_book(
 	book_value: Variant,
 	source_scope: String,
@@ -356,6 +476,61 @@ func create_instance(
 	)
 
 
+func create_restored_instance(
+	definition_id: String,
+	instance_id: String,
+	charges: int,
+	equipped: bool,
+	identified: bool,
+	state_data: Dictionary = {},
+	allow_legacy_charge_range := false,
+	allow_reissued_instance_id := false,
+) -> ItemInstance:
+	last_errors.clear()
+	var definition := get_definition(definition_id)
+	if definition == null:
+		_error("", definition_id, "definitionId", "does not resolve in the item catalog")
+		return null
+	var normalized_instance_id := instance_id.strip_edges()
+	if normalized_instance_id.is_empty():
+		_error("", definition_id, "instanceId", "must not be empty")
+	if _issued_instance_ids.has(normalized_instance_id) \
+			and not allow_reissued_instance_id:
+		_error(
+			"",
+			definition_id,
+			"instanceId",
+			"%s has already been issued" % normalized_instance_id,
+		)
+	if not _is_json_compatible(state_data):
+		_error(
+			"",
+			definition_id,
+			"stateData",
+			"must contain JSON-compatible string-keyed data",
+		)
+	var maximum_charges := int(definition.gameplay_value("maxCharges", 0))
+	if not allow_legacy_charge_range \
+			and (charges < 0 or (maximum_charges > 0 and charges > maximum_charges)):
+		_error(
+			"",
+			definition_id,
+			"charges",
+			"%d is outside the supported range 0..%d" % [charges, maximum_charges],
+		)
+	if not last_errors.is_empty():
+		return null
+	_issued_instance_ids[normalized_instance_id] = true
+	return ItemInstanceScript.new(
+		normalized_instance_id,
+		definition_id,
+		charges,
+		equipped,
+		identified,
+		state_data,
+	)
+
+
 func create_instance_for_catalog_key(
 	catalog_key: String,
 	overrides: Dictionary = {},
@@ -375,6 +550,57 @@ func bind_legacy_template(definition_id: String, template: Dictionary) -> bool:
 		return false
 	_legacy_templates[definition_id] = template.duplicate(true)
 	return true
+
+
+func legacy_template(definition_id: String) -> Dictionary:
+	var template_value: Variant = _legacy_templates.get(definition_id)
+	return template_value.duplicate(true) if template_value is Dictionary else {}
+
+
+func legacy_dictionary_for_instance(instance: ItemInstance) -> Dictionary:
+	last_errors.clear()
+	if instance == null:
+		_error("", "", "instance", "must not be null")
+		return {}
+	var definition := get_definition(instance.definition_id)
+	if definition == null:
+		_error(
+			"",
+			instance.definition_id,
+			"definitionId",
+			"does not resolve in the item catalog",
+		)
+		return {}
+	var result := legacy_template(instance.definition_id)
+	if result.is_empty():
+		_error(
+			"",
+			instance.definition_id,
+			"legacyTemplate",
+			"has not been bound",
+		)
+		return {}
+	result["definitionId"] = instance.definition_id
+	result["instanceId"] = instance.instance_id
+	result["charges"] = instance.charges
+	result["equipped"] = 1 if instance.equipped else 0
+	result["is_identified"] = 1 if instance.identified else 0
+	result["stateData"] = instance.state_data()
+	return result
+
+
+func rollback_import(
+	instance_ids: Array[String],
+	embedded_definition_ids: Array[String],
+) -> void:
+	for instance_id: String in instance_ids:
+		_issued_instance_ids.erase(instance_id)
+	for definition_id: String in embedded_definition_ids:
+		var definition := get_definition(definition_id)
+		if definition == null or definition.source_scope != "embedded":
+			continue
+		_definitions.erase(definition_id)
+		_legacy_templates.erase(definition_id)
 
 
 func create_legacy_item(

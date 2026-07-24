@@ -142,24 +142,36 @@ func _on_chara_panel_selected_for_picking(cp : CharaSmallPanel) :
 #func _on_choicebox_choice_picked(ans : String) :
 	#print("answer : " + ans )
 
-func use_inventory_item(item : Dictionary, user : Creature) :  #from inventory menu
-	print('ExMenusState use_inventory_item '+item["name"])
-	if item.has("_on_field_use") :
-		print('ExMenusState use_inventory_item '+item["name"]+" has _on_field_use script")
-		item["_on_field_use"]._on_field_use(user, item)
-		if item.has("delete_on_empty") and (item["delete_on_empty"] == 1) :
-			if item.has("charges") and item["charges"]<=0 :
+func use_inventory_item(item: ItemInstance, user: Creature) -> void:
+	var resources = NodeAccess.__Resources()
+	var definition := resources.get_item_definition(item)
+	if definition == null:
+		return
+	print("ExMenusState use_inventory_item " + definition.display_name_for(item))
+	if resources.item_has_hook(item, "field_use"):
+		var hook_result: Dictionary = resources.run_item_hook(
+			item,
+			"field_use",
+			[user],
+		)
+		if not bool(hook_result.get("ok", false)):
+			for message: Variant in hook_result.get("errors", []):
+				push_error(str(message))
+			return
+		if definition.delete_on_empty:
+			if item.charges <= 0:
 				var dropped = user.drop_inventory_item(item)
 				if dropped :
 					SfxPlayer.stream = NodeAccess.__Resources().sounds_book["drop item.ogg"]
 					SfxPlayer.play()
 			GameGlobal.refresh_OW_HUD()
-			return
-		if item.has("_on_field_use_spell" ) :
+		return
+	var spell_use := resources.item_spell_use(item, "field")
+	if spell_use.size() >= 2:
 			print("ItemSmallBUtton ITEM RIGHT CLICKED HAS A _on_field_use_spell")
 			print("ItemSmallBUtton _on_field_use_spell TBI :(")
-			var spellname : String = item["_on_field_use_spell"][0]
-			var spellpower : int =  item["_on_field_use_spell"][1]
+			var spellname : String = spell_use[0]
+			var spellpower : int = spell_use[1]
 			var spell = GameGlobal.cmp_resources.spells_book[spellname]["script"]
 			
 			

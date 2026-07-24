@@ -218,18 +218,43 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		money = [0,0,0]
 
 
+	var restored_inventory_equipment := false
 	if data.has("inventory") :
-		for item in data["inventory"] :
-			print("PC init ITEM  ", item["name"])
-			if item.has("equipped") :
-				print("   equipped ? ", item["equipped"])
-			var resourcenode = NodeAccess.__Resources()
-			item = resourcenode.generate_item_from_json_dict(item)
-			if item.has("equipped") :
-				print("   equipped ? ", item["equipped"])
-			inventory.append(item)
-			if item["equipped"] == 2 :
-				equip_item(item)
+		var resourcenode = NodeAccess.__Resources()
+		var restored_result: Dictionary = (
+			resourcenode.deserialize_item_inventory(data["inventory"])
+			if resourcenode != null
+				and resourcenode.has_method("deserialize_item_inventory")
+			else {
+				"ok": false,
+				"errors": ["Item serialization service is unavailable"],
+			}
+		)
+		if bool(restored_result.get("ok", false)):
+			for item_value: Variant in restored_result.get("instances", []):
+				if not (item_value is ItemInstance):
+					continue
+				var item: ItemInstance = item_value
+				var definition := resourcenode.get_item_definition(item)
+				print(
+					"PC init ITEM  ",
+					definition.display_name_for(item) if definition != null else "",
+				)
+				var should_equip := item.equipped
+				item.equipped = false
+				if not add_inventory_item(item, -1, true):
+					continue
+				var inventory_item: ItemInstance = item_inventory.back()
+				if should_equip and not equip_item(inventory_item):
+					# Older saves can contain loadouts that exceed Remake's slot
+					# rules (for example, a bow and a readied dagger). Preserve
+					# their authored equipped state even when it cannot be
+					# reconstructed through the current equipment bookkeeping.
+					inventory_item.equipped = true
+			restored_inventory_equipment = true
+		else:
+			for message: Variant in restored_result.get("errors", []):
+				push_error(str(message))
 
 	if data.has("spells") :
 		spells = data["spells"]
@@ -264,19 +289,12 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 
 
 	#set current "Melee Weapon" "Ranged Weapon" "Ammunition"
-	for item in inventory :
-		if item["equipped"] :  #=1 or 2 for unequipped but should be equipped on load
-			if item["slots"].has("Melee Weapon") :
-				current_melee_weapons.erase(ITEM_NO_MELEE_WEAPON)
-				current_melee_weapons.append(item)
-#				current_melee_weapon = item
-				break
-			if item["slots"].has("Ranged Weapon") :
-				current_range_weapon = item
-				break
-			if item["slots"].has("Ammunition") :
-				current_ammo_weapon = item
-				break
+	if not restored_inventory_equipment:
+		for item: ItemInstance in item_inventory.duplicate():
+			if not item.equipped:
+				continue
+			item.equipped = false
+			equip_item(item)
 
 	recalculate_stats()
 #	# generate inventory from the data dict :
@@ -594,14 +612,13 @@ func set_classic_creation_resources(
 	if classic_creation_resources_initialized:
 		return {"status": "skipped", "reason": "already-applied"}
 	for item_value: Variant in items:
-		if not (item_value is Dictionary):
+		if not (item_value is ItemInstance or item_value is Dictionary):
 			return {
 				"status": "error",
 				"message": "Classic starting resources contain an invalid item.",
 			}
-	for item_value: Variant in inventory:
-		if item_value is Dictionary \
-				and int(item_value.get("equipped", 0)) != 0:
+	for item_value: ItemInstance in item_inventory:
+		if item_value.equipped:
 			return {
 				"status": "error",
 				"message": (
@@ -611,15 +628,20 @@ func set_classic_creation_resources(
 
 	# Native race/class gifts are replaced, not combined with the active
 	# Classic caste's creation resources.
-	inventory.clear()
+	clear_inventory_items()
 	money = [0, 0, 0]
 	var added_item_ids: Array[int] = []
 	var skipped_item_ids: Array[int] = []
 	for item_value: Variant in items:
-		var item: Dictionary = item_value.duplicate(true)
-		item["is_identified"] = 1
-		item["equipped"] = 0
-		var item_id := int(item.get("classicItemId", 0))
+		var item: ItemInstance = NodeAccess.__Resources().import_item_instance(
+			item_value
+		)
+		if item == null:
+			continue
+		item.identified = true
+		item.equipped = false
+		var item_ids := NodeAccess.__Resources().item_classic_ids(item)
+		var item_id: int = item_ids[0] if not item_ids.is_empty() else 0
 		if add_inventory_item(item):
 			added_item_ids.append(item_id)
 		else:
@@ -628,12 +650,14 @@ func set_classic_creation_resources(
 	# Realmz checks item weight before adding startmoney to carried load.
 	money[0] = starting_money
 	var unequipped_item_ids: Array[int] = []
-	for item_value: Variant in inventory:
-		if int(item_value.get("equippable", 0)) == 0:
+	for item_value: ItemInstance in item_inventory:
+		var definition := get_item_definition(item_value)
+		if definition == null or not definition.equippable:
 			continue
 		if not equip_item(item_value):
+			var item_ids := NodeAccess.__Resources().item_classic_ids(item_value)
 			unequipped_item_ids.append(
-				int(item_value.get("classicItemId", 0))
+				item_ids[0] if not item_ids.is_empty() else 0
 			)
 	classic_creation_resources_initialized = true
 	return {
@@ -716,10 +740,22 @@ func level_up() :
 
 
 func can_equip_item(item) -> bool :
-	print("PlayerCharacter "+name+" can_equip_item : ", item["name"])
+	var instance := get_item_instance(item)
+	if instance == null and item is ItemInstance:
+		instance = item
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return false
+	print(
+		"PlayerCharacter "+name+" can_equip_item : ",
+		definition.display_name_for(instance),
+	)
 #	print(equipment_slots)
 	var classic_permission := (
-		ClassicCharacterRulesScript.classic_item_use_permission(self, item)
+		ClassicCharacterRulesScript.classic_item_use_permission(
+			self,
+			NodeAccess.__Resources().legacy_item_view_for_adapter(instance),
+		)
 	)
 	if not bool(classic_permission.get("allowed", true)):
 		return false
@@ -730,47 +766,56 @@ func can_equip_item(item) -> bool :
 	var my_class_types : Array = classgd.classrace_types
 	var my_race_types : Array = racegd.classrace_types
 
-	if item.has("only_usable_by_classes") and not classic_identity_handled :
-		var item_usable_by_classes : Array = item["only_usable_by_classes"]
+	var item_usable_by_classes := definition.only_usable_by_classes()
+	if not item_usable_by_classes.is_empty() and not classic_identity_handled :
 		if not array_contains_lfstr_or_one_of_oarray(item_usable_by_classes, classgd.classrace_name,my_class_types) :
 			return false
-	if item.has("only_usable_by_races") and not classic_identity_handled :
-		var item_usable_by_races : Array = item["only_usable_by_races"]
+	var item_usable_by_races := definition.only_usable_by_races()
+	if not item_usable_by_races.is_empty() and not classic_identity_handled :
 		if not array_contains_lfstr_or_one_of_oarray(item_usable_by_races, racegd.classrace_name,my_race_types) :
 			return false
-	if item.has("not_usable_by_classes") :
-		var item_not_usable_by_classes : Array = item["not_usable_by_classes"]
+	var item_not_usable_by_classes := definition.not_usable_by_classes()
+	if not item_not_usable_by_classes.is_empty():
 		if array_contains_lfstr_or_one_of_oarray(item_not_usable_by_classes, classgd.classrace_name,my_class_types) :
 			return false
-	if item.has("not_usable_by_races") :
-		var item_not_usable_by_races : Array = item["not_usable_by_races"]
+	var item_not_usable_by_races := definition.not_usable_by_races()
+	if not item_not_usable_by_races.is_empty():
 		if array_contains_lfstr_or_one_of_oarray(item_not_usable_by_races, racegd.classrace_name,my_race_types) :
 			return false
 	#check "not_usable_by"
 	var hasfreeslots : bool = true
-	for s in item["slots"] :
+	var item_slots := definition.slots()
+	for s in item_slots:
 		hasfreeslots = hasfreeslots and (equipment_slots[s]==0)
 	print(" PlayerCharacter hasfreeslots l274 : ", hasfreeslots)
-	if item.has("hands") :
+	if definition.hand_count > 0:
 
 	# you can equip two 1 handed melee weapons if you can dual wield
 	# however you may still equip  only  one shield
-		if item["slots"].has("Shield") :
-			hasfreeslots = hasfreeslots and (free_hands >= item["hands"])
+		if item_slots.has("Shield") :
+			hasfreeslots = hasfreeslots and (free_hands >= definition.hand_count)
 			print(" PlayerCharacter hasfreeslots l281: ", hasfreeslots)
 		else :
-			if item["slots"].has("Melee Weapon") :
-				hasfreeslots =  hasfreeslots and (free_hands >= item["hands"])
+			if item_slots.has("Melee Weapon") :
+				hasfreeslots =  hasfreeslots and (free_hands >= definition.hand_count)
 				print(" PlayerCharacter hasfreeslots l284: ", hasfreeslots)
-			if item["slots"].has("Melee Weapon") and equipment_slots["Melee Weapon"]!=0 :
+			if item_slots.has("Melee Weapon") and equipment_slots["Melee Weapon"]!=0 :
 				hasfreeslots = can_dual_wield and hasfreeslots
-	print(" PlayerCharacter canequipitem : ", equippable_types[item["type"]]>0, 'free slots:',hasfreeslots)
-	return equippable_types[item["type"]]>0 and hasfreeslots #and super.can_equip_item(item)
+	print(" PlayerCharacter canequipitem : ", equippable_types[definition.item_type]>0, 'free slots:',hasfreeslots)
+	return equippable_types[definition.item_type]>0 and hasfreeslots #and super.can_equip_item(item)
 
 
-func can_use_inventory_item(item: Dictionary) -> bool:
+func can_use_inventory_item(item: Variant) -> bool:
+	var instance := get_item_instance(item)
+	if instance == null and item is ItemInstance:
+		instance = item
+	if instance == null:
+		return false
 	var permission := (
-		ClassicCharacterRulesScript.classic_item_use_permission(self, item)
+		ClassicCharacterRulesScript.classic_item_use_permission(
+			self,
+			NodeAccess.__Resources().legacy_item_view_for_adapter(instance),
+		)
 	)
 	return bool(permission.get("allowed", true))
 
@@ -909,6 +954,8 @@ func start_preparing()->void :
 
 func get_save_string()->String :
 	var crea_string : String = super.get_save_string()
+	if crea_string.is_empty():
+		return ""
 	crea_string += (',\n"selection_pts" : '+ str(selection_pts))
 	crea_string += (',\n"exp_tnl" : '+ str(exp_tnl))
 	crea_string += (',\n"campaign" : "'+ str(cur_campaign)+'"')

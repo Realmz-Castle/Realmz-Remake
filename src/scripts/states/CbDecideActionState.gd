@@ -806,8 +806,10 @@ func on_spellcast_confirmed(msg : Dictionary) :
 	var spell = msg["spell"]
 	#print("CbDecideState on_spellcast_confirmed, spell is ", spell.name)
 	var power : int = msg["s_plvl"]
-	var used_item : Dictionary = msg["used_item"]
-	if used_item.is_empty() \
+	var used_item: Variant = msg["used_item"]
+	var no_used_item: bool = used_item == null \
+		or (used_item is Dictionary and used_item.is_empty())
+	if no_used_item \
 			and not spell.get("is_not_spell") \
 			and not current_active_creabutton.creature.can_cast_spells():
 		set_spell_targeting_mode(false, {})
@@ -866,24 +868,40 @@ func on_spellcast_confirmed(msg : Dictionary) :
 
 
 
-func use_inventory_item(item : Dictionary, user : Creature) :  #from inventory menu
-	print('CbDecideState use_inventory_item '+item["name"])
-	if item.has("_on_combat_use") :
-		print('CbDecideState use_inventory_item '+item["name"]+" has _on_field_use script")
-		item["_on_combat_use"]._on_combat_use(user, item)
-		if item.has("delete_on_empty") and (item["delete_on_empty"] == 1) :
-			if item.has("charges") and item["charges"]<=0 :
+func use_inventory_item(item: ItemInstance, user: Creature) -> void:
+	var resources = NodeAccess.__Resources()
+	var definition := resources.get_item_definition(item)
+	if definition == null:
+		return
+	print("CbDecideState use_inventory_item " + definition.display_name_for(item))
+	if resources.item_has_hook(item, "combat_use"):
+		var hook_result: Dictionary = resources.run_item_hook(
+			item,
+			"combat_use",
+			[user],
+		)
+		if not bool(hook_result.get("ok", false)):
+			for message: Variant in hook_result.get("errors", []):
+				push_error(str(message))
+			return
+		if definition.delete_on_empty:
+			if item.charges <= 0:
 				var dropped = user.drop_inventory_item(item)
 				if dropped :
 					SfxPlayer.stream = NodeAccess.__Resources().sounds_book["drop item.ogg"]
 					SfxPlayer.play()
 		GameGlobal.refresh_OW_HUD()
 		return
-	if item.has("_on_combat_use_spell" ) :
-			print("CbDecideState ITEM CLICKED HAS A _on_combat_use_spell")
-			var spellname : String = item["_on_combat_use_spell"][0]
-			var spellpower : int =  item["_on_combat_use_spell"][1]
-			var spell = GameGlobal.cmp_resources.spells_book[spellname]["script"]
-			var msg : Dictionary = {"used_item" : item, "caster" : user, "spell" : spell, "power" : spellpower}
-			#StateMachine.transition_to("Combat/CbDecideAction", )
-			StateMachine.transition_to("Combat/CbDecideAction", msg)
+	var spell_use := resources.item_spell_use(item, "combat")
+	if spell_use.size() >= 2:
+		print("CbDecideState ITEM CLICKED HAS A _on_combat_use_spell")
+		var spellname : String = spell_use[0]
+		var spellpower : int = spell_use[1]
+		var spell = GameGlobal.cmp_resources.spells_book[spellname]["script"]
+		var msg: Dictionary = {
+			"used_item": item,
+			"caster": user,
+			"spell": spell,
+			"power": spellpower,
+		}
+		StateMachine.transition_to("Combat/CbDecideAction", msg)

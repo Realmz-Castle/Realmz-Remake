@@ -56,11 +56,19 @@ static func party_has_named_item(party: Array, item_names: Array) -> bool:
 	for character_value: Variant in party:
 		if not (character_value is Object):
 			continue
-		var inventory: Variant = character_value.get("inventory")
-		if not (inventory is Array):
+		for item_value: Variant in _character_inventory_items(character_value):
+			if _item_matches(character_value, item_value, {}, names):
+				return true
+	return false
+
+
+static func party_has_classic_item(party: Array, item_ids: Array) -> bool:
+	var normalized_ids := _normalized_ids(item_ids)
+	for character_value: Variant in party:
+		if not (character_value is Object):
 			continue
-		for item_value: Variant in inventory:
-			if item_value is Dictionary and _item_matches(item_value, names):
+		for item_value: Variant in _character_inventory_items(character_value):
+			if _item_matches(character_value, item_value, normalized_ids, {}):
 				return true
 	return false
 
@@ -71,17 +79,60 @@ static func alter_named_items(
 	max_matches: int,
 	operation: int,
 	charge_delta: int,
-	replacement_item: Dictionary = {}
+	replacement_item: Variant = null,
+	replacement_factory: Callable = Callable(),
+) -> Dictionary:
+	return _alter_items(
+		party,
+		{},
+		_normalized_names(item_names),
+		max_matches,
+		operation,
+		charge_delta,
+		replacement_item,
+		replacement_factory,
+	)
+
+
+static func alter_classic_items(
+	party: Array,
+	item_ids: Array,
+	max_matches: int,
+	operation: int,
+	charge_delta: int,
+	replacement_item: Variant = null,
+	replacement_factory: Callable = Callable(),
+) -> Dictionary:
+	return _alter_items(
+		party,
+		_normalized_ids(item_ids),
+		{},
+		max_matches,
+		operation,
+		charge_delta,
+		replacement_item,
+		replacement_factory,
+	)
+
+
+static func _alter_items(
+	party: Array,
+	classic_ids: Dictionary,
+	names: Dictionary,
+	max_matches: int,
+	operation: int,
+	charge_delta: int,
+	replacement_item: Variant,
+	replacement_factory: Callable,
 ) -> Dictionary:
 	if max_matches < 0:
 		return _error("Classic item mutation count cannot be negative")
 	if not [1, 2, 3].has(operation):
 		return _error("Classic item mutation operation %d is invalid" % operation)
-	if operation == 3 and replacement_item.is_empty():
+	if operation == 3 and replacement_item == null:
 		return _error("Classic replacement item is unavailable")
-	var names := _normalized_names(item_names)
-	if names.is_empty():
-		return _error("Classic item mutation has no item names")
+	if names.is_empty() and classic_ids.is_empty():
+		return _error("Classic item mutation has no item identity")
 
 	var changed := 0
 	var reequip_failures := 0
@@ -90,34 +141,82 @@ static func alter_named_items(
 			break
 		if not (character_value is Object):
 			return _error("Classic item mutation target is not a character")
-		var inventory_value: Variant = character_value.get("inventory")
-		if not (inventory_value is Array):
+		var inventory := _character_inventory_items(character_value)
+		if inventory.is_empty() and not _character_has_inventory(character_value):
 			return _error("Classic item mutation target has no inventory")
-		var inventory: Array = inventory_value
-		var item_index := 0
-		while item_index < inventory.size() and changed < max_matches:
-			var item_value: Variant = inventory[item_index]
-			if not (item_value is Dictionary) or not _item_matches(item_value, names):
-				item_index += 1
+		for item_value: Variant in inventory:
+			if changed >= max_matches:
+				break
+			if not _item_matches(character_value, item_value, classic_ids, names):
 				continue
-			var item: Dictionary = item_value
-			var was_equipped := int(item.get("equipped", 0)) == 1
-			if operation != 2 and was_equipped and not _unequip_item(character_value, item):
-				return _error("Classic item mutation could not unequip '%s'" % item.get("name", "item"))
+			var item_index := _character_inventory_items(character_value).find(
+				item_value
+			)
+			var item_name := _item_display_name(character_value, item_value)
+			var was_equipped := _item_is_equipped(item_value)
+			if operation != 2 and was_equipped \
+					and not _unequip_item(character_value, item_value):
+				return _error(
+					"Classic item mutation could not unequip '%s'" % item_name
+				)
 			match operation:
 				1:
-					inventory.remove_at(item_index)
+					if character_value.has_method("remove_inventory_item"):
+						if not character_value.remove_inventory_item(item_value, true):
+							return _error(
+								"Classic item mutation could not remove '%s'"
+								% item_name
+							)
+					else:
+						var legacy_inventory: Array = character_value.get("inventory")
+						legacy_inventory.remove_at(item_index)
 				2:
-					item["charges"] = int(item.get("charges", 0)) + charge_delta
-					item_index += 1
+					_set_item_charges(
+						item_value,
+						_item_charges(item_value) + charge_delta,
+					)
+					_sync_character_inventory(character_value, item_value)
 				3:
-					var replacement := replacement_item.duplicate(true)
-					replacement["equipped"] = 0
-					replacement["is_identified"] = 0
-					inventory[item_index] = replacement
+					var replacement: Variant = _replacement_copy(
+						replacement_item,
+						replacement_factory,
+					)
+					if replacement == null:
+						return _error(
+							"Classic item mutation could not create its replacement"
+						)
+					_set_item_equipped(replacement, false)
+					_set_item_identified(replacement, false)
+					if character_value.has_method("remove_inventory_item") \
+							and character_value.has_method("add_inventory_item"):
+						if not character_value.remove_inventory_item(item_value, true):
+							return _error(
+								"Classic item mutation could not remove '%s'"
+								% item_name
+							)
+						if not character_value.add_inventory_item(
+							replacement,
+							item_index,
+							true,
+						):
+							character_value.add_inventory_item(
+								item_value,
+								item_index,
+								true,
+							)
+							if was_equipped:
+								_equip_item(character_value, item_value)
+							return _error(
+								"Classic item mutation could not add its replacement"
+							)
+						replacement = _character_inventory_items(
+							character_value
+						)[item_index]
+					else:
+						var legacy_inventory: Array = character_value.get("inventory")
+						legacy_inventory[item_index] = replacement
 					if was_equipped and not _equip_item(character_value, replacement):
 						reequip_failures += 1
-					item_index += 1
 			changed += 1
 	return {
 		"changed": changed,
@@ -128,23 +227,21 @@ static func alter_named_items(
 static func remove_equipped_cursed_items(character: Object) -> Dictionary:
 	if character == null:
 		return _error("Classic curse removal target is unavailable")
-	var inventory_value: Variant = character.get("inventory")
-	if not (inventory_value is Array):
+	if not _character_has_inventory(character):
 		return _error("Classic curse removal target has no inventory")
 
 	var unequipped := 0
-	for item_value: Variant in inventory_value:
-		if not (item_value is Dictionary):
-			continue
-		var item: Dictionary = item_value
-		if int(item.get("equipped", 0)) != 1 or not _item_is_cursed(item):
+	for item_value: Variant in _character_inventory_items(character):
+		if not _item_is_equipped(item_value) \
+				or not _item_is_cursed(character, item_value):
 			continue
 		# Passing false is Remake's equivalent of Classic's force flag: it skips
 		# an item's normal unequip veto while retaining equipment bookkeeping.
-		if not _unequip_item(character, item):
-			return _error("Classic curse removal could not unequip '%s'" % item.get(
-				"name", "item"
-			))
+		if not _unequip_item(character, item_value):
+			return _error(
+				"Classic curse removal could not unequip '%s'"
+				% _item_display_name(character, item_value)
+			)
 		unequipped += 1
 	return {"status": "applied", "unequipped": unequipped}
 
@@ -157,17 +254,30 @@ static func capture_party_equipment(party: Array, pooled_money: Array) -> Dictio
 	var stored_wealth := [int(pooled_money[0]), int(pooled_money[1]), int(pooled_money[2])]
 	var item_count := 0
 	for character_value: Variant in party:
-		var inventory: Array = character_value.get("inventory")
+		var inventory := _character_inventory_items(character_value)
 		var money: Array = character_value.get("money")
-		stored_inventories.append(inventory.duplicate(true))
+		var stored_inventory := inventory.duplicate()
+		var equipped_states: Array[bool] = []
+		for item_value: Variant in inventory:
+			equipped_states.append(_item_is_equipped(item_value))
+		stored_inventories.append(stored_inventory)
 		item_count += inventory.size()
 		for currency: int in 3:
 			stored_wealth[currency] += int(money[currency])
 		for item_value: Variant in inventory:
-			if item_value is Dictionary and int(item_value.get("equipped", 0)) == 1:
+			if _item_is_equipped(item_value):
 				if not _unequip_item(character_value, item_value):
 					return _error("Classic equipment capture could not unequip an item")
-		inventory.clear()
+		if character_value.has_method("clear_inventory_items"):
+			character_value.clear_inventory_items()
+		else:
+			var legacy_inventory: Array = character_value.get("inventory")
+			legacy_inventory.clear()
+		for item_index: int in stored_inventory.size():
+			_set_item_equipped(
+				stored_inventory[item_index],
+				equipped_states[item_index],
+			)
 		for currency: int in 3:
 			money[currency] = 0
 	for currency: int in 3:
@@ -206,24 +316,46 @@ static func restore_party_equipment(
 	var reequip_failures := 0
 	for character_index: int in party.size():
 		var character: Object = party[character_index]
-		var inventory: Array = character.get("inventory")
+		var inventory := _character_inventory_items(character)
 		for item_value: Variant in inventory:
-			if not (item_value is Dictionary):
-				continue
-			if int(item_value.get("equipped", 0)) == 1 and not _unequip_item(character, item_value):
+			if _item_is_equipped(item_value) and not _unequip_item(
+				character,
+				item_value,
+			):
 				return _error("Classic equipment restore could not unequip an interim item")
-			extra_items.append(item_value.duplicate(true))
-		inventory.clear()
+			extra_items.append(
+				item_value if item_value is ItemInstance \
+				else item_value.duplicate(true)
+			)
+		if character.has_method("clear_inventory_items"):
+			character.clear_inventory_items()
+		else:
+			var legacy_inventory: Array = character.get("inventory")
+			legacy_inventory.clear()
 		var saved_inventory: Variant = stored_inventories[character_index]
 		if not (saved_inventory is Array):
 			return _error("Classic equipment storage contains an invalid inventory")
 		for stored_item_value: Variant in saved_inventory:
-			if not (stored_item_value is Dictionary):
+			if not (
+				stored_item_value is ItemInstance
+				or stored_item_value is Dictionary
+			):
 				continue
-			var restored_item: Dictionary = stored_item_value.duplicate(true)
-			var was_equipped := int(restored_item.get("equipped", 0)) == 1
-			restored_item["equipped"] = 0
-			inventory.append(restored_item)
+			var restored_item: Variant = stored_item_value \
+				if stored_item_value is ItemInstance \
+				else stored_item_value.duplicate(true)
+			var was_equipped := _item_is_equipped(restored_item)
+			_set_item_equipped(restored_item, false)
+			if character.has_method("add_inventory_item"):
+				if not character.add_inventory_item(restored_item, -1, true):
+					return _error(
+						"Classic equipment restore could not add a stored item"
+					)
+				if not (restored_item is ItemInstance):
+					restored_item = character.inventory.back()
+			else:
+				var legacy_inventory: Array = character.get("inventory")
+				legacy_inventory.append(restored_item)
 			if was_equipped and not _equip_item(character, restored_item):
 				reequip_failures += 1
 			restored_count += 1
@@ -274,9 +406,12 @@ static func _share_pooled_money(party: Array, pooled_money: Array) -> void:
 
 static func _classic_carried_weight(character: Object) -> int:
 	var carried_weight := 0
-	var inventory: Array = character.get("inventory")
-	for item_value: Variant in inventory:
-		if item_value is Dictionary:
+	for item_value: Variant in _character_inventory_items(character):
+		if item_value is ItemInstance:
+			var definition := _item_definition(character, item_value)
+			if definition != null:
+				carried_weight += definition.total_weight(item_value)
+		elif item_value is Dictionary:
 			carried_weight += int(item_value.get("weight", 0))
 			carried_weight += int(item_value.get("charges_weight", 0)) \
 				* int(item_value.get("charges", 0))
@@ -290,7 +425,7 @@ static func _validate_party_storage(party: Array, pooled_money: Array) -> Dictio
 	for character_value: Variant in party:
 		if not (character_value is Object):
 			return _error("Classic equipment storage target is not a character")
-		if not (character_value.get("inventory") is Array):
+		if not _character_has_inventory(character_value):
 			return _error("Classic equipment storage target has no inventory")
 		var money: Variant = character_value.get("money")
 		if not (money is Array) or money.size() < 3:
@@ -314,27 +449,106 @@ static func _validate_party_wealth(party: Array, pooled_money: Array) -> Diction
 	return {}
 
 
-static func _unequip_item(character: Object, item: Dictionary) -> bool:
-	if int(item.get("equipped", 0)) != 1:
+static func _character_inventory_items(character: Object) -> Array:
+	if character != null and character.has_method("inventory_instances"):
+		return character.inventory_instances()
+	var inventory_value: Variant = character.get("inventory") \
+		if character != null else []
+	return inventory_value if inventory_value is Array else []
+
+
+static func _character_has_inventory(character: Object) -> bool:
+	return character != null and (
+		character.has_method("inventory_instances")
+		or character.get("inventory") is Array
+	)
+
+
+static func _item_is_equipped(item: Variant) -> bool:
+	if item is ItemInstance:
+		return item.equipped
+	return (
+		item is Dictionary
+		and int(item.get("equipped", 0)) == 1
+	)
+
+
+static func _set_item_equipped(item: Variant, equipped: bool) -> void:
+	if item is ItemInstance:
+		item.equipped = equipped
+	elif item is Dictionary:
+		item["equipped"] = 1 if equipped else 0
+
+
+static func _unequip_item(character: Object, item: Variant) -> bool:
+	if not _item_is_equipped(item):
 		return true
 	if character.has_method("unequip_item"):
 		return bool(character.unequip_item(item, false))
-	item["equipped"] = 0
+	_set_item_equipped(item, false)
 	return true
 
 
-static func _equip_item(character: Object, item: Dictionary) -> bool:
+static func _equip_item(character: Object, item: Variant) -> bool:
 	if character.has_method("equip_item"):
 		return bool(character.equip_item(item))
-	item["equipped"] = 1
+	_set_item_equipped(item, true)
 	return true
 
 
-static func _item_matches(item: Dictionary, normalized_names: Dictionary) -> bool:
-	return normalized_names.has(str(item.get("name", "")).strip_edges().to_lower())
+static func _sync_character_inventory(
+	character: Object,
+	item: Variant = null,
+) -> void:
+	if character == null:
+		return
+	if item != null and character.has_method("sync_item_runtime_state"):
+		# Compatibility-only fake characters may still expose a dictionary sync
+		# method; live Creature instances carry ItemInstance state directly.
+		character.sync_item_runtime_state(item)
+	elif character.has_method("inventory_instances"):
+		character.inventory_instances()
 
 
-static func _item_is_cursed(item: Dictionary) -> bool:
+static func _item_matches(
+	character: Object,
+	item: Variant,
+	classic_ids: Dictionary,
+	normalized_names: Dictionary,
+) -> bool:
+	var definition := _item_definition(character, item)
+	if not classic_ids.is_empty():
+		if definition == null:
+			return false
+		for item_id: int in definition.classic_item_ids():
+			if classic_ids.has(item_id):
+				return true
+		return false
+	if definition != null:
+		return normalized_names.has(
+			definition.display_name.strip_edges().to_lower()
+		)
+	return (
+		item is Dictionary
+		and normalized_names.has(
+			str(item.get("name", "")).strip_edges().to_lower()
+		)
+	)
+
+
+static func _item_is_cursed(character: Object, item: Variant) -> bool:
+	var definition := _item_definition(character, item)
+	if definition != null:
+		var classic_record := definition.classic_record()
+		if int(classic_record.get("cursedItemId", 0)) != 0:
+			return true
+		for trait_value: Variant in definition.trait_descriptors():
+			if trait_value is Array and not trait_value.is_empty() \
+					and str(trait_value[0]).get_file() == "p_cursed.gd":
+				return true
+		return false
+	if not (item is Dictionary):
+		return false
 	for field_name: String in ["classicCursedItemId", "cursedItemId"]:
 		if int(item.get(field_name, 0)) != 0:
 			return true
@@ -352,12 +566,75 @@ static func _item_is_cursed(item: Dictionary) -> bool:
 	return false
 
 
+static func _item_definition(
+	character: Object,
+	item: Variant,
+) -> ItemDefinition:
+	if character != null and character.has_method("get_item_definition"):
+		var definition: Variant = character.get_item_definition(item)
+		if definition is ItemDefinition:
+			return definition
+	return null
+
+
+static func _item_display_name(character: Object, item: Variant) -> String:
+	var definition := _item_definition(character, item)
+	if definition != null:
+		return definition.display_name_for(item) if item is ItemInstance \
+			else definition.display_name
+	return str(item.get("name", "item")) if item is Dictionary else "item"
+
+
+static func _item_charges(item: Variant) -> int:
+	return item.charges if item is ItemInstance \
+		else int(item.get("charges", 0)) if item is Dictionary else 0
+
+
+static func _set_item_charges(item: Variant, charges: int) -> void:
+	if item is ItemInstance:
+		item.charges = charges
+	elif item is Dictionary:
+		item["charges"] = charges
+
+
+static func _set_item_identified(item: Variant, identified: bool) -> void:
+	if item is ItemInstance:
+		item.identified = identified
+	elif item is Dictionary:
+		item["is_identified"] = 1 if identified else 0
+
+
+static func _replacement_copy(
+	replacement_item: Variant,
+	replacement_factory: Callable,
+) -> Variant:
+	if replacement_item is ItemInstance:
+		if not replacement_factory.is_valid():
+			return null
+		return replacement_factory.call(replacement_item, {
+			"equipped": false,
+			"identified": false,
+		})
+	if replacement_item is Dictionary:
+		return replacement_item.duplicate(true)
+	return null
+
+
 static func _normalized_names(item_names: Array) -> Dictionary:
 	var normalized: Dictionary = {}
 	for item_name_value: Variant in item_names:
 		var item_name := str(item_name_value).strip_edges().to_lower()
 		if not item_name.is_empty():
 			normalized[item_name] = true
+	return normalized
+
+
+static func _normalized_ids(item_ids: Array) -> Dictionary:
+	var normalized: Dictionary = {}
+	for item_id_value: Variant in item_ids:
+		var item_id: int = abs(int(item_id_value))
+		if item_id != 0:
+			normalized[item_id] = true
 	return normalized
 
 

@@ -214,6 +214,9 @@ func set_current_profile(profilename : String) -> void :
 
 func load_profile_characters() :
 	profile_characters_list.clear()
+	var resources: CampaignResources = NodeAccess.__Resources()
+	if resources != null and not resources.ensure_shared_item_catalog_loaded():
+		push_error("Shared item definitions could not be loaded before profile characters.")
 	#load all the characters
 	var characterfoldernameslist = Utils.FileHandler.list_dirs_in_directory(Paths.profilesfolderpath+"/"+Paths.currentProfileFolderName+"/Characters/")
 	for c in characterfoldernameslist :
@@ -610,28 +613,14 @@ func campaign_start_load_shops_data(itemsbook : Dictionary) :
 	if shops_dict.is_empty() :
 		shops_dict = shopScript.build_shops()
 		return
-	# else, rebuild the image textures of the items in  buyback :
-	#"imgdatasize": 236, "imgdata": "H4
-	var resourcesnode = NodeAccess.__Resources()
-	for shopname in shops_dict.keys() :
-		for arr in shops_dict[shopname]["BuyBack"] :
-			# arr[0] is the item dict
-			arr[0] = resourcesnode.generate_item_from_json_dict(arr[0])
-#			print('arr[0]["imgdata"]) : ', arr[0]["imgdata"])
-#			#extract the image from the compressed poolbytearray, copied from Resource  script
-#			var imgdatacompressed : PackedByteArray = Marshalls.base64_to_raw(arr[0]["imgdata"])
-#			var imgdata : PackedByteArray = imgdatacompressed.decompress(arr[0]["imgdatasize"], FileAccess.COMPRESSION_GZIP)
-#			var image : Image = Image.new()
-#			image.load_png_from_buffer(imgdata)
-#			var texture : ImageTexture = ImageTexture.new()
-#			texture.create_from_image(image) #,0 # no flags, no filter
-#			arr[0]["texture"] = texture
+	# Saved buyback items remain portable ItemInstance payloads until ShopRect
+	# materializes the exact instance that its button will sell.
 func get_shop(shopname : String) :
 	return shops_dict[shopname]
 	#return shopScript.get_shop(shopname, shops_dict[shopname])
 
 
-func current_shop_accepts_item(item : Dictionary) -> bool :
+func current_shop_accepts_item(item: Variant) -> bool:
 	return ShopRules.accepts_item(currentShop, shops_dict, item)
 
 func shop_purchase_balances(character_gold: int, pooled_gold: int, cost: int) -> Array[int]:
@@ -1327,19 +1316,33 @@ const dmg_spell_elem_def_stats_dict : Dictionary = {
 
 
 #returns a float  between 0.0 and 1.0, to use as a chance
-func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon : Dictionary, should_check_script : bool = true) -> float :
-	#var weapon : Dictionary = attacker.current_melee_weapons[weapon_index]
+func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon: Variant, should_check_script : bool = true) -> float :
+	var weapon_instance: ItemInstance = attacker.get_item_instance(weapon)
+	var resources = NodeAccess.__Resources()
+	var compatibility_weapon: Dictionary = (
+		resources.legacy_item_view_for_adapter(weapon_instance)
+		if weapon_instance != null else weapon if weapon is Dictionary else {}
+	)
 	var accuracy : float = 0.0
 	var evasion : float = 0.0
-	if not ClassicMonsterWeaponRulesScript.can_hit(attacker, defender, weapon):
+	if not ClassicMonsterWeaponRulesScript.can_hit(
+		attacker,
+		defender,
+		compatibility_weapon,
+	):
 		return 0.0
-	if weapon.has("_calculate_melee_accuracy_source") and should_check_script :
-		#print("GameGlobal calculate_melee_accuracy USE CUSTOM ACC STRIPT")
-		accuracy = weapon["_calculate_melee_accuracy"]._calculate_melee_accuracy(
-			attacker,
-			defender,
-			weapon
+	if weapon_instance != null and should_check_script \
+			and resources.item_has_hook(weapon_instance, "melee_accuracy"):
+		var hook_result: Dictionary = resources.run_item_hook(
+			weapon_instance,
+			"melee_accuracy",
+			[attacker, defender],
 		)
+		if not bool(hook_result.get("ok", false)):
+			for message: Variant in hook_result.get("errors", []):
+				push_error(str(message))
+			return 0.0
+		accuracy = float(hook_result.get("value", 0.0))
 	else :
 		accuracy = attacker.get_stat("AccuracyMelee")  #checks traits too
 		evasion = defender.get_stat("EvasionMelee")
@@ -1360,20 +1363,27 @@ func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon :
 	)
 
 
-func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : Dictionary, is_crit : bool, crit_mult : float, should_check_script : bool = true) -> Dictionary :
+func calculate_melee_damage(attacker : Creature, defender : Creature, weapon: Variant, is_crit : bool, crit_mult : float, should_check_script : bool = true) -> Dictionary :
 #	print("GameGlobal calculate_melee_damage, atker : ",attacker.name,", defnder : ",defender.name, " check script : ", should_check_script)
-	#var weapon : Dictionary = attacker.current_melee_weapons[0] #TODO use left hand  weapon too ?
+	var weapon_instance: ItemInstance = attacker.get_item_instance(weapon)
+	var resources = NodeAccess.__Resources()
+	var definition: ItemDefinition = resources.get_item_definition(weapon_instance) \
+		if weapon_instance != null else null
 	var weapon_damage : Dictionary = {"Physical": 0}
 #	print(weapon)
-	if weapon.has("_calculate_melee_attack_source") and should_check_script :
+	if weapon_instance != null and should_check_script \
+			and resources.item_has_hook(weapon_instance, "melee_attack"):
 		print("GameGlobal calculate_melee_damage USE CUSTOM ATK STRIPT")
-		var custom_damage: Dictionary = weapon["_calculate_melee_attack"]._calculate_melee_attack(
-			attacker,
-			defender,
-			weapon,
-			is_crit,
-			crit_mult
+		var hook_result: Dictionary = resources.run_item_hook(
+			weapon_instance,
+			"melee_attack",
+			[attacker, defender, is_crit, crit_mult],
 		)
+		if not bool(hook_result.get("ok", false)):
+			for message: Variant in hook_result.get("errors", []):
+				push_error(str(message))
+			return weapon_damage
+		var custom_damage: Dictionary = hook_result.get("value", {})
 		custom_damage = apply_classic_foe_type_damage_bonus(
 			custom_damage,
 			attacker,
@@ -1384,10 +1394,12 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 		return apply_classic_party_weapon_protection(custom_damage, attacker, defender)
 	#if weapon["name"] == "NO_MELEE_WEAPON" :
 		#print("GameGlobal calculate_melee_damage NO_MELEE_WEAPON : ", weapon)
-	var wpn_dmg_types : Dictionary = weapon["weapon_dmg"]
+	var wpn_dmg_types: Dictionary = definition.weapon_damage() \
+		if definition != null else weapon.get("weapon_dmg", {}) \
+		if weapon is Dictionary else {}
 	for t in wpn_dmg_types :
 		var t_dmg_range : Array = wpn_dmg_types[t]
-		if t == "Physical":
+		if t == "Physical" and weapon is Dictionary:
 			t_dmg_range = (
 				ClassicCharacterRulesScript.adjusted_unarmed_damage_range(
 					attacker,
@@ -1397,13 +1409,16 @@ func calculate_melee_damage(attacker : Creature, defender : Creature, weapon : D
 			)
 		var t_damage : float = float( randi_range(t_dmg_range[0], t_dmg_range[1]) )
 		weapon_damage[t] = t_damage
-	if weapon.has("weapon_tag_bonus_dmg") :
-		for t in weapon["weapon_tag_bonus_dmg"] :
+	var tagged_weapon_damage: Dictionary = definition.tagged_weapon_damage() \
+		if definition != null else weapon.get("weapon_tag_bonus_dmg", {}) \
+		if weapon is Dictionary else {}
+	if not tagged_weapon_damage.is_empty():
+		for t in tagged_weapon_damage:
 			if defender.tags.has(t) :
-				for e in weapon["weapon_tag_bonus_dmg"][t] :
+				for e in tagged_weapon_damage[t]:
 					if not weapon_damage.has(e) :
 						weapon_damage[e]=0
-					var bonus_value: Variant = weapon["weapon_tag_bonus_dmg"][t][e]
+					var bonus_value: Variant = tagged_weapon_damage[t][e]
 					if bonus_value is Array and bonus_value.size() >= 2:
 						weapon_damage[e] += randi_range(
 							int(bonus_value[0]),
@@ -1652,13 +1667,23 @@ func give_exp_to_pcs(
 func can_character_receive_experience(character) -> bool:
 	return ClassicAnimationScript.can_receive_experience(character)
 
-#returns [boolean, character with item, item itself  or emptydict]
-func does_party_have_same_item(item : Dictionary)->Array :
+#returns [boolean, character with item, item instance or null]
+func does_party_have_same_item(item: Variant) -> Array:
+	var candidate_definition_id := ""
+	if item is ItemInstance:
+		candidate_definition_id = item.definition_id
+	elif item is Dictionary:
+		var imported: ItemInstance = NodeAccess.__Resources().import_item_instance(item)
+		if imported != null:
+			candidate_definition_id = imported.definition_id
 	for pc in player_characters :
-		var got_dict : Dictionary = pc.get_item(item)
-		if not got_dict.is_empty() :
-			return [true, pc, got_dict]
-	return [false, null, {}]
+		for carried: ItemInstance in pc.inventory_instances():
+			if (
+				not candidate_definition_id.is_empty()
+				and carried.definition_id == candidate_definition_id
+			):
+				return [true, pc, carried]
+	return [false, null, null]
 
 
 func play_sfx(sfx_name : String) ->void :
@@ -1752,8 +1777,12 @@ func is_global_effect_active(effect_name: String) -> bool:
 	return effect is Dictionary and int(effect.get("Duration", 0)) > 0
 
 
-func identify_item(item : Dictionary) :
-	item["is_identified"] = 1
+func identify_item(item: Variant) -> void:
+	var instance: ItemInstance = item if item is ItemInstance \
+		else NodeAccess.__Resources().import_item_instance(item)
+	if instance == null:
+		return
+	instance.identified = true
 
 # calculate the  range  counting diagonals as 1.5
 func calculate_range_vi(vect : Vector2i)->int :
@@ -1768,8 +1797,8 @@ func calculate_range_v(vect : Vector2)->int :
 	var d = min(x,y)
 	return floor(d*1.5+ x-d +y-d)
 
-func generate_item(itemname : String) -> Dictionary :
-	return NodeAccess.__Resources().generate_item_from_catalog(itemname)
+func generate_item(itemname : String) -> ItemInstance:
+	return NodeAccess.__Resources().create_item_instance(itemname)
 
 #updates the current_map_script_name according to stuff done flags that disable or change the AP
 #returns false iff AP should not be executed due to chance  (or disabled if chance==0)

@@ -62,6 +62,6 @@ static func get_aoe(_power : int, _casterchar) :
 
 static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _effected_tiles, _effected_creas, _add_terrain) -> bool :
 	for c : Creature in _effected_creas :
-		for i : Dictionary in c.inventory :
-			i['is_identified'] = 1
+		for i: ItemInstance in c.inventory_instances():
+			i.identified = true
 	return true

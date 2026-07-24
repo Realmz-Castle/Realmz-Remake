@@ -64,8 +64,10 @@ static func special_effect(_castercrea, _spell, _power, _main_targeted_tile, _ef
 	var text : String = ''
 	for c : Creature in _effected_creas :
 		var c_magic_items : Array = []
-		for i : Dictionary in c.inventory :
-			if i['is_magical'] : c_magic_items.append(i['name'])
+		for i: ItemInstance in c.inventory_instances():
+			var definition := NodeAccess.__Resources().get_item_definition(i)
+			if definition != null and definition.magical:
+				c_magic_items.append(definition.display_name_for(i))
 		if c_magic_items.is_empty() :
 			text += c.name + ' carries no magic item.\\n'
 		else :

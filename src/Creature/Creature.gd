@@ -180,14 +180,39 @@ var base_stats = stats.duplicate(true)
 var level : int = 0 # Except for Players, this is only indicative of a Creature's power
 
 var abilities : Array = [] #Melee attack, magic, items etc
-var inventory : Array = [] # items worn/carried and usable/dropped by this creature
+var item_inventory: Array[ItemInstance] = []
+# Retain the old property name as an alias for campaign scripts, but expose the
+# authoritative instances rather than a parallel dictionary model.
+var inventory: Array[ItemInstance] = item_inventory
 
 var ITEM_NO_MELEE_WEAPON : Dictionary = {"name":"NO_MELEE_WEAPON", "weapon_dmg" : {"Physical" : [1,3]}, "stats" : {}, "charges" : 0, "charges_max" : 0, "sound" : "punch_male.wav"} #changed to var so sound can be changed
-var current_melee_weapons : Array = [ITEM_NO_MELEE_WEAPON] #array of dictionaries
+var current_melee_weapon_instances: Array[ItemInstance] = []
+var current_melee_weapons: Array:
+	get:
+		return (
+			current_melee_weapon_instances
+			if not current_melee_weapon_instances.is_empty()
+			else [ITEM_NO_MELEE_WEAPON]
+		)
 var ITEM_NO_RANGE_WEAPON : Dictionary = {"name":"NO_RANGE_WEAPON", "stats" : {}, "charges" : 0, "charges_max" : 0, "ammo_type" : "cantuse", "sound" : "punch_female.wav"} #changed to var so sound can be changed
-var current_range_weapon : Dictionary = ITEM_NO_RANGE_WEAPON
+var current_range_weapon_instance: ItemInstance = null
+var current_range_weapon: Variant:
+	get:
+		return (
+			current_range_weapon_instance
+			if current_range_weapon_instance != null
+			else ITEM_NO_RANGE_WEAPON
+		)
 var ITEM_NO_AMMO_WEAPON : Dictionary = {"name":"NO_AMMO_WEAPON", "stats" : {}, "charges" : 0, "charges_max" : 0, "ammo_type" : "none", "sound" : "punch_female.wav"}
-var current_ammo_weapon : Dictionary = ITEM_NO_AMMO_WEAPON
+var current_ammo_weapon_instance: ItemInstance = null
+var current_ammo_weapon: Variant:
+	get:
+		return (
+			current_ammo_weapon_instance
+			if current_ammo_weapon_instance != null
+			else ITEM_NO_AMMO_WEAPON
+		)
+var _equipment_traits_by_item: Dictionary = {}
 
 var rotating_unarmed_melee_weapons : Array = []  # for stuff like ClawClawBite  or status efefcts from attacks
 
@@ -385,16 +410,20 @@ func recalculate_stats() :
 	for s in stats :
 		if s != 'curHP' and s != 'curSP' :
 			stats[s] = base_stats[s]
-	for e in  inventory :
-		if e["equipped"] == 1 :
-			for s in e["stats"] :
+	for instance: ItemInstance in item_inventory:
+		if instance.equipped:
+			var definition := get_item_definition(instance)
+			if definition == null:
+				continue
+			var item_stats := definition.stats()
+			for s in item_stats:
 				if s.begins_with("Multiplier") :
-					if stats[s]>=0 and e["stats"][s]>=0 :
-						stats[s] *= e["stats"][s]
+					if stats[s]>=0 and item_stats[s]>=0 :
+						stats[s] *= item_stats[s]
 					else :
-						stats[s] = -absf(e["stats"][s] * stats[s])
+						stats[s] = -absf(item_stats[s] * stats[s])
 				elif not NOTREALSTATS.has(s) :
-					stats[s] += e["stats"][s]
+					stats[s] += item_stats[s]
 	for t in traits :
 		for s in stats :
 #			if t.has_method("_on_calculate_"+s) :
@@ -428,18 +457,24 @@ func get_stat(statname : String) :
 	return this_stat
 
 # checks for weight or other limitations and scripts
-func can_add_inventory_item(item : Dictionary) ->bool :
+func can_add_inventory_item(item: Variant) ->bool :
 #	print("creature can add inventory item :")
 #	print(get_inventory_weight()+item_get_weight(item),' <> ',stats["Weight_Limit"])
 	return get_inventory_weight()+item_get_weight(item)<=get_stat("Weight_Limit")
 
-func item_get_weight(item : Dictionary)->int :
-	return item["weight"]+item["charges_weight"]*item["charges"]
+func item_get_weight(item: Variant)->int :
+	var instance := get_item_instance(item)
+	if instance == null and item is ItemInstance:
+		instance = item
+	if instance == null:
+		return 0
+	var definition := get_item_definition(instance)
+	return definition.total_weight(instance) if definition != null else 0
 
 func get_inventory_weight() -> int :
 	var carriedweight : int = 0
-	for i in inventory :
-		carriedweight += item_get_weight(i)
+	for instance: ItemInstance in item_inventory:
+		carriedweight += item_get_weight(instance)
 	carriedweight += ( money[0] +money[1] +money[2] )
 	return carriedweight
 
@@ -463,41 +498,180 @@ func get_apr_left() :
 func get_spellsperround_left() :
 	return get_stat("MaxSpellsPerRound") - used_spr
 
-func add_inventory_item(item : Dictionary,  index = -1) ->bool :
+func add_inventory_item(
+	item: Variant,
+	index := -1,
+	allow_over_capacity := false,
+) ->bool :
 #	print("Creature add_inventory_item :  i changed true  to can_add_inventory_item")
-	if can_add_inventory_item(item) :
-		if index==-1 :
-			inventory.append(item.duplicate(true))
-		else :
-			inventory.insert(index,item.duplicate(true))
-		return true
-	else :
+	var resources = NodeAccess.__Resources()
+	if resources == null or not resources.has_method("import_item_instance"):
 		return false
+	var instance: ItemInstance = resources.import_item_instance(item)
+	if instance == null or item_inventory.has(instance):
+		return false
+	if not allow_over_capacity and not can_add_inventory_item(instance):
+		return false
+	var insertion_index := item_inventory.size() \
+		if index < 0 or index > item_inventory.size() else index
+	item_inventory.insert(insertion_index, instance)
+	return true
 
-#  can be used to check if character has item too  if dict  returned is empty
-func get_item(item : Dictionary) -> Dictionary :
-	for  i in inventory :
-		if i["name"]==item["name"] and i["weight"]==item["weight"] and i["stats_mini"]==item["stats_mini"] and i["price"]==item["price"] :
-			return i
-	return {}
+
+func add_inventory_item_copy(item: Variant, index := -1) -> bool:
+	var instance := get_item_instance(item)
+	if instance == null and item is ItemInstance:
+		instance = item
+	if instance == null:
+		return false
+	var resources = NodeAccess.__Resources()
+	var copied_instance: ItemInstance = resources.copy_item_instance(instance) \
+		if resources != null else null
+	return copied_instance != null and add_inventory_item(copied_instance, index)
 
 
-func drop_inventory_item(item : Dictionary) -> bool :
-	print(name+" drop_inventory_item "+item["name"])
-	if item["equipped"]!=0 :
+func transfer_inventory_item_to(
+	target: Creature,
+	item: Variant,
+	target_index := -1,
+) -> bool:
+	if target == null or target == self:
+		return false
+	var instance := get_item_instance(item)
+	if instance == null or instance.equipped:
+		return false
+	var source_index := item_inventory.find(instance)
+	if source_index < 0 or not target.can_add_inventory_item(instance):
+		return false
+	if not remove_inventory_item(instance):
+		return false
+	if target.add_inventory_item(instance, target_index):
+		return true
+	add_inventory_item(instance, source_index, true)
+	return false
+
+
+# Returns the exact carried instance, never a definition copy.
+func get_item(item: Variant) -> ItemInstance:
+	return get_item_instance(item)
+
+
+func get_item_instance(item: Variant) -> ItemInstance:
+	if item is ItemInstance:
+		return item if item_inventory.has(item) else null
+	if not (item is Dictionary):
+		return null
+	var attached := _attached_item_instance(item)
+	if attached != null and item_inventory.has(attached):
+		return attached
+	# Custom bestiary attack rows are transient combat descriptors, not carried
+	# items. Do not send them through the old-save importer during combat lookup.
+	if str(item.get("name", "")) in [
+		"NO_MELEE_WEAPON",
+		"NO_RANGE_WEAPON",
+		"NO_AMMO_WEAPON",
+	] or str(item.get("type", "")) == "Unarmed":
+		return null
+	var resources = NodeAccess.__Resources()
+	if resources == null:
+		return null
+	var imported: ItemInstance = resources.import_item_instance(item)
+	if imported == null:
+		return null
+	for carried: ItemInstance in item_inventory:
+		if carried.definition_id == imported.definition_id:
+			return carried
+	return null
+
+
+func get_item_definition(item: Variant) -> ItemDefinition:
+	var instance := get_item_instance(item)
+	if instance == null and item is ItemInstance:
+		instance = item
+	var resources = NodeAccess.__Resources()
+	if resources == null or not resources.has_method("get_item_definition"):
+		return null
+	return resources.get_item_definition(instance)
+
+
+func inventory_instances() -> Array[ItemInstance]:
+	return item_inventory.duplicate()
+
+
+func consume_item_charges(item: Variant, amount := 1) -> bool:
+	var instance := get_item_instance(item)
+	if instance == null or amount < 0:
+		return false
+	instance.charges -= amount
+	return true
+
+
+func remove_inventory_item(item: Variant, allow_equipped := false) -> bool:
+	var instance := get_item_instance(item)
+	if instance == null:
+		return false
+	if instance.equipped:
+		if not allow_equipped or not unequip_item(instance, false):
+			return false
+	var index := item_inventory.find(instance)
+	if index < 0:
+		return false
+	item_inventory.remove_at(index)
+	current_melee_weapon_instances.erase(instance)
+	if current_range_weapon_instance == instance:
+		current_range_weapon_instance = null
+	if current_ammo_weapon_instance == instance:
+		current_ammo_weapon_instance = null
+	return true
+
+
+func clear_inventory_items() -> void:
+	for instance: ItemInstance in item_inventory.duplicate():
+		if instance.equipped:
+			unequip_item(instance, false)
+	item_inventory.clear()
+	current_melee_weapon_instances.clear()
+	current_range_weapon_instance = null
+	current_ammo_weapon_instance = null
+	_equipment_traits_by_item.clear()
+
+
+func drop_inventory_item(item: Variant) -> bool :
+	var instance := get_item_instance(item)
+	if instance == null:
+		return false
+	var definition := get_item_definition(instance)
+	print(
+		name + " drop_inventory_item "
+		+ (definition.display_name_for(instance) if definition != null else "")
+	)
+	if instance.equipped:
 		SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.ogg']
 		SfxPlayer.play()
 		return false
 	var dropped = true
-	if item.has("_on_drop_source") :
-		var returned = item["_on_drop"]._on_drop(self,item)
-		if returned != null :
-			dropped = returned
+	var resources = NodeAccess.__Resources()
+	if resources != null and resources.item_has_hook(instance, "drop"):
+		var hook_result: Dictionary = resources.run_item_hook(
+			instance,
+			"drop",
+			[self],
+		)
+		if not bool(hook_result.get("ok", false)):
+			for message: Variant in hook_result.get("errors", []):
+				push_error(str(message))
+			return false
+		var returned: Variant = hook_result.get("value")
+		if returned != null:
+			dropped = bool(returned)
 	if dropped :
-		inventory.erase(item)
+		return remove_inventory_item(instance)
 	return dropped
 
 
+func _attached_item_instance(item_view: Dictionary) -> ItemInstance:
+	var attached_value: Variant = item_view.get("_item_instance")
+	return attached_value if attached_value is ItemInstance else null
 
 func add_trait(traitscript, trait_array : Array) -> RefCounted:  #trait_array is the arguments passed to the trait script to initialize it
 	print("Creature add_trait before" , name)
@@ -764,20 +938,31 @@ func initialize_from_bestiary_dict(creaname : String) :
 	money = cdata["tools"]["money"]
 	for i_name_eq_arr in cdata["tools"]["inventory"] :
 		# [item name, should equip, optional drops on defeat]
-		var item_added : Dictionary = resources.items_book[i_name_eq_arr[0]].duplicate()
+		var item_added: ItemInstance = resources.create_item_instance(
+			str(i_name_eq_arr[0])
+		)
 		if not add_inventory_item(item_added):
 			continue
-		var inventory_item: Dictionary = inventory.back()
-		inventory_item["drops_on_defeat"] = true
+		var inventory_item: ItemInstance = item_inventory.back()
+		inventory_item.set_state_value("dropsOnDefeat", true)
 		if i_name_eq_arr.size() > 2:
-			inventory_item["drops_on_defeat"] = bool(i_name_eq_arr[2])
+			inventory_item.set_state_value(
+				"dropsOnDefeat",
+				bool(i_name_eq_arr[2]),
+			)
 		if i_name_eq_arr.size() > 3:
-			inventory_item["classic_item_slot"] = int(i_name_eq_arr[3])
+			inventory_item.set_state_value(
+				"classicItemSlot",
+				int(i_name_eq_arr[3]),
+			)
+		var inventory_definition := get_item_definition(inventory_item)
+		var inventory_name := inventory_definition.display_name \
+			if inventory_definition != null else str(i_name_eq_arr[0])
 		if i_name_eq_arr[1]>0 :
-			print("Creature generation : "+name+" equips "+inventory_item["name"])
+			print("Creature generation : "+name+" equips "+inventory_name)
 			equip_item(inventory_item)
 		else :
-			print("Creature generation : "+name+" does not equip "+inventory_item["name"])
+			print("Creature generation : "+name+" does not equip "+inventory_name)
 	
 	#rotating_unarmed_melee_weapons
 	rotating_unarmed_melee_weapons.clear()
@@ -786,7 +971,11 @@ func initialize_from_bestiary_dict(creaname : String) :
 	print("loaded_unarmed ",loaded_unarmed)
 	for wdata : Dictionary in loaded_unarmed :
 		if wdata.has("weapon_name") :
-			rotating_unarmed_melee_weapons.append(resources.items_book[ wdata["weapon_name"] ].duplicate())
+			var catalog_weapon: ItemInstance = resources.create_item_instance(
+				str(wdata["weapon_name"])
+			)
+			if catalog_weapon != null:
+				rotating_unarmed_melee_weapons.append(catalog_weapon)
 		else :
 			#{"weapon_dmg" : {"Physical" : [1,4], "Ice" : [1,2]}, "sound" : "slurpy.wav", "icon" : "Slime", "melee_inflicted_traits" : [  ["regeneration_over_time.gd" , [1.0,-1] ,1.0]  ] },
 			wdata["imgdata"] = ''
@@ -795,13 +984,6 @@ func initialize_from_bestiary_dict(creaname : String) :
 			wdata["name"] = 'NO_MELEE_WEAPON'
 			var item = resources.generate_item_from_json_dict(wdata)
 			rotating_unarmed_melee_weapons.append(item)
-	if rotating_unarmed_melee_weapons.size()>0 \
-			and (current_melee_weapons.is_empty() \
-			or current_melee_weapons[0]["name"] == "NO_MELEE_WEAPON"):
-		if current_melee_weapons.is_empty():
-			current_melee_weapons.append(rotating_unarmed_melee_weapons[0])
-		else:
-			current_melee_weapons[0] = rotating_unarmed_melee_weapons[0]
 	
 	if cdata.has("traits") :
 		var cdata_traits_arrays_array : Array = cdata["traits"]
@@ -924,8 +1106,6 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	if saved_data.get("base_stats") is Dictionary:
 		base_stats = saved_data["base_stats"].duplicate(true)
 	var saved_inventory: Variant = saved_data.get("inventory")
-	if saved_inventory is Array:
-		_clear_inventory_for_restore()
 	if saved_data.get("spells") is Array:
 		_restore_saved_spells(saved_data["spells"], resources)
 	if saved_data.get("traits") is Array:
@@ -974,24 +1154,34 @@ func _restore_saved_spells(saved_spell_levels: Array, resources: Object) -> void
 
 
 func _clear_inventory_for_restore() -> void:
-	for item_value: Variant in inventory.duplicate():
-		if item_value is Dictionary and int(item_value.get("equipped", 0)) > 0:
-			unequip_item(item_value, false)
-	inventory.clear()
+	clear_inventory_items()
 
 
 func _restore_saved_inventory(saved_inventory: Array, resources: Object) -> bool:
-	for item_value: Variant in saved_inventory:
-		if not (item_value is Dictionary):
+	if not resources.has_method("deserialize_item_inventory"):
+		return false
+	var restored_result: Dictionary = resources.deserialize_item_inventory(
+		saved_inventory
+	)
+	if not bool(restored_result.get("ok", false)):
+		for message: Variant in restored_result.get("errors", []):
+			push_error(str(message))
+		return false
+	var restored_items: Array = restored_result.get("instances", [])
+	_clear_inventory_for_restore()
+	for item_value: Variant in restored_items:
+		if not (item_value is ItemInstance):
 			return false
-		var should_equip := int(item_value.get("equipped", 0)) > 0
-		var restored_item: Dictionary = resources.generate_item_from_json_dict(item_value)
-		restored_item["equipped"] = 0
-		if not add_inventory_item(restored_item):
+		var restored_item: ItemInstance = item_value
+		var should_equip := restored_item.equipped
+		restored_item.equipped = false
+		if not add_inventory_item(restored_item, -1, true):
 			return false
-		var inventory_item: Dictionary = inventory.back()
+		var inventory_item: ItemInstance = item_inventory.back()
 		if should_equip and not equip_item(inventory_item):
-			return false
+			# Preserve legacy overcommitted equipment rather than rejecting the
+			# entire save when current slot rules cannot recreate its bookkeeping.
+			inventory_item.equipped = true
 	return true
 
 # called by CbDecideAction State
@@ -1096,10 +1286,7 @@ func on_melee_reflection_check(attacker: Creature, weapon: Dictionary) -> bool:
 
 
 func on_after_melee_attack() :
-	if current_melee_weapons[0]["name"]=="NO_MELEE_WEAPON" :
-		if rotating_unarmed_melee_weapons.size()>0 :
-			var index : int = used_apr % rotating_unarmed_melee_weapons.size()
-			current_melee_weapons[0] = rotating_unarmed_melee_weapons[index]
+	pass
 
 
 func is_classic_monster_record() -> bool:
@@ -1124,17 +1311,39 @@ func mark_classic_attack_attempt() -> void:
 		creature_script_memory["classic_did_attack"] = true
 
 
-func get_melee_weapon_for_next_attack() -> Dictionary:
-	var active_weapon: Dictionary = ITEM_NO_MELEE_WEAPON
-	if not current_melee_weapons.is_empty():
-		active_weapon = current_melee_weapons[0]
+func get_melee_weapon_for_next_attack() -> Variant:
+	var active_weapon: Variant = current_melee_weapon_instances[0] \
+		if not current_melee_weapon_instances.is_empty() else ITEM_NO_MELEE_WEAPON
 	if not is_classic_monster_record():
+		if active_weapon == ITEM_NO_MELEE_WEAPON \
+				and not rotating_unarmed_melee_weapons.is_empty():
+			return rotating_unarmed_melee_weapons[
+				posmod(used_apr, rotating_unarmed_melee_weapons.size())
+			]
 		return active_weapon
+	var compatibility_weapon: Dictionary = _classic_weapon_view(active_weapon)
 	return CLASSIC_MONSTER_ATTACK_SEQUENCE_SCRIPT.weapon_for_attack(
-		active_weapon,
-		rotating_unarmed_melee_weapons,
+		compatibility_weapon,
+		_classic_weapon_views(rotating_unarmed_melee_weapons),
 		used_apr
 	)
+
+
+func _classic_weapon_view(weapon: Variant) -> Dictionary:
+	if weapon is Dictionary:
+		return weapon
+	if not (weapon is ItemInstance):
+		return ITEM_NO_MELEE_WEAPON
+	var resources = NodeAccess.__Resources()
+	return resources.legacy_item_view_for_adapter(weapon) \
+		if resources != null else ITEM_NO_MELEE_WEAPON
+
+
+func _classic_weapon_views(weapons: Array) -> Array:
+	var views: Array = []
+	for weapon: Variant in weapons:
+		views.append(_classic_weapon_view(weapon))
+	return views
 
 
 func _on_before_melee_attack(_attacker : CombatCreaButton, damage_detail : Dictionary) -> Array :
@@ -1314,56 +1523,80 @@ func on_ability_use(spell, plvl : int) :
 
 
 func equip_item(item) -> bool :  #returns true iff could equip
-	print("CREATURE "+name+" equip_item "+item["name"])
-	# check if item is in my inventory first !
-	if not inventory.has(item) :
+	var instance := get_item_instance(item)
+	if instance == null:
 		print("ERROR : This character doesn't own this item lol")
 		return false
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return false
+	var item_slots := definition.slots()
+	print("CREATURE "+name+" equip_item "+definition.display_name_for(instance))
 	# Actually Equip the item
-	if can_equip_item(item) :
-		if item["slots"].has("Melee Weapon") :
-#			current_melee_weapon = item
-			current_melee_weapons.erase(ITEM_NO_MELEE_WEAPON)
-			current_melee_weapons.append(item)
+	if can_equip_item(instance) :
+		if item_slots.has("Melee Weapon") :
+			current_melee_weapon_instances.append(instance)
 			var dbugtext : String = ' '
-			for i in current_melee_weapons :
-				dbugtext+= i["name"]+', '
+			for weapon_instance: ItemInstance in current_melee_weapon_instances:
+				var weapon_definition := get_item_definition(weapon_instance)
+				dbugtext += (
+					weapon_definition.display_name_for(weapon_instance)
+					if weapon_definition != null else ""
+				) + ', '
 				
 			print("PlayerChar "+name+" current_melee_weapons : ", dbugtext)
-		if item["slots"].has("Ranged Weapon") :
-			current_range_weapon = item
-			print("PlayerChar "+name+" current_tange_weapon : ", item["name"])
-		if item["slots"].has("Ammunition") :
-			current_ammo_weapon = item
-			print("PlayerChar "+name+" current_ammo_weapon : ", item["name"])
+		if item_slots.has("Ranged Weapon") :
+			current_range_weapon_instance = instance
+			print("PlayerChar "+name+" current_tange_weapon : ", definition.display_name)
+		if item_slots.has("Ammunition") :
+			current_ammo_weapon_instance = instance
+			print("PlayerChar "+name+" current_ammo_weapon : ", definition.display_name)
 		
 		
-		for s in item["slots"] :
+		for s in item_slots:
 			equipment_slots[s]=1
 		
-		if item.has("hands") :
-			free_hands -= item["hands"]
+		if definition.hand_count > 0:
+			free_hands -= definition.hand_count
 		
-		if item["slots"].has("Ring") :
+		if item_slots.has("Ring") :
 			free_ring_slots -= 1
 		
-		item["equipped"] = 1
-		if item.has("_on_equipping") :
-#			print("item "+item["name"]+" checked equipping")
-			item["_on_equipping"]._on_equipping(self, item)
-		else :
-			pass
-#			print("item has no \"_on_equipping\" script")
+		instance.equipped = true
+		var resources = NodeAccess.__Resources()
+		if resources != null and resources.item_has_hook(instance, "equip"):
+			var hook_result: Dictionary = resources.run_item_hook(
+				instance,
+				"equip",
+				[self],
+			)
+			if not bool(hook_result.get("ok", false)):
+				for message: Variant in hook_result.get("errors", []):
+					push_error(str(message))
 		
-		if item.has("traits") :
-			print("item.has(traits)", item["traits"])
-			for t in item["traits"] :
-				var traitname : String = t[0]
-				print(item[traitname])
-#				new_item[traitname] = [newscript,traitinit]#new_trait_script
-				var  addedtrait = add_trait(item[traitname][0],item[traitname][1])
+		var trait_result: Dictionary = resources.item_trait_bindings(instance) \
+			if resources != null else {"ok": false, "bindings": []}
+		if bool(trait_result.get("ok", false)) \
+				and not trait_result.get("bindings", []).is_empty():
+			var equipped_traits: Array = []
+			for binding_value: Variant in trait_result["bindings"]:
+				var binding: Dictionary = binding_value
+				var trait_args: Variant = binding.get("arguments", [])
+				if not (trait_args is Array):
+					trait_args = [trait_args]
+				var  addedtrait = add_trait(
+					binding.get("script"),
+					trait_args,
+				)
 				if addedtrait.permanent :
-					addedtrait.trait_source = "Equipment : "+item['name']
+					addedtrait.trait_source = (
+						"Equipment : " + definition.display_name_for(instance)
+					)
+				equipped_traits.append(addedtrait)
+			_equipment_traits_by_item[instance.instance_id] = equipped_traits
+		elif not bool(trait_result.get("ok", false)):
+			for message: Variant in trait_result.get("errors", []):
+				push_error(str(message))
 		
 #		print(item.name, " equipped : ", item["equipped"])
 		recalculate_stats()
@@ -1374,93 +1607,112 @@ func equip_item(item) -> bool :  #returns true iff could equip
 
 #returns true if successfully unequipped
 func unequip_item(item, check_script = true) -> bool :
-	var can_unequip : bool = true
-	if check_script and item.has("_on_unequipping") :
-#			print("item "+item["name"]+" checked unequipping")
-		can_unequip = item["_on_unequipping"]._on_equipping(self, item)
-	if not can_unequip :
-		SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.ogg']
-		SfxPlayer.play()
-		return false
-	# check if item is in my inventory first !
-	if not inventory.has(item) :
+	var instance := get_item_instance(item)
+	if instance == null:
 		print("ERROR : This character doesn't own this item lol")
+		return false
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return false
+	var item_slots := definition.slots()
+	var can_unequip : bool = true
+	var resources = NodeAccess.__Resources()
+	if check_script and resources != null \
+			and resources.item_has_hook(instance, "unequip"):
+		var hook_result: Dictionary = resources.run_item_hook(
+			instance,
+			"unequip",
+			[self],
+		)
+		if not bool(hook_result.get("ok", false)):
+			for message: Variant in hook_result.get("errors", []):
+				push_error(str(message))
+			return false
+		var returned: Variant = hook_result.get("value")
+		if returned != null:
+			can_unequip = bool(returned)
+	if not can_unequip :
+		var sound_resources = NodeAccess.__Resources()
+		if sound_resources != null \
+				and sound_resources.sounds_book.has("generation error.ogg"):
+			SfxPlayer.stream = sound_resources.sounds_book["generation error.ogg"]
+			SfxPlayer.play()
 		return false
 	# Actually Unequip the Item :
 	
-	if item["slots"].has("Melee Weapon") :
-#		current_melee_weapon = ITEM_NO_MELEE_WEAPON
-#		print("current_melee_weapons.has(item) ? ",current_melee_weapons.has(item))
-		if current_melee_weapons.has(item) :
-			current_melee_weapons.erase(item)
-		else :
-			var found : bool = false
-			for i in current_melee_weapons :
-				if i["name"] == item["name"] and item["equipped"]==1 :
-					current_melee_weapons.erase(i)
-					found = true
-					break
-			if not found :
-				print("PLAYERCHAR unequip_item ERROR : weapon ws not in current_melee_weapons")
-		if current_melee_weapons.is_empty() :
-			current_melee_weapons = [ITEM_NO_MELEE_WEAPON]
-#		print("PlayerChar "+name+" current_melee_weapons : ", current_melee_weapons)
+	if item_slots.has("Melee Weapon") :
+		current_melee_weapon_instances.erase(instance)
 		var dbugtext : String = ' '
-		for i in current_melee_weapons :
-			dbugtext+= i["name"]+', '
+		for weapon_instance: ItemInstance in current_melee_weapon_instances:
+			var weapon_definition := get_item_definition(weapon_instance)
+			dbugtext += (
+				weapon_definition.display_name_for(weapon_instance)
+				if weapon_definition != null else ""
+			) + ', '
 			
 		print("CREATURE PlayerChar "+name+" current_melee_weapons : ", dbugtext)
 			
-	if item["slots"].has("Ranged Weapon") :
-		current_range_weapon = ITEM_NO_RANGE_WEAPON
-		print("CREATURE PlayerChar "+name+" current_tange_weapon : ", item["name"])
-	if item["slots"].has("Ammunition") :
-		current_ammo_weapon = ITEM_NO_AMMO_WEAPON
-		print("PlayerChar "+name+" current_ammo_weapon : ", item)
+	if item_slots.has("Ranged Weapon") :
+		if current_range_weapon_instance == instance:
+			current_range_weapon_instance = null
+		print("CREATURE PlayerChar "+name+" current_tange_weapon : ", definition.display_name)
+	if item_slots.has("Ammunition") :
+		if current_ammo_weapon_instance == instance:
+			current_ammo_weapon_instance = null
+		print("PlayerChar "+name+" current_ammo_weapon : ", definition.display_name)
 	
 	
-	for s in item["slots"] :
+	for s in item_slots:
 		equipment_slots[s]=0
 	
-	if item["slots"].has("Ring") :
+	if item_slots.has("Ring") :
 		free_ring_slots += 1
 	
-	if item.has("hands") :
-		free_hands += item["hands"]
+	if definition.hand_count > 0:
+		free_hands += definition.hand_count
 	
-	if item.has("traits") :
-#			print("item.has(traits)", item["traits"])
-		for t in item["traits"] :
-			var traitname : String = t[0]
-#				new_item[traitname] = [newscript,traitinit]#new_trait_script
-#zfzfzfzf
-			#remove_trait_stack(item[traitname][0],item[traitname][1])
-			remove_trait(item[traitname][0])
+	if _equipment_traits_by_item.has(instance.instance_id):
+#			print("item.has(traits)", item_view["traits"])
+		var equipped_traits: Array = _equipment_traits_by_item.get(
+			instance.instance_id,
+			[],
+		)
+		for equipped_trait: Variant in equipped_traits:
+			if equipped_trait is RefCounted:
+				remove_trait(equipped_trait)
+		_equipment_traits_by_item.erase(instance.instance_id)
 	
-	item["equipped"] = 0
+	instance.equipped = false
 	recalculate_stats()
 	return true
 #	print(item.name, " equipped : ", item["equipped"])
 
 func can_equip_item(item) -> bool :
-	print("CREATURE "+name+ " can_equip_item ", item["name"])
+	var instance := get_item_instance(item)
+	if instance == null and item is ItemInstance:
+		instance = item
+	var definition := get_item_definition(instance)
+	if definition == null:
+		return false
+	var item_slots := definition.slots()
+	print("CREATURE "+name+ " can_equip_item ", definition.display_name_for(instance))
 #	print(equipment_slots)
 	var hasfreeslots : bool = true
-	for s in item["slots"] :
+	for s in item_slots:
 		hasfreeslots = hasfreeslots and (equipment_slots[s]==0)
 	
-	if item["slots"].has("Ring") :
+	if item_slots.has("Ring") :
 		hasfreeslots = hasfreeslots and free_ring_slots>=1
 	
-	if item.has("hands") :
+	if definition.hand_count > 0:
 	
 	# you can equip two 1 handed melee weapons if you can dual wield
 	# however you may still equip  only  one shield
-		if item["slots"].has("Shield") :
-			hasfreeslots = hasfreeslots and (free_hands >= item["hands"])
+		if item_slots.has("Shield") :
+			hasfreeslots = hasfreeslots and (free_hands >= definition.hand_count)
 		else :
-			hasfreeslots =  (free_hands >= item["hands"])
-			if item["slots"].has("Melee Weapon") and equipment_slots["Melee Weapon"]!=0 :
+			hasfreeslots =  (free_hands >= definition.hand_count)
+			if item_slots.has("Melee Weapon") and equipment_slots["Melee Weapon"]!=0 :
 				hasfreeslots = can_dual_wield and hasfreeslots
 	return hasfreeslots
 
@@ -1490,28 +1742,23 @@ func get_save_string() -> String :
 	savestring += ('\n"curHP" : '+ str(get_stat("curHP"))+',')
 	savestring += ('\n"curSP'+'" : '+ str(get_stat("curSP"))+',')
 	savestring += ('\n"base_stats" : '+ str(base_stats)+',')
-	#save inventory 
-	#to avoid saving traits from equiopment, temporarily unequip all
-	var temp_unequipped_items : Array = []
-	for item in inventory :
-		if item["equipped"] == 1 :
-			if unequip_item(item) :
-				item["equipped"] = 2  #unequipped but tagged for re equipping
-				temp_unequipped_items.append(item)
-		
-	savestring += ('\n"inventory" : [')
-	var addcomma : String = ''
-	for item in inventory :
-		print("CREATURE ITEM HAS imgdatasize ??? ", item["name"], item.has("imgdatasize"))
-		var inventoryJSONstring : String = JSON.stringify(item)
-		savestring += ('\n'+addcomma+inventoryJSONstring)
-		addcomma = ','
-	savestring += ('\n],')
-	
-	print("temp_unequipped_items")
-	for item in temp_unequipped_items :
-#		print("Utils temp_unequipped_items : re equip "+item["name"])
-		equip_item(item)
+	var resources = NodeAccess.__Resources()
+	if resources == null \
+			or not resources.has_method("serialize_item_inventory"):
+		push_error("Item serialization service is unavailable")
+		return ""
+	var inventory_result: Dictionary = resources.serialize_item_inventory(
+		item_inventory
+	)
+	if not bool(inventory_result.get("ok", false)):
+		for message: Variant in inventory_result.get("errors", []):
+			push_error(str(message))
+		return ""
+	savestring += (
+		'\n"inventory" : '
+		+ JSON.stringify(inventory_result.get("value", []))
+		+ ','
+	)
 		
 	#save spells
 	var spell_save_levels := CLASSIC_LEARNED_SPELL_IDENTITY_SCRIPT.serialize_spell_levels(spells)
@@ -1523,7 +1770,7 @@ func get_save_string() -> String :
 	
 	#save traits :
 	savestring += ('\n"traits" : [')
-	addcomma = ''
+	var addcomma := ''
 	for chartrait in traits :
 		if chartrait.name.ends_with('.gd') :
 			var savedvars = JSON.stringify(chartrait.get_saved_variables())

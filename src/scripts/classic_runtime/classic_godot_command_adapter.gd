@@ -159,16 +159,63 @@ func configure_classic_bundle(bundle: Object) -> void:
 
 
 func classic_save_state() -> Dictionary:
-	var saved_equipment := stored_party_equipment.duplicate(true)
-	var inventories: Variant = saved_equipment.get("inventories", [])
+	var saved_equipment := stored_party_equipment.duplicate(false)
+	var inventories: Variant = stored_party_equipment.get("inventories", [])
 	if inventories is Array:
+		var saved_inventories: Array = []
+		var resources := _classic_campaign_resources()
 		for inventory_value: Variant in inventories:
 			if not (inventory_value is Array):
 				continue
+			var saved_inventory: Array = []
 			for item_value: Variant in inventory_value:
-				if item_value is Dictionary:
-					item_value.erase("texture")
+				var serialized_item := _serialize_stored_item(
+					item_value,
+					resources,
+				)
+				if not serialized_item.is_empty():
+					saved_inventory.append(serialized_item)
+			saved_inventories.append(saved_inventory)
+		saved_equipment["inventories"] = saved_inventories
+	var wealth_value: Variant = stored_party_equipment.get("wealth", [])
+	if wealth_value is Array:
+		saved_equipment["wealth"] = wealth_value.duplicate()
 	return {"storedPartyEquipment": saved_equipment}
+
+
+func _serialize_stored_item(item_value: Variant, resources: Node) -> Dictionary:
+	if item_value is ItemInstance \
+			and resources != null \
+			and resources.has_method("serialize_item_inventory"):
+		var serialized_instances: Dictionary = resources.serialize_item_inventory(
+			[item_value]
+		)
+		var instance_values: Variant = serialized_instances.get("value", [])
+		if bool(serialized_instances.get("ok", false)) \
+				and instance_values is Array \
+				and instance_values.size() == 1:
+			return instance_values[0]
+		for error_value: Variant in serialized_instances.get("errors", []):
+			push_error("Classic equipment save: %s" % error_value)
+	if resources != null \
+			and resources.has_method("serialize_runtime_item_inventory") \
+			and item_value is Dictionary:
+		var serialized: Dictionary = resources.serialize_runtime_item_inventory(
+			[item_value]
+		)
+		var values: Variant = serialized.get("value", [])
+		if bool(serialized.get("ok", false)) \
+				and values is Array \
+				and values.size() == 1:
+			return values[0]
+		for error_value: Variant in serialized.get("errors", []):
+			push_error("Classic equipment save: %s" % error_value)
+	if not (item_value is Dictionary):
+		return {}
+	var portable_item: Dictionary = item_value.duplicate(true)
+	portable_item.erase("texture")
+	portable_item.erase("_item_instance")
+	return portable_item
 
 
 static func validate_classic_save_state(saved_state: Variant) -> Dictionary:
@@ -197,16 +244,23 @@ func restore_classic_save_state(saved_state: Dictionary) -> Dictionary:
 	var restored_equipment: Dictionary = equipment_value.duplicate(true)
 	var inventories: Array = restored_equipment.get("inventories", [])
 	var resources := _classic_campaign_resources()
-	if resources == null or not resources.has_method("generate_item_from_json_dict"):
+	if resources == null or not resources.has_method("import_item_instance"):
 		stored_party_equipment = restored_equipment
 		return {"status": "ok"}
 	for inventory_index: int in inventories.size():
 		var inventory_value: Array = inventories[inventory_index]
 		var restored_inventory: Array = []
 		for item_value: Variant in inventory_value:
-			restored_inventory.append(
-				resources.call("generate_item_from_json_dict", item_value.duplicate(true))
-			)
+			var instance: ItemInstance = resources.import_item_instance(item_value)
+			if instance == null:
+				return {
+					"status": "error",
+					"message": (
+						"Classic save contains an unresolved stored item "
+						+ "in inventory %d" % inventory_index
+					),
+				}
+			restored_inventory.append(instance)
 		inventories[inventory_index] = restored_inventory
 	stored_party_equipment = restored_equipment
 	return {"status": "ok"}
@@ -2335,21 +2389,34 @@ func resolve_complex_item_result(
 
 func resolve_complex_item_selection(
 	encounter: Dictionary,
-	item: Dictionary,
+	item: Variant,
 	item_id_mapping: Dictionary,
 	item_texts: Array,
 	scenario_items: Array
 ) -> Dictionary:
-	var selection := classify_complex_item(item, scenario_items)
+	var exact_response := false
+	var response_item_ids: Variant = encounter.get("itemIds", [])
+	if response_item_ids is Array:
+		var carried_ids := _classic_item_ids(item)
+		for response_item_id_value: Variant in response_item_ids:
+			var response_item_id: int = abs(int(response_item_id_value))
+			if response_item_id != 0 and carried_ids.has(response_item_id):
+				exact_response = true
+				break
+	# An encounter-authored item response is more specific than the carried
+	# definition's generic spell-use or door behavior.
+	var selection := {"mode": "item"} \
+		if exact_response else classify_complex_item(item, scenario_items)
 	if str(selection.get("status", "")) == "error":
 		return selection
-	selection["itemName"] = str(item.get("name", ""))
+	var item_name := _item_display_name(item)
+	selection["itemName"] = item_name
 	match str(selection.get("mode", "item")):
 		"item":
 			# Ordinary encounter-response items are inspected, not consumed.
 			selection["outcome"] = resolve_complex_item_result(
 				encounter,
-				str(item.get("name", "")),
+				item_name,
 				item_id_mapping,
 				item_texts,
 				_classic_item_ids(item)
@@ -2368,7 +2435,7 @@ func resolve_complex_item_selection(
 	return selection
 
 
-func classify_complex_item(item: Dictionary, scenario_items: Array) -> Dictionary:
+func classify_complex_item(item: Variant, scenario_items: Array) -> Dictionary:
 	var scenario_item := _matching_scenario_item(item, scenario_items)
 	if not scenario_item.is_empty():
 		var item_type := int(scenario_item.get("type", 0))
@@ -2391,8 +2458,13 @@ func classify_complex_item(item: Dictionary, scenario_items: Array) -> Dictionar
 				"doorActivationActionPointId": action_point_id,
 			}
 
-	for spell_field: String in ["_on_field_use_spell", "_on_combat_use_spell"]:
-		var spell_value: Variant = item.get(spell_field, [])
+	var definition := _item_definition(item)
+	for spell_kind: String in ["field", "combat"]:
+		var spell_value: Variant = definition.spell_use(spell_kind) \
+			if definition != null else item.get(
+				"_on_%s_use_spell" % spell_kind,
+				[],
+			) if item is Dictionary else []
 		if not (spell_value is Array) or spell_value.size() < 2:
 			continue
 		var spell_identity := _native_item_spell_identity(str(spell_value[0]))
@@ -2411,28 +2483,49 @@ func classify_complex_item(item: Dictionary, scenario_items: Array) -> Dictionar
 	return {"mode": "item"}
 
 
-func is_complex_scroll_item(item: Dictionary, scenario_items: Array) -> bool:
-	return str(item.get("type", "")).to_lower() == "scroll" \
+func is_complex_scroll_item(item: Variant, scenario_items: Array) -> bool:
+	var definition := _item_definition(item)
+	var item_type := definition.item_type if definition != null \
+		else str(item.get("type", "")) if item is Dictionary else ""
+	return item_type.to_lower() == "scroll" \
 		and str(classify_complex_item(item, scenario_items).get("mode", "")) == "spell-item"
 
 
-func consume_complex_item(holder: Object, item: Dictionary) -> Dictionary:
+func consume_complex_item(holder: Object, item: Variant) -> Dictionary:
 	if holder == null:
 		return _error("Classic encounter item has no owning character")
-	var inventory: Variant = holder.get("inventory")
-	if not (inventory is Array) or not inventory.has(item):
+	var owned_item: Variant = holder.get_item_instance(item) \
+		if holder.has_method("get_item_instance") else item
+	if owned_item == null:
 		return _error("Classic encounter item is no longer in its owner's inventory")
-	var maximum_charges := int(item.get("charges_max", 0))
+	var inventory: Array = holder.inventory_instances() \
+		if holder.has_method("inventory_instances") else holder.get("inventory")
+	if not inventory.has(owned_item):
+		return _error("Classic encounter item is no longer in its owner's inventory")
+	var definition := _item_definition(owned_item)
+	var maximum_charges: int = definition.maximum_charges if definition != null \
+		else int(owned_item.get("charges_max", 0)) if owned_item is Dictionary else 0
+	var current_charges: int = owned_item.charges if owned_item is ItemInstance \
+		else int(owned_item.get("charges", 0)) if owned_item is Dictionary else 0
 	if maximum_charges <= 0:
-		return {"consumed": false, "remainingCharges": int(item.get("charges", 0))}
-	var remaining_charges := int(item.get("charges", 0))
+		return {"consumed": false, "remainingCharges": current_charges}
+	var remaining_charges: int = current_charges
 	if remaining_charges <= 0:
 		return _error("Classic encounter item has no charges remaining")
 	remaining_charges -= 1
-	item["charges"] = remaining_charges
-	var removed := remaining_charges == 0 and bool(item.get("delete_on_empty", false))
+	if holder.has_method("consume_item_charges"):
+		holder.consume_item_charges(owned_item)
+	else:
+		owned_item["charges"] = remaining_charges
+	var delete_on_empty: bool = definition.delete_on_empty if definition != null \
+		else bool(owned_item.get("delete_on_empty", false)) \
+			if owned_item is Dictionary else false
+	var removed: bool = remaining_charges == 0 and delete_on_empty
 	if removed:
-		inventory.erase(item)
+		if holder.has_method("remove_inventory_item"):
+			holder.remove_inventory_item(owned_item)
+		else:
+			inventory.erase(owned_item)
 	return {
 		"consumed": true,
 		"remainingCharges": remaining_charges,
@@ -2440,7 +2533,7 @@ func consume_complex_item(holder: Object, item: Dictionary) -> Dictionary:
 	}
 
 
-func _matching_scenario_item(item: Dictionary, scenario_items: Array) -> Dictionary:
+func _matching_scenario_item(item: Variant, scenario_items: Array) -> Dictionary:
 	var carried_ids := _classic_item_ids(item)
 	if carried_ids.is_empty():
 		return {}
@@ -2520,11 +2613,38 @@ func _complex_spell_item_response(encounter: Dictionary, selection: Dictionary) 
 	}
 
 
-func _classic_item_ids(item: Dictionary) -> Array[int]:
+func _classic_item_ids(item: Variant) -> Array[int]:
+	var definition := _item_definition(item)
+	if definition != null:
+		return definition.classic_item_ids()
+	if not (item is Dictionary):
+		return []
 	var ids := _classic_resource_ids(item, "classicItemId", "classicItemIds")
 	if ids.is_empty() and item.has("classic_item_id"):
 		ids.append(abs(int(item["classic_item_id"])))
 	return ids
+
+
+func _item_definition(item: Variant) -> ItemDefinition:
+	if item is ItemInstance:
+		var node_access: Object = _autoload("NodeAccess")
+		var resources: Object = node_access.__Resources() \
+			if node_access != null else null
+		if resources != null:
+			return resources.get_item_definition(item)
+	if item is Dictionary:
+		var attached: Variant = item.get("_item_instance")
+		if attached is ItemInstance:
+			return _item_definition(attached)
+	return null
+
+
+func _item_display_name(item: Variant) -> String:
+	var definition := _item_definition(item)
+	if definition != null:
+		return definition.display_name_for(item) if item is ItemInstance \
+			else definition.display_name
+	return str(item.get("name", "")) if item is Dictionary else ""
 
 
 func _append_complex_word_choice(
@@ -2589,10 +2709,10 @@ func _party_has_complex_scroll(scenario_items: Array) -> bool:
 	for character_value: Variant in _party_characters():
 		if not _can_select_item(character_value):
 			continue
-		var inventory: Variant = character_value.get("inventory")
+		var inventory: Array = character_value.inventory_instances() \
+			if character_value.has_method("inventory_instances") \
+			else character_value.get("inventory")
 		for item_value: Variant in inventory:
-			if not (item_value is Dictionary):
-				continue
 			if is_complex_scroll_item(item_value, scenario_items):
 				return true
 	return false
@@ -2686,29 +2806,32 @@ func _select_complex_item(
 	item_menu.show()
 	await item_menu.encounter_item_picked
 	encounter_control.hide()
-	var item: Variant = item_menu.picked_item
-	if not (item is Dictionary) or item.is_empty():
+	var selected_item: Variant = item_menu.picked_item
+	if selected_item == null:
 		return {"status": "cancelled"}
 	var picked_holder: Variant = item_menu.picked_character
 	if not (picked_holder is Object):
 		picked_holder = holder
+	if not (selected_item is ItemInstance or selected_item is Dictionary):
+		return {"status": "cancelled"}
 	var item_id_registry: Object = _autoload("ItemIdDivinity")
 	var item_mapping: Dictionary = item_id_registry.mapping if item_id_registry != null else {}
 	var response_item_texts: Array = item_texts if item_texts is Array else []
 	var available_scenario_items: Array = scenario_items if scenario_items is Array else []
 	var response := resolve_complex_item_selection(
 		encounter,
-		item,
+		selected_item,
 		item_mapping,
 		response_item_texts,
 		available_scenario_items
 	)
 	if str(response.get("status", "")) == "error":
 		return response
-	if required_mode == "scroll" and not is_complex_scroll_item(item, available_scenario_items):
+	if required_mode == "scroll" \
+			and not is_complex_scroll_item(selected_item, available_scenario_items):
 		return {"status": "cancelled"}
 	if bool(response.get("consumeItem", false)):
-		var consumption := consume_complex_item(picked_holder, item)
+		var consumption := consume_complex_item(picked_holder, selected_item)
 		if str(consumption.get("status", "")) == "error":
 			return consumption
 		response["itemConsumption"] = consumption
@@ -2824,6 +2947,8 @@ func _can_select_item(character: Variant) -> bool:
 		return false
 	if float(character.get_stat("curHP")) <= 0.0:
 		return false
+	if character.has_method("inventory_instances"):
+		return not character.inventory_instances().is_empty()
 	var inventory: Variant = character.get("inventory")
 	return inventory is Array and not inventory.is_empty()
 
@@ -3190,6 +3315,42 @@ func build_treasure_delivery(
 	}
 
 
+func build_treasure_delivery_from_catalog(
+	payload: Dictionary,
+	resources: Object,
+) -> Dictionary:
+	if resources == null or not resources.has_method("create_classic_item_instance"):
+		return _error("Realmz item catalog is unavailable")
+	var treasure_value: Variant = payload.get("treasure", {})
+	if not (treasure_value is Dictionary):
+		return _error("Classic treasure payload is missing its record")
+	var treasure: Dictionary = treasure_value
+	var item_ids: Variant = treasure.get("itemIds", [])
+	if not (item_ids is Array):
+		return _error("Classic treasure item IDs must be an array")
+	var items: Array[ItemInstance] = []
+	for item_id_value: Variant in item_ids:
+		var item_id: int = abs(int(item_id_value))
+		if item_id == 0:
+			continue
+		var instance: ItemInstance = resources.create_classic_item_instance(item_id)
+		if instance == null:
+			return _error(
+				"Classic item %d is not in the active item catalog" % item_id
+			)
+		items.append(instance)
+	return {
+		"items": items,
+		"itemIds": item_ids.duplicate(),
+		"money": [
+			int(treasure.get("gold", 0)),
+			int(treasure.get("gems", 0)),
+			int(treasure.get("jewelry", 0)),
+		],
+		"experience": int(treasure.get("exp", 0)),
+	}
+
+
 func build_shop_inventory(
 	payload: Dictionary,
 	item_id_mapping: Dictionary,
@@ -3242,7 +3403,14 @@ func build_shop_inventory(
 				break
 		if item_name.is_empty():
 			return _error("Classic shop item %d has no loaded Remake item mapping" % item_id)
-		categories[SHOP_CATEGORIES[category_index]].append([item_name, quantity, -1])
+		var item_payload: Dictionary = available_items[item_name].duplicate(true)
+		item_payload["name"] = item_name
+		_apply_classic_item_identity(item_payload, item_id)
+		categories[SHOP_CATEGORIES[category_index]].append([
+			item_payload,
+			quantity,
+			-1,
+		])
 		item_count += quantity
 
 	var inflation := int(shop.get("inflation", 100))
@@ -3271,6 +3439,78 @@ func build_shop_inventory(
 		"shop": native_shop,
 		"itemCount": item_count,
 	}
+
+
+func build_shop_inventory_from_catalog(
+	payload: Dictionary,
+	resources: Object,
+) -> Dictionary:
+	if resources == null or not resources.has_method("create_classic_item_instance"):
+		return _error("Realmz item catalog is unavailable")
+	var shop_value: Variant = payload.get("shop", {})
+	if not (shop_value is Dictionary):
+		return _error("Classic shop payload is missing its record")
+	var shop: Dictionary = shop_value
+	var item_ids: Variant = shop.get("itemIds", [])
+	var quantities: Variant = shop.get("quantities", [])
+	if not (item_ids is Array) or not (quantities is Array):
+		return _error("Classic shop stock must use item and quantity arrays")
+	if item_ids.size() != quantities.size():
+		return _error("Classic shop item and quantity arrays have different lengths")
+	var accept_ranges_value: Variant = payload.get("acceptRanges", [0, 0, 0, 0])
+	if not (accept_ranges_value is Array) or accept_ranges_value.size() != 4:
+		return _error("Classic shop acceptance ranges must contain four values")
+	var accept_ranges: Array[int] = []
+	for range_value: Variant in accept_ranges_value:
+		accept_ranges.append(int(range_value))
+	var categories := {
+		"Weapons": [],
+		"Armor": [],
+		"Limbs": [],
+		"Magic": [],
+		"Supplies": [],
+		"BuyBack": [],
+	}
+	var item_count := 0
+	for slot: int in item_ids.size():
+		var item_id: int = abs(int(item_ids[slot]))
+		var quantity := int(quantities[slot])
+		if item_id == 0 and quantity == 0:
+			continue
+		if item_id == 0 or quantity < 1:
+			return _error("Classic shop has invalid stock in slot %d" % slot)
+		var category_index := slot / SHOP_CATEGORY_SIZE
+		if category_index >= SHOP_CATEGORIES.size():
+			return _error(
+				"Classic shop stock slot %d is outside its fixed categories" % slot
+			)
+		var instance: ItemInstance = resources.create_classic_item_instance(item_id)
+		if instance == null:
+			return _error(
+				"Classic shop item %d is not in the active item catalog" % item_id
+			)
+		categories[SHOP_CATEGORIES[category_index]].append([
+			instance,
+			quantity,
+			-1,
+		])
+		item_count += quantity
+	var inflation := int(shop.get("inflation", 100))
+	if inflation < 0:
+		return _error("Classic shop inflation cannot be negative")
+	var native_shop := {
+		"buy_rate": minf(float(inflation), 100.0) / 100.0,
+		"sell_rate": float(inflation) / 100.0,
+		"Weapons": categories["Weapons"],
+		"Armor": categories["Armor"],
+		"Limbs": categories["Limbs"],
+		"Magic": categories["Magic"],
+		"Supplies": categories["Supplies"],
+		"BuyBack": categories["BuyBack"],
+	}
+	if _classic_shop_restriction_is_effective(accept_ranges):
+		native_shop["classic_accept_ranges"] = accept_ranges
+	return {"shop": native_shop, "itemCount": item_count}
 
 
 func _classic_shop_restriction_is_effective(accept_ranges: Array[int]) -> bool:
@@ -3379,15 +3619,13 @@ func classic_party_has_item(item_id: int, item_texts: Array = []) -> Dictionary:
 
 
 func _check_party_item(payload: Dictionary) -> Dictionary:
-	var item_names := _mapped_item_names(payload)
-	if item_names.is_empty():
-		return _error(
-			"Classic item %d has no Remake item mapping" % int(payload.get("itemId", 0))
-		)
+	var item_id: int = abs(int(payload.get("itemId", 0)))
+	if item_id == 0:
+		return _error("Classic item check has no item ID")
 	return {
-		"possessed": InventoryRulesScript.party_has_named_item(
+		"possessed": InventoryRulesScript.party_has_classic_item(
 			_party_characters(),
-			item_names
+			[item_id],
 		),
 	}
 
@@ -3430,50 +3668,41 @@ func _take_party_wealth_with_warning(payload: Dictionary) -> Dictionary:
 
 
 func _alter_party_items(payload: Dictionary) -> Dictionary:
-	var item_names := _mapped_item_names(payload)
-	if item_names.is_empty():
-		return _error(
-			"Classic item %d has no Remake item mapping" % int(payload.get("itemId", 0))
-		)
-	var replacement_item: Dictionary = {}
+	var item_id: int = abs(int(payload.get("itemId", 0)))
+	if item_id == 0:
+		return _error("Classic item mutation has no item ID")
+	var replacement_item: Variant = null
+	var replacement_factory := Callable()
 	if int(payload.get("operation", 0)) == 3:
-		var replacement_payload := {
-			"itemId": int(payload.get("replacementItemId", 0)),
-			"itemTexts": payload.get("itemTexts", []),
-		}
-		var replacement_names := _mapped_item_names(replacement_payload)
-		if replacement_names.is_empty():
-			return _error(
-				"Classic replacement item %d has no Remake item mapping" \
-				% int(payload.get("replacementItemId", 0))
-			)
+		var replacement_item_id: int = abs(
+			int(payload.get("replacementItemId", 0))
+		)
 		var node_access: Object = _autoload("NodeAccess")
 		var resources: Object = node_access.__Resources() if node_access != null else null
-		var game_global: Object = _autoload("GameGlobal")
-		if resources == null or game_global == null:
+		if resources == null:
 			return _error("Realmz item resources are unavailable")
-		var replacement_name := ""
-		for candidate_name: String in replacement_names:
-			if resources.items_book.has(candidate_name):
-				replacement_name = candidate_name
-				break
-		if replacement_name.is_empty():
+		replacement_item = resources.create_classic_item_instance(
+			replacement_item_id,
+			{"identified": false},
+		)
+		if replacement_item == null:
 			return _error(
-				"Classic replacement item %d is not loaded" \
-				% int(payload.get("replacementItemId", 0))
+				"Classic replacement item %d is not in the active item catalog"
+				% replacement_item_id
 			)
-		replacement_item = game_global.generate_item(replacement_name)
+		replacement_factory = Callable(resources, "copy_item_instance")
 
 	var party := _party_characters()
 	if party.is_empty():
 		return _error("Classic item mutation has no party members")
-	var result: Dictionary = InventoryRulesScript.alter_named_items(
+	var result: Dictionary = InventoryRulesScript.alter_classic_items(
 		party,
-		item_names,
+		[item_id],
 		int(payload.get("maxMatches", 0)),
 		int(payload.get("operation", 0)),
 		int(payload.get("chargeDelta", 0)),
-		replacement_item
+		replacement_item,
+		replacement_factory,
 	)
 	if str(result.get("status", "")) == "error":
 		return result
@@ -3554,9 +3783,7 @@ func _load_shop(payload: Dictionary) -> Dictionary:
 	var resources: Object = node_access.__Resources() if node_access != null else null
 	if resources == null:
 		return _error("Realmz item resources are unavailable")
-	var item_ids: Object = _autoload("ItemIdDivinity")
-	var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
-	var built := build_shop_inventory(payload, item_mapping, resources.items_book)
+	var built := build_shop_inventory_from_catalog(payload, resources)
 	if str(built.get("status", "")) == "error":
 		return built
 	var game_global: Object = _autoload("GameGlobal")
@@ -3604,27 +3831,34 @@ func _give_treasure(payload: Dictionary) -> Dictionary:
 	var resources: Object = node_access.__Resources() if node_access != null else null
 	if resources == null:
 		return _error("Realmz item resources are unavailable")
-	var item_ids: Object = _autoload("ItemIdDivinity")
-	var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
-	var delivery := build_treasure_delivery(payload, item_mapping, resources.items_book)
+	var delivery := build_treasure_delivery_from_catalog(payload, resources)
 	if str(delivery.get("status", "")) == "error":
 		return delivery
 	var game_global: Object = _autoload("GameGlobal")
 	if game_global == null:
 		return _error("Realmz game state is unavailable")
-	var items: Array = []
-	var item_names: Array = delivery.get("itemNames", [])
-	var delivered_item_ids: Array = delivery.get("itemIds", [])
-	for item_index: int in item_names.size():
-		var item: Dictionary = game_global.generate_item(str(item_names[item_index]))
-		item["classicItemId"] = int(delivered_item_ids[item_index])
-		items.append(item)
 	await game_global.show_loot_menu(
-		items,
+		delivery.get("items", []),
 		delivery.get("money", [0, 0, 0]),
 		int(delivery.get("experience", 0))
 	)
 	return {}
+
+
+func _apply_classic_item_identity(item: Dictionary, item_id: int) -> void:
+	item["classicItemId"] = item_id
+	var state_data: Dictionary = item.get("stateData", {}).duplicate(true) \
+		if item.get("stateData", {}) is Dictionary else {}
+	var legacy_identity: Dictionary = state_data.get(
+		"legacyDefinitionIdentity",
+		{},
+	).duplicate(true) if state_data.get(
+		"legacyDefinitionIdentity",
+		{},
+	) is Dictionary else {}
+	legacy_identity["classicItemId"] = item_id
+	state_data["legacyDefinitionIdentity"] = legacy_identity
+	item["stateData"] = state_data
 
 
 func _give_experience(payload: Dictionary) -> Dictionary:
@@ -3932,25 +4166,12 @@ func _select_characters_by_misc(payload: Dictionary) -> Dictionary:
 	var resolved_payload := payload.duplicate(true)
 	var selector := str(payload.get("selector", ""))
 	if selector == "has_item" or selector == "wearing_item":
-		var item_ids: Object = _autoload("ItemIdDivinity")
-		var item_mapping: Dictionary = item_ids.mapping if item_ids != null else {}
-		var node_access: Object = _autoload("NodeAccess")
-		var resources: Object = node_access.__Resources() if node_access != null else null
-		var item_book: Dictionary = resources.items_book \
-			if resources != null and resources.items_book is Dictionary else {}
-		var item_texts: Variant = payload.get("itemTexts", [])
-		var names := _classic_item_names(
-			abs(int(payload.get("value", 0))),
-			item_mapping,
-			item_texts if item_texts is Array else [],
-			item_book
-		)
-		if names.is_empty():
+		var item_id: int = abs(int(payload.get("value", 0)))
+		if item_id == 0:
 			return _error(
-				"Classic item selector %d has no Remake item mapping" \
-				% abs(int(payload.get("value", 0)))
+				"Classic item selector has no item ID"
 			)
-		resolved_payload["itemNames"] = names
+		resolved_payload["itemIds"] = [item_id]
 	var result := select_characters_by_misc(
 		resolved_payload,
 		_party_characters(),
@@ -3993,8 +4214,10 @@ func select_characters_by_misc(
 	var candidates := _selection_candidates(candidate_mode, party, previously_selected)
 	var value := int(payload.get("value", 0))
 	var item_names: Array = payload.get("itemNames", [])
-	if (selector == "has_item" or selector == "wearing_item") and item_names.is_empty():
-		return _error("Classic item selector has no item names")
+	var item_ids: Array = payload.get("itemIds", [])
+	if (selector == "has_item" or selector == "wearing_item") \
+			and item_names.is_empty() and item_ids.is_empty():
+		return _error("Classic item selector has no item identity")
 	if selector == "attribute_save_failure" and not CLASSIC_MISC_ATTRIBUTE_STATS.has(value):
 		return _error("Classic attribute save %d has no Remake stat mapping" % value)
 	if selector == "spell_save_failure" and not SpellSavesScript.supports_save_index(value):
@@ -4016,7 +4239,12 @@ func select_characters_by_misc(
 			"position_before":
 				matched = party_position > 0 and party_position < value
 			"has_item":
-				matched = _character_has_named_item(character_value, item_names, false)
+				matched = _character_has_item(
+					character_value,
+					item_ids,
+					item_names,
+					false,
+				)
 			"percent":
 				roll = randi_range(1, 100)
 				matched = roll <= value
@@ -4035,7 +4263,12 @@ func select_characters_by_misc(
 			"focused_character":
 				matched = character_value == focused_character
 			"wearing_item":
-				matched = _character_has_named_item(character_value, item_names, true)
+				matched = _character_has_item(
+					character_value,
+					item_ids,
+					item_names,
+					true,
+				)
 			"exact_position":
 				matched = party_position == value
 		if matched:
@@ -4174,23 +4407,48 @@ func _party_level_total(characters: Array) -> int:
 	return total
 
 
-func _character_has_named_item(
+func _character_has_item(
 	character: Object,
+	item_ids: Array,
 	item_names: Array,
 	equipped_only: bool
 ) -> bool:
-	var inventory: Variant = character.get("inventory")
-	if not (inventory is Array):
-		return false
+	var inventory: Array = character.inventory_instances() \
+		if character.has_method("inventory_instances") \
+		else character.get("inventory")
+	var normalized_ids: Array[int] = []
+	for item_id_value: Variant in item_ids:
+		var item_id: int = abs(int(item_id_value))
+		if item_id != 0 and not normalized_ids.has(item_id):
+			normalized_ids.append(item_id)
 	var normalized_names: Array[String] = []
 	for item_name_value: Variant in item_names:
 		normalized_names.append(_normalized_item_name(str(item_name_value)))
 	for item_value: Variant in inventory:
-		if not (item_value is Dictionary):
+		var matches := false
+		var equipped := false
+		if item_value is ItemInstance:
+			equipped = item_value.equipped
+			var definition: Variant = character.get_item_definition(item_value) \
+				if character.has_method("get_item_definition") else null
+			if definition is ItemDefinition:
+				for classic_id: int in definition.classic_item_ids():
+					if normalized_ids.has(classic_id):
+						matches = true
+						break
+				if normalized_ids.is_empty():
+					matches = normalized_names.has(
+						_normalized_item_name(definition.display_name)
+					)
+		elif item_value is Dictionary:
+			equipped = int(item_value.get("equipped", 0)) == 1
+			if normalized_ids.is_empty():
+				matches = normalized_names.has(
+					_normalized_item_name(str(item_value.get("name", "")))
+				)
+		if not matches:
 			continue
-		if not normalized_names.has(_normalized_item_name(str(item_value.get("name", "")))):
-			continue
-		if not equipped_only or int(item_value.get("equipped", 0)) == 1:
+		if not equipped_only or equipped:
 			return true
 	return false
 

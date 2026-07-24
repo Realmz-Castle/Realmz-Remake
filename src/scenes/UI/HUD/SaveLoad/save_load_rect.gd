@@ -112,6 +112,30 @@ func save_game(campaignname : String, savename : String) :
 		preview_panel.notesTextEdit.text = validation_message
 		push_error(validation_message)
 		return
+	var prepared_pc_saves := {}
+	for pc in GameGlobal.player_characters:
+		var prepared_pc_save: String = pc.get_save_string()
+		if prepared_pc_save.is_empty():
+			var message := (
+				"Could not serialize %s; the existing campaign save was not changed"
+				% pc.name
+			)
+			preview_panel.notesTextEdit.text = message
+			push_error(message)
+			return
+		prepared_pc_saves[pc] = prepared_pc_save
+	var prepared_ally_saves: Array[String] = []
+	for ally in GameGlobal.player_allies:
+		var prepared_ally_save: String = ally.get_save_string()
+		if prepared_ally_save.is_empty():
+			var message := (
+				"Could not serialize ally %s; the existing campaign save was not changed"
+				% ally.name
+			)
+			preview_panel.notesTextEdit.text = message
+			push_error(message)
+			return
+		prepared_ally_saves.append(prepared_ally_save + "}")
 	#is there already a save folder here ? If so, empty it
 	GameGlobal.cur_save_name = savename
 	var save_path : String = Paths.profilesfolderpath + GameGlobal.currentprofile + "/Saves/"+ campaignname + "/"+ savename
@@ -130,11 +154,23 @@ func save_game(campaignname : String, savename : String) :
 #		print(" path: ",save_path + "/Characters/"+pc.name)
 		
 		if GameGlobal.honest_mode :
-			Utils.FileHandler.save_character(prof_path + pc.name, pc)
+			Utils.FileHandler.save_character(
+				prof_path + pc.name,
+				pc,
+				prepared_pc_saves[pc],
+			)
 		else :
 			DirAccess.make_dir_recursive_absolute(save_path + "/Characters/"+pc.name)
-			Utils.FileHandler.save_character(save_path + "/Characters/" + pc.name, pc)
-			Utils.FileHandler.save_character(prof_path + pc.name, pc)
+			Utils.FileHandler.save_character(
+				save_path + "/Characters/" + pc.name,
+				pc,
+				prepared_pc_saves[pc],
+			)
+			Utils.FileHandler.save_character(
+				prof_path + pc.name,
+				pc,
+				prepared_pc_saves[pc],
+			)
 		
 		
 		#print("TODO SaveLoadCtrl save_game wont update the character data in profile/characters folder yet. Disabled for easy debugging.")
@@ -196,20 +232,14 @@ func save_game(campaignname : String, savename : String) :
 	save_data_file.store_line(str(dict_to_save))
 	save_data_file.close()
 	save_data_file = FileAccess.open(save_path+"/shops.json", FileAccess.ModeFlags.WRITE)
-	var shops_data = GameGlobal.shops_dict.duplicate()
-	for shopname in shops_data.keys() :
-		for i in shops_data[shopname]["BuyBack"]:
-			i.erase("texture")
-	save_data_file.store_line(str(shops_data))
+	var shops_data := _shops_data_for_save()
+	save_data_file.store_line(JSON.stringify(shops_data))
 	save_data_file.close()
 	
-	var allies_array : Array = []
-	for a in GameGlobal.player_allies :
-		allies_array.append(a.get_save_string()+"}")
 	save_data_file = FileAccess.open(save_path+"/allies.json", FileAccess.ModeFlags.WRITE)
 	save_data_file.store_line('{"allies" : [')
 	var comma : String = ''
-	for a_str in allies_array :
+	for a_str in prepared_ally_saves :
 		save_data_file.store_line(comma)
 		comma = ','
 		save_data_file.store_line(a_str)
@@ -249,6 +279,54 @@ func save_game(campaignname : String, savename : String) :
 	# Resources.for each map, exploredtiles  and secretpaths  and mapsecrets
 	# player_characters in order, maybe details for the preview too
 	# allies like vodalian/summons
+
+
+func _shops_data_for_save() -> Dictionary:
+	var result := {}
+	var stock_categories := [
+		"Weapons",
+		"Armor",
+		"Limbs",
+		"Magic",
+		"Supplies",
+		"BuyBack",
+	]
+	var resources = NodeAccess.__Resources()
+	for shop_name_value: Variant in GameGlobal.shops_dict:
+		var shop_name := str(shop_name_value)
+		var source_shop: Dictionary = GameGlobal.shops_dict[shop_name_value]
+		var saved_shop := {}
+		for field_value: Variant in source_shop:
+			var field_name := str(field_value)
+			var field_data: Variant = source_shop[field_value]
+			if field_name not in stock_categories or not (field_data is Array):
+				saved_shop[field_name] = field_data.duplicate(true) \
+					if field_data is Dictionary or field_data is Array \
+					else field_data
+				continue
+			var saved_stock: Array = []
+			for entry_value: Variant in field_data:
+				if not (entry_value is Array):
+					continue
+				var entry: Array = entry_value
+				if entry.is_empty():
+					continue
+				var saved_entry := entry.duplicate(true)
+				var item_value: Variant = entry[0]
+				if item_value is ItemInstance:
+					var serialized := resources.serialize_item_inventory(
+						[item_value]
+					)
+					if not bool(serialized.get("ok", false)):
+						for message: Variant in serialized.get("errors", []):
+							push_error(str(message))
+						continue
+					saved_entry[0] = serialized.get("value", [])[0]
+				saved_stock.append(saved_entry)
+			saved_shop[field_name] = saved_stock
+		result[shop_name] = saved_shop
+	return result
+
 
 func on_load_button_pressed() :
 	load_game(selected_scenario_name, selected_save_name)

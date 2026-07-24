@@ -752,6 +752,42 @@ func get_scenario_item(item_id: int) -> Dictionary:
 	return scenario_items_by_id.get(abs(item_id), {})
 
 
+func is_empty_scenario_item(item_id: int) -> bool:
+	var scenario_item := get_scenario_item(item_id)
+	if scenario_item.is_empty():
+		return false
+	var item_text := get_item_text(item_id)
+	for text_field: String in ["identifiedName", "unidentifiedName", "description"]:
+		if not str(item_text.get(text_field, "")).strip_edges().is_empty():
+			return false
+	for key_value: Variant in scenario_item.keys():
+		var key := str(key_value)
+		if key in ["id", "itemId", "authored", "provenance", "rawBytes"]:
+			continue
+		if _value_has_content(scenario_item[key_value]):
+			return false
+	return true
+
+
+func _value_has_content(value: Variant) -> bool:
+	if value is bool:
+		return value
+	if value is int or value is float:
+		return value != 0
+	if value is String:
+		return not value.strip_edges().is_empty()
+	if value is Array:
+		for nested_value: Variant in value:
+			if _value_has_content(nested_value):
+				return true
+		return false
+	if value is Dictionary:
+		for nested_value: Variant in value.values():
+			if _value_has_content(nested_value):
+				return true
+	return false
+
+
 func get_monster(monster_id: int) -> Dictionary:
 	return monsters_by_id.get(abs(monster_id), {})
 

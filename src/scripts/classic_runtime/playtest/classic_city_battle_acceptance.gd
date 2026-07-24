@@ -145,6 +145,7 @@ func _start_playtest() -> void:
 			_finish_smoke()
 			return
 		start_result = campaign_session.activate_start_location()
+		StateMachine.transition_to("Exploration")
 	_verify_stage(
 		"01_city_entry",
 		str(start_result.get("status", "")) != "error"
@@ -481,14 +482,15 @@ func _use_tannery_shop() -> bool:
 		_fail("05_tannery_purchase", "the native shop did not expose Classic item 806")
 		return false
 	var stock: Array = shop.supplies[stock_index]
-	var item: Dictionary = stock[0]
+	var item: ItemInstance = stock[0]
+	var item_view := NodeAccess.__Resources().legacy_item_view_for_adapter(item)
 	var original_quantity := int(stock[1])
-	var price := int(item.get("price", 0) * float(native_shop.get("sell_rate", 1.0)))
+	var price := shop.price_for(item)
 	inventory.inventoryScrollRight._drop_data(Vector2.ZERO, [item, "Shop"])
 	await get_tree().process_frame
 	_verify_stage(
 		"05_tannery_purchase",
-		int(item.get("classicItemId", 0)) == SHOP_ITEM_ID
+		int(item_view.get("classicItemId", 0)) == SHOP_ITEM_ID
 			and _party_has_classic_item(SHOP_ITEM_ID)
 			and int(shop.supplies[stock_index][1]) == original_quantity - 1
 			and int(native_shop["Supplies"][stock_index][1]) == original_quantity - 1
@@ -1132,7 +1134,12 @@ func _shop_stock_quantity(shop: Dictionary) -> int:
 func _shop_stock_index(stock_rows: Array, classic_item_id: int) -> int:
 	for stock_index: int in stock_rows.size():
 		var stock: Array = stock_rows[stock_index]
-		if int(stock[0].get("classicItemId", 0)) == classic_item_id:
+		var item_value: Variant = stock[0]
+		var item_view: Dictionary = (
+			NodeAccess.__Resources().legacy_item_view_for_adapter(item_value)
+			if item_value is ItemInstance else item_value
+		)
+		if int(item_view.get("classicItemId", 0)) == classic_item_id:
 			return stock_index
 	return -1
 
@@ -1146,8 +1153,8 @@ func _loot_classic_item(item_id: int) -> bool:
 	var item_button: Button = container.get_child(0)
 	item_button.pressed.emit()
 	await get_tree().process_frame
-	for item: Dictionary in character.inventory:
-		if int(item.get("classicItemId", 0)) == item_id:
+	for item: ItemInstance in character.inventory_instances():
+		if NodeAccess.__Resources().item_classic_ids(item).has(item_id):
 			return true
 	return false
 
@@ -1179,19 +1186,24 @@ func _treasure_classic_item_ids() -> Array[int]:
 
 
 func _treasure_button_item(item_button: Button) -> Dictionary:
+	var instance_value: Variant = item_button.get_meta("item_instance", null)
+	if instance_value is ItemInstance:
+		return NodeAccess.__Resources().legacy_item_view_for_adapter(instance_value)
 	var connections := item_button.pressed.get_connections()
 	if connections.is_empty():
 		return {}
 	var arguments: Array = connections[0]["callable"].get_bound_arguments()
-	if arguments.is_empty() or not (arguments[0] is Dictionary):
+	if arguments.is_empty():
 		return {}
-	return arguments[0]
+	if arguments[0] is ItemInstance:
+		return NodeAccess.__Resources().legacy_item_view_for_adapter(arguments[0])
+	return arguments[0] if arguments[0] is Dictionary else {}
 
 
 func _party_has_classic_item(item_id: int) -> bool:
 	for character: PlayerCharacter in GameGlobal.player_characters:
-		for item: Dictionary in character.inventory:
-			if int(item.get("classicItemId", 0)) == item_id:
+		for item: ItemInstance in character.inventory_instances():
+			if NodeAccess.__Resources().item_classic_ids(item).has(item_id):
 				return true
 	return false
 

@@ -88,17 +88,16 @@ func _run_smoke() -> void:
 	)
 	var elemental_attacker: Creature = GameGlobal.combatCreatureGD.new()
 	elemental_attacker.initialize_from_bestiary_dict("Classic Monster 2")
+	var elemental_weapon: Dictionary = (
+		elemental_attacker.get_melee_weapon_for_next_attack()
+	)
 	_expect_equal(
-		elemental_attacker.current_melee_weapons[0].get(
-			"weapon_dmg", {}
-		).get("Electric"),
+		elemental_weapon.get("weapon_dmg", {}).get("Electric"),
 		[1.0, 8.0],
 		"native creature loading retains generated Classic shock damage"
 	)
 	_expect_equal(
-		elemental_attacker.current_melee_weapons[0].get(
-			"extra_data", {}
-		).get("classicSpecialAttack"),
+		elemental_weapon.get("extra_data", {}).get("classicSpecialAttack"),
 		13,
 		"native creature loading retains Classic attack metadata"
 	)
@@ -114,42 +113,40 @@ func _run_smoke() -> void:
 	)
 	var weapon_user: Creature = GameGlobal.combatCreatureGD.new()
 	weapon_user.initialize_from_bestiary_dict("Classic Monster 3")
+	var equipped_weapon: ItemInstance = weapon_user.current_melee_weapon_instances[0]
+	var equipped_definition := resources.get_item_definition(equipped_weapon)
 	_expect_equal(
-		weapon_user.current_melee_weapons[0].get("classicItemId"),
+		_primary_classic_id(equipped_weapon),
 		150,
 		"native creature equips the generated scenario weapon"
 	)
 	_expect_equal(
-		weapon_user.current_melee_weapons[0].get("type"),
+		equipped_definition.item_type,
 		"Dagger",
 		"generated scenario weapon loads with its concrete native item type"
 	)
 	_expect_equal(
-		weapon_user.current_melee_weapons[0].get("weapon_dmg", {}).get("Physical"),
+		equipped_definition.weapon_damage().get("Physical"),
 		[1.0, 6.0],
 		"equipped scenario weapon retains its native physical damage"
 	)
 	_expect_equal(
-		weapon_user.current_melee_weapons[0].get("weapon_dmg", {}).get("Fire"),
+		equipped_definition.weapon_damage().get("Fire"),
 		[1.0, 4.0],
 		"equipped scenario weapon retains its Classic heat damage"
 	)
 	_expect_equal(
-		weapon_user.current_melee_weapons[0].get("extra_data", {}).get(
-			"classicWeaponKind"
-		),
+		equipped_definition.extra_data_value("classicWeaponKind"),
 		"blunt",
 		"equipped scenario weapon retains its Classic weapon classification"
 	)
 	_expect_equal(
-		weapon_user.current_melee_weapons[0].get("extra_data", {}).get(
-			"classicMagicPlus"
-		),
+		equipped_definition.extra_data_value("classicMagicPlus"),
 		2,
 		"equipped scenario weapon retains its Classic magic plus"
 	)
 	_expect_equal(
-		weapon_user.current_melee_weapons[0].get("weapon_tag_bonus_dmg", {}).get(
+		equipped_definition.tagged_weapon_damage().get(
 			"Undead", {}
 		).get("Physical"),
 		[1.0, 4.0],
@@ -219,7 +216,10 @@ func _run_smoke() -> void:
 		) > 0.0,
 		"qualifying Classic weapon reaches native melee accuracy"
 	)
-	var sharp_weapon: Dictionary = weapon_user.current_melee_weapons[0].duplicate(true)
+	var sharp_weapon := _detached_legacy_view(
+		equipped_weapon,
+		"Sharp weapon fixture",
+	)
 	sharp_weapon["extra_data"]["classicWeaponKind"] = "sharp"
 	_expect_equal(
 		GameGlobal.calculate_melee_accuracy(
@@ -230,7 +230,10 @@ func _run_smoke() -> void:
 		0.0,
 		"wrong Classic weapon kind cannot hit the generated monster"
 	)
-	var weak_weapon: Dictionary = weapon_user.current_melee_weapons[0].duplicate(true)
+	var weak_weapon := _detached_legacy_view(
+		equipped_weapon,
+		"Weak weapon fixture",
+	)
 	weak_weapon["extra_data"]["classicMagicPlus"] = 1
 	_expect_equal(
 		GameGlobal.calculate_melee_accuracy(
@@ -241,8 +244,9 @@ func _run_smoke() -> void:
 		0.0,
 		"insufficient Classic weapon magic plus cannot hit the generated monster"
 	)
-	var fixed_tag_weapon: Dictionary = (
-		weapon_user.current_melee_weapons[0].duplicate(true)
+	var fixed_tag_weapon: Dictionary = _detached_legacy_view(
+		equipped_weapon,
+		"Fixed tagged weapon fixture",
 	)
 	fixed_tag_weapon["weapon_dmg"] = {"Physical": [1, 1]}
 	fixed_tag_weapon["weapon_tag_bonus_dmg"] = {
@@ -263,7 +267,7 @@ func _run_smoke() -> void:
 	var shock_damage: Dictionary = GameGlobal.calculate_melee_damage(
 		elemental_attacker,
 		weapon_user,
-		elemental_attacker.current_melee_weapons[0],
+		elemental_weapon,
 		false,
 		1.0
 	)
@@ -283,16 +287,18 @@ func _run_smoke() -> void:
 		fighter,
 		human
 	)
-	var native_shield: Dictionary = resources.items_book["Shield"].duplicate(true)
+	var native_shield: ItemInstance = resources.create_item_instance("Shield")
+	var native_shield_definition := resources.get_item_definition(native_shield)
 	var native_evasion_before: int = native_stat_character.get_stat("EvasionMelee")
-	native_stat_character.inventory.append(native_shield)
+	native_stat_character.add_inventory_item(native_shield)
 	_expect(
 		native_stat_character.equip_item(native_shield),
 		"native equipment-stat fixture equips its shared shield"
 	)
 	_expect_equal(
 		native_stat_character.get_stat("EvasionMelee"),
-		native_evasion_before + int(native_shield["stats"]["EvasionMelee"]),
+		native_evasion_before
+			+ int(native_shield_definition.stats().get("EvasionMelee", 0)),
 		"native equipment applies its declared stat once"
 	)
 	var classic_creation_character: PlayerCharacter = (
@@ -324,11 +330,16 @@ func _run_smoke() -> void:
 		"Classic Item 150"
 	].duplicate(true)
 	overweight_gift["name"] = "Overweight Classic creation gift"
+	overweight_gift["KEY"] = "Overweight Classic creation gift"
+	overweight_gift.erase("definitionId")
+	overweight_gift.erase("instanceId")
+	overweight_gift.erase("_item_instance")
 	overweight_gift["classicItemId"] = 990
+	overweight_gift["classicItemIds"] = [990]
 	overweight_gift["weight"] = 1000000
 	resources.items_book[overweight_gift["name"]] = overweight_gift
-	classic_creation_character.inventory.append(
-		resources.items_book["Dagger"].duplicate(true)
+	classic_creation_character.add_inventory_item(
+		resources.create_item_instance("Dagger")
 	)
 	classic_creation_character.money = [99, 2, 1]
 	classic_creation_character.apply_classic_rule_profile({
@@ -407,16 +418,15 @@ func _run_smoke() -> void:
 		"native creation replaces Remake's gifts with Classic starting money"
 	)
 	_expect_equal(
-		classic_creation_character.inventory.map(
-			func(item: Dictionary) -> int: return int(item.get("classicItemId", 0))
+		classic_creation_character.inventory_instances().map(
+			func(item: ItemInstance) -> int: return _primary_classic_id(item)
 		),
 		[150, 250, 251],
 		"native creation replaces the existing inventory with accepted Classic items"
 	)
 	_expect(
-		classic_creation_character.inventory.all(
-			func(item: Dictionary) -> bool: return int(item.get("is_identified", 0)) == 1 \
-					and int(item.get("equipped", 0)) == 1
+		classic_creation_character.inventory_instances().all(
+			func(item: ItemInstance) -> bool: return item.identified and item.equipped
 		),
 		"accepted Classic starting equipment is identified and worn"
 	)
@@ -460,8 +470,8 @@ func _run_smoke() -> void:
 			"native character save/load retains Classic starting money"
 		)
 		_expect_equal(
-			restored_creation_character.inventory.map(
-				func(item: Dictionary) -> int: return int(item.get("classicItemId", 0))
+			restored_creation_character.inventory_instances().map(
+				func(item: ItemInstance) -> int: return _primary_classic_id(item)
 			),
 			[150, 250, 251],
 			"native character save/load retains Classic starting equipment"
@@ -490,15 +500,15 @@ func _run_smoke() -> void:
 			"restored characters cannot receive Classic creation resources twice"
 		)
 	resources.items_book.erase(overweight_gift["name"])
-	var player_weapon: Dictionary = resources.items_book[
+	var player_weapon: ItemInstance = resources.create_item_instance(
 		"Classic Item 150"
-	].duplicate(true)
-	var player_armor: Dictionary = resources.items_book[
+	)
+	var player_armor: ItemInstance = resources.create_item_instance(
 		"Classic Item 250"
-	].duplicate(true)
-	var player_shield: Dictionary = resources.items_book[
+	)
+	var player_shield: ItemInstance = resources.create_item_instance(
 		"Classic Item 251"
-	].duplicate(true)
+	)
 	var player_character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
 		{"name": "Fixture Fighter", "level": 0},
 		null,
@@ -529,7 +539,10 @@ func _run_smoke() -> void:
 	var foe_profile := player_character.classic_rule_profile.duplicate(true)
 	var profile_without_foe_bonus := foe_profile.duplicate(true)
 	profile_without_foe_bonus.erase("foeTypeBonuses")
-	var fixed_foe_weapon := player_weapon.duplicate(true)
+	var fixed_foe_weapon := _detached_legacy_view(
+		player_weapon,
+		"Fixed foe weapon fixture",
+	)
 	fixed_foe_weapon["weapon_dmg"] = {"Physical": [1, 1]}
 	fixed_foe_weapon["weapon_tag_bonus_dmg"] = {}
 	player_character.apply_classic_rule_profile(profile_without_foe_bonus)
@@ -673,9 +686,9 @@ func _run_smoke() -> void:
 	)
 	_expect_equal(
 		[
-			player_weapon.get("classicItemCategory"),
-			player_armor.get("classicItemCategory"),
-			player_shield.get("classicItemCategory"),
+			_classic_category(player_weapon),
+			_classic_category(player_armor),
+			_classic_category(player_shield),
 		],
 		[3, 35, 25],
 		"generated player equipment preserves its exact Classic categories"
@@ -683,7 +696,7 @@ func _run_smoke() -> void:
 	_expect_equal(
 		ClassicCharacterRulesScript.classic_item_use_permission(
 			player_character,
-			player_weapon
+			resources.legacy_item_view_for_adapter(player_weapon)
 		),
 		{
 			"status": "ok",
@@ -694,10 +707,22 @@ func _run_smoke() -> void:
 		},
 		"the native player receives both active Classic permission masks"
 	)
-	var denied_player_weapon := player_weapon.duplicate(true)
-	denied_player_weapon["name"] = "Denied Classic Weapon"
-	denied_player_weapon["classicItemCategory"] = 4
-	denied_player_weapon["equippable"] = 0
+	var denied_player_weapon_source := resources.legacy_item_view_for_adapter(
+		player_weapon
+	)
+	denied_player_weapon_source.erase("_item_instance")
+	denied_player_weapon_source.erase("definitionId")
+	denied_player_weapon_source.erase("instanceId")
+	denied_player_weapon_source.erase("classicItemId")
+	denied_player_weapon_source.erase("classicItemIds")
+	var denied_player_weapon: ItemInstance
+	denied_player_weapon_source["KEY"] = "Denied Classic Weapon"
+	denied_player_weapon_source["name"] = "Denied Classic Weapon"
+	denied_player_weapon_source["classicItemCategory"] = 4
+	denied_player_weapon_source["equippable"] = 0
+	denied_player_weapon = resources.import_item_instance(
+		denied_player_weapon_source
+	)
 	_expect(
 		not player_character.can_use_inventory_item(denied_player_weapon),
 		"native item activation enforces active Classic category masks"
@@ -706,9 +731,12 @@ func _run_smoke() -> void:
 		player_character.can_use_inventory_item(player_weapon),
 		"native item activation accepts a Classic category allowed by both masks"
 	)
-	denied_player_weapon["equippable"] = 1
+	denied_player_weapon_source["equippable"] = 1
+	var denied_equipment: ItemInstance = resources.import_item_instance(
+		denied_player_weapon_source
+	)
 	_expect(
-		not player_character.can_equip_item(denied_player_weapon),
+		not player_character.can_equip_item(denied_equipment),
 		"native equipment enforces active Classic race and caste category masks"
 	)
 	_expect(
@@ -721,9 +749,9 @@ func _run_smoke() -> void:
 	var player_max_sp_before: float = player_character.get_stat("maxSP")
 	var player_cur_sp_before: float = player_character.get_stat("curSP")
 	var player_movement_before: float = player_character.get_stat("MaxMovement")
-	player_character.inventory.append(player_weapon)
-	player_character.inventory.append(player_armor)
-	player_character.inventory.append(player_shield)
+	player_character.add_inventory_item(player_weapon)
+	player_character.add_inventory_item(player_armor)
+	player_character.add_inventory_item(player_shield)
 	var player_weighted_movement_before: int = (
 		player_character.get_max_movement_weighted_down()
 	)
@@ -732,7 +760,7 @@ func _run_smoke() -> void:
 		"native player equipment accepts the generated Classic weapon type"
 	)
 	_expect_equal(
-		player_character.current_melee_weapons[0].get("classicItemId"),
+		_primary_classic_id(player_character.current_melee_weapon_instances[0]),
 		150,
 		"generated Classic weapon becomes the player's active melee weapon"
 	)
@@ -772,7 +800,7 @@ func _run_smoke() -> void:
 		"generated Classic movement increases usable native movement"
 	)
 	_expect_equal(
-		player_armor.get("type"),
+		resources.get_item_definition(player_armor).item_type,
 		"Leather Armor",
 		"generated Classic armor uses the native player permission type"
 	)
@@ -781,12 +809,12 @@ func _run_smoke() -> void:
 		"native player equipment accepts the generated Classic armor type"
 	)
 	_expect_equal(
-		player_armor.get("equipped"),
-		1,
+		player_armor.equipped,
+		true,
 		"generated Classic armor occupies the native body slot"
 	)
 	_expect_equal(
-		player_shield.get("type"),
+		resources.get_item_definition(player_shield).item_type,
 		"Small Shield",
 		"generated Classic shield uses the native player permission type"
 	)
@@ -803,8 +831,8 @@ func _run_smoke() -> void:
 		"native player equipment accepts the generated Classic shield type"
 	)
 	_expect_equal(
-		player_shield.get("equipped"),
-		1,
+		player_shield.equipped,
+		true,
 		"generated Classic shield occupies the native shield slot"
 	)
 	_expect_equal(
@@ -902,14 +930,13 @@ func _run_smoke() -> void:
 			fighter,
 			human
 		)
-		var restored_weapon: Dictionary = {}
-		for restored_item: Variant in restored_player.inventory:
-			if restored_item is Dictionary \
-					and int(restored_item.get("classicItemId", 0)) == 150:
+		var restored_weapon: ItemInstance
+		for restored_item: ItemInstance in restored_player.inventory_instances():
+			if _primary_classic_id(restored_item) == 150:
 				restored_weapon = restored_item
 				break
 		_expect_equal(
-			restored_weapon.get("classicItemCategory"),
+			_classic_category(restored_weapon),
 			3,
 			"Classic item category survives native player save/load"
 		)
@@ -977,15 +1004,27 @@ func _run_smoke() -> void:
 	_expect_equal(ally.inventory.size(), 2, "ally receives both compiled monster items")
 	var equipped_dagger := _inventory_item(ally.inventory, "Dagger")
 	var carried_token := _inventory_item(ally.inventory, "Providence Token")
+	var ally_dagger_instance: ItemInstance = ally.get_item_instance(equipped_dagger)
+	_expect(
+		ally_dagger_instance != null,
+		"generated ally inventory owns a stable weapon instance",
+	)
 	_expect_equal(
-		equipped_dagger.get("equipped"),
-		1,
+		equipped_dagger.equipped,
+		true,
 		"ally equips the concrete Classic weapon through native inventory"
 	)
 	_expect_equal(
-		ally.current_melee_weapons[0].get("name"),
+		resources.get_item_definition(
+			ally.current_melee_weapon_instances[0]
+		).display_name_for(ally.current_melee_weapon_instances[0]),
 		"Dagger",
 		"equipped Classic weapon remains the ally's active melee weapon"
+	)
+	_expect(
+		not ally.current_melee_weapon_instances.is_empty()
+			and ally.current_melee_weapon_instances[0] == ally_dagger_instance,
+		"generated ally combat handoff reuses its inventory weapon instance",
 	)
 	_expect_equal(
 		_spell_count(ally, "Fireball"),
@@ -993,7 +1032,7 @@ func _run_smoke() -> void:
 		"ally receives the weighted Classic spell slots through the native spell book"
 	)
 	_expect_equal(
-		carried_token.get("classicItemId"),
+		_primary_classic_id(carried_token),
 		901,
 		"ally carries the scenario-local item with stable Classic identity"
 	)
@@ -1035,18 +1074,36 @@ func _run_smoke() -> void:
 	_expect_equal(restored_ally.classic_monster_name_id, 1, "name identity survives save/load")
 	var restored_dagger := _inventory_item(restored_ally.inventory, "Dagger")
 	var restored_token := _inventory_item(restored_ally.inventory, "Providence Token")
+	var restored_dagger_instance: ItemInstance = restored_ally.get_item_instance(
+		restored_dagger
+	)
 	_expect_equal(
-		restored_dagger.get("equipped"),
-		1,
+		restored_dagger.equipped,
+		true,
 		"equipped monster weapon survives native ally save/load"
 	)
 	_expect_equal(
-		restored_ally.current_melee_weapons[0].get("name"),
+		resources.get_item_definition(
+			restored_ally.current_melee_weapon_instances[0]
+		).display_name_for(restored_ally.current_melee_weapon_instances[0]),
 		"Dagger",
 		"restored Classic weapon remains active after ally save/load"
 	)
+	_expect(
+		restored_dagger_instance != null
+			and ally_dagger_instance != null
+			and restored_dagger_instance.instance_id
+				== ally_dagger_instance.instance_id,
+		"ally save/load preserves the weapon instance ID",
+	)
+	_expect(
+		not restored_ally.current_melee_weapon_instances.is_empty()
+			and restored_ally.current_melee_weapon_instances[0]
+				== restored_dagger_instance,
+		"restored combat handoff reuses the restored inventory instance",
+	)
 	_expect_equal(
-		restored_token.get("classicItemId"),
+		_primary_classic_id(restored_token),
 		901,
 		"scenario-local carried item identity survives native ally save/load"
 	)
@@ -1185,11 +1242,47 @@ func _prepare_resource_fixture(installer: Object) -> String:
 	return fixture_directory
 
 
-func _inventory_item(inventory: Array, item_name: String) -> Dictionary:
+func _inventory_item(inventory: Array, item_name: String) -> ItemInstance:
 	for item_value: Variant in inventory:
-		if item_value is Dictionary and str(item_value.get("name", "")) == item_name:
+		if not (item_value is ItemInstance):
+			continue
+		var definition := NodeAccess.__Resources().get_item_definition(item_value)
+		if definition != null and definition.display_name == item_name:
 			return item_value
-	return {}
+	return null
+
+
+func _primary_classic_id(item: ItemInstance) -> int:
+	if item == null:
+		return 0
+	var item_ids := NodeAccess.__Resources().item_classic_ids(item)
+	return item_ids[0] if not item_ids.is_empty() else 0
+
+
+func _classic_category(item: ItemInstance) -> int:
+	if item == null:
+		return 0
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	return int(definition.classic().get("itemCategory", 0)) \
+		if definition != null else 0
+
+
+func _detached_legacy_view(
+	item: ItemInstance,
+	fixture_name: String,
+) -> Dictionary:
+	var view := NodeAccess.__Resources().legacy_item_view_for_adapter(item)
+	for identity_field: String in [
+		"_item_instance",
+		"definitionId",
+		"instanceId",
+		"classicItemId",
+		"classicItemIds",
+	]:
+		view.erase(identity_field)
+	view["KEY"] = fixture_name
+	view["name"] = fixture_name
+	return view
 
 
 func _spell_count(creature: Creature, spell_name: String) -> int:

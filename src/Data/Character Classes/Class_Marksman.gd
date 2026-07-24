@@ -231,8 +231,8 @@ static func _character_creation_gifts(_character) :
 	resources.load_item_resources("shared_assets/items/")
 	
 	for name in ["Nunchuka","Bow","Quiver of Arrows","Leather Armor","Leather Gloves","Leather Boots"] :
-		var item = resources.items_book[name]
-		_character.inventory.append(item.duplicate(true))
+		var item = resources.create_item_instance(name)
+		_character.add_inventory_item(item)
 	_character.money[0] += 100
 	resources.items_book.clear()
 

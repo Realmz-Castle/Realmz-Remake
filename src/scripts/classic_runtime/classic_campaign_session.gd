@@ -31,6 +31,9 @@ func load_installed_campaign(
 	install = InstallScript.new()
 	if not install.load_from_campaigns_directory(campaigns_directory, campaign_name):
 		return {"status": "error", "message": install.last_error}
+	var item_load_result := _load_installed_item_definitions()
+	if str(item_load_result.get("status", "")) == "error":
+		return item_load_result
 	host = HostScript.new()
 	add_child(host)
 	host.configure(self.command_adapter)
@@ -42,6 +45,24 @@ func load_installed_campaign(
 		"campaignId": str(install.bundle.manifest.get("id", "")),
 		"host": host,
 	}
+
+
+func _load_installed_item_definitions() -> Dictionary:
+	var main_loop := Engine.get_main_loop()
+	if not (main_loop is SceneTree):
+		return {"status": "skipped"}
+	var resources: Node = main_loop.root.get_node_or_null("Main/Resources")
+	if resources == null or not resources.has_method("load_item_resources"):
+		return {"status": "skipped"}
+	var item_directory: String = install.campaign_directory.path_join("Items") + "/"
+	if not FileAccess.file_exists(item_directory.path_join("stuff_book.json")):
+		return {"status": "skipped"}
+	var campaign_id := str(install.bundle.manifest.get("id", "")).strip_edges()
+	if campaign_id.is_empty():
+		return _error("Classic campaign manifest has no item catalog identity")
+	if not resources.load_item_resources(item_directory, campaign_id, true):
+		return _error("Classic campaign item definitions could not be loaded")
+	return {"status": "ok"}
 
 
 func activate_start_location(force_reload := false) -> Dictionary:

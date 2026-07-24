@@ -33,9 +33,11 @@ func _on_spell_used(character, spell, power) :
 
 func _on_item_used(item, character) :
 	var result : String = "0"
-	if item["name"] == "Necklace of Keys" :
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	var item_name := definition.display_name if definition != null else ""
+	if item_name == "Necklace of Keys" :
 		result = "1"
-	if item["name"] == "Iron Key" :
+	if item_name == "Iron Key" :
 		result = "1"
 	if result == "1":
 		await ScriptHelperFuncsClass.dispatch_complex_result_Divinity(0)

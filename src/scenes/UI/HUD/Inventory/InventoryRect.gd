@@ -156,8 +156,7 @@ func fill_inventory_Vbox(vbox : VBoxContainer, character) :
 	for child in vbox.get_children() :
 		vbox.remove_child(child)
 		child.queue_free()
-	for item in character.inventory :
-#		print(item["name"])
+	for item: ItemInstance in character.inventory_instances():
 		# problem was here because the Vcontainer set its size to its minimum size !
 		var itempanel = itemsmallbuttonTSCN.instantiate()
 		itempanel.belongstoally = character.is_npc_ally
@@ -177,7 +176,7 @@ func reset_trade_panel() :
 	tradeselectsprite.hide()
 	tradeselectspritebutton = null
 
-func display_item_info(item : Dictionary) :
+func display_item_info(item: ItemInstance) -> void:
 	infoRect.set_item_info( item )
 
 func set_selected_item_ctrl( itemctrl , _movejoinsplit = true) :
@@ -194,7 +193,10 @@ func set_selected_item_ctrl( itemctrl , _movejoinsplit = true) :
 	itemctrl.selectedSprite.show()
 	selected_item_ctrl = itemctrl
 	
-	if selected_item_ctrl.item["splittable"]==0:
+	var definition := NodeAccess.__Resources().get_item_definition(
+		selected_item_ctrl.item
+	)
+	if definition == null or not definition.splittable:
 		buttonJoin.hide()
 		buttonSplit.hide()
 	else :
@@ -325,12 +327,14 @@ func _on_ButtonUse_pressed():
 
 func _on_ButtonDrop_pressed():
 	if selected_item_ctrl != null :
-		var dropped = hud.selected_character.drop_inventory_item(selected_item_ctrl.item)
+		var owner_character: Creature = (
+			selected_item_ctrl.get_parent().get_parent().get_inventory_owner()
+		)
+		var dropped = owner_character.drop_inventory_item(selected_item_ctrl.item)
 		if dropped :
 			SfxPlayer.stream = NodeAccess.__Resources().sounds_book["drop item.wav"]
 			SfxPlayer.play()
 		
-			var owner_character = selected_item_ctrl.get_parent().get_parent().get_inventory_owner()
 			var vbox = selected_item_ctrl.get_parent()
 			fill_inventory_Vbox( vbox, owner_character )
 		GameGlobal.refresh_OW_HUD()
@@ -338,7 +342,7 @@ func _on_ButtonDrop_pressed():
 
 func _on_ButtonIdentify_pressed():
 	if not is_instance_valid(selected_item_ctrl) : return
-	if selected_item_ctrl.item["is_identified"] > 0 : return
+	if selected_item_ctrl.item.identified: return
 	print("INventoryRect _on_ButtonIdentify_pressed ok")
 	var chara_cancast_identify : Creature = null
 	var resources = NodeAccess.__Resources()
@@ -363,14 +367,10 @@ func _on_ButtonIdentify_pressed():
 		SfxPlayer.stream = resources.sounds_book['generation error.wav']
 		SfxPlayer.play()
 	
-	#for i in hud.selected_character.inventory :
-		#GameGlobal.identify_item(i)
-	#GameGlobal.refresh_OW_HUD()
-
 func _on_ButtonidentiPay_pressed():
 	print("InvRect _on_ButtonIdentiPay_pressed")
 	if not is_instance_valid(selected_item_ctrl) : return
-	if selected_item_ctrl.item["is_identified"] > 0 : return
+	if selected_item_ctrl.item.identified: return
 	if hud.selected_character.money[0] >= 10 or GameGlobal.money_pool[0] >= 10 :
 		GameGlobal.identify_item(selected_item_ctrl.item)
 		selected_item_ctrl.set_item(selected_item_ctrl.item)
@@ -418,24 +418,44 @@ func _on_trade_char_select_button_pressed(character, button ) -> void :
 
 
 func _on_ButtonSplit_pressed():
-	if selected_item_ctrl == null or selected_item_ctrl.item["splittable"]==0:
+	if selected_item_ctrl == null:
 		buttonJoin.hide()
 		buttonSplit.hide()
 		return
-	var owner_character = selected_item_ctrl.get_parent().get_parent().get_inventory_owner()
-	print("InvRect split : owner of ", selected_item_ctrl.item["name"]," is ", owner_character.name)
-	var item_index_in_owner_inv = owner_character.inventory.find(selected_item_ctrl.item)
-	var selitem = selected_item_ctrl.item
-	var itemcopy = selitem.duplicate(true)
+	var owner_character: Creature = (
+		selected_item_ctrl.get_parent().get_parent().get_inventory_owner()
+	)
+	var selected_instance: ItemInstance = selected_item_ctrl.item
+	var definition := NodeAccess.__Resources().get_item_definition(
+		selected_instance
+	)
+	if definition == null or not definition.splittable:
+		buttonJoin.hide()
+		buttonSplit.hide()
+		return
+	var item_index_in_owner_inv := owner_character.item_inventory.find(
+		selected_instance
+	)
 	#get the quantities for each item
-	var total : int = selected_item_ctrl.item["charges"]
+	var total: int = selected_instance.charges
 	var removed = int(float(total)/2.0)
 	if removed == 0 :
 		return
 	var left = int(total-removed)
-	selected_item_ctrl.item["charges"] = left
-	itemcopy["charges"] = removed
-	owner_character.inventory.insert(item_index_in_owner_inv+1,itemcopy)
+	selected_instance.charges = left
+	owner_character.sync_item_runtime_state(selected_instance)
+	var split_instance := NodeAccess.__Resources().copy_item_instance(
+		selected_instance,
+		{"charges": removed, "equipped": false},
+	)
+	if split_instance == null \
+			or not owner_character.add_inventory_item(
+				split_instance,
+				item_index_in_owner_inv + 1,
+			):
+		selected_instance.charges = total
+		owner_character.sync_item_runtime_state(selected_instance)
+		return
 	print("InvRect vbox of selected ctrl ? ", selected_item_ctrl.get_parent())
 	
 	var vbox = selected_item_ctrl.get_parent()
@@ -445,7 +465,7 @@ func _on_ButtonSplit_pressed():
 	#find the new selected ctrl :
 	var ns = null
 	for ctrl in vbox.get_children() :
-		if ctrl.item == selitem :
+		if ctrl.item == selected_instance:
 			ns = ctrl
 			break
 	if ns != null :
@@ -454,37 +474,54 @@ func _on_ButtonSplit_pressed():
 
 
 func _on_ButtonJoin_pressed():
-	if selected_item_ctrl == null or selected_item_ctrl.item["splittable"]==0:
+	if selected_item_ctrl == null:
 		buttonJoin.hide()
 		buttonSplit.hide()
 		return
-	var owner_character = selected_item_ctrl.get_parent().get_parent().get_inventory_owner()
-	var item_index_in_owner_inv = owner_character.inventory.find(selected_item_ctrl.item)
-	var itemcopy = selected_item_ctrl.item.duplicate(true)
-	var eraseafterloop : Array = []
-	var totalcharges : int = 0
-	for i in owner_character.inventory :
-		#equality betwene discts checks for pointers not data...
-		if (i["name"]==itemcopy["name"]) and (i["stats_mini"]==itemcopy["stats_mini"]) and (i["weight"]==itemcopy["weight"]) :
-			totalcharges += i["charges"]
-			eraseafterloop.append(i)
-	for i in eraseafterloop :
-		owner_character.inventory.erase(i)
-	itemcopy["charges"] = totalcharges
-		#danger, indexmust not be bigger than inv size !
-	item_index_in_owner_inv = min(item_index_in_owner_inv, owner_character.inventory.size())
-	#depending checked max charges, add several objetcs :
-	if itemcopy.has("charges_max") :
-		var chargesmax = itemcopy["charges_max"]
-		itemcopy["charges"] = chargesmax
-		while totalcharges > chargesmax :
-			var itemadded = itemcopy.duplicate(true)
-			owner_character.inventory.insert(item_index_in_owner_inv,itemadded)
-			totalcharges -= chargesmax
-		itemcopy["charges"] = totalcharges
-		owner_character.inventory.insert(item_index_in_owner_inv,itemcopy)
-	else :
-		owner_character.inventory.insert(item_index_in_owner_inv,itemcopy)
+	var owner_character: Creature = (
+		selected_item_ctrl.get_parent().get_parent().get_inventory_owner()
+	)
+	var survivor: ItemInstance = selected_item_ctrl.item
+	var definition := NodeAccess.__Resources().get_item_definition(survivor)
+	if definition == null or not definition.splittable:
+		buttonJoin.hide()
+		buttonSplit.hide()
+		return
+	var item_index_in_owner_inv := owner_character.item_inventory.find(survivor)
+	var matches: Array[ItemInstance] = []
+	var totalcharges := 0
+	for candidate: ItemInstance in owner_character.inventory_instances():
+		if candidate.definition_id == survivor.definition_id:
+			matches.append(candidate)
+			totalcharges += candidate.charges
+	for candidate: ItemInstance in matches:
+		if candidate != survivor:
+			owner_character.remove_inventory_item(candidate)
+	var charges_max := definition.maximum_charges
+	if charges_max <= 0:
+		survivor.charges = totalcharges
+	else:
+		survivor.charges = mini(totalcharges, charges_max)
+		var remaining := totalcharges - survivor.charges
+		var insertion_index := mini(
+			item_index_in_owner_inv + 1,
+			owner_character.item_inventory.size(),
+		)
+		while remaining > 0:
+			var stack_charges := mini(remaining, charges_max)
+			var extra_stack := NodeAccess.__Resources().copy_item_instance(
+				survivor,
+				{"charges": stack_charges, "equipped": false},
+			)
+			if extra_stack == null \
+					or not owner_character.add_inventory_item(
+						extra_stack,
+						insertion_index,
+					):
+				break
+			remaining -= stack_charges
+			insertion_index += 1
+	owner_character.sync_item_runtime_state(survivor)
 
 	var vbox = selected_item_ctrl.get_parent()
 #	buttonSplit.hide()
@@ -493,7 +530,7 @@ func _on_ButtonJoin_pressed():
 	#find the new selected ctrl :
 	var ns = null
 	for ctrl in vbox.get_children() :
-		if ctrl.item == itemcopy :
+		if ctrl.item == survivor:
 			ns = ctrl
 			break
 	if ns != null :
@@ -524,8 +561,8 @@ func _on_ButtonEquip_pressed():
 func _on_ButtonTradeItem_pressed():
 	if selected_item_ctrl == null :
 		return
-	var item = selected_item_ctrl.item
-	if item["equipped"] == 1 :
+	var item: ItemInstance = selected_item_ctrl.item
+	if item.equipped:
 		SfxPlayer.stream = NodeAccess.__Resources().sounds_book['generation error.wav']
 		SfxPlayer.play()
 		return
@@ -537,28 +574,26 @@ func _on_ButtonTradeItem_pressed():
 	else :
 		othercontainer = inventoryScrollLeft
 	var selchar = selcontainer.get_inventory_owner()
-	var itemindexinselchar = selchar.inventory.find(selected_item_ctrl.item)
+	var itemindexinselchar = selchar.item_inventory.find(item)
 	var otherchar = othercontainer.get_inventory_owner()
 	var scrollvalue = selcontainer.get_v_scroll()
 
-	#needed  to use  methods add_inventory_item
-#	otherchar.inventory.append(item)
-#	selchar.inventory.erase(item)
 	if otherchar.can_add_inventory_item(item) :
 		#if selchar.drop_inventory_item(item) :
-		selchar.inventory.erase(item)
-		otherchar.add_inventory_item(item)
+		selchar.transfer_inventory_item_to(otherchar, item)
 	
 	
 	GameGlobal.refresh_OW_HUD()
 	
-	var selcharinvsize = selchar.inventory.size()
+	var selcharinvsize = selchar.item_inventory.size()
 	if selcharinvsize>0 :
 		itemindexinselchar = max(itemindexinselchar,1)
 		itemindexinselchar = min(itemindexinselchar, selcharinvsize-1)
 
 		var ns = null
-		var targetitem = selchar.inventory[itemindexinselchar-1]
+		var targetitem: ItemInstance = selchar.item_inventory[
+			itemindexinselchar - 1
+		]
 		for ctrl in selvbox.get_children() :
 			if ctrl.item == targetitem :
 				ns = ctrl
@@ -578,8 +613,16 @@ func set_allow_honest_storage(yes : bool) :
 
 
 
-func use_item(item : Dictionary, user : Creature, itemcontrol) :
-	print("InventoryRect use_item() : "+item["name"]+" , StateMachine state : "+StateMachine._state_name)
+func use_item(item: ItemInstance, user: Creature, itemcontrol) -> void:
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	if definition == null:
+		return
+	print(
+		"InventoryRect use_item() : "
+		+ definition.display_name
+		+ " , StateMachine state : "
+		+ StateMachine._state_name
+	)
 	if user.has_method("can_use_inventory_item") \
 			and not user.call("can_use_inventory_item", item):
 		SfxPlayer.stream = (
@@ -589,3 +632,65 @@ func use_item(item : Dictionary, user : Creature, itemcontrol) :
 		return
 	StateMachine.state.use_inventory_item(item, user)
 	itemcontrol.set_item(item)
+
+
+func refresh_inventory_lists() -> void:
+	fill_inventory_Vbox(
+		inventoryBoxRight,
+		inventoryScrollRight.get_inventory_owner(),
+	)
+	if inventoryScrollLeft.visible and selectedTradeCharacter != null:
+		fill_inventory_Vbox(
+			inventoryBoxLeft,
+			inventoryScrollLeft.get_inventory_owner(),
+		)
+
+
+func can_purchase_shop_item(
+	customer: Creature,
+	item: ItemInstance,
+) -> bool:
+	if customer == null or item == null:
+		return false
+	if not GameGlobal.current_shop_accepts_item(item):
+		return false
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	if definition == null:
+		return false
+	if definition.unique and GameGlobal.enforce_unique_items:
+		if GameGlobal.does_party_have_same_item(item)[0]:
+			return false
+	var price: int = shopRect.price_for(item)
+	return (
+		price >= 0
+		and customer.can_add_inventory_item(item)
+		and customer.money[0] + GameGlobal.money_pool[0] >= price
+	)
+
+
+func purchase_shop_item(
+	customer: Creature,
+	item: ItemInstance,
+	target_index := -1,
+) -> bool:
+	if not can_purchase_shop_item(customer, item):
+		return false
+	var result: Dictionary = shopRect.purchase_item(
+		customer,
+		item,
+		target_index,
+	)
+	if not bool(result.get("ok", false)):
+		return false
+	var price := int(result["price"])
+	var balances: Array[int] = GameGlobal.shop_purchase_balances(
+		customer.money[0],
+		GameGlobal.money_pool[0],
+		price,
+	)
+	customer.money[0] = balances[0]
+	GameGlobal.money_pool[0] = balances[1]
+	shopRect.goldLabel.text = str(customer.money[0])
+	shopRect.poolLabel.text = str(GameGlobal.money_pool[0])
+	shopRect.fillVbox(shopRect.current_shop_category)
+	return true

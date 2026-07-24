@@ -293,11 +293,12 @@ func _pixel_hash(image: Image) -> String:
 	return hashing.finish().hex_encode()
 
 
-func _inventory_ids(inventory: Array) -> Array[int]:
+func _inventory_ids(inventory: Array[ItemInstance]) -> Array[int]:
 	var ids: Array[int] = []
-	for item_value: Variant in inventory:
-		if item_value is Dictionary:
-			ids.append(int(item_value.get("classicItemId", 0)))
+	var resources: CampaignResources = NodeAccess.__Resources()
+	for item: ItemInstance in inventory:
+		var classic_ids: Array[int] = resources.item_classic_ids(item)
+		ids.append(classic_ids[0] if not classic_ids.is_empty() else 0)
 	return ids
 
 

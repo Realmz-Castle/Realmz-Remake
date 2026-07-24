@@ -47,16 +47,37 @@ static func base_value(character: Object) -> int:
 static func equipped_modifier(character: Object) -> int:
 	if character == null:
 		return 0
-	var inventory: Variant = character.get("inventory")
+	var stable_inventory := character.has_method("inventory_instances")
+	var inventory: Variant = character.inventory_instances() \
+		if stable_inventory else _property_value(character, "inventory")
 	if not (inventory is Array):
 		return 0
 	var modifier := 0
 	for item_value: Variant in inventory:
-		if not (item_value is Dictionary):
+		if item_value is ItemInstance:
+			if not item_value.equipped:
+				continue
+			var definition := NodeAccess.__Resources().get_item_definition(
+				item_value
+			)
+			if definition != null:
+				modifier += definition.classic_magic_resistance()
 			continue
-		if int(item_value.get("equipped", 0)) != 1:
+		# Installed pre-M6 campaign characters and adapter test doubles may still
+		# expose their old dictionary inventory. Convert only the Classic field
+		# needed by this compatibility rule; live Creature inventories take the
+		# stable branch above.
+		if stable_inventory or not (item_value is Dictionary):
 			continue
-		modifier += int(item_value.get(ITEM_FIELD, 0))
+		var legacy_item: Dictionary = item_value
+		if not bool(legacy_item.get("equipped", 0)):
+			continue
+		if legacy_item.has(ITEM_FIELD):
+			modifier += int(legacy_item[ITEM_FIELD])
+		elif legacy_item.get("stats", {}) is Dictionary:
+			modifier += int(
+				legacy_item.get("stats", {}).get("ClassicMagicResistance", 0)
+			)
 	return modifier
 
 

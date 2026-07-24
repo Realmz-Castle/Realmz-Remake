@@ -80,11 +80,16 @@ func _on_spell_used(character, spell, power: int) -> void:
 	await _finish_response(_runtime.respond("spell", spell.name, context))
 
 
-func _on_item_used(item: Dictionary, character) -> void:
+func _on_item_used(item: ItemInstance, character) -> void:
 	var context := _context()
 	context["character"] = character
 	context["item"] = item
-	await _finish_response(_runtime.respond("item", item.get("name", ""), context))
+	var definition := NodeAccess.__Resources().get_item_definition(item)
+	await _finish_response(_runtime.respond(
+		"item",
+		definition.display_name_for(item) if definition != null else "",
+		context,
+	))
 
 
 func _on_acro_used(stat: float, character) -> void:

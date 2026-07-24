@@ -247,8 +247,8 @@ static func _character_creation_gifts(_character) :
 	_character.spells = [[],[]]
 	for name in ["Dagger","Bow","Quiver of Arrows","Leather Armor","Leather Cap","Leather Gloves","Leather Boots"] :
 		print("classgd  give gift : ", name)
-		var item = resources.items_book[name]
-		_character.inventory.append(item.duplicate(true))
+		var item = resources.create_item_instance(name)
+		_character.add_inventory_item(item)
 	_character.money[0] += 50
 	resources.items_book.clear()
 
