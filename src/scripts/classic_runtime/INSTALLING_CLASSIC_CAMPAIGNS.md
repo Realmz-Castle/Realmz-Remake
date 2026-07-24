@@ -66,7 +66,16 @@ activates the compiled starting map and position.
 
 ## Installing and updating
 
-Close any running game, then install a complete export with Godot:
+In a release build, open **Start Campaign**, choose **Install Classic...**, and
+select the complete campaign export directory produced by Providence. Realmz
+Remake validates the selected package, installs it into the writable `Campaigns`
+directory beside the executable, refreshes the campaign list, and selects the
+installed campaign. Selecting a newer export with the same directory name
+prompts before replacing the existing package. Saves remain in the separate
+`Profiles` directory.
+
+For automation or development builds, close any running game and install a
+complete export with Godot:
 
 ```powershell
 godot --headless --path src --script `

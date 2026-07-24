@@ -1,8 +1,13 @@
 extends NinePatchRect
 
+const ClassicCampaignPackageInstallerScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
+)
+
 @onready var campaignsItemList : ItemList = $VBoxContainer/HBoxContainertT/ScenarioListVBox/CampaignsItemList
 @onready var selectedCampaignNameLabel : Label = $VBoxContainer/HBoxContainertT/ScenDescrVBox/SelectedCampaignNameLabel
 @onready var selectedCampaignDescrLabel: Label = $VBoxContainer/HBoxContainertT/ScenDescrVBox/SelectedCampaignDescrLabel
+@onready var classicImportStatusLabel: Label = $VBoxContainer/ClassicImportStatusLabel
 
 var selectedcampaign_onselect
 
@@ -10,6 +15,12 @@ var selectedcampaign_onselect
 @onready var createCharacterButton : Button = (
 	$VBoxContainer/HBoxContainerB/CreateCharacterControl/CreateCharacterButton
 )
+@onready var importClassicButton: Button = (
+	$VBoxContainer/HBoxContainerB/ImportClassicControl/ImportClassicButton
+)
+@onready var classicImportDialog: FileDialog = $ClassicImportDialog
+@onready var classicReplaceDialog: ConfirmationDialog = $ClassicReplaceDialog
+@onready var classicImportResultDialog: AcceptDialog = $ClassicImportResultDialog
 
 @onready var charPickRect : Control = $VBoxContainer/HBoxContainertT/PartyControl/CharPickRect
 
@@ -24,6 +35,8 @@ var selectedCampaign : String = ''
 var selected_campaign_index := -1
 
 var pickedparty : Array = []
+var pending_classic_import_directory := ""
+var classic_import_in_progress := false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -38,6 +51,139 @@ func _ready():
 func _on_CancelButton_pressed() -> void :
 	self.hide()
 #	self.get_parent().get_parent().newCharacterButton.show()
+
+func _on_ImportClassicButton_pressed() -> void:
+	var initial_directory := OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+	if initial_directory.is_empty():
+		initial_directory = Paths.realmzfolderpath
+	classicImportDialog.current_dir = initial_directory
+	classicImportDialog.popup_centered_ratio(0.8)
+
+
+func _on_ClassicImportDialog_dir_selected(directory: String) -> void:
+	request_classic_campaign_import(directory)
+
+
+func request_classic_campaign_import(directory: String) -> void:
+	if classic_import_in_progress:
+		return
+	var source_directory := _normalized_directory(directory)
+	if source_directory.is_empty():
+		_show_classic_import_error("Choose a complete Classic campaign export directory.")
+		return
+	pending_classic_import_directory = source_directory
+	var campaign_name := source_directory.get_file()
+	var destination := _normalized_directory(
+		Paths.campaignsfolderpath
+	).path_join(campaign_name)
+	if DirAccess.dir_exists_absolute(destination):
+		classicReplaceDialog.dialog_text = (
+			"“%s” is already installed.\n\n"
+			+ "Replace it with the selected export? The new package is validated "
+			+ "before the installed copy is changed."
+		) % campaign_name
+		classicReplaceDialog.popup_centered()
+		return
+	call_deferred("_install_pending_classic_campaign", false)
+
+
+func _on_ClassicReplaceDialog_confirmed() -> void:
+	call_deferred("_install_pending_classic_campaign", true)
+
+
+func _on_ClassicReplaceDialog_canceled() -> void:
+	pending_classic_import_directory = ""
+	_set_classic_import_status("Classic campaign installation canceled.", false)
+
+
+func _install_pending_classic_campaign(replace_existing: bool) -> void:
+	if classic_import_in_progress or pending_classic_import_directory.is_empty():
+		return
+	var source_directory := pending_classic_import_directory
+	pending_classic_import_directory = ""
+	classic_import_in_progress = true
+	importClassicButton.disabled = true
+	_set_classic_import_status(
+		"Installing %s…" % source_directory.get_file(),
+		false
+	)
+	await get_tree().process_frame
+
+	var installer = ClassicCampaignPackageInstallerScript.new()
+	var result: Dictionary = installer.install_export(
+		source_directory,
+		Paths.campaignsfolderpath,
+		replace_existing
+	)
+	classic_import_in_progress = false
+	importClassicButton.disabled = false
+	if str(result.get("status", "")) != "ok":
+		_show_classic_import_error(
+			str(result.get("message", "Classic campaign installation failed."))
+		)
+		return
+
+	var campaign_name := str(result.get("campaignName", source_directory.get_file()))
+	fill()
+	_select_campaign_by_name(campaign_name)
+	var action := (
+		"Updated" if bool(result.get("replacedExisting", false)) else "Installed"
+	)
+	var status := "%s %s — %s." % [
+		action,
+		campaign_name,
+		result.get("readinessState", "Ready"),
+	]
+	var readiness_summary := str(result.get("readinessSummary", "")).strip_edges()
+	if not readiness_summary.is_empty():
+		status += " %s" % readiness_summary
+	var warnings: Array = result.get("warnings", [])
+	if not warnings.is_empty():
+		status += " Warning: %s" % " ".join(warnings)
+	_set_classic_import_status(status, false)
+	classicImportResultDialog.title = "Classic Campaign Installed"
+	classicImportResultDialog.dialog_text = status
+	classicImportResultDialog.popup_centered()
+
+
+func _show_classic_import_error(message: String) -> void:
+	var status := "Install failed: %s" % message
+	_set_classic_import_status(status, true)
+	classicImportResultDialog.title = "Classic Campaign Install Failed"
+	classicImportResultDialog.dialog_text = message
+	classicImportResultDialog.popup_centered()
+
+
+func _set_classic_import_status(message: String, is_error: bool) -> void:
+	classicImportStatusLabel.text = message
+	classicImportStatusLabel.modulate = (
+		Color(1.0, 0.55, 0.45) if is_error else Color.WHITE
+	)
+	classicImportStatusLabel.visible = not message.is_empty()
+
+
+func _select_campaign_by_name(campaign_name: String) -> void:
+	for item_index: int in range(campaignsItemList.item_count):
+		var metadata: Variant = campaignsItemList.get_item_metadata(item_index)
+		if metadata is Dictionary \
+				and str(metadata.get("campaignName", "")) == campaign_name:
+			campaignsItemList.select(item_index)
+			campaignsItemList.ensure_current_is_visible()
+			_on_campaign_selected(item_index)
+			return
+
+
+func _normalized_directory(path: String) -> String:
+	var stripped := path.strip_edges()
+	if stripped.is_empty():
+		return ""
+	return (
+		ProjectSettings.globalize_path(stripped)
+		.replace("\\", "/")
+		.simplify_path()
+		.trim_suffix("/")
+	)
+
 
 func _on_campaign_selected(idx : int) -> void :
 	set_ready(false, [])

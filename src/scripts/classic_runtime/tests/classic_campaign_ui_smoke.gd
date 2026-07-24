@@ -31,6 +31,34 @@ func _run_smoke() -> void:
 
 	var panel: Node = UI.main_menu.newCampaignPanel
 	UI.main_menu._on_new_campaign_button_pressed()
+	_expect(
+		panel.importClassicButton != null
+			and panel.classicImportDialog.file_mode == FileDialog.FILE_MODE_OPEN_DIR
+			and panel.classicImportDialog.access == FileDialog.ACCESS_FILESYSTEM,
+		"campaign picker exposes a filesystem directory installer for Classic exports"
+	)
+	panel.request_classic_campaign_import(
+		ProjectSettings.globalize_path("user://missing-classic-campaign-ui-export")
+	)
+	for _frame: int in 3:
+		await get_tree().process_frame
+	_expect(
+		panel.classicImportStatusLabel.visible
+			and panel.classicImportStatusLabel.text.contains(
+				"Classic campaign export directory does not exist"
+			),
+		"campaign picker reports an invalid Classic export without changing discovery"
+	)
+	panel.classicImportResultDialog.hide()
+	panel.request_classic_campaign_import(CAMPAIGNS_DIRECTORY.path_join(CAMPAIGN_NAME))
+	await get_tree().process_frame
+	_expect(
+		panel.classicReplaceDialog.visible
+			and panel.classicReplaceDialog.dialog_text.contains("already installed"),
+		"campaign picker requires confirmation before replacing an installed campaign"
+	)
+	panel._on_ClassicReplaceDialog_canceled()
+	panel.classicReplaceDialog.hide()
 	var invalid_index := _find_campaign_index(panel.campaignsItemList, "invalid_campaign")
 	_expect(invalid_index >= 0, "invalid Classic package remains visible in the campaign list")
 	if invalid_index >= 0:
