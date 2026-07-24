@@ -18,6 +18,7 @@ const music_types : Array = ["Battle", "Camp", "Town","Forest", "Snow", "Swamp",
 #const typeindexesdict : Dictionary = {"Battle":0, "Camp":1, "Cave":2, "Create":3, "Dungeon":4, "Indoor":5, "Items":6, "Outdoor":7, "Shop":8, "Temple":9, "Treasure":10}
 
 const MusicTypeTSCN : PackedScene = preload("res://scenes/UI/HUD/Settings/music_type_setting.tscn")
+const MusicSettingsScript = preload("res://scripts/audio/music_settings.gd")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -91,5 +92,5 @@ func _on_sound_h_scroll_bar_value_changed(value):
 func _on_music_h_scroll_bar_value_changed(value):
 	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
 	Utils.FileHandler.set_cfg_setting(path, "VOLUME", "volume_music", value)
-	MusicStreamPlayer.volume_db = (value-100)*0.5
+	MusicStreamPlayer.volume_db = MusicSettingsScript.volume_db_from_setting(value)
 	musicvolLabel.text = str(value)+'%'

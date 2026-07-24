@@ -409,8 +409,8 @@ func _complete_guard_house_encounter() -> bool:
 		return false
 	_verify_stage(
 		"02_guard_house_prompt",
-		_choice_labels() == GUARD_CHOICES + ["Back out"],
-		"the installed campaign presents all four source choices and Back out"
+		_choice_labels() == GUARD_CHOICES and _has_stop_choice(),
+		"the installed campaign presents four source choices plus the stop control"
 	)
 	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("4")
 	if not await _dismiss_message(GUARD_OUTCOME_MESSAGE):
@@ -1114,6 +1114,13 @@ func _choice_labels() -> Array[String]:
 		if child is Label:
 			labels.append(str(child.text))
 	return labels
+
+
+func _has_stop_choice() -> bool:
+	for child: Node in UI.ow_hud.textRect.choicesContainer.get_children():
+		if child.get_node_or_null("TextureRect/Container/Button") is Button:
+			return true
+	return false
 
 
 func _shop_stock_row_count(shop: Dictionary) -> int:

@@ -13,6 +13,7 @@ extends Node
 const UDLR : Array = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
 const ShopRules = preload("res://scripts/shop_rules.gd")
 const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
+const MusicSettingsScript = preload("res://scripts/audio/music_settings.gd")
 const ClassicCampaignInstallScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
@@ -200,12 +201,17 @@ func set_current_profile(profilename : String) -> void :
 	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
 	#get_cfg_setting(path, section, key, default) :
 	var musicvolume : float = Utils.FileHandler.get_cfg_setting(path, "VOLUME", "volume_music", 50)
-	MusicStreamPlayer.volume_db = (musicvolume -100)*0.5 - 20 # Combined volume offset for all music types
+	MusicStreamPlayer.volume_db = MusicSettingsScript.volume_db_from_setting(musicvolume)
 	var sfxvolume : float = Utils.FileHandler.get_cfg_setting(path, "VOLUME", "volume_sound", 50)
 	SfxPlayer.volume_db = (sfxvolume -100)*0.5
 	honest_mode = bool(Utils.FileHandler.get_cfg_setting(path, "SET_IN_STONE", "honest_mode", 0))
 	for type in MusicStreamPlayer.oneofeachtype.keys() :
-		var favofthistype : String = Utils.FileHandler.get_cfg_setting(path, "MUSIC", type, "No Music")
+		var favofthistype : String = Utils.FileHandler.get_cfg_setting(
+			path,
+			"MUSIC",
+			type,
+			MusicSettingsScript.default_music_choice(type)
+		)
 		MusicStreamPlayer.set_type_music_choice(type,favofthistype)
 
 

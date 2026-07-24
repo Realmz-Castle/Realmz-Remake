@@ -507,10 +507,20 @@ func _on_CampButton_pressed():
 	#	return
 	GameGlobal.camping = ! GameGlobal.camping
 	if GameGlobal.camping :
-		MusicStreamPlayer.play_music_type("Camp")
+		_play_camp_audio()
 	else :
 		MusicStreamPlayer.play_music_map()
 	NodeAccess.__Map().set_ow_character_icon(GameGlobal.player_characters[0].icon)
+
+
+func _play_camp_audio() -> void:
+	# Realmz plays sound 10001 when entering camp, not on every Rest timer tick.
+	var resources := NodeAccess.__Resources()
+	if resources != null and resources.sounds_book.has("camp.wav"):
+		ScriptHelperFuncsClass.play_sound("camp.wav", false)
+	else:
+		push_warning("Camp sound is unavailable")
+	MusicStreamPlayer.play_music_type("Camp")
 
 
 

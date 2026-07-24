@@ -53,6 +53,11 @@ func display_multiple_choices(choices : Array, scripts : Array) :
 			var newStop = choices_stop_tscn.instantiate()
 			newStop.connect("pressed",Callable(self,"_on_choice_button_pressed").bind("STOP"))
 			add_child(newStop)
+			var stop_button := newStop.get_node_or_null(
+				"TextureRect/Container/Button"
+			) as Button
+			if stop_button != null and not stop_button.disabled:
+				focus_buttons.append(stop_button)
 			height += 74
 		
 		if scripts[i]=="YESNO" :

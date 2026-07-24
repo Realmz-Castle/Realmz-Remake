@@ -26808,13 +26808,17 @@ func _test_complex_action_choices(bundle) -> void:
 	)
 	_expect_equal(
 		cave_in.get("choices"),
-		["Dig", "Throw stones at mountain", "Attempt to climb slope", "Back out"],
+		["Dig", "Throw stones at mountain", "Attempt to climb slope"],
 		"complex action choices expose shipped labels"
 	)
 	_expect_equal(
 		cave_in.get("tokens"),
-		["action:1", "action:1", "action:1", "back"],
+		["action:1", "action:1", "action:1"],
 		"complex actions share the source-backed result block"
+	)
+	_expect(
+		bool(cave_in.get("canBackOut", false)),
+		"complex back-out remains separate from authored choices"
 	)
 	var library: Dictionary = adapter.build_complex_action_choices(
 		{
@@ -28126,8 +28130,12 @@ func _test_shipped_lock_encounter(bundle) -> void:
 	)
 	_expect_equal(
 		choice_model.get("tokens"),
-		["rogue:1", "rogue:4", "rogue:6", "back"],
-		"Godot adapter exposes shipped rogue actions and back-out"
+		["rogue:1", "rogue:4", "rogue:6"],
+		"Godot adapter exposes shipped rogue actions"
+	)
+	_expect(
+		bool(choice_model.get("canBackOut", false)),
+		"Godot adapter keeps rogue back-out separate from authored actions"
 	)
 	var failed_pick: Dictionary = resolver.resolve_action(6, false)
 	_expect_equal(failed_pick.get("outcome"), 0, "failed lockpick remains in complex encounter")
@@ -29460,11 +29468,19 @@ func _test_runtime_host() -> void:
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(
 		host.runtime.bundle.get_encounter("simple", 0)
 	)
-	_expect_equal(encounter_choices.get("choices", []).size(), 5, "Godot adapter exposes simple back-out")
+	_expect_equal(
+		encounter_choices.get("choices", []).size(),
+		4,
+		"Godot adapter exposes only the four authored simple choices"
+	)
 	_expect_equal(
 		encounter_choices.get("outcomes"),
-		["1", "2", "3", "4", "0"],
-		"Godot adapter preserves Classic outcomes and back-out"
+		["1", "2", "3", "4"],
+		"Godot adapter preserves the four authored Classic outcomes"
+	)
+	_expect(
+		bool(encounter_choices.get("canBackOut", false)),
+		"Godot adapter exposes simple back-out as a separate control"
 	)
 	host.queue_free()
 

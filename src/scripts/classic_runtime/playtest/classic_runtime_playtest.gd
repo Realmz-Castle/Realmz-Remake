@@ -241,9 +241,9 @@ func _run_automated_smoke() -> void:
 	_verify_smoke_stage(
 		"02_simple_encounter_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 10
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 9
 			and _choice_menu_fits_map_area(),
-		"four classic choices and back-out are visible within the map area"
+		"four Classic choices and the stop control are visible within the map area"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -848,9 +848,9 @@ func _run_simple_option_smoke() -> void:
 	_verify_smoke_stage(
 		"02_tavern_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 10
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 9
 			and _choice_menu_fits_map_area(),
-		"four tavern choices and back-out are visible"
+		"four tavern choices and the stop control are visible"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -873,7 +873,7 @@ func _run_simple_option_smoke() -> void:
 	_verify_smoke_stage(
 		"04_tavern_reopens",
 		reopened_choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 7
 			and effective_tavern.get("choiceResults", []).map(
 				func(value: Variant) -> int: return int(value)
 			) == [1, 2, 3, 0]
@@ -908,9 +908,9 @@ func _run_complex_word_smoke() -> void:
 	_verify_smoke_stage(
 		"02_complex_word_choice",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 7
 			and _choice_menu_fits_map_area(),
-		"speak appears beside the two archive actions and back-out"
+		"speak appears beside the two archive actions and the stop control"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -933,7 +933,7 @@ func _run_complex_word_smoke() -> void:
 	var retry_ready := await _wait_for_choices()
 	_verify_smoke_stage(
 		"04_empty_phrase_returns",
-		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8,
+		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 7,
 		"an empty phrase returns to the encounter choices"
 	)
 	if not retry_ready:
@@ -990,7 +990,7 @@ func _run_complex_word_smoke() -> void:
 	_verify_smoke_stage(
 		"09_archive_reopens",
 		repeated_choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 7
 			and first_result_actions.size() == 1
 			and int(first_result_actions[0].get("rawCode", 0)) == 24,
 		"the archive reopens with Result 1 replaced by Keep Codes"
@@ -1023,7 +1023,7 @@ func _run_lock_smoke() -> void:
 	_verify_smoke_stage(
 		"02_rogue_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 12
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 11
 			and _choice_menu_fits_map_area()
 			and pick_button != null
 			and "Pick Lock — Test Rogue (45%)" in pick_button.get_parent().text,
@@ -1078,7 +1078,7 @@ func _run_lock_smoke() -> void:
 	if not expected_rogue_success:
 		var retry_ready := await _wait_for_choices()
 		var retry_buttons := _choice_buttons()
-		var back_button := _choice_button_with_text(retry_buttons, "Back out")
+		var back_button := _stop_choice_button()
 		_verify_smoke_stage(
 			"06_failed_action_consumed",
 			retry_ready
@@ -1131,6 +1131,16 @@ func _choice_button_with_text(buttons: Array[Button], prefix: String) -> Button:
 	for button: Button in buttons:
 		var label := button.get_parent() as Label
 		if label != null and label.text.begins_with(prefix):
+			return button
+	return null
+
+
+func _stop_choice_button() -> Button:
+	for child: Node in UI.ow_hud.textRect.choicesContainer.get_children():
+		var button := child.get_node_or_null(
+			"TextureRect/Container/Button"
+		) as Button
+		if button != null:
 			return button
 	return null
 
@@ -1200,9 +1210,9 @@ func _run_complex_action_smoke() -> void:
 	_verify_smoke_stage(
 		"02_complex_action_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 7
 			and _choice_menu_fits_map_area(),
-		"three classic actions and back-out are visible within the map area"
+		"three Classic actions and the stop control are visible within the map area"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -1250,9 +1260,9 @@ func _run_complex_spell_smoke() -> void:
 	_verify_smoke_stage(
 		"02_complex_spell_choice",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 10
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 9
 			and _choice_menu_fits_map_area(),
-		"cast spell appears beside the three actions and back-out"
+		"cast spell appears beside the three actions and the stop control"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -1321,9 +1331,9 @@ func _run_complex_item_smoke() -> void:
 	_verify_smoke_stage(
 		"02_complex_item_choice",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 14
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 13
 			and _choice_menu_fits_map_area(),
-		"use item appears beside the rogue controls, actions, and back-out"
+		"use item appears beside the rogue controls, actions, and the stop control"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -1378,9 +1388,9 @@ func _run_trap_smoke() -> void:
 	_verify_smoke_stage(
 		"02_armed_trap_choices",
 		choices_ready
-			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 8
+			and UI.ow_hud.textRect.choicesContainer.get_child_count() == 7
 			and _choice_menu_fits_map_area(),
-		"rogue controls, the chest action, and back-out are visible"
+		"rogue controls, the chest action, and the stop control are visible"
 	)
 	if not choices_ready:
 		get_tree().quit(1)
@@ -1403,8 +1413,8 @@ func _run_trap_smoke() -> void:
 	var retry_ready := await _wait_for_choices()
 	_verify_smoke_stage(
 		"04_sprung_trap_choices",
-		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 6,
-		"sprung trap leaves Pick Lock, the chest action, and back-out available"
+		retry_ready and UI.ow_hud.textRect.choicesContainer.get_child_count() == 5,
+		"sprung trap leaves Pick Lock, the chest action, and the stop control available"
 	)
 	if not retry_ready:
 		get_tree().quit(1)

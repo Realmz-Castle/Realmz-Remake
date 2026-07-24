@@ -42,6 +42,7 @@ const CLASSIC_BATTLE_ORIGIN_OFFSET := 5
 const CLASSIC_FIELD_SPELL_SAVE_MODES := ["none", "negate", "half_damage"]
 const CHOICE_MENU_WIDTH := 380.0
 const CHOICE_MENU_MARGIN := 20.0
+const STOP_CHOICE_TOKEN := "STOP"
 const COMPLEX_ACTION_TEXT_COUNT := 8
 const COMPLEX_WORD_TEXT_INDEX := 8
 const COMPLEX_WORD_TEXT_LIMIT := 40
@@ -1862,10 +1863,14 @@ func _show_encounter(payload: Dictionary) -> Dictionary:
 	var choice_model := build_simple_encounter_choices(encounter)
 	var choices: Array = choice_model["choices"]
 	var choice_tokens: Array = choice_model["outcomes"]
+	if bool(choice_model.get("canBackOut", false)):
+		_append_stop_choice(choices, choice_tokens)
 	if choices.is_empty():
 		return _error("Classic simple encounter has no available choices")
 
 	var selected_outcome: Variant = await _show_choices(text_rect, choices, choice_tokens)
+	if str(selected_outcome) == STOP_CHOICE_TOKEN:
+		return {"outcome": 0}
 	return {"outcome": int(selected_outcome)}
 
 
@@ -1895,8 +1900,7 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 			)
 			_append_complex_item_choice(encounter, choices, choice_tokens)
 			if bool(encounter.get("canBackOut", false)):
-				choices.append("Back out")
-				choice_tokens.append("back")
+				_append_stop_choice(choices, choice_tokens)
 			if choices.is_empty():
 				return _error("Classic complex encounter has no available actions")
 			var selected: String = str(await _show_choices(
@@ -1904,7 +1908,7 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 				choices,
 				choice_tokens
 			))
-			if selected == "back":
+			if selected == STOP_CHOICE_TOKEN:
 				return {"outcome": 0}
 			if selected == "word":
 				var word_result := await _select_complex_word(encounter)
@@ -1975,12 +1979,11 @@ func _show_complex_encounter(payload: Dictionary) -> Dictionary:
 		)
 		_append_complex_item_choice(encounter, choices, choice_tokens)
 		if bool(encounter.get("canBackOut", false)):
-			choices.append("Back out")
-			choice_tokens.append("back")
+			_append_stop_choice(choices, choice_tokens)
 		if choices.is_empty():
 			return _error("Classic complex encounter has no available actions")
 		var selected: String = str(await _show_choices(text_rect, choices, choice_tokens))
-		if selected == "back":
+		if selected == STOP_CHOICE_TOKEN:
 			return {
 				"outcome": 0,
 				"thiefEncounter": resolver.rogue_encounter.duplicate(true),
@@ -2091,10 +2094,11 @@ func build_complex_action_choices(encounter: Dictionary, can_back_out: bool) -> 
 				continue
 			choices.append(choice_text)
 			tokens.append("action:%d" % outcome)
-	if can_back_out:
-		choices.append("Back out")
-		tokens.append("back")
-	return {"choices": choices, "tokens": tokens}
+	return {
+		"choices": choices,
+		"tokens": tokens,
+		"canBackOut": can_back_out,
+	}
 
 
 func resolve_complex_word_result(encounter: Dictionary, entered_text: String) -> int:
@@ -3049,10 +3053,11 @@ func build_rogue_encounter_choices(
 			chance,
 		])
 		tokens.append("rogue:%d" % action_index)
-	if can_back_out:
-		choices.append("Back out")
-		tokens.append("back")
-	return {"choices": choices, "tokens": tokens}
+	return {
+		"choices": choices,
+		"tokens": tokens,
+		"canBackOut": can_back_out,
+	}
 
 
 func _show_encounter_prompt(text_rect: Object, payload: Dictionary) -> void:
@@ -3231,6 +3236,13 @@ func _show_choices(text_rect: Object, choices: Array, choice_tokens: Array) -> V
 	return selected
 
 
+func _append_stop_choice(choices: Array, choice_tokens: Array) -> void:
+	# Classic renders canBackOut as its dedicated stop-sign control, separate
+	# from the encounter's authored text choices.
+	choices.append("")
+	choice_tokens.append(STOP_CHOICE_TOKEN)
+
+
 func _layout_choice_menu(choices_container: Control) -> void:
 	var map_area := choices_container.get_parent() as Control
 	if map_area == null:
@@ -3255,7 +3267,11 @@ func build_simple_encounter_choices(encounter: Dictionary) -> Dictionary:
 	var choices: Array = []
 	var choice_tokens: Array = []
 	if not (texts is Array) or not (outcomes is Array):
-		return {"choices": choices, "outcomes": choice_tokens}
+		return {
+			"choices": choices,
+			"outcomes": choice_tokens,
+			"canBackOut": bool(encounter.get("canBackOut", false)),
+		}
 	for index: int in range(min(texts.size(), outcomes.size())):
 		var outcome := int(outcomes[index])
 		var choice_text := str(texts[index])
@@ -3263,10 +3279,11 @@ func build_simple_encounter_choices(encounter: Dictionary) -> Dictionary:
 			continue
 		choices.append(choice_text)
 		choice_tokens.append(str(outcome))
-	if bool(encounter.get("canBackOut", false)):
-		choices.append("Back out")
-		choice_tokens.append("0")
-	return {"choices": choices, "outcomes": choice_tokens}
+	return {
+		"choices": choices,
+		"outcomes": choice_tokens,
+		"canBackOut": bool(encounter.get("canBackOut", false)),
+	}
 
 
 func build_treasure_delivery(

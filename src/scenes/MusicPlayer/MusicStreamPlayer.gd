@@ -1,24 +1,8 @@
 extends AudioStreamPlayer
 
-# Dictionary of music types mapped to their default music files
-var oneofeachtype = {
-	"Battle": "battle.mod",
-	"Camp": "camp.mod",
-	"Cave": "cave.mod",
-	"Create": "create.mod",
-	"Dungeon": "dungeon.mod",
-	"Indoor": "indoor.mod",
-	"Items": "items.mod",
-	"Shop": "shop.mod",
-	"Temple": "temple.mod",
-	"Treasure": "treasure.mod",
-	"Town": "outdoor.mod",
-	"Forest": "outdoor.mod",
-	"Snow": "outdoor.mod",
-	"Swamp": "outdoor.mod",
-	"Desert": "outdoor.mod"
-}
+const MusicSettingsScript = preload("res://scripts/audio/music_settings.gd")
 
+var oneofeachtype: Dictionary = MusicSettingsScript.DEFAULT_MUSIC_BY_TYPE.duplicate()
 var mute: bool = false
 var currently_playing: Dictionary = {"path": 'none', "type": 'none'}
 var map_music_dict: Dictionary = {"path": ""}
