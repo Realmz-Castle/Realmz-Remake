@@ -41,6 +41,10 @@ const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.
 const ClassicPartyConditionScript = preload(
 	"res://scripts/classic_runtime/classic_party_condition.gd"
 )
+const CLASSIC_DETECT_SECRET_ABILITY_INDEX := 4
+const CLASSIC_INDOOR_MINUTES_PER_TIMECLICK := 1
+const CLASSIC_OUTDOOR_MINUTES_PER_TIMECLICK := 5
+const SECONDS_PER_MINUTE := 60
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
@@ -463,12 +467,63 @@ func set_classic_search_enabled(enabled: bool) -> void:
 	set_classic_party_condition(5, -1 if enabled else 0)
 
 
+func classic_timeclick_pass_time_units(timeclicks: int, base_scale: int) -> int:
+	if timeclicks <= 0:
+		return 0
+	var minutes_per_timeclick := CLASSIC_INDOOR_MINUTES_PER_TIMECLICK \
+		if base_scale != 0 else CLASSIC_OUTDOOR_MINUTES_PER_TIMECLICK
+	var elapsed_seconds := timeclicks * minutes_per_timeclick * SECONDS_PER_MINUTE
+	return maxi(1, roundi(float(elapsed_seconds) / maxf(time_scale, 0.001)))
+
+
+func classic_base_scale_for_tile_stack(tile_stack: Array) -> int:
+	for tile_value: Variant in tile_stack:
+		if not (tile_value is Dictionary):
+			continue
+		var tile: Dictionary = tile_value
+		if tile.has("classicBaseScale"):
+			return int(tile["classicBaseScale"])
+		if tile.has("classicDungeonField"):
+			return 1
+	return 1 if currentmap_name.begins_with("mapd_") else 0
+
+
+func classic_movement_pass_time_units(timeclicks: int, tile_stack: Array) -> int:
+	var source_timeclicks := timeclicks
+	for tile_value: Variant in tile_stack:
+		if tile_value is Dictionary and tile_value.has("classicDungeonField"):
+			# Classic threed.c charges one timeclick for every successful dungeon step.
+			# Normalize older installed maps whose generated native tile used time 5.
+			source_timeclicks = 1
+			break
+	return classic_timeclick_pass_time_units(
+		source_timeclicks,
+		classic_base_scale_for_tile_stack(tile_stack)
+	)
+
+
 func apply_classic_search_time_cost() -> bool:
 	if not is_classic_party_condition_active(5):
 		return false
 	# checkforsecret.c advances source time by four ticks on every search pass.
-	pass_time(4)
+	pass_time(classic_timeclick_pass_time_units(4, _current_classic_base_scale()))
 	return true
+
+
+func _current_classic_base_scale() -> int:
+	if map != null and map.owcharacter != null:
+		var x := int(map.owcharacter.tile_position_x)
+		var y := int(map.owcharacter.tile_position_y)
+		if (
+			x >= 0
+			and x < map.mapdata.size()
+			and map.mapdata[x] is Array
+			and y >= 0
+			and y < map.mapdata[x].size()
+			and map.mapdata[x][y] is Array
+		):
+			return classic_base_scale_for_tile_stack(map.mapdata[x][y])
+	return 1 if currentmap_name.begins_with("mapd_") else 0
 
 
 func is_classic_party_condition_active(condition_index: int) -> bool:
@@ -625,6 +680,20 @@ func resolve_classic_dungeon_movement(
 		"handled": true,
 		"allowed": false,
 		"message": "Registered Classic runtime host returned an invalid movement response",
+	}
+
+
+func discover_classic_map_secrets(position: Vector2i) -> Dictionary:
+	if (
+		not is_instance_valid(classic_runtime_host)
+		or not classic_runtime_host.has_method("discover_map_secrets")
+	):
+		return {"handled": false}
+	var result: Variant = classic_runtime_host.call("discover_map_secrets", position)
+	return result if result is Dictionary else {
+		"status": "error",
+		"handled": true,
+		"message": "Registered Classic runtime host returned an invalid secret-discovery response",
 	}
 
 
@@ -1597,7 +1666,43 @@ func play_sfx(sfx_name : String) ->void :
 		SfxPlayer.stream = NodeAccess.__Resources().sounds_book[sfx_name]
 		SfxPlayer.play()
 
+func get_classic_secret_detection_chance() -> float:
+	if is_classic_party_condition_active(3) \
+			or is_classic_party_condition_active(5) \
+			or is_global_effect_active("Awareness"):
+		return 1.0
+	if player_characters.is_empty():
+		return 0.0
+	var total := 0
+	for character: Variant in player_characters:
+		var abilities: Variant = character.get("classic_special_abilities") \
+			if character is Object else null
+		if abilities is Array and abilities.size() > CLASSIC_DETECT_SECRET_ABILITY_INDEX:
+			total += clampi(
+				int(abilities[CLASSIC_DETECT_SECRET_ABILITY_INDEX]),
+				0,
+				100
+			)
+	# checkforsecret.c uses the integer average across the entire party.
+	var average_percent := floori(float(total) / float(player_characters.size()))
+	return float(average_percent) / 100.0
+
+
+func classic_secret_detection_succeeds(roll: float) -> bool:
+	var chance := get_classic_secret_detection_chance()
+	return chance > 0.0 and roll > 0.0 and roll <= chance
+
+
+func roll_classic_secret_detection() -> bool:
+	return (
+		randi_range(1, 100)
+		<= roundi(get_classic_secret_detection_chance() * 100.0)
+	)
+
+
 func get_mapsecret_detection_chance(pos: Vector2i) -> float:
+	if is_instance_valid(classic_campaign_session):
+		return get_classic_secret_detection_chance()
 	if is_classic_party_condition_active(3) \
 			or is_classic_party_condition_active(5) \
 			or is_global_effect_active("Awareness"):

@@ -303,7 +303,7 @@ func _build_plan(
 	var level_index := int(map_record.get("index", -1))
 	var random_level: Dictionary = bundle.get_random_level(level_type, level_index)
 	var environment := _map_environment(map_record)
-	var script_areas := _script_areas(bundle, level_type, level_index, random_level)
+	var script_areas := _script_areas(bundle, map_record, random_level)
 	var layers: Array = [{"chunks": [{"data": native_tiles}]}]
 	var tilesets: Array = [{
 		"firstgid": 1,
@@ -355,10 +355,11 @@ func _map_environment(map_record: Dictionary) -> Dictionary:
 
 func _script_areas(
 	bundle: Object,
-	level_type: String,
-	level_index: int,
+	map_record: Dictionary,
 	random_level: Dictionary
 ) -> Dictionary:
+	var level_type := str(map_record.get("levelType", ""))
+	var level_index := int(map_record.get("index", -1))
 	var areas: Dictionary = {}
 	var triggers: Variant = bundle.documents.get("scripts", {}).get("triggers", [])
 	if triggers is Array:
@@ -416,7 +417,37 @@ func _script_areas(
 					"text": _message_text(bundle, int(rectangle.get("text", 0))),
 				}
 			areas["%s%d.%d" % [prefix, level_index, rect_index]] = area
-	return {"ScriptRects": areas, "Paths": [], "Secrets": []}
+	return {
+		"ScriptRects": areas,
+		"Paths": [],
+		"Secrets": _land_secrets(map_record),
+	}
+
+
+func _land_secrets(map_record: Dictionary) -> Array:
+	if str(map_record.get("levelType", "")) != "land":
+		return []
+	var width := int(map_record.get("width", 0))
+	var height := int(map_record.get("height", 0))
+	var tiles: Variant = map_record.get("tiles", [])
+	if width <= 0 or height <= 0 or not (tiles is Array):
+		return []
+	var secrets: Array = []
+	for tile_index: int in range(tiles.size()):
+		var state := MapBridgeScript.land_secret_state(int(tiles[tile_index]))
+		if state == MapBridgeScript.LAND_SECRET_NONE:
+			continue
+		# Providence preserves Realmz land fields in column-major order.
+		var x := int(tile_index / height)
+		var y := tile_index % height
+		secrets.append([
+			x,
+			y,
+			1 if state == MapBridgeScript.LAND_SECRET_REVEALED else 0,
+			"",
+			0.0,
+		])
+	return secrets
 
 
 func _resolve_tileset(
@@ -1413,7 +1444,8 @@ func _dungeon_tile_template(field: int) -> Dictionary:
 	)
 	var blocks_movement := bool(field & DUNGEON_WALL_MASK) and not bool(passable_override)
 	return {
-		"time": 999 if blocks_movement else 5,
+		# Classic threed.c charges one indoor timeclick for each successful step.
+		"time": 999 if blocks_movement else 1,
 		"wall": int(blocks_movement),
 		"swall": int(blocks_movement),
 		"blkproj": int(blocks_movement),

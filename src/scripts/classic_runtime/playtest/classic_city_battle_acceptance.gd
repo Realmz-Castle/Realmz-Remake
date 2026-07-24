@@ -78,6 +78,7 @@ var automated_smoke := false
 var launch_through_ui := false
 var interactive_overworld := false
 var presentation_only := false
+var winter_smoke := false
 var acceptance_phase := ""
 var profile_root := ""
 var smoke_capture_directory := ""
@@ -99,6 +100,8 @@ func _start_playtest() -> void:
 			launch_through_ui = true
 		elif argument == "--presentation-only":
 			presentation_only = true
+		elif argument == "--winter-smoke":
+			winter_smoke = true
 		elif argument == "--save-phase":
 			acceptance_phase = "save"
 			launch_through_ui = true
@@ -156,6 +159,10 @@ func _start_playtest() -> void:
 		print("CLASSIC_CITY_DEMO READY: City of Bywater map_0 at (2, 1)")
 		if automated_smoke:
 			_finish_smoke()
+		return
+	if winter_smoke:
+		await _verify_winter_timed_encounter()
+		_finish_smoke()
 		return
 	if not await _present_city_splash():
 		_finish_smoke()
@@ -954,6 +961,59 @@ func _classic_enemy_count(monster_id: int) -> int:
 func _native_position() -> Vector2i:
 	var character: Variant = NodeAccess.__Map().owcharacter
 	return Vector2i(character.tile_position_x, character.tile_position_y)
+
+
+func _verify_winter_timed_encounter() -> void:
+	const WINTER_DAY_START := 3 * 86400
+	const WINTER_MESSAGE := "You arrived in Bywater just in time"
+	GameGlobal.time = WINTER_DAY_START - 1
+	GameGlobal.pass_time(1)
+
+	var winter_message_presented := false
+	for _frame: int in 600:
+		if UI.ow_hud.textRect.visible \
+				and UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+					WINTER_MESSAGE
+				):
+			winter_message_presented = true
+			break
+		await get_tree().process_frame
+
+	var state: ClassicRuntimeState = host.runtime.runtime_state
+	var snow_tiles := 0
+	var original_tiles := 0
+	for column_value: Variant in NodeAccess.__Map().mapdata:
+		if not (column_value is Array):
+			continue
+		for stack_value: Variant in column_value:
+			if not (stack_value is Array):
+				continue
+			for tile_value: Variant in stack_value:
+				if not (tile_value is Dictionary):
+					continue
+				var tileset_name := str(tile_value.get("tileset_name", ""))
+				if tileset_name in ["SnowDay", "landlook-10"]:
+					snow_tiles += 1
+				elif tileset_name in ["ForestDay", "landlook-0"]:
+					original_tiles += 1
+	_verify_stage(
+		"00_winter_timed_encounter",
+		winter_message_presented
+			and state.get_landlook("land", 0, -1) == 10
+			and snow_tiles > 0
+			and original_tiles == 0,
+		(
+			"day-3 XAP 163 applies snow to map_0 "
+			+ "(message=%s, state=%d, snow=%d, original=%d)"
+		) % [
+			str(winter_message_presented),
+			state.get_landlook("land", 0, -1),
+			snow_tiles,
+			original_tiles,
+		]
+	)
+	if winter_message_presented:
+		UI.ow_hud.textRect.disablerButton.pressed.emit()
 
 
 func _dismiss_message(prefix: String) -> bool:

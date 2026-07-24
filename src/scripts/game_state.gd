@@ -344,20 +344,28 @@ func check_map_script(position, context := {}) ->bool :
 				if not scriptname.is_empty() : scriptstocall[scriptname] = '' #just a set, value doesnt matter
 	
 	printerr("SStateMachine l282 scriptstocall : ", scriptstocall)
-	#check map secrets :
-	for x in [-1,0,1] :
-		for y in [-1,0,1] :
-			var vpos : Vector2i = Vector2i(int(position.x+x),int(position.y+y))
-			if GameGlobal.map.mapsecrets.has( vpos ) :
-				var randomfloat : float = randf()
-				var detected := GameGlobal.map_secret_detection_succeeds(vpos, randomfloat)
-				if not detected:
-					continue
-			
-				if GameGlobal.map.mapsecrets[vpos][0]==0 :
-					print("StateMachine check_map_script : map.mapsecrets[vpos] ",GameGlobal.map.mapsecrets[vpos])
-					scriptstocall[GameGlobal.map.mapsecrets[vpos][1]] = ''
-					GameGlobal.map.set_secret_seen(vpos)
+	# Classic maps keep secret state in their preserved tile fields. Native
+	# campaigns continue to use authored mapsecrets and per-secret chances.
+	var classic_secret_result := GameGlobal.discover_classic_map_secrets(Vector2i(position))
+	if str(classic_secret_result.get("status", "")) == "error":
+		push_error(str(classic_secret_result.get(
+			"message",
+			"Classic secret discovery failed"
+		)))
+	if not bool(classic_secret_result.get("handled", false)):
+		for x in [-1,0,1] :
+			for y in [-1,0,1] :
+				var vpos : Vector2i = Vector2i(int(position.x+x),int(position.y+y))
+				if GameGlobal.map.mapsecrets.has( vpos ) :
+					var randomfloat : float = randf()
+					var detected := GameGlobal.map_secret_detection_succeeds(vpos, randomfloat)
+					if not detected:
+						continue
+
+					if GameGlobal.map.mapsecrets[vpos][0]==0 :
+						print("StateMachine check_map_script : map.mapsecrets[vpos] ",GameGlobal.map.mapsecrets[vpos])
+						scriptstocall[GameGlobal.map.mapsecrets[vpos][1]] = ''
+						GameGlobal.map.set_secret_seen(vpos)
 
 	for s in scriptstocall:
 		#find the script

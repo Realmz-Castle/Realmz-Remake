@@ -86,7 +86,11 @@ disease, regeneration, and spell-screen handlers.
 `resolvespell.c` replaces a party condition only when the new positive duration
 is larger. Imported negative values remain permanent through reduction and
 save/load. Search is toggled between `-1` and `0` in `buttonchoice.c`, and
-`checkforsecret.c` treats Search or Discover Secret as a guaranteed find.
+`checkforsecret.c` averages the party's Detect Secret ability for an ordinary
+three-by-three land or dungeon scan. Search or Discover Secret raises that pass
+to a guaranteed find, and each active Search pass costs four ticks. Remake
+applies those rules directly to Providence's preserved Classic tile fields and
+persists each reveal into both the runtime state and native map projection.
 Party slots are persisted by the Classic save path and by
 `GameGlobal.classic_party_conditions`.
 

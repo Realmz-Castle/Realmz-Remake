@@ -139,6 +139,11 @@ func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position :
 	else:
 		canwalk = (canwalk or canwalk_path or canwalk_secret)
 	if canwalk :
+		if is_instance_valid(GameGlobal.classic_campaign_session):
+			timetowalk = GameGlobal.classic_movement_pass_time_units(
+				timetowalk,
+				stack
+			)
 		if canwalk_path :
 			GameGlobal.map.set_secretpath_seen( Vector2i(position) )
 		if canwalk_secret :

@@ -2207,6 +2207,7 @@ class MapBridgeTestMap:
 	extends RefCounted
 	var focuscharacter = MapBridgeTestCharacter.new()
 	var owcharacter = MapBridgeTestCharacter.new()
+	var mapsecrets: Dictionary = {}
 	var darkness_level := -1
 	var redraw_count := 0
 	var explored_position := Vector2(-1, -1)
@@ -2231,12 +2232,17 @@ class MapBridgeTestGameGlobal:
 	var map = MapBridgeTestMap.new()
 	var transitions: Array = []
 	var map_boats_dict: Dictionary = {}
+	var secret_detection_results: Array = []
 
 	func change_map(map_name: String, x: int, y: int) -> void:
 		currentmap_name = map_name
 		transitions.append([map_name, x, y])
 		map.focuscharacter.set_tile_position(Vector2(x, y))
 		map.owcharacter.set_tile_position(Vector2(x, y))
+
+	func roll_classic_secret_detection() -> bool:
+		return secret_detection_results.pop_front() \
+			if not secret_detection_results.is_empty() else false
 
 
 class CowardRetreatTestCharacter:
@@ -4207,6 +4213,8 @@ func _test_classic_map_materializer() -> void:
 	tiles[1] = -100
 	tiles[2] = 5
 	tiles[3] = 6
+	tiles[4] = 3156
+	tiles[5] = 2156
 	map_record["tiles"] = tiles
 	var custom_landlook: Dictionary = bundle.documents["maps"]["customLandlooks"][0]
 	custom_landlook["records"][6]["time"] = 9
@@ -4421,6 +4429,26 @@ func _test_classic_map_materializer() -> void:
 		script_areas.get("ScriptRects", {}).get("AP0x11y12", {}).get("chance"),
 		1.0,
 		"native map area preserves the Classic trigger chance"
+	)
+	var materialized_secrets: Array = script_areas.get("Secrets", [])
+	_expect_equal(materialized_secrets.size(), 2, "land materialization publishes encoded secrets")
+	_expect_equal(
+		[
+			int(materialized_secrets[0][0]),
+			int(materialized_secrets[0][1]),
+			int(materialized_secrets[0][2]),
+		],
+		[0, 4, 0],
+		"hidden Classic land fields become hidden native secret metadata"
+	)
+	_expect_equal(
+		[
+			int(materialized_secrets[1][0]),
+			int(materialized_secrets[1][1]),
+			int(materialized_secrets[1][2]),
+		],
+		[0, 5, 1],
+		"revealed Classic land fields retain their discovered state"
 	)
 	var random_area: Dictionary = script_areas.get("ScriptRects", {}).get("LRR0.3", {})
 	_expect_equal(random_area.get("chance"), 0.25, "native map preserves random-area chance")
@@ -12676,7 +12704,7 @@ func _test_classic_map_bridge() -> void:
 		"index": 0,
 		"width": 2,
 		"height": 2,
-		"tiles": [1, 2, 3, 4],
+		"tiles": [1, 2, 3003, 4],
 	}
 	bundle.maps_by_id["dungeon:1"] = {
 		"id": "dungeon:1",
@@ -12684,7 +12712,7 @@ func _test_classic_map_bridge() -> void:
 		"index": 1,
 		"width": 2,
 		"height": 2,
-		"tiles": [0, 0x0101, 0, 0],
+		"tiles": [0, 0x0101, 0x0201, 0],
 	}
 	var bridge = MapBridgeScript.new()
 	bridge.configure(bundle)
@@ -12735,6 +12763,20 @@ func _test_classic_map_bridge() -> void:
 		"classicDungeonField": 0x0141,
 		"wall": 1,
 	}
+	var east_secret := {
+		"tileset_name": "ClassicDungeon",
+		"id": 3,
+		"name": "classic_dungeon_0201",
+		"classicDungeonField": 0x0201,
+		"wall": 1,
+	}
+	var revealed_east_secret := {
+		"tileset_name": "ClassicDungeon",
+		"id": 4,
+		"name": "classic_dungeon_0241",
+		"classicDungeonField": 0x0241,
+		"wall": 1,
+	}
 	var land_map: Array = [
 		[[forest_tiles[0], overlay_tile], [forest_tiles[1]]],
 		[[forest_tiles[2]], [forest_tiles[3]]],
@@ -12759,6 +12801,8 @@ func _test_classic_map_bridge() -> void:
 		dungeon_floor,
 		north_secret,
 		revealed_north_secret,
+		east_secret,
+		revealed_east_secret,
 	]
 	resources.maps_book["map_0"] = [
 		land_map,
@@ -12773,7 +12817,7 @@ func _test_classic_map_bridge() -> void:
 	]
 	resources.maps_book["mapd_1"] = [
 		[
-			[[dungeon_floor], [dungeon_floor]],
+			[[dungeon_floor], [east_secret]],
 			[[north_secret], [dungeon_floor]],
 		],
 		{"ScriptRects": {}, "Paths": [], "Secrets": []},
@@ -12786,6 +12830,51 @@ func _test_classic_map_bridge() -> void:
 		[],
 	]
 	var game_global = MapBridgeTestGameGlobal.new()
+	var land_secret_state = StateScript.new()
+	land_secret_state.set_location("land", 0, 0, 0)
+	game_global.secret_detection_results = [false]
+	var missed_land_secret: Dictionary = bridge.discover_map_secrets(
+		land_secret_state,
+		Vector2i.ZERO,
+		game_global,
+		resources
+	)
+	_expect(bool(missed_land_secret.get("handled")), "Classic land discovery owns encoded secrets")
+	_expect(not bool(missed_land_secret.get("revealed")), "failed detection leaves a land secret hidden")
+	_expect_equal(
+		land_secret_state.get_tile("land", 0, 1, 0, -1),
+		-1,
+		"failed detection does not add a persistent tile override"
+	)
+	game_global.secret_detection_results = [true]
+	var found_land_secret: Dictionary = bridge.discover_map_secrets(
+		land_secret_state,
+		Vector2i.ZERO,
+		game_global,
+		resources
+	)
+	_expect(bool(found_land_secret.get("revealed")), "successful detection reveals a nearby land secret")
+	_expect_equal(
+		found_land_secret.get("discoveries", [])[0].get("position"),
+		Vector2i(1, 0),
+		"Classic land discovery scans the surrounding three-by-three area"
+	)
+	_expect_equal(
+		land_secret_state.get_tile("land", 0, 1, 0, -1),
+		2003,
+		"land reveal persists the source field transition"
+	)
+	_expect_equal(
+		resources.maps_book["map_0"][1]["Secrets"][0].slice(0, 3),
+		[1, 0, 1],
+		"land reveal backfills native metadata for previously generated maps"
+	)
+	_expect_equal(
+		game_global.map.mapsecrets.get(Vector2i(1, 0), [])[0],
+		1,
+		"land reveal updates the currently loaded native map"
+	)
+	var redraws_before_transition: int = int(game_global.map.redraw_count)
 	var same_map: Dictionary = bridge.transition({
 		"levelType": "land",
 		"levelIndex": 0,
@@ -12806,7 +12895,11 @@ func _test_classic_map_bridge() -> void:
 		"same-map teleport updates native exploration"
 	)
 	_expect(bool(same_map.get("recheckDestination")), "map bridge preserves destination recheck intent")
-	_expect_equal(game_global.map.redraw_count, 1, "same-map teleport redraws visible native output")
+	_expect_equal(
+		game_global.map.redraw_count,
+		redraws_before_transition + 1,
+		"same-map teleport redraws visible native output"
+	)
 	var reload_game_global = MapBridgeTestGameGlobal.new()
 	var forced_reload: Dictionary = bridge.transition({
 		"levelType": "land",
@@ -12878,7 +12971,7 @@ func _test_classic_map_bridge() -> void:
 	_expect(bool(north_entry.get("handled")), "directional dungeon secret uses Classic movement")
 	_expect(bool(north_entry.get("allowed")), "matching north entry passes the dungeon secret")
 	_expect(bool(north_entry.get("revealed")), "first matching entry reveals the dungeon secret")
-	_expect_equal(north_entry.get("movementTime"), 5, "secret entry uses normal dungeon step time")
+	_expect_equal(north_entry.get("movementTime"), 1, "secret entry uses one Classic dungeon timeclick")
 	_expect_equal(
 		MapBridgeScript.DUNGEON_DIRECTION_BY_DELTA.get(Vector2i(1, 0)),
 		0x0200,
@@ -12929,6 +13022,32 @@ func _test_classic_map_bridge() -> void:
 	_expect(
 		not bool(repeated_north_entry.get("revealed")),
 		"revealed secret is not recorded as a second discovery"
+	)
+	game_global.secret_detection_results = [true]
+	var found_dungeon_secret: Dictionary = bridge.discover_map_secrets(
+		movement_state,
+		Vector2i(1, 1),
+		game_global,
+		resources
+	)
+	_expect(
+		bool(found_dungeon_secret.get("revealed")),
+		"successful detection reveals a nearby directional dungeon secret"
+	)
+	_expect_equal(
+		found_dungeon_secret.get("discoveries", [])[0].get("position"),
+		Vector2i(0, 1),
+		"dungeon discovery scans the surrounding three-by-three area"
+	)
+	_expect_equal(
+		movement_state.get_tile("dungeon", 1, 0, 1, -1),
+		0x0241,
+		"dungeon discovery persists the revealed source field"
+	)
+	_expect_equal(
+		resources.maps_book["mapd_1"][0][0][1],
+		[revealed_east_secret],
+		"dungeon discovery projects the revealed secret into the native map"
 	)
 	movement_state.set_tile("dungeon", 1, 1, 0, 0x1101)
 	var action_point_entry: Dictionary = bridge.resolve_dungeon_movement(
@@ -13088,6 +13207,7 @@ func _test_classic_map_bridge() -> void:
 	})
 	runtime_state.set_trigger_percent("land", 0, 4, 35)
 	runtime_state.set_tile("land", 0, 0, 0, 4)
+	runtime_state.set_tile("land", 0, 1, 0, 2003)
 	land_areas = {
 		"AP4x1y1": {
 			"scriptRectangle": [[1, 1], [1, 1]],
@@ -13129,7 +13249,7 @@ func _test_classic_map_bridge() -> void:
 			"randomRectangles": 1,
 			"actionPoints": 1,
 			"triggerPercents": 1,
-			"tiles": 1,
+			"tiles": 2,
 		},
 		"persistent map replay reports every mutation family"
 	)
@@ -13138,6 +13258,11 @@ func _test_classic_map_bridge() -> void:
 		resources.maps_book["map_0"][0][0][0],
 		[snow_tiles[3]],
 		"replay restores a changed tile after native resource reload"
+	)
+	_expect_equal(
+		resources.maps_book["map_0"][1]["Secrets"][0].slice(0, 3),
+		[1, 0, 1],
+		"replay restores discovered land-secret metadata after a native resource reload"
 	)
 	_expect(not land_areas.has("AP4x1y1"), "replay removes the Action Point's old rectangle")
 	_expect(land_areas.has("AP4x0y1"), "replay projects the moved Action Point rectangle")
@@ -13163,6 +13288,11 @@ func _test_classic_map_bridge() -> void:
 		resources
 	)
 	_expect_equal(repeated_replay.get("status"), "ok", "persistent map replay is repeatable")
+	_expect_equal(
+		resources.maps_book["map_0"][1]["Secrets"].size(),
+		1,
+		"repeated replay does not duplicate discovered land-secret metadata"
+	)
 	var replayed_action_point_count := 0
 	for replayed_area_name: Variant in land_areas:
 		if str(replayed_area_name).begins_with("AP4"):

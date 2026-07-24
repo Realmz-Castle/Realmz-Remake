@@ -23,6 +23,9 @@ const NATIVE_LANDLOOK_TILESETS := [
 ]
 # Boarding a boat replaces its map cell with this water tile in the Classic engine.
 const CLASSIC_BOAT_WATER_TILE := 60
+const LAND_SECRET_NONE := 0
+const LAND_SECRET_HIDDEN := 1
+const LAND_SECRET_REVEALED := 2
 const DUNGEON_WALL_MASK := 0x0001
 const DUNGEON_DOOR_MASK := 0x0006
 const DUNGEON_NOTE_MASK := 0x0020
@@ -74,6 +77,17 @@ static func normalize_land_tile(value: int, base_tile: int) -> int:
 	while tile > 999:
 		tile -= 1000
 	return maxi(1, tile)
+
+
+static func land_secret_state(value: int) -> int:
+	var field := absi(value)
+	field = _clear_classic_short_bit(field, 1)
+	field = _clear_classic_short_bit(field, 2)
+	if field > 2999:
+		return LAND_SECRET_HIDDEN
+	if field > 1999:
+		return LAND_SECRET_REVEALED
+	return LAND_SECRET_NONE
 
 
 static func native_darkness(is_dark: bool) -> int:
@@ -331,6 +345,105 @@ func redraw_view(payload: Dictionary, game_global: Object) -> Dictionary:
 	}
 
 
+func discover_map_secrets(
+	runtime_state: Object,
+	position: Vector2i,
+	game_global: Object,
+	resources: Object
+) -> Dictionary:
+	if runtime_state == null:
+		return {"handled": false}
+	var level_type := str(runtime_state.get("level_type"))
+	if level_type not in ["land", "dungeon"]:
+		return {"handled": false}
+	var level_index := int(runtime_state.get("level_index"))
+	var map_name := native_map_name(level_type, level_index)
+	if game_global == null or str(game_global.get("currentmap_name")) != map_name:
+		return {"handled": false}
+	if classic_bundle == null or not classic_bundle.has_method("get_map"):
+		return _secret_error("Classic map data is unavailable")
+	var map_record: Variant = classic_bundle.get_map("%s:%d" % [level_type, level_index])
+	if not (map_record is Dictionary):
+		return _secret_error("Classic map %s is unavailable" % map_name)
+	var width := int(map_record.get("width", 0))
+	var height := int(map_record.get("height", 0))
+	var tiles: Variant = map_record.get("tiles", [])
+	if not (tiles is Array) or width <= 0 or height <= 0 or tiles.size() != width * height:
+		return _secret_error("Classic map %s has invalid tile data" % map_name)
+	if not game_global.has_method("roll_classic_secret_detection"):
+		return _secret_error("Classic party secret-detection rules are unavailable")
+
+	var discoveries: Array[Dictionary] = []
+	for y: int in range(position.y - 1, position.y + 2):
+		for x: int in range(position.x - 1, position.x + 2):
+			if x < 0 or y < 0 or x >= width or y >= height:
+				continue
+			var tile_index := _classic_map_tile_index(level_type, width, height, x, y)
+			var fallback_field := int(tiles[tile_index])
+			var field := fallback_field
+			if runtime_state.has_method("get_tile"):
+				field = int(runtime_state.call(
+					"get_tile",
+					level_type,
+					level_index,
+					x,
+					y,
+					fallback_field
+				))
+			var hidden := land_secret_state(field) == LAND_SECRET_HIDDEN \
+				if level_type == "land" else (
+					field & DUNGEON_SECRET_DIRECTION_MASK != 0
+					and field & DUNGEON_REVEALED_SECRET_MASK == 0
+				)
+			if not hidden or not bool(game_global.call("roll_classic_secret_detection")):
+				continue
+			var revealed_field := field - 1000 if field > 0 else field + 1000
+			if level_type == "dungeon":
+				var unsigned_field := field & 0xffff
+				revealed_field = unsigned_field | DUNGEON_REVEALED_SECRET_MASK
+				if revealed_field >= 0x8000:
+					revealed_field -= 0x10000
+			var projection := set_tile({
+				"levelType": level_type,
+				"levelIndex": level_index,
+				"x": x,
+				"y": y,
+				"tileValue": revealed_field,
+			}, game_global, resources)
+			if str(projection.get("status", "")) in ["error", "skipped"]:
+				return _secret_error(str(projection.get(
+					"message",
+					"Classic secret could not be revealed"
+				)))
+			if runtime_state.has_method("set_tile"):
+				runtime_state.call(
+					"set_tile",
+					level_type,
+					level_index,
+					x,
+					y,
+					revealed_field
+				)
+			discoveries.append({
+				"levelType": level_type,
+				"levelIndex": level_index,
+				"position": Vector2i(x, y),
+				"field": revealed_field,
+			})
+			# checkforsecret.c stops after the first dungeon discovery.
+			if level_type == "dungeon":
+				return {
+					"handled": true,
+					"revealed": true,
+					"discoveries": discoveries,
+				}
+	return {
+		"handled": true,
+		"revealed": not discoveries.is_empty(),
+		"discoveries": discoveries,
+	}
+
+
 func resolve_dungeon_movement(
 	runtime_state: Object,
 	from_position: Vector2i,
@@ -417,7 +530,7 @@ func resolve_dungeon_movement(
 			"allowed": true,
 			"revealed": newly_revealed,
 			"field": revealed_field,
-			"movementTime": 5,
+			"movementTime": 1,
 		}
 
 	# Classic still admits note and Action Point cells, and direction metadata
@@ -546,6 +659,22 @@ func set_tile(payload: Dictionary, game_global: Object, resources: Object) -> Di
 		return _error("Native map %s does not match the compiled map dimensions" % map_name)
 
 	var tile_value := int(payload.get("tileValue", -1))
+	if level_type == "land" and land_secret_state(tile_value) == LAND_SECRET_REVEALED:
+		_set_native_land_secret_state(
+			map_entry,
+			_current_map(game_global, map_name),
+			Vector2i(x, y),
+			true
+		)
+		var revealed_map: Variant = _current_map(game_global, map_name)
+		if revealed_map != null and revealed_map.has_method("queue_redraw"):
+			revealed_map.queue_redraw()
+		return {
+			"nativeMapName": map_name,
+			"sourceCell": Vector2i(x, y),
+			"targetCell": Vector2i(x, y),
+			"tileValue": tile_value,
+		}
 	var native_tile: Dictionary = _native_tile_stack(
 		map_name,
 		map_record,
@@ -939,6 +1068,50 @@ func _has_native_cell(native_map: Variant, x: int, y: int) -> bool:
 	)
 
 
+static func _classic_map_tile_index(
+	level_type: String,
+	width: int,
+	height: int,
+	x: int,
+	y: int
+) -> int:
+	return x * height + y if level_type == "land" else y * width + x
+
+
+func _set_native_land_secret_state(
+	map_entry: Array,
+	current_map: Variant,
+	position: Vector2i,
+	revealed: bool
+) -> void:
+	var seen := 1 if revealed else 0
+	if map_entry.size() > 1 and map_entry[1] is Dictionary:
+		var metadata: Dictionary = map_entry[1]
+		var secrets: Variant = metadata.get("Secrets", [])
+		if not (secrets is Array):
+			secrets = []
+			metadata["Secrets"] = secrets
+		var found := false
+		for secret_value: Variant in secrets:
+			if secret_value is Array and secret_value.size() >= 3 \
+					and int(secret_value[0]) == position.x \
+					and int(secret_value[1]) == position.y:
+				secret_value[2] = seen
+				found = true
+				break
+		if not found:
+			secrets.append([position.x, position.y, seen, "", 0.0])
+	if current_map == null:
+		return
+	var map_secrets: Variant = current_map.get("mapsecrets")
+	if not (map_secrets is Dictionary):
+		return
+	if map_secrets.has(position) and map_secrets[position] is Array:
+		map_secrets[position][0] = seen
+	else:
+		map_secrets[position] = [seen, "", 0.0]
+
+
 func _native_tile_stack(
 	map_name: String,
 	map_record: Dictionary,
@@ -1015,6 +1188,15 @@ static func _clear_classic_short_bit(value: int, bit: int) -> int:
 	var unsigned := value & 0xffff
 	var cleared := unsigned & ~(1 << (15 - bit))
 	return cleared - 0x10000 if cleared >= 0x8000 else cleared
+
+
+static func _secret_error(message: String) -> Dictionary:
+	return {
+		"status": "error",
+		"handled": true,
+		"revealed": false,
+		"message": message,
+	}
 
 
 func _record_replay_result(category: String, result: Dictionary, report: Dictionary) -> void:

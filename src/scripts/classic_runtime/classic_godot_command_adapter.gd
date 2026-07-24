@@ -279,6 +279,18 @@ func resolve_classic_dungeon_movement(
 	return result
 
 
+func discover_classic_map_secrets(
+	runtime_state: Object,
+	position: Vector2i
+) -> Dictionary:
+	return classic_map_bridge.discover_map_secrets(
+		runtime_state,
+		position,
+		_autoload("GameGlobal"),
+		_classic_campaign_resources()
+	)
+
+
 func play_classic_map_sound(sound_id: int) -> Dictionary:
 	return _play_sound({"soundId": sound_id})
 

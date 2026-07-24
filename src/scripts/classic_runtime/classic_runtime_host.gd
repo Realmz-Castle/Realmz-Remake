@@ -209,6 +209,22 @@ func resolve_dungeon_movement(from_position: Vector2i, to_position: Vector2i) ->
 	}
 
 
+func discover_map_secrets(position: Vector2i) -> Dictionary:
+	if command_adapter == null \
+			or not command_adapter.has_method("discover_classic_map_secrets"):
+		return {"handled": false}
+	var response: Variant = command_adapter.call(
+		"discover_classic_map_secrets",
+		runtime.runtime_state,
+		position
+	)
+	return response if response is Dictionary else {
+		"status": "error",
+		"handled": true,
+		"message": "Classic secret-discovery adapter returned an invalid response",
+	}
+
+
 func play_map_sound(sound_id: int) -> Dictionary:
 	if command_adapter == null or not command_adapter.has_method("play_classic_map_sound"):
 		return {"handled": false}

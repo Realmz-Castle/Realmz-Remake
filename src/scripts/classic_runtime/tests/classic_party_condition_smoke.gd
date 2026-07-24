@@ -30,12 +30,19 @@ class PartyMemberStub:
 	extends RefCounted
 	var name := "Party member"
 	var is_player_controlled: bool
+	var classic_special_abilities: Array[int] = []
 
-	func _init(player_controlled: bool) -> void:
+	func _init(player_controlled: bool, detect_secret: int = 0) -> void:
 		is_player_controlled = player_controlled
+		classic_special_abilities.resize(15)
+		classic_special_abilities.fill(0)
+		classic_special_abilities[4] = detect_secret
 
 	func get_stat(stat_name: String) -> float:
 		return 1.0 if stat_name == "MultiplierMental" else 0.0
+
+	func _on_time_pass(_timepassed: int) -> void:
+		pass
 
 
 func _ready() -> void:
@@ -177,6 +184,30 @@ func _run_smoke() -> void:
 	GameGlobal.map.mapsecrets[secret_position] = [0, "TestSecret", 0.25]
 	GameGlobal.global_effects["Awareness"] = {"Duration": 0}
 	_expect_equal(
+		GameGlobal.classic_secret_detection_succeeds(0.0),
+		false,
+		"a party with zero Detect Secret chance cannot succeed"
+	)
+	GameGlobal.player_characters = [
+		PartyMemberStub.new(true, 20),
+		PartyMemberStub.new(true, 60),
+	]
+	_expect_equal(
+		GameGlobal.get_classic_secret_detection_chance(),
+		0.4,
+		"ordinary Classic discovery uses the integer party-average Detect Secret ability"
+	)
+	_expect_equal(
+		GameGlobal.classic_secret_detection_succeeds(0.39),
+		true,
+		"a Classic roll below the party's Detect Secret average succeeds"
+	)
+	_expect_equal(
+		GameGlobal.classic_secret_detection_succeeds(0.41),
+		false,
+		"a Classic roll above the party's Detect Secret average fails"
+	)
+	_expect_equal(
 		GameGlobal.map_secret_detection_succeeds(secret_position, 0.2),
 		true,
 		"a native secret roll below its detection chance succeeds"
@@ -197,6 +228,11 @@ func _run_smoke() -> void:
 		true,
 		"Classic Awareness guarantees the native secret-detection check"
 	)
+	_expect_equal(
+		GameGlobal.classic_secret_detection_succeeds(1.0),
+		true,
+		"Discover Secret guarantees the preserved Classic tile-field check"
+	)
 	GameGlobal.set_classic_search_enabled(true)
 	_expect_equal(
 		GameGlobal.classic_party_conditions.get("5"),
@@ -207,6 +243,11 @@ func _run_smoke() -> void:
 		GameGlobal.map_secret_detection_succeeds(secret_position, 1.0),
 		true,
 		"Search guarantees the native secret-detection check"
+	)
+	_expect_equal(
+		GameGlobal.classic_secret_detection_succeeds(1.0),
+		true,
+		"Search guarantees the preserved Classic tile-field check"
 	)
 	_expect_equal(
 		command_adapter.party_condition_status(
@@ -220,13 +261,35 @@ func _run_smoke() -> void:
 	)
 	var search_time_before := GameGlobal.time
 	var expected_search_time := (
-		search_time_before + roundi(4 * GameGlobal.time_scale)
+		search_time_before
+		+ roundi(
+			GameGlobal.classic_timeclick_pass_time_units(4, 0)
+			* GameGlobal.time_scale
+		)
+	)
+	_expect_equal(
+		GameGlobal.classic_timeclick_pass_time_units(1, 0),
+		roundi(300.0 / GameGlobal.time_scale),
+		"an outdoor Classic timeclick advances five source minutes"
+	)
+	_expect_equal(
+		GameGlobal.classic_timeclick_pass_time_units(1, 1),
+		roundi(60.0 / GameGlobal.time_scale),
+		"an indoor Classic timeclick advances one source minute"
+	)
+	_expect_equal(
+		GameGlobal.classic_movement_pass_time_units(
+			5,
+			[{"classicDungeonField": 0}]
+		),
+		roundi(60.0 / GameGlobal.time_scale),
+		"an older generated dungeon tile is normalized to one source timeclick"
 	)
 	GameGlobal.apply_classic_search_time_cost()
 	_expect_equal(
 		GameGlobal.time,
 		expected_search_time,
-		"each live Search pass pays Classic's four-tick time cost"
+		"each live outdoor Search pass pays Classic's four-timeclick cost"
 	)
 	GameGlobal.reduce_classic_party_conditions(4)
 	GameGlobal._advance_classic_party_conditions(3600, 7200)
