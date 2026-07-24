@@ -12,8 +12,11 @@ const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
 
 var failures: Array[String] = []
 var original_campaigns_directory := ""
+var original_profiles_directory := ""
+var original_profile_folder_name := ""
 var original_profile_characters: Array = []
 var original_player_characters: Array = []
+var temporary_profile_root := ""
 
 
 func _ready() -> void:
@@ -23,10 +26,26 @@ func _ready() -> void:
 func _run_smoke() -> void:
 	await get_tree().process_frame
 	original_campaigns_directory = Paths.campaignsfolderpath
+	original_profiles_directory = Paths.profilesfolderpath
+	original_profile_folder_name = Paths.currentProfileFolderName
 	original_profile_characters = GameGlobal.profile_characters_list.duplicate()
 	original_player_characters = GameGlobal.player_characters.duplicate()
 	Paths.campaignsfolderpath = CAMPAIGNS_DIRECTORY
-	GameGlobal.profile_characters_list = [_create_character()]
+	temporary_profile_root = (
+		"user://classic-campaign-ui-smoke-%d" % Time.get_ticks_usec()
+	)
+	Paths.profilesfolderpath = temporary_profile_root.path_join("Profiles/")
+	Paths.currentProfileFolderName = "Smoke Profile"
+	var test_character := _create_character()
+	var test_character_directory := (
+		Paths.profilesfolderpath
+		.path_join(Paths.currentProfileFolderName)
+		.path_join("Characters")
+		.path_join(test_character.name)
+	)
+	DirAccess.make_dir_recursive_absolute(test_character_directory)
+	Utils.FileHandler.save_character(test_character_directory, test_character)
+	GameGlobal.profile_characters_list = [test_character]
 	GameGlobal.player_characters.clear()
 
 	var panel: Node = UI.main_menu.newCampaignPanel
@@ -107,6 +126,13 @@ func _run_smoke() -> void:
 		not panel.createCharacterButton.disabled,
 		"ready Classic campaign offers scenario-aware character creation"
 	)
+	_expect(
+		_profile_character("Cindred") != null
+			and _profile_character("Midnight") != null
+			and _profile_character("Traskelion") != null
+			and GameGlobal.profile_characters_list.size() == 8,
+		"selecting a ready Classic campaign adds the seven stock characters"
+	)
 	panel._on_CreateCharacterButton_pressed()
 	await get_tree().process_frame
 	var character_panel: Node = UI.main_menu.newCharacterPanel
@@ -140,14 +166,18 @@ func _run_smoke() -> void:
 	await get_tree().process_frame
 	var rejected_characters: Array[Node] = \
 		panel.charPickRect.eligibleContainer.get_children()
+	var rejected_test_character := _character_button(
+		rejected_characters,
+		"Campaign UI Test Enchanter"
+	)
 	_expect(
-		rejected_characters.size() == 1 and rejected_characters[0].disabled,
+		rejected_test_character != null and rejected_test_character.disabled,
 		"authored Classic restrictions disable an ineligible profile character"
 	)
 	_expect(
-		not rejected_characters.is_empty()
-			and rejected_characters[0].tooltip_text.contains("Human")
-			and rejected_characters[0].tooltip_text.contains("banned"),
+		rejected_test_character != null
+			and rejected_test_character.tooltip_text.contains("Human")
+			and rejected_test_character.tooltip_text.contains("banned"),
 		"ineligible character exposes an actionable restriction reason"
 	)
 	live_rules.clear()
@@ -155,14 +185,18 @@ func _run_smoke() -> void:
 	panel.charPickRect.fill()
 	await get_tree().process_frame
 	var eligible_characters: Array[Node] = panel.charPickRect.eligibleContainer.get_children()
+	var eligible_test_character := _character_button(
+		eligible_characters,
+		"Campaign UI Test Enchanter"
+	)
 	_expect(
-		eligible_characters.size() == 1 and not eligible_characters[0].disabled,
+		eligible_test_character != null and not eligible_test_character.disabled,
 		"ready Classic campaign accepts an eligible profile character"
 	)
-	if eligible_characters.is_empty() or eligible_characters[0].disabled:
+	if eligible_test_character == null or eligible_test_character.disabled:
 		_finish()
 		return
-	panel.charPickRect._on_char_button_pressed(eligible_characters[0])
+	panel.charPickRect._on_char_button_pressed(eligible_test_character)
 	panel.charPickRect._on_AddButton_pressed()
 	_expect(not panel.startButton.disabled, "party selection enables the normal Start button")
 	if panel.startButton.disabled:
@@ -367,6 +401,24 @@ func _find_campaign_index(item_list: ItemList, campaign_name: String) -> int:
 	return -1
 
 
+func _profile_character(character_name: String) -> PlayerCharacter:
+	for character: PlayerCharacter in GameGlobal.profile_characters_list:
+		if character.name == character_name:
+			return character
+	return null
+
+
+func _character_button(
+	buttons: Array[Node],
+	character_name: String
+) -> Node:
+	for button: Node in buttons:
+		var character: Variant = button.get("character")
+		if character != null and str(character.get("name")) == character_name:
+			return button
+	return null
+
+
 func _create_character() -> PlayerCharacter:
 	var character: PlayerCharacter = GameGlobal.playerCharacterGD.new(
 		{
@@ -398,11 +450,33 @@ func _expect(condition: bool, description: String) -> void:
 
 func _finish() -> void:
 	Paths.campaignsfolderpath = original_campaigns_directory
+	Paths.profilesfolderpath = original_profiles_directory
+	Paths.currentProfileFolderName = original_profile_folder_name
 	GameGlobal.profile_characters_list = original_profile_characters
 	GameGlobal.player_characters = original_player_characters
+	if not temporary_profile_root.is_empty():
+		_remove_directory(temporary_profile_root)
 	if failures.is_empty():
 		print("Classic campaign UI smoke passed.")
 		get_tree().quit(0)
 		return
 	printerr("Classic campaign UI smoke failed: %s" % "; ".join(failures))
 	get_tree().quit(1)
+
+
+func _remove_directory(path: String) -> void:
+	var directory := DirAccess.open(path)
+	if directory == null:
+		return
+	directory.list_dir_begin()
+	var entry := directory.get_next()
+	while not entry.is_empty():
+		if entry not in [".", ".."]:
+			var entry_path := path.path_join(entry)
+			if directory.current_is_dir():
+				_remove_directory(entry_path)
+			else:
+				DirAccess.remove_absolute(entry_path)
+		entry = directory.get_next()
+	directory.list_dir_end()
+	DirAccess.remove_absolute(path)

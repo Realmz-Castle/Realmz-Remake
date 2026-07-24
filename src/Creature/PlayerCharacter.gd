@@ -117,6 +117,7 @@ var classic_conditions_initialized := false
 var classic_can_regenerate := false
 var classic_can_regenerate_initialized := false
 var classic_creation_resources_initialized := false
+var classic_source_character: Dictionary = {}
 
 
 func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_classgd : GDScript,new_racegd : GDScript):
@@ -192,6 +193,12 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 	classic_creation_resources_initialized = bool(
 		data.get("classicCreationResourcesInitialized", false)
 	)
+	var saved_source_character: Variant = data.get(
+		"classicSourceCharacter",
+		{}
+	)
+	if saved_source_character is Dictionary:
+		classic_source_character = saved_source_character.duplicate(true)
 	if data.has("is_npc_ally") :
 		is_npc_ally = bool(data["is_npc_ally"])
 	if data.has("is_summoned") :
@@ -903,6 +910,7 @@ func start_preparing()->void :
 func get_save_string()->String :
 	var crea_string : String = super.get_save_string()
 	crea_string += (',\n"selection_pts" : '+ str(selection_pts))
+	crea_string += (',\n"exp_tnl" : '+ str(exp_tnl))
 	crea_string += (',\n"campaign" : "'+ str(cur_campaign)+'"')
 	if classic_race_id > 0:
 		crea_string += (',\n"classicRaceId" : '+ str(classic_race_id))
@@ -964,5 +972,10 @@ func get_save_string()->String :
 		)
 	if classic_creation_resources_initialized:
 		crea_string += ',\n"classicCreationResourcesInitialized" : true'
+	if not classic_source_character.is_empty():
+		crea_string += (
+			',\n"classicSourceCharacter" : '
+			+ JSON.stringify(classic_source_character)
+		)
 	crea_string += ('\n}')
 	return crea_string

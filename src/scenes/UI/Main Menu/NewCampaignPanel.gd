@@ -3,6 +3,9 @@ extends NinePatchRect
 const ClassicCampaignPackageInstallerScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
 )
+const ClassicStockCharacterRosterScript = preload(
+	"res://scripts/classic_runtime/classic_stock_character_roster.gd"
+)
 
 @onready var campaignsItemList : ItemList = $VBoxContainer/HBoxContainertT/ScenarioListVBox/CampaignsItemList
 @onready var selectedCampaignNameLabel : Label = $VBoxContainer/HBoxContainertT/ScenDescrVBox/SelectedCampaignNameLabel
@@ -205,6 +208,18 @@ func _on_campaign_selected(idx : int) -> void :
 		and bool(selectedcampaign_onselect.get("classic", false))
 		and bool(selectedcampaign_onselect.get("valid", false))
 	)
+	if not createCharacterButton.disabled:
+		var roster_result: Dictionary = (
+			ClassicStockCharacterRosterScript.ensure_for_current_profile()
+		)
+		if str(roster_result.get("status", "")) == "ok":
+			if not roster_result.get("created", []).is_empty():
+				GameGlobal.load_profile_characters()
+		else:
+			push_warning(str(roster_result.get(
+				"message",
+				"Classic stock characters could not be installed."
+			)))
 
 	if selectedcampaign_onselect is Dictionary:
 		selectedCampaignNameLabel.text = str(
