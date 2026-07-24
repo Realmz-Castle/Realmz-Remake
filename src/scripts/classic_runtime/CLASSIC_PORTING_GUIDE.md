@@ -41,7 +41,7 @@ campaign completion are separate results.
 | Providence project | Schema `5` | The compatibility exporter reads the canonical project directly. It does not consume Providence's native Realmz compiler output. |
 | Remake bundle | Manifest `formatVersion: 1`; every document `schemaVersion: 1` | Remake rejects unknown versions before indexing any runtime record. Additive evidence fields are allowed in version 1. |
 | Compatibility profile | `realmz-7.1` | A different or missing profile is rejected. |
-| Realmz Remake Godot project | `4.6` | The commands below are currently verified with Godot `4.6.2`. |
+| Realmz Remake Godot project | `4.7` | The commands below are currently verified with Godot `4.7.1`. |
 | Classic save envelope | Schema `2` | Schema 1 migrates as an idle continuation. A newer schema is rejected without changing the existing save. |
 | Regression corpus | Manifest schema `1`; shared suite `1` | Every member runs through the same bundle loader, execution audit, interpreter, and state path. |
 
@@ -77,7 +77,7 @@ compatibility bundle, not a native Realmz scenario folder and not
 From the Realmz Remake checkout:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tests/validate_classic_bundle.gd -- `
   "C:\output\Example Campaign"
 ```
@@ -93,13 +93,13 @@ powershell -ExecutionPolicy Bypass `
   -File scripts/verify_remake_classic_export.ps1 `
   -ProvidenceRoot "C:\path\Realmz-Providence" `
   -RemakeRoot "C:\path\Realmz-Remake" `
-  -Godot "C:\path\Godot_v4.6.2-stable_win64_console.exe"
+  -Godot "C:\path\Godot_v4.7.1-stable_win64_console.exe"
 ```
 
 ### 3. Inspect semantic readiness
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tests/report_classic_readiness.gd -- `
   "C:\output\Example Campaign" --json
 ```
@@ -108,7 +108,7 @@ Supply the matching native campaign directory as the second positional
 argument when the port intentionally reuses existing campaign resources:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tests/report_classic_readiness.gd -- `
   "C:\output\Example Campaign" `
   "C:\path\Realmz-Remake\src\Campaigns\Example Campaign" --json
@@ -130,7 +130,7 @@ a campaign-completion claim.
 Close the game, then install the complete export:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tools/install_classic_campaign.gd -- `
   "C:\output\Example Campaign"
 ```
@@ -187,7 +187,7 @@ long-term user backup. Use this update sequence:
 7. Replace the live package:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tools/install_classic_campaign.gd -- `
   "C:\output\Example Campaign" --replace --json
 ```
@@ -245,13 +245,13 @@ branches to the corpus runner.
 Run:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd
 
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd -- --json
 
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 `
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 `
   --path src --script `
   res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
 ```

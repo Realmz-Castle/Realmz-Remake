@@ -44,7 +44,7 @@ inputs:
   godot-version:
     description: "Godot version to use"
     required: false
-    default: "4.3.0"
+    default: "4.7.1"
   project-dir:
     description: "Project directory"
     required: true

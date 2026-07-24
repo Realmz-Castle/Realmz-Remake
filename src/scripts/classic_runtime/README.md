@@ -465,7 +465,7 @@ same-name variant conflicts, generic implementation candidates, and special
 behaviors that still need an adapter or engine decision:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_core_spell_coverage.gd -- --json
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_core_spell_coverage.gd -- --json
 ```
 
 For implementation planning, `asset_scripts/audit_classic_spell_parity.py`
@@ -519,7 +519,7 @@ campaign directory also checks shared and campaign bestiary, item, spell, and
 sound resources:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_readiness.gd -- "C:\path\to\compiled-bundle" "F:\Realmz Remake\src\Campaigns\City of Bywater"
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_readiness.gd -- "C:\path\to\compiled-bundle" "F:\Realmz Remake\src\Campaigns\City of Bywater"
 ```
 
 Add `--json` for the versioned machine-readable report. Exit status 0 means no
@@ -547,7 +547,7 @@ resource, and an unmapped identity. Pass more than one bundle to merge their
 usages into a single report:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_spell_support.gd -- "C:\path\to\bundle-a" "C:\path\to\bundle-b" --json
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_spell_support.gd -- "C:\path\to\bundle-a" "C:\path\to\bundle-b" --json
 ```
 
 Use `--native-campaign "C:\path\to\native-campaign"` to include that
@@ -572,7 +572,7 @@ to Classic landlook 10. The normal run leaves the SnowDay version of the land
 map open after displaying both native maps:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn
 ```
 
 Its automated smoke verifies the native map identities, map families, dungeon
@@ -580,7 +580,7 @@ heading and multiview state, renderable tile textures, distinct captured land
 and dungeon output, and a visibly rendered SnowDay landlook change:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- --smoke
 ```
 
 The Providence producer smoke installs the checked conformance export without
@@ -588,7 +588,7 @@ modifying it, launches it through the normal campaign menu, and captures its
 materialized land, dungeon, and returned-land views:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/tests/providence_export_ui_smoke.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/tests/providence_export_ui_smoke.tscn
 ```
 
 The fixture does not yet author a map-transfer action, so this smoke performs
@@ -607,7 +607,7 @@ loot and allies cleanup, resumes the outer Classic action list, and returns the
 party to its original map tile:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_battle_bridge_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_battle_bridge_playtest.tscn -- --smoke
 ```
 
 Append `--capture=C:\path\to\captures` to record the post-conjuration battle
@@ -620,7 +620,7 @@ spells and equipment, a battle-round macro, active running, death-macro
 dispatch, reward cleanup, and resumption of the outer action list:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_custom_monster_battle_acceptance.tscn -- --smoke
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_custom_monster_battle_acceptance.tscn -- --smoke
 ```
 
 The full City acceptance also has a bounded picture-and-sound mode. It verifies
@@ -628,7 +628,7 @@ that decoded PICT 32128 survives all four authored messages, checks all three
 interleaved stock sounds, and stops after Redraw Screen:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- "C:\path\to\city-bundle" --smoke --presentation-only --capture=C:\path\to\captures
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- "C:\path\to\city-bundle" --smoke --presentation-only --capture=C:\path\to\captures
 ```
 
 The first in-engine vertical slice loads the CoB fixture, displays `Data DD:0:0` through Remake's existing `TextRect`, presents the four source-backed `Data ED` choices and Classic's Back Out control, feeds the selected result back to the interpreter, and runs that eight-action encounter result block.
@@ -636,13 +636,13 @@ The first in-engine vertical slice loads the CoB fixture, displays `Data DD:0:0`
 Run the standalone scene from the repository root:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn
 ```
 
 Pass a compiled campaign directory after `--` to use the full converter output instead of the checked-in fixture:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
 ```
 
 This adapter intentionally handles text, yes/no prompts, character-panel selection, simple-encounter choices, complex action and spell responses, data-driven rogue encounters, selected and party health changes, party-condition and ally checks, live combat-monster presence, spawning, destruction, routing, lower-undead deanimation, battle-round macro activation, forced battle endings, cowardice experience penalties, priest-turning feedback and native attempts, Classic ally creation when an exact bestiary resource exists, Classic field-spell effects, Classic shops with resolved item resources, temple and banking availability, fixed treasure and standalone experience through Remake's loot UI, and mapped sounds. Other typed commands stop with an explicit adapter error until their map, encounter, or battle resource adapters exist.
@@ -658,7 +658,7 @@ loaded map metadata so they remain visible, passable, and saveable.
 The UI smoke instances the real `Main.tscn`, discovers a self-contained compiled fixture, selects a party, presses the normal Start path, and verifies the native map and HUD. It is an automated integration harness rather than a separate compatibility playtest UI:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_campaign_ui_smoke.tscn
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_campaign_ui_smoke.tscn
 ```
 
 The party-condition smoke verifies all ten live GameGlobal slots: Light,
@@ -671,7 +671,7 @@ resistance, wandering-battle suppression, the party-average Detect Secret
 chance, and restoration of the exact Classic counters:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_party_condition_smoke.tscn
 ```
 
 The character-condition smoke verifies the complete forty-index inventory
@@ -681,7 +681,7 @@ Classic-only curse, slow, and elemental-protection traits, and the live
 save-snapshot projection:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_character_condition_smoke.tscn
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_character_condition_smoke.tscn
 ```
 
 The generated-ally smoke also applies Shield from Hits and projectile protection
@@ -696,7 +696,7 @@ resources, and round-trips mutable ally state, both Classic identities,
 carried inventory, the active weapon, and executable native spells:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_generated_ally_smoke.tscn
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/classic_generated_ally_smoke.tscn
 ```
 
 Normal profile saves now include a versioned Classic envelope. It records the compiled campaign identity, `ClassicRuntimeState` snapshot, adapter-owned equipment capture, and a suspended interpreter continuation when the current command is safe to replay. The continuation contains plain data for the current action list and slot, GOSUB frames, encounter attempts, pending outcome state, and deferred action-point mutations. Load restores the native map and HUD before replaying the pending presentation, encounter, or battle request, so the existing host resumes the authored outer action list exactly once.
@@ -706,20 +706,20 @@ Idle exploration, text and click presentation, yes/no choices, initial encounter
 For a non-interactive smoke of the real HUD flow, add `--smoke`. The scene verifies the displayed intro, four encounter choices, selected outcome text, and completed host state, then exits:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- --smoke
 ```
 
 The lock playtest loads CoB's source-backed `Data ED2:4` and `Data TD2:4` records. It supplies a playtest-only rogue when no party is loaded:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_lock_playtest.tscn
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_lock_playtest.tscn
 ```
 
 Its two HUD smokes verify the complex prompt, selected-character chance labels, keyboard focus and navigation, deterministic success and failure results, consumed-action persistence through snapshot restore, back-out after failure, and host completion:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_lock_playtest.tscn -- --smoke
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_lock_failure_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_lock_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_lock_failure_playtest.tscn -- --smoke
 ```
 
 Run either smoke with the desktop renderer and append `--capture=C:\path\to\captures` to save its chance-menu and result frames as PNG evidence.
@@ -727,22 +727,22 @@ Run either smoke with the desktop renderer and append `--capture=C:\path\to\capt
 The trapped-chest playtest loads CoB's source-backed `Data ED2:3` and `Data TD2:1` records. Picking the armed lock springs its rogue-only damage trap; the smoke verifies the 4-12 HP loss, changed choices, persistent state, and host completion:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_trap_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_trap_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_trap_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_trap_playtest.tscn -- --smoke
 ```
 
 The experience playtest starts at the source-backed 1,500-point award in CoB's child-grave sequence. Its smoke verifies the empty loot panel, party experience change, and following action-point replacement:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_experience_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_experience_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_experience_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_experience_playtest.tscn -- --smoke
 ```
 
 The services playtest runs CoB's compiled bank and temple actions through the native HUD. Its smoke verifies Classic's built-in banking warning and continuation pause, banking availability, standard and hostile temple prices, and the bank-to-temple transfer lifecycle:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn -- --smoke
 ```
 
 The presentation playtest covers the supported built-in warning catalog through
@@ -751,7 +751,7 @@ continuation, source-backed view warnings `96` through `99`, keyboard focus and
 acknowledgement, unchanged party wealth, and usable layout at `1100x619`:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_presentation_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_presentation_playtest.tscn -- --smoke
 ```
 
 Append `--capture=C:\path\to\captures` to save the warning frame. The guard-house
@@ -761,78 +761,78 @@ placement evidence.
 The shop playtest installs a focused compiled restricted-shop record over the CoB fixture. Its smoke verifies mapped stock, inflation, both accepted-item ranges, pooled-first payment, cancellation continuation, and persistent depleted stock:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_shop_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_shop_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_shop_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_shop_playtest.tscn -- --smoke
 ```
 
 The equipment playtest captures worn and carried items plus party wealth, serializes that active capture through the Classic session envelope, reloads a fresh session, and restores the items through Remake's resource loader. Its smoke verifies worn state, charges, wealth, interim loot, native loot presentation, and continuation completion:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_equipment_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_equipment_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_equipment_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_equipment_playtest.tscn -- --smoke
 ```
 
 The party-health playtest runs CoB's standalone fixed-damage macro and verifies the character HP change and completed host state:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_party_health_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_party_health_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_party_health_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_party_health_playtest.tscn -- --smoke
 ```
 
 The party-spell playtest runs CoB's source-backed psychic barrier, supplies two playtest targets and a test-only Power Drain resource, and verifies Remake's spell animation, per-character effect, transient party selection, and completed host state:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_party_spell_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_party_spell_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_party_spell_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_party_spell_playtest.tscn -- --smoke
 ```
 
 The character-pick playtest opens Remake's party-panel picker for CoB's hollow-column volunteer and verifies that the chosen character becomes the transient Classic selection:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_character_pick_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_character_pick_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_character_pick_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_character_pick_playtest.tscn -- --smoke
 ```
 
 The miscellaneous-selection playtest runs CoB's movement-based ceiling rockfall with a slow playtest rogue and verifies the transient selection, 1-3 HP loss, and completed host state:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_misc_selection_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_misc_selection_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_misc_selection_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_misc_selection_playtest.tscn -- --smoke
 ```
 
 The tavern-option playtest selects the barmaid response in CoB's source-backed `Data ED:3`. Opcode `35` removes that response, reopens the encounter without using an attempt, and leaves the party able to back out:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_simple_option_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_simple_option_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_simple_option_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_simple_option_playtest.tscn -- --smoke
 ```
 
 The cave-in playtest exercises a non-rogue complex encounter from its three authored action labels through the selected `Data ED2` result block:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_action_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_action_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_action_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_action_playtest.tscn -- --smoke
 ```
 
 The spell variant supplies a playtest caster with Dig Hole, selects it through Remake's native spell menu, and verifies the packed `1201` response, spell-point cost, and Result 1 continuation:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_spell_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_spell_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_spell_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_spell_playtest.tscn -- --smoke
 ```
 
 The item variant gives the playtest rogue a Necklace of Keys, selects it through Remake's encounter inventory picker, and verifies the source-backed Result 1 response without consuming the key:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_item_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_item_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_item_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_item_playtest.tscn -- --smoke
 ```
 
 The spoken-word variant opens Remake's speech input for the City of Bywater archives and verifies that `WATERFORD` selects the source-backed Result 1 messages, grants its map, removes that result, and reopens the encounter:
 
 ```powershell
-Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_word_playtest.tscn
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_word_playtest.tscn -- --smoke
+Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_complex_word_playtest.tscn
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_complex_word_playtest.tscn -- --smoke
 ```
 
 The HUD smoke intentionally uses the normal display driver because the project's shutdown handler persists the active window size to `src/override.cfg`; a headless HUD run would save `0x0` and dirty the worktree.
@@ -840,13 +840,13 @@ The HUD smoke intentionally uses the normal display driver because the project's
 Run the headless proof from the repository root:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
 ```
 
 Run only the checked three-scenario loader/interpreter corpus:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd
 ```
 
 Its [corpus contract](CLASSIC_REGRESSION_CORPUS.md) records the scenario matrix,
@@ -856,5 +856,5 @@ classifications. Use `-- --json` when a machine-readable report is needed.
 Pass the path to a full compiled bundle after `--` to run the same loader against all CoB records:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd -- "C:\path\to\realmz-remake-cob-poc-final"
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd -- "C:\path\to\realmz-remake-cob-poc-final"
 ```

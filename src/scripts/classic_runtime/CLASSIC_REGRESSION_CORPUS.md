@@ -8,7 +8,7 @@ opcode inventory as sufficient evidence.
 Run it from the repository root:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path src --script `
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd
 ```
 

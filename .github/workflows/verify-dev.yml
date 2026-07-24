@@ -5,8 +5,8 @@ on:
     branches: ["dev"]
 
 env:
-  GODOT_VERSION: 4.3.0
-  GODOT_VERSION_MAC_PI: 4.3
+  GODOT_VERSION: 4.7.1
+  GODOT_VERSION_MAC_PI: 4.7.1
   PROJECT_FILE: src/project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
   LFS_USERNAME: ${{secrets.LFS_USERNAME}}

@@ -37,11 +37,11 @@ Validate the portable bundle and then run Remake's semantic readiness report
 against the existing native City resources:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless --path "F:\Realmz Remake\src" `
+Godot_v4.7.1-stable_win64_console.exe --headless --path "F:\Realmz Remake\src" `
   --script res://scripts/classic_runtime/tests/validate_classic_bundle.gd -- `
   "C:\path\to\new-city-of-bywater-bundle"
 
-Godot_v4.6.2-stable_win64_console.exe --headless --path "F:\Realmz Remake\src" `
+Godot_v4.7.1-stable_win64_console.exe --headless --path "F:\Realmz Remake\src" `
   --script res://scripts/classic_runtime/tests/report_classic_readiness.gd -- `
   "C:\path\to\new-city-of-bywater-bundle" `
   "F:\Realmz Remake\src\Campaigns\City of Bywater"
@@ -52,7 +52,7 @@ stages and validates the package, materializes its native maps and resources,
 and only publishes it after the launch-readiness gate passes:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --headless `
+Godot_v4.7.1-stable_win64_console.exe --headless `
   --path "F:\Realmz Remake\src" `
   --script res://scripts/classic_runtime/tools/install_classic_campaign.gd -- `
   "C:\path\to\new-city-of-bywater-bundle" `
@@ -65,22 +65,22 @@ guard-house encounter and tannery service before taking the blacksmith's quest
 from its offer through native combat and the reward turn-in:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1152x648 `
+Godot_v4.7.1-stable_win64_console.exe --resolution 1152x648 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_guard_house_playtest.tscn -- `
   "C:\path\to\new-city-of-bywater-bundle" --smoke
 
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- `
   "C:\path\to\new-city-of-bywater-bundle" --smoke
 
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
   "C:\path\to\new-city-of-bywater-bundle" --smoke
 
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
   "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
@@ -109,13 +109,13 @@ quest:
 $acceptanceRoot = Join-Path $env:TEMP "realmz-city-acceptance-$([guid]::NewGuid())"
 New-Item -ItemType Directory -Path $acceptanceRoot | Out-Null
 
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 `
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
   "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
   --smoke --save-phase "--profile-root=$acceptanceRoot"
 
-Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 `
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
   "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
@@ -126,7 +126,7 @@ For an interactive overworld demo, omit `--smoke` and stop the route at its
 authored starting position with `--overworld-demo`:
 
 ```powershell
-Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
+Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 `
   --path "F:\Realmz Remake\src" `
   res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- `
   "C:\path\to\temporary-Campaigns\new-city-of-bywater-bundle" `
