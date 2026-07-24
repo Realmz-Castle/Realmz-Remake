@@ -248,9 +248,10 @@ func _inventory(
 			item_index,
 		]
 		item["classicItemId"] = int(item_value.get("id", 0))
-		item["is_identified"] = 1 if bool(
-			item_value.get("identified", false)
-		) else 0
+		# The manifest and classicSourceCharacter retain the source flag. The
+		# bundled roster is starter content, so every carried item is usable
+		# immediately without an identification service.
+		item["is_identified"] = 1
 		item["equipped"] = 2 if bool(
 			item_value.get("equipped", false)
 		) else 0

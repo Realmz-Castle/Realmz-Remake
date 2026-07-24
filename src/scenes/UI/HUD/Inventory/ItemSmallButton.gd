@@ -45,7 +45,7 @@ func set_item(new_item: ItemInstance) -> void:
 	colorRect.size = Vector2(item_width, 40)
 	size = Vector2(item_width, 40)
 	iconsprite.texture = NodeAccess.__Resources().item_texture(item)
-	infolabel.text = definition.item_type
+	infolabel.text = definition.display_type
 	iconequipped.visible = item.equipped
 	if definition.maximum_charges > 0 and item.identified:
 		chargesLabel.show()
@@ -197,7 +197,7 @@ func _on_ItemSmallButton_mouse_entered() -> void:
 func _on_ItemSmallButton_mouse_exited() -> void:
 	colorRect.color = Color.WHITE
 	var definition := _definition()
-	infolabel.text = definition.item_type if definition != null else ""
+	infolabel.text = definition.display_type if definition != null else ""
 	infolabel.add_theme_color_override("font_color", Color.RED)
 
 

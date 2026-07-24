@@ -104,7 +104,7 @@ func _on_itemlootbutton_mouse_entered(
 	var item_name := definition.display_name_for(item)
 	if item.identified and definition.maximum_charges > 0:
 		item_name += " X%d" % item.charges
-	itemNameLabel.text = "%s (%s)" % [item_name, definition.item_type]
+	itemNameLabel.text = "%s (%s)" % [item_name, definition.display_type]
 	itemStatsLabel.text = definition.stats_summary if item.identified else ""
 	itemsWeightLabel.text = "Weight : %d" % definition.total_weight(item)
 

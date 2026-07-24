@@ -56,7 +56,7 @@ func set_item_info(item: ItemInstance) -> void:
 	itemtex.texture = resources.item_texture(item)
 	var text := "          %s : %s" % [
 		definition.display_name_for(item),
-		definition.item_type,
+		definition.display_type,
 	]
 	var slots := definition.slots()
 	if not slots.is_empty():

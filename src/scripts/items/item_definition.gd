@@ -27,6 +27,13 @@ var item_type: String:
 	get:
 		return str(_data.get("type", ""))
 
+var display_type: String:
+	get:
+		var extra_data: Variant = gameplay_value("extraData", {})
+		if extra_data is Dictionary:
+			return str(extra_data.get("displayType", item_type))
+		return item_type
+
 var image_key: String:
 	get:
 		return str(_data.get("imageKey", ""))

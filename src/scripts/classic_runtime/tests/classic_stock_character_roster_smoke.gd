@@ -46,6 +46,8 @@ func _run() -> void:
 		return
 	var specs: Array = specs_value
 	_expect_equal(specs.size(), 7, "the manifest owns all seven stock characters")
+	var tristan_spec := _spec_by_name(specs, "Tristan")
+	_expect(not tristan_spec.is_empty(), "the manifest includes Tristan")
 
 	temporary_root = "user://classic-stock-roster-smoke-%d" % Time.get_ticks_usec()
 	var collision_profile := temporary_root.path_join("collision/Characters")
@@ -82,9 +84,103 @@ func _run() -> void:
 		"the existing Tristan directory is reported"
 	)
 	_expect_equal(
+		collision_result.get("repaired", []),
+		[],
+		"an unrelated same-name character is not treated as stock content"
+	)
+	_expect_equal(
 		FileAccess.get_file_as_string(sentinel_path),
 		"keep me",
 		"an existing same-name character is not overwritten"
+	)
+
+	var legacy_profile := temporary_root.path_join("legacy/Characters")
+	var legacy_directory := legacy_profile.path_join("Tristan")
+	_expect_equal(
+		DirAccess.make_dir_recursive_absolute(legacy_directory),
+		OK,
+		"the legacy-stock repair fixture directory is created",
+	)
+	_expect(
+		_write_legacy_stock_fixture(
+			legacy_directory.path_join("data.json"),
+			tristan_spec,
+		),
+		"the legacy-stock repair fixture is written",
+	)
+	var legacy_result := Roster.ensure_roster(ROSTER_ROOT, legacy_profile)
+	_expect_equal(
+		legacy_result.get("repaired", []),
+		["Tristan"],
+		"an unchanged legacy stock inventory is safely identified",
+	)
+	var legacy_data: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(legacy_directory.path_join("data.json"))
+	)
+	_expect(
+		legacy_data is Dictionary and _saved_inventory_is_identified(
+			legacy_data
+		),
+		"the legacy stock inventory is fully identified",
+	)
+
+	var repair_profile := temporary_root.path_join("repair/Characters")
+	var repair_directory := repair_profile.path_join("Tristan")
+	_expect_equal(
+		DirAccess.make_dir_recursive_absolute(repair_directory),
+		OK,
+		"the existing-stock repair fixture directory is created"
+	)
+	for file_name: String in REQUIRED_FILES:
+		_expect_equal(
+			DirAccess.copy_absolute(
+				(
+					ROSTER_ROOT
+					.path_join("Characters/Tristan")
+					.path_join(file_name)
+				),
+				repair_directory.path_join(file_name),
+			),
+			OK,
+			"the existing-stock repair fixture copies %s" % file_name,
+		)
+	_expect(
+		_mark_first_saved_item_unidentified(
+			repair_directory.path_join("data.json")
+		),
+		"the existing-stock repair fixture simulates an older unidentified item",
+	)
+	_expect(
+		_append_unidentified_fixture_loot(
+			repair_directory.path_join("data.json")
+		),
+		"the existing-stock repair fixture includes later unidentified loot",
+	)
+	var repair_result := Roster.ensure_roster(ROSTER_ROOT, repair_profile)
+	_expect_equal(
+		repair_result.get("status"),
+		"ok",
+		"the roster safely checks an existing stock character"
+	)
+	_expect_equal(
+		repair_result.get("repaired", []),
+		["Tristan"],
+		"the roster identifies legacy stock inventory on an existing profile"
+	)
+	var repaired_data: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(repair_directory.path_join("data.json"))
+	)
+	_expect(
+		repaired_data is Dictionary and _saved_stock_inventory_is_identified(
+			repaired_data,
+			"Tristan",
+		),
+		"the existing stock character's starter items are all identified",
+	)
+	_expect_equal(
+		_saved_unidentified_count(repaired_data),
+		1,
+		"the stock repair does not identify loot acquired later",
 	)
 
 	var clean_profile := temporary_root.path_join("clean/Characters")
@@ -99,6 +195,11 @@ func _run() -> void:
 		7,
 		"all seven stock characters install into a clean profile"
 	)
+	_expect_equal(
+		first_result.get("repaired", []),
+		[],
+		"current stock templates require no identification repair"
+	)
 	var second_result := Roster.ensure_roster(ROSTER_ROOT, clean_profile)
 	_expect_equal(
 		second_result.get("created", []).size(),
@@ -109,6 +210,11 @@ func _run() -> void:
 		second_result.get("existing", []).size(),
 		7,
 		"a repeated install recognizes all seven existing characters"
+	)
+	_expect_equal(
+		second_result.get("repaired", []).size(),
+		0,
+		"a repeated install leaves already-identified stock inventory unchanged"
 	)
 
 	for spec_value: Variant in specs:
@@ -130,11 +236,12 @@ func _verify_character(spec: Dictionary, clean_profile: String) -> void:
 			FileAccess.file_exists(installed_directory.path_join(file_name)),
 			"%s installs %s" % [character_name, file_name]
 		)
-		_expect_equal(
-			FileAccess.get_sha256(installed_directory.path_join(file_name)),
-			FileAccess.get_sha256(template_directory.path_join(file_name)),
-			"%s installs an exact copy of %s" % [character_name, file_name]
-		)
+		if file_name != "data.json":
+			_expect_equal(
+				FileAccess.get_sha256(installed_directory.path_join(file_name)),
+				FileAccess.get_sha256(template_directory.path_join(file_name)),
+				"%s installs an exact copy of %s" % [character_name, file_name]
+			)
 
 	var source_record_path := (
 		ROSTER_ROOT
@@ -170,6 +277,17 @@ func _verify_character(spec: Dictionary, clean_profile: String) -> void:
 		data.get("classicSourceCharacter", {}).get("sourceSha256", ""),
 		spec.get("sourceSha256", ""),
 		"%s embeds its parsed Classic source snapshot" % character_name
+	)
+	_expect_equal(
+		_source_unidentified_count(
+			data.get("classicSourceCharacter", {}).get("items", [])
+		),
+		_source_unidentified_count(spec.get("items", [])),
+		"%s preserves source identification flags as provenance" % character_name,
+	)
+	_expect(
+		_saved_inventory_is_identified(data),
+		"%s installs with every carried item identified" % character_name,
 	)
 
 	var character: PlayerCharacter = Utils.FileHandler.load_character(
@@ -214,6 +332,10 @@ func _verify_character(spec: Dictionary, clean_profile: String) -> void:
 		_item_ids(spec.get("items", [])),
 		"%s resolves inventory by Classic item ID" % character_name
 	)
+	_expect(
+		_runtime_inventory_is_identified(character.inventory),
+		"%s loads every carried item as identified" % character_name,
+	)
 	_expect_equal(
 		_spell_ids(character.spells),
 		_int_array(spec.get("learnedSpellIds", [])),
@@ -255,6 +377,11 @@ func _verify_character(spec: Dictionary, clean_profile: String) -> void:
 		spec.get("sourceSha256", ""),
 		"%s preserves source provenance through a normal save round trip"
 		% character_name
+	)
+	_expect(
+		_runtime_inventory_is_identified(reloaded.inventory),
+		"%s preserves item identification through a normal save round trip"
+		% character_name,
 	)
 
 
@@ -300,6 +427,165 @@ func _inventory_ids(inventory: Array[ItemInstance]) -> Array[int]:
 		var classic_ids: Array[int] = resources.item_classic_ids(item)
 		ids.append(classic_ids[0] if not classic_ids.is_empty() else 0)
 	return ids
+
+
+func _saved_inventory_is_identified(data: Dictionary) -> bool:
+	var inventory_value: Variant = data.get("inventory", [])
+	if not (inventory_value is Array):
+		return false
+	for item_value: Variant in inventory_value:
+		if not (item_value is Dictionary):
+			return false
+		var state_value: Variant = item_value.get("state")
+		if state_value is Dictionary:
+			if not bool(state_value.get("identified", false)):
+				return false
+		elif int(
+			item_value.get(
+				"is_identified",
+				item_value.get("identified", 0),
+			)
+		) != 1:
+			return false
+	return true
+
+
+func _write_legacy_stock_fixture(path: String, spec: Dictionary) -> bool:
+	var source_items_value: Variant = spec.get("items", [])
+	if not (source_items_value is Array):
+		return false
+	var inventory: Array = []
+	for source_item_value: Variant in source_items_value:
+		if not (source_item_value is Dictionary):
+			return false
+		inventory.append({
+			"classicItemId": int(source_item_value.get("id", 0)),
+			"is_identified": 0,
+		})
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return false
+	file.store_string(JSON.stringify({
+		"classicSourceCharacter": {
+			"sourceSha256": str(spec.get("sourceSha256", "")),
+		},
+		"inventory": inventory,
+	}, "\t"))
+	file.close()
+	return true
+
+
+func _mark_first_saved_item_unidentified(path: String) -> bool:
+	var data_value: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(path)
+	)
+	if not (data_value is Dictionary):
+		return false
+	var inventory_value: Variant = data_value.get("inventory", [])
+	if not (inventory_value is Array) or inventory_value.is_empty():
+		return false
+	var item_value: Variant = inventory_value[0]
+	if not (item_value is Dictionary):
+		return false
+	var state_value: Variant = item_value.get("state")
+	if not (state_value is Dictionary):
+		return false
+	state_value["identified"] = false
+	item_value["state"] = state_value
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return false
+	file.store_string(JSON.stringify(data_value, "\t"))
+	file.close()
+	return true
+
+
+func _append_unidentified_fixture_loot(path: String) -> bool:
+	var data_value: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(path)
+	)
+	if not (data_value is Dictionary):
+		return false
+	var inventory_value: Variant = data_value.get("inventory", [])
+	if not (inventory_value is Array) or inventory_value.is_empty():
+		return false
+	var loot_value: Variant = inventory_value[0].duplicate(true)
+	if not (loot_value is Dictionary):
+		return false
+	loot_value["instanceId"] = "fixture-acquired-loot"
+	var state_value: Variant = loot_value.get("state")
+	if not (state_value is Dictionary):
+		return false
+	state_value["identified"] = false
+	loot_value["state"] = state_value
+	inventory_value.append(loot_value)
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return false
+	file.store_string(JSON.stringify(data_value, "\t"))
+	file.close()
+	return true
+
+
+func _saved_stock_inventory_is_identified(
+	data: Dictionary,
+	character_name: String,
+) -> bool:
+	var inventory_value: Variant = data.get("inventory", [])
+	if not (inventory_value is Array):
+		return false
+	var stock_prefix := "classic-stock:%s:item:" % character_name.uri_encode()
+	for item_value: Variant in inventory_value:
+		if not (item_value is Dictionary):
+			return false
+		if not str(item_value.get("instanceId", "")).begins_with(stock_prefix):
+			continue
+		var state_value: Variant = item_value.get("state")
+		if not (state_value is Dictionary) \
+				or not bool(state_value.get("identified", false)):
+			return false
+	return true
+
+
+func _saved_unidentified_count(data: Dictionary) -> int:
+	var count := 0
+	var inventory_value: Variant = data.get("inventory", [])
+	if inventory_value is Array:
+		for item_value: Variant in inventory_value:
+			if not (item_value is Dictionary):
+				continue
+			var state_value: Variant = item_value.get("state")
+			if state_value is Dictionary \
+					and not bool(state_value.get("identified", false)):
+				count += 1
+	return count
+
+
+func _spec_by_name(specs: Array, character_name: String) -> Dictionary:
+	for spec_value: Variant in specs:
+		if spec_value is Dictionary \
+				and str(spec_value.get("name", "")) == character_name:
+			return spec_value
+	return {}
+
+
+func _runtime_inventory_is_identified(
+	inventory: Array[ItemInstance]
+) -> bool:
+	for item: ItemInstance in inventory:
+		if not item.identified:
+			return false
+	return true
+
+
+func _source_unidentified_count(items_value: Variant) -> int:
+	var count := 0
+	if items_value is Array:
+		for item_value: Variant in items_value:
+			if item_value is Dictionary \
+					and not bool(item_value.get("identified", false)):
+				count += 1
+	return count
 
 
 func _item_ids(items_value: Variant) -> Array[int]:

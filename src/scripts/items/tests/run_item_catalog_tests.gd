@@ -57,6 +57,11 @@ func _test_checked_catalogs() -> void:
 			"Dagger weight is normalized",
 		)
 		_expect_equal(
+			dagger.display_type,
+			"Dagger",
+			"items without a display override use their mechanical type",
+		)
+		_expect_equal(
 			dagger.gameplay_value("weaponDamage"),
 			{"Physical": [1.0, 4.0]},
 			"Dagger damage data is preserved",
@@ -67,6 +72,119 @@ func _test_checked_catalogs() -> void:
 			dagger.gameplay_value("baseWeight"),
 			5,
 			"definition gameplay data is immutable through copies",
+		)
+
+	var battleaxe = catalog.get_definition("shared:Battleaxe")
+	_expect(battleaxe != null, "shared Battleaxe definition resolves")
+	if battleaxe != null:
+		_expect_equal(
+			battleaxe.item_type,
+			"Arming Sword",
+			"Battleaxe retains its existing equipment-permission category",
+		)
+		_expect_equal(
+			battleaxe.display_type,
+			"Battleaxe",
+			"Battleaxe exposes its player-facing weapon type",
+		)
+
+	var supply_expectations := {
+		"Torch": {
+			"description": "A stout stick covered in pitch.",
+			"image": "ITEM_Torch",
+			"weight": 0,
+			"price": 3,
+			"charges": 6,
+		},
+		"Parchment": {
+			"description": (
+				"Paper of superior quality needed for the etchings of magical words."
+			),
+			"image": "ITEM_Parchment",
+			"weight": 0,
+			"price": 100,
+			"charges": 3,
+		},
+		"Iron Rations": {
+			"description": (
+				"What they lack in taste they more than make up for in nutrition."
+			),
+			"image": "ITEM_Iron_Rations",
+			"weight": 0,
+			"price": 5,
+			"charges": 36,
+		},
+		"Rope": {
+			"description": "A strong coil make of Hemp and Flax.",
+			"image": "ITEM_Rope",
+			"weight": 100,
+			"price": 10,
+			"charges": 0,
+		},
+		"Mirror": {
+			"description": "A highly polished plate of pure silver.",
+			"image": "ITEM_Mirror",
+			"weight": 15,
+			"price": 20,
+			"charges": 0,
+		},
+		"Iron Spikes": {
+			"description": (
+				"Heavy Iron spikes capable of being driven into the hardest of stone."
+			),
+			"image": "ITEM_Iron Spikes",
+			"weight": 0,
+			"price": 15,
+			"charges": 3,
+		},
+		"Flask of Oil": {
+			"description": (
+				"In combination with flame this becomes a poor mans fireball."
+			),
+			"image": "ITEM_Flask_of_Oil",
+			"weight": 0,
+			"price": 25,
+			"charges": 5,
+		},
+	}
+	for catalog_key: String in supply_expectations:
+		var supply = catalog.get_definition(
+			catalog.resolve_catalog_key("shared", "", catalog_key)
+		)
+		var expected: Dictionary = supply_expectations[catalog_key]
+		_expect(supply != null, "shared %s definition resolves" % catalog_key)
+		if supply == null:
+			continue
+		_expect_equal(
+			supply.description,
+			expected["description"],
+			"%s preserves its source-backed description" % catalog_key,
+		)
+		_expect_equal(
+			supply.image_key,
+			expected["image"],
+			"%s uses its matching inventory icon" % catalog_key,
+		)
+		_expect(not supply.magical, "%s is not marked magical" % catalog_key)
+		_expect_equal(
+			supply.stats_summary,
+			"",
+			"%s has no placeholder stats text" % catalog_key,
+		)
+		_expect_equal(
+			supply.base_weight,
+			expected["weight"],
+			"%s preserves its source-backed base weight" % catalog_key,
+		)
+		_expect_equal(
+			supply.price,
+			expected["price"],
+			"%s preserves its source-backed price" % catalog_key,
+		)
+		_expect_equal(
+			supply.maximum_charges,
+			expected["charges"],
+			"%s preserves its source-backed charge capacity" % catalog_key,
 		)
 
 	var resistance_stone = catalog.get_definition(

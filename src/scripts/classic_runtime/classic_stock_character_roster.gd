@@ -52,9 +52,11 @@ static func ensure_roster(
 
 	var created: Array[String] = []
 	var existing: Array[String] = []
+	var repaired: Array[String] = []
 	for spec_value: Variant in character_specs:
 		if not (spec_value is Dictionary):
 			return _error("Classic stock-character manifest contains a malformed entry.")
+		var spec: Dictionary = spec_value
 		var character_name := str(spec_value.get("name", "")).strip_edges()
 		if character_name.is_empty() or character_name in [".", ".."]:
 			return _error("Classic stock-character manifest contains an invalid name.")
@@ -68,6 +70,17 @@ static func ensure_roster(
 		)
 		if DirAccess.dir_exists_absolute(destination_directory):
 			existing.append(character_name)
+			var existing_repair := _identify_stock_inventory(
+				destination_directory,
+				spec,
+			)
+			if str(existing_repair.get("status", "")) != "ok":
+				existing_repair["created"] = created
+				existing_repair["existing"] = existing
+				existing_repair["repaired"] = repaired
+				return existing_repair
+			if bool(existing_repair.get("changed", false)):
+				repaired.append(character_name)
 			continue
 		var copy_result := _copy_character_atomically(
 			source_directory,
@@ -76,12 +89,26 @@ static func ensure_roster(
 		if str(copy_result.get("status", "")) != "ok":
 			copy_result["created"] = created
 			copy_result["existing"] = existing
+			copy_result["repaired"] = repaired
 			return copy_result
+		var copied_repair := _identify_stock_inventory(
+			destination_directory,
+			spec,
+		)
+		if str(copied_repair.get("status", "")) != "ok":
+			_remove_directory(destination_directory)
+			copied_repair["created"] = created
+			copied_repair["existing"] = existing
+			copied_repair["repaired"] = repaired
+			return copied_repair
 		created.append(character_name)
+		if bool(copied_repair.get("changed", false)):
+			repaired.append(character_name)
 	return {
 		"status": "ok",
 		"created": created,
 		"existing": existing,
+		"repaired": repaired,
 		"total": character_specs.size(),
 	}
 
@@ -156,6 +183,154 @@ static func _copy_character_atomically(
 			% [destination_directory.get_file(), error_string(rename_error)]
 		)
 	return {"status": "ok"}
+
+
+static func _identify_stock_inventory(
+	character_directory: String,
+	spec: Dictionary,
+) -> Dictionary:
+	var data_path := character_directory.path_join("data.json")
+	if not FileAccess.file_exists(data_path):
+		return {"status": "ok", "changed": false}
+	var data_value: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(data_path)
+	)
+	if not (data_value is Dictionary):
+		return {"status": "ok", "changed": false}
+	var data: Dictionary = data_value
+	var source_value: Variant = data.get("classicSourceCharacter", {})
+	if not (source_value is Dictionary):
+		return {"status": "ok", "changed": false}
+	var expected_sha := str(spec.get("sourceSha256", ""))
+	if expected_sha.is_empty() \
+			or str(source_value.get("sourceSha256", "")) != expected_sha:
+		return {"status": "ok", "changed": false}
+	var inventory_value: Variant = data.get("inventory", [])
+	if not (inventory_value is Array):
+		return _error(
+			"Classic stock character %s has a malformed inventory."
+			% str(spec.get("name", character_directory.get_file()))
+		)
+	var source_items_value: Variant = spec.get("items", [])
+	if not (source_items_value is Array):
+		return _error(
+			"Classic stock character %s has malformed source inventory."
+			% str(spec.get("name", character_directory.get_file()))
+		)
+	var stock_prefix := "classic-stock:%s:item:" % str(
+		spec.get("name", "")
+	).uri_encode()
+	var repair_legacy_inventory := _legacy_inventory_matches_source(
+		inventory_value,
+		source_items_value,
+	)
+	var changed := false
+	for item_value: Variant in inventory_value:
+		if not (item_value is Dictionary):
+			return _error(
+				"Classic stock character %s has a malformed inventory item."
+				% str(spec.get("name", character_directory.get_file()))
+			)
+		var item: Dictionary = item_value
+		var state_value: Variant = item.get("state")
+		if state_value is Dictionary:
+			var instance_id := str(item.get("instanceId", ""))
+			if not instance_id.begins_with(stock_prefix):
+				continue
+			var source_index_text := instance_id.trim_prefix(stock_prefix)
+			if not source_index_text.is_valid_int():
+				continue
+			var source_index := int(source_index_text)
+			if source_index < 0 or source_index >= source_items_value.size():
+				continue
+			var source_item_value: Variant = source_items_value[source_index]
+			if not (source_item_value is Dictionary) \
+					or _classic_item_id(item) != int(
+						source_item_value.get("id", 0)
+					):
+				continue
+			var state: Dictionary = state_value
+			if not bool(state.get("identified", false)):
+				state["identified"] = true
+				item["state"] = state
+				changed = true
+		elif repair_legacy_inventory \
+				and int(
+					item.get("is_identified", item.get("identified", 0))
+				) != 1:
+			item["is_identified"] = 1
+			if item.has("identified"):
+				item["identified"] = true
+			changed = true
+	if not changed:
+		return {"status": "ok", "changed": false}
+	var write_error := _write_json_atomically(data_path, data)
+	if write_error != OK:
+		return _error(
+			"Could not update Classic stock character %s: %s"
+			% [
+				str(spec.get("name", character_directory.get_file())),
+				error_string(write_error),
+			]
+		)
+	return {"status": "ok", "changed": true}
+
+
+static func _legacy_inventory_matches_source(
+	inventory: Array,
+	source_items: Array,
+) -> bool:
+	if inventory.size() != source_items.size():
+		return false
+	for item_index: int in range(inventory.size()):
+		var item_value: Variant = inventory[item_index]
+		var source_item_value: Variant = source_items[item_index]
+		if not (item_value is Dictionary) \
+				or not (source_item_value is Dictionary) \
+				or item_value.get("state") is Dictionary \
+				or _classic_item_id(item_value) != int(
+					source_item_value.get("id", 0)
+				):
+			return false
+	return true
+
+
+static func _classic_item_id(item: Dictionary) -> int:
+	if item.has("classicItemId"):
+		return abs(int(item.get("classicItemId", 0)))
+	var state_value: Variant = item.get("state", {})
+	if state_value is Dictionary:
+		var state_data_value: Variant = state_value.get("data", {})
+		if state_data_value is Dictionary:
+			var identity_value: Variant = state_data_value.get(
+				"legacyDefinitionIdentity",
+				{},
+			)
+			if identity_value is Dictionary:
+				return abs(int(identity_value.get("classicItemId", 0)))
+	return 0
+
+
+static func _write_json_atomically(path: String, value: Dictionary) -> Error:
+	var suffix := ".stock-update-%d" % Time.get_ticks_usec()
+	var temporary_path := path + suffix
+	var backup_path := path + suffix + ".backup"
+	var file := FileAccess.open(temporary_path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	file.store_string(JSON.stringify(value, "\t"))
+	file.close()
+	var backup_error := DirAccess.rename_absolute(path, backup_path)
+	if backup_error != OK:
+		DirAccess.remove_absolute(temporary_path)
+		return backup_error
+	var replace_error := DirAccess.rename_absolute(temporary_path, path)
+	if replace_error != OK:
+		DirAccess.rename_absolute(backup_path, path)
+		DirAccess.remove_absolute(temporary_path)
+		return replace_error
+	DirAccess.remove_absolute(backup_path)
+	return OK
 
 
 static func _copy_file(source_path: String, destination_path: String) -> Error:

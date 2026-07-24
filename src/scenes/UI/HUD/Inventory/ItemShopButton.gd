@@ -46,7 +46,7 @@ func set_item(
 	size = Vector2(item_width, 40)
 	iconsprite.texture = NodeAccess.__Resources().item_texture(item)
 	namelabel.text = definition.display_name_for(item)
-	infolabel.text = definition.item_type
+	infolabel.text = definition.display_type
 	priceLabel.text = str(price)
 	weightLabel.text = str(definition.total_weight(item))
 	quantityLabel.text = "%d X" % quantity
