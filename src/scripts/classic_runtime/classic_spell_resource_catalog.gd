@@ -2,10 +2,12 @@ class_name ClassicSpellResourceCatalog
 extends RefCounted
 
 static func merge_directory(directory: String, destination: Dictionary) -> void:
-	var access := DirAccess.open(directory)
-	if access == null:
+	# ResourceLoader preserves the original resource names when scripts are
+	# remapped inside an exported PCK. DirAccess/FileAccess cannot reliably see
+	# or read those compiled scripts.
+	var file_names := ResourceLoader.list_directory(directory)
+	if file_names.is_empty():
 		return
-	# Resource metadata is enough for audit and avoids instantiating spell scripts.
 	var name_expression := _expression("(?m)^\\s*name\\s*=\\s*[\"']([^\"']+)[\"']")
 	var class_expression := _expression("(?m)^\\s*classic_spell_class\\s*=\\s*(-?\\d+)")
 	var ids_expression := _expression("(?m)^\\s*classic_spell_ids\\s*=\\s*\\[([^\\]]*)\\]")
@@ -18,36 +20,63 @@ static func merge_directory(directory: String, destination: Dictionary) -> void:
 	var field_expression := _expression("(?m)^\\s*in_field\\s*=\\s*(true|false)")
 	var combat_expression := _expression("(?m)^\\s*in_combat\\s*=\\s*(true|false)")
 
-	access.list_dir_begin()
-	var file_name := access.get_next()
-	while not file_name.is_empty():
-		if not access.current_is_dir() and file_name.ends_with(".gd"):
-			var path := directory.path_join(file_name)
-			var source := FileAccess.get_file_as_string(path)
-			var name_match := name_expression.search(source)
-			if name_match != null:
-				var metadata := {"resourcePath": path}
-				var class_match := class_expression.search(source)
-				if class_match != null:
-					metadata["classicSpellClass"] = int(class_match.get_string(1))
-				var ids_match := ids_expression.search(source)
-				if ids_match != null:
-					metadata["classicSpellIds"] = _integer_list(ids_match.get_string(1))
-				var save_index_match := save_index_expression.search(source)
-				if save_index_match != null:
-					metadata["classicSpellSaveIndex"] = int(save_index_match.get_string(1))
-				var save_mode_match := save_mode_expression.search(source)
-				if save_mode_match != null:
-					metadata["classicSpellSaveMode"] = save_mode_match.get_string(1)
-				var field_match := field_expression.search(source)
-				if field_match != null:
-					metadata["inField"] = field_match.get_string(1) == "true"
-				var combat_match := combat_expression.search(source)
-				if combat_match != null:
-					metadata["inCombat"] = combat_match.get_string(1) == "true"
-				destination[name_match.get_string(1)] = metadata
-		file_name = access.get_next()
-	access.list_dir_end()
+	for file_name: String in file_names:
+		if file_name.ends_with("/") or not file_name.ends_with(".gd"):
+			continue
+		var path := directory.path_join(file_name)
+		var source := FileAccess.get_file_as_string(path)
+		var name_match := name_expression.search(source)
+		if name_match != null:
+			var metadata := {"resourcePath": path}
+			var class_match := class_expression.search(source)
+			if class_match != null:
+				metadata["classicSpellClass"] = int(class_match.get_string(1))
+			var ids_match := ids_expression.search(source)
+			if ids_match != null:
+				metadata["classicSpellIds"] = _integer_list(ids_match.get_string(1))
+			var save_index_match := save_index_expression.search(source)
+			if save_index_match != null:
+				metadata["classicSpellSaveIndex"] = int(save_index_match.get_string(1))
+			var save_mode_match := save_mode_expression.search(source)
+			if save_mode_match != null:
+				metadata["classicSpellSaveMode"] = save_mode_match.get_string(1)
+			var field_match := field_expression.search(source)
+			if field_match != null:
+				metadata["inField"] = field_match.get_string(1) == "true"
+			var combat_match := combat_expression.search(source)
+			if combat_match != null:
+				metadata["inCombat"] = combat_match.get_string(1) == "true"
+			destination[name_match.get_string(1)] = metadata
+			continue
+		_merge_loaded_script(path, destination)
+
+
+static func _merge_loaded_script(path: String, destination: Dictionary) -> void:
+	var script := ResourceLoader.load(path) as GDScript
+	if script == null:
+		return
+	var instance: Variant = script.new()
+	if not (instance is Spell):
+		return
+	var spell_name := str(instance.name).strip_edges()
+	if spell_name.is_empty():
+		return
+	var metadata := {
+		"resourcePath": path,
+		"classicSpellClass": int(instance.classic_spell_class),
+		"classicSpellSaveIndex": int(instance.classic_spell_save_index),
+		"classicSpellSaveMode": str(instance.classic_spell_save_mode),
+		"inField": bool(instance.in_field),
+		"inCombat": bool(instance.in_combat),
+	}
+	var spell_ids: Array[int] = []
+	for id_value: Variant in instance.classic_spell_ids:
+		var spell_id: int = abs(int(id_value))
+		if spell_id > 0 and not spell_ids.has(spell_id):
+			spell_ids.append(spell_id)
+	if not spell_ids.is_empty():
+		metadata["classicSpellIds"] = spell_ids
+	destination[spell_name] = metadata
 
 
 static func _expression(pattern: String) -> RegEx:

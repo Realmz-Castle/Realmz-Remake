@@ -848,8 +848,8 @@ func _read_item_context(campaign_root: String) -> Dictionary:
 
 func _read_spell_context() -> Dictionary:
 	var spell_book: Dictionary = {}
-	# Installation runs before the staged campaign is loaded. Read only the
-	# declarative identity fields so materialization never executes spell code.
+	# Source builds read declarative identity fields. Exported PCKs fall back to
+	# compiled resource metadata because the original script text is unavailable.
 	SpellResourceCatalogScript.merge_directory(SHARED_SPELL_DIRECTORY, spell_book)
 	return spell_book
 

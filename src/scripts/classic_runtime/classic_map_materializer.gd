@@ -633,7 +633,7 @@ func _build_stock_land_tileset_plan(
 			),
 		}
 	var source_path := str(STOCK_LANDLOOK_ATLASES.get(landlook, ""))
-	var source := Image.load_from_file(ProjectSettings.globalize_path(source_path))
+	var source := _load_bundled_image(source_path)
 	var expected_size := Vector2i(
 		CUSTOM_LAND_COLUMNS * CUSTOM_LAND_TILE_SIZE,
 		CUSTOM_LAND_ROWS * CUSTOM_LAND_TILE_SIZE
@@ -1334,7 +1334,7 @@ func _build_dungeon_tileset_plan(
 
 	# Data DL cells are bitfields. One tile per field value keeps the native atlas
 	# compact while retaining combinations that share the same visible sprites.
-	var source := Image.load_from_file(ProjectSettings.globalize_path(DUNGEON_SOURCE_ATLAS))
+	var source := _load_bundled_image(DUNGEON_SOURCE_ATLAS)
 	if source == null or source.is_empty():
 		return {
 			"status": "error",
@@ -1404,6 +1404,13 @@ func _build_dungeon_tileset_plan(
 		},
 		"templates": templates,
 	}
+
+
+func _load_bundled_image(resource_path: String) -> Image:
+	var texture := ResourceLoader.load(resource_path) as Texture2D
+	if texture == null:
+		return null
+	return texture.get_image()
 
 
 func _render_dungeon_tile(source: Image, field: int) -> Image:

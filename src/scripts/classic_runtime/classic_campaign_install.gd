@@ -8,6 +8,7 @@ const ReadinessScript = preload(
 const CampaignAdmissionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_admission.gd"
 )
+const ClassicItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 
 const REQUIRED_NATIVE_MAP_FILES := [
 	"map_info.json",
@@ -71,7 +72,8 @@ func load_from_campaigns_directory(
 	if not _merge_resource_book(
 		"res://shared_assets/items/stuff_book.json",
 		native_context["items"],
-		"item"
+		"item",
+		true
 	):
 		return false
 	if not _merge_resource_book(
@@ -97,12 +99,19 @@ func load_from_campaigns_directory(
 	return true
 
 
-func _merge_resource_book(path: String, destination: Dictionary, resource_kind: String) -> bool:
+func _merge_resource_book(
+	path: String,
+	destination: Dictionary,
+	resource_kind: String,
+	add_classic_item_ids := false
+) -> bool:
 	if not FileAccess.file_exists(path):
 		return true
 	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not (value is Dictionary):
 		return _fail("Native %s book is not a JSON object: %s" % [resource_kind, path])
+	if add_classic_item_ids:
+		value = ClassicItemIdsScript.new().enrich_item_book(value)
 	destination.merge(value, true)
 	return true
 

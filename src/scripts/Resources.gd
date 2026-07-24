@@ -316,43 +316,7 @@ func load_item_resources(
 
 
 func _shared_item_book_with_classic_ids(item_book: Dictionary) -> Dictionary:
-	var enriched_book := item_book.duplicate(true)
-	var mapping_source := ClassicItemIdsScript.new()
-	var mapping_value: Variant = mapping_source.get("mapping")
-	if not (mapping_value is Dictionary):
-		return enriched_book
-	var ids_by_catalog_key: Dictionary = {}
-	for item_id_value: Variant in mapping_value:
-		var item_id: int = abs(int(item_id_value))
-		var catalog_key := str(mapping_value[item_id_value])
-		if item_id == 0 or not enriched_book.has(catalog_key):
-			continue
-		if not ids_by_catalog_key.has(catalog_key):
-			ids_by_catalog_key[catalog_key] = []
-		var item_ids: Array = ids_by_catalog_key[catalog_key]
-		if not item_ids.has(item_id):
-			item_ids.append(item_id)
-	for catalog_key: String in ids_by_catalog_key:
-		var source_value: Variant = enriched_book[catalog_key]
-		if not (source_value is Dictionary):
-			continue
-		var source: Dictionary = source_value
-		var merged_ids: Array = []
-		if source.has("classicItemId"):
-			merged_ids.append(abs(int(source["classicItemId"])))
-		var authored_aliases: Variant = source.get("classicItemIds", [])
-		if authored_aliases is Array:
-			for authored_id_value: Variant in authored_aliases:
-				var authored_id: int = abs(int(authored_id_value))
-				if authored_id != 0 and not merged_ids.has(authored_id):
-					merged_ids.append(authored_id)
-		for mapped_id_value: Variant in ids_by_catalog_key[catalog_key]:
-			var mapped_id: int = abs(int(mapped_id_value))
-			if mapped_id != 0 and not merged_ids.has(mapped_id):
-				merged_ids.append(mapped_id)
-		source["classicItemId"] = merged_ids[0]
-		source["classicItemIds"] = merged_ids
-	return enriched_book
+	return ClassicItemIdsScript.new().enrich_item_book(item_book)
 
 
 func _without_existing_campaign_item_definitions(
