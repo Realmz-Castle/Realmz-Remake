@@ -1,0 +1,496 @@
+{
+  "contract": {
+    "format": "realmz-remake-item-instance",
+    "formatVersion": 1,
+    "definitionRequired": [
+      "definitionId",
+      "catalogKey",
+      "source",
+      "name",
+      "unidentifiedName",
+      "description",
+      "type",
+      "imageKey",
+      "soundKey",
+      "defaultIdentified",
+      "gameplay",
+      "hooks",
+      "classic"
+    ],
+    "instanceRequired": [
+      "instanceId",
+      "definitionId",
+      "charges",
+      "equipped",
+      "identified",
+      "stateData"
+    ],
+    "serializationRequired": [
+      "format",
+      "formatVersion",
+      "instanceId",
+      "definitionId",
+      "state"
+    ],
+    "definitionDefaults": {
+      "unidentifiedName": "$name",
+      "description": "",
+      "soundKey": "",
+      "defaultIdentified": true,
+      "gameplay": {
+        "magical": 0,
+        "hands": 0,
+        "unique": 0,
+        "deleteOnEmpty": 0,
+        "slots": [],
+        "equippable": 0,
+        "dropsOnDefeat": false,
+        "onlyUsableByClasses": [],
+        "notUsableByClasses": [],
+        "onlyUsableByRaces": [],
+        "notUsableByRaces": [],
+        "stats": {},
+        "statsSummary": "",
+        "initialCharges": 0,
+        "maxCharges": 0,
+        "tradeable": 1,
+        "baseWeight": 0,
+        "price": 0,
+        "weightPerCharge": 0,
+        "splittable": 0,
+        "ammoType": "cantuse",
+        "weaponDamage": {},
+        "meleeAnimation": "",
+        "taggedWeaponDamage": {},
+        "extraData": {}
+      },
+      "hooks": {
+        "sources": {},
+        "spellUses": {},
+        "traits": [],
+        "meleeInflictedTraits": []
+      },
+      "classic": {
+        "itemIds": [],
+        "itemCategory": null,
+        "recordId": null,
+        "record": {},
+        "materialization": {}
+      }
+    },
+    "instanceDefaults": {
+      "charges": "$definition.gameplay.initialCharges",
+      "equipped": false,
+      "identified": "$definition.defaultIdentified",
+      "stateData": {}
+    },
+    "forbiddenSerializedKeys": [
+      "texture",
+      "script",
+      "_on_equipping",
+      "_on_unequipping",
+      "_on_field_use",
+      "_on_combat_use",
+      "_on_drop",
+      "_calculate_melee_attack",
+      "_calculate_melee_accuracy"
+    ],
+    "migrationOrder": [
+      "ISY-410",
+      "ISY-411",
+      "ISY-412",
+      "ISY-413",
+      "ISY-414",
+      "ISY-415",
+      "ISY-416"
+    ]
+  },
+  "catalogCases": [
+    {
+      "caseId": "shared-dagger",
+      "sourceArtifact": {
+        "path": "res://shared_assets/items/stuff_book.json",
+        "catalogKey": "Dagger"
+      },
+      "sourceSubset": {
+        "name": "Dagger",
+        "type": "Dagger",
+        "img_ptr": "ITEM_Dagger",
+        "sound": "metal hit.wav",
+        "weight": 5,
+        "price": 5,
+        "hands": 1,
+        "equippable": 1
+      },
+      "definition": {
+        "definitionId": "shared:Dagger",
+        "catalogKey": "Dagger",
+        "source": {
+          "scope": "shared",
+          "campaignId": "",
+          "path": "res://shared_assets/items/stuff_book.json"
+        },
+        "name": "Dagger",
+        "unidentifiedName": "Dagger",
+        "description": "A fine blade.",
+        "type": "Dagger",
+        "imageKey": "ITEM_Dagger",
+        "soundKey": "metal hit.wav",
+        "defaultIdentified": false,
+        "gameplay": {
+          "magical": 0,
+          "hands": 1,
+          "unique": 0,
+          "deleteOnEmpty": 0,
+          "slots": [
+            "Melee Weapon"
+          ],
+          "equippable": 1,
+          "dropsOnDefeat": false,
+          "onlyUsableByClasses": [],
+          "notUsableByClasses": [],
+          "onlyUsableByRaces": [],
+          "notUsableByRaces": [],
+          "stats": {},
+          "statsSummary": "No special properties",
+          "initialCharges": 0,
+          "maxCharges": 0,
+          "tradeable": 1,
+          "baseWeight": 5,
+          "price": 5,
+          "weightPerCharge": 0,
+          "splittable": 0,
+          "ammoType": "cantuse",
+          "weaponDamage": {
+            "Physical": [
+              1,
+              4
+            ]
+          },
+          "meleeAnimation": "ATK_WPN",
+          "taggedWeaponDamage": {},
+          "extraData": {}
+        },
+        "hooks": {
+          "sources": {},
+          "spellUses": {},
+          "traits": [],
+          "meleeInflictedTraits": []
+        },
+        "classic": {
+          "itemIds": [],
+          "itemCategory": null,
+          "recordId": null,
+          "record": {},
+          "materialization": {}
+        }
+      },
+      "instance": {
+        "instanceId": "fixture-shared-dagger-1",
+        "definitionId": "shared:Dagger",
+        "charges": 0,
+        "equipped": true,
+        "identified": true,
+        "stateData": {}
+      },
+      "serialized": {
+        "format": "realmz-remake-item-instance",
+        "formatVersion": 1,
+        "instanceId": "fixture-shared-dagger-1",
+        "definitionId": "shared:Dagger",
+        "state": {
+          "charges": 0,
+          "equipped": true,
+          "identified": true,
+          "data": {}
+        }
+      }
+    },
+    {
+      "caseId": "campaign-classic-personal-items",
+      "sourceArtifact": {
+        "path": "res://Campaigns/City of Bywater/Items/stuff_book.json",
+        "catalogKey": "Personal Items"
+      },
+      "sourceSubset": {
+        "name": "Personal Items",
+        "classicItemId": 807,
+        "type": "Misc. Item",
+        "img_ptr": "ITEM_Bag_of_Rocks",
+        "sound": "cloth armor.wav",
+        "weight": 225,
+        "price": -1
+      },
+      "definition": {
+        "definitionId": "classic:scenario-city-of-bywater:807",
+        "catalogKey": "Personal Items",
+        "source": {
+          "scope": "campaign",
+          "campaignId": "scenario-city-of-bywater",
+          "path": "res://Campaigns/City of Bywater/Items/stuff_book.json"
+        },
+        "name": "Personal Items",
+        "unidentifiedName": "Personal Items",
+        "description": "These things belonged to the blacksmiths son.",
+        "type": "Misc. Item",
+        "imageKey": "ITEM_Bag_of_Rocks",
+        "soundKey": "cloth armor.wav",
+        "defaultIdentified": false,
+        "gameplay": {
+          "magical": 0,
+          "hands": 0,
+          "unique": 0,
+          "deleteOnEmpty": 0,
+          "slots": [
+            "supply item"
+          ],
+          "equippable": 0,
+          "dropsOnDefeat": false,
+          "onlyUsableByClasses": [],
+          "notUsableByClasses": [],
+          "onlyUsableByRaces": [],
+          "notUsableByRaces": [],
+          "stats": {},
+          "statsSummary": "stats_mini placeholder",
+          "initialCharges": 0,
+          "maxCharges": 0,
+          "tradeable": 1,
+          "baseWeight": 225,
+          "price": -1,
+          "weightPerCharge": 0,
+          "splittable": 0,
+          "ammoType": "cantuse",
+          "weaponDamage": {},
+          "meleeAnimation": "",
+          "taggedWeaponDamage": {},
+          "extraData": {}
+        },
+        "hooks": {
+          "sources": {},
+          "spellUses": {},
+          "traits": [],
+          "meleeInflictedTraits": []
+        },
+        "classic": {
+          "itemIds": [
+            807
+          ],
+          "itemCategory": null,
+          "recordId": null,
+          "record": {},
+          "materialization": {}
+        }
+      },
+      "instance": {
+        "instanceId": "fixture-cob-personal-items-1",
+        "definitionId": "classic:scenario-city-of-bywater:807",
+        "charges": 0,
+        "equipped": false,
+        "identified": false,
+        "stateData": {}
+      },
+      "serialized": {
+        "format": "realmz-remake-item-instance",
+        "formatVersion": 1,
+        "instanceId": "fixture-cob-personal-items-1",
+        "definitionId": "classic:scenario-city-of-bywater:807",
+        "state": {
+          "charges": 0,
+          "equipped": false,
+          "identified": false,
+          "data": {}
+        }
+      }
+    }
+  ],
+  "legacyImportCases": [
+    {
+      "caseId": "self-contained-custom-item",
+      "legacyDictionary": {
+        "name": "Traveler's Compass",
+        "unidentified_name": "Odd Compass",
+        "description": "A custom compass carried in an old character file.",
+        "type": "Misc. Item",
+        "img_ptr": "ITEM_Custom_Compass",
+        "sound": "metal hit.wav",
+        "is_magical": 1,
+        "weight": 2,
+        "price": 75,
+        "slots": [
+          "supply item"
+        ],
+        "hands": 0,
+        "equippable": 0,
+        "stats": {},
+        "stats_mini": "Points toward a remembered place",
+        "charges": 2,
+        "charges_max": 3,
+        "is_identified": 1,
+        "equipped": 0,
+        "imgdata": "H4sIAAAAAAAAEwMAAAAAAAAAAAA=",
+        "imgdatasize": 0,
+        "_on_field_use_source": "return true",
+        "texture": "__runtime_texture__",
+        "_on_field_use": "__compiled_gdscript__",
+        "script": "__runtime_script__"
+      },
+      "definition": {
+        "definitionId": "embedded:sha256:91c24f50ce5d53f7af999eb8c5a4d82057405672cba4823b79553ef49029afc9",
+        "catalogKey": "Traveler's Compass",
+        "source": {
+          "scope": "embedded",
+          "campaignId": "",
+          "path": ""
+        },
+        "name": "Traveler's Compass",
+        "unidentifiedName": "Odd Compass",
+        "description": "A custom compass carried in an old character file.",
+        "type": "Misc. Item",
+        "imageKey": "embedded",
+        "soundKey": "metal hit.wav",
+        "defaultIdentified": true,
+        "gameplay": {
+          "magical": 1,
+          "hands": 0,
+          "unique": 0,
+          "deleteOnEmpty": 0,
+          "slots": [
+            "supply item"
+          ],
+          "equippable": 0,
+          "dropsOnDefeat": false,
+          "onlyUsableByClasses": [],
+          "notUsableByClasses": [],
+          "onlyUsableByRaces": [],
+          "notUsableByRaces": [],
+          "stats": {},
+          "statsSummary": "Points toward a remembered place",
+          "initialCharges": 3,
+          "maxCharges": 3,
+          "tradeable": 1,
+          "baseWeight": 2,
+          "price": 75,
+          "weightPerCharge": 0,
+          "splittable": 0,
+          "ammoType": "cantuse",
+          "weaponDamage": {},
+          "meleeAnimation": "",
+          "taggedWeaponDamage": {},
+          "extraData": {}
+        },
+        "hooks": {
+          "sources": {
+            "_on_field_use_source": "return true"
+          },
+          "spellUses": {},
+          "traits": [],
+          "meleeInflictedTraits": []
+        },
+        "classic": {
+          "itemIds": [],
+          "itemCategory": null,
+          "recordId": null,
+          "record": {},
+          "materialization": {}
+        },
+        "media": {
+          "encoding": "gzip+base64-png",
+          "data": "H4sIAAAAAAAAEwMAAAAAAAAAAAA=",
+          "bytes": 0
+        },
+        "digest": "91c24f50ce5d53f7af999eb8c5a4d82057405672cba4823b79553ef49029afc9"
+      },
+      "instance": {
+        "instanceId": "fixture-embedded-compass-1",
+        "definitionId": "embedded:sha256:91c24f50ce5d53f7af999eb8c5a4d82057405672cba4823b79553ef49029afc9",
+        "charges": 2,
+        "equipped": false,
+        "identified": true,
+        "stateData": {}
+      },
+      "serialized": {
+        "format": "realmz-remake-item-instance",
+        "formatVersion": 1,
+        "instanceId": "fixture-embedded-compass-1",
+        "definitionId": "embedded:sha256:91c24f50ce5d53f7af999eb8c5a4d82057405672cba4823b79553ef49029afc9",
+        "state": {
+          "charges": 2,
+          "equipped": false,
+          "identified": true,
+          "data": {}
+        },
+        "embeddedDefinition": {
+          "definitionId": "embedded:sha256:91c24f50ce5d53f7af999eb8c5a4d82057405672cba4823b79553ef49029afc9",
+          "catalogKey": "Traveler's Compass",
+          "source": {
+            "scope": "embedded",
+            "campaignId": "",
+            "path": ""
+          },
+          "name": "Traveler's Compass",
+          "unidentifiedName": "Odd Compass",
+          "description": "A custom compass carried in an old character file.",
+          "type": "Misc. Item",
+          "imageKey": "embedded",
+          "soundKey": "metal hit.wav",
+          "defaultIdentified": true,
+          "gameplay": {
+            "magical": 1,
+            "hands": 0,
+            "unique": 0,
+            "deleteOnEmpty": 0,
+            "slots": [
+              "supply item"
+            ],
+            "equippable": 0,
+            "dropsOnDefeat": false,
+            "onlyUsableByClasses": [],
+            "notUsableByClasses": [],
+            "onlyUsableByRaces": [],
+            "notUsableByRaces": [],
+            "stats": {},
+            "statsSummary": "Points toward a remembered place",
+            "initialCharges": 3,
+            "maxCharges": 3,
+            "tradeable": 1,
+            "baseWeight": 2,
+            "price": 75,
+            "weightPerCharge": 0,
+            "splittable": 0,
+            "ammoType": "cantuse",
+            "weaponDamage": {},
+            "meleeAnimation": "",
+            "taggedWeaponDamage": {},
+            "extraData": {}
+          },
+          "hooks": {
+            "sources": {
+              "_on_field_use_source": "return true"
+            },
+            "spellUses": {},
+            "traits": [],
+            "meleeInflictedTraits": []
+          },
+          "classic": {
+            "itemIds": [],
+            "itemCategory": null,
+            "recordId": null,
+            "record": {},
+            "materialization": {}
+          },
+          "media": {
+            "encoding": "gzip+base64-png",
+            "data": "H4sIAAAAAAAAEwMAAAAAAAAAAAA=",
+            "bytes": 0
+          },
+          "digest": "91c24f50ce5d53f7af999eb8c5a4d82057405672cba4823b79553ef49029afc9"
+        }
+      },
+      "discardedRuntimeKeys": [
+        "texture",
+        "_on_field_use",
+        "script"
+      ]
+    }
+  ]
+}
