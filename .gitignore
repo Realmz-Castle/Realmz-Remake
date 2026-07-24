@@ -1,6 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
 
+# Local environment settings and credentials
+.env
+
 # Godot-specific ignores
 [Pp]ublish/
 
@@ -41,5 +44,3 @@ src/Profiles/Default Profile/Characters/*
 src/Profiles/Default Profile/Saves/*
 !src/Profiles/Default Profile/Saves/.gitkeep
 !src/Profiles/Default Profile/Characters/.gitkeep
-
-# Git LFS ignores

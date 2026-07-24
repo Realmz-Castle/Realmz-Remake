@@ -15,7 +15,6 @@ You can find latest releases [here](https://github.com/Realmz-Castle/Realmz-Rema
 ### Prerequisites
 
 [Godot 4.7.1](https://godotengine.org/download/archive/4.7.1-stable/)
-[Git LFS](https://git-lfs.com)
 
 ### Classic scenario compatibility
 
