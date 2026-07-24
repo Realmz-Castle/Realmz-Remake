@@ -77,6 +77,24 @@ func _run_smoke() -> void:
 		[1.0, 6.0],
 		"producer weapon maps to a native damage range"
 	)
+	var generated_blade := GameGlobal.generate_item("Classic Item 902")
+	var second_generated_blade := GameGlobal.generate_item("Classic Item 902")
+	_expect_equal(
+		generated_blade.get("classicItemId"),
+		902,
+		"normal item factory resolves the producer weapon through its catalog key"
+	)
+	generated_blade["weapon_dmg"]["Physical"][0] = 99.0
+	_expect_equal(
+		second_generated_blade.get("weapon_dmg", {}).get("Physical"),
+		[1.0, 6.0],
+		"normal item factory creates independent mutable item dictionaries"
+	)
+	_expect_equal(
+		blade.get("weapon_dmg", {}).get("Physical"),
+		[1.0, 6.0],
+		"item factory mutations do not alter the loaded legacy template"
+	)
 
 	var campaign_directory := campaigns_directory.path_join(CAMPAIGN_NAME)
 	var bundle = BundleScript.new()

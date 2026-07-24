@@ -17,11 +17,13 @@ const NativeEncounterBookScript = preload(
 const ClassicMagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
 )
+const ItemCatalogScript = preload("res://scripts/items/item_catalog.gd")
 var g_scripts = {}
 
 var images_book : Dictionary = {}
 var tiles_book : Dictionary = {}	#contains data about the tiles used in maps
 var items_book : Dictionary = {}	# contains models of standard items.
+var item_catalog: ItemCatalog = ItemCatalogScript.new()
 var crea_book: Dictionary = {}	# contains dicts defining creatures for combat.
 var battles_book : Dictionary = {}	# contains dicts defining battles.
 var creascripts_book : Dictionary = {}	#a  dict of  scriptname:creature ai gdscript
@@ -58,6 +60,7 @@ func clear_ressources() -> void:
 	maps_book.clear()
 	map_info_book.clear()
 	items_book.clear()
+	item_catalog.clear()
 	sounds_book.clear()
 	musics_book.clear()
 	musics_types_book.clear()
@@ -190,53 +193,204 @@ func load_tile_resources( path : String ) -> void:
 	print("Done loading tiles from : ", path)
 	return
 
-func load_item_resources( path : String ) -> void:
+func load_item_resources(path: String, campaign_id := "") -> bool:
 	# load the item data at the "path" location
-	var n_item_img_pack : Dictionary = {}
 	print("Resources.load_item_resources("+path+')')
 	var load_from_pack : bool = path.contains("shared_assets")
 	if not path.begins_with("res://") and load_from_pack :
 		path = "res://"+path
 	print("   path changed to : "+path)
-	
-	n_item_img_pack = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path + "img_pack.json"))
-	var texture_atlas : Image = Image.new()
+	var image_book_path := path + "img_pack.json"
+	var item_book_path := path + "stuff_book.json"
+	var image_book_result := _read_item_json_object(image_book_path)
+	if not bool(image_book_result.get("ok", false)):
+		push_error(str(image_book_result.get("error", "Item image book is invalid")))
+		return false
+	var item_book_result := _read_item_json_object(item_book_path)
+	if not bool(item_book_result.get("ok", false)):
+		push_error(str(item_book_result.get("error", "Item definition book is invalid")))
+		return false
+	var n_item_img_pack: Dictionary = image_book_result["value"]
+	var n_item_stuff_book: Dictionary = item_book_result["value"]
+	if not _validate_item_image_book(n_item_img_pack, image_book_path):
+		return false
+	var source_scope := "shared" if load_from_pack else "campaign"
+	if source_scope == "campaign" and campaign_id.strip_edges().is_empty():
+		campaign_id = _item_campaign_id(path)
+	var available_image_keys := {}
+	for loaded_image_key: Variant in images_book:
+		available_image_keys[loaded_image_key] = true
+	for local_image_key: Variant in n_item_img_pack:
+		available_image_keys[local_image_key] = true
+	if not item_catalog.load_book(
+		n_item_stuff_book,
+		source_scope,
+		campaign_id,
+		item_book_path,
+		available_image_keys,
+	):
+		_report_item_catalog_errors()
+		return false
+
+	var texture_atlas: Image = Image.new()
 	var texture_atlas_path: String = path+"textureAtlas.png"
-	
-	
 	if load_from_pack :  #loaded from inside
-		#texture_atlas = load(texture_atlas_path)
 		print("load_item_resources load_from_pack  :  ", texture_atlas_path)
 		texture_atlas = load(texture_atlas_path)
 	else :	#loaded from campaign data
 		print("load_item_resources not load_from_pack  :  ", texture_atlas_path)
-		var _err = texture_atlas.load(texture_atlas_path)
-		
+		var atlas_error := texture_atlas.load(texture_atlas_path)
+		if atlas_error != OK:
+			push_error(
+				"%s: could not load item texture atlas: %s"
+				% [texture_atlas_path, error_string(atlas_error)]
+			)
+			return false
+	if texture_atlas == null or texture_atlas.is_empty():
+		push_error("%s: item texture atlas is empty" % texture_atlas_path)
+		return false
 
-	for i in n_item_img_pack :
+	var staged_images := {}
+	for image_key: String in n_item_img_pack:
 		# Get position inside  texture atlas #
-		var rect = Rect2(n_item_img_pack[i]["0_ref_x"] * 34+1, n_item_img_pack[i]["0_ref_y"] * 34+1, 32, 32)
+		var rect := Rect2(
+			int(n_item_img_pack[image_key]["0_ref_x"]) * 34 + 1,
+			int(n_item_img_pack[image_key]["0_ref_y"]) * 34 + 1,
+			32,
+			32,
+		)
 		# Create a new texture for this thing #
-		var image = texture_atlas.get_region(rect)
+		var image := texture_atlas.get_region(rect)
 		# Loads texture from texture atlas #
-		var texture = ImageTexture.create_from_image(image) #,0
-		images_book[i] = {}
-		images_book[i]["img"] = image
-		images_book[i]["tex"] = texture
+		var texture := ImageTexture.create_from_image(image)
+		staged_images[image_key] = {"img": image, "tex": texture}
+	images_book.merge(staged_images, true)
 
-	var n_item_stuff_book : Dictionary = {}
-	n_item_stuff_book = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path +"stuff_book.json"))
-#	print("\nloaded n_item_stuff_book ?\n")
-#	print(n_item_stuff_book)
-
-	for item_key in n_item_stuff_book :
-		var new_item = generate_item_from_json_dict(n_item_stuff_book[item_key])
+	var staged_item_book := {}
+	for item_key: String in n_item_stuff_book:
+		var new_item: Dictionary = generate_item_from_json_dict(
+			n_item_stuff_book[item_key]
+		)
 		new_item["KEY"] = item_key
-		n_item_stuff_book[item_key] = new_item
-#		print("done loading item "+new_item["name"]  )
-	for item_key in n_item_stuff_book :
-		items_book[item_key] = n_item_stuff_book[item_key]
-#	var folderpath : String = Paths.realmzfolderpath + "Campaigns"
+		staged_item_book[item_key] = new_item
+		var definition_id := item_catalog.resolve_catalog_key(
+			source_scope,
+			campaign_id,
+			item_key,
+		)
+		if definition_id.is_empty() \
+				or not item_catalog.bind_legacy_template(definition_id, new_item):
+			_report_item_catalog_errors()
+			return false
+	items_book.merge(staged_item_book, true)
+	return true
+
+
+func create_item_instance(
+	item_identity: String,
+	overrides: Dictionary = {},
+) -> ItemInstance:
+	var definition_id := item_identity
+	if item_catalog.get_definition(definition_id) == null:
+		definition_id = item_catalog.resolve_active_catalog_key(item_identity)
+	var instance := item_catalog.create_instance(definition_id, overrides)
+	if instance == null:
+		_report_item_catalog_errors()
+	return instance
+
+
+func generate_item_from_catalog(
+	catalog_key: String,
+	overrides: Dictionary = {},
+) -> Dictionary:
+	var item := item_catalog.create_legacy_item_for_catalog_key(catalog_key, overrides)
+	if item.is_empty():
+		_report_item_catalog_errors()
+	return item
+
+
+func _read_item_json_object(file_path: String) -> Dictionary:
+	if not FileAccess.file_exists(file_path):
+		return {
+			"ok": false,
+			"error": "%s: file does not exist" % file_path,
+		}
+	var parser := JSON.new()
+	var parse_error := parser.parse(FileAccess.get_file_as_string(file_path))
+	if parse_error != OK:
+		return {
+			"ok": false,
+			"error": "%s:%d: %s" % [
+				file_path,
+				parser.get_error_line(),
+				parser.get_error_message(),
+			],
+		}
+	if not (parser.data is Dictionary):
+		return {
+			"ok": false,
+			"error": "%s: root value must be a JSON object" % file_path,
+		}
+	return {"ok": true, "value": parser.data}
+
+
+func _validate_item_image_book(image_book: Dictionary, source_path: String) -> bool:
+	for image_key_value: Variant in image_book:
+		var image_key := str(image_key_value)
+		var image_value: Variant = image_book[image_key_value]
+		if not (image_value is Dictionary):
+			push_error("%s[%s]: image entry must be an object" % [source_path, image_key])
+			return false
+		for coordinate_name: String in ["0_ref_x", "0_ref_y"]:
+			if not image_value.has(coordinate_name) \
+					or not _item_value_is_integer(image_value[coordinate_name]):
+				push_error(
+					"%s[%s].%s: must be an integer"
+					% [source_path, image_key, coordinate_name]
+				)
+				return false
+	return true
+
+
+func _item_campaign_id(item_directory: String) -> String:
+	var campaign_directory := item_directory.trim_suffix("/").get_base_dir()
+	var manifest_path := campaign_directory.path_join("campaign.json")
+	if FileAccess.file_exists(manifest_path):
+		var manifest_result := _read_item_json_object(manifest_path)
+		if bool(manifest_result.get("ok", false)):
+			var manifest: Dictionary = manifest_result["value"]
+			var manifest_id := str(manifest.get("id", "")).strip_edges()
+			if not manifest_id.is_empty():
+				return manifest_id
+	var folder_name := campaign_directory.get_file().strip_edges().to_lower()
+	var slug := ""
+	var pending_separator := false
+	for index: int in folder_name.length():
+		var character := folder_name.substr(index, 1)
+		if character.to_ascii_buffer()[0] in range(97, 123) \
+				or character.to_ascii_buffer()[0] in range(48, 58):
+			if pending_separator and not slug.is_empty():
+				slug += "-"
+			slug += character
+			pending_separator = false
+		else:
+			pending_separator = true
+	if slug.is_empty():
+		slug = "campaign"
+	return "scenario-%s" % slug
+
+
+func _report_item_catalog_errors() -> void:
+	for message: String in item_catalog.last_errors:
+		push_error(message)
+
+
+static func _item_value_is_integer(value: Variant) -> bool:
+	if value is int:
+		return true
+	if value is float:
+		return is_equal_approx(value, float(int(value)))
+	return false
 
 
 func load_bestiary_resources( path : String ) -> void:

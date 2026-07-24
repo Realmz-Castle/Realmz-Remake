@@ -1769,9 +1769,7 @@ func calculate_range_v(vect : Vector2)->int :
 	return floor(d*1.5+ x-d +y-d)
 
 func generate_item(itemname : String) -> Dictionary :
-	var itemtemplate = NodeAccess.__Resources().items_book[itemname]
-	var itemcopy : Dictionary = itemtemplate.duplicate(true)
-	return itemcopy
+	return NodeAccess.__Resources().generate_item_from_catalog(itemname)
 
 #updates the current_map_script_name according to stuff done flags that disable or change the AP
 #returns false iff AP should not be executed due to chance  (or disabled if chance==0)
