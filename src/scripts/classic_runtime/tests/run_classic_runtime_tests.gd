@@ -2113,9 +2113,17 @@ class SpawnTestButton:
 	extends RefCounted
 	var creature: Variant
 	var bgsprite = SpawnTestBackground.new()
+	var presentation_events: Array = []
 
 	func set_creature_represented(value: Variant) -> void:
 		creature = value
+
+	func prepare_classic_spawn_animation() -> void:
+		presentation_events.append("prepared")
+
+	func play_classic_spawn_animation() -> Variant:
+		presentation_events.append("animated")
+		return null
 
 
 class SpawnTestScene:
@@ -2398,6 +2406,7 @@ func _init() -> void:
 	_test_classic_learned_spell_identity()
 	_test_item_actions()
 	_test_take_gold_action()
+	_test_classic_warning_catalog()
 	_test_give_condition_action()
 	_test_item_mutation_rules()
 	_test_equipment_storage_rules()
@@ -22742,6 +22751,11 @@ func _test_take_gold_action() -> void:
 	_expect_equal(command.get("command"), "take_party_wealth", "opcode 33 requests native payment")
 	_expect_equal(command.get("payload", {}).get("currency"), 0, "positive amount requests gold")
 	_expect_equal(command.get("payload", {}).get("amount"), 7, "payment preserves authored amount")
+	_expect_equal(
+		command.get("payload", {}).get("warningId"),
+		50,
+		"payment preserves Classic's insufficient-funds warning"
+	)
 	var success_branch: Dictionary = interpreter.resume_wealth_payment(true)
 	_expect_equal(
 		success_branch.get("payload", {}).get("messageId"),
@@ -22815,6 +22829,31 @@ func _test_take_gold_action() -> void:
 	_expect_equal(adapter.commands[2].get("payload", {}).get("messageId"), 901, "host resumes payment branch")
 	_expect_equal(host_completions.size(), 1, "host completes Take Gold branch")
 	host.queue_free()
+
+
+func _test_classic_warning_catalog() -> void:
+	var adapter = GodotAdapterScript.new()
+	var expected_messages := {
+		50: "The party does not have enough gold.",
+		96: "You may now use the 3D or look down view.",
+		97: "You may now use the 3D view only.",
+		98: "Your compass will now function again.",
+		99: "Your compass will not function here.",
+		106: "Banking available.  All wealth left in the pool will be banked.",
+		118: "Having fled the battle, the enemy remains to challange you another time.",
+		124: "You all loose victory points for this cowardly display.",
+	}
+	for warning_id: int in expected_messages:
+		_expect_equal(
+			adapter.classic_warning_message(warning_id),
+			expected_messages[warning_id],
+			"Classic warning %d preserves its built-in STR# 3 text" % warning_id
+		)
+	_expect_equal(
+		adapter.classic_warning_message(999),
+		"",
+		"unknown Classic warnings remain progression-safe"
+	)
 
 
 func _test_give_condition_action() -> void:
@@ -24755,8 +24794,33 @@ func _test_native_combat_command_host() -> void:
 	_expect_equal(responses[0]["response"].get("spawned"), 2, "native spawn extends live roster")
 	_expect_equal(native_map.creatures_node.children.size(), 2, "native spawn adds combat buttons")
 	_expect_equal(adapter.played_sounds, [640, 640], "native spawn plays one sound per creature")
+	_expect_equal(
+		responses[0]["response"].get("presentation"),
+		{
+			"style": "classic-conjuration",
+			"animated": 2,
+			"soundRepeats": 2,
+			"events": [
+				{"spawnIndex": 0, "event": "sound", "soundId": 640},
+				{"spawnIndex": 0, "event": "conjuration"},
+				{"spawnIndex": 1, "event": "sound", "soundId": 640},
+				{"spawnIndex": 1, "event": "conjuration"},
+			],
+		},
+		"native spawn records Classic's per-creature sound-then-conjuration order"
+	)
+	_expect_equal(
+		adapter.last_classic_spawn_presentation,
+		responses[0]["response"].get("presentation"),
+		"native spawn retains a plain presentation trace for nested-host acceptance"
+	)
 	for spawned_button: Variant in responses[0]["response"].get("combatants", []):
 		_expect_equal(spawned_button.creature.curFaction, 3, "native spawn inherits macro actor faction")
+		_expect_equal(
+			spawned_button.presentation_events,
+			["prepared", "animated"],
+			"native spawn prepares each combatant before its conjuration reveal"
+		)
 
 	commands.clear()
 	responses.clear()

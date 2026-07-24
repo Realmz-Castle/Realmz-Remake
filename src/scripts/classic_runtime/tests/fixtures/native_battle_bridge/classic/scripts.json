@@ -38,11 +38,29 @@
       "actions": [
         {"slot": 0, "rawCode": 121, "code": 121, "id": 0, "label": "De-animate lower undead", "category": "combat", "gosub": false}
       ]
+    },
+    {
+      "id": "Data ED3:macro:901",
+      "source": "Data ED3",
+      "levelType": null,
+      "levelIndex": null,
+      "recordIndex": 901,
+      "active": true,
+      "doorid": 30000,
+      "landid": 0,
+      "targetX": 0,
+      "targetY": 0,
+      "percent": 0,
+      "coordinate": null,
+      "actions": [
+        {"slot": 0, "rawCode": 124, "code": 124, "id": 3, "label": "Spawn", "category": "combat", "gosub": false}
+      ]
     }
   ],
   "extraCodes": [
     {"id": 1, "values": [10, 0, 0, 0, 0]},
-    {"id": 2, "values": [24, 0, 0, 0, 5]}
+    {"id": 2, "values": [24, 0, 0, 0, 5]},
+    {"id": 3, "values": [0, 78, 2, 640, 1]}
   ],
   "messages": [
     {"id": 900, "text": "The party returns to the snowy road."}

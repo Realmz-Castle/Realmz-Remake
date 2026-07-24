@@ -2,13 +2,15 @@ extends Node
 
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const AcceptanceAssets = preload(
+	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
+)
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
-const DefaultIcon = preload("res://scenes/UI/Main Menu/DefaultIcon.png")
-const DefaultPortrait = preload("res://scenes/UI/Main Menu/DefaultPortrait.png")
 
 const OUTER_TRIGGER := "Data DD:0:200"
 const COMBAT_MACRO_TRIGGER := "Data ED3:macro:900"
+const COMBAT_SPAWN_TRIGGER := "Data ED3:macro:901"
 const BATTLE_ID := 24
 const RETURN_MESSAGE := "The party returns to the snowy road."
 
@@ -19,6 +21,7 @@ const RETURN_MESSAGE := "The party returns to the snowy road."
 var host: ClassicRuntimeHost
 var automated_smoke := false
 var smoke_failures: Array[String] = []
+var smoke_capture_directory := ""
 var initial_position := Vector2i.ZERO
 
 
@@ -30,6 +33,8 @@ func _start_playtest() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument == "--smoke":
 			automated_smoke = true
+		elif argument.begins_with("--capture="):
+			smoke_capture_directory = argument.trim_prefix("--capture=")
 		else:
 			campaign_directory = argument
 	if automated_smoke:
@@ -88,17 +93,46 @@ func _start_playtest() -> void:
 	if not automated_smoke:
 		await _wait_frames(90)
 
+	var spawn_actor: Variant = StateMachine.combat_state.all_battle_creatures_btns[0]
+	var spawn_creature: Variant = spawn_actor.get("creature")
+	var spawn_result: Dictionary = await host.run_queued_combat_macro(
+		{"triggerId": COMBAT_SPAWN_TRIGGER},
+		{
+			"actorFaction": int(spawn_creature.get("curFaction")),
+			"actorPosition": spawn_creature.get("position"),
+		}
+	)
+	var roster_after_spawn := StateMachine.combat_state.all_battle_creatures_btns.size()
+	var spawn_presentation: Dictionary = \
+		host.command_adapter.last_classic_spawn_presentation
+	_verify_stage(
+		"03_spawn_presentation",
+		bool(spawn_result.get("handled", false))
+			and str(spawn_result.get("result", {}).get("status", "")) == "completed"
+			and roster_after_spawn == roster_before + 2
+			and int(spawn_presentation.get("animated", 0)) == 2
+			and int(spawn_presentation.get("soundRepeats", 0)) == 2
+			and spawn_presentation.get("events", []) == [
+				{"spawnIndex": 0, "event": "sound", "soundId": 640},
+				{"spawnIndex": 0, "event": "conjuration"},
+				{"spawnIndex": 1, "event": "sound", "soundId": 640},
+				{"spawnIndex": 1, "event": "conjuration"},
+			],
+		"opcode 124 reveals two native combatants in Classic sound-then-effect order"
+	)
+	await _capture_smoke_stage("03_spawn_presentation")
+
 	var macro_result: Dictionary = await host.run_queued_combat_macro({
 		"triggerId": COMBAT_MACRO_TRIGGER,
 	})
 	var roster_after := StateMachine.combat_state.all_battle_creatures_btns.size()
 	_verify_stage(
-		"03_combat_macro",
+		"04_combat_macro",
 		bool(macro_result.get("handled", false))
 			and str(macro_result.get("result", {}).get("status", "")) == "completed"
 			and roster_after == roster_before - 2
-			and StateMachine.combat_state.battle_dead_enemies.size() == 2,
-		"the compiled combat macro removes both Zombies through native roster and reward handling"
+			and StateMachine.combat_state.battle_dead_enemies.size() == 4,
+		"the compiled combat macro removes the original and conjured Zombies through native roster and reward handling"
 	)
 	if not automated_smoke:
 		await _wait_frames(90)
@@ -114,38 +148,38 @@ func _request_victory() -> void:
 
 func _finish_victory_smoke() -> void:
 	if not await _wait_for_treasure():
-		_fail("04_victory_cleanup", "the victory loot screen did not open")
+		_fail("05_victory_cleanup", "the victory loot screen did not open")
 		_finish_smoke()
 		return
 	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 	if not await _wait_for_allies():
-		_fail("04_victory_cleanup", "the post-battle allies screen did not open")
+		_fail("05_victory_cleanup", "the post-battle allies screen did not open")
 		_finish_smoke()
 		return
 	UI.ow_hud.alliesCtrl.okbutton.pressed.emit()
 	if not await _wait_for_return_message():
-		_fail("05_outer_resume", "the outer action list did not resume")
+		_fail("06_outer_resume", "the outer action list did not resume")
 		_finish_smoke()
 		return
 	_verify_stage(
-		"04_victory_cleanup",
+		"05_victory_cleanup",
 		not StateMachine.is_combat_state() and GameGlobal.currentmap_name == "map_0",
 		"victory completes the native loot and allies sequence before returning to exploration"
 	)
 	_verify_stage(
-		"05_outer_resume",
+		"06_outer_resume",
 		UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(RETURN_MESSAGE),
 		"victory resumes the authored outer message"
 	)
 	UI.ow_hud.textRect.disablerButton.pressed.emit()
 	if not await _wait_for_playthrough_completion():
-		_fail("06_map_return", "the outer action list did not complete")
+		_fail("07_map_return", "the outer action list did not complete")
 		_finish_smoke()
 
 
 func _on_playthrough_completed(result: Dictionary) -> void:
 	_verify_stage(
-		"06_map_return",
+		"07_map_return",
 		str(result.get("status", "")) == "completed"
 			and str(result.get("reason", "")) == "keep-codes"
 			and GameGlobal.currentmap_name == "map_0"
@@ -182,8 +216,8 @@ func _create_playtest_party() -> void:
 			"level": 6,
 			"exp_tnl": 10000,
 		},
-		DefaultIcon,
-		DefaultPortrait,
+		AcceptanceAssets.player_icon(),
+		AcceptanceAssets.classic_portrait_257(),
 		RogueClass,
 		HumanRace
 	)
@@ -273,3 +307,15 @@ func _fail(stage_name: String, detail: String) -> void:
 
 func _finish_smoke() -> void:
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _capture_smoke_stage(stage_name: String) -> void:
+	if smoke_capture_directory.is_empty():
+		return
+	DirAccess.make_dir_recursive_absolute(smoke_capture_directory)
+	await RenderingServer.frame_post_draw
+	var image := get_viewport().get_texture().get_image()
+	var file_name := "battle_bridge_%s.png" % stage_name.to_snake_case()
+	var error := image.save_png(smoke_capture_directory.path_join(file_name))
+	if error != OK:
+		_fail("capture:%s" % stage_name, "the visual fixture could not be saved")

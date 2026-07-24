@@ -1,5 +1,8 @@
 extends Node
 
+const AcceptanceAssets = preload(
+	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
+)
 const InstallerScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
 )
@@ -8,9 +11,7 @@ const PRODUCER_EXPORT := \
 const CAMPAIGN_NAME := "providence_authoritative_export"
 const CAMPAIGN_TITLE := "Providence Ownership Proof"
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
-const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
-const DefaultIcon = preload("res://scenes/UI/Main Menu/DefaultIcon.png")
-const DefaultPortrait = preload("res://scenes/UI/Main Menu/DefaultPortrait.png")
+const ElfRace = preload("res://Data/Character Races/Race_Elf.gd")
 
 var failures: Array[String] = []
 var installer: ClassicCampaignPackageInstaller
@@ -80,9 +81,12 @@ func _run_smoke() -> void:
 	panel._on_campaign_selected(campaign_index)
 	await get_tree().process_frame
 	var eligible_characters: Array[Node] = panel.charPickRect.eligibleContainer.get_children()
+	var eligibility_detail := "missing party entry" if eligible_characters.is_empty() \
+		else str(eligible_characters[0].tooltip_text)
 	_expect(
 		eligible_characters.size() == 1 and not eligible_characters[0].disabled,
-		"the installed campaign accepts an eligible party member"
+		"the installed campaign accepts an eligible party member: %s" \
+			% eligibility_detail
 	)
 	if eligible_characters.is_empty() or eligible_characters[0].disabled:
 		_finish()
@@ -237,10 +241,10 @@ func _create_character() -> PlayerCharacter:
 			"level": 1,
 			"exp_tnl": 10000,
 		},
-		DefaultIcon,
-		DefaultPortrait,
+		AcceptanceAssets.elf_player_icon(),
+		AcceptanceAssets.elf_player_portrait(),
 		RogueClass,
-		HumanRace
+		ElfRace
 	)
 
 

@@ -1,13 +1,14 @@
 extends Node
 
+const AcceptanceAssets = preload(
+	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
+)
 const CAMPAIGNS_DIRECTORY := \
 	"res://scripts/classic_runtime/tests/fixtures/installed_campaigns/"
 const CAMPAIGN_NAME := "campaign_ui_smoke"
 const CAMPAIGN_TITLE := "Classic Campaign UI Smoke"
 const EnchanterClass = preload("res://Data/Character Classes/Class_Enchanter.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
-const DefaultIcon = preload("res://scenes/UI/Main Menu/DefaultIcon.png")
-const DefaultPortrait = preload("res://scenes/UI/Main Menu/DefaultPortrait.png")
 
 var failures: Array[String] = []
 var original_campaigns_directory := ""
@@ -345,8 +346,8 @@ func _create_character() -> PlayerCharacter:
 			"level": 1,
 			"exp_tnl": 10000,
 		},
-		DefaultIcon,
-		DefaultPortrait,
+		AcceptanceAssets.player_icon(),
+		AcceptanceAssets.classic_portrait_257(),
 		EnchanterClass,
 		HumanRace
 	)

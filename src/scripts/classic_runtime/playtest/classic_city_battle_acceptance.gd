@@ -1,13 +1,14 @@
 extends Node
 
 const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const AcceptanceAssets = preload(
+	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
+)
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
-const DefaultIcon = preload("res://scenes/UI/Main Menu/DefaultIcon.png")
-const DefaultPortrait = preload("res://scenes/UI/Main Menu/DefaultPortrait.png")
 
 const TRIGGER_ID := "Data DD:0:30"
 # The trigger's action ID 85 selects Extra Code row 85, which resolves Battle 45.
@@ -76,8 +77,10 @@ var host: ClassicRuntimeHost
 var automated_smoke := false
 var launch_through_ui := false
 var interactive_overworld := false
+var presentation_only := false
 var acceptance_phase := ""
 var profile_root := ""
+var smoke_capture_directory := ""
 var smoke_failures: Array[String] = []
 
 
@@ -94,6 +97,8 @@ func _start_playtest() -> void:
 		elif argument == "--overworld-demo":
 			interactive_overworld = true
 			launch_through_ui = true
+		elif argument == "--presentation-only":
+			presentation_only = true
 		elif argument == "--save-phase":
 			acceptance_phase = "save"
 			launch_through_ui = true
@@ -102,6 +107,8 @@ func _start_playtest() -> void:
 			launch_through_ui = true
 		elif argument.begins_with("--profile-root="):
 			profile_root = argument.trim_prefix("--profile-root=")
+		elif argument.begins_with("--capture="):
+			smoke_capture_directory = argument.trim_prefix("--capture=")
 		else:
 			campaign_directory = argument
 	if automated_smoke:
@@ -151,6 +158,9 @@ func _start_playtest() -> void:
 			_finish_smoke()
 		return
 	if not await _present_city_splash():
+		_finish_smoke()
+		return
+	if presentation_only:
 		_finish_smoke()
 		return
 	if not await _complete_guard_house_encounter():
@@ -332,6 +342,7 @@ func _present_city_splash() -> bool:
 	)
 	if not smoke_failures.is_empty():
 		return false
+	await _capture_smoke_stage("01a_city_splash_picture")
 
 	var sound_book: Dictionary = NodeAccess.__Resources().sounds_book
 	var resolved_sound_count := 0
@@ -363,6 +374,18 @@ func _present_city_splash() -> bool:
 		"the splash's three referenced stock sounds resolve through Remake's native sound library"
 	)
 	return smoke_failures.is_empty()
+
+
+func _capture_smoke_stage(stage_name: String) -> void:
+	if smoke_capture_directory.is_empty():
+		return
+	DirAccess.make_dir_recursive_absolute(smoke_capture_directory)
+	await RenderingServer.frame_post_draw
+	var image := get_viewport().get_texture().get_image()
+	var file_name := "city_acceptance_%s.png" % stage_name.to_snake_case()
+	var error := image.save_png(smoke_capture_directory.path_join(file_name))
+	if error != OK:
+		_fail("capture:%s" % stage_name, "the visual fixture could not be saved")
 
 
 func _complete_guard_house_encounter() -> bool:
@@ -909,8 +932,8 @@ func _new_playtest_character() -> PlayerCharacter:
 			"level": 8,
 			"exp_tnl": 10000,
 		},
-		DefaultIcon,
-		DefaultPortrait,
+		AcceptanceAssets.player_icon(),
+		AcceptanceAssets.classic_portrait_257(),
 		RogueClass,
 		HumanRace
 	)

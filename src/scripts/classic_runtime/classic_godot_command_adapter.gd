@@ -62,6 +62,18 @@ const CLASSIC_TEMPLE_SERVICES := [
 ]
 const MAP_GAINED_MESSAGE := \
 	"You gain a map, to view the map use Maps/Notes in the Menu."
+# Core STR# 3 warnings are owned by the Classic runtime rather than a scenario
+# message table. Preserve their original text and spelling.
+const CLASSIC_INSUFFICIENT_FUNDS_MESSAGE := \
+	"The party does not have enough gold."
+const CLASSIC_MULTIVIEW_ENABLED_MESSAGE := \
+	"You may now use the 3D or look down view."
+const CLASSIC_MULTIVIEW_DISABLED_MESSAGE := \
+	"You may now use the 3D view only."
+const CLASSIC_COMPASS_ENABLED_MESSAGE := \
+	"Your compass will now function again."
+const CLASSIC_COMPASS_DISABLED_MESSAGE := \
+	"Your compass will not function here."
 # Core STR# 3 warning 106 follows opcode 49 after the bank control is enabled.
 const CLASSIC_BANKING_MESSAGE := \
 	"Banking available.  All wealth left in the pool will be banked."
@@ -71,6 +83,17 @@ const CLASSIC_COWARD_RETREAT_MESSAGE := \
 	"Having fled the battle, the enemy remains to challange you another time."
 const CLASSIC_COWARD_EXPERIENCE_MESSAGE := \
 	"You all loose victory points for this cowardly display."
+const CLASSIC_WARNING_SOUND_ID := 6000
+const CLASSIC_WARNING_MESSAGES := {
+	50: CLASSIC_INSUFFICIENT_FUNDS_MESSAGE,
+	96: CLASSIC_MULTIVIEW_ENABLED_MESSAGE,
+	97: CLASSIC_MULTIVIEW_DISABLED_MESSAGE,
+	98: CLASSIC_COMPASS_ENABLED_MESSAGE,
+	99: CLASSIC_COMPASS_DISABLED_MESSAGE,
+	106: CLASSIC_BANKING_MESSAGE,
+	118: CLASSIC_COWARD_RETREAT_MESSAGE,
+	124: CLASSIC_COWARD_EXPERIENCE_MESSAGE,
+}
 const CLASSIC_ATTRIBUTE_STATS := {
 	0: "Strength",
 	1: "Intellect",
@@ -116,6 +139,7 @@ var classic_bundle: Object
 var classic_spell_overrides: Dictionary = {}
 var classic_registered_spells: Dictionary = {}
 var classic_map_bridge = MapBridgeScript.new()
+var last_classic_spawn_presentation: Dictionary = {}
 # Opcode 100 runs in a nested host while start_battle waits on this adapter.
 # This one-shot carries its slot-8 result back to the suspended outer command.
 var _forced_battle_resume_slot := -1
@@ -371,8 +395,10 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			)
 		"teleport":
 			return await _teleport_classic_party(payload)
-		"set_view_direction", "set_view_mode":
+		"set_view_direction":
 			return classic_map_bridge.redraw_view(payload, _autoload("GameGlobal"))
+		"set_view_mode":
+			return await _set_view_mode(payload)
 		"set_map_darkness":
 			return classic_map_bridge.set_darkness(
 				payload, _autoload("GameGlobal"), _classic_campaign_resources()
@@ -398,7 +424,7 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		"rout_combat_monsters":
 			return _rout_combat_monsters(payload)
 		"spawn_combat_monsters":
-			return _spawn_combat_monsters(payload)
+			return await _spawn_combat_monsters(payload)
 		"activate_battle_round_macro":
 			return _activate_battle_round_macro(payload)
 		"end_classic_battle":
@@ -447,7 +473,7 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		"check_party_item":
 			return _check_party_item(payload)
 		"take_party_wealth":
-			return _take_party_wealth(payload)
+			return await _take_party_wealth_with_warning(payload)
 		"alter_party_items":
 			return _alter_party_items(payload)
 		"store_party_equipment":
@@ -491,6 +517,42 @@ func _wait_for_click(payload: Dictionary) -> Dictionary:
 	_play_sound(payload)
 	await text_rect.set_text(str(payload.get("prompt", "Click Mouse")), true)
 	return {}
+
+
+func classic_warning_message(warning_id: int) -> String:
+	return str(CLASSIC_WARNING_MESSAGES.get(warning_id, ""))
+
+
+func _show_classic_warning(warning_id: int) -> Dictionary:
+	var message := classic_warning_message(warning_id)
+	if message.is_empty():
+		return {
+			"warningId": warning_id,
+			"presented": false,
+		}
+	var sound_result := _play_sound({"soundId": CLASSIC_WARNING_SOUND_ID})
+	var warning_result := await _show_text({
+		"message": {"text": message},
+	})
+	if str(warning_result.get("status", "")) == "error":
+		return warning_result
+	return {
+		"warningId": warning_id,
+		"presented": true,
+		"soundId": CLASSIC_WARNING_SOUND_ID,
+		"soundResult": sound_result,
+	}
+
+
+func _set_view_mode(payload: Dictionary) -> Dictionary:
+	var result := classic_map_bridge.redraw_view(payload, _autoload("GameGlobal"))
+	if str(result.get("status", "")) == "error":
+		return result
+	var warning_result := await _show_classic_warning(
+		int(payload.get("warningId", 0))
+	)
+	result["warningPresentation"] = warning_result
+	return result
 
 
 func _show_classic_picture(payload: Dictionary) -> Dictionary:
@@ -774,6 +836,7 @@ func _rout_combat_monsters(payload: Dictionary) -> Dictionary:
 
 
 func _spawn_combat_monsters(payload: Dictionary) -> Dictionary:
+	last_classic_spawn_presentation.clear()
 	var context := _combat_context()
 	if context.has("error"):
 		return _error(str(context["error"]))
@@ -808,8 +871,42 @@ func _spawn_combat_monsters(payload: Dictionary) -> Dictionary:
 	)
 	if str(result.get("status", "")) == "error":
 		return result
-	for _spawn_index: int in range(int(result.get("spawned", 0))):
-		_play_sound({"soundId": int(payload.get("soundId", 0))})
+	var spawned_combatants: Variant = result.get("combatants", [])
+	if not (spawned_combatants is Array):
+		return _error("Classic combat spawn returned an invalid combatant list")
+	for combatant_value: Variant in spawned_combatants:
+		if combatant_value is Object \
+				and combatant_value.has_method("prepare_classic_spawn_animation"):
+			combatant_value.prepare_classic_spawn_animation()
+	var presentation_events: Array = []
+	var animated_count := 0
+	var sound_id := int(payload.get("soundId", 0))
+	for spawn_index: int in spawned_combatants.size():
+		if sound_id != 0:
+			_play_sound({"soundId": sound_id})
+			presentation_events.append({
+				"spawnIndex": spawn_index,
+				"event": "sound",
+				"soundId": sound_id,
+			})
+		var combatant: Variant = spawned_combatants[spawn_index]
+		if combatant is Object and combatant.has_method("play_classic_spawn_animation"):
+			var animation_finished: Variant = combatant.play_classic_spawn_animation()
+			if animation_finished is Signal:
+				await animation_finished
+			animated_count += 1
+			presentation_events.append({
+				"spawnIndex": spawn_index,
+				"event": "conjuration",
+			})
+	var presentation := {
+		"style": "classic-conjuration",
+		"animated": animated_count,
+		"soundRepeats": int(result.get("spawned", 0)) if sound_id != 0 else 0,
+		"events": presentation_events,
+	}
+	result["presentation"] = presentation
+	last_classic_spawn_presentation = presentation.duplicate(true)
 	return result
 
 
@@ -3253,13 +3350,13 @@ func _enable_banking(payload: Dictionary) -> Dictionary:
 	game_global.allow_banking(true)
 	_play_sound(payload)
 	var warning_id := int(payload.get("warningId", 0))
-	if warning_id == 106:
-		var warning_result := await _show_text({
-			"message": {"text": CLASSIC_BANKING_MESSAGE},
-		})
-		if str(warning_result.get("status", "")) == "error":
-			return warning_result
-	return {"warningId": warning_id}
+	var warning_result := await _show_classic_warning(warning_id)
+	if str(warning_result.get("status", "")) == "error":
+		return warning_result
+	return {
+		"warningId": warning_id,
+		"warningPresentation": warning_result,
+	}
 
 
 func classic_party_has_item(item_id: int, item_texts: Array = []) -> Dictionary:
@@ -3303,6 +3400,20 @@ func _take_party_wealth(payload: Dictionary) -> Dictionary:
 		_refresh_party_panels(party)
 	else:
 		result["warningId"] = int(payload.get("warningId", 0))
+	return result
+
+
+func _take_party_wealth_with_warning(payload: Dictionary) -> Dictionary:
+	var result := _take_party_wealth(payload)
+	if str(result.get("status", "")) == "error" \
+			or bool(result.get("paid", false)):
+		return result
+	var warning_result := await _show_classic_warning(
+		int(result.get("warningId", payload.get("warningId", 0)))
+	)
+	if str(warning_result.get("status", "")) == "error":
+		return warning_result
+	result["warningPresentation"] = warning_result
 	return result
 
 

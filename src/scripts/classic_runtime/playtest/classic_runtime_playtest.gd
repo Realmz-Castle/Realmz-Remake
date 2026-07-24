@@ -2,6 +2,9 @@ extends Node
 
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const AcceptanceAssets = preload(
+	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
+)
 const CampaignSessionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
@@ -12,6 +15,9 @@ const MagicResistanceScript = preload(
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
 const SorcererClass = preload("res://Data/Character Classes/Class_Sorcerer.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
+const PRESENTATION_PAYMENT_TRIGGER := "playtest:presentation-payment"
+const PRESENTATION_PAYMENT_FAILURE_MESSAGE := \
+	"The collector refuses to let the party pass."
 
 
 class PowerDrainSpell:
@@ -65,7 +71,9 @@ func _start_playtest() -> void:
 		else:
 			campaign_directory = argument
 	if automated_smoke:
-		get_window().size = Vector2i(1152, 648)
+		get_window().size = Vector2i(1100, 619) \
+			if playtest_label in ["presentation", "guard-house", "lock"] \
+			else Vector2i(1152, 648)
 
 	UI.show_only(UI.ow_hud)
 	UI.ow_hud.textRect.show()
@@ -75,7 +83,7 @@ func _start_playtest() -> void:
 			or not test_spell_name.is_empty() \
 			or not test_effect_spell_name.is_empty() \
 			or not test_item_name.is_empty() \
-			or playtest_label == "services":
+			or playtest_label in ["services", "presentation"]:
 		var resources: CampaignResources = NodeAccess.__Resources()
 		if test_rogue_stat >= 0.0 and resources.items_book.is_empty():
 			resources.load_item_resources("res://shared_assets/items/")
@@ -109,6 +117,10 @@ func _start_playtest() -> void:
 	if playtest_label == "services":
 		GameGlobal.money_pool = [100, 1, 0]
 		GameGlobal.money_banked = [800, 3, 2]
+	if playtest_label == "presentation":
+		GameGlobal.money_pool = [0, 0, 0]
+		for character: PlayerCharacter in GameGlobal.player_characters:
+			character.money = [0, 0, 0]
 	if playtest_label == "equipment":
 		campaign_session = CampaignSessionScript.new()
 		add_child(campaign_session)
@@ -137,6 +149,8 @@ func _start_playtest() -> void:
 		_install_shop_playtest_data()
 	if playtest_label == "equipment":
 		_install_equipment_playtest_data()
+	if playtest_label == "presentation":
+		_install_presentation_playtest_data()
 	if not host.start_trigger(trigger_id, start_slot):
 		_show_status("Classic trigger failed to start: %s" % trigger_id, true)
 		return
@@ -174,6 +188,9 @@ func _run_automated_smoke() -> void:
 		return
 	if playtest_label == "equipment":
 		await _run_equipment_smoke()
+		return
+	if playtest_label == "presentation":
+		await _run_presentation_smoke()
 		return
 	if playtest_label == "character-pick":
 		await _run_character_pick_smoke()
@@ -229,6 +246,7 @@ func _run_automated_smoke() -> void:
 	if not choices_ready:
 		get_tree().quit(1)
 		return
+	await _capture_smoke_stage("02_simple_encounter_choices")
 	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("4")
 	await _wait_frames(3)
 	_verify_smoke_stage(
@@ -381,6 +399,97 @@ func _run_services_smoke() -> void:
 	UI.ow_hud._on_temple_button_pressed()
 	await _wait_frames(2)
 	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_presentation_smoke() -> void:
+	var warning_visible := await _wait_for_modal_text(
+		AdapterScript.CLASSIC_INSUFFICIENT_FUNDS_MESSAGE
+	)
+	_verify_smoke_stage(
+		"01_insufficient_funds_warning",
+		warning_visible
+			and host.active
+			and UI.ow_hud.textRect.disablerButton.has_focus()
+			and GameGlobal.money_pool == [0, 0, 0]
+			and GameGlobal.player_characters[0].money == [0, 0, 0],
+		"warning 50 pauses the failure continuation without changing party wealth"
+	)
+	await _capture_smoke_stage("01_insufficient_funds_warning")
+	_press_modal_accept()
+	var failure_visible := await _wait_for_modal_text(
+		PRESENTATION_PAYMENT_FAILURE_MESSAGE
+	)
+	_verify_smoke_stage(
+		"02_keyboard_acknowledgement",
+		failure_visible and host.active,
+		"keyboard acknowledgement resumes the authored payment failure"
+	)
+	_press_modal_accept()
+	_verify_smoke_stage(
+		"03_payment_completion",
+		await _wait_for_host_inactive(),
+		"the payment action completes after its warning and authored continuation"
+	)
+
+	await _run_view_warning_smoke(
+		"Data DD:7:72",
+		1,
+		99,
+		"04_compass_disabled"
+	)
+	await _run_view_warning_smoke(
+		"Data DD:7:73",
+		0,
+		98,
+		"05_compass_enabled"
+	)
+	await _run_view_warning_smoke(
+		"Data DD:7:85",
+		0,
+		96,
+		"06_multiview_enabled"
+	)
+	await _run_view_warning_smoke(
+		"Data DD:7:84",
+		0,
+		97,
+		"07_multiview_disabled"
+	)
+	_verify_smoke_stage(
+		"08_resolution",
+		get_window().size == Vector2i(1100, 619),
+		"native acknowledgement pacing remains usable at the minimum supported resolution"
+	)
+	get_tree().quit(0 if smoke_failures.is_empty() else 1)
+
+
+func _run_view_warning_smoke(
+	source_trigger_id: String,
+	source_start_slot: int,
+	warning_id: int,
+	stage_name: String
+) -> void:
+	var started: bool = bool(host.start_trigger(source_trigger_id, source_start_slot))
+	var expected_text: String = str(
+		host.command_adapter.classic_warning_message(warning_id)
+	)
+	var warning_visible := false
+	if started:
+		warning_visible = await _wait_for_modal_text(expected_text)
+	_verify_smoke_stage(
+		stage_name,
+		warning_visible
+			and host.active
+			and UI.ow_hud.textRect.disablerButton.has_focus(),
+		"Classic warning %d pauses the source-backed view change in the native HUD" \
+			% warning_id
+	)
+	_press_modal_accept()
+	_verify_smoke_stage(
+		"%s_completion" % stage_name,
+		await _wait_for_host_inactive(),
+		"keyboard acknowledgement resumes Classic warning %d" % warning_id
+	)
 
 
 func _run_equipment_smoke() -> void:
@@ -1328,8 +1437,8 @@ func _make_playtest_rogue() -> PlayerCharacter:
 			"level": 1,
 			"exp_tnl": 10000,
 		},
-		null,
-		null,
+		AcceptanceAssets.player_icon(),
+		AcceptanceAssets.classic_portrait_257(),
 		RogueClass,
 		HumanRace
 	)
@@ -1358,8 +1467,8 @@ func _make_playtest_spellcaster() -> PlayerCharacter:
 			"level": 1,
 			"exp_tnl": 10000,
 		},
-		null,
-		null,
+		AcceptanceAssets.player_icon(),
+		AcceptanceAssets.classic_portrait_257(),
 		SorcererClass,
 		HumanRace
 	)
@@ -1458,6 +1567,28 @@ func _install_equipment_playtest_triggers() -> void:
 	}
 
 
+func _install_presentation_playtest_data() -> void:
+	var bundle = host.runtime.bundle
+	bundle.extra_codes_by_id[980] = {
+		"id": 980,
+		"values": [7, 0, -1, 0, 0],
+	}
+	bundle.messages_by_id[981] = {
+		"id": 981,
+		"text": PRESENTATION_PAYMENT_FAILURE_MESSAGE,
+	}
+	bundle.triggers_by_id[PRESENTATION_PAYMENT_TRIGGER] = {
+		"id": PRESENTATION_PAYMENT_TRIGGER,
+		"source": "Presentation playtest",
+		"recordIndex": -1,
+		"active": true,
+		"actions": [
+			{"slot": 0, "rawCode": 33, "code": 33, "id": 980, "gosub": false},
+			{"slot": 7, "rawCode": 1, "code": 1, "id": 981, "gosub": false},
+		],
+	}
+
+
 func _wait_frames(frame_count: int) -> void:
 	for _frame: int in frame_count:
 		await get_tree().process_frame
@@ -1471,6 +1602,39 @@ func _wait_for_choices() -> bool:
 			return true
 	push_error("Classic %s smoke timed out waiting for encounter choices" % playtest_label)
 	return false
+
+
+func _wait_for_modal_text(expected_text: String) -> bool:
+	for _frame: int in 120:
+		await get_tree().process_frame
+		if UI.ow_hud.textRect.disablerButton.visible \
+				and UI.ow_hud.textRect.textLabel.get_parsed_text() == expected_text:
+			return true
+	push_error(
+		"Classic %s smoke timed out waiting for modal text: %s" \
+			% [playtest_label, expected_text]
+	)
+	return false
+
+
+func _wait_for_host_inactive() -> bool:
+	for _frame: int in 120:
+		await get_tree().process_frame
+		if not host.active:
+			return true
+	push_error("Classic %s smoke timed out waiting for host completion" % playtest_label)
+	return false
+
+
+func _press_modal_accept() -> void:
+	var press := InputEventAction.new()
+	press.action = "ui_accept"
+	press.pressed = true
+	Input.parse_input_event(press)
+	var release := InputEventAction.new()
+	release.action = "ui_accept"
+	release.pressed = false
+	Input.parse_input_event(release)
 
 
 func _wait_for_character_picker() -> bool:

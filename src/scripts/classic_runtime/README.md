@@ -141,7 +141,7 @@ Opcode `54` copies a compiled timed encounter into compatibility-owned state bef
 
 Combat opcodes `121`, `123`, `125`, and `127` use the live native roster. Opcodes `121` and `123` select Data MD record IDs; opcodes `125` and `127` compare the separate monster name byte. Spawned combatants preserve both values, and name-byte checks do not fall back to a record ID when the values differ. Presence checks ignore defeated creatures. Monster destruction and lower-undead deanimation remove combatants through Remake's normal combat-state method, and hostile removals remain eligible for battle rewards. Rout filters its five compiled monster record IDs to the acting creature's faction and applies Remake's permanent fleeing trait, which switches each match to the native retreat AI. An explicit actor faction can be supplied for queued and on-death macros; otherwise the adapter uses the active native combatant. Once a routed combatant reaches the battlefield's outer inset, native cleanup removes it from the live roster and initiative without firing a death macro; Classic's ally sentinel still prevents the exit. Routed hostiles remain eligible for normal battle rewards, while routed allies do not. Opcode `100` ends its combat macro as a forced victory through Remake's normal battle cleanup, using an experience-only reward mode that omits defeated-enemy money and items. The adapter carries Classic's slot-8 sentinel through the native battle result so the suspended outer action point ends without running any remaining actions.
 
-Opcode `124` resolves its compiled monster and fixed or inclusive-random count, then creates native combatants near the macro actor and adds them to the live roster and initiative order. It preserves Classic's battle-lifetime 100-monster slot ceiling, explicit faction override, actor-faction inheritance for direct and queued macros, and template faction for battle-round macros. Removed monsters do not reopen slots. Spawn sounds repeat once per successfully created monster. The battle bridge captures the dead actor's position and faction before removal, then supplies them when it drains the death-macro queue; other macro entry points fall back to the active combatant when no actor context is available. The native placement is functional, but does not reproduce Classic's conjuration animation.
+Opcode `124` resolves its compiled monster and fixed or inclusive-random count, then creates native combatants near the macro actor and adds them to the live roster and initiative order. It preserves Classic's battle-lifetime 100-monster slot ceiling, explicit faction override, actor-faction inheritance for direct and queued macros, and template faction for battle-round macros. Removed monsters do not reopen slots. Each successfully created combatant starts hidden, plays its authored sound, and then receives a short native conjuration reveal before the next combatant begins, preserving Classic's per-creature sound-then-effect order. The neutral opacity-and-scale effect restores the creature's original modulation instead of tinting its artwork. The battle bridge captures the dead actor's position and faction before removal, then supplies them when it drains the death-macro queue; other macro entry points fall back to the active combatant when no actor context is available.
 
 Opcode `126` evaluates a battle macro against the number of completed rounds or an inclusive percent roll, selects its fixed or random Data ED3 target, and preserves repeating schedules while clearing one-shot schedules from the live battle data. The battle bridge invokes it at native round boundaries and supplies the current one-based combat round and live battle-macro value as execution context. The seven City of Bywater uses cover exact-round and repeating chance forms.
 
@@ -153,7 +153,7 @@ Generated land maps turn source-backed `needBoat=1` cells into native boat place
 
 Look Direction updates that persisted heading and requests a native view refresh before the action point continues. Authored directions `1` through `4` are used directly; other values select one of those four directions at random, matching Classic. The map bridge now redraws the native map for view and compass changes; Remake's current top-down renderer does not otherwise expose Classic's heading, multiview, or fixed-view presentation.
 
-Compass and map-view actions preserve Classic's separate compass, multiview, and signed `viewtype` fields. Requiring 3D changes `viewtype` from `-1` to `1`; allowing the full map does not force the current view to change. Their command payloads preserve the source warning IDs and redraw intent. Darkland and land-look changes are keyed by map and use each compiled random-level record as their initial value. An authored no-change guard ends a Darkland action point before later slots, matching Classic. The map bridge applies darkness to both the loaded map and its native resource entry, but selecting a different landlook still requires an exported native tileset. Random-encounter changes address Classic's 20 fixed rectangle slots even when an unused zero-valued row is omitted from the normalized bundle; negative battle IDs leave the existing low or high bound unchanged. Compatible native random areas receive their updated bounds, per-10,000 chance, and battle range. Trigger percentages update matching native Action Point areas. Replayed Action Point replacements remove the obsolete native rectangle and project the effective coordinate, chance, and stable trigger ID. Tile mutations copy the matching stack from a cached reference cell in the compiled/native map pair; that immutable palette deliberately survives native resource reloads so replay stays independent of both earlier changes and replay count.
+Compass and map-view actions preserve Classic's separate compass, multiview, and signed `viewtype` fields. Requiring 3D changes `viewtype` from `-1` to `1`; allowing the full map does not force the current view to change. The map redraw occurs before the corresponding built-in warning `96` through `99`, and the action list waits for native mouse or keyboard acknowledgement. Darkland and land-look changes are keyed by map and use each compiled random-level record as their initial value. An authored no-change guard ends a Darkland action point before later slots, matching Classic. The map bridge applies darkness to both the loaded map and its native resource entry, but selecting a different landlook still requires an exported native tileset. Random-encounter changes address Classic's 20 fixed rectangle slots even when an unused zero-valued row is omitted from the normalized bundle; negative battle IDs leave the existing low or high bound unchanged. Compatible native random areas receive their updated bounds, per-10,000 chance, and battle range. Trigger percentages update matching native Action Point areas. Replayed Action Point replacements remove the obsolete native rectangle and project the effective coordinate, chance, and stable trigger ID. Tile mutations copy the matching stack from a cached reference cell in the compiled/native map pair; that immutable palette deliberately survives native resource reloads so replay stays independent of both earlier changes and replay count.
 
 The complex-encounter adapter exposes the eight Classic action-text fields through Remake's existing HUD choice control and routes each selection to the record's shared action result. This covers the active non-rogue library, cave-in, and pool encounters in City of Bywater. Spoken responses reuse Remake's speech input and preserve Classic's case-insensitive, first-space-terminated prefix comparison; a mismatch selects Result 4. The City of Bywater archive at `Data DD:6:28` exercises its `waterford` response, grants player map 2, removes the successful response through opcode `44`, and reopens with its remaining choices. New parties own player map 0, matching Classic's startup state. Positive map IDs use Classic's acquisition notice. Negative IDs display immediately. Records with decoded artwork use it directly; records with `pictId` zero reproduce Classic's dynamic map view from the materialized level, authored markers, and current party position. Acquired Classic records are browseable from Maps/Notes in stable ID order. A compatible native minimap remains the fallback when a campaign has no acquired Classic records. Encounters with magic responses can open Remake's native spell picker, match the selected spell against the packed Classic IDs, consume its normal spell-point cost, and continue through the paired result block. Native Scroll entries use Classic's separate scroll response, so a party does not need a conscious spellcaster to supply a spell answer. Item responses use Remake's encounter inventory picker and match ordinary items by stable Classic metadata, shared mapping, or scenario item text against the five Classic response slots. Type-20 scenario items enter the spell-response path from that item picker. Both paths consume one finite charge, and disposable items leave inventory when empty. Type-23 door items consume a charge and leave the encounter for the compiled Data ED3 action point, whose mutations are included in compatibility snapshots. Unmatched spells and ordinary items use Classic's Result 4 fallback. Low spell IDs `1` through `6` use explicit Classic spell-class metadata rather than guessing from a shared display name; the readiness report identifies a class for which no native spell exists. Mixed rogue encounters keep action, spell, scroll, and item choices beside their `Data TD2` controls. By maintainer decision, rogue lock controls use Remake's native chance interaction instead of Classic's timed tumbler minigame. Each choice identifies the selected character and computed chance; the resolver uses that character's Remake stat plus the Classic modifier, preserves Classic's 90-percent cap for interactive lock/trap actions, and routes success or failure into the four `Data ED2` result rows. Dynamic choices accept normal mouse activation and wraparound keyboard focus/navigation. Sprung trap spells use the same mapped native spell and save flow as Classic field-spell actions, with the compiled rogue-only or whole-party target mode. Consumed rogue actions persist in runtime snapshots while the compiled record remains immutable. The source-backed CoB lock at `Data DD:5:12` exercises Detect Trap, Force Lock, Pick Lock, and the Necklace of Keys response. The trapped chest at `Data DD:5:3` applies its shipped 4-12 damage to the selected rogue, clears the armed state, and leaves Pick Lock available before continuing through result 2.
 
@@ -500,7 +500,7 @@ result-path inventory does not revise the 2,734-trigger claim.
 
 The [compatibility gap register](COMPATIBILITY_GAPS.md) tracks required integration work and recommended fidelity improvements separately from opcode coverage.
 
-The interpreter will still stop explicitly when a selected encounter result contains an unsupported opcode. The standalone player-map panel currently consumes producer-decoded images and browses acquired records from Maps/Notes; terrain-composed previews, scrolling-text maps, and embedded marker overlays remain explicit follow-up modes. Producer-generated decoded media, exact native identities for scenario allies, unmigrated spell resources, and Classic combat-spawn animation remain explicit boundaries. Remake's chance-based rogue lock interaction is an intentional product choice, not an unimplemented timed-minigame fallback. The original runtime's hidden developer command words are intentionally not exposed through scenario speech input. This keeps the compatibility boundary visible while more handlers are added.
+The interpreter will still stop explicitly when a selected encounter result contains an unsupported opcode. The standalone player-map panel currently consumes producer-decoded images and browses acquired records from Maps/Notes; terrain-composed previews, scrolling-text maps, and embedded marker overlays remain explicit follow-up modes. Producer-generated decoded media, exact native identities for scenario allies, and unmigrated spell resources remain explicit boundaries. Remake's chance-based rogue lock interaction is an intentional product choice, not an unimplemented timed-minigame fallback. The original runtime's hidden developer command words are intentionally not exposed through scenario speech input. This keeps the compatibility boundary visible while more handlers are added.
 
 ## Campaign readiness report
 
@@ -599,14 +599,19 @@ required because the test waits for rendered frames and writes PNG evidence.
 
 The native battle bridge playtest starts from the same real City of Bywater
 map, applies a persistent SnowDay landlook, requests native `Battle_24`, and
-runs a compiled combat macro that removes its two Zombies from the live roster.
-Victory continues through Remake's loot and allies cleanup, resumes the outer
-Classic action list, and returns the party to its original map tile. Its smoke
-mode drives that full UI lifecycle deterministically:
+runs a compiled opcode `124` macro that adds two combatants. The smoke verifies
+the recorded sound-then-conjuration sequence for each creature and can capture
+the resulting native battle frame. A second combat macro removes the original
+and conjured Zombies from the live roster. Victory continues through Remake's
+loot and allies cleanup, resumes the outer Classic action list, and returns the
+party to its original map tile:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_battle_bridge_playtest.tscn -- --smoke
 ```
+
+Append `--capture=C:\path\to\captures` to record the post-conjuration battle
+frame.
 
 The custom-monster acceptance materializes five compiled monster definitions
 into a temporary native bestiary, starts their authored `Battle_7`, and drives
@@ -616,6 +621,14 @@ dispatch, reward cleanup, and resumption of the outer action list:
 
 ```powershell
 Godot_v4.6.2-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_custom_monster_battle_acceptance.tscn -- --smoke
+```
+
+The full City acceptance also has a bounded picture-and-sound mode. It verifies
+that decoded PICT 32128 survives all four authored messages, checks all three
+interleaved stock sounds, and stops after Redraw Screen:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_city_battle_acceptance.tscn -- "C:\path\to\city-bundle" --smoke --presentation-only --capture=C:\path\to\captures
 ```
 
 The first in-engine vertical slice loads the CoB fixture, displays `Data DD:0:0` through Remake's existing `TextRect`, presents the four source-backed `Data ED` choices and Classic's Back Out control, feeds the selected result back to the interpreter, and runs that eight-action encounter result block.
@@ -725,6 +738,19 @@ The services playtest runs CoB's compiled bank and temple actions through the na
 Godot_v4.6.2-stable_win64.exe --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn
 Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_services_playtest.tscn -- --smoke
 ```
+
+The presentation playtest covers the supported built-in warning catalog through
+the native HUD. It verifies warning `50` before the authored insufficient-funds
+continuation, source-backed view warnings `96` through `99`, keyboard focus and
+acknowledgement, unchanged party wealth, and usable layout at `1100x619`:
+
+```powershell
+Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_presentation_playtest.tscn -- --smoke
+```
+
+Append `--capture=C:\path\to\captures` to save the warning frame. The guard-house
+and lock smokes accept the same option for simple-encounter and rogue-choice
+placement evidence.
 
 The shop playtest installs a focused compiled restricted-shop record over the CoB fixture. Its smoke verifies mapped stock, inflation, both accepted-item ranges, pooled-first payment, cancellation continuation, and persistent depleted stock:
 

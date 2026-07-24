@@ -6,8 +6,12 @@ const bg11 = preload("res://scenes/Map/CreaSelection11.png")
 const bg12 = preload("res://scenes/Map/CreaSelection12.png")
 const bg21 = preload("res://scenes/Map/CreaSelection21.png")
 const bg22 = preload("res://scenes/Map/CreaSelection22.png")
+const CLASSIC_SPAWN_ANIMATION_SECONDS := 0.28
 
 var dying : bool = false
+var _classic_spawn_base_modulate := Color.WHITE
+var _classic_spawn_base_scale := Vector2.ONE
+var _classic_spawn_prepared := false
 #var prev_state : int = 0
 
 #const ATK_WPN : int = 33
@@ -170,6 +174,47 @@ func set_creature_represented(crea) : #Crea is a creature.gd instance, or a play
 	size.x = creature.size[0]*32
 	size.y = creature.size[1]*32
 #	#TODO  connect it to  owhud somehow
+
+
+func prepare_classic_spawn_animation() -> void:
+	_classic_spawn_base_modulate = modulate
+	_classic_spawn_base_scale = scale
+	pivot_offset = size * 0.5
+	modulate = Color(
+		_classic_spawn_base_modulate.r,
+		_classic_spawn_base_modulate.g,
+		_classic_spawn_base_modulate.b,
+		0.0
+	)
+	scale = _classic_spawn_base_scale * 0.55
+	_classic_spawn_prepared = true
+
+
+func play_classic_spawn_animation() -> Signal:
+	if not _classic_spawn_prepared:
+		prepare_classic_spawn_animation()
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(
+		self,
+		"modulate",
+		_classic_spawn_base_modulate,
+		CLASSIC_SPAWN_ANIMATION_SECONDS
+	)
+	tween.tween_property(
+		self,
+		"scale",
+		_classic_spawn_base_scale,
+		CLASSIC_SPAWN_ANIMATION_SECONDS
+	)
+	tween.finished.connect(func() -> void:
+		modulate = _classic_spawn_base_modulate
+		scale = _classic_spawn_base_scale
+		_classic_spawn_prepared = false
+	)
+	return tween.finished
 
 
 func _on_mouse_entered():

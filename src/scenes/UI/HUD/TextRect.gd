@@ -124,6 +124,7 @@ func set_text(text : String, _interrupt : bool = true, _sound : String = "") :
 	if _interrupt :
 #		hud.set_mouse_filter(MOUSE_FILTER_IGNORE)
 		disablerButton.show()
+		disablerButton.grab_focus()
 		#StateMachine.transition_to("WaitForClick", {"prev_state" : StateMachine._state_name})
 		Input.set_custom_mouse_cursor(UI.cursor_click)
 #		pause = true

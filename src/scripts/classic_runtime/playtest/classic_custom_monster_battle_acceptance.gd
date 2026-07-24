@@ -2,6 +2,9 @@ extends Node
 
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
 const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const AcceptanceAssets = preload(
+	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
+)
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
 const BestiaryMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_bestiary_materializer.gd"
@@ -14,8 +17,6 @@ const CombatRoutRulesScript = preload(
 )
 const RogueClass = preload("res://Data/Character Classes/Class_Assassin.gd")
 const HumanRace = preload("res://Data/Character Races/Race_Human.gd")
-const DefaultIcon = preload("res://scenes/UI/Main Menu/DefaultIcon.png")
-const DefaultPortrait = preload("res://scenes/UI/Main Menu/DefaultPortrait.png")
 
 const TRIGGER_ID := "Data DD:0:7"
 const BATTLE_ID := 7
@@ -208,8 +209,8 @@ func _create_playtest_party() -> void:
 			"level": 8,
 			"exp_tnl": 10000,
 		},
-		DefaultIcon,
-		DefaultPortrait,
+		AcceptanceAssets.player_icon(),
+		AcceptanceAssets.classic_portrait_257(),
 		RogueClass,
 		HumanRace
 	)

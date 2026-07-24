@@ -87,6 +87,17 @@ Godot_v4.6.2-stable_win64_console.exe --resolution 1100x619 `
   --smoke --ui-launch
 ```
 
+Append `--presentation-only --capture=C:\path\to\captures` to the direct smoke
+command to verify the four-message picture/sound sequence, save its PICT 32128
+presentation frame, and stop before the broader campaign route. The acceptance
+party uses Remake's non-purple
+`Human 1` map avatar and the bundled `Human 1` portrait. The portrait's decoded
+pixels match extracted Classic portrait 257 exactly. The map avatar is an
+explicit Remake test avatar because the compiled campaign does not own an
+incoming player's combat artwork. The purple `DefaultIcon` and
+`DefaultPortrait` files are Remake placeholders and are not Classic export
+references.
+
 The full disk boundary uses a disposable profile root and two separate Godot
 processes. The first process launches the installed campaign through the normal
 campaign UI, reaches the post-battle checkpoint, creates `Post Battle` through
