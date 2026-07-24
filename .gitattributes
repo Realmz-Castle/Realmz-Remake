@@ -17,3 +17,10 @@
 src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/*.json text eol=lf
 src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/classic/*.json text eol=lf
 src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/assets/managed/* binary
+
+# These compact compatibility assets must remain available to fresh branch clones
+# even when the project's external LFS store cannot accept new objects.
+"src/Data/Classic Character Roster/**/*.png" -filter -diff -merge -text
+src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/media/**/*.png -filter -diff -merge -text
+src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/media/**/*.wav -filter -diff -merge -text
+"src/shared_assets/tiles/The Family Jewels.rsf_PICT_*.png" -filter -diff -merge -text
