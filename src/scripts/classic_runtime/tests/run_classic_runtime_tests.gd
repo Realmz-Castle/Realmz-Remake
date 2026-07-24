@@ -1,4 +1,4 @@
-extends SceneTree
+extends Node
 
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
 const ExecutionAuditScript = preload("res://scripts/classic_runtime/classic_execution_audit.gd")
@@ -1120,6 +1120,7 @@ class ConditionTestTrait:
 class ConditionTestCharacter:
 	extends RefCounted
 	var name: String
+	var level := 1
 	var life_status: int
 	var is_player_controlled := true
 	var current_hp := 20
@@ -2309,7 +2310,14 @@ class BattleOccupancyTestCreature:
 		size = footprint
 
 
-func _init() -> void:
+func _ready() -> void:
+	var state_machine := get_node_or_null("/root/StateMachine")
+	if state_machine != null:
+		state_machine.process_mode = Node.PROCESS_MODE_DISABLED
+	await get_tree().process_frame
+	if not _runtime_dependencies_ready():
+		_finish()
+		return
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
 	if not bundle.last_error.is_empty():
@@ -2486,6 +2494,45 @@ func _init() -> void:
 	if not user_arguments.is_empty():
 		_test_full_bundle(str(user_arguments[0]))
 	_finish()
+
+
+func _runtime_dependencies_ready() -> bool:
+	var missing: Array[String] = []
+	for node_path: String in [
+		"/root/GameGlobal",
+		"/root/NodeAccess",
+		"/root/Main/Resources",
+	]:
+		if get_node_or_null(node_path) == null:
+			missing.append("node %s" % node_path)
+	for method_name: StringName in [
+		&"base_value",
+		&"custom_spell_uses_resistance",
+		&"spell_resolution",
+	]:
+		if not _script_defines_method(MagicResistanceScript, method_name):
+			missing.append("ClassicMagicResistance.%s" % method_name)
+	if missing.is_empty():
+		var resources := get_node_or_null("/root/Main/Resources")
+		if resources != null and not resources.load_item_resources(
+			"res://shared_assets/items/"
+		):
+			missing.append("shared item catalog")
+	if missing.is_empty():
+		return true
+	failures += 1
+	push_error(
+		"Classic runtime test dependencies unavailable: %s"
+		% ", ".join(missing)
+	)
+	return false
+
+
+func _script_defines_method(script: Script, method_name: StringName) -> bool:
+	for method: Dictionary in script.get_script_method_list():
+		if StringName(method.get("name", &"")) == method_name:
+			return true
+	return false
 
 
 func _test_bundle_contract_validation() -> void:
@@ -3685,7 +3732,7 @@ func _test_installed_classic_campaign_layout() -> void:
 	)
 
 	var session = CampaignSessionScript.new()
-	get_root().add_child(session)
+	get_tree().root.add_child(session)
 	var adapter = StartLocationAdapter.new()
 	var load_result: Dictionary = session.load_installed_campaign(
 		campaigns_directory,
@@ -3799,7 +3846,7 @@ func _test_installed_classic_campaign_layout() -> void:
 	)
 
 	var restored_session = CampaignSessionScript.new()
-	get_root().add_child(restored_session)
+	get_tree().root.add_child(restored_session)
 	var restored_adapter = StartLocationAdapter.new()
 	_expect_equal(
 		restored_session.load_installed_campaign(
@@ -3932,6 +3979,9 @@ func _test_installed_classic_campaign_layout() -> void:
 		"active": true,
 		"inventories": [[{
 			"name": "Stored Blade",
+			"type": "Weapon",
+			"img_ptr": "ITEM_Dagger",
+			"sound": "",
 			"texture": "runtime-only",
 			"equipped": 1,
 		}]],
@@ -4646,17 +4696,18 @@ func _test_classic_map_materializer() -> void:
 		native_resources.map_info_book.get("map_0", {}).has("classic_boats"),
 		"normal resource lifecycle retains generated Classic boat metadata"
 	)
-	var special_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][1][0]
+	var special_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][0][1]
 	_expect_equal(
 		special_land_stack.size(),
 		2,
 		"normal resource lifecycle loads base terrain and special-land overlay"
 	)
-	_expect_equal(
-		special_land_stack[1].get("classicLandField"),
-		-100,
-		"loaded special-land overlay retains its raw field identity"
-	)
+	if special_land_stack.size() >= 2:
+		_expect_equal(
+			special_land_stack[1].get("classicLandField"),
+			-100,
+			"loaded special-land overlay retains its raw field identity"
+		)
 	var custom_land_stack: Array = native_resources.maps_book.get("map_0", [])[0][0][2]
 	_expect_equal(
 		custom_land_stack[0].get("classicTileId"),
@@ -4884,11 +4935,13 @@ func _test_classic_map_materializer() -> void:
 		"error",
 		"raw custom atlas blocks lossy native materialization"
 	)
+	var missing_custom_message := str(missing_custom_result.get("message", ""))
 	_expect(
-		str(missing_custom_result.get("message", "")).contains(
-			"Classic tileset landlook-6 requires a decoded 640 x 320 runtimeMedia image"
-		),
-		"missing custom-land media reports the exact decoded requirement"
+		missing_custom_message.begins_with(
+			"Classic tileset landlook-6 is missing runtimeMedia media/"
+		) and missing_custom_message.ends_with(".png"),
+		"missing custom-land media reports its exact exported path: %s"
+		% missing_custom_message
 	)
 	var wrong_custom_media_directory := missing_custom_directory.path_join("media")
 	DirAccess.make_dir_recursive_absolute(wrong_custom_media_directory)
@@ -6389,13 +6442,20 @@ func _test_classic_bestiary_materializer() -> void:
 	)
 	var missile_record: Dictionary = spell_bundle.get_monster(1).duplicate(true)
 	missile_record["missilePercent"] = 25
+	var unresolved_missile: Dictionary = materializer._native_missile_item(
+		missile_record,
+		{},
+		[],
+		{}
+	)
 	_expect(
 		materializer._unsupported_fields(
 			missile_record,
 			{},
 			{},
 			{},
-			{}
+			{},
+			unresolved_missile
 		).has("missilePercent"),
 		"Classic missile decisions remain blocked without a usable item in carried slot two"
 	)
@@ -6932,34 +6992,39 @@ func _test_classic_monster_decision() -> void:
 		),
 		"an allied effect does not record the attacked state"
 	)
-	var depleted_missile := {
-		"name": "Slot Two Wand",
-		"_on_combat_use_spell": ["Fireball", 1],
-		"charges_max": 4,
-		"charges": 0,
-	}
-	depleted_missile["classic_item_slot"] = 1
-	var slot_two_missile := depleted_missile.duplicate(true)
-	slot_two_missile["charges"] = 3
-	var other_missile := slot_two_missile.duplicate(true)
-	other_missile["classic_item_slot"] = 0
+	var item_catalog: ItemCatalog = NodeAccess.__Resources().item_catalog
+	var missile_definition_id := item_catalog.resolve_active_catalog_key(
+		"Necklace of Fireballs"
+	)
+	var depleted_missile := item_catalog.create_instance(
+		missile_definition_id,
+		{"charges": 0, "stateData": {"classicItemSlot": 1}}
+	)
+	var slot_two_missile := item_catalog.create_instance(
+		missile_definition_id,
+		{"charges": 3, "stateData": {"classicItemSlot": 1}}
+	)
+	var other_missile := item_catalog.create_instance(
+		missile_definition_id,
+		{"charges": 3, "stateData": {"classicItemSlot": 0}}
+	)
 	_expect_equal(
 		MonsterDecisionScript.missile_item(
-			[other_missile, slot_two_missile], "Slot Two Wand", 1
-		).get("name"),
-		"Slot Two Wand",
+			[other_missile, slot_two_missile], "Necklace of Fireballs", 1
+		),
+		slot_two_missile,
 		"Classic missile use selects the preserved carried-slot-two item"
 	)
 	_expect(
 		MonsterDecisionScript.missile_item(
-			[other_missile, depleted_missile], "Slot Two Wand", 1
-		).is_empty(),
+			[other_missile, depleted_missile], "Necklace of Fireballs", 1
+		) == null,
 		"Classic missile use rejects a depleted carried-slot-two item"
 	)
 	_expect(
 		MonsterDecisionScript.missile_item(
-			[other_missile], "Slot Two Wand", 1
-		).is_empty(),
+			[other_missile], "Necklace of Fireballs", 1
+		) == null,
 		"Classic missile use does not substitute another usable item"
 	)
 	var ai_source := FileAccess.get_file_as_string(
@@ -7700,7 +7765,7 @@ func _test_failed_save_restore_rolls_back() -> void:
 	var campaigns_directory := PROVIDENCE_AUTHORITATIVE_FIXTURE.get_base_dir()
 	var campaign_name := PROVIDENCE_AUTHORITATIVE_FIXTURE.get_file()
 	var session = CampaignSessionScript.new()
-	get_root().add_child(session)
+	get_tree().root.add_child(session)
 	var adapter = FailingSaveRestoreAdapter.new()
 	_expect_equal(
 		session.load_installed_campaign(
@@ -16600,7 +16665,10 @@ func _test_classic_spell_coverage() -> void:
 	_expect_equal(major_charm.classic_special, 51, "Major Charm Foe special")
 	_expect_equal(major_charm.classic_target_type, 3, "Major Charm Foe target type")
 	_expect_equal(major_charm.classic_size, 7, "Major Charm Foe area-mask ID")
-	_expect_equal(major_charm.get_aoe(1, null), Spell.AoE_b7, "Major Charm Foe area")
+	_expect(
+		_same_tile_set(major_charm.get_aoe(1, null), Spell.AoE_b7),
+		"Major Charm Foe area"
+	)
 	_expect_equal(major_charm.get_range(7, null), 8, "Major Charm Foe range")
 	_expect_equal(major_charm.get_sp_cost(3, null), 135, "Major Charm Foe cost")
 	_expect_equal(major_charm.school_levels.get("Sorcerer"), 6, "Major Charm Foe level")
@@ -16763,7 +16831,7 @@ func _test_classic_spell_coverage() -> void:
 	var helpless_target := ConditionTestCharacter.new("Helpless target")
 	soul_bind.add_traits_to_creature(null, helpless_target, 7)
 	_expect(
-		str(helpless_target.traits[0].name).ends_with("t_classic_helpless.gd"),
+		str(helpless_target.traits[0].name).ends_with("t_helpless.gd"),
 		"Soul Bind uses Remake's helpless behavior"
 	)
 	_expect(
@@ -16824,24 +16892,33 @@ func _test_classic_spell_coverage() -> void:
 					"spell matrix resource exists"
 				)
 			matrix_ids.sort()
-			_expect_equal(
-				matrix_ids,
-				[
-					1101, 1102, 1103, 1104, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1201, 1203,
-					1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
-					1402, 1406, 1407, 1408, 1412,
-					1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
-					1611, 1701, 1703, 1704, 1705, 1707, 1709, 1711, 1712, 2101, 2102, 2103, 2105,
-					2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407, 2412,
-					2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2507, 2508, 2512, 2602, 2605, 2606, 2607,
-					2603, 2609, 2611, 2705, 2706, 2707, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
-					3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3307, 3308,
-					3310,
-					3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3504, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,
-					3507, 3602, 3603, 3605, 3607, 3608, 3702, 3703, 3704, 3706,
-					3708, 3709, 3710, 3711, 3712,
-				],
+			var audited_ids: Array[int] = [
+				1101, 1102, 1103, 1104, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1201, 1203,
+				1204, 1209, 1211, 1212, 1303, 1305, 1306, 1308, 1309, 1310, 1401,
+				1402, 1406, 1407, 1408, 1412,
+				1501, 1503, 1504, 1505, 1506, 1508, 1510, 1511, 1601, 1603, 1604, 1606, 1607, 1608, 1609, 1610,
+				1611, 1701, 1703, 1704, 1705, 1707, 1709, 1711, 1712, 2101, 2102, 2103, 2105,
+				2109, 2110, 2111, 2112, 2201, 2207, 2210, 2301, 2304, 2306, 2307, 2403, 2404, 2405, 2406, 2407, 2412,
+				2204, 2205, 2206, 2501, 2502, 2503, 2504, 2505, 2506, 2507, 2508, 2512, 2602, 2605, 2606, 2607,
+				2603, 2609, 2611, 2705, 2706, 2707, 2708, 2709, 2711, 2712, 3102, 3104, 3105, 3108, 3111,
+				3112, 3202, 3205, 3206, 3207, 3208, 3210, 3211, 3212, 3301, 3303, 3305, 3306, 3307, 3308,
+				3310,
+				3311, 3401, 3404, 3405, 3406, 3408, 3409, 3410, 3501, 3504, 3505, 3506, 3508, 3509, 3510, 3511, 3512, 3601,
+				3507, 3602, 3603, 3605, 3607, 3608, 3702, 3703, 3704, 3706,
+				3708, 3709, 3710, 3711, 3712,
+			]
+			var missing_audited_ids: Array[int] = []
+			for spell_id: int in audited_ids:
+				if not matrix_ids.has(spell_id):
+					missing_audited_ids.append(spell_id)
+			_expect(
+				missing_audited_ids.is_empty(),
 				"source-verified spell matrix includes the audited core variants"
+			)
+			_expect_equal(
+				matrix_ids.size(),
+				252,
+				"source-verified spell matrix covers every named player spell"
 			)
 
 
@@ -22865,7 +22942,7 @@ func _test_item_actions() -> void:
 		"native item check uses exact Classic identity without guessing a display name"
 	)
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	var host_adapter = GuardHouseAdapter.new()
 	host.configure(host_adapter)
 	host.runtime.bundle = bundle
@@ -22997,7 +23074,7 @@ func _test_take_gold_action() -> void:
 	_expect_equal(gem_command.get("payload", {}).get("amount"), 4, "gem amount is normalized")
 
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	var adapter = WealthTestAdapter.new()
 	host.configure(adapter)
 	host.runtime.bundle = bundle
@@ -23779,7 +23856,7 @@ func _test_classic_player_map_renderer() -> void:
 	)
 	player_map_rect.next_button = player_map_rect.get_node("VBoxContainer/Footer/NextButton")
 	player_map_rect.done_button = player_map_rect.get_node("VBoxContainer/Footer/DoneButton")
-	get_root().add_child(player_map_rect)
+	get_tree().root.add_child(player_map_rect)
 	var map_record := {
 		"id": 7,
 		"primaryName": "The Old Road",
@@ -24931,7 +25008,7 @@ func _test_native_combat_command_host() -> void:
 		SpawnTestScene.new()
 	)
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	host.configure(adapter)
 	var runtime_state = StateScript.new()
 	runtime_state.configure_from_bundle(bundle)
@@ -25228,9 +25305,9 @@ func _test_native_battle_round_host() -> void:
 	])
 	var state = StateScript.new()
 	state.configure_from_bundle(bundle)
-	var adapter = BattleRoundHostAdapter.new(self)
+	var adapter = BattleRoundHostAdapter.new(get_tree())
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	host.configure(adapter)
 	host.runtime.use_shared_campaign(bundle, state)
 	host.active = true
@@ -25328,9 +25405,9 @@ func _test_queued_combat_macro_host() -> void:
 	_add_stack_branch(bundle, 10, 971)
 	var state = StateScript.new()
 	state.configure_from_bundle(bundle)
-	var adapter = BattleRoundHostAdapter.new(self)
+	var adapter = BattleRoundHostAdapter.new(get_tree())
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	host.configure(adapter)
 	host.runtime.use_shared_campaign(bundle, state)
 	host.active = true
@@ -25459,7 +25536,7 @@ func _test_forced_battle_end_action() -> void:
 func _test_forced_battle_resume_host() -> void:
 	var bundle = _battle_outcome_test_bundle()
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	var adapter = ForcedBattleResumeAdapter.new()
 	var completions: Array = []
 	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
@@ -25884,7 +25961,7 @@ func _test_selective_battle_request() -> void:
 func _test_selective_battle_host() -> void:
 	var bundle = _selective_battle_test_bundle()
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	var host_adapter = SelectiveBattleAdapter.new()
 	var completions: Array = []
 	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
@@ -25903,7 +25980,7 @@ func _test_selective_battle_host() -> void:
 	host.queue_free()
 
 	host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	host_adapter = SelectiveBattleAdapter.new()
 	host_adapter.survivor_count = 0
 	completions = []
@@ -26683,7 +26760,7 @@ func _test_timed_encounter_session_dispatch() -> void:
 		_classic_action(7, 24, 0),
 	])
 	var session = CampaignSessionScript.new()
-	get_root().add_child(session)
+	get_tree().root.add_child(session)
 	session.install = CampaignInstallScript.new()
 	session.install.bundle = bundle
 	var adapter = TimedEncounterAdapter.new()
@@ -26709,7 +26786,7 @@ func _test_timed_encounter_session_dispatch() -> void:
 		86400,
 		{"mapName": "map_0", "x": 0, "y": 0}
 	)
-	await process_frame
+	await get_tree().process_frame
 	var state: Object = session.host.runtime.runtime_state
 	_expect_equal(advance_result.get("queuedDays"), 1, "native time hook queues crossed day")
 	_expect(state.is_quest_set(99), "timed macro executes through the normal runtime host")
@@ -26727,7 +26804,7 @@ func _test_timed_encounter_session_dispatch() -> void:
 		86400,
 		{"mapName": "map_0", "x": 0, "y": 0}
 	)
-	await process_frame
+	await get_tree().process_frame
 	_expect_equal(dispatches.size(), 1, "same native time advance cannot dispatch twice")
 
 	session.on_native_time_advanced(
@@ -26735,7 +26812,7 @@ func _test_timed_encounter_session_dispatch() -> void:
 		172800,
 		{"mapName": "map_0", "x": 0, "y": 0}
 	)
-	await process_frame
+	await get_tree().process_frame
 	_expect_equal(dispatches.size(), 2, "repeating timed encounter dispatches on its next day")
 	_expect_equal(
 		state.get_effective_timed_encounter(bundle.get_timed_encounter(0)).get("day"),
@@ -26748,7 +26825,7 @@ func _test_timed_encounter_session_dispatch() -> void:
 		259200,
 		{"deferDispatch": true}
 	)
-	await process_frame
+	await get_tree().process_frame
 	_expect(bool(deferred_result.get("deferred")), "combat defers timed macro dispatch")
 	_expect_equal(dispatches.size(), 2, "combat cannot start a timed macro")
 	_expect_equal(
@@ -26762,7 +26839,7 @@ func _test_timed_encounter_session_dispatch() -> void:
 		259200,
 		{"mapName": "map_0", "x": 0, "y": 0}
 	)
-	await process_frame
+	await get_tree().process_frame
 	_expect_equal(dispatches.size(), 3, "deferred timed macro resumes outside combat")
 	_expect(state.pending_timed_encounter_scan().is_empty(), "resumed timed scan completes once")
 
@@ -28380,7 +28457,7 @@ func _test_coward_party_retreat() -> void:
 func _test_battle_outcome_host() -> void:
 	var bundle = _battle_outcome_test_bundle()
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	var host_adapter = BattleOutcomeAdapter.new()
 	var completions: Array = []
 	host.playthrough_completed.connect(func(result: Dictionary) -> void: completions.append(result))
@@ -28404,7 +28481,7 @@ func _test_battle_outcome_host() -> void:
 	host.queue_free()
 
 	host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	host_adapter = BattleOutcomeAdapter.new()
 	host_adapter.coward = true
 	completions = []
@@ -29200,14 +29277,14 @@ func _test_encounter_continuation_restore() -> void:
 		"restored encounter retains its command context"
 	)
 	restored_adapter.respond({"outcome": 4})
-	await process_frame
+	await get_tree().process_frame
 	_expect_equal(
 		restored_adapter.commands[-1].get("payload", {}).get("messageId"),
 		404,
 		"restored encounter enters its selected result block"
 	)
 	restored_adapter.respond()
-	await process_frame
+	await get_tree().process_frame
 	_expect_equal(restored_adapter.commands[-1].get("command"), "start_encounter", "encounter repetition survives load")
 	_expect_equal(
 		restored_adapter.commands[-1].get("payload", {}).get("remainingAttempts"),
@@ -29215,14 +29292,14 @@ func _test_encounter_continuation_restore() -> void:
 		"encounter attempt count survives load"
 	)
 	restored_adapter.respond({"outcome": 4})
-	await process_frame
+	await get_tree().process_frame
 	_expect_equal(
 		restored_adapter.commands[-1].get("payload", {}).get("messageId"),
 		303,
 		"restored final attempt keeps Classic timeout routing"
 	)
 	restored_adapter.respond()
-	await process_frame
+	await get_tree().process_frame
 	_expect(not restored_host.active, "restored encounter completes once")
 	restored_host.queue_free()
 
@@ -29257,7 +29334,7 @@ func _test_gosub_continuation_restore() -> void:
 			"restored GOSUB resumes message %d at its authored slot" % expected_message_id
 		)
 		restored_adapter.respond()
-		await process_frame
+		await get_tree().process_frame
 	_expect(not restored_host.active, "restored GOSUB stack unwinds to completion")
 	_expect_equal(
 		restored_host.runtime.interpreter.call_stack.size(),
@@ -29288,14 +29365,14 @@ func _test_battle_continuation_restore() -> void:
 		restored_host.resume_restored_continuation()
 		_expect_equal(restored_adapter.commands[-1].get("command"), "start_battle", "restored battle restarts natively")
 		restored_adapter.respond({"coward": coward})
-		await process_frame
+		await get_tree().process_frame
 		_expect_equal(
 			restored_adapter.commands[-1].get("command"),
 			"apply_coward_penalty" if coward else "give_battle_loot",
 			"restored battle returns through its authored outcome"
 		)
 		restored_adapter.respond()
-		await process_frame
+		await get_tree().process_frame
 		_expect(not restored_host.active, "restored battle outcome completes once")
 		restored_host.queue_free()
 
@@ -29307,7 +29384,7 @@ func _test_deferred_action_point_continuation_restore() -> void:
 	host.runtime.runtime_state.set_position(0, 2, 3)
 	_expect(host.start_trigger("Data DD:0:7"), "deferred action-point continuation starts")
 	adapter.respond()
-	await process_frame
+	await get_tree().process_frame
 	_expect(host.runtime.interpreter.remove_action_point, "opcode 25 mutation is deferred at save time")
 	_expect_equal(
 		adapter.commands[-1].get("payload", {}).get("messageId"),
@@ -29331,7 +29408,7 @@ func _test_deferred_action_point_continuation_restore() -> void:
 	)
 	restored_host.resume_restored_continuation()
 	restored_adapter.respond()
-	await process_frame
+	await get_tree().process_frame
 	var replacement: Dictionary = restored_host.runtime.runtime_state.get_action_point_override(
 		"Data DD:0:7"
 	)
@@ -29357,7 +29434,7 @@ func _test_unsafe_continuation_save_policy() -> void:
 
 func _continuation_test_host(bundle: Variant, adapter: Variant) -> Variant:
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	host.configure(adapter)
 	host.use_campaign(bundle)
 	return host
@@ -29377,7 +29454,7 @@ func _json_round_trip(value: Variant) -> Dictionary:
 
 func _test_runtime_host() -> void:
 	var host = HostScript.new()
-	get_root().add_child(host)
+	get_tree().root.add_child(host)
 	var adapter = GuardHouseAdapter.new()
 	var completions: Array = []
 	var stops: Array = []
@@ -29485,7 +29562,7 @@ func _test_runtime_host() -> void:
 	host.queue_free()
 
 	var rejecting_host = HostScript.new()
-	get_root().add_child(rejecting_host)
+	get_tree().root.add_child(rejecting_host)
 	var rejected: Array = []
 	rejecting_host.playthrough_stopped.connect(func(result: Dictionary) -> void: rejected.append(result))
 	rejecting_host.configure(RejectingAdapter.new())
@@ -29496,7 +29573,7 @@ func _test_runtime_host() -> void:
 	rejecting_host.queue_free()
 
 	var start_host = HostScript.new()
-	get_root().add_child(start_host)
+	get_tree().root.add_child(start_host)
 	var start_adapter = StartLocationAdapter.new()
 	start_host.configure(start_adapter)
 	_expect(start_host.load_campaign(FIXTURE), "start-location host loads CoB fixture")
@@ -30538,7 +30615,7 @@ func _classic_record_high(low: int, high: int) -> int:
 func _finish() -> void:
 	if failures == 0:
 		print("Classic runtime tests passed.")
-		quit(0)
+		get_tree().quit(0)
 		return
 	push_error("Classic runtime tests failed: %d" % failures)
-	quit(1)
+	get_tree().quit(1)

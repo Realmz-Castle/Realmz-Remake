@@ -268,7 +268,7 @@ fixture through an absolute bundle-root path to prove that paths inside the
 artifact remain portable and relative:
 
 ```powershell
-godot --headless --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
+godot --headless --path src res://scripts/classic_runtime/tests/run_classic_runtime_tests.tscn
 ```
 
 The dedicated [Classic regression corpus](CLASSIC_REGRESSION_CORPUS.md) runs the

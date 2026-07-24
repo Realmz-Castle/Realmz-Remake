@@ -221,7 +221,7 @@ func log_new_round(rnd : int) :
 	newlabel.parse_bbcode(labeltext)
 	logbox.add_child(newlabel)
 
-func log_other_text(creaone : Creature, textone : String, creatwo : Creature ,texttwo : String) -> void :
+func log_other_text(creaone: Object, textone: String, creatwo: Object, texttwo: String) -> void:
 	var newlabel : RichTextLabel = RichTextLabel.new()
 	newlabel.custom_minimum_size = Vector2(0,24)
 	newlabel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -232,11 +232,20 @@ func log_other_text(creaone : Creature, textone : String, creatwo : Creature ,te
 	var one_name : String = ''
 	var two_name : String = ''
 	if creaone :
-		one_color = "green" if creaone.curFaction==0 else ("red" if creaone.curFaction==1 else "blue")
-		one_name = creaone.name
+		var one_faction := int(_object_property(creaone, &"curFaction", 2))
+		one_color = "green" if one_faction == 0 else ("red" if one_faction == 1 else "blue")
+		one_name = str(_object_property(creaone, &"name", ""))
 	if creatwo :
-		two_color = "green" if creatwo.curFaction==0 else ("red" if creatwo.curFaction==1 else "blue")
-		two_name = creatwo.name
+		var two_faction := int(_object_property(creatwo, &"curFaction", 2))
+		two_color = "green" if two_faction == 0 else ("red" if two_faction == 1 else "blue")
+		two_name = str(_object_property(creatwo, &"name", ""))
 	var labeltext = "[color="+one_color+"]"+one_name+"[/color][color=white]"+textone+"[/color][color="+two_color+"]"+two_name+"[/color][color=white]"+texttwo+"[/color]"
 	newlabel.parse_bbcode(labeltext)
 	logbox.add_child(newlabel)
+
+
+func _object_property(value: Object, property_name: StringName, fallback: Variant) -> Variant:
+	for property: Dictionary in value.get_property_list():
+		if StringName(property.get("name", &"")) == property_name:
+			return value.get(property_name)
+	return fallback

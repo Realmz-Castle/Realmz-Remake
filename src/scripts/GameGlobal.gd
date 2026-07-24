@@ -146,7 +146,13 @@ var map_boats_dict : Dictionary = {}
 signal battle_end
 
 func _ready():
-	map = NodeAccess.__Map()
+	call_deferred("_bind_map")
+
+
+func _bind_map() -> void:
+	var map_node := NodeAccess.__Map()
+	if map_node is Map:
+		map = map_node
 
 # UI start ------------------- #
 

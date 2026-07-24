@@ -252,8 +252,8 @@ Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
   res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd -- --json
 
 Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 `
-  --path src --script `
-  res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
+  --path src `
+  res://scripts/classic_runtime/tests/run_classic_runtime_tests.tscn
 ```
 
 The standalone report must keep all five action classifications:

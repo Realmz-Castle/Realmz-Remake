@@ -840,7 +840,7 @@ The HUD smoke intentionally uses the normal display driver because the project's
 Run the headless proof from the repository root:
 
 ```powershell
-Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/run_classic_runtime_tests.tscn
 ```
 
 Run only the checked three-scenario loader/interpreter corpus:
@@ -856,5 +856,5 @@ classifications. Use `-- --json` when a machine-readable report is needed.
 Pass the path to a full compiled bundle after `--` to run the same loader against all CoB records:
 
 ```powershell
-Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src --script res://scripts/classic_runtime/tests/run_classic_runtime_tests.gd -- "C:\path\to\realmz-remake-cob-poc-final"
+Godot_v4.7.1-stable_win64_console.exe --headless --resolution 1100x619 --path src res://scripts/classic_runtime/tests/run_classic_runtime_tests.tscn -- "C:\path\to\realmz-remake-cob-poc-final"
 ```
