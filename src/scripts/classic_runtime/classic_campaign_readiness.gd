@@ -21,6 +21,38 @@ const SCHEMA_VERSION := 1
 const BLOCKER := "progression-blocker"
 const FALLBACK := "fidelity-fallback"
 const MAX_RANDOM_TARGETS := 10000
+const SPELL_DEFINITION_FIELDS := [
+	"range1",
+	"range2",
+	"queueIcon",
+	"toHitBonus",
+	"saveBonus",
+	"fixedTargetNum",
+	"canRotate",
+	"saveAdjust",
+	"cannot",
+	"resistAdjust",
+	"cost",
+	"damage1",
+	"damage2",
+	"powerDamage1",
+	"powerDamage2",
+	"duration1",
+	"duration2",
+	"powerDuration1",
+	"powerDuration2",
+	"spellLook1",
+	"spellLook2",
+	"sound1",
+	"sound2",
+	"targetType",
+	"size",
+	"special",
+	"damageType",
+	"spellClass",
+	"inCombat",
+	"inCamp",
+]
 
 # These opcodes interpret their ID as an exact Data EDCD row number.
 const EXTRA_CODE_OPCODES := [
@@ -36,6 +68,9 @@ var _spell_mapping: Dictionary = {}
 var _sound_mapping: Dictionary = {}
 var _native_context: Dictionary = {}
 var _adapter: ClassicGodotCommandAdapter
+var _active_custom_spell_ids: Dictionary = {}
+var _campaign_id := ""
+var _campaign_name := ""
 
 
 func inspect_directory(directory: String, native_context := {}) -> Dictionary:
@@ -58,6 +93,8 @@ func inspect_directory(directory: String, native_context := {}) -> Dictionary:
 
 func inspect(bundle: ClassicCampaignBundle, native_context := {}) -> Dictionary:
 	_reset(native_context)
+	_campaign_id = str(bundle.manifest.get("id", ""))
+	_campaign_name = str(bundle.manifest.get("name", "Unknown Classic campaign"))
 	var execution_report: Dictionary = ExecutionAuditScript.new().inspect(bundle)
 	_append_execution_diagnostics(execution_report)
 	_append_evidence_diagnostics(bundle)
@@ -68,12 +105,18 @@ func inspect(bundle: ClassicCampaignBundle, native_context := {}) -> Dictionary:
 			_check_action(bundle, action_value)
 
 	_check_encounter_identities(bundle)
+	_check_active_monster_spells(bundle, execution_report)
+	_check_rule_table_selection(bundle)
+	_check_inactive_custom_spell_definitions(bundle)
 	return _build_report(bundle, execution_report)
 
 
 func _reset(native_context: Variant) -> void:
 	_diagnostics.clear()
 	_diagnostic_keys.clear()
+	_active_custom_spell_ids.clear()
+	_campaign_id = ""
+	_campaign_name = ""
 	_native_context = native_context if native_context is Dictionary else {}
 	_item_mapping = _mapping_from_script(ItemIdsScript, "mapping")
 	_spell_mapping = _mapping_from_script(SpellIdsScript, "mappings")
@@ -886,16 +929,20 @@ func _check_custom_spell_override(
 	spell_id: int,
 	usage_source: String,
 	usage_record: int,
-	owner_id := -1
+	owner_id := -1,
+	consumer := ""
 ) -> bool:
 	var spell_override := bundle.get_spell_override(spell_id)
 	if spell_override.is_empty():
 		return false
+	var record_id := int(spell_override.get("id", -1))
+	var packed_spell_id := BundleScript.packed_spell_id_for_record_id(record_id)
+	_active_custom_spell_ids[packed_spell_id] = true
 	var special: int = abs(int(spell_override.get("special", 0)))
 	if special == 0:
 		return true
 	if _has_exact_native_spell(spell_id):
-		return false
+		return true
 	var provenance: Variant = spell_override.get("provenance", {})
 	var source := "rules.spellOverrides"
 	var record_index := spell_id
@@ -909,14 +956,172 @@ func _check_custom_spell_override(
 		-1,
 		"Custom spell %d uses unsupported special behavior %d" % [spell_id, special],
 		{
-			"referenceId": spell_id,
+			"referenceId": packed_spell_id,
 			"special": special,
 			"usageSource": usage_source,
 			"usageRecordIndex": usage_record,
 			"ownerId": owner_id,
+			"consumer": consumer if not consumer.is_empty() else (
+				"%s record %d" % [usage_source, usage_record]
+			),
+			"definitionStableId": "%s:spell:%d" % [_campaign_id, record_id],
 		}
 	)
 	return true
+
+
+func _check_inactive_custom_spell_definitions(bundle: ClassicCampaignBundle) -> void:
+	var spell_ids: Array = bundle.spell_overrides_by_id.keys()
+	spell_ids.sort()
+	for spell_id_value: Variant in spell_ids:
+		var packed_spell_id := int(spell_id_value)
+		var record: Dictionary = bundle.spell_overrides_by_id[spell_id_value]
+		if _is_empty_custom_spell_definition(record) \
+				or _active_custom_spell_ids.has(packed_spell_id):
+			continue
+		var record_id := int(record.get("id", -1))
+		var provenance: Variant = record.get("provenance", {})
+		var source := "Data Spell"
+		var source_record := record_id
+		if provenance is Dictionary:
+			source = str(provenance.get("sourceFile", source))
+			source_record = int(provenance.get("recordIndex", source_record))
+		_add_fallback(
+			"inactive-custom-spell-definition",
+			source,
+			source_record,
+			-1,
+			"Custom spell %d is preserved but has no active bundle consumer" % packed_spell_id,
+			{
+				"referenceId": packed_spell_id,
+				"special": int(record.get("special", 0)),
+				"consumer": "none",
+				"definitionStableId": "%s:spell:%d" % [_campaign_id, record_id],
+			}
+		)
+
+
+func _is_empty_custom_spell_definition(record: Dictionary) -> bool:
+	for field_name: String in SPELL_DEFINITION_FIELDS:
+		if int(record.get(field_name, 0)) != 0:
+			return false
+	return true
+
+
+func _check_rule_table_selection(bundle: ClassicCampaignBundle) -> void:
+	var rules: Variant = bundle.documents.get("rules", {})
+	if not (rules is Dictionary) or not rules.has("tableSelection"):
+		return
+	var selection: Variant = rules.get("tableSelection", {})
+	if not (selection is Dictionary):
+		return
+	for specification: Array in [
+		["races", "raceOverrides", "Data Race"],
+		["castes", "casteOverrides", "Data Caste"],
+	]:
+		var table_name := str(specification[0])
+		var records: Variant = rules.get(str(specification[1]), [])
+		if not (records is Array) or records.is_empty():
+			continue
+		var table: Variant = selection.get(table_name, {})
+		if not (table is Dictionary):
+			continue
+		var source := str(table.get("source", "unresolved"))
+		var changed: Variant = table.get("changedRecordIds", [])
+		if source == "shared":
+			_add_fallback(
+				"inactive-scenario-rule-table",
+				str(specification[2]),
+				-1,
+				-1,
+				"Scenario-local %s definitions are inactive because Classic selects the shared table"
+					% table_name,
+				{"consumer": "Classic loadprofile", "table": table_name}
+			)
+		elif source == "scenario-local" and changed is Array and changed.is_empty():
+			_add_fallback(
+				"no-op-scenario-rule-table",
+				str(specification[2]),
+				-1,
+				-1,
+				"Scenario-local %s table matches the shared table" % table_name,
+				{"consumer": "Classic loadprofile", "table": table_name}
+			)
+		elif source == "unresolved":
+			_add_fallback(
+				"unresolved-rule-table-selection",
+				str(specification[2]),
+				-1,
+				-1,
+				"Producer did not resolve whether Classic selects the %s table" % table_name,
+				{"consumer": "Classic loadprofile", "table": table_name}
+			)
+
+
+func _check_active_monster_spells(
+	bundle: ClassicCampaignBundle,
+	execution_report: Dictionary
+) -> void:
+	var contexts: Dictionary = {}
+	for battle_value: Variant in bundle.battles_by_id.values():
+		if not (battle_value is Dictionary):
+			continue
+		var grid: Variant = battle_value.get("grid", [])
+		if not (grid is Array):
+			continue
+		for monster_id_value: Variant in grid:
+			_add_monster_spell_context(contexts, abs(int(monster_id_value)), "combatant")
+	for action_value: Variant in execution_report.get("actions", []):
+		if not (action_value is Dictionary) or not bool(action_value.get("executable", false)):
+			continue
+		var action: Dictionary = action_value
+		var code := int(action.get("code", 0))
+		if code == 89:
+			_add_monster_spell_context(contexts, abs(int(action.get("id", 0))), "ally")
+		elif code == 124:
+			var extra_code := bundle.get_extra_code(int(action.get("id", 0)))
+			var values: Variant = extra_code.get("values", [])
+			if values is Array and values.size() > 1:
+				_add_monster_spell_context(
+					contexts, abs(int(values[1])), "summoned-combatant"
+				)
+	var monster_ids: Array = contexts.keys()
+	monster_ids.sort()
+	for monster_id_value: Variant in monster_ids:
+		var monster_id := int(monster_id_value)
+		var monster := bundle.get_monster(monster_id)
+		var spell_ids: Variant = monster.get("spells", [])
+		if not (spell_ids is Array):
+			continue
+		for slot: int in range(spell_ids.size()):
+			var spell_id := int(spell_ids[slot])
+			if spell_id in [0, 9999]:
+				continue
+			_check_native_effect_spell(
+				bundle,
+				spell_id,
+				"Data MD",
+				monster_id,
+				monster_id,
+				"monster %d %s spell slot %d" % [
+					monster_id,
+					", ".join(contexts[monster_id_value]),
+					slot,
+				]
+			)
+
+
+func _add_monster_spell_context(
+	contexts: Dictionary,
+	monster_id: int,
+	context: String
+) -> void:
+	if monster_id <= 0:
+		return
+	if not contexts.has(monster_id):
+		contexts[monster_id] = []
+	if context not in contexts[monster_id]:
+		contexts[monster_id].append(context)
 
 
 func _has_exact_native_spell(spell_id: int) -> bool:
@@ -938,9 +1143,12 @@ func _check_native_effect_spell(
 	spell_id: int,
 	source: String,
 	record_index: int,
-	owner_id: int
+	owner_id: int,
+	consumer := ""
 ) -> void:
-	if _check_custom_spell_override(bundle, spell_id, source, record_index, owner_id):
+	if _check_custom_spell_override(
+		bundle, spell_id, source, record_index, owner_id, consumer
+	):
 		return
 	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
 	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
@@ -1139,6 +1347,10 @@ func _add_fallback(
 
 
 func _add_diagnostic(diagnostic: Dictionary) -> void:
+	if not _campaign_id.is_empty():
+		diagnostic["campaignId"] = _campaign_id
+	if not _campaign_name.is_empty():
+		diagnostic["scenario"] = _campaign_name
 	var key := "%s:%s:%d:%d:%s" % [
 		str(diagnostic.get("code", "")),
 		str(diagnostic.get("source", "")),

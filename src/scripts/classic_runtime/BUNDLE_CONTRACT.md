@@ -200,7 +200,19 @@ interface using their compiled damage, duration, save, resistance, targeting,
 cost, and availability fields. A referenced nonzero `special` requires an exact
 native implementation or produces an
 `unsupported-custom-spell-special` readiness blocker at its `Data Spell` source
-record.
+record. Readiness joins activity by campaign and definition identity rather
+than packed spell ID alone. A populated override without a represented consumer
+produces the non-fatal `inactive-custom-spell-definition` diagnostic with
+consumer `none`; an empty template produces no diagnostic. Active blockers also
+include the campaign, stable definition ID, source record, and exact consumer.
+
+When `rules.tableSelection` is present, preserved shared-table rows produce
+`inactive-scenario-rule-table`, scenario-local tables with no changed records
+produce `no-op-scenario-rule-table`, and an explicit unresolved selection
+produces `unresolved-rule-table-selection`. Malformed legacy payloads remain a
+producer/audit status rather than being reclassified as unsupported mechanics.
+The current corpus and regeneration procedure are recorded in
+[`KNOWN_CUSTOM_RULE_AUDIT.md`](KNOWN_CUSTOM_RULE_AUDIT.md).
 
 ## Runtime entry context
 

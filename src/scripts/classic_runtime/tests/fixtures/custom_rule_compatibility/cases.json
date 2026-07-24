@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "empty-spell-template",
+      "kind": "spell",
+      "active": false,
+      "record": {
+        "id": 0,
+        "packedSpellId": 5101,
+        "displayName": "",
+        "special": 0,
+        "provenance": {
+          "sourceFile": "Data Spell",
+          "recordIndex": 0
+        }
+      },
+      "expectedDiagnosticCodes": []
+    },
+    {
+      "id": "representable-custom-spell",
+      "kind": "spell",
+      "active": true,
+      "record": {
+        "id": 4,
+        "packedSpellId": 5105,
+        "displayName": "Fixture Flame",
+        "cost": 4,
+        "damage1": 2,
+        "damage2": 4,
+        "targetType": 1,
+        "spellClass": 2,
+        "inCombat": true,
+        "special": 0,
+        "provenance": {
+          "sourceFile": "Data Spell",
+          "recordIndex": 4
+        }
+      },
+      "expectedDiagnosticCodes": []
+    },
+    {
+      "id": "unsupported-special-spell",
+      "kind": "spell",
+      "active": true,
+      "record": {
+        "id": 17,
+        "packedSpellId": 5203,
+        "displayName": "Fixture Special",
+        "cost": 6,
+        "targetType": 1,
+        "spellClass": 2,
+        "inCombat": true,
+        "special": 25,
+        "provenance": {
+          "sourceFile": "Data Spell",
+          "recordIndex": 17
+        }
+      },
+      "expectedDiagnosticCodes": [
+        "unsupported-custom-spell-special"
+      ]
+    },
+    {
+      "id": "no-op-race-caste-table",
+      "kind": "rule-tables",
+      "tableSelection": {
+        "races": {
+          "source": "scenario-local",
+          "changedRecordIds": []
+        },
+        "castes": {
+          "source": "scenario-local",
+          "changedRecordIds": []
+        }
+      },
+      "expectedDiagnosticCodes": [
+        "no-op-scenario-rule-table",
+        "no-op-scenario-rule-table"
+      ]
+    },
+    {
+      "id": "active-changed-override",
+      "kind": "rule-tables",
+      "tableSelection": {
+        "races": {
+          "source": "scenario-local",
+          "changedRecordIds": [
+            0
+          ]
+        },
+        "castes": {
+          "source": "scenario-local",
+          "changedRecordIds": [
+            0
+          ]
+        }
+      },
+      "expectedDiagnosticCodes": []
+    }
+  ]
+}

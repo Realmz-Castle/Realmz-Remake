@@ -10,9 +10,42 @@ const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const SCHEMA_VERSION := 1
 const SUPPORT_MATRIX_PATH := \
 	"res://scripts/classic_runtime/classic_spell_support_matrix.json"
+const SPELL_DEFINITION_FIELDS := [
+	"range1",
+	"range2",
+	"queueIcon",
+	"toHitBonus",
+	"saveBonus",
+	"fixedTargetNum",
+	"canRotate",
+	"saveAdjust",
+	"cannot",
+	"resistAdjust",
+	"cost",
+	"damage1",
+	"damage2",
+	"powerDamage1",
+	"powerDamage2",
+	"duration1",
+	"duration2",
+	"powerDuration1",
+	"powerDuration2",
+	"spellLook1",
+	"spellLook2",
+	"sound1",
+	"sound2",
+	"targetType",
+	"size",
+	"special",
+	"damageType",
+	"spellClass",
+	"inCombat",
+	"inCamp",
+]
 
 var last_error := ""
 var _spell_mapping: Dictionary = {}
+var _spell_definitions: Dictionary = {}
 var _spell_usages: Dictionary = {}
 var _class_usages: Dictionary = {}
 var _unresolved_usages: Dictionary = {}
@@ -50,6 +83,7 @@ func inspect(bundle: ClassicCampaignBundle, matrix := {}, native_spells := {}) -
 
 func inspect_bundles(bundles: Array, matrix := {}, native_spells := {}) -> Dictionary:
 	last_error = ""
+	_spell_definitions.clear()
 	_spell_usages.clear()
 	_class_usages.clear()
 	_unresolved_usages.clear()
@@ -75,6 +109,8 @@ func inspect_bundles(bundles: Array, matrix := {}, native_spells := {}) -> Dicti
 	var unresolved_rows := _reference_rows(_unresolved_usages, "referenceId")
 	var documented := 0
 	var supported := 0
+	var definition_count := 0
+	var active_definition_count := 0
 	var usage_count := 0
 	var resolution_counts := {
 		"exact-id-resource": 0,
@@ -86,6 +122,12 @@ func inspect_bundles(bundles: Array, matrix := {}, native_spells := {}) -> Dicti
 	}
 	for row_value: Variant in spell_rows:
 		var row: Dictionary = row_value
+		for definition_value: Variant in row.get("definitions", []):
+			if not (definition_value is Dictionary):
+				continue
+			definition_count += 1
+			if bool(definition_value.get("active", false)):
+				active_definition_count += 1
 		usage_count += row.get("usages", []).size()
 		if str(row.get("supportStatus", "unclassified")) != "unclassified":
 			documented += 1
@@ -110,6 +152,8 @@ func inspect_bundles(bundles: Array, matrix := {}, native_spells := {}) -> Dicti
 			"spellIds": spell_rows.size(),
 			"spellClasses": class_rows.size(),
 			"unresolvedReferences": unresolved_rows.size(),
+			"definitions": definition_count,
+			"activeDefinitionIds": active_definition_count,
 			"usages": usage_count,
 			"documentedSpellIds": documented,
 			"supportedSpellIds": supported,
@@ -125,7 +169,7 @@ func inspect_bundles(bundles: Array, matrix := {}, native_spells := {}) -> Dicti
 				"allies",
 				"summoned-combatants",
 				"scenario-spell-items",
-				"scenario-overrides",
+				"scenario-definitions",
 			],
 			"notRepresentedByBundleV1": [
 				"temple-offerings",
@@ -296,18 +340,31 @@ func _collect_spell_overrides(bundle: ClassicCampaignBundle) -> void:
 	for spell_id_value: Variant in spell_ids:
 		var spell_id := int(spell_id_value)
 		var spell_override: Dictionary = bundle.spell_overrides_by_id[spell_id_value]
-		_add_reference(
+		if _is_empty_spell_definition(spell_override):
+			continue
+		var definition := _record_usage(
 			bundle,
-			spell_id,
-			_record_usage(
-				bundle,
-				spell_override,
-				"Data Spell",
-				int(spell_override.get("id", -1)),
-				-1,
-				"scenario-override"
-			)
+			spell_override,
+			"Data Spell",
+			int(spell_override.get("id", -1)),
+			-1,
+			"scenario-definition"
 		)
+		definition["stableId"] = "%s:spell:%d" % [
+			str(bundle.manifest.get("id", "")),
+			int(spell_override.get("id", -1)),
+		]
+		definition["packedSpellId"] = spell_id
+		definition["displayName"] = str(spell_override.get("displayName", ""))
+		definition["special"] = int(spell_override.get("special", 0))
+		_append_usage(_spell_definitions, spell_id, definition)
+
+
+func _is_empty_spell_definition(record: Dictionary) -> bool:
+	for field_name: String in SPELL_DEFINITION_FIELDS:
+		if int(record.get(field_name, 0)) != 0:
+			return false
+	return true
 
 
 func _add_reference(
@@ -398,6 +455,9 @@ func _index_matrix(matrix: Dictionary) -> Dictionary:
 func _spell_rows(matrix_by_id: Dictionary, native_spells: Dictionary) -> Array:
 	var rows: Array = []
 	var spell_ids: Array = _spell_usages.keys()
+	for spell_id_value: Variant in _spell_definitions:
+		if spell_id_value not in spell_ids:
+			spell_ids.append(spell_id_value)
 	spell_ids.sort()
 	for spell_id_value: Variant in spell_ids:
 		var spell_id := int(spell_id_value)
@@ -407,13 +467,32 @@ func _spell_rows(matrix_by_id: Dictionary, native_spells: Dictionary) -> Array:
 		))
 		if display_name.is_empty():
 			display_name = "Classic spell %d" % spell_id
+		var definitions: Array = _spell_definitions.get(
+			spell_id_value, []
+		).duplicate(true)
+		var usages: Array = _spell_usages.get(spell_id_value, []).duplicate(true)
+		for definition_value: Variant in definitions:
+			if not (definition_value is Dictionary):
+				continue
+			var definition: Dictionary = definition_value
+			var consumers: Array = []
+			for usage_value: Variant in usages:
+				if usage_value is Dictionary and str(usage_value.get(
+					"campaignId", ""
+				)) == str(definition.get("campaignId", "")):
+					consumers.append(usage_value.duplicate(true))
+			definition["active"] = not consumers.is_empty()
+			definition["consumers"] = consumers
 		var row := {
 			"classicSpellId": spell_id,
 			"displayName": display_name,
 			"classification": str(matrix_row.get("classification", "unclassified")),
 			"supportStatus": str(matrix_row.get("supportStatus", "unclassified")),
 			"nativeResolution": _native_resolution(spell_id, native_spells),
-			"usages": _spell_usages[spell_id_value].duplicate(true),
+			"definitionPresent": not definitions.is_empty(),
+			"active": not usages.is_empty(),
+			"definitions": definitions,
+			"usages": usages,
 		}
 		if matrix_row.has("resource"):
 			row["resource"] = str(matrix_row["resource"])

@@ -32,6 +32,9 @@ const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_sa
 const SpellUsageAuditScript = preload(
 	"res://scripts/classic_runtime/classic_spell_usage_audit.gd"
 )
+const KnownCustomRuleAuditScript = preload(
+	"res://scripts/classic_runtime/classic_known_custom_rule_audit.gd"
+)
 const SpellResourceCatalogScript = preload(
 	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
 )
@@ -167,6 +170,8 @@ const CUSTOM_MONSTER_BATTLE_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/custom_monster_battle"
 const CAMPAIGN_UI_SMOKE_FIXTURE := \
 	"res://scripts/classic_runtime/tests/fixtures/installed_campaigns/campaign_ui_smoke"
+const CUSTOM_RULE_COMPATIBILITY_FIXTURE := \
+	"res://scripts/classic_runtime/tests/fixtures/custom_rule_compatibility/cases.json"
 
 var failures := 0
 
@@ -2321,6 +2326,7 @@ func _init() -> void:
 	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
 	_test_custom_spell_overrides()
+	_test_known_custom_rule_audit()
 	_test_classic_regeneration_contract()
 	_test_classic_spell_screen_contract()
 	_test_classic_magic_resistance_contract()
@@ -11288,6 +11294,188 @@ func _test_custom_spell_overrides() -> void:
 		),
 		"unsupported custom special is not mislabeled as an identity gap"
 	)
+	var unsupported_diagnostic := _readiness_diagnostic(
+		unsupported_report, "unsupported-custom-spell-special"
+	)
+	_expect_equal(
+		unsupported_diagnostic.get("scenario"),
+		"Contract Test",
+		"active custom-spell blocker identifies its scenario"
+	)
+	_expect_equal(
+		unsupported_diagnostic.get("definitionStableId"),
+		"scenario-contract-test:spell:17",
+		"active custom-spell blocker preserves the stable definition ID"
+	)
+	_expect(
+		str(unsupported_diagnostic.get("consumer", "")).contains("Data ED2 record 7"),
+		"active custom-spell blocker identifies the consuming encounter"
+	)
+
+
+func _test_known_custom_rule_audit() -> void:
+	var fixture_value: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(CUSTOM_RULE_COMPATIBILITY_FIXTURE)
+	)
+	_expect(fixture_value is Dictionary, "custom-rule acceptance fixture parses")
+	if not (fixture_value is Dictionary):
+		return
+	_expect_equal(
+		int(fixture_value.get("schemaVersion", 0)),
+		1,
+		"custom-rule acceptance fixture uses the supported schema"
+	)
+	var fixture_ids: Array[String] = []
+	for case_value: Variant in fixture_value.get("cases", []):
+		if not (case_value is Dictionary):
+			continue
+		var fixture_case: Dictionary = case_value
+		var fixture_id := str(fixture_case.get("id", ""))
+		fixture_ids.append(fixture_id)
+		var bundle := _custom_rule_fixture_bundle(fixture_case)
+		var report: Dictionary = ReadinessScript.new().inspect(bundle)
+		var expected_counts: Dictionary = {}
+		for code_value: Variant in fixture_case.get("expectedDiagnosticCodes", []):
+			var code := str(code_value)
+			expected_counts[code] = int(expected_counts.get(code, 0)) + 1
+		for code: String in [
+			"inactive-custom-spell-definition",
+			"unsupported-custom-spell-special",
+			"no-op-scenario-rule-table",
+		]:
+			_expect_equal(
+				_diagnostic_code_count(report, code),
+				int(expected_counts.get(code, 0)),
+				"%s readiness classification for %s" % [fixture_id, code]
+			)
+	fixture_ids.sort()
+	var expected_fixture_ids := [
+		"active-changed-override",
+		"empty-spell-template",
+		"no-op-race-caste-table",
+		"representable-custom-spell",
+		"unsupported-special-spell",
+	]
+	_expect_equal(
+		fixture_ids,
+		expected_fixture_ids,
+		"custom-rule fixture covers all five acceptance cases"
+	)
+
+	var active_bundle := _custom_rule_fixture_bundle(
+		fixture_value["cases"][1]
+	)
+	var usage_report: Dictionary = SpellUsageAuditScript.new().inspect(active_bundle)
+	_expect_equal(
+		usage_report.get("totals", {}).get("definitions"),
+		1,
+		"spell audit counts a populated custom definition once"
+	)
+	_expect_equal(
+		usage_report.get("totals", {}).get("usages"),
+		1,
+		"spell audit counts only the active encounter consumer as usage"
+	)
+	_expect_equal(
+		usage_report.get("totals", {}).get("activeDefinitionIds"),
+		1,
+		"spell audit marks the consumed custom definition active"
+	)
+	var spell_row := _spell_audit_row(usage_report, 5105)
+	_expect_equal(
+		spell_row.get("definitions", [])[0].get("context"),
+		"scenario-definition",
+		"spell audit retains definition provenance separately"
+	)
+	_expect_equal(
+		spell_row.get("usages", [])[0].get("context"),
+		"complex-response",
+		"spell audit retains the exact active consumer"
+	)
+
+	var manifest_audit: Dictionary = KnownCustomRuleAuditScript.new().inspect_path()
+	_expect(
+		bool(manifest_audit.get("accepted", false)),
+		"known custom-rule manifest validates: %s" % [
+			manifest_audit.get("errors", []),
+		]
+	)
+	var totals: Dictionary = manifest_audit.get("computedTotals", {})
+	_expect_equal(totals.get("scenarios"), 39, "known corpus contains 39 scenarios")
+	_expect_equal(
+		totals.get("populatedSpellDefinitions"),
+		612,
+		"known corpus preserves every populated custom spell definition"
+	)
+	_expect_equal(
+		totals.get("uniqueSpellPayloads"),
+		319,
+		"known corpus deduplicates custom spell payloads by raw hash"
+	)
+	_expect_equal(
+		totals.get("activeSpellDefinitions"),
+		221,
+		"known corpus classifies definitions using active consumers"
+	)
+	_expect_equal(
+		totals.get("malformedLegacyPayloads"),
+		1,
+		"malformed legacy tables remain separate from unsupported mechanics"
+	)
+
+
+func _custom_rule_fixture_bundle(fixture_case: Dictionary) -> ClassicCampaignBundle:
+	var bundle = BundleScript.new()
+	bundle.manifest = _minimal_contract_manifest()
+	bundle.documents = _minimal_contract_documents()
+	bundle.documents["maps"]["maps"] = [{"id": "land:0"}]
+	var kind := str(fixture_case.get("kind", ""))
+	if kind == "spell":
+		var record: Dictionary = fixture_case.get("record", {}).duplicate(true)
+		bundle.documents["rules"]["spellOverrides"] = [record]
+		bundle.documents["encounters"]["complexEncounters"] = []
+		if bool(fixture_case.get("active", false)):
+			bundle.documents["encounters"]["complexEncounters"] = [{
+				"id": 7,
+				"actions": [],
+				"spellIds": [int(record.get("packedSpellId", -1))],
+				"spellResults": [3],
+			}]
+	elif kind == "rule-tables":
+		bundle.documents["rules"]["raceOverrides"] = [{
+			"id": 0,
+			"name": "Fixture Race",
+		}]
+		bundle.documents["rules"]["casteOverrides"] = [{
+			"id": 0,
+			"name": "Fixture Caste",
+		}]
+		bundle.documents["rules"]["tableSelection"] = \
+			fixture_case.get("tableSelection", {}).duplicate(true)
+	bundle._build_indexes()
+	return bundle
+
+
+func _spell_audit_row(report: Dictionary, spell_id: int) -> Dictionary:
+	for row_value: Variant in report.get("spells", []):
+		if row_value is Dictionary and int(row_value.get("classicSpellId", 0)) == spell_id:
+			return row_value
+	return {}
+
+
+func _diagnostic_code_count(report: Dictionary, code: String) -> int:
+	var count := 0
+	for diagnostic_value: Variant in report.get("diagnostics", []):
+		if diagnostic_value is Dictionary and str(diagnostic_value.get("code", "")) == code:
+			count += 1
+	return count
+
+
+func _readiness_diagnostic(report: Dictionary, code: String) -> Dictionary:
+	for diagnostic_value: Variant in report.get("diagnostics", []):
+		if diagnostic_value is Dictionary and str(diagnostic_value.get("code", "")) == code:
+			return diagnostic_value
+	return {}
 
 
 func _test_classic_regeneration_contract() -> void:

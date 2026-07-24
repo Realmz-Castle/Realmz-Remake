@@ -22,6 +22,9 @@ You can find latest releases [here](https://github.com/Realmz-Castle/Realmz-Rema
 The [Classic support matrix and porting workflow](src/scripts/classic_runtime/CLASSIC_PORTING_GUIDE.md)
 documents the current Providence export, validation, installation, safe update,
 readiness, regression, and playability-evidence boundaries.
+The [known scenario custom-rule audit](src/scripts/classic_runtime/KNOWN_CUSTOM_RULE_AUDIT.md)
+records the current spell, race, and caste source-library snapshot and its
+consumer-aware readiness classifications.
 
 ## Music System
 
