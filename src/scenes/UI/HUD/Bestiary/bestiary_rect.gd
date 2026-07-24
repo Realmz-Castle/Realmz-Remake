@@ -70,7 +70,6 @@ func _on_visibility_changed() -> void :
 
 func _on_close_requested() -> void :
 	hide()
-	StateMachine.transition_to("Exploration/ExWalking")
 
 
 func _on_line_edit_text_changed(new_text : String) -> void :

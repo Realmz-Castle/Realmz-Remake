@@ -106,7 +106,7 @@ static func yesno_branch_Divinity(continue_on_yes : bool, tg_type : int, tg_id :
 
 ## Divinity Code 4, Simple Encounter  , simple_enc
 static func display_simple_encounter_Divinity(enc_id : int) :
-	await display_simple_encounter_from_data("SE"+str(enc_id))
+	return await display_simple_encounter_from_data("SE"+str(enc_id))
 
 
 ## Divinity Code 5: Complex Encounter, complex_enc

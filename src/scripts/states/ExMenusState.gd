@@ -79,6 +79,8 @@ func enter(_msg : Dictionary = {} ) ->void :
 		"TempleMenu" :
 			cur_menu_name = menu_name
 			UI.ow_hud.temple_rect.show_temple_window()
+		"CharacterInfoMenu", "MultipleChoices" :
+			cur_menu_name = menu_name
 	pass
 
 func exit() :
@@ -106,6 +108,10 @@ func exit() :
 	
 	if cur_menu_name == "TempleMenu" :
 		UI.ow_hud.temple_rect.close_temple_window()
+	if cur_menu_name == "CharacterInfoMenu" :
+		UI.ow_hud.characterStatRect.hide()
+	if cur_menu_name == "MultipleChoices" :
+		UI.ow_hud.textRect.choicesContainer.hide()
 
 	cur_menu_name = ''
 

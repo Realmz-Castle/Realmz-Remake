@@ -45,6 +45,8 @@ func enter(_msg : Dictionary = {} ) ->void :
 			cur_menu_name = menu_name
 			UI.ow_hud.spellcastMenu.initialize(_msg["selected_character"])
 			UI.ow_hud.spellcastMenu.show()
+		"CharacterInfoMenu", "MultipleChoices" :
+			cur_menu_name = menu_name
 
 
 func exit() :
@@ -70,6 +72,10 @@ func exit() :
 	if cur_menu_name == "SpellsMenu" :
 		UI.ow_hud.spellcastMenu.hide()
 		UI.ow_hud._on_spell_menu_closed()
+	if cur_menu_name == "CharacterInfoMenu" :
+		UI.ow_hud.characterStatRect.hide()
+	if cur_menu_name == "MultipleChoices" :
+		UI.ow_hud.textRect.choicesContainer.hide()
 
 		
 	cur_menu_name = ''

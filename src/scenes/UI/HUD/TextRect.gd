@@ -167,7 +167,13 @@ func set_text(text : String, _interrupt : bool = true, _sound : String = "") :
 func display_multiple_choices(choices : Array, scripts : Array = []) :
 	aoetex.hide()
 	itemtex.hide()
-	StateMachine.transition_to("MultipleChoices", {"prev_state" : StateMachine._state_name, "choicesContainer" : choicesContainer})
+	var opened_menu := false
+	if StateMachine._state_name == "Exploration" :
+		StateMachine.enter_ex_menu_state({"menu_name": "MultipleChoices"})
+		opened_menu = true
+	elif StateMachine._state_name == "CbDecideAction" :
+		StateMachine.enter_cb_menu_state({"menu_name": "MultipleChoices"})
+		opened_menu = true
 	Input.set_custom_mouse_cursor(UI.cursor_click)
 	
 	if scripts.is_empty() : scripts = range(choices.size())
@@ -175,8 +181,19 @@ func display_multiple_choices(choices : Array, scripts : Array = []) :
 	choicesContainer.show()
 	choicesContainer.display_multiple_choices(choices, scripts)
 	var choice = await choicesContainer.choice_pressed
-	print("TextRect textrect choice "+choice)
+	print("TextRect textrect choice "+str(choice))
 	choicesContainer.hide()
+	if opened_menu :
+		if (
+			StateMachine._state_name == "ExMenus"
+			and StateMachine.ex_menu_state.cur_menu_name == "MultipleChoices"
+		) :
+			StateMachine.exit_ex_menu_state({})
+		elif (
+			StateMachine._state_name == "CbMenus"
+			and StateMachine.cb_menu_state.cur_menu_name == "MultipleChoices"
+		) :
+			StateMachine.exit_cb_menu_state({})
 	emit_signal("choice_pressed", choice)
 
 	

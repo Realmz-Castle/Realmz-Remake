@@ -321,7 +321,7 @@ func _on_portrait_button_pressed():
 	for s in skills_abs :
 		var v : float = character.get_stat(s)
 		if v != 0.0 :
-			special_skills.append([s.replace("_", " "), "%+g" % v])
+			special_skills.append([s.replace("_", " "), str(v)])
 	cdata["special_skills"] = special_skills
 
 	for s in character.stats :
@@ -329,4 +329,8 @@ func _on_portrait_button_pressed():
 	# Mutually exclusive with the bestiary — never overlap.
 	if UI.ow_hud.bestiaryRect.visible :
 		UI.ow_hud.bestiaryRect.hide()
+	if StateMachine._state_name == "Exploration" :
+		StateMachine.enter_ex_menu_state({"menu_name": "CharacterInfoMenu"})
+	elif StateMachine._state_name == "CbDecideAction" :
+		StateMachine.enter_cb_menu_state({"menu_name": "CharacterInfoMenu"})
 	UI.ow_hud.characterStatRect.show_for_character(cdata)

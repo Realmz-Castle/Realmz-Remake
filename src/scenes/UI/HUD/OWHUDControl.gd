@@ -100,6 +100,7 @@ func initialize() : # takes an array of Characters GD class objects !
 	set_party_swap_enabled(false)
 	settingsControl._initialize()
 	bestiaryRect._initialize()
+	charSwapRect._initialize()
 	characterStatRect.close_requested.connect(_on_character_stat_close_requested)
 	if GameGlobal.allow_character_swap_anywhere :
 		set_party_swap_enabled(true)
@@ -610,8 +611,19 @@ func _on_bestiary_button_pressed():
 
 
 func _on_character_stat_close_requested() -> void :
+	if (
+		StateMachine._state_name == "ExMenus"
+		and StateMachine.ex_menu_state.cur_menu_name == "CharacterInfoMenu"
+	) :
+		StateMachine.exit_ex_menu_state({})
+		return
+	if (
+		StateMachine._state_name == "CbMenus"
+		and StateMachine.cb_menu_state.cur_menu_name == "CharacterInfoMenu"
+	) :
+		StateMachine.exit_cb_menu_state({})
+		return
 	characterStatRect.hide()
-	StateMachine.transition_to("Exploration/ExWalking")
 
 func enter_battle_mode() :
 	textRect.hide()
