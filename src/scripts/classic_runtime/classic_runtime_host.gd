@@ -58,6 +58,22 @@ func has_trigger(trigger_id: String) -> bool:
 	return runtime.has_trigger(trigger_id)
 
 
+func random_encounters_enabled() -> bool:
+	return runtime.runtime_state.random_encounters_enabled
+
+
+func allies_suspended() -> bool:
+	return runtime.runtime_state.allies_suspended
+
+
+func spellcasting_blocked(player_character: bool) -> bool:
+	return (
+		runtime.runtime_state.player_spellcasting_blocked
+		if player_character
+		else runtime.runtime_state.monster_spellcasting_blocked
+	)
+
+
 func run_trigger(trigger_id: String, start_slot := 0, context := {}) -> Dictionary:
 	if active:
 		return {

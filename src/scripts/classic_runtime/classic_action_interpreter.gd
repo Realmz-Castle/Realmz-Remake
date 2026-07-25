@@ -14,9 +14,9 @@ const HANDLED_OPCODES := [
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 51, 52, 54, 56, 57, 58,
-	60, 61, 63, 64, 65, 66, 73, 76, 77, 78, 82, 83, 84, 85, 86, 87, 88, 89,
+	60, 61, 63, 64, 65, 66, 69, 72, 73, 76, 77, 78, 82, 83, 84, 85, 86, 87, 88, 89,
 	90, 93, 94, 95, 96, 97, 98,
-	99, 100, 101, 103, 106, 111, 112,
+	99, 100, 101, 103, 104, 105, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
 ]
 const PRIEST_TURNING_ENABLED_MESSAGE := \
@@ -943,6 +943,10 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"disabled": record_id != 0,
 				"soundId": 6001,
 			})
+		69:
+			return _execute_spellcasting_flags(record_id)
+		72:
+			return _execute_quest_range_branch(record_id, gosub_active)
 		73:
 			return _execute_restricted_shop(record_id)
 		76:
@@ -989,6 +993,12 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			})
 		103:
 			return _execute_exploration_status(record_id)
+		104:
+			runtime_state.random_encounters_enabled = record_id != 0
+			return _continue_result()
+		105:
+			runtime_state.allies_suspended = record_id != 0
+			return _continue_result()
 		106:
 			return _execute_darkland(record_id)
 		111:
@@ -1729,6 +1739,24 @@ func _execute_random_items(extra_code_id: int) -> Dictionary:
 		"randomItemCount": count,
 		"randomItemRange": [first_item_id, last_item_id],
 	})
+
+
+func _execute_spellcasting_flags(extra_code_id: int) -> Dictionary:
+	# Classic explicitly leaves all three flags unchanged when opcode 69 has ID 0.
+	if extra_code_id == 0:
+		return _continue_result()
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 3:
+		return _halt_with_error(
+			"Spellcasting-flags action references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	runtime_state.set_spellcasting_flags(
+		int(values[0]) != 0,
+		int(values[1]) != 0,
+		int(values[2]) != 0
+	)
+	return _continue_result()
 
 
 func _execute_character_pick(record_id: int, invert: bool) -> Dictionary:
@@ -2986,6 +3014,35 @@ func _execute_quest_value_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 			"Quest-value branch has invalid branch mode %d" % target_mode
 		)
 	return _branch_to_action_or_encounter(target_mode, target_id, gosub)
+
+
+func _execute_quest_range_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 5:
+		return _halt_with_error(
+			"Quest-range branch references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	var first_quest := int(values[0])
+	var last_quest := int(values[1])
+	if first_quest < 0 or last_quest < first_quest or last_quest >= 100:
+		return _halt_with_error(
+			"Quest-range branch has invalid range %d through %d"
+			% [first_quest, last_quest]
+		)
+	for quest_id: int in range(first_quest, last_quest + 1):
+		if not runtime_state.is_quest_set(quest_id):
+			return _continue_result()
+	var target_mode := int(values[3])
+	if target_mode < 0 or target_mode > 2:
+		return _halt_with_error(
+			"Quest-range branch has invalid target mode %d" % target_mode
+		)
+	return _branch_to_action_or_encounter(
+		target_mode,
+		int(values[4]),
+		gosub
+	)
 
 
 func _execute_tile_parameter_branch(extra_code_id: int, gosub: bool) -> Dictionary:

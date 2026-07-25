@@ -247,6 +247,8 @@ func is_crea_player_controlled() -> bool :
 
 
 func can_cast_spells() -> bool:
+	if GameGlobal.classic_spellcasting_blocked_for(self):
+		return false
 	for trait_value: Variant in traits:
 		if trait_value is Object \
 				and trait_value.has_method("blocks_spellcasting") \

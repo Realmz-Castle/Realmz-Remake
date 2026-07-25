@@ -58,7 +58,7 @@ const SPELL_DEFINITION_FIELDS := [
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
 	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 51, 52, 54, 56, 57,
-	58, 60, 61, 63, 64, 65, 73, 76, 77, 78, 85, 87, 90, 103, 106, 121, 123,
+	58, 60, 61, 63, 64, 65, 69, 72, 73, 76, 77, 78, 85, 87, 90, 103, 106, 121, 123,
 	124, 125, 126,
 ]
 
@@ -191,6 +191,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 	var code := int(action.get("code", 0))
 	var reference_id := int(action.get("id", 0))
 	if EXTRA_CODE_OPCODES.has(code):
+		if code == 69 and reference_id == 0:
+			return
 		var extra_code := bundle.get_extra_code(reference_id)
 		if extra_code.is_empty():
 			_add_action_dependency(
@@ -216,6 +218,10 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_currency_clear(action, extra_code)
 		elif code == 65:
 			_check_random_items(bundle, action, extra_code)
+		elif code == 69:
+			_check_spellcasting_flags(action, extra_code)
+		elif code == 72:
+			_check_quest_range_branch(bundle, action, extra_code)
 		elif code in [76, 77]:
 			_check_quest_value_action(bundle, action, extra_code, code)
 		elif code == 78:
@@ -616,6 +622,72 @@ func _check_random_items(
 			"Random-item range includes item %d without a native Remake resource" % item_id,
 			{"referenceId": item_id}
 		)
+
+
+func _check_spellcasting_flags(action: Dictionary, extra_code: Dictionary) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if values is Array and values.size() >= 3:
+		return
+	_add_action_dependency(
+		action,
+		"malformed-spellcasting-flags",
+		"Spellcasting-flags Data EDCD record has fewer than three values",
+		{"referenceId": int(extra_code.get("id", -1))}
+	)
+
+
+func _check_quest_range_branch(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		_add_action_dependency(
+			action,
+			"malformed-quest-range-branch",
+			"Quest-range Data EDCD record has fewer than five values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var first_quest := int(values[0])
+	var last_quest := int(values[1])
+	var target_mode := int(values[3])
+	if (
+		first_quest < 0
+		or last_quest < first_quest
+		or last_quest >= 100
+		or target_mode < 0
+		or target_mode > 2
+	):
+		_add_action_dependency(
+			action,
+			"invalid-quest-range-branch",
+			"Quest-range branch has an invalid range or target mode",
+			{
+				"referenceId": int(extra_code.get("id", -1)),
+				"questRange": [first_quest, last_quest],
+				"targetMode": target_mode,
+			}
+		)
+		return
+	var target_id := int(values[4])
+	var target: Dictionary
+	match target_mode:
+		0:
+			target = bundle.get_extra_action_point(target_id)
+		1:
+			target = bundle.get_encounter("simple", target_id)
+		_:
+			target = bundle.get_encounter("complex", target_id)
+	if not target.is_empty():
+		return
+	_add_action_dependency(
+		action,
+		"missing-quest-range-target",
+		"Quest-range branch references missing target %d" % target_id,
+		{"referenceId": target_id, "targetMode": target_mode}
+	)
 
 
 func _check_tile_parameter_branch(

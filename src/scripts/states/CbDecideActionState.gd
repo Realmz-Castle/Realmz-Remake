@@ -235,7 +235,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	for pc in pc_joining :
 		pc.has_turned_undead = false
 		combat_state.add_pc_or_npc_ally_to_battle_map(pc, battle_position_offset)
-	if _msg["npcs_allowed"] :
+	if _msg["npcs_allowed"] and not GameGlobal.classic_allies_suspended():
 		for npc in GameGlobal.player_allies :
 			npc.has_turned_undead = false
 			combat_state.add_pc_or_npc_ally_to_battle_map(npc, battle_position_offset)

@@ -32,6 +32,11 @@ var multi_view := false
 var view_type := VIEW_3D
 var compass_enabled := true
 var priest_turning_enabled := true
+var random_encounters_enabled := true
+var allies_suspended := false
+var player_spellcasting_blocked := false
+var monster_spellcasting_blocked := false
+var spell_charging_flag := false
 
 
 func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
@@ -62,6 +67,11 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	view_type = VIEW_3D
 	compass_enabled = true
 	priest_turning_enabled = true
+	random_encounters_enabled = true
+	allies_suspended = false
+	player_spellcasting_blocked = false
+	monster_spellcasting_blocked = false
+	spell_charging_flag = false
 	if not bundle.get_player_map(0).is_empty():
 		set_map_owned(0)
 
@@ -459,6 +469,16 @@ func is_map_owned(map_id: int) -> bool:
 	return bool(owned_maps.get(str(abs(map_id)), false))
 
 
+func set_spellcasting_flags(
+	player_blocked: bool,
+	monster_blocked: bool,
+	charging_flag: bool
+) -> void:
+	player_spellcasting_blocked = player_blocked
+	monster_spellcasting_blocked = monster_blocked
+	spell_charging_flag = charging_flag
+
+
 func snapshot() -> Dictionary:
 	return {
 		"questFlags": quest_flags.duplicate(true),
@@ -479,6 +499,11 @@ func snapshot() -> Dictionary:
 		"randomRectangleOverrides": random_rectangle_overrides.duplicate(true),
 		"difficulty": difficulty,
 		"priestTurningEnabled": priest_turning_enabled,
+		"randomEncountersEnabled": random_encounters_enabled,
+		"alliesSuspended": allies_suspended,
+		"playerSpellcastingBlocked": player_spellcasting_blocked,
+		"monsterSpellcastingBlocked": monster_spellcasting_blocked,
+		"spellChargingFlag": spell_charging_flag,
 		"position": {
 			"levelType": level_type,
 			"levelIndex": level_index,
@@ -587,6 +612,15 @@ func restore(saved_state: Dictionary) -> void:
 				random_rectangle_overrides[str(rectangle_key)] = rectangle.duplicate(true)
 	set_difficulty(int(saved_state.get("difficulty", 0)))
 	priest_turning_enabled = bool(saved_state.get("priestTurningEnabled", true))
+	random_encounters_enabled = bool(saved_state.get("randomEncountersEnabled", true))
+	allies_suspended = bool(saved_state.get("alliesSuspended", false))
+	player_spellcasting_blocked = bool(
+		saved_state.get("playerSpellcastingBlocked", false)
+	)
+	monster_spellcasting_blocked = bool(
+		saved_state.get("monsterSpellcastingBlocked", false)
+	)
+	spell_charging_flag = bool(saved_state.get("spellChargingFlag", false))
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
 		level_type = str(position.get("levelType", "land"))

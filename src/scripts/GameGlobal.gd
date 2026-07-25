@@ -666,6 +666,36 @@ func clear_classic_runtime_host(host: Object = null) -> void:
 		classic_runtime_host = null
 
 
+func classic_random_encounters_enabled() -> bool:
+	return (
+		not is_instance_valid(classic_runtime_host)
+		or not classic_runtime_host.has_method("random_encounters_enabled")
+		or bool(classic_runtime_host.call("random_encounters_enabled"))
+	)
+
+
+func classic_allies_suspended() -> bool:
+	return (
+		is_instance_valid(classic_runtime_host)
+		and classic_runtime_host.has_method("allies_suspended")
+		and bool(classic_runtime_host.call("allies_suspended"))
+	)
+
+
+func classic_spellcasting_blocked_for(character: Object) -> bool:
+	if (
+		not is_instance_valid(classic_runtime_host)
+		or not classic_runtime_host.has_method("spellcasting_blocked")
+	):
+		return false
+	var is_player_character := player_characters.has(character) \
+		or character is PlayerCharacter
+	return bool(classic_runtime_host.call(
+		"spellcasting_blocked",
+		is_player_character
+	))
+
+
 func resolve_classic_dungeon_movement(
 	from_position: Vector2i,
 	to_position: Vector2i
@@ -1783,7 +1813,7 @@ func random_battles_allowed() -> bool:
 	return not (
 		is_classic_party_condition_active(7)
 		or is_global_effect_active("Sentry")
-	)
+	) and classic_random_encounters_enabled()
 
 
 func exploration_sight_ignores_blocking_tiles() -> bool:

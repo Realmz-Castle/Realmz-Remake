@@ -2513,6 +2513,7 @@ func _ready() -> void:
 	_test_selective_battle_host()
 	_test_shop_actions()
 	_test_resource_and_tile_parameter_actions()
+	_test_campaign_runtime_control_actions()
 	_test_service_actions()
 	_test_sound_and_treasure(bundle)
 	_test_treasure_delivery(bundle)
@@ -26957,6 +26958,128 @@ func _test_resource_and_tile_parameter_actions() -> void:
 			and not bool(later_tile_action.get("executable", true)),
 		"two-way tile branches make their later slot unreachable"
 	)
+
+
+func _test_campaign_runtime_control_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 1, 1, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [10, 12, 0, 0, 20]}
+	_add_stack_trigger(bundle, "control:set", -1, [
+		_classic_action(0, 69, 1),
+		_classic_action(1, 104, 0),
+		_classic_action(2, 105, 1),
+	])
+	_add_stack_trigger(bundle, "control:spell-noop", -1, [
+		_classic_action(0, 69, 0),
+	])
+	_add_stack_trigger(bundle, "control:quest-range", -1, [
+		_classic_action(0, 72, 2),
+		_classic_action(1, 1, 912),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:20", 20, [
+		_classic_action(0, 1, 920),
+	])
+	for message_id: int in [912, 920]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Control fixture %d" % message_id,
+		}
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("control:set"), "begin campaign runtime controls")
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"completed",
+		"campaign runtime controls execute without presentation"
+	)
+	_expect(
+		interpreter.runtime_state.player_spellcasting_blocked,
+		"opcode 69 blocks player spellcasting"
+	)
+	_expect(
+		interpreter.runtime_state.monster_spellcasting_blocked,
+		"opcode 69 blocks monster spellcasting"
+	)
+	_expect(
+		interpreter.runtime_state.spell_charging_flag,
+		"opcode 69 preserves Classic's saved charging flag"
+	)
+	_expect(
+		not interpreter.runtime_state.random_encounters_enabled,
+		"opcode 104 disables random encounters"
+	)
+	_expect(interpreter.runtime_state.allies_suspended, "opcode 105 suspends allies")
+	interpreter.begin_trigger("control:spell-noop")
+	interpreter.run_until_yield()
+	_expect(
+		interpreter.runtime_state.player_spellcasting_blocked
+			and interpreter.runtime_state.monster_spellcasting_blocked,
+		"opcode 69 ID zero leaves the existing flags unchanged"
+	)
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect(
+		not restored.random_encounters_enabled
+			and restored.allies_suspended
+			and restored.player_spellcasting_blocked
+			and restored.monster_spellcasting_blocked
+			and restored.spell_charging_flag,
+		"campaign runtime controls survive compatibility snapshots"
+	)
+	var host = HostScript.new()
+	add_child(host)
+	host.runtime.use_shared_campaign(bundle, interpreter.runtime_state)
+	_expect(not host.random_encounters_enabled(), "runtime host exposes random-encounter gating")
+	_expect(host.allies_suspended(), "runtime host exposes ally suspension")
+	_expect(host.spellcasting_blocked(true), "runtime host blocks party spellcasting")
+	_expect(host.spellcasting_blocked(false), "runtime host blocks monster spellcasting")
+	host.queue_free()
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("control:quest-range")
+	var branch_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		branch_result.get("payload", {}).get("messageId"),
+		912,
+		"opcode 72 falls through while any quest in its range is unset"
+	)
+	for quest_id: int in range(10, 13):
+		interpreter.runtime_state.set_quest_flag(quest_id)
+	interpreter.begin_trigger("control:quest-range")
+	branch_result = interpreter.run_until_yield()
+	_expect_equal(
+		branch_result.get("payload", {}).get("messageId"),
+		920,
+		"opcode 72 branches when every quest in its inclusive range is set"
+	)
+
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	for code: String in [
+		"malformed-spellcasting-flags",
+		"malformed-quest-range-branch",
+		"invalid-quest-range-branch",
+		"missing-quest-range-target",
+	]:
+		_expect_equal(
+			_diagnostic_code_count(readiness, code),
+			0,
+			"valid campaign runtime controls avoid %s" % code
+		)
+	for consumer_path: String in [
+		"res://Creature/Creature.gd",
+		"res://scripts/GameGlobal.gd",
+		"res://scripts/states/CbDecideActionState.gd",
+	]:
+		var source := FileAccess.get_file_as_string(consumer_path)
+		_expect(
+			source.contains("classic_spellcasting_blocked_for")
+				or source.contains("classic_random_encounters_enabled")
+				or source.contains("classic_allies_suspended"),
+			"%s consumes a Classic campaign runtime control" % consumer_path.get_file()
+		)
 
 
 func _test_shop_actions() -> void:
