@@ -4847,9 +4847,10 @@ func _play_sound(payload: Dictionary) -> Dictionary:
 			runtime_player.play()
 			return {"runtimeMediaPath": str(sound.get("runtimeMedia", {}).get("path", ""))}
 	var sound_ids: Object = _autoload("SfxIdDivinity")
-	if sound_ids == null or not sound_ids.mapping.has(sound_id):
+	var resource_id := absi(sound_id)
+	if sound_ids == null or not sound_ids.mapping.has(resource_id):
 		return {"status": "skipped", "message": "Classic sound %d has no Remake mapping" % sound_id}
-	var sound_name := str(sound_ids.mapping[sound_id])
+	var sound_name := str(sound_ids.mapping[resource_id])
 	var node_access: Object = _autoload("NodeAccess")
 	var resources: Object = node_access.__Resources() if node_access != null else null
 	if resources == null or not resources.sounds_book.has(sound_name):

@@ -427,13 +427,14 @@ func _check_sound(
 				{"resourceId": sound_id, "runtimeMediaPath": runtime_path}
 			)
 		return
-	var sound_name := str(_sound_mapping.get(sound_id, ""))
+	var resource_id := absi(sound_id)
+	var sound_name := str(_sound_mapping.get(resource_id, ""))
 	if sound_name.is_empty():
 		_add_media_diagnostic_for_action(
 			action,
 			"unresolved-sound-identity",
-			"Sound %d has no runtime media or Remake mapping" % sound_id,
-			{"resourceId": sound_id}
+			"Sound %d has no runtime media or Remake mapping" % resource_id,
+			{"resourceId": resource_id}
 		)
 		return
 	var sounds: Variant = _native_context.get("sounds", {})
