@@ -110,11 +110,11 @@ func _start_playtest() -> void:
 	_verify_stage(
 		"05_landlook",
 		str(landlook_result.get("status", "")) not in ["error", "skipped"]
-			and str(landlook_result.get("nativeTileset", "")) == "SnowDay"
-			and _native_map_uses_tileset("SnowDay")
+			and str(landlook_result.get("nativeTileset", "")) == "landlook-10"
+			and _native_map_uses_tileset("landlook-10")
 			and not returned_land_pixels.is_empty()
 			and returned_land_pixels != snow_pixels,
-		"Classic landlook 10 redraws map_0 with Remake's SnowDay tileset"
+		"Classic landlook 10 redraws map_0 with Realmz PICT 310"
 	)
 
 	if automated_smoke:

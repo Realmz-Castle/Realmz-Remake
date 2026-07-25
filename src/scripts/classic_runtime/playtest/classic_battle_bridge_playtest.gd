@@ -189,7 +189,7 @@ func _on_playthrough_completed(result: Dictionary) -> void:
 				host.runtime.runtime_state.y
 			) == initial_position
 			and host.runtime.runtime_state.get_landlook("land", 0, 0) == 10
-			and _native_map_uses_tileset("SnowDay"),
+			and _native_map_uses_tileset("landlook-10"),
 		"the party returns to the same native tile with the persistent landlook intact"
 	)
 	if automated_smoke:

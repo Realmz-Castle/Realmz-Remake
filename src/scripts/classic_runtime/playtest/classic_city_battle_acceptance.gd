@@ -994,7 +994,7 @@ func _verify_winter_timed_encounter() -> void:
 				if not (tile_value is Dictionary):
 					continue
 				var tileset_name := str(tile_value.get("tileset_name", ""))
-				if tileset_name in ["SnowDay", "landlook-10"]:
+				if tileset_name == "landlook-10":
 					snow_tiles += 1
 				elif tileset_name in ["ForestDay", "landlook-0"]:
 					original_tiles += 1

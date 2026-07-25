@@ -568,7 +568,7 @@ gap; the readiness report remains the authority on whether a bundle can launch.
 The map bridge playtest loads Remake's existing City of Bywater map resources,
 activates the checked Classic fixture at `land:0`, follows `Data DD:0:83` into
 `dungeon:0`, follows `Data DDD:0:1` back outside, and changes the returned map
-to Classic landlook 10. The normal run leaves the SnowDay version of the land
+to Classic landlook 10. The normal run leaves the PICT 310 version of the land
 map open after displaying both native maps:
 
 ```powershell
@@ -577,7 +577,7 @@ Godot_v4.7.1-stable_win64.exe --path src res://scripts/classic_runtime/playtest/
 
 Its automated smoke verifies the native map identities, map families, dungeon
 heading and multiview state, renderable tile textures, distinct captured land
-and dungeon output, and a visibly rendered SnowDay landlook change:
+and dungeon output, and a visibly rendered PICT 310 landlook change:
 
 ```powershell
 Godot_v4.7.1-stable_win64_console.exe --resolution 1100x619 --path src res://scripts/classic_runtime/playtest/classic_map_bridge_playtest.tscn -- --smoke
@@ -598,7 +598,7 @@ claiming fixture-level transition semantics. The real display driver is
 required because the test waits for rendered frames and writes PNG evidence.
 
 The native battle bridge playtest starts from the same real City of Bywater
-map, applies a persistent SnowDay landlook, requests native `Battle_24`, and
+map, applies a persistent source-numbered snow landlook, requests native `Battle_24`, and
 runs a compiled opcode `124` macro that adds two combatants. The smoke verifies
 the recorded sound-then-conjuration sequence for each creature and can capture
 the resulting native battle frame. A second combat macro removes the original

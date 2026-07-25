@@ -4272,6 +4272,30 @@ func _test_classic_map_materializer() -> void:
 	)
 	if not bundle.last_error.is_empty():
 		return
+	bundle.extra_codes_by_id[9001] = {
+		"id": 9001,
+		"values": [10, 0, 0, 0, 1],
+	}
+	bundle.extra_codes_by_id[9002] = {
+		"id": 9002,
+		"values": [5, 0, 0, 0, 1],
+	}
+	bundle.documents["scripts"]["triggers"].append({
+		"active": true,
+		"actions": [{"code": 57, "id": 9001, "rawCode": 57, "slot": 0}],
+		"callable": true,
+		"id": "Data ED3:runtime-landlook",
+		"recordIndex": 9001,
+		"source": "Data ED3",
+	})
+	bundle.documents["scripts"]["triggers"].append({
+		"active": true,
+		"actions": [{"code": 57, "id": 9002, "rawCode": 57, "slot": 0}],
+		"callable": false,
+		"id": "Data ED3:preserved-landlook",
+		"recordIndex": 9002,
+		"source": "Data ED3",
+	})
 	var map_record: Dictionary = bundle.documents["maps"]["maps"][0]
 	var tiles: Array = []
 	tiles.resize(int(map_record["width"]) * int(map_record["height"]))
@@ -4623,6 +4647,26 @@ func _test_classic_map_materializer() -> void:
 		Color8((5 * 40) & 0xf8, (5 * 72) & 0xf8, (5 * 104) & 0xf8, 255),
 		"custom landlook decodes the producer's fifth atlas tile"
 	)
+	var winter_land_directory := test_root.path_join("Tilesets").path_join("landlook-10")
+	var winter_source_image := Image.load_from_file(ProjectSettings.globalize_path(
+		MapMaterializerScript.STOCK_LANDLOOK_ATLASES[10]
+	))
+	var winter_generated_image := Image.load_from_file(
+		winter_land_directory.path_join("landlook-10.png")
+	)
+	_expect_equal(
+		winter_generated_image.get_size(),
+		Vector2i(640, 320),
+		"callable landlook changes materialize their stock Classic atlas"
+	)
+	_expect(
+		winter_generated_image.get_data() == winter_source_image.get_data(),
+		"winter transition preserves every decoded Realmz PICT 310 pixel"
+	)
+	_expect(
+		not DirAccess.dir_exists_absolute(test_root.path_join("Tilesets/landlook-5")),
+		"uncallable preserved landlook changes do not generate unused tilesets"
+	)
 	var land_overlay_directory := test_root.path_join("Tilesets").path_join(
 		"ClassicLandOverlay"
 	)
@@ -4783,6 +4827,9 @@ func _test_classic_map_materializer() -> void:
 		"Tilesets/landlook-6/landlook-6.json",
 		"Tilesets/landlook-6/tile_templates.json",
 		"Tilesets/landlook-6/landlook-6.png",
+		"Tilesets/landlook-10/landlook-10.json",
+		"Tilesets/landlook-10/tile_templates.json",
+		"Tilesets/landlook-10/landlook-10.png",
 	]
 	for relative_path: String in deterministic_files:
 		first_artifacts[relative_path] = FileAccess.get_sha256(
@@ -12980,10 +13027,10 @@ func _test_classic_map_bridge() -> void:
 		{"tileset_name": "ForestDay", "id": 3, "name": "sand"},
 	]
 	var snow_tiles: Array = [
-		{"tileset_name": "SnowDay", "id": 0, "name": "snow grass"},
-		{"tileset_name": "SnowDay", "id": 1, "name": "snow wall"},
-		{"tileset_name": "SnowDay", "id": 2, "name": "ice"},
-		{"tileset_name": "SnowDay", "id": 3, "name": "snow sand"},
+		{"tileset_name": "landlook-10", "id": 0, "name": "snow grass"},
+		{"tileset_name": "landlook-10", "id": 1, "name": "snow wall"},
+		{"tileset_name": "landlook-10", "id": 2, "name": "ice"},
+		{"tileset_name": "landlook-10", "id": 3, "name": "snow sand"},
 	]
 	var custom_tiles: Array = [
 		{"tileset_name": "landlook-6", "id": 0, "name": "custom grass"},
@@ -13045,7 +13092,7 @@ func _test_classic_map_bridge() -> void:
 	}
 	var resources = MapBridgeTestResources.new()
 	resources.tiles_book["ForestDay.json"] = forest_tiles
-	resources.tiles_book["SnowDay.json"] = snow_tiles
+	resources.tiles_book["landlook-10.json"] = snow_tiles
 	resources.tiles_book["landlook-6.json"] = custom_tiles
 	resources.tiles_book["ClassicDungeon.json"] = [
 		dungeon_floor,
@@ -13371,7 +13418,11 @@ func _test_classic_map_bridge() -> void:
 		"landlook": 10,
 		"dark": false,
 	}, game_global, resources)
-	_expect_equal(landlook_result.get("nativeTileset"), "SnowDay", "stock landlook resolves its native tileset")
+	_expect_equal(
+		landlook_result.get("nativeTileset"),
+		"landlook-10",
+		"stock landlook resolves its source-numbered Classic tileset"
+	)
 	_expect(bool(landlook_result.get("tilesetChanged")), "landlook changes native base tiles")
 	_expect_equal(landlook_result.get("changedTiles"), 4, "landlook changes every native land tile")
 	_expect_equal(
@@ -13407,8 +13458,8 @@ func _test_classic_map_bridge() -> void:
 		[custom_tiles[2]],
 		"custom landlook replaces the native base tile"
 	)
-	resources.tiles_book["Swamp.json"] = [
-		{"tileset_name": "Swamp", "id": 0, "name": "swamp grass"},
+	resources.tiles_book["landlook-9.json"] = [
+		{"tileset_name": "landlook-9", "id": 0, "name": "swamp grass"},
 	]
 	var incomplete_landlook: Dictionary = bridge.set_land_look({
 		"levelType": "land",

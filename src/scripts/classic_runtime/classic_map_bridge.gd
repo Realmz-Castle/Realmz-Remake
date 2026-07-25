@@ -4,12 +4,12 @@ extends RefCounted
 # Classic landlooks 1 and 2 are obsolete; custom looks 6-8 resolve through
 # producer-installed tilesets named by their catalog IDs.
 const STOCK_LANDLOOK_TILESETS := {
-	0: "ForestDay",
-	3: "Cave",
-	4: "Castle",
-	5: "DesertDay",
-	9: "Swamp",
-	10: "SnowDay",
+	0: "landlook-0",
+	3: "landlook-3",
+	4: "landlook-4",
+	5: "landlook-5",
+	9: "landlook-9",
+	10: "landlook-10",
 }
 const NATIVE_LANDLOOK_TILESETS := [
 	"ForestDay",
@@ -20,6 +20,12 @@ const NATIVE_LANDLOOK_TILESETS := [
 	"Swamp",
 	"SnowDay",
 	"SnowNight",
+	"landlook-0",
+	"landlook-3",
+	"landlook-4",
+	"landlook-5",
+	"landlook-9",
+	"landlook-10",
 ]
 # Boarding a boat replaces its map cell with this water tile in the Classic engine.
 const CLASSIC_BOAT_WATER_TILE := 60

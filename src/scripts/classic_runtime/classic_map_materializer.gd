@@ -546,6 +546,70 @@ func _resolve_tileset(
 	}
 
 
+func _runtime_landlook_targets(bundle: Object) -> Array[int]:
+	var targets: Dictionary = {}
+	var documents: Variant = bundle.get("documents")
+	if not (documents is Dictionary):
+		return []
+	var scripts: Variant = documents.get("scripts", {})
+	if scripts is Dictionary:
+		var triggers: Variant = scripts.get("triggers", [])
+		if triggers is Array:
+			for trigger_value: Variant in triggers:
+				if not (trigger_value is Dictionary):
+					continue
+				var trigger: Dictionary = trigger_value
+				if not bool(trigger.get("active", false)) \
+						or not _producer_marks_callable(trigger):
+					continue
+				_collect_landlook_targets(bundle, trigger.get("actions", []), targets)
+	var encounters: Variant = documents.get("encounters", {})
+	if encounters is Dictionary:
+		for collection_name: String in ["simpleEncounters", "complexEncounters"]:
+			var records: Variant = encounters.get(collection_name, [])
+			if not (records is Array):
+				continue
+			for record_value: Variant in records:
+				if not (record_value is Dictionary):
+					continue
+				var record: Dictionary = record_value
+				if not _producer_marks_callable(record):
+					continue
+				_collect_landlook_targets(bundle, record.get("actions", []), targets)
+	var result: Array[int] = []
+	for landlook_value: Variant in targets.keys():
+		result.append(int(landlook_value))
+	result.sort()
+	return result
+
+
+func _collect_landlook_targets(
+	bundle: Object,
+	actions_value: Variant,
+	targets: Dictionary
+) -> void:
+	if not (actions_value is Array):
+		return
+	for action_value: Variant in actions_value:
+		if not (action_value is Dictionary):
+			continue
+		var action: Dictionary = action_value
+		if absi(int(action.get("rawCode", action.get("code", 0)))) != 57:
+			continue
+		var extra_code_id := int(action.get("id", -1))
+		var extra_code: Variant = bundle.get_extra_code(extra_code_id)
+		if not (extra_code is Dictionary):
+			continue
+		var values: Variant = extra_code.get("values", [])
+		if not (values is Array) or values.is_empty():
+			continue
+		targets[int(values[0])] = true
+
+
+func _producer_marks_callable(record: Dictionary) -> bool:
+	return not record.has("callable") or bool(record["callable"])
+
+
 func _build_stock_land_tileset_plans(
 	bundle: Object,
 	pending_maps: Array[Dictionary],
@@ -569,6 +633,9 @@ func _build_stock_land_tileset_plans(
 				"message": "Classic landlook %d has no safe tileset identity" % landlook,
 			}
 		required[tileset_id] = landlook
+	for landlook: int in _runtime_landlook_targets(bundle):
+		if STOCK_LANDLOOK_ATLASES.has(landlook):
+			required["landlook-%d" % landlook] = landlook
 	if required.is_empty():
 		return {"status": "skip", "plans": {}}
 
@@ -586,16 +653,19 @@ func _build_stock_land_tileset_plans(
 	for tileset_id_value: Variant in tileset_ids:
 		var tileset_id := str(tileset_id_value)
 		var landlook := int(required[tileset_id])
-		if not assets_by_id.has(tileset_id):
-			return {
-				"status": "error",
-				"message": "Classic stock tileset %s is missing from the asset catalog" % (
-					tileset_id
-				),
-			}
+		var asset: Dictionary = assets_by_id.get(tileset_id, {})
+		if asset.is_empty():
+			if tileset_id != "landlook-%d" % landlook:
+				return {
+					"status": "error",
+					"message": "Classic stock tileset %s is missing from the asset catalog" % (
+						tileset_id
+					),
+				}
+			asset = _stock_landlook_asset(tileset_id, landlook)
 		var plan := _build_stock_land_tileset_plan(
 			bundle,
-			assets_by_id[tileset_id],
+			asset,
 			tileset_id,
 			landlook,
 			campaign_directory
@@ -604,6 +674,19 @@ func _build_stock_land_tileset_plans(
 			return plan
 		plans[tileset_id] = plan
 	return {"status": "ok", "plans": plans}
+
+
+func _stock_landlook_asset(tileset_id: String, landlook: int) -> Dictionary:
+	return {
+		"id": tileset_id,
+		"landlook": landlook,
+		"pictId": 300 + landlook,
+		"custom": false,
+		"columns": CUSTOM_LAND_COLUMNS,
+		"rows": CUSTOM_LAND_ROWS,
+		"tileWidth": CUSTOM_LAND_TILE_SIZE,
+		"tileHeight": CUSTOM_LAND_TILE_SIZE,
+	}
 
 
 func _build_stock_land_tileset_plan(
@@ -801,6 +884,10 @@ func _build_custom_land_tileset_plans(
 				),
 			}
 		required[tileset_id] = landlook
+	for landlook: int in _runtime_landlook_targets(bundle):
+		if MapBridgeScript.STOCK_LANDLOOK_TILESETS.has(landlook):
+			continue
+		required["landlook-%d" % landlook] = landlook
 	if required.is_empty():
 		return {"status": "skip", "plans": {}}
 

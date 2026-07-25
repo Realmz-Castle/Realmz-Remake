@@ -129,6 +129,10 @@ Realmz reference atlas. The 200 visual slots keep their one-based Classic IDs an
 use records 1 through 200 from `maps.tileAttributes` for movement, line of sight,
 terrain, and sound metadata. A themed native Remake tileset is not an equivalent
 substitute because its atlas ordering and terrain behavior are independent.
+Stock landlooks referenced by Change Land Look actions should appear in the
+catalog even when no map starts with them. For older version-1 producers, Remake
+can derive the canonical `landlook-<id>` identity and materialize its bundled
+Realmz PICT when the complete matching behavior table is present.
 
 Negative `cicn` IDs identify special land tiles and belong in the additive
 `assets.catalog.specialLandTiles` collection. Ordinary `assets.catalog.icons`
