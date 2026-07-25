@@ -391,16 +391,16 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"start_battle":
 			if response.has("forcedResumeSlot"):
 				runtime.finish_forced_battle_at_slot(int(response["forcedResumeSlot"]))
-			elif str(payload.get("participantMode", "party")) == "selected":
-				if not response.has("survivorCount"):
-					_stop_with_error("Selective battle adapter response is missing 'survivorCount'", command)
-					return
-				runtime.finish_selective_battle(int(response["survivorCount"]))
 			elif bool(payload.get("outcomeBranch", false)):
 				if not response.has("coward"):
 					_stop_with_error("Battle adapter response is missing 'coward'", command)
 					return
 				runtime.finish_battle(bool(response["coward"]))
+			elif str(payload.get("participantMode", "party")) == "selected":
+				if not response.has("survivorCount"):
+					_stop_with_error("Selective battle adapter response is missing 'survivorCount'", command)
+					return
+				runtime.finish_selective_battle(int(response["survivorCount"]))
 			else:
 				runtime.continue_after_command()
 		"end_classic_battle":
@@ -443,6 +443,10 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Combat-monster adapter response is missing 'present'", command)
 				return
 			runtime.finish_combat_monster_check(bool(response["present"]))
+		"revive_classic_combatants":
+			runtime.finish_combat_revival(
+				int(response.get("partyRevived", 0)) > 0
+			)
 		"activate_battle_round_macro":
 			runtime.finish_battle_round_macro()
 		"present_random_branch":
@@ -470,6 +474,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"store_party_equipment", "add_party_ally", \
 		"destroy_combat_monsters", "deanimate_lower_undead", "rout_combat_monsters", \
 		"spawn_combat_monsters", \
+		"alter_classic_combatants", \
+		"fumble_active_combatant", \
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
 		"teleport":

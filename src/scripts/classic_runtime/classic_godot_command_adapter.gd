@@ -536,6 +536,12 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _rout_combat_monsters(payload)
 		"spawn_combat_monsters":
 			return await _spawn_combat_monsters(payload)
+		"revive_classic_combatants":
+			return await _revive_classic_combatants(payload)
+		"alter_classic_combatants":
+			return _alter_classic_combatants(payload)
+		"fumble_active_combatant":
+			return await _fumble_active_combatant(payload)
 		"activate_battle_round_macro":
 			return _activate_battle_round_macro(payload)
 		"end_classic_battle":
@@ -1247,6 +1253,14 @@ func _spawn_combat_monsters(payload: Dictionary) -> Dictionary:
 	var spawned_combatants: Variant = result.get("combatants", [])
 	if not (spawned_combatants is Array):
 		return _error("Classic combat spawn returned an invalid combatant list")
+	if bool(payload.get("skipPresentation", false)):
+		result["presentation"] = {
+			"style": "none",
+			"animated": 0,
+			"soundRepeats": 0,
+			"events": [],
+		}
+		return result
 	for combatant_value: Variant in spawned_combatants:
 		if combatant_value is Object \
 				and combatant_value.has_method("prepare_classic_spawn_animation"):
@@ -1281,6 +1295,202 @@ func _spawn_combat_monsters(payload: Dictionary) -> Dictionary:
 	result["presentation"] = presentation
 	last_classic_spawn_presentation = presentation.duplicate(true)
 	return result
+
+
+func _revive_classic_combatants(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var party := _party_characters()
+	if party.is_empty():
+		return _error("Classic combat revival has no party members")
+	var living_party := 0
+	for character_value: Variant in party:
+		if _is_living_character(character_value):
+			living_party += 1
+	if living_party == 0:
+		var origin: Variant = payload.get("actorPosition", Vector2.ZERO)
+		if origin is Vector2i:
+			origin = Vector2(origin)
+		elif not (origin is Vector2):
+			origin = Vector2.ZERO
+		var revived := revive_classic_party(
+			party,
+			context["state"],
+			context["combatants"],
+			origin
+		)
+		if str(revived.get("status", "")) == "error":
+			return revived
+		_refresh_party_panels(party)
+		return revived
+
+	var actor_monster_id := int(payload.get("actorMonsterId", -1))
+	var monster: Variant = payload.get("monster", {})
+	if actor_monster_id < 0 or not (monster is Dictionary) or monster.is_empty():
+		return _error("Classic NPC revival is missing its dead monster record")
+	var revived_monster: Dictionary = monster.duplicate(true)
+	revived_monster["traitor"] = 0
+	var spawn_payload := {
+		"monsterId": actor_monster_id,
+		"monster": revived_monster,
+		"spawnCount": 1,
+		"actorPosition": payload.get("actorPosition"),
+		"soundId": 0,
+		"skipPresentation": true,
+	}
+	var spawn_result := await _spawn_combat_monsters(spawn_payload)
+	if str(spawn_result.get("status", "")) == "error":
+		return spawn_result
+	spawn_result["npcRevived"] = int(spawn_result.get("spawned", 0))
+	return spawn_result
+
+
+func revive_classic_party(
+	party: Array,
+	combat_state: Variant,
+	combatants: Array,
+	origin: Vector2
+) -> Dictionary:
+	var dead_party: Variant = combat_state.get("battle_dead_party_members") \
+		if combat_state is Object else null
+	var revived := 0
+	for character_value: Variant in party:
+		if not (character_value is Object) \
+				or not _object_has_property(character_value, "stats") \
+				or not _object_has_property(character_value, "life_status"):
+			return _error("Classic party revival target has no health state")
+		var stats_value: Variant = character_value.get("stats")
+		if not (stats_value is Dictionary):
+			return _error("Classic party revival target has invalid health state")
+		character_value.set("life_status", 0)
+		stats_value["curHP"] = 1
+		if CharacterConditionRulesScript.supports_condition(25) \
+				and _object_has_property(character_value, "traits"):
+			var clear_result := CharacterConditionRulesScript.set_condition_value(
+				character_value,
+				25,
+				0
+			)
+			if str(clear_result.get("status", "")) == "error":
+				return clear_result
+		if dead_party is Array:
+			dead_party.erase(character_value)
+		var already_present := false
+		for combatant_value: Variant in combatants:
+			if _combatant_creature(combatant_value) == character_value:
+				already_present = true
+				break
+		if not already_present \
+				and combat_state is Object \
+				and combat_state.has_method("add_pc_or_npc_ally_to_battle_map"):
+			combat_state.call(
+				"add_pc_or_npc_ally_to_battle_map",
+				character_value,
+				origin
+			)
+		revived += 1
+	return {"partyRevived": revived}
+
+
+func _alter_classic_combatants(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	return alter_classic_combatants(payload, context["combatants"])
+
+
+func alter_classic_combatants(payload: Dictionary, combatants: Array) -> Dictionary:
+	var target_type := str(payload.get("targetType", ""))
+	if target_type not in ["ally", "monster"]:
+		return _error("Classic combatant mutation has an invalid target type")
+	var monster_name_id := int(payload.get("monsterNameId", -1))
+	var max_matches := maxi(0, int(payload.get("maxMatches", 0)))
+	var icon_id := int(payload.get("iconId", -1))
+	var faction := int(payload.get("faction", -1))
+	var altered := 0
+	for combatant_value: Variant in combatants:
+		if altered >= max_matches:
+			break
+		var creature: Variant = _combatant_creature(combatant_value)
+		if not (creature is Object) \
+				or _classic_monster_name_id(creature) != monster_name_id:
+			continue
+		var can_summon := int(creature.get_meta("classic_can_summon", 0))
+		if (target_type == "ally") != (can_summon == -1):
+			continue
+		if icon_id != -1:
+			creature.set_meta("classic_icon_id", icon_id)
+		else:
+			creature.set("baseFaction", faction)
+			creature.set("curFaction", faction)
+		if combatant_value is Object \
+				and combatant_value.has_method("set_creature_represented"):
+			combatant_value.call("set_creature_represented", creature)
+		altered += 1
+	return {
+		"altered": altered,
+		"iconChanged": icon_id != -1,
+		"faction": faction,
+	}
+
+
+func _fumble_active_combatant(payload: Dictionary) -> Dictionary:
+	var context := _combat_context()
+	if context.has("error"):
+		return _error(str(context["error"]))
+	var active_combatant: Variant = _active_combatant(context["stateMachine"])
+	if active_combatant == null:
+		return _error("Realmz active combat actor is unavailable")
+	_play_sound(payload)
+	var message: Variant = payload.get("message", {})
+	if message is Dictionary and not str(message.get("text", "")).is_empty():
+		var text_result := await _show_text(payload)
+		if str(text_result.get("status", "")) == "error":
+			return text_result
+	var result := fumble_classic_combatant(context["state"], active_combatant)
+	if bool(result.get("fumbled", false)):
+		for sound_id: int in result.get("dropSoundIds", []):
+			_play_sound({"soundId": sound_id})
+	return result
+
+
+func fumble_classic_combatant(
+	combat_state: Variant,
+	combatant: Variant
+) -> Dictionary:
+	var creature: Variant = _combatant_creature(combatant)
+	if not (creature is Object) \
+			or not _object_has_property(creature, "current_melee_weapon_instances"):
+		return _error("Classic combat fumble target has no melee weapon state")
+	var weapons_value: Variant = creature.get("current_melee_weapon_instances")
+	if not (weapons_value is Array) or weapons_value.is_empty():
+		return {"fumbled": false}
+	var weapon: Variant = weapons_value[0]
+	if bool(creature.get("is_player_controlled")):
+		var fumbled_items: Variant = combat_state.get("classic_fumbled_items") \
+			if combat_state is Object else null
+		if not (fumbled_items is Array):
+			return _error("Realmz battle fumble queue is unavailable")
+		if fumbled_items.size() >= 20:
+			return {"fumbled": false, "queueFull": true}
+		if not creature.has_method("remove_inventory_item") \
+				or not bool(creature.call("remove_inventory_item", weapon, true)):
+			return {"fumbled": false}
+		fumbled_items.append(weapon)
+		return {
+			"fumbled": true,
+			"playerWeapon": true,
+			"dropSoundIds": [-10121, -10123],
+		}
+	if creature.has_method("remove_inventory_item"):
+		creature.call("remove_inventory_item", weapon, true)
+	weapons_value.clear()
+	return {
+		"fumbled": true,
+		"playerWeapon": false,
+		"dropSoundIds": [-10121, -655],
+	}
 
 
 func _combatant_scene_resource() -> Variant:
@@ -1947,13 +2157,17 @@ func _combat_creature_faction(creature: Variant) -> int:
 
 
 func _active_combat_faction(state_machine: Object) -> Variant:
-	var decide_state: Variant = state_machine.get("cb_decide_state")
-	var active_combatant: Variant = decide_state.get("current_active_creabutton") \
-		if decide_state is Object else null
+	var active_combatant: Variant = _active_combatant(state_machine)
 	var active_creature: Variant = _combatant_creature(active_combatant)
 	if active_creature == null:
 		return null
 	return _combat_creature_faction(active_creature)
+
+
+func _active_combatant(state_machine: Object) -> Variant:
+	var decide_state: Variant = state_machine.get("cb_decide_state")
+	return decide_state.get("current_active_creabutton") \
+		if decide_state is Object else null
 
 
 func _classic_spawn_origin(payload: Dictionary, state_machine: Object) -> Variant:

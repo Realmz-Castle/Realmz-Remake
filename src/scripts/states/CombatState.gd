@@ -25,6 +25,7 @@ var battle_creatures_yet_to_act_btns : Array = []#array of  combatcreabuttons
 var battle_allows_loss : bool = false
 var battle_dead_enemies : Array = []
 var battle_dead_party_members : Array = []
+var classic_fumbled_items: Array = []
 var classic_combat_macro_queue: Array = []
 # State transitions do not cancel an enter() coroutine that is already awaiting.
 # Keep battle completion idempotent when an older combat callback resumes.

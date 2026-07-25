@@ -1229,6 +1229,10 @@ func end_battle(
 					StateMachine.combat_state.battle_dead_enemies,
 					str(reward_mode) == BATTLE_REWARD_EXPERIENCE_ONLY
 				)
+				if str(reward_mode) != BATTLE_REWARD_EXPERIENCE_ONLY:
+					rewards["treasure"].append_array(
+						StateMachine.combat_state.classic_fumbled_items
+					)
 			allow_next_battle_loot = true
 
 			#this won't show the allies  screen
@@ -1237,6 +1241,7 @@ func end_battle(
 			StateMachine.combat_state.all_battle_creatures_btns.clear()
 			StateMachine.combat_state.battle_dead_enemies.clear()
 			StateMachine.combat_state.battle_dead_party_members.clear()
+			StateMachine.combat_state.classic_fumbled_items.clear()
 
 
 
@@ -1308,6 +1313,7 @@ func end_battle(
 	#cur_battle_data = {}
 	#cur_battle_data.clear() CLEARED THE RESOURCE DICT  LOL
 	allow_next_battle_loot = true
+	StateMachine.combat_state.classic_fumbled_items.clear()
 	print("GAMEGLOBAL emit_signal('battle_end', wonfledlost)")
 	emit_signal("battle_end", wonfledlost)
 	map.focuscharacter = map.owcharacter

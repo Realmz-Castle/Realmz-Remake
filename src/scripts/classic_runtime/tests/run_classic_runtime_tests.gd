@@ -1991,6 +1991,7 @@ class CombatTestCreature:
 	extends RefCounted
 	var name: String
 	var current_hp: int
+	var baseFaction: int
 	var curFaction: int
 	var position := Vector2.ZERO
 	var classic_monster_id := -1
@@ -2002,6 +2003,7 @@ class CombatTestCreature:
 	func _init(creature_name: String, hp: int, faction := 1) -> void:
 		name = creature_name
 		current_hp = hp
+		baseFaction = faction
 		curFaction = faction
 
 	func get_stat(stat_name: String) -> int:
@@ -2101,6 +2103,36 @@ class CombatTestButton:
 		creature = represented_creature
 
 
+class CombatReviveTestCharacter:
+	extends RefCounted
+	var name := "Revived hero"
+	var life_status := 3
+	var stats := {"curHP": -12, "maxHP": 20}
+
+	func get_stat(stat_name: String) -> int:
+		return int(stats.get(stat_name, 0))
+
+
+class CombatFumbleTestCreature:
+	extends RefCounted
+	var name := "Fumbling combatant"
+	var is_player_controlled := false
+	var current_melee_weapon_instances: Array = []
+	var inventory: Array = []
+
+	func _init(player_controlled: bool, weapon: Variant) -> void:
+		is_player_controlled = player_controlled
+		current_melee_weapon_instances = [weapon]
+		inventory = [weapon]
+
+	func remove_inventory_item(item: Variant, _allow_equipped := false) -> bool:
+		if not inventory.has(item):
+			return false
+		inventory.erase(item)
+		current_melee_weapon_instances.erase(item)
+		return true
+
+
 class TurnUndeadTestCreature:
 	extends RefCounted
 	var name: String
@@ -2144,6 +2176,7 @@ class CombatTestState:
 	var battle_creatures_yet_to_act_btns: Array
 	var battle_dead_enemies: Array = []
 	var battle_dead_party_members: Array = []
+	var classic_fumbled_items: Array = []
 	var cur_battle_data: Dictionary = {"battleMacro": -1}
 	var classic_monster_slots_used := 0
 	var placement_origins: Array = []
@@ -2539,6 +2572,7 @@ func _ready() -> void:
 	_test_lower_undead_deanimation_action()
 	_test_combat_monster_rout_action()
 	_test_combat_monster_spawn_action()
+	_test_remaining_combat_opcodes()
 	await _test_native_combat_command_host()
 	_test_battle_round_macro_action()
 	_test_classic_combat_macro_queue()
@@ -26017,6 +26051,219 @@ func _test_combat_monster_spawn_action() -> void:
 		crowded_state.all_battle_creatures_btns,
 		[party_button],
 		"capacity rejection leaves the party roster unchanged"
+	)
+
+
+func _test_remaining_combat_opcodes() -> void:
+	var bundle = _combat_monster_test_bundle()
+	bundle.extra_codes_by_id[107] = {"id": 107, "values": [1, 1, 640, 930, 940]}
+	bundle.extra_codes_by_id[120] = {"id": 120, "values": [2, 7, 1, -1, 0]}
+	bundle.extra_codes_by_id[122] = {"id": 122, "values": [931, 641, 0, 0, 0]}
+	bundle.messages_by_id[930] = {"id": 930, "text": "Selective battle"}
+	bundle.messages_by_id[931] = {"id": 931, "text": "Weapon fumbled"}
+	bundle.messages_by_id[940] = {"id": 940, "text": "Coward branch"}
+	_add_stack_trigger(bundle, "remaining-combat:selective", -1, [
+		_classic_action(0, 107, 107),
+	])
+	_add_stack_trigger(bundle, "remaining-combat:revive", -1, [
+		_classic_action(0, 119, 0),
+	])
+	_add_stack_trigger(bundle, "remaining-combat:alter", -1, [
+		_classic_action(0, 120, 120),
+	])
+	_add_stack_trigger(bundle, "remaining-combat:fumble", -1, [
+		_classic_action(0, 122, 122),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:940", 940, [
+		_classic_action(0, 1, 940),
+	])
+
+	var interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger("remaining-combat:selective"),
+		"begin opcode 107 fixture"
+	)
+	var battle_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		battle_command.get("command"),
+		"start_battle",
+		"opcode 107 starts a native battle"
+	)
+	_expect_equal(
+		battle_command.get("payload", {}).get("participantMode"),
+		"selected",
+		"opcode 107 limits combat to picked living characters"
+	)
+	_expect(
+		bool(battle_command.get("payload", {}).get("outcomeBranch")),
+		"opcode 107 retains cowardice branching"
+	)
+	_expect_equal(
+		interpreter.resume_battle(false).get("command"),
+		"give_battle_loot",
+		"opcode 107 victory follows normal battle rewards"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("remaining-combat:selective")
+	interpreter.run_until_yield()
+	_expect_equal(
+		interpreter.resume_battle(true).get("payload", {}).get("messageId"),
+		940,
+		"opcode 107 defeat follows its authored XAP"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger(
+			"remaining-combat:revive",
+			0,
+			{
+				"actorMonsterId": 92,
+				"actorMonsterNameId": 7,
+				"actorPosition": Vector2(8, 9),
+				"actorFaction": 4,
+			}
+		),
+		"begin opcode 119 fixture"
+	)
+	var revive_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		revive_command.get("command"),
+		"revive_classic_combatants",
+		"opcode 119 yields a typed combat revival"
+	)
+	_expect_equal(
+		revive_command.get("payload", {}).get("monster", {}).get("id"),
+		92,
+		"opcode 119 resolves the queued death-macro actor"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("remaining-combat:alter")
+	var alter_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		alter_command.get("command"),
+		"alter_classic_combatants",
+		"opcode 120 yields a typed combatant mutation"
+	)
+	_expect_equal(
+		alter_command.get("payload", {}).get("targetType"),
+		"monster",
+		"opcode 120 preserves the source summon-sentinel class"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("remaining-combat:fumble")
+	var fumble_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		fumble_command.get("command"),
+		"fumble_active_combatant",
+		"opcode 122 yields a typed active-weapon fumble"
+	)
+	_expect_equal(
+		fumble_command.get("payload", {}).get("soundId"),
+		641,
+		"opcode 122 preserves its authored sound"
+	)
+	interpreter = _interpreter(bundle)
+	bundle.extra_codes_by_id.erase(0)
+	_add_stack_trigger(bundle, "remaining-combat:fumble-zero", -1, [
+		_classic_action(0, 122, 0),
+	])
+	interpreter.begin_trigger("remaining-combat:fumble-zero")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"fumble_active_combatant",
+		"opcode 122 accepts Classic's zeroed Extra Code row"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var revived_one := CombatReviveTestCharacter.new()
+	var revived_two := CombatReviveTestCharacter.new()
+	var revive_state := CombatTestState.new([])
+	revive_state.battle_dead_party_members = [revived_one, revived_two]
+	var revived: Dictionary = adapter.revive_classic_party(
+		[revived_one, revived_two],
+		revive_state,
+		[],
+		Vector2.ZERO
+	)
+	_expect_equal(revived.get("partyRevived"), 2, "opcode 119 revives a wiped party")
+	_expect_equal(
+		[revived_one.get_stat("curHP"), revived_two.get_stat("curHP")],
+		[1, 1],
+		"opcode 119 restores every party member to one stamina"
+	)
+	_expect(
+		revive_state.battle_dead_party_members.is_empty(),
+		"opcode 119 removes revived characters from native defeat state"
+	)
+
+	var matching_monster := CombatTestCreature.new("Matching monster", 10, 3)
+	matching_monster.classic_monster_name_id = 7
+	matching_monster.set_meta("classic_can_summon", 0)
+	var matching_ally := CombatTestCreature.new("Matching ally", 10, 0)
+	matching_ally.classic_monster_name_id = 7
+	matching_ally.set_meta("classic_can_summon", -1)
+	var altered: Dictionary = adapter.alter_classic_combatants(
+		alter_command.get("payload", {}),
+		[
+			CombatTestButton.new(matching_monster),
+			CombatTestButton.new(matching_ally),
+		]
+	)
+	_expect_equal(altered.get("altered"), 1, "opcode 120 honors its match count")
+	_expect_equal(
+		[matching_monster.baseFaction, matching_monster.curFaction],
+		[0, 0],
+		"opcode 120 changes both native faction values"
+	)
+	_expect_equal(
+		matching_ally.curFaction,
+		0,
+		"opcode 120 monster targeting excludes the ally sentinel"
+	)
+	var icon_result: Dictionary = adapter.alter_classic_combatants(
+		{
+			"targetType": "ally",
+			"monsterNameId": 7,
+			"maxMatches": 1,
+			"iconId": 812,
+			"faction": -1,
+		},
+		[CombatTestButton.new(matching_ally)]
+	)
+	_expect_equal(icon_result.get("altered"), 1, "opcode 120 alters an ally icon")
+	_expect_equal(
+		matching_ally.get_meta("classic_icon_id"),
+		812,
+		"opcode 120 preserves the replacement Classic icon identity"
+	)
+
+	var player_weapon := RefCounted.new()
+	var player := CombatFumbleTestCreature.new(true, player_weapon)
+	var fumble_state := CombatTestState.new([])
+	var player_fumble: Dictionary = adapter.fumble_classic_combatant(
+		fumble_state,
+		CombatTestButton.new(player)
+	)
+	_expect(bool(player_fumble.get("fumbled")), "opcode 122 disarms a player")
+	_expect_equal(
+		fumble_state.classic_fumbled_items,
+		[player_weapon],
+		"opcode 122 queues the player's weapon for victory recovery"
+	)
+	var monster_weapon := RefCounted.new()
+	var monster := CombatFumbleTestCreature.new(false, monster_weapon)
+	var monster_fumble: Dictionary = adapter.fumble_classic_combatant(
+		fumble_state,
+		CombatTestButton.new(monster)
+	)
+	_expect(bool(monster_fumble.get("fumbled")), "opcode 122 disarms a monster")
+	_expect(
+		monster.current_melee_weapon_instances.is_empty(),
+		"opcode 122 clears the monster's active weapon"
 	)
 
 

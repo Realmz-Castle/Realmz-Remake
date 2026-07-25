@@ -16,8 +16,8 @@ const HANDLED_OPCODES := [
 	50, 51, 52, 53, 54, 55, 56, 57, 58,
 	60, 61, 63, 64, 65, 66, 67, 68, 69, 70, 72, 73, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89,
 	90, 91, 92, 93, 94, 95, 96, 97, 98,
-	99, 100, 101, 102, 103, 104, 105, 106, 108, 111, 112,
-	121, 123, 124, 125, 126, 127,
+	99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 111, 112,
+	119, 120, 121, 122, 123, 124, 125, 126, 127,
 ]
 const PRIEST_TURNING_ENABLED_MESSAGE := \
 	"You regain your ability to turn undead and nether spawn."
@@ -61,6 +61,7 @@ var pending_character_ability_check: Dictionary = {}
 var pending_misc_branch: Dictionary = {}
 var pending_ally_check: Dictionary = {}
 var pending_combat_monster_check: Dictionary = {}
+var pending_combat_revival: Dictionary = {}
 var pending_battle_round_macro: Dictionary = {}
 var pending_random_branch: Dictionary = {}
 var pending_time_mutation: Dictionary = {}
@@ -118,6 +119,7 @@ func reset_execution() -> void:
 	pending_misc_branch.clear()
 	pending_ally_check.clear()
 	pending_combat_monster_check.clear()
+	pending_combat_revival.clear()
 	pending_battle_round_macro.clear()
 	pending_random_branch.clear()
 	pending_time_mutation.clear()
@@ -156,6 +158,7 @@ func make_execution_snapshot() -> Dictionary:
 		"pendingMiscBranch": pending_misc_branch.duplicate(true),
 		"pendingAllyCheck": pending_ally_check.duplicate(true),
 		"pendingCombatMonsterCheck": pending_combat_monster_check.duplicate(true),
+		"pendingCombatRevival": pending_combat_revival.duplicate(true),
 		"pendingBattleRoundMacro": pending_battle_round_macro.duplicate(true),
 		"pendingRandomBranch": pending_random_branch.duplicate(true),
 		"pendingTimeMutation": pending_time_mutation.duplicate(true),
@@ -206,6 +209,7 @@ func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
 	pending_misc_branch = saved.get("pendingMiscBranch", {}).duplicate(true)
 	pending_ally_check = saved["pendingAllyCheck"].duplicate(true)
 	pending_combat_monster_check = saved["pendingCombatMonsterCheck"].duplicate(true)
+	pending_combat_revival = saved.get("pendingCombatRevival", {}).duplicate(true)
 	pending_battle_round_macro = saved["pendingBattleRoundMacro"].duplicate(true)
 	pending_random_branch = saved["pendingRandomBranch"].duplicate(true)
 	pending_time_mutation = saved.get("pendingTimeMutation", {}).duplicate(true)
@@ -251,6 +255,9 @@ static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
 		return _snapshot_error(
 			"Classic continuation has invalid pendingCharacterAbilityCheck"
 		)
+	if snapshot.has("pendingCombatRevival") \
+			and not (snapshot.get("pendingCombatRevival") is Dictionary):
+		return _snapshot_error("Classic continuation has invalid pendingCombatRevival")
 	if snapshot.has("pendingTimeMutation") \
 			and not (snapshot.get("pendingTimeMutation") is Dictionary):
 		return _snapshot_error("Classic continuation has invalid pendingTimeMutation")
@@ -369,6 +376,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic ally check must be resumed before execution can continue")
 	if not pending_combat_monster_check.is_empty():
 		return _error_result("A classic combat-monster check must be resumed before execution can continue")
+	if not pending_combat_revival.is_empty():
+		return _error_result("A classic combat revival must be resumed before execution can continue")
 	if not pending_battle_round_macro.is_empty():
 		return _error_result("A classic battle-round macro must be resumed before execution can continue")
 	if not pending_random_branch.is_empty():
@@ -827,6 +836,16 @@ func resume_combat_monster_check(present: bool) -> Dictionary:
 	return _completed_result("required-combat-monster-absent")
 
 
+func resume_combat_revival(party_revived: bool) -> Dictionary:
+	if pending_combat_revival.is_empty():
+		return _error_result("No classic combat revival is waiting for a response")
+	pending_combat_revival.clear()
+	if party_revived:
+		_clear_control_flow()
+		return _completed_result("party-revived")
+	return run_until_yield()
+
+
 func resume_battle_round_macro() -> Dictionary:
 	if pending_battle_round_macro.is_empty():
 		return _error_result("No classic battle-round macro is waiting for activation")
@@ -1112,6 +1131,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _continue_result()
 		106:
 			return _execute_darkland(record_id)
+		107:
+			return _execute_improved_selective_battle(record_id, gosub_active)
 		108:
 			return _execute_selected_character_mutation(record_id)
 		111:
@@ -1126,8 +1147,14 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			if not call_stack.is_empty():
 				call_stack.pop_back()
 			return _continue_result()
+		119:
+			return _execute_combat_revival()
+		120:
+			return _execute_combatant_mutation(record_id)
 		121:
 			return _execute_deanimate_lower_undead(record_id)
+		122:
+			return _execute_combat_fumble(record_id)
 		123:
 			return _execute_combat_rout(record_id)
 		124:
@@ -1161,6 +1188,60 @@ func _execute_combat_monster_check(monster_name_id: int) -> Dictionary:
 	pending_combat_monster_check = {"monsterNameId": abs(monster_name_id)}
 	return _yield_result("check_combat_monster", {
 		"monsterNameId": abs(monster_name_id),
+	})
+
+
+func _execute_combat_revival() -> Dictionary:
+	pending_combat_revival = {"active": true}
+	var actor_monster_id := int(execution_context.get("actorMonsterId", -1))
+	var payload := {
+		"actorMonsterId": actor_monster_id,
+		"actorMonsterNameId": int(
+			execution_context.get("actorMonsterNameId", -1)
+		),
+		"actorPosition": execution_context.get("actorPosition"),
+		"actorFaction": int(execution_context.get("actorFaction", 0)),
+	}
+	if actor_monster_id >= 0:
+		payload["monster"] = bundle.get_monster(actor_monster_id)
+	return _yield_result("revive_classic_combatants", payload)
+
+
+func _execute_combatant_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Combatant mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var target_type := int(values[0])
+	if target_type not in [1, 2]:
+		return _halt_with_error(
+			"Combatant mutation has invalid target type %d" % target_type
+		)
+	return _yield_result("alter_classic_combatants", {
+		"extraCodeId": extra_code_id,
+		"targetType": "ally" if target_type == 1 else "monster",
+		"monsterNameId": int(values[1]),
+		"maxMatches": maxi(0, int(values[2])),
+		"iconId": int(values[3]),
+		"faction": int(values[4]),
+	})
+
+
+func _execute_combat_fumble(extra_code_id: int) -> Dictionary:
+	var values: Array = [0, 0, 0, 0, 0]
+	if extra_code_id != 0:
+		values = _extra_code_values(extra_code_id)
+		if values.is_empty():
+			return _halt_with_error(
+				"Combat fumble references missing Extra Code row %d" % extra_code_id
+			)
+	var message_id := int(values[0])
+	return _yield_result("fumble_active_combatant", {
+		"extraCodeId": extra_code_id,
+		"messageId": message_id,
+		"message": bundle.get_message(message_id) if message_id != 0 else {},
+		"soundId": int(values[1]),
 	})
 
 
@@ -2567,6 +2648,38 @@ func _execute_battle_outcome(extra_code_id: int, gosub: bool) -> Dictionary:
 		"priestTurningEnabled": runtime_state.priest_turning_enabled,
 		"outcomeBranch": true,
 		"cowardMacroId": int(values[2]),
+	})
+
+
+func _execute_improved_selective_battle(
+	extra_code_id: int,
+	gosub: bool
+) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Improved selective battle references missing Extra Code row %d"
+			% extra_code_id
+		)
+	var first_battle_id := int(values[0])
+	var last_battle_id := int(values[1]) if int(values[1]) != 0 else first_battle_id
+	pending_battle = {
+		"extraCodeId": extra_code_id,
+		"cowardMacroId": int(values[4]),
+		"gosub": gosub,
+	}
+	return _yield_result("start_battle", {
+		"extraCodeId": extra_code_id,
+		"battleIdRange": [abs(first_battle_id), abs(last_battle_id)],
+		"soundId": int(values[2]),
+		"messageId": int(values[3]),
+		"message": bundle.get_message(int(values[3])),
+		"lootMode": 0,
+		"battle": bundle.get_battle(first_battle_id),
+		"priestTurningEnabled": runtime_state.priest_turning_enabled,
+		"participantMode": "selected",
+		"outcomeBranch": true,
+		"cowardMacroId": int(values[4]),
 	})
 
 

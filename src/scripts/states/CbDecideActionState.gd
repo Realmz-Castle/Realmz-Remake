@@ -182,6 +182,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	GameGlobal.change_map(map_name,map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
 	combat_state.all_battle_creatures_btns.clear()
 	combat_state.classic_monster_slots_used = 0
+	combat_state.classic_fumbled_items.clear()
 
 	var battle_position_offset : Vector2 = Vector2.ZERO
 	#var init_pos : Vector2 = Vector2(battle_pos[0],battle_pos[1])

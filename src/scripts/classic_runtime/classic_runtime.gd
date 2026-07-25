@@ -170,6 +170,10 @@ func finish_combat_monster_check(present: bool) -> void:
 	_publish(interpreter.resume_combat_monster_check(present))
 
 
+func finish_combat_revival(party_revived: bool) -> void:
+	_publish(interpreter.resume_combat_revival(party_revived))
+
+
 func finish_battle_round_macro() -> void:
 	_publish(interpreter.resume_battle_round_macro())
 
