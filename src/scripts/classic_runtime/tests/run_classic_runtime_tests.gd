@@ -2488,6 +2488,7 @@ func _ready() -> void:
 	_test_runtime_media_adapters()
 	_test_classic_player_map_renderer()
 	_test_party_state_actions()
+	_test_selection_branch_actions()
 	_test_priest_turning_actions()
 	_test_turn_undead_rules()
 	_test_battle_occupancy_rules()
@@ -24954,6 +24955,210 @@ func _test_party_state_actions() -> void:
 		"",
 		"ambiguous display names require explicit Classic monster metadata"
 	)
+
+
+func _test_selection_branch_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.maps_by_id["land:0"] = {
+		"id": "land:0",
+		"levelType": "land",
+		"index": 0,
+		"width": 1,
+		"height": 1,
+		"tiles": [1],
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [0, 2, 0, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [0, 1, 0, 10, 11]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [-2, 1, 0, 10, 11]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [851, 0, 12, 10, -1]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [24, -1, 0, 10, 11]}
+	_add_stack_trigger(bundle, "selection:caste", -1, [
+		_classic_action(0, 53, 1),
+	])
+	_add_stack_trigger(bundle, "selection:any", -1, [
+		_classic_action(0, 55, 2),
+	])
+	_add_stack_trigger(bundle, "selection:exact", -1, [
+		_classic_action(0, 55, 3),
+	])
+	_add_stack_trigger(bundle, "selection:charges", -1, [
+		_classic_action(0, 67, 4),
+	])
+	_add_stack_trigger(bundle, "selection:condition", -1, [
+		_classic_action(0, 81, 5),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
+		_classic_action(0, 1, 910),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:11", 11, [
+		_classic_action(0, 1, 911),
+	])
+	for message_id: int in [910, 911]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Selection fixture %d" % message_id,
+		}
+
+	var interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selection:caste")
+	var caste_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		caste_command.get("command"),
+		"select_characters_by_identity",
+		"opcode 53 uses the shared identity-selection adapter"
+	)
+	_expect_equal(
+		caste_command.get("payload", {}).get("group"),
+		2,
+		"opcode 53 preserves Classic's magical-caste group"
+	)
+	var fighter = CampaignRuleCharacter.new()
+	fighter.classic_caste_id = 1
+	var battle_mage = CampaignRuleCharacter.new()
+	battle_mage.classic_caste_id = 3
+	var rogue = CampaignRuleCharacter.new()
+	rogue.classic_caste_id = 5
+	var adapter = GodotAdapterScript.new()
+	var caste_result: Dictionary = adapter.select_characters_by_identity(
+		caste_command.get("payload", {}),
+		[fighter, battle_mage, rogue]
+	)
+	_expect_equal(
+		caste_result.get("selected"),
+		[battle_mage],
+		"Classic magical-caste selection preserves the source caste set"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selection:any")
+	var selection_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		selection_command.get("payload", {}).get("selector"),
+		"selected_count",
+		"opcode 55 yields a selected-count check"
+	)
+	_expect(
+		bool(adapter.party_misc_matches(
+			selection_command.get("payload", {}),
+			[fighter, battle_mage],
+			[battle_mage]
+		).get("matched", false)),
+		"selected-count mode zero succeeds when any character is picked"
+	)
+	_expect_equal(
+		interpreter.resume_misc_branch(true).get("payload", {}).get("messageId"),
+		910,
+		"selected-count success follows its authored macro"
+	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selection:any")
+	interpreter.run_until_yield()
+	_expect_equal(
+		interpreter.resume_misc_branch(false).get("payload", {}).get("messageId"),
+		911,
+		"selected-count failure mode one follows its alternate macro"
+	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selection:exact")
+	selection_command = interpreter.run_until_yield()
+	_expect(
+		bool(adapter.party_misc_matches(
+			selection_command.get("payload", {}),
+			[fighter, battle_mage, rogue],
+			[fighter, rogue]
+		).get("matched", false)),
+		"negative selected-count modes compare against their absolute count"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selection:charges")
+	var charge_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		charge_command.get("payload", {}).get("minimumCharges"),
+		12,
+		"opcode 67 preserves its authored charge threshold"
+	)
+	var charge_holder = InventoryTestCharacter.new()
+	var charged_item := _test_item("Charged Key", 0, 7)
+	charged_item["classicItemId"] = 851
+	var second_charged_item := _test_item("Second Charged Key", 0, 5)
+	second_charged_item["classicItemId"] = 851
+	charge_holder.inventory = [charged_item, second_charged_item]
+	_expect_equal(
+		adapter.classic_party_item_charge_total([charge_holder], 851),
+		12,
+		"item-charge checks total every matching party item"
+	)
+	_expect_equal(
+		interpreter.resume_item_check(true).get("payload", {}).get("messageId"),
+		910,
+		"item-charge success follows its authored macro"
+	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selection:charges")
+	interpreter.run_until_yield()
+	_expect_equal(
+		interpreter.resume_item_check(false).get("status"),
+		"completed",
+		"item-charge target -1 leaves the current action point"
+	)
+
+	var invisible = ConditionTestCharacter.new("Invisible", 0)
+	var ordinary = ConditionTestCharacter.new("Ordinary", 0)
+	CharacterConditionRulesScript.grant_permanent_condition(invisible, 24)
+	var condition_payload := {
+		"selector": "character_condition_all",
+		"conditionIndex": 24,
+		"candidateMode": -1,
+	}
+	_expect(
+		bool(adapter.character_condition_group_matches(
+			condition_payload,
+			[invisible, ordinary],
+			[invisible]
+		).get("matched", false)),
+		"opcode 81 accepts a selected set whose members all have the condition"
+	)
+	_expect(
+		not bool(adapter.character_condition_group_matches(
+			condition_payload,
+			[invisible, ordinary],
+			[invisible, ordinary]
+		).get("matched", true)),
+		"opcode 81 fails when any selected character lacks the condition"
+	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("selection:condition")
+	var condition_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		condition_command.get("payload", {}).get("conditionIndex"),
+		24,
+		"opcode 81 preserves the authored character condition"
+	)
+	_expect_equal(
+		interpreter.resume_misc_branch(true).get("payload", {}).get("messageId"),
+		910,
+		"character-condition success follows its authored macro"
+	)
+
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	for code: String in [
+		"malformed-caste-selection",
+		"invalid-caste-selection",
+		"malformed-selected-count-branch",
+		"malformed-item-charge-branch",
+		"invalid-item-charge-branch",
+		"malformed-character-condition-branch",
+		"unsupported-character-condition-branch",
+	]:
+		_expect_equal(
+			_diagnostic_code_count(readiness, code),
+			0,
+			"valid selection-branch fixtures avoid %s" % code
+		)
 
 
 func _test_priest_turning_actions() -> void:

@@ -57,8 +57,9 @@ const SPELL_DEFINITION_FIELDS := [
 # These opcodes interpret their ID as an exact Data EDCD row number.
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
-	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 51, 52, 54, 56, 57,
-	58, 60, 61, 63, 64, 65, 68, 69, 72, 73, 76, 77, 78, 85, 87, 90, 92, 103,
+	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 51, 52, 53, 54, 55, 56,
+	57, 58, 60, 61, 63, 64, 65, 67, 68, 69, 72, 73, 76, 77, 78, 81, 85, 87,
+	90, 92, 103,
 	106, 121, 123, 124, 125, 126,
 ]
 
@@ -214,10 +215,16 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_game_time_action(action, extra_code, code)
 		elif code == 51:
 			_check_shop_mutation(bundle, action, extra_code)
+		elif code == 53:
+			_check_caste_character_selection(action, extra_code)
+		elif code == 55:
+			_check_selected_count_branch(bundle, action, extra_code)
 		elif code == 60:
 			_check_currency_clear(action, extra_code)
 		elif code == 65:
 			_check_random_items(bundle, action, extra_code)
+		elif code == 67:
+			_check_item_charge_branch(bundle, action, extra_code)
 		elif code == 68:
 			_check_fatigue_mutation(action, extra_code)
 		elif code == 69:
@@ -228,6 +235,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_quest_value_action(bundle, action, extra_code, code)
 		elif code == 78:
 			_check_tile_parameter_branch(bundle, action, extra_code)
+		elif code == 81:
+			_check_character_condition_branch(bundle, action, extra_code)
 		elif code == 90:
 			_check_experience_loss(action, extra_code)
 		elif code == 92:
@@ -648,6 +657,138 @@ func _check_fatigue_mutation(action: Dictionary, extra_code: Dictionary) -> void
 				"mode": int(values[0]),
 			}
 		)
+
+
+func _check_caste_character_selection(
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 3:
+		_add_action_dependency(
+			action,
+			"malformed-caste-selection",
+			"Caste-selection Data EDCD record has fewer than three values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	if int(values[1]) in [0, 1, 2, 3] and int(values[2]) in [0, 1, 2]:
+		return
+	_add_action_dependency(
+		action,
+		"invalid-caste-selection",
+		"Caste-selection action has an invalid group or source mode",
+		{"referenceId": int(extra_code.get("id", -1))}
+	)
+
+
+func _check_selected_count_branch(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		_add_action_dependency(
+			action,
+			"malformed-selected-count-branch",
+			"Selected-count branch Data EDCD record has fewer than five values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	_check_extra_action_point_target(bundle, action, int(values[3]))
+	if int(values[1]) == 1:
+		_check_extra_action_point_target(bundle, action, int(values[4]))
+	elif int(values[1]) == 2:
+		_check_message(bundle, action, int(values[4]))
+
+
+func _check_item_charge_branch(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		_add_action_dependency(
+			action,
+			"malformed-item-charge-branch",
+			"Item-charge branch Data EDCD record has fewer than five values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var target_mode := int(values[1])
+	if target_mode < 0 or target_mode > 2:
+		_add_action_dependency(
+			action,
+			"invalid-item-charge-branch",
+			"Item-charge branch has an invalid target mode",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	for target_id: int in [int(values[3]), int(values[4])]:
+		if target_id == -1:
+			continue
+		match target_mode:
+			0:
+				_check_extra_action_point_target(bundle, action, target_id)
+			1:
+				_check_direct_record(
+					bundle.get_encounter("simple", target_id),
+					action,
+					"simple encounter",
+					target_id
+				)
+			2:
+				_check_direct_record(
+					bundle.get_encounter("complex", target_id),
+					action,
+					"complex encounter",
+					target_id
+				)
+
+
+func _check_character_condition_branch(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		_add_action_dependency(
+			action,
+			"malformed-character-condition-branch",
+			"Character-condition branch Data EDCD record has fewer than five values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var condition_index := int(values[0])
+	if not CharacterConditionRulesScript.supports_condition(condition_index):
+		_add_action_dependency(
+			action,
+			"unsupported-character-condition-branch",
+			"Character-condition branch uses condition %d without a Remake mapping"
+			% condition_index,
+			{"referenceId": condition_index}
+		)
+		return
+	_check_extra_action_point_target(bundle, action, int(values[3]))
+	_check_extra_action_point_target(bundle, action, int(values[4]))
+
+
+func _check_extra_action_point_target(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	target_id: int
+) -> void:
+	if not bundle.get_extra_action_point(target_id).is_empty():
+		return
+	_add_action_dependency(
+		action,
+		"missing-extra-action-point",
+		"Action references missing Data ED3 action point %d" % target_id,
+		{"referenceId": target_id}
+	)
 
 
 func _check_random_rectangle_bounds(

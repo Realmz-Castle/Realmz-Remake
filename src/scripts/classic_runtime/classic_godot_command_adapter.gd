@@ -3939,12 +3939,46 @@ func _check_party_item(payload: Dictionary) -> Dictionary:
 	var item_id: int = abs(int(payload.get("itemId", 0)))
 	if item_id == 0:
 		return _error("Classic item check has no item ID")
+	if payload.has("minimumCharges"):
+		var charge_total := classic_party_item_charge_total(
+			_party_characters(),
+			item_id
+		)
+		return {
+			"possessed": charge_total >= int(payload.get("minimumCharges", 0)),
+			"charges": charge_total,
+		}
 	return {
 		"possessed": InventoryRulesScript.party_has_classic_item(
 			_party_characters(),
 			[item_id],
 		),
 	}
+
+
+func classic_party_item_charge_total(party: Array, item_id: int) -> int:
+	var charge_total := 0
+	for character_value: Variant in party:
+		if not (character_value is Object):
+			continue
+		var inventory: Variant = (
+			character_value.call("inventory_instances")
+			if character_value.has_method("inventory_instances")
+			else character_value.get("inventory")
+		)
+		if not (inventory is Array):
+			continue
+		for item_value: Variant in inventory:
+			if not _classic_item_ids(item_value).has(abs(item_id)):
+				continue
+			charge_total += (
+				int(item_value.charges)
+				if item_value is ItemInstance
+				else int(item_value.get("charges", 0))
+				if item_value is Dictionary
+				else 0
+			)
+	return charge_total
 
 
 func _take_party_wealth(payload: Dictionary) -> Dictionary:
@@ -4607,29 +4641,51 @@ func select_characters_by_identity(
 	rule_names: Dictionary = {}
 ) -> Dictionary:
 	var selector := str(payload.get("selector", ""))
-	if selector not in ["race", "gender", "caste", "race_class", "caste_class"]:
+	if selector not in [
+		"race",
+		"gender",
+		"caste",
+		"race_class",
+		"caste_class",
+		"caste_group",
+	]:
 		return _error("Classic race/caste character selector is invalid")
 	var value := int(payload.get("value", 0))
-	if value < 1:
+	if value < 1 and selector != "caste_group":
 		return _error("Classic race/caste character selector has an invalid value")
+	var caste_group := int(payload.get("group", 0))
+	if selector == "caste_group" and caste_group not in [0, 1, 2, 3]:
+		return _error("Classic caste-group selector has an invalid group")
 	var selected: Array = []
 	var checks: Array = []
 	for character_value: Variant in party:
 		if not (character_value is Object):
 			return _error("Classic race/caste selector target is not a character")
+		# Opcode 53 clears the selection before testing mode 2, so its
+		# "previously selected" source set is empty in the original runtime.
+		if selector == "caste_group" and int(payload.get("sourceMode", 0)) == 2:
+			continue
 		if bool(payload.get("livingOnly", false)) \
 				and not _is_living_character(character_value):
 			continue
 		var actual := _classic_identity_value(
 			character_value,
-			selector,
+			"caste" if selector == "caste_group" else selector,
 			rule_names
 		)
-		var matched := (
-			_classic_mask_has(actual, value - 1)
-			if selector == "race_class"
-			else actual == value
-		)
+		var matched := false
+		if selector == "race_class":
+			matched = _classic_mask_has(actual, value - 1)
+		elif selector == "caste_group":
+			matched = actual == value and value != 0
+			if caste_group == 1:
+				matched = matched or actual in [1, 3, 4]
+			elif caste_group == 2:
+				matched = matched or actual in [3, 6, 7, 8]
+			elif caste_group == 3:
+				matched = matched or actual in [2, 5]
+		else:
+			matched = actual == value
 		if matched:
 			selected.append(character_value)
 		checks.append({
@@ -4666,6 +4722,17 @@ func party_misc_matches(
 ) -> Dictionary:
 	var selector := str(payload.get("selector", ""))
 	var value := int(payload.get("value", 0))
+	if selector == "selected_count":
+		var mode := int(payload.get("mode", 0))
+		if mode == 0:
+			return {"matched": not selected.is_empty()}
+		if mode >= 1 and mode <= 6:
+			return {
+				"matched": not party.is_empty() and selected.has(party[0]),
+			}
+		return {"matched": selected.size() == absi(mode)}
+	if selector == "character_condition_all":
+		return character_condition_group_matches(payload, party, selected)
 	if selector == "in_camp":
 		return {"matched": in_camp}
 	if selector == "in_boat":
@@ -4691,6 +4758,42 @@ func party_misc_matches(
 		elif actual == value:
 			return {"matched": true}
 	return {"matched": false}
+
+
+func character_condition_group_matches(
+	payload: Dictionary,
+	party: Array,
+	selected: Array
+) -> Dictionary:
+	var condition_index := int(payload.get("conditionIndex", -1))
+	if not CharacterConditionRulesScript.supports_condition(condition_index):
+		return _error(
+			"Classic character condition %d has no Remake trait mapping"
+			% condition_index
+		)
+	var candidate_mode := int(payload.get("candidateMode", 0))
+	var candidates: Array = []
+	match candidate_mode:
+		0:
+			candidates = party
+		-1:
+			candidates = selected
+		_:
+			if candidate_mode >= 0 and candidate_mode < party.size():
+				candidates = [party[candidate_mode]]
+			else:
+				return _error(
+					"Classic character-condition branch has an invalid party position"
+				)
+	for character_value: Variant in candidates:
+		if not (character_value is Object):
+			return _error("Classic character-condition target is not a character")
+		if CharacterConditionRulesScript.condition_value(
+			character_value,
+			condition_index
+		) == 0:
+			return {"matched": false}
+	return {"matched": true}
 
 
 func _select_characters_by_misc(payload: Dictionary) -> Dictionary:

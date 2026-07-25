@@ -13,8 +13,8 @@ const HANDLED_OPCODES := [
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-	50, 51, 52, 54, 56, 57, 58,
-	60, 61, 63, 64, 65, 66, 68, 69, 72, 73, 76, 77, 78, 82, 83, 84, 85, 86, 87, 88, 89,
+	50, 51, 52, 53, 54, 55, 56, 57, 58,
+	60, 61, 63, 64, 65, 66, 67, 68, 69, 72, 73, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89,
 	90, 91, 92, 93, 94, 95, 96, 97, 98,
 	99, 100, 101, 103, 104, 105, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
@@ -637,6 +637,18 @@ func resume_item_check(possessed: bool) -> Dictionary:
 			if str(branch_result.get("status", "")) != "continue":
 				return branch_result
 			return run_until_yield()
+		"charge_branch":
+			var target_id := int(values[3]) if possessed else int(values[4])
+			if target_id == -1:
+				return run_until_yield()
+			var charge_branch_result := _branch_item_possession_target(
+				values,
+				target_id,
+				bool(item_check.get("gosub", false))
+			)
+			if str(charge_branch_result.get("status", "")) != "continue":
+				return charge_branch_result
+			return run_until_yield()
 		_:
 			return _halt_with_error("Classic item check has an invalid continuation")
 
@@ -692,6 +704,46 @@ func resume_misc_branch(matched: bool) -> Dictionary:
 	var branch := pending_misc_branch
 	pending_misc_branch = {}
 	var values: Array = branch["values"]
+	if str(branch.get("kind", "")) == "selection_count":
+		if matched:
+			var success_result := _branch_to_extra_action_point(
+				int(values[3]),
+				bool(branch.get("gosub", false)),
+				0
+			)
+			if str(success_result.get("status", "")) != "continue":
+				return success_result
+			return run_until_yield()
+		match int(values[1]):
+			1:
+				var failure_result := _branch_to_extra_action_point(
+					int(values[4]),
+					bool(branch.get("gosub", false)),
+					0
+				)
+				if str(failure_result.get("status", "")) != "continue":
+					return failure_result
+				return run_until_yield()
+			2:
+				_set_cursor(current_trigger, 8)
+				var message_id := int(values[4])
+				return _yield_result("show_text", {
+					"messageId": message_id,
+					"message": bundle.get_message(message_id),
+				})
+			_:
+				_set_cursor(current_trigger, 8)
+				return run_until_yield()
+	if str(branch.get("kind", "")) == "character_condition":
+		var condition_target := int(values[3]) if matched else int(values[4])
+		var condition_result := _branch_to_extra_action_point(
+			condition_target,
+			bool(branch.get("gosub", false)),
+			0
+		)
+		if str(condition_result.get("status", "")) != "continue":
+			return condition_result
+		return run_until_yield()
 	var target_id := int(values[3]) if matched else int(values[4])
 	if target_id == 0:
 		return run_until_yield()
@@ -922,8 +974,12 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_shop_mutation(record_id)
 		52:
 			return _execute_misc_character_selection(record_id)
+		53:
+			return _execute_caste_character_selection(record_id)
 		54:
 			return _execute_timed_encounter_mutation(record_id)
+		55:
+			return _execute_selected_count_branch(record_id, gosub_active)
 		57:
 			return _execute_landlook(record_id)
 		58:
@@ -943,6 +999,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"disabled": record_id != 0,
 				"soundId": 6001,
 			})
+		67:
+			return _execute_item_charge_branch(record_id, gosub_active)
 		68:
 			return _execute_fatigue_mutation(record_id)
 		69:
@@ -957,6 +1015,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_quest_value_branch(record_id, gosub_active)
 		78:
 			return _execute_tile_parameter_branch(record_id, gosub_active)
+		81:
+			return _execute_character_condition_branch(record_id, gosub_active)
 		82, 83:
 			return _execute_priest_turning(code == 83)
 		85:
@@ -1343,6 +1403,30 @@ func _execute_item_possession_branch(extra_code_id: int, gosub: bool) -> Diction
 	return _yield_result("check_party_item", {
 		"extraCodeId": extra_code_id,
 		"itemId": abs(int(values[0])),
+		"itemTexts": _item_texts_for_ids([values[0]]),
+	})
+
+
+func _execute_item_charge_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 5:
+		return _halt_with_error(
+			"Item-charge branch references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	if int(values[1]) < 0 or int(values[1]) > 2:
+		return _halt_with_error(
+			"Item-charge branch has invalid target mode %d" % int(values[1])
+		)
+	pending_item_check = {
+		"kind": "charge_branch",
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_party_item", {
+		"extraCodeId": extra_code_id,
+		"itemId": abs(int(values[0])),
+		"minimumCharges": int(values[2]),
 		"itemTexts": _item_texts_for_ids([values[0]]),
 	})
 
@@ -1851,6 +1935,33 @@ func _execute_identity_character_selection(extra_code_id: int) -> Dictionary:
 		"selectorIndex": selector_index,
 		"value": abs(int(values[value_index])),
 		"livingOnly": int(values[4]) != 0,
+	})
+
+
+func _execute_caste_character_selection(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 3:
+		return _halt_with_error(
+			"Caste character selector references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	var caste_group := int(values[1])
+	var source_mode := int(values[2])
+	if caste_group < 0 or caste_group > 3:
+		return _halt_with_error(
+			"Caste character selector has invalid caste group %d" % caste_group
+		)
+	if source_mode < 0 or source_mode > 2:
+		return _halt_with_error(
+			"Caste character selector has invalid source mode %d" % source_mode
+		)
+	return _yield_result("select_characters_by_identity", {
+		"extraCodeId": extra_code_id,
+		"selector": "caste_group",
+		"value": int(values[0]),
+		"group": caste_group,
+		"sourceMode": source_mode,
+		"livingOnly": source_mode == 1,
 	})
 
 
@@ -2896,6 +3007,59 @@ func _execute_party_condition_branch(extra_code_id: int, gosub: bool) -> Diction
 		"requiredActive": required_state == 1,
 		"branchMode": int(values[1]),
 		"targetId": int(values[2]),
+	})
+
+
+func _execute_selected_count_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 5:
+		return _halt_with_error(
+			"Selected-count branch references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	pending_misc_branch = {
+		"kind": "selection_count",
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_party_misc", {
+		"extraCodeId": extra_code_id,
+		"selector": "selected_count",
+		"mode": int(values[0]),
+		"failureMode": int(values[1]),
+		"matchTargetId": int(values[3]),
+		"missTargetId": int(values[4]),
+	})
+
+
+func _execute_character_condition_branch(
+	extra_code_id: int,
+	gosub: bool
+) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 5:
+		return _halt_with_error(
+			"Character-condition branch references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	var condition_index := int(values[0])
+	if condition_index < 0 or condition_index >= 40:
+		return _halt_with_error(
+			"Character-condition branch has invalid condition index %d"
+			% condition_index
+		)
+	pending_misc_branch = {
+		"kind": "character_condition",
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_party_misc", {
+		"extraCodeId": extra_code_id,
+		"selector": "character_condition_all",
+		"conditionIndex": condition_index,
+		"candidateMode": int(values[1]),
+		"matchTargetId": int(values[3]),
+		"missTargetId": int(values[4]),
 	})
 
 
