@@ -44,6 +44,7 @@ var spell_overrides_by_id: Dictionary = {}
 var spell_overrides_by_record_reference: Dictionary = {}
 var maps_by_id: Dictionary = {}
 var player_maps_by_id: Dictionary = {}
+var scrolling_texts_by_id: Dictionary = {}
 var random_levels_by_id: Dictionary = {}
 var pictures_by_id: Dictionary = {}
 var sounds_by_id: Dictionary = {}
@@ -915,6 +916,10 @@ func get_player_map(map_id: int) -> Dictionary:
 	return player_maps_by_id.get(abs(map_id), {})
 
 
+func get_scrolling_text(resource_id: int) -> Dictionary:
+	return scrolling_texts_by_id.get(abs(resource_id), {})
+
+
 func get_random_level(level_type: String, level_index: int) -> Dictionary:
 	return random_levels_by_id.get("%s:%d:randlevel" % [level_type, level_index], {})
 
@@ -978,6 +983,7 @@ func _reset() -> void:
 	spell_overrides_by_record_reference.clear()
 	maps_by_id.clear()
 	player_maps_by_id.clear()
+	scrolling_texts_by_id.clear()
 	random_levels_by_id.clear()
 	pictures_by_id.clear()
 	sounds_by_id.clear()
@@ -1083,6 +1089,11 @@ func _build_indexes() -> void:
 	for map_record: Variant in _array_value(map_document, "mapRecords"):
 		if map_record is Dictionary:
 			player_maps_by_id[int(map_record.get("id", -1))] = map_record
+			var scrolling_text: Variant = map_record.get("scrollingText")
+			if scrolling_text is Dictionary:
+				scrolling_texts_by_id[abs(int(
+					scrolling_text.get("resourceId", 0)
+				))] = scrolling_text
 
 	var asset_document: Dictionary = documents["assets"]
 	var asset_catalog: Variant = asset_document.get("catalog", {})

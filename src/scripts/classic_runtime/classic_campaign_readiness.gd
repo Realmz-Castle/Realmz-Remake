@@ -57,10 +57,10 @@ const SPELL_DEFINITION_FIELDS := [
 # These opcodes interpret their ID as an exact Data EDCD row number.
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
-	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 51, 52, 53, 54, 55, 56,
-	57, 58, 60, 61, 63, 64, 65, 67, 68, 69, 72, 73, 76, 77, 78, 81, 85, 87,
+	30, 31, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 51, 52, 53, 54, 55, 56,
+	57, 58, 60, 61, 63, 64, 65, 67, 68, 69, 70, 72, 73, 76, 77, 78, 81, 85, 87,
 	90, 92, 103,
-	106, 121, 123, 124, 125, 126,
+	106, 107, 108, 120, 121, 122, 123, 124, 125, 126,
 ]
 
 var _diagnostics: Array = []
@@ -192,7 +192,7 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 	var code := int(action.get("code", 0))
 	var reference_id := int(action.get("id", 0))
 	if EXTRA_CODE_OPCODES.has(code):
-		if code == 69 and reference_id == 0:
+		if code in [69, 122] and reference_id == 0:
 			return
 		var extra_code := bundle.get_extra_code(reference_id)
 		if extra_code.is_empty():
@@ -279,6 +279,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_picture(bundle, action, reference_id)
 		29:
 			_check_player_map(bundle, action, reference_id)
+		62:
+			_check_scrolling_text(bundle, action, reference_id)
 		89:
 			_check_ally(bundle, action, reference_id)
 
@@ -1107,6 +1109,21 @@ func _check_player_map(
 		"missing-player-map",
 		"Player map %d is unavailable" % abs(map_id),
 		{"referenceId": abs(map_id)}
+	)
+
+
+func _check_scrolling_text(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	resource_id: int
+) -> void:
+	if not bundle.get_scrolling_text(resource_id).is_empty():
+		return
+	_add_action_dependency(
+		action,
+		"missing-scrolling-text",
+		"Scrolling TEXT resource %d is unavailable" % abs(resource_id),
+		{"referenceId": abs(resource_id)}
 	)
 
 

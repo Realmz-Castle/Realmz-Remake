@@ -127,6 +127,7 @@ const CLASSIC_SPECIAL_STATS := {
 }
 const REPLAYABLE_PRESENTATION_COMMANDS := [
 	"show_text",
+	"show_scrolling_text",
 	"choice",
 	"start_encounter",
 	"wait_for_click",
@@ -467,6 +468,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 	match command:
 		"show_text":
 			return await _show_text(payload)
+		"show_scrolling_text":
+			return await _show_scrolling_text(payload)
 		"choice":
 			return await _show_yes_no_choice(payload)
 		"start_encounter":
@@ -727,6 +730,36 @@ func _show_classic_picture(payload: Dictionary) -> Dictionary:
 		"message": "Classic picture %d has no exported Remake image" \
 			% int(payload.get("pictureId", 0)),
 	}
+
+
+func _show_scrolling_text(payload: Dictionary) -> Dictionary:
+	var scrolling_text: Variant = payload.get("scrollingText", {})
+	if not (scrolling_text is Dictionary) \
+			or not (scrolling_text.get("text") is String):
+		return _error("Classic scrolling text is unavailable")
+	var ui: Object = _autoload("UI")
+	if ui == null or ui.ow_hud == null \
+			or ui.ow_hud.classicPlayerMapRect == null:
+		return _error("Realmz Classic scrolling-text UI is unavailable")
+	var player_map_rect: Object = ui.ow_hud.classicPlayerMapRect
+	var resource_id: int = abs(int(payload.get("resourceId", 0)))
+	if not player_map_rect.display_map(
+		{
+			"id": resource_id,
+			"show": -resource_id,
+			"name": "Scrolling Text %d" % resource_id,
+			"scrollingText": scrolling_text,
+		},
+		""
+	):
+		return _error("Classic scrolling text could not be displayed")
+	var state_machine: Object = _autoload("StateMachine")
+	if state_machine != null:
+		state_machine.enter_ex_menu_state({"menu_name": "ClassicPlayerMapMenu"})
+	await player_map_rect.closed
+	if state_machine != null and state_machine._state_name == "ExMenus":
+		state_machine.exit_ex_menu_state({})
+	return {"resourceId": resource_id}
 
 
 func runtime_media_path(record: Dictionary, media_type_prefix: String) -> String:

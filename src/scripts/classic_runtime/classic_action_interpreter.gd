@@ -14,7 +14,7 @@ const HANDLED_OPCODES := [
 	30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 51, 52, 53, 54, 55, 56, 57, 58,
-	60, 61, 63, 64, 65, 66, 67, 68, 69, 70, 72, 73, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+	60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 72, 73, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89,
 	90, 91, 92, 93, 94, 95, 96, 97, 98,
 	99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 111, 112,
 	119, 120, 121, 122, 123, 124, 125, 126, 127,
@@ -1044,6 +1044,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_currency_clear(record_id)
 		61:
 			return _execute_position_shift(record_id)
+		62:
+			return _execute_scrolling_text(record_id)
 		63:
 			return _execute_time_mutation(record_id)
 		64:
@@ -2260,6 +2262,18 @@ func _execute_player_map(signed_map_id: int) -> Dictionary:
 			"x": runtime_state.x,
 			"y": runtime_state.y,
 		},
+	})
+
+
+func _execute_scrolling_text(resource_id: int) -> Dictionary:
+	var scrolling_text := bundle.get_scrolling_text(resource_id)
+	if scrolling_text.is_empty():
+		return _halt_with_error(
+			"Scrolling text resource %d is unavailable" % abs(resource_id)
+		)
+	return _yield_result("show_scrolling_text", {
+		"resourceId": abs(resource_id),
+		"scrollingText": scrolling_text,
 	})
 
 

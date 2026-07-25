@@ -457,7 +457,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 			runtime.finish_time_mutation(response)
 		"update_exploration_status":
 			runtime.finish_exploration_status(response)
-		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
+		"show_text", "show_scrolling_text", "play_sound", "wait_for_click", \
+		"show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
 		"alter_party_fatigue", "drop_party_items", \
 		"level_up_selected_characters", "alter_selected_characters", \

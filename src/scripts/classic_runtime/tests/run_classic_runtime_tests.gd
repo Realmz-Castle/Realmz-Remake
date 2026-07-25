@@ -10998,8 +10998,8 @@ func _test_execution_coverage_audit(bundle) -> void:
 	)
 	_expect_equal(
 		_audit_diagnostic_count(flow_report, "unsupported-action"),
-		3,
-		"readiness reports only scrolling-text slots with a possible execution path"
+		0,
+		"execution audit recognizes reachable scrolling-text actions"
 	)
 
 	var macro_bundle = _execution_audit_test_bundle()
@@ -11334,6 +11334,7 @@ func _test_campaign_readiness_report() -> void:
 		_readiness_action_point("Data ED3", 197, -85, -1700),
 		_readiness_action_point("Data ED3", 201, 40, 500),
 		_readiness_action_point("Data ED3", 202, 43, 501),
+		_readiness_action_point("Data ED3", 203, 62, -200),
 	]
 	bundle.documents["scripts"]["extraCodes"] = [
 		{"id": 375, "values": [1408, 3, 0, 0, 0]},
@@ -11428,6 +11429,17 @@ func _test_campaign_readiness_report() -> void:
 			report, "missing-extra-code", "Data ED3", 197, 0, "progression-blocker"
 		),
 		"readiness classifies the signed random-record gap as a blocker"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report,
+			"missing-scrolling-text",
+			"Data ED3",
+			203,
+			0,
+			"progression-blocker"
+		),
+		"readiness distinguishes a missing TEXT export from opcode support"
 	)
 	_expect(
 		_readiness_has_reference_diagnostic(
@@ -25042,6 +25054,11 @@ func _test_remaining_noncombat_opcodes() -> void:
 	bundle.extra_codes_by_id[70] = {"id": 70, "values": [1, 0, 0, 0, 0]}
 	bundle.extra_codes_by_id[71] = {"id": 71, "values": [2, 0, 0, 0, 0]}
 	bundle.extra_codes_by_id[108] = {"id": 108, "values": [12, -3, 0, 0, 0]}
+	bundle.scrolling_texts_by_id[200] = {
+		"resourceType": "TEXT",
+		"resourceId": -200,
+		"text": "Classic scrolling-text fixture.",
+	}
 	_add_stack_trigger(bundle, "remaining:ability", -1, [
 		_classic_action(0, 31, 31),
 	])
@@ -25056,6 +25073,9 @@ func _test_remaining_noncombat_opcodes() -> void:
 	])
 	_add_stack_trigger(bundle, "remaining:alter-character", -1, [
 		_classic_action(0, 108, 108),
+	])
+	_add_stack_trigger(bundle, "remaining:scrolling-text", -1, [
+		_classic_action(0, 62, -200),
 	])
 	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
 		_classic_action(0, 1, 910),
@@ -25160,6 +25180,19 @@ func _test_remaining_noncombat_opcodes() -> void:
 		12,
 		"opcode 108 preserves its selected-character mutation mode"
 	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("remaining:scrolling-text")
+	var scrolling_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		scrolling_command.get("command"),
+		"show_scrolling_text",
+		"opcode 62 yields decoded Classic TEXT presentation"
+	)
+	_expect_equal(
+		scrolling_command.get("payload", {}).get("scrollingText", {}).get("text"),
+		"Classic scrolling-text fixture.",
+		"opcode 62 resolves its signed TEXT resource identity"
+	)
 
 	var adapter = GodotAdapterScript.new()
 	var character := ClassicCharacterMutationTestCharacter.new()
@@ -25195,6 +25228,23 @@ func _test_remaining_noncombat_opcodes() -> void:
 		character.classic_prestige_penalty,
 		9,
 		"opcode 108 prestige change uses Classic's inverted sign"
+	)
+	var indexed_bundle = BundleScript.new()
+	indexed_bundle.documents = _minimal_contract_documents()
+	indexed_bundle.documents["maps"]["mapRecords"] = [{
+		"id": 10,
+		"show": -200,
+		"scrollingText": {
+			"resourceType": "TEXT",
+			"resourceId": -200,
+			"text": "Indexed scrolling text.",
+		},
+	}]
+	indexed_bundle._build_indexes()
+	_expect_equal(
+		indexed_bundle.get_scrolling_text(200).get("text"),
+		"Indexed scrolling text.",
+		"compiled map records index their embedded TEXT resources"
 	)
 
 
