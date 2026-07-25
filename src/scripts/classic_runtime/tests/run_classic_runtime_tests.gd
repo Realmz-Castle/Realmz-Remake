@@ -6114,6 +6114,7 @@ func _test_classic_bestiary_materializer() -> void:
 		"compiled monster description reaches its native resource"
 	)
 	_expect_equal(monster.get("classicMonsterId"), 1, "native monster preserves its stable ID")
+	_expect_equal(monster.get("classicArmor"), -4, "native monster preserves authored armor")
 	_expect_equal(
 		monster.get("classicMonsterNameId"),
 		1,
@@ -6137,7 +6138,36 @@ func _test_classic_bestiary_materializer() -> void:
 	_expect_equal(monster.get("data", {}).get("size"), [1.0, 2.0], "Classic tall size maps natively")
 	_expect_equal(monster.get("stats", {}).get("MaxMovement"), 202, "movement maps natively")
 	_expect_equal(monster.get("stats", {}).get("Dexterity"), 201, "agility maps natively")
-	_expect_equal(monster.get("stats", {}).get("EvasionMelee"), -4, "armor maps natively")
+	_expect(
+		is_equal_approx(
+			float(monster.get("stats", {}).get("EvasionMelee")),
+			-0.8
+		),
+		"Classic armor maps from percentage points to native evasion units"
+	)
+	var city_dragon_stats: Dictionary = materializer._native_stats(
+		{"armor": 55, "hitDice": 12, "damageBonus": 2},
+		100
+	)
+	var city_fighter_hit_chance := clampf(
+		0.5 + 0.05 * (6.6 - float(city_dragon_stats["EvasionMelee"])),
+		0.0,
+		1.0
+	)
+	_expect(
+		is_equal_approx(city_fighter_hit_chance, 0.28),
+		"Classic percentage units preserve City fighter accuracy against armor 55"
+	)
+	var reused_city_monster := RogueTestCharacter.new()
+	reused_city_monster.stat_values["EvasionMelee"] = 55
+	reused_city_monster.set_meta("classic_armor", 55)
+	_expect(
+		is_equal_approx(
+			GameGlobal._classic_melee_evasion(reused_city_monster),
+			11.0
+		),
+		"Classic battle metadata rescales reused native monster armor"
+	)
 	_expect_equal(monster.get("stats", {}).get("maxHP"), 241, "average Classic stamina is deterministic")
 	_expect_equal(monster.get("stats", {}).get("AccuracyMelee"), 9, "Classic melee accuracy maps natively")
 	_expect_equal(monster.get("data", {}).get("exp"), 7709, "Classic average battle reward maps natively")
@@ -27099,6 +27129,7 @@ func _test_compiled_battle_materialization() -> void:
 		"compiled battle preserves nether-spawn eligibility"
 	)
 	_expect_equal(creature[2].get("classicHitDice"), 7, "compiled battle preserves hit dice")
+	_expect_equal(creature[2].get("classicArmor"), -4, "compiled battle preserves armor")
 	_expect_equal(
 		creature[2].get("classicMagicResistance"),
 		12,

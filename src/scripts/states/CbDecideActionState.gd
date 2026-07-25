@@ -273,6 +273,8 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 		)
 	if metadata.has("classicHitDice"):
 		creature.set_meta("classic_hit_dice", int(metadata["classicHitDice"]))
+	if metadata.has("classicArmor"):
+		creature.set_meta("classic_armor", int(metadata["classicArmor"]))
 	if metadata.has("classicMagicResistance"):
 		creature.set_meta(
 			"classic_magic_resistance",

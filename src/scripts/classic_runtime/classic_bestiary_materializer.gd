@@ -288,6 +288,7 @@ func _native_monster(
 		"classicDeathMacro": int(record.get("deathMacro", 0)),
 		"classicTurnUndeadEligible": _type_flag(record, 1) or _type_flag(record, 2),
 		"classicHitDice": hit_dice,
+		"classicArmor": int(record.get("armor", 0)),
 		"classicMagicResistance": int(record.get("magicResistance", 0)),
 		"classicSpellSaves": SpellSavesScript.monster_saves(record.get("saves", [])),
 		"classicSpellImmunities": SpellSavesScript.monster_immunities(
@@ -591,13 +592,13 @@ func _native_stats(record: Dictionary, stamina: int) -> Dictionary:
 		"SP_regen_base": 1.0,
 		"HP_regen_mult": 0.0,
 		"SP_regen_mult": 0.0,
-		# These reproduce Classic's base 50% + 5% per point opposed roll.
+		# Remake's opposed-roll stats represent five Classic percentage points.
 		"AccuracyMelee": hit_dice + damage_bonus,
 		"AccuracyRanged": hit_dice + damage_bonus,
 		# magicToHit is a required weapon enchantment, not spell accuracy.
 		"AccuracyMagic": 0,
-		"EvasionMelee": int(record.get("armor", 0)),
-		"EvasionRanged": int(record.get("armor", 0)),
+		"EvasionMelee": float(record.get("armor", 0)) / 5.0,
+		"EvasionRanged": float(record.get("armor", 0)) / 5.0,
 		"EvasionMagic": 0,
 		"ResistancePhysical": 0.0,
 		"ResistanceFire": 0.0,

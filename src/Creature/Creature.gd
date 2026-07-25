@@ -885,6 +885,7 @@ func initialize_from_bestiary_dict(creaname : String) :
 		["classic_death_macro", "classicDeathMacro"],
 		["classic_turn_undead_eligible", "classicTurnUndeadEligible"],
 		["classic_hit_dice", "classicHitDice"],
+		["classic_armor", "classicArmor"],
 		["classic_magic_resistance", "classicMagicResistance"],
 		["classic_spell_saves", "classicSpellSaves"],
 		["classic_spell_immunities", "classicSpellImmunities"],
@@ -1104,6 +1105,8 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	classic_monster_name_id = int(
 		saved_data.get("classicMonsterNameId", classic_monster_name_id)
 	)
+	if saved_data.has("classicArmor"):
+		set_meta("classic_armor", int(saved_data["classicArmor"]))
 	restore_classic_special_abilities(saved_data.get("classicSpecialAbilities", []))
 	is_summoned = bool(saved_data.get("is_summoned", is_summoned))
 	summoner_name = str(saved_data.get("summoner_name", summoner_name))
@@ -1744,6 +1747,8 @@ func get_save_string() -> String :
 		savestring += ('\n"bestiaryKey" : '+ JSON.stringify(bestiary_key)+',')
 	savestring += ('\n"classicMonsterId" : '+ str(classic_monster_id)+',')
 	savestring += ('\n"classicMonsterNameId" : '+ str(classic_monster_name_id)+',')
+	if has_meta("classic_armor"):
+		savestring += ('\n"classicArmor" : '+ str(int(get_meta("classic_armor")))+',')
 	savestring += ('\n"classicSpecialAbilities" : '
 		+ JSON.stringify(classic_special_abilities)+',')
 	savestring += ('\n"is_summoned" : '+ str(int(is_summoned))+',')

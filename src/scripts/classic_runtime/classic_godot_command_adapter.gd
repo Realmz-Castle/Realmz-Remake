@@ -1967,6 +1967,7 @@ func _classic_battle_monster_metadata(
 		"classicDeathMacro": int(monster.get("deathMacro", 0)),
 		"classicTurnUndeadEligible": _classic_monster_can_be_turned(monster),
 		"classicHitDice": int(monster.get("hitDice", 0)),
+		"classicArmor": int(monster.get("armor", 0)),
 		"classicMagicResistance": int(monster.get("magicResistance", 0)),
 		"classicSpellSaves": SpellSavesScript.monster_saves(monster.get("saves", [])),
 		"classicSpellImmunities": SpellSavesScript.monster_immunities(
@@ -2263,6 +2264,7 @@ func _set_classic_monster_identity(
 	creature.set_meta("classic_monster_id", monster_id)
 	creature.set_meta("classic_monster_name_id", name_id)
 	creature.set_meta("classic_death_macro", int(monster.get("deathMacro", 0)))
+	creature.set_meta("classic_armor", int(monster.get("armor", 0)))
 	SpellSavesScript.apply_monster_metadata(
 		creature,
 		monster.get("saves", []),

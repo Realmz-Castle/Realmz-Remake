@@ -1420,7 +1420,7 @@ func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon: 
 		accuracy = float(hook_result.get("value", 0.0))
 	else :
 		accuracy = attacker.get_stat("AccuracyMelee")  #checks traits too
-		evasion = defender.get_stat("EvasionMelee")
+		evasion = _classic_melee_evasion(defender)
 		accuracy = clampf(0.5+0.05*(accuracy-evasion), 0.0, 1.0)
 	accuracy = clampf(
 		accuracy
@@ -1436,6 +1436,12 @@ func calculate_melee_accuracy(attacker : Creature, defender : Creature, weapon: 
 		attacker,
 		defender
 	)
+
+
+func _classic_melee_evasion(defender: Variant) -> float:
+	if defender is Object and defender.has_meta("classic_armor"):
+		return float(defender.get_meta("classic_armor")) / 5.0
+	return float(defender.get_stat("EvasionMelee"))
 
 
 func calculate_melee_damage(attacker : Creature, defender : Creature, weapon: Variant, is_crit : bool, crit_mult : float, should_check_script : bool = true) -> Dictionary :
