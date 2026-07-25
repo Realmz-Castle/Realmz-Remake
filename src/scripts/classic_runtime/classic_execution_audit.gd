@@ -71,6 +71,8 @@ func _trigger_is_executable(
 func _producer_marks_callable(trigger: Dictionary) -> bool:
 	if trigger.has("callable"):
 		return bool(trigger["callable"])
+	if trigger.has("authored") and not bool(trigger["authored"]):
+		return false
 	# Version 1 producers originally exposed only `active`. Keep those bundles
 	# conservative: a non-empty legacy row remains part of the readiness audit.
 	return bool(trigger.get("active", true))
@@ -85,6 +87,17 @@ func _has_linear_fallthrough(bundle: ClassicCampaignBundle, action: Dictionary) 
 		return true
 	if code == 64:
 		return false
+	if code == 77:
+		var quest_branch: Dictionary = bundle.get_extra_code(
+			int(action.get("id", -1))
+		)
+		var quest_values: Variant = quest_branch.get("values", [])
+		return (
+			not (quest_values is Array)
+			or quest_values.size() < 5
+			or int(quest_values[3]) == 0
+			or int(quest_values[4]) == 0
+		)
 	if code != 21:
 		return true
 	var extra_code: Dictionary = bundle.get_extra_code(int(action.get("id", -1)))

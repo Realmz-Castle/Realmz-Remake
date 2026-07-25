@@ -13,8 +13,8 @@ const HANDLED_OPCODES := [
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 52, 54, 56, 57, 58,
-	61, 63, 64, 66, 73, 82, 83, 84, 85, 86, 87, 89,
-	93, 94, 95, 96, 97, 98,
+	61, 63, 64, 66, 73, 76, 77, 82, 83, 84, 85, 86, 87, 88, 89,
+	90, 93, 94, 95, 96, 97, 98,
 	99, 100, 101, 103, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
 ]
@@ -938,6 +938,10 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			})
 		73:
 			return _execute_restricted_shop(record_id)
+		76:
+			return _execute_quest_value_mutation(record_id, gosub_active)
+		77:
+			return _execute_quest_value_branch(record_id, gosub_active)
 		82, 83:
 			return _execute_priest_turning(code == 83)
 		85:
@@ -946,8 +950,12 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_misc_branch(record_id, gosub_active)
 		87:
 			return _execute_ally_branch(record_id, gosub_active)
+		88:
+			return _execute_remove_ally(record_id)
 		89:
 			return _execute_add_ally(record_id)
+		90:
+			return _execute_experience_loss(record_id)
 		93, 94:
 			return _execute_compass(code == 93)
 		95:
@@ -2730,6 +2738,16 @@ func _execute_ally_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 	})
 
 
+func _execute_remove_ally(monster_name_id: int) -> Dictionary:
+	var normalized_name_id := absi(monster_name_id)
+	var matching_monsters: Array = bundle.get_monsters_by_name_id(normalized_name_id)
+	var monster: Dictionary = matching_monsters[0] if not matching_monsters.is_empty() else {}
+	return _yield_result("remove_party_ally", {
+		"monsterNameId": normalized_name_id,
+		"monster": monster,
+	})
+
+
 func _execute_add_ally(monster_id: int) -> Dictionary:
 	var monster := bundle.get_monster(monster_id)
 	if monster.is_empty():
@@ -2822,6 +2840,72 @@ func _execute_quest_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 	if not should_branch:
 		return _continue_result()
 	return _branch_from_extra_code(values, gosub)
+
+
+func _execute_quest_value_mutation(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Quest-value mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var quest_id := int(values[0])
+	if quest_id < 0 or quest_id >= 100:
+		return _halt_with_error("Classic quest index %d is outside 0 through 99" % quest_id)
+	var quest_value := runtime_state.adjust_quest_value(quest_id, int(values[1]))
+	var threshold := int(values[3])
+	if threshold == 0 or quest_value < threshold:
+		return _continue_result()
+	var target_mode := int(values[2]) - 1
+	if target_mode < 0 or target_mode > 2:
+		return _halt_with_error(
+			"Quest-value mutation has invalid branch mode %d" % int(values[2])
+		)
+	return _branch_to_action_or_encounter(
+		target_mode,
+		int(values[4]),
+		gosub
+	)
+
+
+func _execute_quest_value_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Quest-value branch references missing Extra Code row %d" % extra_code_id
+		)
+	var quest_id := int(values[0])
+	if quest_id < 0 or quest_id >= 100:
+		return _halt_with_error("Classic quest index %d is outside 0 through 99" % quest_id)
+	var threshold_met := runtime_state.get_quest_value(quest_id) >= int(values[1])
+	var target_id := int(values[4] if threshold_met else values[3])
+	if target_id == 0:
+		return _continue_result()
+	var target_mode := int(values[2])
+	if target_mode < 0 or target_mode > 2:
+		return _halt_with_error(
+			"Quest-value branch has invalid branch mode %d" % target_mode
+		)
+	return _branch_to_action_or_encounter(target_mode, target_id, gosub)
+
+
+func _execute_experience_loss(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Experience-loss action references missing Extra Code row %d" % extra_code_id
+		)
+	var source_mode := int(values[1])
+	var mode := "each"
+	if source_mode == 1:
+		mode = "selected"
+	elif source_mode == 2:
+		mode = "spread"
+	return _yield_result("remove_experience", {
+		"extraCodeId": extra_code_id,
+		"experience": int(values[0]),
+		"mode": mode,
+		"sourceMode": source_mode,
+	})
 
 
 func _execute_percent_branch(extra_code_id: int) -> Dictionary:

@@ -7,6 +7,7 @@ const VIEW_MAP := -1
 const VIEW_3D := 1
 
 var quest_flags: Dictionary = {}
+var quest_values: Dictionary = {}
 var tile_overrides: Dictionary = {}
 var trigger_percent_overrides: Dictionary = {}
 var action_point_overrides: Dictionary = {}
@@ -34,6 +35,7 @@ var priest_turning_enabled := true
 
 func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	quest_flags.clear()
+	quest_values.clear()
 	tile_overrides.clear()
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
@@ -65,11 +67,31 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 func set_quest_flag(signed_quest_id: int) -> void:
 	if signed_quest_id == 0:
 		return
-	quest_flags[abs(signed_quest_id)] = signed_quest_id > 0
+	set_quest_value(absi(signed_quest_id), 1 if signed_quest_id > 0 else 0)
 
 
 func is_quest_set(quest_id: int) -> bool:
-	return bool(quest_flags.get(abs(quest_id), false))
+	return get_quest_value(absi(quest_id)) != 0
+
+
+func set_quest_value(quest_id: int, value: int) -> void:
+	var normalized_id := absi(quest_id)
+	var normalized_value := clampi(value, -127, 127)
+	quest_values[normalized_id] = normalized_value
+	quest_flags[normalized_id] = normalized_value != 0
+
+
+func adjust_quest_value(quest_id: int, change: int) -> int:
+	var normalized_id := absi(quest_id)
+	set_quest_value(normalized_id, get_quest_value(normalized_id) + change)
+	return get_quest_value(normalized_id)
+
+
+func get_quest_value(quest_id: int) -> int:
+	var normalized_id := absi(quest_id)
+	if quest_values.has(normalized_id):
+		return int(quest_values[normalized_id])
+	return 1 if bool(quest_flags.get(normalized_id, false)) else 0
 
 
 func set_difficulty(new_difficulty: int) -> void:
@@ -404,6 +426,7 @@ func is_map_owned(map_id: int) -> bool:
 func snapshot() -> Dictionary:
 	return {
 		"questFlags": quest_flags.duplicate(true),
+		"questValues": quest_values.duplicate(true),
 		"tileOverrides": tile_overrides.duplicate(true),
 		"triggerPercentOverrides": trigger_percent_overrides.duplicate(true),
 		"actionPointOverrides": action_point_overrides.duplicate(true),
@@ -435,6 +458,7 @@ func snapshot() -> Dictionary:
 func restore(saved_state: Dictionary) -> void:
 	var owns_initial_map := is_map_owned(0)
 	quest_flags.clear()
+	quest_values.clear()
 	tile_overrides.clear()
 	trigger_percent_overrides.clear()
 	action_point_overrides.clear()
@@ -453,7 +477,13 @@ func restore(saved_state: Dictionary) -> void:
 	var saved_flags: Variant = saved_state.get("questFlags", {})
 	if saved_flags is Dictionary:
 		for quest_id: Variant in saved_flags:
-			quest_flags[int(quest_id)] = bool(saved_flags[quest_id])
+			var flag_is_set := bool(saved_flags[quest_id])
+			quest_flags[int(quest_id)] = flag_is_set
+			quest_values[int(quest_id)] = 1 if flag_is_set else 0
+	var saved_values: Variant = saved_state.get("questValues", {})
+	if saved_values is Dictionary:
+		for quest_id: Variant in saved_values:
+			set_quest_value(int(quest_id), int(saved_values[quest_id]))
 	_restore_dictionary(saved_state.get("tileOverrides", {}), tile_overrides)
 	_restore_dictionary(saved_state.get("triggerPercentOverrides", {}), trigger_percent_overrides)
 	var saved_action_points: Variant = saved_state.get("actionPointOverrides", {})

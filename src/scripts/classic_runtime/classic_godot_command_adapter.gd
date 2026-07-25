@@ -540,6 +540,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _end_classic_battle(payload)
 		"add_party_ally":
 			return _add_classic_ally(payload)
+		"remove_party_ally":
+			return _remove_classic_allies(payload)
 		"present_random_branch":
 			return await _present_random_branch(payload)
 		"set_priest_turning":
@@ -558,6 +560,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			)
 		"give_experience":
 			return await _give_experience(payload)
+		"remove_experience":
+			return _remove_experience(payload)
 		"give_character_condition":
 			return _give_character_condition(payload)
 		"pick_characters":
@@ -1043,6 +1047,48 @@ func party_has_classic_ally(payload: Dictionary, allies: Array) -> bool:
 		if not display_name.is_empty() and ally_name.to_lower() == display_name.to_lower():
 			return true
 	return false
+
+
+func _remove_classic_allies(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	var player_allies: Variant = game_global.get("player_allies") if game_global != null else null
+	if not (player_allies is Array):
+		return _error("Realmz ally state is unavailable")
+	var previous_allies: Array = player_allies.duplicate()
+	var result := remove_classic_allies(payload, player_allies)
+	for ally_value: Variant in previous_allies:
+		if player_allies.has(ally_value):
+			continue
+		classic_selected_characters.erase(ally_value)
+		var native_selection: Variant = game_global.get("last_picked_characters")
+		if native_selection is Array:
+			native_selection.erase(ally_value)
+	var ui: Object = _autoload("UI")
+	if ui != null and ui.ow_hud != null \
+			and ui.ow_hud.has_method("fillCharactersRect"):
+		ui.ow_hud.fillCharactersRect()
+	return result
+
+
+func remove_classic_allies(payload: Dictionary, allies: Array) -> Dictionary:
+	var removed_names: Array[String] = []
+	for ally_index: int in range(allies.size() - 1, -1, -1):
+		var ally_value: Variant = allies[ally_index]
+		if not party_has_classic_ally(payload, [ally_value]):
+			continue
+		var ally_name := ""
+		if ally_value is Object:
+			ally_name = str(ally_value.get("name"))
+		elif ally_value is Dictionary:
+			ally_name = str(ally_value.get("name", ""))
+		removed_names.append(ally_name)
+		allies.remove_at(ally_index)
+	removed_names.reverse()
+	return {
+		"removed": removed_names.size(),
+		"names": removed_names,
+		"monsterNameId": int(payload.get("monsterNameId", -1)),
+	}
 
 
 func _check_combat_monster(payload: Dictionary) -> Dictionary:
@@ -4103,6 +4149,57 @@ func _give_experience(payload: Dictionary) -> Dictionary:
 		int(payload.get("experience", 0))
 	)
 	return {}
+
+
+func _remove_experience(payload: Dictionary) -> Dictionary:
+	var party := _party_characters()
+	var result := apply_classic_experience_loss(
+		payload,
+		party,
+		_current_selected_characters()
+	)
+	_refresh_party_panels(party)
+	return result
+
+
+func apply_classic_experience_loss(
+	payload: Dictionary,
+	party: Array,
+	selected: Array
+) -> Dictionary:
+	var mode := str(payload.get("mode", "each"))
+	var targets: Array = []
+	var amount := int(payload.get("experience", 0))
+	var per_character := amount
+	match mode:
+		"selected":
+			for character_value: Variant in selected:
+				if party.has(character_value) and not targets.has(character_value):
+					targets.append(character_value)
+		"spread":
+			targets = party.duplicate()
+			per_character = int(float(amount) / float(party.size())) \
+				if not party.is_empty() else 0
+		_:
+			targets = party.duplicate()
+	var characters_affected := 0
+	var experience_removed := 0
+	for character_value: Variant in targets:
+		if not (character_value is Object) \
+				or not _object_has_property(character_value, "exp_tnl"):
+			continue
+		character_value.set(
+			"exp_tnl",
+			int(character_value.get("exp_tnl")) + per_character
+		)
+		characters_affected += 1
+		experience_removed += per_character
+	return {
+		"mode": mode,
+		"charactersAffected": characters_affected,
+		"experiencePerCharacter": per_character,
+		"experienceRemoved": experience_removed,
+	}
 
 
 func _apply_coward_penalty(payload: Dictionary) -> Dictionary:

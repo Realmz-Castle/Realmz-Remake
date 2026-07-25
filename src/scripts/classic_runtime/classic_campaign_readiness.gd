@@ -58,7 +58,7 @@ const SPELL_DEFINITION_FIELDS := [
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
 	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 52, 54, 56, 57,
-	58, 61, 63, 64, 73, 85, 87, 103, 106, 121, 123, 124, 125, 126,
+	58, 61, 63, 64, 73, 76, 77, 85, 87, 90, 103, 106, 121, 123, 124, 125, 126,
 ]
 
 var _diagnostics: Array = []
@@ -209,6 +209,10 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_position_shift(bundle, action, extra_code)
 		elif code in [63, 64]:
 			_check_game_time_action(action, extra_code, code)
+		elif code in [76, 77]:
+			_check_quest_value_action(bundle, action, extra_code, code)
+		elif code == 90:
+			_check_experience_loss(action, extra_code)
 		elif code == 103:
 			_check_exploration_status(action, extra_code)
 		elif code == 85:
@@ -432,6 +436,94 @@ func _check_exploration_status(action: Dictionary, extra_code: Dictionary) -> vo
 			}
 		)
 		return
+
+
+func _check_quest_value_action(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary,
+	opcode: int
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		_add_action_dependency(
+			action,
+			"malformed-quest-value-action",
+			"Opcode %d Data EDCD record has fewer than five values" % opcode,
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var quest_id := int(values[0])
+	if quest_id < 0 or quest_id >= 100:
+		_add_action_dependency(
+			action,
+			"invalid-quest-value-action",
+			"Opcode %d uses quest index %d outside 0 through 99" % [
+				opcode,
+				quest_id,
+			],
+			{"referenceId": int(extra_code.get("id", -1)), "questId": quest_id}
+		)
+		return
+	var target_mode := int(values[2]) - 1 if opcode == 76 else int(values[2])
+	var has_branch := int(values[3]) != 0 if opcode == 76 \
+		else int(values[3]) != 0 or int(values[4]) != 0
+	if has_branch and (target_mode < 0 or target_mode > 2):
+		_add_action_dependency(
+			action,
+			"invalid-quest-value-action",
+			"Opcode %d has invalid branch mode %d" % [
+				opcode,
+				int(values[2]),
+			],
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	if not has_branch:
+		return
+	var targets: Array[int] = []
+	if opcode == 76:
+		targets.append(int(values[4]))
+	else:
+		targets.append(int(values[3]))
+		targets.append(int(values[4]))
+	for target_id: int in targets:
+		if target_id == 0 and opcode == 77:
+			continue
+		var target: Dictionary
+		match target_mode:
+			0:
+				target = bundle.get_extra_action_point(target_id)
+			1:
+				target = bundle.get_encounter("simple", target_id)
+			_:
+				target = bundle.get_encounter("complex", target_id)
+		if not target.is_empty():
+			continue
+		_add_action_dependency(
+			action,
+			"missing-quest-value-target",
+			"Opcode %d references missing branch target %d" % [
+				opcode,
+				target_id,
+			],
+			{
+				"referenceId": target_id,
+				"targetMode": target_mode,
+			}
+		)
+
+
+func _check_experience_loss(action: Dictionary, extra_code: Dictionary) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if values is Array and values.size() >= 2:
+		return
+	_add_action_dependency(
+		action,
+		"malformed-experience-loss",
+		"Experience-loss Data EDCD record has fewer than two values",
+		{"referenceId": int(extra_code.get("id", -1))}
+	)
 
 
 func _check_same_map_action_point(

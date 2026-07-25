@@ -2469,6 +2469,8 @@ func _ready() -> void:
 	_test_item_mutation_rules()
 	_test_equipment_storage_rules()
 	_test_quest_state_and_branch(bundle)
+	_test_quest_value_actions()
+	_test_experience_loss_action()
 	_test_action_point_consumption()
 	_test_classic_stack_semantics()
 	_test_shipped_gosub_chain()
@@ -11167,6 +11169,17 @@ func _test_data_ed3_callability_contract() -> void:
 		"callable": false,
 		"actions": [_classic_action(0, 261, 0)],
 	}
+	bundle.simple_encounters_by_id[3] = {
+		"id": 3,
+		"authored": false,
+		"actions": [_classic_action(0, 262, 0)],
+	}
+	bundle.simple_encounters_by_id[4] = {
+		"id": 4,
+		"authored": false,
+		"callable": true,
+		"actions": [_classic_action(0, 263, 0)],
+	}
 
 	var report: Dictionary = ExecutionAuditScript.new().inspect(bundle)
 	var actions_by_record: Dictionary = {}
@@ -11200,12 +11213,12 @@ func _test_data_ed3_callability_contract() -> void:
 	)
 	_expect_equal(
 		_audit_diagnostic_count(report, "unsupported-action"),
-		3,
+		4,
 		"only callable or source-reachable unknown actions block readiness"
 	)
 	_expect_equal(
 		_audit_diagnostic_count(report, "inactive-action-record"),
-		3,
+		4,
 		"uncallable macro and encounter rows remain visible as inactive evidence"
 	)
 
@@ -23779,6 +23792,238 @@ func _test_quest_state_and_branch(bundle) -> void:
 	_expect_equal(true_branch.get("payload", {}).get("messageId"), 620, "continued AP reaches CoB message 620")
 
 
+func _test_quest_value_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [5, 2, 0, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [5, 3, 1, 5, 10]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [5, 5, 0, 10, 11]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [5, 200, 0, 0, 0]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [5, -400, 0, 0, 0]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [5, 0, 3, 10, 11]}
+	bundle.extra_codes_by_id[7] = {"id": 7, "values": [5, 0, 0, 12, 12]}
+	_add_stack_trigger(bundle, "quest:value-increment", -1, [
+		_classic_action(0, 76, 1),
+		_classic_action(1, 1, 900),
+	])
+	_add_stack_trigger(bundle, "quest:value-auto-branch", -1, [
+		_classic_action(0, 76, 2),
+		_classic_action(1, 1, 912),
+	])
+	_add_stack_trigger(bundle, "quest:value-branch", -1, [
+		_classic_action(0, 77, 3),
+		_classic_action(1, 1, 912),
+	])
+	_add_stack_trigger(bundle, "quest:value-clamp", -1, [
+		_classic_action(0, 76, 4),
+		_classic_action(1, 76, 5),
+		_classic_action(2, 1, 900),
+	])
+	_add_stack_trigger(bundle, "quest:value-invalid", -1, [
+		_classic_action(0, 77, 6),
+	])
+	_add_stack_trigger(bundle, "quest:value-missing-target", -1, [
+		_classic_action(0, 77, 7),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
+		_classic_action(0, 1, 910),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:11", 11, [
+		_classic_action(0, 1, 911),
+	])
+	for message_id: int in [900, 910, 911, 912]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Quest value fixture %d" % message_id,
+		}
+
+	var interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger("quest:value-increment"),
+		"begin numeric quest increment"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		900,
+		"quest increment continues through later slots"
+	)
+	_expect_equal(
+		interpreter.runtime_state.get_quest_value(5),
+		2,
+		"opcode 76 stores a numeric quest value"
+	)
+	_expect(
+		interpreter.runtime_state.is_quest_set(5),
+		"nonzero numeric quest values satisfy legacy quest flags"
+	)
+
+	_expect(
+		interpreter.begin_trigger("quest:value-auto-branch"),
+		"begin quest increment with threshold branch"
+	)
+	var auto_branch: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		auto_branch.get("payload", {}).get("messageId"),
+		910,
+		"opcode 76 branches when the updated quest value reaches its threshold"
+	)
+	_expect_equal(
+		interpreter.runtime_state.get_quest_value(5),
+		5,
+		"quest threshold compares the post-increment value"
+	)
+	_expect(
+		not interpreter.trace.any(
+			func(entry: Dictionary) -> bool: return entry.get("triggerId") == "quest:value-auto-branch" and int(entry.get("slot", -1)) == 1
+		),
+		"positive quest auto-branch replaces the remaining source action list"
+	)
+
+	_expect(
+		interpreter.begin_trigger("quest:value-branch"),
+		"begin matching numeric quest branch"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		911,
+		"opcode 77 selects its threshold-met branch"
+	)
+	var fresh_interpreter = _interpreter(bundle)
+	_expect(
+		fresh_interpreter.begin_trigger("quest:value-branch"),
+		"begin unmet numeric quest branch"
+	)
+	_expect_equal(
+		fresh_interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		910,
+		"opcode 77 selects its below-threshold branch"
+	)
+
+	fresh_interpreter = _interpreter(bundle)
+	_expect(fresh_interpreter.begin_trigger("quest:value-clamp"), "begin quest clamp fixture")
+	fresh_interpreter.run_until_yield()
+	_expect_equal(
+		fresh_interpreter.runtime_state.get_quest_value(5),
+		-127,
+		"numeric quest mutations preserve Classic's signed-byte clamp"
+	)
+	var restored_state = StateScript.new()
+	restored_state.restore(fresh_interpreter.runtime_state.snapshot())
+	_expect_equal(
+		restored_state.get_quest_value(5),
+		-127,
+		"numeric quest values survive compatibility snapshots"
+	)
+	restored_state.restore({"questFlags": {"9": true}})
+	_expect_equal(
+		restored_state.get_quest_value(9),
+		1,
+		"older boolean quest snapshots migrate to numeric values"
+	)
+
+	fresh_interpreter = _interpreter(bundle)
+	_expect(fresh_interpreter.begin_trigger("quest:value-invalid"), "begin invalid quest branch")
+	_expect_equal(
+		fresh_interpreter.run_until_yield().get("status"),
+		"error",
+		"invalid numeric quest branch modes stop safely"
+	)
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	_expect_equal(
+		_diagnostic_code_count(readiness, "invalid-quest-value-action"),
+		1,
+		"readiness retains invalid numeric quest branch modes"
+	)
+	_expect_equal(
+		_diagnostic_code_count(readiness, "missing-quest-value-target"),
+		1,
+		"readiness retains missing numeric quest branch targets"
+	)
+	var execution: Dictionary = ExecutionAuditScript.new().inspect(bundle)
+	var branch_later_action: Dictionary = {}
+	for action_value: Variant in execution.get("actions", []):
+		if (
+			action_value is Dictionary
+			and action_value.get("recordId") == "quest:value-branch"
+			and int(action_value.get("slot", -1)) == 1
+		):
+			branch_later_action = action_value
+			break
+	_expect(
+		not branch_later_action.is_empty()
+			and not bool(branch_later_action.get("executable", true)),
+		"two-way numeric quest branches make their later slot unreachable"
+	)
+
+
+func _test_experience_loss_action() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [100, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [101, 2, 0, 0, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [75, 1, 0, 0, 0]}
+	_add_stack_trigger(bundle, "experience:each", -1, [_classic_action(0, 90, 1)])
+	_add_stack_trigger(bundle, "experience:spread", -1, [_classic_action(0, 90, 2)])
+	_add_stack_trigger(bundle, "experience:selected", -1, [_classic_action(0, 90, 3)])
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("experience:each"), "begin per-character experience loss")
+	var each_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		each_command.get("command"),
+		"remove_experience",
+		"opcode 90 yields a typed experience-loss command"
+	)
+	_expect_equal(
+		each_command.get("payload", {}).get("mode"),
+		"each",
+		"default experience loss targets every party member"
+	)
+	var first = CowardPenaltyTestCharacter.new(2, 1000)
+	var second = CowardPenaltyTestCharacter.new(5, 4000)
+	var adapter = GodotAdapterScript.new()
+	var result: Dictionary = adapter.apply_classic_experience_loss(
+		each_command.get("payload", {}),
+		[first, second],
+		[]
+	)
+	_expect_equal(first.exp_tnl, 1100, "per-character loss increases Remake experience-to-next")
+	_expect_equal(second.exp_tnl, 4100, "per-character loss applies to each character")
+	_expect_equal(result.get("experienceRemoved"), 200, "per-character loss reports its total")
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("experience:spread")
+	var spread_command: Dictionary = interpreter.run_until_yield()
+	result = adapter.apply_classic_experience_loss(
+		spread_command.get("payload", {}),
+		[first, second],
+		[]
+	)
+	_expect_equal(
+		result.get("experiencePerCharacter"),
+		50,
+		"spread loss preserves Classic integer division"
+	)
+	_expect_equal(first.exp_tnl, 1150, "spread loss reaches the first party member")
+	_expect_equal(second.exp_tnl, 4150, "spread loss reaches the second party member")
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("experience:selected")
+	var selected_command: Dictionary = interpreter.run_until_yield()
+	result = adapter.apply_classic_experience_loss(
+		selected_command.get("payload", {}),
+		[first, second],
+		[second]
+	)
+	_expect_equal(first.exp_tnl, 1150, "selected loss leaves unpicked characters unchanged")
+	_expect_equal(second.exp_tnl, 4225, "selected loss reaches only picked characters")
+	_expect_equal(result.get("charactersAffected"), 1, "selected loss reports one target")
+
+
 func _test_action_point_consumption() -> void:
 	var bundle = BundleScript.new()
 	bundle.manifest = {"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0}}
@@ -24485,6 +24730,20 @@ func _test_party_state_actions() -> void:
 	_expect_equal(add_ally.get("payload", {}).get("monster", {}).get("displayName"), "Vodalian", "add ally resolves monster")
 
 	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("party:remove-ally"), "begin remove-ally fixture")
+	var remove_ally: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		remove_ally.get("command"),
+		"remove_party_ally",
+		"drop ally yields typed mutation"
+	)
+	_expect_equal(
+		remove_ally.get("payload", {}).get("monsterNameId"),
+		19,
+		"drop ally preserves the Classic name identity"
+	)
+
+	interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("party:registration"), "begin registration fixture")
 	var registration_result: Dictionary = interpreter.run_until_yield()
 	_expect_equal(registration_result.get("payload", {}).get("messageId"), 904, "registration gate is a no-op")
@@ -24629,6 +24888,19 @@ func _test_party_state_actions() -> void:
 		adapter.party_has_classic_ally({"monsterNameId": 19}, [ally]),
 		"Classic ally name identity survives ally renaming"
 	)
+	var duplicate_ally = AllyTestCharacter.new()
+	duplicate_ally.name = "Second renamed ally"
+	duplicate_ally.set_meta("classic_monster_name_id", 19)
+	var retained_ally = AllyTestCharacter.new()
+	retained_ally.name = "Retained ally"
+	retained_ally.set_meta("classic_monster_name_id", 20)
+	var allies: Array = [ally, duplicate_ally, retained_ally]
+	var removal: Dictionary = adapter.remove_classic_allies(
+		{"monsterNameId": 19},
+		allies
+	)
+	_expect_equal(removal.get("removed"), 2, "drop ally removes every duplicate name identity")
+	_expect_equal(allies, [retained_ally], "drop ally preserves unrelated native allies")
 	_expect_equal(
 		adapter.resolve_classic_monster_bestiary_name(
 			71,
@@ -30773,6 +31045,7 @@ func _party_state_test_bundle():
 	])
 	_add_stack_trigger(bundle, "party:ally-message", -1, [_classic_action(0, 87, 6)])
 	_add_stack_trigger(bundle, "party:add-ally", -1, [_classic_action(0, 89, 71)])
+	_add_stack_trigger(bundle, "party:remove-ally", -1, [_classic_action(0, 88, 19)])
 	_add_stack_trigger(bundle, "party:registration", -1, [
 		_classic_action(0, 84, 0),
 		_classic_action(0, 98, 0),
