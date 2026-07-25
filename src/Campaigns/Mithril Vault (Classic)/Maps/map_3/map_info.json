@@ -1,0 +1,19 @@
+{
+  "classic_boats": {
+    "30,10": "landlook-3146",
+    "40,86": "landlook-3146",
+    "42,84": "landlook-3146",
+    "43,84": "landlook-3146",
+    "46,84": "landlook-3146",
+    "49,86": "landlook-3146",
+    "78,67": "landlook-3146",
+    "79,68": "landlook-3146",
+    "83,67": "landlook-3146"
+  },
+  "darkness_level": -1,
+  "display_explored_only": 0,
+  "map_type": "Outdoor",
+  "music_type": "Cave",
+  "name": "map_3",
+  "outdoor_riding": true
+}

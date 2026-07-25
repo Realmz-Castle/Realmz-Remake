@@ -1,0 +1,11 @@
+{
+  "classic_boats": {
+    "20,57": "landlook-10146"
+  },
+  "darkness_level": -1,
+  "display_explored_only": 0,
+  "map_type": "Outdoor",
+  "music_type": "Snow",
+  "name": "map_5",
+  "outdoor_riding": true
+}

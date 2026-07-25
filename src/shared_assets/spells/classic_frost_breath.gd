@@ -3,6 +3,8 @@ extends "res://scripts/classic_runtime/classic_breath_spell.gd"
 
 func _init() -> void:
 	name = "Frost Breath"
+	classic_spell_class = 4
+	classic_spell_ids = [4207]
 	description = "Frost Breath: Deals 2-15 ice damage per power along a range-7 ray."
 	attributes = ["Magical"]
 	elements = [GameGlobal.ELEMENTS.ICE]

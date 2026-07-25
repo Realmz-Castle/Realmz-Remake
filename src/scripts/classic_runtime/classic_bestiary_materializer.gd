@@ -11,6 +11,12 @@ const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const AnimationScript = preload("res://scripts/classic_runtime/classic_animation.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
+const CharacterConditionRulesScript = preload(
+	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
+)
+const CustomSpellSupportScript = preload(
+	"res://scripts/classic_runtime/classic_custom_spell_support.gd"
+)
 const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_saves.gd")
 const MonsterSpecialAttackScript = preload(
 	"res://scripts/classic_runtime/classic_monster_special_attack.gd"
@@ -128,6 +134,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	var spell_mapping: Dictionary = spell_ids.mappings.duplicate()
 	spell_ids.free()
 	var spell_book := _read_spell_context()
+	_merge_custom_spell_context(bundle, spell_book)
 	var records: Array[Dictionary] = []
 	for monster_value: Variant in monsters:
 		if not (monster_value is Dictionary):
@@ -273,6 +280,12 @@ func _native_monster(
 	for fallback: String in native_requirements.get("fidelityFallbacks", []):
 		if not fidelity_fallbacks.has(fallback):
 			fidelity_fallbacks.append(fallback)
+	for field_name: String in unsupported_fields.duplicate():
+		if not _is_bounded_fidelity_fallback(field_name):
+			continue
+		unsupported_fields.erase(field_name)
+		if not fidelity_fallbacks.has(field_name):
+			fidelity_fallbacks.append(field_name)
 	var native_traits: Array = []
 	if AnimationScript.has_permanent_condition(record.get("conditions", [])):
 		native_traits.append([PERMANENT_ANIMATED_TRAIT, []])
@@ -740,14 +753,29 @@ func _has_unsupported_conditions(conditions: Variant) -> bool:
 		var value := int(conditions[condition_index])
 		if value == 0:
 			continue
-		if RegenerationScript.supports_condition(condition_index, value):
-			continue
-		if AnimationScript.supports_condition(condition_index, value):
-			continue
-		if SpellScreenScript.supports_condition(condition_index, value):
+		if CharacterConditionRulesScript.supports_condition(condition_index):
 			continue
 		return true
 	return false
+
+
+func _is_bounded_fidelity_fallback(field_name: String) -> bool:
+	# The full source record remains attached to the generated creature. These
+	# gaps affect a secondary native projection, but the creature can still be
+	# spawned, fight with its compiled attack rows, and drop its preserved item.
+	return (
+		field_name.ends_with(".nativeFields")
+		or field_name in [
+			"weapon.randomSelector",
+			"weapon.nonEquippable",
+			"weapon.nativeFields",
+			"missilePercent",
+		]
+		or (
+			field_name.begins_with("attacks[")
+			and field_name.ends_with("].special")
+		)
+	)
 
 
 func _average_stamina(record: Dictionary) -> int:
@@ -853,6 +881,33 @@ func _read_spell_context() -> Dictionary:
 	# compiled resource metadata because the original script text is unavailable.
 	SpellResourceCatalogScript.merge_directory(SHARED_SPELL_DIRECTORY, spell_book)
 	return spell_book
+
+
+func _merge_custom_spell_context(bundle: Object, spell_book: Dictionary) -> void:
+	var overrides: Variant = bundle.get("spell_overrides_by_id")
+	if not (overrides is Dictionary):
+		return
+	var spell_ids: Array = overrides.keys()
+	spell_ids.sort()
+	for spell_id_value: Variant in spell_ids:
+		var spell_id: int = abs(int(spell_id_value))
+		var record: Variant = overrides[spell_id_value]
+		if not (record is Dictionary) \
+				or not CustomSpellSupportScript.is_executable(record):
+			continue
+		var spell_name := str(record.get("displayName", "")).strip_edges()
+		if spell_name.is_empty():
+			spell_name = "Classic spell %d" % spell_id
+		var metadata: Dictionary = spell_book.get(spell_name, {})
+		var classic_ids: Array = metadata.get("classicSpellIds", [])
+		if not (classic_ids is Array):
+			classic_ids = []
+		if not classic_ids.has(spell_id):
+			classic_ids.append(spell_id)
+		metadata["classicSpellIds"] = classic_ids
+		metadata["classicSpellId"] = spell_id
+		metadata["classicCustomSpell"] = true
+		spell_book[spell_name] = metadata
 
 
 func _read_json_book(path: String, description: String) -> Dictionary:

@@ -23,6 +23,31 @@ func configure_core_spell_point_surge(spell_id: int) -> bool:
 	return true
 
 
+func configure_custom_spell_point_surge(record: Dictionary) -> bool:
+	if absi(int(record.get("special", 0))) != 59 \
+			or not bool(record.get("inCombat", false)) \
+			or not _has_nonzero_field(
+				record,
+				["damage1", "damage2", "powerDamage1", "powerDamage2"]
+			) \
+			or _has_nonzero_field(
+				record,
+				["duration1", "duration2", "powerDuration1", "powerDuration2"]
+			):
+		return false
+	_configure_custom_record(record)
+	classic_spell_save_index = -1
+	classic_spell_save_mode = "none"
+	if not tags.has("Spell Point Recovery"):
+		tags.append("Spell Point Recovery")
+	description = "%s: Restores spell points using its authored damage roll." % name
+	return true
+
+
+func is_generically_executable() -> bool:
+	return classic_special == 59
+
+
 func get_min_spell_point_gain(power: int) -> int:
 	return get_min_damage(power, null)
 

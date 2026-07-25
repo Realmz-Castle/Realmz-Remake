@@ -1,0 +1,11 @@
+{
+  "classic_boats": {
+    "29,85": "landlook-7146"
+  },
+  "darkness_level": -1,
+  "display_explored_only": 0,
+  "map_type": "Outdoor",
+  "music_type": "Forest",
+  "name": "map_0",
+  "outdoor_riding": true
+}

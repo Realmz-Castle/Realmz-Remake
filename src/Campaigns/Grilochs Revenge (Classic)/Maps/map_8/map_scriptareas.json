@@ -1,0 +1,659 @@
+{
+  "Paths": [],
+  "ScriptRects": {
+    "AP0x27y18": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          27,
+          18
+        ],
+        [
+          27,
+          18
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:0"
+    },
+    "AP10x75y45": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          75,
+          45
+        ],
+        [
+          75,
+          45
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:10"
+    },
+    "AP11x73y42": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          73,
+          42
+        ],
+        [
+          73,
+          42
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:11"
+    },
+    "AP12x79y42": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          79,
+          42
+        ],
+        [
+          79,
+          42
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:12"
+    },
+    "AP13x80y42": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          80,
+          42
+        ],
+        [
+          80,
+          42
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:13"
+    },
+    "AP14x75y40": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          75,
+          40
+        ],
+        [
+          75,
+          40
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:14"
+    },
+    "AP15x31y22": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          31,
+          22
+        ],
+        [
+          31,
+          22
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:15"
+    },
+    "AP16x76y35": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          76,
+          35
+        ],
+        [
+          76,
+          35
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:16"
+    },
+    "AP17x27y58": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          27,
+          58
+        ],
+        [
+          27,
+          58
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:17"
+    },
+    "AP18x6y41": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          6,
+          41
+        ],
+        [
+          6,
+          41
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:18"
+    },
+    "AP19x8y41": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          8,
+          41
+        ],
+        [
+          8,
+          41
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:19"
+    },
+    "AP1x5y6": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:1"
+    },
+    "AP20x14y12": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          14,
+          12
+        ],
+        [
+          14,
+          12
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:20"
+    },
+    "AP21x13y17": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          13,
+          17
+        ],
+        [
+          13,
+          17
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:21"
+    },
+    "AP22x28y51": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          28,
+          51
+        ],
+        [
+          28,
+          51
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:22"
+    },
+    "AP23x21y58": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          21,
+          58
+        ],
+        [
+          21,
+          58
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:23"
+    },
+    "AP24x22y58": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          22,
+          58
+        ],
+        [
+          22,
+          58
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:24"
+    },
+    "AP25x25y58": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          25,
+          58
+        ],
+        [
+          25,
+          58
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:25"
+    },
+    "AP26x23y58": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          23,
+          58
+        ],
+        [
+          23,
+          58
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:26"
+    },
+    "AP27x24y58": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          24,
+          58
+        ],
+        [
+          24,
+          58
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:27"
+    },
+    "AP28x23y51": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          23,
+          51
+        ],
+        [
+          23,
+          51
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:28"
+    },
+    "AP29x21y51": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          21,
+          51
+        ],
+        [
+          21,
+          51
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:29"
+    },
+    "AP2x76y13": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          76,
+          13
+        ],
+        [
+          76,
+          13
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:2"
+    },
+    "AP30x35y51": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          35,
+          51
+        ],
+        [
+          35,
+          51
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:30"
+    },
+    "AP31x38y51": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          38,
+          51
+        ],
+        [
+          38,
+          51
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:31"
+    },
+    "AP32x43y48": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          43,
+          48
+        ],
+        [
+          43,
+          48
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:32"
+    },
+    "AP33x44y48": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          44,
+          48
+        ],
+        [
+          44,
+          48
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:33"
+    },
+    "AP34x45y54": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          45,
+          54
+        ],
+        [
+          45,
+          54
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:34"
+    },
+    "AP35x45y48": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          45,
+          48
+        ],
+        [
+          45,
+          48
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:35"
+    },
+    "AP36x46y51": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          46,
+          51
+        ],
+        [
+          46,
+          51
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:36"
+    },
+    "AP37x40y49": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          40,
+          49
+        ],
+        [
+          40,
+          49
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:37"
+    },
+    "AP38x40y54": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          40,
+          54
+        ],
+        [
+          40,
+          54
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:38"
+    },
+    "AP39x15y12": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          15,
+          12
+        ],
+        [
+          15,
+          12
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:39"
+    },
+    "AP3x28y2": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          28,
+          2
+        ],
+        [
+          28,
+          2
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:3"
+    },
+    "AP4x19y12": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          19,
+          12
+        ],
+        [
+          19,
+          12
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:4"
+    },
+    "AP5x17y13": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          17,
+          13
+        ],
+        [
+          17,
+          13
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:5"
+    },
+    "AP6x17y10": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          17,
+          10
+        ],
+        [
+          17,
+          10
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:6"
+    },
+    "AP7x17y20": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          17,
+          20
+        ],
+        [
+          17,
+          20
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:7"
+    },
+    "AP8x78y41": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          78,
+          41
+        ],
+        [
+          78,
+          41
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:8"
+    },
+    "AP9x76y38": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          76,
+          38
+        ],
+        [
+          76,
+          38
+        ]
+      ],
+      "scriptToLoad": "Data DD:8:9"
+    },
+    "LRR8.0": {
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          14,
+          11
+        ],
+        [
+          17,
+          14
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR8.1": {
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          18,
+          11
+        ],
+        [
+          21,
+          14
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR8.18": {
+      "chance": 0.05,
+      "scriptRectangle": [
+        [
+          0,
+          23
+        ],
+        [
+          89,
+          89
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR8.19": {
+      "RR_Battle": {
+        "battle_range": [
+          4,
+          7
+        ],
+        "option_chance": 0,
+        "sfx_id": 0,
+        "text": ""
+      },
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          4,
+          39
+        ],
+        [
+          17,
+          48
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR8.2": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          20,
+          13
+        ],
+        [
+          22,
+          15
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR8.3": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          19,
+          56
+        ],
+        [
+          26,
+          59
+        ]
+      ],
+      "scriptToLoad": []
+    }
+  },
+  "Secrets": []
+}

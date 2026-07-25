@@ -1,0 +1,62 @@
+{
+  "campaignKind": "classic-compiled",
+  "capabilities": {
+    "classicResourcePayloads": "packaged-classic-resource-data",
+    "generatedGdscript": false,
+    "semanticScenarioData": "canonical-project-projection"
+  },
+  "compatibilityProfile": "realmz-7.1",
+  "counts": {
+    "activeTriggers": 771,
+    "battles": 235,
+    "complexEncounters": 18,
+    "dungeonMaps": 2,
+    "extraCodes": 582,
+    "itemTexts": 124,
+    "landMaps": 9,
+    "managedAssets": 0,
+    "maps": 11,
+    "messages": 1171,
+    "monsters": 230,
+    "packagedAssetPayloads": 271,
+    "scenarioItems": 200,
+    "shops": 38,
+    "simpleEncounters": 14,
+    "thiefEncounters": 5,
+    "timedEncounters": 21,
+    "treasures": 73,
+    "triggers": 1388
+  },
+  "files": {
+    "assets": "classic/assets.json",
+    "content": "classic/content.json",
+    "encounters": "classic/encounters.json",
+    "evidence": "classic/evidence.json",
+    "maps": "classic/maps.json",
+    "rules": "classic/rules.json",
+    "scenario": "classic/scenario.json",
+    "scripts": "classic/scripts.json"
+  },
+  "format": "realmz-remake-classic-campaign",
+  "formatVersion": 1,
+  "id": "scenario-destroy-the-necronomicon",
+  "limitations": [
+    "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Scrolling TEXT is decoded for runtime use, and matching styl resources become portable rich-text presentation runs rather than binary payloads.",
+    "Providence schema version 5 authors a land start; the v1 bundle can also represent dungeon starts when the canonical model gains that distinction.",
+    "Legacy scenario-icon and monster-icon override payloads are excluded unless they are canonical scenario-managed assets.",
+    "Negative cicn special-land-tile identities use the additive v1 assets.catalog.specialLandTiles collection because ordinary v1 icon identities are non-negative."
+  ],
+  "name": "Destroy the Necronomicon (Classic)",
+  "producer": {
+    "name": "Providence",
+    "projectOrigin": "imported",
+    "projectSchemaVersion": 5,
+    "providenceVersion": "0.5.6"
+  },
+  "start": {
+    "levelIndex": 0,
+    "levelType": "land",
+    "x": 35,
+    "y": 68
+  }
+}

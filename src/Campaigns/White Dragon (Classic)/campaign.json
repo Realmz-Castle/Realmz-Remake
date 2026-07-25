@@ -1,0 +1,62 @@
+{
+  "campaignKind": "classic-compiled",
+  "capabilities": {
+    "classicResourcePayloads": "packaged-classic-resource-data",
+    "generatedGdscript": false,
+    "semanticScenarioData": "canonical-project-projection"
+  },
+  "compatibilityProfile": "realmz-7.1",
+  "counts": {
+    "activeTriggers": 2158,
+    "battles": 212,
+    "complexEncounters": 26,
+    "dungeonMaps": 4,
+    "extraCodes": 1017,
+    "itemTexts": 101,
+    "landMaps": 12,
+    "managedAssets": 0,
+    "maps": 16,
+    "messages": 944,
+    "monsters": 194,
+    "packagedAssetPayloads": 66,
+    "scenarioItems": 200,
+    "shops": 12,
+    "simpleEncounters": 14,
+    "thiefEncounters": 23,
+    "timedEncounters": 52,
+    "treasures": 58,
+    "triggers": 3751
+  },
+  "files": {
+    "assets": "classic/assets.json",
+    "content": "classic/content.json",
+    "encounters": "classic/encounters.json",
+    "evidence": "classic/evidence.json",
+    "maps": "classic/maps.json",
+    "rules": "classic/rules.json",
+    "scenario": "classic/scenario.json",
+    "scripts": "classic/scripts.json"
+  },
+  "format": "realmz-remake-classic-campaign",
+  "formatVersion": 1,
+  "id": "scenario-white-dragon",
+  "limitations": [
+    "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Scrolling TEXT is decoded for runtime use, and matching styl resources become portable rich-text presentation runs rather than binary payloads.",
+    "Providence schema version 5 authors a land start; the v1 bundle can also represent dungeon starts when the canonical model gains that distinction.",
+    "Legacy scenario-icon and monster-icon override payloads are excluded unless they are canonical scenario-managed assets.",
+    "Negative cicn special-land-tile identities use the additive v1 assets.catalog.specialLandTiles collection because ordinary v1 icon identities are non-negative."
+  ],
+  "name": "White Dragon (Classic)",
+  "producer": {
+    "name": "Providence",
+    "projectOrigin": "imported",
+    "projectSchemaVersion": 5,
+    "providenceVersion": "0.5.6"
+  },
+  "start": {
+    "levelIndex": 0,
+    "levelType": "land",
+    "x": 43,
+    "y": 74
+  }
+}

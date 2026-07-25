@@ -26,6 +26,27 @@ func configure_core_healing_spell(
 	return true
 
 
+func configure_custom_healing_spell(record: Dictionary) -> bool:
+	if absi(int(record.get("special", 0))) != 57 \
+			or not bool(record.get("inCombat", false)) \
+			or not _has_custom_healing_amount(record):
+		return false
+	_configure_custom_record(record)
+	elements.clear()
+	attributes = ["Magical"]
+	tags = ["Magical", "Healing"]
+	description = "%s: Heals %d-%d health at the authored power." % [
+		name,
+		get_min_damage(1, null),
+		get_max_damage(1, null),
+	]
+	return true
+
+
+func is_generically_executable() -> bool:
+	return classic_special == 57
+
+
 # Classic resolves special 57 by negating the completed damage roll into healing.
 func apply_classic_scaled_effect(
 	caster,
@@ -68,3 +89,12 @@ func _is_healing_record(record: Dictionary, required_spell_class: int) -> bool:
 			return false
 	return int(record.get("powerDamage1", 0)) > 0 \
 		and int(record.get("powerDamage2", 0)) > 0
+
+
+func _has_custom_healing_amount(record: Dictionary) -> bool:
+	for field_name: String in [
+		"damage1", "damage2", "powerDamage1", "powerDamage2",
+	]:
+		if int(record.get(field_name, 0)) != 0:
+			return true
+	return false

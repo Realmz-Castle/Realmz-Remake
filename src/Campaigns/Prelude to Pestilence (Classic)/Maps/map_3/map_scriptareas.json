@@ -1,0 +1,141 @@
+{
+  "Paths": [],
+  "ScriptRects": {
+    "AP0x1y60": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          1,
+          60
+        ],
+        [
+          1,
+          60
+        ]
+      ],
+      "scriptToLoad": "Data DD:3:0"
+    },
+    "AP1x6y60": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          6,
+          60
+        ],
+        [
+          6,
+          60
+        ]
+      ],
+      "scriptToLoad": "Data DD:3:1"
+    },
+    "AP2x15y63": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          15,
+          63
+        ],
+        [
+          15,
+          63
+        ]
+      ],
+      "scriptToLoad": "Data DD:3:2"
+    },
+    "AP3x12y55": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          12,
+          55
+        ],
+        [
+          12,
+          55
+        ]
+      ],
+      "scriptToLoad": "Data DD:3:3"
+    },
+    "AP4x0y60": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          0,
+          60
+        ],
+        [
+          0,
+          60
+        ]
+      ],
+      "scriptToLoad": "Data DD:3:4"
+    },
+    "AP5x25y25": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          25,
+          25
+        ],
+        [
+          25,
+          25
+        ]
+      ],
+      "scriptToLoad": "Data DD:3:5"
+    },
+    "LRR3.0": {
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          0,
+          55
+        ],
+        [
+          9,
+          66
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR3.1": {
+      "RR_Battle": {
+        "battle_range": [
+          96,
+          97
+        ],
+        "option_chance": 0,
+        "sfx_id": 0,
+        "text": ""
+      },
+      "chance": 0.02,
+      "scriptRectangle": [
+        [
+          0,
+          52
+        ],
+        [
+          20,
+          68
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR3.2": {
+      "chance": 0.05,
+      "scriptRectangle": [
+        [
+          0,
+          51
+        ],
+        [
+          19,
+          66
+        ]
+      ],
+      "scriptToLoad": []
+    }
+  },
+  "Secrets": []
+}

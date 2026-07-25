@@ -5,6 +5,23 @@ const RESOURCE_ALIASES := {
 }
 
 
+static func is_valid_packed_id(spell_id: int) -> bool:
+	if spell_id < 1101:
+		return false
+	var caster_class := int(spell_id / 1000)
+	var remainder := spell_id % 1000
+	var spell_level := int(remainder / 100)
+	var spell_slot := remainder % 100
+	return (
+		caster_class >= 1
+		and caster_class <= 5
+		and spell_level >= 1
+		and spell_level <= 7
+		and spell_slot >= 1
+		and spell_slot <= 15
+	)
+
+
 static func mapping_key(spell_id: int) -> String:
 	if spell_id < 1101:
 		return ""

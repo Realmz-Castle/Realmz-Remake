@@ -1,0 +1,187 @@
+{
+  "Paths": [],
+  "ScriptRects": {
+    "AP0x88y88": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          88,
+          88
+        ],
+        [
+          88,
+          88
+        ]
+      ],
+      "scriptToLoad": "Data DD:9:0"
+    },
+    "AP1x36y0": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          36,
+          0
+        ],
+        [
+          36,
+          0
+        ]
+      ],
+      "scriptToLoad": "Data DD:9:1"
+    },
+    "AP2x35y0": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          35,
+          0
+        ],
+        [
+          35,
+          0
+        ]
+      ],
+      "scriptToLoad": "Data DD:9:2"
+    },
+    "AP3x37y0": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          37,
+          0
+        ],
+        [
+          37,
+          0
+        ]
+      ],
+      "scriptToLoad": "Data DD:9:3"
+    },
+    "AP4x81y84": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          81,
+          84
+        ],
+        [
+          81,
+          84
+        ]
+      ],
+      "scriptToLoad": "Data DD:9:4"
+    },
+    "AP5x38y57": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          38,
+          57
+        ],
+        [
+          38,
+          57
+        ]
+      ],
+      "scriptToLoad": "Data DD:9:5"
+    },
+    "LRR9.1": {
+      "chance": 0.8,
+      "scriptRectangle": [
+        [
+          58,
+          43
+        ],
+        [
+          67,
+          51
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR9.2": {
+      "RR_Battle": {
+        "battle_range": [
+          140,
+          142
+        ],
+        "option_chance": 0,
+        "sfx_id": 0,
+        "text": ""
+      },
+      "chance": 0.02,
+      "scriptRectangle": [
+        [
+          10,
+          67
+        ],
+        [
+          23,
+          85
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR9.3": {
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          26,
+          50
+        ],
+        [
+          52,
+          65
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR9.4": {
+      "RR_Battle": {
+        "battle_range": [
+          173,
+          178
+        ],
+        "option_chance": 0,
+        "sfx_id": 0,
+        "text": "You can see no visible result."
+      },
+      "chance": 0.02,
+      "scriptRectangle": [
+        [
+          84,
+          11
+        ],
+        [
+          88,
+          46
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR9.5": {
+      "RR_Battle": {
+        "battle_range": [
+          179,
+          185
+        ],
+        "option_chance": 8,
+        "sfx_id": 0,
+        "text": ""
+      },
+      "chance": 0.025,
+      "scriptRectangle": [
+        [
+          13,
+          31
+        ],
+        [
+          28,
+          44
+        ]
+      ],
+      "scriptToLoad": []
+    }
+  },
+  "Secrets": []
+}

@@ -3,6 +3,8 @@ extends "res://scripts/classic_runtime/classic_breath_spell.gd"
 
 func _init() -> void:
 	name = "Lightning Breath"
+	classic_spell_class = 4
+	classic_spell_ids = [4209, 4702]
 	description = "Lightning Breath: Deals 1-2 electric damage per power along a range-6 ray."
 	attributes = ["Magical"]
 	elements = [GameGlobal.ELEMENTS.ELECTRIC]

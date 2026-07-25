@@ -18,7 +18,7 @@
     "maps": 11,
     "messages": 880,
     "monsters": 155,
-    "packagedAssetPayloads": 172,
+    "packagedAssetPayloads": 175,
     "scenarioItems": 200,
     "shops": 16,
     "simpleEncounters": 20,
@@ -41,7 +41,7 @@
   "formatVersion": 1,
   "id": "scenario-city-of-bywater-classic",
   "limitations": [
-    "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Styled-text payloads remain Classic resource data.",
+    "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Scrolling TEXT is decoded for runtime use, and matching styl resources become portable rich-text presentation runs rather than binary payloads.",
     "Providence schema version 5 authors a land start; the v1 bundle can also represent dungeon starts when the canonical model gains that distinction.",
     "Legacy scenario-icon and monster-icon override payloads are excluded unless they are canonical scenario-managed assets.",
     "Negative cicn special-land-tile identities use the additive v1 assets.catalog.specialLandTiles collection because ordinary v1 icon identities are non-negative."
@@ -51,7 +51,7 @@
     "name": "Providence",
     "projectOrigin": "imported",
     "projectSchemaVersion": 5,
-    "providenceVersion": "0.5.5"
+    "providenceVersion": "0.5.6"
   },
   "start": {
     "levelIndex": 0,

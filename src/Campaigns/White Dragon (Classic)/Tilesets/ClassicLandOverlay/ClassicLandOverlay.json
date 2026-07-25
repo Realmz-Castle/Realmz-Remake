@@ -1,0 +1,572 @@
+{
+  "columns": 16,
+  "image": "ClassicLandOverlay.png",
+  "imageheight": 96,
+  "imagewidth": 512,
+  "margin": 0,
+  "name": "ClassicLandOverlay",
+  "spacing": 0,
+  "tilecount": 37,
+  "tiledversion": "1.11.2",
+  "tileheight": 32,
+  "tiles": [
+    {
+      "id": 0,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1078"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1078"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1072"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1072"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1067"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1067"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1055"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1055"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1043"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1043"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1039"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1039"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1038"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1038"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1037"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1037"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1033"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1033"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1016"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1016"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1015"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1015"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1012"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_1012"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_83"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_83"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_79"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_79"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_78"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_78"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_77"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_77"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_76"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_76"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_75"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_75"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_74"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_74"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_73"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_73"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_67"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_67"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_66"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_66"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_65"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_65"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_64"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_64"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_54"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_54"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_53"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_53"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_52"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_52"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_42"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_42"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_41"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_41"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_40"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_40"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_38"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_38"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_37"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_37"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_36"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_36"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_35"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_35"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_34"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_34"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_16"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_16"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_land_overlay_neg_2"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_land_overlay_neg_2"
+        }
+      ]
+    }
+  ],
+  "tilewidth": 32,
+  "type": "tileset",
+  "version": "1.10"
+}

@@ -35,6 +35,24 @@ var _size := 0
 var _native_aoe := ""
 
 
+static func normalize_custom_record(record: Dictionary) -> Dictionary:
+	var normalized := record.duplicate(true)
+	# Data Spell stores these fields as signed C chars. Providence preserves
+	# their source bytes, so the runtime owns their two's-complement meaning.
+	for field_name: String in [
+		"range1", "range2", "queueIcon", "toHitBonus", "saveBonus",
+		"fixedTargetNum", "canRotate", "saveAdjust", "cannot", "resistAdjust",
+		"cost", "damage1", "damage2", "powerDamage1", "powerDamage2",
+		"duration1", "duration2", "powerDuration1", "powerDuration2",
+		"spellLook1", "spellLook2", "sound1", "sound2", "targetType", "size",
+		"damageType",
+	]:
+		var value := int(normalized.get(field_name, 0))
+		if value in range(128, 256):
+			normalized[field_name] = value - 256
+	return normalized
+
+
 func configure(record: Dictionary) -> void:
 	source_record = record.duplicate(true)
 	var record_id := int(record.get("id", -1))

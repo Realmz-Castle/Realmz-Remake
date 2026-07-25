@@ -6,14 +6,16 @@ const AreaPatternsScript = preload(
 )
 # Source queue icons have direct counterparts in Remake's battlefield atlas.
 const TERRAIN_TEXTURE_BY_QUEUE_ICON := {
-	5: "Dts",
+	5: "Trg",
 	6: "Yfr",
 	7: "Gcl",
 	8: "Bcl",
-	9: "Ice",
-	10: "Spk",
-	13: "Str",
-	14: "Trg",
+	9: "ClassicQueue9",
+	10: "ClassicQueue10",
+	11: "Spn",
+	12: "Slm",
+	13: "Spr",
+	14: "Bal",
 	15: "Orb",
 	16: "Thn",
 }

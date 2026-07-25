@@ -1,0 +1,167 @@
+{
+  "classic_dungeon_0080": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 128,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_0081": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicDungeonField": 129,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 999,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_dungeon_0082": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 130,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_0084": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 132,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_0090": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 144,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_0581": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicDungeonField": 1409,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 999,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_dungeon_05c1": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicDungeonField": 1473,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 999,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_dungeon_0a81": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicDungeonField": 2689,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 999,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_dungeon_0ac1": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicDungeonField": 2753,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 999,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_dungeon_1080": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 4224,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_1088": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 4232,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_1094": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 4244,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_2082": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 8322,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_2083": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicDungeonField": 8323,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_dungeon_4081": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicDungeonField": 16513,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 999,
+    "wall": 1,
+    "water": 0
+  }
+}

@@ -5,6 +5,7 @@
       "flees_at": 0,
       "missile_chance": 25
     },
+    "classicArmor": 20,
     "classicCanSummon": 0,
     "classicCastPercent": 75,
     "classicDeathMacro": 0,
@@ -277,8 +278,8 @@
       "Dexterity": 16,
       "Disable_Trap": 0.0,
       "EvasionMagic": 0,
-      "EvasionMelee": 20,
-      "EvasionRanged": 20,
+      "EvasionMelee": 4.0,
+      "EvasionRanged": 4.0,
       "Force_Lock": 0.0,
       "HP_regen_base": 1.0,
       "HP_regen_mult": 0.0,

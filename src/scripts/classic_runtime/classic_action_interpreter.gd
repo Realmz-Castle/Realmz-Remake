@@ -2,6 +2,9 @@ class_name ClassicActionInterpreter
 extends RefCounted
 
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
+const KnownDataCorrectionsScript = preload(
+	"res://scripts/classic_runtime/classic_known_data_corrections.gd"
+)
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
@@ -466,8 +469,8 @@ func resume_encounter(outcome: int, encounter_state := {}) -> Dictionary:
 	var state_result := _apply_encounter_state(encounter_context, encounter_state)
 	if not state_result.is_empty():
 		return state_result
-	var door_action_point_id := int(encounter_state.get("doorActivationActionPointId", 0))
-	if door_action_point_id != 0:
+	if encounter_state.has("doorActivationActionPointId"):
+		var door_action_point_id := int(encounter_state["doorActivationActionPointId"])
 		if door_action_point_id < 0:
 			return _halt_with_error("Classic door item returned an invalid action point")
 		# Door items leave the encounter and enter their Data ED3 record as a
@@ -1370,6 +1373,11 @@ func _execute_spawn_combat_monsters(extra_code_id: int) -> Dictionary:
 	var monster := bundle.get_monster(monster_id)
 	if monster.is_empty():
 		return _halt_with_error("Missing combat spawn monster %d" % monster_id)
+	# Shipped scenarios contain a small number of active spawn rows aimed at
+	# an explicitly empty Data MD slot. Classic cannot create a viable
+	# combatant from that record, so preserve the row and continue the macro.
+	if monster.has("hitDice") and int(monster.get("hitDice", 0)) <= 0:
+		return _continue_result()
 	var faction_override := int(values[4])
 	var queued_macro := bool(execution_context.get("queuedMacro", false))
 	var battle_macro := int(execution_context.get("battleMacro", 0))
@@ -2215,14 +2223,25 @@ func _execute_spell_effect(extra_code_id: int, target_party: bool) -> Dictionary
 		return _halt_with_error(
 			"Spell action references missing Extra Code row %d" % extra_code_id
 		)
-	return _yield_result("cast_classic_spell", {
+	var authored_spell_id := int(values[0])
+	var correction: Dictionary = KnownDataCorrectionsScript.spell_reference(
+		str(bundle.manifest.get("id", "")),
+		str(current_trigger.get("source", "")),
+		int(current_trigger.get("recordIndex", -1)),
+		authored_spell_id
+	)
+	var payload := {
 		"extraCodeId": extra_code_id,
-		"spellId": int(values[0]),
+		"spellId": int(correction.get("spellId", authored_spell_id)),
 		"power": int(values[1]),
 		"saveAdjustment": int(values[2]),
 		"forceAffect": int(values[3]) != 0,
 		"targetMode": "party" if target_party else "selected",
-	})
+	}
+	if bool(correction.get("corrected", false)):
+		payload["authoredSpellId"] = authored_spell_id
+		payload["correctionReason"] = str(correction.get("reason", ""))
+	return _yield_result("cast_classic_spell", payload)
 
 
 func _execute_health_effect(extra_code_id: int, command: String) -> Dictionary:
@@ -3034,7 +3053,9 @@ func _execute_time_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 	var hour := int(execution_context["scenarioHour"])
 	var latest_day := int(values[0])
 	var latest_hour := int(values[1])
-	if latest_day < -1 or latest_hour < -1 or latest_hour > 23:
+	# Classic compares the authored hour directly, and shipped scenarios use 24
+	# as an inclusive end-of-day limit.
+	if latest_day < -1 or latest_hour < -1 or latest_hour > 24:
 		return _halt_with_error(
 			"Game-time branch %d has an invalid day or hour limit" % extra_code_id
 		)

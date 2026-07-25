@@ -24,6 +24,25 @@ func configure_core_lethal_spell(spell_id: int) -> bool:
 	return true
 
 
+func configure_custom_lethal_spell(record: Dictionary) -> bool:
+	var source := record.duplicate(true)
+	var raw_damage_type := int(source.get("damageType", 0))
+	if raw_damage_type > 127 and raw_damage_type <= 255:
+		source["damageType"] = raw_damage_type - 256
+	if not _is_lethal_record(source):
+		return false
+	configure(source)
+	attributes = ["Magical", _lethal_attribute(classic_damage_type)]
+	if not tags.has("Instant Death"):
+		tags.append("Instant Death")
+	description = _lethal_description()
+	return true
+
+
+func is_generically_executable() -> bool:
+	return true
+
+
 func apply_classic_scaled_effect(
 	_caster,
 	target,

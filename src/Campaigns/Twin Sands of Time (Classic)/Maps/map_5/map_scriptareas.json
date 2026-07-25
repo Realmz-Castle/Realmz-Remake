@@ -1,0 +1,200 @@
+{
+  "Paths": [],
+  "ScriptRects": {
+    "AP0x50y17": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          50,
+          17
+        ],
+        [
+          50,
+          17
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:0"
+    },
+    "AP10x4y67": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          4,
+          67
+        ],
+        [
+          4,
+          67
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:10"
+    },
+    "AP1x54y10": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          54,
+          10
+        ],
+        [
+          54,
+          10
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:1"
+    },
+    "AP2x63y10": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          63,
+          10
+        ],
+        [
+          63,
+          10
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:2"
+    },
+    "AP3x63y16": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          63,
+          16
+        ],
+        [
+          63,
+          16
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:3"
+    },
+    "AP5x56y14": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          56,
+          14
+        ],
+        [
+          56,
+          14
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:5"
+    },
+    "AP6x57y13": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          57,
+          13
+        ],
+        [
+          57,
+          13
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:6"
+    },
+    "AP7x61y13": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          61,
+          13
+        ],
+        [
+          61,
+          13
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:7"
+    },
+    "AP8x18y67": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          18,
+          67
+        ],
+        [
+          18,
+          67
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:8"
+    },
+    "AP9x9y68": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          9,
+          68
+        ],
+        [
+          9,
+          68
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:9"
+    },
+    "LRR5.1": {
+      "RR_Battle": {
+        "battle_range": [
+          115,
+          118
+        ],
+        "option_chance": 10,
+        "sfx_id": 117,
+        "text": "Ahead of you steaming pools of water are intermixed with odd looking trees and shrubs of all types.  The water is highly acidic and not sufficient to drink."
+      },
+      "chance": 0.001,
+      "scriptRectangle": [
+        [
+          0,
+          0
+        ],
+        [
+          89,
+          89
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR5.18": {
+      "RR_Battle": {
+        "battle_range": [
+          63,
+          65
+        ],
+        "option_chance": 0,
+        "sfx_id": 0,
+        "text": "Nothing seems to happen."
+      },
+      "chance": 0.5,
+      "scriptRectangle": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          88
+        ]
+      ],
+      "scriptToLoad": []
+    }
+  },
+  "Secrets": [
+    [
+      4,
+      67,
+      0,
+      "",
+      0.0
+    ]
+  ]
+}

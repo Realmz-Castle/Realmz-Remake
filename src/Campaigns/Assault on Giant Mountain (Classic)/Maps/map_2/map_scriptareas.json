@@ -1,0 +1,336 @@
+{
+  "Paths": [],
+  "ScriptRects": {
+    "AP0x29y12": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          29,
+          12
+        ],
+        [
+          29,
+          12
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:0"
+    },
+    "AP10x2y60": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          2,
+          60
+        ],
+        [
+          2,
+          60
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:10"
+    },
+    "AP11x11y63": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          11,
+          63
+        ],
+        [
+          11,
+          63
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:11"
+    },
+    "AP12x33y27": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          33,
+          27
+        ],
+        [
+          33,
+          27
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:12"
+    },
+    "AP13x21y21": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          21,
+          21
+        ],
+        [
+          21,
+          21
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:13"
+    },
+    "AP14x11y45": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          11,
+          45
+        ],
+        [
+          11,
+          45
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:14"
+    },
+    "AP15x30y78": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          30,
+          78
+        ],
+        [
+          30,
+          78
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:15"
+    },
+    "AP1x38y11": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          38,
+          11
+        ],
+        [
+          38,
+          11
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:1"
+    },
+    "AP2x20y6": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          20,
+          6
+        ],
+        [
+          20,
+          6
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:2"
+    },
+    "AP3x0y8": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          8
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:3"
+    },
+    "AP4x34y2": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          34,
+          2
+        ],
+        [
+          34,
+          2
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:4"
+    },
+    "AP5x0y17": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          0,
+          17
+        ],
+        [
+          0,
+          17
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:5"
+    },
+    "AP6x24y28": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          24,
+          28
+        ],
+        [
+          24,
+          28
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:6"
+    },
+    "AP7x2y17": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          2,
+          17
+        ],
+        [
+          2,
+          17
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:7"
+    },
+    "AP8x2y51": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          2,
+          51
+        ],
+        [
+          2,
+          51
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:8"
+    },
+    "AP9x17y52": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          17,
+          52
+        ],
+        [
+          17,
+          52
+        ]
+      ],
+      "scriptToLoad": "Data DD:2:9"
+    },
+    "LRR2.0": {
+      "RR_Battle": {
+        "battle_range": [
+          136,
+          139
+        ],
+        "option_chance": 0,
+        "sfx_id": 19317,
+        "text": ""
+      },
+      "chance": 0.0275,
+      "scriptRectangle": [
+        [
+          0,
+          16
+        ],
+        [
+          23,
+          31
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR2.1": {
+      "RR_Battle": {
+        "battle_range": [
+          26,
+          27
+        ],
+        "option_chance": 25,
+        "sfx_id": 12917,
+        "text": ""
+      },
+      "chance": 0.045,
+      "scriptRectangle": [
+        [
+          38,
+          11
+        ],
+        [
+          40,
+          13
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR2.16": {
+      "RR_Battle": {
+        "battle_range": [
+          202,
+          205
+        ],
+        "option_chance": 0,
+        "sfx_id": 117,
+        "text": ""
+      },
+      "chance": 0.035,
+      "scriptRectangle": [
+        [
+          32,
+          17
+        ],
+        [
+          71,
+          35
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR2.18": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          16,
+          47
+        ],
+        [
+          26,
+          48
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR2.19": {
+      "RR_Battle": {
+        "battle_range": [
+          155,
+          157
+        ],
+        "option_chance": 0,
+        "sfx_id": 117,
+        "text": "You find a small fortune in treasure!"
+      },
+      "chance": 0.007,
+      "scriptRectangle": [
+        [
+          0,
+          35
+        ],
+        [
+          28,
+          55
+        ]
+      ],
+      "scriptToLoad": []
+    }
+  },
+  "Secrets": []
+}

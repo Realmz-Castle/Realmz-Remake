@@ -1,0 +1,137 @@
+{
+  "columns": 8,
+  "image": "ClassicDungeon.png",
+  "imageheight": 32,
+  "imagewidth": 256,
+  "margin": 0,
+  "name": "ClassicDungeon",
+  "spacing": 0,
+  "tilecount": 8,
+  "tiledversion": "1.11.2",
+  "tileheight": 32,
+  "tiles": [
+    {
+      "id": 0,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_0080"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_0080"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_0081"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_0081"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_0083"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_0083"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_0085"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_0085"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_0091"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_0091"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_1080"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_1080"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_1085"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_1085"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "value": "classic_dungeon_1089"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "value": "classic_dungeon_1089"
+        }
+      ]
+    }
+  ],
+  "tilewidth": 32,
+  "type": "tileset",
+  "version": "1.10"
+}

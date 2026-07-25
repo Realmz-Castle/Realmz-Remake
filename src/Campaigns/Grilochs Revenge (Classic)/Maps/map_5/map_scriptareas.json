@@ -1,0 +1,280 @@
+{
+  "Paths": [],
+  "ScriptRects": {
+    "AP0x80y0": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          80,
+          0
+        ],
+        [
+          80,
+          0
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:0"
+    },
+    "AP11x7y62": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          7,
+          62
+        ],
+        [
+          7,
+          62
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:11"
+    },
+    "AP12x4y58": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          4,
+          58
+        ],
+        [
+          4,
+          58
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:12"
+    },
+    "AP13x1y60": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          1,
+          60
+        ],
+        [
+          1,
+          60
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:13"
+    },
+    "AP14x1y62": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          1,
+          62
+        ],
+        [
+          1,
+          62
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:14"
+    },
+    "AP15x3y65": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          3,
+          65
+        ],
+        [
+          3,
+          65
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:15"
+    },
+    "AP16x12y67": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          12,
+          67
+        ],
+        [
+          12,
+          67
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:16"
+    },
+    "AP17x5y60": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          5,
+          60
+        ],
+        [
+          5,
+          60
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:17"
+    },
+    "AP18x6y64": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          6,
+          64
+        ],
+        [
+          6,
+          64
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:18"
+    },
+    "AP1x89y1": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          89,
+          1
+        ],
+        [
+          89,
+          1
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:1"
+    },
+    "AP2x75y0": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          75,
+          0
+        ],
+        [
+          75,
+          0
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:2"
+    },
+    "AP3x89y81": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          89,
+          81
+        ],
+        [
+          89,
+          81
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:3"
+    },
+    "AP4x57y0": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          57,
+          0
+        ],
+        [
+          57,
+          0
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:4"
+    },
+    "AP5x87y87": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          87,
+          87
+        ],
+        [
+          87,
+          87
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:5"
+    },
+    "AP6x82y87": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          82,
+          87
+        ],
+        [
+          82,
+          87
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:6"
+    },
+    "AP7x81y86": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          81,
+          86
+        ],
+        [
+          81,
+          86
+        ]
+      ],
+      "scriptToLoad": "Data DD:5:7"
+    },
+    "LRR5.0": {
+      "chance": 0.005,
+      "scriptRectangle": [
+        [
+          3,
+          12
+        ],
+        [
+          21,
+          89
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR5.1": {
+      "chance": 0.5,
+      "scriptRectangle": [
+        [
+          1,
+          58
+        ],
+        [
+          4,
+          66
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR5.19": {
+      "chance": 0.05,
+      "scriptRectangle": [
+        [
+          0,
+          0
+        ],
+        [
+          89,
+          89
+        ]
+      ],
+      "scriptToLoad": []
+    }
+  },
+  "Secrets": [
+    [
+      14,
+      67,
+      0,
+      "",
+      0.0
+    ]
+  ]
+}

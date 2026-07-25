@@ -20,8 +20,8 @@ const CharacterConditionRulesScript = preload(
 const CharacterRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_rules.gd"
 )
-const SpellOverrideScript = preload(
-	"res://scripts/classic_runtime/classic_spell_override.gd"
+const CustomSpellFactoryScript = preload(
+	"res://scripts/classic_runtime/classic_custom_spell_factory.gd"
 )
 const PartyConditionScript = preload(
 	"res://scripts/classic_runtime/classic_party_condition.gd"
@@ -381,8 +381,7 @@ func classic_spell_override(spell_id: int) -> Variant:
 	var record: Variant = classic_bundle.get_spell_override(spell_id)
 	if not (record is Dictionary) or record.is_empty():
 		return null
-	var spell = SpellOverrideScript.new()
-	spell.configure(record)
+	var spell: Variant = CustomSpellFactoryScript.create(record, spell_id)
 	classic_spell_overrides[spell_id] = spell
 	return spell
 
@@ -2270,23 +2269,20 @@ func _set_classic_monster_identity(
 		monster.get("saves", []),
 		monster.get("spellImmunities", [])
 	)
-	var regeneration := RegenerationScript.permanent_amount(monster.get("conditions", []))
-	if regeneration > 0:
-		creature.set_meta(RegenerationScript.META_KEY, regeneration)
-	var spell_screen_level := SpellScreenScript.permanent_level(
-		monster.get("conditions", [])
-	)
-	if spell_screen_level > 0:
-		creature.set_meta(SpellScreenScript.META_KEY, spell_screen_level)
-	var temporary_screens := SpellScreenScript.temporary_durations(
-		monster.get("conditions", [])
-	)
-	if (
-		temporary_screens.max() > 0
-		and creature.has_method("add_trait")
-		and SpellScreenScript.temporary_trait(creature) == null
-	):
-		creature.add_trait(TemporarySpellScreenTrait, [temporary_screens])
+	var conditions: Variant = monster.get("conditions", [])
+	if conditions is Array:
+		for condition_index: int in range(conditions.size()):
+			var condition_value := int(conditions[condition_index])
+			if condition_value == 0 \
+					or not CharacterConditionRulesScript.supports_condition(
+						condition_index
+					):
+				continue
+			CharacterConditionRulesScript.set_condition_value(
+				creature,
+				condition_index,
+				condition_value
+			)
 	if _object_has_property(creature, "classic_monster_id"):
 		creature.set("classic_monster_id", monster_id)
 	if _object_has_property(creature, "classic_monster_name_id"):
@@ -3003,6 +2999,15 @@ func classify_complex_item(item: Variant, scenario_items: Array) -> Dictionary:
 			var spell_id: int = abs(int(scenario_item.get("special2", 0)))
 			if spell_id == 0:
 				return _error("Classic spell item has no spell ID")
+			if (
+				not SpellIdentityScript.is_valid_packed_id(spell_id)
+				and classic_spell_override(spell_id) == null
+			):
+				return {
+					"mode": "item",
+					"invalidSpellId": spell_id,
+					"fidelityFallback": "invalid-scenario-spell-item",
+				}
 			return {
 				"mode": "spell-item",
 				"spellId": spell_id,
@@ -3010,8 +3015,6 @@ func classify_complex_item(item: Variant, scenario_items: Array) -> Dictionary:
 			}
 		if abs(item_type) == 23 or special1 == -23:
 			var action_point_id: int = abs(int(scenario_item.get("special5", 0)))
-			if action_point_id == 0:
-				return _error("Classic door item has no Data ED3 action point")
 			return {
 				"mode": "door-activation",
 				"doorActivationActionPointId": action_point_id,

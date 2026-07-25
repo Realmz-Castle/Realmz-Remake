@@ -22,6 +22,30 @@ func configure_core_damage_spell(spell_id: int, required_spell_class := -1) -> b
 	return true
 
 
+func _configure_custom_record(record: Dictionary) -> void:
+	var source := record.duplicate(true)
+	var display_name := str(source.get("displayName", "")).strip_edges()
+	if str(source.get("description", "")).strip_edges().is_empty():
+		source["description"] = _description(display_name, source)
+	source["elements"] = [_element_for_damage_type(absi(int(source.get("damageType", 0))))]
+	source["tags"] = _tags_for_damage_type(absi(int(source.get("damageType", 0))))
+	source["lineOfSight"] = int(source.get("range1", 0)) >= 0 \
+		and int(source.get("range2", 0)) >= 0
+	source["projectileTexture"] = PresentationScript.gfx_for_source_id(
+		int(source.get("spellLook1", 0))
+	)
+	source["projectileHit"] = PresentationScript.gfx_for_source_id(
+		int(source.get("spellLook2", 0))
+	)
+	source["sounds"] = PresentationScript.sounds(source)
+	match int(source.get("size", 0)):
+		8:
+			source["nativeAoe"] = "radiant"
+		9:
+			source["nativeAoe"] = "round"
+	configure(source)
+
+
 func _configure_core_record(inventory: Dictionary, record: Dictionary) -> void:
 	var spell_id := int(inventory.get("packedSpellId", 0))
 

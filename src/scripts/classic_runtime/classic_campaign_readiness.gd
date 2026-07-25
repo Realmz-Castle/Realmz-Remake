@@ -3,9 +3,6 @@ extends RefCounted
 
 const BundleScript = preload("res://scripts/classic_runtime/classic_campaign_bundle.gd")
 const ExecutionAuditScript = preload("res://scripts/classic_runtime/classic_execution_audit.gd")
-const GodotAdapterScript = preload(
-	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
-)
 const CharacterConditionRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_condition_rules.gd"
 )
@@ -16,6 +13,12 @@ const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const SoundIdsScript = preload("res://scripts/sfx_id_divinity.gd")
+const KnownDataCorrectionsScript = preload(
+	"res://scripts/classic_runtime/classic_known_data_corrections.gd"
+)
+const CustomSpellSupportScript = preload(
+	"res://scripts/classic_runtime/classic_custom_spell_support.gd"
+)
 
 const SCHEMA_VERSION := 1
 const BLOCKER := "progression-blocker"
@@ -69,7 +72,6 @@ var _item_mapping: Dictionary = {}
 var _spell_mapping: Dictionary = {}
 var _sound_mapping: Dictionary = {}
 var _native_context: Dictionary = {}
-var _adapter: ClassicGodotCommandAdapter
 var _active_custom_spell_ids: Dictionary = {}
 var _campaign_id := ""
 var _campaign_name := ""
@@ -123,7 +125,6 @@ func _reset(native_context: Variant) -> void:
 	_item_mapping = _mapping_from_script(ItemIdsScript, "mapping")
 	_spell_mapping = _mapping_from_script(SpellIdsScript, "mappings")
 	_sound_mapping = _mapping_from_script(SoundIdsScript, "mapping")
-	_adapter = GodotAdapterScript.new()
 
 
 func _mapping_from_script(script: Script, property_name: String) -> Dictionary:
@@ -431,7 +432,7 @@ func _check_game_time_action(
 		invalid = (
 			int(values[0]) < -1
 			or int(values[1]) < -1
-			or int(values[1]) > 23
+			or int(values[1]) > 24
 		)
 	if not invalid:
 		return
@@ -1026,7 +1027,7 @@ func _check_picture(
 				{"resourceId": abs(picture_id), "runtimeMediaPath": runtime_path}
 			)
 		return
-	var legacy_candidates: Array = _adapter.picture_file_candidates({
+	var legacy_candidates: Array = _picture_file_candidates({
 		"pictureId": picture_id,
 		"picture": picture,
 	})
@@ -1135,7 +1136,7 @@ func _check_ally(bundle: ClassicCampaignBundle, action: Dictionary, monster_id: 
 	var bestiary: Variant = _native_context.get("bestiary", {})
 	if not (bestiary is Dictionary) or bestiary.is_empty():
 		return
-	var native_name := _adapter.resolve_classic_monster_bestiary_name(
+	var native_name := _resolve_classic_monster_bestiary_name(
 		abs(monster_id), monster, bestiary
 	)
 	if native_name.is_empty():
@@ -1169,6 +1170,18 @@ func _check_spawn_monster(
 	var monster_id: int = abs(int(values[1]))
 	if monster_id == 0:
 		return
+	var monster := bundle.get_monster(monster_id)
+	if monster.has("hitDice") and int(monster.get("hitDice", 0)) <= 0:
+		_add_fallback_for_action(
+			action,
+			"inert-combat-spawn",
+			(
+				"Combat spawn references empty Classic monster record %d; "
+				+ "Classic cannot create a viable combatant from that slot"
+			) % monster_id,
+			{"referenceId": monster_id}
+		)
+		return
 	_check_ally(bundle, action, monster_id)
 
 
@@ -1186,12 +1199,33 @@ func _check_field_spell(
 			{"referenceId": int(extra_code.get("id", -1))}
 		)
 		return
-	var spell_id := int(values[0])
+	var authored_spell_id := int(values[0])
+	var correction: Dictionary = KnownDataCorrectionsScript.spell_reference(
+		str(bundle.manifest.get("id", "")),
+		str(action.get("source", "")),
+		int(action.get("recordIndex", -1)),
+		authored_spell_id
+	)
+	var spell_id := int(correction.get("spellId", authored_spell_id))
+	if bool(correction.get("corrected", false)):
+		_add_fallback_for_action(
+			action,
+			"corrected-classic-spell-reference",
+			"Classic spell %d is treated as spell %d: %s" % [
+				authored_spell_id,
+				spell_id,
+				str(correction.get("reason", "")),
+			],
+			{
+				"referenceId": authored_spell_id,
+				"resolvedReferenceId": spell_id,
+			}
+		)
 	if _check_custom_spell_override(
 		bundle, spell_id, str(action.get("source", "")), int(action.get("recordIndex", -1))
 	):
 		return
-	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
+	var mapping_key := SpellIdentityScript.mapping_key(spell_id)
 	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
 	if spell_name.is_empty():
 		_add_blocker_for_action(
@@ -1342,7 +1376,7 @@ func _check_battle_monsters(bundle: ClassicCampaignBundle) -> void:
 					{"referenceId": monster_id}
 				)
 				continue
-			var native_name := _adapter.resolve_classic_monster_bestiary_name(
+			var native_name := _resolve_classic_monster_bestiary_name(
 				monster_id, monster, bestiary
 			)
 			if native_name.is_empty():
@@ -1501,8 +1535,9 @@ func _check_spell_ids(
 	var spell_ids: Variant = encounter.get("spellIds", [])
 	if not (spell_ids is Array):
 		return
-	for spell_id_value: Variant in spell_ids:
-		var spell_id := int(spell_id_value)
+	var spell_results: Variant = encounter.get("spellResults", [])
+	for spell_index: int in range(spell_ids.size()):
+		var spell_id := int(spell_ids[spell_index])
 		if spell_id in [0, 9999]:
 			continue
 		if _check_custom_spell_override(bundle, spell_id, "Data ED2", encounter_id):
@@ -1512,7 +1547,28 @@ func _check_spell_ids(
 			continue
 		if spell_id < 1101:
 			continue
-		var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
+		var has_explicit_result: bool = (
+			spell_results is Array and spell_index < spell_results.size()
+		)
+		var result_id := int(spell_results[spell_index]) if has_explicit_result else -1
+		if (
+			not SpellIdentityScript.is_valid_packed_id(spell_id)
+			and has_explicit_result
+			and result_id == 4
+		):
+			_add_fallback(
+				"invalid-complex-spell-failure-sentinel",
+				"Data ED2",
+				encounter_id,
+				spell_index,
+				(
+					"Complex encounter spell %d cannot be selected in Classic "
+					+ "and already maps to the default failure result"
+				) % spell_id,
+				{"referenceId": spell_id}
+			)
+			continue
+		var mapping_key := SpellIdentityScript.mapping_key(spell_id)
 		if str(_spell_mapping.get(mapping_key, "")).is_empty():
 			_add_blocker(
 				"unresolved-spell-identity",
@@ -1576,11 +1632,27 @@ func _check_special_scenario_items(bundle: ClassicCampaignBundle) -> void:
 					"Scenario spell item %d has no spell ID" % item_id,
 					{"referenceId": item_id}
 				)
+			elif (
+				not SpellIdentityScript.is_valid_packed_id(spell_id)
+				and bundle.get_spell_override(spell_id).is_empty()
+				and _scenario_item_text_is_blank(bundle, item_id)
+			):
+				_add_fallback(
+					"invalid-scenario-spell-item-fallback",
+					"Data NI",
+					item_id,
+					-1,
+					(
+						"Unnamed scenario spell item %d has impossible packed spell ID %d; "
+						+ "it remains an inert preserved item"
+					) % [item_id, spell_id],
+					{"referenceId": spell_id, "ownerId": item_id}
+				)
 			else:
 				_check_native_effect_spell(bundle, spell_id, "Data NI", item_id, item_id)
 		if abs(item_type) == 23 or special1 == -23:
 			var action_point_id: int = abs(int(item.get("special5", 0)))
-			if action_point_id == 0 or bundle.get_extra_action_point(action_point_id).is_empty():
+			if bundle.get_extra_action_point(action_point_id).is_empty():
 				_add_blocker(
 					"missing-door-action-point",
 					"Data NI",
@@ -1591,6 +1663,15 @@ func _check_special_scenario_items(bundle: ClassicCampaignBundle) -> void:
 					],
 					{"referenceId": action_point_id}
 				)
+
+
+func _scenario_item_text_is_blank(bundle: ClassicCampaignBundle, item_id: int) -> bool:
+	var item_text := bundle.get_item_text(item_id)
+	return (
+		str(item_text.get("identifiedName", "")).strip_edges().is_empty()
+		and str(item_text.get("unidentifiedName", "")).strip_edges().is_empty()
+		and str(item_text.get("description", "")).strip_edges().is_empty()
+	)
 
 
 func _check_custom_spell_override(
@@ -1608,7 +1689,7 @@ func _check_custom_spell_override(
 	var packed_spell_id := BundleScript.packed_spell_id_for_record_id(record_id)
 	_active_custom_spell_ids[packed_spell_id] = true
 	var special: int = abs(int(spell_override.get("special", 0)))
-	if special == 0:
+	if CustomSpellSupportScript.is_executable(spell_override):
 		return true
 	if _has_exact_native_spell(spell_id):
 		return true
@@ -1798,8 +1879,11 @@ func _add_monster_spell_context(
 func _producer_marks_callable(record: Dictionary) -> bool:
 	if record.has("callable"):
 		return bool(record["callable"])
+	if record.has("authored"):
+		return bool(record["authored"])
 	# Version 1 producers originally emitted every parsed catalog record without
-	# callability metadata. Preserve the conservative legacy readiness behavior.
+	# callability or authored metadata. Preserve the conservative legacy
+	# readiness behavior for those packages.
 	return true
 
 
@@ -1829,7 +1913,7 @@ func _check_native_effect_spell(
 		bundle, spell_id, source, record_index, owner_id, consumer
 	):
 		return
-	var mapping_key := _adapter.classic_spell_mapping_key(spell_id)
+	var mapping_key := SpellIdentityScript.mapping_key(spell_id)
 	var spell_name := str(_spell_mapping.get(mapping_key, _spell_mapping.get(spell_id, "")))
 	if spell_name.is_empty():
 		_add_blocker(
@@ -1889,6 +1973,109 @@ func _add_action_dependency(
 		_add_blocker_for_action(action, code, message, extra)
 	else:
 		_add_fallback_for_action(action, code, message, extra)
+
+
+func _picture_file_candidates(payload: Dictionary) -> Array:
+	var candidates: Array = []
+	var picture: Variant = payload.get("picture", {})
+	if picture is Dictionary:
+		for field_name: String in ["fileName", "relativePath", "path", "name"]:
+			var field_value: Variant = picture.get(field_name)
+			if field_value is String:
+				_append_picture_candidate(candidates, field_value)
+	var picture_id := int(payload.get("pictureId", 0))
+	if picture_id != 0:
+		_append_picture_candidate(candidates, "%d.png" % absi(picture_id))
+	return candidates
+
+
+func _append_picture_candidate(candidates: Array, value: String) -> void:
+	var file_name := value.strip_edges().replace("\\", "/")
+	if file_name.begins_with("Splash Images/"):
+		file_name = file_name.trim_prefix("Splash Images/")
+	if file_name.is_empty() or file_name.is_absolute_path():
+		return
+	var path_parts := file_name.split("/", false)
+	if path_parts.has("..") or candidates.has(file_name):
+		return
+	candidates.append(file_name)
+
+
+func _resolve_classic_monster_bestiary_name(
+	monster_id: int,
+	monster: Dictionary,
+	creature_book: Dictionary
+) -> String:
+	var display_name := str(monster.get("displayName", ""))
+	var name_matches: Array[String] = []
+	for bestiary_key: Variant in creature_book:
+		var entry: Variant = creature_book[bestiary_key]
+		if not (entry is Dictionary):
+			continue
+		var data: Variant = entry.get("data", {})
+		if not (data is Dictionary):
+			continue
+		var explicit_ids := _classic_resource_ids(
+			entry,
+			"classicMonsterId",
+			"classicMonsterIds"
+		)
+		explicit_ids.append_array(
+			_classic_resource_ids(
+				data,
+				"classicMonsterId",
+				"classicMonsterIds"
+			)
+		)
+		if not explicit_ids.is_empty() and explicit_ids.has(monster_id):
+			return str(bestiary_key)
+	for bestiary_key: Variant in creature_book:
+		var entry: Variant = creature_book[bestiary_key]
+		if not (entry is Dictionary):
+			continue
+		var data: Variant = entry.get("data", {})
+		if not (data is Dictionary):
+			continue
+		var explicit_ids := _classic_resource_ids(
+			entry,
+			"classicMonsterId",
+			"classicMonsterIds"
+		)
+		explicit_ids.append_array(
+			_classic_resource_ids(
+				data,
+				"classicMonsterId",
+				"classicMonsterIds"
+			)
+		)
+		if not explicit_ids.is_empty():
+			continue
+		var native_id: Variant = data.get("id")
+		if (native_id is int or native_id is float) \
+				and absi(int(native_id)) == monster_id:
+			return str(bestiary_key)
+		var native_name := str(data.get("name", bestiary_key))
+		if not display_name.is_empty() \
+				and native_name.to_lower() == display_name.to_lower():
+			name_matches.append(str(bestiary_key))
+	return name_matches[0] if name_matches.size() == 1 else ""
+
+
+func _classic_resource_ids(
+	resource: Dictionary,
+	singular_field: String,
+	plural_field: String
+) -> Array[int]:
+	var ids: Array[int] = []
+	if resource.has(singular_field):
+		ids.append(absi(int(resource[singular_field])))
+	var plural_value: Variant = resource.get(plural_field, [])
+	if plural_value is Array:
+		for id_value: Variant in plural_value:
+			var resource_id := absi(int(id_value))
+			if not ids.has(resource_id):
+				ids.append(resource_id)
+	return ids
 
 
 func _add_blocker_for_action(

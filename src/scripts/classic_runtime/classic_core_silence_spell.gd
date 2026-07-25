@@ -19,7 +19,7 @@ func configure_core_silence_spell(spell_id: int) -> bool:
 	_temporary_condition_trait = SilencedTrait
 	_conflicting_condition_traits = ["p_silenced.gd"]
 	_configure_core_record(inventory, record)
-	terrain_tex = "Trg"
+	terrain_tex = "Bal"
 	terrain_walk_type = 0
 	elements.clear()
 	attributes = ["Magical"]

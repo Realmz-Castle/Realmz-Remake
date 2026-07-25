@@ -41,6 +41,9 @@ const SpellResourceCatalogScript = preload(
 const SpellIdentityScript = preload(
 	"res://scripts/classic_runtime/classic_spell_identity.gd"
 )
+const KnownDataCorrectionsScript = preload(
+	"res://scripts/classic_runtime/classic_known_data_corrections.gd"
+)
 const LearnedSpellIdentityScript = preload(
 	"res://scripts/classic_runtime/classic_learned_spell_identity.gd"
 )
@@ -2020,6 +2023,7 @@ class CombatTestCreature:
 class SpellPointTestCreature:
 	extends RefCounted
 	var current_sp: int
+	var is_player_controlled := false
 
 	func _init(spell_points: int) -> void:
 		current_sp = spell_points
@@ -2477,6 +2481,7 @@ func _ready() -> void:
 	_test_classic_porting_guide_contract()
 	_test_data_ed3_callability_contract()
 	_test_campaign_readiness_report()
+	_test_known_scenario_data_corrections()
 	_test_custom_spell_overrides()
 	_test_known_custom_rule_audit()
 	_test_classic_regeneration_contract()
@@ -6513,26 +6518,58 @@ func _test_classic_bestiary_materializer() -> void:
 	var temporary_animated_record: Dictionary = animated_record.duplicate(true)
 	temporary_animated_record["conditions"][25] = 1
 	_expect(
-		materializer._unsupported_fields(
+		not materializer._unsupported_fields(
 			temporary_animated_record,
 			{},
 			{},
 			{},
 			{}
 		).has("conditions"),
-		"temporary starting Animated remains blocked until its counter is modeled"
+		"temporary starting Animated is preserved for runtime condition projection"
+	)
+	var temporary_animated_monster: Dictionary = materializer._native_monster(
+		temporary_animated_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect_equal(
+		temporary_animated_monster.get("classicRecord", {}).get(
+			"conditions", []
+		)[25],
+		1,
+		"temporary starting Animated retains its exact Classic counter"
 	)
 	var temporary_regeneration_record: Dictionary = regenerating_record.duplicate(true)
 	temporary_regeneration_record["conditions"][10] = 2
 	_expect(
-		materializer._unsupported_fields(
+		not materializer._unsupported_fields(
 			temporary_regeneration_record,
 			{},
 			{},
 			{},
 			{}
 		).has("conditions"),
-		"temporary starting regeneration remains blocked until its counter is modeled"
+		"temporary starting regeneration is preserved for runtime condition projection"
+	)
+	var temporary_regeneration_monster: Dictionary = materializer._native_monster(
+		temporary_regeneration_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{}
+	)
+	_expect_equal(
+		temporary_regeneration_monster.get("classicRecord", {}).get(
+			"conditions", []
+		)[10],
+		2,
+		"temporary starting regeneration retains its exact Classic counter"
 	)
 	var temporary_screen_record: Dictionary = screen_record.duplicate(true)
 	temporary_screen_record["conditions"][16] = 2
@@ -6560,14 +6597,14 @@ func _test_classic_bestiary_materializer() -> void:
 	unrelated_condition_record["conditions"][16] = 0
 	unrelated_condition_record["conditions"][9] = -1
 	_expect(
-		materializer._unsupported_fields(
+		not materializer._unsupported_fields(
 			unrelated_condition_record,
 			{},
 			{},
 			{},
 			{}
 		).has("conditions"),
-		"unmapped permanent monster conditions remain launch blockers"
+		"supported permanent monster conditions no longer block launch"
 	)
 
 	var native_reuse_root := test_root.path_join("native-reuse")
@@ -7220,10 +7257,14 @@ func _test_classic_bestiary_materializer() -> void:
 	var unresolved_fields: Array = unresolved_inventory_book.get(
 		"Classic Monster 1", {}
 	).get("classicMaterialization", {}).get("unsupportedFields", [])
+	var unresolved_fallbacks: Array = unresolved_inventory_book.get(
+		"Classic Monster 1", {}
+	).get("classicMaterialization", {}).get("fidelityFallbacks", [])
 	_expect(
 		unresolved_fields.has("items[0]") \
-			and unresolved_fields.has("weapon.randomSelector"),
-		"unresolved item IDs and random weapon tables remain explicit blockers"
+			and not unresolved_fields.has("weapon.randomSelector") \
+			and unresolved_fallbacks.has("weapon.randomSelector"),
+		"unresolved item IDs block while preserved random weapon tables remain bounded fallbacks"
 	)
 
 	var unsupported_root := test_root.path_join("unsupported")
@@ -7240,13 +7281,17 @@ func _test_classic_bestiary_materializer() -> void:
 	var unsupported_book: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(unsupported_root.path_join("Bestiary/stuff_book.json"))
 	)
+	var special_attack_materialization: Dictionary = unsupported_book.get(
+		"Classic Monster 1", {}
+	).get("classicMaterialization", {})
 	_expect(
-		unsupported_book.get(
-			"Classic Monster 1", {}
-		).get("classicMaterialization", {}).get(
+		not special_attack_materialization.get(
 			"unsupportedFields", []
-		).has("attacks[0].special"),
-		"unsupported attack records its exact source slot"
+		).has("attacks[0].special") \
+			and special_attack_materialization.get(
+				"fidelityFallbacks", []
+			).has("attacks[0].special"),
+		"preserved special attacks record their exact bounded fallback slot"
 	)
 	var unsupported_readiness: Dictionary = ReadinessScript.new().inspect(
 		unsupported_bundle,
@@ -7254,9 +7299,9 @@ func _test_classic_bestiary_materializer() -> void:
 	)
 	_expect(
 		_readiness_has_reference_diagnostic(
-			unsupported_readiness, "unsupported-native-monster-fields", 1
+			unsupported_readiness, "native-monster-fidelity-fallback", 1
 		),
-		"unsupported monster behavior blocks launch with its stable identity"
+		"preserved special attacks remain launchable with their stable identity"
 	)
 	_expect_equal(
 		CampaignPackageInstallerScript.new()._remove_directory(test_root),
@@ -8007,20 +8052,36 @@ func _test_classic_campaign_package_installer() -> void:
 	)
 	_expect_equal(
 		unsupported_monster_install.get("status"),
-		"error",
-		"installer rejects a materialized monster with unsupported behavior"
+		"ok",
+		"installer accepts a materialized monster with preserved special behavior"
 	)
+	_expect_equal(
+		unsupported_monster_install.get("readinessState"),
+		"Ready with fallbacks",
+		"special monster installation remains launchable with explicit fallbacks"
+	)
+	var installed_special_monster = CampaignInstallScript.new()
 	_expect(
-		str(unsupported_monster_install.get("message", "")).contains(
-			"unsupported native fields: attacks[0].special"
+		installed_special_monster.load_from_campaigns_directory(
+			campaigns_directory,
+			str(unsupported_monster_install.get("installedDirectory", "")).get_file()
 		),
-		"unsupported monster installation names the blocked bestiary field"
+		"special monster installation reloads through the normal campaign loader"
 	)
 	_expect(
-		unsupported_monster_install.get("readinessReport", {}).get(
+		_readiness_has_reference_diagnostic(
+			installed_special_monster.readiness_report,
+			"native-monster-fidelity-fallback",
+			1
+		),
+		"special monster installation reports its bounded fidelity fallback"
+	)
+	_expect_equal(
+		installed_special_monster.readiness_report.get(
 			"totals", {}
-		).get("progressionBlockers", 0) > 0,
-		"failed installation exposes the complete readiness report"
+		).get("progressionBlockers", -1),
+		0,
+		"successful special monster installation has no progression blockers"
 	)
 
 	var no_replace_result: Dictionary = installer.install_export(
@@ -11844,6 +11905,137 @@ func _test_campaign_readiness_report() -> void:
 	)
 
 
+func _test_known_scenario_data_corrections() -> void:
+	_expect(SpellIdentityScript.is_valid_packed_id(1101), "first packed spell ID is valid")
+	_expect(SpellIdentityScript.is_valid_packed_id(5715), "last packed spell ID is valid")
+	_expect(not SpellIdentityScript.is_valid_packed_id(1750), "spell slot 50 is invalid")
+	_expect(not SpellIdentityScript.is_valid_packed_id(6100), "caster class 6 is invalid")
+
+	var correction: Dictionary = KnownDataCorrectionsScript.spell_reference(
+		"scenario-mithril-vault",
+		"Data ED3",
+		6,
+		1750
+	)
+	_expect(bool(correction.get("corrected", false)), "Mithril spell typo is recognized")
+	_expect_equal(correction.get("spellId"), 1705, "Mithril spell typo resolves to healing")
+	_expect(
+		not bool(KnownDataCorrectionsScript.spell_reference(
+			"scenario-other",
+			"Data ED3",
+			6,
+			1750
+		).get("corrected", false)),
+		"the Mithril correction does not alter another campaign"
+	)
+
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"id": "scenario-mithril-vault",
+		"name": "Mithril Vault",
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.maps_by_id["land:0"] = {"id": "land:0"}
+	bundle.extra_codes_by_id[11] = {"id": 11, "values": [1750, 4, 0, 0, 0]}
+	_add_stack_trigger(
+		bundle,
+		"Data ED3:macro:6",
+		6,
+		[_classic_action(0, 17, 11)]
+	)
+	bundle.complex_encounters_by_id[16] = {
+		"id": 16,
+		"callable": true,
+		"spellIds": [6100],
+		"spellResults": [4],
+	}
+	var invalid_item := {
+		"id": 58,
+		"itemId": 858,
+		"type": 20,
+		"special2": 3357,
+	}
+	bundle.scenario_items_by_id[858] = invalid_item
+	bundle.item_texts_by_id[858] = {
+		"itemId": 858,
+		"identifiedName": "",
+		"unidentifiedName": "",
+		"description": "",
+	}
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data ED3:macro:6"), "begin corrected Mithril macro")
+	var spell_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(spell_command.get("command"), "cast_classic_spell", "Mithril macro casts")
+	_expect_equal(
+		spell_command.get("payload", {}).get("authoredSpellId"),
+		1750,
+		"Mithril command retains the authored invalid identity"
+	)
+	_expect_equal(
+		spell_command.get("payload", {}).get("spellId"),
+		1705,
+		"Mithril command executes the intended healing spell"
+	)
+
+	var report: Dictionary = ReadinessScript.new().inspect(bundle, {
+		"spells": {
+			"Mithril Healing": {
+				"classicSpellIds": [1705],
+				"classicSpellSaveIndex": -1,
+				"classicSpellSaveMode": "none",
+			},
+		},
+	})
+	_expect(bool(report.get("ready", false)), "known invalid scenario records do not block launch")
+	_expect(
+		_readiness_has_diagnostic(
+			report,
+			"corrected-classic-spell-reference",
+			"Data ED3",
+			6,
+			0,
+			"fidelity-fallback"
+		),
+		"Mithril's transposed spell remains visible in readiness"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report,
+			"invalid-complex-spell-failure-sentinel",
+			"Data ED2",
+			16,
+			0,
+			"fidelity-fallback"
+		),
+		"an impossible encounter spell with the default result is a fallback"
+	)
+	_expect(
+		_readiness_has_diagnostic(
+			report,
+			"invalid-scenario-spell-item-fallback",
+			"Data NI",
+			858,
+			-1,
+			"fidelity-fallback"
+		),
+		"an unnamed impossible spell item remains inert instead of blocking launch"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(bundle)
+	var item_mode: Dictionary = adapter.classify_complex_item(
+		{"classicItemId": 858},
+		[invalid_item]
+	)
+	_expect_equal(item_mode.get("mode"), "item", "invalid scroll behaves as an inert item")
+	_expect_equal(
+		item_mode.get("invalidSpellId"),
+		3357,
+		"invalid scroll preserves its authored spell reference"
+	)
+
+
 func _test_custom_spell_overrides() -> void:
 	var producer_bundle = BundleScript.new()
 	_expect(
@@ -11982,6 +12174,243 @@ func _test_custom_spell_overrides() -> void:
 	_expect(
 		str(unsupported_diagnostic.get("consumer", "")).contains("Data ED2 record 7"),
 		"active custom-spell blocker identifies the consuming encounter"
+	)
+
+	var lethal_record := _custom_spell_record(38, 5309)
+	lethal_record.merge({
+		"displayName": "Death Wail",
+		"special": 49,
+		"spellClass": 7,
+		"cost": 50,
+		"targetType": 3,
+		"range1": 0,
+		"range2": 0,
+		"queueIcon": 0,
+		"damageType": 249,
+		"cannot": 0,
+		"damage1": 0,
+		"damage2": 0,
+		"powerDamage1": 0,
+		"powerDamage2": 0,
+		"duration1": 0,
+		"duration2": 0,
+		"powerDuration1": 0,
+		"powerDuration2": 0,
+		"size": 14,
+	}, true)
+	var lethal_bundle := _custom_spell_bundle(lethal_record)
+	adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(lethal_bundle)
+	var lethal_spell: Variant = adapter.classic_spell_override(5309)
+	_expect(lethal_spell != null, "adapter compiles a scenario-authored lethal spell")
+	_expect(lethal_spell.is_generically_executable(), "custom lethal spell is executable")
+	_expect_equal(
+		lethal_spell.classic_raw_damage_type,
+		-7,
+		"custom lethal spell restores its signed Classic damage type"
+	)
+	_expect(lethal_spell.tags.has("Instant Death"), "custom lethal spell exposes lethal behavior")
+	var lethal_target := LethalSpellTestCharacter.new("Custom lethal target")
+	_expect(
+		lethal_spell.apply_classic_scaled_effect(null, lethal_target, 3, 1.0),
+		"custom lethal spell applies the shared Classic death result"
+	)
+	_expect_equal(lethal_target.stats["curHP"], -10, "custom lethal spell reaches lethal health")
+	var lethal_report: Dictionary = ReadinessScript.new().inspect(lethal_bundle)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			lethal_report, "unsupported-custom-spell-special", 5309
+		),
+		"scenario-authored lethal spells no longer block readiness"
+	)
+
+	var charm_record := _custom_spell_record(15, 5201)
+	charm_record.merge({
+		"displayName": "Bend Will",
+		"special": 51,
+		"spellClass": 5,
+		"cost": 10,
+		"targetType": 0,
+		"range1": 248,
+		"range2": 0,
+		"queueIcon": 0,
+		"damageType": 5,
+		"cannot": 0,
+		"damage1": 0,
+		"damage2": 0,
+		"powerDamage1": 0,
+		"powerDamage2": 0,
+		"duration1": 0,
+		"duration2": 0,
+		"powerDuration1": 0,
+		"powerDuration2": 0,
+		"size": 0,
+	}, true)
+	var charm_bundle := _custom_spell_bundle(charm_record)
+	adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(charm_bundle)
+	var charm_spell: Variant = adapter.classic_spell_override(5201)
+	_expect(charm_spell != null, "adapter compiles a scenario-authored charm spell")
+	_expect(charm_spell.is_generically_executable(), "custom charm spell is executable")
+	_expect_equal(charm_spell.classic_spell_save_index, 5, "custom charm keeps its mental save")
+	var charm_caster := CharmTestCharacter.new("Custom charm caster", 0)
+	var charm_target := CharmTestCharacter.new("Custom charm target", 1)
+	_expect(
+		charm_spell.apply_classic_scaled_effect(charm_caster, charm_target, 1, 1.0),
+		"custom charm applies the shared Classic allegiance change"
+	)
+	_expect_equal(charm_target.traits.size(), 1, "custom charm applies its native trait")
+	var charm_report: Dictionary = ReadinessScript.new().inspect(charm_bundle)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			charm_report, "unsupported-custom-spell-special", 5201
+		),
+		"scenario-authored charm spells no longer block readiness"
+	)
+
+	var condition_record := _custom_spell_record(5, 5106)
+	condition_record.merge({
+		"displayName": "Mind Blow",
+		"special": 6,
+		"spellClass": 5,
+		"cost": 8,
+		"targetType": 1,
+		"range1": 1,
+		"range2": 253,
+		"queueIcon": 11,
+		"damageType": 5,
+		"cannot": 0,
+		"damage1": 0,
+		"damage2": 0,
+		"powerDamage1": 0,
+		"powerDamage2": 0,
+		"duration1": 3,
+		"duration2": 6,
+		"powerDuration1": 1,
+		"powerDuration2": 3,
+		"size": 0,
+	}, true)
+	var condition_bundle := _custom_spell_bundle(condition_record)
+	adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(condition_bundle)
+	var condition_spell: Variant = adapter.classic_spell_override(5106)
+	_expect(condition_spell != null, "adapter compiles a scenario-authored condition spell")
+	_expect(condition_spell.is_generically_executable(), "custom condition spell is executable")
+	_expect_equal(
+		condition_spell.source_record.get("range2"),
+		-3,
+		"custom spell compiler restores signed Data Spell range bytes"
+	)
+	_expect_equal(condition_spell.get_range(2, null), 5, "signed custom range scales correctly")
+	_expect_equal(condition_spell.terrain_tex, "Spn", "queue icon 11 uses its PICT 302 frame")
+	_expect(condition_spell.is_classic_queued_spell(), "custom queued condition retains its field")
+	var condition_target := ConditionTestCharacter.new("Custom condition target")
+	condition_spell.begin_classic_target_resolution(null, 1)
+	condition_spell.add_traits_to_creature(null, condition_target, 1)
+	condition_spell.end_classic_target_resolution()
+	_expect(
+		CharacterConditionRulesScript.condition_value(condition_target, 5) > 0,
+		"custom special 6 applies Classic's Dumb condition"
+	)
+	var condition_report: Dictionary = ReadinessScript.new().inspect(condition_bundle)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			condition_report, "unsupported-custom-spell-special", 5106
+		),
+		"scenario-authored condition spells no longer block readiness"
+	)
+
+	var healing_record := _custom_spell_record(7, 5108)
+	healing_record.merge({
+		"displayName": "Recharge Crypt Things",
+		"special": 57,
+		"spellClass": 8,
+		"cost": 0,
+		"targetType": 10,
+		"range1": 0,
+		"range2": 0,
+		"queueIcon": 0,
+		"damageType": 8,
+		"cannot": 3,
+		"damage1": 100,
+		"damage2": 100,
+		"powerDamage1": 100,
+		"powerDamage2": 100,
+		"duration1": 0,
+		"duration2": 0,
+		"powerDuration1": 0,
+		"powerDuration2": 0,
+		"size": 0,
+	}, true)
+	var healing_bundle := _custom_spell_bundle(healing_record)
+	adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(healing_bundle)
+	var healing_spell: Variant = adapter.classic_spell_override(5108)
+	_expect(healing_spell != null, "adapter compiles a scenario-authored healing spell")
+	_expect(healing_spell.is_generically_executable(), "custom healing spell is executable")
+	var healing_target := LethalSpellTestCharacter.new("Custom healing target")
+	healing_target.stats["curHP"] = 10
+	healing_target.stats["maxHP"] = 500
+	_expect_equal(
+		healing_spell.apply_classic_scaled_effect(null, healing_target, 1, 1.0),
+		200,
+		"custom special 57 negates its authored damage into healing"
+	)
+	_expect_equal(healing_target.stats["curHP"], 210, "custom healing changes target health")
+	var healing_report: Dictionary = ReadinessScript.new().inspect(healing_bundle)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			healing_report, "unsupported-custom-spell-special", 5108
+		),
+		"scenario-authored healing spells no longer block readiness"
+	)
+
+	var surge_record := _custom_spell_record(34, 5305)
+	surge_record.merge({
+		"displayName": "Psi-Surge",
+		"special": 59,
+		"spellClass": 5,
+		"cost": 10,
+		"targetType": 5,
+		"range1": 0,
+		"range2": 0,
+		"queueIcon": 0,
+		"damageType": 5,
+		"cannot": 3,
+		"damage1": 0,
+		"damage2": 0,
+		"powerDamage1": 5,
+		"powerDamage2": 10,
+		"duration1": 0,
+		"duration2": 0,
+		"powerDuration1": 0,
+		"powerDuration2": 0,
+		"size": 0,
+	}, true)
+	var surge_bundle := _custom_spell_bundle(surge_record)
+	adapter = GodotAdapterScript.new()
+	adapter.configure_classic_bundle(surge_bundle)
+	var surge_spell: Variant = adapter.classic_spell_override(5305)
+	_expect(surge_spell != null, "adapter compiles a scenario-authored spell-point surge")
+	_expect(surge_spell.is_generically_executable(), "custom spell-point surge is executable")
+	var surge_target := SpellPointTestCreature.new(0)
+	var surge_gain: int = surge_spell.apply_classic_scaled_effect(
+		null,
+		surge_target,
+		1,
+		1.0
+	)
+	_expect(
+		surge_gain in range(5, 11),
+		"custom special 59 rolls its authored spell-point gain"
+	)
+	_expect_equal(surge_target.current_sp, surge_gain, "custom spell-point surge changes SP")
+	var surge_report: Dictionary = ReadinessScript.new().inspect(surge_bundle)
+	_expect(
+		not _readiness_has_reference_diagnostic(
+			surge_report, "unsupported-custom-spell-special", 5305
+		),
+		"scenario-authored spell-point surges no longer block readiness"
 	)
 
 
@@ -17538,7 +17967,11 @@ func _test_classic_queued_area_spells() -> void:
 	_expect_equal(ice.get_min_damage(3, null), 6, "Plane of Ice damage scales by power")
 	_expect_equal(ice.get_max_damage(3, null), 30, "Plane of Ice maximum scales")
 	_expect_equal(ice.get_sp_cost(2, null), 60, "Plane of Ice preserves source cost")
-	_expect_equal(ice.terrain_tex, "Ice", "Plane of Ice uses Remake's ice field art")
+	_expect_equal(
+		ice.terrain_tex,
+		"ClassicQueue9",
+		"Plane of Ice uses Classic's exact queue frame"
+	)
 	_expect_equal(enchanter_force.classic_spell_ids, [3310], "Enchanter Plane of Force exact ID")
 	_expect_equal(enchanter_force.get_sp_cost(2, null), 70, "Enchanter Plane of Force keeps its distinct cost")
 	_expect_equal(enchanter_force.classic_spell_save_index, 7, "Enchanter Plane of Force keeps its distinct save")
@@ -17564,14 +17997,14 @@ func _test_classic_queued_area_spells() -> void:
 		},
 		{
 			"id": 1610, "file": "classic_core_1610_solar_flare.gd",
-			"name": "Solar Flare", "art": "Str", "element": GameGlobal.ELEMENTS.FIRE,
+			"name": "Solar Flare", "art": "Spr", "element": GameGlobal.ELEMENTS.FIRE,
 			"save": 1, "saveMode": "half_damage", "damage": [15, 25],
 			"duration": [2, 2], "range": 12, "footprint": 28,
 			"rot": false, "los": true, "cost": 100,
 		},
 		{
 			"id": 1611, "file": "classic_core_1611_stinging_lights.gd",
-			"name": "Stinging Lights", "art": "Spk",
+			"name": "Stinging Lights", "art": "ClassicQueue10",
 			"element": GameGlobal.ELEMENTS.MAGICAL,
 			"save": 6, "saveMode": "half_damage", "damage": [3, 18],
 			"duration": [2, 2], "range": 20, "footprint": 1,
@@ -17579,7 +18012,7 @@ func _test_classic_queued_area_spells() -> void:
 		},
 		{
 			"id": 1704, "file": "classic_core_1704_hail_storm.gd",
-			"name": "Hail Storm", "art": "Ice", "element": GameGlobal.ELEMENTS.ICE,
+			"name": "Hail Storm", "art": "ClassicQueue9", "element": GameGlobal.ELEMENTS.ICE,
 			"save": 2, "saveMode": "half_damage", "damage": [15, 20],
 			"duration": [2, 4], "range": 10, "footprint": 2,
 			"rot": false, "los": true, "cost": 60,
@@ -17608,7 +18041,7 @@ func _test_classic_queued_area_spells() -> void:
 		},
 		{
 			"id": 2501, "file": "classic_core_2501_cloud_of_cleavers.gd",
-			"name": "Cloud of Cleavers", "art": "Dts",
+			"name": "Cloud of Cleavers", "art": "Trg",
 			"element": GameGlobal.ELEMENTS.MAGICAL,
 			"save": -1, "saveMode": "none", "damage": [10, 15],
 			"duration": [2, 4], "range": 6, "footprint": 4,
@@ -17616,7 +18049,7 @@ func _test_classic_queued_area_spells() -> void:
 		},
 		{
 			"id": 2508, "file": "classic_core_2508_mind_mines.gd",
-			"name": "Mind Mines", "art": "Trg", "element": GameGlobal.ELEMENTS.MENTAL,
+			"name": "Mind Mines", "art": "Bal", "element": GameGlobal.ELEMENTS.MENTAL,
 			"save": 5, "saveMode": "half_damage", "damage": [2, 10],
 			"duration": [2, 3], "range": 20, "footprint": 2,
 			"rot": false, "los": false, "cost": 30,
@@ -17638,7 +18071,7 @@ func _test_classic_queued_area_spells() -> void:
 		},
 		{
 			"id": 3512, "file": "classic_core_3512_shell_shock.gd",
-			"name": "Shell Shock", "art": "Spk",
+			"name": "Shell Shock", "art": "ClassicQueue10",
 			"element": GameGlobal.ELEMENTS.ELECTRIC,
 			"save": 3, "saveMode": "half_damage", "damage": [20, 40],
 			"duration": [2, 2], "range": 0, "footprint": 8,
@@ -22247,7 +22680,7 @@ func _test_classic_silence_spells() -> void:
 		_expect_equal(spell.get_max_duration(3, null), 3, "%s maximum duration" % label)
 		_expect_equal(spell.get_sp_cost(3, null), 45, "%s casting cost" % label)
 		_expect_equal(spell.classic_spell_look_ids, [8, 15], "%s visuals" % label)
-		_expect_equal(spell.terrain_tex, "Trg", "%s battlefield texture" % label)
+		_expect_equal(spell.terrain_tex, "Bal", "%s battlefield texture" % label)
 		_expect(spell.is_classic_queued_spell(), "%s creates a queued field" % label)
 		_expect(
 			not spell.uses_classic_group_effect(),
@@ -26123,6 +26556,29 @@ func _test_combat_monster_spawn_action() -> void:
 		"show_text",
 		"zero-count spawn continues without requiring a monster record"
 	)
+	bundle.monsters_by_id[113] = {
+		"id": 113,
+		"displayName": "Monster 113",
+		"hitDice": 0,
+	}
+	bundle.extra_codes_by_id[10] = {"id": 10, "values": [0, 113, -2, 0, 0]}
+	_add_stack_trigger(bundle, "combat:spawn-inert", -1, [
+		_classic_action(0, 124, 10),
+		_classic_action(1, 1, 928),
+	])
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("combat:spawn-inert")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"show_text",
+		"spawn aimed at an empty Classic monster record remains an inert action"
+	)
+	var inert_readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	_expect_equal(
+		_diagnostic_code_count(inert_readiness, "inert-combat-spawn"),
+		1,
+		"readiness keeps an active empty-record spawn visible as a fidelity fallback"
+	)
 
 	var adapter = GodotAdapterScript.new()
 	var creature_book := {"Goblin 92": {"data": {"name": "Goblin"}}}
@@ -28619,6 +29075,7 @@ func _test_game_time_actions() -> void:
 	bundle.extra_codes_by_id[3] = {"id": 3, "values": [1, 5, 6, 7, 0]}
 	bundle.extra_codes_by_id[4] = {"id": 4, "values": [3, 0, 0, 0, 0]}
 	bundle.extra_codes_by_id[5] = {"id": 5, "values": [-2, 24, 0, 10, 11]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [-1, 24, 0, 10, 11]}
 	_add_stack_trigger(bundle, "time:offset", -1, [
 		_classic_action(0, 63, 1),
 		_classic_action(1, 64, 2),
@@ -28630,6 +29087,7 @@ func _test_game_time_actions() -> void:
 	])
 	_add_stack_trigger(bundle, "time:invalid-mutation", -1, [_classic_action(0, 63, 4)])
 	_add_stack_trigger(bundle, "time:invalid-branch", -1, [_classic_action(0, 64, 5)])
+	_add_stack_trigger(bundle, "time:end-of-day", -1, [_classic_action(0, 64, 6)])
 	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
 		_classic_action(0, 1, 910),
 		_classic_action(1, 111, 0),
@@ -28701,6 +29159,21 @@ func _test_game_time_actions() -> void:
 		interpreter.run_until_yield().get("payload", {}).get("messageId"),
 		910,
 		"time branch uses inclusive day and hour limits"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger(
+			"time:end-of-day",
+			0,
+			{"scenarioDay": 100, "scenarioHour": 23, "scenarioMinute": 59}
+		),
+		"begin end-of-day game-time branch"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		910,
+		"time branch accepts Classic's inclusive hour-24 limit"
 	)
 
 	interpreter = _interpreter(bundle)
@@ -30504,6 +30977,49 @@ func _test_complex_response_modes() -> void:
 	restored.restore(interpreter.runtime_state.snapshot())
 	_expect(restored.is_quest_set(42), "door mutation survives snapshot restore")
 
+	var zero_door_item := {
+		"id": 3,
+		"itemId": 903,
+		"type": -23,
+		"special1": 0,
+		"special5": 0,
+	}
+	var zero_door_items := scenario_items.duplicate(true)
+	zero_door_items.append(zero_door_item)
+	var zero_door_mode: Dictionary = adapter.classify_complex_item(
+		{"name": "Orchid", "classicItemId": 903},
+		zero_door_items
+	)
+	_expect_equal(
+		zero_door_mode.get("doorActivationActionPointId"),
+		0,
+		"Classic door items may target Data ED3 record zero"
+	)
+	bundle.messages_by_id[943] = {"id": 943, "text": "Zero target"}
+	_add_stack_trigger(bundle, "Data ED3:macro:0", 0, [_classic_action(0, 1, 943)])
+	bundle.scenario_items_by_id[903] = zero_door_item
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:0"), "begin zero-target door encounter")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"start_encounter",
+		"zero-target door fixture starts encounter"
+	)
+	door_result = interpreter.resume_encounter(0, {
+		"doorActivationActionPointId": 0,
+	})
+	_expect_equal(door_result.get("command"), "show_text", "Data ED3 record zero executes")
+	_expect_equal(
+		door_result.get("payload", {}).get("messageId"),
+		943,
+		"Data ED3 record zero preserves its action payload"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"completed",
+		"Data ED3 record zero completes"
+	)
+
 	var ordinary_mode: Dictionary = adapter.classify_complex_item(ordinary_item, scenario_items)
 	_expect_equal(ordinary_mode.get("mode"), "item", "ordinary item keeps item-response mode")
 	_expect_equal(
@@ -30577,8 +31093,18 @@ func _test_complex_response_modes() -> void:
 	)
 	_expect(
 		not readiness_codes.has("missing-door-action-point"),
-		"compiled door item resolves its Data ED3 target"
+		"compiled door items resolve positive and zero Data ED3 targets"
 	)
+	bundle.extra_action_points_by_id.erase(0)
+	readiness = ReadinessScript.new().inspect(bundle, readiness_context)
+	readiness_codes = readiness.get("diagnostics", []).map(
+		func(diagnostic: Dictionary) -> String: return str(diagnostic.get("code", ""))
+	)
+	_expect(
+		"missing-door-action-point" in readiness_codes,
+		"readiness blocks a zero-target door item when Data ED3 record zero is absent"
+	)
+	_add_stack_trigger(bundle, "Data ED3:macro:0", 0, [_classic_action(0, 1, 943)])
 	bundle.extra_action_points_by_id.erase(7)
 	readiness = ReadinessScript.new().inspect(bundle, readiness_context)
 	readiness_codes = readiness.get("diagnostics", []).map(

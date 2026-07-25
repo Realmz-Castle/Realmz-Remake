@@ -607,7 +607,11 @@ func _collect_landlook_targets(
 
 
 func _producer_marks_callable(record: Dictionary) -> bool:
-	return not record.has("callable") or bool(record["callable"])
+	if record.has("callable"):
+		return bool(record["callable"])
+	if record.has("authored"):
+		return bool(record["authored"])
+	return true
 
 
 func _build_stock_land_tileset_plans(

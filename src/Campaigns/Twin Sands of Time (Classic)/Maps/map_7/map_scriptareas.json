@@ -1,0 +1,225 @@
+{
+  "Paths": [],
+  "ScriptRects": {
+    "AP0x38y84": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          38,
+          84
+        ],
+        [
+          38,
+          84
+        ]
+      ],
+      "scriptToLoad": "Data DD:7:0"
+    },
+    "AP1x61y88": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          61,
+          88
+        ],
+        [
+          61,
+          88
+        ]
+      ],
+      "scriptToLoad": "Data DD:7:1"
+    },
+    "AP2x20y1": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          20,
+          1
+        ],
+        [
+          20,
+          1
+        ]
+      ],
+      "scriptToLoad": "Data DD:7:2"
+    },
+    "AP3x52y32": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          52,
+          32
+        ],
+        [
+          52,
+          32
+        ]
+      ],
+      "scriptToLoad": "Data DD:7:3"
+    },
+    "AP4x20y2": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          20,
+          2
+        ],
+        [
+          20,
+          2
+        ]
+      ],
+      "scriptToLoad": "Data DD:7:4"
+    },
+    "AP5x86y17": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          86,
+          17
+        ],
+        [
+          86,
+          17
+        ]
+      ],
+      "scriptToLoad": "Data DD:7:5"
+    },
+    "AP6x89y85": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          89,
+          85
+        ],
+        [
+          89,
+          85
+        ]
+      ],
+      "scriptToLoad": "Data DD:7:6"
+    },
+    "LRR7.1": {
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          50,
+          30
+        ],
+        [
+          52,
+          34
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR7.2": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          59,
+          2
+        ],
+        [
+          59,
+          5
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR7.3": {
+      "RR_Battle": {
+        "battle_range": [
+          101,
+          101
+        ],
+        "option_chance": 10,
+        "sfx_id": 117,
+        "text": "A genuine thirst ravages your aching bodies.  Days of travel without water have made you weak and in need of shelter.  A vast, mountainous wall around you and only one direction to walk.  Enjoy Twin Sands of Time!"
+      },
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          3,
+          17
+        ],
+        [
+          11,
+          18
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR7.4": {
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          4,
+          45
+        ],
+        [
+          8,
+          47
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR7.5": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          20,
+          67
+        ],
+        [
+          22,
+          88
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR7.6": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          62,
+          83
+        ],
+        [
+          63,
+          88
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR7.7": {
+      "chance": 1.0,
+      "scriptRectangle": [
+        [
+          82,
+          83
+        ],
+        [
+          83,
+          87
+        ]
+      ],
+      "scriptToLoad": []
+    },
+    "LRR7.8": {
+      "chance": 0.0,
+      "scriptRectangle": [
+        [
+          84,
+          83
+        ],
+        [
+          85,
+          88
+        ]
+      ],
+      "scriptToLoad": []
+    }
+  },
+  "Secrets": []
+}

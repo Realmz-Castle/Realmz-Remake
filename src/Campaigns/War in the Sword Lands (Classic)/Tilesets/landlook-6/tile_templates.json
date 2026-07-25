@@ -1,0 +1,7802 @@
+{
+  "classic_landlook_6_001": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        1.0,
+        60.0
+      ],
+      [
+        165.0,
+        1.0,
+        60.0
+      ],
+      [
+        160.0,
+        1.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 1,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_002": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        2.0,
+        165.0
+      ],
+      [
+        60.0,
+        2.0,
+        156.0
+      ],
+      [
+        60.0,
+        2.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 2,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_003": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        162.0,
+        160.0,
+        164.0
+      ],
+      [
+        3.0,
+        3.0,
+        3.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 3,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_004": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        4.0,
+        4.0,
+        4.0
+      ],
+      [
+        156.0,
+        165.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 4,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_005": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        5.0,
+        60.0
+      ],
+      [
+        165.0,
+        156.0,
+        6.0
+      ],
+      [
+        164.0,
+        160.0,
+        5.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 5,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_006": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        6.0,
+        60.0,
+        60.0
+      ],
+      [
+        5.0,
+        60.0,
+        60.0
+      ],
+      [
+        165.0,
+        6.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 6,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_007": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        7.0
+      ],
+      [
+        60.0,
+        60.0,
+        8.0
+      ],
+      [
+        60.0,
+        7.0,
+        162.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 7,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_008": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        8.0,
+        165.0
+      ],
+      [
+        7.0,
+        156.0,
+        166.0
+      ],
+      [
+        8.0,
+        160.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 8,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_009": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        166.0,
+        160.0,
+        9.0
+      ],
+      [
+        165.0,
+        160.0,
+        10.0
+      ],
+      [
+        167.0,
+        9.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 9,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_010": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        158.0,
+        10.0,
+        60.0
+      ],
+      [
+        9.0,
+        60.0,
+        60.0
+      ],
+      [
+        10.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 10,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_011": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        11.0,
+        158.0,
+        158.0
+      ],
+      [
+        12.0,
+        162.0,
+        156.0
+      ],
+      [
+        60.0,
+        11.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 11,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_012": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        12.0,
+        156.0
+      ],
+      [
+        60.0,
+        60.0,
+        11.0
+      ],
+      [
+        60.0,
+        60.0,
+        12.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 12,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_013": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        13.0,
+        14.0,
+        156.0
+      ],
+      [
+        60.0,
+        60.0,
+        13.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 13,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_014": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        164.0,
+        165.0,
+        162.0
+      ],
+      [
+        14.0,
+        158.0,
+        160.0
+      ],
+      [
+        60.0,
+        13.0,
+        14.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 14,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_015": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        15.0
+      ],
+      [
+        15.0,
+        16.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 15,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_016": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        15.0,
+        16.0
+      ],
+      [
+        16.0,
+        165.0,
+        161.0
+      ],
+      [
+        160.0,
+        156.0,
+        164.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 16,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_017": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        164.0,
+        158.0,
+        160.0
+      ],
+      [
+        165.0,
+        158.0,
+        17.0
+      ],
+      [
+        17.0,
+        18.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 17,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_018": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        167.0,
+        17.0,
+        18.0
+      ],
+      [
+        18.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 18,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_019": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        19.0,
+        20.0,
+        60.0
+      ],
+      [
+        165.0,
+        161.0,
+        19.0
+      ],
+      [
+        167.0,
+        165.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 19,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_020": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        20.0,
+        60.0,
+        60.0
+      ],
+      [
+        162.0,
+        19.0,
+        20.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 20,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_021": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        32.0,
+        60.0,
+        31.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 21,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_022": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        3.0,
+        30.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        4.0,
+        32.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 22,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_023": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        29.0,
+        3.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        31.0,
+        4.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 23,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_024": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        30.0,
+        60.0,
+        29.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 24,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_025": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        166.0,
+        157.0,
+        156.0
+      ],
+      [
+        158.0,
+        25.0,
+        3.0
+      ],
+      [
+        156.0,
+        1.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 25,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_026": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        162.0,
+        166.0
+      ],
+      [
+        3.0,
+        26.0,
+        161.0
+      ],
+      [
+        60.0,
+        2.0,
+        162.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 26,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_027": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        1.0,
+        60.0
+      ],
+      [
+        161.0,
+        27.0,
+        4.0
+      ],
+      [
+        165.0,
+        162.0,
+        167.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 27,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_028": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        2.0,
+        167.0
+      ],
+      [
+        4.0,
+        28.0,
+        158.0
+      ],
+      [
+        164.0,
+        158.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 28,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_029": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        2.0,
+        158.0
+      ],
+      [
+        60.0,
+        29.0,
+        3.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 29,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_030": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        164.0,
+        1.0,
+        60.0
+      ],
+      [
+        3.0,
+        30.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 30,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_031": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        31.0,
+        4.0
+      ],
+      [
+        60.0,
+        2.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 31,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_032": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        4.0,
+        32.0,
+        60.0
+      ],
+      [
+        165.0,
+        1.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 32,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_033": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        34.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        33.0,
+        60.0
+      ],
+      [
+        60.0,
+        34.0,
+        33.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 85,
+    "classicTileId": 33,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_034": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        34.0,
+        60.0,
+        34.0
+      ],
+      [
+        35.0,
+        33.0,
+        60.0
+      ],
+      [
+        60.0,
+        35.0,
+        33.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 85,
+    "classicTileId": 34,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_035": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        34.0,
+        33.0,
+        60.0
+      ],
+      [
+        60.0,
+        35.0,
+        35.0
+      ],
+      [
+        35.0,
+        34.0,
+        33.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 85,
+    "classicTileId": 35,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_036": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        36.0,
+        36.0,
+        36.0
+      ],
+      [
+        36.0,
+        36.0,
+        36.0
+      ],
+      [
+        36.0,
+        36.0,
+        36.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 90,
+    "classicTileId": 36,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_037": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        37.0,
+        37.0,
+        37.0
+      ],
+      [
+        37.0,
+        37.0,
+        37.0
+      ],
+      [
+        37.0,
+        37.0,
+        37.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 2,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 88,
+    "classicTileId": 37,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 7,
+    "wall": 0,
+    "water": 1
+  },
+  "classic_landlook_6_038": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 38,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_039": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        3.0,
+        3.0,
+        3.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        4.0,
+        4.0,
+        4.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 39,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_040": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        27.0,
+        4.0,
+        28.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 40,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_041": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        25.0,
+        3.0,
+        3.0
+      ],
+      [
+        1.0,
+        60.0,
+        60.0
+      ],
+      [
+        27.0,
+        4.0,
+        4.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 41,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_042": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        25.0,
+        3.0,
+        26.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 42,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_043": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        3.0,
+        3.0,
+        26.0
+      ],
+      [
+        60.0,
+        60.0,
+        2.0
+      ],
+      [
+        4.0,
+        4.0,
+        28.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 43,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_044": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        30.0,
+        60.0,
+        29.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        4.0,
+        4.0,
+        4.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 44,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_045": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        1.0,
+        60.0,
+        29.0
+      ],
+      [
+        1.0,
+        60.0,
+        60.0
+      ],
+      [
+        1.0,
+        60.0,
+        31.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 45,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_046": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        3.0,
+        3.0,
+        3.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        32.0,
+        60.0,
+        31.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 46,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_047": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        30.0,
+        60.0,
+        2.0
+      ],
+      [
+        60.0,
+        60.0,
+        2.0
+      ],
+      [
+        32.0,
+        60.0,
+        2.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 47,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_048": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        25.0,
+        3.0,
+        3.0
+      ],
+      [
+        1.0,
+        60.0,
+        60.0
+      ],
+      [
+        1.0,
+        60.0,
+        31.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 48,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_049": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        3.0,
+        3.0,
+        26.0
+      ],
+      [
+        60.0,
+        60.0,
+        2.0
+      ],
+      [
+        32.0,
+        60.0,
+        2.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 49,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_050": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        1.0,
+        60.0,
+        29.0
+      ],
+      [
+        1.0,
+        60.0,
+        60.0
+      ],
+      [
+        27.0,
+        4.0,
+        4.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 50,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_051": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        30.0,
+        60.0,
+        2.0
+      ],
+      [
+        60.0,
+        60.0,
+        2.0
+      ],
+      [
+        4.0,
+        4.0,
+        28.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 51,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_052": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        165.0,
+        158.0
+      ],
+      [
+        158.0,
+        52.0,
+        162.0
+      ],
+      [
+        159.0,
+        156.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 83,
+    "classicTileId": 52,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_053": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        160.0,
+        158.0
+      ],
+      [
+        158.0,
+        53.0,
+        165.0
+      ],
+      [
+        165.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 84,
+    "classicTileId": 53,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_054": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        160.0,
+        158.0
+      ],
+      [
+        158.0,
+        54.0,
+        162.0
+      ],
+      [
+        163.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 54,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_055": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        55.0,
+        55.0,
+        55.0
+      ],
+      [
+        55.0,
+        55.0,
+        55.0
+      ],
+      [
+        55.0,
+        55.0,
+        55.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 55,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_056": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        31.0,
+        32.0,
+        60.0
+      ],
+      [
+        29.0,
+        30.0,
+        58.0
+      ],
+      [
+        56.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 56,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_057": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        58.0,
+        31.0,
+        32.0
+      ],
+      [
+        31.0,
+        28.0,
+        1.0
+      ],
+      [
+        29.0,
+        3.0,
+        30.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 57,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_058": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        31.0,
+        20.0,
+        59.0
+      ],
+      [
+        2.0,
+        160.0,
+        6.0
+      ],
+      [
+        29.0,
+        3.0,
+        30.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 58,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_059": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        59.0,
+        31.0,
+        32.0
+      ],
+      [
+        31.0,
+        28.0,
+        10.0
+      ],
+      [
+        29.0,
+        18.0,
+        57.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 59,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_060": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 1,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 88,
+    "classicTileId": 60,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 7,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_061": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 61,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_062": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        64.0
+      ],
+      [
+        61.0,
+        63.0,
+        158.0
+      ],
+      [
+        62.0,
+        156.0,
+        164.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 62,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_063": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        63.0
+      ],
+      [
+        61.0,
+        64.0,
+        156.0
+      ],
+      [
+        62.0,
+        156.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 63,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_064": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        62.0
+      ],
+      [
+        61.0,
+        63.0,
+        165.0
+      ],
+      [
+        64.0,
+        167.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 64,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_065": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        167.0,
+        67.0
+      ],
+      [
+        165.0,
+        66.0,
+        61.0
+      ],
+      [
+        65.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 65,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_066": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        166.0,
+        162.0,
+        65.0
+      ],
+      [
+        162.0,
+        67.0,
+        61.0
+      ],
+      [
+        66.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 66,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_067": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        164.0,
+        161.0,
+        66.0
+      ],
+      [
+        161.0,
+        65.0,
+        61.0
+      ],
+      [
+        67.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 67,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_068": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        70.0,
+        61.0,
+        61.0
+      ],
+      [
+        156.0,
+        69.0,
+        61.0
+      ],
+      [
+        166.0,
+        156.0,
+        68.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 68,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_069": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        68.0,
+        61.0,
+        61.0
+      ],
+      [
+        156.0,
+        70.0,
+        61.0
+      ],
+      [
+        163.0,
+        156.0,
+        69.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 69,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_070": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        69.0,
+        61.0,
+        61.0
+      ],
+      [
+        166.0,
+        68.0,
+        61.0
+      ],
+      [
+        156.0,
+        156.0,
+        70.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 70,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_071": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        73.0,
+        165.0,
+        167.0
+      ],
+      [
+        61.0,
+        72.0,
+        162.0
+      ],
+      [
+        61.0,
+        61.0,
+        71.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 71,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_072": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        71.0,
+        166.0,
+        165.0
+      ],
+      [
+        61.0,
+        73.0,
+        164.0
+      ],
+      [
+        61.0,
+        61.0,
+        72.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 72,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_073": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        72.0,
+        163.0,
+        167.0
+      ],
+      [
+        61.0,
+        71.0,
+        162.0
+      ],
+      [
+        61.0,
+        61.0,
+        73.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 73,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_074": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        76.0
+      ],
+      [
+        61.0,
+        61.0,
+        75.0
+      ],
+      [
+        61.0,
+        61.0,
+        74.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 74,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_075": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        76.0
+      ],
+      [
+        61.0,
+        61.0,
+        74.0
+      ],
+      [
+        61.0,
+        61.0,
+        76.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 75,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_076": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        75.0
+      ],
+      [
+        61.0,
+        61.0,
+        76.0
+      ],
+      [
+        61.0,
+        61.0,
+        74.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 76,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_077": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        79.0,
+        61.0,
+        61.0
+      ],
+      [
+        77.0,
+        61.0,
+        61.0
+      ],
+      [
+        78.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 77,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_078": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        77.0,
+        61.0,
+        61.0
+      ],
+      [
+        78.0,
+        61.0,
+        61.0
+      ],
+      [
+        79.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 78,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_079": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        78.0,
+        61.0,
+        61.0
+      ],
+      [
+        77.0,
+        61.0,
+        61.0
+      ],
+      [
+        79.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 79,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_080": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        80.0,
+        82.0,
+        81.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 80,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_081": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        81.0,
+        80.0,
+        82.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 81,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_082": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        82.0,
+        81.0,
+        80.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 87,
+    "classicTileId": 82,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_083": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        83.0,
+        84.0,
+        85.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 83,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_084": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        84.0,
+        83.0,
+        85.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 84,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_085": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        84.0,
+        85.0,
+        83.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 85,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_086": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        86.0
+      ],
+      [
+        60.0,
+        86.0,
+        61.0
+      ],
+      [
+        86.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 86,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_087": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        87.0,
+        60.0,
+        60.0
+      ],
+      [
+        61.0,
+        87.0,
+        60.0
+      ],
+      [
+        61.0,
+        61.0,
+        87.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 87,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_088": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        88.0,
+        61.0,
+        61.0
+      ],
+      [
+        60.0,
+        88.0,
+        61.0
+      ],
+      [
+        60.0,
+        60.0,
+        88.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 88,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_089": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        89.0
+      ],
+      [
+        61.0,
+        89.0,
+        60.0
+      ],
+      [
+        89.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 89,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_090": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        90.0,
+        61.0,
+        61.0
+      ],
+      [
+        90.0,
+        61.0,
+        61.0
+      ],
+      [
+        90.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 90,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_091": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        91.0
+      ],
+      [
+        61.0,
+        61.0,
+        91.0
+      ],
+      [
+        61.0,
+        61.0,
+        91.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 91,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_092": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        92.0,
+        92.0,
+        92.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 92,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_093": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        61.0,
+        61.0,
+        61.0
+      ],
+      [
+        93.0,
+        93.0,
+        93.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 93,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_094": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        94.0,
+        157.0
+      ],
+      [
+        158.0,
+        94.0,
+        165.0
+      ],
+      [
+        165.0,
+        94.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 94,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_095": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        157.0,
+        157.0
+      ],
+      [
+        95.0,
+        95.0,
+        95.0
+      ],
+      [
+        163.0,
+        157.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 95,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_096": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        94.0,
+        157.0
+      ],
+      [
+        158.0,
+        96.0,
+        95.0
+      ],
+      [
+        162.0,
+        94.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 96,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_097": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        164.0,
+        94.0,
+        157.0
+      ],
+      [
+        95.0,
+        97.0,
+        164.0
+      ],
+      [
+        164.0,
+        94.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 97,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_098": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        94.0,
+        157.0
+      ],
+      [
+        158.0,
+        98.0,
+        95.0
+      ],
+      [
+        165.0,
+        157.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 98,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_099": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        162.0,
+        94.0,
+        157.0
+      ],
+      [
+        95.0,
+        99.0,
+        162.0
+      ],
+      [
+        162.0,
+        162.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 99,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_100": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        162.0,
+        94.0,
+        157.0
+      ],
+      [
+        95.0,
+        100.0,
+        95.0
+      ],
+      [
+        162.0,
+        94.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 100,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_101": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        94.0,
+        157.0
+      ],
+      [
+        95.0,
+        101.0,
+        95.0
+      ],
+      [
+        161.0,
+        165.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 101,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_102": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        162.0,
+        156.0,
+        157.0
+      ],
+      [
+        95.0,
+        102.0,
+        95.0
+      ],
+      [
+        162.0,
+        94.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 102,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_103": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        162.0,
+        165.0,
+        157.0
+      ],
+      [
+        158.0,
+        103.0,
+        95.0
+      ],
+      [
+        165.0,
+        94.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 103,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_104": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        156.0,
+        157.0
+      ],
+      [
+        95.0,
+        104.0,
+        162.0
+      ],
+      [
+        163.0,
+        94.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 104,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_105": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        25.0,
+        3.0,
+        3.0
+      ],
+      [
+        1.0,
+        60.0,
+        60.0
+      ],
+      [
+        27.0,
+        4.0,
+        4.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 1,
+    "classicSolid": 0,
+    "classicSoundId": 88,
+    "classicTileId": 105,
+    "dock": 1,
+    "sound": [],
+    "swall": 0,
+    "time": 6,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_106": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        3.0,
+        3.0,
+        26.0
+      ],
+      [
+        60.0,
+        60.0,
+        2.0
+      ],
+      [
+        4.0,
+        4.0,
+        28.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 1,
+    "classicSolid": 0,
+    "classicSoundId": 88,
+    "classicTileId": 106,
+    "dock": 1,
+    "sound": [],
+    "swall": 0,
+    "time": 6,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_107": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        27.0,
+        4.0,
+        28.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 1,
+    "classicSolid": 0,
+    "classicSoundId": 88,
+    "classicTileId": 107,
+    "dock": 1,
+    "sound": [],
+    "swall": 0,
+    "time": 6,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_108": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        25.0,
+        3.0,
+        26.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ],
+      [
+        1.0,
+        60.0,
+        2.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 1,
+    "classicSolid": 0,
+    "classicSoundId": 88,
+    "classicTileId": 108,
+    "dock": 1,
+    "sound": [],
+    "swall": 0,
+    "time": 6,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_109": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        157.0,
+        160.0
+      ],
+      [
+        159.0,
+        156.0,
+        157.0
+      ],
+      [
+        158.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 109,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_110": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        157.0,
+        160.0
+      ],
+      [
+        159.0,
+        156.0,
+        157.0
+      ],
+      [
+        158.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 110,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_111": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        157.0,
+        160.0
+      ],
+      [
+        159.0,
+        156.0,
+        157.0
+      ],
+      [
+        158.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 111,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_112": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        157.0,
+        160.0
+      ],
+      [
+        159.0,
+        156.0,
+        157.0
+      ],
+      [
+        158.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 112,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_113": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        165.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        165.0
+      ],
+      [
+        165.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 83,
+    "classicTileId": 113,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_114": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        165.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        165.0
+      ],
+      [
+        165.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 83,
+    "classicTileId": 114,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_115": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        164.0,
+        166.0
+      ],
+      [
+        167.0,
+        160.0,
+        162.0
+      ],
+      [
+        166.0,
+        167.0,
+        164.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 115,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_116": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        166.0,
+        164.0,
+        167.0
+      ],
+      [
+        167.0,
+        162.0,
+        165.0
+      ],
+      [
+        165.0,
+        164.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 116,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_117": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        167.0,
+        165.0,
+        166.0
+      ],
+      [
+        164.0,
+        162.0,
+        164.0
+      ],
+      [
+        166.0,
+        165.0,
+        167.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 117,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_118": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        118.0,
+        157.0,
+        118.0
+      ],
+      [
+        118.0,
+        118.0,
+        118.0
+      ],
+      [
+        158.0,
+        118.0,
+        118.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 118,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_119": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        157.0,
+        119.0,
+        119.0
+      ],
+      [
+        119.0,
+        119.0,
+        119.0
+      ],
+      [
+        119.0,
+        119.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 1,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 86,
+    "classicTileId": 119,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_120": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        157.0,
+        120.0,
+        120.0
+      ],
+      [
+        120.0,
+        120.0,
+        157.0
+      ],
+      [
+        120.0,
+        120.0,
+        120.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 1,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 86,
+    "classicTileId": 120,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_121": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        121.0,
+        121.0,
+        121.0
+      ],
+      [
+        121.0,
+        121.0,
+        121.0
+      ],
+      [
+        121.0,
+        121.0,
+        121.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 1,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 86,
+    "classicTileId": 121,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_122": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        122.0,
+        118.0,
+        119.0
+      ],
+      [
+        121.0,
+        122.0,
+        120.0
+      ],
+      [
+        121.0,
+        121.0,
+        122.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 122,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_123": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        118.0,
+        119.0,
+        123.0
+      ],
+      [
+        119.0,
+        123.0,
+        121.0
+      ],
+      [
+        123.0,
+        121.0,
+        121.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 123,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_124": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        124.0,
+        121.0,
+        121.0
+      ],
+      [
+        119.0,
+        124.0,
+        121.0
+      ],
+      [
+        120.0,
+        118.0,
+        124.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 124,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_125": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        121.0,
+        121.0,
+        125.0
+      ],
+      [
+        121.0,
+        125.0,
+        120.0
+      ],
+      [
+        125.0,
+        120.0,
+        118.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 125,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_126": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        121.0,
+        121.0,
+        121.0
+      ],
+      [
+        121.0,
+        121.0,
+        121.0
+      ],
+      [
+        126.0,
+        126.0,
+        126.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 126,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_127": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        127.0,
+        127.0,
+        127.0
+      ],
+      [
+        121.0,
+        121.0,
+        121.0
+      ],
+      [
+        121.0,
+        121.0,
+        121.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 127,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_128": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        128.0,
+        121.0,
+        121.0
+      ],
+      [
+        128.0,
+        121.0,
+        121.0
+      ],
+      [
+        128.0,
+        121.0,
+        121.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 128,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_129": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        121.0,
+        121.0,
+        129.0
+      ],
+      [
+        121.0,
+        121.0,
+        129.0
+      ],
+      [
+        121.0,
+        121.0,
+        129.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 129,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_130": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        5.0,
+        60.0,
+        8.0
+      ],
+      [
+        156.0,
+        130.0,
+        156.0
+      ],
+      [
+        9.0,
+        60.0,
+        11.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 130,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_131": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        14.0,
+        133.0,
+        17.0
+      ],
+      [
+        60.0,
+        131.0,
+        60.0
+      ],
+      [
+        16.0,
+        133.0,
+        19.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 131,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_132": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        162.0,
+        156.0
+      ],
+      [
+        55.0,
+        55.0,
+        55.0
+      ],
+      [
+        162.0,
+        163.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 132,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_133": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        162.0,
+        55.0,
+        156.0
+      ],
+      [
+        157.0,
+        55.0,
+        157.0
+      ],
+      [
+        162.0,
+        55.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 133,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_134": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        55.0,
+        156.0
+      ],
+      [
+        55.0,
+        55.0,
+        55.0
+      ],
+      [
+        162.0,
+        55.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 134,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_135": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        161.0,
+        156.0,
+        156.0
+      ],
+      [
+        55.0,
+        55.0,
+        55.0
+      ],
+      [
+        161.0,
+        55.0,
+        161.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 135,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_136": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        157.0,
+        55.0,
+        165.0
+      ],
+      [
+        55.0,
+        55.0,
+        55.0
+      ],
+      [
+        165.0,
+        157.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 136,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_137": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        55.0,
+        156.0
+      ],
+      [
+        157.0,
+        55.0,
+        55.0
+      ],
+      [
+        157.0,
+        55.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 137,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_138": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        55.0,
+        156.0
+      ],
+      [
+        55.0,
+        55.0,
+        163.0
+      ],
+      [
+        156.0,
+        55.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 138,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_139": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        158.0,
+        156.0
+      ],
+      [
+        158.0,
+        55.0,
+        55.0
+      ],
+      [
+        162.0,
+        55.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 139,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_140": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        55.0,
+        162.0
+      ],
+      [
+        55.0,
+        55.0,
+        157.0
+      ],
+      [
+        162.0,
+        159.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 140,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_141": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        161.0,
+        55.0,
+        161.0
+      ],
+      [
+        159.0,
+        55.0,
+        55.0
+      ],
+      [
+        161.0,
+        159.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 141,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_142": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        165.0,
+        156.0
+      ],
+      [
+        55.0,
+        55.0,
+        163.0
+      ],
+      [
+        165.0,
+        55.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 142,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_143": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        162.0,
+        156.0
+      ],
+      [
+        158.0,
+        55.0,
+        55.0
+      ],
+      [
+        158.0,
+        163.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 143,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_144": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        164.0,
+        165.0
+      ],
+      [
+        156.0,
+        55.0,
+        163.0
+      ],
+      [
+        165.0,
+        55.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 144,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_145": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        158.0,
+        164.0,
+        156.0
+      ],
+      [
+        55.0,
+        55.0,
+        163.0
+      ],
+      [
+        163.0,
+        156.0,
+        164.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 145,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_146": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        55.0,
+        156.0
+      ],
+      [
+        166.0,
+        55.0,
+        164.0
+      ],
+      [
+        159.0,
+        167.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 146,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 1,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_147": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ],
+      [
+        60.0,
+        60.0,
+        60.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 1,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 84,
+    "classicTileId": 147,
+    "dock": 1,
+    "sound": [],
+    "swall": 0,
+    "time": 7,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_148": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        157.0,
+        165.0,
+        158.0
+      ],
+      [
+        158.0,
+        148.0,
+        157.0
+      ],
+      [
+        163.0,
+        158.0,
+        162.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 87,
+    "classicTileId": 148,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_149": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        157.0,
+        149.0,
+        157.0
+      ],
+      [
+        158.0,
+        157.0,
+        149.0
+      ],
+      [
+        157.0,
+        149.0,
+        160.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 87,
+    "classicTileId": 149,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_150": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        150.0,
+        157.0,
+        157.0
+      ],
+      [
+        157.0,
+        150.0,
+        150.0
+      ],
+      [
+        150.0,
+        157.0,
+        160.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 86,
+    "classicTileId": 150,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_151": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        151.0,
+        156.0,
+        165.0
+      ],
+      [
+        152.0,
+        156.0,
+        151.0
+      ],
+      [
+        165.0,
+        151.0,
+        152.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 1,
+    "classicSoundId": 87,
+    "classicTileId": 151,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_152": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        151.0,
+        152.0,
+        165.0
+      ],
+      [
+        152.0,
+        162.0,
+        151.0
+      ],
+      [
+        165.0,
+        156.0,
+        152.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 87,
+    "classicTileId": 152,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_153": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        153.0,
+        158.0,
+        163.0
+      ],
+      [
+        154.0,
+        157.0,
+        153.0
+      ],
+      [
+        163.0,
+        153.0,
+        154.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 1,
+    "classicSoundId": 87,
+    "classicTileId": 153,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 5,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_154": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        159.0,
+        154.0,
+        153.0
+      ],
+      [
+        153.0,
+        157.0,
+        154.0
+      ],
+      [
+        154.0,
+        156.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 87,
+    "classicTileId": 154,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_155": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        167.0,
+        164.0,
+        165.0
+      ],
+      [
+        166.0,
+        162.0,
+        166.0
+      ],
+      [
+        164.0,
+        165.0,
+        167.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 155,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 6,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_156": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        161.0,
+        156.0,
+        158.0
+      ],
+      [
+        158.0,
+        156.0,
+        162.0
+      ],
+      [
+        161.0,
+        156.0,
+        161.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 156,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_157": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        158.0,
+        158.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        158.0
+      ],
+      [
+        158.0,
+        158.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 83,
+    "classicTileId": 157,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_158": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        156.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        156.0
+      ],
+      [
+        156.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 158,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 2,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_159": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        159.0,
+        157.0,
+        156.0
+      ],
+      [
+        160.0,
+        159.0,
+        157.0
+      ],
+      [
+        159.0,
+        157.0,
+        160.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 159,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_160": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        157.0,
+        160.0
+      ],
+      [
+        159.0,
+        156.0,
+        157.0
+      ],
+      [
+        158.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 86,
+    "classicTileId": 160,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_161": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        161.0,
+        160.0
+      ],
+      [
+        159.0,
+        164.0,
+        161.0
+      ],
+      [
+        163.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 161,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_162": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        162.0,
+        157.0,
+        160.0
+      ],
+      [
+        159.0,
+        162.0,
+        165.0
+      ],
+      [
+        165.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 162,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_163": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        157.0,
+        165.0
+      ],
+      [
+        159.0,
+        163.0,
+        157.0
+      ],
+      [
+        158.0,
+        165.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 163,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_164": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        164.0,
+        157.0,
+        163.0
+      ],
+      [
+        159.0,
+        163.0,
+        164.0
+      ],
+      [
+        164.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 164,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_165": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        160.0,
+        163.0,
+        160.0
+      ],
+      [
+        165.0,
+        165.0,
+        157.0
+      ],
+      [
+        163.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 165,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_166": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        166.0,
+        167.0,
+        160.0
+      ],
+      [
+        159.0,
+        166.0,
+        157.0
+      ],
+      [
+        167.0,
+        157.0,
+        159.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 85,
+    "classicTileId": 166,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 4,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_167": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        167.0,
+        157.0,
+        166.0
+      ],
+      [
+        159.0,
+        166.0,
+        167.0
+      ],
+      [
+        158.0,
+        167.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 167,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_168": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        37.0,
+        168.0,
+        37.0
+      ],
+      [
+        168.0,
+        168.0,
+        168.0
+      ],
+      [
+        168.0,
+        37.0,
+        168.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 88,
+    "classicTileId": 168,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 6,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_169": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        167.0,
+        161.0,
+        165.0
+      ],
+      [
+        162.0,
+        157.0,
+        163.0
+      ],
+      [
+        157.0,
+        166.0,
+        158.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 169,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 5,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_170": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        170.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        170.0
+      ],
+      [
+        170.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 170,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_171": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        171.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        171.0
+      ],
+      [
+        171.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 171,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_172": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        172.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        172.0
+      ],
+      [
+        172.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 172,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_173": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        173.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        173.0
+      ],
+      [
+        173.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 173,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_174": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        174.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        174.0
+      ],
+      [
+        174.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 174,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_175": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        175.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        175.0
+      ],
+      [
+        175.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 175,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_176": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        176.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        176.0
+      ],
+      [
+        176.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 176,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_177": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        177.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        177.0
+      ],
+      [
+        177.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 177,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_178": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        178.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        178.0
+      ],
+      [
+        178.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 178,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_179": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        179.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        179.0
+      ],
+      [
+        179.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 179,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_180": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        163.0,
+        166.0
+      ],
+      [
+        167.0,
+        161.0,
+        165.0
+      ],
+      [
+        164.0,
+        165.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 180,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 5,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_181": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        157.0,
+        164.0
+      ],
+      [
+        164.0,
+        161.0,
+        158.0
+      ],
+      [
+        165.0,
+        157.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 181,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 5,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_182": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        164.0,
+        167.0
+      ],
+      [
+        164.0,
+        161.0,
+        165.0
+      ],
+      [
+        164.0,
+        165.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 182,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 5,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_183": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        165.0,
+        165.0,
+        159.0
+      ],
+      [
+        162.0,
+        161.0,
+        162.0
+      ],
+      [
+        164.0,
+        165.0,
+        166.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 183,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 5,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_184": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        163.0,
+        162.0,
+        162.0
+      ],
+      [
+        165.0,
+        160.0,
+        158.0
+      ],
+      [
+        162.0,
+        162.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 184,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 5,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_185": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        157.0,
+        161.0,
+        156.0
+      ],
+      [
+        162.0,
+        158.0,
+        159.0
+      ],
+      [
+        157.0,
+        165.0,
+        165.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 1,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 0,
+    "classicTileId": 185,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 5,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_186": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        157.0,
+        156.0,
+        158.0
+      ],
+      [
+        158.0,
+        186.0,
+        157.0
+      ],
+      [
+        156.0,
+        158.0,
+        156.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 87,
+    "classicTileId": 186,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_187": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        52.0,
+        163.0,
+        158.0
+      ],
+      [
+        158.0,
+        53.0,
+        54.0
+      ],
+      [
+        53.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 187,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_188": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        54.0,
+        165.0,
+        158.0
+      ],
+      [
+        158.0,
+        53.0,
+        52.0
+      ],
+      [
+        165.0,
+        54.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 188,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_189": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        165.0,
+        53.0
+      ],
+      [
+        158.0,
+        54.0,
+        162.0
+      ],
+      [
+        53.0,
+        156.0,
+        52.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 189,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_190": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        36.0,
+        36.0,
+        36.0
+      ],
+      [
+        36.0,
+        36.0,
+        36.0
+      ],
+      [
+        190.0,
+        190.0,
+        190.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 190,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_191": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        191.0,
+        191.0,
+        191.0
+      ],
+      [
+        36.0,
+        36.0,
+        36.0
+      ],
+      [
+        36.0,
+        36.0,
+        36.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 191,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_192": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        36.0,
+        36.0,
+        192.0
+      ],
+      [
+        36.0,
+        36.0,
+        192.0
+      ],
+      [
+        36.0,
+        36.0,
+        192.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 192,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_193": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        193.0,
+        36.0,
+        36.0
+      ],
+      [
+        193.0,
+        36.0,
+        36.0
+      ],
+      [
+        193.0,
+        36.0,
+        36.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 193,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_194": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        36.0,
+        36.0,
+        194.0
+      ],
+      [
+        36.0,
+        194.0,
+        37.0
+      ],
+      [
+        194.0,
+        37.0,
+        37.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 194,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_195": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        195.0,
+        36.0,
+        36.0
+      ],
+      [
+        37.0,
+        195.0,
+        36.0
+      ],
+      [
+        37.0,
+        37.0,
+        195.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 195,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_196": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        196.0,
+        37.0,
+        37.0
+      ],
+      [
+        36.0,
+        196.0,
+        37.0
+      ],
+      [
+        36.0,
+        36.0,
+        196.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 196,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_197": {
+    "blkproj": 1,
+    "blkview": 1,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        37.0,
+        37.0,
+        197.0
+      ],
+      [
+        37.0,
+        197.0,
+        36.0
+      ],
+      [
+        197.0,
+        36.0,
+        36.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 1,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 2,
+    "classicSoundId": 82,
+    "classicTileId": 197,
+    "dock": 0,
+    "sound": [],
+    "swall": 1,
+    "time": 0,
+    "wall": 1,
+    "water": 0
+  },
+  "classic_landlook_6_198": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        198.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        198.0
+      ],
+      [
+        198.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 198,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_199": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        199.0,
+        165.0,
+        158.0
+      ],
+      [
+        158.0,
+        199.0,
+        199.0
+      ],
+      [
+        159.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 199,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  },
+  "classic_landlook_6_200": {
+    "blkproj": 0,
+    "blkview": 0,
+    "classicBaseScale": 0,
+    "classicClearLandId": 0,
+    "classicCombatBuild": [
+      [
+        156.0,
+        200.0,
+        158.0
+      ],
+      [
+        158.0,
+        157.0,
+        200.0
+      ],
+      [
+        200.0,
+        156.0,
+        157.0
+      ]
+    ],
+    "classicFlyFloat": 0,
+    "classicForest": 0,
+    "classicLandlook": 6,
+    "classicLos": 0,
+    "classicNeedBoat": 0,
+    "classicPath": 0,
+    "classicShore": 0,
+    "classicSolid": 0,
+    "classicSoundId": 82,
+    "classicTileId": 200,
+    "dock": 0,
+    "sound": [],
+    "swall": 0,
+    "time": 3,
+    "wall": 0,
+    "water": 0
+  }
+}
