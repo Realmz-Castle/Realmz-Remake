@@ -11,12 +11,12 @@ const HANDLED_OPCODES := [
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-	30, 32, 33, 34, 35, 36, 37, 38, 39,
+	30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 51, 52, 53, 54, 55, 56, 57, 58,
-	60, 61, 63, 64, 65, 66, 67, 68, 69, 72, 73, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+	60, 61, 63, 64, 65, 66, 67, 68, 69, 70, 72, 73, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89,
 	90, 91, 92, 93, 94, 95, 96, 97, 98,
-	99, 100, 101, 103, 104, 105, 106, 111, 112,
+	99, 100, 101, 102, 103, 104, 105, 106, 108, 111, 112,
 	121, 123, 124, 125, 126, 127,
 ]
 const PRIEST_TURNING_ENABLED_MESSAGE := \
@@ -57,6 +57,7 @@ var pending_selective_battle: Dictionary = {}
 var pending_item_check: Dictionary = {}
 var pending_wealth_payment: Dictionary = {}
 var pending_party_condition_check: Dictionary = {}
+var pending_character_ability_check: Dictionary = {}
 var pending_misc_branch: Dictionary = {}
 var pending_ally_check: Dictionary = {}
 var pending_combat_monster_check: Dictionary = {}
@@ -113,6 +114,7 @@ func reset_execution() -> void:
 	pending_item_check.clear()
 	pending_wealth_payment.clear()
 	pending_party_condition_check.clear()
+	pending_character_ability_check.clear()
 	pending_misc_branch.clear()
 	pending_ally_check.clear()
 	pending_combat_monster_check.clear()
@@ -150,6 +152,7 @@ func make_execution_snapshot() -> Dictionary:
 		"pendingItemCheck": pending_item_check.duplicate(true),
 		"pendingWealthPayment": pending_wealth_payment.duplicate(true),
 		"pendingPartyConditionCheck": pending_party_condition_check.duplicate(true),
+		"pendingCharacterAbilityCheck": pending_character_ability_check.duplicate(true),
 		"pendingMiscBranch": pending_misc_branch.duplicate(true),
 		"pendingAllyCheck": pending_ally_check.duplicate(true),
 		"pendingCombatMonsterCheck": pending_combat_monster_check.duplicate(true),
@@ -196,6 +199,10 @@ func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
 	pending_item_check = saved["pendingItemCheck"].duplicate(true)
 	pending_wealth_payment = saved["pendingWealthPayment"].duplicate(true)
 	pending_party_condition_check = saved["pendingPartyConditionCheck"].duplicate(true)
+	pending_character_ability_check = saved.get(
+		"pendingCharacterAbilityCheck",
+		{}
+	).duplicate(true)
 	pending_misc_branch = saved.get("pendingMiscBranch", {}).duplicate(true)
 	pending_ally_check = saved["pendingAllyCheck"].duplicate(true)
 	pending_combat_monster_check = saved["pendingCombatMonsterCheck"].duplicate(true)
@@ -239,6 +246,11 @@ static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
 	if snapshot.has("pendingMiscBranch") \
 			and not (snapshot.get("pendingMiscBranch") is Dictionary):
 		return _snapshot_error("Classic continuation has invalid pendingMiscBranch")
+	if snapshot.has("pendingCharacterAbilityCheck") \
+			and not (snapshot.get("pendingCharacterAbilityCheck") is Dictionary):
+		return _snapshot_error(
+			"Classic continuation has invalid pendingCharacterAbilityCheck"
+		)
 	if snapshot.has("pendingTimeMutation") \
 			and not (snapshot.get("pendingTimeMutation") is Dictionary):
 		return _snapshot_error("Classic continuation has invalid pendingTimeMutation")
@@ -347,6 +359,10 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic wealth payment must be resumed before execution can continue")
 	if not pending_party_condition_check.is_empty():
 		return _error_result("A classic party-condition check must be resumed before execution can continue")
+	if not pending_character_ability_check.is_empty():
+		return _error_result(
+			"A classic character-ability check must be resumed before execution can continue"
+		)
 	if not pending_misc_branch.is_empty():
 		return _error_result("A classic party identity check must be resumed before execution can continue")
 	if not pending_ally_check.is_empty():
@@ -698,6 +714,25 @@ func resume_party_condition_check(active: bool) -> Dictionary:
 	return run_until_yield()
 
 
+func resume_character_ability_check(passed: bool) -> Dictionary:
+	if pending_character_ability_check.is_empty():
+		return _error_result(
+			"No classic character-ability check is waiting for a response"
+		)
+	var ability_check := pending_character_ability_check
+	pending_character_ability_check = {}
+	var values: Array = ability_check["values"]
+	var target_id := int(values[3]) if passed else int(values[4])
+	var branch_result := _branch_to_extra_action_point(
+		target_id,
+		bool(ability_check.get("gosub", false)),
+		0
+	)
+	if str(branch_result.get("status", "")) != "continue":
+		return branch_result
+	return run_until_yield()
+
+
 func resume_misc_branch(matched: bool) -> Dictionary:
 	if pending_misc_branch.is_empty():
 		return _error_result("No classic party identity check is waiting for a response")
@@ -920,6 +955,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_player_map(record_id)
 		30:
 			return _execute_character_check_selection(record_id)
+		31:
+			return _execute_character_ability_branch(record_id, gosub_active)
 		32:
 			return _yield_result("offer_temple", {
 				"costPercent": record_id,
@@ -1005,6 +1042,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_fatigue_mutation(record_id)
 		69:
 			return _execute_spellcasting_flags(record_id)
+		70:
+			return _execute_saved_position(record_id)
 		72:
 			return _execute_quest_range_branch(record_id, gosub_active)
 		73:
@@ -1059,6 +1098,10 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _yield_result("back_up_party", {
 				"levelType": runtime_state.level_type,
 			})
+		102:
+			return _yield_result("level_up_selected_characters", {
+				"experience": 1,
+			})
 		103:
 			return _execute_exploration_status(record_id)
 		104:
@@ -1069,6 +1112,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _continue_result()
 		106:
 			return _execute_darkland(record_id)
+		108:
+			return _execute_selected_character_mutation(record_id)
 		111:
 			if call_stack.is_empty():
 				if remove_action_point:
@@ -1851,6 +1896,25 @@ func _execute_spellcasting_flags(extra_code_id: int) -> Dictionary:
 	return _continue_result()
 
 
+func _execute_selected_character_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 2:
+		return _halt_with_error(
+			"Selected-character mutation references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	var mode := int(values[0])
+	if mode < 1 or mode > 12:
+		return _halt_with_error(
+			"Selected-character mutation has invalid mode %d" % mode
+		)
+	return _yield_result("alter_selected_characters", {
+		"extraCodeId": extra_code_id,
+		"mode": mode,
+		"change": int(values[1]),
+	})
+
+
 func _execute_fatigue_mutation(extra_code_id: int) -> Dictionary:
 	var values := _extra_code_values(extra_code_id)
 	if values.size() < 3:
@@ -1899,6 +1963,35 @@ func _execute_character_check_selection(extra_code_id: int) -> Dictionary:
 		"candidateMode": candidate_mode,
 		"checkType": "attribute" if int(values[3]) != 0 else "special",
 		"selectOnFailure": int(values[0]) < 0,
+	})
+
+
+func _execute_character_ability_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 5:
+		return _halt_with_error(
+			"Character-ability branch references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	var check_index := int(values[0])
+	var check_type := "attribute" if int(values[2]) != 0 else "special"
+	if check_type == "attribute" and check_index not in [0, 1, 2, 3, 4, 6]:
+		return _halt_with_error(
+			"Character-ability branch uses unsupported attribute %d" % check_index
+		)
+	if check_type == "special" and (check_index < 0 or check_index >= 15):
+		return _halt_with_error(
+			"Character-ability branch uses invalid special ability %d" % check_index
+		)
+	pending_character_ability_check = {
+		"values": values,
+		"gosub": gosub,
+	}
+	return _yield_result("check_character_ability", {
+		"extraCodeId": extra_code_id,
+		"checkIndex": check_index,
+		"modifier": int(values[1]),
+		"checkType": check_type,
 	})
 
 
@@ -2723,6 +2816,45 @@ func _execute_position_shift(extra_code_id: int) -> Dictionary:
 		"fromPosition": previous_position,
 		"randomized": randomized,
 	})
+
+
+func _execute_saved_position(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Saved-position action references missing Extra Code row %d" % extra_code_id
+		)
+	match int(values[0]):
+		1:
+			runtime_state.save_party_position()
+			return _continue_result()
+		2:
+			var restored := runtime_state.restore_party_position()
+			if restored.is_empty():
+				return _continue_result()
+			# Classic rewrites the active AP destination after restoring so the
+			# enclosing action point cannot move the party a second time.
+			active_action_point_header["landid"] = runtime_state.level_index
+			active_action_point_header["targetX"] = runtime_state.x
+			active_action_point_header["targetY"] = runtime_state.y
+			suppress_action_point_destination = true
+			pending_teleport = {"recheckDestination": false}
+			return _yield_result("teleport", {
+				"extraCodeId": extra_code_id,
+				"levelType": runtime_state.level_type,
+				"levelIndex": runtime_state.level_index,
+				"x": runtime_state.x,
+				"y": runtime_state.y,
+				"soundId": 0,
+				"messageId": 0,
+				"message": {},
+				"recheckDestination": false,
+				"savedPositionRestore": true,
+			})
+		_:
+			return _halt_with_error(
+				"Saved-position action has invalid mode %d" % int(values[0])
+			)
 
 
 func _execute_time_mutation(extra_code_id: int) -> Dictionary:

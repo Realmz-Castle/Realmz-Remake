@@ -572,6 +572,12 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _pick_characters(payload)
 		"filter_selected_characters":
 			return _filter_selected_characters(payload)
+		"check_character_ability":
+			return await _check_character_ability(payload)
+		"level_up_selected_characters":
+			return await _level_up_selected_characters(payload)
+		"alter_selected_characters":
+			return _alter_selected_characters(payload)
 		"select_characters_by_misc":
 			return _select_characters_by_misc(payload)
 		"select_characters_by_identity":
@@ -4619,6 +4625,185 @@ func _filter_selected_characters(payload: Dictionary) -> Dictionary:
 	}
 
 
+func _check_character_ability(payload: Dictionary) -> Dictionary:
+	var pick_result := await _pick_characters({
+		"count": 1,
+		"allowDead": false,
+		"invert": false,
+	})
+	if str(pick_result.get("status", "")) == "error":
+		return pick_result
+	var selected := _current_selected_characters()
+	if selected.size() != 1:
+		return _error("Classic character-ability check did not select one character")
+	return character_ability_check(payload, selected[0])
+
+
+func character_ability_check(
+	payload: Dictionary,
+	character: Variant,
+	fixed_roll := -1
+) -> Dictionary:
+	if not (character is Object) or not character.has_method("get_stat"):
+		return _error("Classic character-ability target has no readable stats")
+	var check_type := str(payload.get("checkType", ""))
+	var check_index := int(payload.get("checkIndex", -1))
+	var modifier := int(payload.get("modifier", 0))
+	var stat_value := 0.0
+	var roll_high := 0
+	if check_type == "attribute":
+		if not CLASSIC_ATTRIBUTE_STATS.has(check_index):
+			return _error(
+				"Classic attribute check %d has no Remake stat mapping" % check_index
+			)
+		stat_value = float(character.get_stat(str(CLASSIC_ATTRIBUTE_STATS[check_index])))
+		roll_high = 25
+	elif check_type == "special":
+		if check_index < 0 or check_index >= 15:
+			return _error("Classic special-ability check index is invalid")
+		stat_value = float(_classic_special_ability_value(character, check_index))
+		roll_high = 100
+	else:
+		return _error("Classic character-ability check type is invalid")
+	var roll := int(fixed_roll) if int(fixed_roll) > 0 \
+		else randi_range(1, roll_high)
+	var passed := roll - modifier < stat_value if check_type == "attribute" \
+		else roll <= stat_value + modifier
+	return {
+		"passed": passed,
+		"roll": roll,
+		"value": stat_value,
+		"characterName": str(character.get("name")),
+	}
+
+
+func _level_up_selected_characters(payload: Dictionary) -> Dictionary:
+	var selected := _current_selected_characters()
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	for character_value: Variant in selected:
+		if not (character_value is Object) \
+				or not _object_has_property(character_value, "exp_tnl"):
+			return _error("Classic level-up target cannot receive experience")
+		character_value.set("exp_tnl", 0)
+	await game_global.give_exp_to_pcs(
+		maxi(1, int(payload.get("experience", 1))),
+		selected
+	)
+	_refresh_party_panels(selected)
+	return {"leveledCharacterCount": selected.size()}
+
+
+func _alter_selected_characters(payload: Dictionary) -> Dictionary:
+	var result := alter_selected_characters(
+		payload,
+		_current_selected_characters()
+	)
+	if str(result.get("status", "")) != "error":
+		_refresh_party_panels(_current_selected_characters())
+	return result
+
+
+func alter_selected_characters(payload: Dictionary, selected: Array) -> Dictionary:
+	var mode := int(payload.get("mode", 0))
+	var change := int(payload.get("change", 0))
+	if mode < 1 or mode > 12:
+		return _error("Classic selected-character mutation mode is invalid")
+	var changed := 0
+	for character_value: Variant in selected:
+		if not (character_value is Object) \
+				or not _object_has_property(character_value, "base_stats"):
+			return _error("Classic selected-character mutation target is invalid")
+		var character: Object = character_value
+		var base_stats_value: Variant = character.get("base_stats")
+		if not (base_stats_value is Dictionary):
+			return _error("Classic selected-character mutation target has no base stats")
+		var base_stats: Dictionary = base_stats_value
+		match mode:
+			1:
+				base_stats["MaxActions"] = maxf(
+					1.0,
+					float(base_stats.get("MaxActions", 0.0)) + float(change) / 2.0
+				)
+			2:
+				if float(base_stats.get("MaxSpellsPerRound", 0.0)) != 0.0:
+					base_stats["MaxSpellsPerRound"] = maxf(
+						1.0,
+						float(base_stats["MaxSpellsPerRound"]) + change
+					)
+			3:
+				base_stats["MaxMovement"] = maxi(
+					3,
+					int(base_stats.get("MaxMovement", 0)) + change
+				)
+			4:
+				base_stats["Bonus_Physical_dmg"] = maxi(
+					0,
+					int(base_stats.get("Bonus_Physical_dmg", 0)) + change
+				)
+			5:
+				if int(base_stats.get("maxSP", 0)) != 0:
+					base_stats["maxSP"] = maxi(
+						0,
+						int(base_stats["maxSP"]) + change
+					)
+			6:
+				if not character.has_method("has_classic_hand_to_hand") \
+						or not character.has_method("set_classic_hand_to_hand"):
+					return _error(
+						"Classic hand-to-hand mutation target has no compatibility value"
+					)
+				if bool(character.call("has_classic_hand_to_hand")) \
+						and int(character.get("classic_hand_to_hand")) != 0:
+					character.call(
+						"set_classic_hand_to_hand",
+						maxi(1, int(character.get("classic_hand_to_hand")) + change)
+					)
+			7:
+				base_stats["maxHP"] = maxi(
+					2,
+					int(base_stats.get("maxHP", 0)) + change
+				)
+			8:
+				base_stats["EvasionMelee"] = maxf(
+					0.0,
+					float(base_stats.get("EvasionMelee", 0.0)) + float(change) / 5.0
+				)
+			9:
+				base_stats["AccuracyMelee"] = maxf(
+					0.4,
+					float(base_stats.get("AccuracyMelee", 0.0)) + float(change) / 5.0
+				)
+			10:
+				base_stats["AccuracyRanged"] = maxf(
+					0.4,
+					float(base_stats.get("AccuracyRanged", 0.0)) + float(change) / 5.0
+				)
+			11:
+				if not character.has_method("set_classic_magic_resistance"):
+					return _error(
+						"Classic magic-resistance mutation target has no compatibility value"
+					)
+				character.call(
+					"set_classic_magic_resistance",
+					maxi(0, int(character.get("classic_magic_resistance")) + change)
+				)
+			12:
+				if not _object_has_property(character, "classic_prestige_penalty"):
+					return _error(
+						"Classic prestige mutation target has no compatibility value"
+					)
+				character.set(
+					"classic_prestige_penalty",
+					int(character.get("classic_prestige_penalty")) - change
+				)
+		if character.has_method("recalculate_stats"):
+			character.call("recalculate_stats")
+		changed += 1
+	return {"changedCharacterCount": changed}
+
+
 func _select_characters_by_identity(payload: Dictionary) -> Dictionary:
 	var result := select_characters_by_identity(
 		payload,
@@ -4932,11 +5117,12 @@ func filter_characters_by_check(
 		stat_mapping = CLASSIC_ATTRIBUTE_STATS
 		roll_high = 25
 	elif check_type == "special":
-		stat_mapping = CLASSIC_SPECIAL_STATS
+		if check_index < 0 or check_index >= 15:
+			return _error("Classic special-ability check index is invalid")
 		roll_high = 100
 	else:
 		return _error("Classic character check has an invalid check type")
-	if not stat_mapping.has(check_index):
+	if check_type == "attribute" and not stat_mapping.has(check_index):
 		return _error(
 			"Classic %s check %d has no Remake stat mapping" % [check_type, check_index]
 		)
@@ -4948,13 +5134,17 @@ func filter_characters_by_check(
 
 	var modifier := int(payload.get("modifier", 0))
 	var select_on_failure := bool(payload.get("selectOnFailure", false))
-	var stat_name := str(stat_mapping[check_index])
+	var stat_name := str(stat_mapping.get(check_index, ""))
 	var selected: Array = []
 	var checks: Array = []
 	for character_value: Variant in candidates:
 		if not (character_value is Object) or not character_value.has_method("get_stat"):
 			return _error("Classic character check target has no readable stats")
-		var stat_value := float(character_value.get_stat(stat_name))
+		var stat_value := (
+			float(character_value.get_stat(stat_name))
+			if check_type == "attribute"
+			else float(_classic_special_ability_value(character_value, check_index))
+		)
 		var roll := randi_range(1, roll_high)
 		# Classic's attribute comparison is strict; its percentage check is inclusive.
 		var passed := roll - modifier < stat_value if check_type == "attribute" \
@@ -4971,6 +5161,16 @@ func filter_characters_by_check(
 		"selected": selected,
 		"checks": checks,
 	}
+
+
+func _classic_special_ability_value(character: Object, index: int) -> int:
+	if _object_has_property(character, "classic_special_abilities"):
+		var values: Variant = character.get("classic_special_abilities")
+		if values is Array and index >= 0 and index < values.size():
+			return int(values[index])
+	if CLASSIC_SPECIAL_STATS.has(index) and character.has_method("get_stat"):
+		return int(character.get_stat(str(CLASSIC_SPECIAL_STATS[index])))
+	return 0
 
 
 func _selection_candidates(mode: String, party: Array, previously_selected: Array) -> Array:

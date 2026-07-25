@@ -420,6 +420,14 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 				_stop_with_error("Party-condition adapter response is missing 'active'", command)
 				return
 			runtime.finish_party_condition_check(bool(response["active"]))
+		"check_character_ability":
+			if not response.has("passed"):
+				_stop_with_error(
+					"Character-ability adapter response is missing 'passed'",
+					command
+				)
+				return
+			runtime.finish_character_ability_check(bool(response["passed"]))
 		"check_party_misc":
 			if not response.has("matched"):
 				_stop_with_error("Party identity adapter response is missing 'matched'", command)
@@ -448,6 +456,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
 		"alter_party_fatigue", "drop_party_items", \
+		"level_up_selected_characters", "alter_selected_characters", \
 		"give_character_condition", \
 		"pick_characters", "filter_selected_characters", \
 		"select_characters_by_misc", "select_characters_by_identity", \

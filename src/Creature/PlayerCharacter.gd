@@ -104,6 +104,7 @@ var classic_magic_resistance := 0
 var classic_magic_resistance_initialized := false
 var classic_hand_to_hand := 0
 var classic_hand_to_hand_initialized := false
+var classic_prestige_penalty := 0
 var classic_spellcaster_type := 0
 var classic_spellcaster_type_initialized := false
 var classic_luck := 0
@@ -172,6 +173,12 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		set_classic_hand_to_hand(int(data["classicHandToHand"]))
 	elif data.has("classic_hand_to_hand"):
 		set_classic_hand_to_hand(int(data["classic_hand_to_hand"]))
+	classic_prestige_penalty = int(
+		data.get(
+			"classicPrestigePenalty",
+			data.get("classic_prestige_penalty", 0)
+		)
+	)
 	if data.has("classicSpellcasterType"):
 		set_classic_spellcaster_type(int(data["classicSpellcasterType"]))
 	elif data.has("classic_spellcaster_type"):
@@ -993,6 +1000,11 @@ func get_save_string()->String :
 		crea_string += (
 			',\n"classicHandToHand" : '
 			+ str(classic_hand_to_hand)
+		)
+	if classic_prestige_penalty != 0:
+		crea_string += (
+			',\n"classicPrestigePenalty" : '
+			+ str(classic_prestige_penalty)
 		)
 	if classic_spellcaster_type_initialized:
 		crea_string += (

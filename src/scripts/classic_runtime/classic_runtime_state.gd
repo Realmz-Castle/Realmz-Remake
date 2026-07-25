@@ -37,6 +37,7 @@ var allies_suspended := false
 var player_spellcasting_blocked := false
 var monster_spellcasting_blocked := false
 var spell_charging_flag := false
+var saved_party_position: Dictionary = {}
 
 
 func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
@@ -72,6 +73,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	player_spellcasting_blocked = false
 	monster_spellcasting_blocked = false
 	spell_charging_flag = false
+	saved_party_position.clear()
 	if not bundle.get_player_map(0).is_empty():
 		set_map_owned(0)
 
@@ -123,6 +125,27 @@ func set_location(new_level_type: String, new_level_index: int, new_x: int, new_
 	if new_level_type in ["land", "dungeon"]:
 		level_type = new_level_type
 	set_position(new_level_index, new_x, new_y)
+
+
+func save_party_position() -> void:
+	saved_party_position = {
+		"levelType": level_type,
+		"levelIndex": level_index,
+		"x": x,
+		"y": y,
+	}
+
+
+func restore_party_position() -> Dictionary:
+	if saved_party_position.is_empty():
+		return {}
+	set_location(
+		str(saved_party_position.get("levelType", level_type)),
+		int(saved_party_position.get("levelIndex", level_index)),
+		int(saved_party_position.get("x", x)),
+		int(saved_party_position.get("y", y))
+	)
+	return saved_party_position.duplicate(true)
 
 
 func set_heading(new_heading: int) -> void:
@@ -504,6 +527,7 @@ func snapshot() -> Dictionary:
 		"playerSpellcastingBlocked": player_spellcasting_blocked,
 		"monsterSpellcastingBlocked": monster_spellcasting_blocked,
 		"spellChargingFlag": spell_charging_flag,
+		"savedPartyPosition": saved_party_position.duplicate(true),
 		"position": {
 			"levelType": level_type,
 			"levelIndex": level_index,
@@ -621,6 +645,10 @@ func restore(saved_state: Dictionary) -> void:
 		saved_state.get("monsterSpellcastingBlocked", false)
 	)
 	spell_charging_flag = bool(saved_state.get("spellChargingFlag", false))
+	saved_party_position.clear()
+	var saved_position: Variant = saved_state.get("savedPartyPosition", {})
+	if saved_position is Dictionary:
+		saved_party_position = saved_position.duplicate(true)
 	var position: Variant = saved_state.get("position", {})
 	if position is Dictionary:
 		level_type = str(position.get("levelType", "land"))

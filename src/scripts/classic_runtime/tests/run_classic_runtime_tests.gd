@@ -418,6 +418,47 @@ class CurrencyTestCharacter:
 		money = character_money.duplicate()
 
 
+class ClassicCharacterMutationTestCharacter:
+	extends RefCounted
+	var name := "Classic mutation target"
+	var classic_special_abilities: Array[int] = [
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+	]
+	var classic_magic_resistance := 20
+	var classic_hand_to_hand := 4
+	var classic_prestige_penalty := 10
+	var base_stats := {
+		"MaxActions": 2.0,
+		"MaxSpellsPerRound": 1.0,
+		"MaxMovement": 12,
+		"Bonus_Physical_dmg": 1,
+		"maxSP": 10,
+		"maxHP": 20,
+		"EvasionMelee": 2.0,
+		"AccuracyMelee": 1.0,
+		"AccuracyRanged": 1.2,
+		"Strength": 14,
+	}
+	var stats := base_stats.duplicate(true)
+
+	func get_stat(stat_name: String) -> Variant:
+		return stats.get(stat_name, 0)
+
+	func recalculate_stats() -> void:
+		stats = base_stats.duplicate(true)
+
+	func has_classic_hand_to_hand() -> bool:
+		return true
+
+	func set_classic_hand_to_hand(value: int) -> void:
+		classic_hand_to_hand = value
+
+	func set_classic_magic_resistance(value: int) -> void:
+		classic_magic_resistance = value
+
+
 class ExplorationStatusTestGlobal:
 	extends RefCounted
 	var camping := false
@@ -2488,6 +2529,7 @@ func _ready() -> void:
 	_test_runtime_media_adapters()
 	_test_classic_player_map_renderer()
 	_test_party_state_actions()
+	_test_remaining_noncombat_opcodes()
 	_test_selection_branch_actions()
 	_test_priest_turning_actions()
 	_test_turn_undead_rules()
@@ -24954,6 +24996,171 @@ func _test_party_state_actions() -> void:
 		),
 		"",
 		"ambiguous display names require explicit Classic monster metadata"
+	)
+
+
+func _test_remaining_noncombat_opcodes() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 4, "y": 5},
+	}
+	bundle.extra_codes_by_id[31] = {"id": 31, "values": [12, 0, 0, 10, 11]}
+	bundle.extra_codes_by_id[70] = {"id": 70, "values": [1, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[71] = {"id": 71, "values": [2, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[108] = {"id": 108, "values": [12, -3, 0, 0, 0]}
+	_add_stack_trigger(bundle, "remaining:ability", -1, [
+		_classic_action(0, 31, 31),
+	])
+	_add_stack_trigger(bundle, "remaining:save-position", -1, [
+		_classic_action(0, 70, 70),
+	])
+	_add_stack_trigger(bundle, "remaining:restore-position", -1, [
+		_classic_action(0, 70, 71),
+	])
+	_add_stack_trigger(bundle, "remaining:level-up", -1, [
+		_classic_action(0, 102, 0),
+	])
+	_add_stack_trigger(bundle, "remaining:alter-character", -1, [
+		_classic_action(0, 108, 108),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
+		_classic_action(0, 1, 910),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:11", 11, [
+		_classic_action(0, 1, 911),
+	])
+	bundle.messages_by_id[910] = {"id": 910, "text": "Ability passed"}
+	bundle.messages_by_id[911] = {"id": 911, "text": "Ability failed"}
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("remaining:ability"), "begin opcode 31 fixture")
+	var ability_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		ability_command.get("command"),
+		"check_character_ability",
+		"opcode 31 requests one character ability check"
+	)
+	_expect_equal(
+		ability_command.get("payload", {}).get("checkIndex"),
+		12,
+		"opcode 31 preserves unnamed Classic special slots"
+	)
+	var ability_snapshot: Dictionary = interpreter.make_execution_snapshot()
+	_expect_equal(
+		ability_snapshot.get("status"),
+		"ok",
+		"pending opcode 31 checks are saveable"
+	)
+	var restored_ability = _interpreter(bundle)
+	_expect_equal(
+		restored_ability.restore_execution_snapshot(
+			ability_snapshot.get("snapshot", {})
+		).get("status"),
+		"ok",
+		"pending opcode 31 checks restore"
+	)
+	_expect_equal(
+		restored_ability.resume_character_ability_check(true)
+			.get("payload", {}).get("messageId"),
+		910,
+		"opcode 31 follows its success XAP"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("dungeon", 3, 17, 19)
+	_expect(
+		interpreter.begin_trigger("remaining:save-position"),
+		"begin opcode 70 save fixture"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"completed",
+		"opcode 70 saves without host presentation"
+	)
+	interpreter.runtime_state.set_location("land", 8, 2, 3)
+	_expect(
+		interpreter.begin_trigger("remaining:restore-position"),
+		"begin opcode 70 restore fixture"
+	)
+	var restore_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		restore_command.get("command"),
+		"teleport",
+		"opcode 70 restores through the map bridge"
+	)
+	_expect_equal(
+		[
+			restore_command.get("payload", {}).get("levelType"),
+			restore_command.get("payload", {}).get("levelIndex"),
+			restore_command.get("payload", {}).get("x"),
+			restore_command.get("payload", {}).get("y"),
+		],
+		["dungeon", 3, 17, 19],
+		"opcode 70 restores the exact saved map and coordinates"
+	)
+	var state_snapshot: Dictionary = interpreter.runtime_state.snapshot()
+	var restored_state = StateScript.new()
+	restored_state.restore(state_snapshot)
+	_expect_equal(
+		restored_state.saved_party_position,
+		{
+			"levelType": "dungeon",
+			"levelIndex": 3,
+			"x": 17,
+			"y": 19,
+		},
+		"opcode 70 saved position survives save/load"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("remaining:level-up")
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"level_up_selected_characters",
+		"opcode 102 requests the selected-character level-up pipeline"
+	)
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("remaining:alter-character")
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("mode"),
+		12,
+		"opcode 108 preserves its selected-character mutation mode"
+	)
+
+	var adapter = GodotAdapterScript.new()
+	var character := ClassicCharacterMutationTestCharacter.new()
+	character.classic_special_abilities[12] = 73
+	_expect_equal(
+		adapter.character_ability_check(
+			{"checkType": "special", "checkIndex": 12, "modifier": 0},
+			character,
+			73
+		).get("passed"),
+		true,
+		"opcode 31 reads the preserved Classic ability array"
+	)
+	_expect_equal(
+		adapter.character_ability_check(
+			{"checkType": "attribute", "checkIndex": 0, "modifier": 0},
+			character,
+			14
+		).get("passed"),
+		false,
+		"opcode 31 keeps Classic's strict attribute comparison"
+	)
+	for mode: int in range(1, 13):
+		_expect_equal(
+			adapter.alter_selected_characters(
+				{"mode": mode, "change": 1},
+				[character]
+			).get("changedCharacterCount"),
+			1,
+			"opcode 108 mode %d mutates the selected character" % mode
+		)
+	_expect_equal(
+		character.classic_prestige_penalty,
+		9,
+		"opcode 108 prestige change uses Classic's inverted sign"
 	)
 
 
