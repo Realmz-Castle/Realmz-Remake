@@ -58,8 +58,8 @@ const SPELL_DEFINITION_FIELDS := [
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
 	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 51, 52, 54, 56, 57,
-	58, 60, 61, 63, 64, 65, 69, 72, 73, 76, 77, 78, 85, 87, 90, 103, 106, 121, 123,
-	124, 125, 126,
+	58, 60, 61, 63, 64, 65, 68, 69, 72, 73, 76, 77, 78, 85, 87, 90, 92, 103,
+	106, 121, 123, 124, 125, 126,
 ]
 
 var _diagnostics: Array = []
@@ -218,6 +218,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_currency_clear(action, extra_code)
 		elif code == 65:
 			_check_random_items(bundle, action, extra_code)
+		elif code == 68:
+			_check_fatigue_mutation(action, extra_code)
 		elif code == 69:
 			_check_spellcasting_flags(action, extra_code)
 		elif code == 72:
@@ -228,6 +230,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_tile_parameter_branch(bundle, action, extra_code)
 		elif code == 90:
 			_check_experience_loss(action, extra_code)
+		elif code == 92:
+			_check_random_rectangle_bounds(bundle, action, extra_code)
 		elif code == 103:
 			_check_exploration_status(action, extra_code)
 		elif code == 85:
@@ -622,6 +626,84 @@ func _check_random_items(
 			"Random-item range includes item %d without a native Remake resource" % item_id,
 			{"referenceId": item_id}
 		)
+
+
+func _check_fatigue_mutation(action: Dictionary, extra_code: Dictionary) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 3:
+		_add_action_dependency(
+			action,
+			"malformed-fatigue-action",
+			"Fatigue Data EDCD record has fewer than three values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	if int(values[0]) not in [1, 2, 3]:
+		_add_action_dependency(
+			action,
+			"invalid-fatigue-action",
+			"Fatigue action has an invalid mode",
+			{
+				"referenceId": int(extra_code.get("id", -1)),
+				"mode": int(values[0]),
+			}
+		)
+
+
+func _check_random_rectangle_bounds(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		_add_action_dependency(
+			action,
+			"malformed-random-rectangle-bounds",
+			"Random-rectangle bounds Data EDCD record has fewer than five values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var reference_id := int(extra_code.get("id", -1))
+	var bounds_extra := bundle.get_extra_code(reference_id + 1)
+	var bounds_values: Variant = bounds_extra.get("values", [])
+	if bounds_extra.is_empty() or not (bounds_values is Array) or bounds_values.size() < 4:
+		_add_action_dependency(
+			action,
+			"missing-random-rectangle-bounds-row",
+			"Random-rectangle bounds action requires consecutive Data EDCD record %d"
+			% (reference_id + 1),
+			{"referenceId": reference_id + 1}
+		)
+		return
+	var level_kind := "dungeon" if int(values[2]) != 0 else "land"
+	var level_index := int(values[0])
+	var rectangle_index := int(values[1])
+	var bounds_mode := int(values[4])
+	if rectangle_index < 0 or rectangle_index >= 20 or bounds_mode < -1 or bounds_mode > 2:
+		_add_action_dependency(
+			action,
+			"invalid-random-rectangle-bounds",
+			"Random-rectangle bounds action has an invalid rectangle or mode",
+			{
+				"referenceId": reference_id,
+				"rectIndex": rectangle_index,
+				"boundsMode": bounds_mode,
+			}
+		)
+		return
+	if not bundle.get_random_level(level_kind, level_index).is_empty():
+		return
+	_add_action_dependency(
+		action,
+		"missing-random-level",
+		"Random-rectangle bounds action references missing %s random level %d"
+		% [level_kind, level_index],
+		{
+			"referenceId": level_index,
+			"levelType": level_kind,
+		}
+	)
 
 
 func _check_spellcasting_flags(action: Dictionary, extra_code: Dictionary) -> void:

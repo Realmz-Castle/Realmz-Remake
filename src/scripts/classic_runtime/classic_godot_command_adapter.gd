@@ -500,6 +500,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			)
 		"alter_game_time":
 			return _alter_game_time(payload)
+		"alter_party_fatigue":
+			return _alter_party_fatigue(payload)
 		"set_camping_permission":
 			return _set_camping_permission(payload)
 		"update_exploration_status":
@@ -562,6 +564,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _give_experience(payload)
 		"remove_experience":
 			return _remove_experience(payload)
+		"drop_party_items":
+			return _drop_party_items(payload)
 		"give_character_condition":
 			return _give_character_condition(payload)
 		"pick_characters":
@@ -806,6 +810,37 @@ func _alter_game_time(payload: Dictionary) -> Dictionary:
 	if hud is Object and hud.has_method("updateTimeDisplay"):
 		hud.call("updateTimeDisplay")
 	return result
+
+
+func _alter_party_fatigue(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null \
+			or not _object_has_property(game_global, "fatigue") \
+			or not game_global.has_method("set_party_fatigue"):
+		return _error("Realmz party fatigue is unavailable")
+	var previous := float(game_global.get("fatigue"))
+	var current := classic_fatigue_after_action(previous, payload)
+	game_global.call("set_party_fatigue", current)
+	return {
+		"previousFatigue": previous,
+		"fatigue": current,
+	}
+
+
+func classic_fatigue_after_action(
+	current_fatigue: float,
+	payload: Dictionary
+) -> float:
+	match int(payload.get("mode", 0)):
+		1:
+			return 135.0
+		2:
+			return 4.0
+		3:
+			# Classic performs integer division before multiplying fatigue.
+			var multiplier := int(float(int(payload.get("percent", 0))) / 100.0)
+			return float(int(current_fatigue) * multiplier)
+	return current_fatigue
 
 
 func alter_classic_game_time(game_global: Object, payload: Dictionary) -> Dictionary:
@@ -4279,6 +4314,54 @@ func _remove_experience(payload: Dictionary) -> Dictionary:
 	)
 	_refresh_party_panels(party)
 	return result
+
+
+func _drop_party_items(payload: Dictionary) -> Dictionary:
+	var party := _party_characters()
+	var result := drop_all_party_items(party)
+	if str(result.get("status", "")) == "error":
+		return result
+	if int(result.get("itemsRemoved", 0)) > 0:
+		result["soundPresentation"] = _play_sound(payload)
+	_refresh_party_panels(party)
+	return result
+
+
+func drop_all_party_items(party: Array) -> Dictionary:
+	var items_removed := 0
+	for character_value: Variant in party:
+		if not (character_value is Object):
+			return _error("Classic party inventory contains an invalid character")
+		var character: Object = character_value
+		if character.has_method("inventory_instances") \
+				and character.has_method("clear_inventory_items"):
+			var item_values: Variant = character.call("inventory_instances")
+			if not (item_values is Array):
+				return _error("Classic party character has an invalid inventory")
+			items_removed += item_values.size()
+			character.call("clear_inventory_items")
+			continue
+		if not _object_has_property(character, "inventory"):
+			return _error("Classic party character inventory is unavailable")
+		var inventory_value: Variant = character.get("inventory")
+		if not (inventory_value is Array):
+			return _error("Classic party character has an invalid inventory")
+		var inventory: Array = inventory_value
+		for item_value: Variant in inventory.duplicate():
+			if (
+				item_value is Dictionary
+				and int(item_value.get("equipped", 0)) != 0
+				and character.has_method("unequip_item")
+				and not bool(character.call("unequip_item", item_value, false))
+			):
+				return _error("Classic party item could not be unequipped")
+		items_removed += inventory.size()
+		inventory.clear()
+		character.set("inventory", inventory)
+	return {
+		"charactersAffected": party.size(),
+		"itemsRemoved": items_removed,
+	}
 
 
 func apply_classic_experience_loss(

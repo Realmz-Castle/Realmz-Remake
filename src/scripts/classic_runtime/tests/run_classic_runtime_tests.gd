@@ -2513,6 +2513,7 @@ func _ready() -> void:
 	_test_selective_battle_host()
 	_test_shop_actions()
 	_test_resource_and_tile_parameter_actions()
+	_test_fatigue_inventory_and_random_bounds_actions()
 	_test_campaign_runtime_control_actions()
 	_test_service_actions()
 	_test_sound_and_treasure(bundle)
@@ -26958,6 +26959,153 @@ func _test_resource_and_tile_parameter_actions() -> void:
 			and not bool(later_tile_action.get("executable", true)),
 		"two-way tile branches make their later slot unreachable"
 	)
+
+
+func _test_fatigue_inventory_and_random_bounds_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.maps_by_id["land:0"] = {
+		"id": "land:0",
+		"levelType": "land",
+		"index": 0,
+		"width": 2,
+		"height": 2,
+		"tiles": [1, 1, 1, 1],
+	}
+	bundle.random_levels_by_id["land:0:randlevel"] = {
+		"id": "land:0:randlevel",
+		"levelType": "land",
+		"levelIndex": 0,
+		"rects": [{
+			"rectIndex": 1,
+			"percent": 100,
+			"battleRange": [1, 2],
+			"left": 0,
+			"right": 10,
+			"top": 0,
+			"bottom": 10,
+		}],
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [2, 0, 0, 0, 0]}
+	# This mirrors shipped rows whose apparent percentage is in field two.
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [3, 25, 0, 0, 0]}
+	bundle.extra_codes_by_id[10] = {"id": 10, "values": [0, 1, 0, 150, 0]}
+	bundle.extra_codes_by_id[11] = {"id": 11, "values": [2, 8, 3, 9, 0]}
+	bundle.extra_codes_by_id[12] = {"id": 12, "values": [0, 1, 0, -50, 1]}
+	bundle.extra_codes_by_id[13] = {"id": 13, "values": [1, -2, 0, 0, 0]}
+	bundle.extra_codes_by_id[14] = {"id": 14, "values": [0, 1, 0, 0, 2]}
+	bundle.extra_codes_by_id[15] = {"id": 15, "values": [-1, 2, -3, 4, 0]}
+	for fixture: Array in [
+		["fatigue:exhausted", 68, 1],
+		["fatigue:rested", 68, 2],
+		["fatigue:source-percent", 68, 3],
+		["random:absolute", 92, 10],
+		["random:offset", 92, 12],
+		["random:warp", 92, 14],
+	]:
+		_add_stack_trigger(bundle, str(fixture[0]), -1, [
+			_classic_action(0, int(fixture[1]), int(fixture[2])),
+		])
+	_add_stack_trigger(bundle, "inventory:drop-all", -1, [
+		_classic_action(0, 91, 0),
+	])
+
+	var adapter = GodotAdapterScript.new()
+	for fatigue_fixture: Array in [
+		["fatigue:exhausted", 135.0],
+		["fatigue:rested", 4.0],
+		["fatigue:source-percent", 0.0],
+	]:
+		var fatigue_interpreter = _interpreter(bundle)
+		fatigue_interpreter.begin_trigger(str(fatigue_fixture[0]))
+		var fatigue_command: Dictionary = fatigue_interpreter.run_until_yield()
+		_expect_equal(
+			fatigue_command.get("command"),
+			"alter_party_fatigue",
+			"opcode 68 yields a typed fatigue mutation"
+		)
+		_expect_equal(
+			adapter.classic_fatigue_after_action(
+				80.0,
+				fatigue_command.get("payload", {})
+			),
+			float(fatigue_fixture[1]),
+			"%s preserves Classic fatigue arithmetic" % fatigue_fixture[0]
+		)
+
+	var first_character = InventoryTestCharacter.new()
+	first_character.inventory = [
+		_test_item("Equipped Blade", 1),
+		_test_item("Torch"),
+	]
+	var second_character = InventoryTestCharacter.new()
+	second_character.inventory = [_test_item("Rations")]
+	var drop_interpreter = _interpreter(bundle)
+	drop_interpreter.begin_trigger("inventory:drop-all")
+	var drop_command: Dictionary = drop_interpreter.run_until_yield()
+	_expect_equal(drop_command.get("command"), "drop_party_items", "opcode 91 drops party items")
+	var drop_result: Dictionary = adapter.drop_all_party_items([
+		first_character,
+		second_character,
+	])
+	_expect_equal(drop_result.get("itemsRemoved"), 3, "party item drop reports every removed item")
+	_expect(first_character.inventory.is_empty(), "party item drop clears the first inventory")
+	_expect(second_character.inventory.is_empty(), "party item drop clears the second inventory")
+	_expect_equal(first_character.unequip_count, 1, "party item drop safely unequips equipment")
+
+	var interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("random:absolute")
+	var rectangle_command: Dictionary = interpreter.run_until_yield()
+	var rectangle: Dictionary = rectangle_command.get("payload", {}).get("rectangle", {})
+	_expect_equal(
+		[rectangle.get("percent"), rectangle.get("left"), rectangle.get("right"),
+			rectangle.get("top"), rectangle.get("bottom")],
+		[250, 2, 8, 3, 9],
+		"opcode 92 applies absolute bounds and a percent delta"
+	)
+	interpreter.begin_trigger("random:offset")
+	rectangle_command = interpreter.run_until_yield()
+	rectangle = rectangle_command.get("payload", {}).get("rectangle", {})
+	_expect_equal(
+		[rectangle.get("percent"), rectangle.get("left"), rectangle.get("right"),
+			rectangle.get("top"), rectangle.get("bottom")],
+		[200, 3, 9, 1, 7],
+		"opcode 92 offsets both rectangle axes"
+	)
+	interpreter.begin_trigger("random:warp")
+	rectangle_command = interpreter.run_until_yield()
+	rectangle = rectangle_command.get("payload", {}).get("rectangle", {})
+	_expect_equal(
+		[rectangle.get("percent"), rectangle.get("left"), rectangle.get("right"),
+			rectangle.get("top"), rectangle.get("bottom")],
+		[200, 2, 11, -2, 11],
+		"opcode 92 independently warps each rectangle edge"
+	)
+	var restored = StateScript.new()
+	restored.restore(interpreter.runtime_state.snapshot())
+	_expect_equal(
+		restored.get_random_rectangle("land", 0, 1, {}).get("right"),
+		11,
+		"random-rectangle bounds survive compatibility snapshots"
+	)
+
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	for code: String in [
+		"malformed-fatigue-action",
+		"invalid-fatigue-action",
+		"malformed-random-rectangle-bounds",
+		"missing-random-rectangle-bounds-row",
+		"invalid-random-rectangle-bounds",
+		"missing-random-level",
+	]:
+		_expect_equal(
+			_diagnostic_code_count(readiness, code),
+			0,
+			"valid fatigue and random-rectangle fixtures avoid %s" % code
+		)
 
 
 func _test_campaign_runtime_control_actions() -> void:

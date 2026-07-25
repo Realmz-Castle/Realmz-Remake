@@ -447,6 +447,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 			runtime.finish_exploration_status(response)
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
+		"alter_party_fatigue", "drop_party_items", \
 		"give_character_condition", \
 		"pick_characters", "filter_selected_characters", \
 		"select_characters_by_misc", "select_characters_by_identity", \

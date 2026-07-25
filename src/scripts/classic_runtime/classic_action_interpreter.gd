@@ -14,8 +14,8 @@ const HANDLED_OPCODES := [
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 51, 52, 54, 56, 57, 58,
-	60, 61, 63, 64, 65, 66, 69, 72, 73, 76, 77, 78, 82, 83, 84, 85, 86, 87, 88, 89,
-	90, 93, 94, 95, 96, 97, 98,
+	60, 61, 63, 64, 65, 66, 68, 69, 72, 73, 76, 77, 78, 82, 83, 84, 85, 86, 87, 88, 89,
+	90, 91, 92, 93, 94, 95, 96, 97, 98,
 	99, 100, 101, 103, 104, 105, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
 ]
@@ -943,6 +943,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"disabled": record_id != 0,
 				"soundId": 6001,
 			})
+		68:
+			return _execute_fatigue_mutation(record_id)
 		69:
 			return _execute_spellcasting_flags(record_id)
 		72:
@@ -969,6 +971,12 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_add_ally(record_id)
 		90:
 			return _execute_experience_loss(record_id)
+		91:
+			return _yield_result("drop_party_items", {
+				"soundId": 655,
+			})
+		92:
+			return _execute_random_rectangle_bounds(record_id)
 		93, 94:
 			return _execute_compass(code == 93)
 		95:
@@ -1759,6 +1767,25 @@ func _execute_spellcasting_flags(extra_code_id: int) -> Dictionary:
 	return _continue_result()
 
 
+func _execute_fatigue_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.size() < 3:
+		return _halt_with_error(
+			"Fatigue action references malformed Extra Code row %d"
+			% extra_code_id
+		)
+	var mode := int(values[0])
+	if mode < 1 or mode > 3:
+		return _halt_with_error("Fatigue action has invalid mode %d" % mode)
+	return _yield_result("alter_party_fatigue", {
+		"extraCodeId": extra_code_id,
+		"mode": mode,
+		# newland.c reads the third field for mode 3, even though shipped
+		# scenarios often place an apparent percentage in the second field.
+		"percent": int(values[2]),
+	})
+
+
 func _execute_character_pick(record_id: int, invert: bool) -> Dictionary:
 	var count: int = abs(record_id)
 	if count < 1:
@@ -2003,6 +2030,78 @@ func _execute_random_rectangle_mutation(extra_code_id: int, dungeon: bool) -> Di
 		"rectIndex": rect_index,
 		"previousRectangle": previous,
 		"rectangle": rectangle,
+	})
+
+
+func _execute_random_rectangle_bounds(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	var bounds_values := _extra_code_values(extra_code_id + 1)
+	if values.size() < 5 or bounds_values.size() < 4:
+		return _halt_with_error(
+			"Random rectangle bounds action requires consecutive Extra Code rows %d and %d"
+			% [extra_code_id, extra_code_id + 1]
+		)
+	var level_kind := "dungeon" if int(values[2]) != 0 else "land"
+	var map_level := int(values[0])
+	var rect_index := int(values[1])
+	var bounds_mode := int(values[4])
+	if rect_index < 0 or rect_index >= MAX_RANDOM_RECTANGLES:
+		return _halt_with_error("Random rectangle index must be between 0 and 19")
+	if bounds_mode < -1 or bounds_mode > 2:
+		return _halt_with_error(
+			"Random rectangle bounds action has invalid mode %d" % bounds_mode
+		)
+	if bundle.get_random_level(level_kind, map_level).is_empty():
+		return _halt_with_error("Missing %s random-level record %d" % [
+			level_kind,
+			map_level,
+		])
+	var baseline := bundle.get_random_rectangle(level_kind, map_level, rect_index)
+	if baseline.is_empty():
+		baseline = {
+			"rectIndex": rect_index,
+			"percent": 0,
+			"battleRange": [0, 0],
+			"left": 0,
+			"right": 0,
+			"top": 0,
+			"bottom": 0,
+		}
+	var previous := runtime_state.get_random_rectangle(
+		level_kind,
+		map_level,
+		rect_index,
+		baseline
+	)
+	var rectangle: Dictionary = previous.duplicate(true)
+	rectangle["rectIndex"] = rect_index
+	rectangle["percent"] = int(rectangle.get("percent", 0)) + int(values[3])
+	match bounds_mode:
+		0:
+			rectangle["left"] = int(bounds_values[0])
+			rectangle["right"] = int(bounds_values[1])
+			rectangle["top"] = int(bounds_values[2])
+			rectangle["bottom"] = int(bounds_values[3])
+		1:
+			rectangle["left"] = int(rectangle.get("left", 0)) + int(bounds_values[0])
+			rectangle["right"] = int(rectangle.get("right", 0)) + int(bounds_values[0])
+			rectangle["top"] = int(rectangle.get("top", 0)) + int(bounds_values[1])
+			rectangle["bottom"] = int(rectangle.get("bottom", 0)) + int(bounds_values[1])
+		2:
+			rectangle["left"] = int(rectangle.get("left", 0)) + int(bounds_values[0])
+			rectangle["right"] = int(rectangle.get("right", 0)) + int(bounds_values[1])
+			rectangle["top"] = int(rectangle.get("top", 0)) + int(bounds_values[2])
+			rectangle["bottom"] = int(rectangle.get("bottom", 0)) + int(bounds_values[3])
+	runtime_state.set_random_rectangle(level_kind, map_level, rect_index, rectangle)
+	return _yield_result("set_random_encounter_rect", {
+		"extraCodeId": extra_code_id,
+		"boundsExtraCodeId": extra_code_id + 1,
+		"levelType": level_kind,
+		"levelIndex": map_level,
+		"rectIndex": rect_index,
+		"previousRectangle": previous,
+		"rectangle": rectangle,
+		"boundsMode": bounds_mode,
 	})
 
 
