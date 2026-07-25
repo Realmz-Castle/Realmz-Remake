@@ -57,8 +57,9 @@ const SPELL_DEFINITION_FIELDS := [
 # These opcodes interpret their ID as an exact Data EDCD row number.
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
-	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 52, 54, 56, 57,
-	58, 61, 63, 64, 73, 76, 77, 85, 87, 90, 103, 106, 121, 123, 124, 125, 126,
+	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 51, 52, 54, 56, 57,
+	58, 60, 61, 63, 64, 65, 73, 76, 77, 78, 85, 87, 90, 103, 106, 121, 123,
+	124, 125, 126,
 ]
 
 var _diagnostics: Array = []
@@ -209,8 +210,16 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_position_shift(bundle, action, extra_code)
 		elif code in [63, 64]:
 			_check_game_time_action(action, extra_code, code)
+		elif code == 51:
+			_check_shop_mutation(bundle, action, extra_code)
+		elif code == 60:
+			_check_currency_clear(action, extra_code)
+		elif code == 65:
+			_check_random_items(bundle, action, extra_code)
 		elif code in [76, 77]:
 			_check_quest_value_action(bundle, action, extra_code, code)
+		elif code == 78:
+			_check_tile_parameter_branch(bundle, action, extra_code)
 		elif code == 90:
 			_check_experience_loss(action, extra_code)
 		elif code == 103:
@@ -511,6 +520,150 @@ func _check_quest_value_action(
 				"referenceId": target_id,
 				"targetMode": target_mode,
 			}
+		)
+
+
+func _check_shop_mutation(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 4:
+		_add_action_dependency(
+			action,
+			"malformed-shop-mutation",
+			"Shop-mutation Data EDCD record has fewer than four values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var shop_id := int(values[0])
+	if bundle.get_shop(shop_id).is_empty():
+		_add_action_dependency(
+			action,
+			"missing-shop",
+			"Shop mutation references missing shop %d" % shop_id,
+			{"referenceId": shop_id}
+		)
+
+
+func _check_currency_clear(action: Dictionary, extra_code: Dictionary) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 2:
+		_add_action_dependency(
+			action,
+			"malformed-currency-clear",
+			"Currency-clear Data EDCD record has fewer than two values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	if int(values[0]) not in [1, 2, 3] or int(values[1]) not in [0, 1]:
+		_add_action_dependency(
+			action,
+			"invalid-currency-clear",
+			"Currency-clear action has invalid currency or selection mode",
+			{
+				"referenceId": int(extra_code.get("id", -1)),
+				"currency": int(values[0]),
+				"selectedOnly": int(values[1]),
+			}
+		)
+
+
+func _check_random_items(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 3:
+		_add_action_dependency(
+			action,
+			"malformed-random-items",
+			"Random-item Data EDCD record has fewer than three values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var authored_count := int(values[0])
+	var first_item_id := int(values[1])
+	var last_item_id := int(values[2])
+	if (
+		authored_count == 0
+		or absi(authored_count) > 20
+		or first_item_id <= 0
+		or last_item_id < first_item_id
+	):
+		_add_action_dependency(
+			action,
+			"invalid-random-items",
+			"Random-item action has an invalid count or item range",
+			{
+				"referenceId": int(extra_code.get("id", -1)),
+				"count": authored_count,
+				"itemRange": [first_item_id, last_item_id],
+			}
+		)
+		return
+	var native_items: Variant = _native_context.get("items", {})
+	if not (native_items is Dictionary) or native_items.is_empty():
+		return
+	for item_id: int in range(first_item_id, last_item_id + 1):
+		if not _native_item_for_classic_id(item_id, native_items).is_empty():
+			continue
+		_add_action_dependency(
+			action,
+			"missing-native-item",
+			"Random-item range includes item %d without a native Remake resource" % item_id,
+			{"referenceId": item_id}
+		)
+
+
+func _check_tile_parameter_branch(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		_add_action_dependency(
+			action,
+			"malformed-tile-parameter-branch",
+			"Tile-parameter branch Data EDCD record has fewer than five values",
+			{"referenceId": int(extra_code.get("id", -1))}
+		)
+		return
+	var selector := int(values[0])
+	var target_mode := int(values[2])
+	if target_mode < 0 or target_mode > 2:
+		_add_action_dependency(
+			action,
+			"invalid-tile-parameter-branch",
+			"Tile-parameter branch has an invalid target mode",
+			{
+				"referenceId": int(extra_code.get("id", -1)),
+				"parameter": selector,
+				"targetMode": target_mode,
+			}
+		)
+		return
+	for target_id: int in [int(values[3]), int(values[4])]:
+		if target_id == 0:
+			continue
+		var target: Dictionary
+		match target_mode:
+			0:
+				target = bundle.get_extra_action_point(target_id)
+			1:
+				target = bundle.get_encounter("simple", target_id)
+			_:
+				target = bundle.get_encounter("complex", target_id)
+		if not target.is_empty():
+			continue
+		_add_action_dependency(
+			action,
+			"missing-tile-parameter-target",
+			"Tile-parameter branch references missing target %d" % target_id,
+			{"referenceId": target_id, "targetMode": target_mode}
 		)
 
 

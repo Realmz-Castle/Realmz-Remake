@@ -15,6 +15,7 @@ var thief_encounter_overrides: Dictionary = {}
 var simple_encounter_overrides: Dictionary = {}
 var complex_encounter_overrides: Dictionary = {}
 var timed_encounter_overrides: Dictionary = {}
+var shop_overrides: Dictionary = {}
 var pending_timed_encounter_scans: Array[Dictionary] = []
 var last_timed_encounter_day := -1
 var owned_maps: Dictionary = {}
@@ -43,6 +44,7 @@ func configure_from_bundle(bundle: ClassicCampaignBundle) -> void:
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	timed_encounter_overrides.clear()
+	shop_overrides.clear()
 	pending_timed_encounter_scans.clear()
 	last_timed_encounter_day = -1
 	owned_maps.clear()
@@ -370,6 +372,40 @@ func get_effective_complex_encounter(encounter: Dictionary) -> Dictionary:
 		else encounter.duplicate(true)
 
 
+func set_shop_override(shop_id: int, shop: Dictionary) -> void:
+	if shop_id < 0:
+		return
+	shop_overrides[str(shop_id)] = shop.duplicate(true)
+
+
+func get_effective_shop(shop: Dictionary) -> Dictionary:
+	var shop_id := int(shop.get("id", -1))
+	var override: Variant = shop_overrides.get(str(shop_id), {})
+	return override.duplicate(true) if override is Dictionary and not override.is_empty() \
+		else shop.duplicate(true)
+
+
+func alter_shop(
+	shop: Dictionary,
+	inflation_delta: int,
+	item_id: int,
+	quantity_delta: int
+) -> Dictionary:
+	var effective := get_effective_shop(shop)
+	if effective.is_empty():
+		return {}
+	effective["inflation"] = int(effective.get("inflation", 0)) + inflation_delta
+	var item_ids: Variant = effective.get("itemIds", [])
+	var quantities: Variant = effective.get("quantities", [])
+	if item_ids is Array and quantities is Array:
+		for slot: int in range(min(item_ids.size(), quantities.size())):
+			if int(item_ids[slot]) == item_id:
+				quantities[slot] = maxi(0, int(quantities[slot]) + quantity_delta)
+	effective["quantities"] = quantities
+	set_shop_override(int(effective.get("id", -1)), effective)
+	return effective
+
+
 func set_timed_encounter_override(encounter_id: int, encounter: Dictionary) -> void:
 	if encounter_id < 0:
 		return
@@ -434,6 +470,7 @@ func snapshot() -> Dictionary:
 		"simpleEncounterOverrides": simple_encounter_overrides.duplicate(true),
 		"complexEncounterOverrides": complex_encounter_overrides.duplicate(true),
 		"timedEncounterOverrides": timed_encounter_overrides.duplicate(true),
+		"shopOverrides": shop_overrides.duplicate(true),
 		"pendingTimedEncounterScans": pending_timed_encounter_scans.duplicate(true),
 		"lastTimedEncounterDay": last_timed_encounter_day,
 		"ownedMaps": owned_maps.duplicate(true),
@@ -466,6 +503,7 @@ func restore(saved_state: Dictionary) -> void:
 	simple_encounter_overrides.clear()
 	complex_encounter_overrides.clear()
 	timed_encounter_overrides.clear()
+	shop_overrides.clear()
 	pending_timed_encounter_scans.clear()
 	last_timed_encounter_day = -1
 	owned_maps.clear()
@@ -516,6 +554,12 @@ func restore(saved_state: Dictionary) -> void:
 			var encounter: Variant = saved_timed_encounters[encounter_id]
 			if encounter is Dictionary:
 				timed_encounter_overrides[str(encounter_id)] = encounter.duplicate(true)
+	var saved_shops: Variant = saved_state.get("shopOverrides", {})
+	if saved_shops is Dictionary:
+		for shop_id: Variant in saved_shops:
+			var shop: Variant = saved_shops[shop_id]
+			if shop is Dictionary:
+				shop_overrides[str(shop_id)] = shop.duplicate(true)
 	var saved_timed_scans: Variant = saved_state.get("pendingTimedEncounterScans", [])
 	if saved_timed_scans is Array:
 		for scan_value: Variant in saved_timed_scans:

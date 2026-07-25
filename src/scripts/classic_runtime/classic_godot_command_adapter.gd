@@ -584,6 +584,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return await _give_player_map(payload)
 		"load_shop":
 			return await _load_shop(payload)
+		"alter_shop":
+			return _alter_shop(payload)
 		"offer_temple":
 			return _offer_temple(payload)
 		"enable_banking":
@@ -592,6 +594,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return _check_party_item(payload)
 		"take_party_wealth":
 			return await _take_party_wealth_with_warning(payload)
+		"clear_party_currency":
+			return _clear_party_currency(payload)
 		"alter_party_items":
 			return _alter_party_items(payload)
 		"store_party_equipment":
@@ -3945,6 +3949,66 @@ func _take_party_wealth_with_warning(payload: Dictionary) -> Dictionary:
 	return result
 
 
+func _clear_party_currency(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	var pooled_money: Variant = game_global.money_pool
+	if not (pooled_money is Array):
+		return _error("Realmz pooled wealth is unavailable")
+	var party := _party_characters()
+	var result := clear_classic_party_currency(
+		payload,
+		party,
+		_current_selected_characters(),
+		pooled_money
+	)
+	if str(result.get("status", "")) != "error":
+		_refresh_party_panels(party)
+	return result
+
+
+func clear_classic_party_currency(
+	payload: Dictionary,
+	party: Array,
+	selected: Array,
+	pooled_money: Array
+) -> Dictionary:
+	var currency := int(payload.get("currency", -1))
+	if currency < 0 or currency > 2:
+		return _error("Classic currency index %d is invalid" % currency)
+	if pooled_money.size() < 3:
+		return _error("Realmz pooled wealth has fewer than three currencies")
+	var selected_only := bool(payload.get("selectedOnly", false))
+	var targets: Array = []
+	if selected_only:
+		for character_value: Variant in selected:
+			if party.has(character_value) and not targets.has(character_value):
+				targets.append(character_value)
+	else:
+		targets = party.duplicate()
+	var removed := 0
+	if not selected_only:
+		removed += int(pooled_money[currency])
+		pooled_money[currency] = 0
+	for character_value: Variant in targets:
+		if not (character_value is Object) \
+				or not _object_has_property(character_value, "money"):
+			continue
+		var character_money: Variant = character_value.get("money")
+		if not (character_money is Array) or character_money.size() < 3:
+			continue
+		removed += int(character_money[currency])
+		character_money[currency] = 0
+		character_value.set("money", character_money)
+	return {
+		"currency": currency,
+		"selectedOnly": selected_only,
+		"charactersAffected": targets.size(),
+		"amountRemoved": removed,
+	}
+
+
 func _alter_party_items(payload: Dictionary) -> Dictionary:
 	var item_id: int = abs(int(payload.get("itemId", 0)))
 	if item_id == 0:
@@ -4101,6 +4165,61 @@ func _load_shop(payload: Dictionary) -> Dictionary:
 	return {
 		"shopName": shop_name,
 		"itemCount": int(built.get("itemCount", 0)),
+	}
+
+
+func _alter_shop(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	if game_global == null:
+		return _error("Realmz game state is unavailable")
+	var shop_name := "classic_shop_%d" % int(payload.get("shopId", 0))
+	if not game_global.shops_dict.has(shop_name):
+		return {
+			"shopName": shop_name,
+			"loaded": false,
+			"persisted": true,
+		}
+	var native_shop: Variant = game_global.shops_dict[shop_name]
+	if not (native_shop is Dictionary):
+		return _error("Loaded Classic shop state is invalid")
+	var result := apply_classic_shop_mutation(payload, native_shop)
+	result["shopName"] = shop_name
+	result["loaded"] = true
+	result["persisted"] = true
+	return result
+
+
+func apply_classic_shop_mutation(
+	payload: Dictionary,
+	native_shop: Dictionary
+) -> Dictionary:
+	var effective_shop: Variant = payload.get("shop", {})
+	if not (effective_shop is Dictionary):
+		return _error("Classic shop mutation is missing its effective shop record")
+	var inflation := int(effective_shop.get("inflation", 100))
+	if inflation < 0:
+		return _error("Classic shop inflation cannot be negative")
+	native_shop["buy_rate"] = minf(float(inflation), 100.0) / 100.0
+	native_shop["sell_rate"] = float(inflation) / 100.0
+	var item_id := int(payload.get("itemId", 0))
+	var quantity_delta := int(payload.get("quantityDelta", 0))
+	var matching_slots := 0
+	for category: String in SHOP_CATEGORIES:
+		var stock_values: Variant = native_shop.get(category, [])
+		if not (stock_values is Array):
+			continue
+		for stock_value: Variant in stock_values:
+			if not (stock_value is Array) or stock_value.size() < 2:
+				continue
+			if not _classic_item_ids(stock_value[0]).has(absi(item_id)):
+				continue
+			stock_value[1] = maxi(0, int(stock_value[1]) + quantity_delta)
+			matching_slots += 1
+	return {
+		"inflation": inflation,
+		"matchingSlots": matching_slots,
+		"itemId": item_id,
+		"quantityDelta": quantity_delta,
 	}
 
 

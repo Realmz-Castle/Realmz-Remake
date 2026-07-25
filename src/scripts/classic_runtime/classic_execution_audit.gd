@@ -87,16 +87,16 @@ func _has_linear_fallthrough(bundle: ClassicCampaignBundle, action: Dictionary) 
 		return true
 	if code == 64:
 		return false
-	if code == 77:
-		var quest_branch: Dictionary = bundle.get_extra_code(
+	if code in [77, 78]:
+		var two_way_branch: Dictionary = bundle.get_extra_code(
 			int(action.get("id", -1))
 		)
-		var quest_values: Variant = quest_branch.get("values", [])
+		var branch_values: Variant = two_way_branch.get("values", [])
 		return (
-			not (quest_values is Array)
-			or quest_values.size() < 5
-			or int(quest_values[3]) == 0
-			or int(quest_values[4]) == 0
+			not (branch_values is Array)
+			or branch_values.size() < 5
+			or int(branch_values[3]) == 0
+			or int(branch_values[4]) == 0
 		)
 	if code != 21:
 		return true

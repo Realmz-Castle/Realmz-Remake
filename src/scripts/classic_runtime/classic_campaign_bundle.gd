@@ -843,6 +843,74 @@ func get_map(map_id: String) -> Dictionary:
 	return maps_by_id.get(map_id, {})
 
 
+func get_map_tile(
+	level_type: String,
+	level_index: int,
+	tile_x: int,
+	tile_y: int
+) -> Dictionary:
+	var map := get_map("%s:%d" % [level_type, level_index])
+	if map.is_empty():
+		return {}
+	var width := int(map.get("width", 0))
+	var height := int(map.get("height", 0))
+	var tiles: Variant = map.get("tiles", [])
+	if (
+		not (tiles is Array)
+		or tile_x < 0
+		or tile_y < 0
+		or tile_x >= width
+		or tile_y >= height
+	):
+		return {}
+	# Classic map fields are column-major.
+	var tile_index := tile_x * height + tile_y
+	if tile_index < 0 or tile_index >= tiles.size():
+		return {}
+	return {
+		"map": map,
+		"value": int(tiles[tile_index]),
+	}
+
+
+func get_land_tile_attribute(landlook: int, tile_id: int) -> Dictionary:
+	var maps_document: Variant = documents.get("maps", {})
+	if not (maps_document is Dictionary):
+		return {}
+	var attributes: Variant = maps_document.get("tileAttributes", [])
+	if attributes is Array:
+		for attribute_value: Variant in attributes:
+			if not (attribute_value is Dictionary):
+				continue
+			var attribute: Dictionary = attribute_value
+			var attribute_landlook: Variant = attribute.get("landlook")
+			if (
+				attribute_landlook != null
+				and int(attribute_landlook) == landlook
+				and int(attribute.get("tile", 0)) == absi(tile_id)
+			):
+				return attribute
+	var custom_landlooks: Variant = maps_document.get("customLandlooks", [])
+	if not (custom_landlooks is Array):
+		return {}
+	for custom_value: Variant in custom_landlooks:
+		if not (custom_value is Dictionary):
+			continue
+		var custom: Dictionary = custom_value
+		if int(custom.get("landlook", -1)) != landlook:
+			continue
+		var records: Variant = custom.get("records", [])
+		if records is Array:
+			for record_value: Variant in records:
+				if (
+					record_value is Dictionary
+					and int(record_value.get("tile", 0)) == absi(tile_id)
+				):
+					return record_value
+		break
+	return {}
+
+
 func get_player_map(map_id: int) -> Dictionary:
 	return player_maps_by_id.get(abs(map_id), {})
 

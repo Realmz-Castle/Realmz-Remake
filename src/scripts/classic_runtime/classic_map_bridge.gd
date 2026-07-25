@@ -86,6 +86,21 @@ static func normalize_land_tile(value: int, base_tile: int) -> int:
 	return maxi(0, tile)
 
 
+static func normalize_tile_parameter_id(value: int) -> int:
+	# newland.c opcode 78 removes the path/note bits and up to three
+	# action-point/secret marker bands without applying atlas fallbacks.
+	var tile := _clear_classic_short_bit(value, 2)
+	tile = _clear_classic_short_bit(tile, 1)
+	for _attempt: int in range(3):
+		if tile > 999:
+			tile -= 1000
+		elif tile < -999:
+			tile += 1000
+		else:
+			break
+	return tile
+
+
 static func land_secret_state(value: int) -> int:
 	var field := absi(value)
 	field = _clear_classic_short_bit(field, 1)

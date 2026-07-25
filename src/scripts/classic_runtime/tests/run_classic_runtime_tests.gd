@@ -410,6 +410,14 @@ class GameTimeTestGlobal:
 		time = current_time
 
 
+class CurrencyTestCharacter:
+	extends RefCounted
+	var money: Array = [0, 0, 0]
+
+	func _init(character_money: Array) -> void:
+		money = character_money.duplicate()
+
+
 class ExplorationStatusTestGlobal:
 	extends RefCounted
 	var camping := false
@@ -2504,6 +2512,7 @@ func _ready() -> void:
 	_test_selective_battle_request()
 	_test_selective_battle_host()
 	_test_shop_actions()
+	_test_resource_and_tile_parameter_actions()
 	_test_service_actions()
 	_test_sound_and_treasure(bundle)
 	_test_treasure_delivery(bundle)
@@ -26689,6 +26698,265 @@ func _test_sound_and_treasure(bundle) -> void:
 	_expect_equal(payload.get("treasureId"), 11, "treasure record id")
 	_expect_equal(payload.get("treasure", {}).get("exp"), 1200, "treasure record resolves")
 	_expect_equal(payload.get("lootMode"), 1, "fixed treasure uses Classic loot mode 1")
+
+
+func _test_resource_and_tile_parameter_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+	}
+	bundle.documents["maps"] = {
+		"tileAttributes": [{
+			"landlook": 9,
+			"tile": 55,
+			"shore": 1,
+			"boatRequirement": 0,
+			"pathFlag": 0,
+			"blocksLos": 0,
+			"flyFloatRequired": 0,
+			"forestType": 0,
+		}],
+		"customLandlooks": [],
+	}
+	bundle.maps_by_id["land:0"] = {
+		"id": "land:0",
+		"levelType": "land",
+		"index": 0,
+		"width": 2,
+		"height": 2,
+		"tiles": [3055, 8, 12, 16],
+		"render": {"landlook": 9},
+	}
+	bundle.shops_by_id[1] = {
+		"id": 1,
+		"inflation": 100,
+		"itemIds": [11, 11],
+		"quantities": [2, 5],
+	}
+	bundle.item_texts_by_id[11] = {
+		"itemId": 11,
+		"identifiedName": "Fixture Blade",
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 25, 11, -1, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [2, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [1, 1, 0, 0, 0]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [2, 11, 11, 0, 0]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [-3, 11, 11, 0, 0]}
+	bundle.extra_codes_by_id[6] = {"id": 6, "values": [1, 0, 0, 10, 11]}
+	bundle.extra_codes_by_id[7] = {"id": 7, "values": [7, 55, 0, 10, 11]}
+	bundle.extra_codes_by_id[8] = {"id": 8, "values": [-1, 0, 0, 10, 11]}
+	_add_stack_trigger(bundle, "resource:shop-mutation", -1, [
+		_classic_action(0, 51, 1),
+	])
+	_add_stack_trigger(bundle, "resource:shop-load", -1, [
+		_classic_action(0, 6, 1),
+	])
+	_add_stack_trigger(bundle, "resource:currency-all", -1, [
+		_classic_action(0, 60, 2),
+	])
+	_add_stack_trigger(bundle, "resource:currency-selected", -1, [
+		_classic_action(0, 60, 3),
+	])
+	_add_stack_trigger(bundle, "resource:random-fixed", -1, [
+		_classic_action(0, 65, 4),
+	])
+	_add_stack_trigger(bundle, "resource:random-variable", -1, [
+		_classic_action(0, 65, 5),
+	])
+	_add_stack_trigger(bundle, "tile:shore", -1, [
+		_classic_action(0, 78, 6),
+		_classic_action(1, 1, 912),
+	])
+	_add_stack_trigger(bundle, "tile:exact", -1, [
+		_classic_action(0, 78, 7),
+		_classic_action(1, 1, 912),
+	])
+	_add_stack_trigger(bundle, "tile:unknown-parameter", -1, [
+		_classic_action(0, 78, 8),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
+		_classic_action(0, 1, 910),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:11", 11, [
+		_classic_action(0, 1, 911),
+	])
+	for message_id: int in [910, 911, 912]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Resource fixture %d" % message_id,
+		}
+
+	var interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger("resource:shop-mutation"),
+		"begin persistent shop mutation"
+	)
+	var shop_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(shop_command.get("command"), "alter_shop", "opcode 51 yields a typed shop mutation")
+	var effective_shop: Dictionary = shop_command.get("payload", {}).get("shop", {})
+	_expect_equal(effective_shop.get("inflation"), 125, "shop mutation changes inflation")
+	_expect_equal(
+		effective_shop.get("quantities"),
+		[1, 4],
+		"shop mutation changes every matching stock slot"
+	)
+	_expect(
+		interpreter.begin_trigger("resource:shop-load"),
+		"begin load of the mutated shop"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("shop", {}).get("quantities"),
+		[1, 4],
+		"later shop loads use the persisted mutation"
+	)
+	var restored_state = StateScript.new()
+	restored_state.restore(interpreter.runtime_state.snapshot())
+	_expect_equal(
+		restored_state.get_effective_shop(bundle.get_shop(1)).get("inflation"),
+		125,
+		"shop mutations survive compatibility snapshots"
+	)
+	var native_shop := {
+		"buy_rate": 1.0,
+		"sell_rate": 1.0,
+		"Weapons": [
+			[{"classicItemId": 11}, 2, -1],
+			[{"classicItemId": 11}, 5, -1],
+		],
+		"Armor": [],
+		"Limbs": [],
+		"Magic": [],
+		"Supplies": [],
+	}
+	var adapter = GodotAdapterScript.new()
+	var native_shop_result: Dictionary = adapter.apply_classic_shop_mutation(
+		shop_command.get("payload", {}),
+		native_shop
+	)
+	_expect_equal(native_shop.get("sell_rate"), 1.25, "native shop applies mutated inflation")
+	_expect_equal(
+		[native_shop["Weapons"][0][1], native_shop["Weapons"][1][1]],
+		[1, 4],
+		"native shop applies quantity changes to every matching stock slot"
+	)
+	_expect_equal(native_shop_result.get("matchingSlots"), 2, "shop mutation reports matched stock")
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("resource:currency-selected")
+	var currency_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		currency_command.get("command"),
+		"clear_party_currency",
+		"opcode 60 yields a typed currency-clear command"
+	)
+	var first_character = CurrencyTestCharacter.new([5, 6, 7])
+	var second_character = CurrencyTestCharacter.new([8, 9, 10])
+	var party: Array = [first_character, second_character]
+	var pooled_money: Array = [11, 12, 13]
+	var currency_result: Dictionary = adapter.clear_classic_party_currency(
+		currency_command.get("payload", {}),
+		party,
+		[second_character],
+		pooled_money
+	)
+	_expect_equal(first_character.money, [5, 6, 7], "selected currency clear leaves other characters")
+	_expect_equal(second_character.money, [0, 9, 10], "selected currency clear affects its picked character")
+	_expect_equal(pooled_money, [11, 12, 13], "selected currency clear preserves unattributed pooled wealth")
+	_expect_equal(currency_result.get("amountRemoved"), 8, "selected currency clear reports removed wealth")
+	interpreter.begin_trigger("resource:currency-all")
+	currency_command = interpreter.run_until_yield()
+	currency_result = adapter.clear_classic_party_currency(
+		currency_command.get("payload", {}),
+		party,
+		[],
+		pooled_money
+	)
+	_expect_equal(first_character.money, [5, 0, 7], "party currency clear affects every character")
+	_expect_equal(second_character.money, [0, 0, 10], "party currency clear reaches the selected character")
+	_expect_equal(pooled_money, [11, 0, 13], "party currency clear includes pooled wealth")
+	_expect_equal(currency_result.get("amountRemoved"), 27, "party currency clear reports its total")
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("resource:random-fixed")
+	var treasure_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(treasure_command.get("command"), "give_treasure", "opcode 65 uses treasure delivery")
+	_expect_equal(
+		treasure_command.get("payload", {}).get("treasure", {}).get("itemIds"),
+		[11, 11],
+		"positive random-item counts grant the authored number of inclusive-range items"
+	)
+	interpreter.begin_trigger("resource:random-variable")
+	treasure_command = interpreter.run_until_yield()
+	var random_count := int(treasure_command.get("payload", {}).get("randomItemCount", 0))
+	_expect(random_count >= 1 and random_count <= 3, "negative random-item counts randomize from one through N")
+	_expect_equal(
+		treasure_command.get("payload", {}).get("treasure", {}).get("itemIds").size(),
+		random_count,
+		"random item delivery matches the selected count"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.begin_trigger("tile:shore")
+	var tile_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		tile_result.get("payload", {}).get("messageId"),
+		911,
+		"opcode 78 resolves the current tile's authored shore attribute"
+	)
+	interpreter.begin_trigger("tile:exact")
+	tile_result = interpreter.run_until_yield()
+	_expect_equal(
+		tile_result.get("payload", {}).get("messageId"),
+		911,
+		"exact tile branches remove Classic flag bits and marker bands"
+	)
+	interpreter.runtime_state.set_tile("land", 0, 0, 0, 3008)
+	interpreter.begin_trigger("tile:exact")
+	tile_result = interpreter.run_until_yield()
+	_expect_equal(
+		tile_result.get("payload", {}).get("messageId"),
+		910,
+		"persistent tile mutations participate in tile-parameter branches"
+	)
+	interpreter.begin_trigger("tile:unknown-parameter")
+	tile_result = interpreter.run_until_yield()
+	_expect_equal(
+		tile_result.get("payload", {}).get("messageId"),
+		910,
+		"unknown tile parameters preserve Classic's deterministic false branch"
+	)
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	for code: String in [
+		"malformed-shop-mutation",
+		"missing-shop",
+		"malformed-currency-clear",
+		"invalid-currency-clear",
+		"malformed-random-items",
+		"invalid-random-items",
+		"malformed-tile-parameter-branch",
+		"invalid-tile-parameter-branch",
+		"missing-tile-parameter-target",
+	]:
+		_expect_equal(
+			_diagnostic_code_count(readiness, code),
+			0,
+			"valid resource and tile fixtures avoid %s" % code
+		)
+	var execution: Dictionary = ExecutionAuditScript.new().inspect(bundle)
+	var later_tile_action: Dictionary = {}
+	for action_value: Variant in execution.get("actions", []):
+		if (
+			action_value is Dictionary
+			and action_value.get("recordId") == "tile:exact"
+			and int(action_value.get("slot", -1)) == 1
+		):
+			later_tile_action = action_value
+			break
+	_expect(
+		not later_tile_action.is_empty()
+			and not bool(later_tile_action.get("executable", true)),
+		"two-way tile branches make their later slot unreachable"
+	)
 
 
 func _test_shop_actions() -> void:

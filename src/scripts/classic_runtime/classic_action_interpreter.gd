@@ -1,6 +1,7 @@
 class_name ClassicActionInterpreter
 extends RefCounted
 
+const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
@@ -12,8 +13,8 @@ const HANDLED_OPCODES := [
 	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-	50, 52, 54, 56, 57, 58,
-	61, 63, 64, 66, 73, 76, 77, 82, 83, 84, 85, 86, 87, 88, 89,
+	50, 51, 52, 54, 56, 57, 58,
+	60, 61, 63, 64, 65, 66, 73, 76, 77, 78, 82, 83, 84, 85, 86, 87, 88, 89,
 	90, 93, 94, 95, 96, 97, 98,
 	99, 100, 101, 103, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
@@ -917,6 +918,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			})
 		50:
 			return _execute_identity_character_selection(record_id)
+		51:
+			return _execute_shop_mutation(record_id)
 		52:
 			return _execute_misc_character_selection(record_id)
 		54:
@@ -925,12 +928,16 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_landlook(record_id)
 		58:
 			return _execute_difficulty_branch(record_id)
+		60:
+			return _execute_currency_clear(record_id)
 		61:
 			return _execute_position_shift(record_id)
 		63:
 			return _execute_time_mutation(record_id)
 		64:
 			return _execute_time_branch(record_id, gosub_active)
+		65:
+			return _execute_random_items(record_id)
 		66:
 			return _yield_result("set_camping_permission", {
 				"disabled": record_id != 0,
@@ -942,6 +949,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_quest_value_mutation(record_id, gosub_active)
 		77:
 			return _execute_quest_value_branch(record_id, gosub_active)
+		78:
+			return _execute_tile_parameter_branch(record_id, gosub_active)
 		82, 83:
 			return _execute_priest_turning(code == 83)
 		85:
@@ -1234,6 +1243,7 @@ func _execute_load_shop(signed_shop_id: int, accept_ranges: Array = []) -> Dicti
 	var shop: Dictionary = bundle.get_shop(shop_id)
 	if shop.is_empty():
 		return _halt_with_error("Shop action references missing shop %d" % shop_id)
+	shop = runtime_state.get_effective_shop(shop)
 	var item_texts: Array = []
 	if accept_ranges.is_empty():
 		var seen_item_ids: Dictionary = {}
@@ -1255,6 +1265,35 @@ func _execute_load_shop(signed_shop_id: int, accept_ranges: Array = []) -> Dicti
 		"itemTexts": item_texts,
 		"openImmediately": signed_shop_id < 0,
 		"acceptRanges": shop_accept_ranges,
+	})
+
+
+func _execute_shop_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Shop mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var shop_id := int(values[0])
+	var shop := bundle.get_shop(shop_id)
+	if shop.is_empty():
+		return _halt_with_error("Shop mutation references missing shop %d" % shop_id)
+	var inflation_delta := int(values[1])
+	var item_id := int(values[2])
+	var quantity_delta := int(values[3])
+	var effective := runtime_state.alter_shop(
+		shop,
+		inflation_delta,
+		item_id,
+		quantity_delta
+	)
+	return _yield_result("alter_shop", {
+		"extraCodeId": extra_code_id,
+		"shopId": shop_id,
+		"shop": effective,
+		"inflationDelta": inflation_delta,
+		"itemId": item_id,
+		"quantityDelta": quantity_delta,
 	})
 
 
@@ -1628,6 +1667,67 @@ func _execute_treasure(treasure_id: int) -> Dictionary:
 		"treasure": treasure,
 		"itemTexts": item_texts,
 		"lootMode": 1,
+	})
+
+
+func _execute_currency_clear(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Currency-clear action references missing Extra Code row %d" % extra_code_id
+		)
+	var currency := int(values[0]) - 1
+	if currency < 0 or currency > 2:
+		return _halt_with_error(
+			"Currency-clear action has invalid currency %d" % int(values[0])
+		)
+	return _yield_result("clear_party_currency", {
+		"extraCodeId": extra_code_id,
+		"currency": currency,
+		"selectedOnly": int(values[1]) != 0,
+	})
+
+
+func _execute_random_items(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Random-item action references missing Extra Code row %d" % extra_code_id
+		)
+	var authored_count := int(values[0])
+	var count := randi_range(1, absi(authored_count)) if authored_count < 0 \
+		else authored_count
+	var first_item_id := int(values[1])
+	var last_item_id := int(values[2])
+	if count < 0 or count > 20:
+		return _halt_with_error("Random-item action count must be between 0 and 20")
+	if first_item_id <= 0 or last_item_id < first_item_id:
+		return _halt_with_error("Random-item action has an invalid item range")
+	var item_ids: Array[int] = []
+	var item_texts: Array = []
+	var seen_texts: Dictionary = {}
+	for _item_index: int in range(count):
+		var item_id := randi_range(first_item_id, last_item_id)
+		item_ids.append(item_id)
+		var item_text := bundle.get_item_text(item_id)
+		if not item_text.is_empty() and not seen_texts.has(item_id):
+			seen_texts[item_id] = true
+			item_texts.append(item_text)
+	return _yield_result("give_treasure", {
+		"extraCodeId": extra_code_id,
+		"treasureId": -1,
+		"treasure": {
+			"id": -1,
+			"itemIds": item_ids,
+			"exp": 0,
+			"gold": 0,
+			"gems": 0,
+			"jewelry": 0,
+		},
+		"itemTexts": item_texts,
+		"lootMode": 1,
+		"randomItemCount": count,
+		"randomItemRange": [first_item_id, last_item_id],
 	})
 
 
@@ -2886,6 +2986,90 @@ func _execute_quest_value_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 			"Quest-value branch has invalid branch mode %d" % target_mode
 		)
 	return _branch_to_action_or_encounter(target_mode, target_id, gosub)
+
+
+func _execute_tile_parameter_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Tile-parameter branch references missing Extra Code row %d" % extra_code_id
+		)
+	var selector := int(values[0])
+	var look_offset: Variant = execution_context.get("lookOffset", {})
+	var look_x := int(look_offset.get("x", 0)) if look_offset is Dictionary else 0
+	var look_y := int(look_offset.get("y", 0)) if look_offset is Dictionary else 0
+	var tile_x := runtime_state.x + look_x
+	var tile_y := runtime_state.y + look_y
+	var tile_record := bundle.get_map_tile(
+		runtime_state.level_type,
+		runtime_state.level_index,
+		tile_x,
+		tile_y
+	)
+	if tile_record.is_empty():
+		return _halt_with_error(
+			"Tile-parameter branch cannot resolve the current map field"
+		)
+	var raw_tile := runtime_state.get_tile(
+		runtime_state.level_type,
+		runtime_state.level_index,
+		tile_x,
+		tile_y,
+		int(tile_record.get("value", 0))
+	)
+	var tile_id := MapBridgeScript.normalize_tile_parameter_id(raw_tile)
+	var matches := tile_id == int(values[1]) if selector == 7 else false
+	var landlook := -1
+	var attribute: Dictionary = {}
+	if selector >= 1 and selector <= 6:
+		var map: Dictionary = tile_record.get("map", {})
+		var render: Variant = map.get("render", {})
+		var baseline_landlook := int(render.get("landlook", -1)) \
+			if render is Dictionary else -1
+		landlook = runtime_state.get_landlook(
+			runtime_state.level_type,
+			runtime_state.level_index,
+			baseline_landlook
+		)
+		attribute = bundle.get_land_tile_attribute(landlook, tile_id)
+		if attribute.is_empty():
+			return _halt_with_error(
+				"Tile-parameter branch cannot resolve tile %d attributes for landlook %d"
+				% [tile_id, landlook]
+			)
+		matches = _tile_parameter_is_set(attribute, selector)
+	var target_id := int(values[4] if matches else values[3])
+	if target_id == 0:
+		return _continue_result()
+	var target_mode := int(values[2])
+	if target_mode < 0 or target_mode > 2:
+		return _halt_with_error(
+			"Tile-parameter branch has invalid branch mode %d" % target_mode
+		)
+	return _branch_to_action_or_encounter(target_mode, target_id, gosub)
+
+
+func _tile_parameter_is_set(attribute: Dictionary, selector: int) -> bool:
+	match selector:
+		1:
+			return int(attribute.get("shore", 0)) != 0
+		2:
+			return int(attribute.get(
+				"boatRequirement",
+				attribute.get("needBoat", 0)
+			)) != 0
+		3:
+			return int(attribute.get("pathFlag", attribute.get("isPath", 0))) != 0
+		4:
+			return int(attribute.get("blocksLos", attribute.get("los", 0))) != 0
+		5:
+			return int(attribute.get(
+				"flyFloatRequired",
+				attribute.get("flyFloat", 0)
+			)) != 0
+		6:
+			return int(attribute.get("forestType", attribute.get("forest", 0))) != 0
+	return false
 
 
 func _execute_experience_loss(extra_code_id: int) -> Dictionary:
