@@ -636,6 +636,8 @@ func _check_encounter_identities(bundle: ClassicCampaignBundle) -> void:
 	for encounter_id_value: Variant in encounter_ids:
 		var encounter_id := int(encounter_id_value)
 		var encounter: Dictionary = bundle.complex_encounters_by_id[encounter_id_value]
+		if not _producer_marks_callable(encounter):
+			continue
 		_check_item_ids(bundle, encounter, encounter_id)
 		_check_spell_ids(bundle, encounter, encounter_id)
 		_check_rogue_trap_spell(bundle, encounter, encounter_id)
@@ -652,6 +654,8 @@ func _check_battle_monsters(bundle: ClassicCampaignBundle) -> void:
 	for battle_id_value: Variant in battle_ids:
 		var battle_id := int(battle_id_value)
 		var battle: Dictionary = bundle.battles_by_id[battle_id_value]
+		if not _producer_marks_callable(battle):
+			continue
 		var grid: Variant = battle.get("grid", [])
 		if not (grid is Array):
 			continue
@@ -1066,6 +1070,8 @@ func _check_active_monster_spells(
 	for battle_value: Variant in bundle.battles_by_id.values():
 		if not (battle_value is Dictionary):
 			continue
+		if not _producer_marks_callable(battle_value):
+			continue
 		var grid: Variant = battle_value.get("grid", [])
 		if not (grid is Array):
 			continue
@@ -1122,6 +1128,14 @@ func _add_monster_spell_context(
 		contexts[monster_id] = []
 	if context not in contexts[monster_id]:
 		contexts[monster_id].append(context)
+
+
+func _producer_marks_callable(record: Dictionary) -> bool:
+	if record.has("callable"):
+		return bool(record["callable"])
+	# Version 1 producers originally emitted every parsed catalog record without
+	# callability metadata. Preserve the conservative legacy readiness behavior.
+	return true
 
 
 func _has_exact_native_spell(spell_id: int) -> bool:

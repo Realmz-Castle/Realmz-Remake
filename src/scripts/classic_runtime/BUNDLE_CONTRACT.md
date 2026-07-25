@@ -170,18 +170,21 @@ Runtime-relevant records may carry:
 
 - `authored`, when Providence knows whether the semantic value was explicitly
   authored rather than decoded as a default or placeholder;
-- `callable`, an optional boolean on `Data ED3` triggers indicating that the
-  producer found a source-backed execution path to that extra action point;
+- `callable`, an optional boolean on `Data ED3` triggers, battles, and simple or
+  complex encounters indicating that the producer found a source-backed
+  execution path to that record;
 - `provenance`, with source file, record index, byte range, and an evidence
   confidence label; and
 - additional evidence-only fields for preserved or still-unknown source data.
 
-All `Data ED3` rows remain in `scripts.triggers`, including imported rows that are
-not callable. Remake inventories those rows but excludes `callable: false` actions
-from readiness blockers unless it independently discovers a runtime entry path,
-such as a battle or monster macro. For bundles that omit `callable`, Remake falls
-back to the trigger's existing `active` field so version 1 producers retain their
-original conservative audit behavior.
+All records remain in their bundle documents, including imported rows that are
+not callable. Remake inventories those rows but excludes `callable: false`
+actions, battle contents, and encounter contents from readiness blockers. A
+source-backed callable battle can still promote its referenced battle and
+monster macros. For bundles that omit `callable`, Remake falls back to the
+trigger's existing `active` field and treats battle and encounter records as
+callable, so version 1 producers retain their original conservative audit
+behavior.
 
 Remake uses the semantic fields and stable identities. It must not reinterpret
 unknown preserved bytes as authored behavior. Unknown fields remain available for

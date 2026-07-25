@@ -192,6 +192,9 @@ func _validate_document_contract() -> bool:
 	for collection_name: String in ["simpleEncounters", "complexEncounters"]:
 		if not _validate_encounter_actions(collection_name):
 			return false
+	for collection_name: String in ["battles", "simpleEncounters", "complexEncounters"]:
+		if not _validate_optional_callability(collection_name):
+			return false
 	if documents["maps"].has("mapRecords") and not _validate_record_collection(
 		"maps", "mapRecords", "id", false
 	):
@@ -472,6 +475,22 @@ func _validate_encounter_actions(collection_name: String) -> bool:
 		var encounter_context := "encounters.%s[%d]" % [collection_name, encounter_index]
 		if not _validate_action_array(encounter.get("actions"), encounter_context, 31, false):
 			return false
+	return true
+
+
+func _validate_optional_callability(collection_name: String) -> bool:
+	var records: Variant = documents["encounters"].get(collection_name, [])
+	if not (records is Array):
+		return false
+	for record_index: int in range(records.size()):
+		var record: Dictionary = records[record_index]
+		if record.has("callable") and not (record["callable"] is bool):
+			return _fail(
+				"encounters.%s[%d].callable must be a boolean" % [
+					collection_name,
+					record_index,
+				]
+			)
 	return true
 
 

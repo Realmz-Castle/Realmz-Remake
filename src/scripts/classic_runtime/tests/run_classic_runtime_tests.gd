@@ -2723,6 +2723,23 @@ func _test_bundle_contract_validation() -> void:
 		malformed_callable_bundle.last_error.contains("scripts.triggers[0].callable"),
 		"callability error includes record-level context"
 	)
+	var malformed_content_callable_bundle = BundleScript.new()
+	malformed_content_callable_bundle.manifest = _minimal_contract_manifest()
+	malformed_content_callable_bundle.documents = _minimal_contract_documents()
+	malformed_content_callable_bundle.documents["encounters"]["battles"] = [{
+		"id": 1,
+		"callable": "false",
+	}]
+	_expect(
+		not malformed_content_callable_bundle._validate_document_contract(),
+		"bundle contract rejects a non-boolean battle callability marker"
+	)
+	_expect(
+		malformed_content_callable_bundle.last_error.contains(
+			"encounters.battles[0].callable"
+		),
+		"battle callability error includes record-level context"
+	)
 
 	var duplicate_id_bundle = BundleScript.new()
 	duplicate_id_bundle.manifest = _minimal_contract_manifest()
@@ -10980,13 +10997,25 @@ func _test_data_ed3_callability_contract() -> void:
 	_add_stack_trigger(bundle, "Data ED3:macro:13", 13, [_classic_action(0, 259, 0)])
 	bundle.extra_action_points_by_id[13]["callable"] = false
 	bundle.battles_by_id[1] = {"id": 1, "battleMacro": -13}
+	_add_stack_trigger(bundle, "Data ED3:macro:14", 14, [_classic_action(0, 260, 0)])
+	bundle.extra_action_points_by_id[14]["callable"] = false
+	bundle.battles_by_id[2] = {
+		"id": 2,
+		"battleMacro": -14,
+		"callable": false,
+	}
+	bundle.simple_encounters_by_id[2] = {
+		"id": 2,
+		"callable": false,
+		"actions": [_classic_action(0, 261, 0)],
+	}
 
 	var report: Dictionary = ExecutionAuditScript.new().inspect(bundle)
 	var actions_by_record: Dictionary = {}
 	for action_value: Variant in report.get("actions", []):
 		if action_value is Dictionary and action_value.get("source") == "Data ED3":
 			actions_by_record[int(action_value.get("recordIndex", -1))] = action_value
-	_expect_equal(actions_by_record.size(), 4, "execution audit preserves every Data ED3 row")
+	_expect_equal(actions_by_record.size(), 5, "execution audit preserves every Data ED3 row")
 	_expect(
 		bool(actions_by_record[10].get("executable")),
 		"legacy Data ED3 rows retain active-based audit behavior"
@@ -11007,6 +11036,10 @@ func _test_data_ed3_callability_contract() -> void:
 		actions_by_record[13].get("executionContexts", []).has("battle-round-macro"),
 		"promoted rows retain their discovered execution context"
 	)
+	_expect(
+		not bool(actions_by_record[14].get("executable")),
+		"uncallable battles do not promote their preserved battle macros"
+	)
 	_expect_equal(
 		_audit_diagnostic_count(report, "unsupported-action"),
 		3,
@@ -11014,8 +11047,8 @@ func _test_data_ed3_callability_contract() -> void:
 	)
 	_expect_equal(
 		_audit_diagnostic_count(report, "inactive-action-record"),
-		1,
-		"uncallable rows remain visible as inactive evidence"
+		3,
+		"uncallable macro and encounter rows remain visible as inactive evidence"
 	)
 
 
@@ -22642,6 +22675,22 @@ func _test_classic_spell_usage_audit() -> void:
 		"provenance": {"sourceFile": "Data MD", "recordIndex": 71},
 	}
 	city_bundle.battles_by_id[999] = {"id": 999, "grid": [71]}
+	city_bundle.monsters_by_id[72] = {
+		"id": 72,
+		"displayName": "Preserved Tail",
+		"spells": [9997],
+		"provenance": {"sourceFile": "Data MD", "recordIndex": 72},
+	}
+	city_bundle.battles_by_id[998] = {
+		"id": 998,
+		"grid": [72],
+		"callable": false,
+	}
+	city_bundle.complex_encounters_by_id[998] = {
+		"id": 998,
+		"spellIds": [9996],
+		"callable": false,
+	}
 	city_bundle.extra_codes_by_id[999] = {"id": 999, "values": [1, 71]}
 	city_bundle.extra_codes_by_id[998] = {"id": 998, "values": [1102, 1, 0, 0, 0]}
 	city_bundle.extra_codes_by_id[997] = {"id": 997, "values": [9998, 1, 0, 0, 0]}
@@ -22836,6 +22885,8 @@ func _test_classic_spell_usage_audit() -> void:
 	var missing_row: Dictionary = {}
 	var variant_row: Dictionary = {}
 	var unmapped_row: Dictionary = {}
+	var preserved_battle_row: Dictionary = {}
+	var preserved_encounter_row: Dictionary = {}
 	for row_value: Variant in report.get("spells", []):
 		if not (row_value is Dictionary):
 			continue
@@ -22855,7 +22906,19 @@ func _test_classic_spell_usage_audit() -> void:
 				variant_row = row
 			9998:
 				unmapped_row = row
+			9997:
+				preserved_battle_row = row
+			9996:
+				preserved_encounter_row = row
 	_expect(not spell_item_row.is_empty(), "spell audit records a scenario-item spell")
+	_expect(
+		preserved_battle_row.is_empty(),
+		"spell audit ignores monsters reached only by an uncallable preserved battle"
+	)
+	_expect(
+		preserved_encounter_row.is_empty(),
+		"spell audit ignores responses from an uncallable preserved encounter"
+	)
 	var spell_item_contexts: Array = spell_item_row.get("usages", []).map(
 		func(usage: Dictionary) -> String: return str(usage.get("context", ""))
 	)

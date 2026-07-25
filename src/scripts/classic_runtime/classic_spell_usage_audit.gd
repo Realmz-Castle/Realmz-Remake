@@ -241,6 +241,8 @@ func _collect_battle_monster_contexts(
 	battle_ids.sort()
 	for battle_id_value: Variant in battle_ids:
 		var battle: Dictionary = bundle.battles_by_id[battle_id_value]
+		if not _producer_marks_callable(battle):
+			continue
 		var grid: Variant = battle.get("grid", [])
 		if not (grid is Array):
 			continue
@@ -288,6 +290,8 @@ func _collect_complex_encounters(bundle: ClassicCampaignBundle) -> void:
 	for encounter_id_value: Variant in encounter_ids:
 		var encounter_id := int(encounter_id_value)
 		var encounter: Dictionary = bundle.complex_encounters_by_id[encounter_id_value]
+		if not _producer_marks_callable(encounter):
+			continue
 		var spell_ids: Variant = encounter.get("spellIds", [])
 		if spell_ids is Array:
 			for slot: int in range(spell_ids.size()):
@@ -315,6 +319,12 @@ func _collect_complex_encounters(bundle: ClassicCampaignBundle) -> void:
 		usage["ownerSource"] = "Data ED2"
 		usage["ownerRecordIndex"] = encounter_id
 		_add_reference(bundle, int(thief_encounter.get("spell", 0)), usage)
+
+
+func _producer_marks_callable(record: Dictionary) -> bool:
+	if record.has("callable"):
+		return bool(record["callable"])
+	return true
 
 
 func _collect_scenario_spell_items(bundle: ClassicCampaignBundle) -> void:

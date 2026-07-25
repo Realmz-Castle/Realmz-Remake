@@ -88,6 +88,8 @@ static func _find_battle_monster(encounters: Dictionary, monster_ids: Dictionary
 	for battle_value: Variant in encounters.get("battles", []):
 		if not (battle_value is Dictionary):
 			continue
+		if not _producer_marks_callable(battle_value):
+			continue
 		for monster_value: Variant in battle_value.get("grid", []):
 			var monster_id: int = abs(int(monster_value))
 			if monster_ids.has(monster_id):
@@ -123,11 +125,21 @@ static func _find_ally(documents: Dictionary, monster_ids: Dictionary) -> Dictio
 		"timedEncounters",
 	]:
 		for encounter_value: Variant in encounters.get(collection_name, []):
+			if encounter_value is Dictionary and not _producer_marks_callable(
+				encounter_value
+			):
+				continue
 			var encounter_match := _find_ally_action(encounter_value, monster_ids)
 			if not encounter_match.is_empty():
 				encounter_match["encounterCollection"] = collection_name
 				return encounter_match
 	return {}
+
+
+static func _producer_marks_callable(record: Dictionary) -> bool:
+	if record.has("callable"):
+		return bool(record["callable"])
+	return true
 
 
 static func _find_ally_action(value: Variant, monster_ids: Dictionary) -> Dictionary:

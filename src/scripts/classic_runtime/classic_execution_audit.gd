@@ -100,7 +100,7 @@ func _append_encounter_actions(
 			action_record,
 			storage_context,
 			[storage_context],
-			true,
+			_producer_marks_callable(encounter),
 			actions,
 			diagnostics
 		)
@@ -194,6 +194,8 @@ func _collect_macro_roots(
 	battle_ids.sort()
 	for battle_id_value: Variant in battle_ids:
 		var battle: Dictionary = bundle.battles_by_id[battle_id_value]
+		if not _producer_marks_callable(battle):
+			continue
 		var raw_target := int(battle.get("battleMacro", 0))
 		if raw_target == 0:
 			continue
