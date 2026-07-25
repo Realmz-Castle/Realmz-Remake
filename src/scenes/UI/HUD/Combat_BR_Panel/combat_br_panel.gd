@@ -73,7 +73,7 @@ func _on_auto_button_pressed() -> void:
 			or not active_button.creature.is_crea_player_controlled():
 		return
 	set_buttons_enabled(false)
-	StateMachine.cb_decide_state.do_ai_creature_action(active_button.creature)
+	StateMachine.cb_decide_state.begin_player_auto_turn(active_button.creature)
 
 
 func _on_InventoryButton_pressed():

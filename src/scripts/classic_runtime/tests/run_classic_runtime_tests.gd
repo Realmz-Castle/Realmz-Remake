@@ -111,6 +111,9 @@ const MonsterAttackSequenceScript = preload(
 const MonsterDecisionScript = preload(
 	"res://scripts/classic_runtime/classic_monster_decision.gd"
 )
+const PlayerAutoCombatScript = preload(
+	"res://scripts/classic_runtime/classic_player_auto_combat.gd"
+)
 const MaterializationFixtureAuditScript = preload(
 	"res://scripts/classic_runtime/classic_materialization_fixture_audit.gd"
 )
@@ -2460,6 +2463,7 @@ func _ready() -> void:
 	_test_classic_item_materializer()
 	_test_classic_bestiary_materializer()
 	_test_classic_monster_decision()
+	_test_classic_player_auto_combat()
 	_test_classic_monster_attack_sequence()
 	_test_classic_monster_special_attacks()
 	_test_classic_map_sound_bridge()
@@ -7390,6 +7394,50 @@ func _test_classic_monster_decision() -> void:
 			"res://scripts/states/CbAnimationState.gd"
 		).contains("attackercb.creature.mark_classic_attack_attempt()"),
 		"native melee attempts suppress Classic's post-movement cast retry"
+	)
+
+
+func _test_classic_player_auto_combat() -> void:
+	var caster := Creature.new()
+	caster.stats["curSP"] = 7
+	var magic_darts: Spell = preload(
+		"res://shared_assets/spells/magic_darts.gd"
+	).new()
+	_expect_equal(
+		PlayerAutoCombatScript.best_affordable_damage_power(
+			caster,
+			magic_darts
+		),
+		1,
+		"Classic player Auto picks an affordable damaging spell power"
+	)
+	caster.stats["curSP"] = 3
+	_expect_equal(
+		PlayerAutoCombatScript.best_affordable_damage_power(
+			caster,
+			magic_darts
+		),
+		0,
+		"Classic player Auto falls back from spells when SP is insufficient"
+	)
+	var decide_source := FileAccess.get_file_as_string(
+		"res://scripts/states/CbDecideActionState.gd"
+	)
+	_expect(
+		decide_source.contains("auto_turn_creature == cur_act_crea"),
+		"player Auto continues taking decisions after each animation"
+	)
+	_expect(
+		decide_source.contains(
+			"ClassicPlayerAutoCombatScript.decide_action(cur_act_crea)"
+		),
+		"Classic campaigns route player Auto through the compatibility AI"
+	)
+	_expect(
+		FileAccess.get_file_as_string(
+			"res://scenes/UI/HUD/Combat_BR_Panel/combat_br_panel.gd"
+		).contains("begin_player_auto_turn(active_button.creature)"),
+		"the Auto button starts remainder-of-turn control"
 	)
 
 

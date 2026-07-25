@@ -1146,16 +1146,32 @@ func _verify_dragon_auto_melee(character: PlayerCharacter) -> void:
 	if not smoke_failures.is_empty():
 		return
 
+	# The authored relative formation can place this one-character smoke farther
+	# away than its ordinary round budget. Give the focused Auto check enough
+	# movement to prove the reachable-target move-and-attack boundary in one
+	# turn; ordinary battles still stop Auto when their real budget is spent.
+	var route: Array = GameGlobal.map.find_path(
+		character.position,
+		dragon.position,
+		true,
+		false,
+		false,
+		character,
+		true
+	)
+	var required_movement := route.size() + 2
+	character.used_movepoints -= maxi(
+		0,
+		required_movement - character.get_movement_left()
+	)
 	var initial_hp := float(dragon.get_stat("curHP"))
 	var auto_presses := 0
-	var action_left_decision_state := true
 	for _frame: int in 1200:
 		if float(dragon.get_stat("curHP")) < initial_hp:
 			break
 		if not StateMachine.is_combat_state():
 			break
 		if StateMachine._state_name != "CbDecideAction":
-			action_left_decision_state = true
 			await get_tree().process_frame
 			continue
 		var active_button: CombatCreaButton = (
@@ -1163,17 +1179,19 @@ func _verify_dragon_auto_melee(character: PlayerCharacter) -> void:
 		)
 		if is_instance_valid(active_button) \
 				and active_button.creature == character \
-				and action_left_decision_state:
+				and auto_presses == 0:
+			# The focused smoke starts before OWHUDControl's ordinary wiring
+			# callback, so reproduce the same panel owner assignment here.
+			UI.ow_hud.combatBRPanel.hud = UI.ow_hud
 			UI.ow_hud.combatBRPanel.autobutton.pressed.emit()
 			auto_presses += 1
-			action_left_decision_state = false
 		await get_tree().process_frame
 	_verify_stage(
 		"00_combat_auto",
-		auto_presses > 0
+		auto_presses == 1
 			and character.used_apr > 0
 			and float(dragon.get_stat("curHP")) < initial_hp,
-		"Auto advances the player into range and lands an equipped-weapon melee attack"
+		"one Auto press advances the player into range and lands an equipped-weapon melee attack"
 	)
 
 

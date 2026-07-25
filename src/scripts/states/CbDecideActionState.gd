@@ -7,6 +7,9 @@ const ClassicCombatRoutRulesScript = preload(
 const PermanentFleeingTraitScript = preload(
 	"res://shared_assets/traits/p_classic_fleeing.gd"
 )
+const ClassicPlayerAutoCombatScript = preload(
+	"res://scripts/classic_runtime/classic_player_auto_combat.gd"
+)
 
 @export var combat_state : CombatState
 
@@ -19,6 +22,7 @@ var pleaseconfirmspell : bool = false
 var current_active_creabutton : CombatCreaButton
 var pending_classic_terrain_phase_owner: Creature
 var classic_combat_macro_flush_active := false
+var auto_turn_creature: Creature
 
 signal cbdecide_picked_characters_done
 signal cbdecide_charpanel_clicked
@@ -147,6 +151,9 @@ func enter(_msg : Dictionary = {}) -> void:
 
 	print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() ", cur_act_crea.is_crea_player_controlled())
 	if cur_act_crea.is_crea_player_controlled() :
+		if auto_turn_creature == cur_act_crea:
+			do_ai_creature_action(cur_act_crea)
+			return
 		print("CbDecideActipon "+cur_act_crea.name+" is_crea_player_controlled() true so skipping dcideaction")
 		#action_msg = await player_cb_action_msg_signal
 		return
@@ -161,6 +168,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	combat_state.clear_classic_combat_macros()
 	classic_combat_macro_flush_active = false
 	pending_classic_terrain_phase_owner = null
+	auto_turn_creature = null
 	is_bandaging = false
 	var _battle_pos : Array = [map.focuscharacter.tile_position_x, map.focuscharacter.tile_position_y]
 	if _msg.has("Position") :
@@ -623,7 +631,14 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 	if _apply_classic_opening_morale(cur_act_crea):
 		return
 	print("CbDecideAction : "+ cur_act_crea.name+" is going to take a decision")
-	var decision_array : Array = cur_act_crea.get_creature_script().decide_action(current_active_creabutton.creature)
+	var decision_array: Array
+	if auto_turn_creature == cur_act_crea \
+			and GameGlobal.is_classic_campaign(GameGlobal.currentcampaign):
+		decision_array = ClassicPlayerAutoCombatScript.decide_action(cur_act_crea)
+	else:
+		decision_array = cur_act_crea.get_creature_script().decide_action(
+			current_active_creabutton.creature
+		)
 	print("CbDecideAction : "+ cur_act_crea.name+"'s decision taken !", decision_array)
 	var action_msg : Dictionary = {}
 	if decision_array[0] == 0 :  #MOVE  (or finish ?)
@@ -685,6 +700,8 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 func end_active_creature_turn(set_apr_zero : bool)->void :
 
 	if is_instance_valid(current_active_creabutton):
+		if auto_turn_creature == current_active_creabutton.creature:
+			auto_turn_creature = null
 		await current_active_creabutton.creature.on_turn_end()
 	if set_apr_zero :
 		current_active_creabutton.creature.used_movepoints = current_active_creabutton.creature.get_stat("MaxMovement")
@@ -714,6 +731,15 @@ func end_active_creature_turn(set_apr_zero : bool)->void :
 
 	combat_state.action_queue.clear()
 	StateMachine.transition_to("Combat/CbAnimation")
+
+
+func begin_player_auto_turn(creature: Creature) -> void:
+	if not is_instance_valid(current_active_creabutton) \
+			or current_active_creabutton.creature != creature \
+			or not creature.is_crea_player_controlled():
+		return
+	auto_turn_creature = creature
+	do_ai_creature_action(creature)
 
 
 func delay_active_creature_turn() :
