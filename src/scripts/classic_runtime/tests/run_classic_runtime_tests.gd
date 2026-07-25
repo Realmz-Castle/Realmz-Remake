@@ -2481,6 +2481,7 @@ func _ready() -> void:
 	_test_battle_outcome(bundle)
 	_test_coward_experience_penalty()
 	_test_coward_party_retreat()
+	_test_back_up_party_action()
 	_test_battle_outcome_host()
 	_test_state_snapshot(bundle)
 	_test_godot_runtime_facade()
@@ -28761,6 +28762,73 @@ func _test_coward_party_retreat() -> void:
 		str(missing_movement.get("backUpReason", "")).contains("unavailable"),
 		"missing coward movement remains explicit"
 	)
+
+
+func _test_back_up_party_action() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 4, "y": 5},
+	}
+	_add_map_trigger(bundle, _map_trigger(1, 4, 5, [
+		_classic_action(0, 101, 0),
+		_classic_action(1, 1, 900),
+	]))
+	bundle.messages_by_id[900] = {"id": 900, "text": "Unreachable after backup"}
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:1"), "begin land Back Up Party action")
+	var back_up_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(back_up_result.get("command"), "back_up_party", "opcode 101 requests land backup")
+	_expect_equal(
+		back_up_result.get("payload", {}).get("levelType"),
+		"land",
+		"Back Up Party preserves the active map family"
+	)
+	var completion: Dictionary = interpreter.resume_back_up_party()
+	_expect_equal(completion.get("reason"), "back-up-party", "land backup ends the action point")
+	_expect(
+		not _trace_has_action(interpreter.trace, "Data DD:0:1", 1),
+		"land backup skips later action slots"
+	)
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("dungeon", 0, 4, 5)
+	_expect(interpreter.begin_trigger("Data DD:0:1"), "begin dungeon Back Up Party action")
+	var dungeon_result: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		dungeon_result.get("command"),
+		"show_text",
+		"opcode 101 is a source no-op in dungeons and continues"
+	)
+
+	var host = HostScript.new()
+	get_tree().root.add_child(host)
+	var adapter = GuardHouseAdapter.new()
+	host.configure(adapter)
+	var host_state = StateScript.new()
+	host_state.configure_from_bundle(bundle)
+	host.runtime.use_shared_campaign(bundle, host_state)
+	_expect(
+		host.start_trigger(
+			"Data DD:0:1",
+			0,
+			{"entryMovement": Vector2i(1, 0)}
+		),
+		"runtime host starts Back Up Party action"
+	)
+	_expect_equal(adapter.commands.size(), 1, "Back Up Party dispatches one native command")
+	_expect_equal(adapter.commands[0].get("command"), "back_up_party", "host routes opcode 101")
+	_expect_equal(
+		adapter.commands[0].get("payload", {}).get("entryMovement"),
+		Vector2i(1, 0),
+		"Back Up Party receives the original map movement"
+	)
+	_expect_equal(
+		host.runtime.last_result.get("reason"),
+		"back-up-party",
+		"host completes Back Up Party without later slots"
+	)
+	host.queue_free()
 
 
 func _test_battle_outcome_host() -> void:

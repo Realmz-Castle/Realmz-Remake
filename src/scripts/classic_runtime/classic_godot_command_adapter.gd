@@ -531,6 +531,11 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			return {}
 		"apply_coward_penalty":
 			return await _apply_coward_penalty(payload)
+		"back_up_party":
+			return retreat_classic_party(
+				_autoload("GameGlobal"),
+				payload.get("entryMovement")
+			)
 		"give_experience":
 			return await _give_experience(payload)
 		"give_character_condition":
@@ -3978,7 +3983,7 @@ func retreat_classic_party(game_global: Object, movement_value: Variant) -> Dict
 	if movement == Vector2i.ZERO:
 		return {
 			"partyBackedUp": false,
-			"backUpReason": "Classic battle entry movement is unavailable",
+			"backUpReason": "Classic entry movement is unavailable",
 		}
 	var map: Variant = game_global.get("map")
 	if not (map is Object):

@@ -15,7 +15,7 @@ const HANDLED_OPCODES := [
 	50, 52, 54, 56, 57, 58,
 	73, 82, 83, 84, 85, 86, 87, 89,
 	93, 94, 95, 96, 97, 98,
-	99, 100, 106, 111, 112,
+	99, 100, 101, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
 ]
 const PRIEST_TURNING_ENABLED_MESSAGE := \
@@ -738,6 +738,13 @@ func resume_random_branch() -> Dictionary:
 	return _apply_random_branch(random_branch)
 
 
+func resume_back_up_party() -> Dictionary:
+	# Classic returns from newland immediately after reversing a land move, so
+	# neither later slots nor the action point's ordinary destination can run.
+	_clear_control_flow()
+	return _completed_result("back-up-party")
+
+
 func _execute_action(action: Dictionary) -> Dictionary:
 	var code := int(action.get("code", 0))
 	var record_id := int(action.get("id", 0))
@@ -899,6 +906,12 @@ func _execute_action(action: Dictionary) -> Dictionary:
 				"lootMode": 5,
 				"rewardMode": "experience_only",
 				"resumeSlot": 8,
+			})
+		101:
+			if runtime_state.level_type == "dungeon":
+				return _continue_result()
+			return _yield_result("back_up_party", {
+				"levelType": runtime_state.level_type,
 			})
 		106:
 			return _execute_darkland(record_id)

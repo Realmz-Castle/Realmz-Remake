@@ -174,6 +174,10 @@ func finish_random_branch_presentation() -> void:
 	_publish(interpreter.resume_random_branch())
 
 
+func finish_back_up_party() -> void:
+	_publish(interpreter.resume_back_up_party())
+
+
 func snapshot() -> Dictionary:
 	return runtime_state.snapshot()
 
