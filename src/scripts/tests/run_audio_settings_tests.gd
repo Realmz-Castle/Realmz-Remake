@@ -11,6 +11,19 @@ func _init() -> void:
 		"outdoor.mod",
 		"missing profile music uses the native Forest default"
 	)
+	var shipped_profile := ConfigFile.new()
+	_expect_equal(
+		shipped_profile.load(
+			"res://Profiles/Default Profile/profile_settings.cfg"
+		),
+		OK,
+		"the shipped default profile settings load"
+	)
+	_expect_equal(
+		shipped_profile.get_value("MUSIC", "Forest", "No Music"),
+		MusicSettingsScript.default_music_choice("Forest"),
+		"the shipped default profile selects Outdoor music for Forest maps"
+	)
 	_expect_equal(
 		MusicSettingsScript.default_music_choice("Camp"),
 		"camp.mod",
