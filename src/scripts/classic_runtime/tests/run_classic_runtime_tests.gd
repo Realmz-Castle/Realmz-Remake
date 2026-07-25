@@ -10801,6 +10801,69 @@ func _test_execution_coverage_audit(bundle) -> void:
 		"every executable unknown action has a readiness diagnostic"
 	)
 
+	var flow_bundle = BundleScript.new()
+	flow_bundle.extra_codes_by_id[1] = {
+		"id": 1,
+		"values": [990, 0, 0, 100, 101],
+	}
+	flow_bundle.extra_codes_by_id[2] = {
+		"id": 2,
+		"values": [990, 0, 1, 100, 101],
+	}
+	_add_map_trigger(flow_bundle, _map_trigger(1, 1, 1, [
+		_classic_action(0, 21, 1),
+		_classic_action(1, 62, 0),
+	]))
+	_add_map_trigger(flow_bundle, _map_trigger(2, 2, 2, [
+		_classic_action(0, 21, 2),
+		_classic_action(1, 62, 0),
+	]))
+	_add_map_trigger(flow_bundle, _map_trigger(3, 3, 3, [
+		_classic_action(0, -21, 1),
+		_classic_action(1, 62, 0),
+	]))
+	flow_bundle.simple_encounters_by_id[1] = {
+		"id": 1,
+		"callable": true,
+		"actions": [
+			_classic_action(0, 21, 1),
+			_classic_action(1, 62, 0),
+			_classic_action(8, 62, 0),
+		],
+	}
+	var flow_report: Dictionary = ExecutionAuditScript.new().inspect(flow_bundle)
+	var dead_map_action := _audit_action(flow_report, "Data DD", 1, 1)
+	_expect(
+		not bool(dead_map_action.get("executable", true)),
+		"unconditional item branch makes later map slot dead"
+	)
+	_expect_equal(
+		dead_map_action.get("blockedBySlot"),
+		0,
+		"dead map slot identifies its control-flow blocker"
+	)
+	_expect(
+		bool(_audit_action(flow_report, "Data DD", 2, 1).get("executable", false)),
+		"item branch failure-mode fallthrough keeps the next slot executable"
+	)
+	_expect(
+		bool(_audit_action(flow_report, "Data DD", 3, 1).get("executable", false)),
+		"GOSUB item branch conservatively keeps its return slot executable"
+	)
+	_expect(
+		not bool(_audit_action(flow_report, "Data ED", 1, 1).get("executable", true)),
+		"unconditional item branch makes the rest of its encounter result dead"
+	)
+	_expect(
+		bool(_audit_action(flow_report, "Data ED", 1, 8).get("executable", false)),
+		"encounter slot reachability resets at the next result block"
+	)
+	_expect_equal(
+		_audit_diagnostic_count(flow_report, "unsupported-action"),
+		3,
+		"readiness reports only scrolling-text slots with a possible execution path"
+	)
+
 	var macro_bundle = _execution_audit_test_bundle()
 	var macro_report: Dictionary = ExecutionAuditScript.new().inspect(macro_bundle)
 	var macro_contexts: Dictionary = macro_report.get("contexts", {})
@@ -30149,6 +30212,23 @@ func _audit_diagnostic_count(report: Dictionary, code: String) -> int:
 		if diagnostic_value is Dictionary and diagnostic_value.get("code") == code:
 			count += 1
 	return count
+
+
+func _audit_action(
+	report: Dictionary,
+	source: String,
+	record_index: int,
+	slot: int
+) -> Dictionary:
+	for action_value: Variant in report.get("actions", []):
+		if (
+			action_value is Dictionary
+			and action_value.get("source") == source
+			and int(action_value.get("recordIndex", -1)) == record_index
+			and int(action_value.get("slot", -1)) == slot
+		):
+			return action_value
+	return {}
 
 
 func _party_state_test_bundle():

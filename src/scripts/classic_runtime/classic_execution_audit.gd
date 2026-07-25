@@ -76,6 +76,25 @@ func _producer_marks_callable(trigger: Dictionary) -> bool:
 	return bool(trigger.get("active", true))
 
 
+func _has_linear_fallthrough(bundle: ClassicCampaignBundle, action: Dictionary) -> bool:
+	var raw_code := int(action.get("rawCode", 0))
+	var code := InterpreterScript.normalize_opcode(raw_code)
+	# A negative action begins a GOSUB. Its target can explicitly return to the
+	# following slot, so only the positive branch form can make later slots dead.
+	if code != 21 or raw_code < 0:
+		return true
+	var extra_code: Dictionary = bundle.get_extra_code(int(action.get("id", -1)))
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		return true
+	var target_kind := int(values[1])
+	var missing_item_mode := int(values[2])
+	# Classic branches on possession for target kinds 0..2. When the item is
+	# absent, mode 0 branches and mode 2 displays a message and exits. Only mode
+	# 1 can fall through to the next action in the source record.
+	return target_kind not in [0, 1, 2] or missing_item_mode == 1
+
+
 func _append_encounter_actions(
 	bundle: ClassicCampaignBundle,
 	records_by_id: Dictionary,
@@ -129,9 +148,19 @@ func _append_record_actions(
 				int(record.get("recordIndex", -1)),
 			],
 		})
+	var flow_executable := executable
+	var blocked_by_slot := -1
+	var result_index := -1
 	for action_value: Variant in record_actions:
 		if not (action_value is Dictionary):
 			continue
+		var slot := int(action_value.get("slot", -1))
+		if storage_context in ["data-ed-result", "data-ed2-result"]:
+			var action_result_index := floori(float(slot) / 8.0)
+			if action_result_index != result_index:
+				result_index = action_result_index
+				flow_executable = executable
+				blocked_by_slot = -1
 		var raw_code := int(action_value.get("rawCode", 0))
 		var code := InterpreterScript.normalize_opcode(raw_code)
 		var support := "unknown"
@@ -139,7 +168,6 @@ func _append_record_actions(
 			support = "fixture-proven-handler"
 		elif bundle.is_dispatcher_noop(record, action_value):
 			support = "source-backed-noop"
-		var slot := int(action_value.get("slot", -1))
 		var entry := {
 			"key": "%s:%d:%d:%d" % [
 				str(record.get("source", "")),
@@ -156,9 +184,12 @@ func _append_record_actions(
 			"id": int(action_value.get("id", 0)),
 			"storageContext": storage_context,
 			"executionContexts": execution_contexts.duplicate(),
-			"executable": executable,
+			"executable": flow_executable,
+			"reachableWithinRecord": flow_executable,
 			"support": support,
 		}
+		if blocked_by_slot >= 0:
+			entry["blockedBySlot"] = blocked_by_slot
 		if storage_context in ["data-ed-result", "data-ed2-result"]:
 			entry["result"] = floori(float(slot) / 8.0) + 1
 			entry["resultSlot"] = slot % 8
@@ -167,7 +198,7 @@ func _append_record_actions(
 				action_value["mediaRequiredForProgression"]
 			)
 		actions.append(entry)
-		if executable and support == "unknown":
+		if flow_executable and support == "unknown":
 			diagnostics.append({
 				"severity": "error",
 				"code": "unsupported-action",
@@ -182,6 +213,9 @@ func _append_record_actions(
 					slot,
 				],
 			})
+		if flow_executable and not _has_linear_fallthrough(bundle, action_value):
+			flow_executable = false
+			blocked_by_slot = slot
 
 
 func _collect_macro_roots(

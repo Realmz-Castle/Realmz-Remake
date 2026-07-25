@@ -190,6 +190,15 @@ trigger's existing `active` field and treats battle and encounter records as
 callable, so version 1 producers retain their original conservative audit
 behavior.
 
+Within a callable record, readiness also follows source-backed linear control
+flow. A positive opcode `21` with a valid target kind (`0` through `2`) cannot
+reach later slots when its missing-item mode branches (`0`) or exits after text
+(`2`). Negative/GOSUB opcode `21` remains conservative because the target can
+return to the following slot. Each eight-slot encounter-result row is a separate
+entry point, so a branch in one result does not suppress another result's
+actions. Dead slots remain inventoried with their blocking slot but do not
+become readiness blockers.
+
 Remake uses the semantic fields and stable identities. It must not reinterpret
 unknown preserved bytes as authored behavior. Unknown fields remain available for
 diagnostics and future contract versions, while `evidence.json` records source
