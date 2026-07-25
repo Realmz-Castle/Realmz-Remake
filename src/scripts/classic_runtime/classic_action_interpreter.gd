@@ -13,9 +13,9 @@ const HANDLED_OPCODES := [
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 52, 54, 56, 57, 58,
-	73, 82, 83, 85, 86, 87, 89,
+	73, 82, 83, 84, 85, 86, 87, 89,
 	93, 94, 95, 96, 97, 98,
-	100, 106, 111, 112,
+	99, 100, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
 ]
 const PRIEST_TURNING_ENABLED_MESSAGE := \
@@ -890,8 +890,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_look_direction(record_id)
 		96, 97:
 			return _execute_map_view_mode(code == 97)
-		98:
-			# Registration gates have no effect in the open-source Classic runtime.
+		84, 98, 99:
+			# The open-source Classic dispatcher disables every registration gate.
 			return _continue_result()
 		100:
 			return _yield_result("end_classic_battle", {

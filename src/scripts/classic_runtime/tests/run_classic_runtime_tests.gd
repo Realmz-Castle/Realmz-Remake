@@ -24377,6 +24377,11 @@ func _test_party_state_actions() -> void:
 	_expect(interpreter.begin_trigger("party:registration"), "begin registration fixture")
 	var registration_result: Dictionary = interpreter.run_until_yield()
 	_expect_equal(registration_result.get("payload", {}).get("messageId"), 904, "registration gate is a no-op")
+	_expect_equal(
+		interpreter.trace.map(func(entry: Dictionary) -> int: return int(entry.get("code", 0))),
+		[84, 98, 99, 1],
+		"all disabled registration gates preserve surrounding flow"
+	)
 
 	interpreter = _interpreter(bundle)
 	_expect(interpreter.begin_trigger("party:random-xap"), "begin random XAP fixture")
@@ -30169,7 +30174,9 @@ func _party_state_test_bundle():
 	_add_stack_trigger(bundle, "party:ally-message", -1, [_classic_action(0, 87, 6)])
 	_add_stack_trigger(bundle, "party:add-ally", -1, [_classic_action(0, 89, 71)])
 	_add_stack_trigger(bundle, "party:registration", -1, [
+		_classic_action(0, 84, 0),
 		_classic_action(0, 98, 0),
+		_classic_action(0, 99, 0),
 		_classic_action(1, 1, 904),
 	])
 	_add_stack_trigger(bundle, "party:random-xap", -1, [_classic_action(0, 85, 3)])
