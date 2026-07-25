@@ -90,6 +90,21 @@ static func land_secret_state(value: int) -> int:
 	return LAND_SECRET_NONE
 
 
+static func land_action_point_allows_entry(value: int) -> bool:
+	# buttonchoice.c resolves an outdoor Action Point marker before consulting
+	# the underlying land tile's solid flag. Hidden secrets first shed their
+	# 3000 offset, so they do not gain this exception until discovered.
+	var field := value
+	if field > 0:
+		field = _clear_classic_short_bit(field, 1)
+		field = _clear_classic_short_bit(field, 2)
+	if field > 2999:
+		field -= 3000
+	elif field < -2999:
+		field += 3000
+	return absi(field) > 999
+
+
 static func native_darkness(is_dark: bool) -> int:
 	return 0 if is_dark else -1
 
@@ -546,6 +561,88 @@ func resolve_dungeon_movement(
 		"message": DUNGEON_SECRET_BLOCKED_MESSAGE,
 		"field": unsigned_field,
 	}
+
+
+func resolve_land_movement(
+	runtime_state: Object,
+	_from_position: Vector2i,
+	to_position: Vector2i,
+	game_global: Object
+) -> Dictionary:
+	if runtime_state == null or str(runtime_state.get("level_type")) != "land":
+		return {"handled": false}
+	var level_index := int(runtime_state.get("level_index"))
+	var map_name := native_map_name("land", level_index)
+	if game_global == null or str(game_global.get("currentmap_name")) != map_name:
+		return {"handled": false}
+	if classic_bundle == null or not classic_bundle.has_method("get_map"):
+		return _movement_error("Classic land map data is unavailable")
+	var map_record: Variant = classic_bundle.get_map("land:%d" % level_index)
+	if not (map_record is Dictionary):
+		return _movement_error("Classic land map %d is unavailable" % level_index)
+	var width := int(map_record.get("width", 0))
+	var height := int(map_record.get("height", 0))
+	var tiles: Variant = map_record.get("tiles", [])
+	if (
+		not (tiles is Array)
+		or width <= 0
+		or height <= 0
+		or tiles.size() != width * height
+		or to_position.x < 0
+		or to_position.y < 0
+		or to_position.x >= width
+		or to_position.y >= height
+	):
+		return _movement_error("Classic land movement is outside map %s" % map_name)
+
+	var tile_index := _classic_map_tile_index(
+		"land",
+		width,
+		height,
+		to_position.x,
+		to_position.y
+	)
+	var fallback_field := int(tiles[tile_index])
+	var field := fallback_field
+	if runtime_state.has_method("get_tile"):
+		field = int(runtime_state.call(
+			"get_tile",
+			"land",
+			level_index,
+			to_position.x,
+			to_position.y,
+			fallback_field
+		))
+	if not land_action_point_allows_entry(field):
+		return {"handled": false}
+	return {
+		"handled": true,
+		"allowed": true,
+		"field": field,
+	}
+
+
+func resolve_movement(
+	runtime_state: Object,
+	from_position: Vector2i,
+	to_position: Vector2i,
+	game_global: Object,
+	resources: Object
+) -> Dictionary:
+	if runtime_state != null and str(runtime_state.get("level_type")) == "land":
+		return resolve_land_movement(
+			runtime_state,
+			from_position,
+			to_position,
+			game_global
+		)
+	return resolve_dungeon_movement(
+		runtime_state,
+		from_position,
+		to_position,
+		game_global,
+		resources
+	)
 
 
 func set_darkness(payload: Dictionary, game_global: Object, resources: Object) -> Dictionary:

@@ -209,6 +209,24 @@ func resolve_dungeon_movement(from_position: Vector2i, to_position: Vector2i) ->
 	}
 
 
+func resolve_map_movement(from_position: Vector2i, to_position: Vector2i) -> Dictionary:
+	if command_adapter == null \
+			or not command_adapter.has_method("resolve_classic_map_movement"):
+		return {"handled": false}
+	var response: Variant = command_adapter.call(
+		"resolve_classic_map_movement",
+		runtime.runtime_state,
+		from_position,
+		to_position
+	)
+	return response if response is Dictionary else {
+		"status": "error",
+		"handled": true,
+		"allowed": false,
+		"message": "Classic map movement adapter returned an invalid response",
+	}
+
+
 func discover_map_secrets(position: Vector2i) -> Dictionary:
 	if command_adapter == null \
 			or not command_adapter.has_method("discover_classic_map_secrets"):

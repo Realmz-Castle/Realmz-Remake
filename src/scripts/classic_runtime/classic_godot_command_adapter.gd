@@ -334,6 +334,28 @@ func resolve_classic_dungeon_movement(
 	return result
 
 
+func resolve_classic_map_movement(
+	runtime_state: Object,
+	from_position: Vector2i,
+	to_position: Vector2i
+) -> Dictionary:
+	var result := classic_map_bridge.resolve_movement(
+		runtime_state,
+		from_position,
+		to_position,
+		_autoload("GameGlobal"),
+		_classic_campaign_resources()
+	)
+	if bool(result.get("revealed", false)):
+		_play_sound({"soundId": 85})
+	elif bool(result.get("handled", false)) and not bool(result.get("allowed", false)):
+		var message := str(result.get("message", ""))
+		var text_rect := _text_rect()
+		if not message.is_empty() and text_rect != null:
+			text_rect.set_text(message, false)
+	return result
+
+
 func discover_classic_map_secrets(
 	runtime_state: Object,
 	position: Vector2i

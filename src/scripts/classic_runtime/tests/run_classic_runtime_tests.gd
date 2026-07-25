@@ -12891,6 +12891,22 @@ func _test_classic_map_bridge() -> void:
 		"mapd_2",
 		"dungeon map uses native map naming"
 	)
+	_expect(
+		not MapBridgeScript.land_action_point_allows_entry(181),
+		"ordinary solid land tile retains native collision"
+	)
+	_expect(
+		MapBridgeScript.land_action_point_allows_entry(1181),
+		"land Action Point marker overrides its underlying solid tile"
+	)
+	_expect(
+		MapBridgeScript.land_action_point_allows_entry(2181),
+		"discovered land secret retains Action Point entry"
+	)
+	_expect(
+		not MapBridgeScript.land_action_point_allows_entry(3181),
+		"undiscovered land secret retains its underlying collision"
+	)
 
 	var forest_tiles: Array = [
 		{"tileset_name": "ForestDay", "id": 0, "name": "grass"},
@@ -13042,6 +13058,33 @@ func _test_classic_map_bridge() -> void:
 		game_global.map.mapsecrets.get(Vector2i(1, 0), [])[0],
 		1,
 		"land reveal updates the currently loaded native map"
+	)
+	var land_movement_state = StateScript.new()
+	land_movement_state.set_location("land", 0, 0, 0)
+	land_movement_state.set_tile("land", 0, 1, 1, 1002)
+	var land_action_point_entry: Dictionary = bridge.resolve_land_movement(
+		land_movement_state,
+		Vector2i(0, 1),
+		Vector2i(1, 1),
+		game_global
+	)
+	_expect(bool(land_action_point_entry.get("handled")), "land Action Point owns movement")
+	_expect(bool(land_action_point_entry.get("allowed")), "land Action Point cell is passable")
+	_expect_equal(
+		land_action_point_entry.get("field"),
+		1002,
+		"land movement uses the current preserved Action Point field"
+	)
+	land_movement_state.set_tile("land", 0, 1, 1, 3002)
+	var hidden_land_secret_entry: Dictionary = bridge.resolve_land_movement(
+		land_movement_state,
+		Vector2i(0, 1),
+		Vector2i(1, 1),
+		game_global
+	)
+	_expect(
+		not bool(hidden_land_secret_entry.get("handled")),
+		"hidden land secret leaves collision to its underlying native tile"
 	)
 	var redraws_before_transition: int = int(game_global.map.redraw_count)
 	var same_map: Dictionary = bridge.transition({

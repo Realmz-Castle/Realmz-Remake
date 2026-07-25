@@ -123,7 +123,7 @@ func on_trying_to_move_to_tile_stack(_crea : Creature, stack : Array, position :
 		int(mapfocuschar.tile_position_x),
 		int(mapfocuschar.tile_position_y)
 	)
-	var classic_movement: Dictionary = GameGlobal.resolve_classic_dungeon_movement(
+	var classic_movement: Dictionary = GameGlobal.resolve_classic_map_movement(
 		current_position,
 		Vector2i(position)
 	)

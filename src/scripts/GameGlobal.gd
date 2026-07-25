@@ -684,6 +684,28 @@ func resolve_classic_dungeon_movement(
 	}
 
 
+func resolve_classic_map_movement(
+	from_position: Vector2i,
+	to_position: Vector2i
+) -> Dictionary:
+	if (
+		not is_instance_valid(classic_runtime_host)
+		or not classic_runtime_host.has_method("resolve_map_movement")
+	):
+		return {"handled": false}
+	var result: Variant = classic_runtime_host.call(
+		"resolve_map_movement",
+		from_position,
+		to_position
+	)
+	return result if result is Dictionary else {
+		"status": "error",
+		"handled": true,
+		"allowed": false,
+		"message": "Registered Classic runtime host returned an invalid movement response",
+	}
+
+
 func discover_classic_map_secrets(position: Vector2i) -> Dictionary:
 	if (
 		not is_instance_valid(classic_runtime_host)
