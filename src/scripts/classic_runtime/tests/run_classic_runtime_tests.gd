@@ -7108,7 +7108,7 @@ func _test_classic_monster_decision() -> void:
 	)
 	var animation_source := FileAccess.get_file_as_string(
 		"res://scripts/states/CbAnimationState.gd"
-	)
+	).replace("\r\n", "\n")
 	_expect(
 		animation_source.contains(
 			"if spell_damage > 0:\n\t\t\t\tcb.creature.mark_classic_attacked()"
