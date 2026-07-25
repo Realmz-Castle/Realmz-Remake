@@ -14,6 +14,8 @@ func _set(propname : StringName,ntext : Variant) :
 	match propname :
 		"text" :
 			super.set_text(ntext)
+			return true
+	return false
 #	var sz = $"Label".get_combined_minimum_size()
 #	_set_size(Vector2(320,sz.y+10))
 

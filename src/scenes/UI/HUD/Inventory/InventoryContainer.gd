@@ -21,7 +21,7 @@ func set_belongstoally(value : bool) :
 	belongstoally = value
 	modulate = Color(1,1,1,0.75) if value else Color.WHITE
 
-func _can_drop_data(_pos, data):
+func _can_drop_data(_pos, data) -> bool:
 	if belongstoally :
 		return false
 	# good enough to prove it's an item !
@@ -41,7 +41,7 @@ func _can_drop_data(_pos, data):
 				var shop = GameGlobal.get_shop(GameGlobal.currentShop)
 				var price = int(data[0]["price"]*shop["sell_rate"])
 				return mycharacter.can_add_inventory_item(data[0]) and  mycharacter.money[0]+GameGlobal.money_pool[0]>=price # check for money first
-				
+	return false
 				
 func _drop_data(_pos, data):
 	print("CharacterInventoryContainer "+name+" _drop_data ")
