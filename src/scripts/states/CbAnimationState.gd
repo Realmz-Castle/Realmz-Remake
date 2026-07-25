@@ -633,7 +633,7 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 	var attackercb : CombatCreaButton = msg["attacker"]
 	var defendercb : CombatCreaButton = msg["defender"]
 
-	var weapon : Dictionary = msg["weapon"]
+	var weapon: Variant = msg["weapon"]
 	attackercb.creature.used_apr += 1
 	attackercb.creature.mark_classic_attack_attempt()
 	var accuracy : float = GameGlobal.calculate_melee_accuracy(attackercb.creature, defendercb.creature, weapon, true)
@@ -660,17 +660,22 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 	if not continue_action :
 		#print("CbAnimation.perform_melee_attack : not continue_action , returned_action_queue = ", returned_action_queue)
 		return [continue_action, returned_action_queue]
-	# Classic redirects an attack that already hit; it does not queue a second
-	# attack with another accuracy roll or action cost.
-	if hit_success and defendercb.creature.on_melee_reflection_check(
-		attackercb.creature,
-		weapon
-	):
-		defendercb = attackercb
 	var weapon_instance: ItemInstance = attackercb.creature.get_item_instance(
 		weapon
 	)
 	var item_resources = NodeAccess.__Resources()
+	var compatibility_weapon: Dictionary = (
+		item_resources.legacy_item_view_for_adapter(weapon_instance)
+		if weapon_instance != null
+		else weapon if weapon is Dictionary else {}
+	)
+	# Classic redirects an attack that already hit; it does not queue a second
+	# attack with another accuracy roll or action cost.
+	if hit_success and defendercb.creature.on_melee_reflection_check(
+		attackercb.creature,
+		compatibility_weapon
+	):
+		defendercb = attackercb
 	var weapon_definition := item_resources.get_item_definition(weapon_instance) \
 		if weapon_instance != null else null
 	var picture : String = "ATK_WPN"
@@ -745,7 +750,7 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 						defender.creature,
 						"",
 					)
-		elif weapon.has("melee_inflicted_traits") :
+		elif weapon is Dictionary and weapon.has("melee_inflicted_traits") :
 			var inflicted_traits_array : Array = weapon["melee_inflicted_traits"]
 			# looks like [traitname:String, traitinitargs : Array, chance : float]
 			for itr : Array in inflicted_traits_array :

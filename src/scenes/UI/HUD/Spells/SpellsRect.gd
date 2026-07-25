@@ -15,6 +15,7 @@ class_name SpellsMenu
 
 @onready var spellLevelsRect = $"VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer"
 @onready var spelllistContainer = $"VBoxContainer/TopContainer/SpellsListRect/ScrollContainer/SpellListContainer"
+@onready var slevelbutton1: Button = $"VBoxContainer/TopContainer/SpellLevelsRect/SpellLevelsContainer/SLevelButton1"
 
 @onready var spellPowersContainer = $"VBoxContainer/MiddleContainer/PowerLevelsRect/PowerLevelsContainer"
 
@@ -136,7 +137,8 @@ func initialize(character) :
 		if c.get_index() >0 :
 			c.set_button_group(powerbgroup)
 	
-	_on_SLevelButton_pressed(0)
+	slevelbutton1.button_pressed = true
+	_on_SLevelButton_pressed(1)
 	_on_PLevelButton_pressed(1)
 
 

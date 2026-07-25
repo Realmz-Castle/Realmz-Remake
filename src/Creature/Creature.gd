@@ -915,7 +915,14 @@ func initialize_from_bestiary_dict(creaname : String) :
 #	var resources = NodeAccess.__Resources()
 	spells = [ [],[],[],[],[],[],[] ]
 	for se in cdata["tools"]["spells"] :
-		var spell = resources.spells_book[se[0]]['script']
+		var spell_name := str(se[0])
+		if not resources.spells_book.has(spell_name):
+			push_warning(
+				"Bestiary creature %s references unavailable spell %s"
+				% [name, spell_name]
+			)
+			continue
+		var spell = resources.spells_book[spell_name]['script']
 		var slevel : int = 1
 		for school in spell.school_levels :
 			if spell.school_levels[school] > slevel :
@@ -1315,7 +1322,8 @@ func get_melee_weapon_for_next_attack() -> Variant:
 	var active_weapon: Variant = current_melee_weapon_instances[0] \
 		if not current_melee_weapon_instances.is_empty() else ITEM_NO_MELEE_WEAPON
 	if not is_classic_monster_record():
-		if active_weapon == ITEM_NO_MELEE_WEAPON \
+		if active_weapon is Dictionary \
+				and active_weapon == ITEM_NO_MELEE_WEAPON \
 				and not rotating_unarmed_melee_weapons.is_empty():
 			return rotating_unarmed_melee_weapons[
 				posmod(used_apr, rotating_unarmed_melee_weapons.size())

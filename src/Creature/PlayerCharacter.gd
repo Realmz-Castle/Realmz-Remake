@@ -19,6 +19,9 @@ const ClassicRegenerationScript = preload(
 const ClassicSpellScreenScript = preload(
 	"res://scripts/classic_runtime/classic_spell_screen.gd"
 )
+const AutoCombatScript = preload(
+	"res://shared_assets/CreatureScripts/test_crea_script.gd"
+)
 
 var portrait : Texture2D = null
 var icon : Texture2D = null
@@ -131,6 +134,12 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 	is_player_controlled = true
 	baseFaction = 0
 	curFaction = 0
+	creature_script = AutoCombatScript
+	ai_variables = {
+		"cast_chance": 0,
+		"flees_at": 0,
+		"missile_chance": 0,
+	}
 	portrait = new_portrait
 	icon = new_icon
 	classgd = new_classgd

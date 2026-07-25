@@ -75,6 +75,13 @@ const REQUIRED_STABLE_TOKENS := {
 	"res://scripts/native_encounters/native_encounter_controller.gd": [
 		"_on_item_used(item: ItemInstance",
 	],
+	"res://scripts/states/CbDecideActionState.gd": [
+		"var used_weapon: Variant =",
+	],
+	"res://scripts/states/CbAnimationState.gd": [
+		"var weapon: Variant = msg[\"weapon\"]",
+		"compatibility_weapon",
+	],
 }
 
 var _assertions := 0

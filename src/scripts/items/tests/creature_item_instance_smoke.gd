@@ -121,6 +121,10 @@ func _test_equipment_handoff_and_slots() -> void:
 		"deprecated melee property returns the authoritative ItemInstance",
 	)
 	_expect(
+		melee_user.get_melee_weapon_for_next_attack() == first_instance,
+		"equipped player melee attacks hand off the authoritative ItemInstance",
+	)
+	_expect(
 		not melee_user.equip_item(second_dagger),
 		"second one-handed weapon is rejected without dual wield",
 	)

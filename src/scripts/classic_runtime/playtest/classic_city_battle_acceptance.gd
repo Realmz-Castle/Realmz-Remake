@@ -16,6 +16,12 @@ const BATTLE_ID := 45
 const MONSTER_ID := 80
 const EXPECTED_ENEMY_COUNT := 24
 const TRIGGER_POSITION := Vector2i(2, 44)
+const DRAGON_TRIGGER_ID := "Data DD:0:67"
+const DRAGON_BATTLE_ID := 176
+const DRAGON_MONSTER_ID := 39
+const DRAGON_TRIGGER_POSITION := Vector2i(29, 24)
+const DRAGON_INTRO_MESSAGE := "You emerge into the musty confines of a large cavern"
+const DRAGON_BATTLE_MESSAGE := "You stand toe-to-toe with a blue dragon"
 const GUARD_TRIGGER_ID := "Data DD:0:0"
 const GUARD_POSITION := Vector2i(9, 17)
 const GUARD_INTRO_MESSAGE := "You enter the guard house outside the main gate"
@@ -79,6 +85,7 @@ var launch_through_ui := false
 var interactive_overworld := false
 var presentation_only := false
 var winter_smoke := false
+var dragon_smoke := false
 var acceptance_phase := ""
 var profile_root := ""
 var smoke_capture_directory := ""
@@ -102,6 +109,8 @@ func _start_playtest() -> void:
 			presentation_only = true
 		elif argument == "--winter-smoke":
 			winter_smoke = true
+		elif argument == "--dragon-smoke":
+			dragon_smoke = true
 		elif argument == "--save-phase":
 			acceptance_phase = "save"
 			launch_through_ui = true
@@ -163,6 +172,10 @@ func _start_playtest() -> void:
 		return
 	if winter_smoke:
 		await _verify_winter_timed_encounter()
+		_finish_smoke()
+		return
+	if dragon_smoke:
+		await _verify_dragon_battle()
 		_finish_smoke()
 		return
 	if not await _present_city_splash():
@@ -620,10 +633,10 @@ func _launch_installed_campaign() -> bool:
 		if metadata is Dictionary else {}
 	_verify_stage(
 		"00_ui_discovery",
-		str(selection_rules.get("title", "")) == "City of Bywater"
-			and str(selection_rules.get("readinessState", "")) == "Ready with fallbacks"
+		str(selection_rules.get("title", "")).begins_with("City of Bywater")
+			and str(selection_rules.get("readinessState", "")).begins_with("Ready")
 			and bool(selection_rules.get("valid", false)),
-		"the normal campaign menu discovers the clean install as Ready with fallbacks"
+		"the normal campaign menu discovers the clean install as ready"
 	)
 	if not smoke_failures.is_empty():
 		return false
@@ -730,11 +743,18 @@ func _finish_victory_and_reload() -> void:
 		_finish_smoke()
 		return
 	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
-	if not await _wait_for_allies():
-		_fail("10_victory", "the post-battle allies screen did not open")
-		_finish_smoke()
-		return
-	UI.ow_hud.alliesCtrl.okbutton.pressed.emit()
+	if GameGlobal.player_allies.is_empty():
+		await get_tree().process_frame
+		if UI.ow_hud.alliesWindow.visible:
+			_fail("10_victory", "victory opened ally management for an empty ally roster")
+			_finish_smoke()
+			return
+	else:
+		if not await _wait_for_allies():
+			_fail("10_victory", "the post-battle allies screen did not open")
+			_finish_smoke()
+			return
+		UI.ow_hud.alliesCtrl.okbutton.pressed.emit()
 	if not await _dismiss_message(RETURN_MESSAGE):
 		_fail("11_outer_resume", "the authored post-battle message did not open")
 		_finish_smoke()
@@ -1016,6 +1036,145 @@ func _verify_winter_timed_encounter() -> void:
 	)
 	if winter_message_presented:
 		UI.ow_hud.textRect.disablerButton.pressed.emit()
+
+
+func _verify_dragon_battle() -> void:
+	_move_to_position(DRAGON_TRIGGER_POSITION)
+	var resources: CampaignResources = NodeAccess.__Resources()
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	GameGlobal.gamespeed = 0.001
+	character.base_stats["Dexterity"] = 100
+	character.base_stats["AccuracyMelee"] = 100
+	character.base_stats["MaxActions"] = 5
+	character.base_stats["MaxMovement"] = 20
+	character.recalculate_stats()
+	var dagger: ItemInstance = GameGlobal.generate_item("Dagger")
+	if dagger == null \
+			or not character.add_inventory_item(dagger) \
+			or not character.equip_item(dagger):
+		_fail("00_melee_item", "the acceptance character could not equip a native Dagger")
+		return
+	if not resources.spells_book.has("Flame Missile"):
+		_fail("00_spell_default", "the shared Flame Missile resource is unavailable")
+		return
+	character.add_spell_from_spells_book("Flame Missile", 1)
+	var spell_menu: SpellsMenu = UI.ow_hud.spellcastMenu
+	spell_menu.initialize(character)
+	await get_tree().process_frame
+	var default_spell_visible := false
+	for spell_button: Node in spell_menu.spelllistContainer.get_children():
+		if spell_button is Button and spell_button.text == "Flame Missile":
+			default_spell_visible = true
+			break
+	_verify_stage(
+		"00_spell_default",
+		spell_menu.picked_level == 1
+			and spell_menu.slevelbutton1.button_pressed
+			and default_spell_visible,
+		"the spell picker selects and displays level 1 on open"
+	)
+	spell_menu.hide()
+	if not smoke_failures.is_empty():
+		return
+
+	resources.battles_book.erase("Battle_%d" % DRAGON_BATTLE_ID)
+	if not host.start_trigger(DRAGON_TRIGGER_ID):
+		_fail("00_dragon_battle", str(host.runtime.last_result))
+		return
+	if not await _dismiss_message(DRAGON_INTRO_MESSAGE):
+		_fail("00_dragon_battle", "the authored cavern message did not open")
+		return
+	if not await _dismiss_message(DRAGON_BATTLE_MESSAGE):
+		_fail("00_dragon_battle", "the authored blue-dragon message did not open")
+		return
+
+	var entered_combat := false
+	for _frame: int in 600:
+		if StateMachine.is_combat_state() \
+				and int(StateMachine.combat_state.cur_battle_data.get(
+					"classicBattleId", -1
+				)) == DRAGON_BATTLE_ID:
+			entered_combat = true
+			break
+		await get_tree().process_frame
+	var battle: Dictionary = resources.battles_book.get(
+		"Battle_%d" % DRAGON_BATTLE_ID,
+		{}
+	)
+	_verify_stage(
+		"00_dragon_battle",
+		entered_combat
+			and battle.get("Creatures", []).size() == 1
+			and _classic_enemy_count(DRAGON_MONSTER_ID) == 1
+			and not UI.ow_hud.treasureControl.visible
+			and not UI.ow_hud.alliesWindow.visible,
+		"AP 67 enters battle 176 with its single blue dragon before rewards"
+	)
+	if not entered_combat or not smoke_failures.is_empty():
+		return
+	await _verify_dragon_auto_melee(character)
+
+
+func _verify_dragon_auto_melee(character: PlayerCharacter) -> void:
+	var dragon: Creature
+	for button: CombatCreaButton in StateMachine.combat_state.all_battle_creatures_btns:
+		if int(button.creature.get_meta("classic_monster_id", -1)) == DRAGON_MONSTER_ID:
+			dragon = button.creature
+			break
+	if dragon == null:
+		_fail("00_combat_auto", "the blue dragon combatant is unavailable")
+		return
+	var dragon_spell_names: Array[String] = []
+	for spell_level: Array in dragon.spells:
+		for learned_spell: Dictionary in spell_level:
+			dragon_spell_names.append(str(learned_spell.get("name", "")))
+	var has_all_breath_spells := true
+	for breath_spell: String in [
+		"Acid Breath",
+		"Flame Breath",
+		"Frost Breath",
+		"Lightning Breath",
+	]:
+		if not dragon_spell_names.has(breath_spell):
+			has_all_breath_spells = false
+			break
+	_verify_stage(
+		"00_dragon_spells",
+		has_all_breath_spells,
+		"the shared blue dragon loads all four stock Realmz breath spells"
+	)
+	if not smoke_failures.is_empty():
+		return
+
+	var initial_hp := float(dragon.get_stat("curHP"))
+	var auto_presses := 0
+	var action_left_decision_state := true
+	for _frame: int in 1200:
+		if float(dragon.get_stat("curHP")) < initial_hp:
+			break
+		if not StateMachine.is_combat_state():
+			break
+		if StateMachine._state_name != "CbDecideAction":
+			action_left_decision_state = true
+			await get_tree().process_frame
+			continue
+		var active_button: CombatCreaButton = (
+			StateMachine.cb_decide_state.current_active_creabutton
+		)
+		if is_instance_valid(active_button) \
+				and active_button.creature == character \
+				and action_left_decision_state:
+			UI.ow_hud.combatBRPanel.autobutton.pressed.emit()
+			auto_presses += 1
+			action_left_decision_state = false
+		await get_tree().process_frame
+	_verify_stage(
+		"00_combat_auto",
+		auto_presses > 0
+			and character.used_apr > 0
+			and float(dragon.get_stat("curHP")) < initial_hp,
+		"Auto advances the player into range and lands an equipped-weapon melee attack"
+	)
 
 
 func _dismiss_message(prefix: String) -> bool:

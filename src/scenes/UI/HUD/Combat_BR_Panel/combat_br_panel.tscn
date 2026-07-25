@@ -367,6 +367,7 @@ text = "debug
 kill"
 
 [connection signal="pressed" from="FinishButton" to="." method="_on_finish_button_pressed"]
+[connection signal="pressed" from="AutoButton" to="." method="_on_auto_button_pressed"]
 [connection signal="pressed" from="DelayButton" to="." method="_on_delay_button_pressed"]
 [connection signal="pressed" from="GuardButton" to="." method="_on_guard_button_pressed"]
 [connection signal="pressed" from="PrepareButton" to="." method="_on_prepare_button_pressed"]

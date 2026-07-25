@@ -1,13 +1,20 @@
 extends TextureRect
 
 var hud : OW_HUD
+@onready var autobutton : Button = $AutoButton
 @onready var spellbutton : Button = $SpellButton
 @onready var inventorybutton : Button= $InventoryButton
 
 @onready var finishbutton : Button = $FinishButton
 @onready var preparebutton : Button = $PrepareButton
 @onready var turnundeadbutton : Button = $TurnUndeadButton
-@onready var buttons : Array = [spellbutton,inventorybutton,finishbutton,turnundeadbutton]
+@onready var buttons : Array = [
+	autobutton,
+	spellbutton,
+	inventorybutton,
+	finishbutton,
+	turnundeadbutton,
+]
 
 var escape_allowed : bool = true
 
@@ -53,6 +60,21 @@ func _on_finish_button_pressed():
 	if StateMachine._state_name == "CbDecideAction" :
 		if StateMachine.state.current_active_creabutton.creature.is_crea_player_controlled() :
 			StateMachine.state.end_active_creature_turn(false)
+
+
+func _on_auto_button_pressed() -> void:
+	hud.creatureRect._on_mouse_entered()
+	if StateMachine._state_name != "CbDecideAction":
+		return
+	var active_button: CombatCreaButton = (
+		StateMachine.cb_decide_state.current_active_creabutton
+	)
+	if not is_instance_valid(active_button) \
+			or not active_button.creature.is_crea_player_controlled():
+		return
+	set_buttons_enabled(false)
+	StateMachine.cb_decide_state.do_ai_creature_action(active_button.creature)
+
 
 func _on_InventoryButton_pressed():
 	hud.creatureRect._on_mouse_entered()

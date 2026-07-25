@@ -1220,9 +1220,10 @@ func end_battle(
 			})
 			await UI.ow_hud.treasureControl.done_looting
 			print("done looting")
-			GameGlobal.show_allies_menu()
-			await UI.ow_hud.alliesCtrl.done_allying
-			print("done allying")
+			if not player_allies.is_empty():
+				GameGlobal.show_allies_menu()
+				await UI.ow_hud.alliesCtrl.done_allying
+				print("done allying")
 
 
 
