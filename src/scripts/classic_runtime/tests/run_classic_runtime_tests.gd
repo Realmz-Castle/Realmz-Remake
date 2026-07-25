@@ -2462,6 +2462,7 @@ func _ready() -> void:
 	_test_sound_and_treasure(bundle)
 	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
+	_test_position_shift_action()
 	_test_timed_encounter_mutation()
 	_test_timed_encounter_scheduler()
 	await _test_timed_encounter_session_dispatch()
@@ -26783,6 +26784,115 @@ func _test_map_mutations(bundle) -> void:
 		100,
 		"trigger override persists"
 	)
+
+
+func _test_position_shift_action() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 4, "y": 5},
+	}
+	bundle.maps_by_id["land:0"] = {
+		"id": "land:0",
+		"levelType": "land",
+		"levelIndex": 0,
+		"width": 20,
+		"height": 20,
+	}
+	bundle.maps_by_id["dungeon:0"] = {
+		"id": "dungeon:0",
+		"levelType": "dungeon",
+		"levelIndex": 0,
+		"width": 20,
+		"height": 20,
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [0, 2, -3, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [0, 1, 1, 1, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [0, 1, 0, 1, 0]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [0, 40, 0, 0, 0]}
+	_add_map_trigger(bundle, _map_trigger(1, 4, 5, [
+		_classic_action(0, 61, 1),
+		_classic_action(1, 1, 900),
+	]))
+	_add_map_trigger(bundle, _map_trigger(2, 6, 6, [_classic_action(0, 61, 2)]))
+	_add_map_trigger(bundle, _map_trigger(3, 7, 7, [_classic_action(0, 61, 3)]))
+	_add_map_trigger(bundle, _map_trigger(4, 8, 8, [_classic_action(0, 61, 4)]))
+	bundle.messages_by_id[900] = {"id": 900, "text": "Shift completed"}
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:1"), "begin fixed land position shift")
+	var shift_result: Dictionary = interpreter.run_until_yield()
+	var shift_payload: Dictionary = shift_result.get("payload", {})
+	_expect_equal(shift_result.get("command"), "shift_party_position", "opcode 61 map command")
+	_expect_equal(shift_payload.get("fromPosition"), Vector2i(4, 5), "position shift origin")
+	_expect_equal(shift_payload.get("delta"), Vector2i(2, -3), "position shift delta")
+	_expect_equal(Vector2i(shift_payload.get("x"), shift_payload.get("y")), Vector2i(6, 2), "position shift target")
+	_expect_equal(
+		Vector2i(interpreter.runtime_state.x, interpreter.runtime_state.y),
+		Vector2i(6, 2),
+		"position shift persists in Classic state"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("command"),
+		"show_text",
+		"position shift continues through later slots"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:2"), "begin random position shift")
+	var random_payload: Dictionary = interpreter.run_until_yield().get("payload", {})
+	var random_delta: Vector2i = random_payload.get("delta", Vector2i.ZERO)
+	_expect_equal(absi(random_delta.x), 1, "random position shift uses the authored X range")
+	_expect_equal(absi(random_delta.y), 1, "random position shift uses the authored Y range")
+	_expect(bool(random_payload.get("randomized", false)), "random position shift is identified")
+
+	interpreter = _interpreter(bundle)
+	interpreter.runtime_state.set_location("dungeon", 0, 4, 5)
+	_expect(interpreter.begin_trigger("Data DD:0:1"), "begin dungeon position shift")
+	var dungeon_payload: Dictionary = interpreter.run_until_yield().get("payload", {})
+	_expect_equal(dungeon_payload.get("levelType"), "dungeon", "position shift retains dungeon map")
+	_expect_equal(
+		Vector2i(dungeon_payload.get("x"), dungeon_payload.get("y")),
+		Vector2i(6, 2),
+		"position shift applies to dungeon coordinates"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:3"), "begin malformed random position shift")
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"error",
+		"random position shift requires two positive ranges"
+	)
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("Data DD:0:4"), "begin out-of-bounds position shift")
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"error",
+		"position shift cannot leave the compiled map"
+	)
+
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	_expect_equal(
+		_diagnostic_code_count(readiness, "invalid-position-shift"),
+		2,
+		"readiness retains malformed and impossible position shifts as blockers"
+	)
+
+	var host = HostScript.new()
+	get_tree().root.add_child(host)
+	var adapter = GuardHouseAdapter.new()
+	host.configure(adapter)
+	var host_state = StateScript.new()
+	host_state.configure_from_bundle(bundle)
+	host.runtime.use_shared_campaign(bundle, host_state)
+	_expect(host.start_trigger("Data DD:0:1"), "runtime host starts position shift")
+	_expect_equal(
+		adapter.commands.map(func(entry: Dictionary) -> String: return entry["command"]),
+		["shift_party_position", "show_text"],
+		"runtime host routes position shift and continues"
+	)
+	_expect_equal(host.runtime.last_result.get("status"), "completed", "position shift host completes")
+	host.queue_free()
 
 
 func _test_timed_encounter_mutation() -> void:

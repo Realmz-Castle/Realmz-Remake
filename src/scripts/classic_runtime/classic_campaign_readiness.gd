@@ -58,7 +58,7 @@ const SPELL_DEFINITION_FIELDS := [
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
 	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 52, 54, 56, 57,
-	58, 73, 85, 87, 106, 121, 123, 124, 125, 126,
+	58, 61, 73, 85, 87, 106, 121, 123, 124, 125, 126,
 ]
 
 var _diagnostics: Array = []
@@ -205,6 +205,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_party_condition(action, extra_code)
 		elif code == 43:
 			_check_character_condition(action, extra_code)
+		elif code == 61:
+			_check_position_shift(bundle, action, extra_code)
 		elif code == 85:
 			_check_random_branch(bundle, action, extra_code)
 		elif code == 124:
@@ -323,6 +325,46 @@ func _check_direct_record(
 		"missing-%s" % record_kind.replace(" ", "-").to_lower(),
 		"Action references missing %s record %d" % [record_kind, reference_id],
 		{"referenceId": reference_id}
+	)
+
+
+func _check_position_shift(
+	bundle: ClassicCampaignBundle,
+	action: Dictionary,
+	extra_code: Dictionary
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		return
+	var delta_x := int(values[1])
+	var delta_y := int(values[2])
+	var randomized := int(values[3]) != 0
+	var max_x := 0
+	var max_y := 0
+	for map_value: Variant in bundle.maps_by_id.values():
+		if not (map_value is Dictionary):
+			continue
+		max_x = maxi(max_x, int(map_value.get("width", 0)) - 1)
+		max_y = maxi(max_y, int(map_value.get("height", 0)) - 1)
+	var invalid := (
+		(randomized and (delta_x <= 0 or delta_y <= 0))
+		or (not randomized and (absi(delta_x) > max_x or absi(delta_y) > max_y))
+		or (randomized and (delta_x > max_x or delta_y > max_y))
+	)
+	if not invalid:
+		return
+	_add_action_dependency(
+		action,
+		"invalid-position-shift",
+		"Position shift Data EDCD record %d cannot remain within the compiled maps" % [
+			int(extra_code.get("id", -1))
+		],
+		{
+			"referenceId": int(extra_code.get("id", -1)),
+			"deltaX": delta_x,
+			"deltaY": delta_y,
+			"randomized": randomized,
+		}
 	)
 
 

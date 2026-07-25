@@ -484,6 +484,12 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			)
 		"teleport":
 			return await _teleport_classic_party(payload)
+		"shift_party_position":
+			return classic_map_bridge.transition(
+				payload,
+				_autoload("GameGlobal"),
+				_classic_campaign_resources()
+			)
 		"set_view_direction":
 			return classic_map_bridge.redraw_view(payload, _autoload("GameGlobal"))
 		"set_view_mode":

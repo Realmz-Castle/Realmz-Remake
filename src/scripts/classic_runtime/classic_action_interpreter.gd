@@ -13,7 +13,7 @@ const HANDLED_OPCODES := [
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 52, 54, 56, 57, 58,
-	73, 82, 83, 84, 85, 86, 87, 89,
+	61, 73, 82, 83, 84, 85, 86, 87, 89,
 	93, 94, 95, 96, 97, 98,
 	99, 100, 101, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
@@ -879,6 +879,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_landlook(record_id)
 		58:
 			return _execute_difficulty_branch(record_id)
+		61:
+			return _execute_position_shift(record_id)
 		73:
 			return _execute_restricted_shop(record_id)
 		82, 83:
@@ -2263,6 +2265,60 @@ func _execute_landlook(extra_code_id: int) -> Dictionary:
 		"darkness": darkness,
 		"dark": darkness != 0,
 		"redraw": "center" if runtime_state.level_type == "land" else "none",
+	})
+
+
+func _execute_position_shift(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Position shift references missing Extra Code row %d" % extra_code_id
+		)
+	var delta_x := int(values[1])
+	var delta_y := int(values[2])
+	var randomized := int(values[3]) != 0
+	if randomized:
+		if delta_x <= 0 or delta_y <= 0:
+			return _halt_with_error(
+				"Random position shift %d requires positive X and Y ranges" % extra_code_id
+			)
+		delta_x = randi_range(1, delta_x) * (-1 if randi_range(0, 1) == 0 else 1)
+		delta_y = randi_range(1, delta_y) * (-1 if randi_range(0, 1) == 0 else 1)
+
+	var map_id := "%s:%d" % [runtime_state.level_type, runtime_state.level_index]
+	var map_record := bundle.get_map(map_id)
+	var width := int(map_record.get("width", 0))
+	var height := int(map_record.get("height", 0))
+	var target_x := runtime_state.x + delta_x
+	var target_y := runtime_state.y + delta_y
+	if (
+		map_record.is_empty()
+		or width <= 0
+		or height <= 0
+		or target_x < 0
+		or target_y < 0
+		or target_x >= width
+		or target_y >= height
+	):
+		return _halt_with_error(
+			"Position shift %d leaves Classic map %s at %d,%d" % [
+				extra_code_id,
+				map_id,
+				target_x,
+				target_y,
+			]
+		)
+	var previous_position := Vector2i(runtime_state.x, runtime_state.y)
+	runtime_state.set_position(runtime_state.level_index, target_x, target_y)
+	return _yield_result("shift_party_position", {
+		"extraCodeId": extra_code_id,
+		"levelType": runtime_state.level_type,
+		"levelIndex": runtime_state.level_index,
+		"x": target_x,
+		"y": target_y,
+		"delta": Vector2i(delta_x, delta_y),
+		"fromPosition": previous_position,
+		"randomized": randomized,
 	})
 
 

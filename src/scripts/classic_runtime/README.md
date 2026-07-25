@@ -139,6 +139,13 @@ Unarmed monster special attacks `1` through `10`, `16`, `18`, and `19` execute t
 
 Opcode `54` copies a compiled timed encounter into compatibility-owned state before changing its chance, increment, or next day. Negative chance, increment, and day-offset values leave the effective value unchanged; a nonzero reset flag starts the day calculation from Remake's current scenario day. Imported movement costs retain their source `timeclick()` units at rest. The live Classic movement seam converts each click to five in-game minutes on outdoor landlooks or one minute on indoor landlooks, and normalizes every successful dungeon step to the source's one indoor click. An enabled Search pass pays its separate four-click source cost using the current landlook scale. Native Remake campaigns retain their existing clock scale. Remake's native time loop submits each crossed scenario day to the active Classic campaign session. The scheduler reads effective records in source order and preserves `timeclick()`'s control flow: chance, item, and quest failures write the next scheduled day and end that day's scan, while a location mismatch continues without writing the candidate increment. A matching record persists its next day and dispatches its `Data ED3` action point through the normal host. A completed macro resumes the same ordered scan so opcode `54` can affect a later record. Combat queues crossed days without starting another encounter; the queue and scan cursor survive the normal Classic save envelope and resume once the host is available. Compiled records remain immutable.
 
+Opcode `61` applies its signed X/Y shift to the current land or dungeon
+position, or independently rolls a signed magnitude for both axes when the
+source random flag is set. The existing native map bridge moves the party,
+refreshes exploration, and redraws the loaded map before later action slots
+continue. Missing rows, non-positive random ranges, impossible shifts, and
+runtime destinations outside the compiled map remain explicit errors.
+
 Opcode `101` reverses the successful land movement that entered the current
 action point, redraws exploration at the restored tile, and ends the action
 point without applying its ordinary destination or later slots. It remains a
