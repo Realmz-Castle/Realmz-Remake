@@ -670,7 +670,7 @@ func _build_stock_land_tileset_plan(
 	var base_tile := int(base_tile_value) if base_tile_value != null else 0
 	if base_tile <= 0 and records_by_tile.has(0):
 		base_tile = int(records_by_tile[0].get("baseTile", 0))
-	if base_tile < 1 or base_tile > CUSTOM_LAND_TILE_COUNT:
+	if base_tile < 0 or base_tile > CUSTOM_LAND_TILE_COUNT:
 		return {
 			"status": "error",
 			"message": "Classic landlook %d has invalid base tile %d" % [landlook, base_tile],
@@ -924,7 +924,7 @@ func _build_custom_land_tileset_plan(
 				],
 			}
 	var base_tile := int(metadata.get("baseTile", 0))
-	if base_tile < 1 or base_tile > CUSTOM_LAND_TILE_COUNT:
+	if base_tile < 0 or base_tile > CUSTOM_LAND_TILE_COUNT:
 		return {
 			"status": "error",
 			"message": "Classic landlook %d has invalid base tile %d" % [landlook, base_tile],

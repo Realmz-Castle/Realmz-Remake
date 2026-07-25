@@ -64,7 +64,8 @@ static func select_tile_stack_sound(stack: Array) -> Dictionary:
 static func normalize_land_tile(value: int, base_tile: int) -> int:
 	# Classic combines high-bit flags and 1000-offsets with a one-based tile ID.
 	var tile := value
-	var fallback_tile := base_tile if base_tile > 0 else 1
+	# A source-authored base tile of zero means no underlying atlas tile.
+	var fallback_tile := base_tile if base_tile >= 0 else 1
 	if tile > 999:
 		tile = _clear_classic_short_bit(tile, 1)
 		tile = _clear_classic_short_bit(tile, 2)
@@ -76,7 +77,7 @@ static func normalize_land_tile(value: int, base_tile: int) -> int:
 		tile = fallback_tile
 	while tile > 999:
 		tile -= 1000
-	return maxi(1, tile)
+	return maxi(0, tile)
 
 
 static func land_secret_state(value: int) -> int:

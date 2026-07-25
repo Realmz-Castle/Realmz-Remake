@@ -4377,6 +4377,38 @@ func _test_classic_map_materializer() -> void:
 		"materializer fixture stages decoded custom-landlook runtime media"
 	)
 	var materializer = MapMaterializerScript.new()
+	var custom_tileset_asset: Dictionary = {}
+	for tileset_value: Variant in bundle.documents["assets"]["catalog"]["tilesets"]:
+		if (
+			tileset_value is Dictionary
+			and str(tileset_value.get("id", "")) == "landlook-6"
+		):
+			custom_tileset_asset = tileset_value
+			break
+	var zero_base_metadata := custom_landlook.duplicate(true)
+	zero_base_metadata["baseTile"] = 0
+	var zero_base_plan: Dictionary = materializer._build_custom_land_tileset_plan(
+		custom_tileset_asset,
+		zero_base_metadata,
+		"landlook-6",
+		6,
+		test_root
+	)
+	_expect_equal(
+		zero_base_plan.get("status"),
+		"ok",
+		"source-authored zero base tile remains materializable"
+	)
+	_expect_equal(
+		zero_base_plan.get("baseTile"),
+		0,
+		"custom landlook plan preserves a zero base tile"
+	)
+	_expect_equal(
+		MapBridgeScript.normalize_land_tile(201, 0),
+		0,
+		"out-of-atlas Classic land fields preserve an empty zero-base fallback"
+	)
 	_expect_equal(
 		materializer._classic_combat_expansion({
 			"combatBuild": [[1, 2, 3], [4, 5, 6], [7, 8, 200]],
