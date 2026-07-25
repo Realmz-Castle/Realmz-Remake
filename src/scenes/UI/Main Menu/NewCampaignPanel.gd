@@ -251,6 +251,7 @@ func _on_StartButton_pressed() -> void :
 		"classic_light_condition" = 0,
 		"classic_party_conditions" = {},
 		"camping" = 0,
+		"classic_camping_disabled" = 0,
 		"allow_char_swap" = 0,
 		"curr_temple" = [],
 		"curr_shop" = '',

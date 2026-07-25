@@ -410,6 +410,13 @@ class GameTimeTestGlobal:
 		time = current_time
 
 
+class ExplorationStatusTestGlobal:
+	extends RefCounted
+	var camping := false
+	var classic_camping_disabled := false
+	var is_sailing_boat := false
+
+
 class TimeActionAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -425,6 +432,17 @@ class TimeActionAdapter:
 				"scenarioHour": 10,
 				"scenarioMinute": 10,
 			}
+		return {}
+
+
+class ExplorationStatusAdapter:
+	extends RefCounted
+	var commands: Array = []
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		if command == "update_exploration_status":
+			return {"skipRemaining": false}
 		return {}
 
 
@@ -2490,6 +2508,7 @@ func _ready() -> void:
 	_test_map_mutations(bundle)
 	_test_position_shift_action()
 	_test_game_time_actions()
+	_test_exploration_status_actions()
 	_test_timed_encounter_mutation()
 	_test_timed_encounter_scheduler()
 	await _test_timed_encounter_session_dispatch()
@@ -27074,6 +27093,147 @@ func _test_game_time_actions() -> void:
 		"runtime host refreshes time context before branching"
 	)
 	_expect_equal(host_adapter.commands[-1].get("payload", {}).get("messageId"), 911, "host takes updated late branch")
+	host.queue_free()
+
+
+func _test_exploration_status_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 4, "y": 5},
+	}
+	bundle.maps_by_id["land:0"] = {
+		"id": "land:0",
+		"levelType": "land",
+		"levelIndex": 0,
+		"width": 20,
+		"height": 20,
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [1, 2, 0, 0, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [1, 1, 2, 0, 0]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [3, 0, 0, 0, 0]}
+	_add_stack_trigger(bundle, "camp:disable", -1, [
+		_classic_action(0, 66, 1),
+		_classic_action(1, 1, 920),
+	])
+	_add_stack_trigger(bundle, "camp:enable", -1, [_classic_action(0, 66, 0)])
+	_add_stack_trigger(bundle, "status:match", -1, [
+		_classic_action(0, 103, 1),
+		_classic_action(1, 1, 921),
+	])
+	_add_stack_trigger(bundle, "status:mismatch", -1, [
+		_classic_action(0, 103, 2),
+		_classic_action(1, 1, 922),
+	])
+	_add_stack_trigger(bundle, "status:invalid", -1, [_classic_action(0, 103, 3)])
+	for message_id: int in [920, 921, 922]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Exploration fixture %d" % message_id,
+		}
+
+	var interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("camp:disable"), "begin camping disable")
+	var camping_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		camping_command.get("command"),
+		"set_camping_permission",
+		"opcode 66 uses the native camping-permission command"
+	)
+	_expect(
+		bool(camping_command.get("payload", {}).get("disabled", false)),
+		"nonzero opcode 66 disables camping"
+	)
+	var adapter = GodotAdapterScript.new()
+	var game_global = ExplorationStatusTestGlobal.new()
+	var permission: Dictionary = adapter.set_classic_camping_permission(game_global, true)
+	_expect(bool(permission.get("changed", false)), "first camping disable changes permission")
+	_expect(game_global.classic_camping_disabled, "camping disable persists in native state")
+	permission = adapter.set_classic_camping_permission(game_global, true)
+	_expect(not bool(permission.get("changed", true)), "repeated camping disable is silent")
+	permission = adapter.set_classic_camping_permission(game_global, false)
+	_expect(not game_global.classic_camping_disabled, "opcode 66 can re-enable camping")
+
+	game_global.is_sailing_boat = true
+	game_global.camping = false
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("status:match"), "begin matching boat/camp test")
+	var status_command: Dictionary = interpreter.run_until_yield()
+	_expect_equal(
+		status_command.get("command"),
+		"update_exploration_status",
+		"opcode 103 uses the exploration-status command"
+	)
+	var status_result: Dictionary = adapter.update_classic_exploration_status(
+		game_global,
+		status_command.get("payload", {})
+	)
+	_expect(not bool(status_result.get("skipRemaining", true)), "matching status keeps later slots")
+	_expect_equal(
+		interpreter.resume_exploration_status(status_result).get("payload", {}).get("messageId"),
+		921,
+		"matching boat and camp state continues the action point"
+	)
+
+	game_global.is_sailing_boat = true
+	game_global.camping = false
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("status:mismatch"), "begin mismatching boat/camp test")
+	status_command = interpreter.run_until_yield()
+	status_result = adapter.update_classic_exploration_status(
+		game_global,
+		status_command.get("payload", {})
+	)
+	_expect(bool(status_result.get("skipRemaining", false)), "status mismatch skips later slots")
+	_expect(
+		not game_global.is_sailing_boat,
+		"opcode 103 applies its boat mutation even when the status test fails"
+	)
+	_expect_equal(
+		interpreter.resume_exploration_status(status_result).get("status"),
+		"completed",
+		"status mismatch finishes the action point"
+	)
+	_expect(
+		not interpreter.trace.any(
+			func(entry: Dictionary) -> bool: return int(entry.get("code", 0)) == 1
+		),
+		"status mismatch does not execute later action slots"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("status:invalid"), "begin invalid exploration status")
+	_expect_equal(
+		interpreter.run_until_yield().get("status"),
+		"error",
+		"invalid exploration-status mode stops safely"
+	)
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	_expect_equal(
+		_diagnostic_code_count(readiness, "invalid-exploration-status"),
+		1,
+		"readiness retains invalid exploration-status rows as blockers"
+	)
+
+	var host = HostScript.new()
+	get_tree().root.add_child(host)
+	var host_adapter = ExplorationStatusAdapter.new()
+	host.configure(host_adapter)
+	var host_state = StateScript.new()
+	host_state.configure_from_bundle(bundle)
+	host.runtime.use_shared_campaign(bundle, host_state)
+	_expect(host.start_trigger("camp:disable"), "runtime host starts camping permission")
+	_expect_equal(
+		host_adapter.commands.map(func(entry: Dictionary) -> String: return entry["command"]),
+		["set_camping_permission", "show_text"],
+		"runtime host applies camping permission and continues"
+	)
+	host_adapter.commands.clear()
+	_expect(host.start_trigger("status:match"), "runtime host starts exploration-status test")
+	_expect_equal(
+		host_adapter.commands.map(func(entry: Dictionary) -> String: return entry["command"]),
+		["update_exploration_status", "show_text"],
+		"runtime host resumes an exploration-status response"
+	)
 	host.queue_free()
 
 

@@ -154,6 +154,13 @@ therefore branches against the updated day and hour in the same action point.
 Both inclusive latest-day/latest-hour outcomes branch to compiled Data ED3
 targets; negative opcode `64` retains the normal GOSUB return path.
 
+Opcode `66` enables or disables the normal Camp button, preserves that
+permission in native saves, and presents Classic's notice only when the state
+changes. Opcode `103` tests the live boat and camp states, skips the remaining
+action slots on a mismatch, and then independently applies its authored boat
+state change. The existing native camp and boat fields remain the runtime
+authority, including normal save/load behavior and exploration redraws.
+
 Opcode `101` reverses the successful land movement that entered the current
 action point, redraws exploration at the restored tile, and ends the action
 point without applying its ordinary destination or later slots. It remains a

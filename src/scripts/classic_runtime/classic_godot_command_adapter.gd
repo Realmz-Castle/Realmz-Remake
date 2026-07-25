@@ -500,6 +500,10 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			)
 		"alter_game_time":
 			return _alter_game_time(payload)
+		"set_camping_permission":
+			return _set_camping_permission(payload)
+		"update_exploration_status":
+			return _update_exploration_status(payload)
 		"set_view_direction":
 			return classic_map_bridge.redraw_view(payload, _autoload("GameGlobal"))
 		"set_view_mode":
@@ -839,6 +843,118 @@ func alter_classic_game_time(game_global: Object, payload: Dictionary) -> Dictio
 		"scenarioHour": scenario_hour,
 		"scenarioMinute": scenario_minute,
 	}
+
+
+func _set_camping_permission(payload: Dictionary) -> Dictionary:
+	var result := set_classic_camping_permission(
+		_autoload("GameGlobal"),
+		bool(payload.get("disabled", false))
+	)
+	if str(result.get("status", "")) == "error":
+		return result
+	var ui: Object = _autoload("UI")
+	var hud: Variant = ui.get("ow_hud") if ui != null else null
+	if hud is Object and hud.has_method("update_classic_camping_permission"):
+		hud.call("update_classic_camping_permission")
+	if bool(result.get("changed", false)):
+		_play_sound(payload)
+		var text_rect := _text_rect()
+		if text_rect != null:
+			text_rect.set_text(
+				"You may not camp at the present time."
+				if bool(result.get("disabled", false))
+				else "You may now camp again.",
+				false
+			)
+	return result
+
+
+func set_classic_camping_permission(game_global: Object, disabled: bool) -> Dictionary:
+	if game_global == null \
+			or not _object_has_property(game_global, "classic_camping_disabled"):
+		return _error("Realmz Classic camping permission is unavailable")
+	var previous := bool(game_global.get("classic_camping_disabled"))
+	game_global.set("classic_camping_disabled", disabled)
+	return {
+		"previousDisabled": previous,
+		"disabled": disabled,
+		"changed": previous != disabled,
+	}
+
+
+func _update_exploration_status(payload: Dictionary) -> Dictionary:
+	var game_global: Object = _autoload("GameGlobal")
+	var result := update_classic_exploration_status(game_global, payload)
+	if str(result.get("status", "")) == "error":
+		return result
+	if bool(result.get("boatChanged", false)):
+		_refresh_exploration_icon(game_global)
+	return result
+
+
+func update_classic_exploration_status(
+	game_global: Object,
+	payload: Dictionary
+) -> Dictionary:
+	if game_global == null \
+			or not _object_has_property(game_global, "camping") \
+			or not _object_has_property(game_global, "is_sailing_boat"):
+		return _error("Realmz camp or boat status is unavailable")
+	var boat_test := int(payload.get("boatTest", 0))
+	var camp_test := int(payload.get("campTest", 0))
+	var boat_change := int(payload.get("boatChange", 0))
+	if boat_test not in [0, 1, 2] \
+			or camp_test not in [0, 1, 2] \
+			or boat_change not in [0, 1, 2]:
+		return _error("Classic exploration-status action has an invalid mode")
+	var was_in_boat := bool(game_global.get("is_sailing_boat"))
+	var is_camping := bool(game_global.get("camping"))
+	var matched := (
+		boat_test == 0
+		or (boat_test == 1 and was_in_boat)
+		or (boat_test == 2 and not was_in_boat)
+	) and (
+		camp_test == 0
+		or (camp_test == 1 and is_camping)
+		or (camp_test == 2 and not is_camping)
+	)
+	var is_in_boat := was_in_boat
+	if boat_change == 1:
+		is_in_boat = true
+	elif boat_change == 2:
+		is_in_boat = false
+	game_global.set("is_sailing_boat", is_in_boat)
+	return {
+		"matched": matched,
+		"skipRemaining": not matched,
+		"wasInBoat": was_in_boat,
+		"isInBoat": is_in_boat,
+		"isCamping": is_camping,
+		"boatChanged": was_in_boat != is_in_boat,
+	}
+
+
+func _refresh_exploration_icon(game_global: Object) -> void:
+	if game_global == null:
+		return
+	var current_map: Variant = game_global.get("map")
+	if not (current_map is Object):
+		return
+	if current_map.has_method("queue_redraw"):
+		current_map.queue_redraw()
+	var party: Variant = game_global.get("player_characters")
+	if not (party is Array) or party.is_empty() \
+			or not current_map.has_method("set_ow_character_icon"):
+		return
+	if bool(game_global.get("is_sailing_boat")):
+		var boat_image := str(game_global.get("boat_sailed_image_name"))
+		var resources := _classic_campaign_resources()
+		var images: Variant = resources.get("images_book") if resources != null else {}
+		if boat_image.is_empty() or not (images is Dictionary) or not images.has(boat_image):
+			return
+	var character: Variant = party[0]
+	if character is Object and _object_has_property(character, "icon"):
+		current_map.call("set_ow_character_icon", character.get("icon"))
 
 
 func _check_party_condition(payload: Dictionary) -> Dictionary:

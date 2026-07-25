@@ -182,6 +182,10 @@ func finish_time_mutation(response: Dictionary) -> void:
 	_publish(interpreter.resume_time_mutation(response))
 
 
+func finish_exploration_status(response: Dictionary) -> void:
+	_publish(interpreter.resume_exploration_status(response))
+
+
 func snapshot() -> Dictionary:
 	return runtime_state.snapshot()
 

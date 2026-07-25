@@ -58,6 +58,7 @@ var selected_character = null
 @onready var classicSearchButton: Button = (
 	$VBoxScreen/HBoxBot/BotRightPanel/ClassicSearchButton
 )
+@onready var campButton: Button = $VBoxScreen/HBoxBot/BotRightPanel/CampButton
 @onready var temple_rect : TempleMenu = $VBoxScreen/HBoxTop/MapArea/TempleRect
 @onready var spellcastMenu = $SpellsRect
 @onready var abilitesmngtMenu = $VBoxScreen/HBoxTop/MapArea/AbilitiesMngtRect
@@ -506,12 +507,19 @@ func close_special_encounter(go_to_exploration_mode : bool) :
 func _on_CampButton_pressed():
 	#if GameState.paused :
 	#	return
+	if GameGlobal.classic_camping_disabled:
+		return
 	GameGlobal.camping = ! GameGlobal.camping
 	if GameGlobal.camping :
 		_play_camp_audio()
 	else :
 		MusicStreamPlayer.play_music_map()
 	NodeAccess.__Map().set_ow_character_icon(GameGlobal.player_characters[0].icon)
+
+
+func update_classic_camping_permission() -> void:
+	if campButton != null:
+		campButton.disabled = GameGlobal.classic_camping_disabled
 
 
 func _play_camp_audio() -> void:

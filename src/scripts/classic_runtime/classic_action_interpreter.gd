@@ -13,9 +13,9 @@ const HANDLED_OPCODES := [
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 52, 54, 56, 57, 58,
-	61, 63, 64, 73, 82, 83, 84, 85, 86, 87, 89,
+	61, 63, 64, 66, 73, 82, 83, 84, 85, 86, 87, 89,
 	93, 94, 95, 96, 97, 98,
-	99, 100, 101, 106, 111, 112,
+	99, 100, 101, 103, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
 ]
 const PRIEST_TURNING_ENABLED_MESSAGE := \
@@ -62,6 +62,7 @@ var pending_combat_monster_check: Dictionary = {}
 var pending_battle_round_macro: Dictionary = {}
 var pending_random_branch: Dictionary = {}
 var pending_time_mutation: Dictionary = {}
+var pending_exploration_status: Dictionary = {}
 var pending_teleport: Dictionary = {}
 var execution_context: Dictionary = {}
 var encounter_origins: Array = []
@@ -117,6 +118,7 @@ func reset_execution() -> void:
 	pending_battle_round_macro.clear()
 	pending_random_branch.clear()
 	pending_time_mutation.clear()
+	pending_exploration_status.clear()
 	pending_teleport.clear()
 	execution_context.clear()
 	encounter_origins.clear()
@@ -153,6 +155,7 @@ func make_execution_snapshot() -> Dictionary:
 		"pendingBattleRoundMacro": pending_battle_round_macro.duplicate(true),
 		"pendingRandomBranch": pending_random_branch.duplicate(true),
 		"pendingTimeMutation": pending_time_mutation.duplicate(true),
+		"pendingExplorationStatus": pending_exploration_status.duplicate(true),
 		"pendingTeleport": pending_teleport.duplicate(true),
 		"executionContext": execution_context.duplicate(true),
 		"encounterOrigins": encounter_origins.duplicate(true),
@@ -198,6 +201,7 @@ func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
 	pending_battle_round_macro = saved["pendingBattleRoundMacro"].duplicate(true)
 	pending_random_branch = saved["pendingRandomBranch"].duplicate(true)
 	pending_time_mutation = saved.get("pendingTimeMutation", {}).duplicate(true)
+	pending_exploration_status = saved.get("pendingExplorationStatus", {}).duplicate(true)
 	pending_teleport = saved["pendingTeleport"].duplicate(true)
 	execution_context = saved["executionContext"].duplicate(true)
 	encounter_origins = saved["encounterOrigins"].duplicate(true)
@@ -237,6 +241,9 @@ static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
 	if snapshot.has("pendingTimeMutation") \
 			and not (snapshot.get("pendingTimeMutation") is Dictionary):
 		return _snapshot_error("Classic continuation has invalid pendingTimeMutation")
+	if snapshot.has("pendingExplorationStatus") \
+			and not (snapshot.get("pendingExplorationStatus") is Dictionary):
+		return _snapshot_error("Classic continuation has invalid pendingExplorationStatus")
 	for field_name: String in ["callStack", "encounterOrigins"]:
 		if not (snapshot.get(field_name) is Array):
 			return _snapshot_error("Classic continuation has invalid %s" % field_name)
@@ -351,6 +358,10 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic random branch presentation must finish before execution can continue")
 	if not pending_time_mutation.is_empty():
 		return _error_result("A classic time mutation must finish before execution can continue")
+	if not pending_exploration_status.is_empty():
+		return _error_result(
+			"A classic exploration-status action must finish before execution can continue"
+		)
 	if not pending_teleport.is_empty():
 		return _error_result("A classic teleport must finish before execution can continue")
 
@@ -765,6 +776,21 @@ func resume_time_mutation(response: Dictionary) -> Dictionary:
 	return run_until_yield()
 
 
+func resume_exploration_status(response: Dictionary) -> Dictionary:
+	if pending_exploration_status.is_empty():
+		return _error_result("No classic exploration-status action is waiting for a response")
+	if not response.has("skipRemaining"):
+		return _error_result(
+			"Classic exploration-status response is missing skipRemaining"
+		)
+	pending_exploration_status.clear()
+	if bool(response["skipRemaining"]):
+		var actions: Variant = current_trigger.get("actions", [])
+		if actions is Array:
+			current_action_index = actions.size()
+	return run_until_yield()
+
+
 func _execute_action(action: Dictionary) -> Dictionary:
 	var code := int(action.get("code", 0))
 	var record_id := int(action.get("id", 0))
@@ -905,6 +931,11 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_time_mutation(record_id)
 		64:
 			return _execute_time_branch(record_id, gosub_active)
+		66:
+			return _yield_result("set_camping_permission", {
+				"disabled": record_id != 0,
+				"soundId": 6001,
+			})
 		73:
 			return _execute_restricted_shop(record_id)
 		82, 83:
@@ -939,6 +970,8 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _yield_result("back_up_party", {
 				"levelType": runtime_state.level_type,
 			})
+		103:
+			return _execute_exploration_status(record_id)
 		106:
 			return _execute_darkland(record_id)
 		111:
@@ -2407,6 +2440,29 @@ func _execute_time_branch(extra_code_id: int, gosub: bool) -> Dictionary:
 		gosub,
 		0
 	)
+
+
+func _execute_exploration_status(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Exploration-status action references missing Extra Code row %d" % extra_code_id
+		)
+	for value_index: int in 3:
+		if int(values[value_index]) not in [0, 1, 2]:
+			return _halt_with_error(
+				"Exploration-status row %d has invalid field %d" % [
+					extra_code_id,
+					value_index,
+				]
+			)
+	pending_exploration_status = {"extraCodeId": extra_code_id}
+	return _yield_result("update_exploration_status", {
+		"extraCodeId": extra_code_id,
+		"boatTest": int(values[0]),
+		"campTest": int(values[1]),
+		"boatChange": int(values[2]),
+	})
 
 
 func _remove_current_action_point() -> Dictionary:

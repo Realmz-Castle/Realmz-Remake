@@ -427,6 +427,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 			runtime.finish_back_up_party()
 		"alter_game_time":
 			runtime.finish_time_mutation(response)
+		"update_exploration_status":
+			runtime.finish_exploration_status(response)
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
 		"give_character_condition", \
@@ -436,7 +438,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \
 		"set_trigger_percent", "set_view_direction", \
 		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
-		"shift_party_position", \
+		"shift_party_position", "set_camping_permission", \
 		"set_priest_turning", \
 		"set_land_look", "give_battle_loot", "alter_party_items", \
 		"store_party_equipment", "add_party_ally", \

@@ -58,7 +58,7 @@ const SPELL_DEFINITION_FIELDS := [
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
 	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 52, 54, 56, 57,
-	58, 61, 63, 64, 73, 85, 87, 106, 121, 123, 124, 125, 126,
+	58, 61, 63, 64, 73, 85, 87, 103, 106, 121, 123, 124, 125, 126,
 ]
 
 var _diagnostics: Array = []
@@ -209,6 +209,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_position_shift(bundle, action, extra_code)
 		elif code in [63, 64]:
 			_check_game_time_action(action, extra_code, code)
+		elif code == 103:
+			_check_exploration_status(action, extra_code)
 		elif code == 85:
 			_check_random_branch(bundle, action, extra_code)
 		elif code == 124:
@@ -408,6 +410,28 @@ func _check_game_time_action(
 		],
 		{"referenceId": int(extra_code.get("id", -1))}
 	)
+
+
+func _check_exploration_status(action: Dictionary, extra_code: Dictionary) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		return
+	for value_index: int in 3:
+		if int(values[value_index]) in [0, 1, 2]:
+			continue
+		_add_action_dependency(
+			action,
+			"invalid-exploration-status",
+			"Opcode 103 Data EDCD record %d has invalid field %d" % [
+				int(extra_code.get("id", -1)),
+				value_index,
+			],
+			{
+				"referenceId": int(extra_code.get("id", -1)),
+				"field": value_index,
+			}
+		)
+		return
 
 
 func _check_same_map_action_point(

@@ -127,6 +127,7 @@ var light_power : int = 0
 var classic_light_condition : int = 0
 var classic_party_conditions: Dictionary = {}
 var camping : bool = false
+var classic_camping_disabled : bool = false
 var money_pool : Array = [0,0,0] # coins gems jewels
 var money_banked : Array = [0,0,0] # coins gems jewels
 
@@ -281,6 +282,7 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	if classic_light_condition > 0:
 		_sync_classic_light_state()
 	camping = bool(data_dict["camping"])
+	classic_camping_disabled = bool(data_dict.get("classic_camping_disabled", false))
 	cur_save_name = data_dict["save_name"]
 	cur_save_descrition = data_dict["save_descr"]
 	allow_character_swap(bool(data_dict["allow_char_swap"]))
@@ -300,6 +302,8 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	_restore_classic_party_conditions(data_dict.get("classic_party_conditions", {}))
 
 	minimaps = data_dict["minimaps"]
+	if UI.ow_hud != null and UI.ow_hud.has_method("update_classic_camping_permission"):
+		UI.ow_hud.update_classic_camping_permission()
 
 	allow_next_battle_loot = true
 	prev_simple_enc_name = ''
