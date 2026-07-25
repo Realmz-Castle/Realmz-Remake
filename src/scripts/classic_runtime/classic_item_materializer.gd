@@ -4,6 +4,7 @@ extends RefCounted
 const ITEM_BOOK_PATH := "Items/stuff_book.json"
 const ITEM_IMAGE_BOOK_PATH := "Items/img_pack.json"
 const ITEM_ATLAS_PATH := "Items/textureAtlas.png"
+const SHARED_ITEM_BOOK_PATH := "res://shared_assets/items/stuff_book.json"
 # These fields affect item behavior but do not yet have verified native equivalents.
 # Keeping the record is lossless; treating it as launchable would not be.
 const UNSUPPORTED_EFFECT_FIELDS := [
@@ -181,6 +182,8 @@ const SOUND_BY_CATEGORY := {
 }
 
 var last_error := ""
+var _shared_item_book: Dictionary = {}
+var _shared_item_book_loaded := false
 
 
 func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
@@ -305,7 +308,11 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 			"fidelityFallbacks": fidelity_fallbacks,
 		},
 		"type": native_type.get("value", asset_category),
-		"img_ptr": str(ICON_BY_CATEGORY[asset_category]),
+		"img_ptr": _native_item_icon(
+			identified_name,
+			str(item_text.get("description", "")),
+			asset_category
+		),
 		"sound": str(SOUND_BY_CATEGORY[asset_category]),
 		"is_magical": int(record.get("magical", 0)),
 		"is_identified": 1 if classic_type == 24 else 0,
@@ -328,6 +335,32 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 	for field_name: String in native_fields.get("fields", {}):
 		native_item[field_name] = native_fields["fields"][field_name]
 	return native_item
+
+
+func _native_item_icon(
+	identified_name: String,
+	description: String,
+	asset_category: String
+) -> String:
+	var shared_item := _shared_item(identified_name)
+	if not shared_item.is_empty() \
+			and str(shared_item.get("description", "")) == description:
+		var shared_icon := str(shared_item.get("img_ptr", "")).strip_edges()
+		if not shared_icon.is_empty():
+			return shared_icon
+	return str(ICON_BY_CATEGORY[asset_category])
+
+
+func _shared_item(item_name: String) -> Dictionary:
+	if not _shared_item_book_loaded:
+		_shared_item_book_loaded = true
+		var value: Variant = JSON.parse_string(
+			FileAccess.get_file_as_string(SHARED_ITEM_BOOK_PATH)
+		)
+		if value is Dictionary:
+			_shared_item_book = value
+	var item_value: Variant = _shared_item_book.get(item_name, {})
+	return item_value if item_value is Dictionary else {}
 
 
 func _item_text(item_texts: Array, item_id: int) -> Dictionary:

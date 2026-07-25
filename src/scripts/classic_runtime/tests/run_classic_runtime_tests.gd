@@ -5185,6 +5185,58 @@ func _test_classic_item_materializer() -> void:
 		"complete",
 		"fully mapped fixture item is launchable"
 	)
+	var supply_record: Dictionary = bundle.documents[
+		"content"
+	]["scenarioItems"][0].duplicate(true)
+	supply_record["itemId"] = 805
+	supply_record["type"] = 24
+	supply_record["iconId"] = 607
+	var torch_item: Dictionary = materializer._native_item(
+		supply_record,
+		[{
+			"itemId": 805,
+			"identifiedName": "Torch",
+			"unidentifiedName": "Torch",
+			"description": "A stout stick covered in pitch.",
+		}]
+	)
+	_expect_equal(
+		torch_item.get("img_ptr"),
+		"ITEM_Torch",
+		"standard Classic Torch reuses its matching shared icon"
+	)
+	supply_record["itemId"] = 877
+	supply_record["iconId"] = 605
+	var rations_item: Dictionary = materializer._native_item(
+		supply_record,
+		[{
+			"itemId": 877,
+			"identifiedName": "Iron Rations",
+			"unidentifiedName": "Iron Rations",
+			"description": (
+				"What they lack in taste they more than make up for in nutrition."
+			),
+		}]
+	)
+	_expect_equal(
+		rations_item.get("img_ptr"),
+		"ITEM_Iron_Rations",
+		"standard Classic Iron Rations reuse their matching shared icon"
+	)
+	var custom_torch: Dictionary = materializer._native_item(
+		supply_record,
+		[{
+			"itemId": 877,
+			"identifiedName": "Torch",
+			"unidentifiedName": "Torch",
+			"description": "A scenario-authored item with a colliding name.",
+		}]
+	)
+	_expect_equal(
+		custom_torch.get("img_ptr"),
+		"ITEM_Rope",
+		"a scenario item with only a colliding name keeps the category fallback"
+	)
 	var unnamed_item: Dictionary = materializer._native_item(
 		bundle.documents["content"]["scenarioItems"][0],
 		[]
