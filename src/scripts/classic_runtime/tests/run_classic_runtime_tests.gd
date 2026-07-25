@@ -2993,6 +2993,53 @@ func _test_bundle_contract_validation() -> void:
 		"bundle contract keeps decoded runtime media separate from Classic payloads"
 	)
 
+	var scrolling_text_bundle = BundleScript.new()
+	scrolling_text_bundle.manifest = _minimal_contract_manifest()
+	scrolling_text_bundle.documents = _minimal_contract_documents()
+	scrolling_text_bundle.documents["assets"]["scrollingTexts"] = [{
+		"resourceType": "TEXT",
+		"resourceId": -200,
+		"text": "Portable standalone text.",
+		"payloadEncoding": "classic-resource-data",
+		"payloadPath": "assets/managed/text-neg-200.txt",
+		"payloadBytes": 25,
+		"payloadSha256": "c".repeat(64),
+		"presentation": {
+			"format": "portable-rich-text-v1",
+			"runs": [{
+				"start": 0,
+				"end": 8,
+				"fontId": 4,
+				"fontSize": 18,
+				"color": "#ff8000",
+				"bold": true,
+				"italic": true,
+				"underline": false,
+				"outline": false,
+				"shadow": false,
+				"stretch": "normal",
+			}],
+		},
+	}]
+	_expect(
+		scrolling_text_bundle._validate_document_contract(),
+		"bundle contract accepts standalone portable rich text"
+	)
+	scrolling_text_bundle._build_indexes()
+	_expect_equal(
+		scrolling_text_bundle.get_scrolling_text(200).get("text"),
+		"Portable standalone text.",
+		"bundle indexes standalone scrolling text from assets"
+	)
+	_expect_equal(
+		ClassicPlayerMapScript.portable_scrolling_text_bbcode(
+			scrolling_text_bundle.get_scrolling_text(200)
+		),
+		"[color=#ff8000][font_size=18][b][i]Portable[/i][/b][/font_size][/color]" \
+			+ " standalone text.",
+		"portable scrolling-text runs become Godot RichTextLabel markup"
+	)
+
 	var unsafe_runtime_media_bundle = BundleScript.new()
 	unsafe_runtime_media_bundle.manifest = _minimal_contract_manifest()
 	unsafe_runtime_media_bundle.documents = _minimal_contract_documents()
@@ -3173,7 +3220,7 @@ func _test_providence_authoritative_export() -> void:
 		"producer fixture provenance records no fidelity fallbacks"
 	)
 	var expected_files: Array = provenance.get("files", [])
-	_expect_equal(expected_files.size(), 17, "producer fixture provenance covers every file")
+	_expect_equal(expected_files.size(), 16, "producer fixture provenance covers every file")
 	for expected_value: Variant in expected_files:
 		if not (expected_value is Dictionary):
 			_expect(false, "producer fixture provenance file entry is an object")
@@ -3194,7 +3241,7 @@ func _test_providence_authoritative_export() -> void:
 
 	var assets: Dictionary = bundle.documents["assets"]
 	var catalog: Dictionary = assets.get("catalog", {})
-	_expect_equal(assets.get("managedAssets", []).size(), 5, "producer fixture managed asset count")
+	_expect_equal(assets.get("managedAssets", []).size(), 4, "producer fixture managed asset count")
 	_expect_equal(catalog.get("icons", []).size(), 0, "producer fixture ordinary icon count")
 	var pictures: Array = catalog.get("pictures", [])
 	var special_land_tiles: Array = catalog.get("specialLandTiles", [])
@@ -3251,9 +3298,13 @@ func _test_providence_authoritative_export() -> void:
 		"producer fixture includes decoded scrolling text"
 	)
 	_expect_equal(
-		scrolling_map.get("scrollingText", {}).get("styleResource", {}).get("resourceId"),
-		-200,
-		"producer fixture links the paired styl resource"
+		scrolling_map.get("scrollingText", {}).get("presentation", {}).get("format"),
+		"portable-rich-text-v1",
+		"producer fixture carries normalized scrolling-text presentation"
+	)
+	_expect(
+		not scrolling_map.get("scrollingText", {}).has("styleResource"),
+		"producer fixture omits the Classic styl payload reference"
 	)
 	_expect(
 		FileAccess.file_exists(
@@ -3408,6 +3459,7 @@ func _minimal_contract_documents() -> Dictionary:
 		"assets": {
 			"schemaVersion": 1,
 			"catalog": {"pictures": [], "sounds": []},
+			"scrollingTexts": [],
 		},
 		"evidence": {"schemaVersion": 1, "semanticDecoding": {}},
 	}
@@ -25309,6 +25361,11 @@ func _test_remaining_noncombat_opcodes() -> void:
 	)
 	var indexed_bundle = BundleScript.new()
 	indexed_bundle.documents = _minimal_contract_documents()
+	indexed_bundle.documents["assets"]["scrollingTexts"] = [{
+		"resourceType": "TEXT",
+		"resourceId": -201,
+		"text": "Standalone scrolling text.",
+	}]
 	indexed_bundle.documents["maps"]["mapRecords"] = [{
 		"id": 10,
 		"show": -200,
@@ -25323,6 +25380,11 @@ func _test_remaining_noncombat_opcodes() -> void:
 		indexed_bundle.get_scrolling_text(200).get("text"),
 		"Indexed scrolling text.",
 		"compiled map records index their embedded TEXT resources"
+	)
+	_expect_equal(
+		indexed_bundle.get_scrolling_text(201).get("text"),
+		"Standalone scrolling text.",
+		"asset scrolling-text records index opcode 62 resources without player maps"
 	)
 
 

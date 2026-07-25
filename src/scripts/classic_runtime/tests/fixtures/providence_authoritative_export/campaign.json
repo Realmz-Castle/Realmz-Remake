@@ -14,11 +14,11 @@
     "extraCodes": 1,
     "itemTexts": 2,
     "landMaps": 1,
-    "managedAssets": 5,
+    "managedAssets": 4,
     "maps": 2,
     "messages": 2,
     "monsters": 1,
-    "packagedAssetPayloads": 8,
+    "packagedAssetPayloads": 7,
     "scenarioItems": 2,
     "shops": 1,
     "simpleEncounters": 1,
@@ -41,7 +41,7 @@
   "formatVersion": 1,
   "id": "providence-ownership-proof",
   "limitations": [
-    "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Styled-text payloads remain Classic resource data.",
+    "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Scrolling TEXT is decoded for runtime use, and matching styl resources become portable rich-text presentation runs rather than binary payloads.",
     "Providence schema version 5 authors a land start; the v1 bundle can also represent dungeon starts when the canonical model gains that distinction.",
     "Legacy scenario-icon and monster-icon override payloads are excluded unless they are canonical scenario-managed assets.",
     "Negative cicn special-land-tile identities use the additive v1 assets.catalog.specialLandTiles collection because ordinary v1 icon identities are non-negative."

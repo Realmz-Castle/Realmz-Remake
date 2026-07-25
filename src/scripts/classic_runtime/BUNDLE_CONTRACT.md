@@ -112,12 +112,20 @@ installed-campaign loader verifies both immutable payloads and decoded media
 before launch. Version-1 consumers that do not know this additive object may
 ignore it; producers must not overload `payloadPath` with decoded media.
 
-Scrolling-text player maps retain their negative `show` value and may include a
-`scrollingText` object. It identifies the same negative `TEXT` resource, carries
-decoded plain text for presentation, and preserves the immutable TEXT payload
-path, byte count, hash, and encoding. A same-ID `styl` payload may be linked as
-`styleResource`; Remake currently presents the decoded text without claiming
-Classic style-run fidelity.
+`assets.scrollingTexts` carries the scenario's portable scrolling-text
+resources, including text used directly by opcode 62 without a player-map
+record. Each object identifies a `TEXT` resource, carries decoded plain text for
+presentation, and preserves the immutable TEXT payload path, byte count, hash,
+and encoding. Optional `presentation` data uses the
+`portable-rich-text-v1` format: ordered, non-overlapping character ranges carry
+portable font size, color, face, and stretch properties. Providence decodes
+Classic `styl` resources into this model; their binary bytes are not part of the
+Remake runtime bundle.
+
+Scrolling-text player maps retain their negative `show` value and may also
+embed the matching `scrollingText` object. This keeps player-map presentation
+self-contained while `assets.scrollingTexts` supplies the campaign-wide lookup
+used by standalone scrolling-text actions.
 
 A custom landlook tileset uses its catalog `runtimeMedia` as the decoded 640 x
 320, 20-by-10 atlas. Remake combines its 200 one-based visual slots with records

@@ -7,6 +7,8 @@ const PlayerMapRendererScript = preload(
 )
 
 @onready var map_texture_rect: TextureRect = $VBoxContainer/MapArea/MapTextureRect
+@onready var scrolling_text_background: ColorRect = \
+	$VBoxContainer/MapArea/ScrollingTextBackground
 @onready var scrolling_text_label: RichTextLabel = \
 	$VBoxContainer/MapArea/ScrollingTextLabel
 @onready var missing_media_label: Label = $VBoxContainer/MapArea/MissingMediaLabel
@@ -80,12 +82,21 @@ func _display_map_record(
 	current_map_record = map_record.duplicate(true)
 	map_texture_rect.texture = null
 	map_texture_rect.visible = false
+	scrolling_text_background.visible = false
+	scrolling_text_label.bbcode_enabled = false
 	scrolling_text_label.text = ""
 	scrolling_text_label.visible = false
 	missing_media_label.visible = true
 	var scrolling_text: Variant = map_record.get("scrollingText")
 	if scrolling_text is Dictionary and scrolling_text.get("text") is String:
-		scrolling_text_label.text = str(scrolling_text["text"])
+		var presentation: Variant = scrolling_text.get("presentation")
+		if presentation is Dictionary \
+				and str(presentation.get("format", "")) == "portable-rich-text-v1":
+			scrolling_text_label.bbcode_enabled = true
+			scrolling_text_label.text = portable_scrolling_text_bbcode(scrolling_text)
+		else:
+			scrolling_text_label.text = str(scrolling_text["text"])
+		scrolling_text_background.visible = true
 		scrolling_text_label.visible = true
 		scrolling_text_label.scroll_to_line(0)
 		missing_media_label.visible = false
@@ -112,6 +123,58 @@ func _display_map_record(
 	show()
 	done_button.grab_focus()
 	return true
+
+
+static func portable_scrolling_text_bbcode(scrolling_text: Dictionary) -> String:
+	var text := str(scrolling_text.get("text", ""))
+	var presentation: Variant = scrolling_text.get("presentation", {})
+	if not (presentation is Dictionary) \
+			or str(presentation.get("format", "")) != "portable-rich-text-v1":
+		return _escape_bbcode(text)
+	var runs_value: Variant = presentation.get("runs", [])
+	if not (runs_value is Array):
+		return _escape_bbcode(text)
+	var output := ""
+	var cursor := 0
+	for run_value: Variant in runs_value:
+		if not (run_value is Dictionary):
+			continue
+		var run: Dictionary = run_value
+		var start := clampi(int(run.get("start", cursor)), cursor, text.length())
+		var end := clampi(int(run.get("end", start)), start, text.length())
+		if start > cursor:
+			output += _escape_bbcode(text.substr(cursor, start - cursor))
+		if end > start:
+			output += _portable_style_run_bbcode(
+				text.substr(start, end - start),
+				run
+			)
+		cursor = end
+	if cursor < text.length():
+		output += _escape_bbcode(text.substr(cursor))
+	return output
+
+
+static func _portable_style_run_bbcode(text: String, run: Dictionary) -> String:
+	var prefix := "[color=%s][font_size=%d]" % [
+		str(run.get("color", "#ffffff")),
+		clampi(int(run.get("fontSize", 18)), 8, 72),
+	]
+	var suffix := "[/font_size][/color]"
+	if bool(run.get("bold", false)):
+		prefix += "[b]"
+		suffix = "[/b]" + suffix
+	if bool(run.get("italic", false)):
+		prefix += "[i]"
+		suffix = "[/i]" + suffix
+	if bool(run.get("underline", false)):
+		prefix += "[u]"
+		suffix = "[/u]" + suffix
+	return prefix + _escape_bbcode(text) + suffix
+
+
+static func _escape_bbcode(text: String) -> String:
+	return text.replace("[", "[lb]")
 
 
 func close_map() -> void:

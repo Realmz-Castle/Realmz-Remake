@@ -28,24 +28,19 @@
       "sha256": "fdd45aff3e3bca219ecc14f3ee1b01dfb5b2c313b559cb6e38a419b7d405045c"
     },
     {
-      "path": "assets/managed/styl-neg-200-04f1eaac6389.styl",
-      "bytes": 22,
-      "sha256": "04f1eaac6389619252c668457eaed04d13ae8a103778a7868649fb61bbff82d4"
-    },
-    {
       "path": "assets/managed/text-neg-200-ee8506353a59.txt",
       "bytes": 46,
       "sha256": "ee8506353a59ede3b2420ff409f569546ce2258da18c968927d342a28289dd5c"
     },
     {
       "path": "campaign.json",
-      "bytes": 2147,
-      "sha256": "88c9e107de63423c67b1f1bdc8e2653f9e64dac03552143c7e786d6aab9292bb"
+      "bytes": 2240,
+      "sha256": "a182b59d3499f582c34c3d7b535041e12907ce9f0fc6de4bebfa209578db1077"
     },
     {
       "path": "classic/assets.json",
-      "bytes": 8104,
-      "sha256": "b0ae1c1c8e1000bd93d067851fe3fbb754917f3ea46d06cbf3e271957ffc0b87"
+      "bytes": 8218,
+      "sha256": "ec4f1d19d4ab75e6d734f705e3bc4dd799e7f46bb83549dc13de26d72b4c2c27"
     },
     {
       "path": "classic/content.json",
@@ -64,8 +59,8 @@
     },
     {
       "path": "classic/maps.json",
-      "bytes": 1279048,
-      "sha256": "a9e528dd52008d0a93180882883e6f87b5d4a208c4110b8f41f58f79d2f7422d"
+      "bytes": 1279105,
+      "sha256": "a01ab79e3a6c88479932bb3399c837f86e0be11ee1c1a7f8ace8754cb26d4f0f"
     },
     {
       "path": "classic/rules.json",

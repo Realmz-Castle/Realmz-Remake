@@ -186,6 +186,15 @@ func _validate_document_contract() -> bool:
 			bool(specification[3])
 		):
 			return false
+	if not _validate_nested_record_collection(
+		"assets",
+		documents["assets"],
+		"scrollingTexts",
+		"resourceId",
+		false,
+		true
+	):
+		return false
 	if not _validate_spell_override_identities():
 		return false
 	if not _validate_trigger_actions():
@@ -255,6 +264,15 @@ func _validate_document_contract() -> bool:
 
 
 func _validate_scrolling_text_player_maps() -> bool:
+	var asset_records: Array = documents["assets"].get("scrollingTexts", [])
+	for index: int in range(asset_records.size()):
+		var asset_context := "assets.scrollingTexts[%d]" % index
+		var asset_record: Variant = asset_records[index]
+		if not (asset_record is Dictionary):
+			return _fail("%s must be a JSON object" % asset_context)
+		if not _validate_scrolling_text_record(asset_context, asset_record):
+			return false
+
 	var records: Array = documents["maps"].get("mapRecords", [])
 	for index: int in range(records.size()):
 		var record: Dictionary = records[index]
@@ -264,29 +282,86 @@ func _validate_scrolling_text_player_maps() -> bool:
 		var scrolling_text: Variant = record.get("scrollingText")
 		if not (scrolling_text is Dictionary):
 			return _fail("%s must be a JSON object" % record_context)
-		if str(scrolling_text.get("resourceType", "")) != "TEXT":
-			return _fail("%s.resourceType must be TEXT" % record_context)
-		if not _is_integer(scrolling_text.get("resourceId")):
-			return _fail("%s.resourceId must be an integer" % record_context)
-		if int(scrolling_text["resourceId"]) != int(record.get("show", 0)):
-			return _fail("%s.resourceId must match the map record show value" % record_context)
-		if not (scrolling_text.get("text") is String):
-			return _fail("%s.text must be a string" % record_context)
-		if not _validate_classic_payload_reference(record_context, scrolling_text):
+		if not _validate_scrolling_text_record(
+			record_context,
+			scrolling_text,
+			record.get("show", 0)
+		):
 			return false
-		if not scrolling_text.has("styleResource"):
-			continue
-		var style_context := "%s.styleResource" % record_context
-		var style_resource: Variant = scrolling_text.get("styleResource")
-		if not (style_resource is Dictionary):
-			return _fail("%s must be a JSON object" % style_context)
-		if str(style_resource.get("resourceType", "")) != "styl":
-			return _fail("%s.resourceType must be styl" % style_context)
-		if not _is_integer(style_resource.get("resourceId")) \
-				or int(style_resource["resourceId"]) != int(scrolling_text["resourceId"]):
-			return _fail("%s.resourceId must match the TEXT resource ID" % style_context)
-		if not _validate_classic_payload_reference(style_context, style_resource):
-			return false
+	return true
+
+
+func _validate_scrolling_text_record(
+	context: String,
+	scrolling_text: Dictionary,
+	expected_resource_id: Variant = null
+) -> bool:
+	if str(scrolling_text.get("resourceType", "")) != "TEXT":
+		return _fail("%s.resourceType must be TEXT" % context)
+	if not _is_integer(scrolling_text.get("resourceId")):
+		return _fail("%s.resourceId must be an integer" % context)
+	if expected_resource_id != null \
+			and int(scrolling_text["resourceId"]) != int(expected_resource_id):
+		return _fail("%s.resourceId must match the map record show value" % context)
+	if not (scrolling_text.get("text") is String):
+		return _fail("%s.text must be a string" % context)
+	if not _validate_classic_payload_reference(context, scrolling_text):
+		return false
+	if not scrolling_text.has("presentation"):
+		return true
+	return _validate_scrolling_text_presentation(
+		"%s.presentation" % context,
+		scrolling_text["presentation"],
+		str(scrolling_text["text"]).length()
+	)
+
+
+func _validate_scrolling_text_presentation(
+	context: String,
+	presentation_value: Variant,
+	text_length: int
+) -> bool:
+	if not (presentation_value is Dictionary):
+		return _fail("%s must be a JSON object" % context)
+	var presentation: Dictionary = presentation_value
+	if str(presentation.get("format", "")) != "portable-rich-text-v1":
+		return _fail("%s.format must be portable-rich-text-v1" % context)
+	var runs_value: Variant = presentation.get("runs")
+	if not (runs_value is Array):
+		return _fail("%s.runs must be a JSON array" % context)
+	var previous_end := 0
+	for index: int in range(runs_value.size()):
+		var run_context := "%s.runs[%d]" % [context, index]
+		var run_value: Variant = runs_value[index]
+		if not (run_value is Dictionary):
+			return _fail("%s must be a JSON object" % run_context)
+		var run: Dictionary = run_value
+		if not _is_nonnegative_integer(run.get("start")) \
+				or not _is_nonnegative_integer(run.get("end")):
+			return _fail("%s start and end must be non-negative integers" % run_context)
+		var start := int(run["start"])
+		var end := int(run["end"])
+		if start < previous_end or end <= start or end > text_length:
+			return _fail(
+				"%s must be ordered, non-overlapping, and within the decoded text" % run_context
+			)
+		if not _is_integer(run.get("fontId")):
+			return _fail("%s.fontId must be an integer" % run_context)
+		if not _is_integer(run.get("fontSize")) or int(run["fontSize"]) < 1:
+			return _fail("%s.fontSize must be a positive integer" % run_context)
+		var color_value: Variant = run.get("color")
+		if not (color_value is String) or not _is_hex_color(color_value):
+			return _fail("%s.color must be a #RRGGBB value" % run_context)
+		for field_name: String in [
+			"bold", "italic", "underline", "outline", "shadow",
+		]:
+			if not (run.get(field_name) is bool):
+				return _fail("%s.%s must be a boolean" % [run_context, field_name])
+		if str(run.get("stretch", "")) not in ["normal", "condensed", "expanded"]:
+			return _fail(
+				"%s.stretch must be normal, condensed, or expanded" % run_context
+			)
+		previous_end = end
 	return true
 
 
@@ -701,6 +776,13 @@ func _is_sha256(value: String) -> bool:
 	return expression.search(value) != null
 
 
+func _is_hex_color(value: String) -> bool:
+	var expression := RegEx.new()
+	if expression.compile("^#[0-9a-fA-F]{6}$") != OK:
+		return false
+	return expression.search(value) != null
+
+
 func _is_safe_document_path(path: String) -> bool:
 	return _is_safe_campaign_path(path) and path.get_extension().to_lower() == "json"
 
@@ -1096,6 +1178,11 @@ func _build_indexes() -> void:
 				))] = scrolling_text
 
 	var asset_document: Dictionary = documents["assets"]
+	for scrolling_text: Variant in _array_value(asset_document, "scrollingTexts"):
+		if scrolling_text is Dictionary:
+			scrolling_texts_by_id[abs(int(
+				scrolling_text.get("resourceId", 0)
+			))] = scrolling_text
 	var asset_catalog: Variant = asset_document.get("catalog", {})
 	if asset_catalog is Dictionary:
 		for picture: Variant in _array_value(asset_catalog, "pictures"):

@@ -183,26 +183,6 @@
       "channels": null,
       "durationMs": null,
       "height": null,
-      "id": "asset:styl:-200:ownership-proof",
-      "kind": "text",
-      "label": "Providence Scrolling Text Style",
-      "linkedEntity": "resource:styl:-200",
-      "payloadBytes": 22,
-      "payloadEncoding": "classic-resource-data",
-      "payloadFileName": "styl-neg-200-04f1eaac6389.styl",
-      "payloadMediaType": "application/octet-stream",
-      "payloadPath": "assets/managed/styl-neg-200-04f1eaac6389.styl",
-      "payloadSha256": "04f1eaac6389619252c668457eaed04d13ae8a103778a7868649fb61bbff82d4",
-      "provenance": "Providence ownership proof canonical resource bytes",
-      "resourceId": -200,
-      "resourceType": "styl",
-      "sampleRate": null,
-      "width": null
-    },
-    {
-      "channels": null,
-      "durationMs": null,
-      "height": null,
       "id": "asset:text:-200:ownership-proof",
       "kind": "text",
       "label": "Providence Scrolling Text",
@@ -222,5 +202,35 @@
   ],
   "monsterIconOverrides": [],
   "scenarioIconResources": [],
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "scrollingTexts": [
+    {
+      "payloadBytes": 46,
+      "payloadEncoding": "classic-resource-data",
+      "payloadFileName": "text-neg-200-ee8506353a59.txt",
+      "payloadPath": "assets/managed/text-neg-200-ee8506353a59.txt",
+      "payloadSha256": "ee8506353a59ede3b2420ff409f569546ce2258da18c968927d342a28289dd5c",
+      "presentation": {
+        "format": "portable-rich-text-v1",
+        "runs": [
+          {
+            "bold": true,
+            "color": "#182038",
+            "end": 45,
+            "fontId": 0,
+            "fontSize": 12,
+            "italic": false,
+            "outline": false,
+            "shadow": false,
+            "start": 0,
+            "stretch": "normal",
+            "underline": false
+          }
+        ]
+      },
+      "resourceId": -200,
+      "resourceType": "TEXT",
+      "text": "Providence owns this scrolling TEXT resource."
+    }
+  ]
 }

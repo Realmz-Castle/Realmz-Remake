@@ -161,14 +161,19 @@ func _run_smoke() -> void:
 		"producer scrolling player map exposes decoded text"
 	)
 	_expect_equal(
-		scrolling_text.get("styleResource", {}).get("resourceId"),
-		-200,
-		"producer scrolling player map keeps its paired styl identity"
+		scrolling_text.get("presentation", {}).get("format"),
+		"portable-rich-text-v1",
+		"producer scrolling player map exposes portable presentation"
+	)
+	_expect(
+		not scrolling_text.has("styleResource"),
+		"producer scrolling player map omits Classic styl bytes"
 	)
 	_expect(
 		UI.ow_hud.classicPlayerMapRect.display_map(scrolling_map, "")
 			and UI.ow_hud.classicPlayerMapRect.scrolling_text_label.visible
-			and UI.ow_hud.classicPlayerMapRect.scrolling_text_label.text
+			and UI.ow_hud.classicPlayerMapRect.scrolling_text_background.visible
+			and UI.ow_hud.classicPlayerMapRect.scrolling_text_label.get_parsed_text()
 				== "Providence owns this scrolling TEXT resource.",
 		"normal player-map panel presents producer scrolling text"
 	)
