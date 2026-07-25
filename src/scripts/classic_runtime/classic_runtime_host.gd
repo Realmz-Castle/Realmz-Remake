@@ -425,6 +425,8 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 			runtime.finish_random_branch_presentation()
 		"back_up_party":
 			runtime.finish_back_up_party()
+		"alter_game_time":
+			runtime.finish_time_mutation(response)
 		"show_text", "play_sound", "wait_for_click", "show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
 		"give_character_condition", \

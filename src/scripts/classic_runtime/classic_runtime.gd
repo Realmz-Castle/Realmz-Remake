@@ -178,6 +178,10 @@ func finish_back_up_party() -> void:
 	_publish(interpreter.resume_back_up_party())
 
 
+func finish_time_mutation(response: Dictionary) -> void:
+	_publish(interpreter.resume_time_mutation(response))
+
+
 func snapshot() -> Dictionary:
 	return runtime_state.snapshot()
 

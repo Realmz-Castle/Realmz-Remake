@@ -450,7 +450,15 @@ func get_classic_execution_context() -> Dictionary:
 	var current_time := int(game_global.get("time"))
 	if current_time < 0:
 		return {}
-	return {"scenarioDay": floori(float(current_time) / 86400.0)}
+	var scenario_day := floori(float(current_time) / 86400.0)
+	var day_seconds := current_time - scenario_day * 86400
+	var scenario_hour := floori(float(day_seconds) / 3600.0)
+	var scenario_minute := floori(float(day_seconds - scenario_hour * 3600) / 60.0)
+	return {
+		"scenarioDay": scenario_day,
+		"scenarioHour": scenario_hour,
+		"scenarioMinute": scenario_minute,
+	}
 
 
 func execute_command(command: String, payload: Dictionary) -> Dictionary:
@@ -490,6 +498,8 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 				_autoload("GameGlobal"),
 				_classic_campaign_resources()
 			)
+		"alter_game_time":
+			return _alter_game_time(payload)
 		"set_view_direction":
 			return classic_map_bridge.redraw_view(payload, _autoload("GameGlobal"))
 		"set_view_mode":
@@ -773,6 +783,62 @@ func _teleport_classic_party(payload: Dictionary) -> Dictionary:
 		_autoload("GameGlobal"),
 		_classic_campaign_resources()
 	)
+
+
+func _alter_game_time(payload: Dictionary) -> Dictionary:
+	var result := alter_classic_game_time(_autoload("GameGlobal"), payload)
+	if str(result.get("status", "")) == "error":
+		return result
+	var ui: Object = _autoload("UI")
+	var hud: Variant = ui.get("ow_hud") if ui != null else null
+	if hud is Object and hud.has_method("updateTimeDisplay"):
+		hud.call("updateTimeDisplay")
+	return result
+
+
+func alter_classic_game_time(game_global: Object, payload: Dictionary) -> Dictionary:
+	if game_global == null or not _object_has_property(game_global, "time"):
+		return _error("Realmz game clock is unavailable")
+	var previous_time := int(game_global.get("time"))
+	if previous_time < 0:
+		return _error("Realmz game clock is not initialized")
+	var previous_day := floori(float(previous_time) / 86400.0)
+	var day_seconds := previous_time - previous_day * 86400
+	var previous_hour := floori(float(day_seconds) / 3600.0)
+	var previous_minute := floori(float(day_seconds - previous_hour * 3600) / 60.0)
+	var second := day_seconds - previous_hour * 3600 - previous_minute * 60
+	var day := previous_day
+	var hour := previous_hour
+	var minute := previous_minute
+	match str(payload.get("mode", "")):
+		"set":
+			if int(payload.get("day", -1)) != -1:
+				day = int(payload["day"])
+			if int(payload.get("hour", -1)) != -1:
+				hour = int(payload["hour"])
+			if int(payload.get("minute", -1)) != -1:
+				minute = int(payload["minute"])
+		"offset":
+			day += int(payload.get("day", 0))
+			hour += int(payload.get("hour", 0))
+			minute += int(payload.get("minute", 0))
+		_:
+			return _error("Classic game-time mutation has an invalid mode")
+	var current_time := day * 86400 + hour * 3600 + minute * 60 + second
+	if current_time < 0:
+		return _error("Classic game-time mutation precedes scenario day zero")
+	game_global.set("time", current_time)
+	var scenario_day := floori(float(current_time) / 86400.0)
+	day_seconds = current_time - scenario_day * 86400
+	var scenario_hour := floori(float(day_seconds) / 3600.0)
+	var scenario_minute := floori(float(day_seconds - scenario_hour * 3600) / 60.0)
+	return {
+		"previousTime": previous_time,
+		"time": current_time,
+		"scenarioDay": scenario_day,
+		"scenarioHour": scenario_hour,
+		"scenarioMinute": scenario_minute,
+	}
 
 
 func _check_party_condition(payload: Dictionary) -> Dictionary:

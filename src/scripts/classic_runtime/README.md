@@ -146,6 +146,14 @@ refreshes exploration, and redraws the loaded map before later action slots
 continue. Missing rows, non-positive random ranges, impossible shifts, and
 runtime destinations outside the compiled map remain explicit errors.
 
+Opcode `63` sets selected day, hour, and minute fields or applies their signed
+offsets without treating the change as ordinary elapsed rest or movement time.
+The native clock preserves seconds, normalizes the result, refreshes the HUD,
+and returns the new fields to the active interpreter. A following opcode `64`
+therefore branches against the updated day and hour in the same action point.
+Both inclusive latest-day/latest-hour outcomes branch to compiled Data ED3
+targets; negative opcode `64` retains the normal GOSUB return path.
+
 Opcode `101` reverses the successful land movement that entered the current
 action point, redraws exploration at the restored tile, and ends the action
 point without applying its ordinary destination or later slots. It remains a

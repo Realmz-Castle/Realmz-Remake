@@ -58,7 +58,7 @@ const SPELL_DEFINITION_FIELDS := [
 const EXTRA_CODE_OPCODES := [
 	2, 3, 7, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, -23, 23,
 	30, 33, 37, 38, 40, 41, 42, 43, 44, 45, 46, 48, 52, 54, 56, 57,
-	58, 61, 73, 85, 87, 106, 121, 123, 124, 125, 126,
+	58, 61, 63, 64, 73, 85, 87, 106, 121, 123, 124, 125, 126,
 ]
 
 var _diagnostics: Array = []
@@ -207,6 +207,8 @@ func _check_action(bundle: ClassicCampaignBundle, action: Dictionary) -> void:
 			_check_character_condition(action, extra_code)
 		elif code == 61:
 			_check_position_shift(bundle, action, extra_code)
+		elif code in [63, 64]:
+			_check_game_time_action(action, extra_code, code)
 		elif code == 85:
 			_check_random_branch(bundle, action, extra_code)
 		elif code == 124:
@@ -365,6 +367,46 @@ func _check_position_shift(
 			"deltaY": delta_y,
 			"randomized": randomized,
 		}
+	)
+
+
+func _check_game_time_action(
+	action: Dictionary,
+	extra_code: Dictionary,
+	opcode: int
+) -> void:
+	var values: Variant = extra_code.get("values", [])
+	if not (values is Array) or values.size() < 5:
+		return
+	var invalid := false
+	if opcode == 63:
+		var mode := int(values[0])
+		invalid = mode not in [1, 2] or (
+			mode == 1
+			and (
+				int(values[1]) < -1
+				or int(values[2]) < -1
+				or int(values[2]) > 23
+				or int(values[3]) < -1
+				or int(values[3]) > 59
+			)
+		)
+	else:
+		invalid = (
+			int(values[0]) < -1
+			or int(values[1]) < -1
+			or int(values[1]) > 23
+		)
+	if not invalid:
+		return
+	_add_action_dependency(
+		action,
+		"invalid-game-time-action",
+		"Opcode %d Data EDCD record %d has invalid game-time fields" % [
+			opcode,
+			int(extra_code.get("id", -1)),
+		],
+		{"referenceId": int(extra_code.get("id", -1))}
 	)
 
 

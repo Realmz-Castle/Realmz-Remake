@@ -402,6 +402,32 @@ class BattleOutcomeAdapter:
 		return {}
 
 
+class GameTimeTestGlobal:
+	extends RefCounted
+	var time := 0
+
+	func _init(current_time: int) -> void:
+		time = current_time
+
+
+class TimeActionAdapter:
+	extends RefCounted
+	var commands: Array = []
+
+	func get_classic_execution_context() -> Dictionary:
+		return {"scenarioDay": 3, "scenarioHour": 8, "scenarioMinute": 40}
+
+	func execute_command(command: String, payload: Dictionary) -> Dictionary:
+		commands.append({"command": command, "payload": payload})
+		if command == "alter_game_time":
+			return {
+				"scenarioDay": 3,
+				"scenarioHour": 10,
+				"scenarioMinute": 10,
+			}
+		return {}
+
+
 class ForcedBattleResumeAdapter:
 	extends RefCounted
 	var commands: Array = []
@@ -2463,6 +2489,7 @@ func _ready() -> void:
 	_test_treasure_delivery(bundle)
 	_test_map_mutations(bundle)
 	_test_position_shift_action()
+	_test_game_time_actions()
 	_test_timed_encounter_mutation()
 	_test_timed_encounter_scheduler()
 	await _test_timed_encounter_session_dispatch()
@@ -26892,6 +26919,161 @@ func _test_position_shift_action() -> void:
 		"runtime host routes position shift and continues"
 	)
 	_expect_equal(host.runtime.last_result.get("status"), "completed", "position shift host completes")
+	host.queue_free()
+
+
+func _test_game_time_actions() -> void:
+	var bundle = BundleScript.new()
+	bundle.manifest = {
+		"start": {"levelType": "land", "levelIndex": 0, "x": 4, "y": 5},
+	}
+	bundle.maps_by_id["land:0"] = {
+		"id": "land:0",
+		"levelType": "land",
+		"levelIndex": 0,
+		"width": 20,
+		"height": 20,
+	}
+	bundle.extra_codes_by_id[1] = {"id": 1, "values": [2, 0, 1, 30, 0]}
+	bundle.extra_codes_by_id[2] = {"id": 2, "values": [-1, 9, 0, 10, 11]}
+	bundle.extra_codes_by_id[3] = {"id": 3, "values": [1, 5, 6, 7, 0]}
+	bundle.extra_codes_by_id[4] = {"id": 4, "values": [3, 0, 0, 0, 0]}
+	bundle.extra_codes_by_id[5] = {"id": 5, "values": [-2, 24, 0, 10, 11]}
+	_add_stack_trigger(bundle, "time:offset", -1, [
+		_classic_action(0, 63, 1),
+		_classic_action(1, 64, 2),
+	])
+	_add_stack_trigger(bundle, "time:early", -1, [_classic_action(0, 64, 2)])
+	_add_stack_trigger(bundle, "time:gosub", -1, [
+		_classic_action(0, -64, 2),
+		_classic_action(1, 1, 912),
+	])
+	_add_stack_trigger(bundle, "time:invalid-mutation", -1, [_classic_action(0, 63, 4)])
+	_add_stack_trigger(bundle, "time:invalid-branch", -1, [_classic_action(0, 64, 5)])
+	_add_stack_trigger(bundle, "Data ED3:macro:10", 10, [
+		_classic_action(0, 1, 910),
+		_classic_action(1, 111, 0),
+	])
+	_add_stack_trigger(bundle, "Data ED3:macro:11", 11, [
+		_classic_action(0, 1, 911),
+		_classic_action(7, 24, 0),
+	])
+	_add_map_trigger(bundle, _map_trigger(5, 4, 5, [
+		_classic_action(0, 64, 2),
+		_classic_action(1, 62, 0),
+	]))
+	for message_id: int in [910, 911, 912]:
+		bundle.messages_by_id[message_id] = {
+			"id": message_id,
+			"text": "Time fixture %d" % message_id,
+		}
+
+	var interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger(
+			"time:offset",
+			0,
+			{"scenarioDay": 3, "scenarioHour": 8, "scenarioMinute": 40}
+		),
+		"begin game-time offset and branch"
+	)
+	var mutation: Dictionary = interpreter.run_until_yield()
+	_expect_equal(mutation.get("command"), "alter_game_time", "opcode 63 time command")
+	_expect_equal(mutation.get("payload", {}).get("mode"), "offset", "time offset mode")
+	var adapter = GodotAdapterScript.new()
+	var game_clock = GameTimeTestGlobal.new(3 * 86400 + 8 * 3600 + 40 * 60 + 12)
+	var mutation_result: Dictionary = adapter.alter_classic_game_time(
+		game_clock,
+		mutation.get("payload", {})
+	)
+	_expect_equal(
+		game_clock.time,
+		3 * 86400 + 10 * 3600 + 10 * 60 + 12,
+		"time offset preserves seconds and normalizes hour and minute"
+	)
+	_expect_equal(
+		interpreter.resume_time_mutation(mutation_result).get("payload", {}).get("messageId"),
+		911,
+		"subsequent time branch sees the mutated hour and takes the late target"
+	)
+	var set_result: Dictionary = adapter.alter_classic_game_time(game_clock, {
+		"mode": "set",
+		"day": 5,
+		"hour": 6,
+		"minute": 7,
+	})
+	_expect_equal(
+		set_result.get("time"),
+		5 * 86400 + 6 * 3600 + 7 * 60 + 12,
+		"set game time replaces authored fields and preserves seconds"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger(
+			"time:early",
+			0,
+			{"scenarioDay": 3, "scenarioHour": 9, "scenarioMinute": 59}
+		),
+		"begin early game-time branch"
+	)
+	_expect_equal(
+		interpreter.run_until_yield().get("payload", {}).get("messageId"),
+		910,
+		"time branch uses inclusive day and hour limits"
+	)
+
+	interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger(
+			"time:gosub",
+			0,
+			{"scenarioDay": 3, "scenarioHour": 9, "scenarioMinute": 0}
+		),
+		"begin GOSUB game-time branch"
+	)
+	_expect_equal(interpreter.run_until_yield().get("payload", {}).get("messageId"), 910, "time GOSUB enters target")
+	_expect_equal(interpreter.run_until_yield().get("payload", {}).get("messageId"), 912, "time GOSUB returns")
+
+	interpreter = _interpreter(bundle)
+	_expect(interpreter.begin_trigger("time:invalid-mutation"), "begin invalid time mutation")
+	_expect_equal(interpreter.run_until_yield().get("status"), "error", "invalid time mode stops")
+	interpreter = _interpreter(bundle)
+	_expect(
+		interpreter.begin_trigger(
+			"time:invalid-branch",
+			0,
+			{"scenarioDay": 0, "scenarioHour": 0}
+		),
+		"begin invalid time branch"
+	)
+	_expect_equal(interpreter.run_until_yield().get("status"), "error", "invalid time limit stops")
+	var readiness: Dictionary = ReadinessScript.new().inspect(bundle)
+	_expect_equal(
+		_diagnostic_code_count(readiness, "invalid-game-time-action"),
+		2,
+		"readiness retains invalid time mutation and branch rows as blockers"
+	)
+	var execution: Dictionary = ExecutionAuditScript.new().inspect(bundle)
+	_expect(
+		not bool(_audit_action(execution, "Data DD", 5, 1).get("executable", true)),
+		"positive game-time branch makes later slots unreachable"
+	)
+
+	var host = HostScript.new()
+	get_tree().root.add_child(host)
+	var host_adapter = TimeActionAdapter.new()
+	host.configure(host_adapter)
+	var host_state = StateScript.new()
+	host_state.configure_from_bundle(bundle)
+	host.runtime.use_shared_campaign(bundle, host_state)
+	_expect(host.start_trigger("time:offset"), "runtime host starts game-time mutation")
+	_expect_equal(
+		host_adapter.commands.map(func(entry: Dictionary) -> String: return entry["command"]),
+		["alter_game_time", "show_text"],
+		"runtime host refreshes time context before branching"
+	)
+	_expect_equal(host_adapter.commands[-1].get("payload", {}).get("messageId"), 911, "host takes updated late branch")
 	host.queue_free()
 
 

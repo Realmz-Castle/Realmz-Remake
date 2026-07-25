@@ -81,7 +81,11 @@ func _has_linear_fallthrough(bundle: ClassicCampaignBundle, action: Dictionary) 
 	var code := InterpreterScript.normalize_opcode(raw_code)
 	# A negative action begins a GOSUB. Its target can explicitly return to the
 	# following slot, so only the positive branch form can make later slots dead.
-	if code != 21 or raw_code < 0:
+	if raw_code < 0:
+		return true
+	if code == 64:
+		return false
+	if code != 21:
 		return true
 	var extra_code: Dictionary = bundle.get_extra_code(int(action.get("id", -1)))
 	var values: Variant = extra_code.get("values", [])

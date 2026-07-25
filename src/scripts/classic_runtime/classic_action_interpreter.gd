@@ -13,7 +13,7 @@ const HANDLED_OPCODES := [
 	30, 32, 33, 34, 35, 36, 37, 38, 39,
 	40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 	50, 52, 54, 56, 57, 58,
-	61, 73, 82, 83, 84, 85, 86, 87, 89,
+	61, 63, 64, 73, 82, 83, 84, 85, 86, 87, 89,
 	93, 94, 95, 96, 97, 98,
 	99, 100, 101, 106, 111, 112,
 	121, 123, 124, 125, 126, 127,
@@ -61,6 +61,7 @@ var pending_ally_check: Dictionary = {}
 var pending_combat_monster_check: Dictionary = {}
 var pending_battle_round_macro: Dictionary = {}
 var pending_random_branch: Dictionary = {}
+var pending_time_mutation: Dictionary = {}
 var pending_teleport: Dictionary = {}
 var execution_context: Dictionary = {}
 var encounter_origins: Array = []
@@ -115,6 +116,7 @@ func reset_execution() -> void:
 	pending_combat_monster_check.clear()
 	pending_battle_round_macro.clear()
 	pending_random_branch.clear()
+	pending_time_mutation.clear()
 	pending_teleport.clear()
 	execution_context.clear()
 	encounter_origins.clear()
@@ -150,6 +152,7 @@ func make_execution_snapshot() -> Dictionary:
 		"pendingCombatMonsterCheck": pending_combat_monster_check.duplicate(true),
 		"pendingBattleRoundMacro": pending_battle_round_macro.duplicate(true),
 		"pendingRandomBranch": pending_random_branch.duplicate(true),
+		"pendingTimeMutation": pending_time_mutation.duplicate(true),
 		"pendingTeleport": pending_teleport.duplicate(true),
 		"executionContext": execution_context.duplicate(true),
 		"encounterOrigins": encounter_origins.duplicate(true),
@@ -194,6 +197,7 @@ func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
 	pending_combat_monster_check = saved["pendingCombatMonsterCheck"].duplicate(true)
 	pending_battle_round_macro = saved["pendingBattleRoundMacro"].duplicate(true)
 	pending_random_branch = saved["pendingRandomBranch"].duplicate(true)
+	pending_time_mutation = saved.get("pendingTimeMutation", {}).duplicate(true)
 	pending_teleport = saved["pendingTeleport"].duplicate(true)
 	execution_context = saved["executionContext"].duplicate(true)
 	encounter_origins = saved["encounterOrigins"].duplicate(true)
@@ -230,6 +234,9 @@ static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
 	if snapshot.has("pendingMiscBranch") \
 			and not (snapshot.get("pendingMiscBranch") is Dictionary):
 		return _snapshot_error("Classic continuation has invalid pendingMiscBranch")
+	if snapshot.has("pendingTimeMutation") \
+			and not (snapshot.get("pendingTimeMutation") is Dictionary):
+		return _snapshot_error("Classic continuation has invalid pendingTimeMutation")
 	for field_name: String in ["callStack", "encounterOrigins"]:
 		if not (snapshot.get(field_name) is Array):
 			return _snapshot_error("Classic continuation has invalid %s" % field_name)
@@ -342,6 +349,8 @@ func run_until_yield() -> Dictionary:
 		return _error_result("A classic battle-round macro must be resumed before execution can continue")
 	if not pending_random_branch.is_empty():
 		return _error_result("A classic random branch presentation must finish before execution can continue")
+	if not pending_time_mutation.is_empty():
+		return _error_result("A classic time mutation must finish before execution can continue")
 	if not pending_teleport.is_empty():
 		return _error_result("A classic teleport must finish before execution can continue")
 
@@ -745,6 +754,17 @@ func resume_back_up_party() -> Dictionary:
 	return _completed_result("back-up-party")
 
 
+func resume_time_mutation(response: Dictionary) -> Dictionary:
+	if pending_time_mutation.is_empty():
+		return _error_result("No classic time mutation is waiting for a response")
+	for field_name: String in ["scenarioDay", "scenarioHour", "scenarioMinute"]:
+		if not response.has(field_name):
+			return _error_result("Classic time mutation response is missing %s" % field_name)
+		execution_context[field_name] = int(response[field_name])
+	pending_time_mutation.clear()
+	return run_until_yield()
+
+
 func _execute_action(action: Dictionary) -> Dictionary:
 	var code := int(action.get("code", 0))
 	var record_id := int(action.get("id", 0))
@@ -881,6 +901,10 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			return _execute_difficulty_branch(record_id)
 		61:
 			return _execute_position_shift(record_id)
+		63:
+			return _execute_time_mutation(record_id)
+		64:
+			return _execute_time_branch(record_id, gosub_active)
 		73:
 			return _execute_restricted_shop(record_id)
 		82, 83:
@@ -2320,6 +2344,69 @@ func _execute_position_shift(extra_code_id: int) -> Dictionary:
 		"fromPosition": previous_position,
 		"randomized": randomized,
 	})
+
+
+func _execute_time_mutation(extra_code_id: int) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Game-time mutation references missing Extra Code row %d" % extra_code_id
+		)
+	var mode := int(values[0])
+	if mode not in [1, 2]:
+		return _halt_with_error("Game-time mutation %d has invalid mode %d" % [
+			extra_code_id,
+			mode,
+		])
+	if (
+		mode == 1
+		and (
+			int(values[1]) < -1
+			or int(values[2]) < -1
+			or int(values[2]) > 23
+			or int(values[3]) < -1
+			or int(values[3]) > 59
+		)
+	):
+		return _halt_with_error(
+			"Set game-time row %d has an invalid day, hour, or minute" % extra_code_id
+		)
+	pending_time_mutation = {"extraCodeId": extra_code_id}
+	return _yield_result("alter_game_time", {
+		"extraCodeId": extra_code_id,
+		"mode": "set" if mode == 1 else "offset",
+		"day": int(values[1]),
+		"hour": int(values[2]),
+		"minute": int(values[3]),
+	})
+
+
+func _execute_time_branch(extra_code_id: int, gosub: bool) -> Dictionary:
+	var values := _extra_code_values(extra_code_id)
+	if values.is_empty():
+		return _halt_with_error(
+			"Game-time branch references missing Extra Code row %d" % extra_code_id
+		)
+	if not execution_context.has("scenarioDay") \
+			or not execution_context.has("scenarioHour"):
+		return _halt_with_error(
+			"Game-time branch %d requires the current scenario day and hour" % extra_code_id
+		)
+	var day := int(execution_context["scenarioDay"])
+	var hour := int(execution_context["scenarioHour"])
+	var latest_day := int(values[0])
+	var latest_hour := int(values[1])
+	if latest_day < -1 or latest_hour < -1 or latest_hour > 23:
+		return _halt_with_error(
+			"Game-time branch %d has an invalid day or hour limit" % extra_code_id
+		)
+	var within_time := (latest_day == -1 or day <= latest_day) \
+		and (latest_hour == -1 or hour <= latest_hour)
+	return _branch_to_extra_action_point(
+		int(values[3] if within_time else values[4]),
+		gosub,
+		0
+	)
 
 
 func _remove_current_action_point() -> Dictionary:
