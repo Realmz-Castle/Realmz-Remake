@@ -5,7 +5,7 @@ const CampaignInstallScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
 
-const SCHEMA_VERSION := 1
+const SCHEMA_VERSION := 2
 const REPORT_KIND := "classic-built-in-campaign-readiness-footprint"
 
 
@@ -89,6 +89,14 @@ func inspect(campaigns_directory: String, options := {}) -> Dictionary:
 			"readiness": readiness,
 			"footprint": campaign_footprint,
 		})
+	var shared_store_directory := normalized_root.get_base_dir().path_join(
+		"ClassicAssets"
+	)
+	var shared_store_footprint := _inspect_shared_store_files(
+		shared_store_directory,
+		include_compressed_estimate
+	)
+	_merge_footprint(footprint_totals, shared_store_footprint)
 	var duplication := _build_duplication_report(hash_index)
 	var campaign_count_matches := (
 		expected_campaigns <= 0
@@ -125,6 +133,8 @@ func inspect(campaigns_directory: String, options := {}) -> Dictionary:
 			"jsonBytes": footprint_totals["extensions"].get(
 				"json", {}
 			).get("installedBytes", 0),
+			"sharedStoreFiles": shared_store_footprint["files"],
+			"sharedStoreBytes": shared_store_footprint["installedBytes"],
 			"duplicateBytes": duplication["duplicateBytes"],
 			"crossCampaignDuplicateBytes": duplication[
 				"crossCampaignDuplicateBytes"
@@ -141,6 +151,10 @@ func inspect(campaigns_directory: String, options := {}) -> Dictionary:
 		"diagnosticBreakdown": diagnostic_breakdown,
 		"categories": footprint_totals["categories"],
 		"extensions": footprint_totals["extensions"],
+		"sharedStore": {
+			"directory": _portable_directory(shared_store_directory),
+			"footprint": shared_store_footprint,
+		},
 		"duplication": duplication,
 		"campaigns": campaigns,
 	}
@@ -210,6 +224,38 @@ func _inspect_campaign_files(
 	return footprint
 
 
+func _inspect_shared_store_files(
+	store_directory: String,
+	include_compressed_estimate: bool
+) -> Dictionary:
+	var footprint := _empty_footprint()
+	var relative_paths: Array[String] = []
+	_collect_relative_files(store_directory, "", relative_paths)
+	relative_paths.sort()
+	for relative_path: String in relative_paths:
+		var path := store_directory.path_join(relative_path)
+		var file := FileAccess.open(path, FileAccess.READ)
+		if file == null:
+			continue
+		var bytes := file.get_buffer(file.get_length())
+		file.close()
+		var extension := relative_path.get_extension().to_lower()
+		if extension.is_empty():
+			extension = "[none]"
+		_add_footprint_row(
+			footprint,
+			"shared-store",
+			extension,
+			bytes.size(),
+			(
+				bytes.compress(FileAccess.COMPRESSION_DEFLATE).size()
+				if include_compressed_estimate
+				else 0
+			)
+		)
+	return footprint
+
+
 func _collect_relative_files(
 	root: String,
 	relative_directory: String,
@@ -228,7 +274,7 @@ func _collect_relative_files(
 	while not entry.is_empty():
 		if access.current_is_dir():
 			directories.append(entry)
-		elif entry != ".gdignore":
+		elif entry != ".gdignore" and not entry.ends_with(".import"):
 			files.append(entry)
 		entry = access.get_next()
 	access.list_dir_end()

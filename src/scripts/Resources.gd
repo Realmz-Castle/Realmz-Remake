@@ -25,6 +25,9 @@ const ItemHookRuntimeScript = preload(
 	"res://scripts/items/item_hook_runtime.gd"
 )
 const ClassicItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const ClassicSharedAssetStoreScript = preload(
+	"res://scripts/classic_runtime/classic_shared_asset_store.gd"
+)
 const LEGACY_ITEM_IDENTITY_STATE_KEY := "legacyDefinitionIdentity"
 const SHARED_SPELL_PATH := "res://shared_assets/spells/"
 var g_scripts = {}
@@ -119,12 +122,12 @@ func load_campaign_ressources( campaign : String = "") ->void :
 	print("RESOURCES load_campaign_ressources")
 	clear_ressources()
 	load_tile_resources("res://shared_assets/tiles/")
-	var tilesetspath : String = Paths.campaignsfolderpath + campaign + "/Tilesets/"
-	if DirAccess.dir_exists_absolute(tilesetspath) :
-		#var tilesets : Array = Utils.FileHandler.list_dirs_in_directory(tilesetspath)
-		#for ts in tilesets :
-		load_tile_resources(tilesetspath)# + ts + '/')
-	pass
+	var campaign_root := Paths.campaignsfolderpath.path_join(campaign)
+	var tilesetspath: String = campaign_root.path_join("Tilesets")
+	if FileAccess.file_exists(campaign_root.path_join("campaign.json")):
+		_load_classic_campaign_tile_resources(campaign_root)
+	elif DirAccess.dir_exists_absolute(tilesetspath):
+		load_tile_resources(tilesetspath)
 	load_item_resources("res://shared_assets/items/")
 	var itemsetpath : String = Paths.campaignsfolderpath + campaign + "/Items/"
 	if DirAccess.dir_exists_absolute(itemsetpath) :
@@ -240,64 +243,123 @@ func load_tile_resources( path : String ) -> void:
 #	print("resources load_tile_resources tileset_folder_names : ", tileset_folder_names)
 
 	for ts_name in tileset_folder_names :
-		print("resource load tiles : ", ts_name)
-		var n_tileset : Array = []
-		var n_ts_json_data : Dictionary = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path +'/'+ ts_name + "/" +ts_name+".json"))
-		var atlas_width : int = n_ts_json_data["columns"]
-		var texture_atlas_path: String = path.path_join(ts_name +"/"+ ts_name+".png")
-		var texture_atlas: Image
-		if texture_atlas_path.begins_with("res://") :
-			texture_atlas = load(texture_atlas_path)
-		else :
-			texture_atlas = Image.new()
-			var _err = texture_atlas.load(texture_atlas_path)
-
-		var tileset_name : String = n_ts_json_data["name"]
-		var json_tiles_array : Array = n_ts_json_data["tiles"]
-
-		var templates_dict : Dictionary = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path +'/'+ ts_name + "/tile_templates.json"))
-		#print(json_tiles_array.size())
-		for id in range(n_ts_json_data["tilecount"]) :
-
-			var t_dict : Dictionary =  json_tiles_array[id]
-#			print("resource load tiles : ", tileset_name, ' : ', t_dict["properties"][0]["value"])
-			var n_tile_dict = {}
-
-			#find the position of the tile's image based on id and the exture atlas 's size
-			var x_pos : int = id % atlas_width
-			var y_pos : int = floor(float(id)/float(atlas_width))
-			var rect = Rect2i(x_pos * Utils.GRID_SIZE, y_pos * Utils.GRID_SIZE, Utils.GRID_SIZE, Utils.GRID_SIZE)
-			# Create a new texture for this thing #
-			var texture = ImageTexture.new()
-			var image = texture_atlas.get_region(rect)
-			# Loads texture from texture atlas #
-			texture = ImageTexture.create_from_image(image) #,0
-			var imgbk_key : String = tileset_name+str(id)
-			#print("Resource tiles : "+imgbk_key)
-			images_book[imgbk_key] = {}
-			images_book[imgbk_key]["img"] = image
-			images_book[imgbk_key]["tex"] = texture
-
-			n_tile_dict["texture"] = texture
-			#set tiles  data from its template
-			var tile_name : String = t_dict["properties"][0]["value"]
-			var tile_template_name : String = t_dict["properties"][1]["value"]
-			var expansion: Array = []
-			if t_dict["properties"].size() > 2 :
-				expansion = t_dict["properties"][2]["value"]
-			#print("resource tile_template_name :  "+tile_template_name+ " for "+tile_name+" id "+str(id))
-			#print("Resources var template_dict ", tile_template_name,' ', templates_dict.has(tile_template_name))
-			var template_dict : Dictionary = templates_dict[tile_template_name]
-			for property in template_dict.keys() :
-				n_tile_dict[property] = template_dict[property]
-			n_tile_dict["name"] = tile_name
-			n_tile_dict["tileset_name"] = ts_name
-			n_tile_dict["id"]= id
-			n_tile_dict["expansion"] = expansion
-			n_tileset.append(n_tile_dict)
-		tiles_book[ts_name+'.json'] = n_tileset
+		var tileset_directory := path.path_join(str(ts_name))
+		_load_tile_resource_from_paths(
+			str(ts_name),
+			tileset_directory.path_join("%s.json" % ts_name),
+			tileset_directory.path_join("%s.png" % ts_name),
+			tileset_directory.path_join("tile_templates.json")
+		)
 	print("Done loading tiles from : ", path)
 	return
+
+
+func _load_classic_campaign_tile_resources(campaign_root: String) -> bool:
+	var manifest_value: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(campaign_root.path_join("campaign.json"))
+	)
+	if not (manifest_value is Dictionary):
+		push_error("Classic campaign manifest is invalid while loading tiles")
+		return false
+	var store = ClassicSharedAssetStoreScript.new()
+	if not store.load_for_campaign(campaign_root, manifest_value):
+		push_error(store.last_error)
+		return false
+	var names: Dictionary = {}
+	var local_tilesets := campaign_root.path_join("Tilesets")
+	for local_name: String in Utils.FileHandler.list_dirs_in_directory(local_tilesets):
+		names[local_name] = true
+	for shared_name: String in store.shared_tileset_names():
+		names[shared_name] = true
+	var sorted_names: Array = names.keys()
+	sorted_names.sort()
+	for name_value: Variant in sorted_names:
+		var tileset_name := str(name_value)
+		var logical_root := "Tilesets/%s" % tileset_name
+		if not _load_tile_resource_from_paths(
+			tileset_name,
+			store.resolve("%s/%s.json" % [logical_root, tileset_name]),
+			store.resolve("%s/%s.png" % [logical_root, tileset_name]),
+			store.resolve("%s/tile_templates.json" % logical_root)
+		):
+			return false
+	return true
+
+
+func _load_tile_resource_from_paths(
+	ts_name: String,
+	definition_path: String,
+	texture_atlas_path: String,
+	templates_path: String
+) -> bool:
+	print("resource load tiles : ", ts_name)
+	for required_path: String in [
+		definition_path,
+		texture_atlas_path,
+		templates_path,
+	]:
+		if not FileAccess.file_exists(required_path):
+			push_error("Tileset '%s' is missing %s" % [ts_name, required_path])
+			return false
+	var n_ts_json_data: Dictionary = (
+		Utils.FileHandler.read_json_dictionary_from_txt(
+			Utils.FileHandler.read_txt_from_file(definition_path)
+		)
+	)
+	var templates_dict: Dictionary = (
+		Utils.FileHandler.read_json_dictionary_from_txt(
+			Utils.FileHandler.read_txt_from_file(templates_path)
+		)
+	)
+	if n_ts_json_data.is_empty() or templates_dict.is_empty():
+		push_error("Tileset '%s' has invalid JSON metadata" % ts_name)
+		return false
+	var texture_atlas: Image
+	if texture_atlas_path.begins_with("res://"):
+		texture_atlas = load(texture_atlas_path)
+	else:
+		texture_atlas = Image.new()
+		var image_error := texture_atlas.load(texture_atlas_path)
+		if image_error != OK:
+			push_error(
+				"Tileset '%s' atlas could not be decoded: %s"
+				% [ts_name, error_string(image_error)]
+			)
+			return false
+	var atlas_width := int(n_ts_json_data["columns"])
+	var tileset_name := str(n_ts_json_data["name"])
+	var json_tiles_array: Array = n_ts_json_data["tiles"]
+	var n_tileset: Array = []
+	for id: int in range(int(n_ts_json_data["tilecount"])):
+		var t_dict: Dictionary = json_tiles_array[id]
+		var x_pos := id % atlas_width
+		var y_pos := floori(float(id) / float(atlas_width))
+		var rect := Rect2i(
+			x_pos * Utils.GRID_SIZE,
+			y_pos * Utils.GRID_SIZE,
+			Utils.GRID_SIZE,
+			Utils.GRID_SIZE
+		)
+		var image := texture_atlas.get_region(rect)
+		var texture := ImageTexture.create_from_image(image)
+		var imgbk_key := tileset_name + str(id)
+		images_book[imgbk_key] = {"img": image, "tex": texture}
+		var n_tile_dict := {"texture": texture}
+		var tile_name := str(t_dict["properties"][0]["value"])
+		var tile_template_name := str(t_dict["properties"][1]["value"])
+		var expansion: Array = []
+		if t_dict["properties"].size() > 2:
+			expansion = t_dict["properties"][2]["value"]
+		var template_dict: Dictionary = templates_dict[tile_template_name]
+		for property: Variant in template_dict:
+			n_tile_dict[property] = template_dict[property]
+		n_tile_dict["name"] = tile_name
+		n_tile_dict["tileset_name"] = ts_name
+		n_tile_dict["id"] = id
+		n_tile_dict["expansion"] = expansion
+		n_tileset.append(n_tile_dict)
+	tiles_book["%s.json" % ts_name] = n_tileset
+	return true
 
 func load_item_resources(
 	path: String,

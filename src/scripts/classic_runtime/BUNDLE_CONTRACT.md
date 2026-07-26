@@ -53,6 +53,49 @@ segments are invalid. Asset paths inside the documents follow the same
 campaign-relative rule; an installed campaign must not depend on either source
 repository's location.
 
+## Built-in shared assets
+
+Shipped built-in campaigns may replace campaign-local files with immutable
+content-addressed files from the installation's `ClassicAssets` directory. This
+is an optional additive version-1 manifest section, not a different campaign
+document schema:
+
+```json
+{
+  "sharedAssets": {
+    "format": "realmz-remake-classic-shared-assets",
+    "formatVersion": 1,
+    "files": [
+      {
+        "bytes": 252778,
+        "kind": "stock-tileset",
+        "logicalPath": "Tilesets/landlook-0/landlook-0.png",
+        "sha256": "cc27beb5b4b7ed2211af0333c528ff040688da85945454c0f24b7f8df039c60d"
+      }
+    ]
+  }
+}
+```
+
+The store is a sibling of `Campaigns` in both a source checkout and a portable
+installation. Its `store.json` declares the same format and version, the
+`sha256` hash algorithm, and one record per hash with its exact byte count and
+extension. Payloads use the deterministic path
+`ClassicAssets/sha256/<first-two-hash-digits>/<sha256>.<extension>`.
+
+The installer rejects a missing store, absent hash, byte-count disagreement, or
+checksum mismatch before readiness evaluation. The normal resource loader
+resolves the logical campaign path to the verified payload; local and shared
+files may coexist within one tileset. Only byte-identical files share a hash.
+Similar images, authored variants, and preserved Classic resources remain
+campaign-local.
+
+This extension is for release-owned built-ins. A campaign that omits
+`sharedAssets` remains self-contained and never requires the store, which keeps
+producer fixtures and imported packages independent of the installed built-in
+corpus. That behavior is a narrow convenience rather than a promise that future
+bundle formats must preserve every version-1 import path.
+
 ## Versioning
 
 `formatVersion` versions the manifest and document set. Every referenced document

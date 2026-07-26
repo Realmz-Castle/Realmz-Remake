@@ -45,6 +45,7 @@ class RealmzExportPlugin extends EditorExportPlugin:
 
 		_export_dir(base_dir, "Data")
 		_export_dir(base_dir, "Campaigns")
+		_export_dir(base_dir, "ClassicAssets")
 		_export_dir(base_dir, "Profiles")
 
 		if OS.get_name() == "macOS":
@@ -101,7 +102,12 @@ class RealmzExportPlugin extends EditorExportPlugin:
 
 			var file_name = dir.get_next()
 			while file_name != "":
-				if file_name == "." or file_name == ".." or file_name == ".gdignore":
+				if (
+					file_name == "."
+					or file_name == ".."
+					or file_name == ".gdignore"
+					or file_name.ends_with(".import")
+				):
 					file_name = dir.get_next()
 					continue
 

@@ -11,6 +11,9 @@ const CampaignAdmissionScript = preload(
 const NativeContextBuilderScript = preload(
 	"res://scripts/classic_runtime/classic_native_context_builder.gd"
 )
+const SharedAssetStoreScript = preload(
+	"res://scripts/classic_runtime/classic_shared_asset_store.gd"
+)
 
 const REQUIRED_NATIVE_MAP_FILES := [
 	"map_info.json",
@@ -22,6 +25,7 @@ const REQUIRED_NATIVE_MAP_FILES := [
 var campaign_name := ""
 var campaign_directory := ""
 var bundle: ClassicCampaignBundle
+var shared_asset_store: ClassicSharedAssetStore
 var readiness_report: Dictionary = {}
 var native_context_report: Dictionary = {}
 var start_diagnostic := ""
@@ -134,6 +138,9 @@ func load_from_campaigns_directory(
 	bundle = BundleScript.new()
 	if not bundle.load_from_directory(campaign_directory):
 		return _fail(bundle.last_error)
+	shared_asset_store = SharedAssetStoreScript.new()
+	if not shared_asset_store.load_for_campaign(campaign_directory, bundle.manifest):
+		return _fail(shared_asset_store.last_error)
 	if not _validate_packaged_payloads():
 		return false
 	var native_context_result: Dictionary = NativeContextBuilderScript.new().build(
@@ -312,6 +319,7 @@ func _reset() -> void:
 	campaign_name = ""
 	campaign_directory = ""
 	bundle = null
+	shared_asset_store = null
 	readiness_report.clear()
 	native_context_report.clear()
 	start_diagnostic = ""

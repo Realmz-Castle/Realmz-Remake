@@ -32,17 +32,26 @@ records:
 | Progression blockers | 611 |
 | Fidelity fallbacks | 836 |
 | Active / inactive diagnostics | 1,269 / 178 |
-| Files | 4,991 |
-| Installed footprint | 175,141,552 bytes (167.03 MiB) |
-| Per-file deflate estimate | 44,995,046 bytes (42.91 MiB) |
-| JSON footprint | 123,010,192 bytes (117.31 MiB) |
-| Byte-identical duplication | 23,796,872 bytes (22.69 MiB) |
-| Cross-campaign duplication | 23,694,783 bytes (22.60 MiB) |
+| Files | 4,852 |
+| Installed footprint | 159,549,198 bytes (152.16 MiB) |
+| Per-file deflate estimate | 34,878,096 bytes (33.26 MiB) |
+| JSON footprint | 117,225,263 bytes (111.79 MiB) |
+| Shared store | 21 files / 2,199,897 bytes (2.10 MiB) |
+| Byte-identical duplication | 8,149,781 bytes (7.77 MiB) |
+| Cross-campaign duplication | 8,047,692 bytes (7.67 MiB) |
 
-The largest duplicate category is stock tilesets at 15,647,091 bytes
-(14.92 MiB). The report retains every duplicate hash group and location, every
-campaign diagnostic with its source and record identity, per-campaign resource
-preparation evidence, file categories, and extension totals.
+The built-in campaigns reference 160 byte-identical stock tileset files through
+20 immutable content hashes. Moving 17,820,410 campaign-local bytes into
+2,173,319 unique payload bytes removes the complete 15,647,091-byte stock
+tileset duplicate category. Including the store manifest, this reduces the
+installed corpus by 15,592,354 bytes (14.87 MiB) and the per-file deflate
+estimate by 10,116,950 bytes (9.65 MiB). Similar but non-identical files remain
+campaign-local.
+
+The report counts the sibling `ClassicAssets` store exactly once. It retains
+every remaining duplicate hash group and location, every campaign diagnostic
+with its source and record identity, per-campaign resource preparation evidence,
+file categories, and extension totals.
 
 The distribution JSON is compact. Semantic comparison of all 920 JSON files
 against the pre-compaction corpus found zero mismatches while reducing the
@@ -56,6 +65,8 @@ result is 611 active progression blockers and 836 fallbacks. Of the fallbacks,
 178 describe inactive preserved definitions or trailing data; those records
 remain inventoried and are not active consumers.
 
-The audit is read-only and does not deduplicate or delete campaign content.
-Structural validity and a generated report are not proof that a scenario is
-completable.
+The certification audit is read-only. The separate
+`asset_scripts/share_classic_assets.py` tool performs the deterministic
+hash-store migration and can be run without `--apply` to preview its exact
+ownership and byte totals. Structural validity and a generated report are not
+proof that a scenario is completable.

@@ -81,6 +81,9 @@ const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.g
 const CampaignInstallScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
+const SharedAssetStoreScript = preload(
+	"res://scripts/classic_runtime/classic_shared_asset_store.gd"
+)
 const NativeContextBuilderScript = preload(
 	"res://scripts/classic_runtime/classic_native_context_builder.gd"
 )
@@ -2464,9 +2467,11 @@ func _ready() -> void:
 		return
 
 	_test_bundle_contract_validation()
+	_test_classic_shared_asset_store()
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
 	_test_classic_native_context_and_corpus_report()
+	_test_builtin_shared_asset_tilesets()
 	_test_classic_campaign_admission()
 	_test_classic_character_rule_profile()
 	_test_classic_map_materializer()
@@ -3166,6 +3171,140 @@ func _test_bundle_contract_validation() -> void:
 	_expect(
 		encounter_action_bundle.last_error.contains("simpleEncounters[0].actions[0].slot"),
 		"encounter action error includes record and slot context"
+	)
+
+
+func _test_classic_shared_asset_store() -> void:
+	var invalid_bundle = BundleScript.new()
+	invalid_bundle.manifest = _minimal_contract_manifest()
+	invalid_bundle.manifest["sharedAssets"] = {
+		"format": SharedAssetStoreScript.FORMAT,
+		"formatVersion": SharedAssetStoreScript.FORMAT_VERSION,
+		"files": [],
+	}
+	_expect(
+		not invalid_bundle._validate_manifest_contract(),
+		"bundle contract rejects an empty shared-asset reference list"
+	)
+	invalid_bundle.manifest["sharedAssets"]["files"] = [{
+		"bytes": 1,
+		"kind": "",
+		"logicalPath": "Tilesets/test/test.json",
+		"sha256": "0".repeat(64),
+	}]
+	_expect(
+		not invalid_bundle._validate_manifest_contract(),
+		"bundle contract requires a shared-asset kind"
+	)
+
+	var test_root := (
+		"user://classic-shared-assets-%d" % Time.get_ticks_usec()
+	)
+	var campaign_directory := test_root.path_join(
+		"Campaigns/Built In (Classic)"
+	)
+	var store_directory := test_root.path_join("ClassicAssets")
+	DirAccess.make_dir_recursive_absolute(campaign_directory)
+	var source_path := test_root.path_join("payload.json")
+	var contents := "{\"value\":1}\n"
+	_expect_equal(
+		_write_classic_test_file(source_path, contents),
+		OK,
+		"shared-asset test writes source bytes"
+	)
+	var content_hash := FileAccess.get_sha256(source_path)
+	var content_path := (
+		store_directory
+		.path_join("sha256")
+		.path_join(content_hash.substr(0, 2))
+		.path_join("%s.json" % content_hash)
+	)
+	DirAccess.make_dir_recursive_absolute(content_path.get_base_dir())
+	_expect_equal(
+		_write_classic_test_file(content_path, contents),
+		OK,
+		"shared-asset test writes content-addressed bytes"
+	)
+	var store_files := {}
+	store_files[content_hash] = {
+		"bytes": contents.to_utf8_buffer().size(),
+		"extension": "json",
+		"owners": [],
+	}
+	_expect_equal(
+		_write_classic_test_file(
+			store_directory.path_join("store.json"),
+			JSON.stringify({
+				"format": SharedAssetStoreScript.FORMAT,
+				"formatVersion": SharedAssetStoreScript.FORMAT_VERSION,
+				"hashAlgorithm": SharedAssetStoreScript.HASH_ALGORITHM,
+				"files": store_files,
+			})
+		),
+		OK,
+		"shared-asset test writes store manifest"
+	)
+	var manifest := {
+		"sharedAssets": {
+			"format": SharedAssetStoreScript.FORMAT,
+			"formatVersion": SharedAssetStoreScript.FORMAT_VERSION,
+			"files": [{
+				"bytes": contents.to_utf8_buffer().size(),
+				"kind": "stock-tileset",
+				"logicalPath": "Tilesets/landlook-0/landlook-0.json",
+				"sha256": content_hash,
+			}],
+		},
+	}
+	var store = SharedAssetStoreScript.new()
+	_expect(
+		store.load_for_campaign(campaign_directory, manifest),
+		"content-addressed Classic asset resolves: %s" % store.last_error
+	)
+	_expect_equal(
+		store.resolve("Tilesets/landlook-0/landlook-0.json"),
+		content_path,
+		"shared logical path resolves to its exact hash payload"
+	)
+	_expect_equal(
+		store.shared_tileset_names(),
+		["landlook-0"],
+		"shared store exposes virtual tileset ownership"
+	)
+
+	_write_classic_test_file(content_path, "{\"value\":2}\n")
+	var corrupt_store = SharedAssetStoreScript.new()
+	_expect(
+		not corrupt_store.load_for_campaign(campaign_directory, manifest),
+		"shared store rejects bytes with the wrong hash"
+	)
+	_expect(
+		corrupt_store.last_error.contains("failed its checksum"),
+		"corrupt shared payload reports a deterministic checksum error"
+	)
+	DirAccess.remove_absolute(content_path)
+	var missing_store = SharedAssetStoreScript.new()
+	_expect(
+		not missing_store.load_for_campaign(campaign_directory, manifest),
+		"shared store rejects a missing hash payload"
+	)
+	_expect(
+		missing_store.last_error.contains("missing from the content store"),
+		"missing shared payload reports its exact hash"
+	)
+
+	var external_store = SharedAssetStoreScript.new()
+	_expect(
+		external_store.load_for_campaign(
+			test_root.path_join("Campaigns/Third Party"),
+			{}
+		),
+		"self-contained external v1 campaign does not require the built-in store"
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(test_root),
+		OK,
+		"shared-asset test removes its temporary files"
 	)
 
 
@@ -4472,6 +4611,79 @@ func _test_classic_native_context_and_corpus_report() -> void:
 		OK,
 		"native context tests clean generated resource fixtures"
 	)
+
+
+func _test_builtin_shared_asset_tilesets() -> void:
+	var campaigns_root := ProjectSettings.globalize_path(
+		"res://Campaigns"
+	).replace("\\", "/")
+	var campaign_names: Array[String] = []
+	for campaign_name: String in DirAccess.get_directories_at(campaigns_root):
+		if (
+			campaign_name.ends_with(" (Classic)")
+			and FileAccess.file_exists(
+				campaigns_root.path_join(campaign_name).path_join("campaign.json")
+			)
+		):
+			campaign_names.append(campaign_name)
+	campaign_names.sort()
+	_expect_equal(
+		campaign_names.size(),
+		13,
+		"shared-asset smoke discovers all built-in Classic campaigns"
+	)
+	for campaign_name: String in campaign_names:
+		var campaign_directory := campaigns_root.path_join(campaign_name)
+		var manifest_value: Variant = JSON.parse_string(
+			FileAccess.get_file_as_string(
+				campaign_directory.path_join("campaign.json")
+			)
+		)
+		_expect(
+			manifest_value is Dictionary,
+			"%s shared-asset manifest parses" % campaign_name
+		)
+		if not (manifest_value is Dictionary):
+			continue
+		var store = SharedAssetStoreScript.new()
+		_expect(
+			store.load_for_campaign(campaign_directory, manifest_value),
+			"%s shared-asset hashes validate: %s" % [
+				campaign_name,
+				store.last_error,
+			]
+		)
+		if not store.last_error.is_empty():
+			continue
+		_expect(
+			not store.references.is_empty(),
+			"%s records logical ownership of shared tilesets" % campaign_name
+		)
+		var expected_tilesets: Dictionary = {}
+		for local_name: String in DirAccess.get_directories_at(
+			campaign_directory.path_join("Tilesets")
+		):
+			expected_tilesets[local_name] = true
+		for shared_name: String in store.shared_tileset_names():
+			expected_tilesets[shared_name] = true
+		var native_resources = NativeResourcesScript.new()
+		_expect(
+			native_resources._load_classic_campaign_tile_resources(
+				campaign_directory
+			),
+			"%s loads local and shared tilesets through the native resource path"
+			% campaign_name
+		)
+		for tileset_value: Variant in expected_tilesets:
+			var tileset_name := str(tileset_value)
+			_expect(
+				native_resources.tiles_book.has("%s.json" % tileset_name),
+				"%s renders logical tileset %s" % [
+					campaign_name,
+					tileset_name,
+				]
+			)
+		native_resources.free()
 
 
 func _test_classic_campaign_admission() -> void:

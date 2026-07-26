@@ -1,6 +1,10 @@
 class_name ClassicCampaignBundle
 extends RefCounted
 
+const SharedAssetStoreScript = preload(
+	"res://scripts/classic_runtime/classic_shared_asset_store.gd"
+)
+
 const FORMAT := "realmz-remake-classic-campaign"
 const FORMAT_VERSION := 1
 const CAMPAIGN_KIND := "classic-compiled"
@@ -133,6 +137,9 @@ func _validate_manifest_contract() -> bool:
 				]
 			)
 		seen_paths[path_key] = document_name
+	var shared_asset_error := SharedAssetStoreScript.validate_manifest_section(manifest)
+	if not shared_asset_error.is_empty():
+		return _fail(shared_asset_error)
 	return true
 
 

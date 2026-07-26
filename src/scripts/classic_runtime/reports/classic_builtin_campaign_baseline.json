@@ -36,17 +36,17 @@
 						"installedBytes": 413888
 					},
 					"root": {
-						"compressedEstimateBytes": 972,
+						"compressedEstimateBytes": 1719,
 						"files": 1,
-						"installedBytes": 1944
+						"installedBytes": 4056
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 935846,
-						"files": 18,
-						"installedBytes": 1437858
+						"compressedEstimateBytes": 56529,
+						"files": 6,
+						"installedBytes": 79189
 					}
 				},
-				"compressedEstimateBytes": 1744102,
+				"compressedEstimateBytes": 865532,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 42946,
@@ -59,9 +59,9 @@
 						"installedBytes": 414
 					},
 					"json": {
-						"compressedEstimateBytes": 524632,
-						"files": 52,
-						"installedBytes": 5580120
+						"compressedEstimateBytes": 497046,
+						"files": 44,
+						"installedBytes": 5074736
 					},
 					"pict": {
 						"compressedEstimateBytes": 53493,
@@ -69,9 +69,9 @@
 						"installedBytes": 97588
 					},
 					"png": {
-						"compressedEstimateBytes": 1110713,
-						"files": 72,
-						"installedBytes": 1308074
+						"compressedEstimateBytes": 259729,
+						"files": 68,
+						"installedBytes": 456901
 					},
 					"snd": {
 						"compressedEstimateBytes": 4336,
@@ -84,8 +84,8 @@
 						"installedBytes": 11881
 					}
 				},
-				"files": 199,
-				"installedBytes": 7100573
+				"files": 187,
+				"installedBytes": 5744016
 			},
 			"id": "scenario-assault-on-giant-mountain",
 			"install": {
@@ -506,17 +506,17 @@
 						"installedBytes": 347818
 					},
 					"root": {
-						"compressedEstimateBytes": 967,
+						"compressedEstimateBytes": 1561,
 						"files": 1,
-						"installedBytes": 1935
+						"installedBytes": 3542
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 715120,
-						"files": 15,
-						"installedBytes": 1103347
+						"compressedEstimateBytes": 39646,
+						"files": 6,
+						"installedBytes": 67975
 					}
 				},
-				"compressedEstimateBytes": 1721002,
+				"compressedEstimateBytes": 1046122,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 26321,
@@ -529,9 +529,9 @@
 						"installedBytes": 598
 					},
 					"json": {
-						"compressedEstimateBytes": 794655,
-						"files": 62,
-						"installedBytes": 9364325
+						"compressedEstimateBytes": 774201,
+						"files": 56,
+						"installedBytes": 8985205
 					},
 					"pict": {
 						"compressedEstimateBytes": 48002,
@@ -539,13 +539,13 @@
 						"installedBytes": 96002
 					},
 					"png": {
-						"compressedEstimateBytes": 851361,
-						"files": 50,
-						"installedBytes": 1040323
+						"compressedEstimateBytes": 196935,
+						"files": 47,
+						"installedBytes": 385678
 					}
 				},
-				"files": 168,
-				"installedBytes": 10562692
+				"files": 159,
+				"installedBytes": 9528927
 			},
 			"id": "scenario-castle-in-the-clouds",
 			"install": {
@@ -1015,17 +1015,17 @@
 						"installedBytes": 439367
 					},
 					"root": {
-						"compressedEstimateBytes": 965,
+						"compressedEstimateBytes": 1865,
 						"files": 1,
-						"installedBytes": 1930
+						"installedBytes": 4552
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 1148758,
-						"files": 21,
-						"installedBytes": 1784026
+						"compressedEstimateBytes": 83835,
+						"files": 6,
+						"installedBytes": 119139
 					}
 				},
-				"compressedEstimateBytes": 1893233,
+				"compressedEstimateBytes": 829210,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 59543,
@@ -1038,9 +1038,9 @@
 						"installedBytes": 506
 					},
 					"json": {
-						"compressedEstimateBytes": 440544,
-						"files": 60,
-						"installedBytes": 5934586
+						"compressedEstimateBytes": 406008,
+						"files": 50,
+						"installedBytes": 5302130
 					},
 					"pict": {
 						"compressedEstimateBytes": 48182,
@@ -1048,9 +1048,9 @@
 						"installedBytes": 94962
 					},
 					"png": {
-						"compressedEstimateBytes": 1342283,
-						"files": 95,
-						"installedBytes": 1550425
+						"compressedEstimateBytes": 312796,
+						"files": 90,
+						"installedBytes": 520616
 					},
 					"txt": {
 						"compressedEstimateBytes": 2120,
@@ -1058,8 +1058,8 @@
 						"installedBytes": 4261
 					}
 				},
-				"files": 255,
-				"installedBytes": 7715646
+				"files": 240,
+				"installedBytes": 6053381
 			},
 			"id": "scenario-city-of-bywater-classic",
 			"install": {
@@ -1354,17 +1354,17 @@
 						"installedBytes": 528141
 					},
 					"root": {
-						"compressedEstimateBytes": 968,
+						"compressedEstimateBytes": 1864,
 						"files": 1,
-						"installedBytes": 1943
+						"installedBytes": 4560
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 1173450,
-						"files": 21,
-						"installedBytes": 1815172
+						"compressedEstimateBytes": 97530,
+						"files": 6,
+						"installedBytes": 140570
 					}
 				},
-				"compressedEstimateBytes": 2095588,
+				"compressedEstimateBytes": 1020564,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 85851,
@@ -1377,9 +1377,9 @@
 						"installedBytes": 506
 					},
 					"json": {
-						"compressedEstimateBytes": 519919,
-						"files": 60,
-						"installedBytes": 5995098
+						"compressedEstimateBytes": 485085,
+						"files": 50,
+						"installedBytes": 5363472
 					},
 					"pict": {
 						"compressedEstimateBytes": 46113,
@@ -1387,9 +1387,9 @@
 						"installedBytes": 88172
 					},
 					"png": {
-						"compressedEstimateBytes": 1443086,
-						"files": 144,
-						"installedBytes": 1663169
+						"compressedEstimateBytes": 402896,
+						"files": 139,
+						"installedBytes": 622810
 					},
 					"txt": {
 						"compressedEstimateBytes": 58,
@@ -1397,8 +1397,8 @@
 						"installedBytes": 57
 					}
 				},
-				"files": 351,
-				"installedBytes": 7940998
+				"files": 336,
+				"installedBytes": 6269013
 			},
 			"id": "scenario-destroy-the-necronomicon",
 			"install": {
@@ -2297,17 +2297,17 @@
 						"installedBytes": 482558
 					},
 					"root": {
-						"compressedEstimateBytes": 962,
+						"compressedEstimateBytes": 1555,
 						"files": 1,
-						"installedBytes": 1930
+						"installedBytes": 3537
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 742330,
-						"files": 15,
-						"installedBytes": 1136240
+						"compressedEstimateBytes": 66856,
+						"files": 6,
+						"installedBytes": 100868
 					}
 				},
-				"compressedEstimateBytes": 1566241,
+				"compressedEstimateBytes": 891360,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 49672,
@@ -2320,9 +2320,9 @@
 						"installedBytes": 690
 					},
 					"json": {
-						"compressedEstimateBytes": 494377,
-						"files": 68,
-						"installedBytes": 6240014
+						"compressedEstimateBytes": 473922,
+						"files": 62,
+						"installedBytes": 5860894
 					},
 					"pict": {
 						"compressedEstimateBytes": 45150,
@@ -2330,9 +2330,9 @@
 						"installedBytes": 101454
 					},
 					"png": {
-						"compressedEstimateBytes": 936333,
-						"files": 93,
-						"installedBytes": 1170784
+						"compressedEstimateBytes": 281907,
+						"files": 90,
+						"installedBytes": 516139
 					},
 					"snd": {
 						"compressedEstimateBytes": 19969,
@@ -2345,8 +2345,8 @@
 						"installedBytes": 31003
 					}
 				},
-				"files": 264,
-				"installedBytes": 7695620
+				"files": 255,
+				"installedBytes": 6661855
 			},
 			"id": "scenario-grilochs-revenge",
 			"install": {
@@ -3212,17 +3212,17 @@
 						"installedBytes": 4246475
 					},
 					"root": {
-						"compressedEstimateBytes": 960,
+						"compressedEstimateBytes": 1771,
 						"files": 1,
-						"installedBytes": 1919
+						"installedBytes": 4208
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 1666527,
-						"files": 27,
-						"installedBytes": 2568285
+						"compressedEstimateBytes": 861526,
+						"files": 14,
+						"installedBytes": 1282689
 					}
 				},
-				"compressedEstimateBytes": 5755699,
+				"compressedEstimateBytes": 4951509,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 117787,
@@ -3235,9 +3235,9 @@
 						"installedBytes": 598
 					},
 					"json": {
-						"compressedEstimateBytes": 687728,
-						"files": 70,
-						"installedBytes": 8051803
+						"compressedEstimateBytes": 660306,
+						"files": 62,
+						"installedBytes": 7545750
 					},
 					"pict": {
 						"compressedEstimateBytes": 667888,
@@ -3245,9 +3245,9 @@
 						"installedBytes": 1177978
 					},
 					"png": {
-						"compressedEstimateBytes": 3188425,
-						"files": 221,
-						"installedBytes": 4986438
+						"compressedEstimateBytes": 2411657,
+						"files": 216,
+						"installedBytes": 4209184
 					},
 					"snd": {
 						"compressedEstimateBytes": 499565,
@@ -3265,8 +3265,8 @@
 						"installedBytes": 873300
 					}
 				},
-				"files": 622,
-				"installedBytes": 16084109
+				"files": 609,
+				"installedBytes": 14800802
 			},
 			"id": "scenario-half-truth",
 			"install": {
@@ -4474,17 +4474,17 @@
 						"installedBytes": 1311391
 					},
 					"root": {
-						"compressedEstimateBytes": 959,
+						"compressedEstimateBytes": 2014,
 						"files": 1,
-						"installedBytes": 1925
+						"installedBytes": 5052
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 1473024,
-						"files": 24,
-						"installedBytes": 2462721
+						"compressedEstimateBytes": 211498,
+						"files": 6,
+						"installedBytes": 481901
 					}
 				},
-				"compressedEstimateBytes": 3574644,
+				"compressedEstimateBytes": 2314173,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 103447,
@@ -4497,9 +4497,9 @@
 						"installedBytes": 690
 					},
 					"json": {
-						"compressedEstimateBytes": 619423,
-						"files": 74,
-						"installedBytes": 7434726
+						"compressedEstimateBytes": 577645,
+						"files": 62,
+						"installedBytes": 6676028
 					},
 					"pict": {
 						"compressedEstimateBytes": 52412,
@@ -4507,9 +4507,9 @@
 						"installedBytes": 95818
 					},
 					"png": {
-						"compressedEstimateBytes": 1788957,
-						"files": 173,
-						"installedBytes": 2052243
+						"compressedEstimateBytes": 570264,
+						"files": 167,
+						"installedBytes": 833248
 					},
 					"snd": {
 						"compressedEstimateBytes": 477670,
@@ -4527,8 +4527,8 @@
 						"installedBytes": 681286
 					}
 				},
-				"files": 487,
-				"installedBytes": 11128405
+				"files": 469,
+				"installedBytes": 9150712
 			},
 			"id": "scenario-mithril-vault",
 			"install": {
@@ -8046,17 +8046,17 @@
 						"installedBytes": 327162
 					},
 					"root": {
-						"compressedEstimateBytes": 960,
+						"compressedEstimateBytes": 1553,
 						"files": 1,
-						"installedBytes": 1931
+						"installedBytes": 3538
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 695528,
-						"files": 15,
-						"installedBytes": 1070212
+						"compressedEstimateBytes": 20054,
+						"files": 6,
+						"installedBytes": 34840
 					}
 				},
-				"compressedEstimateBytes": 1252210,
+				"compressedEstimateBytes": 577329,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 14230,
@@ -8069,9 +8069,9 @@
 						"installedBytes": 276
 					},
 					"json": {
-						"compressedEstimateBytes": 349461,
-						"files": 41,
-						"installedBytes": 4917164
+						"compressedEstimateBytes": 329006,
+						"files": 35,
+						"installedBytes": 4538044
 					},
 					"pict": {
 						"compressedEstimateBytes": 51299,
@@ -8079,9 +8079,9 @@
 						"installedBytes": 97512
 					},
 					"png": {
-						"compressedEstimateBytes": 809093,
-						"files": 33,
-						"installedBytes": 984076
+						"compressedEstimateBytes": 154667,
+						"files": 30,
+						"installedBytes": 329431
 					},
 					"snd": {
 						"compressedEstimateBytes": 13900,
@@ -8094,8 +8094,8 @@
 						"installedBytes": 16536
 					}
 				},
-				"files": 110,
-				"installedBytes": 6068778
+				"files": 101,
+				"installedBytes": 5035013
 			},
 			"id": "scenario-prelude-to-pestilence",
 			"install": {
@@ -8319,17 +8319,17 @@
 						"installedBytes": 2648482
 					},
 					"root": {
-						"compressedEstimateBytes": 1053,
+						"compressedEstimateBytes": 1656,
 						"files": 1,
-						"installedBytes": 2126
+						"installedBytes": 3738
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 1287805,
-						"files": 21,
-						"installedBytes": 1947778
+						"compressedEstimateBytes": 686792,
+						"files": 12,
+						"installedBytes": 985702
 					}
 				},
-				"compressedEstimateBytes": 4741485,
+				"compressedEstimateBytes": 4141075,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 101899,
@@ -8342,9 +8342,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 1283320,
-						"files": 99,
-						"installedBytes": 14811629
+						"compressedEstimateBytes": 1262975,
+						"files": 93,
+						"installedBytes": 14431668
 					},
 					"pict": {
 						"compressedEstimateBytes": 395234,
@@ -8352,9 +8352,9 @@
 						"installedBytes": 838374
 					},
 					"png": {
-						"compressedEstimateBytes": 2362803,
-						"files": 177,
-						"installedBytes": 3496943
+						"compressedEstimateBytes": 1782738,
+						"files": 174,
+						"installedBytes": 2916440
 					},
 					"snd": {
 						"compressedEstimateBytes": 324685,
@@ -8367,8 +8367,8 @@
 						"installedBytes": 398780
 					}
 				},
-				"files": 496,
-				"installedBytes": 20218330
+				"files": 487,
+				"installedBytes": 19257866
 			},
 			"id": "scenario-trouble-in-the-sword-lands",
 			"install": {
@@ -11127,17 +11127,17 @@
 						"installedBytes": 474041
 					},
 					"root": {
-						"compressedEstimateBytes": 968,
+						"compressedEstimateBytes": 1714,
 						"files": 1,
-						"installedBytes": 1933
+						"installedBytes": 4045
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 966392,
-						"files": 18,
-						"installedBytes": 1488209
+						"compressedEstimateBytes": 94315,
+						"files": 6,
+						"installedBytes": 136904
 					}
 				},
-				"compressedEstimateBytes": 1824222,
+				"compressedEstimateBytes": 952891,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 57311,
@@ -11150,9 +11150,9 @@
 						"installedBytes": 460
 					},
 					"json": {
-						"compressedEstimateBytes": 471060,
-						"files": 55,
-						"installedBytes": 5981540
+						"compressedEstimateBytes": 443361,
+						"files": 47,
+						"installedBytes": 5476178
 					},
 					"pict": {
 						"compressedEstimateBytes": 46584,
@@ -11160,9 +11160,9 @@
 						"installedBytes": 94414
 					},
 					"png": {
-						"compressedEstimateBytes": 1163643,
-						"files": 99,
-						"installedBytes": 1359028
+						"compressedEstimateBytes": 320011,
+						"files": 95,
+						"installedBytes": 515197
 					},
 					"snd": {
 						"compressedEstimateBytes": 41966,
@@ -11180,8 +11180,8 @@
 						"installedBytes": 50261
 					}
 				},
-				"files": 270,
-				"installedBytes": 7676177
+				"files": 258,
+				"installedBytes": 6326984
 			},
 			"id": "scenario-twin-sands-of-time",
 			"install": {
@@ -11854,17 +11854,17 @@
 						"installedBytes": 5422684
 					},
 					"root": {
-						"compressedEstimateBytes": 1053,
+						"compressedEstimateBytes": 2068,
 						"files": 1,
-						"installedBytes": 2119
+						"installedBytes": 5080
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 2055684,
-						"files": 30,
-						"installedBytes": 3107086
+						"compressedEstimateBytes": 805845,
+						"files": 13,
+						"installedBytes": 1257064
 					}
 				},
-				"compressedEstimateBytes": 8785063,
+				"compressedEstimateBytes": 7536239,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 171011,
@@ -11877,9 +11877,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 2431004,
-						"files": 105,
-						"installedBytes": 26983401
+						"compressedEstimateBytes": 2396471,
+						"files": 95,
+						"installedBytes": 26351306
 					},
 					"pict": {
 						"compressedEstimateBytes": 824332,
@@ -11887,9 +11887,9 @@
 						"installedBytes": 1796422
 					},
 					"png": {
-						"compressedEstimateBytes": 4296640,
-						"files": 296,
-						"installedBytes": 6758603
+						"compressedEstimateBytes": 3082349,
+						"files": 289,
+						"installedBytes": 5543637
 					},
 					"snd": {
 						"compressedEstimateBytes": 602857,
@@ -11907,8 +11907,8 @@
 						"installedBytes": 655464
 					}
 				},
-				"files": 782,
-				"installedBytes": 37360828
+				"files": 765,
+				"installedBytes": 35513767
 			},
 			"id": "scenario-war-in-the-sword-lands",
 			"install": {
@@ -20121,17 +20121,17 @@
 						"installedBytes": 291578
 					},
 					"root": {
-						"compressedEstimateBytes": 956,
+						"compressedEstimateBytes": 1551,
 						"files": 1,
-						"installedBytes": 1921
+						"installedBytes": 3528
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 709631,
-						"files": 15,
-						"installedBytes": 1088204
+						"compressedEstimateBytes": 34157,
+						"files": 6,
+						"installedBytes": 52832
 					}
 				},
-				"compressedEstimateBytes": 1360925,
+				"compressedEstimateBytes": 686046,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 21952,
@@ -20144,9 +20144,9 @@
 						"installedBytes": 736
 					},
 					"json": {
-						"compressedEstimateBytes": 481810,
-						"files": 71,
-						"installedBytes": 8479680
+						"compressedEstimateBytes": 461357,
+						"files": 65,
+						"installedBytes": 8100560
 					},
 					"pict": {
 						"compressedEstimateBytes": 41094,
@@ -20154,13 +20154,13 @@
 						"installedBytes": 86506
 					},
 					"png": {
-						"compressedEstimateBytes": 815253,
-						"files": 40,
-						"installedBytes": 978918
+						"compressedEstimateBytes": 160827,
+						"files": 37,
+						"installedBytes": 324273
 					}
 				},
-				"files": 160,
-				"installedBytes": 9595160
+				"files": 151,
+				"installedBytes": 8561395
 			},
 			"id": "scenario-white-dragon",
 			"install": {
@@ -22708,17 +22708,17 @@
 						"installedBytes": 6629052
 					},
 					"root": {
-						"compressedEstimateBytes": 1055,
+						"compressedEstimateBytes": 1853,
 						"files": 1,
-						"installedBytes": 2118
+						"installedBytes": 4397
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 1732561,
-						"files": 27,
-						"installedBytes": 2654432
+						"compressedEstimateBytes": 661233,
+						"files": 14,
+						"installedBytes": 1103487
 					}
 				},
-				"compressedEstimateBytes": 8680632,
+				"compressedEstimateBytes": 7610102,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 161282,
@@ -22731,9 +22731,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 1112626,
-						"files": 103,
-						"installedBytes": 13236106
+						"compressedEstimateBytes": 1085091,
+						"files": 95,
+						"installedBytes": 12730889
 					},
 					"pict": {
 						"compressedEstimateBytes": 951654,
@@ -22741,9 +22741,9 @@
 						"installedBytes": 2000460
 					},
 					"png": {
-						"compressedEstimateBytes": 4033641,
-						"files": 302,
-						"installedBytes": 7205547
+						"compressedEstimateBytes": 2990646,
+						"files": 297,
+						"installedBytes": 6162098
 					},
 					"snd": {
 						"compressedEstimateBytes": 1651491,
@@ -22761,8 +22761,8 @@
 						"installedBytes": 1100191
 					}
 				},
-				"files": 827,
-				"installedBytes": 25994236
+				"files": 814,
+				"installedBytes": 24445570
 			},
 			"id": "scenario-wrath-of-the-mind-lords",
 			"install": {
@@ -28548,14 +28548,19 @@
 			"installedBytes": 23562637
 		},
 		"root": {
-			"compressedEstimateBytes": 12798,
+			"compressedEstimateBytes": 22744,
 			"files": 13,
-			"installedBytes": 25674
+			"installedBytes": 53833
+		},
+		"shared-store": {
+			"compressedEstimateBytes": 1455944,
+			"files": 21,
+			"installedBytes": 2199897
 		},
 		"tilesets": {
-			"compressedEstimateBytes": 15302656,
-			"files": 267,
-			"installedBytes": 23663570
+			"compressedEstimateBytes": 3719816,
+			"files": 107,
+			"installedBytes": 5843160
 		}
 	},
 	"complete": true,
@@ -28720,16 +28725,11 @@
 				"crossCampaignDuplicateBytes": 1008,
 				"duplicateBytes": 2100,
 				"groups": 2
-			},
-			"tilesets": {
-				"crossCampaignDuplicateBytes": 15647091,
-				"duplicateBytes": 15647091,
-				"groups": 20
 			}
 		},
-		"crossCampaignDuplicateBytes": 23694783,
-		"duplicateBytes": 23796872,
-		"groupCount": 620,
+		"crossCampaignDuplicateBytes": 8047692,
+		"duplicateBytes": 8149781,
+		"groupCount": 600,
 		"groups": [
 			{
 				"bytes": 1181,
@@ -29252,96 +29252,6 @@
 				"sha256": "067b2eaa05fa63c135935c5dd579cbac4385f19247e068d6138b3287de38125e"
 			},
 			{
-				"bytes": 47706,
-				"campaignCount": 11,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 11,
-				"crossCampaignDuplicateBytes": 477060,
-				"duplicateBytes": 477060,
-				"locations": [
-					{
-						"bytes": 47706,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.json"
-					}
-				],
-				"sha256": "06f26cc79054b98304a368b7562cbda720dfb1cfd3562aee5a91f251e3e5fed2"
-			},
-			{
 				"bytes": 1426,
 				"campaignCount": 9,
 				"campaigns": [
@@ -29845,47 +29755,6 @@
 					}
 				],
 				"sha256": "0b1c3cff59b58e5d34e2e76cc72e27e87a877b1d3e3a71a42bbc7524f1718664"
-			},
-			{
-				"bytes": 189186,
-				"campaignCount": 4,
-				"campaigns": [
-					"Destroy the Necronomicon (Classic)",
-					"Mithril Vault (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 4,
-				"crossCampaignDuplicateBytes": 567558,
-				"duplicateBytes": 567558,
-				"locations": [
-					{
-						"bytes": 189186,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.png"
-					},
-					{
-						"bytes": 189186,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.png"
-					},
-					{
-						"bytes": 189186,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.png"
-					},
-					{
-						"bytes": 189186,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.png"
-					}
-				],
-				"sha256": "0b4df45122b20f6c61afdf9c220decbbca921579be44b48e41689ba9dd322a29"
 			},
 			{
 				"bytes": 1442,
@@ -30860,61 +30729,6 @@
 					}
 				],
 				"sha256": "13ed766032441eb8b5a970256befa773258aa0185a960b8f62c385dbe8c8db5d"
-			},
-			{
-				"bytes": 47721,
-				"campaignCount": 6,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 6,
-				"crossCampaignDuplicateBytes": 238605,
-				"duplicateBytes": 238605,
-				"locations": [
-					{
-						"bytes": 47721,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.json"
-					},
-					{
-						"bytes": 47721,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.json"
-					},
-					{
-						"bytes": 47721,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.json"
-					},
-					{
-						"bytes": 47721,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.json"
-					},
-					{
-						"bytes": 47721,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.json"
-					},
-					{
-						"bytes": 47721,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.json"
-					}
-				],
-				"sha256": "144759c9b95480d7a8740f637542f6ef79ce6d4d7cbfe74fa0da86bc40088922"
 			},
 			{
 				"bytes": 147,
@@ -33788,54 +33602,6 @@
 				"sha256": "33820160aded80523aa3b139b78e6bd3da4fe5fc3cf408f416c7d5de153511b4"
 			},
 			{
-				"bytes": 79447,
-				"campaignCount": 5,
-				"campaigns": [
-					"City of Bywater (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"War in the Sword Lands (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 5,
-				"crossCampaignDuplicateBytes": 317788,
-				"duplicateBytes": 317788,
-				"locations": [
-					{
-						"bytes": 79447,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/tile_templates.json"
-					},
-					{
-						"bytes": 79447,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/tile_templates.json"
-					},
-					{
-						"bytes": 79447,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/tile_templates.json"
-					},
-					{
-						"bytes": 79447,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/tile_templates.json"
-					},
-					{
-						"bytes": 79447,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/tile_templates.json"
-					}
-				],
-				"sha256": "338515bc6019af32cb02f7ad04f59d82ce7ce7393b1ff5ebabd46ac3777fe579"
-			},
-			{
 				"bytes": 1634,
 				"campaignCount": 6,
 				"campaigns": [
@@ -35495,96 +35261,6 @@
 					}
 				],
 				"sha256": "40e9bfb6da22f3b9fb3eab36ab808bdc0a8a6f053a9a45b440c2bc3806471df4"
-			},
-			{
-				"bytes": 79030,
-				"campaignCount": 11,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 11,
-				"crossCampaignDuplicateBytes": 790300,
-				"duplicateBytes": 790300,
-				"locations": [
-					{
-						"bytes": 79030,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					},
-					{
-						"bytes": 79030,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/tile_templates.json"
-					}
-				],
-				"sha256": "40f3d17afdf5284abae1499d7644b2cf114f0a11e5e69bf50140434194730bb2"
 			},
 			{
 				"bytes": 3360,
@@ -37247,61 +36923,6 @@
 					}
 				],
 				"sha256": "51fb8b1c38d3012776c85cbf47f300e4a7cc5d314a5d68a449c33c4f85ea1d6e"
-			},
-			{
-				"bytes": 196528,
-				"campaignCount": 6,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 6,
-				"crossCampaignDuplicateBytes": 982640,
-				"duplicateBytes": 982640,
-				"locations": [
-					{
-						"bytes": 196528,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.png"
-					},
-					{
-						"bytes": 196528,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.png"
-					},
-					{
-						"bytes": 196528,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.png"
-					},
-					{
-						"bytes": 196528,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.png"
-					},
-					{
-						"bytes": 196528,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.png"
-					},
-					{
-						"bytes": 196528,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/landlook-9.png"
-					}
-				],
-				"sha256": "522691f66269a1abd5a2acfc6bf1ae6b3a03d67747a71ca36a6c5ca08e1c3b32"
 			},
 			{
 				"bytes": 970,
@@ -42137,54 +41758,6 @@
 				"sha256": "707ddadef0830c173d2996d1faa0a677341fecda18577ef1a4d442ced5f611c6"
 			},
 			{
-				"bytes": 178636,
-				"campaignCount": 5,
-				"campaigns": [
-					"City of Bywater (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"War in the Sword Lands (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 5,
-				"crossCampaignDuplicateBytes": 714544,
-				"duplicateBytes": 714544,
-				"locations": [
-					{
-						"bytes": 178636,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.png"
-					},
-					{
-						"bytes": 178636,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.png"
-					},
-					{
-						"bytes": 178636,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.png"
-					},
-					{
-						"bytes": 178636,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.png"
-					},
-					{
-						"bytes": 178636,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.png"
-					}
-				],
-				"sha256": "70ee2812c59917735120b41702940109b809c6aef9d1d6cbef7c5c6cae2efdd9"
-			},
-			{
 				"bytes": 2426,
 				"campaignCount": 2,
 				"campaigns": [
@@ -42955,110 +42528,6 @@
 				"sha256": "7644124cc8fcfcbf5360b4e04a00c533e46e4124f33a1d2d753d2992101f662a"
 			},
 			{
-				"bytes": 47955,
-				"campaignCount": 13,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 13,
-				"crossCampaignDuplicateBytes": 575460,
-				"duplicateBytes": 575460,
-				"locations": [
-					{
-						"bytes": 47955,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					},
-					{
-						"bytes": 47955,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.json"
-					}
-				],
-				"sha256": "788722bc970b0f6aa2b58f6902422aaee3abfea152b30edfc1156f62b2c8feb4"
-			},
-			{
 				"bytes": 1562,
 				"campaignCount": 2,
 				"campaigns": [
@@ -43207,110 +42676,6 @@
 					}
 				],
 				"sha256": "7b7581b7487552d30dcc9db1b1eb1ecd46fdf7ec70d91a7ed2fdd8e5349ebe59"
-			},
-			{
-				"bytes": 79263,
-				"campaignCount": 13,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 13,
-				"crossCampaignDuplicateBytes": 951156,
-				"duplicateBytes": 951156,
-				"locations": [
-					{
-						"bytes": 79263,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					},
-					{
-						"bytes": 79263,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/tile_templates.json"
-					}
-				],
-				"sha256": "7b92149503a61bd7fed29064941a4b91c4f222256bab4dd47d09cc31205ec836"
 			},
 			{
 				"bytes": 10474,
@@ -46942,110 +46307,6 @@
 				"sha256": "9d944d6af50c3347bd6590ab152c35365085d72048ab0ba0a6b70b80f2d6c3fa"
 			},
 			{
-				"bytes": 47733,
-				"campaignCount": 13,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 13,
-				"crossCampaignDuplicateBytes": 572796,
-				"duplicateBytes": 572796,
-				"locations": [
-					{
-						"bytes": 47733,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					},
-					{
-						"bytes": 47733,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.json"
-					}
-				],
-				"sha256": "9db35447c1ddcfab7f51ea02534521217fc7c680727e9285ec0b86832e508562"
-			},
-			{
 				"bytes": 1514,
 				"campaignCount": 6,
 				"campaigns": [
@@ -47338,110 +46599,6 @@
 					}
 				],
 				"sha256": "9fc8fb13b950e811162d8132fea0a295252dfd8b01a481803041dc7921db8965"
-			},
-			{
-				"bytes": 79040,
-				"campaignCount": 13,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 13,
-				"crossCampaignDuplicateBytes": 948480,
-				"duplicateBytes": 948480,
-				"locations": [
-					{
-						"bytes": 79040,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					},
-					{
-						"bytes": 79040,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/tile_templates.json"
-					}
-				],
-				"sha256": "a0346828bdf2368f86c88f8479515c4e91e64ea109958bc25c724bab9d3af64c"
 			},
 			{
 				"bytes": 29680,
@@ -49266,47 +48423,6 @@
 				"sha256": "b17a730fedf7d4bf690c0ddde02ab063ba9035b8bd5fb5e250b94882caf488c3"
 			},
 			{
-				"bytes": 79041,
-				"campaignCount": 4,
-				"campaigns": [
-					"Destroy the Necronomicon (Classic)",
-					"Mithril Vault (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 4,
-				"crossCampaignDuplicateBytes": 237123,
-				"duplicateBytes": 237123,
-				"locations": [
-					{
-						"bytes": 79041,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/tile_templates.json"
-					},
-					{
-						"bytes": 79041,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/tile_templates.json"
-					},
-					{
-						"bytes": 79041,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/tile_templates.json"
-					},
-					{
-						"bytes": 79041,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/tile_templates.json"
-					}
-				],
-				"sha256": "b1b727386e1ae349ff5df990b02b7b837b3f69e2c4336a80ea57c34ef3519cf2"
-			},
-			{
 				"bytes": 1538,
 				"campaignCount": 7,
 				"campaigns": [
@@ -50410,110 +49526,6 @@
 				"sha256": "bbc3540126476ccc5e38cf0ab79bf3d8cf0474966923d22618cd5b9ad33ee267"
 			},
 			{
-				"bytes": 164347,
-				"campaignCount": 13,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 13,
-				"crossCampaignDuplicateBytes": 1972164,
-				"duplicateBytes": 1972164,
-				"locations": [
-					{
-						"bytes": 164347,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					},
-					{
-						"bytes": 164347,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-4/landlook-4.png"
-					}
-				],
-				"sha256": "bcb8abe28a6a2d661d110e5b8b4558a69fd8f6fce521230df386a6ebddf04437"
-			},
-			{
 				"bytes": 2165,
 				"campaignCount": 11,
 				"campaigns": [
@@ -51252,61 +50264,6 @@
 				"sha256": "c49f1680a8cf9a07bce3532724704ee295fec8519cb0895bb7b60a78b2f685e5"
 			},
 			{
-				"bytes": 79048,
-				"campaignCount": 6,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 6,
-				"crossCampaignDuplicateBytes": 395240,
-				"duplicateBytes": 395240,
-				"locations": [
-					{
-						"bytes": 79048,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/tile_templates.json"
-					},
-					{
-						"bytes": 79048,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/tile_templates.json"
-					},
-					{
-						"bytes": 79048,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/tile_templates.json"
-					},
-					{
-						"bytes": 79048,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/tile_templates.json"
-					},
-					{
-						"bytes": 79048,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/tile_templates.json"
-					},
-					{
-						"bytes": 79048,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-9/tile_templates.json"
-					}
-				],
-				"sha256": "c4f29e35ad5e8642115785194dbf4fb110abe2607334f5fe56a32f8acd6c14cd"
-			},
-			{
 				"bytes": 1818,
 				"campaignCount": 5,
 				"campaigns": [
@@ -51975,96 +50932,6 @@
 				"sha256": "cb795d79b4d21704245ec4eb03d1cb2d81514dee6a255ef2aba1d8fc26cf2cad"
 			},
 			{
-				"bytes": 252778,
-				"campaignCount": 11,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 11,
-				"crossCampaignDuplicateBytes": 2527780,
-				"duplicateBytes": 2527780,
-				"locations": [
-					{
-						"bytes": 252778,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					},
-					{
-						"bytes": 252778,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-0/landlook-0.png"
-					}
-				],
-				"sha256": "cc27beb5b4b7ed2211af0333c528ff040688da85945454c0f24b7f8df039c60d"
-			},
-			{
 				"bytes": 1410,
 				"campaignCount": 4,
 				"campaigns": [
@@ -52633,33 +51500,6 @@
 					}
 				],
 				"sha256": "cf39fbc0ecce51b39d73014ac8e4243681d5b6fff0993db9e83cd07280e09fcd"
-			},
-			{
-				"bytes": 223,
-				"campaignCount": 2,
-				"campaigns": [
-					"Half Truth (Classic)",
-					"War in the Sword Lands (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 2,
-				"crossCampaignDuplicateBytes": 223,
-				"duplicateBytes": 223,
-				"locations": [
-					{
-						"bytes": 223,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/ClassicDungeon/ClassicDungeon.png"
-					},
-					{
-						"bytes": 223,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/ClassicDungeon/ClassicDungeon.png"
-					}
-				],
-				"sha256": "cf6ab06f0b1de4f7e9c8de149c1a7bd22295b67f4e61f9cda95c2f00313e2e50"
 			},
 			{
 				"bytes": 149,
@@ -53282,110 +52122,6 @@
 					}
 				],
 				"sha256": "d4432f047b25a1b7d670e000cbafc04ee1665fb01617ba5f30f681bc2e561474"
-			},
-			{
-				"bytes": 237520,
-				"campaignCount": 13,
-				"campaigns": [
-					"Assault on Giant Mountain (Classic)",
-					"Castle in the Clouds (Classic)",
-					"City of Bywater (Classic)",
-					"Destroy the Necronomicon (Classic)",
-					"Grilochs Revenge (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Prelude to Pestilence (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)",
-					"White Dragon (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 13,
-				"crossCampaignDuplicateBytes": 2850240,
-				"duplicateBytes": 2850240,
-				"locations": [
-					{
-						"bytes": 237520,
-						"campaign": "Assault on Giant Mountain (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Castle in the Clouds (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Grilochs Revenge (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Prelude to Pestilence (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "White Dragon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					},
-					{
-						"bytes": 237520,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-3/landlook-3.png"
-					}
-				],
-				"sha256": "d5274df11ed08e774e642a32e85fc2549aa9819d72a057f165f0d64fdd357226"
 			},
 			{
 				"bytes": 1351,
@@ -54268,33 +53004,6 @@
 				"sha256": "df32feb3b23634e0aaae88a3162add9dea85b74854519cfbae6ec62519d85a5f"
 			},
 			{
-				"bytes": 192276,
-				"campaignCount": 2,
-				"campaigns": [
-					"War in the Sword Lands (Classic)",
-					"Wrath of the Mind Lords (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 2,
-				"crossCampaignDuplicateBytes": 192276,
-				"duplicateBytes": 192276,
-				"locations": [
-					{
-						"bytes": 192276,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-8/landlook-8.png"
-					},
-					{
-						"bytes": 192276,
-						"campaign": "Wrath of the Mind Lords (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-8/landlook-8.png"
-					}
-				],
-				"sha256": "dfbfbfccf0372b1fc361854e0a6fc6403c2bbd2dd4fb16330a8f951dffae8503"
-			},
-			{
 				"bytes": 1642,
 				"campaignCount": 5,
 				"campaigns": [
@@ -54963,47 +53672,6 @@
 					}
 				],
 				"sha256": "e4e5c0428f10409122b15ddc64a46e4251e4e0df87c36256953405e20c476619"
-			},
-			{
-				"bytes": 47706,
-				"campaignCount": 4,
-				"campaigns": [
-					"Destroy the Necronomicon (Classic)",
-					"Mithril Vault (Classic)",
-					"Twin Sands of Time (Classic)",
-					"War in the Sword Lands (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 4,
-				"crossCampaignDuplicateBytes": 143118,
-				"duplicateBytes": 143118,
-				"locations": [
-					{
-						"bytes": 47706,
-						"campaign": "Destroy the Necronomicon (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "Twin Sands of Time (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.json"
-					},
-					{
-						"bytes": 47706,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-5/landlook-5.json"
-					}
-				],
-				"sha256": "e515ea30d3da6fc03df7b922a3b4402e1fb680966d4084e51e50e1db8181994b"
 			},
 			{
 				"bytes": 22224,
@@ -57801,54 +56469,6 @@
 				"sha256": "fd449ce19600dd23b944beede3ac868eccc80df9e9bf770d6180b4843e1132ff"
 			},
 			{
-				"bytes": 48135,
-				"campaignCount": 5,
-				"campaigns": [
-					"City of Bywater (Classic)",
-					"Half Truth (Classic)",
-					"Mithril Vault (Classic)",
-					"Trouble in the Sword Lands (Classic)",
-					"War in the Sword Lands (Classic)"
-				],
-				"category": "tilesets",
-				"copies": 5,
-				"crossCampaignDuplicateBytes": 192540,
-				"duplicateBytes": 192540,
-				"locations": [
-					{
-						"bytes": 48135,
-						"campaign": "City of Bywater (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.json"
-					},
-					{
-						"bytes": 48135,
-						"campaign": "Half Truth (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.json"
-					},
-					{
-						"bytes": 48135,
-						"campaign": "Mithril Vault (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.json"
-					},
-					{
-						"bytes": 48135,
-						"campaign": "Trouble in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.json"
-					},
-					{
-						"bytes": 48135,
-						"campaign": "War in the Sword Lands (Classic)",
-						"category": "tilesets",
-						"path": "Tilesets/landlook-10/landlook-10.json"
-					}
-				],
-				"sha256": "fd6206395066408140a869cdf70727f6a57cbd876a638205c18810b14a0d5c77"
-			},
-			{
 				"bytes": 16115,
 				"campaignCount": 2,
 				"campaigns": [
@@ -57999,9 +56619,9 @@
 			"installedBytes": 8786
 		},
 		"json": {
-			"compressedEstimateBytes": 10210559,
-			"files": 920,
-			"installedBytes": 123010192
+			"compressedEstimateBytes": 9897569,
+			"files": 829,
+			"installedBytes": 117225263
 		},
 		"pict": {
 			"compressedEstimateBytes": 3271437,
@@ -58009,9 +56629,9 @@
 			"installedBytes": 6665662
 		},
 		"png": {
-			"compressedEstimateBytes": 24142231,
-			"files": 1795,
-			"installedBytes": 34554571
+			"compressedEstimateBytes": 14338271,
+			"files": 1747,
+			"installedBytes": 24747146
 		},
 		"snd": {
 			"compressedEstimateBytes": 3636439,
@@ -58030,25 +56650,54 @@
 		}
 	},
 	"kind": "classic-built-in-campaign-readiness-footprint",
-	"schemaVersion": 1,
+	"schemaVersion": 2,
+	"sharedStore": {
+		"directory": "res://ClassicAssets",
+		"footprint": {
+			"categories": {
+				"shared-store": {
+					"compressedEstimateBytes": 1455944,
+					"files": 21,
+					"installedBytes": 2199897
+				}
+			},
+			"compressedEstimateBytes": 1455944,
+			"extensions": {
+				"json": {
+					"compressedEstimateBytes": 45095,
+					"files": 13,
+					"installedBytes": 788403
+				},
+				"png": {
+					"compressedEstimateBytes": 1410849,
+					"files": 8,
+					"installedBytes": 1411494
+				}
+			},
+			"files": 21,
+			"installedBytes": 2199897
+		}
+	},
 	"status": "blocked",
 	"totals": {
 		"activeDiagnostics": 1269,
 		"blockedCampaigns": 13,
 		"campaigns": 13,
-		"compressedEstimateBytes": 44995046,
-		"crossCampaignDuplicateBytes": 23694783,
+		"compressedEstimateBytes": 34878096,
+		"crossCampaignDuplicateBytes": 8047692,
 		"diagnostics": 1447,
-		"duplicateBytes": 23796872,
+		"duplicateBytes": 8149781,
 		"fidelityFallbacks": 836,
-		"files": 4991,
+		"files": 4852,
 		"inactiveDiagnostics": 178,
 		"installFailures": 0,
-		"installedBytes": 175141552,
-		"jsonBytes": 123010192,
-		"jsonFiles": 920,
+		"installedBytes": 159549198,
+		"jsonBytes": 117225263,
+		"jsonFiles": 829,
 		"preparationErrors": 0,
 		"progressionBlockers": 611,
-		"readyCampaigns": 0
+		"readyCampaigns": 0,
+		"sharedStoreBytes": 2199897,
+		"sharedStoreFiles": 21
 	}
 }
