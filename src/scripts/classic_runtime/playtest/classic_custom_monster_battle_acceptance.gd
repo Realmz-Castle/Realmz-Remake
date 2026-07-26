@@ -264,6 +264,19 @@ func _live_definitions_match(roster: Dictionary) -> bool:
 	if arcanist == null or skirmisher == null or summoner == null \
 			or turncoat == null or runner == null:
 		return false
+	for monster_id: int in EXPECTED_MONSTER_IDS:
+		var creature: Creature = roster[monster_id]
+		var generated: Variant = creature.get_meta(
+			"classic_monster_generation",
+			{}
+		)
+		if not (generated is Dictionary) \
+				or str(generated.get("mode", "")) != "battle" \
+				or int(generated.get("stamina", 0)) \
+					!= int(creature.get_stat("maxHP")) \
+				or int(generated.get("armor", 0)) \
+					!= int(creature.get_meta("classic_armor", 0)):
+			return false
 	for monster_id: int in HOSTILE_MONSTER_IDS:
 		if int(roster[monster_id].curFaction) != 1:
 			return false
@@ -275,7 +288,7 @@ func _live_definitions_match(roster: Dictionary) -> bool:
 			or _spell_count(arcanist) != 2:
 		return false
 	if skirmisher.inventory.size() < 2 \
-			or int(skirmisher.inventory[1].get("classic_item_slot", -1)) != 1 \
+			or int(skirmisher.inventory[1].state_value("classicItemSlot", -1)) != 1 \
 			or str(skirmisher.get_meta("classic_missile_item_name", "")) \
 				!= "Staff of Fireballs +1":
 		return false

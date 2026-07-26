@@ -48,19 +48,27 @@ func _test_media_classification() -> void:
 		"optional media produces no progression blockers"
 	)
 	for expected: Array in [
-		["missing-picture", 9000],
-		["unresolved-sound-identity", 9001],
-		["missing-player-map", 9002],
+		["unresolved-classic-picture-resource", 9000, "fidelity-fallback"],
+		["unresolved-classic-sound-resource", 9001, "fidelity-fallback"],
+		["missing-player-map", 9002, "fidelity-fallback"],
 	]:
 		_expect(
 			_has_diagnostic(
 				optional_report,
 				str(expected[0]),
 				int(expected[1]),
-				"fidelity-fallback"
+				str(expected[2])
 			),
 			"optional media reports %s with source context" % expected[0]
 		)
+	_expect(
+		_diagnostic_message(
+			optional_report,
+			"unresolved-classic-sound-resource",
+			9001
+		).contains("32767"),
+		"unresolved sound diagnostic identifies its exact resource ID"
+	)
 
 	var required_bundle = _fixture_bundle(true)
 	if required_bundle == null:
@@ -76,8 +84,8 @@ func _test_media_classification() -> void:
 		"each required media reference produces one blocker"
 	)
 	for expected: Array in [
-		["missing-picture", 9000],
-		["unresolved-sound-identity", 9001],
+		["unresolved-classic-picture-resource", 9000],
+		["unresolved-classic-sound-resource", 9001],
 		["missing-player-map", 9002],
 	]:
 		_expect(
@@ -154,6 +162,17 @@ func _has_diagnostic(
 		):
 			return true
 	return false
+
+
+func _diagnostic_message(report: Dictionary, code: String, record_index: int) -> String:
+	for value: Variant in report.get("diagnostics", []):
+		if (
+			value is Dictionary
+			and str(value.get("code", "")) == code
+			and int(value.get("recordIndex", -1)) == record_index
+		):
+			return str(value.get("message", ""))
+	return ""
 
 
 func _expect(condition: bool, label: String) -> void:

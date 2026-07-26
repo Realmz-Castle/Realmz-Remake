@@ -15,6 +15,9 @@ const CLASSIC_QUEUED_SPELL_RUNTIME_SCRIPT = preload(
 const CLASSIC_MONSTER_ATTACK_SEQUENCE_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_monster_attack_sequence.gd"
 )
+const CLASSIC_MONSTER_GENERATION_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_monster_generation.gd"
+)
 
 # Declare member variables here. Examples:
 var name : String = 'Base Creature'
@@ -875,7 +878,7 @@ func _ready():
 #func _process(delta):
 #	pass
 
-func initialize_from_bestiary_dict(creaname : String) :
+func initialize_from_bestiary_dict(creaname: String, generation_context := {}) :
 	var resources = NodeAccess.__Resources()
 	var cdata : Dictionary = resources.crea_book[creaname]
 	bestiary_key = creaname
@@ -939,6 +942,7 @@ func initialize_from_bestiary_dict(creaname : String) :
 	for s in cdata["stats"] :
 		base_stats[s] = cdata["stats"][s]
 		stats[s] = cdata["stats"][s]
+	_apply_classic_monster_generation(cdata, generation_context)
 	stats["curHP"] = stats["maxHP"]
 	stats["curSP"] = stats["maxSP"]
 	stats["curRP"] = stats["maxRP"]
@@ -1044,6 +1048,52 @@ func initialize_from_bestiary_dict(creaname : String) :
 	#printerr("CREATURE initiaize from bestiary : sometimes has a traits array stat ? \n", stats)
 
 
+func _apply_classic_monster_generation(
+	cdata: Dictionary,
+	generation_context: Dictionary
+) -> void:
+	var record: Variant = cdata.get("classicRecord", {})
+	if classic_monster_id < 0 or not (record is Dictionary) or record.is_empty():
+		return
+	var context := generation_context.duplicate(true)
+	if context.is_empty():
+		context = CLASSIC_MONSTER_GENERATION_SCRIPT.context_from_game_global(
+			CLASSIC_MONSTER_GENERATION_SCRIPT.MODE_SPAWN,
+			GameGlobal
+		)
+	var generated: Dictionary = CLASSIC_MONSTER_GENERATION_SCRIPT.generate(record, context)
+	for stat_name: String in ["maxHP", "curHP"]:
+		base_stats[stat_name] = int(generated["stamina"])
+		stats[stat_name] = int(generated["stamina"])
+	for stat_name: String in ["maxSP", "curSP"]:
+		base_stats[stat_name] = int(generated["spellPoints"])
+		stats[stat_name] = int(generated["spellPoints"])
+	base_stats["Dexterity"] = int(generated["agility"])
+	stats["Dexterity"] = int(generated["agility"])
+	for stat_name: String in ["EvasionMelee", "EvasionRanged"]:
+		base_stats[stat_name] = float(generated["armor"]) / 5.0
+		stats[stat_name] = float(generated["armor"]) / 5.0
+	experience = int(generated["experience"])
+	set_meta("classic_armor", int(generated["armor"]))
+	set_meta("classic_magic_resistance", int(generated["magicResistance"]))
+	set_meta("classic_spell_saves", generated["spellSaves"].duplicate())
+	set_meta(
+		"classic_spell_immunities",
+		_classic_integer_array(record.get("spellImmunities", []), 6)
+	)
+	set_meta("classic_monster_generation", generated.duplicate(true))
+
+
+func _classic_integer_array(value: Variant, size: int) -> Array[int]:
+	var result: Array[int] = []
+	result.resize(size)
+	result.fill(0)
+	if value is Array:
+		for index: int in mini(size, value.size()):
+			result[index] = int(value[index])
+	return result
+
+
 static func resolve_bestiary_key_from_save(
 	saved_data: Dictionary,
 	creature_book: Dictionary
@@ -1107,6 +1157,16 @@ func initialize_from_saved_ally_dict(saved_data: Dictionary) -> bool:
 	)
 	if saved_data.has("classicArmor"):
 		set_meta("classic_armor", int(saved_data["classicArmor"]))
+	if saved_data.has("classicMagicResistance"):
+		set_meta(
+			"classic_magic_resistance",
+			int(saved_data["classicMagicResistance"])
+		)
+	if saved_data.get("classicSpellSaves") is Array:
+		set_meta(
+			"classic_spell_saves",
+			_classic_integer_array(saved_data["classicSpellSaves"], 6)
+		)
 	restore_classic_special_abilities(saved_data.get("classicSpecialAbilities", []))
 	is_summoned = bool(saved_data.get("is_summoned", is_summoned))
 	summoner_name = str(saved_data.get("summoner_name", summoner_name))
@@ -1749,6 +1809,18 @@ func get_save_string() -> String :
 	savestring += ('\n"classicMonsterNameId" : '+ str(classic_monster_name_id)+',')
 	if has_meta("classic_armor"):
 		savestring += ('\n"classicArmor" : '+ str(int(get_meta("classic_armor")))+',')
+	if has_meta("classic_magic_resistance"):
+		savestring += (
+			'\n"classicMagicResistance" : '
+			+ str(int(get_meta("classic_magic_resistance")))
+			+ ','
+		)
+	if get_meta("classic_spell_saves", null) is Array:
+		savestring += (
+			'\n"classicSpellSaves" : '
+			+ JSON.stringify(get_meta("classic_spell_saves"))
+			+ ','
+		)
 	savestring += ('\n"classicSpecialAbilities" : '
 		+ JSON.stringify(classic_special_abilities)+',')
 	savestring += ('\n"is_summoned" : '+ str(int(is_summoned))+',')

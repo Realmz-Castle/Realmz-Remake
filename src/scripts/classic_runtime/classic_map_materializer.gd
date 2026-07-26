@@ -259,6 +259,8 @@ func _build_plan(
 			if boat_terrain.has(source_index):
 				classic_tile = int(boat_terrain[source_index])
 			var native_tile := 0
+			var overlay_tile := 0
+			var overlay_icon_id: Variant = MapBridgeScript.land_overlay_icon_id(classic_tile)
 			if dungeon_lookup is Dictionary:
 				native_tile = int(dungeon_lookup.get(classic_tile & 0xffff, 0))
 				if native_tile <= 0:
@@ -268,29 +270,18 @@ func _build_plan(
 							classic_tile,
 						]
 					)
-			elif classic_tile < 0:
+			elif overlay_icon_id != null:
 				var overlay_lookup: Variant = land_overlay_tileset.get("tileLookup", {})
-				if not (overlay_lookup is Dictionary) or not overlay_lookup.has(classic_tile):
-					return _plan_fail(
-						"Compiled map %s special tile %d at (%d,%d) has no generated native overlay" % [
-							map_name,
-							classic_tile,
-							x,
-							y,
-						]
-					)
 				native_tile = int(tileset_result["baseTile"])
-				overlay_tiles.append(
-					tile_capacity + int(overlay_lookup[classic_tile])
-				)
-				has_land_overlays = true
+				if overlay_lookup is Dictionary and overlay_lookup.has(int(overlay_icon_id)):
+					overlay_tile = tile_capacity + int(overlay_lookup[int(overlay_icon_id)])
+					has_land_overlays = true
 			else:
 				native_tile = _normalize_atlas_tile(
 					classic_tile,
 					int(tileset_result["baseTile"])
 				)
-			if classic_tile >= 0 or dungeon_lookup is Dictionary:
-				overlay_tiles.append(0)
+			overlay_tiles.append(overlay_tile)
 			if native_tile > tile_capacity:
 				return _plan_fail(
 					"Compiled map %s tile %d needs atlas slot %d, but %s provides only %d slots" % [
@@ -1214,7 +1205,7 @@ func _build_land_overlay_tileset_plan(
 	pending_maps: Array[Dictionary],
 	campaign_directory: String
 ) -> Dictionary:
-	var raw_values: Dictionary = {}
+	var requested_resource_ids: Dictionary = {}
 	for pending_map: Dictionary in pending_maps:
 		var map_record: Dictionary = pending_map["record"]
 		if str(map_record.get("levelType", "")) != "land":
@@ -1223,10 +1214,10 @@ func _build_land_overlay_tileset_plan(
 		if not (tiles is Array):
 			continue
 		for tile_value: Variant in tiles:
-			var raw_value := int(tile_value)
-			if raw_value < 0:
-				raw_values[raw_value] = true
-	if raw_values.is_empty():
+			var resource_id: Variant = MapBridgeScript.land_overlay_icon_id(int(tile_value))
+			if resource_id != null:
+				requested_resource_ids[int(resource_id)] = true
+	if requested_resource_ids.is_empty():
 		return {"status": "skip"}
 
 	var catalog: Variant = bundle.documents.get("assets", {}).get("catalog", {})
@@ -1238,35 +1229,36 @@ func _build_land_overlay_tileset_plan(
 			if record_value is Dictionary:
 				records_by_id[int(record_value.get("resourceId", 0))] = record_value
 
-	var field_values: Array = raw_values.keys()
-	field_values.sort()
+	var resource_id_values: Array = requested_resource_ids.keys()
+	resource_id_values.sort()
 	var images: Dictionary = {}
-	var resource_ids: Dictionary = {}
-	for field_value_variant: Variant in field_values:
-		var field_value := int(field_value_variant)
-		var resource_id := _special_land_resource_id(field_value)
+	var missing_resource_ids: Array[int] = []
+	for resource_id_value: Variant in resource_id_values:
+		var resource_id := int(resource_id_value)
 		if not records_by_id.has(resource_id):
-			return {
-				"status": "error",
-				"message": (
-					"Compiled special land tile %d resolves to cicn %d, " +
-					"but assets.catalog.specialLandTiles has no matching record"
-				) % [field_value, resource_id],
-			}
+			missing_resource_ids.append(resource_id)
+			continue
 		var record: Dictionary = records_by_id[resource_id]
 		var image_result := _load_runtime_image(
 			record,
 			campaign_directory,
-			"Classic special land tile %d (cicn %d)" % [field_value, resource_id],
+			"Classic special land tile cicn %d" % resource_id,
 			Vector2i(LAND_OVERLAY_TILE_SIZE, LAND_OVERLAY_TILE_SIZE)
 		)
 		if str(image_result.get("status", "error")) != "ok":
 			return image_result
-		images[field_value] = image_result["image"]
-		resource_ids[field_value] = resource_id
+		images[resource_id] = image_result["image"]
+	if images.is_empty():
+		return {
+			"status": "skip",
+			"missingResourceIds": missing_resource_ids,
+			"tileLookup": {},
+		}
 
-	var columns := mini(LAND_OVERLAY_ATLAS_COLUMNS, field_values.size())
-	var rows := ceili(float(field_values.size()) / float(columns))
+	var resolved_resource_ids: Array = images.keys()
+	resolved_resource_ids.sort()
+	var columns := mini(LAND_OVERLAY_ATLAS_COLUMNS, resolved_resource_ids.size())
+	var rows := ceili(float(resolved_resource_ids.size()) / float(columns))
 	var atlas := Image.create(
 		columns * LAND_OVERLAY_TILE_SIZE,
 		rows * LAND_OVERLAY_TILE_SIZE,
@@ -1277,10 +1269,10 @@ func _build_land_overlay_tileset_plan(
 	var lookup: Dictionary = {}
 	var tiles: Array = []
 	var templates: Dictionary = {}
-	for tile_index: int in range(field_values.size()):
-		var field_value := int(field_values[tile_index])
-		var tile_name := "classic_land_overlay_%s" % str(field_value).replace("-", "neg_")
-		var tile_image: Image = images[field_value]
+	for tile_index: int in range(resolved_resource_ids.size()):
+		var resource_id := int(resolved_resource_ids[tile_index])
+		var tile_name := "classic_land_overlay_%s" % str(resource_id).replace("-", "neg_")
+		var tile_image: Image = images[resource_id]
 		atlas.blit_rect(
 			tile_image,
 			Rect2i(Vector2i.ZERO, tile_image.get_size()),
@@ -1289,7 +1281,7 @@ func _build_land_overlay_tileset_plan(
 				(tile_index / columns) * LAND_OVERLAY_TILE_SIZE
 			)
 		)
-		lookup[field_value] = tile_index + 1
+		lookup[resource_id] = tile_index + 1
 		tiles.append({
 			"id": tile_index,
 			"properties": [
@@ -1299,8 +1291,8 @@ func _build_land_overlay_tileset_plan(
 		})
 		templates[tile_name] = _land_overlay_template(
 			bundle,
-			field_value,
-			int(resource_ids[field_value])
+			resource_id,
+			resource_id
 		)
 
 	return {
@@ -1310,8 +1302,9 @@ func _build_land_overlay_tileset_plan(
 			LAND_OVERLAY_TILESET_NAME
 		),
 		"image": atlas,
-		"tileCapacity": field_values.size(),
+		"tileCapacity": resolved_resource_ids.size(),
 		"tileLookup": lookup,
+		"missingResourceIds": missing_resource_ids,
 		"tileset": {
 			"columns": columns,
 			"image": "%s.png" % LAND_OVERLAY_TILESET_NAME,
@@ -1320,7 +1313,7 @@ func _build_land_overlay_tileset_plan(
 			"margin": 0,
 			"name": LAND_OVERLAY_TILESET_NAME,
 			"spacing": 0,
-			"tilecount": field_values.size(),
+			"tilecount": resolved_resource_ids.size(),
 			"tiledversion": "1.11.2",
 			"tileheight": LAND_OVERLAY_TILE_SIZE,
 			"tiles": tiles,
@@ -1333,13 +1326,8 @@ func _build_land_overlay_tileset_plan(
 
 
 func _special_land_resource_id(field_value: int) -> int:
-	# Realmz folds three 1000-wide land-field bands onto the same signed cicn IDs.
-	var resource_id := field_value
-	for _band: int in range(3):
-		if resource_id > -1000:
-			break
-		resource_id += 1000
-	return resource_id
+	var resource_id: Variant = MapBridgeScript.land_overlay_icon_id(field_value)
+	return int(resource_id) if resource_id != null else 0
 
 
 func _land_overlay_template(bundle: Object, field_value: int, resource_id: int) -> Dictionary:

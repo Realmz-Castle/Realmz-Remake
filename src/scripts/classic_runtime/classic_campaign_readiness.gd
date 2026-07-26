@@ -13,6 +13,9 @@ const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const SoundIdsScript = preload("res://scripts/sfx_id_divinity.gd")
+const SoundResolutionScript = preload(
+	"res://scripts/classic_runtime/classic_sound_resolution.gd"
+)
 const KnownDataCorrectionsScript = preload(
 	"res://scripts/classic_runtime/classic_known_data_corrections.gd"
 )
@@ -23,11 +26,16 @@ const CustomSpellSupportScript = preload(
 const SCHEMA_VERSION := 1
 const BLOCKER := "progression-blocker"
 const FALLBACK := "fidelity-fallback"
+const SOURCE_BEHAVIOR := "source-behavior"
+const INVENTORY := "inventory"
 const MAX_RANDOM_TARGETS := 10000
 const INACTIVE_DIAGNOSTIC_CODES := [
+	"ambiguous-monster-icon-override",
+	"incomplete-monster-icon-override",
 	"inactive-action-record",
 	"inactive-custom-spell-definition",
 	"inactive-scenario-rule-table",
+	"missing-monster-icon-preview",
 	"no-op-scenario-rule-table",
 	"trailing-bytes",
 ]
@@ -165,11 +173,32 @@ func _append_evidence_diagnostics(bundle: ClassicCampaignBundle) -> void:
 		if not (row_value is Dictionary):
 			continue
 		var source_severity := str(row_value.get("severity", "warning"))
-		if source_severity == "info":
+		var code := str(row_value.get("code", ""))
+		var is_monster_icon_inventory := code in [
+			"ambiguous-monster-icon-override",
+			"incomplete-monster-icon-override",
+			"missing-monster-icon-preview",
+		]
+		if source_severity == "info" and not is_monster_icon_inventory:
 			continue
 		var row: Dictionary = row_value.duplicate(true)
-		row["severity"] = "error" if source_severity == "error" else "warning"
-		row["classification"] = BLOCKER if source_severity == "error" else FALLBACK
+		if is_monster_icon_inventory:
+			row["severity"] = "info"
+			row["classification"] = INVENTORY
+			row["activity"] = "inactive"
+			row["inventoryScope"] = "all monster definitions"
+		elif code == "missing-map-icon-overlay":
+			row["producerCode"] = code
+			row["code"] = "unresolved-map-icon-overlay"
+			row["severity"] = "warning"
+			row["classification"] = FALLBACK
+			row["activity"] = "active"
+			row["remakeBehavior"] = "base-tile-only"
+			row["classicBehaviorIfAbsent"] = "base-tile-only"
+			row["runtimeConsumer"] = "classic-map-materializer"
+		else:
+			row["severity"] = "error" if source_severity == "error" else "warning"
+			row["classification"] = BLOCKER if source_severity == "error" else FALLBACK
 		row["recordIndex"] = int(row.get("recordIndex", -1))
 		_add_diagnostic(row)
 
@@ -1016,12 +1045,32 @@ func _check_picture(
 ) -> void:
 	var picture := bundle.get_picture(picture_id)
 	if picture.is_empty():
-		_add_media_diagnostic_for_action(
-			action,
-			"missing-picture",
-			"Picture %d has no exported catalog record" % abs(picture_id),
-			{"resourceId": abs(picture_id)}
-		)
+		var message := (
+			"Picture %d is absent from the bundled scenario and stock inventories; "
+			+ "an optional external Classic resource remains unresolved"
+		) % abs(picture_id)
+		var extra := {
+			"resourceId": abs(picture_id),
+			"remakeBehavior": "unchanged-picture",
+			"classicBehaviorIfAbsent": "unchanged-picture",
+		}
+		if (
+			bool(action.get("executable", false))
+			and bool(action.get("mediaRequiredForProgression", false))
+		):
+			_add_blocker_for_action(
+				action,
+				"unresolved-classic-picture-resource",
+				message,
+				extra
+			)
+		else:
+			_add_fallback_for_action(
+				action,
+				"unresolved-classic-picture-resource",
+				message,
+				extra
+			)
 		return
 	var runtime_media: Variant = picture.get("runtimeMedia", {})
 	if runtime_media is Dictionary and not runtime_media.is_empty():
@@ -1074,35 +1123,93 @@ func _check_sound(
 	sound_id: int
 ) -> void:
 	var sound := bundle.get_sound(sound_id)
-	var runtime_media: Variant = sound.get("runtimeMedia", {})
-	if runtime_media is Dictionary and not runtime_media.is_empty():
-		var runtime_path := str(runtime_media.get("path", "")).strip_edges()
-		if not FileAccess.file_exists(bundle.root_directory.path_join(runtime_path)):
+	var resolution: Dictionary = SoundResolutionScript.resolve(
+		sound_id,
+		sound,
+		_sound_mapping
+	)
+	var status := str(resolution.get("status", ""))
+	match status:
+		"silent-sentinel":
+			_add_source_behavior_for_action(
+				action,
+				"classic-sound-sentinel",
+				"Sound 0 is Classic's explicit silent sentinel",
+				resolution
+			)
+		"unresolved-external-classic-resource":
+			var message := (
+				"Sound %d is absent from the bundled scenario and stock inventories; "
+				+ "an optional external Classic resource remains unresolved"
+			) % absi(sound_id)
+			if bool(action.get("mediaRequiredForProgression", false)):
+				_add_media_diagnostic_for_action(
+					action,
+					"unresolved-classic-sound-resource",
+					message,
+					resolution
+				)
+			else:
+				_add_fallback_for_action(
+					action,
+					"unresolved-classic-sound-resource",
+					message,
+					resolution
+				)
+		"missing-runtime-media":
 			_add_media_diagnostic_for_action(
 				action,
 				"missing-sound-runtime-media",
-				"Sound %d runtime media '%s' is missing" % [sound_id, runtime_path],
-				{"resourceId": sound_id, "runtimeMediaPath": runtime_path}
+				"Sound %d has preserved Classic media but no decoded runtime media" \
+					% absi(sound_id),
+				resolution
 			)
-		return
-	var resource_id := absi(sound_id)
-	var sound_name := str(_sound_mapping.get(resource_id, ""))
-	if sound_name.is_empty():
-		_add_media_diagnostic_for_action(
-			action,
-			"unresolved-sound-identity",
-			"Sound %d has no runtime media or Remake mapping" % resource_id,
-			{"resourceId": resource_id}
-		)
-		return
-	var sounds: Variant = _native_context.get("sounds", {})
-	if sounds is Dictionary and not sounds.is_empty() and not sounds.has(sound_name):
-		_add_media_diagnostic_for_action(
-			action,
-			"missing-native-sound",
-			"Mapped sound '%s' is not available to Remake" % sound_name,
-			{"resourceId": sound_id, "nativeName": sound_name}
-		)
+		"unsupported-runtime-media":
+			_add_media_diagnostic_for_action(
+				action,
+				"unsupported-sound-runtime-media",
+				"Sound %d uses unsupported runtime media type '%s'" % [
+					absi(sound_id),
+					str(resolution.get("runtimeMediaType", "")),
+				],
+				resolution
+			)
+		"runtime-media":
+			var runtime_path := str(resolution.get("runtimeMediaPath", "")).strip_edges()
+			if not FileAccess.file_exists(bundle.root_directory.path_join(runtime_path)):
+				_add_media_diagnostic_for_action(
+					action,
+					"missing-sound-runtime-media",
+					"Sound %d runtime media '%s' is missing" % [
+						absi(sound_id),
+						runtime_path,
+					],
+					resolution
+				)
+			elif bool(resolution.get("waitForCompletion", false)):
+				_add_source_behavior_for_action(
+					action,
+					"classic-synchronous-sound",
+					"Negative sound %d waits for playback to finish" % sound_id,
+					resolution
+				)
+		"native-mapping":
+			var sound_name := str(resolution.get("nativeName", ""))
+			var sounds: Variant = _native_context.get("sounds", {})
+			if sounds is Dictionary and not sounds.is_empty() and not sounds.has(sound_name):
+				_add_media_diagnostic_for_action(
+					action,
+					"missing-native-sound",
+					"Mapped sound '%s' is not available to Remake" % sound_name,
+					resolution
+				)
+			elif bool(resolution.get("waitForCompletion", false)):
+				_add_source_behavior_for_action(
+					action,
+					"classic-synchronous-sound",
+					"Negative sound %d waits for playback to finish" % sound_id,
+					resolution
+				)
 
 
 func _check_player_map(
@@ -1441,8 +1548,50 @@ func _check_monster_materialization(
 				extra
 			)
 		return
-	var fallbacks: Variant = materialization.get("fidelityFallbacks", [])
-	if not (fallbacks is Array) or fallbacks.is_empty():
+	var fallback_value: Variant = materialization.get("fidelityFallbacks", [])
+	if not (fallback_value is Array) or fallback_value.is_empty():
+		return
+	var fallbacks: Array = fallback_value.duplicate()
+	var icon_fallbacks: Array = fallbacks.filter(
+		func(field_name: Variant) -> bool:
+			return str(field_name).begins_with("iconId:")
+	)
+	for icon_fallback: Variant in icon_fallbacks:
+		fallbacks.erase(icon_fallback)
+	var icon_resolution: Variant = materialization.get("iconResolution", {})
+	if icon_resolution is Dictionary and not icon_fallbacks.is_empty():
+		var icon_status := str(icon_resolution.get("status", "unresolved"))
+		var icon_message := (
+			"Classic monster %d icon pair %d/%d is classified as %s; "
+			+ "Remake currently uses its native placeholder"
+		) % [
+			monster_id,
+			int(icon_resolution.get("baseIconId", 0)),
+			int(icon_resolution.get("pairedIconId", 0)),
+			icon_status,
+		]
+		var icon_extra := {
+			"referenceId": monster_id,
+			"iconResolution": icon_resolution,
+			"fallbackFields": icon_fallbacks,
+		}
+		if action is Dictionary and not action.is_empty():
+			_add_fallback_for_action(
+				action,
+				"classic-monster-icon-%s" % icon_status,
+				icon_message,
+				icon_extra
+			)
+		else:
+			_add_fallback(
+				"classic-monster-icon-%s" % icon_status,
+				source,
+				record_index,
+				slot,
+				icon_message,
+				icon_extra
+			)
+	if fallbacks.is_empty():
 		return
 	var fallback_message := "Classic monster %d uses native fidelity fallbacks" % monster_id
 	var fallback_extra := {"referenceId": monster_id, "fallbackFields": fallbacks}
@@ -2118,6 +2267,15 @@ func _add_media_diagnostic_for_action(
 		_add_fallback_for_action(action, code, message, extra)
 
 
+func _add_source_behavior_for_action(
+	action: Dictionary,
+	code: String,
+	message: String,
+	extra := {}
+) -> void:
+	_add_action_diagnostic(action, "info", SOURCE_BEHAVIOR, code, message, extra)
+
+
 func _add_action_diagnostic(
 	action: Dictionary,
 	severity: String,
@@ -2131,6 +2289,7 @@ func _add_action_diagnostic(
 		"classification": classification,
 		"code": code,
 		"source": str(action.get("source", "")),
+		"recordId": str(action.get("recordId", "")),
 		"recordIndex": int(action.get("recordIndex", -1)),
 		"slot": int(action.get("slot", -1)),
 		"opcode": int(action.get("code", 0)),
@@ -2199,9 +2358,10 @@ func _add_diagnostic(diagnostic: Dictionary) -> void:
 		diagnostic["campaignId"] = _campaign_id
 	if not _campaign_name.is_empty():
 		diagnostic["scenario"] = _campaign_name
-	var key := "%s:%s:%d:%d:%s" % [
+	var key := "%s:%s:%s:%d:%d:%s" % [
 		str(diagnostic.get("code", "")),
 		str(diagnostic.get("source", "")),
+		str(diagnostic.get("recordId", "")),
 		int(diagnostic.get("recordIndex", -1)),
 		int(diagnostic.get("slot", -1)),
 		str(diagnostic.get("referenceId", diagnostic.get("resourceId", ""))),

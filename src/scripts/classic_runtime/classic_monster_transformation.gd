@@ -43,7 +43,10 @@ static func transform(target: Object) -> bool:
 	if creature_script == null:
 		return false
 	var replacement = creature_script.new()
-	replacement.initialize_from_bestiary_dict(form_key)
+	replacement.initialize_from_bestiary_dict(
+		form_key,
+		GameGlobal.classic_monster_generation_context("transformation")
+	)
 	return apply_form(target, replacement)
 
 

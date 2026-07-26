@@ -5,6 +5,9 @@ const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
+const SoundResolutionScript = preload(
+	"res://scripts/classic_runtime/classic_sound_resolution.gd"
+)
 const RegenerationScript = preload("res://scripts/classic_runtime/classic_regeneration.gd")
 const SpellScreenScript = preload("res://scripts/classic_runtime/classic_spell_screen.gd")
 const TemporarySpellScreenTrait = preload(
@@ -477,7 +480,7 @@ func execute_command(command: String, payload: Dictionary) -> Dictionary:
 			_active_command_save_safe = false
 			return await _start_classic_battle(payload)
 		"play_sound":
-			return _play_sound(payload)
+			return await _play_sound_command(payload)
 		"wait_for_click":
 			return await _wait_for_click(payload)
 		"show_picture":
@@ -696,13 +699,22 @@ func _set_view_mode(payload: Dictionary) -> Dictionary:
 
 
 func _show_classic_picture(payload: Dictionary) -> Dictionary:
+	var picture: Variant = payload.get("picture", {})
+	var catalog_lookup_performed := false
+	if (not (picture is Dictionary) or picture.is_empty()) and classic_bundle != null \
+			and classic_bundle.has_method("get_picture"):
+		catalog_lookup_performed = true
+		picture = classic_bundle.get_picture(int(payload.get("pictureId", 0)))
+	if catalog_lookup_performed and picture is Dictionary and picture.is_empty():
+		return {
+			"status": "unresolved-noop",
+			"remakeBehavior": "unchanged-picture",
+			"classicBehaviorIfAbsent": "unchanged-picture",
+			"resourceId": absi(int(payload.get("pictureId", 0))),
+		}
 	var picture_rect: Object = _picture_rect()
 	if picture_rect == null:
 		return {"status": "skipped", "message": "Realmz HUD PictureRect is unavailable"}
-	var picture: Variant = payload.get("picture", {})
-	if (not (picture is Dictionary) or picture.is_empty()) and classic_bundle != null \
-			and classic_bundle.has_method("get_picture"):
-		picture = classic_bundle.get_picture(int(payload.get("pictureId", 0)))
 	if picture is Dictionary:
 		var runtime_path := runtime_media_path(picture, "image/")
 		if not runtime_path.is_empty():
@@ -1582,7 +1594,10 @@ func spawn_classic_combatants(
 		var creature: Variant = creature_script.new()
 		if not (creature is Object) or not creature.has_method("initialize_from_bestiary_dict"):
 			return _error("Realmz creature cannot load a bestiary entry")
-		creature.initialize_from_bestiary_dict(bestiary_name)
+		creature.initialize_from_bestiary_dict(
+			bestiary_name,
+			_classic_monster_generation_context(_autoload("GameGlobal"), "spawn")
+		)
 		_set_classic_monster_identity(creature, monster_id, monster)
 		if resolved_faction != null:
 			creature.set("baseFaction", int(resolved_faction))
@@ -2263,12 +2278,13 @@ func _set_classic_monster_identity(
 	creature.set_meta("classic_monster_id", monster_id)
 	creature.set_meta("classic_monster_name_id", name_id)
 	creature.set_meta("classic_death_macro", int(monster.get("deathMacro", 0)))
-	creature.set_meta("classic_armor", int(monster.get("armor", 0)))
-	SpellSavesScript.apply_monster_metadata(
-		creature,
-		monster.get("saves", []),
-		monster.get("spellImmunities", [])
-	)
+	if not creature.has_meta("classic_monster_generation"):
+		creature.set_meta("classic_armor", int(monster.get("armor", 0)))
+		SpellSavesScript.apply_monster_metadata(
+			creature,
+			monster.get("saves", []),
+			monster.get("spellImmunities", [])
+		)
 	var conditions: Variant = monster.get("conditions", [])
 	if conditions is Array:
 		for condition_index: int in range(conditions.size()):
@@ -2333,10 +2349,28 @@ func _add_classic_ally(payload: Dictionary) -> Dictionary:
 	var ally: Object = creature_script.new()
 	if not ally.has_method("initialize_from_bestiary_dict"):
 		return _error("Realmz creature cannot load a bestiary entry")
-	ally.initialize_from_bestiary_dict(bestiary_name)
+	ally.initialize_from_bestiary_dict(
+		bestiary_name,
+		_classic_monster_generation_context(game_global, "ally")
+	)
 	_set_classic_monster_identity(ally, monster_id, monster)
 	game_global.add_npc_ally(ally)
 	return {"name": str(ally.get("name")), "monsterId": monster_id}
+
+
+func _classic_monster_generation_context(
+	game_global: Object,
+	mode: String
+) -> Dictionary:
+	if game_global != null \
+			and game_global.has_method("classic_monster_generation_context"):
+		var result: Variant = game_global.call(
+			"classic_monster_generation_context",
+			mode
+		)
+		if result is Dictionary:
+			return result
+	return {"mode": mode}
 
 
 func resolve_classic_monster_bestiary_name(
@@ -5878,36 +5912,82 @@ func _can_display_native_map(native_map: Array) -> bool:
 
 func _play_sound(payload: Dictionary) -> Dictionary:
 	var sound_id := int(payload.get("soundId", 0))
-	if sound_id == 0:
-		return {}
 	var sound: Variant = payload.get("sound", {})
 	if (not (sound is Dictionary) or sound.is_empty()) and classic_bundle != null \
 			and classic_bundle.has_method("get_sound"):
 		sound = classic_bundle.get_sound(sound_id)
-	if sound is Dictionary:
-		var runtime_stream := runtime_audio_stream(sound)
-		if runtime_stream != null:
-			var runtime_player: Object = _autoload("SfxPlayer")
-			if runtime_player == null:
-				return {"status": "skipped", "message": "Realmz SFX player is unavailable"}
-			runtime_player.stream = runtime_stream
-			runtime_player.play()
-			return {"runtimeMediaPath": str(sound.get("runtimeMedia", {}).get("path", ""))}
 	var sound_ids: Object = _autoload("SfxIdDivinity")
-	var resource_id := absi(sound_id)
-	if sound_ids == null or not sound_ids.mapping.has(resource_id):
-		return {"status": "skipped", "message": "Classic sound %d has no Remake mapping" % sound_id}
-	var sound_name := str(sound_ids.mapping[resource_id])
-	var node_access: Object = _autoload("NodeAccess")
-	var resources: Object = node_access.__Resources() if node_access != null else null
-	if resources == null or not resources.sounds_book.has(sound_name):
-		return {"status": "skipped", "message": "Mapped sound '%s' is not loaded" % sound_name}
+	var native_mapping: Dictionary = sound_ids.mapping \
+		if sound_ids != null and sound_ids.mapping is Dictionary else {}
+	var resolution: Dictionary = SoundResolutionScript.resolve(
+		sound_id,
+		sound if sound is Dictionary else {},
+		native_mapping
+	)
+	var resolution_status := str(resolution.get("status", ""))
+	if resolution_status == "silent-sentinel":
+		resolution["status"] = "source-noop"
+		return resolution
+	if resolution_status == "unresolved-external-classic-resource":
+		resolution["status"] = "unresolved-noop"
+		resolution["message"] = (
+			"Classic sound %d is unavailable in Remake's resource chain"
+			% absi(sound_id)
+		)
+		return resolution
+	if resolution_status == "missing-runtime-media":
+		resolution["status"] = "skipped"
+		resolution["message"] = (
+			"Classic sound %d has no decoded runtime media" % absi(sound_id)
+		)
+		return resolution
+	if resolution_status == "unsupported-runtime-media":
+		resolution["status"] = "skipped"
+		resolution["message"] = "Classic sound %d uses unsupported runtime media '%s'" % [
+			absi(sound_id),
+			str(resolution.get("runtimeMediaType", "")),
+		]
+		return resolution
+	var stream: AudioStream = null
+	if resolution_status == "runtime-media":
+		stream = runtime_audio_stream(sound)
+		if stream == null:
+			resolution["status"] = "skipped"
+			resolution["message"] = "Classic sound %d runtime media could not be loaded" \
+				% absi(sound_id)
+			return resolution
+	else:
+		var node_access: Object = _autoload("NodeAccess")
+		var resources: Object = node_access.__Resources() if node_access != null else null
+		var sound_name := str(resolution.get("nativeName", ""))
+		if resources == null or not resources.sounds_book.has(sound_name):
+			resolution["status"] = "skipped"
+			resolution["message"] = "Mapped sound '%s' is not loaded" % sound_name
+			return resolution
+		stream = resources.sounds_book[sound_name]
 	var sfx_player: Object = _autoload("SfxPlayer")
 	if sfx_player == null:
-		return {"status": "skipped", "message": "Realmz SFX player is unavailable"}
-	sfx_player.stream = resources.sounds_book[sound_name]
+		resolution["status"] = "skipped"
+		resolution["message"] = "Realmz SFX player is unavailable"
+		return resolution
+	sfx_player.stream = stream
 	sfx_player.play()
-	return {}
+	resolution["status"] = "played"
+	return resolution
+
+
+func _play_sound_command(payload: Dictionary) -> Dictionary:
+	var result := _play_sound(payload)
+	if (
+		str(result.get("status", "")) != "played"
+		or not bool(result.get("waitForCompletion", false))
+	):
+		return result
+	var sfx_player: Object = _autoload("SfxPlayer")
+	if sfx_player != null and bool(sfx_player.get("playing")):
+		await sfx_player.finished
+	result["waitedForCompletion"] = true
+	return result
 
 
 func runtime_audio_stream(sound: Dictionary) -> AudioStream:

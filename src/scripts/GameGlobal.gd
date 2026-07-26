@@ -42,6 +42,9 @@ const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.
 const ClassicPartyConditionScript = preload(
 	"res://scripts/classic_runtime/classic_party_condition.gd"
 )
+const ClassicMonsterGenerationScript = preload(
+	"res://scripts/classic_runtime/classic_monster_generation.gd"
+)
 const CLASSIC_DETECT_SECRET_ABILITY_INDEX := 4
 const CLASSIC_INDOOR_MINUTES_PER_TIMECLICK := 1
 const CLASSIC_OUTDOOR_MINUTES_PER_TIMECLICK := 5
@@ -665,6 +668,10 @@ func register_classic_runtime_host(host: Object) -> void:
 func clear_classic_runtime_host(host: Object = null) -> void:
 	if host == null or classic_runtime_host == host:
 		classic_runtime_host = null
+
+
+func classic_monster_generation_context(mode: String) -> Dictionary:
+	return ClassicMonsterGenerationScript.context_from_game_global(mode, self)
 
 
 func classic_random_encounters_enabled() -> bool:

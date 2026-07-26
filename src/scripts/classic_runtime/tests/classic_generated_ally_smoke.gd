@@ -1036,6 +1036,15 @@ func _run_smoke() -> void:
 		901,
 		"ally carries the scenario-local item with stable Classic identity"
 	)
+	var generated_max_hp := int(ally.get_stat("maxHP"))
+	var generated_armor := int(ally.get_meta("classic_armor"))
+	var generated_magic_resistance := int(
+		ally.get_meta("classic_magic_resistance")
+	)
+	var generated_spell_saves: Array = ally.get_meta(
+		"classic_spell_saves",
+		[]
+	).duplicate()
 	ally.name = "Sentinel Companion"
 	ally.stats["curHP"] = 17
 	ally.money = [23, 2, 1]
@@ -1050,6 +1059,21 @@ func _run_smoke() -> void:
 		saved_ally.get("bestiaryKey"),
 		"Classic Monster 1",
 		"native ally save preserves its Bestiary key"
+	)
+	_expect_equal(
+		saved_ally.get("classicArmor"),
+		generated_armor,
+		"ally save preserves its generated Classic armor"
+	)
+	_expect_equal(
+		saved_ally.get("classicMagicResistance"),
+		generated_magic_resistance,
+		"ally save preserves its generated Classic magic resistance"
+	)
+	_expect_equal(
+		_integer_array(saved_ally.get("classicSpellSaves", [])),
+		generated_spell_saves,
+		"ally save preserves its generated Classic spell saves"
 	)
 	var legacy_save := saved_ally.duplicate(true)
 	legacy_save.erase("bestiaryKey")
@@ -1072,6 +1096,26 @@ func _run_smoke() -> void:
 	_expect(not restored_ally.joins_combat, "ally combat preference survives save/load")
 	_expect_equal(restored_ally.classic_monster_id, 1, "record identity survives save/load")
 	_expect_equal(restored_ally.classic_monster_name_id, 1, "name identity survives save/load")
+	_expect_equal(
+		restored_ally.get_stat("maxHP"),
+		generated_max_hp,
+		"rolled ally maximum stamina survives save/load"
+	)
+	_expect_equal(
+		restored_ally.get_meta("classic_armor"),
+		generated_armor,
+		"generated ally armor survives save/load"
+	)
+	_expect_equal(
+		restored_ally.get_meta("classic_magic_resistance"),
+		generated_magic_resistance,
+		"generated ally magic resistance survives save/load"
+	)
+	_expect_equal(
+		restored_ally.get_meta("classic_spell_saves"),
+		generated_spell_saves,
+		"generated ally spell saves survive save/load"
+	)
 	var restored_dagger := _inventory_item(restored_ally.inventory, "Dagger")
 	var restored_token := _inventory_item(restored_ally.inventory, "Providence Token")
 	var restored_dagger_instance: ItemInstance = restored_ally.get_item_instance(
@@ -1128,12 +1172,12 @@ func _run_smoke() -> void:
 	)
 	_expect_equal(
 		restored_ally.get_meta("classic_spell_saves", []),
-		[-25.0, -25.0, 100.0, 100.0, 100.0, 15.0],
+		[-25, -25, 100, 100, 100, 15],
 		"restored ally recovers its separate Classic saves from the Bestiary entry"
 	)
 	_expect_equal(
 		restored_ally.get_meta("classic_spell_immunities", []),
-		[1.0, 0.0, 0.0, 1.0, 1.0, 0.0],
+		[1, 0, 0, 1, 1, 0],
 		"restored ally recovers its Classic immunities from the Bestiary entry"
 	)
 	_expect(
@@ -1299,6 +1343,14 @@ func _restored_spell_has_script(creature: Creature, spell_name: String) -> bool:
 				and str(spell_value.get("name", "")) == spell_name:
 			return spell_value.get("script") is Object
 	return false
+
+
+func _integer_array(values: Variant) -> Array[int]:
+	var result: Array[int] = []
+	if values is Array:
+		for value: Variant in values:
+			result.append(int(value))
+	return result
 
 
 func _expect(condition: bool, description: String) -> void:

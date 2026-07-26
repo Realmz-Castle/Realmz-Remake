@@ -207,7 +207,10 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 	for creaArray in _msg["Creatures"] :
 		print(" creaArray : ", creaArray)
 		var creascript = GameGlobal.combatCreatureGD.new()
-		creascript.initialize_from_bestiary_dict(creaArray[0])
+		creascript.initialize_from_bestiary_dict(
+			creaArray[0],
+			GameGlobal.classic_monster_generation_context("battle")
+		)
 		if creaArray.size() > 2 and creaArray[2] is Dictionary:
 			_apply_classic_battle_metadata(creascript, creaArray[2])
 		if creascript.get_stat("curHP")<=0 :
@@ -265,6 +268,7 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 
 
 func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> void:
+	var generated := creature.has_meta("classic_monster_generation")
 	if metadata.has("classicMonsterId"):
 		creature.set_meta("classic_monster_id", int(metadata["classicMonsterId"]))
 	if metadata.has("classicMonsterNameId"):
@@ -281,16 +285,16 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 		)
 	if metadata.has("classicHitDice"):
 		creature.set_meta("classic_hit_dice", int(metadata["classicHitDice"]))
-	if metadata.has("classicArmor"):
+	if metadata.has("classicArmor") and not generated:
 		creature.set_meta("classic_armor", int(metadata["classicArmor"]))
-	if metadata.has("classicMagicResistance"):
+	if metadata.has("classicMagicResistance") and not generated:
 		creature.set_meta(
 			"classic_magic_resistance",
 			int(metadata["classicMagicResistance"])
 		)
-	if metadata.has("classicSpellSaves"):
+	if metadata.has("classicSpellSaves") and not generated:
 		creature.set_meta("classic_spell_saves", metadata["classicSpellSaves"].duplicate())
-	if metadata.has("classicSpellImmunities"):
+	if metadata.has("classicSpellImmunities") and not generated:
 		creature.set_meta(
 			"classic_spell_immunities",
 			metadata["classicSpellImmunities"].duplicate()
@@ -675,7 +679,7 @@ func do_ai_creature_action(cur_act_crea : Creature) :
 		var power : int = decision_array[2]
 		var _target_pos : Vector2i = decision_array[3]
 		var _aoe_shape : Array = decision_array[4]
-		var item : Dictionary = decision_array[5]
+		var item: Variant = decision_array[5]
 		var _main_tpos : Vector2i = decision_array[6]
 		var tg_tiles : Array = decision_array[7]
 		var _tg_creas : Array = decision_array[8]

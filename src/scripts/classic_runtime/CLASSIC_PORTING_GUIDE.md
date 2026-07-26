@@ -121,7 +121,17 @@ Every diagnostic includes source context and is classified as:
 - `progression-blocker`: missing or unsupported data can stop execution or
   change an authored result; or
 - `fidelity-fallback`: play can continue with reduced presentation or a
-  documented approximation.
+  documented approximation;
+- `source-behavior`: the runtime follows an explicit Classic sentinel, wait,
+  or missing-resource path without treating it as support for absent media; or
+- `inventory`: preserved producer data has no proven active runtime consumer.
+
+Resolve an `unresolved-*-resource` diagnostic by exporting the exact Classic
+resource record and decoded runtime media; do not substitute a guessed stock
+identity or turn the reference into a silent sentinel. Monster presentation
+also requires both facing resources (`iconId` and `iconId + 308`). A record
+present in the scenario or stock fork without both decoded images remains a
+classified fallback rather than an exact visual implementation.
 
 Exit 0 means the report found no progression blocker. Exit 1 means launch is
 blocked. Exit 2 means command usage was invalid. A clean readiness result is not
@@ -233,10 +243,10 @@ mechanics, evidence, and open completion criteria.
 | Campaign lifecycle | Supported | Contract validation, staged installation, normal discovery/selection/start, package replacement, and readiness gating. | Updates must retain campaign identity and independently prove old-save compatibility. |
 | Maps and exploration | Partial | Land/dungeon materialization, stock and decoded custom landlooks, decoded special tiles, Action Points, transfers, darkness, trigger/random rectangles, mutations, and persistence. | Unsupported render modes or required undecoded media block installation. Classic view presentation, scripted boat operations, and some boarding pacing remain open. |
 | Encounters, services, and time | Partial | Simple, complex, and rogue results; action, spoken, spell, scroll, item, trap, and door responses; chance-based rogue lock controls; shops, temples, banks, timed-encounter scheduling, exact supported built-in warnings, and native acknowledgement pacing. | Remake intentionally uses a native chance roll instead of Classic's timed tumbler minigame. Other optional modal presentation remains bounded fidelity work. Every referenced resource must resolve exactly. |
-| Battles and monsters | Partial | Native battle requests, generated grids and supported monsters, round/death macros, roster spawn/remove/route, source-ordered spawn sounds and native conjuration reveals, priest turning, forced victory, rewards, and outer-list resumption. | Unsupported monster fields, unresolved item/spell identities, weapon-coupled specials, and aging special 17 block affected battles. Exact Classic spell-effect artwork and some statistical fidelity remain fallbacks. |
+| Battles and monsters | Partial | Native battle requests, generated grids and supported monsters, [source-backed per-instance combat-stat, defeat-money, and attack-sound generation](CLASSIC_MONSTER_GENERATION.md), round/death macros, roster spawn/remove/route, source-ordered spawn sounds and native conjuration reveals, priest turning, forced victory, rewards, and outer-list resumption. | Unsupported monster fields, unresolved item/spell identities, weapon-coupled specials, and aging special 17 block affected battles. Exact Classic spell-effect artwork, monster icons, and unmapped legacy attack sounds remain fallbacks. |
 | Items and equipment | Partial | Exact Classic identities, supported scenario-item materialization, treasure/shop/inventory paths, equipment state, charges, restrictions, and save/load. | Unsupported effects or restrictions block referenced items. Curses, scripted special fields, and exact item art/sound remain open. |
 | Spells, races, and castes | Partial | Exact spell identities, supported core spell behavior, representable data-driven custom spells, producer-selected changed race/caste profiles through their verified consumers, and a [deduplicated known-library audit](KNOWN_CUSTOM_RULE_AUDIT.md) with campaign-scoped definitions and source locations. | Active custom nonzero special effects need an exact implementation; inactive definitions warn without blocking. Unresolved rule-table selection blocks use; display-name substitution and partial race/caste application are forbidden. |
-| Pictures, sounds, and player maps | Partial | Immutable payload verification plus decoded runtime media, source-ordered picture dismissal and sound repetition, picture/sound commands, browsable acquired maps, terrain-composed maps, and plain scrolling text. | Missing media is a fallback unless marked required for progression. Exact scrolling-text styles and new media modes still require focused visual evidence. |
+| Pictures, sounds, and player maps | Partial | Immutable payload verification plus decoded runtime media, source-ordered picture dismissal and sound repetition, signed sound wait behavior, explicit missing-resource and unresolved-resource handling, picture/sound commands, browsable acquired maps, terrain-composed maps, and plain scrolling text. | Required missing media still blocks. Unavailable optional Classic sound resources and optional monster-icon pairs remain classified fallbacks until exact runtime media resolves them. Exact scrolling-text styles and new media modes still require focused visual evidence. |
 | Saves and continuations | Supported at named boundaries | Versioned runtime/adapter state, persistent mutations, GOSUB/encounter continuation, map/HUD restore, and older-save migration. | Live battles and side-effecting rogue intervals are not serializable. Newer save schemas and campaign-ID mismatches are rejected. |
 | Diagnostics | Partial | Versioned headless readiness report with source, record, slot, severity, blocker/fallback classification, JSON, and exit codes; selector shows a summary and first blocker. | The normal UI does not yet expose the complete diagnostic report. |
 

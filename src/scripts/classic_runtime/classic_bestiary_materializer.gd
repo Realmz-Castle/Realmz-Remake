@@ -25,6 +25,12 @@ const SpellSavesScript = preload("res://scripts/classic_runtime/classic_spell_sa
 const MonsterSpecialAttackScript = preload(
 	"res://scripts/classic_runtime/classic_monster_special_attack.gd"
 )
+const MonsterGenerationScript = preload(
+	"res://scripts/classic_runtime/classic_monster_generation.gd"
+)
+const MonsterIconResolutionScript = preload(
+	"res://scripts/classic_runtime/classic_monster_icon_resolution.gd"
+)
 
 const BESTIARY_BOOK_PATH := "Bestiary/stuff_book.json"
 const BESTIARY_IMAGE_BOOK_PATH := "Bestiary/img_pack.json"
@@ -67,33 +73,11 @@ const ELEMENT_BY_SPECIAL_ATTACK := {
 	14: "Chemical",
 	15: "Mental",
 }
-const EXPERIENCE_BY_HIT_DICE := [
-	[15, 3],
-	[30, 6],
-	[45, 9],
-	[65, 12],
-	[80, 15],
-	[100, 18],
-	[140, 21],
-	[200, 24],
-	[300, 27],
-	[450, 30],
-	[700, 33],
-	[1100, 36],
-	[1800, 39],
-	[2300, 42],
-	[2800, 45],
-	[3200, 50],
-	[3700, 55],
-	[4200, 60],
-	[4700, 65],
-	[5200, 70],
-	[5700, 75],
-]
 const UNSUPPORTED_SCALAR_FIELDS := [
 	"beenAttacked",
 ]
 const CLASSIC_INERT_MORALE_MAX := 100
+const MATERIALIZATION_VERSION := 3
 
 var last_error := ""
 
@@ -112,7 +96,13 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	if not (monsters is Array):
 		return _fail("Classic monster collection is malformed")
 	if monsters.is_empty():
-		return {"status": "ok", "generated": 0, "skipped": 0, "reusedNative": 0}
+		return {
+			"status": "ok",
+			"generated": 0,
+			"updated": 0,
+			"skipped": 0,
+			"reusedNative": 0,
+		}
 
 	var book_path := root.path_join(BESTIARY_BOOK_PATH)
 	var bestiary_book := _read_bestiary_book(book_path)
@@ -148,8 +138,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		func(left: Dictionary, right: Dictionary) -> bool:
 			return abs(int(left.get("id", 0))) < abs(int(right.get("id", 0)))
 	)
+	var asset_catalog: Variant = bundle.documents.get("assets", {}).get("catalog", {})
+	var icon_catalog: Variant = asset_catalog.get("icons", []) \
+		if asset_catalog is Dictionary else []
 
 	var generated := 0
+	var updated := 0
 	var skipped := 0
 	var reused_native := 0
 	for record: Dictionary in records:
@@ -162,8 +156,39 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		if source_id < 0:
 			continue
 		var monster_id: int = abs(source_id)
-		if _book_has_monster_id(bestiary_book, monster_id):
-			skipped += 1
+		var existing_key: Variant = _book_monster_key_by_id(bestiary_book, monster_id)
+		if existing_key != null:
+			var existing_entry: Variant = bestiary_book[existing_key]
+			if existing_entry is Dictionary \
+					and abs(int(existing_entry.get("classicMonsterId", -1))) == monster_id:
+				var existing_materialization: Variant = existing_entry.get(
+					"classicMaterialization",
+					{}
+				)
+				var existing_version := int(
+					existing_materialization.get("version", 0)
+					if existing_materialization is Dictionary
+					else 0
+				)
+				if existing_version < MATERIALIZATION_VERSION:
+					bestiary_book[existing_key] = _native_monster(
+						record,
+						descriptions,
+						item_book,
+						item_texts,
+						item_mapping,
+						spell_book,
+						spell_mapping,
+						MonsterIconResolutionScript.resolve(
+							int(record.get("iconId", 0)),
+							icon_catalog
+						)
+					)
+					updated += 1
+				else:
+					skipped += 1
+			else:
+				skipped += 1
 			continue
 		if _book_has_matching_native_monster(shared_bestiary_book, record):
 			reused_native += 1
@@ -175,7 +200,8 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			item_texts,
 			item_mapping,
 			spell_book,
-			spell_mapping
+			spell_mapping,
+			MonsterIconResolutionScript.resolve(int(record.get("iconId", 0)), icon_catalog)
 		)
 		generated += 1
 
@@ -184,12 +210,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	if make_error != OK:
 		return _fail("Could not create native bestiary directory: %s" % error_string(make_error))
 	var write_error := OK
-	if generated > 0 or not FileAccess.file_exists(book_path):
+	if generated > 0 or updated > 0 or not FileAccess.file_exists(book_path):
 		write_error = _write_json(book_path, bestiary_book)
 		if write_error != OK:
 			return _fail("Could not write native bestiary book: %s" % error_string(write_error))
-	# Generated definitions use a shared placeholder until Classic icon payloads
-	# have a native decoder, but CampaignResources still requires a local pack.
+	# Generated definitions retain their resolved Classic icon provenance while
+	# using the shared placeholder. CampaignResources still requires a local pack.
 	var image_book_path := root.path_join(BESTIARY_IMAGE_BOOK_PATH)
 	if not FileAccess.file_exists(image_book_path):
 		write_error = _write_json(image_book_path, {})
@@ -205,6 +231,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	return {
 		"status": "ok",
 		"generated": generated,
+		"updated": updated,
 		"skipped": skipped,
 		"reusedNative": reused_native,
 	}
@@ -217,7 +244,8 @@ func _native_monster(
 	item_texts: Array,
 	item_mapping: Dictionary,
 	spell_book: Dictionary,
-	spell_mapping: Dictionary
+	spell_mapping: Dictionary,
+	icon_resolution := {}
 ) -> Dictionary:
 	var monster_id: int = abs(int(record.get("id", -1)))
 	var display_name := str(record.get("displayName", "")).strip_edges()
@@ -253,18 +281,11 @@ func _native_monster(
 		native_requirements,
 		native_missile_item
 	)
+	if not (icon_resolution is Dictionary) or icon_resolution.is_empty():
+		icon_resolution = MonsterIconResolutionScript.resolve(int(record.get("iconId", 0)))
 	var fidelity_fallbacks: Array[String] = [
-		"iconId",
-		"randomizedStamina",
-		"randomizedArmorAgility",
-		"classicDifficultyScaling",
+		"iconId:%s" % str(icon_resolution.get("status", "unresolved")),
 	]
-	if int(record.get("spellPoints", 0)) != 0:
-		fidelity_fallbacks.append("randomizedSpellPoints")
-	if _array_has_nonzero(record.get("money", [])):
-		fidelity_fallbacks.append("randomizedMoney")
-	if _attack_sound_is_present(record):
-		fidelity_fallbacks.append("attackSounds")
 	var run_percent := int(record.get("runPercent", 0))
 	var surrender_percent := int(record.get("surrenderPercent", 0))
 	if (
@@ -326,9 +347,11 @@ func _native_monster(
 		"classicSpellIds": _integer_array(record.get("spells", []), 10),
 		"classicRecord": record.duplicate(true),
 		"classicMaterialization": {
+			"version": MATERIALIZATION_VERSION,
 			"status": "blocked" if not unsupported_fields.is_empty() else "fallback",
 			"unsupportedFields": unsupported_fields,
 			"fidelityFallbacks": fidelity_fallbacks,
+			"iconResolution": icon_resolution.duplicate(true),
 		},
 		"data": {
 			"id": monster_id,
@@ -665,6 +688,7 @@ func _native_attacks(record: Dictionary) -> Dictionary:
 	var entries: Array = []
 	var unsupported_fields: Array[String] = []
 	var fidelity_fallbacks: Array[String] = []
+	var uses_native_weapon := int(record.get("weapon", 0)) != 0
 	var source: Variant = record.get("attacks", [])
 	var attack_count := maxi(1, int(record.get("attackCount", 1)))
 	if source is Array:
@@ -678,9 +702,17 @@ func _native_attacks(record: Dictionary) -> Dictionary:
 			if low == 0 and high == 0 and special == 0:
 				continue
 			var damage := {"Physical": [mini(low, high), maxi(low, high)]}
+			var attack_sound := MonsterGenerationScript.unarmed_attack_sound_name(
+				row,
+				source[0] if not source.is_empty() else []
+			)
+			if attack_sound.is_empty():
+				attack_sound = "slurpy.wav"
+				if not uses_native_weapon and not fidelity_fallbacks.has("attackSounds"):
+					fidelity_fallbacks.append("attackSounds")
 			var attack := {
 				"weapon_dmg": damage,
-				"sound": "slurpy.wav",
+				"sound": attack_sound,
 				"melee_atk_anim_icon": "ATK_HTH",
 				"melee_inflicted_traits": [],
 			}
@@ -701,7 +733,9 @@ func _native_attacks(record: Dictionary) -> Dictionary:
 	if entries.is_empty():
 		entries.append({
 			"weapon_dmg": {"Physical": [1, 1]},
-			"sound": "slurpy.wav",
+			"sound": MonsterGenerationScript.unarmed_attack_sound_name(
+				[1, 1, 0, 0]
+			),
 			"melee_atk_anim_icon": "ATK_HTH",
 			"melee_inflicted_traits": [],
 		})
@@ -789,10 +823,7 @@ func _average_stamina(record: Dictionary) -> int:
 
 
 func _average_experience(record: Dictionary, stamina: int) -> int:
-	var hit_dice := clampi(int(record.get("hitDice", 0)), 0, EXPERIENCE_BY_HIT_DICE.size())
-	var values: Array = EXPERIENCE_BY_HIT_DICE[hit_dice] \
-		if hit_dice < EXPERIENCE_BY_HIT_DICE.size() else [6200, 80]
-	return int(values[0]) + int(record.get("exp", 0)) + stamina * int(values[1])
+	return MonsterGenerationScript.experience(record, stamina)
 
 
 func _save_multiplier(save_chance: int) -> float:
@@ -813,16 +844,6 @@ func _type_tags(record: Dictionary) -> Array[String]:
 func _type_flag(record: Dictionary, flag_index: int) -> bool:
 	var flags: Variant = record.get("typeFlags", [])
 	return flags is Array and flag_index < flags.size() and int(flags[flag_index]) != 0
-
-
-func _attack_sound_is_present(record: Dictionary) -> bool:
-	var attacks: Variant = record.get("attacks", [])
-	if not (attacks is Array):
-		return false
-	for attack_value: Variant in attacks:
-		if attack_value is Array and attack_value.size() > 2 and int(attack_value[2]) != 0:
-			return true
-	return false
 
 
 func _description(descriptions: Array, monster_id: int) -> String:
@@ -924,13 +945,13 @@ func _read_json_book(path: String, description: String) -> Dictionary:
 	return value
 
 
-func _book_has_monster_id(bestiary_book: Dictionary, monster_id: int) -> bool:
-	for monster_value: Variant in bestiary_book.values():
-		if not (monster_value is Dictionary):
-			continue
-		if _monster_has_explicit_id(monster_value, monster_id):
-			return true
-	return false
+func _book_monster_key_by_id(bestiary_book: Dictionary, monster_id: int) -> Variant:
+	for bestiary_key: Variant in bestiary_book:
+		var monster_value: Variant = bestiary_book[bestiary_key]
+		if monster_value is Dictionary \
+				and _monster_has_explicit_id(monster_value, monster_id):
+			return bestiary_key
+	return null
 
 
 func _book_has_matching_native_monster(

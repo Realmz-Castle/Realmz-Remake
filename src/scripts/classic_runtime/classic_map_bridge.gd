@@ -86,6 +86,21 @@ static func normalize_land_tile(value: int, base_tile: int) -> int:
 	return maxi(0, tile)
 
 
+static func land_overlay_icon_id(value: int) -> Variant:
+	var icon_id := value
+	if icon_id >= 0:
+		icon_id = _clear_classic_short_bit(icon_id, 1)
+		icon_id = _clear_classic_short_bit(icon_id, 2)
+		for _attempt: int in range(3):
+			if icon_id <= 999:
+				break
+			icon_id -= 1000
+		return icon_id if icon_id > 200 and icon_id < 1000 else null
+	while icon_id < -999:
+		icon_id += 1000
+	return icon_id
+
+
 static func normalize_tile_parameter_id(value: int) -> int:
 	# newland.c opcode 78 removes the path/note bits and up to three
 	# action-point/secret marker bands without applying atlas fallbacks.

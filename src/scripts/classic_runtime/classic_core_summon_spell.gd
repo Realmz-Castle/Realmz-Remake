@@ -101,7 +101,10 @@ func special_effect(
 		return true
 	var creature_script: GDScript = load("res://Creature/Creature.gd")
 	var creature = creature_script.new()
-	creature.initialize_from_bestiary_dict(str(choice["bestiaryKey"]))
+	creature.initialize_from_bestiary_dict(
+		str(choice["bestiaryKey"]),
+		GameGlobal.classic_monster_generation_context("summon")
+	)
 	var target := Vector2i(main_targeted_tile)
 	var destination_open := _destination_is_open(combat_state, creature, target)
 	var result := place_summon(caster, target, creature, combat_state, destination_open)

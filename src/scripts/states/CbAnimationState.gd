@@ -22,6 +22,9 @@ const CLASSIC_MONSTER_SPECIAL_ATTACK_SCRIPT = preload(
 const CLASSIC_MONSTER_DECISION_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_monster_decision.gd"
 )
+const CLASSIC_MONSTER_GENERATION_SCRIPT = preload(
+	"res://scripts/classic_runtime/classic_monster_generation.gd"
+)
 const CLASSIC_HELPLESS_SCRIPT = preload(
 	"res://scripts/classic_runtime/classic_helpless.gd"
 )
@@ -710,6 +713,12 @@ func perform_melee_attack(msg : Dictionary) -> Array:
 		var weapon_sound := weapon_definition.sound_key \
 			if weapon_definition != null else str(weapon.get("sound", "")) \
 			if weapon is Dictionary else ""
+		if weapon_definition != null \
+				and attacker.creature.has_meta("classic_monster_generation"):
+			weapon_sound = CLASSIC_MONSTER_GENERATION_SCRIPT.armed_attack_sound_name(
+				weapon_definition,
+				weapon
+			)
 		SfxPlayer.stream = item_resources.sounds_book[weapon_sound]
 		UI.ow_hud.creatureRect.logrect.log_melee_attack(attacker,defender,damage_detail, accuracy, is_crit, crit_mult, crit_rate)
 		defender.display_effect(picture, damage_detail["total"], 0.8 *2)

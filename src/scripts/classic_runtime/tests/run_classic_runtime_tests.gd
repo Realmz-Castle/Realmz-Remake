@@ -41,6 +41,12 @@ const SpellResourceCatalogScript = preload(
 const SpellIdentityScript = preload(
 	"res://scripts/classic_runtime/classic_spell_identity.gd"
 )
+const SoundResolutionScript = preload(
+	"res://scripts/classic_runtime/classic_sound_resolution.gd"
+)
+const MonsterIconResolutionScript = preload(
+	"res://scripts/classic_runtime/classic_monster_icon_resolution.gd"
+)
 const KnownDataCorrectionsScript = preload(
 	"res://scripts/classic_runtime/classic_known_data_corrections.gd"
 )
@@ -110,6 +116,9 @@ const BestiaryMaterializerScript = preload(
 )
 const MonsterWeaponRulesScript = preload(
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
+)
+const MonsterGenerationScript = preload(
+	"res://scripts/classic_runtime/classic_monster_generation.gd"
 )
 const MonsterStatusAttackScript = preload(
 	"res://scripts/classic_runtime/classic_monster_status_attack.gd"
@@ -1212,6 +1221,13 @@ class InventoryTestCharacter:
 		return true
 
 
+class BattleRewardTestCreature:
+	extends RefCounted
+	var experience := 0
+	var money: Array = [0, 0, 0]
+	var inventory: Array = []
+
+
 class ConditionTestTrait:
 	extends RefCounted
 	var name: String
@@ -1953,7 +1969,10 @@ class TransformationTestCreature:
 	var spells: Array = []
 	var ai_variables := {}
 
-	func initialize_from_bestiary_dict(_form_key: String) -> void:
+	func initialize_from_bestiary_dict(
+		_form_key: String,
+		_generation_context := {}
+	) -> void:
 		pass
 
 	func get_stat(stat_name: String) -> Variant:
@@ -2237,7 +2256,10 @@ class SpawnTestCreature:
 	var combat_button: Variant
 	var initialized_name := ""
 
-	func initialize_from_bestiary_dict(bestiary_name: String) -> void:
+	func initialize_from_bestiary_dict(
+		bestiary_name: String,
+		_generation_context := {}
+	) -> void:
 		initialized_name = bestiary_name
 
 	func get_stat(stat_name: String) -> int:
@@ -2477,6 +2499,7 @@ func _ready() -> void:
 	_test_classic_map_materializer()
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
+	_test_classic_monster_generation()
 	_test_classic_bestiary_materializer()
 	_test_classic_monster_decision()
 	_test_classic_player_auto_combat()
@@ -2580,7 +2603,7 @@ func _ready() -> void:
 	_test_shipped_opcode_25_mutation()
 	_test_opcode_25_xap_copy()
 	_test_modal_picture_actions()
-	_test_runtime_media_adapters()
+	await _test_runtime_media_adapters()
 	_test_classic_player_map_renderer()
 	_test_party_state_actions()
 	_test_remaining_noncombat_opcodes()
@@ -4618,6 +4641,12 @@ func _test_builtin_shared_asset_tilesets() -> void:
 		"res://Campaigns"
 	).replace("\\", "/")
 	var campaign_names: Array[String] = []
+	var generated_monster_count := 0
+	var resolved_fallback_offenders: Array[String] = []
+	var attack_sound_mismatches: Array[String] = []
+	var residual_attack_sound_fallbacks: Array[String] = []
+	var icon_resolution_counts: Dictionary = {}
+	var invalid_icon_resolutions: Array[String] = []
 	for campaign_name: String in DirAccess.get_directories_at(campaigns_root):
 		if (
 			campaign_name.ends_with(" (Classic)")
@@ -4634,6 +4663,116 @@ func _test_builtin_shared_asset_tilesets() -> void:
 	)
 	for campaign_name: String in campaign_names:
 		var campaign_directory := campaigns_root.path_join(campaign_name)
+		var bestiary_value: Variant = JSON.parse_string(
+			FileAccess.get_file_as_string(
+				campaign_directory.path_join("Bestiary/stuff_book.json")
+			)
+		)
+		_expect(
+			bestiary_value is Dictionary,
+			"%s generated bestiary parses" % campaign_name
+		)
+		if bestiary_value is Dictionary:
+			for monster_key_value: Variant in bestiary_value:
+				var monster_key := str(monster_key_value)
+				var monster: Variant = bestiary_value[monster_key_value]
+				if not (monster is Dictionary) \
+						or not monster.has("classicRecord"):
+					continue
+				generated_monster_count += 1
+				var identity := "%s:%s" % [campaign_name, monster_key]
+				var fallbacks: Variant = monster.get(
+					"classicMaterialization",
+					{}
+				).get("fidelityFallbacks", [])
+				var materialization: Variant = monster.get("classicMaterialization", {})
+				var icon_resolution: Variant = materialization.get(
+					"iconResolution",
+					{}
+				) if materialization is Dictionary else {}
+				var icon_status := str(icon_resolution.get("status", "")) \
+					if icon_resolution is Dictionary else ""
+				if (
+					not (materialization is Dictionary)
+					or int(materialization.get("version", 0))
+						!= BestiaryMaterializerScript.MATERIALIZATION_VERSION
+					or icon_status.is_empty()
+					or not (fallbacks is Array)
+					or not fallbacks.has("iconId:%s" % icon_status)
+				):
+					invalid_icon_resolutions.append(identity)
+				else:
+					icon_resolution_counts[icon_status] = int(
+						icon_resolution_counts.get(icon_status, 0)
+					) + 1
+				for resolved_fallback: String in [
+					"randomizedStamina",
+					"randomizedArmorAgility",
+					"classicDifficultyScaling",
+					"randomizedSpellPoints",
+					"randomizedMoney",
+				]:
+					if fallbacks is Array and fallbacks.has(resolved_fallback):
+						resolved_fallback_offenders.append(
+							"%s:%s" % [identity, resolved_fallback]
+						)
+				var record: Dictionary = monster["classicRecord"]
+				var attacks: Variant = record.get("attacks", [])
+				var native_attacks: Variant = monster.get(
+					"tools",
+					{}
+				).get("unarmed_melee_attacks", [])
+				var unavailable_sound := false
+				var native_attack_index := 0
+				var attack_count := maxi(1, int(record.get("attackCount", 1)))
+				if attacks is Array and native_attacks is Array:
+					for attack_index: int in mini(attack_count, attacks.size()):
+						var row: Variant = attacks[attack_index]
+						if not (row is Array) or row.size() < 2:
+							continue
+						if (
+							int(row[0]) == 0
+							and int(row[1]) == 0
+							and int(row[3] if row.size() > 3 else 0) == 0
+						):
+							continue
+						var expected_sound := (
+							MonsterGenerationScript.unarmed_attack_sound_name(
+								row,
+								attacks[0] if not attacks.is_empty() else []
+							)
+						)
+						if expected_sound.is_empty():
+							expected_sound = "slurpy.wav"
+							unavailable_sound = true
+						if native_attack_index >= native_attacks.size() \
+								or str(native_attacks[native_attack_index].get(
+									"sound",
+									""
+								)) != expected_sound:
+							attack_sound_mismatches.append(
+								"%s:attack%d" % [identity, attack_index]
+							)
+						native_attack_index += 1
+					if native_attack_index == 0 \
+							and not native_attacks.is_empty() \
+							and str(native_attacks[0].get("sound", "")) \
+								!= MonsterGenerationScript.unarmed_attack_sound_name(
+									[1, 1, 0, 0]
+								):
+						attack_sound_mismatches.append("%s:default" % identity)
+				var expects_sound_fallback: bool = (
+					int(record.get("weapon", 0)) == 0
+					and unavailable_sound
+				)
+				var has_sound_fallback: bool = (
+					fallbacks is Array
+					and fallbacks.has("attackSounds")
+				)
+				if has_sound_fallback:
+					residual_attack_sound_fallbacks.append(identity)
+				if has_sound_fallback != expects_sound_fallback:
+					attack_sound_mismatches.append("%s:fallback" % identity)
 		var manifest_value: Variant = JSON.parse_string(
 			FileAccess.get_file_as_string(
 				campaign_directory.path_join("campaign.json")
@@ -4684,6 +4823,44 @@ func _test_builtin_shared_asset_tilesets() -> void:
 				]
 			)
 		native_resources.free()
+	_expect_equal(
+		generated_monster_count,
+		1838,
+		"built-in corpus checks every generated Classic monster"
+	)
+	_expect_equal(
+		resolved_fallback_offenders,
+		[],
+		"built-in generated monsters remove all source-backed generation fallbacks"
+	)
+	_expect_equal(
+		attack_sound_mismatches,
+		[],
+		"built-in generated attacks match the source-backed native sound projection"
+	)
+	_expect_equal(
+		residual_attack_sound_fallbacks,
+		[
+			"Grilochs Revenge (Classic):Classic Monster 101",
+			"Prelude to Pestilence (Classic):Classic Monster 77",
+		],
+		"only definitions with unavailable native SFX retain attack-sound fallbacks"
+	)
+	_expect_equal(
+		invalid_icon_resolutions,
+		[],
+		"every built-in generated monster retains current icon-pair provenance"
+	)
+	_expect_equal(
+		icon_resolution_counts,
+		{
+			"classic-resource-pair-runtime-media-incomplete": 587,
+			"incomplete-classic-resource-pair": 441,
+			"stock-family-jewels-pair": 809,
+			"unresolved-external-classic-resource": 1,
+		},
+		"built-in monster icon inventory classifies every generated definition"
+	)
 
 
 func _test_classic_campaign_admission() -> void:
@@ -4943,7 +5120,7 @@ func _test_classic_map_materializer() -> void:
 	tiles[0] = 1156
 	tiles[1] = -100
 	tiles[2] = 5
-	tiles[3] = 6
+	tiles[3] = 641
 	tiles[4] = 3156
 	tiles[5] = 2156
 	map_record["tiles"] = tiles
@@ -5114,6 +5291,16 @@ func _test_classic_map_materializer() -> void:
 		-100,
 		"third-band special land field resolves to its signed cicn identity"
 	)
+	_expect_equal(
+		MapBridgeScript.land_overlay_icon_id(641),
+		641,
+		"positive actor field resolves to its direct cicn identity"
+	)
+	_expect_equal(
+		MapBridgeScript.land_overlay_icon_id(1641),
+		641,
+		"positive state-band actor field resolves to its direct cicn identity"
+	)
 	var result: Dictionary = materializer.materialize(bundle, test_root)
 	_expect_equal(
 		result.get("status"),
@@ -5170,6 +5357,16 @@ func _test_classic_map_materializer() -> void:
 		map_things.get("layers", [])[1].get("chunks", [])[0].get("data", [])[90],
 		overlay_first_gid,
 		"special land tile is layered over its source cell"
+	)
+	_expect_equal(
+		map_things.get("layers", [])[0].get("chunks", [])[0].get("data", [])[270],
+		156,
+		"missing positive cicn retains the current landlook base terrain"
+	)
+	_expect_equal(
+		map_things.get("layers", [])[1].get("chunks", [])[0].get("data", [])[270],
+		0,
+		"missing positive cicn follows Classic GetCIcon failure without an overlay"
 	)
 	var map_info: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(map_directory.path_join("map_info.json"))
@@ -5612,15 +5809,17 @@ func _test_classic_map_materializer() -> void:
 	_expect_equal(
 		unsupported_result.get("status"),
 		"error",
-		"special Classic map tile blocks lossy native materialization"
+		"declared special Classic map media blocks when its runtime payload is absent"
 	)
 	_expect(
 		str(unsupported_result.get("message", "")).contains(
-			"special land tile -100 (cicn -100)"
+			"cicn -100 is missing runtimeMedia"
 		),
-		"unsupported special tile reports its exact identity"
+		"declared special Classic map media reports its exact missing payload"
 	)
-	var invalid_media_directory := unsupported_directory.path_join("media")
+	var invalid_media_root := test_root.path_join("invalid-overlay")
+	DirAccess.make_dir_recursive_absolute(invalid_media_root)
+	var invalid_media_directory := invalid_media_root.path_join("media")
 	DirAccess.make_dir_recursive_absolute(invalid_media_directory)
 	var invalid_media := Image.create(16, 16, false, Image.FORMAT_RGBA8)
 	invalid_media.fill(Color.WHITE)
@@ -5640,7 +5839,7 @@ func _test_classic_map_materializer() -> void:
 	}
 	var invalid_media_result: Dictionary = MapMaterializerScript.new().materialize(
 		unsupported_bundle,
-		unsupported_directory
+		invalid_media_root
 	)
 	_expect_equal(
 		invalid_media_result.get("status"),
@@ -6569,6 +6768,206 @@ func _test_classic_item_materializer() -> void:
 	)
 
 
+func _test_classic_monster_generation() -> void:
+	var record := {
+		"hitDice": 2,
+		"staminaBonus": 3,
+		"armor": 10,
+		"agility": 5,
+		"spellPoints": 100,
+		"magicResistance": 20,
+		"saves": [1, 2, 3, 4, 5, 6],
+		"exp": 7,
+	}
+	var hardest_battle: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "battle",
+			"difficulty": 2,
+			"scenarioDay": 300,
+			"staminaRolls": [1, 8],
+			"armorAdjustment": -1,
+			"agilityAdjustment": 1,
+			"spellPointAdjustment": -10,
+		}
+	)
+	_expect_equal(hardest_battle.get("stamina"), 23, "battle stamina uses d8 rolls, 40-percent difficulty scaling, and age")
+	_expect_equal(hardest_battle.get("spellPoints"), 162, "battle spell points use the inclusive ten-percent variance")
+	_expect_equal(hardest_battle.get("armor"), 3, "battle armor uses its random point and three-point difficulty step")
+	_expect_equal(hardest_battle.get("agility"), 8, "battle agility uses its random point and difficulty step")
+	_expect_equal(hardest_battle.get("magicResistance"), 26, "battle magic resistance scales only inside Classic's ordinary range")
+	_expect_equal(hardest_battle.get("spellSaves"), [21, 22, 23, 24, 25, 26], "battle saves use Classic's ten-point difficulty step")
+	_expect_equal(hardest_battle.get("experience"), 259, "battle reward consumes the rolled maximum stamina")
+
+	var easiest_battle: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "battle",
+			"difficulty": -2,
+			"staminaRolls": [1, 1],
+			"armorAdjustment": -1,
+			"agilityAdjustment": -1,
+			"spellPointAdjustment": -10,
+		}
+	)
+	_expect_equal(easiest_battle.get("stamina"), 1, "easiest battle scaling retains Classic's one-stamina floor")
+	_expect_equal(easiest_battle.get("spellPoints"), 17, "negative battle difficulty preserves Classic's floating-point truncation")
+	_expect_equal(easiest_battle.get("armor"), 15, "negative difficulty weakens Classic battle armor")
+	_expect_equal(easiest_battle.get("agility"), 2, "negative difficulty lowers post-randomization agility")
+	_expect_equal(easiest_battle.get("magicResistance"), 14, "negative difficulty lowers ranged magic resistance")
+	_expect_equal(easiest_battle.get("spellSaves"), [-19, -18, -17, -16, -15, -14], "negative battle difficulty lowers all six saves")
+
+	var spawned: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "spawn",
+			"difficulty": 2,
+			"scenarioDay": 300,
+			"staminaRolls": [1, 8],
+			"armorAdjustment": -1,
+			"agilityAdjustment": 1,
+			"spellPointAdjustment": -10,
+		}
+	)
+	_expect_equal(spawned.get("stamina"), 21, "opcode-124 spawn uses its 33-percent scale and age bonus")
+	_expect_equal(spawned.get("spellPoints"), 149, "opcode-124 spell-point scaling truncates like Classic")
+	_expect_equal(spawned.get("armor"), 5, "opcode-124 armor uses a two-point difficulty step")
+	_expect_equal(spawned.get("magicResistance"), 32, "opcode-124 preserves Classic's double magic-resistance adjustment")
+	_expect_equal(spawned.get("spellSaves"), [15, 16, 17, 18, 19, 20], "opcode-124 saves use a seven-point difficulty step")
+	var summoned: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "summon",
+			"difficulty": 2,
+			"staminaRolls": [1, 8],
+			"armorAdjustment": -1,
+			"agilityAdjustment": 1,
+			"spellPointAdjustment": -10,
+		}
+	)
+	_expect_equal(summoned.get("magicResistance"), 26, "summons use the single bounded magic-resistance adjustment")
+	var first_spawn: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "spawn",
+			"staminaRolls": [1, 1],
+			"armorAdjustment": 0,
+			"agilityAdjustment": 0,
+			"spellPointAdjustment": 0,
+		}
+	)
+	var second_spawn: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "spawn",
+			"staminaRolls": [8, 8],
+			"armorAdjustment": 0,
+			"agilityAdjustment": 0,
+			"spellPointAdjustment": 0,
+		}
+	)
+	_expect_equal(first_spawn.get("stamina"), 5, "a fresh spawn consumes its own minimum stamina rolls")
+	_expect_equal(second_spawn.get("stamina"), 19, "a repeated spawn consumes independent maximum stamina rolls")
+
+	var transformed: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "transformation",
+			"difficulty": 2,
+			"staminaRolls": [1, 8],
+			"initialAgilityAdjustment": -1,
+			"armorAdjustment": -1,
+			"agilityAdjustment": 1,
+		}
+	)
+	_expect_equal(transformed.get("agility"), 7, "transformation retains both Classic agility adjustments")
+	_expect_equal(transformed.get("spellPoints"), 166, "transformation scales spell points without a variance roll")
+
+	var ally: Dictionary = MonsterGenerationScript.generate(
+		record,
+		{
+			"mode": "ally",
+			"difficulty": 2,
+			"scenarioDay": 300,
+			"staminaRolls": [1, 8],
+		}
+	)
+	_expect_equal(ally.get("stamina"), 12, "persistent allies keep their rolled unscaled stamina")
+	_expect_equal(ally.get("spellPoints"), 100, "persistent allies keep authored spell points")
+	_expect_equal(ally.get("armor"), 6, "persistent allies receive difficulty armor without a random adjustment")
+	_expect_equal(ally.get("agility"), 7, "persistent allies receive difficulty agility without a random adjustment")
+	_expect_equal(ally.get("magicResistance"), 26, "persistent allies use Classic's unconditional magic-resistance step")
+
+	var generated_consumer := RogueTestCharacter.new()
+	generated_consumer.set_meta("classic_armor", int(hardest_battle["armor"]))
+	_expect(
+		is_equal_approx(GameGlobal._classic_melee_evasion(generated_consumer), 0.6),
+		"native melee resolution consumes generated Classic armor"
+	)
+	_expect_equal(
+		MonsterGenerationScript.roll_money([10, 3, 1], [0, 2, 1]),
+		[0, 2, 1],
+		"Classic defeat rewards roll each money pool from zero through its authored maximum"
+	)
+	_expect_equal(
+		MonsterGenerationScript.roll_money([10, 3, 1], [10, 3, 1]),
+		[10, 3, 1],
+		"Classic money rolls include the authored maximum"
+	)
+	_expect_equal(
+		MonsterGenerationScript.scale_money([10, 3, 1], 2),
+		[16, 4, 1],
+		"Classic battle rewards apply the source difficulty multiplier after pooling money"
+	)
+	_expect_equal(
+		MonsterGenerationScript.scale_money([10, 3, 1], -2),
+		[3, 1, 0],
+		"negative Classic difficulty truncates pooled money like the source integer assignment"
+	)
+	_expect_equal(
+		MonsterGenerationScript.unarmed_attack_sound_name([1, 8, 31, 0]),
+		"pummel.wav",
+		"Classic unarmed sound 631 remaps to pummel"
+	)
+	_expect_equal(
+		MonsterGenerationScript.unarmed_attack_sound_name([1, 8, 33, 0]),
+		"claw.wav",
+		"Classic unarmed attacks consume their authored sound byte"
+	)
+	_expect_equal(
+		MonsterGenerationScript.unarmed_attack_sound_name(
+			[0, 8, 33, 11],
+			[1, 4, 34, 0]
+		),
+		"bite.wav",
+		"a zero-low-damage Classic attack uses the first row's sound"
+	)
+	_expect_equal(
+		MonsterGenerationScript.unarmed_attack_sound_name([1, 8, 23, 0]),
+		"",
+		"an unavailable Classic attack sound remains explicit"
+	)
+	_expect_equal(
+		MonsterGenerationScript.armed_attack_sound_name(
+			null,
+			{"extra_data": {"classicWeaponKind": "sharp"}},
+			636
+		),
+		"metal hit.wav",
+		"sharp Classic weapons use the inclusive 635-through-637 sound range"
+	)
+	_expect_equal(
+		MonsterGenerationScript.armed_attack_sound_name(null, {}, 49),
+		"pummel.wav",
+		"other Classic weapons pummel below the source roll threshold"
+	)
+	_expect_equal(
+		MonsterGenerationScript.armed_attack_sound_name(null, {}, 50),
+		"club.wav",
+		"other Classic weapons use the club sound at the source threshold"
+	)
+
+
 func _test_classic_bestiary_materializer() -> void:
 	var bundle = BundleScript.new()
 	_expect(
@@ -6630,8 +7029,22 @@ func _test_classic_bestiary_materializer() -> void:
 	_expect_equal(
 		monster.get("classicMaterialization", {}).get("status"),
 		"fallback",
-		"simple physical monster remains launchable with explicit visual and roll fallbacks"
+		"simple physical monster remains launchable with explicit residual fallbacks"
 	)
+	for resolved_fallback: String in [
+		"randomizedStamina",
+		"randomizedArmorAgility",
+		"classicDifficultyScaling",
+		"randomizedSpellPoints",
+		"randomizedMoney",
+		"attackSounds",
+	]:
+		_expect(
+			not monster.get("classicMaterialization", {}).get(
+				"fidelityFallbacks", []
+			).has(resolved_fallback),
+			"runtime monster generation resolves the %s fallback" % resolved_fallback
+		)
 	_expect_equal(
 		monster.get("classicMaterialization", {}).get("unsupportedFields"),
 		[],
@@ -7135,9 +7548,9 @@ func _test_classic_bestiary_materializer() -> void:
 	_expect(bool(readiness.get("ready", false)), "simple physical native monster remains launchable")
 	_expect(
 		_readiness_has_reference_diagnostic(
-			readiness, "native-monster-fidelity-fallback", 1
+			readiness, "classic-monster-icon-no-icon-reference", 1
 		),
-		"readiness reports the generated monster's bounded fidelity fallbacks"
+		"readiness reports the generated monster's classified icon fallback"
 	)
 
 	var second_result: Dictionary = materializer.materialize(bundle, test_root)
@@ -7147,6 +7560,29 @@ func _test_classic_bestiary_materializer() -> void:
 		FileAccess.get_file_as_string(book_path),
 		first_book_text,
 		"bestiary materialization is byte-stable on rerun"
+	)
+	var stale_bestiary: Dictionary = JSON.parse_string(first_book_text)
+	stale_bestiary["Classic Monster 1"]["classicMaterialization"]["version"] = 0
+	_expect_equal(
+		_write_classic_test_file(book_path, JSON.stringify(stale_bestiary)),
+		OK,
+		"bestiary refresh fixture writes an older generated definition"
+	)
+	var refresh_result: Dictionary = materializer.materialize(bundle, test_root)
+	_expect_equal(
+		refresh_result.get("updated"),
+		1,
+		"materializer refreshes an older generated monster definition"
+	)
+	var refreshed_bestiary: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(book_path)
+	)
+	_expect_equal(
+		refreshed_bestiary["Classic Monster 1"]["classicMaterialization"].get(
+			"version"
+		),
+		BestiaryMaterializerScript.MATERIALIZATION_VERSION,
+		"refreshed generated monster records the current materialization version"
 	)
 
 	var inventory_root := test_root.path_join("inventory")
@@ -12199,6 +12635,26 @@ func _test_campaign_readiness_report() -> void:
 		json_report.get("schemaVersion") if json_report is Dictionary else -1,
 		ReadinessScript.SCHEMA_VERSION,
 		"readiness JSON carries its schema version"
+	)
+	var duplicate_bundle = BundleScript.new()
+	duplicate_bundle.manifest = _minimal_contract_manifest()
+	duplicate_bundle.documents = _minimal_contract_documents()
+	duplicate_bundle.documents["maps"]["maps"] = [{"id": "land:0"}, {"id": "land:1"}]
+	var first_duplicate := _readiness_action_point("Data DD", 60, 9, 23400)
+	first_duplicate["id"] = "Data DD:0:60"
+	var second_duplicate := _readiness_action_point("Data DD", 60, 9, 23400)
+	second_duplicate["id"] = "Data DD:1:60"
+	second_duplicate["levelIndex"] = 1
+	duplicate_bundle.documents["scripts"]["triggers"] = [
+		first_duplicate,
+		second_duplicate,
+	]
+	duplicate_bundle._build_indexes()
+	var duplicate_report: Dictionary = ReadinessScript.new().inspect(duplicate_bundle)
+	_expect_equal(
+		_audit_diagnostic_count(duplicate_report, "unresolved-classic-sound-resource"),
+		2,
+		"readiness keeps same-index media diagnostics from different maps"
 	)
 	bundle.root_directory = "res://Campaigns/City of Bywater"
 	var runtime_picture_path: String = bundle.root_directory.path_join("Splash Images/0.png")
@@ -25576,6 +26032,175 @@ func _test_runtime_media_adapters() -> void:
 				"%s uses the expected Godot stream" % sound_specification[1]
 			)
 
+	var native_resolution: Dictionary = SoundResolutionScript.resolve(
+		-321,
+		{},
+		{321: "Dog Attack"}
+	)
+	_expect_equal(
+		native_resolution.get("status"),
+		"native-mapping",
+		"stock sound identity resolves through the exact native mapping"
+	)
+	_expect(
+		bool(native_resolution.get("waitForCompletion", false)),
+		"negative stock sound identity preserves synchronous playback"
+	)
+	_expect_equal(
+		SoundResolutionScript.resolve(0, {}, {}).get("status"),
+		"silent-sentinel",
+		"sound zero remains distinct from missing or unresolved resources"
+	)
+	_expect_equal(
+		SoundResolutionScript.resolve(
+			321,
+			{"resourceId": 321},
+			{}
+		).get("status"),
+		"missing-runtime-media",
+		"a preserved sound record without decoded audio remains explicit"
+	)
+	_expect_equal(
+		SoundResolutionScript.resolve(
+			321,
+			{
+				"resourceId": 321,
+				"runtimeMedia": {
+					"mediaType": "audio/aiff",
+					"path": "sound.aiff",
+				},
+			},
+			{}
+		).get("status"),
+		"unsupported-runtime-media",
+		"unsupported decoded audio remains distinct from missing media"
+	)
+	var missing_resolution: Dictionary = SoundResolutionScript.resolve(23400, {}, {})
+	_expect_equal(
+		missing_resolution.get("status"),
+		"unresolved-external-classic-resource",
+		"sound absent from bundled inventories remains externally unresolved"
+	)
+	_expect_equal(
+		missing_resolution.get("classicBehaviorIfAbsent"),
+		"silent-noop",
+		"unresolved sound records Classic's conditional missing-lookup behavior"
+	)
+	var stock_icon_resolution: Dictionary = MonsterIconResolutionScript.resolve(392)
+	_expect_equal(
+		stock_icon_resolution.get("status"),
+		"stock-family-jewels-pair",
+		"stock monster icon pair is classified from the exact Family Jewels inventory"
+	)
+	var mixed_icon_resolution: Dictionary = MonsterIconResolutionScript.resolve(
+		494,
+		[{"resourceId": 494}]
+	)
+	_expect_equal(
+		mixed_icon_resolution.get("status"),
+		"classic-resource-pair-runtime-media-incomplete",
+		"campaign and stock records combine through Classic's loaded resource chain"
+	)
+	_expect_equal(
+		mixed_icon_resolution.get("pairedResourceSource"),
+		"The Family Jewels",
+		"mixed monster icon pairs retain the stock-facing resource identity"
+	)
+	var incomplete_icon_resolution: Dictionary = MonsterIconResolutionScript.resolve(
+		2320,
+		[{"resourceId": 2320}]
+	)
+	_expect_equal(
+		incomplete_icon_resolution.get("status"),
+		"incomplete-classic-resource-pair",
+		"a campaign icon without its facing resource remains incomplete"
+	)
+	var unresolved_icon_resolution: Dictionary = MonsterIconResolutionScript.resolve(2300)
+	_expect_equal(
+		unresolved_icon_resolution.get("status"),
+		"unresolved-external-classic-resource",
+		"icon absent from the local stock fork remains unresolved for optional Classic resources"
+	)
+	var campaign_icon_resolution: Dictionary = MonsterIconResolutionScript.resolve(
+		30000,
+		[
+			{
+				"resourceId": 30000,
+				"runtimeMedia": {"mediaType": "image/png", "path": "base.png"},
+			},
+			{
+				"resourceId": 30308,
+				"runtimeMedia": {"mediaType": "image/png", "path": "paired.png"},
+			},
+		]
+	)
+	_expect_equal(
+		campaign_icon_resolution.get("status"),
+		"campaign-runtime-media",
+		"campaign monster icon pair requires both decoded facing resources"
+	)
+
+	var fixture_bundle = BundleScript.new()
+	_expect(
+		fixture_bundle.load_from_directory(
+			"res://scripts/classic_runtime/tests/fixtures/providence_authoritative_export"
+		),
+		"sound playback fixture loads: %s" % fixture_bundle.last_error
+	)
+	var playback_adapter = GodotAdapterScript.new()
+	playback_adapter.configure_classic_bundle(fixture_bundle)
+	var missing_picture_result: Dictionary = playback_adapter._show_classic_picture(
+		{"pictureId": 20126}
+	)
+	_expect_equal(
+		missing_picture_result.get("status"),
+		"unresolved-noop",
+		"unresolved Classic picture completes without changing presentation"
+	)
+	_expect_equal(
+		missing_picture_result.get("classicBehaviorIfAbsent"),
+		"unchanged-picture",
+		"unresolved Classic picture records the conditional source behavior"
+	)
+	var positive_result: Dictionary = playback_adapter._play_sound({"soundId": 321})
+	_expect_equal(
+		positive_result.get("status"),
+		"played",
+		"campaign sound runtime media reaches the native SFX player"
+	)
+	_expect_equal(
+		positive_result.get("runtimeMediaPath"),
+		"media/sounds/snd-321-827bab3b7d1c.wav",
+		"campaign sound playback reports its exact bundled media identity"
+	)
+	_expect(
+		SfxPlayer.stream is AudioStreamWAV and SfxPlayer.playing,
+		"campaign WAV is actively playing on the native SFX player"
+	)
+	SfxPlayer.stop()
+	var negative_result: Dictionary = await playback_adapter.execute_command(
+		"play_sound",
+		{"soundId": -321}
+	)
+	_expect_equal(
+		negative_result.get("status"),
+		"played",
+		"negative campaign sound plays through the same runtime media route"
+	)
+	_expect(
+		bool(negative_result.get("waitedForCompletion", false)),
+		"negative campaign sound command waits for native playback completion"
+	)
+	var noop_result: Dictionary = await playback_adapter.execute_command(
+		"play_sound",
+		{"soundId": 23400}
+	)
+	_expect_equal(
+		noop_result.get("status"),
+		"unresolved-noop",
+		"unresolved Classic sound completes without inventing playback"
+	)
+
 	var runtime_image := Image.new()
 	_expect(
 		runtime_image.load(picture_path) == OK,
@@ -27924,6 +28549,21 @@ func _test_forced_battle_end_action() -> void:
 		normal_rewards.get("treasure"),
 		["Test blade", "Test shield"],
 		"normal battle rewards retain inventory"
+	)
+	var classic_reward_creature := BattleRewardTestCreature.new()
+	classic_reward_creature.money = [7, 2, 1]
+	classic_reward_creature.set_meta("classic_monster_generation", {"mode": "battle"})
+	_expect_equal(
+		BattleRewardRulesScript.money_for(classic_reward_creature, [0, 2, 1]),
+		[0, 2, 1],
+		"Classic battle payout rolls money only when the generated creature is defeated"
+	)
+	var native_reward_creature := BattleRewardTestCreature.new()
+	native_reward_creature.money = [7, 2, 1]
+	_expect_equal(
+		BattleRewardRulesScript.money_for(native_reward_creature, [0, 0, 0]),
+		[7, 2, 1],
+		"native creature payout remains exact"
 	)
 	var separated_weapon_rewards: Dictionary = BattleRewardRulesScript.collect([{
 		"experience": 0,
