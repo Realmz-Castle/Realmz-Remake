@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "routeId": "assault-on-giant-mountain-opening-battle",
+  "campaignId": "scenario-assault-on-giant-mountain",
+  "campaignDirectory": "Assault on Giant Mountain (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 48,
+    "y": 15
+  },
+  "steps": [
+    {
+      "id": "opening-presentation",
+      "kind": "presentation",
+      "triggerId": "Data DD:0:60",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 49,
+        "y": 15
+      },
+      "actions": [
+        {"slot": 0, "code": 27, "id": 32128},
+        {"slot": 1, "code": 1, "id": 896},
+        {"slot": 2, "code": 1, "id": 897},
+        {"slot": 3, "code": 9, "id": 23400},
+        {"slot": 4, "code": 1, "id": -898},
+        {"slot": 5, "code": 9, "id": 24000},
+        {"slot": 6, "code": 9, "id": 10049},
+        {"slot": 7, "code": 39, "id": 160}
+      ],
+      "messages": [
+        {
+          "id": 896,
+          "prefix": "You traveled late into the night and finally made camp"
+        },
+        {
+          "id": 897,
+          "prefix": "You have traveled the Realmz far and wide in search of adventure"
+        },
+        {
+          "id": 898,
+          "prefix": "All hearty souls, prepare!"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "sounds": [
+        {
+          "id": 23400,
+          "status": "unresolved-external-classic-resource",
+          "classicBehaviorIfAbsent": "silent-noop"
+        },
+        {
+          "id": 24000,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-24000-6e98c0ce2083.wav"
+        },
+        {
+          "id": 10049,
+          "status": "native-mapping",
+          "nativeName": "angry mob.wav"
+        },
+        {
+          "id": -10001,
+          "status": "native-mapping",
+          "nativeName": "camp.wav"
+        }
+      ]
+    },
+    {
+      "id": "goblin-hut-battle",
+      "kind": "battle",
+      "triggerId": "Data DD:0:46",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 50,
+        "y": 62
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 160},
+        {"slot": 1, "code": 1, "id": 161},
+        {"slot": 2, "code": 2, "id": 70}
+      ],
+      "messages": [
+        {
+          "id": 160,
+          "prefix": "The goblins are low on supplies"
+        },
+        {
+          "id": 161,
+          "prefix": "One monstrous brute of a goblin sits alone"
+        }
+      ],
+      "battleId": 60,
+      "creatures": [
+        {
+          "monsterId": 92,
+          "displayName": "Hob Goblin",
+          "count": 18
+        },
+        {
+          "monsterId": 129,
+          "displayName": "Hob Goblin Champion",
+          "count": 5
+        },
+        {
+          "monsterId": 130,
+          "displayName": "Hob Goblin Archer",
+          "count": 6
+        }
+      ]
+    }
+  ],
+  "completionAnchor": {
+    "finalApproach": {
+      "triggerId": "Data DD:3:31",
+      "actions": [
+        {"slot": 0, "code": 9, "id": 26260},
+        {"slot": 1, "code": 1, "id": 901},
+        {"slot": 2, "code": 1, "id": 902},
+        {"slot": 3, "code": 1, "id": 903},
+        {"slot": 4, "code": 1, "id": 904},
+        {"slot": 5, "code": 1, "id": 905},
+        {"slot": 6, "code": 1, "id": 906},
+        {"slot": 7, "code": 39, "id": 135}
+      ]
+    },
+    "battleOutcome": {
+      "triggerId": "Data ED3:macro:135",
+      "actions": [
+        {"slot": 0, "code": 56, "id": 428},
+        {"slot": 1, "code": 1, "id": 907},
+        {"slot": 2, "code": 1, "id": 908},
+        {"slot": 3, "code": 12, "id": 429},
+        {"slot": 4, "code": 12, "id": 430},
+        {"slot": 5, "code": 12, "id": 431},
+        {"slot": 6, "code": 12, "id": 432},
+        {"slot": 7, "code": 39, "id": 163}
+      ],
+      "extraCodeId": 428,
+      "extraCodeValues": [274, 0, -1, 0, 0]
+    },
+    "triggerId": "Data ED3:macro:137",
+    "actions": [
+      {"slot": 2, "code": 1, "id": 911},
+      {"slot": 3, "code": 1, "id": 912},
+      {"slot": 4, "code": 10, "id": 77},
+      {"slot": 5, "code": 1, "id": 913},
+      {"slot": 6, "code": 9, "id": 20004},
+      {"slot": 7, "code": 1, "id": 914}
+    ],
+    "messages": [
+      {
+        "id": 913,
+        "prefix": "So ends your great journey."
+      },
+      {
+        "id": 914,
+        "prefix": "You have accomplished the main goal behind this scenario."
+      }
+    ],
+    "battleId": 274,
+    "classification": "source-anchor-only"
+  }
+}

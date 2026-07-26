@@ -6008,13 +6008,70 @@ func runtime_audio_stream(sound: Dictionary) -> AudioStream:
 	var media_type := str(runtime_media.get("mediaType", "")).to_lower()
 	match media_type:
 		"audio/wav", "audio/x-wav", "audio/wave":
-			return AudioStreamWAV.load_from_file(runtime_path)
+			return _load_runtime_wav(runtime_path)
 		"audio/ogg", "audio/vorbis":
 			return AudioStreamOggVorbis.load_from_file(runtime_path)
 		"audio/mpeg", "audio/mp3":
 			return AudioStreamMP3.load_from_file(runtime_path)
 		_:
 			return null
+
+
+func _load_runtime_wav(runtime_path: String) -> AudioStreamWAV:
+	var bytes := FileAccess.get_file_as_bytes(runtime_path)
+	if not _wav_needs_trailing_pad(bytes):
+		return AudioStreamWAV.load_from_file(runtime_path)
+
+	# Providence's unsigned 8-bit encoder historically omitted the RIFF pad byte
+	# when the final data chunk had an odd length. Preserve the packaged bytes and
+	# give Godot a process-local padded copy so otherwise valid Classic audio can
+	# play without seeking one byte beyond the file.
+	bytes.append(0)
+	var riff_size := bytes.size() - 8
+	for byte_index: int in 4:
+		bytes[4 + byte_index] = (riff_size >> (byte_index * 8)) & 0xff
+	var temporary_path := OS.get_temp_dir().path_join(
+		"realmz-classic-wav-%d-%d.wav" % [
+			OS.get_process_id(),
+			runtime_path.hash(),
+		]
+	)
+	var temporary_file := FileAccess.open(temporary_path, FileAccess.WRITE)
+	if temporary_file == null:
+		return null
+	temporary_file.store_buffer(bytes)
+	temporary_file.close()
+	var stream := AudioStreamWAV.load_from_file(temporary_path)
+	DirAccess.remove_absolute(temporary_path)
+	return stream
+
+
+func _wav_needs_trailing_pad(bytes: PackedByteArray) -> bool:
+	if bytes.size() < 20 \
+			or bytes.slice(0, 4).get_string_from_ascii() != "RIFF" \
+			or bytes.slice(8, 12).get_string_from_ascii() != "WAVE":
+		return false
+	if _wav_u32_le(bytes, 4) + 8 != bytes.size():
+		return false
+	var offset := 12
+	while offset + 8 <= bytes.size():
+		var chunk_size := _wav_u32_le(bytes, offset + 4)
+		var chunk_end := offset + 8 + chunk_size
+		if chunk_end > bytes.size():
+			return false
+		if chunk_end == bytes.size():
+			return chunk_size % 2 == 1
+		offset = chunk_end + (chunk_size % 2)
+	return false
+
+
+func _wav_u32_le(bytes: PackedByteArray, offset: int) -> int:
+	return (
+		int(bytes[offset])
+			| (int(bytes[offset + 1]) << 8)
+			| (int(bytes[offset + 2]) << 16)
+			| (int(bytes[offset + 3]) << 24)
+	)
 
 
 func _text_rect() -> Object:

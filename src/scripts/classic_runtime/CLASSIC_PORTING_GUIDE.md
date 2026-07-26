@@ -18,7 +18,11 @@ The detailed sources behind this summary are:
 - [built-in campaign baseline](CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md) for the
   authoritative 13-campaign readiness and footprint audit; and
 - [City of Bywater acceptance log](CITY_OF_BYWATER_ACCEPTANCE.md) for the
-  current end-to-end campaign checkpoint.
+  current end-to-end campaign checkpoint;
+- [Classic campaign lifecycle acceptance](CLASSIC_CAMPAIGN_LIFECYCLE_ACCEPTANCE.md)
+  for the shared 13-package launch, Save, and Continue boundary; and
+- [Assault on Giant Mountain acceptance](ASSAULT_ON_GIANT_MOUNTAIN_ACCEPTANCE.md)
+  for the second scenario's opening and native-battle checkpoint.
 
 ## Evidence ladder
 

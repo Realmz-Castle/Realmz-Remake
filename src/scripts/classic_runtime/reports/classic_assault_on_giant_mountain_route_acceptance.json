@@ -1,0 +1,139 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 48,
+			"y": 15
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 48,
+			"y": 15
+		}
+	},
+	"battle": {
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 18,
+				"displayName": "Hob Goblin",
+				"monsterId": 92
+			},
+			{
+				"count": 5,
+				"displayName": "Hob Goblin Champion",
+				"monsterId": 129
+			},
+			{
+				"count": 6,
+				"displayName": "Hob Goblin Archer",
+				"monsterId": 130
+			}
+		],
+		"id": 60,
+		"returnMap": "map_0",
+		"returnPosition": {
+			"x": 50,
+			"y": 62
+		},
+		"rewardScreenPresented": true
+	},
+	"campaignDirectory": "Assault on Giant Mountain (Classic)",
+	"campaignId": "scenario-assault-on-giant-mountain",
+	"campaignName": "Assault on Giant Mountain (Classic)",
+	"completionAnchor": {
+		"battleId": 274,
+		"battleOutcomeExtraCodeId": 428,
+		"battleOutcomeTriggerId": "Data ED3:macro:135",
+		"classification": "source-anchor-only",
+		"finalApproachTriggerId": "Data DD:3:31",
+		"runtimeExercised": false,
+		"sourceVerified": true,
+		"triggerId": "Data ED3:macro:137"
+	},
+	"failures": [],
+	"routeId": "assault-on-giant-mountain-opening-battle",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "silent-noop",
+			"id": 23400,
+			"playable": false,
+			"status": "unresolved-external-classic-resource",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 24000,
+			"playable": true,
+			"status": "runtime-media",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10049,
+			"playable": true,
+			"status": "native-mapping",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -10001,
+			"playable": true,
+			"status": "native-mapping",
+			"waitForCompletion": true
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "opening-presentation-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "goblin-hut-battle-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion macro and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed opening presents its picture and messages; sound 23400 remains an explicit absent-resource fallback",
+			"id": "opening-presentation",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "goblin-hut-battle",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "goblin-hut-battle-victory",
+			"status": "passed"
+		}
+	],
+	"status": "passed"
+}

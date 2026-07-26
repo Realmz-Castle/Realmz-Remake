@@ -26722,6 +26722,23 @@ func _test_runtime_media_adapters() -> void:
 				"%s uses the expected Godot stream" % sound_specification[1]
 			)
 
+	var assault_bundle = BundleScript.new()
+	_expect(
+		assault_bundle.load_from_directory(
+			"res://Campaigns/Assault on Giant Mountain (Classic)"
+		),
+		"Assault bundled-audio fixture loads: %s" % assault_bundle.last_error
+	)
+	var assault_adapter = GodotAdapterScript.new()
+	assault_adapter.configure_classic_bundle(assault_bundle)
+	var assault_horn: AudioStream = assault_adapter.runtime_audio_stream(
+		assault_bundle.get_sound(24000)
+	)
+	_expect(
+		assault_horn is AudioStreamWAV,
+		"odd-length Assault Horn WAV loads through RIFF padding compatibility"
+	)
+
 	var native_resolution: Dictionary = SoundResolutionScript.resolve(
 		-321,
 		{},
