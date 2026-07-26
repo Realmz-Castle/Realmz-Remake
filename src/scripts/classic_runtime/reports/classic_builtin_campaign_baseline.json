@@ -1,5 +1,5 @@
 {
-	"allReady": false,
+	"allReady": true,
 	"campaigns": [
 		{
 			"directory": "Assault on Giant Mountain (Classic)",
@@ -130,7 +130,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -165,7 +165,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -1086,7 +1086,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -1121,7 +1121,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -2610,7 +2610,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -2645,7 +2645,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -4353,7 +4353,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -4388,7 +4388,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -7562,7 +7562,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -7597,7 +7597,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -10611,7 +10611,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -10646,7 +10646,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -15180,8 +15180,8 @@
 			"install": {
 				"error": "",
 				"loaded": true,
-				"selectionState": "Blocked",
-				"selectionValid": false,
+				"selectionState": "Ready with fallbacks",
+				"selectionValid": true,
 				"startDiagnostic": ""
 			},
 			"name": "Mithril Vault (Classic)",
@@ -15219,7 +15219,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -15254,7 +15254,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -18559,22 +18559,6 @@
 						"source": "Data ED3",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-mithril-vault",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Improved Brawn' has no executable Remake resource",
-						"nativeName": "Improved Brawn",
-						"opcode": 17,
-						"recordId": "Data ED3:macro:200",
-						"recordIndex": 200,
-						"referenceId": 4507,
-						"scenario": "Mithril Vault (Classic)",
-						"severity": "error",
-						"slot": 1,
-						"source": "Data ED3"
 					},
 					{
 						"activity": "active",
@@ -22987,14 +22971,14 @@
 					"unknown": 13,
 					"unknownExecutable": 0
 				},
-				"ready": false,
+				"ready": true,
 				"schemaVersion": 1,
-				"status": "blocked",
-				"summary": "Blocked: 1 progression blocker; 238 fidelity fallbacks.",
+				"status": "ready",
+				"summary": "Ready: no progression blockers; 238 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 374,
+					"diagnostics": 373,
 					"fidelityFallbacks": 238,
-					"progressionBlockers": 1
+					"progressionBlockers": 0
 				}
 			}
 		},
@@ -23127,7 +23111,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -23162,7 +23146,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -24021,7 +24005,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -24056,7 +24040,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -56679,7 +56663,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -56714,7 +56698,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -59640,7 +59624,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -59675,7 +59659,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -79423,7 +79407,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -79458,7 +79442,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -82152,7 +82136,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 244,
+						"entriesRead": 245,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -82187,7 +82171,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 244
+					"spells": 245
 				}
 			},
 			"readiness": {
@@ -95045,13 +95029,12 @@
 	},
 	"diagnosticBreakdown": {
 		"byActivity": {
-			"active": 4242,
+			"active": 4241,
 			"inactive": 184
 		},
 		"byClassification": {
 			"fidelity-fallback": 1352,
 			"inventory": 6,
-			"progression-blocker": 1,
 			"source-behavior": 3067
 		},
 		"byCode": {
@@ -95145,13 +95128,6 @@
 				"fidelityFallbacks": 0,
 				"inactive": 4,
 				"progressionBlockers": 0
-			},
-			"missing-native-spell": {
-				"active": 1,
-				"diagnostics": 1,
-				"fidelityFallbacks": 0,
-				"inactive": 0,
-				"progressionBlockers": 1
 			},
 			"native-monster-fidelity-fallback": {
 				"active": 521,
@@ -123169,14 +123145,14 @@
 			"installedBytes": 2199897
 		}
 	},
-	"status": "blocked",
+	"status": "ready",
 	"totals": {
-		"activeDiagnostics": 4242,
-		"blockedCampaigns": 1,
+		"activeDiagnostics": 4241,
+		"blockedCampaigns": 0,
 		"campaigns": 13,
 		"compressedEstimateBytes": 34967336,
 		"crossCampaignDuplicateBytes": 8047692,
-		"diagnostics": 4426,
+		"diagnostics": 4425,
 		"duplicateBytes": 8149781,
 		"fidelityFallbacks": 1352,
 		"files": 4852,
@@ -123186,8 +123162,8 @@
 		"jsonBytes": 118381154,
 		"jsonFiles": 829,
 		"preparationErrors": 0,
-		"progressionBlockers": 1,
-		"readyCampaigns": 12,
+		"progressionBlockers": 0,
+		"readyCampaigns": 13,
 		"sharedStoreBytes": 2199897,
 		"sharedStoreFiles": 21
 	}

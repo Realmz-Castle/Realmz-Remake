@@ -107,6 +107,8 @@ var classic_hand_to_hand_initialized := false
 var classic_prestige_penalty := 0
 var classic_spellcaster_type := 0
 var classic_spellcaster_type_initialized := false
+var classic_first_spell_memory_byte := 0
+var classic_first_spell_memory_byte_initialized := false
 var classic_luck := 0
 var classic_luck_initialized := false
 var classic_gender := 0
@@ -184,6 +186,10 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		set_classic_spellcaster_type(int(data["classicSpellcasterType"]))
 	elif data.has("classic_spellcaster_type"):
 		set_classic_spellcaster_type(int(data["classic_spellcaster_type"]))
+	if data.has("classicFirstSpellMemoryByte"):
+		set_classic_first_spell_memory_byte(
+			int(data["classicFirstSpellMemoryByte"])
+		)
 	if data.has("classicLuck"):
 		set_classic_luck(int(data["classicLuck"]))
 	if data.has("classicGender") \
@@ -443,6 +449,11 @@ func set_classic_spellcaster_type(value: int) -> void:
 		used_resource = "SP"
 
 
+func set_classic_first_spell_memory_byte(value: int) -> void:
+	classic_first_spell_memory_byte = clampi(value, -128, 127)
+	classic_first_spell_memory_byte_initialized = true
+
+
 func set_classic_luck(value: int) -> void:
 	classic_luck = value
 	classic_luck_initialized = true
@@ -699,6 +710,10 @@ func has_classic_creation_resources() -> bool:
 
 func has_classic_spellcaster_type() -> bool:
 	return classic_spellcaster_type_initialized
+
+
+func has_classic_first_spell_memory_byte() -> bool:
+	return classic_first_spell_memory_byte_initialized
 
 
 func get_stat(statname: String):
@@ -1018,6 +1033,11 @@ func get_save_string()->String :
 		crea_string += (
 			',\n"classicSpellcasterType" : '
 			+ str(classic_spellcaster_type)
+		)
+	if classic_first_spell_memory_byte_initialized:
+		crea_string += (
+			',\n"classicFirstSpellMemoryByte" : '
+			+ str(classic_first_spell_memory_byte)
 		)
 	if classic_luck_initialized:
 		crea_string += (',\n"classicLuck" : '+ str(classic_luck))

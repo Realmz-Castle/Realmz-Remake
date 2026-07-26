@@ -624,6 +624,8 @@ class CampaignRuleCharacter:
 	var classic_hand_to_hand_initialized := false
 	var classic_spellcaster_type := 0
 	var classic_spellcaster_type_initialized := false
+	var classic_first_spell_memory_byte := 0
+	var classic_first_spell_memory_byte_initialized := false
 	var classic_luck := 0
 	var classic_luck_initialized := false
 	var classic_gender := 0
@@ -706,6 +708,10 @@ class CampaignRuleCharacter:
 		if saved_data.has("classicSpellcasterType"):
 			set_classic_spellcaster_type(
 				int(saved_data["classicSpellcasterType"])
+			)
+		if saved_data.has("classicFirstSpellMemoryByte"):
+			set_classic_first_spell_memory_byte(
+				int(saved_data["classicFirstSpellMemoryByte"])
 			)
 		if saved_data.has("classicLuck"):
 			set_classic_luck(int(saved_data["classicLuck"]))
@@ -797,6 +803,10 @@ class CampaignRuleCharacter:
 		classic_spellcaster_type_initialized = value > 0
 		if classic_spellcaster_type_initialized:
 			used_resource = "SP"
+
+	func set_classic_first_spell_memory_byte(value: int) -> void:
+		classic_first_spell_memory_byte = clampi(value, -128, 127)
+		classic_first_spell_memory_byte_initialized = true
 
 	func set_classic_luck(value: int) -> void:
 		classic_luck = value
@@ -1000,10 +1010,27 @@ class CampaignRuleCharacter:
 	func has_classic_spellcaster_type() -> bool:
 		return classic_spellcaster_type_initialized
 
+	func has_classic_first_spell_memory_byte() -> bool:
+		return classic_first_spell_memory_byte_initialized
+
 	func ensure_classic_spell_levels(maximum_level: int) -> void:
 		var target_level := clampi(maximum_level, 0, 7)
 		while spells.size() < target_level:
 			spells.append([])
+
+	func add_spell_drom_dict(
+		spell_dict: Dictionary,
+		spell_level: int,
+		classic_spell_id: int = 0
+	) -> void:
+		ensure_classic_spell_levels(spell_level)
+		var learned_entry := spell_dict.duplicate(false)
+		if classic_spell_id != 0:
+			learned_entry = LearnedSpellIdentityScript.with_explicit_id(
+				learned_entry,
+				classic_spell_id
+			)
+		spells[spell_level - 1].append(learned_entry)
 
 	func add_trait(trait_script: Variant, args: Array) -> Variant:
 		var constructor_args: Array = [self]
@@ -1144,6 +1171,10 @@ class CampaignRuleCharacter:
 			data["classicHandToHand"] = classic_hand_to_hand
 		if classic_spellcaster_type_initialized:
 			data["classicSpellcasterType"] = classic_spellcaster_type
+		if classic_first_spell_memory_byte_initialized:
+			data["classicFirstSpellMemoryByte"] = (
+				classic_first_spell_memory_byte
+			)
 		if classic_luck_initialized:
 			data["classicLuck"] = classic_luck
 		if classic_creation_demographics_initialized:
@@ -25323,11 +25354,136 @@ func _test_classic_stock_item_spells() -> void:
 	)
 	_expect_equal(capped_luck.get("status"), "capped", "Improved Luck honors the source cap")
 
+	var improved_brawn: Variant = load(
+		"res://shared_assets/spells/classic_improved_brawn_4507.gd"
+	).new()
+	_expect_equal(improved_brawn.name, "Improved Brawn", "stock spell 4507 name")
+	_expect_equal(improved_brawn.classic_spell_ids, [4507], "stock spell 4507 exact ID")
+	_expect_equal(improved_brawn.classic_spell_class, 8, "stock spell 4507 effect class")
+	_expect_equal(improved_brawn.classic_target_type, 5, "stock spell 4507 self target")
+	_expect_equal(improved_brawn.classic_special, 66, "stock spell 4507 attribute special")
+	_expect_equal(improved_brawn.classic_size, 7, "stock spell 4507 preserves malformed size")
+	_expect_equal(improved_brawn.classic_damage_type, 8, "stock spell 4507 effect type")
+	_expect_equal(improved_brawn.classic_spell_save_index, -1, "stock spell 4507 bypasses saves")
+	_expect(
+		not improved_brawn.in_combat and improved_brawn.in_field,
+		"stock spell 4507 source availability"
+	)
+	_expect(improved_brawn.skip_targeting, "stock spell 4507 automatically targets the user")
+	_expect(improved_brawn.is_generically_executable(), "stock spell 4507 is executable")
+	_expect_equal(
+		improved_brawn.source_record.get("sourceRecord", {}).get("recordIndex"),
+		381,
+		"stock spell 4507 preserves its Data S record"
+	)
+
+	var first_spell: Variant = load(
+		"res://shared_assets/spells/discover_magic.gd"
+	).new()
+	var first_spell_book := {
+		"Discover Magic": {
+			"name": "Discover Magic",
+			"source": first_spell.generate_json_string(),
+			"script": first_spell,
+			"classicSpellIds": [1101],
+		},
+	}
+	var spell_memory_target := CampaignRuleCharacter.new()
+	spell_memory_target.set_classic_spellcaster_type(1)
+	var original_strength := int(spell_memory_target.base_stats["Strength"])
+	var first_memory_result: Dictionary = (
+		improved_brawn.apply_classic_spell_memory_increment(
+			spell_memory_target,
+			first_spell_book,
+			{"10000": "Discover Magic I"}
+		)
+	)
+	_expect_equal(first_memory_result.get("status"), "applied", "stock spell 4507 applies")
+	_expect_equal(first_memory_result.get("previous"), 0, "stock spell 4507 starts at byte zero")
+	_expect_equal(first_memory_result.get("current"), 1, "stock spell 4507 increments byte zero")
+	_expect_equal(first_memory_result.get("spellId"), 1101, "stock spell 4507 uses caster slot one")
+	_expect(bool(first_memory_result.get("learned")), "stock spell 4507 exposes the first spell")
+	_expect_equal(
+		spell_memory_target.spells[0].size(),
+		1,
+		"stock spell 4507 adds one level-one spell"
+	)
+	_expect_equal(
+		spell_memory_target.spells[0][0].get("classicSpellId"),
+		1101,
+		"stock spell 4507 preserves the learned spell identity"
+	)
+	_expect_equal(
+		spell_memory_target.base_stats["Strength"],
+		original_strength,
+		"stock spell 4507 does not invent a Brawn increase"
+	)
+
+	var second_memory_result: Dictionary = (
+		improved_brawn.apply_classic_spell_memory_increment(
+			spell_memory_target,
+			first_spell_book,
+			{"10000": "Discover Magic I"}
+		)
+	)
+	_expect_equal(second_memory_result.get("previous"), 1, "stock spell 4507 retains byte one")
+	_expect_equal(second_memory_result.get("current"), 2, "stock spell 4507 increments byte one")
+	_expect(
+		not bool(second_memory_result.get("learned")),
+		"stock spell 4507 does not duplicate an already learned spell"
+	)
+	_expect_equal(
+		spell_memory_target.spells[0].size(),
+		1,
+		"stock spell 4507 keeps one semantic learned-spell entry"
+	)
+	var spell_memory_save := spell_memory_target.save_data()
+	_expect_equal(
+		spell_memory_save.get("classicFirstSpellMemoryByte"),
+		2,
+		"stock spell 4507 saves the exact source byte"
+	)
+	var restored_spell_memory := CampaignRuleCharacter.new(spell_memory_save)
+	_expect_equal(
+		restored_spell_memory.classic_first_spell_memory_byte,
+		2,
+		"stock spell 4507 source byte survives reload"
+	)
+	_expect_equal(
+		restored_spell_memory.spells[0].size(),
+		1,
+		"stock spell 4507 learned spell survives reload"
+	)
+
+	var noncaster_memory_target := CampaignRuleCharacter.new()
+	var noncaster_memory_result: Dictionary = (
+		improved_brawn.apply_classic_spell_memory_increment(
+			noncaster_memory_target,
+			first_spell_book,
+			{"10000": "Discover Magic I"}
+		)
+	)
+	_expect_equal(
+		noncaster_memory_result.get("current"),
+		1,
+		"stock spell 4507 preserves the byte mutation for a non-caster"
+	)
+	_expect_equal(
+		noncaster_memory_target.spells[0].size(),
+		0,
+		"stock spell 4507 has no visible learned spell for a non-caster"
+	)
+
 	var spell_names: Node = load("res://scripts/spells_id_divinity.gd").new()
 	_expect_equal(
 		spell_names.mappings.get("40045"),
 		"Improved Luck",
 		"stock spell 4506 uses its source Luck attribute"
+	)
+	_expect_equal(
+		spell_names.mappings.get("40046"),
+		"Improved Brawn",
+		"stock spell 4507 keeps its source display identity"
 	)
 	spell_names.free()
 

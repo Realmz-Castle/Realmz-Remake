@@ -17,6 +17,12 @@ const ItemMaterializerScript = preload(
 	"res://scripts/classic_runtime/classic_item_materializer.gd"
 )
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const SpellIdentityScript = preload(
+	"res://scripts/classic_runtime/classic_spell_identity.gd"
+)
+const LearnedSpellIdentityScript = preload(
+	"res://scripts/classic_runtime/classic_learned_spell_identity.gd"
+)
 const RANDOM_ROLL_UNSET := -2147483648
 const SECONDS_PER_DAY := 86400
 const CLASSIC_CASTER_SCHOOLS := {
@@ -2707,6 +2713,157 @@ static func apply_attribute_improvement(
 		"current": current,
 		"magicResistanceBonus": magic_resistance_bonus,
 	}
+
+
+static func apply_first_spell_memory_increment(
+	character: Variant,
+	spell_book: Dictionary,
+	spell_id_mapping: Dictionary
+) -> Dictionary:
+	if not (character is Object):
+		return {
+			"status": "error",
+			"message": "Classic spell-memory target is invalid.",
+		}
+	var spells_value: Variant = _value(character, "spells", null)
+	if not (spells_value is Array):
+		return {
+			"status": "error",
+			"message": "Classic spell-memory target has no learned-spell table.",
+		}
+	var spells: Array = spells_value
+	if character.has_method("ensure_classic_spell_levels"):
+		character.call("ensure_classic_spell_levels", 1)
+	while spells.is_empty():
+		spells.append([])
+	if not (spells[0] is Array):
+		return {
+			"status": "error",
+			"message": "Classic spell-memory target has an invalid level-one spell row.",
+		}
+
+	var caster_type := _active_spellcaster_type(
+		character,
+		_spellcasting_progression(character)
+	)
+	var spell_id := caster_type * 1000 + 101 \
+		if caster_type in range(1, 4) else 0
+	var previous := _first_spell_memory_byte(character, spells[0], spell_id)
+	if previous >= 25:
+		return {
+			"status": "capped",
+			"sourceSize": 7,
+			"previous": previous,
+			"current": previous,
+			"spellId": spell_id,
+			"learned": false,
+		}
+
+	var learned_entry: Dictionary = {}
+	var resource_name := ""
+	var already_learned := (
+		spell_id > 0
+		and _has_learned_spell_id(spells[0], spell_id)
+	)
+	if spell_id > 0 and not already_learned:
+		resource_name = SpellIdentityScript.resource_key(
+			spell_id,
+			spell_id_mapping,
+			spell_book
+		)
+		if resource_name.is_empty():
+			return {
+				"status": "error",
+				"message": (
+					"Classic spell-memory mutation cannot resolve first spell %d."
+					% spell_id
+				),
+			}
+		var resource_value: Variant = spell_book.get(resource_name)
+		if not (resource_value is Dictionary):
+			return {
+				"status": "error",
+				"message": (
+					"Classic spell-memory mutation has no resource for first spell %d."
+					% spell_id
+				),
+			}
+		learned_entry = LearnedSpellIdentityScript.with_explicit_id(
+			resource_value,
+			spell_id,
+			resource_name
+		)
+
+	var current := previous + 1
+	_store_first_spell_memory_byte(character, current)
+	if not learned_entry.is_empty():
+		if character.has_method("add_spell_drom_dict"):
+			character.call(
+				"add_spell_drom_dict",
+				spell_book[resource_name],
+				1,
+				spell_id
+			)
+		else:
+			spells[0].append(learned_entry)
+	return {
+		"status": "applied",
+		"sourceSize": 7,
+		"previous": previous,
+		"current": current,
+		"spellId": spell_id,
+		"resourceName": resource_name,
+		"learned": not learned_entry.is_empty(),
+	}
+
+
+static func _first_spell_memory_byte(
+	character: Object,
+	first_level: Array,
+	spell_id: int
+) -> int:
+	if character.has_method("has_classic_first_spell_memory_byte") \
+			and bool(character.call("has_classic_first_spell_memory_byte")):
+		return int(_value(character, "classic_first_spell_memory_byte", 0))
+	if _has_property(character, "classic_first_spell_memory_byte_initialized") \
+			and bool(_value(
+				character,
+				"classic_first_spell_memory_byte_initialized",
+				false
+			)):
+		return int(_value(character, "classic_first_spell_memory_byte", 0))
+	return 1 if spell_id > 0 and _has_learned_spell_id(
+		first_level,
+		spell_id
+	) else 0
+
+
+static func _store_first_spell_memory_byte(
+	character: Object,
+	value: int
+) -> void:
+	if character.has_method("set_classic_first_spell_memory_byte"):
+		character.call("set_classic_first_spell_memory_byte", value)
+		return
+	if _has_property(character, "classic_first_spell_memory_byte"):
+		character.set("classic_first_spell_memory_byte", value)
+	if _has_property(character, "classic_first_spell_memory_byte_initialized"):
+		character.set("classic_first_spell_memory_byte_initialized", true)
+
+
+static func _has_learned_spell_id(
+	first_level: Array,
+	spell_id: int
+) -> bool:
+	for entry_value: Variant in first_level:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		if abs(int(entry.get("classicSpellId", 0))) == spell_id:
+			return true
+		if spell_id in SpellIdentityScript.resource_ids(entry):
+			return true
+	return false
 
 
 static func apply_level_up_magic_resistance(

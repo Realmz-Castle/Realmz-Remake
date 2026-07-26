@@ -28,10 +28,10 @@ records:
 | --- | ---: |
 | Campaign packages | 13 |
 | Packages loaded / preparation errors | 13 / 0 |
-| Ready / blocked | 11 / 2 |
-| Progression blockers | 3 |
+| Ready / blocked | 13 / 0 |
+| Progression blockers | 0 |
 | Fidelity fallbacks | 1,352 |
-| Active / inactive diagnostics | 4,244 / 184 |
+| Active / inactive diagnostics | 4,241 / 184 |
 | Files | 4,852 |
 | Installed footprint | 160,705,089 bytes (153.26 MiB) |
 | Per-file deflate estimate | 34,967,336 bytes (33.35 MiB) |
@@ -98,8 +98,8 @@ built-in shared spells from the immutable `Data S` inventory. The stock
 class-4 breath, paralysis, and acid-spit resources also preserve their exact
 source IDs and mechanics instead of combining materially different variants.
 
-The authoritative result is now 3 active progression blockers and 1,352
-fallbacks. Exact stock resources remove 37 previously blocked occurrences:
+The authoritative result is now 0 active progression blockers and 1,352
+fallbacks. Exact stock resources removed 37 previously blocked occurrences:
 Arrow `4101` (12), Boulder `4114` (1), Dart of Poison `4202` (15), Poison
 `4309` (5), Improved Knowledge `4502` (2), Improved Judgment `4503` (1), and
 Improved Luck `4506` (1). Dart of Poison's source duration is zero, so it deals
@@ -109,13 +109,21 @@ caste magic-resistance gain for Intellect or Wisdom above 15. Record `4506`
 uses source attribute index 6, Luck; the earlier Improved Agility label was
 incorrect.
 
-The remaining blockers are two Arrow Storm `4406` occurrences and one malformed
-Improved Brawn `4507` occurrence. Arrow Storm's six missiles need a reviewed
-same-target multi-hit adapter; treating its fixed missile count as six targets
-or one aggregated damage roll would change Classic resolution. Record `4507`
-uses attribute index 7 even though the character record has only six contiguous
-attributes, so Classic advances into the first learned-spell byte rather than
-raising Brawn. Remake does not guess a corrected effect for that source defect.
+The last three blockers were two Arrow Storm `4406` occurrences and one
+malformed Improved Brawn `4507` occurrence. Arrow Storm now resolves its six
+missiles as six independent damage rolls against the same selected target,
+preserving Classic's per-missile armor interaction. Record `4507` uses attribute
+index 7 even though the character record has only six contiguous attributes.
+Classic therefore advances into `cspells[0][0]`, the first learned-spell byte,
+rather than raising Brawn. Remake preserves that source behavior explicitly:
+the raw byte increments up to the source cap of 25 and survives save/load; a
+caster gains the first level-one spell of their own school when the byte changes
+from zero, while a non-caster has no visible spell effect. It does not invent a
+Brawn increase for the malformed record.
+
+All 13 packages now pass the shared-preparation readiness audit. This removes
+the structural launch blockers; it does not replace scenario-level install,
+launch, gameplay, save/load, and completion certification.
 Of the inactive diagnostics, 178 are preserved fallbacks or trailing data and 6
 are producer-only media inventory; none are active consumers.
 
