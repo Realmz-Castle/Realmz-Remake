@@ -1,0 +1,1054 @@
+{
+  "schemaVersion": 1,
+  "kind": "classic-built-in-campaign-lifecycle-acceptance",
+  "processBoundary": "Closed phase evidence is authoritative; a Windows teardown fault after evidence is reported to the console and does not replace it.",
+  "status": "passed",
+  "expectedCampaigns": 13,
+  "totals": {
+    "campaigns": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "campaigns": [
+    {
+      "directory": "Assault on Giant Mountain (Classic)",
+      "id": "scenario-assault-on-giant-mountain",
+      "name": "Assault on Giant Mountain (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 48,
+        "y": 15
+      },
+      "save": {
+        "campaignId": "scenario-assault-on-giant-mountain",
+        "directory": "Assault on Giant Mountain (Classic)",
+        "name": "Assault on Giant Mountain (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 48,
+          "y": 15
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 48,
+          "y": 15
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 48,
+          "y": 15
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 48,
+          "y": 15
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-assault-on-giant-mountain",
+        "directory": "Assault on Giant Mountain (Classic)",
+        "name": "Assault on Giant Mountain (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 48,
+          "y": 15
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 48,
+          "y": 15
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 48,
+          "y": 15
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Castle in the Clouds (Classic)",
+      "id": "scenario-castle-in-the-clouds",
+      "name": "Castle in the Clouds (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 61,
+        "y": 66
+      },
+      "save": {
+        "campaignId": "scenario-castle-in-the-clouds",
+        "directory": "Castle in the Clouds (Classic)",
+        "name": "Castle in the Clouds (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 61,
+          "y": 66
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 61,
+          "y": 66
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 61,
+          "y": 66
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 61,
+          "y": 66
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-castle-in-the-clouds",
+        "directory": "Castle in the Clouds (Classic)",
+        "name": "Castle in the Clouds (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 61,
+          "y": 66
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 61,
+          "y": 66
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 61,
+          "y": 66
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "City of Bywater (Classic)",
+      "id": "scenario-city-of-bywater-classic",
+      "name": "City of Bywater (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 2,
+        "y": 1
+      },
+      "save": {
+        "campaignId": "scenario-city-of-bywater-classic",
+        "directory": "City of Bywater (Classic)",
+        "name": "City of Bywater (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 2,
+          "y": 1
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 2,
+          "y": 1
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 2,
+          "y": 1
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 2,
+          "y": 1
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-city-of-bywater-classic",
+        "directory": "City of Bywater (Classic)",
+        "name": "City of Bywater (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 2,
+          "y": 1
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 2,
+          "y": 1
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 2,
+          "y": 1
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Destroy the Necronomicon (Classic)",
+      "id": "scenario-destroy-the-necronomicon",
+      "name": "Destroy the Necronomicon (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 35,
+        "y": 68
+      },
+      "save": {
+        "campaignId": "scenario-destroy-the-necronomicon",
+        "directory": "Destroy the Necronomicon (Classic)",
+        "name": "Destroy the Necronomicon (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 35,
+          "y": 68
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 35,
+          "y": 68
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 35,
+          "y": 68
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 35,
+          "y": 68
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-destroy-the-necronomicon",
+        "directory": "Destroy the Necronomicon (Classic)",
+        "name": "Destroy the Necronomicon (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 35,
+          "y": 68
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 35,
+          "y": 68
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 35,
+          "y": 68
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Grilochs Revenge (Classic)",
+      "id": "scenario-grilochs-revenge",
+      "name": "Grilochs Revenge (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 0,
+        "y": 73
+      },
+      "save": {
+        "campaignId": "scenario-grilochs-revenge",
+        "directory": "Grilochs Revenge (Classic)",
+        "name": "Grilochs Revenge (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 0,
+          "y": 73
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 0,
+          "y": 73
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 0,
+          "y": 73
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 0,
+          "y": 73
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-grilochs-revenge",
+        "directory": "Grilochs Revenge (Classic)",
+        "name": "Grilochs Revenge (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 0,
+          "y": 73
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 0,
+          "y": 73
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 0,
+          "y": 73
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Half Truth (Classic)",
+      "id": "scenario-half-truth",
+      "name": "Half Truth (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 42,
+        "y": 71
+      },
+      "save": {
+        "campaignId": "scenario-half-truth",
+        "directory": "Half Truth (Classic)",
+        "name": "Half Truth (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 42,
+          "y": 71
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 42,
+          "y": 71
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 42,
+          "y": 71
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 42,
+          "y": 71
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-half-truth",
+        "directory": "Half Truth (Classic)",
+        "name": "Half Truth (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 42,
+          "y": 71
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 42,
+          "y": 71
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 42,
+          "y": 71
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Mithril Vault (Classic)",
+      "id": "scenario-mithril-vault",
+      "name": "Mithril Vault (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 37,
+        "y": 5
+      },
+      "save": {
+        "campaignId": "scenario-mithril-vault",
+        "directory": "Mithril Vault (Classic)",
+        "name": "Mithril Vault (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 37,
+          "y": 5
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 37,
+          "y": 5
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 37,
+          "y": 5
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 37,
+          "y": 5
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-mithril-vault",
+        "directory": "Mithril Vault (Classic)",
+        "name": "Mithril Vault (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 37,
+          "y": 5
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 37,
+          "y": 5
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 37,
+          "y": 5
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Prelude to Pestilence (Classic)",
+      "id": "scenario-prelude-to-pestilence",
+      "name": "Prelude to Pestilence (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 9,
+        "y": 62
+      },
+      "save": {
+        "campaignId": "scenario-prelude-to-pestilence",
+        "directory": "Prelude to Pestilence (Classic)",
+        "name": "Prelude to Pestilence (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 9,
+          "y": 62
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_1",
+        "nativePosition": {
+          "x": 9,
+          "y": 62
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 9,
+          "y": 62
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 9,
+          "y": 62
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-prelude-to-pestilence",
+        "directory": "Prelude to Pestilence (Classic)",
+        "name": "Prelude to Pestilence (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 9,
+          "y": 62
+        },
+        "nativeMapName": "map_1",
+        "nativePosition": {
+          "x": 9,
+          "y": 62
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 9,
+          "y": 62
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Trouble in the Sword Lands (Classic)",
+      "id": "scenario-trouble-in-the-sword-lands",
+      "name": "Trouble in the Sword Lands (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 1,
+        "y": 1
+      },
+      "save": {
+        "campaignId": "scenario-trouble-in-the-sword-lands",
+        "directory": "Trouble in the Sword Lands (Classic)",
+        "name": "Trouble in the Sword Lands (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 1
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 1,
+          "y": 1
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 1
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 1
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-trouble-in-the-sword-lands",
+        "directory": "Trouble in the Sword Lands (Classic)",
+        "name": "Trouble in the Sword Lands (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 1
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 1,
+          "y": 1
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 1
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Twin Sands of Time (Classic)",
+      "id": "scenario-twin-sands-of-time",
+      "name": "Twin Sands of Time (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 52,
+        "y": 34
+      },
+      "save": {
+        "campaignId": "scenario-twin-sands-of-time",
+        "directory": "Twin Sands of Time (Classic)",
+        "name": "Twin Sands of Time (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 52,
+          "y": 34
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_1",
+        "nativePosition": {
+          "x": 52,
+          "y": 34
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 52,
+          "y": 34
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 52,
+          "y": 34
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-twin-sands-of-time",
+        "directory": "Twin Sands of Time (Classic)",
+        "name": "Twin Sands of Time (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 52,
+          "y": 34
+        },
+        "nativeMapName": "map_1",
+        "nativePosition": {
+          "x": 52,
+          "y": 34
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 1,
+          "x": 52,
+          "y": 34
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "War in the Sword Lands (Classic)",
+      "id": "scenario-war-in-the-sword-lands",
+      "name": "War in the Sword Lands (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 1,
+        "y": 72
+      },
+      "save": {
+        "campaignId": "scenario-war-in-the-sword-lands",
+        "directory": "War in the Sword Lands (Classic)",
+        "name": "War in the Sword Lands (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 72
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Midnight",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 1,
+          "y": 72
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 72
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 72
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-war-in-the-sword-lands",
+        "directory": "War in the Sword Lands (Classic)",
+        "name": "War in the Sword Lands (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 72
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 1,
+          "y": 72
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 1,
+          "y": 72
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "White Dragon (Classic)",
+      "id": "scenario-white-dragon",
+      "name": "White Dragon (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 43,
+        "y": 74
+      },
+      "save": {
+        "campaignId": "scenario-white-dragon",
+        "directory": "White Dragon (Classic)",
+        "name": "White Dragon (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 43,
+          "y": 74
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Cindred",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 43,
+          "y": 74
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 43,
+          "y": 74
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 43,
+          "y": 74
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-white-dragon",
+        "directory": "White Dragon (Classic)",
+        "name": "White Dragon (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 43,
+          "y": 74
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 43,
+          "y": 74
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 43,
+          "y": 74
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "directory": "Wrath of the Mind Lords (Classic)",
+      "id": "scenario-wrath-of-the-mind-lords",
+      "name": "Wrath of the Mind Lords (Classic)",
+      "start": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 3,
+        "y": 84
+      },
+      "save": {
+        "campaignId": "scenario-wrath-of-the-mind-lords",
+        "directory": "Wrath of the Mind Lords (Classic)",
+        "name": "Wrath of the Mind Lords (Classic)",
+        "phase": "save",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 3,
+          "y": 84
+        },
+        "selectionState": "Ready with fallbacks",
+        "selectedCharacter": "Midnight",
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 3,
+          "y": 84
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 3,
+          "y": 84
+        },
+        "mapDrawable": true,
+        "saveFiles": {
+          "data": true,
+          "shops": true,
+          "allies": true,
+          "mapExploration": true
+        },
+        "continuationState": "idle",
+        "savedPosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 3,
+          "y": 84
+        },
+        "status": "passed",
+        "errors": []
+      },
+      "continue": {
+        "campaignId": "scenario-wrath-of-the-mind-lords",
+        "directory": "Wrath of the Mind Lords (Classic)",
+        "name": "Wrath of the Mind Lords (Classic)",
+        "phase": "continue",
+        "manifestStart": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 3,
+          "y": 84
+        },
+        "nativeMapName": "map_0",
+        "nativePosition": {
+          "x": 3,
+          "y": 84
+        },
+        "runtimePosition": {
+          "levelType": "land",
+          "levelIndex": 0,
+          "x": 3,
+          "y": 84
+        },
+        "mapDrawable": true,
+        "pendingContinuation": false,
+        "status": "passed",
+        "errors": []
+      },
+      "status": "passed"
+    }
+  ]
+}
