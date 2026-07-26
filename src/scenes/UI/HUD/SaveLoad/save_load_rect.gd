@@ -417,10 +417,16 @@ func load_game(campaignname : String, savename : String) :
 	#StateMachine.transition_to("Exploration/ExWalking", {"load_campaign_msg" : {"initialize_campaign" : false}} )
 	#map exploration, done after loading resources
 	var exploration_data : Dictionary = Utils.FileHandler.read_json_dic_from_file(save_path+"/map_exploration.json")
-	var maps_book = NodeAccess.__Resources().maps_book
+	var resources = NodeAccess.__Resources()
+	var maps_book = resources.maps_book
 	print("load_game maps_book : ", maps_book.keys())
 	for mapname in exploration_data.keys() :
 		print("save_load_rect maps_book keys : ", maps_book.keys())
+		if (
+			GameGlobal.is_classic_campaign(campaignname)
+			and not maps_book.has(mapname)
+		):
+			resources.ensure_campaign_map_resource(campaignname, mapname)
 		# Older saves may contain a transient combat map that is absent after relaunch.
 		if not maps_book.has(mapname):
 			continue
@@ -431,7 +437,6 @@ func load_game(campaignname : String, savename : String) :
 			if bool(s[2]) :
 				GameGlobal.map.set_secret_seen(Vector2i(s[0], s[1]))
 		
-	var resources = NodeAccess.__Resources()
 	var mapname = GameGlobal.currentmap_name
 	GameGlobal.map.mapsecretpaths.clear()
 	for p in resources.maps_book[mapname][1]["Paths"] :

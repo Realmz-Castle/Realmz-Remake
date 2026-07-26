@@ -55,6 +55,7 @@ var map : Map
 var current_map_script_name : String = ''
 var classic_runtime_host: Object
 var classic_campaign_session: Object
+var classic_campaign_install_cache: Dictionary = {}
 
 var playerCharacterGD : GDScript = preload("res://Creature/PlayerCharacter.gd")
 var combatCreatureGD : GDScript = preload("res://Creature/Creature.gd")
@@ -831,9 +832,16 @@ func validate_classic_campaign_save(campaign_name: String, payload: Variant) -> 
 		return {"status": "ok", "handled": true, "legacy": true}
 	if str(envelope_validation.get("status", "")) != "ok":
 		return envelope_validation
-	var install = ClassicCampaignInstallScript.new()
-	if not install.load_from_campaigns_directory(Paths.campaignsfolderpath, campaign_name):
-		return {"status": "error", "message": install.last_error}
+	var install = get_classic_campaign_install(campaign_name)
+	if install == null or not str(install.last_error).is_empty():
+		return {
+			"status": "error",
+			"message": (
+				"Classic campaign is unavailable"
+				if install == null
+				else str(install.last_error)
+			),
+		}
 	var campaign_validation := ClassicCampaignSessionScript.validate_save_payload(
 		payload,
 		str(install.bundle.manifest.get("id", ""))
@@ -857,7 +865,8 @@ func start_current_classic_campaign(
 	var load_result: Dictionary = session.load_installed_campaign(
 		Paths.campaignsfolderpath,
 		currentcampaign,
-		ClassicGodotCommandAdapterScript.new()
+		ClassicGodotCommandAdapterScript.new(),
+		get_classic_campaign_install(currentcampaign)
 	)
 	if str(load_result.get("status", "")) == "error":
 		session.queue_free()
@@ -954,11 +963,15 @@ func show_loot_menu(
 
 
 
-func set_current_campaign(campname : String) :
+func set_current_campaign(campname : String, selection_rules: Variant = null) :
 	if currentcampaign != campname:
 		stop_classic_campaign_runtime()
 	currentcampaign = campname
-	currentcampaign_onload_script = get_campaign_selection_rules(currentcampaign)
+	currentcampaign_onload_script = (
+		selection_rules
+		if selection_rules != null
+		else get_campaign_selection_rules(currentcampaign)
+	)
 
 
 func is_classic_campaign(campaign_name: String) -> bool:
@@ -970,10 +983,47 @@ func is_classic_campaign(campaign_name: String) -> bool:
 
 func get_campaign_selection_rules(campaign_name: String) -> Variant:
 	if is_classic_campaign(campaign_name):
-		var install = ClassicCampaignInstallScript.new()
-		install.load_from_campaigns_directory(Paths.campaignsfolderpath, campaign_name)
+		var install = get_classic_campaign_install(campaign_name)
 		return install.selection_rules()
 	return load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd")
+
+
+func get_campaign_selection_preview(campaign_name: String) -> Variant:
+	if is_classic_campaign(campaign_name):
+		return ClassicCampaignInstallScript.preview_from_campaigns_directory(
+			Paths.campaignsfolderpath,
+			campaign_name
+		)
+	return load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd")
+
+
+func get_classic_campaign_install(campaign_name: String) -> Object:
+	if not is_classic_campaign(campaign_name):
+		return null
+	var cached: Variant = classic_campaign_install_cache.get(campaign_name)
+	var expected_directory := (
+		Paths.campaignsfolderpath
+		.strip_edges()
+		.replace("\\", "/")
+		.trim_suffix("/")
+		.path_join(campaign_name)
+	)
+	if (
+		cached is Object
+		and str(cached.get("campaign_directory")) == expected_directory
+	):
+		return cached
+	var install = ClassicCampaignInstallScript.new()
+	install.load_from_campaigns_directory(Paths.campaignsfolderpath, campaign_name)
+	classic_campaign_install_cache[campaign_name] = install
+	return install
+
+
+func clear_classic_campaign_install_cache(campaign_name := "") -> void:
+	if campaign_name.is_empty():
+		classic_campaign_install_cache.clear()
+	else:
+		classic_campaign_install_cache.erase(campaign_name)
 
 
 func get_native_campaign_start_script(campaign_name: String) -> Variant:
@@ -1112,6 +1162,15 @@ func change_map(mapname : String, x : int, y : int) :
 	if mapname == 'temporary_zoomed_map':
 		map.generate_zoomed_map(currentmap_name)
 	else :
+		if (
+			not cmp_resources.maps_book.has(mapname)
+			and not cmp_resources.ensure_campaign_map_resource(
+				currentcampaign,
+				mapname
+			)
+		):
+			push_error("Campaign map resource is unavailable: %s" % mapname)
+			return
 		map.load_map(currentcampaign, mapname)
 	currentmap_name = mapname
 

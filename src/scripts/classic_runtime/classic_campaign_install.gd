@@ -46,6 +46,71 @@ static func is_safe_campaign_name(candidate_name: String) -> bool:
 	)
 
 
+static func preview_from_campaigns_directory(
+	campaigns_directory: String,
+	candidate_name: String
+) -> Dictionary:
+	var fallback := {
+		"title": candidate_name,
+		"description": "%s (Classic compatibility campaign)" % candidate_name,
+		"restrictionsDescription": "Select this campaign to check compatibility.",
+		"charactersLimit": CampaignAdmissionScript.NATIVE_PARTY_LIMIT,
+		"classic": true,
+		"preview": true,
+		"valid": false,
+		"readinessState": "Select to check",
+		"readinessSummary": "Compatibility is checked when this campaign is selected.",
+		"diagnostic": "",
+	}
+	if not is_safe_campaign_name(candidate_name):
+		fallback["readinessState"] = "Invalid"
+		fallback["diagnostic"] = "Classic campaign name is invalid"
+		return fallback
+	var campaign_directory := _normalized_directory(campaigns_directory).path_join(
+		candidate_name
+	)
+	var manifest := _read_preview_json(campaign_directory.path_join("campaign.json"))
+	if manifest.is_empty():
+		fallback["readinessState"] = "Invalid"
+		fallback["diagnostic"] = "Classic campaign manifest is unavailable"
+		return fallback
+
+	var title := str(manifest.get("name", candidate_name)).strip_edges()
+	fallback["title"] = title if not title.is_empty() else candidate_name
+	var description := str(manifest.get("description", "")).strip_edges()
+	if not description.is_empty():
+		fallback["description"] = description
+	var format_version := int(manifest.get("formatVersion", 0))
+	var compatibility_profile := str(
+		manifest.get("compatibilityProfile", "")
+	).strip_edges()
+	var version_label := "Classic format v%d" % format_version
+	if not compatibility_profile.is_empty():
+		version_label += " (%s)" % compatibility_profile
+	fallback["formatVersion"] = format_version
+	fallback["compatibilityProfile"] = compatibility_profile
+	fallback["versionLabel"] = version_label
+
+	var files: Variant = manifest.get("files", {})
+	if not (files is Dictionary):
+		return fallback
+	var scenario := _read_preview_document(
+		campaign_directory,
+		str(files.get("scenario", ""))
+	)
+	var rules := _read_preview_document(
+		campaign_directory,
+		str(files.get("rules", ""))
+	)
+	var admission := CampaignAdmissionScript.rules_from_bundle({
+		"documents": {"scenario": scenario, "rules": rules},
+	})
+	fallback.merge(admission, true)
+	fallback["preview"] = true
+	fallback["valid"] = false
+	return fallback
+
+
 func load_from_campaigns_directory(
 	campaigns_directory: String,
 	candidate_name: String
@@ -178,6 +243,25 @@ func selection_rules() -> Dictionary:
 	return selection
 
 
+static func _read_preview_document(campaign_directory: String, relative_path: String) -> Dictionary:
+	var normalized := relative_path.replace("\\", "/").strip_edges()
+	if (
+		normalized.is_empty()
+		or normalized.is_absolute_path()
+		or normalized.contains(":")
+		or ".." in normalized.split("/", false)
+	):
+		return {}
+	return _read_preview_json(campaign_directory.path_join(normalized))
+
+
+static func _read_preview_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return value if value is Dictionary else {}
+
+
 func _validate_packaged_payloads() -> bool:
 	var assets: Variant = bundle.documents.get("assets", {})
 	if not (assets is Dictionary):
@@ -267,7 +351,7 @@ func _fail(message: String) -> bool:
 	return false
 
 
-func _normalized_directory(directory: String) -> String:
+static func _normalized_directory(directory: String) -> String:
 	return directory.strip_edges().replace("\\", "/").trim_suffix("/")
 
 

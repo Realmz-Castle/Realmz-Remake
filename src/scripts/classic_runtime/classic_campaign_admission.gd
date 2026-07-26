@@ -16,12 +16,14 @@ static func rules_from_bundle(bundle: Variant) -> Dictionary:
 	if authored_limit > 0:
 		characters_limit = mini(characters_limit, authored_limit)
 
-	# Realmz applies the scenario-shell cap to the party total and the Data RI
-	# cap to each candidate character. They are intentionally separate here.
+	# The shell maxLevel field was the unregistered Realmz party-total gate.
+	# Remake is permanently registration-unlocked, so preserve it for diagnostics
+	# without rejecting parties. Data RI restrictions remain authored rules.
 	var rules := {
 		"charactersLimit": characters_limit,
 		"recommendedPartyLevel": maxi(0, int(shell.get("recLevel", 0))),
-		"partyLevelLimit": maxi(0, int(shell.get("maxLevel", 0))),
+		"legacyRegistrationPartyLevelLimit": maxi(0, int(shell.get("maxLevel", 0))),
+		"partyLevelLimit": 0,
 		"characterLevelLimit": maxi(0, int(restrictions.get("maxPartyLevel", 0))),
 		"bannedRaceIds": _positive_ids(restrictions.get("bannedRaces", [])),
 		"bannedCasteIds": _positive_ids(restrictions.get("bannedCastes", [])),
@@ -51,9 +53,6 @@ static func describe(rules: Dictionary) -> String:
 
 	var characters_limit := int(rules.get("charactersLimit", NATIVE_PARTY_LIMIT))
 	clauses.append("Up to %d characters" % characters_limit)
-	var party_level_limit := int(rules.get("partyLevelLimit", 0))
-	if party_level_limit > 0:
-		clauses.append("party total level %d or lower" % party_level_limit)
 	var character_level_limit := int(rules.get("characterLevelLimit", 0))
 	if character_level_limit > 0:
 		clauses.append("each character level %d or lower" % character_level_limit)
@@ -178,15 +177,6 @@ static func party_admission(party: Array, rules: Dictionary) -> Dictionary:
 			return character_result
 		total_level += maxi(0, int(_value(character, "level", 0)))
 
-	var party_level_limit := int(rules.get("partyLevelLimit", 0))
-	if party_level_limit > 0 and total_level > party_level_limit:
-		return _rejection(
-			"party-level",
-			"The selected party totals level %d; this scenario allows %d or lower." % [
-				total_level,
-				party_level_limit,
-			]
-		)
 	return {
 		"allowed": true,
 		"reason": "",

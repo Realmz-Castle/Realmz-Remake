@@ -24,13 +24,22 @@ var _timed_dispatch_loop_active := false
 func load_installed_campaign(
 	campaigns_directory: String,
 	campaign_name: String,
-	command_adapter: Object
+	command_adapter: Object,
+	prepared_install: Object = null
 ) -> Dictionary:
 	clear()
 	self.command_adapter = command_adapter
-	install = InstallScript.new()
-	if not install.load_from_campaigns_directory(campaigns_directory, campaign_name):
-		return {"status": "error", "message": install.last_error}
+	if (
+		prepared_install != null
+		and str(prepared_install.get("campaign_name")) == campaign_name
+		and prepared_install.get("bundle") != null
+		and str(prepared_install.get("last_error")).is_empty()
+	):
+		install = prepared_install
+	else:
+		install = InstallScript.new()
+		if not install.load_from_campaigns_directory(campaigns_directory, campaign_name):
+			return {"status": "error", "message": install.last_error}
 	var item_load_result := _load_installed_item_definitions()
 	if str(item_load_result.get("status", "")) == "error":
 		return item_load_result

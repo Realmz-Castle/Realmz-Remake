@@ -264,12 +264,14 @@ func reapply_persistent_state(
 		if darkness_by_map.has(landlook_map_key):
 			landlook["dark"] = bool(darkness_by_map[landlook_map_key])
 		else:
+			var landlook_map_name := native_map_name(
+				str(landlook.get("levelType", "")),
+				int(landlook.get("levelIndex", -1))
+			)
+			_ensure_native_map(resources, landlook_map_name, game_global)
 			var landlook_map := _native_map_entry(
 				resources,
-				native_map_name(
-					str(landlook.get("levelType", "")),
-					int(landlook.get("levelIndex", -1))
-				)
+				landlook_map_name
 			)
 			landlook["dark"] = not landlook_map.is_empty() and int(landlook_map[6]) == 0
 		_record_replay_result(
@@ -335,8 +337,9 @@ func transition(payload: Dictionary, game_global: Object, resources: Object) -> 
 	var map_name := native_map_name(level_type, level_index)
 	if map_name.is_empty() or level_index < 0:
 		return _error("Classic map transition has an invalid destination")
-	if not _has_native_map(resources, map_name):
+	if not _ensure_native_map(resources, map_name, game_global):
 		return _error("Classic map %s has no loaded native map resource" % map_name)
+	seed_classic_boats(game_global, resources)
 	if game_global == null:
 		return _error("Realmz map state is unavailable")
 
@@ -672,6 +675,7 @@ func set_darkness(payload: Dictionary, game_global: Object, resources: Object) -
 		str(payload.get("levelType", "")),
 		int(payload.get("levelIndex", -1))
 	)
+	_ensure_native_map(resources, map_name, game_global)
 	var map_entry := _native_map_entry(resources, map_name)
 	if map_entry.is_empty():
 		return _error("Classic map %s has no loaded native map resource" % map_name)
@@ -754,6 +758,7 @@ func set_tile(payload: Dictionary, game_global: Object, resources: Object) -> Di
 	var level_type := str(payload.get("levelType", ""))
 	var level_index := int(payload.get("levelIndex", -1))
 	var map_name := native_map_name(level_type, level_index)
+	_ensure_native_map(resources, map_name, game_global)
 	var map_entry := _native_map_entry(resources, map_name)
 	if map_entry.is_empty():
 		return _error("Classic map %s has no loaded native map resource" % map_name)
@@ -826,6 +831,7 @@ func set_trigger_percent(payload: Dictionary, game_global: Object, resources: Ob
 		level_type,
 		level_index
 	)
+	_ensure_native_map(resources, map_name, game_global)
 	var script_areas: Variant = _native_script_areas(resources, map_name)
 	if script_areas == null:
 		return _error("Classic map %s has no loaded native script areas" % map_name)
@@ -857,6 +863,7 @@ func set_action_point(payload: Dictionary, game_global: Object, resources: Objec
 	var level_index := int(payload.get("levelIndex", -1))
 	var record_index := int(payload.get("recordIndex", -1))
 	var map_name := native_map_name(level_type, level_index)
+	_ensure_native_map(resources, map_name, game_global)
 	var script_areas: Variant = _native_script_areas(resources, map_name)
 	if script_areas == null:
 		return _error("Classic map %s has no loaded native script areas" % map_name)
@@ -914,6 +921,7 @@ func set_random_rectangle(payload: Dictionary, game_global: Object, resources: O
 	var level_type := str(payload.get("levelType", ""))
 	var level_index := int(payload.get("levelIndex", -1))
 	var map_name := native_map_name(level_type, level_index)
+	_ensure_native_map(resources, map_name, game_global)
 	var script_areas: Variant = _native_script_areas(resources, map_name)
 	if script_areas == null:
 		return _error("Classic map %s has no loaded native script areas" % map_name)
@@ -1148,6 +1156,26 @@ func _set_current_position(map: Variant, x: int, y: int) -> void:
 
 func _has_native_map(resources: Object, map_name: String) -> bool:
 	return not _native_map_entry(resources, map_name).is_empty()
+
+
+func _ensure_native_map(
+	resources: Object,
+	map_name: String,
+	game_global: Object
+) -> bool:
+	if _has_native_map(resources, map_name):
+		return true
+	if (
+		resources == null
+		or game_global == null
+		or not resources.has_method("ensure_campaign_map_resource")
+	):
+		return false
+	var campaign_name := str(game_global.get("currentcampaign"))
+	if campaign_name.is_empty():
+		return false
+	resources.call("ensure_campaign_map_resource", campaign_name, map_name)
+	return _has_native_map(resources, map_name)
 
 
 func _native_map_entry(resources: Object, map_name: String) -> Array:

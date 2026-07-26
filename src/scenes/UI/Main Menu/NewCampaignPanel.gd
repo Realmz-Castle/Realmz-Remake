@@ -127,6 +127,7 @@ func _install_pending_classic_campaign(replace_existing: bool) -> void:
 		return
 
 	var campaign_name := str(result.get("campaignName", source_directory.get_file()))
+	GameGlobal.clear_classic_campaign_install_cache(campaign_name)
 	fill()
 	_select_campaign_by_name(campaign_name)
 	var action := (
@@ -203,6 +204,20 @@ func _on_campaign_selected(idx : int) -> void :
 			+ "\nThis campaign is already in use by another party.\nDelete that game first."
 		)
 		return
+	if (
+		selectedcampaign_onselect is Dictionary
+		and bool(selectedcampaign_onselect.get("preview", false))
+	):
+		selectedcampaign_onselect = GameGlobal.get_campaign_selection_rules(
+			selectedCampaign
+		)
+		metadata = metadata.duplicate(true)
+		metadata["selectionRules"] = selectedcampaign_onselect
+		campaignsItemList.set_item_metadata(idx, metadata)
+		campaignsItemList.set_item_text(
+			idx,
+			_campaign_display_name(selectedCampaign, selectedcampaign_onselect)
+		)
 	createCharacterButton.disabled = not (
 		selectedcampaign_onselect is Dictionary
 		and bool(selectedcampaign_onselect.get("classic", false))
@@ -239,7 +254,7 @@ func _on_StartButton_pressed() -> void :
 		selectedcampaign_onselect.get("valid", false)
 	):
 		return
-	GameGlobal.set_current_campaign(selectedCampaign)
+	GameGlobal.set_current_campaign(selectedCampaign, selectedcampaign_onselect)
 	var data_dict : Dictionary = {
 		"fatigue" = 0.0,
 		"position" = Vector2.ZERO,
@@ -315,7 +330,9 @@ func fill() -> void :
 	campaignsItemList.clear()
 	for campaign_value: Variant in campaignslist:
 		var campaign_name := str(campaign_value)
-		var selection_rules: Variant = GameGlobal.get_campaign_selection_rules(campaign_name)
+		var selection_rules: Variant = GameGlobal.get_campaign_selection_preview(
+			campaign_name
+		)
 		var display_name := _campaign_display_name(campaign_name, selection_rules)
 		var busy := false
 		if GameGlobal.honest_mode :
@@ -343,6 +360,8 @@ func fill() -> void :
 
 func _campaign_display_name(campaign_name: String, selection_rules: Variant) -> String:
 	if selection_rules is Dictionary:
+		if bool(selection_rules.get("preview", false)):
+			return "%s — Classic" % selection_rules.get("title", campaign_name)
 		return "%s — Classic: %s" % [
 			selection_rules.get("title", campaign_name),
 			selection_rules.get("readinessState", "Invalid"),

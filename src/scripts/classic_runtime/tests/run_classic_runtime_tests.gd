@@ -4275,8 +4275,13 @@ func _test_classic_campaign_admission() -> void:
 	)
 	_expect_equal(
 		rules.get("partyLevelLimit"),
+		0,
+		"registration-era total party cap is not enforced"
+	)
+	_expect_equal(
+		rules.get("legacyRegistrationPartyLevelLimit"),
 		999,
-		"scenario shell preserves maximum total party level"
+		"scenario shell cap remains available as legacy metadata"
 	)
 	_expect_equal(
 		rules.get("characterLevelLimit"),
@@ -4448,10 +4453,14 @@ func _test_classic_campaign_admission() -> void:
 		],
 		party_rules
 	)
+	_expect(
+		bool(excessive_party.get("allowed", false)),
+		"registration-era combined party-level cap is ignored"
+	)
 	_expect_equal(
-		excessive_party.get("code"),
-		"party-level",
-		"scenario shell enforces the combined party-level cap"
+		excessive_party.get("partyLevel"),
+		9,
+		"party admission still reports the selected total level"
 	)
 	var allowed_party := CampaignAdmissionScript.party_admission(
 		[
@@ -4460,7 +4469,7 @@ func _test_classic_campaign_admission() -> void:
 		],
 		party_rules
 	)
-	_expect(bool(allowed_party.get("allowed", false)), "party at the total-level cap is allowed")
+	_expect(bool(allowed_party.get("allowed", false)), "ordinary eligible party remains allowed")
 
 
 func _test_classic_map_materializer() -> void:

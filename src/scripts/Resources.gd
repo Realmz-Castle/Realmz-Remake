@@ -26,6 +26,7 @@ const ItemHookRuntimeScript = preload(
 )
 const ClassicItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const LEGACY_ITEM_IDENTITY_STATE_KEY := "legacyDefinitionIdentity"
+const SHARED_SPELL_PATH := "res://shared_assets/spells/"
 var g_scripts = {}
 
 var images_book : Dictionary = {}
@@ -47,11 +48,42 @@ var spells_book : Dictionary = {}
 var musics_book : Dictionary = {}
 var musics_types_book : Dictionary = {}
 var special_encounters_book : Dictionary = {}
+var _shared_spell_cache: Dictionary = {}
+var _shared_spell_paths: Array[String] = []
+var _materialized_shared_spell_paths: Dictionary = {}
+var _shared_spell_cache_complete := false
 
 # Initialize resources #
 func _ready():
-	pass
 	load_music_resources(Paths.datafolderpath+'Music/')
+	call_deferred("_request_shared_spell_warmup")
+
+
+func _request_shared_spell_warmup() -> void:
+	if not _shared_spell_paths.is_empty():
+		return
+	for filename: String in Utils.FileHandler.list_files_in_directory(
+		SHARED_SPELL_PATH
+	):
+		if filename.ends_with(".gd"):
+			_shared_spell_paths.append(SHARED_SPELL_PATH + filename)
+	_shared_spell_paths.sort()
+	call_deferred("_materialize_shared_spell_warmup")
+
+
+func _materialize_shared_spell_warmup() -> void:
+	while not _shared_spell_cache_complete and is_inside_tree():
+		for spell_path: String in _shared_spell_paths:
+			if _materialized_shared_spell_paths.has(spell_path):
+				continue
+			_cache_shared_spell_script(spell_path, load(spell_path))
+			break
+		_shared_spell_cache_complete = (
+			_materialized_shared_spell_paths.size()
+			== _shared_spell_paths.size()
+		)
+		if not _shared_spell_cache_complete:
+			await get_tree().process_frame
 
 # dict must have a SCRIPT_source  key with the script source as the value
 func _add_script_to_dict_from_source(dict : Dictionary,scriptname : String , argsstring : String) :
@@ -135,8 +167,69 @@ func load_campaign_ressources( campaign : String = "") ->void :
 	var mapspath : String =  Paths.campaignsfolderpath + campaign + "/Maps/"
 	print("RESOURCES load_campaign_ressources mapspath : ", mapspath)
 	var mapnames : Array = Utils.FileHandler.list_dirs_in_directory(mapspath)
-	for mn in mapnames :
-		load_map_ressources(mapspath + mn + '/', mn)
+	var classic_start_map := _classic_start_map_name(campaign)
+	if not classic_start_map.is_empty():
+		ensure_campaign_map_resource(campaign, classic_start_map)
+	else:
+		for mn in mapnames :
+			load_map_ressources(mapspath + mn + '/', mn)
+
+
+func ensure_campaign_map_resource(campaign: String, map_name: String) -> bool:
+	if maps_book.has(map_name):
+		return true
+	if (
+		map_name.is_empty()
+		or map_name in [".", ".."]
+		or map_name.contains("/")
+		or map_name.contains("\\")
+		or map_name.contains(":")
+	):
+		return false
+	var map_directory := (
+		Paths.campaignsfolderpath
+		+ campaign
+		+ "/Maps/"
+		+ map_name
+		+ "/"
+	)
+	if not DirAccess.dir_exists_absolute(map_directory):
+		return false
+	for file_name: String in [
+		"map_info.json",
+		"map_scriptareas.json",
+		"map_scripts.gd",
+		"map_things.json",
+	]:
+		if not FileAccess.file_exists(map_directory + file_name):
+			return false
+	load_map_ressources(map_directory, map_name)
+	return maps_book.has(map_name)
+
+
+func _classic_start_map_name(campaign: String) -> String:
+	var manifest_path := (
+		Paths.campaignsfolderpath + campaign + "/campaign.json"
+	)
+	if not FileAccess.file_exists(manifest_path):
+		return ""
+	var manifest_result := _read_item_json_object(manifest_path)
+	if not bool(manifest_result.get("ok", false)):
+		return ""
+	var manifest: Dictionary = manifest_result["value"]
+	var start: Variant = manifest.get("start", {})
+	if not (start is Dictionary):
+		return ""
+	var level_index := int(start.get("levelIndex", -1))
+	if level_index < 0:
+		return ""
+	match str(start.get("levelType", "")):
+		"land":
+			return "map_%d" % level_index
+		"dungeon":
+			return "mapd_%d" % level_index
+		_:
+			return ""
 
 # Load tiles data, added to the tiles_book ressource dictionary #
 func load_tile_resources( path : String ) -> void:
@@ -1371,6 +1464,9 @@ func load_spell_resources(path : String) :
 	print("resources.gd load_spell_resources "+path)
 	if not DirAccess.dir_exists_absolute(path) :
 		return
+	if path == SHARED_SPELL_PATH:
+		_load_shared_spell_resources()
+		return
 	for filename : String in Utils.FileHandler.list_files_in_directory(path) :
 		if not filename.ends_with(".gd") :
 			continue
@@ -1397,19 +1493,71 @@ func load_spell_resources(path : String) :
 		print("  loaded spell class ", filename, " as '", resource_key, "'")
 
 
+func _load_shared_spell_resources() -> void:
+	if _shared_spell_cache_complete:
+		spells_book.merge(_shared_spell_cache, true)
+		return
+	if _shared_spell_paths.is_empty():
+		_request_shared_spell_warmup()
+	for spell_path: String in _shared_spell_paths:
+		if _materialized_shared_spell_paths.has(spell_path):
+			continue
+		_cache_shared_spell_script(spell_path, load(spell_path))
+	_shared_spell_cache_complete = true
+	spells_book.merge(_shared_spell_cache, true)
+
+
+func _cache_shared_spell_script(spell_path: String, script: GDScript) -> void:
+	_materialized_shared_spell_paths[spell_path] = true
+	if script == null or not script.can_instantiate():
+		printerr("Resources _load_spell_classes failed to load ", spell_path)
+		return
+	var instance = script.new()
+	if not (instance is Spell):
+		printerr(
+			"Resources _load_spell_classes ",
+			spell_path.get_file(),
+			" is not a Spell subclass; skipping"
+		)
+		return
+	if instance.name == "":
+		printerr(
+			"Resources _load_spell_classes ",
+			spell_path.get_file(),
+			" has empty name; skipping"
+		)
+		return
+	var spell_entry: Dictionary = {
+		"name": instance.name,
+		"source": instance.generate_json_string(),
+		"script": instance,
+	}
+	_store_spell_resource_in_book(
+		spell_entry,
+		_shared_spell_cache
+	)
+
+
 func _store_spell_resource(spell_entry: Dictionary) -> String:
+	return _store_spell_resource_in_book(spell_entry, spells_book)
+
+
+func _store_spell_resource_in_book(
+	spell_entry: Dictionary,
+	destination: Dictionary
+) -> String:
 	var instance: Variant = spell_entry.get("script")
 	var resource_key := str(spell_entry.get("name", ""))
-	if spells_book.has(resource_key):
-		var previous: Variant = spells_book[resource_key]
+	if destination.has(resource_key):
+		var previous: Variant = destination[resource_key]
 		var previous_script: Variant = previous.get("script") \
 			if previous is Dictionary else null
 		var previous_ids: Array[int] = _explicit_classic_spell_ids(previous_script)
 		var incoming_ids: Array[int] = _explicit_classic_spell_ids(instance)
 		if not previous_ids.is_empty() and not incoming_ids.is_empty() \
 				and not _integer_arrays_overlap(previous_ids, incoming_ids):
-			spells_book[_classic_spell_variant_key(resource_key, previous_ids)] = previous
-	spells_book[resource_key] = spell_entry
+			destination[_classic_spell_variant_key(resource_key, previous_ids)] = previous
+	destination[resource_key] = spell_entry
 	return resource_key
 
 

@@ -99,8 +99,8 @@ func _run_smoke() -> void:
 
 	var item_text: String = panel.campaignsItemList.get_item_text(campaign_index)
 	_expect(
-		item_text == "%s — Classic: Ready" % CAMPAIGN_TITLE,
-		"campaign list shows the manifest title and readiness state"
+		item_text == "%s — Classic" % CAMPAIGN_TITLE,
+		"campaign list shows the manifest title without eagerly validating the package"
 	)
 	_expect(
 		panel._campaign_display_name("City of Bywater", null)
@@ -109,6 +109,11 @@ func _run_smoke() -> void:
 	)
 	panel.campaignsItemList.select(campaign_index)
 	panel._on_campaign_selected(campaign_index)
+	_expect(
+		panel.campaignsItemList.get_item_text(campaign_index)
+			== "%s — Classic: Ready" % CAMPAIGN_TITLE,
+		"selecting a campaign replaces its preview with checked readiness"
+	)
 	_expect(
 		panel.selectedCampaignNameLabel.text == CAMPAIGN_TITLE,
 		"campaign selection shows the manifest title"
@@ -123,7 +128,7 @@ func _run_smoke() -> void:
 	)
 	_expect(
 		panel.selectedCampaignDescrLabel.text.contains(
-			"Party: Up to 6 characters; party total level 1 or lower."
+			"Party: Up to 6 characters."
 		),
 		"campaign selection shows the compiled party admission summary"
 	)
@@ -226,6 +231,22 @@ func _run_smoke() -> void:
 	)
 	_expect(StateMachine._state_name == "Exploration", "normal launch enters Exploration")
 	_expect(GameGlobal.currentmap_name == "map_0", "normal launch enters the compiled start map")
+	var resources: CampaignResources = NodeAccess.__Resources()
+	_expect(
+		resources.maps_book.size() == 1 and resources.maps_book.has("map_0"),
+		"normal launch materializes only the Classic start map"
+	)
+	var start_map_entry: Array = resources.maps_book["map_0"]
+	var start_map_info: Dictionary = resources.map_info_book["map_0"]
+	resources.maps_book.erase("map_0")
+	resources.map_info_book.erase("map_0")
+	_expect(
+		resources.ensure_campaign_map_resource(CAMPAIGN_NAME, "map_0")
+			and resources.maps_book.has("map_0"),
+		"a Classic map can be materialized on demand"
+	)
+	resources.maps_book["map_0"] = start_map_entry
+	resources.map_info_book["map_0"] = start_map_info
 	var map: Node = NodeAccess.__Map()
 	_expect(
 		Vector2i(map.owcharacter.tile_position_x, map.owcharacter.tile_position_y)
