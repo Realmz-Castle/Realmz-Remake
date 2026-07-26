@@ -4,7 +4,10 @@ extends Spell
 func _init() -> void:
 	name = "Acid Spit"
 	classic_spell_class = 4
+	classic_target_type = 6
 	classic_spell_ids = [4607]
+	classic_spell_save_index = 4
+	classic_spell_save_mode = "half_damage"
 	description = "Acid Spit: Deals 12-36 chemical damage to one target."
 	attributes = ["Magical"]
 	elements = [GameGlobal.ELEMENTS.CHEMICAL]
@@ -18,7 +21,7 @@ func _init() -> void:
 	ray = true
 	proj_tex = GFX.MIASMA
 	proj_hit = GFX.SLIME
-	sounds = ["bubbles.wav", "big splat.wav"]
+	sounds = ["bubbles.wav"]
 
 
 func get_range(_power: int, _caster) -> int:

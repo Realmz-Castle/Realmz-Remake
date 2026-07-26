@@ -1,6 +1,14 @@
 class_name ClassicSpellResourceCatalog
 extends RefCounted
 
+const CORE_SPELL_INVENTORY_PATH := (
+	"res://scripts/classic_runtime/classic_core_spell_inventory.json"
+)
+
+static var _core_save_metadata_by_id: Dictionary = {}
+static var _core_save_metadata_loaded := false
+
+
 static func merge_directory(directory: String, destination: Dictionary) -> void:
 	# ResourceLoader preserves the original resource names when scripts are
 	# remapped inside an exported PCK. DirAccess/FileAccess cannot reliably see
@@ -19,6 +27,9 @@ static func merge_directory(directory: String, destination: Dictionary) -> void:
 	)
 	var field_expression := _expression("(?m)^\\s*in_field\\s*=\\s*(true|false)")
 	var combat_expression := _expression("(?m)^\\s*in_combat\\s*=\\s*(true|false)")
+	var use_core_save_metadata := (
+		directory.replace("\\", "/").trim_suffix("/") == "res://shared_assets/spells"
+	)
 
 	for file_name: String in file_names:
 		if file_name.ends_with("/") or not file_name.ends_with(".gd"):
@@ -46,6 +57,8 @@ static func merge_directory(directory: String, destination: Dictionary) -> void:
 			var combat_match := combat_expression.search(source)
 			if combat_match != null:
 				metadata["inCombat"] = combat_match.get_string(1) == "true"
+			if use_core_save_metadata:
+				_merge_core_save_metadata(metadata)
 			destination[name_match.get_string(1)] = metadata
 			continue
 		_merge_loaded_script(path, destination)
@@ -99,6 +112,69 @@ static func _merge_loaded_script(path: String, destination: Dictionary) -> void:
 	if not spell_ids.is_empty():
 		metadata["classicSpellIds"] = spell_ids
 	destination[spell_name] = metadata
+
+
+static func _merge_core_save_metadata(metadata: Dictionary) -> void:
+	if metadata.has("classicSpellSaveIndex") \
+			and metadata.has("classicSpellSaveMode"):
+		return
+	var spell_ids: Variant = metadata.get("classicSpellIds", [])
+	if not (spell_ids is Array) or spell_ids.is_empty():
+		return
+	var common_metadata: Dictionary = {}
+	for spell_id_value: Variant in spell_ids:
+		var save_metadata := _core_save_metadata(absi(int(spell_id_value)))
+		if save_metadata.is_empty():
+			return
+		if common_metadata.is_empty():
+			common_metadata = save_metadata
+		elif common_metadata != save_metadata:
+			return
+	if not metadata.has("classicSpellSaveIndex"):
+		metadata["classicSpellSaveIndex"] = common_metadata["index"]
+	if not metadata.has("classicSpellSaveMode"):
+		metadata["classicSpellSaveMode"] = common_metadata["mode"]
+
+
+static func _core_save_metadata(spell_id: int) -> Dictionary:
+	if not _core_save_metadata_loaded:
+		_load_core_save_metadata()
+	return _core_save_metadata_by_id.get(spell_id, {})
+
+
+static func _load_core_save_metadata() -> void:
+	_core_save_metadata_loaded = true
+	var document: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(CORE_SPELL_INVENTORY_PATH)
+	)
+	if not (document is Dictionary):
+		return
+	var spell_values: Variant = document.get("spells", [])
+	if not (spell_values is Array):
+		return
+	for spell_value: Variant in spell_values:
+		if not (spell_value is Dictionary):
+			continue
+		var record: Variant = spell_value.get("record", {})
+		if not (record is Dictionary):
+			continue
+		var damage_type := absi(int(record.get("damageType", 0)))
+		var save_index := damage_type \
+			if damage_type in range(1, 8) and int(record.get("cannot", 0)) <= 1 \
+			else -1
+		var save_mode := "none"
+		if save_index >= 0:
+			save_mode = "negate"
+			for field_name: String in [
+				"damage1", "damage2", "powerDamage1", "powerDamage2",
+			]:
+				if int(record.get(field_name, 0)) != 0:
+					save_mode = "half_damage"
+					break
+		_core_save_metadata_by_id[int(spell_value.get("packedSpellId", 0))] = {
+			"index": save_index,
+			"mode": save_mode,
+		}
 
 
 static func _expression(pattern: String) -> RegEx:

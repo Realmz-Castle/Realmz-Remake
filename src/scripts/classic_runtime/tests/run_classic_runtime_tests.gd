@@ -2542,6 +2542,7 @@ func _ready() -> void:
 	_test_misc_character_selection(bundle)
 	_test_spell_effect_actions(bundle)
 	_test_classic_spell_usage_audit()
+	_test_classic_stock_special_spells()
 	_test_classic_identify_objects_spell()
 	_test_classic_lethal_spells()
 	_test_classic_transformation_spells()
@@ -24517,6 +24518,45 @@ func _test_classic_spell_usage_audit() -> void:
 		"spell catalog exposes Festering Wounds' save outcome"
 	)
 	_expect_equal(
+		native_spells.get("Death", {}).get("classicSpellIds"),
+		[2701],
+		"spell catalog preserves IDs configured by compatibility helpers"
+	)
+	_expect_equal(
+		native_spells.get("Death", {}).get("classicSpellSaveIndex"),
+		7,
+		"spell catalog exposes save metadata configured by compatibility helpers"
+	)
+	_expect_equal(
+		native_spells.get("Death", {}).get("classicSpellSaveMode"),
+		"negate",
+		"spell catalog exposes helper-configured save outcomes"
+	)
+	_expect_equal(
+		native_spells.get("Flame Breath", {}).get("classicSpellIds"),
+		[4206],
+		"spell catalog keeps the stronger Flame Breath identity exact"
+	)
+	_expect_equal(
+		native_spells.get("Classic Flame Breath 4701", {}).get("classicSpellIds"),
+		[4701],
+		"spell catalog keeps the later Flame Breath variant distinct"
+	)
+	_expect_equal(
+		native_spells.get("Classic Acid Breath 4703", {}).get(
+			"classicSpellSaveIndex"
+		),
+		5,
+		"spell catalog preserves the mental Acid Breath variant's save"
+	)
+	_expect_equal(
+		native_spells.get("Classic Lightning Breath 4702", {}).get(
+			"classicSpellSaveMode"
+		),
+		"half_damage",
+		"spell catalog exposes the later Lightning Breath save outcome"
+	)
+	_expect_equal(
 		native_spells.get("Enchanted Blade", {}).get("classicSpellIds"),
 		[1102],
 		"spell catalog maps the native Enchanted Blade resource"
@@ -24703,6 +24743,8 @@ func _test_classic_spell_usage_audit() -> void:
 		preserved_encounter_row.is_empty(),
 		"spell audit ignores responses from an uncallable preserved encounter"
 	)
+
+
 	var spell_item_contexts: Array = spell_item_row.get("usages", []).map(
 		func(usage: Dictionary) -> String: return str(usage.get("context", ""))
 	)
@@ -24796,6 +24838,172 @@ func _test_classic_spell_usage_audit() -> void:
 		),
 		"spell audit names contexts unavailable in bundle v1"
 	)
+
+
+func _test_classic_stock_special_spells() -> void:
+	var specs: Array[Dictionary] = [
+		{
+			"path": "classic_flame_breath.gd",
+			"id": 4206,
+			"class": 1,
+			"save": 1,
+			"mode": "half_damage",
+			"range": 7,
+			"minimum": 4,
+			"maximum": 30,
+			"los": false,
+			"field": false,
+			"resist": 0,
+		},
+		{
+			"path": "classic_flame_breath_4701.gd",
+			"id": 4701,
+			"class": 1,
+			"save": 1,
+			"mode": "half_damage",
+			"range": 6,
+			"minimum": 2,
+			"maximum": 4,
+			"los": true,
+			"field": true,
+			"resist": 2,
+		},
+		{
+			"path": "classic_frost_breath.gd",
+			"id": 4207,
+			"class": 2,
+			"save": 2,
+			"mode": "half_damage",
+			"range": 7,
+			"minimum": 4,
+			"maximum": 30,
+			"los": false,
+			"field": false,
+			"resist": 0,
+		},
+		{
+			"path": "classic_acid_breath.gd",
+			"id": 4208,
+			"class": 4,
+			"save": 4,
+			"mode": "half_damage",
+			"range": 7,
+			"minimum": 4,
+			"maximum": 30,
+			"los": false,
+			"field": false,
+			"resist": 0,
+		},
+		{
+			"path": "classic_acid_breath_4703.gd",
+			"id": 4703,
+			"class": 5,
+			"save": 5,
+			"mode": "half_damage",
+			"range": 6,
+			"minimum": 2,
+			"maximum": 4,
+			"los": true,
+			"field": true,
+			"resist": 2,
+		},
+		{
+			"path": "classic_lightning_breath.gd",
+			"id": 4209,
+			"class": 3,
+			"save": 3,
+			"mode": "half_damage",
+			"range": 7,
+			"minimum": 4,
+			"maximum": 30,
+			"los": false,
+			"field": false,
+			"resist": 0,
+		},
+		{
+			"path": "classic_lightning_breath_4702.gd",
+			"id": 4702,
+			"class": 3,
+			"save": 3,
+			"mode": "half_damage",
+			"range": 6,
+			"minimum": 2,
+			"maximum": 4,
+			"los": true,
+			"field": true,
+			"resist": 2,
+		},
+		{
+			"path": "classic_paralysis.gd",
+			"id": 4210,
+			"class": 5,
+			"save": 5,
+			"mode": "negate",
+			"range": 7,
+			"minimum": 0,
+			"maximum": 0,
+			"los": false,
+			"field": false,
+			"resist": 0,
+		},
+		{
+			"path": "classic_acid_spit.gd",
+			"id": 4607,
+			"class": 4,
+			"save": 4,
+			"mode": "half_damage",
+			"range": 4,
+			"minimum": 12,
+			"maximum": 36,
+			"los": false,
+			"field": false,
+			"resist": 0,
+		},
+	]
+	for spec: Dictionary in specs:
+		var spell: Variant = load(
+			"res://shared_assets/spells/%s" % spec["path"]
+		).new()
+		var label := "Classic spell %d" % int(spec["id"])
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(
+			spell.classic_spell_class,
+			spec["class"],
+			"%s source effect class" % label
+		)
+		_expect_equal(
+			spell.classic_target_type,
+			6,
+			"%s source target type" % label
+		)
+		_expect_equal(
+			spell.classic_spell_save_index,
+			spec["save"],
+			"%s save index" % label
+		)
+		_expect_equal(
+			spell.classic_spell_save_mode,
+			spec["mode"],
+			"%s save outcome" % label
+		)
+		_expect_equal(spell.get_range(2, null), spec["range"], "%s range" % label)
+		_expect_equal(
+			spell.get_min_damage(2, null),
+			spec["minimum"],
+			"%s minimum damage" % label
+		)
+		_expect_equal(
+			spell.get_max_damage(2, null),
+			spec["maximum"],
+			"%s maximum damage" % label
+		)
+		_expect_equal(spell.los, spec["los"], "%s line-of-sight rule" % label)
+		_expect_equal(spell.in_field, spec["field"], "%s field availability" % label)
+		_expect_equal(
+			int(spell.resist),
+			spec["resist"],
+			"%s general-resistance rule" % label
+		)
 
 
 func _test_item_actions() -> void:

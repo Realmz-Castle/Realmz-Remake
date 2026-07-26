@@ -7,8 +7,11 @@ const HelplessTrait = preload(
 
 func _init() -> void:
 	name = "Paralysis"
-	classic_spell_class = 4
+	classic_spell_class = 5
+	classic_target_type = 6
 	classic_spell_ids = [4210]
+	classic_spell_save_index = 5
+	classic_spell_save_mode = "negate"
 	description = "Paralysis: Renders one target helpless for one round per power."
 	attributes = ["Magical", "Mental"]
 	elements = [GameGlobal.ELEMENTS.MENTAL]

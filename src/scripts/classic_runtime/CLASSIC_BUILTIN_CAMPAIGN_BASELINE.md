@@ -28,10 +28,10 @@ records:
 | --- | ---: |
 | Campaign packages | 13 |
 | Packages loaded / preparation errors | 13 / 0 |
-| Ready / blocked | 0 / 13 |
-| Progression blockers | 611 |
+| Ready / blocked | 7 / 6 |
+| Progression blockers | 40 |
 | Fidelity fallbacks | 1,352 |
-| Active / inactive diagnostics | 4,852 / 184 |
+| Active / inactive diagnostics | 4,281 / 184 |
 | Files | 4,852 |
 | Installed footprint | 160,705,089 bytes (153.26 MiB) |
 | Per-file deflate estimate | 34,967,336 bytes (33.35 MiB) |
@@ -89,8 +89,22 @@ files are unchanged.
 
 The earlier `13/13 ready, 0 blockers, 836 fallbacks` UI aggregate and
 `732 blockers` standalone aggregate used different native resource preparation
-and are not certification baselines. With shared preparation, the authoritative
-result is 611 active progression blockers and 1,352 fallbacks. Of the inactive
+and are not certification baselines. The first shared-preparation baseline
+exposed 611 active progression blockers. Of those, 571 were audit-only save
+metadata gaps: the executable wrappers configured their saves through inherited
+initializers, while the exported-resource-safe catalog reads their script source
+without executing it. The catalog now fills only missing save fields for the
+built-in shared spells from the immutable `Data S` inventory. The stock
+class-4 breath, paralysis, and acid-spit resources also preserve their exact
+source IDs and mechanics instead of combining materially different variants.
+
+The authoritative result is now 40 active progression blockers and 1,352
+fallbacks. Thirty-five occurrences have no executable native resource: Arrow
+`4101` (12), Boulder `4114` (1), Dart of Poison `4202` (15), Arrow Storm `4406`
+(2), Improved Knowledge `4502` (2), Improved Judgment `4503` (1), Improved
+Agility `4506` (1), and Improved Brawn `4507` (1). Five Poison `4309`
+occurrences resolve only to a materially different variant. These remain
+explicit blockers rather than being treated as no-ops. Of the inactive
 diagnostics, 178 are preserved fallbacks or trailing data and 6 are
 producer-only media inventory; none are active consumers.
 
