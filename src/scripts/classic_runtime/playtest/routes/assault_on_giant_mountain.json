@@ -49,6 +49,7 @@
         "width": 320,
         "height": 320
       },
+      "detail": "The installed opening presents its picture and messages; sound 23400 remains an explicit absent-resource fallback",
       "sounds": [
         {
           "id": 23400,
@@ -118,42 +119,50 @@
     }
   ],
   "completionAnchor": {
-    "finalApproach": {
-      "triggerId": "Data DD:3:31",
-      "actions": [
-        {"slot": 0, "code": 9, "id": 26260},
-        {"slot": 1, "code": 1, "id": 901},
-        {"slot": 2, "code": 1, "id": 902},
-        {"slot": 3, "code": 1, "id": 903},
-        {"slot": 4, "code": 1, "id": 904},
-        {"slot": 5, "code": 1, "id": 905},
-        {"slot": 6, "code": 1, "id": 906},
-        {"slot": 7, "code": 39, "id": 135}
-      ]
-    },
-    "battleOutcome": {
-      "triggerId": "Data ED3:macro:135",
-      "actions": [
-        {"slot": 0, "code": 56, "id": 428},
-        {"slot": 1, "code": 1, "id": 907},
-        {"slot": 2, "code": 1, "id": 908},
-        {"slot": 3, "code": 12, "id": 429},
-        {"slot": 4, "code": 12, "id": 430},
-        {"slot": 5, "code": 12, "id": 431},
-        {"slot": 6, "code": 12, "id": 432},
-        {"slot": 7, "code": 39, "id": 163}
-      ],
-      "extraCodeId": 428,
-      "extraCodeValues": [274, 0, -1, 0, 0]
-    },
-    "triggerId": "Data ED3:macro:137",
-    "actions": [
-      {"slot": 2, "code": 1, "id": 911},
-      {"slot": 3, "code": 1, "id": 912},
-      {"slot": 4, "code": 10, "id": 77},
-      {"slot": 5, "code": 1, "id": 913},
-      {"slot": 6, "code": 9, "id": 20004},
-      {"slot": 7, "code": 1, "id": 914}
+    "triggers": [
+      {
+        "id": "final-approach",
+        "triggerId": "Data DD:3:31",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 26260},
+          {"slot": 1, "code": 1, "id": 901},
+          {"slot": 2, "code": 1, "id": 902},
+          {"slot": 3, "code": 1, "id": 903},
+          {"slot": 4, "code": 1, "id": 904},
+          {"slot": 5, "code": 1, "id": 905},
+          {"slot": 6, "code": 1, "id": 906},
+          {"slot": 7, "code": 39, "id": 135}
+        ]
+      },
+      {
+        "id": "battle-outcome",
+        "triggerId": "Data ED3:macro:135",
+        "actions": [
+          {"slot": 0, "code": 56, "id": 428},
+          {"slot": 1, "code": 1, "id": 907},
+          {"slot": 2, "code": 1, "id": 908},
+          {"slot": 3, "code": 12, "id": 429},
+          {"slot": 4, "code": 12, "id": 430},
+          {"slot": 5, "code": 12, "id": 431},
+          {"slot": 6, "code": 12, "id": 432},
+          {"slot": 7, "code": 39, "id": 163}
+        ]
+      },
+      {
+        "id": "epilogue",
+        "triggerId": "Data ED3:macro:137",
+        "actions": [
+          {"slot": 2, "code": 1, "id": 911},
+          {"slot": 3, "code": 1, "id": 912},
+          {"slot": 4, "code": 10, "id": 77},
+          {"slot": 5, "code": 1, "id": 913},
+          {"slot": 6, "code": 9, "id": 20004},
+          {"slot": 7, "code": 1, "id": 914}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 428, "values": [274, 0, -1, 0, 0]}
     ],
     "messages": [
       {
@@ -165,7 +174,7 @@
         "prefix": "You have accomplished the main goal behind this scenario."
       }
     ],
-    "battleId": 274,
+    "battleIds": [274],
     "classification": "source-anchor-only"
   }
 }

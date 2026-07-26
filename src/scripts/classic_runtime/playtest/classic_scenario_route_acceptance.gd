@@ -5,6 +5,7 @@ const SoundResolutionScript = preload(
 )
 
 const ACCEPTANCE_PROFILE := "Classic Scenario Route Acceptance"
+const STEP_TIMEOUT_MSEC := 30000
 
 var campaign_directory := ""
 var route_path := ""
@@ -260,6 +261,12 @@ func _verify_source_contract() -> bool:
 		):
 			_fail(stage, "The compiled trigger no longer matches the route contract")
 			return false
+		if not _dispatcher_noops_match(
+			trigger,
+			step.get("dispatcherNoops", []),
+		):
+			_fail(stage, "The compiled dispatcher fall-through evidence changed")
+			return false
 		if not _messages_match(step.get("messages", [])):
 			_fail(stage, "The compiled route messages no longer match their source IDs")
 			return false
@@ -273,62 +280,76 @@ func _verify_source_contract() -> bool:
 			"The route step matches its compiled source records",
 		)
 
+	return _verify_completion_source_contract()
+
+
+func _verify_completion_source_contract() -> bool:
 	var completion: Dictionary = route.get("completionAnchor", {})
-	var final_approach: Dictionary = completion.get("finalApproach", {})
-	var final_approach_trigger: Dictionary = (
-		campaign_session.install.bundle.get_trigger(
-			str(final_approach.get("triggerId", ""))
-		)
+	var trigger_specs: Array = completion.get("triggers", [])
+	var extra_code_specs: Array = completion.get("extraCodes", [])
+	var battle_ids: Array = completion.get("battleIds", [])
+	var trigger_ids: Array[String] = []
+	var extra_code_ids: Array[int] = []
+	var verified_battle_ids: Array[int] = []
+	var completion_valid := (
+		not trigger_specs.is_empty()
+			and not battle_ids.is_empty()
+			and str(completion.get("classification", ""))
+				== "source-anchor-only"
 	)
-	var battle_outcome: Dictionary = completion.get("battleOutcome", {})
-	var battle_outcome_trigger: Dictionary = (
-		campaign_session.install.bundle.get_trigger(
-			str(battle_outcome.get("triggerId", ""))
+	for trigger_value: Variant in trigger_specs:
+		if not (trigger_value is Dictionary):
+			completion_valid = false
+			continue
+		var trigger_spec: Dictionary = trigger_value
+		var trigger_id := str(trigger_spec.get("triggerId", ""))
+		var trigger: Dictionary = campaign_session.install.bundle.get_trigger(
+			trigger_id
 		)
-	)
-	var battle_outcome_extra: Dictionary = (
-		campaign_session.install.bundle.get_extra_code(
-			int(battle_outcome.get("extraCodeId", -1))
+		trigger_ids.append(trigger_id)
+		completion_valid = (
+			completion_valid
+				and not trigger.is_empty()
+				and _actions_match(
+					trigger.get("actions", []),
+					trigger_spec.get("actions", []),
+				)
 		)
-	)
-	var completion_trigger: Dictionary = (
-		campaign_session.install.bundle.get_trigger(
-			str(completion.get("triggerId", ""))
+	for extra_code_value: Variant in extra_code_specs:
+		if not (extra_code_value is Dictionary):
+			completion_valid = false
+			continue
+		var extra_code_spec: Dictionary = extra_code_value
+		var extra_code_id := int(extra_code_spec.get("id", -1))
+		var extra_code: Dictionary = (
+			campaign_session.install.bundle.get_extra_code(extra_code_id)
 		)
-	)
-	var completion_valid: bool = (
-		not final_approach_trigger.is_empty()
-			and _actions_match(
-				final_approach_trigger.get("actions", []),
-				final_approach.get("actions", []),
-			)
-			and not battle_outcome_trigger.is_empty()
-			and _actions_match(
-				battle_outcome_trigger.get("actions", []),
-				battle_outcome.get("actions", []),
-			)
-			and _integer_arrays_match(
-				battle_outcome_extra.get("values", []),
-				battle_outcome.get("extraCodeValues", []),
-			)
-			and not completion_trigger.is_empty()
-			and _actions_match(
-				completion_trigger.get("actions", []),
-				completion.get("actions", []),
-			)
+		extra_code_ids.append(extra_code_id)
+		completion_valid = (
+			completion_valid
+				and not extra_code.is_empty()
+				and _integer_arrays_match(
+					extra_code.get("values", []),
+					extra_code_spec.get("values", []),
+				)
+		)
+	for battle_id_value: Variant in battle_ids:
+		var battle_id := absi(int(battle_id_value))
+		verified_battle_ids.append(battle_id)
+		completion_valid = (
+			completion_valid
+				and not campaign_session.install.bundle.get_battle(
+					battle_id
+				).is_empty()
+		)
+	completion_valid = (
+		completion_valid
 			and _messages_match(completion.get("messages", []))
-			and not campaign_session.install.bundle.get_battle(
-				int(completion.get("battleId", -1))
-			).is_empty()
 	)
 	evidence["completionAnchor"] = {
-		"finalApproachTriggerId": str(final_approach.get("triggerId", "")),
-		"battleOutcomeTriggerId": str(battle_outcome.get("triggerId", "")),
-		"battleOutcomeExtraCodeId": int(
-			battle_outcome.get("extraCodeId", -1)
-		),
-		"triggerId": str(completion.get("triggerId", "")),
-		"battleId": int(completion.get("battleId", -1)),
+		"triggerIds": trigger_ids,
+		"extraCodeIds": extra_code_ids,
+		"battleIds": verified_battle_ids,
 		"classification": str(completion.get("classification", "")),
 		"sourceVerified": completion_valid,
 		"runtimeExercised": false,
@@ -336,7 +357,7 @@ func _verify_source_contract() -> bool:
 	_verify(
 		"completion-source-anchor",
 		completion_valid,
-		"The compiled completion macro and final battle remain source-identifiable",
+		"The compiled completion chain and final battle remain source-identifiable",
 	)
 	return failures.is_empty()
 
@@ -362,52 +383,16 @@ func _run_presentation_step(step: Dictionary) -> bool:
 		_fail(stage, "The presentation action list did not return to exploration")
 		return false
 
-	var sound_rows: Array = []
-	var sounds_valid := true
-	for sound_value: Variant in step.get("sounds", []):
-		if not (sound_value is Dictionary):
-			sounds_valid = false
-			continue
-		var expected: Dictionary = sound_value
-		var sound_id := int(expected.get("id", 0))
-		var sound: Dictionary = campaign_session.install.bundle.get_sound(sound_id)
-		var resolution: Dictionary = SoundResolutionScript.resolve(
-			sound_id,
-			sound,
-			SfxIdDivinity.mapping,
-		)
-		var valid := str(resolution.get("status", "")) \
-			== str(expected.get("status", ""))
-		for field: String in [
-			"nativeName",
-			"runtimeMediaPath",
-			"classicBehaviorIfAbsent",
-		]:
-			if expected.has(field) \
-					and str(resolution.get(field, "")) != str(expected.get(field, "")):
-				valid = false
-		sounds_valid = sounds_valid and valid
-		sound_rows.append({
-			"id": sound_id,
-			"status": str(resolution.get("status", "")),
-			"playable": bool(resolution.get("playable", false)),
-			"waitForCompletion": bool(
-				resolution.get("waitForCompletion", false)
-			),
-			"classicBehaviorIfAbsent": str(
-				resolution.get("classicBehaviorIfAbsent", "")
-			),
-		})
-	evidence["soundResolutions"] = sound_rows
+	var sounds_valid := _verify_sound_contract(step)
 	_verify(
 		stage,
 		sounds_valid
 			and not campaign_session.has_pending_continuation()
 			and StateMachine._state_name == "Exploration",
-		(
-			"The installed opening presents its picture and messages; sound 23400 "
-			+ "remains an explicit absent-resource fallback"
-		),
+		str(step.get(
+			"detail",
+			"The installed presentation completes through the native UI",
+		)),
 	)
 	return failures.is_empty()
 
@@ -429,6 +414,7 @@ func _run_battle_step(step: Dictionary) -> bool:
 		_fail(stage, "The source battle did not enter native combat")
 		return false
 
+	var sounds_valid := _verify_sound_contract(step)
 	var native_battle: Dictionary = NodeAccess.__Resources().battles_book.get(
 		"Battle_%d" % battle_id,
 		{},
@@ -457,7 +443,9 @@ func _run_battle_step(step: Dictionary) -> bool:
 	}
 	_verify(
 		stage,
-		roster_valid and bool(evidence["battle"]["battlefieldDrawable"]),
+		sounds_valid
+			and roster_valid
+			and bool(evidence["battle"]["battlefieldDrawable"]),
 		"The compiled formation materializes on a drawable native battlefield",
 	)
 	if not failures.is_empty():
@@ -489,6 +477,95 @@ func _run_battle_step(step: Dictionary) -> bool:
 		"Native victory returns to the authored route with no pending continuation",
 	)
 	return failures.is_empty()
+
+
+func _verify_sound_contract(step: Dictionary) -> bool:
+	var sound_rows: Array = evidence.get("soundResolutions", [])
+	var sounds_valid := true
+	for sound_value: Variant in step.get("sounds", []):
+		if not (sound_value is Dictionary):
+			sounds_valid = false
+			continue
+		var expected: Dictionary = sound_value
+		var sound_id := int(expected.get("id", 0))
+		var sound: Dictionary = campaign_session.install.bundle.get_sound(sound_id)
+		var resolution: Dictionary = SoundResolutionScript.resolve(
+			sound_id,
+			sound,
+			SfxIdDivinity.mapping,
+		)
+		var valid := str(resolution.get("status", "")) \
+			== str(expected.get("status", ""))
+		for field: String in [
+			"nativeName",
+			"runtimeMediaPath",
+			"classicBehaviorIfAbsent",
+		]:
+			if expected.has(field) \
+					and str(resolution.get(field, "")) != str(expected.get(field, "")):
+				valid = false
+		sounds_valid = sounds_valid and valid
+		var sound_row := {
+			"stepId": str(step.get("id", "")),
+			"id": sound_id,
+			"status": str(resolution.get("status", "")),
+			"playable": bool(resolution.get("playable", false)),
+			"waitForCompletion": bool(
+				resolution.get("waitForCompletion", false)
+			),
+			"classicBehaviorIfAbsent": str(
+				resolution.get("classicBehaviorIfAbsent", "")
+			),
+		}
+		for field: String in [
+			"nativeName",
+			"runtimeMediaPath",
+			"runtimeMediaType",
+		]:
+			if resolution.has(field):
+				sound_row[field] = str(resolution.get(field, ""))
+		sound_rows.append(sound_row)
+	evidence["soundResolutions"] = sound_rows
+	return sounds_valid
+
+
+func _dispatcher_noops_match(
+	trigger: Dictionary,
+	specifications_value: Variant
+) -> bool:
+	if not (specifications_value is Array):
+		return false
+	var specifications: Array = specifications_value
+	if specifications.is_empty():
+		return true
+	var evidence_rows: Array = evidence.get("dispatcherNoops", [])
+	for specification_value: Variant in specifications:
+		if not (specification_value is Dictionary):
+			return false
+		var specification: Dictionary = specification_value
+		var expected_slot := int(specification.get("slot", -1))
+		var expected_raw_code := int(specification.get("rawCode", 0))
+		var matched_action: Dictionary = {}
+		for action_value: Variant in trigger.get("actions", []):
+			if action_value is Dictionary \
+					and int(action_value.get("slot", -1)) == expected_slot \
+					and int(action_value.get("rawCode", 0)) == expected_raw_code:
+				matched_action = action_value
+				break
+		if matched_action.is_empty() \
+				or not campaign_session.install.bundle.is_dispatcher_noop(
+					trigger,
+					matched_action,
+				):
+			return false
+		evidence_rows.append({
+			"triggerId": str(trigger.get("id", "")),
+			"slot": expected_slot,
+			"rawCode": expected_raw_code,
+			"sourceVerified": true,
+		})
+	evidence["dispatcherNoops"] = evidence_rows
+	return true
 
 
 func _battle_source_matches(step: Dictionary) -> bool:
@@ -665,13 +742,14 @@ func _dismiss_message(prefix: String) -> bool:
 
 
 func _wait_for_message(prefix: String) -> bool:
-	for _frame: int in 600:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
 		if UI.ow_hud.textRect.visible \
 				and UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
 					prefix
 				):
 			return true
-		await get_tree().process_frame
+		await get_tree().create_timer(0.01).timeout
 	return false
 
 
@@ -791,4 +869,11 @@ func _finish() -> void:
 		print("CLASSIC_SCENARIO_ROUTE PASS: %s" % str(evidence.get("routeId", "")))
 	else:
 		print("CLASSIC_SCENARIO_ROUTE FAIL: %s" % str(evidence.get("routeId", "")))
+	SfxPlayer.stop()
+	SfxPlayer.stream = null
+	GameGlobal.stop_classic_campaign_runtime()
+	host = null
+	campaign_session = null
+	for _frame: int in 30:
+		await get_tree().process_frame
 	get_tree().quit(0 if failures.is_empty() else 1)

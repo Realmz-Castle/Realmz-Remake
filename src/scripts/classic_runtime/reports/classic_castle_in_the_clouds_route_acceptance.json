@@ -3,102 +3,91 @@
 		"map": "map_0",
 		"mapDrawable": true,
 		"nativePosition": {
-			"x": 48,
-			"y": 15
+			"x": 61,
+			"y": 66
 		},
 		"runtimePosition": {
 			"levelIndex": 0,
 			"levelType": "land",
-			"x": 48,
-			"y": 15
+			"x": 61,
+			"y": 66
 		}
 	},
 	"battle": {
 		"battlefieldDrawable": true,
 		"creatures": [
 			{
-				"count": 18,
-				"displayName": "Hob Goblin",
-				"monsterId": 92
-			},
-			{
-				"count": 5,
-				"displayName": "Hob Goblin Champion",
-				"monsterId": 129
-			},
-			{
-				"count": 6,
-				"displayName": "Hob Goblin Archer",
-				"monsterId": 130
+				"count": 4,
+				"displayName": "Cave Bear",
+				"monsterId": 27
 			}
 		],
-		"id": 60,
+		"id": 3,
 		"returnMap": "map_0",
 		"returnPosition": {
-			"x": 50,
-			"y": 62
+			"x": 39,
+			"y": 71
 		},
 		"rewardScreenPresented": true
 	},
-	"campaignDirectory": "Assault on Giant Mountain (Classic)",
-	"campaignId": "scenario-assault-on-giant-mountain",
-	"campaignName": "Assault on Giant Mountain (Classic)",
+	"campaignDirectory": "Castle in the Clouds (Classic)",
+	"campaignId": "scenario-castle-in-the-clouds",
+	"campaignName": "Castle in the Clouds (Classic)",
 	"completionAnchor": {
 		"battleIds": [
-			274
+			223
 		],
 		"classification": "source-anchor-only",
 		"extraCodeIds": [
-			428
+			2266
 		],
 		"runtimeExercised": false,
 		"sourceVerified": true,
 		"triggerIds": [
-			"Data DD:3:31",
-			"Data ED3:macro:135",
-			"Data ED3:macro:137"
+			"Data DD:1:31",
+			"Data DD:1:33",
+			"Data ED3:macro:223"
 		]
 	},
+	"dispatcherNoops": [
+		{
+			"rawCode": 200,
+			"slot": 4,
+			"sourceVerified": true,
+			"triggerId": "Data DD:0:1"
+		}
+	],
 	"failures": [],
-	"routeId": "assault-on-giant-mountain-opening-battle",
+	"routeId": "castle-in-the-clouds-opening-battle",
 	"schemaVersion": 1,
 	"selectedCharacter": "Cindred",
 	"selectionState": "Ready with fallbacks",
 	"soundResolutions": [
 		{
-			"classicBehaviorIfAbsent": "silent-noop",
-			"id": 23400,
-			"playable": false,
-			"status": "unresolved-external-classic-resource",
-			"stepId": "opening-presentation",
-			"waitForCompletion": false
-		},
-		{
 			"classicBehaviorIfAbsent": "",
-			"id": 24000,
-			"playable": true,
-			"runtimeMediaPath": "media/sounds/snd-24000-6e98c0ce2083.wav",
-			"runtimeMediaType": "audio/wav",
-			"status": "runtime-media",
-			"stepId": "opening-presentation",
-			"waitForCompletion": false
-		},
-		{
-			"classicBehaviorIfAbsent": "",
-			"id": 10049,
-			"nativeName": "angry mob.wav",
+			"id": -20004,
+			"nativeName": "hallelujah.wav",
 			"playable": true,
 			"status": "native-mapping",
-			"stepId": "opening-presentation",
-			"waitForCompletion": false
+			"stepId": "mcbane-arrival",
+			"waitForCompletion": true
 		},
 		{
 			"classicBehaviorIfAbsent": "",
-			"id": -10001,
-			"nativeName": "camp.wav",
+			"id": -30000,
+			"nativeName": "growl 1.wav",
 			"playable": true,
 			"status": "native-mapping",
-			"stepId": "opening-presentation",
+			"stepId": "cave-bear-battle",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -30002,
+			"nativeName": "growl 3.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "cave-bear-battle",
 			"waitForCompletion": true
 		}
 	],
@@ -120,12 +109,12 @@
 		},
 		{
 			"detail": "The route step matches its compiled source records",
-			"id": "opening-presentation-source",
+			"id": "mcbane-arrival-source",
 			"status": "passed"
 		},
 		{
 			"detail": "The route step matches its compiled source records",
-			"id": "goblin-hut-battle-source",
+			"id": "cave-bear-battle-source",
 			"status": "passed"
 		},
 		{
@@ -134,18 +123,18 @@
 			"status": "passed"
 		},
 		{
-			"detail": "The installed opening presents its picture and messages; sound 23400 remains an explicit absent-resource fallback",
-			"id": "opening-presentation",
+			"detail": "The installed McBane arrival presents its picture and message through the source-proven dispatcher fall-through",
+			"id": "mcbane-arrival",
 			"status": "passed"
 		},
 		{
 			"detail": "The compiled formation materializes on a drawable native battlefield",
-			"id": "goblin-hut-battle",
+			"id": "cave-bear-battle",
 			"status": "passed"
 		},
 		{
 			"detail": "Native victory returns to the authored route with no pending continuation",
-			"id": "goblin-hut-battle-victory",
+			"id": "cave-bear-battle-victory",
 			"status": "passed"
 		}
 	],

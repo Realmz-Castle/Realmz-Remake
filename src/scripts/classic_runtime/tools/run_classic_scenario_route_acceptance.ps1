@@ -51,15 +51,6 @@ $CampaignDirectory = [IO.Path]::GetFullPath($CampaignDirectory)
 $RoutePath = [IO.Path]::GetFullPath($RoutePath)
 $OutputPath = [IO.Path]::GetFullPath($OutputPath)
 $GodotPath = [IO.Path]::GetFullPath($GodotPath)
-if ($GodotPath.EndsWith("_console.exe", [StringComparison]::OrdinalIgnoreCase)) {
-    $directGodotPath = $GodotPath.Substring(
-        0,
-        $GodotPath.Length - "_console.exe".Length
-    ) + ".exe"
-    if (Test-Path -LiteralPath $directGodotPath) {
-        $GodotPath = $directGodotPath
-    }
-}
 
 foreach (
     $requiredPath in @(
@@ -89,7 +80,6 @@ $scene = "res://scripts/classic_runtime/playtest/" +
     "classic_scenario_route_acceptance.tscn"
 $arguments = @(
     "--headless",
-    "--single-threaded-scene",
     "--audio-driver",
     "Dummy",
     "--resolution",
@@ -135,12 +125,13 @@ try {
     foreach ($marker in $markers) {
         Write-Host $marker
     }
+    $processSucceeded = $completed -and $process.ExitCode -eq 0
     if (-not $completed) {
         Write-Host (
             "CLASSIC_SCENARIO_ROUTE FAIL: timed out after " +
             "$TimeoutSeconds seconds"
         )
-    } elseif ($process.ExitCode -ne 0) {
+    } elseif (-not $processSucceeded) {
         Write-Host "CLASSIC_SCENARIO_ROUTE process exit: $($process.ExitCode)"
         $runtimeErrors = @(
             $combined -split "\r?\n" |
@@ -157,6 +148,12 @@ try {
     if (-not (Test-Path -LiteralPath $phaseEvidencePath)) {
         Write-Host $combined
         throw "The acceptance process did not write route evidence."
+    }
+    if (-not $processSucceeded) {
+        throw (
+            "Classic scenario route process did not exit cleanly: " +
+            "$($process.ExitCode)"
+        )
     }
     $evidence = Get-Content -Raw -LiteralPath $phaseEvidencePath |
         ConvertFrom-Json

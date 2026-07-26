@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "routeId": "castle-in-the-clouds-opening-battle",
+  "campaignId": "scenario-castle-in-the-clouds",
+  "campaignDirectory": "Castle in the Clouds (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 61,
+    "y": 66
+  },
+  "steps": [
+    {
+      "id": "mcbane-arrival",
+      "kind": "presentation",
+      "triggerId": "Data DD:0:1",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 60,
+        "y": 67
+      },
+      "actions": [
+        {"slot": 0, "code": 27, "id": 32128},
+        {"slot": 1, "code": 9, "id": -20004},
+        {"slot": 2, "code": 1, "id": 1},
+        {"slot": 3, "code": 28, "id": 0},
+        {"slot": 4, "code": 200, "id": 0},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "messages": [
+        {
+          "id": 1,
+          "prefix": "You finally arrived at the gates of McBane City"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "The installed McBane arrival presents its picture and message through the source-proven dispatcher fall-through",
+      "dispatcherNoops": [
+        {"slot": 4, "rawCode": 200}
+      ],
+      "sounds": [
+        {
+          "id": -20004,
+          "status": "native-mapping",
+          "nativeName": "hallelujah.wav"
+        }
+      ]
+    },
+    {
+      "id": "cave-bear-battle",
+      "kind": "battle",
+      "triggerId": "Data DD:0:23",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 39,
+        "y": 71
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": -30000},
+        {"slot": 1, "code": 9, "id": -30002},
+        {"slot": 2, "code": 1, "id": 41},
+        {"slot": 3, "code": 2, "id": 251},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "messages": [
+        {
+          "id": 41,
+          "prefix": "Looks like you found a den of angry cave bears"
+        }
+      ],
+      "sounds": [
+        {
+          "id": -30000,
+          "status": "native-mapping",
+          "nativeName": "growl 1.wav"
+        },
+        {
+          "id": -30002,
+          "status": "native-mapping",
+          "nativeName": "growl 3.wav"
+        }
+      ],
+      "battleId": 3,
+      "creatures": [
+        {
+          "monsterId": 27,
+          "displayName": "Cave Bear",
+          "count": 4
+        }
+      ]
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "nufack-battle",
+        "triggerId": "Data DD:1:31",
+        "actions": [
+          {"slot": 0, "code": 46, "id": 2430},
+          {"slot": 2, "code": 1, "id": 840},
+          {"slot": 3, "code": 1, "id": 841},
+          {"slot": 4, "code": 9, "id": -26260},
+          {"slot": 5, "code": 1, "id": 842},
+          {"slot": 6, "code": 2, "id": 2266},
+          {"slot": 7, "code": 39, "id": 220}
+        ]
+      },
+      {
+        "id": "zukar-castle",
+        "triggerId": "Data DD:1:33",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 848},
+          {"slot": 1, "code": 1, "id": 849},
+          {"slot": 2, "code": 1, "id": 850},
+          {"slot": 3, "code": 1, "id": 851},
+          {"slot": 4, "code": 1, "id": 852},
+          {"slot": 5, "code": 9, "id": -10105},
+          {"slot": 6, "code": 1, "id": 894},
+          {"slot": 7, "code": 39, "id": 223}
+        ]
+      },
+      {
+        "id": "epilogue",
+        "triggerId": "Data ED3:macro:223",
+        "actions": [
+          {"slot": 0, "code": 10, "id": 71},
+          {"slot": 1, "code": 9, "id": -1100},
+          {"slot": 2, "code": 27, "id": 32128},
+          {"slot": 3, "code": 1, "id": 853},
+          {"slot": 4, "code": 1, "id": 895},
+          {"slot": 5, "code": 1, "id": 854},
+          {"slot": 6, "code": 28, "id": 0},
+          {"slot": 7, "code": 39, "id": 236}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 2266, "values": [-223, 0, 0, 0, 0]}
+    ],
+    "messages": [
+      {
+        "id": 842,
+        "prefix": "The enchanter laughs and says"
+      },
+      {
+        "id": 851,
+        "prefix": "\"It is imperative that whoever finds this note seek out the White Dragon"
+      },
+      {
+        "id": 852,
+        "prefix": "Then you realize that during your search for Zukar"
+      },
+      {
+        "id": 853,
+        "prefix": "Thank You for playing Castle in the Clouds"
+      },
+      {
+        "id": 895,
+        "prefix": "The Search for the White Dragon will be the title of my next scenario"
+      }
+    ],
+    "battleIds": [223],
+    "classification": "source-anchor-only"
+  }
+}

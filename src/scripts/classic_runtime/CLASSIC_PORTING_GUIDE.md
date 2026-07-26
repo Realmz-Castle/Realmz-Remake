@@ -22,7 +22,9 @@ The detailed sources behind this summary are:
 - [Classic campaign lifecycle acceptance](CLASSIC_CAMPAIGN_LIFECYCLE_ACCEPTANCE.md)
   for the shared 13-package launch, Save, and Continue boundary; and
 - [Assault on Giant Mountain acceptance](ASSAULT_ON_GIANT_MOUNTAIN_ACCEPTANCE.md)
-  for the second scenario's opening and native-battle checkpoint.
+  for the second scenario's opening and native-battle checkpoint; and
+- [Castle in the Clouds acceptance](CASTLE_IN_THE_CLOUDS_ACCEPTANCE.md)
+  for the third scenario's McBane arrival and Cave Bear battle checkpoint.
 
 ## Evidence ladder
 
