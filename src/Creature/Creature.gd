@@ -1815,7 +1815,8 @@ func get_save_string() -> String :
 			+ str(int(get_meta("classic_magic_resistance")))
 			+ ','
 		)
-	if get_meta("classic_spell_saves", null) is Array:
+	if has_meta("classic_spell_saves") \
+			and get_meta("classic_spell_saves") is Array:
 		savestring += (
 			'\n"classicSpellSaves" : '
 			+ JSON.stringify(get_meta("classic_spell_saves"))

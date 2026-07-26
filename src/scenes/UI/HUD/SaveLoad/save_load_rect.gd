@@ -399,6 +399,11 @@ func load_game(campaignname : String, savename : String) :
 	print("load_game : data_dict[currentmap_name] : ", data_dict["currentmap_name"])
 	
 	GameGlobal.init_globals_before_game_start(globals_dict)
+	# PlayerCharacter restores exact campaign item IDs during initialization.
+	# Load that catalog before deserializing the saved party.
+	print("campaignname currentcampaign : ", campaignname, '!=',prevCampaign+"? ",campaignname != prevCampaign )
+	if campaignname != prevCampaign :
+		await NodeAccess.__Resources().load_campaign_ressources(campaignname)
 	# load the player characters
 	var pcs_names_array : Array = data_dict["pc_order"]
 	GameGlobal.player_characters.clear()
@@ -408,11 +413,6 @@ func load_game(campaignname : String, savename : String) :
 		var pc : PlayerCharacter = Utils.FileHandler.load_character(charafolderpath+n)
 		GameGlobal.player_characters.append(pc)
 
-	
-	#reload resources for this scenario if  different
-	print("campaignname currentcampaign : ", campaignname, '!=',prevCampaign+"? ",campaignname != prevCampaign )
-	if campaignname != prevCampaign :
-		await NodeAccess.__Resources().load_campaign_ressources(campaignname)
 #	GameState._state = GameGlobal.eGameStates.startGame  #to do  GameState.DoStartGame
 	#StateMachine.transition_to("Exploration/ExWalking", {"load_campaign_msg" : {"initialize_campaign" : false}} )
 	#map exploration, done after loading resources

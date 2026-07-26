@@ -315,8 +315,23 @@ func _continue_installed_campaign() -> void:
 	var restored_state: ClassicRuntimeState = host.runtime.runtime_state
 	var restored_override := restored_state.get_action_point_override(MUTATED_TRIGGER_ID)
 	var shop: Dictionary = GameGlobal.get_shop(SHOP_NAME)
-	_verify_stage(
-		"13_disk_continue",
+	var continue_evidence := {
+		"campaign": GameGlobal.currentcampaign,
+		"save": GameGlobal.cur_save_name,
+		"map": GameGlobal.currentmap_name,
+		"position": _native_position(),
+		"map3": restored_state.is_map_owned(QUEST_MAP_ID),
+		"map4": restored_state.is_map_owned(4),
+		"map0": restored_state.is_map_owned(0),
+		"mapEntries": campaign_session.acquired_player_map_entries().size(),
+		"triggerPercent": restored_state.get_trigger_percent("land", 0, 17, -1),
+		"actionOverride": not restored_override.is_empty(),
+		"shopItem": _party_has_classic_item(SHOP_ITEM_ID),
+		"questItem": _party_has_classic_item(QUEST_ITEM_ID),
+		"shopQuantity": _shop_stock_quantity(shop),
+		"pendingContinuation": campaign_session.has_pending_continuation(),
+	}
+	var continue_valid := (
 		GameGlobal.currentcampaign == campaign_name
 			and GameGlobal.cur_save_name == ACCEPTANCE_SAVE
 			and GameGlobal.currentmap_name == "map_0"
@@ -330,8 +345,16 @@ func _continue_installed_campaign() -> void:
 			and _party_has_classic_item(SHOP_ITEM_ID)
 			and _party_has_classic_item(QUEST_ITEM_ID)
 			and _shop_stock_quantity(shop) == 83
-			and not campaign_session.has_pending_continuation(),
-		"a fresh process restores the native and Classic post-battle state from disk"
+			and not campaign_session.has_pending_continuation()
+	)
+	_verify_stage(
+		"13_disk_continue",
+		continue_valid,
+		(
+			"a fresh process restores the native and Classic post-battle state from disk"
+			if continue_valid
+			else "fresh-process state mismatch: %s" % str(continue_evidence)
+		)
 	)
 	if not smoke_failures.is_empty():
 		_finish_smoke()
@@ -628,6 +651,9 @@ func _launch_installed_campaign() -> bool:
 	if campaign_index < 0:
 		_fail("00_ui_launch", "the installed City package was not listed by the campaign menu")
 		return false
+	panel.campaignsItemList.select(campaign_index)
+	panel._on_campaign_selected(campaign_index)
+	await get_tree().process_frame
 	var metadata: Variant = panel.campaignsItemList.get_item_metadata(campaign_index)
 	var selection_rules: Dictionary = metadata.get("selectionRules", {}) \
 		if metadata is Dictionary else {}
@@ -641,14 +667,15 @@ func _launch_installed_campaign() -> bool:
 	if not smoke_failures.is_empty():
 		return false
 
-	panel.campaignsItemList.select(campaign_index)
-	panel._on_campaign_selected(campaign_index)
-	await get_tree().process_frame
 	var eligible_characters: Array[Node] = panel.charPickRect.eligibleContainer.get_children()
-	if eligible_characters.size() != 1 or eligible_characters[0].disabled:
+	var acceptance_character_button := _find_character_button(
+		eligible_characters,
+		"City Acceptance Rogue"
+	)
+	if acceptance_character_button == null or acceptance_character_button.disabled:
 		_fail("00_ui_launch", "the normal party picker did not accept the test character")
 		return false
-	panel.charPickRect._on_char_button_pressed(eligible_characters[0])
+	panel.charPickRect._on_char_button_pressed(acceptance_character_button)
 	panel.charPickRect._on_AddButton_pressed()
 	if panel.startButton.disabled:
 		_fail("00_ui_launch", "the normal party picker did not enable Start")
@@ -682,6 +709,17 @@ func _find_campaign_index(item_list: ItemList, campaign_name: String) -> int:
 		if metadata is Dictionary and metadata.get("campaignName") == campaign_name:
 			return item_index
 	return -1
+
+
+func _find_character_button(
+	buttons: Array[Node],
+	character_name: String
+) -> Node:
+	for button: Node in buttons:
+		var character: Variant = button.get("character")
+		if character != null and str(character.get("name")) == character_name:
+			return button
+	return null
 
 
 func _load_session() -> bool:

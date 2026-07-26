@@ -210,6 +210,14 @@ It did not exist after a fresh resource load, so Continue failed before creating
 the Classic session. New saves now omit that derived map, and the loader skips
 unknown map-exploration entries so existing affected saves can continue.
 
+The July 26 bundled-campaign rerun caught a second Continue ordering defect.
+Saved characters were deserialized before the selected campaign's item catalog,
+so exact references to items 806 and 807 were silently omitted even though both
+were present in the character JSON. Continue now loads campaign resources before
+the saved party. The acceptance scene also resolves the campaign's lazy preview
+before checking readiness and selects its named test character when the normal
+Classic stock roster is present.
+
 The smoke scene removes any loaded `Battle_45` entry in memory before starting
 the trigger. This makes the formation come from the producer bundle. The
 matching Krise remains a shared native Remake resource. Because the current
@@ -227,6 +235,10 @@ passes with no progression blocker and no pending Classic continuation.
 - The current clean installation has no known launch blocker. Its remaining
   fidelity diagnostics and unexercised routes still require playtest evidence;
   install readiness is not evidence that the campaign can be completed.
+- Loading the generic profile roster before selecting a campaign still reports
+  unresolved exact IDs for campaign-owned items. The saved campaign party now
+  restores those items correctly during Continue, but carrying them through the
+  cross-campaign character picker remains uncertified.
 - The authoritative export currently contains 21 shop rows. Five tail rows are
   not present in the older direct-converter baseline and include implausible
   values such as shop 20's negative inflation. These rows need a producer/source
