@@ -22,14 +22,34 @@ func configure_core_poison_spell(spell_id: int) -> bool:
 		push_error("Classic spell %d is not the special-10 Poison record" % spell_id)
 		return false
 	_configure_core_record(inventory, record)
+	_configure_poison_presentation(
+		(
+			"Poison: Deals 2 chemical damage and inflicts permanent poison for "
+			+ "2 damage per round or game hour until cured."
+		)
+	)
+	return true
+
+
+func configure_stock_poison_spell(record: Dictionary) -> bool:
+	if not _is_stock_poison_record(record):
+		push_error(
+			"Classic stock spell %d is not the permanent self-poison record"
+			% int(record.get("packedSpellId", 0))
+		)
+		return false
+	_configure_custom_record(record)
+	_configure_poison_presentation(
+		"Poison: Permanently poisons the user until cured."
+	)
+	return true
+
+
+func _configure_poison_presentation(poison_description: String) -> void:
 	attributes = ["Magical", "Chemical"]
 	if not tags.has("Poison"):
 		tags.append("Poison")
-	description = (
-		"Poison: Deals 2 chemical damage and inflicts permanent poison for "
-		+ "2 damage per round or game hour until cured."
-	)
-	return true
+	description = poison_description
 
 
 func begin_classic_target_resolution(caster, power: int) -> void:
@@ -69,3 +89,27 @@ func _is_poison_record(record: Dictionary) -> bool:
 		and int(record.get("duration2", 0)) == -2 \
 		and int(record.get("powerDuration1", 0)) == 0 \
 		and int(record.get("powerDuration2", 0)) == 0
+
+
+func _is_stock_poison_record(record: Dictionary) -> bool:
+	var spell_id := int(record.get("packedSpellId", 0))
+	if spell_id != 4309 \
+			or int(record.get("queueIcon", 0)) != 0 \
+			or int(record.get("cost", 0)) != 0 \
+			or absi(int(record.get("special", 0))) != 10 \
+			or absi(int(record.get("damageType", 0))) != 4 \
+			or absi(int(record.get("spellClass", 0))) != 4 \
+			or int(record.get("cannot", 0)) != 3 \
+			or int(record.get("targetType", -1)) != 5 \
+			or int(record.get("size", 0)) != 0 \
+			or not bool(record.get("inCombat", 0)) \
+			or not bool(record.get("inCamp", 0)):
+		return false
+	for field_name: String in [
+		"damage1", "damage2", "powerDamage1", "powerDamage2",
+		"powerDuration1", "powerDuration2",
+	]:
+		if int(record.get(field_name, 0)) != 0:
+			return false
+	return int(record.get("duration1", 0)) == -1 \
+		and int(record.get("duration2", 0)) == -1

@@ -108,6 +108,7 @@ var classic_prestige_penalty := 0
 var classic_spellcaster_type := 0
 var classic_spellcaster_type_initialized := false
 var classic_luck := 0
+var classic_luck_initialized := false
 var classic_gender := 0
 var classic_age_years := 0
 var classic_age_days := 0
@@ -183,13 +184,13 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 		set_classic_spellcaster_type(int(data["classicSpellcasterType"]))
 	elif data.has("classic_spellcaster_type"):
 		set_classic_spellcaster_type(int(data["classic_spellcaster_type"]))
-	if data.has("classicLuck") \
-			or data.has("classicGender") \
+	if data.has("classicLuck"):
+		set_classic_luck(int(data["classicLuck"]))
+	if data.has("classicGender") \
 			or data.has("classicAgeYears") \
 			or data.has("classicAgeDays") \
 			or data.has("classicAgeMovementAdjustment") \
 			or data.has("classicAgeGroup"):
-		classic_luck = int(data.get("classicLuck", 0))
 		classic_gender = int(data.get("classicGender", 0))
 		classic_age_years = int(data.get("classicAgeYears", 0))
 		classic_age_days = int(
@@ -442,6 +443,11 @@ func set_classic_spellcaster_type(value: int) -> void:
 		used_resource = "SP"
 
 
+func set_classic_luck(value: int) -> void:
+	classic_luck = value
+	classic_luck_initialized = true
+
+
 func set_classic_creation_spell_points(value: int) -> void:
 	base_stats["maxSP"] = maxi(0, value)
 	recalculate_stats()
@@ -458,7 +464,8 @@ func set_classic_creation_attributes(values: Dictionary) -> void:
 	]:
 		if values.has(stat_name):
 			base_stats[stat_name] = values[stat_name]
-	classic_luck = int(values.get("classicLuck", classic_luck))
+	if values.has("classicLuck"):
+		set_classic_luck(int(values["classicLuck"]))
 	classic_gender = int(values.get("classicGender", classic_gender))
 	classic_age_years = int(values.get("classicAgeYears", classic_age_years))
 	classic_age_days = int(
@@ -489,7 +496,8 @@ func set_classic_age_state(values: Dictionary) -> void:
 	if values.has("Bonus_Physical_dmg"):
 		base_stats["Bonus_Physical_dmg"] = values["Bonus_Physical_dmg"]
 		recalculate = true
-	classic_luck = int(values.get("classicLuck", classic_luck))
+	if values.has("classicLuck"):
+		set_classic_luck(int(values["classicLuck"]))
 	classic_age_days = int(values.get("classicAgeDays", classic_age_days))
 	classic_age_years = int(values.get("classicAgeYears", classic_age_years))
 	classic_age_group = int(values.get("classicAgeGroup", classic_age_group))
@@ -1011,8 +1019,9 @@ func get_save_string()->String :
 			',\n"classicSpellcasterType" : '
 			+ str(classic_spellcaster_type)
 		)
-	if classic_creation_demographics_initialized:
+	if classic_luck_initialized:
 		crea_string += (',\n"classicLuck" : '+ str(classic_luck))
+	if classic_creation_demographics_initialized:
 		crea_string += (',\n"classicGender" : '+ str(classic_gender))
 		crea_string += (',\n"classicAgeYears" : '+ str(classic_age_years))
 		crea_string += (',\n"classicAgeDays" : '+ str(classic_age_days))

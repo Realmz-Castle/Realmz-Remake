@@ -625,6 +625,7 @@ class CampaignRuleCharacter:
 	var classic_spellcaster_type := 0
 	var classic_spellcaster_type_initialized := false
 	var classic_luck := 0
+	var classic_luck_initialized := false
 	var classic_gender := 0
 	var classic_age_years := 0
 	var classic_age_days := 0
@@ -706,13 +707,13 @@ class CampaignRuleCharacter:
 			set_classic_spellcaster_type(
 				int(saved_data["classicSpellcasterType"])
 			)
-		if saved_data.has("classicLuck") \
-				or saved_data.has("classicGender") \
+		if saved_data.has("classicLuck"):
+			set_classic_luck(int(saved_data["classicLuck"]))
+		if saved_data.has("classicGender") \
 				or saved_data.has("classicAgeYears") \
 				or saved_data.has("classicAgeDays") \
 				or saved_data.has("classicAgeMovementAdjustment") \
 				or saved_data.has("classicAgeGroup"):
-			classic_luck = int(saved_data.get("classicLuck", 0))
 			classic_gender = int(saved_data.get("classicGender", 0))
 			classic_age_years = int(saved_data.get("classicAgeYears", 0))
 			classic_age_days = int(
@@ -797,6 +798,10 @@ class CampaignRuleCharacter:
 		if classic_spellcaster_type_initialized:
 			used_resource = "SP"
 
+	func set_classic_luck(value: int) -> void:
+		classic_luck = value
+		classic_luck_initialized = true
+
 	func set_classic_creation_spell_points(value: int) -> void:
 		base_stats["maxSP"] = maxi(0, value)
 		recalculate_stats()
@@ -812,7 +817,8 @@ class CampaignRuleCharacter:
 		]:
 			if values.has(stat_name):
 				base_stats[stat_name] = values[stat_name]
-		classic_luck = int(values.get("classicLuck", classic_luck))
+		if values.has("classicLuck"):
+			set_classic_luck(int(values["classicLuck"]))
 		classic_gender = int(values.get("classicGender", classic_gender))
 		classic_age_years = int(
 			values.get("classicAgeYears", classic_age_years)
@@ -844,7 +850,8 @@ class CampaignRuleCharacter:
 			base_stats["Bonus_Physical_dmg"] = values[
 				"Bonus_Physical_dmg"
 			]
-		classic_luck = int(values.get("classicLuck", classic_luck))
+		if values.has("classicLuck"):
+			set_classic_luck(int(values["classicLuck"]))
 		classic_age_days = int(
 			values.get("classicAgeDays", classic_age_days)
 		)
@@ -1137,8 +1144,9 @@ class CampaignRuleCharacter:
 			data["classicHandToHand"] = classic_hand_to_hand
 		if classic_spellcaster_type_initialized:
 			data["classicSpellcasterType"] = classic_spellcaster_type
-		if classic_creation_demographics_initialized:
+		if classic_luck_initialized:
 			data["classicLuck"] = classic_luck
+		if classic_creation_demographics_initialized:
 			data["classicGender"] = classic_gender
 			data["classicAgeYears"] = classic_age_years
 			data["classicAgeDays"] = classic_age_days
@@ -2543,6 +2551,7 @@ func _ready() -> void:
 	_test_spell_effect_actions(bundle)
 	_test_classic_spell_usage_audit()
 	_test_classic_stock_special_spells()
+	_test_classic_stock_item_spells()
 	_test_classic_identify_objects_spell()
 	_test_classic_lethal_spells()
 	_test_classic_transformation_spells()
@@ -25004,6 +25013,281 @@ func _test_classic_stock_special_spells() -> void:
 			spec["resist"],
 			"%s general-resistance rule" % label
 		)
+
+
+func _test_classic_stock_item_spells() -> void:
+	var missile_specs: Array[Dictionary] = [
+		{
+			"path": "classic_arrow_4101.gd",
+			"id": 4101,
+			"name": "Arrow",
+			"range": 20,
+			"minimum": 1,
+			"maximum": 6,
+			"special": 0,
+			"damage_type": 9,
+			"save": -1,
+			"mode": "none",
+			"fixed_targets": 1,
+			"record_index": 315,
+		},
+		{
+			"path": "classic_boulder_4114.gd",
+			"id": 4114,
+			"name": "Boulder",
+			"range": 12,
+			"minimum": 2,
+			"maximum": 12,
+			"special": 0,
+			"damage_type": 9,
+			"save": -1,
+			"mode": "none",
+			"fixed_targets": 1,
+			"record_index": 328,
+		},
+		{
+			"path": "classic_dart_of_poison_4202.gd",
+			"id": 4202,
+			"name": "Dart of Poison",
+			"range": 4,
+			"minimum": 1,
+			"maximum": 2,
+			"special": 10,
+			"damage_type": 4,
+			"save": 4,
+			"mode": "half_damage",
+			"fixed_targets": 0,
+			"record_index": 331,
+		},
+	]
+	for spec: Dictionary in missile_specs:
+		var spell: Variant = load(
+			"res://shared_assets/spells/%s" % spec["path"]
+		).new()
+		var label := "Classic stock spell %d" % int(spec["id"])
+		_expect_equal(spell.name, spec["name"], "%s name" % label)
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(spell.classic_spell_class, 9, "%s missile class" % label)
+		_expect_equal(spell.classic_target_type, 1, "%s target type" % label)
+		_expect_equal(spell.get_range(3, null), spec["range"], "%s range" % label)
+		_expect_equal(
+			spell.get_min_damage(3, null),
+			spec["minimum"],
+			"%s minimum damage" % label
+		)
+		_expect_equal(
+			spell.get_max_damage(3, null),
+			spec["maximum"],
+			"%s maximum damage" % label
+		)
+		_expect_equal(spell.classic_special, spec["special"], "%s special" % label)
+		_expect_equal(
+			spell.classic_damage_type,
+			spec["damage_type"],
+			"%s damage type" % label
+		)
+		_expect_equal(
+			spell.classic_spell_save_index,
+			spec["save"],
+			"%s save index" % label
+		)
+		_expect_equal(
+			spell.classic_spell_save_mode,
+			spec["mode"],
+			"%s save mode" % label
+		)
+		_expect_equal(
+			spell.classic_fixed_target_num,
+			spec["fixed_targets"],
+			"%s fixed-target count" % label
+		)
+		_expect(spell.in_combat and not spell.in_field, "%s availability" % label)
+		_expect_equal(
+			spell.source_record.get("sourceRecord", {}).get("recordIndex"),
+			spec["record_index"],
+			"%s Data S record" % label
+		)
+
+	var dart: Variant = load(
+		"res://shared_assets/spells/classic_dart_of_poison_4202.gd"
+	).new()
+	var dart_target := Creature.new()
+	dart_target.name = "Dart target"
+	dart.add_traits_to_creature(null, dart_target, 1)
+	_expect(
+		dart_target.traits.is_empty(),
+		"Dart of Poison's zero source duration does not invent a poison condition"
+	)
+
+	var poison: Variant = load(
+		"res://shared_assets/spells/classic_poison_4309.gd"
+	).new()
+	_expect_equal(poison.classic_spell_ids, [4309], "stock Poison exact ID")
+	_expect_equal(poison.classic_spell_class, 4, "stock Poison effect class")
+	_expect_equal(poison.classic_target_type, 5, "stock Poison self target")
+	_expect_equal(poison.classic_special, 10, "stock Poison special")
+	_expect_equal(poison.classic_spell_save_index, -1, "stock Poison bypasses saves")
+	_expect_equal(poison.classic_spell_save_mode, "none", "stock Poison save outcome")
+	_expect(poison.in_combat and poison.in_field, "stock Poison source availability")
+	_expect(poison.skip_targeting, "stock Poison automatically targets the user")
+	_expect_equal(poison.get_damage_roll(3, null), 0, "stock Poison deals no direct damage")
+	_expect_equal(poison.get_duration_roll(3, null), -1, "stock Poison is permanent")
+	_expect_equal(
+		poison.source_record.get("sourceRecord", {}).get("recordIndex"),
+		353,
+		"stock Poison preserves its Data S record"
+	)
+	var poison_target := DiseaseTestCharacter.new("Stock Poison target", true)
+	poison.begin_classic_target_resolution(null, 1)
+	poison.add_traits_to_creature(null, poison_target, 1)
+	poison.end_classic_target_resolution()
+	_expect_equal(poison_target.traits.size(), 1, "stock Poison applies one condition")
+	if not poison_target.traits.is_empty():
+		_expect_equal(
+			poison_target.traits[0].name,
+			"p_poison.gd",
+			"stock Poison uses the persistent poison trait"
+		)
+		_expect_equal(
+			poison_target.traits[0].get_saved_variables(),
+			[1],
+			"stock Poison preserves its source condition strength"
+		)
+
+	var attribute_specs: Array[Dictionary] = [
+		{
+			"path": "classic_improved_knowledge_4502.gd",
+			"id": 4502,
+			"name": "Improved Knowledge",
+			"size": 2,
+			"record_index": 376,
+		},
+		{
+			"path": "classic_improved_judgment_4503.gd",
+			"id": 4503,
+			"name": "Improved Judgment",
+			"size": 3,
+			"record_index": 377,
+		},
+		{
+			"path": "classic_improved_luck_4506.gd",
+			"id": 4506,
+			"name": "Improved Luck",
+			"size": 6,
+			"record_index": 380,
+		},
+	]
+	var attribute_spells: Dictionary = {}
+	for spec: Dictionary in attribute_specs:
+		var spell: Variant = load(
+			"res://shared_assets/spells/%s" % spec["path"]
+		).new()
+		attribute_spells[spec["id"]] = spell
+		var label := "Classic stock spell %d" % int(spec["id"])
+		_expect_equal(spell.name, spec["name"], "%s name" % label)
+		_expect_equal(spell.classic_spell_ids, [spec["id"]], "%s exact ID" % label)
+		_expect_equal(spell.classic_spell_class, 8, "%s effect class" % label)
+		_expect_equal(spell.classic_target_type, 5, "%s self target" % label)
+		_expect_equal(spell.classic_special, 66, "%s attribute special" % label)
+		_expect_equal(spell.classic_size, spec["size"], "%s attribute index" % label)
+		_expect_equal(spell.classic_damage_type, 8, "%s effect type" % label)
+		_expect_equal(spell.classic_spell_save_index, -1, "%s bypasses saves" % label)
+		_expect(not spell.in_combat and spell.in_field, "%s availability" % label)
+		_expect(spell.skip_targeting, "%s automatically targets the user" % label)
+		_expect(spell.is_generically_executable(), "%s is executable" % label)
+		_expect_equal(
+			spell.source_record.get("sourceRecord", {}).get("recordIndex"),
+			spec["record_index"],
+			"%s Data S record" % label
+		)
+
+	var attribute_target := CampaignRuleCharacter.new()
+	attribute_target.classic_rule_profile = {
+		"magicResistance": {
+			"casteMultiplier": 3,
+			"initialValue": 10,
+		},
+	}
+	attribute_target.set_classic_magic_resistance(10)
+	attribute_target.base_stats["Intellect"] = 15
+	var knowledge_result: Dictionary = attribute_spells[4502].apply_classic_attribute_improvement(
+		attribute_target
+	)
+	_expect_equal(knowledge_result.get("status"), "applied", "Improved Knowledge applies")
+	_expect_equal(
+		attribute_target.base_stats["Intellect"],
+		16,
+		"Improved Knowledge raises Intellect by one"
+	)
+	_expect_equal(
+		attribute_target.classic_magic_resistance,
+		13,
+		"Improved Knowledge adds the caste magic-resistance value above 15"
+	)
+	attribute_target.base_stats["Intellect"] = 25
+	var capped_knowledge: Dictionary = attribute_spells[4502].apply_classic_attribute_improvement(
+		attribute_target
+	)
+	_expect_equal(capped_knowledge.get("status"), "capped", "Improved Knowledge honors the source cap")
+	_expect_equal(
+		attribute_target.classic_magic_resistance,
+		13,
+		"a capped Knowledge use does not add magic resistance"
+	)
+
+	attribute_target.base_stats["Wisdom"] = 14
+	var judgment_result: Dictionary = attribute_spells[4503].apply_classic_attribute_improvement(
+		attribute_target
+	)
+	_expect_equal(judgment_result.get("status"), "applied", "Improved Judgment applies")
+	_expect_equal(
+		attribute_target.base_stats["Wisdom"],
+		15,
+		"Improved Judgment raises Wisdom by one"
+	)
+	_expect_equal(
+		attribute_target.classic_magic_resistance,
+		13,
+		"Judgment at 15 does not add magic resistance"
+	)
+	attribute_spells[4503].apply_classic_attribute_improvement(attribute_target)
+	_expect_equal(
+		attribute_target.classic_magic_resistance,
+		16,
+		"Improved Judgment adds the caste magic-resistance value above 15"
+	)
+
+	attribute_target.classic_luck = 24
+	attribute_target.classic_luck_initialized = false
+	var luck_result: Dictionary = attribute_spells[4506].apply_classic_attribute_improvement(
+		attribute_target
+	)
+	_expect_equal(luck_result.get("status"), "applied", "Improved Luck applies")
+	_expect_equal(attribute_target.classic_luck, 25, "Improved Luck raises Luck by one")
+	_expect(
+		attribute_target.classic_luck_initialized,
+		"Improved Luck marks its compatibility value for ordinary saves"
+	)
+	var luck_save: Dictionary = attribute_target.save_data()
+	_expect_equal(luck_save.get("classicLuck"), 25, "Improved Luck survives an ordinary save")
+	var restored_luck_target := CampaignRuleCharacter.new(luck_save)
+	_expect_equal(restored_luck_target.classic_luck, 25, "Improved Luck survives reload")
+	_expect(
+		not restored_luck_target.classic_creation_demographics_initialized,
+		"a Luck-only save does not invent Classic age or gender state"
+	)
+	var capped_luck: Dictionary = attribute_spells[4506].apply_classic_attribute_improvement(
+		restored_luck_target
+	)
+	_expect_equal(capped_luck.get("status"), "capped", "Improved Luck honors the source cap")
+
+	var spell_names: Node = load("res://scripts/spells_id_divinity.gd").new()
+	_expect_equal(
+		spell_names.mappings.get("40045"),
+		"Improved Luck",
+		"stock spell 4506 uses its source Luck attribute"
+	)
+	spell_names.free()
 
 
 func _test_item_actions() -> void:

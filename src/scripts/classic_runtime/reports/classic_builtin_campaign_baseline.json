@@ -130,7 +130,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -165,7 +165,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -410,22 +410,6 @@
 						"source": "Data DD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-assault-on-giant-mountain",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Improved Knowledge' has no executable Remake resource",
-						"nativeName": "Improved Knowledge",
-						"opcode": 17,
-						"recordId": "Data DD:6:13",
-						"recordIndex": 13,
-						"referenceId": 4502,
-						"scenario": "Assault on Giant Mountain (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DD"
 					},
 					{
 						"activity": "active",
@@ -1007,11 +991,11 @@
 				"ready": false,
 				"schemaVersion": 1,
 				"status": "blocked",
-				"summary": "Blocked: 3 progression blockers; 5 fidelity fallbacks.",
+				"summary": "Blocked: 2 progression blockers; 5 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 41,
+					"diagnostics": 40,
 					"fidelityFallbacks": 5,
-					"progressionBlockers": 3
+					"progressionBlockers": 2
 				}
 			}
 		},
@@ -1134,7 +1118,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -1169,7 +1153,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -2658,7 +2642,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -2693,7 +2677,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -4401,7 +4385,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -4436,7 +4420,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -7571,8 +7555,8 @@
 			"install": {
 				"error": "",
 				"loaded": true,
-				"selectionState": "Blocked",
-				"selectionValid": false,
+				"selectionState": "Ready with fallbacks",
+				"selectionValid": true,
 				"startDiagnostic": ""
 			},
 			"name": "Grilochs Revenge (Classic)",
@@ -7610,7 +7594,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -7645,7 +7629,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -10502,20 +10486,6 @@
 						"source": "Data ED3",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-grilochs-revenge",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Boulder' has no executable Remake resource",
-						"nativeName": "Boulder",
-						"ownerId": 48,
-						"recordIndex": 48,
-						"referenceId": 4114,
-						"scenario": "Grilochs Revenge (Classic)",
-						"severity": "error",
-						"source": "Data MD"
 					}
 				],
 				"execution": {
@@ -10528,14 +10498,14 @@
 					"unknown": 2,
 					"unknownExecutable": 0
 				},
-				"ready": false,
+				"ready": true,
 				"schemaVersion": 1,
-				"status": "blocked",
-				"summary": "Blocked: 1 progression blocker; 35 fidelity fallbacks.",
+				"status": "ready",
+				"summary": "Ready: no progression blockers; 35 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 137,
+					"diagnostics": 136,
 					"fidelityFallbacks": 35,
-					"progressionBlockers": 1
+					"progressionBlockers": 0
 				}
 			}
 		},
@@ -10673,7 +10643,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -10708,7 +10678,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -15281,7 +15251,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -15316,7 +15286,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -18633,54 +18603,6 @@
 						"recordId": "Data ED3:macro:200",
 						"recordIndex": 200,
 						"referenceId": 4507,
-						"scenario": "Mithril Vault (Classic)",
-						"severity": "error",
-						"slot": 1,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-mithril-vault",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Improved Agility' has no executable Remake resource",
-						"nativeName": "Improved Agility",
-						"opcode": 17,
-						"recordId": "Data ED3:macro:201",
-						"recordIndex": 201,
-						"referenceId": 4506,
-						"scenario": "Mithril Vault (Classic)",
-						"severity": "error",
-						"slot": 1,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-mithril-vault",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Improved Knowledge' has no executable Remake resource",
-						"nativeName": "Improved Knowledge",
-						"opcode": 17,
-						"recordId": "Data ED3:macro:202",
-						"recordIndex": 202,
-						"referenceId": 4502,
-						"scenario": "Mithril Vault (Classic)",
-						"severity": "error",
-						"slot": 1,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-mithril-vault",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Improved Judgment' has no executable Remake resource",
-						"nativeName": "Improved Judgment",
-						"opcode": 17,
-						"recordId": "Data ED3:macro:203",
-						"recordIndex": 203,
-						"referenceId": 4503,
 						"scenario": "Mithril Vault (Classic)",
 						"severity": "error",
 						"slot": 1,
@@ -23100,11 +23022,11 @@
 				"ready": false,
 				"schemaVersion": 1,
 				"status": "blocked",
-				"summary": "Blocked: 4 progression blockers; 238 fidelity fallbacks.",
+				"summary": "Blocked: 1 progression blocker; 238 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 377,
+					"diagnostics": 374,
 					"fidelityFallbacks": 238,
-					"progressionBlockers": 4
+					"progressionBlockers": 1
 				}
 			}
 		},
@@ -23237,7 +23159,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -23272,7 +23194,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -24092,8 +24014,8 @@
 			"install": {
 				"error": "",
 				"loaded": true,
-				"selectionState": "Blocked",
-				"selectionValid": false,
+				"selectionState": "Ready with fallbacks",
+				"selectionValid": true,
 				"startDiagnostic": ""
 			},
 			"name": "Trouble in the Sword Lands (Classic)",
@@ -24131,7 +24053,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -24166,7 +24088,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -24417,22 +24339,6 @@
 						"source": "Data DD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data DD:0:29",
-						"recordIndex": 29,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 3,
-						"source": "Data DD"
 					},
 					{
 						"activity": "active",
@@ -31605,38 +31511,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data DD:1:88",
-						"recordIndex": 88,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data DD:1:97",
-						"recordIndex": 97,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -1100 waits for playback to finish",
@@ -34507,22 +34381,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data DD:7:51",
-						"recordIndex": 51,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -1100 waits for playback to finish",
@@ -34783,22 +34641,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data DD:7:87",
-						"recordIndex": 87,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -133 waits for playback to finish",
@@ -34835,22 +34677,6 @@
 						"source": "Data DD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data DD:7:99",
-						"recordIndex": 99,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DD"
 					},
 					{
 						"activity": "active",
@@ -54436,54 +54262,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:758",
-						"recordIndex": 758,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 2,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:758",
-						"recordIndex": 758,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 3,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:758",
-						"recordIndex": 758,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -26260 waits for playback to finish",
@@ -56524,22 +56302,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:98",
-						"recordIndex": 98,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 2,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -1101 waits for playback to finish",
@@ -56636,22 +56398,6 @@
 						"source": "Data ED3",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-trouble-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:99",
-						"recordIndex": 99,
-						"referenceId": 4101,
-						"scenario": "Trouble in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
 					},
 					{
 						"activity": "active",
@@ -56820,14 +56566,14 @@
 					"unknown": 0,
 					"unknownExecutable": 0
 				},
-				"ready": false,
+				"ready": true,
 				"schemaVersion": 1,
-				"status": "blocked",
-				"summary": "Blocked: 11 progression blockers; 120 fidelity fallbacks.",
+				"status": "ready",
+				"summary": "Ready: no progression blockers; 120 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 1609,
+					"diagnostics": 1598,
 					"fidelityFallbacks": 120,
-					"progressionBlockers": 11
+					"progressionBlockers": 0
 				}
 			}
 		},
@@ -56965,7 +56711,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -57000,7 +56746,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -59887,8 +59633,8 @@
 			"install": {
 				"error": "",
 				"loaded": true,
-				"selectionState": "Blocked",
-				"selectionValid": false,
+				"selectionState": "Ready with fallbacks",
+				"selectionValid": true,
 				"startDiagnostic": ""
 			},
 			"name": "War in the Sword Lands (Classic)",
@@ -59926,7 +59672,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -59961,7 +59707,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -61832,22 +61578,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "unsupported-native-spell-variant",
-						"message": "Mapped spell 'Poison' does not represent Classic spell 4309",
-						"nativeName": "Poison",
-						"opcode": 17,
-						"recordId": "Data DD:19:49",
-						"recordIndex": 49,
-						"referenceId": 4309,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data DD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -604 waits for playback to finish",
@@ -63145,22 +62875,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "unsupported-native-spell-variant",
-						"message": "Mapped spell 'Poison' does not represent Classic spell 4309",
-						"nativeName": "Poison",
-						"opcode": 17,
-						"recordId": "Data DD:7:4",
-						"recordIndex": 4,
-						"referenceId": 4309,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data DD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -132 waits for playback to finish",
@@ -63377,22 +63091,6 @@
 						"source": "Data DD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "unsupported-native-spell-variant",
-						"message": "Mapped spell 'Poison' does not represent Classic spell 4309",
-						"nativeName": "Poison",
-						"opcode": 17,
-						"recordId": "Data DD:7:55",
-						"recordIndex": 55,
-						"referenceId": 4309,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DD"
 					},
 					{
 						"activity": "active",
@@ -63903,22 +63601,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data DDD:1:2",
-						"recordIndex": 2,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 3,
-						"source": "Data DDD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -134 waits for playback to finish",
@@ -63955,22 +63637,6 @@
 						"source": "Data DDD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data DDD:1:3",
-						"recordIndex": 3,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 3,
-						"source": "Data DDD"
 					},
 					{
 						"activity": "active",
@@ -64036,22 +63702,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data DDD:1:62",
-						"recordIndex": 62,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data DDD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -643 waits for playback to finish",
@@ -64072,22 +63722,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data DDD:1:63",
-						"recordIndex": 63,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data DDD"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -643 waits for playback to finish",
@@ -64104,22 +63738,6 @@
 						"source": "Data DDD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data DDD:1:64",
-						"recordIndex": 64,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data DDD"
 					},
 					{
 						"activity": "active",
@@ -64140,22 +63758,6 @@
 						"source": "Data DDD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data DDD:1:88",
-						"recordIndex": 88,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data DDD"
 					},
 					{
 						"activity": "active",
@@ -65587,22 +65189,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1246",
-						"recordIndex": 1246,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -643 waits for playback to finish",
@@ -65619,22 +65205,6 @@
 						"source": "Data ED3",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1248",
-						"recordIndex": 1248,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
 					},
 					{
 						"activity": "active",
@@ -66227,22 +65797,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1330",
-						"recordIndex": 1330,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -643 waits for playback to finish",
@@ -66259,22 +65813,6 @@
 						"source": "Data ED3",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1333",
-						"recordIndex": 1333,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
 					},
 					{
 						"activity": "active",
@@ -66299,22 +65837,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1336",
-						"recordIndex": 1336,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -643 waits for playback to finish",
@@ -66331,22 +65853,6 @@
 						"source": "Data ED3",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1339",
-						"recordIndex": 1339,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
 					},
 					{
 						"activity": "active",
@@ -66371,22 +65877,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1342",
-						"recordIndex": 1342,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -643 waits for playback to finish",
@@ -66403,22 +65893,6 @@
 						"source": "Data ED3",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1345",
-						"recordIndex": 1345,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 4,
-						"source": "Data ED3"
 					},
 					{
 						"activity": "active",
@@ -67478,22 +66952,6 @@
 						"scenario": "War in the Sword Lands (Classic)",
 						"severity": "warning",
 						"slot": 4,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Dart of Poison' has no executable Remake resource",
-						"nativeName": "Dart of Poison",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:1467",
-						"recordIndex": 1467,
-						"referenceId": 4202,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 0,
 						"source": "Data ED3"
 					},
 					{
@@ -75087,22 +74545,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow' has no executable Remake resource",
-						"nativeName": "Arrow",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:3542",
-						"recordIndex": 3542,
-						"referenceId": 4101,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 0,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
 						"classification": "fidelity-fallback",
 						"code": "classic-monster-icon-stock-family-jewels-pair",
 						"fallbackFields": [
@@ -76390,22 +75832,6 @@
 						"source": "Data ED3",
 						"status": "runtime-media",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-war-in-the-sword-lands",
-						"classification": "progression-blocker",
-						"code": "unsupported-native-spell-variant",
-						"message": "Mapped spell 'Poison' does not represent Classic spell 4309",
-						"nativeName": "Poison",
-						"opcode": 17,
-						"recordId": "Data ED3:macro:483",
-						"recordIndex": 483,
-						"referenceId": 4309,
-						"scenario": "War in the Sword Lands (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data ED3"
 					},
 					{
 						"activity": "active",
@@ -79899,14 +79325,14 @@
 					"unknown": 35,
 					"unknownExecutable": 0
 				},
-				"ready": false,
+				"ready": true,
 				"schemaVersion": 1,
-				"status": "blocked",
-				"summary": "Blocked: 20 progression blockers; 420 fidelity fallbacks.",
+				"status": "ready",
+				"summary": "Ready: no progression blockers; 420 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 929,
+					"diagnostics": 909,
 					"fidelityFallbacks": 420,
-					"progressionBlockers": 20
+					"progressionBlockers": 0
 				}
 			}
 		},
@@ -80029,7 +79455,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -80064,7 +79490,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -82719,8 +82145,8 @@
 			"install": {
 				"error": "",
 				"loaded": true,
-				"selectionState": "Blocked",
-				"selectionValid": false,
+				"selectionState": "Ready with fallbacks",
+				"selectionValid": true,
 				"startDiagnostic": ""
 			},
 			"name": "Wrath of the Mind Lords (Classic)",
@@ -82758,7 +82184,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 236,
+						"entriesRead": 243,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -82793,7 +82219,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 236
+					"spells": 243
 				}
 			},
 			"readiness": {
@@ -85050,22 +84476,6 @@
 						"source": "Data DD",
 						"status": "native-mapping",
 						"waitForCompletion": true
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-wrath-of-the-mind-lords",
-						"classification": "progression-blocker",
-						"code": "unsupported-native-spell-variant",
-						"message": "Mapped spell 'Poison' does not represent Classic spell 4309",
-						"nativeName": "Poison",
-						"opcode": 17,
-						"recordId": "Data DD:18:2",
-						"recordIndex": 2,
-						"referenceId": 4309,
-						"scenario": "Wrath of the Mind Lords (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data DD"
 					},
 					{
 						"activity": "active",
@@ -95600,14 +95010,14 @@
 					"unknown": 6,
 					"unknownExecutable": 0
 				},
-				"ready": false,
+				"ready": true,
 				"schemaVersion": 1,
-				"status": "blocked",
-				"summary": "Blocked: 1 progression blocker; 292 fidelity fallbacks.",
+				"status": "ready",
+				"summary": "Ready: no progression blockers; 292 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 593,
+					"diagnostics": 592,
 					"fidelityFallbacks": 292,
-					"progressionBlockers": 1
+					"progressionBlockers": 0
 				}
 			}
 		}
@@ -95667,13 +95077,13 @@
 	},
 	"diagnosticBreakdown": {
 		"byActivity": {
-			"active": 4281,
+			"active": 4244,
 			"inactive": 184
 		},
 		"byClassification": {
 			"fidelity-fallback": 1352,
 			"inventory": 6,
-			"progression-blocker": 40,
+			"progression-blocker": 3,
 			"source-behavior": 3067
 		},
 		"byCode": {
@@ -95769,11 +95179,11 @@
 				"progressionBlockers": 0
 			},
 			"missing-native-spell": {
-				"active": 35,
-				"diagnostics": 35,
+				"active": 3,
+				"diagnostics": 3,
 				"fidelityFallbacks": 0,
 				"inactive": 0,
-				"progressionBlockers": 35
+				"progressionBlockers": 3
 			},
 			"native-monster-fidelity-fallback": {
 				"active": 521,
@@ -95809,13 +95219,6 @@
 				"fidelityFallbacks": 3,
 				"inactive": 0,
 				"progressionBlockers": 0
-			},
-			"unsupported-native-spell-variant": {
-				"active": 5,
-				"diagnostics": 5,
-				"fidelityFallbacks": 0,
-				"inactive": 0,
-				"progressionBlockers": 5
 			}
 		}
 	},
@@ -123800,12 +123203,12 @@
 	},
 	"status": "blocked",
 	"totals": {
-		"activeDiagnostics": 4281,
-		"blockedCampaigns": 6,
+		"activeDiagnostics": 4244,
+		"blockedCampaigns": 2,
 		"campaigns": 13,
 		"compressedEstimateBytes": 34967336,
 		"crossCampaignDuplicateBytes": 8047692,
-		"diagnostics": 4465,
+		"diagnostics": 4428,
 		"duplicateBytes": 8149781,
 		"fidelityFallbacks": 1352,
 		"files": 4852,
@@ -123815,8 +123218,8 @@
 		"jsonBytes": 118381154,
 		"jsonFiles": 829,
 		"preparationErrors": 0,
-		"progressionBlockers": 40,
-		"readyCampaigns": 7,
+		"progressionBlockers": 3,
+		"readyCampaigns": 11,
 		"sharedStoreBytes": 2199897,
 		"sharedStoreFiles": 21
 	}

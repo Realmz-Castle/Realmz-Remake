@@ -2618,6 +2618,97 @@ static func _magic_resistance_profile(
 	return result
 
 
+static func apply_attribute_improvement(
+	character: Variant,
+	source_size: int
+) -> Dictionary:
+	if not (character is Object):
+		return {
+			"status": "error",
+			"message": "Classic attribute improvement target is invalid.",
+		}
+	if source_size == 6:
+		if not _has_property(character, "classic_luck"):
+			return {
+				"status": "error",
+				"message": "Classic Luck target has no compatibility value.",
+			}
+		var current_luck := int(_value(character, "classic_luck", 0))
+		if current_luck >= 25:
+			return {"status": "capped", "sourceSize": source_size}
+		if character.has_method("set_classic_luck"):
+			character.call("set_classic_luck", current_luck + 1)
+		else:
+			character.set("classic_luck", current_luck + 1)
+		return {
+			"status": "applied",
+			"sourceSize": source_size,
+			"stat": "Luck",
+			"previous": current_luck,
+			"current": current_luck + 1,
+			"magicResistanceBonus": 0,
+		}
+
+	var stat_name := str({
+		2: "Intellect",
+		3: "Wisdom",
+	}.get(source_size, ""))
+	if stat_name.is_empty():
+		return {
+			"status": "error",
+			"message": (
+				"Classic attribute improvement size %d is unsupported."
+				% source_size
+			),
+		}
+	var base_stats_value: Variant = _value(character, "base_stats", {})
+	if not (base_stats_value is Dictionary) \
+			or not base_stats_value.has(stat_name):
+		return {
+			"status": "error",
+			"message": (
+				"Classic attribute improvement target has no %s value."
+				% stat_name
+			),
+		}
+	var base_stats: Dictionary = base_stats_value
+	var previous := int(base_stats[stat_name])
+	if previous >= 25:
+		return {"status": "capped", "sourceSize": source_size, "stat": stat_name}
+	var current := previous + 1
+	base_stats[stat_name] = current
+	if character.has_method("recalculate_stats"):
+		character.call("recalculate_stats")
+
+	var magic_resistance_bonus := 0
+	if current > 15:
+		var profile := _dictionary_value(
+			_value(character, "classic_rule_profile", {})
+		)
+		var magic_resistance := _dictionary_value(
+			profile.get("magicResistance", {})
+		)
+		if not magic_resistance.is_empty():
+			_sync_magic_resistance(character, profile)
+			magic_resistance_bonus = int(
+				magic_resistance.get("casteMultiplier", 0)
+			)
+			if _has_magic_resistance(character):
+				_store_magic_resistance(
+					character,
+					_current_magic_resistance(character)
+						+ magic_resistance_bonus
+				)
+	return {
+		"status": "applied",
+		"sourceSize": source_size,
+		"stat": stat_name,
+		"previous": previous,
+		"current": current,
+		"magicResistanceBonus": magic_resistance_bonus,
+	}
+
+
 static func apply_level_up_magic_resistance(
 	character: Variant,
 	roll: int = -1
