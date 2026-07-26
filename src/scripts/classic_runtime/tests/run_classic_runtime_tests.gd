@@ -81,6 +81,12 @@ const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.g
 const CampaignInstallScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
+const NativeContextBuilderScript = preload(
+	"res://scripts/classic_runtime/classic_native_context_builder.gd"
+)
+const CampaignCorpusReportScript = preload(
+	"res://scripts/classic_runtime/classic_campaign_corpus_report.gd"
+)
 const CampaignAdmissionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_admission.gd"
 )
@@ -2460,6 +2466,7 @@ func _ready() -> void:
 	_test_bundle_contract_validation()
 	_test_providence_authoritative_export()
 	_test_installed_classic_campaign_layout()
+	_test_classic_native_context_and_corpus_report()
 	_test_classic_campaign_admission()
 	_test_classic_character_rule_profile()
 	_test_classic_map_materializer()
@@ -4252,6 +4259,219 @@ func _test_installed_classic_campaign_layout() -> void:
 	restored_session.queue_free()
 	session.clear()
 	session.queue_free()
+
+
+func _test_classic_native_context_and_corpus_report() -> void:
+	var campaigns_directory := CAMPAIGN_UI_SMOKE_FIXTURE.get_base_dir()
+	var campaign_name := CAMPAIGN_UI_SMOKE_FIXTURE.get_file()
+	var install = CampaignInstallScript.new()
+	_expect(
+		install.load_from_campaigns_directory(campaigns_directory, campaign_name),
+		"shared native context fixture loads through the campaign installer"
+	)
+	if not install.last_error.is_empty():
+		return
+	var context_result: Dictionary = NativeContextBuilderScript.new().build(
+		CAMPAIGN_UI_SMOKE_FIXTURE
+	)
+	_expect(
+		bool(context_result.get("ok", false)),
+		"shared native context builder prepares the UI campaign resource context"
+	)
+	_expect(
+		not NativeContextBuilderScript.public_report(context_result).has("context"),
+		"public native preparation report omits the materialized resource objects"
+	)
+	_expect_equal(
+		ReadinessScript.new().inspect(
+			install.bundle,
+			context_result.get("context", {})
+		),
+		install.readiness_report,
+		"installer and direct readiness audit use the same native resource context"
+	)
+	_expect_equal(
+		install.native_context_report,
+		NativeContextBuilderScript.public_report(context_result),
+		"installer exposes the shared native preparation evidence"
+	)
+
+	var empty_root := "user://classic-native-context-%d" % Time.get_ticks_usec()
+	var empty_campaign := empty_root.path_join("Campaign")
+	var empty_shared := empty_root.path_join("Shared")
+	DirAccess.make_dir_recursive_absolute(empty_campaign)
+	DirAccess.make_dir_recursive_absolute(empty_shared)
+	var empty_result: Dictionary = NativeContextBuilderScript.new().build(
+		empty_campaign,
+		empty_shared
+	)
+	_expect(
+		bool(empty_result.get("ok", false)),
+		"missing optional native resource sources are not preparation failures"
+	)
+	_expect_equal(
+		empty_result.get("totals", {}).get("sources"),
+		8,
+		"native context report inventories every shared and campaign source"
+	)
+	var missing_source_count := 0
+	for source_value: Variant in empty_result.get("sources", []):
+		if source_value is Dictionary and not bool(source_value.get("exists", true)):
+			missing_source_count += 1
+	_expect_equal(
+		missing_source_count,
+		8,
+		"native context report retains every absent source as evidence"
+	)
+
+	var invalid_items_directory := empty_campaign.path_join("Items")
+	var invalid_bestiary_directory := empty_campaign.path_join("Bestiary")
+	DirAccess.make_dir_recursive_absolute(invalid_items_directory)
+	DirAccess.make_dir_recursive_absolute(invalid_bestiary_directory)
+	_expect_equal(
+		_write_classic_test_file(
+			invalid_items_directory.path_join("stuff_book.json"),
+			"{"
+		),
+		OK,
+		"native context test writes malformed campaign items"
+	)
+	_expect_equal(
+		_write_classic_test_file(
+			invalid_bestiary_directory.path_join("stuff_book.json"),
+			"[]"
+		),
+		OK,
+		"native context test writes malformed campaign bestiary"
+	)
+	var invalid_result: Dictionary = NativeContextBuilderScript.new().build(
+		empty_campaign,
+		empty_shared
+	)
+	_expect(
+		not bool(invalid_result.get("ok", true)),
+		"invalid native resource books fail context preparation"
+	)
+	_expect_equal(
+		invalid_result.get("totals", {}).get("preparationErrors"),
+		2,
+		"native preparation errors remain distinct from readiness diagnostics"
+	)
+	var all_preparation_diagnostics := true
+	for diagnostic_value: Variant in invalid_result.get("diagnostics", []):
+		if (
+			not (diagnostic_value is Dictionary)
+			or diagnostic_value.get("classification") != "preparation-error"
+			or diagnostic_value.get("activity") != "preparation"
+		):
+			all_preparation_diagnostics = false
+			break
+	_expect(
+		all_preparation_diagnostics,
+		"invalid native sources use the preparation-error classification"
+	)
+
+	var absolute_campaign := empty_root.path_join("Absolute Campaign")
+	var spell_directory := absolute_campaign.path_join("Spells")
+	var sound_directory := absolute_campaign.path_join("Sounds")
+	DirAccess.make_dir_recursive_absolute(spell_directory)
+	DirAccess.make_dir_recursive_absolute(sound_directory)
+	_expect_equal(
+		_write_classic_test_file(
+			spell_directory.path_join("context_test_spell.gd"),
+			(
+				"extends RefCounted\n\n"
+				+ "func _init() -> void:\n"
+				+ "\tname = \"Context Test Spell\"\n"
+				+ "\tclassic_spell_class = 99\n"
+				+ "\tclassic_spell_ids = [9901]\n"
+			)
+		),
+		OK,
+		"native context test writes an absolute-path spell definition"
+	)
+	_expect_equal(
+		_write_classic_test_file(sound_directory.path_join("context-test.wav"), ""),
+		OK,
+		"native context test writes an absolute-path sound resource"
+	)
+	var absolute_result: Dictionary = NativeContextBuilderScript.new().build(
+		absolute_campaign,
+		empty_shared
+	)
+	_expect(
+		absolute_result.get("context", {}).get("spells", {}).has(
+			"Context Test Spell"
+		),
+		"native context builder reads campaign spells from absolute directories"
+	)
+	_expect(
+		absolute_result.get("context", {}).get("sounds", {}).has(
+			"context-test.wav"
+		),
+		"native context builder reads campaign sounds from absolute directories"
+	)
+
+	var corpus: Dictionary = CampaignCorpusReportScript.new().inspect(
+		campaigns_directory,
+		{
+			"expectedCampaigns": 2,
+			"includeCompressedEstimate": false,
+		}
+	)
+	_expect_equal(
+		corpus.get("totals", {}).get("campaigns"),
+		2,
+		"campaign corpus report inventories every manifest-bearing directory"
+	)
+	_expect_equal(
+		corpus.get("totals", {}).get("installFailures"),
+		1,
+		"campaign corpus report retains invalid installed campaigns"
+	)
+	_expect_equal(
+		int(corpus.get("totals", {}).get("activeDiagnostics", 0))
+			+ int(corpus.get("totals", {}).get("inactiveDiagnostics", 0)),
+		corpus.get("totals", {}).get("diagnostics"),
+		"campaign corpus separates active and inactive readiness diagnostics"
+	)
+	_expect_equal(
+		CampaignCorpusReportScript.new().inspect(
+			campaigns_directory,
+			{
+				"expectedCampaigns": 2,
+				"includeCompressedEstimate": false,
+			}
+		),
+		corpus,
+		"campaign corpus report is deterministic for unchanged inputs"
+	)
+	var corpus_ready_install: Dictionary = {}
+	for campaign_value: Variant in corpus.get("campaigns", []):
+		if (
+			campaign_value is Dictionary
+			and campaign_value.get("directory") == campaign_name
+		):
+			corpus_ready_install = campaign_value
+			break
+	_expect(
+		not corpus_ready_install.is_empty(),
+		"campaign corpus report identifies the UI smoke campaign"
+	)
+	_expect_equal(
+		corpus_ready_install.get("readiness", {}),
+		install.readiness_report,
+		"campaign corpus readiness is the campaign-selection readiness result"
+	)
+	_expect(
+		int(corpus_ready_install.get("footprint", {}).get("files", 0)) > 0,
+		"campaign corpus report measures the installed campaign footprint"
+	)
+	_expect_equal(
+		CampaignPackageInstallerScript.new()._remove_directory(empty_root),
+		OK,
+		"native context tests clean generated resource fixtures"
+	)
 
 
 func _test_classic_campaign_admission() -> void:
@@ -11407,6 +11627,8 @@ func _test_classic_porting_guide_contract() -> void:
 			"porting guide publishes bundle validation commands",
 		"report_classic_readiness.gd":
 			"porting guide publishes readiness commands",
+		"report_classic_campaign_corpus.gd":
+			"porting guide publishes the built-in corpus audit command",
 		"install_classic_campaign.gd":
 			"porting guide publishes installation commands",
 		"run_classic_regression_corpus.gd":
@@ -11422,6 +11644,7 @@ func _test_classic_porting_guide_contract() -> void:
 		"INSTALLING_CLASSIC_CAMPAIGNS.md",
 		"COMPATIBILITY_GAPS.md",
 		"CLASSIC_REGRESSION_CORPUS.md",
+		"CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md",
 		"CITY_OF_BYWATER_ACCEPTANCE.md",
 	]:
 		_expect(
@@ -11521,6 +11744,13 @@ func _test_campaign_readiness_report() -> void:
 		"id": bundle.manifest["id"],
 		"name": bundle.manifest["name"],
 	}
+	bundle.documents["evidence"]["diagnostics"] = [{
+		"severity": "warning",
+		"code": "trailing-bytes",
+		"source": "Data MD",
+		"recordIndex": 255,
+		"message": "Imported source preserves bytes after the active catalog sentinel",
+	}]
 	bundle.documents["maps"]["maps"] = [{"id": "land:0"}]
 	bundle.documents["scripts"]["triggers"] = [
 		_readiness_action_point("Data DD", 76, 27, 32128),
@@ -11612,6 +11842,23 @@ func _test_campaign_readiness_report() -> void:
 		"items": {"Dagger": {}},
 	})
 	_expect(not report.get("ready", true), "readiness blocks progression-affecting gaps")
+	var every_diagnostic_has_activity := true
+	for diagnostic_value: Variant in report.get("diagnostics", []):
+		if not (
+			diagnostic_value is Dictionary
+			and diagnostic_value.has("activity")
+		):
+			every_diagnostic_has_activity = false
+			break
+	_expect(
+		every_diagnostic_has_activity,
+		"readiness diagnostics distinguish active and inactive consumers"
+	)
+	_expect_equal(
+		_readiness_diagnostic(report, "trailing-bytes").get("activity"),
+		"inactive",
+		"preserved trailing records are inventoried as inactive evidence"
+	)
 	_expect(
 		_readiness_has_diagnostic(
 			report, "missing-picture-payload", "Data DD", 76, 0, "fidelity-fallback"
@@ -33630,6 +33877,15 @@ func _shop_stock_classic_ids(shop: Dictionary) -> Array[int]:
 				if item_value is Dictionary else 0
 			)
 	return item_ids
+
+
+func _write_classic_test_file(path: String, contents: String) -> Error:
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	file.store_string(contents)
+	file.close()
+	return OK
 
 
 func _expect(condition: bool, label: String) -> void:

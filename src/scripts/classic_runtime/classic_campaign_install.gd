@@ -8,7 +8,9 @@ const ReadinessScript = preload(
 const CampaignAdmissionScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_admission.gd"
 )
-const ClassicItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const NativeContextBuilderScript = preload(
+	"res://scripts/classic_runtime/classic_native_context_builder.gd"
+)
 
 const REQUIRED_NATIVE_MAP_FILES := [
 	"map_info.json",
@@ -21,6 +23,7 @@ var campaign_name := ""
 var campaign_directory := ""
 var bundle: ClassicCampaignBundle
 var readiness_report: Dictionary = {}
+var native_context_report: Dictionary = {}
 var start_diagnostic := ""
 var last_error := ""
 
@@ -133,51 +136,19 @@ func load_from_campaigns_directory(
 		return _fail(bundle.last_error)
 	if not _validate_packaged_payloads():
 		return false
-	var native_context := {"items": {}, "bestiary": {}}
-	if not _merge_resource_book(
-		"res://shared_assets/items/stuff_book.json",
-		native_context["items"],
-		"item",
-		true
-	):
-		return false
-	if not _merge_resource_book(
-		campaign_directory.path_join("Items/stuff_book.json"),
-		native_context["items"],
-		"item"
-	):
-		return false
-	if not _merge_resource_book(
-		"res://shared_assets/Bestiary/stuff_book.json",
-		native_context["bestiary"],
-		"bestiary"
-	):
-		return false
-	if not _merge_resource_book(
-		campaign_directory.path_join("Bestiary/stuff_book.json"),
-		native_context["bestiary"],
-		"bestiary"
-	):
-		return false
-	readiness_report = ReadinessScript.new().inspect(bundle, native_context)
+	var native_context_result: Dictionary = NativeContextBuilderScript.new().build(
+		campaign_directory
+	)
+	native_context_report = NativeContextBuilderScript.public_report(
+		native_context_result
+	)
+	if not bool(native_context_result.get("ok", false)):
+		return _fail(NativeContextBuilderScript.first_error(native_context_result))
+	readiness_report = ReadinessScript.new().inspect(
+		bundle,
+		native_context_result.get("context", {})
+	)
 	start_diagnostic = _validate_native_start_map()
-	return true
-
-
-func _merge_resource_book(
-	path: String,
-	destination: Dictionary,
-	resource_kind: String,
-	add_classic_item_ids := false
-) -> bool:
-	if not FileAccess.file_exists(path):
-		return true
-	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if not (value is Dictionary):
-		return _fail("Native %s book is not a JSON object: %s" % [resource_kind, path])
-	if add_classic_item_ids:
-		value = ClassicItemIdsScript.new().enrich_item_book(value)
-	destination.merge(value, true)
 	return true
 
 
@@ -342,6 +313,7 @@ func _reset() -> void:
 	campaign_directory = ""
 	bundle = null
 	readiness_report.clear()
+	native_context_report.clear()
 	start_diagnostic = ""
 	last_error = ""
 

@@ -284,6 +284,17 @@ godot --headless --path src --script res://scripts/classic_runtime/tests/report_
 The native campaign path is optional. When provided, the report also checks the
 shared and campaign resource names available to the Remake adapter.
 
+Built-in packages are certified together through the same campaign-selection
+path. The command below writes stable JSON containing preparation, readiness,
+active/inactive diagnostic, footprint, and content-hash duplication evidence:
+
+```powershell
+godot --headless --path src --script res://scripts/classic_runtime/tests/report_classic_campaign_corpus.gd -- --expected-count=13 --output=res://scripts/classic_runtime/reports/classic_builtin_campaign_baseline.json
+```
+
+The checked result and interpretation are recorded in
+[CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md](CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md).
+
 ## Independent fixture proof
 
 Remake's consumer tests load the checked City of Bywater, War in the Sword Lands,

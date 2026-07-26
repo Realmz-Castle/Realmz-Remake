@@ -24,6 +24,13 @@ const SCHEMA_VERSION := 1
 const BLOCKER := "progression-blocker"
 const FALLBACK := "fidelity-fallback"
 const MAX_RANDOM_TARGETS := 10000
+const INACTIVE_DIAGNOSTIC_CODES := [
+	"inactive-action-record",
+	"inactive-custom-spell-definition",
+	"inactive-scenario-rule-table",
+	"no-op-scenario-rule-table",
+	"trailing-bytes",
+]
 const SPELL_DEFINITION_FIELDS := [
 	"range1",
 	"range2",
@@ -2181,6 +2188,13 @@ func _add_fallback(
 
 
 func _add_diagnostic(diagnostic: Dictionary) -> void:
+	if not diagnostic.has("activity"):
+		var code := str(diagnostic.get("code", ""))
+		diagnostic["activity"] = (
+			"inactive"
+			if code.begins_with("inactive-") or code in INACTIVE_DIAGNOSTIC_CODES
+			else "active"
+		)
 	if not _campaign_id.is_empty():
 		diagnostic["campaignId"] = _campaign_id
 	if not _campaign_name.is_empty():

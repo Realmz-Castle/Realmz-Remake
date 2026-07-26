@@ -24,6 +24,8 @@ readiness, regression, and playability-evidence boundaries.
 The [known scenario custom-rule audit](src/scripts/classic_runtime/KNOWN_CUSTOM_RULE_AUDIT.md)
 records the current spell, race, and caste source-library snapshot and its
 consumer-aware readiness classifications.
+The [built-in campaign certification baseline](src/scripts/classic_runtime/CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md)
+records the deterministic 13-campaign readiness and installed-footprint audit.
 
 ## Music System
 

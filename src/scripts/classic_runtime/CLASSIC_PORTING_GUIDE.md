@@ -14,7 +14,9 @@ The detailed sources behind this summary are:
 - [compatibility gap register](COMPATIBILITY_GAPS.md) for capability-level
   evidence and open boundaries;
 - [regression corpus contract](CLASSIC_REGRESSION_CORPUS.md) for cross-scenario
-  semantic coverage; and
+  semantic coverage;
+- [built-in campaign baseline](CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md) for the
+  authoritative 13-campaign readiness and footprint audit; and
 - [City of Bywater acceptance log](CITY_OF_BYWATER_ACCEPTANCE.md) for the
   current end-to-end campaign checkpoint.
 
@@ -124,6 +126,25 @@ Every diagnostic includes source context and is classified as:
 Exit 0 means the report found no progression blocker. Exit 1 means launch is
 blocked. Exit 2 means command usage was invalid. A clean readiness result is not
 a campaign-completion claim.
+
+For the built-in corpus, use the permanent audit rather than combining
+per-campaign reports produced with different resource contexts:
+
+```powershell
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script `
+  res://scripts/classic_runtime/tests/report_classic_campaign_corpus.gd -- `
+  --expected-count=13 `
+  --output=res://scripts/classic_runtime/reports/classic_builtin_campaign_baseline.json
+```
+
+This command calls the normal campaign installer for every manifest-bearing
+directory. It inventories shared and campaign items, bestiary, spells, and
+sounds once through the same context builder used by campaign selection. Its
+stable JSON separates preparation failures, active blockers, active fallbacks,
+inactive preserved definitions, execution activity, footprint categories, and
+content-hash duplication. The checked
+[13-campaign baseline](CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md) is the source of
+truth for later compatibility and compaction comparisons.
 
 ### 4. Install through the package boundary
 

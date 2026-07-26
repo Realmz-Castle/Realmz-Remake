@@ -1,8 +1,8 @@
 extends SceneTree
 
 const ReadinessScript = preload("res://scripts/classic_runtime/classic_campaign_readiness.gd")
-const SpellResourceCatalogScript = preload(
-	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
+const NativeContextBuilderScript = preload(
+	"res://scripts/classic_runtime/classic_native_context_builder.gd"
 )
 const MAX_DISPLAYED_DIAGNOSTICS := 25
 
@@ -17,11 +17,27 @@ func _init() -> void:
 		return
 
 	var native_context := {}
+	var native_preparation := {}
 	if arguments.size() == 2:
-		native_context = _load_native_context(str(arguments[1]))
+		var preparation_result: Dictionary = NativeContextBuilderScript.new().build(
+			str(arguments[1])
+		)
+		native_context = preparation_result.get("context", {})
+		native_preparation = NativeContextBuilderScript.public_report(
+			preparation_result
+		)
 	var report: Dictionary = ReadinessScript.new().inspect_directory(
 		str(arguments[0]), native_context
 	)
+	if not native_preparation.is_empty():
+		report["nativePreparation"] = native_preparation
+		if not bool(native_preparation.get("ok", false)):
+			report["ready"] = false
+			report["status"] = "preparation-failed"
+			report["summary"] = "Native resource preparation failed: %s %s" % [
+				NativeContextBuilderScript.first_error(native_preparation),
+				str(report.get("summary", "")),
+			]
 	if json_output:
 		print(JSON.stringify(report))
 	else:
@@ -52,46 +68,3 @@ func _print_report(report: Dictionary) -> void:
 		print("- ... %d additional diagnostics; use --json for the complete report." % [
 			diagnostics.size() - MAX_DISPLAYED_DIAGNOSTICS,
 		])
-
-
-func _load_native_context(campaign_directory: String) -> Dictionary:
-	var context := {
-		"bestiary": {},
-		"items": {},
-		"spells": {},
-		"sounds": {},
-	}
-	_merge_json_book("res://shared_assets/Bestiary/stuff_book.json", context["bestiary"])
-	_merge_json_book("res://shared_assets/items/stuff_book.json", context["items"])
-	_merge_json_book(campaign_directory.path_join("Bestiary/stuff_book.json"), context["bestiary"])
-	_merge_json_book(campaign_directory.path_join("Items/stuff_book.json"), context["items"])
-	SpellResourceCatalogScript.merge_directory("res://shared_assets/spells", context["spells"])
-	SpellResourceCatalogScript.merge_directory(
-		campaign_directory.path_join("Spells"), context["spells"]
-	)
-	_collect_file_names("res://shared_assets/sounds", context["sounds"])
-	_collect_file_names(campaign_directory.path_join("Sounds"), context["sounds"])
-	return context
-
-
-func _merge_json_book(path: String, destination: Dictionary) -> void:
-	if not FileAccess.file_exists(path):
-		return
-	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if value is Dictionary:
-		destination.merge(value, true)
-
-
-func _collect_file_names(directory: String, destination: Dictionary) -> void:
-	var access := DirAccess.open(directory)
-	if access == null:
-		return
-	access.list_dir_begin()
-	var file_name := access.get_next()
-	while not file_name.is_empty():
-		if not access.current_is_dir():
-			var resource_name := file_name.trim_suffix(".import")
-			if not resource_name.ends_with(".uid"):
-				destination[resource_name] = true
-		file_name = access.get_next()
-	access.list_dir_end()

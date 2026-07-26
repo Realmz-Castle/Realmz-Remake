@@ -558,6 +558,18 @@ resources. Package installation is a separate gate: every referenced generated-
 map asset must be present in the export or supplied by a defined shared resource
 catalog.
 
+The built-in campaigns have a separate deterministic corpus command that runs
+the normal installation and selection path for all 13 packages:
+
+```powershell
+Godot_v4.7.1-stable_win64_console.exe --headless --path src --script res://scripts/classic_runtime/tests/report_classic_campaign_corpus.gd -- --expected-count=13 --output=res://scripts/classic_runtime/reports/classic_builtin_campaign_baseline.json
+```
+
+It emits a human summary and stable JSON with preparation evidence,
+active/inactive diagnostics, installed and compressed-estimate bytes, file
+categories, and content-hash duplication. See the
+[certified built-in campaign baseline](CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md).
+
 The [City of Bywater acceptance log](CITY_OF_BYWATER_ACCEPTANCE.md) records the
 reproducible end-to-end campaign checks, current blockers, and the next playable
 checkpoint. It deliberately distinguishes bundle readiness, package installation,

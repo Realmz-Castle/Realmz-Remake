@@ -5,7 +5,7 @@ static func merge_directory(directory: String, destination: Dictionary) -> void:
 	# ResourceLoader preserves the original resource names when scripts are
 	# remapped inside an exported PCK. DirAccess/FileAccess cannot reliably see
 	# or read those compiled scripts.
-	var file_names := ResourceLoader.list_directory(directory)
+	var file_names := _resource_file_names(directory)
 	if file_names.is_empty():
 		return
 	var name_expression := _expression("(?m)^\\s*name\\s*=\\s*[\"']([^\"']+)[\"']")
@@ -51,26 +51,48 @@ static func merge_directory(directory: String, destination: Dictionary) -> void:
 		_merge_loaded_script(path, destination)
 
 
+static func _resource_file_names(directory: String) -> Array[String]:
+	var file_names: Array[String] = []
+	if directory.begins_with("res://"):
+		for resource_name: String in ResourceLoader.list_directory(directory):
+			if not file_names.has(resource_name):
+				file_names.append(resource_name)
+	var access := DirAccess.open(directory)
+	if access != null:
+		access.list_dir_begin()
+		var file_name := access.get_next()
+		while not file_name.is_empty():
+			if not access.current_is_dir() and not file_names.has(file_name):
+				file_names.append(file_name)
+			file_name = access.get_next()
+		access.list_dir_end()
+	file_names.sort()
+	return file_names
+
+
 static func _merge_loaded_script(path: String, destination: Dictionary) -> void:
 	var script := ResourceLoader.load(path) as GDScript
 	if script == null:
 		return
 	var instance: Variant = script.new()
-	if not (instance is Spell):
+	if not (instance is Object):
 		return
-	var spell_name := str(instance.name).strip_edges()
+	var spell_name := str(instance.get("name")).strip_edges()
 	if spell_name.is_empty():
 		return
 	var metadata := {
 		"resourcePath": path,
-		"classicSpellClass": int(instance.classic_spell_class),
-		"classicSpellSaveIndex": int(instance.classic_spell_save_index),
-		"classicSpellSaveMode": str(instance.classic_spell_save_mode),
-		"inField": bool(instance.in_field),
-		"inCombat": bool(instance.in_combat),
+		"classicSpellClass": int(instance.get("classic_spell_class")),
+		"classicSpellSaveIndex": int(instance.get("classic_spell_save_index")),
+		"classicSpellSaveMode": str(instance.get("classic_spell_save_mode")),
+		"inField": bool(instance.get("in_field")),
+		"inCombat": bool(instance.get("in_combat")),
 	}
 	var spell_ids: Array[int] = []
-	for id_value: Variant in instance.classic_spell_ids:
+	var instance_spell_ids: Variant = instance.get("classic_spell_ids")
+	if not (instance_spell_ids is Array):
+		instance_spell_ids = []
+	for id_value: Variant in instance_spell_ids:
 		var spell_id: int = abs(int(id_value))
 		if spell_id > 0 and not spell_ids.has(spell_id):
 			spell_ids.append(spell_id)
