@@ -597,7 +597,16 @@ func _run_interaction_sequence(
 			"message":
 				var prefix := str(event.get("prefix", ""))
 				if not await _wait_for_message(prefix):
-					_fail(stage, "The authored message did not open in source order")
+					var visible_text := ""
+					if UI.ow_hud.textRect.visible:
+						visible_text = UI.ow_hud.textRect.textLabel.get_parsed_text()
+					_fail(
+						stage,
+						(
+							"The authored message '%s' did not open in source order; "
+							+ "visible text was '%s'"
+						) % [prefix, visible_text.left(160)],
+					)
 					return false
 				if bool(event.get("picture", false)):
 					var picture_value: Variant = event.get(
@@ -635,6 +644,25 @@ func _run_interaction_sequence(
 					"labels": _choice_labels(),
 				})
 				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed(answer)
+			"experience":
+				if not await _wait_for_treasure():
+					_fail(stage, "The authored experience award did not open")
+					return false
+				var expected_experience := int(event.get("amount", 0))
+				if not _treasure_classic_item_ids().is_empty() \
+						or int(UI.ow_hud.treasureControl.exp_gain) \
+							!= expected_experience:
+					_fail(stage, "The native experience award no longer matches its source")
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "experience",
+					"amount": expected_experience,
+				})
+				UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+				if not await _close_experience_level_ups():
+					_fail(stage, "The native experience award did not finish leveling")
+					return false
 			"treasure":
 				if not await _wait_for_treasure():
 					_fail(stage, "The authored treasure did not open")
@@ -1009,6 +1037,20 @@ func _wait_for_choices() -> bool:
 func _wait_for_treasure() -> bool:
 	for _frame: int in 600:
 		if UI.ow_hud.treasureControl.visible:
+			return true
+		await get_tree().process_frame
+	return false
+
+
+func _close_experience_level_ups() -> bool:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		var level_up_window: Window = UI.ow_hud.levelupCtrl.get_parent()
+		if level_up_window.visible:
+			UI.ow_hud.levelupCtrl._on_close_button_pressed()
+			await get_tree().process_frame
+			continue
+		if not UI.ow_hud.treasureControl.visible:
 			return true
 		await get_tree().process_frame
 	return false

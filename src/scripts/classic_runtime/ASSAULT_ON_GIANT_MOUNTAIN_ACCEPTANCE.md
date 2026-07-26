@@ -40,17 +40,28 @@ checks two compiled action points through the live Classic host and native UI:
    battlefield. Forced victory uses the normal battle cleanup and returns to
    the authored land position with no pending Classic continuation.
 
-The route definition also pins the source completion anchor at
-`Data ED3:macro:137`: messages 913 and 914 identify the end of the journey and
-the accomplished main goal, with Treasure 77 and sound 20004 between them.
-Compiled Battle 274 remains the final-battle identity associated with that
-source sequence.
+The route then exercises the installed completion chain:
+
+3. `Data DD:0:98` at `(83, 8)` presents Baron McReese's briefing and runs macro
+   118. That macro replaces the adjacent report point at `(84, 8)` with macro
+   102's quest dispatcher.
+4. `Data DD:3:31` at `(88, 79)` presents Lequtus and resolves Extra Code 428 to
+   Battle 274. Lequtus enters the native battlefield with 23 ice, hill, and fire
+   giants. Forced victory resumes through messages 907 and 908, replaces the
+   four fortress tiles with tile 155, sets quest flag 17, and disables the
+   associated random-encounter rectangle.
+5. Returning to `Data DD:0:99` at `(84, 8)` follows quest flag 17 into macros
+   136 and 137. The installed UI presents the king's ceremony, three separate
+   32,000-experience awards and their normal level-up popups, Treasure 77's
+   three items, and messages 913 and 914 identifying the completed main goal.
+
+Quest, story, hint, and reward details found during the trace are retained in
+`CLASSIC_SCENARIO_ARCHAEOLOGY.md`.
 
 ## Evidence boundary
 
-The opening and Battle 60 are runtime-exercised. The completion macro and final
-battle are source-verified anchors only; the current checkpoint does not claim
-that the full start-to-finish path has been played. A later checkpoint must
-drive the prerequisite quest state, final Battle 274, reward, and post-victory
-messages through the installed runtime before this scenario is individually
-certified.
+The opening, Battle 60, Baron setup mutation, Battle 274, quest-17 report,
+experience awards, reward, and explicit completion message are runtime
+exercised through the installed package. The route certifies the scenario's
+completion chain; it does not claim a manual traversal of every intervening
+fortress, stronghold, or optional encounter.

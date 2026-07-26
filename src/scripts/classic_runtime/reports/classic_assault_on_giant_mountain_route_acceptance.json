@@ -40,6 +40,99 @@
 		},
 		"rewardScreenPresented": true
 	},
+	"battles": [
+		{
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 18,
+					"displayName": "Hob Goblin",
+					"monsterId": 92
+				},
+				{
+					"count": 5,
+					"displayName": "Hob Goblin Champion",
+					"monsterId": 129
+				},
+				{
+					"count": 6,
+					"displayName": "Hob Goblin Archer",
+					"monsterId": 130
+				}
+			],
+			"id": 60,
+			"returnMap": "map_0",
+			"returnPosition": {
+				"x": 50,
+				"y": 62
+			},
+			"rewardScreenPresented": true,
+			"stepId": "goblin-hut-battle"
+		},
+		{
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 4,
+					"displayName": "Ice Giant Warrior",
+					"monsterId": 42
+				},
+				{
+					"count": 1,
+					"displayName": "Ice Giant Cleric",
+					"monsterId": 43
+				},
+				{
+					"count": 1,
+					"displayName": "Ice Giant Mage",
+					"monsterId": 44
+				},
+				{
+					"count": 1,
+					"displayName": "Ice Giant Enchanter",
+					"monsterId": 45
+				},
+				{
+					"count": 4,
+					"displayName": "Hill Giant",
+					"monsterId": 48
+				},
+				{
+					"count": 1,
+					"displayName": "Hill Giant Commander",
+					"monsterId": 52
+				},
+				{
+					"count": 3,
+					"displayName": "Fire Giant Enchanter",
+					"monsterId": 66
+				},
+				{
+					"count": 3,
+					"displayName": "Fire Giant Warrior",
+					"monsterId": 69
+				},
+				{
+					"count": 5,
+					"displayName": "Fire Giant Champion",
+					"monsterId": 70
+				},
+				{
+					"count": 1,
+					"displayName": "Lequtus",
+					"monsterId": 164
+				}
+			],
+			"id": 274,
+			"returnMap": "map_3",
+			"returnPosition": {
+				"x": 88,
+				"y": 79
+			},
+			"rewardScreenPresented": true,
+			"stepId": "lequtus-battle"
+		}
+	],
 	"campaignDirectory": "Assault on Giant Mountain (Classic)",
 	"campaignId": "scenario-assault-on-giant-mountain",
 	"campaignName": "Assault on Giant Mountain (Classic)",
@@ -47,20 +140,218 @@
 		"battleIds": [
 			274
 		],
-		"classification": "source-anchor-only",
+		"classification": "installed-runtime",
 		"extraCodeIds": [
-			428
+			315,
+			370,
+			487,
+			428,
+			429,
+			430,
+			431,
+			432,
+			488,
+			433
 		],
-		"runtimeExercised": false,
+		"runtime": {
+			"itemIds": [
+				68,
+				625,
+				467
+			],
+			"position": {
+				"levelIndex": 0,
+				"levelType": "land",
+				"x": 84,
+				"y": 8
+			},
+			"questFlags": [
+				17
+			],
+			"stepIds": [
+				"opening-presentation",
+				"goblin-hut-battle",
+				"baron-mcreese-briefing",
+				"lequtus-battle",
+				"royal-reward"
+			],
+			"tileOverrides": [
+				{
+					"levelIndex": 3,
+					"levelType": "land",
+					"value": 155,
+					"x": 89,
+					"y": 78
+				},
+				{
+					"levelIndex": 3,
+					"levelType": "land",
+					"value": 155,
+					"x": 88,
+					"y": 78
+				},
+				{
+					"levelIndex": 3,
+					"levelType": "land",
+					"value": 155,
+					"x": 88,
+					"y": 79
+				},
+				{
+					"levelIndex": 3,
+					"levelType": "land",
+					"value": 155,
+					"x": 89,
+					"y": 79
+				}
+			]
+		},
+		"runtimeExercised": true,
 		"sourceVerified": true,
 		"triggerIds": [
+			"Data DD:0:98",
+			"Data ED3:macro:118",
 			"Data DD:3:31",
 			"Data ED3:macro:135",
+			"Data ED3:macro:163",
+			"Data DD:0:99",
+			"Data ED3:macro:102",
+			"Data ED3:macro:136",
 			"Data ED3:macro:137"
 		]
 	},
 	"failures": [],
-	"routeId": "assault-on-giant-mountain-opening-battle",
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 740,
+			"prefix": "You arrive at a heavily guarded mansion",
+			"stepId": "baron-mcreese-briefing"
+		},
+		{
+			"kind": "message",
+			"messageId": 741,
+			"prefix": "The Baron stands over six and a half feet tall",
+			"stepId": "baron-mcreese-briefing"
+		},
+		{
+			"kind": "message",
+			"messageId": 742,
+			"prefix": "He pins you under his penetrating gaze",
+			"stepId": "baron-mcreese-briefing"
+		},
+		{
+			"kind": "message",
+			"messageId": 743,
+			"prefix": "an enemy stronghold",
+			"stepId": "baron-mcreese-briefing"
+		},
+		{
+			"kind": "message",
+			"messageId": 744,
+			"prefix": "The giants have three main fortresses",
+			"stepId": "baron-mcreese-briefing"
+		},
+		{
+			"kind": "message",
+			"messageId": 745,
+			"prefix": "they may be able to covertly infiltrate giant fortifications",
+			"stepId": "baron-mcreese-briefing"
+		},
+		{
+			"kind": "message",
+			"messageId": 746,
+			"prefix": "cache of wealth and magical artifacts",
+			"stepId": "baron-mcreese-briefing"
+		},
+		{
+			"kind": "message",
+			"messageId": 907,
+			"prefix": "Lequtus lies mortally wounded",
+			"stepId": "lequtus-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 908,
+			"prefix": "\"As before, hundreds of restful years will allow me to return",
+			"stepId": "lequtus-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 909,
+			"prefix": "The good news reaches the king and you are sent for",
+			"stepId": "royal-reward"
+		},
+		{
+			"kind": "message",
+			"messageId": 910,
+			"prefix": "The king's knights attend a grand ceremony",
+			"stepId": "royal-reward"
+		},
+		{
+			"amount": 32000,
+			"kind": "experience",
+			"stepId": "royal-reward"
+		},
+		{
+			"kind": "message",
+			"messageId": 963,
+			"prefix": "\"Saviors of the Realmz\"",
+			"stepId": "royal-reward"
+		},
+		{
+			"amount": 32000,
+			"kind": "experience",
+			"stepId": "royal-reward"
+		},
+		{
+			"kind": "message",
+			"messageId": 964,
+			"prefix": "\"Defenders of All That Is Right and Just\"",
+			"stepId": "royal-reward"
+		},
+		{
+			"amount": 32000,
+			"kind": "experience",
+			"stepId": "royal-reward"
+		},
+		{
+			"kind": "message",
+			"messageId": 911,
+			"prefix": "From beneath the loose folds of his majestic robe",
+			"stepId": "royal-reward"
+		},
+		{
+			"kind": "message",
+			"messageId": 912,
+			"prefix": "\"I can never truly repay you for your heroism",
+			"stepId": "royal-reward"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				68,
+				625,
+				467
+			],
+			"kind": "treasure",
+			"stepId": "royal-reward",
+			"treasureId": 77
+		},
+		{
+			"kind": "message",
+			"messageId": 913,
+			"prefix": "So ends your great journey",
+			"stepId": "royal-reward"
+		},
+		{
+			"kind": "message",
+			"messageId": 914,
+			"prefix": "You have accomplished the main goal behind this scenario",
+			"stepId": "royal-reward"
+		}
+	],
+	"routeId": "assault-on-giant-mountain-completion-route",
 	"schemaVersion": 1,
 	"selectedCharacter": "Cindred",
 	"selectionState": "Ready with fallbacks",
@@ -100,6 +391,24 @@
 			"status": "native-mapping",
 			"stepId": "opening-presentation",
 			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 26260,
+			"nativeName": "party loss.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "lequtus-battle",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20004,
+			"nativeName": "hallelujah.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "royal-reward",
+			"waitForCompletion": false
 		}
 	],
 	"stages": [
@@ -129,6 +438,21 @@
 			"status": "passed"
 		},
 		{
+			"detail": "The route step matches its compiled source records",
+			"id": "baron-mcreese-briefing-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "lequtus-battle-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "royal-reward-source",
+			"status": "passed"
+		},
+		{
 			"detail": "The compiled completion chain and final battle remain source-identifiable",
 			"id": "completion-source-anchor",
 			"status": "passed"
@@ -146,6 +470,31 @@
 		{
 			"detail": "Native victory returns to the authored route with no pending continuation",
 			"id": "goblin-hut-battle-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "Baron McReese's briefing installs the adjacent quest-report action point through the live runtime",
+			"id": "baron-mcreese-briefing",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "lequtus-battle",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "lequtus-battle-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed quest report reaches the king's ceremony, all three experience awards, Treasure 77, and the authored completion message",
+			"id": "royal-reward",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
 			"status": "passed"
 		}
 	],

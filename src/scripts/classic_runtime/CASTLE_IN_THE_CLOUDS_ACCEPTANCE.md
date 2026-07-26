@@ -39,18 +39,21 @@ checks two compiled action points through the live Classic host and native UI:
    battlefield. Forced victory uses the normal battle cleanup and returns to
    the authored land position with no pending Classic continuation.
 
-The source completion chain remains identifiable without being runtime-driven.
-`Data DD:1:31` at `(6, 8)` introduces Nufack and resolves Extra Code 2266 to
-surprise Battle 223: two Evil Mages, ten Evil Warriors, eight Evil Paladins,
-and nineteen Evil Rangers. `Data DD:1:33` at `(5, 87)` leads into macro 223,
-whose Treasure 71, picture, and messages 853, 895, and 854 form the authored
-epilogue and point toward the White Dragon sequel.
+The route then exercises the installed completion chain. `Data DD:1:31` at
+`(6, 8)` introduces Nufack and resolves Extra Code 2266 to surprise Battle 223:
+two Evil Mages, ten Evil Warriors, eight Evil Paladins, and nineteen Evil
+Rangers. Forced victory resumes through one safe castle-collapse branch.
+`Data DD:1:33` at `(5, 87)` then leads into macro 223, whose Treasure 71,
+picture, messages 853, 895, and 854, quest flag 16, and McBane teleport form the
+authored epilogue and point toward the White Dragon sequel.
+
+Quest, story, hint, and reward details found during the trace are retained in
+`CLASSIC_SCENARIO_ARCHAEOLOGY.md`.
 
 ## Evidence boundary
 
-The McBane arrival and Battle 3 are runtime-exercised. Battle 223 and the Zukar
-epilogue are source-verified anchors only; the current checkpoint does not claim
-that the full start-to-finish path has been played. A later checkpoint must
-drive the prerequisite quest state, Nufack battle, castle-collapse branches,
-reward, and epilogue through the installed runtime before this scenario is
-individually certified.
+The McBane arrival, Battle 3, Battle 223, a safe castle-collapse branch, Zukar's
+reward and epilogue, quest flag 16, six castle tile mutations, and the return
+teleport are runtime-exercised through the installed package. The route
+certifies the completion chain; it does not claim a manual traversal of every
+intervening room or optional encounter.

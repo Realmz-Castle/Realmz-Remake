@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "routeId": "assault-on-giant-mountain-opening-battle",
+  "routeId": "assault-on-giant-mountain-completion-route",
   "campaignId": "scenario-assault-on-giant-mountain",
   "campaignDirectory": "Assault on Giant Mountain (Classic)",
   "start": {
@@ -116,10 +116,300 @@
           "count": 6
         }
       ]
+    },
+    {
+      "id": "baron-mcreese-briefing",
+      "kind": "action-list",
+      "triggerId": "Data DD:0:98",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 83,
+        "y": 8
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 740},
+        {"slot": 1, "code": 1, "id": 741},
+        {"slot": 2, "code": 1, "id": 742},
+        {"slot": 3, "code": 1, "id": 743},
+        {"slot": 4, "code": 1, "id": 744},
+        {"slot": 5, "code": 1, "id": 745},
+        {"slot": 6, "code": 1, "id": 746},
+        {"slot": 7, "code": 39, "id": 118}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 740,
+          "prefix": "You arrive at a heavily guarded mansion"
+        },
+        {
+          "kind": "message",
+          "id": 741,
+          "prefix": "The Baron stands over six and a half feet tall"
+        },
+        {
+          "kind": "message",
+          "id": 742,
+          "prefix": "He pins you under his penetrating gaze"
+        },
+        {
+          "kind": "message",
+          "id": 743,
+          "prefix": "an enemy stronghold"
+        },
+        {
+          "kind": "message",
+          "id": 744,
+          "prefix": "The giants have three main fortresses"
+        },
+        {
+          "kind": "message",
+          "id": 745,
+          "prefix": "they may be able to covertly infiltrate giant fortifications"
+        },
+        {
+          "kind": "message",
+          "id": 746,
+          "prefix": "cache of wealth and magical artifacts"
+        }
+      ],
+      "detail": "Baron McReese's briefing installs the adjacent quest-report action point through the live runtime"
+    },
+    {
+      "id": "lequtus-battle",
+      "kind": "battle",
+      "triggerId": "Data DD:3:31",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 3,
+        "x": 88,
+        "y": 79
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 26260},
+        {"slot": 1, "code": 1, "id": 901},
+        {"slot": 2, "code": 1, "id": 902},
+        {"slot": 3, "code": 1, "id": 903},
+        {"slot": 4, "code": 1, "id": 904},
+        {"slot": 5, "code": 1, "id": 905},
+        {"slot": 6, "code": 1, "id": 906},
+        {"slot": 7, "code": 39, "id": 135}
+      ],
+      "messages": [
+        {
+          "id": 901,
+          "prefix": "You stand at the foot of a mighty fortress"
+        },
+        {
+          "id": 902,
+          "prefix": "\"I am Lequtus, creator and master of all giant kin"
+        },
+        {
+          "id": 903,
+          "prefix": "\"For many years, I have lain in a dormant state"
+        },
+        {
+          "id": 904,
+          "prefix": "\"You have spread like an infectious disease"
+        },
+        {
+          "id": 905,
+          "prefix": "Giants pour en masse through the massive iron gate"
+        },
+        {
+          "id": 906,
+          "prefix": "With a gesture from Lequtus"
+        }
+      ],
+      "sounds": [
+        {
+          "id": 26260,
+          "status": "native-mapping",
+          "nativeName": "party loss.wav"
+        }
+      ],
+      "battleId": 274,
+      "creatures": [
+        {
+          "monsterId": 42,
+          "displayName": "Ice Giant Warrior",
+          "count": 4
+        },
+        {
+          "monsterId": 43,
+          "displayName": "Ice Giant Cleric",
+          "count": 1
+        },
+        {
+          "monsterId": 44,
+          "displayName": "Ice Giant Mage",
+          "count": 1
+        },
+        {
+          "monsterId": 45,
+          "displayName": "Ice Giant Enchanter",
+          "count": 1
+        },
+        {
+          "monsterId": 48,
+          "displayName": "Hill Giant",
+          "count": 4
+        },
+        {
+          "monsterId": 52,
+          "displayName": "Hill Giant Commander",
+          "count": 1
+        },
+        {
+          "monsterId": 66,
+          "displayName": "Fire Giant Enchanter",
+          "count": 3
+        },
+        {
+          "monsterId": 69,
+          "displayName": "Fire Giant Warrior",
+          "count": 3
+        },
+        {
+          "monsterId": 70,
+          "displayName": "Fire Giant Champion",
+          "count": 5
+        },
+        {
+          "monsterId": 164,
+          "displayName": "Lequtus",
+          "count": 1
+        }
+      ],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 907,
+          "prefix": "Lequtus lies mortally wounded"
+        },
+        {
+          "kind": "message",
+          "id": 908,
+          "prefix": "\"As before, hundreds of restful years will allow me to return"
+        }
+      ],
+      "detail": "Lequtus and the full source formation reach native combat; victory destroys the fortress and sets completion quest 17"
+    },
+    {
+      "id": "royal-reward",
+      "kind": "action-list",
+      "triggerId": "Data DD:0:99",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 84,
+        "y": 8
+      },
+      "actions": [
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sounds": [
+        {
+          "id": 20004,
+          "status": "native-mapping",
+          "nativeName": "hallelujah.wav"
+        }
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 909,
+          "prefix": "The good news reaches the king and you are sent for"
+        },
+        {
+          "kind": "message",
+          "id": 910,
+          "prefix": "The king's knights attend a grand ceremony"
+        },
+        {
+          "kind": "experience",
+          "amount": 32000
+        },
+        {
+          "kind": "message",
+          "id": 963,
+          "prefix": "\"Saviors of the Realmz\""
+        },
+        {
+          "kind": "experience",
+          "amount": 32000
+        },
+        {
+          "kind": "message",
+          "id": 964,
+          "prefix": "\"Defenders of All That Is Right and Just\""
+        },
+        {
+          "kind": "experience",
+          "amount": 32000
+        },
+        {
+          "kind": "message",
+          "id": 911,
+          "prefix": "From beneath the loose folds of his majestic robe"
+        },
+        {
+          "kind": "message",
+          "id": 912,
+          "prefix": "\"I can never truly repay you for your heroism"
+        },
+        {
+          "kind": "treasure",
+          "id": 77,
+          "itemIds": [68, 625, 467],
+          "sourceItemIds": [68, 625, 467, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 0,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 913,
+          "prefix": "So ends your great journey"
+        },
+        {
+          "kind": "message",
+          "id": 914,
+          "prefix": "You have accomplished the main goal behind this scenario"
+        }
+      ],
+      "detail": "The installed quest report reaches the king's ceremony, all three experience awards, Treasure 77, and the authored completion message"
     }
   ],
   "completionAnchor": {
     "triggers": [
+      {
+        "id": "baron-briefing",
+        "triggerId": "Data DD:0:98",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 740},
+          {"slot": 1, "code": 1, "id": 741},
+          {"slot": 2, "code": 1, "id": 742},
+          {"slot": 3, "code": 1, "id": 743},
+          {"slot": 4, "code": 1, "id": 744},
+          {"slot": 5, "code": 1, "id": 745},
+          {"slot": 6, "code": 1, "id": 746},
+          {"slot": 7, "code": 39, "id": 118}
+        ]
+      },
+      {
+        "id": "report-point-setup",
+        "triggerId": "Data ED3:macro:118",
+        "actions": [
+          {"slot": 0, "code": 7, "id": 315},
+          {"slot": 1, "code": 13, "id": 370},
+          {"slot": 2, "code": 13, "id": 487},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
       {
         "id": "final-approach",
         "triggerId": "Data DD:3:31",
@@ -149,6 +439,47 @@
         ]
       },
       {
+        "id": "completion-state",
+        "triggerId": "Data ED3:macro:163",
+        "actions": [
+          {"slot": 0, "code": 47, "id": 17},
+          {"slot": 1, "code": 23, "id": 488}
+        ]
+      },
+      {
+        "id": "report-point",
+        "triggerId": "Data DD:0:99",
+        "actions": [
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "quest-report-dispatch",
+        "triggerId": "Data ED3:macro:102",
+        "actions": [
+          {"slot": 0, "code": 46, "id": 316},
+          {"slot": 1, "code": 46, "id": 317},
+          {"slot": 2, "code": 46, "id": 318},
+          {"slot": 3, "code": 46, "id": 433},
+          {"slot": 4, "code": 1, "id": 747},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "royal-reward",
+        "triggerId": "Data ED3:macro:136",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 909},
+          {"slot": 1, "code": 1, "id": 910},
+          {"slot": 2, "code": 11, "id": 32000},
+          {"slot": 3, "code": 1, "id": 963},
+          {"slot": 4, "code": 11, "id": 32000},
+          {"slot": 5, "code": 1, "id": 964},
+          {"slot": 6, "code": 11, "id": 32000},
+          {"slot": 7, "code": 39, "id": 137}
+        ]
+      },
+      {
         "id": "epilogue",
         "triggerId": "Data ED3:macro:137",
         "actions": [
@@ -162,19 +493,67 @@
       }
     ],
     "extraCodes": [
-      {"id": 428, "values": [274, 0, -1, 0, 0]}
+      {"id": 315, "values": [0, 99, 102, 0, 0]},
+      {"id": 370, "values": [0, 99, 100, 0, 0]},
+      {"id": 487, "values": [0, 98, 0, 0, 0]},
+      {"id": 428, "values": [274, 0, -1, 0, 0]},
+      {"id": 429, "values": [3, 89, 78, 155, 0]},
+      {"id": 430, "values": [3, 88, 78, 155, 0]},
+      {"id": 431, "values": [3, 88, 79, 155, 0]},
+      {"id": 432, "values": [3, 89, 79, 155, 0]},
+      {"id": 488, "values": [3, 17, 0, 0, 0]},
+      {"id": 433, "values": [17, 1, 0, 136, 0]}
     ],
     "messages": [
       {
+        "id": 746,
+        "prefix": "cache of wealth and magical artifacts"
+      },
+      {
+        "id": 901,
+        "prefix": "You stand at the foot of a mighty fortress"
+      },
+      {
+        "id": 907,
+        "prefix": "Lequtus lies mortally wounded"
+      },
+      {
+        "id": 909,
+        "prefix": "The good news reaches the king and you are sent for"
+      },
+      {
         "id": 913,
-        "prefix": "So ends your great journey."
+        "prefix": "So ends your great journey"
       },
       {
         "id": 914,
-        "prefix": "You have accomplished the main goal behind this scenario."
+        "prefix": "You have accomplished the main goal behind this scenario"
       }
     ],
     "battleIds": [274],
-    "classification": "source-anchor-only"
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "opening-presentation",
+        "goblin-hut-battle",
+        "baron-mcreese-briefing",
+        "lequtus-battle",
+        "royal-reward"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 84,
+        "y": 8
+      },
+      "questFlags": [17],
+      "tileOverrides": [
+        {"levelType": "land", "levelIndex": 3, "x": 89, "y": 78, "value": 155},
+        {"levelType": "land", "levelIndex": 3, "x": 88, "y": 78, "value": 155},
+        {"levelType": "land", "levelIndex": 3, "x": 88, "y": 79, "value": 155},
+        {"levelType": "land", "levelIndex": 3, "x": 89, "y": 79, "value": 155}
+      ],
+      "itemIds": [68, 625, 467]
+    }
   }
 }
