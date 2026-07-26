@@ -4,6 +4,9 @@ extends "res://scripts/classic_runtime/classic_core_damage_spell.gd"
 const MISSILE_BONUS_CASTES := ["Archer", "Marksman"]
 const MISSILE_BONUS_META_KEY := "classic_gets_missile_bonus"
 
+var _resolution_damage := 0
+var _resolution_damage_cached := false
+
 
 func configure_core_missile_spell(spell_id: int) -> bool:
 	if not configure_core_damage_spell(spell_id, 9):
@@ -31,6 +34,30 @@ func _configure_missile_presentation() -> void:
 
 
 func get_damage_roll(power: int, caster) -> int:
+	if _resolution_damage_cached:
+		return _resolution_damage
+	return _roll_missile_damage(power, caster)
+
+
+func get_hits(_power: int, _caster) -> int:
+	return maxi(1, classic_fixed_target_num)
+
+
+func uses_classic_repeated_hits() -> bool:
+	return absi(classic_spell_class) == 9 and classic_fixed_target_num > 1
+
+
+func begin_classic_target_resolution(caster, power: int) -> void:
+	_resolution_damage = _roll_missile_damage(power, caster)
+	_resolution_damage_cached = true
+
+
+func end_classic_target_resolution() -> void:
+	_resolution_damage_cached = false
+	_resolution_damage = 0
+
+
+func _roll_missile_damage(power: int, caster) -> int:
 	var result := super.get_damage_roll(power, caster)
 	var bonus_range := classic_missile_bonus_range(caster)
 	if bonus_range.y > 0:
@@ -64,12 +91,15 @@ func _caster_gets_missile_bonus(caster) -> bool:
 
 func _is_stock_missile_record(record: Dictionary) -> bool:
 	var spell_id := int(record.get("packedSpellId", 0))
+	var fixed_target_num := int(record.get("fixedTargetNum", 0))
+	var supported_hit_count := fixed_target_num in [0, 1] \
+		or (spell_id == 4406 and fixed_target_num == 6)
 	if int(spell_id / 1000) != 4 \
 			or int(record.get("queueIcon", 0)) != 0 \
 			or int(record.get("cost", 0)) != 0 \
 			or absi(int(record.get("spellClass", 0))) != 9 \
 			or int(record.get("targetType", -1)) != 1 \
-			or int(record.get("fixedTargetNum", 0)) not in [0, 1] \
+			or not supported_hit_count \
 			or not bool(record.get("inCombat", 0)) \
 			or bool(record.get("inCamp", 0)):
 		return false

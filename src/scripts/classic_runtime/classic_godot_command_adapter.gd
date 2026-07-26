@@ -5659,8 +5659,14 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 		return _error("Realmz spell helper is unavailable")
 	var resolutions: Array = []
 	var affected_count := 0
+	var shares_classic_missile_roll: bool = spell.has_method("uses_classic_repeated_hits") \
+		and bool(spell.uses_classic_repeated_hits())
+	if shares_classic_missile_roll:
+		spell.begin_classic_target_resolution(null, int(payload.get("power", 0)))
 	for target: Variant in targets:
 		if not (target is Object):
+			if shares_classic_missile_roll:
+				spell.end_classic_target_resolution()
 			return _error("Classic field-spell target is not a character")
 		var pre_resistance_roll := -1
 		if MagicResistanceScript.spell_uses_pre_resistance(spell, true):
@@ -5676,6 +5682,8 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 			pre_resistance_roll
 		)
 		if str(resolution.get("status", "")) == "error":
+			if shares_classic_missile_roll:
+				spell.end_classic_target_resolution()
 			return resolution
 		resolutions.append(resolution)
 		var effect_scale := float(resolution.get("effectScale", 0.0))
@@ -5688,6 +5696,8 @@ func _apply_classic_spell_to_targets(payload: Dictionary, targets: Array) -> Dic
 			int(payload.get("power", 0)),
 			effect_scale
 		)
+	if shares_classic_missile_roll:
+		spell.end_classic_target_resolution()
 	for target: Variant in targets:
 		_refresh_character_panel(target)
 	return {

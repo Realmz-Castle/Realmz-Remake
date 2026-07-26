@@ -460,6 +460,8 @@ func play_spell_resolution(gfx : Spell.GFX, _castercrea : Creature, effected_til
 func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_targeted_tile : Vector2, effected_tiles : Array, effected_creas : Array, add_terrain : bool) :
 	print("CbAnimState after_spell_anim_finished : "+castercrea.name+'s '+spell.name)
 	var unresisted_creatures : Array = []
+	var uses_repeated_missile_hits: bool = spell.has_method("uses_classic_repeated_hits") \
+		and bool(spell.uses_classic_repeated_hits())
 	for cb : CombatCreaButton in effected_creas :
 		if CLASSIC_SPELL_REFLECTION_SCRIPT.is_classic_spell(spell):
 			var reflection: Array = cb.creature.on_classic_spell_targeted(
@@ -476,6 +478,10 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 				spell,
 				power
 			)
+		if uses_repeated_missile_hits:
+			# Classic reruns projectile resistance for every missile.
+			unresisted_creatures.append(cb)
+			continue
 		var pre_resistance_roll := -1
 		if CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_uses_pre_resistance(spell) :
 			pre_resistance_roll = randi_range(1, 100)
@@ -510,6 +516,9 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 	if spell.has_method("begin_classic_target_resolution") :
 		spell.begin_classic_target_resolution(castercrea, power)
 	for cb : CombatCreaButton in unresisted_creatures :
+		if uses_repeated_missile_hits:
+			_resolve_classic_repeated_missile_hits(castercrea, cb, spell, power)
+			continue
 		var accuracy_array : Array = GameGlobal.calculate_spell_accuracy(castercrea, cb.creature, spell, power)
 		var accuracy = accuracy_array[0]
 		var evasion_stats_used : Array = accuracy_array[1]
@@ -586,6 +595,108 @@ func after_spell_anim_finished(castercrea : Creature, spell, power:int, main_tar
 	if not spell.terrain_tex.is_empty() and add_terrain:
 		print("CBAnimState add_terrain_effects")
 		GameGlobal.map.add_terrain_effect_from_spell(spell,power, effected_tiles,Vector2i.ZERO,castercrea )
+
+
+func _resolve_classic_repeated_missile_hits(
+	castercrea: Creature,
+	cb: CombatCreaButton,
+	spell,
+	power: int
+) -> void:
+	var hit_count := maxi(1, int(spell.get_hits(power, castercrea)))
+	for _hit_index: int in range(hit_count):
+		var pre_resistance_roll := -1
+		if CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_uses_pre_resistance(spell):
+			pre_resistance_roll = randi_range(1, 100)
+		var resistance: Dictionary = CLASSIC_MAGIC_RESISTANCE_SCRIPT.spell_resolution(
+			cb.creature,
+			spell,
+			power,
+			randi_range(1, 100),
+			false,
+			castercrea,
+			pre_resistance_roll,
+			GameGlobal.classic_party_charm_resistance_bonus(cb.creature)
+		)
+		if bool(resistance.get("resisted", false)):
+			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
+			break
+
+		var accuracy_array: Array = GameGlobal.calculate_spell_accuracy(
+			castercrea,
+			cb.creature,
+			spell,
+			power
+		)
+		var accuracy = accuracy_array[0]
+		var returned_evasion_array: Array = cb.creature.on_evasion_check(
+			accuracy_array[1],
+			castercrea,
+			spell,
+			power
+		)
+		if not returned_evasion_array[1].is_empty():
+			combat_state.add_to_action_queue(returned_evasion_array[1])
+		if not bool(returned_evasion_array[0]):
+			break
+		if accuracy < randf():
+			UI.ow_hud.creatureRect.logrect.log_spell_miss(
+				castercrea,
+				cb,
+				spell,
+				power,
+				accuracy
+			)
+			break
+
+		var save_resolution: Dictionary = CLASSIC_SPELL_SAVES_SCRIPT.target_resolution(
+			cb.creature,
+			spell,
+			power,
+			randi_range(1, 100)
+		)
+		if str(save_resolution.get("status", "")) == "error" \
+				or (
+					bool(save_resolution.get("saved", false))
+					and float(save_resolution.get("effectScale", 0.0)) <= 0.0
+				):
+			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
+			break
+
+		var spell_damage := GameGlobal.calculate_spell_damage(
+			castercrea,
+			cb.creature,
+			spell,
+			power,
+			true
+		)
+		spell_damage = floori(
+			spell_damage * float(save_resolution.get("effectScale", 1.0))
+		)
+		var spell_effect_array: Array = cb.creature.on_hit_by_spell(
+			castercrea,
+			spell,
+			power,
+			-spell_damage
+		)
+		if bool(spell_effect_array[0]):
+			cb.display_effect("ATK_NUL", spell_damage, 2.0)
+			if spell_damage > 0:
+				cb.creature.mark_classic_attacked()
+			cb.creature.change_cur_hp(spell_effect_array[1])
+			UI.ow_hud.creatureRect.logrect.log_spell_damage(
+				castercrea,
+				cb,
+				spell,
+				power,
+				{"total": spell_damage},
+				accuracy
+			)
+		else:
+			UI.ow_hud.creatureRect.logrect.log_spell_no_effect(castercrea, cb, spell)
+		combat_state.add_to_action_queue(spell_effect_array[2])
+		if not bool(spell_effect_array[0]) or cb.creature.get_stat("curHP") <= 0:
+			break
 	
 	
 	

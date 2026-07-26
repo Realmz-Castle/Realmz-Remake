@@ -25059,6 +25059,21 @@ func _test_classic_stock_item_spells() -> void:
 			"fixed_targets": 0,
 			"record_index": 331,
 		},
+		{
+			"path": "classic_arrow_storm_4406.gd",
+			"id": 4406,
+			"name": "Arrow Storm",
+			"range": 20,
+			"minimum": 3,
+			"maximum": 18,
+			"special": 0,
+			"damage_type": 9,
+			"save": -1,
+			"mode": "none",
+			"fixed_targets": 6,
+			"hits": 6,
+			"record_index": 365,
+		},
 	]
 	for spec: Dictionary in missile_specs:
 		var spell: Variant = load(
@@ -25101,12 +25116,39 @@ func _test_classic_stock_item_spells() -> void:
 			spec["fixed_targets"],
 			"%s fixed-target count" % label
 		)
+		_expect_equal(
+			spell.get_target_number(3, null),
+			1,
+			"%s selectable target count" % label
+		)
+		_expect_equal(
+			spell.get_hits(3, null),
+			int(spec.get("hits", 1)),
+			"%s same-target hit count" % label
+		)
 		_expect(spell.in_combat and not spell.in_field, "%s availability" % label)
 		_expect_equal(
 			spell.source_record.get("sourceRecord", {}).get("recordIndex"),
 			spec["record_index"],
 			"%s Data S record" % label
 		)
+
+	var arrow_storm: Variant = load(
+		"res://shared_assets/spells/classic_arrow_storm_4406.gd"
+	).new()
+	_expect(
+		arrow_storm.uses_classic_repeated_hits(),
+		"Arrow Storm enables the Classic repeated-missile path"
+	)
+	arrow_storm._resolution_damage = 17
+	arrow_storm._resolution_damage_cached = true
+	for _hit_index: int in range(6):
+		_expect_equal(
+			arrow_storm.get_damage_roll(3, null),
+			17,
+			"Arrow Storm reuses one source damage roll across its missiles"
+		)
+	arrow_storm.end_classic_target_resolution()
 
 	var dart: Variant = load(
 		"res://shared_assets/spells/classic_dart_of_poison_4202.gd"

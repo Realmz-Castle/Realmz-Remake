@@ -91,8 +91,8 @@
 			"install": {
 				"error": "",
 				"loaded": true,
-				"selectionState": "Blocked",
-				"selectionValid": false,
+				"selectionState": "Ready with fallbacks",
+				"selectionValid": true,
 				"startDiagnostic": ""
 			},
 			"name": "Assault on Giant Mountain (Classic)",
@@ -130,7 +130,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -165,7 +165,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -174,22 +174,6 @@
 					"name": "Assault on Giant Mountain (Classic)"
 				},
 				"diagnostics": [
-					{
-						"activity": "active",
-						"campaignId": "scenario-assault-on-giant-mountain",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow Storm' has no executable Remake resource",
-						"nativeName": "Arrow Storm",
-						"opcode": 18,
-						"recordId": "Data DD:0:34",
-						"recordIndex": 34,
-						"referenceId": 4406,
-						"scenario": "Assault on Giant Mountain (Classic)",
-						"severity": "error",
-						"slot": 1,
-						"source": "Data DD"
-					},
 					{
 						"activity": "active",
 						"campaignId": "scenario-assault-on-giant-mountain",
@@ -844,22 +828,6 @@
 					{
 						"activity": "active",
 						"campaignId": "scenario-assault-on-giant-mountain",
-						"classification": "progression-blocker",
-						"code": "missing-native-spell",
-						"message": "Mapped spell 'Arrow Storm' has no executable Remake resource",
-						"nativeName": "Arrow Storm",
-						"opcode": 18,
-						"recordId": "Data ED3:macro:8",
-						"recordIndex": 8,
-						"referenceId": 4406,
-						"scenario": "Assault on Giant Mountain (Classic)",
-						"severity": "error",
-						"slot": 5,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-assault-on-giant-mountain",
 						"classification": "source-behavior",
 						"code": "classic-synchronous-sound",
 						"message": "Negative sound -20004 waits for playback to finish",
@@ -988,14 +956,14 @@
 					"unknown": 0,
 					"unknownExecutable": 0
 				},
-				"ready": false,
+				"ready": true,
 				"schemaVersion": 1,
-				"status": "blocked",
-				"summary": "Blocked: 2 progression blockers; 5 fidelity fallbacks.",
+				"status": "ready",
+				"summary": "Ready: no progression blockers; 5 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 40,
+					"diagnostics": 38,
 					"fidelityFallbacks": 5,
-					"progressionBlockers": 2
+					"progressionBlockers": 0
 				}
 			}
 		},
@@ -1118,7 +1086,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -1153,7 +1121,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -2642,7 +2610,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -2677,7 +2645,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -4385,7 +4353,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -4420,7 +4388,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -7594,7 +7562,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -7629,7 +7597,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -10643,7 +10611,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -10678,7 +10646,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -15251,7 +15219,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -15286,7 +15254,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -23159,7 +23127,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -23194,7 +23162,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -24053,7 +24021,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -24088,7 +24056,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -56711,7 +56679,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -56746,7 +56714,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -59672,7 +59640,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -59707,7 +59675,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -79455,7 +79423,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -79490,7 +79458,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -82184,7 +82152,7 @@
 						"scope": "campaign"
 					},
 					{
-						"entriesRead": 243,
+						"entriesRead": 244,
 						"exists": true,
 						"path": "shared://spells",
 						"resourceKind": "spells",
@@ -82219,7 +82187,7 @@
 					"preparationErrors": 0,
 					"sounds": 144,
 					"sources": 8,
-					"spells": 243
+					"spells": 244
 				}
 			},
 			"readiness": {
@@ -95077,13 +95045,13 @@
 	},
 	"diagnosticBreakdown": {
 		"byActivity": {
-			"active": 4244,
+			"active": 4242,
 			"inactive": 184
 		},
 		"byClassification": {
 			"fidelity-fallback": 1352,
 			"inventory": 6,
-			"progression-blocker": 3,
+			"progression-blocker": 1,
 			"source-behavior": 3067
 		},
 		"byCode": {
@@ -95179,11 +95147,11 @@
 				"progressionBlockers": 0
 			},
 			"missing-native-spell": {
-				"active": 3,
-				"diagnostics": 3,
+				"active": 1,
+				"diagnostics": 1,
 				"fidelityFallbacks": 0,
 				"inactive": 0,
-				"progressionBlockers": 3
+				"progressionBlockers": 1
 			},
 			"native-monster-fidelity-fallback": {
 				"active": 521,
@@ -123203,12 +123171,12 @@
 	},
 	"status": "blocked",
 	"totals": {
-		"activeDiagnostics": 4244,
-		"blockedCampaigns": 2,
+		"activeDiagnostics": 4242,
+		"blockedCampaigns": 1,
 		"campaigns": 13,
 		"compressedEstimateBytes": 34967336,
 		"crossCampaignDuplicateBytes": 8047692,
-		"diagnostics": 4428,
+		"diagnostics": 4426,
 		"duplicateBytes": 8149781,
 		"fidelityFallbacks": 1352,
 		"files": 4852,
@@ -123218,8 +123186,8 @@
 		"jsonBytes": 118381154,
 		"jsonFiles": 829,
 		"preparationErrors": 0,
-		"progressionBlockers": 3,
-		"readyCampaigns": 11,
+		"progressionBlockers": 1,
+		"readyCampaigns": 12,
 		"sharedStoreBytes": 2199897,
 		"sharedStoreFiles": 21
 	}

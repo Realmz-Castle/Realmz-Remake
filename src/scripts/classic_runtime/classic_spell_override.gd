@@ -128,6 +128,9 @@ func get_range(power: int, _caster) -> int:
 
 
 func get_target_number(power: int, _caster) -> int:
+	# Class 9 reuses fixedTargetNum as its same-target missile count.
+	if absi(classic_spell_class) == 9:
+		return 1
 	if classic_fixed_target_num > 0:
 		return classic_fixed_target_num
 	if classic_target_type < 1:
