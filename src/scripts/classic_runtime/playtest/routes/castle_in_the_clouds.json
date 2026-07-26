@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "routeId": "castle-in-the-clouds-opening-battle",
+  "routeId": "castle-in-the-clouds-completion-route",
   "campaignId": "scenario-castle-in-the-clouds",
   "campaignDirectory": "Castle in the Clouds (Classic)",
   "start": {
@@ -94,6 +94,232 @@
           "count": 4
         }
       ]
+    },
+    {
+      "id": "nufack-battle",
+      "kind": "battle",
+      "triggerId": "Data DD:1:31",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 6,
+        "y": 8
+      },
+      "actions": [
+        {"slot": 0, "code": 46, "id": 2430},
+        {"slot": 2, "code": 1, "id": 840},
+        {"slot": 3, "code": 1, "id": 841},
+        {"slot": 4, "code": 9, "id": -26260},
+        {"slot": 5, "code": 1, "id": 842},
+        {"slot": 6, "code": 2, "id": 2266},
+        {"slot": 7, "code": 39, "id": 220}
+      ],
+      "messages": [
+        {
+          "id": 840,
+          "prefix": "Entering this castle you are greeted by an eloquently dressed enchanter"
+        },
+        {
+          "id": 841,
+          "prefix": "When you ask if he is Zukar"
+        },
+        {
+          "id": 842,
+          "prefix": "The enchanter laughs and says"
+        }
+      ],
+      "sounds": [
+        {
+          "id": -26260,
+          "status": "native-mapping",
+          "nativeName": "party loss.wav"
+        },
+        {
+          "id": -10107,
+          "status": "native-mapping",
+          "nativeName": "glass.wav"
+        },
+        {
+          "id": -10090,
+          "status": "native-mapping",
+          "nativeName": "earth shake.wav"
+        }
+      ],
+      "battleId": 223,
+      "creatures": [
+        {
+          "monsterId": 148,
+          "displayName": "Evil Mage",
+          "count": 2
+        },
+        {
+          "monsterId": 151,
+          "displayName": "Evil Warrior",
+          "count": 10
+        },
+        {
+          "monsterId": 152,
+          "displayName": "Evil Paladin",
+          "count": 8
+        },
+        {
+          "monsterId": 153,
+          "displayName": "Evil Ranger",
+          "count": 19
+        }
+      ],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 843,
+          "prefix": "The walls of the castle start to shake and rumble"
+        },
+        {
+          "kind": "choice",
+          "answer": "NO",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 845,
+          "prefix": "Pieces of the roof start falling nearby"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 843,
+          "prefix": "The walls of the castle start to shake and rumble"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 844,
+          "prefix": "You run out of the castle unharmed"
+        }
+      ],
+      "detail": "Nufack's source formation, victory, and safe castle-collapse branch complete through the installed runtime"
+    },
+    {
+      "id": "zukar-epilogue",
+      "kind": "action-list",
+      "triggerId": "Data DD:1:33",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 5,
+        "y": 87
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 60,
+        "y": 68
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 848},
+        {"slot": 1, "code": 1, "id": 849},
+        {"slot": 2, "code": 1, "id": 850},
+        {"slot": 3, "code": 1, "id": 851},
+        {"slot": 4, "code": 1, "id": 852},
+        {"slot": 5, "code": 9, "id": -10105},
+        {"slot": 6, "code": 1, "id": 894},
+        {"slot": 7, "code": 39, "id": 223}
+      ],
+      "sounds": [
+        {
+          "id": -10105,
+          "status": "native-mapping",
+          "nativeName": "heal.wav"
+        },
+        {
+          "id": -1100,
+          "status": "native-mapping",
+          "nativeName": "talk 1.wav"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 848,
+          "prefix": "Entering this very large and beautiful castle"
+        },
+        {
+          "kind": "message",
+          "id": 849,
+          "prefix": "When you move closer to the throne"
+        },
+        {
+          "kind": "message",
+          "id": 850,
+          "prefix": "\"I must not seem so great if you are reading this note"
+        },
+        {
+          "kind": "message",
+          "id": 851,
+          "prefix": "\"It is imperative that whoever finds this note seek out the White Dragon"
+        },
+        {
+          "kind": "message",
+          "id": 852,
+          "prefix": "Then you realize that during your search for Zukar"
+        },
+        {
+          "kind": "message",
+          "id": 894,
+          "prefix": "Right then the room lights up with a magical glow"
+        },
+        {
+          "kind": "treasure",
+          "id": 71,
+          "itemIds": [632, 235, 244],
+          "sourceItemIds": [632, 235, 244, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 0,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 853,
+          "prefix": "Thank You for playing Castle in the Clouds",
+          "picture": true
+        },
+        {
+          "kind": "message",
+          "id": 895,
+          "prefix": "The Search for the White Dragon will be the title of my next scenario"
+        },
+        {
+          "kind": "message",
+          "id": 854,
+          "prefix": "This scenario is dedicated to the memory of my brother"
+        },
+        {
+          "kind": "message",
+          "id": 896,
+          "prefix": "Do you want to be teleported to McBane City"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        }
+      ],
+      "detail": "Zukar's note, treasure 71, epilogue, quest completion, and McBane teleport complete through the installed runtime"
     }
   ],
   "completionAnchor": {
@@ -166,6 +392,30 @@
       }
     ],
     "battleIds": [223],
-    "classification": "source-anchor-only"
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "mcbane-arrival",
+        "cave-bear-battle",
+        "nufack-battle",
+        "zukar-epilogue"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 60,
+        "y": 68
+      },
+      "questFlags": [16],
+      "tileOverrides": [
+        {"levelType": "land", "levelIndex": 1, "x": 5, "y": 8, "value": -16},
+        {"levelType": "land", "levelIndex": 1, "x": 5, "y": 6, "value": -16},
+        {"levelType": "land", "levelIndex": 1, "x": 5, "y": 7, "value": -16},
+        {"levelType": "land", "levelIndex": 1, "x": 6, "y": 6, "value": -16},
+        {"levelType": "land", "levelIndex": 1, "x": 6, "y": 7, "value": -16},
+        {"levelType": "land", "levelIndex": 1, "x": 6, "y": 8, "value": -16}
+      ],
+      "itemIds": [632, 235, 244]
+    }
   }
 }

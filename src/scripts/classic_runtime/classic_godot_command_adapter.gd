@@ -845,8 +845,7 @@ func _redraw_map() -> Dictionary:
 
 func _teleport_classic_party(payload: Dictionary) -> Dictionary:
 	_play_sound(payload)
-	var message: Variant = payload.get("message", {})
-	if message is Dictionary and not str(message.get("text", "")).strip_edges().is_empty():
+	if teleport_message_present(payload):
 		var message_result := await _show_text(payload)
 		if str(message_result.get("status", "")) == "error":
 			return message_result
@@ -854,6 +853,16 @@ func _teleport_classic_party(payload: Dictionary) -> Dictionary:
 		payload,
 		_autoload("GameGlobal"),
 		_classic_campaign_resources()
+	)
+
+
+static func teleport_message_present(payload: Dictionary) -> bool:
+	if int(payload.get("messageId", 0)) == 0:
+		return false
+	var message: Variant = payload.get("message", {})
+	return (
+		message is Dictionary
+			and not str(message.get("text", "")).strip_edges().is_empty()
 	)
 
 

@@ -16,6 +16,9 @@ var route: Dictionary = {}
 var campaign_session: ClassicCampaignSession
 var host: ClassicRuntimeHost
 var failures: Array[String] = []
+var completed_step_ids: Array[String] = []
+var battle_step_ids: Array[String] = []
+var victory_request_completed := false
 var evidence: Dictionary = {
 	"schemaVersion": 1,
 	"stages": [],
@@ -47,19 +50,24 @@ func _start_acceptance() -> void:
 			_fail("route", "A route step is not an object")
 			break
 		var step: Dictionary = step_value
+		var step_succeeded := false
 		match str(step.get("kind", "")):
 			"presentation":
-				if not await _run_presentation_step(step):
-					break
+				step_succeeded = await _run_presentation_step(step)
 			"battle":
-				if not await _run_battle_step(step):
-					break
+				step_succeeded = await _run_battle_step(step)
+			"action-list":
+				step_succeeded = await _run_action_list_step(step)
 			_:
 				_fail(
 					str(step.get("id", "route")),
 					"Unsupported route step kind '%s'" % str(step.get("kind", "")),
 				)
-				break
+		if not step_succeeded:
+			break
+		completed_step_ids.append(str(step.get("id", "")))
+	if failures.is_empty():
+		_verify_completion_runtime_contract()
 	_finish()
 
 
@@ -267,12 +275,15 @@ func _verify_source_contract() -> bool:
 		):
 			_fail(stage, "The compiled dispatcher fall-through evidence changed")
 			return false
-		if not _messages_match(step.get("messages", [])):
+		if not _step_messages_match(step):
 			_fail(stage, "The compiled route messages no longer match their source IDs")
 			return false
 		if str(step.get("kind", "")) == "battle" \
 				and not _battle_source_matches(step):
 			_fail(stage, "The compiled battle formation no longer matches the route")
+			return false
+		if not _treasure_source_matches(step):
+			_fail(stage, "The compiled treasure no longer matches the route")
 			return false
 		_verify(
 			stage,
@@ -291,11 +302,11 @@ func _verify_completion_source_contract() -> bool:
 	var trigger_ids: Array[String] = []
 	var extra_code_ids: Array[int] = []
 	var verified_battle_ids: Array[int] = []
+	var classification := str(completion.get("classification", ""))
 	var completion_valid := (
 		not trigger_specs.is_empty()
 			and not battle_ids.is_empty()
-			and str(completion.get("classification", ""))
-				== "source-anchor-only"
+			and classification in ["source-anchor-only", "installed-runtime"]
 	)
 	for trigger_value: Variant in trigger_specs:
 		if not (trigger_value is Dictionary):
@@ -350,7 +361,7 @@ func _verify_completion_source_contract() -> bool:
 		"triggerIds": trigger_ids,
 		"extraCodeIds": extra_code_ids,
 		"battleIds": verified_battle_ids,
-		"classification": str(completion.get("classification", "")),
+		"classification": classification,
 		"sourceVerified": completion_valid,
 		"runtimeExercised": false,
 	}
@@ -364,7 +375,8 @@ func _verify_completion_source_contract() -> bool:
 
 func _run_presentation_step(step: Dictionary) -> bool:
 	var stage := str(step.get("id", "presentation"))
-	_move_to_position(step.get("position", {}))
+	if not _move_to_position(stage, step.get("position", {})):
+		return false
 	if not host.start_trigger(str(step.get("triggerId", ""))):
 		_fail(stage, str(host.runtime.last_result))
 		return false
@@ -400,7 +412,8 @@ func _run_presentation_step(step: Dictionary) -> bool:
 func _run_battle_step(step: Dictionary) -> bool:
 	var stage := str(step.get("id", "battle"))
 	var battle_id := int(step.get("battleId", -1))
-	_move_to_position(step.get("position", {}))
+	if not _move_to_position(stage, step.get("position", {})):
+		return false
 	NodeAccess.__Resources().battles_book.erase("Battle_%d" % battle_id)
 	if not host.start_trigger(str(step.get("triggerId", ""))):
 		_fail(stage, str(host.runtime.last_result))
@@ -436,7 +449,7 @@ func _run_battle_step(step: Dictionary) -> bool:
 		})
 	roster_valid = roster_valid \
 		and native_battle.get("Creatures", []).size() == expected_enemy_count
-	evidence["battle"] = {
+	var battle_evidence := {
 		"id": battle_id,
 		"creatures": observed_creatures,
 		"battlefieldDrawable": _temporary_battlefield_is_drawable(),
@@ -445,38 +458,220 @@ func _run_battle_step(step: Dictionary) -> bool:
 		stage,
 		sounds_valid
 			and roster_valid
-			and bool(evidence["battle"]["battlefieldDrawable"]),
+			and bool(battle_evidence["battlefieldDrawable"]),
 		"The compiled formation materializes on a drawable native battlefield",
 	)
 	if not failures.is_empty():
 		return false
 
+	victory_request_completed = false
 	call_deferred("_request_victory")
 	var reward_seen := await _close_victory_rewards()
+	if not await _wait_for_victory_request_completion():
+		_fail(stage, "The native victory coroutine did not finish")
+		return false
+	if not await _run_interaction_sequence(
+		stage,
+		step.get("postVictory", []),
+		step.get("picture", {}),
+	):
+		return false
 	if not await _wait_for_playthrough_completion():
 		_fail(stage, "The battle victory did not resume the source action list")
 		return false
-	var expected_position: Dictionary = step.get("position", {})
+	var expected_position: Dictionary = step.get("end", step.get("position", {}))
 	var native_position := _native_position()
-	evidence["battle"]["rewardScreenPresented"] = reward_seen
-	evidence["battle"]["returnMap"] = GameGlobal.currentmap_name
-	evidence["battle"]["returnPosition"] = {
+	battle_evidence["rewardScreenPresented"] = reward_seen
+	battle_evidence["returnMap"] = GameGlobal.currentmap_name
+	battle_evidence["returnPosition"] = {
 		"x": native_position.x,
 		"y": native_position.y,
 	}
-	_verify(
-		"%s-victory" % stage,
+	_record_battle_evidence(stage, battle_evidence)
+	var expected_map := _native_map_name(expected_position)
+	var expected_native_position := Vector2i(
+		int(expected_position.get("x", -1)),
+		int(expected_position.get("y", -1)),
+	)
+	var victory_valid: bool = (
 		not StateMachine.is_combat_state()
 			and StateMachine._state_name == "Exploration"
+			and GameGlobal.currentmap_name == expected_map
+			and native_position == expected_native_position
+			and not campaign_session.has_pending_continuation()
+	)
+	_verify(
+		"%s-victory" % stage,
+		victory_valid,
+		(
+			"Native victory returns to the authored route with no pending continuation"
+			if victory_valid
+			else (
+				"Native victory state mismatch: state=%s combat=%s map=%s expectedMap=%s "
+				+ "position=%s expectedPosition=%s pendingContinuation=%s"
+			) % [
+				StateMachine._state_name,
+				StateMachine.is_combat_state(),
+				GameGlobal.currentmap_name,
+				expected_map,
+				native_position,
+				expected_native_position,
+				campaign_session.has_pending_continuation(),
+			]
+		),
+	)
+	return failures.is_empty()
+
+
+func _run_action_list_step(step: Dictionary) -> bool:
+	var stage := str(step.get("id", "action-list"))
+	if not _move_to_position(stage, step.get("position", {})):
+		return false
+	if not host.start_trigger(str(step.get("triggerId", ""))):
+		_fail(stage, str(host.runtime.last_result))
+		return false
+	if not await _run_interaction_sequence(
+		stage,
+		step.get("sequence", []),
+		step.get("picture", {}),
+	):
+		return false
+	if not await _wait_for_playthrough_completion():
+		_fail(
+			stage,
+			(
+				"The action list did not return to exploration: "
+				+ "hostActive=%s state=%s combat=%s map=%s position=%s "
+				+ "pendingContinuation=%s lastResult=%s"
+			) % [
+				host.active,
+				StateMachine._state_name,
+				StateMachine.is_combat_state(),
+				GameGlobal.currentmap_name,
+				_native_position(),
+				campaign_session.has_pending_continuation(),
+				JSON.stringify(host.runtime.last_result),
+			],
+		)
+		return false
+
+	var expected_position: Dictionary = step.get("end", step.get("position", {}))
+	var native_position := _native_position()
+	var runtime_position := _runtime_position()
+	_verify(
+		stage,
+		_verify_sound_contract(step)
+			and not campaign_session.has_pending_continuation()
+			and StateMachine._state_name == "Exploration"
+			and _positions_match(expected_position, runtime_position)
 			and GameGlobal.currentmap_name == _native_map_name(expected_position)
 			and native_position == Vector2i(
 				int(expected_position.get("x", -1)),
 				int(expected_position.get("y", -1)),
-			)
-			and not campaign_session.has_pending_continuation(),
-		"Native victory returns to the authored route with no pending continuation",
+			),
+		str(step.get(
+			"detail",
+			"The installed action list completes through the native UI",
+		)),
 	)
 	return failures.is_empty()
+
+
+func _run_interaction_sequence(
+	stage: String,
+	sequence_value: Variant,
+	default_picture_value: Variant,
+) -> bool:
+	if not (sequence_value is Array):
+		_fail(stage, "The interaction sequence is not an array")
+		return false
+	if sequence_value.is_empty():
+		return true
+	var interaction_rows: Array = evidence.get("interactions", [])
+	for event_value: Variant in sequence_value:
+		if not (event_value is Dictionary):
+			_fail(stage, "An interaction event is not an object")
+			return false
+		var event: Dictionary = event_value
+		match str(event.get("kind", "")):
+			"message":
+				var prefix := str(event.get("prefix", ""))
+				if not await _wait_for_message(prefix):
+					_fail(stage, "The authored message did not open in source order")
+					return false
+				if bool(event.get("picture", false)):
+					var picture_value: Variant = event.get(
+						"pictureSpec",
+						default_picture_value,
+					)
+					if not _verify_picture(picture_value):
+						_fail(stage, "The authored picture did not render with its message")
+						return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "message",
+					"messageId": int(event.get("id", -1)),
+					"prefix": prefix,
+				})
+				UI.ow_hud.textRect.disablerButton.pressed.emit()
+			"choice":
+				if not await _wait_for_choices():
+					_fail(stage, "The authored choice did not open")
+					return false
+				var expected_labels: Variant = event.get("labels", [])
+				if expected_labels is Array \
+						and not expected_labels.is_empty() \
+						and _choice_labels() != expected_labels:
+					_fail(stage, "The authored choice labels changed")
+					return false
+				var answer := str(event.get("answer", ""))
+				if answer not in ["YES", "NO"]:
+					_fail(stage, "The route choice answer must be YES or NO")
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "choice",
+					"answer": answer,
+					"labels": _choice_labels(),
+				})
+				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed(answer)
+			"treasure":
+				if not await _wait_for_treasure():
+					_fail(stage, "The authored treasure did not open")
+					return false
+				var expected_item_ids: Array = event.get("itemIds", [])
+				var observed_item_ids := _treasure_classic_item_ids()
+				var treasure_valid := _integer_arrays_match(
+					observed_item_ids,
+					expected_item_ids,
+				)
+				if event.has("exp"):
+					treasure_valid = treasure_valid \
+						and int(UI.ow_hud.treasureControl.exp_gain) \
+							== int(event.get("exp", 0))
+				if not treasure_valid:
+					_fail(stage, "The native treasure no longer matches its source record")
+					return false
+				if bool(event.get("lootItems", false)) \
+						and not await _loot_classic_items(expected_item_ids):
+					_fail(stage, "The authored treasure items could not be taken")
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "treasure",
+					"treasureId": int(event.get("id", -1)),
+					"itemIds": observed_item_ids,
+					"experience": UI.ow_hud.treasureControl.exp_gain,
+				})
+				UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+			_:
+				_fail(
+					stage,
+					"Unsupported interaction kind '%s'" % str(event.get("kind", "")),
+				)
+				return false
+	evidence["interactions"] = interaction_rows
+	return true
 
 
 func _verify_sound_contract(step: Dictionary) -> bool:
@@ -594,6 +789,46 @@ func _battle_source_matches(step: Dictionary) -> bool:
 	return counts.size() == step.get("creatures", []).size()
 
 
+func _step_messages_match(step: Dictionary) -> bool:
+	var messages: Array = []
+	for message_value: Variant in step.get("messages", []):
+		messages.append(message_value)
+	for sequence_name: String in ["postVictory", "sequence"]:
+		var sequence_value: Variant = step.get(sequence_name, [])
+		if not (sequence_value is Array):
+			return false
+		for event_value: Variant in sequence_value:
+			if event_value is Dictionary \
+					and str(event_value.get("kind", "")) == "message":
+				messages.append(event_value)
+	return _messages_match(messages)
+
+
+func _treasure_source_matches(step: Dictionary) -> bool:
+	for sequence_name: String in ["postVictory", "sequence"]:
+		var sequence_value: Variant = step.get(sequence_name, [])
+		if not (sequence_value is Array):
+			return false
+		for event_value: Variant in sequence_value:
+			if not (event_value is Dictionary) \
+					or str(event_value.get("kind", "")) != "treasure":
+				continue
+			var event: Dictionary = event_value
+			var treasure: Dictionary = campaign_session.install.bundle.get_treasure(
+				int(event.get("id", -1))
+			)
+			if treasure.is_empty() or not _integer_arrays_match(
+				treasure.get("itemIds", []),
+				event.get("sourceItemIds", event.get("itemIds", [])),
+			):
+				return false
+			for field: String in ["exp", "gold", "gems", "jewelry"]:
+				if event.has(field) \
+						and int(treasure.get(field, 0)) != int(event.get(field, 0)):
+					return false
+	return true
+
+
 func _actions_match(actual_value: Variant, expected_value: Variant) -> bool:
 	if not (actual_value is Array) or not (expected_value is Array):
 		return false
@@ -620,6 +855,19 @@ func _integer_arrays_match(actual_value: Variant, expected_value: Variant) -> bo
 		return false
 	for value_index: int in expected.size():
 		if int(actual[value_index]) != int(expected[value_index]):
+			return false
+	return true
+
+
+func _string_arrays_match(actual_value: Variant, expected_value: Variant) -> bool:
+	if not (actual_value is Array) or not (expected_value is Array):
+		return false
+	var actual: Array = actual_value
+	var expected: Array = expected_value
+	if actual.size() != expected.size():
+		return false
+	for value_index: int in expected.size():
+		if str(actual[value_index]) != str(expected[value_index]):
 			return false
 	return true
 
@@ -664,13 +912,186 @@ func _verify_picture(picture_value: Variant) -> bool:
 	)
 
 
-func _move_to_position(position: Dictionary) -> void:
+func _verify_completion_runtime_contract() -> bool:
+	var completion: Dictionary = route.get("completionAnchor", {})
+	if str(completion.get("classification", "")) != "installed-runtime":
+		return true
+	var runtime: Dictionary = completion.get("runtime", {})
+	var expected_step_ids: Array = runtime.get("stepIds", [])
+	var expected_position: Dictionary = runtime.get("position", {})
+	var valid := _string_arrays_match(completed_step_ids, expected_step_ids)
+	valid = valid and _positions_match(expected_position, _runtime_position())
+	valid = valid and GameGlobal.currentmap_name == _native_map_name(expected_position)
+	valid = valid and _native_position() == Vector2i(
+		int(expected_position.get("x", -1)),
+		int(expected_position.get("y", -1)),
+	)
+	var observed_quests: Array[int] = []
+	for quest_value: Variant in runtime.get("questFlags", []):
+		var quest_id := int(quest_value)
+		observed_quests.append(quest_id)
+		valid = valid and host.runtime.runtime_state.is_quest_set(quest_id)
+	var observed_tiles: Array = []
+	for tile_value: Variant in runtime.get("tileOverrides", []):
+		if not (tile_value is Dictionary):
+			valid = false
+			continue
+		var tile: Dictionary = tile_value
+		var observed := host.runtime.runtime_state.get_tile(
+			str(tile.get("levelType", "land")),
+			int(tile.get("levelIndex", 0)),
+			int(tile.get("x", 0)),
+			int(tile.get("y", 0)),
+			-2147483648,
+		)
+		observed_tiles.append({
+			"levelType": str(tile.get("levelType", "land")),
+			"levelIndex": int(tile.get("levelIndex", 0)),
+			"x": int(tile.get("x", 0)),
+			"y": int(tile.get("y", 0)),
+			"value": observed,
+		})
+		valid = valid and observed == int(tile.get("value", 0))
+	var observed_items: Array[int] = []
+	for item_value: Variant in runtime.get("itemIds", []):
+		var item_id := int(item_value)
+		if _party_has_classic_item(item_id):
+			observed_items.append(item_id)
+		else:
+			valid = false
+	var completion_evidence: Dictionary = evidence.get("completionAnchor", {})
+	completion_evidence["runtimeExercised"] = valid
+	completion_evidence["runtime"] = {
+		"stepIds": completed_step_ids.duplicate(),
+		"position": _runtime_position(),
+		"questFlags": observed_quests,
+		"tileOverrides": observed_tiles,
+		"itemIds": observed_items,
+	}
+	evidence["completionAnchor"] = completion_evidence
+	_verify(
+		"completion-runtime",
+		valid,
+		"The installed completion route reaches its authored reward and epilogue state",
+	)
+	return failures.is_empty()
+
+
+func _record_battle_evidence(
+	step_id: String,
+	battle_evidence: Dictionary,
+) -> void:
+	if not evidence.has("battle"):
+		evidence["battle"] = battle_evidence
+		battle_step_ids.append(step_id)
+		return
+	var battle_rows: Array = evidence.get("battles", [])
+	if battle_rows.is_empty():
+		var first_battle: Dictionary = evidence["battle"].duplicate(true)
+		first_battle["stepId"] = battle_step_ids[0]
+		battle_rows.append(first_battle)
+	var next_battle := battle_evidence.duplicate(true)
+	next_battle["stepId"] = step_id
+	battle_rows.append(next_battle)
+	battle_step_ids.append(step_id)
+	evidence["battles"] = battle_rows
+
+
+func _wait_for_choices() -> bool:
+	for _frame: int in 600:
+		await get_tree().process_frame
+		var choices: Control = UI.ow_hud.textRect.choicesContainer
+		if choices.visible and choices.get_child_count() > 0:
+			return true
+	return false
+
+
+func _wait_for_treasure() -> bool:
+	for _frame: int in 600:
+		if UI.ow_hud.treasureControl.visible:
+			return true
+		await get_tree().process_frame
+	return false
+
+
+func _choice_labels() -> Array[String]:
+	var labels: Array[String] = []
+	for child: Node in UI.ow_hud.textRect.choicesContainer.get_children():
+		if child is Label:
+			labels.append(str(child.text))
+	return labels
+
+
+func _treasure_classic_item_ids() -> Array[int]:
+	var item_ids: Array[int] = []
+	for item_button: Button in UI.ow_hud.treasureControl.itemsContainer.get_children():
+		var item := _treasure_button_item(item_button)
+		item_ids.append(int(item.get("classicItemId", 0)))
+	return item_ids
+
+
+func _treasure_button_item(item_button: Button) -> Dictionary:
+	var instance_value: Variant = item_button.get_meta("item_instance", null)
+	if instance_value is ItemInstance:
+		return NodeAccess.__Resources().legacy_item_view_for_adapter(instance_value)
+	var connections := item_button.pressed.get_connections()
+	if connections.is_empty():
+		return {}
+	var arguments: Array = connections[0]["callable"].get_bound_arguments()
+	if arguments.is_empty():
+		return {}
+	if arguments[0] is ItemInstance:
+		return NodeAccess.__Resources().legacy_item_view_for_adapter(arguments[0])
+	return arguments[0] if arguments[0] is Dictionary else {}
+
+
+func _loot_classic_items(item_ids: Array) -> bool:
+	var character: PlayerCharacter = GameGlobal.player_characters[0]
+	UI.ow_hud.selected_character = character
+	for item_value: Variant in item_ids:
+		var item_id := int(item_value)
+		var found := false
+		for item_button: Button in UI.ow_hud.treasureControl.itemsContainer.get_children():
+			var item := _treasure_button_item(item_button)
+			if int(item.get("classicItemId", 0)) != item_id:
+				continue
+			item_button.pressed.emit()
+			await get_tree().process_frame
+			found = _party_has_classic_item(item_id)
+			break
+		if not found:
+			return false
+	return true
+
+
+func _party_has_classic_item(item_id: int) -> bool:
+	for character: PlayerCharacter in GameGlobal.player_characters:
+		for item: ItemInstance in character.inventory_instances():
+			if NodeAccess.__Resources().item_classic_ids(item).has(item_id):
+				return true
+	return false
+
+
+func _move_to_position(stage: String, position: Dictionary) -> bool:
 	host.runtime.runtime_state.set_location(
 		str(position.get("levelType", "land")),
 		int(position.get("levelIndex", 0)),
 		int(position.get("x", 0)),
 		int(position.get("y", 0)),
 	)
+	var expected_map := _native_map_name(position)
+	if GameGlobal.currentmap_name != expected_map:
+		var transition_result := host.activate_start_location()
+		if str(transition_result.get("status", "")) == "error" \
+				or GameGlobal.currentmap_name != expected_map:
+			_fail(
+				stage,
+				str(transition_result.get(
+					"message",
+					"The native route map could not be loaded",
+				)),
+			)
+			return false
 	var tile_position := Vector2i(
 		int(position.get("x", 0)),
 		int(position.get("y", 0)),
@@ -680,6 +1101,7 @@ func _move_to_position(position: Dictionary) -> void:
 		if character != null and character.has_method("set_tile_position"):
 			character.set_tile_position(Vector2(tile_position))
 	map.explore_tiles_from_tilepos(tile_position)
+	return true
 
 
 func _classic_enemy_count(monster_id: int) -> int:
@@ -718,6 +1140,16 @@ func _temporary_battlefield_is_drawable() -> bool:
 
 func _request_victory() -> void:
 	await GameGlobal.end_battle("won")
+	victory_request_completed = true
+
+
+func _wait_for_victory_request_completion() -> bool:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		if victory_request_completed:
+			return true
+		await get_tree().create_timer(0.01).timeout
+	return false
 
 
 func _close_victory_rewards() -> bool:
@@ -767,7 +1199,9 @@ func _wait_for_combat(battle_id: int) -> bool:
 
 func _wait_for_playthrough_completion() -> bool:
 	for _frame: int in 600:
-		if not host.active:
+		if not host.active \
+				and not StateMachine.is_combat_state() \
+				and StateMachine._state_name == "Exploration":
 			return true
 		await get_tree().process_frame
 	return false

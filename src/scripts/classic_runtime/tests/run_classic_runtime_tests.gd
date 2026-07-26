@@ -26682,6 +26682,20 @@ func _test_runtime_media_adapters() -> void:
 	bundle.root_directory = "res://Campaigns/City of Bywater"
 	var adapter = GodotAdapterScript.new()
 	adapter.configure_classic_bundle(bundle)
+	_expect(
+		not GodotAdapterScript.teleport_message_present({
+			"messageId": 0,
+			"message": {"text": "Do Not Use"},
+		}),
+		"teleport-only actions suppress message record zero"
+	)
+	_expect(
+		GodotAdapterScript.teleport_message_present({
+			"messageId": 896,
+			"message": {"text": "Do you want to be teleported?"},
+		}),
+		"teleport actions preserve authored nonzero messages"
+	)
 	var picture := {
 		"resourceId": 0,
 		"runtimeMedia": {

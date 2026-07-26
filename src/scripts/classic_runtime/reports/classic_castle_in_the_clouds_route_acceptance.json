@@ -30,6 +30,59 @@
 		},
 		"rewardScreenPresented": true
 	},
+	"battles": [
+		{
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 4,
+					"displayName": "Cave Bear",
+					"monsterId": 27
+				}
+			],
+			"id": 3,
+			"returnMap": "map_0",
+			"returnPosition": {
+				"x": 39,
+				"y": 71
+			},
+			"rewardScreenPresented": true,
+			"stepId": "cave-bear-battle"
+		},
+		{
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 2,
+					"displayName": "Evil Mage",
+					"monsterId": 148
+				},
+				{
+					"count": 10,
+					"displayName": "Evil Warrior",
+					"monsterId": 151
+				},
+				{
+					"count": 8,
+					"displayName": "Evil Paladin",
+					"monsterId": 152
+				},
+				{
+					"count": 19,
+					"displayName": "Evil Ranger",
+					"monsterId": 153
+				}
+			],
+			"id": 223,
+			"returnMap": "map_1",
+			"returnPosition": {
+				"x": 6,
+				"y": 8
+			},
+			"rewardScreenPresented": true,
+			"stepId": "nufack-battle"
+		}
+	],
 	"campaignDirectory": "Castle in the Clouds (Classic)",
 	"campaignId": "scenario-castle-in-the-clouds",
 	"campaignName": "Castle in the Clouds (Classic)",
@@ -37,11 +90,77 @@
 		"battleIds": [
 			223
 		],
-		"classification": "source-anchor-only",
+		"classification": "installed-runtime",
 		"extraCodeIds": [
 			2266
 		],
-		"runtimeExercised": false,
+		"runtime": {
+			"itemIds": [
+				632,
+				235,
+				244
+			],
+			"position": {
+				"levelIndex": 0,
+				"levelType": "land",
+				"x": 60,
+				"y": 68
+			},
+			"questFlags": [
+				16
+			],
+			"stepIds": [
+				"mcbane-arrival",
+				"cave-bear-battle",
+				"nufack-battle",
+				"zukar-epilogue"
+			],
+			"tileOverrides": [
+				{
+					"levelIndex": 1,
+					"levelType": "land",
+					"value": -16,
+					"x": 5,
+					"y": 8
+				},
+				{
+					"levelIndex": 1,
+					"levelType": "land",
+					"value": -16,
+					"x": 5,
+					"y": 6
+				},
+				{
+					"levelIndex": 1,
+					"levelType": "land",
+					"value": -16,
+					"x": 5,
+					"y": 7
+				},
+				{
+					"levelIndex": 1,
+					"levelType": "land",
+					"value": -16,
+					"x": 6,
+					"y": 6
+				},
+				{
+					"levelIndex": 1,
+					"levelType": "land",
+					"value": -16,
+					"x": 6,
+					"y": 7
+				},
+				{
+					"levelIndex": 1,
+					"levelType": "land",
+					"value": -16,
+					"x": 6,
+					"y": 8
+				}
+			]
+		},
+		"runtimeExercised": true,
 		"sourceVerified": true,
 		"triggerIds": [
 			"Data DD:1:31",
@@ -58,7 +177,140 @@
 		}
 	],
 	"failures": [],
-	"routeId": "castle-in-the-clouds-opening-battle",
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 843,
+			"prefix": "The walls of the castle start to shake and rumble",
+			"stepId": "nufack-battle"
+		},
+		{
+			"answer": "NO",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "nufack-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 845,
+			"prefix": "Pieces of the roof start falling nearby",
+			"stepId": "nufack-battle"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "nufack-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 843,
+			"prefix": "The walls of the castle start to shake and rumble",
+			"stepId": "nufack-battle"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "nufack-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 844,
+			"prefix": "You run out of the castle unharmed",
+			"stepId": "nufack-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 848,
+			"prefix": "Entering this very large and beautiful castle",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 849,
+			"prefix": "When you move closer to the throne",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 850,
+			"prefix": "\"I must not seem so great if you are reading this note",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 851,
+			"prefix": "\"It is imperative that whoever finds this note seek out the White Dragon",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 852,
+			"prefix": "Then you realize that during your search for Zukar",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 894,
+			"prefix": "Right then the room lights up with a magical glow",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				632,
+				235,
+				244
+			],
+			"kind": "treasure",
+			"stepId": "zukar-epilogue",
+			"treasureId": 71
+		},
+		{
+			"kind": "message",
+			"messageId": 853,
+			"prefix": "Thank You for playing Castle in the Clouds",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 895,
+			"prefix": "The Search for the White Dragon will be the title of my next scenario",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 854,
+			"prefix": "This scenario is dedicated to the memory of my brother",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 896,
+			"prefix": "Do you want to be teleported to McBane City",
+			"stepId": "zukar-epilogue"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "zukar-epilogue"
+		}
+	],
+	"routeId": "castle-in-the-clouds-completion-route",
 	"schemaVersion": 1,
 	"selectedCharacter": "Cindred",
 	"selectionState": "Ready with fallbacks",
@@ -89,6 +341,51 @@
 			"status": "native-mapping",
 			"stepId": "cave-bear-battle",
 			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -26260,
+			"nativeName": "party loss.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "nufack-battle",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -10107,
+			"nativeName": "glass.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "nufack-battle",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -10090,
+			"nativeName": "earth shake.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "nufack-battle",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -10105,
+			"nativeName": "heal.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "zukar-epilogue",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -1100,
+			"nativeName": "talk 1.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "zukar-epilogue",
+			"waitForCompletion": true
 		}
 	],
 	"stages": [
@@ -118,6 +415,16 @@
 			"status": "passed"
 		},
 		{
+			"detail": "The route step matches its compiled source records",
+			"id": "nufack-battle-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "zukar-epilogue-source",
+			"status": "passed"
+		},
+		{
 			"detail": "The compiled completion chain and final battle remain source-identifiable",
 			"id": "completion-source-anchor",
 			"status": "passed"
@@ -135,6 +442,26 @@
 		{
 			"detail": "Native victory returns to the authored route with no pending continuation",
 			"id": "cave-bear-battle-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "nufack-battle",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "nufack-battle-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "Zukar's note, treasure 71, epilogue, quest completion, and McBane teleport complete through the installed runtime",
+			"id": "zukar-epilogue",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
 			"status": "passed"
 		}
 	],
