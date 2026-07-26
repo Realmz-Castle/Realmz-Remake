@@ -41,6 +41,12 @@ Every bundle is a directory containing `campaign.json`:
 }
 ```
 
+Providence writes these distribution documents as compact JSON with a trailing
+newline. Whitespace is not part of the version 1 contract. The installer uses
+the same compact policy for materialized maps, item and bestiary books, and
+generated tileset metadata; arrays and all Classic provenance fields remain
+unchanged.
+
 All eight document paths are required, unique, relative to the bundle root, and
 must name JSON files. Absolute paths, URI schemes, drive prefixes, and `..`
 segments are invalid. Asset paths inside the documents follow the same

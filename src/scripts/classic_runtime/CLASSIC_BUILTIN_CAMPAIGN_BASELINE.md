@@ -33,16 +33,21 @@ records:
 | Fidelity fallbacks | 836 |
 | Active / inactive diagnostics | 1,269 / 178 |
 | Files | 4,991 |
-| Installed footprint | 327,323,014 bytes (312.16 MiB) |
-| Per-file deflate estimate | 47,179,058 bytes (44.99 MiB) |
-| JSON footprint | 275,191,654 bytes (262.44 MiB) |
-| Byte-identical duplication | 29,871,879 bytes (28.49 MiB) |
-| Cross-campaign duplication | 29,664,349 bytes (28.29 MiB) |
+| Installed footprint | 175,141,552 bytes (167.03 MiB) |
+| Per-file deflate estimate | 44,995,046 bytes (42.91 MiB) |
+| JSON footprint | 123,010,192 bytes (117.31 MiB) |
+| Byte-identical duplication | 23,796,872 bytes (22.69 MiB) |
+| Cross-campaign duplication | 23,694,783 bytes (22.60 MiB) |
 
-The largest duplicate category is stock tilesets at 21,188,297 bytes
-(20.21 MiB). The report retains every duplicate hash group and location, every
+The largest duplicate category is stock tilesets at 15,647,091 bytes
+(14.92 MiB). The report retains every duplicate hash group and location, every
 campaign diagnostic with its source and record identity, per-campaign resource
 preparation evidence, file categories, and extension totals.
+
+The distribution JSON is compact. Semantic comparison of all 920 JSON files
+against the pre-compaction corpus found zero mismatches while reducing the
+installed footprint by 152,181,462 bytes (145.13 MiB). Payload and runtime-media
+files are unchanged.
 
 The earlier `13/13 ready, 0 blockers, 836 fallbacks` UI aggregate and
 `732 blockers` standalone aggregate used different native resource preparation
@@ -51,5 +56,6 @@ result is 611 active progression blockers and 836 fallbacks. Of the fallbacks,
 178 describe inactive preserved definitions or trailing data; those records
 remain inventoried and are not active consumers.
 
-This audit does not compact, deduplicate, or delete campaign content. Structural
-validity and a generated report are not proof that a scenario is completable.
+The audit is read-only and does not deduplicate or delete campaign content.
+Structural validity and a generated report are not proof that a scenario is
+completable.

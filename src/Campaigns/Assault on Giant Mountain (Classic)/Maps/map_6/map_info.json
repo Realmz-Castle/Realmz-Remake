@@ -1,9 +1,1 @@
-{
-  "classic_boats": {},
-  "darkness_level": -1,
-  "display_explored_only": 1,
-  "map_type": "Indoor",
-  "music_type": "Indoor",
-  "name": "map_6",
-  "outdoor_riding": false
-}
+{"classic_boats":{},"darkness_level":-1,"display_explored_only":1,"map_type":"Indoor","music_type":"Indoor","name":"map_6","outdoor_riding":false}

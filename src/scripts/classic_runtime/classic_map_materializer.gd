@@ -2,6 +2,9 @@ class_name ClassicMapMaterializer
 extends RefCounted
 
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
+const DistributionJsonScript = preload(
+	"res://scripts/classic_runtime/classic_distribution_json.gd"
+)
 const QuickDrawImageDecoderScript = preload(
 	"res://scripts/classic_runtime/classic_quickdraw_image_decoder.gd"
 )
@@ -183,7 +186,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			)
 		for file_name: String in REQUIRED_MAP_FILES:
 			var contents := MAP_SCRIPT_SOURCE if file_name == "map_scripts.gd" \
-				else JSON.stringify(plan["files"][file_name], "  ") + "\n"
+				else DistributionJsonScript.stringify(plan["files"][file_name])
 			var file := FileAccess.open(map_directory.path_join(file_name), FileAccess.WRITE)
 			if file == null:
 				return _fail(
@@ -1388,7 +1391,7 @@ func _write_generated_tileset(plan: Dictionary) -> Error:
 		var file := FileAccess.open(directory.path_join(file_data["name"]), FileAccess.WRITE)
 		if file == null:
 			return FileAccess.get_open_error()
-		file.store_string(JSON.stringify(file_data["value"], "  ") + "\n")
+		file.store_string(DistributionJsonScript.stringify(file_data["value"]))
 		file.close()
 	return OK
 

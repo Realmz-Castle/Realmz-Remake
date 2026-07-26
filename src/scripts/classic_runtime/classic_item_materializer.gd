@@ -1,6 +1,10 @@
 class_name ClassicItemMaterializer
 extends RefCounted
 
+const DistributionJsonScript = preload(
+	"res://scripts/classic_runtime/classic_distribution_json.gd"
+)
+
 const ITEM_BOOK_PATH := "Items/stuff_book.json"
 const ITEM_IMAGE_BOOK_PATH := "Items/img_pack.json"
 const ITEM_ATLAS_PATH := "Items/textureAtlas.png"
@@ -732,7 +736,7 @@ func _write_json(path: String, value: Variant) -> Error:
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
-	file.store_string(JSON.stringify(value, "  ", true) + "\n")
+	file.store_string(DistributionJsonScript.stringify(value, true))
 	file.close()
 	return OK
 

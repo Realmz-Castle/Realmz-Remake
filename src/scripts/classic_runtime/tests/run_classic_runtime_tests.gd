@@ -8198,6 +8198,28 @@ func _test_classic_campaign_package_installer() -> void:
 		),
 		"installed producer bundle contains its generated dungeon atlas"
 	)
+	for compact_relative_path: String in [
+		"Maps/map_0/map_info.json",
+		"Maps/map_0/map_scriptareas.json",
+		"Maps/map_0/map_things.json",
+		"Items/stuff_book.json",
+		"Bestiary/stuff_book.json",
+		"Tilesets/ClassicDungeon/ClassicDungeon.json",
+		"Tilesets/ClassicDungeon/tile_templates.json",
+	]:
+		var compact_path := campaigns_directory.path_join(
+			"producer-stock-map"
+		).path_join(compact_relative_path)
+		_expect(
+			FileAccess.file_exists(compact_path),
+			"installed producer bundle writes %s" % compact_relative_path
+		)
+		if FileAccess.file_exists(compact_path):
+			_expect_equal(
+				FileAccess.get_file_as_string(compact_path).count("\n"),
+				1,
+				"installed producer bundle writes compact %s" % compact_relative_path
+			)
 	var materialized_areas: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(
 			materialized_map_directory.path_join("map_scriptareas.json")

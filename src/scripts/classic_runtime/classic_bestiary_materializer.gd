@@ -1,6 +1,10 @@
 class_name ClassicBestiaryMaterializer
 extends RefCounted
 
+const DistributionJsonScript = preload(
+	"res://scripts/classic_runtime/classic_distribution_json.gd"
+)
+
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
@@ -987,7 +991,7 @@ func _write_json(path: String, value: Variant) -> Error:
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
-	file.store_string(JSON.stringify(value, "  ", true) + "\n")
+	file.store_string(DistributionJsonScript.stringify(value, true))
 	file.close()
 	return OK
 

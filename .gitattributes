@@ -13,6 +13,7 @@
 *.psd binary
 * text=auto
 *.import text eol=lf
+src/Campaigns/**/*.json text eol=lf
 src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/*.json text eol=lf
 src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/classic/*.json text eol=lf
 src/scripts/classic_runtime/tests/fixtures/providence_authoritative_export/assets/managed/* binary

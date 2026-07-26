@@ -1,9 +1,1 @@
-{
-  "classic_boats": {},
-  "darkness_level": -1,
-  "display_explored_only": 0,
-  "map_type": "Outdoor",
-  "music_type": "Cave",
-  "name": "map_9",
-  "outdoor_riding": true
-}
+{"classic_boats":{},"darkness_level":-1,"display_explored_only":0,"map_type":"Outdoor","music_type":"Cave","name":"map_9","outdoor_riding":true}
