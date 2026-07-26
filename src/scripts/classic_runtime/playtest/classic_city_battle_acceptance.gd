@@ -266,6 +266,21 @@ func _prepare_acceptance_profile() -> bool:
 			_fail("acceptance_profile", "the disposable acceptance profile could not be created")
 			return false
 	GameGlobal.set_current_profile(ACCEPTANCE_PROFILE)
+	if acceptance_phase == "continue":
+		var character := _profile_acceptance_character()
+		var deferred_ids: Array[String] = []
+		if character != null:
+			for item_value: Dictionary in character.deferred_item_inventory:
+				deferred_ids.append(str(item_value.get("definitionId", "")))
+		_verify_stage(
+			"12a_profile_inventory_deferred",
+			character != null
+				and deferred_ids.has(_classic_definition_id(SHOP_ITEM_ID))
+				and deferred_ids.has(_classic_definition_id(QUEST_ITEM_ID)),
+			"campaign-owned profile items remain serialized until their catalog loads"
+		)
+		if not smoke_failures.is_empty():
+			return false
 	return true
 
 
@@ -315,6 +330,13 @@ func _continue_installed_campaign() -> void:
 	var restored_state: ClassicRuntimeState = host.runtime.runtime_state
 	var restored_override := restored_state.get_action_point_override(MUTATED_TRIGGER_ID)
 	var shop: Dictionary = GameGlobal.get_shop(SHOP_NAME)
+	var profile_character := _profile_acceptance_character()
+	var profile_inventory_restored := (
+		profile_character != null
+			and profile_character.deferred_item_inventory.is_empty()
+			and _character_has_classic_item(profile_character, SHOP_ITEM_ID)
+			and _character_has_classic_item(profile_character, QUEST_ITEM_ID)
+	)
 	var continue_evidence := {
 		"campaign": GameGlobal.currentcampaign,
 		"save": GameGlobal.cur_save_name,
@@ -328,6 +350,7 @@ func _continue_installed_campaign() -> void:
 		"actionOverride": not restored_override.is_empty(),
 		"shopItem": _party_has_classic_item(SHOP_ITEM_ID),
 		"questItem": _party_has_classic_item(QUEST_ITEM_ID),
+		"profileInventoryRestored": profile_inventory_restored,
 		"shopQuantity": _shop_stock_quantity(shop),
 		"pendingContinuation": campaign_session.has_pending_continuation(),
 	}
@@ -344,6 +367,7 @@ func _continue_installed_campaign() -> void:
 			and not restored_override.is_empty()
 			and _party_has_classic_item(SHOP_ITEM_ID)
 			and _party_has_classic_item(QUEST_ITEM_ID)
+			and profile_inventory_restored
 			and _shop_stock_quantity(shop) == 83
 			and not campaign_session.has_pending_continuation()
 	)
@@ -1424,10 +1448,30 @@ func _treasure_button_item(item_button: Button) -> Dictionary:
 
 func _party_has_classic_item(item_id: int) -> bool:
 	for character: PlayerCharacter in GameGlobal.player_characters:
-		for item: ItemInstance in character.inventory_instances():
-			if NodeAccess.__Resources().item_classic_ids(item).has(item_id):
-				return true
+		if _character_has_classic_item(character, item_id):
+			return true
 	return false
+
+
+func _character_has_classic_item(
+	character: PlayerCharacter,
+	item_id: int,
+) -> bool:
+	for item: ItemInstance in character.inventory_instances():
+		if NodeAccess.__Resources().item_classic_ids(item).has(item_id):
+			return true
+	return false
+
+
+func _profile_acceptance_character() -> PlayerCharacter:
+	for character: PlayerCharacter in GameGlobal.profile_characters_list:
+		if character.name == "City Acceptance Rogue":
+			return character
+	return null
+
+
+func _classic_definition_id(item_id: int) -> String:
+	return "classic:scenario-city-of-bywater-classic:%d" % item_id
 
 
 func _wait_for_allies() -> bool:

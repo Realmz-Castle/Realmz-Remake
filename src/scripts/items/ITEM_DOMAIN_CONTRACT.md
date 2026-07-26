@@ -206,6 +206,7 @@ Campaign and gameplay code uses `CampaignResources`:
 | `copy_item_instance(instance)` | A new instance with copied state and a distinct `instanceId`. |
 | `serialize_item_inventory(instances)` | A transactional versioned save result. |
 | `deserialize_item_inventory(saved)` | An array of stable instances, or an empty result with diagnostics. |
+| `deserialize_item_inventory_preserving_unresolved(saved)` | Stable instances plus exact deferred payloads for valid catalog-backed definitions that are not loaded yet. |
 | `item_texture(instance)` | Cached runtime media without adding media to instance state. |
 | `item_has_hook(instance, kind)` / `run_item_hook(...)` | Definition-backed hook discovery and execution. |
 
@@ -225,9 +226,11 @@ JSON-compatible `stateData`. A legacy hook that changes its temporary `name` or
 code reads that override without mutating the shared definition.
 
 Profile loading ensures the shared item catalog is present before deserializing
-versioned character inventories. This keeps the main-menu character picker
-independent of campaign resource-loading order while definitions remain shared
-rather than copied into each stock-character save.
+versioned character inventories. Structurally valid campaign-owned references
+remain as exact deferred payloads while the main-menu character picker has no
+active campaign catalog. Loading a campaign retries those payloads, materializes
+the definitions that now resolve, and retains any references owned by another
+campaign for a later load. New saves append the deferred payloads unchanged.
 
 ## Versioned save format
 
@@ -249,9 +252,11 @@ Every new carried item serializes as:
 ```
 
 `embeddedDefinition` is the only optional root field. Catalog-backed items
-serialize a reference and instance state only. A reader rejects an unsupported
-format version, unresolved definition, duplicate instance ID, invalid state, or
-malformed embedded definition with an inventory index in the diagnostic.
+serialize a reference and instance state only. The strict reader rejects an
+unsupported format version, unresolved definition, duplicate instance ID,
+invalid state, or malformed embedded definition with an inventory index in the
+diagnostic. The profile-preservation reader may defer only an otherwise valid
+versioned item whose catalog definition is not currently loaded.
 
 Serialized data contains JSON scalars, arrays, and string-keyed objects only.
 It excludes textures, images, nodes, resources, callables, compiled scripts,

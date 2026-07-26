@@ -224,7 +224,11 @@ func import_item(value: Variant, campaign_id := "") -> Dictionary:
 	)
 
 
-func import_inventory(values: Array, campaign_id := "") -> Dictionary:
+func import_inventory(
+	values: Array,
+	campaign_id := "",
+	defer_unresolved := false,
+) -> Dictionary:
 	last_errors.clear()
 	last_diagnostics.clear()
 	var plans: Array[Dictionary] = []
@@ -259,9 +263,15 @@ func import_inventory(values: Array, campaign_id := "") -> Dictionary:
 			_error("inventory[%d]" % index, "must be an item object")
 			continue
 		var item_value: Dictionary = value
-		var plan := _plan_versioned_item(item_value, index) \
-			if item_value.has("format") else \
-			_plan_legacy_item(item_value, index, campaign_id)
+		var plan: Dictionary
+		if item_value.has("format"):
+			plan = _plan_versioned_item(
+				item_value,
+				index,
+				defer_unresolved,
+			)
+		else:
+			plan = _plan_legacy_item(item_value, index, campaign_id)
 		if plan.is_empty():
 			continue
 		var instance_id := str(plan.get("instanceId", ""))
@@ -306,8 +316,13 @@ func import_inventory(values: Array, campaign_id := "") -> Dictionary:
 			registered_embedded_ids.append(embedded_id)
 
 	var instances: Array[ItemInstance] = []
+	var deferred: Array[Dictionary] = []
 	var issued_instance_ids: Array[String] = []
 	for plan: Dictionary in plans:
+		var deferred_value: Variant = plan.get("deferredValue")
+		if deferred_value is Dictionary:
+			deferred.append(deferred_value.duplicate(true))
+			continue
 		var existing_value: Variant = plan.get("existingInstance")
 		if existing_value is ItemInstance:
 			instances.append(existing_value)
@@ -343,6 +358,7 @@ func import_inventory(values: Array, campaign_id := "") -> Dictionary:
 		{
 			"instances": instances,
 			"legacyViews": legacy_views,
+			"deferred": deferred,
 		},
 	)
 
@@ -449,7 +465,11 @@ func sync_instance_from_legacy_view(
 	return true
 
 
-func _plan_versioned_item(value: Dictionary, index: int) -> Dictionary:
+func _plan_versioned_item(
+	value: Dictionary,
+	index: int,
+	defer_unresolved := false,
+) -> Dictionary:
 	var context := "inventory[%d]" % index
 	for field_name_value: Variant in value:
 		var field_name := str(field_name_value)
@@ -514,11 +534,12 @@ func _plan_versioned_item(value: Dictionary, index: int) -> Dictionary:
 			pass
 	var installed_definition := _catalog.get_definition(definition_id)
 	if installed_definition == null and not (embedded_value is Dictionary):
-		_error(
-			"%s.definitionId" % context,
-			"%s does not resolve and no embedded definition was provided"
-			% definition_id,
-		)
+		if not defer_unresolved:
+			_error(
+				"%s.definitionId" % context,
+				"%s does not resolve and no embedded definition was provided"
+				% definition_id,
+			)
 	elif installed_definition != null and embedded_value is Dictionary \
 			and installed_definition.to_dictionary() != embedded_value:
 		_error(
@@ -528,7 +549,7 @@ func _plan_versioned_item(value: Dictionary, index: int) -> Dictionary:
 	if not last_errors.is_empty() \
 			and _errors_for_context(context):
 		return {}
-	return {
+	var plan := {
 		"index": index,
 		"legacy": false,
 		"instanceId": instance_id,
@@ -540,6 +561,9 @@ func _plan_versioned_item(value: Dictionary, index: int) -> Dictionary:
 		"embeddedDefinition": embedded_value.duplicate(true) \
 			if embedded_value is Dictionary else null,
 	}
+	if installed_definition == null and not (embedded_value is Dictionary):
+		plan["deferredValue"] = value.duplicate(true)
+	return plan
 
 
 func _plan_legacy_item(

@@ -245,15 +245,20 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 	if data.has("inventory") :
 		var resourcenode = NodeAccess.__Resources()
 		var restored_result: Dictionary = (
-			resourcenode.deserialize_item_inventory(data["inventory"])
+			resourcenode.deserialize_item_inventory_preserving_unresolved(
+				data["inventory"]
+			)
 			if resourcenode != null
-				and resourcenode.has_method("deserialize_item_inventory")
+				and resourcenode.has_method(
+					"deserialize_item_inventory_preserving_unresolved"
+				)
 			else {
 				"ok": false,
 				"errors": ["Item serialization service is unavailable"],
 			}
 		)
 		if bool(restored_result.get("ok", false)):
+			preserve_deferred_item_inventory(restored_result.get("deferred", []))
 			for item_value: Variant in restored_result.get("instances", []):
 				if not (item_value is ItemInstance):
 					continue
@@ -263,17 +268,7 @@ func _init(data : Dictionary,new_icon : Texture,new_portrait : Texture,new_class
 					"PC init ITEM  ",
 					definition.display_name_for(item) if definition != null else "",
 				)
-				var should_equip := item.equipped
-				item.equipped = false
-				if not add_inventory_item(item, -1, true):
-					continue
-				var inventory_item: ItemInstance = item_inventory.back()
-				if should_equip and not equip_item(inventory_item):
-					# Older saves can contain loadouts that exceed Remake's slot
-					# rules (for example, a bow and a readied dagger). Preserve
-					# their authored equipped state even when it cannot be
-					# reconstructed through the current equipment bookkeeping.
-					inventory_item.equipped = true
+				_append_restored_inventory_item(item)
 			restored_inventory_equipment = true
 		else:
 			for message: Variant in restored_result.get("errors", []):

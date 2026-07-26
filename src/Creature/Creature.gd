@@ -187,6 +187,7 @@ var item_inventory: Array[ItemInstance] = []
 # Retain the old property name as an alias for campaign scripts, but expose the
 # authoritative instances rather than a parallel dictionary model.
 var inventory: Array[ItemInstance] = item_inventory
+var deferred_item_inventory: Array[Dictionary] = []
 
 var ITEM_NO_MELEE_WEAPON : Dictionary = {"name":"NO_MELEE_WEAPON", "weapon_dmg" : {"Physical" : [1,3]}, "stats" : {}, "charges" : 0, "charges_max" : 0, "sound" : "punch_male.wav"} #changed to var so sound can be changed
 var current_melee_weapon_instances: Array[ItemInstance] = []
@@ -603,6 +604,49 @@ func inventory_instances() -> Array[ItemInstance]:
 	return item_inventory.duplicate()
 
 
+func preserve_deferred_item_inventory(values: Array) -> void:
+	deferred_item_inventory.clear()
+	for value: Variant in values:
+		if value is Dictionary:
+			deferred_item_inventory.append(value.duplicate(true))
+
+
+func restore_deferred_item_inventory() -> Dictionary:
+	if deferred_item_inventory.is_empty():
+		return {"ok": true, "restored": 0, "deferred": 0, "errors": []}
+	var resources = NodeAccess.__Resources()
+	if resources == null \
+			or not resources.has_method(
+				"deserialize_item_inventory_preserving_unresolved"
+			):
+		return {
+			"ok": false,
+			"errors": ["Item serialization service is unavailable"],
+		}
+	var saved_values: Array = deferred_item_inventory.duplicate(true)
+	var restored_result: Dictionary = (
+		resources.deserialize_item_inventory_preserving_unresolved(saved_values)
+	)
+	if not bool(restored_result.get("ok", false)):
+		return restored_result
+	var restored_count := 0
+	for item_value: Variant in restored_result.get("instances", []):
+		if not (item_value is ItemInstance) \
+				or not _append_restored_inventory_item(item_value):
+			return {
+				"ok": false,
+				"errors": ["A deferred inventory item could not be restored"],
+			}
+		restored_count += 1
+	preserve_deferred_item_inventory(restored_result.get("deferred", []))
+	return {
+		"ok": true,
+		"restored": restored_count,
+		"deferred": deferred_item_inventory.size(),
+		"errors": [],
+	}
+
+
 func consume_item_charges(item: Variant, amount := 1) -> bool:
 	var instance := get_item_instance(item)
 	if instance == null or amount < 0:
@@ -635,6 +679,7 @@ func clear_inventory_items() -> void:
 		if instance.equipped:
 			unequip_item(instance, false)
 	item_inventory.clear()
+	deferred_item_inventory.clear()
 	current_melee_weapon_instances.clear()
 	current_range_weapon_instance = null
 	current_ammo_weapon_instance = null
@@ -1230,10 +1275,14 @@ func _clear_inventory_for_restore() -> void:
 
 
 func _restore_saved_inventory(saved_inventory: Array, resources: Object) -> bool:
-	if not resources.has_method("deserialize_item_inventory"):
+	if not resources.has_method(
+		"deserialize_item_inventory_preserving_unresolved"
+	):
 		return false
-	var restored_result: Dictionary = resources.deserialize_item_inventory(
-		saved_inventory
+	var restored_result: Dictionary = (
+		resources.deserialize_item_inventory_preserving_unresolved(
+			saved_inventory
+		)
 	)
 	if not bool(restored_result.get("ok", false)):
 		for message: Variant in restored_result.get("errors", []):
@@ -1241,19 +1290,25 @@ func _restore_saved_inventory(saved_inventory: Array, resources: Object) -> bool
 		return false
 	var restored_items: Array = restored_result.get("instances", [])
 	_clear_inventory_for_restore()
+	preserve_deferred_item_inventory(restored_result.get("deferred", []))
 	for item_value: Variant in restored_items:
 		if not (item_value is ItemInstance):
 			return false
-		var restored_item: ItemInstance = item_value
-		var should_equip := restored_item.equipped
-		restored_item.equipped = false
-		if not add_inventory_item(restored_item, -1, true):
+		if not _append_restored_inventory_item(item_value):
 			return false
-		var inventory_item: ItemInstance = item_inventory.back()
-		if should_equip and not equip_item(inventory_item):
-			# Preserve legacy overcommitted equipment rather than rejecting the
-			# entire save when current slot rules cannot recreate its bookkeeping.
-			inventory_item.equipped = true
+	return true
+
+
+func _append_restored_inventory_item(restored_item: ItemInstance) -> bool:
+	var should_equip := restored_item.equipped
+	restored_item.equipped = false
+	if not add_inventory_item(restored_item, -1, true):
+		return false
+	var inventory_item: ItemInstance = item_inventory.back()
+	if should_equip and not equip_item(inventory_item):
+		# Preserve legacy overcommitted equipment rather than rejecting the
+		# entire save when current slot rules cannot recreate its bookkeeping.
+		inventory_item.equipped = true
 	return true
 
 # called by CbDecideAction State
@@ -1842,9 +1897,12 @@ func get_save_string() -> String :
 		for message: Variant in inventory_result.get("errors", []):
 			push_error(str(message))
 		return ""
+	var saved_inventory: Array = inventory_result.get("value", []).duplicate(true)
+	for deferred_value: Dictionary in deferred_item_inventory:
+		saved_inventory.append(deferred_value.duplicate(true))
 	savestring += (
 		'\n"inventory" : '
-		+ JSON.stringify(inventory_result.get("value", []))
+		+ JSON.stringify(saved_inventory)
 		+ ','
 	)
 		

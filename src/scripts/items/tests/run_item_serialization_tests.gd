@@ -12,10 +12,67 @@ var _failures: Array[String] = []
 
 func _init() -> void:
 	_test_catalog_backed_round_trips()
+	_test_deferred_catalog_item_preservation()
 	_test_legacy_inventory_import()
 	_test_embedded_custom_item_round_trip()
 	_test_transactional_rejection()
 	_finish()
+
+
+func _test_deferred_catalog_item_preservation() -> void:
+	var serializer := ItemSerializationScript.new(ItemCatalogScript.new())
+	var saved_item := {
+		"format": "realmz-remake-item-instance",
+		"formatVersion": 1,
+		"instanceId": "44444444-4444-4444-8444-444444444444",
+		"definitionId": "classic:scenario-fixture:901",
+		"state": {
+			"charges": 4,
+			"equipped": false,
+			"identified": true,
+			"data": {"questState": "carried"},
+		},
+	}
+	var strict_result := serializer.import_inventory([saved_item])
+	_expect(
+		not bool(strict_result.get("ok", true)),
+		"strict import still rejects an unavailable catalog definition",
+	)
+	var deferred_result := serializer.import_inventory([saved_item], "", true)
+	_expect(
+		bool(deferred_result.get("ok", false)),
+		"portable character import can defer an unavailable catalog definition",
+	)
+	_expect_equal(
+		deferred_result.get("instances", []).size(),
+		0,
+		"deferred catalog items are not materialized without their definition",
+	)
+	_expect_equal(
+		deferred_result.get("deferred", []),
+		[saved_item],
+		"deferred catalog items preserve their exact serialized payload",
+	)
+	var malformed_item := saved_item.duplicate(true)
+	malformed_item["state"].erase("charges")
+	var malformed_result := serializer.import_inventory(
+		[malformed_item],
+		"",
+		true,
+	)
+	_expect(
+		not bool(malformed_result.get("ok", true)),
+		"deferral does not accept a malformed item payload",
+	)
+	var duplicate_result := serializer.import_inventory(
+		[saved_item, saved_item.duplicate(true)],
+		"",
+		true,
+	)
+	_expect(
+		not bool(duplicate_result.get("ok", true)),
+		"deferred inventory still rejects duplicate instance identities",
+	)
 
 
 func _test_catalog_backed_round_trips() -> void:

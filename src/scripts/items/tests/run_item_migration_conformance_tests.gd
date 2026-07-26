@@ -51,7 +51,7 @@ const REQUIRED_STABLE_TOKENS := {
 	"res://Creature/Creature.gd": [
 		"item_inventory: Array[ItemInstance]",
 		"serialize_item_inventory(",
-		"deserialize_item_inventory(",
+		"deserialize_item_inventory_preserving_unresolved(",
 	],
 	"res://Creature/PlayerCharacter.gd": [
 		"item_inventory",

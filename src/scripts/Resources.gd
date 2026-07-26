@@ -176,6 +176,26 @@ func load_campaign_ressources( campaign : String = "") ->void :
 	else:
 		for mn in mapnames :
 			load_map_ressources(mapspath + mn + '/', mn)
+	_restore_deferred_character_inventories()
+
+
+func _restore_deferred_character_inventories() -> void:
+	var restored_characters := {}
+	for characters: Array in [
+		GameGlobal.profile_characters_list,
+		GameGlobal.player_characters,
+		GameGlobal.player_allies,
+	]:
+		for character: Variant in characters:
+			if not (character is Object) \
+					or restored_characters.has(character.get_instance_id()) \
+					or not character.has_method("restore_deferred_item_inventory"):
+				continue
+			restored_characters[character.get_instance_id()] = true
+			var result: Dictionary = character.restore_deferred_item_inventory()
+			if not bool(result.get("ok", false)):
+				for message: Variant in result.get("errors", []):
+					push_error(str(message))
 
 
 func ensure_campaign_map_resource(campaign: String, map_name: String) -> bool:
@@ -726,15 +746,30 @@ func serialize_item_inventory(instances: Array) -> Dictionary:
 
 
 func deserialize_item_inventory(saved_inventory: Array) -> Dictionary:
+	return _deserialize_item_inventory(saved_inventory, false)
+
+
+func deserialize_item_inventory_preserving_unresolved(
+	saved_inventory: Array
+) -> Dictionary:
+	return _deserialize_item_inventory(saved_inventory, true)
+
+
+func _deserialize_item_inventory(
+	saved_inventory: Array,
+	defer_unresolved: bool,
+) -> Dictionary:
 	var imported := item_serialization.import_inventory(
 		saved_inventory,
 		item_catalog.active_campaign_id(),
+		defer_unresolved,
 	)
 	if not bool(imported.get("ok", false)):
 		return imported
 	return {
 		"ok": true,
 		"instances": imported.get("instances", []),
+		"deferred": imported.get("deferred", []),
 		"diagnostics": imported.get("diagnostics", []),
 		"errors": [],
 	}
