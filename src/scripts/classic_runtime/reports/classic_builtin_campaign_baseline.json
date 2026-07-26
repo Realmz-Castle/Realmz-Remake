@@ -16,9 +16,9 @@
 						"installedBytes": 382014
 					},
 					"classic": {
-						"compressedEstimateBytes": 421705,
+						"compressedEstimateBytes": 421638,
 						"files": 8,
-						"installedBytes": 4138860
+						"installedBytes": 4138848
 					},
 					"items": {
 						"compressedEstimateBytes": 8698,
@@ -26,9 +26,9 @@
 						"installedBytes": 192083
 					},
 					"maps": {
-						"compressedEstimateBytes": 38441,
+						"compressedEstimateBytes": 39741,
 						"files": 36,
-						"installedBytes": 386692
+						"installedBytes": 389263
 					},
 					"media": {
 						"compressedEstimateBytes": 212555,
@@ -36,17 +36,17 @@
 						"installedBytes": 413888
 					},
 					"root": {
-						"compressedEstimateBytes": 1719,
+						"compressedEstimateBytes": 1723,
 						"files": 1,
 						"installedBytes": 4056
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 56529,
+						"compressedEstimateBytes": 50018,
 						"files": 6,
-						"installedBytes": 79189
+						"installedBytes": 69905
 					}
 				},
-				"compressedEstimateBytes": 869805,
+				"compressedEstimateBytes": 864531,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 42946,
@@ -59,9 +59,9 @@
 						"installedBytes": 414
 					},
 					"json": {
-						"compressedEstimateBytes": 501319,
+						"compressedEstimateBytes": 502402,
 						"files": 44,
-						"installedBytes": 5127586
+						"installedBytes": 5127345
 					},
 					"pict": {
 						"compressedEstimateBytes": 53493,
@@ -69,9 +69,9 @@
 						"installedBytes": 97588
 					},
 					"png": {
-						"compressedEstimateBytes": 259729,
+						"compressedEstimateBytes": 253372,
 						"files": 68,
-						"installedBytes": 456901
+						"installedBytes": 450417
 					},
 					"snd": {
 						"compressedEstimateBytes": 4336,
@@ -85,7 +85,7 @@
 					}
 				},
 				"files": 187,
-				"installedBytes": 5796866
+				"installedBytes": 5790141
 			},
 			"id": "scenario-assault-on-giant-mountain",
 			"install": {
@@ -977,14 +977,14 @@
 						"installedBytes": 157446
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 31262,
+						"compressedEstimateBytes": 31224,
 						"files": 3,
-						"installedBytes": 411907
+						"installedBytes": 411928
 					},
 					"classic": {
-						"compressedEstimateBytes": 693740,
+						"compressedEstimateBytes": 693667,
 						"files": 8,
-						"installedBytes": 7968236
+						"installedBytes": 7968215
 					},
 					"items": {
 						"compressedEstimateBytes": 6981,
@@ -992,9 +992,9 @@
 						"installedBytes": 177689
 					},
 					"maps": {
-						"compressedEstimateBytes": 43834,
+						"compressedEstimateBytes": 43283,
 						"files": 52,
-						"installedBytes": 451462
+						"installedBytes": 448543
 					},
 					"media": {
 						"compressedEstimateBytes": 159437,
@@ -1002,17 +1002,17 @@
 						"installedBytes": 347818
 					},
 					"root": {
-						"compressedEstimateBytes": 1561,
+						"compressedEstimateBytes": 1565,
 						"files": 1,
 						"installedBytes": 3542
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 39646,
+						"compressedEstimateBytes": 35548,
 						"files": 6,
-						"installedBytes": 67975
+						"installedBytes": 62210
 					}
 				},
-				"compressedEstimateBytes": 1050784,
+				"compressedEstimateBytes": 1046028,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 26321,
@@ -1025,9 +1025,9 @@
 						"installedBytes": 598
 					},
 					"json": {
-						"compressedEstimateBytes": 778863,
+						"compressedEstimateBytes": 778097,
 						"files": 56,
-						"installedBytes": 9042353
+						"installedBytes": 9037649
 					},
 					"pict": {
 						"compressedEstimateBytes": 48002,
@@ -1035,13 +1035,13 @@
 						"installedBytes": 96002
 					},
 					"png": {
-						"compressedEstimateBytes": 196935,
+						"compressedEstimateBytes": 192945,
 						"files": 47,
-						"installedBytes": 385678
+						"installedBytes": 381698
 					}
 				},
 				"files": 159,
-				"installedBytes": 9586075
+				"installedBytes": 9577391
 			},
 			"id": "scenario-castle-in-the-clouds",
 			"install": {
@@ -2501,9 +2501,9 @@
 						"installedBytes": 4557
 					},
 					"classic": {
-						"compressedEstimateBytes": 352470,
+						"compressedEstimateBytes": 352341,
 						"files": 8,
-						"installedBytes": 4585435
+						"installedBytes": 4585216
 					},
 					"items": {
 						"compressedEstimateBytes": 7000,
@@ -2511,9 +2511,9 @@
 						"installedBytes": 184273
 					},
 					"maps": {
-						"compressedEstimateBytes": 40976,
+						"compressedEstimateBytes": 42085,
 						"files": 44,
-						"installedBytes": 486503
+						"installedBytes": 488392
 					},
 					"media": {
 						"compressedEstimateBytes": 231562,
@@ -2521,17 +2521,17 @@
 						"installedBytes": 439367
 					},
 					"root": {
-						"compressedEstimateBytes": 1865,
+						"compressedEstimateBytes": 1872,
 						"files": 1,
 						"installedBytes": 4552
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 83835,
+						"compressedEstimateBytes": 80115,
 						"files": 6,
-						"installedBytes": 119139
+						"installedBytes": 112827
 					}
 				},
-				"compressedEstimateBytes": 829354,
+				"compressedEstimateBytes": 826621,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 59543,
@@ -2544,9 +2544,9 @@
 						"installedBytes": 506
 					},
 					"json": {
-						"compressedEstimateBytes": 406152,
+						"compressedEstimateBytes": 406976,
 						"files": 50,
-						"installedBytes": 5302704
+						"installedBytes": 5301546
 					},
 					"pict": {
 						"compressedEstimateBytes": 48182,
@@ -2554,9 +2554,9 @@
 						"installedBytes": 94962
 					},
 					"png": {
-						"compressedEstimateBytes": 312796,
+						"compressedEstimateBytes": 309239,
 						"files": 90,
-						"installedBytes": 520616
+						"installedBytes": 517132
 					},
 					"txt": {
 						"compressedEstimateBytes": 2120,
@@ -2565,7 +2565,7 @@
 					}
 				},
 				"files": 240,
-				"installedBytes": 6053955
+				"installedBytes": 6049313
 			},
 			"id": "scenario-city-of-bywater-classic",
 			"install": {
@@ -4244,9 +4244,9 @@
 						"installedBytes": 671685
 					},
 					"classic": {
-						"compressedEstimateBytes": 379316,
+						"compressedEstimateBytes": 379235,
 						"files": 8,
-						"installedBytes": 4082833
+						"installedBytes": 4082817
 					},
 					"items": {
 						"compressedEstimateBytes": 8738,
@@ -4254,9 +4254,9 @@
 						"installedBytes": 175755
 					},
 					"maps": {
-						"compressedEstimateBytes": 45892,
+						"compressedEstimateBytes": 47564,
 						"files": 44,
-						"installedBytes": 475804
+						"installedBytes": 478372
 					},
 					"media": {
 						"compressedEstimateBytes": 308409,
@@ -4264,17 +4264,17 @@
 						"installedBytes": 528141
 					},
 					"root": {
-						"compressedEstimateBytes": 1864,
+						"compressedEstimateBytes": 1867,
 						"files": 1,
 						"installedBytes": 4560
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 97530,
+						"compressedEstimateBytes": 93734,
 						"files": 6,
-						"installedBytes": 140570
+						"installedBytes": 135004
 					}
 				},
-				"compressedEstimateBytes": 1027644,
+				"compressedEstimateBytes": 1025442,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 85851,
@@ -4287,9 +4287,9 @@
 						"installedBytes": 506
 					},
 					"json": {
-						"compressedEstimateBytes": 492165,
+						"compressedEstimateBytes": 493630,
 						"files": 50,
-						"installedBytes": 5456032
+						"installedBytes": 5456781
 					},
 					"pict": {
 						"compressedEstimateBytes": 46113,
@@ -4297,9 +4297,9 @@
 						"installedBytes": 88172
 					},
 					"png": {
-						"compressedEstimateBytes": 402896,
+						"compressedEstimateBytes": 399229,
 						"files": 139,
-						"installedBytes": 622810
+						"installedBytes": 619047
 					},
 					"txt": {
 						"compressedEstimateBytes": 58,
@@ -4308,7 +4308,7 @@
 					}
 				},
 				"files": 336,
-				"installedBytes": 6361573
+				"installedBytes": 6358559
 			},
 			"id": "scenario-destroy-the-necronomicon",
 			"install": {
@@ -7448,9 +7448,9 @@
 						"installedBytes": 481955
 					},
 					"classic": {
-						"compressedEstimateBytes": 376846,
+						"compressedEstimateBytes": 376802,
 						"files": 8,
-						"installedBytes": 4717074
+						"installedBytes": 4716847
 					},
 					"items": {
 						"compressedEstimateBytes": 10355,
@@ -7458,9 +7458,9 @@
 						"installedBytes": 165146
 					},
 					"maps": {
-						"compressedEstimateBytes": 49842,
+						"compressedEstimateBytes": 49897,
 						"files": 60,
-						"installedBytes": 526061
+						"installedBytes": 526185
 					},
 					"media": {
 						"compressedEstimateBytes": 237509,
@@ -7468,17 +7468,17 @@
 						"installedBytes": 482558
 					},
 					"root": {
-						"compressedEstimateBytes": 1555,
+						"compressedEstimateBytes": 1562,
 						"files": 1,
 						"installedBytes": 3537
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 66856,
+						"compressedEstimateBytes": 63003,
 						"files": 6,
-						"installedBytes": 100868
+						"installedBytes": 95335
 					}
 				},
-				"compressedEstimateBytes": 896582,
+				"compressedEstimateBytes": 892747,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 49672,
@@ -7491,9 +7491,9 @@
 						"installedBytes": 690
 					},
 					"json": {
-						"compressedEstimateBytes": 479144,
+						"compressedEstimateBytes": 479025,
 						"files": 62,
-						"installedBytes": 5929367
+						"installedBytes": 5927391
 					},
 					"pict": {
 						"compressedEstimateBytes": 45150,
@@ -7501,9 +7501,9 @@
 						"installedBytes": 101454
 					},
 					"png": {
-						"compressedEstimateBytes": 281907,
+						"compressedEstimateBytes": 278191,
 						"files": 90,
-						"installedBytes": 516139
+						"installedBytes": 512479
 					},
 					"snd": {
 						"compressedEstimateBytes": 19969,
@@ -7517,7 +7517,7 @@
 					}
 				},
 				"files": 255,
-				"installedBytes": 6730328
+				"installedBytes": 6724692
 			},
 			"id": "scenario-grilochs-revenge",
 			"install": {
@@ -10487,14 +10487,14 @@
 						"installedBytes": 2171970
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 69730,
+						"compressedEstimateBytes": 69740,
 						"files": 3,
-						"installedBytes": 904936
+						"installedBytes": 904962
 					},
 					"classic": {
-						"compressedEstimateBytes": 493662,
+						"compressedEstimateBytes": 493657,
 						"files": 8,
-						"installedBytes": 5491108
+						"installedBytes": 5491097
 					},
 					"items": {
 						"compressedEstimateBytes": 20640,
@@ -10502,9 +10502,9 @@
 						"installedBytes": 208409
 					},
 					"maps": {
-						"compressedEstimateBytes": 59142,
+						"compressedEstimateBytes": 59225,
 						"files": 52,
-						"installedBytes": 623625
+						"installedBytes": 623965
 					},
 					"media": {
 						"compressedEstimateBytes": 2164046,
@@ -10512,17 +10512,17 @@
 						"installedBytes": 4246475
 					},
 					"root": {
-						"compressedEstimateBytes": 1771,
+						"compressedEstimateBytes": 1778,
 						"files": 1,
 						"installedBytes": 4208
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 861526,
+						"compressedEstimateBytes": 849816,
 						"files": 14,
-						"installedBytes": 1282689
+						"installedBytes": 1265364
 					}
 				},
-				"compressedEstimateBytes": 4961179,
+				"compressedEstimateBytes": 4949564,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 117787,
@@ -10535,9 +10535,9 @@
 						"installedBytes": 598
 					},
 					"json": {
-						"compressedEstimateBytes": 669976,
+						"compressedEstimateBytes": 669715,
 						"files": 62,
-						"installedBytes": 7678368
+						"installedBytes": 7672734
 					},
 					"pict": {
 						"compressedEstimateBytes": 667888,
@@ -10545,9 +10545,9 @@
 						"installedBytes": 1177978
 					},
 					"png": {
-						"compressedEstimateBytes": 2411657,
+						"compressedEstimateBytes": 2400303,
 						"files": 216,
-						"installedBytes": 4209184
+						"installedBytes": 4197848
 					},
 					"snd": {
 						"compressedEstimateBytes": 499565,
@@ -10566,7 +10566,7 @@
 					}
 				},
 				"files": 609,
-				"installedBytes": 14933420
+				"installedBytes": 14916450
 			},
 			"id": "scenario-half-truth",
 			"install": {
@@ -15095,14 +15095,14 @@
 						"installedBytes": 959460
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 63731,
+						"compressedEstimateBytes": 63737,
 						"files": 3,
-						"installedBytes": 886928
+						"installedBytes": 887058
 					},
 					"classic": {
-						"compressedEstimateBytes": 423710,
+						"compressedEstimateBytes": 423659,
 						"files": 8,
-						"installedBytes": 4726337
+						"installedBytes": 4726325
 					},
 					"items": {
 						"compressedEstimateBytes": 11827,
@@ -15110,9 +15110,9 @@
 						"installedBytes": 210909
 					},
 					"maps": {
-						"compressedEstimateBytes": 68813,
+						"compressedEstimateBytes": 68295,
 						"files": 60,
-						"installedBytes": 693634
+						"installedBytes": 693155
 					},
 					"media": {
 						"compressedEstimateBytes": 900822,
@@ -15125,12 +15125,12 @@
 						"installedBytes": 5052
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 211498,
+						"compressedEstimateBytes": 195825,
 						"files": 6,
-						"installedBytes": 481901
+						"installedBytes": 460981
 					}
 				},
-				"compressedEstimateBytes": 2321975,
+				"compressedEstimateBytes": 2305739,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 103447,
@@ -15143,9 +15143,9 @@
 						"installedBytes": 690
 					},
 					"json": {
-						"compressedEstimateBytes": 585447,
+						"compressedEstimateBytes": 584569,
 						"files": 62,
-						"installedBytes": 6800928
+						"installedBytes": 6794997
 					},
 					"pict": {
 						"compressedEstimateBytes": 52412,
@@ -15153,9 +15153,9 @@
 						"installedBytes": 95818
 					},
 					"png": {
-						"compressedEstimateBytes": 570264,
+						"compressedEstimateBytes": 554906,
 						"files": 167,
-						"installedBytes": 833248
+						"installedBytes": 817898
 					},
 					"snd": {
 						"compressedEstimateBytes": 477670,
@@ -15174,7 +15174,7 @@
 					}
 				},
 				"files": 469,
-				"installedBytes": 9275612
+				"installedBytes": 9254331
 			},
 			"id": "scenario-mithril-vault",
 			"install": {
@@ -22997,9 +22997,9 @@
 						"installedBytes": 354402
 					},
 					"classic": {
-						"compressedEstimateBytes": 275449,
+						"compressedEstimateBytes": 275453,
 						"files": 8,
-						"installedBytes": 3798515
+						"installedBytes": 3798541
 					},
 					"items": {
 						"compressedEstimateBytes": 7627,
@@ -23007,9 +23007,9 @@
 						"installedBytes": 172006
 					},
 					"maps": {
-						"compressedEstimateBytes": 19875,
+						"compressedEstimateBytes": 19940,
 						"files": 24,
-						"installedBytes": 243492
+						"installedBytes": 243782
 					},
 					"media": {
 						"compressedEstimateBytes": 149944,
@@ -23017,17 +23017,17 @@
 						"installedBytes": 327162
 					},
 					"root": {
-						"compressedEstimateBytes": 1553,
+						"compressedEstimateBytes": 1559,
 						"files": 1,
 						"installedBytes": 3538
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 20054,
+						"compressedEstimateBytes": 18712,
 						"files": 6,
-						"installedBytes": 34840
+						"installedBytes": 32836
 					}
 				},
-				"compressedEstimateBytes": 581153,
+				"compressedEstimateBytes": 579886,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 14230,
@@ -23040,9 +23040,9 @@
 						"installedBytes": 276
 					},
 					"json": {
-						"compressedEstimateBytes": 332830,
+						"compressedEstimateBytes": 332868,
 						"files": 35,
-						"installedBytes": 4587712
+						"installedBytes": 4587288
 					},
 					"pict": {
 						"compressedEstimateBytes": 51299,
@@ -23050,9 +23050,9 @@
 						"installedBytes": 97512
 					},
 					"png": {
-						"compressedEstimateBytes": 154667,
+						"compressedEstimateBytes": 153362,
 						"files": 30,
-						"installedBytes": 329431
+						"installedBytes": 328167
 					},
 					"snd": {
 						"compressedEstimateBytes": 13900,
@@ -23066,7 +23066,7 @@
 					}
 				},
 				"files": 101,
-				"installedBytes": 5084681
+				"installedBytes": 5082993
 			},
 			"id": "scenario-prelude-to-pestilence",
 			"install": {
@@ -23891,9 +23891,9 @@
 						"installedBytes": 774124
 					},
 					"classic": {
-						"compressedEstimateBytes": 1053481,
+						"compressedEstimateBytes": 1053359,
 						"files": 8,
-						"installedBytes": 12098179
+						"installedBytes": 12097762
 					},
 					"items": {
 						"compressedEstimateBytes": 15003,
@@ -23901,9 +23901,9 @@
 						"installedBytes": 200592
 					},
 					"maps": {
-						"compressedEstimateBytes": 121131,
+						"compressedEstimateBytes": 122208,
 						"files": 96,
-						"installedBytes": 1147780
+						"installedBytes": 1156131
 					},
 					"media": {
 						"compressedEstimateBytes": 1388266,
@@ -23911,17 +23911,17 @@
 						"installedBytes": 2648482
 					},
 					"root": {
-						"compressedEstimateBytes": 1656,
+						"compressedEstimateBytes": 1659,
 						"files": 1,
 						"installedBytes": 3738
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 686792,
+						"compressedEstimateBytes": 647397,
 						"files": 12,
-						"installedBytes": 985702
+						"installedBytes": 930769
 					}
 				},
-				"compressedEstimateBytes": 4149775,
+				"compressedEstimateBytes": 4111338,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 101899,
@@ -23934,9 +23934,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 1271675,
+						"compressedEstimateBytes": 1271865,
 						"files": 93,
-						"installedBytes": 14542273
+						"installedBytes": 14533886
 					},
 					"pict": {
 						"compressedEstimateBytes": 395234,
@@ -23944,9 +23944,9 @@
 						"installedBytes": 838374
 					},
 					"png": {
-						"compressedEstimateBytes": 1782738,
+						"compressedEstimateBytes": 1744111,
 						"files": 174,
-						"installedBytes": 2916440
+						"installedBytes": 2877828
 					},
 					"snd": {
 						"compressedEstimateBytes": 324685,
@@ -23960,7 +23960,7 @@
 					}
 				},
 				"files": 487,
-				"installedBytes": 19368471
+				"installedBytes": 19321472
 			},
 			"id": "scenario-trouble-in-the-sword-lands",
 			"install": {
@@ -56544,9 +56544,9 @@
 						"installedBytes": 282453
 					},
 					"classic": {
-						"compressedEstimateBytes": 365904,
+						"compressedEstimateBytes": 365885,
 						"files": 8,
-						"installedBytes": 4583731
+						"installedBytes": 4583449
 					},
 					"items": {
 						"compressedEstimateBytes": 9738,
@@ -56554,9 +56554,9 @@
 						"installedBytes": 189061
 					},
 					"maps": {
-						"compressedEstimateBytes": 44334,
+						"compressedEstimateBytes": 44165,
 						"files": 40,
-						"installedBytes": 411458
+						"installedBytes": 411255
 					},
 					"media": {
 						"compressedEstimateBytes": 270642,
@@ -56564,17 +56564,17 @@
 						"installedBytes": 474041
 					},
 					"root": {
-						"compressedEstimateBytes": 1714,
+						"compressedEstimateBytes": 1718,
 						"files": 1,
 						"installedBytes": 4045
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 94315,
+						"compressedEstimateBytes": 75546,
 						"files": 6,
-						"installedBytes": 136904
+						"installedBytes": 110619
 					}
 				},
-				"compressedEstimateBytes": 956237,
+				"compressedEstimateBytes": 937284,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 57311,
@@ -56587,9 +56587,9 @@
 						"installedBytes": 460
 					},
 					"json": {
-						"compressedEstimateBytes": 446707,
+						"compressedEstimateBytes": 446125,
 						"files": 47,
-						"installedBytes": 5515775
+						"installedBytes": 5507377
 					},
 					"pict": {
 						"compressedEstimateBytes": 46584,
@@ -56597,9 +56597,9 @@
 						"installedBytes": 94414
 					},
 					"png": {
-						"compressedEstimateBytes": 320011,
+						"compressedEstimateBytes": 301640,
 						"files": 95,
-						"installedBytes": 515197
+						"installedBytes": 496825
 					},
 					"snd": {
 						"compressedEstimateBytes": 41966,
@@ -56618,7 +56618,7 @@
 					}
 				},
 				"files": 258,
-				"installedBytes": 6366581
+				"installedBytes": 6339811
 			},
 			"id": "scenario-twin-sands-of-time",
 			"install": {
@@ -59500,14 +59500,14 @@
 						"installedBytes": 2962256
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 114440,
+						"compressedEstimateBytes": 114450,
 						"files": 3,
-						"installedBytes": 1356895
+						"installedBytes": 1357025
 					},
 					"classic": {
-						"compressedEstimateBytes": 2101197,
+						"compressedEstimateBytes": 2101102,
 						"files": 8,
-						"installedBytes": 23271082
+						"installedBytes": 23270671
 					},
 					"items": {
 						"compressedEstimateBytes": 20250,
@@ -59515,9 +59515,9 @@
 						"installedBytes": 217426
 					},
 					"maps": {
-						"compressedEstimateBytes": 145500,
+						"compressedEstimateBytes": 146497,
 						"files": 96,
-						"installedBytes": 1207813
+						"installedBytes": 1214801
 					},
 					"media": {
 						"compressedEstimateBytes": 2756967,
@@ -59525,17 +59525,17 @@
 						"installedBytes": 5422684
 					},
 					"root": {
-						"compressedEstimateBytes": 2068,
+						"compressedEstimateBytes": 2072,
 						"files": 1,
 						"installedBytes": 5080
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 805845,
+						"compressedEstimateBytes": 742017,
 						"files": 13,
-						"installedBytes": 1257064
+						"installedBytes": 1169968
 					}
 				},
-				"compressedEstimateBytes": 7551253,
+				"compressedEstimateBytes": 7488341,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 171011,
@@ -59548,9 +59548,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 2411485,
+						"compressedEstimateBytes": 2411141,
 						"files": 95,
-						"installedBytes": 26537839
+						"installedBytes": 26519995
 					},
 					"pict": {
 						"compressedEstimateBytes": 824332,
@@ -59558,9 +59558,9 @@
 						"installedBytes": 1796422
 					},
 					"png": {
-						"compressedEstimateBytes": 3082349,
+						"compressedEstimateBytes": 3019781,
 						"files": 289,
-						"installedBytes": 5543637
+						"installedBytes": 5481092
 					},
 					"snd": {
 						"compressedEstimateBytes": 602857,
@@ -59579,7 +59579,7 @@
 					}
 				},
 				"files": 765,
-				"installedBytes": 35700300
+				"installedBytes": 35619911
 			},
 			"id": "scenario-war-in-the-sword-lands",
 			"install": {
@@ -79303,9 +79303,9 @@
 						"installedBytes": 594771
 					},
 					"classic": {
-						"compressedEstimateBytes": 362174,
+						"compressedEstimateBytes": 362169,
 						"files": 8,
-						"installedBytes": 6756355
+						"installedBytes": 6756375
 					},
 					"items": {
 						"compressedEstimateBytes": 10171,
@@ -79313,9 +79313,9 @@
 						"installedBytes": 270754
 					},
 					"maps": {
-						"compressedEstimateBytes": 46978,
+						"compressedEstimateBytes": 47329,
 						"files": 64,
-						"installedBytes": 539703
+						"installedBytes": 540357
 					},
 					"media": {
 						"compressedEstimateBytes": 128273,
@@ -79323,17 +79323,17 @@
 						"installedBytes": 291578
 					},
 					"root": {
-						"compressedEstimateBytes": 1551,
+						"compressedEstimateBytes": 1555,
 						"files": 1,
 						"installedBytes": 3528
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 34157,
+						"compressedEstimateBytes": 30540,
 						"files": 6,
-						"installedBytes": 52832
+						"installedBytes": 47494
 					}
 				},
-				"compressedEstimateBytes": 692149,
+				"compressedEstimateBytes": 688882,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 21952,
@@ -79346,9 +79346,9 @@
 						"installedBytes": 736
 					},
 					"json": {
-						"compressedEstimateBytes": 467460,
+						"compressedEstimateBytes": 467722,
 						"files": 65,
-						"installedBytes": 8184512
+						"installedBytes": 8183440
 					},
 					"pict": {
 						"compressedEstimateBytes": 41094,
@@ -79356,13 +79356,13 @@
 						"installedBytes": 86506
 					},
 					"png": {
-						"compressedEstimateBytes": 160827,
+						"compressedEstimateBytes": 157298,
 						"files": 37,
-						"installedBytes": 324273
+						"installedBytes": 320681
 					}
 				},
 				"files": 151,
-				"installedBytes": 8645347
+				"installedBytes": 8640683
 			},
 			"id": "scenario-white-dragon",
 			"install": {
@@ -82012,14 +82012,14 @@
 						"installedBytes": 4451288
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 100621,
+						"compressedEstimateBytes": 100674,
 						"files": 3,
-						"installedBytes": 1172126
+						"installedBytes": 1172373
 					},
 					"classic": {
-						"compressedEstimateBytes": 824365,
+						"compressedEstimateBytes": 824306,
 						"files": 8,
-						"installedBytes": 9834177
+						"installedBytes": 9833994
 					},
 					"items": {
 						"compressedEstimateBytes": 21793,
@@ -82027,9 +82027,9 @@
 						"installedBytes": 219190
 					},
 					"maps": {
-						"compressedEstimateBytes": 122654,
+						"compressedEstimateBytes": 123106,
 						"files": 96,
-						"installedBytes": 1188266
+						"installedBytes": 1190466
 					},
 					"media": {
 						"compressedEstimateBytes": 3118855,
@@ -82037,17 +82037,17 @@
 						"installedBytes": 6629052
 					},
 					"root": {
-						"compressedEstimateBytes": 1853,
+						"compressedEstimateBytes": 1858,
 						"files": 1,
 						"installedBytes": 4397
 					},
 					"tilesets": {
-						"compressedEstimateBytes": 661233,
+						"compressedEstimateBytes": 615347,
 						"files": 14,
-						"installedBytes": 1103487
+						"installedBytes": 1040749
 					}
 				},
-				"compressedEstimateBytes": 7623502,
+				"compressedEstimateBytes": 7578067,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 161282,
@@ -82060,9 +82060,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 1098491,
+						"compressedEstimateBytes": 1098042,
 						"files": 95,
-						"installedBytes": 12887302
+						"installedBytes": 12871782
 					},
 					"pict": {
 						"compressedEstimateBytes": 951654,
@@ -82070,9 +82070,9 @@
 						"installedBytes": 2000460
 					},
 					"png": {
-						"compressedEstimateBytes": 2990646,
+						"compressedEstimateBytes": 2945660,
 						"files": 297,
-						"installedBytes": 6162098
+						"installedBytes": 6117144
 					},
 					"snd": {
 						"compressedEstimateBytes": 1651491,
@@ -82091,7 +82091,7 @@
 					}
 				},
 				"files": 814,
-				"installedBytes": 24601983
+				"installedBytes": 24541509
 			},
 			"id": "scenario-wrath-of-the-mind-lords",
 			"install": {
@@ -94982,14 +94982,14 @@
 			"installedBytes": 13749301
 		},
 		"bestiary": {
-			"compressedEstimateBytes": 660906,
+			"compressedEstimateBytes": 660947,
 			"files": 39,
-			"installedBytes": 8278753
+			"installedBytes": 8279307
 		},
 		"classic": {
-			"compressedEstimateBytes": 8124019,
+			"compressedEstimateBytes": 8123273,
 			"files": 104,
-			"installedBytes": 96051922
+			"installedBytes": 96050157
 		},
 		"items": {
 			"compressedEstimateBytes": 158821,
@@ -94997,9 +94997,9 @@
 			"installedBytes": 2583293
 		},
 		"maps": {
-			"compressedEstimateBytes": 847412,
+			"compressedEstimateBytes": 853335,
 			"files": 764,
-			"installedBytes": 8382293
+			"installedBytes": 8404667
 		},
 		"media": {
 			"compressedEstimateBytes": 12027287,
@@ -95007,19 +95007,19 @@
 			"installedBytes": 23562637
 		},
 		"root": {
-			"compressedEstimateBytes": 22744,
+			"compressedEstimateBytes": 22802,
 			"files": 13,
 			"installedBytes": 53833
 		},
 		"shared-store": {
-			"compressedEstimateBytes": 1455944,
+			"compressedEstimateBytes": 1456531,
 			"files": 21,
-			"installedBytes": 2199897
+			"installedBytes": 2221497
 		},
 		"tilesets": {
-			"compressedEstimateBytes": 3719816,
+			"compressedEstimateBytes": 3497618,
 			"files": 107,
-			"installedBytes": 5843160
+			"installedBytes": 5534061
 		}
 	},
 	"complete": true,
@@ -123086,9 +123086,9 @@
 			"installedBytes": 8786
 		},
 		"json": {
-			"compressedEstimateBytes": 9986809,
+			"compressedEstimateBytes": 9987859,
 			"files": 829,
-			"installedBytes": 118381154
+			"installedBytes": 118332214
 		},
 		"pict": {
 			"compressedEstimateBytes": 3271437,
@@ -123096,9 +123096,9 @@
 			"installedBytes": 6665662
 		},
 		"png": {
-			"compressedEstimateBytes": 14338271,
+			"compressedEstimateBytes": 14120886,
 			"files": 1747,
-			"installedBytes": 24747146
+			"installedBytes": 24529750
 		},
 		"snd": {
 			"compressedEstimateBytes": 3636439,
@@ -123123,17 +123123,17 @@
 		"footprint": {
 			"categories": {
 				"shared-store": {
-					"compressedEstimateBytes": 1455944,
+					"compressedEstimateBytes": 1456531,
 					"files": 21,
-					"installedBytes": 2199897
+					"installedBytes": 2221497
 				}
 			},
-			"compressedEstimateBytes": 1455944,
+			"compressedEstimateBytes": 1456531,
 			"extensions": {
 				"json": {
-					"compressedEstimateBytes": 45095,
+					"compressedEstimateBytes": 45682,
 					"files": 13,
-					"installedBytes": 788403
+					"installedBytes": 810003
 				},
 				"png": {
 					"compressedEstimateBytes": 1410849,
@@ -123142,7 +123142,7 @@
 				}
 			},
 			"files": 21,
-			"installedBytes": 2199897
+			"installedBytes": 2221497
 		}
 	},
 	"status": "ready",
@@ -123150,7 +123150,7 @@
 		"activeDiagnostics": 4241,
 		"blockedCampaigns": 0,
 		"campaigns": 13,
-		"compressedEstimateBytes": 34967336,
+		"compressedEstimateBytes": 34751001,
 		"crossCampaignDuplicateBytes": 8047692,
 		"diagnostics": 4425,
 		"duplicateBytes": 8149781,
@@ -123158,13 +123158,13 @@
 		"files": 4852,
 		"inactiveDiagnostics": 184,
 		"installFailures": 0,
-		"installedBytes": 160705089,
-		"jsonBytes": 118381154,
+		"installedBytes": 160438753,
+		"jsonBytes": 118332214,
 		"jsonFiles": 829,
 		"preparationErrors": 0,
 		"progressionBlockers": 0,
 		"readyCampaigns": 13,
-		"sharedStoreBytes": 2199897,
+		"sharedStoreBytes": 2221497,
 		"sharedStoreFiles": 21
 	}
 }

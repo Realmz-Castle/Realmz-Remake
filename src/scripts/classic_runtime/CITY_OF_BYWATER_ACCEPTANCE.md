@@ -138,13 +138,19 @@ to travel. The ordinary HUD buttons and authored map triggers remain active.
 
 ## Current checkpoint
 
-The authoritative export checked on July 23, 2026 contains 11 maps, 1,341
+The authoritative export checked on July 26, 2026 contains 11 maps, 1,341
 triggers, 880 messages, 20 simple encounters, 13 complex encounters, 8 thief
-encounters, 21 shop rows, 256 battles, and 155 monsters. The generic bundle
-validator accepts it. Providence packages 170 referenced resource payloads,
+encounters, 16 shops, 256 battles, and 155 monsters. The generic bundle
+validator accepts it. Providence packages 175 referenced resource payloads,
 including the 84 shared negative `cicn` resources used by its land maps. Classic
 payloads remain immutable while decoded PNG or WAV runtime media travels beside
 them; Remake accepts and materializes the resulting native resources.
+
+The July 26 corpus refresh used Providence `7e3b74c` (`0.5.7`). Its corrected
+random-level sound and text offsets reproduce all 61 active City rectangles
+directly from the raw scenario records with no mismatches. The refreshed
+installed campaign passes the normal UI launch and every battle-route checkpoint
+through quest turn-in.
 
 The July 23 cross-repository rerun used Providence `98afcbf` and Remake
 `d001dcf`. Two untouched City exports produced the same 179 relative files with
@@ -157,7 +163,7 @@ stage of the route below with exit status 0.
 Readiness passes with no progression blockers when the bundle is checked against
 the existing native City resources. A clean package installation also succeeds
 without manual file rearrangement and reports `Ready with fallbacks`: no
-progression blockers and 79 fidelity fallbacks. Imported library monsters reuse
+progression blockers and 9 fidelity fallbacks. Imported library monsters reuse
 a shared Remake bestiary entry only when the Classic ID and normalized name both
 match. Authored monster records still materialize locally, even if they reuse a
 stock identity.

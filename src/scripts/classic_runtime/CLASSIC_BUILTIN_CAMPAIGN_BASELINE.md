@@ -33,20 +33,20 @@ records:
 | Fidelity fallbacks | 1,352 |
 | Active / inactive diagnostics | 4,241 / 184 |
 | Files | 4,852 |
-| Installed footprint | 160,705,089 bytes (153.26 MiB) |
-| Per-file deflate estimate | 34,967,336 bytes (33.35 MiB) |
-| JSON footprint | 118,381,154 bytes (112.90 MiB) |
-| Shared store | 21 files / 2,199,897 bytes (2.10 MiB) |
+| Installed footprint | 160,438,753 bytes (153.01 MiB) |
+| Per-file deflate estimate | 34,751,001 bytes (33.14 MiB) |
+| JSON footprint | 118,332,214 bytes (112.85 MiB) |
+| Shared store | 21 files / 2,221,497 bytes (2.12 MiB) |
 | Byte-identical duplication | 8,149,781 bytes (7.77 MiB) |
 | Cross-campaign duplication | 8,047,692 bytes (7.67 MiB) |
 
 The built-in campaigns reference 160 byte-identical stock tileset files through
-20 immutable content hashes. Moving 17,820,410 campaign-local bytes into
-2,173,319 unique payload bytes removes the complete 15,647,091-byte stock
+20 immutable content hashes. Moving 18,007,610 campaign-local bytes into
+2,194,919 unique payload bytes removes the complete 15,812,691-byte stock
 tileset duplicate category. Including the store manifest, this reduces the
-installed corpus by 15,592,354 bytes (14.87 MiB) and the per-file deflate
-estimate by 10,116,950 bytes (9.65 MiB). Similar but non-identical files remain
-campaign-local.
+installed corpus by 15,757,954 bytes (15.03 MiB). The current certified
+per-file deflate estimate is recorded above. Similar but non-identical files
+remain campaign-local.
 
 The report counts the sibling `ClassicAssets` store exactly once. It retains
 every remaining duplicate hash group and location, every campaign diagnostic
