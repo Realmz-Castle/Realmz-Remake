@@ -6,6 +6,12 @@ const AuditScript = preload(
 
 
 func _init() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
+	for child: Node in root.get_children():
+		child.process_mode = Node.PROCESS_MODE_DISABLED
 	var report: Dictionary = AuditScript.new().inspect_path()
 	print(JSON.stringify(report, "  ", false))
 	if bool(report.get("accepted", false)):

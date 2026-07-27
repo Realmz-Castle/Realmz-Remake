@@ -9,6 +9,12 @@ const REPORT_KIND := "classic-shared-asset-payload-and-render-fingerprints"
 
 
 func _init() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
+	for child: Node in root.get_children():
+		child.process_mode = Node.PROCESS_MODE_DISABLED
 	var arguments := OS.get_cmdline_user_args()
 	var campaigns_directory := "res://Campaigns"
 	var output_path := ""

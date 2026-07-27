@@ -17,15 +17,15 @@ extends Node
 #
 ## instances #
 func __MainScene() -> Node:
-	return get_node("/root/Main")
+	return get_node_or_null("/root/Main")
 #
 func __Resources() ->CampaignResources:
 #	print ("get resources node here")
-	return get_node("/root/Main/Resources")
+	return get_node_or_null("/root/Main/Resources") as CampaignResources
 #
 func __Map() ->Node:
 #	print("NodeAccess __Map() : ", get_node("/root/Main/Map").name)
-	return get_node("/root/Main/Map")
+	return get_node_or_null("/root/Main/Map")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

@@ -6,6 +6,12 @@ const CorpusReportScript = preload(
 
 
 func _init() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
+	for child: Node in root.get_children():
+		child.process_mode = Node.PROCESS_MODE_DISABLED
 	var arguments := OS.get_cmdline_user_args()
 	var json_output := arguments.has("--json")
 	var include_compressed_estimate := not arguments.has("--no-compression")

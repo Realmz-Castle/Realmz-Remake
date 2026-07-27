@@ -476,8 +476,15 @@ func _on_MapMouseControlButton_mouse_exited():
 	#print(" map burp exited")
 
 func _process(_delta):
-	pass
-	var newtext : String = "Map Debug Label : GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(StateMachine.combat_state.cbanimstate.timer)+'\n'
+	if not visible:
+		return
+	var combat_animation_timer: Variant = "unloaded"
+	if (
+		is_instance_valid(StateMachine.combat_state)
+		and is_instance_valid(StateMachine.combat_state.cbanimstate)
+	):
+		combat_animation_timer = StateMachine.combat_state.cbanimstate.timer
+	var newtext : String = "Map Debug Label : GameState : "+str(StateMachine._state_name)+", combat : "+str(StateMachine.is_combat_state())+", cbanim timer:"+str(combat_animation_timer)+'\n'
 	debuglabel.text = newtext + '\n teamsize : '+str(GameGlobal.player_characters.size())+ "\n TectRectChoiceContainer visible ?"+str(UI.ow_hud.textRect.choicesContainer.visible)
 	debuglabel.text +=  "\nGameGlobal.currentmap_name : "+GameGlobal.currentmap_name
 

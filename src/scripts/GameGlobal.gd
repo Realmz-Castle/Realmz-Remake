@@ -11,40 +11,42 @@ This module is responsible for wrapper the game logic.
 extends Node
 
 const UDLR : Array = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
-const ShopRules = preload("res://scripts/shop_rules.gd")
-const BattleRewardRulesScript = preload("res://scripts/battle_reward_rules.gd")
-const MusicSettingsScript = preload("res://scripts/audio/music_settings.gd")
-const ClassicCampaignInstallScript = preload(
+const SHOP_RULES_PATH := "res://scripts/shop_rules.gd"
+const BATTLE_REWARD_RULES_PATH := "res://scripts/battle_reward_rules.gd"
+const MUSIC_SETTINGS_PATH := "res://scripts/audio/music_settings.gd"
+const CLASSIC_CAMPAIGN_INSTALL_PATH := (
 	"res://scripts/classic_runtime/classic_campaign_install.gd"
 )
-const ClassicCampaignAdmissionScript = preload(
+const CLASSIC_CAMPAIGN_ADMISSION_PATH := (
 	"res://scripts/classic_runtime/classic_campaign_admission.gd"
 )
-const ClassicCampaignSessionScript = preload(
+const CLASSIC_CAMPAIGN_SESSION_PATH := (
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
-const ClassicGodotCommandAdapterScript = preload(
+const CLASSIC_GODOT_COMMAND_ADAPTER_PATH := (
 	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
 )
-const ClassicMonsterWeaponRulesScript = preload(
+const CLASSIC_MONSTER_WEAPON_RULES_PATH := (
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
 )
-const ClassicCharacterRulesScript = preload(
+const CLASSIC_CHARACTER_RULES_PATH := (
 	"res://scripts/classic_runtime/classic_character_rules.gd"
 )
-const ClassicProtectionFromFoeScript = preload(
+const CLASSIC_PROTECTION_FROM_FOE_PATH := (
 	"res://scripts/classic_runtime/classic_protection_from_foe.gd"
 )
-const ClassicAnimationScript = preload(
-	"res://scripts/classic_runtime/classic_animation.gd"
-)
-const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
-const ClassicPartyConditionScript = preload(
+const CLASSIC_ANIMATION_PATH := "res://scripts/classic_runtime/classic_animation.gd"
+const CLASSIC_LIGHT_PATH := "res://scripts/classic_runtime/classic_light.gd"
+const CLASSIC_PARTY_CONDITION_PATH := (
 	"res://scripts/classic_runtime/classic_party_condition.gd"
 )
-const ClassicMonsterGenerationScript = preload(
+const CLASSIC_MONSTER_GENERATION_PATH := (
 	"res://scripts/classic_runtime/classic_monster_generation.gd"
 )
+const PLAYER_CHARACTER_PATH := "res://Creature/PlayerCharacter.gd"
+const COMBAT_CREATURE_PATH := "res://Creature/Creature.gd"
+const SPELL_ANIMATION_PATH := "res://scenes/Map/SpellAnimation/SpellAnimation.tscn"
+const GAME_SCREEN_PATH := "res://scenes/UI/HUD/OWHUDControl.tscn"
 const CLASSIC_DETECT_SECRET_ABILITY_INDEX := 4
 const CLASSIC_INDOOR_MINUTES_PER_TIMECLICK := 1
 const CLASSIC_OUTDOOR_MINUTES_PER_TIMECLICK := 5
@@ -52,7 +54,7 @@ const SECONDS_PER_MINUTE := 60
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 
-@onready var cmp_resources : CampaignResources = NodeAccess.__Resources()
+var cmp_resources: CampaignResources
 
 var map : Map
 var current_map_script_name : String = ''
@@ -60,14 +62,62 @@ var classic_runtime_host: Object
 var classic_campaign_session: Object
 var classic_campaign_install_cache: Dictionary = {}
 
-var playerCharacterGD : GDScript = preload("res://Creature/PlayerCharacter.gd")
-var combatCreatureGD : GDScript = preload("res://Creature/Creature.gd")
+var _lazy_resources: Dictionary = {}
 
-
-var spellAnimationTSCN : PackedScene = preload("res://scenes/Map/SpellAnimation/SpellAnimation.tscn")
-
-
-var gameScreenTSCN : PackedScene = preload("res://scenes/UI/HUD/OWHUDControl.tscn")
+var ShopRules: GDScript:
+	get:
+		return _lazy_resource(SHOP_RULES_PATH) as GDScript
+var BattleRewardRulesScript: GDScript:
+	get:
+		return _lazy_resource(BATTLE_REWARD_RULES_PATH) as GDScript
+var MusicSettingsScript: GDScript:
+	get:
+		return _lazy_resource(MUSIC_SETTINGS_PATH) as GDScript
+var ClassicCampaignInstallScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_CAMPAIGN_INSTALL_PATH) as GDScript
+var ClassicCampaignAdmissionScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_CAMPAIGN_ADMISSION_PATH) as GDScript
+var ClassicCampaignSessionScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_CAMPAIGN_SESSION_PATH) as GDScript
+var ClassicGodotCommandAdapterScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_GODOT_COMMAND_ADAPTER_PATH) as GDScript
+var ClassicMonsterWeaponRulesScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_MONSTER_WEAPON_RULES_PATH) as GDScript
+var ClassicCharacterRulesScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_CHARACTER_RULES_PATH) as GDScript
+var ClassicProtectionFromFoeScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_PROTECTION_FROM_FOE_PATH) as GDScript
+var ClassicAnimationScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_ANIMATION_PATH) as GDScript
+var ClassicLightScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_LIGHT_PATH) as GDScript
+var ClassicPartyConditionScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_PARTY_CONDITION_PATH) as GDScript
+var ClassicMonsterGenerationScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_MONSTER_GENERATION_PATH) as GDScript
+var playerCharacterGD: GDScript:
+	get:
+		return _lazy_resource(PLAYER_CHARACTER_PATH) as GDScript
+var combatCreatureGD: GDScript:
+	get:
+		return _lazy_resource(COMBAT_CREATURE_PATH) as GDScript
+var spellAnimationTSCN: PackedScene:
+	get:
+		return _lazy_resource(SPELL_ANIMATION_PATH) as PackedScene
+var gameScreenTSCN: PackedScene:
+	get:
+		return _lazy_resource(GAME_SCREEN_PATH) as PackedScene
 
 
 #var gamescreenInstance
@@ -150,11 +200,23 @@ var map_boats_dict : Dictionary = {}
 
 signal battle_end
 
+
+func _lazy_resource(path: String) -> Resource:
+	var cached: Resource = _lazy_resources.get(path)
+	if cached == null:
+		cached = load(path)
+		_lazy_resources[path] = cached
+	return cached
+
+
 func _ready():
 	call_deferred("_bind_map")
 
 
 func _bind_map() -> void:
+	var resources := NodeAccess.__Resources()
+	if resources is CampaignResources:
+		cmp_resources = resources
 	var map_node := NodeAccess.__Map()
 	if map_node is Map:
 		map = map_node
@@ -467,7 +529,7 @@ func apply_classic_party_condition(condition_index: int, duration: int) -> int:
 		return 0
 	var key := str(condition_index)
 	var current := int(classic_party_conditions.get(key, 0))
-	var result := ClassicPartyConditionScript.apply(current, duration)
+	var result: int = ClassicPartyConditionScript.apply(current, duration)
 	classic_party_conditions[key] = result
 	_sync_classic_party_condition(condition_index)
 	return result
@@ -863,7 +925,7 @@ func validate_classic_campaign_save(campaign_name: String, payload: Variant) -> 
 				else str(install.last_error)
 			),
 		}
-	var campaign_validation := ClassicCampaignSessionScript.validate_save_payload(
+	var campaign_validation: Dictionary = ClassicCampaignSessionScript.validate_save_payload(
 		payload,
 		str(install.bundle.manifest.get("id", ""))
 	)
@@ -1634,7 +1696,7 @@ func apply_classic_foe_type_damage_bonus(
 	is_crit: bool,
 	crit_mult: float
 ) -> Dictionary:
-	var base_bonus := ClassicCharacterRulesScript.classic_foe_type_bonus(
+	var base_bonus: int = ClassicCharacterRulesScript.classic_foe_type_bonus(
 		attacker,
 		defender
 	)

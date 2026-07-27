@@ -11,9 +11,19 @@ All operations over UI should use this wrapper.
 """
 extends Node
 
+const GAMEPLAY_HUD_PATH := "res://scenes/UI/HUD/OWHUDControl.tscn"
+
 @onready var main_menu : CanvasItem = $MainMenuControl
-@onready var ow_hud : OW_HUD = $OWHUDControl
-@onready var allmenus : Array = [main_menu, ow_hud]
+var _ow_hud: Control
+var ow_hud: Control:
+	get:
+		return ensure_gameplay_hud()
+var allmenus: Array:
+	get:
+		var menus: Array = [main_menu]
+		if is_instance_valid(_ow_hud):
+			menus.append(_ow_hud)
+		return menus
 
 
 var cursor_sword = load("res://shared_assets/cursors/sword.png")
@@ -48,6 +58,31 @@ var cursor_numbers = [cursor_0,cursor_1,cursor_2,cursor_3,cursor_4,cursor_5,curs
 
 func _ready():	
 	pass
+
+
+func ensure_gameplay_hud() -> Control:
+	if is_instance_valid(_ow_hud):
+		return _ow_hud
+	if not StateMachine.ensure_gameplay_states_loaded():
+		push_error("Gameplay states could not be loaded before the HUD.")
+		return null
+	var scene := load(GAMEPLAY_HUD_PATH) as PackedScene
+	if scene == null:
+		push_error("Gameplay HUD could not be loaded.")
+		return null
+	_ow_hud = scene.instantiate() as Control
+	if _ow_hud == null:
+		push_error("Gameplay HUD scene did not instantiate a Control.")
+		return null
+	_ow_hud.name = "OWHUDControl"
+	add_child(_ow_hud)
+	_ow_hud.hide()
+	var resize_callable := Callable(_ow_hud, "_on_viewport_size_changed")
+	if not get_tree().root.size_changed.is_connected(resize_callable):
+		get_tree().root.size_changed.connect(resize_callable)
+	_ow_hud.call("_on_viewport_size_changed")
+	return _ow_hud
+
 
 # Hide all user interface #
 func __hide():

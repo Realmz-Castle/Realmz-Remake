@@ -2,46 +2,10 @@
 
 [ext_resource type="Script" uid="uid://b3rq2qwrk672v" path="res://scripts/game_state.gd" id="1_kdebb"]
 [ext_resource type="Script" uid="uid://ci8lexwbcnxms" path="res://scripts/states/InactiveState.gd" id="2_fh2h7"]
-[ext_resource type="Script" uid="uid://dt4ijqfdlvxkw" path="res://scripts/states/ExplorationState.gd" id="3_t0kdd"]
-[ext_resource type="Script" uid="uid://mwgrwpoho5g5" path="res://scripts/states/ExMenusState.gd" id="5_pmw42"]
-[ext_resource type="Script" uid="uid://c6xv6jky1tdc1" path="res://scripts/states/ExAnim.gd" id="5_xp0ve"]
-[ext_resource type="Script" uid="uid://dlufykmdi3rv3" path="res://scripts/states/CombatState.gd" id="6_gwffk"]
-[ext_resource type="Script" uid="uid://w5ieu7r4puwx" path="res://scripts/states/CbDecideActionState.gd" id="7_ofipa"]
-[ext_resource type="Script" uid="uid://ciwko8w1qswq0" path="res://scripts/states/CbAnimationState.gd" id="8_k4l8v"]
-[ext_resource type="Script" uid="uid://bmbgi2x57y556" path="res://scripts/states/CbMenusState.gd" id="10_ecyfl"]
 
-[node name="StateMachine" type="Node" unique_id=694015533 node_paths=PackedStringArray("exploration_state", "combat_state", "ex_menu_state", "cb_menu_state", "cb_decide_state", "cb_anim_state")]
+[node name="StateMachine" type="Node" unique_id=694015533]
 script = ExtResource("1_kdebb")
 initial_state = NodePath("Inactive")
-exploration_state = NodePath("Exploration")
-combat_state = NodePath("Combat")
-ex_menu_state = NodePath("Exploration/ExMenus")
-cb_menu_state = NodePath("Combat/CbMenus")
-cb_decide_state = NodePath("Combat/CbDecideAction")
-cb_anim_state = NodePath("Combat/CbAnimation")
 
 [node name="Inactive" type="Node" parent="." unique_id=1286672374]
 script = ExtResource("2_fh2h7")
-
-[node name="Exploration" type="Node" parent="." unique_id=829643295]
-script = ExtResource("3_t0kdd")
-
-[node name="ExMenus" type="Node" parent="Exploration" unique_id=175042974]
-script = ExtResource("5_pmw42")
-
-[node name="ExAnim" type="Node" parent="Exploration" unique_id=1615587777]
-script = ExtResource("5_xp0ve")
-
-[node name="Combat" type="Node" parent="." unique_id=137835883 node_paths=PackedStringArray("cbanimstate")]
-script = ExtResource("6_gwffk")
-cbanimstate = NodePath("CbAnimation")
-
-[node name="CbDecideAction" type="Node" parent="Combat" unique_id=471435268 node_paths=PackedStringArray("combat_state")]
-script = ExtResource("7_ofipa")
-combat_state = NodePath("..")
-
-[node name="CbAnimation" type="Node" parent="Combat" unique_id=1646546759]
-script = ExtResource("8_k4l8v")
-
-[node name="CbMenus" type="Node" parent="Combat" unique_id=1976787508]
-script = ExtResource("10_ecyfl")
