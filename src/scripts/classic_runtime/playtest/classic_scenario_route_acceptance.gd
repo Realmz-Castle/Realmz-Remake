@@ -51,6 +51,10 @@ func _start_acceptance() -> void:
 			break
 		var step: Dictionary = step_value
 		var step_succeeded := false
+		print(
+			"CLASSIC_SCENARIO_ROUTE STEP: %s"
+				% str(step.get("id", "route"))
+		)
 		match str(step.get("kind", "")):
 			"presentation":
 				step_succeeded = await _run_presentation_step(step)
@@ -58,6 +62,10 @@ func _start_acceptance() -> void:
 				step_succeeded = await _run_battle_step(step)
 			"action-list":
 				step_succeeded = await _run_action_list_step(step)
+			"simple-choice":
+				step_succeeded = await _run_action_list_step(step)
+			"complex-item":
+				step_succeeded = await _run_complex_item_step(step)
 			_:
 				_fail(
 					str(step.get("id", "route")),
@@ -282,6 +290,17 @@ func _verify_source_contract() -> bool:
 				and not _battle_source_matches(step):
 			_fail(stage, "The compiled battle formation no longer matches the route")
 			return false
+		if not _nested_battles_source_match(step):
+			_fail(stage, "A chained battle formation no longer matches the route")
+			return false
+		if str(step.get("kind", "")) == "simple-choice" \
+				and not _simple_choice_source_matches(step):
+			_fail(stage, "The compiled simple-encounter response no longer matches the route")
+			return false
+		if str(step.get("kind", "")) == "complex-item" \
+				and not _complex_item_source_matches(step):
+			_fail(stage, "The compiled complex-item response no longer matches the route")
+			return false
 		if not _treasure_source_matches(step):
 			_fail(stage, "The compiled treasure no longer matches the route")
 			return false
@@ -306,7 +325,11 @@ func _verify_completion_source_contract() -> bool:
 	var completion_valid := (
 		not trigger_specs.is_empty()
 			and not battle_ids.is_empty()
-			and classification in ["source-anchor-only", "installed-runtime"]
+			and classification in [
+				"source-anchor-only",
+				"installed-runtime",
+				"installed-runtime-with-source-authored-escape",
+			]
 	)
 	for trigger_value: Variant in trigger_specs:
 		if not (trigger_value is Dictionary):
@@ -409,12 +432,82 @@ func _run_presentation_step(step: Dictionary) -> bool:
 	return failures.is_empty()
 
 
+func _run_complex_item_step(step: Dictionary) -> bool:
+	var stage := str(step.get("id", "complex-item"))
+	var encounter: Dictionary = step.get("encounter", {})
+	var item_id := int(encounter.get("itemId", -1))
+	if not _move_to_position(stage, step.get("position", {})):
+		return false
+	if not _party_has_classic_item(item_id):
+		_fail(stage, "The required Classic response item is not in the party inventory")
+		return false
+	if not host.start_trigger(str(step.get("triggerId", ""))):
+		_fail(stage, str(host.runtime.last_result))
+		return false
+	if not await _wait_for_choices():
+		_fail(stage, "The authored complex encounter did not open")
+		return false
+	var prompt: Dictionary = encounter.get("prompt", {})
+	if not UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+		str(prompt.get("prefix", ""))
+	):
+		_fail(stage, "The compiled complex encounter prompt changed")
+		return false
+	UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("item")
+	var item_button := await _wait_for_encounter_item(item_id)
+	if item_button == null:
+		_fail(stage, "The native encounter item picker did not expose the source item")
+		return false
+	item_button.pressed.emit()
+	if not await _run_interaction_sequence(
+		stage,
+		step.get("sequence", []),
+		step.get("picture", {}),
+	):
+		return false
+	if not await _wait_for_playthrough_completion():
+		_fail(stage, "The complex-item result did not return to exploration")
+		return false
+	var item_consumed := not _party_has_classic_item(item_id)
+	var expect_consumed := bool(encounter.get("consumeItem", false))
+	var interaction_rows: Array = evidence.get("interactions", [])
+	interaction_rows.append({
+		"stepId": stage,
+		"kind": "complex-item",
+		"encounterId": int(encounter.get("id", -1)),
+		"itemId": item_id,
+		"itemConsumed": item_consumed,
+	})
+	evidence["interactions"] = interaction_rows
+	_verify(
+		stage,
+		_verify_sound_contract(step)
+			and item_consumed == expect_consumed
+			and not campaign_session.has_pending_continuation()
+			and StateMachine._state_name == "Exploration",
+		str(step.get(
+			"detail",
+			"The installed complex encounter consumes its exact source item response",
+		)),
+	)
+	return failures.is_empty()
+
+
 func _run_battle_step(step: Dictionary) -> bool:
 	var stage := str(step.get("id", "battle"))
 	var battle_id := int(step.get("battleId", -1))
 	if not _move_to_position(stage, step.get("position", {})):
 		return false
 	NodeAccess.__Resources().battles_book.erase("Battle_%d" % battle_id)
+	var has_chained_battle := false
+	for event_value: Variant in step.get("postVictory", []):
+		if event_value is Dictionary \
+				and str(event_value.get("kind", "")) == "battle":
+			has_chained_battle = true
+			NodeAccess.__Resources().battles_book.erase(
+				"Battle_%d" % int(event_value.get("battleId", -1))
+			)
+	_prepare_route_party_for_battle()
 	if not host.start_trigger(str(step.get("triggerId", ""))):
 		_fail(stage, str(host.runtime.last_result))
 		return false
@@ -424,52 +517,51 @@ func _run_battle_step(step: Dictionary) -> bool:
 			_fail(stage, "The authored battle introduction did not open")
 			return false
 	if not await _wait_for_combat(battle_id):
-		_fail(stage, "The source battle did not enter native combat")
+		_fail(
+			stage,
+			(
+				"The source battle did not enter native combat: "
+				+ "hostActive=%s state=%s pendingContinuation=%s lastResult=%s"
+			) % [
+				host.active,
+				StateMachine._state_name,
+				campaign_session.has_pending_continuation(),
+				JSON.stringify(host.runtime.last_result),
+			],
+		)
 		return false
 
 	var sounds_valid := _verify_sound_contract(step)
-	var native_battle: Dictionary = NodeAccess.__Resources().battles_book.get(
-		"Battle_%d" % battle_id,
-		{},
+	var observation := _observe_active_battle(
+		battle_id,
+		step.get("creatures", []),
+		step.get("allies", []),
 	)
-	var roster_valid := int(native_battle.get("classicBattleId", -1)) == battle_id
-	var expected_enemy_count := 0
-	var observed_creatures: Array = []
-	for creature_value: Variant in step.get("creatures", []):
-		var creature: Dictionary = creature_value
-		var monster_id := int(creature.get("monsterId", -1))
-		var expected_count := int(creature.get("count", 0))
-		var observed_count := _classic_enemy_count(monster_id)
-		expected_enemy_count += expected_count
-		roster_valid = roster_valid and observed_count == expected_count
-		observed_creatures.append({
-			"monsterId": monster_id,
-			"displayName": str(creature.get("displayName", "")),
-			"count": observed_count,
-		})
-	roster_valid = roster_valid \
-		and native_battle.get("Creatures", []).size() == expected_enemy_count
-	var battle_evidence := {
-		"id": battle_id,
-		"creatures": observed_creatures,
-		"battlefieldDrawable": _temporary_battlefield_is_drawable(),
-	}
+	var battle_evidence: Dictionary = observation.get("evidence", {})
 	_verify(
 		stage,
 		sounds_valid
-			and roster_valid
-			and bool(battle_evidence["battlefieldDrawable"]),
+			and bool(observation.get("valid", false)),
 		"The compiled formation materializes on a drawable native battlefield",
 	)
 	if not failures.is_empty():
 		return false
 
+	if not await _wait_for_route_victory_window():
+		_fail(stage, "The native battle did not reach a stable player turn")
+		return false
 	victory_request_completed = false
 	call_deferred("_request_victory")
 	var reward_seen := await _close_victory_rewards()
 	if not await _wait_for_victory_request_completion():
 		_fail(stage, "The native victory coroutine did not finish")
 		return false
+	if reward_seen and not await _close_experience_level_ups():
+		_fail(stage, "The native battle reward did not finish leveling")
+		return false
+	battle_evidence["rewardScreenPresented"] = reward_seen
+	if has_chained_battle:
+		_record_battle_evidence(stage, battle_evidence)
 	if not await _run_interaction_sequence(
 		stage,
 		step.get("postVictory", []),
@@ -481,13 +573,13 @@ func _run_battle_step(step: Dictionary) -> bool:
 		return false
 	var expected_position: Dictionary = step.get("end", step.get("position", {}))
 	var native_position := _native_position()
-	battle_evidence["rewardScreenPresented"] = reward_seen
 	battle_evidence["returnMap"] = GameGlobal.currentmap_name
 	battle_evidence["returnPosition"] = {
 		"x": native_position.x,
 		"y": native_position.y,
 	}
-	_record_battle_evidence(stage, battle_evidence)
+	if not has_chained_battle:
+		_record_battle_evidence(stage, battle_evidence)
 	var expected_map := _native_map_name(expected_position)
 	var expected_native_position := Vector2i(
 		int(expected_position.get("x", -1)),
@@ -588,11 +680,16 @@ func _run_interaction_sequence(
 	if sequence_value.is_empty():
 		return true
 	var interaction_rows: Array = evidence.get("interactions", [])
-	for event_value: Variant in sequence_value:
+	for event_index: int in sequence_value.size():
+		var event_value: Variant = sequence_value[event_index]
 		if not (event_value is Dictionary):
 			_fail(stage, "An interaction event is not an object")
 			return false
 		var event: Dictionary = event_value
+		print(
+			"CLASSIC_SCENARIO_ROUTE EVENT: %s - %s"
+				% [stage, str(event.get("kind", ""))]
+		)
 		match str(event.get("kind", "")):
 			"message":
 				var prefix := str(event.get("prefix", ""))
@@ -622,6 +719,11 @@ func _run_interaction_sequence(
 					"messageId": int(event.get("id", -1)),
 					"prefix": prefix,
 				})
+				if event_index + 1 < sequence_value.size():
+					var next_event: Variant = sequence_value[event_index + 1]
+					if next_event is Dictionary \
+							and str(next_event.get("kind", "")) == "battle":
+						_prepare_route_party_for_battle()
 				UI.ow_hud.textRect.disablerButton.pressed.emit()
 			"choice":
 				if not await _wait_for_choices():
@@ -644,6 +746,81 @@ func _run_interaction_sequence(
 					"labels": _choice_labels(),
 				})
 				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed(answer)
+			"encounter-choice":
+				if not await _wait_for_choices():
+					_fail(stage, "The authored encounter choice did not open")
+					return false
+				var encounter_labels: Variant = event.get("labels", [])
+				if encounter_labels is Array \
+						and not encounter_labels.is_empty() \
+						and _choice_labels() != encounter_labels:
+					_fail(stage, "The authored encounter choice labels changed")
+					return false
+				var token := str(event.get("token", ""))
+				if token.is_empty():
+					_fail(stage, "The route encounter choice token is empty")
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "encounter-choice",
+					"token": token,
+					"labels": _choice_labels(),
+				})
+				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed(token)
+			"encounter-repeat-boundary":
+				if not await _wait_for_choices():
+					_fail(stage, "The authored encounter did not repeat after fallthrough")
+					return false
+				var repeat_result: Dictionary = host.runtime.last_result
+				var repeat_payload: Dictionary = repeat_result.get("payload", {})
+				var repeat_prompt := str(event.get("promptPrefix", ""))
+				var repeat_labels: Variant = event.get("labels", [])
+				var repeat_valid: bool = (
+					str(repeat_result.get("command", "")) == "start_encounter"
+						and int(repeat_payload.get("encounterId", -1))
+							== int(event.get("encounterId", -2))
+						and int(repeat_payload.get("remainingAttempts", -1))
+							== int(event.get("remainingAttempts", -2))
+						and bool(
+							repeat_payload.get("encounter", {}).get(
+								"canBackOut",
+								true,
+							)
+						) == bool(event.get("canBackOut", false))
+						and UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+							repeat_prompt
+						)
+				)
+				if repeat_labels is Array and not repeat_labels.is_empty():
+					repeat_valid = repeat_valid \
+						and _choice_labels() == repeat_labels
+				if not repeat_valid:
+					_fail(
+						stage,
+						"The source-authored encounter fallthrough boundary changed",
+					)
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "encounter-repeat-boundary",
+					"encounterId": int(repeat_payload.get("encounterId", -1)),
+					"remainingAttempts": int(
+						repeat_payload.get("remainingAttempts", -1)
+					),
+					"canBackOut": bool(
+						repeat_payload.get("encounter", {}).get(
+							"canBackOut",
+							false,
+						)
+					),
+					"sourceAuthoredRepeat": true,
+					"acceptanceEscape": "injected-stop-token",
+				})
+				# The scenario omits Classic's break-encounter-loop opcode, so
+				# the source repeats this prompt 126 more times. The acceptance
+				# route records that boundary, then injects the adapter's normal
+				# cancel outcome solely to continue testing the downstream path.
+				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("STOP")
 			"experience":
 				if not await _wait_for_treasure():
 					_fail(stage, "The authored experience award did not open")
@@ -684,14 +861,86 @@ func _run_interaction_sequence(
 						and not await _loot_classic_items(expected_item_ids):
 					_fail(stage, "The authored treasure items could not be taken")
 					return false
+				var experience_gain := int(UI.ow_hud.treasureControl.exp_gain)
 				interaction_rows.append({
 					"stepId": stage,
 					"kind": "treasure",
 					"treasureId": int(event.get("id", -1)),
 					"itemIds": observed_item_ids,
-					"experience": UI.ow_hud.treasureControl.exp_gain,
+					"experience": experience_gain,
 				})
 				UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+				if experience_gain > 0 and not await _close_experience_level_ups():
+					_fail(stage, "The authored treasure did not finish leveling")
+					return false
+			"map":
+				var map_id := int(event.get("id", -1))
+				var map_notice := str(event.get("prefix", ""))
+				if not await _wait_for_message(map_notice) \
+						or not host.runtime.runtime_state.is_map_owned(map_id):
+					_fail(stage, "The authored player map was not granted")
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "map",
+					"mapId": map_id,
+					"prefix": map_notice,
+				})
+				UI.ow_hud.textRect.disablerButton.pressed.emit()
+			"battle":
+				var battle_id := int(event.get("battleId", -1))
+				_prepare_route_party_for_battle()
+				if not await _wait_for_combat(battle_id):
+					_fail(
+						stage,
+						(
+							"The chained source battle did not enter native combat: "
+							+ "battleId=%d hostActive=%s state=%s "
+							+ "pendingContinuation=%s lastResult=%s"
+						) % [
+							battle_id,
+							host.active,
+							StateMachine._state_name,
+							campaign_session.has_pending_continuation(),
+							JSON.stringify(host.runtime.last_result),
+						],
+					)
+					return false
+				var observation := _observe_active_battle(
+					battle_id,
+					event.get("creatures", []),
+					event.get("allies", []),
+				)
+				if not bool(observation.get("valid", false)):
+					_fail(stage, "The chained native battle no longer matches its source")
+					return false
+				if not await _wait_for_route_victory_window():
+					_fail(
+						stage,
+						"The chained native battle %d did not reach a stable player turn"
+							% battle_id,
+					)
+					return false
+				victory_request_completed = false
+				call_deferred("_request_victory")
+				var reward_seen := await _close_victory_rewards()
+				if not await _wait_for_victory_request_completion():
+					_fail(stage, "The chained native victory coroutine did not finish")
+					return false
+				if reward_seen and not await _close_experience_level_ups():
+					_fail(stage, "The chained native battle reward did not finish leveling")
+					return false
+				var battle_evidence: Dictionary = observation.get("evidence", {})
+				battle_evidence["rewardScreenPresented"] = reward_seen
+				_record_battle_evidence(
+					"%s:%s" % [stage, str(event.get("id", battle_id))],
+					battle_evidence,
+				)
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "battle",
+					"battleId": battle_id,
+				})
 			_:
 				_fail(
 					stage,
@@ -792,35 +1041,122 @@ func _dispatcher_noops_match(
 
 
 func _battle_source_matches(step: Dictionary) -> bool:
-	var battle_id := int(step.get("battleId", -1))
+	return _battle_spec_source_matches(step)
+
+
+func _battle_spec_source_matches(specification: Dictionary) -> bool:
+	var battle_id := int(specification.get("battleId", -1))
 	var battle: Dictionary = campaign_session.install.bundle.get_battle(battle_id)
 	if battle.is_empty():
 		return false
-	var counts := {}
+	var enemy_counts := {}
+	var ally_counts := {}
 	for monster_value: Variant in battle.get("grid", []):
-		var monster_id := int(monster_value)
-		if monster_id == 0:
+		var raw_monster_id := int(monster_value)
+		if raw_monster_id == 0:
 			continue
+		var monster_id := absi(raw_monster_id)
+		var counts: Dictionary = ally_counts if raw_monster_id < 0 else enemy_counts
 		counts[monster_id] = int(counts.get(monster_id, 0)) + 1
-	for creature_value: Variant in step.get("creatures", []):
-		if not (creature_value is Dictionary):
-			return false
-		var creature: Dictionary = creature_value
-		var monster_id := int(creature.get("monsterId", -1))
-		var monster: Dictionary = campaign_session.install.bundle.get_monster(
-			monster_id
+	for group_name: String in ["creatures", "allies"]:
+		var counts: Dictionary = (
+			ally_counts if group_name == "allies" else enemy_counts
 		)
-		if int(counts.get(monster_id, 0)) != int(creature.get("count", 0)) \
-				or str(monster.get("displayName", "")) \
-					!= str(creature.get("displayName", "")):
+		var group_value: Variant = specification.get(group_name, [])
+		if not (group_value is Array) or counts.size() != group_value.size():
 			return false
-	return counts.size() == step.get("creatures", []).size()
+		for creature_value: Variant in group_value:
+			if not (creature_value is Dictionary):
+				return false
+			var creature: Dictionary = creature_value
+			var monster_id := int(creature.get("monsterId", -1))
+			var monster: Dictionary = campaign_session.install.bundle.get_monster(
+				monster_id
+			)
+			if int(counts.get(monster_id, 0)) != int(creature.get("count", 0)) \
+					or str(monster.get("displayName", "")) \
+						!= str(creature.get("displayName", "")):
+				return false
+	return true
+
+
+func _nested_battles_source_match(step: Dictionary) -> bool:
+	for sequence_name: String in ["postVictory", "sequence"]:
+		var sequence_value: Variant = step.get(sequence_name, [])
+		if not (sequence_value is Array):
+			return false
+		for event_value: Variant in sequence_value:
+			if event_value is Dictionary \
+					and str(event_value.get("kind", "")) == "battle" \
+					and not _battle_spec_source_matches(event_value):
+				return false
+	return true
+
+
+func _complex_item_source_matches(step: Dictionary) -> bool:
+	var specification: Dictionary = step.get("encounter", {})
+	var encounter: Dictionary = campaign_session.install.bundle.get_encounter(
+		"complex",
+		int(specification.get("id", -1)),
+	)
+	if encounter.is_empty() \
+			or int(encounter.get("prompt", -1)) \
+				!= int(specification.get("prompt", {}).get("id", -2)):
+		return false
+	var item_ids: Array = encounter.get("itemIds", [])
+	var item_results: Array = encounter.get("itemResults", [])
+	var expected_item_id := int(specification.get("itemId", -1))
+	var item_index := -1
+	for candidate_index: int in item_ids.size():
+		if int(item_ids[candidate_index]) == expected_item_id:
+			item_index = candidate_index
+			break
+	if item_index < 0 \
+			or item_index >= item_results.size() \
+			or int(item_results[item_index]) != int(specification.get("result", -1)):
+		return false
+	return _raw_actions_match(
+		encounter.get("actions", []),
+		specification.get("resultActions", []),
+	)
+
+
+func _simple_choice_source_matches(step: Dictionary) -> bool:
+	var specification: Dictionary = step.get("encounter", {})
+	var encounter: Dictionary = campaign_session.install.bundle.get_encounter(
+		"simple",
+		int(specification.get("id", -1)),
+	)
+	if encounter.is_empty() \
+			or int(encounter.get("prompt", -1)) \
+				!= int(specification.get("prompt", {}).get("id", -2)) \
+			or not _string_arrays_match(
+				encounter.get("texts", []),
+				specification.get("choiceTexts", []),
+			):
+		return false
+	var choice_index := int(specification.get("choiceIndex", -1))
+	var choice_results: Array = encounter.get("choiceResults", [])
+	if choice_index < 0 \
+			or choice_index >= choice_results.size() \
+			or int(choice_results[choice_index]) \
+				!= int(specification.get("result", -1)):
+		return false
+	return _raw_actions_match(
+		encounter.get("actions", []),
+		specification.get("resultActions", []),
+	)
 
 
 func _step_messages_match(step: Dictionary) -> bool:
 	var messages: Array = []
 	for message_value: Variant in step.get("messages", []):
 		messages.append(message_value)
+	var encounter_value: Variant = step.get("encounter", {})
+	if encounter_value is Dictionary:
+		var prompt_value: Variant = encounter_value.get("prompt", {})
+		if prompt_value is Dictionary and not prompt_value.is_empty():
+			messages.append(prompt_value)
 	for sequence_name: String in ["postVictory", "sequence"]:
 		var sequence_value: Variant = step.get(sequence_name, [])
 		if not (sequence_value is Array):
@@ -868,6 +1204,23 @@ func _actions_match(actual_value: Variant, expected_value: Variant) -> bool:
 		var actual_action: Dictionary = actual[action_index]
 		var expected_action: Dictionary = expected[action_index]
 		for field: String in ["slot", "code", "id"]:
+			if int(actual_action.get(field, -999999)) \
+					!= int(expected_action.get(field, -999999)):
+				return false
+	return true
+
+
+func _raw_actions_match(actual_value: Variant, expected_value: Variant) -> bool:
+	if not (actual_value is Array) or not (expected_value is Array):
+		return false
+	var actual: Array = actual_value
+	var expected: Array = expected_value
+	if actual.size() != expected.size():
+		return false
+	for action_index: int in expected.size():
+		var actual_action: Dictionary = actual[action_index]
+		var expected_action: Dictionary = expected[action_index]
+		for field: String in ["slot", "rawCode", "id"]:
 			if int(actual_action.get(field, -999999)) \
 					!= int(expected_action.get(field, -999999)):
 				return false
@@ -942,7 +1295,10 @@ func _verify_picture(picture_value: Variant) -> bool:
 
 func _verify_completion_runtime_contract() -> bool:
 	var completion: Dictionary = route.get("completionAnchor", {})
-	if str(completion.get("classification", "")) != "installed-runtime":
+	if str(completion.get("classification", "")) not in [
+		"installed-runtime",
+		"installed-runtime-with-source-authored-escape",
+	]:
 		return true
 	var runtime: Dictionary = completion.get("runtime", {})
 	var expected_step_ids: Array = runtime.get("stepIds", [])
@@ -987,6 +1343,47 @@ func _verify_completion_runtime_contract() -> bool:
 			observed_items.append(item_id)
 		else:
 			valid = false
+	var observed_absent_items: Array[int] = []
+	for item_value: Variant in runtime.get("absentItemIds", []):
+		var item_id := int(item_value)
+		if not _party_has_classic_item(item_id):
+			observed_absent_items.append(item_id)
+		else:
+			valid = false
+	var observed_trigger_percentages: Array = []
+	for trigger_value: Variant in runtime.get("triggerPercentages", []):
+		if not (trigger_value is Dictionary):
+			valid = false
+			continue
+		var trigger: Dictionary = trigger_value
+		var observed := host.runtime.runtime_state.get_trigger_percent(
+			str(trigger.get("levelType", "land")),
+			int(trigger.get("levelIndex", 0)),
+			int(trigger.get("triggerId", -1)),
+			-1,
+		)
+		observed_trigger_percentages.append({
+			"levelType": str(trigger.get("levelType", "land")),
+			"levelIndex": int(trigger.get("levelIndex", 0)),
+			"triggerId": int(trigger.get("triggerId", -1)),
+			"percent": observed,
+		})
+		valid = valid and observed == int(trigger.get("percent", -1))
+	var observed_battle_ids: Array[int] = []
+	var battle_rows: Array = evidence.get("battles", [])
+	if battle_rows.is_empty() \
+			and evidence.get("battle", {}) is Dictionary \
+			and not evidence.get("battle", {}).is_empty():
+		battle_rows.append(evidence.get("battle", {}))
+	for battle_value: Variant in battle_rows:
+		if battle_value is Dictionary:
+			observed_battle_ids.append(int(battle_value.get("id", -1)))
+	var expected_battle_ids: Array = runtime.get("battleIds", [])
+	if not expected_battle_ids.is_empty():
+		valid = valid and _integer_arrays_match(
+			observed_battle_ids,
+			expected_battle_ids,
+		)
 	var completion_evidence: Dictionary = evidence.get("completionAnchor", {})
 	completion_evidence["runtimeExercised"] = valid
 	completion_evidence["runtime"] = {
@@ -995,6 +1392,9 @@ func _verify_completion_runtime_contract() -> bool:
 		"questFlags": observed_quests,
 		"tileOverrides": observed_tiles,
 		"itemIds": observed_items,
+		"absentItemIds": observed_absent_items,
+		"triggerPercentages": observed_trigger_percentages,
+		"battleIds": observed_battle_ids,
 	}
 	evidence["completionAnchor"] = completion_evidence
 	_verify(
@@ -1026,19 +1426,42 @@ func _record_battle_evidence(
 
 
 func _wait_for_choices() -> bool:
-	for _frame: int in 600:
-		await get_tree().process_frame
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	await get_tree().process_frame
+	while Time.get_ticks_msec() < deadline:
 		var choices: Control = UI.ow_hud.textRect.choicesContainer
 		if choices.visible and choices.get_child_count() > 0:
 			return true
+		await get_tree().create_timer(0.01).timeout
 	return false
 
 
-func _wait_for_treasure() -> bool:
+func _wait_for_encounter_item(item_id: int) -> Button:
 	for _frame: int in 600:
+		var item_menu: Control = UI.ow_hud.encounterControl.useitemRect
+		if item_menu.visible:
+			for child: Node in item_menu.itemsContainer.get_children():
+				if not (child is Button):
+					continue
+				var instance_value: Variant = child.get_meta(
+					"item_instance",
+					null,
+				)
+				if instance_value is ItemInstance \
+						and NodeAccess.__Resources().item_classic_ids(
+							instance_value
+						).has(item_id):
+					return child
+		await get_tree().process_frame
+	return null
+
+
+func _wait_for_treasure() -> bool:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
 		if UI.ow_hud.treasureControl.visible:
 			return true
-		await get_tree().process_frame
+		await get_tree().create_timer(0.01).timeout
 	return false
 
 
@@ -1114,6 +1537,41 @@ func _party_has_classic_item(item_id: int) -> bool:
 	return false
 
 
+func _prepare_route_party_for_battle() -> void:
+	# The acceptance driver must regain control before enemy AI starts. Apply a
+	# process-local initiative floor to generated Classic bestiary records;
+	# installed campaign files and ordinary gameplay resources are unchanged.
+	var creature_book: Dictionary = NodeAccess.__Resources().crea_book
+	for bestiary_key: Variant in creature_book:
+		var entry_value: Variant = creature_book[bestiary_key]
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		var data_value: Variant = entry.get("data", {})
+		var has_classic_id: bool = entry.has("classicMonsterId") \
+			or (
+				data_value is Dictionary
+				and data_value.has("classicMonsterId")
+			)
+		if not has_classic_id or not (entry.get("stats", {}) is Dictionary):
+			continue
+		var stats: Dictionary = entry.get("stats", {})
+		stats["Dexterity"] = -100000
+		entry["stats"] = stats
+		creature_book[bestiary_key] = entry
+	for character: PlayerCharacter in GameGlobal.player_characters:
+		character.life_status = 0
+		character.stats["maxHP"] = maxi(
+			int(character.stats.get("maxHP", 0)),
+			100000,
+		)
+		character.stats["curHP"] = int(character.stats["maxHP"])
+		character.stats["Dexterity"] = maxi(
+			int(character.stats.get("Dexterity", 0)),
+			100000,
+		)
+
+
 func _move_to_position(stage: String, position: Dictionary) -> bool:
 	host.runtime.runtime_state.set_location(
 		str(position.get("levelType", "land")),
@@ -1147,15 +1605,86 @@ func _move_to_position(stage: String, position: Dictionary) -> bool:
 
 
 func _classic_enemy_count(monster_id: int) -> int:
+	return _classic_combatant_count(monster_id, false)
+
+
+func _classic_ally_count(monster_id: int) -> int:
+	return _classic_combatant_count(monster_id, true)
+
+
+func _classic_combatant_count(monster_id: int, ally: bool) -> int:
 	var count := 0
 	for button: Variant in StateMachine.combat_state.all_battle_creatures_btns:
 		if not (button is Object):
 			continue
-		var creature: Variant = button.get("creature")
+		var creature: Variant = button
+		if button is CombatCreaButton:
+			creature = button.creature
 		if creature is Object \
-				and int(creature.get_meta("classic_monster_id", -1)) == monster_id:
+				and int(creature.get_meta("classic_monster_id", -1)) == monster_id \
+				and (int(creature.get("curFaction")) == 0) == ally:
 			count += 1
 	return count
+
+
+func _observe_active_battle(
+	battle_id: int,
+	creatures_value: Variant,
+	allies_value: Variant = [],
+) -> Dictionary:
+	var native_battle: Dictionary = NodeAccess.__Resources().battles_book.get(
+		"Battle_%d" % battle_id,
+		{},
+	)
+	var roster_valid := int(native_battle.get("classicBattleId", -1)) == battle_id
+	var expected_enemy_count := 0
+	var observed_creatures: Array = []
+	var creatures: Array = creatures_value if creatures_value is Array else []
+	for creature_value: Variant in creatures:
+		if not (creature_value is Dictionary):
+			roster_valid = false
+			continue
+		var creature: Dictionary = creature_value
+		var monster_id := int(creature.get("monsterId", -1))
+		var expected_count := int(creature.get("count", 0))
+		var observed_count := _classic_enemy_count(monster_id)
+		expected_enemy_count += expected_count
+		roster_valid = roster_valid and observed_count == expected_count
+		observed_creatures.append({
+			"monsterId": monster_id,
+			"displayName": str(creature.get("displayName", "")),
+			"count": observed_count,
+		})
+	var expected_ally_count := 0
+	var observed_allies: Array = []
+	var allies: Array = allies_value if allies_value is Array else []
+	for ally_value: Variant in allies:
+		if not (ally_value is Dictionary):
+			roster_valid = false
+			continue
+		var ally: Dictionary = ally_value
+		var monster_id := int(ally.get("monsterId", -1))
+		var expected_count := int(ally.get("count", 0))
+		var observed_count := _classic_ally_count(monster_id)
+		expected_ally_count += expected_count
+		roster_valid = roster_valid and observed_count == expected_count
+		observed_allies.append({
+			"monsterId": monster_id,
+			"displayName": str(ally.get("displayName", "")),
+			"count": observed_count,
+		})
+	roster_valid = roster_valid and native_battle.get("Creatures", []).size() \
+		== expected_enemy_count + expected_ally_count
+	var battle_evidence := {
+		"id": battle_id,
+		"creatures": observed_creatures,
+		"allies": observed_allies,
+		"battlefieldDrawable": _temporary_battlefield_is_drawable(),
+	}
+	return {
+		"valid": roster_valid and bool(battle_evidence["battlefieldDrawable"]),
+		"evidence": battle_evidence,
+	}
 
 
 func _temporary_battlefield_is_drawable() -> bool:
@@ -1180,6 +1709,23 @@ func _temporary_battlefield_is_drawable() -> bool:
 	return not terrain_stack.is_empty() and terrain_stack[0].get("texture") != null
 
 
+func _wait_for_route_victory_window() -> bool:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		var active_button: Variant = StateMachine.cb_decide_state.current_active_creabutton
+		if StateMachine.is_combat_state() \
+				and active_button is Object \
+				and is_instance_valid(active_button):
+			var creature: Variant = active_button
+			if active_button is CombatCreaButton:
+				creature = active_button.creature
+			if creature is Creature and creature.is_crea_player_controlled():
+				await get_tree().process_frame
+				return StateMachine.is_combat_state()
+		await get_tree().create_timer(0.01).timeout
+	return false
+
+
 func _request_victory() -> void:
 	await GameGlobal.end_battle("won")
 	victory_request_completed = true
@@ -1195,7 +1741,8 @@ func _wait_for_victory_request_completion() -> bool:
 
 
 func _close_victory_rewards() -> bool:
-	for _frame: int in 600:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
 		if UI.ow_hud.treasureControl.visible:
 			UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 			await get_tree().process_frame
@@ -1204,7 +1751,7 @@ func _close_victory_rewards() -> bool:
 			return true
 		if not StateMachine.is_combat_state() and not host.active:
 			return false
-		await get_tree().process_frame
+		await get_tree().create_timer(0.01).timeout
 	return false
 
 
@@ -1228,14 +1775,15 @@ func _wait_for_message(prefix: String) -> bool:
 
 
 func _wait_for_combat(battle_id: int) -> bool:
-	for _frame: int in 600:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
 		if StateMachine.is_combat_state() \
 				and int(StateMachine.combat_state.cur_battle_data.get(
 					"classicBattleId",
 					-1,
 				)) == battle_id:
 			return true
-		await get_tree().process_frame
+		await get_tree().create_timer(0.01).timeout
 	return false
 
 
@@ -1347,9 +1895,11 @@ func _finish() -> void:
 		print("CLASSIC_SCENARIO_ROUTE FAIL: %s" % str(evidence.get("routeId", "")))
 	SfxPlayer.stop()
 	SfxPlayer.stream = null
+	MusicStreamPlayer.stop()
+	MusicStreamPlayer.stream = null
 	GameGlobal.stop_classic_campaign_runtime()
 	host = null
 	campaign_session = null
-	for _frame: int in 30:
+	for _frame: int in 120:
 		await get_tree().process_frame
 	get_tree().quit(0 if failures.is_empty() else 1)

@@ -1,0 +1,799 @@
+{
+  "schemaVersion": 1,
+  "routeId": "destroy-the-necronomicon-completion-route",
+  "campaignId": "scenario-destroy-the-necronomicon",
+  "campaignDirectory": "Destroy the Necronomicon (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 35,
+    "y": 68
+  },
+  "steps": [
+    {
+      "id": "westmore-arrival",
+      "kind": "presentation",
+      "triggerId": "Data DD:0:39",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 35,
+        "y": 69
+      },
+      "actions": [
+        {"slot": 0, "code": 27, "id": 32128},
+        {"slot": 1, "code": 1, "id": 978},
+        {"slot": 2, "code": 1, "id": 979},
+        {"slot": 3, "code": 200, "id": 0},
+        {"slot": 7, "code": 28, "id": 0}
+      ],
+      "messages": [
+        {
+          "id": 978,
+          "prefix": "You break camp.  Today, you will enter Westmore city."
+        },
+        {
+          "id": 979,
+          "prefix": "Your entire party was intrigued by the message's brevity"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "dispatcherNoops": [
+        {"slot": 3, "rawCode": 200}
+      ],
+      "detail": "The installed Westmore arrival presents its authored splash and summons through the normal campaign UI"
+    },
+    {
+      "id": "stygian-troll-battle",
+      "kind": "battle",
+      "triggerId": "Data DD:0:15",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 36,
+        "y": 20
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 30002},
+        {"slot": 1, "code": 2, "id": 185},
+        {"slot": 2, "code": 1, "id": 257},
+        {"slot": 3, "code": 1, "id": 258},
+        {"slot": 4, "code": 1, "id": 259},
+        {"slot": 5, "code": 9, "id": 10107},
+        {"slot": 6, "code": 1, "id": 260},
+        {"slot": 7, "code": 10, "id": 2}
+      ],
+      "sounds": [
+        {
+          "id": 30002,
+          "status": "native-mapping",
+          "nativeName": "growl 3.wav"
+        },
+        {
+          "id": 30003,
+          "status": "native-mapping",
+          "nativeName": "growl 4.wav"
+        },
+        {
+          "id": 10107,
+          "status": "native-mapping",
+          "nativeName": "glass.wav"
+        }
+      ],
+      "battleId": 47,
+      "creatures": [
+        {
+          "monsterId": 37,
+          "displayName": "Stygian Troll",
+          "count": 24
+        }
+      ],
+      "messages": [
+        {
+          "id": 256,
+          "prefix": "The portal slides open at the merest touch."
+        }
+      ],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 257,
+          "prefix": "The foul stink of this place sends you reeling."
+        },
+        {
+          "kind": "message",
+          "id": 258,
+          "prefix": "You conjecture that the small pyramid is  a vehicle used to transport trolls"
+        },
+        {
+          "kind": "message",
+          "id": 259,
+          "prefix": "You search the entire pyramid and find nothing of interest"
+        },
+        {
+          "kind": "message",
+          "id": 260,
+          "prefix": "You shatter the glass ball against a wall."
+        },
+        {
+          "kind": "treasure",
+          "id": 2,
+          "itemIds": [886],
+          "sourceItemIds": [886, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 6000,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        }
+      ],
+      "detail": "Battle 47's Stygian Troll formation, victory narrative, and Deadstone of Jealousy reward complete through the installed runtime"
+    },
+    {
+      "id": "hecubus-lair",
+      "kind": "simple-choice",
+      "triggerId": "Data DD:4:11",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 0,
+        "y": 43
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 724},
+        {"slot": 1, "code": 1, "id": 725},
+        {"slot": 2, "code": 1, "id": 726},
+        {"slot": 3, "code": 4, "id": 10}
+      ],
+      "encounter": {
+        "id": 10,
+        "prompt": {
+          "id": 728,
+          "prefix": "I had always believed that your kind dwelled only within the Realmz."
+        },
+        "choiceIndex": 0,
+        "choiceTexts": [
+          "Explain your mission to prevent the Abyss and the Realmz from reuniting.",
+          "Attack this foul fiend of the lower planes.",
+          "Attempt to flee the cave before the beast causes your demise.",
+          ""
+        ],
+        "result": 1,
+        "resultActions": [
+          {"slot": 0, "rawCode": 1, "id": 729},
+          {"slot": 1, "rawCode": 1, "id": 730},
+          {"slot": 2, "rawCode": 1, "id": 731},
+          {"slot": 3, "rawCode": 18, "id": 335},
+          {"slot": 4, "rawCode": 1, "id": 732},
+          {"slot": 5, "rawCode": 2, "id": 336},
+          {"slot": 6, "rawCode": 1, "id": 734},
+          {"slot": 7, "rawCode": 39, "id": 162},
+          {"slot": 8, "rawCode": 2, "id": 336},
+          {"slot": 9, "rawCode": 1, "id": 734},
+          {"slot": 10, "rawCode": 39, "id": 162},
+          {"slot": 16, "rawCode": 9, "id": 26260},
+          {"slot": 17, "rawCode": 1, "id": 849},
+          {"slot": 18, "rawCode": 90, "id": 383}
+        ]
+      },
+      "sounds": [
+        {
+          "id": 30000,
+          "status": "native-mapping",
+          "nativeName": "growl 1.wav"
+        },
+        {
+          "id": 30001,
+          "status": "native-mapping",
+          "nativeName": "growl 2.wav"
+        }
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 724,
+          "prefix": "In the middle of the cave, two winged demons slowly turn a huge spit"
+        },
+        {
+          "kind": "message",
+          "id": 725,
+          "prefix": "Barbaric cannibalism!"
+        },
+        {
+          "kind": "message",
+          "id": 726,
+          "prefix": "Wisps of smoke trail from its flared nostrils"
+        },
+        {
+          "kind": "encounter-choice",
+          "labels": [
+            "Explain your mission to prevent the Abyss and the Realmz from reuniting.",
+            "Attack this foul fiend of the lower planes.",
+            "Attempt to flee the cave before the beast causes your demise."
+          ],
+          "token": "1"
+        },
+        {
+          "kind": "message",
+          "id": 729,
+          "prefix": "\"Most interesting!"
+        },
+        {
+          "kind": "message",
+          "id": 730,
+          "prefix": "The fool!"
+        },
+        {
+          "kind": "message",
+          "id": 731,
+          "prefix": "Frankly, I didn't expect you to live long enough"
+        },
+        {
+          "kind": "message",
+          "id": 732,
+          "prefix": "In a flash, the beast leaps for the cave's ceiling."
+        },
+        {
+          "kind": "message",
+          "id": 733,
+          "prefix": "The beast calls forth his demon minions."
+        },
+        {
+          "kind": "battle",
+          "id": "hecubus-minions",
+          "battleId": 145,
+          "creatures": [
+            {"monsterId": 63, "displayName": "Winged Demon", "count": 9},
+            {"monsterId": 83, "displayName": "Slime Demon", "count": 9},
+            {"monsterId": 176, "displayName": "Hecubus Servant", "count": 4}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 734,
+          "prefix": "Patience is not a word in the beast's vocabulary."
+        },
+        {
+          "kind": "message",
+          "id": 735,
+          "prefix": "Bolting for a large iron door set deep within the cavern wall"
+        },
+        {
+          "kind": "battle",
+          "id": "lord-hecubus",
+          "battleId": 146,
+          "creatures": [
+            {"monsterId": 63, "displayName": "Winged Demon", "count": 1},
+            {"monsterId": 83, "displayName": "Slime Demon", "count": 1},
+            {"monsterId": 134, "displayName": "Hells Assassin", "count": 1},
+            {"monsterId": 175, "displayName": "Lord Hecubus", "count": 1},
+            {"monsterId": 176, "displayName": "Hecubus Servant", "count": 4}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 736,
+          "prefix": "With Lord Hecubus destroyed"
+        },
+        {
+          "kind": "message",
+          "id": 737,
+          "prefix": "You investigate Lord Hecubus's throne."
+        },
+        {
+          "kind": "map",
+          "id": 9,
+          "prefix": "You gain a map, to view the map use Maps/Notes in the Menu."
+        },
+        {
+          "kind": "treasure",
+          "id": 43,
+          "itemIds": [630, 628, 631],
+          "sourceItemIds": [630, 628, 631, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 30000,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 821,
+          "prefix": "Shortly after Lord Hecubus's death"
+        },
+        {
+          "kind": "message",
+          "id": 822,
+          "prefix": "I thought that the psychological battle had permanently destroyed my abilities."
+        },
+        {
+          "kind": "message",
+          "id": 823,
+          "prefix": "Our salvation could be nearly at hand."
+        },
+        {
+          "kind": "message",
+          "id": 824,
+          "prefix": "If you fail your quest, their lives have been lost in vain."
+        },
+        {
+          "kind": "message",
+          "id": 825,
+          "prefix": "in the Realmz, the damnable bastions are still arriving."
+        },
+        {
+          "kind": "encounter-repeat-boundary",
+          "encounterId": 10,
+          "remainingAttempts": 126,
+          "canBackOut": false,
+          "promptPrefix": "I had always believed that your kind dwelled only within the Realmz.",
+          "labels": [
+            "Explain your mission to prevent the Abyss and the Realmz from reuniting.",
+            "Attack this foul fiend of the lower planes.",
+            "Attempt to flee the cave before the beast causes your demise."
+          ]
+        }
+      ],
+      "detail": "The Hecubus encounter follows its authored diplomatic response through Battles 145 and 146, reveals the Necronomicon cache, and preserves the source-authored fallthrough repeat boundary"
+    },
+    {
+      "id": "necronomicon-cache",
+      "kind": "action-list",
+      "triggerId": "Data DD:4:13",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 33,
+        "y": 73
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 738},
+        {"slot": 1, "code": 1, "id": 739},
+        {"slot": 2, "code": 10, "id": 44},
+        {"slot": 3, "code": 1, "id": 1024}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 738,
+          "prefix": "You follow the map's directions and shortly reach the pinpointed location."
+        },
+        {
+          "kind": "message",
+          "id": 739,
+          "prefix": "the creature has two small horns."
+        },
+        {
+          "kind": "treasure",
+          "id": 44,
+          "itemIds": [899, 900],
+          "sourceItemIds": [899, 900, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 25000,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 1024,
+          "prefix": "Now might be a good time to invoke the power of the blue gem."
+        }
+      ],
+      "detail": "The installed cache supplies the Book of Screams and the exact Necronomicon item before the destruction encounter"
+    },
+    {
+      "id": "burn-necronomicon",
+      "kind": "complex-item",
+      "triggerId": "Data ED3:macro:194",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 7,
+        "x": 3,
+        "y": 24
+      },
+      "actions": [
+        {"slot": 0, "code": 5, "id": 10},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "encounter": {
+        "id": 10,
+        "prompt": {
+          "id": 628,
+          "prefix": "What do you want to do?"
+        },
+        "itemId": 900,
+        "result": 1,
+        "consumeItem": true,
+        "resultActions": [
+          {"slot": 0, "rawCode": 1, "id": 814},
+          {"slot": 1, "rawCode": 9, "id": 642},
+          {"slot": 2, "rawCode": 1, "id": 815},
+          {"slot": 3, "rawCode": 1, "id": 816},
+          {"slot": 4, "rawCode": 1, "id": 817},
+          {"slot": 5, "rawCode": 1, "id": 818},
+          {"slot": 6, "rawCode": 1, "id": 819},
+          {"slot": 7, "rawCode": 39, "id": 196},
+          {"slot": 24, "rawCode": 19, "id": 2}
+        ]
+      },
+      "sounds": [
+        {
+          "id": 642,
+          "status": "native-mapping",
+          "nativeName": "big explode.wav"
+        }
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 814,
+          "prefix": "You toss your copy of the Necronomicon into the pit."
+        },
+        {
+          "kind": "message",
+          "id": 815,
+          "prefix": "Tormented screams accompany the destruction of each page."
+        },
+        {
+          "kind": "message",
+          "id": 816,
+          "prefix": "The danger of the Realmz and the Abyss reuniting exists no longer."
+        },
+        {
+          "kind": "message",
+          "id": 817,
+          "prefix": "You begin a debate over the best route home."
+        },
+        {
+          "kind": "message",
+          "id": 818,
+          "prefix": "Your destruction of the Necronomicon has set great events in motion"
+        },
+        {
+          "kind": "message",
+          "id": 819,
+          "prefix": "The bastions and nether spawn have been consumed in hellish balls of fire."
+        },
+        {
+          "kind": "message",
+          "id": 820,
+          "prefix": "Unfortunately, that is beyond my capabilities."
+        }
+      ],
+      "detail": "Complex encounter 10 accepts and removes item 900, destroys both worlds' link, and enables the authored return trigger"
+    },
+    {
+      "id": "morbius-homecoming",
+      "kind": "battle",
+      "triggerId": "Data DD:0:56",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 9,
+        "y": 84
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 24,
+        "y": 47
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 3002},
+        {"slot": 1, "code": 1, "id": 1052},
+        {"slot": 2, "code": 1, "id": 1053},
+        {"slot": 3, "code": 1, "id": 1054},
+        {"slot": 7, "code": 39, "id": 237}
+      ],
+      "messages": [
+        {"id": 1052, "prefix": "Having been informed of your impending arrival"},
+        {"id": 1053, "prefix": "Crowds of people push and shove attempting to catch a glimpse"},
+        {"id": 1054, "prefix": "Weapons are raised aloft in salute."},
+        {"id": 1056, "prefix": "\"I declare this day to be an official annual holiday"},
+        {"id": 1057, "prefix": "\"No amount of gems or jewels could ever reward"},
+        {"id": 1058, "prefix": "Tomorrow, our heroes will be sworn in as members of the ruling council."},
+        {"id": 1059, "prefix": "As the queen showers you with praise, a dark shadow passes"},
+        {"id": 1060, "prefix": "The crowd's vibrancy dissolves into uneasy murmuring."},
+        {"id": 1061, "prefix": "Before anyone can react, blistering flames erupt"},
+        {"id": 1062, "prefix": "Moments ago, parents huddled and pulled their children close."},
+        {"id": 1063, "prefix": "Not far from the queen, Thoth Amon stands with arms outstretched."},
+        {"id": 1064, "prefix": "You dodge through the chaos, reach your gear"},
+        {"id": 1065, "prefix": "It is Morbius."},
+        {"id": 1066, "prefix": "Prepare to die, foul mortals!"},
+        {"id": 1067, "prefix": "With a thunderous blast, lightning strikes the wing"},
+        {"id": 1068, "prefix": "The dragon's body is savagely crushed on impact."},
+        {"id": 1069, "prefix": "The shock of Morbius's bloodstained figure"},
+        {"id": 1070, "prefix": "A young acolyte dives before the queen"},
+        {"id": 1071, "prefix": "Before you can engage Morbius"},
+        {"id": 1072, "prefix": "Consumed by primal rage, you race towards Morbius."}
+      ],
+      "sounds": [
+        {"id": 3002, "status": "native-mapping", "nativeName": "level up.wav"},
+        {"id": 10049, "status": "native-mapping", "nativeName": "angry mob.wav"},
+        {"id": -10049, "status": "native-mapping", "nativeName": "angry mob.wav"},
+        {"id": 699, "status": "native-mapping", "nativeName": "wind.wav"},
+        {"id": -601, "status": "native-mapping", "nativeName": "spell launch 2.wav"},
+        {"id": 642, "status": "native-mapping", "nativeName": "big explode.wav"},
+        {"id": -645, "status": "native-mapping", "nativeName": "small explode.wav"},
+        {"id": 615, "status": "native-mapping", "nativeName": "lightning.wav"},
+        {"id": 10002, "status": "native-mapping", "nativeName": "wing flap.wav"},
+        {"id": 10136, "status": "native-mapping", "nativeName": "monster shout.wav"},
+        {"id": -693, "status": "native-mapping", "nativeName": "jump.wav"},
+        {"id": 692, "status": "native-mapping", "nativeName": "smack.wav"},
+        {"id": -20002, "status": "native-mapping", "nativeName": "cast spell.wav"},
+        {"id": 10122, "status": "native-mapping", "nativeName": "bleeding.wav"},
+        {"id": 10141, "status": "native-mapping", "nativeName": "woman scream.wav"},
+        {"id": -602, "status": "native-mapping", "nativeName": "spell launch 3.wav"},
+        {"id": 620, "status": "native-mapping", "nativeName": "pops.wav"},
+        {"id": 601, "status": "native-mapping", "nativeName": "spell launch 2.wav"},
+        {"id": 651, "status": "native-mapping", "nativeName": "bwee.wav"},
+        {"id": 605, "status": "native-mapping", "nativeName": "spell launch 6.wav"},
+        {"id": 610, "status": "native-mapping", "nativeName": "hit effect 1.wav"},
+        {"id": 613, "status": "native-mapping", "nativeName": "hit effect 4.wav"},
+        {"id": 20004, "status": "native-mapping", "nativeName": "hallelujah.wav"}
+      ],
+      "battleId": 215,
+      "creatures": [
+        {
+          "monsterId": 71,
+          "displayName": "Fire Drake",
+          "count": 15
+        }
+      ],
+      "allies": [
+        {"monsterId": 95, "displayName": "Warrior", "count": 5},
+        {"monsterId": 96, "displayName": "Warrior Corporal", "count": 1},
+        {"monsterId": 97, "displayName": "Warrior Sergeant", "count": 1},
+        {"monsterId": 98, "displayName": "Warrior Lieutenant", "count": 1},
+        {"monsterId": 99, "displayName": "Warrior Captain", "count": 1}
+      ],
+      "postVictory": [
+        {"kind": "message", "id": 1073, "prefix": "After successfully slaying the drakes"},
+        {"kind": "message", "id": 1074, "prefix": "Shell-shocked over Queen Selene's sudden death"},
+        {"kind": "message", "id": 1075, "prefix": "You descend upon Morbius."},
+        {"kind": "message", "id": 1076, "prefix": "The litch clones himself."},
+        {
+          "id": "morbius-battle",
+          "kind": "battle",
+          "battleId": 216,
+          "creatures": [
+            {
+              "monsterId": 71,
+              "displayName": "Fire Drake",
+              "count": 8
+            },
+            {
+              "monsterId": 115,
+              "displayName": "Morbius the Demi Lich",
+              "count": 4
+            }
+          ],
+          "allies": [
+            {
+              "monsterId": 209,
+              "displayName": "Amons Protege",
+              "count": 2
+            },
+            {
+              "monsterId": 210,
+              "displayName": "Thoth Amon",
+              "count": 1
+            }
+          ]
+        },
+        {"kind": "message", "id": 1078, "prefix": "You stand upon the remains of Morbius's skeletal body"},
+        {"kind": "message", "id": 1079, "prefix": "I have pursued you from the depths of the Abyss."},
+        {"kind": "message", "id": 1080, "prefix": "With Morbius vanquished, you rush to Thoth Amon's side."},
+        {"kind": "message", "id": 1081, "prefix": "\"I have no wish to be healed."},
+        {"kind": "message", "id": 1082, "prefix": "Thoth Amon's head awkwardly lolls"},
+        {"kind": "message", "id": 1083, "prefix": "You attempt to approach the queen's dead body."},
+        {"kind": "message", "id": 1084, "prefix": "As a traveler, you have witnessed your share of riots."},
+        {"kind": "message", "id": 1085, "prefix": "A woman frustrates your attempt to exit the city quickly."},
+        {"kind": "message", "id": 1086, "prefix": "He truly doesn't believe you're responsible"},
+        {"kind": "message", "id": 1087, "prefix": "As the eldest member of the ruling council"},
+        {"kind": "message", "id": 1088, "prefix": "I'm sorry that his ploy succeeded."},
+        {"kind": "message", "id": 1089, "prefix": "You sit up anxiously and stare into the fire."},
+        {"kind": "message", "id": 1090, "prefix": "You sit quietly about the campfire"},
+        {"kind": "message", "id": 1091, "prefix": "The diaphanous figures embrace one another as lovers."},
+        {"kind": "message", "id": 1092, "prefix": "We have longed for the day when we could be together."},
+        {"kind": "message", "id": 1093, "prefix": "Westmore must be rebuilt to its former stature."},
+        {"kind": "message", "id": 1094, "prefix": "However, we can give you something to help you survive your travels."},
+        {"kind": "message", "id": 1094, "prefix": "However, we can give you something to help you survive your travels."},
+        {"kind": "message", "id": 1095, "prefix": "The two figures smile and fade into the flames."},
+        {"kind": "message", "id": 1096, "prefix": "Congratulations!  You have saved the Realmz"},
+        {"kind": "message", "id": 1097, "prefix": "Though you have accomplished the main task for this scenario"},
+        {"kind": "message", "id": 1098, "prefix": "Destroy the Necronomicon is Copyright"}
+      ],
+      "detail": "The installed homecoming runs both final battles, the Westmore tragedy, the supernatural reward, and the explicit scenario credits"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "book-cache",
+        "triggerId": "Data DD:4:13",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 738},
+          {"slot": 1, "code": 1, "id": 739},
+          {"slot": 2, "code": 10, "id": 44},
+          {"slot": 3, "code": 1, "id": 1024}
+        ]
+      },
+      {
+        "id": "pit-encounter",
+        "triggerId": "Data ED3:macro:194",
+        "actions": [
+          {"slot": 0, "code": 5, "id": 10},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "book-destruction",
+        "triggerId": "Data ED3:macro:196",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 820},
+          {"slot": 1, "code": 13, "id": 376},
+          {"slot": 2, "code": 22, "id": 481},
+          {"slot": 3, "code": 13, "id": 502},
+          {"slot": 4, "code": 13, "id": 569},
+          {"slot": 5, "code": 13, "id": 570},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "homecoming",
+        "triggerId": "Data DD:0:56",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 3002},
+          {"slot": 1, "code": 1, "id": 1052},
+          {"slot": 2, "code": 1, "id": 1053},
+          {"slot": 3, "code": 1, "id": 1054},
+          {"slot": 7, "code": 39, "id": 237}
+        ]
+      },
+      {
+        "id": "first-final-battle",
+        "triggerId": "Data ED3:macro:243",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 10141},
+          {"slot": 1, "code": 1, "id": 1071},
+          {"slot": 2, "code": 1, "id": 1072},
+          {"slot": 3, "code": 2, "id": 488},
+          {"slot": 4, "code": 1, "id": 1073},
+          {"slot": 5, "code": 1, "id": 1074},
+          {"slot": 7, "code": 39, "id": 244}
+        ]
+      },
+      {
+        "id": "morbius-battle",
+        "triggerId": "Data ED3:macro:244",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1075},
+          {"slot": 1, "code": 9, "id": -602},
+          {"slot": 2, "code": 9, "id": 620},
+          {"slot": 3, "code": 1, "id": 1076},
+          {"slot": 4, "code": 2, "id": 489},
+          {"slot": 5, "code": 1, "id": 1078},
+          {"slot": 7, "code": 39, "id": 245}
+        ]
+      },
+      {
+        "id": "westmore-exile",
+        "triggerId": "Data ED3:macro:246",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1085},
+          {"slot": 1, "code": 1, "id": 1086},
+          {"slot": 2, "code": 1, "id": 1087},
+          {"slot": 3, "code": 1, "id": 1088},
+          {"slot": 4, "code": 1, "id": 1089},
+          {"slot": 5, "code": 45, "id": 490},
+          {"slot": 6, "code": 16, "id": 497},
+          {"slot": 7, "code": 39, "id": 247}
+        ]
+      },
+      {
+        "id": "supernatural-reward",
+        "triggerId": "Data ED3:macro:248",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 651},
+          {"slot": 1, "code": 1, "id": 1094},
+          {"slot": 2, "code": 53, "id": 491},
+          {"slot": 3, "code": 43, "id": 492},
+          {"slot": 4, "code": 53, "id": 493},
+          {"slot": 5, "code": 43, "id": 494},
+          {"slot": 7, "code": 39, "id": 249}
+        ]
+      },
+      {
+        "id": "credits",
+        "triggerId": "Data ED3:macro:249",
+        "actions": [
+          {"slot": 0, "code": 53, "id": 495},
+          {"slot": 1, "code": 43, "id": 496},
+          {"slot": 2, "code": 9, "id": 651},
+          {"slot": 3, "code": 1, "id": 1095},
+          {"slot": 4, "code": 9, "id": 20004},
+          {"slot": 5, "code": 1, "id": 1096},
+          {"slot": 6, "code": 1, "id": 1097},
+          {"slot": 7, "code": 1, "id": 1098}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 376, "values": [7, 53, 100, 0, 0]},
+      {"id": 481, "values": [900, 6, 1, 0, 0]},
+      {"id": 502, "values": [0, 0, 100, 56, 56]},
+      {"id": 569, "values": [0, 57, 0, 0, 0]},
+      {"id": 570, "values": [0, 58, 0, 0, 0]},
+      {"id": 488, "values": [215, 0, 0, 0, 0]},
+      {"id": 489, "values": [216, 0, 0, 0, 5]},
+      {"id": 490, "values": [0, 24, 47, 0, 0]},
+      {"id": 491, "values": [0, 2, 0, 0, 0]},
+      {"id": 492, "values": [1, 35, -1, 605, 0]},
+      {"id": 493, "values": [0, 1, 0, 0, 0]},
+      {"id": 494, "values": [1, 10, -1, 610, 0]},
+      {"id": 495, "values": [0, 3, 0, 0, 0]},
+      {"id": 496, "values": [1, 8, -1, 613, 0]},
+      {"id": 497, "values": [99, 99, 100, 0, 0]}
+    ],
+    "messages": [
+      {
+        "id": 815,
+        "prefix": "Tormented screams accompany the destruction of each page."
+      },
+      {
+        "id": 816,
+        "prefix": "The danger of the Realmz and the Abyss reuniting exists no longer."
+      },
+      {
+        "id": 1056,
+        "prefix": "\"I declare this day to be an official annual holiday"
+      },
+      {
+        "id": 1076,
+        "prefix": "The litch clones himself."
+      },
+      {
+        "id": 1096,
+        "prefix": "Congratulations!  You have saved the Realmz"
+      },
+      {
+        "id": 1097,
+        "prefix": "Though you have accomplished the main task for this scenario"
+      }
+    ],
+    "battleIds": [215, 216],
+    "classification": "installed-runtime-with-source-authored-escape",
+    "runtime": {
+      "stepIds": [
+        "westmore-arrival",
+        "stygian-troll-battle",
+        "hecubus-lair",
+        "necronomicon-cache",
+        "burn-necronomicon",
+        "morbius-homecoming"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 24,
+        "y": 47
+      },
+      "itemIds": [886, 899],
+      "absentItemIds": [900],
+      "battleIds": [47, 145, 146, 215, 216],
+      "triggerPercentages": [
+        {"levelType": "land", "levelIndex": 4, "triggerId": 13, "percent": -1},
+        {"levelType": "land", "levelIndex": 7, "triggerId": 53, "percent": 100},
+        {"levelType": "land", "levelIndex": 0, "triggerId": 56, "percent": -1},
+        {"levelType": "land", "levelIndex": 0, "triggerId": 57, "percent": 0},
+        {"levelType": "land", "levelIndex": 0, "triggerId": 58, "percent": 0}
+      ]
+    }
+  }
+}

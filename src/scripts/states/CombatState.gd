@@ -114,6 +114,8 @@ func can_place_creature_at(crea: Creature, position: Vector2) -> bool:
 func find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, _is_failure_ok : bool, max_move_attempts : int, max_los_attempts : int) ->Vector2 :
 	var move_attempts : int = 0
 	var los_attempts : int = 0
+	var placement_attempts := 0
+	var deterministic_fallback_after := maxi(64, max_los_attempts)
 #	var max_los_attempts : int = player_characters.size()*100
 	var is_los : bool = true
 	var pos = Vector2(coords)
@@ -136,7 +138,47 @@ func find_pos_for_crea_on_battlefield(crea : Creature, coords : Vector2, _is_fai
 			if los_attempts > max_los_attempts :
 				is_los = true
 				max_move_attempts +=1
+			placement_attempts += 1
+			if placement_attempts >= deterministic_fallback_after:
+				return _nearest_open_battlefield_position(crea, coords)
 	return pos
+
+
+func _nearest_open_battlefield_position(
+	crea: Creature,
+	origin: Vector2,
+) -> Vector2:
+	var map_size := Vector2i(GameGlobal.map.map_size)
+	var anchor := Vector2i(
+		clampi(roundi(origin.x), 0, map_size.x - 1),
+		clampi(roundi(origin.y), 0, map_size.y - 1),
+	)
+	var maximum_radius := maxi(map_size.x, map_size.y)
+	for require_los: bool in [true, false]:
+		for radius: int in maximum_radius:
+			var left := anchor.x - radius
+			var right := anchor.x + radius
+			var top := anchor.y - radius
+			var bottom := anchor.y + radius
+			for x: int in range(left, right + 1):
+				for y: int in [top, bottom]:
+					var candidate := Vector2(x, y)
+					if can_place_creature_at(crea, candidate) \
+							and (
+								not require_los
+								or check_los(Vector2(anchor), candidate)
+							):
+						return candidate
+			for y: int in range(top + 1, bottom):
+				for x: int in [left, right]:
+					var candidate := Vector2(x, y)
+					if can_place_creature_at(crea, candidate) \
+							and (
+								not require_los
+								or check_los(Vector2(anchor), candidate)
+							):
+						return candidate
+	return Vector2(anchor)
 
 
 func check_los(fromV : Vector2, toV : Vector2) -> bool :

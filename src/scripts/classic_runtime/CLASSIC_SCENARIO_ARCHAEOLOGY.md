@@ -101,3 +101,83 @@ Each claim should stay within its evidence:
   `reports/classic_castle_in_the_clouds_route_acceptance.json`
 - Imported source records: `Data DD:1:31`, `Data DD:1:33`, and
   `Data ED3:macro:223`.
+
+## Destroy the Necronomicon
+
+### Main completion chain
+
+- **Runtime-proven:** Westmore's opening is on land map 0 at `(35, 69)`.
+  Messages 978 and 979 explain that an anonymous inhabitant summoned the party
+  after months of travel.
+- **Runtime-proven:** The Stygian Troll portal is on land map 0 at `(36, 20)`.
+  Battle 47 contains 24 Stygian Trolls. Victory reveals their pyramid as a
+  transport from the Abyss and awards 6,000 experience plus the Deadstone of
+  Jealousy (item 886).
+- **Runtime-proven:** Lord Hecubus is reached through `Data DD:4:11` at
+  `(0, 43)`. Choosing to explain the mission leads through Battles 145 and 146,
+  grants player map 9 and Treasure 43, and enables the Necronomicon cache.
+- **Runtime-proven:** The map leads to `Data DD:4:13` at `(33, 73)`. Treasure
+  44 contains the Book of Screams (899) and Necronomicon (900). Thoth Amon's
+  message says allies in the Realmz already destroyed their copy at great cost.
+- **Runtime-proven:** The pit at land map 7 `(3, 24)` is hot enough to destroy
+  magical items. Giving item 900 to complex encounter 10 burns the book,
+  removes it from the party, and changes the relevant pit and homecoming action
+  points. Messages 815 and 816 explicitly say the link between the Abyss and
+  Realmz is broken and the quest is complete.
+- **Runtime-proven:** The homecoming begins on land map 0 at `(9, 84)`.
+  Battle 215 contains 15 Fire Drakes and nine allied Westmore soldiers. Battle
+  216 contains eight Fire Drakes, four Morbius clones, Thoth Amon, and two of
+  Amon's Proteges. The route ends at `(24, 47)` with messages 1096 and 1097,
+  which explicitly say the Realmz is saved and the scenario's main task is
+  complete.
+
+### Source-authored Hecubus loop
+
+- **Runtime-proven:** Simple encounter 10 has 127 maximum attempts. After the
+  diplomatic result kills Hecubus, grants the map and treasure, and enables the
+  cache, the prompt reopens with 126 attempts remaining and no back-out choice.
+- **Source-proven:** The selected result falls through without Classic's
+  break-encounter-loop opcode. The repeat is therefore preserved Classic
+  control flow, not an importer or interpreter invention.
+- The acceptance route records the repeat and injects a test-only cancel
+  outcome before continuing to the cache. This is an apparent scenario
+  authoring defect and should not be presented as a normal player solution.
+
+### Story, hint, and ending facts
+
+- Lord Hecubus says he previously let a Realmz wizard believe a mental battle
+  had defeated him. After Hecubus dies, Thoth Amon confirms that Hecubus had
+  only suppressed his telepathic powers.
+- The Book of Screams and Necronomicon are bound together under the arm of a
+  small horned, winged skeleton. Message 1024 reminds the party that this is the
+  moment when Thoth Amon advised using the blue gem.
+- The pit first demonstrates its power by consuming another magical weapon.
+  The book's destruction also burns the bastions and their nether-spawn cargo
+  throughout the Realmz.
+- Queen Selene intends to make the party members of Westmore's ruling council,
+  but Morbius attacks during the ceremony. He kills Selene; Thoth Amon refuses
+  healing after the final battle so that he can join her in death.
+- Remdigis turns the grieving crowd against the party because the promised
+  council seats threaten his political position. Selene's and Thoth Amon's
+  spirits later console the party and grant caste-specific permanent benefits.
+- Morbius warns that destroying his material shell will not prevent his
+  eventual return. Message 1097 invites continued exploration after the main
+  task.
+
+### Authored text gaps worth preserving
+
+- **Source-proven:** Messages 1055 and 1077 exist in the message table, but the
+  homecoming macro chain does not call them. Message 1055 continues the queen's
+  public introduction; message 1077 hints at a suspicious door after Morbius
+  clones himself. Their absence from runtime is source-authored, not an import
+  loss.
+
+### Evidence
+
+- Route: `playtest/routes/destroy_the_necronomicon.json`
+- Installed report:
+  `reports/classic_destroy_the_necronomicon_route_acceptance.json`
+- Imported source records: `Data DD:0:39`, `Data DD:0:15`,
+  `Data DD:4:11`, `Data DD:4:13`, `Data ED3:macro:194`,
+  `Data ED3:macro:196`, `Data DD:0:56`, and `Data ED3:macro:237` through
+  `249`.

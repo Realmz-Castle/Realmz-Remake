@@ -1,0 +1,1082 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 35,
+			"y": 68
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 35,
+			"y": 68
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 24,
+				"displayName": "Stygian Troll",
+				"monsterId": 37
+			}
+		],
+		"id": 47,
+		"returnMap": "map_0",
+		"returnPosition": {
+			"x": 36,
+			"y": 20
+		},
+		"rewardScreenPresented": true
+	},
+	"battles": [
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 24,
+					"displayName": "Stygian Troll",
+					"monsterId": 37
+				}
+			],
+			"id": 47,
+			"returnMap": "map_0",
+			"returnPosition": {
+				"x": 36,
+				"y": 20
+			},
+			"rewardScreenPresented": true,
+			"stepId": "stygian-troll-battle"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 9,
+					"displayName": "Winged Demon",
+					"monsterId": 63
+				},
+				{
+					"count": 9,
+					"displayName": "Slime Demon",
+					"monsterId": 83
+				},
+				{
+					"count": 4,
+					"displayName": "Hecubus Servant",
+					"monsterId": 176
+				}
+			],
+			"id": 145,
+			"rewardScreenPresented": true,
+			"stepId": "hecubus-lair:hecubus-minions"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Winged Demon",
+					"monsterId": 63
+				},
+				{
+					"count": 1,
+					"displayName": "Slime Demon",
+					"monsterId": 83
+				},
+				{
+					"count": 1,
+					"displayName": "Hells Assassin",
+					"monsterId": 134
+				},
+				{
+					"count": 1,
+					"displayName": "Lord Hecubus",
+					"monsterId": 175
+				},
+				{
+					"count": 4,
+					"displayName": "Hecubus Servant",
+					"monsterId": 176
+				}
+			],
+			"id": 146,
+			"rewardScreenPresented": true,
+			"stepId": "hecubus-lair:lord-hecubus"
+		},
+		{
+			"allies": [
+				{
+					"count": 5,
+					"displayName": "Warrior",
+					"monsterId": 95
+				},
+				{
+					"count": 1,
+					"displayName": "Warrior Corporal",
+					"monsterId": 96
+				},
+				{
+					"count": 1,
+					"displayName": "Warrior Sergeant",
+					"monsterId": 97
+				},
+				{
+					"count": 1,
+					"displayName": "Warrior Lieutenant",
+					"monsterId": 98
+				},
+				{
+					"count": 1,
+					"displayName": "Warrior Captain",
+					"monsterId": 99
+				}
+			],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 15,
+					"displayName": "Fire Drake",
+					"monsterId": 71
+				}
+			],
+			"id": 215,
+			"rewardScreenPresented": true,
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"allies": [
+				{
+					"count": 2,
+					"displayName": "Amons Protege",
+					"monsterId": 209
+				},
+				{
+					"count": 1,
+					"displayName": "Thoth Amon",
+					"monsterId": 210
+				}
+			],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 8,
+					"displayName": "Fire Drake",
+					"monsterId": 71
+				},
+				{
+					"count": 4,
+					"displayName": "Morbius the Demi Lich",
+					"monsterId": 115
+				}
+			],
+			"id": 216,
+			"rewardScreenPresented": true,
+			"stepId": "morbius-homecoming:morbius-battle"
+		}
+	],
+	"campaignDirectory": "Destroy the Necronomicon (Classic)",
+	"campaignId": "scenario-destroy-the-necronomicon",
+	"campaignName": "Destroy the Necronomicon (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			215,
+			216
+		],
+		"classification": "installed-runtime-with-source-authored-escape",
+		"extraCodeIds": [
+			376,
+			481,
+			502,
+			569,
+			570,
+			488,
+			489,
+			490,
+			491,
+			492,
+			493,
+			494,
+			495,
+			496,
+			497
+		],
+		"runtime": {
+			"absentItemIds": [
+				900
+			],
+			"battleIds": [
+				47,
+				145,
+				146,
+				215,
+				216
+			],
+			"itemIds": [
+				886,
+				899
+			],
+			"position": {
+				"levelIndex": 0,
+				"levelType": "land",
+				"x": 24,
+				"y": 47
+			},
+			"questFlags": [],
+			"stepIds": [
+				"westmore-arrival",
+				"stygian-troll-battle",
+				"hecubus-lair",
+				"necronomicon-cache",
+				"burn-necronomicon",
+				"morbius-homecoming"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": [
+				{
+					"levelIndex": 4,
+					"levelType": "land",
+					"percent": -1,
+					"triggerId": 13
+				},
+				{
+					"levelIndex": 7,
+					"levelType": "land",
+					"percent": 100,
+					"triggerId": 53
+				},
+				{
+					"levelIndex": 0,
+					"levelType": "land",
+					"percent": -1,
+					"triggerId": 56
+				},
+				{
+					"levelIndex": 0,
+					"levelType": "land",
+					"percent": 0,
+					"triggerId": 57
+				},
+				{
+					"levelIndex": 0,
+					"levelType": "land",
+					"percent": 0,
+					"triggerId": 58
+				}
+			]
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data DD:4:13",
+			"Data ED3:macro:194",
+			"Data ED3:macro:196",
+			"Data DD:0:56",
+			"Data ED3:macro:243",
+			"Data ED3:macro:244",
+			"Data ED3:macro:246",
+			"Data ED3:macro:248",
+			"Data ED3:macro:249"
+		]
+	},
+	"dispatcherNoops": [
+		{
+			"rawCode": 200,
+			"slot": 3,
+			"sourceVerified": true,
+			"triggerId": "Data DD:0:39"
+		}
+	],
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 257,
+			"prefix": "The foul stink of this place sends you reeling.",
+			"stepId": "stygian-troll-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 258,
+			"prefix": "You conjecture that the small pyramid is  a vehicle used to transport trolls",
+			"stepId": "stygian-troll-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 259,
+			"prefix": "You search the entire pyramid and find nothing of interest",
+			"stepId": "stygian-troll-battle"
+		},
+		{
+			"kind": "message",
+			"messageId": 260,
+			"prefix": "You shatter the glass ball against a wall.",
+			"stepId": "stygian-troll-battle"
+		},
+		{
+			"experience": 6000,
+			"itemIds": [
+				886
+			],
+			"kind": "treasure",
+			"stepId": "stygian-troll-battle",
+			"treasureId": 2
+		},
+		{
+			"kind": "message",
+			"messageId": 724,
+			"prefix": "In the middle of the cave, two winged demons slowly turn a huge spit",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 725,
+			"prefix": "Barbaric cannibalism!",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 726,
+			"prefix": "Wisps of smoke trail from its flared nostrils",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "encounter-choice",
+			"labels": [
+				"Explain your mission to prevent the Abyss and the Realmz from reuniting.",
+				"Attack this foul fiend of the lower planes.",
+				"Attempt to flee the cave before the beast causes your demise."
+			],
+			"stepId": "hecubus-lair",
+			"token": "1"
+		},
+		{
+			"kind": "message",
+			"messageId": 729,
+			"prefix": "\"Most interesting!",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 730,
+			"prefix": "The fool!",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 731,
+			"prefix": "Frankly, I didn't expect you to live long enough",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 732,
+			"prefix": "In a flash, the beast leaps for the cave's ceiling.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 733,
+			"prefix": "The beast calls forth his demon minions.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"battleId": 145,
+			"kind": "battle",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 734,
+			"prefix": "Patience is not a word in the beast's vocabulary.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 735,
+			"prefix": "Bolting for a large iron door set deep within the cavern wall",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"battleId": 146,
+			"kind": "battle",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 736,
+			"prefix": "With Lord Hecubus destroyed",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 737,
+			"prefix": "You investigate Lord Hecubus's throne.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "map",
+			"mapId": 9,
+			"prefix": "You gain a map, to view the map use Maps/Notes in the Menu.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"experience": 30000,
+			"itemIds": [
+				630,
+				628,
+				631
+			],
+			"kind": "treasure",
+			"stepId": "hecubus-lair",
+			"treasureId": 43
+		},
+		{
+			"kind": "message",
+			"messageId": 821,
+			"prefix": "Shortly after Lord Hecubus's death",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 822,
+			"prefix": "I thought that the psychological battle had permanently destroyed my abilities.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 823,
+			"prefix": "Our salvation could be nearly at hand.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 824,
+			"prefix": "If you fail your quest, their lives have been lost in vain.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 825,
+			"prefix": "in the Realmz, the damnable bastions are still arriving.",
+			"stepId": "hecubus-lair"
+		},
+		{
+			"acceptanceEscape": "injected-stop-token",
+			"canBackOut": false,
+			"encounterId": 10,
+			"kind": "encounter-repeat-boundary",
+			"remainingAttempts": 126,
+			"sourceAuthoredRepeat": true,
+			"stepId": "hecubus-lair"
+		},
+		{
+			"kind": "message",
+			"messageId": 738,
+			"prefix": "You follow the map's directions and shortly reach the pinpointed location.",
+			"stepId": "necronomicon-cache"
+		},
+		{
+			"kind": "message",
+			"messageId": 739,
+			"prefix": "the creature has two small horns.",
+			"stepId": "necronomicon-cache"
+		},
+		{
+			"experience": 25000,
+			"itemIds": [
+				899,
+				900
+			],
+			"kind": "treasure",
+			"stepId": "necronomicon-cache",
+			"treasureId": 44
+		},
+		{
+			"kind": "message",
+			"messageId": 1024,
+			"prefix": "Now might be a good time to invoke the power of the blue gem.",
+			"stepId": "necronomicon-cache"
+		},
+		{
+			"kind": "message",
+			"messageId": 814,
+			"prefix": "You toss your copy of the Necronomicon into the pit.",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"kind": "message",
+			"messageId": 815,
+			"prefix": "Tormented screams accompany the destruction of each page.",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"kind": "message",
+			"messageId": 816,
+			"prefix": "The danger of the Realmz and the Abyss reuniting exists no longer.",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"kind": "message",
+			"messageId": 817,
+			"prefix": "You begin a debate over the best route home.",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"kind": "message",
+			"messageId": 818,
+			"prefix": "Your destruction of the Necronomicon has set great events in motion",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"kind": "message",
+			"messageId": 819,
+			"prefix": "The bastions and nether spawn have been consumed in hellish balls of fire.",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"kind": "message",
+			"messageId": 820,
+			"prefix": "Unfortunately, that is beyond my capabilities.",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"encounterId": 10,
+			"itemConsumed": true,
+			"itemId": 900,
+			"kind": "complex-item",
+			"stepId": "burn-necronomicon"
+		},
+		{
+			"kind": "message",
+			"messageId": 1073,
+			"prefix": "After successfully slaying the drakes",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1074,
+			"prefix": "Shell-shocked over Queen Selene's sudden death",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1075,
+			"prefix": "You descend upon Morbius.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1076,
+			"prefix": "The litch clones himself.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"battleId": 216,
+			"kind": "battle",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1078,
+			"prefix": "You stand upon the remains of Morbius's skeletal body",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1079,
+			"prefix": "I have pursued you from the depths of the Abyss.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1080,
+			"prefix": "With Morbius vanquished, you rush to Thoth Amon's side.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1081,
+			"prefix": "\"I have no wish to be healed.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1082,
+			"prefix": "Thoth Amon's head awkwardly lolls",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1083,
+			"prefix": "You attempt to approach the queen's dead body.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1084,
+			"prefix": "As a traveler, you have witnessed your share of riots.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1085,
+			"prefix": "A woman frustrates your attempt to exit the city quickly.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1086,
+			"prefix": "He truly doesn't believe you're responsible",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1087,
+			"prefix": "As the eldest member of the ruling council",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1088,
+			"prefix": "I'm sorry that his ploy succeeded.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1089,
+			"prefix": "You sit up anxiously and stare into the fire.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1090,
+			"prefix": "You sit quietly about the campfire",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1091,
+			"prefix": "The diaphanous figures embrace one another as lovers.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1092,
+			"prefix": "We have longed for the day when we could be together.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1093,
+			"prefix": "Westmore must be rebuilt to its former stature.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1094,
+			"prefix": "However, we can give you something to help you survive your travels.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1094,
+			"prefix": "However, we can give you something to help you survive your travels.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1095,
+			"prefix": "The two figures smile and fade into the flames.",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1096,
+			"prefix": "Congratulations!  You have saved the Realmz",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1097,
+			"prefix": "Though you have accomplished the main task for this scenario",
+			"stepId": "morbius-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1098,
+			"prefix": "Destroy the Necronomicon is Copyright",
+			"stepId": "morbius-homecoming"
+		}
+	],
+	"routeId": "destroy-the-necronomicon-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 30002,
+			"nativeName": "growl 3.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "stygian-troll-battle",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 30003,
+			"nativeName": "growl 4.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "stygian-troll-battle",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10107,
+			"nativeName": "glass.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "stygian-troll-battle",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 30000,
+			"nativeName": "growl 1.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "hecubus-lair",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 30001,
+			"nativeName": "growl 2.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "hecubus-lair",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 642,
+			"nativeName": "big explode.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "burn-necronomicon",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 3002,
+			"nativeName": "level up.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10049,
+			"nativeName": "angry mob.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -10049,
+			"nativeName": "angry mob.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 699,
+			"nativeName": "wind.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -601,
+			"nativeName": "spell launch 2.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 642,
+			"nativeName": "big explode.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -645,
+			"nativeName": "small explode.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 615,
+			"nativeName": "lightning.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10002,
+			"nativeName": "wing flap.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10136,
+			"nativeName": "monster shout.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -693,
+			"nativeName": "jump.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 692,
+			"nativeName": "smack.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -20002,
+			"nativeName": "cast spell.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10122,
+			"nativeName": "bleeding.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10141,
+			"nativeName": "woman scream.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -602,
+			"nativeName": "spell launch 3.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 620,
+			"nativeName": "pops.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 601,
+			"nativeName": "spell launch 2.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 651,
+			"nativeName": "bwee.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 605,
+			"nativeName": "spell launch 6.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 610,
+			"nativeName": "hit effect 1.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 613,
+			"nativeName": "hit effect 4.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20004,
+			"nativeName": "hallelujah.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "morbius-homecoming",
+			"waitForCompletion": false
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "westmore-arrival-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "stygian-troll-battle-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "hecubus-lair-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "necronomicon-cache-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "burn-necronomicon-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "morbius-homecoming-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed Westmore arrival presents its authored splash and summons through the normal campaign UI",
+			"id": "westmore-arrival",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "stygian-troll-battle",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "stygian-troll-battle-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The Hecubus encounter follows its authored diplomatic response through Battles 145 and 146, reveals the Necronomicon cache, and preserves the source-authored fallthrough repeat boundary",
+			"id": "hecubus-lair",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed cache supplies the Book of Screams and the exact Necronomicon item before the destruction encounter",
+			"id": "necronomicon-cache",
+			"status": "passed"
+		},
+		{
+			"detail": "Complex encounter 10 accepts and removes item 900, destroys both worlds' link, and enables the authored return trigger",
+			"id": "burn-necronomicon",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "morbius-homecoming",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "morbius-homecoming-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed"
+}

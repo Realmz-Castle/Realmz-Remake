@@ -11,6 +11,9 @@ const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_
 const CombatMacroQueueScript = preload(
 	"res://scripts/classic_runtime/classic_combat_macro_queue.gd"
 )
+const BattleDecisionStateScript = preload(
+	"res://scripts/states/CbDecideActionState.gd"
+)
 const RogueResolverScript = preload("res://scripts/classic_runtime/classic_rogue_encounter_resolver.gd")
 const InventoryRulesScript = preload("res://scripts/classic_runtime/classic_inventory_rules.gd")
 const CharacterConditionRulesScript = preload(
@@ -2669,6 +2672,7 @@ func _ready() -> void:
 	_test_action_data_patch_variants()
 	_test_choice_continuation(bundle)
 	_test_battle_request(bundle)
+	_test_classic_battle_position_offset()
 	_test_compiled_battle_materialization()
 	_test_selective_battle_action()
 	_test_selective_battle_request()
@@ -29478,6 +29482,33 @@ func _test_battle_request(bundle) -> void:
 	_expect_equal(payload.get("battleIdRange"), [38, 38], "battle range decoded from EDCD row 70")
 	_expect_equal(payload.get("soundId"), 30000, "battle sound decoded from EDCD row 70")
 	_expect_equal(payload.get("battle", {}).get("id"), 38, "battle record resolves")
+
+
+func _test_classic_battle_position_offset() -> void:
+	_expect_equal(
+		BattleDecisionStateScript.fit_classic_battle_position_offset(
+			Vector2(0, 30),
+			Vector2(100, 100),
+		),
+		Vector2(5, 30),
+		"Classic battle formation shifts inward from the left map edge",
+	)
+	_expect_equal(
+		BattleDecisionStateScript.fit_classic_battle_position_offset(
+			Vector2(99, 99),
+			Vector2(100, 100),
+		),
+		Vector2(92, 92),
+		"Classic battle formation shifts inward from the bottom-right edge",
+	)
+	_expect_equal(
+		BattleDecisionStateScript.fit_classic_battle_position_offset(
+			Vector2(20, 30),
+			Vector2(100, 100),
+		),
+		Vector2(20, 30),
+		"Classic battle formation preserves an in-bounds origin",
+	)
 
 
 func _test_compiled_battle_materialization() -> void:

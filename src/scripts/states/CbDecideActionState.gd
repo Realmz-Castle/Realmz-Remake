@@ -10,6 +10,8 @@ const PermanentFleeingTraitScript = preload(
 const ClassicPlayerAutoCombatScript = preload(
 	"res://scripts/classic_runtime/classic_player_auto_combat.gd"
 )
+const CLASSIC_BATTLE_MINIMUM_OFFSET := 5
+const CLASSIC_BATTLE_MAXIMUM_LOCAL_COORDINATE := 7
 
 @export var combat_state : CombatState
 
@@ -200,6 +202,11 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		#init_pos = Vector2.ZERO#(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y)
 		if map_name == "temporary_zoomed_map" :
 			battle_position_offset = 3*GameGlobal.pos_when_battle_started
+			if _msg.has("classicBattleId"):
+				battle_position_offset = fit_classic_battle_position_offset(
+					battle_position_offset,
+					GameGlobal.map.map_size,
+				)
 		else :
 			battle_position_offset = Vector2(map_focus_char.tile_position_x,map_focus_char.tile_position_y)
 		print("CbDecidAction init batle battle_position_offset : ", battle_position_offset, " , init pos : ", battle_position_offset )
@@ -265,6 +272,27 @@ func initialize_battle(_msg :  Dictionary, _resources : CampaignResources, map :
 		#combat_state.cur_battle_data["Scripts"]["start"].start()
 
 	await start_new_round()
+
+
+static func fit_classic_battle_position_offset(
+	offset: Vector2,
+	battlefield_size: Vector2,
+) -> Vector2:
+	# Compiled formations use local coordinates -5 through +7. Shift the
+	# complete formation inward at map edges so creature placement never starts
+	# outside the temporary battlefield.
+	return Vector2(
+		clampf(
+			offset.x,
+			CLASSIC_BATTLE_MINIMUM_OFFSET,
+			battlefield_size.x - CLASSIC_BATTLE_MAXIMUM_LOCAL_COORDINATE - 1,
+		),
+		clampf(
+			offset.y,
+			CLASSIC_BATTLE_MINIMUM_OFFSET,
+			battlefield_size.y - CLASSIC_BATTLE_MAXIMUM_LOCAL_COORDINATE - 1,
+		),
+	)
 
 
 func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> void:
