@@ -1,6 +1,9 @@
 class_name ClassicMapBridge
 extends RefCounted
 
+const RandomRectangleScript = preload(
+	"res://scripts/classic_runtime/classic_random_rectangle.gd"
+)
 # Classic landlooks 1 and 2 are obsolete; custom looks 6-8 resolve through
 # producer-installed tilesets named by their catalog IDs.
 const STOCK_LANDLOOK_TILESETS := {
@@ -1154,17 +1157,24 @@ func set_random_rectangle(payload: Dictionary, game_global: Object, resources: O
 	var rectangle: Variant = payload.get("rectangle", {})
 	if not (area is Dictionary) or not (rectangle is Dictionary):
 		return _error("Classic random rectangle %s is malformed" % area_name)
-	# Classic stores random-area probability as occurrences in 10,000.
-	area["chance"] = float(rectangle.get("percent", 0)) / 10000.0
-	area["scriptRectangle"] = [
-		[int(rectangle.get("left", 0)), int(rectangle.get("top", 0))],
-		[int(rectangle.get("right", 0)), int(rectangle.get("bottom", 0))],
-	]
-	var battle_range: Variant = rectangle.get("battleRange", [])
-	if battle_range is Array and battle_range.size() >= 2:
-		var battle: Variant = area.get("RR_Battle", {})
-		if battle is Dictionary:
-			battle["battle_range"] = [int(battle_range[0]), int(battle_range[1])]
+	var message_text := ""
+	var message_id := int(rectangle.get("text", 0))
+	if (
+		message_id != 0
+		and classic_bundle != null
+		and classic_bundle.has_method("get_message")
+	):
+		var message: Variant = classic_bundle.call("get_message", message_id)
+		if message is Dictionary:
+			message_text = str(message.get("text", ""))
+	RandomRectangleScript.apply_rectangle(
+		area,
+		level_type,
+		level_index,
+		rectangle,
+		message_text
+	)
+	script_areas[area_name] = area
 	var current_map: Variant = _current_map(game_global, map_name)
 	if current_map != null and current_map.has_method("queue_redraw"):
 		current_map.queue_redraw()

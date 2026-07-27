@@ -41,6 +41,9 @@ const CLASSIC_PARTY_CONDITION_PATH := (
 	"res://scripts/classic_runtime/classic_party_condition.gd"
 )
 const CLASSIC_REST_PATH := "res://scripts/classic_runtime/classic_rest.gd"
+const CLASSIC_RANDOM_RECTANGLE_PATH := (
+	"res://scripts/classic_runtime/classic_random_rectangle.gd"
+)
 const CLASSIC_MONSTER_GENERATION_PATH := (
 	"res://scripts/classic_runtime/classic_monster_generation.gd"
 )
@@ -109,6 +112,9 @@ var ClassicPartyConditionScript: GDScript:
 var ClassicRestScript: GDScript:
 	get:
 		return _lazy_resource(CLASSIC_REST_PATH) as GDScript
+var ClassicRandomRectangleScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_RANDOM_RECTANGLE_PATH) as GDScript
 var ClassicMonsterGenerationScript: GDScript:
 	get:
 		return _lazy_resource(CLASSIC_MONSTER_GENERATION_PATH) as GDScript
@@ -1426,7 +1432,6 @@ func advance_classic_camp_movement_exit() -> void:
 func _check_classic_random_encounter() -> bool:
 	if not is_classic_runtime_active() \
 			or StateMachine.is_combat_state() \
-			or not random_battles_allowed() \
 			or map == null \
 			or map.owcharacter == null:
 		return false
@@ -1434,22 +1439,134 @@ func _check_classic_random_encounter() -> bool:
 		int(map.owcharacter.tile_position_x),
 		int(map.owcharacter.tile_position_y)
 	)
-	var area_names: Array = map.mapscriptareas.keys()
-	for area_index: int in range(area_names.size() - 1, -1, -1):
-		var area_value: Variant = map.mapscriptareas[area_names[area_index]]
+	return await check_classic_random_rectangles(position)
+
+
+func check_classic_random_rectangles(
+	position: Vector2i,
+	context := {}
+) -> bool:
+	if not is_classic_runtime_active() \
+			or StateMachine.is_combat_state() \
+			or map == null \
+			or not is_instance_valid(classic_runtime_host) \
+			or not classic_runtime_host.has_method("get_random_rectangle"):
+		return false
+	var candidates: Dictionary = {}
+	for area_name_value: Variant in map.mapscriptareas:
+		var area_name := str(area_name_value)
+		var area_value: Variant = map.mapscriptareas[area_name_value]
 		if not (area_value is Dictionary):
 			continue
 		var area: Dictionary = area_value
-		if not ClassicRestScript.random_battle_area_contains(area, position):
+		var identity: Dictionary = ClassicRandomRectangleScript.identity(
+			area_name,
+			area
+		)
+		if identity.is_empty():
 			continue
-		if not ClassicRestScript.random_battle_area_eligible(
-			area,
-			position,
-			randf()
-		):
+		var rect_index := int(identity["rectIndex"])
+		candidates[rect_index] = {
+			"area": area,
+			"areaName": area_name,
+			"identity": identity,
+		}
+
+	for rect_index: int in range(
+		ClassicRandomRectangleScript.MAX_RECTANGLES - 1,
+		-1,
+		-1
+	):
+		if not candidates.has(rect_index):
 			continue
-		await ScriptHelperFuncsClass.do_RR_battle(area["RR_Battle"])
-		return true
+		var candidate: Dictionary = candidates[rect_index]
+		var area: Dictionary = candidate["area"]
+		var identity: Dictionary = candidate["identity"]
+		var rectangle_value: Variant = classic_runtime_host.call(
+			"get_random_rectangle",
+			str(identity["levelType"]),
+			int(identity["levelIndex"]),
+			rect_index
+		)
+		if not (rectangle_value is Dictionary):
+			continue
+		var rectangle: Dictionary = rectangle_value
+		if not ClassicRandomRectangleScript.contains(rectangle, area, position):
+			continue
+		var chance_succeeded: bool = bool(
+			ClassicRandomRectangleScript.chance_succeeds(
+				rectangle,
+				area,
+				randi_range(1, 10000)
+			)
+		)
+		if chance_succeeded:
+			for outcome: Dictionary in ClassicRandomRectangleScript.door_outcomes(
+				rectangle
+			):
+				var trigger_index := int(outcome["triggerId"])
+				var door_percent := int(outcome["percent"])
+				if trigger_index <= 0 or not ClassicRandomRectangleScript.door_roll_succeeds(
+					door_percent,
+					randi_range(1, 100)
+				):
+					continue
+				if door_percent > 0:
+					var consumed: Dictionary = classic_runtime_host.call(
+						"consume_random_rectangle_door",
+						str(identity["levelType"]),
+						int(identity["levelIndex"]),
+						rect_index,
+						int(outcome["doorIndex"])
+					)
+					if str(consumed.get("status", "")) == "error":
+						push_error(str(consumed.get(
+							"message",
+							"Classic random-door state could not be saved"
+						)))
+						return false
+					rectangle = consumed.get("rectangle", rectangle)
+					ClassicRandomRectangleScript.apply_rectangle(
+						area,
+						str(identity["levelType"]),
+						int(identity["levelIndex"]),
+						rectangle,
+						str(area.get("RR_Battle", {}).get("text", ""))
+					)
+					map.mapscriptareas[candidate["areaName"]] = area
+				var trigger_id := "Data ED3:macro:%d" % trigger_index
+				var dispatch_context: Dictionary = context.duplicate(true) \
+					if context is Dictionary else {}
+				dispatch_context.merge({
+					"mapPosition": position,
+					"randomRectangleIndex": rect_index,
+					"randomDoorIndex": int(outcome["doorIndex"]),
+				}, true)
+				var dispatch := await dispatch_classic_map_script(
+					trigger_id,
+					dispatch_context
+				)
+				if not bool(dispatch.get("handled", false)):
+					push_error(
+						"Classic random rectangle references missing trigger %s"
+						% trigger_id
+					)
+					return false
+				var trigger_result: Variant = dispatch.get("result", {})
+				if trigger_result is Dictionary \
+						and str(trigger_result.get("status", "")) == "error":
+					push_error(str(trigger_result.get(
+						"message",
+						"Classic random-rectangle trigger stopped"
+					)))
+				return true
+
+			if random_battles_allowed() \
+					and ClassicRandomRectangleScript.has_battle(rectangle, area):
+				await ScriptHelperFuncsClass.do_RR_battle(area["RR_Battle"])
+				return true
+		if ClassicRandomRectangleScript.is_only(rectangle, area):
+			break
 	return false
 
 

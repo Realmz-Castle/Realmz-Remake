@@ -79,6 +79,9 @@ const ClassicSummoningScript = preload(
 )
 const ClassicDispelScript = preload("res://scripts/classic_runtime/classic_dispel.gd")
 const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.gd")
+const ClassicRandomRectangleScript = preload(
+	"res://scripts/classic_runtime/classic_random_rectangle.gd"
+)
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
 )
@@ -2595,6 +2598,7 @@ func _ready() -> void:
 	_test_classic_magic_resistance_contract()
 	_test_classic_spell_save_contract()
 	_test_classic_light_contract()
+	_test_classic_random_rectangle_contract()
 	_test_classic_confusion_contract()
 	_test_classic_control_conditions()
 	_test_classic_disease_contract()
@@ -5237,6 +5241,9 @@ func _test_classic_map_materializer() -> void:
 			"sound": 12,
 			"text": 1,
 			"top": 1,
+			"only": true,
+			"randomDoors": [9, 6, 26],
+			"randomDoorPercent": [66, -10, 0],
 		},
 		{
 			"battleRange": [0, 0],
@@ -5514,6 +5521,21 @@ func _test_classic_map_materializer() -> void:
 		random_area.get("RR_Battle", {}).get("text"),
 		"Providence owns this rogue encounter.",
 		"native map resolves random battle text"
+	)
+	_expect_equal(
+		random_area.get("classicRandomRectangle", {}).get("randomDoors"),
+		[9.0, 6.0, 26.0],
+		"native map preserves all three Classic random-door targets"
+	)
+	_expect_equal(
+		random_area.get("classicRandomRectangle", {}).get("randomDoorPercent"),
+		[66.0, -10.0, 0.0],
+		"native map preserves one-shot and repeatable random-door percentages"
+	)
+	_expect_equal(
+		random_area.get("classicRandomRectangle", {}).get("only"),
+		true,
+		"native map preserves the source rectangle priority stop"
 	)
 	_expect(
 		not script_areas.get("ScriptRects", {}).get("LRR0.4", {}).has("RR_Battle"),
@@ -16783,6 +16805,120 @@ func _test_classic_light_contract() -> void:
 	)
 	_expect(shine.in_field and not shine.in_combat, "Shine retains its source availability")
 	_expect_equal(shine.get_sp_cost(3, null), 9, "Shine costs three spell points per power")
+
+
+func _test_classic_random_rectangle_contract() -> void:
+	var rectangle := {
+		"battleRange": [9, 13],
+		"bottom": 18,
+		"left": 0,
+		"only": true,
+		"option": 20,
+		"percent": 150,
+		"randomDoorPercent": [66, -10, 0],
+		"randomDoors": [9, 6, 0],
+		"rectIndex": 8,
+		"right": 41,
+		"sound": 30002,
+		"text": 21,
+		"top": 0,
+	}
+	var projected := ClassicRandomRectangleScript.project_area(
+		"land",
+		0,
+		rectangle,
+		"Random encounter"
+	)
+	_expect_equal(
+		ClassicRandomRectangleScript.identity("LRR0.8", {}),
+		{"levelType": "land", "levelIndex": 0, "rectIndex": 8},
+		"older installed maps recover Classic random-rectangle identity from the area name"
+	)
+	_expect_equal(
+		ClassicRandomRectangleScript.identity("DRR4.19", {}),
+		{"levelType": "dungeon", "levelIndex": 4, "rectIndex": 19},
+		"dungeon random-rectangle identity preserves the source index"
+	)
+	_expect(
+		ClassicRandomRectangleScript.contains(
+			rectangle,
+			projected,
+			Vector2i(41, 18)
+		),
+		"Classic random rectangles include their right and bottom edges"
+	)
+	_expect(
+		ClassicRandomRectangleScript.chance_succeeds(rectangle, projected, 150),
+		"the source occurrence count includes its exact one-in-10,000 boundary"
+	)
+	_expect(
+		not ClassicRandomRectangleScript.chance_succeeds(
+			rectangle,
+			projected,
+			151
+		),
+		"random-rectangle probability rejects the next occurrence"
+	)
+	var outcomes := ClassicRandomRectangleScript.door_outcomes(rectangle)
+	_expect_equal(
+		[
+			outcomes[0]["triggerId"],
+			outcomes[1]["triggerId"],
+			outcomes[2]["triggerId"],
+		],
+		[9, 6, 0],
+		"Classic evaluates all three random X-AP outcomes in source order"
+	)
+	_expect(
+		ClassicRandomRectangleScript.door_roll_succeeds(66, 66),
+		"a positive random-door percentage includes its boundary"
+	)
+	_expect(
+		ClassicRandomRectangleScript.door_roll_succeeds(-10, 10),
+		"a negative repeatable random-door percentage uses its absolute chance"
+	)
+	_expect(
+		ClassicRandomRectangleScript.has_battle(rectangle, projected),
+		"a random rectangle retains its battle fallback after the door outcomes"
+	)
+	_expect(
+		ClassicRandomRectangleScript.is_only(rectangle, projected),
+		"an only rectangle stops evaluation of lower-priority rectangle indexes"
+	)
+
+	var bundle = BundleScript.new()
+	bundle.random_levels_by_id["land:0:randlevel"] = {
+		"id": "land:0:randlevel",
+		"levelType": "land",
+		"levelIndex": 0,
+		"rects": [rectangle],
+	}
+	var state = StateScript.new()
+	state.configure_from_bundle(bundle)
+	var host = HostScript.new()
+	add_child(host)
+	host.runtime.use_shared_campaign(bundle, state)
+	var consumed: Dictionary = host.consume_random_rectangle_door("land", 0, 8, 0)
+	_expect_equal(consumed.get("status"), "ok", "a one-shot random X-AP can be consumed")
+	_expect_equal(
+		consumed.get("rectangle", {}).get("randomDoorPercent"),
+		[0, -10, 0],
+		"firing a positive random X-AP clears only that source percentage"
+	)
+	var repeatable: Dictionary = host.consume_random_rectangle_door("land", 0, 8, 1)
+	_expect_equal(
+		repeatable.get("consumed"),
+		false,
+		"a negative random X-AP remains repeatable"
+	)
+	var restored = StateScript.new()
+	restored.restore(state.snapshot())
+	_expect_equal(
+		restored.get_random_rectangle("land", 0, 8, {}).get("randomDoorPercent"),
+		[0, -10, 0],
+		"one-shot random X-AP consumption survives Classic save state"
+	)
+	host.queue_free()
 
 
 func _test_classic_confusion_contract() -> void:

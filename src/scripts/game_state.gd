@@ -340,12 +340,25 @@ func check_map_script(position, context := {}) ->bool :
 	var canwalk = true
 #	print("GameState check_map_scripts : ")
 	GameGlobal.apply_classic_search_time_cost()
+	if await GameGlobal.check_classic_random_rectangles(
+		Vector2i(position),
+		context
+	):
+		return false
 	
 	var scriptstocall : Dictionary = {}
 	
 	for s in GameGlobal.map.mapscriptareas :
 #		print(map.mapscriptareas[s])
 		var sr = GameGlobal.map.mapscriptareas[s]
+		if (
+			GameGlobal.is_classic_runtime_active()
+			and not GameGlobal.ClassicRandomRectangleScript.identity(
+				str(s),
+				sr
+			).is_empty()
+		):
+			continue
 		var l = sr["scriptRectangle"][0][0]
 		var u = sr["scriptRectangle"][0][1]
 		var r = sr["scriptRectangle"][1][0]

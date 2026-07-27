@@ -62,6 +62,73 @@ func random_encounters_enabled() -> bool:
 	return runtime.runtime_state.random_encounters_enabled
 
 
+func get_random_rectangle(
+	level_type: String,
+	level_index: int,
+	rect_index: int
+) -> Dictionary:
+	var baseline := runtime.bundle.get_random_rectangle(
+		level_type,
+		level_index,
+		rect_index
+	)
+	return runtime.runtime_state.get_random_rectangle(
+		level_type,
+		level_index,
+		rect_index,
+		baseline
+	)
+
+
+func consume_random_rectangle_door(
+	level_type: String,
+	level_index: int,
+	rect_index: int,
+	door_index: int
+) -> Dictionary:
+	if door_index < 0 or door_index >= 3:
+		return {
+			"status": "error",
+			"message": "Classic random-door index must be between 0 and 2",
+		}
+	var rectangle := get_random_rectangle(level_type, level_index, rect_index)
+	if rectangle.is_empty():
+		return {
+			"status": "error",
+			"message": "Classic random rectangle %s:%d:%d is unavailable"
+				% [level_type, level_index, rect_index],
+		}
+	var percentages: Variant = rectangle.get("randomDoorPercent", [])
+	if not (percentages is Array) or door_index >= percentages.size():
+		return {
+			"status": "error",
+			"message": "Classic random rectangle %s:%d:%d has malformed door percentages"
+				% [level_type, level_index, rect_index],
+		}
+	var previous_percent := int(percentages[door_index])
+	if previous_percent <= 0:
+		return {
+			"status": "ok",
+			"consumed": false,
+			"previousPercent": previous_percent,
+			"rectangle": rectangle,
+		}
+	percentages[door_index] = 0
+	rectangle["randomDoorPercent"] = percentages
+	runtime.runtime_state.set_random_rectangle(
+		level_type,
+		level_index,
+		rect_index,
+		rectangle
+	)
+	return {
+		"status": "ok",
+		"consumed": true,
+		"previousPercent": previous_percent,
+		"rectangle": rectangle,
+	}
+
+
 func allies_suspended() -> bool:
 	return runtime.runtime_state.allies_suspended
 

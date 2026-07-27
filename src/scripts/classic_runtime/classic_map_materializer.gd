@@ -2,6 +2,9 @@ class_name ClassicMapMaterializer
 extends RefCounted
 
 const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridge.gd")
+const RandomRectangleScript = preload(
+	"res://scripts/classic_runtime/classic_random_rectangle.gd"
+)
 const DistributionJsonScript = preload(
 	"res://scripts/classic_runtime/classic_distribution_json.gd"
 )
@@ -391,25 +394,12 @@ func _script_areas(
 			if rect_index < 0:
 				continue
 			var prefix := "LRR" if level_type == "land" else "DRR"
-			var battle_range: Variant = rectangle.get("battleRange", [])
-			var area := {
-				"scriptRectangle": [
-					[int(rectangle.get("left", 0)), int(rectangle.get("top", 0))],
-					[int(rectangle.get("right", 0)), int(rectangle.get("bottom", 0))],
-				],
-				"chance": maxf(0.0, float(rectangle.get("percent", 0)) / 10000.0),
-				"scriptToLoad": [],
-			}
-			if battle_range is Array \
-					and battle_range.size() >= 2 \
-					and int(battle_range[0]) > 0 \
-					and int(battle_range[1]) >= int(battle_range[0]):
-				area["RR_Battle"] = {
-					"battle_range": [int(battle_range[0]), int(battle_range[1])],
-					"option_chance": int(rectangle.get("option", 0)),
-					"sfx_id": int(rectangle.get("sound", 0)),
-					"text": _message_text(bundle, int(rectangle.get("text", 0))),
-				}
+			var area := RandomRectangleScript.project_area(
+				level_type,
+				level_index,
+				rectangle,
+				_message_text(bundle, int(rectangle.get("text", 0)))
+			)
 			areas["%s%d.%d" % [prefix, level_index, rect_index]] = area
 	return {
 		"ScriptRects": areas,
