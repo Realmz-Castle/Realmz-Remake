@@ -44,8 +44,8 @@ func enter(_msg : Dictionary = {}) -> void:
 	while not walk_inputs.is_empty() :
 		var input = walk_inputs.pop_front()
 		if GameGlobal.camping and input != Vector2i.ZERO :
-			UI.ow_hud._on_CampButton_pressed()
-		if GameGlobal.fatigue >= GameGlobal.max_fatigue and input != Vector2i.ZERO :
+			await UI.ow_hud._on_CampButton_pressed(true)
+		if GameGlobal.fatigue >= GameGlobal.fatigue_limit() and input != Vector2i.ZERO :
 			SfxPlayer.stream = GameGlobal.cmp_resources.sounds_book["effort 1.wav"]
 			SfxPlayer.play()
 		#input = Vector2i.ZERO

@@ -40,6 +40,7 @@ const CLASSIC_LIGHT_PATH := "res://scripts/classic_runtime/classic_light.gd"
 const CLASSIC_PARTY_CONDITION_PATH := (
 	"res://scripts/classic_runtime/classic_party_condition.gd"
 )
+const CLASSIC_REST_PATH := "res://scripts/classic_runtime/classic_rest.gd"
 const CLASSIC_MONSTER_GENERATION_PATH := (
 	"res://scripts/classic_runtime/classic_monster_generation.gd"
 )
@@ -48,9 +49,6 @@ const COMBAT_CREATURE_PATH := "res://Creature/Creature.gd"
 const SPELL_ANIMATION_PATH := "res://scenes/Map/SpellAnimation/SpellAnimation.tscn"
 const GAME_SCREEN_PATH := "res://scenes/UI/HUD/OWHUDControl.tscn"
 const CLASSIC_DETECT_SECRET_ABILITY_INDEX := 4
-const CLASSIC_INDOOR_MINUTES_PER_TIMECLICK := 1
-const CLASSIC_OUTDOOR_MINUTES_PER_TIMECLICK := 5
-const SECONDS_PER_MINUTE := 60
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
 const DEFAULT_GAME_SPEED_PERCENT := 100.0
@@ -108,6 +106,9 @@ var ClassicLightScript: GDScript:
 var ClassicPartyConditionScript: GDScript:
 	get:
 		return _lazy_resource(CLASSIC_PARTY_CONDITION_PATH) as GDScript
+var ClassicRestScript: GDScript:
+	get:
+		return _lazy_resource(CLASSIC_REST_PATH) as GDScript
 var ClassicMonsterGenerationScript: GDScript:
 	get:
 		return _lazy_resource(CLASSIC_MONSTER_GENERATION_PATH) as GDScript
@@ -434,17 +435,41 @@ func restore_native_encounter_state(saved_state: Variant) -> void:
 
 
 func set_party_fatigue(value: float) -> float:
-	fatigue = clampf(value, 0.0, max_fatigue * 2.0)
+	var upper_limit: float = (
+		ClassicRestScript.MAX_FATIGUE
+		if is_classic_runtime_active()
+		else max_fatigue * 2.0
+	)
+	fatigue = clampf(value, 0.0, upper_limit)
 	var hud: Variant = UI.get("ow_hud") if UI != null else null
 	if hud is Object and hud.has_method("update_fatigue_bar"):
 		hud.call("update_fatigue_bar")
 	return fatigue
 
 
+func fatigue_limit() -> float:
+	return (
+		ClassicRestScript.MAX_FATIGUE
+		if is_classic_runtime_active()
+		else max_fatigue
+	)
+
+
 func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 	var previous_time := time
 	time += seconds *time_scale
-	set_party_fatigue(fatigue + fatiguemultiplier * seconds * 0.25 * time_scale)
+	var classic_field_time: bool = (
+		is_classic_runtime_active()
+		and not StateMachine.is_combat_state()
+	)
+	if classic_field_time:
+		set_party_fatigue(ClassicRestScript.fatigue_after_time(
+			fatigue,
+			previous_time,
+			time
+		))
+	else:
+		set_party_fatigue(fatigue + fatiguemultiplier * seconds * 0.25 * time_scale)
 
 	if campaign_global_script.has_on_time_pass and ( not StateMachine.is_combat_state() ):
 		campaign_global_script._on_time_pass(seconds)
@@ -500,13 +525,27 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 		StateMachine.is_combat_state()
 	)
 	for character in player_characters :
-		character._on_time_pass(seconds)
+		if classic_field_time and character.has_method("_on_classic_time_pass"):
+			character._on_classic_time_pass(seconds)
+		else:
+			character._on_time_pass(seconds)
 		if character.has_method("advance_classic_age_between_times"):
 			character.advance_classic_age_between_times(previous_time, time)
 	for character in player_allies :
-		character._on_time_pass(seconds)
+		if classic_field_time and character.has_method("_on_classic_time_pass"):
+			character._on_classic_time_pass(seconds)
+		else:
+			character._on_time_pass(seconds)
 		if character.has_method("advance_classic_age_between_times"):
 			character.advance_classic_age_between_times(previous_time, time)
+	if classic_field_time:
+		ClassicRestScript.apply_party_recovery(
+			player_characters,
+			player_allies,
+			previous_time,
+			time,
+			Callable(self, "_consume_classic_rest_ration")
+		)
 
 	for effect in global_effects.keys() :
 		global_effects[effect]["Duration"] = max(0, global_effects[effect]["Duration"] - seconds)
@@ -600,12 +639,7 @@ func set_classic_search_enabled(enabled: bool) -> void:
 
 
 func classic_timeclick_pass_time_units(timeclicks: int, base_scale: int) -> int:
-	if timeclicks <= 0:
-		return 0
-	var minutes_per_timeclick := CLASSIC_INDOOR_MINUTES_PER_TIMECLICK \
-		if base_scale != 0 else CLASSIC_OUTDOOR_MINUTES_PER_TIMECLICK
-	var elapsed_seconds := timeclicks * minutes_per_timeclick * SECONDS_PER_MINUTE
-	return maxi(1, roundi(float(elapsed_seconds) / maxf(time_scale, 0.001)))
+	return ClassicRestScript.pass_time_units(timeclicks, base_scale, time_scale)
 
 
 func classic_base_scale_for_tile_stack(tile_stack: Array) -> int:
@@ -656,6 +690,10 @@ func _current_classic_base_scale() -> int:
 		):
 			return classic_base_scale_for_tile_stack(map.mapdata[x][y])
 	return 1 if currentmap_name.begins_with("mapd_") else 0
+
+
+func is_classic_runtime_active() -> bool:
+	return is_instance_valid(classic_campaign_session)
 
 
 func is_classic_party_condition_active(condition_index: int) -> bool:
@@ -1337,9 +1375,106 @@ func is_map_tile_walkable_by_char(chara, pos : Vector2)->bool : #battle mode, ch
 	return true
 
 
-func rest() :
+func rest() -> bool:
+	if is_classic_runtime_active():
+		if not camping or classic_camping_disabled:
+			return false
+		set_party_fatigue(ClassicRestScript.fatigue_before_rest(fatigue))
+		pass_time(classic_timeclick_pass_time_units(
+			ClassicRestScript.REST_TIMECLICKS,
+			_current_classic_base_scale()
+		))
+		await _check_classic_random_encounter()
+		return true
 	var mult : float = -2.0 if camping else -1.0
 	pass_time(5, mult)
+	return true
+
+
+func advance_classic_camp_transition(entering_camp: bool) -> void:
+	if not is_classic_runtime_active():
+		return
+	var timeclicks: int = (
+		ClassicRestScript.REST_TIMECLICKS
+		if entering_camp
+		else ClassicRestScript.CAMP_EXIT_TIMECLICKS
+	)
+	pass_time(classic_timeclick_pass_time_units(
+		timeclicks,
+		_current_classic_base_scale()
+	))
+	if entering_camp:
+		await _check_classic_random_encounter()
+
+
+func advance_classic_camp_movement_exit() -> void:
+	if not is_classic_runtime_active():
+		return
+	var base_scale := _current_classic_base_scale()
+	var timeclicks: int = (
+		ClassicRestScript.CAMP_EXIT_TIMECLICKS
+		if base_scale != 0
+		else ClassicRestScript.OUTDOOR_CAMP_MOVEMENT_EXIT_TIMECLICKS
+	)
+	pass_time(classic_timeclick_pass_time_units(timeclicks, base_scale))
+	await _check_classic_random_encounter()
+
+
+func _check_classic_random_encounter() -> bool:
+	if not is_classic_runtime_active() \
+			or StateMachine.is_combat_state() \
+			or not random_battles_allowed() \
+			or map == null \
+			or map.owcharacter == null:
+		return false
+	var position := Vector2i(
+		int(map.owcharacter.tile_position_x),
+		int(map.owcharacter.tile_position_y)
+	)
+	var area_names: Array = map.mapscriptareas.keys()
+	for area_index: int in range(area_names.size() - 1, -1, -1):
+		var area_value: Variant = map.mapscriptareas[area_names[area_index]]
+		if not (area_value is Dictionary):
+			continue
+		var area: Dictionary = area_value
+		if not ClassicRestScript.random_battle_area_contains(area, position):
+			continue
+		if not ClassicRestScript.random_battle_area_eligible(
+			area,
+			position,
+			randf()
+		):
+			continue
+		await ScriptHelperFuncsClass.do_RR_battle(area["RR_Battle"])
+		return true
+	return false
+
+
+func _consume_classic_rest_ration() -> bool:
+	var resources := NodeAccess.__Resources()
+	if resources == null or not resources.has_method("item_classic_ids"):
+		return false
+	for character: Variant in player_characters:
+		if not (character is Object):
+			continue
+		var inventory_value: Variant = character.get("item_inventory")
+		if not (inventory_value is Array):
+			continue
+		for item: Variant in inventory_value:
+			if not (item is ItemInstance) \
+					or not resources.item_classic_ids(item).has(877):
+				continue
+			if item.charges <= 0:
+				return false
+			item.charges -= 1
+			var definition := resources.get_item_definition(item)
+			if item.charges == 0 \
+					and definition != null \
+					and definition.delete_on_empty \
+					and character.has_method("remove_inventory_item"):
+				character.remove_inventory_item(item)
+			return true
+	return false
 
 
 #if pc_participating is empty, use all PC

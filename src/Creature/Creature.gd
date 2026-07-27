@@ -816,6 +816,20 @@ func get_all_spells() -> Array :
 
 func _on_time_pass(seconds : int) :
 #	print("time pass ",name, traits)
+	_advance_time_traits(seconds)
+	#now regen HP/SP :
+	var hp_regen_amount : float = max(0,seconds*max(0,get_stat("HP_regen_base"))*get_stat("HP_regen_mult") / 86400)
+	change_cur_hp(hp_regen_amount * level)
+	var sp_regen_amount : float = max(0,seconds*max(0,get_stat("SP_regen_base"))*get_stat("SP_regen_mult") / 86400)
+	change_cur_sp(sp_regen_amount * level)
+
+
+func _on_classic_time_pass(seconds: int) -> void:
+	# Classic timeclick owns its hourly and half-day recovery cadence.
+	_advance_time_traits(seconds)
+
+
+func _advance_time_traits(seconds: int) -> void:
 	for t in traits :
 #		print ("trait "+t.name )
 		if t.has_method("_on_time_pass") :
@@ -823,11 +837,6 @@ func _on_time_pass(seconds : int) :
 			t._on_time_pass(self, seconds)
 #		else :
 #			print ("trait "+t.name+" has no _on_time_pass method")
-	#now regen HP/SP :
-	var hp_regen_amount : float = max(0,seconds*max(0,get_stat("HP_regen_base"))*get_stat("HP_regen_mult") / 86400)
-	change_cur_hp(hp_regen_amount * level)
-	var sp_regen_amount : float = max(0,seconds*max(0,get_stat("SP_regen_base"))*get_stat("SP_regen_mult") / 86400)
-	change_cur_sp(sp_regen_amount * level)
 
 # returns stats of the spell when cast by this character
 func get_spell_data(spell, power : int)->Dictionary :

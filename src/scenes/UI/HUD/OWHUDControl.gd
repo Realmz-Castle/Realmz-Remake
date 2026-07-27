@@ -59,6 +59,7 @@ var selected_character = null
 	$VBoxScreen/HBoxBot/BotRightPanel/ClassicSearchButton
 )
 @onready var campButton: Button = $VBoxScreen/HBoxBot/BotRightPanel/CampButton
+@onready var restButton: Button = $VBoxScreen/HBoxBot/BotRightPanel/RestButton
 @onready var temple_rect : TempleMenu = $VBoxScreen/HBoxTop/MapArea/TempleRect
 @onready var spellcastMenu = $SpellsRect
 @onready var abilitesmngtMenu = $VBoxScreen/HBoxTop/MapArea/AbilitiesMngtRect
@@ -105,6 +106,7 @@ func initialize() : # takes an array of Characters GD class objects !
 	characterStatRect.close_requested.connect(_on_character_stat_close_requested)
 	if GameGlobal.allow_character_swap_anywhere :
 		set_party_swap_enabled(true)
+	update_classic_camping_permission()
 #	spellcastMenu.connect("spell_picked", self,"_on_spell_picked"
 	#Error connect(signal: String,Callable(target: Object,method: String).bind(binds: Array = [  ),flags: int = 0)
 	combatBRPanel.hud = self
@@ -176,7 +178,7 @@ func hide_owhudcontrol() :
 
 func update_fatigue_bar() :
 	#print("ow_hud update_fatigue_bar : ", GameGlobal.fatigue ,", bar:", GameGlobal.fatigue * 128 / 172800, "/128" )
-	fatigueBar.value = GameGlobal.fatigue * 128 / GameGlobal.max_fatigue
+	fatigueBar.value = GameGlobal.fatigue * 128 / GameGlobal.fatigue_limit()
 
 func fillCharactersRect() :
 	for child in charsVContainer.get_children() :
@@ -504,22 +506,43 @@ func close_special_encounter(go_to_exploration_mode : bool) :
 	if go_to_exploration_mode :
 		StateMachine.transition_to("Exploration")
 
-func _on_CampButton_pressed():
+func _on_CampButton_pressed(movement_exit := false):
 	#if GameState.paused :
 	#	return
-	if GameGlobal.classic_camping_disabled:
+	if not GameGlobal.camping and GameGlobal.classic_camping_disabled:
 		return
 	GameGlobal.camping = ! GameGlobal.camping
 	if GameGlobal.camping :
 		_play_camp_audio()
 	else :
+		restTimer.stop()
+		restTimer.set_paused(true)
 		MusicStreamPlayer.play_music_map()
 	NodeAccess.__Map().set_ow_character_icon(GameGlobal.player_characters[0].icon)
+	update_classic_camping_permission()
+	if movement_exit and not GameGlobal.camping:
+		await GameGlobal.advance_classic_camp_movement_exit()
+	else:
+		await GameGlobal.advance_classic_camp_transition(GameGlobal.camping)
 
 
 func update_classic_camping_permission() -> void:
 	if campButton != null:
-		campButton.disabled = GameGlobal.classic_camping_disabled
+		campButton.disabled = (
+			GameGlobal.classic_camping_disabled
+			and not GameGlobal.camping
+		)
+	if restButton != null:
+		restButton.disabled = (
+			GameGlobal.is_classic_runtime_active()
+			and (
+				GameGlobal.classic_camping_disabled
+				or not GameGlobal.camping
+			)
+		)
+		if restButton.disabled:
+			restTimer.stop()
+			restTimer.set_paused(true)
 
 
 func _play_camp_audio() -> void:
@@ -534,12 +557,19 @@ func _play_camp_audio() -> void:
 
 
 func _on_RestTimer_timeout():
-	GameGlobal.rest()
-	restTimer.start(timebetweenrests)
+	var rested := await GameGlobal.rest()
+	if rested and not restTimer.is_paused():
+		restTimer.start(timebetweenrests)
 
 func _on_RestButton_button_down():
 	#if GameState.paused :
 	#	return
+	if GameGlobal.is_classic_runtime_active() \
+			and (
+				not GameGlobal.camping
+				or GameGlobal.classic_camping_disabled
+			):
+		return
 	restTimer.set_paused(false)
 	restTimer.start(0.00001)
 
