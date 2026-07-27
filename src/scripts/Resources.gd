@@ -575,7 +575,19 @@ func create_classic_item_instance(
 			% abs(item_id)
 		)
 		return null
-	return create_item_instance(definition.definition_id, overrides)
+	var resolved_overrides := overrides.duplicate(true)
+	var state_data: Dictionary = resolved_overrides.get(
+		"stateData",
+		{},
+	).duplicate(true)
+	var legacy_identity: Dictionary = state_data.get(
+		LEGACY_ITEM_IDENTITY_STATE_KEY,
+		{},
+	).duplicate(true)
+	legacy_identity["classicItemId"] = abs(item_id)
+	state_data[LEGACY_ITEM_IDENTITY_STATE_KEY] = legacy_identity
+	resolved_overrides["stateData"] = state_data
+	return create_item_instance(definition.definition_id, resolved_overrides)
 
 
 func item_classic_ids(instance: ItemInstance) -> Array[int]:

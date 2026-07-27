@@ -6110,6 +6110,20 @@ func _test_classic_boat_materialization() -> void:
 
 
 func _test_classic_item_materializer() -> void:
+	var enriched_stock_items: Dictionary = ItemIdsScript.new().enrich_item_book({
+		"Quarter Staff": {"name": "Quarter Staff"},
+	})
+	var quarter_staff: Dictionary = enriched_stock_items.get("Quarter Staff", {})
+	_expect_equal(
+		quarter_staff.get("classicItemId"),
+		102,
+		"the canonical Quarter Staff identity remains stable"
+	)
+	_expect_equal(
+		quarter_staff.get("classicItemIds"),
+		[102, 98],
+		"the alternate Data ID Quarter Staff identity resolves as an alias"
+	)
 	var bundle = BundleScript.new()
 	_expect(
 		bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE),

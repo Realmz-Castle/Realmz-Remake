@@ -926,3 +926,135 @@ Each claim should stay within its evidence:
   `825`, and `957`; Battles 116 through 119; Simple Encounter 12; Treasure
   46; monsters 1, 4, 6, 12, 21, 28, 35, 38, 39, 40, 41, 45, 54, 58, 60,
   62, 63, 69, 70, 71, 83, 84, 93, and 185.
+
+## Wrath of the Mind Lords
+
+### Main completion chain
+
+- **Runtime-proven:** Macro 19 records the opening continuity response. The
+  checked response preserves quests 1 and 4 for both prior Sword Lands
+  adventures. Fixed route seed 438 selects the mine-slave prologue, presents
+  all 20 Treasure 2 entries, and moves the party to land map 9 at `(6, 7)`.
+- **Runtime-proven:** Macro 433 restores the heroes' original identities and
+  possessions. Macro 553 then reveals Primus's mystic orbs and enters Battle
+  308 against Uther Maddrix. Victory restores the original timeline and sets
+  quest 14.
+- **Runtime-proven:** `Data DD:7:57` recruits Oberon as ally 245.
+  `Data DD:15:66` reveals Maximus, enters Battle 518 against Primus and his
+  complete psionic guard, and leaves the Astral vortex open.
+- **Runtime-proven:** Macro 1907 chooses the one-way pursuit instead of the
+  early ending and sets quest 7. `Data DD:8:2` refuses Sappho Nynex's demand
+  for worship and reuses Battle 308 for her Mind Lord incarnation.
+- **Runtime-proven:** `Data DD:8:8` sets quest 73 and accepts the Sceptanar's
+  Ashaan'ru bargain. Macro 2039 introduces Maximus and his surviving siblings.
+- **Runtime-proven:** Macro 2040 enters Battle 530 against Nuul Zarrakian and
+  Azure Malachys, then Battle 531 against Xenon Maximus and two Nightmares.
+  The continuation sets quest 72 and presents two five-member
+  20,000-experience chains.
+- **Runtime-proven:** `Data DD:19:22` enters Battle 536 against the Ashaan'ru
+  Queen and her complete brood. The installed room continuation sets quest 71
+  and exposes Treasure 151.
+- **Runtime-proven:** `Data DD:19:23` presents all 12 items in the Queen's
+  hoard. The checked route takes only scenario item 712, the serpent head.
+  Macro 2059 consumes that exact item, sets quest 74, and identifies the way
+  home.
+- **Runtime-proven:** `Data DD:8:0` opens Complex Encounter 83. Speaking
+  `ethro astranox` selects result 1, closes quest 7, sets quest 6, presents
+  PICT 30127, and teleports the party to Lhari Orin at `(49, 44)`.
+- **Runtime-proven:** Macro 1928 removes Oberon, grants the final five-member
+  experience chain, presents the quest-4 trilogy remembrance, and reaches
+  message 2601's explicit main-story completion followed by message 2557's
+  registered-scenario thanks.
+
+### Continuity and route gates
+
+- The opening has four authored responses: neither prior scenario, Trouble
+  only, War only, or both. The checked response is the fourth and preserves
+  quests 1 and 4. The other three continuity states are source-identified but
+  not runtime-exercised by this route.
+- The prologue then selects among authored random branches. Seed 438 is applied
+  after source verification and pins the mine branch. This makes the installed
+  report reproducible without claiming the other openings were exercised.
+- The Astral vortex offers an earlier possible ending. The checked yes response
+  continues the main story and sets quest 7. Message 2601, not that earlier
+  branch, explicitly says the main story arc is complete.
+- Quest 73 records the initial Sceptanar bargain. Returning with item 712
+  selects the successful item branch, consumes the head, and sets quest 74.
+  The spoken return result then removes quest 7 and sets quest 6.
+
+### Battles, allies, and rewards
+
+- Battle 308 contains one Mind Lord and is deliberately executed twice: first
+  as Uther Maddrix and later as Sappho Nynex.
+- Battle 518 contains Primus Ankh, three Psi-Knights, and two Psi-Knight
+  Commanders.
+- Battle 530 contains two Mind Lords. Battle 531 contains Xenon Maximus and
+  two Nightmares.
+- Battle 536 contains five Ashaan'ru Warriors, two Ashaan'ru Lords, and the
+  Ashaan'ru Queen.
+- Oberon is ally 245 from the portal-key scene through the final return, where
+  macro 1930 explicitly removes him.
+- Treasure 151 contains 12 authored items. Item 712 is the only one required
+  by the checked completion chain, so the route verifies the complete treasure
+  screen while selectively taking the serpent head.
+- The installed route presents fifteen separate 20,000-experience yields:
+  ten after Maximus and five during the ending. They are native reward screens,
+  not inferred totals.
+
+### Stock item identity finding
+
+- Treasure 2 contains Classic stock item 98. The authoritative Realmz `Data ID`
+  STR# records name both item 98 and item 102 `Quarter Staff`.
+- Item 102 remains the canonical native definition. Item 98 is an alias, and
+  materialization now retains the requested source ID in the instance's legacy
+  identity. This lets the native treasure view report 98 instead of projecting
+  the canonical 102 back onto authored data.
+- The runtime unit suite checks that the primary identity remains 102 and the
+  ordered alias set is `[102, 98]`.
+
+### Walkthrough and hint facts
+
+- Restoring the original memories and equipment is not the ending of the
+  alternate-timeline opening. Uther Maddrix still has to be defeated before
+  the original timeline and quest 14 are restored.
+- Defeating Primus leaves a one-way vortex. Choosing not to enter produces an
+  earlier possible ending; entering it is required for the Maximus completion
+  spine.
+- The Sceptanar's bargain is the direct way home. Kill the Ashaan'ru Queen,
+  take her serpent head from Treasure 151, return it to the Sceptanar, and use
+  the phrase `ethro astranox` at the diagram.
+- Defeating Maximus is not sufficient by itself. The explicit completion
+  message occurs only after the party returns from the Astral Plane and
+  Oberon's farewell resolves.
+
+### Battle-macro boundary
+
+- **Source-proven:** The Ashaan'ru Queen carries death macro 2086, which
+  presents message 2777 and routs Warriors and Lords.
+- The dedicated route checks Battle 536's full initial formation, forces
+  victory after a stable player turn, and runtime-exercises the enclosing room
+  continuation through messages 2775 and 2776. It does not claim that the
+  Queen's creature-specific death macro or every battle round was exercised.
+
+### Optional-content boundary
+
+- Quests 1, 4, 6, 14, and 71 through 74; Oberon ally 245; all six battle
+  executions; the complete Queen's hoard; consumed item 712; the spoken return
+  phrase; and messages 2601 and 2557 form the runtime-proven completion spine.
+- The route proves the direct installed completion behavior, not manual travel
+  through every map, every alternate opening or ending, all regional quests,
+  optional treasure, companion variants, battle rounds, or encounters.
+
+### Evidence
+
+- Route: `playtest/routes/wrath_of_the_mind_lords.json`
+- Installed report:
+  `reports/classic_wrath_of_the_mind_lords_route_acceptance.json`
+- Imported source records: `Data DD:7:57`, `Data DD:8:0`, `Data DD:8:2`,
+  `Data DD:8:8`, `Data DD:15:66`, `Data DD:19:22`, `Data DD:19:23`;
+  `Data ED3:macro:19`, `433`, `553`, `556`, `1907`, `1917`, `1924`,
+  `1928` through `1930`, `1939`, `1941`, `2010`, `2032`, `2039`, `2040`,
+  `2042`, `2050`, `2059`, `2062`, `2085`, `2086`, and `2127`; Battles
+  308, 518, 530, 531, and 536; Complex Encounter 83; Treasures 2 and 151;
+  items 98, 102, and 712; monsters 89, 90, 164, 228, 229, 234, 235, 236,
+  237, 239, and 245.

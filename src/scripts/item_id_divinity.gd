@@ -104,6 +104,8 @@ var mapping : Dictionary = {
 100: "Staff of Merlin +3",
 101: "Quarter Staff +2",
 102: "Quarter Staff",
+# Data ID records 98 and 102 as the same stock item; keep 102 as the primary identity.
+98: "Quarter Staff",
 103: "Quarter Staff +3",
 104: "Bow",
 105: "Perrins Eye +3",

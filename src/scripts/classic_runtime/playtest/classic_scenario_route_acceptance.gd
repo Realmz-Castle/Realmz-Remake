@@ -47,6 +47,9 @@ func _start_acceptance() -> void:
 	if not _verify_source_contract():
 		_finish()
 		return
+	if route.has("randomSeed"):
+		seed(int(route["randomSeed"]))
+		evidence["randomSeed"] = int(route["randomSeed"])
 
 	for step_value: Variant in route.get("steps", []):
 		if not (step_value is Dictionary):
@@ -1091,8 +1094,12 @@ func _run_interaction_sequence(
 				if not treasure_valid:
 					_fail(stage, "The native treasure no longer matches its source record")
 					return false
+				var loot_item_ids: Array = event.get(
+					"lootItemIds",
+					expected_item_ids,
+				)
 				if bool(event.get("lootItems", false)) \
-						and not await _loot_classic_items(expected_item_ids):
+						and not await _loot_classic_items(loot_item_ids):
 					_fail(stage, "The authored treasure items could not be taken")
 					return false
 				var experience_gain := int(UI.ow_hud.treasureControl.exp_gain)

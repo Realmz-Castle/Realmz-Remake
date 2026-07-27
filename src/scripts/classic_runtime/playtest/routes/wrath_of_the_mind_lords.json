@@ -1,0 +1,998 @@
+{
+  "schemaVersion": 1,
+  "routeId": "wrath-of-the-mind-lords-completion-route",
+  "campaignId": "scenario-wrath-of-the-mind-lords",
+  "campaignDirectory": "Wrath of the Mind Lords (Classic)",
+  "randomSeed": 438,
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 3,
+    "y": 84
+  },
+  "steps": [
+    {
+      "id": "wrath-opening",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:19",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 3,
+        "y": 84
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 6,
+        "y": 7
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 3000},
+        {"slot": 1, "code": 1, "id": 37},
+        {"slot": 2, "code": 1, "id": -38},
+        {"slot": 3, "code": 4, "id": 1},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 37,
+          "prefix": "(Please answer the following question truthfully"
+        },
+        {
+          "kind": "message",
+          "id": 38,
+          "prefix": "Which one of the following statements best applies to you?"
+        },
+        {
+          "kind": "encounter-choice",
+          "labels": [
+            "I did not play any of the previous Sword Lands Trilogy scenarios.",
+            "I played only Trouble in the Sword Lands.",
+            "I played only War in the Sword Lands.",
+            "I played both previous Sword Lands Trilogy scenarios."
+          ],
+          "token": "4"
+        },
+        {"kind": "message", "id": 39, "prefix": "Another day begins. Another day in the mines."},
+        {"kind": "message", "id": 40, "prefix": "Lacking any mental powers"},
+        {"kind": "message", "id": 41, "prefix": "While you have known no other life than that of a slave"},
+        {"kind": "message", "id": 42, "prefix": "Freedom, the whispered stories say"},
+        {"kind": "message", "id": 43, "prefix": "But their leader, the Hierarch"},
+        {"kind": "message", "id": 44, "prefix": "it has been Imperial Law that mongrels such as you be slaves"},
+        {"kind": "message", "id": 45, "prefix": "in order to be free in death"},
+        {"kind": "message", "id": 46, "prefix": "Shaking those thoughts"},
+        {
+          "kind": "treasure",
+          "id": 2,
+          "itemIds": [902, 454, 914, 914, 914, 914, 914, 98, 877, 454, 454, 454, 200, 200, 200, 200, 200, 200, 454, 454],
+          "sourceItemIds": [902, 454, 914, 914, 914, 914, 914, 98, 877, 454, 454, 454, 200, 200, 200, 200, 200, 200, 454, 454],
+          "exp": 0,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0
+        }
+      ],
+      "detail": "The installed Start hook records both prior Sword Lands adventures and moves the party into the authored alternate timeline"
+    },
+    {
+      "id": "recover-true-memories",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:433",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 60,
+        "y": 22
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 619},
+        {"slot": 1, "code": 1, "id": 620},
+        {"slot": 2, "code": 36, "id": 0},
+        {"slot": 3, "code": 1, "id": 592},
+        {"slot": 4, "code": 13, "id": 779},
+        {"slot": 5, "code": 7, "id": 780},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 619,
+          "prefix": "With a sigh, you turn your attention back to your original equipment"
+        },
+        {
+          "kind": "message",
+          "id": 620,
+          "prefix": "Without further ado, you take back all of your possessions."
+        },
+        {
+          "kind": "message",
+          "id": 592,
+          "prefix": "Now more than ever, you need to rest"
+        }
+      ],
+      "detail": "The installed continuity scene restores the heroes' original identities and equipment before Oberon explains Maximus's altered timeline"
+    },
+    {
+      "id": "defeat-uther-maddrix",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:553",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 11,
+        "x": 4,
+        "y": 31
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 242},
+        {"slot": 1, "code": 1, "id": 788},
+        {"slot": 2, "code": 9, "id": 1101},
+        {"slot": 3, "code": 1, "id": 789},
+        {"slot": 4, "code": 9, "id": 211},
+        {"slot": 5, "code": 1, "id": 790},
+        {"slot": 6, "code": 39, "id": 554},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 788, "prefix": "You find High Praetor Primus busy with a strange contraption"},
+        {"kind": "message", "id": 789, "prefix": "As if sensing your presence, Primus turns around"},
+        {"kind": "message", "id": 790, "prefix": "Regaining his composure, he begins to laugh aloud."},
+        {"kind": "message", "id": 791, "prefix": "He chuckles cruelly."},
+        {"kind": "message", "id": 792, "prefix": "last surviving siblings!"},
+        {"kind": "message", "id": 793, "prefix": "Out of the fractured mystic orb emerges the essence of a Mind Lord!"},
+        {"kind": "message", "id": 794, "prefix": "\"I WILL ENJOY THIS.\""},
+        {"kind": "message", "id": 795, "prefix": "While the essence of Uther Maddrix slowly advances toward you"},
+        {
+          "kind": "battle",
+          "id": "uther-maddrix",
+          "battleId": 308,
+          "creatures": [
+            {"monsterId": 89, "displayName": "Mind Lord", "count": 1}
+          ]
+        },
+        {"kind": "message", "id": 796, "prefix": "Uther Maddrix' dying essence dissipates violently"}
+      ],
+      "detail": "Primus frees Uther Maddrix and escapes with the other mystic orbs; Battle 308 materializes the Mind Lord before victory restores the original timeline and sets quest 14"
+    },
+    {
+      "id": "recruit-oberon",
+      "kind": "action-list",
+      "triggerId": "Data DD:7:57",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 7,
+        "x": 56,
+        "y": 61
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 686},
+        {"slot": 1, "code": 1, "id": 2409},
+        {"slot": 2, "code": 89, "id": 245},
+        {"slot": 3, "code": 1, "id": 2410},
+        {"slot": 4, "code": 13, "id": 3796},
+        {"slot": 5, "code": 13, "id": 3283},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 2409,
+          "prefix": "Oberon appears before you, smiling warmly"
+        },
+        {
+          "kind": "message",
+          "id": 2410,
+          "prefix": "(Oberon has joined your party."
+        }
+      ],
+      "detail": "The portal keys bring Oberon into the installed party as ally 245 for the final pursuit of Primus and Maximus"
+    },
+    {
+      "id": "defeat-primus",
+      "kind": "action-list",
+      "triggerId": "Data DD:15:66",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 15,
+        "x": 42,
+        "y": 44
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 222},
+        {"slot": 1, "code": 9, "id": 134},
+        {"slot": 2, "code": 46, "id": 3408},
+        {"slot": 3, "code": 9, "id": 1103},
+        {"slot": 4, "code": 1, "id": 2560},
+        {"slot": 5, "code": 1, "id": 2561},
+        {"slot": 6, "code": 39, "id": 1920},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2560, "prefix": "You find Primus Ankh in this room"},
+        {"kind": "message", "id": 2561, "prefix": "\"Greetings, fools.\""},
+        {"kind": "message", "id": 2561, "prefix": "\"Greetings, fools.\""},
+        {"kind": "message", "id": 2562, "prefix": "He then glares at Oberon"},
+        {"kind": "message", "id": 2564, "prefix": "Wordlessly, Primus/Maximus then calmly turns his gaze"},
+        {"kind": "message", "id": 2563, "prefix": "A machine suddenly activates"},
+        {"kind": "message", "id": 2565, "prefix": "Primus then screams"},
+        {
+          "kind": "message",
+          "id": 2566,
+          "prefix": "Your are then face to face with the essence of Maximus.",
+          "picture": true
+        },
+        {"kind": "message", "id": 2567, "prefix": "A fully recovered Primus snarls"},
+        {"kind": "message", "id": 2568, "prefix": "\"I, along with my personal aides"},
+        {"kind": "message", "id": 2538, "prefix": "Primus then explodes with anger"},
+        {"kind": "message", "id": 2536, "prefix": "\"How could mites like you have succeeded"},
+        {"kind": "message", "id": 2537, "prefix": "At that, the fight is on!"},
+        {
+          "kind": "battle",
+          "id": "primus-last-stand",
+          "battleId": 518,
+          "creatures": [
+            {"monsterId": 164, "displayName": "Primus Ankh", "count": 1},
+            {"monsterId": 228, "displayName": "Psi-Knight", "count": 3},
+            {"monsterId": 229, "displayName": "Psi-Knight Commander", "count": 2}
+          ]
+        },
+        {"kind": "message", "id": 2506, "prefix": "\"I must admit,\" Oberon mumbles"},
+        {"kind": "message", "id": 2539, "prefix": "Panting and tired, you set yourself to examine the strange vortex"}
+      ],
+      "picture": {
+        "id": 30120,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "Maximus abandons Primus and the three rescued essences through the vortex; Battle 518 defeats Primus and his full psionic guard and leaves the Astral pursuit open"
+    },
+    {
+      "id": "follow-maximus",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:1907",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 15,
+        "x": 42,
+        "y": 44
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 46,
+        "y": 45
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 699},
+        {"slot": 1, "code": 1, "id": 2541},
+        {"slot": 2, "code": 1, "id": -2542},
+        {"slot": 3, "code": 3, "id": 3421},
+        {"slot": 4, "code": 47, "id": -6},
+        {"slot": 5, "code": 47, "id": 7},
+        {"slot": 6, "code": 39, "id": 1917},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2541, "prefix": "The vortex of shimmering flames still swirls wildly"},
+        {"kind": "message", "id": 2542, "prefix": "Knowing that going through the vortex is almost assuredly a one-way trip"},
+        {"kind": "choice", "answer": "YES", "labels": ["Yes", "No"]},
+        {"kind": "message", "id": 2558, "prefix": "Without any further thought, you jump into the vortex!"},
+        {
+          "kind": "message",
+          "id": 2559,
+          "prefix": "You then feel as if you are floating in a void",
+          "picture": true
+        }
+      ],
+      "picture": {
+        "id": 30127,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "The installed main-story choice rejects the early ending, sets quest 7, and carries the party through the one-way vortex into the Astral Plane"
+    },
+    {
+      "id": "defeat-sappho-nynex",
+      "kind": "action-list",
+      "triggerId": "Data DD:8:2",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 76,
+        "y": 12
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 76,
+        "y": 13
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 30005},
+        {"slot": 1, "code": 1, "id": 2697},
+        {"slot": 2, "code": 18, "id": 3594},
+        {"slot": 3, "code": 9, "id": 235},
+        {"slot": 4, "code": 1, "id": 2698},
+        {"slot": 5, "code": 27, "id": 30120},
+        {"slot": 6, "code": 39, "id": 2031},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2697, "prefix": "As you approach, you are assaulted by waves of psionic energies!"},
+        {"kind": "message", "id": 2698, "prefix": "Then out of the castle emerges the essence of a Mentarch!"},
+        {
+          "kind": "message",
+          "id": 2699,
+          "prefix": "\"So, you are the little worms who have been such trouble",
+          "picture": true
+        },
+        {"kind": "message", "id": 2700, "prefix": "She pauses for a moment, then grins maliciously"},
+        {"kind": "choice", "answer": "NO", "labels": ["Yes", "No"]},
+        {"kind": "message", "id": 2702, "prefix": "Sappho Nynex goes into a fit."},
+        {
+          "kind": "battle",
+          "id": "sappho-nynex",
+          "battleId": 308,
+          "creatures": [
+            {"monsterId": 89, "displayName": "Mind Lord", "count": 1}
+          ]
+        },
+        {"kind": "message", "id": 2508, "prefix": "A bloodied Oberon sits down"},
+        {"kind": "message", "id": 2703, "prefix": "You decide to mend your wounds before entering the castle."}
+      ],
+      "picture": {
+        "id": 30120,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "The party refuses Sappho Nynex's demand for worship, defeats her authored Battle 308 incarnation, and advances to Maximus's castle"
+    },
+    {
+      "id": "accept-sceptanar-bargain",
+      "kind": "action-list",
+      "triggerId": "Data DD:8:8",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 79,
+        "y": 83
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 700},
+        {"slot": 1, "code": 47, "id": 73},
+        {"slot": 2, "code": 1, "id": 2729},
+        {"slot": 3, "code": 9, "id": 10090},
+        {"slot": 4, "code": 1, "id": 2730},
+        {"slot": 5, "code": 9, "id": 223},
+        {"slot": 6, "code": 39, "id": 2050},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2729, "prefix": "A large crystal-like stucture of proto-psionic matter"},
+        {"kind": "message", "id": 2730, "prefix": "As you approach, the facade of this building begins to change shape"},
+        {"kind": "message", "id": 2731, "prefix": "\"I am the Sceptanar, a powerful mage.\""},
+        {"kind": "message", "id": 1779, "prefix": "What do you reply?"},
+        {
+          "kind": "encounter-choice",
+          "labels": [
+            "\"Sorry to bother you, but we're a bit lost and need some help.\"",
+            "\"We demand that you let us in!\"",
+            "\"Give us some loot and we'll leave without killing you!\"",
+            "\"Sorry to bother you. We'll leave right away.\""
+          ],
+          "token": "1"
+        },
+        {"kind": "message", "id": 2742, "prefix": "\"I see.\" The Sceptanar replies."},
+        {"kind": "message", "id": 2743, "prefix": "She smiles at that."},
+        {"kind": "message", "id": 2744, "prefix": "She then frowns in thought"},
+        {"kind": "choice", "answer": "YES", "labels": ["Yes", "No"]},
+        {"kind": "message", "id": 2745, "prefix": "\"Good!\" The Sceptanar replies"},
+        {"kind": "message", "id": 2746, "prefix": "\"The Ashaan'ru\""},
+        {"kind": "message", "id": 2747, "prefix": "attacked by an Ashaan'ru astral vessel"},
+        {"kind": "message", "id": 2748, "prefix": "need for my magical research."},
+        {"kind": "message", "id": 2749, "prefix": "At that, the facade of the building returns to its original features."}
+      ],
+      "end": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 79,
+        "y": 84
+      },
+      "detail": "Quest 73 records the Sceptanar encounter, and the polite installed-dialogue branch accepts her Ashaan'ru bargain for a source-authored way home"
+    },
+    {
+      "id": "enter-maximus-castle",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:2039",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 19,
+        "x": 17,
+        "y": 87
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 700},
+        {"slot": 1, "code": 1, "id": 2706},
+        {"slot": 2, "code": 1, "id": 2707},
+        {"slot": 3, "code": 9, "id": 1100},
+        {"slot": 4, "code": 1, "id": 2708},
+        {"slot": 5, "code": 1, "id": 2709},
+        {"slot": 6, "code": 23, "id": 3609},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2706, "prefix": "In contrast to its intricately twisted exteriors"},
+        {"kind": "message", "id": 2707, "prefix": "its ceiling seemingly reaching as high as you can see."},
+        {"kind": "message", "id": 2708, "prefix": "\"Welcome to my abode.\""},
+        {"kind": "message", "id": 2709, "prefix": "Steeling your nerves, you move on forward."}
+      ],
+      "detail": "The installed castle hall presents Maximus and his two remaining siblings before the final confrontation"
+    },
+    {
+      "id": "defeat-xenon-maximus",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:2040",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 19,
+        "x": 17,
+        "y": 87
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 1101},
+        {"slot": 1, "code": 1, "id": 2710},
+        {"slot": 2, "code": 1, "id": 2711},
+        {"slot": 3, "code": 1, "id": 2712},
+        {"slot": 4, "code": 1, "id": 2713},
+        {"slot": 5, "code": 87, "id": 3610},
+        {"slot": 6, "code": 39, "id": 2042},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2710, "prefix": "As you near the Mind Lords"},
+        {"kind": "message", "id": 2711, "prefix": "free of the need for a corporeal body"},
+        {"kind": "message", "id": 2712, "prefix": "contacted me, after finding Lankh'Nar"},
+        {"kind": "message", "id": 2713, "prefix": "long as we remain here."},
+        {"kind": "message", "id": 2714, "prefix": "\"This is where you err, Maximus!\""},
+        {"kind": "message", "id": 2715, "prefix": "superiority, will finally learn the truth"},
+        {"kind": "message", "id": 2716, "prefix": "\"These names are not to be mentioned in my presence!"},
+        {"kind": "message", "id": 2717, "prefix": "created you, using lankharhan tissues and bodies!"},
+        {"kind": "message", "id": 2718, "prefix": "to be *lankharhans* first"},
+        {"kind": "message", "id": 2719, "prefix": "\"Be that as it may,\""},
+        {"kind": "message", "id": 2720, "prefix": "possessed of great power."},
+        {"kind": "message", "id": 2721, "prefix": "You then realize that the mad Hierarch is talking about the Sceptanar!"},
+        {"kind": "message", "id": 2722, "prefix": "Maximus continues in earnest"},
+        {"kind": "message", "id": 2723, "prefix": "\"Now it is their turn!\""},
+        {
+          "kind": "battle",
+          "id": "nuul-and-azure",
+          "battleId": 530,
+          "creatures": [
+            {"monsterId": 239, "displayName": "Mind Lord", "count": 2}
+          ]
+        },
+        {"kind": "message", "id": 2724, "prefix": "Maximus bellows with laughter."},
+        {"kind": "message", "id": 2804, "prefix": "Maximus then unleashes a psionic attack"},
+        {"kind": "message", "id": 2725, "prefix": "\"From now on, only I alone will rule the world"},
+        {
+          "kind": "battle",
+          "id": "xenon-maximus",
+          "battleId": 531,
+          "creatures": [
+            {"monsterId": 90, "displayName": "Xenon Maximus", "count": 1},
+            {"monsterId": 237, "displayName": "Nightmare", "count": 2}
+          ]
+        },
+        {"kind": "message", "id": 2508, "prefix": "A bloodied Oberon sits down"},
+        {"kind": "message", "id": 2726, "prefix": "As you rejoice at having finally defeated Maximus"},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "message", "id": 2727, "prefix": "The only burning question nagging at you"}
+      ],
+      "detail": "Oberon confronts the Hierarch, Battles 530 and 531 destroy Nuul Zarrakian, Azure Malachys, and Xenon Maximus, and quest 72 records the completed Astral hunt"
+    },
+    {
+      "id": "defeat-ashaanru-queen",
+      "kind": "action-list",
+      "triggerId": "Data DD:19:22",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 19,
+        "x": 15,
+        "y": 15
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 222},
+        {"slot": 1, "code": 9, "id": 134},
+        {"slot": 2, "code": 56, "id": 3706},
+        {"slot": 3, "code": 87, "id": 2674},
+        {"slot": 4, "code": 87, "id": 927},
+        {"slot": 5, "code": 87, "id": 921},
+        {"slot": 6, "code": 39, "id": 2085},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2774, "prefix": "This is the breeding chamber of the Ashaan'ru Queen."},
+        {
+          "kind": "battle",
+          "id": "ashaanru-queen",
+          "battleId": 536,
+          "creatures": [
+            {"monsterId": 234, "displayName": "Ashaan'ru Warrior", "count": 5},
+            {"monsterId": 235, "displayName": "Ashaan'ru Lord", "count": 2},
+            {"monsterId": 236, "displayName": "Ashaan'ru Queen", "count": 1}
+          ]
+        },
+        {"kind": "message", "id": 2775, "prefix": "This room is damp, the floor covered with some sort of green mucus-like goo."},
+        {"kind": "message", "id": 2776, "prefix": "writhing as they eat away at the goo."}
+      ],
+      "detail": "Battle 536 materializes the Queen and her full brood, then the installed room aftermath exposes her treasure-bed and sets quest 71"
+    },
+    {
+      "id": "claim-serpent-head",
+      "kind": "action-list",
+      "triggerId": "Data DD:19:23",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 19,
+        "x": 5,
+        "y": 15
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 2778},
+        {"slot": 1, "code": 10, "id": 151},
+        {"slot": 2, "code": 12, "id": 3737},
+        {"slot": 3, "code": 13, "id": 3738},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2778, "prefix": "The ashaan'ru Queen's hoard is now yours!"},
+        {
+          "kind": "treasure",
+          "id": 151,
+          "itemIds": [712, 989, 908, 981, 982, 983, 629, 625, 411, 254, 50, 711],
+          "sourceItemIds": [712, 989, 908, 981, 982, 983, 629, 625, 411, 254, 50, 711, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 0,
+          "gold": 10000,
+          "gems": 10,
+          "jewelry": 5,
+          "lootItems": true,
+          "lootItemIds": [712]
+        }
+      ],
+      "detail": "The native treasure screen presents the full authored Queen's hoard while the route takes only scenario item 712, the serpent head required for passage home"
+    },
+    {
+      "id": "receive-way-home",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:2059",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 79,
+        "y": 83
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 2752},
+        {"slot": 1, "code": 21, "id": 3635},
+        {"slot": 2, "code": 9, "id": 223},
+        {"slot": 3, "code": 1, "id": 2753},
+        {"slot": 4, "code": 9, "id": 10090},
+        {"slot": 5, "code": 7, "id": 3636},
+        {"slot": 6, "code": 61, "id": 114},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2752, "prefix": "You proudly announce to the Sceptanar"},
+        {"kind": "message", "id": 2754, "prefix": "\"Have you the serpent's head?\""},
+        {"kind": "message", "id": 2756, "prefix": "created it - interestingly enough"},
+        {"kind": "message", "id": 2755, "prefix": "of your trek in the Astral Plane."},
+        {"kind": "message", "id": 2760, "prefix": "Without further due, the facade of the building returns to its original features."}
+      ],
+      "end": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 79,
+        "y": 84
+      },
+      "detail": "The installed item branch consumes scenario item 712, sets quest 74, and identifies the exact ethro astranox diagram that returns the party home"
+    },
+    {
+      "id": "speak-way-home",
+      "kind": "complex-word",
+      "triggerId": "Data DD:8:0",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 45,
+        "y": 45
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 15,
+        "x": 49,
+        "y": 44
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 236},
+        {"slot": 1, "code": 1, "id": 2575},
+        {"slot": 2, "code": 1, "id": -2},
+        {"slot": 3, "code": 5, "id": 83},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "encounter": {
+        "id": 83,
+        "prompt": {
+          "id": 2,
+          "prefix": "What is it you would like to do?"
+        },
+        "word": "ethro astranox",
+        "result": 1,
+        "resultActions": [
+          {"slot": 0, "rawCode": 9, "id": 236},
+          {"slot": 1, "rawCode": 46, "id": 3574},
+          {"slot": 2, "rawCode": 27, "id": 30127},
+          {"slot": 3, "rawCode": 1, "id": 2576},
+          {"slot": 4, "rawCode": 47, "id": -7},
+          {"slot": 5, "rawCode": 47, "id": 6},
+          {"slot": 6, "rawCode": 39, "id": 2010},
+          {"slot": 7, "rawCode": 24, "id": 0},
+          {"slot": 8, "rawCode": 19, "id": 2},
+          {"slot": 9, "rawCode": 9, "id": 236},
+          {"slot": 10, "rawCode": 61, "id": 164},
+          {"slot": 15, "rawCode": 24, "id": 0},
+          {"slot": 16, "rawCode": 19, "id": 2},
+          {"slot": 17, "rawCode": 9, "id": 236},
+          {"slot": 18, "rawCode": 61, "id": 164},
+          {"slot": 23, "rawCode": 24, "id": 0},
+          {"slot": 24, "rawCode": 19, "id": 2},
+          {"slot": 25, "rawCode": 9, "id": 236},
+          {"slot": 26, "rawCode": 61, "id": 164},
+          {"slot": 31, "rawCode": 24, "id": 0}
+        ]
+      },
+      "sequence": [
+        {"kind": "message", "id": 2575, "prefix": "This strange diagram etched permanently into the psionic matter"},
+        {"kind": "message", "id": 2, "prefix": "What is it you would like to do?"},
+        {
+          "kind": "encounter-word",
+          "text": "ethro astranox",
+          "promptPrefix": "What is it you would like to do?",
+          "labels": [
+            "Pray to the Gods",
+            "Mumble with frustration",
+            "Twiddle your thumbs",
+            "Whistle a tune",
+            "Yawn with boredom",
+            "Dance the jig",
+            "Speak",
+            "Cast a spell",
+            "Use an item"
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 2576,
+          "prefix": "You are suddenly enveloped in a shroud of psionic energies!",
+          "picture": true
+        }
+      ],
+      "picture": {
+        "id": 30127,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "The installed spoken-word encounter accepts the source phrase, closes quest 7, sets quest 6, and teleports the party back to Lhari Orin"
+    },
+    {
+      "id": "complete-wrath",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:1928",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 15,
+        "x": 49,
+        "y": 44
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 10049},
+        {"slot": 1, "code": 9, "id": 208},
+        {"slot": 2, "code": 1, "id": 2577},
+        {"slot": 3, "code": 87, "id": 3442},
+        {"slot": 4, "code": 87, "id": 3443},
+        {"slot": 5, "code": 87, "id": 3444},
+        {"slot": 6, "code": 39, "id": 1929},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 2577, "prefix": "You and your comrades celebrate with joy and great relief"},
+        {"kind": "message", "id": 2578, "prefix": "\"Praise be Quanthaas! We've done it!\""},
+        {"kind": "message", "id": 2579, "prefix": "He laughs with excitement."},
+        {"kind": "message", "id": 2580, "prefix": "He then sighs."},
+        {"kind": "message", "id": 2581, "prefix": "we shall meet again!"},
+        {"kind": "message", "id": 2600, "prefix": "As the merriment begins to die down"},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "experience", "amount": 20000},
+        {"kind": "message", "id": 2806, "prefix": "At this thought, you can't help but marvel"},
+        {"kind": "message", "id": 2807, "prefix": "You think fondly of those people you have met"},
+        {"kind": "message", "id": 2810, "prefix": "This in turn brings back fully the memories of the Great War"},
+        {"kind": "message", "id": 2811, "prefix": "have been averted without the help of the Gods themselves?"},
+        {"kind": "message", "id": 2812, "prefix": "How you wish Naryl would be alive still"},
+        {"kind": "message", "id": 2808, "prefix": "But despite all the odds"},
+        {"kind": "message", "id": 2809, "prefix": "Truly, you have accomplished the seemingly impossible!"},
+        {"kind": "message", "id": 2555, "prefix": "Who knows now, what mysteries will you uncover"},
+        {
+          "kind": "message",
+          "id": 2601,
+          "prefix": "(Congratulations! You have completed the main story-arc of Wrath of the Mind Lords!",
+          "picture": true
+        },
+        {"kind": "message", "id": 2557, "prefix": "(Thank you again for registering the scenario."}
+      ],
+      "picture": {
+        "id": 30131,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "The installed return removes Oberon, preserves both prior-trilogy flags, and presents the explicit registered-scenario completion for Wrath of the Mind Lords"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "global-start",
+        "triggerId": "Data ED3:macro:19",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 3000},
+          {"slot": 1, "code": 1, "id": 37},
+          {"slot": 2, "code": 1, "id": -38},
+          {"slot": 3, "code": 4, "id": 1},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "true-memories",
+        "triggerId": "Data ED3:macro:433",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 619},
+          {"slot": 1, "code": 1, "id": 620},
+          {"slot": 2, "code": 36, "id": 0},
+          {"slot": 3, "code": 1, "id": 592},
+          {"slot": 4, "code": 13, "id": 779},
+          {"slot": 5, "code": 7, "id": 780},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "uther-battle",
+        "triggerId": "Data ED3:macro:556",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 794},
+          {"slot": 1, "code": 28, "id": 0},
+          {"slot": 2, "code": 56, "id": 946},
+          {"slot": 3, "code": 9, "id": 631},
+          {"slot": 4, "code": 9, "id": 699},
+          {"slot": 5, "code": 9, "id": 642},
+          {"slot": 6, "code": 39, "id": 557},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "oberon-joins",
+        "triggerId": "Data DD:7:57",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 686},
+          {"slot": 1, "code": 1, "id": 2409},
+          {"slot": 2, "code": 89, "id": 245},
+          {"slot": 3, "code": 1, "id": 2410},
+          {"slot": 4, "code": 13, "id": 3796},
+          {"slot": 5, "code": 13, "id": 3283},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "primus-battle",
+        "triggerId": "Data ED3:macro:1924",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 2567},
+          {"slot": 1, "code": 1, "id": 2568},
+          {"slot": 2, "code": 1, "id": 2538},
+          {"slot": 3, "code": 46, "id": 3413},
+          {"slot": 4, "code": 46, "id": 3414},
+          {"slot": 5, "code": 56, "id": 3433},
+          {"slot": 6, "code": 39, "id": 1925},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "astral-choice",
+        "triggerId": "Data ED3:macro:1907",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 699},
+          {"slot": 1, "code": 1, "id": 2541},
+          {"slot": 2, "code": 1, "id": -2542},
+          {"slot": 3, "code": 3, "id": 3421},
+          {"slot": 4, "code": 47, "id": -6},
+          {"slot": 5, "code": 47, "id": 7},
+          {"slot": 6, "code": 39, "id": 1917},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "sappho-battle",
+        "triggerId": "Data ED3:macro:2032",
+        "actions": [
+          {"slot": 0, "code": 28, "id": 0},
+          {"slot": 1, "code": 56, "id": 3597},
+          {"slot": 2, "code": 39, "id": 2034},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "maximus-battles",
+        "triggerId": "Data ED3:macro:2042",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 2719},
+          {"slot": 1, "code": 1, "id": 2720},
+          {"slot": 2, "code": 46, "id": 3611},
+          {"slot": 3, "code": 1, "id": 2722},
+          {"slot": 4, "code": 56, "id": 3612},
+          {"slot": 5, "code": 9, "id": 211},
+          {"slot": 6, "code": 39, "id": 2044},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "maximus-defeat",
+        "triggerId": "Data ED3:macro:2045",
+        "actions": [
+          {"slot": 0, "code": 87, "id": 3383},
+          {"slot": 1, "code": 87, "id": 2674},
+          {"slot": 2, "code": 87, "id": 2441},
+          {"slot": 3, "code": 66, "id": 0},
+          {"slot": 4, "code": 1, "id": 2726},
+          {"slot": 5, "code": 46, "id": 3431},
+          {"slot": 6, "code": 39, "id": 2046},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "queen-battle",
+        "triggerId": "Data DD:19:22",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 222},
+          {"slot": 1, "code": 9, "id": 134},
+          {"slot": 2, "code": 56, "id": 3706},
+          {"slot": 3, "code": 87, "id": 2674},
+          {"slot": 4, "code": 87, "id": 927},
+          {"slot": 5, "code": 87, "id": 921},
+          {"slot": 6, "code": 39, "id": 2085},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "queen-defeat",
+        "triggerId": "Data ED3:macro:2086",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 243},
+          {"slot": 1, "code": 1, "id": 2777},
+          {"slot": 2, "code": 123, "id": 3708},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "way-home",
+        "triggerId": "Data ED3:macro:2062",
+        "actions": [
+          {"slot": 0, "code": 47, "id": 74},
+          {"slot": 1, "code": 22, "id": 3637},
+          {"slot": 2, "code": 9, "id": 223},
+          {"slot": 3, "code": 1, "id": 2754},
+          {"slot": 4, "code": 1, "id": 2756},
+          {"slot": 5, "code": 1, "id": 2755},
+          {"slot": 6, "code": 39, "id": 2064},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "return-diagram",
+        "triggerId": "Data DD:8:0",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 236},
+          {"slot": 1, "code": 1, "id": 2575},
+          {"slot": 2, "code": 1, "id": -2},
+          {"slot": 3, "code": 5, "id": 83},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "explicit-ending",
+        "triggerId": "Data ED3:macro:1941",
+        "actions": [
+          {"slot": 0, "code": 27, "id": 30131},
+          {"slot": 1, "code": 1, "id": 2601},
+          {"slot": 2, "code": 1, "id": 2557},
+          {"slot": 3, "code": 23, "id": 3452},
+          {"slot": 4, "code": 28, "id": 0},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 946, "values": [308, 308, 284, 211, 795]},
+      {"id": 3433, "values": [518, 518, 59, 1101, 2537]},
+      {"id": 3421, "values": [1, 1, 1908, 0, 0]},
+      {"id": 3430, "values": [8, 46, 45, 237, 0]},
+      {"id": 3597, "values": [308, 308, 2033, 10141, 2702]},
+      {"id": 3610, "values": [245, 0, 1, 2041, 0]},
+      {"id": 3612, "values": [530, 530, 284, 1101, 2723]},
+      {"id": 3615, "values": [531, 531, 284, 211, 2725]},
+      {"id": 3620, "values": [19, 17, 77, 111, 0]},
+      {"id": 3635, "values": [712, 0, 1, 2062, 0]},
+      {"id": 3706, "values": [536, 536, 59, 243, 2774]},
+      {"id": 3708, "values": [234, 235, 0, 0, 0]},
+      {"id": 3574, "values": [72, 0, 0, 2015, 0]},
+      {"id": 3441, "values": [15, 49, 44, 700, 0]},
+      {"id": 3789, "values": [3, 1, 0, 2126, 0]},
+      {"id": 3790, "values": [4, 1, 0, 2127, 0]}
+    ],
+    "messages": [
+      {"id": 619, "prefix": "With a sigh, you turn your attention back to your original equipment"},
+      {"id": 796, "prefix": "Uther Maddrix' dying essence dissipates violently"},
+      {"id": 2409, "prefix": "Oberon appears before you, smiling warmly"},
+      {"id": 2726, "prefix": "As you rejoice at having finally defeated Maximus"},
+      {"id": 2576, "prefix": "You are suddenly enveloped in a shroud of psionic energies!"},
+      {"id": 2601, "prefix": "(Congratulations! You have completed the main story-arc of Wrath of the Mind Lords!"},
+      {"id": 2557, "prefix": "(Thank you again for registering the scenario."}
+    ],
+    "battleIds": [308, 518, 530, 531, 536],
+    "monsters": [
+      {"id": 89, "displayName": "Mind Lord", "deathMacro": 11},
+      {"id": 90, "displayName": "Xenon Maximus", "deathMacro": 12},
+      {"id": 164, "displayName": "Primus Ankh", "deathMacro": 0},
+      {"id": 236, "displayName": "Ashaan'ru Queen", "deathMacro": 2086},
+      {"id": 239, "displayName": "Mind Lord", "deathMacro": 12},
+      {"id": 245, "displayName": "Oberon Zentyl'Nar", "deathMacro": 2}
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "wrath-opening",
+        "recover-true-memories",
+        "defeat-uther-maddrix",
+        "recruit-oberon",
+        "defeat-primus",
+        "follow-maximus",
+        "defeat-sappho-nynex",
+        "accept-sceptanar-bargain",
+        "enter-maximus-castle",
+        "defeat-xenon-maximus",
+        "defeat-ashaanru-queen",
+        "claim-serpent-head",
+        "receive-way-home",
+        "speak-way-home",
+        "complete-wrath"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 15,
+        "x": 49,
+        "y": 44
+      },
+      "questFlags": [1, 4, 6, 14, 64, 71, 72, 73, 74],
+      "battleIds": [308, 518, 308, 530, 531, 536]
+    }
+  }
+}

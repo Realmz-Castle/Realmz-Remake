@@ -1,0 +1,1342 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 3,
+			"y": 84
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 3,
+			"y": 84
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 1,
+				"displayName": "Mind Lord",
+				"monsterId": 89
+			}
+		],
+		"id": 308,
+		"rewardScreenPresented": true
+	},
+	"battles": [
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Mind Lord",
+					"monsterId": 89
+				}
+			],
+			"id": 308,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-uther-maddrix:uther-maddrix"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Primus Ankh",
+					"monsterId": 164
+				},
+				{
+					"count": 3,
+					"displayName": "Psi-Knight",
+					"monsterId": 228
+				},
+				{
+					"count": 2,
+					"displayName": "Psi-Knight Commander",
+					"monsterId": 229
+				}
+			],
+			"id": 518,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-primus:primus-last-stand"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Mind Lord",
+					"monsterId": 89
+				}
+			],
+			"id": 308,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-sappho-nynex:sappho-nynex"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 2,
+					"displayName": "Mind Lord",
+					"monsterId": 239
+				}
+			],
+			"id": 530,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-xenon-maximus:nuul-and-azure"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Xenon Maximus",
+					"monsterId": 90
+				},
+				{
+					"count": 2,
+					"displayName": "Nightmare",
+					"monsterId": 237
+				}
+			],
+			"id": 531,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-xenon-maximus:xenon-maximus"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 5,
+					"displayName": "Ashaan'ru Warrior",
+					"monsterId": 234
+				},
+				{
+					"count": 2,
+					"displayName": "Ashaan'ru Lord",
+					"monsterId": 235
+				},
+				{
+					"count": 1,
+					"displayName": "Ashaan'ru Queen",
+					"monsterId": 236
+				}
+			],
+			"id": 536,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-ashaanru-queen:ashaanru-queen"
+		}
+	],
+	"campaignDirectory": "Wrath of the Mind Lords (Classic)",
+	"campaignId": "scenario-wrath-of-the-mind-lords",
+	"campaignName": "Wrath of the Mind Lords (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			308,
+			518,
+			530,
+			531,
+			536
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			946,
+			3433,
+			3421,
+			3430,
+			3597,
+			3610,
+			3612,
+			3615,
+			3620,
+			3635,
+			3706,
+			3708,
+			3574,
+			3441,
+			3789,
+			3790
+		],
+		"monsterIds": [
+			89,
+			90,
+			164,
+			236,
+			239,
+			245
+		],
+		"runtime": {
+			"absentItemIds": [],
+			"battleIds": [
+				308,
+				518,
+				308,
+				530,
+				531,
+				536
+			],
+			"itemIds": [],
+			"position": {
+				"levelIndex": 15,
+				"levelType": "land",
+				"x": 49,
+				"y": 44
+			},
+			"questFlags": [
+				1,
+				4,
+				6,
+				14,
+				64,
+				71,
+				72,
+				73,
+				74
+			],
+			"stepIds": [
+				"wrath-opening",
+				"recover-true-memories",
+				"defeat-uther-maddrix",
+				"recruit-oberon",
+				"defeat-primus",
+				"follow-maximus",
+				"defeat-sappho-nynex",
+				"accept-sceptanar-bargain",
+				"enter-maximus-castle",
+				"defeat-xenon-maximus",
+				"defeat-ashaanru-queen",
+				"claim-serpent-head",
+				"receive-way-home",
+				"speak-way-home",
+				"complete-wrath"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": []
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data ED3:macro:19",
+			"Data ED3:macro:433",
+			"Data ED3:macro:556",
+			"Data DD:7:57",
+			"Data ED3:macro:1924",
+			"Data ED3:macro:1907",
+			"Data ED3:macro:2032",
+			"Data ED3:macro:2042",
+			"Data ED3:macro:2045",
+			"Data DD:19:22",
+			"Data ED3:macro:2086",
+			"Data ED3:macro:2062",
+			"Data DD:8:0",
+			"Data ED3:macro:1941"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 37,
+			"prefix": "(Please answer the following question truthfully",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 38,
+			"prefix": "Which one of the following statements best applies to you?",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "encounter-choice",
+			"labels": [
+				"I did not play any of the previous Sword Lands Trilogy scenarios.",
+				"I played only Trouble in the Sword Lands.",
+				"I played only War in the Sword Lands.",
+				"I played both previous Sword Lands Trilogy scenarios."
+			],
+			"stepId": "wrath-opening",
+			"token": "4"
+		},
+		{
+			"kind": "message",
+			"messageId": 39,
+			"prefix": "Another day begins. Another day in the mines.",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 40,
+			"prefix": "Lacking any mental powers",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 41,
+			"prefix": "While you have known no other life than that of a slave",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 42,
+			"prefix": "Freedom, the whispered stories say",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 43,
+			"prefix": "But their leader, the Hierarch",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 44,
+			"prefix": "it has been Imperial Law that mongrels such as you be slaves",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 45,
+			"prefix": "in order to be free in death",
+			"stepId": "wrath-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 46,
+			"prefix": "Shaking those thoughts",
+			"stepId": "wrath-opening"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				902,
+				454,
+				914,
+				914,
+				914,
+				914,
+				914,
+				98,
+				877,
+				454,
+				454,
+				454,
+				200,
+				200,
+				200,
+				200,
+				200,
+				200,
+				454,
+				454
+			],
+			"kind": "treasure",
+			"stepId": "wrath-opening",
+			"treasureId": 2
+		},
+		{
+			"kind": "message",
+			"messageId": 619,
+			"prefix": "With a sigh, you turn your attention back to your original equipment",
+			"stepId": "recover-true-memories"
+		},
+		{
+			"kind": "message",
+			"messageId": 620,
+			"prefix": "Without further ado, you take back all of your possessions.",
+			"stepId": "recover-true-memories"
+		},
+		{
+			"kind": "message",
+			"messageId": 592,
+			"prefix": "Now more than ever, you need to rest",
+			"stepId": "recover-true-memories"
+		},
+		{
+			"kind": "message",
+			"messageId": 788,
+			"prefix": "You find High Praetor Primus busy with a strange contraption",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 789,
+			"prefix": "As if sensing your presence, Primus turns around",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 790,
+			"prefix": "Regaining his composure, he begins to laugh aloud.",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 791,
+			"prefix": "He chuckles cruelly.",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 792,
+			"prefix": "last surviving siblings!",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 793,
+			"prefix": "Out of the fractured mystic orb emerges the essence of a Mind Lord!",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 794,
+			"prefix": "\"I WILL ENJOY THIS.\"",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 795,
+			"prefix": "While the essence of Uther Maddrix slowly advances toward you",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"battleId": 308,
+			"kind": "battle",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 796,
+			"prefix": "Uther Maddrix' dying essence dissipates violently",
+			"stepId": "defeat-uther-maddrix"
+		},
+		{
+			"kind": "message",
+			"messageId": 2409,
+			"prefix": "Oberon appears before you, smiling warmly",
+			"stepId": "recruit-oberon"
+		},
+		{
+			"kind": "message",
+			"messageId": 2410,
+			"prefix": "(Oberon has joined your party.",
+			"stepId": "recruit-oberon"
+		},
+		{
+			"kind": "message",
+			"messageId": 2560,
+			"prefix": "You find Primus Ankh in this room",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2561,
+			"prefix": "\"Greetings, fools.\"",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2561,
+			"prefix": "\"Greetings, fools.\"",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2562,
+			"prefix": "He then glares at Oberon",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2564,
+			"prefix": "Wordlessly, Primus/Maximus then calmly turns his gaze",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2563,
+			"prefix": "A machine suddenly activates",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2565,
+			"prefix": "Primus then screams",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2566,
+			"prefix": "Your are then face to face with the essence of Maximus.",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2567,
+			"prefix": "A fully recovered Primus snarls",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2568,
+			"prefix": "\"I, along with my personal aides",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2538,
+			"prefix": "Primus then explodes with anger",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2536,
+			"prefix": "\"How could mites like you have succeeded",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2537,
+			"prefix": "At that, the fight is on!",
+			"stepId": "defeat-primus"
+		},
+		{
+			"battleId": 518,
+			"kind": "battle",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2506,
+			"prefix": "\"I must admit,\" Oberon mumbles",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2539,
+			"prefix": "Panting and tired, you set yourself to examine the strange vortex",
+			"stepId": "defeat-primus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2541,
+			"prefix": "The vortex of shimmering flames still swirls wildly",
+			"stepId": "follow-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2542,
+			"prefix": "Knowing that going through the vortex is almost assuredly a one-way trip",
+			"stepId": "follow-maximus"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "follow-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2558,
+			"prefix": "Without any further thought, you jump into the vortex!",
+			"stepId": "follow-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2559,
+			"prefix": "You then feel as if you are floating in a void",
+			"stepId": "follow-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2697,
+			"prefix": "As you approach, you are assaulted by waves of psionic energies!",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"kind": "message",
+			"messageId": 2698,
+			"prefix": "Then out of the castle emerges the essence of a Mentarch!",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"kind": "message",
+			"messageId": 2699,
+			"prefix": "\"So, you are the little worms who have been such trouble",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"kind": "message",
+			"messageId": 2700,
+			"prefix": "She pauses for a moment, then grins maliciously",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"answer": "NO",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"kind": "message",
+			"messageId": 2702,
+			"prefix": "Sappho Nynex goes into a fit.",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"battleId": 308,
+			"kind": "battle",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"kind": "message",
+			"messageId": 2508,
+			"prefix": "A bloodied Oberon sits down",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"kind": "message",
+			"messageId": 2703,
+			"prefix": "You decide to mend your wounds before entering the castle.",
+			"stepId": "defeat-sappho-nynex"
+		},
+		{
+			"kind": "message",
+			"messageId": 2729,
+			"prefix": "A large crystal-like stucture of proto-psionic matter",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2730,
+			"prefix": "As you approach, the facade of this building begins to change shape",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2731,
+			"prefix": "\"I am the Sceptanar, a powerful mage.\"",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 1779,
+			"prefix": "What do you reply?",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "encounter-choice",
+			"labels": [
+				"\"Sorry to bother you, but we're a bit lost and need some help.\"",
+				"\"We demand that you let us in!\"",
+				"\"Give us some loot and we'll leave without killing you!\"",
+				"\"Sorry to bother you. We'll leave right away.\""
+			],
+			"stepId": "accept-sceptanar-bargain",
+			"token": "1"
+		},
+		{
+			"kind": "message",
+			"messageId": 2742,
+			"prefix": "\"I see.\" The Sceptanar replies.",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2743,
+			"prefix": "She smiles at that.",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2744,
+			"prefix": "She then frowns in thought",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2745,
+			"prefix": "\"Good!\" The Sceptanar replies",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2746,
+			"prefix": "\"The Ashaan'ru\"",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2747,
+			"prefix": "attacked by an Ashaan'ru astral vessel",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2748,
+			"prefix": "need for my magical research.",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2749,
+			"prefix": "At that, the facade of the building returns to its original features.",
+			"stepId": "accept-sceptanar-bargain"
+		},
+		{
+			"kind": "message",
+			"messageId": 2706,
+			"prefix": "In contrast to its intricately twisted exteriors",
+			"stepId": "enter-maximus-castle"
+		},
+		{
+			"kind": "message",
+			"messageId": 2707,
+			"prefix": "its ceiling seemingly reaching as high as you can see.",
+			"stepId": "enter-maximus-castle"
+		},
+		{
+			"kind": "message",
+			"messageId": 2708,
+			"prefix": "\"Welcome to my abode.\"",
+			"stepId": "enter-maximus-castle"
+		},
+		{
+			"kind": "message",
+			"messageId": 2709,
+			"prefix": "Steeling your nerves, you move on forward.",
+			"stepId": "enter-maximus-castle"
+		},
+		{
+			"kind": "message",
+			"messageId": 2710,
+			"prefix": "As you near the Mind Lords",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2711,
+			"prefix": "free of the need for a corporeal body",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2712,
+			"prefix": "contacted me, after finding Lankh'Nar",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2713,
+			"prefix": "long as we remain here.",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2714,
+			"prefix": "\"This is where you err, Maximus!\"",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2715,
+			"prefix": "superiority, will finally learn the truth",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2716,
+			"prefix": "\"These names are not to be mentioned in my presence!",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2717,
+			"prefix": "created you, using lankharhan tissues and bodies!",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2718,
+			"prefix": "to be *lankharhans* first",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2719,
+			"prefix": "\"Be that as it may,\"",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2720,
+			"prefix": "possessed of great power.",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2721,
+			"prefix": "You then realize that the mad Hierarch is talking about the Sceptanar!",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2722,
+			"prefix": "Maximus continues in earnest",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2723,
+			"prefix": "\"Now it is their turn!\"",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"battleId": 530,
+			"kind": "battle",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2724,
+			"prefix": "Maximus bellows with laughter.",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2804,
+			"prefix": "Maximus then unleashes a psionic attack",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2725,
+			"prefix": "\"From now on, only I alone will rule the world",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"battleId": 531,
+			"kind": "battle",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2508,
+			"prefix": "A bloodied Oberon sits down",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2726,
+			"prefix": "As you rejoice at having finally defeated Maximus",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2727,
+			"prefix": "The only burning question nagging at you",
+			"stepId": "defeat-xenon-maximus"
+		},
+		{
+			"kind": "message",
+			"messageId": 2774,
+			"prefix": "This is the breeding chamber of the Ashaan'ru Queen.",
+			"stepId": "defeat-ashaanru-queen"
+		},
+		{
+			"battleId": 536,
+			"kind": "battle",
+			"stepId": "defeat-ashaanru-queen"
+		},
+		{
+			"kind": "message",
+			"messageId": 2775,
+			"prefix": "This room is damp, the floor covered with some sort of green mucus-like goo.",
+			"stepId": "defeat-ashaanru-queen"
+		},
+		{
+			"kind": "message",
+			"messageId": 2776,
+			"prefix": "writhing as they eat away at the goo.",
+			"stepId": "defeat-ashaanru-queen"
+		},
+		{
+			"kind": "message",
+			"messageId": 2778,
+			"prefix": "The ashaan'ru Queen's hoard is now yours!",
+			"stepId": "claim-serpent-head"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				712,
+				989,
+				908,
+				981,
+				982,
+				983,
+				629,
+				625,
+				411,
+				254,
+				50,
+				711
+			],
+			"kind": "treasure",
+			"stepId": "claim-serpent-head",
+			"treasureId": 151
+		},
+		{
+			"kind": "message",
+			"messageId": 2752,
+			"prefix": "You proudly announce to the Sceptanar",
+			"stepId": "receive-way-home"
+		},
+		{
+			"kind": "message",
+			"messageId": 2754,
+			"prefix": "\"Have you the serpent's head?\"",
+			"stepId": "receive-way-home"
+		},
+		{
+			"kind": "message",
+			"messageId": 2756,
+			"prefix": "created it - interestingly enough",
+			"stepId": "receive-way-home"
+		},
+		{
+			"kind": "message",
+			"messageId": 2755,
+			"prefix": "of your trek in the Astral Plane.",
+			"stepId": "receive-way-home"
+		},
+		{
+			"kind": "message",
+			"messageId": 2760,
+			"prefix": "Without further due, the facade of the building returns to its original features.",
+			"stepId": "receive-way-home"
+		},
+		{
+			"kind": "message",
+			"messageId": 2575,
+			"prefix": "This strange diagram etched permanently into the psionic matter",
+			"stepId": "speak-way-home"
+		},
+		{
+			"kind": "message",
+			"messageId": 2,
+			"prefix": "What is it you would like to do?",
+			"stepId": "speak-way-home"
+		},
+		{
+			"kind": "encounter-word",
+			"labels": [
+				"Pray to the Gods",
+				"Mumble with frustration",
+				"Twiddle your thumbs",
+				"Whistle a tune",
+				"Yawn with boredom",
+				"Dance the jig",
+				"Speak",
+				"Cast a spell",
+				"Use an item"
+			],
+			"stepId": "speak-way-home",
+			"text": "ethro astranox"
+		},
+		{
+			"kind": "message",
+			"messageId": 2576,
+			"prefix": "You are suddenly enveloped in a shroud of psionic energies!",
+			"stepId": "speak-way-home"
+		},
+		{
+			"encounterId": 83,
+			"kind": "complex-word",
+			"result": 1,
+			"spokenText": "ethro astranox",
+			"stepId": "speak-way-home"
+		},
+		{
+			"kind": "message",
+			"messageId": 2577,
+			"prefix": "You and your comrades celebrate with joy and great relief",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2578,
+			"prefix": "\"Praise be Quanthaas! We've done it!\"",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2579,
+			"prefix": "He laughs with excitement.",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2580,
+			"prefix": "He then sighs.",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2581,
+			"prefix": "we shall meet again!",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2600,
+			"prefix": "As the merriment begins to die down",
+			"stepId": "complete-wrath"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "complete-wrath"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "complete-wrath"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "complete-wrath"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "complete-wrath"
+		},
+		{
+			"amount": 20000,
+			"kind": "experience",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2806,
+			"prefix": "At this thought, you can't help but marvel",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2807,
+			"prefix": "You think fondly of those people you have met",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2810,
+			"prefix": "This in turn brings back fully the memories of the Great War",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2811,
+			"prefix": "have been averted without the help of the Gods themselves?",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2812,
+			"prefix": "How you wish Naryl would be alive still",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2808,
+			"prefix": "But despite all the odds",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2809,
+			"prefix": "Truly, you have accomplished the seemingly impossible!",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2555,
+			"prefix": "Who knows now, what mysteries will you uncover",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2601,
+			"prefix": "(Congratulations! You have completed the main story-arc of Wrath of the Mind Lords!",
+			"stepId": "complete-wrath"
+		},
+		{
+			"kind": "message",
+			"messageId": 2557,
+			"prefix": "(Thank you again for registering the scenario.",
+			"stepId": "complete-wrath"
+		}
+	],
+	"randomSeed": 438,
+	"routeId": "wrath-of-the-mind-lords-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Midnight",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "wrath-opening-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recover-true-memories-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-uther-maddrix-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recruit-oberon-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-primus-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "follow-maximus-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-sappho-nynex-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "accept-sceptanar-bargain-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "enter-maximus-castle-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-xenon-maximus-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-ashaanru-queen-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "claim-serpent-head-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "receive-way-home-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "speak-way-home-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "complete-wrath-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed Start hook records both prior Sword Lands adventures and moves the party into the authored alternate timeline",
+			"id": "wrath-opening",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed continuity scene restores the heroes' original identities and equipment before Oberon explains Maximus's altered timeline",
+			"id": "recover-true-memories",
+			"status": "passed"
+		},
+		{
+			"detail": "Primus frees Uther Maddrix and escapes with the other mystic orbs; Battle 308 materializes the Mind Lord before victory restores the original timeline and sets quest 14",
+			"id": "defeat-uther-maddrix",
+			"status": "passed"
+		},
+		{
+			"detail": "The portal keys bring Oberon into the installed party as ally 245 for the final pursuit of Primus and Maximus",
+			"id": "recruit-oberon",
+			"status": "passed"
+		},
+		{
+			"detail": "Maximus abandons Primus and the three rescued essences through the vortex; Battle 518 defeats Primus and his full psionic guard and leaves the Astral pursuit open",
+			"id": "defeat-primus",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed main-story choice rejects the early ending, sets quest 7, and carries the party through the one-way vortex into the Astral Plane",
+			"id": "follow-maximus",
+			"status": "passed"
+		},
+		{
+			"detail": "The party refuses Sappho Nynex's demand for worship, defeats her authored Battle 308 incarnation, and advances to Maximus's castle",
+			"id": "defeat-sappho-nynex",
+			"status": "passed"
+		},
+		{
+			"detail": "Quest 73 records the Sceptanar encounter, and the polite installed-dialogue branch accepts her Ashaan'ru bargain for a source-authored way home",
+			"id": "accept-sceptanar-bargain",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed castle hall presents Maximus and his two remaining siblings before the final confrontation",
+			"id": "enter-maximus-castle",
+			"status": "passed"
+		},
+		{
+			"detail": "Oberon confronts the Hierarch, Battles 530 and 531 destroy Nuul Zarrakian, Azure Malachys, and Xenon Maximus, and quest 72 records the completed Astral hunt",
+			"id": "defeat-xenon-maximus",
+			"status": "passed"
+		},
+		{
+			"detail": "Battle 536 materializes the Queen and her full brood, then the installed room aftermath exposes her treasure-bed and sets quest 71",
+			"id": "defeat-ashaanru-queen",
+			"status": "passed"
+		},
+		{
+			"detail": "The native treasure screen presents the full authored Queen's hoard while the route takes only scenario item 712, the serpent head required for passage home",
+			"id": "claim-serpent-head",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed item branch consumes scenario item 712, sets quest 74, and identifies the exact ethro astranox diagram that returns the party home",
+			"id": "receive-way-home",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed spoken-word encounter accepts the source phrase, closes quest 7, sets quest 6, and teleports the party back to Lhari Orin",
+			"id": "speak-way-home",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed return removes Oberon, preserves both prior-trilogy flags, and presents the explicit registered-scenario completion for Wrath of the Mind Lords",
+			"id": "complete-wrath",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed",
+	"triggerPercentageChecks": []
+}
