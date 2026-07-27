@@ -605,9 +605,10 @@ func resolve_dungeon_movement(
 
 func resolve_land_movement(
 	runtime_state: Object,
-	_from_position: Vector2i,
+	from_position: Vector2i,
 	to_position: Vector2i,
-	game_global: Object
+	game_global: Object,
+	resources: Object = null
 ) -> Dictionary:
 	if runtime_state == null or str(runtime_state.get("level_type")) != "land":
 		return {"handled": false}
@@ -628,12 +629,23 @@ func resolve_land_movement(
 		or width <= 0
 		or height <= 0
 		or tiles.size() != width * height
-		or to_position.x < 0
+	):
+		return _movement_error("Classic land map %s has invalid tile data" % map_name)
+	if (
+		to_position.x < 0
 		or to_position.y < 0
 		or to_position.x >= width
 		or to_position.y >= height
 	):
-		return _movement_error("Classic land movement is outside map %s" % map_name)
+		return _resolve_land_edge_transition(
+			runtime_state,
+			level_index,
+			from_position,
+			to_position,
+			Vector2i(width, height),
+			game_global,
+			resources
+		)
 
 	var tile_index := _classic_map_tile_index(
 		"land",
@@ -674,7 +686,8 @@ func resolve_movement(
 			runtime_state,
 			from_position,
 			to_position,
-			game_global
+			game_global,
+			resources
 		)
 	return resolve_dungeon_movement(
 		runtime_state,
@@ -683,6 +696,124 @@ func resolve_movement(
 		game_global,
 		resources
 	)
+
+
+func _resolve_land_edge_transition(
+	runtime_state: Object,
+	level_index: int,
+	from_position: Vector2i,
+	to_position: Vector2i,
+	map_size: Vector2i,
+	game_global: Object,
+	resources: Object
+) -> Dictionary:
+	if not classic_bundle.has_method("get_land_layout"):
+		return _blocked_land_edge()
+	var layout: Variant = classic_bundle.call("get_land_layout")
+	if not (layout is Dictionary):
+		return _blocked_land_edge()
+	var columns := int(layout.get("cols", 0))
+	var rows := int(layout.get("rows", 0))
+	var cells: Variant = layout.get("cells", [])
+	if (
+		not (cells is Array)
+		or columns <= 0
+		or rows <= 0
+		or cells.size() != columns * rows
+	):
+		return _blocked_land_edge()
+
+	var layout_level := -1 if level_index == 0 else level_index
+	var current_cell := Vector2i(-1, -1)
+	for cell_index: int in range(cells.size()):
+		if int(cells[cell_index]) == layout_level:
+			current_cell = Vector2i(cell_index % columns, int(cell_index / columns))
+			break
+	if current_cell.x < 0:
+		return _blocked_land_edge()
+
+	var layout_delta := Vector2i.ZERO
+	if to_position.x < 0 and from_position.x == 0:
+		layout_delta.x = -1
+	elif to_position.x >= map_size.x and from_position.x == map_size.x - 1:
+		layout_delta.x = 1
+	if to_position.y < 0 and from_position.y == 0:
+		layout_delta.y = -1
+	elif to_position.y >= map_size.y and from_position.y == map_size.y - 1:
+		layout_delta.y = 1
+	if layout_delta == Vector2i.ZERO:
+		return _blocked_land_edge()
+
+	var destination_cell := current_cell + layout_delta
+	if (
+		destination_cell.x < 0
+		or destination_cell.y < 0
+		or destination_cell.x >= columns
+		or destination_cell.y >= rows
+	):
+		return _blocked_land_edge()
+	var destination_layout_level := int(
+		cells[destination_cell.y * columns + destination_cell.x]
+	)
+	if destination_layout_level == 0 or destination_layout_level == layout_level:
+		return _blocked_land_edge()
+	var destination_level := 0 if destination_layout_level == -1 else destination_layout_level
+	var destination_map: Variant = classic_bundle.get_map("land:%d" % destination_level)
+	if not (destination_map is Dictionary):
+		return _movement_error(
+			"Classic land layout references unavailable map %d" % destination_level
+		)
+	var destination_size := Vector2i(
+		int(destination_map.get("width", 0)),
+		int(destination_map.get("height", 0))
+	)
+	if destination_size.x <= 0 or destination_size.y <= 0:
+		return _movement_error(
+			"Classic land layout destination %d has invalid dimensions" % destination_level
+		)
+	var destination_position := Vector2i(
+		destination_size.x - 1 if to_position.x < 0 else (
+			0 if to_position.x >= map_size.x else clampi(to_position.x, 0, destination_size.x - 1)
+		),
+		destination_size.y - 1 if to_position.y < 0 else (
+			0 if to_position.y >= map_size.y else clampi(to_position.y, 0, destination_size.y - 1)
+		)
+	)
+	var transition_result := transition({
+		"levelType": "land",
+		"levelIndex": destination_level,
+		"x": destination_position.x,
+		"y": destination_position.y,
+	}, game_global, resources)
+	if str(transition_result.get("status", "")) == "error":
+		return _movement_error(str(transition_result.get(
+			"message",
+			"Classic land edge transition failed"
+		)))
+	runtime_state.call(
+		"set_location",
+		"land",
+		destination_level,
+		destination_position.x,
+		destination_position.y
+	)
+	return {
+		"handled": true,
+		"allowed": true,
+		"transitioned": true,
+		"levelIndex": destination_level,
+		"position": destination_position,
+		"layoutCell": destination_cell,
+		"transition": transition_result,
+	}
+
+
+func _blocked_land_edge() -> Dictionary:
+	return {
+		"handled": true,
+		"allowed": false,
+		"blockedByLayout": true,
+	}
 
 
 func set_darkness(payload: Dictionary, game_global: Object, resources: Object) -> Dictionary:

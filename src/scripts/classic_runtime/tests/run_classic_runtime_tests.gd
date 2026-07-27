@@ -14971,6 +14971,17 @@ func _test_classic_map_bridge() -> void:
 			"tilesets": [{"id": "landlook-6", "landlook": 6}],
 		},
 	}
+	bundle.documents["maps"] = {
+		"landLayout": {
+			"cols": 3,
+			"rows": 3,
+			"cells": [
+				2, 0, 0,
+				0, -1, 0,
+				0, 0, 0,
+			],
+		},
+	}
 	bundle.maps_by_id["land:0"] = {
 		"id": "land:0",
 		"levelType": "land",
@@ -14978,6 +14989,14 @@ func _test_classic_map_bridge() -> void:
 		"width": 2,
 		"height": 2,
 		"tiles": [1, 2, 3003, 4],
+	}
+	bundle.maps_by_id["land:2"] = {
+		"id": "land:2",
+		"levelType": "land",
+		"index": 2,
+		"width": 2,
+		"height": 2,
+		"tiles": [1, 1, 1, 1],
 	}
 	bundle.maps_by_id["dungeon:1"] = {
 		"id": "dungeon:1",
@@ -15104,6 +15123,17 @@ func _test_classic_map_bridge() -> void:
 		false,
 		[],
 	]
+	resources.maps_book["map_2"] = [
+		land_map.duplicate(true),
+		{"ScriptRects": {}, "Paths": [], "Secrets": []},
+		null,
+		"Outdoor",
+		"Forest",
+		true,
+		7,
+		false,
+		[],
+	]
 	resources.maps_book["mapd_1"] = [
 		[
 			[[dungeon_floor], [east_secret]],
@@ -15189,6 +15219,103 @@ func _test_classic_map_bridge() -> void:
 	_expect(
 		not bool(hidden_land_secret_entry.get("handled")),
 		"hidden land secret leaves collision to its underlying native tile"
+	)
+	var edge_game_global = MapBridgeTestGameGlobal.new()
+	var edge_state = StateScript.new()
+	edge_state.set_location("land", 0, 0, 0)
+	var northwest_transition: Dictionary = bridge.resolve_land_movement(
+		edge_state,
+		Vector2i(0, 0),
+		Vector2i(-1, -1),
+		edge_game_global,
+		resources
+	)
+	_expect(bool(northwest_transition.get("handled")), "land layout owns edge movement")
+	_expect(bool(northwest_transition.get("allowed")), "land layout admits an adjacent map")
+	_expect(bool(northwest_transition.get("transitioned")), "land edge movement changes maps")
+	_expect_equal(
+		northwest_transition.get("levelIndex"),
+		2,
+		"diagonal land edge movement resolves the authored layout cell"
+	)
+	_expect_equal(
+		northwest_transition.get("position"),
+		Vector2i(1, 1),
+		"northwest land transition wraps to the opposite destination corner"
+	)
+	_expect_equal(edge_state.level_index, 2, "land edge transition updates runtime map state")
+	_expect_equal(
+		edge_game_global.transitions,
+		[["map_2", 1, 1]],
+		"land edge transition loads the adjacent native map"
+	)
+	var southeast_transition: Dictionary = bridge.resolve_land_movement(
+		edge_state,
+		Vector2i(1, 1),
+		Vector2i(2, 2),
+		edge_game_global,
+		resources
+	)
+	_expect_equal(
+		southeast_transition.get("levelIndex"),
+		0,
+		"layout sentinel -1 resolves back to Classic land zero"
+	)
+	_expect_equal(
+		southeast_transition.get("position"),
+		Vector2i.ZERO,
+		"southeast land transition wraps to the opposite destination corner"
+	)
+	var blocked_north: Dictionary = bridge.resolve_land_movement(
+		edge_state,
+		Vector2i(0, 0),
+		Vector2i(0, -1),
+		edge_game_global,
+		resources
+	)
+	_expect(bool(blocked_north.get("blockedByLayout")), "empty layout cells block land exits")
+	var mithril_bundle = BundleScript.new()
+	_expect(
+		mithril_bundle.load_from_directory(
+			"res://Campaigns/Mithril Vault (Classic)"
+		),
+		"Mithril Vault bundle loads for land-layout regression"
+	)
+	var mithril_bridge = MapBridgeScript.new()
+	mithril_bridge.configure(mithril_bundle)
+	var mithril_game_global = MapBridgeTestGameGlobal.new()
+	var mithril_state = StateScript.new()
+	mithril_state.set_location("land", 0, 0, 0)
+	var mithril_west_transition: Dictionary = mithril_bridge.resolve_land_movement(
+		mithril_state,
+		Vector2i(0, 0),
+		Vector2i(-1, 0),
+		mithril_game_global,
+		resources
+	)
+	_expect_equal(
+		mithril_west_transition.get("levelIndex"),
+		2,
+		"Mithril land zero exits west into its source-authored neighbor"
+	)
+	_expect_equal(
+		mithril_west_transition.get("position"),
+		Vector2i(89, 0),
+		"Mithril west exit wraps to the opposite 90-column edge"
+	)
+	var mithril_northwest_game_global = MapBridgeTestGameGlobal.new()
+	var mithril_northwest_state = StateScript.new()
+	mithril_northwest_state.set_location("land", 0, 0, 0)
+	var mithril_northwest_exit: Dictionary = mithril_bridge.resolve_land_movement(
+		mithril_northwest_state,
+		Vector2i(0, 0),
+		Vector2i(-1, -1),
+		mithril_northwest_game_global,
+		resources
+	)
+	_expect(
+		bool(mithril_northwest_exit.get("blockedByLayout")),
+		"Mithril land zero preserves its empty northwest layout cell"
 	)
 	var redraws_before_transition: int = int(game_global.map.redraw_count)
 	var same_map: Dictionary = bridge.transition({

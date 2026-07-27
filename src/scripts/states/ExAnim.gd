@@ -53,9 +53,31 @@ func enter(_msg : Dictionary = {}) -> void:
 		var mapfocuschar = GameGlobal.map.focuscharacter
 		var playerposx : int = mapfocuschar.tile_position_x
 		var playerposy : int = mapfocuschar.tile_position_y
-		var tilestack : Array = GameGlobal.map.mapdata[playerposx+input.x][playerposy+input.y]
-#		print(tilestack)
 		var attemptedpos : Vector2 = Vector2(playerposx+input.x, playerposy+input.y)
+		var attempted_tile := Vector2i(attemptedpos)
+		var map_width: int = GameGlobal.map.mapdata.size()
+		var map_height: int = GameGlobal.map.mapdata[0].size() if map_width > 0 else 0
+		if (
+			attempted_tile.x < 0
+			or attempted_tile.y < 0
+			or attempted_tile.x >= map_width
+			or attempted_tile.y >= map_height
+		):
+			var edge_movement := GameGlobal.resolve_classic_map_movement(
+				Vector2i(playerposx, playerposy),
+				attempted_tile
+			)
+			if str(edge_movement.get("status", "")) == "error":
+				push_error(str(edge_movement.get(
+					"message",
+					"Classic land edge transition failed"
+				)))
+			if bool(edge_movement.get("handled", false)):
+				continue
+			# Native campaigns do not define cross-map adjacency here.
+			continue
+		var tilestack : Array = GameGlobal.map.mapdata[attempted_tile.x][attempted_tile.y]
+#		print(tilestack)
 		var canmoveandtime : Array = await StateMachine.exploration_state.on_trying_to_move_to_tile_stack(null,tilestack, attemptedpos )
 	
 		if canmoveandtime[0] :

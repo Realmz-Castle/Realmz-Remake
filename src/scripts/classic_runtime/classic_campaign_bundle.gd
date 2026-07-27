@@ -933,6 +933,14 @@ func get_map(map_id: String) -> Dictionary:
 	return maps_by_id.get(map_id, {})
 
 
+func get_land_layout() -> Dictionary:
+	var maps_document: Variant = documents.get("maps", {})
+	if not (maps_document is Dictionary):
+		return {}
+	var layout: Variant = maps_document.get("landLayout", {})
+	return layout if layout is Dictionary else {}
+
+
 func get_map_tile(
 	level_type: String,
 	level_index: int,
