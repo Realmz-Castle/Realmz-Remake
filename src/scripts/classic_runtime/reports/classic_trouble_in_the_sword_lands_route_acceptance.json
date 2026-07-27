@@ -1,0 +1,640 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 1,
+			"y": 1
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 1,
+			"y": 1
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 2,
+				"displayName": "Overlord",
+				"monsterId": 236
+			},
+			{
+				"count": 1,
+				"displayName": "Overlord Arla Qui",
+				"monsterId": 237
+			}
+		],
+		"id": 349,
+		"rewardScreenPresented": true
+	},
+	"campaignDirectory": "Trouble in the Sword Lands (Classic)",
+	"campaignId": "scenario-trouble-in-the-sword-lands",
+	"campaignName": "Trouble in the Sword Lands (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			203,
+			349
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			14820,
+			14826,
+			15312,
+			15314,
+			15315,
+			15319,
+			15327,
+			15328,
+			15351,
+			15352,
+			15675,
+			15994
+		],
+		"monsterIds": [
+			236,
+			237
+		],
+		"runtime": {
+			"absentItemIds": [
+				944
+			],
+			"battleIds": [
+				349
+			],
+			"itemIds": [],
+			"position": {
+				"levelIndex": 3,
+				"levelType": "dungeon",
+				"x": 87,
+				"y": 81
+			},
+			"questFlags": [
+				6
+			],
+			"stepIds": [
+				"sword-lands-opening",
+				"recruit-naryl",
+				"recover-kith-talisman",
+				"activate-kith-talisman",
+				"overlord-confrontation",
+				"main-plot-epilogue"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": []
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data DD:0:0",
+			"Data ED3:macro:1",
+			"Data ED3:macro:251",
+			"Data ED3:macro:2019",
+			"Data ED3:macro:2021",
+			"Data DDD:3:49",
+			"Data ED3:macro:2055",
+			"Data ED3:macro:2064",
+			"Data ED3:macro:2057",
+			"Data DDD:3:51",
+			"Data ED3:macro:2074"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 2,
+			"prefix": "After weeks of travel in the treacherous Khanark Rockies",
+			"stepId": "sword-lands-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 3,
+			"prefix": "Add to that the fact that nearly all undesirables and criminals",
+			"stepId": "sword-lands-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 4,
+			"prefix": "these lands are known as the Sword Lands!",
+			"stepId": "sword-lands-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 2721,
+			"prefix": "between Bywater and this region",
+			"stepId": "sword-lands-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 9,
+			"prefix": "Unfurling a map which you purchased at great cost weeks ago",
+			"stepId": "sword-lands-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 6,
+			"prefix": "(And remember: use the arrow keys",
+			"stepId": "sword-lands-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 458,
+			"prefix": "You find a swordswoman prisoner here.",
+			"stepId": "recruit-naryl"
+		},
+		{
+			"kind": "message",
+			"messageId": 459,
+			"prefix": "caught and thrown in here to rot.",
+			"stepId": "recruit-naryl"
+		},
+		{
+			"kind": "message",
+			"messageId": 460,
+			"prefix": "Do you take this swordswoman into your group?",
+			"stepId": "recruit-naryl"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "recruit-naryl"
+		},
+		{
+			"kind": "message",
+			"messageId": 466,
+			"prefix": "Naryl Dragonstone has been added to your party.",
+			"stepId": "recruit-naryl"
+		},
+		{
+			"kind": "message",
+			"messageId": 462,
+			"prefix": "The swordswoman smiles warmly",
+			"stepId": "recruit-naryl"
+		},
+		{
+			"kind": "message",
+			"messageId": 463,
+			"prefix": "responsible.  I aim to find them and rid the Sword Lands",
+			"stepId": "recruit-naryl"
+		},
+		{
+			"kind": "message",
+			"messageId": 2977,
+			"prefix": "Naryl stops at this column.",
+			"stepId": "recover-kith-talisman"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "recover-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2978,
+			"prefix": "Your search reveals a secret compartment.",
+			"stepId": "recover-kith-talisman"
+		},
+		{
+			"experience": 1000,
+			"itemIds": [
+				944
+			],
+			"kind": "treasure",
+			"stepId": "recover-kith-talisman",
+			"treasureId": 182
+		},
+		{
+			"kind": "message",
+			"messageId": 2979,
+			"prefix": "\"You should activate it now",
+			"stepId": "recover-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2985,
+			"prefix": "The light from the talisman flows out",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2986,
+			"prefix": "KERYNDOR",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2987,
+			"prefix": "you for help.",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2988,
+			"prefix": "energies of the essence.",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2989,
+			"prefix": "Before you can react, Naryl screams",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2990,
+			"prefix": "from her eyes.",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2991,
+			"prefix": "mental assault on the renegades",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2992,
+			"prefix": "She sighs.",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2993,
+			"prefix": "A bit confused by all this",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 2994,
+			"prefix": "Naryl Thezzat has joined your party.",
+			"stepId": "activate-kith-talisman"
+		},
+		{
+			"kind": "message",
+			"messageId": 3031,
+			"prefix": "In this luxurious room, you see the Lady Overlord",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3032,
+			"prefix": "\"As you see",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3033,
+			"prefix": "\"This is Commander Berl Vezzir",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3042,
+			"prefix": "Naryl then steps forward",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3043,
+			"prefix": "\"Great One!",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3044,
+			"prefix": "Naryl shakes her head in disgust",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3045,
+			"prefix": "Naryl sighs",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3046,
+			"prefix": "to help me maintain my sanity",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3047,
+			"prefix": "your own failings.",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3048,
+			"prefix": "Once the dust settles",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3049,
+			"prefix": "to my body",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3050,
+			"prefix": "would have done!",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"battleId": 349,
+			"kind": "battle",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3041,
+			"prefix": "You decide to search the place.",
+			"stepId": "overlord-confrontation"
+		},
+		{
+			"kind": "message",
+			"messageId": 3056,
+			"prefix": "You have difficulty making out the details of this man",
+			"stepId": "main-plot-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 3057,
+			"prefix": "\"So, my fellow council members have met their demise",
+			"stepId": "main-plot-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 3058,
+			"prefix": "and there is nothing you can do about it.",
+			"stepId": "main-plot-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 3059,
+			"prefix": "Congratulations for completing the main plot of Trouble in the Sword Lands!",
+			"stepId": "main-plot-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 3060,
+			"prefix": "We hope you had fun with Trouble in the Sword Lands",
+			"stepId": "main-plot-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 3061,
+			"prefix": "CREDITS: Pierre H. Vachon",
+			"stepId": "main-plot-epilogue"
+		},
+		{
+			"amount": 10000,
+			"kind": "experience",
+			"stepId": "main-plot-epilogue"
+		}
+	],
+	"routeId": "trouble-in-the-sword-lands-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20003,
+			"nativeName": "intro.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "sword-lands-opening",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -203,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-203-2d266a6b75ac.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "sword-lands-opening",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 86,
+			"nativeName": "walk woods.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "sword-lands-opening",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -3000,
+			"nativeName": "gong.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "sword-lands-opening",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -646,
+			"nativeName": "female hya.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "recruit-naryl",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -646,
+			"nativeName": "female hya.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "recover-kith-talisman",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10129,
+			"nativeName": "cool click.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "recover-kith-talisman",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 699,
+			"nativeName": "wind.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "activate-kith-talisman",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -10141,
+			"nativeName": "woman scream.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "activate-kith-talisman",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20005,
+			"nativeName": "song.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "overlord-confrontation",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 642,
+			"nativeName": "big explode.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "overlord-confrontation",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 647,
+			"nativeName": "special stats heal.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "main-plot-epilogue",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -1103,
+			"nativeName": "talk 3.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "main-plot-epilogue",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -10107,
+			"nativeName": "glass.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "main-plot-epilogue",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 3002,
+			"nativeName": "level up.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "main-plot-epilogue",
+			"waitForCompletion": false
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "sword-lands-opening-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recruit-naryl-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recover-kith-talisman-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "activate-kith-talisman-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "overlord-confrontation-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "main-plot-epilogue-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed opening presents the scenario picture and Bywater's mandate to investigate the disruption of Sword Lands trade",
+			"id": "sword-lands-opening",
+			"status": "passed"
+		},
+		{
+			"detail": "The freed prisoner identifies herself as Naryl Dragonstone and joins the party's investigation of the regional conspiracy",
+			"id": "recruit-naryl",
+			"status": "passed"
+		},
+		{
+			"detail": "Naryl locates Kith Khanaan's hidden talisman and Treasure 182 supplies the exact scenario item",
+			"id": "recover-kith-talisman",
+			"status": "passed"
+		},
+		{
+			"detail": "Kith Khanaan's essence enters Naryl, consumes item 944, and replaces Naryl Dragonstone with Naryl Thezzat",
+			"id": "activate-kith-talisman",
+			"status": "passed"
+		},
+		{
+			"detail": "Kith's intervention reduces the final confrontation to the three Overlords in Battle 349 and the victory continuation opens their headquarters",
+			"id": "overlord-confrontation",
+			"status": "passed"
+		},
+		{
+			"detail": "The surviving Inner Council warns of the coming war before the installed scenario presents its explicit main-plot completion, sequel notice, credits, and 10,000-experience award",
+			"id": "main-plot-epilogue",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed",
+	"triggerPercentageChecks": []
+}

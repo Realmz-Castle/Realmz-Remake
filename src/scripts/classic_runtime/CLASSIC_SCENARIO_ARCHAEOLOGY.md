@@ -505,3 +505,102 @@ Each claim should stay within its evidence:
   `Data ED3:macro:76`, `235`, `248`, `250`, `254` through `259`, `270`, `286`,
   and `287`; Battles 84 through 88; items 884 through 886 and 888; Extra Codes
   485 through 494, 547 through 550, 589, and 592.
+
+## Trouble in the Sword Lands
+
+### Main completion chain
+
+- **Runtime-proven:** `Data DD:0:0` at land map 0 `(3, 3)` presents PICT
+  32128. The King of Bywater has sent the party to discover who or what is
+  disrupting trade with the Sword Lands. Macros 1 and 138 complete the
+  introduction and set quest 6.
+- **Runtime-proven:** Macro 251 frees a swordswoman prisoner. Accepting her
+  offer runs macro 252, identifies her as Naryl Dragonstone, and adds monster
+  161 as an ally.
+- **Runtime-proven:** Macro 2019 finds a secret compartment in Kith Khanaan's
+  tomb. Treasure 182 supplies Kith's Talisman (item 944) and 1,000 experience.
+- **Runtime-proven:** Macro 2021 manifests Kith Khanaan's essence. Macros 2025
+  and 2026 remove item 944, replace Naryl Dragonstone with Naryl Thezzat
+  (monster 235), and explain that Kith is using her as a temporary vessel for
+  a surprise mental assault.
+- **Runtime-proven:** `Data DDD:3:49` detects ally 235 and runs macro 2055.
+  Kith denounces the Overlords' attempt to revive the Mind Lords, attacks them
+  psionically, and leaves them weakened. Battle 349 contains two Overlords and
+  Overlord Arla Qui.
+- **Runtime-proven:** The Battle 349 victory continuation restores Naryl
+  Dragonstone, removes the hostile headquarters state, and opens the rooms
+  beyond for searching.
+- **Runtime-proven:** `Data DDD:3:51` presents PICT 30124. A surviving member
+  of the Inner Council says the second phase is already underway and War will
+  come to the Sword Lands. Macro 2074 then presents messages 3059 through
+  3061, explicitly declares the main plot complete, points to War in the Sword
+  Lands as part two, shows the credits, and awards 10,000 experience.
+
+### Three-crisis lead-in
+
+- **Source-proven:** Lord Paladine's audience macros 424 through 426 identify
+  three regional crises: goblin attacks on caravans from Hark Wood, marauders
+  connected to Dagger Keep and Doran Ghall, and pirates based in the southern
+  archipelago.
+- The audience has variants for parties that solved one or two crises before
+  reporting to Tanirith. Messages 763 through 771 acknowledge completed work
+  and narrow the remaining assignment rather than treating those events as
+  unrelated sidelines.
+- The final headquarters table ties the earlier collaborators together through
+  letters and military maps. The installed checkpoint jumps over the manual
+  crisis routes, so their encounters and reward chains remain source-proven.
+
+### Kith path and alternate confrontation
+
+- Kith's Talisman is item 944. Its scenario item record points to macro 2021,
+  and macro 2025 removes the item after Kith enters Naryl. The route obtains
+  the item and invokes that target directly; it does not certify a general
+  inventory-use control.
+- **Source-proven:** Without ally 235, macro 2056 lets the party accept or
+  reject General Qui's offer to serve the New Order. Acceptance puts the party
+  under the Overlords' control. Refusal runs macro 2057 and Battle 203.
+- **Source-proven:** Battle 203 starts with 46 enemies, including 6 Mind-Mages,
+  18 Psi-warriors, 13 Psi-stalkers, two ordinary Overlords, General Arla Qui,
+  and six other spellcasters. Its battle macro 2059 can run macro 2060 to add
+  more warriors.
+- Battle 349 is the Kith-weakened alternative and contains only the three
+  Overlords. This is the formation exercised by the installed route.
+- **Source-proven:** Monsters 236 and 237 both use death macro 1570. The route
+  forces native victory after checking the complete initial formation, so it
+  does not individually exercise those death hooks.
+
+### Walkthrough and hint facts
+
+- Naryl Dragonstone must be present when the talisman is found for the full
+  story context. Kith's possession changes her ally identity from 161 to 235;
+  the final room checks for 235 specifically.
+- Kith says the historical Mind Lords inevitably became mad or evil because
+  their minds could not safely hold their power. He views the modern
+  Overlords' belief in psionic superiority as a repetition of that failure.
+- The final globe is a separate interaction after the Overlord battle. It
+  supplies the warning that the Sword Lands have only a few months of reprieve
+  and then presents the explicit completion text.
+- The opening's signed sound `-203` is the scenario-owned Bird recording.
+  The other selected route sounds resolve to stock intro, forest walk, gong,
+  female battle cry, wind, scream, song, explosion, speech, glass, healing,
+  and level-up mappings.
+
+### Optional-content boundary
+
+- Message 3059 explicitly distinguishes completion of the main plot from the
+  many smaller adventures and treasures still available. Those remaining
+  quests are optional by the scenario's own wording.
+- The dedicated route proves the installed Kith-assisted completion behavior,
+  not manual travel across all twenty land maps, every crisis encounter, the
+  unassisted final army, or every optional adventure.
+
+### Evidence
+
+- Route: `playtest/routes/trouble_in_the_sword_lands.json`
+- Installed report:
+  `reports/classic_trouble_in_the_sword_lands_route_acceptance.json`
+- Imported source records: `Data DD:0:0`, `Data DDD:3:49`,
+  `Data DDD:3:51`, `Data ED3:macro:1`, `138`, `251`, `252`, `424` through
+  `426`, `2019` through `2021`, `2025`, `2026`, `2055` through `2066`, and
+  `2074`; Battles 203 and 349; Treasure 182; item 944; monsters 161, 235, 236,
+  and 237.

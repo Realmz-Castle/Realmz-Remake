@@ -1,0 +1,739 @@
+{
+  "schemaVersion": 1,
+  "routeId": "trouble-in-the-sword-lands-completion-route",
+  "campaignId": "scenario-trouble-in-the-sword-lands",
+  "campaignDirectory": "Trouble in the Sword Lands (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 1,
+    "y": 1
+  },
+  "steps": [
+    {
+      "id": "sword-lands-opening",
+      "kind": "action-list",
+      "triggerId": "Data DD:0:0",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 3,
+        "y": 3
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 20003},
+        {"slot": 1, "code": 27, "id": 32128},
+        {"slot": 2, "code": 9, "id": -203},
+        {"slot": 3, "code": 9, "id": 86},
+        {"slot": 4, "code": 1, "id": 2},
+        {"slot": 5, "code": 1, "id": 3},
+        {"slot": 6, "code": 39, "id": 1},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 2,
+          "prefix": "After weeks of travel in the treacherous Khanark Rockies",
+          "picture": true
+        },
+        {
+          "kind": "message",
+          "id": 3,
+          "prefix": "Add to that the fact that nearly all undesirables and criminals"
+        },
+        {
+          "kind": "message",
+          "id": 4,
+          "prefix": "these lands are known as the Sword Lands!"
+        },
+        {
+          "kind": "message",
+          "id": 2721,
+          "prefix": "between Bywater and this region"
+        },
+        {
+          "kind": "message",
+          "id": 9,
+          "prefix": "Unfurling a map which you purchased at great cost weeks ago"
+        },
+        {
+          "kind": "message",
+          "id": 6,
+          "prefix": "(And remember: use the arrow keys"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "sounds": [
+        {
+          "id": 20003,
+          "status": "native-mapping",
+          "nativeName": "intro.wav"
+        },
+        {
+          "id": -203,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-203-2d266a6b75ac.wav"
+        },
+        {
+          "id": 86,
+          "status": "native-mapping",
+          "nativeName": "walk woods.wav"
+        },
+        {
+          "id": -3000,
+          "status": "native-mapping",
+          "nativeName": "gong.wav"
+        }
+      ],
+      "detail": "The installed opening presents the scenario picture and Bywater's mandate to investigate the disruption of Sword Lands trade"
+    },
+    {
+      "id": "recruit-naryl",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:251",
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 0,
+        "x": 79,
+        "y": 38
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": -646},
+        {"slot": 1, "code": 1, "id": 458},
+        {"slot": 2, "code": 1, "id": 459},
+        {"slot": 3, "code": 1, "id": -460},
+        {"slot": 4, "code": 3, "id": 15675},
+        {"slot": 5, "code": 39, "id": 252},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 458,
+          "prefix": "You find a swordswoman prisoner here."
+        },
+        {
+          "kind": "message",
+          "id": 459,
+          "prefix": "caught and thrown in here to rot."
+        },
+        {
+          "kind": "message",
+          "id": 460,
+          "prefix": "Do you take this swordswoman into your group?"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 466,
+          "prefix": "Naryl Dragonstone has been added to your party."
+        },
+        {
+          "kind": "message",
+          "id": 462,
+          "prefix": "The swordswoman smiles warmly"
+        },
+        {
+          "kind": "message",
+          "id": 463,
+          "prefix": "responsible.  I aim to find them and rid the Sword Lands"
+        }
+      ],
+      "sounds": [
+        {
+          "id": -646,
+          "status": "native-mapping",
+          "nativeName": "female hya.wav"
+        }
+      ],
+      "detail": "The freed prisoner identifies herself as Naryl Dragonstone and joins the party's investigation of the regional conspiracy"
+    },
+    {
+      "id": "recover-kith-talisman",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:2019",
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 3,
+        "x": 78,
+        "y": 47
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": -646},
+        {"slot": 1, "code": 1, "id": -2977},
+        {"slot": 2, "code": 3, "id": 420},
+        {"slot": 3, "code": 9, "id": 10129},
+        {"slot": 4, "code": 1, "id": 2978},
+        {"slot": 5, "code": 10, "id": 182},
+        {"slot": 6, "code": 39, "id": 2020},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 2977,
+          "prefix": "Naryl stops at this column."
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 2978,
+          "prefix": "Your search reveals a secret compartment."
+        },
+        {
+          "kind": "treasure",
+          "id": 182,
+          "itemIds": [944],
+          "sourceItemIds": [944, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 1000,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 2979,
+          "prefix": "\"You should activate it now"
+        }
+      ],
+      "sounds": [
+        {
+          "id": -646,
+          "status": "native-mapping",
+          "nativeName": "female hya.wav"
+        },
+        {
+          "id": 10129,
+          "status": "native-mapping",
+          "nativeName": "cool click.wav"
+        }
+      ],
+      "detail": "Naryl locates Kith Khanaan's hidden talisman and Treasure 182 supplies the exact scenario item"
+    },
+    {
+      "id": "activate-kith-talisman",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:2021",
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 3,
+        "x": 78,
+        "y": 47
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 699},
+        {"slot": 1, "code": 1, "id": 2985},
+        {"slot": 2, "code": 1, "id": 2986},
+        {"slot": 3, "code": 1, "id": 2987},
+        {"slot": 4, "code": 1, "id": 2988},
+        {"slot": 5, "code": 9, "id": -10141},
+        {"slot": 6, "code": 39, "id": 2025},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 2985,
+          "prefix": "The light from the talisman flows out"
+        },
+        {
+          "kind": "message",
+          "id": 2986,
+          "prefix": "KERYNDOR"
+        },
+        {
+          "kind": "message",
+          "id": 2987,
+          "prefix": "you for help."
+        },
+        {
+          "kind": "message",
+          "id": 2988,
+          "prefix": "energies of the essence."
+        },
+        {
+          "kind": "message",
+          "id": 2989,
+          "prefix": "Before you can react, Naryl screams"
+        },
+        {
+          "kind": "message",
+          "id": 2990,
+          "prefix": "from her eyes."
+        },
+        {
+          "kind": "message",
+          "id": 2991,
+          "prefix": "mental assault on the renegades"
+        },
+        {
+          "kind": "message",
+          "id": 2992,
+          "prefix": "She sighs."
+        },
+        {
+          "kind": "message",
+          "id": 2993,
+          "prefix": "A bit confused by all this"
+        },
+        {
+          "kind": "message",
+          "id": 2994,
+          "prefix": "Naryl Thezzat has joined your party."
+        }
+      ],
+      "sounds": [
+        {
+          "id": 699,
+          "status": "native-mapping",
+          "nativeName": "wind.wav"
+        },
+        {
+          "id": -10141,
+          "status": "native-mapping",
+          "nativeName": "woman scream.wav"
+        }
+      ],
+      "detail": "Kith Khanaan's essence enters Naryl, consumes item 944, and replaces Naryl Dragonstone with Naryl Thezzat"
+    },
+    {
+      "id": "overlord-confrontation",
+      "kind": "action-list",
+      "triggerId": "Data DDD:3:49",
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 3,
+        "x": 85,
+        "y": 73
+      },
+      "actions": [
+        {"slot": 0, "code": 87, "id": 15312},
+        {"slot": 1, "code": 9, "id": 20005},
+        {"slot": 2, "code": 1, "id": 3031},
+        {"slot": 3, "code": 1, "id": 3032},
+        {"slot": 4, "code": 1, "id": 3033},
+        {"slot": 5, "code": 1, "id": 3034},
+        {"slot": 6, "code": 39, "id": 2056},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 3031,
+          "prefix": "In this luxurious room, you see the Lady Overlord"
+        },
+        {
+          "kind": "message",
+          "id": 3032,
+          "prefix": "\"As you see"
+        },
+        {
+          "kind": "message",
+          "id": 3033,
+          "prefix": "\"This is Commander Berl Vezzir"
+        },
+        {
+          "kind": "message",
+          "id": 3042,
+          "prefix": "Naryl then steps forward"
+        },
+        {
+          "kind": "message",
+          "id": 3043,
+          "prefix": "\"Great One!"
+        },
+        {
+          "kind": "message",
+          "id": 3044,
+          "prefix": "Naryl shakes her head in disgust"
+        },
+        {
+          "kind": "message",
+          "id": 3045,
+          "prefix": "Naryl sighs"
+        },
+        {
+          "kind": "message",
+          "id": 3046,
+          "prefix": "to help me maintain my sanity"
+        },
+        {
+          "kind": "message",
+          "id": 3047,
+          "prefix": "your own failings."
+        },
+        {
+          "kind": "message",
+          "id": 3048,
+          "prefix": "Once the dust settles"
+        },
+        {
+          "kind": "message",
+          "id": 3049,
+          "prefix": "to my body"
+        },
+        {
+          "kind": "message",
+          "id": 3050,
+          "prefix": "would have done!"
+        },
+        {
+          "kind": "battle",
+          "id": "weakened-overlords",
+          "battleId": 349,
+          "creatures": [
+            {"monsterId": 236, "displayName": "Overlord", "count": 2},
+            {"monsterId": 237, "displayName": "Overlord Arla Qui", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 3041,
+          "prefix": "You decide to search the place."
+        }
+      ],
+      "sounds": [
+        {
+          "id": 20005,
+          "status": "native-mapping",
+          "nativeName": "song.wav"
+        },
+        {
+          "id": 642,
+          "status": "native-mapping",
+          "nativeName": "big explode.wav"
+        }
+      ],
+      "detail": "Kith's intervention reduces the final confrontation to the three Overlords in Battle 349 and the victory continuation opens their headquarters"
+    },
+    {
+      "id": "main-plot-epilogue",
+      "kind": "action-list",
+      "triggerId": "Data DDD:3:51",
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 3,
+        "x": 87,
+        "y": 81
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 647},
+        {"slot": 1, "code": 27, "id": 30124},
+        {"slot": 2, "code": 9, "id": -1103},
+        {"slot": 3, "code": 1, "id": 3056},
+        {"slot": 4, "code": 1, "id": 3057},
+        {"slot": 5, "code": 1, "id": 3058},
+        {"slot": 6, "code": 9, "id": -10107},
+        {"slot": 7, "code": 39, "id": 2074}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 3056,
+          "prefix": "You have difficulty making out the details of this man",
+          "picture": true
+        },
+        {
+          "kind": "message",
+          "id": 3057,
+          "prefix": "\"So, my fellow council members have met their demise"
+        },
+        {
+          "kind": "message",
+          "id": 3058,
+          "prefix": "and there is nothing you can do about it."
+        },
+        {
+          "kind": "message",
+          "id": 3059,
+          "prefix": "Congratulations for completing the main plot of Trouble in the Sword Lands!"
+        },
+        {
+          "kind": "message",
+          "id": 3060,
+          "prefix": "We hope you had fun with Trouble in the Sword Lands"
+        },
+        {
+          "kind": "message",
+          "id": 3061,
+          "prefix": "CREDITS: Pierre H. Vachon"
+        },
+        {"kind": "experience", "amount": 10000}
+      ],
+      "picture": {
+        "id": 30124,
+        "width": 320,
+        "height": 320
+      },
+      "sounds": [
+        {
+          "id": 647,
+          "status": "native-mapping",
+          "nativeName": "special stats heal.wav"
+        },
+        {
+          "id": -1103,
+          "status": "native-mapping",
+          "nativeName": "talk 3.wav"
+        },
+        {
+          "id": -10107,
+          "status": "native-mapping",
+          "nativeName": "glass.wav"
+        },
+        {
+          "id": 3002,
+          "status": "native-mapping",
+          "nativeName": "level up.wav"
+        }
+      ],
+      "detail": "The surviving Inner Council warns of the coming war before the installed scenario presents its explicit main-plot completion, sequel notice, credits, and 10,000-experience award"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "opening",
+        "triggerId": "Data DD:0:0",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 20003},
+          {"slot": 1, "code": 27, "id": 32128},
+          {"slot": 2, "code": 9, "id": -203},
+          {"slot": 3, "code": 9, "id": 86},
+          {"slot": 4, "code": 1, "id": 2},
+          {"slot": 5, "code": 1, "id": 3},
+          {"slot": 6, "code": 39, "id": 1},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "opening-continuation",
+        "triggerId": "Data ED3:macro:1",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 4},
+          {"slot": 1, "code": 1, "id": 2721},
+          {"slot": 2, "code": 9, "id": -3000},
+          {"slot": 3, "code": 1, "id": 9},
+          {"slot": 4, "code": 54, "id": 15994},
+          {"slot": 5, "code": 39, "id": 138},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "naryl-recruitment",
+        "triggerId": "Data ED3:macro:251",
+        "actions": [
+          {"slot": 0, "code": 9, "id": -646},
+          {"slot": 1, "code": 1, "id": 458},
+          {"slot": 2, "code": 1, "id": 459},
+          {"slot": 3, "code": 1, "id": -460},
+          {"slot": 4, "code": 3, "id": 15675},
+          {"slot": 5, "code": 39, "id": 252},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "talisman-recovery",
+        "triggerId": "Data ED3:macro:2019",
+        "actions": [
+          {"slot": 0, "code": 9, "id": -646},
+          {"slot": 1, "code": 1, "id": -2977},
+          {"slot": 2, "code": 3, "id": 420},
+          {"slot": 3, "code": 9, "id": 10129},
+          {"slot": 4, "code": 1, "id": 2978},
+          {"slot": 5, "code": 10, "id": 182},
+          {"slot": 6, "code": 39, "id": 2020},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "talisman-activation",
+        "triggerId": "Data ED3:macro:2021",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 699},
+          {"slot": 1, "code": 1, "id": 2985},
+          {"slot": 2, "code": 1, "id": 2986},
+          {"slot": 3, "code": 1, "id": 2987},
+          {"slot": 4, "code": 1, "id": 2988},
+          {"slot": 5, "code": 9, "id": -10141},
+          {"slot": 6, "code": 39, "id": 2025},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "overlord-room",
+        "triggerId": "Data DDD:3:49",
+        "actions": [
+          {"slot": 0, "code": 87, "id": 15312},
+          {"slot": 1, "code": 9, "id": 20005},
+          {"slot": 2, "code": 1, "id": 3031},
+          {"slot": 3, "code": 1, "id": 3032},
+          {"slot": 4, "code": 1, "id": 3033},
+          {"slot": 5, "code": 1, "id": 3034},
+          {"slot": 6, "code": 39, "id": 2056},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "kith-intervention",
+        "triggerId": "Data ED3:macro:2055",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 20005},
+          {"slot": 1, "code": 1, "id": 3031},
+          {"slot": 2, "code": 1, "id": 3032},
+          {"slot": 3, "code": 1, "id": 3033},
+          {"slot": 4, "code": 88, "id": 235},
+          {"slot": 5, "code": 1, "id": 3042},
+          {"slot": 6, "code": 39, "id": 2063},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "weakened-overlord-battle",
+        "triggerId": "Data ED3:macro:2064",
+        "actions": [
+          {"slot": 0, "code": 89, "id": 161},
+          {"slot": 1, "code": 1, "id": 3048},
+          {"slot": 2, "code": 1, "id": 3049},
+          {"slot": 3, "code": 1, "id": 3050},
+          {"slot": 4, "code": 56, "id": 15351},
+          {"slot": 5, "code": 66, "id": 0},
+          {"slot": 6, "code": 39, "id": 2065},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "unassisted-overlord-battle",
+        "triggerId": "Data ED3:macro:2057",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 3039},
+          {"slot": 1, "code": 56, "id": 15319},
+          {"slot": 2, "code": 66, "id": 0},
+          {"slot": 3, "code": -23, "id": 15327},
+          {"slot": 4, "code": 54, "id": 9066},
+          {"slot": 5, "code": 7, "id": 15328},
+          {"slot": 6, "code": 39, "id": 2061},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "epilogue-room",
+        "triggerId": "Data DDD:3:51",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 647},
+          {"slot": 1, "code": 27, "id": 30124},
+          {"slot": 2, "code": 9, "id": -1103},
+          {"slot": 3, "code": 1, "id": 3056},
+          {"slot": 4, "code": 1, "id": 3057},
+          {"slot": 5, "code": 1, "id": 3058},
+          {"slot": 6, "code": 9, "id": -10107},
+          {"slot": 7, "code": 39, "id": 2074}
+        ]
+      },
+      {
+        "id": "explicit-ending",
+        "triggerId": "Data ED3:macro:2074",
+        "actions": [
+          {"slot": 0, "code": 27, "id": 32128},
+          {"slot": 1, "code": 9, "id": 3002},
+          {"slot": 2, "code": 1, "id": 3059},
+          {"slot": 3, "code": 1, "id": 3060},
+          {"slot": 4, "code": 1, "id": 3061},
+          {"slot": 5, "code": 11, "id": 10000},
+          {"slot": 6, "code": 28, "id": 0}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 14820, "values": [19, 17, 2022, 1, 0]},
+      {"id": 14826, "values": [944, 1, 1, 0, 0]},
+      {"id": 15312, "values": [235, 0, 1, 2055, 0]},
+      {"id": 15314, "values": [1, 1, 2057, 0, 0]},
+      {"id": 15315, "values": [0, 25, -1, 600, 0]},
+      {"id": 15319, "values": [203, 0, 2058, 0, 0]},
+      {"id": 15327, "values": [3, 7, 0, 0, 0]},
+      {"id": 15328, "values": [15, 51, 2049, 1, 0]},
+      {"id": 15351, "values": [349, 0, 2058, 0, 0]},
+      {"id": 15352, "values": [161, 0, 1, 2066, 0]},
+      {"id": 15675, "values": [1, 1, 359, 39, 40]},
+      {"id": 15994, "values": [15, 100, 8, 1, 8]}
+    ],
+    "messages": [
+      {
+        "id": 4,
+        "prefix": "these lands are known as the Sword Lands!"
+      },
+      {
+        "id": 2994,
+        "prefix": "Naryl Thezzat has joined your party."
+      },
+      {
+        "id": 3039,
+        "prefix": "General Qui smirks at your answer"
+      },
+      {
+        "id": 3050,
+        "prefix": "would have done!"
+      },
+      {
+        "id": 3058,
+        "prefix": "and there is nothing you can do about it."
+      },
+      {
+        "id": 3059,
+        "prefix": "Congratulations for completing the main plot of Trouble in the Sword Lands!"
+      },
+      {
+        "id": 3060,
+        "prefix": "We hope you had fun with Trouble in the Sword Lands"
+      }
+    ],
+    "battleIds": [203, 349],
+    "monsters": [
+      {
+        "id": 236,
+        "displayName": "Overlord",
+        "deathMacro": 1570
+      },
+      {
+        "id": 237,
+        "displayName": "Overlord Arla Qui",
+        "deathMacro": 1570
+      }
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "sword-lands-opening",
+        "recruit-naryl",
+        "recover-kith-talisman",
+        "activate-kith-talisman",
+        "overlord-confrontation",
+        "main-plot-epilogue"
+      ],
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 3,
+        "x": 87,
+        "y": 81
+      },
+      "questFlags": [6],
+      "absentItemIds": [944],
+      "battleIds": [349]
+    }
+  }
+}
