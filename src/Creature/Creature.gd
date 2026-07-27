@@ -1000,7 +1000,8 @@ func initialize_from_bestiary_dict(creaname: String, generation_context := {}) :
 		var item_added: ItemInstance = resources.create_item_instance(
 			str(i_name_eq_arr[0])
 		)
-		if not add_inventory_item(item_added):
+		var preserve_authored_loadout := cdata.has("classicMaterialization")
+		if not add_inventory_item(item_added, -1, preserve_authored_loadout):
 			continue
 		var inventory_item: ItemInstance = item_inventory.back()
 		inventory_item.set_state_value("dropsOnDefeat", true)
@@ -1017,7 +1018,9 @@ func initialize_from_bestiary_dict(creaname: String, generation_context := {}) :
 		var inventory_definition := get_item_definition(inventory_item)
 		var inventory_name := inventory_definition.display_name \
 			if inventory_definition != null else str(i_name_eq_arr[0])
-		if i_name_eq_arr[1]>0 :
+		if i_name_eq_arr[1] > 0 \
+				and inventory_definition != null \
+				and inventory_definition.equippable:
 			print("Creature generation : "+name+" equips "+inventory_name)
 			equip_item(inventory_item)
 		else :

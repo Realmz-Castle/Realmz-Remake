@@ -530,7 +530,10 @@ func _native_inventory(
 			unsupported_fields.append("items[%d].nativeFields" % item_index)
 		if should_equip and int(native_item.get("equippable", 0)) == 0:
 			unsupported_fields.append("weapon.nonEquippable")
-		var native_entry: Array = [item_key, 1 if should_equip else 0]
+		var native_entry: Array = [
+			item_key,
+			1 if should_equip and int(native_item.get("equippable", 0)) != 0 else 0,
+		]
 		if int(record.get("missilePercent", 0)) != 0 and item_index == 1:
 			native_entry.append(true)
 			native_entry.append(item_index)

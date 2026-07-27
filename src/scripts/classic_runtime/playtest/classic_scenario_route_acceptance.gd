@@ -19,6 +19,7 @@ var failures: Array[String] = []
 var completed_step_ids: Array[String] = []
 var battle_step_ids: Array[String] = []
 var victory_request_completed := false
+var requested_battle_loot_item_ids: Array = []
 var route_experience_award_completed := false
 var evidence: Dictionary = {
 	"schemaVersion": 1,
@@ -625,11 +626,17 @@ func _run_battle_step(step: Dictionary) -> bool:
 		step.get("allies", []),
 	)
 	var battle_evidence: Dictionary = observation.get("evidence", {})
+	var formation_valid := sounds_valid and bool(observation.get("valid", false))
 	_verify(
 		stage,
-		sounds_valid
-			and bool(observation.get("valid", false)),
-		"The compiled formation materializes on a drawable native battlefield",
+		formation_valid,
+		(
+			"The compiled formation materializes on a drawable native battlefield"
+			if formation_valid
+			else "Native battle observation mismatch: %s" % JSON.stringify(
+				battle_evidence
+			)
+		),
 	)
 	if not failures.is_empty():
 		return false
@@ -638,8 +645,10 @@ func _run_battle_step(step: Dictionary) -> bool:
 		_fail(stage, "The native battle did not reach a stable player turn")
 		return false
 	victory_request_completed = false
+	requested_battle_loot_item_ids = step.get("lootItemIds", []).duplicate()
 	call_deferred("_request_victory")
-	var reward_seen := await _close_victory_rewards()
+	var battle_loot_ids: Array = step.get("lootItemIds", [])
+	var reward_seen := await _close_victory_rewards(stage, battle_loot_ids)
 	if not await _wait_for_victory_request_completion():
 		_fail(stage, "The native victory coroutine did not finish")
 		return false
@@ -737,9 +746,14 @@ func _run_action_list_step(step: Dictionary) -> bool:
 	var expected_position: Dictionary = step.get("end", step.get("position", {}))
 	var native_position := _native_position()
 	var runtime_position := _runtime_position()
+	var trigger_percentages_valid := _verify_step_trigger_percentages(
+		stage,
+		step.get("triggerPercentages", []),
+	)
 	_verify(
 		stage,
 		_verify_sound_contract(step)
+			and trigger_percentages_valid
 			and not campaign_session.has_pending_continuation()
 			and StateMachine._state_name == "Exploration"
 			and _positions_match(expected_position, runtime_position)
@@ -754,6 +768,38 @@ func _run_action_list_step(step: Dictionary) -> bool:
 		)),
 	)
 	return failures.is_empty()
+
+
+func _verify_step_trigger_percentages(
+	stage: String,
+	specifications_value: Variant,
+) -> bool:
+	if not (specifications_value is Array):
+		return false
+	var rows: Array = evidence.get("triggerPercentageChecks", [])
+	var valid := true
+	for specification_value: Variant in specifications_value:
+		if not (specification_value is Dictionary):
+			valid = false
+			continue
+		var specification: Dictionary = specification_value
+		var observed := host.runtime.runtime_state.get_trigger_percent(
+			str(specification.get("levelType", "land")),
+			int(specification.get("levelIndex", 0)),
+			int(specification.get("triggerId", -1)),
+			-1,
+		)
+		var expected := int(specification.get("percent", -1))
+		rows.append({
+			"stepId": stage,
+			"levelType": str(specification.get("levelType", "land")),
+			"levelIndex": int(specification.get("levelIndex", 0)),
+			"triggerId": int(specification.get("triggerId", -1)),
+			"percent": observed,
+		})
+		valid = valid and observed == expected
+	evidence["triggerPercentageChecks"] = rows
+	return valid
 
 
 func _run_interaction_sequence(
@@ -961,6 +1007,22 @@ func _run_interaction_sequence(
 				if not await _close_route_experience_award():
 					_fail(stage, "The native experience award did not finish leveling")
 					return false
+			"level-up":
+				if not await _wait_for_level_up():
+					_fail(stage, "The authored level-up did not open")
+					return false
+				var selected_count := (
+					GameGlobal.last_picked_characters.size()
+					if GameGlobal.last_picked_characters is Array
+					else 0
+				)
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "level-up",
+					"selectedCount": selected_count,
+				})
+				UI.ow_hud.levelupCtrl._on_close_button_pressed()
+				await get_tree().process_frame
 			"treasure":
 				if not await _wait_for_treasure():
 					_fail(stage, "The authored treasure did not open")
@@ -1043,8 +1105,15 @@ func _run_interaction_sequence(
 					)
 					return false
 				victory_request_completed = false
+				requested_battle_loot_item_ids = (
+					event.get("lootItemIds", []).duplicate()
+				)
 				call_deferred("_request_victory")
-				var reward_seen := await _close_victory_rewards()
+				var chained_loot_ids: Array = event.get("lootItemIds", [])
+				var reward_seen := await _close_victory_rewards(
+					stage,
+					chained_loot_ids,
+				)
 				if not await _wait_for_victory_request_completion():
 					_fail(stage, "The chained native victory coroutine did not finish")
 					return false
@@ -1177,7 +1246,12 @@ func _battle_spec_source_matches(specification: Dictionary) -> bool:
 		if raw_monster_id == 0:
 			continue
 		var monster_id := absi(raw_monster_id)
-		var counts: Dictionary = ally_counts if raw_monster_id < 0 else enemy_counts
+		var monster: Dictionary = campaign_session.install.bundle.get_monster(
+			monster_id
+		)
+		var is_ally := raw_monster_id < 0 \
+			or int(monster.get("traitor", 0)) == 0
+		var counts: Dictionary = ally_counts if is_ally else enemy_counts
 		counts[monster_id] = int(counts.get(monster_id, 0)) + 1
 	for group_name: String in ["creatures", "allies"]:
 		var counts: Dictionary = (
@@ -1202,6 +1276,27 @@ func _battle_spec_source_matches(specification: Dictionary) -> bool:
 					and int(monster.get("deathMacro", -1)) \
 						!= int(creature.get("deathMacro", -2)):
 				return false
+	var loot_item_ids: Variant = specification.get("lootItemIds", [])
+	if not (loot_item_ids is Array):
+		return false
+	for item_value: Variant in loot_item_ids:
+		var item_id := int(item_value)
+		var carried_by_formation := false
+		for monster_value: Variant in battle.get("grid", []):
+			var monster_id := absi(int(monster_value))
+			if monster_id == 0:
+				continue
+			var monster: Dictionary = campaign_session.install.bundle.get_monster(
+				monster_id
+			)
+			for carried_value: Variant in monster.get("items", []):
+				if int(carried_value) == item_id:
+					carried_by_formation = true
+					break
+			if carried_by_formation:
+				break
+		if not carried_by_formation:
+			return false
 	return true
 
 
@@ -1551,7 +1646,13 @@ func _verify_completion_runtime_contract() -> bool:
 	_verify(
 		"completion-runtime",
 		valid,
-		"The installed completion route reaches its authored reward and epilogue state",
+		(
+			"The installed completion route reaches its authored reward and epilogue state"
+			if valid
+			else "Installed completion state mismatch: %s" % JSON.stringify(
+				completion_evidence["runtime"]
+			)
+		),
 	)
 	return failures.is_empty()
 
@@ -1632,6 +1733,16 @@ func _wait_for_treasure() -> bool:
 	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
 	while Time.get_ticks_msec() < deadline:
 		if UI.ow_hud.treasureControl.visible:
+			return true
+		await get_tree().create_timer(0.01).timeout
+	return false
+
+
+func _wait_for_level_up() -> bool:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		var level_up_window: Window = UI.ow_hud.levelupCtrl.get_parent()
+		if level_up_window.visible:
 			return true
 		await get_tree().create_timer(0.01).timeout
 	return false
@@ -1923,27 +2034,74 @@ func _wait_for_route_victory_window() -> bool:
 
 
 func _request_victory() -> void:
+	_mark_required_loot_carriers_defeated()
 	await GameGlobal.end_battle("won")
+	requested_battle_loot_item_ids.clear()
 	victory_request_completed = true
+
+
+func _mark_required_loot_carriers_defeated() -> void:
+	if requested_battle_loot_item_ids.is_empty():
+		return
+	for button_value: Variant in StateMachine.combat_state.all_battle_creatures_btns:
+		if not (button_value is Object):
+			continue
+		var creature: Variant = button_value
+		if button_value is CombatCreaButton:
+			creature = button_value.creature
+		if not (creature is Creature) or int(creature.curFaction) == 0:
+			continue
+		var carries_required_item := false
+		for item: ItemInstance in creature.inventory_instances():
+			for item_id_value: Variant in requested_battle_loot_item_ids:
+				if NodeAccess.__Resources().item_classic_ids(item).has(
+					int(item_id_value)
+				):
+					carries_required_item = true
+					break
+			if carries_required_item:
+				break
+		if carries_required_item \
+				and not StateMachine.combat_state.battle_dead_enemies.has(creature):
+			StateMachine.combat_state.battle_dead_enemies.append(creature)
 
 
 func _wait_for_victory_request_completion() -> bool:
 	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
 	while Time.get_ticks_msec() < deadline:
+		var level_up_window: Window = UI.ow_hud.levelupCtrl.get_parent()
+		if level_up_window.visible:
+			UI.ow_hud.levelupCtrl._on_close_button_pressed()
+			await get_tree().process_frame
+			continue
+		if UI.ow_hud.alliesWindow.visible:
+			UI.ow_hud.alliesCtrl.okbutton.pressed.emit()
+			await get_tree().process_frame
+			continue
 		if victory_request_completed:
 			return true
 		await get_tree().create_timer(0.01).timeout
 	return false
 
 
-func _close_victory_rewards() -> bool:
+func _close_victory_rewards(
+	stage := "battle",
+	loot_item_ids: Array = [],
+) -> bool:
 	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
 	while Time.get_ticks_msec() < deadline:
 		if UI.ow_hud.treasureControl.visible:
+			var loot_valid := loot_item_ids.is_empty() \
+				or await _loot_classic_items(loot_item_ids)
 			UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
 			await get_tree().process_frame
 			if UI.ow_hud.alliesWindow.visible:
 				UI.ow_hud.alliesCtrl.okbutton.pressed.emit()
+			if not loot_valid:
+				_fail(
+					stage,
+					"The required Classic battle loot could not be taken",
+				)
 			return true
 		if not StateMachine.is_combat_state() and not host.active:
 			return false

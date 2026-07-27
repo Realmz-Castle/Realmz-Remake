@@ -1,0 +1,943 @@
+{
+  "schemaVersion": 1,
+  "routeId": "mithril-vault-completion-route",
+  "campaignId": "scenario-mithril-vault",
+  "campaignDirectory": "Mithril Vault (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 37,
+    "y": 5
+  },
+  "steps": [
+    {
+      "id": "winterhaven-opening",
+      "kind": "presentation",
+      "triggerId": "Data DD:0:0",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 37,
+        "y": 6
+      },
+      "actions": [
+        {"slot": 0, "code": 27, "id": 32128},
+        {"slot": 1, "code": 9, "id": 20001},
+        {"slot": 2, "code": 1, "id": 50},
+        {"slot": 3, "code": 1, "id": 51},
+        {"slot": 4, "code": 1, "id": 52},
+        {"slot": 5, "code": 1, "id": 53},
+        {"slot": 6, "code": 1, "id": 54},
+        {"slot": 7, "code": 28, "id": 0}
+      ],
+      "messages": [
+        {
+          "id": 50,
+          "prefix": "You have traveled the Realmz far and wide in search of adventure."
+        },
+        {
+          "id": 51,
+          "prefix": "Travel a few hours southward, and you will reach Winterhaven."
+        },
+        {
+          "id": 52,
+          "prefix": "You look forward to a time of rest and relaxation."
+        },
+        {
+          "id": 53,
+          "prefix": "A short distance to the east of Winterhaven lies Silver Peak"
+        },
+        {
+          "id": 54,
+          "prefix": "Used by master craftsmen to create the finest arms and armor"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "sounds": [
+        {
+          "id": 20001,
+          "status": "native-mapping",
+          "nativeName": "twinkle.wav"
+        }
+      ],
+      "detail": "Winterhaven's installed opening presents the decoded scenario picture, stock sound, and Mithril premise through the native HUD"
+    },
+    {
+      "id": "morbius-confrontation",
+      "kind": "battle",
+      "triggerId": "Data ED3:macro:138",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 11,
+        "x": 3,
+        "y": 83
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 26260},
+        {"slot": 1, "code": 1, "id": 442},
+        {"slot": 2, "code": 12, "id": 245},
+        {"slot": 3, "code": 9, "id": 1103},
+        {"slot": 4, "code": 1, "id": 443},
+        {"slot": 5, "code": 9, "id": 695},
+        {"slot": 6, "code": 47, "id": 77},
+        {"slot": 7, "code": 39, "id": 140}
+      ],
+      "messages": [
+        {
+          "id": 442,
+          "prefix": "A booming laughter echoes in the small chamber."
+        },
+        {
+          "id": 443,
+          "prefix": "An image of Morbius appears before you."
+        },
+        {
+          "id": 444,
+          "prefix": "In a flash Morbius pulls one of his old tricks."
+        }
+      ],
+      "battleId": 33,
+      "creatures": [
+        {
+          "monsterId": 62,
+          "displayName": "Morbius",
+          "deathMacro": 150,
+          "count": 3
+        },
+        {
+          "monsterId": 61,
+          "displayName": "Morbius",
+          "deathMacro": 151,
+          "count": 1
+        }
+      ],
+      "detail": "The Morbius reveal sets quest 77, creates three duplicates, and enters Battle 33 with the exact installed formation"
+    },
+    {
+      "id": "recover-the-geyser",
+      "kind": "battle",
+      "triggerId": "Data ED3:macro:157",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 11,
+        "x": 55,
+        "y": 49
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 469},
+        {"slot": 1, "code": 1, "id": 472},
+        {"slot": 2, "code": 1, "id": 473},
+        {"slot": 3, "code": 1, "id": 474},
+        {"slot": 4, "code": 9, "id": 10136},
+        {"slot": 5, "code": 1, "id": 475},
+        {"slot": 6, "code": 56, "id": 281},
+        {"slot": 7, "code": 39, "id": 158}
+      ],
+      "messages": [
+        {
+          "id": 469,
+          "prefix": "You enter a large hall with no apparent way in or out."
+        },
+        {
+          "id": 472,
+          "prefix": "However, there must be some way in or out"
+        },
+        {
+          "id": 473,
+          "prefix": "Their commander near the back sizes you up."
+        },
+        {
+          "id": 474,
+          "prefix": "Suddenly his eyes begin to squint"
+        },
+        {
+          "id": 475,
+          "prefix": "A thousand golden zarks to each man"
+        }
+      ],
+      "battleId": 40,
+      "creatures": [
+        {
+          "monsterId": 64,
+          "displayName": "Acid Claw Warrior",
+          "count": 10
+        },
+        {
+          "monsterId": 65,
+          "displayName": "Acid Claw Corporal",
+          "count": 6
+        },
+        {
+          "monsterId": 66,
+          "displayName": "Acid Claw Seargent",
+          "count": 5
+        },
+        {
+          "monsterId": 67,
+          "displayName": "Acid Claw Captain",
+          "count": 2
+        },
+        {
+          "monsterId": 68,
+          "displayName": "Gail Wyrmrider",
+          "count": 1
+        }
+      ],
+      "lootItemIds": [809],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 476,
+          "prefix": "It is your best guess that Morbius was to meet with this group"
+        }
+      ],
+      "detail": "Battle 40 materializes all 24 Acid Claw combatants and Gail Wyrmrider's carried inventory supplies The Geyser, item 809"
+    },
+    {
+      "id": "winterhaven-council",
+      "kind": "action-list",
+      "triggerId": "Data DD:1:27",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 64,
+        "y": 4
+      },
+      "actions": [
+        {"slot": 0, "code": 38, "id": 294},
+        {"slot": 1, "code": 1, "id": 479},
+        {"slot": 2, "code": 1, "id": 480},
+        {"slot": 3, "code": 1, "id": 481},
+        {"slot": 4, "code": 1, "id": 482},
+        {"slot": 5, "code": 1, "id": 483},
+        {"slot": 6, "code": 1, "id": 484},
+        {"slot": 7, "code": 39, "id": 159}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 479,
+          "prefix": "You enter the council chambers to report your progress."
+        },
+        {
+          "kind": "message",
+          "id": 480,
+          "prefix": "Many of the members are shocked to learn"
+        },
+        {
+          "kind": "message",
+          "id": 481,
+          "prefix": "Whoever, or whatever is the rightful owner"
+        },
+        {
+          "kind": "message",
+          "id": 482,
+          "prefix": "Visitors of the most unwelcome sort."
+        },
+        {
+          "kind": "message",
+          "id": 483,
+          "prefix": "You my friends must see to it"
+        },
+        {
+          "kind": "message",
+          "id": 484,
+          "prefix": "Though it may mean the lack of Mithril"
+        },
+        {
+          "kind": "message",
+          "id": 485,
+          "prefix": "I suggest you make great haste"
+        },
+        {
+          "kind": "message",
+          "id": 486,
+          "prefix": "Ramius: \"My duty is here my friends."
+        }
+      ],
+      "detail": "The live possession gate accepts item 809 and the complete council report directs the party to King Cormite"
+    },
+    {
+      "id": "warren-invasion",
+      "kind": "battle",
+      "triggerId": "Data DD:8:1",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 12,
+        "y": 13
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 7,
+        "y": 6
+      },
+      "actions": [
+        {"slot": 0, "code": 38, "id": 294},
+        {"slot": 1, "code": 1, "id": 487},
+        {"slot": 2, "code": 45, "id": 288},
+        {"slot": 3, "code": 1, "id": 488},
+        {"slot": 4, "code": 1, "id": 481},
+        {"slot": 5, "code": 1, "id": 489},
+        {"slot": 6, "code": 1, "id": 490},
+        {"slot": 7, "code": 39, "id": 160}
+      ],
+      "messages": [
+        {
+          "id": 487,
+          "prefix": "You enter the chambers of King Cormite."
+        },
+        {
+          "id": 488,
+          "prefix": "The king is shocked to learn"
+        },
+        {
+          "id": 481,
+          "prefix": "Whoever, or whatever is the rightful owner"
+        },
+        {
+          "id": 489,
+          "prefix": "Visitors of the most unwelcome sort."
+        },
+        {
+          "id": 490,
+          "prefix": "However, we have to make sure we keep it."
+        },
+        {
+          "id": 491,
+          "prefix": "The king is about to make another statement"
+        },
+        {
+          "id": 492,
+          "prefix": "A mixture of excitement, fear and panic"
+        },
+        {
+          "id": 493,
+          "prefix": "Henril: \"They are assaulting the warren entrance"
+        },
+        {
+          "id": 494,
+          "prefix": "Huge armored beasts, as well as walking insect men"
+        },
+        {
+          "id": 495,
+          "prefix": "Cormite: \"This be it then."
+        }
+      ],
+      "battleId": 41,
+      "creatures": [
+        {
+          "monsterId": 144,
+          "displayName": "Alien Vrap",
+          "count": 6
+        },
+        {
+          "monsterId": 147,
+          "displayName": "Alien Mantis",
+          "count": 8
+        },
+        {
+          "monsterId": 146,
+          "displayName": "Alien Telenite",
+          "count": 8
+        }
+      ],
+      "allies": [
+        {
+          "monsterId": 115,
+          "displayName": "Dwarven Swordsman",
+          "count": 4
+        },
+        {
+          "monsterId": 113,
+          "displayName": "Dwarven Warrior",
+          "count": 10
+        },
+        {
+          "monsterId": 114,
+          "displayName": "Dwarven Spearman",
+          "count": 9
+        },
+        {
+          "monsterId": 117,
+          "displayName": "King Cormite",
+          "deathMacro": 162,
+          "count": 1
+        },
+        {
+          "monsterId": 116,
+          "displayName": "Dwarven Captain",
+          "count": 2
+        }
+      ],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 497,
+          "prefix": "King Cormite: \"I can't believe that this small band"
+        },
+        {
+          "kind": "message",
+          "id": 498,
+          "prefix": "Suddenly a wounded dwarf staggers towards the king."
+        },
+        {
+          "kind": "message",
+          "id": 499,
+          "prefix": "The chamber guards fought as best they could"
+        },
+        {
+          "kind": "message",
+          "id": 500,
+          "prefix": "Gritting his teeth in rage"
+        },
+        {
+          "kind": "message",
+          "id": 501,
+          "prefix": "The king is furious for having been so foolish"
+        },
+        {
+          "kind": "message",
+          "id": 502,
+          "prefix": "We will recapture this relic or I will die trying!"
+        }
+      ],
+      "sounds": [
+        {
+          "id": 24000,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-24000-6e98c0ce2083.wav"
+        },
+        {
+          "id": 10136,
+          "status": "native-mapping",
+          "nativeName": "monster shout.wav"
+        },
+        {
+          "id": 1100,
+          "status": "native-mapping",
+          "nativeName": "talk 1.wav"
+        }
+      ],
+      "detail": "The second item-809 gate enters the warren invasion beside Cormite and 25 allied dwarves, removes the stolen relic, resolves Battle 41, and returns the pursuit party to Cormite's chambers"
+    },
+    {
+      "id": "golian-security",
+      "kind": "battle",
+      "triggerId": "Data DD:8:5",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 7,
+        "y": 71
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 24000},
+        {"slot": 1, "code": 1, "id": 545},
+        {"slot": 2, "code": 2, "id": 338}
+      ],
+      "messages": [
+        {
+          "id": 545,
+          "prefix": "Horns sound as you trigger some unknown alarm."
+        }
+      ],
+      "battleId": 53,
+      "creatures": [
+        {
+          "monsterId": 172,
+          "displayName": "Attack Droid",
+          "count": 4
+        },
+        {
+          "monsterId": 170,
+          "displayName": "Combat Drone",
+          "count": 4
+        },
+        {
+          "monsterId": 176,
+          "displayName": "Golian Warrior",
+          "count": 4
+        },
+        {
+          "monsterId": 183,
+          "displayName": "Golian Warrior",
+          "count": 4
+        },
+        {
+          "monsterId": 177,
+          "displayName": "Golian Warrior",
+          "count": 4
+        }
+      ],
+      "sounds": [
+        {
+          "id": 24000,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-24000-6e98c0ce2083.wav"
+        }
+      ],
+      "detail": "The fortress alarm enters Battle 53 with the exact 20-unit Golian security formation"
+    },
+    {
+      "id": "disable-fortress-power",
+      "kind": "action-list",
+      "triggerId": "Data DD:8:3",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 11,
+        "y": 70
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 900},
+        {"slot": 1, "code": 106, "id": 339},
+        {"slot": 2, "code": 1, "id": 546},
+        {"slot": 3, "code": 1, "id": 547},
+        {"slot": 7, "code": 39, "id": 186}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 546,
+          "prefix": "Prilit: \"Here!"
+        },
+        {
+          "kind": "message",
+          "id": 547,
+          "prefix": "Prilit: \"That should do it."
+        }
+      ],
+      "triggerPercentages": [
+        {
+          "levelType": "land",
+          "levelIndex": 10,
+          "triggerId": 2,
+          "percent": 100
+        }
+      ],
+      "sounds": [
+        {
+          "id": 900,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-900-3c3d56efe961.wav"
+        }
+      ],
+      "detail": "Prilit disables the fortress power and macro 186 changes land-10 trigger 2 from zero to 100 percent, making the authored Gridstone recovery reachable"
+    },
+    {
+      "id": "main-goal-ending",
+      "kind": "action-list",
+      "triggerId": "Data DD:10:2",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 10,
+        "x": 82,
+        "y": 72
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 7,
+        "y": 6
+      },
+      "actions": [
+        {"slot": 0, "code": 12, "id": 337},
+        {"slot": 1, "code": 10, "id": 38},
+        {"slot": 2, "code": 1, "id": 548},
+        {"slot": 3, "code": 1, "id": 549},
+        {"slot": 4, "code": 1, "id": 550},
+        {"slot": 5, "code": 1, "id": 551},
+        {"slot": 6, "code": 1, "id": 552},
+        {"slot": 7, "code": 39, "id": 187}
+      ],
+      "sequence": [
+        {
+          "kind": "treasure",
+          "id": 38,
+          "itemIds": [809],
+          "sourceItemIds": [809, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 30000,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 548,
+          "prefix": "Cormite quickly grabs 'The Geyser'"
+        },
+        {
+          "kind": "message",
+          "id": 549,
+          "prefix": "Cormite: \"But what of our need of this relic."
+        },
+        {
+          "kind": "message",
+          "id": 550,
+          "prefix": "Prilit: \"Hmmm."
+        },
+        {
+          "kind": "message",
+          "id": 551,
+          "prefix": "Cormite: \"Yes."
+        },
+        {
+          "kind": "message",
+          "id": 552,
+          "prefix": "Not in any shape or form."
+        },
+        {
+          "kind": "message",
+          "id": 553,
+          "prefix": "Cormite: \"By the gods that's right."
+        },
+        {
+          "kind": "message",
+          "id": 554,
+          "prefix": "I am sure Weston will be grateful beyond measure"
+        },
+        {
+          "kind": "level-up"
+        },
+        {
+          "kind": "message",
+          "id": 555,
+          "prefix": "King Cormite quickly shows Prilit where his land is located."
+        },
+        {
+          "kind": "message",
+          "id": 556,
+          "prefix": "Weston is quickly summoned"
+        },
+        {
+          "kind": "message",
+          "id": 557,
+          "prefix": "Weston: \"This new learning amazes me!"
+        },
+        {
+          "kind": "message",
+          "id": 558,
+          "prefix": "I only pray that your craft can take us there quickly"
+        },
+        {
+          "kind": "message",
+          "id": 559,
+          "prefix": "After we got and then lost \"The Geyser\""
+        },
+        {
+          "kind": "message",
+          "id": 560,
+          "prefix": "Weston looks himself over."
+        },
+        {
+          "kind": "message",
+          "id": 561,
+          "prefix": "Weston quickly removes the plethora of magical items"
+        },
+        {
+          "kind": "treasure",
+          "id": 39,
+          "itemIds": [195, 197, 471, 733],
+          "sourceItemIds": [195, 197, 471, 733, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 30000,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 562,
+          "prefix": "Congratulations."
+        }
+      ],
+      "sounds": [
+        {
+          "id": 20004,
+          "status": "native-mapping",
+          "nativeName": "hallelujah.wav"
+        }
+      ],
+      "detail": "The now-active recovery trigger returns The Geyser, resolves Weston's curse, grants all four final magic items, removes the relic, and presents the explicit main-goal ending"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "morbius-battle-branch",
+        "triggerId": "Data ED3:macro:142",
+        "actions": [
+          {"slot": 0, "code": 23, "id": 257},
+          {"slot": 1, "code": 12, "id": 252},
+          {"slot": 2, "code": 12, "id": 253},
+          {"slot": 3, "code": 12, "id": 254},
+          {"slot": 4, "code": 12, "id": 255},
+          {"slot": 5, "code": 56, "id": 256}
+        ]
+      },
+      {
+        "id": "morbius-image-death",
+        "triggerId": "Data ED3:macro:150",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 452},
+          {"slot": 1, "code": 124, "id": 258}
+        ]
+      },
+      {
+        "id": "morbius-body-death",
+        "triggerId": "Data ED3:macro:151",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 453},
+          {"slot": 1, "code": 124, "id": 259}
+        ]
+      },
+      {
+        "id": "weakened-morbius-death",
+        "triggerId": "Data ED3:macro:148",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 451},
+          {"slot": 1, "code": 10, "id": 36},
+          {"slot": 6, "code": 29, "id": 5}
+        ]
+      },
+      {
+        "id": "alien-counterattack",
+        "triggerId": "Data ED3:macro:170",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 516},
+          {"slot": 1, "code": 9, "id": 901},
+          {"slot": 2, "code": 1, "id": 517},
+          {"slot": 3, "code": 2, "id": 306},
+          {"slot": 4, "code": 9, "id": 903},
+          {"slot": 5, "code": 1, "id": 518},
+          {"slot": 6, "code": 1, "id": 519},
+          {"slot": 7, "code": 39, "id": 171}
+        ]
+      },
+      {
+        "id": "robotic-waves",
+        "triggerId": "Data ED3:macro:171",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 904},
+          {"slot": 1, "code": 1, "id": 520},
+          {"slot": 2, "code": 1, "id": 521},
+          {"slot": 3, "code": 2, "id": 307},
+          {"slot": 4, "code": 1, "id": 522},
+          {"slot": 5, "code": 2, "id": 308},
+          {"slot": 6, "code": 1, "id": 523},
+          {"slot": 7, "code": 39, "id": 172}
+        ]
+      },
+      {
+        "id": "golian-field-battle",
+        "triggerId": "Data ED3:macro:175",
+        "actions": [
+          {"slot": 0, "code": 12, "id": 314},
+          {"slot": 1, "code": 12, "id": 315},
+          {"slot": 2, "code": 12, "id": 316},
+          {"slot": 3, "code": 9, "id": 4},
+          {"slot": 4, "code": 1, "id": 528},
+          {"slot": 5, "code": 2, "id": 313},
+          {"slot": 6, "code": 1, "id": 531},
+          {"slot": 7, "code": 39, "id": 176}
+        ]
+      },
+      {
+        "id": "gridstone-battle",
+        "triggerId": "Data ED3:macro:180",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 904},
+          {"slot": 1, "code": 1, "id": 535},
+          {"slot": 2, "code": 2, "id": 326},
+          {"slot": 3, "code": 12, "id": 335},
+          {"slot": 4, "code": 9, "id": -631},
+          {"slot": 5, "code": 1, "id": 538},
+          {"slot": 6, "code": 1, "id": 539},
+          {"slot": 7, "code": 1, "id": 540}
+        ]
+      },
+      {
+        "id": "gridstone-battle-macro",
+        "triggerId": "Data ED3:macro:182",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 536},
+          {"slot": 1, "code": 124, "id": 328},
+          {"slot": 2, "code": 124, "id": 329},
+          {"slot": 3, "code": 124, "id": 330},
+          {"slot": 4, "code": 124, "id": 331},
+          {"slot": 5, "code": 124, "id": 333},
+          {"slot": 6, "code": 1, "id": 537},
+          {"slot": 7, "code": 39, "id": 183}
+        ]
+      },
+      {
+        "id": "enable-recovery-trigger",
+        "triggerId": "Data ED3:macro:186",
+        "actions": [
+          {"slot": 0, "code": 12, "id": 340},
+          {"slot": 1, "code": 12, "id": 341},
+          {"slot": 2, "code": 12, "id": 342},
+          {"slot": 3, "code": 12, "id": 343},
+          {"slot": 4, "code": 12, "id": 344},
+          {"slot": 5, "code": 13, "id": 345},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "weston-return",
+        "triggerId": "Data ED3:macro:187",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 553},
+          {"slot": 1, "code": 1, "id": 554},
+          {"slot": 2, "code": 52, "id": 351},
+          {"slot": 3, "code": 102, "id": 0},
+          {"slot": 4, "code": 1, "id": 555},
+          {"slot": 5, "code": 45, "id": 352},
+          {"slot": 6, "code": 106, "id": 353},
+          {"slot": 7, "code": 39, "id": 188}
+        ]
+      },
+      {
+        "id": "weston-reward",
+        "triggerId": "Data ED3:macro:188",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 556},
+          {"slot": 1, "code": 1, "id": 557},
+          {"slot": 2, "code": 1, "id": 558},
+          {"slot": 3, "code": 1, "id": 559},
+          {"slot": 4, "code": 1, "id": 560},
+          {"slot": 5, "code": 1, "id": 561},
+          {"slot": 6, "code": 10, "id": 39},
+          {"slot": 7, "code": 39, "id": 189}
+        ]
+      },
+      {
+        "id": "explicit-main-goal",
+        "triggerId": "Data ED3:macro:189",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 20004},
+          {"slot": 1, "code": 1, "id": 562},
+          {"slot": 2, "code": 22, "id": 1660},
+          {"slot": 3, "code": 7, "id": 981}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 256, "values": [33, 0, -1, 0, 0]},
+      {"id": 258, "values": [0, 62, 1, 695, 1]},
+      {"id": 259, "values": [0, 61, 1, 26260, 1]},
+      {"id": 281, "values": [40, 0, -1, 0, 0]},
+      {"id": 294, "values": [809, 0, 0, 100, 0]},
+      {"id": 295, "values": [809, 99, 1, 0, 0]},
+      {"id": 293, "values": [41, 0, 0, 0, 0]},
+      {"id": 306, "values": [45, 0, 0, 0, 0]},
+      {"id": 307, "values": [46, 0, 0, 0, 0]},
+      {"id": 308, "values": [47, 0, 0, 0, 0]},
+      {"id": 313, "values": [48, 0, 0, 0, 0]},
+      {"id": 326, "values": [49, 0, 0, 0, 0]},
+      {"id": 338, "values": [53, 0, 0, 0, 0]},
+      {"id": 345, "values": [10, 2, 100, 0, 0]},
+      {"id": 351, "values": [0, 99, 0, 0, 0]},
+      {"id": 352, "values": [8, 7, 6, 0, 0]},
+      {"id": 353, "values": [1, 0, 0, 0, 0]},
+      {"id": 981, "values": [1, 21, 444, 0, 0]},
+      {"id": 1660, "values": [809, 99, 1, 0, 0]}
+    ],
+    "messages": [
+      {
+        "id": 451,
+        "prefix": "With the essence of Morbius and Volmax under your control"
+      },
+      {
+        "id": 476,
+        "prefix": "It is your best guess that Morbius was to meet with this group"
+      },
+      {
+        "id": 499,
+        "prefix": "The chamber guards fought as best they could"
+      },
+      {
+        "id": 523,
+        "prefix": "A few of the GC have survived"
+      },
+      {
+        "id": 540,
+        "prefix": "We must find some other way inside"
+      },
+      {
+        "id": 547,
+        "prefix": "Prilit: \"That should do it."
+      },
+      {
+        "id": 562,
+        "prefix": "Congratulations."
+      }
+    ],
+    "battleIds": [33, 40, 41, 45, 46, 47, 48, 49, 53],
+    "monsters": [
+      {
+        "id": 61,
+        "displayName": "Morbius",
+        "deathMacro": 151
+      },
+      {
+        "id": 62,
+        "displayName": "Morbius",
+        "deathMacro": 150
+      },
+      {
+        "id": 63,
+        "displayName": "Morbius The Weak",
+        "deathMacro": 148
+      },
+      {
+        "id": 68,
+        "displayName": "Gail Wyrmrider",
+        "deathMacro": 0
+      },
+      {
+        "id": 117,
+        "displayName": "King Cormite",
+        "deathMacro": 162
+      }
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "winterhaven-opening",
+        "morbius-confrontation",
+        "recover-the-geyser",
+        "winterhaven-council",
+        "warren-invasion",
+        "golian-security",
+        "disable-fortress-power",
+        "main-goal-ending"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 8,
+        "x": 7,
+        "y": 6
+      },
+      "questFlags": [77],
+      "itemIds": [195, 197, 471, 733],
+      "absentItemIds": [809],
+      "triggerPercentages": [
+        {
+          "levelType": "land",
+          "levelIndex": 10,
+          "triggerId": 2,
+          "percent": -1
+        }
+      ],
+      "battleIds": [33, 40, 41, 53]
+    }
+  }
+}

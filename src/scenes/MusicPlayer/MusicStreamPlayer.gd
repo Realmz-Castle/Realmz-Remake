@@ -75,11 +75,11 @@ func play_music_specific(mname: String) -> void:
 		currently_playing = {"path": '', "type": ''}
 
 func play_music(musicdict: Dictionary) -> void:
-	print("previously playing: ", currently_playing["path"])
+	print("previously playing: ", currently_playing.get("path", ""))
 
 	if currently_playing == map_music_dict:
 		# Save the map music position
-		if map_music_dict["type"] == 'ogg':
+		if str(map_music_dict.get("type", "")) == 'ogg':
 			map_music_position = get_playback_position()
 			print("map_music_position ", map_music_position)
 
@@ -89,7 +89,12 @@ func play_music(musicdict: Dictionary) -> void:
 	set_stream(null)
 	stop()
 
-	if musicdict["type"] == 'ogg' or musicdict["type"] == 'mp3':
+	var music_type := str(musicdict.get("type", ""))
+	if music_type.is_empty():
+		currently_playing = {"path": "", "type": ""}
+		return
+
+	if music_type == 'ogg' or music_type == 'mp3':
 		print("Playing OGG/MP3: ", musicdict)
 		set_stream(musicdict["sound"])
 		var startpos: float = 0.0
@@ -105,7 +110,7 @@ func play_music(musicdict: Dictionary) -> void:
 		if not is_null_ogg:
 			play(startpos)
 
-	elif musicdict["type"] == 'mod':
+	elif music_type == 'mod':
 		# Load the tracker file using OpenMPT (supports MOD, S3M, XM, IT, and many more formats)
 		print("Loading tracker music: ", musicdict["path"])
 		var file = FileAccess.open(musicdict["path"], FileAccess.READ)

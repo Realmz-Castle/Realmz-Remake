@@ -334,3 +334,91 @@ Each claim should stay within its evidence:
   Encounter 23, Treasure 84, `Data DD:7:89`, `Data DD:9:56`,
   `Data DD:9:65`, `Data ED3:macro:403` through `407`, and
   `Data ED3:macro:44`.
+
+## Mithril Vault
+
+### Main completion chain
+
+- **Runtime-proven:** `Data DD:0:0` at land map 0 `(37, 6)` presents the
+  Winterhaven and Silver Peak setup with PICT 32128 and stock sound 20001.
+- **Runtime-proven:** `Data ED3:macro:138`, exercised on land map 11 at
+  `(3, 83)`, reveals Morbius, sets quest 77, and enters Battle 33 against
+  monster 61 and three copies of monster 62.
+- **Runtime-proven:** `Data ED3:macro:157`, exercised on land map 11 at
+  `(55, 49)`, enters Battle 40. Gail Wyrmrider (monster 68) carries The Geyser
+  (item 809) in inventory slot six, and the native defeated-enemy reward gives
+  that exact item to the party.
+- **Runtime-proven:** `Data DD:1:27` at `(64, 4)` accepts item 809 and sends
+  the party to King Cormite. `Data DD:8:1` at `(12, 13)` accepts the same item,
+  enters Battle 41, and runs the theft sequence that removes it.
+- **Runtime-proven:** Battle 41 places Cormite and 25 dwarves on the party's
+  side against 6 Alien Vraps, 8 Alien Mantises, and 8 Alien Telenites.
+- **Runtime-proven:** `Data DD:8:5` at `(7, 71)` enters Battle 53 against 20
+  Golian defenders. `Data DD:8:3` at `(11, 70)` then runs macro 186, which
+  changes land-10 trigger 2 from zero to 100 percent.
+- **Runtime-proven:** The activated `Data DD:10:2` at `(82, 72)` presents
+  Treasure 38, returns The Geyser, and runs macros 187 through 189. The party
+  receives the all-character level-up and Treasure 39, item 809 is removed,
+  the consumed trigger is deleted, and message 562 explicitly completes the
+  main goal.
+
+### Morbius and counterattack chains
+
+- **Source-proven:** Morbius images (monster 62) use death macro 150 and the
+  body (monster 61) uses death macro 151. Those macros replace the current
+  form, and weakened Morbius (monster 63) uses death macro 148. That last hook
+  presents Treasure 36 with 30,000 experience and item 731.
+- The acceptance driver forces Battle 33 victory after checking its initial
+  formation. It does not individually kill each Morbius form, so the
+  transformation chain remains source-proven.
+- **Source-proven:** Macros 170, 171, 175, and 180 enter Battles 45 through 49
+  during the alien and Golian counterattack. Battle 49's macro 182 adds further
+  combatants before macro 183 returns to the pursuit. The dedicated route
+  source-checks these records but jumps over their runtime battles.
+
+### Walkthrough and hint facts
+
+- The Geyser is Classic item 809. It must be recovered from Gail Wyrmrider in
+  Battle 40 before the Winterhaven council and King Cormite reports can
+  progress.
+- The relic is stolen after the warren invasion. Its absence afterward is
+  intentional; the final Gridstone sequence restores it before the scenario
+  removes it permanently.
+- Prilit's power-control interaction on land map 8 `(11, 70)` is what activates
+  the otherwise inert recovery trigger on land map 10.
+- The final material rewards are items 195, 197, 471, and 733. Message 562 is
+  the explicit main-goal completion marker.
+- An optional casket at `Data DD:11:77` presents messages 455 through 457,
+  Treasure 98, and an all-party level-up. Treasure 98 contains items 236, 415,
+  644, 203, 246, and 625, plus 30,000 experience, 500 gems, 9,000 gold, and 20
+  jewels. It is a lucrative sideline, not part of the certified main path.
+
+### Item lifecycle
+
+- Gail Wyrmrider's source record carries `[34, 218, 404, 423, 459, 809]`.
+- Extra Code 294 is the possession check used by both story gates:
+  `[809, 0, 0, 100, 0]`.
+- Extra Code 295 removes item 809 during the theft:
+  `[809, 99, 1, 0, 0]`.
+- Treasure 38 restores item 809 at the ending. Extra Code 1660 removes it after
+  the explicit completion message.
+
+### Optional-content boundary
+
+- Quest 77 is established during the Morbius sequence and set again by macro
+  183; it is not the scenario-completion flag. The explicit ending is the
+  Gridstone recovery and message 562.
+- The dedicated route proves the installed milestone chain, not manual travel
+  through every intervening map, Battles 45 through 49, optional casket, or
+  individual Morbius death.
+
+### Evidence
+
+- Route: `playtest/routes/mithril_vault.json`
+- Installed report:
+  `reports/classic_mithril_vault_route_acceptance.json`
+- Imported source records: `Data DD:0:0`, `Data DD:1:27`, `Data DD:8:1`,
+  `Data DD:8:3`, `Data DD:8:5`, `Data DD:10:2`, `Data DD:11:77`,
+  `Data ED3:macro:138`, `148`, `150`, `151`, `157`, `170`, `171`, `175`,
+  `180`, and `182` through `189`; Battles 33, 40, 41, 45 through 49, and 53;
+  Treasures 36, 38, 39, and 98.

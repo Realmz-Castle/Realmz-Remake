@@ -1,0 +1,735 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 37,
+			"y": 5
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 37,
+			"y": 5
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 3,
+				"displayName": "Morbius",
+				"monsterId": 62
+			},
+			{
+				"count": 1,
+				"displayName": "Morbius",
+				"monsterId": 61
+			}
+		],
+		"id": 33,
+		"returnMap": "map_11",
+		"returnPosition": {
+			"x": 3,
+			"y": 83
+		},
+		"rewardScreenPresented": true
+	},
+	"battles": [
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 3,
+					"displayName": "Morbius",
+					"monsterId": 62
+				},
+				{
+					"count": 1,
+					"displayName": "Morbius",
+					"monsterId": 61
+				}
+			],
+			"id": 33,
+			"returnMap": "map_11",
+			"returnPosition": {
+				"x": 3,
+				"y": 83
+			},
+			"rewardScreenPresented": true,
+			"stepId": "morbius-confrontation"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 10,
+					"displayName": "Acid Claw Warrior",
+					"monsterId": 64
+				},
+				{
+					"count": 6,
+					"displayName": "Acid Claw Corporal",
+					"monsterId": 65
+				},
+				{
+					"count": 5,
+					"displayName": "Acid Claw Seargent",
+					"monsterId": 66
+				},
+				{
+					"count": 2,
+					"displayName": "Acid Claw Captain",
+					"monsterId": 67
+				},
+				{
+					"count": 1,
+					"displayName": "Gail Wyrmrider",
+					"monsterId": 68
+				}
+			],
+			"id": 40,
+			"returnMap": "map_11",
+			"returnPosition": {
+				"x": 55,
+				"y": 49
+			},
+			"rewardScreenPresented": true,
+			"stepId": "recover-the-geyser"
+		},
+		{
+			"allies": [
+				{
+					"count": 4,
+					"displayName": "Dwarven Swordsman",
+					"monsterId": 115
+				},
+				{
+					"count": 10,
+					"displayName": "Dwarven Warrior",
+					"monsterId": 113
+				},
+				{
+					"count": 9,
+					"displayName": "Dwarven Spearman",
+					"monsterId": 114
+				},
+				{
+					"count": 1,
+					"displayName": "King Cormite",
+					"monsterId": 117
+				},
+				{
+					"count": 2,
+					"displayName": "Dwarven Captain",
+					"monsterId": 116
+				}
+			],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 6,
+					"displayName": "Alien Vrap",
+					"monsterId": 144
+				},
+				{
+					"count": 8,
+					"displayName": "Alien Mantis",
+					"monsterId": 147
+				},
+				{
+					"count": 8,
+					"displayName": "Alien Telenite",
+					"monsterId": 146
+				}
+			],
+			"id": 41,
+			"returnMap": "map_8",
+			"returnPosition": {
+				"x": 7,
+				"y": 6
+			},
+			"rewardScreenPresented": true,
+			"stepId": "warren-invasion"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 4,
+					"displayName": "Attack Droid",
+					"monsterId": 172
+				},
+				{
+					"count": 4,
+					"displayName": "Combat Drone",
+					"monsterId": 170
+				},
+				{
+					"count": 4,
+					"displayName": "Golian Warrior",
+					"monsterId": 176
+				},
+				{
+					"count": 4,
+					"displayName": "Golian Warrior",
+					"monsterId": 183
+				},
+				{
+					"count": 4,
+					"displayName": "Golian Warrior",
+					"monsterId": 177
+				}
+			],
+			"id": 53,
+			"returnMap": "map_8",
+			"returnPosition": {
+				"x": 7,
+				"y": 71
+			},
+			"rewardScreenPresented": true,
+			"stepId": "golian-security"
+		}
+	],
+	"campaignDirectory": "Mithril Vault (Classic)",
+	"campaignId": "scenario-mithril-vault",
+	"campaignName": "Mithril Vault (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			33,
+			40,
+			41,
+			45,
+			46,
+			47,
+			48,
+			49,
+			53
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			256,
+			258,
+			259,
+			281,
+			294,
+			295,
+			293,
+			306,
+			307,
+			308,
+			313,
+			326,
+			338,
+			345,
+			351,
+			352,
+			353,
+			981,
+			1660
+		],
+		"monsterIds": [
+			61,
+			62,
+			63,
+			68,
+			117
+		],
+		"runtime": {
+			"absentItemIds": [
+				809
+			],
+			"battleIds": [
+				33,
+				40,
+				41,
+				53
+			],
+			"itemIds": [
+				195,
+				197,
+				471,
+				733
+			],
+			"position": {
+				"levelIndex": 8,
+				"levelType": "land",
+				"x": 7,
+				"y": 6
+			},
+			"questFlags": [
+				77
+			],
+			"stepIds": [
+				"winterhaven-opening",
+				"morbius-confrontation",
+				"recover-the-geyser",
+				"winterhaven-council",
+				"warren-invasion",
+				"golian-security",
+				"disable-fortress-power",
+				"main-goal-ending"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": [
+				{
+					"levelIndex": 10,
+					"levelType": "land",
+					"percent": -1,
+					"triggerId": 2
+				}
+			]
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data ED3:macro:142",
+			"Data ED3:macro:150",
+			"Data ED3:macro:151",
+			"Data ED3:macro:148",
+			"Data ED3:macro:170",
+			"Data ED3:macro:171",
+			"Data ED3:macro:175",
+			"Data ED3:macro:180",
+			"Data ED3:macro:182",
+			"Data ED3:macro:186",
+			"Data ED3:macro:187",
+			"Data ED3:macro:188",
+			"Data ED3:macro:189"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 476,
+			"prefix": "It is your best guess that Morbius was to meet with this group",
+			"stepId": "recover-the-geyser"
+		},
+		{
+			"kind": "message",
+			"messageId": 479,
+			"prefix": "You enter the council chambers to report your progress.",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 480,
+			"prefix": "Many of the members are shocked to learn",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 481,
+			"prefix": "Whoever, or whatever is the rightful owner",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 482,
+			"prefix": "Visitors of the most unwelcome sort.",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 483,
+			"prefix": "You my friends must see to it",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 484,
+			"prefix": "Though it may mean the lack of Mithril",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 485,
+			"prefix": "I suggest you make great haste",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 486,
+			"prefix": "Ramius: \"My duty is here my friends.",
+			"stepId": "winterhaven-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 497,
+			"prefix": "King Cormite: \"I can't believe that this small band",
+			"stepId": "warren-invasion"
+		},
+		{
+			"kind": "message",
+			"messageId": 498,
+			"prefix": "Suddenly a wounded dwarf staggers towards the king.",
+			"stepId": "warren-invasion"
+		},
+		{
+			"kind": "message",
+			"messageId": 499,
+			"prefix": "The chamber guards fought as best they could",
+			"stepId": "warren-invasion"
+		},
+		{
+			"kind": "message",
+			"messageId": 500,
+			"prefix": "Gritting his teeth in rage",
+			"stepId": "warren-invasion"
+		},
+		{
+			"kind": "message",
+			"messageId": 501,
+			"prefix": "The king is furious for having been so foolish",
+			"stepId": "warren-invasion"
+		},
+		{
+			"kind": "message",
+			"messageId": 502,
+			"prefix": "We will recapture this relic or I will die trying!",
+			"stepId": "warren-invasion"
+		},
+		{
+			"kind": "message",
+			"messageId": 546,
+			"prefix": "Prilit: \"Here!",
+			"stepId": "disable-fortress-power"
+		},
+		{
+			"kind": "message",
+			"messageId": 547,
+			"prefix": "Prilit: \"That should do it.",
+			"stepId": "disable-fortress-power"
+		},
+		{
+			"experience": 30000,
+			"itemIds": [
+				809
+			],
+			"kind": "treasure",
+			"stepId": "main-goal-ending",
+			"treasureId": 38
+		},
+		{
+			"kind": "message",
+			"messageId": 548,
+			"prefix": "Cormite quickly grabs 'The Geyser'",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 549,
+			"prefix": "Cormite: \"But what of our need of this relic.",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 550,
+			"prefix": "Prilit: \"Hmmm.",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 551,
+			"prefix": "Cormite: \"Yes.",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 552,
+			"prefix": "Not in any shape or form.",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 553,
+			"prefix": "Cormite: \"By the gods that's right.",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 554,
+			"prefix": "I am sure Weston will be grateful beyond measure",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "level-up",
+			"selectedCount": 1,
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 555,
+			"prefix": "King Cormite quickly shows Prilit where his land is located.",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 556,
+			"prefix": "Weston is quickly summoned",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 557,
+			"prefix": "Weston: \"This new learning amazes me!",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 558,
+			"prefix": "I only pray that your craft can take us there quickly",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 559,
+			"prefix": "After we got and then lost \"The Geyser\"",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 560,
+			"prefix": "Weston looks himself over.",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 561,
+			"prefix": "Weston quickly removes the plethora of magical items",
+			"stepId": "main-goal-ending"
+		},
+		{
+			"experience": 30000,
+			"itemIds": [
+				195,
+				197,
+				471,
+				733
+			],
+			"kind": "treasure",
+			"stepId": "main-goal-ending",
+			"treasureId": 39
+		},
+		{
+			"kind": "message",
+			"messageId": 562,
+			"prefix": "Congratulations.",
+			"stepId": "main-goal-ending"
+		}
+	],
+	"routeId": "mithril-vault-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20001,
+			"nativeName": "twinkle.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "winterhaven-opening",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 24000,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-24000-6e98c0ce2083.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "warren-invasion",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10136,
+			"nativeName": "monster shout.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "warren-invasion",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 1100,
+			"nativeName": "talk 1.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "warren-invasion",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 24000,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-24000-6e98c0ce2083.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "golian-security",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 900,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-900-3c3d56efe961.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "disable-fortress-power",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20004,
+			"nativeName": "hallelujah.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "main-goal-ending",
+			"waitForCompletion": false
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "winterhaven-opening-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "morbius-confrontation-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recover-the-geyser-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "winterhaven-council-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "warren-invasion-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "golian-security-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "disable-fortress-power-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "main-goal-ending-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "Winterhaven's installed opening presents the decoded scenario picture, stock sound, and Mithril premise through the native HUD",
+			"id": "winterhaven-opening",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "morbius-confrontation",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "morbius-confrontation-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "recover-the-geyser",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "recover-the-geyser-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The live possession gate accepts item 809 and the complete council report directs the party to King Cormite",
+			"id": "winterhaven-council",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "warren-invasion",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "warren-invasion-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "golian-security",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "golian-security-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "Prilit disables the fortress power and macro 186 changes land-10 trigger 2 from zero to 100 percent, making the authored Gridstone recovery reachable",
+			"id": "disable-fortress-power",
+			"status": "passed"
+		},
+		{
+			"detail": "The now-active recovery trigger returns The Geyser, resolves Weston's curse, grants all four final magic items, removes the relic, and presents the explicit main-goal ending",
+			"id": "main-goal-ending",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed",
+	"triggerPercentageChecks": [
+		{
+			"levelIndex": 10,
+			"levelType": "land",
+			"percent": 100,
+			"stepId": "disable-fortress-power",
+			"triggerId": 2
+		}
+	]
+}

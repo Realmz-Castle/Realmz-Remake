@@ -472,7 +472,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"shift_party_position", "set_camping_permission", \
 		"set_priest_turning", \
 		"set_land_look", "give_battle_loot", "alter_party_items", \
-		"store_party_equipment", "add_party_ally", \
+		"store_party_equipment", "add_party_ally", "remove_party_ally", \
 		"destroy_combat_monsters", "deanimate_lower_undead", "rout_combat_monsters", \
 		"spawn_combat_monsters", \
 		"alter_classic_combatants", \

@@ -4889,7 +4889,7 @@ func _test_builtin_shared_asset_tilesets() -> void:
 		native_resources.free()
 	_expect_equal(
 		generated_monster_count,
-		1838,
+		1841,
 		"built-in corpus checks every generated Classic monster"
 	)
 	_expect_equal(
@@ -4920,7 +4920,7 @@ func _test_builtin_shared_asset_tilesets() -> void:
 		{
 			"classic-resource-pair-runtime-media-incomplete": 587,
 			"incomplete-classic-resource-pair": 441,
-			"stock-family-jewels-pair": 809,
+			"stock-family-jewels-pair": 812,
 			"unresolved-external-classic-resource": 1,
 		},
 		"built-in monster icon inventory classifies every generated definition"
@@ -7859,6 +7859,27 @@ func _test_classic_bestiary_materializer() -> void:
 		separate_weapon_inventory.get("unsupportedFields"),
 		[],
 		"resolved positive weapon outside the carried slots remains launchable"
+	)
+	var non_equippable_weapon_inventory: Dictionary = materializer._native_inventory(
+		{
+			"items": [704, 0, 0, 0, 0, 0],
+			"weapon": 704,
+			"missilePercent": 0,
+		},
+		{"Rod of Shattering": {"equippable": 0}},
+		[],
+		{704: "Rod of Shattering"}
+	)
+	_expect_equal(
+		non_equippable_weapon_inventory.get("entries"),
+		[["Rod of Shattering", 0]],
+		"a non-equippable Classic weapon remains carried without an invalid equip attempt"
+	)
+	_expect(
+		non_equippable_weapon_inventory.get("unsupportedFields", []).has(
+			"weapon.nonEquippable"
+		),
+		"the non-equippable active-weapon mismatch remains explicit"
 	)
 	_expect(
 		separate_weapon_inventory.get("fidelityFallbacks", []).has(
