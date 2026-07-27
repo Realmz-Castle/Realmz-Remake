@@ -494,6 +494,12 @@ func _run_complex_item_step(step: Dictionary) -> bool:
 	if not host.start_trigger(str(step.get("triggerId", ""))):
 		_fail(stage, str(host.runtime.last_result))
 		return false
+	if not await _run_interaction_sequence(
+		stage,
+		step.get("prelude", []),
+		step.get("picture", {}),
+	):
+		return false
 	if not await _wait_for_choices():
 		_fail(stage, "The authored complex encounter did not open")
 		return false
@@ -885,6 +891,23 @@ func _run_interaction_sequence(
 					if next_event is Dictionary \
 							and str(next_event.get("kind", "")) == "battle":
 						_prepare_route_party_for_battle()
+				UI.ow_hud.textRect.disablerButton.pressed.emit()
+			"click":
+				var click_prompt := str(event.get("prefix", "Click Mouse"))
+				if not await _wait_for_message(click_prompt):
+					_fail(stage, "The authored click prompt did not open")
+					return false
+				if bool(event.get("picture", false)) \
+						and not _verify_picture(
+							event.get("pictureSpec", default_picture_value)
+						):
+					_fail(stage, "The authored click picture did not render")
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "click",
+					"prefix": click_prompt,
+				})
 				UI.ow_hud.textRect.disablerButton.pressed.emit()
 			"choice":
 				if not await _wait_for_choices():
@@ -1346,7 +1369,7 @@ func _battle_spec_source_matches(specification: Dictionary) -> bool:
 
 
 func _nested_battles_source_match(step: Dictionary) -> bool:
-	for sequence_name: String in ["postVictory", "sequence"]:
+	for sequence_name: String in ["prelude", "postVictory", "sequence"]:
 		var sequence_value: Variant = step.get(sequence_name, [])
 		if not (sequence_value is Array):
 			return false
@@ -1448,7 +1471,7 @@ func _step_messages_match(step: Dictionary) -> bool:
 		var prompt_value: Variant = encounter_value.get("prompt", {})
 		if prompt_value is Dictionary and not prompt_value.is_empty():
 			messages.append(prompt_value)
-	for sequence_name: String in ["postVictory", "sequence"]:
+	for sequence_name: String in ["prelude", "postVictory", "sequence"]:
 		var sequence_value: Variant = step.get(sequence_name, [])
 		if not (sequence_value is Array):
 			return false

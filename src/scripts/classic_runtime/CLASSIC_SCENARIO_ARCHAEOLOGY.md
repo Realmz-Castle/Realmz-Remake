@@ -604,3 +604,119 @@ Each claim should stay within its evidence:
   `426`, `2019` through `2021`, `2025`, `2026`, `2055` through `2066`, and
   `2074`; Battles 203 and 349; Treasure 182; item 944; monsters 161, 235, 236,
   and 237.
+
+## Twin Sands of Time
+
+### Main completion chain
+
+- **Runtime-proven:** `Data DD:1:9` presents message 2 and PICT 30128 at the
+  authored land-map start. Its separate Get Click command must be acknowledged
+  before the action point finishes.
+- **Runtime-proven:** `Data DD:1:31` introduces Emi. Accepting his invitation
+  runs macros 111 and 112. He connects the unnatural sandstorms to the
+  disappearance of Ollahn and Malear, charges the party with finding the
+  twins, and transports them into the scenario.
+- **Runtime-proven:** `Data DD:0:12` has the lonely king ask the party to kill
+  a vampire. Treasure 44 supplies the Dagger of Eromon (item 914), which he
+  says must be driven through her heart.
+- **Runtime-proven:** `Data DD:5:9` enters Battle 62 against Ja-Dran, one Red
+  Dragon. Victory reveals Ollahn, presents Treasure 20, and adds Ollahn as ally
+  144. Macro 129 then entrusts him to the Queen's representatives, drops ally
+  144, and sets quest 67.
+- **Runtime-proven:** Macro 131 recruits ally 145. The dialogue calls him
+  Guntro, but monster 145 is named Malear and the Prince recognizes that same
+  ally as Malear without an intervening reveal.
+- **Runtime-proven:** `Data DD:6:35` and macro 201 present the Prince's invasion
+  council. Malear agrees to reunite with Ollahn, map 14 reveals the secret
+  route, and the party receives the two explicit goals: reunite the twins and
+  kill Queen Allimac.
+- **Runtime-proven:** Macros 244 through 250 transform Malear from ally 145 to
+  the empowered ally 155 and enter Battle 105. Its initial formation has 32
+  hostile creatures, eleven Prince's Royal Guards, and one Prince's Captain.
+  Victory presents Allimac's temporary defeat and returns Ollahn as ally 144.
+- **Runtime-proven:** Macro 251 opens complex encounter 23. Selecting item 914
+  presents message 673, turns Allimac to dust, applies the tomb mutations, and
+  sets quest 69. Message 677 seals the entrance behind the party.
+- **Runtime-proven:** Macro 205 transports the reunited party to the Prince's
+  celebration square. Entering `Data DD:6:37` separately presents the memorial,
+  the public thanks, and the reward choice. Declining to stay runs macro 207,
+  gives Treasure 30 and 1,000 experience, and transports the party to the
+  castle gate.
+- **Runtime-proven:** Entering `Data DD:4:81` separately presents messages 572
+  and 573. They explicitly conclude Twin Sands of Time, declare its main plot
+  finished, and allow the party to continue wandering.
+
+### Identity and narrative discrepancies
+
+- Guntro's recruitment text says he wants to help kill orcs, but the action
+  adds monster 145, whose source name is Malear. Later branches check and name
+  that ally as Malear. No authored text in the completion spine explicitly
+  reveals that Guntro is Malear.
+- Macro 251 presents message 134, `Would you like to keep this letter?`, before
+  the coffin description and complex encounter. The installed route confirms
+  that this unrelated line is part of the compiled coffin action list.
+- Complex encounter 23's successful item response says the Dagger of Eromon
+  crumbles to dust. The result actions do not remove item 914, and Classic's
+  ordinary encounter-item response inspects rather than consumes it. Quest 69
+  and the tomb mutations advance while the dagger remains in inventory.
+
+### Battles and allies
+
+- Battle 62 contains only monster 38, a Red Dragon representing Ja-Dran.
+- Battle 105 contains 32 initial hostiles: a Minor Demon, three Skeletal
+  Warriors from monster 5, four Giant Zombies, two Winged Devils, three Ghouls,
+  two Ghosts, three Skeletal Warriors from monster 86, an Orc Warrior, a
+  Goblin, a Goblin Hero, a Flesh Fiend, two Demons, a Shantile, a Goblin
+  Shaman, an Orc Shaman, an Orc Captain, two Orc Archers, a Goblin Champion,
+  and Orc Vampire Allimac.
+- The same formation uses negative grid identities for eleven Prince's Royal
+  Guards and one Prince's Captain, forcing them onto the party's side.
+- **Source-proven:** Battle 105 uses battle macro 249. Extra Code 509 can call
+  macro 256 while Orc Vampire 152 remains present, present message 662, and
+  spawn more enemies. The installed route checks the full initial formation
+  and forces victory before certifying reinforcement rounds.
+- The main ally progression is Ollahn 144, Malear 145, empowered Malear 155,
+  then Ollahn 144 restored after the brothers reunite.
+
+### Walkthrough and hint facts
+
+- Emi's assignment is the earliest direct statement of the main mystery:
+  reunite Ollahn and Malear to discover why the sandstorms began.
+- The Queen initially sends the party after Ollahn and identifies Ja-Dran as
+  his captor. The Shield of the Eternal is intended to protect against the Red
+  Dragon's breath, but the dedicated route jumps directly to the battle.
+- The Dagger of Eromon comes from the lonely king at land map 0 `(4, 86)`.
+  Its importance is not limited to that local vampire request; it is the exact
+  item accepted by Allimac's final coffin encounter.
+- Defeating Allimac in Battle 105 is only temporary. Message 663 explicitly
+  directs the party to find and destroy her coffin.
+- Allimac's coffin result seals the original tomb entrance. The source mutates
+  a hidden exit path, but the dedicated route jumps from the completed coffin
+  state to the Prince's return branch rather than certifying the manual escape.
+- Both the return teleport and the reward teleport place the party at the next
+  milestone without automatically executing it. The player must enter the
+  celebration square and later the castle-gate ending action point.
+- Accepting the Prince's invitation to remain follows a different reward path.
+  The installed route declines, receives Treasure 30, and takes the shortest
+  authored route to the explicit ending.
+
+### Optional-content boundary
+
+- Quests 67 and 69, the reunited twins, the Prince's celebration, and messages
+  572 and 573 form the runtime-proven completion spine.
+- The route proves the direct installed completion behavior, not manual travel
+  through all eight land maps and two dungeons, the Shield of the Eternal
+  search, the hidden tomb escape, every regional quest, battle reinforcement
+  rounds, the celebration-acceptance branch, or every optional encounter.
+
+### Evidence
+
+- Route: `playtest/routes/twin_sands_of_time.json`
+- Installed report:
+  `reports/classic_twin_sands_of_time_route_acceptance.json`
+- Imported source records: `Data DD:0:12`, `Data DD:1:9`,
+  `Data DD:1:31`, `Data DD:4:81`, `Data DD:5:9`, `Data DD:6:35`,
+  `Data DD:6:37`, `Data ED3:macro:111`, `112`, `129`, `131`, `201`,
+  `205` through `208`, `218`, `244` through `251`, `256`, and `257`;
+  Battles 62 and 105; complex encounter 23; Treasures 20, 30, and 44;
+  item 914; monsters 38, 96, 144, 145, 152, 154, and 155.

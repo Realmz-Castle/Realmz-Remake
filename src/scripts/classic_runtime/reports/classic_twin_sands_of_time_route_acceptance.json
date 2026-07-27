@@ -1,0 +1,918 @@
+{
+	"authoredStart": {
+		"map": "map_1",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 52,
+			"y": 34
+		},
+		"runtimePosition": {
+			"levelIndex": 1,
+			"levelType": "land",
+			"x": 52,
+			"y": 34
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 1,
+				"displayName": "Red Dragon",
+				"monsterId": 38
+			}
+		],
+		"id": 62,
+		"rewardScreenPresented": true
+	},
+	"battles": [
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Red Dragon",
+					"monsterId": 38
+				}
+			],
+			"id": 62,
+			"rewardScreenPresented": true,
+			"stepId": "rescue-ollahn:ja-dran"
+		},
+		{
+			"allies": [
+				{
+					"count": 11,
+					"displayName": "Prince's Royal Guard",
+					"monsterId": 96
+				},
+				{
+					"count": 1,
+					"displayName": "Prince's Captain",
+					"monsterId": 154
+				}
+			],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Minor Demon",
+					"monsterId": 4
+				},
+				{
+					"count": 3,
+					"displayName": "Skeletal Warrior",
+					"monsterId": 5
+				},
+				{
+					"count": 4,
+					"displayName": "Giant Zombie",
+					"monsterId": 12
+				},
+				{
+					"count": 2,
+					"displayName": "Winged Devil",
+					"monsterId": 63
+				},
+				{
+					"count": 3,
+					"displayName": "Ghoul",
+					"monsterId": 75
+				},
+				{
+					"count": 2,
+					"displayName": "Ghost",
+					"monsterId": 84
+				},
+				{
+					"count": 3,
+					"displayName": "Skeletal Warrior",
+					"monsterId": 86
+				},
+				{
+					"count": 1,
+					"displayName": "Orc Warrior",
+					"monsterId": 91
+				},
+				{
+					"count": 1,
+					"displayName": "Goblin",
+					"monsterId": 92
+				},
+				{
+					"count": 1,
+					"displayName": "Goblin Hero",
+					"monsterId": 93
+				},
+				{
+					"count": 1,
+					"displayName": "Flesh Fiend",
+					"monsterId": 100
+				},
+				{
+					"count": 2,
+					"displayName": "Demon",
+					"monsterId": 108
+				},
+				{
+					"count": 1,
+					"displayName": "Shantile",
+					"monsterId": 110
+				},
+				{
+					"count": 1,
+					"displayName": "Goblin Shaman",
+					"monsterId": 116
+				},
+				{
+					"count": 1,
+					"displayName": "Orc Shaman",
+					"monsterId": 121
+				},
+				{
+					"count": 1,
+					"displayName": "Orc Captain",
+					"monsterId": 122
+				},
+				{
+					"count": 2,
+					"displayName": "Orc Archer",
+					"monsterId": 126
+				},
+				{
+					"count": 1,
+					"displayName": "Goblin Champion",
+					"monsterId": 129
+				},
+				{
+					"count": 1,
+					"displayName": "Orc Vampire",
+					"monsterId": 152
+				}
+			],
+			"id": 105,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-allimac:vampire-allimac"
+		}
+	],
+	"campaignDirectory": "Twin Sands of Time (Classic)",
+	"campaignId": "scenario-twin-sands-of-time",
+	"campaignName": "Twin Sands of Time (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			62,
+			105
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			246,
+			406,
+			411,
+			484,
+			509,
+			848
+		],
+		"monsterIds": [
+			38,
+			152
+		],
+		"runtime": {
+			"absentItemIds": [],
+			"battleIds": [
+				62,
+				105
+			],
+			"itemIds": [],
+			"position": {
+				"levelIndex": 4,
+				"levelType": "land",
+				"x": 75,
+				"y": 16
+			},
+			"questFlags": [
+				67,
+				69
+			],
+			"stepIds": [
+				"twin-sands-opening",
+				"emi-mission",
+				"dagger-of-eromon",
+				"rescue-ollahn",
+				"entrust-ollahn",
+				"recruit-malear",
+				"prince-war-council",
+				"defeat-allimac",
+				"destroy-allimac-coffin",
+				"return-to-prince",
+				"prince-homecoming",
+				"explicit-main-plot-ending"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": []
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data ED3:macro:244",
+			"Data ED3:macro:248",
+			"Data ED3:macro:251",
+			"Data ED3:macro:205",
+			"Data DD:6:37",
+			"Data DD:4:81"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 2,
+			"prefix": "A genuine thirst ravages your aching bodies.",
+			"stepId": "twin-sands-opening"
+		},
+		{
+			"kind": "click",
+			"prefix": "Click Mouse",
+			"stepId": "twin-sands-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 269,
+			"prefix": "A small hovel of a home sits deep in the sand.",
+			"stepId": "emi-mission"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 270,
+			"prefix": "Upon entering the house you seem to feel",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 271,
+			"prefix": "...your interest and wonderment.",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 272,
+			"prefix": "...surmise correctly he is of the magical persuasion.",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 273,
+			"prefix": "...am in need of your help.",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 274,
+			"prefix": "...I summoned you to my aid.",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 275,
+			"prefix": "...is one.",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 276,
+			"prefix": "...clouds of sand from who-knows-where descended",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 277,
+			"prefix": "...to be a strange coincedence between the sand storms",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 278,
+			"prefix": "...both of them were together when they vanished",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 279,
+			"prefix": "...which befell them we may have a chance",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 280,
+			"prefix": "...your homes far, far away from this place.",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 281,
+			"prefix": "...snaps his fingers and you find yourself outside",
+			"stepId": "emi-mission"
+		},
+		{
+			"kind": "message",
+			"messageId": 738,
+			"prefix": "The doors to the castle hang open and unguarded.",
+			"stepId": "dagger-of-eromon"
+		},
+		{
+			"kind": "message",
+			"messageId": 739,
+			"prefix": "...oh!",
+			"stepId": "dagger-of-eromon"
+		},
+		{
+			"kind": "message",
+			"messageId": 740,
+			"prefix": "...my people are staying to the north",
+			"stepId": "dagger-of-eromon"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "dagger-of-eromon"
+		},
+		{
+			"kind": "message",
+			"messageId": 741,
+			"prefix": "\"Excellent.",
+			"stepId": "dagger-of-eromon"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				914
+			],
+			"kind": "treasure",
+			"stepId": "dagger-of-eromon",
+			"treasureId": 44
+		},
+		{
+			"kind": "message",
+			"messageId": 339,
+			"prefix": "Ja-Dran was expecting you.",
+			"stepId": "rescue-ollahn"
+		},
+		{
+			"battleId": 62,
+			"kind": "battle",
+			"stepId": "rescue-ollahn"
+		},
+		{
+			"kind": "message",
+			"messageId": 340,
+			"prefix": "The last breathe leaves Ja-Dran.",
+			"stepId": "rescue-ollahn"
+		},
+		{
+			"experience": 5000,
+			"itemIds": [
+				6,
+				211,
+				419,
+				614,
+				614,
+				624
+			],
+			"kind": "treasure",
+			"stepId": "rescue-ollahn",
+			"treasureId": 20
+		},
+		{
+			"kind": "message",
+			"messageId": 341,
+			"prefix": "As if it was it's only goal",
+			"stepId": "rescue-ollahn"
+		},
+		{
+			"kind": "message",
+			"messageId": 337,
+			"prefix": "\"Wait.",
+			"stepId": "entrust-ollahn"
+		},
+		{
+			"kind": "message",
+			"messageId": 338,
+			"prefix": "...with them.",
+			"stepId": "entrust-ollahn"
+		},
+		{
+			"kind": "message",
+			"messageId": 351,
+			"prefix": "\"You don't seek them out.",
+			"stepId": "recruit-malear"
+		},
+		{
+			"kind": "message",
+			"messageId": 545,
+			"prefix": "The Prince shows up from behind a curtain",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 546,
+			"prefix": "\"Excellent.",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 547,
+			"prefix": "...wise, beyond your years.",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 548,
+			"prefix": "...evil Queen.",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 549,
+			"prefix": "...concerns are well founded",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 550,
+			"prefix": "...are here.",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 551,
+			"prefix": "...force strong enough to defeat her.",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 552,
+			"prefix": "The Prince waves his hand",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 553,
+			"prefix": "...cheer goes up.",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 554,
+			"prefix": "...the shoulders of many men",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "map",
+			"mapId": 14,
+			"prefix": "You gain a map, to view the map use Maps/Notes in the Menu.",
+			"stepId": "prince-war-council"
+		},
+		{
+			"kind": "message",
+			"messageId": 653,
+			"prefix": "As you approach the castle",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 654,
+			"prefix": "...to complete my quest for domination",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 655,
+			"prefix": "...and closes his eyes.",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 656,
+			"prefix": "Malear and Ollahn give out a strange grunt.",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 657,
+			"prefix": "Queen Allimac turns to Malear",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 658,
+			"prefix": "The Queen is no longer the Queen.",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 659,
+			"prefix": "The evil Vampire Allimac screams",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 660,
+			"prefix": "...to dominate these weak races!",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 661,
+			"prefix": "...welling up inside him.",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"battleId": 105,
+			"kind": "battle",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 663,
+			"prefix": "As the Vampire Allimac is killed in this form",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 681,
+			"prefix": "Ollahn, also looking more powerful",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 682,
+			"prefix": "...have prevailed.",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 683,
+			"prefix": "Ollahn joins you as you leave",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 688,
+			"prefix": "They embrace as only two twins can.",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 689,
+			"prefix": "...have prevailed.",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 683,
+			"prefix": "Ollahn joins you as you leave",
+			"stepId": "defeat-allimac"
+		},
+		{
+			"kind": "message",
+			"messageId": 134,
+			"prefix": "Would you like to keep this letter?",
+			"stepId": "destroy-allimac-coffin"
+		},
+		{
+			"kind": "message",
+			"messageId": 671,
+			"prefix": "The lid slides off.",
+			"stepId": "destroy-allimac-coffin"
+		},
+		{
+			"kind": "message",
+			"messageId": 673,
+			"prefix": "You plunge the dagger of Eromon",
+			"stepId": "destroy-allimac-coffin"
+		},
+		{
+			"kind": "message",
+			"messageId": 677,
+			"prefix": "After the dagger does its work",
+			"stepId": "destroy-allimac-coffin"
+		},
+		{
+			"encounterId": 23,
+			"itemConsumed": false,
+			"itemId": 914,
+			"kind": "complex-item",
+			"stepId": "destroy-allimac-coffin"
+		},
+		{
+			"kind": "message",
+			"messageId": 557,
+			"prefix": "A surge of guards swarm around you.",
+			"stepId": "return-to-prince"
+		},
+		{
+			"kind": "message",
+			"messageId": 558,
+			"prefix": "The Prince is here.",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 559,
+			"prefix": "...men, women, and children",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 560,
+			"prefix": "...moment of silence.",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 561,
+			"prefix": "The Prince raises his head",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 562,
+			"prefix": "...people, it is a time for rejoicing",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 563,
+			"prefix": "...Malear, rescuing Ollahn",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 564,
+			"prefix": "...Hooray!",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 565,
+			"prefix": "Get your neighbors, get your friends",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 566,
+			"prefix": "...with the Prince and his guards.",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 567,
+			"prefix": "...way.",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"answer": "NO",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 568,
+			"prefix": "\"I understand.",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 569,
+			"prefix": "\"I will not be needing these anymore.",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"experience": 1000,
+			"itemIds": [
+				413,
+				217,
+				4,
+				101,
+				76,
+				614,
+				624,
+				911
+			],
+			"kind": "treasure",
+			"stepId": "prince-homecoming",
+			"treasureId": 30
+		},
+		{
+			"kind": "message",
+			"messageId": 570,
+			"prefix": "The captain of the guard escorts you",
+			"stepId": "prince-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 572,
+			"prefix": "This concludes The Twin Sands of Time!",
+			"stepId": "explicit-main-plot-ending"
+		},
+		{
+			"kind": "message",
+			"messageId": 573,
+			"prefix": "You can continue wandering around and adventuring",
+			"stepId": "explicit-main-plot-ending"
+		}
+	],
+	"routeId": "twin-sands-of-time-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -11750,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-11750-ded852df86a6.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "defeat-allimac",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -22041,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-22041-c80771c4417c.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "defeat-allimac",
+			"waitForCompletion": true
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "twin-sands-opening-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "emi-mission-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "dagger-of-eromon-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "rescue-ollahn-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "entrust-ollahn-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recruit-malear-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "prince-war-council-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-allimac-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "destroy-allimac-coffin-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "return-to-prince-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "prince-homecoming-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "explicit-main-plot-ending-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed opening presents the desert arrival and decoded Twin Sands title picture through the native HUD",
+			"id": "twin-sands-opening",
+			"status": "passed"
+		},
+		{
+			"detail": "Emi identifies the twins' disappearance and the unnatural sand as the main investigation before transporting the party into the scenario",
+			"id": "emi-mission",
+			"status": "passed"
+		},
+		{
+			"detail": "The lonely king supplies item 914, the Dagger of Eromon required to destroy Allimac in her coffin",
+			"id": "dagger-of-eromon",
+			"status": "passed"
+		},
+		{
+			"detail": "Battle 62 materializes Ja-Dran as one Red Dragon, then the installed victory path rescues Ollahn as ally 144",
+			"id": "rescue-ollahn",
+			"status": "passed"
+		},
+		{
+			"detail": "The Queen's representatives take Ollahn into custody, retire ally 144, and mark quest 67 before the party seeks his twin",
+			"id": "entrust-ollahn",
+			"status": "passed"
+		},
+		{
+			"detail": "The recruit introduced in dialogue as Guntro joins as the source's ally 145, whose monster identity is Malear",
+			"id": "recruit-malear",
+			"status": "passed"
+		},
+		{
+			"detail": "With ally 145 present, the Prince identifies him as Malear, gives the secret-invasion map, and sets the two final goals",
+			"id": "prince-war-council",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed invasion transforms Malear to ally 155, verifies Battle 105's full initial formation, defeats Allimac's active form, and reunites the twins",
+			"id": "defeat-allimac",
+			"status": "passed"
+		},
+		{
+			"detail": "Complex encounter 23 exposes item 914 in the native picker, follows Classic's non-consuming ordinary-item response, destroys Allimac permanently, and marks quest 69",
+			"id": "destroy-allimac-coffin",
+			"status": "passed"
+		},
+		{
+			"detail": "The surviving twins' return branch opens the Prince's castle and transports the party to the authored celebration action point",
+			"id": "return-to-prince",
+			"status": "passed"
+		},
+		{
+			"detail": "The Prince recognizes Allimac's death and the twins' reunion, then the refusal branch awards Treasure 30 and escorts the party to the castle gate",
+			"id": "prince-homecoming",
+			"status": "passed"
+		},
+		{
+			"detail": "The castle-gate action point explicitly declares Twin Sands concluded while preserving post-game wandering",
+			"id": "explicit-main-plot-ending",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed",
+	"triggerPercentageChecks": []
+}

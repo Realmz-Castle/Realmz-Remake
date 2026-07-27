@@ -1,0 +1,935 @@
+{
+  "schemaVersion": 1,
+  "routeId": "twin-sands-of-time-completion-route",
+  "campaignId": "scenario-twin-sands-of-time",
+  "campaignDirectory": "Twin Sands of Time (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 1,
+    "x": 52,
+    "y": 34
+  },
+  "steps": [
+    {
+      "id": "twin-sands-opening",
+      "kind": "action-list",
+      "triggerId": "Data DD:1:9",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 51,
+        "y": 34
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": -2},
+        {"slot": 1, "code": 27, "id": 30128},
+        {"slot": 2, "code": 26, "id": 0},
+        {"slot": 3, "code": 22, "id": 3},
+        {"slot": 4, "code": 22, "id": 245},
+        {"slot": 5, "code": 22, "id": 249},
+        {"slot": 6, "code": 22, "id": 884},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 2,
+          "prefix": "A genuine thirst ravages your aching bodies."
+        },
+        {
+          "kind": "click",
+          "prefix": "Click Mouse",
+          "picture": true
+        }
+      ],
+      "picture": {
+        "id": 30128,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "The installed opening presents the desert arrival and decoded Twin Sands title picture through the native HUD"
+    },
+    {
+      "id": "emi-mission",
+      "kind": "action-list",
+      "triggerId": "Data DD:1:31",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 63,
+        "y": 38
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 5,
+        "x": 35,
+        "y": 3
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": -269},
+        {"slot": 1, "code": 3, "id": 9},
+        {"slot": 2, "code": 1, "id": 270},
+        {"slot": 3, "code": 1, "id": 271},
+        {"slot": 4, "code": 1, "id": 272},
+        {"slot": 5, "code": 1, "id": 273},
+        {"slot": 6, "code": 1, "id": 274},
+        {"slot": 7, "code": 39, "id": 111}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 269,
+          "prefix": "A small hovel of a home sits deep in the sand."
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 270,
+          "prefix": "Upon entering the house you seem to feel"
+        },
+        {
+          "kind": "message",
+          "id": 271,
+          "prefix": "...your interest and wonderment."
+        },
+        {
+          "kind": "message",
+          "id": 272,
+          "prefix": "...surmise correctly he is of the magical persuasion."
+        },
+        {
+          "kind": "message",
+          "id": 273,
+          "prefix": "...am in need of your help."
+        },
+        {
+          "kind": "message",
+          "id": 274,
+          "prefix": "...I summoned you to my aid."
+        },
+        {
+          "kind": "message",
+          "id": 275,
+          "prefix": "...is one."
+        },
+        {
+          "kind": "message",
+          "id": 276,
+          "prefix": "...clouds of sand from who-knows-where descended"
+        },
+        {
+          "kind": "message",
+          "id": 277,
+          "prefix": "...to be a strange coincedence between the sand storms"
+        },
+        {
+          "kind": "message",
+          "id": 278,
+          "prefix": "...both of them were together when they vanished"
+        },
+        {
+          "kind": "message",
+          "id": 279,
+          "prefix": "...which befell them we may have a chance"
+        },
+        {
+          "kind": "message",
+          "id": 280,
+          "prefix": "...your homes far, far away from this place."
+        },
+        {
+          "kind": "message",
+          "id": 281,
+          "prefix": "...snaps his fingers and you find yourself outside"
+        }
+      ],
+      "detail": "Emi identifies the twins' disappearance and the unnatural sand as the main investigation before transporting the party into the scenario"
+    },
+    {
+      "id": "dagger-of-eromon",
+      "kind": "action-list",
+      "triggerId": "Data DD:0:12",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 4,
+        "y": 86
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 738},
+        {"slot": 1, "code": 1, "id": 739},
+        {"slot": 2, "code": 1, "id": -740},
+        {"slot": 3, "code": 3, "id": 9},
+        {"slot": 4, "code": 1, "id": 741},
+        {"slot": 5, "code": 10, "id": 44},
+        {"slot": 6, "code": 7, "id": 881},
+        {"slot": 7, "code": 39, "id": 283}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 738,
+          "prefix": "The doors to the castle hang open and unguarded."
+        },
+        {
+          "kind": "message",
+          "id": 739,
+          "prefix": "...oh!"
+        },
+        {
+          "kind": "message",
+          "id": 740,
+          "prefix": "...my people are staying to the north"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 741,
+          "prefix": "\"Excellent."
+        },
+        {
+          "kind": "treasure",
+          "id": 44,
+          "itemIds": [914],
+          "sourceItemIds": [914, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 0,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        }
+      ],
+      "detail": "The lonely king supplies item 914, the Dagger of Eromon required to destroy Allimac in her coffin"
+    },
+    {
+      "id": "rescue-ollahn",
+      "kind": "action-list",
+      "triggerId": "Data DD:5:9",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 5,
+        "x": 9,
+        "y": 68
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 339},
+        {"slot": 1, "code": 2, "id": 246},
+        {"slot": 2, "code": 1, "id": 340},
+        {"slot": 3, "code": 10, "id": 20},
+        {"slot": 4, "code": 1, "id": 341},
+        {"slot": 5, "code": 89, "id": 144},
+        {"slot": 6, "code": 22, "id": 247},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 339,
+          "prefix": "Ja-Dran was expecting you."
+        },
+        {
+          "kind": "battle",
+          "id": "ja-dran",
+          "battleId": 62,
+          "creatures": [
+            {"monsterId": 38, "displayName": "Red Dragon", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 340,
+          "prefix": "The last breathe leaves Ja-Dran."
+        },
+        {
+          "kind": "treasure",
+          "id": 20,
+          "itemIds": [6, 211, 419, 614, 614, 624],
+          "sourceItemIds": [6, 211, 419, 614, 614, 624, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 5000,
+          "gold": 1234,
+          "gems": 21,
+          "jewelry": 3
+        },
+        {
+          "kind": "message",
+          "id": 341,
+          "prefix": "As if it was it's only goal"
+        }
+      ],
+      "detail": "Battle 62 materializes Ja-Dran as one Red Dragon, then the installed victory path rescues Ollahn as ally 144"
+    },
+    {
+      "id": "entrust-ollahn",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:129",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 5,
+        "x": 9,
+        "y": 68
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 59,
+        "y": 85
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 337},
+        {"slot": 1, "code": 1, "id": 338},
+        {"slot": 2, "code": 88, "id": 144},
+        {"slot": 3, "code": 47, "id": 67},
+        {"slot": 4, "code": 45, "id": 140},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 337,
+          "prefix": "\"Wait."
+        },
+        {
+          "kind": "message",
+          "id": 338,
+          "prefix": "...with them."
+        }
+      ],
+      "detail": "The Queen's representatives take Ollahn into custody, retire ally 144, and mark quest 67 before the party seeks his twin"
+    },
+    {
+      "id": "recruit-malear",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:131",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 3,
+        "x": 47,
+        "y": 7
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": -351},
+        {"slot": 1, "code": 89, "id": 145},
+        {"slot": 2, "code": 7, "id": 251},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 351,
+          "prefix": "\"You don't seek them out."
+        }
+      ],
+      "detail": "The recruit introduced in dialogue as Guntro joins as the source's ally 145, whose monster identity is Malear"
+    },
+    {
+      "id": "prince-war-council",
+      "kind": "action-list",
+      "triggerId": "Data DD:6:35",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 6,
+        "x": 30,
+        "y": 32
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 75,
+        "y": 17
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 545},
+        {"slot": 1, "code": 12, "id": 392},
+        {"slot": 2, "code": 1, "id": 546},
+        {"slot": 3, "code": 1, "id": 547},
+        {"slot": 4, "code": 1, "id": 548},
+        {"slot": 5, "code": 1, "id": 549},
+        {"slot": 6, "code": 1, "id": 550},
+        {"slot": 7, "code": 39, "id": 201}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 545,
+          "prefix": "The Prince shows up from behind a curtain"
+        },
+        {
+          "kind": "message",
+          "id": 546,
+          "prefix": "\"Excellent."
+        },
+        {
+          "kind": "message",
+          "id": 547,
+          "prefix": "...wise, beyond your years."
+        },
+        {
+          "kind": "message",
+          "id": 548,
+          "prefix": "...evil Queen."
+        },
+        {
+          "kind": "message",
+          "id": 549,
+          "prefix": "...concerns are well founded"
+        },
+        {
+          "kind": "message",
+          "id": 550,
+          "prefix": "...are here."
+        },
+        {
+          "kind": "message",
+          "id": 551,
+          "prefix": "...force strong enough to defeat her."
+        },
+        {
+          "kind": "message",
+          "id": 552,
+          "prefix": "The Prince waves his hand"
+        },
+        {
+          "kind": "message",
+          "id": 553,
+          "prefix": "...cheer goes up."
+        },
+        {
+          "kind": "message",
+          "id": 554,
+          "prefix": "...the shoulders of many men"
+        },
+        {
+          "kind": "map",
+          "id": 14,
+          "prefix": "You gain a map, to view the map use Maps/Notes in the Menu."
+        }
+      ],
+      "detail": "With ally 145 present, the Prince identifies him as Malear, gives the secret-invasion map, and sets the two final goals"
+    },
+    {
+      "id": "defeat-allimac",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:244",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 7,
+        "x": 86,
+        "y": 17
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 653},
+        {"slot": 1, "code": 1, "id": 654},
+        {"slot": 2, "code": 1, "id": 655},
+        {"slot": 3, "code": 9, "id": -10123},
+        {"slot": 4, "code": 9, "id": -10121},
+        {"slot": 5, "code": 1, "id": 656},
+        {"slot": 6, "code": 1, "id": 657},
+        {"slot": 7, "code": 39, "id": 245}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 653,
+          "prefix": "As you approach the castle"
+        },
+        {
+          "kind": "message",
+          "id": 654,
+          "prefix": "...to complete my quest for domination"
+        },
+        {
+          "kind": "message",
+          "id": 655,
+          "prefix": "...and closes his eyes."
+        },
+        {
+          "kind": "message",
+          "id": 656,
+          "prefix": "Malear and Ollahn give out a strange grunt."
+        },
+        {
+          "kind": "message",
+          "id": 657,
+          "prefix": "Queen Allimac turns to Malear"
+        },
+        {
+          "kind": "message",
+          "id": 658,
+          "prefix": "The Queen is no longer the Queen."
+        },
+        {
+          "kind": "message",
+          "id": 659,
+          "prefix": "The evil Vampire Allimac screams"
+        },
+        {
+          "kind": "message",
+          "id": 660,
+          "prefix": "...to dominate these weak races!"
+        },
+        {
+          "kind": "message",
+          "id": 661,
+          "prefix": "...welling up inside him."
+        },
+        {
+          "kind": "battle",
+          "id": "vampire-allimac",
+          "battleId": 105,
+          "creatures": [
+            {"monsterId": 4, "displayName": "Minor Demon", "count": 1},
+            {"monsterId": 5, "displayName": "Skeletal Warrior", "count": 3},
+            {"monsterId": 12, "displayName": "Giant Zombie", "count": 4},
+            {"monsterId": 63, "displayName": "Winged Devil", "count": 2},
+            {"monsterId": 75, "displayName": "Ghoul", "count": 3},
+            {"monsterId": 84, "displayName": "Ghost", "count": 2},
+            {"monsterId": 86, "displayName": "Skeletal Warrior", "count": 3},
+            {"monsterId": 91, "displayName": "Orc Warrior", "count": 1},
+            {"monsterId": 92, "displayName": "Goblin", "count": 1},
+            {"monsterId": 93, "displayName": "Goblin Hero", "count": 1},
+            {"monsterId": 100, "displayName": "Flesh Fiend", "count": 1},
+            {"monsterId": 108, "displayName": "Demon", "count": 2},
+            {"monsterId": 110, "displayName": "Shantile", "count": 1},
+            {"monsterId": 116, "displayName": "Goblin Shaman", "count": 1},
+            {"monsterId": 121, "displayName": "Orc Shaman", "count": 1},
+            {"monsterId": 122, "displayName": "Orc Captain", "count": 1},
+            {"monsterId": 126, "displayName": "Orc Archer", "count": 2},
+            {"monsterId": 129, "displayName": "Goblin Champion", "count": 1},
+            {"monsterId": 152, "displayName": "Orc Vampire", "count": 1}
+          ],
+          "allies": [
+            {"monsterId": 96, "displayName": "Prince's Royal Guard", "count": 11},
+            {"monsterId": 154, "displayName": "Prince's Captain", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 663,
+          "prefix": "As the Vampire Allimac is killed in this form"
+        },
+        {
+          "kind": "message",
+          "id": 681,
+          "prefix": "Ollahn, also looking more powerful"
+        },
+        {
+          "kind": "message",
+          "id": 682,
+          "prefix": "...have prevailed."
+        },
+        {
+          "kind": "message",
+          "id": 683,
+          "prefix": "Ollahn joins you as you leave"
+        },
+        {
+          "kind": "message",
+          "id": 688,
+          "prefix": "They embrace as only two twins can."
+        },
+        {
+          "kind": "message",
+          "id": 689,
+          "prefix": "...have prevailed."
+        },
+        {
+          "kind": "message",
+          "id": 683,
+          "prefix": "Ollahn joins you as you leave"
+        }
+      ],
+      "sounds": [
+        {
+          "id": -11750,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-11750-ded852df86a6.wav"
+        },
+        {
+          "id": -22041,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-22041-c80771c4417c.wav"
+        }
+      ],
+      "detail": "The installed invasion transforms Malear to ally 155, verifies Battle 105's full initial formation, defeats Allimac's active form, and reunites the twins"
+    },
+    {
+      "id": "destroy-allimac-coffin",
+      "kind": "complex-item",
+      "triggerId": "Data ED3:macro:251",
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 1,
+        "x": 79,
+        "y": 18
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": -134},
+        {"slot": 1, "code": 1, "id": 671},
+        {"slot": 2, "code": 5, "id": 23},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "prelude": [
+        {
+          "kind": "message",
+          "id": 134,
+          "prefix": "Would you like to keep this letter?"
+        },
+        {
+          "kind": "message",
+          "id": 671,
+          "prefix": "The lid slides off."
+        }
+      ],
+      "encounter": {
+        "id": 23,
+        "prompt": {
+          "id": 671,
+          "prefix": "The lid slides off."
+        },
+        "itemId": 914,
+        "result": 1,
+        "consumeItem": false,
+        "resultActions": [
+          {"slot": 0, "rawCode": 1, "id": 673},
+          {"slot": 1, "rawCode": 1, "id": 677},
+          {"slot": 2, "rawCode": 7, "id": 501},
+          {"slot": 3, "rawCode": 7, "id": 495},
+          {"slot": 4, "rawCode": 7, "id": 505},
+          {"slot": 5, "rawCode": 47, "id": 69},
+          {"slot": 7, "rawCode": 24, "id": 0},
+          {"slot": 15, "rawCode": 24, "id": 0},
+          {"slot": 23, "rawCode": 24, "id": 0},
+          {"slot": 24, "rawCode": 1, "id": 672},
+          {"slot": 25, "rawCode": 5, "id": 23},
+          {"slot": 31, "rawCode": 24, "id": 0}
+        ]
+      },
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 673,
+          "prefix": "You plunge the dagger of Eromon"
+        },
+        {
+          "kind": "message",
+          "id": 677,
+          "prefix": "After the dagger does its work"
+        }
+      ],
+      "detail": "Complex encounter 23 exposes item 914 in the native picker, follows Classic's non-consuming ordinary-item response, destroys Allimac permanently, and marks quest 69"
+    },
+    {
+      "id": "return-to-prince",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:205",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 51,
+        "y": 24
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 6,
+        "x": 31,
+        "y": 30
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 557},
+        {"slot": 1, "code": 13, "id": 407},
+        {"slot": 2, "code": 20, "id": 406},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 557,
+          "prefix": "A surge of guards swarm around you."
+        }
+      ],
+      "detail": "The surviving twins' return branch opens the Prince's castle and transports the party to the authored celebration action point"
+    },
+    {
+      "id": "prince-homecoming",
+      "kind": "action-list",
+      "triggerId": "Data DD:6:37",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 6,
+        "x": 31,
+        "y": 30
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 75,
+        "y": 16
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 558},
+        {"slot": 1, "code": 1, "id": 559},
+        {"slot": 2, "code": 1, "id": 560},
+        {"slot": 3, "code": 9, "id": -700},
+        {"slot": 4, "code": 9, "id": -701},
+        {"slot": 5, "code": 9, "id": -701},
+        {"slot": 6, "code": 1, "id": 561},
+        {"slot": 7, "code": 39, "id": 206}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 558,
+          "prefix": "The Prince is here."
+        },
+        {
+          "kind": "message",
+          "id": 559,
+          "prefix": "...men, women, and children"
+        },
+        {
+          "kind": "message",
+          "id": 560,
+          "prefix": "...moment of silence."
+        },
+        {
+          "kind": "message",
+          "id": 561,
+          "prefix": "The Prince raises his head"
+        },
+        {
+          "kind": "message",
+          "id": 562,
+          "prefix": "...people, it is a time for rejoicing"
+        },
+        {
+          "kind": "message",
+          "id": 563,
+          "prefix": "...Malear, rescuing Ollahn"
+        },
+        {
+          "kind": "message",
+          "id": 564,
+          "prefix": "...Hooray!"
+        },
+        {
+          "kind": "message",
+          "id": 565,
+          "prefix": "Get your neighbors, get your friends"
+        },
+        {
+          "kind": "message",
+          "id": 566,
+          "prefix": "...with the Prince and his guards."
+        },
+        {
+          "kind": "message",
+          "id": 567,
+          "prefix": "...way."
+        },
+        {
+          "kind": "choice",
+          "answer": "NO",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 568,
+          "prefix": "\"I understand."
+        },
+        {
+          "kind": "message",
+          "id": 569,
+          "prefix": "\"I will not be needing these anymore."
+        },
+        {
+          "kind": "treasure",
+          "id": 30,
+          "itemIds": [413, 217, 4, 101, 76, 614, 624, 911],
+          "sourceItemIds": [413, 217, 4, 101, 76, 614, 624, 911, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 1000,
+          "gold": 1000,
+          "gems": 3,
+          "jewelry": 1
+        },
+        {
+          "kind": "message",
+          "id": 570,
+          "prefix": "The captain of the guard escorts you"
+        }
+      ],
+      "detail": "The Prince recognizes Allimac's death and the twins' reunion, then the refusal branch awards Treasure 30 and escorts the party to the castle gate"
+    },
+    {
+      "id": "explicit-main-plot-ending",
+      "kind": "action-list",
+      "triggerId": "Data DD:4:81",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 75,
+        "y": 16
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 572},
+        {"slot": 1, "code": 1, "id": 573},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 572,
+          "prefix": "This concludes The Twin Sands of Time!"
+        },
+        {
+          "kind": "message",
+          "id": 573,
+          "prefix": "You can continue wandering around and adventuring"
+        }
+      ],
+      "detail": "The castle-gate action point explicitly declares Twin Sands concluded while preserving post-game wandering"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "allimac-confrontation",
+        "triggerId": "Data ED3:macro:244",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 653},
+          {"slot": 1, "code": 1, "id": 654},
+          {"slot": 2, "code": 1, "id": 655},
+          {"slot": 3, "code": 9, "id": -10123},
+          {"slot": 4, "code": 9, "id": -10121},
+          {"slot": 5, "code": 1, "id": 656},
+          {"slot": 6, "code": 1, "id": 657},
+          {"slot": 7, "code": 39, "id": 245}
+        ]
+      },
+      {
+        "id": "allimac-battle",
+        "triggerId": "Data ED3:macro:248",
+        "actions": [
+          {"slot": 0, "code": 9, "id": -637},
+          {"slot": 1, "code": 88, "id": 145},
+          {"slot": 2, "code": 89, "id": 155},
+          {"slot": 3, "code": 2, "id": 484},
+          {"slot": 4, "code": 1, "id": 663},
+          {"slot": 5, "code": 7, "id": 486},
+          {"slot": 6, "code": 13, "id": 487},
+          {"slot": 7, "code": 39, "id": 250}
+        ]
+      },
+      {
+        "id": "coffin-destruction",
+        "triggerId": "Data ED3:macro:251",
+        "actions": [
+          {"slot": 0, "code": 1, "id": -134},
+          {"slot": 1, "code": 1, "id": 671},
+          {"slot": 2, "code": 5, "id": 23},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "prince-return",
+        "triggerId": "Data ED3:macro:205",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 557},
+          {"slot": 1, "code": 13, "id": 407},
+          {"slot": 2, "code": 20, "id": 406},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "celebration",
+        "triggerId": "Data DD:6:37",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 558},
+          {"slot": 1, "code": 1, "id": 559},
+          {"slot": 2, "code": 1, "id": 560},
+          {"slot": 3, "code": 9, "id": -700},
+          {"slot": 4, "code": 9, "id": -701},
+          {"slot": 5, "code": 9, "id": -701},
+          {"slot": 6, "code": 1, "id": 561},
+          {"slot": 7, "code": 39, "id": 206}
+        ]
+      },
+      {
+        "id": "explicit-ending",
+        "triggerId": "Data DD:4:81",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 572},
+          {"slot": 1, "code": 1, "id": 573},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 246, "values": [-62, 0, 0, 0, 0]},
+      {"id": 406, "values": [6, 31, 30, 0, 0]},
+      {"id": 411, "values": [4, 75, 16, 0, 0]},
+      {"id": 484, "values": [105, 0, 0, 0, 5]},
+      {"id": 509, "values": [1, 100, 1, 256, 0]},
+      {"id": 848, "values": [155, 0, 0, 257, 258]}
+    ],
+    "messages": [
+      {
+        "id": 673,
+        "prefix": "You plunge the dagger of Eromon"
+      },
+      {
+        "id": 572,
+        "prefix": "This concludes The Twin Sands of Time!"
+      },
+      {
+        "id": 573,
+        "prefix": "You can continue wandering around and adventuring"
+      }
+    ],
+    "battleIds": [62, 105],
+    "monsters": [
+      {
+        "id": 38,
+        "displayName": "Red Dragon",
+        "deathMacro": 0
+      },
+      {
+        "id": 152,
+        "displayName": "Orc Vampire",
+        "deathMacro": 0
+      }
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "twin-sands-opening",
+        "emi-mission",
+        "dagger-of-eromon",
+        "rescue-ollahn",
+        "entrust-ollahn",
+        "recruit-malear",
+        "prince-war-council",
+        "defeat-allimac",
+        "destroy-allimac-coffin",
+        "return-to-prince",
+        "prince-homecoming",
+        "explicit-main-plot-ending"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 75,
+        "y": 16
+      },
+      "questFlags": [67, 69],
+      "battleIds": [62, 105]
+    }
+  }
+}
