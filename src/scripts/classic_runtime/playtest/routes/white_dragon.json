@@ -1,0 +1,622 @@
+{
+  "schemaVersion": 1,
+  "routeId": "white-dragon-completion-route",
+  "campaignId": "scenario-white-dragon",
+  "campaignDirectory": "White Dragon (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 43,
+    "y": 74
+  },
+  "steps": [
+    {
+      "id": "white-dragon-opening",
+      "kind": "action-list",
+      "triggerId": "Data DD:0:8",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 42,
+        "y": 74
+      },
+      "actions": [
+        {"slot": 1, "code": 27, "id": 32128},
+        {"slot": 2, "code": 9, "id": -3003},
+        {"slot": 3, "code": 1, "id": 36},
+        {"slot": 4, "code": 1, "id": 37},
+        {"slot": 5, "code": 28, "id": 0},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 36,
+          "prefix": "Just as the great wizard Zukar wished",
+          "picture": true
+        },
+        {
+          "kind": "message",
+          "id": 37,
+          "prefix": "Along the way to Brierwood"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 300,
+        "height": 300
+      },
+      "detail": "The installed opening continues Zukar's search, presents the scenario picture, and places the party outside Brierwood"
+    },
+    {
+      "id": "recruit-cylantra",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:346",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 38,
+        "y": 57
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 761},
+        {"slot": 1, "code": 89, "id": 21},
+        {"slot": 2, "code": 47, "id": 17},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 761,
+          "prefix": "Cylantra smiles and proceeds to work on taking her ax"
+        }
+      ],
+      "detail": "Cylantra joins as ally 21 and the installed runtime records quest 17, the source gate for finding Drawed"
+    },
+    {
+      "id": "find-drawed",
+      "kind": "action-list",
+      "triggerId": "Data DD:3:5",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 3,
+        "x": 46,
+        "y": 19
+      },
+      "actions": [
+        {"slot": 0, "code": 46, "id": 811},
+        {"slot": 1, "code": 1, "id": -674},
+        {"slot": 2, "code": 3, "id": 812},
+        {"slot": 3, "code": 1, "id": 675},
+        {"slot": 4, "code": 1, "id": 676},
+        {"slot": 5, "code": 1, "id": 677},
+        {"slot": 6, "code": 1, "id": 678},
+        {"slot": 7, "code": 39, "id": 306}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 674,
+          "prefix": "Cylantra notices something at the base of this tree"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES"
+        },
+        {
+          "kind": "message",
+          "id": 675,
+          "prefix": "When you look closer at the globe"
+        },
+        {
+          "kind": "message",
+          "id": 676,
+          "prefix": "\"You are here to ask me to change the White Dragon"
+        },
+        {
+          "kind": "message",
+          "id": 677,
+          "prefix": "\"Unfortunately, I can not help you"
+        },
+        {
+          "kind": "message",
+          "id": 678,
+          "prefix": "Drawed shakes his head"
+        },
+        {
+          "kind": "message",
+          "id": 679,
+          "prefix": "\"When I was taken away"
+        },
+        {
+          "kind": "message",
+          "id": 680,
+          "prefix": " After a short pause Drawed says"
+        }
+      ],
+      "detail": "Quest 17 lets Cylantra find Drawed's globe; Drawed identifies Blake as the White Dragon's only hope and sets quest 18"
+    },
+    {
+      "id": "recruit-blake",
+      "kind": "action-list",
+      "triggerId": "Data DD:1:5",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 6,
+        "y": 30
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 681},
+        {"slot": 1, "code": 1, "id": 682},
+        {"slot": 2, "code": 1, "id": 683},
+        {"slot": 3, "code": 1, "id": 684},
+        {"slot": 4, "code": 47, "id": 19},
+        {"slot": 5, "code": 7, "id": 813},
+        {"slot": 6, "code": 7, "id": 814},
+        {"slot": 7, "code": 39, "id": 309}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 681,
+          "prefix": "In this small but clean hut"
+        },
+        {
+          "kind": "message",
+          "id": 682,
+          "prefix": "You nod yes as the boy takes the globe"
+        },
+        {
+          "kind": "message",
+          "id": 683,
+          "prefix": "\"I have missed you too, Blake"
+        },
+        {
+          "kind": "message",
+          "id": 684,
+          "prefix": "\"It is there where the White Dragon lies"
+        }
+      ],
+      "detail": "Drawed sends Blake through the installed ally flow, which sets quest 19 and adds ally 6 for the canyon gate"
+    },
+    {
+      "id": "free-raquiline",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:308",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 6,
+        "y": 30
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 2,
+        "y": 40
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 687},
+        {"slot": 1, "code": 87, "id": 815},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 687,
+          "prefix": "Here right in front of the dragon"
+        },
+        {
+          "kind": "message",
+          "id": 688,
+          "prefix": "Blake looks at the globe"
+        },
+        {
+          "kind": "message",
+          "id": 689,
+          "prefix": "The dragon starts to turn into flesh"
+        },
+        {
+          "kind": "message",
+          "id": 690,
+          "prefix": "\"Young Blake, your father has moved on"
+        },
+        {
+          "kind": "message",
+          "id": 691,
+          "prefix": "In that instance Blake disappears"
+        },
+        {
+          "kind": "message",
+          "id": 692,
+          "prefix": "\"He is just beyond these mountains"
+        },
+        {
+          "kind": "message",
+          "id": 693,
+          "prefix": "\"If we strike now"
+        }
+      ],
+      "detail": "Blake's presence selects the successful source branch, restores Raquiline, replaces Blake with White Dragon ally 28, and teleports to the counterattack"
+    },
+    {
+      "id": "break-dragon-army",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:313",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 2,
+        "y": 40
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 695},
+        {"slot": 1, "code": 2, "id": 818},
+        {"slot": 2, "code": 1, "id": 696},
+        {"slot": 3, "code": 2, "id": 819},
+        {"slot": 4, "code": 87, "id": 820},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 695,
+          "prefix": "You find yourself in front of a very large crowd of dragons"
+        },
+        {
+          "kind": "battle",
+          "id": "first-dragon-formation",
+          "battleId": 116,
+          "creatures": [
+            {"monsterId": 35, "displayName": "Frost Dragon", "count": 2},
+            {"monsterId": 38, "displayName": "Red Dragon", "count": 3},
+            {"monsterId": 39, "displayName": "Blue Dragon", "count": 2},
+            {"monsterId": 40, "displayName": "Green Dragon", "count": 2},
+            {"monsterId": 41, "displayName": "Chaos Dragon", "count": 4},
+            {"monsterId": 62, "displayName": "Brown Dragon", "count": 3},
+            {"monsterId": 185, "displayName": "Ice Dragon", "count": 2}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 696,
+          "prefix": "More dragons move to attack"
+        },
+        {
+          "kind": "battle",
+          "id": "second-dragon-formation",
+          "battleId": 117,
+          "creatures": [
+            {"monsterId": 35, "displayName": "Frost Dragon", "count": 1},
+            {"monsterId": 38, "displayName": "Red Dragon", "count": 1},
+            {"monsterId": 39, "displayName": "Blue Dragon", "count": 1},
+            {"monsterId": 40, "displayName": "Green Dragon", "count": 1},
+            {"monsterId": 41, "displayName": "Chaos Dragon", "count": 5},
+            {"monsterId": 62, "displayName": "Brown Dragon", "count": 4},
+            {"monsterId": 185, "displayName": "Ice Dragon", "count": 3}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 697,
+          "prefix": "After the battle Raquiline tells you to rest up"
+        }
+      ],
+      "detail": "Both authored dragon formations materialize in native combat, and Raquiline's survival selects the successful continuation"
+    },
+    {
+      "id": "defeat-planar-force",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:316",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 2,
+        "y": 40
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 699},
+        {"slot": 1, "code": 2, "id": 821},
+        {"slot": 2, "code": 1, "id": 700},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 699,
+          "prefix": "You here a voice from somewhere"
+        },
+        {
+          "kind": "battle",
+          "id": "nufack-planar-force",
+          "battleId": 118,
+          "creatures": [
+            {"monsterId": 4, "displayName": "Minor Demon", "count": 1},
+            {"monsterId": 12, "displayName": "Golem", "count": 3},
+            {"monsterId": 54, "displayName": "Shadow Wraith", "count": 4},
+            {"monsterId": 58, "displayName": "Cacodeamon Warlord", "count": 4},
+            {"monsterId": 60, "displayName": "Heblorin Demon", "count": 4},
+            {"monsterId": 63, "displayName": "Winged Devil", "count": 5},
+            {"monsterId": 84, "displayName": "Masked Demon", "count": 8}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 700,
+          "prefix": "After that battle"
+        }
+      ],
+      "detail": "Nufack's first planar formation materializes with its authored battle macro before the installed continuation advances"
+    },
+    {
+      "id": "defeat-nufack",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:318",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 2,
+        "y": 40
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 701},
+        {"slot": 1, "code": 2, "id": 825},
+        {"slot": 2, "code": 87, "id": 957},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 701,
+          "prefix": "You see Nufack far away from you"
+        },
+        {
+          "kind": "battle",
+          "id": "nufack-final-formation",
+          "battleId": 119,
+          "creatures": [
+            {"monsterId": 1, "displayName": "Flanveries Demon", "count": 3},
+            {"monsterId": 4, "displayName": "Minor Demon", "count": 1},
+            {"monsterId": 41, "displayName": "Chaos Dragon", "count": 1},
+            {"monsterId": 45, "displayName": "Fire Demon", "count": 3},
+            {"monsterId": 54, "displayName": "Shadow Wraith", "count": 2},
+            {"monsterId": 62, "displayName": "Brown Dragon", "count": 1},
+            {"monsterId": 63, "displayName": "Winged Devil", "count": 2},
+            {"monsterId": 69, "displayName": "Fire Queen", "count": 4},
+            {"monsterId": 70, "displayName": "Fire Minion", "count": 7},
+            {"monsterId": 71, "displayName": "Skeletal Knight", "count": 4},
+            {"monsterId": 83, "displayName": "Slime Demon", "count": 4},
+            {"monsterId": 84, "displayName": "Masked Demon", "count": 2},
+            {"monsterId": 93, "displayName": "Nufack", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 791,
+          "prefix": "Raquiline is very happy that you have survived the battle with Nufack"
+        },
+        {
+          "kind": "message",
+          "id": 792,
+          "prefix": "I owe you a great deal for releasing me"
+        },
+        {
+          "kind": "encounter-choice",
+          "labels": [
+            "Magical Treasure.",
+            "Special Magical Powers.",
+            "No Reward."
+          ],
+          "token": "1"
+        },
+        {
+          "kind": "message",
+          "id": 793,
+          "prefix": "Raquiline nods and produces some magical treasure"
+        },
+        {
+          "kind": "treasure",
+          "id": 46,
+          "itemIds": [669, 672, 683, 165, 254],
+          "sourceItemIds": [669, 672, 683, 165, 254, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 0,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0
+        },
+        {
+          "kind": "message",
+          "id": 794,
+          "prefix": "Raquiline tells you that she must be off"
+        },
+        {
+          "kind": "message",
+          "id": 795,
+          "prefix": "Thank you for playing White Dragon"
+        }
+      ],
+      "detail": "Battle 119 materializes Nufack's full force; Raquiline survives, offers the authored reward choice, and presents the explicit White Dragon ending"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "opening",
+        "triggerId": "Data DD:0:8",
+        "actions": [
+          {"slot": 1, "code": 27, "id": 32128},
+          {"slot": 2, "code": 9, "id": -3003},
+          {"slot": 3, "code": 1, "id": 36},
+          {"slot": 4, "code": 1, "id": 37},
+          {"slot": 5, "code": 28, "id": 0},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "cylantra-joins",
+        "triggerId": "Data ED3:macro:346",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 761},
+          {"slot": 1, "code": 89, "id": 21},
+          {"slot": 2, "code": 47, "id": 17},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "drawed",
+        "triggerId": "Data DD:3:5",
+        "actions": [
+          {"slot": 0, "code": 46, "id": 811},
+          {"slot": 1, "code": 1, "id": -674},
+          {"slot": 2, "code": 3, "id": 812},
+          {"slot": 3, "code": 1, "id": 675},
+          {"slot": 4, "code": 1, "id": 676},
+          {"slot": 5, "code": 1, "id": 677},
+          {"slot": 6, "code": 1, "id": 678},
+          {"slot": 7, "code": 39, "id": 306}
+        ]
+      },
+      {
+        "id": "blake-joins",
+        "triggerId": "Data DD:1:5",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 681},
+          {"slot": 1, "code": 1, "id": 682},
+          {"slot": 2, "code": 1, "id": 683},
+          {"slot": 3, "code": 1, "id": 684},
+          {"slot": 4, "code": 47, "id": 19},
+          {"slot": 5, "code": 7, "id": 813},
+          {"slot": 6, "code": 7, "id": 814},
+          {"slot": 7, "code": 39, "id": 309}
+        ]
+      },
+      {
+        "id": "white-dragon-branch",
+        "triggerId": "Data ED3:macro:308",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 687},
+          {"slot": 1, "code": 87, "id": 815},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "white-dragon-restored",
+        "triggerId": "Data ED3:macro:312",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 691},
+          {"slot": 1, "code": 88, "id": 6},
+          {"slot": 2, "code": 1, "id": 692},
+          {"slot": 3, "code": 1, "id": 693},
+          {"slot": 4, "code": 89, "id": 28},
+          {"slot": 5, "code": 84, "id": 0},
+          {"slot": 6, "code": 45, "id": 816},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "dragon-army",
+        "triggerId": "Data ED3:macro:313",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 695},
+          {"slot": 1, "code": 2, "id": 818},
+          {"slot": 2, "code": 1, "id": 696},
+          {"slot": 3, "code": 2, "id": 819},
+          {"slot": 4, "code": 87, "id": 820},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "planar-force",
+        "triggerId": "Data ED3:macro:316",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 699},
+          {"slot": 1, "code": 2, "id": 821},
+          {"slot": 2, "code": 1, "id": 700},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "nufack-battle",
+        "triggerId": "Data ED3:macro:318",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 701},
+          {"slot": 1, "code": 2, "id": 825},
+          {"slot": 2, "code": 87, "id": 957},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "explicit-ending",
+        "triggerId": "Data ED3:macro:372",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 791},
+          {"slot": 1, "code": 1, "id": 792},
+          {"slot": 2, "code": 4, "id": 12},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 811, "values": [17, 0, 0, 305, 0]},
+      {"id": 812, "values": [1, 0, 0, 0, 0]},
+      {"id": 813, "values": [0, 16, 307, 0, 0]},
+      {"id": 814, "values": [0, 17, 307, 0, 0]},
+      {"id": 815, "values": [6, 0, 0, 310, 311]},
+      {"id": 816, "values": [2, 2, 40, 0, 0]},
+      {"id": 818, "values": [116, 0, 0, 0, 0]},
+      {"id": 819, "values": [117, 0, 0, 0, 0]},
+      {"id": 820, "values": [28, 0, 0, 314, 315]},
+      {"id": 821, "values": [118, 0, 0, 0, 0]},
+      {"id": 825, "values": [119, 0, 0, 0, 0]},
+      {"id": 957, "values": [28, 0, 0, 372, 373]}
+    ],
+    "messages": [
+      {
+        "id": 678,
+        "prefix": "Drawed shakes his head"
+      },
+      {
+        "id": 691,
+        "prefix": "In that instance Blake disappears"
+      },
+      {
+        "id": 791,
+        "prefix": "Raquiline is very happy that you have survived the battle with Nufack"
+      },
+      {
+        "id": 795,
+        "prefix": "Thank you for playing White Dragon"
+      }
+    ],
+    "battleIds": [116, 117, 118, 119],
+    "monsters": [
+      {"id": 6, "displayName": "Blake", "deathMacro": 0},
+      {"id": 21, "displayName": "Cylantra", "deathMacro": 0},
+      {"id": 28, "displayName": "White Dragon", "deathMacro": 0},
+      {"id": 84, "displayName": "Masked Demon", "deathMacro": 191},
+      {"id": 93, "displayName": "Nufack", "deathMacro": 77}
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "white-dragon-opening",
+        "recruit-cylantra",
+        "find-drawed",
+        "recruit-blake",
+        "free-raquiline",
+        "break-dragon-army",
+        "defeat-planar-force",
+        "defeat-nufack"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 2,
+        "y": 40
+      },
+      "questFlags": [17, 18, 19],
+      "battleIds": [116, 117, 118, 119]
+    }
+  }
+}

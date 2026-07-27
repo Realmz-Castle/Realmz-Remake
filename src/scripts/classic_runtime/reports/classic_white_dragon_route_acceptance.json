@@ -1,0 +1,708 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 43,
+			"y": 74
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 43,
+			"y": 74
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 2,
+				"displayName": "Frost Dragon",
+				"monsterId": 35
+			},
+			{
+				"count": 3,
+				"displayName": "Red Dragon",
+				"monsterId": 38
+			},
+			{
+				"count": 2,
+				"displayName": "Blue Dragon",
+				"monsterId": 39
+			},
+			{
+				"count": 2,
+				"displayName": "Green Dragon",
+				"monsterId": 40
+			},
+			{
+				"count": 4,
+				"displayName": "Chaos Dragon",
+				"monsterId": 41
+			},
+			{
+				"count": 3,
+				"displayName": "Brown Dragon",
+				"monsterId": 62
+			},
+			{
+				"count": 2,
+				"displayName": "Ice Dragon",
+				"monsterId": 185
+			}
+		],
+		"id": 116,
+		"rewardScreenPresented": true
+	},
+	"battles": [
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 2,
+					"displayName": "Frost Dragon",
+					"monsterId": 35
+				},
+				{
+					"count": 3,
+					"displayName": "Red Dragon",
+					"monsterId": 38
+				},
+				{
+					"count": 2,
+					"displayName": "Blue Dragon",
+					"monsterId": 39
+				},
+				{
+					"count": 2,
+					"displayName": "Green Dragon",
+					"monsterId": 40
+				},
+				{
+					"count": 4,
+					"displayName": "Chaos Dragon",
+					"monsterId": 41
+				},
+				{
+					"count": 3,
+					"displayName": "Brown Dragon",
+					"monsterId": 62
+				},
+				{
+					"count": 2,
+					"displayName": "Ice Dragon",
+					"monsterId": 185
+				}
+			],
+			"id": 116,
+			"rewardScreenPresented": true,
+			"stepId": "break-dragon-army:first-dragon-formation"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Frost Dragon",
+					"monsterId": 35
+				},
+				{
+					"count": 1,
+					"displayName": "Red Dragon",
+					"monsterId": 38
+				},
+				{
+					"count": 1,
+					"displayName": "Blue Dragon",
+					"monsterId": 39
+				},
+				{
+					"count": 1,
+					"displayName": "Green Dragon",
+					"monsterId": 40
+				},
+				{
+					"count": 5,
+					"displayName": "Chaos Dragon",
+					"monsterId": 41
+				},
+				{
+					"count": 4,
+					"displayName": "Brown Dragon",
+					"monsterId": 62
+				},
+				{
+					"count": 3,
+					"displayName": "Ice Dragon",
+					"monsterId": 185
+				}
+			],
+			"id": 117,
+			"rewardScreenPresented": true,
+			"stepId": "break-dragon-army:second-dragon-formation"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Minor Demon",
+					"monsterId": 4
+				},
+				{
+					"count": 3,
+					"displayName": "Golem",
+					"monsterId": 12
+				},
+				{
+					"count": 4,
+					"displayName": "Shadow Wraith",
+					"monsterId": 54
+				},
+				{
+					"count": 4,
+					"displayName": "Cacodeamon Warlord",
+					"monsterId": 58
+				},
+				{
+					"count": 4,
+					"displayName": "Heblorin Demon",
+					"monsterId": 60
+				},
+				{
+					"count": 5,
+					"displayName": "Winged Devil",
+					"monsterId": 63
+				},
+				{
+					"count": 8,
+					"displayName": "Masked Demon",
+					"monsterId": 84
+				}
+			],
+			"id": 118,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-planar-force:nufack-planar-force"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 3,
+					"displayName": "Flanveries Demon",
+					"monsterId": 1
+				},
+				{
+					"count": 1,
+					"displayName": "Minor Demon",
+					"monsterId": 4
+				},
+				{
+					"count": 1,
+					"displayName": "Chaos Dragon",
+					"monsterId": 41
+				},
+				{
+					"count": 3,
+					"displayName": "Fire Demon",
+					"monsterId": 45
+				},
+				{
+					"count": 2,
+					"displayName": "Shadow Wraith",
+					"monsterId": 54
+				},
+				{
+					"count": 1,
+					"displayName": "Brown Dragon",
+					"monsterId": 62
+				},
+				{
+					"count": 2,
+					"displayName": "Winged Devil",
+					"monsterId": 63
+				},
+				{
+					"count": 4,
+					"displayName": "Fire Queen",
+					"monsterId": 69
+				},
+				{
+					"count": 7,
+					"displayName": "Fire Minion",
+					"monsterId": 70
+				},
+				{
+					"count": 4,
+					"displayName": "Skeletal Knight",
+					"monsterId": 71
+				},
+				{
+					"count": 4,
+					"displayName": "Slime Demon",
+					"monsterId": 83
+				},
+				{
+					"count": 2,
+					"displayName": "Masked Demon",
+					"monsterId": 84
+				},
+				{
+					"count": 1,
+					"displayName": "Nufack",
+					"monsterId": 93
+				}
+			],
+			"id": 119,
+			"rewardScreenPresented": true,
+			"stepId": "defeat-nufack:nufack-final-formation"
+		}
+	],
+	"campaignDirectory": "White Dragon (Classic)",
+	"campaignId": "scenario-white-dragon",
+	"campaignName": "White Dragon (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			116,
+			117,
+			118,
+			119
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			811,
+			812,
+			813,
+			814,
+			815,
+			816,
+			818,
+			819,
+			820,
+			821,
+			825,
+			957
+		],
+		"monsterIds": [
+			6,
+			21,
+			28,
+			84,
+			93
+		],
+		"runtime": {
+			"absentItemIds": [],
+			"battleIds": [
+				116,
+				117,
+				118,
+				119
+			],
+			"itemIds": [],
+			"position": {
+				"levelIndex": 2,
+				"levelType": "land",
+				"x": 2,
+				"y": 40
+			},
+			"questFlags": [
+				17,
+				18,
+				19
+			],
+			"stepIds": [
+				"white-dragon-opening",
+				"recruit-cylantra",
+				"find-drawed",
+				"recruit-blake",
+				"free-raquiline",
+				"break-dragon-army",
+				"defeat-planar-force",
+				"defeat-nufack"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": []
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data DD:0:8",
+			"Data ED3:macro:346",
+			"Data DD:3:5",
+			"Data DD:1:5",
+			"Data ED3:macro:308",
+			"Data ED3:macro:312",
+			"Data ED3:macro:313",
+			"Data ED3:macro:316",
+			"Data ED3:macro:318",
+			"Data ED3:macro:372"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 36,
+			"prefix": "Just as the great wizard Zukar wished",
+			"stepId": "white-dragon-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 37,
+			"prefix": "Along the way to Brierwood",
+			"stepId": "white-dragon-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 761,
+			"prefix": "Cylantra smiles and proceeds to work on taking her ax",
+			"stepId": "recruit-cylantra"
+		},
+		{
+			"kind": "message",
+			"messageId": 674,
+			"prefix": "Cylantra notices something at the base of this tree",
+			"stepId": "find-drawed"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "find-drawed"
+		},
+		{
+			"kind": "message",
+			"messageId": 675,
+			"prefix": "When you look closer at the globe",
+			"stepId": "find-drawed"
+		},
+		{
+			"kind": "message",
+			"messageId": 676,
+			"prefix": "\"You are here to ask me to change the White Dragon",
+			"stepId": "find-drawed"
+		},
+		{
+			"kind": "message",
+			"messageId": 677,
+			"prefix": "\"Unfortunately, I can not help you",
+			"stepId": "find-drawed"
+		},
+		{
+			"kind": "message",
+			"messageId": 678,
+			"prefix": "Drawed shakes his head",
+			"stepId": "find-drawed"
+		},
+		{
+			"kind": "message",
+			"messageId": 679,
+			"prefix": "\"When I was taken away",
+			"stepId": "find-drawed"
+		},
+		{
+			"kind": "message",
+			"messageId": 680,
+			"prefix": " After a short pause Drawed says",
+			"stepId": "find-drawed"
+		},
+		{
+			"kind": "message",
+			"messageId": 681,
+			"prefix": "In this small but clean hut",
+			"stepId": "recruit-blake"
+		},
+		{
+			"kind": "message",
+			"messageId": 682,
+			"prefix": "You nod yes as the boy takes the globe",
+			"stepId": "recruit-blake"
+		},
+		{
+			"kind": "message",
+			"messageId": 683,
+			"prefix": "\"I have missed you too, Blake",
+			"stepId": "recruit-blake"
+		},
+		{
+			"kind": "message",
+			"messageId": 684,
+			"prefix": "\"It is there where the White Dragon lies",
+			"stepId": "recruit-blake"
+		},
+		{
+			"kind": "message",
+			"messageId": 687,
+			"prefix": "Here right in front of the dragon",
+			"stepId": "free-raquiline"
+		},
+		{
+			"kind": "message",
+			"messageId": 688,
+			"prefix": "Blake looks at the globe",
+			"stepId": "free-raquiline"
+		},
+		{
+			"kind": "message",
+			"messageId": 689,
+			"prefix": "The dragon starts to turn into flesh",
+			"stepId": "free-raquiline"
+		},
+		{
+			"kind": "message",
+			"messageId": 690,
+			"prefix": "\"Young Blake, your father has moved on",
+			"stepId": "free-raquiline"
+		},
+		{
+			"kind": "message",
+			"messageId": 691,
+			"prefix": "In that instance Blake disappears",
+			"stepId": "free-raquiline"
+		},
+		{
+			"kind": "message",
+			"messageId": 692,
+			"prefix": "\"He is just beyond these mountains",
+			"stepId": "free-raquiline"
+		},
+		{
+			"kind": "message",
+			"messageId": 693,
+			"prefix": "\"If we strike now",
+			"stepId": "free-raquiline"
+		},
+		{
+			"kind": "message",
+			"messageId": 695,
+			"prefix": "You find yourself in front of a very large crowd of dragons",
+			"stepId": "break-dragon-army"
+		},
+		{
+			"battleId": 116,
+			"kind": "battle",
+			"stepId": "break-dragon-army"
+		},
+		{
+			"kind": "message",
+			"messageId": 696,
+			"prefix": "More dragons move to attack",
+			"stepId": "break-dragon-army"
+		},
+		{
+			"battleId": 117,
+			"kind": "battle",
+			"stepId": "break-dragon-army"
+		},
+		{
+			"kind": "message",
+			"messageId": 697,
+			"prefix": "After the battle Raquiline tells you to rest up",
+			"stepId": "break-dragon-army"
+		},
+		{
+			"kind": "message",
+			"messageId": 699,
+			"prefix": "You here a voice from somewhere",
+			"stepId": "defeat-planar-force"
+		},
+		{
+			"battleId": 118,
+			"kind": "battle",
+			"stepId": "defeat-planar-force"
+		},
+		{
+			"kind": "message",
+			"messageId": 700,
+			"prefix": "After that battle",
+			"stepId": "defeat-planar-force"
+		},
+		{
+			"kind": "message",
+			"messageId": 701,
+			"prefix": "You see Nufack far away from you",
+			"stepId": "defeat-nufack"
+		},
+		{
+			"battleId": 119,
+			"kind": "battle",
+			"stepId": "defeat-nufack"
+		},
+		{
+			"kind": "message",
+			"messageId": 791,
+			"prefix": "Raquiline is very happy that you have survived the battle with Nufack",
+			"stepId": "defeat-nufack"
+		},
+		{
+			"kind": "message",
+			"messageId": 792,
+			"prefix": "I owe you a great deal for releasing me",
+			"stepId": "defeat-nufack"
+		},
+		{
+			"kind": "encounter-choice",
+			"labels": [
+				"Magical Treasure.",
+				"Special Magical Powers.",
+				"No Reward."
+			],
+			"stepId": "defeat-nufack",
+			"token": "1"
+		},
+		{
+			"kind": "message",
+			"messageId": 793,
+			"prefix": "Raquiline nods and produces some magical treasure",
+			"stepId": "defeat-nufack"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				669,
+				672,
+				683,
+				165,
+				254
+			],
+			"kind": "treasure",
+			"stepId": "defeat-nufack",
+			"treasureId": 46
+		},
+		{
+			"kind": "message",
+			"messageId": 794,
+			"prefix": "Raquiline tells you that she must be off",
+			"stepId": "defeat-nufack"
+		},
+		{
+			"kind": "message",
+			"messageId": 795,
+			"prefix": "Thank you for playing White Dragon",
+			"stepId": "defeat-nufack"
+		}
+	],
+	"routeId": "white-dragon-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "white-dragon-opening-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recruit-cylantra-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "find-drawed-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "recruit-blake-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "free-raquiline-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "break-dragon-army-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-planar-force-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "defeat-nufack-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed opening continues Zukar's search, presents the scenario picture, and places the party outside Brierwood",
+			"id": "white-dragon-opening",
+			"status": "passed"
+		},
+		{
+			"detail": "Cylantra joins as ally 21 and the installed runtime records quest 17, the source gate for finding Drawed",
+			"id": "recruit-cylantra",
+			"status": "passed"
+		},
+		{
+			"detail": "Quest 17 lets Cylantra find Drawed's globe; Drawed identifies Blake as the White Dragon's only hope and sets quest 18",
+			"id": "find-drawed",
+			"status": "passed"
+		},
+		{
+			"detail": "Drawed sends Blake through the installed ally flow, which sets quest 19 and adds ally 6 for the canyon gate",
+			"id": "recruit-blake",
+			"status": "passed"
+		},
+		{
+			"detail": "Blake's presence selects the successful source branch, restores Raquiline, replaces Blake with White Dragon ally 28, and teleports to the counterattack",
+			"id": "free-raquiline",
+			"status": "passed"
+		},
+		{
+			"detail": "Both authored dragon formations materialize in native combat, and Raquiline's survival selects the successful continuation",
+			"id": "break-dragon-army",
+			"status": "passed"
+		},
+		{
+			"detail": "Nufack's first planar formation materializes with its authored battle macro before the installed continuation advances",
+			"id": "defeat-planar-force",
+			"status": "passed"
+		},
+		{
+			"detail": "Battle 119 materializes Nufack's full force; Raquiline survives, offers the authored reward choice, and presents the explicit White Dragon ending",
+			"id": "defeat-nufack",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed",
+	"triggerPercentageChecks": []
+}

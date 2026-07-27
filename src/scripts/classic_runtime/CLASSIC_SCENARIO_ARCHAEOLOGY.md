@@ -823,3 +823,106 @@ Each claim should stay within its evidence:
   `3143`, `3148`, `3158`, `3484`, `3489`, `3490`, `3497`, and `3499`;
   Battles 212, 377, 473, and 474; Treasure 116; monsters 29, 68, 123, 141,
   142, 143, 178, 185, 186, 187, 190, 210, 211, 212, 213, 261, and 323.
+
+## White Dragon
+
+### Main completion chain
+
+- **Runtime-proven:** `Data DD:0:8` continues Zukar's search for the White
+  Dragon, presents scenario PICT 32128, and introduces Brierwood.
+- **Runtime-proven:** Macro 346 recruits Cylantra as ally 21 and sets quest 17.
+  `Data DD:3:5` checks that quest before Cylantra finds Drawed's globe. Drawed
+  names Blake as the White Dragon's only hope, and macro 306 sets quest 18.
+- **Runtime-proven:** `Data DD:1:5` reunites Blake and Drawed, sets quest 19,
+  applies the two canyon action-data patches, and adds Blake as ally 6.
+- **Runtime-proven:** Macro 308 branches on Blake. Macros 310 and 312 turn the
+  glass dragon back into Raquiline, remove Blake, add White Dragon ally 28, and
+  teleport the party to land map 2 at `(2, 40)`.
+- **Runtime-proven:** Macro 313 enters Battles 116 and 117 against two complete
+  hostile dragon formations. Raquiline survives both and selects macro 314's
+  successful continuation.
+- **Runtime-proven:** Macro 316 enters Battle 118 against Nufack's first
+  29-member planar formation.
+- **Runtime-proven:** Macro 318 enters Battle 119 against Nufack and the full
+  35-member initial formation. Raquiline's survival branches to macro 372.
+- **Runtime-proven:** Macro 372 presents messages 791 and 792 and Simple
+  Encounter 12. The checked magical-treasure response presents Treasure 46
+  before messages 794 and 795 explicitly thank the player for playing White
+  Dragon.
+
+### Quest, ally, and route gates
+
+- Quest 17 is the real Drawed gate. `Data EDCD:811` sends parties without it to
+  empty macro 305, while Cylantra's recruited route continues into the globe
+  scene.
+- Quest 18 records finding Drawed. Quest 19 records the Blake reunion and is
+  accompanied by the two action-data patches in `Data EDCD:813` and `814`,
+  which point the authored canyon rows at macro 307.
+- Blake ally 6 is the successful condition in `Data EDCD:815`. Without him,
+  macro 311 presents Drawed's failure message and applies the authored failure
+  effects instead of restoring Raquiline.
+- Macro 312 replaces Blake with White Dragon ally 28. `Data EDCD:820` checks
+  Raquiline after Battles 116 and 117; `Data EDCD:957` checks her again after
+  Battle 119 before choosing the reward scene.
+
+### Battles and rewards
+
+- Battle 116 contains 18 dragons: two Frost, three Red, two Blue, two Green,
+  four Chaos, three Brown, and two Ice Dragons.
+- Battle 117 contains 16 dragons: one each of Frost, Red, Blue, and Green,
+  five Chaos, four Brown, and three Ice Dragons.
+- Battle 118 contains 29 initial hostiles: one Minor Demon, three Golems, four
+  Shadow Wraiths, four Cacodeamon Warlords, four Heblorin Demons, five Winged
+  Devils, and eight Masked Demons.
+- Battle 119 contains 35 initial hostiles. Nufack is joined by three Flanveries
+  Demons, one Minor Demon, one Chaos Dragon, three Fire Demons, two Shadow
+  Wraiths, one Brown Dragon, two Winged Devils, four Fire Queens, seven Fire
+  Minions, four Skeletal Knights, four Slime Demons, and two Masked Demons.
+- Treasure 46 presents items 669, 672, 683, 165, and 254: Tools +20, Belt of
+  Brawn, Improved Judgment, War Hammer +5, and Emerald Alloy Plate +10.
+- **Source-proven:** Simple Encounter 12 also offers a special-magical-power
+  response and a no-reward response. The dedicated route selects the treasure.
+
+### Walkthrough and hint facts
+
+- Cylantra is not merely optional flavor on the direct route. Her quest 17 is
+  what lets the Drawed action point continue beyond its branch.
+- Drawed's clue says Blake is hidden where the life of a river begins. Blake
+  is then the ally required to pass from the glass-dragon scene into
+  Raquiline's restoration.
+- Freeing Raquiline is a midpoint, not the ending. She immediately asks the
+  party to stop Nufack, followed by three consecutive battle stages.
+- Message 791 says Nufack cannot be completely destroyed, but will need a very
+  long time before he can reenter the Realmz. Message 795 is the scenario's
+  explicit closing thanks.
+
+### Battle-macro boundary
+
+- **Source-proven:** Battles 118 and 119 carry battle macros `-317` and `-319`.
+  Those macros can add combatants while their qualifying monsters remain, and
+  Nufack also carries death macro 77.
+- The dedicated route checks each complete initial formation and then forces
+  victory after a stable player turn. It does not claim round-by-round coverage
+  of every reinforcement, resurrection, or death-macro transformation.
+
+### Optional-content boundary
+
+- Quests 17, 18, and 19; allies Cylantra, Blake, and Raquiline; Battles 116
+  through 119; the surviving-Raquiline branch; Treasure 46; and messages 794
+  and 795 form the runtime-proven completion spine.
+- The route proves the direct installed completion behavior, not manual travel
+  through all 12 land maps and four dungeons, the complete Brierwood and Chloe
+  arcs, every regional ally or side quest, every alternate failure or reward
+  branch, every battle reinforcement, or every encounter.
+
+### Evidence
+
+- Route: `playtest/routes/white_dragon.json`
+- Installed report:
+  `reports/classic_white_dragon_route_acceptance.json`
+- Imported source records: `Data DD:0:8`, `Data DD:1:5`, `Data DD:3:5`,
+  `Data ED3:macro:306`, `308` through `314`, `316` through `319`, `346`,
+  `372`, and `373`; `Data EDCD:811` through `816`, `818` through `821`,
+  `825`, and `957`; Battles 116 through 119; Simple Encounter 12; Treasure
+  46; monsters 1, 4, 6, 12, 21, 28, 35, 38, 39, 40, 41, 45, 54, 58, 60,
+  62, 63, 69, 70, 71, 83, 84, 93, and 185.
