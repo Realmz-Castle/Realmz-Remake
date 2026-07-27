@@ -53,6 +53,11 @@ const CLASSIC_OUTDOOR_MINUTES_PER_TIMECLICK := 5
 const SECONDS_PER_MINUTE := 60
 const BATTLE_REWARD_NORMAL := "normal"
 const BATTLE_REWARD_EXPERIENCE_ONLY := "experience_only"
+const DEFAULT_GAME_SPEED_PERCENT := 100.0
+const MIN_GAME_SPEED_PERCENT := 25.0
+const MAX_GAME_SPEED_PERCENT := 400.0
+const GAME_SPEED_STEP_PERCENT := 25.0
+const GAME_SPEED_BASE_DELAY_SECONDS := 0.2
 
 var cmp_resources: CampaignResources
 
@@ -166,7 +171,8 @@ var global_effects : Dictionary = {
 var hd_mode : bool = ScreenUtils.get_hd_mode_default()
 
 #settings
-var gamespeed : float = 0.2
+var gamespeed : float = GAME_SPEED_BASE_DELAY_SECONDS
+var game_speed_percent : float = DEFAULT_GAME_SPEED_PERCENT
 var enforce_unique_items : bool = true
 var map_debug_overlays_enabled : bool = true
 
@@ -333,6 +339,30 @@ func set_hd_mode(new_hd_mode: bool) -> void:
 
 func save_hd_mode(new_hd_mode: bool) -> void:
 	Utils.FileHandler.set_cfg_setting(Paths.settingspath,"SETTINGS","hd_mode", new_hd_mode)
+
+func set_game_speed_percent(value: float) -> void:
+	game_speed_percent = clampf(
+		snappedf(value, GAME_SPEED_STEP_PERCENT),
+		MIN_GAME_SPEED_PERCENT,
+		MAX_GAME_SPEED_PERCENT
+	)
+	gamespeed = (
+		GAME_SPEED_BASE_DELAY_SECONDS
+		* DEFAULT_GAME_SPEED_PERCENT
+		/ game_speed_percent
+	)
+
+func save_game_speed_percent(value: float) -> void:
+	Utils.FileHandler.set_cfg_setting(
+		Paths.settingspath,
+		"SETTINGS",
+		"game_speed_percent",
+		clampf(
+			snappedf(value, GAME_SPEED_STEP_PERCENT),
+			MIN_GAME_SPEED_PERCENT,
+			MAX_GAME_SPEED_PERCENT
+		)
+	)
 
 func set_map_debug_overlays_enabled(enabled: bool) -> void:
 	map_debug_overlays_enabled = enabled

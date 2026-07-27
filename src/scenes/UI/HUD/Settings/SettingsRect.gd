@@ -6,6 +6,12 @@ extends NinePatchRect
 # var b = "text"
 
 @onready var musicSettings = $HBoxContainer/VBoxContainer/MusicSettingsRect
+@onready var gameSpeedBar : HScrollBar = (
+	$HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/GameSpeedLabel/GameSpeedHScrollBar
+)
+@onready var gameSpeedValueLabel : Label = (
+	$HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/GameSpeedLabel/GameSpeedVLabel
+)
 @onready var mapDebugCheckButton : CheckButton = (
 	$HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/MapDebugCheckButton
 )
@@ -18,7 +24,19 @@ func _ready():
 
 func _initialize() :
 	musicSettings._initialize()
+	gameSpeedBar.set_value_no_signal(GameGlobal.game_speed_percent)
+	gameSpeedValueLabel.text = _format_game_speed(GameGlobal.game_speed_percent)
 	mapDebugCheckButton.set_pressed_no_signal(GameGlobal.map_debug_overlays_enabled)
+
+
+func _on_GameSpeedHScrollBar_value_changed(value: float) -> void:
+	GameGlobal.set_game_speed_percent(value)
+	GameGlobal.save_game_speed_percent(GameGlobal.game_speed_percent)
+	gameSpeedValueLabel.text = _format_game_speed(GameGlobal.game_speed_percent)
+
+
+func _format_game_speed(value: float) -> String:
+	return "%d%%" % int(round(value))
 
 
 func _on_MapDebugCheckButton_toggled(button_pressed: bool) -> void:
