@@ -58,9 +58,25 @@ no Git LFS tracked files or pointer records. This checkpoint reuses the retained
 campaign lifecycle and route artifacts; it does not duplicate those acceptance
 runs.
 
-This is technical packaging evidence only. It does not grant redistribution
-rights. Release provenance and redistribution approval must be recorded before
-the first-party Classic packages are shipped.
+The technical checkpoint does not itself grant redistribution rights. The
+approval and release provenance for the first-party Classic packages are
+recorded below.
+
+## Redistribution approval and release provenance
+
+Tim Phillips, the creator of Realmz and the source who provided the Realmz
+codebase and core Fantasoft scenarios to the Realmz Remake project, explicitly
+authorized the project to use and redistribute that codebase and those core
+scenarios in a non-commercial format.
+
+This approval covers the 13 first-party Fantasoft Classic packages certified by
+this baseline. It does not extend to third-party scenarios or assets outside
+that supplied core corpus. Distributions must remain non-commercial and retain
+the applicable attribution and license notices.
+
+This provenance record was added on 2026-07-27 from project maintainer Eric's
+direct attestation. The original approval date and communication channel are
+not asserted here.
 
 The built-in campaigns reference 160 byte-identical stock tileset files through
 20 immutable content hashes. Moving 18,007,610 campaign-local bytes into
