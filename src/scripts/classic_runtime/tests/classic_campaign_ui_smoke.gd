@@ -256,22 +256,32 @@ func _run_smoke() -> void:
 	_expect(map.visible and UI.ow_hud.visible, "normal launch presents the native map and HUD")
 	var search_button: Button = UI.ow_hud.classicSearchButton
 	_expect(
-		search_button.visible and search_button.toggle_mode,
-		"normal Classic launch exposes the Search toggle"
+		search_button.visible
+			and search_button.toggle_mode
+			and search_button.get_parent() == UI.ow_hud.globaleffectsRect
+			and UI.ow_hud.globaleffectsRect.eye_sprite.visible
+			and UI.ow_hud.globaleffectsRect.eye_sprite.animation \
+				== &"Searching"
+			and not UI.ow_hud.globaleffectsRect.eye_sprite.is_playing()
+			and UI.ow_hud.globaleffectsRect.eye_sprite.frame == 0,
+		"normal Classic launch exposes the idle Search control in its effect slot"
 	)
 	search_button.button_pressed = true
 	await get_tree().process_frame
 	_expect(
 		GameGlobal.classic_party_conditions.get("5") == -1 \
 			and UI.ow_hud.globaleffectsRect.eye_sprite.animation \
-				== &"Searching",
-		"the Search toggle updates exact state and its native HUD indicator"
+				== &"Searching"
+			and UI.ow_hud.globaleffectsRect.eye_sprite.is_playing(),
+		"the Search control updates exact state and animates its native indicator"
 	)
 	search_button.button_pressed = false
 	await get_tree().process_frame
 	_expect(
-		GameGlobal.classic_party_conditions.get("5") == 0,
-		"the Search toggle clears the exact Classic slot"
+		GameGlobal.classic_party_conditions.get("5") == 0
+			and not UI.ow_hud.globaleffectsRect.eye_sprite.is_playing()
+			and UI.ow_hud.globaleffectsRect.eye_sprite.frame == 0,
+		"the Search control clears the exact Classic slot and returns to idle"
 	)
 	var learned_darts: Dictionary = GameGlobal.player_characters[0].spells[1][0]
 	_expect(

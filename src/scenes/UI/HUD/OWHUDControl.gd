@@ -58,8 +58,9 @@ var selected_character = null
 @onready var spellcastButton : Button = $VBoxScreen/HBoxBot/BotRightPanel/SpellButton
 @onready var abilistButton   : Button = $VBoxScreen/HBoxBot/BotRightPanel/AbiListButton
 @onready var templeButton    : Button = $VBoxScreen/HBoxBot/BotRightPanel/TempleButton
+@onready var shopButton      : Button = $VBoxScreen/HBoxBot/BotRightPanel/ShopButton
 @onready var classicSearchButton: Button = (
-	$VBoxScreen/HBoxBot/BotRightPanel/ClassicSearchButton
+	$VBoxScreen/HBoxBot/BotRightPanel/GlobalEffectsRect/SearchButton
 )
 @onready var classicTorchButton: ClassicTorchButton = (
 	$VBoxScreen/HBoxBot/BotRightPanel/ClassicTorchButton
@@ -258,8 +259,20 @@ func updateCharPanelDisplay() :
 
 func updateGlobalEffectsDisplay() :
 	globaleffectsRect.update_display()
+	_sync_shop_control()
 	_sync_classic_search_control()
 	_sync_classic_torch_control()
+
+
+func _sync_shop_control() -> void:
+	var shop_available := (
+		not GameGlobal.currentShop.is_empty()
+		and GameGlobal.shops_dict.has(GameGlobal.currentShop)
+	)
+	shopButton.visible = shop_available
+	shopButton.disabled = not shop_available
+	# Classic uses one service control and gives an available shop precedence.
+	templeButton.visible = not shop_available
 
 
 func _sync_classic_search_control() -> void:
@@ -400,7 +413,7 @@ func request_pc_pick(n : int) :
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass
+	classicSearchButton.toggled.connect(_on_classic_search_button_toggled)
 #	var i : int = 0
 
 #		print(c.charname)
@@ -451,6 +464,7 @@ func set_party_swap_enabled(enabled : bool) :
 
 func set_temple_availlable(enabled : bool) :
 	templeButton.disabled = !enabled
+	_sync_shop_control()
 
 func _on_CharSwapButton_pressed():
 	print('_on_CharSwapButton_pressed')
@@ -877,3 +891,20 @@ func _on_temple_button_pressed() -> void:
 		StateMachine.exit_ex_menu_state()
 	else :
 		StateMachine.enter_ex_menu_state(({"menu_name" : "TempleMenu"}))
+
+
+func _on_shop_button_pressed() -> void:
+	if (
+		GameGlobal.currentShop.is_empty()
+		or not GameGlobal.shops_dict.has(GameGlobal.currentShop)
+		or StateMachine._state_name != "Exploration"
+	):
+		GameGlobal.play_sfx("target error.wav")
+		_sync_shop_control()
+		return
+	_on_InventoryButton_pressed()
+	await get_tree().process_frame
+	if not inventoryRect.visible:
+		GameGlobal.play_sfx("target error.wav")
+		return
+	inventoryRect._on_ButtonShop_pressed()

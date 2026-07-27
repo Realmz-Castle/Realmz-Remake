@@ -462,6 +462,18 @@ autoplay = "Looking"
 frame_progress = 0.983236
 centered = false
 
+[node name="SearchButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 34.0
+offset_top = 38.0
+offset_bottom = 72.0
+tooltip_text = "Toggle Classic searching"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+toggle_mode = true
+flat = true
+
 [node name="OrbSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(40, 39)
 scale = Vector2(1, 0.97)

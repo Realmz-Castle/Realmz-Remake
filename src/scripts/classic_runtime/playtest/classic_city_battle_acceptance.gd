@@ -506,11 +506,13 @@ func _use_tannery_shop() -> bool:
 	_verify_stage(
 		"04_tannery_service",
 		GameGlobal.currentShop == SHOP_NAME
+			and UI.ow_hud.shopButton.visible
+			and not UI.ow_hud.shopButton.disabled
 			and is_equal_approx(float(native_shop.get("buy_rate", -1.0)), 1.0)
 			and is_equal_approx(float(native_shop.get("sell_rate", -1.0)), 1.0)
 			and _shop_stock_row_count(native_shop) == 17
 			and _shop_stock_quantity(native_shop) == 84,
-		"shop 4 loads all 17 authored stock rows and 84 items at standard prices"
+		"shop 4 exposes the contextual HUD control and all authored stock"
 	)
 	if not smoke_failures.is_empty():
 		return false
@@ -519,14 +521,10 @@ func _use_tannery_shop() -> bool:
 	character.money[0] = 100
 	GameGlobal.money_pool[0] = 0
 	UI.ow_hud.selected_character = character
-	UI.ow_hud._on_InventoryButton_pressed()
-	if not await _wait_for_inventory():
-		_fail("05_tannery_purchase", "the normal inventory menu did not open")
-		return false
+	await UI.ow_hud._on_shop_button_pressed()
 	var inventory: InventoryControl = UI.ow_hud.inventoryRect
-	inventory._on_ButtonShop_pressed()
 	if not await _wait_for_shop():
-		_fail("05_tannery_purchase", "the enabled native shop did not open")
+		_fail("05_tannery_purchase", "the contextual HUD shop button did not open the shop")
 		return false
 	var shop: ShopRect = inventory.shopRect
 	if shop.weapons.size() != 2 \

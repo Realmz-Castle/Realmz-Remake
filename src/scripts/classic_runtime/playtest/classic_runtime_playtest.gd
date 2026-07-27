@@ -336,10 +336,28 @@ func _run_shop_smoke() -> void:
 			and GameGlobal.money_pool[0] == 0,
 		"closing the shop resumes its one-gold continuation exactly once"
 	)
-	inventory._on_ButtonShop_pressed()
+	UI.ow_hud._on_InventoryButton_pressed()
+	await _wait_frames(2)
+	GameGlobal.refresh_OW_HUD()
+	_verify_smoke_stage(
+		"06_contextual_shop_control",
+		StateMachine._state_name == "Exploration"
+			and not inventory.visible
+			and UI.ow_hud.shopButton.visible
+			and not UI.ow_hud.shopButton.disabled
+			and UI.ow_hud.shopButton.position \
+				== UI.ow_hud.templeButton.position
+			and UI.ow_hud.shopButton.size == UI.ow_hud.templeButton.size
+			and UI.ow_hud.shopButton.icon_alignment \
+				== HORIZONTAL_ALIGNMENT_CENTER
+			and UI.ow_hud.shopButton.vertical_icon_alignment \
+				== VERTICAL_ALIGNMENT_CENTER,
+		"an available Classic shop exposes the contextual exploration control"
+	)
+	await UI.ow_hud._on_shop_button_pressed()
 	await _wait_frames(2)
 	_verify_smoke_stage(
-		"06_reopen_stock",
+		"07_reopen_stock",
 		shop.visible
 			and shop.weapons[0][1] == 0
 			and shop.vbox.get_child_count() == 0
