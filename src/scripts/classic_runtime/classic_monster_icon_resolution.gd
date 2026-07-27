@@ -120,6 +120,8 @@ static func resolve(icon_id: int, icon_catalog: Variant = []) -> Dictionary:
 			"source": "campaign-resource-fork",
 			"baseRuntimeMediaPath": str(base_record["runtimeMedia"].get("path", "")),
 			"pairedRuntimeMediaPath": str(paired_record["runtimeMedia"].get("path", "")),
+			"baseRuntimeMediaSha256": str(base_record["runtimeMedia"].get("sha256", "")),
+			"pairedRuntimeMediaSha256": str(paired_record["runtimeMedia"].get("sha256", "")),
 		})
 	elif not base_campaign and not paired_campaign and base_stock and paired_stock:
 		result.merge({

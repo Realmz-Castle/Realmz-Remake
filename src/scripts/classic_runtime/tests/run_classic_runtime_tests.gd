@@ -4899,7 +4899,7 @@ func _test_builtin_shared_asset_tilesets() -> void:
 		native_resources.free()
 	_expect_equal(
 		generated_monster_count,
-		1841,
+		1878,
 		"built-in corpus checks every generated Classic monster"
 	)
 	_expect_equal(
@@ -4928,8 +4928,8 @@ func _test_builtin_shared_asset_tilesets() -> void:
 	_expect_equal(
 		icon_resolution_counts,
 		{
-			"classic-resource-pair-runtime-media-incomplete": 587,
-			"incomplete-classic-resource-pair": 441,
+			"campaign-runtime-media": 1060,
+			"classic-resource-pair-runtime-media-incomplete": 5,
 			"stock-family-jewels-pair": 812,
 			"unresolved-external-classic-resource": 1,
 		},
@@ -7728,6 +7728,183 @@ func _test_classic_bestiary_materializer() -> void:
 		"shipped Assault loads Slime Worm with the red texture"
 	)
 	assault_resources.free()
+	var mithril_root := ProjectSettings.globalize_path(
+		"res://Campaigns/Mithril Vault (Classic)"
+	)
+	var mithril_bundle = BundleScript.new()
+	_expect(
+		mithril_bundle.load_from_directory(mithril_root),
+		"the shipped Mithril Vault bundle loads for scenario-local sprite resolution"
+	)
+	var mithril_resources = NativeResourcesScript.new()
+	mithril_resources.load_bestiary_resources("res://shared_assets/Bestiary/")
+	mithril_resources.load_bestiary_resources(mithril_root.path_join("Bestiary") + "/")
+	var mithril_adapter = GodotAdapterScript.new()
+	var mithril_harpy_key: String = mithril_adapter.resolve_classic_monster_bestiary_name(
+		8,
+		mithril_bundle.get_monster(8),
+		mithril_resources.crea_book
+	)
+	_expect_equal(
+		mithril_harpy_key,
+		"Classic Monster 8",
+		"shipped Mithril Vault selects its campaign-local Harpy"
+	)
+	var mithril_harpy_texture: Variant = mithril_resources.crea_book.get(
+		mithril_harpy_key, {}
+	).get("data", {}).get("image")
+	var mithril_harpy_icon: Dictionary = mithril_bundle.documents.get(
+		"assets", {}
+	).get("catalog", {}).get("icons", []).filter(
+		func(icon: Variant) -> bool:
+			return icon is Dictionary and int(icon.get("resourceId", 0)) == 409
+	).front()
+	var mithril_harpy_source := Image.new()
+	mithril_harpy_source.load(
+		mithril_root.path_join(
+			str(mithril_harpy_icon.get("runtimeMedia", {}).get("path", ""))
+		)
+	)
+	_expect(
+		mithril_harpy_texture is Texture2D,
+		"shipped Mithril Vault Harpy resolves to a native texture"
+	)
+	if mithril_harpy_texture is Texture2D:
+		var mithril_harpy_atlas_image: Image = mithril_harpy_texture.get_image()
+		_expect_equal(
+			mithril_harpy_atlas_image.get_size(),
+			Vector2i(64, 64),
+			"shipped Mithril Vault preserves Harpy's two-by-two tile footprint"
+		)
+		_expect_equal(
+			mithril_harpy_atlas_image.get_data(),
+			mithril_harpy_source.get_data(),
+			"shipped Mithril Vault uses the exact scenario cicn 409 pixels"
+		)
+	mithril_resources.free()
+	var campaign_icon_bundle = BundleScript.new()
+	campaign_icon_bundle.load_from_directory(PROVIDENCE_AUTHORITATIVE_FIXTURE)
+	_clear_producer_monster_equipment(campaign_icon_bundle)
+	var campaign_icon_record: Dictionary = campaign_icon_bundle.documents.get(
+		"content", {}
+	).get("monsters", [])[0]
+	campaign_icon_record["id"] = 8
+	campaign_icon_record["displayName"] = "Harpy"
+	campaign_icon_record["iconId"] = 409
+	campaign_icon_record["authored"] = false
+	campaign_icon_bundle.documents["assets"]["catalog"]["icons"] = [
+		{
+			"resourceId": 409,
+			"runtimeMedia": {
+				"mediaType": "image/png",
+				"path": "media/images/harpy-base.png",
+				"sha256": "base-harpy",
+			},
+		},
+		{
+			"resourceId": 717,
+			"runtimeMedia": {
+				"mediaType": "image/png",
+				"path": "media/images/harpy-facing.png",
+				"sha256": "facing-harpy",
+			},
+		},
+	]
+	var campaign_icon_root := test_root.path_join("campaign-icon")
+	DirAccess.make_dir_recursive_absolute(campaign_icon_root.path_join("media/images"))
+	var harpy_color := Color8(224, 64, 16, 255)
+	var harpy_image := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	harpy_image.fill(harpy_color)
+	harpy_image.save_png(campaign_icon_root.path_join("media/images/harpy-base.png"))
+	var harpy_facing := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	harpy_facing.fill(Color8(96, 32, 144, 255))
+	harpy_facing.save_png(campaign_icon_root.path_join("media/images/harpy-facing.png"))
+	var campaign_icon_result: Dictionary = materializer.materialize(
+		campaign_icon_bundle,
+		campaign_icon_root
+	)
+	_expect_equal(
+		campaign_icon_result.get("status"),
+		"ok",
+		"campaign monster runtime media materializes into a native bestiary atlas"
+	)
+	var campaign_icon_book: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			campaign_icon_root.path_join("Bestiary/stuff_book.json")
+		)
+	)
+	var campaign_harpy: Dictionary = campaign_icon_book.get("Classic Monster 8", {})
+	var campaign_harpy_image_key := "CREA_classic_campaign_cicn_409"
+	_expect_equal(
+		campaign_harpy.get("data", {}).get("image"),
+		campaign_harpy_image_key,
+		"scenario Harpy selects its campaign-local cicn instead of the shared mage"
+	)
+	_expect(
+		not campaign_harpy.get("classicMaterialization", {}).get(
+			"fidelityFallbacks", []
+		).has("iconId:campaign-runtime-media"),
+		"campaign monster art is not reported as a placeholder fallback"
+	)
+	var campaign_image_pack: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			campaign_icon_root.path_join("Bestiary/img_pack.json")
+		)
+	)
+	_expect_equal(
+		campaign_image_pack.get(campaign_harpy_image_key, {}).get("size"),
+		"64x64",
+		"campaign monster atlas preserves the Harpy's two-by-two tile size"
+	)
+	var campaign_atlas := Image.new()
+	campaign_atlas.load(campaign_icon_root.path_join("Bestiary/textureAtlas.png"))
+	_expect_equal(
+		campaign_atlas.get_pixel(0, 0).to_rgba32(),
+		harpy_color.to_rgba32(),
+		"campaign monster atlas preserves the scenario's source pixels"
+	)
+	_expect(
+		not materializer._book_has_matching_native_monster(
+			{
+				"Shared Harpy": {
+					"classicMonsterId": 8,
+					"data": {
+						"id": 8,
+						"name": "Harpy",
+						"image": "CREA_humanmage",
+					},
+				},
+			},
+			campaign_icon_record,
+			MonsterIconResolutionScript.resolve(
+				409,
+				campaign_icon_bundle.documents["assets"]["catalog"]["icons"]
+			)
+		),
+		"scenario-local monster art prevents reuse of a shared same-ID creature"
+	)
+	var second_campaign_root := test_root.path_join("campaign-icon-second")
+	DirAccess.make_dir_recursive_absolute(second_campaign_root.path_join("media/images"))
+	var second_harpy_color := Color8(48, 176, 208, 255)
+	harpy_image.fill(second_harpy_color)
+	harpy_image.save_png(second_campaign_root.path_join("media/images/harpy-base.png"))
+	harpy_facing.save_png(second_campaign_root.path_join("media/images/harpy-facing.png"))
+	var second_campaign_result: Dictionary = materializer.materialize(
+		campaign_icon_bundle,
+		second_campaign_root
+	)
+	_expect_equal(
+		second_campaign_result.get("status"),
+		"ok",
+		"a second campaign independently materializes the same Classic icon ID"
+	)
+	var second_campaign_atlas := Image.new()
+	second_campaign_atlas.load(second_campaign_root.path_join("Bestiary/textureAtlas.png"))
+	_expect_equal(
+		second_campaign_atlas.get_pixel(0, 0).to_rgba32(),
+		second_harpy_color.to_rgba32(),
+		"same-ID scenario monster art remains isolated between campaigns"
+	)
 	var authored_native_collision := native_reuse_record.duplicate(true)
 	authored_native_collision["authored"] = true
 	_expect(

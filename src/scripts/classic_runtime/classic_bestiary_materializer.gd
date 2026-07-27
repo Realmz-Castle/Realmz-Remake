@@ -85,7 +85,7 @@ const UNSUPPORTED_SCALAR_FIELDS := [
 	"beenAttacked",
 ]
 const CLASSIC_INERT_MORALE_MAX := 100
-const MATERIALIZATION_VERSION := 4
+const MATERIALIZATION_VERSION := 5
 
 var last_error := ""
 
@@ -149,6 +149,14 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 	var asset_catalog: Variant = bundle.documents.get("assets", {}).get("catalog", {})
 	var icon_catalog: Variant = asset_catalog.get("icons", []) \
 		if asset_catalog is Dictionary else []
+	var image_book_path := root.path_join(BESTIARY_IMAGE_BOOK_PATH)
+	var image_book := _read_json_book(image_book_path, "Campaign bestiary image book")
+	if not last_error.is_empty():
+		return {"status": "error", "message": last_error}
+	var atlas_path := root.path_join(BESTIARY_ATLAS_PATH)
+	var atlas_state := _read_atlas_state(atlas_path, image_book)
+	if not last_error.is_empty():
+		return {"status": "error", "message": last_error}
 
 	var generated := 0
 	var updated := 0
@@ -168,6 +176,14 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			int(record.get("iconId", 0)),
 			icon_catalog
 		)
+		icon_resolution = _materialize_campaign_icon(
+			root,
+			icon_resolution,
+			image_book,
+			atlas_state
+		)
+		if not last_error.is_empty():
+			return {"status": "error", "message": last_error}
 		var existing_key: Variant = _book_monster_key_by_id(bestiary_book, monster_id)
 		if existing_key != null:
 			var existing_entry: Variant = bestiary_book[existing_key]
@@ -227,17 +243,12 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		write_error = _write_json(book_path, bestiary_book)
 		if write_error != OK:
 			return _fail("Could not write native bestiary book: %s" % error_string(write_error))
-	# Generated definitions retain their resolved Classic icon provenance while
-	# using the shared placeholder. CampaignResources still requires a local pack.
-	var image_book_path := root.path_join(BESTIARY_IMAGE_BOOK_PATH)
-	if not FileAccess.file_exists(image_book_path):
-		write_error = _write_json(image_book_path, {})
+	if bool(atlas_state.get("dirty", false)) or not FileAccess.file_exists(image_book_path):
+		write_error = _write_json(image_book_path, image_book)
 		if write_error != OK:
 			return _fail("Could not write native bestiary image book: %s" % error_string(write_error))
-	var atlas_path := root.path_join(BESTIARY_ATLAS_PATH)
-	if not FileAccess.file_exists(atlas_path):
-		var atlas := Image.create(1, 1, false, Image.FORMAT_RGBA8)
-		atlas.fill(Color(0, 0, 0, 0))
+	if bool(atlas_state.get("dirty", false)) or not FileAccess.file_exists(atlas_path):
+		var atlas: Image = atlas_state["image"]
 		write_error = atlas.save_png(atlas_path)
 		if write_error != OK:
 			return _fail("Could not write native bestiary atlas: %s" % error_string(write_error))
@@ -296,14 +307,16 @@ func _native_monster(
 	)
 	if not (icon_resolution is Dictionary) or icon_resolution.is_empty():
 		icon_resolution = MonsterIconResolutionScript.resolve(int(record.get("iconId", 0)))
-	var image_key := _stock_shared_image_key(icon_resolution)
+	var image_key := str(icon_resolution.get("runtimeImageKey", ""))
+	if image_key.is_empty():
+		image_key = _stock_shared_image_key(icon_resolution)
 	var fidelity_fallbacks: Array[String] = []
 	if image_key.is_empty():
 		image_key = DEFAULT_IMAGE
 		fidelity_fallbacks.append(
 			"iconId:%s" % str(icon_resolution.get("status", "unresolved"))
 		)
-	else:
+	elif not icon_resolution.has("runtimeImageKey"):
 		icon_resolution = icon_resolution.duplicate(true)
 		icon_resolution["runtimeImageKey"] = image_key
 		icon_resolution["runtimeImageSource"] = "shared-bestiary-atlas"
@@ -1021,6 +1034,8 @@ func _native_image_matches_icon(
 	data: Dictionary,
 	icon_resolution: Dictionary
 ) -> bool:
+	if str(icon_resolution.get("status", "")) == "campaign-runtime-media":
+		return false
 	var image_key := _stock_shared_image_key(icon_resolution)
 	if image_key.is_empty():
 		return true
@@ -1041,6 +1056,110 @@ func _stock_shared_image_key(icon_resolution: Dictionary) -> String:
 			""
 		)
 	)
+
+
+func _read_atlas_state(atlas_path: String, image_book: Dictionary) -> Dictionary:
+	var atlas := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	atlas.fill(Color(0, 0, 0, 0))
+	if FileAccess.file_exists(atlas_path):
+		var loaded := Image.new()
+		var load_error := loaded.load(atlas_path)
+		if load_error != OK or loaded.is_empty():
+			last_error = "Campaign bestiary atlas is not a readable image: %s" % atlas_path
+			return {}
+		loaded.convert(Image.FORMAT_RGBA8)
+		atlas = loaded
+	var next_y := 0
+	if not image_book.is_empty():
+		next_y = ceili(float(atlas.get_height()) / 32.0) * 32
+	return {
+		"image": atlas,
+		"nextY": next_y,
+		"dirty": false,
+	}
+
+
+func _materialize_campaign_icon(
+	root: String,
+	icon_resolution: Dictionary,
+	image_book: Dictionary,
+	atlas_state: Dictionary
+) -> Dictionary:
+	if str(icon_resolution.get("status", "")) != "campaign-runtime-media":
+		return icon_resolution
+	var relative_path := str(icon_resolution.get("baseRuntimeMediaPath", "")).strip_edges()
+	var source_path := root.path_join(relative_path)
+	var source_image := Image.new()
+	var load_error := source_image.load(source_path)
+	if load_error != OK or source_image.is_empty():
+		last_error = "Classic monster icon runtime media is not readable: %s" % relative_path
+		return icon_resolution
+	source_image.convert(Image.FORMAT_RGBA8)
+	var size := Vector2i(source_image.get_width(), source_image.get_height())
+	if size.x not in [32, 64] or size.y not in [32, 64]:
+		last_error = (
+			"Classic monster icon runtime media %s is %d x %d; "
+			+ "native bestiary sprites require 32- or 64-pixel dimensions"
+		) % [relative_path, size.x, size.y]
+		return icon_resolution
+	var image_key := "CREA_classic_campaign_cicn_%d" % int(
+		icon_resolution.get("baseIconId", 0)
+	)
+	var position := _existing_image_position(image_book.get(image_key, {}), size, atlas_state)
+	if position.x < 0:
+		position = Vector2i(0, int(atlas_state.get("nextY", 0)))
+		atlas_state["nextY"] = position.y + size.y
+		image_book[image_key] = {
+			"0_ref_x": position.x / 32,
+			"0_ref_y": position.y / 32,
+			"size": "%dx%d" % [size.x, size.y],
+		}
+	_grow_atlas(atlas_state, position.x + size.x, position.y + size.y)
+	var atlas: Image = atlas_state["image"]
+	atlas.blit_rect(source_image, Rect2i(Vector2i.ZERO, size), position)
+	atlas_state["dirty"] = true
+	var resolved := icon_resolution.duplicate(true)
+	resolved["runtimeImageKey"] = image_key
+	resolved["runtimeImageSource"] = "campaign-bestiary-atlas"
+	return resolved
+
+
+func _existing_image_position(
+	entry: Variant,
+	size: Vector2i,
+	atlas_state: Dictionary
+) -> Vector2i:
+	if not (entry is Dictionary) or str(entry.get("size", "")) != "%dx%d" % [size.x, size.y]:
+		return Vector2i(-1, -1)
+	var position := Vector2i(
+		int(entry.get("0_ref_x", -1)) * 32,
+		int(entry.get("0_ref_y", -1)) * 32
+	)
+	var atlas: Image = atlas_state["image"]
+	if (
+		position.x < 0
+		or position.y < 0
+		or position.x + size.x > atlas.get_width()
+		or position.y + size.y > atlas.get_height()
+	):
+		return Vector2i(-1, -1)
+	return position
+
+
+func _grow_atlas(atlas_state: Dictionary, minimum_width: int, minimum_height: int) -> void:
+	var current: Image = atlas_state["image"]
+	var width := maxi(current.get_width(), minimum_width)
+	var height := maxi(current.get_height(), minimum_height)
+	if width == current.get_width() and height == current.get_height():
+		return
+	var expanded := Image.create(width, height, false, Image.FORMAT_RGBA8)
+	expanded.fill(Color(0, 0, 0, 0))
+	expanded.blit_rect(
+		current,
+		Rect2i(Vector2i.ZERO, current.get_size()),
+		Vector2i.ZERO
+	)
+	atlas_state["image"] = expanded
 
 
 func _monster_has_explicit_id(monster: Dictionary, monster_id: int) -> bool:
