@@ -30,15 +30,37 @@ records:
 | Packages loaded / preparation errors | 13 / 0 |
 | Ready / blocked | 13 / 0 |
 | Progression blockers | 0 |
-| Fidelity fallbacks | 1,350 |
-| Active / inactive diagnostics | 4,239 / 184 |
-| Files | 4,852 |
-| Installed footprint | 160,452,314 bytes (153.02 MiB) |
-| Per-file deflate estimate | 34,752,573 bytes (33.14 MiB) |
-| JSON footprint | 118,345,775 bytes (112.86 MiB) |
+| Fidelity fallbacks | 961 |
+| Active / inactive diagnostics | 3,850 / 184 |
+| Files | 8,210 |
+| Installed footprint | 173,347,987 bytes (165.32 MiB) |
+| Per-file deflate estimate | 42,264,249 bytes (40.31 MiB) |
+| JSON footprint | 119,787,559 bytes (114.24 MiB) |
 | Shared store | 21 files / 2,221,497 bytes (2.12 MiB) |
-| Byte-identical duplication | 8,149,781 bytes (7.77 MiB) |
-| Cross-campaign duplication | 8,047,692 bytes (7.67 MiB) |
+| Byte-identical duplication | 13,024,067 bytes (12.42 MiB) |
+| Cross-campaign duplication | 12,758,349 bytes (12.17 MiB) |
+
+## Portable Windows release checkpoint
+
+Two clean release exports from source head `17ff258e` produced byte-identical
+Windows artifacts:
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `libgdmpt-windows.release.64.dll` | 6,660,653 | `a7a6c867da39742f1fb074008ced09207eb34114007966ee87b80cb3ab2ff0ba` |
+| `Realmz.exe` | 109,249,536 | `c5ac4997732231a94f68e62963878fccc3135ee9bc86ebd72a704f48473c24df` |
+| `Realmz.pck` | 206,029,344 | `36deccd660697331fb9412359be643f21f1c38ddf99f8af481876039fafced3b` |
+
+Each portable output includes the external `Campaigns`, `ClassicAssets`,
+`Data`, and `Profiles` directories. The campaign directory contains all 13
+first-party Classic packages plus the two native packages. The repository has
+no Git LFS tracked files or pointer records. This checkpoint reuses the retained
+campaign lifecycle and route artifacts; it does not duplicate those acceptance
+runs.
+
+This is technical packaging evidence only. It does not grant redistribution
+rights. Release provenance and redistribution approval must be recorded before
+the first-party Classic packages are shipped.
 
 The built-in campaigns reference 160 byte-identical stock tileset files through
 20 immutable content hashes. Moving 18,007,610 campaign-local bytes into
@@ -62,13 +84,12 @@ referenced diagnostics, and source-backed armed and unarmed playback removes
 definitions retain `attackSounds` because IDs 623, 627, and 648 are not present
 in the native SFX catalog.
 
-The 566 active monster-icon fallbacks now retain their exact Classic resource
-chain classification: 169 resolve to complete stock Family Jewels pairs, 247
-resolve to complete campaign/stock pairs whose decoded runtime media is still
-incomplete, and 150 have an incomplete pair in the locally available Classic
-resource chain. Two Assault on Giant Mountain occurrences now use identified
-stock atlas art instead of a placeholder. The report keeps the remaining 521
-non-icon monster fallbacks separate.
+The 170 active monster-icon fallbacks retain their exact Classic resource-chain
+classification: 169 resolve to complete stock Family Jewels pairs and one
+resolves to a complete campaign/stock pair whose decoded runtime media is still
+incomplete. Materialized scenario icon resources removed 396 icon-specific
+fallbacks. The report keeps the remaining 528 native monster fidelity
+fallbacks separate.
 
 All 63 active unresolved-sound occurrences (22 unique IDs) are visible as
 fidelity fallbacks. They are absent from the complete locally available
@@ -99,7 +120,7 @@ built-in shared spells from the immutable `Data S` inventory. The stock
 class-4 breath, paralysis, and acid-spit resources also preserve their exact
 source IDs and mechanics instead of combining materially different variants.
 
-The authoritative result is now 0 active progression blockers and 1,350
+The authoritative result is now 0 active progression blockers and 961
 fallbacks. Exact stock resources removed 37 previously blocked occurrences:
 Arrow `4101` (12), Boulder `4114` (1), Dart of Poison `4202` (15), Poison
 `4309` (5), Improved Knowledge `4502` (2), Improved Judgment `4503` (1), and
