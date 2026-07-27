@@ -4,6 +4,9 @@ extends RefCounted
 const DistributionJsonScript = preload(
 	"res://scripts/classic_runtime/classic_distribution_json.gd"
 )
+const ItemBehaviorsScript = preload(
+	"res://scripts/classic_runtime/classic_item_behaviors.gd"
+)
 
 const ITEM_BOOK_PATH := "Items/stuff_book.json"
 const ITEM_IMAGE_BOOK_PATH := "Items/img_pack.json"
@@ -338,7 +341,7 @@ func _native_item(record: Dictionary, item_texts: Array) -> Dictionary:
 	}
 	for field_name: String in native_fields.get("fields", {}):
 		native_item[field_name] = native_fields["fields"][field_name]
-	return native_item
+	return ItemBehaviorsScript.enrich_definition_source(native_item)
 
 
 func _native_item_icon(
@@ -687,7 +690,11 @@ func _unsupported_fields(
 ) -> Array[String]:
 	var fields: Array[String] = []
 	for field_name: String in UNSUPPORTED_EFFECT_FIELDS:
-		if int(record.get(field_name, 0)) != 0:
+		if int(record.get(field_name, 0)) != 0 \
+				and not ItemBehaviorsScript.handles_special_field(
+					record,
+					field_name
+				):
 			fields.append(field_name)
 	for field_name: String in native_fields.get("unsupportedFields", []):
 		if not fields.has(field_name):

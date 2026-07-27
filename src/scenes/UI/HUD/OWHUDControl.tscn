@@ -1,4 +1,4 @@
-[gd_scene load_steps=80 format=3 uid="uid://bcm4yk3e2uv7"]
+[gd_scene load_steps=81 format=3 uid="uid://bcm4yk3e2uv7"]
 
 [ext_resource type="PackedScene" uid="uid://y2mh6jttjyop" path="res://scenes/UI/HUD/Multiple Choices/ChoicesButton.tscn" id="1"]
 [ext_resource type="Texture2D" uid="uid://baijqqoeouga7" path="res://shared_assets/UI/StonePatternRect9.png" id="2"]
@@ -56,6 +56,7 @@
 [ext_resource type="Texture2D" uid="uid://c1e4j0nsy54qy" path="res://scenes/UI/HUD/Button_Money.png" id="56"]
 [ext_resource type="FontFile" path="res://Fonts/BlackChancery.tres" id="67_o5gys"]
 [ext_resource type="Texture2D" uid="uid://djcm65t4wb1nt" path="res://scenes/UI/HUD/Button_Spells.png" id="81"]
+[ext_resource type="PackedScene" path="res://scenes/UI/HUD/ClassicTorch/classic_torch_button.tscn" id="82_torch"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_swe7o"]
 
@@ -727,6 +728,13 @@ theme_override_styles/pressed = ExtResource("14_pjtj6")
 theme_override_styles/normal = ExtResource("12_c6hp3")
 text = "Search"
 
+[node name="ClassicTorchButton" parent="VBoxScreen/HBoxBot/BotRightPanel" instance=ExtResource("82_torch")]
+layout_mode = 0
+offset_left = 234.0
+offset_top = 8.0
+offset_right = 258.0
+offset_bottom = 78.0
+
 [node name="CombatBRPanel" parent="VBoxScreen/HBoxBot" instance=ExtResource("28_s8a54")]
 visible = false
 layout_mode = 2
@@ -875,5 +883,6 @@ popup_window = true
 [connection signal="timeout" from="VBoxScreen/HBoxBot/BotRightPanel/RestButton/RestTimer" to="." method="_on_RestTimer_timeout"]
 [connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/SpellButton" to="." method="_on_SpellButton_pressed"]
 [connection signal="toggled" from="VBoxScreen/HBoxBot/BotRightPanel/ClassicSearchButton" to="." method="_on_classic_search_button_toggled"]
+[connection signal="pressed" from="VBoxScreen/HBoxBot/BotRightPanel/ClassicTorchButton" to="." method="_on_classic_torch_button_pressed"]
 [connection signal="pressed" from="CharSwapRect/OKButton" to="CharSwapRect" method="_on_OKButton_pressed"]
 [connection signal="pressed" from="CharSwapRect/CancelButton" to="CharSwapRect" method="_on_CancelButton_pressed"]

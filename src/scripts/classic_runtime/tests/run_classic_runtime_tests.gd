@@ -6242,6 +6242,8 @@ func _test_classic_item_materializer() -> void:
 	supply_record["itemId"] = 805
 	supply_record["type"] = 24
 	supply_record["iconId"] = 607
+	supply_record["special1"] = -4
+	supply_record["special2"] = 1110
 	var torch_item: Dictionary = materializer._native_item(
 		supply_record,
 		[{
@@ -6255,6 +6257,29 @@ func _test_classic_item_materializer() -> void:
 		torch_item.get("img_ptr"),
 		"ITEM_Torch",
 		"standard Classic Torch reuses its matching shared icon"
+	)
+	_expect(
+		torch_item.has("_on_field_use_source"),
+		"Classic item 805 materializes its native Torch use behavior",
+	)
+	_expect_equal(
+		torch_item.get("classicMaterialization", {}).get("status"),
+		"complete",
+		"implemented Torch spell fields no longer block item materialization",
+	)
+	_expect(
+		not torch_item.get(
+			"classicMaterialization",
+			{},
+		).get("unsupportedFields", []).has("special1"),
+		"Torch power is no longer reported as unsupported",
+	)
+	_expect(
+		not torch_item.get(
+			"classicMaterialization",
+			{},
+		).get("unsupportedFields", []).has("special2"),
+		"Torch Shine identity is no longer reported as unsupported",
 	)
 	supply_record["itemId"] = 877
 	supply_record["iconId"] = 605
@@ -6287,6 +6312,10 @@ func _test_classic_item_materializer() -> void:
 		custom_torch.get("img_ptr"),
 		"ITEM_Rope",
 		"a scenario item with only a colliding name keeps the category fallback"
+	)
+	_expect(
+		not custom_torch.has("_on_field_use_source"),
+		"a scenario item with only a colliding name receives no Torch behavior",
 	)
 	var unnamed_item: Dictionary = materializer._native_item(
 		bundle.documents["content"]["scenarioItems"][0],
@@ -16727,6 +16756,22 @@ func _test_classic_light_contract() -> void:
 		ClassicLightScript.remaining_seconds(29, 3500),
 		50500,
 		"Classic light countdown remains aligned to the next game-hour boundary"
+	)
+	_expect(
+		ClassicLightScript.should_draw_darkness(0, false, true),
+		"Classic darkness remains visible during exploration"
+	)
+	_expect(
+		not ClassicLightScript.should_draw_darkness(0, true, true),
+		"Classic combat bypasses the exploration darkness mask"
+	)
+	_expect(
+		ClassicLightScript.should_draw_darkness(0, true, false),
+		"native Remake combat retains its existing darkness presentation"
+	)
+	_expect(
+		not ClassicLightScript.should_draw_darkness(-1, false, true),
+		"a light Classic map has no darkness overlay"
 	)
 	var shine = ShineScript.new()
 	_expect_equal(shine.classic_spell_ids, [1110, 2110], "both Shine records share one adapter")

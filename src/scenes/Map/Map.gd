@@ -15,6 +15,9 @@ class_name Map
 const ClassicQueuedSpellRuntimeScript = preload(
 	"res://scripts/classic_runtime/classic_queued_spell_runtime.gd"
 )
+const ClassicLightScript = preload(
+	"res://scripts/classic_runtime/classic_light.gd"
+)
 const BattleOccupancyRulesScript = preload("res://scripts/battle_occupancy_rules.gd")
 
 # Get Thing Scene By default #
@@ -432,7 +435,11 @@ func _draw() :  #map cells are  [ [used_tileset_name,t_id,true],
 				var btimg : Texture = mapboats[tpos][0]["tex"]
 				draw_texture_rect(btimg, Rect2(32*x,32*y,32,32), true, Color(1,1,1,1))
 
-	if darkness_level >=0 :
+	if ClassicLightScript.should_draw_darkness(
+		darkness_level,
+		StateMachine.is_combat_state(),
+		is_instance_valid(GameGlobal.classic_campaign_session)
+	):
 		var light_level : int = darkness_level + GameGlobal.light_power
 		light_level = int(clamp(light_level, 0, 6))
 		if light_level <= 6 and light_level >=0:

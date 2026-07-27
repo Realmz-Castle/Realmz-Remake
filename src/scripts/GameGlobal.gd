@@ -551,10 +551,6 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 		global_effects[effect]["Duration"] = max(0, global_effects[effect]["Duration"] - seconds)
 	_advance_classic_party_conditions(previous_time, time)
 
-#	player_characters[0].stats["curHP"] = seconds
-	UI.ow_hud.updateTimeDisplay()
-	UI.ow_hud.updateGlobalEffectsDisplay()
-	UI.ow_hud.updateCharPanelDisplay()
 	if classic_light_condition > 0:
 		classic_light_condition = ClassicLightScript.advance_time(
 			classic_light_condition,
@@ -566,6 +562,10 @@ func pass_time(seconds : int, fatiguemultiplier : float = 1.0) :
 		light_time = clamp(light_time-seconds,0,31536000)
 		if light_time == 0 :
 			light_power = 0
+#	player_characters[0].stats["curHP"] = seconds
+	UI.ow_hud.updateTimeDisplay()
+	UI.ow_hud.updateGlobalEffectsDisplay()
+	UI.ow_hud.updateCharPanelDisplay()
 
 
 func _advance_classic_timed_encounters(
@@ -604,6 +604,9 @@ func add_light_effect(p : int, t : int) :
 func add_classic_light_effect(power: int) -> void:
 	classic_light_condition = ClassicLightScript.apply_power(classic_light_condition, power)
 	_sync_classic_light_state()
+	var current_map := NodeAccess.__Map()
+	if is_instance_valid(current_map):
+		current_map.queue_redraw()
 
 
 func apply_classic_party_condition(condition_index: int, duration: int) -> int:

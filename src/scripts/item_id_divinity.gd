@@ -528,6 +528,7 @@ var mapping : Dictionary = {
 797: "Acid Bath",
 798: "Ball Lightning",
 799: "Fog of Doom",
+805: "Torch",
 
 
 }

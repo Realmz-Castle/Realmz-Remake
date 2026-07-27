@@ -4,6 +4,9 @@ const ItemCatalogScript = preload("res://scripts/items/item_catalog.gd")
 const ItemHookRuntimeScript = preload(
 	"res://scripts/items/item_hook_runtime.gd"
 )
+const ClassicItemBehaviorsScript = preload(
+	"res://scripts/classic_runtime/classic_item_behaviors.gd"
+)
 
 var _assertions := 0
 var _failures: Array[String] = []
@@ -11,6 +14,7 @@ var _failures: Array[String] = []
 
 func _init() -> void:
 	_test_stable_hook_calls()
+	_test_classic_torch_hook()
 	_test_traits_and_custom_spell()
 	_test_invalid_source_is_reported()
 	_finish()
@@ -74,6 +78,47 @@ func _test_stable_hook_calls() -> void:
 	_expect(
 		not _contains_object(instance.state_data()),
 		"instance state contains no compiled hook objects",
+	)
+
+
+func _test_classic_torch_hook() -> void:
+	var source := ClassicItemBehaviorsScript.enrich_definition_source({
+		"name": "Core Torch",
+		"type": "Supplies",
+		"img_ptr": "ITEM_Test",
+		"sound": "",
+		"classicItemId": 805,
+		"charges": 6,
+		"charges_max": 6,
+		"delete_on_empty": 1,
+	})
+	_expect(
+		source.has("_on_field_use_source"),
+		"explicit Classic item 805 receives the Torch field-use hook",
+	)
+	var catalog := _catalog_with_definition("Core Torch", source)
+	var definition := catalog.get_definition("shared:Core%20Torch")
+	_expect(
+		definition.has_use("field"),
+		"the enriched Torch definition exposes a field-use action",
+	)
+	var same_name := ClassicItemBehaviorsScript.enrich_definition_source({
+		"name": "Torch",
+		"classicItemId": 877,
+	})
+	_expect(
+		not same_name.has("_on_field_use_source"),
+		"a same-name item without Classic identity 805 receives no Torch behavior",
+	)
+	var authored_hook := ClassicItemBehaviorsScript.enrich_definition_source({
+		"name": "Scenario Torch",
+		"classicItemId": 805,
+		"_on_field_use_source": "return 'scenario behavior'",
+	})
+	_expect_equal(
+		authored_hook.get("_on_field_use_source"),
+		"return 'scenario behavior'",
+		"an authored scenario hook takes precedence over the stock Torch behavior",
 	)
 
 

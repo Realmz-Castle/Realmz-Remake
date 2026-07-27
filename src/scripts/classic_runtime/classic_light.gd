@@ -37,3 +37,15 @@ static func remaining_seconds(condition: int, current_time: int) -> int:
 	var seconds_into_hour := posmod(current_time, SECONDS_PER_HOUR)
 	var seconds_to_next_hour := SECONDS_PER_HOUR - seconds_into_hour
 	return seconds_to_next_hour + (hour_boundaries - 1) * SECONDS_PER_HOUR
+
+
+static func should_draw_darkness(
+	darkness_level: int,
+	in_combat: bool,
+	classic_campaign_active: bool
+) -> bool:
+	if darkness_level < 0:
+		return false
+	# centerpict.c hands combat rendering to centerfield.c before its darkness
+	# mask. Native Remake campaigns retain their existing battle presentation.
+	return not (classic_campaign_active and in_combat)

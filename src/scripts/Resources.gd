@@ -25,6 +25,9 @@ const ItemHookRuntimeScript = preload(
 	"res://scripts/items/item_hook_runtime.gd"
 )
 const ClassicItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const ClassicItemBehaviorsScript = preload(
+	"res://scripts/classic_runtime/classic_item_behaviors.gd"
+)
 const ClassicSharedAssetStoreScript = preload(
 	"res://scripts/classic_runtime/classic_shared_asset_store.gd"
 )
@@ -408,6 +411,9 @@ func load_item_resources(
 		n_item_stuff_book = _shared_item_book_with_classic_ids(
 			n_item_stuff_book
 		)
+	n_item_stuff_book = ClassicItemBehaviorsScript.enrich_item_book(
+		n_item_stuff_book
+	)
 	if not _validate_item_image_book(n_item_img_pack, image_book_path):
 		return false
 	var source_scope := "shared" if load_from_pack else "campaign"

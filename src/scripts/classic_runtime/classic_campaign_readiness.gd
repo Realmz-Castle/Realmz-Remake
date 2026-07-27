@@ -10,6 +10,9 @@ const PartyConditionScript = preload(
 	"res://scripts/classic_runtime/classic_party_condition.gd"
 )
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const ItemBehaviorsScript = preload(
+	"res://scripts/classic_runtime/classic_item_behaviors.gd"
+)
 const SpellIdsScript = preload("res://scripts/spells_id_divinity.gd")
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const SoundIdsScript = preload("res://scripts/sfx_id_divinity.gd")
@@ -136,7 +139,16 @@ func _reset(native_context: Variant) -> void:
 	_active_custom_spell_ids.clear()
 	_campaign_id = ""
 	_campaign_name = ""
-	_native_context = native_context if native_context is Dictionary else {}
+	_native_context = (
+		native_context.duplicate()
+		if native_context is Dictionary
+		else {}
+	)
+	var native_items: Variant = _native_context.get("items", {})
+	if native_items is Dictionary:
+		_native_context["items"] = ItemBehaviorsScript.enrich_item_book(
+			native_items
+		)
 	_item_mapping = _mapping_from_script(ItemIdsScript, "mapping")
 	_spell_mapping = _mapping_from_script(SpellIdsScript, "mappings")
 	_sound_mapping = _mapping_from_script(SoundIdsScript, "mapping")

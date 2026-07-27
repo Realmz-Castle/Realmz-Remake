@@ -7,6 +7,9 @@ const DistributionJsonScript = preload(
 
 const ItemIdentityScript = preload("res://scripts/classic_runtime/classic_item_identity.gd")
 const ItemIdsScript = preload("res://scripts/item_id_divinity.gd")
+const ItemBehaviorsScript = preload(
+	"res://scripts/classic_runtime/classic_item_behaviors.gd"
+)
 const SpellIdentityScript = preload("res://scripts/classic_runtime/classic_spell_identity.gd")
 const SpellResourceCatalogScript = preload(
 	"res://scripts/classic_runtime/classic_spell_resource_catalog.gd"
@@ -934,7 +937,7 @@ func _read_item_context(campaign_root: String) -> Dictionary:
 	if not last_error.is_empty():
 		return {}
 	item_book.merge(campaign_book, true)
-	return item_book
+	return ItemBehaviorsScript.enrich_item_book(item_book)
 
 
 func _read_spell_context() -> Dictionary:

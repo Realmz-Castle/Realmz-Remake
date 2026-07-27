@@ -1,6 +1,9 @@
 extends Control
 class_name OW_HUD
 
+const ClassicItemBehaviorsScript = preload(
+	"res://scripts/classic_runtime/classic_item_behaviors.gd"
+)
 
 var charsmallpanelTSCN : PackedScene = preload("res://scenes/UI/HUD/Characters Panel/CharacterSmallPanel.tscn")
 
@@ -57,6 +60,9 @@ var selected_character = null
 @onready var templeButton    : Button = $VBoxScreen/HBoxBot/BotRightPanel/TempleButton
 @onready var classicSearchButton: Button = (
 	$VBoxScreen/HBoxBot/BotRightPanel/ClassicSearchButton
+)
+@onready var classicTorchButton: ClassicTorchButton = (
+	$VBoxScreen/HBoxBot/BotRightPanel/ClassicTorchButton
 )
 @onready var campButton: Button = $VBoxScreen/HBoxBot/BotRightPanel/CampButton
 @onready var restButton: Button = $VBoxScreen/HBoxBot/BotRightPanel/RestButton
@@ -244,6 +250,7 @@ func updateTimeDisplay() :
 	var mapdisplay = NodeAccess.__Map()
 	xPosLabel.text = str(mapdisplay.focuscharacter.tile_position_x)
 	yPosLabel.text = str(mapdisplay.focuscharacter.tile_position_y)
+	_sync_classic_torch_control()
 
 func updateCharPanelDisplay() :
 	for p in charsVContainer.get_children() :
@@ -252,6 +259,7 @@ func updateCharPanelDisplay() :
 func updateGlobalEffectsDisplay() :
 	globaleffectsRect.update_display()
 	_sync_classic_search_control()
+	_sync_classic_torch_control()
 
 
 func _sync_classic_search_control() -> void:
@@ -260,6 +268,43 @@ func _sync_classic_search_control() -> void:
 	classicSearchButton.set_pressed_no_signal(
 		available and GameGlobal.is_classic_party_condition_active(5)
 	)
+
+
+func _sync_classic_torch_control() -> void:
+	var classic_active := is_instance_valid(GameGlobal.classic_campaign_session)
+	var torch := (
+		ClassicItemBehaviorsScript.find_party_torch(
+			GameGlobal.player_characters,
+			NodeAccess.__Resources()
+		)
+		if classic_active
+		else {}
+	)
+	classicTorchButton.sync_status(
+		classic_active,
+		GameGlobal.classic_light_condition,
+		not torch.is_empty(),
+		not torch.is_empty() and StateMachine._state_name == "Exploration"
+	)
+
+
+func _on_classic_torch_button_pressed() -> void:
+	if StateMachine._state_name != "Exploration":
+		GameGlobal.play_sfx("target error.wav")
+		_sync_classic_torch_control()
+		return
+	var result := ClassicItemBehaviorsScript.activate_party_torch(
+		GameGlobal.player_characters,
+		NodeAccess.__Resources()
+	)
+	if not bool(result.get("ok", false)):
+		GameGlobal.play_sfx("target error.wav")
+		var message := str(result.get("message", "The Torch could not be used"))
+		if not message.is_empty():
+			push_warning(message)
+		_sync_classic_torch_control()
+		return
+	GameGlobal.refresh_OW_HUD()
 
 
 func _on_classic_search_button_toggled(enabled: bool) -> void:

@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/UI/HUD/ClassicTorch/classic_torch_button.gd" id="1_script"]
+
+[node name="ClassicTorchButton" type="Button"]
+visible = false
+custom_minimum_size = Vector2(24, 70)
+offset_right = 24.0
+offset_bottom = 70.0
+texture_filter = 1
+tooltip_text = "No Torches in party inventory."
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+script = ExtResource("1_script")
