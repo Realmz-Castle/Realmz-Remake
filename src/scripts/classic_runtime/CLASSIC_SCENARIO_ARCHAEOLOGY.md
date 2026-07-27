@@ -259,3 +259,78 @@ Each claim should stay within its evidence:
   `Data ED3:macro:470`, `Data ED3:macro:471`, `Data ED3:macro:472`,
   `Data DD:9:31`, `Data DD:6:16`, `Data DD:2:54`, `Data DD:2:13`,
   `Data ED3:macro:509`, and `Data ED3:macro:547`.
+
+## Half Truth
+
+### Main completion chain
+
+- **Runtime-proven:** Global Start macro 58 presents PICT 30011 and shoreline
+  sound 242 before running the shipwreck sequence. The lighthouse marks what
+  appears to be safe passage, but the ship strikes black rocks and leaves the
+  party on land map 0 at `(42, 69)`.
+- **Runtime-proven:** Domnu's shrine is `Data DD:1:90` on land map 1 at
+  `(72, 62)`. Agreeing to oppose the Grey God opens Complex Encounter 23.
+  The spoken-word answer is `fomorians`. The successful result gives Treasure
+  84, whose sole item is the Fomorian Hammer (971).
+- **Source-proven:** Hammer possession controls the campaign's northern
+  progression. `Data DD:7:89` checks item 971 before Rowan says to strike the
+  Avatar with Domnu's Hammer. `Data DD:9:56` and `Data DD:9:65` turn parties
+  without the Hammer back from the Shadowgaunt approach.
+- **Runtime-proven:** `Data ED3:macro:404`, exercised at land map 10
+  `(34, 5)`, enters Battle 253 against 11 Shadow Bats and the Grey God's
+  Avatar. The victory continuation sets quest 63, changes the rift tile to
+  155, disables land random rectangle 2, awards 12,000 experience, and moves
+  the party to `(7, 5)`.
+- **Runtime-proven:** `Data ED3:macro:403` asks whether to leave the
+  Shadowgaunt stronghold. After teleporting the party to land map 9 `(62, 6)`,
+  quest 63 selects macro 407 and its celebration. Message 2090 explicitly says
+  the scenario's major plotline is complete.
+
+### Avatar transformation
+
+- **Source-proven:** The first Avatar record (monster 82) uses death macro 405.
+  That macro says the Fomorian Hammer releases Domnu's remaining power, breaks
+  the Avatar's divine invulnerability, and spawns monster 83 through Extra
+  Code 1238.
+- **Source-proven:** Monster 83 is a much stronger second Avatar form and uses
+  death macro 44. That macro says the Avatar's link to the Grey God is severed,
+  turns him to dust, and sets quest 63.
+- The acceptance route forces victory after verifying Battle 253's initial
+  formation. It runtime-exercises macro 406's victory continuation but does
+  not individually kill the two Avatar forms. The transformation and second
+  death hook remain source-proven rather than runtime-proven.
+
+### Walkthrough and hint facts
+
+- The answer to Domnu's riddle, "Who were my people?", is `fomorians`.
+  Complex Encounter 23 compares the spoken response case-insensitively using
+  Classic's stored-word rules.
+- Domnu says the Hammer cannot destroy the Grey God; it can only remove his
+  Avatar's invulnerability briefly. Rowan repeats this instruction before the
+  Shadowgaunt approach.
+- The apparent safe lighthouse is part of the wreckers' trap. The first nearby
+  encounter, `Data DD:0:1` at `(42, 67)`, has an old man explain that wreckers
+  lure ships onto the rocks and invites the party north.
+- Defeating the Avatar destabilizes his tortured plane and ejects the party
+  back into the Shadowgaunt stronghold. Leaving the stronghold is a separate
+  interaction that triggers the celebration.
+
+### Optional-content boundary
+
+- Message 2090 deliberately distinguishes the completed major plotline from
+  "plenty of sidelines" that can still be explored. Those sidelines are not
+  completion requirements merely because they contain quest-like story,
+  battles, or rewards.
+- The dedicated route jumps between source-identified milestones. It proves
+  the installed completion behavior, not a manual path through every
+  intervening map or optional quest.
+
+### Evidence
+
+- Route: `playtest/routes/half_truth.json`
+- Installed report:
+  `reports/classic_half_truth_route_acceptance.json`
+- Imported source records: `Data ED3:macro:58`, `Data DD:1:90`, Complex
+  Encounter 23, Treasure 84, `Data DD:7:89`, `Data DD:9:56`,
+  `Data DD:9:65`, `Data ED3:macro:403` through `407`, and
+  `Data ED3:macro:44`.

@@ -1,0 +1,513 @@
+{
+  "schemaVersion": 1,
+  "routeId": "half-truth-completion-route",
+  "campaignId": "scenario-half-truth",
+  "campaignDirectory": "Half Truth (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 42,
+    "y": 71
+  },
+  "steps": [
+    {
+      "id": "shipwreck-opening",
+      "kind": "presentation",
+      "triggerId": "Data ED3:macro:58",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 42,
+        "y": 71
+      },
+      "actions": [
+        {"slot": 0, "code": 27, "id": 30011},
+        {"slot": 1, "code": 9, "id": 242},
+        {"slot": 2, "code": 1, "id": 254},
+        {"slot": 3, "code": 103, "id": 569},
+        {"slot": 4, "code": 12, "id": 570},
+        {"slot": 5, "code": 12, "id": 571},
+        {"slot": 6, "code": 45, "id": 572},
+        {"slot": 7, "code": 39, "id": 59}
+      ],
+      "messages": [
+        {
+          "id": 254,
+          "prefix": "You have been at sea for weeks."
+        },
+        {
+          "id": 255,
+          "prefix": "It looks pretty rough ahead but the lighthouse indicates safe passage."
+        },
+        {
+          "id": 221,
+          "prefix": "Black rocks appear in the churning water ahead of the ship."
+        }
+      ],
+      "picture": {
+        "id": 30011,
+        "width": 214,
+        "height": 297
+      },
+      "completionTimeoutMsec": 120000,
+      "sounds": [
+        {
+          "id": 242,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-242-4c1ea8b7cc5e.wav"
+        },
+        {
+          "id": -615,
+          "status": "native-mapping",
+          "nativeName": "lightning.wav"
+        },
+        {
+          "id": -692,
+          "status": "native-mapping",
+          "nativeName": "smack.wav"
+        },
+        {
+          "id": -642,
+          "status": "native-mapping",
+          "nativeName": "big explode.wav"
+        },
+        {
+          "id": -684,
+          "status": "native-mapping",
+          "nativeName": "big splat.wav"
+        },
+        {
+          "id": -618,
+          "status": "native-mapping",
+          "nativeName": "bubbles.wav"
+        }
+      ],
+      "detail": "The installed global Start hook presents the authored shipwreck sequence, shoreline sound, picture, map mutations, and landing position"
+    },
+    {
+      "id": "domnus-hammer",
+      "kind": "complex-word",
+      "triggerId": "Data DD:1:90",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 72,
+        "y": 62
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 1341},
+        {"slot": 1, "code": 1, "id": 1342},
+        {"slot": 2, "code": 1, "id": 1343},
+        {"slot": 3, "code": 3, "id": 15},
+        {"slot": 4, "code": 5, "id": 23},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "encounter": {
+        "id": 23,
+        "prompt": {
+          "id": 1344,
+          "prefix": "'Then answer me this riddle. Who were my people?'"
+        },
+        "word": "fomorians",
+        "result": 1,
+        "resultActions": [
+          {"slot": 0, "rawCode": 1, "id": 1345},
+          {"slot": 1, "rawCode": 1, "id": 1346},
+          {"slot": 2, "rawCode": 10, "id": 84},
+          {"slot": 3, "rawCode": 1, "id": 1733},
+          {"slot": 7, "rawCode": 25, "id": 0},
+          {"slot": 24, "rawCode": 1, "id": 1347},
+          {"slot": 25, "rawCode": 101, "id": 0}
+        ]
+      },
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 1341,
+          "prefix": "As you stand in the centre of this odd group of stone platforms"
+        },
+        {
+          "kind": "message",
+          "id": 1342,
+          "prefix": "'Who enters my shrine after such a long absence."
+        },
+        {
+          "kind": "message",
+          "id": 1343,
+          "prefix": "'Would you oppose Him?"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "encounter-word",
+          "text": "fomorians",
+          "promptPrefix": "'Then answer me this riddle. Who were my people?'",
+          "labels": ["Speak"]
+        },
+        {
+          "kind": "message",
+          "id": 1345,
+          "prefix": "'That is correct. It pleases me that they are still remembered"
+        },
+        {
+          "kind": "message",
+          "id": 1346,
+          "prefix": "'It shall not destroy him. But it will deprive him of godly invulnerability"
+        },
+        {
+          "kind": "treasure",
+          "id": 84,
+          "itemIds": [971],
+          "sourceItemIds": [971, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 0,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        },
+        {
+          "kind": "message",
+          "id": 1733,
+          "prefix": "'Gods cannot die as mortals understand death."
+        }
+      ],
+      "detail": "Domnu's native spoken-word encounter accepts the source answer and Treasure 84 supplies the Fomorian Hammer required by the Shadowgaunt gates"
+    },
+    {
+      "id": "grey-god-avatar",
+      "kind": "battle",
+      "triggerId": "Data ED3:macro:404",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 10,
+        "x": 34,
+        "y": 5
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 10,
+        "x": 7,
+        "y": 5
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 1862},
+        {"slot": 1, "code": 9, "id": 252},
+        {"slot": 2, "code": 1, "id": 1863},
+        {"slot": 3, "code": 1, "id": 1864},
+        {"slot": 4, "code": 1, "id": 1865},
+        {"slot": 5, "code": 1, "id": 1866},
+        {"slot": 6, "code": 9, "id": -252},
+        {"slot": 7, "code": 39, "id": 406}
+      ],
+      "messages": [
+        {
+          "id": 1862,
+          "prefix": "An awesome individual stands before you bathed in a sickly indigo light."
+        },
+        {
+          "id": 1863,
+          "prefix": "Slowly dark powers seem to awaken and the Avatar begins to stir."
+        },
+        {
+          "id": 1864,
+          "prefix": "'Grovelling worms at my feet more like."
+        },
+        {
+          "id": 1865,
+          "prefix": "'You bring the gift of a God who is no more."
+        },
+        {
+          "id": 1866,
+          "prefix": "'I shall share my gift with you now."
+        }
+      ],
+      "sounds": [
+        {
+          "id": 252,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-252-a66d82feb237.wav"
+        },
+        {
+          "id": -252,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-252-a66d82feb237.wav"
+        }
+      ],
+      "battleId": 253,
+      "creatures": [
+        {
+          "monsterId": 19,
+          "displayName": "Shadow Bat",
+          "count": 11
+        },
+        {
+          "monsterId": 82,
+          "displayName": "Grey God's Avatar",
+          "deathMacro": 405,
+          "count": 1
+        }
+      ],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 1899,
+          "prefix": "The Avatar of the Grey God has been vanquished."
+        },
+        {
+          "kind": "experience",
+          "amount": 12000
+        },
+        {
+          "kind": "message",
+          "id": 2124,
+          "prefix": "This tortured plane of existence begins to unravel without its 'master.'"
+        }
+      ],
+      "detail": "Battle 253's complete initial formation resolves through native combat; the victory branch sets quest 63, mutates the rift, awards 12,000 experience, and ejects the party to the stronghold"
+    },
+    {
+      "id": "stronghold-homecoming",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:403",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 10,
+        "x": 7,
+        "y": 5
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 62,
+        "y": 6
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": -1860},
+        {"slot": 1, "code": 3, "id": 15},
+        {"slot": 2, "code": 45, "id": 1233},
+        {"slot": 3, "code": 46, "id": 1240},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 1860,
+          "prefix": "Leave the Shadowgaunt stronghold?"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 1869,
+          "prefix": "You leave the stronghold to inform the assembled host"
+        },
+        {
+          "kind": "message",
+          "id": 1870,
+          "prefix": "Rowan smiles benignly at you."
+        },
+        {
+          "kind": "message",
+          "id": 1871,
+          "prefix": "You are hoisted on the shoulders of several Centaurs"
+        },
+        {
+          "kind": "message",
+          "id": 1872,
+          "prefix": "Now comes the greatest challenge of all: peace."
+        },
+        {
+          "kind": "message",
+          "id": 2090,
+          "prefix": "Although this concludes the major plotline of the scenario"
+        }
+      ],
+      "sounds": [
+        {
+          "id": 10049,
+          "status": "native-mapping",
+          "nativeName": "angry mob.wav"
+        },
+        {
+          "id": 20001,
+          "status": "native-mapping",
+          "nativeName": "twinkle.wav"
+        }
+      ],
+      "detail": "Quest 63 selects the authored homecoming macro, whose celebration explicitly identifies the major plotline as complete while leaving optional sidelines open"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "domnu-shrine",
+        "triggerId": "Data DD:1:90",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1341},
+          {"slot": 1, "code": 1, "id": 1342},
+          {"slot": 2, "code": 1, "id": 1343},
+          {"slot": 3, "code": 3, "id": 15},
+          {"slot": 4, "code": 5, "id": 23},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "avatar-entry",
+        "triggerId": "Data ED3:macro:404",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1862},
+          {"slot": 1, "code": 9, "id": 252},
+          {"slot": 2, "code": 1, "id": 1863},
+          {"slot": 3, "code": 1, "id": 1864},
+          {"slot": 4, "code": 1, "id": 1865},
+          {"slot": 5, "code": 1, "id": 1866},
+          {"slot": 6, "code": 9, "id": -252},
+          {"slot": 7, "code": 39, "id": 406}
+        ]
+      },
+      {
+        "id": "first-avatar-death",
+        "triggerId": "Data ED3:macro:405",
+        "actions": [
+          {"slot": 0, "code": 9, "id": -252},
+          {"slot": 2, "code": 1, "id": 1867},
+          {"slot": 3, "code": 124, "id": 1238},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "true-avatar-death",
+        "triggerId": "Data ED3:macro:44",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 225},
+          {"slot": 1, "code": 1, "id": 1843},
+          {"slot": 2, "code": 47, "id": 63}
+        ]
+      },
+      {
+        "id": "avatar-victory",
+        "triggerId": "Data ED3:macro:406",
+        "actions": [
+          {"slot": 0, "code": 56, "id": 1239},
+          {"slot": 1, "code": 12, "id": 1427},
+          {"slot": 2, "code": 23, "id": 1281},
+          {"slot": 3, "code": 47, "id": 63},
+          {"slot": 4, "code": 1, "id": 1899},
+          {"slot": 5, "code": 11, "id": 12000},
+          {"slot": 6, "code": 45, "id": 1492},
+          {"slot": 7, "code": 1, "id": 2124}
+        ]
+      },
+      {
+        "id": "stronghold-exit",
+        "triggerId": "Data ED3:macro:403",
+        "actions": [
+          {"slot": 0, "code": 1, "id": -1860},
+          {"slot": 1, "code": 3, "id": 15},
+          {"slot": 2, "code": 45, "id": 1233},
+          {"slot": 3, "code": 46, "id": 1240},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "major-plot-ending",
+        "triggerId": "Data ED3:macro:407",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 10049},
+          {"slot": 1, "code": 1, "id": 1869},
+          {"slot": 2, "code": 9, "id": 20001},
+          {"slot": 3, "code": 1, "id": 1870},
+          {"slot": 4, "code": 9, "id": 10049},
+          {"slot": 5, "code": 1, "id": 1871},
+          {"slot": 6, "code": 1, "id": 1872},
+          {"slot": 7, "code": 1, "id": 2090}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 1233, "values": [9, 62, 6, 0, 0]},
+      {"id": 1238, "values": [0, 83, 1, 225, 0]},
+      {"id": 1239, "values": [253, 0, -1, 203, 0]},
+      {"id": 1240, "values": [63, 1, 0, 407, 0]},
+      {"id": 1281, "values": [10, 2, 0, 0, 0]},
+      {"id": 1427, "values": [10, 34, 5, 155, 0]},
+      {"id": 1492, "values": [10, 7, 5, 133, 0]}
+    ],
+    "messages": [
+      {
+        "id": 1345,
+        "prefix": "'That is correct. It pleases me that they are still remembered"
+      },
+      {
+        "id": 1867,
+        "prefix": "The Avatar reels from the blow of the Fomorian Hammer."
+      },
+      {
+        "id": 1843,
+        "prefix": "The Avatar's link to the Grey God is severed."
+      },
+      {
+        "id": 1899,
+        "prefix": "The Avatar of the Grey God has been vanquished."
+      },
+      {
+        "id": 2090,
+        "prefix": "Although this concludes the major plotline of the scenario"
+      }
+    ],
+    "battleIds": [253],
+    "monsters": [
+      {
+        "id": 82,
+        "displayName": "Grey God's Avatar",
+        "deathMacro": 405
+      },
+      {
+        "id": 83,
+        "displayName": "Grey God's Avatar",
+        "deathMacro": 44
+      }
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "shipwreck-opening",
+        "domnus-hammer",
+        "grey-god-avatar",
+        "stronghold-homecoming"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 62,
+        "y": 6
+      },
+      "questFlags": [63],
+      "tileOverrides": [
+        {
+          "levelType": "land",
+          "levelIndex": 10,
+          "x": 34,
+          "y": 5,
+          "value": 155
+        }
+      ],
+      "itemIds": [971],
+      "triggerPercentages": [
+        {
+          "levelType": "land",
+          "levelIndex": 1,
+          "triggerId": 90,
+          "percent": -1
+        }
+      ],
+      "battleIds": [253]
+    }
+  }
+}

@@ -1,0 +1,419 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 42,
+			"y": 71
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 42,
+			"y": 71
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 11,
+				"displayName": "Shadow Bat",
+				"monsterId": 19
+			},
+			{
+				"count": 1,
+				"displayName": "Grey God's Avatar",
+				"monsterId": 82
+			}
+		],
+		"id": 253,
+		"returnMap": "map_10",
+		"returnPosition": {
+			"x": 7,
+			"y": 5
+		},
+		"rewardScreenPresented": true
+	},
+	"campaignDirectory": "Half Truth (Classic)",
+	"campaignId": "scenario-half-truth",
+	"campaignName": "Half Truth (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			253
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			1233,
+			1238,
+			1239,
+			1240,
+			1281,
+			1427,
+			1492
+		],
+		"monsterIds": [
+			82,
+			83
+		],
+		"runtime": {
+			"absentItemIds": [],
+			"battleIds": [
+				253
+			],
+			"itemIds": [
+				971
+			],
+			"position": {
+				"levelIndex": 9,
+				"levelType": "land",
+				"x": 62,
+				"y": 6
+			},
+			"questFlags": [
+				63
+			],
+			"stepIds": [
+				"shipwreck-opening",
+				"domnus-hammer",
+				"grey-god-avatar",
+				"stronghold-homecoming"
+			],
+			"tileOverrides": [
+				{
+					"levelIndex": 10,
+					"levelType": "land",
+					"value": 155,
+					"x": 34,
+					"y": 5
+				}
+			],
+			"triggerPercentages": [
+				{
+					"levelIndex": 1,
+					"levelType": "land",
+					"percent": -1,
+					"triggerId": 90
+				}
+			]
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data DD:1:90",
+			"Data ED3:macro:404",
+			"Data ED3:macro:405",
+			"Data ED3:macro:44",
+			"Data ED3:macro:406",
+			"Data ED3:macro:403",
+			"Data ED3:macro:407"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 1341,
+			"prefix": "As you stand in the centre of this odd group of stone platforms",
+			"stepId": "domnus-hammer"
+		},
+		{
+			"kind": "message",
+			"messageId": 1342,
+			"prefix": "'Who enters my shrine after such a long absence.",
+			"stepId": "domnus-hammer"
+		},
+		{
+			"kind": "message",
+			"messageId": 1343,
+			"prefix": "'Would you oppose Him?",
+			"stepId": "domnus-hammer"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "domnus-hammer"
+		},
+		{
+			"kind": "encounter-word",
+			"labels": [
+				"Speak"
+			],
+			"stepId": "domnus-hammer",
+			"text": "fomorians"
+		},
+		{
+			"kind": "message",
+			"messageId": 1345,
+			"prefix": "'That is correct. It pleases me that they are still remembered",
+			"stepId": "domnus-hammer"
+		},
+		{
+			"kind": "message",
+			"messageId": 1346,
+			"prefix": "'It shall not destroy him. But it will deprive him of godly invulnerability",
+			"stepId": "domnus-hammer"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				971
+			],
+			"kind": "treasure",
+			"stepId": "domnus-hammer",
+			"treasureId": 84
+		},
+		{
+			"kind": "message",
+			"messageId": 1733,
+			"prefix": "'Gods cannot die as mortals understand death.",
+			"stepId": "domnus-hammer"
+		},
+		{
+			"encounterId": 23,
+			"kind": "complex-word",
+			"result": 1,
+			"spokenText": "fomorians",
+			"stepId": "domnus-hammer"
+		},
+		{
+			"kind": "message",
+			"messageId": 1899,
+			"prefix": "The Avatar of the Grey God has been vanquished.",
+			"stepId": "grey-god-avatar"
+		},
+		{
+			"amount": 12000,
+			"kind": "experience",
+			"stepId": "grey-god-avatar"
+		},
+		{
+			"kind": "message",
+			"messageId": 2124,
+			"prefix": "This tortured plane of existence begins to unravel without its 'master.'",
+			"stepId": "grey-god-avatar"
+		},
+		{
+			"kind": "message",
+			"messageId": 1860,
+			"prefix": "Leave the Shadowgaunt stronghold?",
+			"stepId": "stronghold-homecoming"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "stronghold-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1869,
+			"prefix": "You leave the stronghold to inform the assembled host",
+			"stepId": "stronghold-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1870,
+			"prefix": "Rowan smiles benignly at you.",
+			"stepId": "stronghold-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1871,
+			"prefix": "You are hoisted on the shoulders of several Centaurs",
+			"stepId": "stronghold-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1872,
+			"prefix": "Now comes the greatest challenge of all: peace.",
+			"stepId": "stronghold-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 2090,
+			"prefix": "Although this concludes the major plotline of the scenario",
+			"stepId": "stronghold-homecoming"
+		}
+	],
+	"routeId": "half-truth-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 242,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-242-4c1ea8b7cc5e.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "shipwreck-opening",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -615,
+			"nativeName": "lightning.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "shipwreck-opening",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -692,
+			"nativeName": "smack.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "shipwreck-opening",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -642,
+			"nativeName": "big explode.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "shipwreck-opening",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -684,
+			"nativeName": "big splat.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "shipwreck-opening",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -618,
+			"nativeName": "bubbles.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "shipwreck-opening",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 252,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-252-a66d82feb237.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "grey-god-avatar",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -252,
+			"playable": true,
+			"runtimeMediaPath": "media/sounds/snd-252-a66d82feb237.wav",
+			"runtimeMediaType": "audio/wav",
+			"status": "runtime-media",
+			"stepId": "grey-god-avatar",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 10049,
+			"nativeName": "angry mob.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "stronghold-homecoming",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20001,
+			"nativeName": "twinkle.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "stronghold-homecoming",
+			"waitForCompletion": false
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "shipwreck-opening-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "domnus-hammer-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "grey-god-avatar-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "stronghold-homecoming-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed global Start hook presents the authored shipwreck sequence, shoreline sound, picture, map mutations, and landing position",
+			"id": "shipwreck-opening",
+			"status": "passed"
+		},
+		{
+			"detail": "Domnu's native spoken-word encounter accepts the source answer and Treasure 84 supplies the Fomorian Hammer required by the Shadowgaunt gates",
+			"id": "domnus-hammer",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "grey-god-avatar",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "grey-god-avatar-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "Quest 63 selects the authored homecoming macro, whose celebration explicitly identifies the major plotline as complete while leaving optional sidelines open",
+			"id": "stronghold-homecoming",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed"
+}

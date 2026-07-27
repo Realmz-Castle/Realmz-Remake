@@ -67,6 +67,8 @@ func _start_acceptance() -> void:
 				step_succeeded = await _run_action_list_step(step)
 			"complex-item":
 				step_succeeded = await _run_complex_item_step(step)
+			"complex-word":
+				step_succeeded = await _run_complex_word_step(step)
 			_:
 				_fail(
 					str(step.get("id", "route")),
@@ -302,6 +304,10 @@ func _verify_source_contract() -> bool:
 				and not _complex_item_source_matches(step):
 			_fail(stage, "The compiled complex-item response no longer matches the route")
 			return false
+		if str(step.get("kind", "")) == "complex-word" \
+				and not _complex_word_source_matches(step):
+			_fail(stage, "The compiled spoken-word response no longer matches the route")
+			return false
 		if not _treasure_source_matches(step):
 			_fail(stage, "The compiled treasure no longer matches the route")
 			return false
@@ -319,9 +325,11 @@ func _verify_completion_source_contract() -> bool:
 	var trigger_specs: Array = completion.get("triggers", [])
 	var extra_code_specs: Array = completion.get("extraCodes", [])
 	var battle_ids: Array = completion.get("battleIds", [])
+	var monster_specs: Array = completion.get("monsters", [])
 	var trigger_ids: Array[String] = []
 	var extra_code_ids: Array[int] = []
 	var verified_battle_ids: Array[int] = []
+	var verified_monster_ids: Array[int] = []
 	var classification := str(completion.get("classification", ""))
 	var completion_valid := (
 		not trigger_specs.is_empty()
@@ -377,11 +385,31 @@ func _verify_completion_source_contract() -> bool:
 					battle_id
 				).is_empty()
 		)
+	for monster_value: Variant in monster_specs:
+		if not (monster_value is Dictionary):
+			completion_valid = false
+			continue
+		var monster_spec: Dictionary = monster_value
+		var monster_id := int(monster_spec.get("id", -1))
+		var monster: Dictionary = campaign_session.install.bundle.get_monster(
+			monster_id
+		)
+		verified_monster_ids.append(monster_id)
+		completion_valid = completion_valid and not monster.is_empty()
+		for field: String in ["displayName", "deathMacro"]:
+			if not monster_spec.has(field):
+				continue
+			if field == "displayName":
+				completion_valid = completion_valid \
+					and str(monster.get(field, "")) == str(monster_spec.get(field, ""))
+			else:
+				completion_valid = completion_valid \
+					and int(monster.get(field, -1)) == int(monster_spec.get(field, -2))
 	completion_valid = (
 		completion_valid
 			and _messages_match(completion.get("messages", []))
 	)
-	evidence["completionAnchor"] = {
+	var completion_evidence := {
 		"triggerIds": trigger_ids,
 		"extraCodeIds": extra_code_ids,
 		"battleIds": verified_battle_ids,
@@ -389,6 +417,9 @@ func _verify_completion_source_contract() -> bool:
 		"sourceVerified": completion_valid,
 		"runtimeExercised": false,
 	}
+	if not monster_specs.is_empty():
+		completion_evidence["monsterIds"] = verified_monster_ids
+	evidence["completionAnchor"] = completion_evidence
 	_verify(
 		"completion-source-anchor",
 		completion_valid,
@@ -415,8 +446,24 @@ func _run_presentation_step(step: Dictionary) -> bool:
 			_fail(stage, "The authored picture did not render in the native HUD")
 			return false
 		UI.ow_hud.textRect.disablerButton.pressed.emit()
-	if not await _wait_for_playthrough_completion():
-		_fail(stage, "The presentation action list did not return to exploration")
+	if not await _wait_for_playthrough_completion(
+		int(step.get("completionTimeoutMsec", STEP_TIMEOUT_MSEC))
+	):
+		_fail(
+			stage,
+			(
+				"The presentation action list did not return to exploration: "
+				+ "hostActive=%s state=%s map=%s position=%s "
+				+ "pendingContinuation=%s lastResult=%s"
+			) % [
+				host.active,
+				StateMachine._state_name,
+				GameGlobal.currentmap_name,
+				_native_position(),
+				campaign_session.has_pending_continuation(),
+				JSON.stringify(host.runtime.last_result),
+			],
+		)
 		return false
 
 	var sounds_valid := _verify_sound_contract(step)
@@ -489,6 +536,45 @@ func _run_complex_item_step(step: Dictionary) -> bool:
 		str(step.get(
 			"detail",
 			"The installed complex encounter consumes its exact source item response",
+		)),
+	)
+	return failures.is_empty()
+
+
+func _run_complex_word_step(step: Dictionary) -> bool:
+	var stage := str(step.get("id", "complex-word"))
+	if not _move_to_position(stage, step.get("position", {})):
+		return false
+	if not host.start_trigger(str(step.get("triggerId", ""))):
+		_fail(stage, str(host.runtime.last_result))
+		return false
+	if not await _run_interaction_sequence(
+		stage,
+		step.get("sequence", []),
+		step.get("picture", {}),
+	):
+		return false
+	if not await _wait_for_playthrough_completion():
+		_fail(stage, "The spoken-word result did not return to exploration")
+		return false
+	var encounter: Dictionary = step.get("encounter", {})
+	var interaction_rows: Array = evidence.get("interactions", [])
+	interaction_rows.append({
+		"stepId": stage,
+		"kind": "complex-word",
+		"encounterId": int(encounter.get("id", -1)),
+		"spokenText": str(encounter.get("word", "")),
+		"result": int(encounter.get("result", -1)),
+	})
+	evidence["interactions"] = interaction_rows
+	_verify(
+		stage,
+		_verify_sound_contract(step)
+			and not campaign_session.has_pending_continuation()
+			and StateMachine._state_name == "Exploration",
+		str(step.get(
+			"detail",
+			"The installed complex encounter accepts its exact spoken-word response",
 		)),
 	)
 	return failures.is_empty()
@@ -768,6 +854,37 @@ func _run_interaction_sequence(
 					"labels": _choice_labels(),
 				})
 				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed(token)
+			"encounter-word":
+				if not await _wait_for_choices():
+					_fail(stage, "The authored spoken-word encounter did not open")
+					return false
+				var word_labels: Variant = event.get("labels", [])
+				if word_labels is Array \
+						and not word_labels.is_empty() \
+						and _choice_labels() != word_labels:
+					_fail(stage, "The authored spoken-word choices changed")
+					return false
+				var prompt_prefix := str(event.get("promptPrefix", ""))
+				if not UI.ow_hud.textRect.textLabel.get_parsed_text().begins_with(
+					prompt_prefix
+				):
+					_fail(stage, "The compiled spoken-word prompt changed")
+					return false
+				var entered_text := str(event.get("text", ""))
+				if entered_text.is_empty():
+					_fail(stage, "The route spoken-word response is empty")
+					return false
+				var observed_word_labels := _choice_labels()
+				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("word")
+				if not await _submit_encounter_word(entered_text):
+					_fail(stage, "The native encounter speech input did not accept the response")
+					return false
+				interaction_rows.append({
+					"stepId": stage,
+					"kind": "encounter-word",
+					"text": entered_text,
+					"labels": observed_word_labels,
+				})
 			"encounter-repeat-boundary":
 				if not await _wait_for_choices():
 					_fail(stage, "The authored encounter did not repeat after fallthrough")
@@ -1081,6 +1198,10 @@ func _battle_spec_source_matches(specification: Dictionary) -> bool:
 					or str(monster.get("displayName", "")) \
 						!= str(creature.get("displayName", "")):
 				return false
+			if creature.has("deathMacro") \
+					and int(monster.get("deathMacro", -1)) \
+						!= int(creature.get("deathMacro", -2)):
+				return false
 	return true
 
 
@@ -1118,6 +1239,32 @@ func _complex_item_source_matches(step: Dictionary) -> bool:
 	if item_index < 0 \
 			or item_index >= item_results.size() \
 			or int(item_results[item_index]) != int(specification.get("result", -1)):
+		return false
+	return _raw_actions_match(
+		encounter.get("actions", []),
+		specification.get("resultActions", []),
+	)
+
+
+func _complex_word_source_matches(step: Dictionary) -> bool:
+	var specification: Dictionary = step.get("encounter", {})
+	var encounter: Dictionary = campaign_session.install.bundle.get_encounter(
+		"complex",
+		int(specification.get("id", -1)),
+	)
+	if encounter.is_empty() \
+			or int(encounter.get("prompt", -1)) \
+				!= int(specification.get("prompt", {}).get("id", -2)) \
+			or int(encounter.get("wordResult", 0)) \
+				!= int(specification.get("result", -1)):
+		return false
+	var texts: Array = encounter.get("texts", [])
+	var expected_word := str(specification.get("word", "")).to_lower()
+	var source_word := str(texts[8]).left(40).to_lower() if texts.size() > 8 else ""
+	var first_space := source_word.find(" ")
+	if first_space >= 0:
+		source_word = source_word.left(first_space)
+	if source_word.is_empty() or not expected_word.begins_with(source_word):
 		return false
 	return _raw_actions_match(
 		encounter.get("actions", []),
@@ -1435,6 +1582,27 @@ func _wait_for_choices() -> bool:
 	while Time.get_ticks_msec() < deadline:
 		var choices: Control = UI.ow_hud.textRect.choicesContainer
 		if choices.visible and choices.get_child_count() > 0:
+			return true
+		await get_tree().create_timer(0.01).timeout
+	return false
+
+
+func _submit_encounter_word(entered_text: String) -> bool:
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		var encounter_control: Control = UI.ow_hud.encounterControl
+		if encounter_control.visible \
+				and encounter_control.speakButton.visible \
+				and encounter_control.speakButton.get_child(0).visible:
+			encounter_control.speakField.text = entered_text
+			var done_button := encounter_control.find_child(
+				"SpeakDoneButton",
+				true,
+				false,
+			) as Button
+			if done_button == null:
+				return false
+			done_button.pressed.emit()
 			return true
 		await get_tree().create_timer(0.01).timeout
 	return false
@@ -1815,13 +1983,16 @@ func _wait_for_combat(battle_id: int) -> bool:
 	return false
 
 
-func _wait_for_playthrough_completion() -> bool:
-	for _frame: int in 600:
+func _wait_for_playthrough_completion(
+	timeout_msec := STEP_TIMEOUT_MSEC,
+) -> bool:
+	var deadline := Time.get_ticks_msec() + timeout_msec
+	while Time.get_ticks_msec() < deadline:
 		if not host.active \
 				and not StateMachine.is_combat_state() \
 				and StateMachine._state_name == "Exploration":
 			return true
-		await get_tree().process_frame
+		await get_tree().create_timer(0.01).timeout
 	return false
 
 
