@@ -18,6 +18,9 @@ const ClassicQueuedSpellRuntimeScript = preload(
 const ClassicLightScript = preload(
 	"res://scripts/classic_runtime/classic_light.gd"
 )
+const ClassicDungeonBattleTerrainScript = preload(
+	"res://scripts/classic_runtime/classic_dungeon_battle_terrain.gd"
+)
 const BattleOccupancyRulesScript = preload("res://scripts/battle_occupancy_rules.gd")
 
 # Get Thing Scene By default #
@@ -602,6 +605,7 @@ func generate_zoomed_map(mapname : String) -> void:
 	var expanded_cols = orig_cols * 3
 	var expanded_rows = orig_rows * 3
 	var expanded_tilemap = []
+	var classic_dungeon_battle_tiles: Array = []
 	for i in range(expanded_cols):
 		expanded_tilemap.append([])
 		for j in range(expanded_rows):
@@ -616,9 +620,19 @@ func generate_zoomed_map(mapname : String) -> void:
 			else:
 				push_warning("No tilesets loaded for fallback tile!")
 				continue
+			var is_classic_dungeon := (
+				ClassicDungeonBattleTerrainScript.is_classic_dungeon_tile(ground_tile)
+			)
+			if is_classic_dungeon and classic_dungeon_battle_tiles.is_empty():
+				classic_dungeon_battle_tiles = (
+					ClassicDungeonBattleTerrainScript.ensure_tileset(resources.tiles_book)
+				)
 
 			var expansion = []
-			if ground_tile.has("expansion") and ground_tile["expansion"].size() == 9:
+			if is_classic_dungeon:
+				expansion.resize(9)
+				expansion.fill(0)
+			elif ground_tile.has("expansion") and ground_tile["expansion"].size() == 9:
 				expansion = ground_tile["expansion"]
 			else:
 				for k in range(9):
@@ -631,13 +645,23 @@ func generate_zoomed_map(mapname : String) -> void:
 					var expanded_col = col * 3 + j
 					var expanded_row = row * 3 + i
 					var exp_index = i * 3 + j
-					var tileset_key = ground_tile["tileset_name"] + ".json"
 					var expanded_tile_dict = null
-					if resources.tiles_book.has(tileset_key) and expansion[exp_index] < resources.tiles_book[tileset_key].size() and expansion[exp_index] >= 0:
-						expanded_tile_dict = resources.tiles_book[tileset_key][expansion[exp_index]]
+					if is_classic_dungeon:
+						expanded_tile_dict = (
+							ClassicDungeonBattleTerrainScript.battle_tile_for_field(
+								classic_dungeon_battle_tiles,
+								int(ground_tile["classicDungeonField"])
+							)
+						)
+						if expanded_tile_dict.is_empty():
+							expanded_tile_dict = ground_tile
 					else:
-						push_warning("Invalid expansion index %s for tileset %s, using ground_tile" % [str(expansion[exp_index]), tileset_key])
-						expanded_tile_dict = ground_tile # fallback to ground_tile
+						var tileset_key = ground_tile["tileset_name"] + ".json"
+						if resources.tiles_book.has(tileset_key) and expansion[exp_index] < resources.tiles_book[tileset_key].size() and expansion[exp_index] >= 0:
+							expanded_tile_dict = resources.tiles_book[tileset_key][expansion[exp_index]]
+						else:
+							push_warning("Invalid expansion index %s for tileset %s, using ground_tile" % [str(expansion[exp_index]), tileset_key])
+							expanded_tile_dict = ground_tile # fallback to ground_tile
 					expanded_tilemap[expanded_col][expanded_row] = [expanded_tile_dict] # array of one dict
 
 	# Duplicate original map structure, but replace tilemap with expanded_tilemap

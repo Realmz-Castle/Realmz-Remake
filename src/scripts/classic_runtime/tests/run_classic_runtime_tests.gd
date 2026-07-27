@@ -82,6 +82,9 @@ const ClassicLightScript = preload("res://scripts/classic_runtime/classic_light.
 const ClassicRandomRectangleScript = preload(
 	"res://scripts/classic_runtime/classic_random_rectangle.gd"
 )
+const ClassicDungeonBattleTerrainScript = preload(
+	"res://scripts/classic_runtime/classic_dungeon_battle_terrain.gd"
+)
 const ClassicConfusionScript = preload(
 	"res://scripts/classic_runtime/classic_confusion.gd"
 )
@@ -2571,6 +2574,7 @@ func _ready() -> void:
 	_test_classic_campaign_admission()
 	_test_classic_character_rule_profile()
 	_test_classic_map_materializer()
+	_test_classic_dungeon_battle_terrain()
 	_test_classic_boat_materialization()
 	_test_classic_item_materializer()
 	_test_classic_monster_generation()
@@ -6088,6 +6092,131 @@ func _test_classic_map_materializer() -> void:
 		CampaignPackageInstallerScript.new()._remove_directory(test_root),
 		OK,
 		"materializer test cleans its workspace"
+	)
+
+
+func _test_classic_dungeon_battle_terrain() -> void:
+	_expect(
+		ClassicDungeonBattleTerrainScript.is_classic_dungeon_tile({
+			"classicDungeonField": 0,
+		}),
+		"Classic dungeon battle terrain recognizes materialized dungeon tiles"
+	)
+	_expect(
+		not ClassicDungeonBattleTerrainScript.is_classic_dungeon_tile({
+			"classicTileId": 1,
+		}),
+		"Classic dungeon battle terrain leaves land tiles on their authored expansion"
+	)
+	_expect_equal(
+		ClassicDungeonBattleTerrainScript.source_tile_id_for_field(0x0000),
+		232,
+		"open dungeon space uses Classic floor tile 232"
+	)
+	_expect_equal(
+		ClassicDungeonBattleTerrainScript.source_tile_id_for_field(0x0001),
+		234,
+		"plain dungeon walls use Classic wall tile 234"
+	)
+	for opening_field: int in [0x0003, 0x0101, 0x4001]:
+		_expect_equal(
+			ClassicDungeonBattleTerrainScript.source_tile_id_for_field(opening_field),
+			232,
+			"dungeon wall openings remain floor in Classic combat"
+		)
+	_expect_equal(
+		ClassicDungeonBattleTerrainScript.source_tile_id_for_field(0x2001),
+		234,
+		"marked dungeon paths are cleared before wall classification"
+	)
+
+	var tiles_book: Dictionary = {}
+	var battle_tiles: Array = ClassicDungeonBattleTerrainScript.ensure_tileset(tiles_book)
+	_expect_equal(battle_tiles.size(), 20, "Classic dungeon battle art loads all source tiles")
+	_expect(
+		tiles_book.get("ClassicDungeonBattle.json") == battle_tiles,
+		"Classic dungeon battle art is cached in the native tiles book"
+	)
+	if battle_tiles.size() != 20:
+		return
+	_expect_equal(
+		battle_tiles[0].get("classicDungeonBattleSourceTileId"),
+		232,
+		"Classic dungeon battle floor preserves its PICT 302 tile identity"
+	)
+	_expect_equal(
+		battle_tiles[1].get("classicDungeonBattleSourceTileId"),
+		234,
+		"Classic dungeon battle wall preserves its PICT 302 tile identity"
+	)
+	_expect_equal(
+		battle_tiles[1].get("wall"),
+		1,
+		"Classic dungeon battle walls block movement"
+	)
+	_expect_equal(
+		battle_tiles[0].get("wall"),
+		0,
+		"Classic dungeon battle floors remain passable"
+	)
+	_expect_equal(
+		battle_tiles[0].get("classicSoundId"),
+		82,
+		"Classic dungeon battle floors retain their source movement sound"
+	)
+	_expect_equal(
+		battle_tiles[2].get("time"),
+		4,
+		"Classic dungeon rubble retains its source movement cost"
+	)
+	_expect_equal(
+		battle_tiles[19].get("classicSoundId"),
+		87,
+		"Classic dungeon rubble retains its source movement sound"
+	)
+	var floor_texture: Texture2D = battle_tiles[0].get("texture")
+	_expect(
+		floor_texture != null and floor_texture.get_size() == Vector2(32, 32),
+		"Classic dungeon battle tiles retain their native 32-pixel art"
+	)
+	_expect_equal(
+		ClassicDungeonBattleTerrainScript.battle_tile_for_field(
+			battle_tiles,
+			0x0000,
+			10,
+		).get("classicDungeonBattleSourceTileId"),
+		232,
+		"Classic dungeon rubble roll 10 leaves the floor unchanged"
+	)
+	_expect_equal(
+		ClassicDungeonBattleTerrainScript.battle_tile_for_field(
+			battle_tiles,
+			0x0000,
+			9,
+			1,
+		).get("classicDungeonBattleSourceTileId"),
+		341,
+		"Classic dungeon rubble roll 9 selects the first scenery tile"
+	)
+	_expect_equal(
+		ClassicDungeonBattleTerrainScript.battle_tile_for_field(
+			battle_tiles,
+			0x0000,
+			1,
+			18,
+		).get("classicDungeonBattleSourceTileId"),
+		358,
+		"Classic dungeon rubble selection includes the final scenery tile"
+	)
+	_expect_equal(
+		ClassicDungeonBattleTerrainScript.battle_tile_for_field(
+			battle_tiles,
+			0x0001,
+			1,
+			1,
+		).get("classicDungeonBattleSourceTileId"),
+		234,
+		"Classic dungeon walls never receive floor rubble"
 	)
 
 
