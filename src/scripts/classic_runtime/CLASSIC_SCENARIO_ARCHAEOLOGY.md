@@ -720,3 +720,106 @@ Each claim should stay within its evidence:
   `205` through `208`, `218`, `244` through `251`, `256`, and `257`;
   Battles 62 and 105; complex encounter 23; Treasures 20, 30, and 44;
   item 914; monsters 38, 96, 144, 145, 152, 154, and 155.
+
+## War in the Sword Lands
+
+### Main completion chain
+
+- **Runtime-proven:** Macro 3 asks whether the party completed Part One.
+  Answering yes preserves quest 1, presents the invasion prologue and PICT
+  32128, and grants maps 1, 2, and 3.
+- **Runtime-proven:** `Data DD:17:47` enters Battle 377 against Taroth Sark and
+  32 psionic followers. Victory presents his defeat, sets quest 75, and awards
+  10,000 experience.
+- **Runtime-proven:** Macro 2851 diverts parties without quest 75. After Taroth
+  Sark's defeat, Naryl names Nyxos Uhn, Zeiia No, Taroth Sark, Primus, and the
+  Mind Lords, then joins as ally 123.
+- **Runtime-proven:** Macro 3143 begins the liberation climax. Battles 473 and
+  474 place Naerun Halgard on the party's side against Anthraxus Storm's two
+  formations. Victory sets quest 42 and applies the authored shift from
+  `(12, 76)` to `(12, 75)`.
+- **Runtime-proven:** Macro 3158 has King Naerun reward the party with Treasure
+  116 and declare the war in the Sword Lands over. Naryl immediately makes
+  clear that the larger pursuit continues through Primus.
+- **Runtime-proven:** `Data DD:16:67` enters Battle 212 against the three
+  remaining Overlords and their 41 followers, a 44-member hostile formation.
+- **Runtime-proven:** `Data DD:16:61` reveals that Primus is Xenon Maximus. Its
+  rechecking teleport immediately runs the destination action point. Naryl
+  takes Maximus's mind blast, ally 123 is removed, and messages 3961 and 3962
+  explicitly complete the main story and point to Wrath of the Mind Lords.
+
+### Continuity and route gates
+
+- The opening yes answer records that Trouble in the Sword Lands was completed
+  by preserving quest 1. The no branch sets quest 2 instead.
+- **Source-proven:** Macro 3490 checks quest 2 and adds messages 3928 through
+  3931, which explain Kith and Naryl to a party that did not carry Part One's
+  continuity. Those explanatory lines do not appear on the installed yes path.
+- Quest 75 is the real prerequisite for Naryl's recruitment. It is set by
+  Taroth Sark's victory continuation, and macro 2851 immediately diverts to
+  complex encounter 0 when the quest is absent.
+- Naerun's declaration closes the regional war but not the scenario. Naryl's
+  next line directs the party toward Primus, and the explicit main-story
+  completion occurs only after the Maximus revelation and her sacrifice.
+
+### Battles, allies, and rewards
+
+- Battle 377 contains six Psi-stalkers, twenty Psi-Warriors, four Psi-Knights,
+  two Psi-Knight Commanders, and Master Taroth Sark.
+- Battle 473 contains 26 hostiles; Battle 474 contains 24. Naerun Halgard
+  appears as one friendly combatant in each.
+- Battle 212 contains nine Psi-stalkers, 23 Psi-Warriors, six Psi-Knights,
+  three Psi-Knight Commanders, and one each of Taroth Sark, Nyxos Uhn, and
+  Zeiia No.
+- Treasure 116 contains items 28, 403, 424, 624, 634, and 114, plus 10,000
+  experience, 1,000 gold, three gems, and one piece of jewelry.
+- Naryl is ally 123 from her quest-75 recruitment through the final action
+  point, where the compiled ending explicitly removes her.
+
+### Walkthrough and hint facts
+
+- Defeating Taroth Sark is both a major combat objective and the unlock for
+  Naryl's information and recruitment.
+- Anthraxus Storm's defeat and Naerun's reward are a midpoint ending. Continue
+  following Naryl's investigation rather than treating the royal declaration
+  as the final completion state.
+- The final position change is rechecking: arriving at `(78, 36)` immediately
+  triggers Naryl's sacrifice and the ending. It is not a separately entered
+  action point like the return teleports in Twin Sands of Time.
+- **Source-proven:** The ending has conditional farewell lines for party allies
+  Riel 226, Athos 215, Ellai 242, and Leira 243. The dedicated route carries
+  none of them, so those variants are not runtime-exercised.
+- **Source-proven:** Messages 3741 through 3748 describe an alternate outcome
+  in which Storm rewards the party and releases them toward Umaldyr. That
+  service branch is not part of the dedicated completion route.
+
+### Runtime ordering finding
+
+- The Sharranth continuation exposed an engine ordering boundary. Native battle
+  cleanup emitted `battle_end` before restoring the exploration actor, so
+  Classic could apply macro 3148's position shift and then have it overwritten
+  by the native restore.
+- The command adapter now resumes Classic on the following process frame.
+  Macro 3148 retaining `(12, 75)` after both battles is the installed regression
+  check.
+
+### Optional-content boundary
+
+- Quests 42 and 75, Naryl ally 123, the four battle formations, Naerun's
+  regional ending, the Maximus revelation, Naryl's sacrifice, and messages
+  3961 and 3962 form the runtime-proven completion spine.
+- The route proves the direct installed completion behavior, not manual travel
+  through all 21 land maps and three dungeons, every regional quest, every
+  alternate alliance path, the Storm-service outcome, the optional ally
+  farewells, or every encounter.
+
+### Evidence
+
+- Route: `playtest/routes/war_in_the_sword_lands.json`
+- Installed report:
+  `reports/classic_war_in_the_sword_lands_route_acceptance.json`
+- Imported source records: `Data DD:16:61`, `Data DD:16:64`,
+  `Data DD:16:67`, `Data DD:17:47`, `Data ED3:macro:3`, `1772`, `2851`,
+  `3143`, `3148`, `3158`, `3484`, `3489`, `3490`, `3497`, and `3499`;
+  Battles 212, 377, 473, and 474; Treasure 116; monsters 29, 68, 123, 141,
+  142, 143, 178, 185, 186, 187, 190, 210, 211, 212, 213, 261, and 323.

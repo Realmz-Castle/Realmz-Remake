@@ -1787,6 +1787,9 @@ func _start_classic_battle(payload: Dictionary) -> Dictionary:
 		battle_overrides
 	)
 	var outcome_value: Variant = await game_global.battle_end
+	# GameGlobal restores the exploration actor after emitting battle_end.
+	# Resume Classic afterward so a following position change is not overwritten.
+	await game_global.get_tree().process_frame
 	var outcome := str(outcome_value)
 	var survivor_count := 0
 	for character_value: Variant in request["participants"]:

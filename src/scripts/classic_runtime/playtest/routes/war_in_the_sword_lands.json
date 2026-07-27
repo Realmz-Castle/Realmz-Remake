@@ -1,0 +1,892 @@
+{
+  "schemaVersion": 1,
+  "routeId": "war-in-the-sword-lands-completion-route",
+  "campaignId": "scenario-war-in-the-sword-lands",
+  "campaignDirectory": "War in the Sword Lands (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 1,
+    "y": 72
+  },
+  "steps": [
+    {
+      "id": "war-opening",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:3",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 1,
+        "y": 72
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 3000},
+        {"slot": 1, "code": 1, "id": 8},
+        {"slot": 2, "code": 47, "id": 1},
+        {"slot": 3, "code": 1, "id": -9},
+        {"slot": 4, "code": 3, "id": 4},
+        {"slot": 5, "code": 1, "id": 39},
+        {"slot": 6, "code": 27, "id": 32128},
+        {"slot": 7, "code": 39, "id": 5}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 8,
+          "prefix": "(Please answer the following question truthfully"
+        },
+        {
+          "kind": "message",
+          "id": 9,
+          "prefix": "Did you previously complete Part One of the Sword Lands Trilogy"
+        },
+        {
+          "kind": "choice",
+          "answer": "YES"
+        },
+        {
+          "kind": "message",
+          "id": 39,
+          "prefix": "(Thank you for having played Trouble in the Sword Lands!"
+        },
+        {
+          "kind": "message",
+          "id": 12,
+          "prefix": "Nearly six full moons have passed since your heroic adventuring band",
+          "picture": true
+        },
+        {
+          "kind": "message",
+          "id": 13,
+          "prefix": "But the Overlords' designs went beyond simple conquest"
+        },
+        {
+          "kind": "message",
+          "id": 16,
+          "prefix": "So it was understandable when everyone breathed a sigh of relief"
+        },
+        {
+          "kind": "message",
+          "id": 17,
+          "prefix": "And all were quite content to go back to their normal lives"
+        },
+        {
+          "kind": "message",
+          "id": 18,
+          "prefix": "which promised the coming of an all-out war in the Sword Lands"
+        },
+        {
+          "kind": "message",
+          "id": 19,
+          "prefix": "you felt certain that the Overlord Conspiracy was far from over"
+        },
+        {
+          "kind": "message",
+          "id": 20,
+          "prefix": "A mere sevenday ago, you were sadly proven right"
+        },
+        {
+          "kind": "message",
+          "id": 21,
+          "prefix": "After days of evading and fighting sharranthine patrols"
+        },
+        {
+          "kind": "message",
+          "id": 2153,
+          "prefix": "You must warn the Lord Paladine of Tanirith"
+        },
+        {
+          "kind": "map",
+          "id": 1,
+          "prefix": "You gain a map, to view the map use Maps/Notes in the Menu."
+        },
+        {
+          "kind": "map",
+          "id": 2,
+          "prefix": "You gain a map, to view the map use Maps/Notes in the Menu."
+        },
+        {
+          "kind": "map",
+          "id": 3,
+          "prefix": "You gain a map, to view the map use Maps/Notes in the Menu."
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "sounds": [
+        {
+          "id": -212,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-212-67162a3bc5a2.wav"
+        },
+        {
+          "id": -216,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-216-fe0276328c45.wav"
+        }
+      ],
+      "detail": "The installed prologue preserves the Part One continuity choice, presents the invasion through the native HUD, and grants the three starting maps"
+    },
+    {
+      "id": "defeat-taroth-sark",
+      "kind": "action-list",
+      "triggerId": "Data DD:17:47",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 17,
+        "x": 27,
+        "y": 84
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 134},
+        {"slot": 1, "code": 46, "id": 2585},
+        {"slot": 2, "code": 9, "id": 30005},
+        {"slot": 3, "code": 1, "id": 1767},
+        {"slot": 4, "code": 56, "id": 2586},
+        {"slot": 5, "code": 9, "id": 10122},
+        {"slot": 6, "code": 39, "id": 1610},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 1767,
+          "prefix": "As you enter this study"
+        },
+        {
+          "kind": "message",
+          "id": 1768,
+          "prefix": "\"They are here!\""
+        },
+        {
+          "kind": "battle",
+          "id": "taroth-sark",
+          "battleId": 377,
+          "creatures": [
+            {"monsterId": 29, "displayName": "Psi-stalker", "count": 6},
+            {"monsterId": 142, "displayName": "Psi-Warrior", "count": 20},
+            {"monsterId": 143, "displayName": "Psi-Knight", "count": 4},
+            {"monsterId": 178, "displayName": "Psi-Knight Commander", "count": 2},
+            {"monsterId": 210, "displayName": "Master Taroth Sark", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 1769,
+          "prefix": "You hear Taroth Sark moan"
+        },
+        {
+          "kind": "experience",
+          "amount": 10000
+        }
+      ],
+      "detail": "Battle 377 materializes Taroth Sark and his full psi-warrior force, then the victory continuation sets quest 75 and awards 10,000 experience"
+    },
+    {
+      "id": "recruit-naryl",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:2851",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 15,
+        "x": 40,
+        "y": 40
+      },
+      "actions": [
+        {"slot": 0, "code": 46, "id": 5856},
+        {"slot": 1, "code": 9, "id": 223},
+        {"slot": 2, "code": 1, "id": 3181},
+        {"slot": 3, "code": 1, "id": 3182},
+        {"slot": 4, "code": 1, "id": 3183},
+        {"slot": 5, "code": 1, "id": 3184},
+        {"slot": 6, "code": 39, "id": 2871},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 3181,
+          "prefix": "A swordswoman walks up to you"
+        },
+        {
+          "kind": "message",
+          "id": 3182,
+          "prefix": "Since this name is far from being common knowledge"
+        },
+        {
+          "kind": "message",
+          "id": 3183,
+          "prefix": "Upon hearing this, you can't help but gape in surprise"
+        },
+        {
+          "kind": "message",
+          "id": 3184,
+          "prefix": "In fact, tales make good mention"
+        },
+        {
+          "kind": "message",
+          "id": 3186,
+          "prefix": "\"It is still very hard for me to be reminded"
+        },
+        {
+          "kind": "message",
+          "id": 3185,
+          "prefix": "\"My sources and contacts keep me well informed."
+        },
+        {
+          "kind": "message",
+          "id": 3149,
+          "prefix": "You nod gravely."
+        },
+        {
+          "kind": "message",
+          "id": 3150,
+          "prefix": "\"Then I heard news of the war in the Sword Lands."
+        },
+        {
+          "kind": "message",
+          "id": 3151,
+          "prefix": "Naryl then sighs"
+        },
+        {
+          "kind": "message",
+          "id": 3152,
+          "prefix": "\"At least I managed to discover their identities"
+        },
+        {
+          "kind": "message",
+          "id": 3156,
+          "prefix": "\"I also found out where some of them are operating!"
+        },
+        {
+          "kind": "message",
+          "id": 3153,
+          "prefix": "With grim satisfaction, you tell Naryl"
+        },
+        {
+          "kind": "message",
+          "id": 3169,
+          "prefix": "\"Well that is a relief!"
+        },
+        {
+          "kind": "message",
+          "id": 3159,
+          "prefix": "\"In any case, that is useful information"
+        },
+        {
+          "kind": "message",
+          "id": 3160,
+          "prefix": "You gasp with shock and dread"
+        },
+        {
+          "kind": "message",
+          "id": 3161,
+          "prefix": "\"Unfortunately,\" Naryl goes on"
+        },
+        {
+          "kind": "message",
+          "id": 3162,
+          "prefix": "She sighs."
+        },
+        {
+          "kind": "message",
+          "id": 3163,
+          "prefix": "\"But most importantly, we must find Primus"
+        },
+        {
+          "kind": "message",
+          "id": 3164,
+          "prefix": "\"However, I'm quite aware"
+        },
+        {
+          "kind": "message",
+          "id": 3165,
+          "prefix": "Naryl Thezzat has joined your party"
+        }
+      ],
+      "detail": "Naryl names the three active Overlords and Primus's plan before joining the installed party as ally 123"
+    },
+    {
+      "id": "battle-of-sharranth",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:3143",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 12,
+        "y": 76
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 12,
+        "y": 75
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 3561},
+        {"slot": 1, "code": 1, "id": 3562},
+        {"slot": 2, "code": 1, "id": 3563},
+        {"slot": 3, "code": 9, "id": 1101},
+        {"slot": 4, "code": 1, "id": 3527},
+        {"slot": 5, "code": 1, "id": 3528},
+        {"slot": 6, "code": 39, "id": 3146},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 3561,
+          "prefix": "You find yourselves facing Anthraxus Storm."
+        },
+        {
+          "kind": "message",
+          "id": 3562,
+          "prefix": "\"We meet again."
+        },
+        {
+          "kind": "message",
+          "id": 3563,
+          "prefix": "\"Don't you know by now"
+        },
+        {
+          "kind": "message",
+          "id": 3527,
+          "prefix": "\"Your clever tongue won't save you"
+        },
+        {
+          "kind": "message",
+          "id": 3528,
+          "prefix": "\"You are a fraud!"
+        },
+        {
+          "kind": "message",
+          "id": 3530,
+          "prefix": "\"You know, Naerun"
+        },
+        {
+          "kind": "message",
+          "id": 3531,
+          "prefix": "\"As I was saying"
+        },
+        {
+          "kind": "message",
+          "id": 3532,
+          "prefix": "\"Despite, I might add"
+        },
+        {
+          "kind": "message",
+          "id": 3533,
+          "prefix": "Naerun shakes his head angrily."
+        },
+        {
+          "kind": "message",
+          "id": 3534,
+          "prefix": "\"I will liberate Sharranth from despotism!"
+        },
+        {
+          "kind": "message",
+          "id": 3529,
+          "prefix": "\"Such a waste."
+        },
+        {
+          "kind": "battle",
+          "id": "storm-retinue",
+          "battleId": 473,
+          "creatures": [
+            {"monsterId": 141, "displayName": "Dark Knight", "count": 4},
+            {"monsterId": 185, "displayName": "Warlock", "count": 2},
+            {"monsterId": 186, "displayName": "Priest", "count": 2},
+            {"monsterId": 187, "displayName": "Witch", "count": 2},
+            {"monsterId": 190, "displayName": "Sharranth Warrior", "count": 16}
+          ],
+          "allies": [
+            {"monsterId": 323, "displayName": "Naerun Halgard", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 3535,
+          "prefix": "\"Very well, then!"
+        },
+        {
+          "kind": "message",
+          "id": 3536,
+          "prefix": " As you are about to engage the warlord"
+        },
+        {
+          "kind": "battle",
+          "id": "anthraxus-storm",
+          "battleId": 474,
+          "creatures": [
+            {"monsterId": 68, "displayName": "Master Enchanter", "count": 1},
+            {"monsterId": 141, "displayName": "Dark Knight", "count": 14},
+            {"monsterId": 185, "displayName": "Warlock", "count": 1},
+            {"monsterId": 186, "displayName": "Priest", "count": 2},
+            {"monsterId": 187, "displayName": "Witch", "count": 1},
+            {"monsterId": 213, "displayName": "Anthraxus Storm", "count": 1},
+            {"monsterId": 261, "displayName": "Death Knight", "count": 4}
+          ],
+          "allies": [
+            {"monsterId": 323, "displayName": "Naerun Halgard", "count": 1}
+          ]
+        }
+      ],
+      "detail": "The installed liberation climax materializes both authored battle formations, keeps Naerun on the allied side, defeats Anthraxus Storm, and sets quest 42"
+    },
+    {
+      "id": "naerun-war-ending",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:3158",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 12,
+        "y": 76
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 12,
+        "y": 77
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": 1100},
+        {"slot": 1, "code": 87, "id": 6351},
+        {"slot": 2, "code": 1, "id": 3567},
+        {"slot": 3, "code": 1, "id": 3568},
+        {"slot": 4, "code": 1, "id": 3569},
+        {"slot": 5, "code": 10, "id": 116},
+        {"slot": 6, "code": 39, "id": 3169},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 3567,
+          "prefix": "\"Welcome back, noble ones!"
+        },
+        {
+          "kind": "message",
+          "id": 3568,
+          "prefix": "\"Thanks to your valiant efforts"
+        },
+        {
+          "kind": "message",
+          "id": 3569,
+          "prefix": "He nods."
+        },
+        {
+          "kind": "treasure",
+          "id": 116,
+          "itemIds": [28, 403, 424, 624, 634, 114],
+          "sourceItemIds": [28, 403, 424, 0, 624, 634, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 10000,
+          "gold": 1000,
+          "gems": 3,
+          "jewelry": 1
+        },
+        {
+          "kind": "message",
+          "id": 3570,
+          "prefix": "\"Let it be known that the war in the Sword Lands is over!"
+        },
+        {
+          "kind": "message",
+          "id": 3571,
+          "prefix": "\"Well, then."
+        }
+      ],
+      "detail": "King Naerun declares the regional war over, presents Treasure 116 and its 10,000 experience, and sends Naryl onward after Primus"
+    },
+    {
+      "id": "overlord-last-stand",
+      "kind": "action-list",
+      "triggerId": "Data DD:16:67",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 78,
+        "y": 41
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": -604},
+        {"slot": 1, "code": 9, "id": 700},
+        {"slot": 2, "code": 9, "id": -139},
+        {"slot": 3, "code": 9, "id": -139},
+        {"slot": 4, "code": 9, "id": -139},
+        {"slot": 5, "code": 1, "id": 3904},
+        {"slot": 6, "code": 39, "id": 3484},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 3904,
+          "prefix": "Entering the citadel, you are awed"
+        },
+        {
+          "kind": "message",
+          "id": 3905,
+          "prefix": "Looking up, you are startled"
+        },
+        {
+          "kind": "message",
+          "id": 3906,
+          "prefix": "A familiar voice calling out"
+        },
+        {
+          "kind": "message",
+          "id": 3908,
+          "prefix": "\"Says who?"
+        },
+        {
+          "kind": "message",
+          "id": 3909,
+          "prefix": "\"I swore an oath"
+        },
+        {
+          "kind": "message",
+          "id": 3910,
+          "prefix": "\"You are a misguided fool"
+        },
+        {
+          "kind": "message",
+          "id": 3911,
+          "prefix": "\"Aye. That is what our people refuse to see."
+        },
+        {
+          "kind": "message",
+          "id": 3912,
+          "prefix": "\"Well spoken, Master Sark."
+        },
+        {
+          "kind": "message",
+          "id": 3913,
+          "prefix": "\"Therefore, why deny this?"
+        },
+        {
+          "kind": "message",
+          "id": 3914,
+          "prefix": "\"We need not bow"
+        },
+        {
+          "kind": "message",
+          "id": 3915,
+          "prefix": "\"It's you who are blind!"
+        },
+        {
+          "kind": "message",
+          "id": 3916,
+          "prefix": "\"The Mind Lords care about nothing"
+        },
+        {
+          "kind": "message",
+          "id": 3917,
+          "prefix": "\"And that is why I have sworn"
+        },
+        {
+          "kind": "battle",
+          "id": "three-overlords",
+          "battleId": 212,
+          "creatures": [
+            {"monsterId": 29, "displayName": "Psi-stalker", "count": 9},
+            {"monsterId": 142, "displayName": "Psi-Warrior", "count": 23},
+            {"monsterId": 143, "displayName": "Psi-Knight", "count": 6},
+            {"monsterId": 178, "displayName": "Psi-Knight Commander", "count": 3},
+            {"monsterId": 210, "displayName": "Master Taroth Sark", "count": 1},
+            {"monsterId": 211, "displayName": "General Nyxos Uhn", "count": 1},
+            {"monsterId": 212, "displayName": "Pro-Consul Zeiia No", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 3918,
+          "prefix": "A battered and bloodied Naryl"
+        }
+      ],
+      "detail": "Battle 212 materializes the three remaining Overlords and their full 44-member psionic force before Naryl turns the pursuit toward Primus"
+    },
+    {
+      "id": "maximus-revelation",
+      "kind": "action-list",
+      "triggerId": "Data DD:16:61",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 78,
+        "y": 37
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 78,
+        "y": 36
+      },
+      "actions": [
+        {"slot": 0, "code": 9, "id": -600},
+        {"slot": 1, "code": 9, "id": -601},
+        {"slot": 2, "code": 9, "id": -602},
+        {"slot": 3, "code": 9, "id": -603},
+        {"slot": 4, "code": 1, "id": 3921},
+        {"slot": 5, "code": 9, "id": 605},
+        {"slot": 6, "code": 39, "id": 3489},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {"kind": "message", "id": 3921, "prefix": "You find Primus standing before a large gateway."},
+        {"kind": "message", "id": 3922, "prefix": "As you walk ahead to attack him"},
+        {"kind": "message", "id": 3923, "prefix": "He chuckles."},
+        {"kind": "message", "id": 3924, "prefix": "He sighs, gazing upwards"},
+        {"kind": "message", "id": 3925, "prefix": "\"Stop this madness now, Primus!"},
+        {"kind": "message", "id": 3926, "prefix": "\"Primus?"},
+        {"kind": "message", "id": 3927, "prefix": "She turns to you with alarm"},
+        {"kind": "message", "id": 3932, "prefix": "\"In effect, it was not Primus"},
+        {"kind": "message", "id": 3933, "prefix": "\"But THE Mentarch!"},
+        {"kind": "message", "id": 3934, "prefix": "As Primus/Maximus laughs anew"},
+        {"kind": "message", "id": 3935, "prefix": "You turn around to face the telekinetic field"},
+        {"kind": "message", "id": 3936, "prefix": "\"Time for me to go"},
+        {"kind": "message", "id": 3937, "prefix": "Primus/Maximus sighs."},
+        {"kind": "message", "id": 3938, "prefix": "\"From my demise twelve thousand years ago"},
+        {"kind": "message", "id": 4068, "prefix": "\"How eager he was to accept me!"},
+        {"kind": "message", "id": 4069, "prefix": "Mentarchs!"},
+        {"kind": "message", "id": 4070, "prefix": "and so I ingratiated them"},
+        {"kind": "message", "id": 4071, "prefix": "it never really mattered"},
+        {"kind": "message", "id": 3939, "prefix": "\"So you see, my little Overlords"},
+        {"kind": "message", "id": 3940, "prefix": "fully functional state"},
+        {"kind": "message", "id": 3941, "prefix": "He shakes his head."},
+        {"kind": "message", "id": 3942, "prefix": "casting a cloud over my triumphant moment"},
+        {"kind": "message", "id": 3943, "prefix": "At these words, Primus/Maximus lowers"},
+        {"kind": "message", "id": 3944, "prefix": "In an instant, Naryl rushes ahead"},
+        {"kind": "message", "id": 3945, "prefix": "Engulfed by the tremendous psionic energies"},
+        {"kind": "message", "id": 3946, "prefix": "Before you can regain your bearings"},
+        {"kind": "message", "id": 3947, "prefix": "Confused, you run to Naryl's side."},
+        {"kind": "message", "id": 3948, "prefix": "Naryl lies on the floor"},
+        {"kind": "message", "id": 3949, "prefix": "\"Both mind and body"},
+        {"kind": "message", "id": 3949, "prefix": "\"Both mind and body"},
+        {"kind": "message", "id": 3951, "prefix": "\"Goodbye"},
+        {"kind": "message", "id": 3952, "prefix": "Alone, you rise"},
+        {"kind": "message", "id": 3953, "prefix": "Were all your accomplishments truly futile?"},
+        {"kind": "message", "id": 3954, "prefix": "Grieving for Naryl"},
+        {"kind": "message", "id": 3955, "prefix": "Have you really won for now"},
+        {"kind": "message", "id": 3960, "prefix": "In response, a proverb comes to your mind"},
+        {
+          "kind": "message",
+          "id": 3961,
+          "prefix": "(Congratulations for completing the main story-arc",
+          "picture": true
+        },
+        {
+          "kind": "message",
+          "id": 3962,
+          "prefix": "(We thank you for registering this second installment"
+        }
+      ],
+      "picture": {
+        "id": 30120,
+        "width": 320,
+        "height": 320
+      },
+      "sounds": [
+        {
+          "id": -212,
+          "status": "runtime-media",
+          "runtimeMediaPath": "media/sounds/snd-212-67162a3bc5a2.wav"
+        }
+      ],
+      "detail": "The rechecking teleport reveals Primus as Xenon Maximus, follows Naryl's sacrifice into the destination action point, removes ally 123, and explicitly completes War in the Sword Lands before naming Wrath of the Mind Lords"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "prologue",
+        "triggerId": "Data ED3:macro:3",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 3000},
+          {"slot": 1, "code": 1, "id": 8},
+          {"slot": 2, "code": 47, "id": 1},
+          {"slot": 3, "code": 1, "id": -9},
+          {"slot": 4, "code": 3, "id": 4},
+          {"slot": 5, "code": 1, "id": 39},
+          {"slot": 6, "code": 27, "id": 32128},
+          {"slot": 7, "code": 39, "id": 5}
+        ]
+      },
+      {
+        "id": "naryl-joins",
+        "triggerId": "Data ED3:macro:2860",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 3164},
+          {"slot": 1, "code": 89, "id": 123},
+          {"slot": 2, "code": 1, "id": 3165},
+          {"slot": 3, "code": 87, "id": 6531},
+          {"slot": 4, "code": 87, "id": 6532},
+          {"slot": 5, "code": 39, "id": 3415},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "taroth-battle",
+        "triggerId": "Data DD:17:47",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 134},
+          {"slot": 1, "code": 46, "id": 2585},
+          {"slot": 2, "code": 9, "id": 30005},
+          {"slot": 3, "code": 1, "id": 1767},
+          {"slot": 4, "code": 56, "id": 2586},
+          {"slot": 5, "code": 9, "id": 10122},
+          {"slot": 6, "code": 39, "id": 1610},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "taroth-defeat",
+        "triggerId": "Data ED3:macro:1772",
+        "actions": [
+          {"slot": 0, "code": 47, "id": -74},
+          {"slot": 1, "code": 47, "id": 75},
+          {"slot": 2, "code": 7, "id": 5890},
+          {"slot": 3, "code": 39, "id": 1612},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "storm-battles",
+        "triggerId": "Data ED3:macro:3147",
+        "actions": [
+          {"slot": 0, "code": 56, "id": 6313},
+          {"slot": 1, "code": 9, "id": 1103},
+          {"slot": 2, "code": 1, "id": 3535},
+          {"slot": 3, "code": 56, "id": 6314},
+          {"slot": 4, "code": 12, "id": 6315},
+          {"slot": 5, "code": 47, "id": 42},
+          {"slot": 6, "code": 39, "id": 3148},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "war-ending",
+        "triggerId": "Data ED3:macro:3158",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 1100},
+          {"slot": 1, "code": 87, "id": 6351},
+          {"slot": 2, "code": 1, "id": 3567},
+          {"slot": 3, "code": 1, "id": 3568},
+          {"slot": 4, "code": 1, "id": 3569},
+          {"slot": 5, "code": 10, "id": 116},
+          {"slot": 6, "code": 39, "id": 3169},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "overlord-battle",
+        "triggerId": "Data ED3:macro:3488",
+        "actions": [
+          {"slot": 0, "code": 56, "id": 8972},
+          {"slot": 1, "code": 9, "id": 223},
+          {"slot": 2, "code": 1, "id": 3918},
+          {"slot": 3, "code": 7, "id": 8974},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "maximus-escape",
+        "triggerId": "Data ED3:macro:3496",
+        "actions": [
+          {"slot": 0, "code": 12, "id": 8983},
+          {"slot": 1, "code": 20, "id": 8985},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "naryl-sacrifice",
+        "triggerId": "Data DD:16:64",
+        "actions": [
+          {"slot": 0, "code": 13, "id": 8975},
+          {"slot": 1, "code": 1, "id": 3948},
+          {"slot": 2, "code": 1, "id": 3949},
+          {"slot": 3, "code": 1, "id": 3949},
+          {"slot": 4, "code": 88, "id": 123},
+          {"slot": 5, "code": 1, "id": 3951},
+          {"slot": 6, "code": 39, "id": 3497},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "explicit-ending",
+        "triggerId": "Data ED3:macro:3503",
+        "actions": [
+          {"slot": 0, "code": 9, "id": 216},
+          {"slot": 1, "code": 27, "id": 30120},
+          {"slot": 2, "code": 1, "id": 3961},
+          {"slot": 3, "code": 1, "id": 3962},
+          {"slot": 4, "code": 9, "id": 3000},
+          {"slot": 5, "code": 28, "id": 0},
+          {"slot": 6, "code": 13, "id": 8991},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 4, "values": [1, 1, 4, 10, 11]},
+      {"id": 2586, "values": [377, 377, 324, 1103, 1768]},
+      {"id": 6313, "values": [473, 473, 802, 1103, 3529]},
+      {"id": 6314, "values": [474, 474, 324, 600, 3536]},
+      {"id": 6352, "values": [123, 0, 1, 3170, 0]},
+      {"id": 8972, "values": [-212, -212, 802, 10136, 3917]},
+      {"id": 8985, "values": [16, 78, 36, 10123, 3947]},
+      {"id": 8991, "values": [16, 64, -100, 64, 64]}
+    ],
+    "messages": [
+      {
+        "id": 3570,
+        "prefix": "\"Let it be known that the war in the Sword Lands is over!"
+      },
+      {
+        "id": 3933,
+        "prefix": "\"But THE Mentarch!"
+      },
+      {
+        "id": 3961,
+        "prefix": "(Congratulations for completing the main story-arc"
+      },
+      {
+        "id": 3962,
+        "prefix": "(We thank you for registering this second installment"
+      }
+    ],
+    "battleIds": [377, 473, 474, 212],
+    "monsters": [
+      {"id": 123, "displayName": "Naryl Thezzat", "deathMacro": 1083},
+      {"id": 210, "displayName": "Master Taroth Sark", "deathMacro": 36},
+      {"id": 211, "displayName": "General Nyxos Uhn", "deathMacro": 36},
+      {"id": 212, "displayName": "Pro-Consul Zeiia No", "deathMacro": 36},
+      {"id": 213, "displayName": "Anthraxus Storm", "deathMacro": 0},
+      {"id": 323, "displayName": "Naerun Halgard", "deathMacro": 0}
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "war-opening",
+        "defeat-taroth-sark",
+        "recruit-naryl",
+        "battle-of-sharranth",
+        "naerun-war-ending",
+        "overlord-last-stand",
+        "maximus-revelation"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 16,
+        "x": 78,
+        "y": 36
+      },
+      "questFlags": [1, 42, 75],
+      "battleIds": [377, 473, 474, 212]
+    }
+  }
+}
