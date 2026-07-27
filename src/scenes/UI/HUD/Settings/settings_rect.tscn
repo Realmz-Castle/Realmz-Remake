@@ -161,6 +161,15 @@ theme_override_fonts/font = ExtResource("4_g7kde")
 text = "100%"
 vertical_alignment = 1
 
+[node name="MapDebugCheckButton" type="CheckButton" parent="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.960784, 0, 1)
+theme_override_fonts/font = ExtResource("4_g7kde")
+theme_override_font_sizes/font_size = 18
+button_pressed = true
+text = "Show map debug overlays"
+
 [node name="ButtonDone" type="Button" parent="."]
 layout_mode = 0
 anchor_left = 1.0
@@ -286,6 +295,7 @@ text = "Cancel"
 
 [connection signal="value_changed" from="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/SoundLabel/SoundHScrollBar" to="HBoxContainer/VBoxContainer/MusicSettingsRect" method="_on_sound_h_scroll_bar_value_changed"]
 [connection signal="value_changed" from="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/MusicLabel/MusicHScrollBar" to="HBoxContainer/VBoxContainer/MusicSettingsRect" method="_on_music_h_scroll_bar_value_changed"]
+[connection signal="toggled" from="HBoxContainer/VBoxContainer/MusicSettingsRect/VBoxContainer/VolumeVbox/MapDebugCheckButton" to="." method="_on_MapDebugCheckButton_toggled"]
 [connection signal="pressed" from="ButtonDone" to="." method="_on_ButtonDone_pressed"]
 [connection signal="pressed" from="MainMenuButton" to="." method="_on_MainMenuButton_pressed"]
 [connection signal="pressed" from="ConfirmRect/DialogPanel/VBoxContainer/ButtonHBox/YesButton" to="." method="_on_YesButton_pressed"]

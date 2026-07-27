@@ -25,6 +25,16 @@ func _init() -> void:
 		"the shipped default profile selects Outdoor music for Forest maps"
 	)
 	_expect_equal(
+		float(shipped_profile.get_value("VOLUME", "volume_sound", -1.0)),
+		100.0,
+		"the shipped default profile starts with audible sound"
+	)
+	_expect_equal(
+		float(shipped_profile.get_value("VOLUME", "volume_music", -1.0)),
+		100.0,
+		"the shipped default profile starts with audible music"
+	)
+	_expect_equal(
 		MusicSettingsScript.default_music_choice("Camp"),
 		"camp.mod",
 		"missing profile music uses the native Camp default"
@@ -47,6 +57,21 @@ func _init() -> void:
 		MusicSettingsScript.volume_db_from_setting(100.0),
 		0.0,
 		"the maximum music setting resolves to zero decibels"
+	)
+	_expect_equal(
+		MusicSettingsScript.setting_from_volume_db(-50.0),
+		0.0,
+		"a silent runtime volume displays as zero percent"
+	)
+	_expect_equal(
+		MusicSettingsScript.setting_from_volume_db(-25.0),
+		50.0,
+		"a half-volume runtime setting displays as fifty percent"
+	)
+	_expect_equal(
+		MusicSettingsScript.setting_from_volume_db(0.0),
+		100.0,
+		"the maximum runtime volume displays as one hundred percent"
 	)
 	_finish()
 

@@ -221,6 +221,7 @@ func advance_missing_classic_terrain_phases(combat_buttons: Array) -> void:
 
 # Call functions to load the map #
 func _ready():
+	set_debug_overlays_enabled(GameGlobal.map_debug_overlays_enabled)
 	aStar11.crea_size = Vector2.ONE
 	#aStarExtra.crea_size = Vector2(2,2)#Vector2.ONE*2
 	aStar12.crea_size = Vector2(1,2)
@@ -251,6 +252,15 @@ func _ready():
 		exploration_sight_dirs.append(Vector2(halfray-x,halfray))
 		exploration_sight_dirs.append(Vector2(-halfray,halfray-x))
 #	load_map()
+
+func set_debug_overlays_enabled(enabled: bool) -> void:
+	show_scripts = enabled
+	if not is_instance_valid(debuglabel):
+		return
+	debuglabel.visible = enabled
+	if not enabled:
+		debuglabel.text = ""
+	queue_redraw()
 
 func set_ow_character_icon(icon : Texture2D) :
 	if GameGlobal.camping :
@@ -477,6 +487,8 @@ func _on_MapMouseControlButton_mouse_exited():
 
 func _process(_delta):
 	if not visible:
+		return
+	if not show_scripts:
 		return
 	var combat_animation_timer: Variant = "unloaded"
 	if (

@@ -25,3 +25,7 @@ static func default_music_choice(type: String) -> String:
 
 static func volume_db_from_setting(value: float) -> float:
 	return (value - 100.0) * 0.5
+
+
+static func setting_from_volume_db(value: float) -> float:
+	return clampf((value * 2.0) + 100.0, 0.0, 100.0)

@@ -29,8 +29,17 @@ func _ready():
 	var profilefromcfg = Utils.FileHandler.get_cfg_setting(Paths.settingspath,"SETTINGS","current_profile", "Default Profile")
 	pass
 	var hd_mode_from_config = Utils.FileHandler.get_cfg_setting(Paths.settingspath,"SETTINGS","hd_mode", false)
+	var map_debug_overlays_from_config := bool(
+		Utils.FileHandler.get_cfg_setting(
+			Paths.settingspath,
+			"SETTINGS",
+			"show_map_debug_overlays",
+			true
+		)
+	)
 	
 	GameGlobal.set_hd_mode(hd_mode_from_config)
+	GameGlobal.set_map_debug_overlays_enabled(map_debug_overlays_from_config)
 	_load_initial_profile_after_first_frame(profilefromcfg, hd_mode_from_config)
 
 

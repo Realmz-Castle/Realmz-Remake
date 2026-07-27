@@ -168,6 +168,7 @@ var hd_mode : bool = ScreenUtils.get_hd_mode_default()
 #settings
 var gamespeed : float = 0.2
 var enforce_unique_items : bool = true
+var map_debug_overlays_enabled : bool = true
 
 var setting_play_spell_resolution_on_every_aoe_tile : bool = false
 
@@ -276,7 +277,7 @@ func set_current_profile(profilename : String) -> void :
 	var musicvolume : float = Utils.FileHandler.get_cfg_setting(path, "VOLUME", "volume_music", 50)
 	MusicStreamPlayer.volume_db = MusicSettingsScript.volume_db_from_setting(musicvolume)
 	var sfxvolume : float = Utils.FileHandler.get_cfg_setting(path, "VOLUME", "volume_sound", 50)
-	SfxPlayer.volume_db = (sfxvolume -100)*0.5
+	SfxPlayer.volume_db = MusicSettingsScript.volume_db_from_setting(sfxvolume)
 	honest_mode = bool(Utils.FileHandler.get_cfg_setting(path, "SET_IN_STONE", "honest_mode", 0))
 	for type in MusicStreamPlayer.oneofeachtype.keys() :
 		var favofthistype : String = Utils.FileHandler.get_cfg_setting(
@@ -332,6 +333,22 @@ func set_hd_mode(new_hd_mode: bool) -> void:
 
 func save_hd_mode(new_hd_mode: bool) -> void:
 	Utils.FileHandler.set_cfg_setting(Paths.settingspath,"SETTINGS","hd_mode", new_hd_mode)
+
+func set_map_debug_overlays_enabled(enabled: bool) -> void:
+	map_debug_overlays_enabled = enabled
+	var active_map: Map = map
+	if not is_instance_valid(active_map):
+		active_map = get_node_or_null("/root/Main/Map") as Map
+	if is_instance_valid(active_map):
+		active_map.set_debug_overlays_enabled(enabled)
+
+func save_map_debug_overlays_enabled(enabled: bool) -> void:
+	Utils.FileHandler.set_cfg_setting(
+		Paths.settingspath,
+		"SETTINGS",
+		"show_map_debug_overlays",
+		enabled
+	)
 
 func init_globals_before_game_start(data_dict : Dictionary) :
 	# used in  load_game() and new_campain_panel  _on_StartButton_pressed

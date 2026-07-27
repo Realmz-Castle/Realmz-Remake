@@ -29,8 +29,16 @@ func _initialize() :
 	var _index : int = 0
 	var favourites = MusicStreamPlayer.oneofeachtype
 	
-	musicbar.value = (MusicStreamPlayer.volume_db +100) *2
-	soundbar.value = (SfxPlayer.volume_db +100) *2
+	var music_volume := MusicSettingsScript.setting_from_volume_db(
+		MusicStreamPlayer.volume_db
+	)
+	var sound_volume := MusicSettingsScript.setting_from_volume_db(
+		SfxPlayer.volume_db
+	)
+	musicbar.set_value_no_signal(music_volume)
+	soundbar.set_value_no_signal(sound_volume)
+	musicvolLabel.text = str(music_volume) + "%"
+	soundvolLabel.text = str(sound_volume) + "%"
 	
 	for mt in music_types :
 		var mtypectrl = MusicTypeTSCN.instantiate()
@@ -86,7 +94,7 @@ func _on_typebutton_pressed(button, _music_type : String) :
 func _on_sound_h_scroll_bar_value_changed(value):
 	var path = Paths.profilesfolderpath+Paths.currentProfileFolderName+'/profile_settings.cfg'
 	Utils.FileHandler.set_cfg_setting(path, "VOLUME", "volume_sound", value)
-	SfxPlayer.volume_db = (value-100)*0.5
+	SfxPlayer.volume_db = MusicSettingsScript.volume_db_from_setting(value)
 	soundvolLabel.text = str(value)+'%'
 
 func _on_music_h_scroll_bar_value_changed(value):
