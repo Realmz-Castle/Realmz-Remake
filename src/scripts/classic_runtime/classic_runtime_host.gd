@@ -187,6 +187,10 @@ func activate_start_location(force_reload := false) -> Dictionary:
 	})
 	if response is Dictionary:
 		response["persistentMapState"] = replay_result
+		var reveal_result := reveal_dungeon_overhead(Vector2i(state.x, state.y))
+		if str(reveal_result.get("status", "")) == "error":
+			return reveal_result
+		response["dungeonOverhead"] = reveal_result
 		return response
 	return {}
 
@@ -204,6 +208,27 @@ func reapply_map_state() -> Dictionary:
 	return response if response is Dictionary else {
 		"status": "error",
 		"message": "Classic map-state adapter returned an invalid response",
+	}
+
+
+func reveal_dungeon_overhead(position: Vector2i) -> Dictionary:
+	var state: Object = runtime.runtime_state if runtime != null else null
+	if state == null or str(state.get("level_type")) != "dungeon":
+		return {"handled": false}
+	if command_adapter == null \
+			or not command_adapter.has_method("reveal_classic_dungeon_overhead"):
+		return {
+			"status": "error",
+			"message": "ClassicRuntimeHost requires a dungeon-overhead adapter",
+		}
+	var response: Variant = command_adapter.call(
+		"reveal_classic_dungeon_overhead",
+		state,
+		position
+	)
+	return response if response is Dictionary else {
+		"status": "error",
+		"message": "Classic dungeon-overhead adapter returned an invalid response",
 	}
 
 
@@ -480,6 +505,14 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"apply_coward_penalty", "eliminate_encounter_option":
 			runtime.continue_after_command()
 		"teleport":
+			var state: Object = runtime.runtime_state
+			var reveal_result := reveal_dungeon_overhead(Vector2i(state.x, state.y))
+			if str(reveal_result.get("status", "")) == "error":
+				_stop_with_error(str(reveal_result.get(
+					"message",
+					"Classic dungeon overhead could not be revealed"
+				)), command)
+				return
 			if bool(payload.get("dungeonMove", false)):
 				runtime.continue_after_command()
 			else:

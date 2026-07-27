@@ -224,6 +224,12 @@ class GuardHouseAdapter:
 	func get_classic_execution_context() -> Dictionary:
 		return {"scenarioDay": 11, "actorFaction": 9}
 
+	func reveal_classic_dungeon_overhead(
+		_runtime_state: Object,
+		_position: Vector2i
+	) -> Dictionary:
+		return {"status": "ok", "handled": true, "revealedTiles": 0}
+
 	func execute_command(command: String, payload: Dictionary) -> Dictionary:
 		commands.append({"command": command, "payload": payload})
 		if command == "start_encounter":
@@ -346,6 +352,7 @@ class StartLocationAdapter:
 	var configured_bundle: Variant
 	var start_location: Dictionary = {}
 	var reapplied_state: Variant
+	var revealed_dungeon_position := Vector2i(-1, -1)
 	var compatibility_state := {"equipmentCapture": "sealed"}
 
 	func configure_classic_bundle(bundle: Variant) -> void:
@@ -370,6 +377,13 @@ class StartLocationAdapter:
 			"status": "ok",
 			"applied": {"tiles": 0},
 		}
+
+	func reveal_classic_dungeon_overhead(
+		_runtime_state: Object,
+		position: Vector2i
+	) -> Dictionary:
+		revealed_dungeon_position = position
+		return {"status": "ok", "handled": true, "revealedTiles": 1}
 
 	func classic_save_state() -> Dictionary:
 		return compatibility_state.duplicate(true)
@@ -5247,7 +5261,7 @@ func _test_classic_map_materializer() -> void:
 			"mode": "dungeon-top-down",
 			"tilesetId": "dungeon-top-down-302",
 		},
-		"tiles": [0, 1, 2, 4, 8, 16, 128, 4097, -32767],
+		"tiles": [0, 1, 2, 4, 8, 16, 131, 4097, -32767],
 		"width": 3,
 	}
 
@@ -5621,7 +5635,7 @@ func _test_classic_map_materializer() -> void:
 	)
 	_expect_equal(
 		dungeon_things.get("layers", [])[0].get("chunks", [])[0].get("data"),
-		[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0],
+		[1.0, 2.0, 3.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
 		"signed dungeon fields resolve to deterministic native GIDs"
 	)
 	var dungeon_tileset_directory := test_root.path_join("Tilesets").path_join(
@@ -5632,7 +5646,11 @@ func _test_classic_map_materializer() -> void:
 			dungeon_tileset_directory.path_join("ClassicDungeon.json")
 		)
 	)
-	_expect_equal(dungeon_tileset.get("tilecount"), 9, "dungeon tileset covers used fields")
+	_expect_equal(
+		dungeon_tileset.get("tilecount"),
+		10,
+		"dungeon tileset covers source and runtime-revealed fields"
+	)
 	var dungeon_templates: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(
 			dungeon_tileset_directory.path_join("tile_templates.json")
@@ -5658,17 +5676,23 @@ func _test_classic_map_materializer() -> void:
 		-32767,
 		"generated dungeon tiles retain their signed Classic field value"
 	)
+	_expect_equal(
+		dungeon_templates.get("classic_dungeon_0003", {}).get("classicDungeonField"),
+		3,
+		"hidden dungeon fields generate the visible variant used around the party"
+	)
 	var dungeon_atlas := Image.load_from_file(
 		dungeon_tileset_directory.path_join("ClassicDungeon.png")
 	)
 	_expect_equal(
 		dungeon_atlas.get_size(),
-		Vector2i(9 * 32, 32),
+		Vector2i(10 * 32, 32),
 		"PICT 302 dungeon sprites are materialized at Remake's tile size"
 	)
 	var floor_image := dungeon_atlas.get_region(Rect2i(0, 0, 32, 32))
 	var wall_image := dungeon_atlas.get_region(Rect2i(32, 0, 32, 32))
-	var hidden_image := dungeon_atlas.get_region(Rect2i(6 * 32, 0, 32, 32))
+	var visible_hidden_variant := dungeon_atlas.get_region(Rect2i(3 * 32, 0, 32, 32))
+	var hidden_image := dungeon_atlas.get_region(Rect2i(7 * 32, 0, 32, 32))
 	_expect(
 		floor_image.get_data() != wall_image.get_data(),
 		"generated dungeon wall is visibly distinct from open floor"
@@ -5677,12 +5701,16 @@ func _test_classic_map_materializer() -> void:
 		floor_image.get_data() == hidden_image.get_data(),
 		"hidden dungeon field suppresses its overhead sprite"
 	)
+	_expect(
+		visible_hidden_variant.get_data() != hidden_image.get_data(),
+		"party reveal uses the visible dungeon field variant"
+	)
 	var native_resources = NativeResourcesScript.new()
 	native_resources.load_tile_resources("res://shared_assets/tiles")
 	native_resources.load_tile_resources(test_root.path_join("Tilesets"))
 	_expect_equal(
 		native_resources.tiles_book.get("ClassicDungeon.json", []).size(),
-		9,
+		10,
 		"normal resource lifecycle loads the generated dungeon tileset"
 	)
 	_expect_equal(
@@ -15183,6 +15211,18 @@ func _test_classic_map_bridge() -> void:
 		"height": 2,
 		"tiles": [0, 0x0101, 0x0201, 0],
 	}
+	bundle.maps_by_id["dungeon:2"] = {
+		"id": "dungeon:2",
+		"levelType": "dungeon",
+		"index": 2,
+		"width": 3,
+		"height": 3,
+		"tiles": [
+			0x0081, 0x0081, 0x0081,
+			0x0081, 0x0081, 0x0081,
+			0x0081, 0x0081, 0x0081,
+		],
+	}
 	var bridge = MapBridgeScript.new()
 	bridge.configure(bundle)
 	_expect_equal(bridge.native_map_name("land", 3), "map_3", "land map uses native map naming")
@@ -15233,6 +15273,20 @@ func _test_classic_map_bridge() -> void:
 		"name": "classic_dungeon_0000",
 		"classicDungeonField": 0,
 		"wall": 0,
+	}
+	var dungeon_wall := {
+		"tileset_name": "ClassicDungeon",
+		"id": 5,
+		"name": "classic_dungeon_0001",
+		"classicDungeonField": 0x0001,
+		"wall": 1,
+	}
+	var hidden_dungeon_wall := {
+		"tileset_name": "ClassicDungeon",
+		"id": 6,
+		"name": "classic_dungeon_0081",
+		"classicDungeonField": 0x0081,
+		"wall": 1,
 	}
 	var north_secret := {
 		"tileset_name": "ClassicDungeon",
@@ -15288,6 +15342,8 @@ func _test_classic_map_bridge() -> void:
 		revealed_north_secret,
 		east_secret,
 		revealed_east_secret,
+		dungeon_wall,
+		hidden_dungeon_wall,
 	]
 	resources.maps_book["map_0"] = [
 		land_map,
@@ -15315,6 +15371,21 @@ func _test_classic_map_bridge() -> void:
 		[
 			[[dungeon_floor], [east_secret]],
 			[[north_secret], [dungeon_floor]],
+		],
+		{"ScriptRects": {}, "Paths": [], "Secrets": []},
+		null,
+		"Indoor",
+		"Indoor",
+		false,
+		7,
+		true,
+		[],
+	]
+	resources.maps_book["mapd_2"] = [
+		[
+			[[hidden_dungeon_wall], [hidden_dungeon_wall], [hidden_dungeon_wall]],
+			[[hidden_dungeon_wall], [hidden_dungeon_wall], [hidden_dungeon_wall]],
+			[[hidden_dungeon_wall], [hidden_dungeon_wall], [hidden_dungeon_wall]],
 		],
 		{"ScriptRects": {}, "Paths": [], "Secrets": []},
 		null,
@@ -15578,6 +15649,84 @@ func _test_classic_map_bridge() -> void:
 	_expect_equal(light.get("nativeDarkness"), -1, "Classic light maps disable native darkness")
 	_expect_equal(game_global.map.darkness_level, -1, "current native map removes darkness")
 	_expect_equal(resources.maps_book["mapd_1"][6], -1, "light state survives a map reload")
+
+	var overhead_game_global = MapBridgeTestGameGlobal.new()
+	overhead_game_global.currentmap_name = "mapd_2"
+	var overhead_state = StateScript.new()
+	overhead_state.set_location("dungeon", 2, 1, 1)
+	var overhead_reveal: Dictionary = bridge.reveal_dungeon_overhead(
+		overhead_state,
+		Vector2i(1, 1),
+		overhead_game_global,
+		resources
+	)
+	_expect_equal(
+		overhead_reveal.get("revealedTiles"),
+		9,
+		"dungeon overhead reveal clears the hidden bit across the party's three-by-three area"
+	)
+	_expect_equal(
+		overhead_state.get_tile("dungeon", 2, 0, 0, -1),
+		0x0001,
+		"dungeon overhead reveal persists the visible Classic field"
+	)
+	_expect_equal(
+		resources.maps_book["mapd_2"][0][0][0],
+		[dungeon_wall],
+		"dungeon overhead reveal projects the visible field into the native map"
+	)
+	var repeated_overhead_reveal: Dictionary = bridge.reveal_dungeon_overhead(
+		overhead_state,
+		Vector2i(1, 1),
+		overhead_game_global,
+		resources
+	)
+	_expect_equal(
+		repeated_overhead_reveal.get("revealedTiles"),
+		0,
+		"dungeon overhead reveal is idempotent after the hidden bits are clear"
+	)
+	var city_bundle = BundleScript.new()
+	var city_campaign_directory := ProjectSettings.globalize_path(
+		"res://Campaigns/City of Bywater (Classic)"
+	)
+	_expect(
+		city_bundle.load_from_directory(city_campaign_directory),
+		"City of Bywater bundle loads for dungeon-overhead regression"
+	)
+	var city_resources = NativeResourcesScript.new()
+	city_resources.load_tile_resources("res://shared_assets/tiles")
+	city_resources.load_tile_resources(
+		city_campaign_directory.path_join("Tilesets")
+	)
+	city_resources.load_map_ressources(
+		city_campaign_directory.path_join("Maps/mapd_0") + "/",
+		"mapd_0"
+	)
+	var city_bridge = MapBridgeScript.new()
+	city_bridge.configure(city_bundle)
+	var city_state = StateScript.new()
+	city_state.set_location("dungeon", 0, 33, 72)
+	var city_game_global = MapBridgeTestGameGlobal.new()
+	city_game_global.currentmap_name = "mapd_0"
+	var city_overhead_reveal: Dictionary = city_bridge.reveal_dungeon_overhead(
+		city_state,
+		Vector2i(33, 72),
+		city_game_global,
+		city_resources
+	)
+	_expect_equal(
+		city_overhead_reveal.get("revealedTiles"),
+		6,
+		"City dungeon entry reveals its six concealed neighboring walls"
+	)
+	_expect_equal(
+		city_resources.maps_book["mapd_0"][0][33][71][0].get(
+			"classicDungeonField"
+		),
+		1,
+		"City dungeon entry swaps a black concealed cell for its visible wall tile"
+	)
 
 	var movement_state = StateScript.new()
 	movement_state.set_location("dungeon", 1, 1, 1)
@@ -35064,6 +35213,23 @@ func _test_runtime_host() -> void:
 		start_adapter.start_location.get("viewType"),
 		StateScript.VIEW_3D,
 		"campaign start carries the Classic view state"
+	)
+	start_host.runtime.runtime_state.set_location("dungeon", 0, 4, 5)
+	var dungeon_start_result: Dictionary = start_host.activate_start_location()
+	_expect_equal(
+		dungeon_start_result.get("nativeMapName"),
+		"mapd_0",
+		"host resolves a Classic dungeon starting map"
+	)
+	_expect_equal(
+		start_adapter.revealed_dungeon_position,
+		Vector2i(4, 5),
+		"campaign start reveals the dungeon overhead around the party"
+	)
+	_expect_equal(
+		dungeon_start_result.get("dungeonOverhead", {}).get("revealedTiles"),
+		1,
+		"campaign start reports its dungeon overhead reveal"
 	)
 	start_host.queue_free()
 

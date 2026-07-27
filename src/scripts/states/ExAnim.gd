@@ -91,6 +91,12 @@ func enter(_msg : Dictionary = {}) -> void:
 						GameGlobal.map.dock_boat_at(Vector2i(playerposx,playerposy))
 				
 			mapfocuschar.move(input)
+			var dungeon_reveal := GameGlobal.reveal_classic_dungeon_overhead(attempted_tile)
+			if str(dungeon_reveal.get("status", "")) == "error":
+				push_error(str(dungeon_reveal.get(
+					"message",
+					"Classic dungeon overhead could not be revealed"
+				)))
 			await StateMachine.check_map_script(
 				attemptedpos,
 				{"entryMovement": Vector2i(input)}

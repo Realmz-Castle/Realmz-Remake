@@ -36,6 +36,7 @@ const DUNGEON_WALL_MASK := 0x0001
 const DUNGEON_DOOR_MASK := 0x0006
 const DUNGEON_NOTE_MASK := 0x0020
 const DUNGEON_REVEALED_SECRET_MASK := 0x0040
+const DUNGEON_HIDDEN_MASK := 0x0080
 const DUNGEON_SECRET_DIRECTION_MASK := 0x0f00
 const DUNGEON_ACTION_POINT_MASK := 0x1000
 const DUNGEON_DIRECTION_BY_DELTA := {
@@ -496,6 +497,79 @@ func discover_map_secrets(
 		"handled": true,
 		"revealed": not discoveries.is_empty(),
 		"discoveries": discoveries,
+	}
+
+
+func reveal_dungeon_overhead(
+	runtime_state: Object,
+	position: Vector2i,
+	game_global: Object,
+	resources: Object
+) -> Dictionary:
+	if runtime_state == null or str(runtime_state.get("level_type")) != "dungeon":
+		return {"handled": false}
+	var level_index := int(runtime_state.get("level_index"))
+	var map_name := native_map_name("dungeon", level_index)
+	if game_global == null or str(game_global.get("currentmap_name")) != map_name:
+		return {"handled": false}
+	if classic_bundle == null or not classic_bundle.has_method("get_map"):
+		return _error("Classic dungeon map data is unavailable")
+	var map_record: Variant = classic_bundle.get_map("dungeon:%d" % level_index)
+	if not (map_record is Dictionary):
+		return _error("Classic dungeon %d is unavailable" % level_index)
+	var width := int(map_record.get("width", 0))
+	var height := int(map_record.get("height", 0))
+	var tiles: Variant = map_record.get("tiles", [])
+	if not (tiles is Array) or width <= 0 or height <= 0 or tiles.size() != width * height:
+		return _error("Classic dungeon %d has invalid tile data" % level_index)
+
+	var revealed_positions: Array[Vector2i] = []
+	for y: int in range(position.y - 1, position.y + 2):
+		for x: int in range(position.x - 1, position.x + 2):
+			if x < 0 or y < 0 or x >= width or y >= height:
+				continue
+			var tile_index := _classic_map_tile_index("dungeon", width, height, x, y)
+			var fallback_field := int(tiles[tile_index])
+			var field := fallback_field
+			if runtime_state.has_method("get_tile"):
+				field = int(runtime_state.call(
+					"get_tile",
+					"dungeon",
+					level_index,
+					x,
+					y,
+					fallback_field
+				))
+			if not (field & DUNGEON_HIDDEN_MASK):
+				continue
+			var visible_field := _clear_classic_short_bit(field, 8)
+			var projection := set_tile({
+				"levelType": "dungeon",
+				"levelIndex": level_index,
+				"x": x,
+				"y": y,
+				"tileValue": visible_field,
+			}, game_global, resources)
+			if str(projection.get("status", "")) in ["error", "skipped"]:
+				return _error(str(projection.get(
+					"message",
+					"Classic dungeon overhead tile could not be revealed"
+				)))
+			if runtime_state.has_method("set_tile"):
+				runtime_state.call(
+					"set_tile",
+					"dungeon",
+					level_index,
+					x,
+					y,
+					visible_field
+				)
+			revealed_positions.append(Vector2i(x, y))
+	return {
+		"status": "ok",
+		"handled": true,
+		"revealedTiles": revealed_positions.size(),
+		"positions": revealed_positions,
 	}
 
 

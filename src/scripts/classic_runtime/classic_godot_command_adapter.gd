@@ -316,6 +316,18 @@ func reapply_classic_map_state(runtime_state: Object) -> Dictionary:
 	)
 
 
+func reveal_classic_dungeon_overhead(
+	runtime_state: Object,
+	position: Vector2i
+) -> Dictionary:
+	return classic_map_bridge.reveal_dungeon_overhead(
+		runtime_state,
+		position,
+		_autoload("GameGlobal"),
+		_classic_campaign_resources()
+	)
+
+
 func resolve_classic_dungeon_movement(
 	runtime_state: Object,
 	from_position: Vector2i,

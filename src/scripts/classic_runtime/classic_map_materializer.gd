@@ -1406,11 +1406,17 @@ func _build_dungeon_tileset_plan(
 			}
 		for tile_value: Variant in tiles:
 			var field := int(tile_value) & 0xffff
+			var runtime_fields: Array[int] = [field]
 			if field & DUNGEON_SECRET_DIRECTION_MASK:
 				# Runtime discovery sets this bit on the field. Generate that visual
 				# state even when it is not present in the compiler's initial tile array.
-				fields[field | DUNGEON_REVEALED_SECRET_MASK] = true
-			fields[field] = true
+				runtime_fields.append(field | DUNGEON_REVEALED_SECRET_MASK)
+			for runtime_field: int in runtime_fields:
+				fields[runtime_field] = true
+				if runtime_field & DUNGEON_HIDDEN_MASK:
+					# threed.c clears bit 8 around the party before plotting the
+					# overhead view, so that revealed state needs an atlas entry too.
+					fields[runtime_field & ~DUNGEON_HIDDEN_MASK] = true
 	if fields.is_empty():
 		return {"status": "skip"}
 

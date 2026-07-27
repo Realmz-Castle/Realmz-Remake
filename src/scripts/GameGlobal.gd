@@ -748,6 +748,20 @@ func resolve_classic_map_movement(
 	}
 
 
+func reveal_classic_dungeon_overhead(position: Vector2i) -> Dictionary:
+	if (
+		not is_instance_valid(classic_runtime_host)
+		or not classic_runtime_host.has_method("reveal_dungeon_overhead")
+	):
+		return {"handled": false}
+	var result: Variant = classic_runtime_host.call("reveal_dungeon_overhead", position)
+	return result if result is Dictionary else {
+		"status": "error",
+		"handled": true,
+		"message": "Registered Classic runtime host returned an invalid dungeon reveal response",
+	}
+
+
 func discover_classic_map_secrets(position: Vector2i) -> Dictionary:
 	if (
 		not is_instance_valid(classic_runtime_host)
