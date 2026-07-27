@@ -11065,11 +11065,24 @@ func _test_classic_character_rule_profile() -> void:
 		).contains('bool(_msg.get("classicBattleReward", false))'),
 		"the loot-menu transition keeps scripted rewards unmarked by default"
 	)
+	var treasure_control_source := FileAccess.get_file_as_string(
+		"res://scenes/UI/HUD/Looting/TreasureControl.gd"
+	)
 	_expect(
-		FileAccess.get_file_as_string(
-			"res://scenes/UI/HUD/Looting/TreasureControl.gd"
-		).contains("classic_battle_reward"),
+		treasure_control_source.contains("classic_battle_reward"),
 		"battle loot carries its reward origin through per-character division"
+	)
+	var treasure_close_start := treasure_control_source.find("func close()")
+	var treasure_close_hide := treasure_control_source.find("hide()", treasure_close_start)
+	var treasure_close_signal := treasure_control_source.find(
+		"done_looting.emit()",
+		treasure_close_start
+	)
+	_expect(
+		treasure_close_start >= 0
+			and treasure_close_hide > treasure_close_start
+			and treasure_close_signal > treasure_close_hide,
+		"loot close hides the finished reward before resuming scripted continuations"
 	)
 	var attribute_creation_saved: Variant = JSON.parse_string(
 		JSON.stringify(attribute_creation.save_data())

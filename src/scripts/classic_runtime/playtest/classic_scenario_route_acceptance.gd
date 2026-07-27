@@ -19,6 +19,7 @@ var failures: Array[String] = []
 var completed_step_ids: Array[String] = []
 var battle_step_ids: Array[String] = []
 var victory_request_completed := false
+var route_experience_award_completed := false
 var evidence: Dictionary = {
 	"schemaVersion": 1,
 	"stages": [],
@@ -823,7 +824,11 @@ func _run_interaction_sequence(
 				UI.ow_hud.textRect.choicesContainer._on_choice_button_pressed("STOP")
 			"experience":
 				if not await _wait_for_treasure():
-					_fail(stage, "The authored experience award did not open")
+					_fail(
+						stage,
+						"The authored experience award at sequence index %d did not open"
+							% event_index,
+					)
 					return false
 				var expected_experience := int(event.get("amount", 0))
 				if not _treasure_classic_item_ids().is_empty() \
@@ -836,8 +841,7 @@ func _run_interaction_sequence(
 					"kind": "experience",
 					"amount": expected_experience,
 				})
-				UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
-				if not await _close_experience_level_ups():
+				if not await _close_route_experience_award():
 					_fail(stage, "The native experience award did not finish leveling")
 					return false
 			"treasure":
@@ -1477,6 +1481,30 @@ func _close_experience_level_ups() -> bool:
 			return true
 		await get_tree().process_frame
 	return false
+
+
+func _close_route_experience_award() -> bool:
+	route_experience_award_completed = false
+	UI.ow_hud.treasureControl.done_looting.connect(
+		_on_route_experience_award_completed,
+		CONNECT_ONE_SHOT,
+	)
+	UI.ow_hud.treasureControl.find_child("ButtonDone").pressed.emit()
+	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		var level_up_window: Window = UI.ow_hud.levelupCtrl.get_parent()
+		if level_up_window.visible:
+			UI.ow_hud.levelupCtrl._on_close_button_pressed()
+			await get_tree().process_frame
+			continue
+		if route_experience_award_completed:
+			return true
+		await get_tree().process_frame
+	return false
+
+
+func _on_route_experience_award_completed() -> void:
+	route_experience_award_completed = true
 
 
 func _choice_labels() -> Array[String]:

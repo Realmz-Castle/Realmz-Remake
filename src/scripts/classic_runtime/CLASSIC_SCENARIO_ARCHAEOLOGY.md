@@ -181,3 +181,81 @@ Each claim should stay within its evidence:
   `Data DD:4:11`, `Data DD:4:13`, `Data ED3:macro:194`,
   `Data ED3:macro:196`, `Data DD:0:56`, and `Data ED3:macro:237` through
   `249`.
+
+## Grilochs Revenge
+
+### Main completion chain
+
+- **Runtime-proven:** The Spear of Light rests at `Data DD:9:16` on land map 9
+  at `(18, 79)`. Battle 122 guards it with 49 creatures, including 25
+  Invisible Haunters. Victory awards Treasure 64 and the Spear of Light +5
+  (item 915).
+- **Runtime-proven:** Griloch's throne sequence is
+  `Data ED3:macro:466`, exercised at land map 9 `(70, 20)`. It checks for item
+  915 before selecting the real Griloch fight. Without the Spear, the source
+  branches to a different escape and Battle 123 path.
+- **Runtime-proven:** The Spear branch enters Battle 124: five Solsux, two Dark
+  Servants, six Ice Demons, five Tuchor-uth, 19 Invisible Haunters, and Griloch.
+  Victory explicitly says Griloch is vanquished and points the party to a
+  glowing brazier north of the throne.
+- **Runtime-proven:** The brazier at `Data DD:9:31` `(70, 25)` enables
+  `Data DD:6:16` and teleports the party to land map 6 `(80, 40)`. That island
+  reception enables `Data DD:2:54` and returns the party to land map 2
+  `(49, 55)`.
+- **Runtime-proven:** The mainland celebration at `Data DD:2:54` sets quest
+  flag 55, tells the party to enter the temple for salvation, and teleports
+  them beside it at `(85, 14)`.
+- **Runtime-proven:** Berhune's temple at `Data DD:2:13` checks quest 55 before
+  running macros 509 and 547. These award six separate 30,000-experience
+  grants, Treasure 73, and messages 1310 and 1311. Message 1310 explicitly
+  identifies the end of the scenario; message 1311 warns that continued
+  wandering may seem odd because the author expected the player to quit.
+
+### Walkthrough and combat facts
+
+- Classic teleport opcode 20 does not activate the destination action point
+  within the same command. After using the throne-room brazier, the island
+  reception and then the mainland celebration are separate action points that
+  must be entered or triggered. This is relevant to any future walkthrough or
+  hint text.
+- **Source-proven:** Battle 124's battle macro alternates macros 470 and 471,
+  which provide Griloch and Invisible Haunter round behavior. The acceptance
+  route forces native victory after verifying the complete initial formation,
+  so it does not certify the timing or difficulty of those recurring rounds.
+- The throne macro actively requests sound ID `-92`. The installed scenario and
+  stock mapping provide no playable asset for it. This is an unresolved
+  external Classic resource with silent absent-source behavior, not a
+  source-authored no-op.
+
+### Final reward
+
+- **Runtime-proven:** Treasure 73 presents 5,000 gems, 1,000 jewelry, and these
+  exact item entries: Excalibur +7 (177), Gauntlets +30 (236), Cape of
+  Everlasting Life (253), Winged Helm of Zephron +10 (411), Emeral Alloy
+  Shield +12 (463), Band of the Unicorn +15 (464), Hells Caretaker +15 (469),
+  Improvement twice (607), Improved Brawn twice (681), Improved Knowledge
+  twice (682), Improved Judgment (683), Improved Agility (684), Improved
+  Vitality (685), Improved Stamina (686), and Scepter of Soul Stealing (708).
+- The scenario issues the six experience awards consecutively, without a
+  message between reward windows. That authored sequence exposed and now
+  regression-checks the native reward-window close ordering.
+
+### Completion evidence boundary
+
+- Quest 55 and the explicit end text establish the completion spine. Interesting
+  rooms, battles, and quest-like flavor elsewhere in the scenario should remain
+  optional or unclassified unless a reachable branch, quest flag, or completion
+  message connects them to this chain.
+- The dedicated route jumps between source-identified milestones. It proves the
+  installed completion behavior, not a manual path through every intervening
+  map or optional quest.
+
+### Evidence
+
+- Route: `playtest/routes/grilochs_revenge.json`
+- Installed report:
+  `reports/classic_grilochs_revenge_route_acceptance.json`
+- Imported source records: `Data DD:9:16`, `Data ED3:macro:466`,
+  `Data ED3:macro:470`, `Data ED3:macro:471`, `Data ED3:macro:472`,
+  `Data DD:9:31`, `Data DD:6:16`, `Data DD:2:54`, `Data DD:2:13`,
+  `Data ED3:macro:509`, and `Data ED3:macro:547`.

@@ -144,9 +144,9 @@ func close() -> void:
 	get_parent().set_charactersRect_type(0)
 	get_parent().moneyControl.close()
 	NodeAccess.__Map().show()
-	done_looting.emit()
 	StateMachine.exit_ex_menu_state()
 	hide()
+	done_looting.emit()
 
 
 func _on_ButtonDone_pressed() -> void:

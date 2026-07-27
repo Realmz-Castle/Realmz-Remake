@@ -1,0 +1,564 @@
+{
+  "schemaVersion": 1,
+  "routeId": "grilochs-revenge-completion-route",
+  "campaignId": "scenario-grilochs-revenge",
+  "campaignDirectory": "Grilochs Revenge (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 0,
+    "y": 73
+  },
+  "steps": [
+    {
+      "id": "turnstil-arrival",
+      "kind": "presentation",
+      "triggerId": "Data DD:0:13",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 1,
+        "y": 73
+      },
+      "actions": [
+        {"slot": 0, "code": 27, "id": 32128},
+        {"slot": 1, "code": 9, "id": 20004},
+        {"slot": 2, "code": 1, "id": 31},
+        {"slot": 3, "code": 1, "id": 1275},
+        {"slot": 4, "code": 1, "id": 412},
+        {"slot": 5, "code": 1, "id": 413},
+        {"slot": 6, "code": 28, "id": 0},
+        {"slot": 7, "code": 39, "id": 62}
+      ],
+      "messages": [
+        {
+          "id": 31,
+          "prefix": "After a long, tedious journey through the Waywest Mountains"
+        },
+        {
+          "id": 1275,
+          "prefix": "...and hoped he would see you there"
+        },
+        {
+          "id": 412,
+          "prefix": "..to begin your adventure.  Griloch's Revenge is the sequel"
+        },
+        {
+          "id": 413,
+          "prefix": "Thank you for supporting Realmz and Fantasoft."
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "sounds": [
+        {
+          "id": 20004,
+          "status": "native-mapping",
+          "nativeName": "hallelujah.wav"
+        }
+      ],
+      "detail": "The installed Turnstil arrival presents its authored splash, introduction, and scenario provenance through the normal campaign UI"
+    },
+    {
+      "id": "spear-of-light",
+      "kind": "battle",
+      "triggerId": "Data DD:9:16",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 18,
+        "y": 79
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 1066},
+        {"slot": 1, "code": 2, "id": 1068},
+        {"slot": 2, "code": 1, "id": 1067},
+        {"slot": 3, "code": 10, "id": 64},
+        {"slot": 7, "code": 25, "id": 0}
+      ],
+      "messages": [
+        {
+          "id": 1066,
+          "prefix": "Atop this pedastal rests the Spear of Light."
+        }
+      ],
+      "battleId": 122,
+      "creatures": [
+        {"monsterId": 29, "displayName": "Solsux", "count": 6},
+        {"monsterId": 31, "displayName": "Dark Servant", "count": 6},
+        {"monsterId": 63, "displayName": "Winged Devil", "count": 1},
+        {"monsterId": 69, "displayName": "Lich", "count": 3},
+        {"monsterId": 79, "displayName": "Ice Demon", "count": 6},
+        {"monsterId": 87, "displayName": "Tuchor-uth", "count": 2},
+        {"monsterId": 93, "displayName": "Invisible Haunter", "count": 25}
+      ],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 1067,
+          "prefix": "Having defeated Griloch's horde, you retrieve the Spear of Light."
+        },
+        {
+          "kind": "treasure",
+          "id": 64,
+          "itemIds": [915],
+          "sourceItemIds": [915, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "exp": 0,
+          "gold": 0,
+          "gems": 0,
+          "jewelry": 0,
+          "lootItems": true
+        }
+      ],
+      "detail": "Battle 122's full guardian formation completes and Treasure 64 supplies the exact Spear of Light required by Griloch's throne branch"
+    },
+    {
+      "id": "griloch-throne",
+      "kind": "battle",
+      "triggerId": "Data ED3:macro:466",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 70,
+        "y": 20
+      },
+      "actions": [
+        {"slot": 0, "code": 38, "id": 1069},
+        {"slot": 1, "code": 1, "id": 1068},
+        {"slot": 2, "code": 1, "id": 1072},
+        {"slot": 3, "code": 1, "id": 1073},
+        {"slot": 4, "code": 9, "id": -92},
+        {"slot": 5, "code": 2, "id": 1075},
+        {"slot": 6, "code": 1, "id": 1075},
+        {"slot": 7, "code": 39, "id": 472}
+      ],
+      "messages": [
+        {
+          "id": 1068,
+          "prefix": "Your bodies tense as you see before you the most unholy being of all."
+        },
+        {
+          "id": 1072,
+          "prefix": "...freezes in his tracks.  He attempts to flee"
+        },
+        {
+          "id": 1073,
+          "prefix": "...not.  Now I can dispose of you paltry annoyances"
+        }
+      ],
+      "sounds": [
+        {
+          "id": -92,
+          "status": "unresolved-external-classic-resource",
+          "classicBehaviorIfAbsent": "silent-noop"
+        }
+      ],
+      "battleId": 124,
+      "creatures": [
+        {"monsterId": 29, "displayName": "Solsux", "count": 5},
+        {"monsterId": 31, "displayName": "Dark Servant", "count": 2},
+        {"monsterId": 79, "displayName": "Ice Demon", "count": 6},
+        {"monsterId": 87, "displayName": "Tuchor-uth", "count": 5},
+        {"monsterId": 93, "displayName": "Invisible Haunter", "count": 19},
+        {"monsterId": 94, "displayName": "Griloch", "count": 1}
+      ],
+      "postVictory": [
+        {
+          "kind": "message",
+          "id": 1075,
+          "prefix": "Congratulations.  You did it.  With an unholy scream Griloch is vanquished"
+        },
+        {
+          "kind": "message",
+          "id": 1312,
+          "prefix": "A glowing brazier is against the wall to the north."
+        }
+      ],
+      "detail": "The Spear of Light possession branch retains Griloch for Battle 124, whose exact throne formation and post-victory exit instruction complete through the installed runtime"
+    },
+    {
+      "id": "brazier-exit",
+      "kind": "action-list",
+      "triggerId": "Data DD:9:31",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 9,
+        "x": 70,
+        "y": 25
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 6,
+        "x": 80,
+        "y": 40
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": -1301},
+        {"slot": 1, "code": 3, "id": 1},
+        {"slot": 2, "code": 13, "id": 1226},
+        {"slot": 3, "code": 20, "id": 1223},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 1301,
+          "prefix": "A glowing brazier is aflame with an eerie light."
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        }
+      ],
+      "detail": "The authored brazier route enables the island epilogue and teleports the party to its action point"
+    },
+    {
+      "id": "island-homecoming",
+      "kind": "action-list",
+      "triggerId": "Data DD:6:16",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 6,
+        "x": 80,
+        "y": 40
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 49,
+        "y": 55
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 1302},
+        {"slot": 1, "code": 1, "id": 1303},
+        {"slot": 2, "code": 1, "id": 1304},
+        {"slot": 3, "code": 1, "id": 1305},
+        {"slot": 4, "code": 13, "id": 1224},
+        {"slot": 5, "code": 20, "id": 1225},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 1302,
+          "prefix": "Ships aplenty are aground on the island."
+        },
+        {
+          "kind": "message",
+          "id": 1303,
+          "prefix": "...known to walk among us.  You have my sincerest thanks."
+        },
+        {
+          "kind": "message",
+          "id": 1304,
+          "prefix": "...party and walk to you.  He speaks"
+        },
+        {
+          "kind": "message",
+          "id": 1305,
+          "prefix": "...known you.\"  The mob lifts you onto their shoulders"
+        }
+      ],
+      "detail": "The island reception recognizes Griloch's defeat, enables the mainland celebration, and returns the party ashore"
+    },
+    {
+      "id": "mainland-celebration",
+      "kind": "action-list",
+      "triggerId": "Data DD:2:54",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 49,
+        "y": 55
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 85,
+        "y": 14
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 1306},
+        {"slot": 1, "code": 1, "id": -1307},
+        {"slot": 2, "code": 47, "id": 55},
+        {"slot": 3, "code": 45, "id": 1227},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 1306,
+          "prefix": "A party of thousands flood you as you come ashore."
+        },
+        {
+          "kind": "message",
+          "id": 1307,
+          "prefix": "...you there.  Enter the temple and receive salvation."
+        }
+      ],
+      "detail": "The mainland celebration sets quest 55 and teleports the party beside Berhune's temple"
+    },
+    {
+      "id": "berhune-salvation",
+      "kind": "action-list",
+      "triggerId": "Data DD:2:13",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 85,
+        "y": 13
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": -297},
+        {"slot": 1, "code": 3, "id": 1},
+        {"slot": 2, "code": 46, "id": 1146},
+        {"slot": 3, "code": 1, "id": -1178},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 297,
+          "prefix": "A glowing citadel stands before you."
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        },
+        {
+          "kind": "message",
+          "id": 1179,
+          "prefix": "A pillar of water appears shooting through the roof of the temple"
+        },
+        {
+          "kind": "message",
+          "id": 1308,
+          "prefix": "..trinkets of my appreciation."
+        },
+        {"kind": "experience", "amount": 30000},
+        {"kind": "experience", "amount": 30000},
+        {"kind": "experience", "amount": 30000},
+        {"kind": "experience", "amount": 30000},
+        {"kind": "experience", "amount": 30000},
+        {"kind": "experience", "amount": 30000},
+        {
+          "kind": "message",
+          "id": 1309,
+          "prefix": "\"Now, for the trinkets of appreciation."
+        },
+        {
+          "kind": "treasure",
+          "id": 73,
+          "itemIds": [177, 236, 253, 411, 463, 464, 469, 607, 607, 681, 681, 682, 682, 683, 684, 685, 686, 708],
+          "sourceItemIds": [177, 236, 253, 411, 463, 464, 469, 607, 607, 681, 681, 682, 682, 683, 684, 685, 686, 708, 0, 0],
+          "exp": 0,
+          "gold": 0,
+          "gems": 5000,
+          "jewelry": 1000,
+          "lootItems": false
+        },
+        {
+          "kind": "message",
+          "id": 1310,
+          "prefix": "\"Thank you for saving this land from Griloch."
+        },
+        {
+          "kind": "message",
+          "id": 1311,
+          "prefix": "Some things might seem odd as I expected you to quit"
+        }
+      ],
+      "detail": "Quest 55 opens Berhune's salvation sequence, all six 30,000-experience waves, Treasure 73, and the explicit end-of-scenario message"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "spear-cache",
+        "triggerId": "Data DD:9:16",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1066},
+          {"slot": 1, "code": 2, "id": 1068},
+          {"slot": 2, "code": 1, "id": 1067},
+          {"slot": 3, "code": 10, "id": 64},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      },
+      {
+        "id": "griloch-throne",
+        "triggerId": "Data ED3:macro:466",
+        "actions": [
+          {"slot": 0, "code": 38, "id": 1069},
+          {"slot": 1, "code": 1, "id": 1068},
+          {"slot": 2, "code": 1, "id": 1072},
+          {"slot": 3, "code": 1, "id": 1073},
+          {"slot": 4, "code": 9, "id": -92},
+          {"slot": 5, "code": 2, "id": 1075},
+          {"slot": 6, "code": 1, "id": 1075},
+          {"slot": 7, "code": 39, "id": 472}
+        ]
+      },
+      {
+        "id": "throne-victory",
+        "triggerId": "Data ED3:macro:472",
+        "actions": [
+          {"slot": 0, "code": 23, "id": 1229},
+          {"slot": 1, "code": 13, "id": 1230},
+          {"slot": 2, "code": 1, "id": 1312},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "brazier",
+        "triggerId": "Data DD:9:31",
+        "actions": [
+          {"slot": 0, "code": 1, "id": -1301},
+          {"slot": 1, "code": 3, "id": 1},
+          {"slot": 2, "code": 13, "id": 1226},
+          {"slot": 3, "code": 20, "id": 1223},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "island-epilogue",
+        "triggerId": "Data DD:6:16",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1302},
+          {"slot": 1, "code": 1, "id": 1303},
+          {"slot": 2, "code": 1, "id": 1304},
+          {"slot": 3, "code": 1, "id": 1305},
+          {"slot": 4, "code": 13, "id": 1224},
+          {"slot": 5, "code": 20, "id": 1225},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "mainland-celebration",
+        "triggerId": "Data DD:2:54",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1306},
+          {"slot": 1, "code": 1, "id": -1307},
+          {"slot": 2, "code": 47, "id": 55},
+          {"slot": 3, "code": 45, "id": 1227},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "salvation-gate",
+        "triggerId": "Data DD:2:13",
+        "actions": [
+          {"slot": 0, "code": 1, "id": -297},
+          {"slot": 1, "code": 3, "id": 1},
+          {"slot": 2, "code": 46, "id": 1146},
+          {"slot": 3, "code": 1, "id": -1178},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "salvation-reward",
+        "triggerId": "Data ED3:macro:509",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 1179},
+          {"slot": 1, "code": 1, "id": 1308},
+          {"slot": 2, "code": 11, "id": 30000},
+          {"slot": 3, "code": 11, "id": 30000},
+          {"slot": 4, "code": 11, "id": 30000},
+          {"slot": 5, "code": 11, "id": 30000},
+          {"slot": 6, "code": 11, "id": 30000},
+          {"slot": 7, "code": 39, "id": 547}
+        ]
+      },
+      {
+        "id": "scenario-ending",
+        "triggerId": "Data ED3:macro:547",
+        "actions": [
+          {"slot": 0, "code": 11, "id": 30000},
+          {"slot": 1, "code": 1, "id": 1309},
+          {"slot": 2, "code": 10, "id": 73},
+          {"slot": 3, "code": 1, "id": 1310},
+          {"slot": 4, "code": 1, "id": -1311},
+          {"slot": 5, "code": 13, "id": 1228},
+          {"slot": 7, "code": 25, "id": 0}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 1068, "values": [122, 0, 0, 0, 5]},
+      {"id": 1069, "values": [915, 0, 0, 467, 0]},
+      {"id": 1075, "values": [124, 0, 0, 0, 0]},
+      {"id": 1229, "values": [9, 5, 0, 0, 0]},
+      {"id": 1230, "values": [9, 17, 100, 0, 0]},
+      {"id": 1226, "values": [6, 16, 100, 0, 0]},
+      {"id": 1223, "values": [6, 80, 40, 0, 0]},
+      {"id": 1224, "values": [2, 54, 100, 0, 0]},
+      {"id": 1225, "values": [2, 49, 55, 0, 0]},
+      {"id": 1227, "values": [2, 85, 14, 0, 0]},
+      {"id": 1146, "values": [55, 1, 0, 509, 0]},
+      {"id": 1228, "values": [9, 0, -2, 25, 27]}
+    ],
+    "messages": [
+      {
+        "id": 1067,
+        "prefix": "Having defeated Griloch's horde, you retrieve the Spear of Light."
+      },
+      {
+        "id": 1075,
+        "prefix": "Congratulations.  You did it.  With an unholy scream Griloch is vanquished"
+      },
+      {
+        "id": 1302,
+        "prefix": "Ships aplenty are aground on the island."
+      },
+      {
+        "id": 1306,
+        "prefix": "A party of thousands flood you as you come ashore."
+      },
+      {
+        "id": 1179,
+        "prefix": "A pillar of water appears shooting through the roof of the temple"
+      },
+      {
+        "id": 1310,
+        "prefix": "\"Thank you for saving this land from Griloch."
+      },
+      {
+        "id": 1311,
+        "prefix": "Some things might seem odd as I expected you to quit"
+      }
+    ],
+    "battleIds": [122, 124],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "turnstil-arrival",
+        "spear-of-light",
+        "griloch-throne",
+        "brazier-exit",
+        "island-homecoming",
+        "mainland-celebration",
+        "berhune-salvation"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 2,
+        "x": 85,
+        "y": 13
+      },
+      "questFlags": [55],
+      "itemIds": [915],
+      "triggerPercentages": [
+        {"levelType": "land", "levelIndex": 9, "triggerId": 16, "percent": -1},
+        {"levelType": "land", "levelIndex": 9, "triggerId": 17, "percent": 100},
+        {"levelType": "land", "levelIndex": 6, "triggerId": 16, "percent": 100},
+        {"levelType": "land", "levelIndex": 2, "triggerId": 54, "percent": 100},
+        {"levelType": "land", "levelIndex": 2, "triggerId": 13, "percent": -1}
+      ],
+      "battleIds": [122, 124]
+    }
+  }
+}

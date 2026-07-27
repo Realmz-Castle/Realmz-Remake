@@ -1,0 +1,570 @@
+{
+	"authoredStart": {
+		"map": "map_0",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 0,
+			"y": 73
+		},
+		"runtimePosition": {
+			"levelIndex": 0,
+			"levelType": "land",
+			"x": 0,
+			"y": 73
+		}
+	},
+	"battle": {
+		"allies": [],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 6,
+				"displayName": "Solsux",
+				"monsterId": 29
+			},
+			{
+				"count": 6,
+				"displayName": "Dark Servant",
+				"monsterId": 31
+			},
+			{
+				"count": 1,
+				"displayName": "Winged Devil",
+				"monsterId": 63
+			},
+			{
+				"count": 3,
+				"displayName": "Lich",
+				"monsterId": 69
+			},
+			{
+				"count": 6,
+				"displayName": "Ice Demon",
+				"monsterId": 79
+			},
+			{
+				"count": 2,
+				"displayName": "Tuchor-uth",
+				"monsterId": 87
+			},
+			{
+				"count": 25,
+				"displayName": "Invisible Haunter",
+				"monsterId": 93
+			}
+		],
+		"id": 122,
+		"returnMap": "map_9",
+		"returnPosition": {
+			"x": 18,
+			"y": 79
+		},
+		"rewardScreenPresented": true
+	},
+	"battles": [
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 6,
+					"displayName": "Solsux",
+					"monsterId": 29
+				},
+				{
+					"count": 6,
+					"displayName": "Dark Servant",
+					"monsterId": 31
+				},
+				{
+					"count": 1,
+					"displayName": "Winged Devil",
+					"monsterId": 63
+				},
+				{
+					"count": 3,
+					"displayName": "Lich",
+					"monsterId": 69
+				},
+				{
+					"count": 6,
+					"displayName": "Ice Demon",
+					"monsterId": 79
+				},
+				{
+					"count": 2,
+					"displayName": "Tuchor-uth",
+					"monsterId": 87
+				},
+				{
+					"count": 25,
+					"displayName": "Invisible Haunter",
+					"monsterId": 93
+				}
+			],
+			"id": 122,
+			"returnMap": "map_9",
+			"returnPosition": {
+				"x": 18,
+				"y": 79
+			},
+			"rewardScreenPresented": true,
+			"stepId": "spear-of-light"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 5,
+					"displayName": "Solsux",
+					"monsterId": 29
+				},
+				{
+					"count": 2,
+					"displayName": "Dark Servant",
+					"monsterId": 31
+				},
+				{
+					"count": 6,
+					"displayName": "Ice Demon",
+					"monsterId": 79
+				},
+				{
+					"count": 5,
+					"displayName": "Tuchor-uth",
+					"monsterId": 87
+				},
+				{
+					"count": 19,
+					"displayName": "Invisible Haunter",
+					"monsterId": 93
+				},
+				{
+					"count": 1,
+					"displayName": "Griloch",
+					"monsterId": 94
+				}
+			],
+			"id": 124,
+			"returnMap": "map_9",
+			"returnPosition": {
+				"x": 70,
+				"y": 20
+			},
+			"rewardScreenPresented": true,
+			"stepId": "griloch-throne"
+		}
+	],
+	"campaignDirectory": "Grilochs Revenge (Classic)",
+	"campaignId": "scenario-grilochs-revenge",
+	"campaignName": "Grilochs Revenge (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			122,
+			124
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			1068,
+			1069,
+			1075,
+			1229,
+			1230,
+			1226,
+			1223,
+			1224,
+			1225,
+			1227,
+			1146,
+			1228
+		],
+		"runtime": {
+			"absentItemIds": [],
+			"battleIds": [
+				122,
+				124
+			],
+			"itemIds": [
+				915
+			],
+			"position": {
+				"levelIndex": 2,
+				"levelType": "land",
+				"x": 85,
+				"y": 13
+			},
+			"questFlags": [
+				55
+			],
+			"stepIds": [
+				"turnstil-arrival",
+				"spear-of-light",
+				"griloch-throne",
+				"brazier-exit",
+				"island-homecoming",
+				"mainland-celebration",
+				"berhune-salvation"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": [
+				{
+					"levelIndex": 9,
+					"levelType": "land",
+					"percent": -1,
+					"triggerId": 16
+				},
+				{
+					"levelIndex": 9,
+					"levelType": "land",
+					"percent": 100,
+					"triggerId": 17
+				},
+				{
+					"levelIndex": 6,
+					"levelType": "land",
+					"percent": 100,
+					"triggerId": 16
+				},
+				{
+					"levelIndex": 2,
+					"levelType": "land",
+					"percent": 100,
+					"triggerId": 54
+				},
+				{
+					"levelIndex": 2,
+					"levelType": "land",
+					"percent": -1,
+					"triggerId": 13
+				}
+			]
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data DD:9:16",
+			"Data ED3:macro:466",
+			"Data ED3:macro:472",
+			"Data DD:9:31",
+			"Data DD:6:16",
+			"Data DD:2:54",
+			"Data DD:2:13",
+			"Data ED3:macro:509",
+			"Data ED3:macro:547"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 1067,
+			"prefix": "Having defeated Griloch's horde, you retrieve the Spear of Light.",
+			"stepId": "spear-of-light"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				915
+			],
+			"kind": "treasure",
+			"stepId": "spear-of-light",
+			"treasureId": 64
+		},
+		{
+			"kind": "message",
+			"messageId": 1075,
+			"prefix": "Congratulations.  You did it.  With an unholy scream Griloch is vanquished",
+			"stepId": "griloch-throne"
+		},
+		{
+			"kind": "message",
+			"messageId": 1312,
+			"prefix": "A glowing brazier is against the wall to the north.",
+			"stepId": "griloch-throne"
+		},
+		{
+			"kind": "message",
+			"messageId": 1301,
+			"prefix": "A glowing brazier is aflame with an eerie light.",
+			"stepId": "brazier-exit"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "brazier-exit"
+		},
+		{
+			"kind": "message",
+			"messageId": 1302,
+			"prefix": "Ships aplenty are aground on the island.",
+			"stepId": "island-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1303,
+			"prefix": "...known to walk among us.  You have my sincerest thanks.",
+			"stepId": "island-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1304,
+			"prefix": "...party and walk to you.  He speaks",
+			"stepId": "island-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1305,
+			"prefix": "...known you.\"  The mob lifts you onto their shoulders",
+			"stepId": "island-homecoming"
+		},
+		{
+			"kind": "message",
+			"messageId": 1306,
+			"prefix": "A party of thousands flood you as you come ashore.",
+			"stepId": "mainland-celebration"
+		},
+		{
+			"kind": "message",
+			"messageId": 1307,
+			"prefix": "...you there.  Enter the temple and receive salvation.",
+			"stepId": "mainland-celebration"
+		},
+		{
+			"kind": "message",
+			"messageId": 297,
+			"prefix": "A glowing citadel stands before you.",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "berhune-salvation"
+		},
+		{
+			"kind": "message",
+			"messageId": 1179,
+			"prefix": "A pillar of water appears shooting through the roof of the temple",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"kind": "message",
+			"messageId": 1308,
+			"prefix": "..trinkets of my appreciation.",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"amount": 30000,
+			"kind": "experience",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"amount": 30000,
+			"kind": "experience",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"amount": 30000,
+			"kind": "experience",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"amount": 30000,
+			"kind": "experience",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"amount": 30000,
+			"kind": "experience",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"amount": 30000,
+			"kind": "experience",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"kind": "message",
+			"messageId": 1309,
+			"prefix": "\"Now, for the trinkets of appreciation.",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"experience": 0,
+			"itemIds": [
+				177,
+				236,
+				253,
+				411,
+				463,
+				464,
+				469,
+				607,
+				607,
+				681,
+				681,
+				682,
+				682,
+				683,
+				684,
+				685,
+				686,
+				708
+			],
+			"kind": "treasure",
+			"stepId": "berhune-salvation",
+			"treasureId": 73
+		},
+		{
+			"kind": "message",
+			"messageId": 1310,
+			"prefix": "\"Thank you for saving this land from Griloch.",
+			"stepId": "berhune-salvation"
+		},
+		{
+			"kind": "message",
+			"messageId": 1311,
+			"prefix": "Some things might seem odd as I expected you to quit",
+			"stepId": "berhune-salvation"
+		}
+	],
+	"routeId": "grilochs-revenge-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": 20004,
+			"nativeName": "hallelujah.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "turnstil-arrival",
+			"waitForCompletion": false
+		},
+		{
+			"classicBehaviorIfAbsent": "silent-noop",
+			"id": -92,
+			"playable": false,
+			"status": "unresolved-external-classic-resource",
+			"stepId": "griloch-throne",
+			"waitForCompletion": false
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "turnstil-arrival-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "spear-of-light-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "griloch-throne-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "brazier-exit-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "island-homecoming-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "mainland-celebration-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "berhune-salvation-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed Turnstil arrival presents its authored splash, introduction, and scenario provenance through the normal campaign UI",
+			"id": "turnstil-arrival",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "spear-of-light",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "spear-of-light-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled formation materializes on a drawable native battlefield",
+			"id": "griloch-throne",
+			"status": "passed"
+		},
+		{
+			"detail": "Native victory returns to the authored route with no pending continuation",
+			"id": "griloch-throne-victory",
+			"status": "passed"
+		},
+		{
+			"detail": "The authored brazier route enables the island epilogue and teleports the party to its action point",
+			"id": "brazier-exit",
+			"status": "passed"
+		},
+		{
+			"detail": "The island reception recognizes Griloch's defeat, enables the mainland celebration, and returns the party ashore",
+			"id": "island-homecoming",
+			"status": "passed"
+		},
+		{
+			"detail": "The mainland celebration sets quest 55 and teleports the party beside Berhune's temple",
+			"id": "mainland-celebration",
+			"status": "passed"
+		},
+		{
+			"detail": "Quest 55 opens Berhune's salvation sequence, all six 30,000-experience waves, Treasure 73, and the explicit end-of-scenario message",
+			"id": "berhune-salvation",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed"
+}
