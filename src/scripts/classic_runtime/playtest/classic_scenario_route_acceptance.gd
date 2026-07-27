@@ -6,6 +6,7 @@ const SoundResolutionScript = preload(
 
 const ACCEPTANCE_PROFILE := "Classic Scenario Route Acceptance"
 const STEP_TIMEOUT_MSEC := 30000
+const BATTLE_TIMEOUT_MSEC := 60000
 
 var campaign_directory := ""
 var route_path := ""
@@ -715,6 +716,12 @@ func _run_action_list_step(step: Dictionary) -> bool:
 	var stage := str(step.get("id", "action-list"))
 	if not _move_to_position(stage, step.get("position", {})):
 		return false
+	for event_value: Variant in step.get("sequence", []):
+		if event_value is Dictionary \
+				and str(event_value.get("kind", "")) == "battle":
+			NodeAccess.__Resources().battles_book.erase(
+				"Battle_%d" % int(event_value.get("battleId", -1))
+			)
 	if not host.start_trigger(str(step.get("triggerId", ""))):
 		_fail(stage, str(host.runtime.last_result))
 		return false
@@ -750,22 +757,43 @@ func _run_action_list_step(step: Dictionary) -> bool:
 		stage,
 		step.get("triggerPercentages", []),
 	)
-	_verify(
-		stage,
+	var expected_map := _native_map_name(expected_position)
+	var expected_native_position := Vector2i(
+		int(expected_position.get("x", -1)),
+		int(expected_position.get("y", -1)),
+	)
+	var action_list_valid := (
 		_verify_sound_contract(step)
 			and trigger_percentages_valid
 			and not campaign_session.has_pending_continuation()
 			and StateMachine._state_name == "Exploration"
 			and _positions_match(expected_position, runtime_position)
-			and GameGlobal.currentmap_name == _native_map_name(expected_position)
-			and native_position == Vector2i(
-				int(expected_position.get("x", -1)),
-				int(expected_position.get("y", -1)),
-			),
-		str(step.get(
-			"detail",
-			"The installed action list completes through the native UI",
-		)),
+			and GameGlobal.currentmap_name == expected_map
+			and native_position == expected_native_position
+	)
+	_verify(
+		stage,
+		action_list_valid,
+		(
+			str(step.get(
+				"detail",
+				"The installed action list completes through the native UI",
+			))
+			if action_list_valid
+			else (
+				"Action-list state mismatch: state=%s map=%s expectedMap=%s "
+					+ "nativePosition=%s expectedPosition=%s runtimePosition=%s "
+					+ "pendingContinuation=%s"
+			) % [
+				StateMachine._state_name,
+				GameGlobal.currentmap_name,
+				expected_map,
+				native_position,
+				expected_native_position,
+				JSON.stringify(runtime_position),
+				campaign_session.has_pending_continuation(),
+			]
+		),
 	)
 	return failures.is_empty()
 
@@ -1079,12 +1107,25 @@ func _run_interaction_sequence(
 						(
 							"The chained source battle did not enter native combat: "
 							+ "battleId=%d hostActive=%s state=%s "
-							+ "pendingContinuation=%s lastResult=%s"
+							+ "pendingContinuation=%s activeBattle=%s "
+							+ "activeClassicId=%s nativeClassicId=%s lastResult=%s"
 						) % [
 							battle_id,
 							host.active,
 							StateMachine._state_name,
 							campaign_session.has_pending_continuation(),
+							str(StateMachine.combat_state.cur_battle_data.get(
+								"battlename",
+								"",
+							)),
+							str(StateMachine.combat_state.cur_battle_data.get(
+								"classicBattleId",
+								"",
+							)),
+							str(NodeAccess.__Resources().battles_book.get(
+								"Battle_%d" % battle_id,
+								{},
+							).get("classicBattleId", "")),
 							JSON.stringify(host.runtime.last_result),
 						],
 					)
@@ -1095,7 +1136,11 @@ func _run_interaction_sequence(
 					event.get("allies", []),
 				)
 				if not bool(observation.get("valid", false)):
-					_fail(stage, "The chained native battle no longer matches its source")
+					_fail(
+						stage,
+						"The chained native battle no longer matches its source: %s"
+							% JSON.stringify(observation.get("evidence", {})),
+					)
 					return false
 				if not await _wait_for_route_victory_window():
 					_fail(
@@ -2129,7 +2174,7 @@ func _wait_for_message(prefix: String) -> bool:
 
 
 func _wait_for_combat(battle_id: int) -> bool:
-	var deadline := Time.get_ticks_msec() + STEP_TIMEOUT_MSEC
+	var deadline := Time.get_ticks_msec() + BATTLE_TIMEOUT_MSEC
 	while Time.get_ticks_msec() < deadline:
 		if StateMachine.is_combat_state() \
 				and int(StateMachine.combat_state.cur_battle_data.get(

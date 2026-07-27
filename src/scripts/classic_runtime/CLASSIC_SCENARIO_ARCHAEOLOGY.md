@@ -422,3 +422,86 @@ Each claim should stay within its evidence:
   `Data ED3:macro:138`, `148`, `150`, `151`, `157`, `170`, `171`, `175`,
   `180`, and `182` through `189`; Battles 33, 40, 41, 45 through 49, and 53;
   Treasures 36, 38, 39, and 98.
+
+## Prelude to Pestilence
+
+### Main completion chain
+
+- **Runtime-proven:** Global Start macro 76 presents PICT 32128 and messages
+  704, 190, and 191. It removes the party's starting funds before establishing
+  the disoriented arrival.
+- **Runtime-proven:** Macro 250 has Thyrr transport the party to dungeon map 0
+  `(26, 59)`, where he warns them not to trust anyone and begins the search of
+  Griloch's secret camp.
+- **Runtime-proven:** Macro 254 opens the floodgates sequence. With quests 27,
+  29, and 30 absent, macros 255 through 259 select Battle 87. Its complete
+  formation contains 37 Griloch troops and the six friendly leaders Lluellyn,
+  Retyu, Zulea, Safeera, Thyrr, and Cindred.
+- **Runtime-proven:** After Battle 87, message 589 declares Griloch's army
+  destroyed and Battle 86 isolates Griloch. Its continuation presents message
+  590, awards 32,000 experience, sets quest 40 through macro 258, and says the
+  party is free to wander.
+- **Runtime-proven:** Quest 40 makes `Data DD:0:73` run macro 286. Accepting
+  message 660's portal changes `Data DD:0:2` to macro 287 and teleports the
+  party to land map 0 `(16, 22)`.
+- **Runtime-proven:** Entering the changed Mountain View action point presents
+  messages 591, 592, 661, and 662. The town celebrates, Mayor Hodar thanks the
+  party, and the registered-copy text explicitly ends Prelude to Pestilence
+  while pointing toward the later Pestilence scenario.
+
+### Army and alliance variants
+
+- **Source-proven:** Macro 255 first checks quest 30 and macro 256 checks quest
+  29. Either flag permits Battle 85, whose formation includes allied Minotaur
+  units as well as the named leaders.
+- **Source-proven:** Macro 257 checks quest 27. If that flag is set while quests
+  29 and 30 are absent, it selects Battle 88, whose formation includes hostile
+  Minotaurs alongside Griloch's forces.
+- **Source-proven:** Macro 259 is the no-alliance fallback. It selects Battle
+  87, which omits the Minotaurs but still places the six named leaders on the
+  party's side. This is the branch exercised by the installed route.
+- The three branch battles converge on message 589, Battle 86 against Griloch,
+  the 32,000-experience award, and quest 40. The alternative Battle 85 and 88
+  formations are source-checked but not runtime-exercised by this checkpoint.
+
+### Walkthrough and hint facts
+
+- **Source-proven:** Quest 29 is set by macro 235 after Kayvon says the Sacred
+  Book of Njaln has been returned and the Minotaur army will come to the
+  party's aid.
+- **Source-proven:** Quest 30 is set by macro 248 after the party uses the
+  Candle of Summoning (item 888), survives Battle 84, and consumes the candle.
+- **Source-proven:** Quest 27 is set by macro 270 if the party chooses to leave
+  peace talks early. Messages 631 and 632 warn that this disgraces the
+  Minotaurs and causes them to join Griloch.
+- The necklaces of Berhune and Griloch are items 884 and 885. The Sword of
+  Volta +2 is item 886. The Candle of Summoning is item 888 and says it can
+  summon whoever the bearer desires.
+- The post-victory portal and the Mountain View celebration are two separate
+  interactions. Macro 286 changes the town action point and teleports beside
+  it; the player must then enter that changed point to run the epilogue.
+- The floodgates sequence's signed sound IDs are not silent placeholders.
+  IDs `-635`, `-637`, `-636`, and `-631` resolve to the stock clash, attack
+  hit, metal hit, and resurrect death sounds respectively.
+- Message 590 says Griloch has been defeated and Mountain View saved, but warns
+  that he will return with an undead army. The scenario description identifies
+  Prelude as the first Griloch chapter and Griloch's Revenge as the second.
+
+### Optional-content boundary
+
+- Quest 40, the victory portal, and the registered Mountain View epilogue form
+  the explicit completion spine. Quests 27, 29, and 30 alter the final army but
+  are not each required for completion.
+- The dedicated route jumps between source-identified milestones. It proves the
+  installed no-alliance completion behavior, not manual travel through every
+  intervening map, all alliance quest branches, or every optional encounter.
+
+### Evidence
+
+- Route: `playtest/routes/prelude_to_pestilence.json`
+- Installed report:
+  `reports/classic_prelude_to_pestilence_route_acceptance.json`
+- Imported source records: `Data DD:0:2`, `Data DD:0:73`,
+  `Data ED3:macro:76`, `235`, `248`, `250`, `254` through `259`, `270`, `286`,
+  and `287`; Battles 84 through 88; items 884 through 886 and 888; Extra Codes
+  485 through 494, 547 through 550, 589, and 592.

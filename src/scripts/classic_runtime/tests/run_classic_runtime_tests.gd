@@ -239,6 +239,16 @@ class GuardHouseAdapter:
 		return {}
 
 
+class ClassicFactionTestCreature:
+	extends RefCounted
+	var baseFaction: int
+	var curFaction: int
+
+	func _init(faction: int) -> void:
+		baseFaction = faction
+		curFaction = faction
+
+
 class BattleRoundHostAdapter:
 	extends RefCounted
 	var tree: SceneTree
@@ -29679,6 +29689,26 @@ func _test_battle_request(bundle) -> void:
 
 
 func _test_classic_battle_position_offset() -> void:
+	var friendly_creature = ClassicFactionTestCreature.new(0)
+	BattleDecisionStateScript._apply_classic_battle_metadata(
+		friendly_creature,
+		{"classicForceFriend": true},
+	)
+	_expect_equal(
+		friendly_creature.curFaction,
+		0,
+		"negative Classic grid entry preserves an already-friendly faction",
+	)
+	var hostile_creature = ClassicFactionTestCreature.new(1)
+	BattleDecisionStateScript._apply_classic_battle_metadata(
+		hostile_creature,
+		{"classicForceFriend": true},
+	)
+	_expect_equal(
+		[hostile_creature.baseFaction, hostile_creature.curFaction],
+		[0, 0],
+		"negative Classic grid entry forces a hostile source record friendly",
+	)
 	_expect_equal(
 		BattleDecisionStateScript.fit_classic_battle_position_offset(
 			Vector2(0, 30),
@@ -30259,6 +30289,35 @@ func _test_resource_and_tile_parameter_actions() -> void:
 	_expect_equal(second_character.money, [0, 0, 10], "party currency clear reaches the selected character")
 	_expect_equal(pooled_money, [11, 0, 13], "party currency clear includes pooled wealth")
 	_expect_equal(currency_result.get("amountRemoved"), 27, "party currency clear reports its total")
+	var currency_host = HostScript.new()
+	get_tree().root.add_child(currency_host)
+	var currency_host_adapter = GuardHouseAdapter.new()
+	var currency_host_completions: Array = []
+	currency_host.playthrough_completed.connect(
+		func(result: Dictionary) -> void:
+			currency_host_completions.append(result)
+	)
+	currency_host.configure(currency_host_adapter)
+	currency_host.runtime.runtime_state.configure_from_bundle(bundle)
+	currency_host.runtime.interpreter.configure(
+		bundle,
+		currency_host.runtime.runtime_state,
+	)
+	_expect(
+		currency_host.start_trigger("resource:currency-all"),
+		"runtime host starts party currency clear",
+	)
+	_expect_equal(
+		currency_host_adapter.commands[-1].get("command"),
+		"clear_party_currency",
+		"runtime host dispatches party currency clear",
+	)
+	_expect_equal(
+		currency_host_completions.size(),
+		1,
+		"runtime host continues after party currency clear",
+	)
+	currency_host.queue_free()
 
 	interpreter = _interpreter(bundle)
 	interpreter.begin_trigger("resource:random-fixed")

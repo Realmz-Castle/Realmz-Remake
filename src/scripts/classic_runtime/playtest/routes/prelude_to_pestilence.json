@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 1,
+  "routeId": "prelude-to-pestilence-completion-route",
+  "campaignId": "scenario-prelude-to-pestilence",
+  "campaignDirectory": "Prelude to Pestilence (Classic)",
+  "start": {
+    "levelType": "land",
+    "levelIndex": 1,
+    "x": 9,
+    "y": 62
+  },
+  "steps": [
+    {
+      "id": "registered-opening",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:76",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 1,
+        "x": 9,
+        "y": 62
+      },
+      "actions": [
+        {"slot": 0, "code": 27, "id": 32128},
+        {"slot": 1, "code": 60, "id": 197},
+        {"slot": 2, "code": 60, "id": 198},
+        {"slot": 3, "code": 60, "id": 199},
+        {"slot": 4, "code": 22, "id": 551},
+        {"slot": 5, "code": 22, "id": 552},
+        {"slot": 6, "code": 9, "id": 600},
+        {"slot": 7, "code": 39, "id": 313}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 704,
+          "prefix": "Welcome to Prelude to Pestilence",
+          "picture": true
+        },
+        {
+          "kind": "message",
+          "id": 190,
+          "prefix": "You awake.  Your head is pounding."
+        },
+        {
+          "kind": "message",
+          "id": 191,
+          "prefix": "After recovering from your loss of gold"
+        }
+      ],
+      "picture": {
+        "id": 32128,
+        "width": 320,
+        "height": 320
+      },
+      "detail": "The installed global opening presents the decoded scenario picture, removes the party's starting funds, and establishes the disoriented arrival"
+    },
+    {
+      "id": "thyrr-secret-camp",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:250",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 4,
+        "x": 73,
+        "y": 14
+      },
+      "end": {
+        "levelType": "dungeon",
+        "levelIndex": 0,
+        "x": 26,
+        "y": 59
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 582},
+        {"slot": 1, "code": 1, "id": 583},
+        {"slot": 2, "code": 1, "id": 584},
+        {"slot": 3, "code": 37, "id": 490},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 582,
+          "prefix": "Thyrr closes his eyes and looks skyward."
+        },
+        {
+          "kind": "message",
+          "id": 583,
+          "prefix": "When you awake, Thyrr is over you."
+        },
+        {
+          "kind": "message",
+          "id": 584,
+          "prefix": "....trust anyone as there is no good here."
+        }
+      ],
+      "detail": "Thyrr transports the party into the secret Griloch camp and begins the final search"
+    },
+    {
+      "id": "floodgates-and-griloch",
+      "kind": "action-list",
+      "triggerId": "Data ED3:macro:254",
+      "position": {
+        "levelType": "dungeon",
+        "levelIndex": 0,
+        "x": 26,
+        "y": 59
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 588},
+        {"slot": 1, "code": 9, "id": -635},
+        {"slot": 2, "code": 9, "id": -637},
+        {"slot": 3, "code": 9, "id": -636},
+        {"slot": 4, "code": 9, "id": -631},
+        {"slot": 5, "code": 39, "id": 255},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 588,
+          "prefix": "Someone has opened the flood gates."
+        },
+        {
+          "kind": "battle",
+          "id": "griloch-army",
+          "battleId": 87,
+          "creatures": [
+            {"monsterId": 42, "displayName": "Griloch Captain", "count": 8},
+            {"monsterId": 43, "displayName": "Griloch Lieutenant", "count": 7},
+            {"monsterId": 44, "displayName": "Griloch General", "count": 4},
+            {"monsterId": 45, "displayName": "Griloch Champion", "count": 9},
+            {"monsterId": 46, "displayName": "Griloch Wizard", "count": 3},
+            {"monsterId": 62, "displayName": "Griloch Cleric", "count": 6}
+          ],
+          "allies": [
+            {"monsterId": 100, "displayName": "Lluellyn", "count": 1},
+            {"monsterId": 105, "displayName": "Retyu", "count": 1},
+            {"monsterId": 106, "displayName": "Zulea", "count": 1},
+            {"monsterId": 111, "displayName": "Safeera", "count": 1},
+            {"monsterId": 132, "displayName": "Thyrr", "count": 1},
+            {"monsterId": 133, "displayName": "Cindred", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 589,
+          "prefix": "The Griloch army is destroyed!"
+        },
+        {
+          "kind": "battle",
+          "id": "griloch",
+          "battleId": 86,
+          "creatures": [
+            {"monsterId": 94, "displayName": "Griloch", "count": 1}
+          ]
+        },
+        {
+          "kind": "message",
+          "id": 590,
+          "prefix": "As Griloch falls, a voice enters your ear again."
+        },
+        {"kind": "experience", "amount": 32000},
+        {
+          "kind": "message",
+          "id": 663,
+          "prefix": "After defeating Griloch you are free to wander around."
+        }
+      ],
+      "sounds": [
+        {
+          "id": -635,
+          "status": "native-mapping",
+          "nativeName": "clash.wav"
+        },
+        {
+          "id": -637,
+          "status": "native-mapping",
+          "nativeName": "attack hit.wav"
+        },
+        {
+          "id": -636,
+          "status": "native-mapping",
+          "nativeName": "metal hit.wav"
+        },
+        {
+          "id": -631,
+          "status": "native-mapping",
+          "nativeName": "resurrect death.wav"
+        }
+      ],
+      "detail": "The no-alliance branch materializes Battle 87, then isolates Griloch in Battle 86, awards 32,000 experience, and sets quest 40"
+    },
+    {
+      "id": "victory-portal",
+      "kind": "action-list",
+      "triggerId": "Data DD:0:73",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 87,
+        "y": 1
+      },
+      "end": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 16,
+        "y": 22
+      },
+      "actions": [
+        {"slot": 0, "code": 46, "id": 547},
+        {"slot": 4, "code": 1, "id": -595},
+        {"slot": 5, "code": 3, "id": 20},
+        {"slot": 6, "code": 37, "id": 497},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 660,
+          "prefix": "Congratulations on defeating the Griloch."
+        },
+        {
+          "kind": "choice",
+          "answer": "YES",
+          "labels": ["Yes", "No"]
+        }
+      ],
+      "detail": "The post-victory portal enables the Mountain View celebration point and returns the party to land map 0"
+    },
+    {
+      "id": "mountain-view-epilogue",
+      "kind": "action-list",
+      "triggerId": "Data DD:0:2",
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 16,
+        "y": 20
+      },
+      "actions": [
+        {"slot": 0, "code": 1, "id": 7},
+        {"slot": 1, "code": 1, "id": 9},
+        {"slot": 2, "code": 9, "id": 134},
+        {"slot": 3, "code": 1, "id": 8},
+        {"slot": 4, "code": 9, "id": -134},
+        {"slot": 5, "code": 9, "id": -690},
+        {"slot": 6, "code": 39, "id": 15},
+        {"slot": 7, "code": 24, "id": 0}
+      ],
+      "sequence": [
+        {
+          "kind": "message",
+          "id": 591,
+          "prefix": "You return to Mountain View without trouble."
+        },
+        {
+          "kind": "message",
+          "id": 592,
+          "prefix": "...for giving my peple hope."
+        },
+        {
+          "kind": "message",
+          "id": 661,
+          "prefix": "Thank you for playing Prelude To Pestilence."
+        },
+        {
+          "kind": "message",
+          "id": 662,
+          "prefix": "...Pestilence scenario."
+        }
+      ],
+      "detail": "Mountain View celebrates the victory and presents the scenario's explicit registered-copy epilogue"
+    }
+  ],
+  "completionAnchor": {
+    "triggers": [
+      {
+        "id": "army-branch",
+        "triggerId": "Data ED3:macro:255",
+        "actions": [
+          {"slot": 0, "code": 46, "id": 485},
+          {"slot": 1, "code": 46, "id": 486},
+          {"slot": 2, "code": 2, "id": 487},
+          {"slot": 3, "code": 1, "id": 589},
+          {"slot": 4, "code": 2, "id": 488},
+          {"slot": 5, "code": 1, "id": 590},
+          {"slot": 6, "code": 11, "id": 32000},
+          {"slot": 7, "code": 39, "id": 258}
+        ]
+      },
+      {
+        "id": "without-candle",
+        "triggerId": "Data ED3:macro:256",
+        "actions": [
+          {"slot": 0, "code": 46, "id": 491},
+          {"slot": 1, "code": 2, "id": 487},
+          {"slot": 2, "code": 1, "id": 589},
+          {"slot": 3, "code": 2, "id": 488},
+          {"slot": 4, "code": 1, "id": 590},
+          {"slot": 5, "code": 11, "id": 32000},
+          {"slot": 6, "code": 39, "id": 258},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "without-minotaurs",
+        "triggerId": "Data ED3:macro:257",
+        "actions": [
+          {"slot": 0, "code": 46, "id": 492},
+          {"slot": 1, "code": 2, "id": 493},
+          {"slot": 2, "code": 1, "id": 589},
+          {"slot": 3, "code": 2, "id": 488},
+          {"slot": 4, "code": 1, "id": 590},
+          {"slot": 5, "code": 11, "id": 32000},
+          {"slot": 6, "code": 39, "id": 258},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "without-berhune",
+        "triggerId": "Data ED3:macro:259",
+        "actions": [
+          {"slot": 0, "code": 2, "id": 494},
+          {"slot": 1, "code": 1, "id": 589},
+          {"slot": 2, "code": 2, "id": 488},
+          {"slot": 3, "code": 1, "id": 590},
+          {"slot": 4, "code": 11, "id": 32000},
+          {"slot": 5, "code": 39, "id": 258}
+        ]
+      },
+      {
+        "id": "victory-state",
+        "triggerId": "Data ED3:macro:258",
+        "actions": [
+          {"slot": 0, "code": 47, "id": 40},
+          {"slot": 1, "code": 1, "id": -663},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "victory-portal-gate",
+        "triggerId": "Data DD:0:73",
+        "actions": [
+          {"slot": 0, "code": 46, "id": 547},
+          {"slot": 4, "code": 1, "id": -595},
+          {"slot": 5, "code": 3, "id": 20},
+          {"slot": 6, "code": 37, "id": 497},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "victory-portal",
+        "triggerId": "Data ED3:macro:286",
+        "actions": [
+          {"slot": 0, "code": 1, "id": -660},
+          {"slot": 1, "code": 3, "id": 20},
+          {"slot": 3, "code": 13, "id": 550},
+          {"slot": 5, "code": 7, "id": 548},
+          {"slot": 6, "code": 45, "id": 549},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      },
+      {
+        "id": "registered-epilogue",
+        "triggerId": "Data ED3:macro:287",
+        "actions": [
+          {"slot": 0, "code": 1, "id": 591},
+          {"slot": 1, "code": 1, "id": 592},
+          {"slot": 2, "code": 1, "id": 661},
+          {"slot": 3, "code": 1, "id": 662},
+          {"slot": 4, "code": 7, "id": 592},
+          {"slot": 7, "code": 24, "id": 0}
+        ]
+      }
+    ],
+    "extraCodes": [
+      {"id": 485, "values": [30, 0, 0, 256, 0]},
+      {"id": 486, "values": [29, 0, 0, 257, 0]},
+      {"id": 487, "values": [85, 0, 0, 0, 0]},
+      {"id": 488, "values": [86, 0, 0, 0, 0]},
+      {"id": 491, "values": [29, 0, 0, 257, 0]},
+      {"id": 492, "values": [27, 0, 0, 259, 0]},
+      {"id": 493, "values": [88, 0, 0, 0, 0]},
+      {"id": 494, "values": [87, 0, 0, 0, 0]},
+      {"id": 547, "values": [40, 1, 0, 286, 0]},
+      {"id": 548, "values": [0, 2, 287, 0, 0]},
+      {"id": 549, "values": [0, 16, 22, 0, 0]},
+      {"id": 550, "values": [0, 2, 100, 0, 0]},
+      {"id": 589, "values": [0, 0, 0, 0, 256]},
+      {"id": 592, "values": [0, 11, 311, 0, 0]}
+    ],
+    "messages": [
+      {
+        "id": 588,
+        "prefix": "Someone has opened the flood gates."
+      },
+      {
+        "id": 589,
+        "prefix": "The Griloch army is destroyed!"
+      },
+      {
+        "id": 590,
+        "prefix": "As Griloch falls, a voice enters your ear again."
+      },
+      {
+        "id": 591,
+        "prefix": "You return to Mountain View without trouble."
+      },
+      {
+        "id": 592,
+        "prefix": "...for giving my peple hope."
+      },
+      {
+        "id": 660,
+        "prefix": "Congratulations on defeating the Griloch."
+      },
+      {
+        "id": 661,
+        "prefix": "Thank you for playing Prelude To Pestilence."
+      },
+      {
+        "id": 662,
+        "prefix": "...Pestilence scenario."
+      },
+      {
+        "id": 663,
+        "prefix": "After defeating Griloch you are free to wander around."
+      }
+    ],
+    "battleIds": [85, 86, 87, 88],
+    "monsters": [
+      {
+        "id": 94,
+        "displayName": "Griloch",
+        "deathMacro": 0
+      }
+    ],
+    "classification": "installed-runtime",
+    "runtime": {
+      "stepIds": [
+        "registered-opening",
+        "thyrr-secret-camp",
+        "floodgates-and-griloch",
+        "victory-portal",
+        "mountain-view-epilogue"
+      ],
+      "position": {
+        "levelType": "land",
+        "levelIndex": 0,
+        "x": 16,
+        "y": 20
+      },
+      "questFlags": [40],
+      "battleIds": [87, 86]
+    }
+  }
+}

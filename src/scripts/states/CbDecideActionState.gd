@@ -295,7 +295,10 @@ static func fit_classic_battle_position_offset(
 	)
 
 
-func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> void:
+static func _apply_classic_battle_metadata(
+	creature: Object,
+	metadata: Dictionary,
+) -> void:
 	var generated := creature.has_meta("classic_monster_generation")
 	if metadata.has("classicMonsterId"):
 		creature.set_meta("classic_monster_id", int(metadata["classicMonsterId"]))
@@ -347,9 +350,8 @@ func _apply_classic_battle_metadata(creature: Object, metadata: Dictionary) -> v
 			int(metadata["classicSurrenderPercent"])
 		)
 	if bool(metadata.get("classicForceFriend", false)):
-		var flipped_faction := 1 if int(creature.curFaction) == 0 else 0
-		creature.baseFaction = flipped_faction
-		creature.curFaction = flipped_faction
+		creature.baseFaction = 0
+		creature.curFaction = 0
 
 func start_new_round() :
 	print("CbDecideAction.start_new_round()")

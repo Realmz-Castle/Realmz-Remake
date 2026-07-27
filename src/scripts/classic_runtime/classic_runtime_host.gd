@@ -460,7 +460,7 @@ func _resume_after_command(command: String, payload: Dictionary, response: Dicti
 		"show_text", "show_scrolling_text", "play_sound", "wait_for_click", \
 		"show_picture", "redraw_map", \
 		"give_treasure", "give_experience", \
-		"alter_party_fatigue", "drop_party_items", \
+		"clear_party_currency", "alter_party_fatigue", "drop_party_items", \
 		"level_up_selected_characters", "alter_selected_characters", \
 		"give_character_condition", \
 		"pick_characters", "filter_selected_characters", \

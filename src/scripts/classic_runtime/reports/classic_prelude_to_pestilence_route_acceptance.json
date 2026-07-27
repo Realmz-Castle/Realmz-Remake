@@ -1,0 +1,478 @@
+{
+	"authoredStart": {
+		"map": "map_1",
+		"mapDrawable": true,
+		"nativePosition": {
+			"x": 9,
+			"y": 62
+		},
+		"runtimePosition": {
+			"levelIndex": 1,
+			"levelType": "land",
+			"x": 9,
+			"y": 62
+		}
+	},
+	"battle": {
+		"allies": [
+			{
+				"count": 1,
+				"displayName": "Lluellyn",
+				"monsterId": 100
+			},
+			{
+				"count": 1,
+				"displayName": "Retyu",
+				"monsterId": 105
+			},
+			{
+				"count": 1,
+				"displayName": "Zulea",
+				"monsterId": 106
+			},
+			{
+				"count": 1,
+				"displayName": "Safeera",
+				"monsterId": 111
+			},
+			{
+				"count": 1,
+				"displayName": "Thyrr",
+				"monsterId": 132
+			},
+			{
+				"count": 1,
+				"displayName": "Cindred",
+				"monsterId": 133
+			}
+		],
+		"battlefieldDrawable": true,
+		"creatures": [
+			{
+				"count": 8,
+				"displayName": "Griloch Captain",
+				"monsterId": 42
+			},
+			{
+				"count": 7,
+				"displayName": "Griloch Lieutenant",
+				"monsterId": 43
+			},
+			{
+				"count": 4,
+				"displayName": "Griloch General",
+				"monsterId": 44
+			},
+			{
+				"count": 9,
+				"displayName": "Griloch Champion",
+				"monsterId": 45
+			},
+			{
+				"count": 3,
+				"displayName": "Griloch Wizard",
+				"monsterId": 46
+			},
+			{
+				"count": 6,
+				"displayName": "Griloch Cleric",
+				"monsterId": 62
+			}
+		],
+		"id": 87,
+		"rewardScreenPresented": true
+	},
+	"battles": [
+		{
+			"allies": [
+				{
+					"count": 1,
+					"displayName": "Lluellyn",
+					"monsterId": 100
+				},
+				{
+					"count": 1,
+					"displayName": "Retyu",
+					"monsterId": 105
+				},
+				{
+					"count": 1,
+					"displayName": "Zulea",
+					"monsterId": 106
+				},
+				{
+					"count": 1,
+					"displayName": "Safeera",
+					"monsterId": 111
+				},
+				{
+					"count": 1,
+					"displayName": "Thyrr",
+					"monsterId": 132
+				},
+				{
+					"count": 1,
+					"displayName": "Cindred",
+					"monsterId": 133
+				}
+			],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 8,
+					"displayName": "Griloch Captain",
+					"monsterId": 42
+				},
+				{
+					"count": 7,
+					"displayName": "Griloch Lieutenant",
+					"monsterId": 43
+				},
+				{
+					"count": 4,
+					"displayName": "Griloch General",
+					"monsterId": 44
+				},
+				{
+					"count": 9,
+					"displayName": "Griloch Champion",
+					"monsterId": 45
+				},
+				{
+					"count": 3,
+					"displayName": "Griloch Wizard",
+					"monsterId": 46
+				},
+				{
+					"count": 6,
+					"displayName": "Griloch Cleric",
+					"monsterId": 62
+				}
+			],
+			"id": 87,
+			"rewardScreenPresented": true,
+			"stepId": "floodgates-and-griloch:griloch-army"
+		},
+		{
+			"allies": [],
+			"battlefieldDrawable": true,
+			"creatures": [
+				{
+					"count": 1,
+					"displayName": "Griloch",
+					"monsterId": 94
+				}
+			],
+			"id": 86,
+			"rewardScreenPresented": true,
+			"stepId": "floodgates-and-griloch:griloch"
+		}
+	],
+	"campaignDirectory": "Prelude to Pestilence (Classic)",
+	"campaignId": "scenario-prelude-to-pestilence",
+	"campaignName": "Prelude to Pestilence (Classic)",
+	"completionAnchor": {
+		"battleIds": [
+			85,
+			86,
+			87,
+			88
+		],
+		"classification": "installed-runtime",
+		"extraCodeIds": [
+			485,
+			486,
+			487,
+			488,
+			491,
+			492,
+			493,
+			494,
+			547,
+			548,
+			549,
+			550,
+			589,
+			592
+		],
+		"monsterIds": [
+			94
+		],
+		"runtime": {
+			"absentItemIds": [],
+			"battleIds": [
+				87,
+				86
+			],
+			"itemIds": [],
+			"position": {
+				"levelIndex": 0,
+				"levelType": "land",
+				"x": 16,
+				"y": 20
+			},
+			"questFlags": [
+				40
+			],
+			"stepIds": [
+				"registered-opening",
+				"thyrr-secret-camp",
+				"floodgates-and-griloch",
+				"victory-portal",
+				"mountain-view-epilogue"
+			],
+			"tileOverrides": [],
+			"triggerPercentages": []
+		},
+		"runtimeExercised": true,
+		"sourceVerified": true,
+		"triggerIds": [
+			"Data ED3:macro:255",
+			"Data ED3:macro:256",
+			"Data ED3:macro:257",
+			"Data ED3:macro:259",
+			"Data ED3:macro:258",
+			"Data DD:0:73",
+			"Data ED3:macro:286",
+			"Data ED3:macro:287"
+		]
+	},
+	"failures": [],
+	"interactions": [
+		{
+			"kind": "message",
+			"messageId": 704,
+			"prefix": "Welcome to Prelude to Pestilence",
+			"stepId": "registered-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 190,
+			"prefix": "You awake.  Your head is pounding.",
+			"stepId": "registered-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 191,
+			"prefix": "After recovering from your loss of gold",
+			"stepId": "registered-opening"
+		},
+		{
+			"kind": "message",
+			"messageId": 582,
+			"prefix": "Thyrr closes his eyes and looks skyward.",
+			"stepId": "thyrr-secret-camp"
+		},
+		{
+			"kind": "message",
+			"messageId": 583,
+			"prefix": "When you awake, Thyrr is over you.",
+			"stepId": "thyrr-secret-camp"
+		},
+		{
+			"kind": "message",
+			"messageId": 584,
+			"prefix": "....trust anyone as there is no good here.",
+			"stepId": "thyrr-secret-camp"
+		},
+		{
+			"kind": "message",
+			"messageId": 588,
+			"prefix": "Someone has opened the flood gates.",
+			"stepId": "floodgates-and-griloch"
+		},
+		{
+			"battleId": 87,
+			"kind": "battle",
+			"stepId": "floodgates-and-griloch"
+		},
+		{
+			"kind": "message",
+			"messageId": 589,
+			"prefix": "The Griloch army is destroyed!",
+			"stepId": "floodgates-and-griloch"
+		},
+		{
+			"battleId": 86,
+			"kind": "battle",
+			"stepId": "floodgates-and-griloch"
+		},
+		{
+			"kind": "message",
+			"messageId": 590,
+			"prefix": "As Griloch falls, a voice enters your ear again.",
+			"stepId": "floodgates-and-griloch"
+		},
+		{
+			"amount": 32000,
+			"kind": "experience",
+			"stepId": "floodgates-and-griloch"
+		},
+		{
+			"kind": "message",
+			"messageId": 663,
+			"prefix": "After defeating Griloch you are free to wander around.",
+			"stepId": "floodgates-and-griloch"
+		},
+		{
+			"kind": "message",
+			"messageId": 660,
+			"prefix": "Congratulations on defeating the Griloch.",
+			"stepId": "victory-portal"
+		},
+		{
+			"answer": "YES",
+			"kind": "choice",
+			"labels": [
+				"Yes",
+				"No"
+			],
+			"stepId": "victory-portal"
+		},
+		{
+			"kind": "message",
+			"messageId": 591,
+			"prefix": "You return to Mountain View without trouble.",
+			"stepId": "mountain-view-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 592,
+			"prefix": "...for giving my peple hope.",
+			"stepId": "mountain-view-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 661,
+			"prefix": "Thank you for playing Prelude To Pestilence.",
+			"stepId": "mountain-view-epilogue"
+		},
+		{
+			"kind": "message",
+			"messageId": 662,
+			"prefix": "...Pestilence scenario.",
+			"stepId": "mountain-view-epilogue"
+		}
+	],
+	"routeId": "prelude-to-pestilence-completion-route",
+	"schemaVersion": 1,
+	"selectedCharacter": "Cindred",
+	"selectionState": "Ready with fallbacks",
+	"soundResolutions": [
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -635,
+			"nativeName": "clash.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "floodgates-and-griloch",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -637,
+			"nativeName": "attack hit.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "floodgates-and-griloch",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -636,
+			"nativeName": "metal hit.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "floodgates-and-griloch",
+			"waitForCompletion": true
+		},
+		{
+			"classicBehaviorIfAbsent": "",
+			"id": -631,
+			"nativeName": "resurrect death.wav",
+			"playable": true,
+			"status": "native-mapping",
+			"stepId": "floodgates-and-griloch",
+			"waitForCompletion": true
+		}
+	],
+	"stages": [
+		{
+			"detail": "The normal campaign menu discovers the package as ready",
+			"id": "ui-discovery",
+			"status": "passed"
+		},
+		{
+			"detail": "The normal party and Start controls enter native exploration",
+			"id": "ui-launch",
+			"status": "passed"
+		},
+		{
+			"detail": "The source and manifest start agree on a drawable native map",
+			"id": "authored-start",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "registered-opening-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "thyrr-secret-camp-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "floodgates-and-griloch-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "victory-portal-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The route step matches its compiled source records",
+			"id": "mountain-view-epilogue-source",
+			"status": "passed"
+		},
+		{
+			"detail": "The compiled completion chain and final battle remain source-identifiable",
+			"id": "completion-source-anchor",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed global opening presents the decoded scenario picture, removes the party's starting funds, and establishes the disoriented arrival",
+			"id": "registered-opening",
+			"status": "passed"
+		},
+		{
+			"detail": "Thyrr transports the party into the secret Griloch camp and begins the final search",
+			"id": "thyrr-secret-camp",
+			"status": "passed"
+		},
+		{
+			"detail": "The no-alliance branch materializes Battle 87, then isolates Griloch in Battle 86, awards 32,000 experience, and sets quest 40",
+			"id": "floodgates-and-griloch",
+			"status": "passed"
+		},
+		{
+			"detail": "The post-victory portal enables the Mountain View celebration point and returns the party to land map 0",
+			"id": "victory-portal",
+			"status": "passed"
+		},
+		{
+			"detail": "Mountain View celebrates the victory and presents the scenario's explicit registered-copy epilogue",
+			"id": "mountain-view-epilogue",
+			"status": "passed"
+		},
+		{
+			"detail": "The installed completion route reaches its authored reward and epilogue state",
+			"id": "completion-runtime",
+			"status": "passed"
+		}
+	],
+	"status": "passed",
+	"triggerPercentageChecks": []
+}
