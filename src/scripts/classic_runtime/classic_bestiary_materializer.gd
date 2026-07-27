@@ -42,6 +42,14 @@ const SHARED_SPELL_DIRECTORY := "res://shared_assets/spells/"
 const TEMPORARY_SPELL_SCREEN_TRAIT := "t_classic_spell_screen.gd"
 const PERMANENT_ANIMATED_TRAIT := "p_classic_animated.gd"
 const DEFAULT_IMAGE := "CREA_humanmage"
+const STOCK_SHARED_IMAGE_BY_ICON_ID := {
+	398: "CREA_carrion_slug",
+	509: "CREA_classic_cicn_509",
+}
+const STOCK_SHARED_IMAGE_ALIASES_BY_ICON_ID := {
+	398: ["CREA_carrion_slug", "CREA_larva", "CREA_slime_worm"],
+	509: ["CREA_classic_cicn_509"],
+}
 const TYPE_TAGS := [
 	"Magic Using",
 	"Undead",
@@ -77,7 +85,7 @@ const UNSUPPORTED_SCALAR_FIELDS := [
 	"beenAttacked",
 ]
 const CLASSIC_INERT_MORALE_MAX := 100
-const MATERIALIZATION_VERSION := 3
+const MATERIALIZATION_VERSION := 4
 
 var last_error := ""
 
@@ -156,6 +164,10 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 		if source_id < 0:
 			continue
 		var monster_id: int = abs(source_id)
+		var icon_resolution := MonsterIconResolutionScript.resolve(
+			int(record.get("iconId", 0)),
+			icon_catalog
+		)
 		var existing_key: Variant = _book_monster_key_by_id(bestiary_book, monster_id)
 		if existing_key != null:
 			var existing_entry: Variant = bestiary_book[existing_key]
@@ -179,10 +191,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 						item_mapping,
 						spell_book,
 						spell_mapping,
-						MonsterIconResolutionScript.resolve(
-							int(record.get("iconId", 0)),
-							icon_catalog
-						)
+						icon_resolution
 					)
 					updated += 1
 				else:
@@ -190,7 +199,11 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			else:
 				skipped += 1
 			continue
-		if _book_has_matching_native_monster(shared_bestiary_book, record):
+		if _book_has_matching_native_monster(
+			shared_bestiary_book,
+			record,
+			icon_resolution
+		):
 			reused_native += 1
 			continue
 		bestiary_book[_monster_key(bestiary_book, monster_id)] = _native_monster(
@@ -201,7 +214,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 			item_mapping,
 			spell_book,
 			spell_mapping,
-			MonsterIconResolutionScript.resolve(int(record.get("iconId", 0)), icon_catalog)
+			icon_resolution
 		)
 		generated += 1
 
@@ -283,9 +296,17 @@ func _native_monster(
 	)
 	if not (icon_resolution is Dictionary) or icon_resolution.is_empty():
 		icon_resolution = MonsterIconResolutionScript.resolve(int(record.get("iconId", 0)))
-	var fidelity_fallbacks: Array[String] = [
-		"iconId:%s" % str(icon_resolution.get("status", "unresolved")),
-	]
+	var image_key := _stock_shared_image_key(icon_resolution)
+	var fidelity_fallbacks: Array[String] = []
+	if image_key.is_empty():
+		image_key = DEFAULT_IMAGE
+		fidelity_fallbacks.append(
+			"iconId:%s" % str(icon_resolution.get("status", "unresolved"))
+		)
+	else:
+		icon_resolution = icon_resolution.duplicate(true)
+		icon_resolution["runtimeImageKey"] = image_key
+		icon_resolution["runtimeImageSource"] = "shared-bestiary-atlas"
 	var run_percent := int(record.get("runPercent", 0))
 	var surrender_percent := int(record.get("surrenderPercent", 0))
 	if (
@@ -356,7 +377,7 @@ func _native_monster(
 		"data": {
 			"id": monster_id,
 			"name": display_name,
-			"image": DEFAULT_IMAGE,
+			"image": image_key,
 			"size": SIZE_BY_CLASSIC_VALUE.get(int(record.get("size", 0)), [1, 1]),
 			"tags": _type_tags(record),
 			"in_bestiary": 0 if bool(record.get("notOnMenu", false)) else 1,
@@ -956,7 +977,8 @@ func _book_monster_key_by_id(bestiary_book: Dictionary, monster_id: int) -> Vari
 
 func _book_has_matching_native_monster(
 	bestiary_book: Dictionary,
-	record: Dictionary
+	record: Dictionary,
+	icon_resolution := {}
 ) -> bool:
 	# Authored records may intentionally redefine a stock identity. Only imported
 	# library records are eligible for reuse from Remake's shared bestiary.
@@ -966,6 +988,10 @@ func _book_has_matching_native_monster(
 	var source_name := str(record.get("displayName", "")).strip_edges().to_lower()
 	if monster_id < 0 or source_name.is_empty():
 		return false
+	if not (icon_resolution is Dictionary) or icon_resolution.is_empty():
+		icon_resolution = MonsterIconResolutionScript.resolve(
+			int(record.get("iconId", 0))
+		)
 	for bestiary_key: Variant in bestiary_book:
 		var monster_value: Variant = bestiary_book[bestiary_key]
 		if not (monster_value is Dictionary):
@@ -976,6 +1002,8 @@ func _book_has_matching_native_monster(
 		var native_name := str(data.get("name", bestiary_key)).strip_edges().to_lower()
 		if native_name != source_name:
 			continue
+		if not _native_image_matches_icon(data, icon_resolution):
+			continue
 		if _monster_has_explicit_id(monster_value, monster_id) \
 				or _monster_has_explicit_id(data, monster_id):
 			return true
@@ -984,6 +1012,32 @@ func _book_has_matching_native_monster(
 				and abs(int(native_id)) == monster_id:
 			return true
 	return false
+
+
+func _native_image_matches_icon(
+	data: Dictionary,
+	icon_resolution: Dictionary
+) -> bool:
+	var image_key := _stock_shared_image_key(icon_resolution)
+	if image_key.is_empty():
+		return true
+	var base_icon_id := int(icon_resolution.get("baseIconId", 0))
+	var aliases: Variant = STOCK_SHARED_IMAGE_ALIASES_BY_ICON_ID.get(
+		base_icon_id,
+		[image_key]
+	)
+	return aliases is Array and aliases.has(str(data.get("image", "")))
+
+
+func _stock_shared_image_key(icon_resolution: Dictionary) -> String:
+	if str(icon_resolution.get("status", "")) != "stock-family-jewels-pair":
+		return ""
+	return str(
+		STOCK_SHARED_IMAGE_BY_ICON_ID.get(
+			int(icon_resolution.get("baseIconId", 0)),
+			""
+		)
+	)
 
 
 func _monster_has_explicit_id(monster: Dictionary, monster_id: int) -> bool:

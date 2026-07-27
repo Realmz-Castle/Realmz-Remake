@@ -583,6 +583,12 @@
       "0_ref_y" : 27,
       "size" : "32x32"
    },   
+   "CREA_classic_cicn_509" :
+   {
+      "0_ref_x" : 19,
+      "0_ref_y" : 0,
+      "size" : "64x32"
+   },
    "CREA_slime_worm" :
    {
       "0_ref_x" : 3,

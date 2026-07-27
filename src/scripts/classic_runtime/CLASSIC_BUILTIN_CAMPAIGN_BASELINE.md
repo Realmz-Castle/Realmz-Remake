@@ -30,12 +30,12 @@ records:
 | Packages loaded / preparation errors | 13 / 0 |
 | Ready / blocked | 13 / 0 |
 | Progression blockers | 0 |
-| Fidelity fallbacks | 1,352 |
-| Active / inactive diagnostics | 4,241 / 184 |
+| Fidelity fallbacks | 1,350 |
+| Active / inactive diagnostics | 4,239 / 184 |
 | Files | 4,852 |
-| Installed footprint | 160,438,753 bytes (153.01 MiB) |
-| Per-file deflate estimate | 34,751,001 bytes (33.14 MiB) |
-| JSON footprint | 118,332,214 bytes (112.85 MiB) |
+| Installed footprint | 160,452,314 bytes (153.02 MiB) |
+| Per-file deflate estimate | 34,752,573 bytes (33.14 MiB) |
+| JSON footprint | 118,345,775 bytes (112.86 MiB) |
 | Shared store | 21 files / 2,221,497 bytes (2.12 MiB) |
 | Byte-identical duplication | 8,149,781 bytes (7.77 MiB) |
 | Cross-campaign duplication | 8,047,692 bytes (7.67 MiB) |
@@ -62,12 +62,13 @@ referenced diagnostics, and source-backed armed and unarmed playback removes
 definitions retain `attackSounds` because IDs 623, 627, and 648 are not present
 in the native SFX catalog.
 
-The 568 active monster-icon fallbacks now retain their exact Classic resource
-chain classification: 171 resolve to complete stock Family Jewels pairs, 247
+The 566 active monster-icon fallbacks now retain their exact Classic resource
+chain classification: 169 resolve to complete stock Family Jewels pairs, 247
 resolve to complete campaign/stock pairs whose decoded runtime media is still
 incomplete, and 150 have an incomplete pair in the locally available Classic
-resource chain. The report keeps the remaining 521 non-icon monster fallbacks
-separate.
+resource chain. Two Assault on Giant Mountain occurrences now use identified
+stock atlas art instead of a placeholder. The report keeps the remaining 521
+non-icon monster fallbacks separate.
 
 All 63 active unresolved-sound occurrences (22 unique IDs) are visible as
 fidelity fallbacks. They are absent from the complete locally available
@@ -98,7 +99,7 @@ built-in shared spells from the immutable `Data S` inventory. The stock
 class-4 breath, paralysis, and acid-spit resources also preserve their exact
 source IDs and mechanics instead of combining materially different variants.
 
-The authoritative result is now 0 active progression blockers and 1,352
+The authoritative result is now 0 active progression blockers and 1,350
 fallbacks. Exact stock resources removed 37 previously blocked occurrences:
 Arrow `4101` (12), Boulder `4114` (1), Dart of Poison `4202` (15), Poison
 `4309` (5), Improved Knowledge `4502` (2), Improved Judgment `4503` (1), and

@@ -2393,6 +2393,23 @@ func resolve_classic_monster_bestiary_name(
 	# older hand-converted entries whose native data.id happens to match.
 	for bestiary_key: Variant in creature_book:
 		var entry: Variant = creature_book[bestiary_key]
+		if not (entry is Dictionary) or not entry.has("classicMaterialization"):
+			continue
+		var data: Variant = entry.get("data", {})
+		if not (data is Dictionary):
+			continue
+		var explicit_ids := _classic_resource_ids(
+			entry,
+			"classicMonsterId",
+			"classicMonsterIds"
+		)
+		explicit_ids.append_array(
+			_classic_resource_ids(data, "classicMonsterId", "classicMonsterIds")
+		)
+		if explicit_ids.has(monster_id):
+			return str(bestiary_key)
+	for bestiary_key: Variant in creature_book:
+		var entry: Variant = creature_book[bestiary_key]
 		if not (entry is Dictionary):
 			continue
 		var data: Variant = entry.get("data", {})

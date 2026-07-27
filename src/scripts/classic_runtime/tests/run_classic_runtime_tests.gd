@@ -2524,6 +2524,11 @@ func _ready() -> void:
 	if not _runtime_dependencies_ready():
 		_finish()
 		return
+	if OS.get_cmdline_user_args().has("--bestiary-only"):
+		_test_classic_bestiary_materializer()
+		_test_classic_native_context_and_corpus_report()
+		_finish()
+		return
 	var bundle = BundleScript.new()
 	_expect(bundle.load_from_directory(FIXTURE), "CoB fixture loads: %s" % bundle.last_error)
 	if not bundle.last_error.is_empty():
@@ -4737,13 +4742,27 @@ func _test_builtin_shared_asset_tilesets() -> void:
 				) if materialization is Dictionary else {}
 				var icon_status := str(icon_resolution.get("status", "")) \
 					if icon_resolution is Dictionary else ""
+				var runtime_image_key := str(
+					icon_resolution.get("runtimeImageKey", "")
+				) if icon_resolution is Dictionary else ""
+				var has_icon_fallback: bool = fallbacks is Array and fallbacks.has(
+					"iconId:%s" % icon_status
+				)
 				if (
 					not (materialization is Dictionary)
 					or int(materialization.get("version", 0))
 						!= BestiaryMaterializerScript.MATERIALIZATION_VERSION
 					or icon_status.is_empty()
 					or not (fallbacks is Array)
-					or not fallbacks.has("iconId:%s" % icon_status)
+					or (
+						runtime_image_key.is_empty()
+						and not has_icon_fallback
+					)
+					or (
+						not runtime_image_key.is_empty()
+						and str(monster.get("data", {}).get("image", ""))
+							!= runtime_image_key
+					)
 				):
 					invalid_icon_resolutions.append(identity)
 				else:
@@ -7544,6 +7563,147 @@ func _test_classic_bestiary_materializer() -> void:
 			"res://shared_assets/Bestiary/stuff_book.json"
 		)
 	)
+	var shared_image_pack: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			"res://shared_assets/Bestiary/img_pack.json"
+		)
+	)
+	_expect_equal(
+		shared_image_pack.get("CREA_classic_cicn_509"),
+		{"0_ref_x": 19.0, "0_ref_y": 0.0, "size": "64x32"},
+		"the shared atlas exposes the red stock cicn 509 worm"
+	)
+	var carrion_record := native_reuse_record.duplicate(true)
+	carrion_record["id"] = 102
+	carrion_record["displayName"] = "Small Carrion Slug"
+	carrion_record["iconId"] = 398
+	var carrion_icon_resolution: Dictionary = MonsterIconResolutionScript.resolve(398)
+	var carrion_monster: Dictionary = materializer._native_monster(
+		carrion_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{},
+		carrion_icon_resolution
+	)
+	_expect_equal(
+		carrion_monster.get("data", {}).get("image"),
+		"CREA_carrion_slug",
+		"stock cicn 398 uses the shared green and purple carrion art"
+	)
+	_expect_equal(
+		carrion_monster.get("classicMaterialization", {}).get(
+			"iconResolution", {}
+		).get("runtimeImageKey"),
+		"CREA_carrion_slug",
+		"resolved stock art records its runtime image identity"
+	)
+	_expect(
+		not carrion_monster.get("classicMaterialization", {}).get(
+			"fidelityFallbacks", []
+		).has("iconId:stock-family-jewels-pair"),
+		"resolved stock carrion art is no longer reported as a placeholder"
+	)
+	var red_worm_record := native_reuse_record.duplicate(true)
+	red_worm_record["id"] = 117
+	red_worm_record["displayName"] = "Slime Worm"
+	red_worm_record["iconId"] = 509
+	var red_worm_icon_resolution: Dictionary = MonsterIconResolutionScript.resolve(509)
+	_expect(
+		not materializer._book_has_matching_native_monster(
+			shared_bestiary_book,
+			red_worm_record,
+			red_worm_icon_resolution
+		),
+		"a shared same-ID Slime Worm cannot replace different stock icon art"
+	)
+	var green_worm_record := red_worm_record.duplicate(true)
+	green_worm_record["iconId"] = 398
+	_expect(
+		materializer._book_has_matching_native_monster(
+			shared_bestiary_book,
+			green_worm_record,
+			MonsterIconResolutionScript.resolve(398)
+		),
+		"the shared Slime Worm remains reusable when its stock icon art matches"
+	)
+	var red_worm_monster: Dictionary = materializer._native_monster(
+		red_worm_record,
+		[],
+		{},
+		[],
+		{},
+		{},
+		{},
+		red_worm_icon_resolution
+	)
+	_expect_equal(
+		red_worm_monster.get("data", {}).get("image"),
+		"CREA_classic_cicn_509",
+		"stock cicn 509 uses the red worm art"
+	)
+	var shared_then_generated := {
+		"Slime Worm 117": shared_bestiary_book.get("Slime Worm 117", {}),
+		"Classic Monster 117": red_worm_monster,
+	}
+	_expect_equal(
+		GodotAdapterScript.new().resolve_classic_monster_bestiary_name(
+			117,
+			red_worm_record,
+			shared_then_generated
+		),
+		"Classic Monster 117",
+		"campaign materialization wins over a shared same-ID monster"
+	)
+	var assault_root := ProjectSettings.globalize_path(
+		"res://Campaigns/Assault on Giant Mountain (Classic)"
+	)
+	var assault_bundle = BundleScript.new()
+	_expect(
+		assault_bundle.load_from_directory(assault_root),
+		"the shipped Assault bundle loads for sprite resolution"
+	)
+	var assault_resources = NativeResourcesScript.new()
+	assault_resources.load_bestiary_resources("res://shared_assets/Bestiary/")
+	assault_resources.load_bestiary_resources(assault_root.path_join("Bestiary") + "/")
+	var assault_adapter = GodotAdapterScript.new()
+	var assault_carrion_key: String = assault_adapter.resolve_classic_monster_bestiary_name(
+		102,
+		assault_bundle.get_monster(102),
+		assault_resources.crea_book
+	)
+	var assault_red_worm_key: String = assault_adapter.resolve_classic_monster_bestiary_name(
+		117,
+		assault_bundle.get_monster(117),
+		assault_resources.crea_book
+	)
+	_expect_equal(
+		assault_carrion_key,
+		"Classic Monster 102",
+		"shipped Assault selects its generated Small Carrion Slug"
+	)
+	_expect_equal(
+		assault_red_worm_key,
+		"Classic Monster 117",
+		"shipped Assault selects its generated Slime Worm"
+	)
+	_expect_equal(
+		assault_resources.crea_book.get(assault_carrion_key, {}).get(
+			"data", {}
+		).get("image"),
+		assault_resources.images_book.get("CREA_carrion_slug", {}).get("tex"),
+		"shipped Assault loads Small Carrion Slug with the green and purple texture"
+	)
+	_expect_equal(
+		assault_resources.crea_book.get(assault_red_worm_key, {}).get(
+			"data", {}
+		).get("image"),
+		assault_resources.images_book.get("CREA_classic_cicn_509", {}).get("tex"),
+		"shipped Assault loads Slime Worm with the red texture"
+	)
+	assault_resources.free()
 	var authored_native_collision := native_reuse_record.duplicate(true)
 	authored_native_collision["authored"] = true
 	_expect(

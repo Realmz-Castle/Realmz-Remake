@@ -11,9 +11,9 @@
 						"installedBytes": 200084
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 29383,
+						"compressedEstimateBytes": 29653,
 						"files": 3,
-						"installedBytes": 382014
+						"installedBytes": 386538
 					},
 					"classic": {
 						"compressedEstimateBytes": 421638,
@@ -46,7 +46,7 @@
 						"installedBytes": 69905
 					}
 				},
-				"compressedEstimateBytes": 864531,
+				"compressedEstimateBytes": 864801,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 42946,
@@ -59,9 +59,9 @@
 						"installedBytes": 414
 					},
 					"json": {
-						"compressedEstimateBytes": 502402,
+						"compressedEstimateBytes": 502672,
 						"files": 44,
-						"installedBytes": 5127345
+						"installedBytes": 5131869
 					},
 					"pict": {
 						"compressedEstimateBytes": 53493,
@@ -85,7 +85,7 @@
 					}
 				},
 				"files": 187,
-				"installedBytes": 5790141
+				"installedBytes": 5794665
 			},
 			"id": "scenario-assault-on-giant-mountain",
 			"install": {
@@ -123,7 +123,7 @@
 						"scope": "shared"
 					},
 					{
-						"entriesRead": 87,
+						"entriesRead": 88,
 						"exists": true,
 						"path": "campaign://Bestiary/stuff_book.json",
 						"resourceKind": "bestiary",
@@ -160,7 +160,7 @@
 				],
 				"status": "ready",
 				"totals": {
-					"bestiary": 219,
+					"bestiary": 220,
 					"items": 655,
 					"preparationErrors": 0,
 					"sounds": 144,
@@ -977,9 +977,9 @@
 						"installedBytes": 157446
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 31224,
+						"compressedEstimateBytes": 31288,
 						"files": 3,
-						"installedBytes": 411928
+						"installedBytes": 412032
 					},
 					"classic": {
 						"compressedEstimateBytes": 693667,
@@ -1012,7 +1012,7 @@
 						"installedBytes": 62210
 					}
 				},
-				"compressedEstimateBytes": 1046028,
+				"compressedEstimateBytes": 1046092,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 26321,
@@ -1025,9 +1025,9 @@
 						"installedBytes": 598
 					},
 					"json": {
-						"compressedEstimateBytes": 778097,
+						"compressedEstimateBytes": 778161,
 						"files": 56,
-						"installedBytes": 9037649
+						"installedBytes": 9037753
 					},
 					"pict": {
 						"compressedEstimateBytes": 48002,
@@ -1041,7 +1041,7 @@
 					}
 				},
 				"files": 159,
-				"installedBytes": 9577391
+				"installedBytes": 9577495
 			},
 			"id": "scenario-castle-in-the-clouds",
 			"install": {
@@ -4239,9 +4239,9 @@
 						"installedBytes": 282225
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 53873,
+						"compressedEstimateBytes": 53979,
 						"files": 3,
-						"installedBytes": 671685
+						"installedBytes": 671789
 					},
 					"classic": {
 						"compressedEstimateBytes": 379235,
@@ -4274,7 +4274,7 @@
 						"installedBytes": 135004
 					}
 				},
-				"compressedEstimateBytes": 1025442,
+				"compressedEstimateBytes": 1025548,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 85851,
@@ -4287,9 +4287,9 @@
 						"installedBytes": 506
 					},
 					"json": {
-						"compressedEstimateBytes": 493630,
+						"compressedEstimateBytes": 493736,
 						"files": 50,
-						"installedBytes": 5456781
+						"installedBytes": 5456885
 					},
 					"pict": {
 						"compressedEstimateBytes": 46113,
@@ -4308,7 +4308,7 @@
 					}
 				},
 				"files": 336,
-				"installedBytes": 6358559
+				"installedBytes": 6358663
 			},
 			"id": "scenario-destroy-the-necronomicon",
 			"install": {
@@ -6586,35 +6586,6 @@
 						"activity": "active",
 						"campaignId": "scenario-destroy-the-necronomicon",
 						"classification": "fidelity-fallback",
-						"code": "classic-monster-icon-stock-family-jewels-pair",
-						"fallbackFields": [
-							"iconId:stock-family-jewels-pair"
-						],
-						"iconResolution": {
-							"baseIconId": 398.0,
-							"baseResourceSource": "The Family Jewels",
-							"baseRuntimeMediaPresent": false,
-							"lookup": "GetCIcon(base), GetCIcon(base + 308)",
-							"pairedIconId": 706.0,
-							"pairedResourceSource": "The Family Jewels",
-							"pairedRuntimeMediaPresent": false,
-							"source": "The Family Jewels",
-							"status": "stock-family-jewels-pair"
-						},
-						"message": "Classic monster 213 icon pair 398/706 is classified as stock-family-jewels-pair; Remake currently uses its native placeholder",
-						"opcode": 124,
-						"recordId": "Data ED3:macro:265",
-						"recordIndex": 265,
-						"referenceId": 213,
-						"scenario": "Destroy the Necronomicon (Classic)",
-						"severity": "warning",
-						"slot": 1,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-destroy-the-necronomicon",
-						"classification": "fidelity-fallback",
 						"code": "native-monster-fidelity-fallback",
 						"fallbackFields": [
 							"weaponRequirementsUseNativeMissFeedback"
@@ -6623,35 +6594,6 @@
 						"opcode": 124,
 						"recordId": "Data ED3:macro:265",
 						"recordIndex": 265,
-						"referenceId": 213,
-						"scenario": "Destroy the Necronomicon (Classic)",
-						"severity": "warning",
-						"slot": 1,
-						"source": "Data ED3"
-					},
-					{
-						"activity": "active",
-						"campaignId": "scenario-destroy-the-necronomicon",
-						"classification": "fidelity-fallback",
-						"code": "classic-monster-icon-stock-family-jewels-pair",
-						"fallbackFields": [
-							"iconId:stock-family-jewels-pair"
-						],
-						"iconResolution": {
-							"baseIconId": 398.0,
-							"baseResourceSource": "The Family Jewels",
-							"baseRuntimeMediaPresent": false,
-							"lookup": "GetCIcon(base), GetCIcon(base + 308)",
-							"pairedIconId": 706.0,
-							"pairedResourceSource": "The Family Jewels",
-							"pairedRuntimeMediaPresent": false,
-							"source": "The Family Jewels",
-							"status": "stock-family-jewels-pair"
-						},
-						"message": "Classic monster 213 icon pair 398/706 is classified as stock-family-jewels-pair; Remake currently uses its native placeholder",
-						"opcode": 124,
-						"recordId": "Data ED3:macro:269",
-						"recordIndex": 269,
 						"referenceId": 213,
 						"scenario": "Destroy the Necronomicon (Classic)",
 						"severity": "warning",
@@ -7425,10 +7367,10 @@
 				"ready": true,
 				"schemaVersion": 1,
 				"status": "ready",
-				"summary": "Ready: no progression blockers; 38 fidelity fallbacks.",
+				"summary": "Ready: no progression blockers; 36 fidelity fallbacks.",
 				"totals": {
-					"diagnostics": 146,
-					"fidelityFallbacks": 38,
+					"diagnostics": 144,
+					"fidelityFallbacks": 36,
 					"progressionBlockers": 0
 				}
 			}
@@ -7443,9 +7385,9 @@
 						"installedBytes": 253129
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 38828,
+						"compressedEstimateBytes": 38935,
 						"files": 3,
-						"installedBytes": 481955
+						"installedBytes": 482059
 					},
 					"classic": {
 						"compressedEstimateBytes": 376802,
@@ -7478,7 +7420,7 @@
 						"installedBytes": 95335
 					}
 				},
-				"compressedEstimateBytes": 892747,
+				"compressedEstimateBytes": 892854,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 49672,
@@ -7491,9 +7433,9 @@
 						"installedBytes": 690
 					},
 					"json": {
-						"compressedEstimateBytes": 479025,
+						"compressedEstimateBytes": 479132,
 						"files": 62,
-						"installedBytes": 5927391
+						"installedBytes": 5927495
 					},
 					"pict": {
 						"compressedEstimateBytes": 45150,
@@ -7517,7 +7459,7 @@
 					}
 				},
 				"files": 255,
-				"installedBytes": 6724692
+				"installedBytes": 6724796
 			},
 			"id": "scenario-grilochs-revenge",
 			"install": {
@@ -10487,7 +10429,7 @@
 						"installedBytes": 2171970
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 69740,
+						"compressedEstimateBytes": 69743,
 						"files": 3,
 						"installedBytes": 904962
 					},
@@ -10522,7 +10464,7 @@
 						"installedBytes": 1265364
 					}
 				},
-				"compressedEstimateBytes": 4949564,
+				"compressedEstimateBytes": 4949567,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 117787,
@@ -10535,7 +10477,7 @@
 						"installedBytes": 598
 					},
 					"json": {
-						"compressedEstimateBytes": 669715,
+						"compressedEstimateBytes": 669718,
 						"files": 62,
 						"installedBytes": 7672734
 					},
@@ -22992,9 +22934,9 @@
 						"installedBytes": 150726
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 27222,
+						"compressedEstimateBytes": 27318,
 						"files": 3,
-						"installedBytes": 354402
+						"installedBytes": 354514
 					},
 					"classic": {
 						"compressedEstimateBytes": 275453,
@@ -23027,7 +22969,7 @@
 						"installedBytes": 32836
 					}
 				},
-				"compressedEstimateBytes": 579886,
+				"compressedEstimateBytes": 579982,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 14230,
@@ -23040,9 +22982,9 @@
 						"installedBytes": 276
 					},
 					"json": {
-						"compressedEstimateBytes": 332868,
+						"compressedEstimateBytes": 332964,
 						"files": 35,
-						"installedBytes": 4587288
+						"installedBytes": 4587400
 					},
 					"pict": {
 						"compressedEstimateBytes": 51299,
@@ -23066,7 +23008,7 @@
 					}
 				},
 				"files": 101,
-				"installedBytes": 5082993
+				"installedBytes": 5083105
 			},
 			"id": "scenario-prelude-to-pestilence",
 			"install": {
@@ -56539,9 +56481,9 @@
 						"installedBytes": 284888
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 22588,
+						"compressedEstimateBytes": 23310,
 						"files": 3,
-						"installedBytes": 282453
+						"installedBytes": 290858
 					},
 					"classic": {
 						"compressedEstimateBytes": 365885,
@@ -56574,7 +56516,7 @@
 						"installedBytes": 110619
 					}
 				},
-				"compressedEstimateBytes": 937284,
+				"compressedEstimateBytes": 938006,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 57311,
@@ -56587,9 +56529,9 @@
 						"installedBytes": 460
 					},
 					"json": {
-						"compressedEstimateBytes": 446125,
+						"compressedEstimateBytes": 446847,
 						"files": 47,
-						"installedBytes": 5507377
+						"installedBytes": 5515782
 					},
 					"pict": {
 						"compressedEstimateBytes": 46584,
@@ -56618,7 +56560,7 @@
 					}
 				},
 				"files": 258,
-				"installedBytes": 6339811
+				"installedBytes": 6348216
 			},
 			"id": "scenario-twin-sands-of-time",
 			"install": {
@@ -56656,7 +56598,7 @@
 						"scope": "shared"
 					},
 					{
-						"entriesRead": 65,
+						"entriesRead": 67,
 						"exists": true,
 						"path": "campaign://Bestiary/stuff_book.json",
 						"resourceKind": "bestiary",
@@ -56693,7 +56635,7 @@
 				],
 				"status": "ready",
 				"totals": {
-					"bestiary": 197,
+					"bestiary": 199,
 					"items": 648,
 					"preparationErrors": 0,
 					"sounds": 144,
@@ -59500,9 +59442,9 @@
 						"installedBytes": 2962256
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 114450,
+						"compressedEstimateBytes": 114499,
 						"files": 3,
-						"installedBytes": 1357025
+						"installedBytes": 1357077
 					},
 					"classic": {
 						"compressedEstimateBytes": 2101102,
@@ -59535,7 +59477,7 @@
 						"installedBytes": 1169968
 					}
 				},
-				"compressedEstimateBytes": 7488341,
+				"compressedEstimateBytes": 7488390,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 171011,
@@ -59548,9 +59490,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 2411141,
+						"compressedEstimateBytes": 2411190,
 						"files": 95,
-						"installedBytes": 26519995
+						"installedBytes": 26520047
 					},
 					"pict": {
 						"compressedEstimateBytes": 824332,
@@ -59579,7 +59521,7 @@
 					}
 				},
 				"files": 765,
-				"installedBytes": 35619911
+				"installedBytes": 35619963
 			},
 			"id": "scenario-war-in-the-sword-lands",
 			"install": {
@@ -79298,9 +79240,9 @@
 						"installedBytes": 135826
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 45799,
+						"compressedEstimateBytes": 45852,
 						"files": 3,
-						"installedBytes": 594771
+						"installedBytes": 594823
 					},
 					"classic": {
 						"compressedEstimateBytes": 362169,
@@ -79333,7 +79275,7 @@
 						"installedBytes": 47494
 					}
 				},
-				"compressedEstimateBytes": 688882,
+				"compressedEstimateBytes": 688935,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 21952,
@@ -79346,9 +79288,9 @@
 						"installedBytes": 736
 					},
 					"json": {
-						"compressedEstimateBytes": 467722,
+						"compressedEstimateBytes": 467775,
 						"files": 65,
-						"installedBytes": 8183440
+						"installedBytes": 8183492
 					},
 					"pict": {
 						"compressedEstimateBytes": 41094,
@@ -79362,7 +79304,7 @@
 					}
 				},
 				"files": 151,
-				"installedBytes": 8640683
+				"installedBytes": 8640735
 			},
 			"id": "scenario-white-dragon",
 			"install": {
@@ -82012,9 +81954,9 @@
 						"installedBytes": 4451288
 					},
 					"bestiary": {
-						"compressedEstimateBytes": 100674,
+						"compressedEstimateBytes": 100776,
 						"files": 3,
-						"installedBytes": 1172373
+						"installedBytes": 1172477
 					},
 					"classic": {
 						"compressedEstimateBytes": 824306,
@@ -82047,7 +81989,7 @@
 						"installedBytes": 1040749
 					}
 				},
-				"compressedEstimateBytes": 7578067,
+				"compressedEstimateBytes": 7578169,
 				"extensions": {
 					"cicn": {
 						"compressedEstimateBytes": 161282,
@@ -82060,9 +82002,9 @@
 						"installedBytes": 1104
 					},
 					"json": {
-						"compressedEstimateBytes": 1098042,
+						"compressedEstimateBytes": 1098144,
 						"files": 95,
-						"installedBytes": 12871782
+						"installedBytes": 12871886
 					},
 					"pict": {
 						"compressedEstimateBytes": 951654,
@@ -82091,7 +82033,7 @@
 					}
 				},
 				"files": 814,
-				"installedBytes": 24541509
+				"installedBytes": 24541613
 			},
 			"id": "scenario-wrath-of-the-mind-lords",
 			"install": {
@@ -94982,9 +94924,9 @@
 			"installedBytes": 13749301
 		},
 		"bestiary": {
-			"compressedEstimateBytes": 660947,
+			"compressedEstimateBytes": 662519,
 			"files": 39,
-			"installedBytes": 8279307
+			"installedBytes": 8292868
 		},
 		"classic": {
 			"compressedEstimateBytes": 8123273,
@@ -95029,11 +94971,11 @@
 	},
 	"diagnosticBreakdown": {
 		"byActivity": {
-			"active": 4241,
+			"active": 4239,
 			"inactive": 184
 		},
 		"byClassification": {
-			"fidelity-fallback": 1352,
+			"fidelity-fallback": 1350,
 			"inventory": 6,
 			"source-behavior": 3067
 		},
@@ -95060,9 +95002,9 @@
 				"progressionBlockers": 0
 			},
 			"classic-monster-icon-stock-family-jewels-pair": {
-				"active": 171,
-				"diagnostics": 171,
-				"fidelityFallbacks": 171,
+				"active": 169,
+				"diagnostics": 169,
+				"fidelityFallbacks": 169,
 				"inactive": 0,
 				"progressionBlockers": 0
 			},
@@ -123086,9 +123028,9 @@
 			"installedBytes": 8786
 		},
 		"json": {
-			"compressedEstimateBytes": 9987859,
+			"compressedEstimateBytes": 9989431,
 			"files": 829,
-			"installedBytes": 118332214
+			"installedBytes": 118345775
 		},
 		"pict": {
 			"compressedEstimateBytes": 3271437,
@@ -123147,19 +123089,19 @@
 	},
 	"status": "ready",
 	"totals": {
-		"activeDiagnostics": 4241,
+		"activeDiagnostics": 4239,
 		"blockedCampaigns": 0,
 		"campaigns": 13,
-		"compressedEstimateBytes": 34751001,
+		"compressedEstimateBytes": 34752573,
 		"crossCampaignDuplicateBytes": 8047692,
-		"diagnostics": 4425,
+		"diagnostics": 4423,
 		"duplicateBytes": 8149781,
-		"fidelityFallbacks": 1352,
+		"fidelityFallbacks": 1350,
 		"files": 4852,
 		"inactiveDiagnostics": 184,
 		"installFailures": 0,
-		"installedBytes": 160438753,
-		"jsonBytes": 118332214,
+		"installedBytes": 160452314,
+		"jsonBytes": 118345775,
 		"jsonFiles": 829,
 		"preparationErrors": 0,
 		"progressionBlockers": 0,
