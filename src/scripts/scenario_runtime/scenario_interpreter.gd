@@ -239,8 +239,14 @@ func execute_classic_instruction(
 		return ScenarioStepResult.failed(
 			"Classic opcode ownership changed during execution"
 		)
-	var result: Variant = _classic_executor.execute_prepared_instruction(
-		instruction
+	if not registered_handler.has_method("execute_on_runtime"):
+		return ScenarioStepResult.failed(
+			"Classic handler '%s' has no runtime implementation" % handler_id
+		)
+	var result: Variant = registered_handler.call(
+		"execute_on_runtime",
+		instruction,
+		_classic_executor
 	)
 	if not (result is Dictionary):
 		return ScenarioStepResult.failed(
@@ -442,11 +448,20 @@ func _capture_classic_pending(result: Dictionary) -> void:
 		})
 		if handler != null:
 			handler_id = handler.handler_id()
+	var continuation: Dictionary = result.get("payload", {}).duplicate(true)
+	var stored_continuation: Variant = result.get("_scenarioContinuation")
+	if stored_continuation is Dictionary \
+			and stored_continuation.get("data") is Dictionary \
+			and stored_continuation.get("continuationId") is String:
+		continuation.merge(stored_continuation["data"], true)
+		continuation["_continuationId"] = str(
+			stored_continuation["continuationId"]
+		)
 	pending_command = ScenarioPendingCommand.new(
 		handler_id,
 		command_id,
 		action_identity,
-		result.get("_scenarioContinuation", result.get("payload", {}))
+		continuation
 	)
 
 

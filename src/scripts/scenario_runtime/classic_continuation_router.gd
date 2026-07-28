@@ -3,23 +3,25 @@ extends RefCounted
 
 const ROUTES := {
 	"choice": "_resume_choice",
-	"start_encounter": "_resume_encounter",
-	"start_battle": "_resume_battle",
-	"end_classic_battle": "_resume_forced_battle_end",
-	"check_party_item": "_resume_item_check",
-	"take_party_wealth": "_resume_wealth_payment",
-	"check_party_condition": "_resume_party_condition_check",
-	"check_character_ability": "_resume_character_ability_check",
-	"check_party_misc": "_resume_misc_branch",
-	"check_party_ally": "_resume_ally_check",
-	"check_combat_monster": "_resume_combat_monster_check",
-	"revive_classic_combatants": "_resume_combat_revival",
-	"activate_battle_round_macro": "_resume_battle_round_macro",
-	"present_random_branch": "_resume_random_branch",
-	"back_up_party": "_resume_back_up_party",
-	"alter_game_time": "_resume_time_mutation",
-	"update_exploration_status": "_resume_exploration_status",
+	"encounter": "_resume_encounter",
+	"battle": "_resume_battle",
+	"selective-battle": "_resume_selective_battle",
+	"forced-battle-end": "_resume_forced_battle_end",
+	"item-check": "_resume_item_check",
+	"wealth-payment": "_resume_wealth_payment",
+	"party-condition-check": "_resume_party_condition_check",
+	"character-ability-check": "_resume_character_ability_check",
+	"misc-branch": "_resume_misc_branch",
+	"ally-check": "_resume_ally_check",
+	"combat-monster-check": "_resume_combat_monster_check",
+	"combat-revival": "_resume_combat_revival",
+	"battle-round-macro": "_resume_battle_round_macro",
+	"random-branch": "_resume_random_branch",
+	"time-mutation": "_resume_time_mutation",
+	"exploration-status": "_resume_exploration_status",
 	"teleport": "_resume_teleport",
+	"dungeon-move": "_resume_dungeon_move",
+	"back-up-party": "_resume_back_up_party",
 }
 
 var _executor: Object
@@ -32,10 +34,17 @@ func configure(executor: Object) -> void:
 func resume(pending: ScenarioPendingCommand, response: Dictionary) -> Dictionary:
 	if _executor == null:
 		return _error("Classic continuation executor is unavailable")
-	var route_method := str(ROUTES.get(pending.command_id, "_continue"))
+	if response.has("forcedResumeSlot"):
+		return _executor.resume_forced_battle_at_slot(
+			int(response["forcedResumeSlot"])
+		)
+	var continuation_id := str(
+		pending.continuation.get("_continuationId", "")
+	)
+	var route_method := str(ROUTES.get(continuation_id, "_continue"))
 	if not has_method(route_method):
 		return _error(
-			"Classic continuation route '%s' is unavailable" % pending.command_id
+			"Classic continuation route '%s' is unavailable" % continuation_id
 		)
 	return call(route_method, pending, response)
 
@@ -59,22 +68,21 @@ func _resume_encounter(
 
 
 func _resume_battle(
-	pending: ScenarioPendingCommand,
+	_pending: ScenarioPendingCommand,
 	response: Dictionary
 ) -> Dictionary:
-	if response.has("forcedResumeSlot"):
-		return _executor.resume_forced_battle_at_slot(
-			int(response["forcedResumeSlot"])
-		)
-	if bool(pending.continuation.get("outcomeBranch", false)):
-		if not response.has("coward"):
-			return _error("Battle response is missing 'coward'")
-		return _executor.resume_battle(bool(response["coward"]))
-	if str(pending.continuation.get("participantMode", "party")) == "selected":
-		if not response.has("survivorCount"):
-			return _error("Selective battle response is missing 'survivorCount'")
-		return _executor.resume_selective_battle(int(response["survivorCount"]))
-	return _executor.run_until_yield()
+	if not response.has("coward"):
+		return _error("Battle response is missing 'coward'")
+	return _executor.resume_battle(bool(response["coward"]))
+
+
+func _resume_selective_battle(
+	_pending: ScenarioPendingCommand,
+	response: Dictionary
+) -> Dictionary:
+	if not response.has("survivorCount"):
+		return _error("Selective battle response is missing 'survivorCount'")
+	return _executor.resume_selective_battle(int(response["survivorCount"]))
 
 
 func _resume_forced_battle_end(
@@ -170,6 +178,13 @@ func _resume_random_branch(
 	return _executor.resume_random_branch()
 
 
+func _resume_dungeon_move(
+	_pending: ScenarioPendingCommand,
+	_response: Dictionary
+) -> Dictionary:
+	return _executor.run_until_yield()
+
+
 func _resume_back_up_party(
 	_pending: ScenarioPendingCommand,
 	_response: Dictionary
@@ -192,11 +207,9 @@ func _resume_exploration_status(
 
 
 func _resume_teleport(
-	pending: ScenarioPendingCommand,
+	_pending: ScenarioPendingCommand,
 	_response: Dictionary
 ) -> Dictionary:
-	if bool(pending.continuation.get("dungeonMove", false)):
-		return _executor.run_until_yield()
 	return _executor.resume_teleport()
 
 

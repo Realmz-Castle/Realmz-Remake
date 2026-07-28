@@ -8,7 +8,7 @@ const KnownDataCorrectionsScript = preload(
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
-const EXECUTION_SNAPSHOT_SCHEMA_VERSION := 1
+const EXECUTION_SNAPSHOT_SCHEMA_VERSION := 2
 const HANDLED_OPCODES := [
 	-23, -14,
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -53,23 +53,95 @@ var removal_x := 0
 var removal_y := 0
 var call_stack: Array = []
 var gosub_active := false
-var pending_choice: Dictionary = {}
-var pending_encounter: Dictionary = {}
-var pending_battle: Dictionary = {}
-var pending_selective_battle: Dictionary = {}
-var pending_item_check: Dictionary = {}
-var pending_wealth_payment: Dictionary = {}
-var pending_party_condition_check: Dictionary = {}
-var pending_character_ability_check: Dictionary = {}
-var pending_misc_branch: Dictionary = {}
-var pending_ally_check: Dictionary = {}
-var pending_combat_monster_check: Dictionary = {}
-var pending_combat_revival: Dictionary = {}
-var pending_battle_round_macro: Dictionary = {}
-var pending_random_branch: Dictionary = {}
-var pending_time_mutation: Dictionary = {}
-var pending_exploration_status: Dictionary = {}
-var pending_teleport: Dictionary = {}
+# Classic mechanics expose these views while older focused fixtures still call
+# the typed resume helpers. The only stored continuation is pending_continuation;
+# ScenarioInterpreter serializes it into ScenarioPendingCommand.
+var pending_continuation: Dictionary = {}
+var pending_choice: Dictionary:
+	get:
+		return _pending_view("choice")
+	set(value):
+		_set_pending_view("choice", value)
+var pending_encounter: Dictionary:
+	get:
+		return _pending_view("encounter")
+	set(value):
+		_set_pending_view("encounter", value)
+var pending_battle: Dictionary:
+	get:
+		return _pending_view("battle")
+	set(value):
+		_set_pending_view("battle", value)
+var pending_selective_battle: Dictionary:
+	get:
+		return _pending_view("selective-battle")
+	set(value):
+		_set_pending_view("selective-battle", value)
+var pending_item_check: Dictionary:
+	get:
+		return _pending_view("item-check")
+	set(value):
+		_set_pending_view("item-check", value)
+var pending_wealth_payment: Dictionary:
+	get:
+		return _pending_view("wealth-payment")
+	set(value):
+		_set_pending_view("wealth-payment", value)
+var pending_party_condition_check: Dictionary:
+	get:
+		return _pending_view("party-condition-check")
+	set(value):
+		_set_pending_view("party-condition-check", value)
+var pending_character_ability_check: Dictionary:
+	get:
+		return _pending_view("character-ability-check")
+	set(value):
+		_set_pending_view("character-ability-check", value)
+var pending_misc_branch: Dictionary:
+	get:
+		return _pending_view("misc-branch")
+	set(value):
+		_set_pending_view("misc-branch", value)
+var pending_ally_check: Dictionary:
+	get:
+		return _pending_view("ally-check")
+	set(value):
+		_set_pending_view("ally-check", value)
+var pending_combat_monster_check: Dictionary:
+	get:
+		return _pending_view("combat-monster-check")
+	set(value):
+		_set_pending_view("combat-monster-check", value)
+var pending_combat_revival: Dictionary:
+	get:
+		return _pending_view("combat-revival")
+	set(value):
+		_set_pending_view("combat-revival", value)
+var pending_battle_round_macro: Dictionary:
+	get:
+		return _pending_view("battle-round-macro")
+	set(value):
+		_set_pending_view("battle-round-macro", value)
+var pending_random_branch: Dictionary:
+	get:
+		return _pending_view("random-branch")
+	set(value):
+		_set_pending_view("random-branch", value)
+var pending_time_mutation: Dictionary:
+	get:
+		return _pending_view("time-mutation")
+	set(value):
+		_set_pending_view("time-mutation", value)
+var pending_exploration_status: Dictionary:
+	get:
+		return _pending_view("exploration-status")
+	set(value):
+		_set_pending_view("exploration-status", value)
+var pending_teleport: Dictionary:
+	get:
+		return _pending_view("teleport")
+	set(value):
+		_set_pending_view("teleport", value)
 var execution_context: Dictionary = {}
 var encounter_origins: Array = []
 var loaded_simple_encounter_id := -1
@@ -102,6 +174,34 @@ func set_scenario_run_delegate(delegate: Callable) -> void:
 	scenario_run_delegate = delegate
 
 
+func _pending_view(continuation_id: String) -> Dictionary:
+	if str(pending_continuation.get("continuationId", "")) != continuation_id:
+		return {}
+	var data: Variant = pending_continuation.get("data")
+	if not (data is Dictionary) or data.is_empty():
+		pending_continuation.clear()
+		return {}
+	return data
+
+
+func _set_pending_view(continuation_id: String, value: Dictionary) -> void:
+	if value.is_empty():
+		if str(pending_continuation.get("continuationId", "")) == continuation_id:
+			pending_continuation.clear()
+		return
+	set_pending_continuation(continuation_id, value)
+
+
+func set_pending_continuation(
+	continuation_id: String,
+	data: Dictionary
+) -> void:
+	pending_continuation = {
+		"continuationId": continuation_id,
+		"data": data,
+	}
+
+
 static func normalize_opcode(raw_code: int) -> int:
 	return abs(raw_code) if raw_code < 0 and raw_code not in [-14, -23] else raw_code
 
@@ -121,23 +221,7 @@ func reset_execution() -> void:
 	removal_y = 0
 	call_stack.clear()
 	gosub_active = false
-	pending_choice.clear()
-	pending_encounter.clear()
-	pending_battle.clear()
-	pending_selective_battle.clear()
-	pending_item_check.clear()
-	pending_wealth_payment.clear()
-	pending_party_condition_check.clear()
-	pending_character_ability_check.clear()
-	pending_misc_branch.clear()
-	pending_ally_check.clear()
-	pending_combat_monster_check.clear()
-	pending_combat_revival.clear()
-	pending_battle_round_macro.clear()
-	pending_random_branch.clear()
-	pending_time_mutation.clear()
-	pending_exploration_status.clear()
-	pending_teleport.clear()
+	pending_continuation.clear()
 	execution_context.clear()
 	encounter_origins.clear()
 	trace.clear()
@@ -160,23 +244,7 @@ func make_execution_snapshot() -> Dictionary:
 		"removalY": removal_y,
 		"callStack": call_stack.duplicate(true),
 		"gosubActive": gosub_active,
-		"pendingChoice": pending_choice.duplicate(true),
-		"pendingEncounter": pending_encounter.duplicate(true),
-		"pendingBattle": pending_battle.duplicate(true),
-		"pendingSelectiveBattle": pending_selective_battle.duplicate(true),
-		"pendingItemCheck": pending_item_check.duplicate(true),
-		"pendingWealthPayment": pending_wealth_payment.duplicate(true),
-		"pendingPartyConditionCheck": pending_party_condition_check.duplicate(true),
-		"pendingCharacterAbilityCheck": pending_character_ability_check.duplicate(true),
-		"pendingMiscBranch": pending_misc_branch.duplicate(true),
-		"pendingAllyCheck": pending_ally_check.duplicate(true),
-		"pendingCombatMonsterCheck": pending_combat_monster_check.duplicate(true),
-		"pendingCombatRevival": pending_combat_revival.duplicate(true),
-		"pendingBattleRoundMacro": pending_battle_round_macro.duplicate(true),
-		"pendingRandomBranch": pending_random_branch.duplicate(true),
-		"pendingTimeMutation": pending_time_mutation.duplicate(true),
-		"pendingExplorationStatus": pending_exploration_status.duplicate(true),
-		"pendingTeleport": pending_teleport.duplicate(true),
+		"pendingContinuation": pending_continuation.duplicate(true),
 		"executionContext": execution_context.duplicate(true),
 		"encounterOrigins": encounter_origins.duplicate(true),
 		"loadedSimpleEncounterId": loaded_simple_encounter_id,
@@ -208,26 +276,7 @@ func restore_execution_snapshot(snapshot: Variant) -> Dictionary:
 	removal_y = int(saved["removalY"])
 	call_stack = saved["callStack"].duplicate(true)
 	gosub_active = bool(saved["gosubActive"])
-	pending_choice = saved["pendingChoice"].duplicate(true)
-	pending_encounter = saved["pendingEncounter"].duplicate(true)
-	pending_battle = saved["pendingBattle"].duplicate(true)
-	pending_selective_battle = saved["pendingSelectiveBattle"].duplicate(true)
-	pending_item_check = saved["pendingItemCheck"].duplicate(true)
-	pending_wealth_payment = saved["pendingWealthPayment"].duplicate(true)
-	pending_party_condition_check = saved["pendingPartyConditionCheck"].duplicate(true)
-	pending_character_ability_check = saved.get(
-		"pendingCharacterAbilityCheck",
-		{}
-	).duplicate(true)
-	pending_misc_branch = saved.get("pendingMiscBranch", {}).duplicate(true)
-	pending_ally_check = saved["pendingAllyCheck"].duplicate(true)
-	pending_combat_monster_check = saved["pendingCombatMonsterCheck"].duplicate(true)
-	pending_combat_revival = saved.get("pendingCombatRevival", {}).duplicate(true)
-	pending_battle_round_macro = saved["pendingBattleRoundMacro"].duplicate(true)
-	pending_random_branch = saved["pendingRandomBranch"].duplicate(true)
-	pending_time_mutation = saved.get("pendingTimeMutation", {}).duplicate(true)
-	pending_exploration_status = saved.get("pendingExplorationStatus", {}).duplicate(true)
-	pending_teleport = saved["pendingTeleport"].duplicate(true)
+	pending_continuation = saved["pendingContinuation"].duplicate(true)
 	execution_context = saved["executionContext"].duplicate(true)
 	encounter_origins = saved["encounterOrigins"].duplicate(true)
 	loaded_simple_encounter_id = int(saved["loadedSimpleEncounterId"])
@@ -244,39 +293,19 @@ static func validate_execution_snapshot(snapshot: Variant) -> Dictionary:
 		"currentTrigger",
 		"originActionPoint",
 		"activeActionPointHeader",
-		"pendingChoice",
-		"pendingEncounter",
-		"pendingBattle",
-		"pendingSelectiveBattle",
-		"pendingItemCheck",
-		"pendingWealthPayment",
-		"pendingPartyConditionCheck",
-		"pendingAllyCheck",
-		"pendingCombatMonsterCheck",
-		"pendingBattleRoundMacro",
-		"pendingRandomBranch",
-		"pendingTeleport",
+		"pendingContinuation",
 		"executionContext",
 	]:
 		if not (snapshot.get(field_name) is Dictionary):
 			return _snapshot_error("Classic continuation has invalid %s" % field_name)
-	if snapshot.has("pendingMiscBranch") \
-			and not (snapshot.get("pendingMiscBranch") is Dictionary):
-		return _snapshot_error("Classic continuation has invalid pendingMiscBranch")
-	if snapshot.has("pendingCharacterAbilityCheck") \
-			and not (snapshot.get("pendingCharacterAbilityCheck") is Dictionary):
-		return _snapshot_error(
-			"Classic continuation has invalid pendingCharacterAbilityCheck"
-		)
-	if snapshot.has("pendingCombatRevival") \
-			and not (snapshot.get("pendingCombatRevival") is Dictionary):
-		return _snapshot_error("Classic continuation has invalid pendingCombatRevival")
-	if snapshot.has("pendingTimeMutation") \
-			and not (snapshot.get("pendingTimeMutation") is Dictionary):
-		return _snapshot_error("Classic continuation has invalid pendingTimeMutation")
-	if snapshot.has("pendingExplorationStatus") \
-			and not (snapshot.get("pendingExplorationStatus") is Dictionary):
-		return _snapshot_error("Classic continuation has invalid pendingExplorationStatus")
+	var pending_value: Dictionary = snapshot["pendingContinuation"]
+	if not pending_value.is_empty():
+		if not (pending_value.get("continuationId") is String) \
+				or str(pending_value["continuationId"]).is_empty() \
+				or not (pending_value.get("data") is Dictionary):
+			return _snapshot_error(
+				"Classic continuation has an invalid pending record"
+			)
 	for field_name: String in ["callStack", "encounterOrigins"]:
 		if not (snapshot.get(field_name) is Array):
 			return _snapshot_error("Classic continuation has invalid %s" % field_name)
@@ -624,8 +653,8 @@ func resume_forced_battle_end() -> Dictionary:
 func resume_forced_battle_at_slot(resume_slot: int) -> Dictionary:
 	if resume_slot != 8:
 		return _error_result("Classic forced battle resume slot must be 8")
-	pending_battle.clear()
-	pending_selective_battle.clear()
+	pending_battle = {}
+	pending_selective_battle = {}
 	_set_cursor(current_trigger, resume_slot)
 	return run_until_yield()
 
@@ -889,7 +918,7 @@ func resume_ally_check(present: bool) -> Dictionary:
 func resume_combat_monster_check(present: bool) -> Dictionary:
 	if pending_combat_monster_check.is_empty():
 		return _error_result("No classic combat-monster check is waiting for a response")
-	pending_combat_monster_check.clear()
+	pending_combat_monster_check = {}
 	if present:
 		return run_until_yield()
 	_clear_control_flow()
@@ -899,7 +928,7 @@ func resume_combat_monster_check(present: bool) -> Dictionary:
 func resume_combat_revival(party_revived: bool) -> Dictionary:
 	if pending_combat_revival.is_empty():
 		return _error_result("No classic combat revival is waiting for a response")
-	pending_combat_revival.clear()
+	pending_combat_revival = {}
 	if party_revived:
 		_clear_control_flow()
 		return _completed_result("party-revived")
@@ -910,7 +939,7 @@ func resume_battle_round_macro() -> Dictionary:
 	if pending_battle_round_macro.is_empty():
 		return _error_result("No classic battle-round macro is waiting for activation")
 	var target_macro_id := int(pending_battle_round_macro["targetMacroId"])
-	pending_battle_round_macro.clear()
+	pending_battle_round_macro = {}
 	var branch_result := _branch_to_extra_action_point(target_macro_id, false, 0)
 	if str(branch_result.get("status", "")) != "continue":
 		return branch_result
@@ -939,7 +968,7 @@ func resume_time_mutation(response: Dictionary) -> Dictionary:
 		if not response.has(field_name):
 			return _error_result("Classic time mutation response is missing %s" % field_name)
 		execution_context[field_name] = int(response[field_name])
-	pending_time_mutation.clear()
+	pending_time_mutation = {}
 	return run_until_yield()
 
 
@@ -950,7 +979,7 @@ func resume_exploration_status(response: Dictionary) -> Dictionary:
 		return _error_result(
 			"Classic exploration-status response is missing skipRemaining"
 		)
-	pending_exploration_status.clear()
+	pending_exploration_status = {}
 	if bool(response["skipRemaining"]):
 		var actions: Variant = current_trigger.get("actions", [])
 		if actions is Array:
@@ -2859,6 +2888,7 @@ func _execute_dungeon_move(extra_code_id: int) -> Dictionary:
 
 	# Loading another map returns from newland immediately; later AP slots and
 	# any saved GOSUB frames do not resume after the host completes the transfer.
+	set_pending_continuation("dungeon-move", {"dungeonMove": true})
 	var result := _yield_result("teleport", payload)
 	_clear_control_flow()
 	return result
@@ -4016,6 +4046,7 @@ func _yield_result(command: String, payload: Dictionary) -> Dictionary:
 		"status": "yield",
 		"command": command,
 		"payload": payload,
+		"_scenarioContinuation": pending_continuation.duplicate(true),
 		"triggerId": _current_trigger_id(),
 	}
 

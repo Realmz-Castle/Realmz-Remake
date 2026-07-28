@@ -10,8 +10,8 @@ folders provide data and media only; they never provide executable GDScript.
 | Boundary | Owner | Contract |
 | --- | --- | --- |
 | Scenario execution | `ScenarioInterpreter` and `ScenarioInstructionRegistry` | Resolve every Classic opcode or namespaced semantic operation to exactly one handler. Apply `ScenarioStepResult` control flow centrally. |
-| Classic semantics | handler families and `ClassicOpcodeRuntime` under `scenario_runtime/handlers` | Preserve Classic source identity, resolve ownership before execution, and apply source-backed opcode mechanics without becoming a second campaign engine. |
-| Command continuation | `ScenarioPendingCommand` and `ClassicContinuationRouter` | Persist one handler ID, command ID, action identity, and continuation record. Resume through the owning handler without a host command switch. |
+| Classic semantics | handler families and `ClassicOpcodeRuntime` under `scenario_runtime/handlers` | Each registered family performs the opcode dispatch it owns. The runtime supplies shared source-backed mechanics and a direct-fixture compatibility loop, not a second production campaign engine. |
+| Command continuation | `ScenarioPendingCommand` and `ClassicContinuationRouter` | Persist one handler ID, command ID, action identity, and typed continuation record. Resume through the owning handler and continuation ID without a host command-name switch. |
 | Godot integration | `ScenarioCommandRouter` and six ports | Only ports may route commands to the Godot service boundary. Duplicate command ownership is a startup error. |
 | Trusted extensions | `ScenarioExtensionRegistry` | Load only descriptors and scripts shipped under `res://scripts/scenario_runtime/extensions`. Imported packages may reference IDs and configuration, never code paths. |
 | Gameplay rules | `GameplayRuleRegistry` and `GameplayRuleSet` | Resolve independently selectable domain providers, validate typed options, and pin the complete result in the save. |
@@ -34,6 +34,11 @@ folders provide data and media only; they never provide executable GDScript.
 
 `ScenarioGodotServices` contains reusable implementations behind those ports. It
 does not own command IDs or scenario continuation.
+
+Classic mechanics likewise store only one `pendingContinuation` record. The
+typed `pending_choice`, `pending_battle`, and similar properties are derived
+compatibility views for focused source-fidelity fixtures and are not serialized
+as independent continuation state.
 
 ## Campaign lifecycle
 

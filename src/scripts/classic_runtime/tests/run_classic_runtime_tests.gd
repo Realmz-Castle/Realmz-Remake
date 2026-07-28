@@ -28526,6 +28526,17 @@ func _test_remaining_noncombat_opcodes() -> void:
 		"ok",
 		"pending opcode 31 checks are saveable"
 	)
+	_expect_equal(
+		ability_snapshot.get("snapshot", {})
+			.get("pendingContinuation", {})
+			.get("continuationId"),
+		"character-ability-check",
+		"Classic execution stores one typed pending continuation"
+	)
+	_expect(
+		not ability_snapshot.get("snapshot", {}).has("pendingCharacterAbilityCheck"),
+		"Classic snapshots do not retain command-specific pending dictionaries"
+	)
 	var restored_ability = _interpreter(bundle)
 	_expect_equal(
 		restored_ability.restore_execution_snapshot(

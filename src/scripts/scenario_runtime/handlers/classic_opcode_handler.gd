@@ -18,6 +18,16 @@ func classic_opcodes() -> PackedInt32Array:
 	return _opcodes.duplicate()
 
 
+func execute_on_runtime(
+	_instruction: Dictionary,
+	_runtime: Object
+) -> Dictionary:
+	return {
+		"status": "error",
+		"message": "Classic handler '%s' has no opcode implementation" % _id,
+	}
+
+
 func execute(instruction: Dictionary, context: Object) -> ScenarioStepResult:
 	if context == null or not context.has_method("execute_classic_instruction"):
 		return ScenarioStepResult.failed(
@@ -54,3 +64,38 @@ func _coerce_result(value: Variant) -> ScenarioStepResult:
 		if kind in ScenarioStepResult.VALID_KINDS and data is Dictionary:
 			return ScenarioStepResult.new(kind, data)
 	return ScenarioStepResult.failed("Classic handler '%s' received an invalid result" % _id)
+
+
+func _invoke(runtime: Object, method_name: String, arguments := []) -> Dictionary:
+	if runtime == null or not runtime.has_method(method_name):
+		return {
+			"status": "error",
+			"message": "Classic handler '%s' requires unavailable operation '%s'" % [
+				_id,
+				method_name,
+			],
+		}
+	var result: Variant = runtime.callv(method_name, arguments)
+	if result is Dictionary:
+		return result
+	return {
+		"status": "error",
+		"message": "Classic operation '%s' returned invalid state" % method_name,
+	}
+
+
+func _call_void(runtime: Object, method_name: String, arguments := []) -> bool:
+	if runtime == null or not runtime.has_method(method_name):
+		return false
+	runtime.callv(method_name, arguments)
+	return true
+
+
+func _unsupported(instruction: Dictionary) -> Dictionary:
+	return {
+		"status": "error",
+		"message": "Classic handler '%s' does not implement opcode %d" % [
+			_id,
+			int(instruction.get("code", 0)),
+		],
+	}
