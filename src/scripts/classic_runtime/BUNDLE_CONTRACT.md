@@ -1,23 +1,16 @@
-# Classic campaign bundle contract, version 1
+# Realmz Remake scenario contract, version 2
 
-This contract defines the normalized artifact exchanged between Providence and
-Realmz Remake's Classic compatibility runtime. It is not Providence's project
-format and it is not the native Realmz scenario folder produced by Providence's
-authoritative Realmz compiler. A Providence compatibility export produces this
-bundle as a separate, immutable runtime artifact.
+This is the coordinated Providence-to-Remake runtime artifact. It is distinct
+from Providence's editable project and its native Realmz export.
 
-The checked fixtures under `tests/fixtures` are the current consumer examples.
-They are intentionally self-contained so the Remake tests do not depend on a
-Providence checkout or an original scenario installation.
+## Manifest
 
-## Root manifest
-
-Every bundle is a directory containing `campaign.json`:
+Every package contains `campaign.json`:
 
 ```json
 {
-  "format": "realmz-remake-classic-campaign",
-  "formatVersion": 1,
+  "format": "realmz-remake-scenario",
+  "formatVersion": 2,
   "campaignKind": "classic-compiled",
   "compatibilityProfile": "realmz-7.1",
   "id": "scenario-city-of-bywater",
@@ -36,111 +29,110 @@ Every bundle is a directory containing `campaign.json`:
     "content": "classic/content.json",
     "rules": "classic/rules.json",
     "assets": "classic/assets.json",
-    "evidence": "classic/evidence.json"
+    "evidence": "classic/evidence.json",
+    "runtime": "runtime.json"
   }
 }
 ```
 
-Providence writes these distribution documents as compact JSON with a trailing
-newline. Whitespace is not part of the version 1 contract. The installer uses
-the same compact policy for materialized maps, item and bestiary books, and
-generated tileset metadata; arrays and all Classic provenance fields remain
-unchanged.
+All nine document paths are required, unique, package-relative JSON paths.
+Absolute paths, URI schemes, drive prefixes, empty segments, and parent
+traversal are invalid. Every document currently uses `schemaVersion: 1`;
+`formatVersion` versions the package as a whole.
 
-All eight document paths are required, unique, relative to the bundle root, and
-must name JSON files. Absolute paths, URI schemes, drive prefixes, and `..`
-segments are invalid. Asset paths inside the documents follow the same
-campaign-relative rule; an installed campaign must not depend on either source
-repository's location.
+Remake accepts only format 2. A format-1 package is rejected before indexing and
+must be re-exported.
 
-## Built-in shared assets
+## Runtime document
 
-Shipped built-in campaigns may replace campaign-local files with immutable
-content-addressed files from the installation's `ClassicAssets` directory. This
-is an optional additive version-1 manifest section, not a different campaign
-document schema:
+`runtime.json` is required:
 
 ```json
 {
-  "sharedAssets": {
-    "format": "realmz-remake-classic-shared-assets",
-    "formatVersion": 1,
-    "files": [
-      {
-        "bytes": 252778,
-        "kind": "stock-tileset",
-        "logicalPath": "Tilesets/landlook-0/landlook-0.png",
-        "sha256": "cc27beb5b4b7ed2211af0333c528ff040688da85945454c0f24b7f8df039c60d"
-      }
-    ]
+  "schemaVersion": 1,
+  "recommendedGameplayProfile": "core.classic",
+  "requiredExtensions": [
+    {
+      "id": "scenario.example",
+      "apiVersion": 1,
+      "configuration": {}
+    }
+  ],
+  "bindings": {
+    "spells": {},
+    "items": {},
+    "encounters": {},
+    "monsterAi": {},
+    "lifecycle": {}
+  },
+  "targetSupport": {
+    "remake": true,
+    "nativeRealmz": true,
+    "remakeOnlyReasons": []
   }
 }
 ```
 
-The store is a sibling of `Campaigns` in both a source checkout and a portable
-installation. Its `store.json` declares the same format and version, the
-`sha256` hash algorithm, and one record per hash with its exact byte count and
-extension. Payloads use the deterministic path
-`ClassicAssets/sha256/<first-two-hash-digits>/<sha256>.<extension>`.
+The recommended profile is advisory. Required extension IDs and API versions
+must resolve against Remake's trusted built-in catalog during readiness.
+Binding values must name capabilities declared by those extensions.
 
-The installer rejects a missing store, absent hash, byte-count disagreement, or
-checksum mismatch before readiness evaluation. The normal resource loader
-resolves the logical campaign path to the verified payload; local and shared
-files may coexist within one tileset. Only byte-identical files share a hash.
-Similar images, authored variants, and preserved Classic resources remain
-campaign-local.
+`targetSupport.nativeRealmz` is false when semantic operations or another
+Remake-only feature is present. Providence blocks native Realmz export in that
+case and reports the recorded reasons.
 
-This extension is for release-owned built-ins. A campaign that omits
-`sharedAssets` remains self-contained and never requires the store, which keeps
-producer fixtures and imported packages independent of the installed built-in
-corpus. That behavior is a narrow convenience rather than a promise that future
-bundle formats must preserve every version-1 import path.
+## Instruction union
 
-## Versioning
+Every occupied AP/XAP or encounter-result slot is explicit:
 
-`formatVersion` versions the manifest and document set. Every referenced document
-also carries `"schemaVersion": 1`. Remake rejects a version it does not understand
-before building indexes or starting the interpreter.
+```json
+{
+  "kind": "classic",
+  "slot": 0,
+  "rawCode": -42,
+  "code": 42,
+  "id": 17,
+  "gosub": true
+}
+```
 
-Version 1 readers allow unknown object fields so Providence can preserve evidence
-without changing runtime behavior. Removing or renaming a required field, changing
-its meaning, or changing an identity namespace requires a new format version.
-Adding optional evidence or provenance fields does not.
+```json
+{
+  "kind": "semantic",
+  "slot": 1,
+  "operation": "scenario.example.open_portal",
+  "parameters": {
+    "destination": "vault"
+  }
+}
+```
+
+Classic actions retain signed raw codes, normalized codes, IDs, slot identity,
+provenance, evidence, and any additional preserved fields. Semantic operations
+must be namespaced and declared by a required built-in extension. Generated
+GDScript per AP/XAP is not part of the contract.
 
 ## Documents and identities
 
-| Document | Runtime collections | Stable identity |
+| Document | Collections | Stable identity |
 | --- | --- | --- |
-| `scenario` | Scenario identity and original shell metadata | `identity.id`, equal to `campaign.json.id` |
-| `maps` | `maps`, optional `mapRecords` player maps | String map ID; numeric player-map `id` |
-| `scripts` | `triggers`, `extraCodes`, `messages`, `randomLevels` | String trigger/random-level ID; numeric source record ID for Extra Code and messages |
-| `encounters` | `battles`, `treasures`, `shops`, `simpleEncounters`, `complexEncounters`, `thiefEncounters`, `timedEncounters` | Numeric Classic record ID within each collection |
-| `content` | `monsters`, `scenarioItems`, `itemTexts` | Numeric Classic record ID; item text uses `itemId` |
-| `rules` | Spell, race, and caste overrides plus rule names | Numeric Classic rule ID within its collection |
-| `assets` | Managed assets and the tileset, picture, icon, sound, and optional special-land-tile catalogs | String `id` for managed assets and tilesets; numeric Classic `resourceId` for pictures, icons, and sounds; signed `resourceId` for special land tiles |
-| `evidence` | Validation results, dispatcher no-ops, and source evidence | Source file, record index, slot, and raw action code together identify an action observation |
+| `scenario` | Scenario identity and Classic shell metadata | `identity.id`, equal to the manifest ID |
+| `maps` | Maps and optional player-map records | Namespaced map ID; numeric player-map ID |
+| `scripts` | Triggers, Extra Codes, messages, random levels | String trigger/random-level ID; numeric source record ID |
+| `encounters` | Battles, treasure, shops, simple/complex/thief/timed encounters | Numeric Classic record ID per collection |
+| `content` | Monsters, scenario items, item text | Numeric Classic record ID; item text uses `itemId` |
+| `rules` | Spell, race, and caste records | Numeric Classic rule ID per collection |
+| `assets` | Managed payloads and media catalogs | String managed ID; numeric or signed Classic resource ID |
+| `evidence` | Source observations and audit results | Source, record, slot, and raw action code |
+| `runtime` | Profile, extensions, bindings, target support | Stable provider and extension IDs |
 
-Stable identities come from the compiled Classic record namespace; array position
-is never an identity. Action slots are addressed by their owning trigger ID plus
-their zero-based `slot`. Duplicate identities within one collection are invalid.
-References retain their Classic numeric ID even when a later native adapter also
-needs a Remake resource name. When an asset record includes `payloadPath`, the path
-is relative to the campaign root and follows the same traversal and absolute-path
-restrictions as the document paths.
+Array position is never identity. Duplicate identities, malformed references, or
+out-of-range slots fail loading with document and record context.
 
-`rules.tableSelection` is optional producer evidence for Classic's race and caste
-file-selection behavior. Its `races` and `castes` members each use a `source` of
-`shared`, `scenario-local`, or `unresolved`. A `scenario-local` member may also
-carry zero-based `changedRecordIds` when the producer compared that table against
-the shared Realmz rules. Remake ignores preserved rows when the selected source
-is `shared`, blocks only listed changed rows when a comparison is available, and
-conservatively treats every exported row as potentially changed when selection
-or comparison evidence is absent. This field describes which table Classic
-would consume; the presence of `Data Race` or `Data Caste` alone does not.
+## Assets and media
 
-`payloadPath` always identifies the immutable packaged bytes described by
-`payloadEncoding`. It is not implicitly a Godot-loadable file. A catalog,
-managed-asset, or player-map record may separately provide decoded media:
+`payloadPath` identifies immutable packaged source bytes. Godot-loadable media is
+separate:
 
 ```json
 {
@@ -153,249 +145,62 @@ managed-asset, or player-map record may separately provide decoded media:
 }
 ```
 
-All four fields are required when `runtimeMedia` is present. `path` is
-campaign-relative, `bytes` is the decoded file length, and `sha256` is its
-64-digit content hash. Picture, icon, tileset, special-land-tile, and player-map
-media types begin with `image/`; sound media types begin with `audio/`. The
-installed-campaign loader verifies both immutable payloads and decoded media
-before launch. Version-1 consumers that do not know this additive object may
-ignore it; producers must not overload `payloadPath` with decoded media.
+The installer validates package-relative paths, byte counts, and hashes before
+readiness. Pictures, icons, tilesets, special-land tiles, and player maps require
+image media; sounds require supported audio media. Immutable Classic resource
+fork bytes are never passed to Godot media loaders.
 
-`assets.scrollingTexts` carries the scenario's portable scrolling-text
-resources, including text used directly by opcode 62 without a player-map
-record. Each object identifies a `TEXT` resource, carries decoded plain text for
-presentation, and preserves the immutable TEXT payload path, byte count, hash,
-and encoding. Optional `presentation` data uses the
-`portable-rich-text-v1` format: ordered, non-overlapping character ranges carry
-portable font size, color, face, and stretch properties. Providence decodes
-Classic `styl` resources into this model; their binary bytes are not part of the
-Remake runtime bundle.
+Built-in releases may use the existing content-addressed `ClassicAssets` store.
+Imported packages remain self-contained.
 
-Scrolling-text player maps retain their negative `show` value and may also
-embed the matching `scrollingText` object. This keeps player-map presentation
-self-contained while `assets.scrollingTexts` supplies the campaign-wide lookup
-used by standalone scrolling-text actions.
+## Data-only security boundary
 
-A custom landlook tileset uses its catalog `runtimeMedia` as the decoded 640 x
-320, 20-by-10 atlas. Remake combines its 200 one-based visual slots with records
-1 through 200 from the matching `maps.customLandlooks` entry. Record 0 remains
-compiler metadata rather than a visual atlas slot.
+Imported packages are rejected if any file has an executable type, including
+`.gd`, `.gdc`, PCK, or native-library payloads. They cannot name a script path in
+the manifest or runtime document. Remake never scans a campaign folder for
+GDScript.
 
-For a stock landlook, the catalog `landlook` and `pictId` select Remake's decoded
-Realmz reference atlas. The 200 visual slots keep their one-based Classic IDs and
-use records 1 through 200 from `maps.tileAttributes` for movement, line of sight,
-terrain, and sound metadata. A themed native Remake tileset is not an equivalent
-substitute because its atlas ordering and terrain behavior are independent.
-Stock landlooks referenced by Change Land Look actions should appear in the
-catalog even when no map starts with them. For older version-1 producers, Remake
-can derive the canonical `landlook-<id>` identity and materialize its bundled
-Realmz PICT when the complete matching behavior table is present.
+Only trusted descriptors shipped below
+`res://scripts/scenario_runtime/extensions` can register handlers, ports, spell
+providers, item behavior, encounter resolvers, monster AI, lifecycle hooks, or
+gameplay-rule providers.
 
-Negative `cicn` IDs identify special land tiles and belong in the additive
-`assets.catalog.specialLandTiles` collection. Ordinary `assets.catalog.icons`
-retain their non-negative Classic resource identity. Remake can materialize a
-referenced special land tile when that record provides a decoded 32 x 32 image
-through `runtimeMedia`; `payloadPath` continues to identify only the immutable
-Classic resource bytes.
+## Persistence
 
-Monster `id` selects a Data MD record. A monster's optional `nameId` is a separate
-Classic byte used by ally and combat comparisons and must not be treated as a
-record reference. Scenario-item records use `itemId`, including sparse fixed-size
-rows whose other authored fields may all be zero.
+Package compatibility and save compatibility are separate. Scenario saves use
+schema 3 and contain:
 
-A document may omit a collection when that collection is empty. If the collection
-is present, it must be an array and every row must satisfy its identity contract.
+- the immutable campaign ID;
+- scenario runtime mutations;
+- VM continuation and its single pending-command record;
+- aggregate state owned by the six ports; and
+- the fully resolved gameplay provider IDs, API versions, and option values.
 
-Maps use namespaced string IDs such as `land:0` and `dungeon:3`. Random-level IDs
-extend the same namespace, for example `land:0:randlevel`. Extra action points use
-their source-backed trigger ID, such as `Data ED3:macro:100`, while their numeric
-`recordIndex` remains available for opcode parameters.
+Older POC saves are rejected. Provider choices cannot change after a playthrough
+starts, and restoration fails if a pinned provider or extension is unavailable.
 
-Trigger action arrays contain occupied slots `0` through `7`. Each action carries
-integer `slot`, `rawCode`, normalized `code`, and `id` fields. Simple and complex
-encounters contain four contiguous eight-slot result rows, addressed as slots
-`0` through `31`; those actions carry `slot`, `rawCode`, and `id`, and Remake
-normalizes the signed opcode when it selects a result. Duplicate or out-of-range
-slots and malformed action values fail bundle loading with record-level context.
+## Producer and consumer gates
 
-A media action may carry `mediaRequiredForProgression: true` when an author or
-scenario audit establishes that the referenced picture, sound, or player map
-contains information needed to continue. Missing media for an executable marked
-action is a readiness blocker with the action's source, record, and slot. The
-field is optional; omitted or `false` media remains a non-fatal fidelity fallback
-because Remake cannot infer narrative importance from a Classic opcode alone.
+Providence must produce byte-identical repeated exports, identical browser and
+desktop packages, and a runtime document matching its project
+`remakeRuntime` section. Use:
 
-## Authored data and preserved evidence
+```powershell
+npm run check:authoritative-scenario-proof
+```
 
-Runtime-relevant records may carry:
-
-- `authored`, when Providence knows whether the semantic value was explicitly
-  authored rather than decoded as a default or placeholder;
-- `callable`, an optional boolean on `Data ED3` triggers, battles, and simple or
-  complex encounters indicating that the producer found a source-backed
-  execution path to that record;
-- `provenance`, with source file, record index, byte range, and an evidence
-  confidence label; and
-- additional evidence-only fields for preserved or still-unknown source data.
-
-All records remain in their bundle documents, including imported rows that are
-not callable. Remake inventories those rows but excludes `callable: false`
-actions, battle contents, and encounter contents from readiness blockers. A
-source-backed callable battle can still promote its referenced battle and
-monster macros. For bundles that omit `callable`, Remake falls back to the
-trigger's existing `active` field and treats battle and encounter records as
-callable, so version 1 producers retain their original conservative audit
-behavior.
-
-Within a callable record, readiness also follows source-backed linear control
-flow. A positive opcode `21` with a valid target kind (`0` through `2`) cannot
-reach later slots when its missing-item mode branches (`0`) or exits after text
-(`2`). Negative/GOSUB opcode `21` remains conservative because the target can
-return to the following slot. Each eight-slot encounter-result row is a separate
-entry point, so a branch in one result does not suppress another result's
-actions. Dead slots remain inventoried with their blocking slot but do not
-become readiness blockers.
-
-Remake uses the semantic fields and stable identities. It must not reinterpret
-unknown preserved bytes as authored behavior. Unknown fields remain available for
-diagnostics and future contract versions, while `evidence.json` records source
-observations such as dispatcher no-ops that intentionally affect compatibility
-decisions.
-
-`rules.spellOverrides.id` is the zero-based `Data Spell` record index retained
-for authoring and provenance. Remake derives the exact Classic runtime identity
-used by encounter references from that fixed 7-by-15 record layout. Producers
-may also include `packedSpellId`; when present, it must equal the derived value.
-The consumer also accepts the one-based Data Spell row references stored by
-encounter records. It checks the resolved override before the shared spell
-table. Overrides with `special: 0` are exposed through Remake's ordinary spell
-interface using their compiled damage, duration, save, resistance, targeting,
-cost, and availability fields. A referenced nonzero `special` requires an exact
-native implementation or produces an
-`unsupported-custom-spell-special` readiness blocker at its `Data Spell` source
-record. Readiness joins activity by campaign and definition identity rather
-than packed spell ID alone. A populated override without a represented consumer
-produces the non-fatal `inactive-custom-spell-definition` diagnostic with
-consumer `none`; an empty template produces no diagnostic. Active blockers also
-include the campaign, stable definition ID, source record, and exact consumer.
-
-When `rules.tableSelection` is present, preserved shared-table rows produce
-`inactive-scenario-rule-table`, scenario-local tables with no changed records
-produce `no-op-scenario-rule-table`, and an explicit unresolved selection
-produces `unresolved-rule-table-selection`. Malformed legacy payloads remain a
-producer/audit status rather than being reclassified as unsupported mechanics.
-The current corpus and regeneration procedure are recorded in
-[`KNOWN_CUSTOM_RULE_AUDIT.md`](KNOWN_CUSTOM_RULE_AUDIT.md).
-
-## Runtime entry context
-
-Map triggers start by stable trigger ID. Combat macro entry points additionally
-supply live native context rather than serializing it into the bundle:
-
-| Field | Meaning |
-| --- | --- |
-| `combatRound` | Current one-based native battle round |
-| `battleMacro` | Compiled battle macro value, including its disabled sentinel |
-| `queuedMacro` | Whether the macro entered through the queued/on-death path |
-| `actorPosition` | Live native position of the creature that caused the macro |
-| `actorFaction` | Live native faction of that creature |
-
-The host supplies only the context available at that native event. The interpreter
-owns Classic stack and branch state; the bundle never stores a live actor or an
-interpreter continuation.
-
-## Validation behavior
-
-The consumer validates the complete manifest and document versions before indexing
-records. Collection errors include the document, collection, and array index, for
-example `scripts.triggers[4] is missing stable field 'id'`. Missing files and JSON
-parse errors retain their path and parse line. A failed bundle remains unloaded and
-must not partially populate runtime indexes.
-
-Producers can validate any generated version 1 bundle without starting the game:
+Remake validates a package without starting the game:
 
 ```powershell
 godot --headless --path src --script res://scripts/classic_runtime/tests/validate_classic_bundle.gd -- "F:\path\to\bundle"
 ```
 
-The command exits with status 0 only after every required document has passed the
-consumer contract and its runtime indexes have been built. Status 1 identifies an
-invalid bundle; status 2 identifies incorrect command-line usage.
-
-Contract validity does not imply playability. The readiness command adds
-executable-record, reference, identity, and native-resource checks and separates
-progression blockers from non-fatal fidelity fallbacks:
+The coordinated cross-repository verifier exports twice, compares bytes, runs
+Providence package checks, and passes the output to Remake's consumer and
+readiness gates:
 
 ```powershell
-godot --headless --path src --script res://scripts/classic_runtime/tests/report_classic_readiness.gd -- "F:\path\to\bundle" "F:\path\to\native-campaign" --json
+powershell -ExecutionPolicy Bypass -File scripts/verify_remake_classic_export.ps1 `
+  -ProvidenceRoot "F:\Realmz - Providence" `
+  -RemakeRoot "F:\Realmz Remake"
 ```
-
-The native campaign path is optional. When provided, the report also checks the
-shared and campaign resource names available to the Remake adapter.
-
-Built-in packages are certified together through the same campaign-selection
-path. The command below writes stable JSON containing preparation, readiness,
-active/inactive diagnostic, footprint, and content-hash duplication evidence:
-
-```powershell
-godot --headless --path src --script res://scripts/classic_runtime/tests/report_classic_campaign_corpus.gd -- --expected-count=13 --output=res://scripts/classic_runtime/reports/classic_builtin_campaign_baseline.json
-```
-
-The checked result and interpretation are recorded in
-[CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md](CLASSIC_BUILTIN_CAMPAIGN_BASELINE.md).
-
-## Independent fixture proof
-
-Remake's consumer tests load the checked City of Bywater, War in the Sword Lands,
-and Twin Sands of Time fixtures without a Providence checkout. They also load a
-fixture through an absolute bundle-root path to prove that paths inside the
-artifact remain portable and relative:
-
-```powershell
-godot --headless --path src res://scripts/classic_runtime/tests/run_classic_runtime_tests.tscn
-```
-
-The dedicated [Classic regression corpus](CLASSIC_REGRESSION_CORPUS.md) runs the
-same loader, audit, and interpreter suite against all three members and reports
-coverage by behavior domain, execution context, and evidence classification:
-
-```powershell
-godot --headless --path src --script res://scripts/classic_runtime/tests/run_classic_regression_corpus.gd
-```
-
-The checked `providence_authoritative_export` fixture is the unchanged output of
-Providence commit `c26443b85ee3a0e883bf0a8b1d46d27ccf9818ca`, generated from
-`fixtures/scenario-seeds/authoritative-ownership-proof.seed.json`. Its companion
-`providence_authoritative_export.provenance.json` records the byte count and
-SHA-256 hash of all 17 producer files, plus the expected readiness result: no
-progression blockers or fidelity fallbacks.
-
-To regenerate the fixture, check out the recorded Providence commit and run its
-`scripts/verify_remake_classic_export.ps1` gate. That script compiles the seed
-twice, compares every generated byte, and passes the result to Remake's generic
-validator. Copy the resulting `remake-classic-a` directory only when its complete
-file manifest matches the companion provenance record.
-
-This fixture proves producer determinism, consumer contract coverage, and
-cross-repository interchange. It retains immutable Classic resource bytes while
-also providing separate decoded PNG runtime media for its picture and special
-land tile, plus decoded WAV runtime media for its sound. The consumer verifies
-the payload and runtime-media paths, lengths, hashes, encodings, and media types
-independently. Its second player-map record also proves decoded scrolling TEXT
-with paired immutable styl provenance.
-
-ISY-404 has a stricter content-coverage gate for item and monster
-materialization. A candidate producer fixture must contain a scenario-local shop
-item, a scenario-local item carried and equipped by a monster, a monster placed
-in a battle, and an opcode 89 action that can add a compiled monster as an ally.
-Audit a candidate bundle without installing it:
-
-```powershell
-godot --headless --path src --script `
-  res://scripts/classic_runtime/tests/audit_classic_materialization_fixture.gd -- `
-  "C:\path\to\classic-bundle"
-```
-
-The checked fixture passes this audit without consumer-side record changes. The
-checked provenance, package lifecycle, normal campaign resource loading, and
-native ally save/load smoke provide the remaining consumer gates.

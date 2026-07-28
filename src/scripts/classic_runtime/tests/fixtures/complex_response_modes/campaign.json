@@ -1,11 +1,16 @@
 {
-  "format": "realmz-remake-classic-campaign",
-  "formatVersion": 1,
+  "format": "realmz-remake-scenario",
+  "formatVersion": 2,
   "campaignKind": "classic-compiled",
   "compatibilityProfile": "realmz-7.1",
   "id": "fixture-complex-response-modes",
   "name": "Complex Response Modes Fixture",
-  "start": {"levelType": "land", "levelIndex": 0, "x": 0, "y": 0},
+  "start": {
+    "levelType": "land",
+    "levelIndex": 0,
+    "x": 0,
+    "y": 0
+  },
   "files": {
     "assets": "classic/assets.json",
     "content": "classic/content.json",
@@ -14,6 +19,7 @@
     "maps": "classic/maps.json",
     "rules": "classic/rules.json",
     "scenario": "classic/scenario.json",
-    "scripts": "classic/scripts.json"
+    "scripts": "classic/scripts.json",
+    "runtime": "runtime.json"
   }
 }

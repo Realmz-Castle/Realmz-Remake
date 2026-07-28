@@ -18,7 +18,7 @@ const REPLAYABLE_COMMANDS := [
 
 var bundle := ClassicCampaignBundle.new()
 var runtime_state := ClassicRuntimeState.new()
-var interpreter := ClassicActionInterpreter.new()
+var interpreter := ScenarioInterpreter.new()
 var last_result: Dictionary = {}
 
 
@@ -111,7 +111,11 @@ func activate_trigger(trigger_id: String, start_slot := 0, context := {}) -> boo
 
 
 func continue_after_command() -> void:
-	_publish(interpreter.run_until_yield())
+	_publish(interpreter.resume_command({}))
+
+
+func finish_command(response: Dictionary) -> void:
+	_publish(interpreter.resume_command(response))
 
 
 func finish_teleport() -> void:
@@ -282,7 +286,7 @@ static func validate_continuation_snapshot(snapshot: Variant) -> Dictionary:
 		return _continuation_error("Classic continuation command '%s' is not replayable" % command)
 	if not (yielded_result.get("payload", {}) is Dictionary):
 		return _continuation_error("Classic continuation command has an invalid payload")
-	var execution_result := ClassicActionInterpreter.validate_execution_snapshot(
+	var execution_result := ScenarioInterpreter.validate_execution_snapshot(
 		snapshot.get("executionState")
 	)
 	if str(execution_result.get("status", "")) != "ok":

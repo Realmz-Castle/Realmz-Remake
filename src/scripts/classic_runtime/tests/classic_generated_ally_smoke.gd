@@ -5,7 +5,7 @@ const InstallerScript = preload(
 	"res://scripts/classic_runtime/classic_campaign_package_installer.gd"
 )
 const AdapterScript = preload(
-	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
+	"res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
 )
 const MagicResistanceScript = preload(
 	"res://scripts/classic_runtime/classic_magic_resistance.gd"
@@ -959,7 +959,9 @@ func _run_smoke() -> void:
 		_finish()
 		return
 	var monster: Dictionary = bundle.get_monster(1)
-	var add_result: Dictionary = await AdapterScript.new().execute_command(
+	var character_port := CharacterPort.new()
+	character_port.configure({"scenarioPortRuntime": AdapterScript.new()})
+	var add_result: Dictionary = await character_port.execute(
 		"add_party_ally",
 		{"monsterId": 1, "monster": monster}
 	)

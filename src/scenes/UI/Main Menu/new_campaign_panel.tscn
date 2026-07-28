@@ -95,6 +95,34 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
+[node name="GameplayRulesPanel" type="VBoxContainer" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Heading" type="Label" parent="VBoxContainer/GameplayRulesPanel"]
+layout_mode = 2
+text = "Gameplay Rules (locked when the playthrough starts)"
+
+[node name="PresetRow" type="HBoxContainer" parent="VBoxContainer/GameplayRulesPanel"]
+layout_mode = 2
+
+[node name="PresetLabel" type="Label" parent="VBoxContainer/GameplayRulesPanel/PresetRow"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Preset"
+
+[node name="GameplayPresetOption" type="OptionButton" parent="VBoxContainer/GameplayRulesPanel/PresetRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GameplayAdvancedCheck" type="CheckButton" parent="VBoxContainer/GameplayRulesPanel"]
+layout_mode = 2
+text = "Advanced: mix domain providers and options"
+
+[node name="GameplayAdvancedVBox" type="VBoxContainer" parent="VBoxContainer/GameplayRulesPanel"]
+visible = false
+layout_mode = 2
+
 [node name="HBoxContainerB" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 

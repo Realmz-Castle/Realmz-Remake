@@ -91,18 +91,6 @@ func _materialize_shared_spell_warmup() -> void:
 		if not _shared_spell_cache_complete:
 			await get_tree().process_frame
 
-# dict must have a SCRIPT_source  key with the script source as the value
-func _add_script_to_dict_from_source(dict : Dictionary,scriptname : String , argsstring : String) :
-	print("_add_script_to_dict_from_source : adding script "+scriptname+" to dict")#+dict["name"])
-	var newscript : GDScript = GDScript.new()
-	var source : String = "static func "+scriptname+argsstring + "  :\n" + dict[scriptname+"_source"]
-#		print("_add_script_to_dict_from_source : script source : "+ source)
-	print(source)
-	newscript.set_source_code(source)
-	var _err_newscript_reload = newscript.reload()
-	dict[scriptname] = newscript
-	print("done adding script")
-
 func clear_ressources() -> void:
 	tiles_book.clear()
 	battles_book.clear()
@@ -150,25 +138,14 @@ func load_campaign_ressources( campaign : String = "") ->void :
 	print("Resources B4load spells")
 
 	load_spell_resources("res://shared_assets/spells/")
-	var spellspath = Paths.campaignsfolderpath + campaign + "/Spells/"
-	if DirAccess.dir_exists_absolute(spellspath) :
-		load_spell_resources(spellspath)
 #	print("\n\n", "spell resources : \n", spells_book.keys() ,"\n\n")
 
 	load_creature_ai_resources("res://shared_assets/CreatureScripts/")
-	var creascriptspath : String = Paths.campaignsfolderpath + campaign + "/CreatureScripts/"
-	if DirAccess.dir_exists_absolute(creascriptspath) :
-		load_creature_ai_resources(creascriptspath)
 
 	load_bestiary_resources("res://shared_assets/Bestiary/")
 	var bestiarypath = Paths.campaignsfolderpath + campaign + "/Bestiary/"
 	if DirAccess.dir_exists_absolute(bestiarypath) :
 		load_bestiary_resources(bestiarypath)
-
-	load_battle_resources(campaign)
-
-	load_special_encounter_resources(campaign)
-	# only done once checked starting the campaign !
 
 	var mapspath : String =  Paths.campaignsfolderpath + campaign + "/Maps/"
 	print("RESOURCES load_campaign_ressources mapspath : ", mapspath)
@@ -224,7 +201,6 @@ func ensure_campaign_map_resource(campaign: String, map_name: String) -> bool:
 	for file_name: String in [
 		"map_info.json",
 		"map_scriptareas.json",
-		"map_scripts.gd",
 		"map_things.json",
 	]:
 		if not FileAccess.file_exists(map_directory + file_name):
@@ -1710,7 +1686,9 @@ func load_map_ressources( path : String , _name : String) -> void :
 	var newmapinfo : Dictionary = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path+"map_info.json"))
 	var newmapscriptareas : Dictionary = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(path+"map_scriptareas.json"))
 
-	var newmapscripts : GDScript = load(path + "map_scripts.gd" )
+	# Scenario v2 map actions are data routed through ScenarioInterpreter. Campaign
+	# folders never provide executable map scripts.
+	var newmapscripts: GDScript = null
 
 	var sizey : int = newmapdict[ "height"]
 	var sizex : int = newmapdict[ "width"]
@@ -1803,17 +1781,6 @@ func load_map_ressources( path : String , _name : String) -> void :
 func load_special_encounter_resources(campaign : String) :
 #	print("RESOURCES load_special_encounter_resources")
 	var encounters_folder_path = Paths.campaignsfolderpath+ campaign + "/Special Encounters/"
-	var encounter_file_names : Array = Utils.FileHandler.list_files_in_directory(encounters_folder_path)
-	for fn in encounter_file_names :
-		if str(fn).get_extension().to_lower() != "gd":
-			continue
-#		print("encounter : ", fn)
-		var enc_name : String = fn.trim_suffix('.gd')
-		var enc = load(encounters_folder_path+fn).new()
-#		print("encounter enc : ", enc)
-		special_encounters_book[enc_name] = enc
-		special_encounters_book[str(fn)] = enc
-
 	var native_encounters_path := encounters_folder_path.path_join("encounters.json")
 	if FileAccess.file_exists(native_encounters_path):
 		var native_book := NativeEncounterBookScript.new()
@@ -1835,21 +1802,6 @@ func load_special_encounter_resources(campaign : String) :
 					continue
 				special_encounters_book[encounter_id] = controller_result["controller"]
 	print("special encounters : ", special_encounters_book.keys())
-
-func load_battle_resources(campaign : String) :
-	print("Resources load_battle_resources ")
-	var battles_folder_path = Paths.campaignsfolderpath+ campaign + "/Battles/"
-	var n_battle_stuff_book : Dictionary = {}
-	n_battle_stuff_book = Utils.FileHandler.read_json_dictionary_from_txt(Utils.FileHandler.read_txt_from_file(battles_folder_path +"battles.json"))
-	for b in n_battle_stuff_book.keys() :
-		#print(n_battle_stuff_book[b])
-		for s in ["start","turn","win","lose","flee"] :
-			if not n_battle_stuff_book[b].has("Scripts") :
-				printerr(n_battle_stuff_book[b])
-			if n_battle_stuff_book[b]["Scripts"].has(s+"_source") :
-				_add_script_to_dict_from_source(n_battle_stuff_book[b]["Scripts"],s,'()')
-	for b in n_battle_stuff_book :
-		battles_book[b] = n_battle_stuff_book[b] # { "Map" : b["Map"], "Creatures" : {}, "Scripts" : {} }
 
 func sort_item_type(a : String, b : String):
 	# comparator for sorting items by  layer as defined in  thing_types.json

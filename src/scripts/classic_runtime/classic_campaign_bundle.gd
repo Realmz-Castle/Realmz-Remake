@@ -4,12 +4,16 @@ extends RefCounted
 const SharedAssetStoreScript = preload(
 	"res://scripts/classic_runtime/classic_shared_asset_store.gd"
 )
+const ExtensionRegistryScript = preload(
+	"res://scripts/scenario_runtime/scenario_extension_registry.gd"
+)
 
-const FORMAT := "realmz-remake-classic-campaign"
-const FORMAT_VERSION := 1
+const FORMAT := "realmz-remake-scenario"
+const FORMAT_VERSION := 2
 const CAMPAIGN_KIND := "classic-compiled"
 const COMPATIBILITY_PROFILE := "realmz-7.1"
 const DOCUMENT_SCHEMA_VERSION := 1
+const RUNTIME_DOCUMENT_SCHEMA_VERSION := 1
 const RULE_TABLE_SOURCES := ["shared", "scenario-local", "unresolved"]
 const REQUIRED_DOCUMENTS := [
 	"scenario",
@@ -20,6 +24,7 @@ const REQUIRED_DOCUMENTS := [
 	"rules",
 	"assets",
 	"evidence",
+	"runtime",
 ]
 
 var root_directory := ""
@@ -53,6 +58,7 @@ var random_levels_by_id: Dictionary = {}
 var pictures_by_id: Dictionary = {}
 var sounds_by_id: Dictionary = {}
 var dispatcher_noop_keys: Dictionary = {}
+var extension_registry: ScenarioExtensionRegistry
 
 
 func load_from_directory(directory: String) -> bool:
@@ -64,6 +70,9 @@ func load_from_directory(directory: String) -> bool:
 	manifest = manifest_value
 	if not _validate_manifest_contract():
 		return false
+	extension_registry = ExtensionRegistryScript.new()
+	if not extension_registry.load_builtin_catalog():
+		return _fail(extension_registry.last_error)
 
 	var file_map: Variant = manifest.get("files", {})
 	for document_name: String in REQUIRED_DOCUMENTS:
@@ -81,14 +90,20 @@ func load_from_directory(directory: String) -> bool:
 
 
 func _validate_manifest_contract() -> bool:
+	if str(manifest.get("format", "")) == "realmz-remake-classic-campaign" \
+			or int(manifest.get("formatVersion", 0)) == 1:
+		return _fail(
+			"This is a bundle v1 campaign. Re-export it with Providence for "
+			+ "Realmz Remake scenario format v2."
+		)
 	if str(manifest.get("format", "")) != FORMAT:
 		return _fail(
-			"Unsupported classic campaign format: %s" % manifest.get("format", "<missing>")
+			"Unsupported scenario campaign format: %s" % manifest.get("format", "<missing>")
 		)
 	var format_version: Variant = manifest.get("formatVersion")
 	if not _is_integer(format_version) or int(format_version) != FORMAT_VERSION:
 		return _fail(
-			"Unsupported classic campaign format version: %s" % \
+			"Unsupported scenario campaign format version: %s" % \
 				manifest.get("formatVersion", "<missing>")
 		)
 	if str(manifest.get("campaignKind", "")) != CAMPAIGN_KIND:
@@ -144,6 +159,10 @@ func _validate_manifest_contract() -> bool:
 
 
 func _validate_document_contract() -> bool:
+	if extension_registry == null:
+		extension_registry = ExtensionRegistryScript.new()
+		if not extension_registry.load_builtin_catalog():
+			return _fail(extension_registry.last_error)
 	for document_name: String in REQUIRED_DOCUMENTS:
 		var document: Variant = documents.get(document_name, {})
 		if not (document is Dictionary):
@@ -161,6 +180,8 @@ func _validate_document_contract() -> bool:
 	if not _validate_scenario_identity():
 		return false
 	if not _validate_scenario_selection_metadata():
+		return false
+	if not _validate_runtime_document():
 		return false
 	if not _validate_rule_table_selection():
 		return false
@@ -544,7 +565,7 @@ func _validate_trigger_actions() -> bool:
 			return _fail("%s.recordIndex must be a non-negative integer" % trigger_context)
 		if trigger.has("callable") and not (trigger["callable"] is bool):
 			return _fail("%s.callable must be a boolean" % trigger_context)
-		if not _validate_action_array(trigger.get("actions"), trigger_context, 7, true):
+		if not _validate_action_array(trigger.get("actions"), trigger_context, 7):
 			return false
 	return true
 
@@ -556,7 +577,7 @@ func _validate_encounter_actions(collection_name: String) -> bool:
 	for encounter_index: int in range(encounters.size()):
 		var encounter: Dictionary = encounters[encounter_index]
 		var encounter_context := "encounters.%s[%d]" % [collection_name, encounter_index]
-		if not _validate_action_array(encounter.get("actions"), encounter_context, 31, false):
+		if not _validate_action_array(encounter.get("actions"), encounter_context, 31):
 			return false
 	return true
 
@@ -580,8 +601,7 @@ func _validate_optional_callability(collection_name: String) -> bool:
 func _validate_action_array(
 	actions_value: Variant,
 	record_context: String,
-	max_slot: int,
-	require_normalized_code: bool
+	max_slot: int
 ) -> bool:
 	if not (actions_value is Array):
 		return _fail("%s.actions must be a JSON array" % record_context)
@@ -600,17 +620,142 @@ func _validate_action_array(
 		if seen_slots.has(slot):
 			return _fail("%s duplicates action slot %d" % [action_context, slot])
 		seen_slots[slot] = action_index
-		for field_name: String in ["rawCode", "id"]:
-			if not _is_integer(action.get(field_name)):
-				return _fail("%s.%s must be an integer" % [action_context, field_name])
-		if require_normalized_code and not _is_integer(action.get("code")):
-			return _fail("%s.code must be an integer" % action_context)
+		var kind := str(action.get("kind", ""))
+		if kind == "classic":
+			for field_name: String in ["rawCode", "code", "id"]:
+				if not _is_integer(action.get(field_name)):
+					return _fail("%s.%s must be an integer" % [action_context, field_name])
+			var raw_code := int(action["rawCode"])
+			var expected_code: int = (
+				abs(raw_code) if raw_code < 0 and raw_code not in [-14, -23] else raw_code
+			)
+			if int(action["code"]) != expected_code:
+				return _fail(
+					"%s.code must preserve normalized rawCode %d" % [
+						action_context,
+						expected_code,
+					]
+				)
+			var expected_gosub: bool = raw_code < 0 and raw_code not in [-14, -23]
+			if not (action.get("gosub") is bool) or bool(action["gosub"]) != expected_gosub:
+				return _fail(
+					"%s.gosub must preserve the sign semantics of rawCode" % action_context
+				)
+		elif kind == "semantic":
+			var operation: Variant = action.get("operation")
+			if not (operation is String) or not _is_namespaced_identifier(operation):
+				return _fail("%s.operation must be a namespaced semantic ID" % action_context)
+			if str(operation).begins_with("core."):
+				return _fail("%s.operation cannot target the reserved core namespace" % action_context)
+			if not (action.get("parameters") is Dictionary):
+				return _fail("%s.parameters must be a JSON object" % action_context)
+			var semantic_validation := extension_registry.validate_semantic_operation(
+				str(operation),
+				action.get("parameters"),
+				_runtime_extension_ids()
+			)
+			if not bool(semantic_validation.get("valid", false)):
+				return _fail(
+					"%s: %s" % [
+						action_context,
+						semantic_validation.get("message", "Invalid semantic operation"),
+					]
+				)
+		else:
+			return _fail("%s.kind must be 'classic' or 'semantic'" % action_context)
 		if action.has("mediaRequiredForProgression") \
 				and not (action["mediaRequiredForProgression"] is bool):
 			return _fail(
 				"%s.mediaRequiredForProgression must be a boolean" % action_context
 			)
 	return true
+
+
+func _validate_runtime_document() -> bool:
+	var runtime: Variant = documents.get("runtime")
+	if not (runtime is Dictionary):
+		return _fail("runtime document must be a JSON object")
+	if int(runtime.get("schemaVersion", 0)) != RUNTIME_DOCUMENT_SCHEMA_VERSION:
+		return _fail(
+			"runtime.schemaVersion must be %d" % RUNTIME_DOCUMENT_SCHEMA_VERSION
+		)
+	var recommended_profile: Variant = runtime.get("recommendedGameplayProfile")
+	if not (recommended_profile is String) \
+			or not _is_namespaced_identifier(recommended_profile):
+		return _fail("runtime.recommendedGameplayProfile must be a namespaced preset ID")
+	var extension_validation := extension_registry.validate_requirements(
+		runtime.get("requiredExtensions")
+	)
+	if not bool(extension_validation.get("valid", false)):
+		return _fail(str(extension_validation.get("message", "Invalid extension requirements")))
+	var bindings: Variant = runtime.get("bindings")
+	if not (bindings is Dictionary):
+		return _fail("runtime.bindings must be a JSON object")
+	for binding_name: String in [
+		"spells",
+		"items",
+		"encounters",
+		"monsterAi",
+		"lifecycle",
+	]:
+		if not (bindings.get(binding_name) is Dictionary):
+			return _fail("runtime.bindings.%s must be a JSON object" % binding_name)
+	var capability_by_binding := {
+		"spells": "spells",
+		"items": "itemBehaviors",
+		"encounters": "encounterResolvers",
+		"monsterAi": "monsterAiProviders",
+		"lifecycle": "lifecycleHooks",
+	}
+	var required_extension_ids := _runtime_extension_ids()
+	for binding_name: String in capability_by_binding:
+		for binding_key: Variant in bindings[binding_name]:
+			var binding_id := str(bindings[binding_name][binding_key])
+			var binding_validation := extension_registry.validate_binding_reference(
+				capability_by_binding[binding_name],
+				binding_id,
+				required_extension_ids
+			)
+			if not bool(binding_validation.get("valid", false)):
+				return _fail(
+					"runtime.bindings.%s.%s: %s" % [
+						binding_name,
+						binding_key,
+						binding_validation.get("message", "Invalid extension binding"),
+					]
+				)
+	var target_support: Variant = runtime.get("targetSupport")
+	if not (target_support is Dictionary):
+		return _fail("runtime.targetSupport must be a JSON object")
+	for target_name: String in ["realmzRemake", "nativeRealmz"]:
+		if not (target_support.get(target_name) is bool):
+			return _fail("runtime.targetSupport.%s must be a boolean" % target_name)
+	if not (target_support.get("remakeOnlyReasons") is Array):
+		return _fail("runtime.targetSupport.remakeOnlyReasons must be an array")
+	return true
+
+
+func _runtime_extension_ids() -> Dictionary:
+	var result: Dictionary = {}
+	var runtime: Variant = documents.get("runtime", {})
+	if not (runtime is Dictionary):
+		return result
+	var requirements: Variant = runtime.get("requiredExtensions", [])
+	if not (requirements is Array):
+		return result
+	for requirement: Variant in requirements:
+		if requirement is Dictionary:
+			result[str(requirement.get("id", ""))] = true
+	return result
+
+
+func required_extension_ids() -> Dictionary:
+	return _runtime_extension_ids()
+
+
+func _is_namespaced_identifier(value: String) -> bool:
+	var separator := value.find(".")
+	return separator > 0 and separator < value.length() - 1
 
 
 func _validate_record_collection(

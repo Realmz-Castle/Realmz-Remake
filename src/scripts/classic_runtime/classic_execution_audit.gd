@@ -1,7 +1,9 @@
 class_name ClassicExecutionAudit
 extends RefCounted
 
-const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
+const InterpreterScript = preload(
+	"res://scripts/scenario_runtime/handlers/classic_opcode_runtime.gd"
+)
 
 
 func inspect(bundle: ClassicCampaignBundle) -> Dictionary:

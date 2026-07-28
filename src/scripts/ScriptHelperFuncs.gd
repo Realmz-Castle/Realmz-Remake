@@ -446,14 +446,7 @@ static func get_extra_ap_name(ap_id: int) -> String:
 
 
 static func get_current_map_scripts_Divinity() -> Variant:
-	if GameGlobal.map != null and GameGlobal.map.mapscripts != null:
-		return GameGlobal.map.mapscripts
-	var script_path := "res://Campaigns/%s/Maps/%s/map_scripts.gd" % [
-		GameGlobal.currentcampaign,
-		GameGlobal.currentmap_name,
-	]
-	if ResourceLoader.exists(script_path):
-		return load(script_path)
+	# Campaign-folder GDScript execution ended with scenario format v2.
 	return null
 
 ## Divinity Code 29: Give/Display Map  id:int , if negative, give |id| and also display

@@ -1,6 +1,10 @@
 class_name ClassicRuntimeHost
 extends Node
 
+const DefaultScenarioPortsScript = preload(
+	"res://scripts/scenario_runtime/default_scenario_ports.gd"
+)
+
 signal command_started(command: String, payload: Dictionary)
 signal command_finished(command: String, response: Dictionary)
 signal playthrough_completed(result: Dictionary)
@@ -9,6 +13,8 @@ signal playthrough_finished(result: Dictionary)
 
 var runtime: ClassicRuntime
 var command_adapter: Object
+var command_router: ScenarioCommandRouter
+var gameplay_rule_set: GameplayRuleSet
 var active := false
 var command_context: Dictionary = {}
 var nested_trigger_active := false
@@ -23,8 +29,22 @@ func _init() -> void:
 	runtime.runtime_stopped.connect(_on_runtime_stopped)
 
 
-func configure(adapter: Object) -> void:
+func configure(adapter: Object, rules: GameplayRuleSet = null) -> void:
 	command_adapter = adapter
+	gameplay_rule_set = rules
+	var router_result := DefaultScenarioPortsScript.create(adapter, rules)
+	if str(router_result.get("status", "")) == "ok":
+		command_router = router_result["router"]
+	else:
+		command_router = null
+		push_error(str(router_result.get("message", "Scenario command router is unavailable")))
+	if (
+		command_router != null
+		and runtime != null
+		and runtime.bundle != null
+		and runtime.bundle.extension_registry != null
+	):
+		_configure_extensions(false)
 
 
 func load_campaign(directory: String) -> bool:
@@ -33,6 +53,8 @@ func load_campaign(directory: String) -> bool:
 	restored_continuation_pending = false
 	command_context.clear()
 	if not runtime.load_campaign(directory):
+		return false
+	if not _configure_extensions():
 		return false
 	_configure_adapter()
 	return true
@@ -46,6 +68,7 @@ func use_campaign(campaign_bundle: ClassicCampaignBundle) -> void:
 	var loaded_state := ClassicRuntimeState.new()
 	loaded_state.configure_from_bundle(campaign_bundle)
 	runtime.use_shared_campaign(campaign_bundle, loaded_state)
+	_configure_extensions()
 	_configure_adapter()
 
 
@@ -54,12 +77,78 @@ func _configure_adapter() -> void:
 		command_adapter.call("configure_classic_bundle", runtime.bundle)
 
 
+func _configure_extensions(invoke_lifecycle := true) -> bool:
+	if command_router == null:
+		return false
+	var extension_registry := runtime.bundle.extension_registry
+	if extension_registry == null:
+		return true
+	if not extension_registry.register_command_ports(
+		command_router,
+		runtime.bundle.required_extension_ids()
+	):
+		push_error(extension_registry.last_error)
+		return false
+	var lifecycle_bindings: Variant = runtime.bundle.documents.get(
+		"runtime",
+		{}
+	).get("bindings", {}).get("lifecycle", {})
+	if invoke_lifecycle and lifecycle_bindings is Dictionary:
+		for binding_key: Variant in lifecycle_bindings:
+			var lifecycle_result := extension_registry.invoke_binding(
+				"lifecycleHooks",
+				str(lifecycle_bindings[binding_key]),
+				{
+					"event": "campaign-loaded",
+					"bindingKey": str(binding_key),
+					"campaignId": str(runtime.bundle.manifest.get("id", "")),
+				},
+				self
+			)
+			if str(lifecycle_result.get("status", "")) != "ok":
+				push_error(str(lifecycle_result.get(
+					"message",
+					"Scenario lifecycle hook failed"
+				)))
+				return false
+	command_router.configure({
+		"scenarioPortRuntime": command_adapter,
+		"commandRouter": command_router,
+		"gameplayRules": gameplay_rule_set,
+		"extensionRegistry": extension_registry,
+		"runtimeBindings": runtime.bundle.documents.get(
+			"runtime",
+			{}
+		).get("bindings", {}),
+	})
+	return true
+
+
 func has_trigger(trigger_id: String) -> bool:
 	return runtime.has_trigger(trigger_id)
 
 
 func random_encounters_enabled() -> bool:
-	return runtime.runtime_state.random_encounters_enabled
+	return (
+		runtime.runtime_state.random_encounters_enabled
+		and bool(rule_option("mapTime", "randomRectangles", true))
+	)
+
+
+func rule_option(domain: String, option_id: String, fallback: Variant) -> Variant:
+	if gameplay_rule_set == null:
+		return fallback
+	return gameplay_rule_set.options(domain).get(option_id, fallback)
+
+
+func snapshot_port_state() -> Dictionary:
+	return command_router.snapshot_state() if command_router != null else {}
+
+
+func restore_port_state(state: Dictionary) -> Dictionary:
+	if command_router == null:
+		return _continuation_error("Scenario command router is unavailable")
+	return command_router.restore_state(state)
 
 
 func get_random_rectangle(
@@ -168,7 +257,7 @@ func run_nested_trigger(trigger_id: String, start_slot := 0, context := {}) -> D
 	# Share its campaign state without replacing that interpreter's execution stack.
 	var nested_host := ClassicRuntimeHost.new()
 	add_child(nested_host)
-	nested_host.configure(command_adapter)
+	nested_host.configure(command_adapter, gameplay_rule_set)
 	nested_host.runtime.use_shared_campaign(runtime.bundle, runtime.runtime_state)
 	var result: Dictionary = await nested_host.run_trigger(trigger_id, start_slot, context)
 	nested_host.queue_free()
@@ -318,6 +407,27 @@ func resolve_dungeon_movement(from_position: Vector2i, to_position: Vector2i) ->
 
 
 func resolve_map_movement(from_position: Vector2i, to_position: Vector2i) -> Dictionary:
+	if (
+		str(runtime.runtime_state.get("level_type")) == "land"
+		and str(rule_option("mapTime", "edgeTransitions", "classic-adjacent")) == "blocked"
+	):
+		var map_record := runtime.bundle.get_map(
+			"land:%d" % int(runtime.runtime_state.get("level_index"))
+		)
+		if map_record is Dictionary:
+			var width := int(map_record.get("width", 0))
+			var height := int(map_record.get("height", 0))
+			if (
+				to_position.x < 0
+				or to_position.y < 0
+				or to_position.x >= width
+				or to_position.y >= height
+			):
+				return {
+					"handled": true,
+					"allowed": false,
+					"blockedByGameplayRules": true,
+				}
 	if command_adapter == null \
 			or not command_adapter.has_method("resolve_classic_map_movement"):
 		return {"handled": false}
@@ -367,8 +477,8 @@ func play_map_sound(sound_id: int) -> Dictionary:
 
 
 func start_trigger(trigger_id: String, start_slot := 0, context := {}) -> bool:
-	if command_adapter == null or not command_adapter.has_method("execute_command"):
-		_stop_with_error("ClassicRuntimeHost requires an execute_command adapter")
+	if command_router == null:
+		_stop_with_error("ClassicRuntimeHost requires a scenario command router")
 		return false
 	if not (context is Dictionary):
 		_stop_with_error("ClassicRuntimeHost command context must be a dictionary")
@@ -437,8 +547,8 @@ func has_restored_continuation() -> bool:
 func resume_restored_continuation() -> Dictionary:
 	if not restored_continuation_pending:
 		return {"status": "ok", "handled": false}
-	if command_adapter == null or not command_adapter.has_method("execute_command"):
-		return _continuation_error("ClassicRuntimeHost requires an execute_command adapter")
+	if command_router == null:
+		return _continuation_error("ClassicRuntimeHost requires a scenario command router")
 	restored_continuation_pending = false
 	active = true
 	var replay_result := runtime.replay_continuation()
@@ -457,7 +567,7 @@ func _on_command_requested(command: String, payload: Dictionary) -> void:
 		if not command_payload.has(context_key):
 			command_payload[context_key] = command_context[context_key]
 	command_started.emit(command, command_payload)
-	var response_value: Variant = await command_adapter.execute_command(command, command_payload)
+	var response_value: Variant = await command_router.route(command, command_payload)
 	if not active:
 		return
 	var response: Dictionary = response_value if response_value is Dictionary else {}
@@ -469,123 +579,16 @@ func _on_command_requested(command: String, payload: Dictionary) -> void:
 
 
 func _resume_after_command(command: String, payload: Dictionary, response: Dictionary) -> void:
-	match command:
-		"choice":
-			if not response.has("accepted"):
-				_stop_with_error("Choice adapter response is missing 'accepted'", command)
-				return
-			runtime.answer_choice(bool(response["accepted"]))
-		"start_encounter":
-			if not response.has("outcome"):
-				_stop_with_error("Encounter adapter response is missing 'outcome'", command)
-				return
-			runtime.finish_encounter(int(response["outcome"]), response)
-		"start_battle":
-			if response.has("forcedResumeSlot"):
-				runtime.finish_forced_battle_at_slot(int(response["forcedResumeSlot"]))
-			elif bool(payload.get("outcomeBranch", false)):
-				if not response.has("coward"):
-					_stop_with_error("Battle adapter response is missing 'coward'", command)
-					return
-				runtime.finish_battle(bool(response["coward"]))
-			elif str(payload.get("participantMode", "party")) == "selected":
-				if not response.has("survivorCount"):
-					_stop_with_error("Selective battle adapter response is missing 'survivorCount'", command)
-					return
-				runtime.finish_selective_battle(int(response["survivorCount"]))
-			else:
-				runtime.continue_after_command()
-		"end_classic_battle":
-			runtime.finish_forced_battle_end()
-		"check_party_item":
-			if not response.has("possessed"):
-				_stop_with_error("Item-check adapter response is missing 'possessed'", command)
-				return
-			runtime.finish_item_check(bool(response["possessed"]))
-		"take_party_wealth":
-			if not response.has("paid"):
-				_stop_with_error("Wealth-payment adapter response is missing 'paid'", command)
-				return
-			runtime.finish_wealth_payment(bool(response["paid"]))
-		"check_party_condition":
-			if not response.has("active"):
-				_stop_with_error("Party-condition adapter response is missing 'active'", command)
-				return
-			runtime.finish_party_condition_check(bool(response["active"]))
-		"check_character_ability":
-			if not response.has("passed"):
-				_stop_with_error(
-					"Character-ability adapter response is missing 'passed'",
-					command
-				)
-				return
-			runtime.finish_character_ability_check(bool(response["passed"]))
-		"check_party_misc":
-			if not response.has("matched"):
-				_stop_with_error("Party identity adapter response is missing 'matched'", command)
-				return
-			runtime.finish_misc_branch(bool(response["matched"]))
-		"check_party_ally":
-			if not response.has("present"):
-				_stop_with_error("Ally-check adapter response is missing 'present'", command)
-				return
-			runtime.finish_ally_check(bool(response["present"]))
-		"check_combat_monster":
-			if not response.has("present"):
-				_stop_with_error("Combat-monster adapter response is missing 'present'", command)
-				return
-			runtime.finish_combat_monster_check(bool(response["present"]))
-		"revive_classic_combatants":
-			runtime.finish_combat_revival(
-				int(response.get("partyRevived", 0)) > 0
-			)
-		"activate_battle_round_macro":
-			runtime.finish_battle_round_macro()
-		"present_random_branch":
-			runtime.finish_random_branch_presentation()
-		"back_up_party":
-			runtime.finish_back_up_party()
-		"alter_game_time":
-			runtime.finish_time_mutation(response)
-		"update_exploration_status":
-			runtime.finish_exploration_status(response)
-		"show_text", "show_scrolling_text", "play_sound", "wait_for_click", \
-		"show_picture", "redraw_map", \
-		"give_treasure", "give_experience", \
-		"clear_party_currency", "alter_party_fatigue", "drop_party_items", \
-		"level_up_selected_characters", "alter_selected_characters", \
-		"give_character_condition", \
-		"pick_characters", "filter_selected_characters", \
-		"select_characters_by_misc", "select_characters_by_identity", \
-		"change_selected_health", "change_party_health", "cast_classic_spell", \
-		"give_map", "load_shop", "offer_temple", "enable_banking", "set_map_tile", \
-		"set_trigger_percent", "set_view_direction", \
-		"set_view_mode", "set_map_darkness", "set_random_encounter_rect", \
-		"shift_party_position", "set_camping_permission", \
-		"set_priest_turning", \
-		"set_land_look", "give_battle_loot", "alter_party_items", \
-		"store_party_equipment", "add_party_ally", "remove_party_ally", \
-		"destroy_combat_monsters", "deanimate_lower_undead", "rout_combat_monsters", \
-		"spawn_combat_monsters", \
-		"alter_classic_combatants", \
-		"fumble_active_combatant", \
-		"apply_coward_penalty", "eliminate_encounter_option":
-			runtime.continue_after_command()
-		"teleport":
-			var state: Object = runtime.runtime_state
-			var reveal_result := reveal_dungeon_overhead(Vector2i(state.x, state.y))
-			if str(reveal_result.get("status", "")) == "error":
-				_stop_with_error(str(reveal_result.get(
-					"message",
-					"Classic dungeon overhead could not be revealed"
-				)), command)
-				return
-			if bool(payload.get("dungeonMove", false)):
-				runtime.continue_after_command()
-			else:
-				runtime.finish_teleport()
-		_:
-			_stop_with_error("No ClassicRuntimeHost continuation rule for '%s'" % command, command)
+	if command == "teleport":
+		var state: Object = runtime.runtime_state
+		var reveal_result := reveal_dungeon_overhead(Vector2i(state.x, state.y))
+		if str(reveal_result.get("status", "")) == "error":
+			_stop_with_error(str(reveal_result.get(
+				"message",
+				"Classic dungeon overhead could not be revealed"
+			)), command)
+			return
+	runtime.finish_command(response)
 
 
 func _on_trigger_completed(result: Dictionary) -> void:

@@ -9,7 +9,7 @@ const ThoughtLaceScript = preload("res://shared_assets/spells/thought_lace.gd")
 const SentryScript = preload("res://shared_assets/spells/sentry.gd")
 const CharmFoeScript = preload("res://shared_assets/spells/charm_foe.gd")
 const CommandAdapterScript = preload(
-	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
+	"res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
 )
 
 var failures: Array[String] = []

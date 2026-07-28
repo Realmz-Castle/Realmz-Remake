@@ -1,4 +1,4 @@
-extends "res://scripts/classic_runtime/classic_godot_command_adapter.gd"
+extends "res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
 
 var test_autoloads: Dictionary = {}
 var test_combatant_scene: Variant

@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "core.classic.map-time",
+      "apiVersion": 1,
+      "domain": "mapTime",
+      "options": {
+        "edgeTransitions": {"type": "enum", "values": ["classic-adjacent", "blocked"]},
+        "minutesPerStep": {"type": "integer", "minimum": 0, "maximum": 1440},
+        "timedEncounters": {"type": "boolean"},
+        "randomRectangles": {"type": "boolean"}
+      },
+      "defaults": {
+        "edgeTransitions": "classic-adjacent",
+        "minutesPerStep": 1,
+        "timedEncounters": true,
+        "randomRectangles": true
+      }
+    },
+    {
+      "id": "core.classic.combat",
+      "apiVersion": 1,
+      "domain": "combat",
+      "options": {
+        "initiative": {"type": "enum", "values": ["classic", "native"]},
+        "battleMacros": {"type": "boolean"},
+        "classicMorale": {"type": "boolean"}
+      },
+      "defaults": {"initiative": "classic", "battleMacros": true, "classicMorale": true}
+    },
+    {
+      "id": "core.classic.inventory",
+      "apiVersion": 1,
+      "domain": "inventory",
+      "options": {
+        "itemIdentity": {"type": "enum", "values": ["scenario-stable", "native-name"]},
+        "enforceUniqueItems": {"type": "boolean"}
+      },
+      "defaults": {"itemIdentity": "scenario-stable", "enforceUniqueItems": true}
+    },
+    {
+      "id": "core.classic.character",
+      "apiVersion": 1,
+      "domain": "character",
+      "options": {
+        "statistics": {"type": "enum", "values": ["classic-expanded", "native-simplified"]},
+        "classicConditions": {"type": "boolean"}
+      },
+      "defaults": {"statistics": "classic-expanded", "classicConditions": true}
+    },
+    {
+      "id": "core.classic.presentation",
+      "apiVersion": 1,
+      "domain": "presentation",
+      "options": {
+        "pacing": {"type": "enum", "values": ["classic", "immediate"]},
+        "waitForAuthoredClicks": {"type": "boolean"}
+      },
+      "defaults": {"pacing": "classic", "waitForAuthoredClicks": true}
+    },
+    {
+      "id": "core.classic.persistence",
+      "apiVersion": 1,
+      "domain": "persistence",
+      "options": {
+        "continuationSaves": {"type": "boolean"},
+        "strictContentHash": {"type": "boolean"}
+      },
+      "defaults": {"continuationSaves": true, "strictContentHash": true}
+    },
+    {
+      "id": "core.samuel.map-time",
+      "apiVersion": 1,
+      "domain": "mapTime",
+      "options": {
+        "edgeTransitions": {"type": "enum", "values": ["classic-adjacent", "blocked"]},
+        "minutesPerStep": {"type": "integer", "minimum": 0, "maximum": 1440},
+        "timedEncounters": {"type": "boolean"},
+        "randomRectangles": {"type": "boolean"}
+      },
+      "defaults": {
+        "edgeTransitions": "blocked",
+        "minutesPerStep": 0,
+        "timedEncounters": false,
+        "randomRectangles": false
+      }
+    },
+    {
+      "id": "core.samuel.combat",
+      "apiVersion": 1,
+      "domain": "combat",
+      "options": {
+        "initiative": {"type": "enum", "values": ["classic", "native"]},
+        "battleMacros": {"type": "boolean"},
+        "classicMorale": {"type": "boolean"}
+      },
+      "defaults": {"initiative": "native", "battleMacros": false, "classicMorale": false}
+    },
+    {
+      "id": "core.samuel.inventory",
+      "apiVersion": 1,
+      "domain": "inventory",
+      "options": {
+        "itemIdentity": {"type": "enum", "values": ["scenario-stable", "native-name"]},
+        "enforceUniqueItems": {"type": "boolean"}
+      },
+      "defaults": {"itemIdentity": "native-name", "enforceUniqueItems": true}
+    },
+    {
+      "id": "core.samuel.character",
+      "apiVersion": 1,
+      "domain": "character",
+      "options": {
+        "statistics": {"type": "enum", "values": ["classic-expanded", "native-simplified"]},
+        "classicConditions": {"type": "boolean"}
+      },
+      "defaults": {"statistics": "native-simplified", "classicConditions": false}
+    },
+    {
+      "id": "core.samuel.presentation",
+      "apiVersion": 1,
+      "domain": "presentation",
+      "options": {
+        "pacing": {"type": "enum", "values": ["classic", "immediate"]},
+        "waitForAuthoredClicks": {"type": "boolean"}
+      },
+      "defaults": {"pacing": "immediate", "waitForAuthoredClicks": false}
+    },
+    {
+      "id": "core.samuel.persistence",
+      "apiVersion": 1,
+      "domain": "persistence",
+      "options": {
+        "continuationSaves": {"type": "boolean"},
+        "strictContentHash": {"type": "boolean"}
+      },
+      "defaults": {"continuationSaves": false, "strictContentHash": false}
+    },
+    {
+      "id": "scenario.runtime-fixture.presentation-rules",
+      "apiVersion": 1,
+      "domain": "presentation",
+      "options": {
+        "fixtureMarker": {"type": "boolean"}
+      },
+      "defaults": {"fixtureMarker": false}
+    }
+  ],
+  "presets": [
+    {
+      "id": "core.classic",
+      "baseline": "feature/classic-runtime-poc@a3627ddf",
+      "domains": {
+        "mapTime": {"providerId": "core.classic.map-time", "options": {}},
+        "combat": {"providerId": "core.classic.combat", "options": {}},
+        "inventory": {"providerId": "core.classic.inventory", "options": {}},
+        "character": {"providerId": "core.classic.character", "options": {}},
+        "presentation": {"providerId": "core.classic.presentation", "options": {}},
+        "persistence": {"providerId": "core.classic.persistence", "options": {}}
+      }
+    },
+    {
+      "id": "core.samuel",
+      "baseline": "origin/dev@f44a53dfb2d62dcf9783b31d9a9f0b6241394c23",
+      "domains": {
+        "mapTime": {"providerId": "core.samuel.map-time", "options": {}},
+        "combat": {"providerId": "core.samuel.combat", "options": {}},
+        "inventory": {"providerId": "core.samuel.inventory", "options": {}},
+        "character": {"providerId": "core.samuel.character", "options": {}},
+        "presentation": {"providerId": "core.samuel.presentation", "options": {}},
+        "persistence": {"providerId": "core.samuel.persistence", "options": {}}
+      }
+    }
+  ]
+}

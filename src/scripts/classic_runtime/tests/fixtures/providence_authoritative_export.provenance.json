@@ -34,8 +34,8 @@
     },
     {
       "path": "campaign.json",
-      "bytes": 2240,
-      "sha256": "a182b59d3499f582c34c3d7b535041e12907ce9f0fc6de4bebfa209578db1077"
+      "bytes": 2263,
+      "sha256": "a523907e74656e9495c5c6efefad3765b7206c0385a3279dbc37e16947dd1745"
     },
     {
       "path": "classic/assets.json",
@@ -49,8 +49,8 @@
     },
     {
       "path": "classic/encounters.json",
-      "bytes": 29562,
-      "sha256": "45fbaa32f47aa7d7c598199c4d8ce06634c76e3c43977551d7749ee388106912"
+      "bytes": 7262,
+      "sha256": "fdf4cc123e2fdc642975d336dce920352074b5327e04e773b3b3ca111fecba30"
     },
     {
       "path": "classic/evidence.json",
@@ -74,8 +74,8 @@
     },
     {
       "path": "classic/scripts.json",
-      "bytes": 5114,
-      "sha256": "105e197acc4eeb9d4a0f869db0b302f87171b24316e8d12e502451270479d551"
+      "bytes": 3115,
+      "sha256": "c1b1945869a96272b335bc9fba6affca3af775c77a42f79e9f63f8f296e0fb42"
     },
     {
       "path": "media/images/cicn-neg-100-31df32a766f9.png",
@@ -91,6 +91,11 @@
       "path": "media/sounds/snd-321-827bab3b7d1c.wav",
       "bytes": 300,
       "sha256": "827bab3b7d1c45c535da4459e1e9544460c6c98a23be761f315f7159d2572c3b"
+    },
+    {
+      "path": "runtime.json",
+      "bytes": 326,
+      "sha256": "b4ae9ae161fd06806fa28a50b719179926087e79bbfe47b0d83f8d9f754873c0"
     }
   ]
 }

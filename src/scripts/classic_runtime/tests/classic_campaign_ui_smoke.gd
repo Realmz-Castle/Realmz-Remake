@@ -87,7 +87,7 @@ func _run_smoke() -> void:
 		var invalid_description: String = panel.selectedCampaignDescrLabel.text
 		_expect(
 			invalid_description.contains("Cannot start:")
-				and invalid_description.contains("Unsupported classic campaign format"),
+				and invalid_description.contains("Unsupported scenario campaign format"),
 			"invalid Classic package shows an actionable diagnostic"
 		)
 
@@ -104,8 +104,8 @@ func _run_smoke() -> void:
 	)
 	_expect(
 		panel._campaign_display_name("City of Bywater", null)
-			== "City of Bywater — Native",
-		"campaign list explicitly distinguishes native campaigns"
+			== "City of Bywater — Unsupported legacy format",
+		"campaign list identifies the retired native format"
 	)
 	panel.campaignsItemList.select(campaign_index)
 	panel._on_campaign_selected(campaign_index)
@@ -119,7 +119,7 @@ func _run_smoke() -> void:
 		"campaign selection shows the manifest title"
 	)
 	_expect(
-		panel.selectedCampaignDescrLabel.text.contains("Classic format v1 (realmz-7.1)"),
+		panel.selectedCampaignDescrLabel.text.contains("Classic format v2 (realmz-7.1)"),
 		"campaign selection shows the bundle version"
 	)
 	_expect(
@@ -309,7 +309,9 @@ func _test_runtime_player_map_display() -> void:
 	var original_root: String = bundle.root_directory
 	bundle.root_directory = "res://Campaigns/City of Bywater"
 	UI.ow_hud.classicPlayerMapRect.call_deferred("close_map")
-	var result: Dictionary = await adapter.execute_command("give_map", {
+	var map_port := MapPort.new()
+	map_port.configure({"scenarioPortRuntime": adapter})
+	var result: Dictionary = await map_port.execute("give_map", {
 		"mapId": 7,
 		"display": true,
 		"mapRecord": {

@@ -23,8 +23,8 @@ const CLASSIC_CAMPAIGN_ADMISSION_PATH := (
 const CLASSIC_CAMPAIGN_SESSION_PATH := (
 	"res://scripts/classic_runtime/classic_campaign_session.gd"
 )
-const CLASSIC_GODOT_COMMAND_ADAPTER_PATH := (
-	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
+const SCENARIO_GODOT_SERVICES_PATH := (
+	"res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
 )
 const CLASSIC_MONSTER_WEAPON_RULES_PATH := (
 	"res://scripts/classic_runtime/classic_monster_weapon_rules.gd"
@@ -88,9 +88,9 @@ var ClassicCampaignAdmissionScript: GDScript:
 var ClassicCampaignSessionScript: GDScript:
 	get:
 		return _lazy_resource(CLASSIC_CAMPAIGN_SESSION_PATH) as GDScript
-var ClassicGodotCommandAdapterScript: GDScript:
+var ScenarioGodotServicesScript: GDScript:
 	get:
-		return _lazy_resource(CLASSIC_GODOT_COMMAND_ADAPTER_PATH) as GDScript
+		return _lazy_resource(SCENARIO_GODOT_SERVICES_PATH) as GDScript
 var ClassicMonsterWeaponRulesScript: GDScript:
 	get:
 		return _lazy_resource(CLASSIC_MONSTER_WEAPON_RULES_PATH) as GDScript
@@ -145,6 +145,7 @@ var dontlognext_execute_spell : bool = false
 var honest_mode : bool = false
 var currentcampaign : String = ''
 var currentcampaign_onload_script: Variant = null
+var new_gameplay_rule_selection: Dictionary = {}
 var campaign_global_script = null
 var currentprofile : String = 'Default Profile'
 var profile_characters_list : Array = []
@@ -205,7 +206,6 @@ var is_sailing_boat : bool = false
 var boat_sailed_image_name : String = ''
 var allow_next_battle_loot : bool = true
 
-var shopScript = null # a script that initializes shops checked campaign start and may run script checked accessing shops
 var shops_dict : Dictionary = {}
 var allow_character_swap_anywhere : bool = false
 var stuff_done : Dictionary = {}
@@ -414,7 +414,11 @@ func init_globals_before_game_start(data_dict : Dictionary) :
 	is_sailing_boat = bool(data_dict["is_sailing_boat"])
 	boat_sailed_image_name = data_dict["boat_image"]
 
-	set_current_campaign(data_dict["campaign"])
+	set_current_campaign(
+		data_dict["campaign"],
+		null,
+		data_dict.get("gameplay_rule_selection", {})
+	)
 	currentmap_name = data_dict["currentmap_name"]
 	shops_dict = data_dict["shops_dict"]
 
@@ -778,22 +782,8 @@ func _sync_classic_light_state() -> void:
 	light_power = ClassicLightScript.light_power(classic_light_condition)
 	light_time = ClassicLightScript.remaining_seconds(classic_light_condition, time)
 
-func load_shops_script(campaign : String) :
-	var shopsgd_path = Paths.campaignsfolderpath+ campaign + "/shops.gd"
-	shopScript = load(shopsgd_path).new()
-	print("GameGlobal loaded shops script : ", shopScript)
-
-
-func campaign_start_load_shops_data(itemsbook : Dictionary) :
-	# only checked starting new campaign, not loading
-	if shops_dict.is_empty() :
-		shops_dict = shopScript.build_shops()
-		return
-	# Saved buyback items remain portable ItemInstance payloads until ShopRect
-	# materializes the exact instance that its button will sell.
 func get_shop(shopname : String) :
 	return shops_dict[shopname]
-	#return shopScript.get_shop(shopname, shops_dict[shopname])
 
 
 func current_shop_accepts_item(item: Variant) -> bool:
@@ -1005,8 +995,6 @@ func validate_classic_campaign_save(campaign_name: String, payload: Variant) -> 
 	var envelope_validation: Dictionary = ClassicCampaignSessionScript.validate_save_payload(
 		payload
 	)
-	if str(envelope_validation.get("status", "")) == "legacy":
-		return {"status": "ok", "handled": true, "legacy": true}
 	if str(envelope_validation.get("status", "")) != "ok":
 		return envelope_validation
 	var install = get_classic_campaign_install(campaign_name)
@@ -1025,8 +1013,8 @@ func validate_classic_campaign_save(campaign_name: String, payload: Variant) -> 
 	)
 	if str(campaign_validation.get("status", "")) != "ok":
 		return campaign_validation
-	return ClassicGodotCommandAdapterScript.validate_classic_save_state(
-		payload.get("adapterState", {})
+	return ScenarioGodotServicesScript.validate_classic_save_state(
+		payload.get("portState", {}).get("core.inventory", {})
 	)
 
 
@@ -1042,8 +1030,9 @@ func start_current_classic_campaign(
 	var load_result: Dictionary = session.load_installed_campaign(
 		Paths.campaignsfolderpath,
 		currentcampaign,
-		ClassicGodotCommandAdapterScript.new(),
-		get_classic_campaign_install(currentcampaign)
+		ScenarioGodotServicesScript.new(),
+		get_classic_campaign_install(currentcampaign),
+		new_gameplay_rule_selection
 	)
 	if str(load_result.get("status", "")) == "error":
 		session.queue_free()
@@ -1058,7 +1047,13 @@ func start_current_classic_campaign(
 	if not saved_payload.is_empty():
 		restore_result = session.restore_save_payload(saved_payload)
 	elif not legacy_location.is_empty():
-		restore_result = session.restore_legacy_native_location(legacy_location)
+		restore_result = {
+			"status": "error",
+			"message": (
+				"This save predates scenario runtime v2 and cannot be upgraded; "
+				+ "start a new playthrough"
+			),
+		}
 	if str(restore_result.get("status", "")) == "error":
 		stop_classic_campaign_runtime()
 		return {
@@ -1140,7 +1135,19 @@ func show_loot_menu(
 
 
 
-func set_current_campaign(campname : String, selection_rules: Variant = null) :
+func set_current_campaign(
+	campname: String,
+	selection_rules: Variant = null,
+	gameplay_rule_selection: Variant = {}
+) :
+	if not is_classic_campaign(campname):
+		push_error(
+			"Campaign '%s' does not use the scenario v2 contract and cannot be started" % campname
+		)
+		currentcampaign = ""
+		currentcampaign_onload_script = null
+		new_gameplay_rule_selection = {}
+		return
 	if currentcampaign != campname:
 		stop_classic_campaign_runtime()
 	currentcampaign = campname
@@ -1148,6 +1155,11 @@ func set_current_campaign(campname : String, selection_rules: Variant = null) :
 		selection_rules
 		if selection_rules != null
 		else get_campaign_selection_rules(currentcampaign)
+	)
+	new_gameplay_rule_selection = (
+		gameplay_rule_selection.duplicate(true)
+		if gameplay_rule_selection is Dictionary
+		else {}
 	)
 
 
@@ -1162,7 +1174,16 @@ func get_campaign_selection_rules(campaign_name: String) -> Variant:
 	if is_classic_campaign(campaign_name):
 		var install = get_classic_campaign_install(campaign_name)
 		return install.selection_rules()
-	return load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd")
+	return {
+		"classic": false,
+		"valid": false,
+		"title": campaign_name,
+		"readinessState": "Unsupported",
+		"readinessSummary": (
+			"Legacy native campaign scripts are no longer executable. "
+			+ "Export this campaign as a realmz-remake-scenario v2 package."
+		),
+	}
 
 
 func get_campaign_selection_preview(campaign_name: String) -> Variant:
@@ -1171,7 +1192,7 @@ func get_campaign_selection_preview(campaign_name: String) -> Variant:
 			Paths.campaignsfolderpath,
 			campaign_name
 		)
-	return load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd")
+	return get_campaign_selection_rules(campaign_name)
 
 
 func get_classic_campaign_install(campaign_name: String) -> Object:
@@ -1203,12 +1224,6 @@ func clear_classic_campaign_install_cache(campaign_name := "") -> void:
 		classic_campaign_install_cache.erase(campaign_name)
 
 
-func get_native_campaign_start_script(campaign_name: String) -> Variant:
-	if is_classic_campaign(campaign_name):
-		return null
-	return load(Paths.campaignsfolderpath + campaign_name + "/on_campaign_start.gd")
-
-
 func get_campaign_description(campaign_name : String) -> String:
 	var campaign_onload_script: Variant = get_campaign_selection_rules(campaign_name)
 	if campaign_onload_script==null :
@@ -1219,7 +1234,6 @@ func get_campaign_description(campaign_name : String) -> String:
 	return campaign_onload_script.description
 
 func get_campaign_restrictions_description(campaign_name : String, campaign_onload_script) -> String:
-	#var campaign_onload_script = load(Paths.campaignsfolderpath + campaign_name + "/on_select.gd" )
 	if campaign_onload_script==null :
 		print("campaign_onload_script loaded !!!")
 		return "Pick a campaign first !"
@@ -1719,8 +1733,6 @@ func end_battle(
 			#
 		"fled" :
 			allow_next_battle_loot = true
-			if map.mapscripts.has_method("_on_battle_escaped") :
-				map.mapscripts.call("_on_battle_escaped")
 		"lost" :
 			#print("GameGlobal end_battle : battle lost !")
 			allow_next_battle_loot = true

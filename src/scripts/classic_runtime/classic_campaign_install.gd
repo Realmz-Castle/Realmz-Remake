@@ -18,8 +18,17 @@ const SharedAssetStoreScript = preload(
 const REQUIRED_NATIVE_MAP_FILES := [
 	"map_info.json",
 	"map_scriptareas.json",
-	"map_scripts.gd",
 	"map_things.json",
+]
+const FORBIDDEN_EXECUTABLE_EXTENSIONS := [
+	"gd",
+	"gdc",
+	"pck",
+	"dll",
+	"so",
+	"dylib",
+	"exe",
+	"wasm",
 ]
 
 var campaign_name := ""
@@ -134,6 +143,12 @@ func load_from_campaigns_directory(
 		return _fail("Installed campaign directory does not exist: %s" % candidate_name)
 	if not FileAccess.file_exists(campaign_directory.path_join("campaign.json")):
 		return _fail("Installed Classic campaign is missing campaign.json")
+	var executable_payload := _find_executable_payload(campaign_directory)
+	if not executable_payload.is_empty():
+		return _fail(
+			"Imported scenarios are data-only; executable payload '%s' is not allowed"
+			% executable_payload
+		)
 
 	bundle = BundleScript.new()
 	if not bundle.load_from_directory(campaign_directory):
@@ -157,6 +172,32 @@ func load_from_campaigns_directory(
 	)
 	start_diagnostic = _validate_native_start_map()
 	return true
+
+
+func _find_executable_payload(directory_path: String, relative_path := "") -> String:
+	var directory := DirAccess.open(directory_path)
+	if directory == null:
+		return relative_path
+	directory.list_dir_begin()
+	var entry := directory.get_next()
+	while not entry.is_empty():
+		var child_path := directory_path.path_join(entry)
+		var child_relative := entry if relative_path.is_empty() \
+			else relative_path.path_join(entry)
+		if directory.is_link(entry):
+			directory.list_dir_end()
+			return child_relative
+		if directory.current_is_dir():
+			var nested := _find_executable_payload(child_path, child_relative)
+			if not nested.is_empty():
+				directory.list_dir_end()
+				return nested
+		elif entry.get_extension().to_lower() in FORBIDDEN_EXECUTABLE_EXTENSIONS:
+			directory.list_dir_end()
+			return child_relative
+		entry = directory.get_next()
+	directory.list_dir_end()
+	return ""
 
 
 func selection_rules() -> Dictionary:

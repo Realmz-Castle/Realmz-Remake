@@ -25,59 +25,45 @@ func exit() :
 
 func enter(_msg : Dictionary = {}) -> void:
 	if _msg.has("campaign_start") or  _msg.has("campaign_continue") :
-		var is_start : bool = _msg["campaign_start"] if _msg.has("campaign_start") else false
 		var campaign : String = GameGlobal.currentcampaign
 		var classic_campaign := GameGlobal.is_classic_campaign(campaign)
-		var onstartGD: Variant = GameGlobal.get_native_campaign_start_script(campaign)
-		if is_start and onstartGD != null:
-			onstartGD.before_loading_ressources()
-		if classic_campaign:
-			GameGlobal.campaign_global_script = ClassicCampaignGlobalScript.new()
-		else:
-			GameGlobal.campaign_global_script = load(
-				Paths.campaignsfolderpath + campaign + "/campaign_global_script.gd"
-			).new()
-		GameGlobal.cmp_resources.load_campaign_ressources( campaign )
-		if classic_campaign:
-			for pc: PlayerCharacter in GameGlobal.player_characters:
-				pc.resolve_classic_learned_spell_identities(
-					GameGlobal.cmp_resources.spells_book,
-					SpellsIdDivinity.mappings
-				)
-
 		if not classic_campaign:
-			GameGlobal.load_shops_script(campaign)
-			GameGlobal.campaign_start_load_shops_data(GameGlobal.cmp_resources.items_book)
-		map = GameGlobal.map
-		if is_start and onstartGD != null:
-			onstartGD.after_loading_ressources()
-		if classic_campaign:
-			var saved_payload_value: Variant = _msg.get("classic_save_payload", {})
-			var saved_payload: Dictionary = saved_payload_value \
-				if saved_payload_value is Dictionary else {}
-			var legacy_location_value: Variant = _msg.get("classic_legacy_location", {})
-			var legacy_location: Dictionary = legacy_location_value \
-				if legacy_location_value is Dictionary else {}
-			var classic_start: Dictionary = GameGlobal.start_current_classic_campaign(
-				saved_payload,
-				legacy_location
+			push_error(
+				"Campaign '%s' cannot start without a realmz-remake-scenario v2 manifest" % campaign
 			)
-			if str(classic_start.get("status", "")) == "error":
-				push_error("Classic campaign start failed: %s" % classic_start.get(
-					"message",
-					"unknown error"
-				))
-				StateMachine.transition_to("Inactive", {})
-				return
-		else:
-			map.load_map( campaign, GameGlobal.currentmap_name )
+			StateMachine.transition_to("Inactive", {})
+			return
+		GameGlobal.campaign_global_script = ClassicCampaignGlobalScript.new()
+		GameGlobal.cmp_resources.load_campaign_ressources( campaign )
+		for pc: PlayerCharacter in GameGlobal.player_characters:
+			pc.resolve_classic_learned_spell_identities(
+				GameGlobal.cmp_resources.spells_book,
+				SpellsIdDivinity.mappings
+			)
+		map = GameGlobal.map
+		var saved_payload_value: Variant = _msg.get("classic_save_payload", {})
+		var saved_payload: Dictionary = saved_payload_value \
+			if saved_payload_value is Dictionary else {}
+		var legacy_location_value: Variant = _msg.get("classic_legacy_location", {})
+		var legacy_location: Dictionary = legacy_location_value \
+			if legacy_location_value is Dictionary else {}
+		var classic_start: Dictionary = GameGlobal.start_current_classic_campaign(
+			saved_payload,
+			legacy_location
+		)
+		if str(classic_start.get("status", "")) == "error":
+			push_error("Scenario campaign start failed: %s" % classic_start.get(
+				"message",
+				"unknown error"
+			))
+			StateMachine.transition_to("Inactive", {})
+			return
 		map.explore_tiles_from_tilepos(Vector2(map.owcharacter.tile_position_x,map.owcharacter.tile_position_y))
 		map.visible = true
 		UI.show_only(UI.ow_hud)
 		UI.ow_hud.initialize()
-		if classic_campaign:
-			# A restored command is replayed only after its native map and HUD exist.
-			GameGlobal.call_deferred("resume_current_classic_continuation")
+		# A restored command is replayed only after its Godot map and HUD exist.
+		GameGlobal.call_deferred("resume_current_classic_continuation")
 		print("ExplorationState campaign_start or campaign_continue done")
 		for pc in GameGlobal.player_characters :
 			pc.cur_campaign = campaign

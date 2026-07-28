@@ -8,7 +8,7 @@ const ExecutionAuditScript = preload(
 	"res://scripts/classic_runtime/classic_execution_audit.gd"
 )
 const InterpreterScript = preload(
-	"res://scripts/classic_runtime/classic_action_interpreter.gd"
+	"res://scripts/scenario_runtime/handlers/classic_opcode_runtime.gd"
 )
 const StateScript = preload(
 	"res://scripts/classic_runtime/classic_runtime_state.gd"

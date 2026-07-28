@@ -14,10 +14,8 @@ const QuickDrawImageDecoderScript = preload(
 const REQUIRED_MAP_FILES := [
 	"map_info.json",
 	"map_scriptareas.json",
-	"map_scripts.gd",
 	"map_things.json",
 ]
-const MAP_SCRIPT_SOURCE := "static func _on_map_load(_map) -> void:\n\tpass\n"
 const LAND_OVERLAY_TILESET_NAME := "ClassicLandOverlay"
 const LAND_OVERLAY_TILE_SIZE := 32
 const LAND_OVERLAY_ATLAS_COLUMNS := 16
@@ -188,8 +186,7 @@ func materialize(bundle: Object, campaign_directory: String) -> Dictionary:
 				]
 			)
 		for file_name: String in REQUIRED_MAP_FILES:
-			var contents := MAP_SCRIPT_SOURCE if file_name == "map_scripts.gd" \
-				else DistributionJsonScript.stringify(plan["files"][file_name])
+			var contents := DistributionJsonScript.stringify(plan["files"][file_name])
 			var file := FileAccess.open(map_directory.path_join(file_name), FileAccess.WRITE)
 			if file == null:
 				return _fail(
@@ -328,7 +325,6 @@ func _build_plan(
 				"classic_boats": boat_plan.get("placements", {}),
 			},
 			"map_scriptareas.json": script_areas,
-			"map_scripts.gd": MAP_SCRIPT_SOURCE,
 			"map_things.json": {
 				"height": height,
 				"width": width,

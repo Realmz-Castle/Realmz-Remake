@@ -1,7 +1,7 @@
 extends Node
 
 const ClassicAdapterScript = preload(
-	"res://scripts/classic_runtime/classic_godot_command_adapter.gd"
+	"res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
 )
 const ClassicInventoryRulesScript = preload(
 	"res://scripts/classic_runtime/classic_inventory_rules.gd"

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "extensions": [
+    {
+      "id": "scenario.runtime-fixture",
+      "apiVersion": 1,
+      "description": "Built-in conformance fixture for every additive extension surface.",
+      "instructionHandlerScripts": [
+        "res://scripts/scenario_runtime/extensions/runtime_fixture_handler.gd"
+      ],
+      "commandPortScripts": [
+        "res://scripts/scenario_runtime/extensions/runtime_fixture_port.gd"
+      ],
+      "providerScripts": [
+        "res://scripts/scenario_runtime/extensions/runtime_fixture_provider.gd"
+      ],
+      "capabilities": {
+        "semanticOperations": [
+          {
+            "id": "scenario.runtime-fixture.mark",
+            "parametersSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "marker": {"type": "string"}
+              }
+            }
+          }
+        ],
+        "commands": ["scenario.runtime-fixture.present"],
+        "spells": ["scenario.runtime-fixture.echo-spell"],
+        "itemBehaviors": ["scenario.runtime-fixture.echo-item"],
+        "encounterResolvers": ["scenario.runtime-fixture.echo-encounter"],
+        "monsterAiProviders": ["scenario.runtime-fixture.echo-ai"],
+        "lifecycleHooks": ["scenario.runtime-fixture.lifecycle"],
+        "gameplayRuleProviders": ["scenario.runtime-fixture.presentation-rules"]
+      },
+      "configurationSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "marker": {"type": "string"}
+        }
+      }
+    }
+  ]
+}

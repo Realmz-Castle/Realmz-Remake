@@ -46,11 +46,11 @@ campaign completion are separate results.
 
 | Layer | Current accepted version | Compatibility rule |
 | --- | --- | --- |
-| Providence project | Schema `5` | The compatibility exporter reads the canonical project directly. It does not consume Providence's native Realmz compiler output. |
-| Remake bundle | Manifest `formatVersion: 1`; every document `schemaVersion: 1` | Remake rejects unknown versions before indexing any runtime record. Additive evidence fields are allowed in version 1. |
+| Providence project | Schema `6` | The compatibility exporter reads the canonical project directly. It does not consume Providence's native Realmz compiler output. |
+| Remake bundle | Manifest `formatVersion: 2`; every document `schemaVersion: 1` | Remake rejects bundle v1 and unknown versions before indexing any runtime record. The required runtime document declares rules, trusted extensions, bindings, and target support. |
 | Compatibility profile | `realmz-7.1` | A different or missing profile is rejected. |
 | Realmz Remake Godot project | `4.7` | The commands below are currently verified with Godot `4.7.1`. |
-| Classic save envelope | Schema `2` | Schema 1 migrates as an idle continuation. A newer schema is rejected without changing the existing save. |
+| Classic save envelope | Schema `3` | Older and newer schemas are rejected with an instruction to start a new playthrough. |
 | Regression corpus | Manifest schema `1`; shared suite `1` | Every member runs through the same bundle loader, execution audit, interpreter, and state path. |
 
 The bundle version is the compiler/runtime interchange contract. Providence and
@@ -253,7 +253,7 @@ mechanics, evidence, and open completion criteria.
 | Items and equipment | Partial | Exact Classic identities, supported scenario-item materialization, treasure/shop/inventory paths, equipment state, charges, restrictions, and save/load. | Unsupported effects or restrictions block referenced items. Curses, scripted special fields, and exact item art/sound remain open. |
 | Spells, races, and castes | Partial | Exact spell identities, supported core spell behavior, representable data-driven custom spells, producer-selected changed race/caste profiles through their verified consumers, and a [deduplicated known-library audit](KNOWN_CUSTOM_RULE_AUDIT.md) with campaign-scoped definitions and source locations. | Active custom nonzero special effects need an exact implementation; inactive definitions warn without blocking. Unresolved rule-table selection blocks use; display-name substitution and partial race/caste application are forbidden. |
 | Pictures, sounds, and player maps | Partial | Immutable payload verification plus decoded runtime media, source-ordered picture dismissal and sound repetition, signed sound wait behavior, explicit missing-resource and unresolved-resource handling, picture/sound commands, browsable acquired maps, terrain-composed maps, and plain scrolling text. | Required missing media still blocks. Unavailable optional Classic sound resources and optional monster-icon pairs remain classified fallbacks until exact runtime media resolves them. Exact scrolling-text styles and new media modes still require focused visual evidence. |
-| Saves and continuations | Supported at named boundaries | Versioned runtime/adapter state, persistent mutations, GOSUB/encounter continuation, map/HUD restore, and older-save migration. | Live battles and side-effecting rogue intervals are not serializable. Newer save schemas and campaign-ID mismatches are rejected. |
+| Saves and continuations | Supported at named boundaries | Versioned runtime/port state, pinned gameplay rules, persistent mutations, GOSUB/encounter continuation, and map/HUD restore. | Runtime-v1/v2 saves, newer save schemas, campaign-ID mismatches, live battles, and side-effecting rogue intervals are rejected. |
 | Diagnostics | Partial | Versioned headless readiness report with source, record, slot, severity, blocker/fallback classification, JSON, and exit codes; selector shows a summary and first blocker. | The normal UI does not yet expose the complete diagnostic report. |
 
 ## Add a scenario to the regression corpus

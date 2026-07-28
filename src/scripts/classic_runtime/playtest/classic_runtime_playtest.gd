@@ -1,7 +1,9 @@
 extends Node
 
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
-const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const AdapterScript = preload(
+	"res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
+)
 const AcceptanceAssets = preload(
 	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
 )
@@ -562,10 +564,10 @@ func _run_equipment_smoke() -> void:
 	var save_payload: Dictionary = save_result.get("payload", {})
 	var serialized_payload := str(save_payload)
 	var parsed_payload: Variant = JSON.parse_string(serialized_payload)
-	var saved_items: Variant = save_payload.get("adapterState", {}).get(
-		"storedPartyEquipment",
+	var saved_items: Variant = save_payload.get("portState", {}).get(
+		"core.inventory",
 		{}
-	).get("inventories", [])
+	).get("storedPartyEquipment", {}).get("inventories", [])
 	_verify_smoke_stage(
 		"02_native_save_envelope",
 		str(save_result.get("status", "")) == "ok"

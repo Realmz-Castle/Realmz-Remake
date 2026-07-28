@@ -6,11 +6,27 @@ const ClassicCampaignPackageInstallerScript = preload(
 const ClassicStockCharacterRosterScript = preload(
 	"res://scripts/classic_runtime/classic_stock_character_roster.gd"
 )
+const GameplayRuleRegistryScript = preload(
+	"res://scripts/scenario_runtime/gameplay_rule_registry.gd"
+)
+const GameplayRuleSetScript = preload(
+	"res://scripts/scenario_runtime/gameplay_rule_set.gd"
+)
 
 @onready var campaignsItemList : ItemList = $VBoxContainer/HBoxContainertT/ScenarioListVBox/CampaignsItemList
 @onready var selectedCampaignNameLabel : Label = $VBoxContainer/HBoxContainertT/ScenDescrVBox/SelectedCampaignNameLabel
 @onready var selectedCampaignDescrLabel: Label = $VBoxContainer/HBoxContainertT/ScenDescrVBox/SelectedCampaignDescrLabel
 @onready var classicImportStatusLabel: Label = $VBoxContainer/ClassicImportStatusLabel
+@onready var gameplayRulesPanel: VBoxContainer = $VBoxContainer/GameplayRulesPanel
+@onready var gameplayPresetOption: OptionButton = (
+	$VBoxContainer/GameplayRulesPanel/PresetRow/GameplayPresetOption
+)
+@onready var gameplayAdvancedCheck: CheckButton = (
+	$VBoxContainer/GameplayRulesPanel/GameplayAdvancedCheck
+)
+@onready var gameplayAdvancedVBox: VBoxContainer = (
+	$VBoxContainer/GameplayRulesPanel/GameplayAdvancedVBox
+)
 
 var selectedcampaign_onselect
 
@@ -40,6 +56,8 @@ var selected_campaign_index := -1
 var pickedparty : Array = []
 var pending_classic_import_directory := ""
 var classic_import_in_progress := false
+var gameplay_rule_registry: GameplayRuleRegistry
+var gameplay_rule_selection: Dictionary = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -47,6 +65,8 @@ func _ready():
 	var _err_connnectcampaign = campaignsItemList.connect("item_selected",Callable(self,"_on_campaign_selected"))
 #	campaignsItemList.connect("nothing_selected",Callable(self,"_on_campaign_unselected"))
 	var _err_connectstartbutton = startButton.connect("pressed",Callable(self,"_on_StartButton_pressed"))
+	gameplayPresetOption.item_selected.connect(_on_gameplay_preset_selected)
+	gameplayAdvancedCheck.toggled.connect(_on_gameplay_advanced_toggled)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
@@ -243,7 +263,10 @@ func _on_campaign_selected(idx : int) -> void :
 		selectedCampaignDescrLabel.text = _classic_campaign_description(
 			selectedcampaign_onselect
 		)
+		_configure_gameplay_rules()
 	else:
+		gameplayRulesPanel.visible = false
+		gameplay_rule_selection = {}
 		selectedCampaignNameLabel.text = selectedCampaign
 		selectedCampaignDescrLabel.text = GameGlobal.get_campaign_description(selectedCampaign)
 	#reset the character picking panel
@@ -254,7 +277,11 @@ func _on_StartButton_pressed() -> void :
 		selectedcampaign_onselect.get("valid", false)
 	):
 		return
-	GameGlobal.set_current_campaign(selectedCampaign, selectedcampaign_onselect)
+	GameGlobal.set_current_campaign(
+		selectedCampaign,
+		selectedcampaign_onselect,
+		gameplay_rule_selection
+	)
 	var data_dict : Dictionary = {
 		"fatigue" = 0.0,
 		"position" = Vector2.ZERO,
@@ -278,6 +305,7 @@ func _on_StartButton_pressed() -> void :
 		"save_name" = "",
 		"save_descr" = '',
 		"campaign" = selectedCampaign,
+		"gameplay_rule_selection" = gameplay_rule_selection.duplicate(true),
 		"currentmap_name" = "Default Map",
 		"shops_dict" = {},
 		"minimaps" = [],
@@ -295,14 +323,6 @@ func _on_StartButton_pressed() -> void :
 		pc.cur_campaign = GameGlobal.currentcampaign
 	GameGlobal.player_characters = pickedparty
 	GameGlobal.init_globals_before_game_start(data_dict)
-	
-	#minimaps from on_campaign_start.gd  :
-	var onstartscript: Variant = GameGlobal.get_native_campaign_start_script(selectedCampaign)
-	if onstartscript != null:
-		onstartscript.set_minimaps_in_gameglobal()
-	#GameGlobal.currentcampaign_onload_script
-	
-	
 	
 	StateMachine.transition_to("Exploration", {"campaign_start" : true})
 	#GameState._state = GameGlobal.eGameStates.startGame
@@ -325,11 +345,15 @@ func fill() -> void :
 	selectedCampaignDescrLabel.text = ""
 	set_ready(false, [])
 	createCharacterButton.disabled = true
+	gameplayRulesPanel.visible = false
+	gameplay_rule_selection = {}
 
 	campaignslist = Utils.FileHandler.list_dirs_in_directory(Paths.campaignsfolderpath)
 	campaignsItemList.clear()
 	for campaign_value: Variant in campaignslist:
 		var campaign_name := str(campaign_value)
+		if not GameGlobal.is_classic_campaign(campaign_name):
+			continue
 		var selection_rules: Variant = GameGlobal.get_campaign_selection_preview(
 			campaign_name
 		)
@@ -358,6 +382,224 @@ func fill() -> void :
 	return
 
 
+func _configure_gameplay_rules() -> void:
+	gameplayRulesPanel.visible = (
+		selectedcampaign_onselect is Dictionary
+		and bool(selectedcampaign_onselect.get("classic", false))
+		and bool(selectedcampaign_onselect.get("valid", false))
+	)
+	gameplay_rule_selection = {}
+	if not gameplayRulesPanel.visible:
+		return
+	gameplay_rule_registry = GameplayRuleRegistryScript.new()
+	if not gameplay_rule_registry.load_builtin_catalog():
+		gameplayRulesPanel.visible = false
+		selectedCampaignDescrLabel.text += "\nRules unavailable: %s" % gameplay_rule_registry.last_error
+		return
+	var recommended_preset := "core.classic"
+	var install: Variant = GameGlobal.get_classic_campaign_install(selectedCampaign)
+	if install != null and install.get("bundle") != null:
+		recommended_preset = str(
+			install.bundle.documents.get("runtime", {}).get(
+				"recommendedGameplayProfile",
+				recommended_preset
+			)
+		)
+	gameplayPresetOption.clear()
+	var preset_ids: Array = gameplay_rule_registry.presets.keys()
+	preset_ids.sort()
+	var selected_index := 0
+	for preset_id: String in preset_ids:
+		var item_index := gameplayPresetOption.item_count
+		gameplayPresetOption.add_item(_gameplay_preset_label(preset_id))
+		gameplayPresetOption.set_item_metadata(item_index, preset_id)
+		if preset_id == recommended_preset:
+			selected_index = item_index
+	gameplayPresetOption.select(selected_index)
+	gameplayAdvancedCheck.button_pressed = false
+	gameplayAdvancedVBox.visible = false
+	_on_gameplay_preset_selected(selected_index)
+
+
+func _on_gameplay_preset_selected(index: int) -> void:
+	if gameplay_rule_registry == null or index < 0:
+		return
+	var preset_id := str(gameplayPresetOption.get_item_metadata(index))
+	gameplay_rule_selection = {"presetId": preset_id, "domains": {}}
+	_rebuild_gameplay_advanced_controls()
+
+
+func _on_gameplay_advanced_toggled(enabled: bool) -> void:
+	gameplayAdvancedVBox.visible = enabled
+	if enabled:
+		_rebuild_gameplay_advanced_controls()
+
+
+func _rebuild_gameplay_advanced_controls() -> void:
+	for child: Node in gameplayAdvancedVBox.get_children():
+		child.free()
+	if gameplay_rule_registry == null:
+		return
+	var resolved := gameplay_rule_registry.resolve(
+		str(gameplay_rule_selection.get("presetId", "core.classic")),
+		gameplay_rule_selection.get("domains", {})
+	)
+	if str(resolved.get("status", "")) != "ok":
+		var error_label := Label.new()
+		error_label.text = str(resolved.get("message", "Gameplay rules are invalid"))
+		gameplayAdvancedVBox.add_child(error_label)
+		return
+	var ruleset: GameplayRuleSet = resolved["ruleset"]
+	for domain: String in GameplayRuleSetScript.DOMAINS:
+		var domain_box := VBoxContainer.new()
+		var provider_row := HBoxContainer.new()
+		var label := Label.new()
+		label.text = _gameplay_domain_label(domain)
+		label.custom_minimum_size.x = 150.0
+		provider_row.add_child(label)
+		var provider_option := OptionButton.new()
+		provider_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var provider_ids: Array = []
+		for provider_id: String in gameplay_rule_registry.providers:
+			var provider: GameplayRuleProvider = gameplay_rule_registry.providers[provider_id]
+			if provider.domain == domain:
+				provider_ids.append(provider_id)
+		provider_ids.sort()
+		var selected_provider_index := 0
+		for provider_id: String in provider_ids:
+			var item_index := provider_option.item_count
+			provider_option.add_item(provider_id)
+			provider_option.set_item_metadata(item_index, provider_id)
+			if provider_id == ruleset.provider_id(domain):
+				selected_provider_index = item_index
+		provider_option.select(selected_provider_index)
+		provider_option.item_selected.connect(
+			_on_gameplay_provider_selected.bind(domain, provider_option)
+		)
+		provider_row.add_child(provider_option)
+		domain_box.add_child(provider_row)
+		var provider: GameplayRuleProvider = gameplay_rule_registry.providers[
+			ruleset.provider_id(domain)
+		]
+		var option_values := ruleset.options(domain)
+		for option_id: String in provider.option_schema:
+			domain_box.add_child(
+				_create_gameplay_option_row(
+					domain,
+					option_id,
+					provider.option_schema[option_id],
+					option_values[option_id]
+				)
+			)
+		gameplayAdvancedVBox.add_child(domain_box)
+
+
+func _on_gameplay_provider_selected(
+	index: int,
+	domain: String,
+	provider_option: OptionButton
+) -> void:
+	var domains: Dictionary = gameplay_rule_selection.get("domains", {}).duplicate(true)
+	domains[domain] = {
+		"providerId": str(provider_option.get_item_metadata(index)),
+		"options": {},
+	}
+	gameplay_rule_selection["domains"] = domains
+	_rebuild_gameplay_advanced_controls()
+
+
+func _create_gameplay_option_row(
+	domain: String,
+	option_id: String,
+	schema: Dictionary,
+	value: Variant
+) -> Control:
+	var row := HBoxContainer.new()
+	var label := Label.new()
+	label.text = option_id
+	label.custom_minimum_size.x = 175.0
+	row.add_child(label)
+	match str(schema.get("type", "")):
+		"boolean":
+			var checkbox := CheckButton.new()
+			checkbox.button_pressed = bool(value)
+			checkbox.toggled.connect(
+				func(enabled: bool) -> void:
+					_set_gameplay_option(domain, option_id, enabled)
+			)
+			row.add_child(checkbox)
+		"enum":
+			var option := OptionButton.new()
+			option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			var values: Array = schema.get("values", [])
+			for enum_value: Variant in values:
+				option.add_item(str(enum_value))
+			option.select(maxi(0, values.find(value)))
+			option.item_selected.connect(
+				func(index: int) -> void:
+					_set_gameplay_option(domain, option_id, values[index])
+			)
+			row.add_child(option)
+		"integer", "float":
+			var spin := SpinBox.new()
+			spin.allow_greater = false
+			spin.allow_lesser = false
+			spin.min_value = float(schema.get("minimum", -1000000))
+			spin.max_value = float(schema.get("maximum", 1000000))
+			spin.step = 1.0 if schema["type"] == "integer" else 0.1
+			spin.value = float(value)
+			spin.value_changed.connect(
+				func(next_value: float) -> void:
+					_set_gameplay_option(
+						domain,
+						option_id,
+						int(next_value) if schema["type"] == "integer" else next_value
+					)
+			)
+			row.add_child(spin)
+	return row
+
+
+func _set_gameplay_option(domain: String, option_id: String, value: Variant) -> void:
+	var domains: Dictionary = gameplay_rule_selection.get("domains", {}).duplicate(true)
+	var selection: Dictionary = domains.get(domain, {
+		"providerId": "",
+		"options": {},
+	}).duplicate(true)
+	if str(selection.get("providerId", "")).is_empty():
+		var resolved := gameplay_rule_registry.resolve(
+			str(gameplay_rule_selection.get("presetId", "core.classic")),
+			domains
+		)
+		if str(resolved.get("status", "")) != "ok":
+			return
+		selection["providerId"] = resolved["ruleset"].provider_id(domain)
+	var options: Dictionary = selection.get("options", {}).duplicate(true)
+	options[option_id] = value
+	selection["options"] = options
+	domains[domain] = selection
+	gameplay_rule_selection["domains"] = domains
+
+
+func _gameplay_preset_label(preset_id: String) -> String:
+	if preset_id == "core.classic":
+		return "Classic fidelity (recommended)"
+	if preset_id == "core.samuel":
+		return "Samuel native behavior"
+	return preset_id
+
+
+func _gameplay_domain_label(domain: String) -> String:
+	return {
+		"mapTime": "Map / Time",
+		"combat": "Combat",
+		"inventory": "Inventory",
+		"character": "Character",
+		"presentation": "Presentation",
+		"persistence": "Persistence",
+	}.get(domain, domain)
+
+
 func _campaign_display_name(campaign_name: String, selection_rules: Variant) -> String:
 	if selection_rules is Dictionary:
 		if bool(selection_rules.get("preview", false)):
@@ -366,7 +608,7 @@ func _campaign_display_name(campaign_name: String, selection_rules: Variant) -> 
 			selection_rules.get("title", campaign_name),
 			selection_rules.get("readinessState", "Invalid"),
 		]
-	return "%s — Native" % campaign_name
+	return "%s — Unsupported legacy format" % campaign_name
 
 
 func _on_CreateCharacterButton_pressed() -> void:

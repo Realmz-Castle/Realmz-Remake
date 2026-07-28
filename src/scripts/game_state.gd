@@ -414,8 +414,7 @@ func check_map_script(position, context := {}) ->bool :
 				if not scriptname.is_empty() : scriptstocall[scriptname] = '' #just a set, value doesnt matter
 	
 	printerr("SStateMachine l282 scriptstocall : ", scriptstocall)
-	# Classic maps keep secret state in their preserved tile fields. Native
-	# campaigns continue to use authored mapsecrets and per-secret chances.
+	# Scenario maps keep Classic secret state in their preserved tile fields.
 	var classic_secret_result := GameGlobal.discover_classic_map_secrets(Vector2i(position))
 	if str(classic_secret_result.get("status", "")) == "error":
 		push_error(str(classic_secret_result.get(
@@ -459,7 +458,6 @@ func check_map_script(position, context := {}) ->bool :
 		
 		if mapscriptareas_still_has_s:
 			GameGlobal.current_map_script_name = s
-			var script_returned = s
 			var classic_context: Dictionary = context.duplicate(true) \
 				if context is Dictionary else {}
 			classic_context["mapPosition"] = Vector2i(position)
@@ -479,32 +477,9 @@ func check_map_script(position, context := {}) ->bool :
 					)
 				GameGlobal.current_map_script_name = ''
 				continue
-			
-			if script_returned == 'STOP':
-				script_returned = ''
-				break
-			
-			while script_returned != null and script_returned != '':
-				# Check flags for if AP is disabled or replaced
-				var shouldcontinue : bool = GameGlobal.check_flags_for_current_map_script_name()
-				if not shouldcontinue:
-					script_returned = ''
-					break
-				
-				# Dodatkowe sprawdzenie przed call()
-				if GameGlobal.current_map_script_name == 'STOP' or GameGlobal.current_map_script_name == '':
-					script_returned = ''
-					break
-				
-				script_returned = await GameGlobal.map.mapscripts.call(GameGlobal.current_map_script_name)
-				if ScriptHelperFuncsClass.is_complex_encounter_branch(script_returned):
-					await run_complex_encounter_branch(script_returned)
-					script_returned = ''
-					break
-				if script_returned != null:
-					print("StateMachine check_map_scripts : script_returned is "+str(script_returned))
-					GameGlobal.current_map_script_name = script_returned
-			
+			push_error(
+				"Scenario map trigger '%s' is not registered with the scenario VM" % s
+			)
 			GameGlobal.current_map_script_name = ''
 		else:
 			print("StateMachine : mapscript doesnt have script "+s+", ok if it's because of a map change")

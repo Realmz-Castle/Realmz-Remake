@@ -1,10 +1,13 @@
-# Classic scenario runtime proof of concept
+# Classic behavior in scenario runtime v2
 
-This directory contains a data-driven runtime proof of concept for normalized classic Realmz bundles produced by a separate Providence-based converter.
+This directory contains the source-backed Classic mechanics consumed by the
+modular scenario runtime. The public execution, extension, port, rules, and save
+contracts live under `scripts/scenario_runtime`; Providence produces the
+`realmz-remake-scenario` v2 package consumed here.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the ownership boundary between the
-compatibility runtime, Realmz Remake's native systems, and the optional dump
-importer path. [BUNDLE_CONTRACT.md](BUNDLE_CONTRACT.md) defines the versioned
+scenario VM, six Godot ports, trusted extensions, and gameplay rules.
+[BUNDLE_CONTRACT.md](BUNDLE_CONTRACT.md) defines the versioned
 Providence-to-Remake runtime artifact. [INSTALLING_CLASSIC_CAMPAIGNS.md](INSTALLING_CLASSIC_CAMPAIGNS.md)
 defines its self-contained layout below Remake's `Campaigns` directory and the
 normal campaign-start lifecycle. The
@@ -15,7 +18,16 @@ The [known scenario custom-rule audit](KNOWN_CUSTOM_RULE_AUDIT.md) inventories
 the current scenario library's custom spell, race, and caste payloads without
 turning preserved definitions into inferred runtime usage.
 
-`ClassicCampaignBundle` validates and indexes the version 1 bundle. `ClassicExecutionAudit` inventories executable map, Data ED, Data ED2, Data ED3, battle-round, and immediate or queued death-macro actions without turning those counts into a playability percentage. `ClassicRuntimeState` owns classic quest flags, map position, view mode, priest-turning availability, per-map random-level settings, tile overrides, trigger-percentage overrides, acquired player maps, and persistent encounter, timed-encounter, and action-point replacements. `ClassicActionInterpreter` executes AP action lists until it reaches a command that must be handled by native Godot UI, map, inventory, audio, or combat code. `ClassicRuntime` is the low-level Godot `Node` facade. `ClassicRuntimeHost` drives that facade through an injected command adapter, and `ClassicGodotCommandAdapter` is the first Remake-facing adapter. That boundary can reuse existing Remake helpers wherever their behavior matches Classic while keeping compatibility-specific control flow inside the interpreter.
+`ClassicCampaignBundle` validates and indexes format v2. `ClassicExecutionAudit`
+inventories executable map, encounter, and combat actions without turning those
+counts into a playability percentage. `ClassicRuntimeState` owns source-specific
+mutations. `ScenarioInterpreter` is the public AP/XAP engine; handler families
+own Classic opcodes and namespaced semantic operations. The internal
+`ClassicOpcodeRuntime` supplies the source-backed mechanics invoked by those
+handlers, but trigger stepping and continuation routing remain in the VM.
+`ClassicRuntimeHost` drives the VM through `ScenarioCommandRouter`, whose six
+ports call `ScenarioGodotServices` for native map, combat, inventory, character,
+presentation, and persistence behavior.
 
 Implemented opcodes in this slice:
 
@@ -175,7 +187,17 @@ Opcode `126` evaluates a battle macro against the number of completed rounds or 
 
 Dungeon moves change the runtime's map family as well as its level and coordinates. Entering a dungeon preserves Classic's heading, multiview, and fixed-view fields; leaving for land keeps that dungeon view state dormant. The transfer ends the active action point immediately, matching the original map loader. The Godot adapter resolves land and dungeon levels to the existing `map_<level>` and `mapd_<level>` resource convention and delegates visible transitions to `GameGlobal.change_map()`. `ClassicRuntimeHost.activate_start_location()` uses that same path for a compiled campaign start after native resources are loaded.
 
-Native map areas can use a compiled trigger's stable ID as `scriptToLoad`. `game_state.check_map_script()` keeps native coordinate, secret, random-rectangle, and chance selection, then hands recognized IDs to the campaign's registered Classic host; ordinary native script names are unchanged. Opcode `20` performs Classic's immediate destination Action Point recheck after the visible transition. It replaces the source action point without pushing it, preserves any older GOSUB frames for an explicit destination return, and ends the chain when the destination percentage fails. Opcode `45` remains teleport-only and continues later source slots. Before entering a campaign map, the host reapplies saved darkness, landlook, random-rectangle, moved Action Point, trigger-percent, and tile mutations to the freshly loaded native resources. A restored campaign then forces the saved native map through the normal `change_map()` path so the rebuilt resources, mutations, and position enter together. The normal campaign launch creates and registers this host before entering the compiled start location.
+Map areas use a compiled trigger's stable ID as `scriptToLoad`.
+`game_state.check_map_script()` retains coordinate, secret, random-rectangle,
+and chance selection, then hands every selected ID to the registered scenario
+VM. Unregistered names are errors; campaign-folder map scripts and returned
+script-name chains are no longer executable. Opcode `20` performs Classic's
+immediate destination Action Point recheck after the visible transition. It
+replaces the source action point without pushing it, preserves older GOSUB frames
+for an explicit destination return, and ends the chain when the destination
+percentage fails. Opcode `45` remains teleport-only and continues later source
+slots. Before entering a map, the host reapplies saved darkness, landlook,
+random-rectangle, moved Action Point, trigger-percent, and tile mutations.
 
 Generated land maps turn source-backed `needBoat=1` cells into native boat placements over Classic water tile 60. The normal map resource loader retains those placements, and campaign start seeds Remake's existing boarding, sailing, docking, and save-state lifecycle only when that map has no restored boat state. Hand-authored native maps without generated boat metadata are unchanged.
 
@@ -516,7 +538,13 @@ stock identity without being silently replaced. Scenario items without exported
 item text keep their stable `classicItemId`, receive a generated display name,
 and report `missingItemText` as a launchable fidelity fallback.
 
-Against the checked City of Bywater compatibility baseline, these handlers cover 2,264 of 2,734 active action slots. The other 470 slots are skipped only because the bundle's source-backed dispatcher evidence identifies them as Realmz no-ops. Together, the proof of concept has defined interpreter behavior for all 2,734 active trigger action slots. This is a semantic coverage measurement, not a playability percentage: native command adapters, resource bridges, campaign integration, and some encounter-result paths remain. Opcodes `35`, `42`, and `44` also occur inside encounter results and those uses are not reflected in this trigger-slot count.
+Against the checked City of Bywater baseline, the supported handler set covers
+2,264 of 2,734 active action slots. The other 470 slots are skipped only because
+source-backed dispatcher evidence identifies them as Realmz no-ops. Together,
+the runtime defines behavior for all 2,734 active trigger action slots. This is
+a semantic coverage measurement, not a playability percentage. Opcodes `35`,
+`42`, and `44` also occur inside encounter results and those uses are not
+reflected in this trigger-slot count.
 
 The execution audit deliberately reports result rows and combat macro roots
 separately from that trigger baseline. Its initial full City of Bywater inventory
@@ -597,9 +625,9 @@ spell's complete Classic behavior has been verified.
 
 The inventory covers field actions, rogue traps, complex responses, referenced
 combatants and allies, scenario spell items, and authored spell overrides.
-Bundle v1 does not expose temple offerings, learned-spell lists, or scroll
-catalogs, so the report names those contexts under
-`sourceCoverage.notRepresentedByBundleV1` instead of implying coverage. An
+The current Classic documents do not expose temple offerings,
+learned-spell lists, or scroll catalogs, so the report names those contexts
+under its source-coverage boundary instead of implying coverage. An
 `unclassified` matrix status is a documentation and implementation-worklist
 gap; the readiness report remains the authority on whether a bundle can launch.
 

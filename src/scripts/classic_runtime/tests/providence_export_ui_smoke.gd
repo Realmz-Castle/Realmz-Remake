@@ -127,7 +127,9 @@ func _run_smoke() -> void:
 	# adapter boundary used by a Classic Dungeon Move without claiming action coverage.
 	runtime_state.set_location("dungeon", 0, 4, 5)
 	runtime_state.set_dungeon_view(2, true)
-	var dungeon_result: Dictionary = await adapter.execute_command("teleport", {
+	var map_port := MapPort.new()
+	map_port.configure({"scenarioPortRuntime": adapter})
+	var dungeon_result: Dictionary = await map_port.execute("teleport", {
 		"levelType": "dungeon",
 		"levelIndex": 0,
 		"x": 4,
@@ -158,7 +160,7 @@ func _run_smoke() -> void:
 	)
 
 	runtime_state.set_location("land", 0, 10, 12)
-	var return_result: Dictionary = await adapter.execute_command("teleport", {
+	var return_result: Dictionary = await map_port.execute("teleport", {
 		"levelType": "land",
 		"levelIndex": 0,
 		"x": 10,

@@ -1,86 +1,75 @@
-# Classic compatibility ownership and extension points
+# Modular scenario runtime v2
 
-Classic compatibility is an alternate scenario execution path, not a second game
-runtime. Realmz Remake continues to own campaign selection, native resources, maps,
-combat, UI, and saves. The Classic runtime owns only behavior that is specific to
-compiled Realmz scenarios: action execution, stack rules, suspended continuations,
-and persistent mutations of the compiled records.
+Scenario format v2 has one campaign-execution path. `ScenarioInterpreter` owns
+instruction position, trigger identity, GOSUB frames, encounter origins, execution
+limits, trace state, pending commands, snapshots, and restoration. Campaign
+folders provide data and media only; they never provide executable GDScript.
 
-## Native owners
+## Runtime boundaries
 
-| Area | Remake owner | Classic integration |
+| Boundary | Owner | Contract |
 | --- | --- | --- |
-| Campaign discovery and selection | `Paths.campaignsfolderpath`, `NewCampaignPanel`, and `GameGlobal.set_current_campaign()` | Detect the Classic manifest inside an otherwise normal campaign directory and create one runtime host for the selected campaign. The Classic runtime must not scan for campaigns or maintain a second current-campaign value. |
-| Campaign resources | `Resources.load_campaign_ressources()` and the books exposed by `NodeAccess.__Resources()` | Load compatible maps, items, monsters, spells, pictures, and sounds through the native resource lifecycle. `ClassicCampaignBundle` indexes normalized Classic documents that have no native resource representation; it does not replace the native books. |
-| Map loading and rendering | `Resources.load_map_ressources()`, `Map.load_map()`, and `GameGlobal.change_map()` | Resolve a compiled map identity to a native map and apply the effective `ClassicRuntimeState` overrides through the command adapter. The interpreter describes a transition or mutation but does not render or load maps itself. |
-| Map trigger dispatch | `game_state.check_map_script()` and the loaded map's `map_scriptareas.json` / `map_scripts.gd` | A native script area can name a compiled trigger by its stable ID. The map-event boundary retains coordinate and chance ownership, then delegates that ID to the registered `ClassicRuntimeHost`; unrecognized names continue through the native map script. |
-| Encounters, services, inventory, and presentation | `ScriptHelperFuncs`, `GameGlobal`, and the native HUD controls | `ClassicGodotCommandAdapter` translates yielded commands into existing helpers and controls where their behavior matches. Classic branching and result-loop semantics remain in the interpreter. |
-| Battle lifecycle | `GameGlobal.start_battle()`, `GameGlobal.end_battle()`, and `StateMachine` combat state | Convert a compiled battle request into native battle data, suspend the interpreter, and resume it once the native battle reports an outcome. Combat action points and macros enter from native battle events. |
-| Persistence | The profile save/load flow in `save_load_rect.gd` and `GameGlobal` | Store a versioned Classic snapshot inside the native campaign save. Do not create a parallel save file. The snapshot covers compatibility-owned mutations and suspended continuations only. |
+| Scenario execution | `ScenarioInterpreter` and `ScenarioInstructionRegistry` | Resolve every Classic opcode or namespaced semantic operation to exactly one handler. Apply `ScenarioStepResult` control flow centrally. |
+| Classic semantics | handler families and `ClassicOpcodeRuntime` under `scenario_runtime/handlers` | Preserve Classic source identity, resolve ownership before execution, and apply source-backed opcode mechanics without becoming a second campaign engine. |
+| Command continuation | `ScenarioPendingCommand` and `ClassicContinuationRouter` | Persist one handler ID, command ID, action identity, and continuation record. Resume through the owning handler without a host command switch. |
+| Godot integration | `ScenarioCommandRouter` and six ports | Only ports may route commands to the Godot service boundary. Duplicate command ownership is a startup error. |
+| Trusted extensions | `ScenarioExtensionRegistry` | Load only descriptors and scripts shipped under `res://scripts/scenario_runtime/extensions`. Imported packages may reference IDs and configuration, never code paths. |
+| Gameplay rules | `GameplayRuleRegistry` and `GameplayRuleSet` | Resolve independently selectable domain providers, validate typed options, and pin the complete result in the save. |
+| Campaign persistence | `ClassicCampaignSession`, `PersistencePort`, and the native save envelope | Store VM continuation, runtime state, all port state, and the resolved ruleset in save schema 3. |
 
-## Compatibility-owned components
+## Six Godot ports
 
-These components are intentionally separate from the native owners:
+- `MapPort` owns maps, movement, transitions, clock, scheduling, mutation, and
+  exploration commands.
+- `CombatPort` owns battle construction, combatants, macros, morale, rewards,
+  damage, and combat spell integration.
+- `InventoryPort` owns item identity, treasure, shops, wealth, equipment,
+  charges, storage, item hooks, and its serialized state.
+- `CharacterPort` owns selection, statistics, progression, conditions, health,
+  allies, abilities, and field spell integration.
+- `PresentationPort` owns text, choices, pictures, sound, encounter UI,
+  animation, and pacing.
+- `PersistencePort` owns save policy, aggregate validation, and port-state
+  snapshot/restoration.
 
-- `ClassicCampaignBundle` validates the Providence bundle and builds read-only
-  indexes for Classic records. Native resource loading does not understand these
-  normalized action, encounter, and evidence documents.
-- `ClassicMapMaterializer` is the single compiled-map-to-native-map boundary. The
-  package installer runs it in staging, before the normal campaign resource
-  lifecycle sees the package. It writes only Remake's existing map and tileset
-  formats and does not parse Classic files or add another map loader. Dungeon
-  field values become campaign-local native tiles composed from the shared
-  PICT 302 overhead sprites, with the signed Classic field retained as tile
-  metadata. Stock landlooks combine Remake's decoded Realmz PICT atlases with the
-  compiler's tile-attribute table, preserving Classic's one-based atlas order and
-  movement rules instead of translating them to a similarly themed Remake sheet.
-  Decoded custom landlooks use the same native format with their exported 640 x
-  320 atlas and behavior table. Decoded special-land media becomes a second
-  campaign-local tile layer; immutable Classic resource bytes remain outside
-  Godot's image loader.
-- `ClassicRuntimeState` holds Classic mutations that cannot be written back to the
-  installed campaign. Its snapshot is payload for the native save system, not a
-  competing save owner.
-- `ClassicActionInterpreter` implements Classic control flow and stack behavior.
-  Translating that state machine into independent native scripts would change the
-  semantics of some cross-action-point jumps and returns.
-- `ClassicRuntimeHost` and `ClassicGodotCommandAdapter` form the boundary between
-  the interpreter and Remake. Native calls belong in the adapter; Classic rules do
-  not.
-- The standalone playtest scenes are development fixtures. Normal campaigns will
-  launch the same host through the standard campaign flow.
+`ScenarioGodotServices` contains reusable implementations behind those ports. It
+does not own command IDs or scenario continuation.
 
-`GameGlobal.register_classic_runtime_host()` stores a non-owning reference for the
-selected campaign. Campaign lifecycle code remains responsible for creating,
-configuring, attaching, and clearing that host. Once native resources are loaded,
-`ClassicRuntimeHost.activate_start_location()` applies the compiled starting map,
-position, and view state and requests entry through the same map-event boundary.
+## Campaign lifecycle
 
-The compiled bundle remains immutable while a game is running. Any mutable value
-must either live in an existing native owner or in `ClassicRuntimeState`, with one
-clear serialization path between them.
+Campaign discovery lists only directories with a `realmz-remake-scenario` v2
+manifest. `ClassicCampaignInstall` rejects executable payloads before readiness.
+Map materialization writes data and media but no `map_scripts.gd`. Map trigger
+names are dispatched directly to the registered scenario VM; an unregistered
+trigger is an error and never falls through to a returned GDScript name.
 
-## Relationship to the dump importer
+The old native `on_select.gd`, `on_campaign_start.gd`,
+`campaign_global_script.gd`, `shops.gd`, battle-source compiler, scenario spell
+scripts, creature scripts, and map-script executor are not part of campaign
+startup. The retained native campaign folders are source fixtures only.
 
-The dump importer proposed in [PR 86](https://github.com/Realmz-Castle/Realmz-Remake/pull/86)
-generates `map_scriptareas.json` and `map_scripts.gd` as a starting point for a
-hand-maintained native port. That remains a useful optional authoring path, but it
-is not a dependency of compatibility mode.
+## Extension and reservation rules
 
-Compatibility mode consumes Providence's normalized compiled data directly and
-does not need its own text-dump parser or GDScript emitter. The two paths should
-share Remake's native map, helper, resource, and battle entry points. They should
-not share scenario control-flow ownership: generated native scripts own their own
-flow, while compiled Classic campaigns remain under `ClassicActionInterpreter`.
+Extension IDs and semantic operations are namespaced, normally
+`scenario.<campaign-id>.*`. Core opcode IDs, `core.*` commands, and `core.*`
+gameplay providers are reserved. Extensions are additive and cannot replace a
+core registration.
 
-## Integration rule
+The built-in `scenario.runtime-fixture` extension exercises semantic operations,
+commands, spells, item behavior, encounter resolution, monster AI, lifecycle
+hooks, and a gameplay-rule provider. Its descriptor is also the catalog fixture
+consumed by Providence.
 
-New compatibility work should first identify the native owner and add the smallest
-adapter entry point that owner needs. Add behavior to the interpreter only when it
-is a Classic rule, and add state to `ClassicRuntimeState` only when no native owner
-already preserves the value.
+## Rule profiles
 
-Native campaign resources remain the rendered map owner. After those resources
-are loaded or rebuilt, `ClassicRuntimeHost.reapply_map_state()` projects the
-effective compatibility-owned mutations into `maps_book`; it does not reload the
-map, change the compiled bundle, or become a second current-map owner.
+`core.classic` is the default for compiled Classic scenarios and records the POC
+fidelity baseline. `core.samuel` records behavior characterized from
+`origin/dev@f44a53df`. A new game may mix Map/Time, Combat, Inventory, Character,
+Presentation, and Persistence providers and valid provider options. The campaign
+may recommend a preset but cannot override the player selection. A running
+playthrough cannot change its pinned providers or options.
+
+## Compatibility break
+
+Bundle v1 and save schemas before 3 are intentionally rejected with an upgrade
+message. Re-export old bundles through Providence and start a new playthrough.

@@ -1,7 +1,9 @@
 extends Node
 
 const HostScript = preload("res://scripts/classic_runtime/classic_runtime_host.gd")
-const AdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const AdapterScript = preload(
+	"res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
+)
 const AcceptanceAssets = preload(
 	"res://scripts/classic_runtime/classic_acceptance_assets.gd"
 )
@@ -96,7 +98,7 @@ func _start_playtest() -> void:
 	)
 	if not automated_smoke:
 		await _wait_frames(90)
-	var landlook_result: Dictionary = await host.command_adapter.execute_command(
+	var landlook_result: Dictionary = await host.command_router.route(
 		"set_land_look",
 		{
 			"levelType": "land",

@@ -35,10 +35,11 @@
     "maps": "classic/maps.json",
     "rules": "classic/rules.json",
     "scenario": "classic/scenario.json",
-    "scripts": "classic/scripts.json"
+    "scripts": "classic/scripts.json",
+    "runtime": "runtime.json"
   },
-  "format": "realmz-remake-classic-campaign",
-  "formatVersion": 1,
+  "format": "realmz-remake-scenario",
+  "formatVersion": 2,
   "id": "providence-ownership-proof",
   "limitations": [
     "Scenario-owned PICT, cicn, and snd resources include derived PNG or WAV runtime media; unsupported image or sound variants block export rather than producing an incomplete portable bundle. Scrolling TEXT is decoded for runtime use, and matching styl resources become portable rich-text presentation runs rather than binary payloads.",

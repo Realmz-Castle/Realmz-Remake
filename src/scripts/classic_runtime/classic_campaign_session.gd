@@ -12,12 +12,20 @@ const TimedEncounterSchedulerScript = preload(
 const CharacterRulesScript = preload(
 	"res://scripts/classic_runtime/classic_character_rules.gd"
 )
-const SAVE_SCHEMA_VERSION := 2
+const GameplayRuleRegistryScript = preload(
+	"res://scripts/scenario_runtime/gameplay_rule_registry.gd"
+)
+const GameplayRuleSetScript = preload(
+	"res://scripts/scenario_runtime/gameplay_rule_set.gd"
+)
+const SAVE_SCHEMA_VERSION := 3
 
 var install: Object
 var host: Object
 var command_adapter: Object
 var timed_encounter_scheduler := TimedEncounterSchedulerScript.new()
+var gameplay_rule_registry: GameplayRuleRegistry
+var gameplay_rule_set: GameplayRuleSet
 var _timed_dispatch_loop_active := false
 
 
@@ -25,7 +33,8 @@ func load_installed_campaign(
 	campaigns_directory: String,
 	campaign_name: String,
 	command_adapter: Object,
-	prepared_install: Object = null
+	prepared_install: Object = null,
+	gameplay_rule_selection := {}
 ) -> Dictionary:
 	clear()
 	self.command_adapter = command_adapter
@@ -43,9 +52,12 @@ func load_installed_campaign(
 	var item_load_result := _load_installed_item_definitions()
 	if str(item_load_result.get("status", "")) == "error":
 		return item_load_result
+	var rule_result := _resolve_gameplay_rules(gameplay_rule_selection)
+	if str(rule_result.get("status", "")) != "ok":
+		return rule_result
 	host = HostScript.new()
 	add_child(host)
-	host.configure(self.command_adapter)
+	host.configure(self.command_adapter, gameplay_rule_set)
 	host.use_campaign(install.bundle)
 	host.playthrough_finished.connect(_on_host_playthrough_finished)
 	return {
@@ -53,7 +65,31 @@ func load_installed_campaign(
 		"campaignDirectory": install.campaign_directory,
 		"campaignId": str(install.bundle.manifest.get("id", "")),
 		"host": host,
+		"gameplayRules": gameplay_rule_set.snapshot(),
 	}
+
+
+func _resolve_gameplay_rules(selection: Variant) -> Dictionary:
+	if not (selection is Dictionary):
+		return _error("Gameplay rule selection must be a dictionary")
+	gameplay_rule_registry = GameplayRuleRegistryScript.new()
+	if not gameplay_rule_registry.load_builtin_catalog():
+		return _error(gameplay_rule_registry.last_error)
+	var runtime_document: Dictionary = install.bundle.documents.get("runtime", {})
+	var preset_id := str(
+		selection.get(
+			"presetId",
+			runtime_document.get("recommendedGameplayProfile", "core.classic")
+		)
+	)
+	var overrides: Variant = selection.get("domains", {})
+	if not (overrides is Dictionary):
+		return _error("Gameplay rule domain selection must be a dictionary")
+	var result := gameplay_rule_registry.resolve(preset_id, overrides)
+	if str(result.get("status", "")) != "ok":
+		return result
+	gameplay_rule_set = result["ruleset"]
+	return {"status": "ok"}
 
 
 func _load_installed_item_definitions() -> Dictionary:
@@ -100,6 +136,15 @@ func on_native_time_advanced(
 ) -> Dictionary:
 	if not is_instance_valid(host) or host.runtime == null:
 		return _error("Classic campaign runtime is not loaded")
+	if gameplay_rule_set != null and not bool(
+		gameplay_rule_set.options("mapTime").get("timedEncounters", true)
+	):
+		return {
+			"status": "ok",
+			"queuedDays": 0,
+			"dispatched": 0,
+			"disabledByGameplayRules": true,
+		}
 	var defer_dispatch := bool(native_location.get("deferDispatch", false))
 	var location := native_location.duplicate(true)
 	location.erase("deferDispatch")
@@ -220,6 +265,16 @@ func make_save_payload() -> Dictionary:
 func validate_save_point() -> Dictionary:
 	if not is_instance_valid(host) or host.runtime == null:
 		return _error("Classic campaign runtime is not loaded")
+	if (
+		host.active
+		and gameplay_rule_set != null
+		and not bool(
+			gameplay_rule_set.options("persistence").get("continuationSaves", true)
+		)
+	):
+		return _error(
+			"The selected gameplay rules require finishing the current scenario action before saving"
+		)
 	var result: Dictionary = host.make_continuation_snapshot()
 	return {"status": "ok"} if str(result.get("status", "")) == "ok" else result
 
@@ -233,19 +288,16 @@ func make_save_result() -> Dictionary:
 	var continuation_result: Dictionary = host.make_continuation_snapshot()
 	if str(continuation_result.get("status", "")) != "ok":
 		return continuation_result
-	var adapter_state := {}
-	if command_adapter != null and command_adapter.has_method("classic_save_state"):
-		var saved_adapter_state: Variant = command_adapter.call("classic_save_state")
-		if saved_adapter_state is Dictionary:
-			adapter_state = saved_adapter_state.duplicate(true)
+	var port_state: Dictionary = host.snapshot_port_state()
 	return {
 		"status": "ok",
 		"payload": {
 			"schemaVersion": SAVE_SCHEMA_VERSION,
 			"campaignId": _campaign_id(),
 			"runtimeState": runtime_state.call("snapshot"),
-			"adapterState": adapter_state,
+			"portState": port_state,
 			"continuationState": continuation_result["snapshot"],
+			"gameplayRules": gameplay_rule_set.snapshot(),
 		},
 	}
 
@@ -256,41 +308,27 @@ func restore_save_payload(payload: Dictionary) -> Dictionary:
 		return validation
 	if not is_instance_valid(host) or host.runtime == null:
 		return _error("Classic campaign runtime is not loaded")
+	var rules_restore := gameplay_rule_registry.restore(payload["gameplayRules"])
+	if str(rules_restore.get("status", "")) != "ok":
+		return rules_restore
+	gameplay_rule_set = rules_restore["ruleset"]
+	host.configure(command_adapter, gameplay_rule_set)
 	var runtime_state: Object = host.runtime.runtime_state
 	var previous_runtime_state: Dictionary = runtime_state.call("snapshot")
 	var previous_continuation_result: Dictionary = host.make_continuation_snapshot()
 	if str(previous_continuation_result.get("status", "")) != "ok":
 		return previous_continuation_result
-	var previous_adapter_state := {}
-	if command_adapter != null and command_adapter.has_method("restore_classic_save_state"):
-		if not command_adapter.has_method("classic_save_state"):
-			return _error("Classic campaign adapter state cannot be recovered safely")
-		var saved_adapter_state: Variant = command_adapter.call("classic_save_state")
-		if not (saved_adapter_state is Dictionary):
-			return _error("Classic campaign adapter returned invalid recovery state")
-		previous_adapter_state = saved_adapter_state.duplicate(true)
+	var previous_port_state: Dictionary = host.snapshot_port_state()
 	runtime_state.call("restore", payload["runtimeState"])
-	if command_adapter != null and command_adapter.has_method("restore_classic_save_state"):
-		var adapter_result: Variant = command_adapter.call(
-			"restore_classic_save_state",
-			payload.get("adapterState", {})
+	var port_result: Dictionary = host.restore_port_state(payload.get("portState", {}))
+	if str(port_result.get("status", "")) == "error":
+		_rollback_restore(
+			runtime_state,
+			previous_runtime_state,
+			previous_port_state,
+			previous_continuation_result["snapshot"]
 		)
-		if not (adapter_result is Dictionary):
-			_rollback_restore(
-				runtime_state,
-				previous_runtime_state,
-				previous_adapter_state,
-				previous_continuation_result["snapshot"]
-			)
-			return _error("Classic campaign adapter returned an invalid restore result")
-		if str(adapter_result.get("status", "")) == "error":
-			_rollback_restore(
-				runtime_state,
-				previous_runtime_state,
-				previous_adapter_state,
-				previous_continuation_result["snapshot"]
-			)
-			return adapter_result
+		return port_result
 	var continuation_state: Dictionary = payload.get("continuationState", {
 		"schemaVersion": RuntimeScript.CONTINUATION_SCHEMA_VERSION,
 		"state": "idle",
@@ -300,7 +338,7 @@ func restore_save_payload(payload: Dictionary) -> Dictionary:
 		_rollback_restore(
 			runtime_state,
 			previous_runtime_state,
-			previous_adapter_state,
+			previous_port_state,
 			previous_continuation_result["snapshot"]
 		)
 	return continuation_result
@@ -309,12 +347,11 @@ func restore_save_payload(payload: Dictionary) -> Dictionary:
 func _rollback_restore(
 	runtime_state: Object,
 	previous_runtime_state: Dictionary,
-	previous_adapter_state: Dictionary,
+	previous_port_state: Dictionary,
 	previous_continuation_state: Dictionary
 ) -> void:
 	runtime_state.call("restore", previous_runtime_state)
-	if command_adapter != null and command_adapter.has_method("restore_classic_save_state"):
-		command_adapter.call("restore_classic_save_state", previous_adapter_state)
+	host.restore_port_state(previous_port_state)
 	host.restore_continuation(previous_continuation_state)
 
 
@@ -329,10 +366,12 @@ func resume_saved_continuation() -> Dictionary:
 
 
 func restore_legacy_native_location(location: Dictionary) -> Dictionary:
-	var result := sync_native_location(location)
-	if str(result.get("status", "")) == "ok":
-		result["legacy"] = true
-	return result
+	return _error(
+		(
+			"This save predates scenario runtime v2 and cannot be upgraded; "
+			+ "start a new playthrough"
+		)
+	)
 
 
 func sync_native_location(location: Dictionary) -> Dictionary:
@@ -398,21 +437,24 @@ func acquired_player_map_entries() -> Array:
 
 static func validate_save_payload(payload: Variant, expected_campaign_id := "") -> Dictionary:
 	if payload is Dictionary and payload.is_empty():
-		return {"status": "legacy"}
+		return _error(
+			"This save predates scenario runtime v2 and cannot be upgraded; start a new playthrough"
+		)
 	if not (payload is Dictionary):
 		return _error("Classic save data is not a dictionary")
 	if not payload.has("schemaVersion"):
 		return _error("Classic save data has no schema version")
 	var version := int(payload.get("schemaVersion", 0))
-	if version > SAVE_SCHEMA_VERSION:
+	if version != SAVE_SCHEMA_VERSION:
 		return _error(
-			"Classic save schema %d is newer than this build supports (maximum %d)" % [
+			(
+				"Save schema %d is incompatible with scenario runtime v2 schema %d; "
+				+ "start a new playthrough"
+			) % [
 				version,
 				SAVE_SCHEMA_VERSION,
 			]
 		)
-	if version < 1:
-		return _error("Classic save schema %d is not supported" % version)
 	if not expected_campaign_id.is_empty():
 		var saved_campaign_id := str(payload.get("campaignId", ""))
 		if saved_campaign_id != expected_campaign_id:
@@ -424,18 +466,25 @@ static func validate_save_payload(payload: Variant, expected_campaign_id := "") 
 			)
 	if not (payload.get("runtimeState") is Dictionary):
 		return _error("Classic save data has no runtime state")
-	if not (payload.get("adapterState", {}) is Dictionary):
-		return _error("Classic save data has invalid adapter state")
-	if version >= 2:
-		var continuation_value: Variant = payload.get("continuationState")
-		var continuation_result: Dictionary = RuntimeScript.validate_continuation_snapshot(
-			continuation_value
-		)
-		if str(continuation_result.get("status", "")) != "ok":
-			return continuation_result
-		if str(continuation_value.get("state", "")) == "suspended" \
-				and not (continuation_value.get("commandContext", {}) is Dictionary):
-			return _error("Classic continuation has an invalid command context")
+	if not (payload.get("portState") is Dictionary):
+		return _error("Scenario runtime save data has invalid port state")
+	var continuation_value: Variant = payload.get("continuationState")
+	var continuation_result: Dictionary = RuntimeScript.validate_continuation_snapshot(
+		continuation_value
+	)
+	if str(continuation_result.get("status", "")) != "ok":
+		return continuation_result
+	if str(continuation_value.get("state", "")) == "suspended" \
+			and not (continuation_value.get("commandContext", {}) is Dictionary):
+		return _error("Classic continuation has an invalid command context")
+	var gameplay_rule_validation := GameplayRuleSetScript.validate_snapshot(
+		payload.get("gameplayRules")
+	)
+	if not bool(gameplay_rule_validation.get("valid", false)):
+		return _error(str(gameplay_rule_validation.get(
+			"message",
+			"Saved gameplay rules are invalid"
+		)))
 	return {"status": "ok"}
 
 
@@ -456,3 +505,5 @@ func clear() -> void:
 	host = null
 	install = null
 	command_adapter = null
+	gameplay_rule_registry = null
+	gameplay_rule_set = null

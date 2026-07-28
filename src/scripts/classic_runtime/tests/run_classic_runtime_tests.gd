@@ -7,7 +7,9 @@ const RegressionCorpusScript = preload(
 )
 const ReadinessScript = preload("res://scripts/classic_runtime/classic_campaign_readiness.gd")
 const StateScript = preload("res://scripts/classic_runtime/classic_runtime_state.gd")
-const InterpreterScript = preload("res://scripts/classic_runtime/classic_action_interpreter.gd")
+const InterpreterScript = preload(
+	"res://scripts/scenario_runtime/handlers/classic_opcode_runtime.gd"
+)
 const CombatMacroQueueScript = preload(
 	"res://scripts/classic_runtime/classic_combat_macro_queue.gd"
 )
@@ -154,7 +156,12 @@ const CampaignSessionScript = preload(
 const TimedEncounterSchedulerScript = preload(
 	"res://scripts/classic_runtime/classic_timed_encounter_scheduler.gd"
 )
-const GodotAdapterScript = preload("res://scripts/classic_runtime/classic_godot_command_adapter.gd")
+const GodotAdapterScript = preload(
+	"res://scripts/scenario_runtime/godot/scenario_godot_services.gd"
+)
+const PresentationPortScript = preload(
+	"res://scripts/scenario_runtime/ports/presentation_port.gd"
+)
 const ClassicPlayerMapScene = preload(
 	"res://scenes/UI/HUD/ClassicPlayerMapRect/classic_player_map_rect.tscn"
 )
@@ -3267,7 +3274,14 @@ func _test_bundle_contract_validation() -> void:
 	encounter_action_bundle.documents = _minimal_contract_documents()
 	encounter_action_bundle.documents["encounters"]["simpleEncounters"] = [{
 		"id": 4,
-		"actions": [{"slot": 32, "rawCode": 1, "id": 7}],
+		"actions": [{
+			"kind": "classic",
+			"slot": 32,
+			"rawCode": 1,
+			"code": 1,
+			"id": 7,
+			"gosub": false,
+		}],
 	}]
 	_expect(
 		not encounter_action_bundle._validate_document_contract(),
@@ -3476,7 +3490,7 @@ func _test_providence_authoritative_export() -> void:
 		"producer fixture provenance records no fidelity fallbacks"
 	)
 	var expected_files: Array = provenance.get("files", [])
-	_expect_equal(expected_files.size(), 16, "producer fixture provenance covers every file")
+	_expect_equal(expected_files.size(), 17, "producer fixture provenance covers every file")
 	for expected_value: Variant in expected_files:
 		if not (expected_value is Dictionary):
 			_expect(false, "producer fixture provenance file entry is an object")
@@ -3677,6 +3691,7 @@ func _minimal_contract_manifest() -> Dictionary:
 			"rules": "classic/rules.json",
 			"assets": "classic/assets.json",
 			"evidence": "classic/evidence.json",
+			"runtime": "runtime.json",
 		},
 	}
 
@@ -3718,6 +3733,23 @@ func _minimal_contract_documents() -> Dictionary:
 			"scrollingTexts": [],
 		},
 		"evidence": {"schemaVersion": 1, "semanticDecoding": {}},
+		"runtime": {
+			"schemaVersion": BundleScript.RUNTIME_DOCUMENT_SCHEMA_VERSION,
+			"recommendedGameplayProfile": "core.classic",
+			"requiredExtensions": [],
+			"bindings": {
+				"spells": {},
+				"items": {},
+				"encounters": {},
+				"monsterAi": {},
+				"lifecycle": {},
+			},
+			"targetSupport": {
+				"realmzRemake": true,
+				"nativeRealmz": true,
+				"remakeOnlyReasons": [],
+			},
+		},
 	}
 
 
@@ -4076,7 +4108,7 @@ func _test_installed_classic_campaign_layout() -> void:
 	)
 	_expect_equal(
 		producer_rules.get("versionLabel"),
-		"Classic format v1 (realmz-7.1)",
+		"Classic format v2 (realmz-7.1)",
 		"installed campaign selection identifies its compatibility contract"
 	)
 	_expect_equal(
@@ -4308,8 +4340,8 @@ func _test_installed_classic_campaign_layout() -> void:
 			version_one_payload,
 			"providence-ownership-proof"
 		).get("status"),
-		"ok",
-		"version-one campaign save remains loadable as an idle continuation"
+		"error",
+		"version-one campaign save is rejected by scenario runtime v2"
 	)
 
 	var restored_session = CampaignSessionScript.new()
@@ -4414,7 +4446,7 @@ func _test_installed_classic_campaign_layout() -> void:
 	)
 	_expect_equal(future_result.get("status"), "error", "future save schema is rejected")
 	_expect(
-		str(future_result.get("message", "")).contains("newer than this build"),
+		str(future_result.get("message", "")).contains("incompatible"),
 		"future save rejection is actionable"
 	)
 	var wrong_campaign_result: Dictionary = CampaignSessionScript.validate_save_payload(
@@ -4428,19 +4460,19 @@ func _test_installed_classic_campaign_layout() -> void:
 	)
 	_expect_equal(
 		CampaignSessionScript.validate_save_payload({}).get("status"),
-		"legacy",
-		"save without a Classic envelope is recognized as legacy"
+		"error",
+		"save without a scenario runtime v2 envelope is rejected"
 	)
 	var legacy_result: Dictionary = restored_session.restore_legacy_native_location({
 		"mapName": "map_4",
 		"x": 8,
 		"y": 11,
 	})
-	_expect_equal(legacy_result.get("status"), "ok", "legacy save uses native location fallback")
-	_expect_equal(restored_state.level_type, "land", "legacy save infers its map family")
-	_expect_equal(restored_state.level_index, 4, "legacy save infers its map level")
-	_expect_equal(restored_state.x, 8, "legacy save restores x position")
-	_expect_equal(restored_state.y, 11, "legacy save restores y position")
+	_expect_equal(legacy_result.get("status"), "error", "legacy native-location save is rejected")
+	_expect(
+		str(legacy_result.get("message", "")).contains("start a new playthrough"),
+		"legacy save rejection provides the v2 upgrade action"
+	)
 	var equipment_adapter = GodotAdapterScript.new()
 	equipment_adapter.stored_party_equipment = {
 		"active": true,
@@ -5773,15 +5805,18 @@ func _test_classic_map_materializer() -> void:
 		"loaded custom land tile retains its Classic tile identity"
 	)
 	native_resources.free()
+	_expect(
+		not FileAccess.file_exists(map_directory.path_join("map_scripts.gd"))
+			and not FileAccess.file_exists(dungeon_directory.path_join("map_scripts.gd")),
+		"scenario v2 map materialization does not generate executable scripts"
+	)
 	var first_artifacts := {}
 	var deterministic_files := [
 		"Maps/map_0/map_info.json",
 		"Maps/map_0/map_scriptareas.json",
-		"Maps/map_0/map_scripts.gd",
 		"Maps/map_0/map_things.json",
 		"Maps/mapd_0/map_info.json",
 		"Maps/mapd_0/map_scriptareas.json",
-		"Maps/mapd_0/map_scripts.gd",
 		"Maps/mapd_0/map_things.json",
 		"Tilesets/ClassicLandOverlay/ClassicLandOverlay.json",
 		"Tilesets/ClassicLandOverlay/tile_templates.json",
@@ -9801,7 +9836,7 @@ func _test_failed_save_restore_rolls_back() -> void:
 		"x": 8,
 		"y": 9,
 	}
-	incoming["adapterState"] = {"marker": "incoming"}
+	incoming["portState"]["core.inventory"] = {"marker": "incoming"}
 	adapter.reject_next_restore = true
 	var restore_result: Dictionary = session.restore_save_payload(incoming)
 	_expect_equal(restore_result.get("status"), "error", "failed adapter restore is reported")
@@ -27855,6 +27890,8 @@ func _test_runtime_media_adapters() -> void:
 	)
 	var playback_adapter = GodotAdapterScript.new()
 	playback_adapter.configure_classic_bundle(fixture_bundle)
+	var presentation_port = PresentationPortScript.new()
+	presentation_port.configure({"scenarioPortRuntime": playback_adapter})
 	var missing_picture_result: Dictionary = playback_adapter._show_classic_picture(
 		{"pictureId": 20126}
 	)
@@ -27884,7 +27921,7 @@ func _test_runtime_media_adapters() -> void:
 		"campaign WAV is actively playing on the native SFX player"
 	)
 	SfxPlayer.stop()
-	var negative_result: Dictionary = await playback_adapter.execute_command(
+	var negative_result: Dictionary = await presentation_port.execute(
 		"play_sound",
 		{"soundId": -321}
 	)
@@ -27897,7 +27934,7 @@ func _test_runtime_media_adapters() -> void:
 		bool(negative_result.get("waitedForCompletion", false)),
 		"negative campaign sound command waits for native playback completion"
 	)
-	var noop_result: Dictionary = await playback_adapter.execute_command(
+	var noop_result: Dictionary = await presentation_port.execute(
 		"play_sound",
 		{"soundId": 23400}
 	)
@@ -29199,7 +29236,7 @@ func _test_combat_monster_rout_action() -> void:
 		_expect(CombatRoutRulesScript.is_routed(combatant.creature), "rout marks Classic exit behavior")
 		_expect_equal(
 			str(combatant.creature.applied_traits[0]["script"].resource_path),
-			"res://scripts/classic_runtime/classic_godot_command_adapter.gd",
+			"res://scripts/scenario_runtime/godot/scenario_godot_services.gd",
 			"rout applies the supplied trait script"
 		)
 	matching_enemy.creature.position = Vector2(1, 45)
@@ -35469,7 +35506,10 @@ func _test_runtime_host() -> void:
 	_expect_equal(adapter.commands[-1].get("payload", {}).get("spellId"), 1408, "host preserves party spell ID")
 	_expect_equal(completions.size(), 11, "host completes party spell action point")
 	var godot_adapter = GodotAdapterScript.new()
-	_expect(godot_adapter.has_method("execute_command"), "Godot command adapter loads")
+	_expect(
+		godot_adapter.has_method("prepare_scenario_command"),
+		"Godot scenario services load behind the command ports"
+	)
 	var encounter_choices: Dictionary = godot_adapter.build_simple_encounter_choices(
 		host.runtime.bundle.get_encounter("simple", 0)
 	)
