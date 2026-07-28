@@ -5,6 +5,9 @@ const MapBridgeScript = preload("res://scripts/classic_runtime/classic_map_bridg
 const KnownDataCorrectionsScript = preload(
 	"res://scripts/classic_runtime/classic_known_data_corrections.gd"
 )
+const CoreHandlerCatalogScript = preload(
+	"res://scripts/scenario_runtime/handlers/core_handler_catalog.gd"
+)
 const MAX_INTERNAL_STEPS := 256
 const MAX_CALL_STACK_DEPTH := 20
 const MAX_RANDOM_RECTANGLES := 20
@@ -149,6 +152,7 @@ var loaded_complex_encounter_id := -1
 var percent_roll_provider: Callable
 var semantic_operation_executor: Callable
 var scenario_run_delegate: Callable
+var compatibility_instruction_registry: ScenarioInstructionRegistry
 var trace: Array = []
 var last_error := ""
 var halted := false
@@ -157,6 +161,14 @@ var halted := false
 func configure(campaign_bundle: ClassicCampaignBundle, state: ClassicRuntimeState) -> void:
 	bundle = campaign_bundle
 	runtime_state = state
+	if compatibility_instruction_registry == null:
+		compatibility_instruction_registry = ScenarioInstructionRegistry.new()
+		if not CoreHandlerCatalogScript.register_all(
+			compatibility_instruction_registry
+		):
+			last_error = compatibility_instruction_registry.last_error
+			halted = true
+			return
 	loaded_simple_encounter_id = -1
 	loaded_complex_encounter_id = -1
 	reset_execution()
@@ -1001,291 +1013,44 @@ func _execute_action(action: Dictionary) -> Dictionary:
 			"Semantic scenario operation '%s' returned an invalid result"
 			% action.get("operation", "")
 		)
-	var code := int(action.get("code", 0))
-	var record_id := int(action.get("id", 0))
-	match code:
-		0:
-			return _continue_result()
-		1:
-			return _yield_result("show_text", {
-				"messageId": record_id,
-				"message": bundle.get_message(record_id),
-			})
-		2:
-			return _execute_battle(record_id)
-		3:
-			return _execute_choice(record_id, gosub_active)
-		4:
-			return _execute_encounter("simple", record_id)
-		5:
-			return _execute_encounter("complex", record_id)
-		6:
-			return _execute_load_shop(record_id)
-		7:
-			return _execute_action_data_patch(record_id)
-		8:
-			return _execute_same_as_other_action_point(record_id)
-		9:
-			return _yield_result("play_sound", {
-				"soundId": record_id,
-				"sound": bundle.get_sound(record_id),
-			})
-		10:
-			return _execute_treasure(record_id)
-		11:
-			return _yield_result("give_experience", {"experience": record_id})
-		12:
-			return _execute_tile_mutation(record_id)
-		13:
-			return _execute_trigger_mutation(record_id)
-		-14, 14:
-			return _execute_character_pick(record_id, code == -14)
-		15:
-			return _execute_selected_health_effect(record_id)
-		16:
-			return _execute_party_health_effect(record_id)
-		17, 18:
-			return _execute_spell_effect(record_id, code == 18)
-		19:
-			return _execute_random_text(record_id)
-		20, 45:
-			return _execute_teleport(record_id, code == 20)
-		21:
-			return _execute_item_possession_branch(record_id, gosub_active)
-		22:
-			return _execute_item_mutation(record_id)
-		-23, 23:
-			return _execute_random_rectangle_mutation(record_id, code == -23)
-		24:
-			return _finish_action_point("keep-codes", false)
-		25:
-			return _remove_current_action_point()
-		26:
-			return _yield_result("wait_for_click", {
-				"prompt": "Click Mouse",
-				"soundId": 30005,
-			})
-		27:
-			return _yield_result("show_picture", {
-				"pictureId": abs(record_id),
-				"picture": bundle.get_picture(record_id),
-			})
-		28:
-			return _yield_result("redraw_map", {})
-		29:
-			return _execute_player_map(record_id)
-		30:
-			return _execute_character_check_selection(record_id)
-		31:
-			return _execute_character_ability_branch(record_id, gosub_active)
-		32:
-			return _yield_result("offer_temple", {
-				"costPercent": record_id,
-				"soundId": 10105,
-			})
-		33:
-			return _execute_take_gold(record_id)
-		34:
-			return _break_encounter()
-		35:
-			return _eliminate_current_simple_option(record_id)
-		36:
-			return _yield_result("store_party_equipment", {
-				"capture": record_id != 0,
-				"storageId": record_id,
-			})
-		37:
-			return _execute_dungeon_move(record_id)
-		38:
-			return _execute_item_result_branch(record_id)
-		39:
-			# Classic's Extend Door Codes replaces the active AP without pushing,
-			# even when its raw opcode is negative.
-			return _branch_to_extra_action_point(record_id, false, 0)
-		40:
-			return _execute_party_condition_branch(record_id, gosub_active)
-		41:
-			return _eliminate_simple_option_from_extra_code(record_id)
-		42:
-			return _execute_percent_branch(record_id)
-		43:
-			return _execute_give_condition(record_id)
-		44:
-			return _eliminate_complex_result(record_id)
-		56:
-			return _execute_battle_outcome(record_id, gosub_active)
-		46:
-			return _execute_quest_branch(record_id, gosub_active)
-		47:
-			runtime_state.set_quest_flag(record_id)
-			return _continue_result()
-		48:
-			return _execute_selective_battle(record_id)
-		49:
-			return _yield_result("enable_banking", {
-				"soundId": 128,
-				"warningId": 106,
-			})
-		50:
-			return _execute_identity_character_selection(record_id)
-		51:
-			return _execute_shop_mutation(record_id)
-		52:
-			return _execute_misc_character_selection(record_id)
-		53:
-			return _execute_caste_character_selection(record_id)
-		54:
-			return _execute_timed_encounter_mutation(record_id)
-		55:
-			return _execute_selected_count_branch(record_id, gosub_active)
-		57:
-			return _execute_landlook(record_id)
-		58:
-			return _execute_difficulty_branch(record_id)
-		60:
-			return _execute_currency_clear(record_id)
-		61:
-			return _execute_position_shift(record_id)
-		62:
-			return _execute_scrolling_text(record_id)
-		63:
-			return _execute_time_mutation(record_id)
-		64:
-			return _execute_time_branch(record_id, gosub_active)
-		65:
-			return _execute_random_items(record_id)
-		66:
-			return _yield_result("set_camping_permission", {
-				"disabled": record_id != 0,
-				"soundId": 6001,
-			})
-		67:
-			return _execute_item_charge_branch(record_id, gosub_active)
-		68:
-			return _execute_fatigue_mutation(record_id)
-		69:
-			return _execute_spellcasting_flags(record_id)
-		70:
-			return _execute_saved_position(record_id)
-		72:
-			return _execute_quest_range_branch(record_id, gosub_active)
-		73:
-			return _execute_restricted_shop(record_id)
-		76:
-			return _execute_quest_value_mutation(record_id, gosub_active)
-		77:
-			return _execute_quest_value_branch(record_id, gosub_active)
-		78:
-			return _execute_tile_parameter_branch(record_id, gosub_active)
-		81:
-			return _execute_character_condition_branch(record_id, gosub_active)
-		82, 83:
-			return _execute_priest_turning(code == 83)
-		85:
-			return _execute_random_branch(record_id, gosub_active)
-		86:
-			return _execute_misc_branch(record_id, gosub_active)
-		87:
-			return _execute_ally_branch(record_id, gosub_active)
-		88:
-			return _execute_remove_ally(record_id)
-		89:
-			return _execute_add_ally(record_id)
-		90:
-			return _execute_experience_loss(record_id)
-		91:
-			return _yield_result("drop_party_items", {
-				"soundId": 655,
-			})
-		92:
-			return _execute_random_rectangle_bounds(record_id)
-		93, 94:
-			return _execute_compass(code == 93)
-		95:
-			return _execute_look_direction(record_id)
-		96, 97:
-			return _execute_map_view_mode(code == 97)
-		84, 98, 99:
-			# The open-source Classic dispatcher disables every registration gate.
-			return _continue_result()
-		100:
-			return _yield_result("end_classic_battle", {
-				"outcome": "won",
-				"lootMode": 5,
-				"rewardMode": "experience_only",
-				"resumeSlot": 8,
-			})
-		101:
-			if runtime_state.level_type == "dungeon":
-				return _continue_result()
-			return _yield_result("back_up_party", {
-				"levelType": runtime_state.level_type,
-			})
-		102:
-			return _yield_result("level_up_selected_characters", {
-				"experience": 1,
-			})
-		103:
-			return _execute_exploration_status(record_id)
-		104:
-			runtime_state.random_encounters_enabled = record_id != 0
-			return _continue_result()
-		105:
-			runtime_state.allies_suspended = record_id != 0
-			return _continue_result()
-		106:
-			return _execute_darkland(record_id)
-		107:
-			return _execute_improved_selective_battle(record_id, gosub_active)
-		108:
-			return _execute_selected_character_mutation(record_id)
-		111:
-			if call_stack.is_empty():
-				if remove_action_point:
-					return _continue_result()
-				_clear_control_flow()
-				return _completed_result("return-with-empty-stack")
-			_restore_call_frame()
-			return _continue_result()
-		112:
-			if not call_stack.is_empty():
-				call_stack.pop_back()
-			return _continue_result()
-		119:
-			return _execute_combat_revival()
-		120:
-			return _execute_combatant_mutation(record_id)
-		121:
-			return _execute_deanimate_lower_undead(record_id)
-		122:
-			return _execute_combat_fumble(record_id)
-		123:
-			return _execute_combat_rout(record_id)
-		124:
-			return _execute_spawn_combat_monsters(record_id)
-		125:
-			return _execute_destroy_combat_monsters(record_id)
-		126:
-			return _execute_battle_round_macro(record_id)
-		127:
-			return _execute_combat_monster_check(record_id)
-		_:
-			if bundle.is_dispatcher_noop(current_trigger, action):
-				return _continue_result()
-			halted = true
-			last_error = "Unsupported Classic opcode %d at %s record %d slot %d" % [
-				code,
-				str(current_trigger.get("source", "unknown source")),
-				int(current_trigger.get("recordIndex", -1)),
-				int(action.get("slot", -1)),
-			]
-			return {
-				"status": "unsupported",
-				"message": last_error,
-				"opcode": code,
-				"action": action,
-				"triggerId": _current_trigger_id(),
-			}
+	if compatibility_instruction_registry == null:
+		return _halt_with_error("Classic instruction registry is unavailable")
+	var instruction := action.duplicate(true)
+	instruction["kind"] = "classic"
+	var raw_code := int(
+		instruction.get("rawCode", instruction.get("code", 0))
+	)
+	instruction["code"] = normalize_opcode(raw_code)
+	var handler := compatibility_instruction_registry.resolve(instruction)
+	if handler != null and handler.has_method("execute_on_runtime"):
+		var handler_result: Variant = handler.call(
+			"execute_on_runtime",
+			instruction,
+			self
+		)
+		if handler_result is Dictionary:
+			return handler_result
+		return _halt_with_error(
+			"Classic handler '%s' returned invalid opcode state"
+			% handler.handler_id()
+		)
+	var code := int(instruction.get("code", 0))
+	if bundle.is_dispatcher_noop(current_trigger, action):
+		return _continue_result()
+	halted = true
+	last_error = "Unsupported Classic opcode %d at %s record %d slot %d" % [
+		code,
+		str(current_trigger.get("source", "unknown source")),
+		int(current_trigger.get("recordIndex", -1)),
+		int(action.get("slot", -1)),
+	]
+	return {
+		"status": "unsupported",
+		"message": last_error,
+		"opcode": code,
+		"action": action,
+		"triggerId": _current_trigger_id(),
+	}
 
 
 func _execute_combat_monster_check(monster_name_id: int) -> Dictionary:
