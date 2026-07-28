@@ -153,6 +153,9 @@ func get_damage_roll(_power : int, _caster) -> int :
 func get_accuracy(_caster, _power : int) -> int :
 	return 100
 
+func get_evasion(_caster, _power : int) -> int :
+	return 0
+
 func get_sp_cost(_power : int, _caster) -> int :
 	return 0
 
